@@ -36,6 +36,7 @@ dependencies {
 
 import kotlinx.serialization.*
 
+@Serializable
 data class Data(val a: Int, @Optional val b: String = "42")
 
 fun main(args: Array<String>) {
@@ -44,4 +45,4 @@ fun main(args: Array<String>) {
 }
 ```
 
-More complicated examples and examples of implementing custom formats can be found in `examples` folder. Detalied documentation located in `DOC.md`.
+More complicated examples and examples of implementing custom formats can be found in `examples` folder. Detailed documentation located in [DOC.md](DOC.md).

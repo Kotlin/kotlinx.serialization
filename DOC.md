@@ -50,7 +50,7 @@
     }
     
     // prints nothing.
-    val data = JSON.unquoted.parse<Data>("{a: 100500, b: 10}"))
+    val data = JSON.unquoted.parse<Data>("{a: 100500, b: 10}")
     ```
 
 * Initializers are called iff property is `@Transient` or `@Optional` and was not read (see below).
@@ -68,8 +68,8 @@
     }
     
     // prints "I'm a side effect" once.
-    val data = JSON.unquoted.parse<Data>("{a: 100500, b: 10}"))
-    val data = JSON.unquoted.parse<Data>("{a: 100500}"))
+    val data = JSON.unquoted.parse<Data>("{a: 100500, b: 10}")
+    val data = JSON.unquoted.parse<Data>("{a: 100500}")
     ```
 
 * *Common pattern*: Validation.
@@ -239,16 +239,19 @@
 
 ## User-defined serial annotations
 
-In some cases, one may like to save additional format-specific information in the object itself. For example, protobuf id.
-For this pupropse, you can define your own annotation class and annotate it with `@SerialInfo`:
+In some cases, one may like to save additional format-specific information in the object itself. For example, protobuf field id.
+For this purpose, you can define your own annotation class and annotate it with `@SerialInfo`:
 
 ```kotlin
 
 @SerialInfo
+@Target(AnnotationTarget.PROPERTY)
 annotation class ProtoId(val id: Int)
 
+@Serializable
 data class MyData(@ProtoId(2) val a: Int, @ProtoId(1) val b: String)
 ```
+Note that it has to be explicitly targeted to property.
 
 Inside a process of serialization/deserialization, they are available in `KSerialClassDesc` object:
 
@@ -259,4 +262,5 @@ override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean {
 }
 ```
 
-You can apply any number of annotations with any number of arguments. **Limitations:** @SerialInfo annotation class properties must have one of the following types: primitive, String, or primitive array (`IntArray`, `BooleanArray`, etc)
+You can apply any number of annotations with any number of arguments.
+**Limitations:** `@SerialInfo` annotation class properties must have one of the following types: primitive, String, enum, or primitive array (`IntArray`, `BooleanArray`, etc)
