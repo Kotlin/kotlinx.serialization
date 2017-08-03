@@ -16,6 +16,8 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.internal.readExactNBytes
+import kotlinx.serialization.internal.readToByteBuffer
 import java.io.*
 import java.nio.ByteBuffer
 import javax.xml.bind.DatatypeConverter
@@ -277,7 +279,7 @@ class CBOR {
         fun nextString(): String {
             if ((curByte and 0b111_00000) != HEADER_STRING.toInt()) throw CBORParsingException("Expected start of string")
             val strLen = readNumber().toInt()
-            val arr = readExactNBytes(strLen)
+            val arr = input.readExactNBytes(strLen)
             val ans = String(arr, Charsets.UTF_8)
             readByte()
             return ans
@@ -303,7 +305,7 @@ class CBOR {
                 if (negative) return -(value + 1).toLong()
                 else return value.toLong()
             }
-            val buf = readToByteBuffer(bytesToRead)
+            val buf = input.readToByteBuffer(bytesToRead)
             val res = when (bytesToRead) {
                 1 -> buf.get().toLong()
                 2 -> buf.getShort().toLong()
@@ -317,34 +319,16 @@ class CBOR {
 
         fun nextFloat(): Float {
             if (curByte != NEXT_FLOAT) throw CBORParsingException("Expected float header, but found ${Integer.toHexString(curByte)}")
-            val res = readToByteBuffer(4).getFloat()
+            val res = input.readToByteBuffer(4).getFloat()
             readByte()
             return res
         }
 
         fun nextDouble(): Double {
             if (curByte != NEXT_DOUBLE) throw CBORParsingException("Expected double header, but found ${Integer.toHexString(curByte)}")
-            val res = readToByteBuffer(8).getDouble()
+            val res = input.readToByteBuffer(8).getDouble()
             readByte()
             return res
-        }
-
-        private fun readToByteBuffer(bytes: Int): ByteBuffer {
-            val arr = readExactNBytes(bytes)
-            val buf = ByteBuffer.allocate(bytes)
-            buf.put(arr).flip()
-            return buf
-        }
-
-        private fun readExactNBytes(bytes: Int): ByteArray {
-            val array = ByteArray(bytes)
-            var read = 0
-            while (read < bytes) {
-                val i = input.read(array, read, bytes - read)
-                if (i == -1) throw CBORParsingException("Unexpected EOF")
-                read += i
-            }
-            return array
         }
 
     }
