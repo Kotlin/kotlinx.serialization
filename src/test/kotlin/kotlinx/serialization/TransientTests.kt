@@ -59,7 +59,6 @@ class TransientTests {
     @Test(expected = SerializationException::class)
     fun testThrow() {
         JSON.unquoted.parse<Data>("{a:0,b:100500,c:Hello}")
-        println("Kek")
     }
 
 }
