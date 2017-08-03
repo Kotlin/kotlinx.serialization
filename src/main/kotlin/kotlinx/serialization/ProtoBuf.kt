@@ -4,16 +4,12 @@ import kotlinx.serialization.ProtoBuf.Varint.decodeSignedVarintInt
 import kotlinx.serialization.ProtoBuf.Varint.decodeSignedVarintLong
 import kotlinx.serialization.ProtoBuf.Varint.decodeVarint
 import kotlinx.serialization.ProtoBuf.Varint.encodeVarint
-import kotlinx.serialization.internal.SIZE_INDEX
-import kotlinx.serialization.internal.onlySingleOrNull
-import kotlinx.serialization.internal.readExactNBytes
-import kotlinx.serialization.internal.readToByteBuffer
+import kotlinx.serialization.internal.*
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.nio.ByteBuffer
-import javax.xml.bind.DatatypeConverter
 import kotlin.reflect.KClass
 
 /**
@@ -358,7 +354,7 @@ object ProtoBuf {
     }
 
     inline fun <reified T : Any> dump(obj: T): ByteArray = dump(T::class.serializer(), obj)
-    inline fun <reified T : Any> dumps(obj: T): String = DatatypeConverter.printHexBinary(dump(obj)).toLowerCase()
+    inline fun <reified T : Any> dumps(obj: T): String = HexConverter.printHexBinary(dump(obj), lowerCase = true)
 
     fun <T : Any> load(loader: KSerialLoader<T>, raw: ByteArray): T {
         val stream = ByteArrayInputStream(raw)
@@ -367,7 +363,7 @@ object ProtoBuf {
     }
 
     inline fun <reified T : Any> load(raw: ByteArray): T = load(T::class.serializer(), raw)
-    inline fun <reified T : Any> loads(hex: String): T = load(DatatypeConverter.parseHexBinary(hex.toUpperCase()))
+    inline fun <reified T : Any> loads(hex: String): T = load(HexConverter.parseHexBinary(hex))
 
 }
 

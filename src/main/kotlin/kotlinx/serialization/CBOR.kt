@@ -16,11 +16,11 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.internal.HexConverter
 import kotlinx.serialization.internal.readExactNBytes
 import kotlinx.serialization.internal.readToByteBuffer
 import java.io.*
 import java.nio.ByteBuffer
-import javax.xml.bind.DatatypeConverter
 import kotlin.experimental.or
 import kotlin.reflect.KClass
 
@@ -358,7 +358,7 @@ class CBOR {
 
         inline fun <reified T : Any> dump(obj: T): ByteArray = dump(T::class.serializer(), obj)
 
-        inline fun <reified T : Any> dumps(obj: T): String = DatatypeConverter.printHexBinary(dump(obj)).toLowerCase()
+        inline fun <reified T : Any> dumps(obj: T): String = HexConverter.printHexBinary(dump(obj), lowerCase = true)
 
         fun <T : Any> load(loader: KSerialLoader<T>, raw: ByteArray): T {
             val stream = ByteArrayInputStream(raw)
@@ -368,7 +368,7 @@ class CBOR {
 
         inline fun <reified T : Any> load(raw: ByteArray): T = load(T::class.serializer(), raw)
 
-        inline fun <reified T : Any> loads(hex: String): T = load(DatatypeConverter.parseHexBinary(hex.toUpperCase()))
+        inline fun <reified T : Any> loads(hex: String): T = load(HexConverter.parseHexBinary(hex))
     }
 }
 

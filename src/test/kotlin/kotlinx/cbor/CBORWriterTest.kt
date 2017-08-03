@@ -23,8 +23,8 @@ import io.kotlintest.properties.row
 import io.kotlintest.properties.table
 import io.kotlintest.specs.WordSpec
 import kotlinx.serialization.CBOR
+import kotlinx.serialization.internal.HexConverter
 import java.io.ByteArrayOutputStream
-import javax.xml.bind.DatatypeConverter
 
 /**
  * @author Leonid Startsev
@@ -37,7 +37,7 @@ class CBORWriterTest : WordSpec() {
         fun withEncoder(block: CBOR.CBOREncoder.() -> Unit): String {
             val result = ByteArrayOutputStream()
             CBOR.CBOREncoder(result).block()
-            return DatatypeConverter.printHexBinary(result.toByteArray()).toLowerCase()
+            return HexConverter.printHexBinary(result.toByteArray()).toLowerCase()
         }
 
         // Examples from https://tools.ietf.org/html/rfc7049#appendix-A

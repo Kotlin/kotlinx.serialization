@@ -19,8 +19,8 @@ package kotlinx.cbor
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.WordSpec
 import kotlinx.serialization.CBOR
+import kotlinx.serialization.internal.HexConverter
 import java.io.ByteArrayInputStream
-import javax.xml.bind.DatatypeConverter
 
 /**
  * @author Leonid Startsev
@@ -31,7 +31,7 @@ class CBORReaderTest : WordSpec() {
     init {
 
         fun withDecoder(input: String, block: CBOR.CBORDecoder.() -> Unit) {
-            val bytes = DatatypeConverter.parseHexBinary(input.toUpperCase())
+            val bytes = HexConverter.parseHexBinary(input.toUpperCase())
             CBOR.CBORDecoder(ByteArrayInputStream(bytes)).block()
         }
 
