@@ -39,6 +39,8 @@ open class SerialClassDescImpl(override val name: String) : KSerialClassDesc {
     }
 
     override fun getAnnotationsForIndex(index: Int) = annotations[index].toList()
+    override val associatedFieldsCount: Int
+        get() = annotations.size
 
     override fun getElementName(index: Int): String = names[index]
     override fun getElementIndex(name: String): Int = indices[name] ?: throw SerializationException("Unknown name '$name'")

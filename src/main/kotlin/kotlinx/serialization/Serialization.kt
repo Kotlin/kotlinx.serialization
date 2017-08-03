@@ -20,6 +20,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.companionObjectInstance
 import kotlinx.serialization.internal.SerialCache
 import kotlinx.serialization.internal.UnitSerializer
+import kotlin.reflect.full.cast
 
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
 annotation class Serializable(
@@ -56,6 +57,8 @@ interface KSerialClassDesc {
     fun getElementIndex(name: String): Int
 
     fun getAnnotationsForIndex(index: Int): List<Annotation> = emptyList()
+    val associatedFieldsCount: Int
+        get() = 0
 }
 
 interface KSerialSaver<in T> {
@@ -157,6 +160,7 @@ abstract class KOutput internal constructor() {
 
     // composite value delimiter api (writeEnd ends composite object)
     open fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput = this
+    open fun writeBegin(desc: KSerialClassDesc, collectionSize: Int, vararg typeParams: KSerializer<*>) = writeBegin(desc, *typeParams)
     open fun writeEnd(desc: KSerialClassDesc) {}
 
     abstract fun writeElementValue(desc: KSerialClassDesc, index: Int, value: Any)
@@ -408,7 +412,12 @@ open class NamedValueOutput(rootName: String = "") : KOutput() {
     // ---------------
 
     private fun writeNamedNullable(name: String, value: Any?) {
-        if (value == null) writeNamedNull(name) else writeNamed(name, value)
+        if (value == null) {
+            writeNamedNull(name)
+        } else {
+            writeNamedNotNullMark(name)
+            writeNamed(name, value)
+        }
     }
 
     // ------- implementation -------
@@ -489,9 +498,9 @@ open class NamedValueInput(rootName: String = "") : KInput() {
     open fun readNamedString(name: String): String = readNamed(name) as String
 
     @Suppress("UNCHECKED_CAST")
-    open fun <T : Enum<T>> readNamedEnum(name: String, enumClass: KClass<T>): T =
-            readNamed(name) as T
-    // todo: enumClass.cast(readNamed(name))
+    open fun <T : Enum<T>> readNamedEnum(name: String, enumClass: KClass<T>): T = enumClass.cast(readNamed(name))
+//            readNamed(name) as T
+    // todo: reflectionless?
 
     private fun readNamedNullable(name: String): Any? = if (readNamedNotNullMark(name)) readNamed(name) else null
 

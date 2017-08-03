@@ -40,10 +40,10 @@ sealed class ListLikeSerializer<E,C,B>(private val eSerializer: KSerializer<E>) 
     open val typeParams: Array<KSerializer<*>> = arrayOf(eSerializer)
 
     override fun save(output: KOutput, obj: C) {
-        @Suppress("NAME_SHADOWING")
-        val output = output.writeBegin(serialClassDesc, *typeParams)
         val size = obj.objSize()
-        output.writeIntElementValue(ArrayListClassDesc, SIZE_INDEX, size)
+        @Suppress("NAME_SHADOWING")
+        val output = output.writeBegin(serialClassDesc, size, *typeParams)
+//        output.writeIntElementValue(ArrayListClassDesc, SIZE_INDEX, size)
         val iterator = obj.objIterator()
         for (index in 1..size)
             output.writeSerializableElementValue(ArrayListClassDesc, index, eSerializer, iterator.next())
