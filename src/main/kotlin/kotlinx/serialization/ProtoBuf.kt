@@ -10,7 +10,9 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import kotlin.reflect.KClass
+
 
 /**
  *  @author Leonid Startsev
@@ -108,29 +110,29 @@ object ProtoBuf {
 
         fun writeDouble(value: Double, tag: Int) {
             val header = encode32((tag shl 3) or i64)
-            val content = ByteBuffer.allocate(8).putDouble(value).array()
+            val content = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putDouble(value).array()
             out.write(header)
             out.write(content)
         }
 
         fun writeFloat(value: Float, tag: Int) {
             val header = encode32((tag shl 3) or i32)
-            val content = ByteBuffer.allocate(4).putFloat(value).array()
+            val content = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(value).array()
             out.write(header)
             out.write(content)
         }
 
         private fun encode32(number: Int, format: ProtoNumberType = ProtoNumberType.DEFAULT): ByteArray =
                 when (format) {
-                    ProtoNumberType.FIXED -> ByteBuffer.allocate(4).putInt(number).array()
+                    ProtoNumberType.FIXED -> ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(number).array()
                     ProtoNumberType.DEFAULT -> encodeVarint(number.toLong())
-                    ProtoNumberType.SIGNED -> encodeVarint(((number shl 1) xor (number shr 31)).toLong())
+                    ProtoNumberType.SIGNED -> encodeVarint(((number shl 1) xor (number shr 31)))
                 }
 
 
         private fun encode64(number: Long, format: ProtoNumberType = ProtoNumberType.DEFAULT): ByteArray =
                 when (format) {
-                    ProtoNumberType.FIXED -> ByteBuffer.allocate(8).putLong(number).array()
+                    ProtoNumberType.FIXED -> ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(number).array()
                     ProtoNumberType.DEFAULT -> encodeVarint(number)
                     ProtoNumberType.SIGNED -> encodeVarint((number shl 1) xor (number shr 63))
                 }
@@ -248,14 +250,14 @@ object ProtoBuf {
 
         fun nextFloat(): Float {
             if (curTag.second != i32) throw ProtobufDecodingException("Unexpected wire type: ${curTag.second}")
-            val ans = inp.readToByteBuffer(4).getFloat()
+            val ans = inp.readToByteBuffer(4).order(ByteOrder.LITTLE_ENDIAN).getFloat()
             readTag()
             return ans
         }
 
         fun nextDouble(): Double {
             if (curTag.second != i64) throw ProtobufDecodingException("Unexpected wire type: ${curTag.second}")
-            val ans = inp.readToByteBuffer(8).getDouble()
+            val ans = inp.readToByteBuffer(8).order(ByteOrder.LITTLE_ENDIAN).getDouble()
             readTag()
             return ans
         }
@@ -266,15 +268,15 @@ object ProtoBuf {
         }
 
         private fun decode32(format: ProtoNumberType = ProtoNumberType.DEFAULT, eofAllowed: Boolean = false): Int = when (format) {
-            ProtoNumberType.DEFAULT -> decodeVarint(inp, 32, eofAllowed).toInt()
+            ProtoNumberType.DEFAULT -> decodeVarint(inp, 64, eofAllowed).toInt()
             ProtoNumberType.SIGNED -> decodeSignedVarintInt(inp)
-            ProtoNumberType.FIXED -> inp.readToByteBuffer(4).getInt()
+            ProtoNumberType.FIXED -> inp.readToByteBuffer(4).order(ByteOrder.LITTLE_ENDIAN).getInt()
         }
 
         private fun decode64(format: ProtoNumberType = ProtoNumberType.DEFAULT): Long = when (format) {
             ProtoNumberType.DEFAULT -> decodeVarint(inp, 64)
             ProtoNumberType.SIGNED -> decodeSignedVarintLong(inp)
-            ProtoNumberType.FIXED -> inp.readToByteBuffer(8).getLong()
+            ProtoNumberType.FIXED -> inp.readToByteBuffer(8).order(ByteOrder.LITTLE_ENDIAN).getLong()
         }
     }
 
@@ -283,6 +285,23 @@ object ProtoBuf {
      *  https://github.com/addthis/stream-lib/blob/master/src/main/java/com/clearspring/analytics/util/Varint.java
      */
     internal object Varint {
+        internal fun encodeVarint(inp: Int): ByteArray {
+            var value = inp
+            val byteArrayList = ByteArray(10)
+            var i = 0
+            while (value and 0xFFFFFF80.toInt() != 0) {
+                byteArrayList[i++] = ((value and 0x7F) or 0x80).toByte()
+                value = value ushr 7
+            }
+            byteArrayList[i] = (value and 0x7F).toByte()
+            val out = ByteArray(i + 1)
+            while (i >= 0) {
+                out[i] = byteArrayList[i]
+                i--
+            }
+            return out
+        }
+
         internal fun encodeVarint(inp: Long): ByteArray {
             var value = inp
             val byteArrayList = ByteArray(10)

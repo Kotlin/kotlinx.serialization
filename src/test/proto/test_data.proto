@@ -1,0 +1,55 @@
+syntax = "proto2";
+option java_package = "kotlinx.serialization.formats.proto";
+
+message TestInt32 {
+    required int32 a = 1;
+}
+
+message TestSignedInt {
+    required sint32 a = 1;
+}
+
+message TestSignedLong {
+    required sint64 a = 1;
+}
+
+message TestFixedInt {
+    required fixed32 a = 1;
+}
+
+message TestDouble {
+    required double a = 1;
+}
+
+message TestBoolean {
+    required bool a = 1;
+}
+
+message TestAllTypes {
+    required int32 i32 = 1;
+    required sint32 si32 = 2;
+    required fixed32 f32 = 3;
+    required int64 i64 = 10;
+    required sint64 si64 = 11;
+    required fixed64 f64 = 12;
+    required float f = 21;
+    required double d = 22;
+    required bool b = 41;
+    required string s = 51;
+}
+
+message TestOuterMessage {
+    required int32 a = 1;
+    required double b = 2;
+    required TestAllTypes inner = 10;
+    required string s = 20;
+}
+
+message TestRepeatedIntMessage {
+    required int32 s = 1;
+    repeated int32 b = 10;
+}
+
+message TestRepeatedObjectMessage {
+    repeated TestAllTypes inner = 1;
+}

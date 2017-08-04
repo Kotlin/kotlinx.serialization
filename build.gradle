@@ -2,28 +2,29 @@ buildscript {
     ext.snapshot_version = '1.1-SNAPSHOT'
 
     repositories {
-	    mavenLocal()
+        mavenLocal()
         mavenCentral()
     }
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$snapshot_version"
         classpath "org.jetbrains.kotlinx:kotlinx-serialization:$snapshot_version"
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.2'
     }
 }
 
 group 'org.jetbrains.kotlinx'
 version "$snapshot_version"
 
-
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-serialization'
-apply plugin: 'maven-publish'
 
 repositories {
-	mavenLocal()
-	mavenCentral()
+    mavenLocal()
+    mavenCentral()
 }
+
+apply plugin: 'maven-publish'
 
 publishing {
     publications {
@@ -33,10 +34,37 @@ publishing {
     }
 }
 
+apply plugin: 'com.google.protobuf'
+
+protobuf {
+    protoc {
+        // Download from repositories
+        artifact = 'com.google.protobuf:protoc:3.0.0'
+    }
+}
+
+test {
+    dependsOn 'generateTestProto'
+}
+
+clean {
+    delete protobuf.generatedFilesBaseDir
+}
+
+sourceSets {
+    test {
+        java {
+            srcDirs += file("${protobuf.generatedFilesBaseDir}/test/java")
+        }
+    }
+}
+
+
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:${snapshot_version}"
     compile "org.jetbrains.kotlin:kotlin-reflect:${snapshot_version}"
 
+    testCompile 'com.google.protobuf:protobuf-java:3.0.0'
     testCompile group: 'junit', name: 'junit', version: '4.4'
     testCompile 'io.kotlintest:kotlintest:2.0.4'
 }
