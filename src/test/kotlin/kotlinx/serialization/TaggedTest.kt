@@ -1,8 +1,7 @@
-package kotlinx.tagged
+package kotlinx.serialization
 
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.ShouldSpec
-import kotlinx.serialization.*
 
 /**
  *  @author Leonid Startsev

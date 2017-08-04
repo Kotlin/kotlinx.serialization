@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kotlinx.cbor
+package kotlinx.serialization.formats.cbor
 
 import kotlinx.serialization.Serializable
 

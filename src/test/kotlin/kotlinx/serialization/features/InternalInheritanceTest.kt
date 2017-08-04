@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package kotlinx.serialization
+package kotlinx.serialization.features
 
+import kotlinx.serialization.*
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -69,7 +70,7 @@ class InternalInheritanceTest {
 
 
     @Test
-    fun test() {
+    fun testStringify() {
         assertEquals(
                 "{parent:42,rootOptional:rootOptional,parent2:42,derived:derived,bodyDerived:body,parent3:42,lastDerived:optional}",
                 JSON.unquoted.stringify(C(42))
@@ -78,6 +79,10 @@ class InternalInheritanceTest {
                 "{parent:13,rootOptional:rootOptional,parent2:13,derived:bbb,bodyDerived:body}",
                 JSON.unquoted.stringify(B(13, derived = "bbb"))
         )
+    }
+
+    @Test
+    fun testParse() {
         assertEquals(
                 C(42),
                 JSON.unquoted.parse<C>("{parent:42,rootOptional:rootOptional,parent2:42,derived:derived,bodyDerived:body,parent3:42,lastDerived:optional}")
@@ -86,6 +91,11 @@ class InternalInheritanceTest {
                 C(43),
                 JSON.unquoted.parse<C>("{parent:43,rootOptional:rootOptional,parent2:43,derived:derived,bodyDerived:body,parent3:43,lastDerived:optional}")
         )
+
+    }
+
+    @Test
+    fun testParseOptionals() {
         assertEquals(
                 B(100, derived = "wowstring"),
                 JSON.unquoted.parse<B>("{parent:100,rootOptional:rootOptional,parent2:100,derived:wowstring,bodyDerived:body}")
@@ -109,12 +119,12 @@ class InternalInheritanceTest {
     }
 
     @Test(expected = SerializationException::class)
-    fun testThrow1() {
-        JSON.unquoted.parse<B>("{parent:100,rootOptional:rootOptional,transientDerived: X, parent2:100,derived:wowstring,bodyDerived:body}")
+    fun testThrowTransient() {
+        JSON.unquoted.parse<B>("{parent:100,rootOptional:rootOptional,transientDerived:X,parent2:100,derived:wowstring,bodyDerived:body}")
     }
 
     @Test(expected = SerializationException::class)
-    fun testThrow2() {
+    fun testThrowMissingField() {
         JSON.unquoted.parse<C>("{parent:42,rootOptional:rootOptional,derived:derived,bodyDerived:body,parent3:42,lastDerived:optional}")
     }
 }
