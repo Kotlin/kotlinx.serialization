@@ -16,9 +16,7 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.internal.HexConverter
-import kotlinx.serialization.internal.readExactNBytes
-import kotlinx.serialization.internal.readToByteBuffer
+import kotlinx.serialization.internal.*
 import java.io.*
 import java.nio.ByteBuffer
 import kotlin.experimental.or
@@ -29,7 +27,7 @@ import kotlin.reflect.KClass
  *		   sandwwraith@gmail.com
  **/
 
-class CBOR {
+object CBOR {
 
     // Writes map entry as plain [key, value] pair, without bounds.
     private class CBOREntryWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
@@ -181,10 +179,22 @@ class CBOR {
 
     private open class CBORListReader(decoder: CBORDecoder) : CBORReader(decoder) {
         private var ind = 0
+        private var size = -1
+        protected var finiteMode = false
 
-        override fun skipBeginToken() = decoder.startArray()
+        override fun skipBeginToken() {
+            val len = decoder.startArray()
+            if (len != -1) {
+                finiteMode = true
+                size = len
+            }
+        }
 
-        override fun readElement(desc: KSerialClassDesc) = if (decoder.isEnd()) READ_DONE else ++ind
+        override fun readElement(desc: KSerialClassDesc) = if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size)) READ_DONE else ++ind
+
+        override fun readEnd(desc: KSerialClassDesc) {
+            if (!finiteMode) decoder.end()
+        }
     }
 
     private open class CBORReader(val decoder: CBORDecoder) : ElementValueInput() {
@@ -268,7 +278,17 @@ class CBOR {
             return ans
         }
 
-        fun startArray() = skipByte(BEGIN_ARRAY)
+        fun startArray(): Int {
+            if (curByte == BEGIN_ARRAY) {
+                skipByte(BEGIN_ARRAY)
+                return -1
+            }
+            if ((curByte and 0b111_00000) != HEADER_ARRAY)
+                throw CBORParsingException("Expected start of array, but found ${Integer.toHexString(curByte)}")
+            val arrayLen = readNumber().toInt()
+            readByte()
+            return arrayLen
+        }
 
         fun startMap() = skipByte(BEGIN_MAP)
 
@@ -277,7 +297,7 @@ class CBOR {
         fun end() = skipByte(BREAK)
 
         fun nextString(): String {
-            if ((curByte and 0b111_00000) != HEADER_STRING.toInt()) throw CBORParsingException("Expected start of string")
+            if ((curByte and 0b111_00000) != HEADER_STRING.toInt()) throw CBORParsingException("Expected start of string, but found ${Integer.toHexString(curByte)}")
             val strLen = readNumber().toInt()
             val arr = input.readExactNBytes(strLen)
             val ans = String(arr, Charsets.UTF_8)
@@ -307,9 +327,9 @@ class CBOR {
             }
             val buf = input.readToByteBuffer(bytesToRead)
             val res = when (bytesToRead) {
-                1 -> buf.get().toLong()
-                2 -> buf.getShort().toLong()
-                4 -> buf.getInt().toLong()
+                1 -> buf.getUnsignedByte().toLong()
+                2 -> buf.getUnsignedShort().toLong()
+                4 -> buf.getUnsignedInt()
                 8 -> buf.getLong()
                 else -> throw IllegalArgumentException()
             }
@@ -333,43 +353,42 @@ class CBOR {
 
     }
 
-    companion object {
-        private const val FALSE = 0xf4
-        private const val TRUE = 0xf5
-        private const val NULL = 0xf6
+    private const val FALSE = 0xf4
+    private const val TRUE = 0xf5
+    private const val NULL = 0xf6
 
-        private const val NEXT_FLOAT = 0xfa
-        private const val NEXT_DOUBLE = 0xfb
+    private const val NEXT_FLOAT = 0xfa
+    private const val NEXT_DOUBLE = 0xfb
 
-        private const val BEGIN_ARRAY = 0x9f
-        private const val BEGIN_MAP = 0xbf
-        private const val BREAK = 0xff
+    private const val BEGIN_ARRAY = 0x9f
+    private const val BEGIN_MAP = 0xbf
+    private const val BREAK = 0xff
 
-        private const val HEADER_STRING: Byte = 0b011_00000
-        private const val HEADER_NEGATIVE: Byte = 0b001_00000
+    private const val HEADER_STRING: Byte = 0b011_00000
+    private const val HEADER_NEGATIVE: Byte = 0b001_00000
+    private const val HEADER_ARRAY: Int = 0b100_00000
 
 
-        fun <T : Any> dump(saver: KSerialSaver<T>, obj: T): ByteArray {
-            val output = ByteArrayOutputStream()
-            val dumper = CBORWriter(CBOREncoder(output))
-            dumper.write(saver, obj)
-            return output.toByteArray()
-        }
-
-        inline fun <reified T : Any> dump(obj: T): ByteArray = dump(T::class.serializer(), obj)
-
-        inline fun <reified T : Any> dumps(obj: T): String = HexConverter.printHexBinary(dump(obj), lowerCase = true)
-
-        fun <T : Any> load(loader: KSerialLoader<T>, raw: ByteArray): T {
-            val stream = ByteArrayInputStream(raw)
-            val reader = CBORReader(CBORDecoder(stream))
-            return reader.read(loader)
-        }
-
-        inline fun <reified T : Any> load(raw: ByteArray): T = load(T::class.serializer(), raw)
-
-        inline fun <reified T : Any> loads(hex: String): T = load(HexConverter.parseHexBinary(hex))
+    fun <T : Any> dump(saver: KSerialSaver<T>, obj: T): ByteArray {
+        val output = ByteArrayOutputStream()
+        val dumper = CBORWriter(CBOREncoder(output))
+        dumper.write(saver, obj)
+        return output.toByteArray()
     }
+
+    inline fun <reified T : Any> dump(obj: T): ByteArray = dump(T::class.serializer(), obj)
+
+    inline fun <reified T : Any> dumps(obj: T): String = HexConverter.printHexBinary(dump(obj), lowerCase = true)
+
+    fun <T : Any> load(loader: KSerialLoader<T>, raw: ByteArray): T {
+        val stream = ByteArrayInputStream(raw)
+        val reader = CBORReader(CBORDecoder(stream))
+        return reader.read(loader)
+    }
+
+    inline fun <reified T : Any> load(raw: ByteArray): T = load(T::class.serializer(), raw)
+
+    inline fun <reified T : Any> loads(hex: String): T = load(HexConverter.parseHexBinary(hex))
 }
 
 class CBORParsingException(message: String) : IOException(message)

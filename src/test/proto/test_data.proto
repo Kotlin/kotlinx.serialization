@@ -53,3 +53,17 @@ message TestRepeatedIntMessage {
 message TestRepeatedObjectMessage {
     repeated TestAllTypes inner = 1;
 }
+
+message TestEnum {
+    enum Coffee {
+        Americano = 0;
+        Latte = 1;
+        Capuccino = 2;
+    }
+    required Coffee a = 1;
+}
+
+message TestMap {
+    map<string, string> stringMap = 1;
+    map<int32, TestAllTypes> intObjectMap = 2;
+}

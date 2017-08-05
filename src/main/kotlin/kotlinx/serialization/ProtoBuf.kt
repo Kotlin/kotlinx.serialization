@@ -42,8 +42,9 @@ object ProtoBuf {
     internal open class ProtobufWriter(val encoder: ProtobufEncoder) : TaggedOutput<ProtoDesc>() {
 
         override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput = when (desc.kind) {
-            KSerialClassKind.LIST, KSerialClassKind.MAP, KSerialClassKind.SET -> ProtobufRepeatedWriter(encoder, currentTag)
-            KSerialClassKind.CLASS, KSerialClassKind.OBJECT, KSerialClassKind.SEALED, KSerialClassKind.ENTRY, KSerialClassKind.POLYMORPHIC -> DeferredWriter(currentTagOrNull, encoder)
+            KSerialClassKind.LIST, KSerialClassKind.MAP, KSerialClassKind.SET -> RepeatedWriter(encoder, currentTag)
+            KSerialClassKind.CLASS, KSerialClassKind.OBJECT, KSerialClassKind.SEALED, KSerialClassKind.POLYMORPHIC -> ObjectWriter(currentTagOrNull, encoder)
+            KSerialClassKind.ENTRY -> MapEntryWriter(currentTagOrNull, encoder)
             else -> throw SerializationException("Primitives are not supported at top-level")
         }
 
@@ -61,7 +62,7 @@ object ProtoBuf {
         override fun KSerialClassDesc.getTag(index: Int) = this.getProtoDesc(index)
     }
 
-    internal class DeferredWriter(val parentTag: ProtoDesc?, private val parentEncoder: ProtobufEncoder, private val stream: ByteArrayOutputStream = ByteArrayOutputStream()) : ProtobufWriter(ProtobufEncoder(stream)) {
+    internal open class ObjectWriter(val parentTag: ProtoDesc?, private val parentEncoder: ProtobufEncoder, private val stream: ByteArrayOutputStream = ByteArrayOutputStream()) : ProtobufWriter(ProtobufEncoder(stream)) {
         override fun writeFinished(desc: KSerialClassDesc) {
             if (parentTag != null) {
                 parentEncoder.writeObject(stream.toByteArray(), parentTag.first)
@@ -71,7 +72,13 @@ object ProtoBuf {
         }
     }
 
-    internal class ProtobufRepeatedWriter(encoder: ProtobufEncoder, val curTag: ProtoDesc) : ProtobufWriter(encoder) {
+    internal class MapEntryWriter(parentTag: ProtoDesc?, parentEncoder: ProtobufEncoder): ObjectWriter(parentTag, parentEncoder) {
+        override fun KSerialClassDesc.getTag(index: Int): ProtoDesc =
+                if (index == 0) 1 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
+                else 2 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
+    }
+
+    internal class RepeatedWriter(encoder: ProtobufEncoder, val curTag: ProtoDesc) : ProtobufWriter(encoder) {
         override fun KSerialClassDesc.getTag(index: Int) = curTag
 
         override fun shouldWriteElement(desc: KSerialClassDesc, tag: ProtoDesc, index: Int): Boolean = index != SIZE_INDEX
@@ -149,9 +156,10 @@ object ProtoBuf {
         }
 
         override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput = when (desc.kind) {
-            KSerialClassKind.LIST, KSerialClassKind.MAP, KSerialClassKind.SET -> ProtobufRepeatedReader(decoder, currentTag)
-            KSerialClassKind.CLASS, KSerialClassKind.OBJECT, KSerialClassKind.SEALED, KSerialClassKind.ENTRY, KSerialClassKind.POLYMORPHIC ->
-                ProtobufSizeDelimitedReader.makeDelimited(decoder, currentTagOrNull)
+            KSerialClassKind.LIST, KSerialClassKind.MAP, KSerialClassKind.SET -> RepeatedReader(decoder, currentTag)
+            KSerialClassKind.CLASS, KSerialClassKind.OBJECT, KSerialClassKind.SEALED, KSerialClassKind.POLYMORPHIC ->
+                ProtobufReader(makeDelimited(decoder, currentTagOrNull))
+            KSerialClassKind.ENTRY -> MapEntryReader(makeDelimited(decoder, currentTagOrNull), currentTagOrNull)
             else -> throw SerializationException("Primitives are not supported at top-level")
         }
 
@@ -183,23 +191,24 @@ object ProtoBuf {
         }
     }
 
-    internal class ProtobufRepeatedReader(decoder: ProtobufDecoder, val targetTag: ProtoDesc) : ProtobufReader(decoder) {
+    internal class RepeatedReader(decoder: ProtobufDecoder, val targetTag: ProtoDesc) : ProtobufReader(decoder) {
         private var ind = 0
 
         override fun readElement(desc: KSerialClassDesc) = if (decoder.curId == targetTag.first) ++ind else READ_DONE
         override fun KSerialClassDesc.getTag(index: Int): ProtoDesc = targetTag
     }
 
-    internal class ProtobufSizeDelimitedReader(decoder: ProtobufDecoder) : ProtobufReader(decoder) {
+    internal class MapEntryReader(decoder: ProtobufDecoder, val parentTag: ProtoDesc?): ProtobufReader(decoder) {
+        override fun KSerialClassDesc.getTag(index: Int): ProtoDesc =
+                if (index == 0) 1 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
+                else 2 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
+    }
 
-        companion object {
-            // todo: make more memory-efficient
-            fun makeDelimited(decoder: ProtobufDecoder, parentTag: ProtoDesc?): ProtobufSizeDelimitedReader {
-                if (parentTag == null) return ProtobufSizeDelimitedReader(decoder)
-                val bytes = decoder.nextObject()
-                return ProtobufSizeDelimitedReader(ProtobufDecoder(ByteArrayInputStream(bytes)))
-            }
-        }
+    // todo: make more memory-efficient
+    private fun makeDelimited(decoder: ProtobufDecoder, parentTag: ProtoDesc?): ProtobufDecoder{
+        if (parentTag == null) return decoder
+        val bytes = decoder.nextObject()
+        return ProtobufDecoder(ByteArrayInputStream(bytes))
     }
 
     internal class ProtobufDecoder(val inp: ByteArrayInputStream) {

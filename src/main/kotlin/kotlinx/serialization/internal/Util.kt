@@ -78,3 +78,7 @@ object HexConverter {
         return if (lowerCase) r.toString().toLowerCase() else r.toString()
     }
 }
+
+fun ByteBuffer.getUnsignedByte(): Int = this.get().toInt() and 0xff
+fun ByteBuffer.getUnsignedShort(): Int = this.getShort().toInt() and 0xffff
+fun ByteBuffer.getUnsignedInt(): Long = this.getInt().toLong() and 0xffffffffL
