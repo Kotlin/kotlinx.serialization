@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package kotlinx.serialization
+package kotlinx.serialization.json
 
+import kotlinx.serialization.*
 import java.io.*
 import kotlin.reflect.KClass
 

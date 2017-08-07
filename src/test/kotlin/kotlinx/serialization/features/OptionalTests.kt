@@ -16,10 +16,10 @@
 
 package kotlinx.serialization.features
 
-import kotlinx.serialization.JSON
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.JSON
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

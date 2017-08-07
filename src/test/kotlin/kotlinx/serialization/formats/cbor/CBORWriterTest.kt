@@ -22,7 +22,7 @@ import io.kotlintest.properties.headers
 import io.kotlintest.properties.row
 import io.kotlintest.properties.table
 import io.kotlintest.specs.WordSpec
-import kotlinx.serialization.CBOR
+import kotlinx.serialization.cbor.CBOR
 import kotlinx.serialization.internal.HexConverter
 import java.io.ByteArrayOutputStream
 

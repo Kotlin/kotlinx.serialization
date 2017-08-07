@@ -2,7 +2,12 @@ package kotlinx.serialization.formats
 
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.WordSpec
-import kotlinx.serialization.*
+import kotlinx.serialization.Optional
+import kotlinx.serialization.SerialId
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.protobuf.ProtoBuf
+import kotlinx.serialization.protobuf.ProtoNumberType
+import kotlinx.serialization.protobuf.ProtoType
 
 /**
  *  @author Leonid Startsev

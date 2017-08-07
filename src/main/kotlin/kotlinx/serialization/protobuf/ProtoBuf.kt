@@ -1,10 +1,11 @@
-package kotlinx.serialization
+package kotlinx.serialization.protobuf
 
-import kotlinx.serialization.ProtoBuf.Varint.decodeSignedVarintInt
-import kotlinx.serialization.ProtoBuf.Varint.decodeSignedVarintLong
-import kotlinx.serialization.ProtoBuf.Varint.decodeVarint
-import kotlinx.serialization.ProtoBuf.Varint.encodeVarint
+import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
+import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintInt
+import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintLong
+import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeVarint
+import kotlinx.serialization.protobuf.ProtoBuf.Varint.encodeVarint
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -205,7 +206,7 @@ object ProtoBuf {
     }
 
     // todo: make more memory-efficient
-    private fun makeDelimited(decoder: ProtobufDecoder, parentTag: ProtoDesc?): ProtobufDecoder{
+    private fun makeDelimited(decoder: ProtobufDecoder, parentTag: ProtoDesc?): ProtobufDecoder {
         if (parentTag == null) return decoder
         val bytes = decoder.nextObject()
         return ProtobufDecoder(ByteArrayInputStream(bytes))

@@ -8,9 +8,15 @@ import com.google.protobuf.GeneratedMessageV3
 import io.kotlintest.properties.Gen
 import io.kotlintest.properties.forAll
 import io.kotlintest.specs.ShouldSpec
-import kotlinx.serialization.*
+import kotlinx.serialization.Optional
+import kotlinx.serialization.SerialId
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.cbor.CBOR
 import kotlinx.serialization.formats.proto.TestData.*
 import kotlinx.serialization.internal.HexConverter
+import kotlinx.serialization.protobuf.ProtoBuf
+import kotlinx.serialization.protobuf.ProtoNumberType
+import kotlinx.serialization.protobuf.ProtoType
 import java.io.ByteArrayOutputStream
 
 /**

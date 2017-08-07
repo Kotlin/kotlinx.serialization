@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package kotlinx.serialization
+package kotlinx.serialization.cbor
 
+import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import java.io.*
 import java.nio.ByteBuffer
@@ -257,7 +258,7 @@ object CBOR {
 
         private fun skipByte(expected: Int) {
             if (curByte != expected) throw CBORParsingException("Expected byte ${Integer.toHexString(expected)} , " +
-                                                                "but found ${Integer.toHexString(curByte)}")
+                "but found ${Integer.toHexString(curByte)}")
             readByte()
         }
 

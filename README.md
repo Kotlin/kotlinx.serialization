@@ -13,7 +13,7 @@ Runtime library provides basic classes:
 
 * Some internal classes like built-ins and collections serializers
 
-Also, runtime library provides some ready-to-use serialization formats: JSON and CBOR.
+Also, runtime library provides some ready-to-use serialization formats, see below.
 
 ## Building and usage
 
@@ -35,6 +35,7 @@ dependencies {
 ```kotlin
 
 import kotlinx.serialization.*
+import kotlinx.serialization.json.JSON
 
 @Serializable
 data class Data(val a: Int, @Optional val b: String = "42")
@@ -45,4 +46,49 @@ fun main(args: Array<String>) {
 }
 ```
 
-More complicated examples and examples of implementing custom formats can be found in `examples` folder. Detailed documentation located in [DOC.md](DOC.md).
+More complicated examples and examples of implementing custom formats can be found in `examples` folder (work in progress).
+Detailed documentation located in [DOC.md](DOC.md).
+
+## Built-in formats
+
+Runtime library provides three ready-to use formats: JSON, CBOR and ProtoBuf. Usage of the first two formats is pretty 
+straightforward and obvious from the example above. Notes on them: because JSON doesn't support maps with keys other than 
+strings (and primitives), Kotlin maps with non-trivial key types are serialized as JSON lists. CBOR doesn't have this limitation,
+and Kotlin maps are serialized as CBOR maps, but some parsers (like `jackson-dataformat-cbor`) don't support this.
+
+### Protobuf usage
+
+Because protobuf relies on serial ids of fields, called 'tags', you have to provide this information, 
+using serial annotation `@SerialId`:
+
+```kotlin
+@Serializable
+data class KTestInt32(@SerialId(1) val a: Int)
+```
+
+This class is equivalent to the following proto definition:
+
+```proto
+message Int32 {
+    required int32 a = 1;
+}
+```
+
+Note that we are using proto2 semantics, where all fields are explicitly required or optional.
+
+Number format is set via `@ProtoType` annotation. `ProtoNumberType.DEFAULT` is default varint encoding (`intXX`), `SIGNED`
+is signed ZigZag representation (`sintXX`), and `FIXED` is `fixedXX` type. `uintXX` and `sfixedXX` are not supported yet.
+
+Repeated fields represented as lists. Because format spec says that if the list is empty, there will be no elements in the stream with such tag,
+you must explicitly mark any filed of list type with `@Optional` annotation with default ` = emptyList()`. Same for maps.
+
+Other known issues and limitations:
+
+* Packed repeated fields are not supported
+
+* Unknows fields aren't skipped, exception is thrown instead
+
+* If fields with list tag are going in the arbitrary order, they are not merged into one list, they got overwritten instead.
+
+More examples of mappings from proto definitions to Koltin classes can be found in test data:
+[here](src/test/proto/test_data.proto) and [here](src/test/kotlin/kotlinx/serialization/formats/RandomTests.kt#L47)

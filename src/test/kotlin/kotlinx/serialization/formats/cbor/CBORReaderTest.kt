@@ -18,7 +18,7 @@ package kotlinx.serialization.formats.cbor
 
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.WordSpec
-import kotlinx.serialization.CBOR
+import kotlinx.serialization.cbor.CBOR
 import kotlinx.serialization.internal.HexConverter
 import java.io.ByteArrayInputStream
 
