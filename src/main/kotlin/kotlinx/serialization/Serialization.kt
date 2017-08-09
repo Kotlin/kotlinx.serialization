@@ -16,11 +16,10 @@
 
 package kotlinx.serialization
 
-import kotlin.reflect.KClass
-import kotlin.reflect.companionObjectInstance
 import kotlinx.serialization.internal.SerialCache
 import kotlinx.serialization.internal.UnitSerializer
-import kotlin.reflect.full.cast
+import kotlin.reflect.KClass
+import kotlin.reflect.companionObjectInstance
 
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
 annotation class Serializable(
@@ -44,7 +43,7 @@ annotation class Optional()
 annotation class Transient()
 
 @Target(AnnotationTarget.ANNOTATION_CLASS)
-annotation class SerialInfo() // todo: not supported yet
+annotation class SerialInfo()
 
 enum class KSerialClassKind { // unit and object unused?
     CLASS, OBJECT, UNIT, SEALED, LIST, SET, MAP, ENTRY, POLYMORPHIC, PRIMITIVE, ENUM
@@ -77,14 +76,14 @@ fun registerSerializer(forClassName: String, serializer: KSerializer<*>) {
     SerialCache.map.put(forClassName, serializer)
 }
 
-fun <E> resolveSaver(value: E): KSerializer<E> {
+fun <E> serializerByValue(value: E): KSerializer<E> {
     val klass = (value as? Any)?.javaClass?.kotlin ?: throw SerializationException("Cannot determine class for value $value")
-    return SerialCache.lookupSerializer(klass.qualifiedName!!, klass)
+    return serializerByClass(klass)
 }
 
-fun <E> resolveLoader(className: String): KSerializer<E> {
-    return SerialCache.lookupSerializer(className)
-}
+fun <E> serializerByClass(className: String): KSerializer<E> = SerialCache.lookupSerializer(className)
+
+fun <E> serializerByClass(klass: KClass<*>): KSerializer<E> = SerialCache.lookupSerializer(klass.qualifiedName!!, klass)
 
 class SerializationConstructorMarker private constructor()
 

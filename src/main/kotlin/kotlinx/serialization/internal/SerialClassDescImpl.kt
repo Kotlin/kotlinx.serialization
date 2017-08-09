@@ -16,7 +16,6 @@
 
 package kotlinx.serialization.internal
 
-import java.util.*
 import kotlinx.serialization.KSerialClassDesc
 import kotlinx.serialization.KSerialClassKind
 import kotlinx.serialization.SerializationException

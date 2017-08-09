@@ -19,8 +19,6 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.KInput.Companion.READ_ALL
 import kotlinx.serialization.KInput.Companion.READ_DONE
-import java.util.*
-import kotlin.collections.LinkedHashMap
 
 const val SIZE_INDEX = 0
 

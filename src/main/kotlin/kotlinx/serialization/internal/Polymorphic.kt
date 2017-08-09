@@ -41,7 +41,7 @@ object PolymorphicSerializer : KSerializer<Any> {
         get() = PolymorphicClassDesc
 
     override fun save(output: KOutput, obj: Any) {
-        val saver = resolveSaver(obj)
+        val saver = serializerByValue(obj)
         @Suppress("NAME_SHADOWING")
         val output = output.writeBegin(serialClassDesc)
         output.writeStringElementValue(serialClassDesc, 0, saver.serialClassDesc.name)
@@ -58,7 +58,7 @@ object PolymorphicSerializer : KSerializer<Any> {
             when (input.readElement(serialClassDesc)) {
                 KInput.READ_ALL -> {
                     klassName = input.readStringElementValue(serialClassDesc, 0)
-                    val loader = resolveLoader<Any>(klassName)
+                    val loader = serializerByClass<Any>(klassName)
                     value = input.readSerializableElementValue(serialClassDesc, 1, loader)
                     break@mainLoop
                 }
@@ -70,7 +70,7 @@ object PolymorphicSerializer : KSerializer<Any> {
                 }
                 1 -> {
                     klassName = requireNotNull(klassName) { "Cannot read polymorphic value before its type token" }
-                    val loader = resolveLoader<Any>(klassName)
+                    val loader = serializerByClass<Any>(klassName)
                     value = input.readSerializableElementValue(serialClassDesc, 1, loader)
                 }
                 else -> throw SerializationException("Invalid index")
