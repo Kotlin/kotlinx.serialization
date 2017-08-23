@@ -16,8 +16,11 @@
 
 package kotlinx.serialization.json
 
+import kotlinx.io.PrintWriter
+import kotlinx.io.Reader
+import kotlinx.io.StringReader
+import kotlinx.io.StringWriter
 import kotlinx.serialization.*
-import java.io.*
 import kotlin.reflect.KClass
 
 data class JSON(
@@ -301,7 +304,7 @@ data class JSON(
 
     }
 
-    private inner class Composer(w: Writer) : PrintWriter(w) {
+    private inner class Composer(w: StringWriter) : PrintWriter(w) {
         var level = 0
         fun indent() { level++ }
         fun unIndent() { level-- }
@@ -399,7 +402,7 @@ data class JSON(
             }
         }
 
-        override fun readBooleanValue(): Boolean = p.takeStr().toBoolean()
+        override fun readBooleanValue(): Boolean = p.takeStr() == "true" // KT-16348
         override fun readByteValue(): Byte = p.takeStr().toByte()
         override fun readShortValue(): Short = p.takeStr().toShort()
         override fun readIntValue(): Int = p.takeStr().toInt()
@@ -409,8 +412,7 @@ data class JSON(
         override fun readCharValue(): Char = p.takeStr().single()
         override fun readStringValue(): String = p.takeStr()
 
-        override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T =
-                java.lang.Enum.valueOf(enumClass.java, p.takeStr())
+        override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T = enumFromName(enumClass, p.takeStr())
     }
 
     private class Parser(val r: Reader) {
@@ -468,13 +470,13 @@ data class JSON(
         }
 
         private fun nextLiteral() {
-            sb.setLength(0)
+            sb = StringBuilder()
             while(true) {
                 sb.append(curChar.toChar())
                 nextChar()
                 if (c2tc(curChar) != TC_OTHER) break
             }
-            if (NULL.contentEquals(sb)) {
+            if (NULL == sb.toString()) {
                 curStr = null
                 curTc = TC_NULL
             } else {
@@ -484,7 +486,7 @@ data class JSON(
         }
 
         private fun nextString() {
-            sb.setLength(0)
+            sb = StringBuilder()
             parse@ while(true) {
                 nextChar()
                 when (c2tc(curChar)) {

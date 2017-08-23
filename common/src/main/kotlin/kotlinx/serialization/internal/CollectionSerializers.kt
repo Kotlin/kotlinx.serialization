@@ -19,6 +19,7 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.KInput.Companion.READ_ALL
 import kotlinx.serialization.KInput.Companion.READ_DONE
+import kotlin.reflect.KClass
 
 const val SIZE_INDEX = 0
 
@@ -97,24 +98,23 @@ sealed class ListLikeSerializer<E,C,B>(private val eSerializer: KSerializer<E>) 
 }
 
 // todo: can be more efficient when array size is know in advance, this one always uses temporary ArrayList as builder
-class ReferenceArraySerializer<E>(private val eClass: java.lang.Class<E>, eSerializer: KSerializer<E>) :
-        ListLikeSerializer<E, Array<E>, ArrayList<E>>(eSerializer) {
+// todo: more elegant nullability handling
+class ReferenceArraySerializer<E: Any>(private val kClass: KClass<E>, eSerializer: KSerializer<E?>):
+        ListLikeSerializer<E?, Array<E?>, ArrayList<E?>>(eSerializer) {
     override val serialClassDesc = ArrayClassDesc
-//    override val serializableClass: KClass<*> = Array<Any>::class
 
-    override fun Array<E>.objSize(): Int = size
-    override fun Array<E>.objIterator(): Iterator<E> = iterator()
-    override fun builder(): ArrayList<E> = arrayListOf()
-    override fun ArrayList<E>.builderSize(): Int = size
+    override fun Array<E?>.objSize(): Int = size
+    override fun Array<E?>.objIterator(): Iterator<E?> = iterator()
+    override fun builder(): ArrayList<E?> = arrayListOf()
+    override fun ArrayList<E?>.builderSize(): Int = size
     @Suppress("UNCHECKED_CAST")
-    override fun ArrayList<E>.toResult(): Array<E> = toArray<E>(java.lang.reflect.Array.newInstance(eClass, size) as Array<E>)
-    override fun ArrayList<E>.ensureCapacity(size: Int) = ensureCapacity(size)
-    override fun ArrayList<E>.add(index: Int, element: E) { add(element) }
+    override fun ArrayList<E?>.toResult(): Array<E?> = toNativeArray(kClass)
+    override fun ArrayList<E?>.ensureCapacity(size: Int) = ensureCapacity(size)
+    override fun ArrayList<E?>.add(index: Int, element: E?) { add(element) }
 }
 
 class ArrayListSerializer<E>(element: KSerializer<E>) : ListLikeSerializer<E, Collection<E>, ArrayList<E>>(element) {
     override val serialClassDesc = ArrayListClassDesc
-//    override val serializableClass: KClass<*> = Collection::class
 
     override fun Collection<E>.objSize(): Int = size
     override fun Collection<E>.objIterator(): Iterator<E> = iterator()
@@ -127,7 +127,6 @@ class ArrayListSerializer<E>(element: KSerializer<E>) : ListLikeSerializer<E, Co
 
 class LinkedHashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializer<E, Set<E>, LinkedHashSet<E>>(eSerializer) {
     override val serialClassDesc = LinkedHashSetClassDesc
-//    override val serializableClass: KClass<*> = Set::class
 
     override fun Set<E>.objSize(): Int = size
     override fun Set<E>.objIterator(): Iterator<E> = iterator()
@@ -140,7 +139,6 @@ class LinkedHashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializ
 
 class HashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializer<E, Set<E>, HashSet<E>>(eSerializer) {
     override val serialClassDesc = HashSetClassDesc
-//    override val serializableClass: KClass<*> = HashSet::class
 
     override fun Set<E>.objSize(): Int = size
     override fun Set<E>.objIterator(): Iterator<E> = iterator()
@@ -154,7 +152,6 @@ class HashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializer<E, 
 class LinkedHashMapSerializer<K,V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
         ListLikeSerializer<Map.Entry<K, V>, Map<K, V>, LinkedHashMap<K, V>>(MapEntrySerializer<K, V>(kSerializer, vSerializer)) {
     override val serialClassDesc = LinkedHashMapClassDesc
-    //    override val serializableClass: KClass<*> = LinkedHashMap::class
     override val typeParams: Array<KSerializer<*>> = arrayOf(kSerializer, vSerializer)
 
     override fun Map<K, V>.objSize(): Int = size
@@ -169,7 +166,6 @@ class LinkedHashMapSerializer<K,V>(kSerializer: KSerializer<K>, vSerializer: KSe
 class HashMapSerializer<K,V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
         ListLikeSerializer<Map.Entry<K, V>, Map<K, V>, HashMap<K, V>>(MapEntrySerializer<K, V>(kSerializer, vSerializer)) {
     override val serialClassDesc: ListLikeDesc = HashMapClassDesc
-    //    override val serializableClass: KClass<*> = HashMap::class
     override val typeParams: Array<KSerializer<*>> = arrayOf(kSerializer, vSerializer)
 
     override fun Map<K, V>.objSize(): Int = size
@@ -187,7 +183,6 @@ const val VALUE_INDEX = 1
 class MapEntrySerializer<K, V>(private val kSerializer: KSerializer<K>, private val vSerializer: KSerializer<V>) :
         KSerializer<Map.Entry<K, V>> {
     override val serialClassDesc = MapEntryClassDesc//To change initializer of created properties use File | Settings | File Templates.
-//    override val serializableClass: KClass<*> = Map.Entry::class
 
     override fun save(output: KOutput, obj: Map.Entry<K, V>) {
         @Suppress("NAME_SHADOWING")
@@ -239,18 +234,7 @@ class MapEntrySerializer<K, V>(private val kSerializer: KSerializer<K>, private 
 
 sealed class ListLikeDesc : KSerialClassDesc {
     override fun getElementName(index: Int): String = if (index == SIZE_INDEX) "size" else index.toString()
-    override fun getElementIndex(name: String): Int = if (name == "size") SIZE_INDEX else parseInt(name)
-
-    // todo: kludge: becaues JS does not have String.toInt() KT-4497
-    private fun parseInt(name: String): Int {
-        check(name != "") { "empty name" }
-        var result = 0
-        for (c in name) {
-            check(c in '0'..'9') { "Invalid digit $c" }
-            result = result * 10 + (c.toInt() - '0'.toInt())
-        }
-        return result
-    }
+    override fun getElementIndex(name: String): Int = if (name == "size") SIZE_INDEX else name.toInt()
 }
 
 object ArrayClassDesc : ListLikeDesc() {

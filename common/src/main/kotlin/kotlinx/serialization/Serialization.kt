@@ -339,7 +339,6 @@ open class ElementValueInput : KInput() {
     @Suppress("UNCHECKED_CAST")
     override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T> ): T =
             readValue() as T
-    // todo: enumClass.cast(readValue())
 
     // -------------------------------------------------------------------------------------
 

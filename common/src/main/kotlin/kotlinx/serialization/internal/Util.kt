@@ -1,13 +1,8 @@
 package kotlinx.serialization.internal
 
-import java.io.IOException
-import java.io.InputStream
-import java.nio.ByteBuffer
-
-/**
- *  @author Leonid Startsev
- *          sandwwraith@gmail.com
- */
+import kotlinx.io.ByteBuffer
+import kotlinx.io.IOException
+import kotlinx.io.InputStream
 
 fun <T> List<T>.onlySingleOrNull() = when(this.size) {
     0 -> null
@@ -67,7 +62,7 @@ object HexConverter {
         else -> -1
     }
 
-    private val hexCode = "0123456789ABCDEF".toCharArray()
+    private val hexCode = "0123456789ABCDEF"
 
     fun printHexBinary(data: ByteArray, lowerCase: Boolean = false): String {
         val r = StringBuilder(data.size * 2)
@@ -77,6 +72,9 @@ object HexConverter {
         }
         return if (lowerCase) r.toString().toLowerCase() else r.toString()
     }
+
+    fun toHexString(n: Int) = printHexBinary(ByteBuffer.allocate(4).putInt(n).flip().array(), true)
+            .trimStart('0').takeIf { it.isNotEmpty() } ?: "0"
 }
 
 fun ByteBuffer.getUnsignedByte(): Int = this.get().toInt() and 0xff

@@ -1,17 +1,12 @@
 package kotlinx.serialization.protobuf
 
+import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintInt
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintLong
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeVarint
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.encodeVarint
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.IOException
-import java.io.InputStream
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import kotlin.reflect.KClass
 
 
@@ -112,7 +107,7 @@ object ProtoBuf {
         }
 
         fun writeString(value: String, tag: Int) {
-            val bytes = value.toByteArray(Charsets.UTF_8)
+            val bytes = value.toUtf8Bytes()
             writeObject(bytes, tag)
         }
 
@@ -150,10 +145,8 @@ object ProtoBuf {
 
         private val indexByTag: MutableMap<Int, Int> = mutableMapOf()
         private fun findIndexByTag(desc: KSerialClassDesc, serialId: Int): Int {
-            for (i in 0 until desc.associatedFieldsCount) {
-                if (desc.getTag(i).first == serialId) return i
-            }
-            return -1
+            return (0 until desc.associatedFieldsCount).firstOrNull { desc.getTag(it).first == serialId }
+                    ?: -1
         }
 
         override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput = when (desc.kind) {
@@ -178,7 +171,7 @@ object ProtoBuf {
         override fun readTaggedDouble(tag: ProtoDesc): Double = decoder.nextDouble()
         override fun readTaggedChar(tag: ProtoDesc): Char = decoder.nextInt(tag.second).toChar()
         override fun readTaggedString(tag: ProtoDesc): String = decoder.nextString()
-        override fun <E : Enum<E>> readTaggedEnum(tag: ProtoDesc, enumClass: KClass<E>): E = enumClass.java.enumConstants[decoder.nextInt(ProtoNumberType.DEFAULT)]
+        override fun <E : Enum<E>> readTaggedEnum(tag: ProtoDesc, enumClass: KClass<E>): E = enumFromOrdinal(enumClass, decoder.nextInt(ProtoNumberType.DEFAULT))
 
         override fun KSerialClassDesc.getTag(index: Int) = this.getProtoDesc(index)
 
@@ -274,7 +267,7 @@ object ProtoBuf {
 
         fun nextString(): String {
             val bytes = this.nextObject()
-            return String(bytes, Charsets.UTF_8)
+            return stringFromUtf8Bytes(bytes)
         }
 
         private fun decode32(format: ProtoNumberType = ProtoNumberType.DEFAULT, eofAllowed: Boolean = false): Int = when (format) {

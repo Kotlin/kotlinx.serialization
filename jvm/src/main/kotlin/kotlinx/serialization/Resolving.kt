@@ -4,17 +4,8 @@ import kotlinx.serialization.internal.*
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import kotlin.reflect.KClass
-import kotlin.reflect.companionObjectInstance
 import kotlin.reflect.full.isSubclassOf
 
-/**
- *  @author Leonid Startsev
- *          sandwwraith@gmail.com
- */
-
-
-@Suppress("UNCHECKED_CAST", "DEPRECATION")
-fun <T : Any> KClass<T>.serializer(): KSerializer<T> = companionObjectInstance as KSerializer<T>
 
 // for user-defined external serializers
 fun registerSerializer(forClassName: String, serializer: KSerializer<*>) {

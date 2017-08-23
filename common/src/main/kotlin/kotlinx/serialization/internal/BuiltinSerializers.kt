@@ -98,11 +98,6 @@ object StringSerializer : KSerializer<String> {
     override fun load(input: KInput): String = input.readStringValue()
 }
 
-internal val allPrimitives: List<KSerializer<*>> = listOf(
-        UnitSerializer, BooleanSerializer, ByteSerializer, ShortSerializer, IntSerializer,
-        LongSerializer, FloatSerializer, DoubleSerializer, CharSerializer, StringSerializer
-)
-
 
 internal class EnumDesc(override val name: String) : KSerialClassDesc {
 
@@ -115,7 +110,7 @@ internal class EnumDesc(override val name: String) : KSerialClassDesc {
 
 // note, that it is instantiated in a special way
 class EnumSerializer<T : Enum<T>>(val serializableClass: KClass<T>) : KSerializer<T> {
-    override val serialClassDesc: KSerialClassDesc = EnumDesc(serializableClass.qualifiedName ?: "")
+    override val serialClassDesc: KSerialClassDesc = EnumDesc(serializableClass.enumClassName())
     override fun save(output: KOutput, obj: T) = output.writeEnumValue(serializableClass, obj)
     override fun load(input: KInput): T = input.readEnumValue(serializableClass)
 }

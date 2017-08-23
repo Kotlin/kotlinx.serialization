@@ -17,6 +17,9 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.registerSerializer
+import kotlinx.serialization.serializerByClass
+import kotlinx.serialization.serializerByValue
 import kotlin.reflect.KClass
 import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.isSubclassOf
@@ -97,7 +100,7 @@ internal object ClassSerialCache {
 
     @Suppress("UNCHECKED_CAST")
     internal fun getSubclassSerializer(klass: KClass<*>): KSerializer<*>? {
-        if (klass.java.isArray) return ReferenceArraySerializer(Any::class.java, PolymorphicSerializer)
+        if (klass.java.isArray) return ReferenceArraySerializer(Any::class, PolymorphicSerializer as KSerializer<Any?>)
         for ((k, v) in map) {
             if (klass.isSubclassOf(k)) return v
         }
@@ -105,13 +108,19 @@ internal object ClassSerialCache {
     }
 }
 
+internal val allPrimitives: List<KSerializer<*>> = listOf(
+        UnitSerializer, BooleanSerializer, ByteSerializer, ShortSerializer, IntSerializer,
+        LongSerializer, FloatSerializer, DoubleSerializer, CharSerializer, StringSerializer
+)
+
 internal object SerialCache {
     internal val map: MutableMap<String, KSerializer<*>> = HashMap()
 
     init {
         allPrimitives.forEach { registerSerializer(it.serialClassDesc.name, it) }
         ClassSerialCache.map.values.toList().forEach { registerSerializer(it.serialClassDesc.name, it) }
-        registerSerializer("kotlin.Array", ReferenceArraySerializer(Any::class.java, PolymorphicSerializer))
+        @Suppress("UNCHECKED_CAST")
+        registerSerializer("kotlin.Array", ReferenceArraySerializer(Any::class, PolymorphicSerializer as KSerializer<Any?>))
     }
 
     @Suppress("UNCHECKED_CAST")

@@ -1,7 +1,6 @@
 package kotlinx.serialization
 
 import kotlin.reflect.KClass
-import kotlin.reflect.full.cast
 
 /**
  *  @author Leonid Startsev
@@ -208,7 +207,8 @@ abstract class TaggedInput<T : Any?> : KInput() {
     open fun readTaggedDouble(tag: T): Double = readTaggedValue(tag) as Double
     open fun readTaggedChar(tag: T): Char = readTaggedValue(tag) as Char
     open fun readTaggedString(tag: T): String = readTaggedValue(tag) as String
-    open fun <E : Enum<E>> readTaggedEnum(tag: T, enumClass: KClass<E>): E = enumClass.cast(readTaggedValue(tag))
+    @Suppress("UNCHECKED_CAST")
+    open fun <E : Enum<E>> readTaggedEnum(tag: T, enumClass: KClass<E>): E = readTaggedValue(tag) as E
 
     // ---- Implementation of low-level API ----
 

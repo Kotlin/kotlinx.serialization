@@ -1,0 +1,18 @@
+apply plugin: 'kotlin-platform-js'
+
+repositories {
+    mavenLocal()
+    jcenter()
+    mavenCentral()
+}
+
+dependencies {
+    implement project(':common')
+    compile libraries.kotlin_stdlib_js
+}
+
+compileKotlin2Js {
+    kotlinOptions.moduleKind = "amd"
+    kotlinOptions.sourceMap = true
+    kotlinOptions.metaInfo = true
+}

@@ -16,10 +16,9 @@
 
 package kotlinx.serialization.cbor
 
+import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
-import java.io.*
-import java.nio.ByteBuffer
 import kotlin.experimental.or
 import kotlin.reflect.KClass
 
@@ -113,7 +112,7 @@ object CBOR {
         fun encodeNumber(value: Long) = output.write(composeNumber(value))
 
         fun encodeString(value: String) {
-            val data = value.toByteArray()
+            val data = value.toUtf8Bytes()
             val header = composeNumber(data.size.toLong())
             header[0] = header[0] or HEADER_STRING
             output.write(header)
@@ -123,7 +122,7 @@ object CBOR {
         fun encodeFloat(value: Float) {
             val data = ByteBuffer.allocate(5)
                     .put(NEXT_FLOAT.toByte())
-                    .putInt(java.lang.Float.floatToIntBits(value))
+                    .putFloat(value)
                     .array()
             output.write(data)
         }
@@ -131,7 +130,7 @@ object CBOR {
         fun encodeDouble(value: Double) {
             val data = ByteBuffer.allocate(9)
                     .put(NEXT_DOUBLE.toByte())
-                    .putLong(java.lang.Double.doubleToLongBits(value))
+                    .putDouble(value)
                     .array()
             output.write(data)
         }
@@ -215,7 +214,6 @@ object CBOR {
 
         override fun readEnd(desc: KSerialClassDesc) = decoder.end()
 
-        //todo: Read arrays and maps of definite length
         override fun readElement(desc: KSerialClassDesc): Int {
             if (decoder.isEnd()) return READ_DONE
             val elemName = decoder.nextString()
@@ -240,7 +238,7 @@ object CBOR {
         override fun readNullValue() = decoder.nextNull()
 
         override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T =
-                java.lang.Enum.valueOf(enumClass.java, decoder.nextString())
+                enumFromName(enumClass, decoder.nextString())
 
     }
 
@@ -257,8 +255,8 @@ object CBOR {
         }
 
         private fun skipByte(expected: Int) {
-            if (curByte != expected) throw CBORParsingException("Expected byte ${Integer.toHexString(expected)} , " +
-                "but found ${Integer.toHexString(curByte)}")
+            if (curByte != expected) throw CBORParsingException("Expected byte ${HexConverter.toHexString(expected)} , " +
+                "but found ${HexConverter.toHexString(curByte)}")
             readByte()
         }
 
@@ -285,7 +283,7 @@ object CBOR {
                 return -1
             }
             if ((curByte and 0b111_00000) != HEADER_ARRAY)
-                throw CBORParsingException("Expected start of array, but found ${Integer.toHexString(curByte)}")
+                throw CBORParsingException("Expected start of array, but found ${HexConverter.toHexString(curByte)}")
             val arrayLen = readNumber().toInt()
             readByte()
             return arrayLen
@@ -298,10 +296,10 @@ object CBOR {
         fun end() = skipByte(BREAK)
 
         fun nextString(): String {
-            if ((curByte and 0b111_00000) != HEADER_STRING.toInt()) throw CBORParsingException("Expected start of string, but found ${Integer.toHexString(curByte)}")
+            if ((curByte and 0b111_00000) != HEADER_STRING.toInt()) throw CBORParsingException("Expected start of string, but found ${HexConverter.toHexString(curByte)}")
             val strLen = readNumber().toInt()
             val arr = input.readExactNBytes(strLen)
-            val ans = String(arr, Charsets.UTF_8)
+            val ans = stringFromUtf8Bytes(arr)
             readByte()
             return ans
         }
@@ -339,14 +337,14 @@ object CBOR {
         }
 
         fun nextFloat(): Float {
-            if (curByte != NEXT_FLOAT) throw CBORParsingException("Expected float header, but found ${Integer.toHexString(curByte)}")
+            if (curByte != NEXT_FLOAT) throw CBORParsingException("Expected float header, but found ${HexConverter.toHexString(curByte)}")
             val res = input.readToByteBuffer(4).getFloat()
             readByte()
             return res
         }
 
         fun nextDouble(): Double {
-            if (curByte != NEXT_DOUBLE) throw CBORParsingException("Expected double header, but found ${Integer.toHexString(curByte)}")
+            if (curByte != NEXT_DOUBLE) throw CBORParsingException("Expected double header, but found ${HexConverter.toHexString(curByte)}")
             val res = input.readToByteBuffer(8).getDouble()
             readByte()
             return res

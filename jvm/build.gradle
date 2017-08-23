@@ -1,0 +1,50 @@
+apply plugin: 'kotlin-platform-jvm'
+
+repositories {
+    mavenLocal()
+    jcenter()
+    mavenCentral()
+}
+
+apply plugin: 'com.google.protobuf'
+
+protobuf {
+    protoc {
+        // Download from repositories
+        artifact = 'com.google.protobuf:protoc:3.0.0'
+    }
+}
+
+test {
+    dependsOn 'generateTestProto'
+}
+
+clean {
+    delete protobuf.generatedFilesBaseDir
+}
+
+sourceSets {
+    test {
+        java {
+            srcDirs += file("${protobuf.generatedFilesBaseDir}/test/java")
+        }
+    }
+}
+
+
+dependencies {
+    implement project(':common')
+    testImplementation project(':common')
+    compile libraries.kotlin_stdlib
+    compile libraries.kotlin_reflect
+
+    testCompile group: 'junit', name: 'junit', version: '4.4'
+    testCompile 'io.kotlintest:kotlintest:2.0.4'
+
+    testCompile 'com.google.protobuf:protobuf-java:3.0.0'
+    testCompile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.8.9'
+    testCompile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.9'
+    testCompile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.8.9'
+    testCompile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-cbor', version: '2.8.9'
+
+}
