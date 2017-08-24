@@ -1,4 +1,4 @@
-# Kotlin serialization runtime library
+# Kotlin serialization runtime library for JVM and JS
 
 Kotlin serialization plugin consists of three parts: a gradle compiler plugin, an IntelliJ plugin and a runtime library. 
 This is the runtime library. To build any project with serialization (including this one), you'll
@@ -26,9 +26,11 @@ repositories {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlinx:serialization-runtime:1.1-SNAPSHOT"
+    compile "org.jetbrains.kotlinx:serialization-runtime-jvm:1.1-SNAPSHOT"
 }
 ```
+
+Replace `jvm` with `js` to use it in JavaScript projects.
 
 ## Example
 

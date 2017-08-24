@@ -95,6 +95,8 @@
 
 * **External** deserialization (annotation `@Serializer(forClass=...)`) has more limitations: it supports only primary constructor's vals/vars and class body `var` properties with visibility higher than protected.  Body `val`  properties and all private properties are unseen for external serializer/deserializer.
     It also invokes all setters on body `var`s and all initialization expressions with init blocks.
+    
+    It isn't supported yet in JavaScript.
 
     ```kotlin
     class Data {
