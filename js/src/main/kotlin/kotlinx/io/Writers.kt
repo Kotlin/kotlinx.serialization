@@ -47,15 +47,24 @@ impl abstract class Reader protected constructor() {
     impl abstract fun read(dst: CharArray, off: Int, len: Int): Int
     impl open fun close() {}
 }
-impl class StringReader(val str: String): Reader() {
+
+impl class StringReader(val str: String) : Reader() {
 
     private var position: Int = 0
 
-    impl override fun read(): Int = str[position++].toInt()
+    impl override fun read(): Int = when (position) {
+        str.length -> -1
+        else -> str[position++].toInt()
+    }
+
 
     impl override fun read(dst: CharArray, off: Int, len: Int): Int {
-        for (i in off until off+len) {
-            dst[i] = str[position++]
+        var cnt = 0
+        for (i in off until off + len) {
+            val r = read()
+            if (r == -1) return cnt
+            cnt++
+            dst[i] = r.toChar()
         }
         return len
     }

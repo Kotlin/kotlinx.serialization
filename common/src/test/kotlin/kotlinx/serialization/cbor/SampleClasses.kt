@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-package kotlinx.serialization.formats.cbor
+package kotlinx.serialization.cbor
 
 import kotlinx.serialization.Serializable
+
+/**
+ * @author Leonid Startsev
+ *		  sandwwraith@gmail.com
+ **/
 
 @Serializable
 data class Simple(val a: String)

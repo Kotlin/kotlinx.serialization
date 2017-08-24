@@ -1,29 +1,13 @@
-/*
- * Copyright 2010-2016 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package kotlinx.serialization
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Test
-import java.io.PrintWriter
-import java.io.Reader
-import java.io.StringReader
-import java.io.StringWriter
 import kotlin.reflect.KClass
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlinx.io.StringWriter
+import kotlinx.io.PrintWriter
+import kotlinx.io.StringReader
+import kotlinx.io.Reader
 
 class SerializeZooTest {
     @Test
@@ -31,11 +15,11 @@ class SerializeZooTest {
         // save to string
         val sw = StringWriter()
         val out = KeyValueOutput(PrintWriter(sw))
-        out.write(Zoo, zoo)
+        out.write(Zoo.Companion, zoo)
         // load from string
         val str = sw.toString()
         val inp = KeyValueInput(Parser(StringReader(str)))
-        val other = inp.read(Zoo)
+        val other = inp.read(Zoo.Companion)
         // assert we've got it back from string
         assertEquals(zoo, other)
         assertFalse(zoo === other)
@@ -98,10 +82,10 @@ class SerializeZooTest {
 
     ) {
         override fun equals(o: Any?) = o is ZooWithArrays &&
-                                       arrByte.contentEquals(o.arrByte) &&
-                                       arrInt.contentEquals(o.arrInt) &&
-                                       arrIntN.contentEquals(o.arrIntN) &&
-                                       arrIntData.contentEquals(o.arrIntData)
+                arrByte.contentEquals(o.arrByte) &&
+                arrInt.contentEquals(o.arrInt) &&
+                arrIntN.contentEquals(o.arrIntN) &&
+                arrIntData.contentEquals(o.arrIntData)
     }
 
     val zoo = Zoo(
@@ -188,7 +172,7 @@ class SerializeZooTest {
             return null
         }
 
-        override fun readBooleanValue(): Boolean = readToken().toBoolean()
+        override fun readBooleanValue(): Boolean = readToken() == "true"
         override fun readByteValue(): Byte = readToken().toByte()
         override fun readShortValue(): Short = readToken().toShort()
         override fun readIntValue(): Int = readToken().toInt()
@@ -197,7 +181,7 @@ class SerializeZooTest {
         override fun readDoubleValue(): Double = readToken().toDouble()
 
         override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T {
-            return java.lang.Enum.valueOf(enumClass.java, readToken())
+            return enumFromName(enumClass, readToken())
         }
 
         override fun readStringValue(): String {

@@ -26,11 +26,6 @@ import kotlinx.serialization.cbor.CBOR
 import kotlinx.serialization.internal.HexConverter
 import java.io.ByteArrayOutputStream
 
-/**
- * @author Leonid Startsev
- *		  sandwwraith@gmail.com
- **/
-
 class CBORWriterTest : WordSpec() {
     init {
 
@@ -78,26 +73,6 @@ class CBORWriterTest : WordSpec() {
                 forAll(tabl) { input, output ->
                     withEncoder { encodeString(input) } shouldBe output
                 }
-            }
-        }
-
-        // Validated with http://cbor.me/
-        "CBOR Writer" should {
-            "serialize simple class" {
-                CBOR.dumps(Simple("str")) shouldBe "bf616163737472ff"
-            }
-
-            "serialize complicated class" {
-                val test = SmallZoo(
-                        "Hello, world!",
-                        42,
-                        null,
-                        listOf("a", "b"),
-                        mapOf(1 to true, 2 to false),
-                        Simple("lol"),
-                        listOf(Simple("kek"))
-                )
-                CBOR.dumps(test) shouldBe "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffffff"
             }
         }
     }

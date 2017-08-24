@@ -7,4 +7,5 @@ repositories {
 }
 dependencies {
     compile libraries.kotlin_stdlib_common
+    testCompile libraries.kotlin_test_common
 }

@@ -14,41 +14,46 @@
  * limitations under the License.
  */
 
-package kotlinx.serialization.features
+package kotlinx.serialization
 
-import kotlinx.serialization.Optional
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.JSON
-import org.junit.Assert.assertEquals
 import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
-class OptionalTests {
-
+class TransientTests {
     @Serializable
-    class Data(val a: Int = 0, @Optional val b: Int = 42) {
+    class Data(val a: Int = 0, @Transient val b: Int = 42, @Optional val e: Boolean = false) {
         @Optional
         var c = "Hello"
 
+        @Transient
+        var d = "World"
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
-            if (other?.javaClass != javaClass) return false
+            if (other == null || this::class != other::class) return false
 
             other as Data
 
             if (a != other.a) return false
             if (b != other.b) return false
             if (c != other.c) return false
+            if (d != other.d) return false
 
             return true
         }
+
+        override fun toString(): String {
+            return "Data(a=$a, b=$b, e=$e, c='$c', d='$d')"
+        }
+
+
     }
 
     @Test
     fun testAll() {
-        assertEquals("{a:0,b:42,c:Hello}", JSON.unquoted.stringify(Data()))
-        assertEquals(JSON.unquoted.parse<Data>("{a:0,b:43,c:Hello}"), Data(b = 43))
-        assertEquals(JSON.unquoted.parse<Data>("{a:0,b:42,c:Hello}"), Data())
+        assertEquals("{a:0,e:false,c:Hello}", JSON.unquoted.stringify(Data()))
     }
 
     @Test
@@ -57,9 +62,11 @@ class OptionalTests {
         assertEquals(JSON.unquoted.parse<Data>("{a:0}"), Data())
     }
 
-    @Test(expected = SerializationException::class)
-    fun testThrowMissingField() {
-        JSON.unquoted.parse<Data>("{b:0}")
+    @Test
+    fun testThrowTransient() {
+        assertFailsWith(SerializationException::class) {
+            JSON.unquoted.parse<Data>("{a:0,b:100500,c:Hello}")
+        }
     }
 
 }
