@@ -93,4 +93,4 @@ Other known issues and limitations:
 * If fields with list tag are going in the arbitrary order, they are not merged into one list, they got overwritten instead.
 
 More examples of mappings from proto definitions to Koltin classes can be found in test data:
-[here](src/test/proto/test_data.proto) and [here](src/test/kotlin/kotlinx/serialization/formats/RandomTests.kt#L47)
+[here](jvm/src/test/proto/test_data.proto) and [here](jvm/src/test/kotlin/kotlinx/serialization/formats/RandomTests.kt#L47)
