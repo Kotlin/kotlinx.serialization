@@ -43,7 +43,7 @@ header class ByteBuffer private constructor(){
     fun array(): ByteArray
 
 
-    header companion object {
+    companion object {
         fun allocate(capacity: Int): ByteBuffer
     }
 }

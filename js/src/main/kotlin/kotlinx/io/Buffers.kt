@@ -5,7 +5,7 @@ import org.khronos.webgl.DataView
 
 
 impl class ByteBuffer(val capacity: Int) {
-    private constructor(): this(16) //don't use, only for matching header
+    private impl constructor(): this(16) //don't use, only for matching header
 
     init {
         require(capacity >= 0)

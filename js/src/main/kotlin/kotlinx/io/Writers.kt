@@ -1,6 +1,6 @@
 package kotlinx.io
 
-impl abstract class Writer protected constructor() {
+impl abstract class Writer impl protected constructor() {
     impl open fun write(ch: Int) {
         write(charArrayOf(ch.toChar()), 0, 1)
     }
@@ -12,7 +12,7 @@ impl abstract class Writer protected constructor() {
     impl abstract fun close()
 }
 
-impl open class PrintWriter(val w: Writer): Writer() {
+impl open class PrintWriter impl constructor(val w: Writer): Writer() {
     impl open fun print(s: String) = w.write(s)
     impl open fun print(ch: Char) = w.write(ch.toInt())
     impl open fun print(value: Float)= print(value.toString())
@@ -42,13 +42,13 @@ impl class StringWriter: Writer() {
 }
 
 @Suppress("IMPLEMENTATION_WITHOUT_HEADER")
-impl abstract class Reader protected constructor() {
+impl abstract class Reader impl protected constructor() {
     impl abstract fun read(): Int
     impl abstract fun read(dst: CharArray, off: Int, len: Int): Int
     impl open fun close() {}
 }
 
-impl class StringReader(val str: String) : Reader() {
+impl class StringReader impl constructor(val str: String) : Reader() {
 
     private var position: Int = 0
 

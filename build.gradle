@@ -9,7 +9,7 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$snapshot_version"
-        classpath "org.jetbrains.kotlinx:kotlinx-serialization:$snapshot_version"
+        classpath "org.jetbrains.kotlinx:kotlin-serialization:$snapshot_version"
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.2'
     }
 }

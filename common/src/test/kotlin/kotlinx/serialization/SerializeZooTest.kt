@@ -15,11 +15,11 @@ class SerializeZooTest {
         // save to string
         val sw = StringWriter()
         val out = KeyValueOutput(PrintWriter(sw))
-        out.write(Zoo.Companion, zoo)
+        out.write(zoo)
         // load from string
         val str = sw.toString()
         val inp = KeyValueInput(Parser(StringReader(str)))
-        val other = inp.read(Zoo.Companion)
+        val other = inp.read<Zoo>()
         // assert we've got it back from string
         assertEquals(zoo, other)
         assertFalse(zoo === other)

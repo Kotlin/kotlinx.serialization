@@ -1,15 +1,8 @@
 package kotlinx.io
 
-impl open class IOException(message: String) : Exception(message) {
-    constructor(): this("IO Exception")
+impl open class IOException impl constructor(message: String) : Exception(message) {
+    impl constructor(): this("IO Exception")
 }
-
-//impl typealias InputStream = java.io.InputStream
-//impl typealias ByteArrayInputStream = java.io.ByteArrayInputStream
-//
-//impl typealias OutputStream = java.io.OutputStream
-//impl typealias ByteArrayOutputStream = java.io.ByteArrayOutputStream
-
 
 impl abstract class InputStream {
 
@@ -98,7 +91,7 @@ impl class ByteArrayInputStream : InputStream {
     protected var count: Int = 0
 
 
-    constructor(buf: ByteArray) {
+    impl constructor(buf: ByteArray) {
         this.mark = 0
         this.buf = buf
         this.count = buf.size
@@ -183,7 +176,7 @@ impl class ByteArrayOutputStream : OutputStream {
     protected var buf: ByteArray
     protected var count: Int = 0
 
-    constructor() : super() {
+    impl constructor() : super() {
         buf = ByteArray(32)
     }
 
