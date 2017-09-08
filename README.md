@@ -48,8 +48,10 @@ fun main(args: Array<String>) {
 }
 ```
 
-More complicated examples and examples of implementing custom formats can be found in `examples` folder (work in progress).
-Detailed documentation located in [DOC.md](DOC.md).
+Detailed documentation with more complicated examples of usage located in [DOC.md](DOC.md).
+
+Example project with different implementations of custom formats can be found in [`examples`](examples) folder. 
+You can run it with `cd examples; ./gradlew -q runApp`.
 
 ## Built-in formats
 

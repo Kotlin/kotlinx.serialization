@@ -1,0 +1,41 @@
+buildscript {
+    ext.snapshot_version = '1.1-SNAPSHOT'
+
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$snapshot_version"
+        classpath "org.jetbrains.kotlinx:kotlin-serialization:$snapshot_version"
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'kotlin'
+apply plugin: 'kotlin-serialization'
+
+repositories {
+    mavenLocal()
+    jcenter()
+}
+
+sourceSets {
+    main.java.srcDirs += "src"
+    main.kotlin.srcDirs += "src"
+    test.kotlin.srcDirs += "test"
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$snapshot_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$snapshot_version"
+    compile "org.jetbrains.kotlinx:serialization-runtime-jvm:1.1-SNAPSHOT"
+}
+
+task runApp(type: JavaExec) {
+    classpath = sourceSets.main.compileClasspath + sourceSets.main.runtimeClasspath
+
+    workingDir = "$projectDir/build/classes/main"
+    main = 'App'
+}
