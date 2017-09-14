@@ -57,5 +57,5 @@ fun testMyIdIo(serializer: KSerializer<Any>, obj: Any): Result {
 }
 
 fun main(args: Array<String>) {
-    testCase(DataWithMyId, DataWithMyId(1, "42"), ::testMyIdIo)
+    testCase(DataWithMyId::class.serializer(), DataWithMyId(1, "42"), ::testMyIdIo)
 }

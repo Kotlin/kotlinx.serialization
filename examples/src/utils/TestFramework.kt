@@ -12,7 +12,8 @@ data class Result(
 
 class Case<T: Any>(
         val obj: T,
-        val name: String = obj.javaClass.simpleName
+        val name: String = obj.javaClass.simpleName,
+        val hasNulls: Boolean = false
 ) {
     @Suppress("UNCHECKED_CAST")
     val serializer: KSerializer<T> = obj::class.serializer() as KSerializer<T>
@@ -22,9 +23,9 @@ val testCases: List<Case<*>> = listOf(
         Case(CityData(1, "New York")),
         Case(StreetData(2, "Broadway", CityData(1, "New York"))),
         Case(StreetData2(2, "Broadway", CityData(1, "New York"))),
-        Case(StreetData2(2, "Broadway", null)),
+        Case(StreetData2(2, "Broadway", null), hasNulls = true),
         Case(CountyData("US", listOf(CityData(1, "New York"), CityData(2, "Chicago")))),
-        Case(zoo),
+        Case(zoo, hasNulls = true),
         Case(shop)
 )
 
@@ -49,12 +50,13 @@ fun testCase(case: Case<Any>, method: (KSerializer<Any>, Any) -> Result, verbose
 }
 
 @Suppress("UNCHECKED_CAST")
-fun testMethod(method: (KSerializer<Any>, Any) -> Result, verbose: Boolean = true): Pair<Int, Int> {
+fun testMethod(method: (KSerializer<Any>, Any) -> Result, supportsNull: Boolean = true, verbose: Boolean = true): Pair<Int, Int> {
     if (verbose) println("==============================================")
     println("Running with ${(method as KFunction<*>).name}")
     var totalCount = 0
     var failCount = 0
     testCases.forEach { case ->
+        if (!supportsNull && case.hasNulls) return@forEach
         if (verbose) println()
         if (!testCase(case as Case<Any>, method, verbose))
             failCount++

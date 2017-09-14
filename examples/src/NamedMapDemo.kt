@@ -41,5 +41,5 @@ fun testMapIO(serializer: KSerializer<Any>, obj: Any): Result {
 }
 
 fun main(args: Array<String>) {
-    testCase(Shop, shop, ::testMapIO)
+    testMethod(::testMapIO, supportsNull = false)
 }
