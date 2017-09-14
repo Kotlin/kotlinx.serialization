@@ -1,34 +1,42 @@
 buildscript {
-    ext.snapshot_version = '1.1-SNAPSHOT'
-    ext.kotlinVersion = ext.snapshot_version
+    ext.compilerVersion = '1.1.50-eap-18'
+    ext.librariesVersion = '1.1.50-eap-18'
+    ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-eap-1.1'
+    ext.serializationRepo = 'https://kotlin.bintray.com/kotlinx'
+    ext.serializationPluginVersion = '0.1'
 
     repositories {
+        jcenter()
+        maven { url serializationRepo }
+        maven { url eapChannel }
         mavenLocal()
-        mavenCentral()
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$snapshot_version"
-        classpath "org.jetbrains.kotlinx:kotlin-serialization:$snapshot_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$compilerVersion"
+        classpath "org.jetbrains.kotlinx:kotlin-serialization:$serializationPluginVersion"
+
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.2'
+
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
     }
 }
 
 ext {
     libraries = [
-            kotlin_stdlib: "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion",
-            kotlin_stdlib_common: "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion",
-            kotlin_stdlib_js: "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlinVersion",
-            kotlin_test: "org.jetbrains.kotlin:kotlin-test:$kotlinVersion",
-            kotlin_test_common: "org.jetbrains.kotlin:kotlin-test-common:$kotlinVersion",
-            kotlin_test_js: "org.jetbrains.kotlin:kotlin-test-js:$kotlinVersion",
-            kotlin_reflect: "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion",
+            kotlin_stdlib: "org.jetbrains.kotlin:kotlin-stdlib:$librariesVersion",
+            kotlin_stdlib_common: "org.jetbrains.kotlin:kotlin-stdlib-common:$librariesVersion",
+            kotlin_stdlib_js: "org.jetbrains.kotlin:kotlin-stdlib-js:$librariesVersion",
+            kotlin_test: "org.jetbrains.kotlin:kotlin-test:$librariesVersion",
+            kotlin_test_common: "org.jetbrains.kotlin:kotlin-test-common:$librariesVersion",
+            kotlin_test_js: "org.jetbrains.kotlin:kotlin-test-js:$librariesVersion",
+            kotlin_reflect: "org.jetbrains.kotlin:kotlin-reflect:$librariesVersion",
     ]
 }
 
 allprojects {
     group 'org.jetbrains.kotlinx'
-    version "$snapshot_version"
+    version '0.1'
 }
 
 apply plugin: 'kotlin'
@@ -37,6 +45,7 @@ configure([project(':jvm'), project(':js')]) {
     apply plugin: 'kotlin-serialization'
 
     apply plugin: 'maven-publish'
+    apply plugin: 'com.jfrog.bintray'
 
     def varintName = "${rootProject.name}-${project.name}"
 
@@ -51,7 +60,7 @@ configure([project(':jvm'), project(':js')]) {
 
     publishing {
         publications {
-            mavenJava(MavenPublication) {
+            mavenProject(MavenPublication) {
                 from components.java
                 groupId project.group
                 artifactId varintName
@@ -60,6 +69,26 @@ configure([project(':jvm'), project(':js')]) {
                 artifact sourceJar {
                     classifier "sources"
                 }
+            }
+        }
+    }
+
+    bintray {
+        user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+        key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+        publications = ['mavenProject']
+        pkg {
+            repo = 'kotlinx'
+            name = 'kotlinx.serialization.runtime'
+            userOrg = 'kotlin'
+            licenses = ['Apache-2.0']
+            vcsUrl = 'https://github.com/Kotlin/kotlinx.serialization'
+            websiteUrl = 'https://github.com/Kotlin/kotlinx.serialization'
+            issueTrackerUrl = 'https://github.com/Kotlin/kotlinx.serialization/issues'
+
+            githubRepo = 'Kotlin/kotlinx.serialization'
+            version {
+                name = project.version
             }
         }
     }

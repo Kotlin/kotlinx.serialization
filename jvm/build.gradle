@@ -1,9 +1,9 @@
 apply plugin: 'kotlin-platform-jvm'
 
 repositories {
-    mavenLocal()
     jcenter()
-    mavenCentral()
+    maven { url eapChannel }
+    mavenLocal()
 }
 
 apply plugin: 'com.google.protobuf'

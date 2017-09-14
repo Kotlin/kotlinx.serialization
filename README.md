@@ -17,7 +17,14 @@ Also, runtime library provides some ready-to-use serialization formats, see belo
 
 ## Building and usage
 
-Make sure you have serialization gradle plugin installed to your local maven repository. Then, run `./gradlew publishToMavenLocal`. After that, you can include this library in arbitrary projects like usual gradle dependency:
+### From bintray
+
+Public EAP is available at <https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime>.
+It requires EAP compiler with version higher than 1.1.50. [Example configuration](examples/build.gradle) for buildscript.
+
+### From source
+
+Run `./gradlew publishToMavenLocal`. After that, you can include this library in arbitrary projects like usual gradle dependency:
 
 ```gradle
 repositories {
@@ -26,7 +33,7 @@ repositories {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlinx:serialization-runtime-jvm:1.1-SNAPSHOT"
+    compile "org.jetbrains.kotlinx:serialization-runtime-jvm:0.1"
 }
 ```
 

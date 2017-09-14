@@ -10,9 +10,9 @@ ext {
 apply plugin: 'kotlin-platform-js'
 
 repositories {
-    mavenLocal()
     jcenter()
-    mavenCentral()
+    maven { url eapChannel }
+    mavenLocal()
 }
 
 dependencies {
