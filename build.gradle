@@ -14,7 +14,7 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$compilerVersion"
-        classpath "org.jetbrains.kotlinx:kotlin-serialization:$serializationPluginVersion"
+        classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$serializationPluginVersion"
 
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.2'
 
@@ -42,12 +42,18 @@ allprojects {
 apply plugin: 'kotlin'
 
 configure([project(':jvm'), project(':js')]) {
-    apply plugin: 'kotlin-serialization'
+    apply plugin: 'kotlinx-serialization'
 
     apply plugin: 'maven-publish'
     apply plugin: 'com.jfrog.bintray'
 
-    def varintName = "${rootProject.name}-${project.name}"
+    def varintName = ""
+
+    if (project.name == "jvm") {
+        varintName = "${rootProject.name}"
+    } else {
+        varintName = "${rootProject.name}-${project.name}"
+    }
 
     task sourceJar(type: Jar, dependsOn: classes) {
         classifier 'sources'

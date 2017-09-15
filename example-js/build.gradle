@@ -13,12 +13,12 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath "org.jetbrains.kotlinx:kotlin-serialization:$serializationVersion"
+        classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$serializationVersion"
     }
 }
 
 apply plugin: 'kotlin2js'
-apply plugin: 'kotlin-serialization'
+apply plugin: 'kotlinx-serialization'
 
 repositories {
     mavenLocal()
@@ -29,7 +29,7 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlinVersion"
-    compile "org.jetbrains.kotlinx:serialization-runtime-js:$serializationVersion"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion"
 }
 
 compileKotlin2Js {

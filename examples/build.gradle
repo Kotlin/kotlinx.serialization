@@ -10,13 +10,13 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath "org.jetbrains.kotlinx:kotlin-serialization:$serializationVersion"
+        classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$serializationVersion"
     }
 }
 
 apply plugin: 'java'
 apply plugin: 'kotlin'
-apply plugin: 'kotlin-serialization'
+apply plugin: 'kotlinx-serialization'
 
 repositories {
     jcenter()
@@ -33,7 +33,7 @@ sourceSets {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
-    compile "org.jetbrains.kotlinx:serialization-runtime-jvm:$serializationVersion"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion"
 }
 
 task runApp(type: JavaExec) {

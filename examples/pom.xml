@@ -54,7 +54,7 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>serialization-runtime-jvm</artifactId>
+            <artifactId>kotlinx-serialization-runtime</artifactId>
             <version>${serialization.version}</version>
         </dependency>
     </dependencies>
@@ -79,14 +79,14 @@
 
                 <configuration>
                     <compilerPlugins>
-                        <plugin>kotlin-serialization</plugin>
+                        <plugin>kotlinx-serialization</plugin>
                     </compilerPlugins>
                 </configuration>
 
                 <dependencies>
                     <dependency>
                         <groupId>org.jetbrains.kotlinx</groupId>
-                        <artifactId>kotlin-maven-serialization</artifactId>
+                        <artifactId>kotlinx-maven-serialization-plugin</artifactId>
                         <version>${serialization.version}</version>
                     </dependency>
                 </dependencies>

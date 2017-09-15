@@ -33,13 +33,14 @@ repositories {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlinx:serialization-runtime-jvm:0.1"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.1"
 }
 ```
 
 ### JavaScript
 
-Replace `jvm` with `js` to use it in JavaScript projects. JavaScript example is located at [`example-js`](example-js) folder.
+Replace `kotlinx-serialization-runtime` with `kotlinx-serialization-runtime-js` to use it in JavaScript projects.
+JavaScript example is located at [`example-js`](example-js) folder.
 
 ## Example
 

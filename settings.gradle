@@ -1,4 +1,4 @@
-rootProject.name = 'serialization-runtime'
+rootProject.name = 'kotlinx-serialization-runtime'
 
 include ':common'
 include ':jvm'
