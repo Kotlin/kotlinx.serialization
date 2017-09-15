@@ -17,8 +17,18 @@ header open class PrintWriter(w: Writer) : Writer {
     open fun print(value: Boolean)
     open fun print(value: Int)
     open fun print(value: Long)
-
     open fun print(value: Any?)
+
+    open fun println()
+    open fun println(s: String)
+    open fun println(ch: Char)
+    open fun println(value: Float)
+    open fun println(value: Double)
+    open fun println(value: Boolean)
+    open fun println(value: Int)
+    open fun println(value: Long)
+    open fun println(value: Any?)
+
     override fun write(src: CharArray, off: Int, len: Int)
     override fun flush()
     override fun close()

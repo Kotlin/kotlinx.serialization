@@ -15,7 +15,7 @@
 <div id="app">
     <label>Schema<br></label>
 
-    <div style="background: #f8f8f8; overflow:auto;width:98ch;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
+    <div style="background: #f8f8f8; overflow:auto;width:98em;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
     <pre style="margin: 0; line-height: 125%"><span style="color: #008000; font-weight: bold">message</span> <span style="color: #0000FF; font-weight: bold">Data</span> {
     <span style="color: #008000; font-weight: bold">required</span> <span style="color: #B00040">int32</span> <span
                 style="color: #7D9029">a</span> <span style="color: #666666">=</span> <span
@@ -34,14 +34,16 @@
     </div>
 
     <br><br>
-    <label for="json">Enter your JSON:</label><br>
-    <textarea placeholder="JSON" id="json" cols="100" rows="10">{"list": [{"a": 42, "b": "42"}]}</textarea><br>
+    <label>Enter your JSON:</label><br>
+    <textarea placeholder="JSON" id="txt" cols="100" rows="10">{"list": [{"a": 42, "b": "42"}]}</textarea><br>
     <br><button id="submit">Click!</button><br><br>
-    <label for="json">Here your Kotlin Object:</label><br>
+    <label>Kotlin Object:</label><br>
     <textarea placeholder="Kotlin" id="kotlin" cols="100" rows="10" readonly></textarea><br>
-    <label for="json">Here your Protobuf:</label><br>
+    <label>JSON indented:</label><br>
+    <textarea placeholder="JSON" id="json" cols="100" rows="10" readonly></textarea><br>
+    <label>Protobuf:</label><br>
     <textarea placeholder="Protobuf" id="proto" cols="100" rows="10" readonly></textarea><br>
-    <label for="json">Here your CBOR:</label><br>
+    <label>CBOR:</label><br>
     <textarea placeholder="CBOR" id="cbor" cols="100" rows="10" readonly></textarea><br>
 </div>
 

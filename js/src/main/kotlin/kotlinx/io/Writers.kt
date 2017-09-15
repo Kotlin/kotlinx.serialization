@@ -20,8 +20,17 @@ impl open class PrintWriter impl constructor(val w: Writer): Writer() {
     impl open fun print(value: Boolean)= print(value.toString())
     impl open fun print(value: Int)= print(value.toString())
     impl open fun print(value: Long)= print(value.toString())
-
     impl open fun print(value: Any?) = print(value.toString())
+
+    impl open fun println() = w.write(10)
+    impl open fun println(s: String) { w.write(s); println() }
+    impl open fun println(ch: Char) { w.write(ch.toInt()); println() }
+    impl open fun println(value: Float)= println(value.toString())
+    impl open fun println(value: Double)= println(value.toString())
+    impl open fun println(value: Boolean)= println(value.toString())
+    impl open fun println(value: Int)= println(value.toString())
+    impl open fun println(value: Long)= println(value.toString())
+    impl open fun println(value: Any?) = println(value.toString())
 
     impl override fun write(src: CharArray, off: Int, len: Int) {
         w.write(src, off, len)

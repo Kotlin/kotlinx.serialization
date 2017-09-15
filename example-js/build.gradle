@@ -21,6 +21,7 @@ apply plugin: 'kotlin2js'
 apply plugin: 'kotlin-serialization'
 
 repositories {
+    mavenLocal()
     jcenter()
     maven { url "https://dl.bintray.com/kotlin/kotlin-eap-1.1" }
     maven { url "https://kotlin.bintray.com/kotlinx" }
