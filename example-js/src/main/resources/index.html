@@ -15,9 +15,8 @@
 <div id="app">
     <label>Schema<br></label>
 
-    <div style="background: #f8f8f8; overflow:auto;width:98ch;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre
-            style="margin: 0; line-height: 125%"><span style="color: #008000; font-weight: bold">message</span> <span
-            style="color: #0000FF; font-weight: bold">Data</span> {
+    <div style="background: #f8f8f8; overflow:auto;width:98ch;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
+    <pre style="margin: 0; line-height: 125%"><span style="color: #008000; font-weight: bold">message</span> <span style="color: #0000FF; font-weight: bold">Data</span> {
     <span style="color: #008000; font-weight: bold">required</span> <span style="color: #B00040">int32</span> <span
                 style="color: #7D9029">a</span> <span style="color: #666666">=</span> <span
                 style="color: #666666">1</span>;
@@ -25,12 +24,18 @@
                 style="color: #7D9029">b</span> <span style="color: #666666">=</span> <span
                 style="color: #666666">2</span>;
 }
+
+<span style="color: #008000; font-weight: bold">message</span> <span style="color: #0000FF; font-weight: bold">DataList</span> {
+    <span style="color: #008000; font-weight: bold">repeated</span> <span style="color: #B00040">Data</span> <span
+                style="color: #7D9029">list</span> <span style="color: #666666">=</span> <span
+                style="color: #666666">1</span>;
+}
 </pre>
     </div>
 
     <br><br>
     <label for="json">Enter your JSON:</label><br>
-    <textarea placeholder="JSON" id="json" cols="100" rows="10">{"a": 42, "b": "42"}</textarea><br>
+    <textarea placeholder="JSON" id="json" cols="100" rows="10">{"list": [{"a": 42, "b": "42"}]}</textarea><br>
     <br><button id="submit">Click!</button><br><br>
     <label for="json">Here your Kotlin Object:</label><br>
     <textarea placeholder="Kotlin" id="kotlin" cols="100" rows="10" readonly></textarea><br>

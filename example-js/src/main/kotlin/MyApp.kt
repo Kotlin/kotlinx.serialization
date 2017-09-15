@@ -1,3 +1,4 @@
+import kotlinx.serialization.Optional
 import kotlinx.serialization.SerialId
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.cbor.CBOR
@@ -9,6 +10,9 @@ import kotlin.browser.document
 
 @Serializable
 data class Data(@SerialId(1) val a: Int, @SerialId(2) val b: String)
+
+@Serializable
+data class DataList(@SerialId(1) @Optional val list: List<Data> = emptyList())
 
 fun main() {
 
@@ -22,7 +26,7 @@ fun main() {
         val txt: String = jsonInput.value
         try {
 
-            val kotl = JSON.parse<Data>(txt)
+            val kotl = JSON.parse<DataList>(txt)
             val proto = ProtoBuf.dumps(kotl)
             val cbor = CBOR.dumps(kotl)
 
