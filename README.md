@@ -37,7 +37,9 @@ dependencies {
 }
 ```
 
-Replace `jvm` with `js` to use it in JavaScript projects.
+### JavaScript
+
+Replace `jvm` with `js` to use it in JavaScript projects. JavaScript example is located at [`example-js`](example-js) folder.
 
 ## Example
 

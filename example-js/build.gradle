@@ -1,0 +1,62 @@
+version '1.0-SNAPSHOT'
+
+buildscript {
+    ext.kotlinVersion = '1.1.50-eap-18'
+    ext.serializationVersion = '0.1'
+    ext.webPath = 'web'
+
+    repositories {
+        jcenter()
+        maven { url "https://dl.bintray.com/kotlin/kotlin-eap-1.1" }
+        maven { url "https://kotlin.bintray.com/kotlinx" }
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "org.jetbrains.kotlinx:kotlin-serialization:$serializationVersion"
+    }
+}
+
+apply plugin: 'kotlin2js'
+apply plugin: 'kotlin-serialization'
+
+repositories {
+    jcenter()
+    maven { url "https://dl.bintray.com/kotlin/kotlin-eap-1.1" }
+    maven { url "https://kotlin.bintray.com/kotlinx" }
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlinVersion"
+    compile "org.jetbrains.kotlinx:serialization-runtime-js:$serializationVersion"
+}
+
+compileKotlin2Js {
+    kotlinOptions.outputFile = "${projectDir}/$webPath/output.js"
+    kotlinOptions.moduleKind = "amd"
+    kotlinOptions.sourceMap = true
+}
+
+clean {
+    delete new File("${projectDir}/$webPath")
+}
+
+build.doLast {
+    configurations.compile.each { File file ->
+        copy {
+            includeEmptyDirs = false
+
+            from zipTree(file.absolutePath)
+            into "${projectDir}/$webPath"
+            include { fileTreeElement ->
+                def path = fileTreeElement.path
+                path.endsWith(".js") && (path.startsWith("META-INF/resources/") || !path.startsWith("META-INF/"))
+            }
+        }
+    }
+
+    copy {
+        from sourceSets.main.resources.srcDirs
+        into "${projectDir}/$webPath"
+    }
+}
