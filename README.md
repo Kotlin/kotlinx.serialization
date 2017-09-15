@@ -20,7 +20,7 @@ Also, runtime library provides some ready-to-use serialization formats, see belo
 ### From bintray
 
 Public EAP is available at <https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime>.
-It requires EAP compiler with version higher than 1.1.50. [Example configuration](examples/build.gradle) for buildscript.
+It requires EAP compiler with version higher than 1.1.50. Example configuration for [Gradle](examples/build.gradle) and [Maven](examples/pom.xml).
 
 ### From source
 

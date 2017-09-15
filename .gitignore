@@ -8,3 +8,5 @@ out/
 build/
 .gradle/
 
+# Maven files
+target
