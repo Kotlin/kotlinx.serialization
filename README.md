@@ -20,7 +20,7 @@ Also, runtime library provides some ready-to-use serialization formats, see belo
 ### From bintray
 
 Public EAP is available at <https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime>.
-It requires EAP compiler with version higher than 1.1.50. Example configuration for [Gradle](examples/build.gradle) and [Maven](examples/pom.xml).
+It requires EAP compiler with version higher than 1.1.50. Example configuration for [Gradle](example-jvm/build.gradle) and [Maven](example-jvm/pom.xml).
 
 ### From source
 
@@ -60,7 +60,7 @@ fun main(args: Array<String>) {
 
 Detailed documentation with more complicated examples of usage located in [DOC.md](DOC.md).
 
-Example project with different implementations of custom formats can be found in [`examples`](examples) folder. 
+Example project with different implementations of custom formats can be found in [`example-jvm`](example-jvm) folder. 
 You can run it with `cd examples; ./gradlew -q runApp`.
 
 ## Built-in formats
