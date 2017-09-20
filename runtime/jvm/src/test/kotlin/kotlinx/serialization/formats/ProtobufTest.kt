@@ -84,6 +84,9 @@ class ProtobufTest : WordSpec() {
                 ProtoBuf.loads<Test2>("") shouldBe t2e
                 ProtoBuf.loads<Test3>("1200") shouldBe t3e
             }
+            "read object even with unknown fields" {
+                ProtoBuf.loads<Test1>("08960108E40108B90A08ab02120774657374696E67") shouldBe t1
+            }
         }
     }
 }

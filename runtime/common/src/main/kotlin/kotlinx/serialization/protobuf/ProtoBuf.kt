@@ -176,12 +176,14 @@ object ProtoBuf {
         override fun KSerialClassDesc.getTag(index: Int) = this.getProtoDesc(index)
 
         override fun readElement(desc: KSerialClassDesc): Int {
-            if (decoder.curId == -1) // EOF
-                return READ_DONE
-            val ind = indexByTag.getOrPut(decoder.curId, { findIndexByTag(desc, decoder.curId) })
-            if (ind == -1) // not found
-                throw ProtobufDecodingException("Unknown id ${decoder.curId}") // todo: skip unknown fields, as standard says
-            return ind
+            while (true) {
+                if (decoder.curId == -1) // EOF
+                    return READ_DONE
+                val ind = indexByTag.getOrPut(decoder.curId, { findIndexByTag(desc, decoder.curId) })
+                if (ind == -1) // not found
+                    decoder.skipElement()
+                else return ind
+            }
         }
     }
 
@@ -224,6 +226,16 @@ object ProtoBuf {
                 fieldId to wireType
             }
             return curTag
+        }
+
+        fun skipElement() {
+            when(curTag.second) {
+                VARINT -> nextInt(ProtoNumberType.DEFAULT)
+                i64 -> nextLong(ProtoNumberType.FIXED)
+                SIZE_DELIMITED -> nextObject()
+                i32 -> nextInt(ProtoNumberType.FIXED)
+            }
+            readTag()
         }
 
         fun nextObject(): ByteArray {

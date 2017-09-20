@@ -100,8 +100,6 @@ Other known issues and limitations:
 
 * Packed repeated fields are not supported
 
-* Unknows fields aren't skipped, exception is thrown instead
-
 * If fields with list tag are going in the arbitrary order, they are not merged into one list, they got overwritten instead.
 
 More examples of mappings from proto definitions to Koltin classes can be found in test data:
