@@ -36,3 +36,13 @@ data class SmallZoo(
         val inner: Simple,
         val innersList: List<Simple>
 )
+
+@Serializable
+data class NumberZoo(
+        val int: Int,
+        val long: Long,
+        val float: Float,
+        val double: Double,
+        val boolean: Boolean,
+        val char: Char
+)

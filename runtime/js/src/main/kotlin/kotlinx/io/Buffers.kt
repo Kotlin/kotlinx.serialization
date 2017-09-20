@@ -192,7 +192,9 @@ impl class ByteBuffer(val capacity: Int) {
 
     impl fun array(): ByteArray {
         val out = ByteArray(limit)
-        get(out, 0, limit)
+        for (i in 0 until limit) {
+            out[i] = dw.getInt8(i)
+        }
         return out
     }
 
