@@ -16,6 +16,10 @@
 
 apply plugin: 'kotlin-platform-jvm'
 
+ext {
+    jacksonVersion = '2.9.1'
+}
+
 apply plugin: 'com.google.protobuf'
 
 protobuf {
@@ -54,9 +58,9 @@ dependencies {
     testCompile 'io.kotlintest:kotlintest:2.0.4'
 
     testCompile 'com.google.protobuf:protobuf-java:3.0.0'
-    testCompile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.8.9'
-    testCompile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.9'
-    testCompile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.8.9'
-    testCompile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-cbor', version: '2.8.9'
+    testCompile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jacksonVersion
+    testCompile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jacksonVersion
+    testCompile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: jacksonVersion
+    testCompile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-cbor', version: jacksonVersion
 
 }

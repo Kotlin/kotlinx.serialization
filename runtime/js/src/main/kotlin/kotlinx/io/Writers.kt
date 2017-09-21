@@ -16,74 +16,78 @@
 
 package kotlinx.io
 
-impl abstract class Writer impl protected constructor() {
-    impl open fun write(ch: Int) {
+actual abstract class Writer actual protected constructor() {
+    actual open fun write(ch: Int) {
         write(charArrayOf(ch.toChar()), 0, 1)
     }
-    impl open fun write(str: String) {
+    actual open fun write(str: String) {
         write(str.toList().toCharArray(), 0, str.length)
     }
-    impl abstract fun write(src: CharArray, off: Int, len: Int)
-    impl abstract fun flush()
-    impl abstract fun close()
+    actual abstract fun write(src: CharArray, off: Int, len: Int)
+    actual abstract fun flush()
+    actual abstract fun close()
 }
 
-impl open class PrintWriter impl constructor(val w: Writer): Writer() {
-    impl open fun print(s: String) = w.write(s)
-    impl open fun print(ch: Char) = w.write(ch.toInt())
-    impl open fun print(value: Float)= print(value.toString())
-    impl open fun print(value: Double)= print(value.toString())
-    impl open fun print(value: Boolean)= print(value.toString())
-    impl open fun print(value: Int)= print(value.toString())
-    impl open fun print(value: Long)= print(value.toString())
-    impl open fun print(value: Any?) = print(value.toString())
+actual open class PrintWriter actual constructor(val w: Writer): Writer() {
+    actual open fun print(s: String) = w.write(s)
+    actual open fun print(ch: Char) = w.write(ch.toInt())
+    actual open fun print(value: Float)= print(value.toString())
+    actual open fun print(value: Double)= print(value.toString())
+    actual open fun print(value: Boolean)= print(value.toString())
+    actual open fun print(value: Int)= print(value.toString())
+    actual open fun print(value: Long)= print(value.toString())
+    actual open fun print(value: Any?) = print(value.toString())
 
-    impl open fun println() = w.write(10)
-    impl open fun println(s: String) { w.write(s); println() }
-    impl open fun println(ch: Char) { w.write(ch.toInt()); println() }
-    impl open fun println(value: Float)= println(value.toString())
-    impl open fun println(value: Double)= println(value.toString())
-    impl open fun println(value: Boolean)= println(value.toString())
-    impl open fun println(value: Int)= println(value.toString())
-    impl open fun println(value: Long)= println(value.toString())
-    impl open fun println(value: Any?) = println(value.toString())
+    actual open fun println() = w.write(10)
+    actual open fun println(s: String) { w.write(s); println() }
+    actual open fun println(ch: Char) { w.write(ch.toInt()); println() }
+    actual open fun println(value: Float)= println(value.toString())
+    actual open fun println(value: Double)= println(value.toString())
+    actual open fun println(value: Boolean)= println(value.toString())
+    actual open fun println(value: Int)= println(value.toString())
+    actual open fun println(value: Long)= println(value.toString())
+    actual open fun println(value: Any?) = println(value.toString())
 
-    impl override fun write(src: CharArray, off: Int, len: Int) {
+    actual override fun write(src: CharArray, off: Int, len: Int) {
         w.write(src, off, len)
     }
-    impl override fun flush() {}
-    impl override fun close() {}
+    actual override fun flush() {}
+    actual override fun close() {}
 }
 
-impl class StringWriter: Writer() {
+actual class StringWriter: Writer() {
     private val sb = StringBuilder()
 
-    impl override fun toString(): String = sb.toString()
-    impl override fun write(src: CharArray, off: Int, len: Int) {
+    actual override fun toString(): String = sb.toString()
+    actual override fun write(src: CharArray, off: Int, len: Int) {
         src.slice(off until off+len).forEach { sb.append(it) }
     }
-    impl override fun flush() {}
-    impl override fun close() {}
+    actual override fun flush() {}
+    actual override fun close() {}
 }
 
 @Suppress("IMPLEMENTATION_WITHOUT_HEADER")
-impl abstract class Reader impl protected constructor() {
-    impl abstract fun read(): Int
-    impl abstract fun read(dst: CharArray, off: Int, len: Int): Int
-    impl open fun close() {}
+actual abstract class Reader actual protected constructor() {
+    actual open fun read(): Int {
+        val a = CharArray(1)
+        read(a, 0, 1)
+        return a[0].toInt()
+    }
+    actual abstract fun read(dst: CharArray, off: Int, len: Int): Int
+    actual abstract fun close()
 }
 
-impl class StringReader impl constructor(val str: String) : Reader() {
+actual class StringReader actual constructor(val str: String) : Reader() {
 
     private var position: Int = 0
 
-    impl override fun read(): Int = when (position) {
+    actual override fun read(): Int = when (position) {
         str.length -> -1
         else -> str[position++].toInt()
     }
 
 
-    impl override fun read(dst: CharArray, off: Int, len: Int): Int {
+    actual override fun read(dst: CharArray, off: Int, len: Int): Int {
         var cnt = 0
         for (i in off until off + len) {
             val r = read()
@@ -94,5 +98,5 @@ impl class StringReader impl constructor(val str: String) : Reader() {
         return len
     }
 
-    impl override fun close() {}
+    actual override fun close() {}
 }
