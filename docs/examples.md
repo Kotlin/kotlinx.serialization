@@ -1,4 +1,4 @@
-# Serialization documentation and example cases.
+# Serialization documentation and example cases
 
 **Note**: Cases are presented here as a series of *unit-tests* using non-standard *unquoted* JSON for ease of presentation. Standards-compliant JSON is supported, too. Just replace `JSON.unquoted` with plain `JSON`.
 

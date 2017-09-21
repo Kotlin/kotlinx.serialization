@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 JetBrains s.r.o.
+ * Copyright 2017 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,7 @@ import kotlinx.serialization.internal.*
 import kotlin.experimental.or
 import kotlin.reflect.KClass
 
-/**
- * @author Leonid Startsev
- *		   sandwwraith@gmail.com
- **/
-
 object CBOR {
-
     // Writes map entry as plain [key, value] pair, without bounds.
     private class CBOREntryWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
         override fun writeBeginToken() {

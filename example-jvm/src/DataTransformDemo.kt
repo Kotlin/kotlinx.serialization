@@ -6,8 +6,6 @@ import utils.shop
  * This demo shows how one can easily apply transformations
  * (which are very similar to functional lens by their nature) to arbitrary objects
  * on arbitrary nesting levels
- *
- * @author Roman Elizarov
  */
 
 object LowercaseTransformer : ValueTransformer() {

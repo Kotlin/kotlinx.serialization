@@ -13,8 +13,6 @@ import kotlin.reflect.KClass
  * In most cases, it is sufficient to define how all primitive types are getting serialized.
  * If you want precise control over the fields and maybe record their names, you can use
  * `writeElement` methods, see CustomKeyValueDemo.kt
- *
- * @author Roman Elizarov
  */
 
 class DataBinaryNullableOutput(val out: DataOutput) : ElementValueOutput() {

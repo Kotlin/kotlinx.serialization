@@ -6,8 +6,6 @@ import utils.testMethod
 /**
  * This demo shows that you can easily clone your object
  * by using transformer class without defined transformations
- *
- * @author Roman Elizarov
  */
 
 object Clone : ValueTransformer() {}

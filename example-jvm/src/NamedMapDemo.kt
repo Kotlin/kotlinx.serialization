@@ -13,8 +13,6 @@ import utils.*
  *
  * Here, the tag is field's name. Functionality of these classes is similar to kotlinx.serialization.Mapper
  * Note that null values are not supported here.
- *
- * @author Roman Elizarov
  */
 
 class MapOutput(val map: MutableMap<String, Any> = mutableMapOf()) : NamedValueOutput() {

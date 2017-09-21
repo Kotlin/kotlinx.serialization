@@ -14,8 +14,6 @@ import kotlin.reflect.KClass
  * here we are using writeElement method, which provide information about current field.
  * Also, unlike binary demo, there are object separators, which are written in
  * writeBegin and writeEnd methods.
- *
- * @author Roman Elizarov
  */
 
 class KeyValueOutput(val out: PrintWriter) : ElementValueOutput() {

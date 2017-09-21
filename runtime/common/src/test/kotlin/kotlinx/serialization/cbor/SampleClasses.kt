@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 JetBrains s.r.o.
+ * Copyright 2017 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,6 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.Serializable
-
-/**
- * @author Leonid Startsev
- *		  sandwwraith@gmail.com
- **/
 
 @Serializable
 data class Simple(val a: String)

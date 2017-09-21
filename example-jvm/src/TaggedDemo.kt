@@ -9,8 +9,6 @@ import utils.testCase
  *
  * Also you must explicitly specify annotation target as property
  * on @SerialInfo annotation classes
- *
- * @author Leonid Startsev
  */
 
 @Target(AnnotationTarget.PROPERTY)

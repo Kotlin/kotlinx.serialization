@@ -13,16 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-apply plugin: 'kotlin-platform-common'
-
-repositories {
-    jcenter()
-    maven { url eapChannel }
-    mavenLocal()
-}
-
-dependencies {
-    compile libraries.kotlin_stdlib_common
-    testCompile libraries.kotlin_test_common
-}

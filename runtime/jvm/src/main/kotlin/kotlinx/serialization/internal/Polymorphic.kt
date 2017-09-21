@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 JetBrains s.r.o.
+ * Copyright 2017 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,9 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.registerSerializer
-import kotlinx.serialization.serializerByClass
-import kotlinx.serialization.serializerByValue
 import kotlin.reflect.KClass
 import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.isSubclassOf
-
-/**
- *  @author Leonid Startsev
- *          sandwwraith@gmail.com
- */
 
 object PolymorphicClassDesc : SerialClassDescImpl("kotlin.Any") {
     override val kind: KSerialClassKind = KSerialClassKind.POLYMORPHIC

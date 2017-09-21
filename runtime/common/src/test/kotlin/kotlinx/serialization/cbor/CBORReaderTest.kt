@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 JetBrains s.r.o.
+ * Copyright 2017 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,6 @@ import kotlinx.io.ByteArrayInputStream
 import kotlinx.serialization.internal.HexConverter
 import org.junit.Test
 import kotlin.test.assertEquals
-
-/**
- * @author Leonid Startsev
- *		  sandwwraith@gmail.com
- **/
 
 class CBORReaderTest {
     fun withDecoder(input: String, block: CBOR.CBORDecoder.() -> Unit) {
