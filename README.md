@@ -83,7 +83,7 @@ More examples of mappings from proto definitions to Koltin classes can be found 
 
 ## Usage
 
-Using Kotlin Serialization requires compiler with version higher than `1.1.50`. 
+Using Kotlin Serialization requires Kotlin compiler `1.1.50` or higher. 
 Example projects on JVM are available for [Gradle](example-jvm/build.gradle) and [Maven](example-jvm/pom.xml).
 
 ### Gradle/JVM
