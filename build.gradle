@@ -7,9 +7,9 @@ buildscript {
 
     repositories {
         jcenter()
+        mavenLocal()
         maven { url serializationRepo }
         maven { url eapChannel }
-        mavenLocal()
     }
 
     dependencies {

@@ -217,7 +217,7 @@ object CBOR {
         override fun readElement(desc: KSerialClassDesc): Int {
             if (decoder.isEnd()) return READ_DONE
             val elemName = decoder.nextString()
-            return desc.getElementIndex(elemName)
+            return desc.getElementIndexOrThrow(elemName)
         }
 
         override fun readStringValue() = decoder.nextString()

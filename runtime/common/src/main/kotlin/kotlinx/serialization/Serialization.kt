@@ -16,6 +16,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.KInput.Companion.UNKNOWN_NAME
 import kotlinx.serialization.internal.UnitSerializer
 import kotlin.reflect.KClass
 
@@ -52,6 +53,11 @@ interface KSerialClassDesc {
     val kind: KSerialClassKind
     fun getElementName(index: Int): String
     fun getElementIndex(name: String): Int
+    fun getElementIndexOrThrow(name: String): Int {
+        val i = getElementIndex(name)
+        if (i == UNKNOWN_NAME) throw SerializationException("Unknown name '$name'")
+        return i
+    }
 
     fun getAnnotationsForIndex(index: Int): List<Annotation> = emptyList()
     val associatedFieldsCount: Int
@@ -77,6 +83,7 @@ class SerializationConstructorMarker private constructor()
 open class SerializationException(s: String) : RuntimeException(s)
 
 class MissingFieldException(fieldName: String) : SerializationException("Field $fieldName is required, but it was missing")
+class UnknownFieldException(index: Int): SerializationException("Unknown field for index $index")
 
 // ========================================================================================================================
 
@@ -218,6 +225,7 @@ abstract class KInput internal constructor() {
     companion object {
         const val READ_DONE = -1
         const val READ_ALL = -2
+        const val UNKNOWN_NAME = -3
     }
 
     // returns either index or one of READ_XXX constants

@@ -16,9 +16,9 @@
 
 package kotlinx.serialization.internal
 
+import kotlinx.serialization.KInput.Companion.UNKNOWN_NAME
 import kotlinx.serialization.KSerialClassDesc
 import kotlinx.serialization.KSerialClassKind
-import kotlinx.serialization.SerializationException
 
 open class SerialClassDescImpl(override val name: String) : KSerialClassDesc {
     override val kind: KSerialClassKind get() = KSerialClassKind.CLASS
@@ -42,7 +42,7 @@ open class SerialClassDescImpl(override val name: String) : KSerialClassDesc {
         get() = annotations.size
 
     override fun getElementName(index: Int): String = names[index]
-    override fun getElementIndex(name: String): Int = indices[name] ?: throw SerializationException("Unknown name '$name'")
+    override fun getElementIndex(name: String): Int = indices[name] ?: UNKNOWN_NAME
 
     private fun buildIndices(): Map<String, Int> {
         val indices = HashMap<String, Int>()

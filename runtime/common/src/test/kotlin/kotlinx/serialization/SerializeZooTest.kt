@@ -151,7 +151,7 @@ class SerializeZooTest {
             val name = inp.nextUntil(':', '}')
             if (name.isEmpty())
                 return READ_DONE
-            val index = desc.getElementIndex(name)
+            val index = desc.getElementIndexOrThrow(name)
             inp.expect(':')
             return index
         }

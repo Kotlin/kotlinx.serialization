@@ -397,7 +397,7 @@ data class JSON(
                     val key = p.takeStr()
                     require(p.curTc == TC_COLON, p.tokenPos) { "Expected ':'" }
                     p.nextToken()
-                    return desc.getElementIndex(key)
+                    return desc.getElementIndexOrThrow(key)
                 }
             }
         }
