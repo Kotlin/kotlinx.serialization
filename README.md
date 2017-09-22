@@ -42,9 +42,48 @@ More examples of various kinds of Kotlin classes that can be serialized can be f
 
 ## Serialization formats
 
-Runtime library provides three ready-to use formats: JSON, CBOR and ProtoBuf. Usage of the first two formats is pretty 
-straightforward and obvious from the example above. Notes on them: because JSON doesn't support maps with keys other than 
-strings (and primitives), Kotlin maps with non-trivial key types are serialized as JSON lists. CBOR doesn't have this limitation,
+Runtime library provides three ready-to use formats: JSON, CBOR and ProtoBuf.
+
+### JSON usage
+
+JSON format represented by `JSON` class from `kotlinx.serialization.json` package. It has contructor with three optional parameters:
+
+* unquoted - means that all field names and other objects (where it's possible) would not be wrapped in quotes. Useful for debugging.
+* indented - classic pretty-printed multiline JSON.
+* indent - size of indent, applicable if parameter above is true.
+
+You can also use one of predefined instances, like `JSON.plain`, `JSON.indented` or `JSON.unquoted`. API is duplicated in companion object, so `JSON.parse(...)` equals to `JSON.plain.parse(...)`
+
+JSON API:
+
+```kotlin
+    fun <T> stringify(saver: KSerialSaver<T>, obj: T): String
+    inline fun <reified T : Any> stringify(obj: T): String = stringify(T::class.serializer(), obj)
+
+    fun <T> parse(loader: KSerialLoader<T>, str: String): T
+    inline fun <reified T : Any> parse(str: String): T = parse(T::class.serializer(), str)
+```
+
+`stringify` transforms object to string, `parse` parses. No surprises.
+
+**Note**: because JSON doesn't support maps with keys other than
+strings (and primitives), Kotlin maps with non-trivial key types are serialized as JSON lists.
+
+### CBOR usage
+
+`CBOR` object doesn't support any tweaking and provides following functions:
+
+```kotlin
+    fun <T : Any> dump(saver: KSerialSaver<T>, obj: T): ByteArray // saves object to bytes
+    inline fun <reified T : Any> dump(obj: T): ByteArray // same as above, resolves serializer by itself
+    inline fun <reified T : Any> dumps(obj: T): String // dump object and then pretty-print bytes to string
+
+    fun <T : Any> load(loader: KSerialLoader<T>, raw: ByteArray): T // load object from bytes
+    inline fun <reified T : Any> load(raw: ByteArray): T // save as above
+    inline fun <reified T : Any> loads(hex: String): T // inverse operation for dumps
+```
+
+**Note**: CBOR, unlike JSON, supports maps with non-trivial keys,
 and Kotlin maps are serialized as CBOR maps, but some parsers (like `jackson-dataformat-cbor`) don't support this.
 
 ### Protobuf usage
