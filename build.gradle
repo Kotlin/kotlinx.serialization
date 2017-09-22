@@ -71,9 +71,15 @@ configure([project(':jvm'), project(':js')]) {
         varintName = "${rootProject.name}-${project.name}"
     }
 
-    task sourceJar(type: Jar, dependsOn: classes) {
-        classifier 'sources'
-        from sourceSets.main.allSource
+    afterEvaluate {
+        task sourceJar(type: Jar, dependsOn: classes) {
+            classifier 'sources'
+            from sourceSets.main.kotlin
+            duplicatesStrategy = "exclude"
+            def platformSrc = sourceSets.main.kotlin
+            def commonSrc = project(':common').sourceSets.main.kotlin
+            from (platformSrc + commonSrc)
+        }
     }
 
     tasks.withType(Jar) {
