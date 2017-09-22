@@ -46,13 +46,14 @@ Runtime library provides three ready-to use formats: JSON, CBOR and ProtoBuf.
 
 ### JSON usage
 
-JSON format represented by `JSON` class from `kotlinx.serialization.json` package. It has contructor with three optional parameters:
+JSON format represented by `JSON` class from `kotlinx.serialization.json` package. It has constructor with four optional parameters:
 
+* nonstrict - allow JSON parser skip fields which are not present in class. By default is false.
 * unquoted - means that all field names and other objects (where it's possible) would not be wrapped in quotes. Useful for debugging.
 * indented - classic pretty-printed multiline JSON.
 * indent - size of indent, applicable if parameter above is true.
 
-You can also use one of predefined instances, like `JSON.plain`, `JSON.indented` or `JSON.unquoted`. API is duplicated in companion object, so `JSON.parse(...)` equals to `JSON.plain.parse(...)`
+You can also use one of predefined instances, like `JSON.plain`, `JSON.indented`, `JSON.nonstrict` or `JSON.unquoted`. API is duplicated in companion object, so `JSON.parse(...)` equals to `JSON.plain.parse(...)`
 
 JSON API:
 

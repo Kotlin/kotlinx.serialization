@@ -26,7 +26,8 @@ import kotlin.reflect.KClass
 data class JSON(
         private val unquoted: Boolean = false,
         private val indented: Boolean = false,
-        private val indent: String = "    "
+        private val indent: String = "    ",
+        internal val nonstrict: Boolean = false
 ) {
 
     fun <T> stringify(saver: KSerialSaver<T>, obj: T): String {
@@ -57,6 +58,7 @@ data class JSON(
         val plain = JSON()
         val unquoted = JSON(unquoted = true)
         val indented = JSON(indented = true)
+        val nonstrict = JSON(nonstrict = true)
 
         //================================= implementation =================================
 
@@ -322,7 +324,7 @@ data class JSON(
         }
     }
 
-    private class JsonInput(val mode: Mode, val p: Parser) : ElementValueInput() {
+    private inner class JsonInput(val mode: Mode, val p: Parser) : ElementValueInput() {
         var curIndex = 0
         var entryIndex = 0
 
@@ -358,46 +360,54 @@ data class JSON(
 
         override fun readElement(desc: KSerialClassDesc): Int {
 //            println(p.state())
-            if (p.curTc == TC_COMMA) p.nextToken()
-            when (mode) {
-                Mode.LIST, Mode.MAP -> {
-                    if (!p.canBeginValue)
-                        return READ_DONE
-                    return ++curIndex
-                }
-                Mode.POLY -> {
-                    when (entryIndex++) {
-                        0 -> return 0
-                        1 -> {
-                            return 1
-                        }
-                        else -> {
-                            entryIndex = 0
+            while (true) {
+                if (p.curTc == TC_COMMA) p.nextToken()
+                when (mode) {
+                    Mode.LIST, Mode.MAP -> {
+                        if (!p.canBeginValue)
                             return READ_DONE
+                        return ++curIndex
+                    }
+                    Mode.POLY -> {
+                        when (entryIndex++) {
+                            0 -> return 0
+                            1 -> {
+                                return 1
+                            }
+                            else -> {
+                                entryIndex = 0
+                                return READ_DONE
+                            }
                         }
                     }
-                }
-                Mode.ENTRY -> {
-                    when (entryIndex++) {
-                        0 -> return 0
-                        1 -> {
-                            require(p.curTc == TC_COLON, p.tokenPos) { "Expected ':'" }
-                            p.nextToken()
-                            return 1
-                        }
-                        else -> {
-                            entryIndex = 0
-                            return READ_DONE
+                    Mode.ENTRY -> {
+                        when (entryIndex++) {
+                            0 -> return 0
+                            1 -> {
+                                require(p.curTc == TC_COLON, p.tokenPos) { "Expected ':'" }
+                                p.nextToken()
+                                return 1
+                            }
+                            else -> {
+                                entryIndex = 0
+                                return READ_DONE
+                            }
                         }
                     }
-                }
-                else -> {
-                    if (!p.canBeginValue)
-                        return READ_DONE
-                    val key = p.takeStr()
-                    require(p.curTc == TC_COLON, p.tokenPos) { "Expected ':'" }
-                    p.nextToken()
-                    return desc.getElementIndexOrThrow(key)
+                    else -> {
+                        if (!p.canBeginValue)
+                            return READ_DONE
+                        val key = p.takeStr()
+                        require(p.curTc == TC_COLON, p.tokenPos) { "Expected ':'" }
+                        p.nextToken()
+                        val ind = desc.getElementIndex(key)
+                        if (ind != UNKNOWN_NAME)
+                            return ind
+                        if (!nonstrict)
+                            throw SerializationException("Strict JSON encountered unknown key: $key")
+                        else
+                            p.skipElement()
+                    }
                 }
             }
         }
@@ -516,16 +526,34 @@ data class JSON(
         private fun hex(): Int {
             nextChar()
             require(curChar >= 0, charPos) { "Unexpected end in unicode escape " }
-            when (curChar.toChar()) {
-                in '0'..'9' -> return curChar - '0'.toInt()
-                in 'a'..'f' -> return curChar - 'a'.toInt() + 10
-                in 'A'..'F' -> return curChar - 'A'.toInt() + 10
+            return when (curChar.toChar()) {
+                in '0'..'9' -> curChar - '0'.toInt()
+                in 'a'..'f' -> curChar - 'a'.toInt() + 10
+                in 'A'..'F' -> curChar - 'A'.toInt() + 10
                 else -> throw fail(charPos, "Invalid hex char '${curChar.toChar()}' in unicode escape")
             }
         }
 
         internal fun state(): String {
             return "Parser(charPos=$charPos, curChar=$curChar, tokenPos=$tokenPos, curTc=$curTc, curStr=$curStr)"
+        }
+
+        internal fun skipElement() {
+            val tokenStack = mutableListOf<Byte>()
+            while (curTc != TC_COMMA || tokenStack.isNotEmpty()) {
+                when (curTc) {
+                    TC_BEGIN_LIST, TC_BEGIN_OBJ -> tokenStack.add(curTc)
+                    TC_END_LIST -> {
+                        if (tokenStack.last() != TC_BEGIN_LIST) throw SerializationException("Invalid JSON at $charPos: found ] instead of }")
+                        tokenStack.removeAt(tokenStack.size - 1)
+                    }
+                    TC_END_OBJ -> {
+                        if (tokenStack.last() != TC_BEGIN_OBJ) throw SerializationException("Invalid JSON at $charPos: found } instead of ]")
+                        tokenStack.removeAt(tokenStack.size - 1)
+                    }
+                }
+                nextToken()
+            }
         }
     }
 }
