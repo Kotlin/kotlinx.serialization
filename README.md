@@ -193,3 +193,10 @@ Add dependency on serialization runtime library:
 Replace `kotlinx-serialization-runtime` with `kotlinx-serialization-runtime-js` to use it in JavaScript projects.
 JavaScript example is located at [`example-js`](example-js) folder.
 
+## IntelliJ IDEA
+
+Unfortunately, embedded Kotlin compiler is not supported yet. To be able to run your project with serialization from within IDEA, perform following steps: 
+
+`Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`. 
+
+For maven projects, create separate run configuration.
