@@ -16,12 +16,6 @@
 
 apply plugin: 'kotlin-platform-jvm'
 
-repositories {
-    jcenter()
-    maven { url eapChannel }
-    mavenLocal()
-}
-
 apply plugin: 'com.google.protobuf'
 
 protobuf {

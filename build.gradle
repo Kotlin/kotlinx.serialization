@@ -15,8 +15,8 @@
  */
 
 buildscript {
-    ext.compilerVersion = '1.1.50-eap-18'
-    ext.librariesVersion = '1.1.50-eap-18'
+    ext.compilerVersion = '1.1.50'
+    ext.librariesVersion = '1.1.50'
     ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-eap-1.1'
     ext.serializationRepo = 'https://kotlin.bintray.com/kotlinx'
     ext.serializationPluginVersion = '0.1'
@@ -25,7 +25,6 @@ buildscript {
         jcenter()
         mavenLocal()
         maven { url serializationRepo }
-        maven { url eapChannel }
     }
 
     dependencies {
@@ -53,6 +52,11 @@ ext {
 allprojects {
     group 'org.jetbrains.kotlinx'
     version '0.1'
+
+    repositories {
+        jcenter()
+        mavenLocal()
+    }
 }
 
 apply plugin: 'kotlin'

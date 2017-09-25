@@ -25,12 +25,6 @@ ext {
 
 apply plugin: 'kotlin-platform-js'
 
-repositories {
-    jcenter()
-    maven { url eapChannel }
-    mavenLocal()
-}
-
 dependencies {
     implement project(':common')
     testImplementation project(':common')
