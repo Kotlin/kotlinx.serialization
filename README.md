@@ -132,17 +132,17 @@ Ensure the proper version of Kotlin and add dependencies on plugin in addition t
 
 ```gradle
 buildscript {
-    ext.kotlinVersion = '1.1.50'
-    ext.serializationVersion = '0.1'
+    ext.kotlin_version = '1.1.50'
+    ext.serialization_version = '0.1'
     repositories {
         jcenter()
         maven { url "https://kotlin.bintray.com/kotlinx" }
     }
-}
 
-dependencies {
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-    classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$serializationVersion"
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$serialization_version"
+    }
 }
 
 apply plugin: 'kotlin'
@@ -152,12 +152,16 @@ apply plugin: 'kotlinx-serialization'
 Add serialization runtime library in addition to Kotlin standard library and reflection (optional).
 
 ```gradle
-dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion"
+repositories {
+    jcenter()
+    maven { url "https://kotlin.bintray.com/kotlinx" }
 }
 
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
+}
 ``` 
 
 ### Maven/JVM
