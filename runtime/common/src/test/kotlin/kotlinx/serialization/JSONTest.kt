@@ -26,11 +26,13 @@ class JSONTest {
     @Test
     fun nonStrictJSONCanSkipValues() {
         assertEquals(JSON.nonstrict.parse<OptionalTests.Data>("{strangeField: 100500, a:0}"), OptionalTests.Data())
+        assertEquals(JSON.nonstrict.parse<OptionalTests.Data>("{a:0, strangeField: 100500}"), OptionalTests.Data())
     }
 
     @Test
     fun nonStrictJSONCanSkipComplexValues() {
-        assertEquals(JSON.nonstrict.parse<OptionalTests.Data>("{strangeField: {a: b, c: {d: e}, f: [g,h,j] }, a:0}"), OptionalTests.Data())
+        assertEquals(JSON.nonstrict.parse<OptionalTests.Data>("{a: 0, strangeField: {a: b, c: {d: e}, f: [g,h,j] }}"), OptionalTests.Data())
+        assertEquals(JSON.nonstrict.parse<OptionalTests.Data>("{strangeField: {a: b, c: {d: e}, f: [g,h,j] }, a: 0}"), OptionalTests.Data())
     }
 
     @Test

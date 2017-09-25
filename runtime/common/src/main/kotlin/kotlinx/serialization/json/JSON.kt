@@ -540,8 +540,12 @@ data class JSON(
         }
 
         internal fun skipElement() {
+            if (curTc != TC_BEGIN_OBJ && curTc != TC_BEGIN_LIST) {
+                nextToken()
+                return
+            }
             val tokenStack = mutableListOf<Byte>()
-            while (curTc != TC_COMMA || tokenStack.isNotEmpty()) {
+            do {
                 when (curTc) {
                     TC_BEGIN_LIST, TC_BEGIN_OBJ -> tokenStack.add(curTc)
                     TC_END_LIST -> {
@@ -554,7 +558,7 @@ data class JSON(
                     }
                 }
                 nextToken()
-            }
+            } while (tokenStack.isNotEmpty())
         }
     }
 }
