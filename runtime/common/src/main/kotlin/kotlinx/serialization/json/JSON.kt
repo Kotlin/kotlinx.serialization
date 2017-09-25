@@ -104,7 +104,7 @@ data class JSON(
             initC2TC(c.toInt(), cl)
         }
 
-        fun c2tc(c: Int): Byte = if (c < CTC_MAX + CTC_OFS) C2TC[c + CTC_OFS] else TC_OTHER
+        fun c2tc(c: Int): Byte = if (c < CTC_MAX) C2TC[c + CTC_OFS] else TC_OTHER
 
         init {
             initC2TC(-1, TC_EOF)
@@ -153,6 +153,7 @@ data class JSON(
             initC2ESC(0x0a, 'n')
             initC2ESC(0x0c, 'f')
             initC2ESC(0x0d, 'r')
+            initC2ESC('/', '/')
             initC2ESC(STRING, STRING)
             initC2ESC(STRING_ESC, STRING_ESC)
         }

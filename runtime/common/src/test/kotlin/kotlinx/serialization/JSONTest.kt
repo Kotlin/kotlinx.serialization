@@ -21,7 +21,8 @@ import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-class StrictJSONTest {
+class JSONTest {
+
     @Test
     fun nonStrictJSONCanSkipValues() {
         assertEquals(JSON.nonstrict.parse<OptionalTests.Data>("{strangeField: 100500, a:0}"), OptionalTests.Data())
@@ -37,5 +38,16 @@ class StrictJSONTest {
         assertFailsWith(SerializationException::class) {
             JSON.parse<OptionalTests.Data>("{strangeField: 100500, a:0}")
         }
+    }
+
+    @Serializable
+    data class Url(val url: String)
+
+    @Test
+    fun testParseEscapedSymbols() {
+        assertEquals(Url("https://t.co/M1uhwigsMT"), JSON.parse("""{"url":"https:\/\/t.co\/M1uhwigsMT"}"""))
+        assertEquals(Url("\"test\""), JSON.parse("""{"url": "\"test\""}"""))
+        assertEquals(Url("\u00c9"), JSON.parse("""{"url": "\u00c9"}"""))
+        assertEquals(Url("""\\"""), JSON.parse("""{"url": "\\\\"}"""))
     }
 }
