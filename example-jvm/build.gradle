@@ -15,18 +15,17 @@
  */
 
 buildscript {
-    ext.kotlinVersion = '1.1.50-eap-18'
-    ext.serializationVersion = '0.1'
+    ext.kotlin_version = '1.1.50'
+    ext.serialization_version = '0.1'
 
     repositories {
         jcenter()
-        maven { url "https://dl.bintray.com/kotlin/kotlin-eap-1.1" }
         maven { url "https://kotlin.bintray.com/kotlinx" }
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$serializationVersion"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$serialization_version"
     }
 }
 
@@ -36,7 +35,6 @@ apply plugin: 'kotlinx-serialization'
 
 repositories {
     jcenter()
-    maven { url "https://dl.bintray.com/kotlin/kotlin-eap-1.1" }
     maven { url "https://kotlin.bintray.com/kotlinx" }
 }
 
@@ -47,9 +45,9 @@ sourceSets {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
 }
 
 task runApp(type: JavaExec) {

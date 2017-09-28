@@ -17,19 +17,18 @@
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlinVersion = '1.1.50-eap-18'
-    ext.serializationVersion = '0.1'
-    ext.webPath = 'web'
+    ext.kotlin_version = '1.1.50'
+    ext.serialization_version = '0.1'
+    ext.web_path = 'web'
 
     repositories {
         jcenter()
-        maven { url "https://dl.bintray.com/kotlin/kotlin-eap-1.1" }
         maven { url "https://kotlin.bintray.com/kotlinx" }
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$serializationVersion"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$serialization_version"
     }
 }
 
@@ -39,23 +38,22 @@ apply plugin: 'kotlinx-serialization'
 repositories {
     mavenLocal()
     jcenter()
-    maven { url "https://dl.bintray.com/kotlin/kotlin-eap-1.1" }
     maven { url "https://kotlin.bintray.com/kotlinx" }
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlinVersion"
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
 }
 
 compileKotlin2Js {
-    kotlinOptions.outputFile = "${projectDir}/$webPath/output.js"
+    kotlinOptions.outputFile = "${projectDir}/$web_path/output.js"
     kotlinOptions.moduleKind = "amd"
     kotlinOptions.sourceMap = true
 }
 
 clean {
-    delete new File("${projectDir}/$webPath")
+    delete new File("${projectDir}/$web_path")
 }
 
 build.doLast {
@@ -64,7 +62,7 @@ build.doLast {
             includeEmptyDirs = false
 
             from zipTree(file.absolutePath)
-            into "${projectDir}/$webPath"
+            into "${projectDir}/$web_path"
             include { fileTreeElement ->
                 def path = fileTreeElement.path
                 path.endsWith(".js") && (path.startsWith("META-INF/resources/") || !path.startsWith("META-INF/"))
@@ -74,6 +72,6 @@ build.doLast {
 
     copy {
         from sourceSets.main.resources.srcDirs
-        into "${projectDir}/$webPath"
+        into "${projectDir}/$web_path"
     }
 }
