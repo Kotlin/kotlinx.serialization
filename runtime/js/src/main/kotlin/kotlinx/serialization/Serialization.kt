@@ -19,7 +19,8 @@ package kotlinx.serialization
 import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
-impl fun <T: Any> KClass<T>.serializer(): KSerializer<T> = this.js.asDynamic().Companion as KSerializer<T>
+impl fun <T: Any> KClass<T>.serializer(): KSerializer<T> = this.js.asDynamic().Companion as? KSerializer<T>
+        ?: throw SerializationException("Can't locate companion serializer for class $this")
 
 impl fun String.toUtf8Bytes(): ByteArray {
     val s = this

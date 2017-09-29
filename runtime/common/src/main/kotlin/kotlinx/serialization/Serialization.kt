@@ -265,7 +265,7 @@ open class ElementValueOutput : KOutput() {
 
     // writes an arbitrary non-null value
     override fun writeValue(value: Any) {
-        throw SerializationException("value is not supported")
+        throw SerializationException("$value is not supported")
     }
 
     override final fun writeNullableValue(value: Any?) {
