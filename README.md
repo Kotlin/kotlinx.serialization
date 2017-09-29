@@ -1,10 +1,11 @@
-# Kotlin cross-platform / multi-format serialization 
+# Kotlin cross-platform / multi-format reflectionless serialization 
 
 [![JetBrains incubator project](http://jb.gg/badges/incubator.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Download](https://api.bintray.com/packages/kotlin/kotlinx/kotlinx.serialization.runtime/images/download.svg) ](https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime/_latestVersion)
 
-Kotlin serialization support consists of three parts: a gradle compiler plugin, an IntelliJ plugin and a runtime library.
+Kotlin serialization support consists of three parts: a gradle compiler plugin, which produces visitor/serializer code
+for objects, an IntelliJ plugin and a runtime library.
 
 * Supports Kotlin classes marked as `@Serializable` and standard collections. 
 * Supports JSON, CBOR, and Protobuf formats out-of-the-box.
@@ -144,12 +145,19 @@ buildscript {
         classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$serialization_version"
     }
 }
+```
 
+Don't forget to apply the plugin:
+
+```gradle
 apply plugin: 'kotlin'
 apply plugin: 'kotlinx-serialization'
 ```
 
 Add serialization runtime library in addition to Kotlin standard library and reflection (optional).
+For now, library requires small amount of reflection on runtime to find corresponding serializer for root-level type. 
+In the future, we plan to move all resolving to separate module so the runtime library itself would not 
+contain dependency on kotlin-reflect.
 
 ```gradle
 repositories {
