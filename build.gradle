@@ -19,7 +19,7 @@ buildscript {
     ext.librariesVersion = '1.1.50'
     ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-eap-1.1'
     ext.serializationRepo = 'https://kotlin.bintray.com/kotlinx'
-    ext.serializationPluginVersion = '0.1'
+    ext.serializationPluginVersion = '0.1.1'
 
     repositories {
         jcenter()
@@ -51,7 +51,7 @@ ext {
 
 allprojects {
     group 'org.jetbrains.kotlinx'
-    version '0.1'
+    version '0.1.1'
 
     repositories {
         jcenter()

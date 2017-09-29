@@ -29,20 +29,12 @@
 
     <repositories>
         <repository>
-            <id>bintray-kotlin-kotlin-eap-1.1</id>
-            <url>https://dl.bintray.com/kotlin/kotlin-eap-1.1</url>
-        </repository>
-        <repository>
             <id>bintray-kotlin-kotlinx</id>
             <name>bintray</name>
             <url>https://kotlin.bintray.com/kotlinx</url>
         </repository>
     </repositories>
     <pluginRepositories>
-        <pluginRepository>
-            <id>bintray-kotlin-kotlin-eap-1.1</id>
-            <url>https://dl.bintray.com/kotlin/kotlin-eap-1.1</url>
-        </pluginRepository>
         <pluginRepository>
             <id>bintray-kotlin-kotlinx</id>
             <name>bintray-plugins</name>
@@ -53,8 +45,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.version>1.1.50-eap-18</kotlin.version>
-        <serialization.version>0.1</serialization.version>
+        <kotlin.version>1.1.50</kotlin.version>
+        <serialization.version>0.1.1</serialization.version>
     </properties>
 
     <dependencies>

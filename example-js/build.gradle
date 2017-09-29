@@ -18,7 +18,7 @@ version '1.0-SNAPSHOT'
 
 buildscript {
     ext.kotlin_version = '1.1.50'
-    ext.serialization_version = '0.1'
+    ext.serialization_version = '0.1.1'
     ext.web_path = 'web'
 
     repositories {
@@ -36,7 +36,6 @@ apply plugin: 'kotlin2js'
 apply plugin: 'kotlinx-serialization'
 
 repositories {
-    mavenLocal()
     jcenter()
     maven { url "https://kotlin.bintray.com/kotlinx" }
 }
