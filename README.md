@@ -2,6 +2,7 @@
 
 [![JetBrains incubator project](http://jb.gg/badges/incubator.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
+[![TeamCity build](https://teamcity.jetbrains.com/app/rest/builds/buildType(id:KotlinTools_KotlinxSerialization_Ko)/statusIcon)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=KotlinTools_KotlinxSerialization_Ko&guest=1)
 [![Download](https://api.bintray.com/packages/kotlin/kotlinx/kotlinx.serialization.runtime/images/download.svg) ](https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime/_latestVersion)
 
 Kotlin serialization support consists of three parts: a gradle compiler plugin, which produces visitor/serializer code
