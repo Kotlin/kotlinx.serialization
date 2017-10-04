@@ -61,7 +61,7 @@ allprojects {
 
 apply plugin: 'kotlin'
 
-configure([project(':jvm'), project(':js')]) {
+subprojects {
     apply plugin: 'kotlinx-serialization'
 
     apply plugin: 'maven-publish'
