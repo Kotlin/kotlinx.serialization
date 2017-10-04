@@ -60,11 +60,11 @@ You can also use one of predefined instances, like `JSON.plain`, `JSON.indented`
 JSON API:
 
 ```kotlin
-    fun <T> stringify(saver: KSerialSaver<T>, obj: T): String
-    inline fun <reified T : Any> stringify(obj: T): String = stringify(T::class.serializer(), obj)
+fun <T> stringify(saver: KSerialSaver<T>, obj: T): String
+inline fun <reified T : Any> stringify(obj: T): String = stringify(T::class.serializer(), obj)
 
-    fun <T> parse(loader: KSerialLoader<T>, str: String): T
-    inline fun <reified T : Any> parse(str: String): T = parse(T::class.serializer(), str)
+fun <T> parse(loader: KSerialLoader<T>, str: String): T
+inline fun <reified T : Any> parse(str: String): T = parse(T::class.serializer(), str)
 ```
 
 `stringify` transforms object to string, `parse` parses. No surprises.
@@ -77,13 +77,13 @@ strings (and primitives), Kotlin maps with non-trivial key types are serialized 
 `CBOR` object doesn't support any tweaking and provides following functions:
 
 ```kotlin
-    fun <T : Any> dump(saver: KSerialSaver<T>, obj: T): ByteArray // saves object to bytes
-    inline fun <reified T : Any> dump(obj: T): ByteArray // same as above, resolves serializer by itself
-    inline fun <reified T : Any> dumps(obj: T): String // dump object and then pretty-print bytes to string
+fun <T : Any> dump(saver: KSerialSaver<T>, obj: T): ByteArray // saves object to bytes
+inline fun <reified T : Any> dump(obj: T): ByteArray // same as above, resolves serializer by itself
+inline fun <reified T : Any> dumps(obj: T): String // dump object and then pretty-print bytes to string
 
-    fun <T : Any> load(loader: KSerialLoader<T>, raw: ByteArray): T // load object from bytes
-    inline fun <reified T : Any> load(raw: ByteArray): T // save as above
-    inline fun <reified T : Any> loads(hex: String): T // inverse operation for dumps
+fun <T : Any> load(loader: KSerialLoader<T>, raw: ByteArray): T // load object from bytes
+inline fun <reified T : Any> load(raw: ByteArray): T // save as above
+inline fun <reified T : Any> loads(hex: String): T // inverse operation for dumps
 ```
 
 **Note**: CBOR, unlike JSON, supports maps with non-trivial keys,
