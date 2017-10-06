@@ -224,9 +224,7 @@ abstract class TaggedInput<T : Any?> : KInput() {
     // ---- Implementation of low-level API ----
 
     override final fun readNotNullMark(): Boolean = readTaggedNotNullMark(currentTag)
-    override final fun readNullValue(): Nothing? {
-        popTag(); return null
-    }
+    override final fun readNullValue(): Nothing? = null
 
     override final fun readValue(): Any = readTaggedValue(popTag())
     override final fun readNullableValue(): Any? = readTaggedNullable(popTag())
@@ -241,13 +239,6 @@ abstract class TaggedInput<T : Any?> : KInput() {
     override final fun readCharValue(): Char = readTaggedChar(popTag())
     override final fun readStringValue(): String = readTaggedString(popTag())
     override final fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T = readTaggedEnum(popTag(), enumClass)
-
-    override final fun readEnd(desc: KSerialClassDesc) {
-        if (tagStack.isNotEmpty()) popTag(); readFinished(desc)
-    }
-
-    // For format-specific behaviour
-    open fun readFinished(desc: KSerialClassDesc) {}
 
     // Override for custom behaviour
     override fun readElement(desc: KSerialClassDesc): Int = READ_ALL
@@ -268,12 +259,22 @@ abstract class TaggedInput<T : Any?> : KInput() {
 
     override final fun <T : Any?> readSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>): T {
         pushTag(desc.getTag(index))
-        return readSerializableValue(loader)
+        val r = readSerializableValue(loader)
+        if (!flag) {
+            popTag()
+            flag = false
+        }
+        return r
     }
 
     override final fun <T : Any> readNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>): T? {
         pushTag(desc.getTag(index))
-        return readNullableSerializableValue(loader)
+        val r = readNullableSerializableValue(loader)
+        if (!flag) {
+            popTag()
+            flag = false
+        }
+        return r
     }
 
     private val tagStack = arrayListOf<T>()
@@ -286,7 +287,14 @@ abstract class TaggedInput<T : Any?> : KInput() {
         tagStack.add(name)
     }
 
-    private fun popTag() = tagStack.removeAt(tagStack.lastIndex)
+    private var flag = false
+
+    private fun popTag(): T {
+        val r = tagStack.removeAt(tagStack.lastIndex)
+        flag = true
+        return r
+    }
+
 }
 
 abstract class IntTaggedInput : TaggedInput<Int?>() {
