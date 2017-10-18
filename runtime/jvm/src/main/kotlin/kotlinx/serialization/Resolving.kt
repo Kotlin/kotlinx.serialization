@@ -51,5 +51,5 @@ fun serializerByTypeToken(type: Type): KSerializer<Any> = when(type) {
             else -> serializerByClass(rootClass)
         }
     }
-    else -> throw IllegalArgumentException()
+    else -> throw IllegalArgumentException("type should be instance of Class<?> or ParametrizedType")
 }

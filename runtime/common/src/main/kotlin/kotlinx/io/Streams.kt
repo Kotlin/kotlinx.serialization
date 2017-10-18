@@ -44,7 +44,7 @@ expect abstract class OutputStream {
 }
 
 @Suppress("NON_FINAL_MEMBER_IN_FINAL_CLASS") // KT-17944
-expect class ByteArrayOutputStream: OutputStream {
+expect class ByteArrayOutputStream(): OutputStream {
     override fun write(oneByte: Int)
     open fun toByteArray(): ByteArray
     open fun size(): Int

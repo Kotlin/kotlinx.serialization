@@ -35,16 +35,13 @@ annotation class ProtoType(val type: ProtoNumberType)
 
 typealias ProtoDesc = Pair<Int, ProtoNumberType>
 
-object ProtoBuf {
+class ProtoBuf(val context: SerialContext? = null) {
 
-    private fun KSerialClassDesc.getProtoDesc(index: Int): ProtoDesc {
-        val tag = this.getAnnotationsForIndex(index).filterIsInstance<SerialId>().single().id
-        val format = this.getAnnotationsForIndex(index).filterIsInstance<ProtoType>().onlySingleOrNull()?.type
-                ?: ProtoNumberType.DEFAULT
-        return tag to format
-    }
+    internal inner open class ProtobufWriter(val encoder: ProtobufEncoder) : TaggedOutput<ProtoDesc>() {
 
-    internal open class ProtobufWriter(val encoder: ProtobufEncoder) : TaggedOutput<ProtoDesc>() {
+        init {
+            context = this@ProtoBuf.context
+        }
 
         override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput = when (desc.kind) {
             KSerialClassKind.LIST, KSerialClassKind.MAP, KSerialClassKind.SET -> RepeatedWriter(encoder, currentTag)
@@ -67,7 +64,7 @@ object ProtoBuf {
         override fun KSerialClassDesc.getTag(index: Int) = this.getProtoDesc(index)
     }
 
-    internal open class ObjectWriter(val parentTag: ProtoDesc?, private val parentEncoder: ProtobufEncoder, private val stream: ByteArrayOutputStream = ByteArrayOutputStream()) : ProtobufWriter(ProtobufEncoder(stream)) {
+    internal inner open class ObjectWriter(val parentTag: ProtoDesc?, private val parentEncoder: ProtobufEncoder, private val stream: ByteArrayOutputStream = ByteArrayOutputStream()) : ProtobufWriter(ProtobufEncoder(stream)) {
         override fun writeFinished(desc: KSerialClassDesc) {
             if (parentTag != null) {
                 parentEncoder.writeObject(stream.toByteArray(), parentTag.first)
@@ -77,13 +74,13 @@ object ProtoBuf {
         }
     }
 
-    internal class MapEntryWriter(parentTag: ProtoDesc?, parentEncoder: ProtobufEncoder): ObjectWriter(parentTag, parentEncoder) {
+    internal inner class MapEntryWriter(parentTag: ProtoDesc?, parentEncoder: ProtobufEncoder): ObjectWriter(parentTag, parentEncoder) {
         override fun KSerialClassDesc.getTag(index: Int): ProtoDesc =
                 if (index == 0) 1 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
                 else 2 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
     }
 
-    internal class RepeatedWriter(encoder: ProtobufEncoder, val curTag: ProtoDesc) : ProtobufWriter(encoder) {
+    internal inner class RepeatedWriter(encoder: ProtobufEncoder, val curTag: ProtoDesc) : ProtobufWriter(encoder) {
         override fun KSerialClassDesc.getTag(index: Int) = curTag
 
         override fun shouldWriteElement(desc: KSerialClassDesc, tag: ProtoDesc, index: Int): Boolean = index != SIZE_INDEX
@@ -150,7 +147,11 @@ object ProtoBuf {
                 }
     }
 
-    internal open class ProtobufReader(val decoder: ProtobufDecoder) : TaggedInput<ProtoDesc>() {
+    private inner open class ProtobufReader(val decoder: ProtobufDecoder) : TaggedInput<ProtoDesc>() {
+
+        init {
+            context = this@ProtoBuf.context
+        }
 
         private val indexByTag: MutableMap<Int, Int> = mutableMapOf()
         private fun findIndexByTag(desc: KSerialClassDesc, serialId: Int): Int {
@@ -196,24 +197,17 @@ object ProtoBuf {
         }
     }
 
-    internal class RepeatedReader(decoder: ProtobufDecoder, val targetTag: ProtoDesc) : ProtobufReader(decoder) {
+    private inner class RepeatedReader(decoder: ProtobufDecoder, val targetTag: ProtoDesc) : ProtobufReader(decoder) {
         private var ind = 0
 
         override fun readElement(desc: KSerialClassDesc) = if (decoder.curId == targetTag.first) ++ind else READ_DONE
         override fun KSerialClassDesc.getTag(index: Int): ProtoDesc = targetTag
     }
 
-    internal class MapEntryReader(decoder: ProtobufDecoder, val parentTag: ProtoDesc?): ProtobufReader(decoder) {
+    private inner class MapEntryReader(decoder: ProtobufDecoder, val parentTag: ProtoDesc?): ProtobufReader(decoder) {
         override fun KSerialClassDesc.getTag(index: Int): ProtoDesc =
                 if (index == 0) 1 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
                 else 2 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
-    }
-
-    // todo: make more memory-efficient
-    private fun makeDelimited(decoder: ProtobufDecoder, parentTag: ProtoDesc?): ProtobufDecoder {
-        if (parentTag == null) return decoder
-        val bytes = decoder.nextObject()
-        return ProtobufDecoder(ByteArrayInputStream(bytes))
     }
 
     internal class ProtobufDecoder(val inp: ByteArrayInputStream) {
@@ -384,10 +378,36 @@ object ProtoBuf {
         }
     }
 
-    private const val VARINT = 0
-    private const val i64 = 1
-    private const val SIZE_DELIMITED = 2
-    private const val i32 = 5
+    companion object {
+        // todo: make more memory-efficient
+        private fun makeDelimited(decoder: ProtobufDecoder, parentTag: ProtoDesc?): ProtobufDecoder {
+            if (parentTag == null) return decoder
+            val bytes = decoder.nextObject()
+            return ProtobufDecoder(ByteArrayInputStream(bytes))
+        }
+
+        private fun KSerialClassDesc.getProtoDesc(index: Int): ProtoDesc {
+            val tag = this.getAnnotationsForIndex(index).filterIsInstance<SerialId>().single().id
+            val format = this.getAnnotationsForIndex(index).filterIsInstance<ProtoType>().onlySingleOrNull()?.type
+                    ?: ProtoNumberType.DEFAULT
+            return tag to format
+        }
+
+        private const val VARINT = 0
+        private const val i64 = 1
+        private const val SIZE_DELIMITED = 2
+        private const val i32 = 5
+
+        val plain = ProtoBuf()
+
+        fun <T: Any> dump(saver: KSerialSaver<T>, obj: T): ByteArray = plain.dump(saver, obj)
+        inline fun <reified T : Any> dump(obj: T): ByteArray = plain.dump(obj)
+        inline fun <reified T : Any> dumps(obj: T): String = plain.dumps(obj)
+
+        fun <T: Any> load(loader: KSerialLoader<T>, raw: ByteArray): T  = plain.load(loader, raw)
+        inline fun <reified T : Any> load(raw: ByteArray): T = plain.load(raw)
+        inline fun <reified T : Any> loads(hex: String): T  = plain.loads(hex)
+    }
 
     fun <T : Any> dump(saver: KSerialSaver<T>, obj: T): ByteArray {
         val output = ByteArrayOutputStream()
@@ -396,7 +416,7 @@ object ProtoBuf {
         return output.toByteArray()
     }
 
-    inline fun <reified T : Any> dump(obj: T): ByteArray = dump(T::class.serializer(), obj)
+    inline fun <reified T : Any> dump(obj: T): ByteArray = dump(context.klassSerializer(T::class), obj)
     inline fun <reified T : Any> dumps(obj: T): String = HexConverter.printHexBinary(dump(obj), lowerCase = true)
 
     fun <T : Any> load(loader: KSerialLoader<T>, raw: ByteArray): T {
@@ -405,7 +425,7 @@ object ProtoBuf {
         return reader.read(loader)
     }
 
-    inline fun <reified T : Any> load(raw: ByteArray): T = load(T::class.serializer(), raw)
+    inline fun <reified T : Any> load(raw: ByteArray): T = load(context.klassSerializer(T::class), raw)
     inline fun <reified T : Any> loads(hex: String): T = load(HexConverter.parseHexBinary(hex))
 
 }

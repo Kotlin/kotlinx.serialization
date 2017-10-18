@@ -139,7 +139,7 @@ abstract class TaggedOutput<T : Any?> : KOutput() {
     // For format-specific behaviour
     open fun writeFinished(desc: KSerialClassDesc) {}
 
-    override final fun writeElementValue(desc: KSerialClassDesc, index: Int, value: Any) = writeTaggedValue(desc.getTag(index), value)
+    override final fun writeNonSerializableElementValue(desc: KSerialClassDesc, index: Int, value: Any) = writeTaggedValue(desc.getTag(index), value)
 
 
     override final fun writeNullableElementValue(desc: KSerialClassDesc, index: Int, value: Any?) = writeTaggedNullable(desc.getTag(index), value)

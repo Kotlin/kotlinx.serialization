@@ -22,9 +22,9 @@ import kotlinx.serialization.internal.*
 import kotlin.experimental.or
 import kotlin.reflect.KClass
 
-object CBOR {
+class CBOR(val context: SerialContext? = null) {
     // Writes map entry as plain [key, value] pair, without bounds.
-    private class CBOREntryWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
+    private inner class CBOREntryWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
         override fun writeBeginToken() {
             // no-op
         }
@@ -37,19 +37,23 @@ object CBOR {
     }
 
     // Differs from List only in start byte
-    private class CBORMapWriter(encoder: CBOREncoder) : CBORListWriter(encoder) {
+    private inner class CBORMapWriter(encoder: CBOREncoder) : CBORListWriter(encoder) {
         override fun writeBeginToken() = encoder.startMap()
     }
 
     // Writes all elements consequently, except size - CBOR supports maps and arrays of indefinite length
-    private open class CBORListWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
+    private inner open class CBORListWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
         override fun writeBeginToken() = encoder.startArray()
 
         override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean = desc.getElementName(index) != "size"
     }
 
     // Writes class as map [fieldName, fieldValue]
-    private open class CBORWriter(val encoder: CBOREncoder) : ElementValueOutput() {
+    private inner open class CBORWriter(val encoder: CBOREncoder) : ElementValueOutput() {
+
+        init {
+            context = this@CBOR.context
+        }
 
         protected open fun writeBeginToken() = encoder.startMap()
 
@@ -149,7 +153,7 @@ object CBOR {
         }
     }
 
-    private class CBOREntryReader(decoder: CBORDecoder) : CBORReader(decoder) {
+    private inner class CBOREntryReader(decoder: CBORDecoder) : CBORReader(decoder) {
         private var ind = 0
 
         override fun skipBeginToken() {
@@ -167,11 +171,11 @@ object CBOR {
         }
     }
 
-    private class CBORMapReader(decoder: CBORDecoder) : CBORListReader(decoder) {
+    private inner class CBORMapReader(decoder: CBORDecoder) : CBORListReader(decoder) {
         override fun skipBeginToken() = decoder.startMap()
     }
 
-    private open class CBORListReader(decoder: CBORDecoder) : CBORReader(decoder) {
+    private inner open class CBORListReader(decoder: CBORDecoder) : CBORReader(decoder) {
         private var ind = 0
         private var size = -1
         protected var finiteMode = false
@@ -191,7 +195,11 @@ object CBOR {
         }
     }
 
-    private open class CBORReader(val decoder: CBORDecoder) : ElementValueInput() {
+    private inner open class CBORReader(val decoder: CBORDecoder) : ElementValueInput() {
+
+        init {
+            context = this@CBOR.context
+        }
 
         protected open fun skipBeginToken() = decoder.startMap()
 
@@ -346,21 +354,33 @@ object CBOR {
 
     }
 
-    private const val FALSE = 0xf4
-    private const val TRUE = 0xf5
-    private const val NULL = 0xf6
+    companion object {
 
-    private const val NEXT_FLOAT = 0xfa
-    private const val NEXT_DOUBLE = 0xfb
+        private const val FALSE = 0xf4
+        private const val TRUE = 0xf5
+        private const val NULL = 0xf6
 
-    private const val BEGIN_ARRAY = 0x9f
-    private const val BEGIN_MAP = 0xbf
-    private const val BREAK = 0xff
+        private const val NEXT_FLOAT = 0xfa
+        private const val NEXT_DOUBLE = 0xfb
 
-    private const val HEADER_STRING: Byte = 0b011_00000
-    private const val HEADER_NEGATIVE: Byte = 0b001_00000
-    private const val HEADER_ARRAY: Int = 0b100_00000
+        private const val BEGIN_ARRAY = 0x9f
+        private const val BEGIN_MAP = 0xbf
+        private const val BREAK = 0xff
 
+        private const val HEADER_STRING: Byte = 0b011_00000
+        private const val HEADER_NEGATIVE: Byte = 0b001_00000
+        private const val HEADER_ARRAY: Int = 0b100_00000
+
+        val plain = CBOR()
+
+        fun <T: Any> dump(saver: KSerialSaver<T>, obj: T): ByteArray = plain.dump(saver, obj)
+        inline fun <reified T : Any> dump(obj: T): ByteArray = plain.dump(obj)
+        inline fun <reified T : Any> dumps(obj: T): String = plain.dumps(obj)
+
+        fun <T: Any> load(loader: KSerialLoader<T>, raw: ByteArray): T  = plain.load(loader, raw)
+        inline fun <reified T : Any> load(raw: ByteArray): T = plain.load(raw)
+        inline fun <reified T : Any> loads(hex: String): T  = plain.loads(hex)
+    }
 
     fun <T : Any> dump(saver: KSerialSaver<T>, obj: T): ByteArray {
         val output = ByteArrayOutputStream()
@@ -369,7 +389,7 @@ object CBOR {
         return output.toByteArray()
     }
 
-    inline fun <reified T : Any> dump(obj: T): ByteArray = dump(T::class.serializer(), obj)
+    inline fun <reified T : Any> dump(obj: T): ByteArray = dump(context.klassSerializer(T::class), obj)
 
     inline fun <reified T : Any> dumps(obj: T): String = HexConverter.printHexBinary(dump(obj), lowerCase = true)
 
@@ -379,8 +399,7 @@ object CBOR {
         return reader.read(loader)
     }
 
-    inline fun <reified T : Any> load(raw: ByteArray): T = load(T::class.serializer(), raw)
-
+    inline fun <reified T : Any> load(raw: ByteArray): T = load(context.klassSerializer(T::class), raw)
     inline fun <reified T : Any> loads(hex: String): T = load(HexConverter.parseHexBinary(hex))
 }
 

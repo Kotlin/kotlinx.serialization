@@ -27,7 +27,8 @@ data class JSON(
         private val unquoted: Boolean = false,
         private val indented: Boolean = false,
         private val indent: String = "    ",
-        internal val nonstrict: Boolean = false
+        internal val nonstrict: Boolean = false,
+        val context: SerialContext? = null
 ) {
 
     fun <T> stringify(saver: KSerialSaver<T>, obj: T): String {
@@ -201,6 +202,11 @@ data class JSON(
     }
 
     private inner class JsonOutput(val mode: Mode, val w: Composer) : ElementValueOutput() {
+
+        init {
+            context = this@JSON.context
+        }
+
         private var forceStr: Boolean = false
 
         override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
@@ -328,6 +334,10 @@ data class JSON(
     private inner class JsonInput(val mode: Mode, val p: Parser) : ElementValueInput() {
         var curIndex = 0
         var entryIndex = 0
+
+        init {
+            context = this@JSON.context
+        }
 
         override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
             val newMode = switchMode(mode, desc, typeParams)

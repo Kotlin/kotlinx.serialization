@@ -50,7 +50,7 @@ expect open class PrintWriter(w: Writer) : Writer {
     override fun close()
 }
 
-expect class StringWriter: Writer {
+expect class StringWriter(): Writer {
     override fun toString(): String
     override fun write(src: CharArray, off: Int, len: Int)
     override fun flush()

@@ -18,7 +18,6 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 import kotlin.reflect.KClass
-import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.isSubclassOf
 
 object PolymorphicClassDesc : SerialClassDescImpl("kotlin.Any") {
@@ -125,7 +124,7 @@ internal object SerialCache {
         ans = ClassSerialCache.getSubclassSerializer(klass)
         if (ans != null) return ans as KSerializer<E>
         // Then, it's user defined class
-        val last = klass.companionObjectInstance as? KSerializer<E>
+        val last = klass.serializer() as? KSerializer<E>
         return requireNotNull(last) { "Can't found internal serializer for class $klass" }
     }
 }

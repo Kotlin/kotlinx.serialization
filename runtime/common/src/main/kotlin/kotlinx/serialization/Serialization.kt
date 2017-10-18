@@ -88,6 +88,9 @@ class UnknownFieldException(index: Int): SerializationException("Unknown field f
 // ========================================================================================================================
 
 abstract class KOutput internal constructor() {
+
+    var context: SerialContext? = null
+
     // ------- top-level API (use it) -------
 
     fun <T : Any?> write(saver: KSerialSaver<T>, obj: T) { saver.save(this, obj) }
@@ -150,7 +153,11 @@ abstract class KOutput internal constructor() {
     open fun writeBegin(desc: KSerialClassDesc, collectionSize: Int, vararg typeParams: KSerializer<*>) = writeBegin(desc, *typeParams)
     open fun writeEnd(desc: KSerialClassDesc) {}
 
-    abstract fun writeElementValue(desc: KSerialClassDesc, index: Int, value: Any)
+    fun writeElementValue(desc: KSerialClassDesc, index: Int, value: Any) {
+        val s = context?.getSerializerByValue(value)
+        if (s != null) writeSerializableElementValue(desc, index, s, value)
+        else writeNonSerializableElementValue(desc, index, value)
+    }
     abstract fun writeNullableElementValue(desc: KSerialClassDesc, index: Int, value: Any?)
 
     abstract fun writeUnitElementValue(desc: KSerialClassDesc, index: Int)
@@ -174,6 +181,8 @@ abstract class KOutput internal constructor() {
             writeSerializableValue(saver, value)
     }
 
+    abstract fun writeNonSerializableElementValue(desc: KSerialClassDesc, index: Int, value: Any)
+
     fun <T : Any> writeNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, saver: KSerialSaver<T>, value: T?) {
         if (writeElement(desc, index))
             writeNullableSerializableValue(saver, value)
@@ -181,6 +190,9 @@ abstract class KOutput internal constructor() {
 }
 
 abstract class KInput internal constructor() {
+
+    var context: SerialContext? = null
+
     // ------- top-level API (use it) -------
 
     inline fun <reified T: Any> read(): T = this.read(T::class.serializer())
@@ -232,6 +244,13 @@ abstract class KInput internal constructor() {
     abstract fun readElement(desc: KSerialClassDesc): Int
 
     abstract fun readElementValue(desc: KSerialClassDesc, index: Int): Any
+
+    fun readElementValue(desc: KSerialClassDesc, index: Int, klass: KClass<*>): Any {
+        val s = context?.getSerializerByClass(klass)
+        return if (s != null) readSerializableElementValue(desc, index, s)
+        else readElementValue(desc, index)
+    }
+
     abstract fun readNullableElementValue(desc: KSerialClassDesc, index: Int): Any?
     abstract fun readUnitElementValue(desc: KSerialClassDesc, index: Int)
     abstract fun readBooleanElementValue(desc: KSerialClassDesc, index: Int): Boolean
@@ -265,7 +284,7 @@ open class ElementValueOutput : KOutput() {
 
     // writes an arbitrary non-null value
     override fun writeValue(value: Any) {
-        throw SerializationException("$value is not supported")
+        throw SerializationException("\"$value\" has unsupported type")
     }
 
     override final fun writeNullableValue(value: Any?) {
@@ -298,7 +317,7 @@ open class ElementValueOutput : KOutput() {
 
     // -------------------------------------------------------------------------------------
 
-    override final fun writeElementValue(desc: KSerialClassDesc, index: Int, value: Any) { if (writeElement(desc, index)) writeValue(value) }
+    override final fun writeNonSerializableElementValue(desc: KSerialClassDesc, index: Int, value: Any) { if (writeElement(desc, index)) writeValue(value) }
     override final fun writeNullableElementValue(desc: KSerialClassDesc, index: Int, value: Any?) { if (writeElement(desc, index)) writeNullableValue(value) }
     override final fun writeUnitElementValue(desc: KSerialClassDesc, index: Int) { if (writeElement(desc, index)) writeUnitValue() }
     override final fun writeBooleanElementValue(desc: KSerialClassDesc, index: Int, value: Boolean) { if (writeElement(desc, index)) writeBooleanValue(value) }
@@ -326,7 +345,7 @@ open class ElementValueInput : KInput() {
     override fun readNullValue(): Nothing? = null
 
     override fun readValue(): Any {
-        throw SerializationException("value is not supported")
+        throw SerializationException("This type is not supported")
     }
     override fun readNullableValue(): Any? = if (readNotNullMark()) readValue() else readNullValue()
     override fun readUnitValue() {
@@ -435,7 +454,7 @@ open class ValueTransformer {
 
         // ---------------
 
-        override fun writeElementValue(desc: KSerialClassDesc, index: Int, value: Any) = writeNullableValue(value)
+        override fun writeNonSerializableElementValue(desc: KSerialClassDesc, index: Int, value: Any) { writeNullableValue(value) }
         override fun writeNullableElementValue(desc: KSerialClassDesc, index: Int, value: Any?) = writeNullableValue(value)
         override fun writeUnitElementValue(desc: KSerialClassDesc, index: Int) = writeNullableValue(Unit)
         override fun writeBooleanElementValue(desc: KSerialClassDesc, index: Int, value: Boolean) = writeNullableValue(value)
