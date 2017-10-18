@@ -307,7 +307,7 @@ data class JSON(
             w.print(STRING)
         }
 
-        override fun writeValue(value: Any) {
+        override fun writeNonSerializableValue(value: Any) {
             writeStringValue(value.toString())
         }
 

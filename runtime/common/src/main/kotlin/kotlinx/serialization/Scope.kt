@@ -43,3 +43,13 @@ class SerialContext(private val parentContext: SerialContext? = null) {
 
 fun <T: Any> SerialContext?.klassSerializer(klass: KClass<T>) = this?.let { getSerializerByClass(klass) } ?: klass.serializer()
 fun <T: Any> SerialContext?.valueSerializer(value: T) = this?.let { getSerializerByValue(value) } ?: value::class.serializer()
+
+class ContextSerializer <T : Any> (val serializableClass: KClass<T>) : KSerializer<T> {
+    override fun save(output: KOutput, obj: T) {
+        output.writeValue(obj)
+    }
+    override fun load(input: KInput): T = input.readValue(serializableClass)
+
+    override val serialClassDesc: KSerialClassDesc
+        get() = throw SerializationException("No descriptor")
+}

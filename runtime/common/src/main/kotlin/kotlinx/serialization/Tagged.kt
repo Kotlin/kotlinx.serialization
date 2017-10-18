@@ -80,7 +80,7 @@ abstract class TaggedOutput<T : Any?> : KOutput() {
         writeTaggedNull(popTag())
     }
 
-    override final fun writeValue(value: Any) {
+    override final fun writeNonSerializableValue(value: Any) {
         writeTaggedValue(popTag(), value)
     }
 

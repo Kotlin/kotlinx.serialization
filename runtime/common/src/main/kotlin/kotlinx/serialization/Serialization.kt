@@ -116,7 +116,14 @@ abstract class KOutput internal constructor() {
 
     // this is invoked after writeElement
     abstract fun writeNullValue()
-    abstract fun writeValue(value: Any)
+
+    fun writeValue(value: Any) {
+        val s = context?.getSerializerByValue(value)
+        if (s != null) writeSerializableValue(s, value)
+        else writeNonSerializableValue(value)
+    }
+    abstract fun writeNonSerializableValue(value: Any)
+
     abstract fun writeNullableValue(value: Any?): Unit
     abstract fun writeUnitValue()
     abstract fun writeBooleanValue(value: Boolean)
@@ -206,6 +213,15 @@ abstract class KInput internal constructor() {
     abstract fun readNullValue(): Nothing? // consumes null, returns null, will be called when readNotNullMark() is false
 
     abstract fun readValue(): Any
+
+    fun <T: Any> readValue(klass: KClass<T>): T {
+        val s = context?.getSerializerByClass(klass)
+        @Suppress("UNCHECKED_CAST")
+        return if (s != null)
+            readSerializableValue(s)
+        else
+            readValue() as T
+    }
     abstract fun readNullableValue(): Any?
     abstract fun readUnitValue()
     abstract fun readBooleanValue(): Boolean
@@ -282,9 +298,8 @@ open class ElementValueOutput : KOutput() {
     // override for a special representation of nulls if needed (empty object by default)
     override fun writeNotNullMark() {}
 
-    // writes an arbitrary non-null value
-    override fun writeValue(value: Any) {
-        throw SerializationException("\"$value\" has unsupported type")
+    override fun writeNonSerializableValue(value: Any) {
+        throw SerializationException("\"$value\" has no serializer")
     }
 
     override final fun writeNullableValue(value: Any?) {
@@ -432,7 +447,7 @@ open class ValueTransformer {
         override fun writeElement(desc: KSerialClassDesc, index: Int) = true
         override fun writeNotNullMark() {}
         override fun writeNullValue() { writeNullableValue(null) }
-        override fun writeValue(value: Any) { writeNullableValue(value) }
+        override fun writeNonSerializableValue(value: Any) { writeNullableValue(value) }
         override fun writeUnitValue() { writeNullableValue(Unit) }
         override fun writeBooleanValue(value: Boolean) { writeNullableValue(value) }
         override fun writeByteValue(value: Byte) { writeNullableValue(value) }
