@@ -135,7 +135,7 @@ Ensure the proper version of Kotlin and add dependencies on plugin in addition t
 ```gradle
 buildscript {
     ext.kotlin_version = '1.1.50'
-    ext.serialization_version = '0.1'
+    ext.serialization_version = '0.1.1'
     repositories {
         jcenter()
         maven { url "https://kotlin.bintray.com/kotlinx" }
@@ -180,7 +180,7 @@ Ensure the proper version of Kotlin and serialization version:
 ```xml
 <properties>
     <kotlin.version>1.1.50</kotlin.version>
-    <serialization.version>0.1</serialization.version>
+    <serialization.version>0.1.1</serialization.version>
 </properties>
 ```
 
