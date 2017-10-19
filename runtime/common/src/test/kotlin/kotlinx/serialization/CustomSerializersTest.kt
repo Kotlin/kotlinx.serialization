@@ -81,4 +81,24 @@ class CustomSerializersTest {
         val bs = j.parse<BList>("{bs:[1,2,3]}")
         assertEquals(obj, bs)
     }
+
+    @Test
+    fun writeCustomListRootLevel() {
+        val obj = listOf(B(1), B(2), B(3))
+        val scope = SerialContext()
+        scope.registerSerializer(B::class, BSerializer)
+        val j = JSON(unquoted = true, context = scope)
+        val s = j.stringify(BSerializer.list, obj)
+        assertEquals("[1,2,3]", s)
+    }
+
+    @Test
+    fun readCustomListRootLevel() {
+        val obj = listOf(B(1), B(2), B(3))
+        val scope = SerialContext()
+        scope.registerSerializer(B::class, BSerializer)
+        val j = JSON(unquoted = true, context = scope)
+        val bs = j.parse(BSerializer.list, "[1,2,3]")
+        assertEquals(obj, bs)
+    }
 }

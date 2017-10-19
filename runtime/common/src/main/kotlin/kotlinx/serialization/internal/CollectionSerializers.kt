@@ -113,14 +113,14 @@ class ReferenceArraySerializer<E: Any>(private val kClass: KClass<E>, eSerialize
     override fun ArrayList<E?>.add(index: Int, element: E?) { add(element) }
 }
 
-class ArrayListSerializer<E>(element: KSerializer<E>) : ListLikeSerializer<E, Collection<E>, ArrayList<E>>(element) {
+class ArrayListSerializer<E>(element: KSerializer<E>) : ListLikeSerializer<E, List<E>, ArrayList<E>>(element) {
     override val serialClassDesc = ArrayListClassDesc
 
-    override fun Collection<E>.objSize(): Int = size
-    override fun Collection<E>.objIterator(): Iterator<E> = iterator()
+    override fun List<E>.objSize(): Int = size
+    override fun List<E>.objIterator(): Iterator<E> = iterator()
     override fun builder(): ArrayList<E> = arrayListOf()
     override fun ArrayList<E>.builderSize(): Int = size
-    override fun ArrayList<E>.toResult(): Collection<E> = this
+    override fun ArrayList<E>.toResult(): List<E> = this
     override fun ArrayList<E>.ensureCapacity(size: Int) = ensureCapacity(size)
     override fun ArrayList<E>.add(index: Int, element: E) { add(element) }
 }
