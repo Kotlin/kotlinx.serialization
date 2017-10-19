@@ -20,62 +20,16 @@ import kotlinx.serialization.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
-object PolymorphicClassDesc : SerialClassDescImpl("kotlin.Any") {
+internal object PolymorphicClassDesc : SerialClassDescImpl("kotlin.Any") {
     override val kind: KSerialClassKind = KSerialClassKind.POLYMORPHIC
 
     init {
         addElement("klass")
+        pushAnnotation(SyntheticSerialId(1))
         addElement("value")
+        pushAnnotation(SyntheticSerialId(2))
     }
 }
-
-object PolymorphicSerializer : KSerializer<Any> {
-
-    override val serialClassDesc: KSerialClassDesc
-        get() = PolymorphicClassDesc
-
-    override fun save(output: KOutput, obj: Any) {
-        val saver = serializerByValue(obj)
-        @Suppress("NAME_SHADOWING")
-        val output = output.writeBegin(serialClassDesc)
-        output.writeStringElementValue(serialClassDesc, 0, saver.serialClassDesc.name)
-        output.writeSerializableElementValue(serialClassDesc, 1, saver, obj)
-        output.writeEnd(serialClassDesc)
-    }
-
-    override fun load(input: KInput): Any {
-        @Suppress("NAME_SHADOWING")
-        val input = input.readBegin(serialClassDesc)
-        var klassName: String? = null
-        var value: Any? = null
-        mainLoop@ while (true) {
-            when (input.readElement(serialClassDesc)) {
-                KInput.READ_ALL -> {
-                    klassName = input.readStringElementValue(serialClassDesc, 0)
-                    val loader = serializerByClass<Any>(klassName)
-                    value = input.readSerializableElementValue(serialClassDesc, 1, loader)
-                    break@mainLoop
-                }
-                KInput.READ_DONE -> {
-                    break@mainLoop
-                }
-                0 -> {
-                    klassName = input.readStringElementValue(serialClassDesc, 0)
-                }
-                1 -> {
-                    klassName = requireNotNull(klassName) { "Cannot read polymorphic value before its type token" }
-                    val loader = serializerByClass<Any>(klassName)
-                    value = input.readSerializableElementValue(serialClassDesc, 1, loader)
-                }
-                else -> throw SerializationException("Invalid index")
-            }
-        }
-
-        input.readEnd(serialClassDesc)
-        return requireNotNull(value) { "Polymorphic value have not been read" }
-    }
-}
-
 
 internal object ClassSerialCache {
     internal val map: Map<KClass<*>, KSerializer<*>> = mapOf(

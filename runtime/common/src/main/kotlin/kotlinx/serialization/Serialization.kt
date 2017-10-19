@@ -360,7 +360,7 @@ open class ElementValueInput : KInput() {
     override fun readNullValue(): Nothing? = null
 
     override fun readValue(): Any {
-        throw SerializationException("This type is not supported")
+        throw SerializationException("Any type is not supported")
     }
     override fun readNullableValue(): Any? = if (readNotNullMark()) readValue() else readNullValue()
     override fun readUnitValue() {
