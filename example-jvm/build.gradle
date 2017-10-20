@@ -20,7 +20,6 @@ buildscript {
 
     repositories {
         jcenter()
-        mavenLocal()
         maven { url "https://kotlin.bintray.com/kotlinx" }
     }
 
@@ -36,7 +35,6 @@ apply plugin: 'kotlinx-serialization'
 
 repositories {
     jcenter()
-    mavenLocal()
     maven { url "https://kotlin.bintray.com/kotlinx" }
 }
 
