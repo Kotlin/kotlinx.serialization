@@ -100,8 +100,8 @@ object MyDataSerializer: KSerializer<MyData> {
 
 By default, all serializers are resolved by plugin statically when compiling serializable class.
 This gives us type-safety, performance and eliminates reflection usage to minimum. However, if there is no
-`@Serializable` annotation of class, in general, it is impossible to know at compile time which serializer to use
-- user can define more than one external serializer, or define them in other module, or even it's a class from
+`@Serializable` annotation of class, in general, it is impossible to know at compile time which serializer to
+use - user can define more than one external serializer, or define them in other module, or even it's a class from
 library which doesn't know anything about serialization.
 
 To support such cases, a concept of `SerialContext` was introduced. Roughly speaking, it's a map where

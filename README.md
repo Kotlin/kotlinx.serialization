@@ -72,6 +72,11 @@ inline fun <reified T : Any> parse(str: String): T = parse(T::class.serializer()
 **Note**: because JSON doesn't support maps with keys other than
 strings (and primitives), Kotlin maps with non-trivial key types are serialized as JSON lists.
 
+**Caveat**: `T::class.serializer()` assumes that you use it on class defined as `@Serializable`,
+so it wouldn't work with root-level collections or external serializers out of the box. For external serializers,
+you must [register](docs/custom_serializers.md#registering-and-context) them and create json instance with corresponding scope.
+For collection serializers, see this [feature](https://github.com/Kotlin/kotlinx.serialization/issues/27).
+
 ### CBOR usage
 
 `CBOR` object doesn't support any tweaking and provides following functions:

@@ -239,6 +239,7 @@
     assertEquals(data, JSON.parse(ExtDataSerializer, "{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}"))
     ```
 
+    To obtain serializers for root-level collections, you can use extension functions defined on serializers, like `.list` (see [this](https://github.com/Kotlin/kotlinx.serialization/issues/27) issue)
 ## User-defined serial annotations
 
 In some cases, one may like to save additional format-specific information in the object itself. For example, protobuf field id.
