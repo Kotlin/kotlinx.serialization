@@ -32,4 +32,4 @@ actual fun <E: Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E =
 actual fun <E: Enum<E>> KClass<E>.enumClassName(): String = this.qualifiedName ?: ""
 
 @Suppress("UNCHECKED_CAST")
-actual fun <E: Any> ArrayList<E?>.toNativeArray(eClass: KClass<E>): Array<E?> = toArray(java.lang.reflect.Array.newInstance(eClass.java, size) as Array<E?>)
+actual fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> = toArray(java.lang.reflect.Array.newInstance(eClass.java, size) as Array<E>)

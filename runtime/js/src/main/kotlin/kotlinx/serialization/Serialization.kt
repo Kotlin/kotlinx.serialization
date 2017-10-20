@@ -39,4 +39,4 @@ actual fun <E: Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E =
 
 actual fun <E: Enum<E>> KClass<E>.enumClassName(): String = this.js.name
 
-actual fun <E: Any> ArrayList<E?>.toNativeArray(eClass: KClass<E>): Array<E?> = toTypedArray()
+actual fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> = toTypedArray()

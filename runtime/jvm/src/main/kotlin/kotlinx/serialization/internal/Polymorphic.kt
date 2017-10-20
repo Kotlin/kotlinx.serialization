@@ -45,7 +45,7 @@ internal object ClassSerialCache {
 
     @Suppress("UNCHECKED_CAST")
     internal fun getSubclassSerializer(klass: KClass<*>): KSerializer<*>? {
-        if (klass.java.isArray) return ReferenceArraySerializer(Any::class, PolymorphicSerializer as KSerializer<Any?>)
+        if (klass.java.isArray) return ReferenceArraySerializer<Any, Any>(Any::class, (PolymorphicSerializer as KSerializer<Any>))
         for ((k, v) in map) {
             if (klass.isSubclassOf(k)) return v
         }
@@ -65,7 +65,7 @@ internal object SerialCache {
         allPrimitives.forEach { registerSerializer(it.serialClassDesc.name, it) }
         ClassSerialCache.map.values.toList().forEach { registerSerializer(it.serialClassDesc.name, it) }
         @Suppress("UNCHECKED_CAST")
-        registerSerializer("kotlin.Array", ReferenceArraySerializer(Any::class, PolymorphicSerializer as KSerializer<Any?>))
+        registerSerializer("kotlin.Array", ReferenceArraySerializer<Any, Any>(Any::class, (PolymorphicSerializer as KSerializer<Any>)))
     }
 
     @Suppress("UNCHECKED_CAST")

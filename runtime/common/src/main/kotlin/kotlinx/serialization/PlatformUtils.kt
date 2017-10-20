@@ -28,4 +28,4 @@ expect fun <E: Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E
 
 expect fun <E: Enum<E>> KClass<E>.enumClassName(): String
 
-expect fun <E: Any> ArrayList<E?>.toNativeArray(eClass: KClass<E>): Array<E?>
+expect fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E>

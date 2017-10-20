@@ -37,12 +37,18 @@ fun <E> serializerByClass(className: String): KSerializer<E> = SerialCache.looku
 
 fun <E> serializerByClass(klass: KClass<*>): KSerializer<E> = SerialCache.lookupSerializer(klass.qualifiedName!!, klass)
 
+@Suppress("UNCHECKED_CAST")
 fun serializerByTypeToken(type: Type): KSerializer<Any> = when(type) {
-    is Class<*> -> serializerByClass(type.kotlin)
+    is Class<*> -> if (!type.isArray) {
+        serializerByClass(type.kotlin)
+    } else {
+        val eType: Class<*> = type.componentType
+        val s = serializerByTypeToken(eType)
+        ReferenceArraySerializer<Any, Any>(eType.kotlin as KClass<Any>, s) as KSerializer<Any>
+    }
     is ParameterizedType -> {
         val rootClass = (type.rawType as Class<*>).kotlin
         val args = (type.actualTypeArguments)
-        @Suppress("UNCHECKED_CAST")
         when {
             rootClass.isSubclassOf(List::class) -> ArrayListSerializer(serializerByTypeToken(args[0])) as KSerializer<Any>
             rootClass.isSubclassOf(Set::class) -> HashSetSerializer(serializerByTypeToken(args[0])) as KSerializer<Any>

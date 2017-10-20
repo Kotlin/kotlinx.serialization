@@ -98,19 +98,18 @@ sealed class ListLikeSerializer<E,C,B>(private val eSerializer: KSerializer<E>) 
 }
 
 // todo: can be more efficient when array size is know in advance, this one always uses temporary ArrayList as builder
-// todo: more elegant nullability handling
-class ReferenceArraySerializer<E: Any>(private val kClass: KClass<E>, eSerializer: KSerializer<E?>):
-        ListLikeSerializer<E?, Array<E?>, ArrayList<E?>>(eSerializer) {
+class ReferenceArraySerializer<T: Any, E: T?>(private val kClass: KClass<T>, eSerializer: KSerializer<E>):
+        ListLikeSerializer<E, Array<E>, ArrayList<E>>(eSerializer) {
     override val serialClassDesc = ArrayClassDesc
 
-    override fun Array<E?>.objSize(): Int = size
-    override fun Array<E?>.objIterator(): Iterator<E?> = iterator()
-    override fun builder(): ArrayList<E?> = arrayListOf()
-    override fun ArrayList<E?>.builderSize(): Int = size
+    override fun Array<E>.objSize(): Int = size
+    override fun Array<E>.objIterator(): Iterator<E> = iterator()
+    override fun builder(): ArrayList<E> = arrayListOf()
+    override fun ArrayList<E>.builderSize(): Int = size
     @Suppress("UNCHECKED_CAST")
-    override fun ArrayList<E?>.toResult(): Array<E?> = toNativeArray(kClass)
-    override fun ArrayList<E?>.ensureCapacity(size: Int) = ensureCapacity(size)
-    override fun ArrayList<E?>.add(index: Int, element: E?) { add(element) }
+    override fun ArrayList<E>.toResult(): Array<E> = toNativeArray<T, E>(kClass)
+    override fun ArrayList<E>.ensureCapacity(size: Int) = ensureCapacity(size)
+    override fun ArrayList<E>.add(index: Int, element: E) { add(element) }
 }
 
 class ArrayListSerializer<E>(element: KSerializer<E>) : ListLikeSerializer<E, List<E>, ArrayList<E>>(element) {

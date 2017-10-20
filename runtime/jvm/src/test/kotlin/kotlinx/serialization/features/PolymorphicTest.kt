@@ -20,6 +20,8 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.JSON
 import kotlinx.serialization.protobuf.ProtoBuf
 import org.junit.Test
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Type
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -103,6 +105,28 @@ class PolymorphicTest {
         val obj = B("b")
         val s = JSON.unquoted.stringify(PolymorphicSerializer, obj)
         assertEquals("[kotlinx.serialization.features.B,{id:1,s:b}]", s)
+    }
+
+    @Test
+    fun testArrayResolving() {
+        val myArr = arrayOf("a", "b", "c")
+        val token = myArr::class.java
+        val serial = serializerByTypeToken(token)
+        val s = JSON.unquoted.stringify(serial, myArr)
+        assertEquals("[a,b,c]", s)
+    }
+
+    @Test
+    fun testListResolving() {
+        val myArr = listOf("a", "b", "c")
+        val token = object : ParameterizedType {
+            override fun getRawType(): Type = List::class.java
+            override fun getOwnerType(): Type? = null
+            override fun getActualTypeArguments(): Array<Type> = arrayOf(String::class.java)
+        }
+        val serial = serializerByTypeToken(token)
+        val s = JSON.unquoted.stringify(serial, myArr)
+        assertEquals("[a,b,c]", s)
     }
 
 }
