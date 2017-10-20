@@ -60,7 +60,7 @@ class PolymorphicTest {
     data class Wrapper(@SerialId(1) val a1: A, @SerialId(2) val a2: A)
 
     @Serializable
-    data class DateWrapper(@SerialId(1) val date: Date)
+    data class DateWrapper(@SerialId(1) @Serializable(with = PolymorphicSerializer::class) val date: Date)
 
     @Serializer(forClass = Date::class)
     object DateSerializer: KSerializer<Date> {
@@ -92,7 +92,7 @@ class PolymorphicTest {
     }
 
     @Test
-    fun testWrapped() {
+    fun testPolymorphicWrappedOverride() {
         kotlinx.serialization.registerSerializer("java.util.Date", DateSerializer)
         val obj = DateWrapper(Date())
         val bytes = ProtoBuf.dumps(obj)
