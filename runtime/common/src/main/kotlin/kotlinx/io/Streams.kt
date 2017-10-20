@@ -16,12 +16,12 @@
 
 package kotlinx.io
 
-expect open class IOException: Exception {
+header open class IOException: Exception {
     constructor()
     constructor(message: String)
 }
 
-expect abstract class InputStream {
+header abstract class InputStream {
     open fun available(): Int
     open fun close()
     abstract fun read(): Int
@@ -30,11 +30,11 @@ expect abstract class InputStream {
     open fun skip(n: Long): Long
 }
 
-expect class ByteArrayInputStream(buf: ByteArray): InputStream {
+header class ByteArrayInputStream(buf: ByteArray): InputStream {
     override fun read(): Int
 }
 
-expect abstract class OutputStream {
+header abstract class OutputStream {
     open fun close()
     open fun flush()
     open fun write(buffer: ByteArray, offset: Int, count: Int)
@@ -44,7 +44,7 @@ expect abstract class OutputStream {
 }
 
 @Suppress("NON_FINAL_MEMBER_IN_FINAL_CLASS") // KT-17944
-expect class ByteArrayOutputStream(): OutputStream {
+header class ByteArrayOutputStream(): OutputStream {
     override fun write(oneByte: Int)
     open fun toByteArray(): ByteArray
     open fun size(): Int

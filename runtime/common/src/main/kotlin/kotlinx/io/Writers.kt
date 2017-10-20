@@ -17,7 +17,7 @@
 package kotlinx.io
 
 @Suppress("HEADER_WITHOUT_IMPLEMENTATION") // see KT-19848
-expect abstract class Writer protected constructor() {
+header abstract class Writer protected constructor() {
     open fun write(ch: Int)
     open fun write(str: String)
     abstract fun write(src: CharArray, off: Int, len: Int)
@@ -25,7 +25,7 @@ expect abstract class Writer protected constructor() {
     abstract fun close()
 }
 
-expect open class PrintWriter(w: Writer) : Writer {
+header open class PrintWriter(w: Writer) : Writer {
     open fun print(s: String)
     open fun print(ch: Char)
     open fun print(value: Float)
@@ -50,7 +50,7 @@ expect open class PrintWriter(w: Writer) : Writer {
     override fun close()
 }
 
-expect class StringWriter(): Writer {
+header class StringWriter(): Writer {
     override fun toString(): String
     override fun write(src: CharArray, off: Int, len: Int)
     override fun flush()
@@ -58,13 +58,13 @@ expect class StringWriter(): Writer {
 }
 
 @Suppress("HEADER_WITHOUT_IMPLEMENTATION") // see KT-19848
-expect abstract class Reader protected constructor() {
+header abstract class Reader protected constructor() {
     open fun read(): Int
     abstract fun read(dst: CharArray, off: Int, len: Int): Int
     abstract fun close()
 }
 
-expect class StringReader(str: String): Reader {
+header class StringReader(str: String): Reader {
     override fun read(): Int
     override fun read(dst: CharArray, off: Int, len: Int): Int
     override fun close()

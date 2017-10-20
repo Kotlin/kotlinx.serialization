@@ -16,25 +16,25 @@
 
 package kotlinx.io
 
-actual open class IOException actual constructor(message: String) : Exception(message) {
-    actual constructor(): this("IO Exception")
+impl open class IOException impl constructor(message: String) : Exception(message) {
+    impl constructor(): this("IO Exception")
 }
 
-actual abstract class InputStream {
+impl abstract class InputStream {
 
-    actual open fun available(): Int {
+    impl open fun available(): Int {
         return 0
     }
 
-    actual open fun close() {
+    impl open fun close() {
         /* empty */
     }
 
-    actual abstract fun read(): Int
+    impl abstract fun read(): Int
 
-    actual open fun read(b: ByteArray) = read(b, 0, b.size)
+    impl open fun read(b: ByteArray) = read(b, 0, b.size)
 
-    actual open fun read(b: ByteArray, offset: Int, len: Int): Int {
+    impl open fun read(b: ByteArray, offset: Int, len: Int): Int {
         // Force null check for b first!
         if (offset > b.size || offset < 0) {
             throw IndexOutOfBoundsException()
@@ -62,7 +62,7 @@ actual abstract class InputStream {
     }
 
 
-    actual open fun skip(n: Long): Long {
+    impl open fun skip(n: Long): Long {
         if (n <= 0) {
             return 0
         }
@@ -99,7 +99,7 @@ actual abstract class InputStream {
     }
 }
 
-actual class ByteArrayInputStream : InputStream {
+impl class ByteArrayInputStream : InputStream {
 
     protected var buf: ByteArray
     protected var pos: Int = 0
@@ -107,7 +107,7 @@ actual class ByteArrayInputStream : InputStream {
     protected var count: Int = 0
 
 
-    actual constructor(buf: ByteArray) {
+    impl constructor(buf: ByteArray) {
         this.mark = 0
         this.buf = buf
         this.count = buf.size
@@ -125,7 +125,7 @@ actual class ByteArrayInputStream : InputStream {
     }
 
 
-    actual override fun read(): Int {
+    impl override fun read(): Int {
         return if (pos < count) buf[pos++].toInt() and 0xFF else -1
     }
 
@@ -163,17 +163,17 @@ actual class ByteArrayInputStream : InputStream {
 }
 
 
-actual abstract class OutputStream {
-    actual open fun close() {
+impl abstract class OutputStream {
+    impl open fun close() {
         /* empty */
     }
-    actual open fun flush() {
+    impl open fun flush() {
         /* empty */
     }
 
-    actual open fun write(buffer: ByteArray) = write(buffer, 0, buffer.size)
+    impl open fun write(buffer: ByteArray) = write(buffer, 0, buffer.size)
 
-    actual open fun write(buffer: ByteArray, offset: Int, count: Int) {
+    impl open fun write(buffer: ByteArray, offset: Int, count: Int) {
         // avoid int overflow, check null buffer
         if (offset > buffer.size || offset < 0 || count < 0
                 || count > buffer.size - offset) {
@@ -184,15 +184,15 @@ actual abstract class OutputStream {
         }
     }
 
-    actual abstract fun write(oneByte: Int)
+    impl abstract fun write(oneByte: Int)
 
 }
 
-actual class ByteArrayOutputStream : OutputStream {
+impl class ByteArrayOutputStream : OutputStream {
     protected var buf: ByteArray
     protected var count: Int = 0
 
-    actual constructor() : super() {
+    impl constructor() : super() {
         buf = ByteArray(32)
     }
 
@@ -215,11 +215,11 @@ actual class ByteArrayOutputStream : OutputStream {
         buf = newbuf
     }
 
-    actual open fun size(): Int {
+    impl open fun size(): Int {
         return count
     }
 
-    actual open fun toByteArray(): ByteArray {
+    impl open fun toByteArray(): ByteArray {
         val newArray = ByteArray(count)
         arraycopy(buf, 0, newArray, 0, count)
         return newArray
@@ -241,7 +241,7 @@ actual class ByteArrayOutputStream : OutputStream {
         this.count += count
     }
 
-    actual override fun write(oneByte: Int) {
+    impl override fun write(oneByte: Int) {
         if (count == buf.size) {
             expand(1)
         }

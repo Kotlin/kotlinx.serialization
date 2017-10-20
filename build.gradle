@@ -15,23 +15,16 @@
  */
 
 buildscript {
-    if (project.hasProperty("bootstrap")) {
-        ext.compilerVersion = '1.2-SNAPSHOT'
-        ext.librariesVersion = '1.2-SNAPSHOT'
-        ext.serializationPluginVersion = '0.2-SNAPSHOT'
-    } else {
-        ext.compilerVersion = '1.2.0-beta-31'
-        ext.librariesVersion = '1.2.0-beta-31'
-        ext.serializationPluginVersion = '0.1.1'
-    }
-    ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-eap-1.2'
+    ext.compilerVersion = '1.1.50'
+    ext.librariesVersion = '1.1.50'
+    ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-eap-1.1'
     ext.serializationRepo = 'https://kotlin.bintray.com/kotlinx'
+    ext.serializationPluginVersion = '0.2'
 
     repositories {
         jcenter()
         mavenLocal()
         maven { url serializationRepo }
-        maven { url eapChannel }
     }
 
     dependencies {
@@ -63,7 +56,6 @@ allprojects {
     repositories {
         jcenter()
         mavenLocal()
-        maven { url eapChannel }
     }
 }
 

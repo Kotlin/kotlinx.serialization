@@ -16,10 +16,10 @@
 
 package kotlinx.io
 
-actual typealias IOException = java.io.IOException
+impl typealias IOException = java.io.IOException
 
-actual typealias InputStream = java.io.InputStream
-actual typealias ByteArrayInputStream = java.io.ByteArrayInputStream
+impl typealias InputStream = java.io.InputStream
+impl typealias ByteArrayInputStream = java.io.ByteArrayInputStream
 
-actual typealias OutputStream = java.io.OutputStream
-actual typealias ByteArrayOutputStream = java.io.ByteArrayOutputStream
+impl typealias OutputStream = java.io.OutputStream
+impl typealias ByteArrayOutputStream = java.io.ByteArrayOutputStream

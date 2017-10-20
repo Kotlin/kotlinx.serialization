@@ -20,8 +20,8 @@ import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.DataView
 
 
-actual class ByteBuffer(val capacity: Int) {
-    private actual constructor(): this(16) //don't use, only for matching header
+impl class ByteBuffer(val capacity: Int) {
+    private impl constructor(): this(16) //don't use, only for matching header
 
     init {
         require(capacity >= 0)
@@ -44,13 +44,13 @@ actual class ByteBuffer(val capacity: Int) {
             field = newPosition
         }
 
-    actual fun clear(): ByteBuffer {
+    impl fun clear(): ByteBuffer {
         position = 0
         limit = capacity
         return this
     }
 
-    actual fun flip(): ByteBuffer {
+    impl fun flip(): ByteBuffer {
         limit = position
         position = 0
         return this
@@ -68,7 +68,7 @@ actual class ByteBuffer(val capacity: Int) {
     }
 
     var order: ByteOrder = ByteOrder.BIG_ENDIAN
-    actual fun order(order: ByteOrder): ByteBuffer {
+    impl fun order(order: ByteOrder): ByteBuffer {
         this.order = order
         return this
     }
@@ -82,39 +82,39 @@ actual class ByteBuffer(val capacity: Int) {
         return i
     }
 
-    actual fun get(): Byte = get(-1)
-    actual fun get(index: Int): Byte {
+    impl fun get(): Byte = get(-1)
+    impl fun get(index: Int): Byte {
         val i = idx(index, 1)
         return dw.getInt8(i)
     }
 
-    actual fun get(dst: ByteArray, offset: Int, cnt: Int): Unit {
+    impl fun get(dst: ByteArray, offset: Int, cnt: Int): Unit {
         val pos = idx(-1, cnt)
         for (i in 0 until cnt) {
             dst[offset + i] = dw.getInt8(pos + i)
         }
     }
 
-    actual fun getChar() = getChar(-1)
-    actual fun getChar(index: Int): Char {
+    impl fun getChar() = getChar(-1)
+    impl fun getChar(index: Int): Char {
         val i = idx(index, 2)
         return dw.getUint16(i, order == ByteOrder.LITTLE_ENDIAN).toChar()
     }
 
-    actual fun getShort() = getShort(-1)
-    actual fun getShort(index: Int): Short {
+    impl fun getShort() = getShort(-1)
+    impl fun getShort(index: Int): Short {
         val i = idx(index, 2)
         return dw.getInt16(i, order == ByteOrder.LITTLE_ENDIAN)
     }
 
-    actual fun getInt() = getInt(-1)
-    actual fun getInt(index: Int): Int {
+    impl fun getInt() = getInt(-1)
+    impl fun getInt(index: Int): Int {
         val i = idx(index, 4)
         return dw.getInt32(i, order == ByteOrder.LITTLE_ENDIAN)
     }
 
-    actual fun getLong() = getLong(-1)
-    actual fun getLong(index: Int): Long {
+    impl fun getLong() = getLong(-1)
+    impl fun getLong(index: Int): Long {
         val low:Int
         val high:Int
         val scndIdx = if (index == -1) -1 else index + 4
@@ -128,27 +128,27 @@ actual class ByteBuffer(val capacity: Int) {
         return ((high.toLong() shl 32) or (low.toLong() and 0xFFFFFFFF))
     }
 
-    actual fun getFloat() = getFloat(-1)
-    actual fun getFloat(index: Int): Float {
+    impl fun getFloat() = getFloat(-1)
+    impl fun getFloat(index: Int): Float {
         val i = idx(index, 4)
         return dw.getFloat32(i, order == ByteOrder.LITTLE_ENDIAN)
     }
 
-    actual fun getDouble() = getDouble(-1)
-    actual fun getDouble(index: Int): Double {
+    impl fun getDouble() = getDouble(-1)
+    impl fun getDouble(index: Int): Double {
         val i = idx(index, 8)
         return dw.getFloat64(i, order == ByteOrder.LITTLE_ENDIAN)
     }
 
-    actual fun put(value: Byte) = put(value, -1)
-    actual fun put(value: Byte, index: Int): ByteBuffer {
+    impl fun put(value: Byte) = put(value, -1)
+    impl fun put(value: Byte, index: Int): ByteBuffer {
         val i = idx(index, 1)
         dw.setInt8(i, value)
         return this
     }
 
-    actual fun put(src: ByteArray) = put(src, 0, src.size)
-    actual fun put(src: ByteArray, offset: Int, cnt: Int): ByteBuffer {
+    impl fun put(src: ByteArray) = put(src, 0, src.size)
+    impl fun put(src: ByteArray, offset: Int, cnt: Int): ByteBuffer {
         val pos = idx(-1, cnt)
         for (i in 0 until cnt) {
             dw.setInt8(pos + i, src[offset + i])
@@ -156,29 +156,29 @@ actual class ByteBuffer(val capacity: Int) {
         return this
     }
 
-    actual fun putChar(value: Char) = putChar(value, -1)
-    actual fun putChar(value: Char, index: Int): ByteBuffer {
+    impl fun putChar(value: Char) = putChar(value, -1)
+    impl fun putChar(value: Char, index: Int): ByteBuffer {
         val i = idx(index, 2)
         dw.setUint16(i, value.toShort(), order == ByteOrder.LITTLE_ENDIAN)
         return this
     }
 
-    actual fun putShort(value: Short) = putShort(value, -1)
-    actual fun putShort(value: Short, index: Int): ByteBuffer {
+    impl fun putShort(value: Short) = putShort(value, -1)
+    impl fun putShort(value: Short, index: Int): ByteBuffer {
         val i = idx(index, 2)
         dw.setInt16(i, value, order == ByteOrder.LITTLE_ENDIAN)
         return this
     }
 
-    actual fun putInt(value: Int) = putInt(value, -1)
-    actual fun putInt(value: Int, index: Int): ByteBuffer {
+    impl fun putInt(value: Int) = putInt(value, -1)
+    impl fun putInt(value: Int, index: Int): ByteBuffer {
         val i = idx(index, 4)
         dw.setInt32(i, value, order == ByteOrder.LITTLE_ENDIAN)
         return this
     }
 
-    actual fun putLong(value: Long) = putLong(value, -1)
-    actual fun putLong(value: Long, index: Int): ByteBuffer {
+    impl fun putLong(value: Long) = putLong(value, -1)
+    impl fun putLong(value: Long, index: Int): ByteBuffer {
         val high = (value shr 32).toInt()
         val low = (value and 0xFFFFFFFFL).toInt()
         val scndIdx = if (index == -1) -1 else index + 4
@@ -192,21 +192,21 @@ actual class ByteBuffer(val capacity: Int) {
         return this
     }
 
-    actual fun putFloat(value: Float) = putFloat(value, -1)
-    actual fun putFloat(value: Float, index: Int): ByteBuffer {
+    impl fun putFloat(value: Float) = putFloat(value, -1)
+    impl fun putFloat(value: Float, index: Int): ByteBuffer {
         val i = idx(index, 4)
         dw.setFloat32(i, value, order == ByteOrder.LITTLE_ENDIAN)
         return this
     }
 
-    actual fun putDouble(value: Double) = putDouble(value, -1)
-    actual fun putDouble(value: Double, index: Int): ByteBuffer {
+    impl fun putDouble(value: Double) = putDouble(value, -1)
+    impl fun putDouble(value: Double, index: Int): ByteBuffer {
         val i = idx(index, 8)
         dw.setFloat64(i, value, order == ByteOrder.LITTLE_ENDIAN)
         return this
     }
 
-    actual fun array(): ByteArray {
+    impl fun array(): ByteArray {
         val out = ByteArray(limit)
         for (i in 0 until limit) {
             out[i] = dw.getInt8(i)
@@ -214,7 +214,7 @@ actual class ByteBuffer(val capacity: Int) {
         return out
     }
 
-    actual companion object {
-        actual fun allocate(capacity: Int) = ByteBuffer(capacity)
+    impl companion object {
+        impl fun allocate(capacity: Int) = ByteBuffer(capacity)
     }
 }
