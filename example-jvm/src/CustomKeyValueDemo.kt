@@ -42,7 +42,7 @@ class KeyValueOutput(val out: PrintWriter) : ElementValueOutput() {
      * writeValue is called by default, if primitives write methods
      * (like writeInt, etc) are not overridden.
      */
-    override fun writeValue(value: Any) = out.print(value)
+    override fun writeNonSerializableValue(value: Any) = out.print(value)
 
     override fun writeStringValue(value: String) {
         out.print('"')

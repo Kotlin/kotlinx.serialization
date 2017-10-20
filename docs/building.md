@@ -16,14 +16,9 @@ dependencies {
 }
 ```
 
-## Compiler plugin for Gradle
+## Compiler plugin 
 
-Compiler plugin for Gradle is hosted in a separate branch of Kotlin compiler. 
-Steps to build it are explained 
-[here](https://github.com/JetBrains/kotlin/tree/rr/kotlinx.serialization/libraries#kotlin-serialization-gradle-plugin).
+Compiler plugin for Gradle/Maven and IntelliJ plugin are hosted in a separate branch of Kotlin compiler. 
 
-## IDEA plugin
-
-IDEA plugin for is hosted in serialization is likewise hosted in a separate branch of Kotlin compiler.
 Steps to build it are explained   
 [here](https://github.com/JetBrains/kotlin/blob/rr/kotlinx.serialization/plugins/kotlin-serialization/kotlin-serialization-compiler/README.md).

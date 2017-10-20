@@ -175,7 +175,7 @@
     }
     
     // Serialization and deserialization with internal serializer
-    // External serializaer also supported
+    // External serializer also supported
     assertEquals("{a:0,c:Hello}",JSON.unquoted.stringify(Data()))
     assertEquals(JSON.unquoted.parse<Data>("{a:0,c:Hello}"),Data())
     assertEquals(JSON.unquoted.parse<Data>("{a:0}"),Data())

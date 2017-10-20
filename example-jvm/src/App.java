@@ -6,5 +6,6 @@ public class App {
         DataTransformDemoKt.main(args);
         NamedMapDemoKt.main(args);
         TaggedDemoKt.main(args);
+        WithDemoKt.main(args);
     }
 }

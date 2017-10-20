@@ -70,5 +70,6 @@ fun testMethod(method: (KSerializer<Any>, Any) -> Result, supportsNull: Boolean 
         else
             println("Passed $totalCount test cases")
     }
+    if (failCount > 0) throw Exception("Not all tests passed!")
     return Pair(failCount, totalCount)
 }

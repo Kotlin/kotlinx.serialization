@@ -253,3 +253,9 @@ Unfortunately, embedded Kotlin compiler is not supported yet. To be able to run 
 `Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`. 
 
 For maven projects, create separate run configuration.
+
+## Further reading
+
+* [More examples of supported Kotlin classes](docs/examples.md)
+* [Building library from source](docs/building.md)
+* [Writing custom serializers](docs/custom_serializers.md)
