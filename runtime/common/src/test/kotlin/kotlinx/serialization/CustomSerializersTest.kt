@@ -16,7 +16,9 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.internal.IntSerializer
 import kotlinx.serialization.internal.SerialClassDescImpl
+import kotlinx.serialization.internal.StringSerializer
 import kotlinx.serialization.json.JSON
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -100,5 +102,13 @@ class CustomSerializersTest {
         val j = JSON(unquoted = true, context = scope)
         val bs = j.parse(BSerializer.list, "[1,2,3]")
         assertEquals(obj, bs)
+    }
+
+    @Test
+    fun mapBuiltinsTest() {
+        val map = mapOf(1 to "1", 2 to "2")
+        val serial = (IntSerializer to StringSerializer).map
+        val s = JSON.unquoted.stringify(serial, map)
+        assertEquals("{1:1,2:2}",s)
     }
 }
