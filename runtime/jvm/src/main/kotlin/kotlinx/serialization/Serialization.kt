@@ -17,10 +17,11 @@
 package kotlinx.serialization
 
 import kotlin.reflect.KClass
-import kotlin.reflect.full.companionObjectInstance
 
 @Suppress("UNCHECKED_CAST")
-impl fun <T: Any> KClass<T>.serializer(): KSerializer<T> = this.companionObjectInstance as? KSerializer<T>
+impl fun <T: Any> KClass<T>.serializer(): KSerializer<T> = this.java
+        .declaredClasses.filter { it.simpleName == ("\$serializer") }.singleOrNull()
+        ?.getField("INSTANCE")?.get(null) as? KSerializer<T>
         ?: throw SerializationException("Can't locate companion serializer for class $this")
 
 impl fun String.toUtf8Bytes() = this.toByteArray(Charsets.UTF_8)

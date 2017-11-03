@@ -29,11 +29,11 @@ class SerializeRecTest {
     @Test
     fun testRec() {
         val out = Out()
-        out.write(Container, Container(Data("s1", 42)))
+        out.write(Container::class.serializer(), Container(Data("s1", 42)))
         out.done()
 
         val inp = Inp()
-        val box = inp.read(Container)
+        val box = inp.read(Container::class.serializer())
         inp.done()
     }
 

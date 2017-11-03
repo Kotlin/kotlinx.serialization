@@ -114,11 +114,11 @@ class SerializeFlatTest() {
     @Test
     fun testData() {
         val out = Out("Data")
-        out.write(Data, Data("s1", 42))
+        out.write(Data::class.serializer(), Data("s1", 42))
         out.done()
 
         val inp = Inp("Data")
-        val data = inp.read(Data)
+        val data = inp.read(Data::class.serializer())
         inp.done()
         assert(data.value1 == "s1" && data.value2 == 42)
     }
@@ -126,11 +126,11 @@ class SerializeFlatTest() {
     @Test
     fun testDataExplicit() {
         val out = Out("DataExplicit")
-        out.write(DataExplicit, DataExplicit("s1", 42))
+        out.write(DataExplicit::class.serializer(), DataExplicit("s1", 42))
         out.done()
 
         val inp = Inp("DataExplicit")
-        val data = inp.read(DataExplicit)
+        val data = inp.read(DataExplicit::class.serializer())
         inp.done()
         assert(data.value1 == "s1" && data.value2 == 42)
     }
@@ -141,11 +141,11 @@ class SerializeFlatTest() {
         val reg = Reg();
         reg.value1 = "s1"
         reg.value2 = 42
-        out.write(Reg, reg)
+        out.write(Reg::class.serializer(), reg)
         out.done()
 
         val inp = Inp("Reg")
-        val data = inp.read(Reg)
+        val data = inp.read(Reg::class.serializer())
         inp.done()
         assert(data.value1 == "s1" && data.value2 == 42)
     }
@@ -153,11 +153,11 @@ class SerializeFlatTest() {
     @Test
     fun testNames() {
         val out = Out("Names")
-        out.write(Names, Names("s1", 42))
+        out.write(Names::class.serializer(), Names("s1", 42))
         out.done()
 
         val inp = Inp("Names")
-        val data = inp.read(Names)
+        val data = inp.read(Names::class.serializer())
         inp.done()
         assert(data.custom1 == "s1" && data.custom2 == 42)
     }
