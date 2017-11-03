@@ -179,31 +179,33 @@ class HashMapSerializer<K,V>(kSerializer: KSerializer<K>, vSerializer: KSerializ
 const val KEY_INDEX = 0
 const val VALUE_INDEX = 1
 
-class MapEntrySerializer<K, V>(private val kSerializer: KSerializer<K>, private val vSerializer: KSerializer<V>) :
-        KSerializer<Map.Entry<K, V>> {
-    override val serialClassDesc = MapEntryClassDesc//To change initializer of created properties use File | Settings | File Templates.
+sealed class KeyValueSerializer<K, V, R>(private val kSerializer: KSerializer<K>, private val vSerializer: KSerializer<V>): KSerializer<R> {
+    override abstract val serialClassDesc: KSerialClassDesc
+    abstract fun toResult(key: K, value: V): R
+    abstract val R.key: K
+    abstract val R.value: V
 
-    override fun save(output: KOutput, obj: Map.Entry<K, V>) {
+    override fun save(output: KOutput, obj: R) {
         @Suppress("NAME_SHADOWING")
-        val output = output.writeBegin(MapEntryClassDesc, kSerializer, vSerializer)
-        output.writeSerializableElementValue(MapEntryClassDesc, KEY_INDEX, kSerializer, obj.key)
-        output.writeSerializableElementValue(MapEntryClassDesc, VALUE_INDEX, vSerializer, obj.value)
-        output.writeEnd(MapEntryClassDesc)
+        val output = output.writeBegin(serialClassDesc, kSerializer, vSerializer)
+        output.writeSerializableElementValue(serialClassDesc, KEY_INDEX, kSerializer, obj.key)
+        output.writeSerializableElementValue(serialClassDesc, VALUE_INDEX, vSerializer, obj.value)
+        output.writeEnd(serialClassDesc)
     }
 
-    override fun load(input: KInput): Map.Entry<K, V> {
+    override fun load(input: KInput): R {
         @Suppress("NAME_SHADOWING")
-        val input = input.readBegin(MapEntryClassDesc, kSerializer, vSerializer)
+        val input = input.readBegin(serialClassDesc, kSerializer, vSerializer)
         var kSet = false
         var vSet = false
         var k: Any? = null
         var v: Any? = null
         mainLoop@ while (true) {
-            when (input.readElement(MapEntryClassDesc)) {
+            when (input.readElement(serialClassDesc)) {
                 READ_ALL -> {
-                    k = input.readSerializableElementValue(MapEntryClassDesc, KEY_INDEX, kSerializer)
+                    k = input.readSerializableElementValue(serialClassDesc, KEY_INDEX, kSerializer)
                     kSet = true
-                    v = input.readSerializableElementValue(MapEntryClassDesc, VALUE_INDEX, vSerializer)
+                    v = input.readSerializableElementValue(serialClassDesc, VALUE_INDEX, vSerializer)
                     vSet = true
                     break@mainLoop
                 }
@@ -211,22 +213,44 @@ class MapEntrySerializer<K, V>(private val kSerializer: KSerializer<K>, private 
                     break@mainLoop
                 }
                 KEY_INDEX -> {
-                    k = input.readSerializableElementValue(MapEntryClassDesc, KEY_INDEX, kSerializer)
+                    k = input.readSerializableElementValue(serialClassDesc, KEY_INDEX, kSerializer)
                     kSet = true
                 }
                 VALUE_INDEX -> {
-                    v = input.readSerializableElementValue(MapEntryClassDesc, VALUE_INDEX, vSerializer)
+                    v = input.readSerializableElementValue(serialClassDesc, VALUE_INDEX, vSerializer)
                     vSet = true
                 }
                 else -> throw SerializationException("Invalid index")
             }
         }
-        input.readEnd(MapEntryClassDesc)
+        input.readEnd(serialClassDesc)
         if (!kSet) throw SerializationException("Required key is missing")
         if (!vSet) throw SerializationException("Required value is missing")
         @Suppress("UNCHECKED_CAST")
-        return MapEntry<K, V>(k as K, v as V)
+        return toResult(k as K, v as V)
     }
+}
+
+class MapEntrySerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
+        KeyValueSerializer<K, V, Map.Entry<K, V>>(kSerializer, vSerializer) {
+    override val serialClassDesc = MapEntryClassDesc
+    override fun toResult(key: K, value: V): Map.Entry<K, V> = MapEntry(key, value)
+
+    override val Map.Entry<K, V>.key: K
+        get() = this.key
+    override val Map.Entry<K, V>.value: V
+        get() = this.value
+}
+
+class PairSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
+        KeyValueSerializer<K, V, Pair<K, V>>(kSerializer, vSerializer) {
+    override val serialClassDesc = PairClassDesc
+    override fun toResult(key: K, value: V) = key to value
+
+    override val Pair<K, V>.key: K
+        get() = this.first
+    override val Pair<K, V>.value: V
+        get() = this.second
 }
 
 // ============================= class descriptors =============================
@@ -274,5 +298,12 @@ object MapEntryClassDesc : SerialClassDescImpl("kotlin.collections.Map.Entry") {
     init {
         addElement("key")
         addElement("value")
+    }
+}
+
+object PairClassDesc: SerialClassDescImpl("kotlin.Pair") {
+    init {
+        addElement("first")
+        addElement("second")
     }
 }
