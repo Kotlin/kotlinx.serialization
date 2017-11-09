@@ -118,12 +118,12 @@ Number format is set via `@ProtoType` annotation. `ProtoNumberType.DEFAULT` is d
 is signed ZigZag representation (`sintXX`), and `FIXED` is `fixedXX` type. `uintXX` and `sfixedXX` are not supported yet.
 
 Repeated fields represented as lists. Because format spec says that if the list is empty, there will be no elements in the stream with such tag,
-you must explicitly mark any filed of list type with `@Optional` annotation with default ` = emptyList()`. Same for maps.
+you must explicitly mark any field of list type with `@Optional` annotation with default ` = emptyList()`. Same for maps.
 
 Other known issues and limitations:
 
 * Packed repeated fields are not supported
-* If fields with list tag are going in the arbitrary order, they are not merged into one list, they got overwritten instead.
+* If fields with list tag are going in the arbitrary order, they are not merged into one list, they get overwritten instead.
 
 More examples of mappings from proto definitions to Koltin classes can be found in test data:
 [here](runtime/jvm/src/test/proto/test_data.proto) and [here](runtime/jvm/src/test/kotlin/kotlinx/serialization/formats/RandomTests.kt#L47)
