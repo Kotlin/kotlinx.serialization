@@ -14,9 +14,8 @@
  *  limitations under the License.
  */
 
-package kotlinx.serialization.features
+package kotlinx.serialization
 
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.internal.IntSerializer
 import kotlinx.serialization.internal.PairSerializer
 import kotlinx.serialization.internal.StringSerializer
