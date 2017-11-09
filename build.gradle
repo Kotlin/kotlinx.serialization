@@ -15,11 +15,17 @@
  */
 
 buildscript {
-    ext.compilerVersion = '1.1.50'
-    ext.librariesVersion = '1.1.50'
+    if (project.hasProperty("bootstrap")) {
+        ext.compilerVersion = '1.2-SNAPSHOT'
+        ext.librariesVersion = '1.2-SNAPSHOT'
+        ext.serializationPluginVersion = '0.2-SNAPSHOT'
+    } else {
+        ext.compilerVersion = '1.1.50'
+        ext.librariesVersion = '1.1.50'
+        ext.serializationPluginVersion = '0.2'
+    }
     ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-eap-1.1'
     ext.serializationRepo = 'https://kotlin.bintray.com/kotlinx'
-    ext.serializationPluginVersion = '0.2'
 
     repositories {
         jcenter()
