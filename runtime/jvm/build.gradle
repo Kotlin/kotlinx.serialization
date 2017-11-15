@@ -69,3 +69,11 @@ dependencies {
     testCompile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-cbor', version: jacksonVersion
 
 }
+compileJava {
+    sourceCompatibility = "1.6"
+    targetCompatibility = "1.6"
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.6"
+}
