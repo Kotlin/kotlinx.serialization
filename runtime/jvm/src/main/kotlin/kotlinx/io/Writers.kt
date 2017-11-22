@@ -17,11 +17,11 @@
 package kotlinx.io
 
 @Suppress("NO_ACTUAL_CLASS_MEMBER_FOR_EXPECTED_CLASS")
-impl typealias Writer = java.io.Writer
+actual typealias Writer = java.io.Writer
 
-impl typealias PrintWriter = java.io.PrintWriter
-impl typealias StringWriter = java.io.StringWriter
+actual typealias PrintWriter = java.io.PrintWriter
+actual typealias StringWriter = java.io.StringWriter
 
 @Suppress("NO_ACTUAL_CLASS_MEMBER_FOR_EXPECTED_CLASS")
-impl typealias Reader = java.io.Reader
-impl typealias StringReader = java.io.StringReader
+actual typealias Reader = java.io.Reader
+actual typealias StringReader = java.io.StringReader

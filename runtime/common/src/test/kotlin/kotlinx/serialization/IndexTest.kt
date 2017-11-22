@@ -16,7 +16,7 @@
 
 package kotlinx.serialization
 
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 class IndexTest {

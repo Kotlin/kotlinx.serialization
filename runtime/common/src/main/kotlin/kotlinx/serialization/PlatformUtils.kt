@@ -18,14 +18,14 @@ package kotlinx.serialization
 
 import kotlin.reflect.KClass
 
-header fun <T: Any> KClass<T>.serializer(): KSerializer<T>
+expect fun <T: Any> KClass<T>.serializer(): KSerializer<T>
 
-header fun String.toUtf8Bytes(): ByteArray
-header fun stringFromUtf8Bytes(bytes: ByteArray): String
+expect fun String.toUtf8Bytes(): ByteArray
+expect fun stringFromUtf8Bytes(bytes: ByteArray): String
 
-header fun <E: Enum<E>> enumFromName(enumClass: KClass<E>, value: String): E
-header fun <E: Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E
+expect fun <E: Enum<E>> enumFromName(enumClass: KClass<E>, value: String): E
+expect fun <E: Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E
 
-header fun <E: Enum<E>> KClass<E>.enumClassName(): String
+expect fun <E: Enum<E>> KClass<E>.enumClassName(): String
 
-header fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E>
+expect fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E>

@@ -16,7 +16,7 @@
 
 package kotlinx.serialization.protobuf
 
-import org.junit.Test
+import kotlin.test.Test
 
 class ProtobufWriterTest {
 

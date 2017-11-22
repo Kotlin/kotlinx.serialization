@@ -18,27 +18,10 @@ package kotlinx.serialization
 
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.JSON
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class GenericTest {
-
-    @Serializable
-    data class MyPair<K, V>(val k: K, val v: V)
-
-    @Serializable
-    data class PairWrapper(val p: Pair<Int, String>)
-
-    @Serializable
-    data class TripleWrapper(val t: Triple<Int, String, Boolean>)
-
-    @Test
-    fun writeGenericPair() {
-        val pair = MyPair<Int, String>(42, "foo")
-        val saver = MyPair.serializer(IntSerializer, StringSerializer)
-        val s = JSON.unquoted.stringify(saver, pair)
-        assertEquals("{k:42,v:foo}", s)
-    }
 
     @Test
     fun writeDefaultPair() {
@@ -48,22 +31,6 @@ class GenericTest {
         assertEquals("{first:42,second:foo}", s)
         val restored = JSON.unquoted.parse(saver, s)
         assertEquals(pair, restored)
-    }
-
-    @Test
-    fun writePairInWrapper() {
-        val pair = PairWrapper(42 to "foo")
-        val saver = PairWrapper.serializer()
-        val s = JSON.unquoted.stringify(saver, pair)
-        assertEquals("{p:{first:42,second:foo}}", s)
-    }
-
-    @Test
-    fun writeTripleInWrapper() {
-        val triple = TripleWrapper(Triple(42 , "foo", false))
-        val saver = TripleWrapper.serializer()
-        val s = JSON.unquoted.stringify(saver, triple)
-        assertEquals("{t:{first:42,second:foo,third:false}}", s)
     }
 
     @Test

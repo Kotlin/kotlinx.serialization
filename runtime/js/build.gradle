@@ -26,8 +26,8 @@ ext {
 apply plugin: 'kotlin-platform-js'
 
 dependencies {
-    implement project(':common')
-    testImplementation project(':common')
+    expectedBy project(':common')
+
     compile libraries.kotlin_stdlib_js
     testCompile libraries.kotlin_test_js
 }

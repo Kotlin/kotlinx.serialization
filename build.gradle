@@ -18,18 +18,19 @@ buildscript {
     if (project.hasProperty("bootstrap")) {
         ext.compilerVersion = '1.2-SNAPSHOT'
         ext.librariesVersion = '1.2-SNAPSHOT'
-        ext.serializationPluginVersion = '0.2-SNAPSHOT'
+        ext.serializationPluginVersion = '0.3-SNAPSHOT'
     } else {
-        ext.compilerVersion = '1.1.50'
-        ext.librariesVersion = '1.1.50'
-        ext.serializationPluginVersion = '0.2'
+        ext.compilerVersion = '1.2.0-rc-39'
+        ext.librariesVersion = '1.2.0-rc-39'
+        ext.serializationPluginVersion = '0.3'
     }
-    ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-eap-1.1'
+    ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-eap-1.2'
     ext.serializationRepo = 'https://kotlin.bintray.com/kotlinx'
 
     repositories {
         jcenter()
         mavenLocal()
+        maven { url eapChannel }
         maven { url serializationRepo }
     }
 
@@ -50,6 +51,7 @@ ext {
             kotlin_stdlib_js: "org.jetbrains.kotlin:kotlin-stdlib-js:$librariesVersion",
             kotlin_test: "org.jetbrains.kotlin:kotlin-test:$librariesVersion",
             kotlin_test_common: "org.jetbrains.kotlin:kotlin-test-common:$librariesVersion",
+            kotlin_test_annotations_common: "org.jetbrains.kotlin:kotlin-test-annotations-common:$librariesVersion",
             kotlin_test_js: "org.jetbrains.kotlin:kotlin-test-js:$librariesVersion",
             kotlin_reflect: "org.jetbrains.kotlin:kotlin-reflect:$librariesVersion",
     ]
@@ -57,10 +59,11 @@ ext {
 
 allprojects {
     group 'org.jetbrains.kotlinx'
-    version '0.2'
+    version '0.3'
 
     repositories {
         jcenter()
+        maven { url eapChannel }
         mavenLocal()
     }
 }
