@@ -324,7 +324,7 @@ class ProtoBuf(val context: SerialContext? = null) {
             var value = inp
             val byteArrayList = ByteArray(10)
             var i = 0
-            while (value and 0xFFFFFF80 != 0L) {
+            while (value and 0x7FL.inv() != 0L) {
                 byteArrayList[i++] = ((value and 0x7F) or 0x80).toByte()
                 value = value ushr 7
             }
