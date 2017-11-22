@@ -16,9 +16,7 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.internal.IntSerializer
-import kotlinx.serialization.internal.PairSerializer
-import kotlinx.serialization.internal.StringSerializer
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.JSON
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -30,6 +28,9 @@ class GenericTest {
 
     @Serializable
     data class PairWrapper(val p: Pair<Int, String>)
+
+    @Serializable
+    data class TripleWrapper(val t: Triple<Int, String, Boolean>)
 
     @Test
     fun writeGenericPair() {
@@ -45,6 +46,8 @@ class GenericTest {
         val saver = PairSerializer(IntSerializer, StringSerializer)
         val s = JSON.unquoted.stringify(saver, pair)
         assertEquals("{first:42,second:foo}", s)
+        val restored = JSON.unquoted.parse(saver, s)
+        assertEquals(pair, restored)
     }
 
     @Test
@@ -53,5 +56,23 @@ class GenericTest {
         val saver = PairWrapper.serializer()
         val s = JSON.unquoted.stringify(saver, pair)
         assertEquals("{p:{first:42,second:foo}}", s)
+    }
+
+    @Test
+    fun writeTripleInWrapper() {
+        val triple = TripleWrapper(Triple(42 , "foo", false))
+        val saver = TripleWrapper.serializer()
+        val s = JSON.unquoted.stringify(saver, triple)
+        assertEquals("{t:{first:42,second:foo,third:false}}", s)
+    }
+
+    @Test
+    fun writePlainTriple() {
+        val triple = Triple(42 , "foo", false)
+        val saver = TripleSerializer(IntSerializer, StringSerializer, BooleanSerializer)
+        val s = JSON.unquoted.stringify(saver, triple)
+        assertEquals("{first:42,second:foo,third:false}", s)
+        val restored = JSON.unquoted.parse(saver, s)
+        assertEquals(triple, restored)
     }
 }
