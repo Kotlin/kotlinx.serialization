@@ -129,6 +129,7 @@ More examples of mappings from proto definitions to Koltin classes can be found 
 `Mapper` allows you to serialize/deserialize object to/from map:
 
 ```kotlin
+@Serializable
 data class Data(val first: Int, val second: String)
 
 val map: Map<String, Any> = Mapper.map(Data(42, "foo")) // mapOf("first" to 42, "second" to "foo")
