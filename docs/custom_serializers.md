@@ -1,6 +1,6 @@
 # Writing your own serializers
 
-The most simple and straightforward way to obtain serializer is to write annotation `@Serializable`
+The most simple and straightforward way to create serializer is to write annotation `@Serializable`
 directly on your class:
 
 ```kotlin
@@ -10,7 +10,9 @@ class MyData(val s: String)
 
 In this case, compiler plugin will generate for you:
 
-* Companion object for you class, which implements `KSerializer<MyData>`
+* `.serializer()` method on companion object to obtain serializer. If your class is
+a generic class, this method will have arguments `KSerializer<T1>, KSerializer<T2>`..., where `T1, T2` - your generic type parameters.
+* Special nested object in your class, which implements `KSerializer<MyData>`
 * Methods `save` and `load` of interfaces `KSerialSaver` and `KSerialLoader`
 * Descriptor property `serialClassDesc` of `KSerializer`
 
@@ -20,12 +22,13 @@ If you want to customize representation of the class, in most cases, you need to
 and `load` methods. Serial descriptor property typically used in generated version of those methods,
 so you likely don't need it. 
 
-You can write methods directly on companion object, and serialization plugin will respect them:
-(note you still have to apply annotation, because we need to define `serialClassDesc` even if we don't use it)
+You can write methods directly on companion object, annotate it with `@Serializer(forClass = ...)`, and serialization plugin will respect it as default serializer.
+(note you still have to apply `@Serializable` annotation, because we need to define `serialClassDesc` even if we don't use it)
 
 ```kotlin
 @Serializable
 class MyData(val s: String) {
+    @Serializer(forClass = MyData::class)
     companion object /*: KSerializer<MyData> can be omitted or not, if you like*/{
         override fun save(output: KOutput, obj: MyData) {
             output.writeStringValue(HexConverter.printHexBinary(obj.s.toByteArray()))
@@ -37,6 +40,9 @@ class MyData(val s: String) {
     }
 }
 ```
+
+*Note:* this approach is not working yet for generic classes.
+
 ## External serializers for library classes
 
 Approach above will not work, if you can't modify source code of the class - e.g. it is a Kotlin/Java library class.
@@ -44,6 +50,7 @@ If it is Kotlin class, you can just let the plugin know you want to create seria
 
 ```kotlin
 // imagine that MyData is a library class
+// if you have generic class, you should use `class` instead of `object`
 @Serializer(forClass = MyData::class)
 object DataSerializer {}
 ```
@@ -131,7 +138,7 @@ fun foo(b: B): Pair<String, ByteArray> {
 
 ## Overriding serializers
 
-If you want to give a clue to plugin about which external serializer use for specified property,
+If you want to give a clue to plugin about which serializer use for specified property,
 you may use annotation in form `@Serializable(with = SomeKSerializer::class)`:
 
 ```kotlin

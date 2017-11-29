@@ -20,11 +20,23 @@ This project contains the runtime library. Runtime library provides:
 * Basic skeleton implementations of these interfaces in which you should override some methods if you want to 
   implement custom data format (`ElementValueInput/Output`, `NamedValueInput/Output`, `ElementValueTransformer`)
 * Some internal classes like built-ins and collections serializers.
-* Ready-to-use [serialization formats](#serialization-formats).
+* Ready-to-use serialization formats.
+* Other useful classes that benefit from serialization framework (e.g. object-to-Map transformer)
 
 You can open example projects for [JVM](example-jvm) or [JS](example-js) to get started playing with it.
 
-## Example
+## Table of contents
+
+* [Quick example](#quick-example)
+* [Library installing](#setup)
+* [Working in IntelliJ IDEA](#working-in-intellij-idea)
+* [Usage](docs/runtime_usage.md)
+* [More examples of supported Kotlin classes](docs/examples.md)
+* [Writing custom serializers](docs/custom_serializers.md)
+* [Building library and compiler plugin from source](docs/building.md)
+
+
+## Quick example
 
 ```kotlin
 
@@ -40,95 +52,9 @@ fun main(args: Array<String>) {
 }
 ```
 
-More examples of various kinds of Kotlin classes that can be serialized can be found [here](docs/examples.md).
+To learn more about JSON usage and other formats, see [usage](docs/runtime_usage.md). More examples of various kinds of Kotlin classes that can be serialized can be found [here](docs/examples.md).
 
-## Serialization formats
-
-Runtime library provides three ready-to use formats: JSON, CBOR and ProtoBuf.
-
-### JSON usage
-
-JSON format represented by `JSON` class from `kotlinx.serialization.json` package. It has constructor with four optional parameters:
-
-* nonstrict - allow JSON parser skip fields which are not present in class. By default is false.
-* unquoted - means that all field names and other objects (where it's possible) would not be wrapped in quotes. Useful for debugging.
-* indented - classic pretty-printed multiline JSON.
-* indent - size of indent, applicable if parameter above is true.
-
-You can also use one of predefined instances, like `JSON.plain`, `JSON.indented`, `JSON.nonstrict` or `JSON.unquoted`. API is duplicated in companion object, so `JSON.parse(...)` equals to `JSON.plain.parse(...)`
-
-JSON API:
-
-```kotlin
-fun <T> stringify(saver: KSerialSaver<T>, obj: T): String
-inline fun <reified T : Any> stringify(obj: T): String = stringify(T::class.serializer(), obj)
-
-fun <T> parse(loader: KSerialLoader<T>, str: String): T
-inline fun <reified T : Any> parse(str: String): T = parse(T::class.serializer(), str)
-```
-
-`stringify` transforms object to string, `parse` parses. No surprises.
-
-**Note**: because JSON doesn't support maps with keys other than
-strings (and primitives), Kotlin maps with non-trivial key types are serialized as JSON lists.
-
-**Caveat**: `T::class.serializer()` assumes that you use it on class defined as `@Serializable`,
-so it wouldn't work with root-level collections or external serializers out of the box. For external serializers,
-you must [register](docs/custom_serializers.md#registering-and-context) them and create json instance with corresponding scope.
-For collection serializers, see this [feature](https://github.com/Kotlin/kotlinx.serialization/issues/27).
-
-### CBOR usage
-
-`CBOR` object doesn't support any tweaking and provides following functions:
-
-```kotlin
-fun <T : Any> dump(saver: KSerialSaver<T>, obj: T): ByteArray // saves object to bytes
-inline fun <reified T : Any> dump(obj: T): ByteArray // same as above, resolves serializer by itself
-inline fun <reified T : Any> dumps(obj: T): String // dump object and then pretty-print bytes to string
-
-fun <T : Any> load(loader: KSerialLoader<T>, raw: ByteArray): T // load object from bytes
-inline fun <reified T : Any> load(raw: ByteArray): T // save as above
-inline fun <reified T : Any> loads(hex: String): T // inverse operation for dumps
-```
-
-**Note**: CBOR, unlike JSON, supports maps with non-trivial keys,
-and Kotlin maps are serialized as CBOR maps, but some parsers (like `jackson-dataformat-cbor`) don't support this.
-
-### Protobuf usage
-
-Because protobuf relies on serial ids of fields, called 'tags', you have to provide this information, 
-using serial annotation `@SerialId`:
-
-```kotlin
-@Serializable
-data class KTestInt32(@SerialId(1) val a: Int)
-```
-
-This class is equivalent to the following proto definition:
-
-```proto
-message Int32 {
-    required int32 a = 1;
-}
-```
-
-Note that we are using proto2 semantics, where all fields are explicitly required or optional.
-
-Number format is set via `@ProtoType` annotation. `ProtoNumberType.DEFAULT` is default varint encoding (`intXX`), `SIGNED`
-is signed ZigZag representation (`sintXX`), and `FIXED` is `fixedXX` type. `uintXX` and `sfixedXX` are not supported yet.
-
-Repeated fields represented as lists. Because format spec says that if the list is empty, there will be no elements in the stream with such tag,
-you must explicitly mark any field of list type with `@Optional` annotation with default ` = emptyList()`. Same for maps.
-
-Other known issues and limitations:
-
-* Packed repeated fields are not supported
-* If fields with list tag are going in the arbitrary order, they are not merged into one list, they get overwritten instead.
-
-More examples of mappings from proto definitions to Koltin classes can be found in test data:
-[here](runtime/jvm/src/test/proto/test_data.proto) and [here](runtime/jvm/src/test/kotlin/kotlinx/serialization/formats/RandomTests.kt#L47)
-
-## Usage
+## Setup
 
 Using Kotlin Serialization requires Kotlin compiler `1.1.50` or higher, recommended version is `1.2.0`. 
 Example projects on JVM are available for [Gradle](example-jvm/build.gradle) and [Maven](example-jvm/pom.xml).
@@ -246,22 +172,16 @@ Add dependency on serialization runtime library:
 </dependency>
 ```
 
-## JavaScript and common
+### JavaScript and common
 
 Replace dependency on `kotlinx-serialization-runtime` with `kotlinx-serialization-runtime-js` or `kotlinx-serialization-runtime-common`
 to use it in JavaScript and common projects, respectively.
 JavaScript example is located at [`example-js`](example-js) folder.
 
-## IntelliJ IDEA
+## Working in IntelliJ IDEA
 
 Unfortunately, embedded Kotlin compiler is not supported yet. To be able to run your project with serialization from within IDEA, perform following steps: 
 
 `Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`. 
 
 For maven projects, create separate run configuration.
-
-## Further reading
-
-* [More examples of supported Kotlin classes](docs/examples.md)
-* [Building library from source](docs/building.md)
-* [Writing custom serializers](docs/custom_serializers.md)
