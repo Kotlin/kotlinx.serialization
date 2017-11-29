@@ -20,8 +20,8 @@ buildscript {
         ext.librariesVersion = '1.2-SNAPSHOT'
         ext.serializationPluginVersion = '0.3-SNAPSHOT'
     } else {
-        ext.compilerVersion = '1.2.0-rc-39'
-        ext.librariesVersion = '1.2.0-rc-39'
+        ext.compilerVersion = '1.2.0'
+        ext.librariesVersion = '1.2.0'
         ext.serializationPluginVersion = '0.3'
     }
     ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-eap-1.2'

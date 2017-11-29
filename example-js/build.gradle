@@ -17,8 +17,8 @@
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.1.50'
-    ext.serialization_version = '0.2'
+    ext.kotlin_version = '1.2.0'
+    ext.serialization_version = '0.3'
     ext.web_path = 'web'
 
     repositories {

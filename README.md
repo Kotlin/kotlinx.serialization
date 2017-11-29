@@ -130,7 +130,7 @@ More examples of mappings from proto definitions to Koltin classes can be found 
 
 ## Usage
 
-Using Kotlin Serialization requires Kotlin compiler `1.1.50` or higher. 
+Using Kotlin Serialization requires Kotlin compiler `1.1.50` or higher, recommended version is `1.2.0`. 
 Example projects on JVM are available for [Gradle](example-jvm/build.gradle) and [Maven](example-jvm/pom.xml).
 
 ### Gradle/JVM
@@ -139,8 +139,8 @@ Ensure the proper version of Kotlin and add dependencies on plugin in addition t
 
 ```gradle
 buildscript {
-    ext.kotlin_version = '1.1.50'
-    ext.serialization_version = '0.2'
+    ext.kotlin_version = '1.2.0'
+    ext.serialization_version = '0.3'
     repositories {
         jcenter()
         maven { url "https://kotlin.bintray.com/kotlinx" }
@@ -184,8 +184,8 @@ Ensure the proper version of Kotlin and serialization version:
 
 ```xml
 <properties>
-    <kotlin.version>1.1.50</kotlin.version>
-    <serialization.version>0.2</serialization.version>
+    <kotlin.version>1.2.0</kotlin.version>
+    <serialization.version>0.3</serialization.version>
 </properties>
 ```
 
@@ -246,9 +246,10 @@ Add dependency on serialization runtime library:
 </dependency>
 ```
 
-## JavaScript
+## JavaScript and common
 
-Replace `kotlinx-serialization-runtime` with `kotlinx-serialization-runtime-js` to use it in JavaScript projects.
+Replace dependency on `kotlinx-serialization-runtime` with `kotlinx-serialization-runtime-js` or `kotlinx-serialization-runtime-common`
+to use it in JavaScript and common projects, respectively.
 JavaScript example is located at [`example-js`](example-js) folder.
 
 ## IntelliJ IDEA
