@@ -307,3 +307,74 @@ object PairClassDesc: SerialClassDescImpl("kotlin.Pair") {
         addElement("second")
     }
 }
+
+class TripleSerializer<A, B, C>(
+        private val aSerializer: KSerializer<A>,
+        private val bSerializer: KSerializer<B>,
+        private val cSerializer: KSerializer<C>
+) : KSerializer<Triple<A, B, C>> {
+    object TripleDesc: SerialClassDescImpl("kotlin.Triple") {
+        init {
+            addElement("first")
+            addElement("second")
+            addElement("third")
+        }
+    }
+
+    override val serialClassDesc: KSerialClassDesc = TripleDesc
+
+    override fun save(output: KOutput, obj: Triple<A, B, C>) {
+        @Suppress("NAME_SHADOWING")
+        val output = output.writeBegin(serialClassDesc, aSerializer, bSerializer, cSerializer)
+        output.writeSerializableElementValue(serialClassDesc, 0, aSerializer, obj.first)
+        output.writeSerializableElementValue(serialClassDesc, 1, bSerializer, obj.second)
+        output.writeSerializableElementValue(serialClassDesc, 2, cSerializer, obj.third)
+        output.writeEnd(serialClassDesc)
+    }
+
+    override fun load(input: KInput): Triple<A, B, C> {
+        @Suppress("NAME_SHADOWING")
+        val input = input.readBegin(serialClassDesc, aSerializer, bSerializer, cSerializer)
+        var aSet = false
+        var bSet = false
+        var cSet = false
+        var a: Any? = null
+        var b: Any? = null
+        var c: Any? = null
+        mainLoop@ while (true) {
+            when (input.readElement(serialClassDesc)) {
+                READ_ALL -> {
+                    a = input.readSerializableElementValue(serialClassDesc, 0, aSerializer)
+                    aSet = true
+                    b = input.readSerializableElementValue(serialClassDesc, 1, bSerializer)
+                    bSet = true
+                    c = input.readSerializableElementValue(serialClassDesc, 2, cSerializer)
+                    cSet = true
+                    break@mainLoop
+                }
+                READ_DONE -> {
+                    break@mainLoop
+                }
+                0 -> {
+                    a = input.readSerializableElementValue(serialClassDesc, 0, aSerializer)
+                    aSet = true
+                }
+                1 -> {
+                    b = input.readSerializableElementValue(serialClassDesc, 1, bSerializer)
+                    bSet = true
+                }
+                2 -> {
+                    c = input.readSerializableElementValue(serialClassDesc, 2, cSerializer)
+                    cSet = true
+                }
+                else -> throw SerializationException("Invalid index")
+            }
+        }
+        input.readEnd(serialClassDesc)
+        if (!aSet) throw SerializationException("Required first is missing")
+        if (!bSet) throw SerializationException("Required second is missing")
+        if (!cSet) throw SerializationException("Required third is missing")
+        @Suppress("UNCHECKED_CAST")
+        return Triple(a as A, b as B, c as C)
+    }
+}

@@ -18,7 +18,7 @@ package kotlinx.serialization.cbor
 
 import kotlinx.io.ByteArrayInputStream
 import kotlinx.serialization.internal.HexConverter
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class CBORReaderTest {

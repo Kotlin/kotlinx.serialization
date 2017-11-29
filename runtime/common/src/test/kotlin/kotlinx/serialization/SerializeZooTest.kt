@@ -20,8 +20,8 @@ import kotlinx.io.PrintWriter
 import kotlinx.io.Reader
 import kotlinx.io.StringReader
 import kotlinx.io.StringWriter
-import org.junit.Test
 import kotlin.reflect.KClass
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 

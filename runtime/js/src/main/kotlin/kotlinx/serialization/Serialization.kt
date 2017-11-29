@@ -19,24 +19,24 @@ package kotlinx.serialization
 import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
-impl fun <T: Any> KClass<T>.serializer(): KSerializer<T> = this.js.asDynamic().Companion as? KSerializer<T>
+actual fun <T: Any> KClass<T>.serializer(): KSerializer<T> = this.js.asDynamic().`$serializer` as? KSerializer<T>
         ?: throw SerializationException("Can't locate companion serializer for class $this")
 
-impl fun String.toUtf8Bytes(): ByteArray {
+actual fun String.toUtf8Bytes(): ByteArray {
     val s = this
     val blck = js("unescape(encodeURIComponent(s))") // contains only chars that fit to byte
     return (blck as String).toList().map { it.toByte() }.toByteArray()
 }
 
-impl fun stringFromUtf8Bytes(bytes: ByteArray): String {
+actual fun stringFromUtf8Bytes(bytes: ByteArray): String {
     val s = bytes.map { (it.toInt() and 0xFF).toChar() }.joinToString(separator = "") // wide uint8 to char
     val ans = js("decodeURIComponent(escape(s))")
     return ans as String
 }
 
-impl fun <E: Enum<E>> enumFromName(enumClass: KClass<E>, value: String): E = enumClass.js.asDynamic().`valueOf_61zpoe$`(value) as E
-impl fun <E: Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E = (enumClass.js.asDynamic().values() as Array<E>)[ordinal]
+actual fun <E: Enum<E>> enumFromName(enumClass: KClass<E>, value: String): E = enumClass.js.asDynamic().`valueOf_61zpoe$`(value) as E
+actual fun <E: Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E = (enumClass.js.asDynamic().values() as Array<E>)[ordinal]
 
-impl fun <E: Enum<E>> KClass<E>.enumClassName(): String = this.js.name
+actual fun <E: Enum<E>> KClass<E>.enumClassName(): String = this.js.name
 
-impl fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> = toTypedArray()
+actual fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> = toTypedArray()

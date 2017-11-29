@@ -26,8 +26,8 @@ ext {
 apply plugin: 'kotlin-platform-js'
 
 dependencies {
-    implement project(':common')
-    testImplementation project(':common')
+    expectedBy project(':common')
+
     compile libraries.kotlin_stdlib_js
     testCompile libraries.kotlin_test_js
 }
@@ -68,6 +68,7 @@ task installQunit(type: NpmTask) {
 task runQunit(type: NodeTask, dependsOn: [compileTestKotlin2Js, populateNodeModules, installQunit]) {
     script = file('node_modules/qunitjs/bin/qunit')
     args = [projectDir.toPath().relativize(file(compileTestKotlin2Js.outputFile).toPath())]
+    if (project.hasProperty("tests")) args += ["-f", project.property('tests')]
 }
 
 test.dependsOn runQunit

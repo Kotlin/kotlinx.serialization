@@ -20,7 +20,7 @@ import kotlinx.serialization.internal.IntSerializer
 import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlinx.serialization.internal.StringSerializer
 import kotlinx.serialization.json.JSON
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class CustomSerializersTest {
