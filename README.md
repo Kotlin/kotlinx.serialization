@@ -180,8 +180,7 @@ JavaScript example is located at [`example-js`](example-js) folder.
 
 ## Working in IntelliJ IDEA
 
-Unfortunately, embedded Kotlin compiler is not supported yet. To be able to run your project with serialization from within IDEA, perform following steps: 
+Instead of using Gradle or Maven, IntelliJ IDEA relies on its own build system when analyzing and running code from within IDE. Because serialization is still highly experimental, it is shipped as a separate artifact from "big" Kotlin IDEA plugin. You can download additional IDEA plugin for working with projects that uses serialization from its [TeamCity build page](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts). In IDEA, open `Settings - Plugins - Install plugin from disk...` and select downloaded .zip or .jar file. This installation will allow you to run code/tests from IDEA.
 
-`Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`. 
-
-For maven projects, create separate run configuration.
+In case of issues with IDE, try to use gradle for running builds:
+`Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`; or launch builds from console.
