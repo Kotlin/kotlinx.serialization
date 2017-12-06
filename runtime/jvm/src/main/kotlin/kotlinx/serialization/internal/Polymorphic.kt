@@ -18,7 +18,6 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 import kotlin.reflect.KClass
-import kotlin.reflect.full.isSubclassOf
 
 internal object PolymorphicClassDesc : SerialClassDescImpl("kotlin.Any") {
     override val kind: KSerialClassKind = KSerialClassKind.POLYMORPHIC
@@ -47,7 +46,7 @@ internal object ClassSerialCache {
     internal fun getSubclassSerializer(klass: KClass<*>): KSerializer<*>? {
         if (klass.java.isArray) return ReferenceArraySerializer<Any, Any>(Any::class, (PolymorphicSerializer as KSerializer<Any>))
         for ((k, v) in map) {
-            if (klass.isSubclassOf(k)) return v
+            if (k.java.isAssignableFrom((klass.java))) return v
         }
         return null
     }

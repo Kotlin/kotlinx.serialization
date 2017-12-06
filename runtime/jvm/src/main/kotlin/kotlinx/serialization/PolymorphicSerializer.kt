@@ -41,7 +41,7 @@ object PolymorphicSerializer : KSerializer<Any> {
             when (input.readElement(serialClassDesc)) {
                 KInput.READ_ALL -> {
                     klassName = input.readStringElementValue(serialClassDesc, 0)
-                    val loader = serializerByClass<Any>(klassName, input.context)
+                    val loader = serializerBySerialDescClassname<Any>(klassName, input.context)
                     value = input.readSerializableElementValue(serialClassDesc, 1, loader)
                     break@mainLoop
                 }
@@ -53,7 +53,7 @@ object PolymorphicSerializer : KSerializer<Any> {
                 }
                 1 -> {
                     klassName = requireNotNull(klassName) { "Cannot read polymorphic value before its type token" }
-                    val loader = serializerByClass<Any>(klassName, input.context)
+                    val loader = serializerBySerialDescClassname<Any>(klassName, input.context)
                     value = input.readSerializableElementValue(serialClassDesc, 1, loader)
                 }
                 else -> throw SerializationException("Invalid index")
