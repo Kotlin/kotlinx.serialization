@@ -52,7 +52,8 @@ fun main(args: Array<String>) {
 }
 ```
 
-To learn more about JSON usage and other formats, see [usage](docs/runtime_usage.md). More examples of various kinds of Kotlin classes that can be serialized can be found [here](docs/examples.md).
+To learn more about JSON usage and other formats, see [usage](docs/runtime_usage.md).
+More examples of various kinds of Kotlin classes that can be serialized can be found [here](docs/examples.md).
 
 ## Setup
 
@@ -86,10 +87,7 @@ apply plugin: 'kotlin'
 apply plugin: 'kotlinx-serialization'
 ```
 
-Add serialization runtime library in addition to Kotlin standard library and reflection (optional).
-For now, library requires small amount of reflection on runtime to find corresponding serializer for root-level type. 
-In the future, we plan to move all resolving to separate module so the runtime library itself would not 
-contain dependency on kotlin-reflect.
+Add serialization runtime library in addition to Kotlin standard library.
 
 ```gradle
 repositories {
@@ -99,10 +97,22 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
 }
 ``` 
+
+### Android/JVM
+
+Library should work on Android "as is". If you're using proguard, you need
+to add this to your `proguard-rules.pro`:
+
+```proguard
+-keepattributes *Annotation*, InnerClasses
+-dontnote kotlinx.serialization.SerializationKt
+-keep,includedescriptorclasses class com.yourcompany.yourpackage.**$$serializer { *; } # <-- change package name to your app's
+```
+
+You may also want to keep all custom serializers you've defined.
 
 ### Maven/JVM
 
@@ -187,7 +197,11 @@ JavaScript example is located at [`example-js`](example-js) folder.
 
 ## Working in IntelliJ IDEA
 
-Instead of using Gradle or Maven, IntelliJ IDEA relies on its own build system when analyzing and running code from within IDE. Because serialization is still highly experimental, it is shipped as a separate artifact from "big" Kotlin IDEA plugin. You can download additional IDEA plugin for working with projects that uses serialization from its [TeamCity build page](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1). In IDEA, open `Settings - Plugins - Install plugin from disk...` and select downloaded .zip or .jar file. This installation will allow you to run code/tests from IDEA.
+Instead of using Gradle or Maven, IntelliJ IDEA relies on its own build system when analyzing and running code from within IDE.
+Because serialization is still highly experimental, it is shipped as a separate artifact from "big" Kotlin IDEA plugin.
+You can download additional IDEA plugin for working with projects that uses serialization from its [TeamCity build page](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1).
+In IDEA, open `Settings - Plugins - Install plugin from disk...` and select downloaded .zip or .jar file.
+This installation will allow you to run code/tests from IDEA.
 
 In case of issues with IDE, try to use gradle for running builds:
 `Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`; or launch builds from console.
