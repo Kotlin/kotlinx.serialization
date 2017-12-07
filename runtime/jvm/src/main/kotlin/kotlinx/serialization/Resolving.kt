@@ -28,14 +28,14 @@ fun registerSerializer(forClassName: String, serializer: KSerializer<*>) {
 }
 
 private fun mapJavaClassNameToKotlin(s: String): String = when(s) {
-    "I", "java.lang.Integer" -> IntSerializer.serialClassDesc.name
-    "Z", "java.lang.Boolean" -> BooleanSerializer.serialClassDesc.name
-    "B", "java.lang.Byte" -> ByteSerializer.serialClassDesc.name
-    "S", "java.lang.Short" -> ShortSerializer.serialClassDesc.name
-    "J", "java.lang.Long" -> LongSerializer.serialClassDesc.name
-    "F", "java.lang.Float" -> FloatSerializer.serialClassDesc.name
-    "D", "java.lang.Double" -> DoubleSerializer.serialClassDesc.name
-    "C", "java.lang.Character" -> CharSerializer.serialClassDesc.name
+    "int", "java.lang.Integer" -> IntSerializer.serialClassDesc.name
+    "boolean", "java.lang.Boolean" -> BooleanSerializer.serialClassDesc.name
+    "byte", "java.lang.Byte" -> ByteSerializer.serialClassDesc.name
+    "short", "java.lang.Short" -> ShortSerializer.serialClassDesc.name
+    "long", "java.lang.Long" -> LongSerializer.serialClassDesc.name
+    "float", "java.lang.Float" -> FloatSerializer.serialClassDesc.name
+    "double", "java.lang.Double" -> DoubleSerializer.serialClassDesc.name
+    "char", "java.lang.Character" -> CharSerializer.serialClassDesc.name
     "java.lang.String" -> StringSerializer.serialClassDesc.name
     "java.util.List", "java.util.ArrayList" -> ArrayListClassDesc.name
     "java.util.Set", "java.util.LinkedHashSet" -> LinkedHashSetClassDesc.name
@@ -73,7 +73,14 @@ fun serializerByTypeToken(type: Type): KSerializer<Any> = when(type) {
             Set::class.java.isAssignableFrom(rootClass) -> HashSetSerializer(serializerByTypeToken(args[0])) as KSerializer<Any>
             Map::class.java.isAssignableFrom(rootClass) -> HashMapSerializer(serializerByTypeToken(args[0]), serializerByTypeToken(args[1])) as KSerializer<Any>
             Map.Entry::class.java.isAssignableFrom(rootClass) -> MapEntrySerializer(serializerByTypeToken(args[0]), serializerByTypeToken(args[1])) as KSerializer<Any>
-            else -> serializerByClass(rootClass.kotlin)
+
+            else -> {
+                val companion = rootClass.getField("Companion").get(null)
+                val varargs = args.map { serializerByTypeToken(it) }.toTypedArray()
+                (companion.javaClass.methods
+                        .find {it.name == "serializer" && it.parameterTypes.size == args.size && it.parameterTypes.all {it == KSerializer::class.java }}
+                        ?.invoke(companion, *varargs) ?: serializerByClass<Any>(rootClass.kotlin)) as KSerializer<Any>
+            }
         }
     }
     else -> throw IllegalArgumentException("type should be instance of Class<?> or ParametrizedType")
