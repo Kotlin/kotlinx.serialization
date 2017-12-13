@@ -115,7 +115,7 @@ Ensure the proper version of Kotlin and serialization version:
 </properties>
 ```
 
-Include bintray repository:
+Include bintray repository for both library and plugin:
 
 ```xml
 <repositories>
@@ -125,6 +125,13 @@ Include bintray repository:
         <url>https://kotlin.bintray.com/kotlinx</url>
     </repository>
 </repositories>
+<pluginRepositories>
+    <pluginRepository>
+        <id>bintray-kotlin-kotlinx</id>
+        <name>bintray-plugins</name>
+        <url>https://kotlin.bintray.com/kotlinx</url>
+    </pluginRepository>
+</pluginRepositories>
 ```
 
 Add serialization plugin to Kotlin compiler plugin:
