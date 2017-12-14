@@ -127,7 +127,7 @@ class ArrayListSerializer<E>(element: KSerializer<E>) : ListLikeSerializer<E, Li
 class LinkedHashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializer<E, Set<E>, LinkedHashSetSerializer.Builder<E>>(eSerializer) {
     override val serialClassDesc = LinkedHashSetClassDesc
 
-    data class Builder<E>(val set: LinkedHashSet<E> = linkedSetOf(), var actualSize: Int = 0) {
+    data class Builder<E>(val set: LinkedHashSet<E> = linkedSetOf(), var actualSize: Int = set.size) {
         fun add(element: E) = set.add(element).also { ++actualSize }
     }
 
@@ -143,7 +143,7 @@ class LinkedHashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializ
 class HashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializer<E, Set<E>, HashSetSerializer.Builder<E>>(eSerializer) {
     override val serialClassDesc = HashSetClassDesc
 
-    data class Builder<E>(val set: HashSet<E> = HashSet(), var actualSize: Int = 0) {
+    data class Builder<E>(val set: HashSet<E> = HashSet(), var actualSize: Int = set.size) {
         fun add(element: E) = set.add(element).also { ++actualSize }
     }
 
@@ -161,7 +161,7 @@ class LinkedHashMapSerializer<K,V>(kSerializer: KSerializer<K>, vSerializer: KSe
     override val serialClassDesc = LinkedHashMapClassDesc
     override val typeParams: Array<KSerializer<*>> = arrayOf(kSerializer, vSerializer)
 
-    data class Builder<K, V>(val map: LinkedHashMap<K, V> = LinkedHashMap(), var actualSize: Int = 0) {
+    data class Builder<K, V>(val map: LinkedHashMap<K, V> = LinkedHashMap(), var actualSize: Int = map.size) {
         fun put(key: K, value: V) = map.put(key, value).also { ++actualSize }
     }
 
@@ -179,7 +179,7 @@ class HashMapSerializer<K,V>(kSerializer: KSerializer<K>, vSerializer: KSerializ
     override val serialClassDesc: ListLikeDesc = HashMapClassDesc
     override val typeParams: Array<KSerializer<*>> = arrayOf(kSerializer, vSerializer)
 
-    data class Builder<K, V>(val map: HashMap<K, V> = HashMap(), var actualSize: Int = 0) {
+    data class Builder<K, V>(val map: HashMap<K, V> = HashMap(), var actualSize: Int = map.size) {
         fun put(key: K, value: V) = map.put(key, value).also { ++actualSize }
     }
 
