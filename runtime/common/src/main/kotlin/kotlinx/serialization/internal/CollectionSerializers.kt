@@ -60,21 +60,12 @@ sealed class ListLikeSerializer<E,C,B>(private val eSerializer: KSerializer<E>) 
             val index = input.readElement(serialClassDesc)
             when (index) {
                 READ_ALL -> {
-                    readAll(input, builder)
+                    readAll(input, builder, startIndex)
                     break@mainLoop
                 }
-                READ_DONE -> {
-                    break@mainLoop
-                }
-                SIZE_INDEX -> {
-                    readSize(input, builder)
-                }
-                else -> {
-                    if (builder.builderSize() == startIndex + index - 1)
-                        readItem(input, index, builder)
-                    else
-                        throw SerializationException("Elements should be in order, unexpected index $index")
-                }
+                READ_DONE -> break@mainLoop
+                SIZE_INDEX -> readSize(input, builder)
+                else -> readItem(input, startIndex + index, builder)
             }
 
         }
@@ -97,10 +88,10 @@ sealed class ListLikeSerializer<E,C,B>(private val eSerializer: KSerializer<E>) 
         builder.add(index - 1, input.readSerializableElementValue(serialClassDesc, index, eSerializer))
     }
 
-    private fun readAll(input: KInput, builder: B) {
+    private fun readAll(input: KInput, builder: B, startIndex: Int) {
         val size = readSize(input, builder)
         for (index in 1..size)
-            readItem(input, index, builder)
+            readItem(input, startIndex + index, builder)
     }
 }
 
@@ -117,7 +108,7 @@ class ReferenceArraySerializer<T: Any, E: T?>(private val kClass: KClass<T>, eSe
     override fun ArrayList<E>.toResult(): Array<E> = toNativeArray<T, E>(kClass)
     override fun Array<E>.toBuilder(): ArrayList<E> = ArrayList(this.asList())
     override fun ArrayList<E>.ensureCapacity(size: Int) = ensureCapacity(size)
-    override fun ArrayList<E>.add(index: Int, element: E) { add(element) }
+    override fun ArrayList<E>.add(index: Int, element: E) { add(index, element) }
 }
 
 class ArrayListSerializer<E>(element: KSerializer<E>) : ListLikeSerializer<E, List<E>, ArrayList<E>>(element) {
@@ -130,7 +121,7 @@ class ArrayListSerializer<E>(element: KSerializer<E>) : ListLikeSerializer<E, Li
     override fun ArrayList<E>.toResult(): List<E> = this
     override fun List<E>.toBuilder(): ArrayList<E> = this as? ArrayList<E> ?: ArrayList(this)
     override fun ArrayList<E>.ensureCapacity(size: Int) = ensureCapacity(size)
-    override fun ArrayList<E>.add(index: Int, element: E) { add(element) }
+    override fun ArrayList<E>.add(index: Int, element: E) { add(index, element) }
 }
 
 class LinkedHashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializer<E, Set<E>, LinkedHashSet<E>>(eSerializer) {
