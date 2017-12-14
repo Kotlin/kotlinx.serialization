@@ -258,18 +258,24 @@ abstract class TaggedInput<T : Any?> : KInput() {
     override final fun <T : Enum<T>> readEnumElementValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<T>): T = readTaggedEnum(desc.getTag(index), enumClass)
 
     override final fun <T : Any?> readSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>): T {
-        pushTag(desc.getTag(index))
-        val r = readSerializableValue(loader)
-        if (!flag) {
-            popTag()
-            flag = false
-        }
-        return r
+        return tagBlock(desc.getTag(index)) { readSerializableValue(loader) }
     }
 
-    override final fun <T : Any> readNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>): T? {
-        pushTag(desc.getTag(index))
-        val r = readNullableSerializableValue(loader)
+    override final fun <T : Any> readNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T?>): T? {
+        return tagBlock(desc.getTag(index)) { readNullableSerializableValue(loader) }
+    }
+
+    override fun <T : Any> updateSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>, old: T): T {
+        return tagBlock(desc.getTag(index)) { updateSerializableValue(loader, desc, old) }
+    }
+
+    override fun <T : Any> updateNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T?>, old: T?): T? {
+        return tagBlock(desc.getTag(index)) { updateNullableSerializableValue(loader, desc, old) }
+    }
+
+    private fun <E> tagBlock(tag: T, block: () -> E): E {
+        pushTag(tag)
+        val r = block()
         if (!flag) {
             popTag()
             flag = false

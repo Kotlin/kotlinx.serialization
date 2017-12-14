@@ -33,6 +33,7 @@ sealed class ListLikeSerializer<E,C,B>(private val eSerializer: KSerializer<E>) 
     abstract fun builder(): B
     abstract fun B.builderSize(): Int
     abstract fun B.toResult(): C
+    abstract fun C.toBuilder(): B
     abstract fun B.ensureCapacity(size: Int)
     abstract fun B.add(index: Int, element: E)
 
@@ -50,10 +51,11 @@ sealed class ListLikeSerializer<E,C,B>(private val eSerializer: KSerializer<E>) 
         output.writeEnd(serialClassDesc)
     }
 
-    override fun load(input: KInput): C {
+    override fun update(input: KInput, old: C): C {
+        val builder = old.toBuilder()
+        val startIndex = builder.builderSize()
         @Suppress("NAME_SHADOWING")
         val input = input.readBegin(serialClassDesc, *typeParams)
-        val builder = builder()
         mainLoop@ while (true) {
             val index = input.readElement(serialClassDesc)
             when (index) {
@@ -68,7 +70,7 @@ sealed class ListLikeSerializer<E,C,B>(private val eSerializer: KSerializer<E>) 
                     readSize(input, builder)
                 }
                 else -> {
-                    if (builder.builderSize() == index - 1)
+                    if (builder.builderSize() == startIndex + index - 1)
                         readItem(input, index, builder)
                     else
                         throw SerializationException("Elements should be in order, unexpected index $index")
@@ -78,6 +80,11 @@ sealed class ListLikeSerializer<E,C,B>(private val eSerializer: KSerializer<E>) 
         }
         input.readEnd(serialClassDesc)
         return builder.toResult()
+    }
+
+    override fun load(input: KInput): C {
+        val builder = builder()
+        return update(input, builder.toResult())
     }
 
     private fun readSize(input: KInput, builder: B): Int {
@@ -108,6 +115,7 @@ class ReferenceArraySerializer<T: Any, E: T?>(private val kClass: KClass<T>, eSe
     override fun ArrayList<E>.builderSize(): Int = size
     @Suppress("UNCHECKED_CAST")
     override fun ArrayList<E>.toResult(): Array<E> = toNativeArray<T, E>(kClass)
+    override fun Array<E>.toBuilder(): ArrayList<E> = ArrayList(this.asList())
     override fun ArrayList<E>.ensureCapacity(size: Int) = ensureCapacity(size)
     override fun ArrayList<E>.add(index: Int, element: E) { add(element) }
 }
@@ -120,6 +128,7 @@ class ArrayListSerializer<E>(element: KSerializer<E>) : ListLikeSerializer<E, Li
     override fun builder(): ArrayList<E> = arrayListOf()
     override fun ArrayList<E>.builderSize(): Int = size
     override fun ArrayList<E>.toResult(): List<E> = this
+    override fun List<E>.toBuilder(): ArrayList<E> = this as? ArrayList<E> ?: ArrayList(this)
     override fun ArrayList<E>.ensureCapacity(size: Int) = ensureCapacity(size)
     override fun ArrayList<E>.add(index: Int, element: E) { add(element) }
 }
@@ -132,6 +141,7 @@ class LinkedHashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializ
     override fun builder(): LinkedHashSet<E> = linkedSetOf()
     override fun LinkedHashSet<E>.builderSize(): Int = size
     override fun LinkedHashSet<E>.toResult(): Set<E> = this
+    override fun Set<E>.toBuilder(): LinkedHashSet<E> = this as? LinkedHashSet<E> ?: LinkedHashSet(this)
     override fun LinkedHashSet<E>.ensureCapacity(size: Int) {}
     override fun LinkedHashSet<E>.add(index: Int, element: E) { add(element) }
 }
@@ -144,6 +154,7 @@ class HashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializer<E, 
     override fun builder(): HashSet<E> = HashSet()
     override fun HashSet<E>.builderSize(): Int = size
     override fun HashSet<E>.toResult(): Set<E> = this
+    override fun Set<E>.toBuilder(): HashSet<E> = this as? HashSet<E> ?: HashSet(this)
     override fun HashSet<E>.ensureCapacity(size: Int) {}
     override fun HashSet<E>.add(index: Int, element: E) { add(element) }
 }
@@ -158,6 +169,7 @@ class LinkedHashMapSerializer<K,V>(kSerializer: KSerializer<K>, vSerializer: KSe
     override fun builder(): LinkedHashMap<K, V> = LinkedHashMap()
     override fun LinkedHashMap<K, V>.builderSize(): Int = size
     override fun LinkedHashMap<K, V>.toResult(): Map<K, V> = this
+    override fun Map<K, V>.toBuilder(): LinkedHashMap<K, V> = this as? LinkedHashMap<K, V> ?: LinkedHashMap(this)
     override fun LinkedHashMap<K, V>.ensureCapacity(size: Int) {}
     override fun LinkedHashMap<K, V>.add(index: Int, element: Map.Entry<K, V>) { put(element.key, element.value) }
 }
@@ -172,6 +184,7 @@ class HashMapSerializer<K,V>(kSerializer: KSerializer<K>, vSerializer: KSerializ
     override fun builder(): HashMap<K, V> = HashMap()
     override fun HashMap<K, V>.builderSize(): Int = size
     override fun HashMap<K, V>.toResult(): Map<K, V> = this
+    override fun Map<K, V>.toBuilder(): HashMap<K, V> = this as? HashMap<K, V> ?: HashMap(this)
     override fun HashMap<K, V>.ensureCapacity(size: Int) {}
     override fun HashMap<K, V>.add(index: Int, element: Map.Entry<K, V>) { put(element.key, element.value) }
 }

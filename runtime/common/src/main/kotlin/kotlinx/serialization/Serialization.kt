@@ -68,12 +68,15 @@ interface KSerialSaver<in T> {
     fun save(output: KOutput, obj : T)
 }
 
-interface KSerialLoader<out T> {
+interface KSerialLoader<T> {
     fun load(input: KInput): T
+    fun update(input: KInput, old: T): T
 }
 
 interface KSerializer<T>: KSerialSaver<T>, KSerialLoader<T> {
     val serialClassDesc: KSerialClassDesc
+
+    override fun update(input: KInput, old: T): T = throw UpdateNotSupportedException(serialClassDesc.name)
 }
 
 class SerializationConstructorMarker private constructor()
@@ -239,7 +242,7 @@ abstract class KInput internal constructor() {
 
     open fun <T : Any?> readSerializableValue(loader: KSerialLoader<T>): T = loader.load(this)
 
-    fun <T : Any> readNullableSerializableValue(loader: KSerialLoader<T>): T? =
+    fun <T : Any> readNullableSerializableValue(loader: KSerialLoader<T?>): T? =
             if (readNotNullMark()) readSerializableValue(loader) else readNullValue()
 
     // -------------------------------------------------------------------------------------
@@ -284,8 +287,40 @@ abstract class KInput internal constructor() {
             readEnumElementValue(desc, index, T::class)
 
     abstract fun <T : Any?> readSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>): T
-    abstract fun <T : Any> readNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>): T?
+    abstract fun <T : Any> readNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T?>): T?
+
+    open fun <T: Any> updateSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>, old: T): T {
+        return updateSerializableValue(loader, desc, old)
+    }
+
+    open fun <T: Any> updateNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T?>, old: T?): T? {
+        return updateNullableSerializableValue(loader, desc, old)
+    }
+
+    open fun <T: Any> updateSerializableValue(loader: KSerialLoader<T>, desc: KSerialClassDesc, old: T): T {
+        return when(updateMode) {
+            UpdateMode.BANNED -> throw UpdateNotSupportedException(desc.name)
+            UpdateMode.OVERWRITE -> readSerializableValue(loader)
+            UpdateMode.UPDATE -> loader.update(this, old)
+        }
+    }
+
+    open fun <T: Any> updateNullableSerializableValue(loader: KSerialLoader<T?>, desc: KSerialClassDesc, old: T?): T? {
+        return when(updateMode) {
+            UpdateMode.BANNED -> throw UpdateNotSupportedException(desc.name)
+            UpdateMode.OVERWRITE -> readNullableSerializableValue(loader)
+            UpdateMode.UPDATE -> loader.update(this, old)
+        }
+    }
+
+    open val updateMode: UpdateMode = UpdateMode.UPDATE
 }
+
+enum class UpdateMode {
+    BANNED, OVERWRITE, UPDATE
+}
+
+class UpdateNotSupportedException(className: String): SerializationException("Update is not supported for $className")
 
 // ========================================================================================================================
 
@@ -401,7 +436,7 @@ open class ElementValueInput : KInput() {
     override final fun <T: Any?> readSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>): T =
             readSerializableValue(loader)
 
-    override final fun <T: Any> readNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>): T? =
+    override final fun <T: Any> readNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T?>): T? =
             readNullableSerializableValue(loader)
 }
 
@@ -556,7 +591,7 @@ open class ValueTransformer {
             return readSerializableValue(loader)
         }
 
-        override fun <T: Any> readNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>): T? {
+        override fun <T: Any> readNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T?>): T? {
             cur(desc, index)
             return readNullableSerializableValue(loader)
         }
