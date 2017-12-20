@@ -25,7 +25,7 @@ const val SIZE_INDEX = 0
 
 // ============================= serializers =============================
 
-sealed class ListLikeSerializer<E,C,B>(private val eSerializer: KSerializer<E>) : KSerializer<C> {
+sealed class ListLikeSerializer<E, C, B>(open val eSerializer: KSerializer<E>) : KSerializer<C> {
     override abstract val serialClassDesc: ListLikeDesc
 
     abstract fun C.objSize(): Int
@@ -84,7 +84,7 @@ sealed class ListLikeSerializer<E,C,B>(private val eSerializer: KSerializer<E>) 
         return size
     }
 
-    private fun readItem(input: KInput, index: Int, builder: B) {
+    protected open fun readItem(input: KInput, index: Int, builder: B) {
         builder.add(index - 1, input.readSerializableElementValue(serialClassDesc, index, eSerializer))
     }
 
@@ -92,6 +92,14 @@ sealed class ListLikeSerializer<E,C,B>(private val eSerializer: KSerializer<E>) 
         val size = readSize(input, builder)
         for (index in 1..size)
             readItem(input, startIndex + index, builder)
+    }
+}
+
+abstract class MapLikeSerializer<K, V, B : MutableMap<K, V>>(override val eSerializer: MapEntrySerializer<K, V>) :
+        ListLikeSerializer<Map.Entry<K, V>, Map<K, V>, B>(eSerializer) {
+
+    override fun readItem(input: KInput, index: Int, builder: B) {
+        input.readSerializableElementValue(serialClassDesc, index, MapEntryUpdatingSerializer(eSerializer, builder))
     }
 }
 
@@ -150,8 +158,8 @@ class HashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializer<E, 
     override fun HashSet<E>.add(index: Int, element: E) { add(element) }
 }
 
-class LinkedHashMapSerializer<K,V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
-        ListLikeSerializer<Map.Entry<K, V>, Map<K, V>, LinkedHashMap<K, V>>(MapEntrySerializer<K, V>(kSerializer, vSerializer)) {
+class LinkedHashMapSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
+        MapLikeSerializer<K, V, LinkedHashMap<K, V>>(MapEntrySerializer<K, V>(kSerializer, vSerializer)) {
     override val serialClassDesc = LinkedHashMapClassDesc
     override val typeParams: Array<KSerializer<*>> = arrayOf(kSerializer, vSerializer)
 
@@ -165,8 +173,8 @@ class LinkedHashMapSerializer<K,V>(kSerializer: KSerializer<K>, vSerializer: KSe
     override fun LinkedHashMap<K, V>.add(index: Int, element: Map.Entry<K, V>) { put(element.key, element.value) }
 }
 
-class HashMapSerializer<K,V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
-        ListLikeSerializer<Map.Entry<K, V>, Map<K, V>, HashMap<K, V>>(MapEntrySerializer<K, V>(kSerializer, vSerializer)) {
+class HashMapSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
+        MapLikeSerializer<K, V, HashMap<K, V>>(MapEntrySerializer<K, V>(kSerializer, vSerializer)) {
     override val serialClassDesc: ListLikeDesc = HashMapClassDesc
     override val typeParams: Array<KSerializer<*>> = arrayOf(kSerializer, vSerializer)
 
@@ -183,7 +191,7 @@ class HashMapSerializer<K,V>(kSerializer: KSerializer<K>, vSerializer: KSerializ
 const val KEY_INDEX = 0
 const val VALUE_INDEX = 1
 
-sealed class KeyValueSerializer<K, V, R>(private val kSerializer: KSerializer<K>, private val vSerializer: KSerializer<V>): KSerializer<R> {
+sealed class KeyValueSerializer<K, V, R>(val kSerializer: KSerializer<K>, val vSerializer: KSerializer<V>) : KSerializer<R> {
     override abstract val serialClassDesc: KSerialClassDesc
     abstract fun toResult(key: K, value: V): R
     abstract val R.key: K
@@ -207,9 +215,9 @@ sealed class KeyValueSerializer<K, V, R>(private val kSerializer: KSerializer<K>
         mainLoop@ while (true) {
             when (input.readElement(serialClassDesc)) {
                 READ_ALL -> {
-                    k = input.readSerializableElementValue(serialClassDesc, KEY_INDEX, kSerializer)
+                    k = readKey(input)
                     kSet = true
-                    v = input.readSerializableElementValue(serialClassDesc, VALUE_INDEX, vSerializer)
+                    v = readValue(input, k, kSet)
                     vSet = true
                     break@mainLoop
                 }
@@ -217,11 +225,11 @@ sealed class KeyValueSerializer<K, V, R>(private val kSerializer: KSerializer<K>
                     break@mainLoop
                 }
                 KEY_INDEX -> {
-                    k = input.readSerializableElementValue(serialClassDesc, KEY_INDEX, kSerializer)
+                    k = readKey(input)
                     kSet = true
                 }
                 VALUE_INDEX -> {
-                    v = input.readSerializableElementValue(serialClassDesc, VALUE_INDEX, vSerializer)
+                    v = readValue(input, k, kSet)
                     vSet = true
                 }
                 else -> throw SerializationException("Invalid index")
@@ -233,6 +241,40 @@ sealed class KeyValueSerializer<K, V, R>(private val kSerializer: KSerializer<K>
         @Suppress("UNCHECKED_CAST")
         return toResult(k as K, v as V)
     }
+
+    protected open fun readKey(input: KInput): K {
+        return input.readSerializableElementValue(serialClassDesc, KEY_INDEX, kSerializer)
+    }
+
+    protected open fun readValue(input: KInput, k: Any?, kSet: Boolean): V {
+        return input.readSerializableElementValue(serialClassDesc, VALUE_INDEX, vSerializer)
+    }
+}
+
+class MapEntryUpdatingSerializer<K, V>(mSerializer: MapEntrySerializer<K, V>, private val mapBuilder: MutableMap<K, V>) :
+        KeyValueSerializer<K, V, Map.Entry<K, V>>(mSerializer.kSerializer, mSerializer.vSerializer) {
+
+    override val serialClassDesc = MapEntryClassDesc
+    override fun toResult(key: K, value: V): Map.Entry<K, V> = MapEntry(key, value)
+
+    override fun readValue(input: KInput, k: Any?, kSet: Boolean): V {
+        if (!kSet) throw SerializationException("Key must be before value in serialization stream")
+        @Suppress("UNCHECKED_CAST")
+        val key = k as K
+        val v = if (mapBuilder.containsKey(key) && vSerializer.serialClassDesc.kind != KSerialClassKind.PRIMITIVE) {
+            input.updateSerializableElementValue(serialClassDesc, VALUE_INDEX, vSerializer, mapBuilder.getValue(key))
+        } else {
+            input.readSerializableElementValue(serialClassDesc, VALUE_INDEX, vSerializer)
+        }
+        mapBuilder[key] = v
+        return v
+    }
+
+    override val Map.Entry<K, V>.key: K
+        get() = this.key
+    override val Map.Entry<K, V>.value: V
+        get() = this.value
+
 }
 
 class MapEntrySerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
@@ -305,7 +347,7 @@ object MapEntryClassDesc : SerialClassDescImpl("kotlin.collections.Map.Entry") {
     }
 }
 
-object PairClassDesc: SerialClassDescImpl("kotlin.Pair") {
+object PairClassDesc : SerialClassDescImpl("kotlin.Pair") {
     init {
         addElement("first")
         addElement("second")
@@ -317,7 +359,7 @@ class TripleSerializer<A, B, C>(
         private val bSerializer: KSerializer<B>,
         private val cSerializer: KSerializer<C>
 ) : KSerializer<Triple<A, B, C>> {
-    object TripleDesc: SerialClassDescImpl("kotlin.Triple") {
+    object TripleDesc : SerialClassDescImpl("kotlin.Triple") {
         init {
             addElement("first")
             addElement("second")

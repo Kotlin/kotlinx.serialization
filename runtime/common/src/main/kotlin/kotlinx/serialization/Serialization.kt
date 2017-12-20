@@ -289,7 +289,7 @@ abstract class KInput internal constructor() {
     abstract fun <T : Any?> readSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>): T
     abstract fun <T : Any> readNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T?>): T?
 
-    open fun <T: Any> updateSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>, old: T): T {
+    open fun <T> updateSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>, old: T): T {
         return updateSerializableValue(loader, desc, old)
     }
 
@@ -297,7 +297,7 @@ abstract class KInput internal constructor() {
         return updateNullableSerializableValue(loader, desc, old)
     }
 
-    open fun <T: Any> updateSerializableValue(loader: KSerialLoader<T>, desc: KSerialClassDesc, old: T): T {
+    open fun <T> updateSerializableValue(loader: KSerialLoader<T>, desc: KSerialClassDesc, old: T): T {
         return when(updateMode) {
             UpdateMode.BANNED -> throw UpdateNotSupportedException(desc.name)
             UpdateMode.OVERWRITE -> readSerializableValue(loader)

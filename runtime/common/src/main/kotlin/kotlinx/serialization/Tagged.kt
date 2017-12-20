@@ -265,7 +265,7 @@ abstract class TaggedInput<T : Any?> : KInput() {
         return tagBlock(desc.getTag(index)) { readNullableSerializableValue(loader) }
     }
 
-    override fun <T : Any> updateSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>, old: T): T {
+    override fun <T> updateSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>, old: T): T {
         return tagBlock(desc.getTag(index)) { updateSerializableValue(loader, desc, old) }
     }
 
