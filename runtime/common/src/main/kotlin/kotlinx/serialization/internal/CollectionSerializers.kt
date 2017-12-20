@@ -43,11 +43,11 @@ sealed class ListLikeSerializer<E,C,B>(private val eSerializer: KSerializer<E>) 
         val size = obj.objSize()
         @Suppress("NAME_SHADOWING")
         val output = output.writeBegin(serialClassDesc, size, *typeParams)
-        if (output.writeElement(ArrayListClassDesc, SIZE_INDEX))
+        if (output.writeElement(serialClassDesc, SIZE_INDEX))
             output.writeIntValue(size)
         val iterator = obj.objIterator()
         for (index in 1..size)
-            output.writeSerializableElementValue(ArrayListClassDesc, index, eSerializer, iterator.next())
+            output.writeSerializableElementValue(serialClassDesc, index, eSerializer, iterator.next())
         output.writeEnd(serialClassDesc)
     }
 
@@ -79,7 +79,7 @@ sealed class ListLikeSerializer<E,C,B>(private val eSerializer: KSerializer<E>) 
     }
 
     private fun readSize(input: KInput, builder: B): Int {
-        val size = input.readIntElementValue(ArrayListClassDesc, SIZE_INDEX)
+        val size = input.readIntElementValue(serialClassDesc, SIZE_INDEX)
         builder.ensureCapacity(size)
         return size
     }
