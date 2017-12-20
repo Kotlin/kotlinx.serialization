@@ -306,10 +306,11 @@ abstract class KInput internal constructor() {
     }
 
     open fun <T: Any> updateNullableSerializableValue(loader: KSerialLoader<T?>, desc: KSerialClassDesc, old: T?): T? {
-        return when(updateMode) {
-            UpdateMode.BANNED -> throw UpdateNotSupportedException(desc.name)
-            UpdateMode.OVERWRITE -> readNullableSerializableValue(loader)
-            UpdateMode.UPDATE -> loader.update(this, old)
+        return when {
+            updateMode == UpdateMode.BANNED -> throw UpdateNotSupportedException(desc.name)
+            updateMode == UpdateMode.OVERWRITE || old == null -> readNullableSerializableValue(loader)
+            readNotNullMark() -> loader.update(this, old)
+            else -> readNullValue().let { old }
         }
     }
 

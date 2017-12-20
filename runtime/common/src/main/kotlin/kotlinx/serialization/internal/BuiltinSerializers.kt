@@ -132,5 +132,13 @@ class NullableSerializer<T : Any>(private val element: KSerializer<T>) : KSerial
     }
 
     override fun load(input: KInput): T? = if (input.readNotNullMark()) element.load(input) else input.readNullValue()
+
+    override fun update(input: KInput, old: T?): T? {
+        return when {
+            old == null -> load(input)
+            input.readNotNullMark() -> element.update(input, old)
+            else -> input.readNullValue().let { old }
+        }
+    }
 }
 
