@@ -80,6 +80,9 @@ object DateSerializer: KSerializer<Date> {
 }
 ```
 
+If your class has generic type arguments, it shouldn't be an object.
+It must be a class with visible primary constructor, where its arguments are `KSerializer<T0>, KSerializer<T1>, etc..` - one for each type argument of your class.
+
 ### JS note
 
 Due to an [issue](https://youtrack.jetbrains.com/issue/KT-11586), it's impossible now to write
@@ -107,11 +110,26 @@ object MyDataSerializer: KSerializer<MyData> {
 }
 ```
 
+## Using custom serializers
+
+Recommended way of using custom serializers is to give a clue to plugin about which serializer use for specified property,
+using annotation in form `@Serializable(with = SomeKSerializer::class)`:
+
+```kotlin
+@Serializable
+data class MyWrapper(
+    val id: Int,
+    @Serializable(with=MyExternalSerializer::class) val data: MyData
+)
+``` 
+
+This will affect generating of `save`/`load` methods only for this dedicated class, and allows plugin to resolve serializer at compile-time to reduce runtime overhead.
+
 ## Registering and context
 
 By default, all serializers are resolved by plugin statically when compiling serializable class.
 This gives us type-safety, performance and eliminates reflection usage to minimum. However, if there is no
-`@Serializable` annotation of class, in general, it is impossible to know at compile time which serializer to
+`@Serializable` annotation of class and no `@Serializable(with=...)` on property, in general, it is impossible to know at compile time which serializer to
 use - user can define more than one external serializer, or define them in other module, or even it's a class from
 library which doesn't know anything about serialization.
 
@@ -139,18 +157,3 @@ fun foo(b: B): Pair<String, ByteArray> {
     return json.stringify(b) to cbor.dump(b)
 } 
 ```
-
-## Overriding serializers
-
-If you want to give a clue to plugin about which serializer use for specified property,
-you may use annotation in form `@Serializable(with = SomeKSerializer::class)`:
-
-```kotlin
-@Serializable
-data class MyWrapper(
-    val id: Int,
-    @Serializable(with=MyExternalSerializer::class) val data: MyData
-)
-``` 
-
-This will affect generating of `save`/`load` methods only for this dedicated class. 
