@@ -13,13 +13,13 @@ In this case, compiler plugin will generate for you:
 * `.serializer()` method on companion object to obtain serializer. If your class is
 a generic class, this method will have arguments `KSerializer<T1>, KSerializer<T2>`..., where `T1, T2` - your generic type parameters.
 * Special nested object in your class, which implements `KSerializer<MyData>`
-* Methods `save` and `load` of interfaces `KSerialSaver` and `KSerialLoader`
+* Methods `save`, `load` and `update` of interfaces `KSerialSaver` and `KSerialLoader`
 * Descriptor property `serialClassDesc` of `KSerializer`
 
 ## Customizing
 
 If you want to customize representation of the class, in most cases, you need to write your own `save`
-and `load` methods. Serial descriptor property typically used in generated version of those methods,
+and `load` methods. `update` method have default implementation of `throw UpdateNotSupportedException(serialClassDesc.name)`. Serial descriptor property typically used in generated version of those methods,
 so you likely don't need it. 
 
 You can write methods directly on companion object, annotate it with `@Serializer(forClass = ...)`, and serialization plugin will respect it as default serializer.
@@ -97,6 +97,10 @@ object MyDataSerializer: KSerializer<MyData> {
 
     override fun load(input: KInput): MyData {
         return MyData(stringFromUtf8Bytes(HexConverter.parseHexBinary(input.readStringValue())))
+    }
+
+    override fun update(input: KInput, old: MyData): MyData {
+        throw UpdateNotSupportedException(serialClassDesc.name)
     }
     
     override val serialClassDesc: KSerialClassDesc = SerialClassDescImpl("com.mypackage.MyData")

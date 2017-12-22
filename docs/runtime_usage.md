@@ -2,7 +2,9 @@
 
 ## Obtaining serializers
 
-Serializers are represented at runtime as `KSerializer<T>`, which in turn, implements interfaces `KSerialSaver<T>` and `KSerialLoader<T>`, where `T` is class you serialize. You don't need to call them by yourself; you just have to pass them properly to serialization format. You can write them on your own (see [custom serializers](custom_serializers.md)) or let the compiler plugin do the dirty work by marking class `@Serializable`. To retrieve the generated serializer, plugin emits special function on companion object called `.serializer()`.
+Serializers are represented at runtime as `KSerializer<T>`, which in turn, implements interfaces `KSerialSaver<T>` and `KSerialLoader<T>`, where `T` is class you serialize.
+You don't need to call them by yourself; you just have to pass them properly to serialization format. You can write them on your own (see [custom serializers](custom_serializers.md)) or let the compiler plugin do the dirty work by marking class `@Serializable`.
+To retrieve the generated serializer, plugin emits special function on companion object called `.serializer()`. (This synthetic function is relatively new and stable release of compiler may not able to see it in some cases; if you have some issues, try eap version of `1.2.20`).
 If your class has generic type arguments, this function will have arguments for specifying serializers on type parameters, because it's impossible to serialize generic class statically in general case:
 
 ```kotlin
@@ -36,7 +38,7 @@ In following special case:
 
 You can obtain serializer from KClass instance: `val d: KSerializer<MyData> = MyData::class.serializer()`. This approach is discouraged in general because of its implicitness, but maybe useful shorthand in some cases.
 
-All external serializers (defined by user) must be [registered](custom_serializers.md#registering-and-context) and instantiated in a user-specific way.
+All external serializers (defined by user) are instantiated in a user-specific way. To learn how to write them, see [docs](custom_serializers.md).
 
 ## Serialization formats
 
@@ -44,7 +46,7 @@ Runtime library provides three ready-to use formats: JSON, CBOR and ProtoBuf.
 
 ### JSON
 
-JSON format represented by `JSON` class from `kotlinx.serialization.json` package. It has constructor with four optional parameters:
+JSON format represented by `JSON` class from `kotlinx.serialization.json` package. It following parameters:
 
 * nonstrict - allow JSON parser skip fields which are not present in class. By default is false.
 * unquoted - means that all field names and other objects (where it's possible) would not be wrapped in quotes. Useful for debugging.
@@ -52,6 +54,8 @@ JSON format represented by `JSON` class from `kotlinx.serialization.json` packag
 * indent - size of indent, applicable if parameter above is true.
 
 You can also use one of predefined instances, like `JSON.plain`, `JSON.indented`, `JSON.nonstrict` or `JSON.unquoted`. API is duplicated in companion object, so `JSON.parse(...)` equals to `JSON.plain.parse(...)`
+
+You can also specify desired behaviour for duplicating keys. By default it is `UpdateMode.OVERWRITE`. You can use `UpdateMode.UPDATE`, and by doing that you'll be able to merge two lists or maps with same key into one; but be aware that serializers for non-collection types are throwing `UpdateNotSupportedException` by default. To prohibit duplicated keys, you can use `UpdateMode.BANNED`.
 
 JSON API:
 
@@ -73,7 +77,7 @@ so it wouldn't work with root-level collections or external serializers out of t
 
 ### CBOR
 
-`CBOR` object doesn't support any tweaking and provides following functions:
+`CBOR` class provides following functions:
 
 ```kotlin
 fun <T : Any> dump(saver: KSerialSaver<T>, obj: T): ByteArray // saves object to bytes
@@ -84,6 +88,8 @@ fun <T : Any> load(loader: KSerialLoader<T>, raw: ByteArray): T // load object f
 inline fun <reified T : Any> load(raw: ByteArray): T // save as above
 inline fun <reified T : Any> loads(hex: String): T // inverse operation for dumps
 ```
+
+It has `UpdateMode.BANNED` by default.
 
 **Note**: CBOR, unlike JSON, supports maps with non-trivial keys,
 and Kotlin maps are serialized as CBOR maps, but some parsers (like `jackson-dataformat-cbor`) don't support this.
@@ -112,12 +118,11 @@ Number format is set via `@ProtoType` annotation. `ProtoNumberType.DEFAULT` is d
 is signed ZigZag representation (`sintXX`), and `FIXED` is `fixedXX` type. `uintXX` and `sfixedXX` are not supported yet.
 
 Repeated fields represented as lists. Because format spec says that if the list is empty, there will be no elements in the stream with such tag,
-you must explicitly mark any field of list type with `@Optional` annotation with default ` = emptyList()`. Same for maps.
+you must explicitly mark any field of list type with `@Optional` annotation with default ` = emptyList()`. Same for maps. Update mode for Protobuf is set to `UPDATE` and can't be changed, thus allowing merging several scattered lists into one.
 
 Other known issues and limitations:
 
 * Packed repeated fields are not supported
-* If fields with list tag are going in the arbitrary order, they are not merged into one list, they get overwritten instead.
 
 More examples of mappings from proto definitions to Koltin classes can be found in test data:
 [here](../runtime/jvm/src/test/proto/test_data.proto) and [here](../runtime/jvm/src/test/kotlin/kotlinx/serialization/formats/RandomTests.kt#L47)

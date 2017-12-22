@@ -28,6 +28,7 @@ data class JSON(
         private val indented: Boolean = false,
         private val indent: String = "    ",
         internal val nonstrict: Boolean = false,
+        val updateMode: UpdateMode = UpdateMode.OVERWRITE,
         val context: SerialContext? = null
 ) {
 
@@ -338,6 +339,9 @@ data class JSON(
         init {
             context = this@JSON.context
         }
+
+        override val updateMode: UpdateMode
+            get() = this@JSON.updateMode
 
         override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
             val newMode = switchMode(mode, desc, typeParams)

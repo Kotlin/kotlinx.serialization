@@ -42,40 +42,46 @@ class UpdateTest {
 
     @Test
     fun canUpdatePrimitiveList() {
-        val parsed = JSON(unquoted = true, nonstrict = true).parse<Updatable1>("""{l:[1,2],f:foo,l:[3,4]}""")
+        val parsed =
+                JSON(unquoted = true, nonstrict = true, updateMode = UpdateMode.UPDATE)
+                .parse<Updatable1>("""{l:[1,2],f:foo,l:[3,4]}""")
         assertEquals(Updatable1(listOf(1,2,3,4)), parsed)
     }
 
     @Test
     fun canUpdateObjectList() {
-        val parsed = JSON(unquoted = true, nonstrict = true).parse<Updatable2>("""{f:bar,l:[{a:42}],l:[{a:43}]}""")
+        val parsed =
+                JSON(unquoted = true, nonstrict = true, updateMode = UpdateMode.UPDATE)
+                .parse<Updatable2>("""{f:bar,l:[{a:42}],l:[{a:43}]}""")
         assertEquals(Updatable2(listOf(Data(42), Data(43))), parsed)
     }
 
     @Test
     fun cantUpdateNotUpdatable() {
         assertFailsWith<UpdateNotSupportedException> {
-            JSON(unquoted = true, nonstrict = true).parse<NotUpdatable>("""{d:{a:42},d:{a:43}}""")
+            JSON(unquoted = true, nonstrict = true, updateMode = UpdateMode.UPDATE).parse<NotUpdatable>("""{d:{a:42},d:{a:43}}""")
         }
     }
 
     @Test
     fun canUpdateNullableValuesInside() {
-        val a1 = JSON.parse<NullableInnerIntList>("""{data:[null],data:[1]}""")
+        val json = JSON(updateMode = UpdateMode.UPDATE)
+        val a1 = json.parse<NullableInnerIntList>("""{data:[null],data:[1]}""")
         assertEquals(NullableInnerIntList(listOf(null, 1)), a1)
-        val a2 = JSON.parse<NullableInnerIntList>("""{data:[42],data:[null]}""")
+        val a2 = json.parse<NullableInnerIntList>("""{data:[42],data:[null]}""")
         assertEquals(NullableInnerIntList(listOf(42, null)), a2)
-        val a3 = JSON.parse<NullableInnerIntList>("""{data:[31],data:[1]}""")
+        val a3 = json.parse<NullableInnerIntList>("""{data:[31],data:[1]}""")
         assertEquals(NullableInnerIntList(listOf(31, 1)), a3)
     }
 
     @Test
     fun canUpdateNullableValues() {
-        val a1 = JSON.parse<NullableUpdatable>("""{data:null,data:[{a:42}]}""")
+        val json = JSON(updateMode = UpdateMode.UPDATE)
+        val a1 = json.parse<NullableUpdatable>("""{data:null,data:[{a:42}]}""")
         assertEquals(NullableUpdatable(listOf(Data(42))), a1)
-        val a2 = JSON.parse<NullableUpdatable>("""{data:[{a:42}],data:null}""")
+        val a2 = json.parse<NullableUpdatable>("""{data:[{a:42}],data:null}""")
         assertEquals(NullableUpdatable(listOf(Data(42))), a2)
-        val a3 = JSON.parse<NullableUpdatable>("""{data:[{a:42}],data:[{a:43}]}""")
+        val a3 = json.parse<NullableUpdatable>("""{data:[{a:42}],data:[{a:43}]}""")
         assertEquals(NullableUpdatable(listOf(Data(42), Data(43))), a3)
     }
 }
