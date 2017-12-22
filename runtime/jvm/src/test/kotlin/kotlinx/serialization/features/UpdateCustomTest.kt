@@ -19,11 +19,14 @@ package kotlinx.serialization.features
 import kotlinx.serialization.KInput
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Serializer
+import kotlinx.serialization.internal.IntSerializer
 import kotlinx.serialization.json.JSON
+import kotlinx.serialization.list
 import org.junit.Test
 import kotlin.test.assertEquals
 
 // can't be in common yet because of issue with class literal annotations
+// and .serializer() resolving
 class UpdateTest {
     @Serializable
     data class Data(val a: Int)
@@ -43,5 +46,20 @@ class UpdateTest {
     fun canUpdateCustom() {
         val parsed = JSON(unquoted = true, nonstrict = true).parse<Updatable>("""{d:{a:42},d:{a:43}}""")
         assertEquals(Data(42 + 43), parsed.d)
+    }
+
+    @Serializable
+    data class WrappedMap<T>(val mp: Map<String, T>)
+
+    @Test
+    fun canUpdateMap() {
+        val parsed = JSON.parse(WrappedMap.serializer(IntSerializer), """{"mp": { "x" : 23, "x" : 42, "y": 4 }}""")
+        assertEquals(WrappedMap(mapOf("x" to 42, "y" to 4)), parsed)
+    }
+
+    @Test
+    fun canUpdateValuesInMap() {
+        val parsed = JSON.parse(WrappedMap.serializer(IntSerializer.list), """{"mp": { "x" : [23], "x" : [42], "y": [4] }}""")
+        assertEquals(WrappedMap(mapOf("x" to listOf(23, 42), "y" to listOf(4))), parsed)
     }
 }

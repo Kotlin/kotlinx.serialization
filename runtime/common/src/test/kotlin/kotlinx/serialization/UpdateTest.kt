@@ -16,7 +16,6 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.internal.IntSerializer
 import kotlinx.serialization.json.JSON
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -36,9 +35,6 @@ class UpdateTest {
     data class NotUpdatable(val d: Data)
 
     @Serializable
-    data class WrappedMap<T>(val mp: Map<String, T>)
-
-    @Serializable
     data class NullableInnerIntList(val data: List<Int?>)
 
     @Serializable
@@ -54,18 +50,6 @@ class UpdateTest {
     fun canUpdateObjectList() {
         val parsed = JSON(unquoted = true, nonstrict = true).parse<Updatable2>("""{f:bar,l:[{a:42}],l:[{a:43}]}""")
         assertEquals(Updatable2(listOf(Data(42), Data(43))), parsed)
-    }
-
-    @Test
-    fun canUpdateMap() {
-        val parsed = JSON.parse(WrappedMap.serializer(IntSerializer), """{"mp": { "x" : 23, "x" : 42, "y": 4 }}""")
-        assertEquals(WrappedMap(mapOf("x" to 42, "y" to 4)), parsed)
-    }
-
-    @Test
-    fun canUpdateValuesInMap() {
-        val parsed = JSON.parse(WrappedMap.serializer(IntSerializer.list), """{"mp": { "x" : [23], "x" : [42], "y": [4] }}""")
-        assertEquals(WrappedMap(mapOf("x" to listOf(23, 42), "y" to listOf(4))), parsed)
     }
 
     @Test
