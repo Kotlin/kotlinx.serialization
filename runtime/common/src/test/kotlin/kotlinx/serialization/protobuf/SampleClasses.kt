@@ -39,6 +39,12 @@ data class TestComplex(@SerialId(42) val b: Int, @SerialId(2) val c: String)
 @Serializable
 data class TestNumbers(@SerialId(1) @ProtoType(ProtoNumberType.FIXED) val a: Int, @SerialId(2) val b: Long)
 
+@Serializable
+data class TestIntWithList(
+        @SerialId(1) val s: Int,
+        @SerialId(10) val l: List<Int>
+)
+
 infix fun <T> T.shouldBe(expected: T) = assertEquals(expected, this)
 
 val t1 = TestInt(-150)

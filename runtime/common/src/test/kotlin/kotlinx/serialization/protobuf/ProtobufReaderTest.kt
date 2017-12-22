@@ -61,4 +61,9 @@ class ProtobufReaderTest {
     fun readNumbers() {
         ProtoBuf.loads<TestNumbers>("0d9488010010ffffffffffffffff7f") shouldBe t6
     }
+
+    @Test
+    fun mergeListIfSplitByAnotherField() {
+        ProtoBuf.loads<TestIntWithList>("500308960150045005") shouldBe TestIntWithList(150, listOf(3, 4, 5))
+    }
 }
