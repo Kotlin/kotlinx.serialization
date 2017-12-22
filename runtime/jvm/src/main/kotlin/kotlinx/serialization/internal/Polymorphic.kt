@@ -69,13 +69,13 @@ internal object SerialCache {
     }
 
     @Suppress("UNCHECKED_CAST")
-    internal fun <E> lookupSerializer(className: String, preloadedClass: KClass<*>? = null): KSerializer<E> {
+    internal fun <E> lookupSerializer(className: String, preloadedClass: KClass<*>? = null, context: SerialContext? = null): KSerializer<E> {
         // First, look in the map
         var ans = map[className]
         if (ans != null) return ans as KSerializer<E>
         // If it's not there, maybe it came from java
         val klass = preloadedClass ?: Class.forName(className).kotlin
-        ans = ClassSerialCache.getSubclassSerializer(klass)
+        ans = context?.getSerializerByClass(klass) ?: ClassSerialCache.getSubclassSerializer(klass)
         if (ans != null) return ans as KSerializer<E>
         // Then, it's user defined class
         val last = klass.serializer() as? KSerializer<E>

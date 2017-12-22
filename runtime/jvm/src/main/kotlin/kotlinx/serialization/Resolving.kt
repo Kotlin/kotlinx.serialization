@@ -28,15 +28,16 @@ fun registerSerializer(forClassName: String, serializer: KSerializer<*>) {
     SerialCache.map.put(forClassName, serializer)
 }
 
-fun <E> serializerByValue(value: E): KSerializer<E> {
+fun <E> serializerByValue(value: E, context: SerialContext? = null): KSerializer<E> {
     val klass = (value as? Any)?.javaClass?.kotlin ?: throw SerializationException("Cannot determine class for value $value")
-    return serializerByClass(klass)
+    return serializerByClass(klass, context)
 }
 
-fun <E> serializerByClass(className: String): KSerializer<E> = SerialCache.lookupSerializer(className)
+fun <E> serializerByClass(className: String, context: SerialContext? = null): KSerializer<E> = SerialCache.lookupSerializer(className, context = context)
 
-fun <E> serializerByClass(klass: KClass<*>): KSerializer<E> = SerialCache.lookupSerializer(klass.qualifiedName!!, klass)
+fun <E> serializerByClass(klass: KClass<*>, context: SerialContext? = null): KSerializer<E> = SerialCache.lookupSerializer(klass.qualifiedName!!, klass, context)
 
+// This method intended for static, format-agnostic resolving (e.g. in adapter factories) so context is not used here.
 @Suppress("UNCHECKED_CAST")
 fun serializerByTypeToken(type: Type): KSerializer<Any> = when(type) {
     is Class<*> -> if (!type.isArray) {

@@ -38,7 +38,7 @@ data class JSON(
         return sw.toString()
     }
 
-    inline fun <reified T : Any> stringify(obj: T): String = stringify(T::class.serializer(), obj)
+    inline fun <reified T : Any> stringify(obj: T): String = stringify(context.klassSerializer(T::class), obj)
 
     fun <T> parse(loader: KSerialLoader<T>, str: String): T {
         val parser = Parser(StringReader(str))
@@ -48,7 +48,7 @@ data class JSON(
         return result
     }
 
-    inline fun <reified T : Any> parse(str: String): T = parse(T::class.serializer(), str)
+    inline fun <reified T : Any> parse(str: String): T = parse(context.klassSerializer(T::class), str)
 
     companion object {
         fun <T> stringify(saver: KSerialSaver<T>, obj: T): String = plain.stringify(saver, obj)

@@ -16,6 +16,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -59,6 +60,23 @@ class DynamicParserTest {
 
     @Serializable
     data class NonTrivialMap(val m: Map<String, Char>)
+
+    data class NotDefault(val a: Int)
+
+    object NDSerializer : KSerializer<NotDefault> {
+        override fun save(output: KOutput, obj: NotDefault) {
+            output.writeIntValue(obj.a)
+        }
+
+        override fun load(input: KInput): NotDefault {
+            return NotDefault(input.readIntValue())
+        }
+
+        override val serialClassDesc = SerialClassDescImpl("notDefault")
+    }
+
+    @Serializable
+    data class NDWrapper(val data: NotDefault)
 
     @Test
     fun dynamicSimpleTest() {
@@ -143,5 +161,12 @@ class DynamicParserTest {
         val dyn = js("({m : {1: {a: 42}, 2: {a: 43}}})")
         val m = ComplexMapWrapper(mapOf("1" to Data(42), "2" to Data(43)))
         assertEquals(m, DynamicObjectParser().parse<ComplexMapWrapper>(dyn))
+    }
+
+    @Test
+    fun parseWithCustomSerializers() {
+        val loader = DynamicObjectParser(SerialContext().apply { registerSerializer(NotDefault::class, NDSerializer) })
+        val dyn1 = js("({data: 42})")
+        assertEquals(NDWrapper(NotDefault(42)), loader.parse(dyn1))
     }
 }

@@ -18,6 +18,7 @@ package kotlinx.serialization
 
 import kotlinx.serialization.internal.HexConverter
 import kotlinx.serialization.internal.SerialClassDescImpl
+import kotlinx.serialization.internal.StringSerializer
 import kotlinx.serialization.json.JSON
 import org.junit.Before
 import org.junit.Test
@@ -81,5 +82,13 @@ class CustomSerializersJVMTest {
     fun writeCustomList() {
         val s = json.stringify(PayloadList(listOf(Payload("1"), Payload("2"))))
         assertEquals("{ps:[{s:1},{s:2}]}", s)
+    }
+
+    @Test
+    fun testPolymorphicResolve() {
+        val map = mapOf<String, Any>("Payload" to Payload("data"))
+        val saver = (StringSerializer to PolymorphicSerializer).map
+        val s = json.stringify(saver, map)
+        assertEquals("""{Payload:[kotlinx.serialization.CustomSerializersJVMTest.Payload,{s:data}]}""", s)
     }
 }

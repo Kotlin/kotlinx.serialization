@@ -111,4 +111,13 @@ class CustomSerializersTest {
         val s = JSON.unquoted.stringify(serial, map)
         assertEquals("{1:1,2:2}",s)
     }
+
+    @Test
+    fun resolveAtRootLevel() {
+        val scope = SerialContext()
+        scope.registerSerializer(B::class, BSerializer)
+        val j = JSON(unquoted = true, context = scope)
+        val bs = j.parse<B>("1")
+        assertEquals(B(1), bs)
+    }
 }

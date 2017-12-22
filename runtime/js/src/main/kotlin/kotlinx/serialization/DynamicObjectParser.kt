@@ -18,11 +18,14 @@ package kotlinx.serialization
 
 import kotlin.reflect.KClass
 
-class DynamicObjectParser {
-    inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, T::class.serializer())
+class DynamicObjectParser(val context: SerialContext? = null) {
+    inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.klassSerializer(T::class))
     fun <T> parse(obj: dynamic, loader: KSerialLoader<T>): T = DynamicInput(obj).read(loader)
 
-    private open class DynamicInput(val obj: dynamic) : NamedValueInput() {
+    private open inner class DynamicInput(val obj: dynamic) : NamedValueInput() {
+        init {
+            this.context = this@DynamicObjectParser.context
+        }
         override fun composeName(parentName: String, childName: String): String = childName
 
         private var pos = 0
@@ -73,7 +76,11 @@ class DynamicObjectParser {
         }
     }
 
-    private class DynamicMapValueInput(obj: dynamic, val cTag: String): DynamicInput(obj) {
+    private inner class DynamicMapValueInput(obj: dynamic, val cTag: String): DynamicInput(obj) {
+        init {
+            this.context = this@DynamicObjectParser.context
+        }
+
         override fun readElement(desc: KSerialClassDesc): Int = READ_ALL
 
         override fun getByTag(tag: String): dynamic {
@@ -82,7 +89,11 @@ class DynamicObjectParser {
         }
     }
 
-    private class DynamicMapInput(obj: dynamic): DynamicInput(obj) {
+    private inner class DynamicMapInput(obj: dynamic): DynamicInput(obj) {
+        init {
+            this.context = this@DynamicObjectParser.context
+        }
+
         private val size: Int
         private var pos = 0
 
@@ -109,7 +120,11 @@ class DynamicObjectParser {
         }
     }
 
-    private class DynamicListInput(obj: dynamic): DynamicInput(obj) {
+    private inner class DynamicListInput(obj: dynamic): DynamicInput(obj) {
+        init {
+            this.context = this@DynamicObjectParser.context
+        }
+
         private val size = obj.length as Int
         private var pos = 0 // 0st element is SIZE. use it?
 
