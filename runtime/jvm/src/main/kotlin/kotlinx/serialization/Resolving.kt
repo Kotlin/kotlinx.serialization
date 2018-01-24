@@ -75,11 +75,8 @@ fun serializerByTypeToken(type: Type): KSerializer<Any> = when(type) {
             Map.Entry::class.java.isAssignableFrom(rootClass) -> MapEntrySerializer(serializerByTypeToken(args[0]), serializerByTypeToken(args[1])) as KSerializer<Any>
 
             else -> {
-                val companion = rootClass.getField("Companion").get(null)
                 val varargs = args.map { serializerByTypeToken(it) }.toTypedArray()
-                (companion.javaClass.methods
-                        .find {it.name == "serializer" && it.parameterTypes.size == args.size && it.parameterTypes.all {it == KSerializer::class.java }}
-                        ?.invoke(companion, *varargs) ?: serializerByClass<Any>(rootClass.kotlin)) as KSerializer<Any>
+                (rootClass.invokeSerializerGetter(*varargs) as? KSerializer<Any>) ?: serializerByClass<Any>(rootClass.kotlin)
             }
         }
     }

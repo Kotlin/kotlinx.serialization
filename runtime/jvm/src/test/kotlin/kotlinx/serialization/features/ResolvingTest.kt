@@ -16,7 +16,9 @@
 
 package kotlinx.serialization.features
 
+import kotlinx.serialization.KInput
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializer
 import kotlinx.serialization.json.JSON
 import kotlinx.serialization.serializerByTypeToken
 import org.junit.Test
@@ -30,6 +32,14 @@ class ResolvingTest {
 
     @Serializable
     data class Data(val l: List<String>, val b: Box<Int>)
+
+    @Serializable
+    data class WithCustomDefault(val n: Int) {
+        @Serializer(forClass = WithCustomDefault::class)
+        companion object {
+            override fun load(input: KInput) = WithCustomDefault(input.readIntValue())
+        }
+    }
 
     object IntBoxToken : ParameterizedType {
         override fun getRawType() = Box::class.java
@@ -73,6 +83,12 @@ class ResolvingTest {
         val serial = serializerByTypeToken(Data::class.java)
         val s = JSON.unquoted.stringify(serial, b)
         assertEquals("{l:[a,b,c],b:{a:42}}", s)
+    }
+
+    @Test
+    fun customDefault() {
+        val foo = JSON.unquoted.parse<WithCustomDefault>("9")
+        assertEquals(9, foo.n)
     }
 
 }

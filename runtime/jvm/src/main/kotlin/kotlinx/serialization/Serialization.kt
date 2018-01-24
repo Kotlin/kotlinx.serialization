@@ -19,10 +19,8 @@ package kotlinx.serialization
 import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
-actual fun <T: Any> KClass<T>.serializer(): KSerializer<T> = this.java
-        .declaredClasses.filter { it.simpleName == ("\$serializer") }.singleOrNull()
-        ?.getField("INSTANCE")?.get(null) as? KSerializer<T>
-        ?: throw SerializationException("Can't locate companion serializer for class $this")
+actual fun <T: Any> KClass<T>.serializer(): KSerializer<T> = this.java.invokeSerializerGetter()
+        ?: throw SerializationException("Can't locate default serializer for class $this")
 
 actual fun String.toUtf8Bytes() = this.toByteArray(Charsets.UTF_8)
 actual fun stringFromUtf8Bytes(bytes: ByteArray) = String(bytes, Charsets.UTF_8)
@@ -34,3 +32,14 @@ actual fun <E: Enum<E>> KClass<E>.enumClassName(): String = this.java.canonicalN
 
 @Suppress("UNCHECKED_CAST")
 actual fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> = toArray(java.lang.reflect.Array.newInstance(eClass.java, size) as Array<E>)
+
+internal fun <T> Class<T>.invokeSerializerGetter(vararg args: KSerializer<Any>): KSerializer<T>? {
+    val companion: Any = try {
+        this.getField("Companion").get(null)
+    } catch (e: NoSuchFieldException) {
+        return null
+    }
+    return companion.javaClass.methods
+            .find {it.name == "serializer" && it.parameterTypes.size == args.size && it.parameterTypes.all {it == KSerializer::class.java } }
+            ?.invoke(companion, *args) as? KSerializer<T>
+}
