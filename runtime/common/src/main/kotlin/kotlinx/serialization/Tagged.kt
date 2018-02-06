@@ -332,6 +332,10 @@ object Mapper {
         override fun writeTaggedValue(tag: String, value: Any) {
             _map[tag] = value
         }
+
+        override fun writeTaggedNull(tag: String) {
+            throw SerializationException("null is not supported. use Mapper.mapNullable()/OutNullableMapper instead")
+        }
     }
 
     class OutNullableMapper : NamedValueOutput() {
