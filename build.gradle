@@ -18,11 +18,11 @@ buildscript {
     if (project.hasProperty("bootstrap")) {
         ext.compilerVersion = '1.2-SNAPSHOT'
         ext.librariesVersion = '1.2-SNAPSHOT'
-        ext.serializationPluginVersion = '0.4-SNAPSHOT'
+        ext.serializationPluginVersion = '0.4.1-SNAPSHOT'
     } else {
-        ext.compilerVersion = '1.2.10'
-        ext.librariesVersion = '1.2.10'
-        ext.serializationPluginVersion = '0.4'
+        ext.compilerVersion = '1.2.21'
+        ext.librariesVersion = '1.2.21'
+        ext.serializationPluginVersion = '0.4.1'
     }
     ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-eap'
     ext.serializationRepo = 'https://kotlin.bintray.com/kotlinx'
@@ -59,7 +59,7 @@ ext {
 
 allprojects {
     group 'org.jetbrains.kotlinx'
-    version '0.4'
+    version '0.4.1'
 
     repositories {
         jcenter()

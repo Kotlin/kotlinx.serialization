@@ -33,6 +33,7 @@ You can open example projects for [JVM](example-jvm) or [JS](example-js) to get 
 * [Usage](docs/runtime_usage.md)
 * [More examples of supported Kotlin classes](docs/examples.md)
 * [Writing custom serializers](docs/custom_serializers.md)
+* [Add-on formats](formats/README.md)
 * [Building library and compiler plugin from source](docs/building.md)
 
 
@@ -57,7 +58,7 @@ More examples of various kinds of Kotlin classes that can be serialized can be f
 
 ## Setup
 
-Using Kotlin Serialization requires Kotlin compiler `1.1.50` or higher, recommended version is `1.2.10` or `1.2.20-eap-11`
+Using Kotlin Serialization requires Kotlin compiler `1.1.50` or higher, recommended version is `1.2.21`.
 Also, it's recommended to install [additional IDEA plugin](#working-in-intellij-idea) for better IDE experience. Otherwise,
 some valid code will be shown as red and builds will have to be launched from console or build system tasks panel.
 Example projects on JVM are available for [Gradle](example-jvm/build.gradle) and [Maven](example-jvm/pom.xml).
@@ -69,7 +70,7 @@ Ensure the proper version of Kotlin and add dependencies on plugin in addition t
 ```gradle
 buildscript {
     ext.kotlin_version = '1.2.10'
-    ext.serialization_version = '0.4'
+    ext.serialization_version = '0.4.1'
     repositories {
         jcenter()
         maven { url "https://kotlin.bintray.com/kotlinx" }
@@ -123,7 +124,7 @@ Ensure the proper version of Kotlin and serialization version:
 ```xml
 <properties>
     <kotlin.version>1.2.10</kotlin.version>
-    <serialization.version>0.4</serialization.version>
+    <serialization.version>0.4.1</serialization.version>
 </properties>
 ```
 
