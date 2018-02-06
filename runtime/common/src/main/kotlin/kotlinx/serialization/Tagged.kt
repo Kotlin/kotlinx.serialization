@@ -278,8 +278,8 @@ abstract class TaggedInput<T : Any?> : KInput() {
         val r = block()
         if (!flag) {
             popTag()
-            flag = false
         }
+        flag = false
         return r
     }
 
