@@ -88,10 +88,12 @@ subprojects {
         task sourceJar(type: Jar, dependsOn: classes) {
             classifier 'sources'
             from sourceSets.main.kotlin
-            duplicatesStrategy = "exclude"
-            def platformSrc = sourceSets.main.kotlin
-            def commonSrc = project(':common').sourceSets.main.kotlin
-            from (platformSrc + commonSrc)
+            if (project.name == "jvm" || project.name == "js") {
+                duplicatesStrategy = "exclude"
+                def platformSrc = sourceSets.main.kotlin
+                def commonSrc = project(':common').sourceSets.main.kotlin
+                from(platformSrc + commonSrc)
+            }
         }
     }
 
