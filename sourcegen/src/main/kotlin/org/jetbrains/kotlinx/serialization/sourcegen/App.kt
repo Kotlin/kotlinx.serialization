@@ -16,6 +16,25 @@
 
 package org.jetbrains.kotlinx.serialization.sourcegen
 
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.asTypeName
+import java.io.File
+
+fun test(): FileSpec {
+    val spec = serializableClass("", "MyData") {
+        dataClass = true
+        property("x", Int::class.asTypeName().asNullable()) {}
+        property("y", String::class) {
+            optional = true
+            defaultValue = "\"kek\""
+        }
+    }.render()
+    return FileSpec.builder("", "HelloWorld").indent("    ").addType(spec).build()
+}
+
 fun main(args: Array<String>) {
-    println("Hello, serialization sourcegen!")
+    val f = File("./src/test/kotlin")
+    val test = test()
+    test.writeTo(f)
+    test.writeTo(System.out)
 }
