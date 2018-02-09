@@ -19,19 +19,21 @@ package org.jetbrains.kotlinx.serialization.sourcegen
 import com.squareup.kotlinpoet.*
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.SerialClassDescImpl
+import java.io.File
+import java.lang.Appendable
 import kotlin.reflect.KClass
 
-internal class SClass(
+class SClass(
         val serializableClassName: ClassName,
         var dataClass: Boolean = false
 ) {
     private val properties: MutableList<SProperty> = arrayListOf()
 
-    fun property(name: String, type: KClass<*>, init: SProperty.() -> Unit) {
+    fun property(name: String, type: KClass<*>, init: SProperty.() -> Unit = {}) {
         property(name, type.asTypeName(), init)
     }
 
-    fun property(name: String, type: TypeName, init: SProperty.() -> Unit) {
+    fun property(name: String, type: TypeName, init: SProperty.() -> Unit = {}) {
         val prop = SProperty(name, type)
         prop.init()
         properties.add(prop)
@@ -44,7 +46,7 @@ internal class SClass(
                 .addParameters(properties.map(SProperty::asParameter))
                 .build())
         addProperties(properties.map(SProperty::asProperty))
-        companionObject(renderCompanion())
+//        companionObject(renderCompanion())
         addType(renderSerializer())
     }.build()
 
@@ -135,7 +137,7 @@ internal class SClass(
         l("output.writeEnd(serialClassDesc)")
     }.build()
 
-    internal class SProperty(
+    class SProperty(
             val name: String,
             val type: TypeName,
             var mutable: Boolean = false,
@@ -143,11 +145,11 @@ internal class SClass(
             var defaultValue: String? = null,
             var transient: Boolean = false
     ) {
-        fun asParameter() = ParameterSpec.builder(name, type).apply {
+        internal fun asParameter() = ParameterSpec.builder(name, type).apply {
             if (defaultValue != null) defaultValue(defaultValue!!)
         }.build()
 
-        fun asProperty() = (if (!mutable) PropertySpec.builder(name, type) else PropertySpec.varBuilder(name, type))
+        internal fun asProperty() = (if (!mutable) PropertySpec.builder(name, type) else PropertySpec.varBuilder(name, type))
                 .apply {
                     initializer(name)
                     if (optional) addAnnotation(Optional::class)
@@ -156,9 +158,36 @@ internal class SClass(
     }
 }
 
+class GeneratedFile(val packageName: String, val fileName: String) {
+    private val classes: MutableList<SClass> = arrayListOf()
 
-internal fun serializableClass(packageName: String, name: String, init: SClass.() -> Unit): SClass {
-    val klass = SClass(ClassName(packageName, name))
-    klass.init()
-    return klass
+    fun genClass(name: String, init: SClass.() -> Unit): SClass {
+        val klass = SClass(ClassName(packageName, name))
+        klass.init()
+        classes.add(klass)
+        return klass
+    }
+
+    private fun render(): FileSpec = FileSpec.builder(packageName, fileName).apply {
+        indent("    ")
+        addComment("Auto-generated file, do not modify!")
+        classes.forEach {
+            addType(it.render())
+        }
+    }.build()
+
+    /**
+     * Prints content to stdout.
+     */
+    fun print() = render().writeTo(System.out)
+
+    fun writeTo(out: Appendable) = render().writeTo(out)
+
+    fun saveTo(directory: File) = render().writeTo(directory)
+}
+
+fun serializableFile(packageName: String, fileName: String, init: (GeneratedFile.() -> Unit)): GeneratedFile {
+    val f = GeneratedFile(packageName, fileName)
+    f.init()
+    return f
 }

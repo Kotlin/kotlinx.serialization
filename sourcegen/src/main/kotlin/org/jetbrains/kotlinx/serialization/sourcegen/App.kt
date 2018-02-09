@@ -16,15 +16,14 @@
 
 package org.jetbrains.kotlinx.serialization.sourcegen
 
-import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.asTypeName
 import java.io.File
 
-fun test(): FileSpec {
-    val spec = serializableClass("", "MyData") {
+fun test() = serializableFile("", "HelloWorld") {
+    genClass("MyData") {
         dataClass = true
-        property("x", Int::class.asTypeName().asNullable()) {}
+        property("x", Int::class.asTypeName().asNullable())
         property("y", String::class) {
             optional = true
             defaultValue = "\"kek\""
@@ -32,13 +31,12 @@ fun test(): FileSpec {
         property("intList", ParameterizedTypeName.get(List::class, Int::class)) {
             defaultValue = "listOf(1,2,3)"
         }
-    }.render()
-    return FileSpec.builder("", "HelloWorld").indent("    ").addType(spec).build()
+    }
 }
 
 fun main(args: Array<String>) {
-    val f = File("./src/test/kotlin")
+    val dir = File("./src/test/kotlin")
     val test = test()
-    test.writeTo(f)
-    test.writeTo(System.out)
+    test.print()
+    test.saveTo(dir)
 }
