@@ -17,6 +17,7 @@
 package org.jetbrains.kotlinx.serialization.sourcegen
 
 import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.asTypeName
 import java.io.File
 
@@ -27,6 +28,9 @@ fun test(): FileSpec {
         property("y", String::class) {
             optional = true
             defaultValue = "\"kek\""
+        }
+        property("intList", ParameterizedTypeName.get(List::class, Int::class)) {
+            defaultValue = "listOf(1,2,3)"
         }
     }.render()
     return FileSpec.builder("", "HelloWorld").indent("    ").addType(spec).build()

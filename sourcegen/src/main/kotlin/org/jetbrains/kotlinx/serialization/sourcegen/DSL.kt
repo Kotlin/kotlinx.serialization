@@ -57,6 +57,18 @@ internal class SClass(
         addFunction(renderLoad())
     }.build()
 
+    private fun renderInvoke(serializer: TypeName): CodeBlock {
+        return when (serializer) {
+            is ClassName -> CodeBlock.of("%T", serializer)
+            is ParameterizedTypeName -> {
+                val args = serializer.typeArguments.map { renderInvoke(it) }.toTypedArray()
+                val literals = args.indices.joinToString(separator = ", ", transform = { "%L" })
+                CodeBlock.of("%T($literals)", serializer.rawType, *args)
+            }
+            else -> TODO("Too complex type")
+        }
+    }
+
     private fun renderLoad() = FunSpec.builder("load").apply {
         addModifiers(KModifier.OVERRIDE)
         addParameter("input", KInput::class)
@@ -79,7 +91,7 @@ internal class SClass(
             beginControlFlow("$index ->")
             val sti = it.getSerialTypeInfo()
             if (sti.serializer == null) l("local$index = input.read${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index)")
-            else l("local$index = input.read${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index, %T)", sti.serializer)
+            else l("local$index = input.read${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index, %L)", renderInvoke(sti.serializer))
             l("bitMask = bitMask or ${1 shl index}")
             endControlFlow()
         }
@@ -118,7 +130,7 @@ internal class SClass(
         properties.forEachIndexed { index, it ->
             val sti = it.getSerialTypeInfo()
             if (sti.serializer == null) l("output.write${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index, obj.${it.name})")
-            else l("output.write${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index, %T, obj.${it.name})", sti.serializer)
+            else l("output.write${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index, %L, obj.${it.name})", renderInvoke(sti.serializer))
         }
         l("output.writeEnd(serialClassDesc)")
     }.build()

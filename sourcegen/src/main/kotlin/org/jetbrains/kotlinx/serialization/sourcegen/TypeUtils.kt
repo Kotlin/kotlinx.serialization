@@ -17,26 +17,33 @@
 package org.jetbrains.kotlinx.serialization.sourcegen
 
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.TypeName
 
 const val internalPackageFqName = "kotlinx.serialization.internal"
 
 class SerialTypeInfo(
         val elementMethodPrefix: String,
-        val serializer: ClassName? = null,
-        val unit: Boolean = false
+        val serializer: TypeName? = null
 )
 
 internal fun SClass.SProperty.getSerialTypeInfo(): SerialTypeInfo {
-    val T = type as? ClassName ?: TODO("Generic and other complex types not supported yet")
-    val kBaseClass = Regex("kotlin.(\\w+)").matchEntire(T.canonicalName)?.groupValues?.getOrNull(1)
+    val kBaseClass = (type as? ClassName)?.let { Regex("kotlin.(\\w+)").matchEntire(it.canonicalName)?.groupValues?.getOrNull(1) }
     return when {
-        !T.nullable && kBaseClass == "Unit" -> SerialTypeInfo(kBaseClass, null, true)
-        !T.nullable && kBaseClass in listOf("Boolean", "Byte", "Short", "Int", "Long", "Char", "String") -> SerialTypeInfo(kBaseClass!!, null, false)
-        else -> {
-            val stdSerial = findStandardKotlinTypeSerializer(T.asNonNullable().canonicalName)
-            if (stdSerial != null) SerialTypeInfo(if (T.nullable) "NullableSerializable" else "Serializable", stdSerial, false)
-            else SerialTypeInfo(if (T.nullable) "NullableSerializable" else "Serializable", T.nestedClass("serializer"), false)
+        !type.nullable && kBaseClass in listOf("Unit", "Boolean", "Byte", "Short", "Int", "Long", "Char", "String") -> SerialTypeInfo(kBaseClass!!, null)
+        else -> SerialTypeInfo(if (type.nullable) "NullableSerializable" else "Serializable", type.getSerializerTypeName())
+    }
+}
+
+internal fun TypeName.getSerializerTypeName(): TypeName {
+    return when (this) {
+        is ClassName -> {
+            val defSerial = findStandardKotlinTypeSerializer(canonicalName) ?: this.nestedClass("serializer")
+            if (nullable) ParameterizedTypeName.get(ClassName(internalPackageFqName, "NullableSerializer"), defSerial)
+            else defSerial
         }
+        is ParameterizedTypeName -> ParameterizedTypeName.get(rawType.getSerializerTypeName() as ClassName, *(typeArguments.map(TypeName::getSerializerTypeName).toTypedArray()))
+        else -> TODO("Too complex type")
     }
 }
 
