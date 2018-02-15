@@ -35,7 +35,7 @@ actual fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<
 
 internal fun <T> Class<T>.invokeSerializerGetter(vararg args: KSerializer<Any>): KSerializer<T>? {
     val companion: Any = try {
-        this.getField("Companion").get(null)
+        this.getField("Companion").apply { isAccessible = true }.get(null)
     } catch (e: NoSuchFieldException) {
         return null
     }
