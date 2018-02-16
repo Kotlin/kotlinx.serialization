@@ -117,7 +117,7 @@ to add this to your `proguard-rules.pro`:
     *** Companion;
 }
 -keepclasseswithmembers class com.yourcompany.yourpackage.** { # <-- change package name to your app's
-    kotlinx.serialization.KSerializer serializer();
+    kotlinx.serialization.KSerializer serializer(...);
 }
 ```
 
