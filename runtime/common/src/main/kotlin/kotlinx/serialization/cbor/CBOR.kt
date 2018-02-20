@@ -20,7 +20,6 @@ import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlin.experimental.or
-import kotlin.reflect.KClass
 
 class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = UpdateMode.BANNED) {
     // Writes map entry as plain [key, value] pair, without bounds.
@@ -92,7 +91,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
 
         override fun writeNullValue() = encoder.encodeNull()
 
-        override fun <T : Enum<T>> writeEnumValue(enumClass: KClass<T>, value: T) =
+        override fun <T : Enum<T>> writeEnumValue(value: T) =
                 encoder.encodeString(value.toString())
     }
 
@@ -242,8 +241,8 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
 
         override fun readNullValue() = decoder.nextNull()
 
-        override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T =
-                enumFromName(enumClass, decoder.nextString())
+        override fun <T : Enum<T>> readEnumValue(enumLoader: EnumLoader<T>): T =
+                enumLoader.loadByName(decoder.nextString())
 
     }
 

@@ -79,6 +79,21 @@ interface KSerializer<T>: KSerialSaver<T>, KSerialLoader<T> {
     override fun update(input: KInput, old: T): T = throw UpdateNotSupportedException(serialClassDesc.name)
 }
 
+interface EnumLoader<E : Enum<E>> {
+    fun loadByOrdinal(ordinal: Int): E
+    fun loadByName(name: String): E
+}
+
+internal class LegacyEnumLoader<E : Enum<E>>(private val eClass: KClass<E>) : EnumLoader<E> {
+    override fun loadByOrdinal(ordinal: Int): E {
+        return enumFromOrdinal(eClass, ordinal)
+    }
+
+    override fun loadByName(name: String): E {
+        return enumFromName(eClass, name)
+    }
+}
+
 class SerializationConstructorMarker private constructor()
 
 // ====== Exceptions ======
@@ -138,9 +153,10 @@ abstract class KOutput internal constructor() {
     abstract fun writeDoubleValue(value: Double)
     abstract fun writeCharValue(value: Char)
     abstract fun writeStringValue(value: String)
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("writeEnumValue(value)"))
     abstract fun <T : Enum<T>> writeEnumValue(enumClass: KClass<T>, value: T)
 
-    inline fun <reified T : Enum<T>> writeEnumValue(value: T) = writeEnumValue(T::class, value)
+    abstract fun <T : Enum<T>> writeEnumValue(value: T)
 
     open fun <T : Any?> writeSerializableValue(saver: KSerialSaver<T>, value: T) {
         saver.save(this, value)
@@ -180,11 +196,10 @@ abstract class KOutput internal constructor() {
     abstract fun writeDoubleElementValue(desc: KSerialClassDesc, index: Int, value: Double)
     abstract fun writeCharElementValue(desc: KSerialClassDesc, index: Int, value: Char)
     abstract fun writeStringElementValue(desc: KSerialClassDesc, index: Int, value: String)
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("writeEnumElementValue(desc, index, value)"))
     abstract fun <T : Enum<T>> writeEnumElementValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<T>, value: T)
 
-    inline fun <reified T : Enum<T>> writeEnumElementValue(desc: KSerialClassDesc, index: Int, value: T) {
-        writeEnumElementValue(desc, index, T::class, value)
-    }
+    abstract fun <T : Enum<T>> writeEnumElementValue(desc: KSerialClassDesc, index: Int, value: T)
 
     fun <T : Any?> writeSerializableElementValue(desc: KSerialClassDesc, index: Int, saver: KSerialSaver<T>, value: T) {
         if (writeElement(desc, index))
@@ -236,9 +251,11 @@ abstract class KInput internal constructor() {
     abstract fun readDoubleValue(): Double
     abstract fun readCharValue(): Char
     abstract fun readStringValue(): String
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
     abstract fun <T : Enum<T>> readEnumValue(enumClass: KClass<T> ): T
 
-    inline fun <reified T : Enum<T>> readEnumValue(): T = readEnumValue(T::class)
+    abstract fun <T : Enum<T>> readEnumValue(enumLoader: EnumLoader<T>): T
+
 
     open fun <T : Any?> readSerializableValue(loader: KSerialLoader<T>): T = loader.load(this)
 
@@ -281,10 +298,11 @@ abstract class KInput internal constructor() {
     abstract fun readDoubleElementValue(desc: KSerialClassDesc, index: Int): Double
     abstract fun readCharElementValue(desc: KSerialClassDesc, index: Int): Char
     abstract fun readStringElementValue(desc: KSerialClassDesc, index: Int): String
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(desc, index, enumLoader)"))
     abstract fun <T : Enum<T>> readEnumElementValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<T>): T
 
-    inline fun <reified T : Enum<T>> readEnumElementValue(desc: KSerialClassDesc, index: Int): T =
-            readEnumElementValue(desc, index, T::class)
+    abstract fun <T : Enum<T>> readEnumElementValue(desc: KSerialClassDesc, index: Int, enumLoader: EnumLoader<T>): T
+
 
     abstract fun <T : Any?> readSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>): T
     abstract fun <T : Any> readNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T?>): T?
@@ -364,8 +382,10 @@ open class ElementValueOutput : KOutput() {
     override fun writeDoubleValue(value: Double) = writeValue(value)
     override fun writeCharValue(value: Char) = writeValue(value)
     override fun writeStringValue(value: String) = writeValue(value)
-    override fun <T : Enum<T>> writeEnumValue(enumClass: KClass<T>, value: T) = writeValue(value)
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("writeEnumValue(value)"))
+    override final fun <T : Enum<T>> writeEnumValue(enumClass: KClass<T>, value: T) = writeEnumValue(value)
 
+    override fun <T : Enum<T>> writeEnumValue(value: T) = writeValue(value)
     // -------------------------------------------------------------------------------------
 
     override final fun writeNonSerializableElementValue(desc: KSerialClassDesc, index: Int, value: Any) { if (writeElement(desc, index)) writeValue(value) }
@@ -380,7 +400,14 @@ open class ElementValueOutput : KOutput() {
     override final fun writeDoubleElementValue(desc: KSerialClassDesc, index: Int, value: Double) { if (writeElement(desc, index)) writeDoubleValue(value) }
     override final fun writeCharElementValue(desc: KSerialClassDesc, index: Int, value: Char) { if (writeElement(desc, index)) writeCharValue(value) }
     override final fun writeStringElementValue(desc: KSerialClassDesc, index: Int, value: String) { if (writeElement(desc, index)) writeStringValue(value) }
-    override final fun <T : Enum<T>> writeEnumElementValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<T>, value: T) { if (writeElement(desc, index)) writeEnumValue(enumClass, value) }
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("writeEnumElementValue(desc, index, value)"))
+    override final fun <T : Enum<T>> writeEnumElementValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<T>, value: T) {
+        writeEnumElementValue(desc, index, value)
+    }
+
+    override final fun <T : Enum<T>> writeEnumElementValue(desc: KSerialClassDesc, index: Int, value: T) {
+        if (writeElement(desc, index)) writeEnumValue(value)
+    }
 
 
 }
@@ -414,9 +441,13 @@ open class ElementValueInput : KInput() {
     override fun readCharValue(): Char = readValue() as Char
     override fun readStringValue(): String = readValue() as String
 
+    @Deprecated("Not supported in Native", ReplaceWith("readEnumValue(enumLoader)"))
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T> ): T =
-            readValue() as T
+    final override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T =
+            readEnumValue(LegacyEnumLoader(enumClass))
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Enum<T>> readEnumValue(enumLoader: EnumLoader<T>): T = readValue() as T
 
     // -------------------------------------------------------------------------------------
 
@@ -432,7 +463,12 @@ open class ElementValueInput : KInput() {
     override final fun readDoubleElementValue(desc: KSerialClassDesc, index: Int): Double = readDoubleValue()
     override final fun readCharElementValue(desc: KSerialClassDesc, index: Int): Char = readCharValue()
     override final fun readStringElementValue(desc: KSerialClassDesc, index: Int): String = readStringValue()
-    override final fun <T : Enum<T>> readEnumElementValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<T>): T = readEnumValue(enumClass)
+    @Deprecated("Not supported in Native", ReplaceWith("readEnumValue(desc, index, loader)"))
+    final override fun <T : Enum<T>> readEnumElementValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<T>): T =
+            readEnumElementValue(desc, index, LegacyEnumLoader(enumClass))
+
+    override fun <T : Enum<T>> readEnumElementValue(desc: KSerialClassDesc, index: Int, enumLoader: EnumLoader<T>): T =
+            readEnumValue(enumLoader)
 
     override final fun <T: Any?> readSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>): T =
             readSerializableValue(loader)
@@ -467,7 +503,10 @@ open class ValueTransformer {
     open fun transformCharValue(desc: KSerialClassDesc, index: Int, value: Char) = value
     open fun transformStringValue(desc: KSerialClassDesc, index: Int, value: String) = value
 
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("transformEnumValue(enumLoader)"))
     open fun <T : Enum<T>> transformEnumValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<T>, value: T): T = value
+
+    open fun <T : Enum<T>> transformEnumValue(desc: KSerialClassDesc, index: Int, enumLoader: EnumLoader<T>, value: T): T = value
 
     open fun isRecursiveTransform(): Boolean = true
 
@@ -495,6 +534,9 @@ open class ValueTransformer {
         override fun writeCharValue(value: Char) { writeNullableValue(value) }
         override fun writeStringValue(value: String) { writeNullableValue(value) }
         override fun <T : Enum<T>> writeEnumValue(enumClass: KClass<T>, value: T) { writeNullableValue(value) }
+        override fun <T : Enum<T>> writeEnumValue(value: T) {
+            writeNullableValue(value)
+        }
 
         override fun <T : Any?> writeSerializableValue(saver: KSerialSaver<T>, value: T) {
             if (isRecursiveTransform()) {
@@ -520,6 +562,10 @@ open class ValueTransformer {
 
         override fun <T : Enum<T>> writeEnumElementValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<T>, value: T) =
                 writeNullableValue(value)
+
+        override fun <T : Enum<T>> writeEnumElementValue(desc: KSerialClassDesc, index: Int, value: T) {
+            writeNullableValue(value)
+        }
     }
 
     private inner class Input(private val list: List<Any?>) : KInput() {
@@ -549,8 +595,13 @@ open class ValueTransformer {
         override fun readStringValue(): String = transformStringValue(curDesc!!, curIndex, readValue() as String)
 
         @Suppress("UNCHECKED_CAST")
+        @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
         override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T> ): T =
                 transformEnumValue(curDesc!!, curIndex, enumClass, readValue() as T)
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : Enum<T>> readEnumValue(enumLoader: EnumLoader<T>): T =
+                transformEnumValue(curDesc!!, curIndex, enumLoader, readValue() as T)
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : Any?> readSerializableValue(loader: KSerialLoader<T>): T {
@@ -585,6 +636,11 @@ open class ValueTransformer {
         override fun <T : Enum<T>> readEnumElementValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<T>): T {
             cur(desc, index)
             return readEnumValue(enumClass)
+        }
+
+        override fun <T : Enum<T>> readEnumElementValue(desc: KSerialClassDesc, index: Int, enumLoader: EnumLoader<T>): T {
+            cur(desc, index)
+            return readEnumValue(enumLoader)
         }
 
         override fun <T: Any?> readSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>): T {

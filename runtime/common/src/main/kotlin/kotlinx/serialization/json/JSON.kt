@@ -21,7 +21,6 @@ import kotlinx.io.Reader
 import kotlinx.io.StringReader
 import kotlinx.io.StringWriter
 import kotlinx.serialization.*
-import kotlin.reflect.KClass
 
 data class JSON(
         private val unquoted: Boolean = false,
@@ -437,7 +436,7 @@ data class JSON(
         override fun readCharValue(): Char = p.takeStr().single()
         override fun readStringValue(): String = p.takeStr()
 
-        override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T = enumFromName(enumClass, p.takeStr())
+        override fun <T : Enum<T>> readEnumValue(enumLoader: EnumLoader<T>): T = enumLoader.loadByName(p.takeStr())
     }
 
     private class Parser(val r: Reader) {

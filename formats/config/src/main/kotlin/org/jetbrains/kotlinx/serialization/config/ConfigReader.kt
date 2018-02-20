@@ -19,7 +19,6 @@ package org.jetbrains.kotlinx.serialization.config
 import com.typesafe.config.*
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.KEY_INDEX
-import kotlin.reflect.KClass
 
 private val KSerialClassKind.listLike get() = this == KSerialClassKind.LIST || this == KSerialClassKind.SET || this == KSerialClassKind.POLYMORPHIC
 private val KSerialClassKind.objLike get() = this == KSerialClassKind.CLASS || this == KSerialClassKind.OBJECT || this == KSerialClassKind.SEALED
@@ -65,9 +64,9 @@ class ConfigParser(val context: SerialContext? = null) {
 
         override fun readTaggedNotNullMark(tag: T) = getTaggedConfigValue(tag).valueType() != ConfigValueType.NULL
 
-        override fun <E : Enum<E>> readTaggedEnum(tag: T, enumClass: KClass<E>): E {
+        override fun <E : Enum<E>> readTaggedEnum(tag: T, enumLoader: EnumLoader<E>): E {
             val s = validateAndCast<String>(tag, ConfigValueType.STRING)
-            return enumFromName(enumClass, s)
+            return enumLoader.loadByName(s)
         }
     }
 

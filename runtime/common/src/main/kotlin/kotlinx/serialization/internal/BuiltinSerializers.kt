@@ -109,10 +109,31 @@ internal class EnumDesc(override val name: String) : KSerialClassDesc {
 }
 
 // note, that it is instantiated in a special way
+@Deprecated("Not supported in Native", replaceWith = ReplaceWith("ModernEnumSerializer()"))
 class EnumSerializer<T : Enum<T>>(val serializableClass: KClass<T>) : KSerializer<T> {
     override val serialClassDesc: KSerialClassDesc = EnumDesc(serializableClass.enumClassName())
     override fun save(output: KOutput, obj: T) = output.writeEnumValue(serializableClass, obj)
     override fun load(input: KInput): T = input.readEnumValue(serializableClass)
+}
+
+class ModernEnumSerializer<T : Enum<T>>(className: String, val loader: EnumLoader<T>) : KSerializer<T> {
+    override val serialClassDesc: KSerialClassDesc = EnumDesc(className)
+    override fun save(output: KOutput, obj: T) = output.writeEnumValue(obj)
+    override fun load(input: KInput): T = input.readEnumValue(loader)
+
+    companion object {
+        inline operator fun <reified E : Enum<E>> invoke(): ModernEnumSerializer<E> {
+            return ModernEnumSerializer(E::class.enumClassName(), object : EnumLoader<E> {
+                override fun loadByOrdinal(ordinal: Int): E {
+                    return enumValues<E>()[ordinal]
+                }
+
+                override fun loadByName(name: String): E {
+                    return enumValueOf<E>(name)
+                }
+            })
+        }
+    }
 }
 
 fun <T : Any> makeNullable(element: KSerializer<T>): KSerializer<T?> = NullableSerializer(element)

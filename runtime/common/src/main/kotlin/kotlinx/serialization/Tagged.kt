@@ -56,7 +56,10 @@ abstract class TaggedOutput<T : Any?> : KOutput() {
     open fun writeTaggedBoolean(tag: T, value: Boolean) = writeTaggedValue(tag, value)
     open fun writeTaggedChar(tag: T, value: Char) = writeTaggedValue(tag, value)
     open fun writeTaggedString(tag: T, value: String) = writeTaggedValue(tag, value)
-    open fun <E : Enum<E>> writeTaggedEnum(tag: T, enumClass: KClass<E>, value: E) = writeTaggedValue(tag, value)
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("writeTaggedEnum(tag, value)"))
+    open fun <E : Enum<E>> writeTaggedEnum(tag: T, enumClass: KClass<E>, value: E) = writeTaggedEnum(tag, value)
+
+    open fun <E : Enum<E>> writeTaggedEnum(tag: T, value: E) = writeTaggedValue(tag, value)
 
     // ---- Implementation of low-level API ----
 
@@ -128,8 +131,13 @@ abstract class TaggedOutput<T : Any?> : KOutput() {
         writeTaggedString(popTag(), value)
     }
 
-    override final fun <E : Enum<E>> writeEnumValue(enumClass: KClass<E>, value: E) {
-        writeTaggedEnum(popTag(), enumClass, value)
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
+    final override fun <E : Enum<E>> writeEnumValue(enumClass: KClass<E>, value: E) {
+        writeEnumValue(value)
+    }
+
+    final override fun <T : Enum<T>> writeEnumValue(value: T) {
+        writeTaggedEnum(popTag(), value)
     }
 
     override final fun writeEnd(desc: KSerialClassDesc) {
@@ -154,8 +162,14 @@ abstract class TaggedOutput<T : Any?> : KOutput() {
     override final fun writeCharElementValue(desc: KSerialClassDesc, index: Int, value: Char) = writeTaggedChar(desc.getTag(index), value)
     override final fun writeStringElementValue(desc: KSerialClassDesc, index: Int, value: String) = writeTaggedString(desc.getTag(index), value)
 
-    override final fun <E : Enum<E>> writeEnumElementValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<E>, value: E) {
-        writeTaggedEnum(desc.getTag(index), enumClass, value)
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
+    final override fun <E : Enum<E>> writeEnumElementValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<E>, value: E) {
+        writeEnumElementValue(desc, index, value)
+    }
+
+
+    final override fun <T : Enum<T>> writeEnumElementValue(desc: KSerialClassDesc, index: Int, value: T) {
+        writeTaggedEnum(desc.getTag(index), value)
     }
 
     private val tagStack = arrayListOf<T>()
@@ -218,8 +232,11 @@ abstract class TaggedInput<T : Any?> : KInput() {
     open fun readTaggedDouble(tag: T): Double = readTaggedValue(tag) as Double
     open fun readTaggedChar(tag: T): Char = readTaggedValue(tag) as Char
     open fun readTaggedString(tag: T): String = readTaggedValue(tag) as String
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
+    fun <E : Enum<E>> readTaggedEnum(tag: T, enumClass: KClass<E>): E = readTaggedEnum(tag, LegacyEnumLoader(enumClass))
     @Suppress("UNCHECKED_CAST")
-    open fun <E : Enum<E>> readTaggedEnum(tag: T, enumClass: KClass<E>): E = readTaggedValue(tag) as E
+    open fun <E : Enum<E>> readTaggedEnum(tag: T, enumLoader: EnumLoader<E>): E = readTaggedValue(tag) as E
+
 
     // ---- Implementation of low-level API ----
 
@@ -238,7 +255,10 @@ abstract class TaggedInput<T : Any?> : KInput() {
     override final fun readDoubleValue(): Double = readTaggedDouble(popTag())
     override final fun readCharValue(): Char = readTaggedChar(popTag())
     override final fun readStringValue(): String = readTaggedString(popTag())
-    override final fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T = readTaggedEnum(popTag(), enumClass)
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
+    override final fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T = readEnumValue(LegacyEnumLoader(enumClass))
+
+    override final fun <T : Enum<T>> readEnumValue(enumLoader: EnumLoader<T>): T = readTaggedEnum(popTag(), enumLoader)
 
     // Override for custom behaviour
     override fun readElement(desc: KSerialClassDesc): Int = READ_ALL
@@ -255,7 +275,10 @@ abstract class TaggedInput<T : Any?> : KInput() {
     override final fun readDoubleElementValue(desc: KSerialClassDesc, index: Int): Double = readTaggedDouble(desc.getTag(index))
     override final fun readCharElementValue(desc: KSerialClassDesc, index: Int): Char = readTaggedChar(desc.getTag(index))
     override final fun readStringElementValue(desc: KSerialClassDesc, index: Int): String = readTaggedString(desc.getTag(index))
-    override final fun <T : Enum<T>> readEnumElementValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<T>): T = readTaggedEnum(desc.getTag(index), enumClass)
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
+    override final fun <T : Enum<T>> readEnumElementValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<T>): T = readEnumElementValue(desc, index, LegacyEnumLoader(enumClass))
+
+    override final fun <T : Enum<T>> readEnumElementValue(desc: KSerialClassDesc, index: Int, enumLoader: EnumLoader<T>): T = readTaggedEnum(desc.getTag(index), enumLoader)
 
     override final fun <T : Any?> readSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>): T {
         return tagBlock(desc.getTag(index)) { readSerializableValue(loader) }

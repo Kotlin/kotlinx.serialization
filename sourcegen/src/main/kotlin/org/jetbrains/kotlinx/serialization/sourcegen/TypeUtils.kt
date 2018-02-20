@@ -22,14 +22,19 @@ import com.squareup.kotlinpoet.TypeName
 
 const val internalPackageFqName = "kotlinx.serialization.internal"
 
+//data class SerializerDescriptor(val serializer: TypeName, val needTypeParam: Boolean = false)
+
 class SerialTypeInfo(
         val elementMethodPrefix: String,
-        val serializer: TypeName? = null
+        val serializer: TypeName? = null,
+        val needTypeParam: Boolean = false
 )
 
 internal fun SClass.SProperty.getSerialTypeInfo(): SerialTypeInfo {
     val kBaseClass = (type as? ClassName)?.let { Regex("kotlin.(\\w+)").matchEntire(it.canonicalName)?.groupValues?.getOrNull(1) }
     return when {
+        isEnum -> SerialTypeInfo(if (type.nullable) "NullableSerializable" else "Serializable",
+                ClassName(internalPackageFqName, "ModernEnumSerializer"), needTypeParam = true)
         !type.nullable && kBaseClass in listOf("Unit", "Boolean", "Byte", "Short", "Int", "Long", "Char", "String") -> SerialTypeInfo(kBaseClass!!, null)
         else -> SerialTypeInfo(if (type.nullable) "NullableSerializable" else "Serializable", type.getSerializerTypeName())
     }

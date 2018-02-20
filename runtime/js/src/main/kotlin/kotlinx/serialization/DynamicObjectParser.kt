@@ -16,8 +16,6 @@
 
 package kotlinx.serialization
 
-import kotlin.reflect.KClass
-
 class DynamicObjectParser(val context: SerialContext? = null) {
     inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.klassSerializer(T::class))
     fun <T> parse(obj: dynamic, loader: KSerialLoader<T>): T = DynamicInput(obj).read(loader)
@@ -39,8 +37,8 @@ class DynamicObjectParser(val context: SerialContext? = null) {
             return READ_DONE
         }
 
-        override fun <E : Enum<E>> readTaggedEnum(tag: String, enumClass: KClass<E>) =
-                enumFromName(enumClass, (getByTag(tag) as String))
+        override fun <E : Enum<E>> readTaggedEnum(tag: String, enumLoader: EnumLoader<E>) =
+                enumLoader.loadByName(getByTag(tag) as String)
 
         protected open fun getByTag(tag: String): dynamic = obj[tag]
 

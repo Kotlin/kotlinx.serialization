@@ -20,7 +20,6 @@ import kotlinx.io.PrintWriter
 import kotlinx.io.Reader
 import kotlinx.io.StringReader
 import kotlinx.io.StringWriter
-import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -196,8 +195,8 @@ class SerializeZooTest {
         override fun readFloatValue(): Float = readToken().toFloat()
         override fun readDoubleValue(): Double = readToken().toDouble()
 
-        override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T {
-            return enumFromName(enumClass, readToken())
+        override fun <T : Enum<T>> readEnumValue(enumLoader: EnumLoader<T>): T {
+            return enumLoader.loadByName(readToken())
         }
 
         override fun readStringValue(): String {

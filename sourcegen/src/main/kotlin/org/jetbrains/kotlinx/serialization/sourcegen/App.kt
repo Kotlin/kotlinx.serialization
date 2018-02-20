@@ -20,6 +20,8 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.asTypeName
 import java.io.File
 
+enum class Choice { LEFT, RIGHT }
+
 fun test() = serializableFile("", "HelloWorld") {
     genClass("MyData") {
         dataClass = true
@@ -30,6 +32,10 @@ fun test() = serializableFile("", "HelloWorld") {
         }
         property("intList", ParameterizedTypeName.get(List::class, Int::class)) {
             defaultValue = "listOf(1,2,3)"
+        }
+        property("choice", Choice::class) {
+            defaultValue = "Choice.LEFT"
+            isEnum = true
         }
     }
 }

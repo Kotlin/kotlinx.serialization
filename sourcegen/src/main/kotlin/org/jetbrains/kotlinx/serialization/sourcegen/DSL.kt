@@ -59,9 +59,9 @@ class SClass(
         addFunction(renderLoad())
     }.build()
 
-    private fun renderInvoke(serializer: TypeName): CodeBlock {
+    private fun renderInvoke(serializer: TypeName, typeParam: TypeName? = null): CodeBlock {
         return when (serializer) {
-            is ClassName -> CodeBlock.of("%T", serializer)
+            is ClassName -> if (typeParam == null) CodeBlock.of("%T", serializer) else CodeBlock.of("%T<%T>()", serializer, typeParam)
             is ParameterizedTypeName -> {
                 val args = serializer.typeArguments.map { renderInvoke(it) }.toTypedArray()
                 val literals = args.indices.joinToString(separator = ", ", transform = { "%L" })
@@ -93,7 +93,10 @@ class SClass(
             beginControlFlow("$index ->")
             val sti = it.getSerialTypeInfo()
             if (sti.serializer == null) l("local$index = input.read${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index)")
-            else l("local$index = input.read${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index, %L)", renderInvoke(sti.serializer))
+            else {
+                val invokeArgs = renderInvoke(sti.serializer, if (sti.needTypeParam) it.type else null)
+                l("local$index = input.read${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index, %L)", invokeArgs)
+            }
             l("bitMask = bitMask or ${1 shl index}")
             endControlFlow()
         }
@@ -132,7 +135,10 @@ class SClass(
         properties.forEachIndexed { index, it ->
             val sti = it.getSerialTypeInfo()
             if (sti.serializer == null) l("output.write${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index, obj.${it.name})")
-            else l("output.write${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index, %L, obj.${it.name})", renderInvoke(sti.serializer))
+            else {
+                val invokeArgs = renderInvoke(sti.serializer, if (sti.needTypeParam) it.type else null)
+                l("output.write${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index, %L, obj.${it.name})", invokeArgs)
+            }
         }
         l("output.writeEnd(serialClassDesc)")
     }.build()
@@ -143,7 +149,8 @@ class SClass(
             var mutable: Boolean = false,
             var optional: Boolean = false,
             var defaultValue: String? = null,
-            var transient: Boolean = false
+            var transient: Boolean = false,
+            var isEnum: Boolean = false
     ) {
         internal fun asParameter() = ParameterSpec.builder(name, type).apply {
             if (defaultValue != null) defaultValue(defaultValue!!)

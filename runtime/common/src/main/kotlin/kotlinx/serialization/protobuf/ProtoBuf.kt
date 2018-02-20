@@ -23,7 +23,6 @@ import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintInt
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintLong
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeVarint
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.encodeVarint
-import kotlin.reflect.KClass
 
 enum class ProtoNumberType {
     DEFAULT, SIGNED, FIXED
@@ -59,7 +58,7 @@ class ProtoBuf(val context: SerialContext? = null) {
         override fun writeTaggedBoolean(tag: ProtoDesc, value: Boolean) = encoder.writeInt(if (value) 1 else 0, tag.first, ProtoNumberType.DEFAULT)
         override fun writeTaggedChar(tag: ProtoDesc, value: Char) = encoder.writeInt(value.toInt(), tag.first, tag.second)
         override fun writeTaggedString(tag: ProtoDesc, value: String) = encoder.writeString(value, tag.first)
-        override fun <E : Enum<E>> writeTaggedEnum(tag: ProtoDesc, enumClass: KClass<E>, value: E) = encoder.writeInt(value.ordinal, tag.first, ProtoNumberType.DEFAULT)
+        override fun <E : Enum<E>> writeTaggedEnum(tag: ProtoDesc, value: E) = encoder.writeInt(value.ordinal, tag.first, ProtoNumberType.DEFAULT)
 
         override fun KSerialClassDesc.getTag(index: Int) = this.getProtoDesc(index)
     }
@@ -181,7 +180,7 @@ class ProtoBuf(val context: SerialContext? = null) {
         override fun readTaggedDouble(tag: ProtoDesc): Double = decoder.nextDouble()
         override fun readTaggedChar(tag: ProtoDesc): Char = decoder.nextInt(tag.second).toChar()
         override fun readTaggedString(tag: ProtoDesc): String = decoder.nextString()
-        override fun <E : Enum<E>> readTaggedEnum(tag: ProtoDesc, enumClass: KClass<E>): E = enumFromOrdinal(enumClass, decoder.nextInt(ProtoNumberType.DEFAULT))
+        override fun <E : Enum<E>> readTaggedEnum(tag: ProtoDesc, enumLoader: EnumLoader<E>): E = enumLoader.loadByOrdinal(decoder.nextInt(ProtoNumberType.DEFAULT))
 
         override fun KSerialClassDesc.getTag(index: Int) = this.getProtoDesc(index)
 
