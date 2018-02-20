@@ -36,6 +36,7 @@ fun test() = serializableFile("", "HelloWorld") {
         property("choice", Choice::class) {
             defaultValue = "Choice.LEFT"
             isEnum = true
+            serialTag = 100
         }
     }
 }

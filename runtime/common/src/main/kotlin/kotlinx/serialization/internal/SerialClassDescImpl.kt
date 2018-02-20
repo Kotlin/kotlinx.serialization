@@ -54,3 +54,15 @@ open class SerialClassDescImpl(override val name: String) : KSerialClassDesc {
 
     override fun toString() = "$name$names"
 }
+
+open class SerialClassDescImplTagged(name: String) : SerialClassDescImpl(name) {
+
+    private val tags: MutableList<Int> = ArrayList()
+
+    fun addTaggedElement(name: String, tag: Int) {
+        addElement(name)
+        tags.add(tag)
+    }
+
+    fun getTagByIndex(index: Int) = tags[index]
+}

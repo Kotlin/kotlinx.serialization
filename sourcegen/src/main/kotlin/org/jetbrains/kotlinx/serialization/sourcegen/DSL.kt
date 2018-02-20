@@ -18,7 +18,7 @@ package org.jetbrains.kotlinx.serialization.sourcegen
 
 import com.squareup.kotlinpoet.*
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.SerialClassDescImpl
+import kotlinx.serialization.internal.SerialClassDescImplTagged
 import java.io.File
 import java.lang.Appendable
 import kotlin.reflect.KClass
@@ -117,11 +117,17 @@ class SClass(
     private fun renderDescriptor() = PropertySpec.builder("serialClassDesc", KSerialClassDesc::class).apply {
         addModifiers(KModifier.OVERRIDE)
         val initCodeBlock = CodeBlock.builder().apply {
-            properties.map(SProperty::name).forEach {
-                add("addElement(%S)\n", it)
+            if (properties.all { it.serialTag == null }) {
+                properties.map(SProperty::name).forEach {
+                    add("addElement(%S)\n", it)
+                }
+            } else {
+                properties.forEachIndexed { idx, prop ->
+                    add("addTaggedElement(%S, %L)\n", prop.name, prop.serialTag ?: idx+1)
+                }
             }
         }.build()
-        initializer("object : %T(%S) {%>\ninit {%>\n%L%<\n}%<\n}", SerialClassDescImpl::class, serializableClassName.canonicalName, initCodeBlock)
+        initializer("object : %T(%S) {%>\ninit {%>\n%L%<\n}%<\n}", SerialClassDescImplTagged::class, serializableClassName.canonicalName, initCodeBlock)
     }.build()
 
     private fun FunSpec.Builder.l(s: String, vararg formatArgs: Any) = addStatement(s, *formatArgs)
@@ -150,7 +156,8 @@ class SClass(
             var optional: Boolean = false,
             var defaultValue: String? = null,
             var transient: Boolean = false,
-            var isEnum: Boolean = false
+            var isEnum: Boolean = false,
+            var serialTag: Int? = null
     ) {
         internal fun asParameter() = ParameterSpec.builder(name, type).apply {
             if (defaultValue != null) defaultValue(defaultValue!!)
@@ -161,6 +168,7 @@ class SClass(
                     initializer(name)
                     if (optional) addAnnotation(Optional::class)
                     if (transient) addAnnotation(Transient::class)
+                    if (serialTag != null) addAnnotation(AnnotationSpec.builder(SerialId::class).addMember("%L", serialTag!!).build())
                 }.build()
     }
 }

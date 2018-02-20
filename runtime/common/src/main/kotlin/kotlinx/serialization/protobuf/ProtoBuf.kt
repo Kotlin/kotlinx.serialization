@@ -386,10 +386,8 @@ class ProtoBuf(val context: SerialContext? = null) {
         }
 
         private fun KSerialClassDesc.getProtoDesc(index: Int): ProtoDesc {
-            val tag = this.getAnnotationsForIndex(index).filterIsInstance<SerialId>().single().id
-            val format = this.getAnnotationsForIndex(index).filterIsInstance<ProtoType>().onlySingleOrNull()?.type
-                    ?: ProtoNumberType.DEFAULT
-            return tag to format
+            return (this as? SerialClassDescImplTagged)?.getTagByIndex(index)?.let { it to ProtoNumberType.DEFAULT }
+                    ?: extractParameters(this, index)
         }
 
         private const val VARINT = 0
@@ -430,3 +428,5 @@ class ProtoBuf(val context: SerialContext? = null) {
 }
 
 class ProtobufDecodingException(message: String) : SerializationException(message)
+
+internal expect fun extractParameters(desc: KSerialClassDesc, index: Int): ProtoDesc
