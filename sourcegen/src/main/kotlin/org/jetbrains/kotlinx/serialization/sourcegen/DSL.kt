@@ -28,6 +28,7 @@ class SClass(
         var dataClass: Boolean = false
 ) {
     private val properties: MutableList<SProperty> = arrayListOf()
+    private val allProperties: MutableList<SProperty> = arrayListOf()
 
     fun property(name: String, type: KClass<*>, init: SProperty.() -> Unit = {}) {
         property(name, type.asTypeName(), init)
@@ -36,16 +37,17 @@ class SClass(
     fun property(name: String, type: TypeName, init: SProperty.() -> Unit = {}) {
         val prop = SProperty(name, type)
         prop.init()
-        properties.add(prop)
+        if (!prop.transient) properties.add(prop)
+        allProperties.add(prop)
     }
 
     fun render() = TypeSpec.classBuilder(serializableClassName).apply {
         addAnnotation(Serializable::class)
         if (dataClass) addModifiers(KModifier.DATA)
         primaryConstructor(FunSpec.constructorBuilder()
-                .addParameters(properties.map(SProperty::asParameter))
+                .addParameters(allProperties.map(SProperty::asParameter))
                 .build())
-        addProperties(properties.map(SProperty::asProperty))
+        addProperties(allProperties.map(SProperty::asProperty))
 //        companionObject(renderCompanion())
         addType(renderSerializer())
     }.build()
@@ -107,10 +109,19 @@ class SClass(
         l("input.readEnd(serialClassDesc)")
         properties.forEachIndexed { index, prop ->
             beginControlFlow("if (bitMask and ${1 shl index} == 0)")
-            l("throw %T(%S)", MissingFieldException::class, prop.name)
+            if (prop.optional) {
+                l("local$index = %L", prop.defaultValue
+                        ?: throw SerializationException("Optional without default value"))
+            } else {
+                l("throw %T(%S)", MissingFieldException::class, prop.name)
+            }
             endControlFlow()
         }
-        val constructorArgs = properties.mapIndexed { index, prop -> "local$index${if (prop.type.nullable) "" else "!!"}" }.joinToString()
+        val constructorArgs = allProperties.mapIndexed { index, prop ->
+            if (prop.transient) prop.defaultValue
+                    ?: throw SerializationException("Transient without an initializer")
+            else "local$index${if (prop.type.nullable) "" else "!!"}"
+        }.joinToString()
         addStatement("return %T($constructorArgs)", serializableClassName)
     }.build()
 

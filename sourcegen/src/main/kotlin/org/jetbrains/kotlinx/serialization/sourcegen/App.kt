@@ -38,6 +38,10 @@ fun test() = serializableFile("", "HelloWorld") {
             isEnum = true
             serialTag = 100
         }
+        property("trans", Int::class) {
+            defaultValue = "42"
+            transient = true
+        }
     }
 }
 
