@@ -1,0 +1,45 @@
+buildscript {
+    ext.kotlin_version = '1.2.21'
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+version '1.0-SNAPSHOT'
+
+apply plugin: 'kotlin'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.4.2"
+
+    testCompile "junit:junit:4.12"
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+task generateData(type: DataClassesGenerator) {
+    outputDir = sourceSets.main.kotlin.srcDirs[0]
+}
+
+task runApp(type: JavaExec, dependsOn: 'generateData') {
+    classpath = sourceSets.main.compileClasspath + sourceSets.main.runtimeClasspath
+
+    workingDir = "$projectDir/build/classes/kotlin/main"
+    main = 'com.mycompany.AppKt'
+}
