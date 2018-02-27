@@ -2,7 +2,6 @@
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 
-@Serializable
 data class MyData(
         val x: Int?,
         @Optional
@@ -14,13 +13,13 @@ data class MyData(
         val trans: Int = 42
 ) {
     object serializer : KSerializer<MyData> {
-        override val serialClassDesc: KSerialClassDesc = object : SerialClassDescImplTagged("MyData") {
+        override val serialClassDesc: KSerialClassDesc =
+                object : SerialClassDescImplTagged("MyData") {
             init {
                 addTaggedElement("x", 1)
                 addTaggedElement("y", 2)
                 addTaggedElement("intList", 3)
                 addTaggedElement("choice", 100)
-
             }
         }
 

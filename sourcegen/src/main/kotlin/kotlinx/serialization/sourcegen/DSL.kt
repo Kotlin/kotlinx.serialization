@@ -42,7 +42,7 @@ class SClass(
     }
 
     fun render() = TypeSpec.classBuilder(serializableClassName).apply {
-        addAnnotation(Serializable::class)
+        //        addAnnotation(Serializable::class)
         if (dataClass) addModifiers(KModifier.DATA)
         primaryConstructor(FunSpec.constructorBuilder()
                 .addParameters(allProperties.map(SProperty::asParameter))
@@ -84,9 +84,9 @@ class SClass(
         l("var bitMask: Int = 0")
 
 
-        beginControlFlow("mainLoop@while(true)")
+        beginControlFlow("mainLoop@while (true)")
         l("val idx = input.readElement(serialClassDesc)")
-        beginControlFlow("when(idx)")
+        beginControlFlow("when (idx)")
         beginControlFlow("-1 ->")
         l("break@mainLoop")
         endControlFlow() // end -1
@@ -138,7 +138,13 @@ class SClass(
                 }
             }
         }.build()
-        initializer("object : %T(%S) {%>\ninit {%>\n%L%<\n}%<\n}", SerialClassDescImplTagged::class, serializableClassName.canonicalName, initCodeBlock)
+        val descImpl = TypeSpec.anonymousClassBuilder("%S", serializableClassName.canonicalName).apply {
+            superclass(SerialClassDescImplTagged::class)
+            // https://github.com/square/kotlinpoet/issues/332 ?
+            // addSuperclassConstructorParameter("%S", serializableClassName.canonicalName)
+            addInitializerBlock(initCodeBlock)
+        }.build()
+        initializer("%L", descImpl)
     }.build()
 
     private fun FunSpec.Builder.l(s: String, vararg formatArgs: Any) = addStatement(s, *formatArgs)
@@ -187,7 +193,7 @@ class SClass(
 class GeneratedFile(val packageName: String, val fileName: String) {
     private val classes: MutableList<SClass> = arrayListOf()
 
-    fun genClass(name: String, init: SClass.() -> Unit): SClass {
+    fun serializableClass(name: String, init: SClass.() -> Unit): SClass {
         val klass = SClass(ClassName(packageName, name))
         klass.init()
         classes.add(klass)
@@ -212,8 +218,12 @@ class GeneratedFile(val packageName: String, val fileName: String) {
     fun saveTo(directory: File) = render().writeTo(directory)
 }
 
-fun serializableFile(packageName: String, fileName: String, init: (GeneratedFile.() -> Unit)): GeneratedFile {
+fun generateFile(packageName: String, fileName: String, init: (GeneratedFile.() -> Unit)): GeneratedFile {
     val f = GeneratedFile(packageName, fileName)
     f.init()
     return f
+}
+
+fun saveFile(outputDir: File, packageName: String, fileName: String, init: (GeneratedFile.() -> Unit)) {
+    generateFile(packageName, fileName, init).saveTo(outputDir)
 }

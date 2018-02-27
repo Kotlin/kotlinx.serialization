@@ -40,7 +40,7 @@ open class DataClassesGenerator : DefaultTask() {
                 defaultValue = "\"foo\""
             }
             property("intList", ParameterizedTypeName.get(List::class, Int::class)) {
-                defaultValue = "listOf(1,2,3)"
+                defaultValue = "listOf(1, 2, 3)"
             }
             property("choice", ClassName("", "Choice")) {
                 defaultValue = "Choice.LEFT"

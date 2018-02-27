@@ -64,5 +64,5 @@ open class SerialClassDescImplTagged(name: String) : SerialClassDescImpl(name) {
         tags.add(tag)
     }
 
-    fun getTagByIndex(index: Int) = tags[index]
+    fun getTagByIndex(index: Int) = if (tags.isEmpty()) index + 1 else tags[index]
 }
