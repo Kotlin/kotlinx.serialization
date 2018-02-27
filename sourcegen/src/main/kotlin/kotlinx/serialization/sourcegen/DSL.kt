@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.jetbrains.kotlinx.serialization.sourcegen
+package kotlinx.serialization.sourcegen
 
 import com.squareup.kotlinpoet.*
 import kotlinx.serialization.*

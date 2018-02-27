@@ -14,15 +14,13 @@
  *  limitations under the License.
  */
 
-package org.jetbrains.kotlinx.serialization.sourcegen
+package kotlinx.serialization.sourcegen
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
 
 const val internalPackageFqName = "kotlinx.serialization.internal"
-
-//data class SerializerDescriptor(val serializer: TypeName, val needTypeParam: Boolean = false)
 
 class SerialTypeInfo(
         val elementMethodPrefix: String,

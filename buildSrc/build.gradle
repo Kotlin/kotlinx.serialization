@@ -1,0 +1,13 @@
+plugins {
+    id "org.jetbrains.kotlin.jvm" version "1.2.21"
+}
+
+repositories() {
+    jcenter()
+    mavenLocal()
+}
+
+dependencies {
+    compile gradleApi()
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime-sourcegen:0.4.1"
+}
