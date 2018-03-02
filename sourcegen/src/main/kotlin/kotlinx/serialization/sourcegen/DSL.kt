@@ -48,11 +48,15 @@ class SClass(
                 .addParameters(allProperties.map(SProperty::asParameter))
                 .build())
         addProperties(allProperties.map(SProperty::asProperty))
-//        companionObject(renderCompanion())
+        companionObject(renderCompanion())
         addType(renderSerializer())
     }.build()
 
-    private fun renderCompanion() = TypeSpec.companionObjectBuilder().build()
+    private fun renderCompanion() = TypeSpec.companionObjectBuilder()
+            .addFunction(FunSpec.builder("serializer").apply {
+                addStatement("return serializer")
+            }.build())
+            .build()
 
     private fun renderSerializer() = TypeSpec.objectBuilder("serializer").apply {
         addSuperinterface(ParameterizedTypeName.get(KSerializer::class.asTypeName(), serializableClassName))

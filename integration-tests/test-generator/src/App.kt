@@ -30,43 +30,33 @@
  *  limitations under the License.
  */
 
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.asTypeName
 import kotlinx.serialization.sourcegen.generateFile
-import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.TaskAction
 import java.io.File
 
-open class DataClassesGenerator : DefaultTask() {
-    var outputDir: File = File(project.projectDir, "src/test/kotlin")
-
-    @TaskAction
-    fun run() {
-        val data = test()
-        data.saveTo(outputDir)
-    }
-
-    private fun test() = generateFile("", "HelloWorld") {
-        serializableClass("MyData") {
-            dataClass = true
-            property("x", Int::class.asTypeName().asNullable())
-            property("y", String::class) {
-                optional = true
-                defaultValue = "\"foo\""
-            }
-            property("intList", ParameterizedTypeName.get(List::class, Int::class)) {
-                defaultValue = "listOf(1, 2, 3)"
-            }
-            property("choice", ClassName("", "Choice")) {
-                defaultValue = "Choice.LEFT"
-                isEnum = true
-                serialTag = 100
-            }
-            property("trans", Int::class) {
-                defaultValue = "42"
-                transient = true
-            }
+fun test() = generateFile("", "MyData") {
+    serializableClass("MyData") {
+        dataClass = true
+        property("x", Int::class.asTypeName().asNullable())
+        property("y", String::class) {
+            optional = true
+            defaultValue = "\"foo\""
+        }
+        property("intList", ParameterizedTypeName.get(List::class, Int::class)) {
+            defaultValue = "listOf(1,2,3)"
+        }
+        property("trans", Int::class) {
+            defaultValue = "42"
+            transient = true
         }
     }
+}
+
+fun main(args: Array<String>) {
+    val generatedFile = test()
+    if (args.isEmpty())
+        generatedFile.print()
+    else
+        generatedFile.saveTo(File(args[0]))
 }
