@@ -1,17 +1,17 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ *  Copyright 2018 JetBrains s.r.o.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package kotlinx.io
@@ -21,7 +21,6 @@ import org.khronos.webgl.DataView
 
 
 actual class ByteBuffer(val capacity: Int) {
-    private actual constructor(): this(16) //don't use, only for matching header
 
     init {
         require(capacity >= 0)
@@ -140,14 +139,14 @@ actual class ByteBuffer(val capacity: Int) {
         return dw.getFloat64(i, order == ByteOrder.LITTLE_ENDIAN)
     }
 
-    actual fun put(value: Byte) = put(value, -1)
+    actual fun put(value: Byte): ByteBuffer = put(value, -1)
     actual fun put(value: Byte, index: Int): ByteBuffer {
         val i = idx(index, 1)
         dw.setInt8(i, value)
         return this
     }
 
-    actual fun put(src: ByteArray) = put(src, 0, src.size)
+    actual fun put(src: ByteArray): ByteBuffer = put(src, 0, src.size)
     actual fun put(src: ByteArray, offset: Int, cnt: Int): ByteBuffer {
         val pos = idx(-1, cnt)
         for (i in 0 until cnt) {

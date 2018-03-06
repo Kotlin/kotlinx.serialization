@@ -34,11 +34,13 @@ buildscript {
         maven { url eapChannel }
         maven { url devChannel }
         maven { url serializationRepo }
+        maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
     }
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$compilerVersion"
         classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$serializationPluginVersion"
+        classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:0.6.1"
 
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.2'
 
@@ -52,6 +54,7 @@ ext {
             kotlin_stdlib_common: "org.jetbrains.kotlin:kotlin-stdlib-common:$librariesVersion",
             kotlin_stdlib_js: "org.jetbrains.kotlin:kotlin-stdlib-js:$librariesVersion",
             kotlin_test: "org.jetbrains.kotlin:kotlin-test:$librariesVersion",
+            kotlin_test_junit: "org.jetbrains.kotlin:kotlin-test-junit:$librariesVersion",
             kotlin_test_common: "org.jetbrains.kotlin:kotlin-test-common:$librariesVersion",
             kotlin_test_annotations_common: "org.jetbrains.kotlin:kotlin-test-annotations-common:$librariesVersion",
             kotlin_test_js: "org.jetbrains.kotlin:kotlin-test-js:$librariesVersion",
@@ -74,7 +77,7 @@ allprojects {
 apply plugin: 'kotlin'
 
 subprojects {
-    if (project.path.startsWith(":integration")) return
+    if (project.path.startsWith(":integration") || project.name == "native") return
 
     apply plugin: 'kotlinx-serialization'
 

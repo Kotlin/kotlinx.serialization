@@ -14,21 +14,10 @@
  *  limitations under the License.
  */
 
-apply plugin: 'kotlin-platform-jvm'
-apply plugin: 'kotlinx-serialization'
+package kotlinx.serialization.protobuf
 
-sourceSets {
-    test.kotlin.srcDirs = ['src']
-}
+import kotlinx.serialization.KSerialClassDesc
 
-dependencies {
-    compile project(":jvm")
-    expectedBy project(":integration:test-logic")
-    expectedBy project(":integration:test-data-plugin")
-
-    compile libraries.kotlin_stdlib
-
-    testCompile libraries.kotlin_test
-    testCompile libraries.kotlin_test_junit
-    testCompile 'junit:junit:4.12'
+internal actual fun extractParameters(desc: KSerialClassDesc, index: Int): ProtoDesc {
+    return index + 1 to ProtoNumberType.DEFAULT
 }

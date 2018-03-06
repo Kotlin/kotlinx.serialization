@@ -86,7 +86,6 @@ data class MyData(
             return MyData(local0, local1!!, local2!!, 42)
         }
     }
-
     companion object {
         fun serializer() = serializer
     }

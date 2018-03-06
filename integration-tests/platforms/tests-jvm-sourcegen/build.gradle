@@ -28,5 +28,6 @@ dependencies {
     compile libraries.kotlin_stdlib
 
     testCompile libraries.kotlin_test
+    testCompile libraries.kotlin_test_junit
     testCompile 'junit:junit:4.12'
 }
