@@ -31,7 +31,9 @@ include ':integration:test-data-plugin'
 include ':integration:test-logic'
 
 include ':integration:tests-jvm-plugin'
+include ':integration:tests-js-plugin'
 include ':integration:tests-jvm-sourcegen'
+include ':integration:tests-js-sourcegen'
 
 project(':common').projectDir = file('./runtime/common')
 project(':jvm').projectDir = file('./runtime/jvm')
@@ -48,4 +50,6 @@ project(':integration:test-data-plugin').projectDir = file('./integration-tests/
 project(':integration:test-logic').projectDir = file('./integration-tests/test-logic')
 
 project(':integration:tests-jvm-plugin').projectDir = file('./integration-tests/platforms/tests-jvm-plugin')
+project(':integration:tests-js-plugin').projectDir = file('./integration-tests/platforms/tests-js-plugin')
 project(':integration:tests-jvm-sourcegen').projectDir = file('./integration-tests/platforms/tests-jvm-sourcegen')
+project(':integration:tests-js-sourcegen').projectDir = file('./integration-tests/platforms/tests-js-sourcegen')

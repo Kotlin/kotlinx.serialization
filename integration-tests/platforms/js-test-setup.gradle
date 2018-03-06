@@ -1,0 +1,45 @@
+ext {
+    nodeVersion = '6.11.2'
+    qunitjsVersion = '2.4.0'
+}
+
+compileKotlin2Js {
+    kotlinOptions.moduleKind = "umd"
+    kotlinOptions.sourceMap = true
+    kotlinOptions.metaInfo = true
+}
+
+compileTestKotlin2Js {
+    kotlinOptions.moduleKind = "commonjs"
+    kotlinOptions.sourceMap = true
+}
+
+task populateNodeModules(type: Copy, dependsOn: compileKotlin2Js) {
+    from compileKotlin2Js.destinationDir
+
+    configurations.testCompile.each {
+        from zipTree(it.absolutePath).matching { include '*.js' }
+    }
+
+    into "${buildDir}/node_modules"
+}
+
+node {
+    version = nodeVersion
+    download = true
+}
+
+task installQunit(type: NpmTask) {
+    inputs.property('qunitjsVersion', qunitjsVersion)
+    outputs.dir file('node_modules/qunitjs')
+
+    args = ['install', "qunitjs@${qunitjsVersion}"]
+}
+
+task runQunit(type: NodeTask, dependsOn: [compileTestKotlin2Js, populateNodeModules, installQunit]) {
+    script = file('node_modules/qunitjs/bin/qunit')
+    args = [projectDir.toPath().relativize(file(compileTestKotlin2Js.outputFile).toPath())]
+    if (project.hasProperty("tests")) args += ["-f", project.property('tests')]
+}
+
+test.dependsOn runQunit
