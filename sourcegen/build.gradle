@@ -8,7 +8,3 @@ dependencies {
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
-
-task testSource (type: DataClassesGenerator)
-
-test.dependsOn testSource
