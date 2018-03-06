@@ -36,3 +36,8 @@ dependencies {
 }
 
 apply from: '../js-test-setup.gradle'
+
+test {
+    dependsOn(":sourcegen:classes")
+    dependsOn(":integration:test-generator:generateTestSources")
+}

@@ -23,9 +23,11 @@ sourceSets {
 task generateTestSources(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 
-    main = 'AppKt'
-    workingDir = project(":integration:test-data-sourcegen").projectDir
-    args = ['src']
+    main = 'GeneratorKt'
+
+    def sourceDir = new File(project(":integration:test-data-sourcegen").projectDir, 'src')
+    def pluginDir = new File(project(":integration:test-data-plugin").projectDir, 'src')
+    args = [sourceDir.toString(), pluginDir.toString()]
 }
 
 dependencies {

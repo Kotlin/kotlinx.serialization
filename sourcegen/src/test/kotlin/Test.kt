@@ -44,6 +44,5 @@ class Test {
         println("Proto diagnostics: ${HexConverter.printHexBinary(bytes)}")
         val d2 = ProtoBuf.load(MyData.serializer, bytes)
         assertEquals(d, d2)
-
     }
 }

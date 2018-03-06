@@ -41,15 +41,18 @@ class SClass(
         allProperties.add(prop)
     }
 
-    fun render() = TypeSpec.classBuilder(serializableClassName).apply {
-        //        addAnnotation(Serializable::class)
+    fun render(mode: RenderMode) = TypeSpec.classBuilder(serializableClassName).apply {
         if (dataClass) addModifiers(KModifier.DATA)
         primaryConstructor(FunSpec.constructorBuilder()
                 .addParameters(allProperties.map(SProperty::asParameter))
                 .build())
         addProperties(allProperties.map(SProperty::asProperty))
-        companionObject(renderCompanion())
-        addType(renderSerializer())
+        if (mode == RenderMode.ANNOTATION) {
+            addAnnotation(Serializable::class)
+        } else {
+            companionObject(renderCompanion())
+            addType(renderSerializer())
+        }
     }.build()
 
     private fun renderCompanion() = TypeSpec.companionObjectBuilder()
@@ -195,7 +198,9 @@ class SClass(
 }
 
 class GeneratedFile(val packageName: String, val fileName: String) {
-    private val classes: MutableList<SClass> = arrayListOf()
+    private val classes: MutableList<SClass> = arrayListOf<SClass>()
+
+    var renderMode: RenderMode = RenderMode.SOURCE
 
     fun serializableClass(name: String, init: SClass.() -> Unit): SClass {
         val klass = SClass(ClassName(packageName, name))
@@ -208,7 +213,7 @@ class GeneratedFile(val packageName: String, val fileName: String) {
         indent("    ")
         addComment("Auto-generated file, do not modify!")
         classes.forEach {
-            addType(it.render())
+            addType(it.render(renderMode))
         }
     }.build()
 
@@ -221,6 +226,8 @@ class GeneratedFile(val packageName: String, val fileName: String) {
 
     fun saveTo(directory: File) = render().writeTo(directory)
 }
+
+enum class RenderMode { ANNOTATION, SOURCE }
 
 fun generateFile(packageName: String, fileName: String, init: (GeneratedFile.() -> Unit)): GeneratedFile {
     val f = GeneratedFile(packageName, fileName)

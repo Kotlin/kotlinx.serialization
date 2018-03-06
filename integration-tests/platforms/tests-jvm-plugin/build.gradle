@@ -32,3 +32,8 @@ dependencies {
     testCompile libraries.kotlin_test_junit
     testCompile 'junit:junit:4.12'
 }
+
+test {
+    dependsOn(":sourcegen:classes")
+    dependsOn(":integration:test-generator:generateTestSources")
+}
