@@ -30,6 +30,7 @@ You can open example projects for [JVM](example-jvm) or [JS](example-js) to get 
 * [Quick example](#quick-example)
 * [Library installing](#setup)
 * [Working in IntelliJ IDEA](#working-in-intellij-idea)
+* [Compatibility Notes](#compatibility)
 * [Usage](docs/runtime_usage.md)
 * [More examples of supported Kotlin classes](docs/examples.md)
 * [Writing custom serializers](docs/custom_serializers.md)
@@ -58,7 +59,7 @@ More examples of various kinds of Kotlin classes that can be serialized can be f
 
 ## Setup
 
-Using Kotlin Serialization requires Kotlin compiler `1.1.50` or higher, recommended version is `1.2.21`.
+Using Kotlin Serialization requires Kotlin compiler `1.1.50` or higher, recommended version is `1.2.30`.
 Also, it's recommended to install [additional IDEA plugin](#working-in-intellij-idea) for better IDE experience. Otherwise,
 some valid code will be shown as red and builds will have to be launched from console or build system tasks panel.
 Example projects on JVM are available for [Gradle](example-jvm/build.gradle) and [Maven](example-jvm/pom.xml).
@@ -69,8 +70,8 @@ Ensure the proper version of Kotlin and add dependencies on plugin in addition t
 
 ```gradle
 buildscript {
-    ext.kotlin_version = '1.2.10'
-    ext.serialization_version = '0.4.1'
+    ext.kotlin_version = '1.2.30'
+    ext.serialization_version = '0.4.2'
     repositories {
         jcenter()
         maven { url "https://kotlin.bintray.com/kotlinx" }
@@ -129,8 +130,8 @@ Ensure the proper version of Kotlin and serialization version:
 
 ```xml
 <properties>
-    <kotlin.version>1.2.10</kotlin.version>
-    <serialization.version>0.4.1</serialization.version>
+    <kotlin.version>1.2.30</kotlin.version>
+    <serialization.version>0.4.2</serialization.version>
 </properties>
 ```
 
@@ -214,3 +215,13 @@ This installation will allow you to run code/tests from IDEA.
 
 In case of issues with IDE, try to use gradle for running builds:
 `Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`; or launch builds from console.
+
+## Compatibility
+
+|Plugin Version|Compiler version|
+|--------------|----------------|
+| 0.1 – 0.3 | 1.1.50 – 1.2.10|
+| 0.4 – 0.4.1 | 1.2.20 – 1.2.21|
+| 0.4.2 | 1.2.30+|
+
+All ranges in table are inclusive
