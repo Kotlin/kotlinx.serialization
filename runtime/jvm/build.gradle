@@ -34,7 +34,7 @@ protobuf {
     }
 }
 
-test {
+compileTestKotlin {
     dependsOn 'generateTestProto'
 }
 

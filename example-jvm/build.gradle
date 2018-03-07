@@ -15,8 +15,8 @@
  */
 
 buildscript {
-    ext.kotlin_version = '1.2.21'
-    ext.serialization_version = '0.4.1'
+    ext.kotlin_version = '1.2.30'
+    ext.serialization_version = '0.4.2'
 
     repositories {
         jcenter()
@@ -52,6 +52,5 @@ dependencies {
 task runApp(type: JavaExec) {
     classpath = sourceSets.main.compileClasspath + sourceSets.main.runtimeClasspath
 
-    workingDir = "$projectDir/build/classes/main"
     main = 'App'
 }

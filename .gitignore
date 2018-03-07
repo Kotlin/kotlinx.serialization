@@ -10,3 +10,6 @@ build/
 
 # Maven files
 target
+
+# Modules for JS projects build
+node_modules
