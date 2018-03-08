@@ -38,7 +38,7 @@ actual fun <T : Any> KClass<T>.serializer(): KSerializer<T> = TODO("Not supporte
 actual fun <E : Enum<E>> enumFromName(enumClass: KClass<E>, value: String): E = TODO("Not supported in native")
 actual fun <E : Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E = TODO("Not supported in native")
 
-actual fun <E : Enum<E>> KClass<E>.enumClassName(): String = TODO("Not supported in native")
+actual fun <E : Enum<E>> KClass<E>.enumClassName(): String = this.simpleName ?: ""
 
 actual fun <T : Any, E : T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> = TODO("Not supported in native")
 

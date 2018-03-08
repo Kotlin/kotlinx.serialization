@@ -31,23 +31,39 @@ class SerialTypeInfo(
 internal fun SClass.SProperty.getSerialTypeInfo(): SerialTypeInfo {
     val kBaseClass = (type as? ClassName)?.let { Regex("kotlin.(\\w+)").matchEntire(it.canonicalName)?.groupValues?.getOrNull(1) }
     return when {
-        isEnum -> SerialTypeInfo(if (type.nullable) "NullableSerializable" else "Serializable",
-                ClassName(internalPackageFqName, "ModernEnumSerializer"), needTypeParam = true)
+        isEnum -> {
+            var serializer: TypeName = ClassName(internalPackageFqName, "ModernEnumSerializer")
+            if (type.nullable) serializer = serializer.wrapInNullableSerializer()
+            SerialTypeInfo(if (type.nullable) "NullableSerializable" else "Serializable",
+                    serializer, needTypeParam = true)
+        }
         !type.nullable && kBaseClass in listOf("Unit", "Boolean", "Byte", "Short", "Int", "Long", "Char", "String") -> SerialTypeInfo(kBaseClass!!, null)
         else -> SerialTypeInfo(if (type.nullable) "NullableSerializable" else "Serializable", type.getSerializerTypeName())
     }
 }
 
-internal fun TypeName.getSerializerTypeName(): TypeName {
-    return when (this) {
-        is ClassName -> {
-            val defSerial = findStandardKotlinTypeSerializer(canonicalName) ?: this.nestedClass("serializer")
-            if (nullable) ParameterizedTypeName.get(ClassName(internalPackageFqName, "NullableSerializer"), defSerial)
-            else defSerial
-        }
-        is ParameterizedTypeName -> ParameterizedTypeName.get(rawType.getSerializerTypeName() as ClassName, *(typeArguments.map(TypeName::getSerializerTypeName).toTypedArray()))
+private fun TypeName.wrapInNullableSerializer(): TypeName =
+        ParameterizedTypeName.get(ClassName(internalPackageFqName, "NullableSerializer"), this)
+
+
+private val TypeName.erasedType: ClassName
+    get() = when (this) {
+        is ClassName -> this
+        is ParameterizedTypeName -> this.rawType
         else -> TODO("Too complex type")
     }
+
+internal fun TypeName.getSerializerTypeName(): TypeName {
+    val typeName = when (this) {
+        is ClassName -> findStandardKotlinTypeSerializer(canonicalName) ?: nestedClass("serializer")
+        is ParameterizedTypeName -> ParameterizedTypeName.get(
+                rawType.asNonNullable().getSerializerTypeName().erasedType,
+                *(typeArguments.map(TypeName::getSerializerTypeName).toTypedArray())
+        )
+        else -> TODO("Too complex type")
+    }
+    return if (nullable) typeName.wrapInNullableSerializer()
+    else typeName
 }
 
 internal fun findStandardKotlinTypeSerializer(canonicalName: String): ClassName? {

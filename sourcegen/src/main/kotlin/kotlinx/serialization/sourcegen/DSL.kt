@@ -70,9 +70,9 @@ class SClass(
 
     private fun renderInvoke(serializer: TypeName, typeParam: TypeName? = null): CodeBlock {
         return when (serializer) {
-            is ClassName -> if (typeParam == null) CodeBlock.of("%T", serializer) else CodeBlock.of("%T<%T>()", serializer, typeParam)
+            is ClassName -> if (typeParam == null) CodeBlock.of("%T", serializer) else CodeBlock.of("%T<%T>()", serializer, typeParam.asNonNullable())
             is ParameterizedTypeName -> {
-                val args = serializer.typeArguments.map { renderInvoke(it) }.toTypedArray()
+                val args = serializer.typeArguments.map { renderInvoke(it, typeParam) }.toTypedArray()
                 val literals = args.indices.joinToString(separator = ", ", transform = { "%L" })
                 CodeBlock.of("%T($literals)", serializer.rawType, *args)
             }
@@ -164,7 +164,12 @@ class SClass(
 
         properties.forEachIndexed { index, it ->
             val sti = it.getSerialTypeInfo()
-            if (sti.serializer == null) l("output.write${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index, obj.${it.name})")
+            if (sti.serializer == null) {
+                if (it.type == Unit::class.asTypeName())
+                    l("output.write${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index)")
+                else
+                    l("output.write${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index, obj.${it.name})")
+            }
             else {
                 val invokeArgs = renderInvoke(sti.serializer, if (sti.needTypeParam) it.type else null)
                 l("output.write${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index, %L, obj.${it.name})", invokeArgs)
@@ -199,6 +204,7 @@ class SClass(
 
 class GeneratedFile(val packageName: String, val fileName: String) {
     private val classes: MutableList<SClass> = arrayListOf<SClass>()
+    private val otherTypes: MutableList<TypeSpec> = arrayListOf()
 
     var renderMode: RenderMode = RenderMode.SOURCE
 
@@ -209,12 +215,13 @@ class GeneratedFile(val packageName: String, val fileName: String) {
         return klass
     }
 
+    fun addType(type: TypeSpec) = otherTypes.add(type)
+
     private fun render(): FileSpec = FileSpec.builder(packageName, fileName).apply {
         indent("    ")
         addComment("Auto-generated file, do not modify!")
-        classes.forEach {
-            addType(it.render(renderMode))
-        }
+        otherTypes.forEach { addType(it) }
+        classes.forEach { addType(it.render(renderMode)) }
     }.build()
 
     /**
