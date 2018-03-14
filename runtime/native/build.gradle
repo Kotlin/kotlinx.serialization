@@ -16,13 +16,14 @@
 
 apply plugin: 'konan'
 
+konan.targets = ["macbook", "iphone", "iphone_sim"]
+
 konanArtifacts {
-    // TODO: commented out due to a failed assertion in the compiler.
-    //library('native') {
-    //    srcDir 'src/main/kotlin'
-    //    srcDir project(':common').file('src/main/kotlin')
-    //    extraOpts '-Xmulti-platform'
-    //}
+    library('serialization') {
+        enableMultiplatform true
+        srcDir 'src/main/kotlin'
+        srcDir project(':common').file('src/main/kotlin')
+    }
 
     program('native-test') {
         srcDir 'src/main/kotlin'
