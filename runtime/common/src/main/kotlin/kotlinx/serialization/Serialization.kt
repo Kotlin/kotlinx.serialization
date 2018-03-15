@@ -120,8 +120,8 @@ abstract class KOutput internal constructor() {
     // this is invoked after writeElement
     abstract fun writeNullValue()
 
-    fun writeValue(value: Any) {
-        val s = context?.getSerializerByValue(value)
+    fun writeValue(value: Any, containedSerializer: KSerializer<*>? = null) {
+        val s = context?.getSerializerByValue(value, containedSerializer)
         if (s != null) writeSerializableValue(s, value)
         else writeNonSerializableValue(value)
     }
@@ -217,8 +217,8 @@ abstract class KInput internal constructor() {
 
     abstract fun readValue(): Any
 
-    fun <T: Any> readValue(klass: KClass<T>): T {
-        val s = context?.getSerializerByClass(klass)
+    fun <T: Any> readValue(klass: KClass<T>, containedSerializer: KSerializer<*>? = null): T {
+        val s = context?.getSerializerByClass(klass, containedSerializer)
         @Suppress("UNCHECKED_CAST")
         return if (s != null)
             readSerializableValue(s)
