@@ -53,7 +53,7 @@
     val data = JSON.unquoted.parse<Data>("{a: 100500, b: 10}")
     ```
 
-* Initializers are called iff property is `@Transient` or `@Optional` and was not read (see below).
+* Initializers are called if property is `@Transient` or `@Optional` and was not read (see below).
     
     ```kotlin
     @Serializable
