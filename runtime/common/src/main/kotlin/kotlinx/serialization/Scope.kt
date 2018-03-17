@@ -21,41 +21,40 @@ import kotlin.reflect.KClass
 
 class SerialContext(private val parentContext: SerialContext? = null) {
 
-    private val classMap: MutableMap<KClass<*>, KSerializer<*>> = hashMapOf()
-
-    private val containersMap: MutableMap<KClass<*>, KClass<KSerializer<*>>> = hashMapOf()
+    private val classMap: MutableMap<KClass<*>, KSerializerFactory<*>> = hashMapOf()
 
     fun <T: Any> registerSerializer(forClass: KClass<T>, serializer: KSerializer<T>) {
-        classMap.put(forClass, serializer)
+        classMap.put(forClass, SimpleSerializerFactory(serializer))
     }
 
-    fun <T : Any> registerContainerSerializer(forClass: KClass<T>, serializer: KClass<out KSerializer<out T>>) {
-        containersMap.put(forClass, serializer as KClass<KSerializer<*>>)
+    fun <T : Any> registerSerializer(forClass: KClass<T>, serializerFactory: KSerializerFactory<*>) {
+        classMap.put(forClass, serializerFactory)
     }
 
-    fun <T : Any> getSerializerByValue(value: T?): KSerializer<T>? = getSerializerByValue(value, null)
+    fun <T : Any> getSerializerByValue(value: T?): KSerializer<T>? = getSerializerByValue(value, emptyList())
 
-    internal fun <T : Any> getSerializerByValue(value: T?, containedSerializer: KSerializer<*>? = null): KSerializer<T>? {
+    internal fun <T : Any> getSerializerByValue(value: T?, innerSerializers: List<KSerializer<*>>): KSerializer<T>? {
         if (value == null) throw SerializationException("Cannot determine class for value $value")
         val t: T = value
         val klass = t::class
-        return getSerializerByClass(klass, containedSerializer) as? KSerializer<T>
+        return getSerializerByClass(klass, innerSerializers) as KSerializer<T>?
     }
 
     inline fun <reified T: Any> getSerializer(): KSerializer<T>? = getSerializerByClass(T::class)
 
-    fun <T: Any> getSerializerByClass(klass: KClass<T>): KSerializer<T>? = getSerializerByClass(klass, null)
+    fun <T: Any> getSerializerByClass(klass: KClass<T>): KSerializer<T>? = getSerializerByClass(klass, emptyList())
 
-    internal fun <T : Any> getSerializerByClass(klass: KClass<T>, containedSerializer: KSerializer<*>? = null): KSerializer<T>? {
-        if (containedSerializer == null) {
-            return classMap[klass] as? KSerializer<T> ?: parentContext?.getSerializerByClass(klass)
-        } else {
-            val serializerClass = containersMap[klass] as? KClass<KSerializer<T>> ?: return parentContext?.getSerializerByClass(klass, containedSerializer)
+    internal fun <T : Any> getSerializerByClass(klass: KClass<T>, innerSerializers: List<KSerializer<*>>): KSerializer<T>? {
+        val factory = classMap[klass] ?: return parentContext?.getSerializerByClass(klass, innerSerializers)
+        return factory.createSerializer(innerSerializers) as KSerializer<T>?
+    }
 
-            val requiredConstructor = serializerClass.constructors.find {
-                it.parameters.size == 1 && it.parameters.first().type.classifier == KSerializer::class
-            } ?: throw SerializationException("$serializerClass doesn't have constructor with single KSerializer parameter")
-            return requiredConstructor.call(containedSerializer)
+    private class SimpleSerializerFactory<T>(val serializer: KSerializer<T>): KSerializerFactory<T> {
+        override fun createSerializer(innerSerializers: List<KSerializer<*>>): KSerializer<T> {
+            if (innerSerializers.isNotEmpty()) {
+                throw SerializationException("Your serializer $serializer doesn't support inner serializers. Please use KSerializerFactory")
+            }
+            return serializer
         }
     }
 }
@@ -65,14 +64,20 @@ fun <T: Any> SerialContext?.valueSerializer(value: T) = this?.let { getSerialize
 
 class ContextSerializer<T : Any>(
     val serializableClass: KClass<T>,
-    val containedSerializer: KSerializer<*>? = null
+    val innerSerializers: List<KSerializer<*>> = emptyList()
 ) : KSerializer<T> {
-    constructor(serializableClass: KClass<T>) : this(serializableClass, null)
+    constructor(serializableClass: KClass<T>) : this(serializableClass, emptyList())
+
+    constructor(serializableClass: KClass<T>, vararg innerSerializers: KSerializer<*>) : this(serializableClass, listOf(*innerSerializers))
+
+    constructor(serializableClass: KClass<T>, innerSerializer: KSerializer<*>) : this(serializableClass, listOf(innerSerializer))
+
+    constructor(serializableClass: KClass<T>, serializer1: KSerializer<*>, serializer2: KSerializer<*>) : this(serializableClass, listOf(serializer1, serializer2))
 
     override fun save(output: KOutput, obj: T) {
-        output.writeValue(obj, containedSerializer)
+        output.writeValue(obj, innerSerializers)
     }
-    override fun load(input: KInput): T = input.readValue(serializableClass, containedSerializer)
+    override fun load(input: KInput): T = input.readValue(serializableClass, innerSerializers)
 
     override val serialClassDesc: KSerialClassDesc
         get() = throw SerializationException("No descriptor")

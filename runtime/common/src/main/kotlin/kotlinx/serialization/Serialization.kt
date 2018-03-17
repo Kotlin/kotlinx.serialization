@@ -79,6 +79,10 @@ interface KSerializer<T>: KSerialSaver<T>, KSerialLoader<T> {
     override fun update(input: KInput, old: T): T = throw UpdateNotSupportedException(serialClassDesc.name)
 }
 
+interface KSerializerFactory<T> {
+    fun createSerializer(innerSerializers: List<KSerializer<*>>): KSerializer<T>
+}
+
 class SerializationConstructorMarker private constructor()
 
 // ====== Exceptions ======
@@ -120,8 +124,8 @@ abstract class KOutput internal constructor() {
     // this is invoked after writeElement
     abstract fun writeNullValue()
 
-    fun writeValue(value: Any, containedSerializer: KSerializer<*>? = null) {
-        val s = context?.getSerializerByValue(value, containedSerializer)
+    fun writeValue(value: Any, innerSerializers: List<KSerializer<*>> = emptyList()) {
+        val s = context?.getSerializerByValue(value, innerSerializers)
         if (s != null) writeSerializableValue(s, value)
         else writeNonSerializableValue(value)
     }
@@ -217,8 +221,8 @@ abstract class KInput internal constructor() {
 
     abstract fun readValue(): Any
 
-    fun <T: Any> readValue(klass: KClass<T>, containedSerializer: KSerializer<*>? = null): T {
-        val s = context?.getSerializerByClass(klass, containedSerializer)
+    fun <T: Any> readValue(klass: KClass<T>, innerSerializers: List<KSerializer<*>> = emptyList()): T {
+        val s = context?.getSerializerByClass(klass, innerSerializers)
         @Suppress("UNCHECKED_CAST")
         return if (s != null)
             readSerializableValue(s)
