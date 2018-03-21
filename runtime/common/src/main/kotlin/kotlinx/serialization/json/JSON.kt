@@ -16,7 +16,6 @@
 
 package kotlinx.serialization.json
 
-import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlin.reflect.*
@@ -30,10 +29,10 @@ data class JSON(
         val context: SerialContext? = null
 ) {
     fun <T> stringify(saver: KSerialSaver<T>, obj: T): String {
-        val sw = StringWriter()
-        val output = JsonOutput(Mode.OBJ, Composer(sw))
+        val sb = StringBuilder()
+        val output = JsonOutput(Mode.OBJ, Composer(sb))
         output.write(saver, obj)
-        return sw.toString()
+        return sb.toString()
     }
 
     inline fun <reified T : Any> stringify(obj: T): String = stringify(context.klassSerializer(T::class), obj)
@@ -140,38 +139,17 @@ data class JSON(
         override fun writeStringValue(value: String) {
             if (unquoted && !mustBeQuoted(value)) {
                 w.print(value)
-                return
+            } else {
+                w.printQuoted(value)
             }
-            w.print(STRING)
-            for (c in value) {
-                val esc = c2esc(c)
-                when (esc) {
-                    INVALID -> w.print(c) // no need to escape
-                    UNICODE_ESC -> {
-                        w.print(STRING_ESC)
-                        w.print(UNICODE_ESC)
-                        val code = c.toInt()
-                        w.print(toHexChar(code shr 12))
-                        w.print(toHexChar(code shr 8))
-                        w.print(toHexChar(code shr 4))
-                        w.print(toHexChar(code))
-                    }
-                    else -> {
-                        w.print(STRING_ESC)
-                        w.print(esc)
-                    }
-                }
-            }
-            w.print(STRING)
         }
 
         override fun writeNonSerializableValue(value: Any) {
             writeStringValue(value.toString())
         }
-
     }
 
-    private inner class Composer(w: StringWriter) : PrintWriter(w) {
+    private inner class Composer(val sb: StringBuilder) {
         var level = 0
         fun indent() { level++ }
         fun unIndent() { level-- }
@@ -186,6 +164,48 @@ data class JSON(
         fun space() {
             if (indented)
                 print(' ')
+        }
+
+        fun print(v: Char) = sb.append(v)
+        fun print(v: String) = sb.append(v)
+
+        fun print(v: Float) = sb.append(v)
+        fun print(v: Double) = sb.append(v)
+        fun print(v: Byte) = sb.append(v)
+        fun print(v: Short) = sb.append(v)
+        fun print(v: Int) = sb.append(v)
+        fun print(v: Long) = sb.append(v)
+        fun print(v: Boolean) = sb.append(v)
+
+        fun printUnicodeEscape(c: Int): Unit = with(sb) {
+            append(STRING_ESC)
+            append(UNICODE_ESC)
+            append(toHexChar(c shr 12))
+            append(toHexChar(c shr 8))
+            append(toHexChar(c shr 4))
+            append(toHexChar(c))
+        }
+
+        fun printQuoted(value: String): Unit = with(sb) {
+            append(STRING)
+            var lastPos = 0
+            for (i in 0 until value.length) {
+                val c = value[i].toInt()
+                if (c >= C2ESC_MAX) continue // no need to escape
+                val esc = C2ESC[c].toChar()
+                if (esc == INVALID) continue // no need to escape
+                append(value, lastPos, i) // flush prev
+                lastPos = i + 1
+                when (esc) {
+                    UNICODE_ESC -> printUnicodeEscape(c)
+                    else -> {
+                        append(STRING_ESC)
+                        append(esc)
+                    }
+                }
+            }
+            append(value, lastPos, value.length)
+            append(STRING)
         }
     }
 
@@ -554,7 +574,13 @@ private fun ByteArray.initC2TC(c: Char, cl: Byte) {
 
 private fun c2tc(c: Char) = if (c.toInt() < CTC_MAX) C2TC[c.toInt()] else TC_OTHER
 
-private fun mustBeQuoted(str: String): Boolean = str.any { c2tc(it) != TC_OTHER } || str == NULL
+private fun mustBeQuoted(str: String): Boolean {
+    if (str == NULL) return true
+    for (ch in str) {
+        if (c2tc(ch) != TC_OTHER) return true
+    }
+    return false
+}
 
 // mapping from chars to their escape chars and back
 private const val C2ESC_MAX = 0x5d
@@ -583,8 +609,6 @@ private fun ByteArray.initC2ESC(c: Int, esc: Char) {
 private fun ByteArray.initC2ESC(c: Char, esc: Char) {
     initC2ESC(c.toInt(), esc)
 }
-
-private fun c2esc(c: Char): Char = if (c.toInt() < C2ESC_MAX) C2ESC[c.toInt()].toChar() else INVALID
 
 private fun esc2c(c: Int): Char = if (c < ESC2C_MAX) ESC2C[c].toChar() else INVALID
 
