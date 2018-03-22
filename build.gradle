@@ -64,7 +64,7 @@ ext {
 
 allprojects {
     group 'org.jetbrains.kotlinx'
-    version '0.4.2'
+    version '0.4.3-alpha-1'
 
     repositories {
         jcenter()

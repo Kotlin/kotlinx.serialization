@@ -25,7 +25,7 @@ import kotlin.reflect.KClass
 
 class SClass(
         val serializableClassName: ClassName,
-        var dataClass: Boolean = false
+        var dataClass: Boolean = true
 ) {
     private val properties: MutableList<SProperty> = arrayListOf()
     private val allProperties: MutableList<SProperty> = arrayListOf()
@@ -63,6 +63,7 @@ class SClass(
 
     private fun renderSerializer() = TypeSpec.objectBuilder("serializer").apply {
         addSuperinterface(ParameterizedTypeName.get(KSerializer::class.asTypeName(), serializableClassName))
+        addAnnotation(AnnotationSpec.builder(kotlin.Suppress::class).addMember("%S", "NAME_SHADOWING").build())
         addProperty(renderDescriptor())
         addFunction(renderSave())
         addFunction(renderLoad())
