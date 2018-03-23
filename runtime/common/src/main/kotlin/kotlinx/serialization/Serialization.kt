@@ -45,7 +45,7 @@ annotation class Transient()
 annotation class SerialInfo()
 
 enum class KSerialClassKind { // unit and object unused?
-    CLASS, OBJECT, UNIT, SEALED, LIST, SET, MAP, ENTRY, POLYMORPHIC, PRIMITIVE, ENUM
+    CLASS, OBJECT, UNIT, SEALED, LIST, SET, MAP, ENTRY, POLYMORPHIC, PRIMITIVE, KIND_ENUM
 }
 
 interface KSerialClassDesc {

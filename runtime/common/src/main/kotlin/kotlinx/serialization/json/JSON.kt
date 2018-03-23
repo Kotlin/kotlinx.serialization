@@ -171,7 +171,7 @@ data class JSON(
                     KSerialClassKind.LIST, KSerialClassKind.SET -> Mode.LIST
                     KSerialClassKind.MAP -> {
                         val keyKind = typeParams[0].serialClassDesc.kind
-                        if (keyKind == KSerialClassKind.PRIMITIVE || keyKind == KSerialClassKind.ENUM)
+                        if (keyKind == KSerialClassKind.PRIMITIVE || keyKind == KSerialClassKind.KIND_ENUM)
                             Mode.MAP
                         else Mode.LIST
                     }

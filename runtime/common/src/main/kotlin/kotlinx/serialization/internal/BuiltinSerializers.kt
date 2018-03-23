@@ -101,7 +101,7 @@ object StringSerializer : KSerializer<String> {
 
 internal class EnumDesc(override val name: String) : KSerialClassDesc {
 
-    override val kind: KSerialClassKind = KSerialClassKind.ENUM
+    override val kind: KSerialClassKind = KSerialClassKind.KIND_ENUM
 
     override fun getElementName(index: Int) = throw IllegalStateException("Primitives does not have fields")
 
