@@ -16,5 +16,5 @@
 
 package kotlinx.serialization.internal
 
-actual fun CharArray.contentToString(length: Int): String =
+actual fun CharArray.createString(length: Int): String =
     String(this, 0, length)

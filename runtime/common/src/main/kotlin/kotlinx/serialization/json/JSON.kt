@@ -335,7 +335,7 @@ data class JSON(
         fun takeStr(): String {
             if (tc != TC_OTHER && tc != TC_STRING) fail(tokenPos, "Expected string or non-null literal")
             val prevStr = if (offset < 0)
-                buf.contentToString(length) else
+                buf.createString(length) else
                 source.substring(offset, offset + length)
             nextToken()
             return prevStr

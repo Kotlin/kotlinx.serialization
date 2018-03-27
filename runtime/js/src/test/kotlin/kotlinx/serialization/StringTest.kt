@@ -17,6 +17,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.internal.HexConverter
+import kotlinx.serialization.internal.createString
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -34,5 +35,12 @@ class StringTest {
     fun fromUtf8() {
         val s = stringFromUtf8Bytes(HexConverter.parseHexBinary(hex))
         assertEquals(str, s)
+    }
+
+    @Test
+    fun testCreateString() {
+        val charArr = charArrayOf('a', 'b', 'c', 'd')
+        val content = charArr.createString(2)
+        assertEquals("ab", content)
     }
 }

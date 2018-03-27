@@ -16,5 +16,5 @@
 
 package kotlinx.serialization.internal
 
-actual fun CharArray.contentToString(length: Int): String =
-    copyOf(length).contentToString()
+actual fun CharArray.createString(length: Int): String =
+    joinToString(separator = "", limit = length, truncated = "")
