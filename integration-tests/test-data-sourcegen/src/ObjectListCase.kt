@@ -1,6 +1,7 @@
 // Auto-generated file, do not modify!
 import kotlin.Int
 import kotlin.String
+import kotlin.Suppress
 import kotlin.collections.List
 import kotlinx.serialization.KInput
 import kotlinx.serialization.KOutput
@@ -15,6 +16,7 @@ import kotlinx.serialization.internal.SerialClassDescImplTagged
 data class Data(@SerialId(1)
 val a: Int, @SerialId(2)
 val b: String) {
+    @Suppress("NAME_SHADOWING")
     object serializer : KSerializer<Data> {
         override val serialClassDesc: KSerialClassDesc =
                 object : SerialClassDescImplTagged("Data") {
@@ -70,6 +72,7 @@ val b: String) {
 data class DataList(@Optional
 @SerialId(1)
 val list: List<Data> = emptyList()) {
+    @Suppress("NAME_SHADOWING")
     object serializer : KSerializer<DataList> {
         override val serialClassDesc: KSerialClassDesc =
                 object : SerialClassDescImplTagged("DataList") {

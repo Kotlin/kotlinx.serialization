@@ -8,6 +8,7 @@ import kotlin.Int
 import kotlin.Long
 import kotlin.Short
 import kotlin.String
+import kotlin.Suppress
 import kotlin.Unit
 import kotlin.collections.List
 import kotlin.collections.Map
@@ -42,6 +43,7 @@ enum class Attitude {
 }
 
 data class Simple(val a: String) {
+    @Suppress("NAME_SHADOWING")
     object serializer : KSerializer<Simple> {
         override val serialClassDesc: KSerialClassDesc =
                 object : SerialClassDescImplTagged("Simple") {
@@ -93,6 +95,7 @@ data class SmallZoo(
         val inner: SmallZoo,
         val innerList: List<Simple>
 ) {
+    @Suppress("NAME_SHADOWING")
     object serializer : KSerializer<SmallZoo> {
         override val serialClassDesc: KSerialClassDesc =
                 object : SerialClassDescImplTagged("SmallZoo") {
@@ -228,6 +231,7 @@ data class Zoo(
         val map: Map<String, Int>,
         val mapN: Map<Int, String?>
 ) {
+    @Suppress("NAME_SHADOWING")
     object serializer : KSerializer<Zoo> {
         override val serialClassDesc: KSerialClassDesc = object : SerialClassDescImplTagged("Zoo") {
             init {

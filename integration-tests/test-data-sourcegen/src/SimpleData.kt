@@ -1,6 +1,7 @@
 // Auto-generated file, do not modify!
 import kotlin.Int
 import kotlin.String
+import kotlin.Suppress
 import kotlin.collections.List
 import kotlinx.serialization.KInput
 import kotlinx.serialization.KOutput
@@ -22,6 +23,7 @@ data class MyData(
         @Transient
         val trans: Int = 42
 ) {
+    @Suppress("NAME_SHADOWING")
     object serializer : KSerializer<MyData> {
         override val serialClassDesc: KSerialClassDesc =
                 object : SerialClassDescImplTagged("MyData") {
