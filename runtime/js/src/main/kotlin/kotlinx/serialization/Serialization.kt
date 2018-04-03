@@ -20,7 +20,7 @@ import kotlinx.serialization.internal.SerialClassDescImplTagged
 import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
-actual fun <T: Any> KClass<T>.serializer(): KSerializer<T> = this.js.asDynamic().Companion.serializer() as? KSerializer<T>
+actual fun <T: Any> KClass<T>.serializer(): KSerializer<T> = this.js.asDynamic().Companion?.serializer() as? KSerializer<T>
         ?: throw SerializationException("Can't locate default serializer for class $this")
 
 actual fun String.toUtf8Bytes(): ByteArray {

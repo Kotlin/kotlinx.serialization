@@ -4,7 +4,7 @@
 
 Serializers are represented at runtime as `KSerializer<T>`, which in turn, implements interfaces `KSerialSaver<T>` and `KSerialLoader<T>`, where `T` is class you serialize.
 You don't need to call them by yourself; you just have to pass them properly to serialization format. You can write them on your own (see [custom serializers](custom_serializers.md)) or let the compiler plugin do the dirty work by marking class `@Serializable`.
-To retrieve the generated serializer, plugin emits special function on companion object called `.serializer()`. (This synthetic function is relatively new and stable release of compiler may not able to see it in some cases; if you have some issues, try eap version of `1.2.20`).
+To retrieve the generated serializer, plugin emits special function on companion object called `.serializer()`.
 If your class has generic type arguments, this function will have arguments for specifying serializers on type parameters, because it's impossible to serialize generic class statically in general case:
 
 ```kotlin
