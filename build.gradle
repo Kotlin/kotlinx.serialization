@@ -27,10 +27,13 @@ buildscript {
     ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-eap'
     ext.devChannel = 'https://dl.bintray.com/kotlin/kotlin-dev'
     ext.serializationRepo = 'https://kotlin.bintray.com/kotlinx'
+    ext.jmh_version = '1.20'
 
     repositories {
         jcenter()
         mavenLocal()
+        maven { url "https://plugins.gradle.org/m2/" }
+
         maven { url eapChannel }
         maven { url devChannel }
         maven { url serializationRepo }
@@ -42,9 +45,16 @@ buildscript {
         classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$serializationPluginVersion"
         classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:${property('konan.version')}"
 
+        //Protobuf JVM tests
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.2'
 
+        // Publishing
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+
+        // Benchmark
+        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.2"
+        classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.5"
+        classpath "net.ltgt.gradle:gradle-apt-plugin:0.10"
     }
 }
 

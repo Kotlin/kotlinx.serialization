@@ -35,6 +35,8 @@ include ':integration:tests-js-plugin'
 include ':integration:tests-jvm-sourcegen'
 include ':integration:tests-js-sourcegen'
 
+include ':integration:benchmark'
+
 project(':common').projectDir = file('./runtime/common')
 project(':jvm').projectDir = file('./runtime/jvm')
 project(':js').projectDir = file('./runtime/js')
@@ -53,3 +55,5 @@ project(':integration:tests-jvm-plugin').projectDir = file('./integration-tests/
 project(':integration:tests-js-plugin').projectDir = file('./integration-tests/platforms/tests-js-plugin')
 project(':integration:tests-jvm-sourcegen').projectDir = file('./integration-tests/platforms/tests-jvm-sourcegen')
 project(':integration:tests-js-sourcegen').projectDir = file('./integration-tests/platforms/tests-js-sourcegen')
+
+project(':integration:benchmark').projectDir = file('./benchmark')
