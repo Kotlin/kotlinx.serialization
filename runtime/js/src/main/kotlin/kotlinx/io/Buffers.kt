@@ -140,7 +140,7 @@ actual class ByteBuffer(val capacity: Int) {
         return dw.getFloat64(i, order == ByteOrder.LITTLE_ENDIAN)
     }
 
-    actual fun put(value: Byte) = put(value, -1)
+    actual fun put(value: Byte): ByteBuffer = put(value, -1)
     actual fun put(value: Byte, index: Int): ByteBuffer {
         val i = idx(index, 1)
         dw.setInt8(i, value)

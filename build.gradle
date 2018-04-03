@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ *  Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ buildscript {
         ext.librariesVersion = '1.2-SNAPSHOT'
         ext.serializationPluginVersion = '0.4.2-SNAPSHOT'
     } else {
-        ext.compilerVersion = '1.2.30'
-        ext.librariesVersion = '1.2.30'
+        ext.compilerVersion = property('kotlin.version')
+        ext.librariesVersion = property('kotlin.version')
         ext.serializationPluginVersion = '0.4.2'
     }
     ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-eap'
@@ -50,6 +50,7 @@ ext {
             kotlin_stdlib_common: "org.jetbrains.kotlin:kotlin-stdlib-common:$librariesVersion",
             kotlin_stdlib_js: "org.jetbrains.kotlin:kotlin-stdlib-js:$librariesVersion",
             kotlin_test: "org.jetbrains.kotlin:kotlin-test:$librariesVersion",
+            kotlin_test_junit: "org.jetbrains.kotlin:kotlin-test-junit:$librariesVersion",
             kotlin_test_common: "org.jetbrains.kotlin:kotlin-test-common:$librariesVersion",
             kotlin_test_annotations_common: "org.jetbrains.kotlin:kotlin-test-annotations-common:$librariesVersion",
             kotlin_test_js: "org.jetbrains.kotlin:kotlin-test-js:$librariesVersion",
@@ -59,7 +60,7 @@ ext {
 
 allprojects {
     group 'org.jetbrains.kotlinx'
-    version '0.4.2'
+    version '0.4.3-alpha-2'
 
     repositories {
         jcenter()
