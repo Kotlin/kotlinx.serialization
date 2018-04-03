@@ -16,7 +16,12 @@
 
 apply plugin: 'konan'
 
-konan.targets = ["macbook", "iphone", "iphone_sim"]
+if (property('native.alltargets') == 'true') {
+    konan.targets = ["macbook", "iphone", "iphone_sim"]
+} else {
+    konan.targets = ["macbook"]
+}
+
 
 konanArtifacts {
     library('serialization') {
