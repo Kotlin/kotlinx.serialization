@@ -17,8 +17,8 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
-import kotlin.reflect.*
+import kotlinx.serialization.internal.createString
+import kotlin.reflect.KClass
 
 data class JSON(
         private val unquoted: Boolean = false,
@@ -29,10 +29,15 @@ data class JSON(
         val context: SerialContext? = null
 ) {
     fun <T> stringify(saver: KSerialSaver<T>, obj: T): String {
-        val sb = StringBuilder()
-        val output = JsonOutput(Mode.OBJ, Composer(sb))
+        return stringify(saver, obj, StringEngine())
+    }
+
+    fun <T, R> stringify(saver: KSerialSaver<T>, obj: T, engine: BufferEngine<R>): R {
+        val output = JsonOutput(Mode.OBJ, Composer(engine))
+        modeCache.clear()
+        modeCache[Mode.OBJ] = output
         output.write(saver, obj)
-        return sb.toString()
+        return engine.result()
     }
 
     inline fun <reified T : Any> stringify(obj: T): String = stringify(context.klassSerializer(T::class), obj)
@@ -59,6 +64,8 @@ data class JSON(
         val nonstrict = JSON(nonstrict = true)
     }
 
+    private val modeCache: MutableMap<Mode, JsonOutput> = hashMapOf()
+
     private inner class JsonOutput(val mode: Mode, val w: Composer) : ElementValueOutput() {
         init {
             context = this@JSON.context
@@ -72,7 +79,9 @@ data class JSON(
                 w.print(newMode.begin)
                 w.indent()
             }
-            return if (mode == newMode) this else JsonOutput(newMode, w) // todo: reuse instance per mode
+            return if (mode == newMode) this else modeCache.getOrPut(newMode) {
+                JsonOutput(newMode, w)
+            }
         }
 
         override fun writeEnd(desc: KSerialClassDesc) {
@@ -149,14 +158,14 @@ data class JSON(
         }
     }
 
-    private inner class Composer(val sb: StringBuilder) {
-        var level = 0
+    inner class Composer(private val engine: BufferEngine<*>) {
+        private var level = 0
         fun indent() { level++ }
         fun unIndent() { level-- }
 
         fun nextItem() {
             if (indented) {
-                println()
+                print("\n")
                 repeat(level) { print(indent) }
             }
         }
@@ -166,46 +175,33 @@ data class JSON(
                 print(' ')
         }
 
-        fun print(v: Char) = sb.append(v)
-        fun print(v: String) = sb.append(v)
+        fun print(v: Char) = engine.print(v)
+        fun print(v: String) = engine.print(v)
 
-        fun print(v: Float) = sb.append(v)
-        fun print(v: Double) = sb.append(v)
-        fun print(v: Byte) = sb.append(v)
-        fun print(v: Short) = sb.append(v)
-        fun print(v: Int) = sb.append(v)
-        fun print(v: Long) = sb.append(v)
-        fun print(v: Boolean) = sb.append(v)
+        fun print(v: Float) = engine.print(v)
+        fun print(v: Double) = engine.print(v)
+        fun print(v: Byte) = engine.print(v)
+        fun print(v: Short) = engine.print(v)
+        fun print(v: Int) = engine.print(v)
+        fun print(v: Long) = engine.print(v)
+        fun print(v: Boolean) = engine.print(v)
 
-        fun printUnicodeEscape(c: Int): Unit = with(sb) {
-            append(STRING_ESC)
-            append(UNICODE_ESC)
-            append(toHexChar(c shr 12))
-            append(toHexChar(c shr 8))
-            append(toHexChar(c shr 4))
-            append(toHexChar(c))
-        }
-
-        fun printQuoted(value: String): Unit = with(sb) {
-            append(STRING)
+        fun printQuoted(value: String): Unit = with(engine) {
+            val escChars = ESCAPE_CHARS
+            print(STRING)
+            val escapeMax = C2ESC_MAX
             var lastPos = 0
-            for (i in 0 until value.length) {
+            val length = value.length
+            for (i in 0 until length) {
                 val c = value[i].toInt()
-                if (c >= C2ESC_MAX) continue // no need to escape
-                val esc = C2ESC[c].toChar()
-                if (esc == INVALID) continue // no need to escape
+                if (c >= escapeMax) continue // no need to escape
+                val esc = escChars[c] ?: continue
                 append(value, lastPos, i) // flush prev
+                append(esc)
                 lastPos = i + 1
-                when (esc) {
-                    UNICODE_ESC -> printUnicodeEscape(c)
-                    else -> {
-                        append(STRING_ESC)
-                        append(esc)
-                    }
-                }
             }
-            append(value, lastPos, value.length)
-            append(STRING)
+            append(value, lastPos, length)
+            print(STRING)
         }
     }
 
@@ -298,7 +294,7 @@ data class JSON(
             }
         }
 
-        override fun readBooleanValue(): Boolean = p.takeStr() == "true" // KT-16348
+        override fun readBooleanValue(): Boolean = p.takeStr().toBoolean()
         override fun readByteValue(): Byte = p.takeStr().toByte()
         override fun readShortValue(): Short = p.takeStr().toShort()
         override fun readIntValue(): Int = p.takeStr().toInt()
@@ -341,13 +337,13 @@ data class JSON(
             return prevStr
         }
 
-        fun append(ch: Char) {
+        private fun append(ch: Char) {
             if (length >= buf.size) buf = buf.copyOf(2 * buf.size)
             buf[length++] = ch
         }
 
         // initializes buf usage upon the first encountered escaped char
-        fun appendRange(source: String, fromIndex: Int, toIndex: Int) {
+        private fun appendRange(source: String, fromIndex: Int, toIndex: Int) {
             val addLen = toIndex - fromIndex
             val oldLen = length
             val newLen = oldLen + addLen
@@ -359,8 +355,9 @@ data class JSON(
         fun nextToken() {
             val source = source
             var curPos = curPos
+            val maxLen = source.length
             while(true) {
-                if (curPos >= source.length) {
+                if (curPos >= maxLen) {
                     tokenPos = curPos
                     tc = TC_EOF
                     return
@@ -378,7 +375,7 @@ data class JSON(
                         return
                     }
                     else -> {
-                        tokenPos = curPos
+                        this.tokenPos = curPos
                         this.tc = tc
                         this.curPos = curPos + 1
                         return
@@ -387,35 +384,38 @@ data class JSON(
             }
         }
 
-        fun nextLiteral(source: String, startPos: Int) {
+        private fun nextLiteral(source: String, startPos: Int) {
             tokenPos = startPos
             offset = startPos
             var curPos = startPos
+            val maxLen = source.length
             while(true) {
                 curPos++
-                if (curPos >= source.length || c2tc(source[curPos]) != TC_OTHER) break
+                if (curPos >= maxLen || c2tc(source[curPos]) != TC_OTHER) break
             }
             this.curPos = curPos
             length = curPos - offset
             tc = if (rangeEquals(source, offset, length, NULL)) TC_NULL else TC_OTHER
         }
 
-        fun nextString(source: String, startPos: Int) {
+        private fun nextString(source: String, startPos: Int) {
             tokenPos = startPos
             length = 0 // in buffer
             var curPos = startPos + 1
             var lastPos = curPos
-            parse@ while(true) {
-                if (curPos >= source.length) fail(curPos, "Unexpected end in string")
-                when (source[curPos]) {
-                    STRING -> break@parse
-                    STRING_ESC -> {
-                        appendRange(source, lastPos, curPos)
-                        val newPos = appendEsc(source, curPos + 1)
-                        curPos = newPos
-                        lastPos = newPos
-                    }
-                    else -> curPos++
+            val maxLen = source.length
+            parse@ while (true) {
+                if (curPos >= maxLen) fail(curPos, "Unexpected end in string")
+                if (source[curPos] == STRING) {
+                    break@parse
+                }
+                else if (source[curPos] == STRING_ESC) {
+                    appendRange(source, lastPos, curPos)
+                    val newPos = appendEsc(source, curPos + 1)
+                    curPos = newPos
+                    lastPos = newPos
+                } else {
+                    curPos++
                 }
             }
             if (lastPos == startPos + 1) {
@@ -431,7 +431,7 @@ data class JSON(
             tc = TC_STRING
         }
 
-        fun appendEsc(source: String, startPos: Int): Int {
+        private fun appendEsc(source: String, startPos: Int): Int {
             var curPos = startPos
             require(curPos < source.length, curPos) { "Unexpected end after escape char" }
             val curChar = source[curPos++]
@@ -445,7 +445,7 @@ data class JSON(
             return curPos
         }
 
-        fun appendHex(source: String, startPos: Int): Int {
+        private fun appendHex(source: String, startPos: Int): Int {
             var curPos = startPos
             append(((fromHexChar(source, curPos++) shl 12) +
                 (fromHexChar(source, curPos++) shl 8) +
@@ -526,6 +526,7 @@ private const val END_OBJ = '}'
 private const val BEGIN_LIST = '['
 private const val END_LIST = ']'
 private const val STRING = '"'
+private const val STRING_QUOTE = "\""
 private const val STRING_ESC = '\\'
 
 private const val INVALID = 0.toChar()
@@ -586,9 +587,9 @@ private fun mustBeQuoted(str: String): Boolean {
 private const val C2ESC_MAX = 0x5d
 private const val ESC2C_MAX = 0x75
 
-private val ESC2C = ByteArray(ESC2C_MAX)
+private val ESC2C = CharArray(ESC2C_MAX)
 
-private val C2ESC = ByteArray(C2ESC_MAX).apply {
+private val C2ESC = CharArray(C2ESC_MAX).apply {
     for (i in 0x00..0x1f)
         initC2ESC(i, UNICODE_ESC)
     initC2ESC(0x08, 'b')
@@ -601,12 +602,12 @@ private val C2ESC = ByteArray(C2ESC_MAX).apply {
     initC2ESC(STRING_ESC, STRING_ESC)
 }
 
-private fun ByteArray.initC2ESC(c: Int, esc: Char) {
-    this[c] = esc.toByte()
-    if (esc != UNICODE_ESC) ESC2C[esc.toInt()] = c.toByte()
+private fun CharArray.initC2ESC(c: Int, esc: Char) {
+    this[c] = esc
+    if (esc != UNICODE_ESC) ESC2C[esc.toInt()] = c.toChar()
 }
 
-private fun ByteArray.initC2ESC(c: Char, esc: Char) {
+private fun CharArray.initC2ESC(c: Char, esc: Char) {
     initC2ESC(c.toInt(), esc)
 }
 
@@ -634,4 +635,21 @@ private fun rangeEquals(source: String, start: Int, length: Int, str: String): B
     if (length != n) return false
     for (i in 0 until n) if (source[start + i] != str[i]) return false
     return true
+}
+
+private val ESCAPE_CHARS: Array<String?> = arrayOfNulls<String>(128).apply {
+    for (c in 0..0x1f) {
+        val c1 = toHexChar(c shr 12)
+        val c2 = toHexChar(c shr 8)
+        val c3 = toHexChar(c shr 4)
+        val c4 = toHexChar(c)
+        this[c] = "\\u$c1$c2$c3$c4"
+    }
+    this['"'.toInt()] = "\\\"";
+    this['\\'.toInt()] = "\\\\";
+    this['\t'.toInt()] = "\\t";
+    this['\b'.toInt()] = "\\b";
+    this['\n'.toInt()] = "\\n";
+    this['\r'.toInt()] = "\\r";
+    this[0x0c] = "\\f";
 }
