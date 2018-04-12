@@ -7,7 +7,9 @@ import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.CompatibleFieldSerializer;
 import com.example.adapter.GeneratedJsonAdapterFactory;
 import com.example.adapter.GeneratedTypeAdapterFactory;
+import com.example.buffers.KxioEngine;
 import com.example.model_av.ResponseAV;
+import com.example.buffers.OkioEngine;
 import com.example.model_reflective.Response;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
@@ -15,6 +17,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.squareup.moshi.Moshi;
 
+import kotlinx.io.core.ByteReadPacket;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -39,12 +42,14 @@ import okio.BufferedSource;
 
 public class SpeedTest {
 
+    public static final String SAMPLE_NAME = "mediumsample.json";
+
     @State(Scope.Benchmark)
     public static class KSerializer {
 
         @Setup()
         public void doSetup() throws Exception {
-            URL url = Resources.getResource("largesample.json");
+            URL url = Resources.getResource(SAMPLE_NAME);
             json = Resources.toString(url, Charsets.UTF_8);
             response = Response.parse(json);
         }
@@ -59,7 +64,7 @@ public class SpeedTest {
         @Setup
         public void setupTrial() throws Exception {
             moshi = new Moshi.Builder().build();
-            URL url = Resources.getResource("largesample.json");
+            URL url = Resources.getResource(SAMPLE_NAME);
             json = Resources.toString(url, Charsets.UTF_8);
             response = moshi.adapter(Response.class).fromJson(json);
         }
@@ -75,7 +80,7 @@ public class SpeedTest {
         @Setup
         public void setupTrial() throws Exception {
             gson = new GsonBuilder().create();
-            URL url = Resources.getResource("largesample.json");
+            URL url = Resources.getResource(SAMPLE_NAME);
             json = Resources.toString(url, Charsets.UTF_8);
             response = gson
                     .fromJson(json, Response.class);
@@ -94,7 +99,7 @@ public class SpeedTest {
             moshi = new Moshi.Builder()
                     .add(GeneratedJsonAdapterFactory.create())
                     .build();
-            URL url = Resources.getResource("largesample.json");
+            URL url = Resources.getResource(SAMPLE_NAME);
             json = Resources.toString(url, Charsets.UTF_8);
             response = moshi
                     .adapter(ResponseAV.class)
@@ -114,7 +119,7 @@ public class SpeedTest {
             moshi = new Moshi.Builder()
                     .add(GeneratedJsonAdapterFactory.create())
                     .build();
-            URL url = Resources.getResource("largesample.json");
+            URL url = Resources.getResource(SAMPLE_NAME);
             json = Resources.toString(url, Charsets.UTF_8);
 
             response = moshi
@@ -143,7 +148,7 @@ public class SpeedTest {
             gson = new GsonBuilder()
                     .registerTypeAdapterFactory(GeneratedTypeAdapterFactory.create())
                     .create();
-            URL url = Resources.getResource("largesample.json");
+            URL url = Resources.getResource(SAMPLE_NAME);
             json = Resources.toString(url, Charsets.UTF_8);
             response = gson
                     .fromJson(json, ResponseAV.class);
@@ -162,7 +167,7 @@ public class SpeedTest {
             gson = new GsonBuilder()
                     .registerTypeAdapterFactory(GeneratedTypeAdapterFactory.create())
                     .create();
-            URL url = Resources.getResource("largesample.json");
+            URL url = Resources.getResource(SAMPLE_NAME);
             json = Resources.toString(url, Charsets.UTF_8);
             response = gson
                     .fromJson(json, ResponseAV.class);
@@ -192,7 +197,7 @@ public class SpeedTest {
             instantiatorStrategy.setFallbackInstantiatorStrategy(new StdInstantiatorStrategy());
             kryo.setInstantiatorStrategy(instantiatorStrategy);
 
-            URL url = Resources.getResource("largesample.json");
+            URL url = Resources.getResource(SAMPLE_NAME);
             String json = Resources.toString(url, Charsets.UTF_8);
             response = new GsonBuilder()
                     .registerTypeAdapterFactory(GeneratedTypeAdapterFactory.create())
@@ -217,6 +222,20 @@ public class SpeedTest {
     @OutputTimeUnit(TimeUnit.SECONDS)
     public String kserializer_toJson(KSerializer param) {
         return param.response.stringify();
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    public BufferedSink kserializer_toJson_okioBuffer(KSerializer param) {
+        return param.response.stringify(new OkioEngine());
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    public ByteReadPacket kserializer_toJson_kxioBuffer(KSerializer param) {
+        return param.response.stringify(new KxioEngine());
     }
 
     @Benchmark

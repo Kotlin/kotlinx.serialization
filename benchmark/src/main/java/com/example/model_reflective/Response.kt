@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.BufferEngine
 import kotlinx.serialization.json.JSON
 
 @Serializable
@@ -20,6 +21,10 @@ class Response {
 
     fun stringify(): String {
         return JSON.stringify(this)
+    }
+
+    fun <R> stringify(e: BufferEngine<R>): R {
+        return JSON().run { stringify(serializer(), this@Response, e) }
     }
 
     companion object {

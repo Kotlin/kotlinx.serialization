@@ -17,7 +17,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
+import kotlinx.serialization.internal.createString
 
 data class JSON(
         private val unquoted: Boolean = false,
@@ -28,10 +28,13 @@ data class JSON(
         val context: SerialContext? = null
 ) {
     fun <T> stringify(saver: KSerialSaver<T>, obj: T): String {
-        val sb = StringBuilder()
-        val output = JsonOutput(Mode.OBJ, Composer(sb))
+        return stringify(saver, obj, StringEngine())
+    }
+
+    fun <T, R> stringify(saver: KSerialSaver<T>, obj: T, engine: BufferEngine<R>): R {
+        val output = JsonOutput(Mode.OBJ, Composer(engine))
         output.write(saver, obj)
-        return sb.toString()
+        return engine.result()
     }
 
     inline fun <reified T : Any> stringify(obj: T): String = stringify(context.klassSerializer(T::class), obj)
@@ -148,7 +151,7 @@ data class JSON(
         }
     }
 
-    private inner class Composer(val sb: StringBuilder) {
+    private inner class Composer(val sb: BufferEngine<*>) {
         var level = 0
         fun indent() { level++ }
         fun unIndent() { level-- }
@@ -165,46 +168,57 @@ data class JSON(
                 print(' ')
         }
 
-        fun print(v: Char) = sb.append(v)
-        fun print(v: String) = sb.append(v)
+        fun print(v: Char) = sb.print(v)
+        fun print(v: String) = sb.print(v)
 
-        fun print(v: Float) = sb.append(v)
-        fun print(v: Double) = sb.append(v)
-        fun print(v: Byte) = sb.append(v)
-        fun print(v: Short) = sb.append(v)
-        fun print(v: Int) = sb.append(v)
-        fun print(v: Long) = sb.append(v)
-        fun print(v: Boolean) = sb.append(v)
+        fun print(v: Float) = sb.print(v)
+        fun print(v: Double) = sb.print(v)
+        fun print(v: Byte) = sb.print(v)
+        fun print(v: Short) = sb.print(v)
+        fun print(v: Int) = sb.print(v)
+        fun print(v: Long) = sb.print(v)
+        fun print(v: Boolean) = sb.print(v)
 
         fun printUnicodeEscape(c: Int): Unit = with(sb) {
-            append(STRING_ESC)
-            append(UNICODE_ESC)
-            append(toHexChar(c shr 12))
-            append(toHexChar(c shr 8))
-            append(toHexChar(c shr 4))
-            append(toHexChar(c))
+            print(STRING_ESC)
+            print(UNICODE_ESC)
+            print(toHexChar(c shr 12))
+            print(toHexChar(c shr 8))
+            print(toHexChar(c shr 4))
+            print(toHexChar(c))
         }
 
+        val STR_Q = "\""
+        var STR_U = "u"
+        var STR_E = "\\"
+
         fun printQuoted(value: String): Unit = with(sb) {
-            append(STRING)
+            val replacements = REPLACEMENT_CHARS
+            val c2ESC = C2ESC
+
+            print(STR_Q)
             var lastPos = 0
             for (i in 0 until value.length) {
                 val c = value[i].toInt()
                 if (c >= C2ESC_MAX) continue // no need to escape
-                val esc = C2ESC[c].toChar()
-                if (esc == INVALID) continue // no need to escape
+                val esc = replacements[c] ?: continue
+//                if (esc == INVALID) continue // no need to escape
                 append(value, lastPos, i) // flush prev
                 lastPos = i + 1
-                when (esc) {
-                    UNICODE_ESC -> printUnicodeEscape(c)
-                    else -> {
-                        append(STRING_ESC)
-                        append(esc)
-                    }
+                if (esc == STR_U) {
+                    print(STR_E)
+                    print(STR_U)
+                    print(toHexChar(c shr 12))
+                    print(toHexChar(c shr 8))
+                    print(toHexChar(c shr 4))
+                    print(toHexChar(c))
+                } else {
+                    append(STRING_ESC)
+                    append(esc)
                 }
             }
             append(value, lastPos, value.length)
-            append(STRING)
+            print(STR_Q)
         }
     }
 
@@ -585,9 +599,9 @@ private fun mustBeQuoted(str: String): Boolean {
 private const val C2ESC_MAX = 0x5d
 private const val ESC2C_MAX = 0x75
 
-private val ESC2C = ByteArray(ESC2C_MAX)
+private val ESC2C = CharArray(ESC2C_MAX)
 
-private val C2ESC = ByteArray(C2ESC_MAX).apply {
+private val C2ESC = CharArray(C2ESC_MAX).apply {
     for (i in 0x00..0x1f)
         initC2ESC(i, UNICODE_ESC)
     initC2ESC(0x08, 'b')
@@ -600,12 +614,12 @@ private val C2ESC = ByteArray(C2ESC_MAX).apply {
     initC2ESC(STRING_ESC, STRING_ESC)
 }
 
-private fun ByteArray.initC2ESC(c: Int, esc: Char) {
-    this[c] = esc.toByte()
-    if (esc != UNICODE_ESC) ESC2C[esc.toInt()] = c.toByte()
+private fun CharArray.initC2ESC(c: Int, esc: Char) {
+    this[c] = esc
+    if (esc != UNICODE_ESC) ESC2C[esc.toInt()] = c.toChar()
 }
 
-private fun ByteArray.initC2ESC(c: Char, esc: Char) {
+private fun CharArray.initC2ESC(c: Char, esc: Char) {
     initC2ESC(c.toInt(), esc)
 }
 
@@ -633,4 +647,17 @@ private fun rangeEquals(source: String, start: Int, length: Int, str: String): B
     if (length != n) return false
     for (i in 0 until n) if (source[start + i] != str[i]) return false
     return true
+}
+
+private val REPLACEMENT_CHARS: Array<String?> = arrayOfNulls<String>(128).apply {
+    for (i in 0..0x1f) {
+        this[i] = "u"
+    }
+    this['"'.toInt()] = "\\\"";
+    this['\\'.toInt()] = "\\\\";
+    this['\t'.toInt()] = "\\t";
+    this['\b'.toInt()] = "\\b";
+    this['\n'.toInt()] = "\\n";
+    this['\r'.toInt()] = "\\r";
+    this[0x0c] = "\\f";
 }

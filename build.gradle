@@ -27,6 +27,7 @@ buildscript {
     ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-eap'
     ext.devChannel = 'https://dl.bintray.com/kotlin/kotlin-dev'
     ext.serializationRepo = 'https://kotlin.bintray.com/kotlinx'
+    ext.kxIoVersion ='0.0.10'
     ext.jmh_version = '1.20'
 
     repositories {
@@ -69,6 +70,9 @@ ext {
             kotlin_test_annotations_common: "org.jetbrains.kotlin:kotlin-test-annotations-common:$librariesVersion",
             kotlin_test_js: "org.jetbrains.kotlin:kotlin-test-js:$librariesVersion",
             kotlin_reflect: "org.jetbrains.kotlin:kotlin-reflect:$librariesVersion",
+            kotlin_io: "org.jetbrains.kotlinx:kotlinx-io-jvm:$kxIoVersion",
+            kotlin_io_common: "org.jetbrains.kotlinx:kotlinx-io:$kxIoVersion",
+            kotlin_io_js: "org.jetbrains.kotlinx:kotlinx-io-js:$kxIoVersion",
     ]
 }
 

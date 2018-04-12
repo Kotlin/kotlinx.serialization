@@ -32,5 +32,6 @@ dependencies {
     compile 'com.esotericsoftware:kryo:4.0.0'
 
     compile libraries.kotlin_stdlib
+    compile libraries.kotlin_io
     compile project(':jvm')
 }
