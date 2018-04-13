@@ -33,6 +33,8 @@ data class JSON(
 
     fun <T, R> stringify(saver: KSerialSaver<T>, obj: T, engine: BufferEngine<R>): R {
         val output = JsonOutput(Mode.OBJ, Composer(engine))
+        modeCache.clear()
+        modeCache[Mode.OBJ] = output
         output.write(saver, obj)
         return engine.result()
     }
@@ -61,6 +63,8 @@ data class JSON(
         val nonstrict = JSON(nonstrict = true)
     }
 
+    private val modeCache: MutableMap<Mode, JsonOutput> = hashMapOf()
+
     private inner class JsonOutput(val mode: Mode, val w: Composer) : ElementValueOutput() {
         init {
             context = this@JSON.context
@@ -74,7 +78,9 @@ data class JSON(
                 w.print(newMode.begin)
                 w.indent()
             }
-            return if (mode == newMode) this else JsonOutput(newMode, w) // todo: reuse instance per mode
+            return if (mode == newMode) this else modeCache.getOrPut(newMode) {
+                JsonOutput(newMode, w)
+            }
         }
 
         override fun writeEnd(desc: KSerialClassDesc) {
@@ -151,7 +157,7 @@ data class JSON(
         }
     }
 
-    private inner class Composer(val sb: BufferEngine<*>) {
+    inner class Composer(val sb: BufferEngine<*>) {
         var level = 0
         fun indent() { level++ }
         fun unIndent() { level-- }
@@ -179,46 +185,20 @@ data class JSON(
         fun print(v: Long) = sb.print(v)
         fun print(v: Boolean) = sb.print(v)
 
-        fun printUnicodeEscape(c: Int): Unit = with(sb) {
-            print(STRING_ESC)
-            print(UNICODE_ESC)
-            print(toHexChar(c shr 12))
-            print(toHexChar(c shr 8))
-            print(toHexChar(c shr 4))
-            print(toHexChar(c))
-        }
-
-        val STR_Q = "\""
-        var STR_U = "u"
-        var STR_E = "\\"
-
         fun printQuoted(value: String): Unit = with(sb) {
-            val replacements = REPLACEMENT_CHARS
-            val c2ESC = C2ESC
-
-            print(STR_Q)
+            val escChars = ESCAPE_CHARS
+            print(STRING_QUOTE)
             var lastPos = 0
             for (i in 0 until value.length) {
                 val c = value[i].toInt()
                 if (c >= C2ESC_MAX) continue // no need to escape
-                val esc = replacements[c] ?: continue
-//                if (esc == INVALID) continue // no need to escape
+                val esc = escChars[c] ?: continue
                 append(value, lastPos, i) // flush prev
+                append(esc)
                 lastPos = i + 1
-                if (esc == STR_U) {
-                    print(STR_E)
-                    print(STR_U)
-                    print(toHexChar(c shr 12))
-                    print(toHexChar(c shr 8))
-                    print(toHexChar(c shr 4))
-                    print(toHexChar(c))
-                } else {
-                    append(STRING_ESC)
-                    append(esc)
-                }
             }
             append(value, lastPos, value.length)
-            print(STR_Q)
+            print(STRING_QUOTE)
         }
     }
 
@@ -539,6 +519,7 @@ private const val END_OBJ = '}'
 private const val BEGIN_LIST = '['
 private const val END_LIST = ']'
 private const val STRING = '"'
+private const val STRING_QUOTE = "\""
 private const val STRING_ESC = '\\'
 
 private const val INVALID = 0.toChar()
@@ -649,9 +630,13 @@ private fun rangeEquals(source: String, start: Int, length: Int, str: String): B
     return true
 }
 
-private val REPLACEMENT_CHARS: Array<String?> = arrayOfNulls<String>(128).apply {
-    for (i in 0..0x1f) {
-        this[i] = "u"
+private val ESCAPE_CHARS: Array<String?> = arrayOfNulls<String>(128).apply {
+    for (c in 0..0x1f) {
+        val c1 = toHexChar(c shr 12)
+        val c2 = toHexChar(c shr 8)
+        val c3 = toHexChar(c shr 4)
+        val c4 = toHexChar(c)
+        this[c] = "\\u$c1$c2$c3$c4"
     }
     this['"'.toInt()] = "\\\"";
     this['\\'.toInt()] = "\\\\";

@@ -34,4 +34,7 @@ dependencies {
     compile libraries.kotlin_stdlib
     compile libraries.kotlin_io
     compile project(':jvm')
+
+    // async profiler
+    compile group: 'pl.project13.scala', name: 'sbt-jmh-extras', version: '0.3.3'
 }
