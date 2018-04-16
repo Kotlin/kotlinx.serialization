@@ -188,16 +188,18 @@ data class JSON(
         fun printQuoted(value: String): Unit = with(sb) {
             val escChars = ESCAPE_CHARS
             print(STRING_QUOTE)
+            val escapeMax = C2ESC_MAX
             var lastPos = 0
-            for (i in 0 until value.length) {
+            val length = value.length
+            for (i in 0 until length) {
                 val c = value[i].toInt()
-                if (c >= C2ESC_MAX) continue // no need to escape
+                if (c >= escapeMax) continue // no need to escape
                 val esc = escChars[c] ?: continue
                 append(value, lastPos, i) // flush prev
                 append(esc)
                 lastPos = i + 1
             }
-            append(value, lastPos, value.length)
+            append(value, lastPos, length)
             print(STRING_QUOTE)
         }
     }
@@ -291,7 +293,7 @@ data class JSON(
             }
         }
 
-        override fun readBooleanValue(): Boolean = p.takeStr() == "true" // KT-16348
+        override fun readBooleanValue(): Boolean = p.takeStr().toBoolean()
         override fun readByteValue(): Byte = p.takeStr().toByte()
         override fun readShortValue(): Short = p.takeStr().toShort()
         override fun readIntValue(): Int = p.takeStr().toInt()
@@ -334,13 +336,13 @@ data class JSON(
             return prevStr
         }
 
-        fun append(ch: Char) {
+        private fun append(ch: Char) {
             if (length >= buf.size) buf = buf.copyOf(2 * buf.size)
             buf[length++] = ch
         }
 
         // initializes buf usage upon the first encountered escaped char
-        fun appendRange(source: String, fromIndex: Int, toIndex: Int) {
+        private fun appendRange(source: String, fromIndex: Int, toIndex: Int) {
             val addLen = toIndex - fromIndex
             val oldLen = length
             val newLen = oldLen + addLen
@@ -352,8 +354,9 @@ data class JSON(
         fun nextToken() {
             val source = source
             var curPos = curPos
+            val maxLen = source.length
             while(true) {
-                if (curPos >= source.length) {
+                if (curPos >= maxLen) {
                     tokenPos = curPos
                     tc = TC_EOF
                     return
@@ -371,7 +374,7 @@ data class JSON(
                         return
                     }
                     else -> {
-                        tokenPos = curPos
+                        this.tokenPos = curPos
                         this.tc = tc
                         this.curPos = curPos + 1
                         return
@@ -380,35 +383,38 @@ data class JSON(
             }
         }
 
-        fun nextLiteral(source: String, startPos: Int) {
+        private fun nextLiteral(source: String, startPos: Int) {
             tokenPos = startPos
             offset = startPos
             var curPos = startPos
+            val maxLen = source.length
             while(true) {
                 curPos++
-                if (curPos >= source.length || c2tc(source[curPos]) != TC_OTHER) break
+                if (curPos >= maxLen || c2tc(source[curPos]) != TC_OTHER) break
             }
             this.curPos = curPos
             length = curPos - offset
             tc = if (rangeEquals(source, offset, length, NULL)) TC_NULL else TC_OTHER
         }
 
-        fun nextString(source: String, startPos: Int) {
+        private fun nextString(source: String, startPos: Int) {
             tokenPos = startPos
             length = 0 // in buffer
             var curPos = startPos + 1
             var lastPos = curPos
-            parse@ while(true) {
-                if (curPos >= source.length) fail(curPos, "Unexpected end in string")
-                when (source[curPos]) {
-                    STRING -> break@parse
-                    STRING_ESC -> {
-                        appendRange(source, lastPos, curPos)
-                        val newPos = appendEsc(source, curPos + 1)
-                        curPos = newPos
-                        lastPos = newPos
-                    }
-                    else -> curPos++
+            val maxLen = source.length
+            parse@ while (true) {
+                if (curPos >= maxLen) fail(curPos, "Unexpected end in string")
+                if (source[curPos] == STRING) {
+                    break@parse
+                }
+                else if (source[curPos] == STRING_ESC) {
+                    appendRange(source, lastPos, curPos)
+                    val newPos = appendEsc(source, curPos + 1)
+                    curPos = newPos
+                    lastPos = newPos
+                } else {
+                    curPos++
                 }
             }
             if (lastPos == startPos + 1) {
@@ -424,7 +430,7 @@ data class JSON(
             tc = TC_STRING
         }
 
-        fun appendEsc(source: String, startPos: Int): Int {
+        private fun appendEsc(source: String, startPos: Int): Int {
             var curPos = startPos
             require(curPos < source.length, curPos) { "Unexpected end after escape char" }
             val curChar = source[curPos++]
@@ -438,7 +444,7 @@ data class JSON(
             return curPos
         }
 
-        fun appendHex(source: String, startPos: Int): Int {
+        private fun appendHex(source: String, startPos: Int): Int {
             var curPos = startPos
             append(((fromHexChar(source, curPos++) shl 12) +
                 (fromHexChar(source, curPos++) shl 8) +
