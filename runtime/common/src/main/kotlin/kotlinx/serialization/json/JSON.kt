@@ -158,13 +158,13 @@ data class JSON(
     }
 
     inner class Composer(val sb: BufferEngine<*>) {
-        var level = 0
+        private var level = 0
         fun indent() { level++ }
         fun unIndent() { level-- }
 
         fun nextItem() {
             if (indented) {
-                println()
+                print("\n")
                 repeat(level) { print(indent) }
             }
         }
@@ -187,7 +187,7 @@ data class JSON(
 
         fun printQuoted(value: String): Unit = with(sb) {
             val escChars = ESCAPE_CHARS
-            print(STRING_QUOTE)
+            print(STRING)
             val escapeMax = C2ESC_MAX
             var lastPos = 0
             val length = value.length
@@ -200,7 +200,7 @@ data class JSON(
                 lastPos = i + 1
             }
             append(value, lastPos, length)
-            print(STRING_QUOTE)
+            print(STRING)
         }
     }
 

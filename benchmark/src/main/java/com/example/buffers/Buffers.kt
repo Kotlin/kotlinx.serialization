@@ -17,6 +17,10 @@ class OkioEngine(): BufferEngine<BufferedSink> {
         buf.writeUtf8(csq, start, end)
     }
 
+    override fun print(v: Char) {
+        buf.writeUtf8CodePoint(v.toInt())
+    }
+
     override fun append(obj: Any) {
         buf.writeUtf8(obj.toString())
     }
