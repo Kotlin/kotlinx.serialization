@@ -157,7 +157,7 @@ data class JSON(
         }
     }
 
-    inner class Composer(val sb: BufferEngine<*>) {
+    inner class Composer(private val engine: BufferEngine<*>) {
         private var level = 0
         fun indent() { level++ }
         fun unIndent() { level-- }
@@ -174,18 +174,18 @@ data class JSON(
                 print(' ')
         }
 
-        fun print(v: Char) = sb.print(v)
-        fun print(v: String) = sb.print(v)
+        fun print(v: Char) = engine.print(v)
+        fun print(v: String) = engine.print(v)
 
-        fun print(v: Float) = sb.print(v)
-        fun print(v: Double) = sb.print(v)
-        fun print(v: Byte) = sb.print(v)
-        fun print(v: Short) = sb.print(v)
-        fun print(v: Int) = sb.print(v)
-        fun print(v: Long) = sb.print(v)
-        fun print(v: Boolean) = sb.print(v)
+        fun print(v: Float) = engine.print(v)
+        fun print(v: Double) = engine.print(v)
+        fun print(v: Byte) = engine.print(v)
+        fun print(v: Short) = engine.print(v)
+        fun print(v: Int) = engine.print(v)
+        fun print(v: Long) = engine.print(v)
+        fun print(v: Boolean) = engine.print(v)
 
-        fun printQuoted(value: String): Unit = with(sb) {
+        fun printQuoted(value: String): Unit = with(engine) {
             val escChars = ESCAPE_CHARS
             print(STRING)
             val escapeMax = C2ESC_MAX

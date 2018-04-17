@@ -6,8 +6,7 @@ import kotlinx.serialization.json.BufferEngine
 import okio.Buffer
 import okio.BufferedSink
 
-class OkioEngine(): BufferEngine<BufferedSink> {
-    private val buf = Buffer()
+class OkioEngine(private val buf: Buffer = Buffer()) : BufferEngine<BufferedSink> {
 
     override fun append(csq: String) {
         buf.writeUtf8(csq)
@@ -42,8 +41,7 @@ class OkioEngine(): BufferEngine<BufferedSink> {
     }
 }
 
-class KxioEngine(): BufferEngine<ByteReadPacket> {
-    val builder = BytePacketBuilder()
+class KxioEngine(private val builder: BytePacketBuilder = BytePacketBuilder()) : BufferEngine<ByteReadPacket> {
 
     override fun append(csq: String) {
         builder.append(csq)

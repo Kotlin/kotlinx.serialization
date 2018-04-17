@@ -19,11 +19,11 @@ interface BufferEngine<T> {
     fun result(): T
 }
 
-class StringEngine(val sb: StringBuilder) : BufferEngine<String> {
+class StringEngine(private val sb: StringBuilder) : BufferEngine<String> {
     constructor() : this(StringBuilder())
 
-    override fun print(c: Char) {
-        sb.append(c)
+    override fun print(v: Char) {
+        sb.append(v)
     }
 
     override fun append(csq: String) {

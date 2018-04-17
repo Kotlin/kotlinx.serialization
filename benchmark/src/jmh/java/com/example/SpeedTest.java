@@ -28,11 +28,7 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
@@ -42,7 +38,7 @@ import okio.BufferedSource;
 
 public class SpeedTest {
 
-    public static final String SAMPLE_NAME = "mediumsample.json";
+    public static final String SAMPLE_NAME = "largesample.json";
 
     @State(Scope.Benchmark)
     public static class KSerializer {
