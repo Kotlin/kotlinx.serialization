@@ -209,7 +209,12 @@ JavaScript example is located at [`example-js`](example-js) folder.
 
 Instead of using Gradle or Maven, IntelliJ IDEA relies on its own build system when analyzing and running code from within IDE.
 Because serialization is still highly experimental, it is shipped as a separate artifact from "big" Kotlin IDEA plugin.
-You can download additional IDEA plugin for working with projects that uses serialization from its [TeamCity build page](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1).
+You can download additional IDEA plugin for working with projects that uses serialization from its 
+TeamCity build page:
+
+* For 1.2.31 and lower: [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1&buildBranch=1.2.30)
+* For 1.2.40 and higher: [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1)
+
 In IDEA, open `Settings - Plugins - Install plugin from disk...` and select downloaded .zip or .jar file.
 This installation will allow you to run code/tests from IDEA.
 
