@@ -186,15 +186,15 @@ data class JSON(
         fun print(v: Boolean) = engine.print(v)
 
         fun printQuoted(value: String): Unit = with(engine) {
-            val escChars = ESCAPE_CHARS
             print(STRING)
-            val escapeMax = C2ESC_MAX
             var lastPos = 0
             val length = value.length
             for (i in 0 until length) {
                 val c = value[i].toInt()
-                if (c >= escapeMax) continue // no need to escape
-                val esc = escChars[c] ?: continue
+                // Do not replace this constant with C2ESC_MAX (which is smaller than ESCAPE_CHARS size),
+                // otherwise JIT won't eliminate range check and won't vectorize this loop
+                if (c >= ESCAPE_CHARS.size) continue // no need to escape
+                val esc = ESCAPE_CHARS[c] ?: continue
                 append(value, lastPos, i) // flush prev
                 append(esc)
                 lastPos = i + 1
@@ -636,6 +636,10 @@ private fun rangeEquals(source: String, start: Int, length: Int, str: String): B
     return true
 }
 
+/*
+ * Even though the actual size of this array is 92, it has to be the power of two, otherwise
+ * JVM cannot perform advanced range-check elimination and vectorization in printQuoted
+ */
 private val ESCAPE_CHARS: Array<String?> = arrayOfNulls<String>(128).apply {
     for (c in 0..0x1f) {
         val c1 = toHexChar(c shr 12)
@@ -644,11 +648,11 @@ private val ESCAPE_CHARS: Array<String?> = arrayOfNulls<String>(128).apply {
         val c4 = toHexChar(c)
         this[c] = "\\u$c1$c2$c3$c4"
     }
-    this['"'.toInt()] = "\\\"";
-    this['\\'.toInt()] = "\\\\";
-    this['\t'.toInt()] = "\\t";
-    this['\b'.toInt()] = "\\b";
-    this['\n'.toInt()] = "\\n";
-    this['\r'.toInt()] = "\\r";
-    this[0x0c] = "\\f";
+    this['"'.toInt()] = "\\\""
+    this['\\'.toInt()] = "\\\\"
+    this['\t'.toInt()] = "\\t"
+    this['\b'.toInt()] = "\\b"
+    this['\n'.toInt()] = "\\n"
+    this['\r'.toInt()] = "\\r"
+    this[0x0c] = "\\f"
 }
