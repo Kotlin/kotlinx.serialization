@@ -33,8 +33,11 @@ data class JSON(
 
     fun <T, R> stringify(saver: KSerialSaver<T>, obj: T, engine: BufferEngine<R>): R {
         val output = JsonOutput(Mode.OBJ, Composer(engine))
-        modeCache.clear()
-        modeCache[Mode.OBJ] = output
+
+        for (i in 0 until modeCache.size) {
+            modeCache[i] = null
+        }
+        modeCache[Mode.OBJ.ordinal] = output
         output.write(saver, obj)
         return engine.result()
     }
@@ -63,7 +66,8 @@ data class JSON(
         val nonstrict = JSON(nonstrict = true)
     }
 
-    private val modeCache: MutableMap<Mode, JsonOutput> = hashMapOf()
+    // Handrolled EnumMap until we will have one in stdlib
+    private val modeCache = arrayOfNulls<JsonOutput>(Mode.values().size)
 
     private inner class JsonOutput(val mode: Mode, val w: Composer) : ElementValueOutput() {
         init {
@@ -74,13 +78,20 @@ data class JSON(
 
         override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
             val newMode = switchMode(mode, desc, typeParams)
-            if (newMode.begin != INVALID) {
+            if (newMode.begin != INVALID) { // entry
                 w.print(newMode.begin)
-                w.indent()
             }
-            return if (mode == newMode) this else modeCache.getOrPut(newMode) {
-                JsonOutput(newMode, w)
+
+            if (mode == newMode) return this
+
+            val cached = modeCache[newMode.ordinal]
+            if (cached != null) {
+                return cached
             }
+
+            val out = JsonOutput(newMode, w)
+            modeCache[newMode.ordinal] = out
+            return out
         }
 
         override fun writeEnd(desc: KSerialClassDesc) {
