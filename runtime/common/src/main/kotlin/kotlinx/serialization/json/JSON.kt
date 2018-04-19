@@ -197,7 +197,7 @@ data class JSON(
         fun print(v: Boolean) = engine.print(v)
 
         fun printQuoted(value: String): Unit = with(engine) {
-            print(STRING.toByte())
+            print(STRING)
             var lastPos = 0
             val length = value.length
             for (i in 0 until length) {
@@ -211,7 +211,7 @@ data class JSON(
                 lastPos = i + 1
             }
             append(value, lastPos, length)
-            print(STRING.toByte())
+            print(STRING)
         }
     }
 

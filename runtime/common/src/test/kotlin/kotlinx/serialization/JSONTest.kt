@@ -36,6 +36,11 @@ class JSONTest {
     }
 
     @Test
+    fun testSerializeQuotedJSON() {
+        assertEquals("""{"a":10,"e":false,"c":"Hello"}""", JSON.stringify(TransientTests.Data(10, 100)))
+    }
+
+    @Test
     fun strictJSONCanNotSkipValues() {
         assertFailsWith(SerializationException::class) {
             JSON.parse<OptionalTests.Data>("{strangeField: 100500, a:0}")

@@ -32,10 +32,6 @@ class OkioEngine(private val buf: Buffer = Buffer()) : BufferEngine<BufferedSink
         buf.writeShort(v.toInt())
     }
 
-    override fun print(v: Byte) {
-        buf.writeByte(v.toInt())
-    }
-
     override fun print(v: Int) {
         buf.writeInt(v)
     }
