@@ -18,7 +18,7 @@ package kotlinx.serialization
 
 import kotlin.reflect.KClass
 
-
+@Suppress("UNCHECKED_CAST")
 class SerialContext(private val parentContext: SerialContext? = null) {
 
     private val classMap: MutableMap<KClass<*>, KSerializer<*>> = hashMapOf()

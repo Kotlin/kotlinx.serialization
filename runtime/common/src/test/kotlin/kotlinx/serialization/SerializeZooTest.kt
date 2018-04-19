@@ -97,11 +97,11 @@ class SerializeZooTest {
             val arrIntData: Array<IntData>
 
     ) {
-        override fun equals(o: Any?) = o is ZooWithArrays &&
-                arrByte.contentEquals(o.arrByte) &&
-                arrInt.contentEquals(o.arrInt) &&
-                arrIntN.contentEquals(o.arrIntN) &&
-                arrIntData.contentEquals(o.arrIntData)
+        override fun equals(other: Any?) = other is ZooWithArrays &&
+                arrByte.contentEquals(other.arrByte) &&
+                arrInt.contentEquals(other.arrInt) &&
+                arrIntN.contentEquals(other.arrIntN) &&
+                arrIntData.contentEquals(other.arrIntData)
     }
 
     val zoo = Zoo(

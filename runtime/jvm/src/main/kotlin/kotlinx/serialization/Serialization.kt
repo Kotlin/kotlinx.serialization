@@ -33,6 +33,7 @@ actual fun <E: Enum<E>> KClass<E>.enumClassName(): String = this.java.canonicalN
 @Suppress("UNCHECKED_CAST")
 actual fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> = toArray(java.lang.reflect.Array.newInstance(eClass.java, size) as Array<E>)
 
+@Suppress("UNCHECKED_CAST")
 internal fun <T> Class<T>.invokeSerializerGetter(vararg args: KSerializer<Any>): KSerializer<T>? {
     val companion: Any = try {
         this.getField("Companion").apply { isAccessible = true }.get(null)

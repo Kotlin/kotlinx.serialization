@@ -215,11 +215,11 @@ actual class ByteArrayOutputStream : OutputStream {
         buf = newbuf
     }
 
-    actual open fun size(): Int {
+    actual fun size(): Int {
         return count
     }
 
-    actual open fun toByteArray(): ByteArray {
+    actual fun toByteArray(): ByteArray {
         val newArray = ByteArray(count)
         arraycopy(buf, 0, newArray, 0, count)
         return newArray

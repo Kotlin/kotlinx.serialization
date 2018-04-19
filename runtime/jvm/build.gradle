@@ -55,9 +55,9 @@ dependencies {
     expectedBy project(':common')
 
     compile libraries.kotlin_stdlib
-//    compile libraries.kotlin_reflect
 
     testCompile libraries.kotlin_test
+    testCompile libraries.kotlin_reflect
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$librariesVersion"
     testCompile group: 'junit', name: 'junit', version: '4.4'
     testCompile 'io.kotlintest:kotlintest:2.0.4'
