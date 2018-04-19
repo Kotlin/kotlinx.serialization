@@ -22,12 +22,14 @@ import kotlin.reflect.KClass
 actual fun <T: Any> KClass<T>.serializer(): KSerializer<T> = this.js.asDynamic().Companion?.serializer() as? KSerializer<T>
         ?: throw SerializationException("Can't locate default serializer for class $this")
 
+@Suppress("UNUSED_VARIABLE") // KT-23633
 actual fun String.toUtf8Bytes(): ByteArray {
     val s = this
     val blck = js("unescape(encodeURIComponent(s))") // contains only chars that fit to byte
     return (blck as String).toList().map { it.toByte() }.toByteArray()
 }
 
+@Suppress("UNUSED_VARIABLE") // KT-23633
 actual fun stringFromUtf8Bytes(bytes: ByteArray): String {
     val s = bytes.map { (it.toInt() and 0xFF).toChar() }.joinToString(separator = "") // wide uint8 to char
     val ans = js("decodeURIComponent(escape(s))")

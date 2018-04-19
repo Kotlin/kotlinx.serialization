@@ -33,8 +33,7 @@ class DynamicObjectParser(val context: SerialContext? = null) {
         override fun readElement(desc: KSerialClassDesc): Int {
             while (pos < desc.associatedFieldsCount) {
                 val name = desc.getTag(pos++)
-                val o = obj[name]
-                if (js("o !== undefined")) return pos - 1
+                if (obj[name] !== undefined) return pos - 1
             }
             return READ_DONE
         }
@@ -54,14 +53,14 @@ class DynamicObjectParser(val context: SerialContext? = null) {
         }
 
         override fun readTaggedValue(tag: String): Any {
-            val o = getByTag(tag)
-            if (js("(o === null || o === undefined)")) throw MissingFieldException(tag)
+            val o = getByTag(tag) ?: throw MissingFieldException(tag)
             return o
         }
 
         override fun readTaggedNotNullMark(tag: String): Boolean {
             val o = getByTag(tag)
-            if (js("(o === undefined)")) throw MissingFieldException(tag)
+            if (o === undefined) throw MissingFieldException(tag)
+            @Suppress("SENSELESS_COMPARISON") // null !== undefined !
             return o != null
         }
 
@@ -84,8 +83,7 @@ class DynamicObjectParser(val context: SerialContext? = null) {
         override fun readElement(desc: KSerialClassDesc): Int = READ_ALL
 
         override fun getByTag(tag: String): dynamic {
-            if (tag == "key") return cTag
-            else return obj
+            return if (tag == "key") cTag else obj
         }
     }
 
@@ -94,27 +92,20 @@ class DynamicObjectParser(val context: SerialContext? = null) {
             this.context = this@DynamicObjectParser.context
         }
 
-        private val size: Int
+        private val keys: dynamic = js("Object").keys(obj)
+        private val size: Int = keys.length as Int
         private var pos = 0
 
         override fun elementName(desc: KSerialClassDesc, index: Int): String {
-            val obj = this.obj
             val i = index - 1
-            return js("Object.keys(obj)[i]")
-        }
-
-        init {
-            val o = obj
-            size = js("Object.keys(o).length") as Int
+            return keys[i]
         }
 
         override fun readElement(desc: KSerialClassDesc): Int {
             while (pos < size) {
                 val i = pos++
-                val obj = this.obj
-                val name =  js("Object.keys(obj)[i]") as String
-                val o = obj[name]
-                if (js("o !== undefined")) return pos
+                val name = keys[i] as String
+                if (this.obj[name] !== undefined) return pos
             }
             return READ_DONE
         }
@@ -133,7 +124,7 @@ class DynamicObjectParser(val context: SerialContext? = null) {
         override fun readElement(desc: KSerialClassDesc): Int {
             while (pos < size) {
                 val o = obj[pos++]
-                if (js("o !== undefined")) return pos
+                if (o !== undefined) return pos
             }
             return READ_DONE
         }
