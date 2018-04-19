@@ -28,6 +28,10 @@ class OkioEngine(private val buf: Buffer = Buffer()) : BufferEngine<BufferedSink
         buf.writeUtf8(v)
     }
 
+    override fun print(v: Byte) {
+        buf.writeByte(v.toInt())
+    }
+
     override fun print(v: Short) {
         buf.writeShort(v.toInt())
     }
@@ -52,7 +56,7 @@ class KxioEngine(private val builder: BytePacketBuilder = BytePacketBuilder()) :
     }
 
     override fun append(obj: Any) {
-        builder.writeStringUtf8(obj.toString())
+        builder.append(obj.toString())
     }
 
     override fun print(v: Char) {
@@ -60,7 +64,11 @@ class KxioEngine(private val builder: BytePacketBuilder = BytePacketBuilder()) :
     }
 
     override fun print(v: String) {
-        builder.writeStringUtf8(v)
+        builder.append(v)
+    }
+
+    override fun print(v: Byte) {
+        builder.writeByte(v)
     }
 
     override fun print(v: Short) {

@@ -38,6 +38,10 @@ class StringEngine(private val sb: StringBuilder) : BufferEngine<String> {
         sb.append(obj)
     }
 
+    override fun print(v: String) {
+        sb.append(v)
+    }
+
     override fun result(): String {
         return sb.toString()
     }
