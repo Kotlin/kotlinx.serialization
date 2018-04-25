@@ -29,18 +29,16 @@ data class JSON(
         val context: SerialContext? = null
 ) {
     fun <T> stringify(saver: KSerialSaver<T>, obj: T): String {
-        return stringify(saver, obj, StringEngine())
-    }
-
-    fun <T, R> stringify(saver: KSerialSaver<T>, obj: T, engine: BufferEngine<R>): R {
-        val output = JsonOutput(Mode.OBJ, Composer(engine))
+        val sb = StringBuilder()
+        val output = JsonOutput(Mode.OBJ, Composer(sb))
 
         for (i in 0 until modeCache.size) {
             modeCache[i] = null
         }
         modeCache[Mode.OBJ.ordinal] = output
+
         output.write(saver, obj)
-        return engine.result()
+        return sb.toString()
     }
 
     inline fun <reified T : Any> stringify(obj: T): String = stringify(context.klassSerializer(T::class), obj)
@@ -169,7 +167,7 @@ data class JSON(
         }
     }
 
-    inner class Composer(private val engine: BufferEngine<*>) {
+    inner class Composer(private val sb: StringBuilder) {
         private var level = 0
         fun indent() { level++ }
         fun unIndent() { level-- }
@@ -186,18 +184,18 @@ data class JSON(
                 print(' ')
         }
 
-        fun print(v: Char) = engine.print(v)
-        fun print(v: String) = engine.print(v)
+        fun print(v: Char) = sb.append(v)
+        fun print(v: String) = sb.append(v)
 
-        fun print(v: Float) = engine.print(v)
-        fun print(v: Double) = engine.print(v)
-        fun print(v: Byte) = engine.print(v)
-        fun print(v: Short) = engine.print(v)
-        fun print(v: Int) = engine.print(v)
-        fun print(v: Long) = engine.print(v)
-        fun print(v: Boolean) = engine.print(v)
+        fun print(v: Float) = sb.append(v)
+        fun print(v: Double) = sb.append(v)
+        fun print(v: Byte) = sb.append(v)
+        fun print(v: Short) = sb.append(v)
+        fun print(v: Int) = sb.append(v)
+        fun print(v: Long) = sb.append(v)
+        fun print(v: Boolean) = sb.append(v)
 
-        fun printQuoted(value: String): Unit = with(engine) {
+        fun printQuoted(value: String): Unit = with(sb) {
             print(STRING)
             var lastPos = 0
             val length = value.length
