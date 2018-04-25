@@ -17,11 +17,8 @@
 apply plugin: 'konan'
 
 if (property('native.alltargets') == 'true') {
-    konan.targets = ["macbook", "iphone", "iphone_sim"]
-} else {
-    konan.targets = ["macbook"]
+    konan.targets = ["linux", "macos_x64", "ios_arm64", "ios_x64"]
 }
-
 
 konanArtifacts {
     library('serialization') {
@@ -30,14 +27,26 @@ konanArtifacts {
         srcDir project(':common').file('src/main/kotlin')
     }
 
-    program('native-test') {
-        srcDir 'src/main/kotlin'
-        srcDir project(':common').file('src/main/kotlin')
+    // workaround for publishing
+//    program('native-test') {
+//        srcDir 'src/main/kotlin'
+//        srcDir project(':common').file('src/main/kotlin')
+//
+//        srcDir 'src/test/kotlin'
+//        srcDir project(':integration:test-data-sourcegen').file('src')
+//        srcDir project(':integration:test-logic').file('src')
+//        extraOpts '-tr', '-Xmulti-platform'
+//    }
+}
 
-        srcDir 'src/test/kotlin'
-        srcDir project(':integration:test-data-sourcegen').file('src')
-        srcDir project(':integration:test-logic').file('src')
-        extraOpts '-tr', '-Xmulti-platform'
+apply plugin: 'maven-publish'
+
+def localMavenRepo = "file://${new File(System.properties['user.home'] as String)}/.m2-kotlin-native"
+publishing {
+    repositories {
+        maven {
+            url = localMavenRepo
+        }
     }
 }
 
