@@ -37,7 +37,7 @@ typealias ProtoDesc = Pair<Int, ProtoNumberType>
 
 class ProtoBuf(val context: SerialContext? = null) {
 
-    internal inner open class ProtobufWriter(val encoder: ProtobufEncoder) : TaggedOutput<ProtoDesc>() {
+    internal open inner class ProtobufWriter(val encoder: ProtobufEncoder) : TaggedOutput<ProtoDesc>() {
 
         init {
             context = this@ProtoBuf.context
@@ -147,7 +147,7 @@ class ProtoBuf(val context: SerialContext? = null) {
                 }
     }
 
-    private inner open class ProtobufReader(val decoder: ProtobufDecoder) : TaggedInput<ProtoDesc>() {
+    private open inner class ProtobufReader(val decoder: ProtobufDecoder) : TaggedInput<ProtoDesc>() {
 
         init {
             context = this@ProtoBuf.context
