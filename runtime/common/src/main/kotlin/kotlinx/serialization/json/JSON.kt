@@ -79,6 +79,7 @@ data class JSON(
             val newMode = switchMode(mode, desc, typeParams)
             if (newMode.begin != INVALID) { // entry
                 w.print(newMode.begin)
+                w.indent()
             }
 
             if (mode == newMode) return this
