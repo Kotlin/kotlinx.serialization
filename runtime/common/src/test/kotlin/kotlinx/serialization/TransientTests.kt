@@ -17,18 +17,17 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.json.JSON
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import kotlin.test.*
 
 class TransientTests {
     @Serializable
-    class Data(val a: Int = 0, @Transient val b: Int = 42, @Optional val e: Boolean = false) {
+    class Data(val a: Int = 0, @Transient var b: Int = 42, @Optional val e: Boolean = false) {
         @Optional
         var c = "Hello"
 
         @Transient
-        var d = "World"
+        val d: String
+            get() = "hello"
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
