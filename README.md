@@ -59,7 +59,7 @@ More examples of various kinds of Kotlin classes that can be serialized can be f
 
 ## Setup
 
-Using Kotlin Serialization requires Kotlin compiler `1.1.50` or higher, recommended version is `1.2.30`.
+Using Kotlin Serialization requires Kotlin compiler `1.1.50` or higher, recommended version is `1.2.40`.
 Also, it's recommended to install [additional IDEA plugin](#working-in-intellij-idea) for better IDE experience. Otherwise,
 some valid code will be shown as red and builds will have to be launched from console or build system tasks panel.
 Example projects on JVM are available for [Gradle](example-jvm/build.gradle) and [Maven](example-jvm/pom.xml).
@@ -70,8 +70,8 @@ Ensure the proper version of Kotlin and add dependencies on plugin in addition t
 
 ```gradle
 buildscript {
-    ext.kotlin_version = '1.2.30'
-    ext.serialization_version = '0.4.2'
+    ext.kotlin_version = '1.2.40'
+    ext.serialization_version = '0.5.0'
     repositories {
         jcenter()
         maven { url "https://kotlin.bintray.com/kotlinx" }
@@ -130,8 +130,8 @@ Ensure the proper version of Kotlin and serialization version:
 
 ```xml
 <properties>
-    <kotlin.version>1.2.30</kotlin.version>
-    <serialization.version>0.4.2</serialization.version>
+    <kotlin.version>1.2.40</kotlin.version>
+    <serialization.version>0.5.0</serialization.version>
 </properties>
 ```
 
@@ -213,7 +213,7 @@ You can download additional IDEA plugin for working with projects that uses seri
 TeamCity build page:
 
 * For 1.2.31 and lower: [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1&buildBranch=1.2.30)
-* For 1.2.40 and higher: [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1)
+* For 1.2.40 and higher: [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1&buildBranch=1.2.40)
 
 In IDEA, open `Settings - Plugins - Install plugin from disk...` and select downloaded .zip or .jar file.
 This installation will allow you to run code/tests from IDEA.
@@ -227,6 +227,6 @@ In case of issues with IDE, try to use gradle for running builds:
 |--------------|----------------|
 | 0.1 – 0.3 | 1.1.50 – 1.2.10|
 | 0.4 – 0.4.1 | 1.2.20 – 1.2.21|
-| 0.4.2 | 1.2.30+|
+| 0.4.2 – 0.5.0 | 1.2.30 – 1.2.41|
 
 All ranges in table are inclusive
