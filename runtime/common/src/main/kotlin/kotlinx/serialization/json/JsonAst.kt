@@ -31,11 +31,15 @@ data class JsonValue(val content: String) : JsonElement() {
 }
 
 data class JsonObject(val content: Map<String, JsonElement>) : JsonElement(), Map<String, JsonElement> by content {
-    fun getAsValue(key: String): JsonValue? = content[key] as? JsonValue
+    fun getAsValue(key: String)= content[key] as? JsonValue
+    fun getAsObject(key: String) = content[key] as? JsonObject
+    fun getAsArray(key: String) = content[key] as? JsonArray
 }
 
 data class JsonArray(val content: List<JsonElement>) : JsonElement(), List<JsonElement> by content {
-    fun getAsValue(index: Int): JsonValue? = content.getOrNull(index) as? JsonValue
+    fun getAsValue(index: Int) = content.getOrNull(index) as? JsonValue
+    fun getAsObject(index: Int) = content.getOrNull(index) as? JsonObject
+    fun getAsArray(index: Int) = content.getOrNull(index) as? JsonArray
 }
 
 
