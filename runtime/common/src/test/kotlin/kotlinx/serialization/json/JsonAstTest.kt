@@ -11,20 +11,20 @@ class JsonAstTest {
 
     @Test
     fun jsonValue() {
-        val v = JsonValue("foo")
+        val v = JsonLiteral("foo")
         assertEquals(v, JsonTreeParser("foo").readFully())
     }
 
     @Test
     fun jsonObject() {
-        val input = """{"a": "foo","b": 10, "c": true, "d": null}"""
+        val input = """{"a": "foo", "b": 10, "c": true, "d": null}"""
         val elem = JsonTreeParser(input).readFully()
 
         assertTrue(elem is JsonObject)
         elem as JsonObject
         assertEquals(setOf("a", "b", "c", "d"), elem.keys)
 
-        assertEquals(JsonValue("foo"), elem["a"])
+        assertEquals(JsonString("foo"), elem["a"])
         assertEquals(10, elem.getAsValue("b")?.asInt)
         assertEquals(true, elem.getAsValue("c")?.asBoolean)
         assertTrue(elem.getValue("d") === JsonNull)
@@ -47,5 +47,13 @@ class JsonAstTest {
         assertTrue(array[2] is JsonObject)
         val third = array.getAsObject(2)!!
         assertEquals("baz", third.getAsValue("bar")?.str)
+    }
+
+    @Test
+    fun saveToJson() {
+        val input = """{"a": "foo", "b": 10, "c": true, "d": null, "e": ["foo", 100500, {"bar": "baz"}]}"""
+        val elem = JsonTreeParser(input).readFully()
+        val json = elem.toString()
+        assertEquals(input, json)
     }
 }

@@ -19,11 +19,14 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
+/**
+ * Root node for whole JSON DOM
+ */
 sealed class JsonElement
 
-val JsonNull = JsonValue("null")
+sealed class JsonPrimitive : JsonElement() {
+    protected abstract val content: String
 
-data class JsonValue(val content: String) : JsonElement() {
     val asInt: Int get() = content.toInt()
     val asLong: Long get() = content.toLong()
 
@@ -32,19 +35,45 @@ data class JsonValue(val content: String) : JsonElement() {
 
     val asBoolean: Boolean get() = content.toBoolean()
 
-    inline val str: String get() = content
+    val str: String get() = content
 }
 
+/**
+ * Represents quoted JSON strings
+ */
+data class JsonString(override val content: String): JsonPrimitive() {
+    override fun toString() = buildString { printQuoted(content) }
+}
+
+/**
+ * Represents unquoted JSON primitives (numbers, booleans and null)
+ */
+data class JsonLiteral(override val content: String): JsonPrimitive() {
+    override fun toString() = content
+}
+
+val JsonNull = JsonLiteral("null")
+
 data class JsonObject(val content: Map<String, JsonElement>) : JsonElement(), Map<String, JsonElement> by content {
-    fun getAsValue(key: String)= content[key] as? JsonValue
+    fun getAsValue(key: String)= content[key] as? JsonPrimitive
     fun getAsObject(key: String) = content[key] as? JsonObject
     fun getAsArray(key: String) = content[key] as? JsonArray
+
+    override fun toString(): String {
+        return content.entries.joinToString(
+            prefix = "{",
+            postfix = "}",
+            transform = {(k, v) -> """"$k": $v"""}
+        )
+    }
 }
 
 data class JsonArray(val content: List<JsonElement>) : JsonElement(), List<JsonElement> by content {
-    fun getAsValue(index: Int) = content.getOrNull(index) as? JsonValue
+    fun getAsValue(index: Int) = content.getOrNull(index) as? JsonPrimitive
     fun getAsObject(index: Int) = content.getOrNull(index) as? JsonObject
     fun getAsArray(index: Int) = content.getOrNull(index) as? JsonArray
+
+    override fun toString() = content.joinToString(prefix = "[", postfix = "]")
 }
 
 
@@ -69,7 +98,10 @@ class JsonTreeParser(val input: String) {
         return JsonObject(result)
     }
 
-    private fun readValue(): JsonElement = JsonValue(p.takeStr())
+    private fun readValue(asLiteral: Boolean = false): JsonElement {
+        val str = p.takeStr()
+        return if (asLiteral) JsonLiteral(str) else JsonString(str)
+    }
 
     private fun readArray(): JsonElement {
         p.requireTc(TC_BEGIN_LIST) { "Expected start of array" }
@@ -91,7 +123,8 @@ class JsonTreeParser(val input: String) {
         val tc = p.tc
         return when (tc) {
             TC_NULL -> JsonNull.also { p.nextToken() }
-            TC_STRING, TC_OTHER -> readValue() // string or literal
+            TC_STRING -> readValue(asLiteral = false)
+            TC_OTHER -> readValue(asLiteral = true)
             TC_BEGIN_OBJ -> readObject()
             TC_BEGIN_LIST -> readArray()
             else -> fail(p.curPos, "Can't begin reading element")
@@ -133,9 +166,9 @@ class JsonTreeMapper(val context: SerialContext? = null) {
             }
         }
 
-        protected open fun getValue(tag: String): JsonValue {
+        protected open fun getValue(tag: String): JsonPrimitive {
             val currentElement = currentElement(tag)
-            return currentElement as? JsonValue ?: throw SerializationException("Expected from $tag to be primitive but found $currentElement")
+            return currentElement as? JsonPrimitive ?: throw SerializationException("Expected from $tag to be primitive but found $currentElement")
         }
 
         protected abstract fun currentElement(tag: String): JsonElement
@@ -187,7 +220,7 @@ class JsonTreeMapper(val context: SerialContext? = null) {
     private inner class JsonTreeMapEntryInput(override val obj: JsonElement, val cTag: String): AbstractJsonTreeInput(obj) {
 
         override fun currentElement(tag: String): JsonElement = if (tag == "key") {
-            JsonValue(cTag)
+            JsonString(cTag)
         } else {
             check(tag == "value") {"Found unexpected tag: $tag"}
             obj
