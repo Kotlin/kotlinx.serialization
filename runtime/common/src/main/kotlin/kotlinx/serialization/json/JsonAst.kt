@@ -16,16 +16,21 @@
 
 package kotlinx.serialization.json
 
+import kotlinx.serialization.*
+import kotlin.reflect.KClass
+
 sealed class JsonElement
 
-object JsonNull : JsonElement()
+val JsonNull = JsonValue("null")
 
 data class JsonValue(val content: String) : JsonElement() {
-    val asInt: Int
-        get() = content.toInt()
+    val asInt: Int get() = content.toInt()
+    val asLong: Long get() = content.toLong()
 
-    val asBoolean: Boolean
-        get() = content.toBoolean()
+    val asDouble: Double get() = content.toDouble()
+    val asFloat: Float get() = content.toFloat()
+
+    val asBoolean: Boolean get() = content.toBoolean()
 
     inline val str: String get() = content
 }
@@ -43,7 +48,7 @@ data class JsonArray(val content: List<JsonElement>) : JsonElement(), List<JsonE
 }
 
 
-class JsonAstReader(val input: String) {
+class JsonTreeParser(val input: String) {
     private val p: Parser = Parser(input)
 
     private fun readObject(): JsonElement {
@@ -97,5 +102,137 @@ class JsonAstReader(val input: String) {
         val r = read()
         p.requireTc(TC_EOF) { "Input wasn't consumed fully" }
         return r
+    }
+}
+
+
+class JsonTreeMapper(val context: SerialContext? = null) {
+    inline fun <reified T : Any> readTree(tree: JsonElement): T = readTree(tree, context.klassSerializer(T::class))
+
+    fun <T> readTree(obj: JsonElement, loader: KSerialLoader<T>): T {
+        if (obj !is JsonObject) throw SerializationException("Can't deserialize primitive on root level")
+        return JsonTreeInput(obj).read(loader)
+    }
+
+    private abstract inner class AbstractJsonTreeInput(open val obj: JsonElement): NamedValueInput() {
+        init {
+            this.context = this@JsonTreeMapper.context
+        }
+
+        override fun composeName(parentName: String, childName: String): String = childName
+
+
+        override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
+            val curObj = currentTagOrNull?.let { currentElement(it) } ?: obj
+            // todo: more informative exceptions instead of ClassCast
+            return when (desc.kind) {
+                KSerialClassKind.LIST, KSerialClassKind.SET -> JsonTreeListInput(curObj as JsonArray)
+                KSerialClassKind.MAP -> JsonTreeMapInput(curObj as JsonObject)
+                KSerialClassKind.ENTRY -> JsonTreeMapEntryInput(curObj, currentTag)
+                else -> JsonTreeInput(curObj as JsonObject)
+            }
+        }
+
+        protected open fun getValue(tag: String): JsonValue {
+            val currentElement = currentElement(tag)
+            return currentElement as? JsonValue ?: throw SerializationException("Expected from $tag to be primitive but found $currentElement")
+        }
+
+        protected abstract fun currentElement(tag: String): JsonElement
+
+        override fun readTaggedChar(tag: String): Char {
+            val o = getValue(tag)
+            return if (o.str.length == 1) o.str[0] else throw SerializationException("$o can't be represented as Char")
+        }
+
+        override fun <E : Enum<E>> readTaggedEnum(tag: String, enumClass: KClass<E>): E =
+            enumFromName(enumClass, (getValue(tag).str))
+
+        override fun readTaggedNull(tag: String): Nothing? = null
+        override fun readTaggedNotNullMark(tag: String) = currentElement(tag) !== JsonNull
+
+        override fun readTaggedUnit(tag: String) {
+            return
+        }
+
+        override fun readTaggedBoolean(tag: String): Boolean = getValue(tag).asBoolean
+        override fun readTaggedByte(tag: String): Byte = getValue(tag).asInt.toByte()
+        override fun readTaggedShort(tag: String) = getValue(tag).asInt.toShort()
+        override fun readTaggedInt(tag: String) = getValue(tag).asInt
+        override fun readTaggedLong(tag: String) = getValue(tag).asLong
+        override fun readTaggedFloat(tag: String) = getValue(tag).asFloat
+        override fun readTaggedDouble(tag: String) = getValue(tag).asDouble
+        override fun readTaggedString(tag: String) = getValue(tag).str
+
+    }
+
+    private open inner class JsonTreeInput(override val obj: JsonObject) : AbstractJsonTreeInput(obj) {
+
+        private var pos = 0
+
+        override fun readElement(desc: KSerialClassDesc): Int {
+            while (pos < desc.associatedFieldsCount) {
+                val name = desc.getTag(pos++)
+                if (name in obj) return pos - 1
+            }
+            return READ_DONE
+        }
+
+        override fun currentElement(tag: String): JsonElement {
+            return obj.getValue(tag)
+        }
+
+    }
+
+    private inner class JsonTreeMapEntryInput(override val obj: JsonElement, val cTag: String): AbstractJsonTreeInput(obj) {
+
+        override fun currentElement(tag: String): JsonElement = if (tag == "key") {
+            JsonValue(cTag)
+        } else {
+            check(tag == "value") {"Found unexpected tag: $tag"}
+            obj
+        }
+
+        override fun readElement(desc: KSerialClassDesc): Int = READ_ALL
+    }
+
+    private inner class JsonTreeMapInput(override val obj: JsonObject): JsonTreeInput(obj) {
+
+        private val keys = obj.keys.toList()
+        private val size: Int = keys.size
+        private var pos = 0
+
+        override fun elementName(desc: KSerialClassDesc, index: Int): String {
+            val i = index - 1
+            return keys[i]
+        }
+
+        override fun readElement(desc: KSerialClassDesc): Int {
+            while (pos < size) {
+                pos++
+                return pos
+            }
+            return READ_DONE
+        }
+    }
+
+    private inner class JsonTreeListInput(override val obj: JsonArray): AbstractJsonTreeInput(obj) {
+
+        override fun currentElement(tag: String): JsonElement {
+            return obj[tag.toInt()]
+        }
+
+        private val size = obj.content.size
+        private var pos = 0 // 0st element is SIZE. use it?
+
+        override fun elementName(desc: KSerialClassDesc, index: Int): String = (index - 1).toString()
+
+        override fun readElement(desc: KSerialClassDesc): Int {
+            while (pos < size) {
+                pos++
+                return pos
+            }
+            return READ_DONE
+        }
     }
 }
