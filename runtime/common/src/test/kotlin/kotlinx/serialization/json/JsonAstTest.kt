@@ -1,25 +1,24 @@
-package kotlinx.serialization
+package kotlinx.serialization.json
 
-import kotlinx.serialization.json.*
 import kotlin.test.*
 
 class JsonAstTest {
     @Test
     fun parseWithoutExceptions() {
         val input = """{"a": "foo",              "b": 10, "c": ["foo", 100500, {"bar": "baz"}]}"""
-        val elem = JsonAstReader(input).readFully()
+        JsonTreeParser(input).readFully()
     }
 
     @Test
     fun jsonValue() {
         val v = JsonValue("foo")
-        assertEquals(v, JsonAstReader("foo").readFully())
+        assertEquals(v, JsonTreeParser("foo").readFully())
     }
 
     @Test
     fun jsonObject() {
         val input = """{"a": "foo","b": 10, "c": true, "d": null}"""
-        val elem = JsonAstReader(input).readFully()
+        val elem = JsonTreeParser(input).readFully()
 
         assertTrue(elem is JsonObject)
         elem as JsonObject
@@ -34,7 +33,7 @@ class JsonAstTest {
     @Test
     fun jsonObjectWithArrays() {
         val input = """{"a": "foo",              "b": 10, "c": ["foo", 100500, {"bar": "baz"}]}"""
-        val elem = JsonAstReader(input).readFully()
+        val elem = JsonTreeParser(input).readFully()
 
         assertTrue(elem is JsonObject)
         elem as JsonObject
