@@ -53,6 +53,7 @@ sourceSets {
 
 dependencies {
     expectedBy project(':common')
+    expectedBy project(':jsonparser')
 
     compile libraries.kotlin_stdlib
 

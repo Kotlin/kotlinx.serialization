@@ -33,13 +33,18 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
         maven { url eapChannel }
         maven { url serializationRepo }
+        maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
     }
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$compilerVersion"
         classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$serializationPluginVersion"
+        classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:${property('konan.version')}"
+
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.2'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.2-SNAPSHOT'
+
         classpath "com.github.jengelman.gradle.plugins:shadow:2.0.2"
         classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.5"
         classpath "net.ltgt.gradle:gradle-apt-plugin:0.10"
@@ -74,6 +79,8 @@ allprojects {
 apply plugin: 'kotlin'
 
 subprojects {
+    if (project.name == "native") return
+
     apply plugin: 'kotlinx-serialization'
 
     apply plugin: 'maven-publish'
@@ -119,23 +126,5 @@ subprojects {
         }
     }
 
-    bintray {
-        user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-        key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-        publications = ['mavenProject']
-        pkg {
-            repo = 'kotlinx'
-            name = 'kotlinx.serialization.runtime'
-            userOrg = 'kotlin'
-            licenses = ['Apache-2.0']
-            vcsUrl = 'https://github.com/Kotlin/kotlinx.serialization'
-            websiteUrl = 'https://github.com/Kotlin/kotlinx.serialization'
-            issueTrackerUrl = 'https://github.com/Kotlin/kotlinx.serialization/issues'
-
-            githubRepo = 'Kotlin/kotlinx.serialization'
-            version {
-                name = project.version
-            }
-        }
-    }
+    apply plugin: 'com.jfrog.bintray'
 }

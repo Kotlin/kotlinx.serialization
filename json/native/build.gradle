@@ -1,0 +1,39 @@
+apply plugin: 'konan'
+
+konanArtifacts {
+    library('jsonparser') {
+        enableMultiplatform true
+        srcDir 'src'
+        srcDir project(':jsonparser').file('src')
+    }
+}
+
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+def localMavenRepo = "file://${new File(System.properties['user.home'] as String)}/.m2-kotlin-native"
+def remoteBintrayRepo ="https://dl.bintray.com/sandwwraith/generic/native-libs"
+
+publishing {
+    repositories {
+        maven {
+            url = remoteBintrayRepo
+        }
+    }
+}
+
+bintray {
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    pkg {
+        userOrg = 'sandwwraith'
+        repo = 'generic'
+        name = "native-libs"
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/Kotlin/kotlinx.serialization'
+    }
+}
+
+bintrayUpload.doFirst {
+    publications = project.publishing.publications
+}

@@ -27,6 +27,7 @@ apply plugin: 'kotlin-platform-js'
 
 dependencies {
     expectedBy project(':common')
+    expectedBy project(':jsonparser')
 
     compile libraries.kotlin_stdlib_js
     testCompile libraries.kotlin_test_js
