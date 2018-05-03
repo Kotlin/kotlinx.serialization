@@ -17,7 +17,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.internal.HexConverter
-import kotlinx.serialization.internal.createString
+import kotlinx.serialization.json.createString
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

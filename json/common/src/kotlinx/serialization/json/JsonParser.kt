@@ -1,8 +1,5 @@
 package kotlinx.serialization.json
 
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.internal.createString
-
 // special strings
 internal const val NULL = "null"
 
@@ -261,11 +258,11 @@ internal class Parser(val source: String) {
             when (tc) {
                 TC_BEGIN_LIST, TC_BEGIN_OBJ -> tokenStack.add(tc)
                 TC_END_LIST -> {
-                    if (tokenStack.last() != TC_BEGIN_LIST) throw SerializationException("Invalid JSON at $curPos: found ] instead of }")
+                    if (tokenStack.last() != TC_BEGIN_LIST) throw IllegalStateException("Invalid JSON at $curPos: found ] instead of }")
                     tokenStack.removeAt(tokenStack.size - 1)
                 }
                 TC_END_OBJ -> {
-                    if (tokenStack.last() != TC_BEGIN_OBJ) throw SerializationException("Invalid JSON at $curPos: found } instead of ]")
+                    if (tokenStack.last() != TC_BEGIN_OBJ) throw IllegalStateException("Invalid JSON at $curPos: found } instead of ]")
                     tokenStack.removeAt(tokenStack.size - 1)
                 }
             }
