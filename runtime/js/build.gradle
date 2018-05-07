@@ -19,7 +19,7 @@ plugins {
 }
 
 ext {
-    nodeVersion = '6.11.2'
+    nodeVersion = '8.11.1'
     qunitjsVersion = '2.4.0'
 }
 
@@ -57,6 +57,17 @@ task populateNodeModules(type: Copy, dependsOn: compileKotlin2Js) {
 node {
     version = nodeVersion
     download = true
+}
+
+// Workaround the problem with Node downloading:
+// Konan plugin uses Gradle-metadata feature which is not compatible
+// with node plugin download implementation
+repositories.whenObjectAdded {
+    if (it instanceof IvyArtifactRepository) {
+        metadataSources {
+            artifact()
+        }
+    }
 }
 
 task installQunit(type: NpmTask) {

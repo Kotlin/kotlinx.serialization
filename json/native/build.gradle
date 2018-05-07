@@ -7,22 +7,27 @@ if (deployMode) {
 }
 
 konanArtifacts {
-    library('jsonparser') {
-        enableMultiplatform true
+    library('jsonparser-native') {
         srcDir 'src'
-        srcDir project(':jsonparser').file('src')
+        enableMultiplatform true
     }
 
     if (!deployMode) {
-        program('jsonparser-test') {
-            srcDir 'src'
-            srcDir project(':jsonparser').file('src')
+        program('jsonparser-native-test') {
+            srcDir 'test'
+            commonSourceSet 'test'
 
-            srcDir project(':jsonparser').file('test')
+            libraries {
+                artifact 'jsonparser-native'
+            }
 
-            extraOpts '-tr', '-Xmulti-platform'
+            extraOpts '-tr'
         }
     }
+}
+
+dependencies {
+    expectedBy project(':jsonparser')
 }
 
 task test(dependsOn: run)
@@ -31,7 +36,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
 def localMavenRepo = "file://${new File(System.properties['user.home'] as String)}/.m2-kotlin-native"
-def remoteBintrayRepo ="https://dl.bintray.com/sandwwraith/generic/native-libs"
+def remoteBintrayRepo ="https://dl.bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime"
 
 publishing {
     repositories {
@@ -45,17 +50,7 @@ publishing {
     }
 }
 
-bintray {
-    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-    pkg {
-        userOrg = 'sandwwraith'
-        repo = 'generic'
-        name = "native-libs"
-        licenses = ['Apache-2.0']
-        vcsUrl = 'https://github.com/Kotlin/kotlinx.serialization'
-    }
-}
+apply from: "${rootProject.rootDir}/gradle/bintray.gradle"
 
 bintrayUpload.doFirst {
     publications = project.publishing.publications

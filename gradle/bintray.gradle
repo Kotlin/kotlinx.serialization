@@ -1,0 +1,19 @@
+bintray {
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    publications = ['mavenProject']
+    pkg {
+        repo = 'kotlinx'
+        name = 'kotlinx.serialization.runtime'
+        userOrg = 'kotlin'
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/Kotlin/kotlinx.serialization'
+        websiteUrl = 'https://github.com/Kotlin/kotlinx.serialization'
+        issueTrackerUrl = 'https://github.com/Kotlin/kotlinx.serialization/issues'
+
+        githubRepo = 'Kotlin/kotlinx.serialization'
+        version {
+            name = project.version
+        }
+    }
+}
