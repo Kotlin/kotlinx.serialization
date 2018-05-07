@@ -1,12 +1,31 @@
 apply plugin: 'konan'
 
+def deployMode = property('native.deploy') == 'true'
+
+if (deployMode) {
+    konan.targets = ["macos_x64", "ios_arm64", "ios_x64"]
+}
+
 konanArtifacts {
     library('jsonparser') {
         enableMultiplatform true
         srcDir 'src'
         srcDir project(':jsonparser').file('src')
     }
+
+    if (!deployMode) {
+        program('jsonparser-test') {
+            srcDir 'src'
+            srcDir project(':jsonparser').file('src')
+
+            srcDir project(':jsonparser').file('test')
+
+            extraOpts '-tr', '-Xmulti-platform'
+        }
+    }
 }
+
+task test(dependsOn: run)
 
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
@@ -17,7 +36,11 @@ def remoteBintrayRepo ="https://dl.bintray.com/sandwwraith/generic/native-libs"
 publishing {
     repositories {
         maven {
-            url = remoteBintrayRepo
+            if (deployMode) {
+                url = remoteBintrayRepo
+            } else {
+                url = localMavenRepo
+            }
         }
     }
 }
