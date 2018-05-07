@@ -15,6 +15,8 @@
  */
 
 buildscript {
+    def deployNative = property('native.deploy') == 'true'
+
     if (project.hasProperty("bootstrap")) {
         ext.compilerVersion = property('kotlin.version.snapshot')
         ext.librariesVersion = property('kotlin.version.snapshot')
@@ -43,7 +45,12 @@ buildscript {
 
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.2'
 
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.2-SNAPSHOT'
+        if (deployNative) {
+            // use patched version which supports Gradle metadata, but is not compatible with Maven publications
+            classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.2-SNAPSHOT'
+        } else {
+            classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        }
 
         classpath "com.github.jengelman.gradle.plugins:shadow:2.0.2"
         classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.5"
@@ -84,7 +91,6 @@ subprojects {
     apply plugin: 'kotlinx-serialization'
 
     apply plugin: 'maven-publish'
-    apply plugin: 'com.jfrog.bintray'
 
     def varintName = ""
 
@@ -127,4 +133,6 @@ subprojects {
     }
 
     apply plugin: 'com.jfrog.bintray'
+
+    apply from: "${rootProject.rootDir}/gradle/bintray.gradle"
 }

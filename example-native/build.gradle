@@ -1,0 +1,30 @@
+buildscript {
+    ext.serializationRepo = "https://dl.bintray.com/kotlin/kotlinx/"
+
+    repositories {
+        jcenter()
+        maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:0.7"
+    }
+}
+
+repositories {
+    maven { url serializationRepo }
+}
+
+apply plugin: 'konan'
+
+konanArtifacts {
+    program('sample') {
+        srcDir 'src'
+
+        dependencies {
+            artifactsample "org.jetbrains.kotlinx:jsonparser-native:0.5.0"
+        }
+    }
+}
+
+
