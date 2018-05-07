@@ -16,6 +16,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.json.JSON
 import org.junit.Test
 
 // Serializable data class
@@ -172,6 +173,13 @@ class SerializeFlatTest() {
         val data = inp.read(CustomSerializer)
         inp.done()
         assert(data._value1 == "s1" && data._value2 == 42)
+    }
+
+    @Test
+    fun testJsonExternalData(){
+        val json = JSON.stringify(ExternalData("s1", 42))
+        val data = JSON.parse<ExternalData>(json)
+        assert(data.value1=="s1" && data.value2==42)
     }
 
     @Test
