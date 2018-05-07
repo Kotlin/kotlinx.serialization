@@ -2,6 +2,7 @@ apply plugin: 'kotlin-platform-common'
 
 sourceSets {
     main.kotlin.srcDirs = ['src']
+    test.kotlin.srcDirs = ['test']
 }
 
 dependencies {
