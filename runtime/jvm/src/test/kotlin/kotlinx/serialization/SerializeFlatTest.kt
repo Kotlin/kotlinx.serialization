@@ -176,13 +176,6 @@ class SerializeFlatTest() {
     }
 
     @Test
-    fun testJsonExternalData(){
-        val json = JSON.stringify(ExternalData("s1", 42))
-        val data = JSON.parse<ExternalData>(json)
-        assert(data.value1=="s1" && data.value2==42)
-    }
-
-    @Test
     fun testExternalData() {
         val out = Out("ExternalData")
         out.write(ExternalSerializer, ExternalData("s1", 42))

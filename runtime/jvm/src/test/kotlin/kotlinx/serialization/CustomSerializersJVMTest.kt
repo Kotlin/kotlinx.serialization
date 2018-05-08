@@ -38,6 +38,9 @@ class CustomSerializersJVMTest {
 
     data class Payload(val s: String)
 
+    @Serializable(with = PayloadSerializer::class)
+    data class PayloadEx(val s:String)
+
     @Serializable
     data class PayloadList(val ps: List<Payload>)
 
@@ -76,6 +79,18 @@ class CustomSerializersJVMTest {
     fun readCustom() {
         val s = json.parse<EnhancedData>("{data:{a:100500,b:42},stringPayload:{s:string},binaryPayload:62696E617279}")
         assertEquals(obj, s)
+    }
+
+    @Test
+    fun readPayloadEx(){
+        val data = JSON.parse<PayloadEx>("{\"s\":\"42\"")
+        assertEquals("42", data.s)
+    }
+
+    @Test
+    fun writePayloadEx(){
+        val dataJson = JSON.stringify(PayloadEx(s = "42"))
+        assertEquals("{\"s\":\"42\"", dataJson)
     }
 
     @Test
