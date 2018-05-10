@@ -138,7 +138,13 @@ class ModernEnumSerializer<T : Enum<T>>(className: String, val loader: EnumLoade
 
 fun <T : Any> makeNullable(element: KSerializer<T>): KSerializer<T?> = NullableSerializer(element)
 
-class NullableSerializer<T : Any>(private val element: KSerializer<T>) : KSerializer<T?> {
+class SchemaSerializer<T: Any>(private val element: ExtendedSerializer<T>): NullableSerializer<T>(element), ExtendedSerializer<T?> {
+    override fun saveSchema(output: KOutput) {
+        element.saveSchema(output)
+    }
+}
+
+open class NullableSerializer<T : Any>(private val element: KSerializer<T>) : KSerializer<T?> {
     override val serialClassDesc: KSerialClassDesc
         get() = element.serialClassDesc
 
