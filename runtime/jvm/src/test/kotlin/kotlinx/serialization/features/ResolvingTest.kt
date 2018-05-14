@@ -91,4 +91,16 @@ class ResolvingTest {
         assertEquals(9, foo.n)
     }
 
+    @Serializable
+    data class WithNamedCompanion(val a: Int) {
+        companion object Named
+    }
+
+    @Test
+    fun namedCompanionTest() {
+        val namedCompanion = WithNamedCompanion(1)
+        val serial = serializerByTypeToken(WithNamedCompanion::class.java)
+        val s = JSON.unquoted.stringify(serial, namedCompanion)
+        assertEquals("{a:1}", s)
+    }
 }
