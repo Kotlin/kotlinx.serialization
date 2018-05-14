@@ -38,19 +38,17 @@ internal fun <T> Class<T>.invokeSerializerGetter(vararg args: KSerializer<Any>):
     var serializer: KSerializer<T>? = null
 
     // Search for serializer defined on companion object.
-    val companion = declaredFields.singleOrNull {it.name == "Companion"}?.apply {isAccessible = true}?.get(null)
-    if (companion != null)
-    {
+    val companion = declaredFields.singleOrNull { it.name == "Companion" }?.apply { isAccessible = true }?.get(null)
+    if (companion != null) {
         serializer = companion.javaClass.methods
-            .find {it.name == "serializer" && it.parameterTypes.size == args.size && it.parameterTypes.all {it == KSerializer::class.java}}
+            .find { it.name == "serializer" && it.parameterTypes.size == args.size && it.parameterTypes.all { it == KSerializer::class.java } }
             ?.invoke(companion, *args) as? KSerializer<T>
     }
 
     // Search for default serializer in case no serializer is defined on companion object.
-    if (serializer == null)
-    {
+    if (serializer == null) {
         serializer =
-            declaredClasses.singleOrNull {it.simpleName == ("\$serializer")}
+            declaredClasses.singleOrNull { it.simpleName == ("\$serializer") }
             ?.getField("INSTANCE")?.get(null) as? KSerializer<T>
     }
 
