@@ -16,6 +16,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.json.JSON
 import org.junit.Test
 
 // Serializable data class
