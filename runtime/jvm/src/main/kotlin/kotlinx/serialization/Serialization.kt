@@ -35,12 +35,22 @@ actual fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<
 
 @Suppress("UNCHECKED_CAST")
 internal fun <T> Class<T>.invokeSerializerGetter(vararg args: KSerializer<Any>): KSerializer<T>? {
-    val companion: Any = try {
-        this.getField("Companion").apply { isAccessible = true }.get(null)
-    } catch (e: NoSuchFieldException) {
-        return null
-    }
-    return companion.javaClass.methods
-            .find {it.name == "serializer" && it.parameterTypes.size == args.size && it.parameterTypes.all {it == KSerializer::class.java } }
+    var serializer: KSerializer<T>? = null
+
+    // Search for serializer defined on companion object.
+    val companion = declaredFields.singleOrNull { it.name == "Companion" }?.apply { isAccessible = true }?.get(null)
+    if (companion != null) {
+        serializer = companion.javaClass.methods
+            .find { it.name == "serializer" && it.parameterTypes.size == args.size && it.parameterTypes.all { it == KSerializer::class.java } }
             ?.invoke(companion, *args) as? KSerializer<T>
+    }
+
+    // Search for default serializer in case no serializer is defined on companion object.
+    if (serializer == null) {
+        serializer =
+            declaredClasses.singleOrNull { it.simpleName == ("\$serializer") }
+            ?.getField("INSTANCE")?.get(null) as? KSerializer<T>
+    }
+
+    return serializer?: throw SerializationException("Can't locate companion serializer for class $this")
 }
