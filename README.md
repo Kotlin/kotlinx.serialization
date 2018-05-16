@@ -205,6 +205,10 @@ Replace dependency on `kotlinx-serialization-runtime` with `kotlinx-serializatio
 to use it in JavaScript and common projects, respectively.
 JavaScript example is located at [`example-js`](example-js) folder.
 
+### Native
+
+Full library is not available on native, but you can look for its part [here](json/README.md).
+
 ## Working in IntelliJ IDEA
 
 Instead of using Gradle or Maven, IntelliJ IDEA relies on its own build system when analyzing and running code from within IDE.
