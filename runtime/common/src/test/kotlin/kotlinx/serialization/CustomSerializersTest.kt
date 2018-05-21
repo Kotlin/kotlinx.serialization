@@ -34,8 +34,8 @@ class CustomSerializersTest {
             output.encodeIntValue(obj.value)
         }
 
-        override fun deserialize(input: KInput): B {
-            return B(input.readIntValue())
+        override fun deserialize(input: Decoder): B {
+            return B(input.decodeIntValue())
         }
 
         override val serialClassDesc: SerialDescriptor = SerialClassDescImpl("B")

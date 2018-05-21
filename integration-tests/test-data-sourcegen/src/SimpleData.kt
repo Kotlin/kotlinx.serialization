@@ -19,8 +19,8 @@ import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
+import kotlinx.serialization.Decoder
 import kotlinx.serialization.Encoder
-import kotlinx.serialization.KInput
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.Optional
@@ -58,33 +58,33 @@ data class MyData(
             output.endStructure(serialClassDesc)
         }
 
-        override fun deserialize(input: KInput): MyData {
-            val input = input.readBegin(serialClassDesc)
+        override fun deserialize(input: Decoder): MyData {
+            val input = input.beginStructure(serialClassDesc)
             var local0: Int? = null
             var local1: String? = null
             var local2: List<Int>? = null
             var bitMask: Int = 0
             mainLoop@while (true) {
-                val idx = input.readElement(serialClassDesc)
+                val idx = input.decodeElement(serialClassDesc)
                 when (idx) {
                     -1 -> {
                         break@mainLoop
                     }
                     0 -> {
-                        local0 = input.readNullableSerializableElementValue(serialClassDesc, 0, NullableSerializer(IntSerializer))
+                        local0 = input.decodeNullableSerializableElementValue(serialClassDesc, 0, NullableSerializer(IntSerializer))
                         bitMask = bitMask or 1
                     }
                     1 -> {
-                        local1 = input.readStringElementValue(serialClassDesc, 1)
+                        local1 = input.decodeStringElementValue(serialClassDesc, 1)
                         bitMask = bitMask or 2
                     }
                     2 -> {
-                        local2 = input.readSerializableElementValue(serialClassDesc, 2, ArrayListSerializer(IntSerializer))
+                        local2 = input.decodeSerializableElementValue(serialClassDesc, 2, ArrayListSerializer(IntSerializer))
                         bitMask = bitMask or 4
                     }
                 }
             }
-            input.readEnd(serialClassDesc)
+            input.endStructure(serialClassDesc)
             if (bitMask and 1 == 0) {
                 throw MissingFieldException("x")
             }

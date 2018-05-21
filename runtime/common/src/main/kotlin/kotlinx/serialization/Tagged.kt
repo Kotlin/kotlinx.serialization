@@ -16,6 +16,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.StructureDecoder.Companion.READ_ALL
 import kotlin.reflect.KClass
 
 @SerialInfo
@@ -132,7 +133,7 @@ abstract class TaggedOutput<T : Any?> : StructureEncoder {
         writeTaggedString(popTag(), value)
     }
 
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("decodeEnumValue(enumLoader)"))
     final override fun <E : Enum<E>> encodeEnumValue(enumClass: KClass<E>, value: E) {
         encodeEnumValue(value)
     }
@@ -163,7 +164,7 @@ abstract class TaggedOutput<T : Any?> : StructureEncoder {
     final override fun encodeCharElementValue(desc: SerialDescriptor, index: Int, value: Char) = writeTaggedChar(desc.getTag(index), value)
     final override fun encodeStringElementValue(desc: SerialDescriptor, index: Int, value: String) = writeTaggedString(desc.getTag(index), value)
 
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("decodeEnumValue(enumLoader)"))
     final override fun <E : Enum<E>> encodeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<E>, value: E) {
         encodeEnumElementValue(desc, index, value)
     }
@@ -210,7 +211,10 @@ expect fun getSerialTag(desc: SerialDescriptor, index: Int): String?
 
 // =================================================================
 
-abstract class TaggedInput<T : Any?> : KInput() {
+abstract class TaggedInput<T : Any?> : StructureDecoder {
+    override var context: SerialContext? = null
+    override val updateMode: UpdateMode = UpdateMode.UPDATE
+
     protected abstract fun SerialDescriptor.getTag(index: Int): T
 
 
@@ -238,7 +242,7 @@ abstract class TaggedInput<T : Any?> : KInput() {
     open fun readTaggedDouble(tag: T): Double = readTaggedValue(tag) as Double
     open fun readTaggedChar(tag: T): Char = readTaggedValue(tag) as Char
     open fun readTaggedString(tag: T): String = readTaggedValue(tag) as String
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("decodeEnumValue(enumLoader)"))
     fun <E : Enum<E>> readTaggedEnum(tag: T, enumClass: KClass<E>): E = readTaggedEnum(tag, LegacyEnumCreator(enumClass))
     @Suppress("UNCHECKED_CAST")
     open fun <E : Enum<E>> readTaggedEnum(tag: T, enumCreator: EnumCreator<E>): E = readTaggedValue(tag) as E
@@ -246,52 +250,52 @@ abstract class TaggedInput<T : Any?> : KInput() {
 
     // ---- Implementation of low-level API ----
 
-    final override fun readNotNullMark(): Boolean = readTaggedNotNullMark(currentTag)
-    final override fun readNullValue(): Nothing? = null
+    final override fun decodeNotNullMark(): Boolean = readTaggedNotNullMark(currentTag)
+    final override fun decodeNullValue(): Nothing? = null
 
-    final override fun readValue(): Any = readTaggedValue(popTag())
-    final override fun readNullableValue(): Any? = readTaggedNullable(popTag())
-    final override fun readUnitValue() = readTaggedUnit(popTag())
-    final override fun readBooleanValue(): Boolean = readTaggedBoolean(popTag())
-    final override fun readByteValue(): Byte = readTaggedByte(popTag())
-    final override fun readShortValue(): Short = readTaggedShort(popTag())
-    final override fun readIntValue(): Int = readTaggedInt(popTag())
-    final override fun readLongValue(): Long = readTaggedLong(popTag())
-    final override fun readFloatValue(): Float = readTaggedFloat(popTag())
-    final override fun readDoubleValue(): Double = readTaggedDouble(popTag())
-    final override fun readCharValue(): Char = readTaggedChar(popTag())
-    final override fun readStringValue(): String = readTaggedString(popTag())
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
-    final override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T = readEnumValue(LegacyEnumCreator(enumClass))
+    final override fun decodeValue(): Any = readTaggedValue(popTag())
+    final override fun decodeNullableValue(): Any? = readTaggedNullable(popTag())
+    final override fun decodeUnitValue() = readTaggedUnit(popTag())
+    final override fun decodeBooleanValue(): Boolean = readTaggedBoolean(popTag())
+    final override fun decodeByteValue(): Byte = readTaggedByte(popTag())
+    final override fun decodeShortValue(): Short = readTaggedShort(popTag())
+    final override fun decodeIntValue(): Int = readTaggedInt(popTag())
+    final override fun decodeLongValue(): Long = readTaggedLong(popTag())
+    final override fun decodeFloatValue(): Float = readTaggedFloat(popTag())
+    final override fun decodeDoubleValue(): Double = readTaggedDouble(popTag())
+    final override fun decodeCharValue(): Char = readTaggedChar(popTag())
+    final override fun decodeStringValue(): String = readTaggedString(popTag())
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("decodeEnumValue(enumLoader)"))
+    final override fun <T : Enum<T>> decodeEnumValue(enumClass: KClass<T>): T = decodeEnumValue(LegacyEnumCreator(enumClass))
 
-    final override fun <T : Enum<T>> readEnumValue(enumCreator: EnumCreator<T>): T = readTaggedEnum(popTag(), enumCreator)
+    final override fun <T : Enum<T>> decodeEnumValue(enumCreator: EnumCreator<T>): T = readTaggedEnum(popTag(), enumCreator)
 
     // Override for custom behaviour
-    override fun readElement(desc: SerialDescriptor): Int = READ_ALL
+    override fun decodeElement(desc: SerialDescriptor): Int = READ_ALL
 
-    final override fun readElementValue(desc: SerialDescriptor, index: Int): Any = readTaggedValue(desc.getTag(index))
-    final override fun readNullableElementValue(desc: SerialDescriptor, index: Int): Any? = readTaggedNullable(desc.getTag(index))
-    final override fun readUnitElementValue(desc: SerialDescriptor, index: Int) = readTaggedUnit(desc.getTag(index))
-    final override fun readBooleanElementValue(desc: SerialDescriptor, index: Int): Boolean = readTaggedBoolean(desc.getTag(index))
-    final override fun readByteElementValue(desc: SerialDescriptor, index: Int): Byte = readTaggedByte(desc.getTag(index))
-    final override fun readShortElementValue(desc: SerialDescriptor, index: Int): Short = readTaggedShort(desc.getTag(index))
-    final override fun readIntElementValue(desc: SerialDescriptor, index: Int): Int = readTaggedInt(desc.getTag(index))
-    final override fun readLongElementValue(desc: SerialDescriptor, index: Int): Long = readTaggedLong(desc.getTag(index))
-    final override fun readFloatElementValue(desc: SerialDescriptor, index: Int): Float = readTaggedFloat(desc.getTag(index))
-    final override fun readDoubleElementValue(desc: SerialDescriptor, index: Int): Double = readTaggedDouble(desc.getTag(index))
-    final override fun readCharElementValue(desc: SerialDescriptor, index: Int): Char = readTaggedChar(desc.getTag(index))
-    final override fun readStringElementValue(desc: SerialDescriptor, index: Int): String = readTaggedString(desc.getTag(index))
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
-    final override fun <T : Enum<T>> readEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>): T = readEnumElementValue(desc, index, LegacyEnumCreator(enumClass))
+    final override fun decodeElementValue(desc: SerialDescriptor, index: Int): Any = readTaggedValue(desc.getTag(index))
+    final override fun decodeNullableElementValue(desc: SerialDescriptor, index: Int): Any? = readTaggedNullable(desc.getTag(index))
+    final override fun decodeUnitElementValue(desc: SerialDescriptor, index: Int) = readTaggedUnit(desc.getTag(index))
+    final override fun decodeBooleanElementValue(desc: SerialDescriptor, index: Int): Boolean = readTaggedBoolean(desc.getTag(index))
+    final override fun decodeByteElementValue(desc: SerialDescriptor, index: Int): Byte = readTaggedByte(desc.getTag(index))
+    final override fun decodeShortElementValue(desc: SerialDescriptor, index: Int): Short = readTaggedShort(desc.getTag(index))
+    final override fun decodeIntElementValue(desc: SerialDescriptor, index: Int): Int = readTaggedInt(desc.getTag(index))
+    final override fun decodeLongElementValue(desc: SerialDescriptor, index: Int): Long = readTaggedLong(desc.getTag(index))
+    final override fun decodeFloatElementValue(desc: SerialDescriptor, index: Int): Float = readTaggedFloat(desc.getTag(index))
+    final override fun decodeDoubleElementValue(desc: SerialDescriptor, index: Int): Double = readTaggedDouble(desc.getTag(index))
+    final override fun decodeCharElementValue(desc: SerialDescriptor, index: Int): Char = readTaggedChar(desc.getTag(index))
+    final override fun decodeStringElementValue(desc: SerialDescriptor, index: Int): String = readTaggedString(desc.getTag(index))
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("decodeEnumValue(enumLoader)"))
+    final override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>): T = decodeEnumElementValue(desc, index, LegacyEnumCreator(enumClass))
 
-    final override fun <T : Enum<T>> readEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T = readTaggedEnum(desc.getTag(index), enumCreator)
+    final override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T = readTaggedEnum(desc.getTag(index), enumCreator)
 
-    final override fun <T : Any?> readSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T {
-        return tagBlock(desc.getTag(index)) { readSerializableValue(loader) }
+    final override fun <T : Any?> decodeSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T {
+        return tagBlock(desc.getTag(index)) { decodeSerializableValue(loader) }
     }
 
-    final override fun <T : Any> readNullableSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>): T? {
-        return tagBlock(desc.getTag(index)) { readNullableSerializableValue(loader) }
+    final override fun <T : Any> decodeNullableSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>): T? {
+        return tagBlock(desc.getTag(index)) { decodeNullableSerializableValue(loader) }
     }
 
     override fun <T> updateSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>, old: T): T {

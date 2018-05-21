@@ -19,8 +19,8 @@ import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
+import kotlinx.serialization.Decoder
 import kotlinx.serialization.Encoder
-import kotlinx.serialization.KInput
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.Optional
@@ -49,28 +49,28 @@ val b: String) {
             output.endStructure(serialClassDesc)
         }
 
-        override fun deserialize(input: KInput): Data {
-            val input = input.readBegin(serialClassDesc)
+        override fun deserialize(input: Decoder): Data {
+            val input = input.beginStructure(serialClassDesc)
             var local0: Int? = null
             var local1: String? = null
             var bitMask: Int = 0
             mainLoop@while (true) {
-                val idx = input.readElement(serialClassDesc)
+                val idx = input.decodeElement(serialClassDesc)
                 when (idx) {
                     -1 -> {
                         break@mainLoop
                     }
                     0 -> {
-                        local0 = input.readIntElementValue(serialClassDesc, 0)
+                        local0 = input.decodeIntElementValue(serialClassDesc, 0)
                         bitMask = bitMask or 1
                     }
                     1 -> {
-                        local1 = input.readStringElementValue(serialClassDesc, 1)
+                        local1 = input.decodeStringElementValue(serialClassDesc, 1)
                         bitMask = bitMask or 2
                     }
                 }
             }
-            input.readEnd(serialClassDesc)
+            input.endStructure(serialClassDesc)
             if (bitMask and 1 == 0) {
                 throw MissingFieldException("a")
             }
@@ -103,23 +103,23 @@ val list: List<Data> = emptyList()) {
             output.endStructure(serialClassDesc)
         }
 
-        override fun deserialize(input: KInput): DataList {
-            val input = input.readBegin(serialClassDesc)
+        override fun deserialize(input: Decoder): DataList {
+            val input = input.beginStructure(serialClassDesc)
             var local0: List<Data>? = null
             var bitMask: Int = 0
             mainLoop@while (true) {
-                val idx = input.readElement(serialClassDesc)
+                val idx = input.decodeElement(serialClassDesc)
                 when (idx) {
                     -1 -> {
                         break@mainLoop
                     }
                     0 -> {
-                        local0 = input.readSerializableElementValue(serialClassDesc, 0, ArrayListSerializer(Data.serializer))
+                        local0 = input.decodeSerializableElementValue(serialClassDesc, 0, ArrayListSerializer(Data.serializer))
                         bitMask = bitMask or 1
                     }
                 }
             }
-            input.readEnd(serialClassDesc)
+            input.endStructure(serialClassDesc)
             if (bitMask and 1 == 0) {
                 local0 = emptyList()
             }

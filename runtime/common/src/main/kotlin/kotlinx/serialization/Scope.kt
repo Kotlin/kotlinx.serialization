@@ -48,7 +48,7 @@ class ContextSerializer <T : Any> (val serializableClass: KClass<T>) : KSerializ
     override fun serialize(output: Encoder, obj: T) {
         output.encodeValue(obj)
     }
-    override fun deserialize(input: KInput): T = input.readValue(serializableClass)
+    override fun deserialize(input: Decoder): T = input.decodeValue(serializableClass)
 
     override val serialClassDesc: SerialDescriptor
         get() = throw SerializationException("No descriptor")

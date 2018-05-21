@@ -32,3 +32,6 @@ typealias KSerialLoader<T> = DeserializationStrategy<T>
 
 @Deprecated(deprecationText, ReplaceWith("StructureEncoder"))
 typealias KOutput = StructureEncoder
+
+@Deprecated(deprecationText, ReplaceWith("StructureDecoder"))
+typealias KInput = StructureDecoder

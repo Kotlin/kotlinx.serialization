@@ -85,14 +85,14 @@ object CustomSerializer : KSerializer<Custom> {
         output.endStructure(serialClassDesc)
     }
 
-    override fun deserialize(input: KInput): Custom {
-        input.readBegin(serialClassDesc)
-        if (input.readElement(serialClassDesc) != 0) throw java.lang.IllegalStateException()
-        val value1 = input.readStringElementValue(serialClassDesc, 0)
-        if (input.readElement(serialClassDesc) != 1) throw java.lang.IllegalStateException()
-        val value2 = input.readIntElementValue(serialClassDesc, 1)
-        if (input.readElement(serialClassDesc) != KInput.READ_DONE) throw java.lang.IllegalStateException()
-        input.readEnd(serialClassDesc)
+    override fun deserialize(input: Decoder): Custom {
+        input.beginStructure(serialClassDesc)
+        if (input.decodeElement(serialClassDesc) != 0) throw java.lang.IllegalStateException()
+        val value1 = input.decodeStringElementValue(serialClassDesc, 0)
+        if (input.decodeElement(serialClassDesc) != 1) throw java.lang.IllegalStateException()
+        val value2 = input.decodeIntElementValue(serialClassDesc, 1)
+        if (input.decodeElement(serialClassDesc) != Decoder.READ_DONE) throw java.lang.IllegalStateException()
+        input.endStructure(serialClassDesc)
         return Custom(value1, value2)
     }
 }
@@ -118,7 +118,7 @@ class SerializeFlatTest() {
         out.done()
 
         val inp = Inp("Data")
-        val data = inp.read(Data::class.serializer())
+        val data = inp.decode(Data::class.serializer())
         inp.done()
         assert(data.value1 == "s1" && data.value2 == 42)
     }
@@ -130,7 +130,7 @@ class SerializeFlatTest() {
         out.done()
 
         val inp = Inp("DataExplicit")
-        val data = inp.read(DataExplicit::class.serializer())
+        val data = inp.decode(DataExplicit::class.serializer())
         inp.done()
         assert(data.value1 == "s1" && data.value2 == 42)
     }
@@ -145,7 +145,7 @@ class SerializeFlatTest() {
         out.done()
 
         val inp = Inp("Reg")
-        val data = inp.read(Reg::class.serializer())
+        val data = inp.decode(Reg::class.serializer())
         inp.done()
         assert(data.value1 == "s1" && data.value2 == 42)
     }
@@ -157,7 +157,7 @@ class SerializeFlatTest() {
         out.done()
 
         val inp = Inp("Names")
-        val data = inp.read(Names::class.serializer())
+        val data = inp.decode(Names::class.serializer())
         inp.done()
         assert(data.custom1 == "s1" && data.custom2 == 42)
     }
@@ -169,7 +169,7 @@ class SerializeFlatTest() {
         out.done()
 
         val inp = Inp("Custom")
-        val data = inp.read(CustomSerializer)
+        val data = inp.decode(CustomSerializer)
         inp.done()
         assert(data._value1 == "s1" && data._value2 == 42)
     }
@@ -181,7 +181,7 @@ class SerializeFlatTest() {
         out.done()
 
         val inp = Inp("ExternalData")
-        val data = inp.read(ExternalSerializer)
+        val data = inp.decode(ExternalSerializer)
         inp.done()
         assert(data.value1 == "s1" && data.value2 == 42)
     }
@@ -226,7 +226,7 @@ class SerializeFlatTest() {
             when (step) {
                 4 -> if (value == 42) { step++; return }
             }
-            fail("@$step: encodeIntValue($value)")
+            fail("@$step: decodeIntValue($value)")
         }
 
         override fun endStructure(desc: SerialDescriptor) {
@@ -242,39 +242,39 @@ class SerializeFlatTest() {
     class Inp(private val name: String) : ElementValueInput() {
         var step = 0
 
-        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): Decoder {
             checkDesc(name, desc)
-            if (step == 0) step++ else fail("@$step: readBegin($desc)")
+            if (step == 0) step++ else fail("@$step: beginStructure($desc)")
             return this
         }
 
-        override fun readElement(desc: SerialDescriptor): Int {
+        override fun decodeElement(desc: SerialDescriptor): Int {
             checkDesc(name, desc)
             when (step) {
                 1 -> { step++; return 0 }
                 3 -> { step++; return 1 }
                 5 -> { step++; return -1 }
             }
-            fail("@$step: readElement($desc)")
+            fail("@$step: decodeElement($desc)")
         }
 
-        override fun readStringValue(): String {
+        override fun decodeStringValue(): String {
             when (step) {
                 2 -> { step++; return "s1" }
             }
-            fail("@$step: readStringValue()")
+            fail("@$step: decodeStringValue()")
         }
 
-        override fun readIntValue(): Int {
+        override fun decodeIntValue(): Int {
             when (step) {
                 4 -> { step++; return 42 }
             }
-            fail("@$step: readIntValue()")
+            fail("@$step: decodeIntValue()")
         }
 
-        override fun readEnd(desc: SerialDescriptor) {
+        override fun endStructure(desc: SerialDescriptor) {
             checkDesc(name, desc)
-            if (step == 6) step++ else fail("@$step: readEnd($desc)")
+            if (step == 6) step++ else fail("@$step: endStructure($desc)")
         }
 
         fun done() {

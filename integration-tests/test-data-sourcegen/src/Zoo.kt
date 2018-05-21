@@ -29,8 +29,8 @@ import kotlin.Unit
 import kotlin.collections.List
 import kotlin.collections.Map
 import kotlin.collections.Set
+import kotlinx.serialization.Decoder
 import kotlinx.serialization.Encoder
-import kotlinx.serialization.KInput
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.SerialDescriptor
@@ -74,23 +74,23 @@ data class Simple(val a: String) {
             output.endStructure(serialClassDesc)
         }
 
-        override fun deserialize(input: KInput): Simple {
-            val input = input.readBegin(serialClassDesc)
+        override fun deserialize(input: Decoder): Simple {
+            val input = input.beginStructure(serialClassDesc)
             var local0: String? = null
             var bitMask: Int = 0
             mainLoop@while (true) {
-                val idx = input.readElement(serialClassDesc)
+                val idx = input.decodeElement(serialClassDesc)
                 when (idx) {
                     -1 -> {
                         break@mainLoop
                     }
                     0 -> {
-                        local0 = input.readStringElementValue(serialClassDesc, 0)
+                        local0 = input.decodeStringElementValue(serialClassDesc, 0)
                         bitMask = bitMask or 1
                     }
                 }
             }
-            input.readEnd(serialClassDesc)
+            input.endStructure(serialClassDesc)
             if (bitMask and 1 == 0) {
                 throw MissingFieldException("a")
             }
@@ -138,8 +138,8 @@ data class SmallZoo(
             output.endStructure(serialClassDesc)
         }
 
-        override fun deserialize(input: KInput): SmallZoo {
-            val input = input.readBegin(serialClassDesc)
+        override fun deserialize(input: Decoder): SmallZoo {
+            val input = input.beginStructure(serialClassDesc)
             var local0: String? = null
             var local1: Int? = null
             var local2: Double? = null
@@ -149,42 +149,42 @@ data class SmallZoo(
             var local6: List<Simple>? = null
             var bitMask: Int = 0
             mainLoop@while (true) {
-                val idx = input.readElement(serialClassDesc)
+                val idx = input.decodeElement(serialClassDesc)
                 when (idx) {
                     -1 -> {
                         break@mainLoop
                     }
                     0 -> {
-                        local0 = input.readStringElementValue(serialClassDesc, 0)
+                        local0 = input.decodeStringElementValue(serialClassDesc, 0)
                         bitMask = bitMask or 1
                     }
                     1 -> {
-                        local1 = input.readIntElementValue(serialClassDesc, 1)
+                        local1 = input.decodeIntElementValue(serialClassDesc, 1)
                         bitMask = bitMask or 2
                     }
                     2 -> {
-                        local2 = input.readNullableSerializableElementValue(serialClassDesc, 2, NullableSerializer(DoubleSerializer))
+                        local2 = input.decodeNullableSerializableElementValue(serialClassDesc, 2, NullableSerializer(DoubleSerializer))
                         bitMask = bitMask or 4
                     }
                     3 -> {
-                        local3 = input.readSerializableElementValue(serialClassDesc, 3, ArrayListSerializer(IntSerializer))
+                        local3 = input.decodeSerializableElementValue(serialClassDesc, 3, ArrayListSerializer(IntSerializer))
                         bitMask = bitMask or 8
                     }
                     4 -> {
-                        local4 = input.readSerializableElementValue(serialClassDesc, 4, LinkedHashMapSerializer(IntSerializer, BooleanSerializer))
+                        local4 = input.decodeSerializableElementValue(serialClassDesc, 4, LinkedHashMapSerializer(IntSerializer, BooleanSerializer))
                         bitMask = bitMask or 16
                     }
                     5 -> {
-                        local5 = input.readSerializableElementValue(serialClassDesc, 5, serializer)
+                        local5 = input.decodeSerializableElementValue(serialClassDesc, 5, serializer)
                         bitMask = bitMask or 32
                     }
                     6 -> {
-                        local6 = input.readSerializableElementValue(serialClassDesc, 6, ArrayListSerializer(Simple.serializer))
+                        local6 = input.decodeSerializableElementValue(serialClassDesc, 6, ArrayListSerializer(Simple.serializer))
                         bitMask = bitMask or 64
                     }
                 }
             }
-            input.readEnd(serialClassDesc)
+            input.endStructure(serialClassDesc)
             if (bitMask and 1 == 0) {
                 throw MissingFieldException("str")
             }
@@ -321,8 +321,8 @@ data class Zoo(
             output.endStructure(serialClassDesc)
         }
 
-        override fun deserialize(input: KInput): Zoo {
-            val input = input.readBegin(serialClassDesc)
+        override fun deserialize(input: Decoder): Zoo {
+            val input = input.beginStructure(serialClassDesc)
             var local0: Unit? = null
             var local1: Boolean? = null
             var local2: Byte? = null
@@ -356,138 +356,138 @@ data class Zoo(
             var local30: Map<Int, String?>? = null
             var bitMask: Int = 0
             mainLoop@while (true) {
-                val idx = input.readElement(serialClassDesc)
+                val idx = input.decodeElement(serialClassDesc)
                 when (idx) {
                     -1 -> {
                         break@mainLoop
                     }
                     0 -> {
-                        local0 = input.readUnitElementValue(serialClassDesc, 0)
+                        local0 = input.decodeUnitElementValue(serialClassDesc, 0)
                         bitMask = bitMask or 1
                     }
                     1 -> {
-                        local1 = input.readBooleanElementValue(serialClassDesc, 1)
+                        local1 = input.decodeBooleanElementValue(serialClassDesc, 1)
                         bitMask = bitMask or 2
                     }
                     2 -> {
-                        local2 = input.readByteElementValue(serialClassDesc, 2)
+                        local2 = input.decodeByteElementValue(serialClassDesc, 2)
                         bitMask = bitMask or 4
                     }
                     3 -> {
-                        local3 = input.readShortElementValue(serialClassDesc, 3)
+                        local3 = input.decodeShortElementValue(serialClassDesc, 3)
                         bitMask = bitMask or 8
                     }
                     4 -> {
-                        local4 = input.readIntElementValue(serialClassDesc, 4)
+                        local4 = input.decodeIntElementValue(serialClassDesc, 4)
                         bitMask = bitMask or 16
                     }
                     5 -> {
-                        local5 = input.readLongElementValue(serialClassDesc, 5)
+                        local5 = input.decodeLongElementValue(serialClassDesc, 5)
                         bitMask = bitMask or 32
                     }
                     6 -> {
-                        local6 = input.readSerializableElementValue(serialClassDesc, 6, FloatSerializer)
+                        local6 = input.decodeSerializableElementValue(serialClassDesc, 6, FloatSerializer)
                         bitMask = bitMask or 64
                     }
                     7 -> {
-                        local7 = input.readSerializableElementValue(serialClassDesc, 7, DoubleSerializer)
+                        local7 = input.decodeSerializableElementValue(serialClassDesc, 7, DoubleSerializer)
                         bitMask = bitMask or 128
                     }
                     8 -> {
-                        local8 = input.readCharElementValue(serialClassDesc, 8)
+                        local8 = input.decodeCharElementValue(serialClassDesc, 8)
                         bitMask = bitMask or 256
                     }
                     9 -> {
-                        local9 = input.readStringElementValue(serialClassDesc, 9)
+                        local9 = input.decodeStringElementValue(serialClassDesc, 9)
                         bitMask = bitMask or 512
                     }
                     10 -> {
-                        local10 = input.readSerializableElementValue(serialClassDesc, 10, Simple.serializer)
+                        local10 = input.decodeSerializableElementValue(serialClassDesc, 10, Simple.serializer)
                         bitMask = bitMask or 1024
                     }
                     11 -> {
-                        local11 = input.readSerializableElementValue(serialClassDesc, 11, ModernEnumSerializer<Attitude>())
+                        local11 = input.decodeSerializableElementValue(serialClassDesc, 11, ModernEnumSerializer<Attitude>())
                         bitMask = bitMask or 2048
                     }
                     12 -> {
-                        local12 = input.readNullableSerializableElementValue(serialClassDesc, 12, NullableSerializer(BooleanSerializer))
+                        local12 = input.decodeNullableSerializableElementValue(serialClassDesc, 12, NullableSerializer(BooleanSerializer))
                         bitMask = bitMask or 4096
                     }
                     13 -> {
-                        local13 = input.readNullableSerializableElementValue(serialClassDesc, 13, NullableSerializer(ByteSerializer))
+                        local13 = input.decodeNullableSerializableElementValue(serialClassDesc, 13, NullableSerializer(ByteSerializer))
                         bitMask = bitMask or 8192
                     }
                     14 -> {
-                        local14 = input.readNullableSerializableElementValue(serialClassDesc, 14, NullableSerializer(ShortSerializer))
+                        local14 = input.decodeNullableSerializableElementValue(serialClassDesc, 14, NullableSerializer(ShortSerializer))
                         bitMask = bitMask or 16384
                     }
                     15 -> {
-                        local15 = input.readNullableSerializableElementValue(serialClassDesc, 15, NullableSerializer(IntSerializer))
+                        local15 = input.decodeNullableSerializableElementValue(serialClassDesc, 15, NullableSerializer(IntSerializer))
                         bitMask = bitMask or 32768
                     }
                     16 -> {
-                        local16 = input.readNullableSerializableElementValue(serialClassDesc, 16, NullableSerializer(LongSerializer))
+                        local16 = input.decodeNullableSerializableElementValue(serialClassDesc, 16, NullableSerializer(LongSerializer))
                         bitMask = bitMask or 65536
                     }
                     17 -> {
-                        local17 = input.readNullableSerializableElementValue(serialClassDesc, 17, NullableSerializer(FloatSerializer))
+                        local17 = input.decodeNullableSerializableElementValue(serialClassDesc, 17, NullableSerializer(FloatSerializer))
                         bitMask = bitMask or 131072
                     }
                     18 -> {
-                        local18 = input.readNullableSerializableElementValue(serialClassDesc, 18, NullableSerializer(DoubleSerializer))
+                        local18 = input.decodeNullableSerializableElementValue(serialClassDesc, 18, NullableSerializer(DoubleSerializer))
                         bitMask = bitMask or 262144
                     }
                     19 -> {
-                        local19 = input.readNullableSerializableElementValue(serialClassDesc, 19, NullableSerializer(CharSerializer))
+                        local19 = input.decodeNullableSerializableElementValue(serialClassDesc, 19, NullableSerializer(CharSerializer))
                         bitMask = bitMask or 524288
                     }
                     20 -> {
-                        local20 = input.readNullableSerializableElementValue(serialClassDesc, 20, NullableSerializer(StringSerializer))
+                        local20 = input.decodeNullableSerializableElementValue(serialClassDesc, 20, NullableSerializer(StringSerializer))
                         bitMask = bitMask or 1048576
                     }
                     21 -> {
-                        local21 = input.readNullableSerializableElementValue(serialClassDesc, 21, NullableSerializer(Simple.serializer))
+                        local21 = input.decodeNullableSerializableElementValue(serialClassDesc, 21, NullableSerializer(Simple.serializer))
                         bitMask = bitMask or 2097152
                     }
                     22 -> {
-                        local22 = input.readNullableSerializableElementValue(serialClassDesc, 22, NullableSerializer(ModernEnumSerializer<Attitude>()))
+                        local22 = input.decodeNullableSerializableElementValue(serialClassDesc, 22, NullableSerializer(ModernEnumSerializer<Attitude>()))
                         bitMask = bitMask or 4194304
                     }
                     23 -> {
-                        local23 = input.readSerializableElementValue(serialClassDesc, 23, ArrayListSerializer(IntSerializer))
+                        local23 = input.decodeSerializableElementValue(serialClassDesc, 23, ArrayListSerializer(IntSerializer))
                         bitMask = bitMask or 8388608
                     }
                     24 -> {
-                        local24 = input.readSerializableElementValue(serialClassDesc, 24, ArrayListSerializer(NullableSerializer(IntSerializer)))
+                        local24 = input.decodeSerializableElementValue(serialClassDesc, 24, ArrayListSerializer(NullableSerializer(IntSerializer)))
                         bitMask = bitMask or 16777216
                     }
                     25 -> {
-                        local25 = input.readSerializableElementValue(serialClassDesc, 25, LinkedHashSetSerializer(IntSerializer))
+                        local25 = input.decodeSerializableElementValue(serialClassDesc, 25, LinkedHashSetSerializer(IntSerializer))
                         bitMask = bitMask or 33554432
                     }
                     26 -> {
-                        local26 = input.readSerializableElementValue(serialClassDesc, 26, LinkedHashSetSerializer(NullableSerializer(IntSerializer)))
+                        local26 = input.decodeSerializableElementValue(serialClassDesc, 26, LinkedHashSetSerializer(NullableSerializer(IntSerializer)))
                         bitMask = bitMask or 67108864
                     }
                     27 -> {
-                        local27 = input.readSerializableElementValue(serialClassDesc, 27, ArrayListSerializer(ArrayListSerializer(Simple.serializer)))
+                        local27 = input.decodeSerializableElementValue(serialClassDesc, 27, ArrayListSerializer(ArrayListSerializer(Simple.serializer)))
                         bitMask = bitMask or 134217728
                     }
                     28 -> {
-                        local28 = input.readSerializableElementValue(serialClassDesc, 28, ArrayListSerializer(ArrayListSerializer(NullableSerializer(Simple.serializer))))
+                        local28 = input.decodeSerializableElementValue(serialClassDesc, 28, ArrayListSerializer(ArrayListSerializer(NullableSerializer(Simple.serializer))))
                         bitMask = bitMask or 268435456
                     }
                     29 -> {
-                        local29 = input.readSerializableElementValue(serialClassDesc, 29, LinkedHashMapSerializer(StringSerializer, IntSerializer))
+                        local29 = input.decodeSerializableElementValue(serialClassDesc, 29, LinkedHashMapSerializer(StringSerializer, IntSerializer))
                         bitMask = bitMask or 536870912
                     }
                     30 -> {
-                        local30 = input.readSerializableElementValue(serialClassDesc, 30, LinkedHashMapSerializer(IntSerializer, NullableSerializer(StringSerializer)))
+                        local30 = input.decodeSerializableElementValue(serialClassDesc, 30, LinkedHashMapSerializer(IntSerializer, NullableSerializer(StringSerializer)))
                         bitMask = bitMask or 1073741824
                     }
                 }
             }
-            input.readEnd(serialClassDesc)
+            input.endStructure(serialClassDesc)
             if (bitMask and 1 == 0) {
                 throw MissingFieldException("unit")
             }

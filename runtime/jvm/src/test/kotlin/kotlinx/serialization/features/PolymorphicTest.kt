@@ -68,8 +68,8 @@ class PolymorphicTest {
             output.encodeStringValue(df.format(obj))
         }
 
-        override fun deserialize(input: KInput): Date {
-            return df.parse(input.readStringValue())
+        override fun deserialize(input: Decoder): Date {
+            return df.parse(input.decodeStringValue())
         }
     }
 

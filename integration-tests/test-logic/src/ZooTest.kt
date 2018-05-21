@@ -31,6 +31,22 @@
  */
 
 /*
+ * Copyright 2018 JetBrains s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
  *  Copyright 2018 JetBrains s.r.o.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -52,6 +68,7 @@ import kotlinx.io.Reader
 import kotlinx.io.StringReader
 import kotlinx.io.StringWriter
 import kotlinx.serialization.*
+import kotlinx.serialization.StructureDecoder.Companion.READ_DONE
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -66,7 +83,7 @@ class ZooTest {
         // load from string
         val str = sw.toString()
         val inp = KeyValueInput(Parser(StringReader(str)))
-        val other = inp.read(Zoo.serializer())
+        val other = inp.decode(Zoo.serializer())
         // assert we've got it back from string
         assertEquals(zoo, other)
         assertFalse(zoo === other)
@@ -115,14 +132,14 @@ class ZooTest {
     }
 
     class KeyValueInput(val inp: Parser) : ElementValueInput() {
-        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): StructureDecoder {
             inp.expectAfterWhiteSpace('{')
             return this
         }
 
-        override fun readEnd(desc: SerialDescriptor) = inp.expectAfterWhiteSpace('}')
+        override fun endStructure(desc: SerialDescriptor) = inp.expectAfterWhiteSpace('}')
 
-        override fun readElement(desc: SerialDescriptor): Int {
+        override fun decodeElement(desc: SerialDescriptor): Int {
             inp.skipWhitespace(',')
             val name = inp.nextUntil(':', '}')
             if (name.isEmpty())
@@ -137,37 +154,37 @@ class ZooTest {
             return inp.nextUntil(' ', ',', '}')
         }
 
-        override fun readNotNullMark(): Boolean {
+        override fun decodeNotNullMark(): Boolean {
             inp.skipWhitespace()
             if (inp.cur != 'n'.toInt()) return true
             return false
         }
 
-        override fun readNullValue(): Nothing? {
+        override fun decodeNullValue(): Nothing? {
             check(readToken() == "null") { "'null' expected" }
             return null
         }
 
-        override fun readBooleanValue(): Boolean = readToken() == "true"
-        override fun readByteValue(): Byte = readToken().toByte()
-        override fun readShortValue(): Short = readToken().toShort()
-        override fun readIntValue(): Int = readToken().toInt()
-        override fun readLongValue(): Long = readToken().toLong()
-        override fun readFloatValue(): Float = readToken().toFloat()
-        override fun readDoubleValue(): Double = readToken().toDouble()
+        override fun decodeBooleanValue(): Boolean = readToken() == "true"
+        override fun decodeByteValue(): Byte = readToken().toByte()
+        override fun decodeShortValue(): Short = readToken().toShort()
+        override fun decodeIntValue(): Int = readToken().toInt()
+        override fun decodeLongValue(): Long = readToken().toLong()
+        override fun decodeFloatValue(): Float = readToken().toFloat()
+        override fun decodeDoubleValue(): Double = readToken().toDouble()
 
-        override fun <T : Enum<T>> readEnumValue(enumCreator: EnumCreator<T>): T {
+        override fun <T : Enum<T>> decodeEnumValue(enumCreator: EnumCreator<T>): T {
             return enumCreator.createFromName(readToken())
         }
 
-        override fun readStringValue(): String {
+        override fun decodeStringValue(): String {
             inp.expectAfterWhiteSpace('"')
             val value = inp.nextUntil('"')
             inp.expect('"')
             return value
         }
 
-        override fun readCharValue(): Char = readStringValue().single()
+        override fun decodeCharValue(): Char = decodeStringValue().single()
     }
 
     // Parser

@@ -51,8 +51,8 @@ class CustomSerializersJVMTest {
             output.encodeStringValue(HexConverter.printHexBinary(obj.s.toByteArray()))
         }
 
-        override fun deserialize(input: KInput): Payload {
-            return Payload(String(HexConverter.parseHexBinary(input.readStringValue())))
+        override fun deserialize(input: Decoder): Payload {
+            return Payload(String(HexConverter.parseHexBinary(input.decodeStringValue())))
         }
     }
 

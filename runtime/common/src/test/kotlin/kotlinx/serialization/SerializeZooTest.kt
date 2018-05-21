@@ -34,7 +34,7 @@ class SerializeZooTest {
         // deserialize from string
         val str = sw.toString()
         val inp = KeyValueInput(Parser(StringReader(str)))
-        val other = inp.read<Zoo>()
+        val other = inp.decode<Zoo>()
         // assert we've got it back from string
         assertEquals(zoo, other)
         assertFalse(zoo === other)
@@ -154,14 +154,14 @@ class SerializeZooTest {
     }
 
     class KeyValueInput(val inp: Parser) : ElementValueInput() {
-        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): Decoder {
             inp.expectAfterWhiteSpace('{')
             return this
         }
 
-        override fun readEnd(desc: SerialDescriptor) = inp.expectAfterWhiteSpace('}')
+        override fun endStructure(desc: SerialDescriptor) = inp.expectAfterWhiteSpace('}')
 
-        override fun readElement(desc: SerialDescriptor): Int {
+        override fun decodeElement(desc: SerialDescriptor): Int {
             inp.skipWhitespace(',')
             val name = inp.nextUntil(':', '}')
             if (name.isEmpty())
@@ -176,37 +176,37 @@ class SerializeZooTest {
             return inp.nextUntil(' ', ',', '}')
         }
 
-        override fun readNotNullMark(): Boolean {
+        override fun decodeNotNullMark(): Boolean {
             inp.skipWhitespace()
             if (inp.cur != 'n'.toInt()) return true
             return false
         }
 
-        override fun readNullValue(): Nothing? {
+        override fun decodeNullValue(): Nothing? {
             check(readToken() == "null") { "'null' expected" }
             return null
         }
 
-        override fun readBooleanValue(): Boolean = readToken() == "true"
-        override fun readByteValue(): Byte = readToken().toByte()
-        override fun readShortValue(): Short = readToken().toShort()
-        override fun readIntValue(): Int = readToken().toInt()
-        override fun readLongValue(): Long = readToken().toLong()
-        override fun readFloatValue(): Float = readToken().toFloat()
-        override fun readDoubleValue(): Double = readToken().toDouble()
+        override fun decodeBooleanValue(): Boolean = readToken() == "true"
+        override fun decodeByteValue(): Byte = readToken().toByte()
+        override fun decodeShortValue(): Short = readToken().toShort()
+        override fun decodeIntValue(): Int = readToken().toInt()
+        override fun decodeLongValue(): Long = readToken().toLong()
+        override fun decodeFloatValue(): Float = readToken().toFloat()
+        override fun decodeDoubleValue(): Double = readToken().toDouble()
 
-        override fun <T : Enum<T>> readEnumValue(enumCreator: EnumCreator<T>): T {
+        override fun <T : Enum<T>> decodeEnumValue(enumCreator: EnumCreator<T>): T {
             return enumCreator.createFromName(readToken())
         }
 
-        override fun readStringValue(): String {
+        override fun decodeStringValue(): String {
             inp.expectAfterWhiteSpace('"')
             val value = inp.nextUntil('"')
             inp.expect('"')
             return value
         }
 
-        override fun readCharValue(): Char = readStringValue().single()
+        override fun decodeCharValue(): Char = decodeStringValue().single()
     }
 
     // Parser

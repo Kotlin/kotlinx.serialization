@@ -72,11 +72,11 @@ object Mapper {
 
     inline fun <reified T : Any> unmap(map: Map<String, Any>): T {
         val m = InMapper(map)
-        return m.read()
+        return m.decode()
     }
 
     inline fun <reified T : Any> unmapNullable(map: Map<String, Any?>): T {
         val m = InNullableMapper(map)
-        return m.read()
+        return m.decode()
     }
 }

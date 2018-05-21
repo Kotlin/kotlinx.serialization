@@ -17,6 +17,8 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.StructureDecoder.Companion.READ_DONE
+import kotlinx.serialization.StructureDecoder.Companion.UNKNOWN_NAME
 import kotlinx.serialization.internal.*
 
 data class JSON(
@@ -39,7 +41,7 @@ data class JSON(
     fun <T> parse(loader: DeserializationStrategy<T>, str: String): T {
         val parser = Parser(str)
         val input = JsonInput(Mode.OBJ, parser)
-        val result = input.read(loader)
+        val result = input.decode(loader)
         check(parser.tc == TC_EOF) { "Shall parse complete string"}
         return result
     }
@@ -219,7 +221,7 @@ data class JSON(
         override val updateMode: UpdateMode
             get() = this@JSON.updateMode
 
-        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): StructureDecoder {
             val newMode = switchMode(mode, desc, typeParams)
             if (newMode.begin != INVALID) {
                 require(p.tc == newMode.beginTc, p.tokenPos) { "Expected '${newMode.begin}, kind: ${desc.kind}'" }
@@ -232,24 +234,24 @@ data class JSON(
             }
         }
 
-        override fun readEnd(desc: SerialDescriptor) {
+        override fun endStructure(desc: SerialDescriptor) {
             if (mode.end != INVALID) {
                 require(p.tc == mode.endTc, p.tokenPos) { "Expected '${mode.end}'" }
                 p.nextToken()
             }
         }
 
-        override fun readNotNullMark(): Boolean {
+        override fun decodeNotNullMark(): Boolean {
             return p.tc != TC_NULL
         }
 
-        override fun readNullValue(): Nothing? {
+        override fun decodeNullValue(): Nothing? {
             require(p.tc == TC_NULL, p.tokenPos) { "Expected 'null' literal" }
             p.nextToken()
             return null
         }
 
-        override fun readElement(desc: SerialDescriptor): Int {
+        override fun decodeElement(desc: SerialDescriptor): Int {
             while (true) {
                 if (p.tc == TC_COMMA) p.nextToken()
                 when (mode) {
@@ -297,17 +299,17 @@ data class JSON(
             }
         }
 
-        override fun readBooleanValue(): Boolean = p.takeStr() == "true" // KT-16348
-        override fun readByteValue(): Byte = p.takeStr().toByte()
-        override fun readShortValue(): Short = p.takeStr().toShort()
-        override fun readIntValue(): Int = p.takeStr().toInt()
-        override fun readLongValue(): Long = p.takeStr().toLong()
-        override fun readFloatValue(): Float = p.takeStr().toFloat()
-        override fun readDoubleValue(): Double = p.takeStr().toDouble()
-        override fun readCharValue(): Char = p.takeStr().single()
-        override fun readStringValue(): String = p.takeStr()
+        override fun decodeBooleanValue(): Boolean = p.takeStr() == "true" // KT-16348
+        override fun decodeByteValue(): Byte = p.takeStr().toByte()
+        override fun decodeShortValue(): Short = p.takeStr().toShort()
+        override fun decodeIntValue(): Int = p.takeStr().toInt()
+        override fun decodeLongValue(): Long = p.takeStr().toLong()
+        override fun decodeFloatValue(): Float = p.takeStr().toFloat()
+        override fun decodeDoubleValue(): Double = p.takeStr().toDouble()
+        override fun decodeCharValue(): Char = p.takeStr().single()
+        override fun decodeStringValue(): String = p.takeStr()
 
-        override fun <T : Enum<T>> readEnumValue(enumCreator: EnumCreator<T>): T = enumCreator.createFromName(p.takeStr())
+        override fun <T : Enum<T>> decodeEnumValue(enumCreator: EnumCreator<T>): T = enumCreator.createFromName(p.takeStr())
     }
 
     private class Parser(val source: String) {

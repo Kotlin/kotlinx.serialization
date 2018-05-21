@@ -21,7 +21,7 @@ import kotlin.test.assertFailsWith
 
 class IndexTest {
     class MalformedReader: ElementValueInput() {
-        override fun readElement(desc: SerialDescriptor): Int {
+        override fun decodeElement(desc: SerialDescriptor): Int {
             return UNKNOWN_NAME
         }
     }
@@ -29,7 +29,7 @@ class IndexTest {
     @Test
     fun compilerComplainsAboutIncorrectIndex() {
         assertFailsWith(UnknownFieldException::class) {
-            MalformedReader().read<OptionalTests.Data>()
+            MalformedReader().decode<OptionalTests.Data>()
         }
     }
 }

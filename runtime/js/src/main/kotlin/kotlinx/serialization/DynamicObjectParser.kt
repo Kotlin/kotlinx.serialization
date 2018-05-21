@@ -16,9 +16,12 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.StructureDecoder.Companion.READ_ALL
+import kotlinx.serialization.StructureDecoder.Companion.READ_DONE
+
 class DynamicObjectParser(val context: SerialContext? = null) {
     inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.klassSerializer(T::class))
-    fun <T> parse(obj: dynamic, loader: DeserializationStrategy<T>): T = DynamicInput(obj).read(loader)
+    fun <T> parse(obj: dynamic, loader: DeserializationStrategy<T>): T = DynamicInput(obj).decode(loader)
 
     private open inner class DynamicInput(val obj: dynamic) : NamedValueInput() {
         init {
@@ -28,7 +31,7 @@ class DynamicObjectParser(val context: SerialContext? = null) {
 
         private var pos = 0
 
-        override fun readElement(desc: SerialDescriptor): Int {
+        override fun decodeElement(desc: SerialDescriptor): Int {
             while (pos < desc.associatedFieldsCount) {
                 val name = desc.getTag(pos++)
                 val o = obj[name]
@@ -63,7 +66,7 @@ class DynamicObjectParser(val context: SerialContext? = null) {
             return o != null
         }
 
-        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): StructureDecoder {
             val curObj = currentTagOrNull?.let { obj[it] } ?: obj
             return when (desc.kind) {
                 SerialKind.LIST, SerialKind.SET -> DynamicListInput(curObj)
@@ -79,7 +82,7 @@ class DynamicObjectParser(val context: SerialContext? = null) {
             this.context = this@DynamicObjectParser.context
         }
 
-        override fun readElement(desc: SerialDescriptor): Int = READ_ALL
+        override fun decodeElement(desc: SerialDescriptor): Int = READ_ALL
 
         override fun getByTag(tag: String): dynamic {
             if (tag == "key") return cTag
@@ -106,7 +109,7 @@ class DynamicObjectParser(val context: SerialContext? = null) {
             size = js("Object.keys(o).length") as Int
         }
 
-        override fun readElement(desc: SerialDescriptor): Int {
+        override fun decodeElement(desc: SerialDescriptor): Int {
             while (pos < size) {
                 val i = pos++
                 val obj = this.obj
@@ -128,7 +131,7 @@ class DynamicObjectParser(val context: SerialContext? = null) {
 
         override fun elementName(desc: SerialDescriptor, index: Int): String = (index - 1).toString()
 
-        override fun readElement(desc: SerialDescriptor): Int {
+        override fun decodeElement(desc: SerialDescriptor): Int {
             while (pos < size) {
                 val o = obj[pos++]
                 if (js("o !== undefined")) return pos

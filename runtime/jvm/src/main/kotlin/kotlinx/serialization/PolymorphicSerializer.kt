@@ -16,6 +16,8 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.StructureDecoder.Companion.READ_ALL
+import kotlinx.serialization.StructureDecoder.Companion.READ_DONE
 import kotlinx.serialization.internal.PolymorphicClassDesc
 
 object PolymorphicSerializer : KSerializer<Any> {
@@ -32,35 +34,35 @@ object PolymorphicSerializer : KSerializer<Any> {
         output.endStructure(serialClassDesc)
     }
 
-    override fun deserialize(input: KInput): Any {
+    override fun deserialize(input: Decoder): Any {
         @Suppress("NAME_SHADOWING")
-        val input = input.readBegin(serialClassDesc)
+        val input = input.beginStructure(serialClassDesc)
         var klassName: String? = null
         var value: Any? = null
         mainLoop@ while (true) {
-            when (input.readElement(serialClassDesc)) {
-                KInput.READ_ALL -> {
-                    klassName = input.readStringElementValue(serialClassDesc, 0)
+            when (input.decodeElement(serialClassDesc)) {
+                READ_ALL -> {
+                    klassName = input.decodeStringElementValue(serialClassDesc, 0)
                     val loader = serializerBySerialDescClassname<Any>(klassName, input.context)
-                    value = input.readSerializableElementValue(serialClassDesc, 1, loader)
+                    value = input.decodeSerializableElementValue(serialClassDesc, 1, loader)
                     break@mainLoop
                 }
-                KInput.READ_DONE -> {
+                READ_DONE -> {
                     break@mainLoop
                 }
                 0 -> {
-                    klassName = input.readStringElementValue(serialClassDesc, 0)
+                    klassName = input.decodeStringElementValue(serialClassDesc, 0)
                 }
                 1 -> {
                     klassName = requireNotNull(klassName) { "Cannot read polymorphic value before its type token" }
                     val loader = serializerBySerialDescClassname<Any>(klassName, input.context)
-                    value = input.readSerializableElementValue(serialClassDesc, 1, loader)
+                    value = input.decodeSerializableElementValue(serialClassDesc, 1, loader)
                 }
                 else -> throw SerializationException("Invalid index")
             }
         }
 
-        input.readEnd(serialClassDesc)
+        input.endStructure(serialClassDesc)
         return requireNotNull(value) { "Polymorphic value have not been read" }
     }
 }

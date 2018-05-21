@@ -33,7 +33,7 @@ class SerializeRecTest {
         out.done()
 
         val inp = Inp()
-        val box = inp.read(Container::class.serializer())
+        val box = inp.decode(Container::class.serializer())
         inp.done()
     }
 
@@ -90,7 +90,7 @@ class SerializeRecTest {
             when (step) {
                 7 -> if (value == 42) { step++; return }
             }
-            fail("@$step: encodeIntValue($value)")
+            fail("@$step: decodeIntValue($value)")
         }
 
         override fun endStructure(desc: SerialDescriptor) {
@@ -109,15 +109,15 @@ class SerializeRecTest {
     class Inp() : ElementValueInput() {
         var step = 0
 
-        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): Decoder {
             when(step) {
                 0 -> { checkContainerDesc(desc); step++; return this }
                 3 -> { checkDataDesc(desc); step++; return this }
             }
-            fail("@$step: readBegin($desc)")
+            fail("@$step: beginStructure($desc)")
         }
 
-        override fun readElement(desc: SerialDescriptor): Int {
+        override fun decodeElement(desc: SerialDescriptor): Int {
             when (step) {
                 1 -> { checkContainerDesc(desc); step++; return 0 }
                 4 -> { checkDataDesc(desc); step++; return 0 }
@@ -125,36 +125,36 @@ class SerializeRecTest {
                 8 -> { checkDataDesc(desc); step++; return -1 }
                 10 -> { checkContainerDesc(desc); step++; return -1 }
             }
-            fail("@$step: readElement($desc)")
+            fail("@$step: decodeElement($desc)")
         }
 
-        override fun <T : Any?> readSerializableValue(loader: DeserializationStrategy<T>): T {
+        override fun <T : Any?> decodeSerializableValue(loader: DeserializationStrategy<T>): T {
             when (step) {
                 2 -> { step++; return loader.deserialize(this) }
             }
-            fail("@$step: readSerializableValue()")
+            fail("@$step: decodeSerializableValue()")
         }
 
-        override fun readStringValue(): String {
+        override fun decodeStringValue(): String {
             when (step) {
                 5 -> { step++; return "s1" }
             }
-            fail("@$step: readStringValue()")
+            fail("@$step: decodeStringValue()")
         }
 
-        override fun readIntValue(): Int {
+        override fun decodeIntValue(): Int {
             when (step) {
                 7 -> { step++; return 42 }
             }
-            fail("@$step: readIntValue()")
+            fail("@$step: decodeIntValue()")
         }
 
-        override fun readEnd(desc: SerialDescriptor) {
+        override fun endStructure(desc: SerialDescriptor) {
             when(step) {
                 9 -> { checkDataDesc(desc); step++; return }
                 11 -> { checkContainerDesc(desc); step++; return }
             }
-            fail("@$step: readEnd($desc)")
+            fail("@$step: endStructure($desc)")
         }
 
         fun done() {

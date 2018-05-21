@@ -16,6 +16,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.StructureDecoder.Companion.READ_ALL
 import kotlin.reflect.KClass
 
 open class ValueTransformer {
@@ -25,7 +26,7 @@ open class ValueTransformer {
         val output = Output()
         output.encode(serializer, obj)
         val input = Input(output.list)
-        return input.read(serializer)
+        return input.decode(serializer)
     }
 
     inline fun <reified T : Any> transform(obj: T): T = transform(T::class.serializer(), obj)
@@ -109,7 +110,10 @@ open class ValueTransformer {
         }
     }
 
-    private inner class Input(private val list: List<Any?>) : KInput() {
+    private inner class Input(private val list: List<Any?>) : StructureDecoder {
+        override var context: SerialContext? = null
+        override val updateMode: UpdateMode = UpdateMode.BANNED
+
         private var index = 0
         private var curDesc: SerialDescriptor? = null
         private var curIndex: Int = 0
@@ -119,79 +123,79 @@ open class ValueTransformer {
             curIndex = index
         }
 
-        override fun readNotNullMark(): Boolean = list[index] != null
-        override fun readNullValue(): Nothing? { index++; return null }
-        override fun readValue(): Any = list[index++]!!
-        override fun readNullableValue(): Any? = list[index++]
-        override fun readUnitValue(): Unit { index++ }
+        override fun decodeNotNullMark(): Boolean = list[index] != null
+        override fun decodeNullValue(): Nothing? { index++; return null }
+        override fun decodeValue(): Any = list[index++]!!
+        override fun decodeNullableValue(): Any? = list[index++]
+        override fun decodeUnitValue(): Unit { index++ }
 
-        override fun readBooleanValue(): Boolean = transformBooleanValue(curDesc!!, curIndex, readValue() as Boolean)
-        override fun readByteValue(): Byte = transformByteValue(curDesc!!, curIndex, readValue() as Byte)
-        override fun readShortValue(): Short = transformShortValue(curDesc!!, curIndex, readValue() as Short)
-        override fun readIntValue(): Int = transformIntValue(curDesc!!, curIndex, readValue() as Int)
-        override fun readLongValue(): Long = transformLongValue(curDesc!!, curIndex, readValue() as Long)
-        override fun readFloatValue(): Float = transformFloatValue(curDesc!!, curIndex, readValue() as Float)
-        override fun readDoubleValue(): Double = transformDoubleValue(curDesc!!, curIndex, readValue() as Double)
-        override fun readCharValue(): Char = transformCharValue(curDesc!!, curIndex, readValue() as Char)
-        override fun readStringValue(): String = transformStringValue(curDesc!!, curIndex, readValue() as String)
-
-        @Suppress("UNCHECKED_CAST")
-        @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
-        override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T =
-            transformEnumValue(curDesc!!, curIndex, enumClass, readValue() as T)
+        override fun decodeBooleanValue(): Boolean = transformBooleanValue(curDesc!!, curIndex, decodeValue() as Boolean)
+        override fun decodeByteValue(): Byte = transformByteValue(curDesc!!, curIndex, decodeValue() as Byte)
+        override fun decodeShortValue(): Short = transformShortValue(curDesc!!, curIndex, decodeValue() as Short)
+        override fun decodeIntValue(): Int = transformIntValue(curDesc!!, curIndex, decodeValue() as Int)
+        override fun decodeLongValue(): Long = transformLongValue(curDesc!!, curIndex, decodeValue() as Long)
+        override fun decodeFloatValue(): Float = transformFloatValue(curDesc!!, curIndex, decodeValue() as Float)
+        override fun decodeDoubleValue(): Double = transformDoubleValue(curDesc!!, curIndex, decodeValue() as Double)
+        override fun decodeCharValue(): Char = transformCharValue(curDesc!!, curIndex, decodeValue() as Char)
+        override fun decodeStringValue(): String = transformStringValue(curDesc!!, curIndex, decodeValue() as String)
 
         @Suppress("UNCHECKED_CAST")
-        override fun <T : Enum<T>> readEnumValue(enumCreator: EnumCreator<T>): T =
-            transformEnumValue(curDesc!!, curIndex, enumCreator, readValue() as T)
+        @Deprecated("Not supported in Native", replaceWith = ReplaceWith("decodeEnumValue(enumLoader)"))
+        override fun <T : Enum<T>> decodeEnumValue(enumClass: KClass<T>): T =
+            transformEnumValue(curDesc!!, curIndex, enumClass, decodeValue() as T)
 
         @Suppress("UNCHECKED_CAST")
-        override fun <T : Any?> readSerializableValue(loader: DeserializationStrategy<T>): T {
+        override fun <T : Enum<T>> decodeEnumValue(enumCreator: EnumCreator<T>): T =
+            transformEnumValue(curDesc!!, curIndex, enumCreator, decodeValue() as T)
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : Any?> decodeSerializableValue(loader: DeserializationStrategy<T>): T {
             if (isRecursiveTransform())
                 return loader.deserialize(this)
             else
-                return readValue() as T
+                return decodeValue() as T
         }
 
         // ---------------
 
-        override fun readElement(desc: SerialDescriptor): Int = READ_ALL
+        override fun decodeElement(desc: SerialDescriptor): Int = READ_ALL
 
-        override fun readElementValue(desc: SerialDescriptor, index: Int): Any {
-            cur(desc, index); return readValue()
+        override fun decodeElementValue(desc: SerialDescriptor, index: Int): Any {
+            cur(desc, index); return decodeValue()
         }
 
-        override fun readNullableElementValue(desc: SerialDescriptor, index: Int): Any? {
-            cur(desc, index); return readNullableValue()
+        override fun decodeNullableElementValue(desc: SerialDescriptor, index: Int): Any? {
+            cur(desc, index); return decodeNullableValue()
         }
-        override fun readUnitElementValue(desc: SerialDescriptor, index: Int) { cur(desc, index); return readUnitValue() }
-        override fun readBooleanElementValue(desc: SerialDescriptor, index: Int): Boolean { cur(desc, index); return readBooleanValue() }
-        override fun readByteElementValue(desc: SerialDescriptor, index: Int): Byte { cur(desc, index); return readByteValue() }
-        override fun readShortElementValue(desc: SerialDescriptor, index: Int): Short { cur(desc, index); return readShortValue() }
-        override fun readIntElementValue(desc: SerialDescriptor, index: Int): Int { cur(desc, index); return readIntValue() }
-        override fun readLongElementValue(desc: SerialDescriptor, index: Int): Long { cur(desc, index); return readLongValue() }
-        override fun readFloatElementValue(desc: SerialDescriptor, index: Int): Float { cur(desc, index); return readFloatValue() }
-        override fun readDoubleElementValue(desc: SerialDescriptor, index: Int): Double { cur(desc, index); return readDoubleValue() }
-        override fun readCharElementValue(desc: SerialDescriptor, index: Int): Char { cur(desc, index); return readCharValue() }
-        override fun readStringElementValue(desc: SerialDescriptor, index: Int): String { cur(desc, index); return readStringValue() }
+        override fun decodeUnitElementValue(desc: SerialDescriptor, index: Int) { cur(desc, index); return decodeUnitValue() }
+        override fun decodeBooleanElementValue(desc: SerialDescriptor, index: Int): Boolean { cur(desc, index); return decodeBooleanValue() }
+        override fun decodeByteElementValue(desc: SerialDescriptor, index: Int): Byte { cur(desc, index); return decodeByteValue() }
+        override fun decodeShortElementValue(desc: SerialDescriptor, index: Int): Short { cur(desc, index); return decodeShortValue() }
+        override fun decodeIntElementValue(desc: SerialDescriptor, index: Int): Int { cur(desc, index); return decodeIntValue() }
+        override fun decodeLongElementValue(desc: SerialDescriptor, index: Int): Long { cur(desc, index); return decodeLongValue() }
+        override fun decodeFloatElementValue(desc: SerialDescriptor, index: Int): Float { cur(desc, index); return decodeFloatValue() }
+        override fun decodeDoubleElementValue(desc: SerialDescriptor, index: Int): Double { cur(desc, index); return decodeDoubleValue() }
+        override fun decodeCharElementValue(desc: SerialDescriptor, index: Int): Char { cur(desc, index); return decodeCharValue() }
+        override fun decodeStringElementValue(desc: SerialDescriptor, index: Int): String { cur(desc, index); return decodeStringValue() }
 
-        override fun <T : Enum<T>> readEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>): T {
+        override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>): T {
             cur(desc, index)
-            return readEnumValue(enumClass)
+            return decodeEnumValue(enumClass)
         }
 
-        override fun <T : Enum<T>> readEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T {
+        override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T {
             cur(desc, index)
-            return readEnumValue(enumCreator)
+            return decodeEnumValue(enumCreator)
         }
 
-        override fun <T: Any?> readSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T {
+        override fun <T: Any?> decodeSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T {
             cur(desc, index)
-            return readSerializableValue(loader)
+            return decodeSerializableValue(loader)
         }
 
-        override fun <T: Any> readNullableSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>): T? {
+        override fun <T: Any> decodeNullableSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>): T? {
             cur(desc, index)
-            return readNullableSerializableValue(loader)
+            return decodeNullableSerializableValue(loader)
         }
     }
 }

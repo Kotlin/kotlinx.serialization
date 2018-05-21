@@ -83,9 +83,9 @@ class SClass(
 
     private fun renderLoad() = FunSpec.builder("deserialize").apply {
         addModifiers(KModifier.OVERRIDE)
-        addParameter("input", KInput::class)
+        addParameter("input", Decoder::class)
         returns(serializableClassName)
-        l("val input = input.readBegin(serialClassDesc)")
+        l("val input = input.beginStructure(serialClassDesc)")
         properties.forEachIndexed { index, prop ->
             l("var local$index: %T = null", prop.type.asNullable())
         }
@@ -93,7 +93,7 @@ class SClass(
 
 
         beginControlFlow("mainLoop@while (true)")
-        l("val idx = input.readElement(serialClassDesc)")
+        l("val idx = input.decodeElement(serialClassDesc)")
         beginControlFlow("when (idx)")
         beginControlFlow("-1 ->")
         l("break@mainLoop")
@@ -102,10 +102,10 @@ class SClass(
         properties.forEachIndexed { index, it ->
             beginControlFlow("$index ->")
             val sti = it.getSerialTypeInfo()
-            if (sti.serializer == null) l("local$index = input.read${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index)")
+            if (sti.serializer == null) l("local$index = input.decode${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index)")
             else {
                 val invokeArgs = renderInvoke(sti.serializer, if (sti.needTypeParam) it.type else null)
-                l("local$index = input.read${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index, %L)", invokeArgs)
+                l("local$index = input.decode${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index, %L)", invokeArgs)
             }
             l("bitMask = bitMask or ${1 shl index}")
             endControlFlow()
@@ -114,7 +114,7 @@ class SClass(
         endControlFlow() // end when
         endControlFlow() // end while
 
-        l("input.readEnd(serialClassDesc)")
+        l("input.endStructure(serialClassDesc)")
         properties.forEachIndexed { index, prop ->
             beginControlFlow("if (bitMask and ${1 shl index} == 0)")
             if (prop.optional) {

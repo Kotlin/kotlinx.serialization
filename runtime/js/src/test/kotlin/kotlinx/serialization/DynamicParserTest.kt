@@ -68,8 +68,8 @@ class DynamicParserTest {
             output.encodeIntValue(obj.a)
         }
 
-        override fun deserialize(input: KInput): NotDefault {
-            return NotDefault(input.readIntValue())
+        override fun deserialize(input: Decoder): NotDefault {
+            return NotDefault(input.decodeIntValue())
         }
 
         override val serialClassDesc = SerialClassDescImpl("notDefault")
