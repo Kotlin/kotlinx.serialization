@@ -23,13 +23,13 @@ object PolymorphicSerializer : KSerializer<Any> {
     override val serialClassDesc: SerialDescriptor
         get() = PolymorphicClassDesc
 
-    override fun serialize(output: KOutput, obj: Any) {
+    override fun serialize(output: Encoder, obj: Any) {
         val saver = serializerByValue(obj, output.context)
         @Suppress("NAME_SHADOWING")
-        val output = output.writeBegin(serialClassDesc)
-        output.writeStringElementValue(serialClassDesc, 0, saver.serialClassDesc.name)
-        output.writeSerializableElementValue(serialClassDesc, 1, saver, obj)
-        output.writeEnd(serialClassDesc)
+        val output = output.beginStructure(serialClassDesc)
+        output.encodeStringElementValue(serialClassDesc, 0, saver.serialClassDesc.name)
+        output.encodeSerializableElementValue(serialClassDesc, 1, saver, obj)
+        output.endStructure(serialClassDesc)
     }
 
     override fun deserialize(input: KInput): Any {

@@ -30,8 +30,8 @@ class CustomSerializersTest {
     data class B(val value: Int)
 
     object BSerializer : KSerializer<B> {
-        override fun serialize(output: KOutput, obj: B) {
-            output.writeIntValue(obj.value)
+        override fun serialize(output: Encoder, obj: B) {
+            output.encodeIntValue(obj.value)
         }
 
         override fun deserialize(input: KInput): B {

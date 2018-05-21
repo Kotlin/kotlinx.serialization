@@ -39,16 +39,16 @@ sealed class ListLikeSerializer<E, C, B>(open val eSerializer: KSerializer<E>) :
 
     open val typeParams: Array<KSerializer<*>> = arrayOf(eSerializer)
 
-    override fun serialize(output: KOutput, obj: C) {
+    override fun serialize(output: Encoder, obj: C) {
         val size = obj.objSize()
         @Suppress("NAME_SHADOWING")
-        val output = output.writeBegin(serialClassDesc, size, *typeParams)
-        if (output.writeElement(serialClassDesc, SIZE_INDEX))
-            output.writeIntValue(size)
+        val output = output.beginCollection(serialClassDesc, size, *typeParams)
+        if (output.encodeElement(serialClassDesc, SIZE_INDEX))
+            output.encodeIntValue(size)
         val iterator = obj.objIterator()
         for (index in 1..size)
-            output.writeSerializableElementValue(serialClassDesc, index, eSerializer, iterator.next())
-        output.writeEnd(serialClassDesc)
+            output.encodeSerializableElementValue(serialClassDesc, index, eSerializer, iterator.next())
+        output.endStructure(serialClassDesc)
     }
 
     override fun patch(input: KInput, old: C): C {
@@ -197,12 +197,12 @@ sealed class KeyValueSerializer<K, V, R>(val kSerializer: KSerializer<K>, val vS
     abstract val R.key: K
     abstract val R.value: V
 
-    override fun serialize(output: KOutput, obj: R) {
+    override fun serialize(output: Encoder, obj: R) {
         @Suppress("NAME_SHADOWING")
-        val output = output.writeBegin(serialClassDesc, kSerializer, vSerializer)
-        output.writeSerializableElementValue(serialClassDesc, KEY_INDEX, kSerializer, obj.key)
-        output.writeSerializableElementValue(serialClassDesc, VALUE_INDEX, vSerializer, obj.value)
-        output.writeEnd(serialClassDesc)
+        val output = output.beginStructure(serialClassDesc, kSerializer, vSerializer)
+        output.encodeSerializableElementValue(serialClassDesc, KEY_INDEX, kSerializer, obj.key)
+        output.encodeSerializableElementValue(serialClassDesc, VALUE_INDEX, vSerializer, obj.value)
+        output.endStructure(serialClassDesc)
     }
 
     override fun deserialize(input: KInput): R {
@@ -369,13 +369,13 @@ class TripleSerializer<A, B, C>(
 
     override val serialClassDesc: SerialDescriptor = TripleDesc
 
-    override fun serialize(output: KOutput, obj: Triple<A, B, C>) {
+    override fun serialize(output: Encoder, obj: Triple<A, B, C>) {
         @Suppress("NAME_SHADOWING")
-        val output = output.writeBegin(serialClassDesc, aSerializer, bSerializer, cSerializer)
-        output.writeSerializableElementValue(serialClassDesc, 0, aSerializer, obj.first)
-        output.writeSerializableElementValue(serialClassDesc, 1, bSerializer, obj.second)
-        output.writeSerializableElementValue(serialClassDesc, 2, cSerializer, obj.third)
-        output.writeEnd(serialClassDesc)
+        val output = output.beginStructure(serialClassDesc, aSerializer, bSerializer, cSerializer)
+        output.encodeSerializableElementValue(serialClassDesc, 0, aSerializer, obj.first)
+        output.encodeSerializableElementValue(serialClassDesc, 1, bSerializer, obj.second)
+        output.encodeSerializableElementValue(serialClassDesc, 2, cSerializer, obj.third)
+        output.endStructure(serialClassDesc)
     }
 
     override fun deserialize(input: KInput): Triple<A, B, C> {

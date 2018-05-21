@@ -30,7 +30,7 @@ class SerializeZooTest {
         // serialize to string
         val sw = StringWriter()
         val out = KeyValueOutput(PrintWriter(sw))
-        out.write(zoo)
+        out.encode(zoo)
         // deserialize from string
         val str = sw.toString()
         val inp = KeyValueInput(Parser(StringReader(str)))
@@ -127,30 +127,30 @@ class SerializeZooTest {
     // KeyValue Input/Output
 
     class KeyValueOutput(val out: PrintWriter) : ElementValueOutput() {
-        override fun writeBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KOutput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): Encoder {
             out.print('{')
             return this
         }
 
-        override fun writeEnd(desc: SerialDescriptor) = out.print('}')
+        override fun endStructure(desc: SerialDescriptor) = out.print('}')
 
-        override fun writeElement(desc: SerialDescriptor, index: Int): Boolean {
+        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
             if (index > 0) out.print(", ")
             out.print(desc.getElementName(index));
             out.print(':')
             return true
         }
 
-        override fun writeNullValue() = out.print("null")
-        override fun writeNonSerializableValue(value: Any) = out.print(value)
+        override fun encodeNullValue() = out.print("null")
+        override fun encodeNonSerializableValue(value: Any) = out.print(value)
 
-        override fun writeStringValue(value: String) {
+        override fun encodeStringValue(value: String) {
             out.print('"')
             out.print(value)
             out.print('"')
         }
 
-        override fun writeCharValue(value: Char) = writeStringValue(value.toString())
+        override fun encodeCharValue(value: Char) = encodeStringValue(value.toString())
     }
 
     class KeyValueInput(val inp: Parser) : ElementValueInput() {

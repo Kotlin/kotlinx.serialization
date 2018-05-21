@@ -29,8 +29,8 @@ import kotlin.Unit
 import kotlin.collections.List
 import kotlin.collections.Map
 import kotlin.collections.Set
+import kotlinx.serialization.Encoder
 import kotlinx.serialization.KInput
-import kotlinx.serialization.KOutput
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.SerialDescriptor
@@ -68,10 +68,10 @@ data class Simple(val a: String) {
             }
         }
 
-        override fun serialize(output: KOutput, obj: Simple) {
-            val output = output.writeBegin(serialClassDesc)
-            output.writeStringElementValue(serialClassDesc, 0, obj.a)
-            output.writeEnd(serialClassDesc)
+        override fun serialize(output: Encoder, obj: Simple) {
+            val output = output.beginStructure(serialClassDesc)
+            output.encodeStringElementValue(serialClassDesc, 0, obj.a)
+            output.endStructure(serialClassDesc)
         }
 
         override fun deserialize(input: KInput): Simple {
@@ -126,16 +126,16 @@ data class SmallZoo(
             }
         }
 
-        override fun serialize(output: KOutput, obj: SmallZoo) {
-            val output = output.writeBegin(serialClassDesc)
-            output.writeStringElementValue(serialClassDesc, 0, obj.str)
-            output.writeIntElementValue(serialClassDesc, 1, obj.i)
-            output.writeNullableSerializableElementValue(serialClassDesc, 2, NullableSerializer(DoubleSerializer), obj.nullable)
-            output.writeSerializableElementValue(serialClassDesc, 3, ArrayListSerializer(IntSerializer), obj.list)
-            output.writeSerializableElementValue(serialClassDesc, 4, LinkedHashMapSerializer(IntSerializer, BooleanSerializer), obj.map)
-            output.writeSerializableElementValue(serialClassDesc, 5, serializer, obj.inner)
-            output.writeSerializableElementValue(serialClassDesc, 6, ArrayListSerializer(Simple.serializer), obj.innerList)
-            output.writeEnd(serialClassDesc)
+        override fun serialize(output: Encoder, obj: SmallZoo) {
+            val output = output.beginStructure(serialClassDesc)
+            output.encodeStringElementValue(serialClassDesc, 0, obj.str)
+            output.encodeIntElementValue(serialClassDesc, 1, obj.i)
+            output.encodeNullableSerializableElementValue(serialClassDesc, 2, NullableSerializer(DoubleSerializer), obj.nullable)
+            output.encodeSerializableElementValue(serialClassDesc, 3, ArrayListSerializer(IntSerializer), obj.list)
+            output.encodeSerializableElementValue(serialClassDesc, 4, LinkedHashMapSerializer(IntSerializer, BooleanSerializer), obj.map)
+            output.encodeSerializableElementValue(serialClassDesc, 5, serializer, obj.inner)
+            output.encodeSerializableElementValue(serialClassDesc, 6, ArrayListSerializer(Simple.serializer), obj.innerList)
+            output.endStructure(serialClassDesc)
         }
 
         override fun deserialize(input: KInput): SmallZoo {
@@ -285,40 +285,40 @@ data class Zoo(
             }
         }
 
-        override fun serialize(output: KOutput, obj: Zoo) {
-            val output = output.writeBegin(serialClassDesc)
-            output.writeUnitElementValue(serialClassDesc, 0)
-            output.writeBooleanElementValue(serialClassDesc, 1, obj.boolean)
-            output.writeByteElementValue(serialClassDesc, 2, obj.byte)
-            output.writeShortElementValue(serialClassDesc, 3, obj.short)
-            output.writeIntElementValue(serialClassDesc, 4, obj.int)
-            output.writeLongElementValue(serialClassDesc, 5, obj.long)
-            output.writeSerializableElementValue(serialClassDesc, 6, FloatSerializer, obj.float)
-            output.writeSerializableElementValue(serialClassDesc, 7, DoubleSerializer, obj.double)
-            output.writeCharElementValue(serialClassDesc, 8, obj.char)
-            output.writeStringElementValue(serialClassDesc, 9, obj.string)
-            output.writeSerializableElementValue(serialClassDesc, 10, Simple.serializer, obj.simple)
-            output.writeSerializableElementValue(serialClassDesc, 11, ModernEnumSerializer<Attitude>(), obj.enum)
-            output.writeNullableSerializableElementValue(serialClassDesc, 12, NullableSerializer(BooleanSerializer), obj.booleanN)
-            output.writeNullableSerializableElementValue(serialClassDesc, 13, NullableSerializer(ByteSerializer), obj.byteN)
-            output.writeNullableSerializableElementValue(serialClassDesc, 14, NullableSerializer(ShortSerializer), obj.shortN)
-            output.writeNullableSerializableElementValue(serialClassDesc, 15, NullableSerializer(IntSerializer), obj.intN)
-            output.writeNullableSerializableElementValue(serialClassDesc, 16, NullableSerializer(LongSerializer), obj.longN)
-            output.writeNullableSerializableElementValue(serialClassDesc, 17, NullableSerializer(FloatSerializer), obj.floatN)
-            output.writeNullableSerializableElementValue(serialClassDesc, 18, NullableSerializer(DoubleSerializer), obj.doubleN)
-            output.writeNullableSerializableElementValue(serialClassDesc, 19, NullableSerializer(CharSerializer), obj.charN)
-            output.writeNullableSerializableElementValue(serialClassDesc, 20, NullableSerializer(StringSerializer), obj.stringN)
-            output.writeNullableSerializableElementValue(serialClassDesc, 21, NullableSerializer(Simple.serializer), obj.simpleN)
-            output.writeNullableSerializableElementValue(serialClassDesc, 22, NullableSerializer(ModernEnumSerializer<Attitude>()), obj.enumN)
-            output.writeSerializableElementValue(serialClassDesc, 23, ArrayListSerializer(IntSerializer), obj.listInt)
-            output.writeSerializableElementValue(serialClassDesc, 24, ArrayListSerializer(NullableSerializer(IntSerializer)), obj.listIntN)
-            output.writeSerializableElementValue(serialClassDesc, 25, LinkedHashSetSerializer(IntSerializer), obj.setNInt)
-            output.writeSerializableElementValue(serialClassDesc, 26, LinkedHashSetSerializer(NullableSerializer(IntSerializer)), obj.mutableSetNIntN)
-            output.writeSerializableElementValue(serialClassDesc, 27, ArrayListSerializer(ArrayListSerializer(Simple.serializer)), obj.listListSimple)
-            output.writeSerializableElementValue(serialClassDesc, 28, ArrayListSerializer(ArrayListSerializer(NullableSerializer(Simple.serializer))), obj.listListSimpleN)
-            output.writeSerializableElementValue(serialClassDesc, 29, LinkedHashMapSerializer(StringSerializer, IntSerializer), obj.map)
-            output.writeSerializableElementValue(serialClassDesc, 30, LinkedHashMapSerializer(IntSerializer, NullableSerializer(StringSerializer)), obj.mapN)
-            output.writeEnd(serialClassDesc)
+        override fun serialize(output: Encoder, obj: Zoo) {
+            val output = output.beginStructure(serialClassDesc)
+            output.encodeUnitElementValue(serialClassDesc, 0)
+            output.encodeBooleanElementValue(serialClassDesc, 1, obj.boolean)
+            output.encodeByteElementValue(serialClassDesc, 2, obj.byte)
+            output.encodeShortElementValue(serialClassDesc, 3, obj.short)
+            output.encodeIntElementValue(serialClassDesc, 4, obj.int)
+            output.encodeLongElementValue(serialClassDesc, 5, obj.long)
+            output.encodeSerializableElementValue(serialClassDesc, 6, FloatSerializer, obj.float)
+            output.encodeSerializableElementValue(serialClassDesc, 7, DoubleSerializer, obj.double)
+            output.encodeCharElementValue(serialClassDesc, 8, obj.char)
+            output.encodeStringElementValue(serialClassDesc, 9, obj.string)
+            output.encodeSerializableElementValue(serialClassDesc, 10, Simple.serializer, obj.simple)
+            output.encodeSerializableElementValue(serialClassDesc, 11, ModernEnumSerializer<Attitude>(), obj.enum)
+            output.encodeNullableSerializableElementValue(serialClassDesc, 12, NullableSerializer(BooleanSerializer), obj.booleanN)
+            output.encodeNullableSerializableElementValue(serialClassDesc, 13, NullableSerializer(ByteSerializer), obj.byteN)
+            output.encodeNullableSerializableElementValue(serialClassDesc, 14, NullableSerializer(ShortSerializer), obj.shortN)
+            output.encodeNullableSerializableElementValue(serialClassDesc, 15, NullableSerializer(IntSerializer), obj.intN)
+            output.encodeNullableSerializableElementValue(serialClassDesc, 16, NullableSerializer(LongSerializer), obj.longN)
+            output.encodeNullableSerializableElementValue(serialClassDesc, 17, NullableSerializer(FloatSerializer), obj.floatN)
+            output.encodeNullableSerializableElementValue(serialClassDesc, 18, NullableSerializer(DoubleSerializer), obj.doubleN)
+            output.encodeNullableSerializableElementValue(serialClassDesc, 19, NullableSerializer(CharSerializer), obj.charN)
+            output.encodeNullableSerializableElementValue(serialClassDesc, 20, NullableSerializer(StringSerializer), obj.stringN)
+            output.encodeNullableSerializableElementValue(serialClassDesc, 21, NullableSerializer(Simple.serializer), obj.simpleN)
+            output.encodeNullableSerializableElementValue(serialClassDesc, 22, NullableSerializer(ModernEnumSerializer<Attitude>()), obj.enumN)
+            output.encodeSerializableElementValue(serialClassDesc, 23, ArrayListSerializer(IntSerializer), obj.listInt)
+            output.encodeSerializableElementValue(serialClassDesc, 24, ArrayListSerializer(NullableSerializer(IntSerializer)), obj.listIntN)
+            output.encodeSerializableElementValue(serialClassDesc, 25, LinkedHashSetSerializer(IntSerializer), obj.setNInt)
+            output.encodeSerializableElementValue(serialClassDesc, 26, LinkedHashSetSerializer(NullableSerializer(IntSerializer)), obj.mutableSetNIntN)
+            output.encodeSerializableElementValue(serialClassDesc, 27, ArrayListSerializer(ArrayListSerializer(Simple.serializer)), obj.listListSimple)
+            output.encodeSerializableElementValue(serialClassDesc, 28, ArrayListSerializer(ArrayListSerializer(NullableSerializer(Simple.serializer))), obj.listListSimpleN)
+            output.encodeSerializableElementValue(serialClassDesc, 29, LinkedHashMapSerializer(StringSerializer, IntSerializer), obj.map)
+            output.encodeSerializableElementValue(serialClassDesc, 30, LinkedHashMapSerializer(IntSerializer, NullableSerializer(StringSerializer)), obj.mapN)
+            output.endStructure(serialClassDesc)
         }
 
         override fun deserialize(input: KInput): Zoo {

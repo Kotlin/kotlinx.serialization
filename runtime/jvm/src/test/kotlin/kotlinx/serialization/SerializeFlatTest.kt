@@ -78,11 +78,11 @@ object CustomSerializer : KSerializer<Custom> {
         }
     }
 
-    override fun serialize(output: KOutput, obj : Custom) {
-        output.writeBegin(serialClassDesc)
-        output.writeStringElementValue(serialClassDesc, 0, obj._value1)
-        output.writeIntElementValue(serialClassDesc, 1, obj._value2)
-        output.writeEnd(serialClassDesc)
+    override fun serialize(output: Encoder, obj : Custom) {
+        output.beginStructure(serialClassDesc)
+        output.encodeStringElementValue(serialClassDesc, 0, obj._value1)
+        output.encodeIntElementValue(serialClassDesc, 1, obj._value2)
+        output.endStructure(serialClassDesc)
     }
 
     override fun deserialize(input: KInput): Custom {
@@ -114,7 +114,7 @@ class SerializeFlatTest() {
     @Test
     fun testData() {
         val out = Out("Data")
-        out.write(Data::class.serializer(), Data("s1", 42))
+        out.encode(Data::class.serializer(), Data("s1", 42))
         out.done()
 
         val inp = Inp("Data")
@@ -126,7 +126,7 @@ class SerializeFlatTest() {
     @Test
     fun testDataExplicit() {
         val out = Out("DataExplicit")
-        out.write(DataExplicit::class.serializer(), DataExplicit("s1", 42))
+        out.encode(DataExplicit::class.serializer(), DataExplicit("s1", 42))
         out.done()
 
         val inp = Inp("DataExplicit")
@@ -141,7 +141,7 @@ class SerializeFlatTest() {
         val reg = Reg();
         reg.value1 = "s1"
         reg.value2 = 42
-        out.write(Reg::class.serializer(), reg)
+        out.encode(Reg::class.serializer(), reg)
         out.done()
 
         val inp = Inp("Reg")
@@ -153,7 +153,7 @@ class SerializeFlatTest() {
     @Test
     fun testNames() {
         val out = Out("Names")
-        out.write(Names::class.serializer(), Names("s1", 42))
+        out.encode(Names::class.serializer(), Names("s1", 42))
         out.done()
 
         val inp = Inp("Names")
@@ -165,7 +165,7 @@ class SerializeFlatTest() {
     @Test
     fun testCustom() {
         val out = Out("Custom")
-        out.write(CustomSerializer, Custom("s1", 42))
+        out.encode(CustomSerializer, Custom("s1", 42))
         out.done()
 
         val inp = Inp("Custom")
@@ -177,7 +177,7 @@ class SerializeFlatTest() {
     @Test
     fun testExternalData() {
         val out = Out("ExternalData")
-        out.write(ExternalSerializer, ExternalData("s1", 42))
+        out.encode(ExternalSerializer, ExternalData("s1", 42))
         out.done()
 
         val inp = Inp("ExternalData")
@@ -200,38 +200,38 @@ class SerializeFlatTest() {
     class Out(private val name: String) : ElementValueOutput() {
         var step = 0
 
-        override fun writeBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KOutput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): Encoder {
             checkDesc(name, desc)
-            if (step == 0) step++ else fail("@$step: writeBegin($desc)")
+            if (step == 0) step++ else fail("@$step: beginStructure($desc)")
             return this
         }
 
-        override fun writeElement(desc: SerialDescriptor, index: Int): Boolean {
+        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
             checkDesc(name, desc)
             when (step) {
                 1 -> if (index == 0) { step++; return true }
                 3 -> if (index == 1) { step++; return true }
             }
-            fail("@$step: writeElement($desc, $index)")
+            fail("@$step: encodeElement($desc, $index)")
         }
 
-        override fun writeStringValue(value: String) {
+        override fun encodeStringValue(value: String) {
             when (step) {
                 2 -> if (value == "s1") { step++; return }
             }
-            fail("@$step: writeStringValue($value)")
+            fail("@$step: encodeStringValue($value)")
         }
 
-        override fun writeIntValue(value: Int) {
+        override fun encodeIntValue(value: Int) {
             when (step) {
                 4 -> if (value == 42) { step++; return }
             }
-            fail("@$step: writeIntValue($value)")
+            fail("@$step: encodeIntValue($value)")
         }
 
-        override fun writeEnd(desc: SerialDescriptor) {
+        override fun endStructure(desc: SerialDescriptor) {
             checkDesc(name, desc)
-            if (step == 5) step++ else fail("@$step: writeEnd($desc)")
+            if (step == 5) step++ else fail("@$step: endStructure($desc)")
         }
 
         fun done() {

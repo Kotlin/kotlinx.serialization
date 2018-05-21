@@ -15,6 +15,22 @@
  */
 
 /*
+ * Copyright 2018 JetBrains s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
  *  Copyright 2018 JetBrains s.r.o.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,7 +62,7 @@ class ZooTest {
         // save to string
         val sw = StringWriter()
         val out = KeyValueOutput(PrintWriter(sw))
-        out.write(Zoo.serializer(), zoo)
+        out.encode(Zoo.serializer(), zoo)
         // load from string
         val str = sw.toString()
         val inp = KeyValueInput(Parser(StringReader(str)))
@@ -72,41 +88,41 @@ class ZooTest {
     // KeyValue Input/Output
 
     class KeyValueOutput(val out: PrintWriter) : ElementValueOutput() {
-        override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): StructureEncoder {
             out.print('{')
             return this
         }
 
-        override fun writeEnd(desc: KSerialClassDesc) = out.print('}')
+        override fun endStructure(desc: SerialDescriptor) = out.print('}')
 
-        override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean {
+        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
             if (index > 0) out.print(", ")
             out.print(desc.getElementName(index));
             out.print(':')
             return true
         }
 
-        override fun writeNullValue() = out.print("null")
-        override fun writeNonSerializableValue(value: Any) = out.print(value)
+        override fun encodeNullValue() = out.print("null")
+        override fun encodeNonSerializableValue(value: Any) = out.print(value)
 
-        override fun writeStringValue(value: String) {
+        override fun encodeStringValue(value: String) {
             out.print('"')
             out.print(value)
             out.print('"')
         }
 
-        override fun writeCharValue(value: Char) = writeStringValue(value.toString())
+        override fun encodeCharValue(value: Char) = encodeStringValue(value.toString())
     }
 
     class KeyValueInput(val inp: Parser) : ElementValueInput() {
-        override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
+        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput {
             inp.expectAfterWhiteSpace('{')
             return this
         }
 
-        override fun readEnd(desc: KSerialClassDesc) = inp.expectAfterWhiteSpace('}')
+        override fun readEnd(desc: SerialDescriptor) = inp.expectAfterWhiteSpace('}')
 
-        override fun readElement(desc: KSerialClassDesc): Int {
+        override fun readElement(desc: SerialDescriptor): Int {
             inp.skipWhitespace(',')
             val name = inp.nextUntil(':', '}')
             if (name.isEmpty())

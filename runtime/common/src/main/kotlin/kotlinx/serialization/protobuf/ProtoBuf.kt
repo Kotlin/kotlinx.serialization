@@ -42,7 +42,7 @@ class ProtoBuf(val context: SerialContext? = null) {
             context = this@ProtoBuf.context
         }
 
-        override fun writeBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KOutput = when (desc.kind) {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): StructureEncoder = when (desc.kind) {
             SerialKind.LIST, SerialKind.MAP, SerialKind.SET -> RepeatedWriter(encoder, currentTag)
             SerialKind.CLASS, SerialKind.OBJECT, SerialKind.SEALED, SerialKind.POLYMORPHIC -> ObjectWriter(currentTagOrNull, encoder)
             SerialKind.ENTRY -> MapEntryWriter(currentTagOrNull, encoder)
@@ -409,7 +409,7 @@ class ProtoBuf(val context: SerialContext? = null) {
     fun <T : Any> dump(saver: SerializationStrategy<T>, obj: T): ByteArray {
         val output = ByteArrayOutputStream()
         val dumper = ProtobufWriter(ProtobufEncoder(output))
-        dumper.write(saver, obj)
+        dumper.encode(saver, obj)
         return output.toByteArray()
     }
 

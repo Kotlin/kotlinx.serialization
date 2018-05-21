@@ -23,7 +23,7 @@ open class ValueTransformer {
 
     fun <T> transform(serializer: KSerializer<T>, obj: T): T {
         val output = Output()
-        output.write(serializer, obj)
+        output.encode(serializer, obj)
         val input = Input(output.list)
         return input.read(serializer)
     }
@@ -51,59 +51,61 @@ open class ValueTransformer {
 
     // ---------------
 
-    private inner class Output : KOutput() {
+    private inner class Output : StructureEncoder {
+        override var context: SerialContext? = null
+
         internal val list = arrayListOf<Any?>()
 
-        override fun writeNullableValue(value: Any?) {
+        override fun encodeNullableValue(value: Any?) {
             list.add(value)
         }
 
-        override fun writeElement(desc: SerialDescriptor, index: Int) = true
-        override fun writeNotNullMark() {}
-        override fun writeNullValue() { writeNullableValue(null) }
-        override fun writeNonSerializableValue(value: Any) { writeNullableValue(value) }
-        override fun writeUnitValue() { writeNullableValue(Unit) }
-        override fun writeBooleanValue(value: Boolean) { writeNullableValue(value) }
-        override fun writeByteValue(value: Byte) { writeNullableValue(value) }
-        override fun writeShortValue(value: Short) { writeNullableValue(value) }
-        override fun writeIntValue(value: Int) { writeNullableValue(value) }
-        override fun writeLongValue(value: Long) { writeNullableValue(value) }
-        override fun writeFloatValue(value: Float) { writeNullableValue(value) }
-        override fun writeDoubleValue(value: Double) { writeNullableValue(value) }
-        override fun writeCharValue(value: Char) { writeNullableValue(value) }
-        override fun writeStringValue(value: String) { writeNullableValue(value) }
-        override fun <T : Enum<T>> writeEnumValue(enumClass: KClass<T>, value: T) { writeNullableValue(value) }
-        override fun <T : Enum<T>> writeEnumValue(value: T) {
-            writeNullableValue(value)
+        override fun encodeElement(desc: SerialDescriptor, index: Int) = true
+        override fun encodeNotNullMark() {}
+        override fun encodeNullValue() { encodeNullableValue(null) }
+        override fun encodeNonSerializableValue(value: Any) { encodeNullableValue(value) }
+        override fun encodeUnitValue() { encodeNullableValue(Unit) }
+        override fun encodeBooleanValue(value: Boolean) { encodeNullableValue(value) }
+        override fun encodeByteValue(value: Byte) { encodeNullableValue(value) }
+        override fun encodeShortValue(value: Short) { encodeNullableValue(value) }
+        override fun encodeIntValue(value: Int) { encodeNullableValue(value) }
+        override fun encodeLongValue(value: Long) { encodeNullableValue(value) }
+        override fun encodeFloatValue(value: Float) { encodeNullableValue(value) }
+        override fun encodeDoubleValue(value: Double) { encodeNullableValue(value) }
+        override fun encodeCharValue(value: Char) { encodeNullableValue(value) }
+        override fun encodeStringValue(value: String) { encodeNullableValue(value) }
+        override fun <T : Enum<T>> encodeEnumValue(enumClass: KClass<T>, value: T) { encodeNullableValue(value) }
+        override fun <T : Enum<T>> encodeEnumValue(value: T) {
+            encodeNullableValue(value)
         }
 
-        override fun <T : Any?> writeSerializableValue(saver: SerializationStrategy<T>, value: T) {
+        override fun <T : Any?> encodeSerializableValue(saver: SerializationStrategy<T>, value: T) {
             if (isRecursiveTransform()) {
                 saver.serialize(this, value)
             } else
-                writeNullableValue(value)
+                encodeNullableValue(value)
         }
 
         // ---------------
 
-        override fun writeNonSerializableElementValue(desc: SerialDescriptor, index: Int, value: Any) { writeNullableValue(value) }
-        override fun writeNullableElementValue(desc: SerialDescriptor, index: Int, value: Any?) = writeNullableValue(value)
-        override fun writeUnitElementValue(desc: SerialDescriptor, index: Int) = writeNullableValue(Unit)
-        override fun writeBooleanElementValue(desc: SerialDescriptor, index: Int, value: Boolean) = writeNullableValue(value)
-        override fun writeByteElementValue(desc: SerialDescriptor, index: Int, value: Byte) = writeNullableValue(value)
-        override fun writeShortElementValue(desc: SerialDescriptor, index: Int, value: Short) = writeNullableValue(value)
-        override fun writeIntElementValue(desc: SerialDescriptor, index: Int, value: Int) = writeNullableValue(value)
-        override fun writeLongElementValue(desc: SerialDescriptor, index: Int, value: Long) = writeNullableValue(value)
-        override fun writeFloatElementValue(desc: SerialDescriptor, index: Int, value: Float) = writeNullableValue(value)
-        override fun writeDoubleElementValue(desc: SerialDescriptor, index: Int, value: Double) = writeNullableValue(value)
-        override fun writeCharElementValue(desc: SerialDescriptor, index: Int, value: Char) = writeNullableValue(value)
-        override fun writeStringElementValue(desc: SerialDescriptor, index: Int, value: String) = writeNullableValue(value)
+        override fun encodeNonSerializableElementValue(desc: SerialDescriptor, index: Int, value: Any) { encodeNullableValue(value) }
+        override fun encodeNullableElementValue(desc: SerialDescriptor, index: Int, value: Any?) = encodeNullableValue(value)
+        override fun encodeUnitElementValue(desc: SerialDescriptor, index: Int) = encodeNullableValue(Unit)
+        override fun encodeBooleanElementValue(desc: SerialDescriptor, index: Int, value: Boolean) = encodeNullableValue(value)
+        override fun encodeByteElementValue(desc: SerialDescriptor, index: Int, value: Byte) = encodeNullableValue(value)
+        override fun encodeShortElementValue(desc: SerialDescriptor, index: Int, value: Short) = encodeNullableValue(value)
+        override fun encodeIntElementValue(desc: SerialDescriptor, index: Int, value: Int) = encodeNullableValue(value)
+        override fun encodeLongElementValue(desc: SerialDescriptor, index: Int, value: Long) = encodeNullableValue(value)
+        override fun encodeFloatElementValue(desc: SerialDescriptor, index: Int, value: Float) = encodeNullableValue(value)
+        override fun encodeDoubleElementValue(desc: SerialDescriptor, index: Int, value: Double) = encodeNullableValue(value)
+        override fun encodeCharElementValue(desc: SerialDescriptor, index: Int, value: Char) = encodeNullableValue(value)
+        override fun encodeStringElementValue(desc: SerialDescriptor, index: Int, value: String) = encodeNullableValue(value)
 
-        override fun <T : Enum<T>> writeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>, value: T) =
-            writeNullableValue(value)
+        override fun <T : Enum<T>> encodeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>, value: T) =
+            encodeNullableValue(value)
 
-        override fun <T : Enum<T>> writeEnumElementValue(desc: SerialDescriptor, index: Int, value: T) {
-            writeNullableValue(value)
+        override fun <T : Enum<T>> encodeEnumElementValue(desc: SerialDescriptor, index: Int, value: T) {
+            encodeNullableValue(value)
         }
     }
 

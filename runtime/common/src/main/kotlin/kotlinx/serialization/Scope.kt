@@ -45,8 +45,8 @@ fun <T: Any> SerialContext?.klassSerializer(klass: KClass<T>) = this?.let { getS
 fun <T: Any> SerialContext?.valueSerializer(value: T) = this?.let { getSerializerByValue(value) } ?: value::class.serializer()
 
 class ContextSerializer <T : Any> (val serializableClass: KClass<T>) : KSerializer<T> {
-    override fun serialize(output: KOutput, obj: T) {
-        output.writeValue(obj)
+    override fun serialize(output: Encoder, obj: T) {
+        output.encodeValue(obj)
     }
     override fun deserialize(input: KInput): T = input.readValue(serializableClass)
 

@@ -19,15 +19,9 @@ package kotlinx.serialization
 import kotlinx.serialization.KInput.Companion.UNKNOWN_NAME
 import kotlin.reflect.KClass
 
-@Deprecated("Obsolete name.", ReplaceWith("SerialKind"))
-typealias KSerialClassKind = SerialKind
-
 enum class SerialKind { // unit and object unused?
     CLASS, OBJECT, UNIT, SEALED, LIST, SET, MAP, ENTRY, POLYMORPHIC, PRIMITIVE, KIND_ENUM
 }
-
-@Deprecated("Obsolete name.", ReplaceWith("SerialDescriptor"))
-typealias KSerialClassDesc = SerialDescriptor
 
 interface SerialDescriptor {
     val name: String
@@ -45,15 +39,9 @@ interface SerialDescriptor {
         get() = 0
 }
 
-@Deprecated("Obsolete name.", ReplaceWith("SerializationStrategy"))
-typealias KSerialSaver<T> = SerializationStrategy<T>
-
 interface SerializationStrategy<in T> {
-    fun serialize(output: KOutput, obj : T)
+    fun serialize(output: Encoder, obj : T)
 }
-
-@Deprecated("Obsolete name.", ReplaceWith("DeserializationStrategy"))
-typealias KSerialLoader<T> = DeserializationStrategy<T>
 
 interface DeserializationStrategy<T> {
     fun deserialize(input: KInput): T
@@ -87,112 +75,110 @@ internal class LegacyEnumCreator<E : Enum<E>>(private val eClass: KClass<E>) : E
 
 class SerializationConstructorMarker private constructor()
 
-abstract class KOutput internal constructor() {
+inline fun <reified T : Any> Encoder.encode(obj: T) { encode(T::class.serializer(), obj) }
 
-    var context: SerialContext? = null
+fun <T : Any?> Encoder.encode(strategy: SerializationStrategy<T>, obj: T) { strategy.serialize(this, obj) }
 
-    // ------- top-level API (use it) -------
-
-    fun <T : Any?> write(saver: SerializationStrategy<T>, obj: T) { saver.serialize(this, obj) }
-
-    inline fun <reified T : Any> write(obj: T) { write(T::class.serializer(), obj) }
-
-    fun <T : Any> writeNullable(saver: SerializationStrategy<T>, obj: T?) {
-        if (obj == null) {
-            writeNullValue()
-        } else {
-            writeNotNullMark()
-            saver.serialize(this, obj)
-        }
+fun <T : Any> Encoder.encodeNullable(strategy: SerializationStrategy<T>, obj: T?) {
+    if (obj == null) {
+        encodeNullValue()
+    } else {
+        encodeNotNullMark()
+        strategy.serialize(this, obj)
     }
+}
 
-    // ------- low-level element value API for basic serializers -------
+interface Encoder {
+    var context: SerialContext?
 
-    // it is always invoked before writeXxxValue, shall return false if no need to write (skip this value)
-    abstract fun writeElement(desc: SerialDescriptor, index: Int): Boolean
-
-    // will be followed by value
-    abstract fun writeNotNullMark()
-
-    // this is invoked after writeElement
-    abstract fun writeNullValue()
-
-    fun writeValue(value: Any) {
+    fun encodeValue(value: Any) {
         val s = context?.getSerializerByValue(value)
-        if (s != null) writeSerializableValue(s, value)
-        else writeNonSerializableValue(value)
+        if (s != null) encodeSerializableValue(s, value)
+        else encodeNonSerializableValue(value)
     }
-    abstract fun writeNonSerializableValue(value: Any)
 
-    abstract fun writeNullableValue(value: Any?): Unit
-    abstract fun writeUnitValue()
-    abstract fun writeBooleanValue(value: Boolean)
-    abstract fun writeByteValue(value: Byte)
-    abstract fun writeShortValue(value: Short)
-    abstract fun writeIntValue(value: Int)
-    abstract fun writeLongValue(value: Long)
-    abstract fun writeFloatValue(value: Float)
-    abstract fun writeDoubleValue(value: Double)
-    abstract fun writeCharValue(value: Char)
-    abstract fun writeStringValue(value: String)
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("writeEnumValue(value)"))
-    abstract fun <T : Enum<T>> writeEnumValue(enumClass: KClass<T>, value: T)
+    fun encodeNonSerializableValue(value: Any)
 
-    abstract fun <T : Enum<T>> writeEnumValue(value: T)
+    fun encodeNotNullMark()
+    fun encodeNullValue()
 
-    open fun <T : Any?> writeSerializableValue(saver: SerializationStrategy<T>, value: T) {
+    fun encodeNullableValue(value: Any?)
+    fun encodeUnitValue()
+    fun encodeBooleanValue(value: Boolean)
+    fun encodeByteValue(value: Byte)
+    fun encodeShortValue(value: Short)
+    fun encodeIntValue(value: Int)
+    fun encodeLongValue(value: Long)
+    fun encodeFloatValue(value: Float)
+    fun encodeDoubleValue(value: Double)
+    fun encodeCharValue(value: Char)
+    fun encodeStringValue(value: String)
+
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("encodeEnumValue(value)"))
+    fun <T : Enum<T>> encodeEnumValue(enumClass: KClass<T>, value: T)
+
+    fun <T : Enum<T>> encodeEnumValue(value: T)
+
+    fun <T : Any?> encodeSerializableValue(saver: SerializationStrategy<T>, value: T) {
         saver.serialize(this, value)
     }
 
-    fun <T : Any> writeNullableSerializableValue(saver: SerializationStrategy<T>, value: T?) {
+    fun <T : Any> encodeNullableSerializableValue(saver: SerializationStrategy<T>, value: T?) {
         if (value == null) {
-            writeNullValue()
+            encodeNullValue()
         } else {
-            writeNotNullMark()
-            writeSerializableValue(saver, value)
+            encodeNotNullMark()
+            encodeSerializableValue(saver, value)
         }
     }
 
-    // -------------------------------------------------------------------------------------
-    // methods below this line are invoked by compiler-generated KSerializer implementation
+    // composite value delimiter api (endStructure ends composite object)
+    fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): StructureEncoder
 
-    // composite value delimiter api (writeEnd ends composite object)
-    open fun writeBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KOutput = this
-    open fun writeBegin(desc: SerialDescriptor, collectionSize: Int, vararg typeParams: KSerializer<*>) = writeBegin(desc, *typeParams)
-    open fun writeEnd(desc: SerialDescriptor) {}
+    fun beginCollection(desc: SerialDescriptor, collectionSize: Int, vararg typeParams: KSerializer<*>) =
+        beginStructure(desc, *typeParams)
+}
 
-    fun writeElementValue(desc: SerialDescriptor, index: Int, value: Any) {
+interface StructureEncoder: Encoder {
+    override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): StructureEncoder = this
+    fun endStructure(desc: SerialDescriptor) {}
+
+    // it is always invoked before encodeSerializableValue, shall return false if no need to encode (skip this value)
+    fun encodeElement(desc: SerialDescriptor, index: Int): Boolean
+
+    fun encodeElementValue(desc: SerialDescriptor, index: Int, value: Any) {
         val s = context?.getSerializerByValue(value)
-        if (s != null) writeSerializableElementValue(desc, index, s, value)
-        else writeNonSerializableElementValue(desc, index, value)
-    }
-    abstract fun writeNullableElementValue(desc: SerialDescriptor, index: Int, value: Any?)
-
-    abstract fun writeUnitElementValue(desc: SerialDescriptor, index: Int)
-    abstract fun writeBooleanElementValue(desc: SerialDescriptor, index: Int, value: Boolean)
-    abstract fun writeByteElementValue(desc: SerialDescriptor, index: Int, value: Byte)
-    abstract fun writeShortElementValue(desc: SerialDescriptor, index: Int, value: Short)
-    abstract fun writeIntElementValue(desc: SerialDescriptor, index: Int, value: Int)
-    abstract fun writeLongElementValue(desc: SerialDescriptor, index: Int, value: Long)
-    abstract fun writeFloatElementValue(desc: SerialDescriptor, index: Int, value: Float)
-    abstract fun writeDoubleElementValue(desc: SerialDescriptor, index: Int, value: Double)
-    abstract fun writeCharElementValue(desc: SerialDescriptor, index: Int, value: Char)
-    abstract fun writeStringElementValue(desc: SerialDescriptor, index: Int, value: String)
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("writeEnumElementValue(desc, index, value)"))
-    abstract fun <T : Enum<T>> writeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>, value: T)
-
-    abstract fun <T : Enum<T>> writeEnumElementValue(desc: SerialDescriptor, index: Int, value: T)
-
-    fun <T : Any?> writeSerializableElementValue(desc: SerialDescriptor, index: Int, saver: SerializationStrategy<T>, value: T) {
-        if (writeElement(desc, index))
-            writeSerializableValue(saver, value)
+        if (s != null) encodeSerializableElementValue(desc, index, s, value)
+        else encodeNonSerializableElementValue(desc, index, value)
     }
 
-    abstract fun writeNonSerializableElementValue(desc: SerialDescriptor, index: Int, value: Any)
+    fun encodeNullableElementValue(desc: SerialDescriptor, index: Int, value: Any?)
 
-    fun <T : Any> writeNullableSerializableElementValue(desc: SerialDescriptor, index: Int, saver: SerializationStrategy<T>, value: T?) {
-        if (writeElement(desc, index))
-            writeNullableSerializableValue(saver, value)
+    fun encodeUnitElementValue(desc: SerialDescriptor, index: Int)
+    fun encodeBooleanElementValue(desc: SerialDescriptor, index: Int, value: Boolean)
+    fun encodeByteElementValue(desc: SerialDescriptor, index: Int, value: Byte)
+    fun encodeShortElementValue(desc: SerialDescriptor, index: Int, value: Short)
+    fun encodeIntElementValue(desc: SerialDescriptor, index: Int, value: Int)
+    fun encodeLongElementValue(desc: SerialDescriptor, index: Int, value: Long)
+    fun encodeFloatElementValue(desc: SerialDescriptor, index: Int, value: Float)
+    fun encodeDoubleElementValue(desc: SerialDescriptor, index: Int, value: Double)
+    fun encodeCharElementValue(desc: SerialDescriptor, index: Int, value: Char)
+    fun encodeStringElementValue(desc: SerialDescriptor, index: Int, value: String)
+
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("encodeEnumElementValue(desc, index, value)"))
+    fun <T : Enum<T>> encodeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>, value: T)
+    fun <T : Enum<T>> encodeEnumElementValue(desc: SerialDescriptor, index: Int, value: T)
+
+    fun <T : Any?> encodeSerializableElementValue(desc: SerialDescriptor, index: Int, saver: SerializationStrategy<T>, value: T) {
+        if (encodeElement(desc, index))
+            encodeSerializableValue(saver, value)
+    }
+
+    fun encodeNonSerializableElementValue(desc: SerialDescriptor, index: Int, value: Any)
+
+    fun <T : Any> encodeNullableSerializableElementValue(desc: SerialDescriptor, index: Int, saver: SerializationStrategy<T>, value: T?) {
+        if (encodeElement(desc, index))
+            encodeNullableSerializableValue(saver, value)
     }
 }
 
@@ -247,7 +233,7 @@ abstract class KInput internal constructor() {
     // -------------------------------------------------------------------------------------
     // methods below this line are invoked by compiler-generated KSerializer implementation
 
-    // composite value delimiter api (writeEnd ends composite object)
+    // composite value delimiter api (endStructure ends composite object)
     open fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput = this
     open fun readEnd(desc: SerialDescriptor) {}
 

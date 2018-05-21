@@ -133,7 +133,7 @@ class SClass(
         addStatement("return %T($constructorArgs)", serializableClassName)
     }.build()
 
-    private fun renderDescriptor() = PropertySpec.builder("serialClassDesc", KSerialClassDesc::class).apply {
+    private fun renderDescriptor() = PropertySpec.builder("serialClassDesc", SerialDescriptor::class).apply {
         addModifiers(KModifier.OVERRIDE)
         val initCodeBlock = CodeBlock.builder().apply {
             if (properties.all { it.serialTag == null }) {
@@ -159,24 +159,24 @@ class SClass(
 
     private fun renderSave() = FunSpec.builder("serialize").apply {
         addModifiers(KModifier.OVERRIDE)
-        addParameter("output", KOutput::class)
+        addParameter("output", Encoder::class)
         addParameter("obj", serializableClassName)
-        l("val output = output.writeBegin(serialClassDesc)")
+        l("val output = output.beginStructure(serialClassDesc)")
 
         properties.forEachIndexed { index, it ->
             val sti = it.getSerialTypeInfo()
             if (sti.serializer == null) {
                 if (it.type == Unit::class.asTypeName())
-                    l("output.write${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index)")
+                    l("output.encode${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index)")
                 else
-                    l("output.write${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index, obj.${it.name})")
+                    l("output.encode${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index, obj.${it.name})")
             }
             else {
                 val invokeArgs = renderInvoke(sti.serializer, if (sti.needTypeParam) it.type else null)
-                l("output.write${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index, %L, obj.${it.name})", invokeArgs)
+                l("output.encode${sti.elementMethodPrefix}ElementValue(serialClassDesc, $index, %L, obj.${it.name})", invokeArgs)
             }
         }
-        l("output.writeEnd(serialClassDesc)")
+        l("output.endStructure(serialClassDesc)")
     }.build()
 
     class SProperty(

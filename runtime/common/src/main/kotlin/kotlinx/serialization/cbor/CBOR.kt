@@ -29,11 +29,11 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
             // no-op
         }
 
-        override fun writeEnd(desc: SerialDescriptor) {
+        override fun endStructure(desc: SerialDescriptor) {
             // no-op
         }
 
-        override fun writeElement(desc: SerialDescriptor, index: Int) = true
+        override fun encodeElement(desc: SerialDescriptor, index: Int) = true
     }
 
     // Differs from List only in start byte
@@ -45,7 +45,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
     private inner open class CBORListWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
         override fun writeBeginToken() = encoder.startArray()
 
-        override fun writeElement(desc: SerialDescriptor, index: Int): Boolean = desc.getElementName(index) != "size"
+        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean = desc.getElementName(index) != "size"
     }
 
     // Writes class as map [fieldName, fieldValue]
@@ -57,7 +57,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
 
         protected open fun writeBeginToken() = encoder.startMap()
 
-        override fun writeBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KOutput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): StructureEncoder {
             val writer = when (desc.kind) {
                 SerialKind.LIST, SerialKind.SET -> CBORListWriter(encoder)
                 SerialKind.MAP -> CBORMapWriter(encoder)
@@ -68,31 +68,31 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
             return writer
         }
 
-        override fun writeEnd(desc: SerialDescriptor) = encoder.end()
+        override fun endStructure(desc: SerialDescriptor) = encoder.end()
 
         //todo: Write size of map or array if known
-        override fun writeElement(desc: SerialDescriptor, index: Int): Boolean {
+        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
             val name = desc.getElementName(index)
             encoder.encodeString(name)
             return true
         }
 
-        override fun writeStringValue(value: String) = encoder.encodeString(value)
+        override fun encodeStringValue(value: String) = encoder.encodeString(value)
 
-        override fun writeFloatValue(value: Float) = encoder.encodeFloat(value)
-        override fun writeDoubleValue(value: Double) = encoder.encodeDouble(value)
+        override fun encodeFloatValue(value: Float) = encoder.encodeFloat(value)
+        override fun encodeDoubleValue(value: Double) = encoder.encodeDouble(value)
 
-        override fun writeCharValue(value: Char) = encoder.encodeNumber(value.toLong())
-        override fun writeByteValue(value: Byte) = encoder.encodeNumber(value.toLong())
-        override fun writeShortValue(value: Short) = encoder.encodeNumber(value.toLong())
-        override fun writeIntValue(value: Int) = encoder.encodeNumber(value.toLong())
-        override fun writeLongValue(value: Long) = encoder.encodeNumber(value)
+        override fun encodeCharValue(value: Char) = encoder.encodeNumber(value.toLong())
+        override fun encodeByteValue(value: Byte) = encoder.encodeNumber(value.toLong())
+        override fun encodeShortValue(value: Short) = encoder.encodeNumber(value.toLong())
+        override fun encodeIntValue(value: Int) = encoder.encodeNumber(value.toLong())
+        override fun encodeLongValue(value: Long) = encoder.encodeNumber(value)
 
-        override fun writeBooleanValue(value: Boolean) = encoder.encodeBoolean(value)
+        override fun encodeBooleanValue(value: Boolean) = encoder.encodeBoolean(value)
 
-        override fun writeNullValue() = encoder.encodeNull()
+        override fun encodeNullValue() = encoder.encodeNull()
 
-        override fun <T : Enum<T>> writeEnumValue(value: T) =
+        override fun <T : Enum<T>> encodeEnumValue(value: T) =
                 encoder.encodeString(value.toString())
     }
 
@@ -388,7 +388,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
     fun <T : Any> dump(saver: SerializationStrategy<T>, obj: T): ByteArray {
         val output = ByteArrayOutputStream()
         val dumper = CBORWriter(CBOREncoder(output))
-        dumper.write(saver, obj)
+        dumper.encode(saver, obj)
         return output.toByteArray()
     }
 

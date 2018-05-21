@@ -19,8 +19,8 @@ import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
+import kotlinx.serialization.Encoder
 import kotlinx.serialization.KInput
-import kotlinx.serialization.KOutput
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.Optional
@@ -42,11 +42,11 @@ val b: String) {
             }
         }
 
-        override fun serialize(output: KOutput, obj: Data) {
-            val output = output.writeBegin(serialClassDesc)
-            output.writeIntElementValue(serialClassDesc, 0, obj.a)
-            output.writeStringElementValue(serialClassDesc, 1, obj.b)
-            output.writeEnd(serialClassDesc)
+        override fun serialize(output: Encoder, obj: Data) {
+            val output = output.beginStructure(serialClassDesc)
+            output.encodeIntElementValue(serialClassDesc, 0, obj.a)
+            output.encodeStringElementValue(serialClassDesc, 1, obj.b)
+            output.endStructure(serialClassDesc)
         }
 
         override fun deserialize(input: KInput): Data {
@@ -97,10 +97,10 @@ val list: List<Data> = emptyList()) {
             }
         }
 
-        override fun serialize(output: KOutput, obj: DataList) {
-            val output = output.writeBegin(serialClassDesc)
-            output.writeSerializableElementValue(serialClassDesc, 0, ArrayListSerializer(Data.serializer), obj.list)
-            output.writeEnd(serialClassDesc)
+        override fun serialize(output: Encoder, obj: DataList) {
+            val output = output.beginStructure(serialClassDesc)
+            output.encodeSerializableElementValue(serialClassDesc, 0, ArrayListSerializer(Data.serializer), obj.list)
+            output.endStructure(serialClassDesc)
         }
 
         override fun deserialize(input: KInput): DataList {

@@ -64,8 +64,8 @@ class DynamicParserTest {
     data class NotDefault(val a: Int)
 
     object NDSerializer : KSerializer<NotDefault> {
-        override fun serialize(output: KOutput, obj: NotDefault) {
-            output.writeIntValue(obj.a)
+        override fun serialize(output: Encoder, obj: NotDefault) {
+            output.encodeIntValue(obj.a)
         }
 
         override fun deserialize(input: KInput): NotDefault {

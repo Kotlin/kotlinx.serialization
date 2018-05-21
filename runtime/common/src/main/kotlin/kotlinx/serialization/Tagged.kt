@@ -27,9 +27,10 @@ annotation class SerialId(val id: Int)
 annotation class SerialTag(val tag: String)
 
 
-abstract class TaggedOutput<T : Any?> : KOutput() {
+abstract class TaggedOutput<T : Any?> : StructureEncoder {
     protected abstract fun SerialDescriptor.getTag(index: Int): T
 
+    override var context: SerialContext? = null
 
     // ---- API ----
     open fun writeTaggedValue(tag: T, value: Any): Unit = throw SerializationException("$value is not supported")
@@ -63,7 +64,7 @@ abstract class TaggedOutput<T : Any?> : KOutput() {
 
     // ---- Implementation of low-level API ----
 
-    final override fun writeElement(desc: SerialDescriptor, index: Int): Boolean {
+    final override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
         val tag = desc.getTag(index)
         val shouldWriteElement = shouldWriteElement(desc, tag, index)
         if (shouldWriteElement) {
@@ -75,100 +76,100 @@ abstract class TaggedOutput<T : Any?> : KOutput() {
     // For format-specific behaviour
     open fun shouldWriteElement(desc: SerialDescriptor, tag: T, index: Int) = true
 
-    final override fun writeNotNullMark() {
+    final override fun encodeNotNullMark() {
         writeTaggedNotNullMark(currentTag)
     }
 
-    final override fun writeNullValue() {
+    final override fun encodeNullValue() {
         writeTaggedNull(popTag())
     }
 
-    final override fun writeNonSerializableValue(value: Any) {
+    final override fun encodeNonSerializableValue(value: Any) {
         writeTaggedValue(popTag(), value)
     }
 
-    final override fun writeNullableValue(value: Any?) {
+    final override fun encodeNullableValue(value: Any?) {
         writeTaggedNullable(popTag(), value)
     }
 
-    final override fun writeUnitValue() {
+    final override fun encodeUnitValue() {
         writeTaggedUnit(popTag())
     }
 
-    final override fun writeBooleanValue(value: Boolean) {
+    final override fun encodeBooleanValue(value: Boolean) {
         writeTaggedBoolean(popTag(), value)
     }
 
-    final override fun writeByteValue(value: Byte) {
+    final override fun encodeByteValue(value: Byte) {
         writeTaggedByte(popTag(), value)
     }
 
-    final override fun writeShortValue(value: Short) {
+    final override fun encodeShortValue(value: Short) {
         writeTaggedShort(popTag(), value)
     }
 
-    final override fun writeIntValue(value: Int) {
+    final override fun encodeIntValue(value: Int) {
         writeTaggedInt(popTag(), value)
     }
 
-    final override fun writeLongValue(value: Long) {
+    final override fun encodeLongValue(value: Long) {
         writeTaggedLong(popTag(), value)
     }
 
-    final override fun writeFloatValue(value: Float) {
+    final override fun encodeFloatValue(value: Float) {
         writeTaggedFloat(popTag(), value)
     }
 
-    final override fun writeDoubleValue(value: Double) {
+    final override fun encodeDoubleValue(value: Double) {
         writeTaggedDouble(popTag(), value)
     }
 
-    final override fun writeCharValue(value: Char) {
+    final override fun encodeCharValue(value: Char) {
         writeTaggedChar(popTag(), value)
     }
 
-    final override fun writeStringValue(value: String) {
+    final override fun encodeStringValue(value: String) {
         writeTaggedString(popTag(), value)
     }
 
     @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
-    final override fun <E : Enum<E>> writeEnumValue(enumClass: KClass<E>, value: E) {
-        writeEnumValue(value)
+    final override fun <E : Enum<E>> encodeEnumValue(enumClass: KClass<E>, value: E) {
+        encodeEnumValue(value)
     }
 
-    final override fun <T : Enum<T>> writeEnumValue(value: T) {
+    final override fun <T : Enum<T>> encodeEnumValue(value: T) {
         writeTaggedEnum(popTag(), value)
     }
 
-    final override fun writeEnd(desc: SerialDescriptor) {
+    final override fun endStructure(desc: SerialDescriptor) {
         if (tagStack.isNotEmpty()) popTag(); writeFinished(desc)
     }
 
     // For format-specific behaviour
     open fun writeFinished(desc: SerialDescriptor) {}
 
-    final override fun writeNonSerializableElementValue(desc: SerialDescriptor, index: Int, value: Any) = writeTaggedValue(desc.getTag(index), value)
+    final override fun encodeNonSerializableElementValue(desc: SerialDescriptor, index: Int, value: Any) = writeTaggedValue(desc.getTag(index), value)
 
 
-    final override fun writeNullableElementValue(desc: SerialDescriptor, index: Int, value: Any?) = writeTaggedNullable(desc.getTag(index), value)
-    final override fun writeUnitElementValue(desc: SerialDescriptor, index: Int) = writeTaggedUnit(desc.getTag(index))
-    final override fun writeBooleanElementValue(desc: SerialDescriptor, index: Int, value: Boolean) = writeTaggedBoolean(desc.getTag(index), value)
-    final override fun writeByteElementValue(desc: SerialDescriptor, index: Int, value: Byte) = writeTaggedByte(desc.getTag(index), value)
-    final override fun writeShortElementValue(desc: SerialDescriptor, index: Int, value: Short) = writeTaggedShort(desc.getTag(index), value)
-    final override fun writeIntElementValue(desc: SerialDescriptor, index: Int, value: Int) = writeTaggedInt(desc.getTag(index), value)
-    final override fun writeLongElementValue(desc: SerialDescriptor, index: Int, value: Long) = writeTaggedLong(desc.getTag(index), value)
-    final override fun writeFloatElementValue(desc: SerialDescriptor, index: Int, value: Float) = writeTaggedFloat(desc.getTag(index), value)
-    final override fun writeDoubleElementValue(desc: SerialDescriptor, index: Int, value: Double) = writeTaggedDouble(desc.getTag(index), value)
-    final override fun writeCharElementValue(desc: SerialDescriptor, index: Int, value: Char) = writeTaggedChar(desc.getTag(index), value)
-    final override fun writeStringElementValue(desc: SerialDescriptor, index: Int, value: String) = writeTaggedString(desc.getTag(index), value)
+    final override fun encodeNullableElementValue(desc: SerialDescriptor, index: Int, value: Any?) = writeTaggedNullable(desc.getTag(index), value)
+    final override fun encodeUnitElementValue(desc: SerialDescriptor, index: Int) = writeTaggedUnit(desc.getTag(index))
+    final override fun encodeBooleanElementValue(desc: SerialDescriptor, index: Int, value: Boolean) = writeTaggedBoolean(desc.getTag(index), value)
+    final override fun encodeByteElementValue(desc: SerialDescriptor, index: Int, value: Byte) = writeTaggedByte(desc.getTag(index), value)
+    final override fun encodeShortElementValue(desc: SerialDescriptor, index: Int, value: Short) = writeTaggedShort(desc.getTag(index), value)
+    final override fun encodeIntElementValue(desc: SerialDescriptor, index: Int, value: Int) = writeTaggedInt(desc.getTag(index), value)
+    final override fun encodeLongElementValue(desc: SerialDescriptor, index: Int, value: Long) = writeTaggedLong(desc.getTag(index), value)
+    final override fun encodeFloatElementValue(desc: SerialDescriptor, index: Int, value: Float) = writeTaggedFloat(desc.getTag(index), value)
+    final override fun encodeDoubleElementValue(desc: SerialDescriptor, index: Int, value: Double) = writeTaggedDouble(desc.getTag(index), value)
+    final override fun encodeCharElementValue(desc: SerialDescriptor, index: Int, value: Char) = writeTaggedChar(desc.getTag(index), value)
+    final override fun encodeStringElementValue(desc: SerialDescriptor, index: Int, value: String) = writeTaggedString(desc.getTag(index), value)
 
     @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
-    final override fun <E : Enum<E>> writeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<E>, value: E) {
-        writeEnumElementValue(desc, index, value)
+    final override fun <E : Enum<E>> encodeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<E>, value: E) {
+        encodeEnumElementValue(desc, index, value)
     }
 
 
-    final override fun <T : Enum<T>> writeEnumElementValue(desc: SerialDescriptor, index: Int, value: T) {
+    final override fun <T : Enum<T>> encodeEnumElementValue(desc: SerialDescriptor, index: Int, value: T) {
         writeTaggedEnum(desc.getTag(index), value)
     }
 

@@ -30,7 +30,7 @@ data class JSON(
     fun <T> stringify(saver: SerializationStrategy<T>, obj: T): String {
         val sb = StringBuilder()
         val output = JsonOutput(Mode.OBJ, Composer(sb))
-        output.write(saver, obj)
+        output.encode(saver, obj)
         return sb.toString()
     }
 
@@ -65,7 +65,7 @@ data class JSON(
 
         private var forceStr: Boolean = false
 
-        override fun writeBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KOutput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): StructureEncoder {
             val newMode = switchMode(mode, desc, typeParams)
             if (newMode.begin != INVALID) {
                 w.print(newMode.begin)
@@ -74,7 +74,7 @@ data class JSON(
             return if (mode == newMode) this else JsonOutput(newMode, w) // todo: reuse instance per mode
         }
 
-        override fun writeEnd(desc: SerialDescriptor) {
+        override fun endStructure(desc: SerialDescriptor) {
             if (mode.end != INVALID) {
                 w.unIndent()
                 w.nextItem()
@@ -82,7 +82,7 @@ data class JSON(
             }
         }
 
-        override fun writeElement(desc: SerialDescriptor, index: Int): Boolean {
+        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
             when (mode) {
                 Mode.LIST, Mode.MAP -> {
                     if (index == 0) return false
@@ -103,7 +103,7 @@ data class JSON(
                     if (index > 0)
                         w.print(COMMA)
                     w.nextItem()
-                    writeStringValue(desc.getElementName(index))
+                    encodeStringValue(desc.getElementName(index))
                     w.print(COLON)
                     w.space()
                 }
@@ -111,31 +111,31 @@ data class JSON(
             return true
         }
 
-        override fun writeNullValue() {
+        override fun encodeNullValue() {
             w.print(NULL)
         }
 
-        override fun writeBooleanValue(value: Boolean) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
-        override fun writeByteValue(value: Byte) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
-        override fun writeShortValue(value: Short) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
-        override fun writeIntValue(value: Int) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
-        override fun writeLongValue(value: Long) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
+        override fun encodeBooleanValue(value: Boolean) { if (forceStr) encodeStringValue(value.toString()) else w.print(value) }
+        override fun encodeByteValue(value: Byte) { if (forceStr) encodeStringValue(value.toString()) else w.print(value) }
+        override fun encodeShortValue(value: Short) { if (forceStr) encodeStringValue(value.toString()) else w.print(value) }
+        override fun encodeIntValue(value: Int) { if (forceStr) encodeStringValue(value.toString()) else w.print(value) }
+        override fun encodeLongValue(value: Long) { if (forceStr) encodeStringValue(value.toString()) else w.print(value) }
 
-        override fun writeFloatValue(value: Float) {
-            if (forceStr || !value.isFinite()) writeStringValue(value.toString()) else
+        override fun encodeFloatValue(value: Float) {
+            if (forceStr || !value.isFinite()) encodeStringValue(value.toString()) else
                 w.print(value)
         }
 
-        override fun writeDoubleValue(value: Double) {
-            if (forceStr || !value.isFinite()) writeStringValue(value.toString()) else
+        override fun encodeDoubleValue(value: Double) {
+            if (forceStr || !value.isFinite()) encodeStringValue(value.toString()) else
                 w.print(value)
         }
 
-        override fun writeCharValue(value: Char) {
-            writeStringValue(value.toString())
+        override fun encodeCharValue(value: Char) {
+            encodeStringValue(value.toString())
         }
 
-        override fun writeStringValue(value: String) {
+        override fun encodeStringValue(value: String) {
             if (unquoted && !mustBeQuoted(value)) {
                 w.print(value)
             } else {
@@ -143,8 +143,8 @@ data class JSON(
             }
         }
 
-        override fun writeNonSerializableValue(value: Any) {
-            writeStringValue(value.toString())
+        override fun encodeNonSerializableValue(value: Any) {
+            encodeStringValue(value.toString())
         }
     }
 

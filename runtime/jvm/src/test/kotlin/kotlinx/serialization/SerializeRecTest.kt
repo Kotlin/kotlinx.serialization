@@ -29,7 +29,7 @@ class SerializeRecTest {
     @Test
     fun testRec() {
         val out = Out()
-        out.write(Container::class.serializer(), Container(Data("s1", 42)))
+        out.encode(Container::class.serializer(), Container(Data("s1", 42)))
         out.done()
 
         val inp = Inp()
@@ -55,50 +55,50 @@ class SerializeRecTest {
     class Out() : ElementValueOutput() {
         var step = 0
 
-        override fun writeBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KOutput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): Encoder {
             when(step) {
                 0 -> { checkContainerDesc(desc); step++; return this }
                 3 -> { checkDataDesc(desc); step++; return this }
             }
-            fail("@$step: writeBegin($desc)")
+            fail("@$step: beginStructure($desc)")
         }
 
-        override fun writeElement(desc: SerialDescriptor, index: Int): Boolean {
+        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
             when (step) {
                 1 -> { checkContainerDesc(desc); if (index == 0) { step++; return true } }
                 4 -> { checkDataDesc(desc); if (index == 0) { step++; return true } }
                 6 -> { checkDataDesc(desc); if (index == 1) { step++; return true } }
             }
-            fail("@$step: writeElement($desc, $index)")
+            fail("@$step: encodeElement($desc, $index)")
         }
 
-        override fun <T : Any?> writeSerializableValue(saver: SerializationStrategy<T>, value: T) {
+        override fun <T : Any?> encodeSerializableValue(saver: SerializationStrategy<T>, value: T) {
             when (step) {
                 2 -> { step++; saver.serialize(this, value); return }
             }
-            fail("@$step: writeSerializableValue($value)")
+            fail("@$step: encodeSerializableValue($value)")
         }
 
-        override fun writeStringValue(value: String) {
+        override fun encodeStringValue(value: String) {
             when (step) {
                 5 -> if (value == "s1") { step++; return }
             }
-            fail("@$step: writeStringValue($value)")
+            fail("@$step: encodeStringValue($value)")
         }
 
-        override fun writeIntValue(value: Int) {
+        override fun encodeIntValue(value: Int) {
             when (step) {
                 7 -> if (value == 42) { step++; return }
             }
-            fail("@$step: writeIntValue($value)")
+            fail("@$step: encodeIntValue($value)")
         }
 
-        override fun writeEnd(desc: SerialDescriptor) {
+        override fun endStructure(desc: SerialDescriptor) {
             when(step) {
                 8 -> { checkDataDesc(desc); step++; return }
                 9 -> { checkContainerDesc(desc); step++; return }
             }
-            fail("@$step: writeEnd($desc)")
+            fail("@$step: endStructure($desc)")
         }
 
         fun done() {
