@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,17 @@ task populateNodeModules(type: Copy, dependsOn: compileKotlin2Js) {
 node {
     version = nodeVersion
     download = true
+}
+
+// Workaround the problem with Node downloading:
+// Konan plugin uses Gradle-metadata feature which is not compatible
+// with node plugin download implementation
+repositories.whenObjectAdded {
+    if (it instanceof IvyArtifactRepository) {
+        metadataSources {
+            artifact()
+        }
+    }
 }
 
 task installQunit(type: NpmTask) {
