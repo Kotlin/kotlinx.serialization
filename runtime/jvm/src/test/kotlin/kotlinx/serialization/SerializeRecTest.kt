@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,12 +40,12 @@ class SerializeRecTest {
     companion object {
         fun fail(msg: String): Nothing = throw RuntimeException(msg)
 
-        fun checkContainerDesc(desc: KSerialClassDesc) {
+        fun checkContainerDesc(desc: SerialDescriptor) {
             if (desc.name != "kotlinx.serialization.Container") fail("checkContainerDesc name $desc")
             if (desc.getElementName(0) != "data") fail("checkContainerDesc $desc")
         }
 
-        fun checkDataDesc(desc: KSerialClassDesc) {
+        fun checkDataDesc(desc: SerialDescriptor) {
             if (desc.name != "kotlinx.serialization.Data") fail("checkDataDesc name $desc")
             if (desc.getElementName(0) != "value1") fail("checkDataDesc.0 $desc")
             if (desc.getElementName(1) != "value2") fail("checkDataDesc.1 $desc")
@@ -55,7 +55,7 @@ class SerializeRecTest {
     class Out() : ElementValueOutput() {
         var step = 0
 
-        override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
+        override fun writeBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KOutput {
             when(step) {
                 0 -> { checkContainerDesc(desc); step++; return this }
                 3 -> { checkDataDesc(desc); step++; return this }
@@ -63,7 +63,7 @@ class SerializeRecTest {
             fail("@$step: writeBegin($desc)")
         }
 
-        override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean {
+        override fun writeElement(desc: SerialDescriptor, index: Int): Boolean {
             when (step) {
                 1 -> { checkContainerDesc(desc); if (index == 0) { step++; return true } }
                 4 -> { checkDataDesc(desc); if (index == 0) { step++; return true } }
@@ -72,9 +72,9 @@ class SerializeRecTest {
             fail("@$step: writeElement($desc, $index)")
         }
 
-        override fun <T : Any?> writeSerializableValue(saver: KSerialSaver<T>, value: T) {
+        override fun <T : Any?> writeSerializableValue(saver: SerializationStrategy<T>, value: T) {
             when (step) {
-                2 -> { step++; saver.save(this, value); return }
+                2 -> { step++; saver.serialize(this, value); return }
             }
             fail("@$step: writeSerializableValue($value)")
         }
@@ -93,7 +93,7 @@ class SerializeRecTest {
             fail("@$step: writeIntValue($value)")
         }
 
-        override fun writeEnd(desc: KSerialClassDesc) {
+        override fun writeEnd(desc: SerialDescriptor) {
             when(step) {
                 8 -> { checkDataDesc(desc); step++; return }
                 9 -> { checkContainerDesc(desc); step++; return }
@@ -109,7 +109,7 @@ class SerializeRecTest {
     class Inp() : ElementValueInput() {
         var step = 0
 
-        override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
+        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput {
             when(step) {
                 0 -> { checkContainerDesc(desc); step++; return this }
                 3 -> { checkDataDesc(desc); step++; return this }
@@ -117,7 +117,7 @@ class SerializeRecTest {
             fail("@$step: readBegin($desc)")
         }
 
-        override fun readElement(desc: KSerialClassDesc): Int {
+        override fun readElement(desc: SerialDescriptor): Int {
             when (step) {
                 1 -> { checkContainerDesc(desc); step++; return 0 }
                 4 -> { checkDataDesc(desc); step++; return 0 }
@@ -128,9 +128,9 @@ class SerializeRecTest {
             fail("@$step: readElement($desc)")
         }
 
-        override fun <T : Any?> readSerializableValue(loader: KSerialLoader<T>): T {
+        override fun <T : Any?> readSerializableValue(loader: DeserializationStrategy<T>): T {
             when (step) {
-                2 -> { step++; return loader.load(this) }
+                2 -> { step++; return loader.deserialize(this) }
             }
             fail("@$step: readSerializableValue()")
         }
@@ -149,7 +149,7 @@ class SerializeRecTest {
             fail("@$step: readIntValue()")
         }
 
-        override fun readEnd(desc: KSerialClassDesc) {
+        override fun readEnd(desc: SerialDescriptor) {
             when(step) {
                 9 -> { checkDataDesc(desc); step++; return }
                 11 -> { checkContainerDesc(desc); step++; return }

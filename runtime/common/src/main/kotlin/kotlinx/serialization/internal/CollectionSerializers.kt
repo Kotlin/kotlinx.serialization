@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ sealed class ListLikeSerializer<E, C, B>(open val eSerializer: KSerializer<E>) :
 
     open val typeParams: Array<KSerializer<*>> = arrayOf(eSerializer)
 
-    override fun save(output: KOutput, obj: C) {
+    override fun serialize(output: KOutput, obj: C) {
         val size = obj.objSize()
         @Suppress("NAME_SHADOWING")
         val output = output.writeBegin(serialClassDesc, size, *typeParams)
@@ -51,7 +51,7 @@ sealed class ListLikeSerializer<E, C, B>(open val eSerializer: KSerializer<E>) :
         output.writeEnd(serialClassDesc)
     }
 
-    override fun update(input: KInput, old: C): C {
+    override fun patch(input: KInput, old: C): C {
         val builder = old.toBuilder()
         val startIndex = builder.builderSize()
         @Suppress("NAME_SHADOWING")
@@ -73,9 +73,9 @@ sealed class ListLikeSerializer<E, C, B>(open val eSerializer: KSerializer<E>) :
         return builder.toResult()
     }
 
-    override fun load(input: KInput): C {
+    override fun deserialize(input: KInput): C {
         val builder = builder()
-        return update(input, builder.toResult())
+        return patch(input, builder.toResult())
     }
 
     private fun readSize(input: KInput, builder: B): Int {
@@ -192,12 +192,12 @@ const val KEY_INDEX = 0
 const val VALUE_INDEX = 1
 
 sealed class KeyValueSerializer<K, V, R>(val kSerializer: KSerializer<K>, val vSerializer: KSerializer<V>) : KSerializer<R> {
-    abstract override val serialClassDesc: KSerialClassDesc
+    abstract override val serialClassDesc: SerialDescriptor
     abstract fun toResult(key: K, value: V): R
     abstract val R.key: K
     abstract val R.value: V
 
-    override fun save(output: KOutput, obj: R) {
+    override fun serialize(output: KOutput, obj: R) {
         @Suppress("NAME_SHADOWING")
         val output = output.writeBegin(serialClassDesc, kSerializer, vSerializer)
         output.writeSerializableElementValue(serialClassDesc, KEY_INDEX, kSerializer, obj.key)
@@ -205,7 +205,7 @@ sealed class KeyValueSerializer<K, V, R>(val kSerializer: KSerializer<K>, val vS
         output.writeEnd(serialClassDesc)
     }
 
-    override fun load(input: KInput): R {
+    override fun deserialize(input: KInput): R {
         @Suppress("NAME_SHADOWING")
         val input = input.readBegin(serialClassDesc, kSerializer, vSerializer)
         var kSet = false
@@ -262,7 +262,7 @@ class MapEntryUpdatingSerializer<K, V>(mSerializer: MapEntrySerializer<K, V>, pr
         if (!kSet) throw SerializationException("Key must be before value in serialization stream")
         @Suppress("UNCHECKED_CAST")
         val key = k as K
-        val v = if (mapBuilder.containsKey(key) && vSerializer.serialClassDesc.kind != KSerialClassKind.PRIMITIVE) {
+        val v = if (mapBuilder.containsKey(key) && vSerializer.serialClassDesc.kind != SerialKind.PRIMITIVE) {
             input.updateSerializableElementValue(serialClassDesc, VALUE_INDEX, vSerializer, mapBuilder.getValue(key))
         } else {
             input.readSerializableElementValue(serialClassDesc, VALUE_INDEX, vSerializer)
@@ -303,45 +303,45 @@ class PairSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer
 
 // ============================= class descriptors =============================
 
-sealed class ListLikeDesc : KSerialClassDesc {
+sealed class ListLikeDesc : SerialDescriptor {
     override fun getElementName(index: Int): String = if (index == SIZE_INDEX) "size" else index.toString()
     override fun getElementIndex(name: String): Int = if (name == "size") SIZE_INDEX else name.toInt()
 }
 
 object ArrayClassDesc : ListLikeDesc() {
     override val name: String get() = "kotlin.Array"
-    override val kind: KSerialClassKind get() = KSerialClassKind.LIST
+    override val kind: SerialKind get() = SerialKind.LIST
 }
 
 object ArrayListClassDesc : ListLikeDesc() {
     override val name: String get() = "kotlin.collections.ArrayList"
-    override val kind: KSerialClassKind get() = KSerialClassKind.LIST
+    override val kind: SerialKind get() = SerialKind.LIST
 }
 
 object LinkedHashSetClassDesc : ListLikeDesc() {
     override val name: String get() = "kotlin.collections.LinkedHashSet"
-    override val kind: KSerialClassKind get() = KSerialClassKind.SET
+    override val kind: SerialKind get() = SerialKind.SET
 }
 
 object HashSetClassDesc : ListLikeDesc() {
     override val name: String get() = "kotlin.collections.HashSet"
-    override val kind: KSerialClassKind get() = KSerialClassKind.SET
+    override val kind: SerialKind get() = SerialKind.SET
 }
 
 object LinkedHashMapClassDesc : ListLikeDesc() {
     override val name: String get() = "kotlin.collections.LinkedHashMap"
-    override val kind: KSerialClassKind get() = KSerialClassKind.MAP
+    override val kind: SerialKind get() = SerialKind.MAP
 }
 
 object HashMapClassDesc : ListLikeDesc() {
     override val name: String get() = "kotlin.collections.HashMap"
-    override val kind: KSerialClassKind get() = KSerialClassKind.MAP
+    override val kind: SerialKind get() = SerialKind.MAP
 }
 
 data class MapEntry<K, V>(override val key: K, override val value: V) : Map.Entry<K, V>
 
 object MapEntryClassDesc : SerialClassDescImpl("kotlin.collections.Map.Entry") {
-    override val kind: KSerialClassKind = KSerialClassKind.ENTRY
+    override val kind: SerialKind = SerialKind.ENTRY
 
     init {
         addElement("key")
@@ -369,9 +369,9 @@ class TripleSerializer<A, B, C>(
         }
     }
 
-    override val serialClassDesc: KSerialClassDesc = TripleDesc
+    override val serialClassDesc: SerialDescriptor = TripleDesc
 
-    override fun save(output: KOutput, obj: Triple<A, B, C>) {
+    override fun serialize(output: KOutput, obj: Triple<A, B, C>) {
         @Suppress("NAME_SHADOWING")
         val output = output.writeBegin(serialClassDesc, aSerializer, bSerializer, cSerializer)
         output.writeSerializableElementValue(serialClassDesc, 0, aSerializer, obj.first)
@@ -380,7 +380,7 @@ class TripleSerializer<A, B, C>(
         output.writeEnd(serialClassDesc)
     }
 
-    override fun load(input: KInput): Triple<A, B, C> {
+    override fun deserialize(input: KInput): Triple<A, B, C> {
         @Suppress("NAME_SHADOWING")
         val input = input.readBegin(serialClassDesc, aSerializer, bSerializer, cSerializer)
         var aSet = false

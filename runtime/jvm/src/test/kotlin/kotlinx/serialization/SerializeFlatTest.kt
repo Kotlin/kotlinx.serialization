@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,9 +63,9 @@ data class Custom(
 )
 
 object CustomSerializer : KSerializer<Custom> {
-    override val serialClassDesc = object : KSerialClassDesc {
+    override val serialClassDesc = object : SerialDescriptor {
         override val name = "kotlinx.serialization.Custom"
-        override val kind: KSerialClassKind = KSerialClassKind.CLASS
+        override val kind: SerialKind = SerialKind.CLASS
         override fun getElementName(index: Int) = when(index) {
             0 -> "value1"
             1 -> "value2"
@@ -78,14 +78,14 @@ object CustomSerializer : KSerializer<Custom> {
         }
     }
 
-    override fun save(output: KOutput, obj : Custom) {
+    override fun serialize(output: KOutput, obj : Custom) {
         output.writeBegin(serialClassDesc)
         output.writeStringElementValue(serialClassDesc, 0, obj._value1)
         output.writeIntElementValue(serialClassDesc, 1, obj._value2)
         output.writeEnd(serialClassDesc)
     }
 
-    override fun load(input: KInput): Custom {
+    override fun deserialize(input: KInput): Custom {
         input.readBegin(serialClassDesc)
         if (input.readElement(serialClassDesc) != 0) throw java.lang.IllegalStateException()
         val value1 = input.readStringElementValue(serialClassDesc, 0)
@@ -189,9 +189,9 @@ class SerializeFlatTest() {
     companion object {
         fun fail(msg: String): Nothing = throw RuntimeException(msg)
 
-        fun checkDesc(name: String, desc: KSerialClassDesc) {
+        fun checkDesc(name: String, desc: SerialDescriptor) {
             if (desc.name != "kotlinx.serialization." + name) fail("checkDesc name $desc")
-            if (desc.kind != KSerialClassKind.CLASS) fail("checkDesc kind ${desc.kind}")
+            if (desc.kind != SerialKind.CLASS) fail("checkDesc kind ${desc.kind}")
             if (desc.getElementName(0) != "value1") fail("checkDesc[0] $desc")
             if (desc.getElementName(1) != "value2") fail("checkDesc[1] $desc")
         }
@@ -200,13 +200,13 @@ class SerializeFlatTest() {
     class Out(private val name: String) : ElementValueOutput() {
         var step = 0
 
-        override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
+        override fun writeBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KOutput {
             checkDesc(name, desc)
             if (step == 0) step++ else fail("@$step: writeBegin($desc)")
             return this
         }
 
-        override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean {
+        override fun writeElement(desc: SerialDescriptor, index: Int): Boolean {
             checkDesc(name, desc)
             when (step) {
                 1 -> if (index == 0) { step++; return true }
@@ -229,7 +229,7 @@ class SerializeFlatTest() {
             fail("@$step: writeIntValue($value)")
         }
 
-        override fun writeEnd(desc: KSerialClassDesc) {
+        override fun writeEnd(desc: SerialDescriptor) {
             checkDesc(name, desc)
             if (step == 5) step++ else fail("@$step: writeEnd($desc)")
         }
@@ -242,13 +242,13 @@ class SerializeFlatTest() {
     class Inp(private val name: String) : ElementValueInput() {
         var step = 0
 
-        override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
+        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput {
             checkDesc(name, desc)
             if (step == 0) step++ else fail("@$step: readBegin($desc)")
             return this
         }
 
-        override fun readElement(desc: KSerialClassDesc): Int {
+        override fun readElement(desc: SerialDescriptor): Int {
             checkDesc(name, desc)
             when (step) {
                 1 -> { step++; return 0 }
@@ -272,7 +272,7 @@ class SerializeFlatTest() {
             fail("@$step: readIntValue()")
         }
 
-        override fun readEnd(desc: KSerialClassDesc) {
+        override fun readEnd(desc: SerialDescriptor) {
             checkDesc(name, desc)
             if (step == 6) step++ else fail("@$step: readEnd($desc)")
         }

@@ -93,7 +93,7 @@ apply plugin: 'kotlin'
 subprojects {
     if (project.name.contains("native")) return
 
-    apply plugin: 'kotlinx-serialization'
+//    apply plugin: 'kotlinx-serialization'
 
     if (project.name.contains("benchmark")) return
 

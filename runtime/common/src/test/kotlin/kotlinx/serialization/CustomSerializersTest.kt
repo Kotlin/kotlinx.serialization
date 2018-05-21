@@ -30,15 +30,15 @@ class CustomSerializersTest {
     data class B(@SerialId(1) val value: Int)
 
     object BSerializer : KSerializer<B> {
-        override fun save(output: KOutput, obj: B) {
+        override fun serialize(output: KOutput, obj: B) {
             output.writeIntValue(obj.value)
         }
 
-        override fun load(input: KInput): B {
+        override fun deserialize(input: KInput): B {
             return B(input.readIntValue())
         }
 
-        override val serialClassDesc: KSerialClassDesc = SerialClassDescImpl("B")
+        override val serialClassDesc: SerialDescriptor = SerialClassDescImpl("B")
     }
 
     @Serializable

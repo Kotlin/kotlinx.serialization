@@ -20,7 +20,7 @@ import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
 internal object PolymorphicClassDesc : SerialClassDescImpl("kotlin.Any") {
-    override val kind: KSerialClassKind = KSerialClassKind.POLYMORPHIC
+    override val kind: SerialKind = SerialKind.POLYMORPHIC
 
     init {
         addElement("klass")

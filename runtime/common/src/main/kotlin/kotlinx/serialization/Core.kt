@@ -19,13 +19,19 @@ package kotlinx.serialization
 import kotlinx.serialization.KInput.Companion.UNKNOWN_NAME
 import kotlin.reflect.KClass
 
-enum class KSerialClassKind { // unit and object unused?
+@Deprecated("Obsolete name.", ReplaceWith("SerialKind"))
+typealias KSerialClassKind = SerialKind
+
+enum class SerialKind { // unit and object unused?
     CLASS, OBJECT, UNIT, SEALED, LIST, SET, MAP, ENTRY, POLYMORPHIC, PRIMITIVE, KIND_ENUM
 }
 
-interface KSerialClassDesc {
+@Deprecated("Obsolete name.", ReplaceWith("SerialDescriptor"))
+typealias KSerialClassDesc = SerialDescriptor
+
+interface SerialDescriptor {
     val name: String
-    val kind: KSerialClassKind
+    val kind: SerialKind
     fun getElementName(index: Int): String
     fun getElementIndex(name: String): Int
     fun getElementIndexOrThrow(name: String): Int {
@@ -41,36 +47,42 @@ interface KSerialClassDesc {
     fun getAnnotationsForClass(): List<Annotation> = emptyList()
 }
 
-interface KSerialSaver<in T> {
-    fun save(output: KOutput, obj : T)
+@Deprecated("Obsolete name.", ReplaceWith("SerializationStrategy"))
+typealias KSerialSaver<T> = SerializationStrategy<T>
+
+interface SerializationStrategy<in T> {
+    fun serialize(output: KOutput, obj : T)
 }
 
-interface KSerialLoader<T> {
-    fun load(input: KInput): T
-    fun update(input: KInput, old: T): T
+@Deprecated("Obsolete name.", ReplaceWith("DeserializationStrategy"))
+typealias KSerialLoader<T> = DeserializationStrategy<T>
+
+interface DeserializationStrategy<T> {
+    fun deserialize(input: KInput): T
+    fun patch(input: KInput, old: T): T
 }
 
 enum class UpdateMode {
     BANNED, OVERWRITE, UPDATE
 }
 
-interface KSerializer<T>: KSerialSaver<T>, KSerialLoader<T> {
-    val serialClassDesc: KSerialClassDesc
+interface KSerializer<T>: SerializationStrategy<T>, DeserializationStrategy<T> {
+    val serialClassDesc: SerialDescriptor
 
-    override fun update(input: KInput, old: T): T = throw UpdateNotSupportedException(serialClassDesc.name)
+    override fun patch(input: KInput, old: T): T = throw UpdateNotSupportedException(serialClassDesc.name)
 }
 
-interface EnumLoader<E : Enum<E>> {
-    fun loadByOrdinal(ordinal: Int): E
-    fun loadByName(name: String): E
+interface EnumCreator<E : Enum<E>> {
+    fun createFromOrdinal(ordinal: Int): E
+    fun createFromName(name: String): E
 }
 
-internal class LegacyEnumLoader<E : Enum<E>>(private val eClass: KClass<E>) : EnumLoader<E> {
-    override fun loadByOrdinal(ordinal: Int): E {
+internal class LegacyEnumCreator<E : Enum<E>>(private val eClass: KClass<E>) : EnumCreator<E> {
+    override fun createFromOrdinal(ordinal: Int): E {
         return enumFromOrdinal(eClass, ordinal)
     }
 
-    override fun loadByName(name: String): E {
+    override fun createFromName(name: String): E {
         return enumFromName(eClass, name)
     }
 }
@@ -83,23 +95,23 @@ abstract class KOutput internal constructor() {
 
     // ------- top-level API (use it) -------
 
-    fun <T : Any?> write(saver: KSerialSaver<T>, obj: T) { saver.save(this, obj) }
+    fun <T : Any?> write(saver: SerializationStrategy<T>, obj: T) { saver.serialize(this, obj) }
 
     inline fun <reified T : Any> write(obj: T) { write(T::class.serializer(), obj) }
 
-    fun <T : Any> writeNullable(saver: KSerialSaver<T>, obj: T?) {
+    fun <T : Any> writeNullable(saver: SerializationStrategy<T>, obj: T?) {
         if (obj == null) {
             writeNullValue()
         } else {
             writeNotNullMark()
-            saver.save(this, obj)
+            saver.serialize(this, obj)
         }
     }
 
     // ------- low-level element value API for basic serializers -------
 
     // it is always invoked before writeXxxValue, shall return false if no need to write (skip this value)
-    abstract fun writeElement(desc: KSerialClassDesc, index: Int): Boolean
+    abstract fun writeElement(desc: SerialDescriptor, index: Int): Boolean
 
     // will be followed by value
     abstract fun writeNotNullMark()
@@ -130,11 +142,11 @@ abstract class KOutput internal constructor() {
 
     abstract fun <T : Enum<T>> writeEnumValue(value: T)
 
-    open fun <T : Any?> writeSerializableValue(saver: KSerialSaver<T>, value: T) {
-        saver.save(this, value)
+    open fun <T : Any?> writeSerializableValue(saver: SerializationStrategy<T>, value: T) {
+        saver.serialize(this, value)
     }
 
-    fun <T : Any> writeNullableSerializableValue(saver: KSerialSaver<T>, value: T?) {
+    fun <T : Any> writeNullableSerializableValue(saver: SerializationStrategy<T>, value: T?) {
         if (value == null) {
             writeNullValue()
         } else {
@@ -147,40 +159,40 @@ abstract class KOutput internal constructor() {
     // methods below this line are invoked by compiler-generated KSerializer implementation
 
     // composite value delimiter api (writeEnd ends composite object)
-    open fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput = this
-    open fun writeBegin(desc: KSerialClassDesc, collectionSize: Int, vararg typeParams: KSerializer<*>) = writeBegin(desc, *typeParams)
-    open fun writeEnd(desc: KSerialClassDesc) {}
+    open fun writeBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KOutput = this
+    open fun writeBegin(desc: SerialDescriptor, collectionSize: Int, vararg typeParams: KSerializer<*>) = writeBegin(desc, *typeParams)
+    open fun writeEnd(desc: SerialDescriptor) {}
 
-    fun writeElementValue(desc: KSerialClassDesc, index: Int, value: Any) {
+    fun writeElementValue(desc: SerialDescriptor, index: Int, value: Any) {
         val s = context?.getSerializerByValue(value)
         if (s != null) writeSerializableElementValue(desc, index, s, value)
         else writeNonSerializableElementValue(desc, index, value)
     }
-    abstract fun writeNullableElementValue(desc: KSerialClassDesc, index: Int, value: Any?)
+    abstract fun writeNullableElementValue(desc: SerialDescriptor, index: Int, value: Any?)
 
-    abstract fun writeUnitElementValue(desc: KSerialClassDesc, index: Int)
-    abstract fun writeBooleanElementValue(desc: KSerialClassDesc, index: Int, value: Boolean)
-    abstract fun writeByteElementValue(desc: KSerialClassDesc, index: Int, value: Byte)
-    abstract fun writeShortElementValue(desc: KSerialClassDesc, index: Int, value: Short)
-    abstract fun writeIntElementValue(desc: KSerialClassDesc, index: Int, value: Int)
-    abstract fun writeLongElementValue(desc: KSerialClassDesc, index: Int, value: Long)
-    abstract fun writeFloatElementValue(desc: KSerialClassDesc, index: Int, value: Float)
-    abstract fun writeDoubleElementValue(desc: KSerialClassDesc, index: Int, value: Double)
-    abstract fun writeCharElementValue(desc: KSerialClassDesc, index: Int, value: Char)
-    abstract fun writeStringElementValue(desc: KSerialClassDesc, index: Int, value: String)
+    abstract fun writeUnitElementValue(desc: SerialDescriptor, index: Int)
+    abstract fun writeBooleanElementValue(desc: SerialDescriptor, index: Int, value: Boolean)
+    abstract fun writeByteElementValue(desc: SerialDescriptor, index: Int, value: Byte)
+    abstract fun writeShortElementValue(desc: SerialDescriptor, index: Int, value: Short)
+    abstract fun writeIntElementValue(desc: SerialDescriptor, index: Int, value: Int)
+    abstract fun writeLongElementValue(desc: SerialDescriptor, index: Int, value: Long)
+    abstract fun writeFloatElementValue(desc: SerialDescriptor, index: Int, value: Float)
+    abstract fun writeDoubleElementValue(desc: SerialDescriptor, index: Int, value: Double)
+    abstract fun writeCharElementValue(desc: SerialDescriptor, index: Int, value: Char)
+    abstract fun writeStringElementValue(desc: SerialDescriptor, index: Int, value: String)
     @Deprecated("Not supported in Native", replaceWith = ReplaceWith("writeEnumElementValue(desc, index, value)"))
-    abstract fun <T : Enum<T>> writeEnumElementValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<T>, value: T)
+    abstract fun <T : Enum<T>> writeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>, value: T)
 
-    abstract fun <T : Enum<T>> writeEnumElementValue(desc: KSerialClassDesc, index: Int, value: T)
+    abstract fun <T : Enum<T>> writeEnumElementValue(desc: SerialDescriptor, index: Int, value: T)
 
-    fun <T : Any?> writeSerializableElementValue(desc: KSerialClassDesc, index: Int, saver: KSerialSaver<T>, value: T) {
+    fun <T : Any?> writeSerializableElementValue(desc: SerialDescriptor, index: Int, saver: SerializationStrategy<T>, value: T) {
         if (writeElement(desc, index))
             writeSerializableValue(saver, value)
     }
 
-    abstract fun writeNonSerializableElementValue(desc: KSerialClassDesc, index: Int, value: Any)
+    abstract fun writeNonSerializableElementValue(desc: SerialDescriptor, index: Int, value: Any)
 
-    fun <T : Any> writeNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, saver: KSerialSaver<T>, value: T?) {
+    fun <T : Any> writeNullableSerializableElementValue(desc: SerialDescriptor, index: Int, saver: SerializationStrategy<T>, value: T?) {
         if (writeElement(desc, index))
             writeNullableSerializableValue(saver, value)
     }
@@ -193,8 +205,8 @@ abstract class KInput internal constructor() {
     // ------- top-level API (use it) -------
 
     inline fun <reified T: Any> read(): T = this.read(T::class.serializer())
-    fun <T : Any?> read(loader: KSerialLoader<T>): T = loader.load(this)
-    fun <T : Any> readNullable(loader: KSerialLoader<T>): T? = if (readNotNullMark()) read(loader) else readNullValue()
+    fun <T : Any?> read(loader: DeserializationStrategy<T>): T = loader.deserialize(this)
+    fun <T : Any> readNullable(loader: DeserializationStrategy<T>): T? = if (readNotNullMark()) read(loader) else readNullValue()
 
     // ------- low-level element value API for basic serializers -------
 
@@ -226,20 +238,20 @@ abstract class KInput internal constructor() {
     @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
     abstract fun <T : Enum<T>> readEnumValue(enumClass: KClass<T> ): T
 
-    abstract fun <T : Enum<T>> readEnumValue(enumLoader: EnumLoader<T>): T
+    abstract fun <T : Enum<T>> readEnumValue(enumCreator: EnumCreator<T>): T
 
 
-    open fun <T : Any?> readSerializableValue(loader: KSerialLoader<T>): T = loader.load(this)
+    open fun <T : Any?> readSerializableValue(loader: DeserializationStrategy<T>): T = loader.deserialize(this)
 
-    fun <T : Any> readNullableSerializableValue(loader: KSerialLoader<T?>): T? =
+    fun <T : Any> readNullableSerializableValue(loader: DeserializationStrategy<T?>): T? =
             if (readNotNullMark()) readSerializableValue(loader) else readNullValue()
 
     // -------------------------------------------------------------------------------------
     // methods below this line are invoked by compiler-generated KSerializer implementation
 
     // composite value delimiter api (writeEnd ends composite object)
-    open fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput = this
-    open fun readEnd(desc: KSerialClassDesc) {}
+    open fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput = this
+    open fun readEnd(desc: SerialDescriptor) {}
 
     // readElement results
     companion object {
@@ -249,57 +261,57 @@ abstract class KInput internal constructor() {
     }
 
     // returns either index or one of READ_XXX constants
-    abstract fun readElement(desc: KSerialClassDesc): Int
+    abstract fun readElement(desc: SerialDescriptor): Int
 
-    abstract fun readElementValue(desc: KSerialClassDesc, index: Int): Any
+    abstract fun readElementValue(desc: SerialDescriptor, index: Int): Any
 
-    fun readElementValue(desc: KSerialClassDesc, index: Int, klass: KClass<*>): Any {
+    fun readElementValue(desc: SerialDescriptor, index: Int, klass: KClass<*>): Any {
         val s = context?.getSerializerByClass(klass)
         return if (s != null) readSerializableElementValue(desc, index, s)
         else readElementValue(desc, index)
     }
 
-    abstract fun readNullableElementValue(desc: KSerialClassDesc, index: Int): Any?
-    abstract fun readUnitElementValue(desc: KSerialClassDesc, index: Int)
-    abstract fun readBooleanElementValue(desc: KSerialClassDesc, index: Int): Boolean
-    abstract fun readByteElementValue(desc: KSerialClassDesc, index: Int): Byte
-    abstract fun readShortElementValue(desc: KSerialClassDesc, index: Int): Short
-    abstract fun readIntElementValue(desc: KSerialClassDesc, index: Int): Int
-    abstract fun readLongElementValue(desc: KSerialClassDesc, index: Int): Long
-    abstract fun readFloatElementValue(desc: KSerialClassDesc, index: Int): Float
-    abstract fun readDoubleElementValue(desc: KSerialClassDesc, index: Int): Double
-    abstract fun readCharElementValue(desc: KSerialClassDesc, index: Int): Char
-    abstract fun readStringElementValue(desc: KSerialClassDesc, index: Int): String
+    abstract fun readNullableElementValue(desc: SerialDescriptor, index: Int): Any?
+    abstract fun readUnitElementValue(desc: SerialDescriptor, index: Int)
+    abstract fun readBooleanElementValue(desc: SerialDescriptor, index: Int): Boolean
+    abstract fun readByteElementValue(desc: SerialDescriptor, index: Int): Byte
+    abstract fun readShortElementValue(desc: SerialDescriptor, index: Int): Short
+    abstract fun readIntElementValue(desc: SerialDescriptor, index: Int): Int
+    abstract fun readLongElementValue(desc: SerialDescriptor, index: Int): Long
+    abstract fun readFloatElementValue(desc: SerialDescriptor, index: Int): Float
+    abstract fun readDoubleElementValue(desc: SerialDescriptor, index: Int): Double
+    abstract fun readCharElementValue(desc: SerialDescriptor, index: Int): Char
+    abstract fun readStringElementValue(desc: SerialDescriptor, index: Int): String
     @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(desc, index, enumLoader)"))
-    abstract fun <T : Enum<T>> readEnumElementValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<T>): T
+    abstract fun <T : Enum<T>> readEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>): T
 
-    abstract fun <T : Enum<T>> readEnumElementValue(desc: KSerialClassDesc, index: Int, enumLoader: EnumLoader<T>): T
+    abstract fun <T : Enum<T>> readEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T
 
 
-    abstract fun <T : Any?> readSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>): T
-    abstract fun <T : Any> readNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T?>): T?
+    abstract fun <T : Any?> readSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T
+    abstract fun <T : Any> readNullableSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>): T?
 
-    open fun <T> updateSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>, old: T): T {
+    open fun <T> updateSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>, old: T): T {
         return updateSerializableValue(loader, desc, old)
     }
 
-    open fun <T: Any> updateNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T?>, old: T?): T? {
+    open fun <T: Any> updateNullableSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>, old: T?): T? {
         return updateNullableSerializableValue(loader, desc, old)
     }
 
-    open fun <T> updateSerializableValue(loader: KSerialLoader<T>, desc: KSerialClassDesc, old: T): T {
+    open fun <T> updateSerializableValue(loader: DeserializationStrategy<T>, desc: SerialDescriptor, old: T): T {
         return when(updateMode) {
             UpdateMode.BANNED -> throw UpdateNotSupportedException(desc.name)
             UpdateMode.OVERWRITE -> readSerializableValue(loader)
-            UpdateMode.UPDATE -> loader.update(this, old)
+            UpdateMode.UPDATE -> loader.patch(this, old)
         }
     }
 
-    open fun <T: Any> updateNullableSerializableValue(loader: KSerialLoader<T?>, desc: KSerialClassDesc, old: T?): T? {
+    open fun <T: Any> updateNullableSerializableValue(loader: DeserializationStrategy<T?>, desc: SerialDescriptor, old: T?): T? {
         return when {
             updateMode == UpdateMode.BANNED -> throw UpdateNotSupportedException(desc.name)
             updateMode == UpdateMode.OVERWRITE || old == null -> readNullableSerializableValue(loader)
-            readNotNullMark() -> loader.update(this, old)
+            readNotNullMark() -> loader.patch(this, old)
             else -> readNullValue().let { old }
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
-class PrimitiveDesc(override val name: String) : KSerialClassDesc {
+class PrimitiveDesc(override val name: String) : SerialDescriptor {
 
-    override val kind: KSerialClassKind = KSerialClassKind.PRIMITIVE
+    override val kind: SerialKind = SerialKind.PRIMITIVE
 
     override fun getElementName(index: Int) = throw IllegalStateException("Primitives do not have fields")
 
@@ -29,79 +29,79 @@ class PrimitiveDesc(override val name: String) : KSerialClassDesc {
 }
 
 object UnitSerializer : KSerializer<Unit> {
-    override val serialClassDesc: KSerialClassDesc = PrimitiveDesc("kotlin.Unit")
+    override val serialClassDesc: SerialDescriptor = PrimitiveDesc("kotlin.Unit")
 
-    override fun save(output: KOutput, obj: Unit) = output.writeUnitValue()
-    override fun load(input: KInput): Unit = input.readUnitValue()
+    override fun serialize(output: KOutput, obj: Unit) = output.writeUnitValue()
+    override fun deserialize(input: KInput): Unit = input.readUnitValue()
 }
 
 object BooleanSerializer : KSerializer<Boolean> {
-    override val serialClassDesc: KSerialClassDesc = PrimitiveDesc("kotlin.Boolean")
+    override val serialClassDesc: SerialDescriptor = PrimitiveDesc("kotlin.Boolean")
 
-    override fun save(output: KOutput, obj: Boolean) = output.writeBooleanValue(obj)
-    override fun load(input: KInput): Boolean = input.readBooleanValue()
+    override fun serialize(output: KOutput, obj: Boolean) = output.writeBooleanValue(obj)
+    override fun deserialize(input: KInput): Boolean = input.readBooleanValue()
 }
 
 object ByteSerializer : KSerializer<Byte> {
-    override val serialClassDesc: KSerialClassDesc = PrimitiveDesc("kotlin.Byte")
+    override val serialClassDesc: SerialDescriptor = PrimitiveDesc("kotlin.Byte")
 
-    override fun save(output: KOutput, obj: Byte) = output.writeByteValue(obj)
-    override fun load(input: KInput): Byte = input.readByteValue()
+    override fun serialize(output: KOutput, obj: Byte) = output.writeByteValue(obj)
+    override fun deserialize(input: KInput): Byte = input.readByteValue()
 }
 
 object ShortSerializer : KSerializer<Short> {
-    override val serialClassDesc: KSerialClassDesc = PrimitiveDesc("kotlin.Short")
+    override val serialClassDesc: SerialDescriptor = PrimitiveDesc("kotlin.Short")
 
-    override fun save(output: KOutput, obj: Short) = output.writeShortValue(obj)
-    override fun load(input: KInput): Short = input.readShortValue()
+    override fun serialize(output: KOutput, obj: Short) = output.writeShortValue(obj)
+    override fun deserialize(input: KInput): Short = input.readShortValue()
 }
 
 object IntSerializer : KSerializer<Int> {
-    override val serialClassDesc: KSerialClassDesc = PrimitiveDesc("kotlin.Int")
+    override val serialClassDesc: SerialDescriptor = PrimitiveDesc("kotlin.Int")
 
-    override fun save(output: KOutput, obj: Int) = output.writeIntValue(obj)
-    override fun load(input: KInput): Int = input.readIntValue()
+    override fun serialize(output: KOutput, obj: Int) = output.writeIntValue(obj)
+    override fun deserialize(input: KInput): Int = input.readIntValue()
 }
 
 object LongSerializer : KSerializer<Long> {
-    override val serialClassDesc: KSerialClassDesc = PrimitiveDesc("kotlin.Long")
+    override val serialClassDesc: SerialDescriptor = PrimitiveDesc("kotlin.Long")
 
-    override fun save(output: KOutput, obj: Long) = output.writeLongValue(obj)
-    override fun load(input: KInput): Long = input.readLongValue()
+    override fun serialize(output: KOutput, obj: Long) = output.writeLongValue(obj)
+    override fun deserialize(input: KInput): Long = input.readLongValue()
 }
 
 object FloatSerializer : KSerializer<Float> {
-    override val serialClassDesc: KSerialClassDesc = PrimitiveDesc("kotlin.Float")
+    override val serialClassDesc: SerialDescriptor = PrimitiveDesc("kotlin.Float")
 
-    override fun save(output: KOutput, obj: Float) = output.writeFloatValue(obj)
-    override fun load(input: KInput): Float = input.readFloatValue()
+    override fun serialize(output: KOutput, obj: Float) = output.writeFloatValue(obj)
+    override fun deserialize(input: KInput): Float = input.readFloatValue()
 }
 
 object DoubleSerializer : KSerializer<Double> {
-    override val serialClassDesc: KSerialClassDesc = PrimitiveDesc("kotlin.Double")
+    override val serialClassDesc: SerialDescriptor = PrimitiveDesc("kotlin.Double")
 
-    override fun save(output: KOutput, obj: Double) = output.writeDoubleValue(obj)
-    override fun load(input: KInput): Double = input.readDoubleValue()
+    override fun serialize(output: KOutput, obj: Double) = output.writeDoubleValue(obj)
+    override fun deserialize(input: KInput): Double = input.readDoubleValue()
 }
 
 object CharSerializer : KSerializer<Char> {
-    override val serialClassDesc: KSerialClassDesc = PrimitiveDesc("kotlin.Char")
+    override val serialClassDesc: SerialDescriptor = PrimitiveDesc("kotlin.Char")
 
-    override fun save(output: KOutput, obj: Char) = output.writeCharValue(obj)
-    override fun load(input: KInput): Char = input.readCharValue()
+    override fun serialize(output: KOutput, obj: Char) = output.writeCharValue(obj)
+    override fun deserialize(input: KInput): Char = input.readCharValue()
 }
 
 object StringSerializer : KSerializer<String> {
-    override val serialClassDesc: KSerialClassDesc = PrimitiveDesc("kotlin.String")
+    override val serialClassDesc: SerialDescriptor = PrimitiveDesc("kotlin.String")
 
-    override fun save(output: KOutput, obj: String) = output.writeStringValue(obj)
-    override fun load(input: KInput): String = input.readStringValue()
+    override fun serialize(output: KOutput, obj: String) = output.writeStringValue(obj)
+    override fun deserialize(input: KInput): String = input.readStringValue()
 }
 
 
-internal class EnumDesc(override val name: String) : KSerialClassDesc {
+internal class EnumDesc(override val name: String) : SerialDescriptor {
 
-    override val kind: KSerialClassKind = KSerialClassKind.ENUM
+    override val kind: SerialKind = SerialKind.KIND_ENUM
 
     override fun getElementName(index: Int) = throw IllegalStateException("Primitives does not have fields")
 
@@ -109,34 +109,55 @@ internal class EnumDesc(override val name: String) : KSerialClassDesc {
 }
 
 // note, that it is instantiated in a special way
+@Deprecated("Not supported in Native", replaceWith = ReplaceWith("ModernEnumSerializer()"))
 class EnumSerializer<T : Enum<T>>(val serializableClass: KClass<T>) : KSerializer<T> {
-    override val serialClassDesc: KSerialClassDesc = EnumDesc(serializableClass.enumClassName())
-    override fun save(output: KOutput, obj: T) = output.writeEnumValue(serializableClass, obj)
-    override fun load(input: KInput): T = input.readEnumValue(serializableClass)
+    override val serialClassDesc: SerialDescriptor = EnumDesc(serializableClass.enumClassName())
+    override fun serialize(output: KOutput, obj: T) = output.writeEnumValue(serializableClass, obj)
+    override fun deserialize(input: KInput): T = input.readEnumValue(serializableClass)
+}
+
+class ModernEnumSerializer<T : Enum<T>>(className: String, val creator: EnumCreator<T>) : KSerializer<T> {
+    override val serialClassDesc: SerialDescriptor = EnumDesc(className)
+    override fun serialize(output: KOutput, obj: T) = output.writeEnumValue(obj)
+    override fun deserialize(input: KInput): T = input.readEnumValue(creator)
+
+    companion object {
+        inline operator fun <reified E : Enum<E>> invoke(): ModernEnumSerializer<E> {
+            return ModernEnumSerializer(E::class.enumClassName(), object : EnumCreator<E> {
+                override fun createFromOrdinal(ordinal: Int): E {
+                    return enumValues<E>()[ordinal]
+                }
+
+                override fun createFromName(name: String): E {
+                    return enumValueOf<E>(name)
+                }
+            })
+        }
+    }
 }
 
 fun <T : Any> makeNullable(element: KSerializer<T>): KSerializer<T?> = NullableSerializer(element)
 
 class NullableSerializer<T : Any>(private val element: KSerializer<T>) : KSerializer<T?> {
-    override val serialClassDesc: KSerialClassDesc
+    override val serialClassDesc: SerialDescriptor
         get() = element.serialClassDesc
 
-    override fun save(output: KOutput, obj: T?) {
+    override fun serialize(output: KOutput, obj: T?) {
         if (obj != null) {
             output.writeNotNullMark();
-            element.save(output, obj)
+            element.serialize(output, obj)
         }
         else {
             output.writeNullValue()
         }
     }
 
-    override fun load(input: KInput): T? = if (input.readNotNullMark()) element.load(input) else input.readNullValue()
+    override fun deserialize(input: KInput): T? = if (input.readNotNullMark()) element.deserialize(input) else input.readNullValue()
 
-    override fun update(input: KInput, old: T?): T? {
+    override fun patch(input: KInput, old: T?): T? {
         return when {
-            old == null -> load(input)
-            input.readNotNullMark() -> element.update(input, old)
+            old == null -> deserialize(input)
+            input.readNotNullMark() -> element.patch(input, old)
             else -> input.readNullValue().let { old }
         }
     }

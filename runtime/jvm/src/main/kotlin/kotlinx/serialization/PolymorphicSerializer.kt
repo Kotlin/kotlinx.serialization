@@ -1,17 +1,17 @@
 /*
- *  Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package kotlinx.serialization
@@ -20,10 +20,10 @@ import kotlinx.serialization.internal.PolymorphicClassDesc
 
 object PolymorphicSerializer : KSerializer<Any> {
 
-    override val serialClassDesc: KSerialClassDesc
+    override val serialClassDesc: SerialDescriptor
         get() = PolymorphicClassDesc
 
-    override fun save(output: KOutput, obj: Any) {
+    override fun serialize(output: KOutput, obj: Any) {
         val saver = serializerByValue(obj, output.context)
         @Suppress("NAME_SHADOWING")
         val output = output.writeBegin(serialClassDesc)
@@ -32,7 +32,7 @@ object PolymorphicSerializer : KSerializer<Any> {
         output.writeEnd(serialClassDesc)
     }
 
-    override fun load(input: KInput): Any {
+    override fun deserialize(input: KInput): Any {
         @Suppress("NAME_SHADOWING")
         val input = input.readBegin(serialClassDesc)
         var klassName: String? = null

@@ -14,22 +14,15 @@
  * limitations under the License.
  */
 
-package kotlinx.serialization
+package kotlinx.serialization.protobuf
 
-import kotlin.test.Test
-import kotlin.test.assertFailsWith
+import kotlinx.serialization.SerialDescriptor
+import kotlinx.serialization.SerialId
+import kotlinx.serialization.internal.onlySingleOrNull
 
-class IndexTest {
-    class MalformedReader: ElementValueInput() {
-        override fun readElement(desc: SerialDescriptor): Int {
-            return UNKNOWN_NAME
-        }
-    }
-
-    @Test
-    fun compilerComplainsAboutIncorrectIndex() {
-        assertFailsWith(UnknownFieldException::class) {
-            MalformedReader().read<OptionalTests.Data>()
-        }
-    }
+internal actual fun extractParameters(desc: SerialDescriptor, index: Int): ProtoDesc {
+    val tag = desc.getAnnotationsForIndex(index).filterIsInstance<SerialId>().onlySingleOrNull()?.id ?: index
+    val format = desc.getAnnotationsForIndex(index).filterIsInstance<ProtoType>().onlySingleOrNull()?.type
+            ?: ProtoNumberType.DEFAULT
+    return tag to format
 }

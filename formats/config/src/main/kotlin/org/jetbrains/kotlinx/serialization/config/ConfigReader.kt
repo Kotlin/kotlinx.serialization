@@ -1,17 +1,17 @@
 /*
- *  Copyright 2018 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.jetbrains.kotlinx.serialization.config
@@ -19,14 +19,13 @@ package org.jetbrains.kotlinx.serialization.config
 import com.typesafe.config.*
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.KEY_INDEX
-import kotlin.reflect.KClass
 
-private val KSerialClassKind.listLike get() = this == KSerialClassKind.LIST || this == KSerialClassKind.SET || this == KSerialClassKind.POLYMORPHIC
-private val KSerialClassKind.objLike get() = this == KSerialClassKind.CLASS || this == KSerialClassKind.OBJECT || this == KSerialClassKind.SEALED
+private val SerialKind.listLike get() = this == SerialKind.LIST || this == SerialKind.SET || this == SerialKind.POLYMORPHIC
+private val SerialKind.objLike get() = this == SerialKind.CLASS || this == SerialKind.OBJECT || this == SerialKind.SEALED
 
 class ConfigParser(val context: SerialContext? = null) {
     inline fun <reified T : Any> parse(conf: Config): T = parse(conf, context.klassSerializer(T::class))
-    fun <T> parse(conf: Config, loader: KSerialLoader<T>): T = ConfigReader(conf).read(loader)
+    fun <T> parse(conf: Config, loader: DeserializationStrategy<T>): T = ConfigReader(conf).read(loader)
 
 
     private abstract inner class ConfigConverter<T> : TaggedInput<T>() {
@@ -65,9 +64,9 @@ class ConfigParser(val context: SerialContext? = null) {
 
         override fun readTaggedNotNullMark(tag: T) = getTaggedConfigValue(tag).valueType() != ConfigValueType.NULL
 
-        override fun <E : Enum<E>> readTaggedEnum(tag: T, enumClass: KClass<E>): E {
+        override fun <E : Enum<E>> readTaggedEnum(tag: T, enumCreator: EnumCreator<E>): E {
             val s = validateAndCast<String>(tag, ConfigValueType.STRING)
-            return enumFromName(enumClass, s)
+            return enumCreator.createFromName(s)
         }
     }
 
@@ -75,7 +74,7 @@ class ConfigParser(val context: SerialContext? = null) {
         private fun composeName(parentName: String, childName: String) =
             if (parentName.isEmpty()) childName else parentName + "." + childName
 
-        override fun KSerialClassDesc.getTag(index: Int): String = composeName(
+        override fun SerialDescriptor.getTag(index: Int): String = composeName(
             currentTagOrNull
                     ?: "", getElementName(index)
         )
@@ -88,9 +87,9 @@ class ConfigParser(val context: SerialContext? = null) {
             return !conf.getIsNull(tag)
         }
 
-        override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput = when {
+        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput = when {
             desc.kind.listLike -> ListConfigReader(conf.getList(currentTag))
-            desc.kind == KSerialClassKind.MAP -> MapConfigReader(conf.getObject(currentTag))
+            desc.kind == SerialKind.MAP -> MapConfigReader(conf.getObject(currentTag))
             else -> this
         }
     }
@@ -98,16 +97,16 @@ class ConfigParser(val context: SerialContext? = null) {
     private inner class ListConfigReader(private val list: ConfigList) : ConfigConverter<Int>() {
         private var ind = 0
 
-        override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput = when {
+        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput = when {
             desc.kind.listLike -> ListConfigReader(list[currentTag] as ConfigList)
             desc.kind.objLike -> ConfigReader((list[currentTag] as ConfigObject).toConfig())
-            desc.kind == KSerialClassKind.MAP -> MapConfigReader(list[currentTag] as ConfigObject)
+            desc.kind == SerialKind.MAP -> MapConfigReader(list[currentTag] as ConfigObject)
             else -> this
         }
 
-        override fun KSerialClassDesc.getTag(index: Int) = index - 1
+        override fun SerialDescriptor.getTag(index: Int) = index - 1
 
-        override fun readElement(desc: KSerialClassDesc): Int {
+        override fun readElement(desc: SerialDescriptor): Int {
             ind++
             return if (ind > list.size) READ_DONE else ind
         }
@@ -119,16 +118,16 @@ class ConfigParser(val context: SerialContext? = null) {
         private var ind = 0
         private val entries = map.entries.toList()
 
-        override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
+        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput {
             return when (desc.kind) {
-                KSerialClassKind.ENTRY -> MapEntryReader(entries[currentTag])
+                SerialKind.ENTRY -> MapEntryReader(entries[currentTag])
                 else -> throw IllegalStateException("Map not from entries")
             }
         }
 
-        override fun KSerialClassDesc.getTag(index: Int) = index - 1
+        override fun SerialDescriptor.getTag(index: Int) = index - 1
 
-        override fun readElement(desc: KSerialClassDesc): Int {
+        override fun readElement(desc: SerialDescriptor): Int {
             ind++
             return if (ind > entries.size) READ_DONE else ind
         }
@@ -137,14 +136,14 @@ class ConfigParser(val context: SerialContext? = null) {
     }
 
     private inner class MapEntryReader(val e: Map.Entry<String, ConfigValue>) : ConfigConverter<Int>() {
-        override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput = when {
+        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput = when {
             desc.kind.listLike -> ListConfigReader(e.value as ConfigList)
             desc.kind.objLike -> ConfigReader((e.value as ConfigObject).toConfig())
-            desc.kind == KSerialClassKind.MAP -> MapConfigReader(e.value as ConfigObject)
+            desc.kind == SerialKind.MAP -> MapConfigReader(e.value as ConfigObject)
             else -> this
         }
 
-        override fun KSerialClassDesc.getTag(index: Int) = index
+        override fun SerialDescriptor.getTag(index: Int) = index
 
         override fun getTaggedConfigValue(tag: Int): ConfigValue {
             return if (tag == KEY_INDEX) ConfigValueFactory.fromAnyRef(e.key)
@@ -153,7 +152,7 @@ class ConfigParser(val context: SerialContext? = null) {
     }
 
     companion object {
-        fun <T> parse(conf: Config, serial: KSerialLoader<T>) = ConfigParser().parse(conf, serial)
+        fun <T> parse(conf: Config, serial: DeserializationStrategy<T>) = ConfigParser().parse(conf, serial)
         inline fun <reified T : Any> parse(conf: Config) = ConfigParser().parse(conf, T::class.serializer())
     }
 }

@@ -28,7 +28,7 @@ annotation class SerialTag(val tag: String)
 
 
 abstract class TaggedOutput<T : Any?> : KOutput() {
-    protected abstract fun KSerialClassDesc.getTag(index: Int): T
+    protected abstract fun SerialDescriptor.getTag(index: Int): T
 
 
     // ---- API ----
@@ -63,7 +63,7 @@ abstract class TaggedOutput<T : Any?> : KOutput() {
 
     // ---- Implementation of low-level API ----
 
-    final override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean {
+    final override fun writeElement(desc: SerialDescriptor, index: Int): Boolean {
         val tag = desc.getTag(index)
         val shouldWriteElement = shouldWriteElement(desc, tag, index)
         if (shouldWriteElement) {
@@ -73,7 +73,7 @@ abstract class TaggedOutput<T : Any?> : KOutput() {
     }
 
     // For format-specific behaviour
-    open fun shouldWriteElement(desc: KSerialClassDesc, tag: T, index: Int) = true
+    open fun shouldWriteElement(desc: SerialDescriptor, tag: T, index: Int) = true
 
     final override fun writeNotNullMark() {
         writeTaggedNotNullMark(currentTag)
@@ -140,35 +140,35 @@ abstract class TaggedOutput<T : Any?> : KOutput() {
         writeTaggedEnum(popTag(), value)
     }
 
-    final override fun writeEnd(desc: KSerialClassDesc) {
+    final override fun writeEnd(desc: SerialDescriptor) {
         if (tagStack.isNotEmpty()) popTag(); writeFinished(desc)
     }
 
     // For format-specific behaviour
-    open fun writeFinished(desc: KSerialClassDesc) {}
+    open fun writeFinished(desc: SerialDescriptor) {}
 
-    final override fun writeNonSerializableElementValue(desc: KSerialClassDesc, index: Int, value: Any) = writeTaggedValue(desc.getTag(index), value)
+    final override fun writeNonSerializableElementValue(desc: SerialDescriptor, index: Int, value: Any) = writeTaggedValue(desc.getTag(index), value)
 
 
-    final override fun writeNullableElementValue(desc: KSerialClassDesc, index: Int, value: Any?) = writeTaggedNullable(desc.getTag(index), value)
-    final override fun writeUnitElementValue(desc: KSerialClassDesc, index: Int) = writeTaggedUnit(desc.getTag(index))
-    final override fun writeBooleanElementValue(desc: KSerialClassDesc, index: Int, value: Boolean) = writeTaggedBoolean(desc.getTag(index), value)
-    final override fun writeByteElementValue(desc: KSerialClassDesc, index: Int, value: Byte) = writeTaggedByte(desc.getTag(index), value)
-    final override fun writeShortElementValue(desc: KSerialClassDesc, index: Int, value: Short) = writeTaggedShort(desc.getTag(index), value)
-    final override fun writeIntElementValue(desc: KSerialClassDesc, index: Int, value: Int) = writeTaggedInt(desc.getTag(index), value)
-    final override fun writeLongElementValue(desc: KSerialClassDesc, index: Int, value: Long) = writeTaggedLong(desc.getTag(index), value)
-    final override fun writeFloatElementValue(desc: KSerialClassDesc, index: Int, value: Float) = writeTaggedFloat(desc.getTag(index), value)
-    final override fun writeDoubleElementValue(desc: KSerialClassDesc, index: Int, value: Double) = writeTaggedDouble(desc.getTag(index), value)
-    final override fun writeCharElementValue(desc: KSerialClassDesc, index: Int, value: Char) = writeTaggedChar(desc.getTag(index), value)
-    final override fun writeStringElementValue(desc: KSerialClassDesc, index: Int, value: String) = writeTaggedString(desc.getTag(index), value)
+    final override fun writeNullableElementValue(desc: SerialDescriptor, index: Int, value: Any?) = writeTaggedNullable(desc.getTag(index), value)
+    final override fun writeUnitElementValue(desc: SerialDescriptor, index: Int) = writeTaggedUnit(desc.getTag(index))
+    final override fun writeBooleanElementValue(desc: SerialDescriptor, index: Int, value: Boolean) = writeTaggedBoolean(desc.getTag(index), value)
+    final override fun writeByteElementValue(desc: SerialDescriptor, index: Int, value: Byte) = writeTaggedByte(desc.getTag(index), value)
+    final override fun writeShortElementValue(desc: SerialDescriptor, index: Int, value: Short) = writeTaggedShort(desc.getTag(index), value)
+    final override fun writeIntElementValue(desc: SerialDescriptor, index: Int, value: Int) = writeTaggedInt(desc.getTag(index), value)
+    final override fun writeLongElementValue(desc: SerialDescriptor, index: Int, value: Long) = writeTaggedLong(desc.getTag(index), value)
+    final override fun writeFloatElementValue(desc: SerialDescriptor, index: Int, value: Float) = writeTaggedFloat(desc.getTag(index), value)
+    final override fun writeDoubleElementValue(desc: SerialDescriptor, index: Int, value: Double) = writeTaggedDouble(desc.getTag(index), value)
+    final override fun writeCharElementValue(desc: SerialDescriptor, index: Int, value: Char) = writeTaggedChar(desc.getTag(index), value)
+    final override fun writeStringElementValue(desc: SerialDescriptor, index: Int, value: String) = writeTaggedString(desc.getTag(index), value)
 
     @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
-    final override fun <E : Enum<E>> writeEnumElementValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<E>, value: E) {
+    final override fun <E : Enum<E>> writeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<E>, value: E) {
         writeEnumElementValue(desc, index, value)
     }
 
 
-    final override fun <T : Enum<T>> writeEnumElementValue(desc: KSerialClassDesc, index: Int, value: T) {
+    final override fun <T : Enum<T>> writeEnumElementValue(desc: SerialDescriptor, index: Int, value: T) {
         writeTaggedEnum(desc.getTag(index), value)
     }
 
@@ -188,29 +188,29 @@ abstract class TaggedOutput<T : Any?> : KOutput() {
 }
 
 abstract class IntTaggedOutput : TaggedOutput<Int?>() {
-    final override fun KSerialClassDesc.getTag(index: Int): Int? = getSerialId(this, index)
+    final override fun SerialDescriptor.getTag(index: Int): Int? = getSerialId(this, index)
 }
 
 abstract class StringTaggedOutput : TaggedOutput<String?>() {
-    final override fun KSerialClassDesc.getTag(index: Int): String? = getSerialTag(this, index)
+    final override fun SerialDescriptor.getTag(index: Int): String? = getSerialTag(this, index)
 }
 
 abstract class NamedValueOutput(val rootName: String = "") : TaggedOutput<String>() {
-    final override fun KSerialClassDesc.getTag(index: Int): String = composeName(currentTagOrNull ?: rootName, elementName(this, index))
+    final override fun SerialDescriptor.getTag(index: Int): String = composeName(currentTagOrNull ?: rootName, elementName(this, index))
 
-    open fun elementName(desc: KSerialClassDesc, index: Int) = desc.getElementName(index)
+    open fun elementName(desc: SerialDescriptor, index: Int) = desc.getElementName(index)
     open fun composeName(parentName: String, childName: String) = if (parentName.isEmpty()) childName else parentName + "." + childName
 }
 
 // =====
 
-expect fun getSerialId(desc: KSerialClassDesc, index: Int): Int?
-expect fun getSerialTag(desc: KSerialClassDesc, index: Int): String?
+expect fun getSerialId(desc: SerialDescriptor, index: Int): Int?
+expect fun getSerialTag(desc: SerialDescriptor, index: Int): String?
 
 // =================================================================
 
 abstract class TaggedInput<T : Any?> : KInput() {
-    protected abstract fun KSerialClassDesc.getTag(index: Int): T
+    protected abstract fun SerialDescriptor.getTag(index: Int): T
 
 
     // ---- API ----
@@ -238,9 +238,9 @@ abstract class TaggedInput<T : Any?> : KInput() {
     open fun readTaggedChar(tag: T): Char = readTaggedValue(tag) as Char
     open fun readTaggedString(tag: T): String = readTaggedValue(tag) as String
     @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
-    fun <E : Enum<E>> readTaggedEnum(tag: T, enumClass: KClass<E>): E = readTaggedEnum(tag, LegacyEnumLoader(enumClass))
+    fun <E : Enum<E>> readTaggedEnum(tag: T, enumClass: KClass<E>): E = readTaggedEnum(tag, LegacyEnumCreator(enumClass))
     @Suppress("UNCHECKED_CAST")
-    open fun <E : Enum<E>> readTaggedEnum(tag: T, enumLoader: EnumLoader<E>): E = readTaggedValue(tag) as E
+    open fun <E : Enum<E>> readTaggedEnum(tag: T, enumCreator: EnumCreator<E>): E = readTaggedValue(tag) as E
 
 
     // ---- Implementation of low-level API ----
@@ -261,43 +261,43 @@ abstract class TaggedInput<T : Any?> : KInput() {
     final override fun readCharValue(): Char = readTaggedChar(popTag())
     final override fun readStringValue(): String = readTaggedString(popTag())
     @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
-    final override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T = readEnumValue(LegacyEnumLoader(enumClass))
+    final override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T = readEnumValue(LegacyEnumCreator(enumClass))
 
-    final override fun <T : Enum<T>> readEnumValue(enumLoader: EnumLoader<T>): T = readTaggedEnum(popTag(), enumLoader)
+    final override fun <T : Enum<T>> readEnumValue(enumCreator: EnumCreator<T>): T = readTaggedEnum(popTag(), enumCreator)
 
     // Override for custom behaviour
-    override fun readElement(desc: KSerialClassDesc): Int = READ_ALL
+    override fun readElement(desc: SerialDescriptor): Int = READ_ALL
 
-    final override fun readElementValue(desc: KSerialClassDesc, index: Int): Any = readTaggedValue(desc.getTag(index))
-    final override fun readNullableElementValue(desc: KSerialClassDesc, index: Int): Any? = readTaggedNullable(desc.getTag(index))
-    final override fun readUnitElementValue(desc: KSerialClassDesc, index: Int) = readTaggedUnit(desc.getTag(index))
-    final override fun readBooleanElementValue(desc: KSerialClassDesc, index: Int): Boolean = readTaggedBoolean(desc.getTag(index))
-    final override fun readByteElementValue(desc: KSerialClassDesc, index: Int): Byte = readTaggedByte(desc.getTag(index))
-    final override fun readShortElementValue(desc: KSerialClassDesc, index: Int): Short = readTaggedShort(desc.getTag(index))
-    final override fun readIntElementValue(desc: KSerialClassDesc, index: Int): Int = readTaggedInt(desc.getTag(index))
-    final override fun readLongElementValue(desc: KSerialClassDesc, index: Int): Long = readTaggedLong(desc.getTag(index))
-    final override fun readFloatElementValue(desc: KSerialClassDesc, index: Int): Float = readTaggedFloat(desc.getTag(index))
-    final override fun readDoubleElementValue(desc: KSerialClassDesc, index: Int): Double = readTaggedDouble(desc.getTag(index))
-    final override fun readCharElementValue(desc: KSerialClassDesc, index: Int): Char = readTaggedChar(desc.getTag(index))
-    final override fun readStringElementValue(desc: KSerialClassDesc, index: Int): String = readTaggedString(desc.getTag(index))
+    final override fun readElementValue(desc: SerialDescriptor, index: Int): Any = readTaggedValue(desc.getTag(index))
+    final override fun readNullableElementValue(desc: SerialDescriptor, index: Int): Any? = readTaggedNullable(desc.getTag(index))
+    final override fun readUnitElementValue(desc: SerialDescriptor, index: Int) = readTaggedUnit(desc.getTag(index))
+    final override fun readBooleanElementValue(desc: SerialDescriptor, index: Int): Boolean = readTaggedBoolean(desc.getTag(index))
+    final override fun readByteElementValue(desc: SerialDescriptor, index: Int): Byte = readTaggedByte(desc.getTag(index))
+    final override fun readShortElementValue(desc: SerialDescriptor, index: Int): Short = readTaggedShort(desc.getTag(index))
+    final override fun readIntElementValue(desc: SerialDescriptor, index: Int): Int = readTaggedInt(desc.getTag(index))
+    final override fun readLongElementValue(desc: SerialDescriptor, index: Int): Long = readTaggedLong(desc.getTag(index))
+    final override fun readFloatElementValue(desc: SerialDescriptor, index: Int): Float = readTaggedFloat(desc.getTag(index))
+    final override fun readDoubleElementValue(desc: SerialDescriptor, index: Int): Double = readTaggedDouble(desc.getTag(index))
+    final override fun readCharElementValue(desc: SerialDescriptor, index: Int): Char = readTaggedChar(desc.getTag(index))
+    final override fun readStringElementValue(desc: SerialDescriptor, index: Int): String = readTaggedString(desc.getTag(index))
     @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
-    final override fun <T : Enum<T>> readEnumElementValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<T>): T = readEnumElementValue(desc, index, LegacyEnumLoader(enumClass))
+    final override fun <T : Enum<T>> readEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>): T = readEnumElementValue(desc, index, LegacyEnumCreator(enumClass))
 
-    final override fun <T : Enum<T>> readEnumElementValue(desc: KSerialClassDesc, index: Int, enumLoader: EnumLoader<T>): T = readTaggedEnum(desc.getTag(index), enumLoader)
+    final override fun <T : Enum<T>> readEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T = readTaggedEnum(desc.getTag(index), enumCreator)
 
-    final override fun <T : Any?> readSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>): T {
+    final override fun <T : Any?> readSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T {
         return tagBlock(desc.getTag(index)) { readSerializableValue(loader) }
     }
 
-    final override fun <T : Any> readNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T?>): T? {
+    final override fun <T : Any> readNullableSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>): T? {
         return tagBlock(desc.getTag(index)) { readNullableSerializableValue(loader) }
     }
 
-    override fun <T> updateSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>, old: T): T {
+    override fun <T> updateSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>, old: T): T {
         return tagBlock(desc.getTag(index)) { updateSerializableValue(loader, desc, old) }
     }
 
-    override fun <T : Any> updateNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T?>, old: T?): T? {
+    override fun <T : Any> updateNullableSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>, old: T?): T? {
         return tagBlock(desc.getTag(index)) { updateNullableSerializableValue(loader, desc, old) }
     }
 
@@ -332,16 +332,16 @@ abstract class TaggedInput<T : Any?> : KInput() {
 }
 
 abstract class IntTaggedInput : TaggedInput<Int?>() {
-    final override fun KSerialClassDesc.getTag(index: Int): Int? = getSerialId(this, index)
+    final override fun SerialDescriptor.getTag(index: Int): Int? = getSerialId(this, index)
 }
 
 abstract class StringTaggedInput : TaggedInput<String?>() {
-    final override fun KSerialClassDesc.getTag(index: Int): String? = getSerialTag(this, index)
+    final override fun SerialDescriptor.getTag(index: Int): String? = getSerialTag(this, index)
 }
 
 abstract class NamedValueInput(val rootName: String = "") : TaggedInput<String>() {
-    final override fun KSerialClassDesc.getTag(index: Int): String = composeName(currentTagOrNull ?: rootName, elementName(this, index))
+    final override fun SerialDescriptor.getTag(index: Int): String = composeName(currentTagOrNull ?: rootName, elementName(this, index))
 
-    open fun elementName(desc: KSerialClassDesc, index: Int) = desc.getElementName(index)
+    open fun elementName(desc: SerialDescriptor, index: Int) = desc.getElementName(index)
     open fun composeName(parentName: String, childName: String) = if (parentName.isEmpty()) childName else parentName + "." + childName
 }
