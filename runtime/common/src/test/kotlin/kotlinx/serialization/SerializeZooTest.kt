@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,11 @@ import kotlin.test.assertFalse
 class SerializeZooTest {
     @Test
     fun testZoo() {
-        // save to string
+        // serialize to string
         val sw = StringWriter()
         val out = KeyValueOutput(PrintWriter(sw))
         out.write(zoo)
-        // load from string
+        // deserialize from string
         val str = sw.toString()
         val inp = KeyValueInput(Parser(StringReader(str)))
         val other = inp.read<Zoo>()
@@ -127,14 +127,14 @@ class SerializeZooTest {
     // KeyValue Input/Output
 
     class KeyValueOutput(val out: PrintWriter) : ElementValueOutput() {
-        override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
+        override fun writeBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KOutput {
             out.print('{')
             return this
         }
 
-        override fun writeEnd(desc: KSerialClassDesc) = out.print('}')
+        override fun writeEnd(desc: SerialDescriptor) = out.print('}')
 
-        override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean {
+        override fun writeElement(desc: SerialDescriptor, index: Int): Boolean {
             if (index > 0) out.print(", ")
             out.print(desc.getElementName(index));
             out.print(':')
@@ -154,14 +154,14 @@ class SerializeZooTest {
     }
 
     class KeyValueInput(val inp: Parser) : ElementValueInput() {
-        override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
+        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput {
             inp.expectAfterWhiteSpace('{')
             return this
         }
 
-        override fun readEnd(desc: KSerialClassDesc) = inp.expectAfterWhiteSpace('}')
+        override fun readEnd(desc: SerialDescriptor) = inp.expectAfterWhiteSpace('}')
 
-        override fun readElement(desc: KSerialClassDesc): Int {
+        override fun readElement(desc: SerialDescriptor): Int {
             inp.skipWhitespace(',')
             val name = inp.nextUntil(':', '}')
             if (name.isEmpty())
@@ -195,8 +195,8 @@ class SerializeZooTest {
         override fun readFloatValue(): Float = readToken().toFloat()
         override fun readDoubleValue(): Double = readToken().toDouble()
 
-        override fun <T : Enum<T>> readEnumValue(enumLoader: EnumLoader<T>): T {
-            return enumLoader.loadByName(readToken())
+        override fun <T : Enum<T>> readEnumValue(enumCreator: EnumCreator<T>): T {
+            return enumCreator.createFromName(readToken())
         }
 
         override fun readStringValue(): String {

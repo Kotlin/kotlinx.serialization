@@ -1,17 +1,17 @@
 /*
- *  Copyright 2018 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package kotlinx.serialization.cbor
@@ -29,11 +29,11 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
             // no-op
         }
 
-        override fun writeEnd(desc: KSerialClassDesc) {
+        override fun writeEnd(desc: SerialDescriptor) {
             // no-op
         }
 
-        override fun writeElement(desc: KSerialClassDesc, index: Int) = true
+        override fun writeElement(desc: SerialDescriptor, index: Int) = true
     }
 
     // Differs from List only in start byte
@@ -45,7 +45,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
     private inner open class CBORListWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
         override fun writeBeginToken() = encoder.startArray()
 
-        override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean = desc.getElementName(index) != "size"
+        override fun writeElement(desc: SerialDescriptor, index: Int): Boolean = desc.getElementName(index) != "size"
     }
 
     // Writes class as map [fieldName, fieldValue]
@@ -57,21 +57,21 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
 
         protected open fun writeBeginToken() = encoder.startMap()
 
-        override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
+        override fun writeBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KOutput {
             val writer = when (desc.kind) {
-                KSerialClassKind.LIST, KSerialClassKind.SET -> CBORListWriter(encoder)
-                KSerialClassKind.MAP -> CBORMapWriter(encoder)
-                KSerialClassKind.ENTRY -> CBOREntryWriter(encoder)
+                SerialKind.LIST, SerialKind.SET -> CBORListWriter(encoder)
+                SerialKind.MAP -> CBORMapWriter(encoder)
+                SerialKind.ENTRY -> CBOREntryWriter(encoder)
                 else -> CBORWriter(encoder)
             }
             writer.writeBeginToken()
             return writer
         }
 
-        override fun writeEnd(desc: KSerialClassDesc) = encoder.end()
+        override fun writeEnd(desc: SerialDescriptor) = encoder.end()
 
         //todo: Write size of map or array if known
-        override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean {
+        override fun writeElement(desc: SerialDescriptor, index: Int): Boolean {
             val name = desc.getElementName(index)
             encoder.encodeString(name)
             return true
@@ -160,11 +160,11 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
             // no-op
         }
 
-        override fun readEnd(desc: KSerialClassDesc) {
+        override fun readEnd(desc: SerialDescriptor) {
             // no-op
         }
 
-        override fun readElement(desc: KSerialClassDesc) = when (ind++) {
+        override fun readElement(desc: SerialDescriptor) = when (ind++) {
             0 -> 0
             1 -> 1
             else -> READ_DONE
@@ -188,9 +188,9 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
             }
         }
 
-        override fun readElement(desc: KSerialClassDesc) = if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size)) READ_DONE else ++ind
+        override fun readElement(desc: SerialDescriptor) = if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size)) READ_DONE else ++ind
 
-        override fun readEnd(desc: KSerialClassDesc) {
+        override fun readEnd(desc: SerialDescriptor) {
             if (!finiteMode) decoder.end()
         }
     }
@@ -206,20 +206,20 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
 
         protected open fun skipBeginToken() = decoder.startMap()
 
-        override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
+        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput {
             val re = when (desc.kind) {
-                KSerialClassKind.LIST, KSerialClassKind.SET -> CBORListReader(decoder)
-                KSerialClassKind.MAP -> CBORMapReader(decoder)
-                KSerialClassKind.ENTRY -> CBOREntryReader(decoder)
+                SerialKind.LIST, SerialKind.SET -> CBORListReader(decoder)
+                SerialKind.MAP -> CBORMapReader(decoder)
+                SerialKind.ENTRY -> CBOREntryReader(decoder)
                 else -> CBORReader(decoder)
             }
             re.skipBeginToken()
             return re
         }
 
-        override fun readEnd(desc: KSerialClassDesc) = decoder.end()
+        override fun readEnd(desc: SerialDescriptor) = decoder.end()
 
-        override fun readElement(desc: KSerialClassDesc): Int {
+        override fun readElement(desc: SerialDescriptor): Int {
             if (decoder.isEnd()) return READ_DONE
             val elemName = decoder.nextString()
             return desc.getElementIndexOrThrow(elemName)
@@ -242,8 +242,8 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
 
         override fun readNullValue() = decoder.nextNull()
 
-        override fun <T : Enum<T>> readEnumValue(enumLoader: EnumLoader<T>): T =
-                enumLoader.loadByName(decoder.nextString())
+        override fun <T : Enum<T>> readEnumValue(enumCreator: EnumCreator<T>): T =
+                enumCreator.createFromName(decoder.nextString())
 
     }
 
@@ -376,16 +376,16 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
 
         val plain = CBOR()
 
-        fun <T: Any> dump(saver: KSerialSaver<T>, obj: T): ByteArray = plain.dump(saver, obj)
+        fun <T: Any> dump(saver: SerializationStrategy<T>, obj: T): ByteArray = plain.dump(saver, obj)
         inline fun <reified T : Any> dump(obj: T): ByteArray = plain.dump(obj)
         inline fun <reified T : Any> dumps(obj: T): String = plain.dumps(obj)
 
-        fun <T: Any> load(loader: KSerialLoader<T>, raw: ByteArray): T  = plain.load(loader, raw)
+        fun <T: Any> load(loader: DeserializationStrategy<T>, raw: ByteArray): T  = plain.load(loader, raw)
         inline fun <reified T : Any> load(raw: ByteArray): T = plain.load(raw)
         inline fun <reified T : Any> loads(hex: String): T  = plain.loads(hex)
     }
 
-    fun <T : Any> dump(saver: KSerialSaver<T>, obj: T): ByteArray {
+    fun <T : Any> dump(saver: SerializationStrategy<T>, obj: T): ByteArray {
         val output = ByteArrayOutputStream()
         val dumper = CBORWriter(CBOREncoder(output))
         dumper.write(saver, obj)
@@ -396,7 +396,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
 
     inline fun <reified T : Any> dumps(obj: T): String = HexConverter.printHexBinary(dump(obj), lowerCase = true)
 
-    fun <T : Any> load(loader: KSerialLoader<T>, raw: ByteArray): T {
+    fun <T : Any> load(loader: DeserializationStrategy<T>, raw: ByteArray): T {
         val stream = ByteArrayInputStream(raw)
         val reader = CBORReader(CBORDecoder(stream))
         return reader.read(loader)

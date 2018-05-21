@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
 internal object PolymorphicClassDesc : SerialClassDescImpl("kotlin.Any") {
-    override val kind: KSerialClassKind = KSerialClassKind.POLYMORPHIC
+    override val kind: SerialKind = SerialKind.POLYMORPHIC
 
     init {
         addElement("klass")

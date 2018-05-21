@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ data class JSON(
         val updateMode: UpdateMode = UpdateMode.OVERWRITE,
         val context: SerialContext? = null
 ) {
-    fun <T> stringify(saver: KSerialSaver<T>, obj: T): String {
+    fun <T> stringify(saver: SerializationStrategy<T>, obj: T): String {
         val sb = StringBuilder()
         val output = JsonOutput(Mode.OBJ, Composer(sb))
         output.write(saver, obj)
@@ -36,7 +36,7 @@ data class JSON(
 
     inline fun <reified T : Any> stringify(obj: T): String = stringify(context.klassSerializer(T::class), obj)
 
-    fun <T> parse(loader: KSerialLoader<T>, str: String): T {
+    fun <T> parse(loader: DeserializationStrategy<T>, str: String): T {
         val parser = Parser(str)
         val input = JsonInput(Mode.OBJ, parser)
         val result = input.read(loader)
@@ -47,9 +47,9 @@ data class JSON(
     inline fun <reified T : Any> parse(str: String): T = parse(context.klassSerializer(T::class), str)
 
     companion object {
-        fun <T> stringify(saver: KSerialSaver<T>, obj: T): String = plain.stringify(saver, obj)
+        fun <T> stringify(saver: SerializationStrategy<T>, obj: T): String = plain.stringify(saver, obj)
         inline fun <reified T : Any> stringify(obj: T): String = stringify(T::class.serializer(), obj)
-        fun <T> parse(loader: KSerialLoader<T>, str: String): T = plain.parse(loader, str)
+        fun <T> parse(loader: DeserializationStrategy<T>, str: String): T = plain.parse(loader, str)
         inline fun <reified T : Any> parse(str: String): T = parse(T::class.serializer(), str)
 
         val plain = JSON()
@@ -65,7 +65,7 @@ data class JSON(
 
         private var forceStr: Boolean = false
 
-        override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
+        override fun writeBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KOutput {
             val newMode = switchMode(mode, desc, typeParams)
             if (newMode.begin != INVALID) {
                 w.print(newMode.begin)
@@ -74,7 +74,7 @@ data class JSON(
             return if (mode == newMode) this else JsonOutput(newMode, w) // todo: reuse instance per mode
         }
 
-        override fun writeEnd(desc: KSerialClassDesc) {
+        override fun writeEnd(desc: SerialDescriptor) {
             if (mode.end != INVALID) {
                 w.unIndent()
                 w.nextItem()
@@ -82,7 +82,7 @@ data class JSON(
             }
         }
 
-        override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean {
+        override fun writeElement(desc: SerialDescriptor, index: Int): Boolean {
             when (mode) {
                 Mode.LIST, Mode.MAP -> {
                     if (index == 0) return false
@@ -219,7 +219,7 @@ data class JSON(
         override val updateMode: UpdateMode
             get() = this@JSON.updateMode
 
-        override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
+        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput {
             val newMode = switchMode(mode, desc, typeParams)
             if (newMode.begin != INVALID) {
                 require(p.tc == newMode.beginTc, p.tokenPos) { "Expected '${newMode.begin}, kind: ${desc.kind}'" }
@@ -232,7 +232,7 @@ data class JSON(
             }
         }
 
-        override fun readEnd(desc: KSerialClassDesc) {
+        override fun readEnd(desc: SerialDescriptor) {
             if (mode.end != INVALID) {
                 require(p.tc == mode.endTc, p.tokenPos) { "Expected '${mode.end}'" }
                 p.nextToken()
@@ -249,7 +249,7 @@ data class JSON(
             return null
         }
 
-        override fun readElement(desc: KSerialClassDesc): Int {
+        override fun readElement(desc: SerialDescriptor): Int {
             while (true) {
                 if (p.tc == TC_COMMA) p.nextToken()
                 when (mode) {
@@ -307,7 +307,7 @@ data class JSON(
         override fun readCharValue(): Char = p.takeStr().single()
         override fun readStringValue(): String = p.takeStr()
 
-        override fun <T : Enum<T>> readEnumValue(enumLoader: EnumLoader<T>): T = enumLoader.loadByName(p.takeStr())
+        override fun <T : Enum<T>> readEnumValue(enumCreator: EnumCreator<T>): T = enumCreator.createFromName(p.takeStr())
     }
 
     private class Parser(val source: String) {
@@ -490,17 +490,17 @@ private enum class Mode(val begin: Char, val end: Char) {
     val endTc: Byte = c2tc(end)
 }
 
-private fun switchMode(mode: Mode, desc: KSerialClassDesc, typeParams: Array<out KSerializer<*>>): Mode =
+private fun switchMode(mode: Mode, desc: SerialDescriptor, typeParams: Array<out KSerializer<*>>): Mode =
     when (desc.kind) {
-        KSerialClassKind.POLYMORPHIC -> Mode.POLY
-        KSerialClassKind.LIST, KSerialClassKind.SET -> Mode.LIST
-        KSerialClassKind.MAP -> {
+        SerialKind.POLYMORPHIC -> Mode.POLY
+        SerialKind.LIST, SerialKind.SET -> Mode.LIST
+        SerialKind.MAP -> {
             val keyKind = typeParams[0].serialClassDesc.kind
-            if (keyKind == KSerialClassKind.PRIMITIVE || keyKind == KSerialClassKind.KIND_ENUM)
+            if (keyKind == SerialKind.PRIMITIVE || keyKind == SerialKind.KIND_ENUM)
                 Mode.MAP
             else Mode.LIST
         }
-        KSerialClassKind.ENTRY -> if (mode == Mode.MAP) Mode.ENTRY else Mode.OBJ
+        SerialKind.ENTRY -> if (mode == Mode.MAP) Mode.ENTRY else Mode.OBJ
         else -> Mode.OBJ
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.KInput.Companion.UNKNOWN_NAME
-import kotlinx.serialization.KSerialClassDesc
-import kotlinx.serialization.KSerialClassKind
+import kotlinx.serialization.SerialDescriptor
+import kotlinx.serialization.SerialKind
 
-open class SerialClassDescImpl(override val name: String) : KSerialClassDesc {
-    override val kind: KSerialClassKind get() = KSerialClassKind.CLASS
+open class SerialClassDescImpl(override val name: String) : SerialDescriptor {
+    override val kind: SerialKind get() = SerialKind.CLASS
 
     private val names: MutableList<String> = ArrayList()
     private val annotations: MutableList<MutableList<Annotation>> = mutableListOf()

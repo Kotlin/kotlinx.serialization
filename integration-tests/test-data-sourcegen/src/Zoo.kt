@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018 JetBrains s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // Auto-generated file, do not modify!
 import kotlin.Boolean
 import kotlin.Byte
@@ -15,9 +31,9 @@ import kotlin.collections.Map
 import kotlin.collections.Set
 import kotlinx.serialization.KInput
 import kotlinx.serialization.KOutput
-import kotlinx.serialization.KSerialClassDesc
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.MissingFieldException
+import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.internal.ArrayListSerializer
 import kotlinx.serialization.internal.BooleanSerializer
 import kotlinx.serialization.internal.ByteSerializer
@@ -45,20 +61,20 @@ enum class Attitude {
 data class Simple(val a: String) {
     @Suppress("NAME_SHADOWING")
     object serializer : KSerializer<Simple> {
-        override val serialClassDesc: KSerialClassDesc =
+        override val serialClassDesc: SerialDescriptor =
                 object : SerialClassDescImplTagged("Simple") {
             init {
                 addElement("a")
             }
         }
 
-        override fun save(output: KOutput, obj: Simple) {
+        override fun serialize(output: KOutput, obj: Simple) {
             val output = output.writeBegin(serialClassDesc)
             output.writeStringElementValue(serialClassDesc, 0, obj.a)
             output.writeEnd(serialClassDesc)
         }
 
-        override fun load(input: KInput): Simple {
+        override fun deserialize(input: KInput): Simple {
             val input = input.readBegin(serialClassDesc)
             var local0: String? = null
             var bitMask: Int = 0
@@ -97,7 +113,7 @@ data class SmallZoo(
 ) {
     @Suppress("NAME_SHADOWING")
     object serializer : KSerializer<SmallZoo> {
-        override val serialClassDesc: KSerialClassDesc =
+        override val serialClassDesc: SerialDescriptor =
                 object : SerialClassDescImplTagged("SmallZoo") {
             init {
                 addElement("str")
@@ -110,7 +126,7 @@ data class SmallZoo(
             }
         }
 
-        override fun save(output: KOutput, obj: SmallZoo) {
+        override fun serialize(output: KOutput, obj: SmallZoo) {
             val output = output.writeBegin(serialClassDesc)
             output.writeStringElementValue(serialClassDesc, 0, obj.str)
             output.writeIntElementValue(serialClassDesc, 1, obj.i)
@@ -122,7 +138,7 @@ data class SmallZoo(
             output.writeEnd(serialClassDesc)
         }
 
-        override fun load(input: KInput): SmallZoo {
+        override fun deserialize(input: KInput): SmallZoo {
             val input = input.readBegin(serialClassDesc)
             var local0: String? = null
             var local1: Int? = null
@@ -233,7 +249,7 @@ data class Zoo(
 ) {
     @Suppress("NAME_SHADOWING")
     object serializer : KSerializer<Zoo> {
-        override val serialClassDesc: KSerialClassDesc = object : SerialClassDescImplTagged("Zoo") {
+        override val serialClassDesc: SerialDescriptor = object : SerialClassDescImplTagged("Zoo") {
             init {
                 addElement("unit")
                 addElement("boolean")
@@ -269,7 +285,7 @@ data class Zoo(
             }
         }
 
-        override fun save(output: KOutput, obj: Zoo) {
+        override fun serialize(output: KOutput, obj: Zoo) {
             val output = output.writeBegin(serialClassDesc)
             output.writeUnitElementValue(serialClassDesc, 0)
             output.writeBooleanElementValue(serialClassDesc, 1, obj.boolean)
@@ -305,7 +321,7 @@ data class Zoo(
             output.writeEnd(serialClassDesc)
         }
 
-        override fun load(input: KInput): Zoo {
+        override fun deserialize(input: KInput): Zoo {
             val input = input.readBegin(serialClassDesc)
             var local0: Unit? = null
             var local1: Boolean? = null

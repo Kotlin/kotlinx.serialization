@@ -24,7 +24,7 @@ open class ElementValueOutput : KOutput() {
     // ------- implementation API -------
 
     // it is always invoked before writeXxxValue
-    override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean = true
+    override fun writeElement(desc: SerialDescriptor, index: Int): Boolean = true
 
     // override for a special representation of nulls if needed (empty object by default)
     override fun writeNotNullMark() {}
@@ -65,24 +65,24 @@ open class ElementValueOutput : KOutput() {
     override fun <T : Enum<T>> writeEnumValue(value: T) = writeValue(value)
     // -------------------------------------------------------------------------------------
 
-    final override fun writeNonSerializableElementValue(desc: KSerialClassDesc, index: Int, value: Any) { if (writeElement(desc, index)) writeValue(value) }
-    final override fun writeNullableElementValue(desc: KSerialClassDesc, index: Int, value: Any?) { if (writeElement(desc, index)) writeNullableValue(value) }
-    final override fun writeUnitElementValue(desc: KSerialClassDesc, index: Int) { if (writeElement(desc, index)) writeUnitValue() }
-    final override fun writeBooleanElementValue(desc: KSerialClassDesc, index: Int, value: Boolean) { if (writeElement(desc, index)) writeBooleanValue(value) }
-    final override fun writeByteElementValue(desc: KSerialClassDesc, index: Int, value: Byte) { if (writeElement(desc, index)) writeByteValue(value) }
-    final override fun writeShortElementValue(desc: KSerialClassDesc, index: Int, value: Short) { if (writeElement(desc, index)) writeShortValue(value) }
-    final override fun writeIntElementValue(desc: KSerialClassDesc, index: Int, value: Int) { if (writeElement(desc, index)) writeIntValue(value) }
-    final override fun writeLongElementValue(desc: KSerialClassDesc, index: Int, value: Long) { if (writeElement(desc, index)) writeLongValue(value) }
-    final override fun writeFloatElementValue(desc: KSerialClassDesc, index: Int, value: Float) { if (writeElement(desc, index)) writeFloatValue(value) }
-    final override fun writeDoubleElementValue(desc: KSerialClassDesc, index: Int, value: Double) { if (writeElement(desc, index)) writeDoubleValue(value) }
-    final override fun writeCharElementValue(desc: KSerialClassDesc, index: Int, value: Char) { if (writeElement(desc, index)) writeCharValue(value) }
-    final override fun writeStringElementValue(desc: KSerialClassDesc, index: Int, value: String) { if (writeElement(desc, index)) writeStringValue(value) }
+    final override fun writeNonSerializableElementValue(desc: SerialDescriptor, index: Int, value: Any) { if (writeElement(desc, index)) writeValue(value) }
+    final override fun writeNullableElementValue(desc: SerialDescriptor, index: Int, value: Any?) { if (writeElement(desc, index)) writeNullableValue(value) }
+    final override fun writeUnitElementValue(desc: SerialDescriptor, index: Int) { if (writeElement(desc, index)) writeUnitValue() }
+    final override fun writeBooleanElementValue(desc: SerialDescriptor, index: Int, value: Boolean) { if (writeElement(desc, index)) writeBooleanValue(value) }
+    final override fun writeByteElementValue(desc: SerialDescriptor, index: Int, value: Byte) { if (writeElement(desc, index)) writeByteValue(value) }
+    final override fun writeShortElementValue(desc: SerialDescriptor, index: Int, value: Short) { if (writeElement(desc, index)) writeShortValue(value) }
+    final override fun writeIntElementValue(desc: SerialDescriptor, index: Int, value: Int) { if (writeElement(desc, index)) writeIntValue(value) }
+    final override fun writeLongElementValue(desc: SerialDescriptor, index: Int, value: Long) { if (writeElement(desc, index)) writeLongValue(value) }
+    final override fun writeFloatElementValue(desc: SerialDescriptor, index: Int, value: Float) { if (writeElement(desc, index)) writeFloatValue(value) }
+    final override fun writeDoubleElementValue(desc: SerialDescriptor, index: Int, value: Double) { if (writeElement(desc, index)) writeDoubleValue(value) }
+    final override fun writeCharElementValue(desc: SerialDescriptor, index: Int, value: Char) { if (writeElement(desc, index)) writeCharValue(value) }
+    final override fun writeStringElementValue(desc: SerialDescriptor, index: Int, value: String) { if (writeElement(desc, index)) writeStringValue(value) }
     @Deprecated("Not supported in Native", replaceWith = ReplaceWith("writeEnumElementValue(desc, index, value)"))
-    final override fun <T : Enum<T>> writeEnumElementValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<T>, value: T) {
+    final override fun <T : Enum<T>> writeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>, value: T) {
         writeEnumElementValue(desc, index, value)
     }
 
-    final override fun <T : Enum<T>> writeEnumElementValue(desc: KSerialClassDesc, index: Int, value: T) {
+    final override fun <T : Enum<T>> writeEnumElementValue(desc: SerialDescriptor, index: Int, value: T) {
         if (writeElement(desc, index)) writeEnumValue(value)
     }
 
@@ -93,7 +93,7 @@ open class ElementValueInput : KInput() {
     // ------- implementation API -------
 
     // unordered read api, override to read props in arbitrary order
-    override fun readElement(desc: KSerialClassDesc): Int = READ_ALL
+    override fun readElement(desc: SerialDescriptor): Int = READ_ALL
 
     // returns true if the following value is not null, false if not null
     override fun readNotNullMark(): Boolean = true
@@ -121,35 +121,35 @@ open class ElementValueInput : KInput() {
     @Deprecated("Not supported in Native", ReplaceWith("readEnumValue(enumLoader)"))
     @Suppress("UNCHECKED_CAST")
     final override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T =
-        readEnumValue(LegacyEnumLoader(enumClass))
+        readEnumValue(LegacyEnumCreator(enumClass))
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Enum<T>> readEnumValue(enumLoader: EnumLoader<T>): T = readValue() as T
+    override fun <T : Enum<T>> readEnumValue(enumCreator: EnumCreator<T>): T = readValue() as T
 
     // -------------------------------------------------------------------------------------
 
-    final override fun readElementValue(desc: KSerialClassDesc, index: Int): Any = readValue()
-    final override fun readNullableElementValue(desc: KSerialClassDesc, index: Int): Any? = readNullableValue()
-    final override fun readUnitElementValue(desc: KSerialClassDesc, index: Int) = readUnitValue()
-    final override fun readBooleanElementValue(desc: KSerialClassDesc, index: Int): Boolean = readBooleanValue()
-    final override fun readByteElementValue(desc: KSerialClassDesc, index: Int): Byte = readByteValue()
-    final override fun readShortElementValue(desc: KSerialClassDesc, index: Int): Short = readShortValue()
-    final override fun readIntElementValue(desc: KSerialClassDesc, index: Int): Int = readIntValue()
-    final override fun readLongElementValue(desc: KSerialClassDesc, index: Int): Long = readLongValue()
-    final override fun readFloatElementValue(desc: KSerialClassDesc, index: Int): Float = readFloatValue()
-    final override fun readDoubleElementValue(desc: KSerialClassDesc, index: Int): Double = readDoubleValue()
-    final override fun readCharElementValue(desc: KSerialClassDesc, index: Int): Char = readCharValue()
-    final override fun readStringElementValue(desc: KSerialClassDesc, index: Int): String = readStringValue()
-    @Deprecated("Not supported in Native", ReplaceWith("readEnumValue(desc, index, loader)"))
-    final override fun <T : Enum<T>> readEnumElementValue(desc: KSerialClassDesc, index: Int, enumClass: KClass<T>): T =
-        readEnumElementValue(desc, index, LegacyEnumLoader(enumClass))
+    final override fun readElementValue(desc: SerialDescriptor, index: Int): Any = readValue()
+    final override fun readNullableElementValue(desc: SerialDescriptor, index: Int): Any? = readNullableValue()
+    final override fun readUnitElementValue(desc: SerialDescriptor, index: Int) = readUnitValue()
+    final override fun readBooleanElementValue(desc: SerialDescriptor, index: Int): Boolean = readBooleanValue()
+    final override fun readByteElementValue(desc: SerialDescriptor, index: Int): Byte = readByteValue()
+    final override fun readShortElementValue(desc: SerialDescriptor, index: Int): Short = readShortValue()
+    final override fun readIntElementValue(desc: SerialDescriptor, index: Int): Int = readIntValue()
+    final override fun readLongElementValue(desc: SerialDescriptor, index: Int): Long = readLongValue()
+    final override fun readFloatElementValue(desc: SerialDescriptor, index: Int): Float = readFloatValue()
+    final override fun readDoubleElementValue(desc: SerialDescriptor, index: Int): Double = readDoubleValue()
+    final override fun readCharElementValue(desc: SerialDescriptor, index: Int): Char = readCharValue()
+    final override fun readStringElementValue(desc: SerialDescriptor, index: Int): String = readStringValue()
+    @Deprecated("Not supported in Native", ReplaceWith("readEnumValue(desc, index, creator)"))
+    final override fun <T : Enum<T>> readEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>): T =
+        readEnumElementValue(desc, index, LegacyEnumCreator(enumClass))
 
-    override fun <T : Enum<T>> readEnumElementValue(desc: KSerialClassDesc, index: Int, enumLoader: EnumLoader<T>): T =
-        readEnumValue(enumLoader)
+    override fun <T : Enum<T>> readEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T =
+        readEnumValue(enumCreator)
 
-    final override fun <T: Any?> readSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T>): T =
+    final override fun <T: Any?> readSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T =
         readSerializableValue(loader)
 
-    final override fun <T: Any> readNullableSerializableElementValue(desc: KSerialClassDesc, index: Int, loader: KSerialLoader<T?>): T? =
+    final override fun <T: Any> readNullableSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>): T? =
         readNullableSerializableValue(loader)
 }

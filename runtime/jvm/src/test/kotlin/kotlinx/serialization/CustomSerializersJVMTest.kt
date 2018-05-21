@@ -1,17 +1,17 @@
 /*
- *  Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package kotlinx.serialization
@@ -45,13 +45,13 @@ class CustomSerializersJVMTest {
     object PayloadSerializer {}
 
     object BinaryPayloadSerializer : KSerializer<Payload> {
-        override val serialClassDesc: KSerialClassDesc = SerialClassDescImpl("Payload")
+        override val serialClassDesc: SerialDescriptor = SerialClassDescImpl("Payload")
 
-        override fun save(output: KOutput, obj: Payload) {
+        override fun serialize(output: KOutput, obj: Payload) {
             output.writeStringValue(HexConverter.printHexBinary(obj.s.toByteArray()))
         }
 
-        override fun load(input: KInput): Payload {
+        override fun deserialize(input: KInput): Payload {
             return Payload(String(HexConverter.parseHexBinary(input.readStringValue())))
         }
     }

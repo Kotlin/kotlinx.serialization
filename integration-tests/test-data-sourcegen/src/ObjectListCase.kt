@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018 JetBrains s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // Auto-generated file, do not modify!
 import kotlin.Int
 import kotlin.String
@@ -5,10 +21,10 @@ import kotlin.Suppress
 import kotlin.collections.List
 import kotlinx.serialization.KInput
 import kotlinx.serialization.KOutput
-import kotlinx.serialization.KSerialClassDesc
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.Optional
+import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.SerialId
 import kotlinx.serialization.internal.ArrayListSerializer
 import kotlinx.serialization.internal.SerialClassDescImplTagged
@@ -18,7 +34,7 @@ val a: Int, @SerialId(2)
 val b: String) {
     @Suppress("NAME_SHADOWING")
     object serializer : KSerializer<Data> {
-        override val serialClassDesc: KSerialClassDesc =
+        override val serialClassDesc: SerialDescriptor =
                 object : SerialClassDescImplTagged("Data") {
             init {
                 addTaggedElement("a", 1)
@@ -26,14 +42,14 @@ val b: String) {
             }
         }
 
-        override fun save(output: KOutput, obj: Data) {
+        override fun serialize(output: KOutput, obj: Data) {
             val output = output.writeBegin(serialClassDesc)
             output.writeIntElementValue(serialClassDesc, 0, obj.a)
             output.writeStringElementValue(serialClassDesc, 1, obj.b)
             output.writeEnd(serialClassDesc)
         }
 
-        override fun load(input: KInput): Data {
+        override fun deserialize(input: KInput): Data {
             val input = input.readBegin(serialClassDesc)
             var local0: Int? = null
             var local1: String? = null
@@ -74,20 +90,20 @@ data class DataList(@Optional
 val list: List<Data> = emptyList()) {
     @Suppress("NAME_SHADOWING")
     object serializer : KSerializer<DataList> {
-        override val serialClassDesc: KSerialClassDesc =
+        override val serialClassDesc: SerialDescriptor =
                 object : SerialClassDescImplTagged("DataList") {
             init {
                 addTaggedElement("list", 1)
             }
         }
 
-        override fun save(output: KOutput, obj: DataList) {
+        override fun serialize(output: KOutput, obj: DataList) {
             val output = output.writeBegin(serialClassDesc)
             output.writeSerializableElementValue(serialClassDesc, 0, ArrayListSerializer(Data.serializer), obj.list)
             output.writeEnd(serialClassDesc)
         }
 
-        override fun load(input: KInput): DataList {
+        override fun deserialize(input: KInput): DataList {
             val input = input.readBegin(serialClassDesc)
             var local0: List<Data>? = null
             var bitMask: Int = 0

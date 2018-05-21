@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ apply plugin: 'kotlin'
 subprojects {
     if (project.path.startsWith(":integration") || project.name == "native") return
 
-    apply plugin: 'kotlinx-serialization'
+//    apply plugin: 'kotlinx-serialization'
 
     apply plugin: 'maven-publish'
     apply plugin: 'com.jfrog.bintray'
