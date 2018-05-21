@@ -20,6 +20,7 @@ import kotlinx.io.PrintWriter
 import kotlinx.io.Reader
 import kotlinx.io.StringReader
 import kotlinx.io.StringWriter
+import kotlinx.serialization.StructureDecoder.Companion.READ_DONE
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -127,7 +128,7 @@ class SerializeZooTest {
     // KeyValue Input/Output
 
     class KeyValueOutput(val out: PrintWriter) : ElementValueOutput() {
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): Encoder {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): StructureEncoder {
             out.print('{')
             return this
         }
@@ -154,7 +155,7 @@ class SerializeZooTest {
     }
 
     class KeyValueInput(val inp: Parser) : ElementValueInput() {
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): Decoder {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): StructureDecoder {
             inp.expectAfterWhiteSpace('{')
             return this
         }

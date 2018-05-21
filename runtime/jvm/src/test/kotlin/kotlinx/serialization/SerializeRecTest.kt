@@ -55,7 +55,7 @@ class SerializeRecTest {
     class Out() : ElementValueOutput() {
         var step = 0
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): Encoder {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): StructureEncoder {
             when(step) {
                 0 -> { checkContainerDesc(desc); step++; return this }
                 3 -> { checkDataDesc(desc); step++; return this }
@@ -109,7 +109,7 @@ class SerializeRecTest {
     class Inp() : ElementValueInput() {
         var step = 0
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): Decoder {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): StructureDecoder {
             when(step) {
                 0 -> { checkContainerDesc(desc); step++; return this }
                 3 -> { checkDataDesc(desc); step++; return this }

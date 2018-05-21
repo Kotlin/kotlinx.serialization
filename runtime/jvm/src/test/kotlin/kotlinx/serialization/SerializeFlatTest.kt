@@ -79,19 +79,19 @@ object CustomSerializer : KSerializer<Custom> {
     }
 
     override fun serialize(output: Encoder, obj : Custom) {
-        output.beginStructure(serialClassDesc)
+        val output = output.beginStructure(serialClassDesc)
         output.encodeStringElementValue(serialClassDesc, 0, obj._value1)
         output.encodeIntElementValue(serialClassDesc, 1, obj._value2)
         output.endStructure(serialClassDesc)
     }
 
     override fun deserialize(input: Decoder): Custom {
-        input.beginStructure(serialClassDesc)
+        val input = input.beginStructure(serialClassDesc)
         if (input.decodeElement(serialClassDesc) != 0) throw java.lang.IllegalStateException()
         val value1 = input.decodeStringElementValue(serialClassDesc, 0)
         if (input.decodeElement(serialClassDesc) != 1) throw java.lang.IllegalStateException()
         val value2 = input.decodeIntElementValue(serialClassDesc, 1)
-        if (input.decodeElement(serialClassDesc) != Decoder.READ_DONE) throw java.lang.IllegalStateException()
+        if (input.decodeElement(serialClassDesc) != StructureDecoder.READ_DONE) throw java.lang.IllegalStateException()
         input.endStructure(serialClassDesc)
         return Custom(value1, value2)
     }
@@ -200,7 +200,7 @@ class SerializeFlatTest() {
     class Out(private val name: String) : ElementValueOutput() {
         var step = 0
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): Encoder {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): StructureEncoder {
             checkDesc(name, desc)
             if (step == 0) step++ else fail("@$step: beginStructure($desc)")
             return this
@@ -242,7 +242,7 @@ class SerializeFlatTest() {
     class Inp(private val name: String) : ElementValueInput() {
         var step = 0
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): Decoder {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): StructureDecoder {
             checkDesc(name, desc)
             if (step == 0) step++ else fail("@$step: beginStructure($desc)")
             return this

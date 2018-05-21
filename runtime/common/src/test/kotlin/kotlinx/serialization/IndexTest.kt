@@ -16,6 +16,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.StructureDecoder.Companion.UNKNOWN_NAME
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 

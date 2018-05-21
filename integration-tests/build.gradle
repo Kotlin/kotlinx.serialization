@@ -19,3 +19,5 @@ task test {
 }
 
 task testSourceGenerated(dependsOn: [":integration:tests-jvm-sourcegen:test", ":integration:tests-js-sourcegen:test"]) {}
+
+task testPluginGenerated(dependsOn: [":integration:tests-jvm-plugin:test", ":integration:tests-js-plugin:test"]) {}

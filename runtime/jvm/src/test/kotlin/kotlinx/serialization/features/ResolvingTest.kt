@@ -37,7 +37,7 @@ class ResolvingTest {
     data class WithCustomDefault(val n: Int) {
         @Serializer(forClass = WithCustomDefault::class)
         companion object {
-            override fun load(input: Decoder) = WithCustomDefault(input.decodeIntValue())
+            override fun deserialize(input: Decoder) = WithCustomDefault(input.decodeIntValue())
         }
     }
 
