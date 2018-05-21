@@ -16,12 +16,13 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 class IndexTest {
     class MalformedReader: ElementValueInput() {
-        override fun readElement(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(desc: SerialDescriptor): Int {
             return UNKNOWN_NAME
         }
     }
@@ -29,7 +30,7 @@ class IndexTest {
     @Test
     fun compilerComplainsAboutIncorrectIndex() {
         assertFailsWith(UnknownFieldException::class) {
-            MalformedReader().read<OptionalTests.Data>()
+            MalformedReader().decode<OptionalTests.Data>()
         }
     }
 }

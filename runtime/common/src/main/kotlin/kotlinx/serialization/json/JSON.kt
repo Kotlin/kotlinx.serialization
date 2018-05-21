@@ -17,7 +17,8 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
+import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
+import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
 
 data class JSON(
         private val unquoted: Boolean = false,
@@ -30,7 +31,7 @@ data class JSON(
     fun <T> stringify(saver: SerializationStrategy<T>, obj: T): String {
         val sb = StringBuilder()
         val output = JsonOutput(Mode.OBJ, Composer(sb), arrayOfNulls(Mode.values().size))
-        output.write(saver, obj)
+        output.encode(saver, obj)
         return sb.toString()
     }
 
@@ -39,7 +40,7 @@ data class JSON(
     fun <T> parse(loader: DeserializationStrategy<T>, str: String): T {
         val parser = Parser(str)
         val input = JsonInput(Mode.OBJ, parser)
-        val result = input.read(loader)
+        val result = input.decode(loader)
         check(parser.tc == TC_EOF) { "Shall parse complete string"}
         return result
     }
@@ -75,7 +76,7 @@ data class JSON(
 
         private var forceStr: Boolean = false
 
-        override fun writeBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KOutput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
             val newMode = switchMode(mode, desc, typeParams)
             if (newMode.begin != INVALID) { // entry
                 w.print(newMode.begin)
@@ -92,7 +93,7 @@ data class JSON(
             return JsonOutput(newMode, w, modeReuseCache)
         }
 
-        override fun writeEnd(desc: SerialDescriptor) {
+        override fun endStructure(desc: SerialDescriptor) {
             if (mode.end != INVALID) {
                 w.unIndent()
                 w.nextItem()
@@ -100,7 +101,7 @@ data class JSON(
             }
         }
 
-        override fun writeElement(desc: SerialDescriptor, index: Int): Boolean {
+        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
             when (mode) {
                 Mode.LIST, Mode.MAP -> {
                     if (index == 0) return false
@@ -121,7 +122,7 @@ data class JSON(
                     if (! w.writingFirst)
                         w.print(COMMA)
                     w.nextItem()
-                    writeStringValue(desc.getElementName(index))
+                    encodeString(desc.getElementName(index))
                     w.print(COLON)
                     w.space()
                 }
@@ -129,31 +130,31 @@ data class JSON(
             return true
         }
 
-        override fun writeNullValue() {
+        override fun encodeNull() {
             w.print(NULL)
         }
 
-        override fun writeBooleanValue(value: Boolean) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
-        override fun writeByteValue(value: Byte) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
-        override fun writeShortValue(value: Short) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
-        override fun writeIntValue(value: Int) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
-        override fun writeLongValue(value: Long) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
+        override fun encodeBoolean(value: Boolean) { if (forceStr) encodeString(value.toString()) else w.print(value) }
+        override fun encodeByte(value: Byte) { if (forceStr) encodeString(value.toString()) else w.print(value) }
+        override fun encodeShort(value: Short) { if (forceStr) encodeString(value.toString()) else w.print(value) }
+        override fun encodeInt(value: Int) { if (forceStr) encodeString(value.toString()) else w.print(value) }
+        override fun encodeLong(value: Long) { if (forceStr) encodeString(value.toString()) else w.print(value) }
 
-        override fun writeFloatValue(value: Float) {
-            if (forceStr || !value.isFinite()) writeStringValue(value.toString()) else
+        override fun encodeFloat(value: Float) {
+            if (forceStr || !value.isFinite()) encodeString(value.toString()) else
                 w.print(value)
         }
 
-        override fun writeDoubleValue(value: Double) {
-            if (forceStr || !value.isFinite()) writeStringValue(value.toString()) else
+        override fun encodeDouble(value: Double) {
+            if (forceStr || !value.isFinite()) encodeString(value.toString()) else
                 w.print(value)
         }
 
-        override fun writeCharValue(value: Char) {
-            writeStringValue(value.toString())
+        override fun encodeChar(value: Char) {
+            encodeString(value.toString())
         }
 
-        override fun writeStringValue(value: String) {
+        override fun encodeString(value: String) {
             if (unquoted && !mustBeQuoted(value)) {
                 w.print(value)
             } else {
@@ -161,8 +162,8 @@ data class JSON(
             }
         }
 
-        override fun writeNonSerializableValue(value: Any) {
-            writeStringValue(value.toString())
+        override fun encodeNonSerializableValue(value: Any) {
+            encodeString(value.toString())
         }
     }
 
@@ -213,7 +214,7 @@ data class JSON(
         override val updateMode: UpdateMode
             get() = this@JSON.updateMode
 
-        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             val newMode = switchMode(mode, desc, typeParams)
             if (newMode.begin != INVALID) {
                 p.requireTc(newMode.beginTc) { "Expected '${newMode.begin}, kind: ${desc.kind}'" }
@@ -226,24 +227,24 @@ data class JSON(
             }
         }
 
-        override fun readEnd(desc: SerialDescriptor) {
+        override fun endStructure(desc: SerialDescriptor) {
             if (mode.end != INVALID) {
                 p.requireTc(mode.endTc) { "Expected '${mode.end}'" }
                 p.nextToken()
             }
         }
 
-        override fun readNotNullMark(): Boolean {
+        override fun decodeNotNullMark(): Boolean {
             return p.tc != TC_NULL
         }
 
-        override fun readNullValue(): Nothing? {
+        override fun decodeNull(): Nothing? {
             p.requireTc(TC_NULL) { "Expected 'null' literal" }
             p.nextToken()
             return null
         }
 
-        override fun readElement(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(desc: SerialDescriptor): Int {
             while (true) {
                 if (p.tc == TC_COMMA) p.nextToken()
                 when (mode) {
@@ -291,17 +292,17 @@ data class JSON(
             }
         }
 
-        override fun readBooleanValue(): Boolean = p.takeStr().toBoolean()
-        override fun readByteValue(): Byte = p.takeStr().toByte()
-        override fun readShortValue(): Short = p.takeStr().toShort()
-        override fun readIntValue(): Int = p.takeStr().toInt()
-        override fun readLongValue(): Long = p.takeStr().toLong()
-        override fun readFloatValue(): Float = p.takeStr().toFloat()
-        override fun readDoubleValue(): Double = p.takeStr().toDouble()
-        override fun readCharValue(): Char = p.takeStr().single()
-        override fun readStringValue(): String = p.takeStr()
+        override fun decodeBoolean(): Boolean = p.takeStr().toBoolean()
+        override fun decodeByte(): Byte = p.takeStr().toByte()
+        override fun decodeShort(): Short = p.takeStr().toShort()
+        override fun decodeInt(): Int = p.takeStr().toInt()
+        override fun decodeLong(): Long = p.takeStr().toLong()
+        override fun decodeFloat(): Float = p.takeStr().toFloat()
+        override fun decodeDouble(): Double = p.takeStr().toDouble()
+        override fun decodeChar(): Char = p.takeStr().single()
+        override fun decodeString(): String = p.takeStr()
 
-        override fun <T : Enum<T>> readEnumValue(enumCreator: EnumCreator<T>): T = enumCreator.createFromName(p.takeStr())
+        override fun <T : Enum<T>> decodeEnum(enumCreator: EnumCreator<T>): T = enumCreator.createFromName(p.takeStr())
     }
 }
 

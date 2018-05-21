@@ -60,23 +60,23 @@ object Mapper {
 
     inline fun <reified T : Any> map(obj: T): Map<String, Any> {
         val m = OutMapper()
-        m.write(obj)
+        m.encode(obj)
         return m.map
     }
 
     inline fun <reified T : Any> mapNullable(obj: T): Map<String, Any?> {
         val m = OutNullableMapper()
-        m.write(obj)
+        m.encode(obj)
         return m.map
     }
 
     inline fun <reified T : Any> unmap(map: Map<String, Any>): T {
         val m = InMapper(map)
-        return m.read()
+        return m.decode()
     }
 
     inline fun <reified T : Any> unmapNullable(map: Map<String, Any?>): T {
         val m = InNullableMapper(map)
-        return m.read()
+        return m.decode()
     }
 }

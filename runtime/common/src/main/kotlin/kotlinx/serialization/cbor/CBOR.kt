@@ -18,6 +18,7 @@ package kotlinx.serialization.cbor
 
 import kotlinx.io.*
 import kotlinx.serialization.*
+import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.internal.*
 import kotlin.experimental.or
 
@@ -28,11 +29,11 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
             // no-op
         }
 
-        override fun writeEnd(desc: SerialDescriptor) {
+        override fun endStructure(desc: SerialDescriptor) {
             // no-op
         }
 
-        override fun writeElement(desc: SerialDescriptor, index: Int) = true
+        override fun encodeElement(desc: SerialDescriptor, index: Int) = true
     }
 
     // Differs from List only in start byte
@@ -44,7 +45,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
     private inner open class CBORListWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
         override fun writeBeginToken() = encoder.startArray()
 
-        override fun writeElement(desc: SerialDescriptor, index: Int): Boolean = desc.getElementName(index) != "size"
+        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean = desc.getElementName(index) != "size"
     }
 
     // Writes class as map [fieldName, fieldValue]
@@ -56,7 +57,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
 
         protected open fun writeBeginToken() = encoder.startMap()
 
-        override fun writeBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KOutput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
             val writer = when (desc.kind) {
                 SerialKind.LIST, SerialKind.SET -> CBORListWriter(encoder)
                 SerialKind.MAP -> CBORMapWriter(encoder)
@@ -67,31 +68,31 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
             return writer
         }
 
-        override fun writeEnd(desc: SerialDescriptor) = encoder.end()
+        override fun endStructure(desc: SerialDescriptor) = encoder.end()
 
         //todo: Write size of map or array if known
-        override fun writeElement(desc: SerialDescriptor, index: Int): Boolean {
+        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
             val name = desc.getElementName(index)
             encoder.encodeString(name)
             return true
         }
 
-        override fun writeStringValue(value: String) = encoder.encodeString(value)
+        override fun encodeString(value: String) = encoder.encodeString(value)
 
-        override fun writeFloatValue(value: Float) = encoder.encodeFloat(value)
-        override fun writeDoubleValue(value: Double) = encoder.encodeDouble(value)
+        override fun encodeFloat(value: Float) = encoder.encodeFloat(value)
+        override fun encodeDouble(value: Double) = encoder.encodeDouble(value)
 
-        override fun writeCharValue(value: Char) = encoder.encodeNumber(value.toLong())
-        override fun writeByteValue(value: Byte) = encoder.encodeNumber(value.toLong())
-        override fun writeShortValue(value: Short) = encoder.encodeNumber(value.toLong())
-        override fun writeIntValue(value: Int) = encoder.encodeNumber(value.toLong())
-        override fun writeLongValue(value: Long) = encoder.encodeNumber(value)
+        override fun encodeChar(value: Char) = encoder.encodeNumber(value.toLong())
+        override fun encodeByte(value: Byte) = encoder.encodeNumber(value.toLong())
+        override fun encodeShort(value: Short) = encoder.encodeNumber(value.toLong())
+        override fun encodeInt(value: Int) = encoder.encodeNumber(value.toLong())
+        override fun encodeLong(value: Long) = encoder.encodeNumber(value)
 
-        override fun writeBooleanValue(value: Boolean) = encoder.encodeBoolean(value)
+        override fun encodeBoolean(value: Boolean) = encoder.encodeBoolean(value)
 
-        override fun writeNullValue() = encoder.encodeNull()
+        override fun encodeNull() = encoder.encodeNull()
 
-        override fun <T : Enum<T>> writeEnumValue(value: T) =
+        override fun <T : Enum<T>> encodeEnum(value: T) =
                 encoder.encodeString(value.toString())
     }
 
@@ -159,11 +160,11 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
             // no-op
         }
 
-        override fun readEnd(desc: SerialDescriptor) {
+        override fun endStructure(desc: SerialDescriptor) {
             // no-op
         }
 
-        override fun readElement(desc: SerialDescriptor) = when (ind++) {
+        override fun decodeElementIndex(desc: SerialDescriptor) = when (ind++) {
             0 -> 0
             1 -> 1
             else -> READ_DONE
@@ -187,9 +188,9 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
             }
         }
 
-        override fun readElement(desc: SerialDescriptor) = if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size)) READ_DONE else ++ind
+        override fun decodeElementIndex(desc: SerialDescriptor) = if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size)) READ_DONE else ++ind
 
-        override fun readEnd(desc: SerialDescriptor) {
+        override fun endStructure(desc: SerialDescriptor) {
             if (!finiteMode) decoder.end()
         }
     }
@@ -205,7 +206,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
 
         protected open fun skipBeginToken() = decoder.startMap()
 
-        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             val re = when (desc.kind) {
                 SerialKind.LIST, SerialKind.SET -> CBORListReader(decoder)
                 SerialKind.MAP -> CBORMapReader(decoder)
@@ -216,32 +217,32 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
             return re
         }
 
-        override fun readEnd(desc: SerialDescriptor) = decoder.end()
+        override fun endStructure(desc: SerialDescriptor) = decoder.end()
 
-        override fun readElement(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(desc: SerialDescriptor): Int {
             if (decoder.isEnd()) return READ_DONE
             val elemName = decoder.nextString()
             return desc.getElementIndexOrThrow(elemName)
         }
 
-        override fun readStringValue() = decoder.nextString()
+        override fun decodeString() = decoder.nextString()
 
-        override fun readNotNullMark(): Boolean = !decoder.isNull()
+        override fun decodeNotNullMark(): Boolean = !decoder.isNull()
 
-        override fun readDoubleValue() = decoder.nextDouble()
-        override fun readFloatValue() = decoder.nextFloat()
+        override fun decodeDouble() = decoder.nextDouble()
+        override fun decodeFloat() = decoder.nextFloat()
 
-        override fun readBooleanValue() = decoder.nextBoolean()
+        override fun decodeBoolean() = decoder.nextBoolean()
 
-        override fun readByteValue() = decoder.nextNumber().toByte()
-        override fun readShortValue() = decoder.nextNumber().toShort()
-        override fun readCharValue() = decoder.nextNumber().toChar()
-        override fun readIntValue() = decoder.nextNumber().toInt()
-        override fun readLongValue() = decoder.nextNumber()
+        override fun decodeByte() = decoder.nextNumber().toByte()
+        override fun decodeShort() = decoder.nextNumber().toShort()
+        override fun decodeChar() = decoder.nextNumber().toChar()
+        override fun decodeInt() = decoder.nextNumber().toInt()
+        override fun decodeLong() = decoder.nextNumber()
 
-        override fun readNullValue() = decoder.nextNull()
+        override fun decodeNull() = decoder.nextNull()
 
-        override fun <T : Enum<T>> readEnumValue(enumCreator: EnumCreator<T>): T =
+        override fun <T : Enum<T>> decodeEnum(enumCreator: EnumCreator<T>): T =
                 enumCreator.createFromName(decoder.nextString())
 
     }
@@ -387,7 +388,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
     fun <T : Any> dump(saver: SerializationStrategy<T>, obj: T): ByteArray {
         val output = ByteArrayOutputStream()
         val dumper = CBORWriter(CBOREncoder(output))
-        dumper.write(saver, obj)
+        dumper.encode(saver, obj)
         return output.toByteArray()
     }
 
@@ -398,7 +399,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
     fun <T : Any> load(loader: DeserializationStrategy<T>, raw: ByteArray): T {
         val stream = ByteArrayInputStream(raw)
         val reader = CBORReader(CBORDecoder(stream))
-        return reader.read(loader)
+        return reader.decode(loader)
     }
 
     inline fun <reified T : Any> load(raw: ByteArray): T = load(context.klassSerializer(T::class), raw)

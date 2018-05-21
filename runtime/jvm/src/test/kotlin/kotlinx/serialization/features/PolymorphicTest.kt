@@ -64,12 +64,12 @@ class PolymorphicTest {
     object DateSerializer: KSerializer<Date> {
         private val df: DateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS")
 
-        override fun serialize(output: KOutput, obj: Date) {
-            output.writeStringValue(df.format(obj))
+        override fun serialize(output: Encoder, obj: Date) {
+            output.encodeString(df.format(obj))
         }
 
-        override fun deserialize(input: KInput): Date {
-            return df.parse(input.readStringValue())
+        override fun deserialize(input: Decoder): Date {
+            return df.parse(input.decodeString())
         }
     }
 

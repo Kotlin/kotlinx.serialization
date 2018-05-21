@@ -30,12 +30,12 @@ class CustomSerializersTest {
     data class B(@SerialId(1) val value: Int)
 
     object BSerializer : KSerializer<B> {
-        override fun serialize(output: KOutput, obj: B) {
-            output.writeIntValue(obj.value)
+        override fun serialize(output: Encoder, obj: B) {
+            output.encodeInt(obj.value)
         }
 
-        override fun deserialize(input: KInput): B {
-            return B(input.readIntValue())
+        override fun deserialize(input: Decoder): B {
+            return B(input.decodeInt())
         }
 
         override val serialClassDesc: SerialDescriptor = SerialClassDescImpl("B")
@@ -47,12 +47,12 @@ class CustomSerializersTest {
     @Serializable
     data class C(@SerialId(1) @Optional val a: Int = 31, @SerialId(2) val b: Int = 42) {
         @Serializer(forClass = C::class)
-        companion object {
-            override fun save(output: KOutput, obj: C) {
-                val elemOutput = output.writeBegin(serialClassDesc)
-                elemOutput.writeIntElementValue(serialClassDesc, 1, obj.b)
-                if (obj.a != 31) elemOutput.writeIntElementValue(serialClassDesc, 0, obj.a)
-                elemOutput.writeEnd(serialClassDesc)
+        companion object: KSerializer<C> {
+            override fun serialize(output: Encoder, obj: C) {
+                val elemOutput = output.beginStructure(serialClassDesc)
+                elemOutput.encodeIntElement(serialClassDesc, 1, obj.b)
+                if (obj.a != 31) elemOutput.encodeIntElement(serialClassDesc, 0, obj.a)
+                elemOutput.endStructure(serialClassDesc)
             }
         }
     }
@@ -63,12 +63,12 @@ class CustomSerializersTest {
     @Serializable
     data class CList2(@SerialId(1) @Optional val d: Int = 5, @SerialId(2) val c: List<C>) {
         @Serializer(forClass = CList2::class)
-        companion object {
-            override fun save(output: KOutput, obj: CList2) {
-                val elemOutput = output.writeBegin(serialClassDesc)
-                elemOutput.writeSerializableElementValue(serialClassDesc, 1, C.list, obj.c)
-                if (obj.d != 5) output.writeIntElementValue(serialClassDesc, 0, obj.d)
-                elemOutput.writeEnd(serialClassDesc)
+        companion object: KSerializer<CList2> {
+            override fun serialize(output: Encoder, obj: CList2) {
+                val elemOutput = output.beginStructure(serialClassDesc)
+                elemOutput.encodeSerializableElement(serialClassDesc, 1, C.list, obj.c)
+                if (obj.d != 5) elemOutput.encodeIntElement(serialClassDesc, 0, obj.d)
+                elemOutput.endStructure(serialClassDesc)
             }
         }
     }
@@ -76,12 +76,12 @@ class CustomSerializersTest {
     @Serializable
     data class CList3(@SerialId(1) @Optional val e: List<C> = emptyList(), @SerialId(2) val f: Int) {
         @Serializer(forClass = CList3::class)
-        companion object {
-            override fun save(output: KOutput, obj: CList3) {
-                val elemOutput = output.writeBegin(serialClassDesc)
-                if (obj.e.isNotEmpty()) elemOutput.writeSerializableElementValue(serialClassDesc, 0, C.list, obj.e)
-                output.writeIntElementValue(serialClassDesc, 1, obj.f)
-                elemOutput.writeEnd(serialClassDesc)
+        companion object: KSerializer<CList3> {
+            override fun serialize(output: Encoder, obj: CList3) {
+                val elemOutput = output.beginStructure(serialClassDesc)
+                if (obj.e.isNotEmpty()) elemOutput.encodeSerializableElement(serialClassDesc, 0, C.list, obj.e)
+                elemOutput.encodeIntElement(serialClassDesc, 1, obj.f)
+                elemOutput.endStructure(serialClassDesc)
             }
         }
     }
@@ -89,12 +89,12 @@ class CustomSerializersTest {
     @Serializable
     data class CList4(@SerialId(1) @Optional val g: List<C> = emptyList(), @SerialId(2) val h: Int) {
         @Serializer(forClass = CList4::class)
-        companion object {
-            override fun save(output: KOutput, obj: CList4) {
-                val elemOutput = output.writeBegin(serialClassDesc)
-                output.writeIntElementValue(serialClassDesc, 1, obj.h)
-                if (obj.g.isNotEmpty()) elemOutput.writeSerializableElementValue(serialClassDesc, 0, C.list, obj.g)
-                elemOutput.writeEnd(serialClassDesc)
+        companion object: KSerializer<CList4> {
+            override fun serialize(output: Encoder, obj: CList4) {
+                val elemOutput = output.beginStructure(serialClassDesc)
+                elemOutput.encodeIntElement(serialClassDesc, 1, obj.h)
+                if (obj.g.isNotEmpty()) elemOutput.encodeSerializableElement(serialClassDesc, 0, C.list, obj.g)
+                elemOutput.endStructure(serialClassDesc)
             }
         }
     }
@@ -102,13 +102,13 @@ class CustomSerializersTest {
     @Serializable
     data class CList5(@SerialId(1) @Optional val g: List<Int> = emptyList(), @SerialId(2) val h: Int) {
         @Serializer(forClass = CList5::class)
-        companion object {
-            override fun save(output: KOutput, obj: CList5) {
-                val elemOutput = output.writeBegin(serialClassDesc)
-                output.writeIntElementValue(serialClassDesc, 1, obj.h)
-                if (obj.g.isNotEmpty()) elemOutput.writeSerializableElementValue(serialClassDesc, 0, IntSerializer.list,
+        companion object: KSerializer<CList5> {
+            override fun serialize(output: Encoder, obj: CList5) {
+                val elemOutput = output.beginStructure(serialClassDesc)
+                elemOutput.encodeIntElement(serialClassDesc, 1, obj.h)
+                if (obj.g.isNotEmpty()) elemOutput.encodeSerializableElement(serialClassDesc, 0, IntSerializer.list,
                                                                                  obj.g)
-                elemOutput.writeEnd(serialClassDesc)
+                elemOutput.endStructure(serialClassDesc)
             }
         }
     }

@@ -16,10 +16,9 @@
 
 package kotlinx.serialization.privateclasstest
 
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
 import kotlinx.serialization.SerializeFlatTest.Inp
 import kotlinx.serialization.SerializeFlatTest.Out
-import kotlinx.serialization.serializer
 import org.junit.Test
 
 // Serializable data class with private visibility that lays out of serialization library package
@@ -37,11 +36,11 @@ class PrivateClassOutOfSerializationLibraryPackageTest {
     @Test
     fun testDataPrivate() {
         val out = Out("privateclasstest.DataPrivate")
-        out.write(DataPrivate::class.serializer(), DataPrivate("s1", 42))
+        out.encode(DataPrivate::class.serializer(), DataPrivate("s1", 42))
         out.done()
 
         val inp = Inp("privateclasstest.DataPrivate")
-        val data = inp.read(DataPrivate::class.serializer())
+        val data = inp.decode(DataPrivate::class.serializer())
         inp.done()
         assert(data.value1 == "s1" && data.value2 == 42)
     }

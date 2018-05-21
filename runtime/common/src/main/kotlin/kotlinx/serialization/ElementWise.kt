@@ -16,140 +16,143 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
 import kotlinx.serialization.internal.UnitSerializer
 import kotlin.reflect.KClass
 
+open class ElementValueOutput : CompositeEncoder {
 
-open class ElementValueOutput : KOutput() {
+    override var context: SerialContext? = null
     // ------- implementation API -------
 
     // it is always invoked before writeXxxValue
-    override fun writeElement(desc: SerialDescriptor, index: Int): Boolean = true
+    override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean = true
 
     // override for a special representation of nulls if needed (empty object by default)
-    override fun writeNotNullMark() {}
+    override fun encodeNotNullMark() {}
 
-    override fun writeNonSerializableValue(value: Any) {
+    override fun encodeNonSerializableValue(value: Any) {
         throw SerializationException("\"$value\" has no serializer")
     }
 
-    final override fun writeNullableValue(value: Any?) {
+    final override fun encodeNullableValue(value: Any?) {
         if (value == null) {
-            writeNullValue()
+            encodeNull()
         } else {
-            writeNotNullMark()
-            writeValue(value)
+            encodeNotNullMark()
+            encodeValue(value)
         }
     }
 
-    override fun writeNullValue() {
+    override fun encodeNull() {
         throw SerializationException("null is not supported")
     }
-    override fun writeUnitValue() {
-        val output = writeBegin(UnitSerializer.serialClassDesc); output.writeEnd(UnitSerializer.serialClassDesc)
+
+    override fun encodeUnit() {
+        val output = beginStructure(UnitSerializer.serialClassDesc); output.endStructure(UnitSerializer.serialClassDesc)
     }
 
     // type-specific value-based output, override for performance and custom type representations
-    override fun writeBooleanValue(value: Boolean) = writeValue(value)
-    override fun writeByteValue(value: Byte) = writeValue(value)
-    override fun writeShortValue(value: Short) = writeValue(value)
-    override fun writeIntValue(value: Int) = writeValue(value)
-    override fun writeLongValue(value: Long) = writeValue(value)
-    override fun writeFloatValue(value: Float) = writeValue(value)
-    override fun writeDoubleValue(value: Double) = writeValue(value)
-    override fun writeCharValue(value: Char) = writeValue(value)
-    override fun writeStringValue(value: String) = writeValue(value)
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("writeEnumValue(value)"))
-    final override fun <T : Enum<T>> writeEnumValue(enumClass: KClass<T>, value: T) = writeEnumValue(value)
+    override fun encodeBoolean(value: Boolean) = encodeValue(value)
+    override fun encodeByte(value: Byte) = encodeValue(value)
+    override fun encodeShort(value: Short) = encodeValue(value)
+    override fun encodeInt(value: Int) = encodeValue(value)
+    override fun encodeLong(value: Long) = encodeValue(value)
+    override fun encodeFloat(value: Float) = encodeValue(value)
+    override fun encodeDouble(value: Double) = encodeValue(value)
+    override fun encodeChar(value: Char) = encodeValue(value)
+    override fun encodeString(value: String) = encodeValue(value)
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("encodeEnum(value)"))
+    final override fun <T : Enum<T>> encodeEnum(enumClass: KClass<T>, value: T) = encodeEnum(value)
 
-    override fun <T : Enum<T>> writeEnumValue(value: T) = writeValue(value)
+    override fun <T : Enum<T>> encodeEnum(value: T) = encodeValue(value)
     // -------------------------------------------------------------------------------------
 
-    final override fun writeNonSerializableElementValue(desc: SerialDescriptor, index: Int, value: Any) { if (writeElement(desc, index)) writeValue(value) }
-    final override fun writeNullableElementValue(desc: SerialDescriptor, index: Int, value: Any?) { if (writeElement(desc, index)) writeNullableValue(value) }
-    final override fun writeUnitElementValue(desc: SerialDescriptor, index: Int) { if (writeElement(desc, index)) writeUnitValue() }
-    final override fun writeBooleanElementValue(desc: SerialDescriptor, index: Int, value: Boolean) { if (writeElement(desc, index)) writeBooleanValue(value) }
-    final override fun writeByteElementValue(desc: SerialDescriptor, index: Int, value: Byte) { if (writeElement(desc, index)) writeByteValue(value) }
-    final override fun writeShortElementValue(desc: SerialDescriptor, index: Int, value: Short) { if (writeElement(desc, index)) writeShortValue(value) }
-    final override fun writeIntElementValue(desc: SerialDescriptor, index: Int, value: Int) { if (writeElement(desc, index)) writeIntValue(value) }
-    final override fun writeLongElementValue(desc: SerialDescriptor, index: Int, value: Long) { if (writeElement(desc, index)) writeLongValue(value) }
-    final override fun writeFloatElementValue(desc: SerialDescriptor, index: Int, value: Float) { if (writeElement(desc, index)) writeFloatValue(value) }
-    final override fun writeDoubleElementValue(desc: SerialDescriptor, index: Int, value: Double) { if (writeElement(desc, index)) writeDoubleValue(value) }
-    final override fun writeCharElementValue(desc: SerialDescriptor, index: Int, value: Char) { if (writeElement(desc, index)) writeCharValue(value) }
-    final override fun writeStringElementValue(desc: SerialDescriptor, index: Int, value: String) { if (writeElement(desc, index)) writeStringValue(value) }
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("writeEnumElementValue(desc, index, value)"))
-    final override fun <T : Enum<T>> writeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>, value: T) {
-        writeEnumElementValue(desc, index, value)
+    final override fun encodeNonSerializableElement(desc: SerialDescriptor, index: Int, value: Any) { if (encodeElement(desc, index)) encodeValue(value) }
+    final override fun encodeNullableElementValue(desc: SerialDescriptor, index: Int, value: Any?) { if (encodeElement(desc, index)) encodeNullableValue(value) }
+    final override fun encodeUnitElement(desc: SerialDescriptor, index: Int) { if (encodeElement(desc, index)) encodeUnit() }
+    final override fun encodeBooleanElement(desc: SerialDescriptor, index: Int, value: Boolean) { if (encodeElement(desc, index)) encodeBoolean(value) }
+    final override fun encodeByteElement(desc: SerialDescriptor, index: Int, value: Byte) { if (encodeElement(desc, index)) encodeByte(value) }
+    final override fun encodeShortElement(desc: SerialDescriptor, index: Int, value: Short) { if (encodeElement(desc, index)) encodeShort(value) }
+    final override fun encodeIntElement(desc: SerialDescriptor, index: Int, value: Int) { if (encodeElement(desc, index)) encodeInt(value) }
+    final override fun encodeLongElement(desc: SerialDescriptor, index: Int, value: Long) { if (encodeElement(desc, index)) encodeLong(value) }
+    final override fun encodeFloatElement(desc: SerialDescriptor, index: Int, value: Float) { if (encodeElement(desc, index)) encodeFloat(value) }
+    final override fun encodeDoubleElement(desc: SerialDescriptor, index: Int, value: Double) { if (encodeElement(desc, index)) encodeDouble(value) }
+    final override fun encodeCharElement(desc: SerialDescriptor, index: Int, value: Char) { if (encodeElement(desc, index)) encodeChar(value) }
+    final override fun encodeStringElement(desc: SerialDescriptor, index: Int, value: String) { if (encodeElement(desc, index)) encodeString(value) }
+    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("encodeEnumElement(desc, index, value)"))
+    final override fun <T : Enum<T>> encodeEnumElement(desc: SerialDescriptor, index: Int, enumClass: KClass<T>, value: T) {
+        encodeEnumElement(desc, index, value)
     }
 
-    final override fun <T : Enum<T>> writeEnumElementValue(desc: SerialDescriptor, index: Int, value: T) {
-        if (writeElement(desc, index)) writeEnumValue(value)
+    final override fun <T : Enum<T>> encodeEnumElement(desc: SerialDescriptor, index: Int, value: T) {
+        if (encodeElement(desc, index)) encodeEnum(value)
     }
-
-
 }
 
-open class ElementValueInput : KInput() {
+open class ElementValueInput : CompositeDecoder {
+    override var context: SerialContext? = null
+    override val updateMode: UpdateMode = UpdateMode.UPDATE
     // ------- implementation API -------
 
     // unordered read api, override to read props in arbitrary order
-    override fun readElement(desc: SerialDescriptor): Int = READ_ALL
+    override fun decodeElementIndex(desc: SerialDescriptor): Int = READ_ALL
 
     // returns true if the following value is not null, false if not null
-    override fun readNotNullMark(): Boolean = true
-    override fun readNullValue(): Nothing? = null
+    override fun decodeNotNullMark(): Boolean = true
+    override fun decodeNull(): Nothing? = null
 
-    override fun readValue(): Any {
+    override fun decodeValue(): Any {
         throw SerializationException("Any type is not supported")
     }
-    override fun readNullableValue(): Any? = if (readNotNullMark()) readValue() else readNullValue()
-    override fun readUnitValue() {
-        val reader = readBegin(UnitSerializer.serialClassDesc); reader.readEnd(UnitSerializer.serialClassDesc)
+    override fun decodeNullableValue(): Any? = if (decodeNotNullMark()) decodeValue() else decodeNull()
+    override fun decodeUnit() {
+        val reader = beginStructure(UnitSerializer.serialClassDesc); reader.endStructure(UnitSerializer.serialClassDesc)
     }
 
     // type-specific value-based input, override for performance and custom type representations
-    override fun readBooleanValue(): Boolean = readValue() as Boolean
-    override fun readByteValue(): Byte = readValue() as Byte
-    override fun readShortValue(): Short = readValue() as Short
-    override fun readIntValue(): Int = readValue() as Int
-    override fun readLongValue(): Long = readValue() as Long
-    override fun readFloatValue(): Float = readValue() as Float
-    override fun readDoubleValue(): Double = readValue() as Double
-    override fun readCharValue(): Char = readValue() as Char
-    override fun readStringValue(): String = readValue() as String
+    override fun decodeBoolean(): Boolean = decodeValue() as Boolean
+    override fun decodeByte(): Byte = decodeValue() as Byte
+    override fun decodeShort(): Short = decodeValue() as Short
+    override fun decodeInt(): Int = decodeValue() as Int
+    override fun decodeLong(): Long = decodeValue() as Long
+    override fun decodeFloat(): Float = decodeValue() as Float
+    override fun decodeDouble(): Double = decodeValue() as Double
+    override fun decodeChar(): Char = decodeValue() as Char
+    override fun decodeString(): String = decodeValue() as String
 
-    @Deprecated("Not supported in Native", ReplaceWith("readEnumValue(enumLoader)"))
+    @Deprecated("Not supported in Native", ReplaceWith("decodeEnum(enumLoader)"))
     @Suppress("UNCHECKED_CAST")
-    final override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T =
-        readEnumValue(LegacyEnumCreator(enumClass))
+    final override fun <T : Enum<T>> decodeEnum(enumClass: KClass<T>): T =
+        decodeEnum(LegacyEnumCreator(enumClass))
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Enum<T>> readEnumValue(enumCreator: EnumCreator<T>): T = readValue() as T
+    override fun <T : Enum<T>> decodeEnum(enumCreator: EnumCreator<T>): T = decodeValue() as T
 
     // -------------------------------------------------------------------------------------
 
-    final override fun readElementValue(desc: SerialDescriptor, index: Int): Any = readValue()
-    final override fun readNullableElementValue(desc: SerialDescriptor, index: Int): Any? = readNullableValue()
-    final override fun readUnitElementValue(desc: SerialDescriptor, index: Int) = readUnitValue()
-    final override fun readBooleanElementValue(desc: SerialDescriptor, index: Int): Boolean = readBooleanValue()
-    final override fun readByteElementValue(desc: SerialDescriptor, index: Int): Byte = readByteValue()
-    final override fun readShortElementValue(desc: SerialDescriptor, index: Int): Short = readShortValue()
-    final override fun readIntElementValue(desc: SerialDescriptor, index: Int): Int = readIntValue()
-    final override fun readLongElementValue(desc: SerialDescriptor, index: Int): Long = readLongValue()
-    final override fun readFloatElementValue(desc: SerialDescriptor, index: Int): Float = readFloatValue()
-    final override fun readDoubleElementValue(desc: SerialDescriptor, index: Int): Double = readDoubleValue()
-    final override fun readCharElementValue(desc: SerialDescriptor, index: Int): Char = readCharValue()
-    final override fun readStringElementValue(desc: SerialDescriptor, index: Int): String = readStringValue()
-    @Deprecated("Not supported in Native", ReplaceWith("readEnumValue(desc, index, creator)"))
-    final override fun <T : Enum<T>> readEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>): T =
-        readEnumElementValue(desc, index, LegacyEnumCreator(enumClass))
+    final override fun decodeElementValue(desc: SerialDescriptor, index: Int): Any = decodeValue()
+    final override fun decodeNullableElementValue(desc: SerialDescriptor, index: Int): Any? = decodeNullableValue()
+    final override fun decodeUnitElement(desc: SerialDescriptor, index: Int) = decodeUnit()
+    final override fun decodeBooleanElement(desc: SerialDescriptor, index: Int): Boolean = decodeBoolean()
+    final override fun decodeByteElement(desc: SerialDescriptor, index: Int): Byte = decodeByte()
+    final override fun decodeShortElement(desc: SerialDescriptor, index: Int): Short = decodeShort()
+    final override fun decodeIntElement(desc: SerialDescriptor, index: Int): Int = decodeInt()
+    final override fun decodeLongElement(desc: SerialDescriptor, index: Int): Long = decodeLong()
+    final override fun decodeFloatElement(desc: SerialDescriptor, index: Int): Float = decodeFloat()
+    final override fun decodeDoubleElement(desc: SerialDescriptor, index: Int): Double = decodeDouble()
+    final override fun decodeCharElement(desc: SerialDescriptor, index: Int): Char = decodeChar()
+    final override fun decodeStringElement(desc: SerialDescriptor, index: Int): String = decodeString()
+    @Deprecated("Not supported in Native", ReplaceWith("decodeEnum(desc, index, creator)"))
+    final override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>): T =
+        decodeEnumElementValue(desc, index, LegacyEnumCreator(enumClass))
 
-    override fun <T : Enum<T>> readEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T =
-        readEnumValue(enumCreator)
+    override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T =
+        decodeEnum(enumCreator)
 
-    final override fun <T: Any?> readSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T =
-        readSerializableValue(loader)
+    final override fun <T: Any?> decodeSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T =
+        decodeSerializableValue(loader)
 
-    final override fun <T: Any> readNullableSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>): T? =
-        readNullableSerializableValue(loader)
+    final override fun <T: Any> decodeNullableSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>): T? =
+        decodeNullableSerializableValue(loader)
 }

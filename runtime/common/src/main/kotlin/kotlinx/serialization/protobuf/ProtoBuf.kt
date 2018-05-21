@@ -18,6 +18,7 @@ package kotlinx.serialization.protobuf
 
 import kotlinx.io.*
 import kotlinx.serialization.*
+import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintInt
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintLong
@@ -42,7 +43,7 @@ class ProtoBuf(val context: SerialContext? = null) {
             context = this@ProtoBuf.context
         }
 
-        override fun writeBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KOutput = when (desc.kind) {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder = when (desc.kind) {
             SerialKind.LIST, SerialKind.MAP, SerialKind.SET -> RepeatedWriter(encoder, currentTag)
             SerialKind.CLASS, SerialKind.OBJECT, SerialKind.SEALED, SerialKind.POLYMORPHIC -> ObjectWriter(currentTagOrNull, encoder)
             SerialKind.ENTRY -> MapEntryWriter(currentTagOrNull, encoder)
@@ -158,7 +159,7 @@ class ProtoBuf(val context: SerialContext? = null) {
                     ?: -1
         }
 
-        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput = when (desc.kind) {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder = when (desc.kind) {
             SerialKind.LIST, SerialKind.MAP, SerialKind.SET -> RepeatedReader(decoder, currentTag)
             SerialKind.CLASS, SerialKind.OBJECT, SerialKind.SEALED, SerialKind.POLYMORPHIC ->
                 ProtobufReader(makeDelimited(decoder, currentTagOrNull))
@@ -184,7 +185,7 @@ class ProtoBuf(val context: SerialContext? = null) {
 
         override fun SerialDescriptor.getTag(index: Int) = this.getProtoDesc(index)
 
-        override fun readElement(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(desc: SerialDescriptor): Int {
             while (true) {
                 if (decoder.curId == -1) // EOF
                     return READ_DONE
@@ -199,7 +200,7 @@ class ProtoBuf(val context: SerialContext? = null) {
     private inner class RepeatedReader(decoder: ProtobufDecoder, val targetTag: ProtoDesc) : ProtobufReader(decoder) {
         private var ind = 0
 
-        override fun readElement(desc: SerialDescriptor) = if (decoder.curId == targetTag.first) ++ind else READ_DONE
+        override fun decodeElementIndex(desc: SerialDescriptor) = if (decoder.curId == targetTag.first) ++ind else READ_DONE
         override fun SerialDescriptor.getTag(index: Int): ProtoDesc = targetTag
     }
 
@@ -409,7 +410,7 @@ class ProtoBuf(val context: SerialContext? = null) {
     fun <T : Any> dump(saver: SerializationStrategy<T>, obj: T): ByteArray {
         val output = ByteArrayOutputStream()
         val dumper = ProtobufWriter(ProtobufEncoder(output))
-        dumper.write(saver, obj)
+        dumper.encode(saver, obj)
         return output.toByteArray()
     }
 
@@ -419,7 +420,7 @@ class ProtoBuf(val context: SerialContext? = null) {
     fun <T : Any> load(loader: DeserializationStrategy<T>, raw: ByteArray): T {
         val stream = ByteArrayInputStream(raw)
         val reader = ProtobufReader(ProtobufDecoder(stream))
-        return reader.read(loader)
+        return reader.decode(loader)
     }
 
     inline fun <reified T : Any> load(raw: ByteArray): T = load(context.klassSerializer(T::class), raw)

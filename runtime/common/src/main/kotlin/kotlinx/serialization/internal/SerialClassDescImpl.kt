@@ -16,7 +16,7 @@
 
 package kotlinx.serialization.internal
 
-import kotlinx.serialization.KInput.Companion.UNKNOWN_NAME
+import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.SerialKind
 

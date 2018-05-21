@@ -17,8 +17,8 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.KInput.Companion.READ_ALL
-import kotlinx.serialization.KInput.Companion.READ_DONE
+import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
+import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlin.reflect.KClass
 
 const val SIZE_INDEX = 0
@@ -39,25 +39,25 @@ sealed class ListLikeSerializer<E, C, B>(open val eSerializer: KSerializer<E>) :
 
     open val typeParams: Array<KSerializer<*>> = arrayOf(eSerializer)
 
-    override fun serialize(output: KOutput, obj: C) {
+    override fun serialize(output: Encoder, obj: C) {
         val size = obj.objSize()
         @Suppress("NAME_SHADOWING")
-        val output = output.writeBegin(serialClassDesc, size, *typeParams)
-        if (output.writeElement(serialClassDesc, SIZE_INDEX))
-            output.writeIntValue(size)
+        val output = output.beginCollection(serialClassDesc, size, *typeParams)
+        if (output.encodeElement(serialClassDesc, SIZE_INDEX))
+            output.encodeInt(size)
         val iterator = obj.objIterator()
         for (index in 1..size)
-            output.writeSerializableElementValue(serialClassDesc, index, eSerializer, iterator.next())
-        output.writeEnd(serialClassDesc)
+            output.encodeSerializableElement(serialClassDesc, index, eSerializer, iterator.next())
+        output.endStructure(serialClassDesc)
     }
 
-    override fun patch(input: KInput, old: C): C {
+    override fun patch(input: Decoder, old: C): C {
         val builder = old.toBuilder()
         val startIndex = builder.builderSize()
         @Suppress("NAME_SHADOWING")
-        val input = input.readBegin(serialClassDesc, *typeParams)
+        val input = input.beginStructure(serialClassDesc, *typeParams)
         mainLoop@ while (true) {
-            val index = input.readElement(serialClassDesc)
+            val index = input.decodeElementIndex(serialClassDesc)
             when (index) {
                 READ_ALL -> {
                     readAll(input, builder, startIndex)
@@ -69,26 +69,26 @@ sealed class ListLikeSerializer<E, C, B>(open val eSerializer: KSerializer<E>) :
             }
 
         }
-        input.readEnd(serialClassDesc)
+        input.endStructure(serialClassDesc)
         return builder.toResult()
     }
 
-    override fun deserialize(input: KInput): C {
+    override fun deserialize(input: Decoder): C {
         val builder = builder()
         return patch(input, builder.toResult())
     }
 
-    private fun readSize(input: KInput, builder: B): Int {
-        val size = input.readIntElementValue(serialClassDesc, SIZE_INDEX)
+    private fun readSize(input: CompositeDecoder, builder: B): Int {
+        val size = input.decodeIntElement(serialClassDesc, SIZE_INDEX)
         builder.checkCapacity(size)
         return size
     }
 
-    protected open fun readItem(input: KInput, index: Int, builder: B) {
-        builder.insert(index - 1, input.readSerializableElementValue(serialClassDesc, index, eSerializer))
+    protected open fun readItem(input: CompositeDecoder, index: Int, builder: B) {
+        builder.insert(index - 1, input.decodeSerializableElement(serialClassDesc, index, eSerializer))
     }
 
-    private fun readAll(input: KInput, builder: B, startIndex: Int) {
+    private fun readAll(input: CompositeDecoder, builder: B, startIndex: Int) {
         val size = readSize(input, builder)
         for (index in 1..size)
             readItem(input, startIndex + index, builder)
@@ -98,8 +98,8 @@ sealed class ListLikeSerializer<E, C, B>(open val eSerializer: KSerializer<E>) :
 abstract class MapLikeSerializer<K, V, B : MutableMap<K, V>>(override val eSerializer: MapEntrySerializer<K, V>) :
         ListLikeSerializer<Map.Entry<K, V>, Map<K, V>, B>(eSerializer) {
 
-    override fun readItem(input: KInput, index: Int, builder: B) {
-        input.readSerializableElementValue(serialClassDesc, index, MapEntryUpdatingSerializer(eSerializer, builder))
+    override fun readItem(input: CompositeDecoder, index: Int, builder: B) {
+        input.decodeSerializableElement(serialClassDesc, index, MapEntryUpdatingSerializer(eSerializer, builder))
     }
 }
 
@@ -197,23 +197,23 @@ sealed class KeyValueSerializer<K, V, R>(val kSerializer: KSerializer<K>, val vS
     abstract val R.key: K
     abstract val R.value: V
 
-    override fun serialize(output: KOutput, obj: R) {
+    override fun serialize(output: Encoder, obj: R) {
         @Suppress("NAME_SHADOWING")
-        val output = output.writeBegin(serialClassDesc, kSerializer, vSerializer)
-        output.writeSerializableElementValue(serialClassDesc, KEY_INDEX, kSerializer, obj.key)
-        output.writeSerializableElementValue(serialClassDesc, VALUE_INDEX, vSerializer, obj.value)
-        output.writeEnd(serialClassDesc)
+        val output = output.beginStructure(serialClassDesc, kSerializer, vSerializer)
+        output.encodeSerializableElement(serialClassDesc, KEY_INDEX, kSerializer, obj.key)
+        output.encodeSerializableElement(serialClassDesc, VALUE_INDEX, vSerializer, obj.value)
+        output.endStructure(serialClassDesc)
     }
 
-    override fun deserialize(input: KInput): R {
+    override fun deserialize(input: Decoder): R {
         @Suppress("NAME_SHADOWING")
-        val input = input.readBegin(serialClassDesc, kSerializer, vSerializer)
+        val input = input.beginStructure(serialClassDesc, kSerializer, vSerializer)
         var kSet = false
         var vSet = false
         var k: Any? = null
         var v: Any? = null
         mainLoop@ while (true) {
-            when (input.readElement(serialClassDesc)) {
+            when (input.decodeElementIndex(serialClassDesc)) {
                 READ_ALL -> {
                     k = readKey(input)
                     kSet = true
@@ -235,19 +235,19 @@ sealed class KeyValueSerializer<K, V, R>(val kSerializer: KSerializer<K>, val vS
                 else -> throw SerializationException("Invalid index")
             }
         }
-        input.readEnd(serialClassDesc)
+        input.endStructure(serialClassDesc)
         if (!kSet) throw SerializationException("Required key is missing")
         if (!vSet) throw SerializationException("Required value is missing")
         @Suppress("UNCHECKED_CAST")
         return toResult(k as K, v as V)
     }
 
-    protected open fun readKey(input: KInput): K {
-        return input.readSerializableElementValue(serialClassDesc, KEY_INDEX, kSerializer)
+    protected open fun readKey(input: CompositeDecoder): K {
+        return input.decodeSerializableElement(serialClassDesc, KEY_INDEX, kSerializer)
     }
 
-    protected open fun readValue(input: KInput, k: Any?, kSet: Boolean): V {
-        return input.readSerializableElementValue(serialClassDesc, VALUE_INDEX, vSerializer)
+    protected open fun readValue(input: CompositeDecoder, k: Any?, kSet: Boolean): V {
+        return input.decodeSerializableElement(serialClassDesc, VALUE_INDEX, vSerializer)
     }
 }
 
@@ -258,14 +258,14 @@ class MapEntryUpdatingSerializer<K, V>(mSerializer: MapEntrySerializer<K, V>, pr
     override val serialClassDesc = MapEntryClassDesc
     override fun toResult(key: K, value: V): Map.Entry<K, V> = MapEntry(key, value)
 
-    override fun readValue(input: KInput, k: Any?, kSet: Boolean): V {
+    override fun readValue(input: CompositeDecoder, k: Any?, kSet: Boolean): V {
         if (!kSet) throw SerializationException("Key must be before value in serialization stream")
         @Suppress("UNCHECKED_CAST")
         val key = k as K
         val v = if (mapBuilder.containsKey(key) && vSerializer.serialClassDesc.kind != SerialKind.PRIMITIVE) {
             input.updateSerializableElementValue(serialClassDesc, VALUE_INDEX, vSerializer, mapBuilder.getValue(key))
         } else {
-            input.readSerializableElementValue(serialClassDesc, VALUE_INDEX, vSerializer)
+            input.decodeSerializableElement(serialClassDesc, VALUE_INDEX, vSerializer)
         }
         mapBuilder[key] = v
         return v
@@ -371,18 +371,18 @@ class TripleSerializer<A, B, C>(
 
     override val serialClassDesc: SerialDescriptor = TripleDesc
 
-    override fun serialize(output: KOutput, obj: Triple<A, B, C>) {
+    override fun serialize(output: Encoder, obj: Triple<A, B, C>) {
         @Suppress("NAME_SHADOWING")
-        val output = output.writeBegin(serialClassDesc, aSerializer, bSerializer, cSerializer)
-        output.writeSerializableElementValue(serialClassDesc, 0, aSerializer, obj.first)
-        output.writeSerializableElementValue(serialClassDesc, 1, bSerializer, obj.second)
-        output.writeSerializableElementValue(serialClassDesc, 2, cSerializer, obj.third)
-        output.writeEnd(serialClassDesc)
+        val output = output.beginStructure(serialClassDesc, aSerializer, bSerializer, cSerializer)
+        output.encodeSerializableElement(serialClassDesc, 0, aSerializer, obj.first)
+        output.encodeSerializableElement(serialClassDesc, 1, bSerializer, obj.second)
+        output.encodeSerializableElement(serialClassDesc, 2, cSerializer, obj.third)
+        output.endStructure(serialClassDesc)
     }
 
-    override fun deserialize(input: KInput): Triple<A, B, C> {
+    override fun deserialize(input: Decoder): Triple<A, B, C> {
         @Suppress("NAME_SHADOWING")
-        val input = input.readBegin(serialClassDesc, aSerializer, bSerializer, cSerializer)
+        val input = input.beginStructure(serialClassDesc, aSerializer, bSerializer, cSerializer)
         var aSet = false
         var bSet = false
         var cSet = false
@@ -390,13 +390,13 @@ class TripleSerializer<A, B, C>(
         var b: Any? = null
         var c: Any? = null
         mainLoop@ while (true) {
-            when (input.readElement(serialClassDesc)) {
+            when (input.decodeElementIndex(serialClassDesc)) {
                 READ_ALL -> {
-                    a = input.readSerializableElementValue(serialClassDesc, 0, aSerializer)
+                    a = input.decodeSerializableElement(serialClassDesc, 0, aSerializer)
                     aSet = true
-                    b = input.readSerializableElementValue(serialClassDesc, 1, bSerializer)
+                    b = input.decodeSerializableElement(serialClassDesc, 1, bSerializer)
                     bSet = true
-                    c = input.readSerializableElementValue(serialClassDesc, 2, cSerializer)
+                    c = input.decodeSerializableElement(serialClassDesc, 2, cSerializer)
                     cSet = true
                     break@mainLoop
                 }
@@ -404,21 +404,21 @@ class TripleSerializer<A, B, C>(
                     break@mainLoop
                 }
                 0 -> {
-                    a = input.readSerializableElementValue(serialClassDesc, 0, aSerializer)
+                    a = input.decodeSerializableElement(serialClassDesc, 0, aSerializer)
                     aSet = true
                 }
                 1 -> {
-                    b = input.readSerializableElementValue(serialClassDesc, 1, bSerializer)
+                    b = input.decodeSerializableElement(serialClassDesc, 1, bSerializer)
                     bSet = true
                 }
                 2 -> {
-                    c = input.readSerializableElementValue(serialClassDesc, 2, cSerializer)
+                    c = input.decodeSerializableElement(serialClassDesc, 2, cSerializer)
                     cSet = true
                 }
                 else -> throw SerializationException("Invalid index")
             }
         }
-        input.readEnd(serialClassDesc)
+        input.endStructure(serialClassDesc)
         if (!aSet) throw SerializationException("Required first is missing")
         if (!bSet) throw SerializationException("Required second is missing")
         if (!cSet) throw SerializationException("Required third is missing")

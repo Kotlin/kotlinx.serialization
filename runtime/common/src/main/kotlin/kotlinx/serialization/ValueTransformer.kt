@@ -16,6 +16,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
 import kotlin.reflect.KClass
 
 open class ValueTransformer {
@@ -23,9 +24,9 @@ open class ValueTransformer {
 
     fun <T> transform(serializer: KSerializer<T>, obj: T): T {
         val output = Output()
-        output.write(serializer, obj)
+        output.encode(serializer, obj)
         val input = Input(output.list)
-        return input.read(serializer)
+        return input.decode(serializer)
     }
 
     inline fun <reified T : Any> transform(obj: T): T = transform(T::class.serializer(), obj)
@@ -51,63 +52,68 @@ open class ValueTransformer {
 
     // ---------------
 
-    private inner class Output : KOutput() {
+    private inner class Output : CompositeEncoder {
+        override var context: SerialContext? = null
+
         internal val list = arrayListOf<Any?>()
 
-        override fun writeNullableValue(value: Any?) {
+        override fun encodeNullableValue(value: Any?) {
             list.add(value)
         }
 
-        override fun writeElement(desc: SerialDescriptor, index: Int) = true
-        override fun writeNotNullMark() {}
-        override fun writeNullValue() { writeNullableValue(null) }
-        override fun writeNonSerializableValue(value: Any) { writeNullableValue(value) }
-        override fun writeUnitValue() { writeNullableValue(Unit) }
-        override fun writeBooleanValue(value: Boolean) { writeNullableValue(value) }
-        override fun writeByteValue(value: Byte) { writeNullableValue(value) }
-        override fun writeShortValue(value: Short) { writeNullableValue(value) }
-        override fun writeIntValue(value: Int) { writeNullableValue(value) }
-        override fun writeLongValue(value: Long) { writeNullableValue(value) }
-        override fun writeFloatValue(value: Float) { writeNullableValue(value) }
-        override fun writeDoubleValue(value: Double) { writeNullableValue(value) }
-        override fun writeCharValue(value: Char) { writeNullableValue(value) }
-        override fun writeStringValue(value: String) { writeNullableValue(value) }
-        override fun <T : Enum<T>> writeEnumValue(enumClass: KClass<T>, value: T) { writeNullableValue(value) }
-        override fun <T : Enum<T>> writeEnumValue(value: T) {
-            writeNullableValue(value)
+        override fun encodeElement(desc: SerialDescriptor, index: Int) = true
+        override fun encodeNotNullMark() {}
+        override fun encodeNull() { encodeNullableValue(null) }
+        override fun encodeNonSerializableValue(value: Any) { encodeNullableValue(value) }
+        override fun encodeUnit() { encodeNullableValue(Unit) }
+        override fun encodeBoolean(value: Boolean) { encodeNullableValue(value) }
+        override fun encodeByte(value: Byte) { encodeNullableValue(value) }
+        override fun encodeShort(value: Short) { encodeNullableValue(value) }
+        override fun encodeInt(value: Int) { encodeNullableValue(value) }
+        override fun encodeLong(value: Long) { encodeNullableValue(value) }
+        override fun encodeFloat(value: Float) { encodeNullableValue(value) }
+        override fun encodeDouble(value: Double) { encodeNullableValue(value) }
+        override fun encodeChar(value: Char) { encodeNullableValue(value) }
+        override fun encodeString(value: String) { encodeNullableValue(value) }
+        override fun <T : Enum<T>> encodeEnum(enumClass: KClass<T>, value: T) { encodeNullableValue(value) }
+        override fun <T : Enum<T>> encodeEnum(value: T) {
+            encodeNullableValue(value)
         }
 
-        override fun <T : Any?> writeSerializableValue(saver: SerializationStrategy<T>, value: T) {
+        override fun <T : Any?> encodeSerializableValue(saver: SerializationStrategy<T>, value: T) {
             if (isRecursiveTransform()) {
                 saver.serialize(this, value)
             } else
-                writeNullableValue(value)
+                encodeNullableValue(value)
         }
 
         // ---------------
 
-        override fun writeNonSerializableElementValue(desc: SerialDescriptor, index: Int, value: Any) { writeNullableValue(value) }
-        override fun writeNullableElementValue(desc: SerialDescriptor, index: Int, value: Any?) = writeNullableValue(value)
-        override fun writeUnitElementValue(desc: SerialDescriptor, index: Int) = writeNullableValue(Unit)
-        override fun writeBooleanElementValue(desc: SerialDescriptor, index: Int, value: Boolean) = writeNullableValue(value)
-        override fun writeByteElementValue(desc: SerialDescriptor, index: Int, value: Byte) = writeNullableValue(value)
-        override fun writeShortElementValue(desc: SerialDescriptor, index: Int, value: Short) = writeNullableValue(value)
-        override fun writeIntElementValue(desc: SerialDescriptor, index: Int, value: Int) = writeNullableValue(value)
-        override fun writeLongElementValue(desc: SerialDescriptor, index: Int, value: Long) = writeNullableValue(value)
-        override fun writeFloatElementValue(desc: SerialDescriptor, index: Int, value: Float) = writeNullableValue(value)
-        override fun writeDoubleElementValue(desc: SerialDescriptor, index: Int, value: Double) = writeNullableValue(value)
-        override fun writeCharElementValue(desc: SerialDescriptor, index: Int, value: Char) = writeNullableValue(value)
-        override fun writeStringElementValue(desc: SerialDescriptor, index: Int, value: String) = writeNullableValue(value)
+        override fun encodeNonSerializableElement(desc: SerialDescriptor, index: Int, value: Any) { encodeNullableValue(value) }
+        override fun encodeNullableElementValue(desc: SerialDescriptor, index: Int, value: Any?) = encodeNullableValue(value)
+        override fun encodeUnitElement(desc: SerialDescriptor, index: Int) = encodeNullableValue(Unit)
+        override fun encodeBooleanElement(desc: SerialDescriptor, index: Int, value: Boolean) = encodeNullableValue(value)
+        override fun encodeByteElement(desc: SerialDescriptor, index: Int, value: Byte) = encodeNullableValue(value)
+        override fun encodeShortElement(desc: SerialDescriptor, index: Int, value: Short) = encodeNullableValue(value)
+        override fun encodeIntElement(desc: SerialDescriptor, index: Int, value: Int) = encodeNullableValue(value)
+        override fun encodeLongElement(desc: SerialDescriptor, index: Int, value: Long) = encodeNullableValue(value)
+        override fun encodeFloatElement(desc: SerialDescriptor, index: Int, value: Float) = encodeNullableValue(value)
+        override fun encodeDoubleElement(desc: SerialDescriptor, index: Int, value: Double) = encodeNullableValue(value)
+        override fun encodeCharElement(desc: SerialDescriptor, index: Int, value: Char) = encodeNullableValue(value)
+        override fun encodeStringElement(desc: SerialDescriptor, index: Int, value: String) = encodeNullableValue(value)
 
-        override fun <T : Enum<T>> writeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>, value: T) =
-            writeNullableValue(value)
+        override fun <T : Enum<T>> encodeEnumElement(desc: SerialDescriptor, index: Int, enumClass: KClass<T>, value: T) =
+            encodeNullableValue(value)
 
-        override fun <T : Enum<T>> writeEnumElementValue(desc: SerialDescriptor, index: Int, value: T) {
-            writeNullableValue(value)
+        override fun <T : Enum<T>> encodeEnumElement(desc: SerialDescriptor, index: Int, value: T) {
+            encodeNullableValue(value)
         }
     }
 
-    private inner class Input(private val list: List<Any?>) : KInput() {
+    private inner class Input(private val list: List<Any?>) : CompositeDecoder {
+        override var context: SerialContext? = null
+        override val updateMode: UpdateMode = UpdateMode.BANNED
+
         private var index = 0
         private var curDesc: SerialDescriptor? = null
         private var curIndex: Int = 0
@@ -117,79 +123,79 @@ open class ValueTransformer {
             curIndex = index
         }
 
-        override fun readNotNullMark(): Boolean = list[index] != null
-        override fun readNullValue(): Nothing? { index++; return null }
-        override fun readValue(): Any = list[index++]!!
-        override fun readNullableValue(): Any? = list[index++]
-        override fun readUnitValue(): Unit { index++ }
+        override fun decodeNotNullMark(): Boolean = list[index] != null
+        override fun decodeNull(): Nothing? { index++; return null }
+        override fun decodeValue(): Any = list[index++]!!
+        override fun decodeNullableValue(): Any? = list[index++]
+        override fun decodeUnit(): Unit { index++ }
 
-        override fun readBooleanValue(): Boolean = transformBooleanValue(curDesc!!, curIndex, readValue() as Boolean)
-        override fun readByteValue(): Byte = transformByteValue(curDesc!!, curIndex, readValue() as Byte)
-        override fun readShortValue(): Short = transformShortValue(curDesc!!, curIndex, readValue() as Short)
-        override fun readIntValue(): Int = transformIntValue(curDesc!!, curIndex, readValue() as Int)
-        override fun readLongValue(): Long = transformLongValue(curDesc!!, curIndex, readValue() as Long)
-        override fun readFloatValue(): Float = transformFloatValue(curDesc!!, curIndex, readValue() as Float)
-        override fun readDoubleValue(): Double = transformDoubleValue(curDesc!!, curIndex, readValue() as Double)
-        override fun readCharValue(): Char = transformCharValue(curDesc!!, curIndex, readValue() as Char)
-        override fun readStringValue(): String = transformStringValue(curDesc!!, curIndex, readValue() as String)
-
-        @Suppress("UNCHECKED_CAST")
-        @Deprecated("Not supported in Native", replaceWith = ReplaceWith("readEnumValue(enumLoader)"))
-        override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T =
-            transformEnumValue(curDesc!!, curIndex, enumClass, readValue() as T)
+        override fun decodeBoolean(): Boolean = transformBooleanValue(curDesc!!, curIndex, decodeValue() as Boolean)
+        override fun decodeByte(): Byte = transformByteValue(curDesc!!, curIndex, decodeValue() as Byte)
+        override fun decodeShort(): Short = transformShortValue(curDesc!!, curIndex, decodeValue() as Short)
+        override fun decodeInt(): Int = transformIntValue(curDesc!!, curIndex, decodeValue() as Int)
+        override fun decodeLong(): Long = transformLongValue(curDesc!!, curIndex, decodeValue() as Long)
+        override fun decodeFloat(): Float = transformFloatValue(curDesc!!, curIndex, decodeValue() as Float)
+        override fun decodeDouble(): Double = transformDoubleValue(curDesc!!, curIndex, decodeValue() as Double)
+        override fun decodeChar(): Char = transformCharValue(curDesc!!, curIndex, decodeValue() as Char)
+        override fun decodeString(): String = transformStringValue(curDesc!!, curIndex, decodeValue() as String)
 
         @Suppress("UNCHECKED_CAST")
-        override fun <T : Enum<T>> readEnumValue(enumCreator: EnumCreator<T>): T =
-            transformEnumValue(curDesc!!, curIndex, enumCreator, readValue() as T)
+        @Deprecated("Not supported in Native", replaceWith = ReplaceWith("decodeEnum(enumLoader)"))
+        override fun <T : Enum<T>> decodeEnum(enumClass: KClass<T>): T =
+            transformEnumValue(curDesc!!, curIndex, enumClass, decodeValue() as T)
 
         @Suppress("UNCHECKED_CAST")
-        override fun <T : Any?> readSerializableValue(loader: DeserializationStrategy<T>): T {
+        override fun <T : Enum<T>> decodeEnum(enumCreator: EnumCreator<T>): T =
+            transformEnumValue(curDesc!!, curIndex, enumCreator, decodeValue() as T)
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : Any?> decodeSerializableValue(loader: DeserializationStrategy<T>): T {
             if (isRecursiveTransform())
                 return loader.deserialize(this)
             else
-                return readValue() as T
+                return decodeValue() as T
         }
 
         // ---------------
 
-        override fun readElement(desc: SerialDescriptor): Int = READ_ALL
+        override fun decodeElementIndex(desc: SerialDescriptor): Int = READ_ALL
 
-        override fun readElementValue(desc: SerialDescriptor, index: Int): Any {
-            cur(desc, index); return readValue()
+        override fun decodeElementValue(desc: SerialDescriptor, index: Int): Any {
+            cur(desc, index); return decodeValue()
         }
 
-        override fun readNullableElementValue(desc: SerialDescriptor, index: Int): Any? {
-            cur(desc, index); return readNullableValue()
+        override fun decodeNullableElementValue(desc: SerialDescriptor, index: Int): Any? {
+            cur(desc, index); return decodeNullableValue()
         }
-        override fun readUnitElementValue(desc: SerialDescriptor, index: Int) { cur(desc, index); return readUnitValue() }
-        override fun readBooleanElementValue(desc: SerialDescriptor, index: Int): Boolean { cur(desc, index); return readBooleanValue() }
-        override fun readByteElementValue(desc: SerialDescriptor, index: Int): Byte { cur(desc, index); return readByteValue() }
-        override fun readShortElementValue(desc: SerialDescriptor, index: Int): Short { cur(desc, index); return readShortValue() }
-        override fun readIntElementValue(desc: SerialDescriptor, index: Int): Int { cur(desc, index); return readIntValue() }
-        override fun readLongElementValue(desc: SerialDescriptor, index: Int): Long { cur(desc, index); return readLongValue() }
-        override fun readFloatElementValue(desc: SerialDescriptor, index: Int): Float { cur(desc, index); return readFloatValue() }
-        override fun readDoubleElementValue(desc: SerialDescriptor, index: Int): Double { cur(desc, index); return readDoubleValue() }
-        override fun readCharElementValue(desc: SerialDescriptor, index: Int): Char { cur(desc, index); return readCharValue() }
-        override fun readStringElementValue(desc: SerialDescriptor, index: Int): String { cur(desc, index); return readStringValue() }
+        override fun decodeUnitElement(desc: SerialDescriptor, index: Int) { cur(desc, index); return decodeUnit() }
+        override fun decodeBooleanElement(desc: SerialDescriptor, index: Int): Boolean { cur(desc, index); return decodeBoolean() }
+        override fun decodeByteElement(desc: SerialDescriptor, index: Int): Byte { cur(desc, index); return decodeByte() }
+        override fun decodeShortElement(desc: SerialDescriptor, index: Int): Short { cur(desc, index); return decodeShort() }
+        override fun decodeIntElement(desc: SerialDescriptor, index: Int): Int { cur(desc, index); return decodeInt() }
+        override fun decodeLongElement(desc: SerialDescriptor, index: Int): Long { cur(desc, index); return decodeLong() }
+        override fun decodeFloatElement(desc: SerialDescriptor, index: Int): Float { cur(desc, index); return decodeFloat() }
+        override fun decodeDoubleElement(desc: SerialDescriptor, index: Int): Double { cur(desc, index); return decodeDouble() }
+        override fun decodeCharElement(desc: SerialDescriptor, index: Int): Char { cur(desc, index); return decodeChar() }
+        override fun decodeStringElement(desc: SerialDescriptor, index: Int): String { cur(desc, index); return decodeString() }
 
-        override fun <T : Enum<T>> readEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>): T {
+        override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>): T {
             cur(desc, index)
-            return readEnumValue(enumClass)
+            return decodeEnum(enumClass)
         }
 
-        override fun <T : Enum<T>> readEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T {
+        override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T {
             cur(desc, index)
-            return readEnumValue(enumCreator)
+            return decodeEnum(enumCreator)
         }
 
-        override fun <T: Any?> readSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T {
+        override fun <T: Any?> decodeSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T {
             cur(desc, index)
-            return readSerializableValue(loader)
+            return decodeSerializableValue(loader)
         }
 
-        override fun <T: Any> readNullableSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>): T? {
+        override fun <T: Any> decodeNullableSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>): T? {
             cur(desc, index)
-            return readNullableSerializableValue(loader)
+            return decodeNullableSerializableValue(loader)
         }
     }
 }

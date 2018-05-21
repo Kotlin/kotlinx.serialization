@@ -29,11 +29,11 @@ class SerializeRecTest {
     @Test
     fun testRec() {
         val out = Out()
-        out.write(Container::class.serializer(), Container(Data("s1", 42)))
+        out.encode(Container::class.serializer(), Container(Data("s1", 42)))
         out.done()
 
         val inp = Inp()
-        inp.read(Container::class.serializer())
+        inp.decode(Container::class.serializer())
         inp.done()
     }
 
@@ -55,50 +55,50 @@ class SerializeRecTest {
     class Out() : ElementValueOutput() {
         var step = 0
 
-        override fun writeBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KOutput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
             when(step) {
                 0 -> { checkContainerDesc(desc); step++; return this }
                 3 -> { checkDataDesc(desc); step++; return this }
             }
-            fail("@$step: writeBegin($desc)")
+            fail("@$step: beginStructure($desc)")
         }
 
-        override fun writeElement(desc: SerialDescriptor, index: Int): Boolean {
+        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
             when (step) {
                 1 -> { checkContainerDesc(desc); if (index == 0) { step++; return true } }
                 4 -> { checkDataDesc(desc); if (index == 0) { step++; return true } }
                 6 -> { checkDataDesc(desc); if (index == 1) { step++; return true } }
             }
-            fail("@$step: writeElement($desc, $index)")
+            fail("@$step: encodeElement($desc, $index)")
         }
 
-        override fun <T : Any?> writeSerializableValue(saver: SerializationStrategy<T>, value: T) {
+        override fun <T : Any?> encodeSerializableValue(saver: SerializationStrategy<T>, value: T) {
             when (step) {
                 2 -> { step++; saver.serialize(this, value); return }
             }
-            fail("@$step: writeSerializableValue($value)")
+            fail("@$step: encodeSerializableValue($value)")
         }
 
-        override fun writeStringValue(value: String) {
+        override fun encodeString(value: String) {
             when (step) {
                 5 -> if (value == "s1") { step++; return }
             }
-            fail("@$step: writeStringValue($value)")
+            fail("@$step: encodeString($value)")
         }
 
-        override fun writeIntValue(value: Int) {
+        override fun encodeInt(value: Int) {
             when (step) {
                 7 -> if (value == 42) { step++; return }
             }
-            fail("@$step: writeIntValue($value)")
+            fail("@$step: decodeInt($value)")
         }
 
-        override fun writeEnd(desc: SerialDescriptor) {
+        override fun endStructure(desc: SerialDescriptor) {
             when(step) {
                 8 -> { checkDataDesc(desc); step++; return }
                 9 -> { checkContainerDesc(desc); step++; return }
             }
-            fail("@$step: writeEnd($desc)")
+            fail("@$step: endStructure($desc)")
         }
 
         fun done() {
@@ -109,15 +109,15 @@ class SerializeRecTest {
     class Inp() : ElementValueInput() {
         var step = 0
 
-        override fun readBegin(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): KInput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             when(step) {
                 0 -> { checkContainerDesc(desc); step++; return this }
                 3 -> { checkDataDesc(desc); step++; return this }
             }
-            fail("@$step: readBegin($desc)")
+            fail("@$step: beginStructure($desc)")
         }
 
-        override fun readElement(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(desc: SerialDescriptor): Int {
             when (step) {
                 1 -> { checkContainerDesc(desc); step++; return 0 }
                 4 -> { checkDataDesc(desc); step++; return 0 }
@@ -125,36 +125,36 @@ class SerializeRecTest {
                 8 -> { checkDataDesc(desc); step++; return -1 }
                 10 -> { checkContainerDesc(desc); step++; return -1 }
             }
-            fail("@$step: readElement($desc)")
+            fail("@$step: decodeElementIndex($desc)")
         }
 
-        override fun <T : Any?> readSerializableValue(loader: DeserializationStrategy<T>): T {
+        override fun <T : Any?> decodeSerializableValue(loader: DeserializationStrategy<T>): T {
             when (step) {
                 2 -> { step++; return loader.deserialize(this) }
             }
-            fail("@$step: readSerializableValue()")
+            fail("@$step: decodeSerializableValue()")
         }
 
-        override fun readStringValue(): String {
+        override fun decodeString(): String {
             when (step) {
                 5 -> { step++; return "s1" }
             }
-            fail("@$step: readStringValue()")
+            fail("@$step: decodeString()")
         }
 
-        override fun readIntValue(): Int {
+        override fun decodeInt(): Int {
             when (step) {
                 7 -> { step++; return 42 }
             }
-            fail("@$step: readIntValue()")
+            fail("@$step: decodeInt()")
         }
 
-        override fun readEnd(desc: SerialDescriptor) {
+        override fun endStructure(desc: SerialDescriptor) {
             when(step) {
                 9 -> { checkDataDesc(desc); step++; return }
                 11 -> { checkContainerDesc(desc); step++; return }
             }
-            fail("@$step: readEnd($desc)")
+            fail("@$step: endStructure($desc)")
         }
 
         fun done() {
