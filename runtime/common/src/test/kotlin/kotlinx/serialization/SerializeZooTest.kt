@@ -127,7 +127,7 @@ class SerializeZooTest {
 
     // KeyValue Input/Output
 
-    class KeyValueOutput(val out: PrintWriter) : ElementValueOutput() {
+    class KeyValueOutput(val out: PrintWriter) : ElementValueEncoder() {
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
             out.print('{')
             return this
@@ -154,7 +154,7 @@ class SerializeZooTest {
         override fun encodeChar(value: Char) = encodeString(value.toString())
     }
 
-    class KeyValueInput(val inp: Parser) : ElementValueInput() {
+    class KeyValueInput(val inp: Parser) : ElementValueDecoder() {
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             inp.expectAfterWhiteSpace('{')
             return this

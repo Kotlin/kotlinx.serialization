@@ -36,7 +36,7 @@ class JsonTreeMapper(val context: SerialContext? = null) {
         return result
     }
 
-    private abstract inner class AbstractJsonTreeOutput(val nodeConsumer: (JsonElement) -> Unit) : NamedValueOutput() {
+    private abstract inner class AbstractJsonTreeOutput(val nodeConsumer: (JsonElement) -> Unit) : NamedValueEncoder() {
         init {
             this.context = this@JsonTreeMapper.context
         }
@@ -46,21 +46,21 @@ class JsonTreeMapper(val context: SerialContext? = null) {
         abstract fun putElement(key: String, element: JsonElement)
         abstract fun getCurrent(): JsonElement
 
-        override fun writeTaggedNull(tag: String) = putElement(tag, JsonNull)
+        override fun encodeTaggedNull(tag: String) = putElement(tag, JsonNull)
 
-        override fun writeTaggedInt(tag: String, value: Int) = putElement(tag, JsonLiteral(value))
-        override fun writeTaggedByte(tag: String, value: Byte) = putElement(tag, JsonLiteral(value))
-        override fun writeTaggedShort(tag: String, value: Short) = putElement(tag, JsonLiteral(value))
-        override fun writeTaggedLong(tag: String, value: Long) = putElement(tag, JsonLiteral(value))
-        override fun writeTaggedFloat(tag: String, value: Float) = putElement(tag, JsonLiteral(value))
-        override fun writeTaggedDouble(tag: String, value: Double) = putElement(tag, JsonLiteral(value))
-        override fun writeTaggedBoolean(tag: String, value: Boolean) = putElement(tag, JsonLiteral(value))
+        override fun encodeTaggedInt(tag: String, value: Int) = putElement(tag, JsonLiteral(value))
+        override fun encodeTaggedByte(tag: String, value: Byte) = putElement(tag, JsonLiteral(value))
+        override fun encodeTaggedShort(tag: String, value: Short) = putElement(tag, JsonLiteral(value))
+        override fun encodeTaggedLong(tag: String, value: Long) = putElement(tag, JsonLiteral(value))
+        override fun encodeTaggedFloat(tag: String, value: Float) = putElement(tag, JsonLiteral(value))
+        override fun encodeTaggedDouble(tag: String, value: Double) = putElement(tag, JsonLiteral(value))
+        override fun encodeTaggedBoolean(tag: String, value: Boolean) = putElement(tag, JsonLiteral(value))
 
-        override fun writeTaggedChar(tag: String, value: Char) = putElement(tag, JsonLiteral(value.toString()))
-        override fun writeTaggedString(tag: String, value: String) = putElement(tag, JsonLiteral(value))
-        override fun <E : Enum<E>> writeTaggedEnum(tag: String, enumClass: KClass<E>, value: E) = putElement(tag, JsonLiteral(value.toString()))
+        override fun encodeTaggedChar(tag: String, value: Char) = putElement(tag, JsonLiteral(value.toString()))
+        override fun encodeTaggedString(tag: String, value: String) = putElement(tag, JsonLiteral(value))
+        override fun <E : Enum<E>> encodeTaggedEnum(tag: String, enumClass: KClass<E>, value: E) = putElement(tag, JsonLiteral(value.toString()))
 
-        override fun writeTaggedValue(tag: String, value: Any) {
+        override fun encodeTaggedValue(tag: String, value: Any) {
             putElement(tag, JsonLiteral(value.toString()))
         }
 
@@ -76,7 +76,7 @@ class JsonTreeMapper(val context: SerialContext? = null) {
             }
         }
 
-        override fun writeFinished(desc: SerialDescriptor) {
+        override fun endEncode(desc: SerialDescriptor) {
             nodeConsumer(getCurrent())
         }
     }
@@ -126,12 +126,12 @@ class JsonTreeMapper(val context: SerialContext? = null) {
 
         override fun getCurrent(): JsonElement = elem
 
-        override fun writeFinished(desc: SerialDescriptor) {
+        override fun endEncode(desc: SerialDescriptor) {
             entryConsumer(tag, elem)
         }
     }
 
-    private abstract inner class AbstractJsonTreeInput(open val obj: JsonElement): NamedValueInput() {
+    private abstract inner class AbstractJsonTreeInput(open val obj: JsonElement): NamedValueDecoder() {
         init {
             this.context = this@JsonTreeMapper.context
         }
@@ -160,29 +160,29 @@ class JsonTreeMapper(val context: SerialContext? = null) {
 
         protected abstract fun currentElement(tag: String): JsonElement
 
-        override fun readTaggedChar(tag: String): Char {
+        override fun decodeTaggedChar(tag: String): Char {
             val o = getValue(tag)
             return if (o.content.length == 1) o.content[0] else throw SerializationException("$o can't be represented as Char")
         }
 
-        override fun <E : Enum<E>> readTaggedEnum(tag: String, enumLoader: EnumCreator<E>): E =
+        override fun <E : Enum<E>> decodeTaggedEnum(tag: String, enumLoader: EnumCreator<E>): E =
             enumLoader.createFromName(getValue(tag).content)
 
-        override fun readTaggedNull(tag: String): Nothing? = null
-        override fun readTaggedNotNullMark(tag: String) = currentElement(tag) !== JsonNull
+        override fun decodeTaggedNull(tag: String): Nothing? = null
+        override fun decodeTaggedNotNullMark(tag: String) = currentElement(tag) !== JsonNull
 
-        override fun readTaggedUnit(tag: String) {
+        override fun decodeTaggedUnit(tag: String) {
             return
         }
 
-        override fun readTaggedBoolean(tag: String): Boolean = getValue(tag).boolean
-        override fun readTaggedByte(tag: String): Byte = getValue(tag).int.toByte()
-        override fun readTaggedShort(tag: String) = getValue(tag).int.toShort()
-        override fun readTaggedInt(tag: String) = getValue(tag).int
-        override fun readTaggedLong(tag: String) = getValue(tag).long
-        override fun readTaggedFloat(tag: String) = getValue(tag).float
-        override fun readTaggedDouble(tag: String) = getValue(tag).double
-        override fun readTaggedString(tag: String) = getValue(tag).content
+        override fun decodeTaggedBoolean(tag: String): Boolean = getValue(tag).boolean
+        override fun decodeTaggedByte(tag: String): Byte = getValue(tag).int.toByte()
+        override fun decodeTaggedShort(tag: String) = getValue(tag).int.toShort()
+        override fun decodeTaggedInt(tag: String) = getValue(tag).int
+        override fun decodeTaggedLong(tag: String) = getValue(tag).long
+        override fun decodeTaggedFloat(tag: String) = getValue(tag).float
+        override fun decodeTaggedDouble(tag: String) = getValue(tag).double
+        override fun decodeTaggedString(tag: String) = getValue(tag).content
     }
 
     private open inner class JsonTreeInput(override val obj: JsonObject) : AbstractJsonTreeInput(obj) {

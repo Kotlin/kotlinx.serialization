@@ -59,7 +59,7 @@ data class JSON(
         val nonstrict = JSON(nonstrict = true)
     }
 
-    inner class JsonOutput internal constructor(private val mode: Mode, private val w: Composer, private val modeReuseCache: Array<JsonOutput?>) : ElementValueOutput() {
+    inner class JsonOutput internal constructor(private val mode: Mode, private val w: Composer, private val modeReuseCache: Array<JsonOutput?>) : ElementValueEncoder() {
         init {
             context = this@JSON.context
             val i = mode.ordinal
@@ -201,7 +201,7 @@ data class JSON(
         fun printQuoted(value: String): Unit = sb.printQuoted(value)
     }
 
-    inner class JsonInput internal constructor(private val mode: Mode, private val p: Parser) : ElementValueInput() {
+    inner class JsonInput internal constructor(private val mode: Mode, private val p: Parser) : ElementValueDecoder() {
         private var curIndex = 0
         private var entryIndex = 0
 

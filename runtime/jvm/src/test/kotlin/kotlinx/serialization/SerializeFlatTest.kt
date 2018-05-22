@@ -197,7 +197,7 @@ class SerializeFlatTest() {
         }
     }
 
-    class Out(private val name: String) : ElementValueOutput() {
+    class Out(private val name: String) : ElementValueEncoder() {
         var step = 0
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
@@ -239,7 +239,7 @@ class SerializeFlatTest() {
         }
     }
 
-    class Inp(private val name: String) : ElementValueInput() {
+    class Inp(private val name: String) : ElementValueDecoder() {
         var step = 0
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {

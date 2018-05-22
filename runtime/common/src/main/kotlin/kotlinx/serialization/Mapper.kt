@@ -18,44 +18,44 @@ package kotlinx.serialization
 
 object Mapper {
 
-    class OutMapper : NamedValueOutput() {
+    class OutMapper : NamedValueEncoder() {
         private var _map: MutableMap<String, Any> = mutableMapOf()
 
         val map: Map<String, Any>
             get() = _map
 
-        override fun writeTaggedValue(tag: String, value: Any) {
+        override fun encodeTaggedValue(tag: String, value: Any) {
             _map[tag] = value
         }
 
-        override fun writeTaggedNull(tag: String) {
+        override fun encodeTaggedNull(tag: String) {
             throw SerializationException("null is not supported. use Mapper.mapNullable()/OutNullableMapper instead")
         }
     }
 
-    class OutNullableMapper : NamedValueOutput() {
+    class OutNullableMapper : NamedValueEncoder() {
         private var _map: MutableMap<String, Any?> = mutableMapOf()
 
         val map: Map<String, Any?>
             get() = _map
 
-        override fun writeTaggedValue(tag: String, value: Any) {
+        override fun encodeTaggedValue(tag: String, value: Any) {
             _map[tag] = value
         }
 
-        override fun writeTaggedNull(tag: String) {
+        override fun encodeTaggedNull(tag: String) {
             _map[tag] = null
         }
     }
 
-    class InMapper(val map: Map<String, Any>) : NamedValueInput() {
-        override fun readTaggedValue(tag: String): Any = map.getValue(tag)
+    class InMapper(val map: Map<String, Any>) : NamedValueDecoder() {
+        override fun decodeTaggedValue(tag: String): Any = map.getValue(tag)
     }
 
-    class InNullableMapper(val map: Map<String, Any?>) : NamedValueInput() {
-        override fun readTaggedValue(tag: String): Any = map.getValue(tag)!!
+    class InNullableMapper(val map: Map<String, Any?>) : NamedValueDecoder() {
+        override fun decodeTaggedValue(tag: String): Any = map.getValue(tag)!!
 
-        override fun readTaggedNotNullMark(tag: String): Boolean = map.getValue(tag) != null
+        override fun decodeTaggedNotNullMark(tag: String): Boolean = map.getValue(tag) != null
     }
 
     inline fun <reified T : Any> map(obj: T): Map<String, Any> {

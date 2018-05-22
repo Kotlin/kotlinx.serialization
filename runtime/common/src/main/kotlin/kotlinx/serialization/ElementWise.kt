@@ -20,7 +20,7 @@ import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
 import kotlinx.serialization.internal.UnitSerializer
 import kotlin.reflect.KClass
 
-open class ElementValueOutput : CompositeEncoder {
+abstract class ElementValueEncoder : CompositeEncoder {
 
     override var context: SerialContext? = null
     // ------- implementation API -------
@@ -90,7 +90,7 @@ open class ElementValueOutput : CompositeEncoder {
     }
 }
 
-open class ElementValueInput : CompositeDecoder {
+abstract class ElementValueDecoder : CompositeDecoder {
     override var context: SerialContext? = null
     override val updateMode: UpdateMode = UpdateMode.UPDATE
     // ------- implementation API -------
@@ -147,7 +147,7 @@ open class ElementValueInput : CompositeDecoder {
     final override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>): T =
         decodeEnumElementValue(desc, index, LegacyEnumCreator(enumClass))
 
-    override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T =
+    final override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T =
         decodeEnum(enumCreator)
 
     final override fun <T: Any?> decodeSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T =

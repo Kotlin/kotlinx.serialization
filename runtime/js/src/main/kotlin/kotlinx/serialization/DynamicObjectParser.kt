@@ -23,7 +23,7 @@ class DynamicObjectParser(val context: SerialContext? = null) {
     inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.klassSerializer(T::class))
     fun <T> parse(obj: dynamic, loader: DeserializationStrategy<T>): T = DynamicInput(obj).decode(loader)
 
-    private open inner class DynamicInput(val obj: dynamic) : NamedValueInput() {
+    private open inner class DynamicInput(val obj: dynamic) : NamedValueDecoder() {
         init {
             this.context = this@DynamicObjectParser.context
         }
@@ -39,12 +39,12 @@ class DynamicObjectParser(val context: SerialContext? = null) {
             return READ_DONE
         }
 
-        override fun <E : Enum<E>> readTaggedEnum(tag: String, enumCreator: EnumCreator<E>) =
+        override fun <E : Enum<E>> decodeTaggedEnum(tag: String, enumCreator: EnumCreator<E>) =
                 enumCreator.createFromName(getByTag(tag) as String)
 
         protected open fun getByTag(tag: String): dynamic = obj[tag]
 
-        override fun readTaggedChar(tag: String): Char {
+        override fun decodeTaggedChar(tag: String): Char {
             val o = getByTag(tag)
             return when(o) {
                 is String -> if (o.length == 1) o[0] else throw SerializationException("$o can't be represented as Char")
@@ -53,12 +53,12 @@ class DynamicObjectParser(val context: SerialContext? = null) {
             }
         }
 
-        override fun readTaggedValue(tag: String): Any {
+        override fun decodeTaggedValue(tag: String): Any {
             val o = getByTag(tag) ?: throw MissingFieldException(tag)
             return o
         }
 
-        override fun readTaggedNotNullMark(tag: String): Boolean {
+        override fun decodeTaggedNotNullMark(tag: String): Boolean {
             val o = getByTag(tag)
             if (o === undefined) throw MissingFieldException(tag)
             @Suppress("SENSELESS_COMPARISON") // null !== undefined !

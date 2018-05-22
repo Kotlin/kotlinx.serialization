@@ -52,7 +52,7 @@ class SerializeRecTest {
         }
     }
 
-    class Out() : ElementValueOutput() {
+    class Out() : ElementValueEncoder() {
         var step = 0
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
@@ -106,7 +106,7 @@ class SerializeRecTest {
         }
     }
 
-    class Inp() : ElementValueInput() {
+    class Inp() : ElementValueDecoder() {
         var step = 0
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
