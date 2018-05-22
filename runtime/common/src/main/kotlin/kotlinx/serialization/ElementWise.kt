@@ -20,7 +20,7 @@ import kotlinx.serialization.StructureDecoder.Companion.READ_ALL
 import kotlinx.serialization.internal.UnitSerializer
 import kotlin.reflect.KClass
 
-open class ElementValueOutput : StructureEncoder {
+abstract class ElementValueEncoder : StructureEncoder {
 
     override var context: SerialContext? = null
     // ------- implementation API -------
@@ -90,7 +90,7 @@ open class ElementValueOutput : StructureEncoder {
     }
 }
 
-open class ElementValueInput : StructureDecoder {
+abstract class ElementValueDecoder : StructureDecoder {
     override var context: SerialContext? = null
     override val updateMode: UpdateMode = UpdateMode.UPDATE
     // ------- implementation API -------
@@ -147,7 +147,7 @@ open class ElementValueInput : StructureDecoder {
     final override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>): T =
         decodeEnumElementValue(desc, index, LegacyEnumCreator(enumClass))
 
-    override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T =
+    final override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T =
         decodeEnumValue(enumCreator)
 
     final override fun <T: Any?> decodeSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T =

@@ -29,15 +29,15 @@ class TaggedTest {
             @Optional @SerialId(42) val last: Boolean = true
     )
 
-    class Collector : IntTaggedOutput() {
+    class Collector : IntTaggedEncoder() {
         val tagList = mutableMapOf<Int?, Any>()
-        override fun writeTaggedValue(tag: Int?, value: Any) {
+        override fun encodeTaggedValue(tag: Int?, value: Any) {
             tagList[tag] = value
         }
     }
 
-    class Emitter(val collected: Collector) : IntTaggedInput() {
-        override fun readTaggedValue(tag: Int?): Any {
+    class Emitter(val collected: Collector) : IntTaggedDecoder() {
+        override fun decodeTaggedValue(tag: Int?): Any {
             return collected.tagList.getValue(tag)
         }
     }

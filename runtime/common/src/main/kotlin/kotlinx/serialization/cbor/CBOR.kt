@@ -50,7 +50,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
     }
 
     // Writes class as map [fieldName, fieldValue]
-    private inner open class CBORWriter(val encoder: CBOREncoder) : ElementValueOutput() {
+    private inner open class CBORWriter(val encoder: CBOREncoder) : ElementValueEncoder() {
 
         init {
             context = this@CBOR.context
@@ -196,7 +196,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
         }
     }
 
-    private inner open class CBORReader(val decoder: CBORDecoder) : ElementValueInput() {
+    private inner open class CBORReader(val decoder: CBORDecoder) : ElementValueDecoder() {
 
         init {
             context = this@CBOR.context

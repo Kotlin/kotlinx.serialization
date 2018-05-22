@@ -60,7 +60,7 @@ data class JSON(
         val nonstrict = JSON(nonstrict = true)
     }
 
-    private inner class JsonOutput(val mode: Mode, val w: Composer) : ElementValueOutput() {
+    private inner class JsonOutput(val mode: Mode, val w: Composer) : ElementValueEncoder() {
         init {
             context = this@JSON.context
         }
@@ -210,7 +210,7 @@ data class JSON(
         }
     }
 
-    private inner class JsonInput(val mode: Mode, val p: Parser) : ElementValueInput() {
+    private inner class JsonInput(val mode: Mode, val p: Parser) : ElementValueDecoder() {
         var curIndex = 0
         var entryIndex = 0
 

@@ -29,7 +29,7 @@ class ConfigParser(val context: SerialContext? = null) {
     fun <T> parse(conf: Config, loader: DeserializationStrategy<T>): T = ConfigReader(conf).decode(loader)
 
 
-    private abstract inner class ConfigConverter<T> : TaggedInput<T>() {
+    private abstract inner class ConfigConverter<T> : TaggedDecoder<T>() {
         init {
             this.context = this@ConfigParser.context
         }
@@ -44,28 +44,28 @@ class ConfigParser(val context: SerialContext? = null) {
 
         private fun getTaggedNumber(tag: T) = validateAndCast<Number>(tag, ConfigValueType.NUMBER)
 
-        override fun readTaggedString(tag: T) = validateAndCast<String>(tag, ConfigValueType.STRING)
+        override fun decodeTaggedString(tag: T) = validateAndCast<String>(tag, ConfigValueType.STRING)
 
-        override fun readTaggedByte(tag: T): Byte = getTaggedNumber(tag).toByte()
-        override fun readTaggedShort(tag: T): Short = getTaggedNumber(tag).toShort()
-        override fun readTaggedInt(tag: T): Int = getTaggedNumber(tag).toInt()
-        override fun readTaggedLong(tag: T): Long = getTaggedNumber(tag).toLong()
-        override fun readTaggedFloat(tag: T): Float = getTaggedNumber(tag).toFloat()
-        override fun readTaggedDouble(tag: T): Double = getTaggedNumber(tag).toDouble()
+        override fun decodeTaggedByte(tag: T): Byte = getTaggedNumber(tag).toByte()
+        override fun decodeTaggedShort(tag: T): Short = getTaggedNumber(tag).toShort()
+        override fun decodeTaggedInt(tag: T): Int = getTaggedNumber(tag).toInt()
+        override fun decodeTaggedLong(tag: T): Long = getTaggedNumber(tag).toLong()
+        override fun decodeTaggedFloat(tag: T): Float = getTaggedNumber(tag).toFloat()
+        override fun decodeTaggedDouble(tag: T): Double = getTaggedNumber(tag).toDouble()
 
-        override fun readTaggedUnit(tag: T) = Unit
+        override fun decodeTaggedUnit(tag: T) = Unit
 
-        override fun readTaggedChar(tag: T): Char {
+        override fun decodeTaggedChar(tag: T): Char {
             val s = validateAndCast<String>(tag, ConfigValueType.STRING)
             if (s.length != 1) throw SerializationException("String \"$s\" is not convertible to Char")
             return s[0]
         }
 
-        override fun readTaggedValue(tag: T): Any = getTaggedConfigValue(tag).unwrapped()
+        override fun decodeTaggedValue(tag: T): Any = getTaggedConfigValue(tag).unwrapped()
 
-        override fun readTaggedNotNullMark(tag: T) = getTaggedConfigValue(tag).valueType() != ConfigValueType.NULL
+        override fun decodeTaggedNotNullMark(tag: T) = getTaggedConfigValue(tag).valueType() != ConfigValueType.NULL
 
-        override fun <E : Enum<E>> readTaggedEnum(tag: T, enumCreator: EnumCreator<E>): E {
+        override fun <E : Enum<E>> decodeTaggedEnum(tag: T, enumCreator: EnumCreator<E>): E {
             val s = validateAndCast<String>(tag, ConfigValueType.STRING)
             return enumCreator.createFromName(s)
         }
@@ -84,7 +84,7 @@ class ConfigParser(val context: SerialContext? = null) {
             return conf.getValue(tag)
         }
 
-        override fun readTaggedNotNullMark(tag: String): Boolean {
+        override fun decodeTaggedNotNullMark(tag: String): Boolean {
             return !conf.getIsNull(tag)
         }
 
