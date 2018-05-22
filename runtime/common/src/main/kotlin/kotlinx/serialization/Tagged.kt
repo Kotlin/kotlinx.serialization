@@ -80,7 +80,7 @@ abstract class TaggedEncoder<Tag : Any?> : StructureEncoder {
     final override fun encodeNotNullMark() = encodeTaggedNotNullMark(currentTag)
     final override fun encodeNullValue() = encodeTaggedNull(popTag())
 
-    final override fun encodeNonSerializableValue(value: Any) = encodeTaggedValue(popTag(), value)
+    final override fun encodeAnyValue(value: Any) = encodeTaggedValue(popTag(), value)
     final override fun encodeNullableValue(value: Any?) = encodeTaggedNullable(popTag(), value)
 
     final override fun encodeUnitValue() = encodeTaggedUnit(popTag())
@@ -200,7 +200,7 @@ abstract class TaggedDecoder<Tag : Any?> : StructureDecoder {
     final override fun decodeNotNullMark(): Boolean = decodeTaggedNotNullMark(currentTag)
     final override fun decodeNullValue(): Nothing? = null
 
-    final override fun decodeValue(): Any = decodeTaggedValue(popTag())
+    final override fun decodeAnyValue(): Any = decodeTaggedValue(popTag())
     final override fun decodeNullableValue(): Any? = decodeTaggedNullable(popTag())
     final override fun decodeUnitValue() = decodeTaggedUnit(popTag())
     final override fun decodeBooleanValue(): Boolean = decodeTaggedBoolean(popTag())
@@ -220,7 +220,7 @@ abstract class TaggedDecoder<Tag : Any?> : StructureDecoder {
     // Override for custom behaviour
     override fun decodeElement(desc: SerialDescriptor): Int = READ_ALL
 
-    final override fun decodeElementValue(desc: SerialDescriptor, index: Int): Any = decodeTaggedValue(desc.getTag(index))
+    final override fun decodeAnyElementValue(desc: SerialDescriptor, index: Int): Any = decodeTaggedValue(desc.getTag(index))
     final override fun decodeNullableElementValue(desc: SerialDescriptor, index: Int): Any? = decodeTaggedNullable(desc.getTag(index))
     final override fun decodeUnitElementValue(desc: SerialDescriptor, index: Int) = decodeTaggedUnit(desc.getTag(index))
     final override fun decodeBooleanElementValue(desc: SerialDescriptor, index: Int): Boolean = decodeTaggedBoolean(desc.getTag(index))

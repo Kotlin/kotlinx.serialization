@@ -143,7 +143,7 @@ class SerializeZooTest {
         }
 
         override fun encodeNullValue() = out.print("null")
-        override fun encodeNonSerializableValue(value: Any) = out.print(value)
+        override fun encodeAnyValue(value: Any) = out.print(value)
 
         override fun encodeStringValue(value: String) {
             out.print('"')

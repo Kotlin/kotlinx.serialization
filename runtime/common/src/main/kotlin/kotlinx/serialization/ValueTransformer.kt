@@ -64,7 +64,7 @@ open class ValueTransformer {
         override fun encodeElement(desc: SerialDescriptor, index: Int) = true
         override fun encodeNotNullMark() {}
         override fun encodeNullValue() { encodeNullableValue(null) }
-        override fun encodeNonSerializableValue(value: Any) { encodeNullableValue(value) }
+        override fun encodeAnyValue(value: Any) { encodeNullableValue(value) }
         override fun encodeUnitValue() { encodeNullableValue(Unit) }
         override fun encodeBooleanValue(value: Boolean) { encodeNullableValue(value) }
         override fun encodeByteValue(value: Byte) { encodeNullableValue(value) }
@@ -125,43 +125,43 @@ open class ValueTransformer {
 
         override fun decodeNotNullMark(): Boolean = list[index] != null
         override fun decodeNullValue(): Nothing? { index++; return null }
-        override fun decodeValue(): Any = list[index++]!!
+        override fun decodeAnyValue(): Any = list[index++]!!
         override fun decodeNullableValue(): Any? = list[index++]
         override fun decodeUnitValue(): Unit { index++ }
 
-        override fun decodeBooleanValue(): Boolean = transformBooleanValue(curDesc!!, curIndex, decodeValue() as Boolean)
-        override fun decodeByteValue(): Byte = transformByteValue(curDesc!!, curIndex, decodeValue() as Byte)
-        override fun decodeShortValue(): Short = transformShortValue(curDesc!!, curIndex, decodeValue() as Short)
-        override fun decodeIntValue(): Int = transformIntValue(curDesc!!, curIndex, decodeValue() as Int)
-        override fun decodeLongValue(): Long = transformLongValue(curDesc!!, curIndex, decodeValue() as Long)
-        override fun decodeFloatValue(): Float = transformFloatValue(curDesc!!, curIndex, decodeValue() as Float)
-        override fun decodeDoubleValue(): Double = transformDoubleValue(curDesc!!, curIndex, decodeValue() as Double)
-        override fun decodeCharValue(): Char = transformCharValue(curDesc!!, curIndex, decodeValue() as Char)
-        override fun decodeStringValue(): String = transformStringValue(curDesc!!, curIndex, decodeValue() as String)
+        override fun decodeBooleanValue(): Boolean = transformBooleanValue(curDesc!!, curIndex, decodeAnyValue() as Boolean)
+        override fun decodeByteValue(): Byte = transformByteValue(curDesc!!, curIndex, decodeAnyValue() as Byte)
+        override fun decodeShortValue(): Short = transformShortValue(curDesc!!, curIndex, decodeAnyValue() as Short)
+        override fun decodeIntValue(): Int = transformIntValue(curDesc!!, curIndex, decodeAnyValue() as Int)
+        override fun decodeLongValue(): Long = transformLongValue(curDesc!!, curIndex, decodeAnyValue() as Long)
+        override fun decodeFloatValue(): Float = transformFloatValue(curDesc!!, curIndex, decodeAnyValue() as Float)
+        override fun decodeDoubleValue(): Double = transformDoubleValue(curDesc!!, curIndex, decodeAnyValue() as Double)
+        override fun decodeCharValue(): Char = transformCharValue(curDesc!!, curIndex, decodeAnyValue() as Char)
+        override fun decodeStringValue(): String = transformStringValue(curDesc!!, curIndex, decodeAnyValue() as String)
 
         @Suppress("UNCHECKED_CAST")
         @Deprecated("Not supported in Native", replaceWith = ReplaceWith("decodeEnumValue(enumLoader)"))
         override fun <T : Enum<T>> decodeEnumValue(enumClass: KClass<T>): T =
-            transformEnumValue(curDesc!!, curIndex, enumClass, decodeValue() as T)
+            transformEnumValue(curDesc!!, curIndex, enumClass, decodeAnyValue() as T)
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : Enum<T>> decodeEnumValue(enumCreator: EnumCreator<T>): T =
-            transformEnumValue(curDesc!!, curIndex, enumCreator, decodeValue() as T)
+            transformEnumValue(curDesc!!, curIndex, enumCreator, decodeAnyValue() as T)
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : Any?> decodeSerializableValue(loader: DeserializationStrategy<T>): T {
             if (isRecursiveTransform())
                 return loader.deserialize(this)
             else
-                return decodeValue() as T
+                return decodeAnyValue() as T
         }
 
         // ---------------
 
         override fun decodeElement(desc: SerialDescriptor): Int = READ_ALL
 
-        override fun decodeElementValue(desc: SerialDescriptor, index: Int): Any {
-            cur(desc, index); return decodeValue()
+        override fun decodeAnyElementValue(desc: SerialDescriptor, index: Int): Any {
+            cur(desc, index); return decodeAnyValue()
         }
 
         override fun decodeNullableElementValue(desc: SerialDescriptor, index: Int): Any? {

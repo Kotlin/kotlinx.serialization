@@ -145,7 +145,7 @@ data class JSON(
             }
         }
 
-        override fun encodeNonSerializableValue(value: Any) {
+        override fun encodeAnyValue(value: Any) {
             encodeStringValue(value.toString())
         }
     }

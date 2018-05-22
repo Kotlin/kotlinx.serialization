@@ -31,7 +31,7 @@ abstract class ElementValueEncoder : StructureEncoder {
     // override for a special representation of nulls if needed (empty object by default)
     override fun encodeNotNullMark() {}
 
-    override fun encodeNonSerializableValue(value: Any) {
+    override fun encodeAnyValue(value: Any) {
         throw SerializationException("\"$value\" has no serializer")
     }
 
@@ -102,24 +102,25 @@ abstract class ElementValueDecoder : StructureDecoder {
     override fun decodeNotNullMark(): Boolean = true
     override fun decodeNullValue(): Nothing? = null
 
-    override fun decodeValue(): Any {
+    override fun decodeAnyValue(): Any {
         throw SerializationException("Any type is not supported")
     }
-    override fun decodeNullableValue(): Any? = if (decodeNotNullMark()) decodeValue() else decodeNullValue()
+
+    override fun decodeNullableValue(): Any? = if (decodeNotNullMark()) decodeAnyValue() else decodeNullValue()
     override fun decodeUnitValue() {
         val reader = beginStructure(UnitSerializer.serialClassDesc); reader.endStructure(UnitSerializer.serialClassDesc)
     }
 
     // type-specific value-based input, override for performance and custom type representations
-    override fun decodeBooleanValue(): Boolean = decodeValue() as Boolean
-    override fun decodeByteValue(): Byte = decodeValue() as Byte
-    override fun decodeShortValue(): Short = decodeValue() as Short
-    override fun decodeIntValue(): Int = decodeValue() as Int
-    override fun decodeLongValue(): Long = decodeValue() as Long
-    override fun decodeFloatValue(): Float = decodeValue() as Float
-    override fun decodeDoubleValue(): Double = decodeValue() as Double
-    override fun decodeCharValue(): Char = decodeValue() as Char
-    override fun decodeStringValue(): String = decodeValue() as String
+    override fun decodeBooleanValue(): Boolean = decodeAnyValue() as Boolean
+    override fun decodeByteValue(): Byte = decodeAnyValue() as Byte
+    override fun decodeShortValue(): Short = decodeAnyValue() as Short
+    override fun decodeIntValue(): Int = decodeAnyValue() as Int
+    override fun decodeLongValue(): Long = decodeAnyValue() as Long
+    override fun decodeFloatValue(): Float = decodeAnyValue() as Float
+    override fun decodeDoubleValue(): Double = decodeAnyValue() as Double
+    override fun decodeCharValue(): Char = decodeAnyValue() as Char
+    override fun decodeStringValue(): String = decodeAnyValue() as String
 
     @Deprecated("Not supported in Native", ReplaceWith("decodeEnumValue(enumLoader)"))
     @Suppress("UNCHECKED_CAST")
@@ -127,11 +128,11 @@ abstract class ElementValueDecoder : StructureDecoder {
         decodeEnumValue(LegacyEnumCreator(enumClass))
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Enum<T>> decodeEnumValue(enumCreator: EnumCreator<T>): T = decodeValue() as T
+    override fun <T : Enum<T>> decodeEnumValue(enumCreator: EnumCreator<T>): T = decodeAnyValue() as T
 
     // -------------------------------------------------------------------------------------
 
-    final override fun decodeElementValue(desc: SerialDescriptor, index: Int): Any = decodeValue()
+    final override fun decodeAnyElementValue(desc: SerialDescriptor, index: Int): Any = decodeAnyValue()
     final override fun decodeNullableElementValue(desc: SerialDescriptor, index: Int): Any? = decodeNullableValue()
     final override fun decodeUnitElementValue(desc: SerialDescriptor, index: Int) = decodeUnitValue()
     final override fun decodeBooleanElementValue(desc: SerialDescriptor, index: Int): Boolean = decodeBooleanValue()

@@ -24,10 +24,10 @@ interface Encoder {
     fun encodeValue(value: Any) {
         val s = context?.getSerializerByValue(value)
         if (s != null) encodeSerializableValue(s, value)
-        else encodeNonSerializableValue(value)
+        else encodeAnyValue(value)
     }
 
-    fun encodeNonSerializableValue(value: Any)
+    fun encodeAnyValue(value: Any)
 
     fun encodeNotNullMark()
     fun encodeNullValue()
@@ -123,7 +123,7 @@ interface Decoder {
     fun decodeNullValue(): Nothing? // consumes null, returns null, will be called when decodeNotNullMark() is false
 
     // todo: almost impossible to implement, should it be here?
-    fun decodeValue(): Any
+    fun decodeAnyValue(): Any
 
     fun <T : Any> decodeValue(klass: KClass<T>): T {
         val s = context?.getSerializerByClass(klass)
@@ -131,7 +131,7 @@ interface Decoder {
         return if (s != null)
             decodeSerializableValue(s)
         else
-            decodeValue() as T
+            decodeAnyValue() as T
     }
 
     fun decodeNullableValue(): Any?
@@ -178,12 +178,12 @@ interface StructureDecoder: Decoder {
     // returns either index or one of READ_XXX constants
     fun decodeElement(desc: SerialDescriptor): Int
 
-    fun decodeElementValue(desc: SerialDescriptor, index: Int): Any
+    fun decodeAnyElementValue(desc: SerialDescriptor, index: Int): Any
 
     fun decodeElementValue(desc: SerialDescriptor, index: Int, klass: KClass<*>): Any {
         val s = context?.getSerializerByClass(klass)
         return if (s != null) decodeSerializableElementValue(desc, index, s)
-        else decodeElementValue(desc, index)
+        else decodeAnyElementValue(desc, index)
     }
 
     fun decodeNullableElementValue(desc: SerialDescriptor, index: Int): Any?
