@@ -30,13 +30,7 @@ data class JSON(
 ) {
     fun <T> stringify(saver: KSerialSaver<T>, obj: T): String {
         val sb = StringBuilder()
-        val output = JsonOutput(Mode.OBJ, Composer(sb))
-
-        for (i in 0 until modeCache.size) {
-            modeCache[i] = null
-        }
-        modeCache[Mode.OBJ.ordinal] = output
-
+        val output = JsonOutput(Mode.OBJ, Composer(sb), arrayOfNulls(Mode.values().size))
         output.write(saver, obj)
         return sb.toString()
     }
@@ -65,12 +59,12 @@ data class JSON(
         val nonstrict = JSON(nonstrict = true)
     }
 
-    // Handrolled EnumMap until we will have one in stdlib
-    private val modeCache = arrayOfNulls<JsonOutput>(Mode.values().size)
-
-    private inner class JsonOutput(val mode: Mode, val w: Composer) : ElementValueOutput() {
+    private inner class JsonOutput(val mode: Mode, val w: Composer, private val modeReuseCache: Array<JsonOutput?>) : ElementValueOutput() {
         init {
             context = this@JSON.context
+            val i = mode.ordinal
+            if (modeReuseCache[i] !== null || modeReuseCache[i] !== this)
+                modeReuseCache[i] = this
         }
 
         private var forceStr: Boolean = false
@@ -84,14 +78,12 @@ data class JSON(
 
             if (mode == newMode) return this
 
-            val cached = modeCache[newMode.ordinal]
+            val cached = modeReuseCache[newMode.ordinal]
             if (cached != null) {
                 return cached
             }
 
-            val out = JsonOutput(newMode, w)
-            modeCache[newMode.ordinal] = out
-            return out
+            return JsonOutput(newMode, w, modeReuseCache)
         }
 
         override fun writeEnd(desc: KSerialClassDesc) {
