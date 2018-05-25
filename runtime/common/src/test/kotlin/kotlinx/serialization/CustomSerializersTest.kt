@@ -44,6 +44,19 @@ class CustomSerializersTest {
     @Serializable
     data class BList(val bs: List<B>)
 
+    @Serializable
+    data class C(@Optional val a: Int = 31, val b: Int = 42) {
+        @Serializer(forClass = C::class)
+        companion object {
+            override fun save(output: KOutput, obj: C) {
+                val elemOutput = output.writeBegin(serialClassDesc)
+                output.writeIntElementValue(serialClassDesc, 1, obj.b)
+                if (obj.a != 31) output.writeIntElementValue(serialClassDesc, 0, obj.a)
+                elemOutput.writeEnd(serialClassDesc)
+            }
+        }
+    }
+
     @Test
     fun writeCustom() {
         val a = A(B(2))
@@ -102,6 +115,38 @@ class CustomSerializersTest {
         val j = JSON(unquoted = true, context = scope)
         val bs = j.parse(BSerializer.list, "[1,2,3]")
         assertEquals(obj, bs)
+    }
+
+    @Test
+    fun writeCustomInvertedOrder() {
+        val obj = C(1, 2)
+        val j = JSON(unquoted = true)
+        val s = j.stringify(obj)
+        assertEquals("{b:2,a:1}", s)
+    }
+
+    @Test
+    fun writeCustomOmitDefault() {
+        val obj = C(b = 2)
+        val j = JSON(unquoted = true)
+        val s = j.stringify(obj)
+        assertEquals("{b:2}", s)
+    }
+
+    @Test
+    fun readCustomInvertedOrder() {
+        val obj = C(1, 2)
+        val j = JSON(unquoted = true)
+        val s = j.parse<C>("{b:2,a:1}")
+        assertEquals(obj, s)
+    }
+
+    @Test
+    fun readCustomOmitDefault() {
+        val obj = C(b = 2)
+        val j = JSON(unquoted = true)
+        val s = j.parse<C>("{b:2}")
+        assertEquals(obj, s)
     }
 
     @Test
