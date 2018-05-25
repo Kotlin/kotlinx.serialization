@@ -98,7 +98,7 @@ data class JSON(
             when (mode) {
                 Mode.LIST, Mode.MAP -> {
                     if (index == 0) return false
-                    if (index > 1)
+                    if (! w.writingFirst)
                         w.print(COMMA)
                     w.nextItem()
                 }
@@ -112,7 +112,7 @@ data class JSON(
                     }
                 }
                 else -> {
-                    if (index > 0)
+                    if (! w.writingFirst)
                         w.print(COMMA)
                     w.nextItem()
                     writeStringValue(desc.getElementName(index))
@@ -162,10 +162,13 @@ data class JSON(
 
     inner class Composer(private val sb: StringBuilder) {
         private var level = 0
-        fun indent() { level++ }
+        var writingFirst = true
+            private set
+        fun indent() { writingFirst = true; level++ }
         fun unIndent() { level-- }
 
         fun nextItem() {
+            writingFirst = false
             if (indented) {
                 print("\n")
                 repeat(level) { print(indent) }
