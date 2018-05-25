@@ -82,8 +82,8 @@ data class JsonArray(val content: List<JsonElement>) : JsonElement(), List<JsonE
 }
 
 
-class JsonTreeParser(val input: String) {
-    private val p: Parser = Parser(input)
+class JsonTreeParser internal constructor(private val p: Parser) {
+    constructor(input: String) : this(Parser(input))
 
     private fun readObject(): JsonElement {
         p.requireTc(TC_BEGIN_OBJ) { "Expected start of object" }
