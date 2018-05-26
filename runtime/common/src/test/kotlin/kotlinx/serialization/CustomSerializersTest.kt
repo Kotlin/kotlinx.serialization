@@ -25,9 +25,9 @@ import kotlin.test.assertEquals
 
 class CustomSerializersTest {
     @Serializable
-    data class A(val b: B)
+    data class A(@SerialId(1) val b: B)
 
-    data class B(val value: Int)
+    data class B(@SerialId(1) val value: Int)
 
     object BSerializer : KSerializer<B> {
         override fun save(output: KOutput, obj: B) {
@@ -42,10 +42,10 @@ class CustomSerializersTest {
     }
 
     @Serializable
-    data class BList(val bs: List<B>)
+    data class BList(@SerialId(1) val bs: List<B>)
 
     @Serializable
-    data class C(@Optional val a: Int = 31, val b: Int = 42) {
+    data class C(@SerialId(1) @Optional val a: Int = 31, @SerialId(2) val b: Int = 42) {
         @Serializer(forClass = C::class)
         companion object {
             override fun save(output: KOutput, obj: C) {
@@ -58,10 +58,10 @@ class CustomSerializersTest {
     }
 
     @Serializable
-    data class CList1(val c: List<C>)
+    data class CList1(@SerialId(1) val c: List<C>)
 
     @Serializable
-    data class CList2(@Optional val d: Int = 5, val c: List<C>) {
+    data class CList2(@SerialId(1) @Optional val d: Int = 5, @SerialId(2) val c: List<C>) {
         @Serializer(forClass = CList2::class)
         companion object {
             override fun save(output: KOutput, obj: CList2) {
@@ -74,7 +74,7 @@ class CustomSerializersTest {
     }
 
     @Serializable
-    data class CList3(@Optional val e: List<C> = emptyList(), val f: Int) {
+    data class CList3(@SerialId(1) @Optional val e: List<C> = emptyList(), @SerialId(2) val f: Int) {
         @Serializer(forClass = CList3::class)
         companion object {
             override fun save(output: KOutput, obj: CList3) {
@@ -87,7 +87,7 @@ class CustomSerializersTest {
     }
 
     @Serializable
-    data class CList4(@Optional val g: List<C> = emptyList(), val h: Int) {
+    data class CList4(@SerialId(1) @Optional val g: List<C> = emptyList(), @SerialId(2) val h: Int) {
         @Serializer(forClass = CList4::class)
         companion object {
             override fun save(output: KOutput, obj: CList4) {
@@ -100,13 +100,14 @@ class CustomSerializersTest {
     }
 
     @Serializable
-    data class CList5(@Optional val g: List<Int> = emptyList(), val h: Int) {
+    data class CList5(@SerialId(1) @Optional val g: List<Int> = emptyList(), @SerialId(2) val h: Int) {
         @Serializer(forClass = CList5::class)
         companion object {
             override fun save(output: KOutput, obj: CList5) {
                 val elemOutput = output.writeBegin(serialClassDesc)
                 output.writeIntElementValue(serialClassDesc, 1, obj.h)
-                if (obj.g.isNotEmpty()) elemOutput.writeSerializableElementValue(serialClassDesc, 0, IntSerializer.list, obj.g)
+                if (obj.g.isNotEmpty()) elemOutput.writeSerializableElementValue(serialClassDesc, 0, IntSerializer.list,
+                                                                                 obj.g)
                 elemOutput.writeEnd(serialClassDesc)
             }
         }
