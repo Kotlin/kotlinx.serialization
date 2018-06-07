@@ -39,12 +39,9 @@ sealed class JsonPrimitive : JsonElement() {
  * Represents quoted JSON strings
  */
 data class JsonString(override val content: String): JsonPrimitive() {
-    private var quotedString: String? = null
+    private val quotedString: String by lazy(LazyThreadSafetyMode.PUBLICATION) { buildString { printQuoted(content) } }
 
-    override fun toString(): String = if (quotedString != null) quotedString!! else {
-        quotedString = buildString { printQuoted(content) }
-        quotedString!!
-    }
+    override fun toString(): String = quotedString
 }
 
 /**
@@ -59,10 +56,20 @@ data class JsonLiteral(override val content: String): JsonPrimitive() {
 
 val JsonNull = JsonLiteral("null")
 
+private fun unexpectedJson(key: String, expected: String): Nothing =
+    throw IllegalStateException("Element $key is not a $expected")
+
 data class JsonObject(val content: Map<String, JsonElement>) : JsonElement(), Map<String, JsonElement> by content {
-    fun getAsValue(key: String)= content[key] as? JsonPrimitive
-    fun getAsObject(key: String) = content[key] as? JsonObject
-    fun getAsArray(key: String) = content[key] as? JsonArray
+    fun getAsValue(key: String)= content.getValue(key) as? JsonPrimitive 
+            ?: unexpectedJson(key, "JsonPrimitive")
+    fun getAsObject(key: String) = content.getValue(key) as? JsonObject 
+            ?: unexpectedJson(key, "JsonObject")
+    fun getAsArray(key: String) = content.getValue(key) as? JsonArray 
+            ?: unexpectedJson(key, "JsonArray")
+
+    fun lookUpValue(key: String)= content[key] as? JsonPrimitive
+    fun lookUpObject(key: String) = content[key] as? JsonObject
+    fun lookUpArray(key: String) = content[key] as? JsonArray
 
     override fun toString(): String {
         return content.entries.joinToString(
@@ -74,9 +81,16 @@ data class JsonObject(val content: Map<String, JsonElement>) : JsonElement(), Ma
 }
 
 data class JsonArray(val content: List<JsonElement>) : JsonElement(), List<JsonElement> by content {
-    fun getAsValue(index: Int) = content.getOrNull(index) as? JsonPrimitive
-    fun getAsObject(index: Int) = content.getOrNull(index) as? JsonObject
-    fun getAsArray(index: Int) = content.getOrNull(index) as? JsonArray
+    fun getAsValue(index: Int) = content[index] as? JsonPrimitive
+            ?: unexpectedJson("at $index", "JsonPrimitive")
+    fun getAsObject(index: Int) = content[index] as? JsonObject
+            ?: unexpectedJson("at $index", "JsonObject")
+    fun getAsArray(index: Int) = content[index] as? JsonArray
+            ?: unexpectedJson("at $index", "JsonArray")
+    
+    fun lookUpValue(index: Int) = content.getOrNull(index) as? JsonPrimitive
+    fun lookUpObject(index: Int) = content.getOrNull(index) as? JsonObject
+    fun lookUpArray(index: Int) = content.getOrNull(index) as? JsonArray
 
     override fun toString() = content.joinToString(prefix = "[", postfix = "]")
 }

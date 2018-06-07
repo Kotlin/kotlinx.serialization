@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018 JetBrains s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package kotlinx.serialization.formats.json
 
 import kotlinx.serialization.*
@@ -20,17 +36,17 @@ object EitherSerializer: KSerializer<DummyEither> {
                 ?: throw SerializationException("This class can be loaded only by JSON")
         val tree = jsonReader.readAsTree() as? JsonObject
                 ?: throw SerializationException("Expected JSON object")
-        if ("error" in tree) return DummyEither.Left(tree.getAsValue("error")?.str!!)
+        if ("error" in tree) return DummyEither.Left(tree.getAsValue("error").str)
         return DummyEither.Right(JsonTreeMapper().readTree(tree, Payload.serializer()))
     }
 
     override fun save(output: KOutput, obj: DummyEither) {
+        val jsonWriter = output as? JSON.JsonOutput
+                ?: throw SerializationException("This class can be saved only by JSON")
         val tree = when (obj) {
             is DummyEither.Left -> JsonObject(mapOf("error" to JsonString(obj.errorMsg)))
             is DummyEither.Right -> JsonTreeMapper().writeTree(obj.data, Payload.serializer())
         }
-        val jsonWriter = output as? JSON.JsonOutput
-                ?: throw SerializationException("This class can be saved only by JSON")
         jsonWriter.writeTree(tree)
     }
 }
