@@ -41,8 +41,8 @@ class JsonAstTest {
         assertEquals(setOf("a", "b", "c", "d"), elem.keys)
 
         assertEquals(JsonString("foo"), elem["a"])
-        assertEquals(10, elem.getAsValue("b")?.asInt)
-        assertEquals(true, elem.getAsValue("c")?.asBoolean)
+        assertEquals(10, elem.lookUpValue("b")?.asInt)
+        assertEquals(true, elem.lookUpValue("c")?.asBoolean)
         assertTrue(elem.getValue("d") === JsonNull)
     }
 
@@ -56,13 +56,13 @@ class JsonAstTest {
         assertEquals(setOf("a", "b", "c"), elem.keys)
         assertTrue(elem.getValue("c") is JsonArray)
 
-        val array = elem.getAsArray("c")!!
-        assertEquals("foo", array.getAsValue(0)?.str)
-        assertEquals(100500, array.getAsValue(1)?.asInt)
+        val array = elem.getAsArray("c")
+        assertEquals("foo", array.lookUpValue(0)?.str)
+        assertEquals(100500, array.lookUpValue(1)?.asInt)
 
         assertTrue(array[2] is JsonObject)
-        val third = array.getAsObject(2)!!
-        assertEquals("baz", third.getAsValue("bar")?.str)
+        val third = array.getAsObject(2)
+        assertEquals("baz", third.getAsValue("bar").str)
     }
 
     @Test
