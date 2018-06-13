@@ -1,3 +1,28 @@
+v0.5.1 / 2018-06-13
+===================
+
+  Plugin:
+  
+  * Fix 1.2.50 compatibility
+  * Workaround for recursive resolve on @Serializable(with) and @Serializer(for) pair annotations
+  * Don't generate additional constructor if @SerialInfo has no properties
+  * Fix order of resolving serializers: user-overriden should go before polymorphic and default
+  * While creating descriptors, add type arguments not from serializable class definition but from actual KSerializer implementation. This provides better support for user-defined or external generic serializers
+  * Don't generate constructor for passing generic serializers if user already defined proper one.
+  * Respect `@Serializable(with)` on properties on JS too.
+  * Fix for Kotlin/kotlinx.serialization/136
+  * Fix for Kotlin/kotlinx.serialization/125
+  * Fix for Kotlin/kotlinx.serialization/118 
+  * Fix for Kotlin/kotlinx.serialization/123: resolve annotation parameters in-place
+  	
+  Runtime:
+  
+  * Added some shorthands for standard serializers
+  * Fix for bug #141 that uses an extra boolean to determine whether to write a separating comma rather than assuming that the element with the index 0 is written first(or at all) in all cases.
+  * Move mode cache to output class to make .stringify stateless and thread-safe (#139)
+  * Bugfix #95: Can't locate default serializer for classes with named co… (#130)
+  * Updated versions in docs and examples Add changelog
+
 v0.5.0 / 2018-04-26
 ===================
 

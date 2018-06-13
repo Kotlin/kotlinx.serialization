@@ -45,8 +45,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.version>1.2.40</kotlin.version>
-        <serialization.version>0.5.0</serialization.version>
+        <kotlin.version>1.2.50</kotlin.version>
+        <serialization.version>0.5.1</serialization.version>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
     </properties>
 
