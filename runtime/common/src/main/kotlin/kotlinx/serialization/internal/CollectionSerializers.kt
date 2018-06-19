@@ -118,19 +118,23 @@ abstract class MapLikeSerializer<K, V, B : MutableMap<K, V>>(private val mapSeri
 }
 
 // todo: can be more efficient when array size is know in advance, this one always uses temporary ArrayList as builder
-class ReferenceArraySerializer<T: Any, E: T?>(private val kClass: KClass<T>, eSerializer: KSerializer<E>):
+open class ReferenceArraySerializer<T: Any, E: T?>(private val kClass: KClass<T>, eSerializer: KSerializer<E>):
         ListLikeSerializer<E, Array<E>, ArrayList<E>>(eSerializer) {
-    override val serialClassDesc = ArrayClassDesc
+    final override val serialClassDesc = ArrayClassDesc
 
-    override fun Array<E>.objSize(): Int = size
-    override fun Array<E>.objIterator(): Iterator<E> = iterator()
-    override fun builder(): ArrayList<E> = arrayListOf()
-    override fun ArrayList<E>.builderSize(): Int = size
+    final override fun Array<E>.objSize(): Int = size
+    final override fun Array<E>.objIterator(): Iterator<E> = iterator()
+    final override fun builder(): ArrayList<E> = arrayListOf()
+    final override fun ArrayList<E>.builderSize(): Int = size
     @Suppress("UNCHECKED_CAST")
-    override fun ArrayList<E>.toResult(): Array<E> = toNativeArray<T, E>(kClass)
-    override fun Array<E>.toBuilder(): ArrayList<E> = ArrayList(this.asList())
-    override fun ArrayList<E>.checkCapacity(size: Int) = ensureCapacity(size)
-    override fun ArrayList<E>.insert(index: Int, element: E) { add(index, element) }
+    final override fun ArrayList<E>.toResult(): Array<E> = toNativeArray<T, E>(kClass)
+    final override fun Array<E>.toBuilder(): ArrayList<E> = ArrayList(this.asList())
+    final override fun ArrayList<E>.checkCapacity(size: Int) = ensureCapacity(size)
+    final override fun ArrayList<E>.insert(index: Int, element: E) { add(index, element) }
+
+    final override fun readItem(input: KInput, index: Int, builder: ArrayList<E>) {
+        super.readItem(input, index, builder)
+    }
 }
 
 open class ArrayListSerializer<E>(element: KSerializer<E>) : ListLikeSerializer<E, List<E>, ArrayList<E>>(element) {
