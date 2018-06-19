@@ -112,7 +112,7 @@ abstract class MapLikeSerializer<K, V, B : MutableMap<K, V>>(private val mapSeri
             mapSerializer,
             arrayOf(mapSerializer.kSerializer, mapSerializer.vSerializer)) {
 
-    override fun readItem(input: KInput, index: Int, builder: B) {
+    final override fun readItem(input: KInput, index: Int, builder: B) {
         input.readSerializableElementValue(serialClassDesc, index, MapEntryUpdatingSerializer(mapSerializer, builder))
     }
 }
@@ -200,10 +200,6 @@ open class LinkedHashMapSerializer<K, V>(kSerializer: KSerializer<K>, vSerialize
     final override fun Map<K, V>.toBuilder(): LinkedHashMap<K, V> = this as? LinkedHashMap<K, V> ?: LinkedHashMap(this)
     final override fun LinkedHashMap<K, V>.checkCapacity(size: Int) {}
     final override fun LinkedHashMap<K, V>.insert(index: Int, element: Map.Entry<K, V>) { put(element.key, element.value) }
-
-    final override fun readItem(input: KInput, index: Int, builder: LinkedHashMap<K, V>) {
-        super.readItem(input, index, builder)
-    }
 }
 
 open class HashMapSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
@@ -218,10 +214,6 @@ open class HashMapSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSe
     final override fun Map<K, V>.toBuilder(): HashMap<K, V> = this as? HashMap<K, V> ?: HashMap(this)
     final override fun HashMap<K, V>.checkCapacity(size: Int) {}
     final override fun HashMap<K, V>.insert(index: Int, element: Map.Entry<K, V>) { put(element.key, element.value) }
-
-    final override fun readItem(input: KInput, index: Int, builder: HashMap<K, V>) {
-        super.readItem(input, index, builder)
-    }
 }
 
 const val KEY_INDEX = 0
