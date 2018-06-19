@@ -154,58 +154,74 @@ open class ArrayListSerializer<E>(element: KSerializer<E>) : ListLikeSerializer<
     }
 }
 
-class LinkedHashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializer<E, Set<E>, LinkedHashSet<E>>(eSerializer) {
-    override val serialClassDesc = LinkedHashSetClassDesc
+open class LinkedHashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializer<E, Set<E>, LinkedHashSet<E>>(eSerializer) {
+    final override val serialClassDesc = LinkedHashSetClassDesc
 
-    override fun Set<E>.objSize(): Int = size
-    override fun Set<E>.objIterator(): Iterator<E> = iterator()
-    override fun builder(): LinkedHashSet<E> = linkedSetOf()
-    override fun LinkedHashSet<E>.builderSize(): Int = size
-    override fun LinkedHashSet<E>.toResult(): Set<E> = this
-    override fun Set<E>.toBuilder(): LinkedHashSet<E> = this as? LinkedHashSet<E> ?: LinkedHashSet(this)
-    override fun LinkedHashSet<E>.checkCapacity(size: Int) {}
-    override fun LinkedHashSet<E>.insert(index: Int, element: E) { add(element) }
+    final override fun Set<E>.objSize(): Int = size
+    final override fun Set<E>.objIterator(): Iterator<E> = iterator()
+    final override fun builder(): LinkedHashSet<E> = linkedSetOf()
+    final override fun LinkedHashSet<E>.builderSize(): Int = size
+    final override fun LinkedHashSet<E>.toResult(): Set<E> = this
+    final override fun Set<E>.toBuilder(): LinkedHashSet<E> = this as? LinkedHashSet<E> ?: LinkedHashSet(this)
+    final override fun LinkedHashSet<E>.checkCapacity(size: Int) {}
+    final override fun LinkedHashSet<E>.insert(index: Int, element: E) { add(element) }
+
+    final override fun readItem(input: KInput, index: Int, builder: LinkedHashSet<E>) {
+        super.readItem(input, index, builder)
+    }
 }
 
-class HashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializer<E, Set<E>, HashSet<E>>(eSerializer) {
-    override val serialClassDesc = HashSetClassDesc
+open class HashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializer<E, Set<E>, HashSet<E>>(eSerializer) {
+    final override val serialClassDesc = HashSetClassDesc
 
-    override fun Set<E>.objSize(): Int = size
-    override fun Set<E>.objIterator(): Iterator<E> = iterator()
-    override fun builder(): HashSet<E> = HashSet()
-    override fun HashSet<E>.builderSize(): Int = size
-    override fun HashSet<E>.toResult(): Set<E> = this
-    override fun Set<E>.toBuilder(): HashSet<E> = this as? HashSet<E> ?: HashSet(this)
-    override fun HashSet<E>.checkCapacity(size: Int) {}
-    override fun HashSet<E>.insert(index: Int, element: E) { add(element) }
+    final override fun Set<E>.objSize(): Int = size
+    final override fun Set<E>.objIterator(): Iterator<E> = iterator()
+    final override fun builder(): HashSet<E> = HashSet()
+    final override fun HashSet<E>.builderSize(): Int = size
+    final override fun HashSet<E>.toResult(): Set<E> = this
+    final override fun Set<E>.toBuilder(): HashSet<E> = this as? HashSet<E> ?: HashSet(this)
+    final override fun HashSet<E>.checkCapacity(size: Int) {}
+    final override fun HashSet<E>.insert(index: Int, element: E) { add(element) }
+
+    final override fun readItem(input: KInput, index: Int, builder: HashSet<E>) {
+        super.readItem(input, index, builder)
+    }
 }
 
-class LinkedHashMapSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
+open class LinkedHashMapSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
         MapLikeSerializer<K, V, LinkedHashMap<K, V>>(MapEntrySerializer<K, V>(kSerializer, vSerializer)) {
-    override val serialClassDesc = LinkedHashMapClassDesc
+    final override val serialClassDesc = LinkedHashMapClassDesc
 
-    override fun Map<K, V>.objSize(): Int = size
-    override fun Map<K, V>.objIterator(): Iterator<Map.Entry<K, V>> = iterator()
-    override fun builder(): LinkedHashMap<K, V> = LinkedHashMap()
-    override fun LinkedHashMap<K, V>.builderSize(): Int = size
-    override fun LinkedHashMap<K, V>.toResult(): Map<K, V> = this
-    override fun Map<K, V>.toBuilder(): LinkedHashMap<K, V> = this as? LinkedHashMap<K, V> ?: LinkedHashMap(this)
-    override fun LinkedHashMap<K, V>.checkCapacity(size: Int) {}
-    override fun LinkedHashMap<K, V>.insert(index: Int, element: Map.Entry<K, V>) { put(element.key, element.value) }
+    final override fun Map<K, V>.objSize(): Int = size
+    final override fun Map<K, V>.objIterator(): Iterator<Map.Entry<K, V>> = iterator()
+    final override fun builder(): LinkedHashMap<K, V> = LinkedHashMap()
+    final override fun LinkedHashMap<K, V>.builderSize(): Int = size
+    final override fun LinkedHashMap<K, V>.toResult(): Map<K, V> = this
+    final override fun Map<K, V>.toBuilder(): LinkedHashMap<K, V> = this as? LinkedHashMap<K, V> ?: LinkedHashMap(this)
+    final override fun LinkedHashMap<K, V>.checkCapacity(size: Int) {}
+    final override fun LinkedHashMap<K, V>.insert(index: Int, element: Map.Entry<K, V>) { put(element.key, element.value) }
+
+    final override fun readItem(input: KInput, index: Int, builder: LinkedHashMap<K, V>) {
+        super.readItem(input, index, builder)
+    }
 }
 
-class HashMapSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
+open class HashMapSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
         MapLikeSerializer<K, V, HashMap<K, V>>(MapEntrySerializer<K, V>(kSerializer, vSerializer)) {
-    override val serialClassDesc: ListLikeDesc = HashMapClassDesc
+    final override val serialClassDesc: ListLikeDesc = HashMapClassDesc
 
-    override fun Map<K, V>.objSize(): Int = size
-    override fun Map<K, V>.objIterator(): Iterator<Map.Entry<K, V>> = iterator()
-    override fun builder(): HashMap<K, V> = HashMap()
-    override fun HashMap<K, V>.builderSize(): Int = size
-    override fun HashMap<K, V>.toResult(): Map<K, V> = this
-    override fun Map<K, V>.toBuilder(): HashMap<K, V> = this as? HashMap<K, V> ?: HashMap(this)
-    override fun HashMap<K, V>.checkCapacity(size: Int) {}
-    override fun HashMap<K, V>.insert(index: Int, element: Map.Entry<K, V>) { put(element.key, element.value) }
+    final override fun Map<K, V>.objSize(): Int = size
+    final override fun Map<K, V>.objIterator(): Iterator<Map.Entry<K, V>> = iterator()
+    final override fun builder(): HashMap<K, V> = HashMap()
+    final override fun HashMap<K, V>.builderSize(): Int = size
+    final override fun HashMap<K, V>.toResult(): Map<K, V> = this
+    final override fun Map<K, V>.toBuilder(): HashMap<K, V> = this as? HashMap<K, V> ?: HashMap(this)
+    final override fun HashMap<K, V>.checkCapacity(size: Int) {}
+    final override fun HashMap<K, V>.insert(index: Int, element: Map.Entry<K, V>) { put(element.key, element.value) }
+
+    final override fun readItem(input: KInput, index: Int, builder: HashMap<K, V>) {
+        super.readItem(input, index, builder)
+    }
 }
 
 const val KEY_INDEX = 0
