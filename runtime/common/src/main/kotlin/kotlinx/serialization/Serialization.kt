@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ annotation class Serializer(
 
 // additional optional annotations
 
-@Target(AnnotationTarget.PROPERTY)
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
 annotation class SerialName(val value: String)
 
 @Target(AnnotationTarget.PROPERTY)
@@ -62,6 +62,8 @@ interface KSerialClassDesc {
     fun getAnnotationsForIndex(index: Int): List<Annotation> = emptyList()
     val associatedFieldsCount: Int
         get() = 0
+
+    fun getAnnotationsForClass(): List<Annotation> = emptyList()
 }
 
 interface KSerialSaver<in T> {
