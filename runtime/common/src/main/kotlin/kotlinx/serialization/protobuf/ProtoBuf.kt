@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -387,7 +387,7 @@ class ProtoBuf(val context: SerialContext? = null) {
         }
 
         private fun KSerialClassDesc.getProtoDesc(index: Int): ProtoDesc {
-            val tag = this.getAnnotationsForIndex(index).filterIsInstance<SerialId>().single().id
+            val tag = this.getAnnotationsForIndex(index).filterIsInstance<SerialId>().onlySingleOrNull()?.id ?: index
             val format = this.getAnnotationsForIndex(index).filterIsInstance<ProtoType>().onlySingleOrNull()?.type
                     ?: ProtoNumberType.DEFAULT
             return tag to format
