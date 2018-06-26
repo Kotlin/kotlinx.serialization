@@ -20,7 +20,7 @@ buildscript {
     if (project.hasProperty("bootstrap")) {
         ext.compilerVersion = property('kotlin.version.snapshot')
         ext.librariesVersion = property('kotlin.version.snapshot')
-        ext.serializationPluginVersion = property('plugin.version') + '-SNAPSHOT'
+        ext.serializationPluginVersion = property('plugin.version.snapshot')
     } else {
         ext.compilerVersion = property('kotlin.version')
         ext.librariesVersion = property('kotlin.version')
@@ -74,7 +74,11 @@ ext {
 
 allprojects {
     group 'org.jetbrains.kotlinx'
-    version '0.5.1'
+    version '0.5.2'
+
+    if (project.hasProperty("bootstrap")) {
+        version = version + '-SNAPSHOT'
+    }
 
     repositories {
         jcenter()
