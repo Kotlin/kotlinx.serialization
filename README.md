@@ -212,9 +212,12 @@ Because serialization is still highly experimental, it is shipped as a separate 
 You can download additional IDEA plugin for working with projects that uses serialization from its 
 TeamCity build page:
 
-* Latest (1.2.50): [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1)
+* Latest stable (1.2.50): [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1&buildBranch=1.2.50)
+* Latest snapshot (1.2.60-eap-*): [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1)
+
 * For 1.2.31 and lower (not updated): [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1&buildBranch=1.2.30)
 * For 1.2.40 and higher (not updated): [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1&buildBranch=1.2.40)
+
 
 In IDEA, open `Settings - Plugins - Install plugin from disk...` and select downloaded .zip or .jar file.
 This installation will allow you to run code/tests from IDEA.
@@ -229,6 +232,8 @@ In case of issues with IDE, try to use gradle for running builds:
 | 0.1 – 0.3 | 1.1.50 – 1.2.10|
 | 0.4 – 0.4.1 | 1.2.20 – 1.2.21|
 | 0.4.2 – 0.5.0 | 1.2.30 – 1.2.41|
-| 0.5.1 | 1.2.50|
+| 0.5.1 | 1.2.50 - 1.2.51|
+
+Eap compiler versions are usually supported by snapshot versions (e.g. 1.2.60-eap-* is supported only by 0.5.2-SNAPSHOT)
 
 All ranges in table are inclusive
