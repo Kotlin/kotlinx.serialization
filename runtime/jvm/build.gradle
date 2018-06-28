@@ -61,13 +61,13 @@ dependencies {
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$librariesVersion"
     testCompile group: 'junit', name: 'junit', version: '4.4'
     testCompile 'io.kotlintest:kotlintest:2.0.4'
+    compile group: 'com.google.guava', name: 'guava', version: '25.1-jre'
 
     testCompile 'com.google.protobuf:protobuf-java:3.0.0'
     testCompile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jacksonVersion
     testCompile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jacksonVersion
     testCompile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: jacksonVersion
     testCompile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-cbor', version: jacksonVersion
-
 }
 compileJava {
     sourceCompatibility = "1.6"
