@@ -4,7 +4,7 @@ import com.google.common.hash.*
 import kotlinx.serialization.*
 
 /**
- * Primitive used to calculate any kinds of hash or checksum for arbitraty object
+ * Primitive used to compute any kind of hash or checksum for arbitraty object
  * as long as it's supported by serialization framework.
  *
  * Behaviour of hasher is unspecified, if output is used more than once after [makeLongHash] or [makeByteArrayHash] calls
@@ -26,7 +26,6 @@ interface Hasher {
      */
     val output: KOutput
 
-
     fun makeLongHash(): Long
 
     fun makeByteArrayHash(): ByteArray
@@ -37,3 +36,5 @@ interface Hasher {
      */
     fun reset(): Unit = throw UnsupportedOperationException("Current hasher ($this) is not resettable")
 }
+
+inline fun <reified T: Any> Hasher.longHash(value: T): Long = T::class.serializer().save(this.output, value).let { return this.makeLongHash() }
