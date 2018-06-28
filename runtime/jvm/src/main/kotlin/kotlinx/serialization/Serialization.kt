@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
 actual fun <T: Any> KClass<T>.serializer(): KSerializer<T> = this.java.invokeSerializerGetter()
-        ?: throw SerializationException("Can't locate default serializer for class $this")
+        ?: throw SerializationException("Can't locate default serializer for $this")
 
 actual fun String.toUtf8Bytes() = this.toByteArray(Charsets.UTF_8)
 actual fun stringFromUtf8Bytes(bytes: ByteArray) = String(bytes, Charsets.UTF_8)
@@ -41,7 +41,9 @@ internal fun <T> Class<T>.invokeSerializerGetter(vararg args: KSerializer<Any>):
     val companion = declaredFields.singleOrNull { it.name == "Companion" }?.apply { isAccessible = true }?.get(null)
     if (companion != null) {
         serializer = companion.javaClass.methods
-            .find { it.name == "serializer" && it.parameterTypes.size == args.size && it.parameterTypes.all { it == KSerializer::class.java } }
+            .find { method ->
+                method.name == "serializer" && method.parameterTypes.size == args.size && method.parameterTypes.all { it == KSerializer::class.java }
+            }
             ?.invoke(companion, *args) as? KSerializer<T>
     }
 
@@ -52,5 +54,5 @@ internal fun <T> Class<T>.invokeSerializerGetter(vararg args: KSerializer<Any>):
             ?.getField("INSTANCE")?.get(null) as? KSerializer<T>
     }
 
-    return serializer?: throw SerializationException("Can't locate companion serializer for class $this")
+    return serializer
 }
