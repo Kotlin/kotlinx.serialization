@@ -39,7 +39,7 @@ sealed class JsonPrimitive : JsonElement() {
  * Represents quoted JSON strings
  */
 data class JsonString(override val content: String): JsonPrimitive() {
-    private val quotedString: String by lazy(LazyThreadSafetyMode.PUBLICATION) { buildString { printQuoted(content) } }
+    private val quotedString: String by lazy { buildString { printQuoted(content) } }
 
     override fun toString(): String = quotedString
 }
