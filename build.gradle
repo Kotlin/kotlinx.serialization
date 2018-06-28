@@ -30,6 +30,7 @@ buildscript {
     repositories {
         jcenter()
         mavenLocal()
+        maven { url "https://plugins.gradle.org/m2/" }
         maven { url eapChannel }
         maven { url serializationRepo }
     }
@@ -37,10 +38,11 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$compilerVersion"
         classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$serializationPluginVersion"
-
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.2'
-
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.2"
+        classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.5"
+        classpath "net.ltgt.gradle:gradle-apt-plugin:0.10"
     }
 }
 

@@ -20,8 +20,10 @@ include ':common'
 include ':jvm'
 include ':js'
 include ':configparser'
+include ':benchmark'
 
 project(':common').projectDir = file('./runtime/common')
 project(':jvm').projectDir = file('./runtime/jvm')
 project(':js').projectDir = file('./runtime/js')
 project(':configparser').projectDir = file('./formats/config')
+project(':benchmark').projectDir = file('./benchmark')
