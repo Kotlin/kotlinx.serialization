@@ -21,18 +21,35 @@ package kotlinx.serialization.json
  */
 sealed class JsonElement
 
+/**
+ * Represents either quoted string, unquoted primitive or null
+ */
 sealed class JsonPrimitive : JsonElement() {
-    protected abstract val content: String
+    abstract val content: String
 
     val asInt: Int get() = content.toInt()
+    val asIntOrNull: Int? get() = content.toIntOrNull()
+
     val asLong: Long get() = content.toLong()
+    val asLongOrNull: Long? get() = content.toLongOrNull()
 
     val asDouble: Double get() = content.toDouble()
+    val asDoubleOrNull: Double? get() = content.toDoubleOrNull()
+
     val asFloat: Float get() = content.toFloat()
+    val asFloatOrNull: Float? get() = content.toFloatOrNull()
 
-    val asBoolean: Boolean get() = content.toBoolean()
+    val asBoolean: Boolean
+        get() = asBooleanOrNull ?: throw IllegalStateException("$content does not represent a Boolean")
 
-    val str: String get() = content
+    val asBooleanOrNull: Boolean?
+        get() = when {
+            content.equals("true", ignoreCase = true) -> true
+            content.equals("false", ignoreCase = true) -> false
+            else -> null
+        }
+
+    override fun toString() = content
 }
 
 /**
@@ -45,31 +62,39 @@ data class JsonString(override val content: String): JsonPrimitive() {
 }
 
 /**
- * Represents unquoted JSON primitives (numbers, booleans and null)
+ * Represents unquoted JSON primitives (numbers or booleans)
  */
-data class JsonLiteral(override val content: String): JsonPrimitive() {
+data class JsonLiteral internal constructor(override val content: String) : JsonPrimitive() {
     constructor(number: Number): this(number.toString())
     constructor(boolean: Boolean): this(boolean.toString())
 
     override fun toString() = content
 }
 
-val JsonNull = JsonLiteral("null")
+object JsonNull : JsonPrimitive() {
+    override val content: String = "null"
+}
 
-private fun unexpectedJson(key: String, expected: String): Nothing =
+@PublishedApi
+internal fun unexpectedJson(key: String, expected: String): Nothing =
     throw IllegalStateException("Element $key is not a $expected")
 
 data class JsonObject(val content: Map<String, JsonElement>) : JsonElement(), Map<String, JsonElement> by content {
-    fun getAsValue(key: String)= content.getValue(key) as? JsonPrimitive 
+    fun getAsValue(key: String): JsonPrimitive = content.getValue(key) as? JsonPrimitive
             ?: unexpectedJson(key, "JsonPrimitive")
-    fun getAsObject(key: String) = content.getValue(key) as? JsonObject 
+    fun getAsObject(key: String): JsonObject = content.getValue(key) as? JsonObject
             ?: unexpectedJson(key, "JsonObject")
-    fun getAsArray(key: String) = content.getValue(key) as? JsonArray 
+    fun getAsArray(key: String): JsonArray = content.getValue(key) as? JsonArray
             ?: unexpectedJson(key, "JsonArray")
 
-    fun lookUpValue(key: String)= content[key] as? JsonPrimitive
-    fun lookUpObject(key: String) = content[key] as? JsonObject
-    fun lookUpArray(key: String) = content[key] as? JsonArray
+    fun lookupValue(key: String): JsonPrimitive? = content[key] as? JsonPrimitive
+    fun lookupObject(key: String): JsonObject? = content[key] as? JsonObject
+    fun lookupArray(key: String): JsonArray? = content[key] as? JsonArray
+
+    inline fun <reified J : JsonElement> getAs(key: String): J = content.getValue(key) as? J
+            ?: unexpectedJson(key, J::class.toString())
+
+    inline fun <reified J : JsonElement> lookup(key: String): J? = content[key] as? J
 
     override fun toString(): String {
         return content.entries.joinToString(
@@ -87,72 +112,16 @@ data class JsonArray(val content: List<JsonElement>) : JsonElement(), List<JsonE
             ?: unexpectedJson("at $index", "JsonObject")
     fun getAsArray(index: Int) = content[index] as? JsonArray
             ?: unexpectedJson("at $index", "JsonArray")
-    
-    fun lookUpValue(index: Int) = content.getOrNull(index) as? JsonPrimitive
-    fun lookUpObject(index: Int) = content.getOrNull(index) as? JsonObject
-    fun lookUpArray(index: Int) = content.getOrNull(index) as? JsonArray
+
+    fun lookupValue(index: Int) = content.getOrNull(index) as? JsonPrimitive
+    fun lookupObject(index: Int) = content.getOrNull(index) as? JsonObject
+    fun lookupArray(index: Int) = content.getOrNull(index) as? JsonArray
+
+    inline fun <reified J : JsonElement> getAs(index: Int): J = content[index] as? J
+            ?: unexpectedJson("at $index", J::class.toString())
+
+    inline fun <reified J : JsonElement> lookup(index: Int): J? = content.getOrNull(index) as? J
+
 
     override fun toString() = content.joinToString(prefix = "[", postfix = "]")
-}
-
-
-class JsonTreeParser internal constructor(private val p: Parser) {
-    constructor(input: String) : this(Parser(input))
-
-    private fun readObject(): JsonElement {
-        p.requireTc(TC_BEGIN_OBJ) { "Expected start of object" }
-        p.nextToken()
-        val result: MutableMap<String, JsonElement> = hashMapOf()
-        while (true) {
-            if (p.tc == TC_COMMA) p.nextToken()
-            if (!p.canBeginValue) break
-            val key = p.takeStr()
-            p.requireTc(TC_COLON) { "Expected ':'" }
-            p.nextToken()
-            val elem = read()
-            result[key] = elem
-        }
-        p.requireTc(TC_END_OBJ) { "Expected end of object" }
-        p.nextToken()
-        return JsonObject(result)
-    }
-
-    private fun readValue(asLiteral: Boolean = false): JsonElement {
-        val str = p.takeStr()
-        return if (asLiteral) JsonLiteral(str) else JsonString(str)
-    }
-
-    private fun readArray(): JsonElement {
-        p.requireTc(TC_BEGIN_LIST) { "Expected start of array" }
-        p.nextToken()
-        val result: MutableList<JsonElement> = arrayListOf()
-        while (true) {
-            if (p.tc == TC_COMMA) p.nextToken()
-            if (!p.canBeginValue) break
-            val elem = read()
-            result.add(elem)
-        }
-        p.requireTc(TC_END_LIST) { "Expected end of array" }
-        p.nextToken()
-        return JsonArray(result)
-    }
-
-    fun read(): JsonElement {
-        if (!p.canBeginValue) fail(p.curPos, "Can't begin reading value from here")
-        val tc = p.tc
-        return when (tc) {
-            TC_NULL -> JsonNull.also { p.nextToken() }
-            TC_STRING -> readValue(asLiteral = false)
-            TC_OTHER -> readValue(asLiteral = true)
-            TC_BEGIN_OBJ -> readObject()
-            TC_BEGIN_LIST -> readArray()
-            else -> fail(p.curPos, "Can't begin reading element")
-        }
-    }
-
-    fun readFully(): JsonElement {
-        val r = read()
-        p.requireTc(TC_EOF) { "Input wasn't consumed fully" }
-        return r
-    }
 }

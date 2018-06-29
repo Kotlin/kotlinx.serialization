@@ -119,7 +119,7 @@ class JsonTreeMapper(val context: SerialContext? = null) {
                 elem = element
             } else {
                 check(element is JsonString) { "Expected tag to be JsonString" }
-                tag = (element as JsonString).str
+                tag = (element as JsonString).content
             }
         }
 
@@ -161,11 +161,11 @@ class JsonTreeMapper(val context: SerialContext? = null) {
 
         override fun readTaggedChar(tag: String): Char {
             val o = getValue(tag)
-            return if (o.str.length == 1) o.str[0] else throw SerializationException("$o can't be represented as Char")
+            return if (o.content.length == 1) o.content[0] else throw SerializationException("$o can't be represented as Char")
         }
 
         override fun <E : Enum<E>> readTaggedEnum(tag: String, enumClass: KClass<E>): E =
-            enumFromName(enumClass, (getValue(tag).str))
+            enumFromName(enumClass, (getValue(tag).content))
 
         override fun readTaggedNull(tag: String): Nothing? = null
         override fun readTaggedNotNullMark(tag: String) = currentElement(tag) !== JsonNull
@@ -181,7 +181,7 @@ class JsonTreeMapper(val context: SerialContext? = null) {
         override fun readTaggedLong(tag: String) = getValue(tag).asLong
         override fun readTaggedFloat(tag: String) = getValue(tag).asFloat
         override fun readTaggedDouble(tag: String) = getValue(tag).asDouble
-        override fun readTaggedString(tag: String) = getValue(tag).str
+        override fun readTaggedString(tag: String) = getValue(tag).content
 
     }
 
