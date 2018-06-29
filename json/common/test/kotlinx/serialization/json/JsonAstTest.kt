@@ -27,8 +27,8 @@ class JsonAstTest {
 
     @Test
     fun jsonValue() {
-        val v = JsonLiteral("foo")
-        assertEquals(v, JsonTreeParser("foo").readFully())
+        val v = JsonString("foo")
+        assertEquals(v, JsonTreeParser("\"foo\"").readFully())
     }
 
     @Test
@@ -41,9 +41,9 @@ class JsonAstTest {
         assertEquals(setOf("a", "b", "c", "d"), elem.keys)
 
         assertEquals(JsonString("foo"), elem["a"])
-        assertEquals(10, elem.lookUpValue("b")?.asInt)
-        assertEquals(true, elem.lookUpValue("c")?.asBoolean)
-        assertTrue(elem.getValue("d") === JsonNull)
+        assertEquals(10, elem.lookupValue("b")?.asInt)
+        assertEquals(true, elem.lookupValue("c")?.asBoolean)
+        assertTrue(elem.getAs<JsonNull>("d") === JsonNull)
     }
 
     @Test
@@ -57,12 +57,12 @@ class JsonAstTest {
         assertTrue(elem.getValue("c") is JsonArray)
 
         val array = elem.getAsArray("c")
-        assertEquals("foo", array.lookUpValue(0)?.str)
-        assertEquals(100500, array.lookUpValue(1)?.asInt)
+        assertEquals("foo", array.lookupValue(0)?.content)
+        assertEquals(100500, array.lookupValue(1)?.asInt)
 
         assertTrue(array[2] is JsonObject)
         val third = array.getAsObject(2)
-        assertEquals("baz", third.getAsValue("bar").str)
+        assertEquals("baz", third.getAsValue("bar").content)
     }
 
     @Test
@@ -71,5 +71,22 @@ class JsonAstTest {
         val elem = JsonTreeParser(input).readFully()
         val json = elem.toString()
         assertEquals(input, json)
+    }
+
+    @Test
+    fun exceptionCorrectness() {
+        val tree =
+            JsonObject(mapOf("a" to JsonLiteral(42), "b" to JsonArray(listOf(JsonNull)), "c" to JsonLiteral(false)))
+        assertFailsWith<NoSuchElementException> { tree.getAsObject("no key") }
+        assertFailsWith<IllegalStateException> { tree.getAsArray("a") }
+        assertEquals(null, tree.lookupObject("no key"))
+        assertEquals(null, tree.lookupArray("a"))
+
+        val n = tree.getAsArray("b").getAsValue(0)
+        assertFailsWith<NumberFormatException> { n.asInt }
+        assertEquals(null, n.asIntOrNull)
+
+        assertFailsWith<IllegalStateException> { n.asBoolean }
+        assertEquals(null, n.asBooleanOrNull)
     }
 }

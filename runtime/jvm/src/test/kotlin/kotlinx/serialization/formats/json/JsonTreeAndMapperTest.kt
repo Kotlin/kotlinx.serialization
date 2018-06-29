@@ -36,7 +36,7 @@ object EitherSerializer: KSerializer<DummyEither> {
                 ?: throw SerializationException("This class can be loaded only by JSON")
         val tree = jsonReader.readAsTree() as? JsonObject
                 ?: throw SerializationException("Expected JSON object")
-        if ("error" in tree) return DummyEither.Left(tree.getAsValue("error").str)
+        if ("error" in tree) return DummyEither.Left(tree.getAsValue("error").content)
         return DummyEither.Right(JsonTreeMapper().readTree(tree, Payload.serializer()))
     }
 
