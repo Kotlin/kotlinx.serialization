@@ -59,9 +59,9 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
             val writer = when (desc.kind) {
-                SerialKind.LIST, SerialKind.SET -> CBORListWriter(encoder)
-                SerialKind.MAP -> CBORMapWriter(encoder)
-                SerialKind.ENTRY -> CBOREntryWriter(encoder)
+                StructureKind.LIST, StructureKind.SET -> CBORListWriter(encoder)
+                StructureKind.MAP -> CBORMapWriter(encoder)
+                StructureKind.ENTRY -> CBOREntryWriter(encoder)
                 else -> CBORWriter(encoder)
             }
             writer.writeBeginToken()
@@ -208,9 +208,9 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             val re = when (desc.kind) {
-                SerialKind.LIST, SerialKind.SET -> CBORListReader(decoder)
-                SerialKind.MAP -> CBORMapReader(decoder)
-                SerialKind.ENTRY -> CBOREntryReader(decoder)
+                StructureKind.LIST, StructureKind.SET -> CBORListReader(decoder)
+                StructureKind.MAP -> CBORMapReader(decoder)
+                StructureKind.ENTRY -> CBOREntryReader(decoder)
                 else -> CBORReader(decoder)
             }
             re.skipBeginToken()

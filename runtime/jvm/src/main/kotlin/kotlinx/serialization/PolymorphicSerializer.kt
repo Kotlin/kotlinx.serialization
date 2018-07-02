@@ -22,47 +22,47 @@ import kotlinx.serialization.internal.PolymorphicClassDesc
 
 object PolymorphicSerializer : KSerializer<Any> {
 
-    override val serialClassDesc: SerialDescriptor
+    override val descriptor: SerialDescriptor
         get() = PolymorphicClassDesc
 
     override fun serialize(output: Encoder, obj: Any) {
         val saver = serializerByValue(obj, output.context)
         @Suppress("NAME_SHADOWING")
-        val output = output.beginStructure(serialClassDesc)
-        output.encodeStringElement(serialClassDesc, 0, saver.serialClassDesc.name)
-        output.encodeSerializableElement(serialClassDesc, 1, saver, obj)
-        output.endStructure(serialClassDesc)
+        val output = output.beginStructure(descriptor)
+        output.encodeStringElement(descriptor, 0, saver.descriptor.name)
+        output.encodeSerializableElement(descriptor, 1, saver, obj)
+        output.endStructure(descriptor)
     }
 
     override fun deserialize(input: Decoder): Any {
         @Suppress("NAME_SHADOWING")
-        val input = input.beginStructure(serialClassDesc)
+        val input = input.beginStructure(descriptor)
         var klassName: String? = null
         var value: Any? = null
         mainLoop@ while (true) {
-            when (input.decodeElementIndex(serialClassDesc)) {
+            when (input.decodeElementIndex(descriptor)) {
                 READ_ALL -> {
-                    klassName = input.decodeStringElement(serialClassDesc, 0)
+                    klassName = input.decodeStringElement(descriptor, 0)
                     val loader = serializerBySerialDescClassname<Any>(klassName, input.context)
-                    value = input.decodeSerializableElement(serialClassDesc, 1, loader)
+                    value = input.decodeSerializableElement(descriptor, 1, loader)
                     break@mainLoop
                 }
                 READ_DONE -> {
                     break@mainLoop
                 }
                 0 -> {
-                    klassName = input.decodeStringElement(serialClassDesc, 0)
+                    klassName = input.decodeStringElement(descriptor, 0)
                 }
                 1 -> {
                     klassName = requireNotNull(klassName) { "Cannot read polymorphic value before its type token" }
                     val loader = serializerBySerialDescClassname<Any>(klassName, input.context)
-                    value = input.decodeSerializableElement(serialClassDesc, 1, loader)
+                    value = input.decodeSerializableElement(descriptor, 1, loader)
                 }
                 else -> throw SerializationException("Invalid index")
             }
         }
 
-        input.endStructure(serialClassDesc)
+        input.endStructure(descriptor)
         return requireNotNull(value) { "Polymorphic value have not been read" }
     }
 }

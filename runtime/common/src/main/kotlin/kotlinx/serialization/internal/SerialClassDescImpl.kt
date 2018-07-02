@@ -16,18 +16,18 @@
 
 package kotlinx.serialization.internal
 
+import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
-import kotlinx.serialization.SerialDescriptor
-import kotlinx.serialization.SerialKind
 
 open class SerialClassDescImpl(override val name: String) : SerialDescriptor {
-    override val kind: SerialKind get() = SerialKind.CLASS
+    override val kind: SerialKind get() = StructureKind.CLASS
 
     private val names: MutableList<String> = ArrayList()
     private val annotations: MutableList<MutableList<Annotation>> = mutableListOf()
     private val classAnnotations: MutableList<Annotation> = mutableListOf()
     private var _indices: Map<String, Int>? = null
     private val indices: Map<String, Int> get() = _indices ?: buildIndices()
+    private val descriptors: MutableList<SerialDescriptor> = mutableListOf()
 
     fun addElement(name: String) {
         names.add(name)
@@ -38,13 +38,21 @@ open class SerialClassDescImpl(override val name: String) : SerialDescriptor {
         annotations.last().add(a)
     }
 
+    fun pushDescriptor(desc: SerialDescriptor) {
+        descriptors.add(desc)
+    }
+
+    override fun getElementDescriptor(index: Int): SerialDescriptor {
+        return descriptors[index]
+    }
+
     fun pushClassAnnotation(a: Annotation) {
         classAnnotations.add(a)
     }
 
-    override fun getAnnotationsForClass(): List<Annotation> = classAnnotations
-    override fun getAnnotationsForIndex(index: Int): List<Annotation> = annotations[index]
-    override val associatedFieldsCount: Int
+    override fun getEntityAnnotations(): List<Annotation> = classAnnotations
+    override fun getElementAnnotations(index: Int): List<Annotation> = annotations[index]
+    override val elementsCount: Int
         get() = annotations.size
 
     override fun getElementName(index: Int): String = names[index]

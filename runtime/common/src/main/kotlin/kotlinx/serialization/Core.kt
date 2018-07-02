@@ -19,36 +19,51 @@ package kotlinx.serialization
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlin.reflect.KClass
 
-enum class SerialKind { // unit and object unused?
-    CLASS, OBJECT, UNIT, SEALED, LIST, SET, MAP, ENTRY, POLYMORPHIC, PRIMITIVE, KIND_ENUM
-}
 
 interface SerialDescriptor {
     val name: String
     val kind: SerialKind
+
     fun getElementName(index: Int): String
     fun getElementIndex(name: String): Int
+
+    fun getEntityAnnotations(): List<Annotation> = emptyList()
+    fun getElementAnnotations(index: Int): List<Annotation> = emptyList()
+
+    val elementsCount: Int
+        get() = 0
+
+    fun getElementDescriptor(index: Int): SerialDescriptor = TODO()
+
+    val isNullable: Boolean
+        get() = false
+
+    fun isElementOptional(index: Int): Boolean = TODO()
+
+    // --- deprecations and helpers
+
     fun getElementIndexOrThrow(name: String): Int {
         val i = getElementIndex(name)
         if (i == UNKNOWN_NAME) throw SerializationException("Unknown name '$name'")
         return i
     }
 
-    fun getAnnotationsForIndex(index: Int): List<Annotation> = emptyList()
+    @Deprecated("Obsolete name from preview version of library.", ReplaceWith("elementsCount"))
     val associatedFieldsCount: Int
-        get() = 0
-
-    fun getAnnotationsForClass(): List<Annotation> = emptyList()
+        get() = elementsCount
 }
-
 
 interface SerializationStrategy<in T> {
     fun serialize(output: Encoder, obj : T)
+
+    val descriptor: SerialDescriptor
 }
 
 interface DeserializationStrategy<T> {
     fun deserialize(input: Decoder): T
     fun patch(input: Decoder, old: T): T
+
+    val descriptor: SerialDescriptor
 }
 
 enum class UpdateMode {
@@ -56,9 +71,9 @@ enum class UpdateMode {
 }
 
 interface KSerializer<T>: SerializationStrategy<T>, DeserializationStrategy<T> {
-    val serialClassDesc: SerialDescriptor
+    override val descriptor: SerialDescriptor
 
-    override fun patch(input: Decoder, old: T): T = throw UpdateNotSupportedException(serialClassDesc.name)
+    override fun patch(input: Decoder, old: T): T = throw UpdateNotSupportedException(descriptor.name)
 }
 
 

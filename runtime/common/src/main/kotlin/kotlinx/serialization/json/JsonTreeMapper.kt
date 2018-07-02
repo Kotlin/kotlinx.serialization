@@ -69,9 +69,9 @@ class JsonTreeMapper(val context: SerialContext? = null) {
                 if (currentTagOrNull == null) nodeConsumer
                 else { node -> putElement(currentTag, node) }
             return when (desc.kind) {
-                KSerialClassKind.LIST, KSerialClassKind.SET -> JsonTreeListOutput(consumer)
-                KSerialClassKind.MAP -> JsonTreeMapOutput(consumer)
-                KSerialClassKind.ENTRY -> JsonTreeEntryOutput(this@AbstractJsonTreeOutput::putElement)
+                StructureKind.LIST, StructureKind.SET -> JsonTreeListOutput(consumer)
+                StructureKind.MAP -> JsonTreeMapOutput(consumer)
+                StructureKind.ENTRY -> JsonTreeEntryOutput(this@AbstractJsonTreeOutput::putElement)
                 else -> JsonTreeOutput(consumer)
             }
         }
@@ -146,9 +146,9 @@ class JsonTreeMapper(val context: SerialContext? = null) {
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             val curObj = currentTagOrNull?.let { currentElement(it) } ?: obj
             return when (desc.kind) {
-                KSerialClassKind.LIST, KSerialClassKind.SET -> JsonTreeListInput(checkCast(curObj))
-                KSerialClassKind.MAP -> JsonTreeMapInput(checkCast(curObj))
-                KSerialClassKind.ENTRY -> JsonTreeMapEntryInput(curObj, currentTag)
+                StructureKind.LIST, StructureKind.SET -> JsonTreeListInput(checkCast(curObj))
+                StructureKind.MAP -> JsonTreeMapInput(checkCast(curObj))
+                StructureKind.ENTRY -> JsonTreeMapEntryInput(curObj, currentTag)
                 else -> JsonTreeInput(checkCast(curObj))
             }
         }

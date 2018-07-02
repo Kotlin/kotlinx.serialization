@@ -72,7 +72,7 @@ class DynamicParserTest {
             return NotDefault(input.decodeInt())
         }
 
-        override val serialClassDesc = SerialClassDescImpl("notDefault")
+        override val descriptor = SerialClassDescImpl("notDefault")
     }
 
     @Serializable

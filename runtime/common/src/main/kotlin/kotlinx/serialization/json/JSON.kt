@@ -321,15 +321,15 @@ internal enum class Mode(val begin: Char, val end: Char) {
 
 private fun switchMode(mode: Mode, desc: SerialDescriptor, typeParams: Array<out KSerializer<*>>): Mode =
     when (desc.kind) {
-        SerialKind.POLYMORPHIC -> Mode.POLY
-        SerialKind.LIST, SerialKind.SET -> Mode.LIST
-        SerialKind.MAP -> {
-            val keyKind = typeParams[0].serialClassDesc.kind
-            if (keyKind == SerialKind.PRIMITIVE || keyKind == SerialKind.KIND_ENUM)
+        UnionKind.POLYMORPHIC -> Mode.POLY
+        StructureKind.LIST, StructureKind.SET -> Mode.LIST
+        StructureKind.MAP -> {
+            val keyKind = typeParams[0].descriptor.kind
+            if (keyKind == PrimitiveKind.PRIMITIVE || keyKind == UnionKind.ENUM_KIND)
                 Mode.MAP
             else Mode.LIST
         }
-        SerialKind.ENTRY -> if (mode == Mode.MAP) Mode.ENTRY else Mode.OBJ
+        StructureKind.ENTRY -> if (mode == Mode.MAP) Mode.ENTRY else Mode.OBJ
         else -> Mode.OBJ
     }
 

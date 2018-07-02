@@ -63,9 +63,9 @@ data class Custom(
 )
 
 object CustomSerializer : KSerializer<Custom> {
-    override val serialClassDesc = object : SerialDescriptor {
+    override val descriptor = object : SerialDescriptor {
         override val name = "kotlinx.serialization.Custom"
-        override val kind: SerialKind = SerialKind.CLASS
+        override val kind: SerialKind = StructureKind.CLASS
         override fun getElementName(index: Int) = when(index) {
             0 -> "value1"
             1 -> "value2"
@@ -79,20 +79,20 @@ object CustomSerializer : KSerializer<Custom> {
     }
 
     override fun serialize(output: Encoder, obj : Custom) {
-        val output = output.beginStructure(serialClassDesc)
-        output.encodeStringElement(serialClassDesc, 0, obj._value1)
-        output.encodeIntElement(serialClassDesc, 1, obj._value2)
-        output.endStructure(serialClassDesc)
+        val output = output.beginStructure(descriptor)
+        output.encodeStringElement(descriptor, 0, obj._value1)
+        output.encodeIntElement(descriptor, 1, obj._value2)
+        output.endStructure(descriptor)
     }
 
     override fun deserialize(input: Decoder): Custom {
-        val input = input.beginStructure(serialClassDesc)
-        if (input.decodeElementIndex(serialClassDesc) != 0) throw java.lang.IllegalStateException()
-        val value1 = input.decodeStringElement(serialClassDesc, 0)
-        if (input.decodeElementIndex(serialClassDesc) != 1) throw java.lang.IllegalStateException()
-        val value2 = input.decodeIntElement(serialClassDesc, 1)
-        if (input.decodeElementIndex(serialClassDesc) != CompositeDecoder.READ_DONE) throw java.lang.IllegalStateException()
-        input.endStructure(serialClassDesc)
+        val input = input.beginStructure(descriptor)
+        if (input.decodeElementIndex(descriptor) != 0) throw java.lang.IllegalStateException()
+        val value1 = input.decodeStringElement(descriptor, 0)
+        if (input.decodeElementIndex(descriptor) != 1) throw java.lang.IllegalStateException()
+        val value2 = input.decodeIntElement(descriptor, 1)
+        if (input.decodeElementIndex(descriptor) != CompositeDecoder.READ_DONE) throw java.lang.IllegalStateException()
+        input.endStructure(descriptor)
         return Custom(value1, value2)
     }
 }
@@ -191,7 +191,7 @@ class SerializeFlatTest() {
 
         fun checkDesc(name: String, desc: SerialDescriptor) {
             if (desc.name != "kotlinx.serialization." + name) fail("checkDesc name $desc")
-            if (desc.kind != SerialKind.CLASS) fail("checkDesc kind ${desc.kind}")
+            if (desc.kind != StructureKind.CLASS) fail("checkDesc kind ${desc.kind}")
             if (desc.getElementName(0) != "value1") fail("checkDesc[0] $desc")
             if (desc.getElementName(1) != "value2") fail("checkDesc[1] $desc")
         }

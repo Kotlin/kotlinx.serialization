@@ -49,7 +49,7 @@ abstract class ElementValueEncoder : CompositeEncoder {
     }
 
     override fun encodeUnit() {
-        val output = beginStructure(UnitSerializer.serialClassDesc); output.endStructure(UnitSerializer.serialClassDesc)
+        val output = beginStructure(UnitSerializer.descriptor); output.endStructure(UnitSerializer.descriptor)
     }
 
     // type-specific value-based output, override for performance and custom type representations
@@ -107,7 +107,7 @@ abstract class ElementValueDecoder : CompositeDecoder {
     }
     override fun decodeNullableValue(): Any? = if (decodeNotNullMark()) decodeValue() else decodeNull()
     override fun decodeUnit() {
-        val reader = beginStructure(UnitSerializer.serialClassDesc); reader.endStructure(UnitSerializer.serialClassDesc)
+        val reader = beginStructure(UnitSerializer.descriptor); reader.endStructure(UnitSerializer.descriptor)
     }
 
     // type-specific value-based input, override for performance and custom type representations

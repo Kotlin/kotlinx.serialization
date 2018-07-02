@@ -21,8 +21,8 @@ import kotlinx.serialization.SerialId
 import kotlinx.serialization.internal.onlySingleOrNull
 
 internal actual fun extractParameters(desc: SerialDescriptor, index: Int): ProtoDesc {
-    val tag = desc.getAnnotationsForIndex(index).filterIsInstance<SerialId>().onlySingleOrNull()?.id ?: index
-    val format = desc.getAnnotationsForIndex(index).filterIsInstance<ProtoType>().onlySingleOrNull()?.type
+    val tag = desc.getElementAnnotations(index).filterIsInstance<SerialId>().onlySingleOrNull()?.id ?: index
+    val format = desc.getElementAnnotations(index).filterIsInstance<ProtoType>().onlySingleOrNull()?.type
             ?: ProtoNumberType.DEFAULT
     return tag to format
 }

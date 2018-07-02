@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,20 +28,20 @@ fun registerSerializer(forClassName: String, serializer: KSerializer<*>) {
 }
 
 private fun mapJavaClassNameToKotlin(s: String): String = when(s) {
-    "int", "java.lang.Integer" -> IntSerializer.serialClassDesc.name
-    "boolean", "java.lang.Boolean" -> BooleanSerializer.serialClassDesc.name
-    "byte", "java.lang.Byte" -> ByteSerializer.serialClassDesc.name
-    "short", "java.lang.Short" -> ShortSerializer.serialClassDesc.name
-    "long", "java.lang.Long" -> LongSerializer.serialClassDesc.name
-    "float", "java.lang.Float" -> FloatSerializer.serialClassDesc.name
-    "double", "java.lang.Double" -> DoubleSerializer.serialClassDesc.name
-    "char", "java.lang.Character" -> CharSerializer.serialClassDesc.name
-    "java.lang.String" -> StringSerializer.serialClassDesc.name
-    "java.util.List", "java.util.ArrayList" -> ArrayListClassDesc.name
-    "java.util.Set", "java.util.LinkedHashSet" -> LinkedHashSetClassDesc.name
-    "java.util.HashSet" -> HashSetClassDesc.name
-    "java.util.Map", "java.util.LinkedHashMap" -> LinkedHashMapClassDesc.name
-    "java.util.HashMap" -> HashMapClassDesc.name
+    "int", "java.lang.Integer" -> IntSerializer.descriptor.name
+    "boolean", "java.lang.Boolean" -> BooleanSerializer.descriptor.name
+    "byte", "java.lang.Byte" -> ByteSerializer.descriptor.name
+    "short", "java.lang.Short" -> ShortSerializer.descriptor.name
+    "long", "java.lang.Long" -> LongSerializer.descriptor.name
+    "float", "java.lang.Float" -> FloatSerializer.descriptor.name
+    "double", "java.lang.Double" -> DoubleSerializer.descriptor.name
+    "char", "java.lang.Character" -> CharSerializer.descriptor.name
+    "java.lang.String" -> StringSerializer.descriptor.name
+    "java.util.List", "java.util.ArrayList" -> ARRAYLIST_NAME
+    "java.util.Set", "java.util.LinkedHashSet" -> LINKEDHASHSET_NAME
+    "java.util.HashSet" -> HASHSET_NAME
+    "java.util.Map", "java.util.LinkedHashMap" -> LINKEDHASHMAP_NAME
+    "java.util.HashMap" -> HASHMAP_NAME
     "java.util.Map\$Entry" -> MapEntryClassDesc.name
     else -> s
 }

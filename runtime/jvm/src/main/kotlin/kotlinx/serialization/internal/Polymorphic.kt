@@ -20,7 +20,7 @@ import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
 internal object PolymorphicClassDesc : SerialClassDescImpl("kotlin.Any") {
-    override val kind: SerialKind = SerialKind.POLYMORPHIC
+    override val kind: SerialKind = UnionKind.POLYMORPHIC
 
     init {
         addElement("klass")
@@ -61,8 +61,8 @@ internal object SerialCache {
     internal val map: MutableMap<String, KSerializer<*>> = HashMap()
 
     init {
-        allPrimitives.forEach { registerSerializer(it.serialClassDesc.name, it) }
-        ClassSerialCache.map.values.toList().forEach { registerSerializer(it.serialClassDesc.name, it) }
+        allPrimitives.forEach { registerSerializer(it.descriptor.name, it) }
+        ClassSerialCache.map.values.toList().forEach { registerSerializer(it.descriptor.name, it) }
         @Suppress("UNCHECKED_CAST")
         registerSerializer("kotlin.Array", ReferenceArraySerializer<Any, Any>(Any::class, (PolymorphicSerializer as KSerializer<Any>)))
     }

@@ -19,6 +19,7 @@ package kotlinx.serialization
 import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
 import kotlin.reflect.KClass
 
+@Suppress("OverridingDeprecatedMember")
 open class ValueTransformer {
     // ------- top-level API (use it) -------
 

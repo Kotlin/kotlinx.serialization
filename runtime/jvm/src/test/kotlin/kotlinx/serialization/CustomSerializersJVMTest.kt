@@ -45,7 +45,7 @@ class CustomSerializersJVMTest {
     object PayloadSerializer {}
 
     object BinaryPayloadSerializer : KSerializer<Payload> {
-        override val serialClassDesc: SerialDescriptor = SerialClassDescImpl("Payload")
+        override val descriptor: SerialDescriptor = SerialClassDescImpl("Payload")
 
         override fun serialize(output: Encoder, obj: Payload) {
             output.encodeString(HexConverter.printHexBinary(obj.s.toByteArray()))

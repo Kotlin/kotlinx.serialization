@@ -21,8 +21,8 @@ import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.internal.KEY_INDEX
 
-private val SerialKind.listLike get() = this == SerialKind.LIST || this == SerialKind.SET || this == SerialKind.POLYMORPHIC
-private val SerialKind.objLike get() = this == SerialKind.CLASS || this == SerialKind.OBJECT || this == SerialKind.SEALED
+private val SerialKind.listLike get() = this == StructureKind.LIST || this == StructureKind.SET || this == UnionKind.POLYMORPHIC
+private val SerialKind.objLike get() = this == StructureKind.CLASS || this == UnionKind.OBJECT || this == UnionKind.SEALED
 
 class ConfigParser(val context: SerialContext? = null) {
     inline fun <reified T : Any> parse(conf: Config): T = parse(conf, context.klassSerializer(T::class))
@@ -90,7 +90,7 @@ class ConfigParser(val context: SerialContext? = null) {
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder = when {
             desc.kind.listLike -> ListConfigReader(conf.getList(currentTag))
-            desc.kind == SerialKind.MAP -> MapConfigReader(conf.getObject(currentTag))
+            desc.kind == StructureKind.MAP -> MapConfigReader(conf.getObject(currentTag))
             else -> this
         }
     }
@@ -101,7 +101,7 @@ class ConfigParser(val context: SerialContext? = null) {
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder = when {
             desc.kind.listLike -> ListConfigReader(list[currentTag] as ConfigList)
             desc.kind.objLike -> ConfigReader((list[currentTag] as ConfigObject).toConfig())
-            desc.kind == SerialKind.MAP -> MapConfigReader(list[currentTag] as ConfigObject)
+            desc.kind == StructureKind.MAP -> MapConfigReader(list[currentTag] as ConfigObject)
             else -> this
         }
 
@@ -121,7 +121,7 @@ class ConfigParser(val context: SerialContext? = null) {
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             return when (desc.kind) {
-                SerialKind.ENTRY -> MapEntryReader(entries[currentTag])
+                StructureKind.ENTRY -> MapEntryReader(entries[currentTag])
                 else -> throw IllegalStateException("Map not from entries")
             }
         }
@@ -140,7 +140,7 @@ class ConfigParser(val context: SerialContext? = null) {
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder = when {
             desc.kind.listLike -> ListConfigReader(e.value as ConfigList)
             desc.kind.objLike -> ConfigReader((e.value as ConfigObject).toConfig())
-            desc.kind == SerialKind.MAP -> MapConfigReader(e.value as ConfigObject)
+            desc.kind == StructureKind.MAP -> MapConfigReader(e.value as ConfigObject)
             else -> this
         }
 

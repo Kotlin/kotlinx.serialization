@@ -32,7 +32,7 @@ class DynamicObjectParser(val context: SerialContext? = null) {
         private var pos = 0
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
-            while (pos < desc.associatedFieldsCount) {
+            while (pos < desc.elementsCount) {
                 val name = desc.getTag(pos++)
                 if (obj[name] !== undefined) return pos - 1
             }
@@ -68,9 +68,9 @@ class DynamicObjectParser(val context: SerialContext? = null) {
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             val curObj = currentTagOrNull?.let { obj[it] } ?: obj
             return when (desc.kind) {
-                SerialKind.LIST, SerialKind.SET -> DynamicListInput(curObj)
-                SerialKind.MAP -> DynamicMapInput(curObj)
-                SerialKind.ENTRY -> DynamicMapValueInput(curObj, currentTag)
+                StructureKind.LIST, StructureKind.SET -> DynamicListInput(curObj)
+                StructureKind.MAP -> DynamicMapInput(curObj)
+                StructureKind.ENTRY -> DynamicMapValueInput(curObj, currentTag)
                 else -> DynamicInput(curObj)
             }
         }

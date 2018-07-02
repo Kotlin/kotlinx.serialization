@@ -34,29 +34,29 @@ class SerialNamesTest {
 
     @Test
     fun haveCustomPropertyName() {
-        val desc = WithNames.serializer().serialClassDesc
+        val desc = WithNames.serializer().descriptor
         val b = desc.getElementName(1)
         assertEquals("b", b)
     }
 
     @Test
     fun haveCustomClassName() {
-        val desc = WithNames.serializer().serialClassDesc
+        val desc = WithNames.serializer().descriptor
         val name = desc.name
         assertEquals("MyClass", name)
     }
 
     @Test
     fun haveCustomAnnotationOnProperty() {
-        val desc = WithNames.serializer().serialClassDesc
-        val b = desc.getAnnotationsForIndex(1).getCustom()
+        val desc: SerialDescriptor = WithNames.serializer().descriptor
+        val b = desc.getElementAnnotations(1).getCustom()
         assertEquals("onProperty", b)
     }
 
     @Test
     fun haveCustomAnnotationOnClass() {
-        val desc = WithNames.serializer().serialClassDesc
-        val name = desc.getAnnotationsForClass().getCustom()
+        val desc: SerialDescriptor = WithNames.serializer().descriptor
+        val name = desc.getEntityAnnotations().getCustom()
         assertEquals("onClass", name)
     }
 }

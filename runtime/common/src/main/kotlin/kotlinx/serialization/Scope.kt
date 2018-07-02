@@ -16,6 +16,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.internal.PrimitiveDesc
 import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
@@ -50,6 +51,6 @@ class ContextSerializer <T : Any> (val serializableClass: KClass<T>) : KSerializ
     }
     override fun deserialize(input: Decoder): T = input.decodeValue(serializableClass)
 
-    override val serialClassDesc: SerialDescriptor
-        get() = throw SerializationException("No descriptor")
+    override val descriptor: SerialDescriptor
+        get() = PrimitiveDesc("CONTEXT") //todo: remove this crutch
 }

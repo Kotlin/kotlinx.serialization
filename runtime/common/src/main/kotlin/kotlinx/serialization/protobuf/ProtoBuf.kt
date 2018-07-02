@@ -44,9 +44,9 @@ class ProtoBuf(val context: SerialContext? = null) {
         }
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder = when (desc.kind) {
-            SerialKind.LIST, SerialKind.MAP, SerialKind.SET -> RepeatedWriter(encoder, currentTag)
-            SerialKind.CLASS, SerialKind.OBJECT, SerialKind.SEALED, SerialKind.POLYMORPHIC -> ObjectWriter(currentTagOrNull, encoder)
-            SerialKind.ENTRY -> MapEntryWriter(currentTagOrNull, encoder)
+            StructureKind.LIST, StructureKind.MAP, StructureKind.SET -> RepeatedWriter(encoder, currentTag)
+            StructureKind.CLASS, UnionKind.OBJECT, UnionKind.SEALED, UnionKind.POLYMORPHIC -> ObjectWriter(currentTagOrNull, encoder)
+            StructureKind.ENTRY -> MapEntryWriter(currentTagOrNull, encoder)
             else -> throw SerializationException("Primitives are not supported at top-level")
         }
 
@@ -155,15 +155,15 @@ class ProtoBuf(val context: SerialContext? = null) {
 
         private val indexByTag: MutableMap<Int, Int> = mutableMapOf()
         private fun findIndexByTag(desc: SerialDescriptor, serialId: Int): Int {
-            return (0 until desc.associatedFieldsCount).firstOrNull { desc.getTag(it).first == serialId }
+            return (0 until desc.elementsCount).firstOrNull { desc.getTag(it).first == serialId }
                     ?: -1
         }
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder = when (desc.kind) {
-            SerialKind.LIST, SerialKind.MAP, SerialKind.SET -> RepeatedReader(decoder, currentTag)
-            SerialKind.CLASS, SerialKind.OBJECT, SerialKind.SEALED, SerialKind.POLYMORPHIC ->
+            StructureKind.LIST, StructureKind.MAP, StructureKind.SET -> RepeatedReader(decoder, currentTag)
+            StructureKind.CLASS, UnionKind.OBJECT, UnionKind.SEALED, UnionKind.POLYMORPHIC ->
                 ProtobufReader(makeDelimited(decoder, currentTagOrNull))
-            SerialKind.ENTRY -> MapEntryReader(makeDelimited(decoder, currentTagOrNull), currentTagOrNull)
+            StructureKind.ENTRY -> MapEntryReader(makeDelimited(decoder, currentTagOrNull), currentTagOrNull)
             else -> throw SerializationException("Primitives are not supported at top-level")
         }
 
