@@ -9,75 +9,54 @@ data class UserAddress(val country: String, val city: String?, val zipCode: Int?
 // Just bag of properties
 data class UserProperties(val flag: Boolean, val int: Int, val double: Double, val nullableFlag: Boolean?)
 
-object UserAddressParser : JsonParser<UserAddress>(UserAddress::class) {
+object UserAddressParser : JsonParser<UserAddress>() {
 
-    override fun write(value: UserAddress): JsonElement {
-        val country = JsonLiteral(value.country)
-        val city = value.city?.let { JsonLiteral(it) } ?: JsonNull
-        val zipCode = value.zipCode?.let { JsonLiteral(it) } ?: JsonNull
-        val metadata = JsonArray(value.metadata.map { JsonLiteral(it) })
-        return JsonObject(
-            mapOf(
-                "country" to country,
-                "city" to city,
-                "zipCode" to zipCode,
-                "metadata" to metadata
-            )
-        )
+    override fun write(value: UserAddress) = json {
+        "country" to value.country
+        "city" to value.city
+        "zipCode" to value.zipCode
+        "metadata" to JsonArray(value.metadata.map { JsonLiteral(it) })
     }
 
     override fun read(json: JsonObject): UserAddress {
-        val country = json["country"].primitive.content
-        val city = with(json["city"]) {
-            val js = JsonNull
-            val test = js === JsonNull
-            if (isNull) null
-            else primitive.content
-        }
-        val zipCode = json["zipCode"].primitive.asIntOrNull
-        val metadata = json["metadata"].jsonArray.map { it.primitive.content }
+        val country = json["country"].content
+        val city = json["city"].contentOrNull
+        val zipCode = json["zipCode"].intOrNull
+        val metadata = json["metadata"].jsonArray.map { it.content }
         return UserAddress(country, city, zipCode, metadata)
     }
 }
 
-object UserPropertiesParser : JsonParser<UserProperties>(UserProperties::class) {
+object UserPropertiesParser : JsonParser<UserProperties>() {
 
-    override fun write(value: UserProperties): JsonElement {
-        return with(value) {
-            JsonObject(mapOf(
-                "flag" to JsonLiteral(flag),
-                "int" to JsonLiteral(int),
-                "double" to JsonLiteral(double),
-                "nullableFlag" to (nullableFlag?.let { JsonLiteral(nullableFlag) } ?: JsonNull)))
-        }
+    override fun write(value: UserProperties) = json {
+        "flag" to value.flag
+        "int" to value.int
+        "double" to value.double
+        "nullableFlag" to value.nullableFlag
     }
 
     override fun read(json: JsonObject): UserProperties {
-        val flag = json["flag"].primitive.asBoolean
-        val int = json["int"].primitive.asInt
-        val double = json["double"].primitive.asDouble
-        val nullableFlag = json["nullableFlag"].primitive.asBooleanOrNull
+        val flag = json["flag"].boolean
+        val int = json["int"].int
+        val double = json["double"].double
+        val nullableFlag = json["nullableFlag"].booleanOrNull
         return UserProperties(flag, int, double, nullableFlag)
     }
 }
 
-object UserParser : JsonParser<User>(User::class) {
-    override fun write(value: User): JsonElement {
-        return with(value) {
-            JsonObject(mapOf(
-                "id" to JsonLiteral(id),
-                "name" to JsonLiteral(name),
-                "address" to (address?.let { UserAddressParser.write(it) } ?: JsonNull),
-                "bag" to UserPropertiesParser.write(bag)))
-        }
+object UserParser : JsonParser<User>() {
+    override fun write(value: User) = json {
+        "id" to value.id
+        "name" to value.name
+        "address" to UserAddressParser.writeNullable(value.address)
+        "bag" to UserPropertiesParser.write(value.bag)
     }
 
     override fun read(json: JsonObject): User {
-        val id = json["id"].primitive.asInt
-        val name = json["name"].primitive.content // TODO replace content globally
-        val address = with(json["address"]) {
-            if (isNull) null
-            else UserAddressParser.read(jsonObject) }
+        val id = json["id"].int
+        val name = json["name"].content
+        val address = UserAddressParser.read(json["address"])
         val bag = UserPropertiesParser.read(json["bag"].jsonObject)
         return User(id, name, address, bag)
     }
