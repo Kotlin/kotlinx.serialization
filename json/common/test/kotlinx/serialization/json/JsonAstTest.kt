@@ -27,7 +27,7 @@ class JsonAstTest {
 
     @Test
     fun jsonValue() {
-        val v = JsonString("foo")
+        val v = JsonLiteral("foo")
         assertEquals(v, JsonTreeParser("\"foo\"").readFully())
     }
 
@@ -40,7 +40,7 @@ class JsonAstTest {
         elem as JsonObject
         assertEquals(setOf("a", "b", "c", "d"), elem.keys)
 
-        assertEquals(JsonString("foo"), elem["a"])
+        assertEquals(JsonLiteral("foo"), elem["a"])
         assertEquals(10, elem.lookupValue("b")?.asInt)
         assertEquals(true, elem.lookupValue("c")?.asBoolean)
         assertTrue(elem.getAs<JsonNull>("d") === JsonNull)

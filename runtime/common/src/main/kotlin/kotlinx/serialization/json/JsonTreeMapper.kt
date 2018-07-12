@@ -55,12 +55,12 @@ class JsonTreeMapper(val context: SerialContext? = null) {
         override fun writeTaggedDouble(tag: String, value: Double) = putElement(tag, JsonLiteral(value))
         override fun writeTaggedBoolean(tag: String, value: Boolean) = putElement(tag, JsonLiteral(value))
 
-        override fun writeTaggedChar(tag: String, value: Char) = putElement(tag, JsonString(value.toString()))
-        override fun writeTaggedString(tag: String, value: String) = putElement(tag, JsonString(value))
-        override fun <E : Enum<E>> writeTaggedEnum(tag: String, enumClass: KClass<E>, value: E) = putElement(tag, JsonString(value.toString()))
+        override fun writeTaggedChar(tag: String, value: Char) = putElement(tag, JsonLiteral(value.toString()))
+        override fun writeTaggedString(tag: String, value: String) = putElement(tag, JsonLiteral(value))
+        override fun <E : Enum<E>> writeTaggedEnum(tag: String, enumClass: KClass<E>, value: E) = putElement(tag, JsonLiteral(value.toString()))
 
         override fun writeTaggedValue(tag: String, value: Any) {
-            putElement(tag, JsonString(value.toString()))
+            putElement(tag, JsonLiteral(value.toString()))
         }
 
         override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
@@ -118,8 +118,8 @@ class JsonTreeMapper(val context: SerialContext? = null) {
             if (key != "key") {
                 elem = element
             } else {
-                check(element is JsonString) { "Expected tag to be JsonString" }
-                tag = (element as JsonString).content
+                check(element is JsonLiteral) { "Expected tag to be JsonLiteral" }
+                tag = (element as JsonLiteral).content
             }
         }
 
@@ -204,7 +204,7 @@ class JsonTreeMapper(val context: SerialContext? = null) {
     private inner class JsonTreeMapEntryInput(override val obj: JsonElement, val cTag: String): AbstractJsonTreeInput(obj) {
 
         override fun currentElement(tag: String): JsonElement = if (tag == "key") {
-            JsonString(cTag)
+            JsonLiteral(cTag)
         } else {
             check(tag == "value") { "Found unexpected tag: $tag" }
             obj

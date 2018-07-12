@@ -19,13 +19,34 @@ package kotlinx.serialization.json
 /**
  * Root node for whole JSON DOM
  */
-sealed class JsonElement
+sealed class JsonElement {
+
+    open val primitive: JsonPrimitive
+        get() = error("JsonLiteral")
+
+    open val jsonObject: JsonObject
+        get() = error("JsonObject")
+
+    open val jsonArray: JsonArray
+        get() = error("JsonArray")
+
+    open val jsonNull: JsonNull
+        get() = error("JsonPrimitive")
+
+    val isNull: Boolean
+        get() = this === JsonNull
+
+    private fun error(element: String): Nothing =
+        throw UnsupportedOperationException("${this::class} is not a $element")
+}
 
 /**
  * Represents either quoted string, unquoted primitive or null
  */
 sealed class JsonPrimitive : JsonElement() {
     abstract val content: String
+
+    final override val primitive: JsonPrimitive = this
 
     val asInt: Int get() = content.toInt()
     val asIntOrNull: Int? get() = content.toIntOrNull()
@@ -53,25 +74,25 @@ sealed class JsonPrimitive : JsonElement() {
 }
 
 /**
- * Represents quoted JSON strings
- */
-data class JsonString(override val content: String): JsonPrimitive() {
-    private val quotedString: String by lazy { buildString { printQuoted(content) } }
-
-    override fun toString(): String = quotedString
-}
-
-/**
  * Represents unquoted JSON primitives (numbers or booleans)
  */
-data class JsonLiteral internal constructor(override val content: String) : JsonPrimitive() {
-    constructor(number: Number): this(number.toString())
-    constructor(boolean: Boolean): this(boolean.toString())
+data class JsonLiteral internal constructor(
+    private val body: Any,
+    private val isString: Boolean
+) : JsonPrimitive() {
+    override val content = body.toString()
 
-    override fun toString() = content
+    constructor(number: Number) : this(number, false)
+    constructor(boolean: Boolean) : this(boolean, false)
+    constructor(string: String) : this(string, true)
+
+    override fun toString() =
+        if (isString) buildString { printQuoted(content) }
+        else content
 }
 
 object JsonNull : JsonPrimitive() {
+    override val jsonNull: JsonNull = this
     override val content: String = "null"
 }
 
@@ -80,6 +101,11 @@ internal fun unexpectedJson(key: String, expected: String): Nothing =
     throw IllegalStateException("Element $key is not a $expected")
 
 data class JsonObject(val content: Map<String, JsonElement>) : JsonElement(), Map<String, JsonElement> by content {
+
+    override val jsonObject: JsonObject = this
+
+    override fun get(key: String): JsonElement = content[key] ?: throw NoSuchElementException("Element $key is missing")
+
     fun getAsValue(key: String): JsonPrimitive = content.getValue(key) as? JsonPrimitive
             ?: unexpectedJson(key, "JsonPrimitive")
     fun getAsObject(key: String): JsonObject = content.getValue(key) as? JsonObject
@@ -106,6 +132,9 @@ data class JsonObject(val content: Map<String, JsonElement>) : JsonElement(), Ma
 }
 
 data class JsonArray(val content: List<JsonElement>) : JsonElement(), List<JsonElement> by content {
+
+    override val jsonArray: JsonArray = this
+
     fun getAsValue(index: Int) = content[index] as? JsonPrimitive
             ?: unexpectedJson("at $index", "JsonPrimitive")
     fun getAsObject(index: Int) = content[index] as? JsonObject
