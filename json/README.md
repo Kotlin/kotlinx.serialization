@@ -12,7 +12,7 @@ val elem: JsonElement = JsonTreeParser(input).read() // or .readFully() to throw
 
 elem as JsonObject
 elem.keys == setOf("a", "b", "c", "d") // true
-assertEquals(JsonString("foo"), elem["a"])
+assertEquals(JsonLiteral("foo"), elem["a"])
 println(elem.getAsValue("b")?.asInt) // 10
 ```
 

@@ -23,7 +23,7 @@ class CornerCaseTest {
     fun quotedBrace() {
         val tree = parse("""{x: "{"}""")
         assertTrue("x" in tree)
-        assertEquals("{", tree.getAs<JsonString>("x").content)
+        assertEquals("{", tree.getAs<JsonLiteral>("x").content)
     }
 
     private fun parse(input: String) = JsonTreeParser(input).readFully() as JsonObject
@@ -32,7 +32,7 @@ class CornerCaseTest {
     fun emptyKey() {
         val tree = parse("""{"":"","":""}""")
         assertTrue("" in tree)
-        assertEquals("", tree.getAs<JsonString>("").content)
+        assertEquals("", tree.getAs<JsonLiteral>("").content)
     }
 
     @Test

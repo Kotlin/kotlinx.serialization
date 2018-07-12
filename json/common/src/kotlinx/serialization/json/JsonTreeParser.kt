@@ -37,9 +37,9 @@ class JsonTreeParser internal constructor(private val p: Parser) {
         return JsonObject(result)
     }
 
-    private fun readValue(asLiteral: Boolean = false): JsonElement {
+    private fun readValue(isString: Boolean): JsonElement {
         val str = p.takeStr()
-        return if (asLiteral) JsonLiteral(str) else JsonString(str)
+        return JsonLiteral(str, isString)
     }
 
     private fun readArray(): JsonElement {
@@ -62,8 +62,8 @@ class JsonTreeParser internal constructor(private val p: Parser) {
         val tc = p.tc
         return when (tc) {
             TC_NULL -> JsonNull.also { p.nextToken() }
-            TC_STRING -> readValue(asLiteral = false)
-            TC_OTHER -> readValue(asLiteral = true)
+            TC_STRING -> readValue(isString = true)
+            TC_OTHER -> readValue(isString = false)
             TC_BEGIN_OBJ -> readObject()
             TC_BEGIN_LIST -> readArray()
             else -> fail(p.curPos, "Can't begin reading element")

@@ -44,7 +44,7 @@ object EitherSerializer: KSerializer<DummyEither> {
         val jsonWriter = output as? JSON.JsonOutput
                 ?: throw SerializationException("This class can be saved only by JSON")
         val tree = when (obj) {
-            is DummyEither.Left -> JsonObject(mapOf("error" to JsonString(obj.errorMsg)))
+            is DummyEither.Left -> JsonObject(mapOf("error" to JsonLiteral(obj.errorMsg)))
             is DummyEither.Right -> JsonTreeMapper().writeTree(obj.data, Payload.serializer())
         }
         jsonWriter.writeTree(tree)
