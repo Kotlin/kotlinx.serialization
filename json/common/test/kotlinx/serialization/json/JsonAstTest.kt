@@ -41,8 +41,8 @@ class JsonAstTest {
         assertEquals(setOf("a", "b", "c", "d"), elem.keys)
 
         assertEquals(JsonLiteral("foo"), elem["a"])
-        assertEquals(10, elem.lookupValue("b")?.asInt)
-        assertEquals(true, elem.lookupValue("c")?.asBoolean)
+        assertEquals(10, elem.getPrimitiveOrNull("b")?.int)
+        assertEquals(true, elem.getPrimitiveOrNull("c")?.boolean)
         assertTrue(elem.getAs<JsonNull>("d") === JsonNull)
     }
 
@@ -56,13 +56,13 @@ class JsonAstTest {
         assertEquals(setOf("a", "b", "c"), elem.keys)
         assertTrue(elem.getValue("c") is JsonArray)
 
-        val array = elem.getAsArray("c")
-        assertEquals("foo", array.lookupValue(0)?.content)
-        assertEquals(100500, array.lookupValue(1)?.asInt)
+        val array = elem.getArray("c")
+        assertEquals("foo", array.getPrimitiveOrNull(0)?.content)
+        assertEquals(100500, array.getPrimitiveOrNull(1)?.int)
 
         assertTrue(array[2] is JsonObject)
-        val third = array.getAsObject(2)
-        assertEquals("baz", third.getAsValue("bar").content)
+        val third = array.getObject(2)
+        assertEquals("baz", third.getPrimitive("bar").content)
     }
 
     @Test
@@ -77,16 +77,16 @@ class JsonAstTest {
     fun exceptionCorrectness() {
         val tree =
             JsonObject(mapOf("a" to JsonLiteral(42), "b" to JsonArray(listOf(JsonNull)), "c" to JsonLiteral(false)))
-        assertFailsWith<NoSuchElementException> { tree.getAsObject("no key") }
-        assertFailsWith<IllegalStateException> { tree.getAsArray("a") }
-        assertEquals(null, tree.lookupObject("no key"))
-        assertEquals(null, tree.lookupArray("a"))
+        assertFailsWith<NoSuchElementException> { tree.getObject("no key") }
+        assertFailsWith<IllegalStateException> { tree.getArray("a") }
+        assertEquals(null, tree.getObjectOrNull("no key"))
+        assertEquals(null, tree.getArrayOrNull("a"))
 
-        val n = tree.getAsArray("b").getAsValue(0)
-        assertFailsWith<NumberFormatException> { n.asInt }
-        assertEquals(null, n.asIntOrNull)
+        val n = tree.getArray("b").getPrimitive(0)
+        assertFailsWith<NumberFormatException> { n.int }
+        assertEquals(null, n.intOrNull)
 
-        assertFailsWith<IllegalStateException> { n.asBoolean }
-        assertEquals(null, n.asBooleanOrNull)
+        assertFailsWith<IllegalStateException> { n.boolean }
+        assertEquals(null, n.booleanOrNull)
     }
 }

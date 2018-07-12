@@ -174,15 +174,14 @@ class JsonTreeMapper(val context: SerialContext? = null) {
             return
         }
 
-        override fun readTaggedBoolean(tag: String): Boolean = getValue(tag).asBoolean
-        override fun readTaggedByte(tag: String): Byte = getValue(tag).asInt.toByte()
-        override fun readTaggedShort(tag: String) = getValue(tag).asInt.toShort()
-        override fun readTaggedInt(tag: String) = getValue(tag).asInt
-        override fun readTaggedLong(tag: String) = getValue(tag).asLong
-        override fun readTaggedFloat(tag: String) = getValue(tag).asFloat
-        override fun readTaggedDouble(tag: String) = getValue(tag).asDouble
+        override fun readTaggedBoolean(tag: String): Boolean = getValue(tag).boolean
+        override fun readTaggedByte(tag: String): Byte = getValue(tag).int.toByte()
+        override fun readTaggedShort(tag: String) = getValue(tag).int.toShort()
+        override fun readTaggedInt(tag: String) = getValue(tag).int
+        override fun readTaggedLong(tag: String) = getValue(tag).long
+        override fun readTaggedFloat(tag: String) = getValue(tag).float
+        override fun readTaggedDouble(tag: String) = getValue(tag).double
         override fun readTaggedString(tag: String) = getValue(tag).content
-
     }
 
     private open inner class JsonTreeInput(override val obj: JsonObject) : AbstractJsonTreeInput(obj) {
