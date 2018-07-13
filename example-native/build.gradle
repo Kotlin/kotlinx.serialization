@@ -1,5 +1,5 @@
 buildscript {
-    ext.serializationRepo = "https://dl.bintray.com/kotlin/kotlinx/"
+    ext.serializationRepo = "https://dl.bintray.com/sandwwraith/generic/"
 
     repositories {
         jcenter()
@@ -7,7 +7,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:0.7"
+        classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:0.8"
     }
 }
 
@@ -15,16 +15,20 @@ repositories {
     maven { url serializationRepo }
 }
 
-apply plugin: 'konan'
+apply plugin: 'kotlin-platform-native'
 
-konanArtifacts {
-    program('sample') {
-        srcDir 'src'
-
-        dependencies {
-            artifactsample "org.jetbrains.kotlinx:jsonparser-native:0.5.0"
-        }
+sourceSets.main {
+    kotlin.srcDir 'src'
+    component {
+        outputKinds = [EXECUTABLE]
+        target 'host'
     }
 }
 
+dependencies {
+    implementation "org.jetbrains.kotlinx:jsonparser-native:0.5.2"
+}
 
+task run(type: Exec) {
+    commandLine 'build/exe/main/debug/example-native.kexe'
+}

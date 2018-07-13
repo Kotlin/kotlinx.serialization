@@ -56,7 +56,7 @@ class ViewController : UIViewController {
         val HEADER = "---==="
         val client = HttpClient()
 
-        runSuspend {
+        promise {
             client.request {
                 with(url) {
                     protocol = URLProtocol.HTTPS
