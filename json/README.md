@@ -13,10 +13,10 @@ val elem: JsonElement = JsonTreeParser(input).read() // or .readFully() to throw
 elem as JsonObject
 elem.keys == setOf("a", "b", "c", "d") // true
 assertEquals(JsonLiteral("foo"), elem["a"])
-println(elem.getAsValue("b")?.asInt) // 10
+println(elem.getPrimitive("b").int) // 10
 ```
 
-Whole JSON tree sources and API can be found [here](common/src/kotlinx/serialization/json/JsonAst.kt#L22).
+Whole JSON tree sources and API can be found [here](common/src/kotlinx/serialization/json/JsonElement.kt#L22).
 
 ## Installing
 
@@ -26,3 +26,6 @@ You need to declare dependency only on `kotlinx-serialziation-runtime-jsonparser
 `org.jetbrains.kotlinx:jsonparser-native` dependency in Native. Example of native dependency can be found [here](../example-native) (CLI application)
 or [here](../example-native) (iOS application alongside technology preview of HTTP client for native).
  
+Note that by default, artifacts are published to bintray only for macOS, iOS x64 and iOS simulator.
+If you want to use library on other targets, you'll need to build it by yourself with `./gradlew :jsonparser-native:build`.
+By default, library is built for host machine. Then you can publish it to local maven repository as usual.
