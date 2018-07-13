@@ -1,3 +1,28 @@
+v0.6.0 / 2018-07-13
+===================
+
+  Plugin:
+  
+  * Allow @SerialName and @SerialInfo on classes
+  * Fix resolving serializers for classes from other modules (#153 and #166)
+  
+  Runtime:
+  
+  * Use new 0.8 K/N DSL
+  * Simplify JSON AST API, Provide JSON builder, provide useful extensions, add documentation, update K/N
+  * Get rid of JsonString to align json primitives with each other. Provide JSON AST pojo parser which exposes current design issues
+  * [JSON-AST] Introduce non-nullable methods throwing exceptions for getting json elements
+  * [JSON-AST] Add ability to parse JSONInput element as tree. Symmetric functionality for JsonOutput + JsonTree
+  * [JSON-AST] Docs writeup
+  * [JSON-AST] Publishing native artifact on bintray
+  * [JSON-AST] Saving AST back to JSON
+  * [JSON-AST] JsonAstMapper to serializable classes
+  * Remove annoying "for class class" message in not found serializer exception
+  * Introduce module for benchmarks
+  * Add notes about snapshot versions
+  * Tests for bugs fixed in latest published plugin (#118 and #125)
+  * Auto-assign proto ids using field index
+
 v0.5.1 / 2018-06-13
 ===================
 

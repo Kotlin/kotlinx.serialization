@@ -136,6 +136,8 @@
 
     assertEquals("{value1: a, value2: 42}", JSON.unquoted.stringify(Names("a", 42)))
     ```
+    
+    > Starting from 0.6, `@SerialName` can be used on classes, too.
 
 * `@Optional` annotation for supported properties. Note: `@Optional` constructor parameters require default values, but properties with default values without annotation are treated as required.
     
@@ -267,3 +269,5 @@ override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean {
 
 You can apply any number of annotations with any number of arguments.
 **Limitations:** `@SerialInfo` annotation class properties must have one of the following types: primitive, String, enum, or primitive array (`IntArray`, `BooleanArray`, etc)
+
+> Starting from 0.6, `@SerialInfo`-marked annotations can be used on classes, too. Use `.getAnnotationsForClass()` method of `KSerialClassDesc` to obtain them.

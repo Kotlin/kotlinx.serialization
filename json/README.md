@@ -24,7 +24,8 @@ On JVM and JS, this module included into artifacts of kotlinx.serialization, so 
 If you're using native, you can't use `kotlinx-serialization-runtime-common`, since it contains more features.
 You need to declare dependency only on `kotlinx-serialziation-runtime-jsonparser` in your common code, and then use
 `org.jetbrains.kotlinx:jsonparser-native` dependency in Native. Example of native dependency can be found [here](../example-native) (CLI application)
-or [here](../example-native) (iOS application alongside technology preview of HTTP client for native).
+or [here](../example-native) (iOS application alongside technology preview of HTTP client for native). Don't forget to `enableFeaturePreview('GRADLE_METADATA')`
+in yours `settings.gradle`.
  
 Note that by default, artifacts are published to bintray only for macOS, iOS x64 and iOS simulator.
 If you want to use library on other targets, you'll need to build it by yourself with `./gradlew :jsonparser-native:build`.

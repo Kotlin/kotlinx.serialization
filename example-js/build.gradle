@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.2.50'
-    ext.serialization_version = '0.5.1'
+    ext.kotlin_version = '1.2.51'
+    ext.serialization_version = '0.6.0'
     ext.web_path = 'web'
 
     repositories {
