@@ -10,7 +10,7 @@ for objects, an IntelliJ plugin and a runtime library.
 
 * Supports Kotlin classes marked as `@Serializable` and standard collections. 
 * Supports JSON, CBOR, and Protobuf formats out-of-the-box.
-* The same code works on Kotlin/JVM and Kotlin/JS.
+* The same code works on Kotlin/JVM and Kotlin/JS. Kotlin/Native support is limited, see below in section [installing](#setup).
 
 ## Runtime overview
 
@@ -207,7 +207,7 @@ JavaScript example is located at [`example-js`](example-js) folder.
 
 ### Native
 
-Full library is not available on native, but you can look for its part [here](json/README.md).
+Full library is not available on native, since there are no plugin API in compiler yet. You can find separate JSON parser [here](json/README.md).
 
 ## Working in IntelliJ IDEA
 
