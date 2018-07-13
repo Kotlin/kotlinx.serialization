@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 @file:Suppress("RedundantVisibilityModifier")
 
 package kotlinx.serialization.json
@@ -70,7 +71,7 @@ sealed class JsonElement {
 sealed class JsonPrimitive : JsonElement() {
 
     /**
-     * Content of given element without quotes. For [JsonNull] this methods returns `null`
+     * Content of given element without quotes. For [JsonNull] this methods returns `"null"`
      */
     abstract val content: String
 
@@ -79,6 +80,7 @@ sealed class JsonPrimitive : JsonElement() {
      */
     abstract val contentOrNull: String?
 
+    @Suppress("LeakingThis")
     final override val primitive: JsonPrimitive = this
 
     /**
@@ -127,7 +129,7 @@ sealed class JsonPrimitive : JsonElement() {
 
     /**
      * Returns content of current element as boolean
-     * @throws IllegalStateException if current element doesn't represent double
+     * @throws IllegalStateException if current element doesn't represent boolean
      */
     val boolean: Boolean
         get() = booleanOrNull ?: throw IllegalStateException("$content does not represent a Boolean")

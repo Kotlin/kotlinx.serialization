@@ -20,15 +20,15 @@ enableFeaturePreview('GRADLE_METADATA')
 include ':common'
 include ':jvm'
 include ':js'
-include ':native'
 include ':jsonparser'
+include ':jsonparser-native'
 include ':configparser'
 include ':benchmark'
 
 project(':common').projectDir = file('./runtime/common')
 project(':jvm').projectDir = file('./runtime/jvm')
 project(':js').projectDir = file('./runtime/js')
-project(':native').projectDir = file('./json/native')
 project(':jsonparser').projectDir = file('./json/common')
+project(':jsonparser-native').projectDir = file('./json/native')
 project(':configparser').projectDir = file('./formats/config')
 project(':benchmark').projectDir = file('./benchmark')
