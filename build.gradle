@@ -90,6 +90,8 @@ subprojects {
 
     apply plugin: 'kotlinx-serialization'
 
+    if (project.name.contains("benchmark")) return
+
     apply plugin: 'maven-publish'
 
     def varintName = ""
