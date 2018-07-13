@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,39 +14,25 @@
  * limitations under the License.
  */
 
-apply plugin: 'konan'
+apply plugin: 'kotlin-platform-native'
 
 def deployMode = property('native.deploy') == 'true'
 
-if (deployMode) {
-    konan.targets = ["macos_x64", "ios_arm64", "ios_x64"]
-}
+sourceSets.main {
+    kotlin.srcDir 'src'
 
-konanArtifacts {
-    library('jsonparser-native') {
-        srcDir 'src'
-        enableMultiplatform true
-    }
-
-    if (!deployMode) {
-        program('jsonparser-native-test') {
-            srcDir 'test'
-            commonSourceSet 'test'
-
-            libraries {
-                artifact 'jsonparser-native'
-            }
-
-            extraOpts '-tr'
-        }
+    component {
+        outputKinds = [KLIBRARY]
+        if (!deployMode)
+            target 'host'
+        else
+            target "macos_x64", "ios_arm64", "ios_x64"
     }
 }
 
 dependencies {
     expectedBy project(':jsonparser')
 }
-
-task test(dependsOn: run)
 
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
