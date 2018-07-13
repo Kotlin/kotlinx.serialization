@@ -74,7 +74,7 @@ ext {
 
 allprojects {
     group 'org.jetbrains.kotlinx'
-    version '0.5.2'
+    version property('library.version')
 
     if (project.hasProperty("bootstrap")) {
         version = version + '-SNAPSHOT'
