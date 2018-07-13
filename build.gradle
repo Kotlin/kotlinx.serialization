@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ allprojects {
 apply plugin: 'kotlin'
 
 subprojects {
-    if (project.name == "native") return
+    if (project.name.contains("native")) return
 
     apply plugin: 'kotlinx-serialization'
 
