@@ -1,27 +1,33 @@
 /*
- *  Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package kotlinx.serialization
 
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.JSON
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class GenericTest {
+
+    @Serializable
+    class Array2DBox(val arr: Array<Array<Double>>) {
+        override fun toString(): String {
+            return arr.contentDeepToString()
+        }
+    }
 
     @Test
     fun writeDefaultPair() {
@@ -41,5 +47,14 @@ class GenericTest {
         assertEquals("{first:42,second:foo,third:false}", s)
         val restored = JSON.unquoted.parse(saver, s)
         assertEquals(triple, restored)
+    }
+
+    @Test
+    fun recursiveArrays() {
+        val arr = Array2DBox(arrayOf(arrayOf(2.1, 1.2), arrayOf(42.3, -3.4)))
+        val str = JSON.stringify(arr)
+        assertEquals("""{"arr":[[2.1,1.2],[42.3,-3.4]]}""", str)
+        val restored = JSON.parse<Array2DBox>(str)
+        assertTrue(arr.arr.contentDeepEquals(restored.arr))
     }
 }

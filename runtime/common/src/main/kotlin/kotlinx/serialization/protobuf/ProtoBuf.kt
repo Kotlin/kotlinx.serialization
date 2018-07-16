@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ typealias ProtoDesc = Pair<Int, ProtoNumberType>
 
 class ProtoBuf(val context: SerialContext? = null) {
 
-    internal inner open class ProtobufWriter(val encoder: ProtobufEncoder) : TaggedOutput<ProtoDesc>() {
+    internal open inner class ProtobufWriter(val encoder: ProtobufEncoder) : TaggedOutput<ProtoDesc>() {
 
         init {
             context = this@ProtoBuf.context
@@ -146,7 +146,7 @@ class ProtoBuf(val context: SerialContext? = null) {
                 }
     }
 
-    private inner open class ProtobufReader(val decoder: ProtobufDecoder) : TaggedInput<ProtoDesc>() {
+    private open inner class ProtobufReader(val decoder: ProtobufDecoder) : TaggedInput<ProtoDesc>() {
 
         init {
             context = this@ProtoBuf.context

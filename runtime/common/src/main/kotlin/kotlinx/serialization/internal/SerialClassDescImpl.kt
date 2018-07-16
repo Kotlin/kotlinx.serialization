@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ open class SerialClassDescImpl(override val name: String) : KSerialClassDesc {
 
     private val names: MutableList<String> = ArrayList()
     private val annotations: MutableList<MutableList<Annotation>> = mutableListOf()
+    private val classAnnotations: MutableList<Annotation> = mutableListOf()
     private var _indices: Map<String, Int>? = null
     private val indices: Map<String, Int> get() = _indices ?: buildIndices()
 
@@ -37,7 +38,12 @@ open class SerialClassDescImpl(override val name: String) : KSerialClassDesc {
         annotations.last().add(a)
     }
 
-    override fun getAnnotationsForIndex(index: Int) = annotations[index].toList()
+    fun pushClassAnnotation(a: Annotation) {
+        classAnnotations.add(a)
+    }
+
+    override fun getAnnotationsForClass(): List<Annotation> = classAnnotations
+    override fun getAnnotationsForIndex(index: Int): List<Annotation> = annotations[index]
     override val associatedFieldsCount: Int
         get() = annotations.size
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,6 +78,6 @@ internal object SerialCache {
         if (ans != null) return ans as KSerializer<E>
         // Then, it's user defined class
         val last = klass.serializer() as? KSerializer<E>
-        return requireNotNull(last) { "Can't found internal serializer for class $klass" }
+        return requireNotNull(last) { "Can't found internal serializer for $klass" }
     }
 }

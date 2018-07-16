@@ -33,7 +33,7 @@ class SerializeRecTest {
         out.done()
 
         val inp = Inp()
-        val box = inp.read(Container::class.serializer())
+        inp.read(Container::class.serializer())
         inp.done()
     }
 

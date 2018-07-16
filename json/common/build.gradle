@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,16 @@
  * limitations under the License.
  */
 
-package kotlinx.serialization.internal
+apply plugin: 'kotlin-platform-common'
 
-actual fun CharArray.createString(length: Int): String =
-    String(this, 0, length)
+sourceSets {
+    main.kotlin.srcDirs = ['src']
+    test.kotlin.srcDirs = ['test']
+}
+
+dependencies {
+    compile libraries.kotlin_stdlib_common
+
+    testCompile libraries.kotlin_test_annotations_common
+    testCompile libraries.kotlin_test_common
+}

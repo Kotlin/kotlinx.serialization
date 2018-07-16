@@ -142,6 +142,10 @@ val map: Map<String, Any> = Mapper.map(Data(42, "foo")) // mapOf("first" to 42, 
 
 To get your object back, use `unmap` function. To support objects with nullable values, use `mapNullable` and `unmapNullable`
 
+### JSON Tree Mapper
+
+`JsonTreeMapper` allows to map [abstract JSON syntax tree](../json/README.md) onto Kotlin classes and back with `readTree` and `writeTree` correspondingly.
+
 ### Dynamic object parser (JS only)
 
 Allows you to convert JS objects of `dynamic` types into fair correct Kotlin objects.

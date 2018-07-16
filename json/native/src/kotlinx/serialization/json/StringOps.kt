@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package kotlinx.serialization.internal
+package kotlinx.serialization.json
 
-/**
- * Creates a string by concatenating given chars.
- * Can be more efficient than `joinToString` on some platforms.
- *
- * charArrayOf('a','b','c').createString(2) = "ab"
- */
-expect fun CharArray.createString(length: Int): String
+actual fun CharArray.createString(length: Int): String =
+    StringBuilder().also {
+        it.insert(0, this)
+        it.setLength(length)
+    }.toString()

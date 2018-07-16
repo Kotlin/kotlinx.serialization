@@ -44,34 +44,32 @@ fun InputStream.readToByteBuffer(bytes: Int): ByteBuffer {
     return buf
 }
 
-// Originally taken from javax.xml.bind.DatatypeConverterImpl
 object HexConverter {
     fun parseHexBinary(s: String): ByteArray {
         val len = s.length
 
-        // "111" is not a valid hex encoding.
         if (len % 2 != 0) {
-            throw IllegalArgumentException("hexBinary needs to be even-length: " + s)
+            throw IllegalArgumentException("HexBinary string must be even length")
         }
 
-        val out = ByteArray(len / 2)
-
+        val bytes = ByteArray(len / 2)
         var i = 0
+
         while (i < len) {
-            val h = hexToBin(s[i])
-            val l = hexToBin(s[i + 1])
+            val h = hexToInt(s[i])
+            val l = hexToInt(s[i + 1])
             if (h == -1 || l == -1) {
-                throw IllegalArgumentException("contains illegal character for hexBinary: " + s)
+                throw IllegalArgumentException("Invalid hex chars: ${s[i]}${s[i+1]}")
             }
 
-            out[i / 2] = (h * 16 + l).toByte()
+            bytes[i / 2] = ((h shl 4) + l).toByte()
             i += 2
         }
 
-        return out
+        return bytes
     }
 
-    private fun hexToBin(ch: Char): Int = when (ch) {
+    private fun hexToInt(ch: Char): Int = when (ch) {
         in '0'..'9' -> ch - '0'
         in 'A'..'F' -> ch - 'A' + 10
         in 'a'..'f' -> ch - 'a' + 10
