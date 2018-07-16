@@ -17,6 +17,11 @@
 package kotlinx.serialization.json
 
 class JsonTreeParser internal constructor(private val p: Parser) {
+
+    companion object {
+        fun parse(input: String): JsonObject = JsonTreeParser(input).readFully() as JsonObject
+    }
+
     constructor(input: String) : this(Parser(input))
 
     private fun readObject(): JsonElement {

@@ -43,7 +43,7 @@ class UpdateTest {
     @Test
     fun canUpdatePrimitiveList() {
         val parsed =
-                JSON(unquoted = true, nonstrict = true, updateMode = UpdateMode.UPDATE)
+                JSON(unquoted = true, strictMode = false, updateMode = UpdateMode.UPDATE)
                 .parse<Updatable1>("""{l:[1,2],f:foo,l:[3,4]}""")
         assertEquals(Updatable1(listOf(1,2,3,4)), parsed)
     }
@@ -51,7 +51,7 @@ class UpdateTest {
     @Test
     fun canUpdateObjectList() {
         val parsed =
-                JSON(unquoted = true, nonstrict = true, updateMode = UpdateMode.UPDATE)
+                JSON(unquoted = true, strictMode = false, updateMode = UpdateMode.UPDATE)
                 .parse<Updatable2>("""{f:bar,l:[{a:42}],l:[{a:43}]}""")
         assertEquals(Updatable2(listOf(Data(42), Data(43))), parsed)
     }
@@ -59,7 +59,7 @@ class UpdateTest {
     @Test
     fun cantUpdateNotUpdatable() {
         assertFailsWith<UpdateNotSupportedException> {
-            JSON(unquoted = true, nonstrict = true, updateMode = UpdateMode.UPDATE).parse<NotUpdatable>("""{d:{a:42},d:{a:43}}""")
+            JSON(unquoted = true, strictMode = false, updateMode = UpdateMode.UPDATE).parse<NotUpdatable>("""{d:{a:42},d:{a:43}}""")
         }
     }
 

@@ -17,15 +17,15 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlin.reflect.KClass
+import kotlin.reflect.*
 
 data class JSON(
-        private val unquoted: Boolean = false,
-        private val indented: Boolean = false,
-        private val indent: String = "    ",
-        internal val nonstrict: Boolean = false,
-        val updateMode: UpdateMode = UpdateMode.OVERWRITE,
-        val context: SerialContext? = null
+    private val unquoted: Boolean = false,
+    private val indented: Boolean = false,
+    private val indent: String = "    ",
+    internal val strictMode: Boolean = true,
+    val updateMode: UpdateMode = UpdateMode.OVERWRITE,
+    val context: SerialContext? = null
 ) {
     fun <T> stringify(saver: KSerialSaver<T>, obj: T): String {
         val sb = StringBuilder()
@@ -55,10 +55,14 @@ data class JSON(
         val plain = JSON()
         val unquoted = JSON(unquoted = true)
         val indented = JSON(indented = true)
-        val nonstrict = JSON(nonstrict = true)
+        val nonstrict = JSON(strictMode = false)
     }
 
-    inner class JsonOutput internal constructor(private val mode: Mode, private val w: Composer, private val modeReuseCache: Array<JsonOutput?>) : ElementValueOutput() {
+    internal inner class JsonOutput(private val mode: Mode, private val w: Composer,
+                                    private val modeReuseCache: Array<JsonOutput?>) : ElementValueOutput() {
+        // Forces serializer to wrap all values into quotes
+        private var forceQuoting: Boolean = false
+
         init {
             context = this@JSON.context
             val i = mode.ordinal
@@ -72,8 +76,6 @@ data class JSON(
         fun writeTree(tree: JsonElement) {
             w.sb.append(tree.toString())
         }
-
-        private var forceStr: Boolean = false
 
         override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
             val newMode = switchMode(mode, desc, typeParams)
@@ -110,11 +112,11 @@ data class JSON(
                 }
                 Mode.ENTRY, Mode.POLY -> {
                     if (index == 0)
-                        forceStr = true
+                        forceQuoting = true
                     if (index == 1) {
                         w.print(if (mode == Mode.ENTRY) COLON else COMMA)
                         w.space()
-                        forceStr = false
+                        forceQuoting = false
                     }
                 }
                 else -> {
@@ -133,19 +135,19 @@ data class JSON(
             w.print(NULL)
         }
 
-        override fun writeBooleanValue(value: Boolean) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
-        override fun writeByteValue(value: Byte) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
-        override fun writeShortValue(value: Short) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
-        override fun writeIntValue(value: Int) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
-        override fun writeLongValue(value: Long) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
+        override fun writeBooleanValue(value: Boolean) { if (forceQuoting) writeStringValue(value.toString()) else w.print(value) }
+        override fun writeByteValue(value: Byte) { if (forceQuoting) writeStringValue(value.toString()) else w.print(value) }
+        override fun writeShortValue(value: Short) { if (forceQuoting) writeStringValue(value.toString()) else w.print(value) }
+        override fun writeIntValue(value: Int) { if (forceQuoting) writeStringValue(value.toString()) else w.print(value) }
+        override fun writeLongValue(value: Long) { if (forceQuoting) writeStringValue(value.toString()) else w.print(value) }
 
         override fun writeFloatValue(value: Float) {
-            if (forceStr || !value.isFinite()) writeStringValue(value.toString()) else
+            if (forceQuoting || !value.isFinite()) writeStringValue(value.toString()) else
                 w.print(value)
         }
 
         override fun writeDoubleValue(value: Double) {
-            if (forceStr || !value.isFinite()) writeStringValue(value.toString()) else
+            if (forceQuoting || !value.isFinite()) writeStringValue(value.toString()) else
                 w.print(value)
         }
 
@@ -282,7 +284,7 @@ data class JSON(
                         val ind = desc.getElementIndex(key)
                         if (ind != UNKNOWN_NAME)
                             return ind
-                        if (!nonstrict)
+                        if (strictMode)
                             throw SerializationException("Strict JSON encountered unknown key: $key")
                         else
                             p.skipElement()
@@ -337,5 +339,6 @@ private fun mustBeQuoted(str: String): Boolean {
     for (ch in str) {
         if (charToTokenClass(ch) != TC_OTHER) return true
     }
+
     return false
 }

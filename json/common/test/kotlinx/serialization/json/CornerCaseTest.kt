@@ -19,6 +19,7 @@ package kotlinx.serialization.json
 import kotlin.test.*
 
 class CornerCaseTest {
+
     @Test
     fun quotedBrace() {
         val tree = parse("""{x: "{"}""")
