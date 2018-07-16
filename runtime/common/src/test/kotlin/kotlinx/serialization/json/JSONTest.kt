@@ -22,21 +22,39 @@ import kotlin.test.*
 class JSONTest {
 
     @Test
+    fun testNan() {
+        val box = Box(Double.NaN, Float.NaN)
+        val json  = JSON.nonstrict.stringify(box)
+        assertEquals("{\"double\":NaN,\"float\":NaN}", json)
+        val deserialized = JSON.parse<Box>(json)
+        assertEquals(box, deserialized)
+    }
+
+    @Test
+    fun testInfinity() {
+        val box = Box(Double.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY)
+        val json  = JSON.nonstrict.stringify(box)
+        assertEquals("{\"double\":Infinity,\"float\":-Infinity}", json)
+        val deserialized = JSON.parse<Box>(json)
+        assertEquals(box, deserialized)
+    }
+
+    @Test
     fun nonStrictJSONCanSkipValues() {
-        assertEquals(JSON.nonstrict.parse<OptionalTests.Data>("{strangeField: 100500, a:0}"),
+        assertEquals(JSON.nonstrict.parse("{strangeField: 100500, a:0}"),
             OptionalTests.Data()
         )
-        assertEquals(JSON.nonstrict.parse<OptionalTests.Data>("{a:0, strangeField: 100500}"),
+        assertEquals(JSON.nonstrict.parse("{a:0, strangeField: 100500}"),
             OptionalTests.Data()
         )
     }
 
     @Test
     fun nonStrictJSONCanSkipComplexValues() {
-        assertEquals(JSON.nonstrict.parse<OptionalTests.Data>("{a: 0, strangeField: {a: b, c: {d: e}, f: [g,h,j] }}"),
+        assertEquals(JSON.nonstrict.parse("{a: 0, strangeField: {a: b, c: {d: e}, f: [g,h,j] }}"),
             OptionalTests.Data()
         )
-        assertEquals(JSON.nonstrict.parse<OptionalTests.Data>("{strangeField: {a: b, c: {d: e}, f: [g,h,j] }, a: 0}"),
+        assertEquals(JSON.nonstrict.parse("{strangeField: {a: b, c: {d: e}, f: [g,h,j] }, a: 0}"),
             OptionalTests.Data()
         )
     }
@@ -57,6 +75,9 @@ class JSONTest {
             JSON.parse<OptionalTests.Data>("{strangeField: 100500, a:0}")
         }
     }
+
+    @Serializable
+    data class Box(val double: Double, val float: Float)
 
     @Serializable
     data class Url(val url: String)

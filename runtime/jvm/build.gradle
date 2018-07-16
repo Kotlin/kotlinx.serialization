@@ -68,7 +68,7 @@ dependencies {
     testCompile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jacksonVersion
     testCompile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: jacksonVersion
     testCompile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-cbor', version: jacksonVersion
-
+    testCompile group: 'com.google.code.gson', name: 'gson', version: '2.7'
 }
 compileJava {
     sourceCompatibility = "1.6"
