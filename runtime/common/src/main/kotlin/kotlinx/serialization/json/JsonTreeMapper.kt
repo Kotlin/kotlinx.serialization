@@ -164,8 +164,8 @@ class JsonTreeMapper(val context: SerialContext? = null) {
             return if (o.content.length == 1) o.content[0] else throw SerializationException("$o can't be represented as Char")
         }
 
-        override fun <E : Enum<E>> readTaggedEnum(tag: String, enumClass: KClass<E>): E =
-            enumFromName(enumClass, (getValue(tag).content))
+        override fun <E : Enum<E>> readTaggedEnum(tag: String, enumLoader: EnumLoader<E>): E =
+            enumLoader.loadByName(getValue(tag).content)
 
         override fun readTaggedNull(tag: String): Nothing? = null
         override fun readTaggedNotNullMark(tag: String) = currentElement(tag) !== JsonNull

@@ -1,42 +1,40 @@
 /*
- *  Copyright 2018 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-apply plugin: 'konan'
 
-if (property('native.alltargets') == 'true') {
-    konan.targets = ["linux", "macos_x64", "ios_arm64", "ios_x64"]
+apply plugin: 'kotlin-platform-native'
+
+def deployMode = property('native.deploy') == 'true'
+
+sourceSets.main {
+    kotlin.srcDir 'src/main/kotlin'
+//    kotlin.testDir ''
+
+    component {
+        outputKinds = [KLIBRARY]
+        if (!deployMode)
+            target 'host'
+        else
+            target "macos_x64", "ios_arm64", "ios_x64"
+    }
 }
 
-konanArtifacts {
-    library('serialization') {
-        enableMultiplatform true
-        srcDir 'src/main/kotlin'
-        srcDir project(':common').file('src/main/kotlin')
-    }
-
-    // workaround for publishing
-//    program('native-test') {
-//        srcDir 'src/main/kotlin'
-//        srcDir project(':common').file('src/main/kotlin')
-//
-//        srcDir 'src/test/kotlin'
-//        srcDir project(':integration:test-data-sourcegen').file('src')
-//        srcDir project(':integration:test-logic').file('src')
-//        extraOpts '-tr', '-Xmulti-platform'
-//    }
+dependencies {
+    expectedBy project(':common')
+    expectedBy project(':jsonparser')
 }
 
 apply plugin: 'maven-publish'
@@ -50,4 +48,3 @@ publishing {
     }
 }
 
-task test(dependsOn: run)
