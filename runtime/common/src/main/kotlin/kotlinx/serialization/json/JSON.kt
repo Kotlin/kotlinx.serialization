@@ -153,13 +153,21 @@ data class JSON(
         override fun encodeLong(value: Long) { if (forceQuoting) encodeString(value.toString()) else w.print(value) }
 
         override fun encodeFloat(value: Float) {
-            if (forceQuoting || !value.isFinite()) encodeString(value.toString()) else
-                w.print(value)
+            if (strictMode && !value.isFinite()) {
+                throw IllegalArgumentException("$value is not a valid float value as per JSON spec. " +
+                        "You can disable strict mode to serialize such values")
+            }
+
+            if (forceQuoting) encodeString(value.toString()) else w.print(value)
         }
 
         override fun encodeDouble(value: Double) {
-            if (forceQuoting || !value.isFinite()) encodeString(value.toString()) else
-                w.print(value)
+            if (strictMode && !value.isFinite()) {
+                throw IllegalArgumentException("$value is not a valid double value as per JSON spec. " +
+                        "You can disable strict mode to serialize such values")
+            }
+
+            if (forceQuoting) encodeString(value.toString()) else w.print(value)
         }
 
         override fun encodeChar(value: Char) {
