@@ -41,9 +41,9 @@ class UpdateTest {
 
     @Test
     fun canUpdateCustom() {
-        val parsed =
-                JSON(unquoted = true, nonstrict = true, updateMode = UpdateMode.UPDATE)
-                        .parse<Updatable>("""{d:{a:42},d:{a:43}}""")
+        val parsed: Updatable =
+                JSON(unquoted = true, strictMode = false, updateMode = UpdateMode.UPDATE)
+                        .parse("""{d:{a:42},d:{a:43}}""")
         assertEquals(Data(42 + 43), parsed.d)
     }
 

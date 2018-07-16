@@ -21,12 +21,12 @@ import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
 
 data class JSON(
-        private val unquoted: Boolean = false,
-        private val indented: Boolean = false,
-        private val indent: String = "    ",
-        internal val nonstrict: Boolean = false,
-        val updateMode: UpdateMode = UpdateMode.OVERWRITE,
-        val context: SerialContext? = null
+    private val unquoted: Boolean = false,
+    private val indented: Boolean = false,
+    private val indent: String = "    ",
+    internal val strictMode: Boolean = true,
+    val updateMode: UpdateMode = UpdateMode.OVERWRITE,
+    val context: SerialContext? = null
 ) {
     fun <T> stringify(saver: SerializationStrategy<T>, obj: T): String {
         val sb = StringBuilder()
@@ -56,10 +56,18 @@ data class JSON(
         val plain = JSON()
         val unquoted = JSON(unquoted = true)
         val indented = JSON(indented = true)
-        val nonstrict = JSON(nonstrict = true)
+        val nonstrict = JSON(strictMode = false)
     }
 
-    inner class JsonOutput internal constructor(private val mode: Mode, private val w: Composer, private val modeReuseCache: Array<JsonOutput?>) : ElementValueEncoder() {
+    // Public visibility to allow casting in user-code to call [writeTree]
+    @Suppress("RedundantVisibilityModifier")
+    public inner class JsonOutput internal constructor(private val mode: Mode, private val w: Composer,
+                                                       private val modeReuseCache: Array<JsonOutput?>)
+        : ElementValueEncoder() {
+
+        // Forces serializer to wrap all values into quotes
+        private var forceQuoting: Boolean = false
+
         init {
             context = this@JSON.context
             val i = mode.ordinal
@@ -73,8 +81,6 @@ data class JSON(
         fun writeTree(tree: JsonElement) {
             w.sb.append(tree.toString())
         }
-
-        private var forceStr: Boolean = false
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
             val newMode = switchMode(mode, desc, typeParams)
@@ -117,11 +123,11 @@ data class JSON(
                 Mode.ENTRY -> throw IllegalStateException("Entry is deprecated")
                 Mode.POLY -> {
                     if (index == 0)
-                        forceStr = true
+                        forceQuoting = true
                     if (index == 1) {
                         w.print(if (mode == Mode.ENTRY) COLON else COMMA)
                         w.space()
-                        forceStr = false
+                        forceQuoting = false
                     }
                 }
                 else -> {
@@ -140,19 +146,19 @@ data class JSON(
             w.print(NULL)
         }
 
-        override fun encodeBoolean(value: Boolean) { if (forceStr) encodeString(value.toString()) else w.print(value) }
-        override fun encodeByte(value: Byte) { if (forceStr) encodeString(value.toString()) else w.print(value) }
-        override fun encodeShort(value: Short) { if (forceStr) encodeString(value.toString()) else w.print(value) }
-        override fun encodeInt(value: Int) { if (forceStr) encodeString(value.toString()) else w.print(value) }
-        override fun encodeLong(value: Long) { if (forceStr) encodeString(value.toString()) else w.print(value) }
+        override fun encodeBoolean(value: Boolean) { if (forceQuoting) encodeString(value.toString()) else w.print(value) }
+        override fun encodeByte(value: Byte) { if (forceQuoting) encodeString(value.toString()) else w.print(value) }
+        override fun encodeShort(value: Short) { if (forceQuoting) encodeString(value.toString()) else w.print(value) }
+        override fun encodeInt(value: Int) { if (forceQuoting) encodeString(value.toString()) else w.print(value) }
+        override fun encodeLong(value: Long) { if (forceQuoting) encodeString(value.toString()) else w.print(value) }
 
         override fun encodeFloat(value: Float) {
-            if (forceStr || !value.isFinite()) encodeString(value.toString()) else
+            if (forceQuoting || !value.isFinite()) encodeString(value.toString()) else
                 w.print(value)
         }
 
         override fun encodeDouble(value: Double) {
-            if (forceStr || !value.isFinite()) encodeString(value.toString()) else
+            if (forceQuoting || !value.isFinite()) encodeString(value.toString()) else
                 w.print(value)
         }
 
@@ -207,7 +213,9 @@ data class JSON(
         fun printQuoted(value: String): Unit = sb.printQuoted(value)
     }
 
-    inner class JsonInput internal constructor(private val mode: Mode, private val p: Parser) : ElementValueDecoder() {
+    // Public visibility to allow casting in user-code to call [readAsTree]
+    @Suppress("RedundantVisibilityModifier")
+    public inner class JsonInput internal constructor(private val mode: Mode, private val p: Parser) : ElementValueDecoder() {
         private var curIndex = -1
         private var entryIndex = 0
 
@@ -293,7 +301,7 @@ data class JSON(
                         val ind = desc.getElementIndex(key)
                         if (ind != UNKNOWN_NAME)
                             return ind
-                        if (!nonstrict)
+                        if (strictMode)
                             throw SerializationException("Strict JSON encountered unknown key: $key")
                         else
                             p.skipElement()
@@ -347,5 +355,6 @@ private fun mustBeQuoted(str: String): Boolean {
     for (ch in str) {
         if (charToTokenClass(ch) != TC_OTHER) return true
     }
+
     return false
 }
