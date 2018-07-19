@@ -22,7 +22,7 @@ Whole JSON tree sources and API can be found [here](common/src/kotlinx/serializa
 
 On JVM and JS, this module included into artifacts of kotlinx.serialization, so JSON tree available 'as is', including common code.
 If you're using native, you can't use `kotlinx-serialization-runtime-common`, since it contains more features.
-You need to declare dependency only on `kotlinx-serialziation-runtime-jsonparser` in your common code, and then use
+You need to declare dependency only on `kotlinx-serialization-runtime-jsonparser` in your common code, and then use
 `org.jetbrains.kotlinx:jsonparser-native` dependency in Native. Example of native dependency can be found [here](../example-native) (CLI application)
 or [here](../example-native) (iOS application alongside technology preview of HTTP client for native). Don't forget to `enableFeaturePreview('GRADLE_METADATA')`
 in yours `settings.gradle`.
