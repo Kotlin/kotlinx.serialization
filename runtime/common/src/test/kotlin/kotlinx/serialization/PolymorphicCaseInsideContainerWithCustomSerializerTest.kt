@@ -22,44 +22,41 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 
-abstract class Base {
-    abstract val id: String
-}
+data class Foo(val id: String)
 
-data class Foo(override val id: String) : Base()
-
-sealed class PolymorphicContainer<T : Base>() {
+sealed class PolymorphicContainer {
     abstract val id: String
 
-    data class Completed<T: Base>(val item: T): PolymorphicContainer<T>() {
+    data class Completed(val item: Foo): PolymorphicContainer() {
         override val id: String = item.id
     }
 
-    data class Incomplete<T: Base>(override val id: String): PolymorphicContainer<T>()
+    data class Incomplete(override val id: String): PolymorphicContainer()
 }
 
 @Serializable
 data class Response(
-    val items: List<PolymorphicContainer<Foo>>
+    val items: List<PolymorphicContainer>
 )
 
-object ContainerSerializer : KSerializer<PolymorphicContainer<*>> {
+object ContainerSerializer : KSerializer<PolymorphicContainer> {
     override val serialClassDesc: KSerialClassDesc = SerialClassDescImpl("kotlinx.serialization.PolymorphicContainer")
 
-    override fun load(input: KInput): PolymorphicContainer<*> {
+    override fun load(input: KInput): PolymorphicContainer {
         val id = input.readStringValue()
-        return PolymorphicContainer.Incomplete<Base>(id)
+        return PolymorphicContainer.Incomplete(id)
     }
 
-    override fun save(output: KOutput, obj: PolymorphicContainer<*>) {
+    override fun save(output: KOutput, obj: PolymorphicContainer) {
         output.writeStringValue(obj.id)
     }
 }
 
 class PolymorphicCaseInsideContainerWithCustomSerializerTest {
     private val context = SerialContext().apply {
-        registerSerializer(PolymorphicContainer.Completed::class, ContainerSerializer as KSerializer<PolymorphicContainer.Completed<*>>)
-        registerSerializer(PolymorphicContainer.Incomplete::class, ContainerSerializer as KSerializer<PolymorphicContainer.Incomplete<*>>)
+        registerSerializer(PolymorphicContainer::class, ContainerSerializer)
+        registerSerializer(PolymorphicContainer.Completed::class, ContainerSerializer as KSerializer<PolymorphicContainer.Completed>)
+        registerSerializer(PolymorphicContainer.Incomplete::class, ContainerSerializer as KSerializer<PolymorphicContainer.Incomplete>)
     }
 
     private val contextualJSON = JSON(context = context)
@@ -69,7 +66,7 @@ class PolymorphicCaseInsideContainerWithCustomSerializerTest {
         val testResponse = Response(
             items = listOf(
                 PolymorphicContainer.Completed(Foo("foo")),
-                PolymorphicContainer.Completed(Foo("bar"))
+                PolymorphicContainer.Incomplete("bar")
             )
         )
         val json = contextualJSON.stringify(testResponse)
