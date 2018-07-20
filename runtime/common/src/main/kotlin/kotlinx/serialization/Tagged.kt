@@ -243,10 +243,10 @@ abstract class TaggedDecoder<Tag : Any?> : CompositeDecoder {
     final override fun <T : Any> decodeNullableSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>): T? =
         tagBlock(desc.getTag(index)) { decodeNullableSerializableValue(loader) }
 
-    override fun <T> updateSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>, old: T): T =
+    override fun <T> updateSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>, old: T): T =
         tagBlock(desc.getTag(index)) { updateSerializableValue(loader, desc, old) }
 
-    override fun <T : Any> updateNullableSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>, old: T?): T? =
+    override fun <T : Any> updateNullableSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>, old: T?): T? =
         tagBlock(desc.getTag(index)) { updateNullableSerializableValue(loader, desc, old) }
 
     private fun <E> tagBlock(tag: Tag, block: () -> E): E {

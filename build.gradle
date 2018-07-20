@@ -41,7 +41,7 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$compilerVersion"
         classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$serializationPluginVersion"
-        classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:${property('konan.version')}"
+//        classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:${property('konan.version')}"
 
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.2'
 
@@ -93,7 +93,7 @@ apply plugin: 'kotlin'
 subprojects {
     if (project.name.contains("native")) return
 
-//    apply plugin: 'kotlinx-serialization'
+    apply plugin: 'kotlinx-serialization'
 
     if (project.name.contains("benchmark")) return
 

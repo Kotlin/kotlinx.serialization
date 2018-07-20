@@ -225,11 +225,11 @@ interface CompositeDecoder: Decoder {
 
     val updateMode: UpdateMode
 
-    fun <T> updateSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>, old: T): T {
+    fun <T> updateSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>, old: T): T {
         return updateSerializableValue(loader, desc, old)
     }
 
-    fun <T: Any> updateNullableSerializableElementValue(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>, old: T?): T? {
+    fun <T: Any> updateNullableSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>, old: T?): T? {
         return updateNullableSerializableValue(loader, desc, old)
     }
 

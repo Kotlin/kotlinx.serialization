@@ -263,7 +263,7 @@ class MapEntryUpdatingSerializer<K, V>(mSerializer: MapEntrySerializer<K, V>, pr
         @Suppress("UNCHECKED_CAST")
         val key = k as K
         val v = if (mapBuilder.containsKey(key) && vSerializer.serialClassDesc.kind != SerialKind.PRIMITIVE) {
-            input.updateSerializableElementValue(serialClassDesc, VALUE_INDEX, vSerializer, mapBuilder.getValue(key))
+            input.updateSerializableElement(serialClassDesc, VALUE_INDEX, vSerializer, mapBuilder.getValue(key))
         } else {
             input.decodeSerializableElement(serialClassDesc, VALUE_INDEX, vSerializer)
         }
