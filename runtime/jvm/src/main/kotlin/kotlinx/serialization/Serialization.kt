@@ -62,3 +62,5 @@ actual fun getSerialId(desc: SerialDescriptor, index: Int): Int? {
 }
 
 actual fun getSerialTag(desc: SerialDescriptor, index: Int): String? = desc.getElementAnnotations(index).filterIsInstance<SerialTag>().singleOrNull()?.tag
+
+actual typealias JvmOverloads = kotlin.jvm.JvmOverloads

@@ -40,14 +40,16 @@ sealed class UnionKind: SerialKind() {
 }
 
 sealed class PrimitiveDescriptor(override val name: String, override val kind: PrimitiveKind): SerialDescriptor {
-    final override fun getElementName(index: Int): String {
-        throw IllegalStateException("Primitives does not have elements")
-    }
+    private fun error(): Nothing = throw IllegalStateException("Primitives does not have elements")
 
-    override fun getElementIndex(name: String): Int {
-        throw IllegalStateException("Primitives does not have elements")
-    }
+    final override fun getElementName(index: Int): String = error()
+    final override fun getElementIndex(name: String): Int = error()
+    final override fun isElementOptional(index: Int): Boolean = error()
+    final override fun getElementDescriptor(index: Int): SerialDescriptor = error()
 }
 
 object IntDescriptor: PrimitiveDescriptor("kotlin.Int", PrimitiveKind.INT) // or just "Int"?
-object StringDescriptor: PrimitiveDescriptor("kotlin.String", PrimitiveKind.STRING) // or just "Int"?
+object StringDescriptor: PrimitiveDescriptor("kotlin.String", PrimitiveKind.STRING) // or just "String"?
+
+@Deprecated("Use more precise kinds")
+class PrimitiveDesc(override val name: String) : PrimitiveDescriptor(name, PrimitiveKind.PRIMITIVE) {}

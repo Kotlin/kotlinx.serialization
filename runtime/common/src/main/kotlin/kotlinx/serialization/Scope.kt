@@ -16,7 +16,6 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.internal.PrimitiveDesc
 import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")

@@ -306,9 +306,8 @@ class PairSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer
 sealed class ListLikeDesc(private val elementDesc: SerialDescriptor) : SerialDescriptor {
     override fun getElementName(index: Int): String = if (index == SIZE_INDEX) "size" else index.toString()
     override fun getElementIndex(name: String): Int = if (name == "size") SIZE_INDEX else name.toInt()
-    override fun getElementDescriptor(index: Int): SerialDescriptor {
-        return elementDesc
-    }
+    override fun getElementDescriptor(index: Int): SerialDescriptor = elementDesc
+    override fun isElementOptional(index: Int): Boolean = false
 }
 
 internal val ARRAY_NAME = "kotlin.Array"

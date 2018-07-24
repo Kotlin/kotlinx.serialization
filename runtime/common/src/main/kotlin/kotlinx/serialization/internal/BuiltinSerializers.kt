@@ -19,18 +19,6 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
-class PrimitiveDesc(override val name: String) : SerialDescriptor {
-
-    override val kind: SerialKind = PrimitiveKind.PRIMITIVE
-
-    override fun getElementName(index: Int) = throw IllegalStateException("Primitives do not have fields")
-
-    override fun getElementIndex(name: String) = throw IllegalStateException("Primitives do not have fields")
-
-    override fun getElementDescriptor(index: Int): SerialDescriptor =
-        throw IllegalStateException("Primitives does not have elements")
-}
-
 object UnitSerializer : KSerializer<Unit> {
     override val descriptor: SerialDescriptor = PrimitiveDesc("kotlin.Unit")
 
@@ -111,6 +99,10 @@ internal class EnumDesc(override val name: String) : SerialDescriptor {
     override fun getElementIndex(name: String) = throw IllegalStateException("Primitives does not have fields")
 
     override fun getElementDescriptor(index: Int) = throw IllegalStateException("Enums does not have serializable elements")
+
+    override fun isElementOptional(index: Int): Boolean {
+        throw IllegalStateException("Enums does not have serializable elements")
+    }
 }
 
 // note, that it is instantiated in a special way

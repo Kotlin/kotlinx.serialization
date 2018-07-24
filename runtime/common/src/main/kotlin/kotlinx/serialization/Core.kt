@@ -38,7 +38,7 @@ interface SerialDescriptor {
     val isNullable: Boolean
         get() = false
 
-    fun isElementOptional(index: Int): Boolean = TODO()
+    fun isElementOptional(index: Int): Boolean
 
     // --- deprecations and helpers
 

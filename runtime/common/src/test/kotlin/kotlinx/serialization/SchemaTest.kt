@@ -20,13 +20,15 @@ import kotlinx.serialization.internal.*
 import kotlin.test.*
 
 @Serializable
-data class Data1(val l: List<Int>) {
+data class Data1(@Optional val l: List<Int> = emptyList(), val s: String) {
     @Serializer(forClass = Data1::class)
     companion object {
         override val descriptor: SerialDescriptor = object : SerialClassDescImpl("Data1") {
             init {
                 addElement("l")
                 pushDescriptor(ArrayListSerializer(IntSerializer).descriptor)
+                addElement("s", true)
+                pushDescriptor(StringSerializer.descriptor)
             }
         }
     }
@@ -35,11 +37,12 @@ data class Data1(val l: List<Int>) {
 class SchemaTest {
     @Test
     fun test() {
-        val serialDescriptor = Data1.serializer().descriptor
+        val serialDescriptor: SerialDescriptor = Data1.serializer().descriptor
         val nested = serialDescriptor.getElementDescriptor(0)
         assertTrue(nested is ListLikeDesc)
         val elem = nested.getElementDescriptor(0)
-        assertTrue(elem is PrimitiveDesc)
+        assertTrue(elem is PrimitiveDescriptor)
         assertEquals("kotlin.Int", elem.name)
+        assertTrue(serialDescriptor.isElementOptional(1))
     }
 }

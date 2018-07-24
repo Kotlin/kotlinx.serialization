@@ -25,12 +25,20 @@ open class SerialClassDescImpl(override val name: String) : SerialDescriptor {
     private val names: MutableList<String> = ArrayList()
     private val annotations: MutableList<MutableList<Annotation>> = mutableListOf()
     private val classAnnotations: MutableList<Annotation> = mutableListOf()
-    private var _indices: Map<String, Int>? = null
-    private val indices: Map<String, Int> get() = _indices ?: buildIndices()
+
+    private var flags = BooleanArray(4)
+
     private val descriptors: MutableList<SerialDescriptor> = mutableListOf()
 
-    fun addElement(name: String) {
+    private var _indices: Map<String, Int>? = null
+    private val indices: Map<String, Int> get() = _indices ?: buildIndices()
+
+    @JvmOverloads
+    fun addElement(name: String, isOptional: Boolean = false) {
         names.add(name)
+        val idx = names.size - 1
+        ensureFlagsCapacity(idx)
+        flags[idx] = isOptional
         annotations.add(mutableListOf())
     }
 
@@ -46,6 +54,10 @@ open class SerialClassDescImpl(override val name: String) : SerialDescriptor {
         return descriptors[index]
     }
 
+    override fun isElementOptional(index: Int): Boolean {
+        return flags[index]
+    }
+
     fun pushClassAnnotation(a: Annotation) {
         classAnnotations.add(a)
     }
@@ -57,6 +69,11 @@ open class SerialClassDescImpl(override val name: String) : SerialDescriptor {
 
     override fun getElementName(index: Int): String = names[index]
     override fun getElementIndex(name: String): Int = indices[name] ?: UNKNOWN_NAME
+
+    private fun ensureFlagsCapacity(i: Int) {
+        if (flags.size <= i)
+            flags = flags.copyOf(flags.size * 2)
+    }
 
     private fun buildIndices(): Map<String, Int> {
         val indices = HashMap<String, Int>()

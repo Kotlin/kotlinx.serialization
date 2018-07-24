@@ -76,6 +76,8 @@ object CustomSerializer : KSerializer<Custom> {
             "value2" -> 1
             else -> -1
         }
+
+        override fun isElementOptional(index: Int): Boolean = false
     }
 
     override fun serialize(output: Encoder, obj : Custom) {
