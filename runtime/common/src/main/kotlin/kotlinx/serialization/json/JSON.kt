@@ -325,7 +325,7 @@ private fun switchMode(mode: Mode, desc: SerialDescriptor, typeParams: Array<out
         StructureKind.LIST, StructureKind.SET -> Mode.LIST
         StructureKind.MAP -> {
             val keyKind = typeParams[0].descriptor.kind
-            if (keyKind == PrimitiveKind.PRIMITIVE || keyKind == UnionKind.ENUM_KIND)
+            if (keyKind is PrimitiveKind || keyKind == UnionKind.ENUM_KIND)
                 Mode.MAP
             else Mode.LIST
         }

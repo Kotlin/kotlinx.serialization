@@ -262,7 +262,7 @@ class MapEntryUpdatingSerializer<K, V>(mSerializer: MapEntrySerializer<K, V>, pr
         if (!kSet) throw SerializationException("Key must be before value in serialization stream")
         @Suppress("UNCHECKED_CAST")
         val key = k as K
-        val v = if (mapBuilder.containsKey(key) && vSerializer.descriptor.kind != PrimitiveKind.PRIMITIVE) {
+        val v = if (mapBuilder.containsKey(key) && vSerializer.descriptor.kind !is PrimitiveKind) {
             input.updateSerializableElement(descriptor, VALUE_INDEX, vSerializer, mapBuilder.getValue(key))
         } else {
             input.decodeSerializableElement(descriptor, VALUE_INDEX, vSerializer)

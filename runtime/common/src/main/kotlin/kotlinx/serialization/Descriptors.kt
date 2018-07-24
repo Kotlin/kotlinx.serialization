@@ -19,8 +19,15 @@ package kotlinx.serialization
 sealed class SerialKind
 
 sealed class PrimitiveKind: SerialKind() {
-    object PRIMITIVE: PrimitiveKind() // TODO: remove it later
     object INT : PrimitiveKind()
+    object UNIT : PrimitiveKind()
+    object BOOLEAN : PrimitiveKind()
+    object BYTE : PrimitiveKind()
+    object SHORT : PrimitiveKind()
+    object LONG : PrimitiveKind()
+    object FLOAT : PrimitiveKind()
+    object DOUBLE : PrimitiveKind()
+    object CHAR : PrimitiveKind()
     object STRING: PrimitiveKind()
 }
 
@@ -38,18 +45,3 @@ sealed class UnionKind: SerialKind() {
     object SEALED: UnionKind()
     object POLYMORPHIC: UnionKind()
 }
-
-sealed class PrimitiveDescriptor(override val name: String, override val kind: PrimitiveKind): SerialDescriptor {
-    private fun error(): Nothing = throw IllegalStateException("Primitives does not have elements")
-
-    final override fun getElementName(index: Int): String = error()
-    final override fun getElementIndex(name: String): Int = error()
-    final override fun isElementOptional(index: Int): Boolean = error()
-    final override fun getElementDescriptor(index: Int): SerialDescriptor = error()
-}
-
-object IntDescriptor: PrimitiveDescriptor("kotlin.Int", PrimitiveKind.INT) // or just "Int"?
-object StringDescriptor: PrimitiveDescriptor("kotlin.String", PrimitiveKind.STRING) // or just "String"?
-
-@Deprecated("Use more precise kinds")
-class PrimitiveDesc(override val name: String) : PrimitiveDescriptor(name, PrimitiveKind.PRIMITIVE) {}

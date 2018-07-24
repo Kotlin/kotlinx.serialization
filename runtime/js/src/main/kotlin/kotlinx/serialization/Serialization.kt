@@ -40,6 +40,7 @@ actual fun <E: Enum<E>> enumFromName(enumClass: KClass<E>, value: String): E = e
 actual fun <E: Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E = (enumClass.js.asDynamic().values() as Array<E>)[ordinal]
 
 actual fun <E: Enum<E>> KClass<E>.enumClassName(): String = this.js.name
+actual fun <E: Enum<E>> KClass<E>.enumMembers(): Array<E> = (this.js.asDynamic().values() as Array<E>)
 
 actual fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> = toTypedArray()
 

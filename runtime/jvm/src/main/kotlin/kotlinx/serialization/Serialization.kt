@@ -29,6 +29,7 @@ actual fun <E: Enum<E>> enumFromName(enumClass: KClass<E>, value: String): E = j
 actual fun <E: Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E = enumClass.java.enumConstants[ordinal]
 
 actual fun <E: Enum<E>> KClass<E>.enumClassName(): String = this.java.canonicalName ?: ""
+actual fun <E : Enum<E>> KClass<E>.enumMembers(): Array<E> = this.java.enumConstants
 
 @Suppress("UNCHECKED_CAST")
 actual fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> = toArray(java.lang.reflect.Array.newInstance(eClass.java, size) as Array<E>)

@@ -77,9 +77,12 @@ interface KSerializer<T>: SerializationStrategy<T>, DeserializationStrategy<T> {
 }
 
 
+@Deprecated("Experimental")
 interface EnumCreator<E : Enum<E>> {
     fun createFromOrdinal(ordinal: Int): E
     fun createFromName(name: String): E
+
+    fun choices(): Array<E>
 }
 
 internal class LegacyEnumCreator<E : Enum<E>>(private val eClass: KClass<E>) : EnumCreator<E> {
@@ -89,6 +92,10 @@ internal class LegacyEnumCreator<E : Enum<E>>(private val eClass: KClass<E>) : E
 
     override fun createFromName(name: String): E {
         return enumFromName(eClass, name)
+    }
+
+    override fun choices(): Array<E> {
+        return eClass.enumMembers()
     }
 }
 
