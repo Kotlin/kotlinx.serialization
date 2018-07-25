@@ -28,7 +28,12 @@ annotation class SerialId(val id: Int)
 annotation class SerialTag(val tag: String)
 
 
-abstract class TaggedEncoder<Tag : Any?> : CompositeEncoder {
+abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
+
+    /**
+     * Provides a tag object for given serial descriptor and index.
+     * Tag object allows to associate given user information with particular element of composite serializable entity..
+     */
     protected abstract fun SerialDescriptor.getTag(index: Int): Tag
 
     override var context: SerialContext? = null
@@ -65,7 +70,7 @@ abstract class TaggedEncoder<Tag : Any?> : CompositeEncoder {
 
     // ---- Implementation of low-level API ----
 
-    final override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
+    fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
         val tag = desc.getTag(index)
         val shouldWriteElement = shouldWriteElement(desc, tag, index)
         if (shouldWriteElement) {
@@ -98,11 +103,17 @@ abstract class TaggedEncoder<Tag : Any?> : CompositeEncoder {
     final override fun <E : Enum<E>> encodeEnum(enumClass: KClass<E>, value: E) = encodeEnum(value)
     final override fun <T : Enum<T>> encodeEnum(value: T) = encodeTaggedEnum(popTag(), value)
 
+    override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
+        return this
+    }
+
     final override fun endStructure(desc: SerialDescriptor) {
         if (tagStack.isNotEmpty()) popTag(); endEncode(desc)
     }
 
-    // For format-specific behaviour
+    /**
+     * Format-specific replacement for [endStructure], because latter is overridden to manipulate tag stack.
+     */
     open fun endEncode(desc: SerialDescriptor) {}
 
     final override fun encodeNonSerializableElement(desc: SerialDescriptor, index: Int, value: Any) = encodeTaggedValue(desc.getTag(index), value)
@@ -124,6 +135,16 @@ abstract class TaggedEncoder<Tag : Any?> : CompositeEncoder {
         encodeEnumElement(desc, index, value)
     final override fun <T : Enum<T>> encodeEnumElement(desc: SerialDescriptor, index: Int, value: T) =
         encodeTaggedEnum(desc.getTag(index), value)
+
+    final override fun <T : Any?> encodeSerializableElement(desc: SerialDescriptor, index: Int, saver: SerializationStrategy<T>, value: T) {
+        if (encodeElement(desc, index))
+            encodeSerializableValue(saver, value)
+    }
+
+    final override fun <T : Any> encodeNullableSerializableElement(desc: SerialDescriptor, index: Int, saver: SerializationStrategy<T>, value: T?) {
+        if (encodeElement(desc, index))
+            encodeNullableSerializableValue(saver, value)
+    }
 
     private val tagStack = arrayListOf<Tag>()
     protected val currentTag: Tag
@@ -158,7 +179,7 @@ abstract class NamedValueEncoder(val rootName: String = "") : TaggedEncoder<Stri
 expect fun getSerialId(desc: SerialDescriptor, index: Int): Int?
 expect fun getSerialTag(desc: SerialDescriptor, index: Int): String?
 
-abstract class TaggedDecoder<Tag : Any?> : CompositeDecoder {
+abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     override var context: SerialContext? = null
     override val updateMode: UpdateMode = UpdateMode.UPDATE
 
@@ -217,7 +238,13 @@ abstract class TaggedDecoder<Tag : Any?> : CompositeDecoder {
 
     final override fun <T : Enum<T>> decodeEnum(enumCreator: EnumCreator<T>): T = decodeTaggedEnum(popTag(), enumCreator)
 
-    // Override for custom behaviour
+    override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+        return this
+    }
+
+    /**
+     * Assumes that all elements go in order by default.
+     */
     override fun decodeElementIndex(desc: SerialDescriptor): Int = READ_ALL
 
     final override fun decodeElementValue(desc: SerialDescriptor, index: Int): Any = decodeTaggedValue(desc.getTag(index))
@@ -244,10 +271,10 @@ abstract class TaggedDecoder<Tag : Any?> : CompositeDecoder {
         tagBlock(desc.getTag(index)) { decodeNullableSerializableValue(loader) }
 
     override fun <T> updateSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>, old: T): T =
-        tagBlock(desc.getTag(index)) { updateSerializableValue(loader, desc, old) }
+        tagBlock(desc.getTag(index)) { updateSerializableValue(loader, old) }
 
     override fun <T : Any> updateNullableSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>, old: T?): T? =
-        tagBlock(desc.getTag(index)) { updateNullableSerializableValue(loader, desc, old) }
+        tagBlock(desc.getTag(index)) { updateNullableSerializableValue(loader, old) }
 
     private fun <E> tagBlock(tag: Tag, block: () -> E): E {
         pushTag(tag)

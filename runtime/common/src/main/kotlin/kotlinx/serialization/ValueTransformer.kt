@@ -53,7 +53,7 @@ open class ValueTransformer {
 
     // ---------------
 
-    private inner class Output : CompositeEncoder {
+    private inner class Output : Encoder, CompositeEncoder {
         override var context: SerialContext? = null
 
         internal val list = arrayListOf<Any?>()
@@ -62,7 +62,7 @@ open class ValueTransformer {
             list.add(value)
         }
 
-        override fun encodeElement(desc: SerialDescriptor, index: Int) = true
+        fun encodeElement(desc: SerialDescriptor, index: Int) = true
         override fun encodeNotNullMark() {}
         override fun encodeNull() { encodeNullableValue(null) }
         override fun encodeNonSerializableValue(value: Any) { encodeNullableValue(value) }
@@ -109,9 +109,31 @@ open class ValueTransformer {
         override fun <T : Enum<T>> encodeEnumElement(desc: SerialDescriptor, index: Int, value: T) {
             encodeNullableValue(value)
         }
+
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
+            return this
+        }
+
+        override fun <T> encodeSerializableElement(
+            desc: SerialDescriptor,
+            index: Int,
+            saver: SerializationStrategy<T>,
+            value: T
+        ) {
+            encodeSerializableValue(saver, value)
+        }
+
+        override fun <T : Any> encodeNullableSerializableElement(
+            desc: SerialDescriptor,
+            index: Int,
+            saver: SerializationStrategy<T>,
+            value: T?
+        ) {
+            encodeNullableSerializableValue(saver, value)
+        }
     }
 
-    private inner class Input(private val list: List<Any?>) : CompositeDecoder {
+    private inner class Input(private val list: List<Any?>) : Decoder, CompositeDecoder {
         override var context: SerialContext? = null
         override val updateMode: UpdateMode = UpdateMode.BANNED
 
@@ -159,6 +181,10 @@ open class ValueTransformer {
 
         // ---------------
 
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+            return this
+        }
+
         override fun decodeElementIndex(desc: SerialDescriptor): Int = READ_ALL
 
         override fun decodeElementValue(desc: SerialDescriptor, index: Int): Any {
@@ -197,6 +223,24 @@ open class ValueTransformer {
         override fun <T: Any> decodeNullableSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>): T? {
             cur(desc, index)
             return decodeNullableSerializableValue(loader)
+        }
+
+        override fun <T> updateSerializableElement(
+            desc: SerialDescriptor,
+            index: Int,
+            loader: DeserializationStrategy<T>,
+            old: T
+        ): T {
+            return updateSerializableValue(loader, old)
+        }
+
+        override fun <T : Any> updateNullableSerializableElement(
+            desc: SerialDescriptor,
+            index: Int,
+            loader: DeserializationStrategy<T?>,
+            old: T?
+        ): T? {
+            return updateNullableSerializableValue(loader, old)
         }
     }
 }

@@ -20,15 +20,24 @@ import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
 import kotlinx.serialization.internal.UnitSerializer
 import kotlin.reflect.KClass
 
-abstract class ElementValueEncoder : CompositeEncoder {
-
+abstract class ElementValueEncoder : Encoder, CompositeEncoder {
     override var context: SerialContext? = null
-    // ------- implementation API -------
 
-    // it is always invoked before writeXxxValue
-    override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean = true
+    override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
+        return this
+    }
 
-    // override for a special representation of nulls if needed (empty object by default)
+    /**
+     * Always invoked before writing each element to determine if it should be encoded.
+     *
+     * @return True if value should be encoded, false otherwise
+     */
+    open fun encodeElement(desc: SerialDescriptor, index: Int): Boolean = true
+
+    /**
+     * Encodes that following value is not null.
+     * No-op by default.
+     */
     override fun encodeNotNullMark() {}
 
     override fun encodeNonSerializableValue(value: Any) {
@@ -52,7 +61,6 @@ abstract class ElementValueEncoder : CompositeEncoder {
         val output = beginStructure(UnitSerializer.descriptor); output.endStructure(UnitSerializer.descriptor)
     }
 
-    // type-specific value-based output, override for performance and custom type representations
     override fun encodeBoolean(value: Boolean) = encodeValue(value)
     override fun encodeByte(value: Byte) = encodeValue(value)
     override fun encodeShort(value: Short) = encodeValue(value)
@@ -66,7 +74,8 @@ abstract class ElementValueEncoder : CompositeEncoder {
     final override fun <T : Enum<T>> encodeEnum(enumClass: KClass<T>, value: T) = encodeEnum(value)
 
     override fun <T : Enum<T>> encodeEnum(value: T) = encodeValue(value)
-    // -------------------------------------------------------------------------------------
+
+    // Delegating implementation of CompositeEncoder
 
     final override fun encodeNonSerializableElement(desc: SerialDescriptor, index: Int, value: Any) { if (encodeElement(desc, index)) encodeValue(value) }
     final override fun encodeNullableElementValue(desc: SerialDescriptor, index: Int, value: Any?) { if (encodeElement(desc, index)) encodeNullableValue(value) }
@@ -80,25 +89,35 @@ abstract class ElementValueEncoder : CompositeEncoder {
     final override fun encodeDoubleElement(desc: SerialDescriptor, index: Int, value: Double) { if (encodeElement(desc, index)) encodeDouble(value) }
     final override fun encodeCharElement(desc: SerialDescriptor, index: Int, value: Char) { if (encodeElement(desc, index)) encodeChar(value) }
     final override fun encodeStringElement(desc: SerialDescriptor, index: Int, value: String) { if (encodeElement(desc, index)) encodeString(value) }
+
     @Deprecated("Not supported in Native", replaceWith = ReplaceWith("encodeEnumElement(desc, index, value)"))
     final override fun <T : Enum<T>> encodeEnumElement(desc: SerialDescriptor, index: Int, enumClass: KClass<T>, value: T) {
         encodeEnumElement(desc, index, value)
     }
-
     final override fun <T : Enum<T>> encodeEnumElement(desc: SerialDescriptor, index: Int, value: T) {
         if (encodeElement(desc, index)) encodeEnum(value)
     }
+
+    final override fun <T : Any?> encodeSerializableElement(desc: SerialDescriptor, index: Int, saver: SerializationStrategy<T>, value: T) {
+        if (encodeElement(desc, index))
+            encodeSerializableValue(saver, value)
+    }
+    final override fun <T : Any> encodeNullableSerializableElement(desc: SerialDescriptor, index: Int, saver: SerializationStrategy<T>, value: T?) {
+        if (encodeElement(desc, index))
+            encodeNullableSerializableValue(saver, value)
+    }
 }
 
-abstract class ElementValueDecoder : CompositeDecoder {
+abstract class ElementValueDecoder : Decoder, CompositeDecoder {
     override var context: SerialContext? = null
     override val updateMode: UpdateMode = UpdateMode.UPDATE
     // ------- implementation API -------
 
-    // unordered read api, override to read props in arbitrary order
+    /**
+     * Assumes that all elements go in order by default.
+     */
     override fun decodeElementIndex(desc: SerialDescriptor): Int = READ_ALL
 
-    // returns true if the following value is not null, false if not null
     override fun decodeNotNullMark(): Boolean = true
     override fun decodeNull(): Nothing? = null
 
@@ -110,7 +129,6 @@ abstract class ElementValueDecoder : CompositeDecoder {
         val reader = beginStructure(UnitSerializer.descriptor); reader.endStructure(UnitSerializer.descriptor)
     }
 
-    // type-specific value-based input, override for performance and custom type representations
     override fun decodeBoolean(): Boolean = decodeValue() as Boolean
     override fun decodeByte(): Byte = decodeValue() as Byte
     override fun decodeShort(): Short = decodeValue() as Short
@@ -129,7 +147,11 @@ abstract class ElementValueDecoder : CompositeDecoder {
     @Suppress("UNCHECKED_CAST")
     override fun <T : Enum<T>> decodeEnum(enumCreator: EnumCreator<T>): T = decodeValue() as T
 
-    // -------------------------------------------------------------------------------------
+    // Delegating implementation of CompositeEncoder
+
+    override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+        return this
+    }
 
     final override fun decodeElementValue(desc: SerialDescriptor, index: Int): Any = decodeValue()
     final override fun decodeNullableElementValue(desc: SerialDescriptor, index: Int): Any? = decodeNullableValue()
@@ -143,16 +165,19 @@ abstract class ElementValueDecoder : CompositeDecoder {
     final override fun decodeDoubleElement(desc: SerialDescriptor, index: Int): Double = decodeDouble()
     final override fun decodeCharElement(desc: SerialDescriptor, index: Int): Char = decodeChar()
     final override fun decodeStringElement(desc: SerialDescriptor, index: Int): String = decodeString()
+
     @Deprecated("Not supported in Native", ReplaceWith("decodeEnum(desc, index, creator)"))
     final override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>): T =
         decodeEnumElementValue(desc, index, LegacyEnumCreator(enumClass))
-
     final override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T =
         decodeEnum(enumCreator)
 
     final override fun <T: Any?> decodeSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T =
         decodeSerializableValue(loader)
-
     final override fun <T: Any> decodeNullableSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>): T? =
         decodeNullableSerializableValue(loader)
+    final override fun <T> updateSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>, old: T): T =
+        updateSerializableValue(loader, old)
+    final override fun <T: Any> updateNullableSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>, old: T?): T? =
+        updateNullableSerializableValue(loader, old)
 }

@@ -72,13 +72,10 @@ interface Encoder {
         beginStructure(desc, *typeParams)
 }
 
-interface CompositeEncoder: Encoder {
-    override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder = this
-    fun endStructure(desc: SerialDescriptor) {}
+interface CompositeEncoder {
+    var context: SerialContext?
 
-    // it is always invoked before encodeSerializableValue, shall return false if no need to encode (skip this value)
-    // todo: move down to elementwise?
-    fun encodeElement(desc: SerialDescriptor, index: Int): Boolean
+    fun endStructure(desc: SerialDescriptor) {}
 
     @Deprecated("Untyped encoding will be removed")
     fun encodeElementValue(desc: SerialDescriptor, index: Int, value: Any) {
@@ -105,17 +102,11 @@ interface CompositeEncoder: Encoder {
     fun <T : Enum<T>> encodeEnumElement(desc: SerialDescriptor, index: Int, enumClass: KClass<T>, value: T)
     fun <T : Enum<T>> encodeEnumElement(desc: SerialDescriptor, index: Int, value: T)
 
-    fun <T : Any?> encodeSerializableElement(desc: SerialDescriptor, index: Int, saver: SerializationStrategy<T>, value: T) {
-        if (encodeElement(desc, index))
-            encodeSerializableValue(saver, value)
-    }
+    fun <T : Any?> encodeSerializableElement(desc: SerialDescriptor, index: Int, saver: SerializationStrategy<T>, value: T)
 
     fun encodeNonSerializableElement(desc: SerialDescriptor, index: Int, value: Any)
 
-    fun <T : Any> encodeNullableSerializableElement(desc: SerialDescriptor, index: Int, saver: SerializationStrategy<T>, value: T?) {
-        if (encodeElement(desc, index))
-            encodeNullableSerializableValue(saver, value)
-    }
+    fun <T : Any> encodeNullableSerializableElement(desc: SerialDescriptor, index: Int, saver: SerializationStrategy<T>, value: T?)
 }
 
 
@@ -171,10 +162,29 @@ interface Decoder {
         if (decodeNotNullMark()) decodeSerializableValue(loader) else decodeNull()
 
     fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder
+
+    val updateMode: UpdateMode
+
+    fun <T> updateSerializableValue(loader: DeserializationStrategy<T>, old: T): T {
+        return when(updateMode) {
+            UpdateMode.BANNED -> throw UpdateNotSupportedException(loader.descriptor.name)
+            UpdateMode.OVERWRITE -> decodeSerializableValue(loader)
+            UpdateMode.UPDATE -> loader.patch(this, old)
+        }
+    }
+
+    fun <T: Any> updateNullableSerializableValue(loader: DeserializationStrategy<T?>, old: T?): T? {
+        return when {
+            updateMode == UpdateMode.BANNED -> throw UpdateNotSupportedException(loader.descriptor.name)
+            updateMode == UpdateMode.OVERWRITE || old == null -> decodeNullableSerializableValue(loader)
+            decodeNotNullMark() -> loader.patch(this, old)
+            else -> decodeNull().let { old }
+        }
+    }
 }
 
-interface CompositeDecoder: Decoder {
-    override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder = this
+interface CompositeDecoder {
+    var context: SerialContext?
     fun endStructure(desc: SerialDescriptor) {}
 
     /**
@@ -225,28 +235,6 @@ interface CompositeDecoder: Decoder {
 
     val updateMode: UpdateMode
 
-    fun <T> updateSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>, old: T): T {
-        return updateSerializableValue(loader, desc, old)
-    }
-
-    fun <T: Any> updateNullableSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>, old: T?): T? {
-        return updateNullableSerializableValue(loader, desc, old)
-    }
-
-    fun <T> updateSerializableValue(loader: DeserializationStrategy<T>, desc: SerialDescriptor, old: T): T {
-        return when(updateMode) {
-            UpdateMode.BANNED -> throw UpdateNotSupportedException(desc.name)
-            UpdateMode.OVERWRITE -> decodeSerializableValue(loader)
-            UpdateMode.UPDATE -> loader.patch(this, old)
-        }
-    }
-
-    fun <T: Any> updateNullableSerializableValue(loader: DeserializationStrategy<T?>, desc: SerialDescriptor, old: T?): T? {
-        return when {
-            updateMode == UpdateMode.BANNED -> throw UpdateNotSupportedException(desc.name)
-            updateMode == UpdateMode.OVERWRITE || old == null -> decodeNullableSerializableValue(loader)
-            decodeNotNullMark() -> loader.patch(this, old)
-            else -> decodeNull().let { old }
-        }
-    }
+    fun <T> updateSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>, old: T): T
+    fun <T: Any> updateNullableSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>, old: T?): T?
 }
