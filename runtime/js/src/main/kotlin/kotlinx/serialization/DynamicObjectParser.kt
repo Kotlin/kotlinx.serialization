@@ -118,13 +118,13 @@ class DynamicObjectParser(val context: SerialContext? = null) {
         }
 
         private val size = obj.length as Int
-        private var pos = 0 // 0st element is SIZE. use it?
+        private var pos = -1
 
-        override fun elementName(desc: SerialDescriptor, index: Int): String = (index - 1).toString()
+        override fun elementName(desc: SerialDescriptor, index: Int): String = (index).toString()
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
-            while (pos < size) {
-                val o = obj[pos++]
+            while (pos < size - 1) {
+                val o = obj[++pos]
                 if (o !== undefined) return pos
             }
             return READ_DONE

@@ -201,6 +201,15 @@ interface CompositeDecoder {
      */
     fun decodeElementIndex(desc: SerialDescriptor): Int
 
+    /**
+     * Optional method to specify collection size to pre-allocate memory.
+     * If decoder specifies stream reading ([READ_ALL] is returned from [decodeElementIndex], then
+     * correct implementation of this method is mandatory.
+     *
+     * @return Collection size or -1 if not available.
+     */
+    fun decodeCollectionSize(desc: SerialDescriptor): Int = -1
+
     @Deprecated("Untyped decoding will be removed")
     fun decodeElementValue(desc: SerialDescriptor, index: Int): Any
 

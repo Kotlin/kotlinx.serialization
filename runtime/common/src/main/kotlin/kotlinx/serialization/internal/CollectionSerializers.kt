@@ -21,8 +21,6 @@ import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlin.reflect.KClass
 
-const val SIZE_INDEX = 0
-
 // ============================= serializers =============================
 
 sealed class ListLikeSerializer<E, C, B>(open val eSerializer: KSerializer<E>) : KSerializer<C> {
@@ -43,9 +41,8 @@ sealed class ListLikeSerializer<E, C, B>(open val eSerializer: KSerializer<E>) :
         val size = obj.objSize()
         @Suppress("NAME_SHADOWING")
         val output = output.beginCollection(descriptor, size, *typeParams)
-//        output.encodeIntElement(descriptor, SIZE_INDEX, size)
         val iterator = obj.objIterator()
-        for (index in 1..size)
+        for (index in 0 until size)
             output.encodeSerializableElement(descriptor, index, eSerializer, iterator.next())
         output.endStructure(descriptor)
     }
@@ -55,6 +52,7 @@ sealed class ListLikeSerializer<E, C, B>(open val eSerializer: KSerializer<E>) :
         val startIndex = builder.builderSize()
         @Suppress("NAME_SHADOWING")
         val input = input.beginStructure(descriptor, *typeParams)
+        readSize(input, builder)
         mainLoop@ while (true) {
             val index = input.decodeElementIndex(descriptor)
             when (index) {
@@ -63,7 +61,6 @@ sealed class ListLikeSerializer<E, C, B>(open val eSerializer: KSerializer<E>) :
                     break@mainLoop
                 }
                 READ_DONE -> break@mainLoop
-                SIZE_INDEX -> readSize(input, builder)
                 else -> readItem(input, startIndex + index, builder)
             }
 
@@ -78,18 +75,19 @@ sealed class ListLikeSerializer<E, C, B>(open val eSerializer: KSerializer<E>) :
     }
 
     private fun readSize(input: CompositeDecoder, builder: B): Int {
-        val size = input.decodeIntElement(descriptor, SIZE_INDEX)
+        val size = input.decodeCollectionSize(descriptor)
         builder.checkCapacity(size)
         return size
     }
 
     protected open fun readItem(input: CompositeDecoder, index: Int, builder: B) {
-        builder.insert(index - 1, input.decodeSerializableElement(descriptor, index, eSerializer))
+        builder.insert(index, input.decodeSerializableElement(descriptor, index, eSerializer))
     }
 
     private fun readAll(input: CompositeDecoder, builder: B, startIndex: Int) {
         val size = readSize(input, builder)
-        for (index in 1..size)
+        require(size >= 0) { "Size must be known in advance when using READ_ALL" }
+        for (index in 0 until size)
             readItem(input, startIndex + index, builder)
     }
 }
@@ -303,8 +301,8 @@ class PairSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer
 // ============================= class descriptors =============================
 
 sealed class ListLikeDesc(private val elementDesc: SerialDescriptor) : SerialDescriptor {
-    override fun getElementName(index: Int): String = if (index == SIZE_INDEX) "size" else index.toString()
-    override fun getElementIndex(name: String): Int = if (name == "size") SIZE_INDEX else name.toInt()
+    override fun getElementName(index: Int): String = index.toString()
+    override fun getElementIndex(name: String): Int = name.toIntOrNull() ?: throw IllegalArgumentException("$name is not a valid list index")
     override fun getElementDescriptor(index: Int): SerialDescriptor = elementDesc
     override fun isElementOptional(index: Int): Boolean = false
 }

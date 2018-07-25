@@ -104,7 +104,6 @@ data class JSON(
         override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
             when (mode) {
                 Mode.LIST, Mode.MAP -> {
-                    if (index == 0) return false
                     if (! w.writingFirst)
                         w.print(COMMA)
                     w.nextItem()
@@ -202,7 +201,7 @@ data class JSON(
     }
 
     inner class JsonInput internal constructor(private val mode: Mode, private val p: Parser) : ElementValueDecoder() {
-        private var curIndex = 0
+        private var curIndex = -1
         private var entryIndex = 0
 
         init {

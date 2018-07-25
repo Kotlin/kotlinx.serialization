@@ -18,7 +18,6 @@ package kotlinx.serialization
 
 import kotlin.test.*
 
-@Ignore // todo
 class MapperTest {
 
     @Serializable

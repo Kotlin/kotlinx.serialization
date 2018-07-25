@@ -19,6 +19,15 @@ package kotlinx.serialization
 object Mapper {
 
     class OutMapper : NamedValueEncoder() {
+        override fun beginCollection(
+            desc: SerialDescriptor,
+            collectionSize: Int,
+            vararg typeParams: KSerializer<*>
+        ): CompositeEncoder {
+            encodeTaggedInt(nested("size"), collectionSize)
+            return this
+        }
+
         private var _map: MutableMap<String, Any> = mutableMapOf()
 
         val map: Map<String, Any>
@@ -39,6 +48,15 @@ object Mapper {
         val map: Map<String, Any?>
             get() = _map
 
+        override fun beginCollection(
+            desc: SerialDescriptor,
+            collectionSize: Int,
+            vararg typeParams: KSerializer<*>
+        ): CompositeEncoder {
+            encodeTaggedInt(nested("size"), collectionSize)
+            return this
+        }
+
         override fun encodeTaggedValue(tag: String, value: Any) {
             _map[tag] = value
         }
@@ -49,10 +67,18 @@ object Mapper {
     }
 
     class InMapper(val map: Map<String, Any>) : NamedValueDecoder() {
+        override fun decodeCollectionSize(desc: SerialDescriptor): Int {
+            return decodeTaggedInt(nested("size"))
+        }
+
         override fun decodeTaggedValue(tag: String): Any = map.getValue(tag)
     }
 
     class InNullableMapper(val map: Map<String, Any?>) : NamedValueDecoder() {
+        override fun decodeCollectionSize(desc: SerialDescriptor): Int {
+            return decodeTaggedInt(nested("size"))
+        }
+
         override fun decodeTaggedValue(tag: String): Any = map.getValue(tag)!!
 
         override fun decodeTaggedNotNullMark(tag: String): Boolean = map.getValue(tag) != null

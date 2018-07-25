@@ -18,7 +18,6 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
-import kotlinx.serialization.internal.SIZE_INDEX
 import kotlin.reflect.KClass
 
 class JsonTreeMapper(val context: SerialContext? = null) {
@@ -93,16 +92,16 @@ class JsonTreeMapper(val context: SerialContext? = null) {
     }
 
     private inner class JsonTreeMapOutput(nodeConsumer: (JsonElement) -> Unit) : JsonTreeOutput(nodeConsumer) {
-        override fun shouldWriteElement(desc: SerialDescriptor, tag: String, index: Int): Boolean = index != SIZE_INDEX
+        override fun shouldWriteElement(desc: SerialDescriptor, tag: String, index: Int): Boolean = true
     }
 
     private inner class JsonTreeListOutput(nodeConsumer: (JsonElement) -> Unit) : AbstractJsonTreeOutput(nodeConsumer) {
         private val array: ArrayList<JsonElement> = arrayListOf()
 
-        override fun shouldWriteElement(desc: SerialDescriptor, tag: String, index: Int): Boolean = index != SIZE_INDEX
+        override fun shouldWriteElement(desc: SerialDescriptor, tag: String, index: Int): Boolean = true
 
         override fun putElement(key: String, element: JsonElement) {
-            val idx = key.toInt() - 1
+            val idx = key.toInt()
             array.add(idx, element)
         }
 
@@ -238,12 +237,12 @@ class JsonTreeMapper(val context: SerialContext? = null) {
         }
 
         private val size = obj.content.size
-        private var pos = 0 // 0st element is SIZE. use it?
+        private var pos = -1
 
-        override fun elementName(desc: SerialDescriptor, index: Int): String = (index - 1).toString()
+        override fun elementName(desc: SerialDescriptor, index: Int): String = (index).toString()
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
-            while (pos < size) {
+            while (pos < size - 1) {
                 pos++
                 return pos
             }

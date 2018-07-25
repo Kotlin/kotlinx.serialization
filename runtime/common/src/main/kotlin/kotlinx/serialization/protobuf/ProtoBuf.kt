@@ -83,7 +83,7 @@ class ProtoBuf(val context: SerialContext? = null) {
     internal inner class RepeatedWriter(encoder: ProtobufEncoder, val curTag: ProtoDesc) : ProtobufWriter(encoder) {
         override fun SerialDescriptor.getTag(index: Int) = curTag
 
-        override fun shouldWriteElement(desc: SerialDescriptor, tag: ProtoDesc, index: Int): Boolean = index != SIZE_INDEX
+        override fun shouldWriteElement(desc: SerialDescriptor, tag: ProtoDesc, index: Int): Boolean = true
     }
 
     internal class ProtobufEncoder(val out: ByteArrayOutputStream) {
@@ -198,7 +198,7 @@ class ProtoBuf(val context: SerialContext? = null) {
     }
 
     private inner class RepeatedReader(decoder: ProtobufDecoder, val targetTag: ProtoDesc) : ProtobufReader(decoder) {
-        private var ind = 0
+        private var ind = -1
 
         override fun decodeElementIndex(desc: SerialDescriptor) = if (decoder.curId == targetTag.first) ++ind else READ_DONE
         override fun SerialDescriptor.getTag(index: Int): ProtoDesc = targetTag

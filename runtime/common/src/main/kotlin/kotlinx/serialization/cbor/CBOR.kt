@@ -45,7 +45,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
     private inner open class CBORListWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
         override fun writeBeginToken() = encoder.startArray()
 
-        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean = desc.getElementName(index) != "size"
+        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean = true
     }
 
     // Writes class as map [fieldName, fieldValue]
@@ -57,6 +57,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
 
         protected open fun writeBeginToken() = encoder.startMap()
 
+        //todo: Write size of map or array if known
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
             val writer = when (desc.kind) {
                 StructureKind.LIST, StructureKind.SET -> CBORListWriter(encoder)
@@ -70,7 +71,6 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
 
         override fun endStructure(desc: SerialDescriptor) = encoder.end()
 
-        //todo: Write size of map or array if known
         override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
             val name = desc.getElementName(index)
             encoder.encodeString(name)
@@ -176,7 +176,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
     }
 
     private inner open class CBORListReader(decoder: CBORDecoder) : CBORReader(decoder) {
-        private var ind = 0
+        private var ind = -1
         private var size = -1
         protected var finiteMode = false
 
@@ -188,7 +188,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
             }
         }
 
-        override fun decodeElementIndex(desc: SerialDescriptor) = if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size)) READ_DONE else ++ind
+        override fun decodeElementIndex(desc: SerialDescriptor) = if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size - 1)) READ_DONE else ++ind
 
         override fun endStructure(desc: SerialDescriptor) {
             if (!finiteMode) decoder.end()

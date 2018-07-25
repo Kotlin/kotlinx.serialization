@@ -96,7 +96,7 @@ class ConfigParser(val context: SerialContext? = null) {
     }
 
     private inner class ListConfigReader(private val list: ConfigList) : ConfigConverter<Int>() {
-        private var ind = 0
+        private var ind = -1
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder = when {
             desc.kind.listLike -> ListConfigReader(list[currentTag] as ConfigList)
@@ -105,11 +105,11 @@ class ConfigParser(val context: SerialContext? = null) {
             else -> this
         }
 
-        override fun SerialDescriptor.getTag(index: Int) = index - 1
+        override fun SerialDescriptor.getTag(index: Int) = index
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
             ind++
-            return if (ind > list.size) READ_DONE else ind
+            return if (ind > list.size - 1) READ_DONE else ind
         }
 
         override fun getTaggedConfigValue(tag: Int): ConfigValue = list[tag]

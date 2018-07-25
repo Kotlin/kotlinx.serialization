@@ -168,8 +168,9 @@ abstract class StringTaggedEncoder : TaggedEncoder<String?>() {
 }
 
 abstract class NamedValueEncoder(val rootName: String = "") : TaggedEncoder<String>() {
-    final override fun SerialDescriptor.getTag(index: Int): String = composeName(currentTagOrNull ?: rootName, elementName(this, index))
+    final override fun SerialDescriptor.getTag(index: Int): String = nested(elementName(this, index))
 
+    protected fun nested(nestedName: String) = composeName(currentTagOrNull ?: rootName, nestedName)
     open fun elementName(desc: SerialDescriptor, index: Int) = desc.getElementName(index)
     open fun composeName(parentName: String, childName: String) = if (parentName.isEmpty()) childName else parentName + "." + childName
 }
@@ -314,8 +315,9 @@ abstract class StringTaggedDecoder : TaggedDecoder<String?>() {
 }
 
 abstract class NamedValueDecoder(val rootName: String = "") : TaggedDecoder<String>() {
-    final override fun SerialDescriptor.getTag(index: Int): String = composeName(currentTagOrNull ?: rootName, elementName(this, index))
+    final override fun SerialDescriptor.getTag(index: Int): String = nested(elementName(this, index))
 
+    protected fun nested(nestedName: String) = composeName(currentTagOrNull ?: rootName, nestedName)
     open fun elementName(desc: SerialDescriptor, index: Int) = desc.getElementName(index)
     open fun composeName(parentName: String, childName: String) = if (parentName.isEmpty()) childName else parentName + "." + childName
 }
