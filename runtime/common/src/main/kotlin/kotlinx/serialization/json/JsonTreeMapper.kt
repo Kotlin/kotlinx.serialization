@@ -68,9 +68,8 @@ class JsonTreeMapper(val context: SerialContext? = null) {
                 if (currentTagOrNull == null) nodeConsumer
                 else { node -> putElement(currentTag, node) }
             return when (desc.kind) {
-                StructureKind.LIST, StructureKind.SET -> JsonTreeListOutput(consumer)
+                StructureKind.LIST -> JsonTreeListOutput(consumer)
                 StructureKind.MAP -> JsonTreeMapOutput(consumer)
-                StructureKind.ENTRY -> JsonTreeEntryOutput(this@AbstractJsonTreeOutput::putElement)
                 else -> JsonTreeOutput(consumer)
             }
         }
@@ -92,6 +91,24 @@ class JsonTreeMapper(val context: SerialContext? = null) {
     }
 
     private inner class JsonTreeMapOutput(nodeConsumer: (JsonElement) -> Unit) : JsonTreeOutput(nodeConsumer) {
+        private val mapBuilder: MutableMap<String, JsonElement> = hashMapOf()
+
+        private lateinit var tag: String
+
+        override fun putElement(key: String, element: JsonElement) {
+            val idx = key.toInt()
+            if (idx % 2 == 0) { // writing key
+                check(element is JsonLiteral) { "Expected tag to be JsonLiteral" }
+                tag = (element as JsonLiteral).content
+            } else {
+                mapBuilder[tag] = element
+            }
+        }
+
+        override fun getCurrent(): JsonElement {
+            return JsonObject(mapBuilder)
+        }
+
         override fun shouldWriteElement(desc: SerialDescriptor, tag: String, index: Int): Boolean = true
     }
 
@@ -106,28 +123,6 @@ class JsonTreeMapper(val context: SerialContext? = null) {
         }
 
         override fun getCurrent(): JsonElement = JsonArray(array)
-    }
-
-    private inner class JsonTreeEntryOutput(val entryConsumer: (String, JsonElement) -> Unit) :
-        AbstractJsonTreeOutput({ throw IllegalStateException("Use entryConsumer instead") }) {
-
-        private lateinit var elem: JsonElement
-        private lateinit var tag: String
-
-        override fun putElement(key: String, element: JsonElement) {
-            if (key != "key") {
-                elem = element
-            } else {
-                check(element is JsonLiteral) { "Expected tag to be JsonLiteral" }
-                tag = (element as JsonLiteral).content
-            }
-        }
-
-        override fun getCurrent(): JsonElement = elem
-
-        override fun endEncode(desc: SerialDescriptor) {
-            entryConsumer(tag, elem)
-        }
     }
 
     private abstract inner class AbstractJsonTreeInput(open val obj: JsonElement): NamedValueDecoder() {
@@ -145,9 +140,8 @@ class JsonTreeMapper(val context: SerialContext? = null) {
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             val curObj = currentTagOrNull?.let { currentElement(it) } ?: obj
             return when (desc.kind) {
-                StructureKind.LIST, StructureKind.SET -> JsonTreeListInput(checkCast(curObj))
+                StructureKind.LIST-> JsonTreeListInput(checkCast(curObj))
                 StructureKind.MAP -> JsonTreeMapInput(checkCast(curObj))
-                StructureKind.ENTRY -> JsonTreeMapEntryInput(curObj, currentTag)
                 else -> JsonTreeInput(checkCast(curObj))
             }
         }
@@ -189,7 +183,7 @@ class JsonTreeMapper(val context: SerialContext? = null) {
         private var pos = 0
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
-            while (pos < desc.associatedFieldsCount) {
+            while (pos < desc.elementsCount) {
                 val name = desc.getTag(pos++)
                 if (name in obj) return pos - 1
             }
@@ -200,33 +194,27 @@ class JsonTreeMapper(val context: SerialContext? = null) {
 
     }
 
-    private inner class JsonTreeMapEntryInput(override val obj: JsonElement, val cTag: String): AbstractJsonTreeInput(obj) {
-
-        override fun currentElement(tag: String): JsonElement = if (tag == "key") {
-            JsonLiteral(cTag)
-        } else {
-            check(tag == "value") { "Found unexpected tag: $tag" }
-            obj
-        }
-    }
-
     private inner class JsonTreeMapInput(override val obj: JsonObject): JsonTreeInput(obj) {
 
         private val keys = obj.keys.toList()
-        private val size: Int = keys.size
-        private var pos = 0
+        private val size: Int = keys.size * 2
+        private var pos = -1
 
         override fun elementName(desc: SerialDescriptor, index: Int): String {
-            val i = index - 1
+            val i = index / 2
             return keys[i]
         }
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
-            while (pos < size) {
+            while (pos < size - 1) {
                 pos++
                 return pos
             }
             return READ_DONE
+        }
+
+        override fun currentElement(tag: String): JsonElement {
+            return if (pos % 2 == 0) JsonLiteral(tag) else obj[tag]
         }
     }
 

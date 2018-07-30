@@ -79,7 +79,7 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
         return shouldWriteElement
     }
 
-    // For format-specific behaviour
+    // For format-specific behaviour, invoked only on
     open fun shouldWriteElement(desc: SerialDescriptor, tag: Tag, index: Int) = true
 
     final override fun encodeNotNullMark() = encodeTaggedNotNullMark(currentTag)

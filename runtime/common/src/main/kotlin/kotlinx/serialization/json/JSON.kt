@@ -103,12 +103,19 @@ data class JSON(
 
         override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
             when (mode) {
-                Mode.LIST, Mode.MAP -> {
+                Mode.LIST -> {
                     if (! w.writingFirst)
                         w.print(COMMA)
                     w.nextItem()
                 }
-                Mode.ENTRY, Mode.POLY -> {
+                Mode.MAP -> {
+                    if (!w.writingFirst) {
+                        if (index % 2 == 0) w.print(COMMA) else w.print(COLON)
+                    }
+                    w.nextItem()
+                }
+                Mode.ENTRY -> throw IllegalStateException("Entry is deprecated")
+                Mode.POLY -> {
                     if (index == 0)
                         forceStr = true
                     if (index == 1) {
@@ -247,7 +254,11 @@ data class JSON(
             while (true) {
                 if (p.tc == TC_COMMA) p.nextToken()
                 when (mode) {
-                    Mode.LIST, Mode.MAP -> {
+                    Mode.LIST -> {
+                        return if (!p.canBeginValue) READ_DONE else ++curIndex
+                    }
+                    Mode.MAP -> {
+                        if (curIndex % 2 == 0 && p.tc == TC_COLON) p.nextToken()
                         return if (!p.canBeginValue) READ_DONE else ++curIndex
                     }
                     Mode.POLY -> {
@@ -321,14 +332,13 @@ internal enum class Mode(val begin: Char, val end: Char) {
 private fun switchMode(mode: Mode, desc: SerialDescriptor, typeParams: Array<out KSerializer<*>>): Mode =
     when (desc.kind) {
         UnionKind.POLYMORPHIC -> Mode.POLY
-        StructureKind.LIST, StructureKind.SET -> Mode.LIST
+        StructureKind.LIST -> Mode.LIST
         StructureKind.MAP -> {
             val keyKind = typeParams[0].descriptor.kind
             if (keyKind is PrimitiveKind || keyKind == UnionKind.ENUM_KIND)
                 Mode.MAP
             else Mode.LIST
         }
-        StructureKind.ENTRY -> if (mode == Mode.MAP) Mode.ENTRY else Mode.OBJ
         else -> Mode.OBJ
     }
 

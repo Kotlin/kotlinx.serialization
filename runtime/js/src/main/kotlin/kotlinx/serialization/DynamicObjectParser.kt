@@ -68,23 +68,10 @@ class DynamicObjectParser(val context: SerialContext? = null) {
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             val curObj = currentTagOrNull?.let { obj[it] } ?: obj
             return when (desc.kind) {
-                StructureKind.LIST, StructureKind.SET -> DynamicListInput(curObj)
+                StructureKind.LIST -> DynamicListInput(curObj)
                 StructureKind.MAP -> DynamicMapInput(curObj)
-                StructureKind.ENTRY -> DynamicMapValueInput(curObj, currentTag)
                 else -> DynamicInput(curObj)
             }
-        }
-    }
-
-    private inner class DynamicMapValueInput(obj: dynamic, val cTag: String): DynamicInput(obj) {
-        init {
-            this.context = this@DynamicObjectParser.context
-        }
-
-        override fun decodeElementIndex(desc: SerialDescriptor): Int = READ_ALL
-
-        override fun getByTag(tag: String): dynamic {
-            return if (tag == "key") cTag else obj
         }
     }
 
@@ -94,21 +81,25 @@ class DynamicObjectParser(val context: SerialContext? = null) {
         }
 
         private val keys: dynamic = js("Object").keys(obj)
-        private val size: Int = keys.length as Int
-        private var pos = 0
+        private val size: Int = (keys.length as Int) * 2
+        private var pos = -1
 
         override fun elementName(desc: SerialDescriptor, index: Int): String {
-            val i = index - 1
-            return keys[i]
+            val i = index / 2
+            return keys[i] as String
         }
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
-            while (pos < size) {
-                val i = pos++
+            while (pos < size - 1) {
+                val i = pos++ / 2
                 val name = keys[i] as String
                 if (this.obj[name] !== undefined) return pos
             }
             return READ_DONE
+        }
+
+        override fun getByTag(tag: String): dynamic {
+            return if (pos % 2 == 0) tag else obj[tag]
         }
     }
 

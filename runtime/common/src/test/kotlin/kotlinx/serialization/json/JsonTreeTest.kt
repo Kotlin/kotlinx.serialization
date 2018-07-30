@@ -125,7 +125,7 @@ class JsonTreeTest {
         assertEquals(m, JsonTreeMapper().readTree<ComplexMapWrapper>(dyn))
     }
 
-    private inline fun <reified T: Any> writeAndTest(obj: T, printDiagnostics: Boolean = false): Pair<JsonElement, T> {
+    private inline fun <reified T: Any> writeAndTest(obj: T, printDiagnostics: Boolean = true): Pair<JsonElement, T> {
         val serial = T::class.serializer()
         val tree = JsonTreeMapper().writeTree(obj, serial)
         val str = tree.toString()

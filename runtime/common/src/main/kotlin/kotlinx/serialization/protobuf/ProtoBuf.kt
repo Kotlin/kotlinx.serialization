@@ -44,9 +44,9 @@ class ProtoBuf(val context: SerialContext? = null) {
         }
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder = when (desc.kind) {
-            StructureKind.LIST, StructureKind.MAP, StructureKind.SET -> RepeatedWriter(encoder, currentTag)
+            StructureKind.LIST -> RepeatedWriter(encoder, currentTag)
             StructureKind.CLASS, UnionKind.OBJECT, UnionKind.SEALED, UnionKind.POLYMORPHIC -> ObjectWriter(currentTagOrNull, encoder)
-            StructureKind.ENTRY -> MapEntryWriter(currentTagOrNull, encoder)
+            StructureKind.MAP -> MapRepeatedWriter(currentTagOrNull, encoder)
             else -> throw SerializationException("Primitives are not supported at top-level")
         }
 
@@ -64,7 +64,7 @@ class ProtoBuf(val context: SerialContext? = null) {
         override fun SerialDescriptor.getTag(index: Int) = this.getProtoDesc(index)
     }
 
-    internal inner open class ObjectWriter(val parentTag: ProtoDesc?, private val parentEncoder: ProtobufEncoder, private val stream: ByteArrayOutputStream = ByteArrayOutputStream()) : ProtobufWriter(ProtobufEncoder(stream)) {
+    internal open inner class ObjectWriter(val parentTag: ProtoDesc?, private val parentEncoder: ProtobufEncoder, private val stream: ByteArrayOutputStream = ByteArrayOutputStream()) : ProtobufWriter(ProtobufEncoder(stream)) {
         override fun endEncode(desc: SerialDescriptor) {
             if (parentTag != null) {
                 parentEncoder.writeObject(stream.toByteArray(), parentTag.first)
@@ -74,16 +74,14 @@ class ProtoBuf(val context: SerialContext? = null) {
         }
     }
 
-    internal inner class MapEntryWriter(parentTag: ProtoDesc?, parentEncoder: ProtobufEncoder): ObjectWriter(parentTag, parentEncoder) {
+    internal inner class MapRepeatedWriter(parentTag: ProtoDesc?, parentEncoder: ProtobufEncoder): ObjectWriter(parentTag, parentEncoder) {
         override fun SerialDescriptor.getTag(index: Int): ProtoDesc =
-                if (index == 0) 1 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
+                if (index % 2 == 0) 1 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
                 else 2 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
     }
 
     internal inner class RepeatedWriter(encoder: ProtobufEncoder, val curTag: ProtoDesc) : ProtobufWriter(encoder) {
         override fun SerialDescriptor.getTag(index: Int) = curTag
-
-        override fun shouldWriteElement(desc: SerialDescriptor, tag: ProtoDesc, index: Int): Boolean = true
     }
 
     internal class ProtobufEncoder(val out: ByteArrayOutputStream) {
@@ -160,10 +158,9 @@ class ProtoBuf(val context: SerialContext? = null) {
         }
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder = when (desc.kind) {
-            StructureKind.LIST, StructureKind.MAP, StructureKind.SET -> RepeatedReader(decoder, currentTag)
+            StructureKind.LIST, StructureKind.MAP -> RepeatedReader(decoder, currentTag)
             StructureKind.CLASS, UnionKind.OBJECT, UnionKind.SEALED, UnionKind.POLYMORPHIC ->
                 ProtobufReader(makeDelimited(decoder, currentTagOrNull))
-            StructureKind.ENTRY -> MapEntryReader(makeDelimited(decoder, currentTagOrNull), currentTagOrNull)
             else -> throw SerializationException("Primitives are not supported at top-level")
         }
 

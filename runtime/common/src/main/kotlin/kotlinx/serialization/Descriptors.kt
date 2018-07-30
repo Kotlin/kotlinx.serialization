@@ -34,9 +34,7 @@ sealed class PrimitiveKind: SerialKind() {
 sealed class StructureKind: SerialKind() {
     object CLASS: StructureKind()
     object LIST: StructureKind()
-    object SET: StructureKind() // do we need it?
     object MAP: StructureKind()
-    object ENTRY: StructureKind() // TODO: remove it when formats would support new map representation
 }
 
 sealed class UnionKind: SerialKind() {

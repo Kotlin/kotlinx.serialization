@@ -21,7 +21,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.internal.KEY_INDEX
 
-private val SerialKind.listLike get() = this == StructureKind.LIST || this == StructureKind.SET || this == UnionKind.POLYMORPHIC
+private val SerialKind.listLike get() = this == StructureKind.LIST || this == UnionKind.POLYMORPHIC
 private val SerialKind.objLike get() = this == StructureKind.CLASS || this == UnionKind.OBJECT || this == UnionKind.SEALED
 
 class ConfigParser(val context: SerialContext? = null) {
@@ -116,39 +116,41 @@ class ConfigParser(val context: SerialContext? = null) {
     }
 
     private inner class MapConfigReader(map: ConfigObject) : ConfigConverter<Int>() {
-        private var ind = 0
-        private val entries = map.entries.toList()
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
-            return when (desc.kind) {
-                StructureKind.ENTRY -> MapEntryReader(entries[currentTag])
-                else -> throw IllegalStateException("Map not from entries")
-            }
+        private var ind = -1
+        private val keys: List<String>
+        private val values: List<ConfigValue>
+
+        init {
+            val entries = map.entries.toList() // to fix traversal order
+            keys = entries.map(MutableMap.MutableEntry<String, ConfigValue>::key)
+            values = entries.map(MutableMap.MutableEntry<String, ConfigValue>::value)
         }
 
-        override fun SerialDescriptor.getTag(index: Int) = index - 1
+        private val indexSize = values.size * 2
 
-        override fun decodeElementIndex(desc: SerialDescriptor): Int {
-            ind++
-            return if (ind > entries.size) READ_DONE else ind
-        }
-
-        override fun getTaggedConfigValue(tag: Int): ConfigValue = throw IllegalStateException("Should read as entries")
-    }
-
-    private inner class MapEntryReader(val e: Map.Entry<String, ConfigValue>) : ConfigConverter<Int>() {
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder = when {
-            desc.kind.listLike -> ListConfigReader(e.value as ConfigList)
-            desc.kind.objLike -> ConfigReader((e.value as ConfigObject).toConfig())
-            desc.kind == StructureKind.MAP -> MapConfigReader(e.value as ConfigObject)
-            else -> this
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder =
+            when {
+                desc.kind.listLike -> ListConfigReader(values[currentTag / 2] as ConfigList)
+                desc.kind.objLike -> ConfigReader((values[currentTag / 2] as ConfigObject).toConfig())
+                desc.kind == StructureKind.MAP -> MapConfigReader(values[currentTag / 2] as ConfigObject)
+                else -> this
         }
 
         override fun SerialDescriptor.getTag(index: Int) = index
 
+        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+            ind++
+            return if (ind >= indexSize) READ_DONE else ind
+        }
+
         override fun getTaggedConfigValue(tag: Int): ConfigValue {
-            return if (tag == KEY_INDEX) ConfigValueFactory.fromAnyRef(e.key)
-            else e.value
+            val idx = tag / 2
+            return if (tag % 2 == 0) { // entry as string
+                ConfigValueFactory.fromAnyRef(keys[idx])
+            } else {
+                values[idx]
+            }
         }
     }
 

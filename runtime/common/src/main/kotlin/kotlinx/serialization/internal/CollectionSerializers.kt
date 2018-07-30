@@ -21,33 +21,20 @@ import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlin.reflect.KClass
 
-// ============================= serializers =============================
+sealed class AbstractCollectionSerializer<TElement, TCollection, TBuilder>: KSerializer<TCollection> {
+    abstract fun TCollection.objSize(): Int
+    abstract fun TCollection.objIterator(): Iterator<TElement>
+    abstract fun builder(): TBuilder
+    abstract fun TBuilder.builderSize(): Int
+    abstract fun TBuilder.toResult(): TCollection
+    abstract fun TCollection.toBuilder(): TBuilder
+    abstract fun TBuilder.checkCapacity(size: Int)
 
-sealed class ListLikeSerializer<E, C, B>(open val eSerializer: KSerializer<E>) : KSerializer<C> {
-    abstract override val descriptor: ListLikeDesc
+    abstract val typeParams: Array<KSerializer<*>>
 
-    abstract fun C.objSize(): Int
-    abstract fun C.objIterator(): Iterator<E>
-    abstract fun builder(): B
-    abstract fun B.builderSize(): Int
-    abstract fun B.toResult(): C
-    abstract fun C.toBuilder(): B
-    abstract fun B.checkCapacity(size: Int)
-    abstract fun B.insert(index: Int, element: E)
+    abstract override fun serialize(output: Encoder, obj: TCollection)
 
-    open val typeParams: Array<KSerializer<*>> = arrayOf(eSerializer)
-
-    override fun serialize(output: Encoder, obj: C) {
-        val size = obj.objSize()
-        @Suppress("NAME_SHADOWING")
-        val output = output.beginCollection(descriptor, size, *typeParams)
-        val iterator = obj.objIterator()
-        for (index in 0 until size)
-            output.encodeSerializableElement(descriptor, index, eSerializer, iterator.next())
-        output.endStructure(descriptor)
-    }
-
-    override fun patch(input: Decoder, old: C): C {
+    final override fun patch(input: Decoder, old: TCollection): TCollection {
         val builder = old.toBuilder()
         val startIndex = builder.builderSize()
         @Suppress("NAME_SHADOWING")
@@ -69,22 +56,20 @@ sealed class ListLikeSerializer<E, C, B>(open val eSerializer: KSerializer<E>) :
         return builder.toResult()
     }
 
-    override fun deserialize(input: Decoder): C {
+    final override fun deserialize(input: Decoder): TCollection {
         val builder = builder()
         return patch(input, builder.toResult())
     }
 
-    private fun readSize(input: CompositeDecoder, builder: B): Int {
+    private fun readSize(input: CompositeDecoder, builder: TBuilder): Int {
         val size = input.decodeCollectionSize(descriptor)
         builder.checkCapacity(size)
         return size
     }
 
-    protected open fun readItem(input: CompositeDecoder, index: Int, builder: B) {
-        builder.insert(index, input.decodeSerializableElement(descriptor, index, eSerializer))
-    }
+    protected abstract fun readItem(input: CompositeDecoder, index: Int, builder: TBuilder)
 
-    private fun readAll(input: CompositeDecoder, builder: B, startIndex: Int) {
+    private fun readAll(input: CompositeDecoder, builder: TBuilder, startIndex: Int) {
         val size = readSize(input, builder)
         require(size >= 0) { "Size must be known in advance when using READ_ALL" }
         for (index in 0 until size)
@@ -92,11 +77,62 @@ sealed class ListLikeSerializer<E, C, B>(open val eSerializer: KSerializer<E>) :
     }
 }
 
-abstract class MapLikeSerializer<K, V, B : MutableMap<K, V>>(override val eSerializer: MapEntrySerializer<K, V>) :
-        ListLikeSerializer<Map.Entry<K, V>, Map<K, V>, B>(eSerializer) {
+sealed class ListLikeSerializer<TElement, TCollection, TBuilder>(private val eSerializer: KSerializer<TElement>) :
+    AbstractCollectionSerializer<TElement, TCollection, TBuilder>() {
 
-    override fun readItem(input: CompositeDecoder, index: Int, builder: B) {
-        input.decodeSerializableElement(descriptor, index, MapEntryUpdatingSerializer(eSerializer, builder))
+    abstract fun TBuilder.insert(index: Int, element: TElement)
+    abstract override val descriptor: ListLikeDesc
+
+    final override val typeParams: Array<KSerializer<*>> = arrayOf(eSerializer)
+
+    override fun serialize(output: Encoder, obj: TCollection) {
+        val size = obj.objSize()
+        @Suppress("NAME_SHADOWING")
+        val output = output.beginCollection(descriptor, size, *typeParams)
+        val iterator = obj.objIterator()
+        for (index in 0 until size)
+            output.encodeSerializableElement(descriptor, index, eSerializer, iterator.next())
+        output.endStructure(descriptor)
+    }
+
+    protected override fun readItem(input: CompositeDecoder, index: Int, builder: TBuilder) {
+        builder.insert(index, input.decodeSerializableElement(descriptor, index, eSerializer))
+    }
+}
+
+sealed class MapLikeSerializer<TKey, TVal, TCollection, TBuilder: MutableMap<TKey, TVal>>(
+    private val kSerializer: KSerializer<TKey>,
+    private val vSerializer: KSerializer<TVal>
+) : AbstractCollectionSerializer<Map.Entry<TKey, TVal>, TCollection, TBuilder>() {
+
+    abstract fun TBuilder.insertKeyValuePair(index: Int, key: TKey, value: TVal)
+    abstract override val descriptor: MapLikeDesc
+
+    final override val typeParams = arrayOf(kSerializer, vSerializer)
+
+    final override fun readItem(input: CompositeDecoder, index: Int, builder: TBuilder) {
+        val key: TKey = input.decodeSerializableElement(descriptor, index, kSerializer)
+        val vIndex = input.decodeElementIndex(descriptor)
+        require(vIndex == index + 1) { "Value must follow key in a map, index for key: $index, returned index for value: $vIndex" }
+        val value: TVal = if (builder.containsKey(key) && vSerializer.descriptor.kind !is PrimitiveKind) {
+            input.updateSerializableElement(descriptor, vIndex, vSerializer, builder.getValue(key))
+        } else {
+            input.decodeSerializableElement(descriptor, vIndex, vSerializer)
+        }
+        builder[key] = value
+    }
+
+    override fun serialize(output: Encoder, obj: TCollection) {
+        val size = obj.objSize()
+        @Suppress("NAME_SHADOWING")
+        val output = output.beginCollection(descriptor, size, *typeParams)
+        val iterator = obj.objIterator()
+        var index = 0
+        iterator.forEach { (k, v) ->
+            output.encodeSerializableElement(descriptor, index++, kSerializer, k)
+            output.encodeSerializableElement(descriptor, index++, vSerializer, v)
+        }
+        output.endStructure(descriptor)
     }
 }
 
@@ -156,9 +192,8 @@ class HashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializer<E, 
 }
 
 class LinkedHashMapSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
-        MapLikeSerializer<K, V, LinkedHashMap<K, V>>(MapEntrySerializer<K, V>(kSerializer, vSerializer)) {
-    override val descriptor = LinkedHashMapClassDesc(MapEntrySerializer<K, V>(kSerializer, vSerializer).descriptor)
-    override val typeParams: Array<KSerializer<*>> = arrayOf(kSerializer, vSerializer)
+    MapLikeSerializer<K, V, Map<K, V>, LinkedHashMap<K, V>>(kSerializer, vSerializer) {
+    override val descriptor = LinkedHashMapClassDesc(kSerializer.descriptor, vSerializer.descriptor)
 
     override fun Map<K, V>.objSize(): Int = size
     override fun Map<K, V>.objIterator(): Iterator<Map.Entry<K, V>> = iterator()
@@ -167,13 +202,12 @@ class LinkedHashMapSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KS
     override fun LinkedHashMap<K, V>.toResult(): Map<K, V> = this
     override fun Map<K, V>.toBuilder(): LinkedHashMap<K, V> = this as? LinkedHashMap<K, V> ?: LinkedHashMap(this)
     override fun LinkedHashMap<K, V>.checkCapacity(size: Int) {}
-    override fun LinkedHashMap<K, V>.insert(index: Int, element: Map.Entry<K, V>) { put(element.key, element.value) }
+    override fun LinkedHashMap<K, V>.insertKeyValuePair(index: Int, key: K, value: V) = set(key, value)
 }
 
 class HashMapSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
-        MapLikeSerializer<K, V, HashMap<K, V>>(MapEntrySerializer<K, V>(kSerializer, vSerializer)) {
-    override val descriptor: ListLikeDesc = HashMapClassDesc(MapEntrySerializer<K, V>(kSerializer, vSerializer).descriptor)
-    override val typeParams: Array<KSerializer<*>> = arrayOf(kSerializer, vSerializer)
+    MapLikeSerializer<K, V, Map<K, V>, HashMap<K, V>>(kSerializer, vSerializer) {
+    override val descriptor = HashMapClassDesc(kSerializer.descriptor, vSerializer.descriptor)
 
     override fun Map<K, V>.objSize(): Int = size
     override fun Map<K, V>.objIterator(): Iterator<Map.Entry<K, V>> = iterator()
@@ -182,254 +216,5 @@ class HashMapSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSeriali
     override fun HashMap<K, V>.toResult(): Map<K, V> = this
     override fun Map<K, V>.toBuilder(): HashMap<K, V> = this as? HashMap<K, V> ?: HashMap(this)
     override fun HashMap<K, V>.checkCapacity(size: Int) {}
-    override fun HashMap<K, V>.insert(index: Int, element: Map.Entry<K, V>) { put(element.key, element.value) }
-}
-
-const val KEY_INDEX = 0
-const val VALUE_INDEX = 1
-
-sealed class KeyValueSerializer<K, V, R>(val kSerializer: KSerializer<K>, val vSerializer: KSerializer<V>) : KSerializer<R> {
-    abstract override val descriptor: SerialDescriptor
-    abstract fun toResult(key: K, value: V): R
-    abstract val R.key: K
-    abstract val R.value: V
-
-    override fun serialize(output: Encoder, obj: R) {
-        @Suppress("NAME_SHADOWING")
-        val output = output.beginStructure(descriptor, kSerializer, vSerializer)
-        output.encodeSerializableElement(descriptor, KEY_INDEX, kSerializer, obj.key)
-        output.encodeSerializableElement(descriptor, VALUE_INDEX, vSerializer, obj.value)
-        output.endStructure(descriptor)
-    }
-
-    override fun deserialize(input: Decoder): R {
-        @Suppress("NAME_SHADOWING")
-        val input = input.beginStructure(descriptor, kSerializer, vSerializer)
-        var kSet = false
-        var vSet = false
-        var k: Any? = null
-        var v: Any? = null
-        mainLoop@ while (true) {
-            when (input.decodeElementIndex(descriptor)) {
-                READ_ALL -> {
-                    k = readKey(input)
-                    kSet = true
-                    v = readValue(input, k, kSet)
-                    vSet = true
-                    break@mainLoop
-                }
-                READ_DONE -> {
-                    break@mainLoop
-                }
-                KEY_INDEX -> {
-                    k = readKey(input)
-                    kSet = true
-                }
-                VALUE_INDEX -> {
-                    v = readValue(input, k, kSet)
-                    vSet = true
-                }
-                else -> throw SerializationException("Invalid index")
-            }
-        }
-        input.endStructure(descriptor)
-        if (!kSet) throw SerializationException("Required key is missing")
-        if (!vSet) throw SerializationException("Required value is missing")
-        @Suppress("UNCHECKED_CAST")
-        return toResult(k as K, v as V)
-    }
-
-    protected open fun readKey(input: CompositeDecoder): K {
-        return input.decodeSerializableElement(descriptor, KEY_INDEX, kSerializer)
-    }
-
-    protected open fun readValue(input: CompositeDecoder, k: Any?, kSet: Boolean): V {
-        return input.decodeSerializableElement(descriptor, VALUE_INDEX, vSerializer)
-    }
-}
-
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-class MapEntryUpdatingSerializer<K, V>(mSerializer: MapEntrySerializer<K, V>, private val mapBuilder: MutableMap<K, V>) :
-        KeyValueSerializer<K, V, Map.Entry<K, V>>(mSerializer.kSerializer, mSerializer.vSerializer) {
-
-    override val descriptor = MapEntryClassDesc
-    override fun toResult(key: K, value: V): Map.Entry<K, V> = MapEntry(key, value)
-
-    override fun readValue(input: CompositeDecoder, k: Any?, kSet: Boolean): V {
-        if (!kSet) throw SerializationException("Key must be before value in serialization stream")
-        @Suppress("UNCHECKED_CAST")
-        val key = k as K
-        val v = if (mapBuilder.containsKey(key) && vSerializer.descriptor.kind !is PrimitiveKind) {
-            input.updateSerializableElement(descriptor, VALUE_INDEX, vSerializer, mapBuilder.getValue(key))
-        } else {
-            input.decodeSerializableElement(descriptor, VALUE_INDEX, vSerializer)
-        }
-        mapBuilder[key] = v
-        return v
-    }
-
-    override val Map.Entry<K, V>.key: K
-        get() = this.key
-    override val Map.Entry<K, V>.value: V
-        get() = this.value
-
-}
-
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-class MapEntrySerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
-        KeyValueSerializer<K, V, Map.Entry<K, V>>(kSerializer, vSerializer) {
-    override val descriptor = MapEntryClassDesc
-    override fun toResult(key: K, value: V): Map.Entry<K, V> = MapEntry(key, value)
-
-    override val Map.Entry<K, V>.key: K
-        get() = this.key
-    override val Map.Entry<K, V>.value: V
-        get() = this.value
-}
-
-class PairSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
-        KeyValueSerializer<K, V, Pair<K, V>>(kSerializer, vSerializer) {
-    override val descriptor = PairClassDesc
-    override fun toResult(key: K, value: V) = key to value
-
-    override val Pair<K, V>.key: K
-        get() = this.first
-    override val Pair<K, V>.value: V
-        get() = this.second
-}
-
-// ============================= class descriptors =============================
-
-sealed class ListLikeDesc(private val elementDesc: SerialDescriptor) : SerialDescriptor {
-    override fun getElementName(index: Int): String = index.toString()
-    override fun getElementIndex(name: String): Int = name.toIntOrNull() ?: throw IllegalArgumentException("$name is not a valid list index")
-    override fun getElementDescriptor(index: Int): SerialDescriptor = elementDesc
-    override fun isElementOptional(index: Int): Boolean = false
-}
-
-internal val ARRAY_NAME = "kotlin.Array"
-internal val ARRAYLIST_NAME = "kotlin.collections.ArrayList"
-internal val LINKEDHASHSET_NAME = "kotlin.collections.LinkedHashSet"
-internal val HASHSET_NAME = "kotlin.collections.HashSet"
-internal val LINKEDHASHMAP_NAME = "kotlin.collections.LinkedHashMap"
-internal val HASHMAP_NAME = "kotlin.collections.HashMap"
-
-class ArrayClassDesc(elementDesc: SerialDescriptor) : ListLikeDesc(elementDesc) {
-    override val name: String get() = ARRAY_NAME
-    override val kind: SerialKind get() = StructureKind.LIST
-}
-
-class ArrayListClassDesc (elementDesc: SerialDescriptor) : ListLikeDesc(elementDesc) {
-    override val name: String get() = ARRAYLIST_NAME
-    override val kind: SerialKind get() = StructureKind.LIST
-}
-
-class LinkedHashSetClassDesc (elementDesc: SerialDescriptor) : ListLikeDesc(elementDesc) {
-    override val name: String get() = LINKEDHASHSET_NAME
-    override val kind: SerialKind get() = StructureKind.SET
-}
-
-class HashSetClassDesc (elementDesc: SerialDescriptor) : ListLikeDesc(elementDesc) {
-    override val name: String get() = "kotlin.collections.HashSet"
-    override val kind: SerialKind get() = StructureKind.SET
-}
-
-class LinkedHashMapClassDesc (elementDesc: SerialDescriptor) : ListLikeDesc(elementDesc) {
-    override val name: String get() = LINKEDHASHMAP_NAME
-    override val kind: SerialKind get() = StructureKind.MAP
-}
-
-class HashMapClassDesc (elementDesc: SerialDescriptor) : ListLikeDesc(elementDesc) {
-    override val name: String get() = HASHMAP_NAME
-    override val kind: SerialKind get() = StructureKind.MAP
-}
-
-data class MapEntry<K, V>(override val key: K, override val value: V) : Map.Entry<K, V>
-
-object MapEntryClassDesc : SerialClassDescImpl("kotlin.collections.Map.Entry") {
-    override val kind: SerialKind = StructureKind.ENTRY
-
-    init {
-        addElement("key")
-        // TODO pushDescriptor()
-        addElement("value")
-    }
-}
-
-object PairClassDesc : SerialClassDescImpl("kotlin.Pair") {
-    init {
-        addElement("first")
-        addElement("second")
-    }
-}
-
-class TripleSerializer<A, B, C>(
-        private val aSerializer: KSerializer<A>,
-        private val bSerializer: KSerializer<B>,
-        private val cSerializer: KSerializer<C>
-) : KSerializer<Triple<A, B, C>> {
-    object TripleDesc : SerialClassDescImpl("kotlin.Triple") {
-        init {
-            addElement("first")
-            addElement("second")
-            addElement("third")
-        }
-    }
-
-    override val descriptor: SerialDescriptor = TripleDesc
-
-    override fun serialize(output: Encoder, obj: Triple<A, B, C>) {
-        @Suppress("NAME_SHADOWING")
-        val output = output.beginStructure(descriptor, aSerializer, bSerializer, cSerializer)
-        output.encodeSerializableElement(descriptor, 0, aSerializer, obj.first)
-        output.encodeSerializableElement(descriptor, 1, bSerializer, obj.second)
-        output.encodeSerializableElement(descriptor, 2, cSerializer, obj.third)
-        output.endStructure(descriptor)
-    }
-
-    override fun deserialize(input: Decoder): Triple<A, B, C> {
-        @Suppress("NAME_SHADOWING")
-        val input = input.beginStructure(descriptor, aSerializer, bSerializer, cSerializer)
-        var aSet = false
-        var bSet = false
-        var cSet = false
-        var a: Any? = null
-        var b: Any? = null
-        var c: Any? = null
-        mainLoop@ while (true) {
-            when (input.decodeElementIndex(descriptor)) {
-                READ_ALL -> {
-                    a = input.decodeSerializableElement(descriptor, 0, aSerializer)
-                    aSet = true
-                    b = input.decodeSerializableElement(descriptor, 1, bSerializer)
-                    bSet = true
-                    c = input.decodeSerializableElement(descriptor, 2, cSerializer)
-                    cSet = true
-                    break@mainLoop
-                }
-                READ_DONE -> {
-                    break@mainLoop
-                }
-                0 -> {
-                    a = input.decodeSerializableElement(descriptor, 0, aSerializer)
-                    aSet = true
-                }
-                1 -> {
-                    b = input.decodeSerializableElement(descriptor, 1, bSerializer)
-                    bSet = true
-                }
-                2 -> {
-                    c = input.decodeSerializableElement(descriptor, 2, cSerializer)
-                    cSet = true
-                }
-                else -> throw SerializationException("Invalid index")
-            }
-        }
-        input.endStructure(descriptor)
-        if (!aSet) throw SerializationException("Required first is missing")
-        if (!bSet) throw SerializationException("Required second is missing")
-        if (!cSet) throw SerializationException("Required third is missing")
-        @Suppress("UNCHECKED_CAST")
-        return Triple(a as A, b as B, c as C)
-    }
+    override fun HashMap<K, V>.insertKeyValuePair(index: Int, key: K, value: V) = set(key, value)
 }
