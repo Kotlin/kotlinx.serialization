@@ -19,7 +19,7 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
-open class EnumDescriptor(override val name: String, private val choices: Array<String>) : SerialClassDescImpl(name) {
+public class EnumDescriptor(override val name: String, private val choices: Array<String>) : SerialClassDescImpl(name) {
     override val kind: SerialKind = UnionKind.ENUM_KIND
 
     init {
@@ -28,6 +28,25 @@ open class EnumDescriptor(override val name: String, private val choices: Array<
 
     override fun getElementDescriptor(index: Int): SerialDescriptor {
         return this
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as EnumDescriptor
+
+        if (name != other.name) return false
+        if (!choices.contentEquals(other.choices)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + name.hashCode()
+        result = 31 * result + choices.contentHashCode()
+        return result
     }
 }
 

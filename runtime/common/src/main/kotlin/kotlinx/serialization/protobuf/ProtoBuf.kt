@@ -417,10 +417,10 @@ class ProtoBuf : AbstractSerialFormat(), BinaryFormat {
             return extractParameters(this, index)
         }
 
-        private const val VARINT = 0
-        private const val i64 = 1
-        private const val SIZE_DELIMITED = 2
-        private const val i32 = 5
+        internal const val VARINT = 0
+        internal const val i64 = 1
+        internal const val SIZE_DELIMITED = 2
+        internal const val i32 = 5
 
         val plain = ProtoBuf()
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
+ * Copyright 2019 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +63,11 @@ data class DataZooIsomorphic(
     @Optional val mm: Map<String, Data2>? = null
 )
 
+private enum class SampleEnum { OptionA, OptionB, OptionC }
+
+@Serializable
+private data class DataWithEnum(val s: String, val enum: SampleEnum, val enumList: List<SampleEnum> = emptyList())
+
 class SchemaTest {
 
     private fun checkDescriptor(serialDescriptor: SerialDescriptor) {
@@ -119,5 +124,13 @@ class SchemaTest {
         assertNotEquals(boxes[0], boxes[1])
         val intBox = Box.serializer(IntSerializer).descriptor
         assertEquals(intBox, boxes[1])
+    }
+
+    @Test
+    fun enumDescriptors() {
+        val dataDescriptor = DataWithEnum.serializer().descriptor
+        val enumDesc = dataDescriptor.getElementDescriptor(1)
+        assertEquals(enumDesc, EnumSerializer(SampleEnum::class).descriptor)
+        assertEquals(enumDesc, dataDescriptor.getElementDescriptor(2).getElementDescriptor(0))
     }
 }
