@@ -37,6 +37,11 @@ fun Float.Companion.serializer(): KSerializer<Float> = FloatSerializer
 fun Double.Companion.serializer(): KSerializer<Double> = DoubleSerializer
 fun Boolean.Companion.serializer(): KSerializer<Boolean> = BooleanSerializer
 
+/**
+ * Creates a [List] out of a child descriptors retrieved via [SerialDescriptor.getElementDescriptor].
+ *
+ * Size of a sequence is equal to [SerialDescriptor.elementsCount].
+ */
 fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> {
     return (0 until elementsCount).map { getElementDescriptor(it) }
 }
@@ -47,6 +52,6 @@ fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
     return i
 }
 
-@Deprecated("Obsolete name from preview version of library.", ReplaceWith("elementsCount"))
+@Deprecated(deprecationText, ReplaceWith("elementsCount"))
 val SerialDescriptor.associatedFieldsCount: Int
     get() = elementsCount
