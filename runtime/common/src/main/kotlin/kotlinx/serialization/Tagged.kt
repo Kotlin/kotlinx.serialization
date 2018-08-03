@@ -360,7 +360,7 @@ object Mapper {
     class InNullableMapper(val map: Map<String, Any?>) : NamedValueInput() {
         override fun readTaggedValue(tag: String): Any = map.getValue(tag)!!
 
-        override fun readTaggedNotNullMark(tag: String): Boolean = map.getValue(tag) != null
+        override fun readTaggedNotNullMark(tag: String): Boolean = map.get(tag) != null
     }
 
     inline fun <reified T : Any> map(obj: T): Map<String, Any> {
