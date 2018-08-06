@@ -23,7 +23,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:0.8"
+        classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:0.8.1"
     }
 }
 
@@ -42,9 +42,9 @@ sourceSets.main {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlinx:jsonparser-native:0.6.0"
+    implementation "org.jetbrains.kotlinx:jsonparser-native:0.6.1"
 }
 
-task run(type: Exec) {
+task run(type: Exec, dependsOn: "build") {
     commandLine 'build/exe/main/debug/example-native.kexe'
 }

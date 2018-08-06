@@ -1,3 +1,11 @@
+v0.6.1 / 2018-08-06
+===================
+
+  * Compatibility release for 1.2.60
+  * Don't throw NoSuchElement if key is missing in the map in `Mapper.readNotNullMark`,
+  because tag can be only prefix for nested object. Fixes #182
+  * Update ios sample with latest http client
+
 v0.6.0 / 2018-07-13
 ===================
 

@@ -59,7 +59,7 @@ More examples of various kinds of Kotlin classes that can be serialized can be f
 
 ## Setup
 
-Using Kotlin Serialization requires Kotlin compiler `1.1.50` or higher, recommended version is `1.2.51`.
+Using Kotlin Serialization requires Kotlin compiler `1.1.50` or higher, recommended version is `1.2.60`.
 Also, it's recommended to install [additional IDEA plugin](#working-in-intellij-idea) for better IDE experience. Otherwise,
 some valid code will be shown as red and builds will have to be launched from console or build system tasks panel.
 Example projects on JVM are available for [Gradle](example-jvm/build.gradle) and [Maven](example-jvm/pom.xml).
@@ -70,8 +70,8 @@ Ensure the proper version of Kotlin and add dependencies on plugin in addition t
 
 ```gradle
 buildscript {
-    ext.kotlin_version = '1.2.51'
-    ext.serialization_version = '0.6.0'
+    ext.kotlin_version = '1.2.60'
+    ext.serialization_version = '0.6.1'
     repositories {
         jcenter()
         maven { url "https://kotlin.bintray.com/kotlinx" }
@@ -130,8 +130,8 @@ Ensure the proper version of Kotlin and serialization version:
 
 ```xml
 <properties>
-    <kotlin.version>1.2.51</kotlin.version>
-    <serialization.version>0.6.0</serialization.version>
+    <kotlin.version>1.2.60</kotlin.version>
+    <serialization.version>0.6.1</serialization.version>
 </properties>
 ```
 
@@ -216,9 +216,9 @@ Because serialization is still highly experimental, it is shipped as a separate 
 You can download additional IDEA plugin for working with projects that uses serialization from its 
 TeamCity build page:
 
-* Latest stable (1.2.51): [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1&buildBranch=1.2.50)
-* Latest snapshot (1.2.60-eap-*): [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1)
+* Latest release (1.2.60): [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1)
 
+* For 1.2.50 and lower (not updated): [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1&buildBranch=1.2.50)
 * For 1.2.31 and lower (not updated): [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1&buildBranch=1.2.30)
 * For 1.2.40 and higher (not updated): [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1&buildBranch=1.2.40)
 
@@ -237,6 +237,7 @@ In case of issues with IDE, try to use gradle for running builds:
 | 0.4 – 0.4.1 | 1.2.20 – 1.2.21|
 | 0.4.2 – 0.5.0 | 1.2.30 – 1.2.41|
 | 0.5.1 - 0.6.0 | 1.2.50 - 1.2.51|
+| 0.6.1 | 1.2.60 |
 
 Eap compiler versions are usually supported by snapshot versions (e.g. 1.2.60-eap-* is supported only by 0.6.1-SNAPSHOT)
 
