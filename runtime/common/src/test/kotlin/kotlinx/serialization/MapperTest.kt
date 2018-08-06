@@ -1,7 +1,6 @@
 package kotlinx.serialization
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class MapperTest {
 
@@ -13,6 +12,13 @@ class MapperTest {
 
     @Serializable
     data class NullableData(val nullable: String?, val nullable2: String?, val property: String)
+
+    @Serializable
+    data class Category(var name: String? = null,
+                        var subCategory: SubCategory? = null)
+
+    @Serializable
+    data class SubCategory(var name: String? = null)
 
     @Test
     fun testListTagStack() {
@@ -47,5 +53,27 @@ class MapperTest {
         assertEquals(data.nullable, unmap.nullable)
         assertEquals(data.nullable2, unmap.nullable2)
         assertEquals(data.property, unmap.property)
+    }
+
+    @Test
+    fun testNestedNull() {
+        val category = Category(name = "Name")
+        val map = Mapper.mapNullable(category)
+        val recreatedCategory = Mapper.unmapNullable<Category>(map)
+        assertEquals(category, recreatedCategory)
+    }
+
+    @Test
+    fun testNestedNullable() {
+        val category = Category(name = "Name", subCategory = SubCategory())
+        val map = Mapper.mapNullable(category)
+        val recreatedCategory = Mapper.unmapNullable<Category>(map)
+        assertEquals(category, recreatedCategory)
+    }
+
+    @Test
+    fun failsOnIncorrectMaps() {
+        val map: Map<String, Any?> = mapOf("name" to "Name")
+        assertFailsWith<NoSuchElementException> { Mapper.unmapNullable<Category>(map) }
     }
 }
