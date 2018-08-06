@@ -15,7 +15,7 @@
  */
 
 buildscript {
-    ext.httpClientRepo = 'https://dl.bintray.com/e5l/http-client-common'
+    ext.httpClientRepo = 'https://dl.bintray.com/kotlin/ktor'
     ext.serializationRepo = "https://dl.bintray.com/kotlin/kotlinx/"
 
     repositories {
@@ -24,7 +24,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:0.8"
+        classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:0.8.1"
     }
 }
 
@@ -49,6 +49,6 @@ sourceSets {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlinx:jsonparser-native:0.6.0"
-    implementation "io.ktor.common.client:ios:0.1.15"
+    implementation "org.jetbrains.kotlinx:jsonparser-native:0.6.1"
+    implementation "io.ktor:ktor-client-ios:0.9.4-alpha-2"
 }

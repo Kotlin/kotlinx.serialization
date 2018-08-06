@@ -1,8 +1,14 @@
 import kotlinx.cinterop.*
+import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.io.*
+import kotlinx.io.*
+import kotlinx.io.core.*
 import platform.Foundation.*
 import platform.UIKit.*
-import io.ktor.common.client.*
-import io.ktor.common.client.http.*
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 import kotlinx.serialization.json.*
 
 fun main(args: Array<String>) {
@@ -56,32 +62,29 @@ class ViewController : UIViewController {
         val HEADER = "---==="
         val client = HttpClient()
 
-        promise {
-            client.request {
-                with(url) {
+        launch(Unconfined) {
+            val response = client.call {
+                url {
                     protocol = URLProtocol.HTTPS
                     host = "jsonplaceholder.typicode.com"
                     encodedPath = path
                     port = 443
                 }
-            }
-        }.then { response ->
-            println("$HEADER request: ${response.request.url.build()}")
-            println("$HEADER response status: ${response.statusCode}")
-            if (response.statusCode / 100 != 2) throw IllegalStateException("HTTP response code ${response.statusCode}")
+            }.response
+
+            println("$HEADER request: ${response.call.request.url}")
+            println("$HEADER response status: ${response.status}")
+            if (!response.status.isSuccess()) throw IllegalStateException("HTTP response code ${response.status}")
             println("$HEADER headers:")
-            response.headers.forEach { (key, values) ->
+            response.headers.forEach { key, values ->
                 println("  -$key: ${values.joinToString()}")
             }
             println("$HEADER body:")
-            println(response.body)
-            val json = JsonTreeParser(response.body).readFully()
+            val body = response.content.readRemaining().readText()
+            println(body)
+            val json = JsonTreeParser(body).readFully()
             label.text = jsonContent(json)
 
-            client.close()
-        }.catch { e ->
-            println(e)
-            label.text = "Error: ${e.toString()}"
             client.close()
         }
     }
