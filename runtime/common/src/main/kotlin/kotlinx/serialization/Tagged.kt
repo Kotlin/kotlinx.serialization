@@ -360,7 +360,12 @@ object Mapper {
     class InNullableMapper(val map: Map<String, Any?>) : NamedValueInput() {
         override fun readTaggedValue(tag: String): Any = map.getValue(tag)!!
 
-        override fun readTaggedNotNullMark(tag: String): Boolean = map.getValue(tag) != null
+        override fun readTaggedNotNullMark(tag: String): Boolean {
+            return tag !in map || // in case of complex object, its fields are
+                    // prefixed with dot and there are no 'clean' tag with object name.
+                    // Invalid tags can be handled later, in .readValue
+            map.getValue(tag) != null
+        }
     }
 
     inline fun <reified T : Any> map(obj: T): Map<String, Any> {
