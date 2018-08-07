@@ -82,8 +82,9 @@ allprojects {
 
     repositories {
         jcenter()
-        maven { url eapChannel }
         mavenLocal()
+        maven { url eapChannel }
+        maven { url serializationRepo }
     }
 }
 
