@@ -5,7 +5,7 @@ kotlinx.serialization offers separate common+native artifacts for parsing JSON i
 with minimalistic API:
 
 ```kotlin
-import kotlinx.serialziation.json.*
+import kotlinx.serialization.json.*
 
 val input = """{"a": "foo", "b": 10, "c": true, "d": null}"""
 val elem: JsonElement = JsonTreeParser(input).read() // or .readFully() to throw exception if input was not consumed fully
