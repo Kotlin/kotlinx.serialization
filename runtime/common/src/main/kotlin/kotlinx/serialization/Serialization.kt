@@ -36,13 +36,13 @@ annotation class Serializer(
 annotation class SerialName(val value: String)
 
 @Target(AnnotationTarget.PROPERTY)
-annotation class Optional()
+annotation class Optional
 
 @Target(AnnotationTarget.PROPERTY)
-annotation class Transient()
+annotation class Transient
 
 @Target(AnnotationTarget.ANNOTATION_CLASS)
-annotation class SerialInfo()
+annotation class SerialInfo
 
 enum class KSerialClassKind { // unit and object unused?
     CLASS, OBJECT, UNIT, SEALED, LIST, SET, MAP, ENTRY, POLYMORPHIC, PRIMITIVE, ENUM
