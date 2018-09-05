@@ -81,7 +81,7 @@ sealed class ListLikeSerializer<TElement, TCollection, TBuilder>(private val eSe
     AbstractCollectionSerializer<TElement, TCollection, TBuilder>() {
 
     abstract fun TBuilder.insert(index: Int, element: TElement)
-    abstract override val descriptor: ListLikeDesc
+    abstract override val descriptor: ListLikeDescriptor
 
     final override val typeParams: Array<KSerializer<*>> = arrayOf(eSerializer)
 
@@ -106,7 +106,7 @@ sealed class MapLikeSerializer<TKey, TVal, TCollection, TBuilder: MutableMap<TKe
 ) : AbstractCollectionSerializer<Map.Entry<TKey, TVal>, TCollection, TBuilder>() {
 
     abstract fun TBuilder.insertKeyValuePair(index: Int, key: TKey, value: TVal)
-    abstract override val descriptor: MapLikeDesc
+    abstract override val descriptor: MapLikeDescriptor
 
     final override val typeParams = arrayOf(kSerializer, vSerializer)
 

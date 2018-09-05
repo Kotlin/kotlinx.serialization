@@ -22,10 +22,25 @@ import kotlin.reflect.KClass
 fun <T : Any> makeNullable(element: KSerializer<T>): KSerializer<T?> = NullableSerializer(element)
 
 class NullableSerializer<T : Any>(private val element: KSerializer<T>) : KSerializer<T?> {
-    override val descriptor: SerialDescriptor = object : SerialDescriptor by element.descriptor {
+    private class SerialDescriptorForNullable(val original: SerialDescriptor): SerialDescriptor by original {
         override val isNullable: Boolean
             get() = true
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is SerialDescriptorForNullable) return false
+
+            if (original != other.original) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return original.hashCode() * 31
+        }
     }
+
+    override val descriptor: SerialDescriptor = SerialDescriptorForNullable(element.descriptor)
 
     override fun serialize(output: Encoder, obj: T?) {
         if (obj != null) {

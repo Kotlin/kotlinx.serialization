@@ -39,18 +39,6 @@ interface SerialDescriptor {
         get() = false
 
     fun isElementOptional(index: Int): Boolean
-
-    // --- deprecations and helpers
-
-    fun getElementIndexOrThrow(name: String): Int {
-        val i = getElementIndex(name)
-        if (i == UNKNOWN_NAME) throw SerializationException("Unknown name '$name'")
-        return i
-    }
-
-    @Deprecated("Obsolete name from preview version of library.", ReplaceWith("elementsCount"))
-    val associatedFieldsCount: Int
-        get() = elementsCount
 }
 
 interface SerializationStrategy<in T> {
