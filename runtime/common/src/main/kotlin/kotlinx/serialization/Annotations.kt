@@ -46,18 +46,18 @@ annotation class SerialName(val value: String)
  * Optional properties must have default values.
  */
 @Target(AnnotationTarget.PROPERTY)
-annotation class Optional()
+annotation class Optional
 
 /**
  * Marks this property invisible for whole serialization framework.
  * Transient properties must have default values.
  */
 @Target(AnnotationTarget.PROPERTY)
-annotation class Transient()
+annotation class Transient
 
 /**
  * When annotation class is marked with `@SerialInfo`, compiler plugin can instantiate it
  * and put into [KSerialClassDesc], to be retrieved later during serialization process.
  */
 @Target(AnnotationTarget.ANNOTATION_CLASS)
-annotation class SerialInfo()
+annotation class SerialInfo

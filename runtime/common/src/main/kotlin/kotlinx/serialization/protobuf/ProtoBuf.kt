@@ -384,8 +384,7 @@ class ProtoBuf(val context: SerialContext? = null) {
         }
 
         private fun SerialDescriptor.getProtoDesc(index: Int): ProtoDesc {
-            return (this as? SerialClassDescImplTagged)?.getTagByIndex(index)?.let { it to ProtoNumberType.DEFAULT }
-                    ?: extractParameters(this, index)
+            return extractParameters(this, index)
         }
 
         private const val VARINT = 0

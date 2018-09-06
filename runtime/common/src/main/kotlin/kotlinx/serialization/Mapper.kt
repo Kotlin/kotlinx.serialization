@@ -81,7 +81,12 @@ object Mapper {
 
         override fun decodeTaggedValue(tag: String): Any = map.getValue(tag)!!
 
-        override fun decodeTaggedNotNullMark(tag: String): Boolean = map.getValue(tag) != null
+        override fun decodeTaggedNotNullMark(tag: String): Boolean {
+            return tag !in map || // in case of complex object, its fields are
+                    // prefixed with dot and there are no 'clean' tag with object name.
+                    // Invalid tags can be handled later, in .decodeValue
+                    map.getValue(tag) != null
+        }
     }
 
     inline fun <reified T : Any> map(obj: T): Map<String, Any> {

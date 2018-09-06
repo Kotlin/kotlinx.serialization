@@ -31,7 +31,7 @@ open class SerialClassDescImpl(override val name: String) : SerialDescriptor {
     private val descriptors: MutableList<SerialDescriptor> = mutableListOf()
 
     private var _indices: Map<String, Int>? = null
-    private val indices: Map<String, Int> get() = _indices ?: buildIndices()
+    private val indices: Map<String, Int> by lazy { buildIndices() }
 
     @JvmOverloads
     fun addElement(name: String, isOptional: Boolean = false) {
@@ -79,7 +79,6 @@ open class SerialClassDescImpl(override val name: String) : SerialDescriptor {
         val indices = HashMap<String, Int>()
         for (i in 0..names.size - 1)
             indices.put(names[i], i)
-        _indices = indices
         return indices
     }
 
