@@ -19,7 +19,7 @@ package kotlinx.io
 typealias JByteBuffer = java.nio.ByteBuffer
 typealias JByteOrder = java.nio.ByteOrder
 
-actual class ByteBuffer private actual constructor() {
+actual class ByteBuffer private constructor() {
     private lateinit var dw: JByteBuffer
     constructor(dw: JByteBuffer): this() {
         this.dw = dw

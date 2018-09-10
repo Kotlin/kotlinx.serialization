@@ -16,14 +16,6 @@
 
 package kotlinx.serialization.json
 
-/**
- * Creates a string by concatenating given chars.
- * Can be more efficient than `joinToString` on some platforms.
- *
- * `charArrayOf('a','b','c').createString(2) = "ab"`
- */
-expect fun CharArray.createString(length: Int): String
-
 private fun toHexChar(i: Int) : Char {
     val d = i and 0xf
     return if (d < 10) (d + '0'.toInt()).toChar()
