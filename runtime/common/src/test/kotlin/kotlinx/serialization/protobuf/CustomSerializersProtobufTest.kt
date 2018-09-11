@@ -112,11 +112,10 @@ class CustomSerializersProtobufTest {
     }
 
     @Test
-    @Ignore // todo
     fun writeOptionalList2a() {
         val obj = CList2(7, listOf(C(a = 5), C(b = 6), C(7, 8)))
         val s = ProtoBuf().dumps(obj).toUpperCase()
-        assertEquals("08071204102A080512021006120410080807", s)
+        assertEquals("1204102A0805120210061204100808070807", s)
     }
 
     @Test
@@ -141,11 +140,10 @@ class CustomSerializersProtobufTest {
     }
 
     @Test
-    @Ignore // todo
     fun writeOptionalList3a() {
         val obj = CList3(listOf(C(a = 1), C(b = 2), C(3, 4)), 99)
         val s = ProtoBuf().dumps(obj).toUpperCase()
-        assertEquals("10630A04102A08010A0210020A0410040803", s)
+        assertEquals("0A04102A08010A0210020A04100408031063", s)
     }
 
     @Test
