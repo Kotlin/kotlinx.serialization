@@ -207,14 +207,16 @@ object KTestData {
     }
 
     @Serializable
-    data class KTestMap(@SerialId(1) val s: Map<String, String>, @SerialId(2) val o: Map<Int, KTestAllTypes>): IMessage {
+    data class KTestMap(@SerialId(1) val s: Map<String, String>, @Optional @SerialId(2) val o: Map<Int, KTestAllTypes> = emptyMap()) :
+        IMessage {
         override fun toProtobufMessage() = TestMap.newBuilder()
-                .putAllStringMap(s)
-                .putAllIntObjectMap(o.mapValues { it.value.toProtobufMessage() })
-                .build()
+            .putAllStringMap(s)
+            .putAllIntObjectMap(o.mapValues { it.value.toProtobufMessage() })
+            .build()
 
         companion object : Gen<KTestMap> {
-            override fun generate(): KTestMap = KTestMap(Gen.map(Gen.string(), Gen.string()).generate(), Gen.map(Gen.int(), KTestAllTypes).generate())
+            override fun generate(): KTestMap =
+                KTestMap(Gen.map(Gen.string(), Gen.string()).generate(), Gen.map(Gen.int(), KTestAllTypes).generate())
         }
     }
 }
@@ -298,9 +300,7 @@ class RandomTest : ShouldSpec() {
             should("serialize random messages with embedded message") { forAll(KTestData.KTestOuterMessage.Companion) { dumpCompare(it) } }
             should("serialize random messages with primitive list fields as repeated") { forAll(KTestData.KTestIntListMessage.Companion) { dumpCompare(it) } }
             should("serialize messages with object list fields as repeated") { forAll(KTestData.KTestObjectListMessage.Companion) { dumpCompare(it) } }
-            should("serialize messages with scalar-key maps") { forAll(KTestData.KTestMap.Companion) { dumpCompare(it) } }.config(
-                enabled = false
-            )
+            should("serialize messages with scalar-key maps") { forAll(KTestData.KTestMap.Companion) { dumpCompare(it) } }
         }
 
         "Protobuf deserialization" {
@@ -314,9 +314,7 @@ class RandomTest : ShouldSpec() {
             should("read random messages with embedded message") { forAll(KTestData.KTestOuterMessage.Companion) { readCompare(it) } }
             should("read random messages with primitive list fields as repeated") { forAll(KTestData.KTestIntListMessage.Companion) { readCompare(it) } }
             should("read random messages with object list fields as repeated") { forAll(KTestData.KTestObjectListMessage.Companion) { readCompare(it) } }
-            should("read messages with scalar-key maps") { forAll(KTestData.KTestMap.Companion) { readCompare(it) } }.config(
-                enabled = false
-            ) // todo
+            should("read messages with scalar-key maps") { forAll(KTestData.KTestMap.Companion) { readCompare(it) } }
         }
 
         "CBOR Writer" {

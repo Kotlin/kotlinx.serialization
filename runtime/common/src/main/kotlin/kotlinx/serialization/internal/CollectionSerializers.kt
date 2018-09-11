@@ -77,13 +77,13 @@ sealed class AbstractCollectionSerializer<TElement, TCollection, TBuilder>: KSer
     }
 }
 
-sealed class ListLikeSerializer<TElement, TCollection, TBuilder>(private val eSerializer: KSerializer<TElement>) :
+sealed class ListLikeSerializer<TElement, TCollection, TBuilder>(val elementSerializer: KSerializer<TElement>) :
     AbstractCollectionSerializer<TElement, TCollection, TBuilder>() {
 
     abstract fun TBuilder.insert(index: Int, element: TElement)
     abstract override val descriptor: ListLikeDescriptor
 
-    final override val typeParams: Array<KSerializer<*>> = arrayOf(eSerializer)
+    final override val typeParams: Array<KSerializer<*>> = arrayOf(elementSerializer)
 
     override fun serialize(output: Encoder, obj: TCollection) {
         val size = obj.objSize()
@@ -91,33 +91,33 @@ sealed class ListLikeSerializer<TElement, TCollection, TBuilder>(private val eSe
         val output = output.beginCollection(descriptor, size, *typeParams)
         val iterator = obj.objIterator()
         for (index in 0 until size)
-            output.encodeSerializableElement(descriptor, index, eSerializer, iterator.next())
+            output.encodeSerializableElement(descriptor, index, elementSerializer, iterator.next())
         output.endStructure(descriptor)
     }
 
     protected override fun readItem(input: CompositeDecoder, index: Int, builder: TBuilder) {
-        builder.insert(index, input.decodeSerializableElement(descriptor, index, eSerializer))
+        builder.insert(index, input.decodeSerializableElement(descriptor, index, elementSerializer))
     }
 }
 
 sealed class MapLikeSerializer<TKey, TVal, TCollection, TBuilder: MutableMap<TKey, TVal>>(
-    private val kSerializer: KSerializer<TKey>,
-    private val vSerializer: KSerializer<TVal>
+    val keySerializer: KSerializer<TKey>,
+    val valueSerializer: KSerializer<TVal>
 ) : AbstractCollectionSerializer<Map.Entry<TKey, TVal>, TCollection, TBuilder>() {
 
     abstract fun TBuilder.insertKeyValuePair(index: Int, key: TKey, value: TVal)
     abstract override val descriptor: MapLikeDescriptor
 
-    final override val typeParams = arrayOf(kSerializer, vSerializer)
+    final override val typeParams = arrayOf(keySerializer, valueSerializer)
 
     final override fun readItem(input: CompositeDecoder, index: Int, builder: TBuilder) {
-        val key: TKey = input.decodeSerializableElement(descriptor, index, kSerializer)
+        val key: TKey = input.decodeSerializableElement(descriptor, index, keySerializer)
         val vIndex = input.decodeElementIndex(descriptor)
         require(vIndex == index + 1) { "Value must follow key in a map, index for key: $index, returned index for value: $vIndex" }
-        val value: TVal = if (builder.containsKey(key) && vSerializer.descriptor.kind !is PrimitiveKind) {
-            input.updateSerializableElement(descriptor, vIndex, vSerializer, builder.getValue(key))
+        val value: TVal = if (builder.containsKey(key) && valueSerializer.descriptor.kind !is PrimitiveKind) {
+            input.updateSerializableElement(descriptor, vIndex, valueSerializer, builder.getValue(key))
         } else {
-            input.decodeSerializableElement(descriptor, vIndex, vSerializer)
+            input.decodeSerializableElement(descriptor, vIndex, valueSerializer)
         }
         builder[key] = value
     }
@@ -129,8 +129,8 @@ sealed class MapLikeSerializer<TKey, TVal, TCollection, TBuilder: MutableMap<TKe
         val iterator = obj.objIterator()
         var index = 0
         iterator.forEach { (k, v) ->
-            output.encodeSerializableElement(descriptor, index++, kSerializer, k)
-            output.encodeSerializableElement(descriptor, index++, vSerializer, v)
+            output.encodeSerializableElement(descriptor, index++, keySerializer, k)
+            output.encodeSerializableElement(descriptor, index++, valueSerializer, v)
         }
         output.endStructure(descriptor)
     }

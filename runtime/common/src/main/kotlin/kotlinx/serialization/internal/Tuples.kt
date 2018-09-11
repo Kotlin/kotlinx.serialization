@@ -120,6 +120,8 @@ class PairSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer
 data class MapEntry<K, V>(override val key: K, override val value: V) : Map.Entry<K, V>
 
 object MapEntryClassDesc : SerialClassDescImpl("kotlin.collections.Map.Entry") {
+    override val kind = StructureKind.MAP
+
     init {
         addElement("key")
         addElement("value")

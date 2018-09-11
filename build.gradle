@@ -21,10 +21,12 @@ buildscript {
         ext.compilerVersion = property('kotlin.version.snapshot')
         ext.librariesVersion = property('kotlin.version.snapshot')
         ext.serializationPluginVersion = property('plugin.version.snapshot')
+        ext.serializationCoordinates = "org.jetbrains.kotlin:kotlin-serialization"
     } else {
         ext.compilerVersion = property('kotlin.version')
         ext.librariesVersion = property('kotlin.version')
         ext.serializationPluginVersion = property('plugin.version')
+        ext.serializationCoordinates = "org.jetbrains.kotlin:kotlinx-gradle-serialization-plugin"
     }
     ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-dev'
     ext.serializationRepo = 'https://kotlin.bintray.com/kotlinx'
@@ -40,7 +42,7 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$compilerVersion"
-        classpath "org.jetbrains.kotlin:kotlinx-gradle-serialization-plugin:$serializationPluginVersion"
+        classpath "$serializationCoordinates:$serializationPluginVersion"
         classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:${property('konan.version')}"
 
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.2'

@@ -25,16 +25,6 @@ import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintLong
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeVarint
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.encodeVarint
 
-enum class ProtoNumberType {
-    DEFAULT, SIGNED, FIXED
-}
-
-@SerialInfo
-@Target(AnnotationTarget.PROPERTY)
-annotation class ProtoType(val type: ProtoNumberType)
-
-typealias ProtoDesc = Pair<Int, ProtoNumberType>
-
 class ProtoBuf(val context: SerialContext? = null) {
 
     internal open inner class ProtobufWriter(val encoder: ProtobufEncoder) : TaggedEncoder<ProtoDesc>() {
@@ -62,9 +52,24 @@ class ProtoBuf(val context: SerialContext? = null) {
         override fun <E : Enum<E>> encodeTaggedEnum(tag: ProtoDesc, value: E) = encoder.writeInt(value.ordinal, tag.first, ProtoNumberType.DEFAULT)
 
         override fun SerialDescriptor.getTag(index: Int) = this.getProtoDesc(index)
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T> encodeSerializableValue(saver: SerializationStrategy<T>, value: T) {
+            // encode maps as collection of map entries, not merged collection of key-values
+            if (saver.descriptor is MapLikeDescriptor) {
+                val serializer = (saver as MapLikeSerializer<Any?, Any?, T, *>)
+                val mapEntrySerial = MapEntrySerializer(serializer.keySerializer, serializer.valueSerializer)
+                HashSetSerializer(mapEntrySerial).serialize(this, (value as Map<*, *>).entries)
+            } else {
+                saver.serialize(this, value)
+            }
+        }
     }
 
-    internal open inner class ObjectWriter(val parentTag: ProtoDesc?, private val parentEncoder: ProtobufEncoder, private val stream: ByteArrayOutputStream = ByteArrayOutputStream()) : ProtobufWriter(ProtobufEncoder(stream)) {
+    internal open inner class ObjectWriter(
+        val parentTag: ProtoDesc?, private val parentEncoder: ProtobufEncoder,
+        private val stream: ByteArrayOutputStream = ByteArrayOutputStream()
+    ) : ProtobufWriter(ProtobufEncoder(stream)) {
         override fun endEncode(desc: SerialDescriptor) {
             if (parentTag != null) {
                 parentEncoder.writeObject(stream.toByteArray(), parentTag.first)
@@ -158,9 +163,10 @@ class ProtoBuf(val context: SerialContext? = null) {
         }
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder = when (desc.kind) {
-            StructureKind.LIST, StructureKind.MAP -> RepeatedReader(decoder, currentTag)
+            StructureKind.LIST -> RepeatedReader(decoder, currentTag)
             StructureKind.CLASS, UnionKind.OBJECT, UnionKind.SEALED, UnionKind.POLYMORPHIC ->
                 ProtobufReader(makeDelimited(decoder, currentTagOrNull))
+            StructureKind.MAP -> MapEntryReader(makeDelimited(decoder, currentTagOrNull), currentTagOrNull)
             else -> throw SerializationException("Primitives are not supported at top-level")
         }
 
@@ -180,13 +186,26 @@ class ProtoBuf(val context: SerialContext? = null) {
         override fun decodeTaggedString(tag: ProtoDesc): String = decoder.nextString()
         override fun <E : Enum<E>> decodeTaggedEnum(tag: ProtoDesc, enumCreator: EnumCreator<E>): E = enumCreator.createFromOrdinal(decoder.nextInt(ProtoNumberType.DEFAULT))
 
+        @Suppress("UNCHECKED_CAST")
+        override fun <T> decodeSerializableValue(loader: DeserializationStrategy<T>): T {
+            // encode maps as collection of map entries, not merged collection of key-values
+            return if (loader.descriptor is MapLikeDescriptor) {
+                val serializer = (loader as MapLikeSerializer<Any?, Any?, T, *>)
+                val mapEntrySerial = MapEntrySerializer(serializer.keySerializer, serializer.valueSerializer)
+                val setOfEntries = HashSetSerializer(mapEntrySerial).deserialize(this)
+                setOfEntries.associateBy({ it.key }, {it.value}) as T
+            } else {
+                loader.deserialize(this)
+            }
+        }
+
         override fun SerialDescriptor.getTag(index: Int) = this.getProtoDesc(index)
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
             while (true) {
                 if (decoder.curId == -1) // EOF
                     return READ_DONE
-                val ind = indexByTag.getOrPut(decoder.curId, { findIndexByTag(desc, decoder.curId) })
+                val ind = indexByTag.getOrPut(decoder.curId) { findIndexByTag(desc, decoder.curId) }
                 if (ind == -1) // not found
                     decoder.skipElement()
                 else return ind
@@ -203,7 +222,7 @@ class ProtoBuf(val context: SerialContext? = null) {
 
     private inner class MapEntryReader(decoder: ProtobufDecoder, val parentTag: ProtoDesc?): ProtobufReader(decoder) {
         override fun SerialDescriptor.getTag(index: Int): ProtoDesc =
-                if (index == 0) 1 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
+                if (index % 2 == 0) 1 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
                 else 2 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
     }
 
@@ -423,7 +442,3 @@ class ProtoBuf(val context: SerialContext? = null) {
     inline fun <reified T : Any> loads(hex: String): T = load(HexConverter.parseHexBinary(hex))
 
 }
-
-class ProtobufDecodingException(message: String) : SerializationException(message)
-
-internal expect fun extractParameters(desc: SerialDescriptor, index: Int): ProtoDesc
