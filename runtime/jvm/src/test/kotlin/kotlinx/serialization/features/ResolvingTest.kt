@@ -47,6 +47,13 @@ class ResolvingTest {
         override fun getActualTypeArguments(): Array<Type> = arrayOf(Int::class.java)
     }
 
+    internal open class TypeBase<T>
+    private inline fun <reified T> reifiedType(): Type {
+        val base = object : TypeBase<T>() {}
+        val superType = base::class.java.genericSuperclass!!
+        return (superType as ParameterizedType).actualTypeArguments.first()!!
+    }
+
     @Test
     fun intBoxTest() {
         val b = Box(42)
@@ -77,12 +84,6 @@ class ResolvingTest {
         assertEquals("[a,b,c]", s)
     }
 
-    internal open class TypeBase<T>
-    private inline fun <reified T> reifiedType(): Type {
-        val base = object : TypeBase<T>() {}
-        val superType = base::class.java.genericSuperclass!!
-        return (superType as ParameterizedType).actualTypeArguments.first()!!
-    }
 
     @Test
     fun testReifiedArrayResolving() {

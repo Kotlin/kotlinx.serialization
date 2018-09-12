@@ -70,9 +70,16 @@ fun serializerByTypeToken(type: Type): KSerializer<Any> = when(type) {
         val rootClass = (type.rawType as Class<*>)
         val args = (type.actualTypeArguments).map { argument ->
             when (argument) {
-                is WildcardType -> argument.upperBounds.first() as Class<*>
-                else -> argument
-            }
+                is WildcardType -> {
+                    argument.upperBounds.first().let { firstUpperBound ->
+                        when(firstUpperBound) {
+                            is Class<*> -> firstUpperBound
+                            else -> null
+                        }
+                    }
+                }
+                else -> null
+            } ?: argument
         }
         when {
             List::class.java.isAssignableFrom(rootClass) -> ArrayListSerializer(serializerByTypeToken(args[0])) as KSerializer<Any>
