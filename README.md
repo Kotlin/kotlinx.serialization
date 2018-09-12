@@ -59,7 +59,7 @@ More examples of various kinds of Kotlin classes that can be serialized can be f
 
 ## Setup
 
-Using Kotlin Serialization requires Kotlin compiler `1.1.50` or higher, recommended version is `1.2.60`.
+Using Kotlin Serialization requires Kotlin compiler `1.1.50` or higher, recommended version is `1.2.60`. See [compatibility table](#compatibility) below.
 Also, it's recommended to install [additional IDEA plugin](#working-in-intellij-idea) for better IDE experience. Otherwise,
 some valid code will be shown as red and builds will have to be launched from console or build system tasks panel.
 Example projects on JVM are available for [Gradle](example-jvm/build.gradle) and [Maven](example-jvm/pom.xml).
@@ -216,7 +216,7 @@ Because serialization is still highly experimental, it is shipped as a separate 
 You can download additional IDEA plugin for working with projects that uses serialization from its 
 TeamCity build page:
 
-* Latest release (1.2.60): [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1)
+* Latest release (1.2.70): [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1&buildBranch=1.2.70)
 
 * For 1.2.50 and lower (not updated): [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1&buildBranch=1.2.50)
 * For 1.2.31 and lower (not updated): [link](https://teamcity.jetbrains.com/viewLog.html?buildId=lastPinned&buildTypeId=KotlinTools_KotlinxSerialization_KotlinCompilerWithSerializationPlugin&tab=artifacts&guest=1&buildBranch=1.2.30)
@@ -237,7 +237,8 @@ In case of issues with IDE, try to use gradle for running builds:
 | 0.4 – 0.4.1 | 1.2.20 – 1.2.21|
 | 0.4.2 – 0.5.0 | 1.2.30 – 1.2.41|
 | 0.5.1 - 0.6.0 | 1.2.50 - 1.2.51|
-| 0.6.1 | 1.2.60 |
+| 0.6.1 | 1.2.60 - 1.2.61 |
+| 0.6.2 | 1.2.70 |
 
 Eap compiler versions are usually supported by snapshot versions (e.g. 1.2.60-eap-* is supported only by 0.6.1-SNAPSHOT)
 

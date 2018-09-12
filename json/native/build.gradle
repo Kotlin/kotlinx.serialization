@@ -23,6 +23,9 @@ sourceSets.main {
 
     component {
         outputKinds = [KLIBRARY]
+        publishJavadoc = false
+        publishSources = false
+
         if (!deployMode)
             target 'host'
         else
