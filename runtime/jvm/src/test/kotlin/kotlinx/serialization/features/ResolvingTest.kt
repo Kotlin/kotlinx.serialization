@@ -77,6 +77,49 @@ class ResolvingTest {
         assertEquals("[a,b,c]", s)
     }
 
+    internal open class TypeBase<T>
+    private inline fun <reified T> reifiedType(): Type {
+        val base = object : TypeBase<T>() {}
+        val superType = base::class.java.genericSuperclass!!
+        return (superType as ParameterizedType).actualTypeArguments.first()!!
+    }
+
+    @Test
+    fun testReifiedArrayResolving() {
+        val myArr = arrayOf("a", "b", "c")
+        val token = reifiedType<Array<String>>()
+        val serial = serializerByTypeToken(token)
+        val s = JSON.unquoted.stringify(serial, myArr)
+        assertEquals("[a,b,c]", s)
+    }
+
+    @Test
+    fun testReifiedListResolving() {
+        val myList = listOf("a", "b", "c")
+        val token = reifiedType<List<String>>()
+        val serial = serializerByTypeToken(token)
+        val s = JSON.unquoted.stringify(serial, myList)
+        assertEquals("[a,b,c]", s)
+    }
+
+    @Test
+    fun testReifiedSetResolving() {
+        val mySet = setOf("a", "b", "c", "c")
+        val token = reifiedType<Set<String>>()
+        val serial = serializerByTypeToken(token)
+        val s = JSON.unquoted.stringify(serial, mySet)
+        assertEquals("[a,b,c]", s)
+    }
+
+    @Test
+    fun testReifiedMapResolving() {
+        val myMap = mapOf("a" to Data(listOf("c"), Box(6)))
+        val token = reifiedType<Map<String, Data>>()
+        val serial = serializerByTypeToken(token)
+        val s = JSON.unquoted.stringify(serial, myMap)
+        assertEquals("{a:{l:[c],b:{a:6}}}", s)
+    }
+
     @Test
     fun objectTest() {
         val b = Data(listOf("a", "b", "c"), Box(42))

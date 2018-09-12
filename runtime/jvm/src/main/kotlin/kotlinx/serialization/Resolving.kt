@@ -19,6 +19,7 @@ package kotlinx.serialization
 import kotlinx.serialization.internal.*
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
+import java.lang.reflect.WildcardType
 import kotlin.reflect.KClass
 
 
@@ -67,7 +68,12 @@ fun serializerByTypeToken(type: Type): KSerializer<Any> = when(type) {
     }
     is ParameterizedType -> {
         val rootClass = (type.rawType as Class<*>)
-        val args = (type.actualTypeArguments)
+        val args = (type.actualTypeArguments).map { argument ->
+            when (argument) {
+                is WildcardType -> argument.upperBounds.first() as Class<*>
+                else -> argument
+            }
+        }
         when {
             List::class.java.isAssignableFrom(rootClass) -> ArrayListSerializer(serializerByTypeToken(args[0])) as KSerializer<Any>
             Set::class.java.isAssignableFrom(rootClass) -> HashSetSerializer(serializerByTypeToken(args[0])) as KSerializer<Any>
