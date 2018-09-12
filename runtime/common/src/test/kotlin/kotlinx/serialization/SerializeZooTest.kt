@@ -21,6 +21,7 @@ import kotlinx.io.Reader
 import kotlinx.io.StringReader
 import kotlinx.io.StringWriter
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
+import kotlinx.serialization.internal.EnumDescriptor
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -196,8 +197,8 @@ class SerializeZooTest {
         override fun decodeFloat(): Float = readToken().toFloat()
         override fun decodeDouble(): Double = readToken().toDouble()
 
-        override fun <T : Enum<T>> decodeEnum(enumCreator: EnumCreator<T>): T {
-            return enumCreator.createFromName(readToken())
+        override fun decodeEnum(enumDescription: EnumDescriptor): Int {
+            return readToken().toInt()
         }
 
         override fun decodeString(): String {

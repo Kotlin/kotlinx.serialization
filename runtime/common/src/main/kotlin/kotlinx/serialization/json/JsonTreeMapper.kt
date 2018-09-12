@@ -19,7 +19,7 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.context.*
-import kotlin.reflect.KClass
+import kotlinx.serialization.internal.EnumDescriptor
 
 class JsonTreeMapper(val context: SerialContext = EmptyContext) {
     inline fun <reified T : Any> readTree(tree: JsonElement): T = readTree(tree, context.getOrDefault(T::class))
@@ -58,7 +58,11 @@ class JsonTreeMapper(val context: SerialContext = EmptyContext) {
 
         override fun encodeTaggedChar(tag: String, value: Char) = putElement(tag, JsonLiteral(value.toString()))
         override fun encodeTaggedString(tag: String, value: String) = putElement(tag, JsonLiteral(value))
-        override fun <E : Enum<E>> encodeTaggedEnum(tag: String, enumClass: KClass<E>, value: E) = putElement(tag, JsonLiteral(value.toString()))
+        override fun encodeTaggedEnum(
+            tag: String,
+            enumDescription: EnumDescriptor,
+            ordinal: Int
+        ) = putElement(tag, JsonLiteral(enumDescription.getElementName(ordinal)))
 
         override fun encodeTaggedValue(tag: String, value: Any) {
             putElement(tag, JsonLiteral(value.toString()))
@@ -159,8 +163,8 @@ class JsonTreeMapper(val context: SerialContext = EmptyContext) {
             return if (o.content.length == 1) o.content[0] else throw SerializationException("$o can't be represented as Char")
         }
 
-        override fun <E : Enum<E>> decodeTaggedEnum(tag: String, enumLoader: EnumCreator<E>): E =
-            enumLoader.createFromName(getValue(tag).content)
+        override fun decodeTaggedEnum(tag: String, enumDescription: EnumDescriptor): Int =
+            enumDescription.getElementIndex(getValue(tag).content)
 
         override fun decodeTaggedNull(tag: String): Nothing? = null
         override fun decodeTaggedNotNullMark(tag: String) = currentElement(tag) !== JsonNull

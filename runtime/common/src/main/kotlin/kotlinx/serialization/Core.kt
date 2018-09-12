@@ -16,9 +16,6 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
-import kotlin.reflect.KClass
-
 
 interface SerialDescriptor {
     val name: String
@@ -62,29 +59,6 @@ interface KSerializer<T>: SerializationStrategy<T>, DeserializationStrategy<T> {
     override val descriptor: SerialDescriptor
 
     override fun patch(input: Decoder, old: T): T = throw UpdateNotSupportedException(descriptor.name)
-}
-
-
-@Deprecated("Experimental")
-interface EnumCreator<E : Enum<E>> {
-    fun createFromOrdinal(ordinal: Int): E
-    fun createFromName(name: String): E
-
-    fun choices(): Array<E>
-}
-
-internal class LegacyEnumCreator<E : Enum<E>>(private val eClass: KClass<E>) : EnumCreator<E> {
-    override fun createFromOrdinal(ordinal: Int): E {
-        return enumFromOrdinal(eClass, ordinal)
-    }
-
-    override fun createFromName(name: String): E {
-        return enumFromName(eClass, name)
-    }
-
-    override fun choices(): Array<E> {
-        return eClass.enumMembers()
-    }
 }
 
 

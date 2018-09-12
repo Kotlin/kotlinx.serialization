@@ -18,6 +18,7 @@ package kotlinx.serialization
 
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.context.*
+import kotlinx.serialization.internal.EnumDescriptor
 
 class DynamicObjectParser(val context: SerialContext = EmptyContext) {
     inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.getOrDefault(T::class))
@@ -39,8 +40,8 @@ class DynamicObjectParser(val context: SerialContext = EmptyContext) {
             return READ_DONE
         }
 
-        override fun <E : Enum<E>> decodeTaggedEnum(tag: String, enumCreator: EnumCreator<E>) =
-                enumCreator.createFromName(getByTag(tag) as String)
+        override fun decodeTaggedEnum(tag: String, enumDescription: EnumDescriptor): Int =
+                enumDescription.getElementIndex(getByTag(tag) as String)
 
         protected open fun getByTag(tag: String): dynamic = obj[tag]
 

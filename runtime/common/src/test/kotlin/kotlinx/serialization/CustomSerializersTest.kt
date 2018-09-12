@@ -114,7 +114,7 @@ class CustomSerializersTest {
         }
     }
 
-    private val moduleWithB = object : SerialModule {
+    val moduleWithB = object : SerialModule {
         override fun registerIn(context: MutableSerialContext) {
             context.registerSerializer(B::class, BSerializer)
         }

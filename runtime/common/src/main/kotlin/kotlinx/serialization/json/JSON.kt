@@ -20,6 +20,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlinx.serialization.context.*
+import kotlinx.serialization.internal.EnumDescriptor
 
 class JSON(
     private val unquoted: Boolean = false,
@@ -196,6 +197,10 @@ class JSON(
             }
         }
 
+        override fun encodeEnum(enumDescription: EnumDescriptor, ordinal: Int) {
+            encodeString(enumDescription.getElementName(ordinal))
+        }
+
         override fun encodeValue(value: Any) {
             if (strictMode) super.encodeValue(value) else
                 encodeString(value.toString())
@@ -343,7 +348,7 @@ class JSON(
         override fun decodeChar(): Char = p.takeStr().single()
         override fun decodeString(): String = p.takeStr()
 
-        override fun <T : Enum<T>> decodeEnum(enumCreator: EnumCreator<T>): T = enumCreator.createFromName(p.takeStr())
+        override fun decodeEnum(enumDescription: EnumDescriptor): Int = enumDescription.getElementIndex(p.takeStr())
     }
 }
 

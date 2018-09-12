@@ -19,7 +19,7 @@ package kotlinx.serialization
 import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
 import kotlinx.serialization.context.EmptyContext
 import kotlinx.serialization.context.SerialContext
-import kotlin.reflect.KClass
+import kotlinx.serialization.internal.EnumDescriptor
 
 @Suppress("OverridingDeprecatedMember")
 open class ValueTransformer {
@@ -46,10 +46,7 @@ open class ValueTransformer {
     open fun transformCharValue(desc: SerialDescriptor, index: Int, value: Char) = value
     open fun transformStringValue(desc: SerialDescriptor, index: Int, value: String) = value
 
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("transformEnumValue(enumLoader)"))
-    open fun <T : Enum<T>> transformEnumValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>, value: T): T = value
-
-    open fun <T : Enum<T>> transformEnumValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>, value: T): T = value
+    open fun transformEnumValue(desc: SerialDescriptor, index: Int, enumDescription: EnumDescriptor, ordinal: Int): Int = ordinal
 
     open fun isRecursiveTransform(): Boolean = true
 
@@ -77,9 +74,11 @@ open class ValueTransformer {
         override fun encodeDouble(value: Double) { encodeNullableValue(value) }
         override fun encodeChar(value: Char) { encodeNullableValue(value) }
         override fun encodeString(value: String) { encodeNullableValue(value) }
-        override fun <T : Enum<T>> encodeEnum(enumClass: KClass<T>, value: T) { encodeNullableValue(value) }
-        override fun <T : Enum<T>> encodeEnum(value: T) {
-            encodeNullableValue(value)
+        override fun encodeEnum(
+            enumDescription: EnumDescriptor,
+            ordinal: Int
+        ) {
+            encodeNullableValue(ordinal)
         }
 
         override fun <T : Any?> encodeSerializableValue(saver: SerializationStrategy<T>, value: T) {
@@ -102,13 +101,6 @@ open class ValueTransformer {
         override fun encodeDoubleElement(desc: SerialDescriptor, index: Int, value: Double) = encodeNullableValue(value)
         override fun encodeCharElement(desc: SerialDescriptor, index: Int, value: Char) = encodeNullableValue(value)
         override fun encodeStringElement(desc: SerialDescriptor, index: Int, value: String) = encodeNullableValue(value)
-
-        override fun <T : Enum<T>> encodeEnumElement(desc: SerialDescriptor, index: Int, enumClass: KClass<T>, value: T) =
-            encodeNullableValue(value)
-
-        override fun <T : Enum<T>> encodeEnumElement(desc: SerialDescriptor, index: Int, value: T) {
-            encodeNullableValue(value)
-        }
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
             return this
@@ -163,13 +155,8 @@ open class ValueTransformer {
         override fun decodeString(): String = transformStringValue(curDesc!!, curIndex, decodeValue() as String)
 
         @Suppress("UNCHECKED_CAST")
-        @Deprecated("Not supported in Native", replaceWith = ReplaceWith("decodeEnum(enumLoader)"))
-        override fun <T : Enum<T>> decodeEnum(enumClass: KClass<T>): T =
-            transformEnumValue(curDesc!!, curIndex, enumClass, decodeValue() as T)
-
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : Enum<T>> decodeEnum(enumCreator: EnumCreator<T>): T =
-            transformEnumValue(curDesc!!, curIndex, enumCreator, decodeValue() as T)
+        override fun decodeEnum(enumDescription: EnumDescriptor): Int =
+            transformEnumValue(curDesc!!, curIndex, enumDescription, decodeValue() as Int)
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : Any?> decodeSerializableValue(loader: DeserializationStrategy<T>): T {
@@ -196,16 +183,6 @@ open class ValueTransformer {
         override fun decodeDoubleElement(desc: SerialDescriptor, index: Int): Double { cur(desc, index); return decodeDouble() }
         override fun decodeCharElement(desc: SerialDescriptor, index: Int): Char { cur(desc, index); return decodeChar() }
         override fun decodeStringElement(desc: SerialDescriptor, index: Int): String { cur(desc, index); return decodeString() }
-
-        override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>): T {
-            cur(desc, index)
-            return decodeEnum(enumClass)
-        }
-
-        override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T {
-            cur(desc, index)
-            return decodeEnum(enumCreator)
-        }
 
         override fun <T: Any?> decodeSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T {
             cur(desc, index)

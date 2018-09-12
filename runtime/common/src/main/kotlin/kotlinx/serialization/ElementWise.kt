@@ -19,8 +19,8 @@ package kotlinx.serialization
 import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
 import kotlinx.serialization.context.EmptyContext
 import kotlinx.serialization.context.SerialContext
+import kotlinx.serialization.internal.EnumDescriptor
 import kotlinx.serialization.internal.UnitSerializer
-import kotlin.reflect.KClass
 
 abstract class ElementValueEncoder : Encoder, CompositeEncoder {
     override var context: SerialContext = EmptyContext
@@ -62,10 +62,8 @@ abstract class ElementValueEncoder : Encoder, CompositeEncoder {
     override fun encodeDouble(value: Double) = encodeValue(value)
     override fun encodeChar(value: Char) = encodeValue(value)
     override fun encodeString(value: String) = encodeValue(value)
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("encodeEnum(value)"))
-    final override fun <T : Enum<T>> encodeEnum(enumClass: KClass<T>, value: T) = encodeEnum(value)
 
-    override fun <T : Enum<T>> encodeEnum(value: T) = encodeValue(value)
+    override fun encodeEnum(enumDescription: EnumDescriptor, ordinal: Int) = encodeValue(ordinal)
 
     // Delegating implementation of CompositeEncoder
 
@@ -80,14 +78,6 @@ abstract class ElementValueEncoder : Encoder, CompositeEncoder {
     final override fun encodeDoubleElement(desc: SerialDescriptor, index: Int, value: Double) { if (encodeElement(desc, index)) encodeDouble(value) }
     final override fun encodeCharElement(desc: SerialDescriptor, index: Int, value: Char) { if (encodeElement(desc, index)) encodeChar(value) }
     final override fun encodeStringElement(desc: SerialDescriptor, index: Int, value: String) { if (encodeElement(desc, index)) encodeString(value) }
-
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("encodeEnumElement(desc, index, value)"))
-    final override fun <T : Enum<T>> encodeEnumElement(desc: SerialDescriptor, index: Int, enumClass: KClass<T>, value: T) {
-        encodeEnumElement(desc, index, value)
-    }
-    final override fun <T : Enum<T>> encodeEnumElement(desc: SerialDescriptor, index: Int, value: T) {
-        if (encodeElement(desc, index)) encodeEnum(value)
-    }
 
     final override fun <T : Any?> encodeSerializableElement(desc: SerialDescriptor, index: Int, saver: SerializationStrategy<T>, value: T) {
         if (encodeElement(desc, index))
@@ -128,13 +118,8 @@ abstract class ElementValueDecoder : Decoder, CompositeDecoder {
     override fun decodeChar(): Char = decodeValue() as Char
     override fun decodeString(): String = decodeValue() as String
 
-    @Deprecated("Not supported in Native", ReplaceWith("decodeEnum(enumLoader)"))
-    @Suppress("UNCHECKED_CAST")
-    final override fun <T : Enum<T>> decodeEnum(enumClass: KClass<T>): T =
-        decodeEnum(LegacyEnumCreator(enumClass))
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : Enum<T>> decodeEnum(enumCreator: EnumCreator<T>): T = decodeValue() as T
+//    @Suppress("UNCHECKED_CAST")
+    override fun decodeEnum(enumDescription: EnumDescriptor): Int = decodeValue() as Int
 
     // Delegating implementation of CompositeEncoder
 
@@ -152,12 +137,6 @@ abstract class ElementValueDecoder : Decoder, CompositeDecoder {
     final override fun decodeDoubleElement(desc: SerialDescriptor, index: Int): Double = decodeDouble()
     final override fun decodeCharElement(desc: SerialDescriptor, index: Int): Char = decodeChar()
     final override fun decodeStringElement(desc: SerialDescriptor, index: Int): String = decodeString()
-
-    @Deprecated("Not supported in Native", ReplaceWith("decodeEnum(desc, index, creator)"))
-    final override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>): T =
-        decodeEnumElementValue(desc, index, LegacyEnumCreator(enumClass))
-    final override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T =
-        decodeEnum(enumCreator)
 
     final override fun <T: Any?> decodeSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T =
         decodeSerializableValue(loader)

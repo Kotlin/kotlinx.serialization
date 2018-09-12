@@ -19,7 +19,7 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
-open class EnumDesc(override val name: String, private val choices: List<String>) : SerialClassDescImpl(name) {
+open class EnumDescriptor(override val name: String, private val choices: List<String>) : SerialClassDescImpl(name) {
     override val kind: SerialKind = UnionKind.ENUM_KIND
 
     init {
@@ -31,34 +31,27 @@ open class EnumDesc(override val name: String, private val choices: List<String>
     }
 }
 
-// note, that it is instantiated in a special way
-@Deprecated("Not supported in Native", replaceWith = ReplaceWith("ModernEnumSerializer()"))
-class EnumSerializer<T : Enum<T>>(val serializableClass: KClass<T>) : KSerializer<T> {
-    override val descriptor: SerialDescriptor = EnumDesc(serializableClass.enumClassName(), serializableClass.enumMembers().map { it.name })
-    override fun serialize(output: Encoder, obj: T) = output.encodeEnum(serializableClass, obj)
-    override fun deserialize(input: Decoder): T = input.decodeEnum(serializableClass)
-}
+open class CommonEnumSerializer<T>(val serialName: String, val choices: Array<T>, choicesNames: List<String>) :
+    KSerializer<T> {
+    override val descriptor: EnumDescriptor = EnumDescriptor(serialName, choicesNames)
 
-class ModernEnumSerializer<T : Enum<T>>(className: String, val creator: EnumCreator<T>) : KSerializer<T> {
-    override val descriptor: SerialDescriptor = EnumDesc(className, creator.choices().map { it.name })
-    override fun serialize(output: Encoder, obj: T) = output.encodeEnum(obj)
-    override fun deserialize(input: Decoder): T = input.decodeEnum(creator)
+    final override fun serialize(output: Encoder, obj: T) {
+        val index = choices.indexOf(obj)
+            .also { check(it != -1) { "$obj is not a valid enum $serialName, choices are $choices" } }
+        output.encodeEnum(descriptor, index)
+    }
 
-    companion object {
-        inline operator fun <reified E : Enum<E>> invoke(): ModernEnumSerializer<E> {
-            return ModernEnumSerializer(E::class.enumClassName(), object : EnumCreator<E> {
-                override fun createFromOrdinal(ordinal: Int): E {
-                    return enumValues<E>()[ordinal]
-                }
-
-                override fun createFromName(name: String): E {
-                    return enumValueOf<E>(name)
-                }
-
-                override fun choices(): Array<E> {
-                    return enumValues<E>()
-                }
-            })
-        }
+    final override fun deserialize(input: Decoder): T {
+        val index = input.decodeEnum(descriptor)
+        check(index in choices.indices)
+            { "$index is not among valid $serialName choices, choices size is ${choices.size}" }
+        return choices[index]
     }
 }
+
+// Binary backwards-compatible with plugin
+class EnumSerializer<T : Enum<T>>(serializableClass: KClass<T>) : CommonEnumSerializer<T>(
+    serializableClass.enumClassName(),
+    serializableClass.enumMembers(),
+    serializableClass.enumMembers().map { it.name }
+)

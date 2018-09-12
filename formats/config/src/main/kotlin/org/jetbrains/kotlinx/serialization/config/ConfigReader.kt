@@ -20,6 +20,7 @@ import com.typesafe.config.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.context.*
+import kotlinx.serialization.internal.EnumDescriptor
 
 private val SerialKind.listLike get() = this == StructureKind.LIST || this == UnionKind.POLYMORPHIC
 private val SerialKind.objLike get() = this == StructureKind.CLASS || this == UnionKind.OBJECT || this == UnionKind.SEALED
@@ -65,9 +66,9 @@ class ConfigParser(val context: SerialContext = EmptyContext) {
 
         override fun decodeTaggedNotNullMark(tag: T) = getTaggedConfigValue(tag).valueType() != ConfigValueType.NULL
 
-        override fun <E : Enum<E>> decodeTaggedEnum(tag: T, enumCreator: EnumCreator<E>): E {
+        override fun decodeTaggedEnum(tag: T, enumDescription: EnumDescriptor): Int {
             val s = validateAndCast<String>(tag, ConfigValueType.STRING)
-            return enumCreator.createFromName(s)
+            return enumDescription.getElementIndex(s)
         }
     }
 

@@ -19,7 +19,7 @@ package kotlinx.serialization
 import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
 import kotlinx.serialization.context.EmptyContext
 import kotlinx.serialization.context.SerialContext
-import kotlin.reflect.KClass
+import kotlinx.serialization.internal.EnumDescriptor
 
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
@@ -66,10 +66,12 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
     open fun encodeTaggedBoolean(tag: Tag, value: Boolean) = encodeTaggedValue(tag, value)
     open fun encodeTaggedChar(tag: Tag, value: Char) = encodeTaggedValue(tag, value)
     open fun encodeTaggedString(tag: Tag, value: String) = encodeTaggedValue(tag, value)
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("encodeTaggedEnum(tag, value)"))
-    open fun <E : Enum<E>> encodeTaggedEnum(tag: Tag, enumClass: KClass<E>, value: E) = encodeTaggedEnum(tag, value)
 
-    open fun <E : Enum<E>> encodeTaggedEnum(tag: Tag, value: E) = encodeTaggedValue(tag, value)
+    open fun encodeTaggedEnum(
+        tag: Tag,
+        enumDescription: EnumDescriptor,
+        ordinal: Int
+    ) = encodeTaggedValue(tag, ordinal)
 
     // ---- Implementation of low-level API ----
 
@@ -99,9 +101,10 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
     final override fun encodeChar(value: Char) = encodeTaggedChar(popTag(), value)
     final override fun encodeString(value: String) = encodeTaggedString(popTag(), value)
 
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("encodeEnumValue(value)"))
-    final override fun <E : Enum<E>> encodeEnum(enumClass: KClass<E>, value: E) = encodeEnum(value)
-    final override fun <T : Enum<T>> encodeEnum(value: T) = encodeTaggedEnum(popTag(), value)
+    final override fun encodeEnum(
+        enumDescription: EnumDescriptor,
+        ordinal: Int
+    ) = encodeTaggedEnum(popTag(), enumDescription, ordinal)
 
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
         return this
@@ -128,12 +131,6 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
     final override fun encodeDoubleElement(desc: SerialDescriptor, index: Int, value: Double) = encodeTaggedDouble(desc.getTag(index), value)
     final override fun encodeCharElement(desc: SerialDescriptor, index: Int, value: Char) = encodeTaggedChar(desc.getTag(index), value)
     final override fun encodeStringElement(desc: SerialDescriptor, index: Int, value: String) = encodeTaggedString(desc.getTag(index), value)
-
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("encodeEnumElementValue(desc, index, value)"))
-    final override fun <E : Enum<E>> encodeEnumElement(desc: SerialDescriptor, index: Int, enumClass: KClass<E>, value: E) =
-        encodeEnumElement(desc, index, value)
-    final override fun <T : Enum<T>> encodeEnumElement(desc: SerialDescriptor, index: Int, value: T) =
-        encodeTaggedEnum(desc.getTag(index), value)
 
     final override fun <T : Any?> encodeSerializableElement(desc: SerialDescriptor, index: Int, saver: SerializationStrategy<T>, value: T) {
         if (encodeElement(desc, index))
@@ -211,10 +208,7 @@ abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     open fun decodeTaggedDouble(tag: Tag): Double = decodeTaggedValue(tag) as Double
     open fun decodeTaggedChar(tag: Tag): Char = decodeTaggedValue(tag) as Char
     open fun decodeTaggedString(tag: Tag): String = decodeTaggedValue(tag) as String
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("decodeEnum(enumLoader)"))
-    fun <E : Enum<E>> decodeTaggedEnum(tag: Tag, enumClass: KClass<E>): E = decodeTaggedEnum(tag, LegacyEnumCreator(enumClass))
-    @Suppress("UNCHECKED_CAST")
-    open fun <E : Enum<E>> decodeTaggedEnum(tag: Tag, enumCreator: EnumCreator<E>): E = decodeTaggedValue(tag) as E
+    open fun decodeTaggedEnum(tag: Tag, enumDescription: EnumDescriptor): Int = decodeTaggedValue(tag) as Int
 
 
     // ---- Implementation of low-level API ----
@@ -232,10 +226,8 @@ abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     final override fun decodeDouble(): Double = decodeTaggedDouble(popTag())
     final override fun decodeChar(): Char = decodeTaggedChar(popTag())
     final override fun decodeString(): String = decodeTaggedString(popTag())
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("decodeEnum(enumLoader)"))
-    final override fun <T : Enum<T>> decodeEnum(enumClass: KClass<T>): T = decodeEnum(LegacyEnumCreator(enumClass))
 
-    final override fun <T : Enum<T>> decodeEnum(enumCreator: EnumCreator<T>): T = decodeTaggedEnum(popTag(), enumCreator)
+    final override fun decodeEnum(enumDescription: EnumDescriptor): Int = decodeTaggedEnum(popTag(), enumDescription)
 
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
         return this
@@ -256,10 +248,6 @@ abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     final override fun decodeDoubleElement(desc: SerialDescriptor, index: Int): Double = decodeTaggedDouble(desc.getTag(index))
     final override fun decodeCharElement(desc: SerialDescriptor, index: Int): Char = decodeTaggedChar(desc.getTag(index))
     final override fun decodeStringElement(desc: SerialDescriptor, index: Int): String = decodeTaggedString(desc.getTag(index))
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("decodeEnum(enumLoader)"))
-    final override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>): T = decodeEnumElementValue(desc, index, LegacyEnumCreator(enumClass))
-
-    final override fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T = decodeTaggedEnum(desc.getTag(index), enumCreator)
 
     final override fun <T : Any?> decodeSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T =
         tagBlock(desc.getTag(index)) { decodeSerializableValue(loader) }

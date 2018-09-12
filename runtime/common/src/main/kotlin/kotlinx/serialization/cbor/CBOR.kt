@@ -92,8 +92,11 @@ class CBOR(val context: SerialContext = EmptyContext, val updateMode: UpdateMode
 
         override fun encodeNull() = encoder.encodeNull()
 
-        override fun <T : Enum<T>> encodeEnum(value: T) =
-                encoder.encodeString(value.toString())
+        override fun encodeEnum(
+            enumDescription: EnumDescriptor,
+            ordinal: Int
+        ) =
+            encoder.encodeString(enumDescription.getElementName(ordinal))
     }
 
     // For details of representation, see https://tools.ietf.org/html/rfc7049#section-2.1
@@ -241,8 +244,8 @@ class CBOR(val context: SerialContext = EmptyContext, val updateMode: UpdateMode
 
         override fun decodeNull() = decoder.nextNull()
 
-        override fun <T : Enum<T>> decodeEnum(enumCreator: EnumCreator<T>): T =
-                enumCreator.createFromName(decoder.nextString())
+        override fun decodeEnum(enumDescription: EnumDescriptor): Int =
+            enumDescription.getElementIndex(decoder.nextString())
 
     }
 

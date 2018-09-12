@@ -50,7 +50,11 @@ class ProtoBuf(val context: SerialContext = EmptyContext) {
         override fun encodeTaggedBoolean(tag: ProtoDesc, value: Boolean) = encoder.writeInt(if (value) 1 else 0, tag.first, ProtoNumberType.DEFAULT)
         override fun encodeTaggedChar(tag: ProtoDesc, value: Char) = encoder.writeInt(value.toInt(), tag.first, tag.second)
         override fun encodeTaggedString(tag: ProtoDesc, value: String) = encoder.writeString(value, tag.first)
-        override fun <E : Enum<E>> encodeTaggedEnum(tag: ProtoDesc, value: E) = encoder.writeInt(value.ordinal, tag.first, ProtoNumberType.DEFAULT)
+        override fun encodeTaggedEnum(
+            tag: ProtoDesc,
+            enumDescription: EnumDescriptor,
+            ordinal: Int
+        ) = encoder.writeInt(ordinal, tag.first, ProtoNumberType.DEFAULT)
 
         override fun SerialDescriptor.getTag(index: Int) = this.getProtoDesc(index)
 
@@ -185,7 +189,7 @@ class ProtoBuf(val context: SerialContext = EmptyContext) {
         override fun decodeTaggedDouble(tag: ProtoDesc): Double = decoder.nextDouble()
         override fun decodeTaggedChar(tag: ProtoDesc): Char = decoder.nextInt(tag.second).toChar()
         override fun decodeTaggedString(tag: ProtoDesc): String = decoder.nextString()
-        override fun <E : Enum<E>> decodeTaggedEnum(tag: ProtoDesc, enumCreator: EnumCreator<E>): E = enumCreator.createFromOrdinal(decoder.nextInt(ProtoNumberType.DEFAULT))
+        override fun decodeTaggedEnum(tag: ProtoDesc, enumDescription: EnumDescriptor): Int = decoder.nextInt(ProtoNumberType.DEFAULT)
 
         @Suppress("UNCHECKED_CAST")
         override fun <T> decodeSerializableValue(loader: DeserializationStrategy<T>): T {

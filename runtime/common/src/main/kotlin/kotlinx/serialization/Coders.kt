@@ -17,7 +17,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.context.SerialContext
-import kotlin.reflect.KClass
+import kotlinx.serialization.internal.EnumDescriptor
 
 interface Encoder {
     val context: SerialContext
@@ -36,10 +36,7 @@ interface Encoder {
     fun encodeChar(value: Char)
     fun encodeString(value: String)
 
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("encodeEnum(value)"))
-    fun <T : Enum<T>> encodeEnum(enumClass: KClass<T>, value: T)
-
-    fun <T : Enum<T>> encodeEnum(value: T)
+    fun encodeEnum(enumDescription: EnumDescriptor, ordinal: Int)
 
     fun <T : Any?> encodeSerializableValue(saver: SerializationStrategy<T>, value: T) {
         saver.serialize(this, value)
@@ -76,10 +73,6 @@ interface CompositeEncoder {
     fun encodeCharElement(desc: SerialDescriptor, index: Int, value: Char)
     fun encodeStringElement(desc: SerialDescriptor, index: Int, value: String)
 
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("encodeEnumElement(desc, index, value)"))
-    fun <T : Enum<T>> encodeEnumElement(desc: SerialDescriptor, index: Int, enumClass: KClass<T>, value: T)
-    fun <T : Enum<T>> encodeEnumElement(desc: SerialDescriptor, index: Int, value: T)
-
     fun <T : Any?> encodeSerializableElement(desc: SerialDescriptor, index: Int, saver: SerializationStrategy<T>, value: T)
 
     fun encodeNonSerializableElement(desc: SerialDescriptor, index: Int, value: Any)
@@ -112,10 +105,7 @@ interface Decoder {
     fun decodeChar(): Char
     fun decodeString(): String
 
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("decodeEnum(enumCreator)"))
-    fun <T : Enum<T>> decodeEnum(enumClass: KClass<T>): T
-
-    fun <T : Enum<T>> decodeEnum(enumCreator: EnumCreator<T>): T
+    fun decodeEnum(enumDescription: EnumDescriptor): Int
 
 
     fun <T : Any?> decodeSerializableValue(loader: DeserializationStrategy<T>): T = loader.deserialize(this)
@@ -182,11 +172,6 @@ interface CompositeDecoder {
     fun decodeDoubleElement(desc: SerialDescriptor, index: Int): Double
     fun decodeCharElement(desc: SerialDescriptor, index: Int): Char
     fun decodeStringElement(desc: SerialDescriptor, index: Int): String
-
-    @Deprecated("Not supported in Native", replaceWith = ReplaceWith("decodeEnum(desc, index, enumLoader)"))
-    fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumClass: KClass<T>): T
-
-    fun <T : Enum<T>> decodeEnumElementValue(desc: SerialDescriptor, index: Int, enumCreator: EnumCreator<T>): T
 
     fun <T : Any?> decodeSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T
     fun <T : Any> decodeNullableSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>): T?
