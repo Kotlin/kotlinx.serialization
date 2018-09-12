@@ -46,8 +46,3 @@ actual fun getSerialId(desc: KSerialClassDesc, index: Int): Int? {
 }
 
 actual fun getSerialTag(desc: KSerialClassDesc, index: Int): String? = index.toString()
-
-/**
- * Does nothing.
- */
-actual annotation class JvmOverloads()

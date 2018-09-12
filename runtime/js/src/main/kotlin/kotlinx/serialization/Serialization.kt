@@ -48,8 +48,3 @@ actual fun getSerialId(desc: SerialDescriptor, index: Int): Int? {
 }
 
 actual fun getSerialTag(desc: SerialDescriptor, index: Int): String? = desc.getElementAnnotations(index).filterIsInstance<SerialTag>().singleOrNull()?.tag
-
-/**
- * Does nothing.
- */
-actual annotation class JvmOverloads()

@@ -18,6 +18,7 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
+import kotlin.jvm.JvmOverloads
 
 open class SerialClassDescImpl(override val name: String) : SerialDescriptor {
     override val kind: SerialKind get() = StructureKind.CLASS
