@@ -171,10 +171,11 @@ abstract class NamedValueEncoder(val rootName: String = "") : TaggedEncoder<Stri
     open fun composeName(parentName: String, childName: String) = if (parentName.isEmpty()) childName else parentName + "." + childName
 }
 
-// Helpers for native
+fun getSerialId(desc: SerialDescriptor, index: Int): Int?
+        = desc.getElementAnnotations(index).filterIsInstance<SerialId>().singleOrNull()?.id
 
-expect fun getSerialId(desc: SerialDescriptor, index: Int): Int?
-expect fun getSerialTag(desc: SerialDescriptor, index: Int): String?
+fun getSerialTag(desc: SerialDescriptor, index: Int): String?
+        = desc.getElementAnnotations(index).filterIsInstance<SerialTag>().singleOrNull()?.tag
 
 abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     override var context: SerialContext = EmptyContext

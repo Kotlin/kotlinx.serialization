@@ -26,7 +26,7 @@ class AutoAssignIdsTest {
     data class WithoutIds(val a: Int, val b: String)
 
     @Serializable
-    data class WithId(@SerialId(0) val a: Int, @SerialId(1) val b: String)
+    data class WithId(@SerialId(1) val a: Int, @SerialId(2) val b: String)
 
     @Test
     fun saveAndRestoreWithoutIds() {

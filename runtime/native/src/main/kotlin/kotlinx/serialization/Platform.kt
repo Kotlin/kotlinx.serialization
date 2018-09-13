@@ -50,10 +50,4 @@ actual fun <T : Any, E : T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Arra
 @Suppress("UNCHECKED_CAST")
 private fun <T> arrayOfAnyNulls(size: Int): Array<T> = arrayOfNulls<Any>(size) as Array<T>
 
-actual fun getSerialId(desc: SerialDescriptor, index: Int): Int? {
-    return index
-}
-
-actual fun getSerialTag(desc: SerialDescriptor, index: Int): String? = index.toString()
-
 actual typealias SharedImmutable = kotlin.native.SharedImmutable
