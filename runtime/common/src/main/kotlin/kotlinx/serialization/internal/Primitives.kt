@@ -17,6 +17,7 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
+import kotlin.reflect.KClass
 
 sealed class PrimitiveDescriptor(override val name: String, override val kind: PrimitiveKind): SerialDescriptor {
     private fun error(): Nothing = throw IllegalStateException("Primitives does not have elements")
@@ -107,3 +108,19 @@ object StringSerializer : KSerializer<String> {
     override fun serialize(output: Encoder, obj: String) = output.encodeString(obj)
     override fun deserialize(input: Decoder): String = input.decodeString()
 }
+
+
+@Suppress("UNCHECKED_CAST")
+fun <T: Any> KClass<T>.defaultSerializer(): KSerializer<T>? = when(this.simpleName) {
+    "String" -> StringSerializer
+    "Char" -> CharSerializer
+    "Double" -> DoubleSerializer
+    "Float" -> FloatSerializer
+    "Long" -> LongSerializer
+    "Int" -> IntSerializer
+    "Short" -> ShortSerializer
+    "Byte" -> ByteSerializer
+    "Boolean" -> BooleanSerializer
+    "Unit" -> UnitSerializer
+    else -> null
+} as KSerializer<T>?

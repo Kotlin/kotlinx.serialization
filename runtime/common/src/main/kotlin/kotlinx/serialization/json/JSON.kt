@@ -36,6 +36,10 @@ data class JSON(
     }
 
     inline fun <reified T : Any> stringify(obj: T): String = stringify(context.klassSerializer(T::class), obj)
+    inline fun <reified T : Any> stringify(objects: List<T>): String = stringify(context.klassSerializer(T::class).list, objects)
+    inline fun <reified K : Any, reified V: Any> stringify(map: Map<K, V>): String
+            = stringify((context.klassSerializer(K::class) to context.klassSerializer(V::class)).map, map)
+
 
     fun <T> parse(loader: DeserializationStrategy<T>, str: String): T {
         val parser = Parser(str)
@@ -46,12 +50,22 @@ data class JSON(
     }
 
     inline fun <reified T : Any> parse(str: String): T = parse(context.klassSerializer(T::class), str)
+    inline fun <reified T : Any> parseList(objects: String): List<T> = parse(context.klassSerializer(T::class).list, objects)
+    inline fun <reified K : Any, reified V: Any> parseMap(map: String)
+            = parse((context.klassSerializer(K::class) to context.klassSerializer(V::class)).map, map)
 
     companion object {
         fun <T> stringify(saver: SerializationStrategy<T>, obj: T): String = plain.stringify(saver, obj)
         inline fun <reified T : Any> stringify(obj: T): String = stringify(T::class.serializer(), obj)
+        inline fun <reified T : Any> stringify(objects: List<T>): String = stringify(T::class.serializer().list, objects)
+        inline fun <reified K : Any, reified V: Any> stringify(map: Map<K, V>): String
+                = stringify((K::class.serializer() to V::class.serializer()).map, map)
+
         fun <T> parse(loader: DeserializationStrategy<T>, str: String): T = plain.parse(loader, str)
         inline fun <reified T : Any> parse(str: String): T = parse(T::class.serializer(), str)
+        inline fun <reified T : Any> parseList(objects: String): List<T> = parse(T::class.serializer().list, objects)
+        inline fun <reified K : Any, reified V: Any> parseMap(map: String)
+                = parse((K::class.serializer() to V::class.serializer()).map, map)
 
         val plain = JSON()
         val unquoted = JSON(unquoted = true)

@@ -16,9 +16,13 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.internal.defaultSerializer
 import kotlin.reflect.KClass
 
-expect fun <T: Any> KClass<T>.serializer(): KSerializer<T>
+fun <T : Any> KClass<T>.serializer(): KSerializer<T> = compiledSerializer() ?: defaultSerializer()
+    ?: throw SerializationException("Can't locate serializer for $this")
+
+expect fun <T : Any> KClass<T>.compiledSerializer(): KSerializer<T>?
 
 expect fun String.toUtf8Bytes(): ByteArray
 expect fun stringFromUtf8Bytes(bytes: ByteArray): String

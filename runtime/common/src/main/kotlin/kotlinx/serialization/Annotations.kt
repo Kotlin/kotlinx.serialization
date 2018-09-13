@@ -36,7 +36,7 @@ annotation class Serializer(
 )
 
 /**
- * Overrides name visible to runtime part of serialization framework
+ * Overrides name visible to the runtime part of serialization framework
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
 annotation class SerialName(val value: String)
@@ -57,7 +57,7 @@ annotation class Transient
 
 /**
  * When annotation class is marked with `@SerialInfo`, compiler plugin can instantiate it
- * and put into [KSerialClassDesc], to be retrieved later during serialization process.
+ * and put into [SerialDescriptor], to be retrieved later during serialization process.
  */
 @Target(AnnotationTarget.ANNOTATION_CLASS)
 annotation class SerialInfo

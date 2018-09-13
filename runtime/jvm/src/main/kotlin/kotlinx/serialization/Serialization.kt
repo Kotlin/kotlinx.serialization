@@ -19,8 +19,7 @@ package kotlinx.serialization
 import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
-actual fun <T: Any> KClass<T>.serializer(): KSerializer<T> = this.java.invokeSerializerGetter()
-        ?: throw SerializationException("Can't locate default serializer for $this")
+actual fun <T: Any> KClass<T>.compiledSerializer(): KSerializer<T>? = this.java.invokeSerializerGetter()
 
 actual fun String.toUtf8Bytes() = this.toByteArray(Charsets.UTF_8)
 actual fun stringFromUtf8Bytes(bytes: ByteArray) = String(bytes, Charsets.UTF_8)

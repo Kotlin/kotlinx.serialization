@@ -31,8 +31,7 @@ actual fun stringFromUtf8Bytes(bytes: ByteArray): String {
 
 
 @Suppress("UNCHECKED_CAST")
-actual fun <T : Any> KClass<T>.serializer(): KSerializer<T> = TODO("Obtaining serializer via KClass is not supported on Native. Specify serializer explicitly.")
-
+actual fun <T : Any> KClass<T>.compiledSerializer(): KSerializer<T>? = TODO("Intrinsic to be implemented in compiler")
 
 actual fun <E : Enum<E>> enumFromName(enumClass: KClass<E>, value: String): E = TODO("Not supported in native")
 actual fun <E : Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E = TODO("Not supported in native")
