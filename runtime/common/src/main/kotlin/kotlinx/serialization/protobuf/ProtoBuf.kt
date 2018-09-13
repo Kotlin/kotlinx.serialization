@@ -19,13 +19,14 @@ package kotlinx.serialization.protobuf
 import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
+import kotlinx.serialization.context.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintInt
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintLong
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeVarint
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.encodeVarint
 
-class ProtoBuf(val context: SerialContext? = null) {
+class ProtoBuf(val context: SerialContext = EmptyContext) {
 
     internal open inner class ProtobufWriter(val encoder: ProtobufEncoder) : TaggedEncoder<ProtoDesc>() {
 
@@ -429,7 +430,7 @@ class ProtoBuf(val context: SerialContext? = null) {
         return output.toByteArray()
     }
 
-    inline fun <reified T : Any> dump(obj: T): ByteArray = dump(context.klassSerializer(T::class), obj)
+    inline fun <reified T : Any> dump(obj: T): ByteArray = dump(context.getOrDefault(T::class), obj)
     inline fun <reified T : Any> dumps(obj: T): String = HexConverter.printHexBinary(dump(obj), lowerCase = true)
 
     fun <T : Any> load(loader: DeserializationStrategy<T>, raw: ByteArray): T {
@@ -438,7 +439,7 @@ class ProtoBuf(val context: SerialContext? = null) {
         return reader.decode(loader)
     }
 
-    inline fun <reified T : Any> load(raw: ByteArray): T = load(context.klassSerializer(T::class), raw)
+    inline fun <reified T : Any> load(raw: ByteArray): T = load(context.getOrDefault(T::class), raw)
     inline fun <reified T : Any> loads(hex: String): T = load(HexConverter.parseHexBinary(hex))
 
 }

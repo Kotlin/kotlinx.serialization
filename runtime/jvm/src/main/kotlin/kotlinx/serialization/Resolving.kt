@@ -16,6 +16,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.context.SerialContext
 import kotlinx.serialization.internal.*
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type

@@ -16,47 +16,20 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.context.getOrDefault
+import kotlinx.serialization.context.getByValueOrDefault
 import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlin.reflect.KClass
 
-@Suppress("UNCHECKED_CAST")
-class SerialContext(private val parentContext: SerialContext? = null) {
-
-    private val classMap: MutableMap<KClass<*>, KSerializer<*>> = hashMapOf()
-
-    fun <T: Any> registerSerializer(forClass: KClass<T>, serializer: KSerializer<T>) {
-        classMap.put(forClass, serializer)
-    }
-
-    fun <T: Any> KClass<T>.getSerializer(): KSerializer<T>? = getSerializerByClass(this)
-
-    fun <T : Any> getSerializerByValue(value: T?): KSerializer<T>? {
-        if (value == null) throw SerializationException("Cannot determine class for value $value")
-        val t: T = value
-        val klass = t::class
-        return getSerializerByClass(klass) as? KSerializer<T>
-    }
-
-    inline fun <reified T: Any> getSerializer(): KSerializer<T>? = getSerializerByClass(T::class)
-
-    fun <T: Any> getSerializerByClass(klass: KClass<T>): KSerializer<T>? = classMap[klass] as? KSerializer<T> ?: parentContext?.getSerializerByClass(klass)
-}
-
-fun <T: Any> SerialContext?.klassSerializer(klass: KClass<T>) = this?.let { getSerializerByClass(klass) } ?: klass.serializer()
-fun <T: Any> SerialContext?.valueSerializer(value: T) = this?.let { getSerializerByValue(value) } ?: value::class.serializer()
-
 class ContextSerializer <T : Any> (val serializableClass: KClass<T>) : KSerializer<T> {
     override fun serialize(output: Encoder, obj: T) {
-        val s = output.context?.getSerializerByValue(obj)
-        if (s != null) output.encodeSerializableValue(s, obj)
-        else throw SerializationException("Serializer for ${obj::class} was not found in provided context")
+        val s = output.context.getByValueOrDefault(obj)
+        output.encodeSerializableValue(s, obj)
     }
     override fun deserialize(input: Decoder): T {
-        val s = input.context?.getSerializerByClass(serializableClass)
+        val s = input.context.getOrDefault(serializableClass)
         @Suppress("UNCHECKED_CAST")
-        return if (s != null)
-            input.decodeSerializableValue(s)
-        else throw SerializationException("Serializer for $serializableClass was not found in provided context")
+        return input.decodeSerializableValue(s)
     }
 
     override val descriptor: SerialDescriptor

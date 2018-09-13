@@ -19,13 +19,13 @@ package org.jetbrains.kotlinx.serialization.config
 import com.typesafe.config.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
-import kotlinx.serialization.internal.KEY_INDEX
+import kotlinx.serialization.context.*
 
 private val SerialKind.listLike get() = this == StructureKind.LIST || this == UnionKind.POLYMORPHIC
 private val SerialKind.objLike get() = this == StructureKind.CLASS || this == UnionKind.OBJECT || this == UnionKind.SEALED
 
-class ConfigParser(val context: SerialContext? = null) {
-    inline fun <reified T : Any> parse(conf: Config): T = parse(conf, context.klassSerializer(T::class))
+class ConfigParser(val context: SerialContext = EmptyContext) {
+    inline fun <reified T : Any> parse(conf: Config): T = parse(conf, context.getOrDefault(T::class))
     fun <T> parse(conf: Config, loader: DeserializationStrategy<T>): T = ConfigReader(conf).decode(loader)
 
 

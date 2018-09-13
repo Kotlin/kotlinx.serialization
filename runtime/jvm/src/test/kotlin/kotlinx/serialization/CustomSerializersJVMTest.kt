@@ -16,6 +16,8 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.context.MutableSerialContext
+import kotlinx.serialization.context.MutableSerialContextImpl
 import kotlinx.serialization.internal.HexConverter
 import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlinx.serialization.internal.StringSerializer
@@ -61,7 +63,7 @@ class CustomSerializersJVMTest {
 
     @Before
     fun initContext() {
-        val scope = SerialContext()
+        val scope = MutableSerialContextImpl()
         scope.registerSerializer(Payload::class, PayloadSerializer)
         json = JSON(unquoted = true, context = scope)
     }

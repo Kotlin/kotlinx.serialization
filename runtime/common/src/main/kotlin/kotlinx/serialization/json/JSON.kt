@@ -19,6 +19,7 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
+import kotlinx.serialization.context.*
 
 data class JSON(
     private val unquoted: Boolean = false,
@@ -26,7 +27,7 @@ data class JSON(
     private val indent: String = "    ",
     internal val strictMode: Boolean = true,
     val updateMode: UpdateMode = UpdateMode.OVERWRITE,
-    val context: SerialContext? = null
+    val context: SerialContext = EmptyContext
 ) {
     fun <T> stringify(saver: SerializationStrategy<T>, obj: T): String {
         val sb = StringBuilder()
@@ -35,10 +36,10 @@ data class JSON(
         return sb.toString()
     }
 
-    inline fun <reified T : Any> stringify(obj: T): String = stringify(context.klassSerializer(T::class), obj)
-    inline fun <reified T : Any> stringify(objects: List<T>): String = stringify(context.klassSerializer(T::class).list, objects)
+    inline fun <reified T : Any> stringify(obj: T): String = stringify(context.getOrDefault(T::class), obj)
+    inline fun <reified T : Any> stringify(objects: List<T>): String = stringify(context.getOrDefault(T::class).list, objects)
     inline fun <reified K : Any, reified V: Any> stringify(map: Map<K, V>): String
-            = stringify((context.klassSerializer(K::class) to context.klassSerializer(V::class)).map, map)
+            = stringify((context.getOrDefault(K::class) to context.getOrDefault(V::class)).map, map)
 
 
     fun <T> parse(loader: DeserializationStrategy<T>, str: String): T {
@@ -49,10 +50,10 @@ data class JSON(
         return result
     }
 
-    inline fun <reified T : Any> parse(str: String): T = parse(context.klassSerializer(T::class), str)
-    inline fun <reified T : Any> parseList(objects: String): List<T> = parse(context.klassSerializer(T::class).list, objects)
+    inline fun <reified T : Any> parse(str: String): T = parse(context.getOrDefault(T::class), str)
+    inline fun <reified T : Any> parseList(objects: String): List<T> = parse(context.getOrDefault(T::class).list, objects)
     inline fun <reified K : Any, reified V: Any> parseMap(map: String)
-            = parse((context.klassSerializer(K::class) to context.klassSerializer(V::class)).map, map)
+            = parse((context.getOrDefault(K::class) to context.getOrDefault(V::class)).map, map)
 
     companion object {
         fun <T> stringify(saver: SerializationStrategy<T>, obj: T): String = plain.stringify(saver, obj)

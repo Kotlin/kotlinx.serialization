@@ -16,11 +16,11 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
+import kotlinx.serialization.context.*
 
-class DynamicObjectParser(val context: SerialContext? = null) {
-    inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.klassSerializer(T::class))
+class DynamicObjectParser(val context: SerialContext = EmptyContext) {
+    inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.getOrDefault(T::class))
     fun <T> parse(obj: dynamic, loader: DeserializationStrategy<T>): T = DynamicInput(obj).decode(loader)
 
     private open inner class DynamicInput(val obj: dynamic) : NamedValueDecoder() {

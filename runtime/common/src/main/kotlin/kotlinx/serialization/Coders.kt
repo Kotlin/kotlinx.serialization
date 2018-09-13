@@ -16,10 +16,11 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.context.SerialContext
 import kotlin.reflect.KClass
 
 interface Encoder {
-    var context: SerialContext?
+    val context: SerialContext
 
     fun encodeNotNullMark()
     fun encodeNull()
@@ -60,7 +61,7 @@ interface Encoder {
 }
 
 interface CompositeEncoder {
-    var context: SerialContext?
+    val context: SerialContext
 
     fun endStructure(desc: SerialDescriptor) {}
 
@@ -88,7 +89,7 @@ interface CompositeEncoder {
 
 
 interface Decoder {
-    var context: SerialContext?
+    val context: SerialContext
 
     /**
      * Returns true if the current value in decoder is not null, false otherwise
@@ -145,7 +146,7 @@ interface Decoder {
 }
 
 interface CompositeDecoder {
-    var context: SerialContext?
+    val context: SerialContext
     fun endStructure(desc: SerialDescriptor) {}
 
     /**

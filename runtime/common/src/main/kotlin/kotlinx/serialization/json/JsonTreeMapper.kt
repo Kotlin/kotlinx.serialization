@@ -18,10 +18,11 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
+import kotlinx.serialization.context.*
 import kotlin.reflect.KClass
 
-class JsonTreeMapper(val context: SerialContext? = null) {
-    inline fun <reified T : Any> readTree(tree: JsonElement): T = readTree(tree, context.klassSerializer(T::class))
+class JsonTreeMapper(val context: SerialContext = EmptyContext) {
+    inline fun <reified T : Any> readTree(tree: JsonElement): T = readTree(tree, context.getOrDefault(T::class))
 
     fun <T> readTree(obj: JsonElement, loader: DeserializationStrategy<T>): T {
         if (obj !is JsonObject) throw SerializationException("Can't deserialize primitive on root level")

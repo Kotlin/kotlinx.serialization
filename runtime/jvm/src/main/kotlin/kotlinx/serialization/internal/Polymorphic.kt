@@ -17,6 +17,8 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.context.SerialContext
+import kotlinx.serialization.context.getOrDefault
 import kotlin.reflect.KClass
 
 internal object PolymorphicClassDesc : SerialClassDescImpl("kotlin.Any") {
@@ -74,7 +76,7 @@ internal object SerialCache {
         if (ans != null) return ans as KSerializer<E>
         // If it's not there, maybe it came from java
         val klass = preloadedClass ?: Class.forName(className).kotlin
-        ans = context?.getSerializerByClass(klass) ?: ClassSerialCache.getSubclassSerializer(klass)
+        ans = context?.getOrDefault(klass) ?: ClassSerialCache.getSubclassSerializer(klass)
         if (ans != null) return ans as KSerializer<E>
         // Then, it's user defined class
         val last = klass.serializer() as? KSerializer<E>

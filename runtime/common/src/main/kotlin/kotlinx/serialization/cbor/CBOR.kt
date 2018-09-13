@@ -19,10 +19,11 @@ package kotlinx.serialization.cbor
 import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
+import kotlinx.serialization.context.*
 import kotlinx.serialization.internal.*
 import kotlin.experimental.or
 
-class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = UpdateMode.BANNED) {
+class CBOR(val context: SerialContext = EmptyContext, val updateMode: UpdateMode = UpdateMode.BANNED) {
     // Writes map entry as plain [key, value] pair, without bounds.
     private inner class CBOREntryWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
         override fun writeBeginToken() {
@@ -390,7 +391,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
         return output.toByteArray()
     }
 
-    inline fun <reified T : Any> dump(obj: T): ByteArray = dump(context.klassSerializer(T::class), obj)
+    inline fun <reified T : Any> dump(obj: T): ByteArray = dump(context.getOrDefault(T::class), obj)
 
     inline fun <reified T : Any> dumps(obj: T): String = HexConverter.printHexBinary(dump(obj), lowerCase = true)
 
@@ -400,7 +401,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
         return reader.decode(loader)
     }
 
-    inline fun <reified T : Any> load(raw: ByteArray): T = load(context.klassSerializer(T::class), raw)
+    inline fun <reified T : Any> load(raw: ByteArray): T = load(context.getOrDefault(T::class), raw)
     inline fun <reified T : Any> loads(hex: String): T = load(HexConverter.parseHexBinary(hex))
 }
 

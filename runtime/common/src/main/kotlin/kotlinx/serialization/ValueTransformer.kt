@@ -17,6 +17,8 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
+import kotlinx.serialization.context.EmptyContext
+import kotlinx.serialization.context.SerialContext
 import kotlin.reflect.KClass
 
 @Suppress("OverridingDeprecatedMember")
@@ -54,7 +56,7 @@ open class ValueTransformer {
     // ---------------
 
     private inner class Output : Encoder, CompositeEncoder {
-        override var context: SerialContext? = null
+        override var context: SerialContext = EmptyContext
 
         internal val list = arrayListOf<Any?>()
 
@@ -132,7 +134,7 @@ open class ValueTransformer {
     }
 
     private inner class Input(private val list: List<Any?>) : Decoder, CompositeDecoder {
-        override var context: SerialContext? = null
+        override var context: SerialContext = EmptyContext
         override val updateMode: UpdateMode = UpdateMode.BANNED
 
         private var index = 0

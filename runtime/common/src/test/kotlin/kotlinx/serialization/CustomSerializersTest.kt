@@ -16,6 +16,8 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.context.MutableSerialContext
+import kotlinx.serialization.context.MutableSerialContextImpl
 import kotlinx.serialization.internal.IntSerializer
 import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlinx.serialization.internal.StringSerializer
@@ -117,7 +119,7 @@ class CustomSerializersTest {
     @Test
     fun writeCustom() {
         val a = A(B(2))
-        val scope = SerialContext()
+        val scope = MutableSerialContextImpl()
         scope.registerSerializer(B::class, BSerializer)
         val j = JSON(unquoted = true, context = scope)
         val s = j.stringify(a)
@@ -127,7 +129,7 @@ class CustomSerializersTest {
     @Test
     fun readCustom() {
         val a = A(B(2))
-        val scope = SerialContext()
+        val scope = MutableSerialContextImpl()
         scope.registerSerializer(B::class, BSerializer)
         val j = JSON(unquoted = true, context = scope)
         val s = j.parse<A>("{b:2}")
@@ -137,7 +139,7 @@ class CustomSerializersTest {
     @Test
     fun writeCustomList() {
         val obj = BList(listOf(B(1), B(2), B(3)))
-        val scope = SerialContext()
+        val scope = MutableSerialContextImpl()
         scope.registerSerializer(B::class, BSerializer)
         val j = JSON(unquoted = true, context = scope)
         val s = j.stringify(obj)
@@ -147,7 +149,7 @@ class CustomSerializersTest {
     @Test
     fun readCustomList() {
         val obj = BList(listOf(B(1), B(2), B(3)))
-        val scope = SerialContext()
+        val scope = MutableSerialContextImpl()
         scope.registerSerializer(B::class, BSerializer)
         val j = JSON(unquoted = true, context = scope)
         val bs = j.parse<BList>("{bs:[1,2,3]}")
@@ -157,7 +159,7 @@ class CustomSerializersTest {
     @Test
     fun writeCustomListRootLevel() {
         val obj = listOf(B(1), B(2), B(3))
-        val scope = SerialContext()
+        val scope = MutableSerialContextImpl()
         scope.registerSerializer(B::class, BSerializer)
         val j = JSON(unquoted = true, context = scope)
         val s = j.stringify(BSerializer.list, obj)
@@ -167,7 +169,7 @@ class CustomSerializersTest {
     @Test
     fun readCustomListRootLevel() {
         val obj = listOf(B(1), B(2), B(3))
-        val scope = SerialContext()
+        val scope = MutableSerialContextImpl()
         scope.registerSerializer(B::class, BSerializer)
         val j = JSON(unquoted = true, context = scope)
         val bs = j.parse(BSerializer.list, "[1,2,3]")
@@ -365,7 +367,7 @@ class CustomSerializersTest {
 
     @Test
     fun resolveAtRootLevel() {
-        val scope = SerialContext()
+        val scope = MutableSerialContextImpl()
         scope.registerSerializer(B::class, BSerializer)
         val j = JSON(unquoted = true, context = scope)
         val bs = j.parse<B>("1")
