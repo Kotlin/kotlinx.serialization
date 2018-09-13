@@ -47,9 +47,17 @@ fun <T: Any> SerialContext?.valueSerializer(value: T) = this?.let { getSerialize
 
 class ContextSerializer <T : Any> (val serializableClass: KClass<T>) : KSerializer<T> {
     override fun serialize(output: Encoder, obj: T) {
-        output.encodeValue(obj)
+        val s = output.context?.getSerializerByValue(obj)
+        if (s != null) output.encodeSerializableValue(s, obj)
+        else throw SerializationException("Serializer for ${obj::class} was not found in provided context")
     }
-    override fun deserialize(input: Decoder): T = input.decodeValue(serializableClass)
+    override fun deserialize(input: Decoder): T {
+        val s = input.context?.getSerializerByClass(serializableClass)
+        @Suppress("UNCHECKED_CAST")
+        return if (s != null)
+            input.decodeSerializableValue(s)
+        else throw SerializationException("Serializer for $serializableClass was not found in provided context")
+    }
 
     override val descriptor: SerialDescriptor
             = object : SerialClassDescImpl("CONTEXT") {} // todo: remove this crutch

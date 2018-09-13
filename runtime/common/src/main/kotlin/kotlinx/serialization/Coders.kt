@@ -21,21 +21,8 @@ import kotlin.reflect.KClass
 interface Encoder {
     var context: SerialContext?
 
-    @Deprecated("Untyped encoding will be removed")
-    fun encodeValue(value: Any) {
-        val s = context?.getSerializerByValue(value)
-        if (s != null) encodeSerializableValue(s, value)
-        else encodeNonSerializableValue(value)
-    }
-
-    @Deprecated("Untyped encoding will be removed")
-    fun encodeNonSerializableValue(value: Any)
-
     fun encodeNotNullMark()
     fun encodeNull()
-
-    @Deprecated("Untyped encoding will be removed")
-    fun encodeNullableValue(value: Any?)
 
     fun encodeUnit()
     fun encodeBoolean(value: Boolean)
@@ -77,16 +64,6 @@ interface CompositeEncoder {
 
     fun endStructure(desc: SerialDescriptor) {}
 
-    @Deprecated("Untyped encoding will be removed")
-    fun encodeElementValue(desc: SerialDescriptor, index: Int, value: Any) {
-        val s = context?.getSerializerByValue(value)
-        if (s != null) encodeSerializableElement(desc, index, s, value)
-        else encodeNonSerializableElement(desc, index, value)
-    }
-
-    @Deprecated("Untyped encoding will be removed")
-    fun encodeNullableElementValue(desc: SerialDescriptor, index: Int, value: Any?)
-
     fun encodeUnitElement(desc: SerialDescriptor, index: Int)
     fun encodeBooleanElement(desc: SerialDescriptor, index: Int, value: Boolean)
     fun encodeByteElement(desc: SerialDescriptor, index: Int, value: Byte)
@@ -122,22 +99,6 @@ interface Decoder {
      * Consumes null, returns null, will be called when [decodeNotNullMark] is false
      */
     fun decodeNull(): Nothing?
-
-    @Deprecated("Untyped decoding will be removed")
-    fun decodeValue(): Any
-
-    @Deprecated("Untyped decoding will be removed")
-    fun <T : Any> decodeValue(klass: KClass<T>): T {
-        val s = context?.getSerializerByClass(klass)
-        @Suppress("UNCHECKED_CAST")
-        return if (s != null)
-            decodeSerializableValue(s)
-        else
-            decodeValue() as T
-    }
-
-    @Deprecated("Untyped decoding will be removed")
-    fun decodeNullableValue(): Any?
 
     fun decodeUnit()
     fun decodeBoolean(): Boolean
@@ -209,19 +170,6 @@ interface CompositeDecoder {
      * @return Collection size or -1 if not available.
      */
     fun decodeCollectionSize(desc: SerialDescriptor): Int = -1
-
-    @Deprecated("Untyped decoding will be removed")
-    fun decodeElementValue(desc: SerialDescriptor, index: Int): Any
-
-    @Deprecated("Untyped decoding will be removed")
-    fun decodeElementValue(desc: SerialDescriptor, index: Int, klass: KClass<*>): Any {
-        val s = context?.getSerializerByClass(klass)
-        return if (s != null) decodeSerializableElement(desc, index, s)
-        else decodeElementValue(desc, index)
-    }
-
-    @Deprecated("Untyped decoding will be removed")
-    fun decodeNullableElementValue(desc: SerialDescriptor, index: Int): Any?
 
     fun decodeUnitElement(desc: SerialDescriptor, index: Int)
     fun decodeBooleanElement(desc: SerialDescriptor, index: Int): Boolean

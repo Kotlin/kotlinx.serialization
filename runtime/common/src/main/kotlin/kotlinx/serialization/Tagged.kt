@@ -39,7 +39,8 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
     override var context: SerialContext? = null
 
     // ---- API ----
-    open fun encodeTaggedValue(tag: Tag, value: Any): Unit = throw SerializationException("$value is not supported")
+    open fun encodeTaggedValue(tag: Tag, value: Any): Unit
+            = throw SerializationException("Non-serializable ${value::class} is not supported by ${this::class} encoder")
 
     open fun encodeTaggedNotNullMark(tag: Tag) {}
     open fun encodeTaggedNull(tag: Tag): Unit = throw SerializationException("null is not supported")
@@ -85,9 +86,6 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
     final override fun encodeNotNullMark() = encodeTaggedNotNullMark(currentTag)
     final override fun encodeNull() = encodeTaggedNull(popTag())
 
-    final override fun encodeNonSerializableValue(value: Any) = encodeTaggedValue(popTag(), value)
-    final override fun encodeNullableValue(value: Any?) = encodeTaggedNullable(popTag(), value)
-
     final override fun encodeUnit() = encodeTaggedUnit(popTag())
     final override fun encodeBoolean(value: Boolean) = encodeTaggedBoolean(popTag(), value)
     final override fun encodeByte(value: Byte) = encodeTaggedByte(popTag(), value)
@@ -118,7 +116,6 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
 
     final override fun encodeNonSerializableElement(desc: SerialDescriptor, index: Int, value: Any) = encodeTaggedValue(desc.getTag(index), value)
 
-    final override fun encodeNullableElementValue(desc: SerialDescriptor, index: Int, value: Any?) = encodeTaggedNullable(desc.getTag(index), value)
     final override fun encodeUnitElement(desc: SerialDescriptor, index: Int) = encodeTaggedUnit(desc.getTag(index))
     final override fun encodeBooleanElement(desc: SerialDescriptor, index: Int, value: Boolean) = encodeTaggedBoolean(desc.getTag(index), value)
     final override fun encodeByteElement(desc: SerialDescriptor, index: Int, value: Byte) = encodeTaggedByte(desc.getTag(index), value)
@@ -188,7 +185,8 @@ abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
 
 
     // ---- API ----
-    open fun decodeTaggedValue(tag: Tag): Any = throw SerializationException("value is not supported for $tag")
+    open fun decodeTaggedValue(tag: Tag): Any
+            = throw SerializationException("${this::class} can't retrieve untyped values")
 
     open fun decodeTaggedNotNullMark(tag: Tag): Boolean = true
     open fun decodeTaggedNull(tag: Tag): Nothing? = null
@@ -222,8 +220,6 @@ abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     final override fun decodeNotNullMark(): Boolean = decodeTaggedNotNullMark(currentTag)
     final override fun decodeNull(): Nothing? = null
 
-    final override fun decodeValue(): Any = decodeTaggedValue(popTag())
-    final override fun decodeNullableValue(): Any? = decodeTaggedNullable(popTag())
     final override fun decodeUnit() = decodeTaggedUnit(popTag())
     final override fun decodeBoolean(): Boolean = decodeTaggedBoolean(popTag())
     final override fun decodeByte(): Byte = decodeTaggedByte(popTag())
@@ -248,8 +244,6 @@ abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
      */
     override fun decodeElementIndex(desc: SerialDescriptor): Int = READ_ALL
 
-    final override fun decodeElementValue(desc: SerialDescriptor, index: Int): Any = decodeTaggedValue(desc.getTag(index))
-    final override fun decodeNullableElementValue(desc: SerialDescriptor, index: Int): Any? = decodeTaggedNullable(desc.getTag(index))
     final override fun decodeUnitElement(desc: SerialDescriptor, index: Int) = decodeTaggedUnit(desc.getTag(index))
     final override fun decodeBooleanElement(desc: SerialDescriptor, index: Int): Boolean = decodeTaggedBoolean(desc.getTag(index))
     final override fun decodeByteElement(desc: SerialDescriptor, index: Int): Byte = decodeTaggedByte(desc.getTag(index))

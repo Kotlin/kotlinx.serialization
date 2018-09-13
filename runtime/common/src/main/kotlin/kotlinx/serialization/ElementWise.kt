@@ -40,18 +40,8 @@ abstract class ElementValueEncoder : Encoder, CompositeEncoder {
      */
     override fun encodeNotNullMark() {}
 
-    override fun encodeNonSerializableValue(value: Any) {
-        throw SerializationException("\"$value\" has no serializer")
-    }
-
-    final override fun encodeNullableValue(value: Any?) {
-        if (value == null) {
-            encodeNull()
-        } else {
-            encodeNotNullMark()
-            encodeValue(value)
-        }
-    }
+    open fun encodeValue(value: Any): Unit
+            = throw SerializationException("Non-serializable ${value::class} is not supported by ${this::class} encoder")
 
     override fun encodeNull() {
         throw SerializationException("null is not supported")
@@ -78,7 +68,6 @@ abstract class ElementValueEncoder : Encoder, CompositeEncoder {
     // Delegating implementation of CompositeEncoder
 
     final override fun encodeNonSerializableElement(desc: SerialDescriptor, index: Int, value: Any) { if (encodeElement(desc, index)) encodeValue(value) }
-    final override fun encodeNullableElementValue(desc: SerialDescriptor, index: Int, value: Any?) { if (encodeElement(desc, index)) encodeNullableValue(value) }
     final override fun encodeUnitElement(desc: SerialDescriptor, index: Int) { if (encodeElement(desc, index)) encodeUnit() }
     final override fun encodeBooleanElement(desc: SerialDescriptor, index: Int, value: Boolean) { if (encodeElement(desc, index)) encodeBoolean(value) }
     final override fun encodeByteElement(desc: SerialDescriptor, index: Int, value: Byte) { if (encodeElement(desc, index)) encodeByte(value) }
@@ -121,10 +110,8 @@ abstract class ElementValueDecoder : Decoder, CompositeDecoder {
     override fun decodeNotNullMark(): Boolean = true
     override fun decodeNull(): Nothing? = null
 
-    override fun decodeValue(): Any {
-        throw SerializationException("Any type is not supported")
-    }
-    override fun decodeNullableValue(): Any? = if (decodeNotNullMark()) decodeValue() else decodeNull()
+    open fun decodeValue(): Any = throw SerializationException("${this::class} can't retrieve untyped values")
+
     override fun decodeUnit() {
         val reader = beginStructure(UnitSerializer.descriptor); reader.endStructure(UnitSerializer.descriptor)
     }
@@ -153,8 +140,6 @@ abstract class ElementValueDecoder : Decoder, CompositeDecoder {
         return this
     }
 
-    final override fun decodeElementValue(desc: SerialDescriptor, index: Int): Any = decodeValue()
-    final override fun decodeNullableElementValue(desc: SerialDescriptor, index: Int): Any? = decodeNullableValue()
     final override fun decodeUnitElement(desc: SerialDescriptor, index: Int) = decodeUnit()
     final override fun decodeBooleanElement(desc: SerialDescriptor, index: Int): Boolean = decodeBoolean()
     final override fun decodeByteElement(desc: SerialDescriptor, index: Int): Byte = decodeByte()

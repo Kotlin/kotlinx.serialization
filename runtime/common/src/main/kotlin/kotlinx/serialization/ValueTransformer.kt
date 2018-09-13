@@ -58,14 +58,13 @@ open class ValueTransformer {
 
         internal val list = arrayListOf<Any?>()
 
-        override fun encodeNullableValue(value: Any?) {
+        fun encodeNullableValue(value: Any?) {
             list.add(value)
         }
 
         fun encodeElement(desc: SerialDescriptor, index: Int) = true
         override fun encodeNotNullMark() {}
         override fun encodeNull() { encodeNullableValue(null) }
-        override fun encodeNonSerializableValue(value: Any) { encodeNullableValue(value) }
         override fun encodeUnit() { encodeNullableValue(Unit) }
         override fun encodeBoolean(value: Boolean) { encodeNullableValue(value) }
         override fun encodeByte(value: Byte) { encodeNullableValue(value) }
@@ -91,7 +90,6 @@ open class ValueTransformer {
         // ---------------
 
         override fun encodeNonSerializableElement(desc: SerialDescriptor, index: Int, value: Any) { encodeNullableValue(value) }
-        override fun encodeNullableElementValue(desc: SerialDescriptor, index: Int, value: Any?) = encodeNullableValue(value)
         override fun encodeUnitElement(desc: SerialDescriptor, index: Int) = encodeNullableValue(Unit)
         override fun encodeBooleanElement(desc: SerialDescriptor, index: Int, value: Boolean) = encodeNullableValue(value)
         override fun encodeByteElement(desc: SerialDescriptor, index: Int, value: Byte) = encodeNullableValue(value)
@@ -148,8 +146,8 @@ open class ValueTransformer {
 
         override fun decodeNotNullMark(): Boolean = list[index] != null
         override fun decodeNull(): Nothing? { index++; return null }
-        override fun decodeValue(): Any = list[index++]!!
-        override fun decodeNullableValue(): Any? = list[index++]
+        fun decodeValue(): Any = list[index++]!!
+        fun decodeNullableValue(): Any? = list[index++]
         override fun decodeUnit(): Unit { index++ }
 
         override fun decodeBoolean(): Boolean = transformBooleanValue(curDesc!!, curIndex, decodeValue() as Boolean)
@@ -186,14 +184,6 @@ open class ValueTransformer {
         }
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int = READ_ALL
-
-        override fun decodeElementValue(desc: SerialDescriptor, index: Int): Any {
-            cur(desc, index); return decodeValue()
-        }
-
-        override fun decodeNullableElementValue(desc: SerialDescriptor, index: Int): Any? {
-            cur(desc, index); return decodeNullableValue()
-        }
         override fun decodeUnitElement(desc: SerialDescriptor, index: Int) { cur(desc, index); return decodeUnit() }
         override fun decodeBooleanElement(desc: SerialDescriptor, index: Int): Boolean { cur(desc, index); return decodeBoolean() }
         override fun decodeByteElement(desc: SerialDescriptor, index: Int): Byte { cur(desc, index); return decodeByte() }
