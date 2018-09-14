@@ -16,22 +16,22 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.context.getOrDefault
 import kotlinx.serialization.context.getByValueOrDefault
+import kotlinx.serialization.context.getOrDefault
 import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlin.reflect.KClass
 
-class ContextSerializer <T : Any> (val serializableClass: KClass<T>) : KSerializer<T> {
+class ContextSerializer<T : Any>(val serializableClass: KClass<T>) : KSerializer<T> {
     override fun serialize(output: Encoder, obj: T) {
         val s = output.context.getByValueOrDefault(obj)
         output.encodeSerializableValue(s, obj)
     }
+
     override fun deserialize(input: Decoder): T {
         val s = input.context.getOrDefault(serializableClass)
         @Suppress("UNCHECKED_CAST")
         return input.decodeSerializableValue(s)
     }
 
-    override val descriptor: SerialDescriptor
-            = object : SerialClassDescImpl("CONTEXT") {} // todo: remove this crutch
+    override val descriptor: SerialDescriptor = object : SerialClassDescImpl("CONTEXT") {} // todo: remove this crutch
 }

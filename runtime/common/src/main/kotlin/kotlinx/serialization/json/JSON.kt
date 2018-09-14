@@ -21,15 +21,14 @@ import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlinx.serialization.context.*
 
-data class JSON(
+class JSON(
     private val unquoted: Boolean = false,
     private val indented: Boolean = false,
     private val indent: String = "    ",
     internal val strictMode: Boolean = true,
-    val updateMode: UpdateMode = UpdateMode.OVERWRITE,
-    val context: SerialContext = EmptyContext
-) {
-    fun <T> stringify(saver: SerializationStrategy<T>, obj: T): String {
+    val updateMode: UpdateMode = UpdateMode.OVERWRITE
+): AbstractSerialFormat(), StringFormat {
+    override fun <T> stringify(saver: SerializationStrategy<T>, obj: T): String {
         val sb = StringBuilder()
         val output = JsonOutput(Mode.OBJ, Composer(sb), arrayOfNulls(Mode.values().size))
         output.encode(saver, obj)
@@ -42,7 +41,7 @@ data class JSON(
             = stringify((context.getOrDefault(K::class) to context.getOrDefault(V::class)).map, map)
 
 
-    fun <T> parse(loader: DeserializationStrategy<T>, str: String): T {
+    override fun <T> parse(loader: DeserializationStrategy<T>, str: String): T {
         val parser = Parser(str)
         val input = JsonInput(Mode.OBJ, parser)
         val result = input.decode(loader)
