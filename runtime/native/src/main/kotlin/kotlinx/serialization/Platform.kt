@@ -39,7 +39,16 @@ actual fun <E : Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E 
 actual fun <E : Enum<E>> KClass<E>.enumClassName(): String = this.simpleName ?: ""
 actual fun <E : Enum<E>> KClass<E>.enumMembers(): Array<E> = TODO("Not supported in native")
 
-actual fun <T : Any, E : T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> = TODO("Not supported in native")
+actual fun <T : Any, E : T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> {
+    val result = arrayOfAnyNulls<E>(size)
+    var index = 0
+    for (element in this) result[index++] = element
+    @Suppress("UNCHECKED_CAST", "NO_CAST_NEEDED")
+    return result as Array<E>
+}
+
+@Suppress("UNCHECKED_CAST")
+private fun <T> arrayOfAnyNulls(size: Int): Array<T> = arrayOfNulls<Any>(size) as Array<T>
 
 actual fun getSerialId(desc: KSerialClassDesc, index: Int): Int? {
     return index
