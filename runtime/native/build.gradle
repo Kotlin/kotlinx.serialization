@@ -56,3 +56,10 @@ publishing {
     }
 }
 
+apply plugin: 'com.jfrog.bintray'
+
+apply from: "${rootProject.rootDir}/gradle/bintray.gradle"
+
+bintrayUpload.doFirst {
+    publications = project.publishing.publications
+}
