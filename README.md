@@ -5,7 +5,7 @@
 [![TeamCity build](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/KotlinTools_KotlinxSerialization_Ko.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=KotlinTools_KotlinxSerialization_Ko&guest=1)
 [![Download](https://api.bintray.com/packages/kotlin/kotlinx/kotlinx.serialization.runtime/images/download.svg) ](https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime/_latestVersion)
 
-Kotlin serialization support consists of three parts: a gradle compiler plugin, which produces visitor/serializer code
+Kotlin serialization support consists of three parts: a compiler plugin, which produces visitor/serializer code
 for objects, an IntelliJ plugin and a runtime library.
 
 * Supports Kotlin classes marked as `@Serializable` and standard collections. 
@@ -28,6 +28,7 @@ You can open example projects for [JVM](example-jvm) or [JS](example-js) to get 
 ## Table of contents
 
 * [Quick example](#quick-example)
+* [Upcoming changes in Kotlin 1.3](#status-in-13)
 * [Library installing](#setup)
 * [Working in IntelliJ IDEA](#working-in-intellij-idea)
 * [Compatibility Notes](#compatibility)
@@ -56,6 +57,14 @@ fun main(args: Array<String>) {
 
 To learn more about JSON usage and other formats, see [usage](docs/runtime_usage.md).
 More examples of various kinds of Kotlin classes that can be serialized can be found [here](docs/examples.md).
+
+## Status in 1.3
+
+Starting from Kotlin 1.3-RC, serialization plugin is bundled with the Kotlin compiler.
+Runtime library is under reconstruction to match the corresponding [KEEP](https://github.com/Kotlin/KEEP/blob/serialization/proposals/extensions/serialization.md).
+To learn how to work with library on Kotlin 1.3-RC, read corresponding [document](docs/eap13.md).
+When 1.3 is released, that document will be main instruction and current readme will be archived,
+and previous versions of the runtime library will be deprecated.
 
 ## Setup
 
