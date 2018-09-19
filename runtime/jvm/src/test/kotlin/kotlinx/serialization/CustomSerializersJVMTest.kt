@@ -32,15 +32,15 @@ class CustomSerializersJVMTest {
 
     @Serializable
     data class EnhancedData(
-            val data: Data,
-            val stringPayload: Payload,
-            @Serializable(with = BinaryPayloadSerializer::class) val binaryPayload: Payload
+        val data: Data,
+        @ContextualSerialization val stringPayload: Payload,
+        @Serializable(with = BinaryPayloadSerializer::class) val binaryPayload: Payload
     )
 
     data class Payload(val s: String)
 
     @Serializable
-    data class PayloadList(val ps: List<Payload>)
+    data class PayloadList(val ps: List<@ContextualSerialization Payload>)
 
     @Serializer(forClass = Payload::class)
     object PayloadSerializer {}

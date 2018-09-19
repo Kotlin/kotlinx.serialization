@@ -61,3 +61,18 @@ annotation class Transient
  */
 @Target(AnnotationTarget.ANNOTATION_CLASS)
 annotation class SerialInfo
+
+/**
+ * Instructs to use [ContextSerializer] on an annotated property or type.
+ * If used on a file, instructs to use [ContextSerializer] for all listed KClasses.
+ *
+ * @param [forClasses] Classes to use ContextSerializer for in current file.
+ */
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FILE, AnnotationTarget.TYPE)
+annotation class ContextualSerialization(vararg val forClasses: KClass<*>)
+
+/**
+ * Instructs to use [PolymorphicSerializer] on an annotated property or type.
+ */
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE)
+annotation class Polymorphic
