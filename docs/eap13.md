@@ -13,7 +13,7 @@ This means new maven coordinates and versioning scheme:
 
 ```gradle
 buildscript {
-    ext.kotlin_version = '1.3-RC'
+    ext.kotlin_version = '1.3.0-rc-51'
     repositories { jcenter() } // no need in kotlinx repository
 
     dependencies {
@@ -40,7 +40,7 @@ dependencies {
 }
 ``` 
 
-Current `serialization_version` is _TBA_.
+Current `serialization_version` is `0.8.0-rc13`. Sources can be found in `eap13` branch.
 
 Don't forget to apply the plugin:
 
@@ -49,17 +49,17 @@ apply plugin: 'kotlin'
 apply plugin: 'kotlinx-serialization'
 ```
 
-## IntelliJ IDEA
+### IntelliJ IDEA
 
 Works out of the box, if you have 1.3 Kotlin plugin installed.
 In case of problems, force project re-import from Gradle or/and delegate build to Gradle
 (`Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`)
 
-## JS and common
+### JS and common
 
 Use `kotlinx-serialization-runtime-js` and `kotlinx-serialization-runtime-common` artifacts.
 
-## Native
+### Native
 
 You can apply the plugin to `kotlin-platform-native` or `kotlin-multiplatform` projects.
 `konan` plugin is not supported and deprecated.
@@ -82,20 +82,27 @@ What **does not work**:
 * `@Transient` initializers and `init` blocks
 * `@SerialInfo`-based annotations
 
-Compatible Kotlin/Native version is _TBA_.
+Compatible Kotlin/Native versions are `0.9.2` and `0.9.2-dev-4008`.
+
+### Json parser
+
+Separate `jsonparser` and `jsonparser-native` are deprecated and will be removed in future.
 
 ## Migration guide
 
 * Make sure you have updated maven coordinates and version of the compiler plugin.
-* Apply `@Contextual` or `@Polymorphic` on necessary properties since they're not applied implicitly anymore.
+* Recompile or update any dependent libraries you have.
 
 If you haven't written any custom serializers our touched internal machinery, you're done. Otherwise,
 
-* Read a [KEEP](https://github.com/Kotlin/KEEP/blob/serialization/proposals/extensions/serialization.md) about new design.
+* Read the [KEEP](https://github.com/Kotlin/KEEP/blob/serialization/proposals/extensions/serialization.md) about new design.
 * Rename superclasses: `KInput` -> `Decoder/CompositeDecoder`, `KOutput` -> `Encoder/CompositeEncoder`, `KSerialClassDesc` -> `SerialDescriptor`.
 * Update all method names.
-* Recompile any dependent libraries you have.
 
+### On Context serializer
 
-
-
+KEEP assumes that context and polymorphic serializers would not be applied implicitly.
+Current plugin implementation still does this, but this functionality will be disabled in future without further notice.
+To migrate your code which has been using context serializers, apply `@ContextualSerialization` to each property or type (e.g. `List<@ContextualSerialization MyDate>`), or use
+file-level form of it: `@ContextualSerialization(MyDate::class)`.
+To migrate your code which has been using polymorphic serializers, apply `@Polymorphic` to each property or type.
