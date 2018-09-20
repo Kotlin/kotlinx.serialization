@@ -2,8 +2,7 @@
 
 ## Disclaimer
 
-Library is experimental and under heavy development. We are moving towards the [KEEP](https://github.com/Kotlin/KEEP/blob/serialization/proposals/extensions/serialization.md)
-, so some features described there can be not implemented yet.
+Library is experimental and under heavy development. We are moving towards the [KEEP](https://github.com/Kotlin/KEEP/blob/serialization/proposals/extensions/serialization.md), so some features described there can be not implemented yet.
 While library is stable and has successfully been used in various scenarios, there is no compatibility and API guarantees between versions.
 
 ## Gradle plugin and setup
@@ -13,8 +12,14 @@ This means new maven coordinates and versioning scheme:
 
 ```gradle
 buildscript {
-    ext.kotlin_version = '1.3.0-rc-51'
-    repositories { jcenter() } // no need in kotlinx repository
+    ext.kotlin_version = '1.3.0-rc-146'
+    
+    // no need in kotlinx repository
+    repositories { 
+        jcenter() 
+        maven { url "https://dl.bintray.com/kotlin/kotlin-eap" } // while you are on 1.3-RC
+    } 
+    
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -40,19 +45,20 @@ dependencies {
 }
 ``` 
 
-Current `serialization_version` is `0.8.0-rc13`. Sources can be found in the `eap13` branch.
+Current `serialization_version` is `0.8.2-rc13`. Sources can be found in the `eap13` branch.
 
 Don't forget to apply the plugin:
 
 ```gradle
-apply plugin: 'kotlin'
+apply plugin: 'kotlin' // or 'kotlin-platform-***' or 'kotlin-multiplatform'
 apply plugin: 'kotlinx-serialization'
 ```
 
-### IntelliJ IDEA
+### IntelliJ IDEA/Android Studio
 
-Works out of the box, if you have 1.3 Kotlin plugin installed.
-In case of problems, force project re-import from Gradle or/and delegate build to Gradle
+Works out of the box in 2018.2, 2018.3, Android Studio 3.2 and 3.3 — if you have 1.3 Kotlin plugin installed.
+Please note that projects with old version of kotlinx.serialization **will not be correctly imported**.
+In case of problems, force project re-import from Gradle. You still need to delegate build to Gradle:
 (`Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`)
 
 ### JS and common
@@ -82,18 +88,18 @@ What **does not work**:
 * `@Transient` initializers and `init` blocks
 * `@SerialInfo`-based annotations
 
-Compatible Kotlin/Native versions are `0.9.2` and `0.9.2-dev-4008`.
+Compatible Kotlin/Native version is `1.3.0-rc-146` (which is 0.9.3 under the hood).
 
 ### Json parser
 
-Separate `jsonparser` and `jsonparser-native` are deprecated and will be removed in future.
+Separate `jsonparser` and `jsonparser-native` artifacts are deprecated and will be removed in future.
 
 ## Migration guide
 
 * Make sure you have updated maven coordinates and version of the compiler plugin.
 * Recompile or update any dependent libraries you have.
 
-If you haven't written any custom serializers our touched internal machinery, you're done. Otherwise,
+If you haven't written any custom/context serializers our touched internal machinery, you're done. Otherwise,
 
 * Read the [KEEP](https://github.com/Kotlin/KEEP/blob/serialization/proposals/extensions/serialization.md) about new design.
 * Rename superclasses: `KInput` -> `Decoder/CompositeDecoder`, `KOutput` -> `Encoder/CompositeEncoder`, `KSerialClassDesc` -> `SerialDescriptor`.
