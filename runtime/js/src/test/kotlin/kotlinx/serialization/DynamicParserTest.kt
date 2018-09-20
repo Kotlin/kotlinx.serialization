@@ -77,7 +77,7 @@ class DynamicParserTest {
     }
 
     @Serializable
-    data class NDWrapper(val data: NotDefault)
+    data class NDWrapper(@ContextualSerialization val data: NotDefault)
 
     @Test
     fun dynamicSimpleTest() {

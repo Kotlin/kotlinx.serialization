@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+@file:ContextualSerialization(CustomSerializersTest.B::class)
 package kotlinx.serialization
 
 import kotlinx.serialization.context.*
@@ -26,7 +26,7 @@ import kotlin.test.assertEquals
 
 class CustomSerializersTest {
     @Serializable
-    data class A(@ContextualSerialization @SerialId(1) val b: B)
+    data class A(@SerialId(1) val b: B)
 
     data class B(@SerialId(1) val value: Int)
 
@@ -43,7 +43,7 @@ class CustomSerializersTest {
     }
 
     @Serializable
-    data class BList(@SerialId(1) val bs: List<@ContextualSerialization B>)
+    data class BList(@SerialId(1) val bs: List<B>)
 
     @Serializable
     data class C(@SerialId(1) @Optional val a: Int = 31, @SerialId(2) val b: Int = 42) {
