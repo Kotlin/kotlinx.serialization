@@ -28,7 +28,7 @@ buildscript {
         ext.serializationPluginVersion = property('plugin.version')
         ext.serializationCoordinates = "org.jetbrains.kotlin:kotlin-serialization"
     }
-    ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-dev'
+    ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-eap'
     ext.serializationRepo = 'https://kotlin.bintray.com/kotlinx'
 
     repositories {
