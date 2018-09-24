@@ -21,68 +21,77 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class SerializationCasesTest {
+
+    @Serializable
+    data class Data1(val a: Int, val b: Int)
+
+    @Serializer(forClass=Data1::class)
+    object ExtDataSerializer1
+
     @Test
     fun testConstructorValProperties() {
-        @Serializable
-        data class Data(val a: Int, val b: Int)
-        val data = Data(1, 2)
+        val data = Data1(1, 2)
 
         // Serialize with internal serializer for Data class
         assertEquals("{a:1,b:2}", JSON.unquoted.stringify(data))
-        assertEquals(data, JSON.parse<Data>("{a:1,b:2}"))
+        assertEquals(data, JSON.parse<Data1>("{a:1,b:2}"))
 
         // Serialize with external serializer for Data class
-        @Serializer(forClass=Data::class)
-        class ExtDataSerializer
-        assertEquals("{a:1,b:2}", JSON.unquoted.stringify(ExtDataSerializer(), data))
-        assertEquals(data, JSON.parse(ExtDataSerializer(), "{a:1,b:2}"))
+        assertEquals("{a:1,b:2}", JSON.unquoted.stringify(ExtDataSerializer1, data))
+        assertEquals(data, JSON.parse(ExtDataSerializer1, "{a:1,b:2}"))
     }
+
+    @Serializable
+    class Data2 {
+        var a = 0
+        var b = 0
+        override fun equals(other: Any?) = other is Data2 && other.a == a && other.b == b
+    }
+
+    @Serializer(forClass=Data2::class)
+    object ExtDataSerializer2
 
     @Test
     fun testBodyVarProperties() {
-        @Serializable
-        class Data {
-            var a = 0
-            var b = 0
-            override fun equals(other: Any?) = other is Data && other.a == a && other.b == b
-        }
-        val data = Data().apply {
+        val data = Data2().apply {
             a = 1
             b = 2
         }
 
         // Serialize with internal serializer for Data class
         assertEquals("{a:1,b:2}", JSON.unquoted.stringify(data))
-        assertEquals(data, JSON.parse<Data>("{a:1,b:2}"))
+        assertEquals(data, JSON.parse<Data2>("{a:1,b:2}"))
 
         // Serialize with external serializer for Data class
-        @Serializer(forClass=Data::class)
-        class ExtDataSerializer
-        assertEquals("{a:1,b:2}", JSON.unquoted.stringify(ExtDataSerializer(), data))
-        assertEquals(data, JSON.parse(ExtDataSerializer(), "{a:1,b:2}"))
+        assertEquals("{a:1,b:2}", JSON.unquoted.stringify(ExtDataSerializer2, data))
+        assertEquals(data, JSON.parse(ExtDataSerializer2, "{a:1,b:2}"))
     }
 
     enum class TintEnum { LIGHT, DARK }
 
+    @Serializable
+    data class Data3(
+        val a: String,
+        val b: List<Int>,
+        val c: Map<String, TintEnum>
+    )
+
+    // Serialize with external serializer for Data class
+    @Serializer(forClass=Data3::class)
+    object ExtDataSerializer3
+
     @Test
     fun testNestedValues() {
-        @Serializable
-        data class Data(
-                val a: String,
-                val b: List<Int>,
-                val c: Map<String, TintEnum>
-        )
-        val data = Data("Str", listOf(1, 2), mapOf("lt" to TintEnum.LIGHT, "dk" to TintEnum.DARK))
+
+        val data = Data3("Str", listOf(1, 2), mapOf("lt" to TintEnum.LIGHT, "dk" to TintEnum.DARK))
 
         // Serialize with internal serializer for Data class
         assertEquals("{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}", JSON.unquoted.stringify(data))
-        assertEquals(data, JSON.parse<Data>("{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}"))
+        assertEquals(data, JSON.parse<Data3>("{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}"))
 
-        // Serialize with external serializer for Data class
-        @Serializer(forClass=Data::class)
-        class ExtDataSerializer
-        assertEquals("{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}", JSON.unquoted.stringify(ExtDataSerializer(), data))
-        assertEquals(data, JSON.parse(ExtDataSerializer(), "{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}"))
+
+        assertEquals("{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}", JSON.unquoted.stringify(ExtDataSerializer3, data))
+        assertEquals(data, JSON.parse(ExtDataSerializer3, "{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}"))
     }
 
 }

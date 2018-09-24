@@ -61,7 +61,7 @@ class PolymorphicTest {
     data class DateWrapper(@SerialId(1) @Serializable(with = PolymorphicSerializer::class) val date: Date)
 
     @Serializer(forClass = Date::class)
-    object DateSerializer: KSerializer<Date> {
+    object DateSerializer {
         private val df: DateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS")
 
         override fun serialize(output: Encoder, obj: Date) {

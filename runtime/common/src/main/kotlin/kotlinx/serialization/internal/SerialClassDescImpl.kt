@@ -20,7 +20,13 @@ import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlin.jvm.JvmOverloads
 
-open class SerialClassDescImpl(override val name: String) : SerialDescriptor {
+class MissingDescriptorException(index: Int, origin: SerialDescriptor) :
+    SerializationException("Element descriptor at index $index has not been found in $origin")
+
+open class SerialClassDescImpl @JvmOverloads constructor(
+    override val name: String,
+    private val generatedSerializer: GeneratedSerializer<*>? = null
+) : SerialDescriptor {
     override val kind: SerialKind get() = StructureKind.CLASS
 
     private val names: MutableList<String> = ArrayList()
@@ -52,7 +58,10 @@ open class SerialClassDescImpl(override val name: String) : SerialDescriptor {
     }
 
     override fun getElementDescriptor(index: Int): SerialDescriptor {
-        return descriptors[index]
+        // todo: cache
+        return generatedSerializer?.childSerializers()?.getOrNull(index)?.descriptor
+                ?: descriptors.getOrNull(index)
+                ?: throw MissingDescriptorException(index, this)
     }
 
     override fun isElementOptional(index: Int): Boolean {
@@ -81,6 +90,22 @@ open class SerialClassDescImpl(override val name: String) : SerialDescriptor {
         for (i in 0..names.size - 1)
             indices.put(names[i], i)
         return indices
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SerialClassDescImpl) return false
+
+        if (name != other.name) return false
+        if (descriptors != other.descriptors) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + elementDescriptors().hashCode()
+        return result
     }
 
     override fun toString() = "$name$names"

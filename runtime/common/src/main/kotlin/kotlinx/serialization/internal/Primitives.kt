@@ -26,6 +26,8 @@ sealed class PrimitiveDescriptor(override val name: String, override val kind: P
     final override fun getElementIndex(name: String): Int = error()
     final override fun isElementOptional(index: Int): Boolean = error()
     final override fun getElementDescriptor(index: Int): SerialDescriptor = error()
+
+    override fun toString(): String = name
 }
 
 object IntDescriptor: PrimitiveDescriptor("kotlin.Int", PrimitiveKind.INT) // or just "Int"?
