@@ -97,7 +97,7 @@ open class SerialClassDescImpl @JvmOverloads constructor(
         if (other !is SerialClassDescImpl) return false
 
         if (name != other.name) return false
-        if (descriptors != other.descriptors) return false
+        if (elementDescriptors() != other.elementDescriptors()) return false
 
         return true
     }

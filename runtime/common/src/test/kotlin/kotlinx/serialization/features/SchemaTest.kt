@@ -38,6 +38,11 @@ data class Data1(@Optional val l: List<Int> = emptyList(), val s: String) {
 @Serializable
 data class Data2(@Optional val l: List<Int> = emptyList(), val s: String)
 
+
+@Serializable data class Box<T>(val boxed: T)
+
+@Serializable data class BoxHolder(val stringBox: Box<String>, val intBox: Box<Int>)
+
 @Serializable
 data class DataZoo(
     @Transient val invisible: String = "",
@@ -104,5 +109,15 @@ class SchemaTest {
         val desc2: SerialDescriptor = DataZooIsomorphic.serializer().descriptor
 
         assertEquals(desc1.elementDescriptors(), desc2.elementDescriptors())
+    }
+
+    @Test
+    fun genericDescriptors() {
+        val boxes = BoxHolder.serializer().descriptor.elementDescriptors()
+        assertTrue(boxes[0].getElementDescriptor(0) is StringDescriptor)
+        assertTrue(boxes[1].getElementDescriptor(0) is IntDescriptor)
+        assertNotEquals(boxes[0], boxes[1])
+        val intBox = Box.serializer(IntSerializer).descriptor
+        assertEquals(intBox, boxes[1])
     }
 }
