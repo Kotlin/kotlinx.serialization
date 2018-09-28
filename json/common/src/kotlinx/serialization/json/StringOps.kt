@@ -16,6 +16,8 @@
 
 package kotlinx.serialization.json
 
+import kotlinx.serialization.SharedImmutable
+
 private fun toHexChar(i: Int) : Char {
     val d = i and 0xf
     return if (d < 10) (d + '0'.toInt()).toChar()
@@ -26,6 +28,7 @@ private fun toHexChar(i: Int) : Char {
  * Even though the actual size of this array is 92, it has to be the power of two, otherwise
  * JVM cannot perform advanced range-check elimination and vectorization in printQuoted
  */
+@SharedImmutable
 private val ESCAPE_CHARS: Array<String?> = arrayOfNulls<String>(128).apply {
     for (c in 0..0x1f) {
         val c1 = toHexChar(c shr 12)

@@ -16,6 +16,9 @@
 
 package kotlinx.serialization.json
 
+import kotlinx.serialization.SharedImmutable
+import kotlinx.serialization.json.EscapeCharMappings.ESC2C
+
 // special strings
 internal const val NULL = "null"
 
@@ -50,7 +53,12 @@ internal const val TC_EOF: Byte = 12
 // mapping from chars to token classes
 private const val CTC_MAX = 0x7e
 
-private val C2TC = ByteArray(CTC_MAX).apply {
+// mapping from escape chars real chars
+private const val C2ESC_MAX = 0x5d
+private const val ESC2C_MAX = 0x75
+
+@SharedImmutable
+internal val C2TC = ByteArray(CTC_MAX).apply {
     for (i in 0..0x20)
         initC2TC(i, TC_INVALID)
     initC2TC(0x09, TC_WS)
@@ -67,6 +75,31 @@ private val C2TC = ByteArray(CTC_MAX).apply {
     initC2TC(STRING_ESC, TC_STRING_ESC)
 }
 
+// object instead of @SharedImmutable because there is mutual initialization in [initC2ESC]
+internal object EscapeCharMappings {
+    internal val ESC2C = CharArray(ESC2C_MAX)
+
+    internal val C2ESC = CharArray(C2ESC_MAX).apply {
+        for (i in 0x00..0x1f)
+            initC2ESC(i, UNICODE_ESC)
+        initC2ESC(0x08, 'b')
+        initC2ESC(0x09, 't')
+        initC2ESC(0x0a, 'n')
+        initC2ESC(0x0c, 'f')
+        initC2ESC(0x0d, 'r')
+        initC2ESC('/', '/')
+        initC2ESC(STRING, STRING)
+        initC2ESC(STRING_ESC, STRING_ESC)
+    }
+
+    private fun CharArray.initC2ESC(c: Int, esc: Char) {
+        this[c] = esc
+        if (esc != UNICODE_ESC) ESC2C[esc.toInt()] = c.toChar()
+    }
+
+    private fun CharArray.initC2ESC(c: Char, esc: Char) = initC2ESC(c.toInt(), esc)
+}
+
 private fun ByteArray.initC2TC(c: Int, cl: Byte) {
     this[c] = cl
 }
@@ -76,32 +109,6 @@ private fun ByteArray.initC2TC(c: Char, cl: Byte) {
 }
 
 internal fun charToTokenClass(c: Char) = if (c.toInt() < CTC_MAX) C2TC[c.toInt()] else TC_OTHER
-
-// mapping from escape chars real chars
-private const val C2ESC_MAX = 0x5d
-private const val ESC2C_MAX = 0x75
-
-private val ESC2C = CharArray(ESC2C_MAX)
-
-private val C2ESC = CharArray(C2ESC_MAX).apply {
-    for (i in 0x00..0x1f)
-        initC2ESC(i, UNICODE_ESC)
-    initC2ESC(0x08, 'b')
-    initC2ESC(0x09, 't')
-    initC2ESC(0x0a, 'n')
-    initC2ESC(0x0c, 'f')
-    initC2ESC(0x0d, 'r')
-    initC2ESC('/', '/')
-    initC2ESC(STRING, STRING)
-    initC2ESC(STRING_ESC, STRING_ESC)
-}
-
-private fun CharArray.initC2ESC(c: Int, esc: Char) {
-    this[c] = esc
-    if (esc != UNICODE_ESC) ESC2C[esc.toInt()] = c.toChar()
-}
-
-private fun CharArray.initC2ESC(c: Char, esc: Char) = initC2ESC(c.toInt(), esc)
 
 internal fun escapeToChar(c: Int): Char = if (c < ESC2C_MAX) ESC2C[c] else INVALID
 

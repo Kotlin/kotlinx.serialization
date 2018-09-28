@@ -55,3 +55,5 @@ actual fun getSerialId(desc: KSerialClassDesc, index: Int): Int? {
 }
 
 actual fun getSerialTag(desc: KSerialClassDesc, index: Int): String? = index.toString()
+
+actual typealias SharedImmutable = kotlin.native.SharedImmutable
