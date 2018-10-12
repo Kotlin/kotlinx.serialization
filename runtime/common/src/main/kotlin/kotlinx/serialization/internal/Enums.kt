@@ -19,7 +19,7 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
-open class EnumDescriptor(override val name: String, private val choices: List<String>) : SerialClassDescImpl(name) {
+open class EnumDescriptor(override val name: String, private val choices: Array<String>) : SerialClassDescImpl(name) {
     override val kind: SerialKind = UnionKind.ENUM_KIND
 
     init {
@@ -31,7 +31,7 @@ open class EnumDescriptor(override val name: String, private val choices: List<S
     }
 }
 
-open class CommonEnumSerializer<T>(val serialName: String, val choices: Array<T>, choicesNames: List<String>) :
+open class CommonEnumSerializer<T>(val serialName: String, val choices: Array<T>, choicesNames: Array<String>) :
     KSerializer<T> {
     override val descriptor: EnumDescriptor = EnumDescriptor(serialName, choicesNames)
 
@@ -53,5 +53,5 @@ open class CommonEnumSerializer<T>(val serialName: String, val choices: Array<T>
 class EnumSerializer<T : Enum<T>>(serializableClass: KClass<T>) : CommonEnumSerializer<T>(
     serializableClass.enumClassName(),
     serializableClass.enumMembers(),
-    serializableClass.enumMembers().map { it.name }
+    serializableClass.enumMembers().map { it.name }.toTypedArray()
 )
