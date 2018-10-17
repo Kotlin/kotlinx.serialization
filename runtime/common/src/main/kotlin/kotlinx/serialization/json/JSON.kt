@@ -27,7 +27,8 @@ class JSON(
     private val indented: Boolean = false,
     private val indent: String = "    ",
     internal val strictMode: Boolean = true,
-    val updateMode: UpdateMode = UpdateMode.OVERWRITE
+    val updateMode: UpdateMode = UpdateMode.OVERWRITE,
+    val encodeDefaults: Boolean = true
 ): AbstractSerialFormat(), StringFormat {
     override fun <T> stringify(saver: SerializationStrategy<T>, obj: T): String {
         val sb = StringBuilder()
@@ -95,6 +96,10 @@ class JSON(
          */
         fun writeTree(tree: JsonElement) {
             w.sb.append(tree.toString())
+        }
+
+        override fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean {
+            return encodeDefaults
         }
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {

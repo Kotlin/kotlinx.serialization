@@ -62,6 +62,8 @@ interface CompositeEncoder {
 
     fun endStructure(desc: SerialDescriptor) {}
 
+    fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean = true
+
     fun encodeUnitElement(desc: SerialDescriptor, index: Int)
     fun encodeBooleanElement(desc: SerialDescriptor, index: Int, value: Boolean)
     fun encodeByteElement(desc: SerialDescriptor, index: Int, value: Byte)
