@@ -43,14 +43,14 @@ class CBOR(val context: SerialContext = EmptyContext, val updateMode: UpdateMode
     }
 
     // Writes all elements consequently, except size - CBOR supports maps and arrays of indefinite length
-    private inner open class CBORListWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
+    private open inner class CBORListWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
         override fun writeBeginToken() = encoder.startArray()
 
         override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean = true
     }
 
     // Writes class as map [fieldName, fieldValue]
-    private inner open class CBORWriter(val encoder: CBOREncoder) : ElementValueEncoder() {
+    private open inner class CBORWriter(val encoder: CBOREncoder) : ElementValueEncoder() {
 
         init {
             context = this@CBOR.context
@@ -145,7 +145,7 @@ class CBOR(val context: SerialContext = EmptyContext, val updateMode: UpdateMode
             in Byte.MAX_VALUE + 1..Short.MAX_VALUE -> ByteBuffer.allocate(3).put(25.toByte()).putShort(value.toShort()).array()
             in Short.MAX_VALUE + 1..Int.MAX_VALUE -> ByteBuffer.allocate(5).put(26.toByte()).putInt(value.toInt()).array()
             in (Int.MAX_VALUE.toLong() + 1..Long.MAX_VALUE) -> ByteBuffer.allocate(9).put(27.toByte()).putLong(value).array()
-            else -> throw IllegalArgumentException()
+            else -> throw AssertionError("$value should be positive")
         }
 
         private fun composeNegative(value: Long): ByteArray {
@@ -178,7 +178,7 @@ class CBOR(val context: SerialContext = EmptyContext, val updateMode: UpdateMode
         override fun skipBeginToken() = decoder.startMap()
     }
 
-    private inner open class CBORListReader(decoder: CBORDecoder) : CBORReader(decoder) {
+    private open inner class CBORListReader(decoder: CBORDecoder) : CBORReader(decoder) {
         private var ind = -1
         private var size = -1
         protected var finiteMode = false
@@ -198,7 +198,7 @@ class CBOR(val context: SerialContext = EmptyContext, val updateMode: UpdateMode
         }
     }
 
-    private inner open class CBORReader(val decoder: CBORDecoder) : ElementValueDecoder() {
+    private open inner class CBORReader(val decoder: CBORDecoder) : ElementValueDecoder() {
 
         init {
             context = this@CBOR.context
@@ -262,8 +262,7 @@ class CBOR(val context: SerialContext = EmptyContext, val updateMode: UpdateMode
         }
 
         private fun skipByte(expected: Int) {
-            if (curByte != expected) throw CBORParsingException("Expected byte ${HexConverter.toHexString(expected)} , " +
-                "but found ${HexConverter.toHexString(curByte)}")
+            if (curByte != expected) throw CBORDecodingException("byte ${HexConverter.toHexString(expected)}", curByte)
             readByte()
         }
 
@@ -278,7 +277,7 @@ class CBOR(val context: SerialContext = EmptyContext, val updateMode: UpdateMode
             val ans = when (curByte) {
                 TRUE -> true
                 FALSE -> false
-                else -> throw CBORParsingException("Expected boolean value")
+                else -> throw CBORDecodingException("boolean value", curByte)
             }
             readByte()
             return ans
@@ -290,7 +289,7 @@ class CBOR(val context: SerialContext = EmptyContext, val updateMode: UpdateMode
                 return -1
             }
             if ((curByte and 0b111_00000) != HEADER_ARRAY)
-                throw CBORParsingException("Expected start of array, but found ${HexConverter.toHexString(curByte)}")
+                throw CBORDecodingException("start of array", curByte)
             val arrayLen = readNumber().toInt()
             readByte()
             return arrayLen
@@ -303,7 +302,8 @@ class CBOR(val context: SerialContext = EmptyContext, val updateMode: UpdateMode
         fun end() = skipByte(BREAK)
 
         fun nextString(): String {
-            if ((curByte and 0b111_00000) != HEADER_STRING.toInt()) throw CBORParsingException("Expected start of string, but found ${HexConverter.toHexString(curByte)}")
+            if ((curByte and 0b111_00000) != HEADER_STRING.toInt())
+                throw CBORDecodingException("start of string", curByte)
             val strLen = readNumber().toInt()
             val arr = input.readExactNBytes(strLen)
             val ans = stringFromUtf8Bytes(arr)
@@ -337,21 +337,21 @@ class CBOR(val context: SerialContext = EmptyContext, val updateMode: UpdateMode
                 2 -> buf.getUnsignedShort().toLong()
                 4 -> buf.getUnsignedInt()
                 8 -> buf.getLong()
-                else -> throw IllegalArgumentException()
+                else -> throw AssertionError()
             }
-            if (negative) return -(res + 1)
-            else return res
+            return if (negative) -(res + 1)
+            else res
         }
 
         fun nextFloat(): Float {
-            if (curByte != NEXT_FLOAT) throw CBORParsingException("Expected float header, but found ${HexConverter.toHexString(curByte)}")
+            if (curByte != NEXT_FLOAT) throw CBORDecodingException("float header", curByte)
             val res = input.readToByteBuffer(4).getFloat()
             readByte()
             return res
         }
 
         fun nextDouble(): Double {
-            if (curByte != NEXT_DOUBLE) throw CBORParsingException("Expected double header, but found ${HexConverter.toHexString(curByte)}")
+            if (curByte != NEXT_DOUBLE) throw CBORDecodingException("double header", curByte)
             val res = input.readToByteBuffer(8).getDouble()
             readByte()
             return res
@@ -408,4 +408,5 @@ class CBOR(val context: SerialContext = EmptyContext, val updateMode: UpdateMode
     inline fun <reified T : Any> loads(hex: String): T = load(HexConverter.parseHexBinary(hex))
 }
 
-class CBORParsingException(message: String) : IOException(message)
+class CBORDecodingException(expected: String, foundByte: Int) :
+    SerializationException("Expected $expected, but found ${HexConverter.toHexString(foundByte)}")

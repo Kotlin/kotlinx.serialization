@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
+@file:Suppress("OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE")
 package kotlinx.serialization
 
-open class SerializationException(s: String) : RuntimeException(s)
+import kotlin.jvm.JvmOverloads
+
+open class SerializationException @JvmOverloads constructor(message: String, cause: Throwable? = null)
+    : RuntimeException(message, cause)
 
 class MissingFieldException(fieldName: String) : SerializationException("Field $fieldName is required, but it was missing")
 class UnknownFieldException(index: Int): SerializationException("Unknown field for index $index")

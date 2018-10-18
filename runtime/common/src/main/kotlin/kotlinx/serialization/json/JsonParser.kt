@@ -281,11 +281,11 @@ internal class Parser(val source: String) {
             when (tc) {
                 TC_BEGIN_LIST, TC_BEGIN_OBJ -> tokenStack.add(tc)
                 TC_END_LIST -> {
-                    if (tokenStack.last() != TC_BEGIN_LIST) throw IllegalStateException("Invalid JSON at $curPos: found ] instead of }")
+                    if (tokenStack.last() != TC_BEGIN_LIST) throw JsonParsingException(curPos, "found ] instead of }")
                     tokenStack.removeAt(tokenStack.size - 1)
                 }
                 TC_END_OBJ -> {
-                    if (tokenStack.last() != TC_BEGIN_OBJ) throw IllegalStateException("Invalid JSON at $curPos: found } instead of ]")
+                    if (tokenStack.last() != TC_BEGIN_OBJ) throw JsonParsingException(curPos, "found } instead of ]")
                     tokenStack.removeAt(tokenStack.size - 1)
                 }
             }
@@ -303,7 +303,7 @@ private fun fromHexChar(source: String, curPos: Int): Int {
         in '0'..'9' -> curChar.toInt() - '0'.toInt()
         in 'a'..'f' -> curChar.toInt() - 'a'.toInt() + 10
         in 'A'..'F' -> curChar.toInt() - 'A'.toInt() + 10
-        else -> throw fail(curPos, "Invalid toHexChar char '$curChar' in unicode escape")
+        else -> fail(curPos, "Invalid toHexChar char '$curChar' in unicode escape")
     }
 }
 
@@ -321,6 +321,6 @@ internal inline fun require(condition: Boolean, pos: Int, msg: () -> String) {
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun fail(pos: Int, msg: String): Nothing {
-    throw IllegalArgumentException("JSON at $pos: $msg")
+    throw JsonParsingException(pos, msg)
 }
 

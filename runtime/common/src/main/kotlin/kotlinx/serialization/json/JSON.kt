@@ -173,8 +173,7 @@ class JSON(
 
         override fun encodeFloat(value: Float) {
             if (strictMode && !value.isFinite()) {
-                throw IllegalArgumentException("$value is not a valid float value as per JSON spec. " +
-                        "You can disable strict mode to serialize such values")
+                throw JsonInvalidValueInStrictModeException(value)
             }
 
             if (forceQuoting) encodeString(value.toString()) else w.print(value)
@@ -182,8 +181,7 @@ class JSON(
 
         override fun encodeDouble(value: Double) {
             if (strictMode && !value.isFinite()) {
-                throw IllegalArgumentException("$value is not a valid double value as per JSON spec. " +
-                        "You can disable strict mode to serialize such values")
+                throw JsonInvalidValueInStrictModeException(value)
             }
 
             if (forceQuoting) encodeString(value.toString()) else w.print(value)
@@ -334,7 +332,7 @@ class JSON(
                         if (ind != UNKNOWN_NAME)
                             return ind
                         if (strictMode)
-                            throw SerializationException("Strict JSON encountered unknown key: $key")
+                            throw JsonUnknownKeyException(key)
                         else
                             p.skipElement()
                     }
@@ -342,7 +340,7 @@ class JSON(
             }
         }
 
-        override fun decodeBoolean(): Boolean = p.takeStr().toBoolean()
+        override fun decodeBoolean(): Boolean = p.takeStr().run { if (strictMode) toBooleanStrict() else toBoolean() }
         override fun decodeByte(): Byte = p.takeStr().toByte()
         override fun decodeShort(): Short = p.takeStr().toShort()
         override fun decodeInt(): Int = p.takeStr().toInt()

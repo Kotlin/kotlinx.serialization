@@ -153,7 +153,7 @@ class JsonTreeMapper(val context: SerialContext = EmptyContext) {
 
         protected open fun getValue(tag: String): JsonPrimitive {
             val currentElement = currentElement(tag)
-            return currentElement as? JsonPrimitive ?: throw SerializationException("Expected from $tag to be primitive but found $currentElement")
+            return currentElement as? JsonPrimitive ?: throw JsonElementTypeMismatchException("$currentElement at $tag", "JsonPrimitive")
         }
 
         protected abstract fun currentElement(tag: String): JsonElement

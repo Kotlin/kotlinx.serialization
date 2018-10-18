@@ -175,10 +175,10 @@ class ProtoBuf(val context: SerialContext = EmptyContext) {
             else -> throw SerializationException("Primitives are not supported at top-level")
         }
 
-        override fun decodeTaggedBoolean(tag: ProtoDesc): Boolean = when (decoder.nextInt(ProtoNumberType.DEFAULT)) {
+        override fun decodeTaggedBoolean(tag: ProtoDesc): Boolean = when (val i = decoder.nextInt(ProtoNumberType.DEFAULT)) {
             0 -> false
             1 -> true
-            else -> throw ProtobufDecodingException("Expected boolean value")
+            else -> throw ProtobufDecodingException("Expected boolean value (0 or 1), found $i")
         }
 
         override fun decodeTaggedByte(tag: ProtoDesc): Byte = decoder.nextInt(tag.second).toByte()
@@ -262,8 +262,13 @@ class ProtoBuf(val context: SerialContext = EmptyContext) {
             readTag()
         }
 
+        @Suppress("NOTHING_TO_INLINE")
+        private inline fun assertWireType(expected: Int) {
+            if (curTag.second != expected) throw ProtobufDecodingException("Expected wire type $expected, but found ${curTag.second}")
+        }
+
         fun nextObject(): ByteArray {
-            if (curTag.second != SIZE_DELIMITED) throw ProtobufDecodingException("Unexpected wire type: ${curTag.second}")
+            assertWireType(SIZE_DELIMITED)
             val len = decode32()
             check(len >= 0)
             val ans = inp.readExactNBytes(len)
@@ -273,7 +278,7 @@ class ProtoBuf(val context: SerialContext = EmptyContext) {
 
         fun nextInt(format: ProtoNumberType): Int {
             val wireType = if (format == ProtoNumberType.FIXED) i32 else VARINT
-            if (wireType != curTag.second) throw ProtobufDecodingException("Unexpected wire type: ${curTag.second}")
+            assertWireType(wireType)
             val ans = decode32(format)
             readTag()
             return ans
@@ -281,21 +286,21 @@ class ProtoBuf(val context: SerialContext = EmptyContext) {
 
         fun nextLong(format: ProtoNumberType): Long {
             val wireType = if (format == ProtoNumberType.FIXED) i64 else VARINT
-            if (wireType != curTag.second) throw ProtobufDecodingException("Unexpected wire type: ${curTag.second}")
+            assertWireType(wireType)
             val ans = decode64(format)
             readTag()
             return ans
         }
 
         fun nextFloat(): Float {
-            if (curTag.second != i32) throw ProtobufDecodingException("Unexpected wire type: ${curTag.second}")
+            assertWireType(i32)
             val ans = inp.readToByteBuffer(4).order(ByteOrder.LITTLE_ENDIAN).getFloat()
             readTag()
             return ans
         }
 
         fun nextDouble(): Double {
-            if (curTag.second != i64) throw ProtobufDecodingException("Unexpected wire type: ${curTag.second}")
+            assertWireType(i64)
             val ans = inp.readToByteBuffer(8).order(ByteOrder.LITTLE_ENDIAN).getDouble()
             readTag()
             return ans
@@ -365,7 +370,7 @@ class ProtoBuf(val context: SerialContext = EmptyContext) {
             do {
                 if (shift >= bitLimit) {
                     // Out of range
-                    throw ProtobufDecodingException("Varint too long")
+                    throw ProtobufDecodingException("Varint too long: exceeded $bitLimit bits")
                 }
                 // Get 7 bits from next byte
                 b = inp.read()

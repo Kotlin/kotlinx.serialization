@@ -38,14 +38,14 @@ class CornerCaseTest {
 
     @Test
     fun emptyValue() {
-        assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<JsonParsingException> {
             parse("""{"X": "foo", "Y"}""")
         }
     }
 
     @Test
     fun incorrectUnicodeEscape() {
-        assertFails {
+        assertFailsWith<JsonParsingException> {
             parse("""{"X": "\uDD1H"}""")
         }
     }
