@@ -126,6 +126,8 @@ subprojects {
         archivesBaseName = varintName
     }
 
+    apply from: "${rootProject.rootDir}/gradle/mavenMetadata.gradle"
+
     publishing {
         publications {
             mavenProject(MavenPublication) {
@@ -136,6 +138,15 @@ subprojects {
 
                 artifact sourceJar {
                     classifier "sources"
+                }
+                pom.withXml {
+                    def root = it.asNode()
+                    // NOTE: Don't try to move top-level things (especially "description") to the pomConfig block
+                    //       because they would resolve incorrectly to top-level project properties in Gradle/Groovy
+                    root.appendNode('name', varintName)
+                    root.appendNode('description', 'Kotlin multiplatform serialization runtime library')
+                    root.appendNode('url', 'https://github.com/Kotlin/kotlinx.serialization')
+                    root.children().last() + pomConfig
                 }
             }
         }
