@@ -27,6 +27,46 @@ fun json(init: JsonBuilder.() -> Unit): JsonObject {
     return JsonObject(builder.content)
 }
 
+
+/**
+ * Builds [JsonArray] with given [init] builder
+ */
+fun jsonArray(init: JsonArrayBuilder.() -> Unit): JsonArray {
+    val builder = JsonArrayBuilder()
+    builder.init()
+    return JsonArray(builder.content)
+}
+
+class JsonArrayBuilder(internal val content: MutableList<JsonElement> = mutableListOf()) {
+    /**
+     * Adds [this] value to outer [JsonArray] as [JsonPrimitive]
+     */
+    public operator fun String?.unaryPlus() {
+        content.add(JsonPrimitive(this))
+    }
+
+    /**
+     * Adds [this] value to outer [JsonArray] as [JsonPrimitive]
+     */
+    public operator fun Number?.unaryPlus() {
+        content.add(JsonPrimitive(this))
+    }
+
+    /**
+     * Adds [this] value to outer [JsonArray] as [JsonPrimitive]
+     */
+    public operator fun Boolean?.unaryPlus() {
+        content.add(JsonPrimitive(this))
+    }
+
+    /**
+     * Adds [this] value to outer [JsonArray]
+     */
+    public operator fun JsonElement.unaryPlus() {
+        this@JsonArrayBuilder.content.add(this)
+    }
+}
+
 class JsonBuilder(internal val content: MutableMap<String, JsonElement> = mutableMapOf()) {
 
     /**
