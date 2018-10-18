@@ -3,8 +3,7 @@ package kotlinx.serialization.features
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JSON
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 @Serializable
 data class Data(val bar: String, @Optional val foo: Int = 42) {
@@ -15,6 +14,7 @@ data class Data(val bar: String, @Optional val foo: Int = 42) {
     val listWithSomething: List<Int> = listOf(1, 2, 3)
 }
 
+@Ignore // todo: unignore when corresponding features in plugin will be released
 class SkipDefaultsTest {
     private val json = JSON(encodeDefaults = false)
 
