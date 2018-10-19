@@ -12,7 +12,7 @@ This means new maven coordinates and versioning scheme:
 
 ```gradle
 buildscript {
-    ext.kotlin_version = '1.3.0-rc-146'
+    ext.kotlin_version = '1.3.0-rc-190'
     
     // no need in kotlinx repository
     repositories { 
@@ -45,7 +45,7 @@ dependencies {
 }
 ``` 
 
-Current `serialization_version` is `0.8.2-rc13`. Sources can be found in the `eap13` branch.
+Compatible `serialization_version`s are `0.8.2-rc13` and higher, latest one is `0.8.3-rc-13`. Sources can be found in the `eap13` branch.
 
 Don't forget to apply the plugin:
 
@@ -93,7 +93,7 @@ What **does not work**:
 * `@Transient` initializers and `init` blocks
 * `@SerialInfo`-based annotations
 
-Compatible Kotlin/Native version is `1.3.0-rc-146` (which is 0.9.3 under the hood).
+You have to use Kotlin/Native `1.3.0-rc-146` and higher (which is 0.9.3 under the hood).
 
 ### Json parser
 
