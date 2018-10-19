@@ -16,6 +16,7 @@
 
 
 apply plugin: 'kotlin-platform-native'
+apply plugin: 'kotlinx-serialization-native'
 
 def deployMode = property('native.deploy') == 'true'
 
@@ -43,7 +44,7 @@ dependencies {
 //    expectedBy project(':jsonparser')
 }
 
-sourceSets.test.kotlin.srcDirs = []
+sourceSets.test.kotlin.srcDirs = ['src/test/kotlin']
 
 apply plugin: 'maven-publish'
 

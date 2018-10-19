@@ -16,9 +16,6 @@
 
 package kotlinx.io
 
-import platform.posix.BYTE_ORDER
-import platform.posix.LITTLE_ENDIAN
-
 actual class ByteBuffer private constructor(private var backingArray: ByteArray) {
 
     private var idx = 0
@@ -27,8 +24,7 @@ actual class ByteBuffer private constructor(private var backingArray: ByteArray)
         actual fun allocate(capacity: Int): ByteBuffer = ByteBuffer(ByteArray(capacity))
     }
 
-    @Suppress("UNRESOLVED_REFERENCE")
-    private var order: ByteOrder = if (BYTE_ORDER == LITTLE_ENDIAN) ByteOrder.LITTLE_ENDIAN else ByteOrder.BIG_ENDIAN
+    private var order: ByteOrder = ByteOrder.BIG_ENDIAN
 
     actual fun order(order: ByteOrder): ByteBuffer {
         this.order = order
