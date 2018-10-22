@@ -53,7 +53,7 @@
     val data = JSON.unquoted.parse<Data>("{a: 100500, b: 10}")
     ```
 
-* Initializers are called iff property is `@Transient` or `@Optional` and was not read (see below).
+* Initializers are called iff (if and only if) property is `@Transient` or `@Optional` and was not read (see below).
     
     ```kotlin
     @Serializable
@@ -261,8 +261,8 @@ Note that it has to be explicitly targeted to property.
 Inside a process of serialization/deserialization, they are available in `KSerialClassDesc` object:
 
 ```kotlin
-override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean {
-            val id = desc.getAnnotationsForIndex(index).filterIsInstance<ProtoId>().single().id
+override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
+            val id = desc.getElementAnnotations(index).filterIsInstance<ProtoId>().single().id
             ...
 }
 ```
