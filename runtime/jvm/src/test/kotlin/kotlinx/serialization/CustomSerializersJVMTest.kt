@@ -91,4 +91,21 @@ class CustomSerializersJVMTest {
         val s = json.stringify(saver, map)
         assertEquals("""{Payload:[kotlinx.serialization.CustomSerializersJVMTest.Payload,{s:data}]}""", s)
     }
+
+    @Test
+    fun differentRepresentations() {
+        val simpleModule = SimpleModule(Payload::class, PayloadSerializer)
+        // MapModule and CompositeModule are also available
+        val binaryModule = SimpleModule(Payload::class, BinaryPayloadSerializer)
+
+        val json1 = JSON().apply { install(simpleModule) }
+        val json2 = JSON().apply { install(binaryModule) }
+
+        // in json1, Payload would be serialized with PayloadSerializer,
+        // in json2, Payload would be serialized with BinaryPayloadSerializer
+
+        val list = PayloadList(listOf(Payload("string")))
+        assertEquals("""{"ps":[{"s":"string"}]}""", json1.stringify(list))
+        assertEquals("""{"ps":["737472696E67"]}""", json2.stringify(list))
+    }
 }
