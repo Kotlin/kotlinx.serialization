@@ -45,7 +45,7 @@ dependencies {
 }
 ``` 
 
-Compatible `serialization_version`s are `0.8.2-rc13` and higher, latest one is `0.8.3-rc-13`. Sources can be found in the `eap13` branch.
+Compatible `serialization_version`s are `0.8.2-rc13` and higher, latest one is `0.8.3-rc13`. Sources can be found in the `eap13` branch.
 
 Don't forget to apply the plugin:
 
