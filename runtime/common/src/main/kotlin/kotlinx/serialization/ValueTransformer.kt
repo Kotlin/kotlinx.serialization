@@ -21,8 +21,6 @@ import kotlinx.serialization.context.EmptyContext
 import kotlinx.serialization.context.SerialContext
 import kotlinx.serialization.internal.EnumDescriptor
 
-@Suppress("OverridingDeprecatedMember")
-@UseExperimental(ImplicitReflectionSerializer::class) // todo
 open class ValueTransformer {
     // ------- top-level API (use it) -------
 
@@ -33,6 +31,7 @@ open class ValueTransformer {
         return input.decode(serializer)
     }
 
+    @ImplicitReflectionSerializer
     inline fun <reified T : Any> transform(obj: T): T = transform(T::class.serializer(), obj)
 
     // ------- override to define transformations -------

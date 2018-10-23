@@ -46,6 +46,8 @@ sourceSets {
         kotlin.srcDirs = ['src/test/kotlin']
 
         component {
+            // experimantalsInTest is missing intentionally since
+            // @ImplicitReflectionSerializer does not work on Native at all
             extraOpts experimentalsEnabled
         }
     }

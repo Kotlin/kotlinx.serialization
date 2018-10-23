@@ -16,10 +16,14 @@
 
 package kotlinx.serialization
 
-@UseExperimental(ImplicitReflectionSerializer::class) // todo
-object Mapper {
+import kotlinx.serialization.context.getOrDefault
 
-    class OutMapper : NamedValueEncoder() {
+class Mapper : AbstractSerialFormat() {
+
+    inner class OutMapper : NamedValueEncoder() {
+        init {
+            this.context = this@Mapper.context
+        }
         override fun beginCollection(
             desc: SerialDescriptor,
             collectionSize: Int,
@@ -43,7 +47,11 @@ object Mapper {
         }
     }
 
-    class OutNullableMapper : NamedValueEncoder() {
+    inner class OutNullableMapper : NamedValueEncoder() {
+        init {
+            this.context = this@Mapper.context
+        }
+
         private var _map: MutableMap<String, Any?> = mutableMapOf()
 
         val map: Map<String, Any?>
@@ -67,7 +75,11 @@ object Mapper {
         }
     }
 
-    class InMapper(val map: Map<String, Any>) : NamedValueDecoder() {
+    inner class InMapper(val map: Map<String, Any>) : NamedValueDecoder() {
+        init {
+            this.context = this@Mapper.context
+        }
+
         override fun decodeCollectionSize(desc: SerialDescriptor): Int {
             return decodeTaggedInt(nested("size"))
         }
@@ -75,7 +87,11 @@ object Mapper {
         override fun decodeTaggedValue(tag: String): Any = map.getValue(tag)
     }
 
-    class InNullableMapper(val map: Map<String, Any?>) : NamedValueDecoder() {
+    inner class InNullableMapper(val map: Map<String, Any?>) : NamedValueDecoder() {
+        init {
+            this.context = this@Mapper.context
+        }
+
         override fun decodeCollectionSize(desc: SerialDescriptor): Int {
             return decodeTaggedInt(nested("size"))
         }
@@ -90,25 +106,59 @@ object Mapper {
         }
     }
 
-    inline fun <reified T : Any> map(obj: T): Map<String, Any> {
+    fun <T> map(strategy: SerializationStrategy<T>, obj: T): Map<String, Any> {
         val m = OutMapper()
-        m.encode(obj)
+        m.encode(strategy, obj)
         return m.map
     }
 
-    inline fun <reified T : Any> mapNullable(obj: T): Map<String, Any?> {
+    fun <T> mapNullable(strategy: SerializationStrategy<T>, obj: T): Map<String, Any?> {
         val m = OutNullableMapper()
-        m.encode(obj)
+        m.encode(strategy, obj)
         return m.map
     }
 
-    inline fun <reified T : Any> unmap(map: Map<String, Any>): T {
+    fun <T> unmap(strategy: DeserializationStrategy<T>, map: Map<String, Any>): T {
         val m = InMapper(map)
-        return m.decode()
+        return m.decode(strategy)
     }
 
-    inline fun <reified T : Any> unmapNullable(map: Map<String, Any?>): T {
+    fun <T> unmapNullable(strategy: DeserializationStrategy<T>, map: Map<String, Any?>): T {
         val m = InNullableMapper(map)
-        return m.decode()
+        return m.decode(strategy)
+    }
+
+    @ImplicitReflectionSerializer
+    inline fun <reified T : Any> map(obj: T): Map<String, Any> = map(context.getOrDefault(T::class), obj)
+
+    @ImplicitReflectionSerializer
+    inline fun <reified T : Any> mapNullable(obj: T): Map<String, Any?> =
+        mapNullable(context.getOrDefault(T::class), obj)
+
+    @ImplicitReflectionSerializer
+    inline fun <reified T : Any> unmap(map: Map<String, Any>): T = unmap(context.getOrDefault(T::class), map)
+
+    @ImplicitReflectionSerializer
+    inline fun <reified T : Any> unmapNullable(map: Map<String, Any?>): T =
+        unmapNullable(context.getOrDefault(T::class), map)
+
+    companion object {
+        val default = Mapper()
+
+        fun <T> map(strategy: SerializationStrategy<T>, obj: T): Map<String, Any> = default.map(strategy, obj)
+        fun <T> mapNullable(strategy: SerializationStrategy<T>, obj: T): Map<String, Any?> =
+            default.mapNullable(strategy, obj)
+        fun <T> unmap(strategy: DeserializationStrategy<T>, map: Map<String, Any>): T = default.unmap(strategy, map)
+        fun <T> unmapNullable(strategy: DeserializationStrategy<T>, map: Map<String, Any?>): T =
+            default.unmapNullable(strategy, map)
+
+        @ImplicitReflectionSerializer
+        inline fun <reified T : Any> map(obj: T): Map<String, Any> = default.map(obj)
+        @ImplicitReflectionSerializer
+        inline fun <reified T : Any> mapNullable(obj: T): Map<String, Any?> = default.mapNullable(obj)
+        @ImplicitReflectionSerializer
+        inline fun <reified T : Any> unmap(map: Map<String, Any>): T = default.unmap(map)
+        @ImplicitReflectionSerializer
+        inline fun <reified T : Any> unmapNullable(map: Map<String, Any?>): T = default.unmapNullable(map)
     }
 }
