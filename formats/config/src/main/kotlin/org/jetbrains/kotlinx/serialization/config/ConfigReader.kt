@@ -25,7 +25,7 @@ import kotlinx.serialization.internal.EnumDescriptor
 private val SerialKind.listLike get() = this == StructureKind.LIST || this == UnionKind.POLYMORPHIC
 private val SerialKind.objLike get() = this == StructureKind.CLASS || this == UnionKind.OBJECT || this == UnionKind.SEALED
 
-class ConfigParser(val context: SerialContext = EmptyContext) {
+class ConfigParser(): AbstractSerialFormat() {
     inline fun <reified T : Any> parse(conf: Config): T = parse(conf, context.getOrDefault(T::class))
     fun <T> parse(conf: Config, loader: DeserializationStrategy<T>): T = ConfigReader(conf).decode(loader)
 

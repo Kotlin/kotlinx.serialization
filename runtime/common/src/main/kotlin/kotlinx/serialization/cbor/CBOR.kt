@@ -23,7 +23,7 @@ import kotlinx.serialization.context.*
 import kotlinx.serialization.internal.*
 import kotlin.experimental.or
 
-class CBOR(val context: SerialContext = EmptyContext, val updateMode: UpdateMode = UpdateMode.BANNED) {
+class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat() {
     // Writes map entry as plain [key, value] pair, without bounds.
     private inner class CBOREntryWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
         override fun writeBeginToken() {

@@ -29,10 +29,10 @@ class JSON(
     val updateMode: UpdateMode = UpdateMode.OVERWRITE,
     val encodeDefaults: Boolean = true
 ): AbstractSerialFormat(), StringFormat {
-    override fun <T> stringify(saver: SerializationStrategy<T>, obj: T): String {
+    override fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String {
         val sb = StringBuilder()
         val output = JsonOutput(Mode.OBJ, Composer(sb), arrayOfNulls(Mode.values().size))
-        output.encode(saver, obj)
+        output.encode(serializer, obj)
         return sb.toString()
     }
 
@@ -42,10 +42,10 @@ class JSON(
             = stringify((context.getOrDefault(K::class) to context.getOrDefault(V::class)).map, map)
 
 
-    override fun <T> parse(loader: DeserializationStrategy<T>, str: String): T {
-        val parser = Parser(str)
+    override fun <T> parse(serializer: DeserializationStrategy<T>, string: String): T {
+        val parser = Parser(string)
         val input = JsonInput(Mode.OBJ, parser)
-        val result = input.decode(loader)
+        val result = input.decode(serializer)
         check(parser.tc == TC_EOF) { "Shall parse complete string"}
         return result
     }

@@ -16,11 +16,9 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.context.MutableSerialContextImpl
+import kotlinx.serialization.context.SimpleModule
 import kotlinx.serialization.internal.SerialClassDescImpl
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import kotlin.test.*
 
 class DynamicParserTest {
     @Serializable
@@ -166,7 +164,7 @@ class DynamicParserTest {
 
     @Test
     fun parseWithCustomSerializers() {
-        val loader = DynamicObjectParser(MutableSerialContextImpl().apply { registerSerializer(NotDefault::class, NDSerializer) })
+        val loader = DynamicObjectParser().apply { install(SimpleModule(NotDefault::class, NDSerializer)) }
         val dyn1 = js("({data: 42})")
         assertEquals(NDWrapper(NotDefault(42)), loader.parse(dyn1))
     }

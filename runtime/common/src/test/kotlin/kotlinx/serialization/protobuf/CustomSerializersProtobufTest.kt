@@ -18,18 +18,19 @@ package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.CustomSerializersTest.*
 import kotlinx.serialization.context.MutableSerialContextImpl
+import kotlinx.serialization.context.SimpleModule
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 
 class CustomSerializersProtobufTest {
 
+    private fun protoBufWithB() = ProtoBuf().apply { install(SimpleModule(B::class, BSerializer)) }
+
     @Test
     fun writeCustom() {
         val a = A(B(2))
-        val scope = MutableSerialContextImpl()
-        scope.registerSerializer(B::class, BSerializer)
-        val j = ProtoBuf(context = scope)
+        val j = protoBufWithB()
         val s = j.dumps(a).toUpperCase()
         assertEquals("0802", s)
     }
@@ -37,9 +38,7 @@ class CustomSerializersProtobufTest {
     @Test
     fun readCustom() {
         val a = A(B(2))
-        val scope = MutableSerialContextImpl()
-        scope.registerSerializer(B::class, BSerializer)
-        val j = ProtoBuf(context = scope)
+        val j = protoBufWithB()
         val s = j.loads<A>("0802")
         assertEquals(a, s)
     }
@@ -47,9 +46,7 @@ class CustomSerializersProtobufTest {
     @Test
     fun writeCustomList() {
         val obj = BList(listOf(B(1), B(2), B(3)))
-        val scope = MutableSerialContextImpl()
-        scope.registerSerializer(B::class, BSerializer)
-        val j = ProtoBuf(context = scope)
+        val j = protoBufWithB()
         val s = j.dumps(obj).toUpperCase()
         assertEquals("080108020803", s)
     }
@@ -57,9 +54,7 @@ class CustomSerializersProtobufTest {
     @Test
     fun readCustomList() {
         val obj = BList(listOf(B(1), B(2), B(3)))
-        val scope = MutableSerialContextImpl()
-        scope.registerSerializer(B::class, BSerializer)
-        val j = ProtoBuf(context = scope)
+        val j = protoBufWithB()
         val bs = j.loads<BList>("080108020803")
         assertEquals(obj, bs)
     }

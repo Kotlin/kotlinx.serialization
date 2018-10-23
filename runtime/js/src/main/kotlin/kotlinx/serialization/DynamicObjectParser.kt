@@ -20,7 +20,7 @@ import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.context.*
 import kotlinx.serialization.internal.EnumDescriptor
 
-class DynamicObjectParser(val context: SerialContext = EmptyContext) {
+class DynamicObjectParser(): AbstractSerialFormat() {
     inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.getOrDefault(T::class))
     fun <T> parse(obj: dynamic, loader: DeserializationStrategy<T>): T = DynamicInput(obj).decode(loader)
 

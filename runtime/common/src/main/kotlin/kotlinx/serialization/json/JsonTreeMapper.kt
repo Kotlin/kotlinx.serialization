@@ -21,7 +21,7 @@ import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.context.*
 import kotlinx.serialization.internal.EnumDescriptor
 
-class JsonTreeMapper(val context: SerialContext = EmptyContext) {
+class JsonTreeMapper(): AbstractSerialFormat() {
     inline fun <reified T : Any> readTree(tree: JsonElement): T = readTree(tree, context.getOrDefault(T::class))
 
     fun <T> readTree(obj: JsonElement, loader: DeserializationStrategy<T>): T {
