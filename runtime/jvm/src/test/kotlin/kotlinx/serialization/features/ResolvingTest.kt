@@ -16,12 +16,8 @@
 
 package kotlinx.serialization.features
 
-import kotlinx.serialization.Decoder
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
+import kotlinx.serialization.*
 import kotlinx.serialization.json.JSON
-import kotlinx.serialization.serializerByTypeToken
-import kotlinx.serialization.typeTokenOf
 import org.junit.Test
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type

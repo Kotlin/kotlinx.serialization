@@ -17,6 +17,7 @@
 
 package kotlinx.serialization.cbor
 
+import kotlinx.serialization.dumps
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

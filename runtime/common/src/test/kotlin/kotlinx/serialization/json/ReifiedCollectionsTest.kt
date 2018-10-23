@@ -1,7 +1,6 @@
 package kotlinx.serialization.json
 
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.serializer
+import kotlinx.serialization.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.reflect.KClass

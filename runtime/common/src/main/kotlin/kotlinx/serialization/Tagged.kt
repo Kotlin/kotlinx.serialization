@@ -152,7 +152,11 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
         tagStack.add(name)
     }
 
-    private fun popTag() = tagStack.removeAt(tagStack.lastIndex)
+    private fun popTag() =
+        if (tagStack.isNotEmpty())
+            tagStack.removeAt(tagStack.lastIndex)
+        else
+            throw SerializationException("No tag in stack for requested element")
 }
 
 abstract class IntTaggedEncoder : TaggedEncoder<Int?>() {

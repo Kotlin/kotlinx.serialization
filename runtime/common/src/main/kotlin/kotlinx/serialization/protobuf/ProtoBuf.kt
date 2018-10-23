@@ -19,14 +19,15 @@ package kotlinx.serialization.protobuf
 import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
-import kotlinx.serialization.context.*
+import kotlinx.serialization.context.SerialContext
+import kotlinx.serialization.context.SerialModule
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintInt
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintLong
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeVarint
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.encodeVarint
 
-class ProtoBuf: AbstractSerialFormat() {
+class ProtoBuf : AbstractSerialFormat(), BinaryFormat {
 
     internal open inner class ProtobufWriter(val encoder: ProtobufEncoder) : TaggedEncoder<ProtoDesc>() {
 
@@ -404,7 +405,7 @@ class ProtoBuf: AbstractSerialFormat() {
         }
     }
 
-    companion object {
+    companion object: BinaryFormat {
         // todo: make more memory-efficient
         private fun makeDelimited(decoder: ProtobufDecoder, parentTag: ProtoDesc?): ProtobufDecoder {
             if (parentTag == null) return decoder
@@ -423,32 +424,23 @@ class ProtoBuf: AbstractSerialFormat() {
 
         val plain = ProtoBuf()
 
-        fun <T: Any> dump(saver: SerializationStrategy<T>, obj: T): ByteArray = plain.dump(saver, obj)
-        inline fun <reified T : Any> dump(obj: T): ByteArray = plain.dump(obj)
-        inline fun <reified T : Any> dumps(obj: T): String = plain.dumps(obj)
-
-        fun <T: Any> load(loader: DeserializationStrategy<T>, raw: ByteArray): T  = plain.load(loader, raw)
-        inline fun <reified T : Any> load(raw: ByteArray): T = plain.load(raw)
-        inline fun <reified T : Any> loads(hex: String): T  = plain.loads(hex)
+        override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray = plain.dump(serializer, obj)
+        override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T = plain.load(deserializer, bytes)
+        override fun install(module: SerialModule) = plain.install(module)
+        override val context: SerialContext get() = plain.context
     }
 
-    fun <T : Any> dump(saver: SerializationStrategy<T>, obj: T): ByteArray {
+    override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray {
         val output = ByteArrayOutputStream()
         val dumper = ProtobufWriter(ProtobufEncoder(output))
-        dumper.encode(saver, obj)
+        dumper.encode(serializer, obj)
         return output.toByteArray()
     }
 
-    inline fun <reified T : Any> dump(obj: T): ByteArray = dump(context.getOrDefault(T::class), obj)
-    inline fun <reified T : Any> dumps(obj: T): String = HexConverter.printHexBinary(dump(obj), lowerCase = true)
-
-    fun <T : Any> load(loader: DeserializationStrategy<T>, raw: ByteArray): T {
-        val stream = ByteArrayInputStream(raw)
+    override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
+        val stream = ByteArrayInputStream(bytes)
         val reader = ProtobufReader(ProtobufDecoder(stream))
-        return reader.decode(loader)
+        return reader.decode(deserializer)
     }
-
-    inline fun <reified T : Any> load(raw: ByteArray): T = load(context.getOrDefault(T::class), raw)
-    inline fun <reified T : Any> loads(hex: String): T = load(HexConverter.parseHexBinary(hex))
 
 }

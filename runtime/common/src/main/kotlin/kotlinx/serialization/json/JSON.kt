@@ -18,7 +18,8 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
-import kotlinx.serialization.context.*
+import kotlinx.serialization.context.SerialContext
+import kotlinx.serialization.context.SerialModule
 import kotlinx.serialization.internal.EnumDescriptor
 
 class JSON(
@@ -36,12 +37,6 @@ class JSON(
         return sb.toString()
     }
 
-    inline fun <reified T : Any> stringify(obj: T): String = stringify(context.getOrDefault(T::class), obj)
-    inline fun <reified T : Any> stringify(objects: List<T>): String = stringify(context.getOrDefault(T::class).list, objects)
-    inline fun <reified K : Any, reified V: Any> stringify(map: Map<K, V>): String
-            = stringify((context.getOrDefault(K::class) to context.getOrDefault(V::class)).map, map)
-
-
     override fun <T> parse(serializer: DeserializationStrategy<T>, string: String): T {
         val parser = Parser(string)
         val input = JsonInput(Mode.OBJ, parser)
@@ -50,28 +45,19 @@ class JSON(
         return result
     }
 
-    inline fun <reified T : Any> parse(str: String): T = parse(context.getOrDefault(T::class), str)
-    inline fun <reified T : Any> parseList(objects: String): List<T> = parse(context.getOrDefault(T::class).list, objects)
-    inline fun <reified K : Any, reified V: Any> parseMap(map: String)
-            = parse((context.getOrDefault(K::class) to context.getOrDefault(V::class)).map, map)
-
-    companion object {
-        fun <T> stringify(saver: SerializationStrategy<T>, obj: T): String = plain.stringify(saver, obj)
-        inline fun <reified T : Any> stringify(obj: T): String = stringify(T::class.serializer(), obj)
-        inline fun <reified T : Any> stringify(objects: List<T>): String = stringify(T::class.serializer().list, objects)
-        inline fun <reified K : Any, reified V: Any> stringify(map: Map<K, V>): String
-                = stringify((K::class.serializer() to V::class.serializer()).map, map)
-
-        fun <T> parse(loader: DeserializationStrategy<T>, str: String): T = plain.parse(loader, str)
-        inline fun <reified T : Any> parse(str: String): T = parse(T::class.serializer(), str)
-        inline fun <reified T : Any> parseList(objects: String): List<T> = parse(T::class.serializer().list, objects)
-        inline fun <reified K : Any, reified V: Any> parseMap(map: String)
-                = parse((K::class.serializer() to V::class.serializer()).map, map)
-
+    companion object : StringFormat {
         val plain = JSON()
         val unquoted = JSON(unquoted = true)
         val indented = JSON(indented = true)
         val nonstrict = JSON(strictMode = false)
+
+        override fun install(module: SerialModule) = plain.install(module)
+        override val context: SerialContext get() = plain.context
+        override fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String =
+            plain.stringify(serializer, obj)
+
+        override fun <T> parse(serializer: DeserializationStrategy<T>, string: String): T =
+            plain.parse(serializer, string)
     }
 
     // Public visibility to allow casting in user-code to call [writeTree]

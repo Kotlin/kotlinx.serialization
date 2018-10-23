@@ -23,7 +23,7 @@ import kotlinx.serialization.context.*
 import kotlinx.serialization.internal.*
 import kotlin.experimental.or
 
-class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat() {
+class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat(), BinaryFormat {
     // Writes map entry as plain [key, value] pair, without bounds.
     private inner class CBOREntryWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
         override fun writeBeginToken() {
@@ -359,7 +359,7 @@ class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
 
     }
 
-    companion object {
+    companion object: BinaryFormat {
 
         private const val FALSE = 0xf4
         private const val TRUE = 0xf5
@@ -378,34 +378,24 @@ class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
 
         val plain = CBOR()
 
-        fun <T: Any> dump(saver: SerializationStrategy<T>, obj: T): ByteArray = plain.dump(saver, obj)
-        inline fun <reified T : Any> dump(obj: T): ByteArray = plain.dump(obj)
-        inline fun <reified T : Any> dumps(obj: T): String = plain.dumps(obj)
-
-        fun <T: Any> load(loader: DeserializationStrategy<T>, raw: ByteArray): T  = plain.load(loader, raw)
-        inline fun <reified T : Any> load(raw: ByteArray): T = plain.load(raw)
-        inline fun <reified T : Any> loads(hex: String): T  = plain.loads(hex)
+        override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray = plain.dump(serializer, obj)
+        override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T = plain.load(deserializer, bytes)
+        override fun install(module: SerialModule) = plain.install(module)
+        override val context: SerialContext get() = plain.context
     }
 
-    fun <T : Any> dump(saver: SerializationStrategy<T>, obj: T): ByteArray {
+    override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray {
         val output = ByteArrayOutputStream()
         val dumper = CBORWriter(CBOREncoder(output))
-        dumper.encode(saver, obj)
+        dumper.encode(serializer, obj)
         return output.toByteArray()
     }
 
-    inline fun <reified T : Any> dump(obj: T): ByteArray = dump(context.getOrDefault(T::class), obj)
-
-    inline fun <reified T : Any> dumps(obj: T): String = HexConverter.printHexBinary(dump(obj), lowerCase = true)
-
-    fun <T : Any> load(loader: DeserializationStrategy<T>, raw: ByteArray): T {
-        val stream = ByteArrayInputStream(raw)
+    override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
+        val stream = ByteArrayInputStream(bytes)
         val reader = CBORReader(CBORDecoder(stream))
-        return reader.decode(loader)
+        return reader.decode(deserializer)
     }
-
-    inline fun <reified T : Any> load(raw: ByteArray): T = load(context.getOrDefault(T::class), raw)
-    inline fun <reified T : Any> loads(hex: String): T = load(HexConverter.parseHexBinary(hex))
 }
 
 class CBORDecodingException(expected: String, foundByte: Int) :

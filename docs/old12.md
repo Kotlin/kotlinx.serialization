@@ -9,6 +9,7 @@ We strongly encourage you to upgrade to Kotlin 1.3, since migration is pretty ea
 
 * Make sure you have updated maven coordinates and version of the compiler plugin.
 * Recompile or update any dependent libraries you have.
+* Some versions of `stringify`, `parse`, `dump(s)` and `load(s)` are now extensions, so import of them from `kotlinx.serialization` package may be required.
 
 If you haven't written any custom serializers our touched internal machinery, you're done. Otherwise,
 

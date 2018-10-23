@@ -1,5 +1,6 @@
 package kotlinx.serialization.formats.protobuf
 
+import kotlinx.serialization.*
 import kotlinx.serialization.formats.KTestData
 import kotlinx.serialization.formats.toHex
 import kotlinx.serialization.protobuf.ProtoBuf
