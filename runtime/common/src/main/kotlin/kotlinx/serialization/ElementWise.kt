@@ -118,7 +118,6 @@ abstract class ElementValueDecoder : Decoder, CompositeDecoder {
     override fun decodeChar(): Char = decodeValue() as Char
     override fun decodeString(): String = decodeValue() as String
 
-//    @Suppress("UNCHECKED_CAST")
     override fun decodeEnum(enumDescription: EnumDescriptor): Int = decodeValue() as Int
 
     // Delegating implementation of CompositeEncoder

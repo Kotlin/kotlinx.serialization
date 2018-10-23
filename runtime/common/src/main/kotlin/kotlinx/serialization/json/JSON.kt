@@ -88,7 +88,7 @@ class JSON(
         }
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
-            val newMode = switchMode(mode, desc, typeParams)
+            val newMode = switchMode(desc, typeParams)
             if (newMode.begin != INVALID) { // entry
                 w.print(newMode.begin)
                 w.indent()
@@ -245,7 +245,7 @@ class JSON(
             get() = this@JSON.updateMode
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
-            val newMode = switchMode(mode, desc, typeParams)
+            val newMode = switchMode(desc, typeParams)
             if (newMode.begin != INVALID) {
                 p.requireTc(newMode.beginTc) { "Expected '${newMode.begin}, kind: ${desc.kind}'" }
                 p.nextToken()
@@ -353,7 +353,7 @@ internal enum class Mode(val begin: Char, val end: Char) {
     val endTc: Byte = charToTokenClass(end)
 }
 
-private fun switchMode(mode: Mode, desc: SerialDescriptor, typeParams: Array<out KSerializer<*>>): Mode =
+private fun switchMode(desc: SerialDescriptor, typeParams: Array<out KSerializer<*>>): Mode =
     when (desc.kind) {
         UnionKind.POLYMORPHIC -> Mode.POLY
         StructureKind.LIST -> Mode.LIST

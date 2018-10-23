@@ -62,6 +62,7 @@ data class Custom(
         val _value2: Int
 )
 
+@Suppress("NAME_SHADOWING")
 object CustomSerializer : KSerializer<Custom> {
     override val descriptor = object : SerialDescriptor {
         override val name = "kotlinx.serialization.Custom"

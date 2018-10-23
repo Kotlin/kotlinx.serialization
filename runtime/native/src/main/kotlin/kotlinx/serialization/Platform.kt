@@ -20,12 +20,10 @@ import kotlin.reflect.KClass
 
 
 actual fun String.toUtf8Bytes(): ByteArray {
-    @Suppress("UNRESOLVED_REFERENCE")
     return this.toUtf8()
 }
 
 actual fun stringFromUtf8Bytes(bytes: ByteArray): String {
-    @Suppress("UNRESOLVED_REFERENCE")
     return bytes.stringFromUtf8()
 }
 
@@ -45,17 +43,17 @@ actual fun <T : Any, E : T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Arra
     val result = arrayOfAnyNulls<E>(size)
     var index = 0
     for (element in this) result[index++] = element
-    @Suppress("UNCHECKED_CAST", "NO_CAST_NEEDED")
+    @Suppress("UNCHECKED_CAST", "USELESS_CAST")
     return result as Array<E>
 }
 
 @Suppress("UNCHECKED_CAST")
 private fun <T> arrayOfAnyNulls(size: Int): Array<T> = arrayOfNulls<Any>(size) as Array<T>
 
-actual fun getSerialId(desc: KSerialClassDesc, index: Int): Int? {
+actual fun getSerialId(desc: SerialDescriptor, index: Int): Int? {
     return index
 }
 
-actual fun getSerialTag(desc: KSerialClassDesc, index: Int): String? = index.toString()
+actual fun getSerialTag(desc: SerialDescriptor, index: Int): String? = index.toString()
 
 actual typealias SharedImmutable = kotlin.native.SharedImmutable

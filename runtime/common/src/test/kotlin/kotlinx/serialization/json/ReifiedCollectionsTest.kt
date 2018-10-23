@@ -1,9 +1,9 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlinx.serialization.internal.IntSerializer
 import kotlin.reflect.KClass
+import kotlin.test.*
 
 @Serializable
 data class DataHolder(val data: String)
@@ -23,5 +23,12 @@ class ReifiedCollectionsTest {
         val json = JSON.stringify(data)
         val data2 = JSON.parseMap<String, DataHolder>(json)
         assertEquals(data, data2)
+    }
+
+    @Test
+    fun primitiveSerializerTest() {
+        val intClass = Int::class
+        val serial = intClass.serializer()
+        assertSame(IntSerializer, serial)
     }
 }

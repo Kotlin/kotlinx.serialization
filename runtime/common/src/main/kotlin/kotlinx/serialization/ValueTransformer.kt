@@ -61,7 +61,6 @@ open class ValueTransformer {
             list.add(value)
         }
 
-        fun encodeElement(desc: SerialDescriptor, index: Int) = true
         override fun encodeNotNullMark() {}
         override fun encodeNull() { encodeNullableValue(null) }
         override fun encodeUnit() { encodeNullableValue(Unit) }

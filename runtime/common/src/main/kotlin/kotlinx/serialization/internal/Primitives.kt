@@ -113,16 +113,16 @@ object StringSerializer : KSerializer<String> {
 
 
 @Suppress("UNCHECKED_CAST")
-fun <T: Any> KClass<T>.defaultSerializer(): KSerializer<T>? = when(this.simpleName) {
-    "String" -> StringSerializer
-    "Char" -> CharSerializer
-    "Double" -> DoubleSerializer
-    "Float" -> FloatSerializer
-    "Long" -> LongSerializer
-    "Int" -> IntSerializer
-    "Short" -> ShortSerializer
-    "Byte" -> ByteSerializer
-    "Boolean" -> BooleanSerializer
-    "Unit" -> UnitSerializer
+fun <T : Any> KClass<T>.defaultSerializer(): KSerializer<T>? = when (this) {
+    String::class -> StringSerializer
+    Char::class -> CharSerializer
+    Double::class -> DoubleSerializer
+    Float::class -> FloatSerializer
+    Long::class -> LongSerializer
+    Int::class -> IntSerializer
+    Short::class -> ShortSerializer
+    Byte::class -> ByteSerializer
+    Boolean::class -> BooleanSerializer
+    Unit::class -> UnitSerializer
     else -> null
 } as KSerializer<T>?

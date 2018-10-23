@@ -37,13 +37,12 @@ class JsonAstTest {
         val elem = JsonTreeParser(input).readFully()
 
         assertTrue(elem is JsonObject)
-        elem as JsonObject
         assertEquals(setOf("a", "b", "c", "d"), elem.keys)
 
         assertEquals(JsonLiteral("foo"), elem["a"])
         assertEquals(10, elem.getPrimitiveOrNull("b")?.int)
         assertEquals(true, elem.getPrimitiveOrNull("c")?.boolean)
-        assertTrue(elem.getAs<JsonNull>("d") === JsonNull)
+        assertSame(elem.getAs("d"), JsonNull)
     }
 
     @Test
@@ -52,7 +51,6 @@ class JsonAstTest {
         val elem = JsonTreeParser(input).readFully()
 
         assertTrue(elem is JsonObject)
-        elem as JsonObject
         assertEquals(setOf("a", "b", "c"), elem.keys)
         assertTrue(elem.getValue("c") is JsonArray)
 

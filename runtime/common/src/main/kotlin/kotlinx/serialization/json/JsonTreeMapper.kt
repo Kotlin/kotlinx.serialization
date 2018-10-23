@@ -21,6 +21,7 @@ import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.context.*
 import kotlinx.serialization.internal.EnumDescriptor
 
+@Suppress("USELESS_CAST") // contracts not working in Native
 class JsonTreeMapper(): AbstractSerialFormat() {
     @ImplicitReflectionSerializer
     inline fun <reified T : Any> readTree(tree: JsonElement): T = readTree(tree, context.getOrDefault(T::class))

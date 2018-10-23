@@ -165,6 +165,7 @@ actual class ByteBuffer private constructor(private var backingArray: ByteArray)
         return Double.fromBits(getLong())
     }
 
+    @Suppress("NAME_SHADOWING")
     actual fun putLong(value: Long): ByteBuffer {
         var value = value
         val baseOffset = idx

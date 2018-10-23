@@ -17,7 +17,6 @@ class UnionEnumTest {
     fun simpleEnum() {
         val data = WithUnions("foo", SomeEnum.BETA)
         val json = JSON.stringify(data)
-        println(json)
         val restored = JSON.parse<WithUnions>(json)
         assertEquals(data, restored)
     }
@@ -26,7 +25,6 @@ class UnionEnumTest {
     fun enumInProto() {
         val data = WithUnions("foo", SomeEnum.BETA)
         val hex = ProtoBuf.dumps(data)
-        println(hex)
         val restored = ProtoBuf.loads<WithUnions>(hex)
         assertEquals(data, restored)
     }
