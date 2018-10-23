@@ -19,6 +19,7 @@ package kotlinx.serialization
 import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
+@ImplicitReflectionSerializer
 actual fun <T: Any> KClass<T>.compiledSerializer(): KSerializer<T>? = this.js.asDynamic().Companion?.serializer() as? KSerializer<T>
 
 @Suppress("UNUSED_VARIABLE") // KT-23633

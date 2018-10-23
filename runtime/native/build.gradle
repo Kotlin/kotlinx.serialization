@@ -20,21 +20,34 @@ apply plugin: 'kotlinx-serialization-native'
 
 def deployMode = property('native.deploy') == 'true'
 
-sourceSets.main {
-    kotlin.srcDirs = ['src/main/kotlin', '../common/src/main/kotlin', '../../json/common/src']
+sourceSets {
+    main {
+        kotlin.srcDirs = ['src/main/kotlin', '../common/src/main/kotlin', '../../json/common/src']
 
-    component {
-        baseName = "kotlinx-serialization-runtime-native"
+        component {
 
-        // todo: fixme, k/n!
-        publishJavadoc = false
-        publishSources = false
+            baseName = "kotlinx-serialization-runtime-native"
 
-        outputKinds = [KLIBRARY]
-        if (!deployMode)
-            target 'host'
-        else
-            targets = [ 'ios_arm64', 'ios_arm32', 'ios_x64', 'macos_x64', 'linux_x64', 'mingw_x64' ]
+            // todo: fixme, k/n!
+            publishJavadoc = false
+            publishSources = false
+
+            outputKinds = [KLIBRARY]
+            if (!deployMode)
+                target 'host'
+            else
+                targets = [ 'ios_arm64', 'ios_arm32', 'ios_x64', 'macos_x64', 'linux_x64', 'mingw_x64' ]
+
+            extraOpts experimentalsEnabled
+        }
+    }
+
+    test {
+        kotlin.srcDirs = ['src/test/kotlin']
+
+        component {
+            extraOpts experimentalsEnabled
+        }
     }
 }
 
@@ -43,8 +56,6 @@ dependencies {
 //    expectedBy project(':common')
 //    expectedBy project(':jsonparser')
 }
-
-sourceSets.test.kotlin.srcDirs = ['src/test/kotlin']
 
 apply plugin: 'maven-publish'
 

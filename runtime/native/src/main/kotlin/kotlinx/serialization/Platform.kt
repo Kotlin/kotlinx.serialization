@@ -31,6 +31,7 @@ actual fun stringFromUtf8Bytes(bytes: ByteArray): String {
 
 
 @Suppress("UNCHECKED_CAST")
+@ImplicitReflectionSerializer
 actual fun <T : Any> KClass<T>.compiledSerializer(): KSerializer<T>? = TODO("Obtaining serializer from KClass is not available on native due to the lack of reflection. " +
         "Use .serializer() directly on serializable class.")
 

@@ -22,6 +22,7 @@ import kotlinx.serialization.context.*
 import kotlinx.serialization.internal.EnumDescriptor
 
 class JsonTreeMapper(): AbstractSerialFormat() {
+    @ImplicitReflectionSerializer
     inline fun <reified T : Any> readTree(tree: JsonElement): T = readTree(tree, context.getOrDefault(T::class))
 
     fun <T> readTree(obj: JsonElement, loader: DeserializationStrategy<T>): T {

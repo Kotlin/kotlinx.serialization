@@ -19,14 +19,15 @@ package kotlinx.serialization
 import kotlinx.serialization.internal.defaultSerializer
 import kotlin.reflect.KClass
 
-@Suppress("EXPERIMENTAL_IS_NOT_ENABLED")
 @UseExperimental(ExperimentalMultiplatform::class)
 @OptionalExpectation
 expect annotation class SharedImmutable()
 
+@ImplicitReflectionSerializer
 fun <T : Any> KClass<T>.serializer(): KSerializer<T> = compiledSerializer() ?: defaultSerializer()
     ?: throw SerializationException("Can't locate argument-less serializer for $this. For generic classes, such as lists, please provide serializer explicitly.")
 
+@ImplicitReflectionSerializer
 expect fun <T : Any> KClass<T>.compiledSerializer(): KSerializer<T>?
 
 expect fun String.toUtf8Bytes(): ByteArray

@@ -23,6 +23,7 @@ import kotlin.reflect.KClass
 
 
 // for user-defined external serializers
+@UseExperimental(ImplicitReflectionSerializer::class)
 fun registerSerializer(forClassName: String, serializer: KSerializer<*>) {
     SerialCache.map.put(forClassName, serializer)
 }
@@ -46,15 +47,18 @@ private fun mapJavaClassNameToKotlin(s: String): String = when (s) {
     else -> s
 }
 
+@ImplicitReflectionSerializer
 fun <E> serializerByValue(value: E, context: SerialContext? = null): KSerializer<E> {
     val klass =
         (value as? Any)?.javaClass?.kotlin ?: throw SerializationException("Cannot determine class for value $value")
     return serializerByClass(klass, context)
 }
 
+@ImplicitReflectionSerializer
 fun <E> serializerBySerialDescClassname(className: String, context: SerialContext? = null): KSerializer<E> =
     SerialCache.lookupSerializer(className, context = context)
 
+@ImplicitReflectionSerializer
 fun <E> serializerByClass(klass: KClass<*>, context: SerialContext? = null): KSerializer<E> =
     SerialCache.lookupSerializer(mapJavaClassNameToKotlin(klass.java.canonicalName ?: ""), klass, context)
 
@@ -67,8 +71,18 @@ inline fun <reified T> typeTokenOf(): Type {
     return (superType as ParameterizedType).actualTypeArguments.first()!!
 }
 
-// This method intended for static, format-agnostic resolving (e.g. in adapter factories) so context is not used here.
+/**
+ * This method uses reflection to construct serializer for given type. However,
+ * since it accepts type token, it is available only on JVM by design,
+ * and it can work correctly even with generics, so
+ * it is not annotated with @[ImplicitReflectionSerializer].
+ *
+ * Keep in mind that this is a 'heavy' call, so result probably should be cached somewhere else.
+ *
+ * This method intended for static, format-agnostic resolving (e.g. in adapter factories) so context is not used here.
+ */
 @Suppress("UNCHECKED_CAST")
+@UseExperimental(ImplicitReflectionSerializer::class)
 fun serializerByTypeToken(type: Type): KSerializer<Any> = when (type) {
     is GenericArrayType -> {
         val eType = type.genericComponentType.let {

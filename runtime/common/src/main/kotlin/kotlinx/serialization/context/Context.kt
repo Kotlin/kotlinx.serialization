@@ -35,7 +35,10 @@ class MutableSerialContextImpl(private val parentContext: SerialContext? = null)
     override fun <T: Any> get(kclass: KClass<T>): KSerializer<T>? = classMap[kclass] as? KSerializer<T> ?: parentContext?.get(kclass)
 }
 
+@ImplicitReflectionSerializer
 fun <T: Any> SerialContext?.getOrDefault(klass: KClass<T>) = this?.let { get(klass) } ?: klass.serializer()
+
+@ImplicitReflectionSerializer
 fun <T: Any> SerialContext?.getByValueOrDefault(value: T): KSerializer<T> = this?.let { getByValue(value) } ?: value::class.serializer() as KSerializer<T>
 
 object EmptyContext: SerialContext {

@@ -16,6 +16,7 @@
 
 package kotlinx.serialization
 
+@UseExperimental(ImplicitReflectionSerializer::class) // todo
 object Mapper {
 
     class OutMapper : NamedValueEncoder() {

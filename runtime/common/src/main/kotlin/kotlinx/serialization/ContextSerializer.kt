@@ -21,6 +21,7 @@ import kotlinx.serialization.context.getOrDefault
 import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlin.reflect.KClass
 
+@ImplicitReflectionSerializer
 class ContextSerializer<T : Any>(val serializableClass: KClass<T>) : KSerializer<T> {
     override fun serialize(output: Encoder, obj: T) {
         val s = output.context.getByValueOrDefault(obj)

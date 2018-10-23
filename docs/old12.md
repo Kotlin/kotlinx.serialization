@@ -11,6 +11,13 @@ We strongly encourage you to upgrade to Kotlin 1.3, since migration is pretty ea
 * Recompile or update any dependent libraries you have.
 * Some versions of `stringify`, `parse`, `dump(s)` and `load(s)` are now extensions, so import of them from `kotlinx.serialization` package may be required.
 
+Functions mentioned above are annotated now with [experimental](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-experimental/index.html) annotation `kotlinx.serialization.ImplicitReflectionSerializer`,
+which means that these functions use reflection and therefore have certain restrictions (like impossibility to serialize generics).
+Consult annotation documentation to learn about this restrictions.
+In general, try to replace theirs usage
+ with two-arguments forms, which require explicit generated serializer.
+ You can learn more about experimental annotations from its [KEEP](https://github.com/Kotlin/KEEP/blob/master/proposals/experimental.md).
+
 If you haven't written any custom serializers our touched internal machinery, you're done. Otherwise,
 
 * Read the [KEEP](https://github.com/Kotlin/KEEP/blob/serialization/proposals/extensions/serialization.md) about new design.

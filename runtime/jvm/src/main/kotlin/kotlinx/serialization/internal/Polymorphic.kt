@@ -32,6 +32,7 @@ internal object PolymorphicClassDesc : SerialClassDescImpl("kotlin.Any") {
     }
 }
 
+@ImplicitReflectionSerializer
 internal object ClassSerialCache {
     internal val map: Map<KClass<*>, KSerializer<*>> = mapOf(
             // not sure if we need collection serializer at all
@@ -59,6 +60,7 @@ internal val allPrimitives: List<KSerializer<*>> = listOf(
         LongSerializer, FloatSerializer, DoubleSerializer, CharSerializer, StringSerializer
 )
 
+@ImplicitReflectionSerializer
 internal object SerialCache {
     internal val map: MutableMap<String, KSerializer<*>> = HashMap()
 

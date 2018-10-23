@@ -65,7 +65,9 @@ interface KSerializer<T>: SerializationStrategy<T>, DeserializationStrategy<T> {
 class SerializationConstructorMarker private constructor()
 
 
+@ImplicitReflectionSerializer
 inline fun <reified T : Any> Encoder.encode(obj: T) { encode(T::class.serializer(), obj) }
+
 fun <T : Any?> Encoder.encode(strategy: SerializationStrategy<T>, obj: T) { strategy.serialize(this, obj) }
 fun <T : Any> Encoder.encodeNullable(strategy: SerializationStrategy<T>, obj: T?) {
     if (obj == null) {
@@ -76,7 +78,8 @@ fun <T : Any> Encoder.encodeNullable(strategy: SerializationStrategy<T>, obj: T?
     }
 }
 
-
+@ImplicitReflectionSerializer
 inline fun <reified T: Any> Decoder.decode(): T = this.decode(T::class.serializer())
+
 fun <T : Any?> Decoder.decode(loader: DeserializationStrategy<T>): T = loader.deserialize(this)
 fun <T : Any> Decoder.decodeNullable(loader: DeserializationStrategy<T>): T? = if (decodeNotNullMark()) decode(loader) else decodeNull()

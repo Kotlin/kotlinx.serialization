@@ -26,7 +26,9 @@ private val SerialKind.listLike get() = this == StructureKind.LIST || this == Un
 private val SerialKind.objLike get() = this == StructureKind.CLASS || this == UnionKind.OBJECT || this == UnionKind.SEALED
 
 class ConfigParser(): AbstractSerialFormat() {
+    @ImplicitReflectionSerializer
     inline fun <reified T : Any> parse(conf: Config): T = parse(conf, context.getOrDefault(T::class))
+
     fun <T> parse(conf: Config, loader: DeserializationStrategy<T>): T = ConfigReader(conf).decode(loader)
 
 
@@ -157,6 +159,8 @@ class ConfigParser(): AbstractSerialFormat() {
 
     companion object {
         fun <T> parse(conf: Config, serial: DeserializationStrategy<T>) = ConfigParser().parse(conf, serial)
+
+        @ImplicitReflectionSerializer
         inline fun <reified T : Any> parse(conf: Config) = ConfigParser().parse(conf, T::class.serializer())
     }
 }

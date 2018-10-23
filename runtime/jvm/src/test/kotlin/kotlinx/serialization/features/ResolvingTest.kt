@@ -17,11 +17,13 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
+import kotlinx.serialization.internal.IntSerializer
 import kotlinx.serialization.json.JSON
 import org.junit.Test
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import kotlin.test.assertEquals
+import kotlin.test.assertSame
 
 class ResolvingTest {
     @Serializable
@@ -163,5 +165,12 @@ class ResolvingTest {
         val serial = serializerByTypeToken(WithNamedCompanion::class.java)
         val s = JSON.unquoted.stringify(serial, namedCompanion)
         assertEquals("{a:1}", s)
+    }
+
+    @Test
+    fun intResolve() {
+        val token = typeTokenOf<Int>()
+        val serial = serializerByTypeToken(token)
+        assertSame(IntSerializer as KSerializer<*>, serial)
     }
 }
