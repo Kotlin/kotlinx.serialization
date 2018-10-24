@@ -18,22 +18,23 @@ package kotlinx.serialization.cbor
 
 import kotlinx.io.*
 import kotlinx.serialization.*
+import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
+import kotlinx.serialization.context.*
 import kotlinx.serialization.internal.*
 import kotlin.experimental.or
-import kotlin.reflect.KClass
 
-class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = UpdateMode.BANNED) {
+class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat(), BinaryFormat {
     // Writes map entry as plain [key, value] pair, without bounds.
     private inner class CBOREntryWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
         override fun writeBeginToken() {
             // no-op
         }
 
-        override fun writeEnd(desc: KSerialClassDesc) {
+        override fun endStructure(desc: SerialDescriptor) {
             // no-op
         }
 
-        override fun writeElement(desc: KSerialClassDesc, index: Int) = true
+        override fun encodeElement(desc: SerialDescriptor, index: Int) = true
     }
 
     // Differs from List only in start byte
@@ -42,14 +43,14 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
     }
 
     // Writes all elements consequently, except size - CBOR supports maps and arrays of indefinite length
-    private inner open class CBORListWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
+    private open inner class CBORListWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
         override fun writeBeginToken() = encoder.startArray()
 
-        override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean = desc.getElementName(index) != "size"
+        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean = true
     }
 
     // Writes class as map [fieldName, fieldValue]
-    private inner open class CBORWriter(val encoder: CBOREncoder) : ElementValueOutput() {
+    private open inner class CBORWriter(val encoder: CBOREncoder) : ElementValueEncoder() {
 
         init {
             context = this@CBOR.context
@@ -57,43 +58,45 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
 
         protected open fun writeBeginToken() = encoder.startMap()
 
-        override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
+        //todo: Write size of map or array if known
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
             val writer = when (desc.kind) {
-                KSerialClassKind.LIST, KSerialClassKind.SET -> CBORListWriter(encoder)
-                KSerialClassKind.MAP -> CBORMapWriter(encoder)
-                KSerialClassKind.ENTRY -> CBOREntryWriter(encoder)
+                StructureKind.LIST -> CBORListWriter(encoder)
+                StructureKind.MAP -> CBORMapWriter(encoder)
                 else -> CBORWriter(encoder)
             }
             writer.writeBeginToken()
             return writer
         }
 
-        override fun writeEnd(desc: KSerialClassDesc) = encoder.end()
+        override fun endStructure(desc: SerialDescriptor) = encoder.end()
 
-        //todo: Write size of map or array if known
-        override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean {
+        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
             val name = desc.getElementName(index)
             encoder.encodeString(name)
             return true
         }
 
-        override fun writeStringValue(value: String) = encoder.encodeString(value)
+        override fun encodeString(value: String) = encoder.encodeString(value)
 
-        override fun writeFloatValue(value: Float) = encoder.encodeFloat(value)
-        override fun writeDoubleValue(value: Double) = encoder.encodeDouble(value)
+        override fun encodeFloat(value: Float) = encoder.encodeFloat(value)
+        override fun encodeDouble(value: Double) = encoder.encodeDouble(value)
 
-        override fun writeCharValue(value: Char) = encoder.encodeNumber(value.toLong())
-        override fun writeByteValue(value: Byte) = encoder.encodeNumber(value.toLong())
-        override fun writeShortValue(value: Short) = encoder.encodeNumber(value.toLong())
-        override fun writeIntValue(value: Int) = encoder.encodeNumber(value.toLong())
-        override fun writeLongValue(value: Long) = encoder.encodeNumber(value)
+        override fun encodeChar(value: Char) = encoder.encodeNumber(value.toLong())
+        override fun encodeByte(value: Byte) = encoder.encodeNumber(value.toLong())
+        override fun encodeShort(value: Short) = encoder.encodeNumber(value.toLong())
+        override fun encodeInt(value: Int) = encoder.encodeNumber(value.toLong())
+        override fun encodeLong(value: Long) = encoder.encodeNumber(value)
 
-        override fun writeBooleanValue(value: Boolean) = encoder.encodeBoolean(value)
+        override fun encodeBoolean(value: Boolean) = encoder.encodeBoolean(value)
 
-        override fun writeNullValue() = encoder.encodeNull()
+        override fun encodeNull() = encoder.encodeNull()
 
-        override fun <T : Enum<T>> writeEnumValue(enumClass: KClass<T>, value: T) =
-                encoder.encodeString(value.toString())
+        override fun encodeEnum(
+            enumDescription: EnumDescriptor,
+            ordinal: Int
+        ) =
+            encoder.encodeString(enumDescription.getElementName(ordinal))
     }
 
     // For details of representation, see https://tools.ietf.org/html/rfc7049#section-2.1
@@ -142,7 +145,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
             in Byte.MAX_VALUE + 1..Short.MAX_VALUE -> ByteBuffer.allocate(3).put(25.toByte()).putShort(value.toShort()).array()
             in Short.MAX_VALUE + 1..Int.MAX_VALUE -> ByteBuffer.allocate(5).put(26.toByte()).putInt(value.toInt()).array()
             in (Int.MAX_VALUE.toLong() + 1..Long.MAX_VALUE) -> ByteBuffer.allocate(9).put(27.toByte()).putLong(value).array()
-            else -> throw IllegalArgumentException()
+            else -> throw AssertionError("$value should be positive")
         }
 
         private fun composeNegative(value: Long): ByteArray {
@@ -160,11 +163,11 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
             // no-op
         }
 
-        override fun readEnd(desc: KSerialClassDesc) {
+        override fun endStructure(desc: SerialDescriptor) {
             // no-op
         }
 
-        override fun readElement(desc: KSerialClassDesc) = when (ind++) {
+        override fun decodeElementIndex(desc: SerialDescriptor) = when (ind++) {
             0 -> 0
             1 -> 1
             else -> READ_DONE
@@ -175,8 +178,8 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
         override fun skipBeginToken() = decoder.startMap()
     }
 
-    private inner open class CBORListReader(decoder: CBORDecoder) : CBORReader(decoder) {
-        private var ind = 0
+    private open inner class CBORListReader(decoder: CBORDecoder) : CBORReader(decoder) {
+        private var ind = -1
         private var size = -1
         protected var finiteMode = false
 
@@ -188,14 +191,14 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
             }
         }
 
-        override fun readElement(desc: KSerialClassDesc) = if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size)) READ_DONE else ++ind
+        override fun decodeElementIndex(desc: SerialDescriptor) = if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size - 1)) READ_DONE else ++ind
 
-        override fun readEnd(desc: KSerialClassDesc) {
+        override fun endStructure(desc: SerialDescriptor) {
             if (!finiteMode) decoder.end()
         }
     }
 
-    private inner open class CBORReader(val decoder: CBORDecoder) : ElementValueInput() {
+    private open inner class CBORReader(val decoder: CBORDecoder) : ElementValueDecoder() {
 
         init {
             context = this@CBOR.context
@@ -206,44 +209,43 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
 
         protected open fun skipBeginToken() = decoder.startMap()
 
-        override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             val re = when (desc.kind) {
-                KSerialClassKind.LIST, KSerialClassKind.SET -> CBORListReader(decoder)
-                KSerialClassKind.MAP -> CBORMapReader(decoder)
-                KSerialClassKind.ENTRY -> CBOREntryReader(decoder)
+                StructureKind.LIST -> CBORListReader(decoder)
+                StructureKind.MAP -> CBORMapReader(decoder)
                 else -> CBORReader(decoder)
             }
             re.skipBeginToken()
             return re
         }
 
-        override fun readEnd(desc: KSerialClassDesc) = decoder.end()
+        override fun endStructure(desc: SerialDescriptor) = decoder.end()
 
-        override fun readElement(desc: KSerialClassDesc): Int {
+        override fun decodeElementIndex(desc: SerialDescriptor): Int {
             if (decoder.isEnd()) return READ_DONE
             val elemName = decoder.nextString()
             return desc.getElementIndexOrThrow(elemName)
         }
 
-        override fun readStringValue() = decoder.nextString()
+        override fun decodeString() = decoder.nextString()
 
-        override fun readNotNullMark(): Boolean = !decoder.isNull()
+        override fun decodeNotNullMark(): Boolean = !decoder.isNull()
 
-        override fun readDoubleValue() = decoder.nextDouble()
-        override fun readFloatValue() = decoder.nextFloat()
+        override fun decodeDouble() = decoder.nextDouble()
+        override fun decodeFloat() = decoder.nextFloat()
 
-        override fun readBooleanValue() = decoder.nextBoolean()
+        override fun decodeBoolean() = decoder.nextBoolean()
 
-        override fun readByteValue() = decoder.nextNumber().toByte()
-        override fun readShortValue() = decoder.nextNumber().toShort()
-        override fun readCharValue() = decoder.nextNumber().toChar()
-        override fun readIntValue() = decoder.nextNumber().toInt()
-        override fun readLongValue() = decoder.nextNumber()
+        override fun decodeByte() = decoder.nextNumber().toByte()
+        override fun decodeShort() = decoder.nextNumber().toShort()
+        override fun decodeChar() = decoder.nextNumber().toChar()
+        override fun decodeInt() = decoder.nextNumber().toInt()
+        override fun decodeLong() = decoder.nextNumber()
 
-        override fun readNullValue() = decoder.nextNull()
+        override fun decodeNull() = decoder.nextNull()
 
-        override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T =
-                enumFromName(enumClass, decoder.nextString())
+        override fun decodeEnum(enumDescription: EnumDescriptor): Int =
+            enumDescription.getElementIndex(decoder.nextString())
 
     }
 
@@ -260,8 +262,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
         }
 
         private fun skipByte(expected: Int) {
-            if (curByte != expected) throw CBORParsingException("Expected byte ${HexConverter.toHexString(expected)} , " +
-                "but found ${HexConverter.toHexString(curByte)}")
+            if (curByte != expected) throw CBORDecodingException("byte ${HexConverter.toHexString(expected)}", curByte)
             readByte()
         }
 
@@ -276,7 +277,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
             val ans = when (curByte) {
                 TRUE -> true
                 FALSE -> false
-                else -> throw CBORParsingException("Expected boolean value")
+                else -> throw CBORDecodingException("boolean value", curByte)
             }
             readByte()
             return ans
@@ -288,7 +289,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
                 return -1
             }
             if ((curByte and 0b111_00000) != HEADER_ARRAY)
-                throw CBORParsingException("Expected start of array, but found ${HexConverter.toHexString(curByte)}")
+                throw CBORDecodingException("start of array", curByte)
             val arrayLen = readNumber().toInt()
             readByte()
             return arrayLen
@@ -301,7 +302,8 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
         fun end() = skipByte(BREAK)
 
         fun nextString(): String {
-            if ((curByte and 0b111_00000) != HEADER_STRING.toInt()) throw CBORParsingException("Expected start of string, but found ${HexConverter.toHexString(curByte)}")
+            if ((curByte and 0b111_00000) != HEADER_STRING.toInt())
+                throw CBORDecodingException("start of string", curByte)
             val strLen = readNumber().toInt()
             val arr = input.readExactNBytes(strLen)
             val ans = stringFromUtf8Bytes(arr)
@@ -335,21 +337,21 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
                 2 -> buf.getUnsignedShort().toLong()
                 4 -> buf.getUnsignedInt()
                 8 -> buf.getLong()
-                else -> throw IllegalArgumentException()
+                else -> throw AssertionError()
             }
-            if (negative) return -(res + 1)
-            else return res
+            return if (negative) -(res + 1)
+            else res
         }
 
         fun nextFloat(): Float {
-            if (curByte != NEXT_FLOAT) throw CBORParsingException("Expected float header, but found ${HexConverter.toHexString(curByte)}")
+            if (curByte != NEXT_FLOAT) throw CBORDecodingException("float header", curByte)
             val res = input.readToByteBuffer(4).getFloat()
             readByte()
             return res
         }
 
         fun nextDouble(): Double {
-            if (curByte != NEXT_DOUBLE) throw CBORParsingException("Expected double header, but found ${HexConverter.toHexString(curByte)}")
+            if (curByte != NEXT_DOUBLE) throw CBORDecodingException("double header", curByte)
             val res = input.readToByteBuffer(8).getDouble()
             readByte()
             return res
@@ -357,7 +359,7 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
 
     }
 
-    companion object {
+    companion object: BinaryFormat {
 
         private const val FALSE = 0xf4
         private const val TRUE = 0xf5
@@ -376,34 +378,25 @@ class CBOR(val context: SerialContext? = null, val updateMode: UpdateMode = Upda
 
         val plain = CBOR()
 
-        fun <T: Any> dump(saver: KSerialSaver<T>, obj: T): ByteArray = plain.dump(saver, obj)
-        inline fun <reified T : Any> dump(obj: T): ByteArray = plain.dump(obj)
-        inline fun <reified T : Any> dumps(obj: T): String = plain.dumps(obj)
-
-        fun <T: Any> load(loader: KSerialLoader<T>, raw: ByteArray): T  = plain.load(loader, raw)
-        inline fun <reified T : Any> load(raw: ByteArray): T = plain.load(raw)
-        inline fun <reified T : Any> loads(hex: String): T  = plain.loads(hex)
+        override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray = plain.dump(serializer, obj)
+        override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T = plain.load(deserializer, bytes)
+        override fun install(module: SerialModule) = plain.install(module)
+        override val context: SerialContext get() = plain.context
     }
 
-    fun <T : Any> dump(saver: KSerialSaver<T>, obj: T): ByteArray {
+    override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray {
         val output = ByteArrayOutputStream()
         val dumper = CBORWriter(CBOREncoder(output))
-        dumper.write(saver, obj)
+        dumper.encode(serializer, obj)
         return output.toByteArray()
     }
 
-    inline fun <reified T : Any> dump(obj: T): ByteArray = dump(context.klassSerializer(T::class), obj)
-
-    inline fun <reified T : Any> dumps(obj: T): String = HexConverter.printHexBinary(dump(obj), lowerCase = true)
-
-    fun <T : Any> load(loader: KSerialLoader<T>, raw: ByteArray): T {
-        val stream = ByteArrayInputStream(raw)
+    override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
+        val stream = ByteArrayInputStream(bytes)
         val reader = CBORReader(CBORDecoder(stream))
-        return reader.read(loader)
+        return reader.decode(deserializer)
     }
-
-    inline fun <reified T : Any> load(raw: ByteArray): T = load(context.klassSerializer(T::class), raw)
-    inline fun <reified T : Any> loads(hex: String): T = load(HexConverter.parseHexBinary(hex))
 }
 
-class CBORParsingException(message: String) : IOException(message)
+class CBORDecodingException(expected: String, foundByte: Int) :
+    SerializationException("Expected $expected, but found ${HexConverter.toHexString(foundByte)}")

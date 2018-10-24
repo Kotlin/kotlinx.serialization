@@ -1,25 +1,24 @@
 /*
- *  Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package kotlinx.serialization
 
+import kotlinx.serialization.context.SimpleModule
 import kotlinx.serialization.internal.SerialClassDescImpl
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import kotlin.test.*
 
 class DynamicParserTest {
     @Serializable
@@ -64,19 +63,19 @@ class DynamicParserTest {
     data class NotDefault(val a: Int)
 
     object NDSerializer : KSerializer<NotDefault> {
-        override fun save(output: KOutput, obj: NotDefault) {
-            output.writeIntValue(obj.a)
+        override fun serialize(output: Encoder, obj: NotDefault) {
+            output.encodeInt(obj.a)
         }
 
-        override fun load(input: KInput): NotDefault {
-            return NotDefault(input.readIntValue())
+        override fun deserialize(input: Decoder): NotDefault {
+            return NotDefault(input.decodeInt())
         }
 
-        override val serialClassDesc = SerialClassDescImpl("notDefault")
+        override val descriptor = SerialClassDescImpl("notDefault")
     }
 
     @Serializable
-    data class NDWrapper(val data: NotDefault)
+    data class NDWrapper(@ContextualSerialization val data: NotDefault)
 
     @Test
     fun dynamicSimpleTest() {
@@ -165,7 +164,7 @@ class DynamicParserTest {
 
     @Test
     fun parseWithCustomSerializers() {
-        val loader = DynamicObjectParser(SerialContext().apply { registerSerializer(NotDefault::class, NDSerializer) })
+        val loader = DynamicObjectParser().apply { install(SimpleModule(NotDefault::class, NDSerializer)) }
         val dyn1 = js("({data: 42})")
         assertEquals(NDWrapper(NotDefault(42)), loader.parse(dyn1))
     }

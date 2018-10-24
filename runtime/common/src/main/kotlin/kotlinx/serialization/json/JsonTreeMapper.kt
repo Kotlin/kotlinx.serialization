@@ -17,25 +17,28 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.SIZE_INDEX
-import kotlin.reflect.KClass
+import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
+import kotlinx.serialization.context.*
+import kotlinx.serialization.internal.EnumDescriptor
 
-class JsonTreeMapper(val context: SerialContext? = null) {
-    inline fun <reified T : Any> readTree(tree: JsonElement): T = readTree(tree, context.klassSerializer(T::class))
+@Suppress("USELESS_CAST") // contracts not working in Native
+class JsonTreeMapper(): AbstractSerialFormat() {
+    @ImplicitReflectionSerializer
+    inline fun <reified T : Any> readTree(tree: JsonElement): T = readTree(tree, context.getOrDefault(T::class))
 
-    fun <T> readTree(obj: JsonElement, loader: KSerialLoader<T>): T {
+    fun <T> readTree(obj: JsonElement, loader: DeserializationStrategy<T>): T {
         if (obj !is JsonObject) throw SerializationException("Can't deserialize primitive on root level")
-        return JsonTreeInput(obj).read(loader)
+        return JsonTreeInput(obj).decode(loader)
     }
 
-    fun <T> writeTree(obj: T, saver: KSerialSaver<T>): JsonElement {
+    fun <T> writeTree(obj: T, saver: SerializationStrategy<T>): JsonElement {
         lateinit var result: JsonElement
         val output = JsonTreeOutput { result = it }
-        output.write(saver, obj)
+        output.encode(saver, obj)
         return result
     }
 
-    private abstract inner class AbstractJsonTreeOutput(val nodeConsumer: (JsonElement) -> Unit) : NamedValueOutput() {
+    private abstract inner class AbstractJsonTreeOutput(val nodeConsumer: (JsonElement) -> Unit) : NamedValueEncoder() {
         init {
             this.context = this@JsonTreeMapper.context
         }
@@ -45,37 +48,40 @@ class JsonTreeMapper(val context: SerialContext? = null) {
         abstract fun putElement(key: String, element: JsonElement)
         abstract fun getCurrent(): JsonElement
 
-        override fun writeTaggedNull(tag: String) = putElement(tag, JsonNull)
+        override fun encodeTaggedNull(tag: String) = putElement(tag, JsonNull)
 
-        override fun writeTaggedInt(tag: String, value: Int) = putElement(tag, JsonLiteral(value))
-        override fun writeTaggedByte(tag: String, value: Byte) = putElement(tag, JsonLiteral(value))
-        override fun writeTaggedShort(tag: String, value: Short) = putElement(tag, JsonLiteral(value))
-        override fun writeTaggedLong(tag: String, value: Long) = putElement(tag, JsonLiteral(value))
-        override fun writeTaggedFloat(tag: String, value: Float) = putElement(tag, JsonLiteral(value))
-        override fun writeTaggedDouble(tag: String, value: Double) = putElement(tag, JsonLiteral(value))
-        override fun writeTaggedBoolean(tag: String, value: Boolean) = putElement(tag, JsonLiteral(value))
+        override fun encodeTaggedInt(tag: String, value: Int) = putElement(tag, JsonLiteral(value))
+        override fun encodeTaggedByte(tag: String, value: Byte) = putElement(tag, JsonLiteral(value))
+        override fun encodeTaggedShort(tag: String, value: Short) = putElement(tag, JsonLiteral(value))
+        override fun encodeTaggedLong(tag: String, value: Long) = putElement(tag, JsonLiteral(value))
+        override fun encodeTaggedFloat(tag: String, value: Float) = putElement(tag, JsonLiteral(value))
+        override fun encodeTaggedDouble(tag: String, value: Double) = putElement(tag, JsonLiteral(value))
+        override fun encodeTaggedBoolean(tag: String, value: Boolean) = putElement(tag, JsonLiteral(value))
 
-        override fun writeTaggedChar(tag: String, value: Char) = putElement(tag, JsonLiteral(value.toString()))
-        override fun writeTaggedString(tag: String, value: String) = putElement(tag, JsonLiteral(value))
-        override fun <E : Enum<E>> writeTaggedEnum(tag: String, enumClass: KClass<E>, value: E) = putElement(tag, JsonLiteral(value.toString()))
+        override fun encodeTaggedChar(tag: String, value: Char) = putElement(tag, JsonLiteral(value.toString()))
+        override fun encodeTaggedString(tag: String, value: String) = putElement(tag, JsonLiteral(value))
+        override fun encodeTaggedEnum(
+            tag: String,
+            enumDescription: EnumDescriptor,
+            ordinal: Int
+        ) = putElement(tag, JsonLiteral(enumDescription.getElementName(ordinal)))
 
-        override fun writeTaggedValue(tag: String, value: Any) {
+        override fun encodeTaggedValue(tag: String, value: Any) {
             putElement(tag, JsonLiteral(value.toString()))
         }
 
-        override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
             val consumer =
                 if (currentTagOrNull == null) nodeConsumer
                 else { node -> putElement(currentTag, node) }
             return when (desc.kind) {
-                KSerialClassKind.LIST, KSerialClassKind.SET -> JsonTreeListOutput(consumer)
-                KSerialClassKind.MAP -> JsonTreeMapOutput(consumer)
-                KSerialClassKind.ENTRY -> JsonTreeEntryOutput(this@AbstractJsonTreeOutput::putElement)
+                StructureKind.LIST -> JsonTreeListOutput(consumer)
+                StructureKind.MAP -> JsonTreeMapOutput(consumer)
                 else -> JsonTreeOutput(consumer)
             }
         }
 
-        override fun writeFinished(desc: KSerialClassDesc) {
+        override fun endEncode(desc: SerialDescriptor) {
             nodeConsumer(getCurrent())
         }
     }
@@ -92,45 +98,41 @@ class JsonTreeMapper(val context: SerialContext? = null) {
     }
 
     private inner class JsonTreeMapOutput(nodeConsumer: (JsonElement) -> Unit) : JsonTreeOutput(nodeConsumer) {
-        override fun shouldWriteElement(desc: KSerialClassDesc, tag: String, index: Int): Boolean = index != SIZE_INDEX
+        private val mapBuilder: MutableMap<String, JsonElement> = hashMapOf()
+
+        private lateinit var tag: String
+
+        override fun putElement(key: String, element: JsonElement) {
+            val idx = key.toInt()
+            if (idx % 2 == 0) { // writing key
+                check(element is JsonLiteral) { "Expected tag to be JsonLiteral" }
+                tag = (element as JsonLiteral).content
+            } else {
+                mapBuilder[tag] = element
+            }
+        }
+
+        override fun getCurrent(): JsonElement {
+            return JsonObject(mapBuilder)
+        }
+
+        override fun shouldWriteElement(desc: SerialDescriptor, tag: String, index: Int): Boolean = true
     }
 
     private inner class JsonTreeListOutput(nodeConsumer: (JsonElement) -> Unit) : AbstractJsonTreeOutput(nodeConsumer) {
         private val array: ArrayList<JsonElement> = arrayListOf()
 
-        override fun shouldWriteElement(desc: KSerialClassDesc, tag: String, index: Int): Boolean = index != SIZE_INDEX
+        override fun shouldWriteElement(desc: SerialDescriptor, tag: String, index: Int): Boolean = true
 
         override fun putElement(key: String, element: JsonElement) {
-            val idx = key.toInt() - 1
+            val idx = key.toInt()
             array.add(idx, element)
         }
 
         override fun getCurrent(): JsonElement = JsonArray(array)
     }
 
-    private inner class JsonTreeEntryOutput(val entryConsumer: (String, JsonElement) -> Unit) :
-        AbstractJsonTreeOutput({ throw IllegalStateException("Use entryConsumer instead") }) {
-
-        private lateinit var elem: JsonElement
-        private lateinit var tag: String
-
-        override fun putElement(key: String, element: JsonElement) {
-            if (key != "key") {
-                elem = element
-            } else {
-                check(element is JsonLiteral) { "Expected tag to be JsonLiteral" }
-                tag = (element as JsonLiteral).content
-            }
-        }
-
-        override fun getCurrent(): JsonElement = elem
-
-        override fun writeFinished(desc: KSerialClassDesc) {
-            entryConsumer(tag, elem)
-        }
-    }
-
-    private abstract inner class AbstractJsonTreeInput(open val obj: JsonElement): NamedValueInput() {
+    private abstract inner class AbstractJsonTreeInput(open val obj: JsonElement): NamedValueDecoder() {
         init {
             this.context = this@JsonTreeMapper.context
         }
@@ -142,54 +144,53 @@ class JsonTreeMapper(val context: SerialContext? = null) {
             return obj as T
         }
 
-        override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             val curObj = currentTagOrNull?.let { currentElement(it) } ?: obj
             return when (desc.kind) {
-                KSerialClassKind.LIST, KSerialClassKind.SET -> JsonTreeListInput(checkCast(curObj))
-                KSerialClassKind.MAP -> JsonTreeMapInput(checkCast(curObj))
-                KSerialClassKind.ENTRY -> JsonTreeMapEntryInput(curObj, currentTag)
+                StructureKind.LIST-> JsonTreeListInput(checkCast(curObj))
+                StructureKind.MAP -> JsonTreeMapInput(checkCast(curObj))
                 else -> JsonTreeInput(checkCast(curObj))
             }
         }
 
         protected open fun getValue(tag: String): JsonPrimitive {
             val currentElement = currentElement(tag)
-            return currentElement as? JsonPrimitive ?: throw SerializationException("Expected from $tag to be primitive but found $currentElement")
+            return currentElement as? JsonPrimitive ?: throw JsonElementTypeMismatchException("$currentElement at $tag", "JsonPrimitive")
         }
 
         protected abstract fun currentElement(tag: String): JsonElement
 
-        override fun readTaggedChar(tag: String): Char {
+        override fun decodeTaggedChar(tag: String): Char {
             val o = getValue(tag)
             return if (o.content.length == 1) o.content[0] else throw SerializationException("$o can't be represented as Char")
         }
 
-        override fun <E : Enum<E>> readTaggedEnum(tag: String, enumClass: KClass<E>): E =
-            enumFromName(enumClass, (getValue(tag).content))
+        override fun decodeTaggedEnum(tag: String, enumDescription: EnumDescriptor): Int =
+            enumDescription.getElementIndex(getValue(tag).content)
 
-        override fun readTaggedNull(tag: String): Nothing? = null
-        override fun readTaggedNotNullMark(tag: String) = currentElement(tag) !== JsonNull
+        override fun decodeTaggedNull(tag: String): Nothing? = null
+        override fun decodeTaggedNotNullMark(tag: String) = currentElement(tag) !== JsonNull
 
-        override fun readTaggedUnit(tag: String) {
+        override fun decodeTaggedUnit(tag: String) {
             return
         }
 
-        override fun readTaggedBoolean(tag: String): Boolean = getValue(tag).boolean
-        override fun readTaggedByte(tag: String): Byte = getValue(tag).int.toByte()
-        override fun readTaggedShort(tag: String) = getValue(tag).int.toShort()
-        override fun readTaggedInt(tag: String) = getValue(tag).int
-        override fun readTaggedLong(tag: String) = getValue(tag).long
-        override fun readTaggedFloat(tag: String) = getValue(tag).float
-        override fun readTaggedDouble(tag: String) = getValue(tag).double
-        override fun readTaggedString(tag: String) = getValue(tag).content
+        override fun decodeTaggedBoolean(tag: String): Boolean = getValue(tag).boolean
+        override fun decodeTaggedByte(tag: String): Byte = getValue(tag).int.toByte()
+        override fun decodeTaggedShort(tag: String) = getValue(tag).int.toShort()
+        override fun decodeTaggedInt(tag: String) = getValue(tag).int
+        override fun decodeTaggedLong(tag: String) = getValue(tag).long
+        override fun decodeTaggedFloat(tag: String) = getValue(tag).float
+        override fun decodeTaggedDouble(tag: String) = getValue(tag).double
+        override fun decodeTaggedString(tag: String) = getValue(tag).content
     }
 
     private open inner class JsonTreeInput(override val obj: JsonObject) : AbstractJsonTreeInput(obj) {
 
         private var pos = 0
 
-        override fun readElement(desc: KSerialClassDesc): Int {
-            while (pos < desc.associatedFieldsCount) {
+        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+            while (pos < desc.elementsCount) {
                 val name = desc.getTag(pos++)
                 if (name in obj) return pos - 1
             }
@@ -200,33 +201,27 @@ class JsonTreeMapper(val context: SerialContext? = null) {
 
     }
 
-    private inner class JsonTreeMapEntryInput(override val obj: JsonElement, val cTag: String): AbstractJsonTreeInput(obj) {
-
-        override fun currentElement(tag: String): JsonElement = if (tag == "key") {
-            JsonLiteral(cTag)
-        } else {
-            check(tag == "value") { "Found unexpected tag: $tag" }
-            obj
-        }
-    }
-
     private inner class JsonTreeMapInput(override val obj: JsonObject): JsonTreeInput(obj) {
 
         private val keys = obj.keys.toList()
-        private val size: Int = keys.size
-        private var pos = 0
+        private val size: Int = keys.size * 2
+        private var pos = -1
 
-        override fun elementName(desc: KSerialClassDesc, index: Int): String {
-            val i = index - 1
+        override fun elementName(desc: SerialDescriptor, index: Int): String {
+            val i = index / 2
             return keys[i]
         }
 
-        override fun readElement(desc: KSerialClassDesc): Int {
-            while (pos < size) {
+        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+            while (pos < size - 1) {
                 pos++
                 return pos
             }
             return READ_DONE
+        }
+
+        override fun currentElement(tag: String): JsonElement {
+            return if (pos % 2 == 0) JsonLiteral(tag) else obj[tag]
         }
     }
 
@@ -237,12 +232,12 @@ class JsonTreeMapper(val context: SerialContext? = null) {
         }
 
         private val size = obj.content.size
-        private var pos = 0 // 0st element is SIZE. use it?
+        private var pos = -1
 
-        override fun elementName(desc: KSerialClassDesc, index: Int): String = (index - 1).toString()
+        override fun elementName(desc: SerialDescriptor, index: Int): String = (index).toString()
 
-        override fun readElement(desc: KSerialClassDesc): Int {
-            while (pos < size) {
+        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+            while (pos < size - 1) {
                 pos++
                 return pos
             }

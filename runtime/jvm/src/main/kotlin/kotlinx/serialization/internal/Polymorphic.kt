@@ -17,10 +17,12 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.context.SerialContext
+import kotlinx.serialization.context.getOrDefault
 import kotlin.reflect.KClass
 
 internal object PolymorphicClassDesc : SerialClassDescImpl("kotlin.Any") {
-    override val kind: KSerialClassKind = KSerialClassKind.POLYMORPHIC
+    override val kind: SerialKind = UnionKind.POLYMORPHIC
 
     init {
         addElement("klass")
@@ -30,6 +32,7 @@ internal object PolymorphicClassDesc : SerialClassDescImpl("kotlin.Any") {
     }
 }
 
+@ImplicitReflectionSerializer
 internal object ClassSerialCache {
     internal val map: Map<KClass<*>, KSerializer<*>> = mapOf(
             // not sure if we need collection serializer at all
@@ -57,12 +60,13 @@ internal val allPrimitives: List<KSerializer<*>> = listOf(
         LongSerializer, FloatSerializer, DoubleSerializer, CharSerializer, StringSerializer
 )
 
+@ImplicitReflectionSerializer
 internal object SerialCache {
     internal val map: MutableMap<String, KSerializer<*>> = HashMap()
 
     init {
-        allPrimitives.forEach { registerSerializer(it.serialClassDesc.name, it) }
-        ClassSerialCache.map.values.toList().forEach { registerSerializer(it.serialClassDesc.name, it) }
+        allPrimitives.forEach { registerSerializer(it.descriptor.name, it) }
+        ClassSerialCache.map.values.toList().forEach { registerSerializer(it.descriptor.name, it) }
         @Suppress("UNCHECKED_CAST")
         registerSerializer("kotlin.Array", ReferenceArraySerializer<Any, Any>(Any::class, (PolymorphicSerializer as KSerializer<Any>)))
     }
@@ -74,7 +78,7 @@ internal object SerialCache {
         if (ans != null) return ans as KSerializer<E>
         // If it's not there, maybe it came from java
         val klass = preloadedClass ?: Class.forName(className).kotlin
-        ans = context?.getSerializerByClass(klass) ?: ClassSerialCache.getSubclassSerializer(klass)
+        ans = context?.getOrDefault(klass) ?: ClassSerialCache.getSubclassSerializer(klass)
         if (ans != null) return ans as KSerializer<E>
         // Then, it's user defined class
         val last = klass.serializer() as? KSerializer<E>

@@ -2,7 +2,7 @@
 
 ## Obtaining serializers
 
-Serializers are represented at runtime as `KSerializer<T>`, which in turn, implements interfaces `KSerialSaver<T>` and `KSerialLoader<T>`, where `T` is class you serialize.
+Serializers are represented at runtime as `KSerializer<T>`, which in turn, implements interfaces `SerializationStrategy<T>` and `DeserializationStrategy<T>`, where `T` is class you serialize.
 You don't need to call them by yourself; you just have to pass them properly to serialization format. You can write them on your own (see [custom serializers](custom_serializers.md)) or let the compiler plugin do the dirty work by marking class `@Serializable`.
 To retrieve the generated serializer, plugin emits special function on companion object called `.serializer()`.
 If your class has generic type arguments, this function will have arguments for specifying serializers on type parameters, because it's impossible to serialize generic class statically in general case:
@@ -46,9 +46,9 @@ Runtime library provides three ready-to use formats: JSON, CBOR and ProtoBuf.
 
 ### JSON
 
-JSON format represented by `JSON` class from `kotlinx.serialization.json` package. It following parameters:
+JSON format represented by `JSON` class from `kotlinx.serialization.json` package. It has following parameters:
 
-* nonstrict - allow JSON parser skip fields which are not present in class. By default is false.
+* strict - Prohibits unknown keys when parsing JSON. Prohibits NaN and Infinity float values when serializing JSON. Enabled by default.
 * unquoted - means that all field names and other objects (where it's possible) would not be wrapped in quotes. Useful for debugging.
 * indented - classic pretty-printed multiline JSON.
 * indent - size of indent, applicable if parameter above is true.
@@ -60,10 +60,10 @@ You can also specify desired behaviour for duplicating keys. By default it is `U
 JSON API:
 
 ```kotlin
-fun <T> stringify(saver: KSerialSaver<T>, obj: T): String
+fun <T> stringify(saver: SerializationStrategy<T>, obj: T): String
 inline fun <reified T : Any> stringify(obj: T): String = stringify(T::class.serializer(), obj)
 
-fun <T> parse(loader: KSerialLoader<T>, str: String): T
+fun <T> parse(loader: DeserializationStrategy<T>, str: String): T
 inline fun <reified T : Any> parse(str: String): T = parse(T::class.serializer(), str)
 ```
 
@@ -80,11 +80,11 @@ so it wouldn't work with root-level collections or external serializers out of t
 `CBOR` class provides following functions:
 
 ```kotlin
-fun <T : Any> dump(saver: KSerialSaver<T>, obj: T): ByteArray // saves object to bytes
+fun <T : Any> dump(saver: SerializationStrategy<T>, obj: T): ByteArray // saves object to bytes
 inline fun <reified T : Any> dump(obj: T): ByteArray // same as above, resolves serializer by itself
 inline fun <reified T : Any> dumps(obj: T): String // dump object and then pretty-print bytes to string
 
-fun <T : Any> load(loader: KSerialLoader<T>, raw: ByteArray): T // load object from bytes
+fun <T : Any> load(loader: DeserializationStrategy<T>, raw: ByteArray): T // load object from bytes
 inline fun <reified T : Any> load(raw: ByteArray): T // save as above
 inline fun <reified T : Any> loads(hex: String): T // inverse operation for dumps
 ```

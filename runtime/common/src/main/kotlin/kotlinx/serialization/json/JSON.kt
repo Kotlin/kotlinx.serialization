@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,52 +13,62 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlin.reflect.KClass
+import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
+import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
+import kotlinx.serialization.context.SerialContext
+import kotlinx.serialization.context.SerialModule
+import kotlinx.serialization.internal.EnumDescriptor
 
-data class JSON(
-        private val unquoted: Boolean = false,
-        private val indented: Boolean = false,
-        private val indent: String = "    ",
-        internal val nonstrict: Boolean = false,
-        val updateMode: UpdateMode = UpdateMode.OVERWRITE,
-        val context: SerialContext? = null
-) {
-    fun <T> stringify(saver: KSerialSaver<T>, obj: T): String {
+class JSON(
+    private val unquoted: Boolean = false,
+    private val indented: Boolean = false,
+    private val indent: String = "    ",
+    internal val strictMode: Boolean = true,
+    val updateMode: UpdateMode = UpdateMode.OVERWRITE,
+    val encodeDefaults: Boolean = true
+): AbstractSerialFormat(), StringFormat {
+    override fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String {
         val sb = StringBuilder()
         val output = JsonOutput(Mode.OBJ, Composer(sb), arrayOfNulls(Mode.values().size))
-        output.write(saver, obj)
+        output.encode(serializer, obj)
         return sb.toString()
     }
 
-    inline fun <reified T : Any> stringify(obj: T): String = stringify(context.klassSerializer(T::class), obj)
-
-    fun <T> parse(loader: KSerialLoader<T>, str: String): T {
-        val parser = Parser(str)
+    override fun <T> parse(serializer: DeserializationStrategy<T>, string: String): T {
+        val parser = Parser(string)
         val input = JsonInput(Mode.OBJ, parser)
-        val result = input.read(loader)
+        val result = input.decode(serializer)
         check(parser.tc == TC_EOF) { "Shall parse complete string"}
         return result
     }
 
-    inline fun <reified T : Any> parse(str: String): T = parse(context.klassSerializer(T::class), str)
-
-    companion object {
-        fun <T> stringify(saver: KSerialSaver<T>, obj: T): String = plain.stringify(saver, obj)
-        inline fun <reified T : Any> stringify(obj: T): String = stringify(T::class.serializer(), obj)
-        fun <T> parse(loader: KSerialLoader<T>, str: String): T = plain.parse(loader, str)
-        inline fun <reified T : Any> parse(str: String): T = parse(T::class.serializer(), str)
-
+    companion object : StringFormat {
         val plain = JSON()
         val unquoted = JSON(unquoted = true)
         val indented = JSON(indented = true)
-        val nonstrict = JSON(nonstrict = true)
+        val nonstrict = JSON(strictMode = false)
+
+        override fun install(module: SerialModule) = plain.install(module)
+        override val context: SerialContext get() = plain.context
+        override fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String =
+            plain.stringify(serializer, obj)
+
+        override fun <T> parse(serializer: DeserializationStrategy<T>, string: String): T =
+            plain.parse(serializer, string)
     }
 
-    inner class JsonOutput internal constructor(private val mode: Mode, private val w: Composer, private val modeReuseCache: Array<JsonOutput?>) : ElementValueOutput() {
+    // Public visibility to allow casting in user-code to call [writeTree]
+    @Suppress("RedundantVisibilityModifier")
+    public inner class JsonOutput internal constructor(private val mode: Mode, private val w: Composer,
+                                                       private val modeReuseCache: Array<JsonOutput?>)
+        : ElementValueEncoder() {
+
+        // Forces serializer to wrap all values into quotes
+        private var forceQuoting: Boolean = false
+
         init {
             context = this@JSON.context
             val i = mode.ordinal
@@ -73,10 +83,12 @@ data class JSON(
             w.sb.append(tree.toString())
         }
 
-        private var forceStr: Boolean = false
+        override fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean {
+            return encodeDefaults
+        }
 
-        override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
-            val newMode = switchMode(mode, desc, typeParams)
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
+            val newMode = switchMode(desc, typeParams)
             if (newMode.begin != INVALID) { // entry
                 w.print(newMode.begin)
                 w.indent()
@@ -92,7 +104,7 @@ data class JSON(
             return JsonOutput(newMode, w, modeReuseCache)
         }
 
-        override fun writeEnd(desc: KSerialClassDesc) {
+        override fun endStructure(desc: SerialDescriptor) {
             if (mode.end != INVALID) {
                 w.unIndent()
                 w.nextItem()
@@ -100,28 +112,34 @@ data class JSON(
             }
         }
 
-        override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean {
+        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
             when (mode) {
-                Mode.LIST, Mode.MAP -> {
-                    if (index == 0) return false
+                Mode.LIST -> {
                     if (! w.writingFirst)
                         w.print(COMMA)
                     w.nextItem()
                 }
-                Mode.ENTRY, Mode.POLY -> {
+                Mode.MAP -> {
+                    if (!w.writingFirst) {
+                        if (index % 2 == 0) w.print(COMMA) else w.print(COLON)
+                    }
+                    w.nextItem()
+                }
+                Mode.ENTRY -> throw IllegalStateException("Entry is deprecated")
+                Mode.POLY -> {
                     if (index == 0)
-                        forceStr = true
+                        forceQuoting = true
                     if (index == 1) {
                         w.print(if (mode == Mode.ENTRY) COLON else COMMA)
                         w.space()
-                        forceStr = false
+                        forceQuoting = false
                     }
                 }
                 else -> {
                     if (! w.writingFirst)
                         w.print(COMMA)
                     w.nextItem()
-                    writeStringValue(desc.getElementName(index))
+                    encodeString(desc.getElementName(index))
                     w.print(COLON)
                     w.space()
                 }
@@ -129,31 +147,37 @@ data class JSON(
             return true
         }
 
-        override fun writeNullValue() {
+        override fun encodeNull() {
             w.print(NULL)
         }
 
-        override fun writeBooleanValue(value: Boolean) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
-        override fun writeByteValue(value: Byte) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
-        override fun writeShortValue(value: Short) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
-        override fun writeIntValue(value: Int) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
-        override fun writeLongValue(value: Long) { if (forceStr) writeStringValue(value.toString()) else w.print(value) }
+        override fun encodeBoolean(value: Boolean) { if (forceQuoting) encodeString(value.toString()) else w.print(value) }
+        override fun encodeByte(value: Byte) { if (forceQuoting) encodeString(value.toString()) else w.print(value) }
+        override fun encodeShort(value: Short) { if (forceQuoting) encodeString(value.toString()) else w.print(value) }
+        override fun encodeInt(value: Int) { if (forceQuoting) encodeString(value.toString()) else w.print(value) }
+        override fun encodeLong(value: Long) { if (forceQuoting) encodeString(value.toString()) else w.print(value) }
 
-        override fun writeFloatValue(value: Float) {
-            if (forceStr || !value.isFinite()) writeStringValue(value.toString()) else
-                w.print(value)
+        override fun encodeFloat(value: Float) {
+            if (strictMode && !value.isFinite()) {
+                throw JsonInvalidValueInStrictModeException(value)
+            }
+
+            if (forceQuoting) encodeString(value.toString()) else w.print(value)
         }
 
-        override fun writeDoubleValue(value: Double) {
-            if (forceStr || !value.isFinite()) writeStringValue(value.toString()) else
-                w.print(value)
+        override fun encodeDouble(value: Double) {
+            if (strictMode && !value.isFinite()) {
+                throw JsonInvalidValueInStrictModeException(value)
+            }
+
+            if (forceQuoting) encodeString(value.toString()) else w.print(value)
         }
 
-        override fun writeCharValue(value: Char) {
-            writeStringValue(value.toString())
+        override fun encodeChar(value: Char) {
+            encodeString(value.toString())
         }
 
-        override fun writeStringValue(value: String) {
+        override fun encodeString(value: String) {
             if (unquoted && !mustBeQuoted(value)) {
                 w.print(value)
             } else {
@@ -161,8 +185,13 @@ data class JSON(
             }
         }
 
-        override fun writeNonSerializableValue(value: Any) {
-            writeStringValue(value.toString())
+        override fun encodeEnum(enumDescription: EnumDescriptor, ordinal: Int) {
+            encodeString(enumDescription.getElementName(ordinal))
+        }
+
+        override fun encodeValue(value: Any) {
+            if (strictMode) super.encodeValue(value) else
+                encodeString(value.toString())
         }
     }
 
@@ -200,8 +229,10 @@ data class JSON(
         fun printQuoted(value: String): Unit = sb.printQuoted(value)
     }
 
-    inner class JsonInput internal constructor(private val mode: Mode, private val p: Parser) : ElementValueInput() {
-        private var curIndex = 0
+    // Public visibility to allow casting in user-code to call [readAsTree]
+    @Suppress("RedundantVisibilityModifier")
+    public inner class JsonInput internal constructor(private val mode: Mode, private val p: Parser) : ElementValueDecoder() {
+        private var curIndex = -1
         private var entryIndex = 0
 
         init {
@@ -213,8 +244,8 @@ data class JSON(
         override val updateMode: UpdateMode
             get() = this@JSON.updateMode
 
-        override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
-            val newMode = switchMode(mode, desc, typeParams)
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+            val newMode = switchMode(desc, typeParams)
             if (newMode.begin != INVALID) {
                 p.requireTc(newMode.beginTc) { "Expected '${newMode.begin}, kind: ${desc.kind}'" }
                 p.nextToken()
@@ -226,28 +257,32 @@ data class JSON(
             }
         }
 
-        override fun readEnd(desc: KSerialClassDesc) {
+        override fun endStructure(desc: SerialDescriptor) {
             if (mode.end != INVALID) {
                 p.requireTc(mode.endTc) { "Expected '${mode.end}'" }
                 p.nextToken()
             }
         }
 
-        override fun readNotNullMark(): Boolean {
+        override fun decodeNotNullMark(): Boolean {
             return p.tc != TC_NULL
         }
 
-        override fun readNullValue(): Nothing? {
+        override fun decodeNull(): Nothing? {
             p.requireTc(TC_NULL) { "Expected 'null' literal" }
             p.nextToken()
             return null
         }
 
-        override fun readElement(desc: KSerialClassDesc): Int {
+        override fun decodeElementIndex(desc: SerialDescriptor): Int {
             while (true) {
                 if (p.tc == TC_COMMA) p.nextToken()
                 when (mode) {
-                    Mode.LIST, Mode.MAP -> {
+                    Mode.LIST -> {
+                        return if (!p.canBeginValue) READ_DONE else ++curIndex
+                    }
+                    Mode.MAP -> {
+                        if (curIndex % 2 == 0 && p.tc == TC_COLON) p.nextToken()
                         return if (!p.canBeginValue) READ_DONE else ++curIndex
                     }
                     Mode.POLY -> {
@@ -282,8 +317,8 @@ data class JSON(
                         val ind = desc.getElementIndex(key)
                         if (ind != UNKNOWN_NAME)
                             return ind
-                        if (!nonstrict)
-                            throw SerializationException("Strict JSON encountered unknown key: $key")
+                        if (strictMode)
+                            throw JsonUnknownKeyException(key)
                         else
                             p.skipElement()
                     }
@@ -291,17 +326,17 @@ data class JSON(
             }
         }
 
-        override fun readBooleanValue(): Boolean = p.takeStr().toBoolean()
-        override fun readByteValue(): Byte = p.takeStr().toByte()
-        override fun readShortValue(): Short = p.takeStr().toShort()
-        override fun readIntValue(): Int = p.takeStr().toInt()
-        override fun readLongValue(): Long = p.takeStr().toLong()
-        override fun readFloatValue(): Float = p.takeStr().toFloat()
-        override fun readDoubleValue(): Double = p.takeStr().toDouble()
-        override fun readCharValue(): Char = p.takeStr().single()
-        override fun readStringValue(): String = p.takeStr()
+        override fun decodeBoolean(): Boolean = p.takeStr().run { if (strictMode) toBooleanStrict() else toBoolean() }
+        override fun decodeByte(): Byte = p.takeStr().toByte()
+        override fun decodeShort(): Short = p.takeStr().toShort()
+        override fun decodeInt(): Int = p.takeStr().toInt()
+        override fun decodeLong(): Long = p.takeStr().toLong()
+        override fun decodeFloat(): Float = p.takeStr().toFloat()
+        override fun decodeDouble(): Double = p.takeStr().toDouble()
+        override fun decodeChar(): Char = p.takeStr().single()
+        override fun decodeString(): String = p.takeStr()
 
-        override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T = enumFromName(enumClass, p.takeStr())
+        override fun decodeEnum(enumDescription: EnumDescriptor): Int = enumDescription.getElementIndex(p.takeStr())
     }
 }
 
@@ -318,17 +353,16 @@ internal enum class Mode(val begin: Char, val end: Char) {
     val endTc: Byte = charToTokenClass(end)
 }
 
-private fun switchMode(mode: Mode, desc: KSerialClassDesc, typeParams: Array<out KSerializer<*>>): Mode =
+private fun switchMode(desc: SerialDescriptor, typeParams: Array<out KSerializer<*>>): Mode =
     when (desc.kind) {
-        KSerialClassKind.POLYMORPHIC -> Mode.POLY
-        KSerialClassKind.LIST, KSerialClassKind.SET -> Mode.LIST
-        KSerialClassKind.MAP -> {
-            val keyKind = typeParams[0].serialClassDesc.kind
-            if (keyKind == KSerialClassKind.PRIMITIVE || keyKind == KSerialClassKind.ENUM)
+        UnionKind.POLYMORPHIC -> Mode.POLY
+        StructureKind.LIST -> Mode.LIST
+        StructureKind.MAP -> {
+            val keyKind = typeParams[0].descriptor.kind
+            if (keyKind is PrimitiveKind || keyKind == UnionKind.ENUM_KIND)
                 Mode.MAP
             else Mode.LIST
         }
-        KSerialClassKind.ENTRY -> if (mode == Mode.MAP) Mode.ENTRY else Mode.OBJ
         else -> Mode.OBJ
     }
 
@@ -337,5 +371,6 @@ private fun mustBeQuoted(str: String): Boolean {
     for (ch in str) {
         if (charToTokenClass(ch) != TC_OTHER) return true
     }
+
     return false
 }

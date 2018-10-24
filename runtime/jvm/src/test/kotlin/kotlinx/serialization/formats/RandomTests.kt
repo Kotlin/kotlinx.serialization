@@ -24,15 +24,11 @@ import com.google.protobuf.GeneratedMessageV3
 import io.kotlintest.properties.Gen
 import io.kotlintest.properties.forAll
 import io.kotlintest.specs.ShouldSpec
-import kotlinx.serialization.Optional
-import kotlinx.serialization.SerialId
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
 import kotlinx.serialization.cbor.CBOR
 import kotlinx.serialization.formats.proto.TestData.*
 import kotlinx.serialization.internal.HexConverter
-import kotlinx.serialization.protobuf.ProtoBuf
-import kotlinx.serialization.protobuf.ProtoNumberType
-import kotlinx.serialization.protobuf.ProtoType
+import kotlinx.serialization.protobuf.*
 import java.io.ByteArrayOutputStream
 
 fun GeneratedMessageV3.toHex(): String {
@@ -211,14 +207,16 @@ object KTestData {
     }
 
     @Serializable
-    data class KTestMap(@SerialId(1) val s: Map<String, String>, @SerialId(2) val o: Map<Int, KTestAllTypes>): IMessage {
+    data class KTestMap(@SerialId(1) val s: Map<String, String>, @Optional @SerialId(2) val o: Map<Int, KTestAllTypes> = emptyMap()) :
+        IMessage {
         override fun toProtobufMessage() = TestMap.newBuilder()
-                .putAllStringMap(s)
-                .putAllIntObjectMap(o.mapValues { it.value.toProtobufMessage() })
-                .build()
+            .putAllStringMap(s)
+            .putAllIntObjectMap(o.mapValues { it.value.toProtobufMessage() })
+            .build()
 
         companion object : Gen<KTestMap> {
-            override fun generate(): KTestMap = KTestMap(Gen.map(Gen.string(), Gen.string()).generate(), Gen.map(Gen.int(), KTestAllTypes).generate())
+            override fun generate(): KTestMap =
+                KTestMap(Gen.map(Gen.string(), Gen.string()).generate(), Gen.map(Gen.int(), KTestAllTypes).generate())
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,19 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.internal.defaultSerializer
 import kotlin.reflect.KClass
 
-expect fun <T: Any> KClass<T>.serializer(): KSerializer<T>
+@UseExperimental(ExperimentalMultiplatform::class)
+@OptionalExpectation
+expect annotation class SharedImmutable()
+
+@ImplicitReflectionSerializer
+fun <T : Any> KClass<T>.serializer(): KSerializer<T> = compiledSerializer() ?: defaultSerializer()
+    ?: throw SerializationException("Can't locate argument-less serializer for $this. For generic classes, such as lists, please provide serializer explicitly.")
+
+@ImplicitReflectionSerializer
+expect fun <T : Any> KClass<T>.compiledSerializer(): KSerializer<T>?
 
 expect fun String.toUtf8Bytes(): ByteArray
 expect fun stringFromUtf8Bytes(bytes: ByteArray): String
@@ -27,5 +37,6 @@ expect fun <E: Enum<E>> enumFromName(enumClass: KClass<E>, value: String): E
 expect fun <E: Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E
 
 expect fun <E: Enum<E>> KClass<E>.enumClassName(): String
+expect fun <E: Enum<E>> KClass<E>.enumMembers(): Array<E>
 
 expect fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E>

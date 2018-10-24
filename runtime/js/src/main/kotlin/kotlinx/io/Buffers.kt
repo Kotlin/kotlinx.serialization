@@ -20,8 +20,7 @@ import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.DataView
 
 
-actual class ByteBuffer(val capacity: Int) {
-    private actual constructor(): this(16) //don't use, only for matching header
+actual class ByteBuffer private constructor(val capacity: Int) {
 
     init {
         require(capacity >= 0)

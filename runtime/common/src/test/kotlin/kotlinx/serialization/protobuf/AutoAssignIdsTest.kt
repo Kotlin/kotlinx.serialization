@@ -31,16 +31,16 @@ class AutoAssignIdsTest {
     @Test
     fun saveAndRestoreWithoutIds() {
         val w1 = WithoutIds(1, "foo")
-        val bytes = ProtoBuf.dump(w1)
-        val w2 = ProtoBuf.load<WithoutIds>(bytes)
+        val bytes = ProtoBuf.dump(WithoutIds.serializer(), w1)
+        val w2 = ProtoBuf.load(WithoutIds.serializer(), bytes)
         assertEquals(w1, w2)
     }
 
     @Test
     fun incrementalIds() {
         val w1 = WithoutIds(1, "foo")
-        val bytes = ProtoBuf.dump(w1)
-        val w2 = ProtoBuf.load<WithId>(bytes)
+        val bytes = ProtoBuf.dump(WithoutIds.serializer(), w1)
+        val w2 = ProtoBuf.load(WithId.serializer(), bytes)
         assertEquals(w1.a, w2.a)
         assertEquals(w1.b, w2.b)
     }

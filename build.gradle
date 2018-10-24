@@ -26,8 +26,17 @@ buildscript {
         ext.librariesVersion = property('kotlin.version')
         ext.serializationPluginVersion = property('plugin.version')
     }
+    ext.serializationCoordinates = "org.jetbrains.kotlin:kotlin-serialization"
     ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-dev'
     ext.serializationRepo = 'https://kotlin.bintray.com/kotlinx'
+    ext.experimentalsEnabled = ["-Xuse-experimental=kotlin.Experimental",
+                                "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
+                                ]
+
+    ext.experimentalsInTestEnabled = ["-Xuse-experimental=kotlin.Experimental",
+                                "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
+                                "-Xuse-experimental=kotlinx.serialization.ImplicitReflectionSerializer",
+                                ]
 
     repositories {
         jcenter()
@@ -40,7 +49,7 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$compilerVersion"
-        classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$serializationPluginVersion"
+        classpath "$serializationCoordinates:$serializationPluginVersion"
         classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:${property('konan.version')}"
 
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.2'
@@ -95,6 +104,14 @@ subprojects {
 
     apply plugin: 'kotlinx-serialization'
 
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile).all { task ->
+        if (task.name.contains("Test") || task.name.contains("Jmh")) {
+            task.kotlinOptions.freeCompilerArgs += experimentalsInTestEnabled
+        } else {
+            task.kotlinOptions.freeCompilerArgs += experimentalsEnabled
+        }
+    }
+
     if (project.name.contains("benchmark")) return
 
     apply plugin: 'maven-publish'
@@ -124,6 +141,8 @@ subprojects {
         archivesBaseName = varintName
     }
 
+    apply from: "${rootProject.rootDir}/gradle/mavenMetadata.gradle"
+
     publishing {
         publications {
             mavenProject(MavenPublication) {
@@ -135,6 +154,15 @@ subprojects {
                 artifact sourceJar {
                     classifier "sources"
                 }
+                pom.withXml {
+                    def root = it.asNode()
+                    // NOTE: Don't try to move top-level things (especially "description") to the pomConfig block
+                    //       because they would resolve incorrectly to top-level project properties in Gradle/Groovy
+                    root.appendNode('name', varintName)
+                    root.appendNode('description', 'Kotlin multiplatform serialization runtime library')
+                    root.appendNode('url', 'https://github.com/Kotlin/kotlinx.serialization')
+                    root.children().last() + pomConfig
+                }
             }
         }
     }
@@ -142,4 +170,14 @@ subprojects {
     apply plugin: 'com.jfrog.bintray'
 
     apply from: "${rootProject.rootDir}/gradle/bintray.gradle"
+
+    // Disable metadata for non-native modules
+    afterEvaluate {
+        publishing.publications.each { pub ->
+            pub.gradleModuleMetadataFile = null
+            tasks.matching { it.name == "generateMetadataFileFor${pub.name.capitalize()}Publication" }.all {
+                onlyIf { false }
+            }
+        }
+    }
 }

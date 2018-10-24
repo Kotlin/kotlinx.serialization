@@ -1,21 +1,22 @@
 /*
- *  Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package kotlinx.serialization
 
+import kotlinx.serialization.context.*
 import kotlinx.serialization.internal.HexConverter
 import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlinx.serialization.internal.StringSerializer
@@ -31,28 +32,28 @@ class CustomSerializersJVMTest {
 
     @Serializable
     data class EnhancedData(
-            val data: Data,
-            val stringPayload: Payload,
-            @Serializable(with = BinaryPayloadSerializer::class) val binaryPayload: Payload
+        val data: Data,
+        @ContextualSerialization val stringPayload: Payload,
+        @Serializable(with = BinaryPayloadSerializer::class) val binaryPayload: Payload
     )
 
     data class Payload(val s: String)
 
     @Serializable
-    data class PayloadList(val ps: List<Payload>)
+    data class PayloadList(val ps: List<@ContextualSerialization Payload>)
 
     @Serializer(forClass = Payload::class)
     object PayloadSerializer {}
 
     object BinaryPayloadSerializer : KSerializer<Payload> {
-        override val serialClassDesc: KSerialClassDesc = SerialClassDescImpl("Payload")
+        override val descriptor: SerialDescriptor = SerialClassDescImpl("Payload")
 
-        override fun save(output: KOutput, obj: Payload) {
-            output.writeStringValue(HexConverter.printHexBinary(obj.s.toByteArray()))
+        override fun serialize(output: Encoder, obj: Payload) {
+            output.encodeString(HexConverter.printHexBinary(obj.s.toByteArray()))
         }
 
-        override fun load(input: KInput): Payload {
-            return Payload(String(HexConverter.parseHexBinary(input.readStringValue())))
+        override fun deserialize(input: Decoder): Payload {
+            return Payload(String(HexConverter.parseHexBinary(input.decodeString())))
         }
     }
 
@@ -61,9 +62,8 @@ class CustomSerializersJVMTest {
 
     @Before
     fun initContext() {
-        val scope = SerialContext()
-        scope.registerSerializer(Payload::class, PayloadSerializer)
-        json = JSON(unquoted = true, context = scope)
+        val scope = SimpleModule(Payload::class, PayloadSerializer)
+        json = JSON(unquoted = true).apply { install(scope) }
     }
 
     @Test
@@ -90,5 +90,22 @@ class CustomSerializersJVMTest {
         val saver = (StringSerializer to PolymorphicSerializer).map
         val s = json.stringify(saver, map)
         assertEquals("""{Payload:[kotlinx.serialization.CustomSerializersJVMTest.Payload,{s:data}]}""", s)
+    }
+
+    @Test
+    fun differentRepresentations() {
+        val simpleModule = SimpleModule(Payload::class, PayloadSerializer)
+        // MapModule and CompositeModule are also available
+        val binaryModule = SimpleModule(Payload::class, BinaryPayloadSerializer)
+
+        val json1 = JSON().apply { install(simpleModule) }
+        val json2 = JSON().apply { install(binaryModule) }
+
+        // in json1, Payload would be serialized with PayloadSerializer,
+        // in json2, Payload would be serialized with BinaryPayloadSerializer
+
+        val list = PayloadList(listOf(Payload("string")))
+        assertEquals("""{"ps":[{"s":"string"}]}""", json1.stringify(list))
+        assertEquals("""{"ps":["737472696E67"]}""", json2.stringify(list))
     }
 }

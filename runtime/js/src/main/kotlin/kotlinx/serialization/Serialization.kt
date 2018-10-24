@@ -19,8 +19,8 @@ package kotlinx.serialization
 import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
-actual fun <T: Any> KClass<T>.serializer(): KSerializer<T> = this.js.asDynamic().Companion?.serializer() as? KSerializer<T>
-        ?: throw SerializationException("Can't locate default serializer for $this")
+@ImplicitReflectionSerializer
+actual fun <T: Any> KClass<T>.compiledSerializer(): KSerializer<T>? = this.js.asDynamic().Companion?.serializer() as? KSerializer<T>
 
 @Suppress("UNUSED_VARIABLE") // KT-23633
 actual fun String.toUtf8Bytes(): ByteArray {
@@ -40,5 +40,12 @@ actual fun <E: Enum<E>> enumFromName(enumClass: KClass<E>, value: String): E = e
 actual fun <E: Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E = (enumClass.js.asDynamic().values() as Array<E>)[ordinal]
 
 actual fun <E: Enum<E>> KClass<E>.enumClassName(): String = this.js.name
+actual fun <E: Enum<E>> KClass<E>.enumMembers(): Array<E> = (this.js.asDynamic().values() as Array<E>)
 
 actual fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> = toTypedArray()
+
+actual fun getSerialId(desc: SerialDescriptor, index: Int): Int? {
+    return desc.getElementAnnotations(index).filterIsInstance<SerialId>().singleOrNull()?.id
+}
+
+actual fun getSerialTag(desc: SerialDescriptor, index: Int): String? = desc.getElementAnnotations(index).filterIsInstance<SerialTag>().singleOrNull()?.tag

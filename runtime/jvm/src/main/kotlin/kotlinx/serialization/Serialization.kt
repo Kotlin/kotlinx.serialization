@@ -19,8 +19,8 @@ package kotlinx.serialization
 import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
-actual fun <T: Any> KClass<T>.serializer(): KSerializer<T> = this.java.invokeSerializerGetter()
-        ?: throw SerializationException("Can't locate default serializer for $this")
+@ImplicitReflectionSerializer
+actual fun <T: Any> KClass<T>.compiledSerializer(): KSerializer<T>? = this.java.invokeSerializerGetter()
 
 actual fun String.toUtf8Bytes() = this.toByteArray(Charsets.UTF_8)
 actual fun stringFromUtf8Bytes(bytes: ByteArray) = String(bytes, Charsets.UTF_8)
@@ -29,11 +29,13 @@ actual fun <E: Enum<E>> enumFromName(enumClass: KClass<E>, value: String): E = j
 actual fun <E: Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E = enumClass.java.enumConstants[ordinal]
 
 actual fun <E: Enum<E>> KClass<E>.enumClassName(): String = this.java.canonicalName ?: ""
+actual fun <E : Enum<E>> KClass<E>.enumMembers(): Array<E> = this.java.enumConstants
 
 @Suppress("UNCHECKED_CAST")
 actual fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> = toArray(java.lang.reflect.Array.newInstance(eClass.java, size) as Array<E>)
 
 @Suppress("UNCHECKED_CAST")
+@ImplicitReflectionSerializer
 internal fun <T> Class<T>.invokeSerializerGetter(vararg args: KSerializer<Any>): KSerializer<T>? {
     var serializer: KSerializer<T>? = null
 
@@ -56,3 +58,9 @@ internal fun <T> Class<T>.invokeSerializerGetter(vararg args: KSerializer<Any>):
 
     return serializer
 }
+
+actual fun getSerialId(desc: SerialDescriptor, index: Int): Int? {
+    return desc.getElementAnnotations(index).filterIsInstance<SerialId>().singleOrNull()?.id
+}
+
+actual fun getSerialTag(desc: SerialDescriptor, index: Int): String? = desc.getElementAnnotations(index).filterIsInstance<SerialTag>().singleOrNull()?.tag

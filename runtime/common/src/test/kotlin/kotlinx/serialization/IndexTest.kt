@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,13 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 class IndexTest {
-    class MalformedReader: ElementValueInput() {
-        override fun readElement(desc: KSerialClassDesc): Int {
+    class MalformedReader: ElementValueDecoder() {
+        override fun decodeElementIndex(desc: SerialDescriptor): Int {
             return UNKNOWN_NAME
         }
     }
@@ -29,7 +30,7 @@ class IndexTest {
     @Test
     fun compilerComplainsAboutIncorrectIndex() {
         assertFailsWith(UnknownFieldException::class) {
-            MalformedReader().read<OptionalTests.Data>()
+            MalformedReader().decode<OptionalTests.Data>()
         }
     }
 }

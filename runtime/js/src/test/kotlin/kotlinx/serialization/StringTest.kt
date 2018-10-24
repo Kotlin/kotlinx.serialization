@@ -17,7 +17,6 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.internal.HexConverter
-import kotlinx.serialization.json.createString
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -40,7 +39,7 @@ class StringTest {
     @Test
     fun testCreateString() {
         val charArr = charArrayOf('a', 'b', 'c', 'd')
-        val content = charArr.createString(2)
+        val content = String(charArr, 0, 2)
         assertEquals("ab", content)
     }
 }
