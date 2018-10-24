@@ -1,5 +1,5 @@
-import kotlinx.serialization.KSerialClassDesc
-import kotlinx.serialization.ValueTransformer
+import kotlinx.serialization.*
+import utils.Shop
 import utils.shop
 
 /**
@@ -9,13 +9,13 @@ import utils.shop
  */
 
 object LowercaseTransformer : ValueTransformer() {
-    override fun transformStringValue(desc: KSerialClassDesc, index: Int, value: String): String =
+    override fun transformStringValue(desc: SerialDescriptor, index: Int, value: String): String =
             value.toLowerCase()
 }
 
 fun main(args: Array<String>) {
     val p = shop
     println("Original shop: $p")
-    val q = LowercaseTransformer.transform(p)
+    val q = LowercaseTransformer.transform(Shop.serializer(), p)
     println("Transformed shop: $q")
 }

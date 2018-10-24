@@ -1,6 +1,4 @@
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.NamedValueInput
-import kotlinx.serialization.NamedValueOutput
+import kotlinx.serialization.*
 import utils.*
 
 /**
@@ -15,25 +13,38 @@ import utils.*
  * Note that null values are not supported here.
  */
 
-class MapOutput(val map: MutableMap<String, Any> = mutableMapOf()) : NamedValueOutput() {
-    override fun writeTaggedValue(name: String, value: Any) {
-        map[name] = value
+class MapOutput(val map: MutableMap<String, Any> = mutableMapOf()) : NamedValueEncoder () {
+    override fun beginCollection(
+        desc: SerialDescriptor,
+        collectionSize: Int,
+        vararg typeParams: KSerializer<*>
+    ): CompositeEncoder {
+        encodeTaggedInt(nested("size"), collectionSize)
+        return this
+    }
+
+    override fun encodeTaggedValue(tag: String, value: Any) {
+        map[tag] = value
     }
 }
 
-class MapInput(val map: Map<String, Any>) : NamedValueInput() {
-    override fun readTaggedValue(name: String): Any {
-        return map[name]!!
+class MapInput(val map: Map<String, Any>) : NamedValueDecoder() {
+    override fun decodeCollectionSize(desc: SerialDescriptor): Int {
+        return decodeTaggedInt(nested("size"))
+    }
+
+    override fun decodeTaggedValue(tag: String): Any {
+        return map[tag]!!
     }
 }
 
 fun testMapIO(serializer: KSerializer<Any>, obj: Any): Result {
     // save
     val out = MapOutput()
-    out.write(serializer, obj)
+    out.encode(serializer, obj)
     // load
     val inp = MapInput(out.map)
-    val other = inp.read(serializer)
+    val other = inp.decode(serializer)
     // result
     return Result(obj, other, "${out.map.size} items ${out.map}")
 }

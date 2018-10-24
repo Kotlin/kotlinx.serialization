@@ -1,6 +1,5 @@
-import kotlinx.serialization.ElementValueInput
-import kotlinx.serialization.ElementValueOutput
-import kotlinx.serialization.KSerializer
+import kotlinx.serialization.*
+import kotlinx.serialization.internal.EnumDescriptor
 import kotlinx.serialization.internal.HexConverter
 import utils.Result
 import utils.testMethod
@@ -15,44 +14,54 @@ import kotlin.reflect.KClass
  * `writeElement` methods, see CustomKeyValueDemo.kt
  */
 
-class DataBinaryNullableOutput(val out: DataOutput) : ElementValueOutput() {
-    override fun writeNullValue() = out.writeByte(0)
-    override fun writeNotNullMark() = out.writeByte(1)
-    override fun writeBooleanValue(value: Boolean) = out.writeByte(if (value) 1 else 0)
-    override fun writeByteValue(value: Byte) = out.writeByte(value.toInt())
-    override fun writeShortValue(value: Short) = out.writeShort(value.toInt())
-    override fun writeIntValue(value: Int) = out.writeInt(value)
-    override fun writeLongValue(value: Long) = out.writeLong(value)
-    override fun writeFloatValue(value: Float) = out.writeFloat(value)
-    override fun writeDoubleValue(value: Double) = out.writeDouble(value)
-    override fun writeCharValue(value: Char) = out.writeChar(value.toInt())
-    override fun writeStringValue(value: String) = out.writeUTF(value)
-    override fun <T : Enum<T>> writeEnumValue(enumClass: KClass<T>, value: T) = out.writeInt(value.ordinal)
+class DataBinaryNullableOutput(val out: DataOutput) : ElementValueEncoder() {
+    override fun beginCollection(
+        desc: SerialDescriptor,
+        collectionSize: Int,
+        vararg typeParams: KSerializer<*>
+    ): CompositeEncoder {
+        return super.beginCollection(desc, collectionSize, *typeParams).also {
+            out.writeInt(collectionSize)
+        }
+    }
+    override fun encodeNull() = out.writeByte(0)
+    override fun encodeNotNullMark() = out.writeByte(1)
+    override fun encodeBoolean(value: Boolean) = out.writeByte(if (value) 1 else 0)
+    override fun encodeByte(value: Byte) = out.writeByte(value.toInt())
+    override fun encodeShort(value: Short) = out.writeShort(value.toInt())
+    override fun encodeInt(value: Int) = out.writeInt(value)
+    override fun encodeLong(value: Long) = out.writeLong(value)
+    override fun encodeFloat(value: Float) = out.writeFloat(value)
+    override fun encodeDouble(value: Double) = out.writeDouble(value)
+    override fun encodeChar(value: Char) = out.writeChar(value.toInt())
+    override fun encodeString(value: String) = out.writeUTF(value)
+    override fun encodeEnum(enumDescription: EnumDescriptor, ordinal: Int) = out.writeInt(ordinal)
 }
 
-class DataBinaryNullableInput(val inp: DataInput) : ElementValueInput() {
-    override fun readNotNullMark(): Boolean = inp.readByte() != 0.toByte()
-    override fun readBooleanValue(): Boolean = inp.readByte().toInt() != 0
-    override fun readByteValue(): Byte = inp.readByte()
-    override fun readShortValue(): Short = inp.readShort()
-    override fun readIntValue(): Int = inp.readInt()
-    override fun readLongValue(): Long = inp.readLong()
-    override fun readFloatValue(): Float = inp.readFloat()
-    override fun readDoubleValue(): Double = inp.readDouble()
-    override fun readCharValue(): Char = inp.readChar()
-    override fun readStringValue(): String = inp.readUTF()
-    override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T = enumClass.java.enumConstants[inp.readInt()]
+class DataBinaryNullableInput(val inp: DataInput) : ElementValueDecoder() {
+    override fun decodeCollectionSize(desc: SerialDescriptor): Int = inp.readInt()
+    override fun decodeNotNullMark(): Boolean = inp.readByte() != 0.toByte()
+    override fun decodeBoolean(): Boolean = inp.readByte().toInt() != 0
+    override fun decodeByte(): Byte = inp.readByte()
+    override fun decodeShort(): Short = inp.readShort()
+    override fun decodeInt(): Int = inp.readInt()
+    override fun decodeLong(): Long = inp.readLong()
+    override fun decodeFloat(): Float = inp.readFloat()
+    override fun decodeDouble(): Double = inp.readDouble()
+    override fun decodeChar(): Char = inp.readChar()
+    override fun decodeString(): String = inp.readUTF()
+    override fun decodeEnum(enumDescription: EnumDescriptor): Int = inp.readInt()
 }
 
 fun testDataBinaryIO(serializer: KSerializer<Any>, obj: Any): Result {
     // save
     val baos = ByteArrayOutputStream()
     val out = DataBinaryNullableOutput(DataOutputStream(baos))
-    out.write(serializer, obj)
+    out.encode(serializer, obj)
     // load
     val bytes = baos.toByteArray()
     val inp = DataBinaryNullableInput(DataInputStream(ByteArrayInputStream(bytes)))
-    val other = inp.read(serializer)
+    val other = inp.decode(serializer)
     // result
     return Result(obj, other, "${bytes.size} bytes ${HexConverter.printHexBinary(bytes)}")
 }

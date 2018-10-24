@@ -1,6 +1,4 @@
-import kotlinx.serialization.Optional
-import kotlinx.serialization.SerialId
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
 import kotlinx.serialization.cbor.CBOR
 import kotlinx.serialization.json.JSON
 import kotlinx.serialization.protobuf.ProtoBuf
@@ -27,10 +25,11 @@ fun main() {
         val txt: String = txtInput.value
         try {
 
-            val kotl = JSON.parse<DataList>(txt)
-            val json = JSON.indented.stringify(kotl)
-            val proto = ProtoBuf.dumps(kotl)
-            val cbor = CBOR.dumps(kotl)
+            val serial = DataList.serializer()
+            val kotl = JSON.parse(serial, txt)
+            val json = JSON.indented.stringify(serial, kotl)
+            val proto = ProtoBuf.dumps(serial, kotl)
+            val cbor = CBOR.dumps(serial, kotl)
 
             kotlinLabel.value = kotl.toString()
             jsonLabel.value = json
