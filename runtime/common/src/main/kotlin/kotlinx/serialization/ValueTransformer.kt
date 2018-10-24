@@ -105,6 +105,15 @@ open class ValueTransformer {
             return this
         }
 
+        override fun beginCollection(
+            desc: SerialDescriptor,
+            collectionSize: Int,
+            vararg typeParams: KSerializer<*>
+        ): CompositeEncoder {
+            encodeNullableValue(collectionSize)
+            return super.beginCollection(desc, collectionSize, *typeParams)
+        }
+
         override fun <T> encodeSerializableElement(
             desc: SerialDescriptor,
             index: Int,
@@ -142,6 +151,10 @@ open class ValueTransformer {
         fun decodeValue(): Any = list[index++]!!
         fun decodeNullableValue(): Any? = list[index++]
         override fun decodeUnit(): Unit { index++ }
+
+        override fun decodeCollectionSize(desc: SerialDescriptor): Int {
+            return decodeValue() as Int
+        }
 
         override fun decodeBoolean(): Boolean = transformBooleanValue(curDesc!!, curIndex, decodeValue() as Boolean)
         override fun decodeByte(): Byte = transformByteValue(curDesc!!, curIndex, decodeValue() as Byte)

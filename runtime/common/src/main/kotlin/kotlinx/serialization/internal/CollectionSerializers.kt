@@ -39,12 +39,12 @@ sealed class AbstractCollectionSerializer<TElement, TCollection, TBuilder>: KSer
         val startIndex = builder.builderSize()
         @Suppress("NAME_SHADOWING")
         val input = input.beginStructure(descriptor, *typeParams)
-        readSize(input, builder)
+        val size = readSize(input, builder)
         mainLoop@ while (true) {
             val index = input.decodeElementIndex(descriptor)
             when (index) {
                 READ_ALL -> {
-                    readAll(input, builder, startIndex)
+                    readAll(input, builder, startIndex, size)
                     break@mainLoop
                 }
                 READ_DONE -> break@mainLoop
@@ -67,13 +67,12 @@ sealed class AbstractCollectionSerializer<TElement, TCollection, TBuilder>: KSer
         return size
     }
 
-    protected abstract fun readItem(input: CompositeDecoder, index: Int, builder: TBuilder)
+    protected abstract fun readItem(input: CompositeDecoder, index: Int, builder: TBuilder, checkIndex: Boolean = true)
 
-    private fun readAll(input: CompositeDecoder, builder: TBuilder, startIndex: Int) {
-        val size = readSize(input, builder)
+    private fun readAll(input: CompositeDecoder, builder: TBuilder, startIndex: Int, size: Int) {
         require(size >= 0) { "Size must be known in advance when using READ_ALL" }
         for (index in 0 until size)
-            readItem(input, startIndex + index, builder)
+            readItem(input, startIndex + index, builder, checkIndex = false)
     }
 }
 
@@ -95,7 +94,7 @@ sealed class ListLikeSerializer<TElement, TCollection, TBuilder>(val elementSeri
         output.endStructure(descriptor)
     }
 
-    protected override fun readItem(input: CompositeDecoder, index: Int, builder: TBuilder) {
+    protected override fun readItem(input: CompositeDecoder, index: Int, builder: TBuilder, checkIndex: Boolean) {
         builder.insert(index, input.decodeSerializableElement(descriptor, index, elementSerializer))
     }
 }
@@ -110,10 +109,15 @@ sealed class MapLikeSerializer<TKey, TVal, TCollection, TBuilder: MutableMap<TKe
 
     final override val typeParams = arrayOf(keySerializer, valueSerializer)
 
-    final override fun readItem(input: CompositeDecoder, index: Int, builder: TBuilder) {
+    final override fun readItem(input: CompositeDecoder, index: Int, builder: TBuilder, checkIndex: Boolean) {
         val key: TKey = input.decodeSerializableElement(descriptor, index, keySerializer)
-        val vIndex = input.decodeElementIndex(descriptor)
-        require(vIndex == index + 1) { "Value must follow key in a map, index for key: $index, returned index for value: $vIndex" }
+        val vIndex = if (checkIndex) {
+            input.decodeElementIndex(descriptor).also {
+                require(it == index + 1) { "Value must follow key in a map, index for key: $index, returned index for value: $it" }
+            }
+        } else {
+            index + 1
+        }
         val value: TVal = if (builder.containsKey(key) && valueSerializer.descriptor.kind !is PrimitiveKind) {
             input.updateSerializableElement(descriptor, vIndex, valueSerializer, builder.getValue(key))
         } else {
