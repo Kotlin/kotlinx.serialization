@@ -1,4 +1,17 @@
 
+v0.9.0 / 2018-10-24
+==================
+
+  * Fix bug where `.simpleName` was not available for primitives' KClasses.
+  * Improve Mapper: it is now a class (with default instance in Companion) which extends AbstractSerialFormat and therefore have context and proper reflectionless API.
+  * Introduce @ImplicitReflectionSerializer for API which involves reflection.
+  * Add Boolean.Companion.serializer() extension method.
+  * Refactor surface API: introduce interfaces for different formats, move some inline functions for serialization start to extensions. As a minor change, now nulls can be serialized at top-level, where it is supported by the format.
+  * Add AbstractSerialFormat as a base class to all major formats
+  * Update general readme and versions: Library to 0.9, K/N to 1.0 beta
+  * Update documentation for the new API
+  * Updated info about eap13 releases
+
 v0.8.3-rc13 / 2018-10-19
 ==================
 
