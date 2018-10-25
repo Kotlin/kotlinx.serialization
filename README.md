@@ -214,6 +214,10 @@ JavaScript example is located at [`example-js`](example-js) folder.
 You can apply the plugin to `kotlin-platform-native` or `kotlin-multiplatform` projects.
 `konan` plugin is not supported and deprecated.
 
+**Important note**: for `kotlin-multiplatform` project, apply usual `kotlinx-serailization` plugin.
+For `kotlin-platform-native` module, apply `kotlinx-serialization-native` plugin,
+since platform-native from K/N 0.9.3 uses infrastructure in which compiler plugins [are shaded](https://github.com/JetBrains/kotlin-native/issues/2210#issuecomment-429753168).
+
 Use `kotlinx-serialization-runtime-native` artifact. Don't forget to `enableFeaturePreview('GRADLE_METADATA')`
 in yours `settings.gradle`. You must have Gradle 4.7, because higher versions have unsupported format of metadata.
 
@@ -231,6 +235,8 @@ What **does not work**:
 * Enums and arrays (`Array<T>, ByteArray, etc`)
 * `@Transient` initializers and `init` blocks
 * `@SerialInfo`-based annotations
+
+Sample project can be found in [example-native](example-native) folder.
 
 
 ## Troubleshooting IntelliJ IDEA

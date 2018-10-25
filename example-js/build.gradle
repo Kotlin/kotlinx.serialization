@@ -23,8 +23,6 @@ buildscript {
 
     repositories {
         jcenter()
-        mavenLocal()
-        maven { url "https://kotlin.bintray.com/kotlinx" }
         maven { url "https://kotlin.bintray.com/kotlin-dev" }
     }
 
@@ -39,8 +37,11 @@ apply plugin: 'kotlinx-serialization'
 
 repositories {
     jcenter()
-    mavenLocal()
-    maven { url "https://kotlin.bintray.com/kotlinx" }
+    maven { url "https://kotlin.bintray.com/kotlinx"
+        credentials {
+            username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+            password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+        }}
     maven { url "https://kotlin.bintray.com/kotlin-dev" }
 }
 
