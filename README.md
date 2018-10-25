@@ -75,7 +75,8 @@ This document describes setup for Kotlin 1.3 and higher. To watch instructions r
 
 ## Setup
 
-Using Kotlin Serialization requires Kotlin compiler `1.3.0` or higher. Make sure that you have corresponding plugin installed in the IDE. Delegate build to Gradle: (`Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`).
+Using Kotlin Serialization requires Kotlin compiler `1.3.0` or higher. Make sure that you have corresponding Kotlin plugin installed in the IDE. Since serialization is now bundled into Kotlin plugin, no additional actions in IDE are required (but make sure you have deleted old additional plugin for 1.2, if you had one). 
+Delegate build to Gradle: (`Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`).
 Example projects on JVM are available for [Gradle](example-jvm/build.gradle) and [Maven](example-jvm/pom.xml).
 
 ### Gradle/JVM
@@ -207,6 +208,8 @@ Add dependency on serialization runtime library:
 
 Replace dependency on `kotlinx-serialization-runtime` with `kotlinx-serialization-runtime-js` or `kotlinx-serialization-runtime-common`
 to use it in JavaScript and common projects, respectively. Both `kotlin-platform-***` and `kotlin-multiplatform` are supported.
+You have to apply `kotlinx-serialization` plugin to every module, including common and platform ones.
+
 JavaScript example is located at [`example-js`](example-js) folder.
 
 ### Native
