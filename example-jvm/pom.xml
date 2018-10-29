@@ -34,19 +34,12 @@
             <url>https://kotlin.bintray.com/kotlinx</url>
         </repository>
     </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>bintray-kotlin-kotlinx</id>
-            <name>bintray-plugins</name>
-            <url>https://kotlin.bintray.com/kotlinx</url>
-        </pluginRepository>
-    </pluginRepositories>
 
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.version>1.2.60</kotlin.version>
-        <serialization.version>0.6.1</serialization.version>
+        <kotlin.version>1.3.0</kotlin.version>
+        <serialization.version>0.9.0</serialization.version>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
     </properties>
 
@@ -94,9 +87,9 @@
 
                 <dependencies>
                     <dependency>
-                        <groupId>org.jetbrains.kotlinx</groupId>
+                        <groupId>org.jetbrains.kotlin</groupId>
                         <artifactId>kotlinx-maven-serialization-plugin</artifactId>
-                        <version>${serialization.version}</version>
+                        <version>${kotlin.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
