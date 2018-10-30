@@ -217,7 +217,7 @@ JavaScript example is located at [`example-js`](example-js) folder.
 You can apply the plugin to `kotlin-platform-native` or `kotlin-multiplatform` projects.
 `konan` plugin is not supported and deprecated.
 
-**Important note**: for `kotlin-multiplatform` project, apply usual `kotlinx-serailization` plugin.
+**Important note**: for `kotlin-multiplatform` project, apply usual `kotlinx-serialization` plugin.
 For `kotlin-platform-native` module, apply `kotlinx-serialization-native` plugin,
 since platform-native from K/N 0.9.3 uses infrastructure in which compiler plugins [are shaded](https://github.com/JetBrains/kotlin-native/issues/2210#issuecomment-429753168).
 
