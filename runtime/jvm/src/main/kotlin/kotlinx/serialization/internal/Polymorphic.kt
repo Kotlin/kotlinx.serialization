@@ -78,7 +78,7 @@ internal object SerialCache {
         if (ans != null) return ans as KSerializer<E>
         // If it's not there, maybe it came from java
         val klass = preloadedClass ?: Class.forName(className).kotlin
-        ans = context?.getOrDefault(klass) ?: ClassSerialCache.getSubclassSerializer(klass)
+        ans = context?.get(klass) ?: ClassSerialCache.getSubclassSerializer(klass)
         if (ans != null) return ans as KSerializer<E>
         // Then, it's user defined class
         val last = klass.serializer() as? KSerializer<E>
