@@ -147,7 +147,7 @@ sealed class JsonPrimitive : JsonElement() {
  */
 data class JsonLiteral internal constructor(
     private val body: Any,
-    private val isString: Boolean
+    internal val isString: Boolean
 ) : JsonPrimitive() {
 
     override val content = body.toString()

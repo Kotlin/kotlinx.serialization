@@ -63,9 +63,6 @@ class JSON(
     // Public visibility to allow casting in user-code to call [writeJsonElement]
     @Suppress("RedundantVisibilityModifier")
     public interface JsonElementWriter {
-        /**
-         * Doesn't respect indentation or quoting settings
-         */
         fun writeJsonElement(tree: JsonElement)
     }
 
@@ -84,10 +81,6 @@ class JSON(
             val i = mode.ordinal
             if (modeReuseCache[i] !== null || modeReuseCache[i] !== this)
                 modeReuseCache[i] = this
-        }
-
-        override fun writeJsonElement(tree: JsonElement) {
-            writeTree(tree)
         }
 
         /**
@@ -206,6 +199,44 @@ class JSON(
         override fun encodeValue(value: Any) {
             if (strictMode) super.encodeValue(value) else
                 encodeString(value.toString())
+        }
+
+        override fun writeJsonElement(tree: JsonElement) {
+            when (tree) {
+                is JsonLiteral -> if (forceQuoting || tree.isString) encodeString(tree.content) else w.print(tree.content)
+                is JsonNull -> encodeNull()
+                is JsonObject -> {
+                    w.print(BEGIN_OBJ)
+                    w.indent()
+                    for ((key, value) in tree.content) {
+                        if (!w.writingFirst) {
+                            w.print(COMMA)
+                        }
+                        w.nextItem()
+                        encodeString(key)
+                        w.print(COLON)
+                        w.space()
+                        writeJsonElement(value)
+                    }
+                    w.unIndent()
+                    w.nextItem()
+                    w.print(END_OBJ)
+                }
+                is JsonArray -> {
+                    w.print(BEGIN_LIST)
+                    w.indent()
+                    for (value in tree.content) {
+                        if (!w.writingFirst) {
+                            w.print(COMMA)
+                        }
+                        w.nextItem()
+                        writeJsonElement(value)
+                    }
+                    w.unIndent()
+                    w.nextItem()
+                    w.print(END_LIST)
+                }
+            }
         }
     }
 
