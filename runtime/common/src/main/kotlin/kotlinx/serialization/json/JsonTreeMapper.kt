@@ -38,7 +38,8 @@ class JsonTreeMapper(): AbstractSerialFormat() {
         return result
     }
 
-    private abstract inner class AbstractJsonTreeOutput(val nodeConsumer: (JsonElement) -> Unit) : NamedValueEncoder() {
+    private abstract inner class AbstractJsonTreeOutput(val nodeConsumer: (JsonElement) -> Unit) : NamedValueEncoder(),
+            JSON.JsonElementWriter {
         init {
             this.context = this@JsonTreeMapper.context
         }
@@ -83,6 +84,10 @@ class JsonTreeMapper(): AbstractSerialFormat() {
 
         override fun endEncode(desc: SerialDescriptor) {
             nodeConsumer(getCurrent())
+        }
+
+        override fun writeJsonElement(tree: JsonElement) {
+            putElement(popTag(), tree)
         }
     }
 
@@ -132,7 +137,8 @@ class JsonTreeMapper(): AbstractSerialFormat() {
         override fun getCurrent(): JsonElement = JsonArray(array)
     }
 
-    private abstract inner class AbstractJsonTreeInput(open val obj: JsonElement): NamedValueDecoder() {
+    private abstract inner class AbstractJsonTreeInput(open val obj: JsonElement): NamedValueDecoder(),
+            JSON.JsonElementReader {
         init {
             this.context = this@JsonTreeMapper.context
         }
@@ -183,6 +189,8 @@ class JsonTreeMapper(): AbstractSerialFormat() {
         override fun decodeTaggedFloat(tag: String) = getValue(tag).float
         override fun decodeTaggedDouble(tag: String) = getValue(tag).double
         override fun decodeTaggedString(tag: String) = getValue(tag).content
+
+        override fun readAsTree(): JsonElement = currentElement(popTag())
     }
 
     private open inner class JsonTreeInput(override val obj: JsonObject) : AbstractJsonTreeInput(obj) {
@@ -198,7 +206,6 @@ class JsonTreeMapper(): AbstractSerialFormat() {
         }
 
         override fun currentElement(tag: String): JsonElement = obj.getValue(tag)
-
     }
 
     private inner class JsonTreeMapInput(override val obj: JsonObject): JsonTreeInput(obj) {

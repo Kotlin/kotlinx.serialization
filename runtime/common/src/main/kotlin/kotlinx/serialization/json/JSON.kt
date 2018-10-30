@@ -60,11 +60,21 @@ class JSON(
             plain.parse(serializer, string)
     }
 
+    // Public visibility to allow casting in user-code to call [writeJsonElement]
+    @Suppress("RedundantVisibilityModifier")
+    public interface JsonElementWriter {
+        /**
+         * Doesn't respect indentation or quoting settings
+         */
+        fun writeJsonElement(tree: JsonElement)
+    }
+
     // Public visibility to allow casting in user-code to call [writeTree]
     @Suppress("RedundantVisibilityModifier")
     public inner class JsonOutput internal constructor(private val mode: Mode, private val w: Composer,
                                                        private val modeReuseCache: Array<JsonOutput?>)
-        : ElementValueEncoder() {
+        : ElementValueEncoder(),
+            JsonElementWriter {
 
         // Forces serializer to wrap all values into quotes
         private var forceQuoting: Boolean = false
@@ -74,6 +84,10 @@ class JSON(
             val i = mode.ordinal
             if (modeReuseCache[i] !== null || modeReuseCache[i] !== this)
                 modeReuseCache[i] = this
+        }
+
+        override fun writeJsonElement(tree: JsonElement) {
+            writeTree(tree)
         }
 
         /**
@@ -229,9 +243,15 @@ class JSON(
         fun printQuoted(value: String): Unit = sb.printQuoted(value)
     }
 
+    // Public visibility to allow casting in user-code to call [readJsonElement]
+    @Suppress("RedundantVisibilityModifier")
+    public interface JsonElementReader {
+        fun readAsTree(): JsonElement
+    }
+
     // Public visibility to allow casting in user-code to call [readAsTree]
     @Suppress("RedundantVisibilityModifier")
-    public inner class JsonInput internal constructor(private val mode: Mode, private val p: Parser) : ElementValueDecoder() {
+    public inner class JsonInput internal constructor(private val mode: Mode, private val p: Parser) : ElementValueDecoder(), JsonElementReader {
         private var curIndex = -1
         private var entryIndex = 0
 
@@ -239,7 +259,7 @@ class JSON(
             context = this@JSON.context
         }
 
-        fun readAsTree(): JsonElement = JsonTreeParser(p).read()
+        override fun readAsTree(): JsonElement = JsonTreeParser(p).read()
 
         override val updateMode: UpdateMode
             get() = this@JSON.updateMode
