@@ -20,6 +20,10 @@ apply plugin: 'kotlinx-serialization-native'
 
 def deployMode = property('native.deploy') == 'true'
 
+if (project.hasProperty("bootstrap")) {
+    project.setProperty("konan.home", System.getenv("KONAN_LOCAL_DIST"))
+}
+
 sourceSets {
     main {
         kotlin.srcDirs = ['src/main/kotlin', '../common/src/main/kotlin', '../../json/common/src']
