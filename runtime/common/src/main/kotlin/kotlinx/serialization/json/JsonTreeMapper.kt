@@ -22,7 +22,7 @@ import kotlinx.serialization.context.*
 import kotlinx.serialization.internal.EnumDescriptor
 
 @Suppress("USELESS_CAST") // contracts not working in Native
-class JsonTreeMapper(): AbstractSerialFormat() {
+class JsonTreeMapper(val encodeDefaults: Boolean = true): AbstractSerialFormat() {
     @ImplicitReflectionSerializer
     inline fun <reified T : Any> readTree(tree: JsonElement): T = readTree(tree, context.getOrDefault(T::class))
 
@@ -42,6 +42,8 @@ class JsonTreeMapper(): AbstractSerialFormat() {
         init {
             this.context = this@JsonTreeMapper.context
         }
+
+        override fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean = encodeDefaults
 
         override fun composeName(parentName: String, childName: String): String = childName
 

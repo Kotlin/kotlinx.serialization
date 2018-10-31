@@ -1,7 +1,7 @@
 package kotlinx.serialization.features
 
-import kotlinx.serialization.Optional
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
+import kotlinx.serialization.cbor.CBOR
 import kotlinx.serialization.json.JSON
 import kotlin.test.*
 
@@ -17,6 +17,7 @@ data class Data(val bar: String, @Optional val foo: Int = 42) {
 @Ignore // todo: unignore when corresponding features in plugin will be released
 class SkipDefaultsTest {
     private val json = JSON(encodeDefaults = false)
+    private val cbor = CBOR(encodeDefaults = false)
 
     @Test
     fun serializeCorrectlyDefaults() {
@@ -40,5 +41,11 @@ class SkipDefaultsTest {
     fun serializeCorrectlyAndDropAll() {
         val d = Data("bar")
         assertEquals("""{"bar":"bar"}""", json.stringify(Data.serializer(), d))
+    }
+
+    @Test
+    fun cborDropsDefaults() {
+        val d = Data("bar")
+        assertEquals("bf6362617263626172ff", cbor.dumps(Data.serializer(), d))
     }
 }
