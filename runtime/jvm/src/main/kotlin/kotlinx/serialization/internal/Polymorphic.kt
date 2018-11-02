@@ -21,17 +21,6 @@ import kotlinx.serialization.context.SerialContext
 import java.util.concurrent.*
 import kotlin.reflect.KClass
 
-internal object PolymorphicClassDesc : SerialClassDescImpl("kotlin.Any") {
-    override val kind: SerialKind = UnionKind.POLYMORPHIC
-
-    init {
-        addElement("klass")
-        pushAnnotation(SyntheticSerialId(1))
-        addElement("value")
-        pushAnnotation(SyntheticSerialId(2))
-    }
-}
-
 @ImplicitReflectionSerializer
 internal object ClassSerialCache {
     internal val map: Map<KClass<*>, KSerializer<*>> = mapOf(

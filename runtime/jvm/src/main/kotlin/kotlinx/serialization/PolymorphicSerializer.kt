@@ -18,7 +18,6 @@ package kotlinx.serialization
 
 import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
-import kotlinx.serialization.internal.PolymorphicClassDesc
 
 @ImplicitReflectionSerializer
 object PolymorphicSerializer : KSerializer<Any> {
