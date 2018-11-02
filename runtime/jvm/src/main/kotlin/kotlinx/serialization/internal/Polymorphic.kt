@@ -26,17 +26,17 @@ internal object ClassSerialCache {
     internal val map: Map<KClass<*>, KSerializer<*>> = mapOf(
             // not sure if we need collection serializer at all
 //            Collection::class to ArrayListSerializer(makeNullable(PolymorphicSerializer)),
-            List::class to ArrayListSerializer(makeNullable(PolymorphicSerializer)),
-            HashSet::class to HashSetSerializer(makeNullable(PolymorphicSerializer)),
-            Set::class to LinkedHashSetSerializer(makeNullable(PolymorphicSerializer)),
-            HashMap::class to HashMapSerializer(makeNullable(PolymorphicSerializer), makeNullable(PolymorphicSerializer)),
-            Map::class to LinkedHashMapSerializer(makeNullable(PolymorphicSerializer), makeNullable(PolymorphicSerializer)),
-            Map.Entry::class to MapEntrySerializer(makeNullable(PolymorphicSerializer), makeNullable(PolymorphicSerializer))
+//            List::class to ArrayListSerializer(makeNullable(PolymorphicSerializer)),
+//            HashSet::class to HashSetSerializer(makeNullable(PolymorphicSerializer)),
+//            Set::class to LinkedHashSetSerializer(makeNullable(PolymorphicSerializer)),
+//            HashMap::class to HashMapSerializer(makeNullable(PolymorphicSerializer), makeNullable(PolymorphicSerializer)),
+//            Map::class to LinkedHashMapSerializer(makeNullable(PolymorphicSerializer), makeNullable(PolymorphicSerializer)),
+//            Map.Entry::class to MapEntrySerializer(makeNullable(PolymorphicSerializer), makeNullable(PolymorphicSerializer))
     )
 
     @Suppress("UNCHECKED_CAST")
     internal fun getSubclassSerializer(klass: KClass<*>): KSerializer<*>? {
-        if (klass.java.isArray) return ReferenceArraySerializer(Any::class, PolymorphicSerializer)
+//        if (klass.java.isArray) return ReferenceArraySerializer(Any::class, PolymorphicSerializer)
         for ((k, v) in map) {
             if (k.java.isAssignableFrom((klass.java))) return v
         }
@@ -57,7 +57,7 @@ internal object SerialCache {
     init {
         allPrimitives.forEach { registerSerializer(it.descriptor.name, it) }
         ClassSerialCache.map.values.toList().forEach { registerSerializer(it.descriptor.name, it) }
-        registerSerializer("kotlin.Array", ReferenceArraySerializer(Any::class, PolymorphicSerializer))
+//        registerSerializer("kotlin.Array", ReferenceArraySerializer(Any::class, PolymorphicSerializer))
     }
 
     internal fun registerSerializer(classFqn: String, serializer: KSerializer<*>) {

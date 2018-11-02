@@ -63,7 +63,12 @@ class CustomSerializersJvmTest {
     @Before
     fun initContext() {
         val scope = SimpleModule(Payload::class, PayloadSerializer)
-        json = Json(unquoted = true).apply { install(scope) }
+        val bPolymorphicModule = object : SerialModule {
+            override fun registerIn(context: MutableSerialContext) {
+                context.registerPolymorphicSerializer(Any::class, Payload::class, PayloadSerializer)
+            }
+        }
+        json = Json(unquoted = true).apply { install(CompositeModule(scope, bPolymorphicModule)) }
     }
 
     @Test
@@ -87,7 +92,7 @@ class CustomSerializersJvmTest {
     @Test
     fun testPolymorphicResolve() {
         val map = mapOf<String, Any>("Payload" to Payload("data"))
-        val serializer = (StringSerializer to PolymorphicSerializer).map
+        val serializer = (StringSerializer to PolymorphicSerializer(Any::class)).map
         val s = json.stringify(serializer, map)
         assertEquals("""{Payload:[kotlinx.serialization.CustomSerializersJvmTest.Payload,{s:data}]}""", s)
     }

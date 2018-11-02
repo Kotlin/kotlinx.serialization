@@ -15,14 +15,10 @@ object PolymorphicClassDesc : SerialClassDescImpl("kotlin.Any") {
 
 @Suppress("UNCHECKED_CAST")
 @ImplicitReflectionSerializer
-class NewPolymorphicSerializer<T : Any>(private val basePolyType: KClass<T>) : KSerializer<Any> {
+class PolymorphicSerializer<T : Any>(private val basePolyType: KClass<T>) : KSerializer<Any> {
     override fun serialize(output: Encoder, obj: Any) {
-        val kclass = obj::class
-        if (!basePolyType.isInstance(obj)) throw SerializationException("$kclass is not an instance of $basePolyType, and this violates PolymorphicSerializer contract")
-
-        // todo: more meaningful error message?
-        val scopedSerial = output.context.resolveFromBase(basePolyType, kclass as KClass<out T>) ?: throw SerializationException(
-            "$kclass is not registered for polymorphic deserialization in the scope of $basePolyType"
+        val scopedSerial = output.context.resolveFromBase(basePolyType, obj as T) ?: throw SerializationException(
+            "${obj::class} is not registered for polymorphic deserialization in the scope of $basePolyType"
         )
 
         val out = output.beginStructure(descriptor)

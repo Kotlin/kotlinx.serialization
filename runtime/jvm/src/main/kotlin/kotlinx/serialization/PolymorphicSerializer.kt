@@ -20,7 +20,7 @@ import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 
 @ImplicitReflectionSerializer
-object PolymorphicSerializer : KSerializer<Any> {
+object OldPolymorphicSerializer : KSerializer<Any> {
 
     override val descriptor: SerialDescriptor
         get() = PolymorphicClassDesc

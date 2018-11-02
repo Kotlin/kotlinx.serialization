@@ -17,6 +17,7 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
+import kotlinx.serialization.context.installPolymorphicModule
 import kotlinx.serialization.json.*
 import kotlinx.serialization.protobuf.*
 import org.junit.Test
@@ -72,10 +73,21 @@ class PolymorphicTest {
         }
     }
 
+    private val moduleInstaller: SerialFormat.() -> Unit = {
+        installPolymorphicModule(A::class, A.serializer()) {
+            +(B::class to B.serializer())
+        }
+        installPolymorphicModule(B::class, B.serializer()) // to run with B alone in `testExplicit`
+        installPolymorphicModule(Date::class, DateSerializer)
+    }
+
+    private val json = Json(unquoted = true).apply(moduleInstaller)
+    private val protobuf = ProtoBuf.apply(moduleInstaller)
+
     @Test
     fun testInheritanceJson() {
         val obj = Wrapper(A(2), B("b"))
-        val bytes = Json.unquoted.stringify(obj)
+        val bytes = json.stringify(obj)
         assertEquals("{a1:[kotlinx.serialization.features.A,{id:2}]," +
                 "a2:[kotlinx.serialization.features.B,{id:1,s:b}]}", bytes)
     }
@@ -83,8 +95,8 @@ class PolymorphicTest {
     @Test
     fun testInheritanceProtobuf() {
         val obj = Wrapper(A(2), B("b"))
-        val bytes = ProtoBuf.dumps(obj)
-        val restored = ProtoBuf.loads<Wrapper>(bytes)
+        val bytes = protobuf.dumps(obj)
+        val restored = protobuf.loads<Wrapper>(bytes)
         assertEquals(obj, restored)
     }
 
@@ -92,15 +104,15 @@ class PolymorphicTest {
     fun testPolymorphicWrappedOverride() {
         kotlinx.serialization.registerSerializer("java.util.Date", DateSerializer)
         val obj = DateWrapper(Date())
-        val bytes = ProtoBuf.dumps(obj)
-        val restored = ProtoBuf.loads<DateWrapper>(bytes)
+        val bytes = protobuf.dumps(obj)
+        val restored = protobuf.loads<DateWrapper>(bytes)
         assertEquals(obj, restored)
     }
 
     @Test
     fun testExplicit() {
         val obj = B("b")
-        val s = Json.unquoted.stringify(PolymorphicSerializer, obj)
+        val s = json.stringify(PolymorphicSerializer(B::class), obj)
         assertEquals("[kotlinx.serialization.features.B,{id:1,s:b}]", s)
     }
 }
