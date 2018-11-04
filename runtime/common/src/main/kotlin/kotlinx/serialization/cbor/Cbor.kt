@@ -42,7 +42,7 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
         override fun writeBeginToken() = encoder.startMap()
     }
 
-    // Writes all elements consequently, except size - Cbor supports maps and arrays of indefinite length
+    // Writes all elements consequently, except size - CBOR supports maps and arrays of indefinite length
     private open inner class CborListWriter(encoder: CborEncoder) : CborWriter(encoder) {
         override fun writeBeginToken() = encoder.startArray()
 
