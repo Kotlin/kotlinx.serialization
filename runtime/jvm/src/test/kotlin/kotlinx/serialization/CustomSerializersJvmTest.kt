@@ -20,12 +20,12 @@ import kotlinx.serialization.context.*
 import kotlinx.serialization.internal.HexConverter
 import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlinx.serialization.internal.StringSerializer
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
 
-class CustomSerializersJVMTest {
+class CustomSerializersJvmTest {
 
     @Serializable
     data class Data(val a: Int, @Optional val b: Int = 42)
@@ -58,12 +58,12 @@ class CustomSerializersJVMTest {
     }
 
     private val obj = EnhancedData(Data(100500), Payload("string"), Payload("binary"))
-    private lateinit var json: JSON
+    private lateinit var json: Json
 
     @Before
     fun initContext() {
         val scope = SimpleModule(Payload::class, PayloadSerializer)
-        json = JSON(unquoted = true).apply { install(scope) }
+        json = Json(unquoted = true).apply { install(scope) }
     }
 
     @Test
@@ -89,7 +89,7 @@ class CustomSerializersJVMTest {
         val map = mapOf<String, Any>("Payload" to Payload("data"))
         val saver = (StringSerializer to PolymorphicSerializer).map
         val s = json.stringify(saver, map)
-        assertEquals("""{Payload:[kotlinx.serialization.CustomSerializersJVMTest.Payload,{s:data}]}""", s)
+        assertEquals("""{Payload:[kotlinx.serialization.CustomSerializersJvmTest.Payload,{s:data}]}""", s)
     }
 
     @Test
@@ -98,8 +98,8 @@ class CustomSerializersJVMTest {
         // MapModule and CompositeModule are also available
         val binaryModule = SimpleModule(Payload::class, BinaryPayloadSerializer)
 
-        val json1 = JSON().apply { install(simpleModule) }
-        val json2 = JSON().apply { install(binaryModule) }
+        val json1 = Json().apply { install(simpleModule) }
+        val json2 = Json().apply { install(binaryModule) }
 
         // in json1, Payload would be serialized with PayloadSerializer,
         // in json2, Payload would be serialized with BinaryPayloadSerializer

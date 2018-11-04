@@ -44,7 +44,7 @@ You can open example projects for [JVM](example-jvm) or [JS](example-js) to get 
 ```kotlin
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 
 @Serializable
 data class Data(val a: Int, @Optional val b: String = "42")

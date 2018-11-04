@@ -3,7 +3,7 @@ package kotlinx.serialization.features
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.HexConverter
 import kotlinx.serialization.internal.SerialClassDescImpl
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -65,8 +65,8 @@ class BinaryPayloadExampleTest {
     @Test
     fun payloadEquivalence() {
         val payload1 = BinaryPayload(byteArrayOf(0, 0, 0), byteArrayOf(127, 127))
-        val s = JSON.stringify(BinaryPayload.serializer(), payload1)
-        val payload2 = JSON.parse(BinaryPayload.serializer(), s)
+        val s = Json.stringify(BinaryPayload.serializer(), payload1)
+        val payload2 = Json.parse(BinaryPayload.serializer(), s)
         assertEquals(payload1, payload2)
     }
 }

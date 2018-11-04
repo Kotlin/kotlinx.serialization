@@ -20,6 +20,6 @@ open class SampleBenchmark {
 
     @Benchmark
     fun benchmarkStringify(): String {
-        return JSON.stringify(value)
+        return Json.stringify(value)
     }
 }

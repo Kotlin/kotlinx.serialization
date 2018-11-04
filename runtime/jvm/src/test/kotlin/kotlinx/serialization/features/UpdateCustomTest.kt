@@ -18,7 +18,7 @@ package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.IntSerializer
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -42,7 +42,7 @@ class UpdateTest {
     @Test
     fun canUpdateCustom() {
         val parsed: Updatable =
-                JSON(unquoted = true, strictMode = false, updateMode = UpdateMode.UPDATE)
+                Json(unquoted = true, strictMode = false, updateMode = UpdateMode.UPDATE)
                         .parse("""{d:{a:42},d:{a:43}}""")
         assertEquals(Data(42 + 43), parsed.d)
     }
@@ -52,14 +52,14 @@ class UpdateTest {
 
     @Test
     fun canUpdateMap() {
-        val json = JSON(updateMode = UpdateMode.UPDATE)
+        val json = Json(updateMode = UpdateMode.UPDATE)
         val parsed = json.parse(WrappedMap.serializer(IntSerializer), """{"mp": { "x" : 23, "x" : 42, "y": 4 }}""")
         assertEquals(WrappedMap(mapOf("x" to 42, "y" to 4)), parsed)
     }
 
     @Test
     fun canUpdateValuesInMap() {
-        val json = JSON(updateMode = UpdateMode.UPDATE)
+        val json = Json(updateMode = UpdateMode.UPDATE)
         val parsed = json.parse(WrappedMap.serializer(IntSerializer.list), """{"mp": { "x" : [23], "x" : [42], "y": [4] }}""")
         assertEquals(WrappedMap(mapOf("x" to listOf(23, 42), "y" to listOf(4))), parsed)
     }

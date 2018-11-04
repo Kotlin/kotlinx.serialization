@@ -22,10 +22,10 @@ import kotlinx.serialization.loads
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class CBORReaderTest {
-    fun withDecoder(input: String, block: CBOR.CBORDecoder.() -> Unit) {
+class CborReaderTest {
+    fun withDecoder(input: String, block: Cbor.CborDecoder.() -> Unit) {
         val bytes = HexConverter.parseHexBinary(input.toUpperCase())
-        CBOR.CBORDecoder(ByteArrayInputStream(bytes)).block()
+        Cbor.CborDecoder(ByteArrayInputStream(bytes)).block()
     }
 
     infix fun <T> T.shouldBe(expected: T) = assertEquals(expected, this)
@@ -65,7 +65,7 @@ class CBORReaderTest {
 
     @Test
     fun testDecodeSimpleObject() {
-        CBOR.loads<Simple>("bf616163737472ff") shouldBe Simple("str")
+        Cbor.loads<Simple>("bf616163737472ff") shouldBe Simple("str")
     }
 
     @Test
@@ -80,7 +80,7 @@ class CBORReaderTest {
                 listOf(Simple("kek"))
         )
 
-        CBOR.loads<SmallZoo>(
+        Cbor.loads<SmallZoo>(
                 "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffffff"
         ) shouldBe test
     }

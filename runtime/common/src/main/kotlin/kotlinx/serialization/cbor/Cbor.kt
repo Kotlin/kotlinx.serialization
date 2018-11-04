@@ -23,9 +23,9 @@ import kotlinx.serialization.context.*
 import kotlinx.serialization.internal.*
 import kotlin.experimental.or
 
-class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat(), BinaryFormat {
+class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat(), BinaryFormat {
     // Writes map entry as plain [key, value] pair, without bounds.
-    private inner class CBOREntryWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
+    private inner class CborEntryWriter(encoder: CborEncoder) : CborWriter(encoder) {
         override fun writeBeginToken() {
             // no-op
         }
@@ -38,22 +38,22 @@ class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
     }
 
     // Differs from List only in start byte
-    private inner class CBORMapWriter(encoder: CBOREncoder) : CBORListWriter(encoder) {
+    private inner class CborMapWriter(encoder: CborEncoder) : CborListWriter(encoder) {
         override fun writeBeginToken() = encoder.startMap()
     }
 
-    // Writes all elements consequently, except size - CBOR supports maps and arrays of indefinite length
-    private open inner class CBORListWriter(encoder: CBOREncoder) : CBORWriter(encoder) {
+    // Writes all elements consequently, except size - Cbor supports maps and arrays of indefinite length
+    private open inner class CborListWriter(encoder: CborEncoder) : CborWriter(encoder) {
         override fun writeBeginToken() = encoder.startArray()
 
         override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean = true
     }
 
     // Writes class as map [fieldName, fieldValue]
-    private open inner class CBORWriter(val encoder: CBOREncoder) : ElementValueEncoder() {
+    private open inner class CborWriter(val encoder: CborEncoder) : ElementValueEncoder() {
 
         init {
-            context = this@CBOR.context
+            context = this@Cbor.context
         }
 
         protected open fun writeBeginToken() = encoder.startMap()
@@ -61,9 +61,9 @@ class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
         //todo: Write size of map or array if known
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
             val writer = when (desc.kind) {
-                StructureKind.LIST -> CBORListWriter(encoder)
-                StructureKind.MAP -> CBORMapWriter(encoder)
-                else -> CBORWriter(encoder)
+                StructureKind.LIST -> CborListWriter(encoder)
+                StructureKind.MAP -> CborMapWriter(encoder)
+                else -> CborWriter(encoder)
             }
             writer.writeBeginToken()
             return writer
@@ -100,7 +100,7 @@ class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
     }
 
     // For details of representation, see https://tools.ietf.org/html/rfc7049#section-2.1
-    class CBOREncoder(val output: OutputStream) {
+    class CborEncoder(val output: OutputStream) {
 
         fun startArray() = output.write(BEGIN_ARRAY)
         fun startMap() = output.write(BEGIN_MAP)
@@ -156,7 +156,7 @@ class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
         }
     }
 
-    private inner class CBOREntryReader(decoder: CBORDecoder) : CBORReader(decoder) {
+    private inner class CborEntryReader(decoder: CborDecoder) : CborReader(decoder) {
         private var ind = 0
 
         override fun skipBeginToken() {
@@ -174,11 +174,11 @@ class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
         }
     }
 
-    private inner class CBORMapReader(decoder: CBORDecoder) : CBORListReader(decoder) {
+    private inner class CborMapReader(decoder: CborDecoder) : CborListReader(decoder) {
         override fun skipBeginToken() = decoder.startMap()
     }
 
-    private open inner class CBORListReader(decoder: CBORDecoder) : CBORReader(decoder) {
+    private open inner class CborListReader(decoder: CborDecoder) : CborReader(decoder) {
         private var ind = -1
         private var size = -1
         protected var finiteMode = false
@@ -198,22 +198,22 @@ class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
         }
     }
 
-    private open inner class CBORReader(val decoder: CBORDecoder) : ElementValueDecoder() {
+    private open inner class CborReader(val decoder: CborDecoder) : ElementValueDecoder() {
 
         init {
-            context = this@CBOR.context
+            context = this@Cbor.context
         }
 
         override val updateMode: UpdateMode
-            get() = this@CBOR.updateMode
+            get() = this@Cbor.updateMode
 
         protected open fun skipBeginToken() = decoder.startMap()
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             val re = when (desc.kind) {
-                StructureKind.LIST -> CBORListReader(decoder)
-                StructureKind.MAP -> CBORMapReader(decoder)
-                else -> CBORReader(decoder)
+                StructureKind.LIST -> CborListReader(decoder)
+                StructureKind.MAP -> CborMapReader(decoder)
+                else -> CborReader(decoder)
             }
             re.skipBeginToken()
             return re
@@ -249,7 +249,7 @@ class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
 
     }
 
-    class CBORDecoder(val input: InputStream) {
+    class CborDecoder(val input: InputStream) {
         private var curByte: Int = -1
 
         init {
@@ -262,7 +262,7 @@ class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
         }
 
         private fun skipByte(expected: Int) {
-            if (curByte != expected) throw CBORDecodingException("byte ${HexConverter.toHexString(expected)}", curByte)
+            if (curByte != expected) throw CborDecodingException("byte ${HexConverter.toHexString(expected)}", curByte)
             readByte()
         }
 
@@ -277,7 +277,7 @@ class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
             val ans = when (curByte) {
                 TRUE -> true
                 FALSE -> false
-                else -> throw CBORDecodingException("boolean value", curByte)
+                else -> throw CborDecodingException("boolean value", curByte)
             }
             readByte()
             return ans
@@ -289,7 +289,7 @@ class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
                 return -1
             }
             if ((curByte and 0b111_00000) != HEADER_ARRAY)
-                throw CBORDecodingException("start of array", curByte)
+                throw CborDecodingException("start of array", curByte)
             val arrayLen = readNumber().toInt()
             readByte()
             return arrayLen
@@ -303,7 +303,7 @@ class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
 
         fun nextString(): String {
             if ((curByte and 0b111_00000) != HEADER_STRING.toInt())
-                throw CBORDecodingException("start of string", curByte)
+                throw CborDecodingException("start of string", curByte)
             val strLen = readNumber().toInt()
             val arr = input.readExactNBytes(strLen)
             val ans = stringFromUtf8Bytes(arr)
@@ -344,14 +344,14 @@ class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
         }
 
         fun nextFloat(): Float {
-            if (curByte != NEXT_FLOAT) throw CBORDecodingException("float header", curByte)
+            if (curByte != NEXT_FLOAT) throw CborDecodingException("float header", curByte)
             val res = input.readToByteBuffer(4).getFloat()
             readByte()
             return res
         }
 
         fun nextDouble(): Double {
-            if (curByte != NEXT_DOUBLE) throw CBORDecodingException("double header", curByte)
+            if (curByte != NEXT_DOUBLE) throw CborDecodingException("double header", curByte)
             val res = input.readToByteBuffer(8).getDouble()
             readByte()
             return res
@@ -376,7 +376,7 @@ class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
         private const val HEADER_NEGATIVE: Byte = 0b001_00000
         private const val HEADER_ARRAY: Int = 0b100_00000
 
-        val plain = CBOR()
+        val plain = Cbor()
 
         override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray = plain.dump(serializer, obj)
         override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T = plain.load(deserializer, bytes)
@@ -386,17 +386,17 @@ class CBOR(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
 
     override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray {
         val output = ByteArrayOutputStream()
-        val dumper = CBORWriter(CBOREncoder(output))
+        val dumper = CborWriter(CborEncoder(output))
         dumper.encode(serializer, obj)
         return output.toByteArray()
     }
 
     override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
         val stream = ByteArrayInputStream(bytes)
-        val reader = CBORReader(CBORDecoder(stream))
+        val reader = CborReader(CborDecoder(stream))
         return reader.decode(deserializer)
     }
 }
 
-class CBORDecodingException(expected: String, foundByte: Int) :
+class CborDecodingException(expected: String, foundByte: Int) :
     SerializationException("Expected $expected, but found ${HexConverter.toHexString(foundByte)}")

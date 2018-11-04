@@ -31,11 +31,11 @@ class GsonCompatibilityTest {
     }
 
     private fun checkCompatibility(box: Box) {
-        checkCompatibility(box, Gson(), JSON.plain)
-        checkCompatibility(box, GsonBuilder().serializeSpecialFloatingPointValues().create(), JSON.nonstrict)
+        checkCompatibility(box, Gson(), Json.plain)
+        checkCompatibility(box, GsonBuilder().serializeSpecialFloatingPointValues().create(), Json.nonstrict)
     }
 
-    private fun checkCompatibility(box: Box, gson: Gson, json: JSON) {
+    private fun checkCompatibility(box: Box, gson: Gson, json: Json) {
         val jsonResult = resultOrNull { json.stringify(box) }
         val gsonResult = resultOrNull { gson.toJson(box) }
         assertEquals(gsonResult, jsonResult)

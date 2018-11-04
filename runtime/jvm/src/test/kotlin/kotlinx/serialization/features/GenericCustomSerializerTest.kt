@@ -2,7 +2,7 @@ package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.HexConverter
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -62,18 +62,18 @@ class GenericCustomSerializerTest {
     @Test
     fun testStringData() {
         val original = StringData(CheckedData("my data", byteArrayOf(42, 32)))
-        val s = JSON.stringify(StringData.serializer(), original)
+        val s = Json.stringify(StringData.serializer(), original)
         assertEquals("""{"data":{"data":"my data","checkSum":"2A20"}}""", s)
-        val restored = JSON.parse(StringData.serializer(), s)
+        val restored = Json.parse(StringData.serializer(), s)
         assertEquals(original, restored)
     }
 
     @Test
     fun testIntData() {
         val original = IntData(CheckedData(42, byteArrayOf(42)))
-        val s = JSON.stringify(IntData.serializer(), original)
+        val s = Json.stringify(IntData.serializer(), original)
         assertEquals("""{"data":{"data":42,"checkSum":"2A"}}""", s)
-        val restored = JSON.parse(IntData.serializer(), s)
+        val restored = Json.parse(IntData.serializer(), s)
         assertEquals(original, restored)
     }
 }

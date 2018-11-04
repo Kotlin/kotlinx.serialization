@@ -25,7 +25,7 @@ class JsTest {
 
     @Test
     fun jsTest() {
-        val parsed = kotlinx.serialization.json.JSON.unquoted.parse<Data>("{a: 42}")
+        val parsed = kotlinx.serialization.json.Json.unquoted.parse<Data>("{a: 42}")
         assertEquals(parsed, Data(42))
     }
 }

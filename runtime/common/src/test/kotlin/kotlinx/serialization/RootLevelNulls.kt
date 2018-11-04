@@ -1,9 +1,8 @@
 package kotlinx.serialization
 
-import kotlinx.serialization.cbor.CBOR
-import kotlinx.serialization.internal.IntSerializer
+import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.internal.makeNullable
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.protobuf.ProtoBuf
 import kotlin.test.*
 
@@ -14,14 +13,14 @@ class RootLevelNullsTest {
     @Test
     fun nullableJson() {
         val obj: Simple? = null
-        val json = JSON.stringify(makeNullable(Simple.serializer()), obj)
+        val json = Json.stringify(makeNullable(Simple.serializer()), obj)
         assertEquals("null", json)
     }
 
     @Test
     fun nullableCbor() {
         val obj: Simple? = null
-        val content = (CBOR as BinaryFormat).dump(makeNullable(Simple.serializer()), obj)
+        val content = (Cbor as BinaryFormat).dump(makeNullable(Simple.serializer()), obj)
         assertTrue(content.contentEquals(byteArrayOf(0xf6.toByte())))
     }
 

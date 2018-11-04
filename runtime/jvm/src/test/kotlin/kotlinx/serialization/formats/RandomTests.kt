@@ -25,7 +25,7 @@ import io.kotlintest.properties.Gen
 import io.kotlintest.properties.forAll
 import io.kotlintest.specs.ShouldSpec
 import kotlinx.serialization.*
-import kotlinx.serialization.cbor.CBOR
+import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.formats.proto.TestData.*
 import kotlinx.serialization.internal.HexConverter
 import kotlinx.serialization.protobuf.*
@@ -223,7 +223,7 @@ object KTestData {
 
 
 class RandomTest : ShouldSpec() {
-    val CBORJackson = ObjectMapper(CBORFactory()).apply { registerKotlinModule() }
+    val cborJackson = ObjectMapper(CBORFactory()).apply { registerKotlinModule() }
 
     inline fun <reified T : IMessage> dumpCompare(it: T, alwaysPrint: Boolean = false): Boolean {
         val msg = it.toProtobufMessage()
@@ -241,11 +241,11 @@ class RandomTest : ShouldSpec() {
         return c
     }
 
-    inline fun <reified T : IMessage> dumpCBORCompare(it: T, alwaysPrint: Boolean = false): Boolean {
+    inline fun <reified T : IMessage> dumpCborCompare(it: T, alwaysPrint: Boolean = false): Boolean {
         var parsed: T?
         val c = try {
-            val bytes = CBOR.dump(it)
-            parsed = CBORJackson.readValue<T>(bytes)
+            val bytes = Cbor.dump(it)
+            parsed = cborJackson.readValue<T>(bytes)
             it == parsed
         } catch (e: Exception) {
             e.printStackTrace()
@@ -272,11 +272,11 @@ class RandomTest : ShouldSpec() {
         return c
     }
 
-    inline fun <reified T : IMessage> readCBORCompare(it: T, alwaysPrint: Boolean = false): Boolean {
+    inline fun <reified T : IMessage> readCborCompare(it: T, alwaysPrint: Boolean = false): Boolean {
         var obj: T?
         val c = try {
-            val hex = CBORJackson.writeValueAsBytes(it)
-            obj = CBOR.load<T>(hex)
+            val hex = cborJackson.writeValueAsBytes(it)
+            obj = Cbor.load<T>(hex)
             obj == it
         } catch (e: Exception) {
             obj = null
@@ -318,31 +318,31 @@ class RandomTest : ShouldSpec() {
         }
 
         "CBOR Writer" {
-            should("serialize random int32") { forAll(KTestData.KTestInt32.Companion) { dumpCBORCompare(it) } }
-            should("serialize random signed int32") { forAll(KTestData.KTestSignedInt.Companion) { dumpCBORCompare(it) } }
-            should("serialize random signed int64") { forAll(KTestData.KTestSignedLong.Companion) { dumpCBORCompare(it) } }
-            should("serialize random fixed int32") { forAll(KTestData.KTestFixedInt.Companion) { dumpCBORCompare(it) } }
-            should("serialize random doubles") { forAll(KTestData.KTestDouble.Companion) { dumpCBORCompare(it) } }
-            should("serialize random booleans") { forAll(KTestData.KTestBoolean.Companion) { dumpCBORCompare(it) } }
-            should("serialize random enums") { forAll(KTestData.KTestEnum.Companion) { dumpCBORCompare(it) } }
-            should("serialize all base random types") { forAll(KTestData.KTestAllTypes.Companion) { dumpCBORCompare(it) } }
-            should("serialize random messages with embedded message") { forAll(KTestData.KTestOuterMessage.Companion) { dumpCBORCompare(it) } }
-            should("serialize random messages with primitive list fields") { forAll(KTestData.KTestIntListMessage.Companion) { dumpCBORCompare(it) } }
-            should("serialize messages with object list fields") { forAll(KTestData.KTestObjectListMessage.Companion) { dumpCBORCompare(it) } }
-            should("serialize messages with scalar-key maps") { forAll(KTestData.KTestMap.Companion) { dumpCBORCompare(it) } }
+            should("serialize random int32") { forAll(KTestData.KTestInt32.Companion) { dumpCborCompare(it) } }
+            should("serialize random signed int32") { forAll(KTestData.KTestSignedInt.Companion) { dumpCborCompare(it) } }
+            should("serialize random signed int64") { forAll(KTestData.KTestSignedLong.Companion) { dumpCborCompare(it) } }
+            should("serialize random fixed int32") { forAll(KTestData.KTestFixedInt.Companion) { dumpCborCompare(it) } }
+            should("serialize random doubles") { forAll(KTestData.KTestDouble.Companion) { dumpCborCompare(it) } }
+            should("serialize random booleans") { forAll(KTestData.KTestBoolean.Companion) { dumpCborCompare(it) } }
+            should("serialize random enums") { forAll(KTestData.KTestEnum.Companion) { dumpCborCompare(it) } }
+            should("serialize all base random types") { forAll(KTestData.KTestAllTypes.Companion) { dumpCborCompare(it) } }
+            should("serialize random messages with embedded message") { forAll(KTestData.KTestOuterMessage.Companion) { dumpCborCompare(it) } }
+            should("serialize random messages with primitive list fields") { forAll(KTestData.KTestIntListMessage.Companion) { dumpCborCompare(it) } }
+            should("serialize messages with object list fields") { forAll(KTestData.KTestObjectListMessage.Companion) { dumpCborCompare(it) } }
+            should("serialize messages with scalar-key maps") { forAll(KTestData.KTestMap.Companion) { dumpCborCompare(it) } }
         }
 
         "CBOR Reader" {
-            should("read random int32") { forAll(KTestData.KTestInt32.Companion) { readCBORCompare(it) } }
-            should("read random signed int32") { forAll(KTestData.KTestSignedInt.Companion) { readCBORCompare(it) } }
-            should("read random signed int64") { forAll(KTestData.KTestSignedLong.Companion) { readCBORCompare(it) } }
-            should("read random fixed int32") { forAll(KTestData.KTestFixedInt.Companion) { readCBORCompare(it) } }
-            should("read random doubles") { forAll(KTestData.KTestDouble.Companion) { readCBORCompare(it) } }
-            should("read random enums") { forAll(KTestData.KTestEnum.Companion) { readCBORCompare(it) } }
-            should("read all base random types") { forAll(KTestData.KTestAllTypes.Companion) { readCBORCompare(it) } }
-            should("read random messages with embedded message") { forAll(KTestData.KTestOuterMessage.Companion) { readCBORCompare(it) } }
-            should("read random messages with primitive list fields") { forAll(KTestData.KTestIntListMessage.Companion) { readCBORCompare(it) } }
-            should("read random messages with object list fields") { forAll(KTestData.KTestObjectListMessage.Companion) { readCBORCompare(it) } }
+            should("read random int32") { forAll(KTestData.KTestInt32.Companion) { readCborCompare(it) } }
+            should("read random signed int32") { forAll(KTestData.KTestSignedInt.Companion) { readCborCompare(it) } }
+            should("read random signed int64") { forAll(KTestData.KTestSignedLong.Companion) { readCborCompare(it) } }
+            should("read random fixed int32") { forAll(KTestData.KTestFixedInt.Companion) { readCborCompare(it) } }
+            should("read random doubles") { forAll(KTestData.KTestDouble.Companion) { readCborCompare(it) } }
+            should("read random enums") { forAll(KTestData.KTestEnum.Companion) { readCborCompare(it) } }
+            should("read all base random types") { forAll(KTestData.KTestAllTypes.Companion) { readCborCompare(it) } }
+            should("read random messages with embedded message") { forAll(KTestData.KTestOuterMessage.Companion) { readCborCompare(it) } }
+            should("read random messages with primitive list fields") { forAll(KTestData.KTestIntListMessage.Companion) { readCborCompare(it) } }
+            should("read random messages with object list fields") { forAll(KTestData.KTestObjectListMessage.Companion) { readCborCompare(it) } }
         }
     }
 }
