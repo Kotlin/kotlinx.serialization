@@ -22,6 +22,9 @@ import kotlinx.serialization.context.SerialContext
 import kotlinx.serialization.context.SerialModule
 import kotlinx.serialization.internal.EnumDescriptor
 
+@Deprecated("Renamed to Json", ReplaceWith("Json"), DeprecationLevel.HIDDEN)
+typealias JSON = Json
+
 class Json(
     private val unquoted: Boolean = false,
     private val indented: Boolean = false,
@@ -59,6 +62,10 @@ class Json(
         override fun <T> parse(serializer: DeserializationStrategy<T>, string: String): T =
             plain.parse(serializer, string)
     }
+
+    // TODO Nested and local type aliases are not supported
+    //@Deprecated("Renamed to JsonOutput", ReplaceWith("JsonOutput"), DeprecationLevel.HIDDEN)
+    //typealias JSONOutput = Json
 
     // Public visibility to allow casting in user-code to call [writeTree]
     @Suppress("RedundantVisibilityModifier")
@@ -228,6 +235,10 @@ class Json(
 
         fun printQuoted(value: String): Unit = sb.printQuoted(value)
     }
+
+    // TODO Nested and local type aliases are not supported
+    //@Deprecated("Renamed to JsonInput", ReplaceWith("JsonInput"), DeprecationLevel.HIDDEN)
+    //typealias JSONInput = JsonInput
 
     // Public visibility to allow casting in user-code to call [readAsTree]
     @Suppress("RedundantVisibilityModifier")
