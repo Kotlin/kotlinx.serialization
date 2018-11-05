@@ -23,9 +23,6 @@ import kotlinx.serialization.context.*
 import kotlinx.serialization.internal.*
 import kotlin.experimental.or
 
-@Deprecated("Renamed to Cbor", ReplaceWith("Cbor"), DeprecationLevel.WARNING)
-typealias CBOR = Cbor
-
 class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat(), BinaryFormat {
     // Writes map entry as plain [key, value] pair, without bounds.
     private inner class CborEntryWriter(encoder: CborEncoder) : CborWriter(encoder) {
@@ -101,10 +98,6 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
         ) =
             encoder.encodeString(enumDescription.getElementName(ordinal))
     }
-
-    // TODO Nested and local type aliases are not supported
-    //@Deprecated("Renamed to CborEncoder", ReplaceWith("CborEncoder"), DeprecationLevel.WARNING)
-    //typealias CBOREncoder = CborEncoder
 
     // For details of representation, see https://tools.ietf.org/html/rfc7049#section-2.1
     class CborEncoder(val output: OutputStream) {
@@ -256,10 +249,6 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
 
     }
 
-    // TODO Nested and local type aliases are not supported
-    //@Deprecated("Renamed to CborDecoder", ReplaceWith("CborDecoder"), DeprecationLevel.WARNING)
-    //typealias CBORDecoder = CborDecoder
-
     class CborDecoder(val input: InputStream) {
         private var curByte: Int = -1
 
@@ -408,9 +397,6 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
         return reader.decode(deserializer)
     }
 }
-
-@Deprecated("Renamed to CborDecodingException", ReplaceWith("CborDecodingException"), DeprecationLevel.WARNING)
-typealias CBORDecodingException = CborDecodingException
 
 class CborDecodingException(expected: String, foundByte: Int) :
     SerializationException("Expected $expected, but found ${HexConverter.toHexString(foundByte)}")

@@ -22,9 +22,6 @@ import kotlinx.serialization.context.SerialContext
 import kotlinx.serialization.context.SerialModule
 import kotlinx.serialization.internal.EnumDescriptor
 
-@Deprecated("Renamed to Json", ReplaceWith("Json"), DeprecationLevel.WARNING)
-typealias JSON = Json
-
 class Json(
     private val unquoted: Boolean = false,
     private val indented: Boolean = false,
