@@ -23,7 +23,7 @@ import kotlinx.serialization.context.*
 import kotlinx.serialization.internal.*
 import kotlin.experimental.or
 
-@Deprecated("Renamed to Cbor", ReplaceWith("Cbor"), DeprecationLevel.HIDDEN)
+@Deprecated("Renamed to Cbor", ReplaceWith("Cbor"), DeprecationLevel.WARNING)
 typealias CBOR = Cbor
 
 class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat(), BinaryFormat {
@@ -103,7 +103,7 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
     }
 
     // TODO Nested and local type aliases are not supported
-    //@Deprecated("Renamed to CborEncoder", ReplaceWith("CborEncoder"), DeprecationLevel.HIDDEN)
+    //@Deprecated("Renamed to CborEncoder", ReplaceWith("CborEncoder"), DeprecationLevel.WARNING)
     //typealias CBOREncoder = CborEncoder
 
     // For details of representation, see https://tools.ietf.org/html/rfc7049#section-2.1
@@ -257,7 +257,7 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
     }
 
     // TODO Nested and local type aliases are not supported
-    //@Deprecated("Renamed to CborDecoder", ReplaceWith("CborDecoder"), DeprecationLevel.HIDDEN)
+    //@Deprecated("Renamed to CborDecoder", ReplaceWith("CborDecoder"), DeprecationLevel.WARNING)
     //typealias CBORDecoder = CborDecoder
 
     class CborDecoder(val input: InputStream) {
@@ -409,7 +409,7 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED): AbstractSerialFormat
     }
 }
 
-@Deprecated("Renamed to CborDecodingException", ReplaceWith("CborDecodingException"), DeprecationLevel.HIDDEN)
+@Deprecated("Renamed to CborDecodingException", ReplaceWith("CborDecodingException"), DeprecationLevel.WARNING)
 typealias CBORDecodingException = CborDecodingException
 
 class CborDecodingException(expected: String, foundByte: Int) :
