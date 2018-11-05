@@ -37,9 +37,6 @@ fun jsonArray(init: JsonArrayBuilder.() -> Unit): JsonArray {
     return JsonArray(builder.content)
 }
 
-@Deprecated("Renamed to JsonArrayBuilder", ReplaceWith("JsonArrayBuilder"), DeprecationLevel.HIDDEN)
-typealias JSONArrayBuilder = JsonArrayBuilder
-
 class JsonArrayBuilder(internal val content: MutableList<JsonElement> = mutableListOf()) {
     /**
      * Adds [this] value to outer [JsonArray] as [JsonPrimitive]
@@ -69,9 +66,6 @@ class JsonArrayBuilder(internal val content: MutableList<JsonElement> = mutableL
         this@JsonArrayBuilder.content.add(this)
     }
 }
-
-@Deprecated("Renamed to JsonBuilder", ReplaceWith("JsonBuilder"), DeprecationLevel.HIDDEN)
-typealias JSONBuilder = JsonBuilder
 
 class JsonBuilder(internal val content: MutableMap<String, JsonElement> = mutableMapOf()) {
 

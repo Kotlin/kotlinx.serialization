@@ -18,9 +18,6 @@
 
 package kotlinx.serialization.json
 
-@Deprecated("Renamed to JsonPrimitive", ReplaceWith("JsonPrimitive"), DeprecationLevel.HIDDEN)
-public fun JSONPrimitive(value: Boolean?) = JsonPrimitive(value)
-
 /**
  * Convenience method to create [JsonPrimitive] from given boolean.
  * Returns [JsonNull] if [value] is `null` or [JsonPrimitive] otherwise
@@ -30,9 +27,6 @@ public fun JsonPrimitive(value: Boolean?): JsonPrimitive {
     return JsonLiteral(value)
 }
 
-@Deprecated("Renamed to JsonPrimitive", ReplaceWith("JsonPrimitive"), DeprecationLevel.HIDDEN)
-public fun JSONPrimitive(value: Number?) = JsonPrimitive(value)
-
 /**
  * Convenience method to create [JsonPrimitive] from given number.
  * Returns [JsonNull] if [value] is `null` or [JsonPrimitive] otherwise
@@ -41,9 +35,6 @@ public fun JsonPrimitive(value: Number?): JsonPrimitive {
     if (value == null) return JsonNull
     return JsonLiteral(value)
 }
-
-@Deprecated("Renamed to JsonPrimitive", ReplaceWith("JsonPrimitive"), DeprecationLevel.HIDDEN)
-public fun JSONPrimitive(value: String?) = JsonPrimitive(value)
 
 /**
  * Convenience method to create [JsonPrimitive] from given string literal.

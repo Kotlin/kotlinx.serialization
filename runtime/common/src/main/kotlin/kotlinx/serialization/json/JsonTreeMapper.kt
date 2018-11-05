@@ -21,9 +21,6 @@ import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.context.*
 import kotlinx.serialization.internal.EnumDescriptor
 
-@Deprecated("Renamed to JsonTreeMapper", ReplaceWith("JsonTreeMapper"), DeprecationLevel.HIDDEN)
-typealias JSONTreeMapper = JsonTreeMapper
-
 @Suppress("USELESS_CAST") // contracts not working in Native
 class JsonTreeMapper(): AbstractSerialFormat() {
     @ImplicitReflectionSerializer

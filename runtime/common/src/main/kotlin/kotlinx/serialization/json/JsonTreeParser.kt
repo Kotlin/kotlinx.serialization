@@ -16,9 +16,6 @@
 
 package kotlinx.serialization.json
 
-@Deprecated("Renamed to JsonTreeParser", ReplaceWith("JsonTreeParser"), DeprecationLevel.HIDDEN)
-typealias JSONTreeParser = JsonTreeParser
-
 class JsonTreeParser internal constructor(private val p: Parser) {
 
     companion object {

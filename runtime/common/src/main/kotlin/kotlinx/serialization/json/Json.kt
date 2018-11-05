@@ -63,10 +63,6 @@ class Json(
             plain.parse(serializer, string)
     }
 
-    // TODO Nested and local type aliases are not supported
-    //@Deprecated("Renamed to JsonOutput", ReplaceWith("JsonOutput"), DeprecationLevel.HIDDEN)
-    //typealias JSONOutput = Json
-
     // Public visibility to allow casting in user-code to call [writeTree]
     @Suppress("RedundantVisibilityModifier")
     public inner class JsonOutput internal constructor(private val mode: Mode, private val w: Composer,
@@ -235,10 +231,6 @@ class Json(
 
         fun printQuoted(value: String): Unit = sb.printQuoted(value)
     }
-
-    // TODO Nested and local type aliases are not supported
-    //@Deprecated("Renamed to JsonInput", ReplaceWith("JsonInput"), DeprecationLevel.HIDDEN)
-    //typealias JSONInput = JsonInput
 
     // Public visibility to allow casting in user-code to call [readAsTree]
     @Suppress("RedundantVisibilityModifier")

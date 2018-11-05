@@ -18,9 +18,6 @@
 
 package kotlinx.serialization.json
 
-@Deprecated("Renamed to JsonElement", ReplaceWith("JsonElement"), DeprecationLevel.HIDDEN)
-typealias JSONElement = JsonElement
-
 /**
  * Class representing single JSON element.
  * Can be [JsonPrimitive], [JsonArray] or [JsonObject].
@@ -67,9 +64,6 @@ sealed class JsonElement {
     private fun error(element: String): Nothing =
         throw JsonElementTypeMismatchException(this::class.toString(), element)
 }
-
-@Deprecated("Renamed to JsonPrimitive", ReplaceWith("JsonPrimitive"), DeprecationLevel.HIDDEN)
-typealias JSONPrimitive = JsonPrimitive
 
 /**
  * Class representing JSON primitive value. Can be either [JsonLiteral] or [JsonNull].
@@ -147,9 +141,6 @@ sealed class JsonPrimitive : JsonElement() {
     override fun toString() = content
 }
 
-@Deprecated("Renamed to JsonLiteral", ReplaceWith("JsonLiteral"), DeprecationLevel.HIDDEN)
-typealias JSONLiteral = JsonLiteral
-
 /**
  * Class representing JSON literals: numbers, booleans and string.
  * Strings are always quoted.
@@ -182,9 +173,6 @@ data class JsonLiteral internal constructor(
         else content
 }
 
-@Deprecated("Renamed to JsonNull", ReplaceWith("JsonNull"), DeprecationLevel.HIDDEN)
-typealias JSONNull = JsonNull
-
 /**
  * Class representing JSON `null` value
  */
@@ -193,9 +181,6 @@ object JsonNull : JsonPrimitive() {
     override val content: String = "null"
     override val contentOrNull: String? = null
 }
-
-@Deprecated("Renamed to JsonObject", ReplaceWith("JsonObject"), DeprecationLevel.HIDDEN)
-typealias JSONObject = JsonObject
 
 /**
  * Class representing JSON object, consisting of name-value pairs, where value is arbitrary [JsonElement]
@@ -283,9 +268,6 @@ data class JsonObject(val content: Map<String, JsonElement>) : JsonElement(), Ma
         )
     }
 }
-
-@Deprecated("Renamed to JsonArray", ReplaceWith("JsonArray"), DeprecationLevel.HIDDEN)
-typealias JSONArray = JsonArray
 
 data class JsonArray(val content: List<JsonElement>) : JsonElement(), List<JsonElement> by content {
 
