@@ -58,15 +58,15 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
         override fun SerialDescriptor.getTag(index: Int) = this.getProtoDesc(index)
 
         @Suppress("UNCHECKED_CAST", "NAME_SHADOWING")
-        override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
+        override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) = when {
             // encode maps as collection of map entries, not merged collection of key-values
-            if (serializer.descriptor is MapLikeDescriptor) {
+            serializer.descriptor is MapLikeDescriptor -> {
                 val serializer = (serializer as MapLikeSerializer<Any?, Any?, T, *>)
                 val mapEntrySerial = MapEntrySerializer(serializer.keySerializer, serializer.valueSerializer)
                 HashSetSerializer(mapEntrySerial).serialize(this, (value as Map<*, *>).entries)
-            } else {
-                serializer.serialize(this, value)
             }
+            serializer.descriptor == ByteArraySerializer.descriptor -> encoder.writeBytes(value as ByteArray, popTag().first)
+            else -> serializer.serialize(this, value)
         }
     }
 
@@ -76,7 +76,7 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
     ) : ProtobufWriter(ProtobufEncoder(stream)) {
         override fun endEncode(desc: SerialDescriptor) {
             if (parentTag != null) {
-                parentEncoder.writeObject(stream.toByteArray(), parentTag.first)
+                parentEncoder.writeBytes(stream.toByteArray(), parentTag.first)
             } else {
                 parentEncoder.out.write(stream.toByteArray())
             }
@@ -95,7 +95,7 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
 
     internal class ProtobufEncoder(val out: ByteArrayOutputStream) {
 
-        fun writeObject(bytes: ByteArray, tag: Int) {
+        fun writeBytes(bytes: ByteArray, tag: Int) {
             val header = encode32((tag shl 3) or SIZE_DELIMITED)
             val len = encode32(bytes.size)
             out.write(header)
@@ -121,7 +121,7 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
 
         fun writeString(value: String, tag: Int) {
             val bytes = value.toUtf8Bytes()
-            writeObject(bytes, tag)
+            writeBytes(bytes, tag)
         }
 
         fun writeDouble(value: Double, tag: Int) {
@@ -189,16 +189,16 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
         override fun decodeTaggedEnum(tag: ProtoDesc, enumDescription: EnumDescriptor): Int = decoder.nextInt(ProtoNumberType.DEFAULT)
 
         @Suppress("UNCHECKED_CAST")
-        override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+        override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T = when {
             // encode maps as collection of map entries, not merged collection of key-values
-            return if (deserializer.descriptor is MapLikeDescriptor) {
+            deserializer.descriptor is MapLikeDescriptor -> {
                 val serializer = (deserializer as MapLikeSerializer<Any?, Any?, T, *>)
                 val mapEntrySerial = MapEntrySerializer(serializer.keySerializer, serializer.valueSerializer)
                 val setOfEntries = HashSetSerializer(mapEntrySerial).deserialize(this)
                 setOfEntries.associateBy({ it.key }, {it.value}) as T
-            } else {
-                deserializer.deserialize(this)
             }
+            deserializer.descriptor == ByteArraySerializer.descriptor -> decoder.nextObject() as T
+            else -> deserializer.deserialize(this)
         }
 
         override fun SerialDescriptor.getTag(index: Int) = this.getProtoDesc(index)

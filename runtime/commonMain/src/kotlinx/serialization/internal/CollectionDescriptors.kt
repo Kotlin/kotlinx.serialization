@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
@@ -65,6 +69,17 @@ internal const val LINKED_HASH_SET_NAME = "kotlin.collections.LinkedHashSet"
 internal const val HASH_SET_NAME = "kotlin.collections.HashSet"
 internal const val LINKED_HASH_MAP_NAME = "kotlin.collections.LinkedHashMap"
 internal const val HASH_MAP_NAME = "kotlin.collections.HashMap"
+
+/**
+ * Descriptor for primitive arrays, such as [IntArray], [DoubleArray], etc...
+ *
+ * Can be obtained from corresponding serializers (e.g. [ByteArraySerializer.descriptor])
+ */
+public class PrimitiveArrayDescriptor internal constructor(
+    primitive: PrimitiveDescriptor
+) : ListLikeDescriptor(primitive) {
+    override val name: String = "${primitive.name}Array"
+}
 
 class ArrayClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
     override val name: String get() = ARRAY_NAME
