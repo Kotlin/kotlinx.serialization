@@ -206,8 +206,8 @@ val simpleModule = SimpleModule(Payload::class, PayloadSerializer)
 // MapModule and CompositeModule are also available
 val binaryModule = SimpleModule(Payload::class, BinaryPayloadSerializer)
 
-val json1 = JSON().apply { install(simpleModule) }
-val json2 = JSON().apply { install(binaryModule) }
+val json1 = Json().apply { install(simpleModule) }
+val json2 = Json().apply { install(binaryModule) }
 
 // in json1, Payload would be serialized with PayloadSerializer,
 // in json2, Payload would be serialized with BinaryPayloadSerializer

@@ -1,6 +1,6 @@
 # Serialization documentation and example cases
 
-**Note**: Cases are presented here as a series of *unit-tests* using non-standard *unquoted* JSON for ease of presentation. Standards-compliant JSON is supported, too. Just replace `JSON.unquoted` with plain `JSON`.
+**Note**: Cases are presented here as a series of *unit-tests* using non-standard *unquoted* JSON for ease of presentation. Standards-compliant JSON is supported, too. Just replace `Json.unquoted` with plain `Json`.
 
 ## Supported properties
 
@@ -12,14 +12,14 @@
     val data = Data(1, 2)
     
     // Serialize with internal serializer for Data class
-    assertEquals("{a:1,b:2}", JSON.unquoted.stringify(data))
-    assertEquals(data, JSON.parse<Data>("{a:1,b:2}"))
+    assertEquals("{a:1,b:2}", Json.unquoted.stringify(data))
+    assertEquals(data, Json.parse<Data>("{a:1,b:2}"))
     
     // Serialize with external serializer for Data class
     @Serializer(forClass=Data::class)
     object ExtDataSerializer
-    assertEquals("{a:1,b:2}", JSON.unquoted.stringify(ExtDataSerializer, data))
-    assertEquals(data, JSON.parse(ExtDataSerializer, "{a:1,b:2}"))
+    assertEquals("{a:1,b:2}", Json.unquoted.stringify(ExtDataSerializer, data))
+    assertEquals(data, Json.parse(ExtDataSerializer, "{a:1,b:2}"))
     ```
 
  * In case of usage of **internal** serialization (`@Serializable` annotation on class), both body `val`s and `var`s are supported with any visibility levels.
@@ -32,8 +32,8 @@
         override fun equals(other: Any?) = /*...*/
     }
     
-    assertEquals("{a:1, b:42}", JSON.unquoted.stringify(Data(1)))
-    assertEquals(Data(1), JSON.unquoted.parse<Data>("{a:1, b:42}"))
+    assertEquals("{a:1, b:42}", Json.unquoted.stringify(Data(1)))
+    assertEquals(Data(1), Json.unquoted.parse<Data>("{a:1, b:42}"))
     ```
 
 * Important note: In this case, body properties initializers and setters are not called. So, following approach would not work:
@@ -50,7 +50,7 @@
     }
     
     // prints nothing.
-    val data = JSON.unquoted.parse<Data>("{a: 100500, b: 10}")
+    val data = Json.unquoted.parse<Data>("{a: 100500, b: 10}")
     ```
 
 * Initializers are called iff (if and only if) property is `@Transient` or `@Optional` and was not read (see below).
@@ -68,8 +68,8 @@
     }
     
     // prints "I'm a side effect" once.
-    val data = JSON.unquoted.parse<Data>("{a: 100500, b: 10}")
-    val data = JSON.unquoted.parse<Data>("{a: 100500}")
+    val data = Json.unquoted.parse<Data>("{a: 100500, b: 10}")
+    val data = Json.unquoted.parse<Data>("{a: 100500}")
     ```
 
 * *Common pattern*: Validation.
@@ -115,8 +115,8 @@
     @Serializer(forClass=Data::class)
     object ExtDataSerializer
     
-    assertEquals("{a:1,b:2}", JSON.unquoted.stringify(ExtDataSerializer, data))
-    assertEquals(data, JSON.parse(ExtDataSerializer, "{a:1,b:2}"))
+    assertEquals("{a:1,b:2}", Json.unquoted.stringify(ExtDataSerializer, data))
+    assertEquals(data, Json.parse(ExtDataSerializer, "{a:1,b:2}"))
     ```
 
 * Having both` @Serialiable class A` and `@Serializer(forClass=A::class)` is possible. In this case, object marked as serializer will try to deserialize class A internally, and some *strange effects* may happen. But it's not exactly.
@@ -134,7 +134,7 @@
             val custom2: Int
     )
 
-    assertEquals("{value1: a, value2: 42}", JSON.unquoted.stringify(Names("a", 42)))
+    assertEquals("{value1: a, value2: 42}", Json.unquoted.stringify(Names("a", 42)))
     ```
     
     > Starting from 0.6, `@SerialName` can be used on classes, too.
@@ -152,14 +152,14 @@
     
     // Serialization and deserialization with internal serializer
     // External serializer also supported
-    assertEquals("{a:0,b:42,c:Hello}",JSON.unquoted.stringify(Data()))
-    assertEquals(JSON.unquoted.parse<Data>("{a:0,b:43,c:Hello}"),Data(b = 43))
-    assertEquals(JSON.unquoted.parse<Data>("{a:0,b:42,c:Hello}"),Data())
-    assertEquals(JSON.unquoted.parse<Data>("{a:0,c:Hello}"),Data())
-    assertEquals(JSON.unquoted.parse<Data>("{a:0}"),Data())
+    assertEquals("{a:0,b:42,c:Hello}",Json.unquoted.stringify(Data()))
+    assertEquals(Json.unquoted.parse<Data>("{a:0,b:43,c:Hello}"),Data(b = 43))
+    assertEquals(Json.unquoted.parse<Data>("{a:0,b:42,c:Hello}"),Data())
+    assertEquals(Json.unquoted.parse<Data>("{a:0,c:Hello}"),Data())
+    assertEquals(Json.unquoted.parse<Data>("{a:0}"),Data())
     
     // This will throw SerializationException, because 'a' is missing.
-    JSON.unquoted.parse<Data>("{b:0}")
+    Json.unquoted.parse<Data>("{b:0}")
     ```
 
 * `@Transient` annotation for supported properties. This annotation excludes marked properties from process of serialization or deserialization. Requires default value. *Don't confuse with `kotlin.jvm.Transient`!*
@@ -178,14 +178,14 @@
     
     // Serialization and deserialization with internal serializer
     // External serializer also supported
-    assertEquals("{a:0,c:Hello}",JSON.unquoted.stringify(Data()))
-    assertEquals(JSON.unquoted.parse<Data>("{a:0,c:Hello}"),Data())
-    assertEquals(JSON.unquoted.parse<Data>("{a:0}"),Data())
+    assertEquals("{a:0,c:Hello}",Json.unquoted.stringify(Data()))
+    assertEquals(Json.unquoted.parse<Data>("{a:0,c:Hello}"),Data())
+    assertEquals(Json.unquoted.parse<Data>("{a:0}"),Data())
     
     
     // This will throw SerializationException, because 
     // property 'b' is unknown to deserializer.
-    JSON.unquoted.parse<Data>("{a:0,b:100500,c:Hello}")
+    Json.unquoted.parse<Data>("{a:0,b:100500,c:Hello}")
     ```
 
 * Initializing `@Transient` or `@Optional` fields in init blocks is not supported.
@@ -212,7 +212,7 @@
         val prop by myMap
     }
     
-    assertEquals("value", JSON.unquoted.parse<WithDelegates>("{myMap:{prop:value}}").prop)
+    assertEquals("value", Json.unquoted.parse<WithDelegates>("{myMap:{prop:value}}").prop)
     ```
     
 ## Nesting
@@ -231,14 +231,14 @@
     val data = Data("Str", listOf(1, 2), mapOf("lt" to TintEnum.LIGHT, "dk" to TintEnum.DARK))
     
     // Serialize with internal serializer for Data class
-    assertEquals("{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}", JSON.unquoted.stringify(data))
-    assertEquals(data, JSON.parse<Data>("{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}"))
+    assertEquals("{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}", Json.unquoted.stringify(data))
+    assertEquals(data, Json.parse<Data>("{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}"))
     
     // Serialize with external serializer for Data class
     @Serializer(forClass=Data::class)
     object ExtDataSerializer
-    assertEquals("{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}", JSON.unquoted.stringify(ExtDataSerializer, data))
-    assertEquals(data, JSON.parse(ExtDataSerializer, "{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}"))
+    assertEquals("{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}", Json.unquoted.stringify(ExtDataSerializer, data))
+    assertEquals(data, Json.parse(ExtDataSerializer, "{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}"))
     ```
 
     To obtain serializers for root-level collections, you can use extension functions defined on serializers, like `.list` (see [this](https://github.com/Kotlin/kotlinx.serialization/issues/27) issue)
