@@ -87,7 +87,8 @@ override fun serialize(output: Encoder, obj: BinaryPayload) {
 }
 ```
 
-Deserializing a class with multiple values is a complex task, mainly because you don't know the order of fields in the input stream in advance. So crucial part here is make a `when` over index of an incoming element:
+Deserializing a class with multiple values is a complex task, mainly because you don't know the order of fields in the input stream in advance.
+So crucial part here is to make a `when` over an index of an incoming element:
 
 ```kotlin
 override fun deserialize(input: Decoder): BinaryPayload {

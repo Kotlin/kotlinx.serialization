@@ -22,6 +22,7 @@ buildscript {
         ext.librariesVersion = property('kotlin.version.snapshot')
         ext.serializationPluginVersion = property('plugin.version.snapshot')
         ext.konanVersion = property('konan.version.snapshot')
+        ext["org.jetbrains.kotlin.native.home"] = System.getenv("KONAN_LOCAL_DIST")
     } else {
         ext.compilerVersion = property('kotlin.version')
         ext.librariesVersion = property('kotlin.version')
