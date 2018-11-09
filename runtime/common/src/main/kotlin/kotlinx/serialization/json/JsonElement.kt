@@ -145,7 +145,7 @@ sealed class JsonPrimitive : JsonElement() {
  * Class representing JSON literals: numbers, booleans and string.
  * Strings are always quoted.
  */
-data class JsonLiteral internal constructor(
+class JsonLiteral internal constructor(
     private val body: Any,
     private val isString: Boolean
 ) : JsonPrimitive() {
@@ -171,6 +171,25 @@ data class JsonLiteral internal constructor(
     override fun toString() =
         if (isString) buildString { printQuoted(content) }
         else content
+
+    // Compare by `content` and `isString`, because body can be kotlin.Long=42 or kotlin.String="42"
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as JsonLiteral
+
+        if (isString != other.isString) return false
+        if (content != other.content) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = isString.hashCode()
+        result = 31 * result + content.hashCode()
+        return result
+    }
 }
 
 /**

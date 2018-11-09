@@ -2,6 +2,7 @@ package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.HexConverter
+import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -28,6 +29,13 @@ class CheckedData<T : Any>(val data: T, val checkSum: ByteArray) {
 
 @Serializer(forClass = CheckedData::class)
 class CheckedDataSerializer<T : Any>(val dataSerializer: KSerializer<T>) : KSerializer<CheckedData<T>> {
+    override val descriptor: SerialDescriptor = object : SerialClassDescImpl("CheckedDataSerializer") {
+        init {
+            addElement("data")
+            addElement("checkSum")
+        }
+    }
+
     override fun serialize(output: Encoder, obj: CheckedData<T>) {
         val out = output.beginStructure(descriptor)
         out.encodeSerializableElement(descriptor, 0, dataSerializer, obj.data)

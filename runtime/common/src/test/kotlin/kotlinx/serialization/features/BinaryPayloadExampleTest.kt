@@ -11,7 +11,7 @@ class BinaryPayloadExampleTest {
     @Serializable
     class BinaryPayload(val req: ByteArray, val res: ByteArray) {
         @Serializer(forClass = BinaryPayload::class)
-        companion object {
+        companion object : KSerializer<BinaryPayload> {
             override val descriptor: SerialDescriptor = object : SerialClassDescImpl("BinaryPayload") {
                 init {
                     addElement("req")
