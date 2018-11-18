@@ -139,12 +139,15 @@ For example, let's write serializer for `java.util.Date`:
 object DateSerializer: KSerializer<Date> {
     private val df: DateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS")
 
-    override fun save(output: KOutput, obj: Date) {
-        output.writeStringValue(df.format(obj))
+    override val descriptor: SerialDescriptor =
+        SerialClassDescImpl("java.util.Date")
+
+    override fun serialize(output: Encoder, obj: Date) {
+        output.encode(df.format(obj))
     }
 
-    override fun load(input: KInput): Date {
-        return df.parse(input.readStringValue())
+    override fun deserialize(input: Decoder): Date {
+        return df.parse(input.decode())
     }
 }
 ```
