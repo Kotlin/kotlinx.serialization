@@ -42,7 +42,8 @@ import kotlinx.serialization.internal.*
 class MyData(val s: String) {
     @Serializer(forClass = MyData::class)
     companion object : KSerializer<MyData> {
-        override val descriptor: SerialDescriptor = StringDescriptor
+        override val descriptor: SerialDescriptor =
+            StringDescriptor.withName("MyData")
 
         override fun serialize(output: Encoder, obj: MyData) {
             output.encodeString(HexConverter.printHexBinary(obj.s.toByteArray()))
@@ -141,7 +142,7 @@ object DateSerializer: KSerializer<Date> {
     private val df: DateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS")
 
     override val descriptor: SerialDescriptor =
-        SerialClassDescImpl("java.util.Date")
+        StringDescriptor.withName("WithCustomDefault")
 
     override fun serialize(output: Encoder, obj: Date) {
         output.encode(df.format(obj))
