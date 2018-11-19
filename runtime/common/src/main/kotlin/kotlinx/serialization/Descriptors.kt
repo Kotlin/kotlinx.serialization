@@ -16,6 +16,8 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.internal.PrimitiveDescriptor
+
 sealed class SerialKind
 
 sealed class PrimitiveKind: SerialKind() {
@@ -43,3 +45,8 @@ sealed class UnionKind: SerialKind() {
     object SEALED: UnionKind()
     object POLYMORPHIC: UnionKind()
 }
+
+class PrimitiveDescriptorWithName(override val name: String, val original: PrimitiveDescriptor) :
+    SerialDescriptor by original
+
+fun PrimitiveDescriptor.withName(name: String): SerialDescriptor = PrimitiveDescriptorWithName(name, this)
