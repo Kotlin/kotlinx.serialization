@@ -72,6 +72,29 @@ class JsonAstTest {
     }
 
     @Test
+    fun equalityTest() {
+        val input = """{"a": "foo", "b": 10}"""
+        val parsed = JsonTreeParser.parse(input)
+        val parsed2 = JsonTreeParser.parse(input)
+        val handCrafted = json { "a" to JsonPrimitive("foo"); "b" to JsonPrimitive(10) }
+        assertEquals(parsed, parsed2)
+        assertEquals(parsed, handCrafted)
+    }
+
+    @Test
+    fun inEqualityTest() {
+        val input = """{"a": "10", "b": 10}"""
+        val parsed = JsonTreeParser.parse(input)
+        val handCrafted = json { "a" to JsonPrimitive("10"); "b" to JsonPrimitive(10) }
+        assertEquals(parsed, handCrafted)
+
+        assertNotEquals(parsed["a"], parsed["b"])
+        assertNotEquals(parsed["a"], handCrafted["b"])
+        assertNotEquals(handCrafted["a"], parsed["b"])
+        assertNotEquals(handCrafted["a"], handCrafted["b"])
+    }
+
+    @Test
     fun exceptionCorrectness() {
         val tree =
             JsonObject(mapOf("a" to JsonLiteral(42), "b" to JsonArray(listOf(JsonNull)), "c" to JsonLiteral(false)))

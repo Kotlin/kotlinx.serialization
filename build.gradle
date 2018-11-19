@@ -21,10 +21,13 @@ buildscript {
         ext.compilerVersion = property('kotlin.version.snapshot')
         ext.librariesVersion = property('kotlin.version.snapshot')
         ext.serializationPluginVersion = property('plugin.version.snapshot')
+        ext.konanVersion = property('konan.version.snapshot')
+        ext["org.jetbrains.kotlin.native.home"] = System.getenv("KONAN_LOCAL_DIST")
     } else {
         ext.compilerVersion = property('kotlin.version')
         ext.librariesVersion = property('kotlin.version')
         ext.serializationPluginVersion = property('plugin.version')
+        ext.konanVersion = property('konan.version')
     }
     ext.serializationCoordinates = "org.jetbrains.kotlin:kotlin-serialization"
     ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-dev'
@@ -50,7 +53,7 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$compilerVersion"
         classpath "$serializationCoordinates:$serializationPluginVersion"
-        classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:${property('konan.version')}"
+        classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:$konanVersion"
 
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.2'
 
