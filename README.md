@@ -68,7 +68,7 @@ More examples of various kinds of Kotlin classes that can be serialized can be f
 
 ## Current project status
 
-Starting from Kotlin 1.3-RC2, serialization plugin is bundled into the Kotlin compiler, and IDEA plugin is bundled into the Kotlin plugin.
+Starting from Kotlin 1.3-RC2, serialization plugin is shipped with the rest of Kotlin compiler distribution, and the IDEA plugin is bundled into the Kotlin plugin.
 
 Runtime library is under reconstruction to match the corresponding [KEEP](https://github.com/Kotlin/KEEP/blob/serialization/proposals/extensions/serialization.md), so some features described there can be not implemented yet. While library is stable and has successfully been used in various scenarios, there is no API compatibility guarantees between versions, that's why it is called experimental.
 This document describes setup for Kotlin 1.3 and higher. To watch instructions regarding 1.2, follow [this document](docs/old12.md).
@@ -79,7 +79,7 @@ Using Kotlin Serialization requires Kotlin compiler `1.3.0` or higher. Make sure
 Delegate build to Gradle: (`Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`).
 Example projects on JVM are available for [Gradle](example-jvm/build.gradle) and [Maven](example-jvm/pom.xml).
 
-### Gradle/JVM
+### Gradle
 
 You have to add the serialization plugin as the other [compiler plugins](https://kotlinlang.org/docs/reference/compiler-plugins.html):
 
@@ -98,7 +98,7 @@ buildscript {
 Don't forget to apply the plugin:
 
 ```gradle
-apply plugin: 'kotlin'
+apply plugin: 'kotlin' // or 'kotlin-multiplatform' for multiplatform projects
 apply plugin: 'kotlinx-serialization'
 ```
 
@@ -115,7 +115,40 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.9.0"
 }
-``` 
+```
+
+### Gradle (with `plugins` block)
+
+You can setup serialization plugin with the kotlin plugin using [Gradle plugins DSL](https://docs.gradle.org/current/userguide/plugins.html#sec:plugins_block) instead of traditional `apply plugin`:
+
+```gradle
+plugins {
+    id 'kotlin-multiplatform' version '1.3.0'
+    id 'kotlinx-serialization' version '1.3.0'
+}
+```
+
+In this case, since serialization plugin is not published to Gradle plugin portal [yet](https://youtrack.jetbrains.com/issue/KT-27612),
+you'll need to add [plugin resolution rules](https://docs.gradle.org/current/userguide/plugins.html#sec:plugin_resolution_rules) to your `settings.gradle`:
+
+```gradle
+pluginManagement {
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "kotlin-multiplatform") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
+            if (requested.id.id == "kotlinx-serialization") {
+                useModule("org.jetbrains.kotlin:kotlin-serialization:${requested.version}")
+            }
+        }
+    }
+}
+```
+
+Don't forget to drop `classpath` dependency on the plugin from the buildscript dependencies, otherwise, you'll get an error about conflicting versions.
+
+Runtime library should be added to dependencies the same way as before.
 
 ### Android/JVM
 
