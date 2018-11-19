@@ -16,7 +16,7 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -45,21 +45,21 @@ class OptionalTests {
 
     @Test
     fun testAll() {
-        assertEquals("{a:0,b:42,c:Hello}", JSON.unquoted.stringify(Data()))
-        assertEquals(JSON.unquoted.parse<Data>("{a:0,b:43,c:Hello}"), Data(b = 43))
-        assertEquals(JSON.unquoted.parse<Data>("{a:0,b:42,c:Hello}"), Data())
+        assertEquals("{a:0,b:42,c:Hello}", Json.unquoted.stringify(Data()))
+        assertEquals(Json.unquoted.parse<Data>("{a:0,b:43,c:Hello}"), Data(b = 43))
+        assertEquals(Json.unquoted.parse<Data>("{a:0,b:42,c:Hello}"), Data())
     }
 
     @Test
     fun testMissingOptionals() {
-        assertEquals(JSON.unquoted.parse<Data>("{a:0,c:Hello}"), Data())
-        assertEquals(JSON.unquoted.parse<Data>("{a:0}"), Data())
+        assertEquals(Json.unquoted.parse<Data>("{a:0,c:Hello}"), Data())
+        assertEquals(Json.unquoted.parse<Data>("{a:0}"), Data())
     }
 
     @Test
     fun testThrowMissingField() {
         assertFailsWith(MissingFieldException::class) {
-            JSON.unquoted.parse<Data>("{b:0}")
+            Json.unquoted.parse<Data>("{b:0}")
         }
     }
 

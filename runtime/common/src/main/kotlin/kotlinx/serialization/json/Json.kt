@@ -22,7 +22,7 @@ import kotlinx.serialization.context.SerialContext
 import kotlinx.serialization.context.SerialModule
 import kotlinx.serialization.internal.EnumDescriptor
 
-class JSON(
+class Json(
     private val unquoted: Boolean = false,
     private val indented: Boolean = false,
     private val indent: String = "    ",
@@ -46,10 +46,10 @@ class JSON(
     }
 
     companion object : StringFormat {
-        val plain = JSON()
-        val unquoted = JSON(unquoted = true)
-        val indented = JSON(indented = true)
-        val nonstrict = JSON(strictMode = false)
+        val plain = Json()
+        val unquoted = Json(unquoted = true)
+        val indented = Json(indented = true)
+        val nonstrict = Json(strictMode = false)
 
         override fun install(module: SerialModule) = plain.install(module)
         override val context: SerialContext get() = plain.context
@@ -70,7 +70,7 @@ class JSON(
         private var forceQuoting: Boolean = false
 
         init {
-            context = this@JSON.context
+            context = this@Json.context
             val i = mode.ordinal
             if (modeReuseCache[i] !== null || modeReuseCache[i] !== this)
                 modeReuseCache[i] = this
@@ -236,13 +236,13 @@ class JSON(
         private var entryIndex = 0
 
         init {
-            context = this@JSON.context
+            context = this@Json.context
         }
 
         fun readAsTree(): JsonElement = JsonTreeParser(p).read()
 
         override val updateMode: UpdateMode
-            get() = this@JSON.updateMode
+            get() = this@Json.updateMode
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             val newMode = switchMode(desc, typeParams)

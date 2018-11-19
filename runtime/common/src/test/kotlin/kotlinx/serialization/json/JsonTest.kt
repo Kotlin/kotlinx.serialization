@@ -19,49 +19,49 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlin.test.*
 
-class JSONTest {
+class JsonTest {
 
     @Test
     fun testNan() {
         val box = Box(Double.NaN, Float.NaN)
-        val json  = JSON.nonstrict.stringify(box)
+        val json  = Json.nonstrict.stringify(box)
         assertEquals("{\"double\":NaN,\"float\":NaN}", json)
-        val deserialized = JSON.parse<Box>(json)
+        val deserialized = Json.parse<Box>(json)
         assertEquals(box, deserialized)
     }
 
     @Test
     fun testInfinity() {
         val box = Box(Double.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY)
-        val json  = JSON.nonstrict.stringify(box)
+        val json  = Json.nonstrict.stringify(box)
         assertEquals("{\"double\":Infinity,\"float\":-Infinity}", json)
-        val deserialized = JSON.parse<Box>(json)
+        val deserialized = Json.parse<Box>(json)
         assertEquals(box, deserialized)
     }
 
     @Test
-    fun nonStrictJSONCanSkipValues() {
-        assertEquals(JSON.nonstrict.parse("{strangeField: 100500, a:0}"),
+    fun nonStrictJsonCanSkipValues() {
+        assertEquals(Json.nonstrict.parse("{strangeField: 100500, a:0}"),
             OptionalTests.Data()
         )
-        assertEquals(JSON.nonstrict.parse("{a:0, strangeField: 100500}"),
-            OptionalTests.Data()
-        )
-    }
-
-    @Test
-    fun nonStrictJSONCanSkipComplexValues() {
-        assertEquals(JSON.nonstrict.parse("{a: 0, strangeField: {a: b, c: {d: e}, f: [g,h,j] }}"),
-            OptionalTests.Data()
-        )
-        assertEquals(JSON.nonstrict.parse("{strangeField: {a: b, c: {d: e}, f: [g,h,j] }, a: 0}"),
+        assertEquals(Json.nonstrict.parse("{a:0, strangeField: 100500}"),
             OptionalTests.Data()
         )
     }
 
     @Test
-    fun testSerializeQuotedJSON() {
-        assertEquals("""{"a":10,"e":false,"c":"Hello"}""", JSON.stringify(
+    fun nonStrictJsonCanSkipComplexValues() {
+        assertEquals(Json.nonstrict.parse("{a: 0, strangeField: {a: b, c: {d: e}, f: [g,h,j] }}"),
+            OptionalTests.Data()
+        )
+        assertEquals(Json.nonstrict.parse("{strangeField: {a: b, c: {d: e}, f: [g,h,j] }, a: 0}"),
+            OptionalTests.Data()
+        )
+    }
+
+    @Test
+    fun testSerializeQuotedJson() {
+        assertEquals("""{"a":10,"e":false,"c":"Hello"}""", Json.stringify(
             TransientTests.Data(
                 10,
                 100
@@ -70,9 +70,9 @@ class JSONTest {
     }
 
     @Test
-    fun strictJSONCanNotSkipValues() {
+    fun strictJsonCanNotSkipValues() {
         assertFailsWith(SerializationException::class) {
-            JSON.parse<OptionalTests.Data>("{strangeField: 100500, a:0}")
+            Json.parse<OptionalTests.Data>("{strangeField: 100500, a:0}")
         }
     }
 
@@ -84,9 +84,9 @@ class JSONTest {
 
     @Test
     fun testParseEscapedSymbols() {
-        assertEquals(Url("https://t.co/M1uhwigsMT"), JSON.parse("""{"url":"https:\/\/t.co\/M1uhwigsMT"}"""))
-        assertEquals(Url("\"test\""), JSON.parse("""{"url": "\"test\""}"""))
-        assertEquals(Url("\u00c9"), JSON.parse("""{"url": "\u00c9"}"""))
-        assertEquals(Url("""\\"""), JSON.parse("""{"url": "\\\\"}"""))
+        assertEquals(Url("https://t.co/M1uhwigsMT"), Json.parse("""{"url":"https:\/\/t.co\/M1uhwigsMT"}"""))
+        assertEquals(Url("\"test\""), Json.parse("""{"url": "\"test\""}"""))
+        assertEquals(Url("\u00c9"), Json.parse("""{"url": "\u00c9"}"""))
+        assertEquals(Url("""\\"""), Json.parse("""{"url": "\\\\"}"""))
     }
 }

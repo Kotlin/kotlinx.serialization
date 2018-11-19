@@ -1,6 +1,6 @@
 package kotlinx.serialization
 
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.protobuf.ProtoBuf
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -16,8 +16,8 @@ class UnionEnumTest {
     @Test
     fun simpleEnum() {
         val data = WithUnions("foo", SomeEnum.BETA)
-        val json = JSON.stringify(data)
-        val restored = JSON.parse<WithUnions>(json)
+        val json = Json.stringify(data)
+        val restored = Json.parse<WithUnions>(json)
         assertEquals(data, restored)
     }
 

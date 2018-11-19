@@ -23,15 +23,15 @@ import io.kotlintest.properties.row
 import io.kotlintest.properties.table
 import io.kotlintest.specs.WordSpec
 import kotlinx.io.ByteArrayOutputStream
-import kotlinx.serialization.cbor.CBOR
+import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.internal.HexConverter
 
-class CBORWriterTest : WordSpec() {
+class CborWriterTest : WordSpec() {
     init {
 
-        fun withEncoder(block: CBOR.CBOREncoder.() -> Unit): String {
+        fun withEncoder(block: Cbor.CborEncoder.() -> Unit): String {
             val result = ByteArrayOutputStream()
-            CBOR.CBOREncoder(result).block()
+            Cbor.CborEncoder(result).block()
             return HexConverter.printHexBinary(result.toByteArray()).toLowerCase()
         }
 

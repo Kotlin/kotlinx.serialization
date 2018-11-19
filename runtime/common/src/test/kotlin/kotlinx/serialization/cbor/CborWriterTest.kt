@@ -22,12 +22,12 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 
-class CBORWriterTest {
+class CborWriterTest {
     infix fun <T> T.shouldBe(expected: T) = assertEquals(expected, this)
 
     @Test
     fun writeSimpleClass() {
-        CBOR.dumps(Simple("str")) shouldBe "bf616163737472ff"
+        Cbor.dumps(Simple("str")) shouldBe "bf616163737472ff"
     }
 
     @Test
@@ -41,7 +41,7 @@ class CBORWriterTest {
                 Simple("lol"),
                 listOf(Simple("kek"))
         )
-        CBOR.dumps(test) shouldBe "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffffff"
+        Cbor.dumps(test) shouldBe "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffffff"
     }
 
     @Test
@@ -54,6 +54,6 @@ class CBORWriterTest {
                 true,
                 'a'
         )
-        CBOR.dumps(test) shouldBe "bf63696e741a00018894646c6f6e671b7fffffffffffffff65666c6f6174fa4228000066646f75626c65fb4271fb0c5a2b700067626f6f6c65616ef564636861721861ff"
+        Cbor.dumps(test) shouldBe "bf63696e741a00018894646c6f6e671b7fffffffffffffff65666c6f6174fa4228000066646f75626c65fb4271fb0c5a2b700067626f6f6c65616ef564636861721861ff"
     }
 }

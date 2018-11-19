@@ -16,7 +16,7 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import kotlin.test.*
 
 class TransientTests {
@@ -52,19 +52,19 @@ class TransientTests {
 
     @Test
     fun testAll() {
-        assertEquals("{a:0,e:false,c:Hello}", JSON.unquoted.stringify(Data()))
+        assertEquals("{a:0,e:false,c:Hello}", Json.unquoted.stringify(Data()))
     }
 
     @Test
     fun testMissingOptionals() {
-        assertEquals(JSON.unquoted.parse<Data>("{a:0,c:Hello}"), Data())
-        assertEquals(JSON.unquoted.parse<Data>("{a:0}"), Data())
+        assertEquals(Json.unquoted.parse<Data>("{a:0,c:Hello}"), Data())
+        assertEquals(Json.unquoted.parse<Data>("{a:0}"), Data())
     }
 
     @Test
     fun testThrowTransient() {
         assertFailsWith(SerializationException::class) {
-            JSON.unquoted.parse<Data>("{a:0,b:100500,c:Hello}")
+            Json.unquoted.parse<Data>("{a:0,b:100500,c:Hello}")
         }
     }
 

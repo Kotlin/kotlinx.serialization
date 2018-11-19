@@ -35,17 +35,17 @@ object EitherSerializer: KSerializer<DummyEither> {
     override val descriptor: SerialDescriptor = SerialClassDescImpl("DummyEither")
 
     override fun deserialize(input: Decoder): DummyEither {
-        val jsonReader = input as? JSON.JsonInput
-                ?: throw SerializationException("This class can be loaded only by JSON")
+        val jsonReader = input as? Json.JsonInput
+                ?: throw SerializationException("This class can be loaded only by Json")
         val tree = jsonReader.readAsTree() as? JsonObject
-                ?: throw SerializationException("Expected JSON object")
+                ?: throw SerializationException("Expected JsonObject")
         if ("error" in tree) return DummyEither.Left(tree.getPrimitive("error").content)
         return DummyEither.Right(JsonTreeMapper().readTree(tree, Payload.serializer()))
     }
 
     override fun serialize(output: Encoder, obj: DummyEither) {
-        val jsonWriter = output as? JSON.JsonOutput
-                ?: throw SerializationException("This class can be saved only by JSON")
+        val jsonWriter = output as? Json.JsonOutput
+                ?: throw SerializationException("This class can be saved only by Json")
         val tree = when (obj) {
             is DummyEither.Left -> JsonObject(mapOf("error" to JsonLiteral(obj.errorMsg)))
             is DummyEither.Right -> JsonTreeMapper().writeTree(obj.data, Payload.serializer())
@@ -67,7 +67,7 @@ class JsonTreeAndMapperTest {
 
     @Test
     fun testParseData() {
-        val ev = JSON.parse(Event.serializer(), inputData)
+        val ev = Json.parse(Event.serializer(), inputData)
         with(ev) {
             assertEquals(0, id)
             assertEquals(DummyEither.Right(Payload(42, 43, "Hello world")), payload)
@@ -77,7 +77,7 @@ class JsonTreeAndMapperTest {
 
     @Test
     fun testParseError() {
-        val ev = JSON.parse(Event.serializer(), inputError)
+        val ev = Json.parse(Event.serializer(), inputError)
         with(ev) {
             assertEquals(1, id)
             assertEquals(DummyEither.Left("Connection timed out"), payload)
@@ -88,14 +88,14 @@ class JsonTreeAndMapperTest {
     @Test
     fun testWriteData() {
         val outputData = Event(0, DummyEither.Right(Payload(42, 43, "Hello world")), 1000)
-        val ev = JSON.stringify(Event.serializer(), outputData)
+        val ev = Json.stringify(Event.serializer(), outputData)
         assertEquals(inputData, ev)
     }
 
     @Test
     fun testWriteError() {
         val outputError = Event(1, DummyEither.Left("Connection timed out"), 1001)
-        val ev = JSON.stringify(Event.serializer(), outputError)
+        val ev = Json.stringify(Event.serializer(), outputError)
         assertEquals(inputError, ev)
     }
 

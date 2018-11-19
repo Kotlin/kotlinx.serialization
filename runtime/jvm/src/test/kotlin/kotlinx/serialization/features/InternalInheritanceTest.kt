@@ -17,7 +17,7 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -74,11 +74,11 @@ class InternalInheritanceTest {
     fun testStringify() {
         assertEquals(
                 "{parent:42,rootOptional:rootOptional,parent2:42,derived:derived,bodyDerived:body,parent3:42,lastDerived:optional}",
-                JSON.unquoted.stringify(C(42))
+                Json.unquoted.stringify(C(42))
         )
         assertEquals(
                 "{parent:13,rootOptional:rootOptional,parent2:13,derived:bbb,bodyDerived:body}",
-                JSON.unquoted.stringify(B(13, derived = "bbb"))
+                Json.unquoted.stringify(B(13, derived = "bbb"))
         )
     }
 
@@ -86,11 +86,11 @@ class InternalInheritanceTest {
     fun testParse() {
         assertEquals(
                 C(42),
-                JSON.unquoted.parse<C>("{parent:42,rootOptional:rootOptional,parent2:42,derived:derived,bodyDerived:body,parent3:42,lastDerived:optional}")
+                Json.unquoted.parse<C>("{parent:42,rootOptional:rootOptional,parent2:42,derived:derived,bodyDerived:body,parent3:42,lastDerived:optional}")
         )
         assertEquals(
                 C(43),
-                JSON.unquoted.parse<C>("{parent:43,rootOptional:rootOptional,parent2:43,derived:derived,bodyDerived:body,parent3:43,lastDerived:optional}")
+                Json.unquoted.parse<C>("{parent:43,rootOptional:rootOptional,parent2:43,derived:derived,bodyDerived:body,parent3:43,lastDerived:optional}")
         )
 
     }
@@ -99,33 +99,33 @@ class InternalInheritanceTest {
     fun testParseOptionals() {
         assertEquals(
                 B(100, derived = "wowstring"),
-                JSON.unquoted.parse<B>("{parent:100,rootOptional:rootOptional,parent2:100,derived:wowstring,bodyDerived:body}")
+                Json.unquoted.parse<B>("{parent:100,rootOptional:rootOptional,parent2:100,derived:wowstring,bodyDerived:body}")
         )
         assertEquals(
                 C(44),
-                JSON.unquoted.parse<C>("{parent:44, parent2:44,derived:derived,bodyDerived:body,parent3:44}")
+                Json.unquoted.parse<C>("{parent:44, parent2:44,derived:derived,bodyDerived:body,parent3:44}")
         )
         assertEquals(
                 B(101, derived = "wowstring"),
-                JSON.unquoted.parse<B>("{parent:101,parent2:101,derived:wowstring,bodyDerived:body}")
+                Json.unquoted.parse<B>("{parent:101,parent2:101,derived:wowstring,bodyDerived:body}")
         )
         assertEquals(
                 A(77),
-                JSON.unquoted.parse<A>("{parent:77,rootOptional:rootOptional}")
+                Json.unquoted.parse<A>("{parent:77,rootOptional:rootOptional}")
         )
         assertEquals(
                 A(78),
-                JSON.unquoted.parse<A>("{parent:78}")
+                Json.unquoted.parse<A>("{parent:78}")
         )
     }
 
     @Test(expected = SerializationException::class)
     fun testThrowTransient() {
-        JSON.unquoted.parse<B>("{parent:100,rootOptional:rootOptional,transientDerived:X,parent2:100,derived:wowstring,bodyDerived:body}")
+        Json.unquoted.parse<B>("{parent:100,rootOptional:rootOptional,transientDerived:X,parent2:100,derived:wowstring,bodyDerived:body}")
     }
 
     @Test(expected = SerializationException::class)
     fun testThrowMissingField() {
-        JSON.unquoted.parse<C>("{parent:42,rootOptional:rootOptional,derived:derived,bodyDerived:body,parent3:42,lastDerived:optional}")
+        Json.unquoted.parse<C>("{parent:42,rootOptional:rootOptional,derived:derived,bodyDerived:body,parent3:42,lastDerived:optional}")
     }
 }

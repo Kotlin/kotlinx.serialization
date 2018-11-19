@@ -16,7 +16,7 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -31,9 +31,9 @@ class HierarchyTest {
     @Test
     fun callSuperSealedConstructorProperly() {
         val v1 = Var("a")
-        val s1 = JSON.stringify(v1)   //{"id":"a"}
+        val s1 = Json.stringify(v1)   //{"id":"a"}
         assertEquals("""{"id":"a"}""", s1)
-        val v2: Var = JSON.parse(s1)   //throws IllegalAccessError
+        val v2: Var = Json.parse(s1)   //throws IllegalAccessError
         assertEquals(v1, v2)
     }
 }

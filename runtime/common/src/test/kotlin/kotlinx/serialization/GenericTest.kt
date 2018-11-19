@@ -17,7 +17,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.internal.*
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import kotlin.test.*
 
 class GenericTest {
@@ -33,9 +33,9 @@ class GenericTest {
     fun writeDefaultPair() {
         val pair = 42 to "foo"
         val saver = PairSerializer(IntSerializer, StringSerializer)
-        val s = JSON.unquoted.stringify(saver, pair)
+        val s = Json.unquoted.stringify(saver, pair)
         assertEquals("{first:42,second:foo}", s)
-        val restored = JSON.unquoted.parse(saver, s)
+        val restored = Json.unquoted.parse(saver, s)
         assertEquals(pair, restored)
     }
 
@@ -43,18 +43,18 @@ class GenericTest {
     fun writePlainTriple() {
         val triple = Triple(42 , "foo", false)
         val saver = TripleSerializer(IntSerializer, StringSerializer, BooleanSerializer)
-        val s = JSON.unquoted.stringify(saver, triple)
+        val s = Json.unquoted.stringify(saver, triple)
         assertEquals("{first:42,second:foo,third:false}", s)
-        val restored = JSON.unquoted.parse(saver, s)
+        val restored = Json.unquoted.parse(saver, s)
         assertEquals(triple, restored)
     }
 
     @Test
     fun recursiveArrays() {
         val arr = Array2DBox(arrayOf(arrayOf(2.1, 1.2), arrayOf(42.3, -3.4)))
-        val str = JSON.stringify(arr)
+        val str = Json.stringify(arr)
         assertEquals("""{"arr":[[2.1,1.2],[42.3,-3.4]]}""", str)
-        val restored = JSON.parse<Array2DBox>(str)
+        val restored = Json.parse<Array2DBox>(str)
         assertTrue(arr.arr.contentDeepEquals(restored.arr))
     }
 }

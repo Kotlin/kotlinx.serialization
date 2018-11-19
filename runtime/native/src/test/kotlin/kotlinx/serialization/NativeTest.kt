@@ -1,7 +1,7 @@
 package kotlinx.serialization
 
-import kotlinx.serialization.cbor.CBOR
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.cbor.Cbor
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.protobuf.ProtoBuf
 import kotlin.test.*
 
@@ -9,7 +9,7 @@ class CommonTest {
     @Test
     fun canSerialize() {
         val serializer = Shop.serializer()
-        val jsonShop = JSON.stringify(serializer, shop)
+        val jsonShop = Json.stringify(serializer, shop)
         assertTrue(jsonShop.isNotBlank())
     }
 
@@ -17,7 +17,7 @@ class CommonTest {
     fun basicJson() {
         val serializer = SimpleData.serializer()
         val data = SimpleData("foo", 42)
-        val json = JSON.stringify(serializer, data)
+        val json = Json.stringify(serializer, data)
         assertEquals("""{"foo":"foo","bar":42}""", json)
     }
 
@@ -25,7 +25,7 @@ class CommonTest {
     fun isomorphicCbor() {
         val zoo = shop
         val serial = Shop.serializer()
-        val zoo2 = CBOR.load(serial, CBOR.dump(serial, zoo))
+        val zoo2 = Cbor.load(serial, Cbor.dump(serial, zoo))
         assertTrue(zoo !== zoo2)
         assertEquals(zoo, zoo2)
     }
