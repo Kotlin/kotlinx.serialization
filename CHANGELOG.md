@@ -1,4 +1,14 @@
 
+v0.9.1 / 2018-11-19
+==================
+
+  * Update lib to 0.9.1/Kotlin to 1.3.10
+  * Make some clarifications about Gradle plugin DSL and serialization plugin distribution
+  * Primitive descriptor with overriden name
+  * Add missing shorthands for float and char serializers (Fixes #263)
+  * Fix bug where primitive non-string values created by hand and created by parser could be inequal due to a redundant type comparison.
+  * Don't look at default serializer too early during reflective lookup (Fixes #250)
+
 v0.9.0 / 2018-10-24
 ==================
 
