@@ -79,13 +79,13 @@ abstract class ElementValueEncoder : Encoder, CompositeEncoder {
     final override fun encodeCharElement(desc: SerialDescriptor, index: Int, value: Char) { if (encodeElement(desc, index)) encodeChar(value) }
     final override fun encodeStringElement(desc: SerialDescriptor, index: Int, value: String) { if (encodeElement(desc, index)) encodeString(value) }
 
-    final override fun <T : Any?> encodeSerializableElement(desc: SerialDescriptor, index: Int, saver: SerializationStrategy<T>, value: T) {
+    final override fun <T : Any?> encodeSerializableElement(desc: SerialDescriptor, index: Int, serializer: SerializationStrategy<T>, value: T) {
         if (encodeElement(desc, index))
-            encodeSerializableValue(saver, value)
+            encodeSerializableValue(serializer, value)
     }
-    final override fun <T : Any> encodeNullableSerializableElement(desc: SerialDescriptor, index: Int, saver: SerializationStrategy<T>, value: T?) {
+    final override fun <T : Any> encodeNullableSerializableElement(desc: SerialDescriptor, index: Int, serializer: SerializationStrategy<T>, value: T?) {
         if (encodeElement(desc, index))
-            encodeNullableSerializableValue(saver, value)
+            encodeNullableSerializableValue(serializer, value)
     }
 }
 
@@ -137,12 +137,12 @@ abstract class ElementValueDecoder : Decoder, CompositeDecoder {
     final override fun decodeCharElement(desc: SerialDescriptor, index: Int): Char = decodeChar()
     final override fun decodeStringElement(desc: SerialDescriptor, index: Int): String = decodeString()
 
-    final override fun <T: Any?> decodeSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T =
-        decodeSerializableValue(loader)
-    final override fun <T: Any> decodeNullableSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>): T? =
-        decodeNullableSerializableValue(loader)
-    final override fun <T> updateSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>, old: T): T =
-        updateSerializableValue(loader, old)
-    final override fun <T: Any> updateNullableSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>, old: T?): T? =
-        updateNullableSerializableValue(loader, old)
+    final override fun <T: Any?> decodeSerializableElement(desc: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T>): T =
+        decodeSerializableValue(deserializer)
+    final override fun <T: Any> decodeNullableSerializableElement(desc: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T?>): T? =
+        decodeNullableSerializableValue(deserializer)
+    final override fun <T> updateSerializableElement(desc: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T>, old: T): T =
+        updateSerializableValue(deserializer, old)
+    final override fun <T: Any> updateNullableSerializableElement(desc: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T?>, old: T?): T? =
+        updateNullableSerializableValue(deserializer, old)
 }

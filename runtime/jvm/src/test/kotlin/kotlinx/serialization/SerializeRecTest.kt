@@ -72,9 +72,9 @@ class SerializeRecTest {
             fail("@$step: encodeElement($desc, $index)")
         }
 
-        override fun <T : Any?> encodeSerializableValue(saver: SerializationStrategy<T>, value: T) {
+        override fun <T : Any?> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
             when (step) {
-                2 -> { step++; saver.serialize(this, value); return }
+                2 -> { step++; serializer.serialize(this, value); return }
             }
             fail("@$step: encodeSerializableValue($value)")
         }
@@ -128,9 +128,9 @@ class SerializeRecTest {
             fail("@$step: decodeElementIndex($desc)")
         }
 
-        override fun <T : Any?> decodeSerializableValue(loader: DeserializationStrategy<T>): T {
+        override fun <T : Any?> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
             when (step) {
-                2 -> { step++; return loader.deserialize(this) }
+                2 -> { step++; return deserializer.deserialize(this) }
             }
             fail("@$step: decodeSerializableValue()")
         }

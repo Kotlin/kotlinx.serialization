@@ -87,8 +87,8 @@ class CustomSerializersJvmTest {
     @Test
     fun testPolymorphicResolve() {
         val map = mapOf<String, Any>("Payload" to Payload("data"))
-        val saver = (StringSerializer to PolymorphicSerializer).map
-        val s = json.stringify(saver, map)
+        val serializer = (StringSerializer to PolymorphicSerializer).map
+        val s = json.stringify(serializer, map)
         assertEquals("""{Payload:[kotlinx.serialization.CustomSerializersJvmTest.Payload,{s:data}]}""", s)
     }
 

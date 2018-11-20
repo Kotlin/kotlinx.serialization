@@ -22,10 +22,10 @@ import kotlinx.serialization.Serializable
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-internal inline fun <reified T> deserializeConfig(configString: String, loader: DeserializationStrategy<T>): T =
-    ConfigParser.parse(ConfigFactory.parseString(configString), loader)
+internal inline fun <reified T> deserializeConfig(configString: String, deserializer: DeserializationStrategy<T>): T =
+    ConfigParser.parse(ConfigFactory.parseString(configString), deserializer)
 
-class ConfigParserObjectsTest() {
+class ConfigParserObjectsTest {
 
     @Serializable
     data class Simple(val a: Int)

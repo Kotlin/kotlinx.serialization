@@ -60,14 +60,14 @@ class ProtoBuf : AbstractSerialFormat(), BinaryFormat {
         override fun SerialDescriptor.getTag(index: Int) = this.getProtoDesc(index)
 
         @Suppress("UNCHECKED_CAST")
-        override fun <T> encodeSerializableValue(saver: SerializationStrategy<T>, value: T) {
+        override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
             // encode maps as collection of map entries, not merged collection of key-values
-            if (saver.descriptor is MapLikeDescriptor) {
-                val serializer = (saver as MapLikeSerializer<Any?, Any?, T, *>)
+            if (serializer.descriptor is MapLikeDescriptor) {
+                val serializer = (serializer as MapLikeSerializer<Any?, Any?, T, *>)
                 val mapEntrySerial = MapEntrySerializer(serializer.keySerializer, serializer.valueSerializer)
                 HashSetSerializer(mapEntrySerial).serialize(this, (value as Map<*, *>).entries)
             } else {
-                saver.serialize(this, value)
+                serializer.serialize(this, value)
             }
         }
     }
@@ -193,15 +193,15 @@ class ProtoBuf : AbstractSerialFormat(), BinaryFormat {
         override fun decodeTaggedEnum(tag: ProtoDesc, enumDescription: EnumDescriptor): Int = decoder.nextInt(ProtoNumberType.DEFAULT)
 
         @Suppress("UNCHECKED_CAST")
-        override fun <T> decodeSerializableValue(loader: DeserializationStrategy<T>): T {
+        override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
             // encode maps as collection of map entries, not merged collection of key-values
-            return if (loader.descriptor is MapLikeDescriptor) {
-                val serializer = (loader as MapLikeSerializer<Any?, Any?, T, *>)
+            return if (deserializer.descriptor is MapLikeDescriptor) {
+                val serializer = (deserializer as MapLikeSerializer<Any?, Any?, T, *>)
                 val mapEntrySerial = MapEntrySerializer(serializer.keySerializer, serializer.valueSerializer)
                 val setOfEntries = HashSetSerializer(mapEntrySerial).deserialize(this)
                 setOfEntries.associateBy({ it.key }, {it.value}) as T
             } else {
-                loader.deserialize(this)
+                deserializer.deserialize(this)
             }
         }
 

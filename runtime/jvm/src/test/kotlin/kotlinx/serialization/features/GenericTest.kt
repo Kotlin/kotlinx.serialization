@@ -36,25 +36,25 @@ class GenericTest {
 
     @Test
     fun writeGenericPair() {
-        val pair = MyPair<Int, String>(42, "foo")
-        val saver = MyPair.serializer(IntSerializer, StringSerializer)
-        val s = Json.unquoted.stringify(saver, pair)
+        val pair = MyPair(42, "foo")
+        val serializer = MyPair.serializer(IntSerializer, StringSerializer)
+        val s = Json.unquoted.stringify(serializer, pair)
         assertEquals("{k:42,v:foo}", s)
     }
 
     @Test
     fun writePairInWrapper() {
         val pair = PairWrapper(42 to "foo")
-        val saver = PairWrapper.serializer()
-        val s = Json.unquoted.stringify(saver, pair)
+        val serializer = PairWrapper.serializer()
+        val s = Json.unquoted.stringify(serializer, pair)
         assertEquals("{p:{first:42,second:foo}}", s)
     }
 
     @Test
     fun writeTripleInWrapper() {
         val triple = TripleWrapper(Triple(42 , "foo", false))
-        val saver = TripleWrapper.serializer()
-        val s = Json.unquoted.stringify(saver, triple)
+        val serializer = TripleWrapper.serializer()
+        val s = Json.unquoted.stringify(serializer, triple)
         assertEquals("{t:{first:42,second:foo,third:false}}", s)
     }
 }

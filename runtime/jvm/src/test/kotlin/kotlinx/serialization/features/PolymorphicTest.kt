@@ -17,13 +17,12 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.protobuf.ProtoBuf
+import kotlinx.serialization.json.*
+import kotlinx.serialization.protobuf.*
 import org.junit.Test
-import java.text.DateFormat
-import java.text.SimpleDateFormat
+import java.text.*
 import java.util.*
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 @Serializable
 open class A(@SerialId(1) val id: Int) {
