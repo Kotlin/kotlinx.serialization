@@ -60,7 +60,7 @@ You can also specify desired behaviour for duplicating keys. By default it is `U
 JSON API:
 
 ```kotlin
-fun <T> stringify(saver: SerializationStrategy<T>, obj: T): String
+fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String
 inline fun <reified T : Any> stringify(obj: T): String = stringify(T::class.serializer(), obj)
 
 fun <T> parse(loader: DeserializationStrategy<T>, str: String): T
@@ -80,7 +80,7 @@ so it wouldn't work with root-level collections or external serializers out of t
 `CBOR` class provides following functions:
 
 ```kotlin
-fun <T : Any> dump(saver: SerializationStrategy<T>, obj: T): ByteArray // saves object to bytes
+fun <T : Any> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray // saves object to bytes
 inline fun <reified T : Any> dump(obj: T): ByteArray // same as above, resolves serializer by itself
 inline fun <reified T : Any> dumps(obj: T): String // dump object and then pretty-print bytes to string
 

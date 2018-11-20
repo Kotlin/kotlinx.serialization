@@ -32,20 +32,20 @@ class GenericTest {
     @Test
     fun writeDefaultPair() {
         val pair = 42 to "foo"
-        val saver = PairSerializer(IntSerializer, StringSerializer)
-        val s = Json.unquoted.stringify(saver, pair)
+        val serializer = PairSerializer(IntSerializer, StringSerializer)
+        val s = Json.unquoted.stringify(serializer, pair)
         assertEquals("{first:42,second:foo}", s)
-        val restored = Json.unquoted.parse(saver, s)
+        val restored = Json.unquoted.parse(serializer, s)
         assertEquals(pair, restored)
     }
 
     @Test
     fun writePlainTriple() {
         val triple = Triple(42 , "foo", false)
-        val saver = TripleSerializer(IntSerializer, StringSerializer, BooleanSerializer)
-        val s = Json.unquoted.stringify(saver, triple)
+        val serializer = TripleSerializer(IntSerializer, StringSerializer, BooleanSerializer)
+        val s = Json.unquoted.stringify(serializer, triple)
         assertEquals("{first:42,second:foo,third:false}", s)
-        val restored = Json.unquoted.parse(saver, s)
+        val restored = Json.unquoted.parse(serializer, s)
         assertEquals(triple, restored)
     }
 

@@ -26,15 +26,15 @@ class JsonTreeMapper(val encodeDefaults: Boolean = true): AbstractSerialFormat()
     @ImplicitReflectionSerializer
     inline fun <reified T : Any> readTree(tree: JsonElement): T = readTree(tree, context.getOrDefault(T::class))
 
-    fun <T> readTree(obj: JsonElement, loader: DeserializationStrategy<T>): T {
+    fun <T> readTree(obj: JsonElement, deserializer: DeserializationStrategy<T>): T {
         if (obj !is JsonObject) throw SerializationException("Can't deserialize primitive on root level")
-        return JsonTreeInput(obj).decode(loader)
+        return JsonTreeInput(obj).decode(deserializer)
     }
 
-    fun <T> writeTree(obj: T, saver: SerializationStrategy<T>): JsonElement {
+    fun <T> writeTree(obj: T, serializer: SerializationStrategy<T>): JsonElement {
         lateinit var result: JsonElement
         val output = JsonTreeOutput { result = it }
-        output.encode(saver, obj)
+        output.encode(serializer, obj)
         return result
     }
 

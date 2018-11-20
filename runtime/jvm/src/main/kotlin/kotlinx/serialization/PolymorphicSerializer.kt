@@ -27,11 +27,11 @@ object PolymorphicSerializer : KSerializer<Any> {
         get() = PolymorphicClassDesc
 
     override fun serialize(output: Encoder, obj: Any) {
-        val saver = serializerByValue(obj, output.context)
+        val serializer = serializerByValue(obj, output.context)
         @Suppress("NAME_SHADOWING")
         val output = output.beginStructure(descriptor)
-        output.encodeStringElement(descriptor, 0, saver.descriptor.name)
-        output.encodeSerializableElement(descriptor, 1, saver, obj)
+        output.encodeStringElement(descriptor, 0, serializer.descriptor.name)
+        output.encodeSerializableElement(descriptor, 1, serializer, obj)
         output.endStructure(descriptor)
     }
 
@@ -44,8 +44,8 @@ object PolymorphicSerializer : KSerializer<Any> {
             when (input.decodeElementIndex(descriptor)) {
                 READ_ALL -> {
                     klassName = input.decodeStringElement(descriptor, 0)
-                    val loader = serializerBySerialDescClassName<Any>(klassName, input.context)
-                    value = input.decodeSerializableElement(descriptor, 1, loader)
+                    val deserializer = serializerBySerialDescClassName<Any>(klassName, input.context)
+                    value = input.decodeSerializableElement(descriptor, 1, deserializer)
                     break@mainLoop
                 }
                 READ_DONE -> {
@@ -56,8 +56,8 @@ object PolymorphicSerializer : KSerializer<Any> {
                 }
                 1 -> {
                     klassName = requireNotNull(klassName) { "Cannot read polymorphic value before its type token" }
-                    val loader = serializerBySerialDescClassName<Any>(klassName, input.context)
-                    value = input.decodeSerializableElement(descriptor, 1, loader)
+                    val deserializer = serializerBySerialDescClassName<Any>(klassName, input.context)
+                    value = input.decodeSerializableElement(descriptor, 1, deserializer)
                 }
                 else -> throw SerializationException("Invalid index")
             }

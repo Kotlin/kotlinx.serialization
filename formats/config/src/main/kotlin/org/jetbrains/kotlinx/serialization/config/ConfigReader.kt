@@ -29,7 +29,7 @@ class ConfigParser(): AbstractSerialFormat() {
     @ImplicitReflectionSerializer
     inline fun <reified T : Any> parse(conf: Config): T = parse(conf, context.getOrDefault(T::class))
 
-    fun <T> parse(conf: Config, loader: DeserializationStrategy<T>): T = ConfigReader(conf).decode(loader)
+    fun <T> parse(conf: Config, deserializer: DeserializationStrategy<T>): T = ConfigReader(conf).decode(deserializer)
 
 
     private abstract inner class ConfigConverter<T> : TaggedDecoder<T>() {

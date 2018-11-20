@@ -80,9 +80,9 @@ open class ValueTransformer {
             encodeNullableValue(ordinal)
         }
 
-        override fun <T : Any?> encodeSerializableValue(saver: SerializationStrategy<T>, value: T) {
+        override fun <T : Any?> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
             if (isRecursiveTransform()) {
-                saver.serialize(this, value)
+                serializer.serialize(this, value)
             } else
                 encodeNullableValue(value)
         }
@@ -117,19 +117,19 @@ open class ValueTransformer {
         override fun <T> encodeSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            saver: SerializationStrategy<T>,
+            serializer: SerializationStrategy<T>,
             value: T
         ) {
-            encodeSerializableValue(saver, value)
+            encodeSerializableValue(serializer, value)
         }
 
         override fun <T : Any> encodeNullableSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            saver: SerializationStrategy<T>,
+            serializer: SerializationStrategy<T>,
             value: T?
         ) {
-            encodeNullableSerializableValue(saver, value)
+            encodeNullableSerializableValue(serializer, value)
         }
     }
 
@@ -171,9 +171,9 @@ open class ValueTransformer {
             transformEnumValue(curDesc!!, curIndex, enumDescription, decodeValue() as Int)
 
         @Suppress("UNCHECKED_CAST")
-        override fun <T : Any?> decodeSerializableValue(loader: DeserializationStrategy<T>): T {
+        override fun <T : Any?> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
             if (isRecursiveTransform())
-                return loader.deserialize(this)
+                return deserializer.deserialize(this)
             else
                 return decodeValue() as T
         }
@@ -196,32 +196,32 @@ open class ValueTransformer {
         override fun decodeCharElement(desc: SerialDescriptor, index: Int): Char { cur(desc, index); return decodeChar() }
         override fun decodeStringElement(desc: SerialDescriptor, index: Int): String { cur(desc, index); return decodeString() }
 
-        override fun <T: Any?> decodeSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T>): T {
+        override fun <T: Any?> decodeSerializableElement(desc: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T>): T {
             cur(desc, index)
-            return decodeSerializableValue(loader)
+            return decodeSerializableValue(deserializer)
         }
 
-        override fun <T: Any> decodeNullableSerializableElement(desc: SerialDescriptor, index: Int, loader: DeserializationStrategy<T?>): T? {
+        override fun <T: Any> decodeNullableSerializableElement(desc: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T?>): T? {
             cur(desc, index)
-            return decodeNullableSerializableValue(loader)
+            return decodeNullableSerializableValue(deserializer)
         }
 
         override fun <T> updateSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            loader: DeserializationStrategy<T>,
+            deserializer: DeserializationStrategy<T>,
             old: T
         ): T {
-            return updateSerializableValue(loader, old)
+            return updateSerializableValue(deserializer, old)
         }
 
         override fun <T : Any> updateNullableSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            loader: DeserializationStrategy<T?>,
+            deserializer: DeserializationStrategy<T?>,
             old: T?
         ): T? {
-            return updateNullableSerializableValue(loader, old)
+            return updateNullableSerializableValue(deserializer, old)
         }
     }
 }

@@ -24,7 +24,7 @@ class DynamicObjectParser(): AbstractSerialFormat() {
     @ImplicitReflectionSerializer
     inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.getOrDefault(T::class))
 
-    fun <T> parse(obj: dynamic, loader: DeserializationStrategy<T>): T = DynamicInput(obj).decode(loader)
+    fun <T> parse(obj: dynamic, deserializer: DeserializationStrategy<T>): T = DynamicInput(obj).decode(deserializer)
 
     private open inner class DynamicInput(val obj: dynamic) : NamedValueDecoder() {
         init {
