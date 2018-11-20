@@ -72,6 +72,23 @@ annotation class SerialInfo
 annotation class ContextualSerialization(vararg val forClasses: KClass<*>)
 
 /**
+ *  Adds [serializerClasses] to serializers resolving process inside the plugin.
+ *  Each of [serializerClasses] must implement [KSerializer].
+ *
+ *  Inside the file with this annotation, for each given property
+ *  of type `T` in some class, this list would be inspected for the presence of `KSerializer<T>`.
+ *  If such serializer is present, it would be used instead of default.
+ *
+ *  Main use-case for this annotation is not to write @Serializable(with=SomeSerializer::class)
+ *  on each property with custom serializer.
+ *
+ *  Serializers from this list have higher priority than default, but lesser priority than
+ *  serializers defined on the property itself, such as [Serializable] (with=...) or [ContextualSerialization].
+ */
+@Target(AnnotationTarget.FILE)
+annotation class UseSerializers(vararg val serializerClasses: KClass<*>)
+
+/**
  * Instructs to use [PolymorphicSerializer] on an annotated property or type.
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE)
