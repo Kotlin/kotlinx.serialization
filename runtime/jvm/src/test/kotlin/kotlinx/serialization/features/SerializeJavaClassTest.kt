@@ -18,12 +18,12 @@ object DateSerializer : KSerializer<Date> {
         timeZone = TimeZone.getTimeZone("GMT+2")
     }
 
-    override fun serialize(output: Encoder, obj: Date) {
-        output.encodeString(df.format(obj))
+    override fun serialize(encoder: Encoder, obj: Date) {
+        encoder.encodeString(df.format(obj))
     }
 
-    override fun deserialize(input: Decoder): Date {
-        return df.parse(input.decodeString())
+    override fun deserialize(decoder: Decoder): Date {
+        return df.parse(decoder.decodeString())
     }
 }
 

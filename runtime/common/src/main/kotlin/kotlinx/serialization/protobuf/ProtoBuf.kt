@@ -431,10 +431,10 @@ class ProtoBuf : AbstractSerialFormat(), BinaryFormat {
     }
 
     override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray {
-        val output = ByteArrayOutputStream()
-        val dumper = ProtobufWriter(ProtobufEncoder(output))
+        val encoder = ByteArrayOutputStream()
+        val dumper = ProtobufWriter(ProtobufEncoder(encoder))
         dumper.encode(serializer, obj)
-        return output.toByteArray()
+        return encoder.toByteArray()
     }
 
     override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {

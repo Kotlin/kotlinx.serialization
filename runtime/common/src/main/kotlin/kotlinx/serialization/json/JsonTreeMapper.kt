@@ -33,8 +33,8 @@ class JsonTreeMapper(val encodeDefaults: Boolean = true): AbstractSerialFormat()
 
     fun <T> writeTree(obj: T, serializer: SerializationStrategy<T>): JsonElement {
         lateinit var result: JsonElement
-        val output = JsonTreeOutput { result = it }
-        output.encode(serializer, obj)
+        val encoder = JsonTreeOutput { result = it }
+        encoder.encode(serializer, obj)
         return result
     }
 

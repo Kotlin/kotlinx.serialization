@@ -33,8 +33,8 @@ sealed class DummyEither {
 object EitherSerializer: KSerializer<DummyEither> {
     override val descriptor: SerialDescriptor = SerialClassDescImpl("DummyEither")
 
-    override fun deserialize(input: Decoder): DummyEither {
-        val jsonReader = input as? JsonInput
+    override fun deserialize(decoder: Decoder): DummyEither {
+        val jsonReader = decoder as? JsonInput
                 ?: throw SerializationException("This class can be loaded only by Json")
         val tree = jsonReader.readAsTree() as? JsonObject
                 ?: throw SerializationException("Expected JsonObject")
@@ -42,8 +42,8 @@ object EitherSerializer: KSerializer<DummyEither> {
         return DummyEither.Right(JsonTreeMapper().readTree(tree, Payload.serializer()))
     }
 
-    override fun serialize(output: Encoder, obj: DummyEither) {
-        val jsonWriter = output as? JsonOutput
+    override fun serialize(encoder: Encoder, obj: DummyEither) {
+        val jsonWriter = encoder as? JsonOutput
                 ?: throw SerializationException("This class can be saved only by Json")
         val tree = when (obj) {
             is DummyEither.Left -> JsonObject(mapOf("error" to JsonLiteral(obj.errorMsg)))
@@ -61,12 +61,12 @@ data class Event(
 )
 
 class JsonTreeAndMapperTest {
-    val inputData = """{"id":0,"payload":{"msg": "Hello world", "from": 42, "to": 43},"timestamp":1000}"""
-    val inputError = """{"id":1,"payload":{"error": "Connection timed out"},"timestamp":1001}"""
+    val decoderData = """{"id":0,"payload":{"msg": "Hello world", "from": 42, "to": 43},"timestamp":1000}"""
+    val decoderError = """{"id":1,"payload":{"error": "Connection timed out"},"timestamp":1001}"""
 
     @Test
     fun testParseData() {
-        val ev = Json.parse(Event.serializer(), inputData)
+        val ev = Json.parse(Event.serializer(), decoderData)
         with(ev) {
             assertEquals(0, id)
             assertEquals(DummyEither.Right(Payload(42, 43, "Hello world")), payload)
@@ -76,7 +76,7 @@ class JsonTreeAndMapperTest {
 
     @Test
     fun testParseError() {
-        val ev = Json.parse(Event.serializer(), inputError)
+        val ev = Json.parse(Event.serializer(), decoderError)
         with(ev) {
             assertEquals(1, id)
             assertEquals(DummyEither.Left("Connection timed out"), payload)
@@ -86,16 +86,16 @@ class JsonTreeAndMapperTest {
 
     @Test
     fun testWriteData() {
-        val outputData = Event(0, DummyEither.Right(Payload(42, 43, "Hello world")), 1000)
-        val ev = Json.stringify(Event.serializer(), outputData)
-        assertEquals(inputData, ev)
+        val encoderData = Event(0, DummyEither.Right(Payload(42, 43, "Hello world")), 1000)
+        val ev = Json.stringify(Event.serializer(), encoderData)
+        assertEquals(decoderData, ev)
     }
 
     @Test
     fun testWriteError() {
-        val outputError = Event(1, DummyEither.Left("Connection timed out"), 1001)
-        val ev = Json.stringify(Event.serializer(), outputError)
-        assertEquals(inputError, ev)
+        val encoderError = Event(1, DummyEither.Left("Connection timed out"), 1001)
+        val ev = Json.stringify(Event.serializer(), encoderError)
+        assertEquals(decoderError, ev)
     }
 
 }

@@ -21,15 +21,15 @@ class BinaryPayloadExampleTest {
                 }
             }
 
-            override fun serialize(output: Encoder, obj: BinaryPayload) {
-                val compositeOutput = output.beginStructure(descriptor)
+            override fun serialize(encoder: Encoder, obj: BinaryPayload) {
+                val compositeOutput = encoder.beginStructure(descriptor)
                 compositeOutput.encodeStringElement(descriptor, 0, HexConverter.printHexBinary(obj.req))
                 compositeOutput.encodeStringElement(descriptor, 1, HexConverter.printHexBinary(obj.res))
                 compositeOutput.endStructure(descriptor)
             }
 
-            override fun deserialize(input: Decoder): BinaryPayload {
-                val inp = input.beginStructure(descriptor)
+            override fun deserialize(decoder: Decoder): BinaryPayload {
+                val inp = decoder.beginStructure(descriptor)
                 lateinit var req: ByteArray
                 lateinit var res: ByteArray
                 loop@ while (true) {

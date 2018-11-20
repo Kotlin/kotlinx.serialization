@@ -35,14 +35,14 @@ open class CommonEnumSerializer<T>(val serialName: String, val choices: Array<T>
     KSerializer<T> {
     override val descriptor: EnumDescriptor = EnumDescriptor(serialName, choicesNames)
 
-    final override fun serialize(output: Encoder, obj: T) {
+    final override fun serialize(encoder: Encoder, obj: T) {
         val index = choices.indexOf(obj)
             .also { check(it != -1) { "$obj is not a valid enum $serialName, choices are $choices" } }
-        output.encodeEnum(descriptor, index)
+        encoder.encodeEnum(descriptor, index)
     }
 
-    final override fun deserialize(input: Decoder): T {
-        val index = input.decodeEnum(descriptor)
+    final override fun deserialize(decoder: Decoder): T {
+        val index = decoder.decodeEnum(descriptor)
         check(index in choices.indices)
             { "$index is not among valid $serialName choices, choices size is ${choices.size}" }
         return choices[index]

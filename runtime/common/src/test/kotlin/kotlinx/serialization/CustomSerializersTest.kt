@@ -31,12 +31,12 @@ class CustomSerializersTest {
     data class B(@SerialId(1) val value: Int)
 
     object BSerializer : KSerializer<B> {
-        override fun serialize(output: Encoder, obj: B) {
-            output.encodeInt(obj.value)
+        override fun serialize(encoder: Encoder, obj: B) {
+            encoder.encodeInt(obj.value)
         }
 
-        override fun deserialize(input: Decoder): B {
-            return B(input.decodeInt())
+        override fun deserialize(decoder: Decoder): B {
+            return B(decoder.decodeInt())
         }
 
         override val descriptor: SerialDescriptor = SerialClassDescImpl("B")
@@ -49,8 +49,8 @@ class CustomSerializersTest {
     data class C(@SerialId(1) @Optional val a: Int = 31, @SerialId(2) val b: Int = 42) {
         @Serializer(forClass = C::class)
         companion object: KSerializer<C> {
-            override fun serialize(output: Encoder, obj: C) {
-                val elemOutput = output.beginStructure(descriptor)
+            override fun serialize(encoder: Encoder, obj: C) {
+                val elemOutput = encoder.beginStructure(descriptor)
                 elemOutput.encodeIntElement(descriptor, 1, obj.b)
                 if (obj.a != 31) elemOutput.encodeIntElement(descriptor, 0, obj.a)
                 elemOutput.endStructure(descriptor)
@@ -65,8 +65,8 @@ class CustomSerializersTest {
     data class CList2(@SerialId(1) @Optional val d: Int = 5, @SerialId(2) val c: List<C>) {
         @Serializer(forClass = CList2::class)
         companion object: KSerializer<CList2> {
-            override fun serialize(output: Encoder, obj: CList2) {
-                val elemOutput = output.beginStructure(descriptor)
+            override fun serialize(encoder: Encoder, obj: CList2) {
+                val elemOutput = encoder.beginStructure(descriptor)
                 elemOutput.encodeSerializableElement(descriptor, 1, C.list, obj.c)
                 if (obj.d != 5) elemOutput.encodeIntElement(descriptor, 0, obj.d)
                 elemOutput.endStructure(descriptor)
@@ -78,8 +78,8 @@ class CustomSerializersTest {
     data class CList3(@SerialId(1) @Optional val e: List<C> = emptyList(), @SerialId(2) val f: Int) {
         @Serializer(forClass = CList3::class)
         companion object: KSerializer<CList3> {
-            override fun serialize(output: Encoder, obj: CList3) {
-                val elemOutput = output.beginStructure(descriptor)
+            override fun serialize(encoder: Encoder, obj: CList3) {
+                val elemOutput = encoder.beginStructure(descriptor)
                 if (obj.e.isNotEmpty()) elemOutput.encodeSerializableElement(descriptor, 0, C.list, obj.e)
                 elemOutput.encodeIntElement(descriptor, 1, obj.f)
                 elemOutput.endStructure(descriptor)
@@ -91,8 +91,8 @@ class CustomSerializersTest {
     data class CList4(@SerialId(1) @Optional val g: List<C> = emptyList(), @SerialId(2) val h: Int) {
         @Serializer(forClass = CList4::class)
         companion object: KSerializer<CList4> {
-            override fun serialize(output: Encoder, obj: CList4) {
-                val elemOutput = output.beginStructure(descriptor)
+            override fun serialize(encoder: Encoder, obj: CList4) {
+                val elemOutput = encoder.beginStructure(descriptor)
                 elemOutput.encodeIntElement(descriptor, 1, obj.h)
                 if (obj.g.isNotEmpty()) elemOutput.encodeSerializableElement(descriptor, 0, C.list, obj.g)
                 elemOutput.endStructure(descriptor)
@@ -104,8 +104,8 @@ class CustomSerializersTest {
     data class CList5(@SerialId(1) @Optional val g: List<Int> = emptyList(), @SerialId(2) val h: Int) {
         @Serializer(forClass = CList5::class)
         companion object: KSerializer<CList5> {
-            override fun serialize(output: Encoder, obj: CList5) {
-                val elemOutput = output.beginStructure(descriptor)
+            override fun serialize(encoder: Encoder, obj: CList5) {
+                val elemOutput = encoder.beginStructure(descriptor)
                 elemOutput.encodeIntElement(descriptor, 1, obj.h)
                 if (obj.g.isNotEmpty()) elemOutput.encodeSerializableElement(descriptor, 0, IntSerializer.list,
                                                                                  obj.g)

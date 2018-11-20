@@ -36,15 +36,15 @@ class CheckedDataSerializer<T : Any>(val dataSerializer: KSerializer<T>) : KSeri
         }
     }
 
-    override fun serialize(output: Encoder, obj: CheckedData<T>) {
-        val out = output.beginStructure(descriptor)
+    override fun serialize(encoder: Encoder, obj: CheckedData<T>) {
+        val out = encoder.beginStructure(descriptor)
         out.encodeSerializableElement(descriptor, 0, dataSerializer, obj.data)
         out.encodeStringElement(descriptor, 1, HexConverter.printHexBinary(obj.checkSum))
         out.endStructure(descriptor)
     }
 
-    override fun deserialize(input: Decoder): CheckedData<T> {
-        val inp = input.beginStructure(descriptor)
+    override fun deserialize(decoder: Decoder): CheckedData<T> {
+        val inp = decoder.beginStructure(descriptor)
         lateinit var data: T
         lateinit var sum: ByteArray
         loop@ while (true) {

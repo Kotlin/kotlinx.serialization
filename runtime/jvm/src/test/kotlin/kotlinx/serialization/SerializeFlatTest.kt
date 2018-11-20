@@ -81,21 +81,21 @@ object CustomSerializer : KSerializer<Custom> {
         override fun isElementOptional(index: Int): Boolean = false
     }
 
-    override fun serialize(output: Encoder, obj : Custom) {
-        val output = output.beginStructure(descriptor)
-        output.encodeStringElement(descriptor, 0, obj._value1)
-        output.encodeIntElement(descriptor, 1, obj._value2)
-        output.endStructure(descriptor)
+    override fun serialize(encoder: Encoder, obj : Custom) {
+        val encoder = encoder.beginStructure(descriptor)
+        encoder.encodeStringElement(descriptor, 0, obj._value1)
+        encoder.encodeIntElement(descriptor, 1, obj._value2)
+        encoder.endStructure(descriptor)
     }
 
-    override fun deserialize(input: Decoder): Custom {
-        val input = input.beginStructure(descriptor)
-        if (input.decodeElementIndex(descriptor) != 0) throw java.lang.IllegalStateException()
-        val value1 = input.decodeStringElement(descriptor, 0)
-        if (input.decodeElementIndex(descriptor) != 1) throw java.lang.IllegalStateException()
-        val value2 = input.decodeIntElement(descriptor, 1)
-        if (input.decodeElementIndex(descriptor) != CompositeDecoder.READ_DONE) throw java.lang.IllegalStateException()
-        input.endStructure(descriptor)
+    override fun deserialize(decoder: Decoder): Custom {
+        val decoder = decoder.beginStructure(descriptor)
+        if (decoder.decodeElementIndex(descriptor) != 0) throw java.lang.IllegalStateException()
+        val value1 = decoder.decodeStringElement(descriptor, 0)
+        if (decoder.decodeElementIndex(descriptor) != 1) throw java.lang.IllegalStateException()
+        val value2 = decoder.decodeIntElement(descriptor, 1)
+        if (decoder.decodeElementIndex(descriptor) != CompositeDecoder.READ_DONE) throw java.lang.IllegalStateException()
+        decoder.endStructure(descriptor)
         return Custom(value1, value2)
     }
 }

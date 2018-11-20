@@ -32,47 +32,47 @@ sealed class AbstractCollectionSerializer<TElement, TCollection, TBuilder>: KSer
 
     abstract val typeParams: Array<KSerializer<*>>
 
-    abstract override fun serialize(output: Encoder, obj: TCollection)
+    abstract override fun serialize(encoder: Encoder, obj: TCollection)
 
-    final override fun patch(input: Decoder, old: TCollection): TCollection {
+    final override fun patch(decoder: Decoder, old: TCollection): TCollection {
         val builder = old.toBuilder()
         val startIndex = builder.builderSize()
         @Suppress("NAME_SHADOWING")
-        val input = input.beginStructure(descriptor, *typeParams)
-        val size = readSize(input, builder)
+        val decoder = decoder.beginStructure(descriptor, *typeParams)
+        val size = readSize(decoder, builder)
         mainLoop@ while (true) {
-            val index = input.decodeElementIndex(descriptor)
+            val index = decoder.decodeElementIndex(descriptor)
             when (index) {
                 READ_ALL -> {
-                    readAll(input, builder, startIndex, size)
+                    readAll(decoder, builder, startIndex, size)
                     break@mainLoop
                 }
                 READ_DONE -> break@mainLoop
-                else -> readItem(input, startIndex + index, builder)
+                else -> readItem(decoder, startIndex + index, builder)
             }
 
         }
-        input.endStructure(descriptor)
+        decoder.endStructure(descriptor)
         return builder.toResult()
     }
 
-    final override fun deserialize(input: Decoder): TCollection {
+    final override fun deserialize(decoder: Decoder): TCollection {
         val builder = builder()
-        return patch(input, builder.toResult())
+        return patch(decoder, builder.toResult())
     }
 
-    private fun readSize(input: CompositeDecoder, builder: TBuilder): Int {
-        val size = input.decodeCollectionSize(descriptor)
+    private fun readSize(decoder: CompositeDecoder, builder: TBuilder): Int {
+        val size = decoder.decodeCollectionSize(descriptor)
         builder.checkCapacity(size)
         return size
     }
 
-    protected abstract fun readItem(input: CompositeDecoder, index: Int, builder: TBuilder, checkIndex: Boolean = true)
+    protected abstract fun readItem(decoder: CompositeDecoder, index: Int, builder: TBuilder, checkIndex: Boolean = true)
 
-    private fun readAll(input: CompositeDecoder, builder: TBuilder, startIndex: Int, size: Int) {
+    private fun readAll(decoder: CompositeDecoder, builder: TBuilder, startIndex: Int, size: Int) {
         require(size >= 0) { "Size must be known in advance when using READ_ALL" }
         for (index in 0 until size)
-            readItem(input, startIndex + index, builder, checkIndex = false)
+            readItem(decoder, startIndex + index, builder, checkIndex = false)
     }
 }
 
@@ -84,18 +84,18 @@ sealed class ListLikeSerializer<TElement, TCollection, TBuilder>(val elementSeri
 
     final override val typeParams: Array<KSerializer<*>> = arrayOf(elementSerializer)
 
-    override fun serialize(output: Encoder, obj: TCollection) {
+    override fun serialize(encoder: Encoder, obj: TCollection) {
         val size = obj.objSize()
         @Suppress("NAME_SHADOWING")
-        val output = output.beginCollection(descriptor, size, *typeParams)
+        val encoder = encoder.beginCollection(descriptor, size, *typeParams)
         val iterator = obj.objIterator()
         for (index in 0 until size)
-            output.encodeSerializableElement(descriptor, index, elementSerializer, iterator.next())
-        output.endStructure(descriptor)
+            encoder.encodeSerializableElement(descriptor, index, elementSerializer, iterator.next())
+        encoder.endStructure(descriptor)
     }
 
-    protected override fun readItem(input: CompositeDecoder, index: Int, builder: TBuilder, checkIndex: Boolean) {
-        builder.insert(index, input.decodeSerializableElement(descriptor, index, elementSerializer))
+    protected override fun readItem(decoder: CompositeDecoder, index: Int, builder: TBuilder, checkIndex: Boolean) {
+        builder.insert(index, decoder.decodeSerializableElement(descriptor, index, elementSerializer))
     }
 }
 
@@ -109,34 +109,34 @@ sealed class MapLikeSerializer<TKey, TVal, TCollection, TBuilder: MutableMap<TKe
 
     final override val typeParams = arrayOf(keySerializer, valueSerializer)
 
-    final override fun readItem(input: CompositeDecoder, index: Int, builder: TBuilder, checkIndex: Boolean) {
-        val key: TKey = input.decodeSerializableElement(descriptor, index, keySerializer)
+    final override fun readItem(decoder: CompositeDecoder, index: Int, builder: TBuilder, checkIndex: Boolean) {
+        val key: TKey = decoder.decodeSerializableElement(descriptor, index, keySerializer)
         val vIndex = if (checkIndex) {
-            input.decodeElementIndex(descriptor).also {
+            decoder.decodeElementIndex(descriptor).also {
                 require(it == index + 1) { "Value must follow key in a map, index for key: $index, returned index for value: $it" }
             }
         } else {
             index + 1
         }
         val value: TVal = if (builder.containsKey(key) && valueSerializer.descriptor.kind !is PrimitiveKind) {
-            input.updateSerializableElement(descriptor, vIndex, valueSerializer, builder.getValue(key))
+            decoder.updateSerializableElement(descriptor, vIndex, valueSerializer, builder.getValue(key))
         } else {
-            input.decodeSerializableElement(descriptor, vIndex, valueSerializer)
+            decoder.decodeSerializableElement(descriptor, vIndex, valueSerializer)
         }
         builder[key] = value
     }
 
-    override fun serialize(output: Encoder, obj: TCollection) {
+    override fun serialize(encoder: Encoder, obj: TCollection) {
         val size = obj.objSize()
         @Suppress("NAME_SHADOWING")
-        val output = output.beginCollection(descriptor, size, *typeParams)
+        val encoder = encoder.beginCollection(descriptor, size, *typeParams)
         val iterator = obj.objIterator()
         var index = 0
         iterator.forEach { (k, v) ->
-            output.encodeSerializableElement(descriptor, index++, keySerializer, k)
-            output.encodeSerializableElement(descriptor, index++, valueSerializer, v)
+            encoder.encodeSerializableElement(descriptor, index++, keySerializer, k)
+            encoder.encodeSerializableElement(descriptor, index++, valueSerializer, v)
         }
-        output.endStructure(descriptor)
+        encoder.endStructure(descriptor)
     }
 }
 

@@ -32,12 +32,12 @@ class Json(
 
     override fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String {
         val result = StringBuilder()
-        val output = JsonOutput(
+        val encoder = JsonOutput(
             result, this,
             WriteMode.OBJ,
             arrayOfNulls(WriteMode.values().size)
         )
-        output.encode(serializer, obj)
+        encoder.encode(serializer, obj)
         return result.toString()
     }
 

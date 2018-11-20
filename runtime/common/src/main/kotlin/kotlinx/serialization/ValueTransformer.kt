@@ -25,9 +25,9 @@ open class ValueTransformer {
     // ------- top-level API (use it) -------
 
     fun <T> transform(serializer: KSerializer<T>, obj: T): T {
-        val output = Output()
-        output.encode(serializer, obj)
-        val input = Input(output.list)
+        val encoder = Output()
+        encoder.encode(serializer, obj)
+        val input = Input(encoder.list)
         return input.decode(serializer)
     }
 
