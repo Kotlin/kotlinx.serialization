@@ -24,9 +24,7 @@ import kotlin.reflect.KClass
 
 // for user-defined external serializers
 @UseExperimental(ImplicitReflectionSerializer::class)
-fun registerSerializer(forClassName: String, serializer: KSerializer<*>) {
-    SerialCache.map.put(forClassName, serializer)
-}
+fun registerSerializer(forClassName: String, serializer: KSerializer<*>) = SerialCache.registerSerializer(forClassName, serializer)
 
 private fun mapJavaClassNameToKotlin(s: String): String = when (s) {
     "int", "java.lang.Integer" -> IntSerializer.descriptor.name
@@ -55,14 +53,14 @@ fun <E> serializerByValue(value: E, context: SerialContext? = null): KSerializer
 }
 
 @ImplicitReflectionSerializer
-fun <E> serializerBySerialDescClassname(className: String, context: SerialContext? = null): KSerializer<E> =
+fun <E> serializerBySerialDescClassName(className: String, context: SerialContext? = null): KSerializer<E> =
     SerialCache.lookupSerializer(className, context = context)
 
 @ImplicitReflectionSerializer
 fun <E> serializerByClass(klass: KClass<*>, context: SerialContext? = null): KSerializer<E> =
     SerialCache.lookupSerializer(mapJavaClassNameToKotlin(klass.java.canonicalName ?: ""), klass, context)
 
-@PublishedApi()
+@PublishedApi
 internal open class TypeBase<T>
 
 inline fun <reified T> typeTokenOf(): Type {
@@ -75,7 +73,7 @@ inline fun <reified T> typeTokenOf(): Type {
  * This method uses reflection to construct serializer for given type. However,
  * since it accepts type token, it is available only on JVM by design,
  * and it can work correctly even with generics, so
- * it is not annotated with @[ImplicitReflectionSerializer].
+ * it is not annotated with [ImplicitReflectionSerializer].
  *
  * Keep in mind that this is a 'heavy' call, so result probably should be cached somewhere else.
  *
@@ -97,14 +95,14 @@ fun serializerByTypeToken(type: Type): KSerializer<Any> = when (type) {
             is KClass<*> -> eType
             else -> throw IllegalStateException("unsupported type in GenericArray: ${eType::class}")
         } as KClass<Any>
-        ReferenceArraySerializer<Any, Any>(kclass, serializer) as KSerializer<Any>
+        ReferenceArraySerializer(kclass, serializer) as KSerializer<Any>
     }
     is Class<*> -> if (!type.isArray) {
         serializerByClass(type.kotlin)
     } else {
         val eType: Class<*> = type.componentType
         val s = serializerByTypeToken(eType)
-        val arraySerializer = ReferenceArraySerializer<Any, Any>(eType.kotlin as KClass<Any>, s)
+        val arraySerializer = ReferenceArraySerializer(eType.kotlin as KClass<Any>, s)
         arraySerializer as KSerializer<Any>
     }
     is ParameterizedType -> {

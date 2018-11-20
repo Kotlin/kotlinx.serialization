@@ -18,7 +18,7 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.context.SerialContext
-import kotlinx.serialization.context.getOrDefault
+import java.util.concurrent.*
 import kotlin.reflect.KClass
 
 internal object PolymorphicClassDesc : SerialClassDescImpl("kotlin.Any") {
@@ -47,7 +47,7 @@ internal object ClassSerialCache {
 
     @Suppress("UNCHECKED_CAST")
     internal fun getSubclassSerializer(klass: KClass<*>): KSerializer<*>? {
-        if (klass.java.isArray) return ReferenceArraySerializer<Any, Any>(Any::class, (PolymorphicSerializer as KSerializer<Any>))
+        if (klass.java.isArray) return ReferenceArraySerializer(Any::class, PolymorphicSerializer)
         for ((k, v) in map) {
             if (k.java.isAssignableFrom((klass.java))) return v
         }
@@ -55,33 +55,37 @@ internal object ClassSerialCache {
     }
 }
 
-internal val allPrimitives: List<KSerializer<*>> = listOf(
-        UnitSerializer, BooleanSerializer, ByteSerializer, ShortSerializer, IntSerializer,
-        LongSerializer, FloatSerializer, DoubleSerializer, CharSerializer, StringSerializer
-)
-
 @ImplicitReflectionSerializer
 internal object SerialCache {
-    internal val map: MutableMap<String, KSerializer<*>> = HashMap()
+
+    // Class fqn (Class.forName) to its serializer
+    private val serializerCache: MutableMap<String, KSerializer<*>> = ConcurrentHashMap()
+
+    private val allPrimitives: List<KSerializer<*>> = listOf(
+        UnitSerializer, BooleanSerializer, ByteSerializer, ShortSerializer, IntSerializer,
+        LongSerializer, FloatSerializer, DoubleSerializer, CharSerializer, StringSerializer)
 
     init {
         allPrimitives.forEach { registerSerializer(it.descriptor.name, it) }
         ClassSerialCache.map.values.toList().forEach { registerSerializer(it.descriptor.name, it) }
-        @Suppress("UNCHECKED_CAST")
-        registerSerializer("kotlin.Array", ReferenceArraySerializer<Any, Any>(Any::class, (PolymorphicSerializer as KSerializer<Any>)))
+        registerSerializer("kotlin.Array", ReferenceArraySerializer(Any::class, PolymorphicSerializer))
+    }
+
+    internal fun registerSerializer(classFqn: String, serializer: KSerializer<*>) {
+        serializerCache[classFqn] = serializer
     }
 
     @Suppress("UNCHECKED_CAST")
-    internal fun <E> lookupSerializer(className: String, preloadedClass: KClass<*>? = null, context: SerialContext? = null): KSerializer<E> {
-        // First, look in the map
-        var ans = map[className]
-        if (ans != null) return ans as KSerializer<E>
-        // If it's not there, maybe it came from java
-        val klass = preloadedClass ?: Class.forName(className).kotlin
-        ans = context?.get(klass) ?: ClassSerialCache.getSubclassSerializer(klass)
-        if (ans != null) return ans as KSerializer<E>
-        // Then, it's user defined class
-        val last = klass.serializer() as? KSerializer<E>
-        return requireNotNull(last) { "Can't found internal serializer for $klass" }
+    internal fun <E> lookupSerializer(className: String, kclass: KClass<*>? = null, context: SerialContext? = null): KSerializer<E> {
+        return serializerCache.getOrPut(className) {
+            loadSerializer(className, kclass, context)
+        } as KSerializer<E>
+    }
+
+    private fun loadSerializer(className: String, kclass: KClass<*>? = null, context: SerialContext? = null): KSerializer<*> {
+        val actualClass = kclass ?: Class.forName(className).kotlin
+        val answer = context?.get(actualClass) ?: ClassSerialCache.getSubclassSerializer(actualClass)
+        if (answer != null) return answer
+        return requireNotNull(actualClass.serializer()) { "Can't found internal serializer for $actualClass" }
     }
 }
