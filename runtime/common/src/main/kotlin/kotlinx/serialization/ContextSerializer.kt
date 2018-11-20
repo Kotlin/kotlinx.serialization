@@ -23,15 +23,15 @@ import kotlin.reflect.KClass
 
 @ImplicitReflectionSerializer
 class ContextSerializer<T : Any>(val serializableClass: KClass<T>) : KSerializer<T> {
-    override fun serialize(output: Encoder, obj: T) {
-        val s = output.context.getByValueOrDefault(obj)
-        output.encodeSerializableValue(s, obj)
+    override fun serialize(encoder: Encoder, obj: T) {
+        val s = encoder.context.getByValueOrDefault(obj)
+        encoder.encodeSerializableValue(s, obj)
     }
 
-    override fun deserialize(input: Decoder): T {
-        val s = input.context.getOrDefault(serializableClass)
+    override fun deserialize(decoder: Decoder): T {
+        val s = decoder.context.getOrDefault(serializableClass)
         @Suppress("UNCHECKED_CAST")
-        return input.decodeSerializableValue(s)
+        return decoder.decodeSerializableValue(s)
     }
 
     override val descriptor: SerialDescriptor = object : SerialClassDescImpl("CONTEXT") {} // todo: remove this crutch

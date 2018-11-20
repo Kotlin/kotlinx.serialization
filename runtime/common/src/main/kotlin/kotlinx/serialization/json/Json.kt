@@ -32,8 +32,8 @@ class Json(
 ): AbstractSerialFormat(), StringFormat {
     override fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String {
         val sb = StringBuilder()
-        val output = JsonOutput(Mode.OBJ, Composer(sb), arrayOfNulls(Mode.values().size))
-        output.encode(serializer, obj)
+        val encoder = JsonOutput(Mode.OBJ, Composer(sb), arrayOfNulls(Mode.values().size))
+        encoder.encode(serializer, obj)
         return sb.toString()
     }
 

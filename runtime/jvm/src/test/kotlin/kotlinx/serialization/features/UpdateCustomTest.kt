@@ -30,8 +30,8 @@ class UpdateTest {
 
     @Serializer(forClass = Data::class)
     object CustomDataUpdater {
-        override fun patch(input: Decoder, old: Data): Data {
-            val newData = input.decodeSerializableValue(this)
+        override fun patch(decoder: Decoder, old: Data): Data {
+            val newData = decoder.decodeSerializableValue(this)
             return Data(old.a + newData.a)
         }
     }

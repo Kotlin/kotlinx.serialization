@@ -50,7 +50,7 @@ abstract class ElementValueEncoder : Encoder, CompositeEncoder {
     }
 
     override fun encodeUnit() {
-        val output = beginStructure(UnitSerializer.descriptor); output.endStructure(UnitSerializer.descriptor)
+        val encoder = beginStructure(UnitSerializer.descriptor); encoder.endStructure(UnitSerializer.descriptor)
     }
 
     override fun encodeBoolean(value: Boolean) = encodeValue(value)

@@ -41,8 +41,8 @@ object DateSerializer : KSerializer<Date> {
         output.encodeString(df.format(obj))
     }
 
-    override fun deserialize(input: Decoder): Date {
-        return df.parse(input.decodeString())
+    override fun deserialize(decoder: Decoder): Date {
+        return df.parse(decoder.decodeString())
     }
 }
 

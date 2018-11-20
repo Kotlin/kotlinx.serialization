@@ -42,23 +42,23 @@ class NullableSerializer<T : Any>(private val element: KSerializer<T>) : KSerial
 
     override val descriptor: SerialDescriptor = SerialDescriptorForNullable(element.descriptor)
 
-    override fun serialize(output: Encoder, obj: T?) {
+    override fun serialize(encoder: Encoder, obj: T?) {
         if (obj != null) {
-            output.encodeNotNullMark();
-            element.serialize(output, obj)
+            encoder.encodeNotNullMark();
+            element.serialize(encoder, obj)
         }
         else {
-            output.encodeNull()
+            encoder.encodeNull()
         }
     }
 
-    override fun deserialize(input: Decoder): T? = if (input.decodeNotNullMark()) element.deserialize(input) else input.decodeNull()
+    override fun deserialize(decoder: Decoder): T? = if (decoder.decodeNotNullMark()) element.deserialize(decoder) else decoder.decodeNull()
 
-    override fun patch(input: Decoder, old: T?): T? {
+    override fun patch(decoder: Decoder, old: T?): T? {
         return when {
-            old == null -> deserialize(input)
-            input.decodeNotNullMark() -> element.patch(input, old)
-            else -> input.decodeNull().let { old }
+            old == null -> deserialize(decoder)
+            decoder.decodeNotNullMark() -> element.patch(decoder, old)
+            else -> decoder.decodeNull().let { old }
         }
     }
 }

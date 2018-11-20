@@ -44,71 +44,71 @@ object StringDescriptor: PrimitiveDescriptor("kotlin.String", PrimitiveKind.STRI
 object UnitSerializer : KSerializer<Unit> {
     override val descriptor: SerialDescriptor = UnitDescriptor
 
-    override fun serialize(output: Encoder, obj: Unit) = output.encodeUnit()
-    override fun deserialize(input: Decoder): Unit = input.decodeUnit()
+    override fun serialize(encoder: Encoder, obj: Unit) = encoder.encodeUnit()
+    override fun deserialize(decoder: Decoder): Unit = decoder.decodeUnit()
 }
 
 object BooleanSerializer : KSerializer<Boolean> {
     override val descriptor: SerialDescriptor = BooleanDescriptor
 
-    override fun serialize(output: Encoder, obj: Boolean) = output.encodeBoolean(obj)
-    override fun deserialize(input: Decoder): Boolean = input.decodeBoolean()
+    override fun serialize(encoder: Encoder, obj: Boolean) = encoder.encodeBoolean(obj)
+    override fun deserialize(decoder: Decoder): Boolean = decoder.decodeBoolean()
 }
 
 object ByteSerializer : KSerializer<Byte> {
     override val descriptor: SerialDescriptor = ByteDescriptor
 
-    override fun serialize(output: Encoder, obj: Byte) = output.encodeByte(obj)
-    override fun deserialize(input: Decoder): Byte = input.decodeByte()
+    override fun serialize(encoder: Encoder, obj: Byte) = encoder.encodeByte(obj)
+    override fun deserialize(decoder: Decoder): Byte = decoder.decodeByte()
 }
 
 object ShortSerializer : KSerializer<Short> {
     override val descriptor: SerialDescriptor = ShortDescriptor
 
-    override fun serialize(output: Encoder, obj: Short) = output.encodeShort(obj)
-    override fun deserialize(input: Decoder): Short = input.decodeShort()
+    override fun serialize(encoder: Encoder, obj: Short) = encoder.encodeShort(obj)
+    override fun deserialize(decoder: Decoder): Short = decoder.decodeShort()
 }
 
 object IntSerializer : KSerializer<Int> {
     override val descriptor: SerialDescriptor = IntDescriptor
 
-    override fun serialize(output: Encoder, obj: Int) = output.encodeInt(obj)
-    override fun deserialize(input: Decoder): Int = input.decodeInt()
+    override fun serialize(encoder: Encoder, obj: Int) = encoder.encodeInt(obj)
+    override fun deserialize(decoder: Decoder): Int = decoder.decodeInt()
 }
 
 object LongSerializer : KSerializer<Long> {
     override val descriptor: SerialDescriptor = LongDescriptor
 
-    override fun serialize(output: Encoder, obj: Long) = output.encodeLong(obj)
-    override fun deserialize(input: Decoder): Long = input.decodeLong()
+    override fun serialize(encoder: Encoder, obj: Long) = encoder.encodeLong(obj)
+    override fun deserialize(decoder: Decoder): Long = decoder.decodeLong()
 }
 
 object FloatSerializer : KSerializer<Float> {
     override val descriptor: SerialDescriptor = FloatDescriptor
 
-    override fun serialize(output: Encoder, obj: Float) = output.encodeFloat(obj)
-    override fun deserialize(input: Decoder): Float = input.decodeFloat()
+    override fun serialize(encoder: Encoder, obj: Float) = encoder.encodeFloat(obj)
+    override fun deserialize(decoder: Decoder): Float = decoder.decodeFloat()
 }
 
 object DoubleSerializer : KSerializer<Double> {
     override val descriptor: SerialDescriptor = DoubleDescriptor
 
-    override fun serialize(output: Encoder, obj: Double) = output.encodeDouble(obj)
-    override fun deserialize(input: Decoder): Double = input.decodeDouble()
+    override fun serialize(encoder: Encoder, obj: Double) = encoder.encodeDouble(obj)
+    override fun deserialize(decoder: Decoder): Double = decoder.decodeDouble()
 }
 
 object CharSerializer : KSerializer<Char> {
     override val descriptor: SerialDescriptor = CharDescriptor
 
-    override fun serialize(output: Encoder, obj: Char) = output.encodeChar(obj)
-    override fun deserialize(input: Decoder): Char = input.decodeChar()
+    override fun serialize(encoder: Encoder, obj: Char) = encoder.encodeChar(obj)
+    override fun deserialize(decoder: Decoder): Char = decoder.decodeChar()
 }
 
 object StringSerializer : KSerializer<String> {
     override val descriptor: SerialDescriptor = StringDescriptor
 
-    override fun serialize(output: Encoder, obj: String) = output.encodeString(obj)
-    override fun deserialize(input: Decoder): String = input.decodeString()
+    override fun serialize(encoder: Encoder, obj: String) = encoder.encodeString(obj)
+    override fun deserialize(decoder: Decoder): String = decoder.decodeString()
 }
 
 

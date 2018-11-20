@@ -38,8 +38,8 @@ class ResolvingTest {
         @Serializer(forClass = WithCustomDefault::class)
         companion object {
             override val descriptor: SerialDescriptor = IntDescriptor.withName("WithCustomDefault")
-            override fun serialize(output: Encoder, obj: WithCustomDefault) = output.encodeInt(obj.n)
-            override fun deserialize(input: Decoder) = WithCustomDefault(input.decodeInt())
+            override fun serialize(encoder: Encoder, obj: WithCustomDefault) = encoder.encodeInt(obj.n)
+            override fun deserialize(decoder: Decoder) = WithCustomDefault(decoder.decodeInt())
         }
     }
 

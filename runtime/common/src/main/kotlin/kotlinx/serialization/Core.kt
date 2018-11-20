@@ -39,14 +39,14 @@ interface SerialDescriptor {
 }
 
 interface SerializationStrategy<in T> {
-    fun serialize(output: Encoder, obj : T)
+    fun serialize(encoder: Encoder, obj : T)
 
     val descriptor: SerialDescriptor
 }
 
 interface DeserializationStrategy<T> {
-    fun deserialize(input: Decoder): T
-    fun patch(input: Decoder, old: T): T
+    fun deserialize(decoder: Decoder): T
+    fun patch(decoder: Decoder, old: T): T
 
     val descriptor: SerialDescriptor
 }
@@ -58,7 +58,7 @@ enum class UpdateMode {
 interface KSerializer<T>: SerializationStrategy<T>, DeserializationStrategy<T> {
     override val descriptor: SerialDescriptor
 
-    override fun patch(input: Decoder, old: T): T = throw UpdateNotSupportedException(descriptor.name)
+    override fun patch(decoder: Decoder, old: T): T = throw UpdateNotSupportedException(descriptor.name)
 }
 
 
