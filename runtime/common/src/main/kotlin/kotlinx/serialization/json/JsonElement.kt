@@ -18,6 +18,8 @@
 
 package kotlinx.serialization.json
 
+import kotlinx.serialization.json.internal.*
+
 /**
  * Class representing single JSON element.
  * Can be [JsonPrimitive], [JsonArray] or [JsonObject].
