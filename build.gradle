@@ -28,15 +28,16 @@ buildscript {
         ext.librariesVersion = property('kotlin.version')
         ext.serializationPluginVersion = property('plugin.version')
         ext.konanVersion = property('konan.version')
+        ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-dev'
     }
+    ext.eapChannel = "https://teamcity.jetbrains.com/guestAuth/app/rest/builds/id:1775022/artifacts/content/maven"
     ext.serializationCoordinates = "org.jetbrains.kotlin:kotlin-serialization"
-    ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-dev'
     ext.serializationRepo = 'https://kotlin.bintray.com/kotlinx'
-    ext.experimentalsEnabled = ["-Xuse-experimental=kotlin.Experimental",
+    ext.experimentalsEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
                                 "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
                                 ]
 
-    ext.experimentalsInTestEnabled = ["-Xuse-experimental=kotlin.Experimental",
+    ext.experimentalsInTestEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
                                 "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
                                 "-Xuse-experimental=kotlinx.serialization.ImplicitReflectionSerializer",
                                 ]
