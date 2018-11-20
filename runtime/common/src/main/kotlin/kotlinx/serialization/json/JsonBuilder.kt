@@ -27,7 +27,6 @@ fun json(init: JsonBuilder.() -> Unit): JsonObject {
     return JsonObject(builder.content)
 }
 
-
 /**
  * Builds [JsonArray] with given [init] builder
  */

@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package kotlinx.serialization.json
+package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.SharedImmutable
-import kotlinx.serialization.json.EscapeCharMappings.ESC2C
+import kotlinx.serialization.json.*
+import kotlinx.serialization.json.internal.EscapeCharMappings.ESC2C
 
 // special strings
 internal const val NULL = "null"
@@ -54,13 +55,14 @@ internal const val TC_EOF: Byte = 12
 private const val CTC_MAX = 0x7e
 
 // mapping from escape chars real chars
-private const val C2ESC_MAX = 0x5d
 private const val ESC2C_MAX = 0x75
 
 @SharedImmutable
 internal val C2TC = ByteArray(CTC_MAX).apply {
-    for (i in 0..0x20)
+    for (i in 0..0x20) {
         initC2TC(i, TC_INVALID)
+    }
+
     initC2TC(0x09, TC_WS)
     initC2TC(0x0a, TC_WS)
     initC2TC(0x0d, TC_WS)
@@ -79,9 +81,11 @@ internal val C2TC = ByteArray(CTC_MAX).apply {
 internal object EscapeCharMappings {
     internal val ESC2C = CharArray(ESC2C_MAX)
 
-    internal val C2ESC = CharArray(C2ESC_MAX).apply {
-        for (i in 0x00..0x1f)
+    init {
+        for (i in 0x00..0x1f) {
             initC2ESC(i, UNICODE_ESC)
+        }
+
         initC2ESC(0x08, 'b')
         initC2ESC(0x09, 't')
         initC2ESC(0x0a, 'n')
@@ -92,12 +96,11 @@ internal object EscapeCharMappings {
         initC2ESC(STRING_ESC, STRING_ESC)
     }
 
-    private fun CharArray.initC2ESC(c: Int, esc: Char) {
-        this[c] = esc
+    private fun initC2ESC(c: Int, esc: Char) {
         if (esc != UNICODE_ESC) ESC2C[esc.toInt()] = c.toChar()
     }
 
-    private fun CharArray.initC2ESC(c: Char, esc: Char) = initC2ESC(c.toInt(), esc)
+    private fun initC2ESC(c: Char, esc: Char) = initC2ESC(c.toInt(), esc)
 }
 
 private fun ByteArray.initC2TC(c: Int, cl: Byte) {
@@ -114,14 +117,14 @@ internal fun escapeToChar(c: Int): Char = if (c < ESC2C_MAX) ESC2C[c] else INVAL
 
 
 // JSON low level parser
-internal class Parser(val source: String) {
+internal class JsonParser(private val source: String) {
     var curPos: Int = 0 // position in source
         private set
 
     // updated by nextToken
     var tokenPos: Int = 0
         private set
-    var tc: Byte = TC_EOF
+    var tokenClass: Byte = TC_EOF
         private set
 
     // update by nextString/nextLiteral
@@ -133,19 +136,19 @@ internal class Parser(val source: String) {
         nextToken()
     }
 
-    internal inline fun requireTc(expected: Byte, lazyErrorMsg: () -> String) {
-        if (tc != expected)
+    internal inline fun requireTokenClass(expected: Byte, lazyErrorMsg: () -> String) {
+        if (tokenClass != expected)
             fail(tokenPos, lazyErrorMsg())
     }
 
     val canBeginValue: Boolean
-        get() = when (tc) {
+        get() = when (tokenClass) {
             TC_BEGIN_LIST, TC_BEGIN_OBJ, TC_OTHER, TC_STRING, TC_NULL -> true
             else -> false
         }
 
-    fun takeStr(): String {
-        if (tc != TC_OTHER && tc != TC_STRING) fail(tokenPos, "Expected string or non-null literal")
+    fun takeString(): String {
+        if (tokenClass != TC_OTHER && tokenClass != TC_STRING) fail(tokenPos, "Expected string or non-null literal")
         val prevStr = if (offset < 0)
             String(buf, 0, length) else
             source.substring(offset, offset + length)
@@ -175,7 +178,7 @@ internal class Parser(val source: String) {
         while (true) {
             if (curPos >= maxLen) {
                 tokenPos = curPos
-                tc = TC_EOF
+                tokenClass = TC_EOF
                 return
             }
             val ch = source[curPos]
@@ -192,7 +195,7 @@ internal class Parser(val source: String) {
                 }
                 else -> {
                     this.tokenPos = curPos
-                    this.tc = tc
+                    this.tokenClass = tc
                     this.curPos = curPos + 1
                     return
                 }
@@ -211,7 +214,7 @@ internal class Parser(val source: String) {
         }
         this.curPos = curPos
         length = curPos - offset
-        tc = if (rangeEquals(source, offset, length, NULL)) TC_NULL else TC_OTHER
+        tokenClass = if (rangeEquals(source, offset, length, NULL)) TC_NULL else TC_OTHER
     }
 
     private fun nextString(source: String, startPos: Int) {
@@ -243,7 +246,7 @@ internal class Parser(val source: String) {
             this.offset = -1
         }
         this.curPos = curPos + 1
-        tc = TC_STRING
+        tokenClass = TC_STRING
     }
 
     private fun appendEsc(source: String, startPos: Int): Int {
@@ -272,14 +275,14 @@ internal class Parser(val source: String) {
     }
 
     fun skipElement() {
-        if (tc != TC_BEGIN_OBJ && tc != TC_BEGIN_LIST) {
+        if (tokenClass != TC_BEGIN_OBJ && tokenClass != TC_BEGIN_LIST) {
             nextToken()
             return
         }
         val tokenStack = mutableListOf<Byte>()
         do {
-            when (tc) {
-                TC_BEGIN_LIST, TC_BEGIN_OBJ -> tokenStack.add(tc)
+            when (tokenClass) {
+                TC_BEGIN_LIST, TC_BEGIN_OBJ -> tokenStack.add(tokenClass)
                 TC_END_LIST -> {
                     if (tokenStack.last() != TC_BEGIN_LIST) throw JsonParsingException(curPos, "found ] instead of }")
                     tokenStack.removeAt(tokenStack.size - 1)
@@ -323,4 +326,3 @@ internal inline fun require(condition: Boolean, pos: Int, msg: () -> String) {
 internal inline fun fail(pos: Int, msg: String): Nothing {
     throw JsonParsingException(pos, msg)
 }
-

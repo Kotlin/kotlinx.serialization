@@ -17,7 +17,6 @@
 package kotlinx.serialization.formats.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.GeneratedSerializer
 import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlinx.serialization.json.*
 import kotlin.test.Test
@@ -35,7 +34,7 @@ object EitherSerializer: KSerializer<DummyEither> {
     override val descriptor: SerialDescriptor = SerialClassDescImpl("DummyEither")
 
     override fun deserialize(input: Decoder): DummyEither {
-        val jsonReader = input as? Json.JsonInput
+        val jsonReader = input as? JsonInput
                 ?: throw SerializationException("This class can be loaded only by Json")
         val tree = jsonReader.readAsTree() as? JsonObject
                 ?: throw SerializationException("Expected JsonObject")
@@ -44,7 +43,7 @@ object EitherSerializer: KSerializer<DummyEither> {
     }
 
     override fun serialize(output: Encoder, obj: DummyEither) {
-        val jsonWriter = output as? Json.JsonOutput
+        val jsonWriter = output as? JsonOutput
                 ?: throw SerializationException("This class can be saved only by Json")
         val tree = when (obj) {
             is DummyEither.Left -> JsonObject(mapOf("error" to JsonLiteral(obj.errorMsg)))

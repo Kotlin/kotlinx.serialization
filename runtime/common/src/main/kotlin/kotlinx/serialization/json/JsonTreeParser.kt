@@ -16,68 +16,70 @@
 
 package kotlinx.serialization.json
 
-class JsonTreeParser internal constructor(private val p: Parser) {
+import kotlinx.serialization.json.internal.*
+
+class JsonTreeParser internal constructor(private val parser: JsonParser) {
 
     companion object {
         fun parse(input: String): JsonObject = JsonTreeParser(input).readFully() as JsonObject
     }
 
-    constructor(input: String) : this(Parser(input))
+    constructor(input: String) : this(JsonParser(input))
 
     private fun readObject(): JsonElement {
-        p.requireTc(TC_BEGIN_OBJ) { "Expected start of object" }
-        p.nextToken()
+        parser.requireTokenClass(TC_BEGIN_OBJ) { "Expected start of object" }
+        parser.nextToken()
         val result: MutableMap<String, JsonElement> = hashMapOf()
         while (true) {
-            if (p.tc == TC_COMMA) p.nextToken()
-            if (!p.canBeginValue) break
-            val key = p.takeStr()
-            p.requireTc(TC_COLON) { "Expected ':'" }
-            p.nextToken()
+            if (parser.tokenClass == TC_COMMA) parser.nextToken()
+            if (!parser.canBeginValue) break
+            val key = parser.takeString()
+            parser.requireTokenClass(TC_COLON) { "Expected ':'" }
+            parser.nextToken()
             val elem = read()
             result[key] = elem
         }
-        p.requireTc(TC_END_OBJ) { "Expected end of object" }
-        p.nextToken()
+        parser.requireTokenClass(TC_END_OBJ) { "Expected end of object" }
+        parser.nextToken()
         return JsonObject(result)
     }
 
     private fun readValue(isString: Boolean): JsonElement {
-        val str = p.takeStr()
+        val str = parser.takeString()
         return JsonLiteral(str, isString)
     }
 
     private fun readArray(): JsonElement {
-        p.requireTc(TC_BEGIN_LIST) { "Expected start of array" }
-        p.nextToken()
+        parser.requireTokenClass(TC_BEGIN_LIST) { "Expected start of array" }
+        parser.nextToken()
         val result: MutableList<JsonElement> = arrayListOf()
         while (true) {
-            if (p.tc == TC_COMMA) p.nextToken()
-            if (!p.canBeginValue) break
+            if (parser.tokenClass == TC_COMMA) parser.nextToken()
+            if (!parser.canBeginValue) break
             val elem = read()
             result.add(elem)
         }
-        p.requireTc(TC_END_LIST) { "Expected end of array" }
-        p.nextToken()
+        parser.requireTokenClass(TC_END_LIST) { "Expected end of array" }
+        parser.nextToken()
         return JsonArray(result)
     }
 
     fun read(): JsonElement {
-        if (!p.canBeginValue) fail(p.curPos, "Can't begin reading value from here")
-        val tc = p.tc
+        if (!parser.canBeginValue) fail(parser.curPos, "Can't begin reading value from here")
+        val tc = parser.tokenClass
         return when (tc) {
-            TC_NULL -> JsonNull.also { p.nextToken() }
+            TC_NULL -> JsonNull.also { parser.nextToken() }
             TC_STRING -> readValue(isString = true)
             TC_OTHER -> readValue(isString = false)
             TC_BEGIN_OBJ -> readObject()
             TC_BEGIN_LIST -> readArray()
-            else -> fail(p.curPos, "Can't begin reading element")
+            else -> fail(parser.curPos, "Can't begin reading element")
         }
     }
 
     fun readFully(): JsonElement {
         val r = read()
-        p.requireTc(TC_EOF) { "Input wasn't consumed fully" }
+        parser.requireTokenClass(TC_EOF) { "Input wasn't consumed fully" }
         return r
     }
 }

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package kotlinx.serialization.json
+package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.SharedImmutable
+import kotlinx.serialization.*
 
 private fun toHexChar(i: Int) : Char {
     val d = i and 0xf
@@ -46,7 +46,7 @@ private val ESCAPE_CHARS: Array<String?> = arrayOfNulls<String>(128).apply {
     this[0x0c] = "\\f"
 }
 
-internal fun StringBuilder.printQuoted(value: String)  {
+internal fun StringBuilder.printQuoted(value: String) {
     append(STRING)
     var lastPos = 0
     val length = value.length
@@ -68,14 +68,23 @@ internal fun StringBuilder.printQuoted(value: String)  {
  * Returns `true` if the contents of this string is equal to the word "true", ignoring case, `false` if content equals "false",
  * and throws [IllegalStateException] otherwise.
  */
-fun String.toBooleanStrict(): Boolean = toBooleanStrictOrNull() ?: throw IllegalStateException("$this does not represent a Boolean")
+internal fun String.toBooleanStrict(): Boolean = toBooleanStrictOrNull() ?: throw IllegalStateException("$this does not represent a Boolean")
 
 /**
  * Returns `true` if the contents of this string is equal to the word "true", ignoring case, `false` if content equals "false",
  * and returns `null` otherwise.
  */
-fun String.toBooleanStrictOrNull(): Boolean? = when {
+internal fun String.toBooleanStrictOrNull(): Boolean? = when {
     this.equals("true", ignoreCase = true) -> true
     this.equals("false", ignoreCase = true) -> false
     else -> null
+}
+
+internal fun shouldBeQuoted(str: String): Boolean {
+    if (str == NULL) return true
+    for (ch in str) {
+        if (charToTokenClass(ch) != TC_OTHER) return true
+    }
+
+    return false
 }
