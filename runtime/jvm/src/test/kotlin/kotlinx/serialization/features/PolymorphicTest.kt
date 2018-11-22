@@ -102,7 +102,6 @@ class PolymorphicTest {
 
     @Test
     fun testPolymorphicWrappedOverride() {
-        kotlinx.serialization.registerSerializer("java.util.Date", DateSerializer)
         val obj = DateWrapper(Date())
         val bytes = protobuf.dumps(obj)
         val restored = protobuf.loads<DateWrapper>(bytes)

@@ -16,49 +16,9 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.context.SerialContext
 import kotlinx.serialization.internal.*
 import java.lang.reflect.*
 import kotlin.reflect.KClass
-
-
-// for user-defined external serializers
-@UseExperimental(ImplicitReflectionSerializer::class)
-fun registerSerializer(forClassName: String, serializer: KSerializer<*>) = SerialCache.registerSerializer(forClassName, serializer)
-
-private fun mapJavaClassNameToKotlin(s: String): String = when (s) {
-    "int", "java.lang.Integer" -> IntSerializer.descriptor.name
-    "boolean", "java.lang.Boolean" -> BooleanSerializer.descriptor.name
-    "byte", "java.lang.Byte" -> ByteSerializer.descriptor.name
-    "short", "java.lang.Short" -> ShortSerializer.descriptor.name
-    "long", "java.lang.Long" -> LongSerializer.descriptor.name
-    "float", "java.lang.Float" -> FloatSerializer.descriptor.name
-    "double", "java.lang.Double" -> DoubleSerializer.descriptor.name
-    "char", "java.lang.Character" -> CharSerializer.descriptor.name
-    "java.lang.String" -> StringSerializer.descriptor.name
-    "java.util.List", "java.util.ArrayList" -> ARRAY_LIST_NAME
-    "java.util.Set", "java.util.LinkedHashSet" -> LINKED_HASH_SET_NAME
-    "java.util.HashSet" -> HASH_SET_NAME
-    "java.util.Map", "java.util.LinkedHashMap" -> LINKED_HASH_MAP_NAME
-    "java.util.HashMap" -> HASH_MAP_NAME
-    "java.util.Map\$Entry" -> MapEntryClassDesc.name
-    else -> s
-}
-
-@ImplicitReflectionSerializer
-fun <E> serializerByValue(value: E, context: SerialContext? = null): KSerializer<E> {
-    val klass =
-        (value as? Any)?.javaClass?.kotlin ?: throw SerializationException("Cannot determine class for value $value")
-    return serializerByClass(klass, context)
-}
-
-@ImplicitReflectionSerializer
-fun <E> serializerBySerialDescClassName(className: String, context: SerialContext? = null): KSerializer<E> =
-    SerialCache.lookupSerializer(className, context = context)
-
-@ImplicitReflectionSerializer
-fun <E> serializerByClass(klass: KClass<*>, context: SerialContext? = null): KSerializer<E> =
-    SerialCache.lookupSerializer(mapJavaClassNameToKotlin(klass.java.canonicalName ?: ""), klass, context)
 
 @PublishedApi
 internal open class TypeBase<T>
@@ -98,7 +58,7 @@ fun serializerByTypeToken(type: Type): KSerializer<Any> = when (type) {
         ReferenceArraySerializer(kclass, serializer) as KSerializer<Any>
     }
     is Class<*> -> if (!type.isArray) {
-        serializerByClass(type.kotlin)
+        requireNotNull<KSerializer<out Any>>((type.kotlin as KClass<Any>).serializer<Any>()) as KSerializer<Any>
     } else {
         val eType: Class<*> = type.componentType
         val s = serializerByTypeToken(eType)
@@ -122,9 +82,9 @@ fun serializerByTypeToken(type: Type): KSerializer<Any> = when (type) {
 
             else -> {
                 val varargs = args.map { serializerByTypeToken(it) }.toTypedArray()
-                (rootClass.invokeSerializerGetter(*varargs) as? KSerializer<Any>) ?: serializerByClass<Any>(
-                    rootClass.kotlin
-                )
+                (rootClass.invokeSerializerGetter(*varargs) as? KSerializer<Any>) ?: requireNotNull<KSerializer<out Any>>(
+                    (rootClass.kotlin as KClass<Any>)
+                        .serializer()) as KSerializer<Any>
             }
         }
     }

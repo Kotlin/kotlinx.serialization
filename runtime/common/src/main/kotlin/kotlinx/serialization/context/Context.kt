@@ -99,8 +99,7 @@ internal object StandardSubtypesOfAny {
     @Suppress("UNCHECKED_CAST")
     @ImplicitReflectionSerializer
     internal fun getSubclassSerializer(objectToCheck: Any): KSerializer<*>? {
-        // todo: arrays
-//        if (klass.is) return ReferenceArraySerializer<Any, Any>(Any::class, (PolymorphicSerializer as KSerializer<Any>))
+        // todo: arrays?
         for ((k, v) in map) {
             if (k.isInstance(objectToCheck)) return v
         }
