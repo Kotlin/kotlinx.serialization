@@ -18,7 +18,8 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.SharedImmutable
 import kotlinx.serialization.json.*
-import kotlinx.serialization.json.internal.EscapeCharMappings.ESC2C
+import kotlinx.serialization.json.internal.EscapeCharMappings.ESCAPE_2_CHAR
+import kotlin.jvm.*
 
 // special strings
 internal const val NULL = "null"
@@ -79,7 +80,8 @@ internal val C2TC = ByteArray(CTC_MAX).apply {
 
 // object instead of @SharedImmutable because there is mutual initialization in [initC2ESC]
 internal object EscapeCharMappings {
-    internal val ESC2C = CharArray(ESC2C_MAX)
+    @JvmField
+    public val ESCAPE_2_CHAR = CharArray(ESC2C_MAX)
 
     init {
         for (i in 0x00..0x1f) {
@@ -97,7 +99,7 @@ internal object EscapeCharMappings {
     }
 
     private fun initC2ESC(c: Int, esc: Char) {
-        if (esc != UNICODE_ESC) ESC2C[esc.toInt()] = c.toChar()
+        if (esc != UNICODE_ESC) ESCAPE_2_CHAR[esc.toInt()] = c.toChar()
     }
 
     private fun initC2ESC(c: Char, esc: Char) = initC2ESC(c.toInt(), esc)
@@ -113,19 +115,28 @@ private fun ByteArray.initC2TC(c: Char, cl: Byte) {
 
 internal fun charToTokenClass(c: Char) = if (c.toInt() < CTC_MAX) C2TC[c.toInt()] else TC_OTHER
 
-internal fun escapeToChar(c: Int): Char = if (c < ESC2C_MAX) ESC2C[c] else INVALID
+internal fun escapeToChar(c: Int): Char = if (c < ESC2C_MAX) ESCAPE_2_CHAR[c] else INVALID
 
 
-// JSON low level parser
-internal class JsonParser(private val source: String) {
-    var curPos: Int = 0 // position in source
-        private set
+// Streaming JSON reader
+internal class JsonReader(private val source: String) {
+
+    @JvmField
+    var currentPosition: Int = 0 // position in source
+
+    @JvmField
+    var tokenClass: Byte = TC_EOF
+
+    public val isDone: Boolean get() = tokenClass == TC_EOF
+
+    public val canBeginValue: Boolean
+        get() = when (tokenClass) {
+            TC_BEGIN_LIST, TC_BEGIN_OBJ, TC_OTHER, TC_STRING, TC_NULL -> true
+            else -> false
+        }
 
     // updated by nextToken
-    var tokenPos: Int = 0
-        private set
-    var tokenClass: Byte = TC_EOF
-        private set
+    private var tokenPosition: Int = 0
 
     // update by nextString/nextLiteral
     private var offset = -1 // when offset >= 0 string is in source, otherwise in buf
@@ -137,18 +148,11 @@ internal class JsonParser(private val source: String) {
     }
 
     internal inline fun requireTokenClass(expected: Byte, lazyErrorMsg: () -> String) {
-        if (tokenClass != expected)
-            fail(tokenPos, lazyErrorMsg())
+        if (tokenClass != expected) fail(tokenPosition, lazyErrorMsg())
     }
 
-    val canBeginValue: Boolean
-        get() = when (tokenClass) {
-            TC_BEGIN_LIST, TC_BEGIN_OBJ, TC_OTHER, TC_STRING, TC_NULL -> true
-            else -> false
-        }
-
     fun takeString(): String {
-        if (tokenClass != TC_OTHER && tokenClass != TC_STRING) fail(tokenPos, "Expected string or non-null literal")
+        if (tokenClass != TC_OTHER && tokenClass != TC_STRING) fail(tokenPosition, "Expected string or non-null literal")
         val prevStr = if (offset < 0)
             String(buf, 0, length) else
             source.substring(offset, offset + length)
@@ -173,11 +177,11 @@ internal class JsonParser(private val source: String) {
 
     fun nextToken() {
         val source = source
-        var curPos = curPos
+        var curPos = currentPosition
         val maxLen = source.length
         while (true) {
             if (curPos >= maxLen) {
-                tokenPos = curPos
+                tokenPosition = curPos
                 tokenClass = TC_EOF
                 return
             }
@@ -194,9 +198,9 @@ internal class JsonParser(private val source: String) {
                     return
                 }
                 else -> {
-                    this.tokenPos = curPos
+                    this.tokenPosition = curPos
                     this.tokenClass = tc
-                    this.curPos = curPos + 1
+                    this.currentPosition = curPos + 1
                     return
                 }
             }
@@ -204,7 +208,7 @@ internal class JsonParser(private val source: String) {
     }
 
     private fun nextLiteral(source: String, startPos: Int) {
-        tokenPos = startPos
+        tokenPosition = startPos
         offset = startPos
         var curPos = startPos
         val maxLen = source.length
@@ -212,13 +216,13 @@ internal class JsonParser(private val source: String) {
             curPos++
             if (curPos >= maxLen || charToTokenClass(source[curPos]) != TC_OTHER) break
         }
-        this.curPos = curPos
+        this.currentPosition = curPos
         length = curPos - offset
         tokenClass = if (rangeEquals(source, offset, length, NULL)) TC_NULL else TC_OTHER
     }
 
     private fun nextString(source: String, startPos: Int) {
-        tokenPos = startPos
+        tokenPosition = startPos
         length = 0 // in buffer
         var curPos = startPos + 1
         var lastPos = curPos
@@ -245,7 +249,7 @@ internal class JsonParser(private val source: String) {
             appendRange(source, lastPos, curPos)
             this.offset = -1
         }
-        this.curPos = curPos + 1
+        this.currentPosition = curPos + 1
         tokenClass = TC_STRING
     }
 
@@ -284,11 +288,11 @@ internal class JsonParser(private val source: String) {
             when (tokenClass) {
                 TC_BEGIN_LIST, TC_BEGIN_OBJ -> tokenStack.add(tokenClass)
                 TC_END_LIST -> {
-                    if (tokenStack.last() != TC_BEGIN_LIST) throw JsonParsingException(curPos, "found ] instead of }")
+                    if (tokenStack.last() != TC_BEGIN_LIST) throw JsonParsingException(currentPosition, "found ] instead of }")
                     tokenStack.removeAt(tokenStack.size - 1)
                 }
                 TC_END_OBJ -> {
-                    if (tokenStack.last() != TC_BEGIN_OBJ) throw JsonParsingException(curPos, "found } instead of ]")
+                    if (tokenStack.last() != TC_BEGIN_OBJ) throw JsonParsingException(currentPosition, "found } instead of ]")
                     tokenStack.removeAt(tokenStack.size - 1)
                 }
             }
@@ -298,7 +302,6 @@ internal class JsonParser(private val source: String) {
 }
 
 // Utility functions
-
 private fun fromHexChar(source: String, curPos: Int): Int {
     require(curPos < source.length, curPos) { "Unexpected end in unicode escape" }
     val curChar = source[curPos]

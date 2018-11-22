@@ -16,12 +16,11 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.context.SerialContext
-import kotlinx.serialization.context.SerialModule
+import kotlinx.serialization.context.*
 import kotlinx.serialization.json.internal.*
 import kotlin.jvm.*
 
-class Json(
+public class Json(
     @JvmField internal val unquoted: Boolean = false,
     @JvmField internal val indented: Boolean = false,
     @JvmField internal val indent: String = "    ",
@@ -30,9 +29,9 @@ class Json(
     val encodeDefaults: Boolean = true
 ): AbstractSerialFormat(), StringFormat {
 
-    override fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String {
+    public override fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String {
         val result = StringBuilder()
-        val encoder = JsonOutput(
+        val encoder = StreamingJsonOutput(
             result, this,
             WriteMode.OBJ,
             arrayOfNulls(WriteMode.values().size)
@@ -41,12 +40,25 @@ class Json(
         return result.toString()
     }
 
-    override fun <T> parse(serializer: DeserializationStrategy<T>, string: String): T {
-        val parser = JsonParser(string)
-        val input = JsonInput(this, WriteMode.OBJ, parser)
+    public override fun <T> parse(serializer: DeserializationStrategy<T>, string: String): T {
+        val parser = JsonReader(string)
+        val input = StreamingJsonInput(this, WriteMode.OBJ, parser)
         val result = input.decode(serializer)
-        check(parser.tokenClass == TC_EOF) { "Shall parse complete string"}
+        if (!parser.isDone) {
+            error("Parser has not consumed the whole input") // TODO
+        }
         return result
+    }
+
+    public fun <T> fromJson(json: JsonElement, deserializer: DeserializationStrategy<T>): T {
+        return readJson(json, deserializer)
+    }
+
+    @ImplicitReflectionSerializer
+    public inline fun <reified T : Any> fromJson(tree: JsonElement): T = fromJson(tree, context.getOrDefault(T::class))
+
+    public fun <T> toJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
+        return writeJson(value, serializer)
     }
 
     companion object : StringFormat {

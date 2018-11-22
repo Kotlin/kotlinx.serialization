@@ -56,19 +56,21 @@ class JsonTreeTest {
         val S: String
     )
 
+    val json = Json()
+
     private fun prepare(s: String): JsonElement = JsonTreeParser(s).readFully()
 
     @Test
     fun readTreeSimple() {
         val tree = prepare("{a: 42}")
-        val parsed = JsonTreeMapper().readTree(tree, Data.serializer())
+        val parsed = json.fromJson(tree, Data.serializer())
         assertEquals(Data(42), parsed)
     }
 
     @Test
     fun readTreeNested() {
         val tree = prepare("""{s:"foo", d:{a:42}}""")
-        val parsed = JsonTreeMapper().readTree<DataWrapper>(tree)
+        val parsed = json.fromJson<DataWrapper>(tree)
         val expected = DataWrapper("foo", Data(42))
         assertEquals(expected, parsed)
         assertEquals(3, parsed.s.length)
@@ -79,7 +81,7 @@ class JsonTreeTest {
         val tree = prepare("""{ b: 1, s: 2, i: 3, f: 1.0, d: 42.0, c: "a", B: true, S: "str"}""")
         val kotlinObj = AllTypes(1, 2, 3, 1.0f, 42.0, 'a', true, "str")
 
-        assertEquals(kotlinObj, JsonTreeMapper().readTree(tree))
+        assertEquals(kotlinObj, json.fromJson(tree))
     }
 
     @Test
@@ -87,8 +89,8 @@ class JsonTreeTest {
         val tree1 = prepare("""{s:"foo", d: null}""")
         val tree2 = prepare("""{s:"foo"}""")
 
-        assertEquals(DataWrapper("foo", null), JsonTreeMapper().readTree<DataWrapper>(tree1))
-        assertFailsWith(MissingFieldException::class) { JsonTreeMapper().readTree<DataWrapper>(tree2) }
+        assertEquals(DataWrapper("foo", null), json.fromJson(tree1))
+        assertFailsWith(MissingFieldException::class) { json.fromJson<DataWrapper>(tree2) }
     }
 
     @Test
@@ -96,8 +98,8 @@ class JsonTreeTest {
         val tree1 = prepare("""{s:"foo", d: null}""")
         val tree2 = prepare("""{s:"foo"}""")
 
-        assertEquals(DataWrapperOptional("foo", null), JsonTreeMapper().readTree<DataWrapperOptional>(tree1))
-        assertEquals(DataWrapperOptional("foo", null), JsonTreeMapper().readTree<DataWrapperOptional>(tree2))
+        assertEquals(DataWrapperOptional("foo", null), json.fromJson(tree1))
+        assertEquals(DataWrapperOptional("foo", null), json.fromJson(tree2))
     }
 
     @Test
@@ -106,31 +108,31 @@ class JsonTreeTest {
         val tree2 = prepare("""{l:[{a:42},{a:43}]}""")
         val tree3 = prepare("""{l:[[],[{a:42}]]}""")
 
-        assertEquals(IntList(listOf(1, 2)), JsonTreeMapper().readTree<IntList>(tree1))
-        assertEquals(DataList(listOf(Data(42), Data(43))), JsonTreeMapper().readTree<DataList>(tree2))
-        assertEquals(ListOfLists(listOf(listOf(), listOf(Data(42)))), JsonTreeMapper().readTree<ListOfLists>(tree3))
+        assertEquals(IntList(listOf(1, 2)), json.fromJson(tree1))
+        assertEquals(DataList(listOf(Data(42), Data(43))), json.fromJson(tree2))
+        assertEquals(ListOfLists(listOf(listOf(), listOf(Data(42)))), json.fromJson(tree3))
     }
 
     @Test
     fun readTreeMap() {
         val dyn = prepare("{m : {\"a\": 1, \"b\" : 2}}")
         val m = MapWrapper(mapOf("a" to 1, "b" to 2))
-        assertEquals(m, JsonTreeMapper().readTree<MapWrapper>(dyn))
+        assertEquals(m, json.fromJson(dyn))
     }
 
     @Test
     fun readTreeComplexMap() {
         val dyn = prepare("{m : {1: {a: 42}, 2: {a: 43}}}")
         val m = ComplexMapWrapper(mapOf("1" to Data(42), "2" to Data(43)))
-        assertEquals(m, JsonTreeMapper().readTree<ComplexMapWrapper>(dyn))
+        assertEquals(m, json.fromJson(dyn))
     }
 
     private inline fun <reified T: Any> writeAndTest(obj: T, printDiagnostics: Boolean = false): Pair<JsonElement, T> {
         val serial = T::class.serializer()
-        val tree = JsonTreeMapper().writeTree(obj, serial)
+        val tree = Json().toJson(obj, serial)
         val str = tree.toString()
         if (printDiagnostics) println(str)
-        val restored = JsonTreeMapper().readTree(JsonTreeParser(str).readFully(), serial)
+        val restored = json.fromJson(JsonTreeParser(str).readFully(), serial)
         assertEquals(obj, restored)
         return tree to restored
     }

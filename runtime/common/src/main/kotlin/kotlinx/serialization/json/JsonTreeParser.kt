@@ -18,13 +18,14 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.json.internal.*
 
-class JsonTreeParser internal constructor(private val parser: JsonParser) {
+// TODO revisit
+class JsonTreeParser internal constructor(private val parser: JsonReader) {
 
     companion object {
         fun parse(input: String): JsonObject = JsonTreeParser(input).readFully() as JsonObject
     }
 
-    constructor(input: String) : this(JsonParser(input))
+    constructor(input: String) : this(JsonReader(input))
 
     private fun readObject(): JsonElement {
         parser.requireTokenClass(TC_BEGIN_OBJ) { "Expected start of object" }
@@ -65,7 +66,7 @@ class JsonTreeParser internal constructor(private val parser: JsonParser) {
     }
 
     fun read(): JsonElement {
-        if (!parser.canBeginValue) fail(parser.curPos, "Can't begin reading value from here")
+        if (!parser.canBeginValue) fail(parser.currentPosition, "Can't begin reading value from here")
         val tc = parser.tokenClass
         return when (tc) {
             TC_NULL -> JsonNull.also { parser.nextToken() }
@@ -73,7 +74,7 @@ class JsonTreeParser internal constructor(private val parser: JsonParser) {
             TC_OTHER -> readValue(isString = false)
             TC_BEGIN_OBJ -> readObject()
             TC_BEGIN_LIST -> readArray()
-            else -> fail(parser.curPos, "Can't begin reading element")
+            else -> fail(parser.currentPosition, "Can't begin reading element")
         }
     }
 

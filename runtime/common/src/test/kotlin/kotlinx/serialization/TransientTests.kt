@@ -16,7 +16,7 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 import kotlin.test.*
 
 class TransientTests {
@@ -46,8 +46,6 @@ class TransientTests {
         override fun toString(): String {
             return "Data(a=$a, b=$b, e=$e, c='$c', d='$d')"
         }
-
-
     }
 
     @Test
@@ -57,8 +55,8 @@ class TransientTests {
 
     @Test
     fun testMissingOptionals() {
-        assertEquals(Json.unquoted.parse<Data>("{a:0,c:Hello}"), Data())
-        assertEquals(Json.unquoted.parse<Data>("{a:0}"), Data())
+        assertEquals(Json.unquoted.parse("{a:0,c:Hello}"), Data())
+        assertEquals(Json.unquoted.parse("{a:0}"), Data())
     }
 
     @Test

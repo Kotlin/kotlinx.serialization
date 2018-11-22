@@ -7,8 +7,7 @@ internal enum class WriteMode(@JvmField val begin: Char, @JvmField val end: Char
     OBJ(BEGIN_OBJ, END_OBJ),
     LIST(BEGIN_LIST, END_LIST),
     MAP(BEGIN_OBJ, END_OBJ),
-    POLY(BEGIN_LIST, END_LIST),
-    ENTRY(INVALID, INVALID);
+    POLY_OBJ(BEGIN_LIST, END_LIST);
 
     val beginTc: Byte = charToTokenClass(begin)
     val endTc: Byte = charToTokenClass(end)
@@ -16,7 +15,7 @@ internal enum class WriteMode(@JvmField val begin: Char, @JvmField val end: Char
 
 internal fun switchMode(desc: SerialDescriptor, typeParams: Array<out KSerializer<*>>): WriteMode =
     when (desc.kind) {
-        UnionKind.POLYMORPHIC -> WriteMode.POLY
+        UnionKind.POLYMORPHIC -> WriteMode.POLY_OBJ
         StructureKind.LIST -> WriteMode.LIST
         StructureKind.MAP -> {
             val keyKind = typeParams[0].descriptor.kind

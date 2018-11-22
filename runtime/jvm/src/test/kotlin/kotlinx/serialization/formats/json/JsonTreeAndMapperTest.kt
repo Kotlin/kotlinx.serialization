@@ -17,52 +17,52 @@
 package kotlinx.serialization.formats.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.SerialClassDescImpl
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 @Serializable
 data class Payload(val from: Long, val to: Long, val msg: String)
 
 sealed class DummyEither {
-    data class Left(val errorMsg: String): DummyEither()
-    data class Right(val data: Payload): DummyEither()
+    data class Left(val errorMsg: String) : DummyEither()
+    data class Right(val data: Payload) : DummyEither()
 }
 
-object EitherSerializer: KSerializer<DummyEither> {
+object EitherSerializer : KSerializer<DummyEither> {
     override val descriptor: SerialDescriptor = SerialClassDescImpl("DummyEither")
 
     override fun deserialize(decoder: Decoder): DummyEither {
-        val jsonReader = decoder as? JsonInput
-                ?: throw SerializationException("This class can be loaded only by Json")
-        val tree = jsonReader.readAsTree() as? JsonObject
-                ?: throw SerializationException("Expected JsonObject")
+        val input = decoder as? JsonInput ?: throw SerializationException("This class can be loaded only by Json")
+        val tree = input.readTree() as? JsonObject
+            ?: throw SerializationException("Expected JsonObject")
         if ("error" in tree) return DummyEither.Left(tree.getPrimitive("error").content)
-        return DummyEither.Right(JsonTreeMapper().readTree(tree, Payload.serializer()))
+
+        println(tree)
+        return DummyEither.Right(input.json.fromJson(tree, Payload.serializer()))
     }
 
     override fun serialize(encoder: Encoder, obj: DummyEither) {
-        val jsonWriter = encoder as? JsonOutput
-                ?: throw SerializationException("This class can be saved only by Json")
+        val output = encoder as? JsonOutput ?: throw SerializationException("This class can be saved only by Json")
         val tree = when (obj) {
             is DummyEither.Left -> JsonObject(mapOf("error" to JsonLiteral(obj.errorMsg)))
-            is DummyEither.Right -> JsonTreeMapper().writeTree(obj.data, Payload.serializer())
+            is DummyEither.Right -> output.json.toJson(obj.data, Payload.serializer())
         }
-        jsonWriter.writeTree(tree)
+
+        output.writeTree(tree)
     }
 }
 
 @Serializable
 data class Event(
     val id: Int,
-    @Serializable(with=EitherSerializer::class) val payload: DummyEither,
+    @Serializable(with = EitherSerializer::class) val payload: DummyEither,
     val timestamp: Long
 )
 
 class JsonTreeAndMapperTest {
-    val decoderData = """{"id":0,"payload":{"msg": "Hello world", "from": 42, "to": 43},"timestamp":1000}"""
-    val decoderError = """{"id":1,"payload":{"error": "Connection timed out"},"timestamp":1001}"""
+    private val decoderData = """{"id":0,"payload":{"msg": "Hello world", "from": 42, "to": 43},"timestamp":1000}"""
+    private val decoderError = """{"id":1,"payload":{"error": "Connection timed out"},"timestamp":1001}"""
 
     @Test
     fun testParseData() {

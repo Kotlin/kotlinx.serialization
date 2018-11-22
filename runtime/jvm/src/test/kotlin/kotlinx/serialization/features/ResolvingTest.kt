@@ -143,7 +143,7 @@ class ResolvingTest {
     }
 
     @Test
-    fun testNestedMixeResolving() {
+    fun testNestedMixedResolving() {
         val myList = arrayOf(listOf(arrayOf(1, 2, 3)), listOf())
         val token = typeTokenOf<Array<List<Array<Int>>>>()
         val serial = serializerByTypeToken(token)
