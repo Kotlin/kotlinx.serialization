@@ -4,6 +4,7 @@
 
 package kotlinx.serialization.json
 
+import kotlinx.serialization.*
 import kotlinx.serialization.context.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.json.serializers.*
@@ -16,8 +17,11 @@ abstract class JsonTestBase {
     protected val nonstrict = Json(strictMode = false)
 
     internal inline fun <reified T : Any> Json.stringify(value: T, useStreaming: Boolean): String {
-        assertFalse(indented)
         val serializer = context.getOrDefault(T::class)
+        return return stringify(serializer, value, useStreaming)
+    }
+
+    internal fun <T> Json.stringify(serializer: SerializationStrategy<T>, value: T, useStreaming: Boolean): String {
         return if (useStreaming) {
             stringify(serializer, value)
         } else {
@@ -29,6 +33,10 @@ abstract class JsonTestBase {
 
     internal inline fun <reified T : Any> Json.parse(source: String, useStreaming: Boolean): T {
         val deserializer = context.getOrDefault(T::class)
+        return parse(deserializer, source, useStreaming)
+    }
+
+    internal fun <T : Any> Json.parse(deserializer: DeserializationStrategy<T>, source: String, useStreaming: Boolean): T {
         return if (useStreaming) {
             parse(deserializer, source)
         } else {

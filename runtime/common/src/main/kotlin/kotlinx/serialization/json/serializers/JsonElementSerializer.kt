@@ -14,7 +14,7 @@ object JsonElementSerializer : KSerializer<JsonElement> {
         when (obj) {
             is JsonPrimitive -> JsonPrimitiveSerializer.serialize(encoder, obj)
             is JsonObject -> JsonObjectSerializer.serialize(encoder, obj)
-            is JsonArray -> TODO()
+            is JsonArray -> JsonArraySerializer.serialize(encoder, obj)
         }
     }
 
@@ -103,9 +103,33 @@ private object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
             get() = PrimitiveKind.STRING
 
         init {
-            // TODO what's going on
-            addElement("JsonObject")
-            addElement("JsonLiteral")
+            addElement("JsonPrimitive")
+        }
+    }
+}
+
+private object JsonArraySerializer : KSerializer<JsonArray> {
+
+    override fun serialize(encoder: Encoder, obj: JsonArray) {
+        val composite = encoder.beginCollection(JsonObjectSerializer.descriptor, obj.size, JsonElementSerializer)
+        var index = 0
+        obj.content.onEach { value ->
+            composite.encodeSerializableElement(JsonObjectSerializer.descriptor, index++, JsonElementSerializer, value)
+        }
+        composite.endStructure(JsonObjectSerializer.descriptor)
+    }
+
+    override fun deserialize(decoder: Decoder): JsonArray {
+        TODO("Deserialization via generic interface is not yet supported, please use Json.toJson instead and report this issue")
+    }
+
+    override val descriptor: SerialDescriptor = JsonArrayDescriptor
+
+    object JsonArrayDescriptor : SerialClassDescImpl("JsonArray") {
+        override val kind: SerialKind
+            get() = StructureKind.LIST
+
+        init {
             addElement("JsonArray")
         }
     }
