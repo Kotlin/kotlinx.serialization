@@ -18,7 +18,7 @@ abstract class JsonTestBase {
 
     internal inline fun <reified T : Any> Json.stringify(value: T, useStreaming: Boolean): String {
         val serializer = context.getOrDefault(T::class)
-        return return stringify(serializer, value, useStreaming)
+        return stringify(serializer, value, useStreaming)
     }
 
     internal fun <T> Json.stringify(serializer: SerializationStrategy<T>, value: T, useStreaming: Boolean): String {
@@ -52,6 +52,5 @@ abstract class JsonTestBase {
         val treeResult = kotlin.runCatching { test(false) }
         assertEquals(streamingResult, treeResult)
         streamingResult.getOrThrow()
-        test(false)
     }
 }

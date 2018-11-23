@@ -17,6 +17,9 @@ internal fun <T> Json.readJson(element: JsonElement, deserializer: Deserializati
 private sealed class AbstractJsonTreeInput(override val json: Json, open val obj: JsonElement)
     : NamedValueDecoder(), JsonInput {
 
+    override val updateMode: UpdateMode
+        get() = json.updateMode
+
     override fun readTree(): JsonElement {
         val obj = obj
         if (obj is JsonObject) {

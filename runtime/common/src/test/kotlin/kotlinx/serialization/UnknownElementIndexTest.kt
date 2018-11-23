@@ -20,7 +20,7 @@ import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
-class IndexTest {
+class UnknownElementIndexTest {
     class MalformedReader: ElementValueDecoder() {
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
             return UNKNOWN_NAME
