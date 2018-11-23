@@ -281,7 +281,7 @@ abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     protected val currentTagOrNull
         get() = tagStack.lastOrNull()
 
-    private fun pushTag(name: Tag) {
+    protected fun pushTag(name: Tag) {
         tagStack.add(name)
     }
 

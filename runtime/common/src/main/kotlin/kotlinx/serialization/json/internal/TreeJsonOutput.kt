@@ -97,6 +97,11 @@ private sealed class AbstractJsonTreeOutput(
 private open class JsonTreeOutput(override val json: Json, nodeConsumer: (JsonElement) -> Unit) :
     AbstractJsonTreeOutput(json, nodeConsumer) {
 
+    init {
+        @Suppress("ImplicitThis")
+        context = json.context
+    }
+
     protected val content: MutableMap<String, JsonElement> = linkedMapOf()
 
     override fun putElement(key: String, element: JsonElement) {
@@ -129,6 +134,10 @@ private class JsonTreeMapOutput(json: Json, nodeConsumer: (JsonElement) -> Unit)
 private class JsonTreeListOutput(json: Json, nodeConsumer: (JsonElement) -> Unit) :
     AbstractJsonTreeOutput(json, nodeConsumer) {
     private val array: ArrayList<JsonElement> = arrayListOf()
+
+    init {
+        context = json.context
+    }
 
     override fun shouldWriteElement(desc: SerialDescriptor, tag: String, index: Int): Boolean = true
 

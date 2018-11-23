@@ -1,3 +1,5 @@
+@file:Suppress("LeakingThis")
+
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
@@ -8,6 +10,7 @@ internal fun <T> Json.readJson(element: JsonElement, deserializer: Deserializati
     val input = when (deserializer.descriptor.kind) {
         StructureKind.LIST -> JsonTreeListInput(this, cast(element))
         StructureKind.MAP -> JsonTreeMapInput(this, cast(element))
+        is PrimitiveKind -> JsonPrimitiveInput(this, cast(element))
         else -> JsonTreeInput(this, cast(element))
     }
 
@@ -16,6 +19,10 @@ internal fun <T> Json.readJson(element: JsonElement, deserializer: Deserializati
 
 private sealed class AbstractJsonTreeInput(override val json: Json, open val obj: JsonElement)
     : NamedValueDecoder(), JsonInput {
+
+    init {
+        context = json.context
+    }
 
     override val updateMode: UpdateMode
         get() = json.updateMode
@@ -70,6 +77,22 @@ private sealed class AbstractJsonTreeInput(override val json: Json, open val obj
     override fun decodeTaggedFloat(tag: String) = getValue(tag).float
     override fun decodeTaggedDouble(tag: String) = getValue(tag).double
     override fun decodeTaggedString(tag: String) = getValue(tag).content
+}
+
+private class JsonPrimitiveInput(json: Json, override val obj: JsonPrimitive) : AbstractJsonTreeInput(json, obj) {
+
+    companion object {
+        const val primitive = "primitive"
+    }
+
+    init {
+        pushTag(primitive)
+    }
+
+    override fun currentElement(tag: String): JsonElement {
+        require(tag == primitive)
+        return obj
+    }
 }
 
 private open class JsonTreeInput(json: Json, override val obj: JsonObject) : AbstractJsonTreeInput(json, obj) {
