@@ -48,10 +48,24 @@ private sealed class AbstractJsonTreeOutput(
     override fun encodeTaggedByte(tag: String, value: Byte) = putElement(tag, JsonLiteral(value))
     override fun encodeTaggedShort(tag: String, value: Short) = putElement(tag, JsonLiteral(value))
     override fun encodeTaggedLong(tag: String, value: Long) = putElement(tag, JsonLiteral(value))
-    override fun encodeTaggedFloat(tag: String, value: Float) = putElement(tag, JsonLiteral(value))
-    override fun encodeTaggedDouble(tag: String, value: Double) = putElement(tag, JsonLiteral(value))
-    override fun encodeTaggedBoolean(tag: String, value: Boolean) = putElement(tag, JsonLiteral(value))
 
+    override fun encodeTaggedFloat(tag: String, value: Float) {
+        if (json.strictMode && !value.isFinite()) {
+            throw JsonInvalidValueInStrictModeException(value)
+        }
+
+        putElement(tag, JsonLiteral(value))
+    }
+
+    override fun encodeTaggedDouble(tag: String, value: Double) {
+        if (json.strictMode && !value.isFinite()) {
+            throw JsonInvalidValueInStrictModeException(value)
+        }
+
+        putElement(tag, JsonLiteral(value))
+    }
+
+    override fun encodeTaggedBoolean(tag: String, value: Boolean) = putElement(tag, JsonLiteral(value))
     override fun encodeTaggedChar(tag: String, value: Char) = putElement(tag, JsonLiteral(value.toString()))
     override fun encodeTaggedString(tag: String, value: String) = putElement(tag, JsonLiteral(value))
     override fun encodeTaggedEnum(
@@ -98,7 +112,7 @@ private class JsonTreeMapOutput(json: Json, nodeConsumer: (JsonElement) -> Unit)
     override fun putElement(key: String, element: JsonElement) {
         val idx = key.toInt()
         if (idx % 2 == 0) { // writing key
-            check(element is JsonLiteral) { "Expected tag to be JsonLiteral" }
+            check(element is JsonLiteral) { "Expected JsonLiteral, but has $element" }
             tag = element.content
         } else {
             content[tag] = element

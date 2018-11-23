@@ -70,7 +70,25 @@ private object JsonObjectSerializer : KSerializer<JsonObject> {
 private object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
 
     override fun serialize(encoder: Encoder, obj: JsonPrimitive) {
-        // TODO JsonNull does not work as expected
+        if (obj is JsonNull) {
+            return encoder.encodeString(obj.content)
+        }
+
+        val integer = obj.intOrNull
+        if (integer != null) {
+            return encoder.encodeInt(integer)
+        }
+
+        val double = obj.doubleOrNull
+        if (double != null) {
+            return encoder.encodeDouble(double)
+        }
+
+        val boolean = obj.booleanOrNull
+        if (boolean != null) {
+            return encoder.encodeBoolean(boolean)
+        }
+
         encoder.encodeString(obj.content)
     }
 
