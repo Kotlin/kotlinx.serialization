@@ -27,7 +27,7 @@ class JsonParserFuzzerTest {
         assertEquals("{", tree.getAs<JsonLiteral>("x").content)
     }
 
-    private fun parse(input: String) = JsonTreeParser(input).readFully() as JsonObject
+    private fun parse(input: String) = Json.plain.parseJson(input).jsonObject
 
     @Test
     fun testEmptyKey() {

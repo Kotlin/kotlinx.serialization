@@ -19,7 +19,7 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlin.test.*
 
-class JsonTreeTest {
+class JsonSerializerTest {
     @Serializable
     data class Data(val a: Int)
 
@@ -58,7 +58,7 @@ class JsonTreeTest {
 
     val json = Json()
 
-    private fun prepare(s: String): JsonElement = JsonTreeParser(s).readFully()
+    private fun prepare(s: String): JsonElement = Json.plain.parseJson(s)
 
     @Test
     fun readTreeSimple() {
@@ -132,7 +132,7 @@ class JsonTreeTest {
         val tree = Json().toJson(obj, serial)
         val str = tree.toString()
         if (printDiagnostics) println(str)
-        val restored = json.fromJson(JsonTreeParser(str).readFully(), serial)
+        val restored = json.fromJson(json.parseJson(str), serial)
         assertEquals(obj, restored)
         return tree to restored
     }

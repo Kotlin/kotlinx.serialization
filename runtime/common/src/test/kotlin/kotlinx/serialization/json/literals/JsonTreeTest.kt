@@ -1,40 +1,33 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2017-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization.json
+package kotlinx.serialization.json.literals
 
+import kotlinx.serialization.json.*
+import kotlinx.serialization.json.serializers.*
 import kotlin.test.*
 
-class JsonAstTest {
+class JsonTreeTest {
+
+    private fun parse(input: String): JsonElement = Json().parse(JsonElementSerializer, input)
+
     @Test
-    fun parseWithoutExceptions() {
+    fun testParseWithoutExceptions() { 
         val input = """{"a": "foo",              "b": 10, "c": ["foo", 100500, {"bar": "baz"}]}"""
-        JsonTreeParser(input).readFully()
+        parse(input)
     }
 
     @Test
-    fun jsonValue() {
+    fun testJsonLiteral() {
         val v = JsonLiteral("foo")
-        assertEquals(v, JsonTreeParser("\"foo\"").readFully())
+        assertEquals(v, parse("\"foo\""))
     }
 
     @Test
-    fun jsonObject() {
+    fun testJsonObject() {
         val input = """{"a": "foo", "b": 10, "c": true, "d": null}"""
-        val elem = JsonTreeParser(input).readFully()
+        val elem = parse(input)
 
         assertTrue(elem is JsonObject)
         assertEquals(setOf("a", "b", "c", "d"), elem.keys)
@@ -46,9 +39,9 @@ class JsonAstTest {
     }
 
     @Test
-    fun jsonObjectWithArrays() {
+    fun testJsonObjectWithArrays() {
         val input = """{"a": "foo",              "b": 10, "c": ["foo", 100500, {"bar": "baz"}]}"""
-        val elem = JsonTreeParser(input).readFully()
+        val elem = parse(input)
 
         assertTrue(elem is JsonObject)
         assertEquals(setOf("a", "b", "c"), elem.keys)
@@ -64,27 +57,27 @@ class JsonAstTest {
     }
 
     @Test
-    fun saveToJson() {
+    fun testSaveToJson() {
         val input = """{"a": "foo", "b": 10, "c": true, "d": null, "e": ["foo", 100500, {"bar": "baz"}]}"""
-        val elem = JsonTreeParser(input).readFully()
+        val elem = parse(input)
         val json = elem.toString()
         assertEquals(input, json)
     }
 
     @Test
-    fun equalityTest() {
+    fun testEqualityTest() {
         val input = """{"a": "foo", "b": 10}"""
-        val parsed = JsonTreeParser.parse(input)
-        val parsed2 = JsonTreeParser.parse(input)
+        val parsed = parse(input)
+        val parsed2 = parse(input)
         val handCrafted = json { "a" to JsonPrimitive("foo"); "b" to JsonPrimitive(10) }
         assertEquals(parsed, parsed2)
         assertEquals(parsed, handCrafted)
     }
 
     @Test
-    fun inEqualityTest() {
+    fun testInEqualityTest() {
         val input = """{"a": "10", "b": 10}"""
-        val parsed = JsonTreeParser.parse(input)
+        val parsed = parse(input) as JsonObject
         val handCrafted = json { "a" to JsonPrimitive("10"); "b" to JsonPrimitive(10) }
         assertEquals(parsed, handCrafted)
 
@@ -95,7 +88,7 @@ class JsonAstTest {
     }
 
     @Test
-    fun exceptionCorrectness() {
+    fun testExceptionalState() {
         val tree =
             JsonObject(mapOf("a" to JsonLiteral(42), "b" to JsonArray(listOf(JsonNull)), "c" to JsonLiteral(false)))
         assertFailsWith<NoSuchElementException> { tree.getObject("no key") }

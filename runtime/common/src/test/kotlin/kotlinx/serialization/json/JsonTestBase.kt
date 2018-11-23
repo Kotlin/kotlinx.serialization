@@ -25,7 +25,7 @@ abstract class JsonTestBase {
             stringify(serializer, value)
         } else {
             val tree = writeJson(value, serializer)
-            // TODO ask Leonid about discoverability
+            // kotlinx.serialization/issues/277
             stringify(JsonElementSerializer, tree)
         }
     }

@@ -18,8 +18,9 @@ object JsonElementSerializer : KSerializer<JsonElement> {
         }
     }
 
-    override fun deserialize(decoder: Decoder): JsonObject {
-        TODO("Deserialization via generic interface is not yet supported, please use Json.toJson instead and report this issue")
+    override fun deserialize(decoder: Decoder): JsonElement {
+        val input = decoder as? JsonInput ?: error("JsonElement is serializable only when used by Json")
+        return input.readTree()
     }
 
     override val descriptor: SerialDescriptor = object : SerialClassDescImpl("JsonElementSerializer") {
@@ -93,7 +94,7 @@ private object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
     }
 
     override fun deserialize(decoder: Decoder): JsonPrimitive {
-        TODO("Deserialization via generic interface is not yet supported, please use Json.toJson instead and report this issue")
+        return JsonPrimitive(decoder.decodeString())
     }
 
     override val descriptor: SerialDescriptor = JsonPrimitiveDescriptor

@@ -18,6 +18,7 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.context.*
 import kotlinx.serialization.json.internal.*
+import kotlinx.serialization.json.serializers.*
 import kotlin.jvm.*
 
 public class Json(
@@ -48,6 +49,10 @@ public class Json(
             error("Parser has not consumed the whole input")
         }
         return result
+    }
+
+    public fun parseJson(value: String): JsonElement {
+        return parse(JsonElementSerializer, value)
     }
 
     public fun <T> fromJson(json: JsonElement, deserializer: DeserializationStrategy<T>): T {
