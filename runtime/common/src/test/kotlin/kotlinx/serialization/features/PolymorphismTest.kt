@@ -17,15 +17,20 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.context.*
-import kotlinx.serialization.json.*
-import kotlinx.serialization.protobuf.*
-import kotlin.test.*
+import kotlinx.serialization.context.PolymorphicModule
+import kotlinx.serialization.context.plus
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.protobuf.ProtoBuf
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class PolymorphicTest {
 
     @Serializable
-    data class Wrapper(@SerialId(1) val polyBase1: PolyBase, @SerialId(2) val polyBase2: PolyBase)
+    data class Wrapper(
+        @SerialId(1) @Polymorphic val polyBase1: PolyBase,
+        @SerialId(2) @Polymorphic val polyBase2: PolyBase
+    )
 
     private val moduleInstaller: SerialFormat.() -> Unit = {
         // second is to run with PolyDerived alone in `testExplicit`

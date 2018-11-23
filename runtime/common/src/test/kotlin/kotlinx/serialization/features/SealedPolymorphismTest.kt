@@ -24,7 +24,7 @@ import kotlin.test.*
 @Serializable
 data class FooHolder(
     val someMetadata: Int,
-    val payload: List<Foo>
+    val payload: List<@Polymorphic Foo>
 )
 
 @Serializable

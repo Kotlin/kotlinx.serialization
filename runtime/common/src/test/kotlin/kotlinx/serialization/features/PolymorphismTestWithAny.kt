@@ -26,12 +26,12 @@ import kotlin.test.assertFailsWith
 
 class PolymorphicMap {
     @Serializable
-    data class MyPolyData(val data: Map<String, Any>)
+    data class MyPolyData(val data: Map<String, @Polymorphic Any>)
 
     @Serializable
     data class MyPolyDataWithPolyBase(
-        val data: Map<String, Any>,
-        val polyBase: PolyBase
+        val data: Map<String, @Polymorphic Any>,
+        @Polymorphic val polyBase: PolyBase
     )
 
     @Test
