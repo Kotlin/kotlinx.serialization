@@ -17,36 +17,10 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.context.installPolymorphicModule
+import kotlinx.serialization.context.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.protobuf.*
 import kotlin.test.*
-
-@Serializable
-open class PolyBase(@SerialId(1) val id: Int) {
-    override fun hashCode(): Int {
-        return id
-    }
-
-    override fun toString(): String {
-        return "PolyBase(id=$id)"
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-
-        other as PolyBase
-
-        if (id != other.id) return false
-
-        return true
-    }
-
-}
-
-@Serializable
-data class PolyDerived(@SerialId(2) val s: String) : PolyBase(1)
 
 class PolymorphicTest {
 
@@ -54,10 +28,8 @@ class PolymorphicTest {
     data class Wrapper(@SerialId(1) val polyBase1: PolyBase, @SerialId(2) val polyBase2: PolyBase)
 
     private val moduleInstaller: SerialFormat.() -> Unit = {
-        installPolymorphicModule(PolyBase::class, PolyBase.serializer()) {
-            +(PolyDerived::class to PolyDerived.serializer())
-        }
-        installPolymorphicModule(PolyDerived::class, PolyDerived.serializer()) // to run with PolyDerived alone in `testExplicit`
+        // second is to run with PolyDerived alone in `testExplicit`
+        install(BaseAndDerivedModule + PolymorphicModule(PolyDerived::class, PolyDerived.serializer()))
     }
 
     private val json = Json(unquoted = true).apply(moduleInstaller)
