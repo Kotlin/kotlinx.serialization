@@ -20,7 +20,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlin.collections.set
-import kotlin.jvm.*
 
 internal fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
     lateinit var result: JsonElement
@@ -30,7 +29,7 @@ internal fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>):
 }
 
 private sealed class AbstractJsonTreeOutput(
-    @JvmField override val json: Json,
+    override val json: Json,
     val nodeConsumer: (JsonElement) -> Unit
 ) : NamedValueEncoder(), JsonOutput {
 
@@ -83,18 +82,17 @@ private sealed class AbstractJsonTreeOutput(
 
 private open class JsonTreeOutput(override val json: Json, nodeConsumer: (JsonElement) -> Unit) :
     AbstractJsonTreeOutput(json, nodeConsumer) {
-    private val map: MutableMap<String, JsonElement> = hashMapOf()
+
+    protected val content: MutableMap<String, JsonElement> = linkedMapOf()
 
     override fun putElement(key: String, element: JsonElement) {
-        map[key] = element
+        content[key] = element
     }
 
-    override fun getCurrent(): JsonElement = JsonObject(map)
+    override fun getCurrent(): JsonElement = JsonObject(content)
 }
 
 private class JsonTreeMapOutput(json: Json, nodeConsumer: (JsonElement) -> Unit) : JsonTreeOutput(json, nodeConsumer) {
-    private val mapBuilder: MutableMap<String, JsonElement> = hashMapOf()
-
     private lateinit var tag: String
 
     override fun putElement(key: String, element: JsonElement) {
@@ -103,12 +101,12 @@ private class JsonTreeMapOutput(json: Json, nodeConsumer: (JsonElement) -> Unit)
             check(element is JsonLiteral) { "Expected tag to be JsonLiteral" }
             tag = element.content
         } else {
-            mapBuilder[tag] = element
+            content[tag] = element
         }
     }
 
     override fun getCurrent(): JsonElement {
-        return JsonObject(mapBuilder)
+        return JsonObject(content)
     }
 
     override fun shouldWriteElement(desc: SerialDescriptor, tag: String, index: Int): Boolean = true

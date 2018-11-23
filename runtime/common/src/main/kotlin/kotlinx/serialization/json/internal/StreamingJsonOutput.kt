@@ -9,7 +9,6 @@ import kotlin.jvm.*
 internal class StreamingJsonOutput(private val composer: Composer, override val json: Json, private val mode: WriteMode,
                                    private val modeReuseCache: Array<JsonOutput?>) : JsonOutput, ElementValueEncoder() {
 
-
     internal constructor(
         output: StringBuilder, json: Json, mode: WriteMode,
         modeReuseCache: Array<JsonOutput?>

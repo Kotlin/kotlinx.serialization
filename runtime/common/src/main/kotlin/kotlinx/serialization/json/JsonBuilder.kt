@@ -66,7 +66,7 @@ class JsonArrayBuilder(internal val content: MutableList<JsonElement> = mutableL
     }
 }
 
-class JsonBuilder(internal val content: MutableMap<String, JsonElement> = mutableMapOf()) {
+class JsonBuilder(internal val content: MutableMap<String, JsonElement> = linkedMapOf()) {
 
     /**
      * Adds given value to outer [JsonObject] with [this] as a key

@@ -30,7 +30,7 @@ class JsonTreeParser internal constructor(private val parser: JsonReader) {
     private fun readObject(): JsonElement {
         parser.requireTokenClass(TC_BEGIN_OBJ) { "Expected start of object" }
         parser.nextToken()
-        val result: MutableMap<String, JsonElement> = hashMapOf()
+        val result: MutableMap<String, JsonElement> = linkedMapOf()
         while (true) {
             if (parser.tokenClass == TC_COMMA) parser.nextToken()
             if (!parser.canBeginValue) break

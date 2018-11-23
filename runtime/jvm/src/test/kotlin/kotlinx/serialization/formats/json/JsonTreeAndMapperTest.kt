@@ -38,7 +38,6 @@ object EitherSerializer : KSerializer<DummyEither> {
             ?: throw SerializationException("Expected JsonObject")
         if ("error" in tree) return DummyEither.Left(tree.getPrimitive("error").content)
 
-        println(tree)
         return DummyEither.Right(input.json.fromJson(tree, Payload.serializer()))
     }
 

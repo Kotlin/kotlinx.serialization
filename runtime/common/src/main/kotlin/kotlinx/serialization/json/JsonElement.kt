@@ -18,7 +18,9 @@
 
 package kotlinx.serialization.json
 
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.internal.*
+import kotlinx.serialization.json.serializers.*
 
 /**
  * Class representing single JSON element.
@@ -27,6 +29,7 @@ import kotlinx.serialization.json.internal.*
  * [JsonElement.toString] properly prints JSON tree as valid JSON, taking into
  * account quoted values and primitives
  */
+@Serializable(JsonElementSerializer::class)
 sealed class JsonElement {
 
     /**
@@ -73,7 +76,7 @@ sealed class JsonElement {
 sealed class JsonPrimitive : JsonElement() {
 
     /**
-     * Content of given element without quotes. For [JsonNull] this methods returns `"null"`
+     * Content of given element without quotes. For [JsonNull] this methods returns `null`
      */
     abstract val content: String
 
@@ -147,10 +150,7 @@ sealed class JsonPrimitive : JsonElement() {
  * Class representing JSON literals: numbers, booleans and string.
  * Strings are always quoted.
  */
-class JsonLiteral internal constructor(
-    private val body: Any,
-    private val isString: Boolean
-) : JsonPrimitive() {
+class JsonLiteral internal constructor(body: Any, private val isString: Boolean) : JsonPrimitive() {
 
     override val content = body.toString()
     override val contentOrNull: String = content
