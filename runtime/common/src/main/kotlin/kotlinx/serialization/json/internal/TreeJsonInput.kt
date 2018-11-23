@@ -7,7 +7,15 @@ import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 
 internal fun <T> Json.readJson(element: JsonElement, deserializer: DeserializationStrategy<T>): T {
-    val input = when (deserializer.descriptor.kind) {
+    val descriptor = deserializer.descriptor
+    if (element is JsonNull) {
+        // TODO temporary workaround (?)
+        require(descriptor.isNullable) { "Read JsonNull and expected nullable descriptor, but has $descriptor" }
+        @Suppress("NULL_FOR_NONNULL_TYPE")
+        return null
+    }
+
+    val input = when (descriptor.kind) {
         StructureKind.LIST -> JsonTreeListInput(this, cast(element))
         StructureKind.MAP -> JsonTreeMapInput(this, cast(element))
         is PrimitiveKind -> JsonPrimitiveInput(this, cast(element))

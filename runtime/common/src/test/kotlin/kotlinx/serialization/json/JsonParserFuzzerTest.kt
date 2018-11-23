@@ -18,10 +18,10 @@ package kotlinx.serialization.json
 
 import kotlin.test.*
 
-class CornerCaseTest {
+class JsonParserFuzzerTest {
 
     @Test
-    fun quotedBrace() {
+    fun testQuotedBrace() {
         val tree = parse("""{x: "{"}""")
         assertTrue("x" in tree)
         assertEquals("{", tree.getAs<JsonLiteral>("x").content)
@@ -30,21 +30,21 @@ class CornerCaseTest {
     private fun parse(input: String) = JsonTreeParser(input).readFully() as JsonObject
 
     @Test
-    fun emptyKey() {
+    fun testEmptyKey() {
         val tree = parse("""{"":"","":""}""")
         assertTrue("" in tree)
         assertEquals("", tree.getAs<JsonLiteral>("").content)
     }
 
     @Test
-    fun emptyValue() {
+    fun testEmptyValue() {
         assertFailsWith<JsonParsingException> {
             parse("""{"X": "foo", "Y"}""")
         }
     }
 
     @Test
-    fun incorrectUnicodeEscape() {
+    fun testIncorrectUnicodeEscape() {
         assertFailsWith<JsonParsingException> {
             parse("""{"X": "\uDD1H"}""")
         }

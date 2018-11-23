@@ -41,14 +41,14 @@ class JsonModesTest : JsonTestBase() {
 
     @Test
     fun nonStrictJsonCanSkipValues() = parametrizedTest { useStreaming ->
-        val data = OptionalTests.Data()
+        val data = JsonOptionalTests.Data()
         assertEquals(nonstrict.parse("{strangeField: 100500, a:0}", useStreaming), data)
         assertEquals(nonstrict.parse("{a:0, strangeField: 100500}", useStreaming), data)
     }
 
     @Test
     fun nonStrictJsonCanSkipComplexValues() = parametrizedTest { useStreaming ->
-        val data = OptionalTests.Data()
+        val data = JsonOptionalTests.Data()
 
         assertEquals(
             nonstrict.parse("{a: 0, strangeField: {a: b, c: {d: e}, f: [g,h,j] }}", useStreaming),
@@ -76,7 +76,7 @@ class JsonModesTest : JsonTestBase() {
     @Test
     fun testStrictJsonCanNotSkipValues() = parametrizedTest { useStreaming ->
         assertFailsWith(SerializationException::class) {
-            strict.parse<OptionalTests.Data>("{strangeField: 100500, a:0}", useStreaming)
+            strict.parse<JsonOptionalTests.Data>("{strangeField: 100500, a:0}", useStreaming)
         }
     }
 

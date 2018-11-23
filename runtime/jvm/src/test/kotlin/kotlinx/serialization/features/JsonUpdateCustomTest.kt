@@ -19,12 +19,13 @@ package kotlinx.serialization.features
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.IntSerializer
 import kotlinx.serialization.json.Json
-import org.junit.Test
+import org.junit.*
 import kotlin.test.assertEquals
 
 // can't be in common yet because of issue with class literal annotations
 // and .serializer() resolving
-class UpdateTest {
+@Ignore
+class JsonUpdateCustomTest {
     @Serializable
     data class Data(val a: Int)
 

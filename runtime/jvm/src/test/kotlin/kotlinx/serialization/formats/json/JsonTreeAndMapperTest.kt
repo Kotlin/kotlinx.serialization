@@ -60,7 +60,7 @@ data class Event(
 )
 
 class JsonTreeAndMapperTest {
-    private val decoderData = """{"id":0,"payload":{"msg": "Hello world", "from": 42, "to": 43},"timestamp":1000}"""
+    private val decoderData = """{"id":0,"payload":{"from": 42, "to": 43, "msg": "Hello world"},"timestamp":1000}"""
     private val decoderError = """{"id":1,"payload":{"error": "Connection timed out"},"timestamp":1001}"""
 
     @Test
