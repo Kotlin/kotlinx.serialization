@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package kotlinx.serialization
+@file:Suppress("EqualsOrHashCode")
 
-import kotlinx.serialization.json.*
+package kotlinx.serialization.json
+
+import kotlinx.serialization.*
 import kotlin.test.*
 
-class TransientTests {
+class JsonTransientTest : JsonTestBase() {
+
     @Serializable
     class Data(val a: Int = 0, @Transient var b: Int = 42, @Optional val e: Boolean = false) {
         @Optional
@@ -49,21 +52,20 @@ class TransientTests {
     }
 
     @Test
-    fun testAll() {
-        assertEquals("{a:0,e:false,c:Hello}", Json.unquoted.stringify(Data()))
+    fun testAll() = parametrizedTest { useStreaming ->
+        assertEquals("{a:0,e:false,c:Hello}", unquoted.stringify(Data(), useStreaming))
     }
 
     @Test
-    fun testMissingOptionals() {
-        assertEquals(Json.unquoted.parse("{a:0,c:Hello}"), Data())
-        assertEquals(Json.unquoted.parse("{a:0}"), Data())
+    fun testMissingOptionals() = parametrizedTest { useStreaming ->
+        assertEquals(strict.parse("{a:0,c:Hello}", useStreaming), Data())
+        assertEquals(strict.parse("{a:0}", useStreaming), Data())
     }
 
     @Test
-    fun testThrowTransient() {
-        assertFailsWith(SerializationException::class) {
-            Json.unquoted.parse<Data>("{a:0,b:100500,c:Hello}")
+    fun testThrowTransient() = parametrizedTest { useStreaming ->
+        assertFailsWith(JsonUnknownKeyException::class) {
+            strict.parse<Data>("{a:0,b:100500,c:Hello}", useStreaming)
         }
     }
-
 }

@@ -40,12 +40,12 @@ public class Json(
         return result.toString()
     }
 
-    public override fun <T> parse(serializer: DeserializationStrategy<T>, string: String): T {
+    public override fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T {
         val parser = JsonReader(string)
         val input = StreamingJsonInput(this, WriteMode.OBJ, parser)
-        val result = input.decode(serializer)
+        val result = input.decode(deserializer)
         if (!parser.isDone) {
-            error("Parser has not consumed the whole input") // TODO
+            error("Parser has not consumed the whole input")
         }
         return result
     }
@@ -72,7 +72,7 @@ public class Json(
         override fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String =
             plain.stringify(serializer, obj)
 
-        override fun <T> parse(serializer: DeserializationStrategy<T>, string: String): T =
-            plain.parse(serializer, string)
+        override fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T =
+            plain.parse(deserializer, string)
     }
 }

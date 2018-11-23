@@ -3,8 +3,6 @@ package kotlinx.serialization.json.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
-import kotlin.jvm.*
-
 
 internal fun <T> Json.readJson(element: JsonElement, deserializer: DeserializationStrategy<T>): T {
     val input = when (deserializer.descriptor.kind) {
@@ -16,7 +14,8 @@ internal fun <T> Json.readJson(element: JsonElement, deserializer: Deserializati
     return input.decode(deserializer)
 }
 
-private sealed class AbstractJsonTreeInput(@JvmField override val json: Json, open val obj: JsonElement) : NamedValueDecoder(), JsonInput {
+private sealed class AbstractJsonTreeInput(override val json: Json, open val obj: JsonElement)
+    : NamedValueDecoder(), JsonInput {
 
     override fun readTree(): JsonElement {
         val obj = obj
@@ -77,12 +76,28 @@ private open class JsonTreeInput(json: Json, override val obj: JsonObject) : Abs
     override fun decodeElementIndex(desc: SerialDescriptor): Int {
         while (position < desc.elementsCount) {
             val name = desc.getTag(position++)
-            if (name in obj) return position - 1
+            if (name in obj) {
+                return position - 1
+            }
         }
         return CompositeDecoder.READ_DONE
     }
 
     override fun currentElement(tag: String): JsonElement = obj.getValue(tag)
+
+    override fun endStructure(desc: SerialDescriptor) {
+        // This one can be optimized
+        if (json.strictMode) {
+            val names = HashSet<String>(desc.elementsCount)
+            for (i in 0 until desc.elementsCount) {
+                names += desc.getElementName(i)
+            }
+
+            for (key in obj.keys) {
+                if (key !in names) throw JsonUnknownKeyException("Encountered an unknown key '$key'")
+            }
+        }
+    }
 }
 
 private class JsonTreeMapInput(json: Json, override val obj: JsonObject) : JsonTreeInput(json, obj) {
@@ -106,6 +121,10 @@ private class JsonTreeMapInput(json: Json, override val obj: JsonObject) : JsonT
 
     override fun currentElement(tag: String): JsonElement {
         return if (position % 2 == 0) JsonLiteral(tag) else obj[tag]
+    }
+
+    override fun endStructure(desc: SerialDescriptor) {
+        // do nothing
     }
 }
 
