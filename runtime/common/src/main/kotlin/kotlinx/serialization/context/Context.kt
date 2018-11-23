@@ -76,8 +76,10 @@ internal object StandardSubtypesOfAny {
     @ImplicitReflectionSerializer
     private val map: Map<KClass<*>, KSerializer<*>> = mapOf(
         List::class to ArrayListSerializer(makeNullable(PolymorphicSerializer(Any::class))),
+        LinkedHashSet::class to LinkedHashSetSerializer(makeNullable(PolymorphicSerializer(Any::class))),
         HashSet::class to HashSetSerializer(makeNullable(PolymorphicSerializer(Any::class))),
         Set::class to LinkedHashSetSerializer(makeNullable(PolymorphicSerializer(Any::class))),
+        LinkedHashMap::class to LinkedHashMapSerializer(makeNullable(PolymorphicSerializer(Any::class)), makeNullable(PolymorphicSerializer(Any::class))),
         HashMap::class to HashMapSerializer(makeNullable(PolymorphicSerializer(Any::class)), makeNullable(PolymorphicSerializer(Any::class))),
         Map::class to LinkedHashMapSerializer(makeNullable(PolymorphicSerializer(Any::class)), makeNullable(PolymorphicSerializer(Any::class))),
         Map.Entry::class to MapEntrySerializer(makeNullable(PolymorphicSerializer(Any::class)), makeNullable(PolymorphicSerializer(Any::class))),

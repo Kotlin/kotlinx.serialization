@@ -13,13 +13,17 @@ object PolymorphicClassDesc : SerialClassDescImpl("kotlin.Any") {
     }
 }
 
+class SubtypeNotRegisteredException(subClassName: String, basePolyType: KClass<*>):
+    SerializationException("$subClassName is not registered for polymorphic serialization in the scope of $basePolyType") {
+
+    constructor(subClass: KClass<*>, basePolyType: KClass<*>): this(subClass.toString(), basePolyType)
+}
+
 @Suppress("UNCHECKED_CAST")
-@ImplicitReflectionSerializer
 class PolymorphicSerializer<T : Any>(private val basePolyType: KClass<T>) : KSerializer<Any> {
     override fun serialize(output: Encoder, obj: Any) {
-        val scopedSerial = output.context.resolveFromBase(basePolyType, obj as T) ?: throw SerializationException(
-            "${obj::class} is not registered for polymorphic deserialization in the scope of $basePolyType"
-        )
+        val scopedSerial = output.context.resolveFromBase(basePolyType, obj as T)
+                ?: throw SubtypeNotRegisteredException(obj::class, basePolyType)
 
         val out = output.beginStructure(descriptor)
         out.encodeStringElement(descriptor, 0, scopedSerial.descriptor.name)
@@ -36,9 +40,8 @@ class PolymorphicSerializer<T : Any>(private val basePolyType: KClass<T>) : KSer
             when (input.decodeElementIndex(descriptor)) {
                 CompositeDecoder.READ_ALL -> {
                     klassName = input.decodeStringElement(descriptor, 0)
-                    val loader = input.context.resolveFromBase(basePolyType, klassName) ?: throw SerializationException(
-                        "$klassName is not registered for polymorphic deserialization in the scope of $basePolyType"
-                    )
+                    val loader = input.context.resolveFromBase(basePolyType, klassName)
+                            ?: throw SubtypeNotRegisteredException(klassName, basePolyType)
                     value = input.decodeSerializableElement(descriptor, 1, loader)
                     break@mainLoop
                 }
@@ -50,9 +53,8 @@ class PolymorphicSerializer<T : Any>(private val basePolyType: KClass<T>) : KSer
                 }
                 1 -> {
                     klassName = requireNotNull(klassName) { "Cannot read polymorphic value before its type token" }
-                    val loader = input.context.resolveFromBase(basePolyType, klassName) ?: throw SerializationException(
-                        "$klassName is not registered for polymorphic deserialization in the scope of $basePolyType"
-                    )
+                    val loader = input.context.resolveFromBase(basePolyType, klassName)
+                            ?: throw SubtypeNotRegisteredException(klassName, basePolyType)
                     value = input.decodeSerializableElement(descriptor, 1, loader)
                 }
                 else -> throw SerializationException("Invalid index")
