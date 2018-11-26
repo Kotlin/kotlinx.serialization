@@ -69,7 +69,7 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
                 }
                 composer.nextItem()
             }
-            WriteMode.POLY_OBJ -> { // TODO
+            WriteMode.POLY_OBJ -> {
                 if (index == 0)
                     forceQuoting = true
                 if (index == 1) {

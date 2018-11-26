@@ -9,7 +9,7 @@ import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 
 @Serializer(forClass = JsonElement::class)
-object JsonElementSerializer : KSerializer<JsonElement> {
+public object JsonElementSerializer : KSerializer<JsonElement> {
     override fun serialize(encoder: Encoder, obj: JsonElement) {
         when (obj) {
             is JsonPrimitive -> JsonPrimitiveSerializer.serialize(encoder, obj)
@@ -28,14 +28,13 @@ object JsonElementSerializer : KSerializer<JsonElement> {
             get() = UnionKind.SEALED
 
         init {
-            addElement("JsonObject")
-            addElement("JsonLiteral")
-            addElement("JsonArray")
+            addElement("JsonElement")
         }
     }
 }
 
-private object JsonObjectSerializer : KSerializer<JsonObject> {
+@Serializer(forClass = JsonObject::class)
+public object JsonObjectSerializer : KSerializer<JsonObject> {
 
     override val descriptor: SerialDescriptor = JsonObjectDescriptor
 
@@ -68,13 +67,68 @@ private object JsonObjectSerializer : KSerializer<JsonObject> {
     }
 }
 
-private object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
+@Serializer(forClass = JsonPrimitive::class)
+public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
 
     override fun serialize(encoder: Encoder, obj: JsonPrimitive) {
-        if (obj is JsonNull) {
-            return encoder.encodeString(obj.content)
+        return if (obj is JsonNull) {
+            JsonNullSerializer.serialize(encoder, JsonNull)
+        } else {
+            JsonLiteralSerializer.serialize(encoder, obj as JsonLiteral)
         }
+    }
 
+    override fun deserialize(decoder: Decoder): JsonPrimitive {
+        val nullable = decoder.decodeNullable(StringSerializer)
+        return if (nullable == null) JsonNull else JsonPrimitive(nullable)
+    }
+
+    override val descriptor: SerialDescriptor = JsonPrimitiveDescriptor
+
+    object JsonPrimitiveDescriptor : SerialClassDescImpl("JsonPrimitive") {
+        override val kind: SerialKind
+            get() = PrimitiveKind.STRING
+
+        override val isNullable: Boolean
+            get() = true
+
+        init {
+            addElement("JsonPrimitive")
+        }
+    }
+}
+
+@Serializer(forClass = JsonNull::class)
+public object JsonNullSerializer : KSerializer<JsonNull> {
+
+    override fun serialize(encoder: Encoder, obj: JsonNull) {
+        encoder.encodeNull()
+    }
+
+    override fun deserialize(decoder: Decoder): JsonNull {
+        decoder.decodeNull()
+        return JsonNull
+    }
+
+    override val descriptor: SerialDescriptor = JsonNullDescriptor
+
+    object JsonNullDescriptor : SerialClassDescImpl("JsonNull") {
+        override val kind: SerialKind
+            get() = UnionKind.OBJECT
+
+        override val isNullable: Boolean
+            get() = true
+
+        init {
+            addElement("JsonNull")
+        }
+    }
+}
+
+@Serializer(forClass = JsonLiteral::class)
+public object JsonLiteralSerializer : KSerializer<JsonLiteral> {
+
+    override fun serialize(encoder: Encoder, obj: JsonLiteral) {
         val integer = obj.intOrNull
         if (integer != null) {
             return encoder.encodeInt(integer)
@@ -93,23 +147,25 @@ private object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
         encoder.encodeString(obj.content)
     }
 
-    override fun deserialize(decoder: Decoder): JsonPrimitive {
-        return JsonPrimitive(decoder.decodeString())
+    override fun deserialize(decoder: Decoder): JsonLiteral {
+        return JsonLiteral(decoder.decodeString())
     }
 
-    override val descriptor: SerialDescriptor = JsonPrimitiveDescriptor
+    override val descriptor: SerialDescriptor = JsonLiteralDescriptor
 
-    object JsonPrimitiveDescriptor : SerialClassDescImpl("JsonPrimitive") {
+    object JsonLiteralDescriptor : SerialClassDescImpl("JsonLiteral") {
         override val kind: SerialKind
             get() = PrimitiveKind.STRING
 
         init {
-            addElement("JsonPrimitive")
+            addElement("JsonLiteral")
         }
     }
 }
 
-private object JsonArraySerializer : KSerializer<JsonArray> {
+
+@Serializer(forClass = JsonArray::class)
+public object JsonArraySerializer : KSerializer<JsonArray> {
 
     override fun serialize(encoder: Encoder, obj: JsonArray) {
         val composite = encoder.beginCollection(JsonObjectSerializer.descriptor, obj.size, JsonElementSerializer)

@@ -73,6 +73,7 @@ sealed class JsonElement {
 /**
  * Class representing JSON primitive value. Can be either [JsonLiteral] or [JsonNull].
  */
+@Serializable(JsonPrimitiveSerializer::class)
 sealed class JsonPrimitive : JsonElement() {
 
     /**
@@ -150,7 +151,8 @@ sealed class JsonPrimitive : JsonElement() {
  * Class representing JSON literals: numbers, booleans and string.
  * Strings are always quoted.
  */
-class JsonLiteral internal constructor(body: Any, private val isString: Boolean) : JsonPrimitive() {
+@Serializable(JsonLiteralSerializer::class) // TODO val for body is workaround for plugin bug
+class JsonLiteral internal constructor(val body: Any, private val isString: Boolean) : JsonPrimitive() {
 
     override val content = body.toString()
     override val contentOrNull: String = content
@@ -197,6 +199,7 @@ class JsonLiteral internal constructor(body: Any, private val isString: Boolean)
 /**
  * Class representing JSON `null` value
  */
+@Serializable(JsonNullSerializer::class)
 object JsonNull : JsonPrimitive() {
     override val jsonNull: JsonNull = this
     override val content: String = "null"
@@ -206,6 +209,7 @@ object JsonNull : JsonPrimitive() {
 /**
  * Class representing JSON object, consisting of name-value pairs, where value is arbitrary [JsonElement]
  */
+@Serializable(JsonObjectSerializer::class)
 data class JsonObject(val content: Map<String, JsonElement>) : JsonElement(), Map<String, JsonElement> by content {
 
     override val jsonObject: JsonObject = this
@@ -290,6 +294,7 @@ data class JsonObject(val content: Map<String, JsonElement>) : JsonElement(), Ma
     }
 }
 
+@Serializable(JsonArraySerializer::class)
 data class JsonArray(val content: List<JsonElement>) : JsonElement(), List<JsonElement> by content {
 
     override val jsonArray: JsonArray = this

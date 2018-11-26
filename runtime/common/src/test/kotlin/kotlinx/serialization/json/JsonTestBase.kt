@@ -15,6 +15,22 @@ abstract class JsonTestBase {
     protected val unquoted = Json(unquoted = true)
     protected val nonstrict = Json(strictMode = false)
 
+    init {
+        strict.register()
+        unquoted.register()
+        nonstrict.register()
+    }
+
+    private fun Json.register() {
+        val mutableCtx = (context as MutableSerialContext)
+        mutableCtx.registerSerializer(JsonElement::class, JsonElementSerializer)
+        mutableCtx.registerSerializer(JsonPrimitive::class, JsonPrimitiveSerializer)
+        mutableCtx.registerSerializer(JsonLiteral::class, JsonLiteralSerializer)
+        mutableCtx.registerSerializer(JsonNull::class, JsonNullSerializer)
+        mutableCtx.registerSerializer(JsonObject::class, JsonObjectSerializer)
+        mutableCtx.registerSerializer(JsonArray::class, JsonArraySerializer)
+    }
+
     internal inline fun <reified T : Any> Json.stringify(value: T, useStreaming: Boolean): String {
         val serializer = context.getOrDefault(T::class)
         return stringify(serializer, value, useStreaming)
@@ -63,7 +79,6 @@ abstract class JsonTestBase {
             readJson(tree, deserializer)
         }
     }
-
 
     @ImplicitReflectionSerializer
     internal inline fun <reified T : Any> Json.parseList(content: String, useStreaming: Boolean): List<T> {

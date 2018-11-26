@@ -19,7 +19,7 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlin.test.*
 
-class JsonSerializerTest {
+class JsonTreeTest : JsonTestBase() {
     @Serializable
     data class Data(val a: Int)
 
@@ -56,19 +56,18 @@ class JsonSerializerTest {
         val S: String
     )
 
-    val json = Json()
-
-    private fun prepare(s: String): JsonElement = Json.plain.parseJson(s)
+    private val json = Json()
+    private fun prepare(input: String): JsonElement = strict.parseJson(input)
 
     @Test
-    fun readTreeSimple() {
+    fun testReadTreeSimple() {
         val tree = prepare("{a: 42}")
         val parsed = json.fromJson(tree, Data.serializer())
         assertEquals(Data(42), parsed)
     }
 
     @Test
-    fun readTreeNested() {
+    fun testReadTreeNested() {
         val tree = prepare("""{s:"foo", d:{a:42}}""")
         val parsed = json.fromJson<DataWrapper>(tree)
         val expected = DataWrapper("foo", Data(42))
@@ -77,7 +76,7 @@ class JsonSerializerTest {
     }
 
     @Test
-    fun readTreeAllTypes() {
+    fun testReadTreeAllTypes() {
         val tree = prepare("""{ b: 1, s: 2, i: 3, f: 1.0, d: 42.0, c: "a", B: true, S: "str"}""")
         val kotlinObj = AllTypes(1, 2, 3, 1.0f, 42.0, 'a', true, "str")
 
@@ -85,7 +84,7 @@ class JsonSerializerTest {
     }
 
     @Test
-    fun readTreeNullable() {
+    fun testReadTreeNullable() {
         val tree1 = prepare("""{s:"foo", d: null}""")
         val tree2 = prepare("""{s:"foo"}""")
 
@@ -94,7 +93,7 @@ class JsonSerializerTest {
     }
 
     @Test
-    fun readTreeOptional() {
+    fun testReadTreeOptional() {
         val tree1 = prepare("""{s:"foo", d: null}""")
         val tree2 = prepare("""{s:"foo"}""")
 
@@ -103,7 +102,7 @@ class JsonSerializerTest {
     }
 
     @Test
-    fun readTreeList() {
+    fun testReadTreeList() {
         val tree1 = prepare("""{l:[1,2]}""")
         val tree2 = prepare("""{l:[{a:42},{a:43}]}""")
         val tree3 = prepare("""{l:[[],[{a:42}]]}""")
@@ -114,14 +113,14 @@ class JsonSerializerTest {
     }
 
     @Test
-    fun readTreeMap() {
+    fun testReadTreeMap() {
         val dyn = prepare("{m : {\"a\": 1, \"b\" : 2}}")
         val m = MapWrapper(mapOf("a" to 1, "b" to 2))
         assertEquals(m, json.fromJson(dyn))
     }
 
     @Test
-    fun readTreeComplexMap() {
+    fun testReadTreeComplexMap() {
         val dyn = prepare("{m : {1: {a: 42}, 2: {a: 43}}}")
         val m = ComplexMapWrapper(mapOf("1" to Data(42), "2" to Data(43)))
         assertEquals(m, json.fromJson(dyn))
@@ -138,27 +137,27 @@ class JsonSerializerTest {
     }
 
     @Test
-    fun saveSimpleNestedTree() {
+    fun testSaveSimpleNestedTree() {
         writeAndTest(DataWrapper("foo", Data(42)))
     }
 
     @Test
-    fun saveComplexMapTree() {
+    fun testSaveComplexMapTree() {
         writeAndTest(ComplexMapWrapper(mapOf("foo" to Data(42), "bar" to Data(43))))
     }
 
     @Test
-    fun saveNestedLists() {
+    fun testSaveNestedLists() {
         writeAndTest(ListOfLists(listOf(listOf(), listOf(Data(1), Data(2)))))
     }
 
     @Test
-    fun saveOptional() {
+    fun testSaveOptional() {
         writeAndTest(DataWrapperOptional("foo", null))
     }
 
     @Test
-    fun saveAllTypes() {
+    fun testSaveAllTypes() {
         writeAndTest(AllTypes(1, -2, 100500, 0.0f, 2048.2, 'a', true, "foobar"))
     }
 }
