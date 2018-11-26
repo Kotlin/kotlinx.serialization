@@ -5,6 +5,7 @@
 package kotlinx.serialization.json.serializers
 
 import kotlinx.serialization.*
+import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 
@@ -49,7 +50,20 @@ public object JsonObjectSerializer : KSerializer<JsonObject> {
     }
 
     override fun deserialize(decoder: Decoder): JsonObject {
-        TODO("Deserialization via generic interface is not yet supported, please use Json.toJson instead and report this issue")
+        val content = LinkedHashMap<String, JsonElement>()
+        val composite = decoder.beginStructure(descriptor, StringSerializer, JsonElementSerializer)
+        while (true) {
+            val index = composite.decodeElementIndex(descriptor)
+            if (index == READ_DONE) {
+                composite.endStructure(descriptor)
+                return JsonObject(content)
+            }
+
+            val key = composite.decodeStringElement(StringDescriptor, index)
+            val valueIndex = composite.decodeElementIndex(descriptor)
+            val value = composite.decodeSerializableElement(descriptor, valueIndex, JsonElementSerializer)
+            content[key] = value
+        }
     }
 
     private object JsonObjectDescriptor : SerialDescriptor {
@@ -61,7 +75,7 @@ public object JsonObjectSerializer : KSerializer<JsonObject> {
             name.toIntOrNull() ?: throw IllegalArgumentException("$name is not a valid map index")
 
         override fun getElementDescriptor(index: Int): SerialDescriptor =
-            if (index % 2 == 0) StringDescriptor else TODO()
+            if (index % 2 == 0) StringDescriptor else JsonElementSerializer.descriptor
 
         override fun isElementOptional(index: Int): Boolean = false
     }
