@@ -14,7 +14,7 @@ class JsonObjectSerializerTest : JsonTestBase() {
 
     @Test
     fun testJsonObject() = parametrizedTest { useStreaming ->
-        val wrapper = JsonObjectWrapper((prebuiltJson()))
+        val wrapper = JsonObjectWrapper(prebuiltJson())
         val string = unquoted.stringify(wrapper, useStreaming)
         assertEquals(expected, string)
         assertEquals(wrapper, unquoted.parse(string, useStreaming))
@@ -22,7 +22,7 @@ class JsonObjectSerializerTest : JsonTestBase() {
 
     @Test
     fun testJsonObjectAsElement() = parametrizedTest { useStreaming ->
-        val wrapper = JsonObjectWrapper(prebuiltJson())
+        val wrapper = JsonElementWrapper(prebuiltJson())
         val string = unquoted.stringify(wrapper, useStreaming)
         assertEquals(expected, string)
         assertEquals(wrapper, unquoted.parse(string, useStreaming))
@@ -38,7 +38,6 @@ class JsonObjectSerializerTest : JsonTestBase() {
     @Test // TODO Top-level nulls are not supported in tagged encoders
     fun testTopLevelJsonObjectAsElement() {
         val string = unquoted.stringify(JsonElementSerializer, prebuiltJson())
-        println(string)
         assertEquals(expectedTopLevel, string)
         assertEquals(prebuiltJson(), unquoted.parse(JsonElementSerializer, string))
     }

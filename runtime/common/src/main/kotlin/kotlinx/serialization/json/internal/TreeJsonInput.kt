@@ -32,16 +32,10 @@ private sealed class AbstractJsonTreeInput(override val json: Json, open val obj
         context = json.context
     }
 
+    override fun readTree(): JsonElement = currentElement(currentTag)
+
     override val updateMode: UpdateMode
         get() = json.updateMode
-
-    override fun readTree(): JsonElement {
-        val obj = obj
-        if (obj is JsonObject) {
-            return obj[currentTag]
-        }
-        return obj // TODO strange contract, cover with tests?
-    }
 
     override fun composeName(parentName: String, childName: String): String = childName
 
@@ -135,7 +129,6 @@ private open class JsonTreeInput(json: Json, override val obj: JsonObject) : Abs
 }
 
 private class JsonTreeMapInput(json: Json, override val obj: JsonObject) : JsonTreeInput(json, obj) {
-
     private val keys = obj.keys.toList()
     private val size: Int = keys.size * 2
     private var position = -1
@@ -163,20 +156,19 @@ private class JsonTreeMapInput(json: Json, override val obj: JsonObject) : JsonT
 }
 
 private class JsonTreeListInput(json: Json, override val obj: JsonArray) : AbstractJsonTreeInput(json, obj) {
+    private val size = obj.content.size
+    private var currentIndex = -1
+
+    override fun elementName(desc: SerialDescriptor, index: Int): String = (index).toString()
 
     override fun currentElement(tag: String): JsonElement {
         return obj[tag.toInt()]
     }
 
-    private val size = obj.content.size
-    private var pos = -1
-
-    override fun elementName(desc: SerialDescriptor, index: Int): String = (index).toString()
-
     override fun decodeElementIndex(desc: SerialDescriptor): Int {
-        while (pos < size - 1) {
-            pos++
-            return pos
+        while (currentIndex < size - 1) {
+            currentIndex++
+            return currentIndex
         }
         return CompositeDecoder.READ_DONE
     }
