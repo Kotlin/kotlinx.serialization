@@ -51,7 +51,6 @@ class MutableSerialContextImpl(private val parentContext: SerialContext? = null)
         inverseClassNameMap.getOrPut(basePolyType, ::hashMapOf)[name] = concreteSerializer
     }
 
-    @ImplicitReflectionSerializer
     override fun <T : Any> resolveFromBase(basePolyType: KClass<T>, obj: T): KSerializer<out T>? {
         if (!basePolyType.isInstance(obj)) return null
         (if (basePolyType == Any::class) StandardSubtypesOfAny.getSubclassSerializer(obj) else null)?.let { return it as KSerializer<out T> }
@@ -73,7 +72,6 @@ class MutableSerialContextImpl(private val parentContext: SerialContext? = null)
 
 
 internal object StandardSubtypesOfAny {
-    @ImplicitReflectionSerializer
     private val map: Map<KClass<*>, KSerializer<*>> = mapOf(
         List::class to ArrayListSerializer(makeNullable(PolymorphicSerializer(Any::class))),
         LinkedHashSet::class to LinkedHashSetSerializer(makeNullable(PolymorphicSerializer(Any::class))),
@@ -95,11 +93,9 @@ internal object StandardSubtypesOfAny {
         Unit::class to UnitSerializer
     )
 
-    @UseExperimental(ImplicitReflectionSerializer::class)
     private val deserializingMap: Map<String, KSerializer<*>> = map.mapKeys { (_, s) -> s.descriptor.name }
 
     @Suppress("UNCHECKED_CAST")
-    @ImplicitReflectionSerializer
     internal fun getSubclassSerializer(objectToCheck: Any): KSerializer<*>? {
         // todo: arrays?
         for ((k, v) in map) {
