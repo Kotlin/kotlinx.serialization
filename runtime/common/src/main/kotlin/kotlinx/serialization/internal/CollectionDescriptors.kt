@@ -7,7 +7,9 @@ sealed class ListLikeDescriptor(val elementDesc: SerialDescriptor) : SerialDescr
     override val kind: SerialKind get() = StructureKind.LIST
     override val elementsCount: Int = 1
     override fun getElementName(index: Int): String = index.toString()
-    override fun getElementIndex(name: String): Int = name.toIntOrNull() ?: throw IllegalArgumentException("$name is not a valid list index")
+    override fun getElementIndex(name: String): Int =
+        name.toIntOrNull() ?: throw IllegalArgumentException("$name is not a valid list index")
+
     override fun getElementDescriptor(index: Int): SerialDescriptor = elementDesc
     override fun isElementOptional(index: Int): Boolean = false
 
@@ -25,12 +27,19 @@ sealed class ListLikeDescriptor(val elementDesc: SerialDescriptor) : SerialDescr
     }
 }
 
-sealed class MapLikeDescriptor(override val name: String, val keyDesc: SerialDescriptor, val valueDesc: SerialDescriptor): SerialDescriptor {
+sealed class MapLikeDescriptor(
+    override val name: String,
+    val keyDescriptor: SerialDescriptor,
+    val valueDescDescriptor: SerialDescriptor
+) : SerialDescriptor {
     override val kind: SerialKind get() = StructureKind.MAP
     override val elementsCount: Int = 2
     override fun getElementName(index: Int): String = index.toString()
-    override fun getElementIndex(name: String): Int = name.toIntOrNull() ?: throw IllegalArgumentException("$name is not a valid map index")
-    override fun getElementDescriptor(index: Int): SerialDescriptor = if (index % 2 == 0) keyDesc else valueDesc
+    override fun getElementIndex(name: String): Int =
+        name.toIntOrNull() ?: throw IllegalArgumentException("$name is not a valid map index")
+
+    override fun getElementDescriptor(index: Int): SerialDescriptor =
+        if (index % 2 == 0) keyDescriptor else valueDescDescriptor
     override fun isElementOptional(index: Int): Boolean = false
 
     override fun equals(other: Any?): Boolean {
@@ -38,47 +47,52 @@ sealed class MapLikeDescriptor(override val name: String, val keyDesc: SerialDes
         if (other !is MapLikeDescriptor) return false
 
         if (name != other.name) return false
-        if (keyDesc != other.keyDesc) return false
-        if (valueDesc != other.valueDesc) return false
+        if (keyDescriptor != other.keyDescriptor) return false
+        if (valueDescDescriptor != other.valueDescDescriptor) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = name.hashCode()
-        result = 31 * result + keyDesc.hashCode()
-        result = 31 * result + valueDesc.hashCode()
+        result = 31 * result + keyDescriptor.hashCode()
+        result = 31 * result + valueDescDescriptor.hashCode()
         return result
     }
 }
 
-internal val ARRAY_NAME = "kotlin.Array"
-internal val ARRAYLIST_NAME = "kotlin.collections.ArrayList"
-internal val LINKEDHASHSET_NAME = "kotlin.collections.LinkedHashSet"
-internal val HASHSET_NAME = "kotlin.collections.HashSet"
-internal val LINKEDHASHMAP_NAME = "kotlin.collections.LinkedHashMap"
-internal val HASHMAP_NAME = "kotlin.collections.HashMap"
+internal const val ARRAY_NAME = "kotlin.Array"
+internal const val ARRAY_LIST_NAME = "kotlin.collections.ArrayList"
+internal const val LINKED_HASH_SET_NAME = "kotlin.collections.LinkedHashSet"
+internal const val HASH_SET_NAME = "kotlin.collections.HashSet"
+internal const val LINKED_HASH_MAP_NAME = "kotlin.collections.LinkedHashMap"
+internal const val HASH_MAP_NAME = "kotlin.collections.HashMap"
 
 class ArrayClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
     override val name: String get() = ARRAY_NAME
-    override val kind: SerialKind get() = StructureKind.LIST
 }
 
-class ArrayListClassDesc (elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
-    override val name: String get() = ARRAYLIST_NAME
-    override val kind: SerialKind get() = StructureKind.LIST
+class ArrayListClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
+    override val name: String get() = ARRAY_LIST_NAME
 }
 
-class LinkedHashSetClassDesc (elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
-    override val name: String get() = LINKEDHASHSET_NAME
-    override val kind: SerialKind get() = StructureKind.LIST
+class NamedListClassDescriptor(override val name: String, elementDescriptor: SerialDescriptor)
+    : ListLikeDescriptor(elementDescriptor)
+
+class LinkedHashSetClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
+    override val name: String get() = LINKED_HASH_SET_NAME
 }
 
-class HashSetClassDesc (elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
-    override val name: String get() = HASHSET_NAME
-    override val kind: SerialKind get() = StructureKind.LIST
+class HashSetClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
+    override val name: String get() = HASH_SET_NAME
 }
 
-class LinkedHashMapClassDesc (keyDesc: SerialDescriptor, valueDesc: SerialDescriptor) : MapLikeDescriptor(LINKEDHASHMAP_NAME, keyDesc, valueDesc)
+// TODO revisit this whole hierarchy
+class NamedMapClassDescriptor(name: String, keyDescriptor: SerialDescriptor, valueDescriptor: SerialDescriptor) :
+    MapLikeDescriptor(name, keyDescriptor, valueDescriptor)
 
-class HashMapClassDesc (keyDesc: SerialDescriptor, valueDesc: SerialDescriptor) : MapLikeDescriptor(HASHMAP_NAME, keyDesc, valueDesc)
+class LinkedHashMapClassDesc(keyDesc: SerialDescriptor, valueDesc: SerialDescriptor) :
+    MapLikeDescriptor(LINKED_HASH_MAP_NAME, keyDesc, valueDesc)
+
+class HashMapClassDesc(keyDesc: SerialDescriptor, valueDesc: SerialDescriptor) :
+    MapLikeDescriptor(HASH_MAP_NAME, keyDesc, valueDesc)

@@ -57,6 +57,22 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
         assertEquals(JsonPrimitiveWrapper(JsonLiteral("foo")), strict.parse(string, useStreaming))
     }
 
+    @Test
+    fun testJsonLiteralStringNumber() = parametrizedTest { useStreaming ->
+        val wrapper = JsonLiteralWrapper(JsonLiteral("239"))
+        val string = strict.stringify(wrapper, useStreaming)
+        assertEquals("{\"literal\":\"239\"}", string)
+        assertEquals(JsonLiteralWrapper(JsonLiteral("239")), strict.parse(string, useStreaming))
+    }
+
+    @Test
+    fun testJsonPrimitiveStringNumber() = parametrizedTest { useStreaming ->
+        val wrapper = JsonPrimitiveWrapper(JsonLiteral("239"))
+        val string = strict.stringify(wrapper, useStreaming)
+        assertEquals("{\"primitive\":\"239\"}", string)
+        assertEquals(JsonPrimitiveWrapper(JsonLiteral("239")), strict.parse(string, useStreaming))
+    }
+
     @Test // TODO Top-level nulls are not supported in tagged encoders
     fun testTopLevelPrimitive() {//} = parametrizedTest { useStreaming ->
         val string = strict.stringify(JsonPrimitiveSerializer, JsonLiteral(42))

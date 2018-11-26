@@ -18,8 +18,8 @@ class JsonReifiedCollectionsTest : JsonTestBase() {
     @Test
     fun testReifiedMap() = parametrizedTest { useStreaming ->
         val data = mapOf("data" to DataHolder("data"), "smth" to DataHolder("not data"))
-        val json = nonstrict.stringify(data, useStreaming)
-        val data2 = nonstrict.parseMap<String, DataHolder>(json, useStreaming)
+        val json = nonStrict.stringify(data, useStreaming)
+        val data2 = nonStrict.parseMap<String, DataHolder>(json, useStreaming)
         assertEquals(data, data2)
     }
 

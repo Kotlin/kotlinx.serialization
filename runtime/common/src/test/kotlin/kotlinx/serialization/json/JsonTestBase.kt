@@ -13,22 +13,26 @@ import kotlin.test.*
 abstract class JsonTestBase {
     protected val strict = Json()
     protected val unquoted = Json(unquoted = true)
-    protected val nonstrict = Json(strictMode = false)
+    protected val nonStrict = Json(strictMode = false)
 
     init {
         strict.register()
         unquoted.register()
-        nonstrict.register()
+        nonStrict.register()
     }
 
     private fun Json.register() {
-        val mutableCtx = (context as MutableSerialContext)
-        mutableCtx.registerSerializer(JsonElement::class, JsonElementSerializer)
-        mutableCtx.registerSerializer(JsonPrimitive::class, JsonPrimitiveSerializer)
-        mutableCtx.registerSerializer(JsonLiteral::class, JsonLiteralSerializer)
-        mutableCtx.registerSerializer(JsonNull::class, JsonNullSerializer)
-        mutableCtx.registerSerializer(JsonObject::class, JsonObjectSerializer)
-        mutableCtx.registerSerializer(JsonArray::class, JsonArraySerializer)
+        val module = object : SerialModule {
+            override fun registerIn(context: MutableSerialContext) {
+                context.registerSerializer(JsonElement::class, JsonElementSerializer)
+                context.registerSerializer(JsonPrimitive::class, JsonPrimitiveSerializer)
+                context.registerSerializer(JsonLiteral::class, JsonLiteralSerializer)
+                context.registerSerializer(JsonNull::class, JsonNullSerializer)
+                context.registerSerializer(JsonObject::class, JsonObjectSerializer)
+                context.registerSerializer(JsonArray::class, JsonArraySerializer)
+            }
+        }
+        install(module)
     }
 
     internal inline fun <reified T : Any> Json.stringify(value: T, useStreaming: Boolean): String {
@@ -105,5 +109,6 @@ abstract class JsonTestBase {
         val streamingResult = kotlin.runCatching { test(true) }
         val treeResult = kotlin.runCatching { test(false) }
         assertEquals(streamingResult, treeResult)
-        streamingResult.getOrThrow() }
+        streamingResult.getOrThrow()
+    }
 }

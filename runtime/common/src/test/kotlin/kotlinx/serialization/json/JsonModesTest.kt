@@ -24,26 +24,26 @@ class JsonModesTest : JsonTestBase() {
     @Test
     fun testNan() = parametrizedTest { useStreaming ->
         val box = Box(Double.NaN, Float.NaN)
-        val json = nonstrict.stringify(box, useStreaming = useStreaming)
+        val json = nonStrict.stringify(box, useStreaming = useStreaming)
         assertEquals("{\"double\":NaN,\"float\":NaN}", json)
-        val deserialized = nonstrict.parse<Box>(json, useStreaming)
+        val deserialized = nonStrict.parse<Box>(json, useStreaming)
         assertEquals(box, deserialized)
     }
 
     @Test
     fun testInfinity() = parametrizedTest { useStreaming ->
         val box = Box(Double.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY)
-        val json  = nonstrict.stringify(box, useStreaming)
+        val json  = nonStrict.stringify(box, useStreaming)
         assertEquals("{\"double\":Infinity,\"float\":-Infinity}", json)
-        val deserialized = nonstrict.parse<Box>(json, useStreaming)
+        val deserialized = nonStrict.parse<Box>(json, useStreaming)
         assertEquals(box, deserialized)
     }
 
     @Test
     fun nonStrictJsonCanSkipValues() = parametrizedTest { useStreaming ->
         val data = JsonOptionalTests.Data()
-        assertEquals(nonstrict.parse("{strangeField: 100500, a:0}", useStreaming), data)
-        assertEquals(nonstrict.parse("{a:0, strangeField: 100500}", useStreaming), data)
+        assertEquals(nonStrict.parse("{strangeField: 100500, a:0}", useStreaming), data)
+        assertEquals(nonStrict.parse("{a:0, strangeField: 100500}", useStreaming), data)
     }
 
     @Test
@@ -51,10 +51,10 @@ class JsonModesTest : JsonTestBase() {
         val data = JsonOptionalTests.Data()
 
         assertEquals(
-            nonstrict.parse("{a: 0, strangeField: {a: b, c: {d: e}, f: [g,h,j] }}", useStreaming),
+            nonStrict.parse("{a: 0, strangeField: {a: b, c: {d: e}, f: [g,h,j] }}", useStreaming),
             data)
         assertEquals(
-            nonstrict.parse("{strangeField: {a: b, c: {d: e}, f: [g,h,j] }, a: 0}", useStreaming),
+            nonStrict.parse("{strangeField: {a: b, c: {d: e}, f: [g,h,j] }, a: 0}", useStreaming),
             data)
     }
 

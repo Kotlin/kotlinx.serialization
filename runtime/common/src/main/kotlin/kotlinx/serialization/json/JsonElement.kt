@@ -150,10 +150,13 @@ sealed class JsonPrimitive : JsonElement() {
 /**
  * Class representing JSON literals: numbers, booleans and string.
  * Strings are always quoted.
+ *
+ * [isString] indicates whether literal was explicitly constructed as a [String] and
+ * whether it should be serialized as one. E.g. `JsonLiteral("42", false)`
+ * and `JsonLiteral("42", true)` will be serialized as `42` and `"42"` respectively.
  */
 @Serializable(JsonLiteralSerializer::class) // TODO val for body is workaround for plugin bug
-class JsonLiteral internal constructor(val body: Any, private val isString: Boolean) : JsonPrimitive() {
-
+class JsonLiteral internal constructor(val body: Any, public val isString: Boolean) : JsonPrimitive() {
     override val content = body.toString()
     override val contentOrNull: String = content
 
