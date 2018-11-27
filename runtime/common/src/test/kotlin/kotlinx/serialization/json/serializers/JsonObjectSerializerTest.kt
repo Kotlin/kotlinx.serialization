@@ -5,12 +5,13 @@
 package kotlinx.serialization.json.serializers
 
 import kotlinx.serialization.json.*
+import kotlinx.serialization.json.internal.*
 import kotlin.test.*
 
 class JsonObjectSerializerTest : JsonTestBase() {
 
-    private val expected = "{element:{literal:1.0,nullKey:null,nested:{\"another literal\":\"some value\"}}}"
-    private val expectedTopLevel = "{literal:1.0,nullKey:null,nested:{\"another literal\":\"some value\"}}"
+    private val expected = "{element:{literal:1,nullKey:null,nested:{\"another literal\":\"some value\"}}}"
+    private val expectedTopLevel = "{literal:1,nullKey:null,nested:{\"another literal\":\"some value\"}}"
 
     @Test
     fun testJsonObject() = parametrizedTest { useStreaming ->
@@ -44,7 +45,7 @@ class JsonObjectSerializerTest : JsonTestBase() {
 
     private fun prebuiltJson(): JsonObject {
         return json {
-            "literal" to 1.0
+            "literal" to 1
             content["nullKey"] = JsonNull
             "nested" to json {
                 "another literal" to "some value"

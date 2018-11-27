@@ -1,26 +1,55 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2017-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.context.*
 import kotlinx.serialization.json.internal.*
-import kotlinx.serialization.json.serializers.*
 import kotlin.jvm.*
 
+/**
+ * The main entry point to work with JSON serialization.
+ * Is is typically used by constructing an application-specific instance, registering
+ * custom serializers via [Json.install] and then using it either as regular [SerialFormat] or [StringFormat]
+ * or for converting objects to [JsonElement] back and forth.
+ *
+ * This is the only serial format which has first-class [JsonElement] support.
+ * Any serializable class can be serialized to or from [JsonElement] with [Json.fromJson] and [Json.toJson] respectively or
+ * serialize properties of [JsonElement] type.
+ *
+ * Json configuration parameters:
+ * [unquoted] specifies whether keys and values should be quoted, used mostly for testing.
+ * [indented] specifies whether resulting JSON should be pretty-printed.
+ * [indent] specifies which indent string to use with [indented] mode.
+ * [strictMode] enables strict mode, which prohibits unknown keys and infinite values in floating point numbers.
+ *
+ * Example of usage:
+ * ```
+ * @Serializable
+ * class DataHolder(val id: Int, val data: String, val extensions: JsonElement)
+ *
+ * val json = Json()
+ * val instance = DataHolder(42, "some data", json { "additional key" to "value" })
+ *
+ * // Plain StringFormat usage
+ * val stringOutput: String = json.stringify(instance)
+ *
+ * // JsonElement serialization specific for Json only
+ * val jsonTree: JsonElement = json.toJson(instance)
+ *
+ * // Deserialize from string
+ * val deserialized: DataHolder = json.parse<DataHolder>(stringOutput)
+ *
+ * // Deserialize from json tree, Json-specific
+ * val deserializedFromTree: DataHolder = json.fromJson<DataHolder>(jsonTree)
+ *
+ *  // Deserialize from string to json tree, Json-specific
+ *  val deserializedToTree: JsonElement = json.fromJson<JsonElement>(stringOutput)
+ * ```
+ *
+ * Note that `@ImplicitReflectionSerializer` are used in order to omit `DataHolder.serializer`, but this is a temporary limitation.
+ */
 public class Json(
     @JvmField internal val unquoted: Boolean = false,
     @JvmField internal val indented: Boolean = false,
@@ -30,6 +59,30 @@ public class Json(
     val encodeDefaults: Boolean = true
 ): AbstractSerialFormat(), StringFormat {
 
+    init {
+        val module = object : SerialModule {
+            override fun registerIn(context: MutableSerialContext) {
+                context.registerSerializer(JsonElement::class,
+                    JsonElementSerializer
+                )
+                context.registerSerializer(JsonPrimitive::class,
+                    JsonPrimitiveSerializer
+                )
+                context.registerSerializer(JsonLiteral::class,
+                    JsonLiteralSerializer
+                )
+                context.registerSerializer(JsonNull::class, JsonNullSerializer)
+                context.registerSerializer(JsonObject::class, JsonObjectSerializer)
+                context.registerSerializer(JsonArray::class, JsonArraySerializer)
+            }
+        }
+        install(module)
+    }
+
+    /**
+     * Serializes [obj] into an equivalent JSON using provided [serializer].
+     * @throws [JsonException] subclass in case of serialization error.
+     */
     public override fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String {
         val result = StringBuilder()
         val encoder = StreamingJsonOutput(
@@ -41,30 +94,57 @@ public class Json(
         return result.toString()
     }
 
+    /**
+     * Serializes [value] into an equivalent [JsonElement] using provided [serializer].
+     * @throws [JsonException] subclass in case of serialization error.
+     */
+    public fun <T> toJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
+        return writeJson(value, serializer)
+    }
+
+    /**
+     * Serializes [value] into an equivalent [JsonElement] using serializer registered in the context.
+     * @throws [JsonException] subclass in case of serialization error.
+     */
+    @ImplicitReflectionSerializer
+    public inline fun <reified T : Any> toJson(value: T): JsonElement {
+        return toJson(value, context.getOrDefault(T::class))
+    }
+
+    /**
+     * Deserializes given json [string] into a corresponding object of type [T] using provided [deserializer].
+     * @throws [JsonException] subclass in case of serialization error.
+     */
     public override fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T {
-        val parser = JsonReader(string)
-        val input = StreamingJsonInput(this, WriteMode.OBJ, parser)
+        val reader = JsonReader(string)
+        val input = StreamingJsonInput(this, WriteMode.OBJ, reader)
         val result = input.decode(deserializer)
-        if (!parser.isDone) {
-            error("Parser has not consumed the whole input")
-        }
+        if (!reader.isDone) { error("Reader has not consumed the whole input: $reader") }
         return result
     }
 
-    public fun parseJson(value: String): JsonElement {
-        return parse(JsonElementSerializer, value)
+    /**
+     * Deserializes given json [string] into a corresponding [JsonElement] representation.
+     * @throws [JsonException] subclass in case of serialization error.
+     */
+    public fun parseJson(string: String): JsonElement {
+        return parse(JsonElementSerializer, string)
     }
 
+    /**
+     * Deserializes [json] element into a corresponding object of type [T] using provided [deserializer].
+     * @throws [JsonException] subclass in case of serialization error.
+     */
     public fun <T> fromJson(json: JsonElement, deserializer: DeserializationStrategy<T>): T {
         return readJson(json, deserializer)
     }
 
+    /**
+     * Deserializes [json] element into a corresponding object of type [T] using serializer registered in the context.
+     * @throws [JsonException] subclass in case of serialization error.
+     */
     @ImplicitReflectionSerializer
     public inline fun <reified T : Any> fromJson(tree: JsonElement): T = fromJson(tree, context.getOrDefault(T::class))
-
-    public fun <T> toJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
-        return writeJson(value, serializer)
-    }
 
     companion object : StringFormat {
         val plain = Json()

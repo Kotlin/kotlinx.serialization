@@ -30,7 +30,7 @@ sealed class ListLikeDescriptor(val elementDesc: SerialDescriptor) : SerialDescr
 sealed class MapLikeDescriptor(
     override val name: String,
     val keyDescriptor: SerialDescriptor,
-    val valueDescDescriptor: SerialDescriptor
+    val valueDescriptor: SerialDescriptor
 ) : SerialDescriptor {
     override val kind: SerialKind get() = StructureKind.MAP
     override val elementsCount: Int = 2
@@ -39,7 +39,7 @@ sealed class MapLikeDescriptor(
         name.toIntOrNull() ?: throw IllegalArgumentException("$name is not a valid map index")
 
     override fun getElementDescriptor(index: Int): SerialDescriptor =
-        if (index % 2 == 0) keyDescriptor else valueDescDescriptor
+        if (index % 2 == 0) keyDescriptor else valueDescriptor
     override fun isElementOptional(index: Int): Boolean = false
 
     override fun equals(other: Any?): Boolean {
@@ -48,7 +48,7 @@ sealed class MapLikeDescriptor(
 
         if (name != other.name) return false
         if (keyDescriptor != other.keyDescriptor) return false
-        if (valueDescDescriptor != other.valueDescDescriptor) return false
+        if (valueDescriptor != other.valueDescriptor) return false
 
         return true
     }
@@ -56,7 +56,7 @@ sealed class MapLikeDescriptor(
     override fun hashCode(): Int {
         var result = name.hashCode()
         result = 31 * result + keyDescriptor.hashCode()
-        result = 31 * result + valueDescDescriptor.hashCode()
+        result = 31 * result + valueDescriptor.hashCode()
         return result
     }
 }

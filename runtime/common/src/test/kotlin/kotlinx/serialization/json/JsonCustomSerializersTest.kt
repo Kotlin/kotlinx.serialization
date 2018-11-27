@@ -103,7 +103,8 @@ class JsonCustomSerializersTest : JsonTestBase() {
         }
     }
 
-    private val moduleWithB = object : SerialModule {
+    @Suppress("MemberVisibilityCanBePrivate") // BE bug =/
+    val moduleWithB = object : SerialModule {
         override fun registerIn(context: MutableSerialContext) {
             context.registerSerializer(B::class, BSerializer)
         }

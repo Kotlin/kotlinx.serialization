@@ -16,7 +16,7 @@ internal class StreamingJsonInput internal constructor(override val  json: Json,
         context = json.context
     }
 
-    public override fun readTree(): JsonElement = JsonParser(reader).read()
+    public override fun decodeJson(): JsonElement = JsonParser(reader).read()
 
     override val updateMode: UpdateMode
         get() = json.updateMode

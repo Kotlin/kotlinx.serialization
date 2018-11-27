@@ -299,6 +299,10 @@ internal class JsonReader(private val source: String) {
             nextToken()
         } while (tokenStack.isNotEmpty())
     }
+
+    override fun toString(): String {
+        return "JsonReader(source='$source', currentPosition=$currentPosition, tokenClass=$tokenClass, tokenPosition=$tokenPosition, offset=$offset)"
+    }
 }
 
 // Utility functions

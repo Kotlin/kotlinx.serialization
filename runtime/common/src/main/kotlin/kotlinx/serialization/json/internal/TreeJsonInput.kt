@@ -32,7 +32,7 @@ private sealed class AbstractJsonTreeInput(override val json: Json, open val obj
         context = json.context
     }
 
-    override fun readTree(): JsonElement = currentElement(currentTag)
+    override fun decodeJson(): JsonElement = currentElement(currentTag)
 
     override val updateMode: UpdateMode
         get() = json.updateMode

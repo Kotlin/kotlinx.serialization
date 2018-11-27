@@ -4,13 +4,17 @@
 
 package kotlinx.serialization.json.serializers
 
+import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.json.internal.*
 import kotlin.test.*
 
 class JsonPrimitiveSerializerTest : JsonTestBase() {
 
     @Test
     fun testJsonLiteralDouble() = parametrizedTest { useStreaming ->
+        if (isJs()) return@parametrizedTest // JS toString numbers
+
         val wrapper = JsonLiteralWrapper(JsonLiteral(1.0))
         val string = strict.stringify(wrapper, useStreaming)
         assertEquals("{\"literal\":1.0}", string)
@@ -19,6 +23,8 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
 
     @Test
     fun testJsonPrimitiveDouble() = parametrizedTest { useStreaming ->
+        if (isJs()) return@parametrizedTest // JS toString numbers
+
         val wrapper = JsonPrimitiveWrapper(JsonLiteral(1.0))
         val string = strict.stringify(wrapper, useStreaming)
         assertEquals("{\"primitive\":1.0}", string)
@@ -89,6 +95,7 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
 
     @Test // TODO Top-level nulls are not supported in tagged encoders
     fun testTopLevelPrimitiveAsElement() { //= parametrizedTest { useStreaming ->
+        if (isJs()) return // JS toString numbers
         val string = strict.stringify(JsonElementSerializer, JsonLiteral(1.3))
         assertEquals("1.3", string)
         assertEquals(JsonLiteral(1.3), strict.parse(JsonElementSerializer, string))

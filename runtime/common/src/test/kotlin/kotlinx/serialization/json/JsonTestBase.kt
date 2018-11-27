@@ -7,33 +7,12 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.context.*
 import kotlinx.serialization.json.internal.*
-import kotlinx.serialization.json.serializers.*
 import kotlin.test.*
 
 abstract class JsonTestBase {
     protected val strict = Json()
     protected val unquoted = Json(unquoted = true)
     protected val nonStrict = Json(strictMode = false)
-
-    init {
-        strict.register()
-        unquoted.register()
-        nonStrict.register()
-    }
-
-    private fun Json.register() {
-        val module = object : SerialModule {
-            override fun registerIn(context: MutableSerialContext) {
-                context.registerSerializer(JsonElement::class, JsonElementSerializer)
-                context.registerSerializer(JsonPrimitive::class, JsonPrimitiveSerializer)
-                context.registerSerializer(JsonLiteral::class, JsonLiteralSerializer)
-                context.registerSerializer(JsonNull::class, JsonNullSerializer)
-                context.registerSerializer(JsonObject::class, JsonObjectSerializer)
-                context.registerSerializer(JsonArray::class, JsonArraySerializer)
-            }
-        }
-        install(module)
-    }
 
     internal inline fun <reified T : Any> Json.stringify(value: T, useStreaming: Boolean): String {
         val serializer = context.getOrDefault(T::class)
@@ -53,6 +32,7 @@ abstract class JsonTestBase {
     @ImplicitReflectionSerializer
     inline fun <reified T : Any> Json.stringify(list: List<T>, useStreaming: Boolean): String {
         return if (useStreaming) {
+            // Overload to test public list extension
             stringify(list)
         } else {
             stringify(context.getOrDefault(T::class).list, list)
@@ -62,6 +42,7 @@ abstract class JsonTestBase {
     @ImplicitReflectionSerializer
     inline fun <reified K : Any, reified V : Any> Json.stringify(map: Map<K, V>, useStreaming: Boolean): String {
         return if (useStreaming) {
+            // Overload to test public map extension
             stringify(map)
         } else {
             stringify((context.getOrDefault(K::class) to context.getOrDefault(V::class)).map, map)
@@ -79,7 +60,7 @@ abstract class JsonTestBase {
         } else {
             val parser = JsonReader(source)
             val input = StreamingJsonInput(this, WriteMode.OBJ, parser)
-            val tree = input.readTree()
+            val tree = input.decodeJson()
             readJson(tree, deserializer)
         }
     }
@@ -87,6 +68,7 @@ abstract class JsonTestBase {
     @ImplicitReflectionSerializer
     internal inline fun <reified T : Any> Json.parseList(content: String, useStreaming: Boolean): List<T> {
         return if (useStreaming) {
+            // Overload to test public list extension
             parseList(content)
         } else {
             parse(context.getOrDefault(T::class).list, content, useStreaming)
@@ -99,6 +81,7 @@ abstract class JsonTestBase {
         useStreaming: Boolean
     ): Map<K, V> {
         return if (useStreaming) {
+            // Overload to test public map extension
             parseMap(content)
         } else {
             parse((context.getOrDefault(K::class) to context.getOrDefault(V::class)).map, content, useStreaming)

@@ -5,12 +5,13 @@
 package kotlinx.serialization.json.serializers
 
 import kotlinx.serialization.json.*
+import kotlinx.serialization.json.internal.*
 import kotlin.test.*
 
 class JsonArraySerializerTest : JsonTestBase() {
 
-    private val expected = "{\"array\":[1.0,null,[\"nested literal\"],[],{\"key\":\"value\"}]}"
-    private val expectedTopLevel = "[1.0,null,[\"nested literal\"],[],{\"key\":\"value\"}]"
+    private val expected = "{\"array\":[1,null,[\"nested literal\"],[],{\"key\":\"value\"}]}"
+    private val expectedTopLevel = "[1,null,[\"nested literal\"],[],{\"key\":\"value\"}]"
 
     @Test
     fun testJsonArray() = parametrizedTest { useStreaming ->
@@ -45,7 +46,7 @@ class JsonArraySerializerTest : JsonTestBase() {
 
     private fun prebuiltJson(): JsonArray {
         return jsonArray {
-            +JsonLiteral(1.0)
+            +JsonLiteral(1)
             +JsonNull
             +jsonArray {
                 +JsonLiteral("nested literal")

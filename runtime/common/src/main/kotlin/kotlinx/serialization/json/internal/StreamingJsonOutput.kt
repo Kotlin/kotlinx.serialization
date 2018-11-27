@@ -24,8 +24,8 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
             modeReuseCache[i] = this
     }
 
-    override fun writeTree(tree: JsonElement) {
-        composer.sb.append(tree.toString())
+    override fun encodeJson(element: JsonElement) {
+        composer.sb.append(element.toString())
     }
 
     override fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean {

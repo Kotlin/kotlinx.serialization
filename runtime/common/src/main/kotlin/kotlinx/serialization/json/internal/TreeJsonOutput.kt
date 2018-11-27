@@ -33,8 +33,8 @@ private sealed class AbstractJsonTreeOutput(
     val nodeConsumer: (JsonElement) -> Unit
 ) : NamedValueEncoder(), JsonOutput {
 
-    override fun writeTree(tree: JsonElement) {
-        nodeConsumer(tree)
+    override fun encodeJson(element: JsonElement) {
+        nodeConsumer(element)
     }
 
     override fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean = json.encodeDefaults
@@ -94,11 +94,11 @@ private sealed class AbstractJsonTreeOutput(
     }
 }
 
-private open class JsonTreeOutput(override val json: Json, nodeConsumer: (JsonElement) -> Unit) :
+private open class JsonTreeOutput(final override val json: Json, nodeConsumer: (JsonElement) -> Unit) :
     AbstractJsonTreeOutput(json, nodeConsumer) {
 
     init {
-        @Suppress("ImplicitThis")
+        @Suppress("LeakingThis")
         context = json.context
     }
 

@@ -34,7 +34,7 @@ object EitherSerializer : KSerializer<DummyEither> {
 
     override fun deserialize(decoder: Decoder): DummyEither {
         val input = decoder as? JsonInput ?: throw SerializationException("This class can be loaded only by Json")
-        val tree = input.readTree() as? JsonObject
+        val tree = input.decodeJson() as? JsonObject
             ?: throw SerializationException("Expected JsonObject")
         if ("error" in tree) return DummyEither.Left(tree.getPrimitive("error").content)
 
@@ -48,7 +48,7 @@ object EitherSerializer : KSerializer<DummyEither> {
             is DummyEither.Right -> output.json.toJson(obj.data, Payload.serializer())
         }
 
-        output.writeTree(tree)
+        output.encodeJson(tree)
     }
 }
 
