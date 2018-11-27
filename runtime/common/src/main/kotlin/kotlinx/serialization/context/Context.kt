@@ -52,7 +52,7 @@ class MutableSerialContextImpl(private val parentContext: SerialContext? = null)
     }
 
     override fun <T : Any> resolveFromBase(basePolyType: KClass<T>, obj: T): KSerializer<out T>? {
-        if (!basePolyType.isInstance(obj)) return null
+        if (!isInstance(basePolyType, obj)) return null
         (if (basePolyType == Any::class) StandardSubtypesOfAny.getSubclassSerializer(obj) else null)?.let { return it as KSerializer<out T> }
         return polyMap[basePolyType]?.get(obj::class) as? KSerializer<out T>
     }
@@ -97,9 +97,8 @@ internal object StandardSubtypesOfAny {
 
     @Suppress("UNCHECKED_CAST")
     internal fun getSubclassSerializer(objectToCheck: Any): KSerializer<*>? {
-        // todo: arrays?
         for ((k, v) in map) {
-            if (k.isInstance(objectToCheck)) return v
+            if (isInstance(k, objectToCheck)) return v
         }
         return null
     }

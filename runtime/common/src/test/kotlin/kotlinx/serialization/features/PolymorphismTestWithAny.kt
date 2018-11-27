@@ -36,8 +36,8 @@ class PolymorphicMap {
 
     @Test
     fun withoutModules() = assertStringFormAndRestored(
-        expected = """{"data":{"key1":["kotlin.String","string1"],"key2":["kotlin.collections.HashMap",[["kotlin.String","nestedKey"],["kotlin.String","nestedValue"]]]}}""",
-        original = MyPolyData(hashMapOf("key1" to "string1", "key2" to hashMapOf("nestedKey" to "nestedValue"))),
+        expected = """{"data":{"stringKey":["kotlin.String","string1"],"mapKey":["kotlin.collections.HashMap",[["kotlin.String","nestedKey"],["kotlin.String","nestedValue"]]],"listKey":["kotlin.collections.ArrayList",[["kotlin.String","foo"]]]}}""",
+        original = MyPolyData(linkedMapOf("stringKey" to "string1", "mapKey" to hashMapOf("nestedKey" to "nestedValue"), "listKey" to listOf("foo"))),
         serializer = MyPolyData.serializer()
     )
 

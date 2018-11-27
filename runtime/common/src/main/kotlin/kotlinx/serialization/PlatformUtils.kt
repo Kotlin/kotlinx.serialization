@@ -40,3 +40,17 @@ expect fun <E: Enum<E>> KClass<E>.enumClassName(): String
 expect fun <E: Enum<E>> KClass<E>.enumMembers(): Array<E>
 
 expect fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E>
+
+/**
+ * Checks if an [obj] is an instance of a given [kclass].
+ *
+ * This check is a replacement for [KClass.isInstance] because
+ * on JVM it requires kotlin-reflect.jar in classpath
+ * (see https://youtrack.jetbrains.com/issue/KT-14720).
+ *
+ * On JS and Native, this function delegates to aforementioned
+ * [KClass.isInstance] since it is supported there out-of-the box;
+ * on JVM, it falls back to java.lang.Class.isInstance which causes
+ * difference when applied to function types with big arity.
+ */
+internal expect fun isInstance(kclass: KClass<*>, obj: Any): Boolean

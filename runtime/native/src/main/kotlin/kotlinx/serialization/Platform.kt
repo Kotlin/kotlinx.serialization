@@ -56,4 +56,6 @@ actual fun getSerialId(desc: SerialDescriptor, index: Int): Int? {
 
 actual fun getSerialTag(desc: SerialDescriptor, index: Int): String? = index.toString()
 
+internal actual fun isInstance(kclass: KClass<*>, obj: Any): Boolean = kclass.isInstance(obj)
+
 actual typealias SharedImmutable = kotlin.native.SharedImmutable
