@@ -44,7 +44,7 @@ class NullableSerializer<T : Any>(private val element: KSerializer<T>) : KSerial
 
     override fun serialize(encoder: Encoder, obj: T?) {
         if (obj != null) {
-            encoder.encodeNotNullMark();
+            encoder.encodeNotNullMark()
             element.serialize(encoder, obj)
         }
         else {

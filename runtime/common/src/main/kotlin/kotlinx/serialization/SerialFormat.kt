@@ -33,5 +33,5 @@ fun <T> BinaryFormat.loads(deserializer: DeserializationStrategy<T>, hex: String
 
 interface StringFormat: SerialFormat {
     fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String
-    fun <T> parse(serializer: DeserializationStrategy<T>, string: String): T
+    fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T
 }

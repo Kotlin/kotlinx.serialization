@@ -163,10 +163,6 @@ abstract class IntTaggedEncoder : TaggedEncoder<Int?>() {
     final override fun SerialDescriptor.getTag(index: Int): Int? = getSerialId(this, index)
 }
 
-abstract class StringTaggedEncoder : TaggedEncoder<String?>() {
-    final override fun SerialDescriptor.getTag(index: Int): String? = getSerialTag(this, index)
-}
-
 abstract class NamedValueEncoder(val rootName: String = "") : TaggedEncoder<String>() {
     final override fun SerialDescriptor.getTag(index: Int): String = nested(elementName(this, index))
 
@@ -281,7 +277,7 @@ abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     protected val currentTagOrNull
         get() = tagStack.lastOrNull()
 
-    private fun pushTag(name: Tag) {
+    protected fun pushTag(name: Tag) {
         tagStack.add(name)
     }
 

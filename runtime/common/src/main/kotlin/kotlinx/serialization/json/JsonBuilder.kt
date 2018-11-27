@@ -1,17 +1,5 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2017-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("RedundantVisibilityModifier")
@@ -19,57 +7,68 @@
 package kotlinx.serialization.json
 
 /**
- * Builds [JsonObject] with given [init] builder
+ * Builds [JsonObject] with given [init] builder.
  */
-fun json(init: JsonBuilder.() -> Unit): JsonObject {
-    val builder = JsonBuilder()
+public fun json(init: JsonObjectBuilder.() -> Unit): JsonObject {
+    val builder = JsonObjectBuilder()
     builder.init()
     return JsonObject(builder.content)
 }
 
 /**
- * Builds [JsonArray] with given [init] builder
+ * Builds [JsonArray] with given [init] builder.
  */
-fun jsonArray(init: JsonArrayBuilder.() -> Unit): JsonArray {
+public fun jsonArray(init: JsonArrayBuilder.() -> Unit): JsonArray {
     val builder = JsonArrayBuilder()
     builder.init()
     return JsonArray(builder.content)
 }
 
-class JsonArrayBuilder(internal val content: MutableList<JsonElement> = mutableListOf()) {
+/**
+ * DSL builder for a [JsonArray].
+ */
+public class JsonArrayBuilder internal constructor() {
+
+    internal val content: MutableList<JsonElement> = mutableListOf()
+
     /**
-     * Adds [this] value to outer [JsonArray] as [JsonPrimitive]
+     * Adds [this] value to the current [JsonArray] as [JsonPrimitive].
      */
     public operator fun String?.unaryPlus() {
         content.add(JsonPrimitive(this))
     }
 
     /**
-     * Adds [this] value to outer [JsonArray] as [JsonPrimitive]
+     * Adds [this] value to the current [JsonArray] as [JsonPrimitive].
      */
     public operator fun Number?.unaryPlus() {
         content.add(JsonPrimitive(this))
     }
 
     /**
-     * Adds [this] value to outer [JsonArray] as [JsonPrimitive]
+     * Adds [this] value to the current [JsonArray] as [JsonPrimitive].
      */
     public operator fun Boolean?.unaryPlus() {
         content.add(JsonPrimitive(this))
     }
 
     /**
-     * Adds [this] value to outer [JsonArray]
+     * Adds [this] value to the current [JsonArray].
      */
     public operator fun JsonElement.unaryPlus() {
         this@JsonArrayBuilder.content.add(this)
     }
 }
 
-class JsonBuilder(internal val content: MutableMap<String, JsonElement> = mutableMapOf()) {
+/**
+ * DSL builder for a [JsonObject].
+ */
+public class JsonObjectBuilder internal constructor() {
+
+    internal val content: MutableMap<String, JsonElement> = linkedMapOf()
 
     /**
-     * Adds given value to outer [JsonObject] with [this] as a key
+     * Adds given [value] to the current [JsonObject] with [this] as a key.
      */
     public infix fun String.to(value: JsonElement) {
         require(content[this] == null) {"Key $this is already registered in builder"}
@@ -77,7 +76,7 @@ class JsonBuilder(internal val content: MutableMap<String, JsonElement> = mutabl
     }
 
     /**
-     * Adds given value to outer [JsonObject] with [this] as a key as [JsonPrimitive]
+     * Adds given [value] as [JsonPrimitive] to the current [JsonObject] with [this] as a key.
      */
     public infix fun String.to(value: Number?) {
         require(content[this] == null) {"Key $this is already registered in builder"}
@@ -85,7 +84,7 @@ class JsonBuilder(internal val content: MutableMap<String, JsonElement> = mutabl
     }
 
     /**
-     * Adds given value to outer [JsonObject] with [this] as a key as [JsonPrimitive]
+     * Adds given [value] as [JsonPrimitive] to the current [JsonObject] with [this] as a key.
      */
     public infix fun String.to(value: Boolean?) {
         require(content[this] == null) {"Key $this is already registered in builder"}
@@ -93,7 +92,7 @@ class JsonBuilder(internal val content: MutableMap<String, JsonElement> = mutabl
     }
 
     /**
-     * Adds given value to outer [JsonObject] with [this] as a key as [JsonPrimitive]
+     * Adds given [value] as [JsonPrimitive] to the current [JsonObject] with [this] as a key.
      */
     public infix fun String.to(value: String?) {
         require(content[this] == null) {"Key $this is already registered in builder"}

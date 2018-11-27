@@ -36,11 +36,11 @@ private fun mapJavaClassNameToKotlin(s: String): String = when (s) {
     "double", "java.lang.Double" -> DoubleSerializer.descriptor.name
     "char", "java.lang.Character" -> CharSerializer.descriptor.name
     "java.lang.String" -> StringSerializer.descriptor.name
-    "java.util.List", "java.util.ArrayList" -> ARRAYLIST_NAME
-    "java.util.Set", "java.util.LinkedHashSet" -> LINKEDHASHSET_NAME
-    "java.util.HashSet" -> HASHSET_NAME
-    "java.util.Map", "java.util.LinkedHashMap" -> LINKEDHASHMAP_NAME
-    "java.util.HashMap" -> HASHMAP_NAME
+    "java.util.List", "java.util.ArrayList" -> ARRAY_LIST_NAME
+    "java.util.Set", "java.util.LinkedHashSet" -> LINKED_HASH_SET_NAME
+    "java.util.HashSet" -> HASH_SET_NAME
+    "java.util.Map", "java.util.LinkedHashMap" -> LINKED_HASH_MAP_NAME
+    "java.util.HashMap" -> HASH_MAP_NAME
     "java.util.Map\$Entry" -> MapEntryClassDesc.name
     else -> s
 }

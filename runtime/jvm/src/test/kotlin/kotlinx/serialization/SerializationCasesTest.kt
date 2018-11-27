@@ -16,9 +16,9 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.json.Json
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlinx.serialization.json.*
+import org.junit.*
+import org.junit.Assert.*
 
 class SerializationCasesTest {
 
@@ -93,5 +93,4 @@ class SerializationCasesTest {
         assertEquals("{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}", Json.unquoted.stringify(ExtDataSerializer3, data))
         assertEquals(data, Json.parse(ExtDataSerializer3, "{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}"))
     }
-
 }

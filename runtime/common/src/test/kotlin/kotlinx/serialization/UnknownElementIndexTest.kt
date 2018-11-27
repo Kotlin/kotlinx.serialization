@@ -16,24 +16,22 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
+import kotlinx.serialization.json.*
 import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
-sealed class Expr
+class UnknownElementIndexTest {
+    class MalformedReader: ElementValueDecoder() {
+        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+            return UNKNOWN_NAME
+        }
+    }
 
-@Serializable
-data class Var(val id: String) : Expr()
-
-class HierarchyTest {
-
-    // inspired by kotlinx.serialization/#112
     @Test
-    fun callSuperSealedConstructorProperly() {
-        val v1 = Var("a")
-        val s1 = Json.stringify(v1)   //{"id":"a"}
-        assertEquals("""{"id":"a"}""", s1)
-        val v2: Var = Json.parse(s1)   //throws IllegalAccessError
-        assertEquals(v1, v2)
+    fun compilerComplainsAboutIncorrectIndex() {
+        assertFailsWith(UnknownFieldException::class) {
+            MalformedReader().decode<JsonOptionalTests.Data>()
+        }
     }
 }

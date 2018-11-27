@@ -1,119 +1,54 @@
+/*
+ * Copyright 2017-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
-import kotlinx.serialization.json.internal.*
 
-// Public visibility to allow casting in user-code to call [readAsTree]
-@Suppress("RedundantVisibilityModifier")
-public class JsonInput internal constructor(private val json: Json, private val mode: WriteMode,
-                                            private val parser: JsonParser) : ElementValueDecoder() {
-    private var curIndex = -1
-    private var entryIndex = 0
+/**
+ * Decoder used by [Json] during deserialization.
+ * This interface can be used to inject desired behaviour into a serialization process of [Json].
+ *
+ * Typical example of the usage:
+ * ```
+ * // Class representing Either<Left|Right>
+ * sealed class DummyEither {
+ *   data class Left(val errorMsg: String) : DummyEither()
+ *   data class Right(val data: Payload) : DummyEither()
+ * }
+ *
+ * // Serializer injects custom behaviour by inspecting object content and writing
+ * object EitherSerializer : KSerializer<DummyEither> {
+ *   override val descriptor: SerialDescriptor = SerialClassDescImpl("DummyEither")
+ *
+ *   override fun deserialize(decoder: Decoder): DummyEither {
+ *     val input = decoder as? JsonInput ?: throw SerializationException("This class can be loaded only by Json")
+ *     val tree = input.decodeJson() as? JsonObject ?: throw SerializationException("Expected JsonObject")
+ *     if ("error" in tree) return DummyEither.Left(tree.getPrimitive("error").content)
+ *     return DummyEither.Right(input.json.decodeJson(tree, Payload.serializer()))
+ *   }
+ *
+ *   override fun serialize(encoder: Encoder, obj: DummyEither) {
+ *     val output = encoder as? JsonOutput ?: throw SerializationException("This class can be saved only by Json")
+ *     val tree = when (obj) {
+ *       is DummyEither.Left -> JsonObject(mapOf("error" to JsonLiteral(obj.errorMsg)))
+ *       is DummyEither.Right -> output.json.toJson(obj.data, Payload.serializer())
+ *     }
+ *
+ *     output.encodeJson(tree)
+ *   }
+ * }
+ * ```
+ */
+public interface JsonInput : Decoder, CompositeDecoder {
+    /**
+     * An instance of the current [Json].
+     */
+    public val json: Json
 
-    init {
-        context = json.context
-    }
-
-    fun readAsTree(): JsonElement = JsonTreeParser(parser).read()
-
-    override val updateMode: UpdateMode
-        get() = json.updateMode
-
-    override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
-        val newMode = switchMode(desc, typeParams)
-        if (newMode.begin != INVALID) {
-            parser.requireTokenClass(newMode.beginTc) { "Expected '${newMode.begin}, kind: ${desc.kind}'" }
-            parser.nextToken()
-        }
-        return when (newMode) {
-            WriteMode.LIST, WriteMode.MAP, WriteMode.POLY -> JsonInput(
-                json,
-                newMode,
-                parser
-            ) // need fresh cur index
-            else -> if (mode == newMode) this else
-                JsonInput(json, newMode, parser) // todo: reuse instance per mode
-        }
-    }
-
-    override fun endStructure(desc: SerialDescriptor) {
-        if (mode.end != INVALID) {
-            parser.requireTokenClass(mode.endTc) { "Expected '${mode.end}'" }
-            parser.nextToken()
-        }
-    }
-
-    override fun decodeNotNullMark(): Boolean {
-        return parser.tokenClass != TC_NULL
-    }
-
-    override fun decodeNull(): Nothing? {
-        parser.requireTokenClass(TC_NULL) { "Expected 'null' literal" }
-        parser.nextToken()
-        return null
-    }
-
-    override fun decodeElementIndex(desc: SerialDescriptor): Int {
-        while (true) {
-            if (parser.tokenClass == TC_COMMA) parser.nextToken()
-            when (mode) {
-                WriteMode.LIST -> {
-                    return if (!parser.canBeginValue) CompositeDecoder.READ_DONE else ++curIndex
-                }
-                WriteMode.MAP -> {
-                    if (curIndex % 2 == 0 && parser.tokenClass == TC_COLON) parser.nextToken()
-                    return if (!parser.canBeginValue) CompositeDecoder.READ_DONE else ++curIndex
-                }
-                WriteMode.POLY -> {
-                    return when (entryIndex++) {
-                        0 -> 0
-                        1 -> 1
-                        else -> {
-                            entryIndex = 0
-                            CompositeDecoder.READ_DONE
-                        }
-                    }
-                }
-                WriteMode.ENTRY -> {
-                    return when (entryIndex++) {
-                        0 -> 0
-                        1 -> {
-                            parser.requireTokenClass(TC_COLON) { "Expected ':'" }
-                            parser.nextToken()
-                            1
-                        }
-                        else -> {
-                            entryIndex = 0
-                            CompositeDecoder.READ_DONE
-                        }
-                    }
-                }
-                else -> {
-                    if (!parser.canBeginValue) return CompositeDecoder.READ_DONE
-                    val key = parser.takeString()
-                    parser.requireTokenClass(TC_COLON) { "Expected ':'" }
-                    parser.nextToken()
-                    val ind = desc.getElementIndex(key)
-                    if (ind != CompositeDecoder.UNKNOWN_NAME)
-                        return ind
-                    if (json.strictMode)
-                        throw JsonUnknownKeyException(key)
-                    else
-                        parser.skipElement()
-                }
-            }
-        }
-    }
-
-    override fun decodeBoolean(): Boolean = parser.takeString().run { if (json.strictMode) toBooleanStrict() else toBoolean() }
-    override fun decodeByte(): Byte = parser.takeString().toByte()
-    override fun decodeShort(): Short = parser.takeString().toShort()
-    override fun decodeInt(): Int = parser.takeString().toInt()
-    override fun decodeLong(): Long = parser.takeString().toLong()
-    override fun decodeFloat(): Float = parser.takeString().toFloat()
-    override fun decodeDouble(): Double = parser.takeString().toDouble()
-    override fun decodeChar(): Char = parser.takeString().single()
-    override fun decodeString(): String = parser.takeString()
-    override fun decodeEnum(enumDescription: EnumDescriptor): Int = enumDescription.getElementIndex(parser.takeString())
+    /**
+     * Decodes current input as [JsonElement]
+     */
+    public fun decodeJson(): JsonElement
 }

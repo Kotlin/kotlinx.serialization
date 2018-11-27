@@ -1,30 +1,16 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2017-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-@file:ContextualSerialization(CustomSerializersTest.B::class)
-package kotlinx.serialization
+@file:ContextualSerialization(JsonCustomSerializersTest.B::class)
 
+package kotlinx.serialization.json
+
+import kotlinx.serialization.*
 import kotlinx.serialization.context.*
-import kotlinx.serialization.internal.IntSerializer
-import kotlinx.serialization.internal.SerialClassDescImpl
-import kotlinx.serialization.internal.StringSerializer
-import kotlinx.serialization.json.Json
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlinx.serialization.internal.*
+import kotlin.test.*
 
-class CustomSerializersTest {
+class JsonCustomSerializersTest : JsonTestBase() {
     @Serializable
     data class A(@SerialId(1) val b: B)
 
@@ -39,7 +25,10 @@ class CustomSerializersTest {
             return B(decoder.decodeInt())
         }
 
-        override val descriptor: SerialDescriptor = SerialClassDescImpl("B")
+        override val descriptor: SerialDescriptor = object : SerialClassDescImpl("B") {
+            override val kind: SerialKind
+                get() = PrimitiveKind.INT
+        }
     }
 
     @Serializable
@@ -114,6 +103,7 @@ class CustomSerializersTest {
         }
     }
 
+    @Suppress("MemberVisibilityCanBePrivate") // BE bug =/
     val moduleWithB = object : SerialModule {
         override fun registerIn(context: MutableSerialContext) {
             context.registerSerializer(B::class, BSerializer)
@@ -123,246 +113,246 @@ class CustomSerializersTest {
     private fun createJsonWithB() = Json(unquoted = true).apply { install(moduleWithB) }
 
     @Test
-    fun writeCustom() {
+    fun testWriteCustom() = parametrizedTest { useStreaming ->
         val a = A(B(2))
         val j = createJsonWithB()
-        val s = j.stringify(a)
+        val s = j.stringify(a, useStreaming)
         assertEquals("{b:2}", s)
     }
 
     @Test
-    fun readCustom() {
+    fun testReadCustom() = parametrizedTest { useStreaming ->
         val a = A(B(2))
         val j = createJsonWithB()
-        val s = j.parse<A>("{b:2}")
+        val s = j.parse<A>("{b:2}", useStreaming)
         assertEquals(a, s)
     }
 
     @Test
-    fun writeCustomList() {
+    fun testWriteCustomList() = parametrizedTest { useStreaming ->
         val obj = BList(listOf(B(1), B(2), B(3)))
         val j = createJsonWithB()
-        val s = j.stringify(obj)
+        val s = j.stringify(obj, useStreaming)
         assertEquals("{bs:[1,2,3]}", s)
     }
 
     @Test
-    fun readCustomList() {
+    fun testReadCustomList() = parametrizedTest { useStreaming ->
         val obj = BList(listOf(B(1), B(2), B(3)))
         val j = createJsonWithB()
-        val bs = j.parse<BList>("{bs:[1,2,3]}")
+        val bs = j.parse<BList>("{bs:[1,2,3]}", useStreaming)
         assertEquals(obj, bs)
     }
 
     @Test
-    fun writeCustomListRootLevel() {
+    fun testWriteCustomListRootLevel() = parametrizedTest { useStreaming ->
         val obj = listOf(B(1), B(2), B(3))
         val j = createJsonWithB()
-        val s = j.stringify(BSerializer.list, obj)
+        val s = j.stringify(BSerializer.list, obj, useStreaming)
         assertEquals("[1,2,3]", s)
     }
 
     @Test
-    fun readCustomListRootLevel() {
+    fun testReadCustomListRootLevel() = parametrizedTest { useStreaming ->
         val obj = listOf(B(1), B(2), B(3))
         val j = createJsonWithB()
-        val bs = j.parse(BSerializer.list, "[1,2,3]")
+        val bs = j.parse(BSerializer.list, "[1,2,3]", useStreaming)
         assertEquals(obj, bs)
     }
 
     @Test
-    fun writeCustomInvertedOrder() {
+    fun testWriteCustomInvertedOrder() = parametrizedTest { useStreaming ->
         val obj = C(1, 2)
         val j = Json(unquoted = true)
-        val s = j.stringify(obj)
+        val s = j.stringify(obj, useStreaming)
         assertEquals("{b:2,a:1}", s)
     }
 
     @Test
-    fun writeCustomOmitDefault() {
+    fun testWriteCustomOmitDefault() = parametrizedTest { useStreaming ->
         val obj = C(b = 2)
         val j = Json(unquoted = true)
-        val s = j.stringify(obj)
+        val s = j.stringify(obj, useStreaming)
         assertEquals("{b:2}", s)
     }
 
     @Test
-    fun readCustomInvertedOrder() {
+    fun testReadCustomInvertedOrder() = parametrizedTest { useStreaming ->
         val obj = C(1, 2)
         val j = Json(unquoted = true)
-        val s = j.parse<C>("{b:2,a:1}")
+        val s = j.parse<C>("{b:2,a:1}", useStreaming)
         assertEquals(obj, s)
     }
 
     @Test
-    fun readCustomOmitDefault() {
+    fun testReadCustomOmitDefault() = parametrizedTest { useStreaming ->
         val obj = C(b = 2)
         val j = Json(unquoted = true)
-        val s = j.parse<C>("{b:2}")
+        val s = j.parse<C>("{b:2}", useStreaming)
         assertEquals(obj, s)
     }
 
     @Test
-    fun writeListOfOptional() {
+    fun testWriteListOfOptional() = parametrizedTest { useStreaming ->
         val obj = listOf(C(a = 1), C(b = 2), C(3, 4))
-        val s = Json(unquoted = true).stringify(C.list, obj)
+        val s = Json(unquoted = true).stringify(C.list, obj, useStreaming)
         assertEquals("[{b:42,a:1},{b:2},{b:4,a:3}]", s)
     }
 
     @Test
-    fun readListOfOptional() {
+    fun testReadListOfOptional() = parametrizedTest { useStreaming ->
         val obj = listOf(C(a = 1), C(b = 2), C(3, 4))
         val j = "[{b:42,a:1},{b:2},{b:4,a:3}]"
-        val s = Json(unquoted = true).parse(C.list, j)
+        val s = Json(unquoted = true).parse(C.list, j, useStreaming)
         assertEquals(obj, s)
     }
 
     @Test
-    fun writeOptionalList1() {
+    fun testWriteOptionalList1() = parametrizedTest { useStreaming ->
         val obj = CList1(listOf(C(a = 1), C(b = 2), C(3, 4)))
-        val s = Json(unquoted = true).stringify(obj)
+        val s = Json(unquoted = true).stringify(obj, useStreaming)
         assertEquals("{c:[{b:42,a:1},{b:2},{b:4,a:3}]}", s)
     }
 
     @Test
-    fun writeOptionalList1Quoted() {
+    fun testWriteOptionalList1Quoted() = parametrizedTest { useStreaming ->
         val obj = CList1(listOf(C(a = 1), C(b = 2), C(3, 4)))
-        val s = Json(unquoted = false).stringify(obj)
+        val s = Json(unquoted = false).stringify(obj, useStreaming)
         assertEquals("""{"c":[{"b":42,"a":1},{"b":2},{"b":4,"a":3}]}""", s)
     }
 
     @Test
-    fun readOptionalList1() {
+    fun testReadOptionalList1() = parametrizedTest { useStreaming ->
         val obj = CList1(listOf(C(a = 1), C(b = 2), C(3, 4)))
         val j = "{c:[{b:42,a:1},{b:2},{b:4,a:3}]}"
-        assertEquals(obj, Json(unquoted = true).parse(j))
+        assertEquals(obj, Json(unquoted = true).parse(j, useStreaming))
     }
 
     @Test
-    fun writeOptionalList2a() {
+    fun testWriteOptionalList2a() = parametrizedTest { useStreaming ->
         val obj = CList2(7, listOf(C(a = 5), C(b = 6), C(7, 8)))
-        val s = Json(unquoted = true).stringify(obj)
+        val s = Json(unquoted = true).stringify(obj, useStreaming)
         assertEquals("{c:[{b:42,a:5},{b:6},{b:8,a:7}],d:7}", s)
     }
 
     @Test
-    fun readOptionalList2a() {
+    fun testReadOptionalList2a() = parametrizedTest { useStreaming ->
         val obj = CList2(7, listOf(C(a = 5), C(b = 6), C(7, 8)))
         val j = "{c:[{b:42,a:5},{b:6},{b:8,a:7}],d:7}"
-        assertEquals(obj, Json(unquoted = true).parse(j))
+        assertEquals(obj, Json(unquoted = true).parse(j, useStreaming))
     }
 
     @Test
-    fun writeOptionalList2b() {
+    fun testWriteOptionalList2b() = parametrizedTest { useStreaming ->
         val obj = CList2(c = listOf(C(a = 5), C(b = 6), C(7, 8)))
-        val s = Json(unquoted = true).stringify(obj)
+        val s = Json(unquoted = true).stringify(obj, useStreaming)
         assertEquals("{c:[{b:42,a:5},{b:6},{b:8,a:7}]}", s)
     }
 
     @Test
-    fun readOptionalList2b() {
+    fun testReadOptionalList2b() = parametrizedTest { useStreaming ->
         val obj = CList2(c = listOf(C(a = 5), C(b = 6), C(7, 8)))
         val j = "{c:[{b:42,a:5},{b:6},{b:8,a:7}]}"
-        assertEquals(obj, Json(unquoted = true).parse(j))
+        assertEquals(obj, Json(unquoted = true).parse(j, useStreaming))
     }
 
     @Test
-    fun writeOptionalList3a() {
+    fun testWriteOptionalList3a() = parametrizedTest { useStreaming ->
         val obj = CList3(listOf(C(a = 1), C(b = 2), C(3, 4)), 99)
-        val s = Json(unquoted = true).stringify(obj)
+        val s = Json(unquoted = true).stringify(obj, useStreaming)
         assertEquals("{e:[{b:42,a:1},{b:2},{b:4,a:3}],f:99}", s)
     }
 
     @Test
-    fun readOptionalList3a() {
+    fun testReadOptionalList3a() = parametrizedTest { useStreaming ->
         val obj = CList3(listOf(C(a = 1), C(b = 2), C(3, 4)), 99)
         val j = "{e:[{b:42,a:1},{b:2},{b:4,a:3}],f:99}"
-        assertEquals(obj, Json(unquoted = true).parse(j))
+        assertEquals(obj, Json(unquoted = true).parse(j, useStreaming))
     }
 
     @Test
-    fun writeOptionalList3b() {
+    fun testWriteOptionalList3b() = parametrizedTest { useStreaming ->
         val obj = CList3(f=99)
-        val s = Json(unquoted = true).stringify(obj)
+        val s = Json(unquoted = true).stringify(obj, useStreaming)
         assertEquals("{f:99}", s)
     }
 
     @Test
-    fun readOptionalList3b() {
+    fun testReadOptionalList3b() = parametrizedTest { useStreaming ->
         val obj = CList3(f=99)
         val j = "{f:99}"
-        assertEquals(obj, Json(unquoted = true).parse(j))
+        assertEquals(obj, Json(unquoted = true).parse(j, useStreaming))
     }
 
     @Test
-    fun writeOptionalList4a() {
+    fun testWriteOptionalList4a() = parametrizedTest { useStreaming ->
         val obj = CList4(listOf(C(a = 1), C(b = 2), C(3, 4)), 54)
-        val s = Json(unquoted = true).stringify(obj)
+        val s = Json(unquoted = true).stringify(obj, useStreaming)
         assertEquals("{h:54,g:[{b:42,a:1},{b:2},{b:4,a:3}]}", s)
     }
 
     @Test
-    fun readOptionalList4a() {
+    fun testReadOptionalList4a() = parametrizedTest { useStreaming ->
         val obj = CList4(listOf(C(a = 1), C(b = 2), C(3, 4)), 54)
         val j = "{h:54,g:[{b:42,a:1},{b:2},{b:4,a:3}]}"
-        assertEquals(obj, Json(unquoted = true).parse(j))
+        assertEquals(obj, Json(unquoted = true).parse(j, useStreaming))
     }
 
     @Test
-    fun writeOptionalList4b() {
+    fun testWriteOptionalList4b() = parametrizedTest { useStreaming ->
         val obj = CList4(h=97)
         val j = "{h:97}"
-        val s = Json(unquoted = true).stringify(obj)
+        val s = Json(unquoted = true).stringify(obj, useStreaming)
         assertEquals(j, s)
     }
 
     @Test
-    fun readOptionalList4b() {
+    fun testReadOptionalList4b() = parametrizedTest { useStreaming ->
         val obj = CList4(h=97)
         val j = "{h:97}"
-        assertEquals(obj, Json(unquoted = true).parse(j))
+        assertEquals(obj, Json(unquoted = true).parse(j, useStreaming))
     }
 
     @Test
-    fun writeOptionalList5a() {
+    fun testWriteOptionalList5a() = parametrizedTest { useStreaming ->
         val obj = CList5(listOf(9,8,7,6,5), 5)
-        val s = Json(unquoted = true).stringify(obj)
+        val s = Json(unquoted = true).stringify(obj, useStreaming)
         assertEquals("{h:5,g:[9,8,7,6,5]}", s)
     }
 
     @Test
-    fun readOptionalList5a() {
+    fun testReadOptionalList5a() = parametrizedTest { useStreaming ->
         val obj = CList5(listOf(9,8,7,6,5), 5)
         val j = "{h:5,g:[9,8,7,6,5]}"
-        assertEquals(obj, Json(unquoted = true).parse(j))
+        assertEquals(obj, Json(unquoted = true).parse(j, useStreaming))
     }
 
     @Test
-    fun writeOptionalList5b() {
+    fun testWriteOptionalList5b() = parametrizedTest { useStreaming ->
         val obj = CList5(h=999)
-        val s = Json(unquoted = true).stringify(obj)
+        val s = Json(unquoted = true).stringify(obj, useStreaming)
         assertEquals("{h:999}", s)
     }
 
     @Test
-    fun readOptionalList5b() {
+    fun testReadOptionalList5b() = parametrizedTest { useStreaming ->
         val obj = CList5(h=999)
         val j = "{h:999}"
-        assertEquals(obj, Json(unquoted = true).parse(j))
+        assertEquals(obj, Json(unquoted = true).parse(j, useStreaming))
     }
 
     @Test
-    fun mapBuiltinsTest() {
+    fun testMapBuiltinsTest() = parametrizedTest { useStreaming ->
         val map = mapOf(1 to "1", 2 to "2")
         val serial = (IntSerializer to StringSerializer).map
-        val s = Json.unquoted.stringify(serial, map)
+        val s = Json.unquoted.stringify(serial, map, useStreaming)
         assertEquals("{1:1,2:2}", s)
     }
 
     @Test
-    fun resolveAtRootLevel() {
+    fun testResolveAtRootLevel() = parametrizedTest { useStreaming ->
         val j = createJsonWithB()
-        val bs = j.parse<B>("1")
+        val bs = j.parse<B>("1", useStreaming)
         assertEquals(B(1), bs)
     }
 }
