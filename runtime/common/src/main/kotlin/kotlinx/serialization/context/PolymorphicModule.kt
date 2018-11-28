@@ -1,84 +1,25 @@
+/*
+ * Copyright 2018 JetBrains s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 @file:Suppress("RedundantVisibilityModifier")
 
 package kotlinx.serialization.context
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.*
 import kotlin.reflect.KClass
-
-/**
- * SerialModule is a collection of classes associated with its serializers,
- * postponed for runtime resolution. Its single purpose is to register all
- * serializers it has in the given [MutableSerialContext].
- *
- * Typically, one can create a module (using library implementation or anonymous class)
- * per file, or per package, to hold
- * all serializers together and then register it in some [AbstractSerialFormat].
- *
- * @see AbstractSerialFormat.install
- */
-interface SerialModule {
-
-    /**
-     * Registers everything it has in the [context].
-     *
-     * @see MutableSerialContext.registerSerializer
-     * @see MutableSerialContext.registerPolymorphicSerializer
-     */
-    fun registerIn(context: MutableSerialContext)
-}
-
-/**
- * A [SerialModule] which registers one class with one serializer for [ContextSerializer].
- *
- * @see MutableSerialContext.registerSerializer
- */
-class SimpleModule<T: Any>(val kClass: KClass<T>, val kSerializer: KSerializer<T>): SerialModule {
-    override fun registerIn(context: MutableSerialContext) {
-        context.registerSerializer(kClass, kSerializer)
-    }
-}
-
-/**
- * A [SerialModule] which registers multiple classes with its serializers for [ContextSerializer].
- */
-@Suppress("UNCHECKED_CAST")
-class MapModule(val map: Map<KClass<*>, KSerializer<*>>): SerialModule {
-    override fun registerIn(context: MutableSerialContext) {
-        map.forEach { (k, s) -> context.registerSerializer(k as KClass<Any>, s as KSerializer<Any>) }
-    }
-}
-
-/**
- * A [SerialModule] for composing other modules
- *
- * Has convenient operator [plusAssign].
- *
- * @see SerialModule.plus
- */
-class CompositeModule(modules: List<SerialModule> = listOf()): SerialModule {
-    constructor(vararg modules: SerialModule) : this(modules.toList())
-
-    private val modules: MutableList<SerialModule> = modules.toMutableList()
-
-    override fun registerIn(context: MutableSerialContext) {
-        modules.forEach { it.registerIn(context) }
-    }
-
-    public operator fun plusAssign(module: SerialModule): Unit { modules += module }
-    public fun addModule(module: SerialModule) = plusAssign(module)
-}
-
-/**
- * Composes [this] module with [other].
- */
-operator fun SerialModule.plus(other: SerialModule): CompositeModule {
-    if (this is CompositeModule) {
-        this += other
-        return this
-    }
-    return CompositeModule(this, other)
-}
 
 /**
  * A [SerialModule] which registers all its content for polymorphic serialization in the scope of [baseClass].
@@ -89,8 +30,10 @@ operator fun SerialModule.plus(other: SerialModule): CompositeModule {
  * @see MutableSerialContext.registerPolymorphicSerializer
  */
 @Suppress("UNCHECKED_CAST")
-class PolymorphicModule<Base : Any>(val baseClass: KClass<Base>, val baseSerializer: KSerializer<Base>? = null) : SerialModule {
+class PolymorphicModule<Base : Any>(val baseClass: KClass<Base>, val baseSerializer: KSerializer<Base>? = null) :
+    SerialModule {
     private val subclasses: MutableList<Pair<KClass<out Base>, KSerializer<out Base>>> = mutableListOf()
+
     override fun registerIn(context: MutableSerialContext) {
         if (baseSerializer != null) context.registerPolymorphicSerializer(baseClass, baseClass, baseSerializer)
         subclasses.forEach { (k, s) ->
@@ -103,16 +46,25 @@ class PolymorphicModule<Base : Any>(val baseClass: KClass<Base>, val baseSeriali
     }
 
     /**
-     * @see PolymorphicModule.unaryPlus
+     * Adds a [serializer] to this module as a serializer for [subclass].
+     * When this module will be registered in context, [serializer] would be registered for [subclass]
+     * in the scope of [baseClass].
      */
     public fun <T : Base> addSubclass(subclass: KClass<T>, serializer: KSerializer<T>) {
         subclasses.add(subclass to serializer)
     }
 
     /**
-     * Adds a pair of class and serializer to a scope of [baseClass] in this module
+     * @see addSubclass
      */
-    operator fun <T : Base> Pair<KClass<T>, KSerializer<T>>.unaryPlus() = addSubclass(this.first, this.second)
+    @ImplicitReflectionSerializer
+    public inline fun <reified T: Base> addSubclass() = addSubclass(T::class, T::class.serializer())
+
+
+    /**
+     * @see addSubclass
+     */
+    public operator fun <T : Base> Pair<KClass<T>, KSerializer<T>>.unaryPlus() = addSubclass(this.first, this.second)
 
 
     /**
@@ -157,7 +109,7 @@ class PolymorphicModule<Base : Any>(val baseClass: KClass<Base>, val baseSeriali
  *
  * @see PolymorphicModule.unaryPlus
  */
-inline fun <Base : Any> SerialFormat.installPolymorphicModule(
+public inline fun <Base : Any> SerialFormat.installPolymorphicModule(
     baseClass: KClass<Base>,
     baseSerializer: KSerializer<Base>? = null,
     builder: PolymorphicModule<Base>.() -> Unit = {}

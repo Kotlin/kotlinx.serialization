@@ -24,7 +24,7 @@ import kotlinx.serialization.protobuf.ProtoBuf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class PolymorphicTest {
+class PolymorphismTest {
 
     @Serializable
     data class Wrapper(

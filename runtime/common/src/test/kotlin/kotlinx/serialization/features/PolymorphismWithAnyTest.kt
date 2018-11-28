@@ -24,7 +24,7 @@ import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 
-class PolymorphicMap {
+class PolymorphismWithAnyTest {
     @Serializable
     data class MyPolyData(val data: Map<String, @Polymorphic Any>)
 

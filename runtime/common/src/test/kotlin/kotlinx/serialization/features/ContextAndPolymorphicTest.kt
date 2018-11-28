@@ -22,7 +22,7 @@ import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.Json
 import kotlin.test.*
 
-class ContextAndPolymorphic {
+class ContextAndPolymorphicTest {
 
     @Serializable
     data class Data(val a: Int, @Optional val b: Int = 42)
@@ -70,19 +70,19 @@ class ContextAndPolymorphic {
     }
 
     @Test
-    fun writeCustom() {
+    fun testWriteCustom() {
         val s = json.stringify(EnhancedData.serializer(), obj)
         assertEquals("{data:{a:100500,b:42},stringPayload:{s:string},binaryPayload:62696E617279}", s)
     }
 
     @Test
-    fun readCustom() {
+    fun testReadCustom() {
         val s = json.parse(EnhancedData.serializer(), "{data:{a:100500,b:42},stringPayload:{s:string},binaryPayload:62696E617279}")
         assertEquals(obj, s)
     }
 
     @Test
-    fun writeCustomList() {
+    fun testWriteCustomList() {
         val s = json.stringify(PayloadList.serializer(), PayloadList(listOf(Payload("1"), Payload("2"))))
         assertEquals("{ps:[{s:1},{s:2}]}", s)
     }
@@ -92,11 +92,11 @@ class ContextAndPolymorphic {
         val map = mapOf<String, Any>("Payload" to Payload("data"))
         val serializer = (StringSerializer to PolymorphicSerializer(Any::class)).map
         val s = json.stringify(serializer, map)
-        assertEquals("""{Payload:[kotlinx.serialization.features.ContextAndPolymorphic.Payload,{s:data}]}""", s)
+        assertEquals("""{Payload:[kotlinx.serialization.features.ContextAndPolymorphicTest.Payload,{s:data}]}""", s)
     }
 
     @Test
-    fun differentRepresentations() {
+    fun testDifferentRepresentations() {
         val simpleModule = SimpleModule(Payload::class, PayloadSerializer)
         // MapModule and CompositeModule are also available
         val binaryModule = SimpleModule(Payload::class, BinaryPayloadSerializer)
