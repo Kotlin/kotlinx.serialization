@@ -5,12 +5,16 @@ package kotlinx.serialization.context
 import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
+
+@Deprecated(deprecationText, ReplaceWith("SingletonModule"))
+typealias SimpleModule<T> = SingletonModule<T>
+
 /**
  * A [SerialModule] which registers one class with one serializer for [ContextSerializer].
  *
  * @see MutableSerialContext.registerSerializer
  */
-class SimpleModule<T: Any>(val kClass: KClass<T>, val kSerializer: KSerializer<T>): SerialModule {
+class SingletonModule<T: Any>(val kClass: KClass<T>, val kSerializer: KSerializer<T>): SerialModule {
     override fun registerIn(context: MutableSerialContext) {
         context.registerSerializer(kClass, kSerializer)
     }
