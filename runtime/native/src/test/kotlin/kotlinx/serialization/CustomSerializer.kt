@@ -8,6 +8,19 @@ import kotlin.test.*
 import kotlin.test.assertEquals
 
 class BinaryPayloadExampleTest {
+
+    @Serializable
+    data class WithNull(@Optional @SerialName("value") val nullable: String? = null) {
+        @Serializer(forClass = WithNull::class)
+        companion object : KSerializer<WithNull> {
+            override fun serialize(output: Encoder, obj: WithNull) {
+                val elemOutput = output.beginStructure(descriptor)
+                if (obj.nullable != null) elemOutput.encodeStringElement(descriptor, 0, obj.nullable)
+                elemOutput.endStructure(descriptor)
+            }
+        }
+    }
+
     @Serializable
     class BinaryPayload(val req: ByteArray, val res: ByteArray) {
 
@@ -70,5 +83,11 @@ class BinaryPayloadExampleTest {
         val s = Json.stringify(BinaryPayload.serializer(), payload1)
         val payload2 = Json.parse(BinaryPayload.serializer(), s)
         assertEquals(payload1, payload2)
+    }
+
+    @Test
+    fun partiallyCustom() {
+        assertEquals("""{"value":"foo"}""", Json.stringify(WithNull.serializer(), WithNull("foo")))
+        assertEquals("""{}""", Json.stringify(WithNull.serializer(), WithNull()))
     }
 }
