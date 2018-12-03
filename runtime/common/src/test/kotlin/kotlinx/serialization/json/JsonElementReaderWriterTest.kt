@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package kotlinx.serialization.formats.json
+package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.SerialClassDescImpl
-import kotlinx.serialization.json.*
-import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class JsonElementReaderWriterTest {
     private val inputDataString = """{"id":0,"payload":{"from":42,"to":43,"msg":"Hello world"},"timestamp":1000}"""
@@ -112,16 +110,14 @@ class JsonElementReaderWriterTest {
     fun testWriteDataJson() {
         val outputData = Event(0, DummyEither.Right(Payload(42, 43, "Hello world")), 1000)
         val ev = Json.plain.toJson(outputData, Event.serializer())
-        // JsonObject#equals seems to be broken here.
-        assertEquals(inputDataJson.toString(), ev.toString())
+        assertEquals(inputDataJson, ev)
     }
 
     @Test
     fun testWriteErrorJson() {
         val outputError = Event(1, DummyEither.Left("Connection timed out"), 1001)
         val ev = Json.plain.toJson(outputError, Event.serializer())
-        // JsonObject#equals seems to be broken here.
-        assertEquals(inputErrorJson.toString(), ev.toString())
+        assertEquals(inputErrorJson, ev)
     }
 
     @Test
