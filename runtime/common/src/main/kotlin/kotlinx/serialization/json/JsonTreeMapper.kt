@@ -13,7 +13,7 @@ class JsonTreeMapper(val encodeDefaults: Boolean = true) : AbstractSerialFormat(
     @Deprecated(level = DeprecationLevel.WARNING, message = "Use Json.fromJson instead", replaceWith = ReplaceWith("Json.plain.fromJson(tree)"))
     inline fun <reified T : Any> readTree(tree: JsonElement): T = Json.plain.fromJson(tree)
 
-    @Deprecated(level = DeprecationLevel.WARNING, message = "Use Json.fromJson instead", replaceWith = ReplaceWith("Json.plain.fromJson(tree, deserializer)"))
+    @Deprecated(level = DeprecationLevel.WARNING, message = "Use Json.fromJson instead", replaceWith = ReplaceWith("Json.plain.fromJson(obj, deserializer)"))
     fun <T> readTree(obj: JsonElement, deserializer: DeserializationStrategy<T>): T =
         Json.plain.fromJson(obj, deserializer)
 

@@ -19,7 +19,6 @@ package kotlinx.serialization.formats.json
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlinx.serialization.json.*
-import kotlinx.serialization.json.Json.Companion
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -35,7 +34,7 @@ class JsonElementReaderWriterTest {
 
     @Test
     fun testParseDataString() {
-        val ev = JSON.parse(Event.serializer(), inputDataString)
+        val ev = Json.parse(Event.serializer(), inputDataString)
         with(ev) {
             assertEquals(0, id)
             assertEquals(DummyEither.Right(Payload(42, 43, "Hello world")), payload)
@@ -45,7 +44,7 @@ class JsonElementReaderWriterTest {
 
     @Test
     fun testParseErrorString() {
-        val ev = JSON.parse(Event.serializer(), inputErrorString)
+        val ev = Json.parse(Event.serializer(), inputErrorString)
         with(ev) {
             assertEquals(1, id)
             assertEquals(DummyEither.Left("Connection timed out"), payload)
@@ -56,21 +55,21 @@ class JsonElementReaderWriterTest {
     @Test
     fun testWriteDataString() {
         val outputData = Event(0, DummyEither.Right(Payload(42, 43, "Hello world")), 1000)
-        val ev = JSON.stringify(Event.serializer(), outputData)
+        val ev = Json.stringify(Event.serializer(), outputData)
         assertEquals(inputDataString, ev)
     }
 
     @Test
     fun testWriteDataStringUnquoted() {
         val outputData = Event(0, DummyEither.Right(Payload(42, 43, "Hello world")), 1000)
-        val ev = JSON.unquoted.stringify(Event.serializer(), outputData)
+        val ev = Json.unquoted.stringify(Event.serializer(), outputData)
         assertEquals("""{id:0,payload:{from:42,to:43,msg:"Hello world"},timestamp:1000}""", ev)
     }
 
     @Test
     fun testWriteDataStringIndented() {
         val outputData = Event(0, DummyEither.Right(Payload(42, 43, "Hello world")), 1000)
-        val ev = JSON.indented.stringify(Event.serializer(), outputData)
+        val ev = Json.indented.stringify(Event.serializer(), outputData)
         assertEquals("""{
             |    "id": 0,
             |    "payload": {
@@ -85,13 +84,13 @@ class JsonElementReaderWriterTest {
     @Test
     fun testWriteErrorString() {
         val outputError = Event(1, DummyEither.Left("Connection timed out"), 1001)
-        val ev = JSON.stringify(Event.serializer(), outputError)
+        val ev = Json.stringify(Event.serializer(), outputError)
         assertEquals(inputErrorString, ev)
     }
 
     @Test
     fun testParseDataJson() {
-        val ev = JsonTreeMapper().readTree(inputDataJson, Event.serializer())
+        val ev = Json.plain.fromJson(inputDataJson, Event.serializer())
         with(ev) {
             assertEquals(0, id)
             assertEquals(DummyEither.Right(Payload(42, 43, "Hello world")), payload)
@@ -101,7 +100,7 @@ class JsonElementReaderWriterTest {
 
     @Test
     fun testParseErrorJson() {
-        val ev = JsonTreeMapper().readTree(inputErrorJson, Event.serializer())
+        val ev = Json.plain.fromJson(inputErrorJson, Event.serializer())
         with(ev) {
             assertEquals(1, id)
             assertEquals(DummyEither.Left("Connection timed out"), payload)
@@ -112,7 +111,7 @@ class JsonElementReaderWriterTest {
     @Test
     fun testWriteDataJson() {
         val outputData = Event(0, DummyEither.Right(Payload(42, 43, "Hello world")), 1000)
-        val ev = JsonTreeMapper().writeTree(outputData, Event.serializer())
+        val ev = Json.plain.toJson(outputData, Event.serializer())
         // JsonObject#equals seems to be broken here.
         assertEquals(inputDataJson.toString(), ev.toString())
     }
@@ -120,20 +119,20 @@ class JsonElementReaderWriterTest {
     @Test
     fun testWriteErrorJson() {
         val outputError = Event(1, DummyEither.Left("Connection timed out"), 1001)
-        val ev = JsonTreeMapper().writeTree(outputError, Event.serializer())
+        val ev = Json.plain.toJson(outputError, Event.serializer())
         // JsonObject#equals seems to be broken here.
         assertEquals(inputErrorJson.toString(), ev.toString())
     }
 
     @Test
     fun testParseRecursive() {
-        val ev = JSON.parse(RecursiveSerializer, inputRecursive)
+        val ev = Json.parse(RecursiveSerializer, inputRecursive)
         assertEquals(outputRecursive, ev)
     }
 
     @Test
     fun testWriteRecursive() {
-        val ev = JSON.stringify(RecursiveSerializer, outputRecursive)
+        val ev = Json.stringify(RecursiveSerializer, outputRecursive)
         assertEquals(inputRecursive, ev)
     }
 
@@ -148,21 +147,21 @@ class JsonElementReaderWriterTest {
     private object EitherSerializer: KSerializer<DummyEither> {
         override val descriptor: SerialDescriptor = SerialClassDescImpl("DummyEither")
 
-        override fun deserialize(input: Decoder): DummyEither {
-            val jsonReader = input as? JsonInput
+        override fun deserialize(decoder: Decoder): DummyEither {
+            val jsonReader = decoder as? JsonInput
                     ?: throw SerializationException("This class can be loaded only by JSON")
             val tree = jsonReader.decodeJson() as? JsonObject
                     ?: throw SerializationException("Expected JSON object")
             if ("error" in tree) return DummyEither.Left(tree.getPrimitive("error").content)
-            return DummyEither.Right(input.json.fromJson(tree, Payload.serializer()))
+            return DummyEither.Right(decoder.json.fromJson(tree, Payload.serializer()))
         }
 
-        override fun serialize(output: Encoder, obj: DummyEither) {
-            val jsonWriter = output as? JsonOutput
+        override fun serialize(encoder: Encoder, obj: DummyEither) {
+            val jsonWriter = encoder as? JsonOutput
                     ?: throw SerializationException("This class can be saved only by JSON")
             val tree = when (obj) {
                 is DummyEither.Left -> JsonObject(mapOf("error" to JsonLiteral(obj.errorMsg)))
-                is DummyEither.Right -> output.json.toJson(obj.data, Payload.serializer())
+                is DummyEither.Right -> encoder.json.toJson(obj.data, Payload.serializer())
             }
             jsonWriter.encodeJson(tree)
         }
@@ -210,9 +209,10 @@ class JsonElementReaderWriterTest {
             val tree = jsonReader.decodeJson() as? JsonObject
                     ?: throw SerializationException("Expected JSON object")
             val typeName = tree[typeAttribute].primitive.content
+            val objTree = JsonObject(tree.content - typeAttribute)
             return when (typeName) {
-                typeNameA -> decoder.json.fromJson(tree, DummyRecursive.A.serializer())
-                typeNameB -> decoder.json.fromJson(tree, DummyRecursive.B.serializer())
+                typeNameA -> decoder.json.fromJson(objTree, DummyRecursive.A.serializer())
+                typeNameB -> decoder.json.fromJson(objTree, DummyRecursive.B.serializer())
                 else -> throw SerializationException("Unknown type: $typeName")
             }
         }
