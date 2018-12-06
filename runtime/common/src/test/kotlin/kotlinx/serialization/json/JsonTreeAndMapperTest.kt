@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package kotlinx.serialization.formats.json
+package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
-import kotlinx.serialization.json.*
 import kotlin.test.*
 
 @Serializable
@@ -60,8 +59,8 @@ data class Event(
 )
 
 class JsonTreeAndMapperTest {
-    private val decoderData = """{"id":0,"payload":{"from": 42, "to": 43, "msg": "Hello world"},"timestamp":1000}"""
-    private val decoderError = """{"id":1,"payload":{"error": "Connection timed out"},"timestamp":1001}"""
+    private val decoderData = """{"id":0,"payload":{"from":42,"to":43,"msg":"Hello world"},"timestamp":1000}"""
+    private val decoderError = """{"id":1,"payload":{"error":"Connection timed out"},"timestamp":1001}"""
 
     @Test
     fun testParseData() {

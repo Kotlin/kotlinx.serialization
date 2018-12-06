@@ -25,7 +25,7 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
     }
 
     override fun encodeJson(element: JsonElement) {
-        composer.sb.append(element.toString())
+        encodeSerializableValue(JsonElementSerializer, element)
     }
 
     override fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean {
@@ -63,11 +63,16 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
             }
             WriteMode.MAP -> {
                 if (!composer.writingFirst) {
-                    if (index % 2 == 0) composer.print(COMMA) else composer.print(
-                        COLON
-                    )
+                    if (index % 2 == 0) {
+                        composer.print(COMMA)
+                        composer.nextItem() // indent should only be put after commas in map
+                    } else {
+                        composer.print(COLON)
+                        composer.space()
+                    }
+                } else {
+                    composer.nextItem()
                 }
-                composer.nextItem()
             }
             WriteMode.POLY_OBJ -> {
                 if (index == 0)

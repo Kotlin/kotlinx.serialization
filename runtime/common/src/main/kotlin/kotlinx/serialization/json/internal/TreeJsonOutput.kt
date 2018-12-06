@@ -34,7 +34,7 @@ private sealed class AbstractJsonTreeOutput(
 ) : NamedValueEncoder(), JsonOutput {
 
     override fun encodeJson(element: JsonElement) {
-        nodeConsumer(element)
+        encodeSerializableValue(JsonElementSerializer, element)
     }
 
     override fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean = json.encodeDefaults
