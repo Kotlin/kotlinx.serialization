@@ -18,21 +18,22 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.SerialClassDescImpl
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
-class JsonElementReaderWriterTest {
+class JsonInputOutputRecursiveTest : JsonTestBase() {
     private val inputDataString = """{"id":0,"payload":{"from":42,"to":43,"msg":"Hello world"},"timestamp":1000}"""
     private val inputErrorString = """{"id":1,"payload":{"error":"Connection timed out"},"timestamp":1001}"""
-    private val inputDataJson = Json.plain.parseJson(inputDataString)
-    private val inputErrorJson = Json.plain.parseJson(inputErrorString)
+    private val inputDataJson = strict.parseJson(inputDataString)
+    private val inputErrorJson = strict.parseJson(inputErrorString)
     private val inputRecursive = """{"type":"b","children":[{"type":"a","value":1},{"type":"a","value":2},{"type":"b","children":[]}]}"""
     private val outputRecursive = DummyRecursive.B(
             listOf(DummyRecursive.A(1), DummyRecursive.A(2), DummyRecursive.B(emptyList()))
     )
 
     @Test
-    fun testParseDataString() {
-        val ev = Json.parse(Event.serializer(), inputDataString)
+    fun testParseDataString() = parametrizedTest { streaming ->
+        val ev = strict.parse(Event.serializer(), inputDataString, streaming)
         with(ev) {
             assertEquals(0, id)
             assertEquals(DummyEither.Right(Payload(42, 43, "Hello world")), payload)
@@ -41,8 +42,8 @@ class JsonElementReaderWriterTest {
     }
 
     @Test
-    fun testParseErrorString() {
-        val ev = Json.parse(Event.serializer(), inputErrorString)
+    fun testParseErrorString() = parametrizedTest { useStreaming ->
+        val ev = strict.parse(Event.serializer(), inputErrorString, useStreaming)
         with(ev) {
             assertEquals(1, id)
             assertEquals(DummyEither.Left("Connection timed out"), payload)
@@ -51,23 +52,23 @@ class JsonElementReaderWriterTest {
     }
 
     @Test
-    fun testWriteDataString() {
+    fun testWriteDataString() = parametrizedTest { useStreaming ->
         val outputData = Event(0, DummyEither.Right(Payload(42, 43, "Hello world")), 1000)
-        val ev = Json.stringify(Event.serializer(), outputData)
+        val ev = strict.stringify(Event.serializer(), outputData, useStreaming)
         assertEquals(inputDataString, ev)
     }
 
     @Test
-    fun testWriteDataStringUnquoted() {
+    fun testWriteDataStringUnquoted() = parametrizedTest { useStreaming ->
         val outputData = Event(0, DummyEither.Right(Payload(42, 43, "Hello world")), 1000)
-        val ev = Json.unquoted.stringify(Event.serializer(), outputData)
+        val ev = unquoted.stringify(Event.serializer(), outputData, useStreaming)
         assertEquals("""{id:0,payload:{from:42,to:43,msg:"Hello world"},timestamp:1000}""", ev)
     }
 
     @Test
-    fun testWriteDataStringIndented() {
+    fun testWriteDataStringIndented() = parametrizedTest { useStreaming ->
         val outputData = Event(0, DummyEither.Right(Payload(42, 43, "Hello world")), 1000)
-        val ev = Json.indented.stringify(Event.serializer(), outputData)
+        val ev = Json.indented.stringify(Event.serializer(), outputData, useStreaming)
         assertEquals("""{
             |    "id": 0,
             |    "payload": {
@@ -80,15 +81,15 @@ class JsonElementReaderWriterTest {
     }
 
     @Test
-    fun testWriteErrorString() {
+    fun testWriteErrorString() = parametrizedTest { useStreaming ->
         val outputError = Event(1, DummyEither.Left("Connection timed out"), 1001)
-        val ev = Json.stringify(Event.serializer(), outputError)
+        val ev = strict.stringify(Event.serializer(), outputError, useStreaming)
         assertEquals(inputErrorString, ev)
     }
 
     @Test
     fun testParseDataJson() {
-        val ev = Json.plain.fromJson(inputDataJson, Event.serializer())
+        val ev = strict.fromJson(inputDataJson, Event.serializer())
         with(ev) {
             assertEquals(0, id)
             assertEquals(DummyEither.Right(Payload(42, 43, "Hello world")), payload)
@@ -98,7 +99,7 @@ class JsonElementReaderWriterTest {
 
     @Test
     fun testParseErrorJson() {
-        val ev = Json.plain.fromJson(inputErrorJson, Event.serializer())
+        val ev = strict.fromJson(inputErrorJson, Event.serializer())
         with(ev) {
             assertEquals(1, id)
             assertEquals(DummyEither.Left("Connection timed out"), payload)
@@ -109,26 +110,26 @@ class JsonElementReaderWriterTest {
     @Test
     fun testWriteDataJson() {
         val outputData = Event(0, DummyEither.Right(Payload(42, 43, "Hello world")), 1000)
-        val ev = Json.plain.toJson(outputData, Event.serializer())
+        val ev = strict.toJson(outputData, Event.serializer())
         assertEquals(inputDataJson, ev)
     }
 
     @Test
     fun testWriteErrorJson() {
         val outputError = Event(1, DummyEither.Left("Connection timed out"), 1001)
-        val ev = Json.plain.toJson(outputError, Event.serializer())
+        val ev = strict.toJson(outputError, Event.serializer())
         assertEquals(inputErrorJson, ev)
     }
 
     @Test
-    fun testParseRecursive() {
-        val ev = Json.parse(RecursiveSerializer, inputRecursive)
+    fun testParseRecursive() = parametrizedTest { useStreaming ->
+        val ev = strict.parse(RecursiveSerializer, inputRecursive, useStreaming)
         assertEquals(outputRecursive, ev)
     }
 
     @Test
-    fun testWriteRecursive() {
-        val ev = Json.stringify(RecursiveSerializer, outputRecursive)
+    fun testWriteRecursive() = parametrizedTest { useStreaming ->
+        val ev = strict.stringify(RecursiveSerializer, outputRecursive, useStreaming)
         assertEquals(inputRecursive, ev)
     }
 
@@ -165,9 +166,9 @@ class JsonElementReaderWriterTest {
 
     @Serializable
     private data class Event(
-            val id: Int,
-            @Serializable(with=EitherSerializer::class) val payload: DummyEither,
-            val timestamp: Long
+        val id: Int,
+        @Serializable(with = EitherSerializer::class) val payload: DummyEither,
+        val timestamp: Long
     )
 
     @Serializable(with = RecursiveSerializer::class)
