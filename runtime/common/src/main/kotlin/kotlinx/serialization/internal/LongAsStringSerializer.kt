@@ -27,5 +27,5 @@ object LongAsStringSerializer : KSerializer<Long> {
         return decoder.decodeString().toLong()
     }
 
-    override val descriptor: SerialDescriptor = StringDescriptor // ???
+    override val descriptor: SerialDescriptor = StringDescriptor
 }

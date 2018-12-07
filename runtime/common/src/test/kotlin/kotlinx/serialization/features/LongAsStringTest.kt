@@ -39,5 +39,7 @@ class LongAsStringTest : JsonTestBase() {
     fun canNotDeserializeInvalidString() = parametrizedTest { useStreaming ->
         val str = """{"l": "this is definitely not a long"}"""
         assertFailsWith<NumberFormatException> { strict.parse(HasLong.serializer(), str, useStreaming) }
+        val str2 = """{"l": "1000000000000000000000"}""" // toooo long for Long
+        assertFailsWith<NumberFormatException> { strict.parse(HasLong.serializer(), str2, useStreaming) }
     }
 }

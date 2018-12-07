@@ -22,6 +22,9 @@ import kotlinx.serialization.internal.EnumDescriptor
 import kotlin.math.abs
 import kotlin.math.floor
 
+/**
+ * [https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER]
+ */
 internal const val MAX_SAFE_INTEGER: Double = 9007199254740991.toDouble() // 2^53 - 1
 
 class DynamicObjectParser(): AbstractSerialFormat() {
@@ -65,10 +68,10 @@ class DynamicObjectParser(): AbstractSerialFormat() {
             val number = obj as? Double ?: throw SerializationException("$obj is not a Number")
             val canBeConverted = number.isFinite() && floor(number) == number
             if (!canBeConverted)
-                throw SerializationException("$number can't be represented as Long")
+                throw SerializationException("$number can't be represented as Long because it is not finite or has non-zero fractional part")
             val inBound = abs(number) <= MAX_SAFE_INTEGER
             if (!inBound)
-                throw SerializationException("$number does not fit in Long due to a potential precision loss")
+                throw SerializationException("$number can't be deserialized to Long due to a potential precision loss")
             return number.toLong()
         }
 
