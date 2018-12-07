@@ -17,8 +17,12 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
-import kotlinx.serialization.context.*
+import kotlinx.serialization.context.getOrDefault
 import kotlinx.serialization.internal.EnumDescriptor
+import kotlin.math.abs
+import kotlin.math.floor
+
+internal const val MAX_SAFE_INTEGER: Double = 9007199254740991.toDouble() // 2^53 - 1
 
 class DynamicObjectParser(): AbstractSerialFormat() {
     @ImplicitReflectionSerializer
@@ -54,6 +58,18 @@ class DynamicObjectParser(): AbstractSerialFormat() {
                 is Number -> o.toChar()
                 else -> throw SerializationException("$o can't be represented as Char")
             }
+        }
+
+        override fun decodeTaggedLong(tag: String): Long {
+            val obj = getByTag(tag)
+            val number = obj as? Double ?: throw SerializationException("$obj is not a Number")
+            val canBeConverted = number.isFinite() && floor(number) == number
+            if (!canBeConverted)
+                throw SerializationException("$number can't be represented as Long")
+            val inBound = abs(number) <= MAX_SAFE_INTEGER
+            if (!inBound)
+                throw SerializationException("$number does not fit in Long due to a potential precision loss")
+            return number.toLong()
         }
 
         override fun decodeTaggedValue(tag: String): Any {
