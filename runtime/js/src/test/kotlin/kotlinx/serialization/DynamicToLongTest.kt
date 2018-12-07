@@ -44,6 +44,8 @@ class DynamicToLongTest {
     fun ignoresIncorrectValues() {
         shouldFail(js("{l:0.5}"))
         shouldFail(js("{l: Math.PI}"))
+        shouldFail(js("{l: NaN}"))
+        shouldFail(js("""{l: "a string"}"""))
         shouldFail(js("{l:Infinity}"))
         shouldFail(js("{l:+Infinity}"))
         shouldFail(js("{l:-Infinity}"))
