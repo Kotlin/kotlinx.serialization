@@ -75,8 +75,7 @@ This document describes setup for Kotlin 1.3 and higher. To watch instructions r
 
 ## Setup
 
-Using Kotlin Serialization requires Kotlin compiler `1.3.0` or higher. Make sure that you have corresponding Kotlin plugin installed in the IDE. Since serialization is now bundled into Kotlin plugin, no additional actions in IDE are required (but make sure you have deleted old additional plugin for 1.2, if you had one). 
-Delegate build to Gradle: (`Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`).
+Using Kotlin Serialization requires Kotlin compiler `1.3.11` or higher. Make sure that you have corresponding Kotlin plugin installed in the IDE. Since serialization is now bundled into Kotlin plugin, no additional plugins for IDE are required (but make sure you have deleted old additional plugin for 1.2, if you had one).
 Example projects on JVM are available for [Gradle](example-jvm/build.gradle) and [Maven](example-jvm/pom.xml).
 
 ### Gradle
@@ -85,7 +84,7 @@ You have to add the serialization plugin as the other [compiler plugins](https:/
 
 ```gradle
 buildscript {
-    ext.kotlin_version = '1.3.0'
+    ext.kotlin_version = '1.3.11'
     repositories { jcenter() }
 
     dependencies {
@@ -113,7 +112,7 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.9.0"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.9.1"
 }
 ```
 
@@ -123,8 +122,8 @@ You can setup serialization plugin with the kotlin plugin using [Gradle plugins 
 
 ```gradle
 plugins {
-    id 'kotlin-multiplatform' version '1.3.0'
-    id 'kotlinx-serialization' version '1.3.0'
+    id 'kotlin-multiplatform' version '1.3.11'
+    id 'kotlinx-serialization' version '1.3.11'
 }
 ```
 
@@ -175,8 +174,8 @@ Ensure the proper version of Kotlin and serialization version:
 
 ```xml
 <properties>
-    <kotlin.version>1.3.0</kotlin.version>
-    <serialization.version>0.9.0</serialization.version>
+    <kotlin.version>1.3.11</kotlin.version>
+    <serialization.version>0.9.1</serialization.version>
 </properties>
 ```
 
@@ -277,5 +276,5 @@ Sample project can be found in [example-native](example-native) folder.
 
 ## Troubleshooting IntelliJ IDEA
 
-Serialization support should work out of the box, if you have 1.3 Kotlin plugin installed. You still have to delegate build to Gradle (`Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`).
+Serialization support should work out of the box, if you have 1.3.x Kotlin plugin installed. If you have Kotlin 1.3.10 or lower, you have to delegate build to Gradle (`Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`). From 1.3.11, no delegation is required.
 In case of problems, force project re-import from Gradle.
