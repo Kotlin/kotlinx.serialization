@@ -341,6 +341,9 @@ data class JsonArray(val content: List<JsonElement>) : JsonElement(), List<JsonE
     inline fun <reified J : JsonElement> getAsOrNull(index: Int): J? = content.getOrNull(index) as? J
 
     override fun toString() = content.joinToString(prefix = "[", postfix = "]")
+    
+    override fun equals(other: Any?): Boolean =
+            content.equals(other)
 }
 
 @PublishedApi
