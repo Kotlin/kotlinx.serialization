@@ -30,7 +30,7 @@ buildscript {
         ext.konanVersion = property('konan.version')
         ext.eapChannel = 'https://dl.bintray.com/kotlin/kotlin-dev'
     }
-    ext.eapChannel = "https://teamcity.jetbrains.com/guestAuth/app/rest/builds/id:1780410/artifacts/content/maven"
+    ext.eapChannel = "https://teamcity.jetbrains.com/guestAuth/app/rest/builds/id:1799882/artifacts/content/maven"
     ext.serializationCoordinates = "org.jetbrains.kotlin:kotlin-serialization"
     ext.serializationRepo = 'https://kotlin.bintray.com/kotlinx'
     ext.experimentalsEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
