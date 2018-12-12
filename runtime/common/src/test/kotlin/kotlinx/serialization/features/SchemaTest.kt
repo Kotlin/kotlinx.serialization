@@ -63,7 +63,6 @@ data class DataZooIsomorphic(
     @Optional val mm: Map<String, Data2>? = null
 )
 
-//@Ignore // todo: unignore when corresponding features in plugin will be released
 class SchemaTest {
 
     private fun checkDescriptor(serialDescriptor: SerialDescriptor) {

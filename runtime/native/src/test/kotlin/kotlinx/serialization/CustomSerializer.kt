@@ -13,8 +13,8 @@ class BinaryPayloadExampleTest {
     data class WithNull(@Optional @SerialName("value") val nullable: String? = null) {
         @Serializer(forClass = WithNull::class)
         companion object : KSerializer<WithNull> {
-            override fun serialize(output: Encoder, obj: WithNull) {
-                val elemOutput = output.beginStructure(descriptor)
+            override fun serialize(encoder: Encoder, obj: WithNull) {
+                val elemOutput = encoder.beginStructure(descriptor)
                 if (obj.nullable != null) elemOutput.encodeStringElement(descriptor, 0, obj.nullable)
                 elemOutput.endStructure(descriptor)
             }

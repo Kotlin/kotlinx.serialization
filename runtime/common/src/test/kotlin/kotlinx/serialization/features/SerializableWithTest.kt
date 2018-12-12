@@ -10,12 +10,12 @@ object MultiplyingIntSerializer : KSerializer<Int> {
     override val descriptor: SerialDescriptor
         get() = IntDescriptor
 
-    override fun deserialize(input: Decoder): Int {
-        return input.decodeInt() / 2
+    override fun deserialize(decoder: Decoder): Int {
+        return decoder.decodeInt() / 2
     }
 
-    override fun serialize(output: Encoder, obj: Int) {
-        output.encodeInt(obj * 2)
+    override fun serialize(encoder: Encoder, obj: Int) {
+        encoder.encodeInt(obj * 2)
     }
 }
 

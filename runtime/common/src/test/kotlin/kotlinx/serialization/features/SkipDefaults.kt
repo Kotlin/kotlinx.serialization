@@ -14,7 +14,6 @@ data class Data(val bar: String, @Optional val foo: Int = 42) {
     val listWithSomething: List<Int> = listOf(1, 2, 3)
 }
 
-//@Ignore // todo: unignore when corresponding features in plugin will be released
 class SkipDefaultsTest {
     private val json = Json(encodeDefaults = false)
     private val cbor = Cbor(encodeDefaults = false)

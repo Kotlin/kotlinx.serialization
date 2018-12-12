@@ -26,7 +26,6 @@ class LongAsStringTest : JsonTestBase() {
     data class HasLong(@Serializable(LongAsStringSerializer::class) val l: Long)
 
     @Test
-    @Ignore // this needs 1.3.20-eap-1 due to #252. Tested locally on snapshot.
     fun canSerializeAsStringAndParseBack() = parametrizedTest { useStreaming ->
         val original = HasLong(Long.MAX_VALUE - 1)
         val str = strict.stringify(HasLong.serializer(), original, useStreaming)
