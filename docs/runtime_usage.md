@@ -144,7 +144,7 @@ To get your object back, use `unmap` function. To support objects with nullable 
 
 ### JSON Tree Mapper
 
-`JsonTreeMapper` allows to map [abstract JSON syntax tree](../json/README.md) onto Kotlin classes and back with `readTree` and `writeTree` correspondingly.
+`JsonTreeMapper` allows to map [abstract JSON syntax tree](https://github.com/Kotlin/kotlinx.serialization/blob/master/runtime/common/src/main/kotlin/kotlinx/serialization/json/JsonElement.kt#L28) onto Kotlin classes and back with `readTree` and `writeTree` correspondingly.
 
 ### Dynamic object parser (JS only)
 
