@@ -16,3 +16,12 @@ Allows deserialization of `Config` object from popular [lightbend/config](https:
 into Kotlin objects.
 You can learn about "Human-Optimized Config Object Notation" or HOCON from library's [readme](https://github.com/lightbend/config#using-hocon-the-json-superset).
 
+## Other community-supported formats
+
+### YAML
+
+* GitHub repo: [charleskorn/kaml](https://github.com/charleskorn/kaml)
+* Artifact ID: `com.charleskorn.kaml:kaml`
+* Platform: JVM only
+
+Allows deserialization of objects from [YAML](http://yaml.org).
