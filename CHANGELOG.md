@@ -1,4 +1,80 @@
 
+0.10.0-eap-1 / 2018-12-19
+==================
+
+#### Plugin: 
+
+* Support @SerialInfo annotation for Native
+* Remove redundant check for 'all parameters are properties' in a case of fully-customized serializer.
+* Fix unresolved symbol to SerialDescriptor in KSerializer if it was referenced from user custom serializer code (#290)
+* Support for @UseSerializers annotation
+* Restrict auto-implementing serializers methods to certain type of classes
+* Increase priority of overridden serializer on type (#252)
+* Fix instantiation of generic serializers on JS (#244)
+* .shouldEncodeElementDefault for JVM (#58)
+* Support skipping values equals to defaults in output stream for JS and Native backends (#58)
+* Support enums in Native
+* Support reference array and context serializers in Native
+* Fix order of overriding @Serializable(with) on property: check override, than @ContextualSerialization. 
+* Support @Transient properties initializers and init blocks in Native
+* Better lookup for `serializer()` function in companion for generic classes because user can define a parameterless shorthand one (#228)
+* Generics serialization in Native
+* .getElementDescriptor for JVM, JS and Native
+* Respect @ContextualSerialization on file
+* Remove auto-applying ContextSerializer. @ContextualSerialization should be used instead.
+
+#### Runtime: 
+
+  * Turn around messed endianness names (#308)
+  * Update to Kotlin 1.3.20 EAP 2
+  * Get rid of protobuf-platform functions since @SerialInfo annotations are supported now. Auto-assign ids starting with 1 because 0 is not a valid protobuf ID.
+  * Delegates `equals`, `hashCode` of `JsonObject` and `JsonArray`.
+  * Test for fixed #190 in plugin
+  * UseSerializers annotation
+  * Introduce LongAsStringSerializer
+  * Add validation for parsing dynamic to Long Fixes #274
+  * Merge pull request #294 from Kotlin/recursive_custom_parsing
+  * Fix recursive serialization for JsonOutputs/Inputs 
+  * Production-ready JSON API
+  * Remove ValueTransformer
+  * Json improvements
+  * @Serializable support for JsonArray
+  * @Serializable support for JsonObject
+  * @Serializable support for JsonNull and JsonPrimitive
+  * Hide JsonTreeParser, provide Json.parseJson as replacement, implement basic JsonElementSerializer.deserialize
+  * Migrate the rest of the test on JsonTestBase, implement nullable result in tree json
+  * Implement custom serializers support for TreeJsonInput
+  * Implement JsonArray serialization
+  * Implement strict mode for double in TreeJsonOutput (fixes JsonModesTest)
+  * Introduce JsonTestBase in order to ensure streaming and tree json compatibility, transient and strict support in TreeJsonInput
+  * Make JsonElement serializable via common machinery
+  * Json rework, consolidate different parsing mechanisms, hide implementation details
+  * Polymorphic serializer improvements
+  * Renamed identifiers to align with Kotlin's coding conventions. https://kotlinlang.org/docs/reference/coding-conventions.html#naming-rules
+  * Changed JSON -> Json and CBOR -> Cbor
+
+v0.9.1 / 2018-11-19
+===================
+
+  * Update lib to 0.9.1/Kotlin to 1.3.10
+  * Use-case for `PrimitiveDescriptor.withName`
+  * Merge branch 'dev'
+  * Make some clarifications about Gradle plugin DSL and serialization plugin distribution
+  * Primitive descriptor with overriden name
+  * Fix example with java.util.Date
+  * Add missing shorthands for float and char serializers Fixes #263
+  * Fix local K/N setup and some typos
+  * Fix bug where primitive non-string values created by hand and created by parser could be inequal due to a redundant type comparison.
+  * Skip defaults in JSONTreeMapper and CBOR
+  * Local K/N compilation setup
+  * Typo
+  * Explicitly add KSerializer supertype to avoid certain restrictions after update
+  * Don't look at default serializer too early during reflective lookup Fixes #250
+  * Fix maven example
+  * Update changelog for 0.9.0
+  * Update documentation: Remove obsolete eap13.md document Add some notes
+  * Migrate Native sample Add lost information about `apply pluing: 'kotlinx-serialization-native'` Add bintray credentials to all sample projects Remove obsolete iOS example
+
 v0.9.0 / 2018-10-24
 ==================
 
