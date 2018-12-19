@@ -23,7 +23,7 @@ In general, try to replace theirs usage
 If you haven't written any custom serializers our touched internal machinery, you're done. Otherwise,
 
 * Read the [KEEP](https://github.com/Kotlin/KEEP/blob/serialization/proposals/extensions/serialization.md) about new design.
-* Rename superclasses: `KInput` -> `Decoder/CompositeDecoder`, `KOutput` -> `Encoder/CompositeEncoder`, `KSerialClassDesc` -> `SerialDescriptor`, `[ElementValue|Tagged][Output|Input]` -> `[ElementValue|Tagged][Decoder|Encoder].
+* Rename superclasses: `KInput` -> `Decoder/CompositeDecoder`, `KOutput` -> `Encoder/CompositeEncoder`, `KSerialClassDesc` -> `SerialDescriptor`, `[ElementValue|Tagged][Output|Input]` -> `[ElementValue|Tagged][Decoder|Encoder]`.
 * Update all method names, e.g `writeIntValue` -> `encodeInt`, `writeIntElementValue` -> `encodeIntElement`, etc.
 
 In case you face any issues, see updated documents about the new API. 

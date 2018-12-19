@@ -9,7 +9,7 @@ Kotlin serialization consists of a compiler plugin, which automatically produces
 
 * Supports Kotlin classes marked as `@Serializable` and standard collections. 
 * Supports JSON, CBOR, and Protobuf formats out-of-the-box.
-* The same code works on Kotlin/JVM, Kotlin/JS and Kotlin/Native (Native support is limited for now, see below in the [corresponding section](#native)).
+* The same code works on Kotlin/JVM, Kotlin/JS and Kotlin/Native
 
 ## Runtime overview
 
@@ -257,23 +257,7 @@ since platform-native from K/N 0.9.3 uses infrastructure in which compiler plugi
 Use `kotlinx-serialization-runtime-native` artifact. Don't forget to `enableFeaturePreview('GRADLE_METADATA')`
 in yours `settings.gradle`. You must have Gradle 4.7, because higher versions have unsupported format of metadata.
 
-Serialization compiler plugin for Native is still in active development, and is not as feature-full as JVM/JS plugins.
-
-What **works**: 
-
-* `@Serializable` classes with primitive or `@Serializable` properties
-* Standard collections
-* `@Optional` and `@SerialName` annotations
-
-What **does not work**:
-
-* `@Serializable` classes with generics (except standard collections)
-* Enums and arrays (`Array<T>, ByteArray, etc`)
-* `@Transient` initializers and `init` blocks
-* `@SerialInfo`-based annotations
-
 Sample project can be found in [example-native](example-native) folder.
-
 
 ## Troubleshooting IntelliJ IDEA
 

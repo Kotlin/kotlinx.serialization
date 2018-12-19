@@ -1,4 +1,4 @@
-# Writing your own serializers
+# Writing and using your own serializers
 
 The most simple and straightforward way to create serializer is to write annotation `@Serializable`
 directly on your class:
@@ -192,6 +192,10 @@ data class MyWrapper(
 
 This will affect generating of `save`/`load` methods only for this dedicated class, and allows plugin to resolve serializer at compile-time to reduce runtime overhead. It would also allow plugin to inject serializers for generic properties automatically.
 
+### `UseSerializers` annotation
+
+If you have a lot of serializable classes, which use, say `java.util.Date`, it may be inconvenient to annotate every property with this type with `@Serializable(with=MyJavaDateSerializer::class)`. For such purpose, a file-level annotation `UseSerializers` was introduced. With it, you can write `@file:UseSerializers(MyJavaDateSerializer::class)` and all properties of type `java.util.Date` in all classes in this file would be serialized with `MyJavaDateSerializer`. See [its documentation](https://github.com/kotlin/kotlinx.serialization/blob/c6dd98c8b96a69da82ab8229665e07614296f684/runtime/common/src/main/kotlin/kotlinx/serialization/Annotations.kt#L75) for more details.
+
 ## Registering and context
 
 By default, all serializers are resolved by plugin statically when compiling serializable class.
@@ -204,6 +208,14 @@ To support such cases, a concept of `SerialContext` was introduced. Roughly spea
 runtime part of framework is looking for serializers if they weren't resolved at compile time by plugin.
 
 If you want your external serializers to be used, you must register them in a context of serialization format. Registration is done via an _installation of modules_. Module is a bunch of serializers tied to classes. Modules are intended to be reused in different formats or even different projects (e.g. Library A have some custom serializers and exports a module with them so Application B can use A's classes with serializers in B's output).
+
+### `ContextualSerialization` annotation
+
+When some runtime ambiguity involved, it's always better to be explicit about your intentions — especially in such a security-sensitive thing like a serialization framework. Therefore, to be able to use Context at runtime, you need to explicitly use special ContextSerializer — otherwise compiler will report you an error about missing serializer. To enable contextual serialization, simply use `@Serializable(with=ContextSerializer::class)` or `@ContextualSerialization` on a property with type which does not have default serializer. To be less verbose, it is also possible to apply this annotation on file — `@file:ContextualSerialization(A::class, B::class)` instructs compiler plugin to use ContextSerializer everywhere in this file for properties of types `A` and `B`. It also can be used on type usages: `List<@ContextualSerialization MyDate>`.
+
+> In next releases, the same thing would be required for polymorphism and `PolymorphicSerializer`. Start using `@Polymorphic` right now!
+
+### Example
 
 You can also install different modules for one class into different instances of output formats. Let's see it in example:
 

@@ -76,7 +76,7 @@ annotation class ContextualSerialization(vararg val forClasses: KClass<*>)
  *  Each of [serializerClasses] must implement [KSerializer].
  *
  *  Inside the file with this annotation, for each given property
- *  of type `T` in some class, this list would be inspected for the presence of `KSerializer<T>`.
+ *  of type `T` in some serializable class, this list would be inspected for the presence of `KSerializer<T>`.
  *  If such serializer is present, it would be used instead of default.
  *
  *  Main use-case for this annotation is not to write @Serializable(with=SomeSerializer::class)
