@@ -62,7 +62,7 @@ class JsonTreeTest : JsonTestBase() {
     @Test
     fun testReadTreeSimple() {
         val tree = prepare("{a: 42}")
-        val parsed = json.fromJson(tree, Data.serializer())
+        val parsed = json.fromJson(Data.serializer(), tree)
         assertEquals(Data(42), parsed)
     }
 
@@ -128,10 +128,10 @@ class JsonTreeTest : JsonTestBase() {
 
     private inline fun <reified T: Any> writeAndTest(obj: T, printDiagnostics: Boolean = false): Pair<JsonElement, T> {
         val serial = T::class.serializer()
-        val tree = Json().toJson(obj, serial)
+        val tree = Json().toJson(serial, obj)
         val str = tree.toString()
         if (printDiagnostics) println(str)
-        val restored = json.fromJson(json.parseJson(str), serial)
+        val restored = json.fromJson(serial, json.parseJson(str))
         assertEquals(obj, restored)
         return tree to restored
     }
