@@ -89,7 +89,7 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
 
     @Test
     fun testParseDataJson() {
-        val ev = strict.fromJson(inputDataJson, Event.serializer())
+        val ev = strict.fromJson(Event.serializer(), inputDataJson)
         with(ev) {
             assertEquals(0, id)
             assertEquals(DummyEither.Right(Payload(42, 43, "Hello world")), payload)
@@ -99,7 +99,7 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
 
     @Test
     fun testParseErrorJson() {
-        val ev = strict.fromJson(inputErrorJson, Event.serializer())
+        val ev = strict.fromJson(Event.serializer(), inputErrorJson)
         with(ev) {
             assertEquals(1, id)
             assertEquals(DummyEither.Left("Connection timed out"), payload)
@@ -110,14 +110,14 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
     @Test
     fun testWriteDataJson() {
         val outputData = Event(0, DummyEither.Right(Payload(42, 43, "Hello world")), 1000)
-        val ev = strict.toJson(outputData, Event.serializer())
+        val ev = strict.toJson(Event.serializer(), outputData)
         assertEquals(inputDataJson, ev)
     }
 
     @Test
     fun testWriteErrorJson() {
         val outputError = Event(1, DummyEither.Left("Connection timed out"), 1001)
-        val ev = strict.toJson(outputError, Event.serializer())
+        val ev = strict.toJson(Event.serializer(), outputError)
         assertEquals(inputErrorJson, ev)
     }
 
@@ -150,7 +150,7 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
             val tree = jsonReader.decodeJson() as? JsonObject
                     ?: throw SerializationException("Expected JSON object")
             if ("error" in tree) return DummyEither.Left(tree.getPrimitive("error").content)
-            return DummyEither.Right(decoder.json.fromJson(tree, Payload.serializer()))
+            return DummyEither.Right(decoder.json.fromJson(Payload.serializer(), tree))
         }
 
         override fun serialize(encoder: Encoder, obj: DummyEither) {
@@ -158,7 +158,7 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
                     ?: throw SerializationException("This class can be saved only by JSON")
             val tree = when (obj) {
                 is DummyEither.Left -> JsonObject(mapOf("error" to JsonLiteral(obj.errorMsg)))
-                is DummyEither.Right -> encoder.json.toJson(obj.data, Payload.serializer())
+                is DummyEither.Right -> encoder.json.toJson(Payload.serializer(), obj.data)
             }
             jsonWriter.encodeJson(tree)
         }
@@ -191,8 +191,8 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
         override fun serialize(encoder: Encoder, obj: DummyRecursive) {
             if (encoder !is JsonOutput) throw SerializationException("This class can be saved only by JSON")
             val (tree, typeName) = when (obj) {
-                is DummyRecursive.A -> encoder.json.toJson(obj, DummyRecursive.A.serializer()) to typeNameA
-                is DummyRecursive.B -> encoder.json.toJson(obj, DummyRecursive.B.serializer()) to typeNameB
+                is DummyRecursive.A -> encoder.json.toJson(DummyRecursive.A.serializer(), obj) to typeNameA
+                is DummyRecursive.B -> encoder.json.toJson(DummyRecursive.B.serializer(), obj) to typeNameB
             }
             val contents: MutableMap<String, JsonElement> = mutableMapOf(typeAttribute to JsonPrimitive(typeName))
             contents.putAll(tree.jsonObject.content)
@@ -208,8 +208,8 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
             val typeName = tree[typeAttribute].primitive.content
             val objTree = JsonObject(tree.content - typeAttribute)
             return when (typeName) {
-                typeNameA -> decoder.json.fromJson(objTree, DummyRecursive.A.serializer())
-                typeNameB -> decoder.json.fromJson(objTree, DummyRecursive.B.serializer())
+                typeNameA -> decoder.json.fromJson(DummyRecursive.A.serializer(), objTree)
+                typeNameB -> decoder.json.fromJson(DummyRecursive.B.serializer(), objTree)
                 else -> throw SerializationException("Unknown type: $typeName")
             }
         }
