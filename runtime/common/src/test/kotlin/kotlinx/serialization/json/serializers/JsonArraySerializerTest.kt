@@ -44,6 +44,13 @@ class JsonArraySerializerTest : JsonTestBase() {
         assertEquals(prebuiltJson(), strict.parse(JsonArraySerializer, string))
     }
 
+    @Test
+    fun testJsonArrayToString() {
+        val prebuiltJson = prebuiltJson()
+        val string = nonStrict.stringify(JsonArraySerializer, prebuiltJson)
+        assertEquals(string, prebuiltJson.toString())
+    }
+
     private fun prebuiltJson(): JsonArray {
         return jsonArray {
             +JsonLiteral(1)

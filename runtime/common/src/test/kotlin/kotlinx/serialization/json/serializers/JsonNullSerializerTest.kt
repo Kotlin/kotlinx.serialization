@@ -54,4 +54,11 @@ class JsonNullSerializerTest : JsonTestBase() {
         assertEquals("null", string)
         assertEquals(JsonNull, strict.parse(JsonPrimitiveSerializer, string))
     }
+
+    @Test
+    fun testJsonNullToString() {
+        val string = strict.stringify(JsonPrimitiveSerializer, JsonNull)
+
+        assertEquals(string, JsonNull.toString())
+    }
 }

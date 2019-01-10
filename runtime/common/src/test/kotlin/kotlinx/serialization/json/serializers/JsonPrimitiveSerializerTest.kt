@@ -100,4 +100,18 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
         assertEquals("1.3", string)
         assertEquals(JsonLiteral(1.3), strict.parse(JsonElementSerializer, string))
     }
+
+    @Test
+    fun testJsonLiteralStringToString() {
+        val literal = JsonLiteral("some string literal")
+        val string = strict.stringify(JsonLiteralSerializer, literal)
+        assertEquals(string, literal.toString())
+    }
+
+    @Test
+    fun testJsonLiteralIntToString() {
+        val literal = JsonLiteral(0)
+        val string = strict.stringify(JsonLiteralSerializer, literal)
+        assertEquals(string, literal.toString())
+    }
 }

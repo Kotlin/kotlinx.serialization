@@ -278,9 +278,10 @@ public data class JsonObject(val content: Map<String, JsonElement>) : JsonElemen
 
     public override fun toString(): String {
         return content.entries.joinToString(
+            separator = ",",
             prefix = "{",
             postfix = "}",
-            transform = {(k, v) -> """"$k": $v"""}
+            transform = {(k, v) -> """"$k":$v"""}
         )
     }
 
@@ -342,7 +343,7 @@ public data class JsonArray(val content: List<JsonElement>) : JsonElement(), Lis
      */
     public inline fun <reified J : JsonElement> getAsOrNull(index: Int): J? = content.getOrNull(index) as? J
 
-    public override fun toString() = content.joinToString(prefix = "[", postfix = "]")
+    public override fun toString() = content.joinToString(prefix = "[", postfix = "]", separator = ",")
 
     public override fun equals(other: Any?): Boolean = content.equals(other)
 
