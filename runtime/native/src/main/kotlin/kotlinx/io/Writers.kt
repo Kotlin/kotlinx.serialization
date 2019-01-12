@@ -22,7 +22,10 @@ actual abstract class Writer protected actual constructor() {
     }
 
     actual open fun write(str: String) {
-        write(str.toList().toCharArray(), 0, str.length)
+        val buf = CharArray(str.length)
+        for (i in str.indices)
+            buf[i] = str[i]
+        write(buf, 0, buf.size)
     }
 
     actual abstract fun write(src: CharArray, off: Int, len: Int)
