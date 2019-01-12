@@ -73,7 +73,8 @@ actual class StringWriter: Writer() {
 actual abstract class Reader protected actual constructor() {
     actual open fun read(): Int {
         val a = CharArray(1)
-        read(a, 0, 1)
+        if (read(a, 0, 1) < 1)
+            return -1 // EOF
         return a[0].toInt()
     }
     actual abstract fun read(dst: CharArray, off: Int, len: Int): Int
