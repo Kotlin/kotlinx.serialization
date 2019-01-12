@@ -21,7 +21,7 @@ expect open class IOException: Exception {
     constructor(message: String)
 }
 
-expect abstract class InputStream {
+expect abstract class InputStream() {
     open fun available(): Int
     open fun close()
     abstract fun read(): Int
@@ -34,7 +34,7 @@ expect class ByteArrayInputStream(buf: ByteArray): InputStream {
     override fun read(): Int
 }
 
-expect abstract class OutputStream {
+expect abstract class OutputStream() {
     open fun close()
     open fun flush()
     open fun write(buffer: ByteArray, offset: Int, count: Int)
