@@ -2,14 +2,25 @@
  * Copyright 2017-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization.json.internal
+package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
-import kotlinx.serialization.json.*
 
+/**
+ * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonElement].
+ * It can only be used by a [JsonInput] decoder for deserialization.
+ * Example usage:
+ * ```
+ *   val string = Json.stringify(JsonElementSerializer, JsonLiteral(1.3))
+ *   val literal = Json.parse(JsonElementSerializer, string)
+ *
+ *   assertEquals(JsonLiteral(1.3), literal)
+ * ```
+ *
+ */
 @Serializer(forClass = JsonElement::class)
-internal object JsonElementSerializer : KSerializer<JsonElement> {
+public object JsonElementSerializer : KSerializer<JsonElement> {
     override val descriptor: SerialDescriptor = object : SerialClassDescImpl("JsonElementSerializer") {
         override val kind: SerialKind
             get() = UnionKind.SEALED
@@ -33,8 +44,11 @@ internal object JsonElementSerializer : KSerializer<JsonElement> {
     }
 }
 
+/**
+ * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonPrimitive].
+ */
 @Serializer(forClass = JsonPrimitive::class)
-internal object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
+public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
     override val descriptor: SerialDescriptor =
         JsonPrimitiveDescriptor
 
@@ -64,8 +78,11 @@ internal object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
     }
 }
 
+/**
+ * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonNull].
+ */
 @Serializer(forClass = JsonNull::class)
-internal object JsonNullSerializer : KSerializer<JsonNull> {
+public object JsonNullSerializer : KSerializer<JsonNull> {
     override val descriptor: SerialDescriptor =
         JsonNullDescriptor
 
@@ -91,8 +108,11 @@ internal object JsonNullSerializer : KSerializer<JsonNull> {
     }
 }
 
+/**
+ * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonLiteral].
+ */
 @Serializer(forClass = JsonLiteral::class)
-internal object JsonLiteralSerializer : KSerializer<JsonLiteral> {
+public object JsonLiteralSerializer : KSerializer<JsonLiteral> {
 
     override val descriptor: SerialDescriptor =
         JsonLiteralDescriptor
@@ -134,8 +154,11 @@ internal object JsonLiteralSerializer : KSerializer<JsonLiteral> {
     }
 }
 
+/**
+ * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonObject].
+ */
 @Serializer(forClass = JsonObject::class)
-internal object JsonObjectSerializer : KSerializer<JsonObject> {
+public object JsonObjectSerializer : KSerializer<JsonObject> {
     override val descriptor: SerialDescriptor =
         NamedMapClassDescriptor("JsonObject", StringSerializer.descriptor,
             JsonElementSerializer.descriptor)
@@ -149,8 +172,11 @@ internal object JsonObjectSerializer : KSerializer<JsonObject> {
     }
 }
 
+/**
+ * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonArray].
+ */
 @Serializer(forClass = JsonArray::class)
-internal object JsonArraySerializer : KSerializer<JsonArray> {
+public object JsonArraySerializer : KSerializer<JsonArray> {
 
     override val descriptor: SerialDescriptor = NamedListClassDescriptor("JsonArray",
         JsonElementSerializer.descriptor)

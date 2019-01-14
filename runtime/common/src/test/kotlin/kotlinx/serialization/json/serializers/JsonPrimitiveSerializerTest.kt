@@ -6,7 +6,6 @@ package kotlinx.serialization.json.serializers
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.json.internal.*
 import kotlin.test.*
 
 class JsonPrimitiveSerializerTest : JsonTestBase() {
