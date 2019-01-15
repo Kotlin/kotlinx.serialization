@@ -43,6 +43,13 @@ class JsonObjectSerializerTest : JsonTestBase() {
         assertEquals(prebuiltJson(), unquoted.parse(JsonElementSerializer, string))
     }
 
+    @Test
+    fun testJsonObjectToString() {
+        val prebuiltJson = prebuiltJson()
+        val string = nonStrict.stringify(JsonElementSerializer, prebuiltJson)
+        assertEquals(string, prebuiltJson.toString())
+    }
+
     private fun prebuiltJson(): JsonObject {
         return json {
             "literal" to 1

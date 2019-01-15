@@ -58,7 +58,7 @@ class JsonTreeTest {
 
     @Test
     fun testSaveToJson() {
-        val input = """{"a": "foo", "b": 10, "c": true, "d": null, "e": ["foo", 100500, {"bar": "baz"}]}"""
+        val input = """{"a":"foo","b":10,"c":true,"d":null,"e":["foo",100500,{"bar":"baz"}]}"""
         val elem = parse(input)
         val json = elem.toString()
         assertEquals(input, json)
