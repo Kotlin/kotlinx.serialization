@@ -57,12 +57,8 @@ buildscript {
 
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.2'
 
-        if (deployNative) {
-            // use patched version which supports Gradle metadata, but is not compatible with Maven publications
-            classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.2-SNAPSHOT'
-        } else {
-            classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-        }
+        // Custom bintray plugin to publish with Gradle Metadata
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4-jetbrains-3"
 
         classpath "com.github.jengelman.gradle.plugins:shadow:2.0.2"
         classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.5"
@@ -177,10 +173,7 @@ subprojects {
     // Disable metadata for non-native modules
     afterEvaluate {
         publishing.publications.each { pub ->
-            pub.gradleModuleMetadataFile = null
-            tasks.matching { it.name == "generateMetadataFileFor${pub.name.capitalize()}Publication" }.all {
-                onlyIf { false }
-            }
+            pub.moduleDescriptorGenerator = null
         }
     }
 }
