@@ -24,4 +24,4 @@ You can learn about "Human-Optimized Config Object Notation" or HOCON from libra
 * Artifact ID: `com.charleskorn.kaml:kaml`
 * Platform: JVM only
 
-Allows deserialization of objects from [YAML](http://yaml.org).
+Allows serialization and deserialization of objects to and from [YAML](http://yaml.org).
