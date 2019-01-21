@@ -145,11 +145,11 @@ object DateSerializer: KSerializer<Date> {
         StringDescriptor.withName("WithCustomDefault")
 
     override fun serialize(output: Encoder, obj: Date) {
-        output.encode(df.format(obj))
+        output.encodeString(df.format(obj))
     }
 
     override fun deserialize(input: Decoder): Date {
-        return df.parse(input.decode())
+        return df.parse(input.decodeString())
     }
 }
 ```
