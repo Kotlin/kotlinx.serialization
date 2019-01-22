@@ -4,7 +4,7 @@
 
 Kotlin Serialization runtime library itself is a [multiplatform](http://kotlinlang.org/docs/reference/multiplatform.html) project,
 but it is still using an old multiplatform system from Kotlin 1.2.
-To build library from the source and install it into the local Maven repository run `./gradlew publishToMavenLocal`. 
+To build library from the source and run all tests, use `./gradlew build`. To install it into the local Maven repository, run `./gradlew publishToMavenLocal`. 
 After that, you can include this library in arbitrary projects like usual gradle dependency:
 
 ```gradle
@@ -17,6 +17,11 @@ dependencies {
     compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime"
 }
 ```
+
+To open project in Intellij IDEA, first run `./gradlew generateTestProto` from console.
+Make sure you've set an option 'Use Gradle wrapper' on import to use a correct (4.7) version of Gradle. Note that Gradle 4.7 is not compatible with Java 10 or 11.
+You may also need to mark `runtime/build/generated/source/proto/test/java` as 'Generated source root' to build project without delegating a build to Gradle.
+This requires Kotlin 1.3.11 and higher.
 
 To use snapshot version of compiler (if you have built it from sources), use flag `-Pbootstrap`. To compile and publish all Native artifacts, not only the host one, use `-Pnative.deploy=true`.
 
