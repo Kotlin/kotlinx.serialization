@@ -75,7 +75,7 @@ This document describes setup for Kotlin 1.3 and higher. To watch instructions r
 
 ## Setup
 
-Using Kotlin Serialization requires Kotlin compiler `1.3.11` or higher. Make sure that you have corresponding Kotlin plugin installed in the IDE. Since serialization is now bundled into Kotlin plugin, no additional plugins for IDE are required (but make sure you have deleted old additional plugin for 1.2, if you had one).
+Using Kotlin Serialization requires Kotlin compiler `1.3.20` or higher. Make sure that you have corresponding Kotlin plugin installed in the IDE. Since serialization is now bundled into Kotlin plugin, no additional plugins for IDE are required (but make sure you have deleted old additional plugin for 1.2, if you had one).
 Example projects on JVM are available for [Gradle](example-jvm/build.gradle) and [Maven](example-jvm/pom.xml).
 
 ### Gradle
@@ -84,7 +84,7 @@ You have to add the serialization plugin as the other [compiler plugins](https:/
 
 ```gradle
 buildscript {
-    ext.kotlin_version = '1.3.11'
+    ext.kotlin_version = '1.3.20'
     repositories { jcenter() }
 
     dependencies {
@@ -112,7 +112,7 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.9.1"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.10.0"
 }
 ```
 
@@ -122,8 +122,8 @@ You can setup serialization plugin with the kotlin plugin using [Gradle plugins 
 
 ```gradle
 plugins {
-    id 'kotlin-multiplatform' version '1.3.11'
-    id 'kotlinx-serialization' version '1.3.11'
+    id 'kotlin-multiplatform' version '1.3.20'
+    id 'kotlinx-serialization' version '1.3.20'
 }
 ```
 
@@ -174,8 +174,8 @@ Ensure the proper version of Kotlin and serialization version:
 
 ```xml
 <properties>
-    <kotlin.version>1.3.11</kotlin.version>
-    <serialization.version>0.9.1</serialization.version>
+    <kotlin.version>1.3.20</kotlin.version>
+    <serialization.version>0.10.0</serialization.version>
 </properties>
 ```
 
@@ -217,7 +217,7 @@ Add serialization plugin to Kotlin compiler plugin:
             <dependencies>
                 <dependency>
                     <groupId>org.jetbrains.kotlin</groupId>
-                    <artifactId>kotlinx-maven-serialization-plugin</artifactId>
+                    <artifactId>kotlin-maven-serialization</artifactId>
                     <version>${kotlin.version}</version>
                 </dependency>
             </dependencies>
@@ -254,11 +254,16 @@ For `kotlin-platform-native` module, apply `kotlinx-serialization-native` plugin
 since platform-native from K/N 0.9.3 uses infrastructure in which compiler plugins [are shaded](https://github.com/JetBrains/kotlin-native/issues/2210#issuecomment-429753168).
 
 Use `kotlinx-serialization-runtime-native` artifact. Don't forget to `enableFeaturePreview('GRADLE_METADATA')`
-in yours `settings.gradle`. You must have Gradle 4.7, because higher versions have unsupported format of metadata.
+in yours `settings.gradle`. You must have Gradle 4.8 or higher, because older versions have unsupported format of metadata.
 
 Sample project can be found in [example-native](example-native) folder.
 
+### Incompatible changes
+
+All versions of library before 0.10.0 are using Gradle metadata v0.3 and therefore require Gradle 4.7 for build.
+Maven plugin coordinates before Kotlin 1.3.20 were `kotlinx-maven-serialization-plugin`.
+
 ## Troubleshooting IntelliJ IDEA
 
-Serialization support should work out of the box, if you have 1.3.x Kotlin plugin installed. If you have Kotlin 1.3.10 or lower, you have to delegate build to Gradle (`Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`). From 1.3.11, no delegation is required.
+Serialization support should work out of the box, if you have 1.3.x Kotlin plugin installed. If you have Kotlin 1.3.10 or lower, you have to delegate build to Gradle (`Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`). Starting from 1.3.11, no delegation is required.
 In case of problems, force project re-import from Gradle.
