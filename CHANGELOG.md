@@ -4,24 +4,24 @@
 
 #### Plugin: 
 
-* Support @SerialInfo annotation for Native
-* Remove redundant check for 'all parameters are properties' in a case of fully-customized serializer.
-* Fix unresolved symbol to SerialDescriptor in KSerializer if it was referenced from user custom serializer code (#290)
-* Support for @UseSerializers annotation
-* Restrict auto-implementing serializers methods to certain type of classes
-* Increase priority of overridden serializer on type (#252)
-* Fix instantiation of generic serializers on JS (#244)
-* .shouldEncodeElementDefault for JVM (#58)
-* Support skipping values equals to defaults in output stream for JS and Native backends (#58)
-* Support enums in Native
-* Support reference array and context serializers in Native
-* Fix order of overriding @Serializable(with) on property: check override, than @ContextualSerialization. 
-* Support @Transient properties initializers and init blocks in Native
-* Better lookup for `serializer()` function in companion for generic classes because user can define a parameterless shorthand one (#228)
-* Generics serialization in Native
-* .getElementDescriptor for JVM, JS and Native
-* Respect @ContextualSerialization on file
-* Remove auto-applying ContextSerializer. @ContextualSerialization should be used instead.
+  * Support @SerialInfo annotation for Native
+  * Remove redundant check for 'all parameters are properties' in a case of fully-customized serializer.
+  * Fix unresolved symbol to SerialDescriptor in KSerializer if it was referenced from user custom serializer code (#290)
+  * Support for @UseSerializers annotation
+  * Restrict auto-implementing serializers methods to certain type of classes
+  * Increase priority of overridden serializer on type (#252)
+  * Fix instantiation of generic serializers on JS (#244)
+  * .shouldEncodeElementDefault for JVM (#58)
+  * Support skipping values equals to defaults in output stream for JS and Native backends (#58)
+  * Support enums in Native
+  * Support reference array and context serializers in Native
+  * Fix order of overriding @Serializable(with) on property: check override, than @ContextualSerialization. 
+  * Support @Transient properties initializers and init blocks in Native
+  * Better lookup for `serializer()` function in companion for generic classes because user can define a parameterless shorthand one (#228)
+  * Generics serialization in Native
+  * .getElementDescriptor for JVM, JS and Native
+  * Respect @ContextualSerialization on file
+  * Remove auto-applying ContextSerializer. @ContextualSerialization should be used instead.
 
 #### Runtime: 
 
@@ -54,26 +54,14 @@
   * Changed JSON -> Json and CBOR -> Cbor
 
 v0.9.1 / 2018-11-19
-===================
+==================
 
   * Update lib to 0.9.1/Kotlin to 1.3.10
-  * Use-case for `PrimitiveDescriptor.withName`
-  * Merge branch 'dev'
   * Make some clarifications about Gradle plugin DSL and serialization plugin distribution
   * Primitive descriptor with overriden name
-  * Fix example with java.util.Date
-  * Add missing shorthands for float and char serializers Fixes #263
-  * Fix local K/N setup and some typos
+  * Add missing shorthands for float and char serializers (Fixes #263)
   * Fix bug where primitive non-string values created by hand and created by parser could be inequal due to a redundant type comparison.
-  * Skip defaults in JSONTreeMapper and CBOR
-  * Local K/N compilation setup
-  * Typo
-  * Explicitly add KSerializer supertype to avoid certain restrictions after update
-  * Don't look at default serializer too early during reflective lookup Fixes #250
-  * Fix maven example
-  * Update changelog for 0.9.0
-  * Update documentation: Remove obsolete eap13.md document Add some notes
-  * Migrate Native sample Add lost information about `apply pluing: 'kotlinx-serialization-native'` Add bintray credentials to all sample projects Remove obsolete iOS example
+  * Don't look at default serializer too early during reflective lookup (Fixes #250)
 
 v0.9.0 / 2018-10-24
 ==================

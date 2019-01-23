@@ -98,7 +98,7 @@ public class Json(
      * Serializes [value] into an equivalent [JsonElement] using provided [serializer].
      * @throws [JsonException] subclass in case of serialization error.
      */
-    public fun <T> toJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
+    public fun <T> toJson(serializer: SerializationStrategy<T>, value: T): JsonElement {
         return writeJson(value, serializer)
     }
 
@@ -108,7 +108,7 @@ public class Json(
      */
     @ImplicitReflectionSerializer
     public inline fun <reified T : Any> toJson(value: T): JsonElement {
-        return toJson(value, context.getOrDefault(T::class))
+        return toJson(context.getOrDefault(T::class), value)
     }
 
     /**
@@ -135,7 +135,7 @@ public class Json(
      * Deserializes [json] element into a corresponding object of type [T] using provided [deserializer].
      * @throws [JsonException] subclass in case of serialization error.
      */
-    public fun <T> fromJson(json: JsonElement, deserializer: DeserializationStrategy<T>): T {
+    public fun <T> fromJson(deserializer: DeserializationStrategy<T>, json: JsonElement): T {
         return readJson(json, deserializer)
     }
 
@@ -144,7 +144,7 @@ public class Json(
      * @throws [JsonException] subclass in case of serialization error.
      */
     @ImplicitReflectionSerializer
-    public inline fun <reified T : Any> fromJson(tree: JsonElement): T = fromJson(tree, context.getOrDefault(T::class))
+    public inline fun <reified T : Any> fromJson(tree: JsonElement): T = fromJson(context.getOrDefault(T::class), tree)
 
     companion object : StringFormat {
         val plain = Json()

@@ -50,4 +50,4 @@ actual fun <T : Any, E : T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Arra
 @Suppress("UNCHECKED_CAST")
 private fun <T> arrayOfAnyNulls(size: Int): Array<T> = arrayOfNulls<Any>(size) as Array<T>
 
-actual typealias SharedImmutable = kotlin.native.SharedImmutable
+actual typealias SharedImmutable = kotlin.native.concurrent.SharedImmutable
