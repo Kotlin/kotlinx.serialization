@@ -69,18 +69,11 @@ internal class SerializationConstructorMarker private constructor()
 @ImplicitReflectionSerializer
 inline fun <reified T : Any> Encoder.encode(obj: T) { encode(T::class.serializer(), obj) }
 
-fun <T : Any?> Encoder.encode(strategy: SerializationStrategy<T>, obj: T) { strategy.serialize(this, obj) }
-fun <T : Any> Encoder.encodeNullable(strategy: SerializationStrategy<T>, obj: T?) {
-    if (obj == null) {
-        encodeNull()
-    } else {
-        encodeNotNullMark()
-        strategy.serialize(this, obj)
-    }
+fun <T : Any?> Encoder.encode(strategy: SerializationStrategy<T>, obj: T) {
+    encodeSerializableValue(strategy, obj)
 }
 
 @ImplicitReflectionSerializer
 inline fun <reified T: Any> Decoder.decode(): T = this.decode(T::class.serializer())
 
-fun <T : Any?> Decoder.decode(deserializer: DeserializationStrategy<T>): T = deserializer.deserialize(this)
-fun <T : Any> Decoder.decodeNullable(deserializer: DeserializationStrategy<T>): T? = if (decodeNotNullMark()) decode(deserializer) else decodeNull()
+fun <T : Any?> Decoder.decode(deserializer: DeserializationStrategy<T>): T = decodeSerializableValue(deserializer)

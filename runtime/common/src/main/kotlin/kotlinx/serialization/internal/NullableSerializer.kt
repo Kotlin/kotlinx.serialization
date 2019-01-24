@@ -19,9 +19,9 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
-fun <T : Any> makeNullable(element: KSerializer<T>): KSerializer<T?> = NullableSerializer(element)
+fun <T : Any> makeNullable(actualSerializer: KSerializer<T>): KSerializer<T?> = NullableSerializer(actualSerializer)
 
-class NullableSerializer<T : Any>(private val element: KSerializer<T>) : KSerializer<T?> {
+class NullableSerializer<T : Any>(public val actualSerializer: KSerializer<T>) : KSerializer<T?> {
     private class SerialDescriptorForNullable(val original: SerialDescriptor): SerialDescriptor by original {
         override val isNullable: Boolean
             get() = true
@@ -40,24 +40,26 @@ class NullableSerializer<T : Any>(private val element: KSerializer<T>) : KSerial
         }
     }
 
-    override val descriptor: SerialDescriptor = SerialDescriptorForNullable(element.descriptor)
+    override val descriptor: SerialDescriptor = SerialDescriptorForNullable(actualSerializer.descriptor)
 
     override fun serialize(encoder: Encoder, obj: T?) {
         if (obj != null) {
             encoder.encodeNotNullMark()
-            element.serialize(encoder, obj)
+            encoder.encodeSerializableValue(actualSerializer, obj)
         }
         else {
             encoder.encodeNull()
         }
     }
 
-    override fun deserialize(decoder: Decoder): T? = if (decoder.decodeNotNullMark()) element.deserialize(decoder) else decoder.decodeNull()
+    override fun deserialize(decoder: Decoder): T? {
+        return if (decoder.decodeNotNullMark()) decoder.decodeSerializableValue(actualSerializer) else decoder.decodeNull()
+    }
 
     override fun patch(decoder: Decoder, old: T?): T? {
         return when {
             old == null -> deserialize(decoder)
-            decoder.decodeNotNullMark() -> element.patch(decoder, old)
+            decoder.decodeNotNullMark() -> actualSerializer.patch(decoder, old)
             else -> decoder.decodeNull().let { old }
         }
     }
