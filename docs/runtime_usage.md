@@ -46,12 +46,13 @@ Runtime library provides three ready-to use formats: JSON, CBOR and ProtoBuf.
 
 ### JSON
 
-JSON format represented by `Json` class from `kotlinx.serialization.json` package. It has following parameters:
+JSON format represented by `Json` class from `kotlinx.serialization.json` package. It has following constructor parameters:
 
 * strict - Prohibits unknown keys when parsing JSON. Prohibits NaN and Infinity float values when serializing JSON. Enabled by default.
 * unquoted - means that all field names and other objects (where it's possible) would not be wrapped in quotes. Useful for debugging.
 * indented - classic pretty-printed multiline JSON.
 * indent - size of indent, applicable if parameter above is true.
+* encodeDefaults - set this to false to omit writing @Optional properties if they are equal to theirs default values.
 
 You can also use one of predefined instances, like `Json.plain`, `Json.indented`, `Json.nonstrict` or `Json.unquoted`. API is duplicated in companion object, so `Json.parse(...)` equals to `Json.plain.parse(...)`
 
@@ -69,6 +70,8 @@ inline fun <reified T : Any> parse(str: String): T = parse(T::class.serializer()
 
 `stringify` transforms object to string, `parse` parses. No surprises.
 
+Besides this, functions `toJson` and `fromJson` allow converting @Serializable Kotlin object to and from [abstract JSON syntax tree](https://github.com/Kotlin/kotlinx.serialization/blob/master/runtime/common/src/main/kotlin/kotlinx/serialization/json/JsonElement.kt#L28). To build JSON AST from String, use `parseJson`.
+
 **Note**: because JSON doesn't support maps with keys other than
 strings (and primitives), Kotlin maps with non-trivial key types are serialized as JSON lists.
 
@@ -77,7 +80,7 @@ so it wouldn't work with root-level collections or external serializers out of t
 
 ### CBOR
 
-`CBOR` class provides following functions:
+`Cbor` class provides following functions:
 
 ```kotlin
 fun <T : Any> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray // saves object to bytes
@@ -89,7 +92,7 @@ inline fun <reified T : Any> load(raw: ByteArray): T // save as above
 inline fun <reified T : Any> loads(hex: String): T // inverse operation for dumps
 ```
 
-It has `UpdateMode.BANNED` by default.
+It has `UpdateMode.BANNED` by default. As Json, Cbor supports omitting default values.
 
 **Note**: CBOR, unlike JSON, supports maps with non-trivial keys,
 and Kotlin maps are serialized as CBOR maps, but some parsers (like `jackson-dataformat-cbor`) don't support this.
@@ -140,11 +143,7 @@ data class Data(val first: Int, val second: String)
 val map: Map<String, Any> = Mapper.map(Data(42, "foo")) // mapOf("first" to 42, "second" to "foo")
 ```
 
-To get your object back, use `unmap` function. To support objects with nullable values, use `mapNullable` and `unmapNullable`
-
-### JSON Tree Mapper
-
-`JsonTreeMapper` allows to map [abstract JSON syntax tree](https://github.com/Kotlin/kotlinx.serialization/blob/master/runtime/common/src/main/kotlin/kotlinx/serialization/json/JsonElement.kt#L28) onto Kotlin classes and back with `readTree` and `writeTree` correspondingly.
+To get your object back, use `unmap` function. To support objects with nullable values, use `mapNullable` and `unmapNullable`.
 
 ### Dynamic object parser (JS only)
 
@@ -162,5 +161,5 @@ val parsed = DynamicObjectParser().parse<DataWrapper>(dyn)
 parsed == DataWrapper("foo", Data(42)) // true
 ```
 
-> This feature is still in development and may have some bugs. Parser does not support kotlin maps with keys other than `String`.
+> Parser does not support kotlin maps with keys other than `String`.
 
