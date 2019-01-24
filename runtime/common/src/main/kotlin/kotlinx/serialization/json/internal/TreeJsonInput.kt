@@ -32,7 +32,9 @@ private sealed class AbstractJsonTreeInput(override val json: Json, open val obj
         context = json.context
     }
 
-    override fun decodeJson(): JsonElement = currentElement(currentTag)
+    private fun currentObject() = currentTagOrNull?.let { currentElement(it) } ?: obj
+
+    override fun decodeJson(): JsonElement = currentObject()
 
     override val updateMode: UpdateMode
         get() = json.updateMode
@@ -40,7 +42,7 @@ private sealed class AbstractJsonTreeInput(override val json: Json, open val obj
     override fun composeName(parentName: String, childName: String): String = childName
 
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
-        val currentObject = currentTagOrNull?.let { currentElement(it) } ?: obj
+        val currentObject = currentObject()
         return when (desc.kind) {
             StructureKind.LIST -> JsonTreeListInput(json, cast(currentObject))
             StructureKind.MAP -> JsonTreeMapInput(json, cast(currentObject))

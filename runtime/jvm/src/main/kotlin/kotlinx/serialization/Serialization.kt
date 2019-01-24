@@ -59,12 +59,6 @@ internal fun <T> Class<T>.invokeSerializerGetter(vararg args: KSerializer<Any>):
     return serializer
 }
 
-actual fun getSerialId(desc: SerialDescriptor, index: Int): Int? {
-    return desc.getElementAnnotations(index).filterIsInstance<SerialId>().singleOrNull()?.id
-}
-
-actual fun getSerialTag(desc: SerialDescriptor, index: Int): String? = desc.getElementAnnotations(index).filterIsInstance<SerialTag>().singleOrNull()?.tag
-
 /**
  * Checks if an [obj] is an instance of a given [kclass].
  *

@@ -58,7 +58,7 @@ class JsonTreeTest {
 
     @Test
     fun testSaveToJson() {
-        val input = """{"a": "foo", "b": 10, "c": true, "d": null, "e": ["foo", 100500, {"bar": "baz"}]}"""
+        val input = """{"a":"foo","b":10,"c":true,"d":null,"e":["foo",100500,{"bar":"baz"}]}"""
         val elem = parse(input)
         val json = elem.toString()
         assertEquals(input, json)
@@ -102,5 +102,38 @@ class JsonTreeTest {
 
         assertFailsWith<IllegalStateException> { n.boolean }
         assertEquals(null, n.booleanOrNull)
+    }
+
+    @Test
+    fun testThatJsonArraysCompareWithLists() {
+        val jsonArray: List<JsonElement> = JsonArray(listOf(JsonLiteral(3), JsonLiteral(4)))
+        val arrayList: List<JsonElement> = ArrayList(listOf(JsonLiteral(3), JsonLiteral(4)))
+        val otherArrayList: List<JsonElement> = ArrayList(listOf(JsonLiteral(3), JsonLiteral(5)))
+
+        assertEquals(jsonArray, arrayList)
+        assertEquals(arrayList, jsonArray)
+        assertEquals(jsonArray.hashCode(), arrayList.hashCode())
+        assertNotEquals(jsonArray, otherArrayList)
+    }
+
+    @Test
+    fun testThatJsonObjectsCompareWithMaps() {
+        val jsonObject: Map<String, JsonElement> = JsonObject(mapOf(
+                "three" to JsonLiteral(3),
+                "four" to JsonLiteral(4)
+        ))
+        val hashMap: Map<String, JsonElement> = HashMap(mapOf(
+                "three" to JsonLiteral(3),
+                "four" to JsonLiteral(4)
+        ))
+        val otherHashMap: Map<String, JsonElement> = HashMap(mapOf(
+                "three" to JsonLiteral(3),
+                "four" to JsonLiteral(5)
+        ))
+
+        assertEquals(jsonObject, hashMap)
+        assertEquals(hashMap, jsonObject)
+        assertEquals(jsonObject.hashCode(), hashMap.hashCode())
+        assertNotEquals(jsonObject, otherHashMap)
     }
 }

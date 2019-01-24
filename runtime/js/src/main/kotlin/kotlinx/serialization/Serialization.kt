@@ -44,10 +44,4 @@ actual fun <E: Enum<E>> KClass<E>.enumMembers(): Array<E> = (this.js.asDynamic()
 
 actual fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> = toTypedArray()
 
-actual fun getSerialId(desc: SerialDescriptor, index: Int): Int? {
-    return desc.getElementAnnotations(index).filterIsInstance<SerialId>().singleOrNull()?.id
-}
-
-actual fun getSerialTag(desc: SerialDescriptor, index: Int): String? = desc.getElementAnnotations(index).filterIsInstance<SerialTag>().singleOrNull()?.tag
-
 internal actual fun isInstance(kclass: KClass<*>, obj: Any): Boolean = kclass.isInstance(obj)

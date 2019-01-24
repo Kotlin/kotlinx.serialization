@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package kotlinx.serialization.protobuf
+package kotlinx.serialization.internal
 
-import kotlinx.serialization.SerialDescriptor
-import kotlinx.serialization.SerialId
-import kotlinx.serialization.internal.onlySingleOrNull
+import kotlinx.serialization.*
 
-internal actual fun extractParameters(desc: SerialDescriptor, index: Int): ProtoDesc {
-    val tag = desc.getElementAnnotations(index).filterIsInstance<SerialId>().onlySingleOrNull()?.id ?: index
-    val format = desc.getElementAnnotations(index).filterIsInstance<ProtoType>().onlySingleOrNull()?.type
-            ?: ProtoNumberType.DEFAULT
-    return tag to format
+object LongAsStringSerializer : KSerializer<Long> {
+    override fun serialize(encoder: Encoder, obj: Long) {
+        encoder.encodeString(obj.toString())
+    }
+
+    override fun deserialize(decoder: Decoder): Long {
+        return decoder.decodeString().toLong()
+    }
+
+    override val descriptor: SerialDescriptor = StringDescriptor
 }

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package kotlinx.serialization.formats.json
+package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
-import kotlinx.serialization.json.*
 import kotlin.test.*
 
 @Serializable
@@ -38,14 +37,14 @@ object EitherSerializer : KSerializer<DummyEither> {
             ?: throw SerializationException("Expected JsonObject")
         if ("error" in tree) return DummyEither.Left(tree.getPrimitive("error").content)
 
-        return DummyEither.Right(input.json.fromJson(tree, Payload.serializer()))
+        return DummyEither.Right(input.json.fromJson(Payload.serializer(), tree))
     }
 
     override fun serialize(encoder: Encoder, obj: DummyEither) {
         val output = encoder as? JsonOutput ?: throw SerializationException("This class can be saved only by Json")
         val tree = when (obj) {
             is DummyEither.Left -> JsonObject(mapOf("error" to JsonLiteral(obj.errorMsg)))
-            is DummyEither.Right -> output.json.toJson(obj.data, Payload.serializer())
+            is DummyEither.Right -> output.json.toJson(Payload.serializer(), obj.data)
         }
 
         output.encodeJson(tree)
@@ -60,8 +59,8 @@ data class Event(
 )
 
 class JsonTreeAndMapperTest {
-    private val decoderData = """{"id":0,"payload":{"from": 42, "to": 43, "msg": "Hello world"},"timestamp":1000}"""
-    private val decoderError = """{"id":1,"payload":{"error": "Connection timed out"},"timestamp":1001}"""
+    private val decoderData = """{"id":0,"payload":{"from":42,"to":43,"msg":"Hello world"},"timestamp":1000}"""
+    private val decoderError = """{"id":1,"payload":{"error":"Connection timed out"},"timestamp":1001}"""
 
     @Test
     fun testParseData() {

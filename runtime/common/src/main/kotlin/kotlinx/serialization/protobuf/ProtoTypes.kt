@@ -1,6 +1,7 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
+import kotlinx.serialization.internal.onlySingleOrNull
 
 enum class ProtoNumberType {
     DEFAULT, SIGNED, FIXED
@@ -12,8 +13,12 @@ annotation class ProtoType(val type: ProtoNumberType)
 
 typealias ProtoDesc = Pair<Int, ProtoNumberType>
 
-// needed until K/N will get ability to synthesize @SerialInfo annotations
-internal expect fun extractParameters(desc: SerialDescriptor, index: Int): ProtoDesc
+internal fun extractParameters(desc: SerialDescriptor, index: Int): ProtoDesc {
+    val idx = getSerialId(desc, index) ?: index + 1
+    val format = desc.getElementAnnotations(index).filterIsInstance<ProtoType>().onlySingleOrNull()?.type
+            ?: ProtoNumberType.DEFAULT
+    return idx to format
+}
 
 
 class ProtobufDecodingException(message: String) : SerializationException(message)

@@ -25,7 +25,7 @@ import java.util.*
 data class Data(
         val id: Int,
         @Serializable(with = IX::class) val payload: Payload,
-        val date: Date
+        @ContextualSerialization val date: Date
 )
 
 data class Payload(val content: String)

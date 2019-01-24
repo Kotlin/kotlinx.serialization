@@ -270,4 +270,4 @@ override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
 You can apply any number of annotations with any number of arguments.
 **Limitations:** `@SerialInfo` annotation class properties must have one of the following types: primitive, String, enum, or primitive array (`IntArray`, `BooleanArray`, etc)
 
-> Starting from 0.6, `@SerialInfo`-marked annotations can be used on classes, too. Use `.getAnnotationsForClass()` method of `KSerialClassDesc` to obtain them.
+> Starting from 0.6, `@SerialInfo`-marked annotations can be used on classes, too. Use `.getEntityAnnotations()` method of `SerialDescriptor` to obtain them.

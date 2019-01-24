@@ -59,7 +59,7 @@ class ProtoBuf : AbstractSerialFormat(), BinaryFormat {
 
         override fun SerialDescriptor.getTag(index: Int) = this.getProtoDesc(index)
 
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "NAME_SHADOWING")
         override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
             // encode maps as collection of map entries, not merged collection of key-values
             if (serializer.descriptor is MapLikeDescriptor) {
