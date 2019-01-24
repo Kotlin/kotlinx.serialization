@@ -24,8 +24,15 @@ import kotlin.reflect.KClass
 
 private typealias SerializersMap = MutableMap<KClass<*>, KSerializer<*>>
 
-class MutableSerialContextImpl(private val parentContext: SerialContext? = null):
-    MutableSerialContext {
+/**
+ * A default implementation of [MutableSerialContext]
+ * which uses hash maps to store serializers associated with KClasses.
+ *
+ * Although it is rarely necessary to instantiate it in user code,
+ * one may want to use it to implement their own context-aware
+ * serialization format.
+ */
+class MutableSerialContextImpl(private val parentContext: SerialContext? = null): MutableSerialContext {
 
     private val classMap: SerializersMap = hashMapOf()
 

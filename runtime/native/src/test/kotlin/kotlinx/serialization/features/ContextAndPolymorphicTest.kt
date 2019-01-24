@@ -6,7 +6,7 @@ import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.Json
 import kotlin.test.*
 
-class ContextAndPolymorphic {
+class ContextAndPolymorphicTest {
 
     @Serializable
     data class Data(val a: Int, @Optional val b: Int = 42)
@@ -45,11 +45,7 @@ class ContextAndPolymorphic {
     @BeforeTest
     fun initContext() {
         val scope = SimpleModule(Payload::class, PayloadSerializer)
-        val bPolymorphicModule = object : SerialModule {
-            override fun registerIn(context: MutableSerialContext) {
-                context.registerPolymorphicSerializer(Any::class, Payload::class, PayloadSerializer)
-            }
-        }
+        val bPolymorphicModule = PolymorphicModule(Any::class).apply { +(Payload::class to PayloadSerializer) }
         json = Json(unquoted = true).apply { install(CompositeModule(scope, bPolymorphicModule)) }
     }
 

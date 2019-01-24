@@ -61,11 +61,7 @@ class ContextAndPolymorphicTest {
     @BeforeTest
     fun initContext() {
         val scope = SingletonModule(Payload::class, PayloadSerializer)
-        val bPolymorphicModule = object : SerialModule {
-            override fun registerIn(context: MutableSerialContext) {
-                context.registerPolymorphicSerializer(Any::class, Payload::class, PayloadSerializer)
-            }
-        }
+        val bPolymorphicModule = PolymorphicModule(Any::class).apply { +(Payload::class to PayloadSerializer) }
         json = Json(unquoted = true).apply { install(scope + bPolymorphicModule) }
     }
 

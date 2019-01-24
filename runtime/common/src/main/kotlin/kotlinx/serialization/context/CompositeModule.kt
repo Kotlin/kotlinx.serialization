@@ -23,8 +23,7 @@ package kotlinx.serialization.context
  *
  * @see SerialModule.plus
  */
-class CompositeModule(modules: List<SerialModule> = listOf()):
-    SerialModule {
+class CompositeModule(modules: List<SerialModule> = listOf()): SerialModule {
     constructor(vararg modules: SerialModule) : this(modules.toList())
 
     private val modules: MutableList<SerialModule> = modules.toMutableList()
@@ -42,7 +41,7 @@ class CompositeModule(modules: List<SerialModule> = listOf()):
  */
 operator fun SerialModule.plus(other: SerialModule): CompositeModule {
     if (this is CompositeModule) {
-        this += other
+        this.addModule(other)
         return this
     }
     return CompositeModule(this, other)
