@@ -1,4 +1,15 @@
 
+0.10.0 / 2019-01-22
+==================
+
+  * Migrate to Gradle 4.10 and metadata 0.4
+  * Update to 1.3.20
+  * Reorder Json parameter for consistency
+  * Make JsonElement.toString() consistent with stringify (#325)
+  * Reader.read(): Int should return -1 on EOF.
+  * Optimize the Writer.write(String) case.
+  * Update the docs with new annotations
+
 0.10.0-eap-1 / 2018-12-19
 ==================
 
