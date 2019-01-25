@@ -15,7 +15,7 @@ import kotlinx.serialization.json.internal.*
  *
  * [JsonElement.toString] properly prints JSON tree as valid JSON, taking into account quoted values and primitives.
  * Whole hierarchy is serializable, but only when used with [Json] as [JsonElement] is purely JSON-specific structure
- * which has a meaningful schameless semantics only for JSON.
+ * which has a meaningful schemaless semantics only for JSON.
  */
 @Serializable(JsonElementSerializer::class)
 public sealed class JsonElement {

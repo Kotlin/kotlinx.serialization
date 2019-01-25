@@ -91,6 +91,10 @@ abstract class JsonTestBase {
     protected fun parametrizedTest(test: (Boolean) -> Unit) {
         val streamingResult = kotlin.runCatching { test(true) }
         val treeResult = kotlin.runCatching { test(false) }
+        val results = listOf(streamingResult, treeResult)
+        // better debugging
+        if (results.count { it.isFailure } == 1) throw results.first { it.isFailure }.exceptionOrNull()!!
+
         assertEquals(streamingResult, treeResult)
         streamingResult.getOrThrow()
     }

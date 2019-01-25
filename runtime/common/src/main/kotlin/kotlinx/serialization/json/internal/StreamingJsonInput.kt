@@ -7,8 +7,10 @@ import kotlinx.serialization.json.*
 /**
  * [JsonInput] which reads given JSON from [JsonReader] field by field.
  */
-internal class StreamingJsonInput internal constructor(override val  json: Json, private val mode: WriteMode,
-                                                       private val reader: JsonReader) : JsonInput, ElementValueDecoder() {
+internal class StreamingJsonInput internal constructor(
+    override val json: Json, private val mode: WriteMode,
+    private val reader: JsonReader) : JsonInput, ElementValueDecoder() {
+
     private var currentIndex = -1
     private var entryIndex = 0
 
@@ -20,6 +22,10 @@ internal class StreamingJsonInput internal constructor(override val  json: Json,
 
     override val updateMode: UpdateMode
         get() = json.updateMode
+
+    override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+        return decodeSerializableValuePolymorphic(deserializer)
+    }
 
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
         val newMode = switchMode(desc, typeParams)

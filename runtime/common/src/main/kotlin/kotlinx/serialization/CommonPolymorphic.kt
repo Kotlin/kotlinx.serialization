@@ -66,10 +66,12 @@ abstract class BaseResponse()
  */
 @Suppress("UNCHECKED_CAST")
 class PolymorphicSerializer<T : Any>(private val basePolyType: KClass<T>) : KSerializer<Any> {
-    override fun serialize(encoder: Encoder, obj: Any) {
-        val actualSerializer = encoder.context.resolveFromBase(basePolyType, obj as T)
-                ?: throw SubtypeNotRegisteredException(obj::class, basePolyType)
 
+    override val descriptor: SerialDescriptor
+        get() = PolymorphicClassDescriptor
+
+    override fun serialize(encoder: Encoder, obj: Any) {
+        val actualSerializer = findPolymorphicSerializer(encoder, obj)
         val out = encoder.beginStructure(descriptor)
         out.encodeStringElement(descriptor, 0, actualSerializer.descriptor.name)
         out.encodeSerializableElement(descriptor, 1, actualSerializer as KSerializer<Any>, obj)
@@ -85,8 +87,7 @@ class PolymorphicSerializer<T : Any>(private val basePolyType: KClass<T>) : KSer
             when (val index = input.decodeElementIndex(descriptor)) {
                 CompositeDecoder.READ_ALL -> {
                     klassName = input.decodeStringElement(descriptor, 0)
-                    val loader = input.context.resolveFromBase(basePolyType, klassName)
-                            ?: throw SubtypeNotRegisteredException(klassName, basePolyType)
+                    val loader = findPolymorphicSerializer(input, klassName)
                     value = input.decodeSerializableElement(descriptor, 1, loader)
                     break@mainLoop
                 }
@@ -112,5 +113,16 @@ class PolymorphicSerializer<T : Any>(private val basePolyType: KClass<T>) : KSer
         return requireNotNull(value) { "Polymorphic value have not been read" }
     }
 
-    override val descriptor: SerialDescriptor = PolymorphicClassDescriptor
+    public fun findPolymorphicSerializer(
+        input: CompositeDecoder,
+        klassName: String): KSerializer<out T> {
+        return input.context.resolveFromBase(basePolyType, klassName)
+            ?: throw SubtypeNotRegisteredException(klassName, basePolyType)
+    }
+
+    public fun findPolymorphicSerializer(
+        output: Encoder,
+        obj: Any
+    ) = (output.context.resolveFromBase(basePolyType, obj as T)
+        ?: throw SubtypeNotRegisteredException(obj::class, basePolyType))
 }
