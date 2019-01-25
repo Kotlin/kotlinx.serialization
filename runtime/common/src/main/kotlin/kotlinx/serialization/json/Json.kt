@@ -23,6 +23,8 @@ import kotlin.jvm.*
  * [indented] specifies whether resulting JSON should be pretty-printed.
  * [indent] specifies which indent string to use with [indented] mode.
  * [strictMode] enables strict mode, which prohibits unknown keys and infinite values in floating point numbers.
+ * [useArrayPolymorphism] switches polymorphic serialization to the default array format.
+ * [polymorphicClassDescriptor] name of the class descriptor property in polymorphic serialization.
  *
  * Example of usage:
  * ```
@@ -58,7 +60,7 @@ public class Json(
     val updateMode: UpdateMode = UpdateMode.OVERWRITE,
     val encodeDefaults: Boolean = true,
     @JvmField internal val useArrayPolymorphism: Boolean = false,
-    @JvmField internal val defaultClassDescriptor: String = "\$type"
+    @JvmField internal val polymorphicClassDescriptor: String = "\$type"
 ): AbstractSerialFormat(), StringFormat {
 
     init {

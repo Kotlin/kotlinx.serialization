@@ -9,7 +9,7 @@ import kotlin.test.*
 
 class JsonPolymorphicClassDescriptor : JsonTestBase() {
 
-    private val json = Json(unquoted = true, defaultClassDescriptor = "class").also { it.install(polymorphicTestModule) }
+    private val json = Json(unquoted = true, polymorphicClassDescriptor = "class").also { it.install(polymorphicTestModule) }
 
     @Test
     fun testPolymorphicProperties() = parametrizedTest { useStreaming ->
