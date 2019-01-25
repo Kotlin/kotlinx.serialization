@@ -62,7 +62,7 @@ class ContextAndPolymorphicTest {
     fun initContext() {
         val scope = SingletonModule(Payload::class, PayloadSerializer)
         val bPolymorphicModule = PolymorphicModule(Any::class).apply { +(Payload::class to PayloadSerializer) }
-        json = Json(unquoted = true).apply { install(scope + bPolymorphicModule) }
+        json = Json(unquoted = true, useArrayPolymorphism = true).apply { install(scope + bPolymorphicModule) }
     }
 
     @Test
@@ -97,8 +97,8 @@ class ContextAndPolymorphicTest {
         // MapModule and CompositeModule are also available
         val binaryModule = SingletonModule(BinaryPayloadSerializer)
 
-        val json1 = Json().apply { install(simpleModule) }
-        val json2 = Json().apply { install(binaryModule) }
+        val json1 = Json(useArrayPolymorphism = true).apply { install(simpleModule) }
+        val json2 = Json(useArrayPolymorphism = true).apply { install(binaryModule) }
 
         // in json1, Payload would be serialized with PayloadSerializer,
         // in json2, Payload would be serialized with BinaryPayloadSerializer

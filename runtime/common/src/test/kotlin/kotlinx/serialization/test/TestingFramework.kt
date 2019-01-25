@@ -20,18 +20,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import kotlin.test.assertEquals
 
-inline fun <reified T : Any> assertStringForm(
-    expected: String,
-    original: T,
-    serializer: KSerializer<T> = T::class.serializer(),
-    format: StringFormat = Json.plain,
-    printResult: Boolean = false
-) {
-    val string = format.stringify(serializer, original)
-    if (printResult) println("[Serialized form] $string")
-    assertEquals(expected, string)
-}
-
 inline fun <reified T : Any> assertStringFormAndRestored(
     expected: String,
     original: T,

@@ -16,7 +16,7 @@
 
 package kotlinx.serialization
 
-import org.junit.Test
+import org.junit.*
 
 // Serializable data class
 
@@ -25,6 +25,7 @@ data class Container(
         val data: Data
 )
 
+@Ignore
 class SerializeRecTest {
     @Test
     fun testRec() {
@@ -106,7 +107,7 @@ class SerializeRecTest {
         }
     }
 
-    class Inp() : ElementValueDecoder() {
+    class Inp : ElementValueDecoder() {
         var step = 0
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {

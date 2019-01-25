@@ -48,6 +48,6 @@ class SealedPolymorphismTest {
         val s = json.stringify(holder)
         assertEquals("""{"someMetadata":42,"payload":[
             |{"${'$'}type":kotlinx.serialization.features.Foo.Bar,"bar":1},
-            |{"${'$'}type":kotlinx.serialization.features.Foo.Baz,"baz":2}]}""".trimMargin(), s)
+            |{"${'$'}type":kotlinx.serialization.features.Foo.Baz,"baz":2}]}""".trimMargin().replace("\n", ""), s)
     }
 }

@@ -34,12 +34,9 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
     }
 
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
-        if (serializer !is PolymorphicSerializer<*>) {
-            super<ElementValueEncoder>.encodeSerializableValue(serializer, value)
-            return
+        encodePolymorphically(serializer, value) {
+            writePolymorphic = true
         }
-        writePolymorphic = true
-        encodePolymorphically(serializer, value)
     }
 
     private fun encodeTypeInfo(descriptor: SerialDescriptor) {

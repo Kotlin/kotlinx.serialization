@@ -8,12 +8,18 @@ import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 
-internal fun <T> JsonOutput.encodePolymorphically(
-    serializer: PolymorphicSerializer<*>, value: T) { @Suppress("UNCHECKED_CAST")
+internal inline fun <T> JsonOutput.encodePolymorphically(serializer: SerializationStrategy<T>, value: T, ifPolymorphic: () -> Unit) {
+    if (serializer !is PolymorphicSerializer<*> || json.useArrayPolymorphism) {
+        serializer.serialize(this, value)
+        return
+    }
+
+    @Suppress("UNCHECKED_CAST")
     val actualSerializer = serializer.findPolymorphicSerializer(this, value as Any) as KSerializer<Any>
     if (actualSerializer is EnumSerializer<*>) {
         throw IllegalStateException("Enums cannot be serialized polymorphically")
     }
+    ifPolymorphic()
     actualSerializer.serialize(this, value)
 }
 
@@ -22,7 +28,7 @@ internal fun getTypeNameProperty(json: Json): String {
 }
 
 internal fun <T> JsonInput.decodeSerializableValuePolymorphic(deserializer: DeserializationStrategy<T>): T {
-    if (deserializer !is PolymorphicSerializer<*>) {
+    if (deserializer !is PolymorphicSerializer<*> || json.useArrayPolymorphism) {
         return deserializer.deserialize(this)
     }
 

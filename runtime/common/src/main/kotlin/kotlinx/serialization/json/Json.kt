@@ -57,6 +57,7 @@ public class Json(
     @JvmField internal val strictMode: Boolean = true,
     val updateMode: UpdateMode = UpdateMode.OVERWRITE,
     val encodeDefaults: Boolean = true,
+    @JvmField internal val useArrayPolymorphism: Boolean = false,
     @JvmField internal val defaultClassDescriptor: String = "\$type"
 ): AbstractSerialFormat(), StringFormat {
 

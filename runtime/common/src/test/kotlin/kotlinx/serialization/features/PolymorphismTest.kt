@@ -37,7 +37,7 @@ class PolymorphismTest {
         install(BaseAndDerivedModule + PolymorphicModule(PolyDerived::class, PolyDerived.serializer()))
     }
 
-    private val json = Json(unquoted = true).apply(moduleInstaller)
+    private val json = Json(unquoted = true, useArrayPolymorphism = true).apply(moduleInstaller)
     private val protobuf = ProtoBuf.apply(moduleInstaller)
 
     @Test
