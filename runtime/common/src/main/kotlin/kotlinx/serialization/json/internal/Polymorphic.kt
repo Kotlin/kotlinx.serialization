@@ -18,8 +18,7 @@ internal fun <T> JsonOutput.encodePolymorphically(
 }
 
 internal fun getTypeNameProperty(json: Json): String {
-    // Stub for the future
-    return "\$type"
+    return json.defaultClassDescriptor
 }
 
 internal fun <T> JsonInput.decodeSerializableValuePolymorphic(deserializer: DeserializationStrategy<T>): T {
@@ -29,7 +28,7 @@ internal fun <T> JsonInput.decodeSerializableValuePolymorphic(deserializer: Dese
 
     val jsonTree = cast<JsonObject>(decodeJson())
     val type = jsonTree[getTypeNameProperty(json)].content
-    (jsonTree.content as MutableMap).remove("\$type")
+    (jsonTree.content as MutableMap).remove(json.defaultClassDescriptor)
     @Suppress("UNCHECKED_CAST")
     val actualSerializer = deserializer.findPolymorphicSerializer(this, type) as KSerializer<T>
     return json.readJson(jsonTree, actualSerializer)
