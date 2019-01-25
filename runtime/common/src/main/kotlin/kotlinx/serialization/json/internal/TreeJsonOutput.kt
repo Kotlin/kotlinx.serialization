@@ -37,6 +37,8 @@ private sealed class AbstractJsonTreeOutput(
     override val context: SerialModule
         get() = json.context
 
+    private var writePolymorphic = false
+
     override fun encodeJson(element: JsonElement) {
         encodeSerializableValue(JsonElementSerializer, element)
     }
@@ -59,6 +61,12 @@ private sealed class AbstractJsonTreeOutput(
         }
 
         putElement(tag, JsonLiteral(value))
+    }
+
+    override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
+        encodePolymorphically(serializer, value) {
+            writePolymorphic = true
+        }
     }
 
     override fun encodeTaggedDouble(tag: String, value: Double) {
@@ -86,11 +94,19 @@ private sealed class AbstractJsonTreeOutput(
         val consumer =
             if (currentTagOrNull == null) nodeConsumer
             else { node -> putElement(currentTag, node) }
-        return when (desc.kind) {
-            StructureKind.LIST -> JsonTreeListOutput(json, consumer)
+
+        val encoder = when (desc.kind) {
+            StructureKind.LIST, UnionKind.POLYMORPHIC -> JsonTreeListOutput(json, consumer)
             StructureKind.MAP -> JsonTreeMapOutput(json, consumer)
             else -> JsonTreeOutput(json, consumer)
         }
+
+        if (writePolymorphic) {
+            writePolymorphic = false
+            encoder.putElement(json.classDiscriminator, JsonPrimitive(desc.name))
+        }
+
+        return encoder
     }
 
     override fun endEncode(desc: SerialDescriptor) {

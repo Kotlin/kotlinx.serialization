@@ -39,6 +39,10 @@ private sealed class AbstractJsonTreeInput(override val json: Json, open val obj
     override val updateMode: UpdateMode
         get() = json.updateMode
 
+    override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+        return decodeSerializableValuePolymorphic(deserializer)
+    }
+
     override fun composeName(parentName: String, childName: String): String = childName
 
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
@@ -100,7 +104,6 @@ private class JsonPrimitiveInput(json: Json, override val obj: JsonPrimitive) : 
 }
 
 private open class JsonTreeInput(json: Json, override val obj: JsonObject) : AbstractJsonTreeInput(json, obj) {
-
     private var position = 0
 
     override fun decodeElementIndex(desc: SerialDescriptor): Int {
@@ -116,16 +119,16 @@ private open class JsonTreeInput(json: Json, override val obj: JsonObject) : Abs
     override fun currentElement(tag: String): JsonElement = obj.getValue(tag)
 
     override fun endStructure(desc: SerialDescriptor) {
-        // This one can be optimized
-        if (json.strictMode) {
-            val names = HashSet<String>(desc.elementsCount)
-            for (i in 0 until desc.elementsCount) {
-                names += desc.getElementName(i)
-            }
+        if (!json.strictMode || desc is PolymorphicClassDescriptor) return
 
-            for (key in obj.keys) {
-                if (key !in names) throw JsonUnknownKeyException("Encountered an unknown key '$key'")
-            }
+        // Validate keys
+        val names = HashSet<String>(desc.elementsCount)
+        for (i in 0 until desc.elementsCount) {
+            names += desc.getElementName(i)
+        }
+
+        for (key in obj.keys) {
+            if (key !in names) throw JsonUnknownKeyException("Encountered an unknown key '$key'")
         }
     }
 }
@@ -153,7 +156,7 @@ private class JsonTreeMapInput(json: Json, override val obj: JsonObject) : JsonT
     }
 
     override fun endStructure(desc: SerialDescriptor) {
-        // do nothing
+        // do nothing, maps do not have strict keys, so strict mode check is omitted
     }
 }
 

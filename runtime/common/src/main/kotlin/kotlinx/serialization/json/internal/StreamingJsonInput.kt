@@ -23,6 +23,10 @@ internal class StreamingJsonInput internal constructor(
     override val updateMode: UpdateMode
         get() = json.updateMode
 
+    override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+        return decodeSerializableValuePolymorphic(deserializer)
+    }
+
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
         val newMode = switchMode(desc, typeParams)
         if (newMode.begin != INVALID) {

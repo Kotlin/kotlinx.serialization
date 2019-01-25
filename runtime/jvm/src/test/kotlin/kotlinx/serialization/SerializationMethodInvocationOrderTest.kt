@@ -1,31 +1,18 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
 
-import org.junit.Test
+import org.junit.*
 
 // Serializable data class
 
 @Serializable
-data class Container(
-        val data: Data
-)
+data class Container(val data: Data)
 
-class SerializeRecTest {
+class SerializationMethodInvocationOrderTest {
+
     @Test
     fun testRec() {
         val out = Out()
@@ -52,113 +39,113 @@ class SerializeRecTest {
         }
     }
 
-    class Out() : ElementValueEncoder() {
+    class Out : ElementValueEncoder() {
         var step = 0
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
             when(step) {
-                0 -> { checkContainerDesc(desc); step++; return this }
-                3 -> { checkDataDesc(desc); step++; return this }
+                1 -> { checkContainerDesc(desc); step++; return this }
+                4 -> { checkDataDesc(desc); step++; return this }
             }
             fail("@$step: beginStructure($desc)")
         }
 
         override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
             when (step) {
-                1 -> { checkContainerDesc(desc); if (index == 0) { step++; return true } }
-                4 -> { checkDataDesc(desc); if (index == 0) { step++; return true } }
-                6 -> { checkDataDesc(desc); if (index == 1) { step++; return true } }
+                2 -> { checkContainerDesc(desc); if (index == 0) { step++; return true } }
+                5 -> { checkDataDesc(desc); if (index == 0) { step++; return true } }
+                7 -> { checkDataDesc(desc); if (index == 1) { step++; return true } }
             }
             fail("@$step: encodeElement($desc, $index)")
         }
 
         override fun <T : Any?> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
             when (step) {
-                2 -> { step++; serializer.serialize(this, value); return }
+                0, 3 -> { step++; serializer.serialize(this, value); return }
             }
             fail("@$step: encodeSerializableValue($value)")
         }
 
         override fun encodeString(value: String) {
             when (step) {
-                5 -> if (value == "s1") { step++; return }
+                6 -> if (value == "s1") { step++; return }
             }
             fail("@$step: encodeString($value)")
         }
 
         override fun encodeInt(value: Int) {
             when (step) {
-                7 -> if (value == 42) { step++; return }
+                8 -> if (value == 42) { step++; return }
             }
             fail("@$step: decodeInt($value)")
         }
 
         override fun endStructure(desc: SerialDescriptor) {
             when(step) {
-                8 -> { checkDataDesc(desc); step++; return }
-                9 -> { checkContainerDesc(desc); step++; return }
+                9 -> { checkDataDesc(desc); step++; return }
+                10 -> { checkContainerDesc(desc); step++; return }
             }
             fail("@$step: endStructure($desc)")
         }
 
         fun done() {
-            if (step != 10) fail("@$step: OUT FAIL")
+            if (step != 11) fail("@$step: OUT FAIL")
         }
     }
 
-    class Inp() : ElementValueDecoder() {
+    class Inp : ElementValueDecoder() {
         var step = 0
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             when(step) {
-                0 -> { checkContainerDesc(desc); step++; return this }
-                3 -> { checkDataDesc(desc); step++; return this }
+                1 -> { checkContainerDesc(desc); step++; return this }
+                4 -> { checkDataDesc(desc); step++; return this }
             }
             fail("@$step: beginStructure($desc)")
         }
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
             when (step) {
-                1 -> { checkContainerDesc(desc); step++; return 0 }
-                4 -> { checkDataDesc(desc); step++; return 0 }
-                6 -> { checkDataDesc(desc); step++; return 1 }
-                8 -> { checkDataDesc(desc); step++; return -1 }
-                10 -> { checkContainerDesc(desc); step++; return -1 }
+                2 -> { checkContainerDesc(desc); step++; return 0 }
+                5 -> { checkDataDesc(desc); step++; return 0 }
+                7 -> { checkDataDesc(desc); step++; return 1 }
+                9 -> { checkDataDesc(desc); step++; return -1 }
+                11 -> { checkContainerDesc(desc); step++; return -1 }
             }
             fail("@$step: decodeElementIndex($desc)")
         }
 
         override fun <T : Any?> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
             when (step) {
-                2 -> { step++; return deserializer.deserialize(this) }
+                0, 3 -> { step++; return deserializer.deserialize(this) }
             }
             fail("@$step: decodeSerializableValue()")
         }
 
         override fun decodeString(): String {
             when (step) {
-                5 -> { step++; return "s1" }
+                6 -> { step++; return "s1" }
             }
             fail("@$step: decodeString()")
         }
 
         override fun decodeInt(): Int {
             when (step) {
-                7 -> { step++; return 42 }
+                8 -> { step++; return 42 }
             }
             fail("@$step: decodeInt()")
         }
 
         override fun endStructure(desc: SerialDescriptor) {
             when(step) {
-                9 -> { checkDataDesc(desc); step++; return }
-                11 -> { checkContainerDesc(desc); step++; return }
+                10 -> { checkDataDesc(desc); step++; return }
+                12 -> { checkContainerDesc(desc); step++; return }
             }
             fail("@$step: endStructure($desc)")
         }
 
         fun done() {
-            if (step != 12) fail("@$step: INP FAIL")
+            if (step != 13) fail("@$step: INP FAIL")
         }
     }
 }

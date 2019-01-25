@@ -19,6 +19,7 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
 
     // Forces serializer to wrap all values into quotes
     private var forceQuoting: Boolean = false
+    private var writePolymorphic = false
 
     init {
         val i = mode.ordinal
@@ -34,11 +35,30 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
         return json.encodeDefaults
     }
 
+    override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
+        encodePolymorphically(serializer, value) {
+            writePolymorphic = true
+        }
+    }
+
+    private fun encodeTypeInfo(descriptor: SerialDescriptor) {
+        composer.nextItem()
+        encodeString(json.classDiscriminator)
+        composer.print(COLON)
+        composer.space()
+        composer.print(descriptor.name)
+    }
+
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
         val newMode = switchMode(desc, typeParams)
         if (newMode.begin != INVALID) { // entry
             composer.print(newMode.begin)
             composer.indent()
+        }
+
+        if (writePolymorphic) {
+            writePolymorphic = false
+            encodeTypeInfo(desc)
         }
 
         if (mode == newMode) {

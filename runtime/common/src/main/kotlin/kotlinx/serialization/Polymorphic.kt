@@ -6,15 +6,15 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.PolymorphicClassDescriptor.kind
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
-import kotlinx.serialization.internal.SerialClassDescImpl
-import kotlin.reflect.KClass
+import kotlin.reflect.*
 
 /**
  * A [SerialDescriptor] for polymorphic serialization with special kind.
  *
- * Currently, it has no guarantees neither on its reference transparency nor its
- * [elementDescriptors], only on [kind].
+ * Currently, it has no guarantees neither on its reference transparency nor its [elementDescriptors], only on [kind].
  */
 public object PolymorphicClassDescriptor : SerialClassDescImpl("kotlin.Any") {
     public override val kind: SerialKind = UnionKind.POLYMORPHIC
@@ -128,6 +128,25 @@ public class PolymorphicSerializer<T : Any>(private val baseClass: KClass<T>) : 
         compositeDecoder.endStructure(descriptor)
         return requireNotNull(value) { "Polymorphic value have not been read for class $klassName" }
     }
+
+    /**
+     * Lookup of the polymorphic serializer by given [fqnClassName] in the context of [decoder] by the base class [basePolyType].
+     * Throws [SerializationException] if serializer is not found.
+     */
+    public fun findPolymorphicSerializer(
+        input: CompositeDecoder,
+        klassName: String
+    ): KSerializer<out T> = input.context.getPolymorphic(baseClass, klassName)
+        ?: throwSubtypeNotRegistered(klassName, baseClass)
+    /**
+     * Lookup of the polymorphic serializer for given [value] in the context of [encoder] by the base class [basePolyType].
+     * Throws [SerializationException] if serializer is not found.
+     */
+    @Suppress("UNCHECKED_CAST")
+    public fun findPolymorphicSerializer(
+        output: Encoder,
+        value: Any
+    ): KSerializer<out T> = output.context.getPolymorphic(baseClass, value as T) ?: throwSubtypeNotRegistered(value::class, baseClass)
 }
 
 

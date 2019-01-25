@@ -8,6 +8,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import kotlin.test.assertEquals
 
+
 inline fun <reified T : Any> assertStringForm(
     expected: String,
     original: T,

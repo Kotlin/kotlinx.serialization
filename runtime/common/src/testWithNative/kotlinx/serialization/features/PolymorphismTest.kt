@@ -38,7 +38,7 @@ class PolymorphismTest {
         )
     }
 
-    private val json = Json(unquoted = true, context = module)
+    private val json = Json(unquoted = true, useArrayPolymorphism = true, context = module)
     private val protobuf = ProtoBuf(context = module)
 
     @Test
