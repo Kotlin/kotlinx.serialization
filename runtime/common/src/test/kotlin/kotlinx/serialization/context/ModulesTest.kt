@@ -73,7 +73,7 @@ class ModulesTest {
 
     @Test
     fun testCompositeModule() {
-        val moduleA = SingletonModule(A::class, ASerializer)
+        val moduleA = SingletonModule(ASerializer)
         val moduleB = MapModule(mapOf(B::class to BSerializer))
 
         (moduleA + moduleB).assertModuleHas(

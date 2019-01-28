@@ -93,9 +93,9 @@ class ContextAndPolymorphicTest {
 
     @Test
     fun testDifferentRepresentations() {
-        val simpleModule = SingletonModule(Payload::class, PayloadSerializer)
+        val simpleModule = SingletonModule(PayloadSerializer)
         // MapModule and CompositeModule are also available
-        val binaryModule = SingletonModule(Payload::class, BinaryPayloadSerializer)
+        val binaryModule = SingletonModule(BinaryPayloadSerializer)
 
         val json1 = Json().apply { install(simpleModule) }
         val json2 = Json().apply { install(binaryModule) }

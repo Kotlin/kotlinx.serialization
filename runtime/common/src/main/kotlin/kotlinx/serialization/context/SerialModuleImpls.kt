@@ -14,10 +14,17 @@ typealias SimpleModule<T> = SingletonModule<T>
  *
  * @see MutableSerialContext.registerSerializer
  */
-class SingletonModule<T: Any>(val kClass: KClass<T>, val kSerializer: KSerializer<T>): SerialModule {
+public class SingletonModule<T: Any>(private val kClass: KClass<T>, private val serializer: KSerializer<T>): SerialModule {
     override fun registerIn(context: MutableSerialContext) {
-        context.registerSerializer(kClass, kSerializer)
+        context.registerSerializer(kClass, serializer)
     }
+}
+
+/**
+ * Shortcut for [SingletonModule] constructor with type parameter.
+ */
+public inline fun <reified T: Any> SingletonModule(serializer: KSerializer<T>): SingletonModule<T> {
+    return SingletonModule(T::class, serializer)
 }
 
 /**
