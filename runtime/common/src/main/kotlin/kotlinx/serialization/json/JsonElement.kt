@@ -16,6 +16,8 @@ import kotlinx.serialization.json.internal.*
  * [JsonElement.toString] properly prints JSON tree as valid JSON, taking into account quoted values and primitives.
  * Whole hierarchy is serializable, but only when used with [Json] as [JsonElement] is purely JSON-specific structure
  * which has a meaningful schemaless semantics only for JSON.
+ *
+ * The whole hierarchy is [serializable][Serializable] only by [Json] format.
  */
 @Serializable(JsonElementSerializer::class)
 public sealed class JsonElement {
@@ -85,7 +87,7 @@ public sealed class JsonPrimitive : JsonElement() {
 
     /**
      * Returns content of current element as int or `null` if current element is not a valid representation of number
-     **/
+     */
     public val intOrNull: Int? get() = content.toIntOrNull()
 
     /**

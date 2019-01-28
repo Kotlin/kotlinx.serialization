@@ -9,28 +9,24 @@ import kotlinx.serialization.internal.*
 
 /**
  * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonElement].
- * It can only be used by a [JsonInput] decoder for deserialization.
+ * It can only be used by with [Json] format an its input ([JsonInput] and [JsonOutput]).
+ * Currently, this hierarchy has no guarantees on descriptor content.
+ *
  * Example usage:
  * ```
- *   val string = Json.stringify(JsonElementSerializer, JsonLiteral(1.3))
+ *   val string = Json.stringify(JsonElementSerializer, json { "key" to 1.0 })
  *   val literal = Json.parse(JsonElementSerializer, string)
- *
- *   assertEquals(JsonLiteral(1.3), literal)
+ *   assertEquals(JsonObject(mapOf("key" to JsonLiteral(1.0))), literal)
  * ```
- *
  */
 @Serializer(forClass = JsonElement::class)
 public object JsonElementSerializer : KSerializer<JsonElement> {
     override val descriptor: SerialDescriptor = object : SerialClassDescImpl("JsonElementSerializer") {
-        override val kind: SerialKind
-            get() = UnionKind.SEALED
-
-        init {
-            addElement("JsonElement")
-        }
+        override val kind: SerialKind get() = UnionKind.SEALED
     }
 
     override fun serialize(encoder: Encoder, obj: JsonElement) {
+        verify(encoder)
         when (obj) {
             is JsonPrimitive -> JsonPrimitiveSerializer.serialize(encoder, obj)
             is JsonObject -> JsonObjectSerializer.serialize(encoder, obj)
@@ -39,20 +35,22 @@ public object JsonElementSerializer : KSerializer<JsonElement> {
     }
 
     override fun deserialize(decoder: Decoder): JsonElement {
-        val input = decoder as? JsonInput ?: error("JsonElement is deserializable only when used by Json")
+        verify(decoder)
+        val input = decoder as JsonInput
         return input.decodeJson()
     }
 }
 
 /**
  * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonPrimitive].
+ * It can only be used by with [Json] format an its input ([JsonInput] and [JsonOutput]).
  */
 @Serializer(forClass = JsonPrimitive::class)
 public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
-    override val descriptor: SerialDescriptor =
-        JsonPrimitiveDescriptor
+    override val descriptor: SerialDescriptor get() = JsonPrimitiveDescriptor
 
     override fun serialize(encoder: Encoder, obj: JsonPrimitive) {
+        verify(encoder)
         return if (obj is JsonNull) {
             JsonNullSerializer.serialize(encoder, JsonNull)
         } else {
@@ -61,6 +59,7 @@ public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
     }
 
     override fun deserialize(decoder: Decoder): JsonPrimitive {
+        verify(decoder)
         return if (decoder.decodeNotNullMark()) JsonPrimitive(decoder.decodeString())
         else JsonNullSerializer.deserialize(decoder)
     }
@@ -68,56 +67,44 @@ public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
     private object JsonPrimitiveDescriptor : SerialClassDescImpl("JsonPrimitive") {
         override val kind: SerialKind
             get() = PrimitiveKind.STRING
-
-        override val isNullable: Boolean
-            get() = true
-
-        init {
-            addElement("JsonPrimitive")
-        }
     }
 }
 
 /**
  * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonNull].
+ * It can only be used by with [Json] format an its input ([JsonInput] and [JsonOutput]).
  */
 @Serializer(forClass = JsonNull::class)
 public object JsonNullSerializer : KSerializer<JsonNull> {
-    override val descriptor: SerialDescriptor =
-        JsonNullDescriptor
+    override val descriptor: SerialDescriptor get() = JsonNullDescriptor
 
     override fun serialize(encoder: Encoder, obj: JsonNull) {
+        verify(encoder)
         encoder.encodeNull()
     }
 
     override fun deserialize(decoder: Decoder): JsonNull {
+        verify(decoder)
         decoder.decodeNull()
         return JsonNull
     }
 
     private object JsonNullDescriptor : SerialClassDescImpl("JsonNull") {
-        override val kind: SerialKind
-            get() = UnionKind.OBJECT
-
-        override val isNullable: Boolean
-            get() = true
-
-        init {
-            addElement("JsonNull")
-        }
+        override val kind: SerialKind get() = UnionKind.OBJECT
     }
 }
 
 /**
  * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonLiteral].
+ * It can only be used by with [Json] format an its input ([JsonInput] and [JsonOutput]).
  */
 @Serializer(forClass = JsonLiteral::class)
 public object JsonLiteralSerializer : KSerializer<JsonLiteral> {
 
-    override val descriptor: SerialDescriptor =
-        JsonLiteralDescriptor
+    override val descriptor: SerialDescriptor get() = JsonLiteralDescriptor
 
     override fun serialize(encoder: Encoder, obj: JsonLiteral) {
+        verify(encoder)
         if (obj.isString) {
             return encoder.encodeString(obj.content)
         }
@@ -141,39 +128,39 @@ public object JsonLiteralSerializer : KSerializer<JsonLiteral> {
     }
 
     override fun deserialize(decoder: Decoder): JsonLiteral {
+        verify(decoder)
         return JsonLiteral(decoder.decodeString())
     }
 
     private object JsonLiteralDescriptor : SerialClassDescImpl("JsonLiteral") {
         override val kind: SerialKind
             get() = PrimitiveKind.STRING
-
-        init {
-            addElement("JsonLiteral")
-        }
     }
 }
 
 /**
  * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonObject].
+ * It can only be used by with [Json] format an its input ([JsonInput] and [JsonOutput]).
  */
 @Serializer(forClass = JsonObject::class)
 public object JsonObjectSerializer : KSerializer<JsonObject> {
     override val descriptor: SerialDescriptor =
-        NamedMapClassDescriptor("JsonObject", StringSerializer.descriptor,
-            JsonElementSerializer.descriptor)
+        NamedMapClassDescriptor("JsonObject", StringSerializer.descriptor, JsonElementSerializer.descriptor)
 
     override fun serialize(encoder: Encoder, obj: JsonObject) {
+        verify(encoder)
         LinkedHashMapSerializer(StringSerializer, JsonElementSerializer).serialize(encoder, obj.content)
     }
 
     override fun deserialize(decoder: Decoder): JsonObject {
+        verify(decoder)
         return JsonObject(LinkedHashMapSerializer(StringSerializer, JsonElementSerializer).deserialize(decoder))
     }
 }
 
 /**
  * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonArray].
+ * It can only be used by with [Json] format an its input ([JsonInput] and [JsonOutput]).
  */
 @Serializer(forClass = JsonArray::class)
 public object JsonArraySerializer : KSerializer<JsonArray> {
@@ -182,10 +169,20 @@ public object JsonArraySerializer : KSerializer<JsonArray> {
         JsonElementSerializer.descriptor)
 
     override fun serialize(encoder: Encoder, obj: JsonArray) {
+        verify(encoder)
         ArrayListSerializer(JsonElementSerializer).serialize(encoder, obj)
     }
 
     override fun deserialize(decoder: Decoder): JsonArray {
+        verify(decoder)
         return JsonArray(ArrayListSerializer(JsonElementSerializer).deserialize(decoder))
     }
+}
+
+private fun verify(encoder: Encoder) {
+    if (encoder !is JsonOutput) error("Json element serializer can be used only by Json format")
+}
+
+private fun verify(decoder: Decoder) {
+    if (decoder !is JsonInput) error("Json element serializer can be used only by Json format")
 }
