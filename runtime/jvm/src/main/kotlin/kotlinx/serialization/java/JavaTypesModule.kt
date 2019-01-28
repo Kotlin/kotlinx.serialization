@@ -18,6 +18,7 @@ import kotlin.reflect.*
  * Identifiers: [URI], [URL] and [UUID].
  * Numbers: [BigInteger] and [BigDecimal].
  * Strings: [StringBuilder].
+ * Dates: [java.util.Date].
  */
 public object JavaTypesModule : SerialModule {
     private val javaSerializers: MutableMap<KClass<*>, KSerializer<*>> = mutableMapOf()
@@ -32,6 +33,7 @@ public object JavaTypesModule : SerialModule {
         javaSerializers[StringBuilder::class] = StringBuilderSerializer
         javaSerializers[BigInteger::class] = BigIntegerSerializer
         javaSerializers[BigDecimal::class] = BigDecimalSerializer
+        javaSerializers[Date::class] = DateSerializer
     }
 
     override fun registerIn(context: MutableSerialContext) {
