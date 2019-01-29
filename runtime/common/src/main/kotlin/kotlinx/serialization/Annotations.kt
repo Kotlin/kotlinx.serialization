@@ -29,6 +29,8 @@ annotation class Serializable(
 
 /**
  * Instructs plugin to turn this class into serializer for specified class [forClass].
+ * However, it would not be used automatically. To apply it on particular class or property,
+ * use [Serializable] or [UseSerializers], or [ContextualSerialization] with runtime registration.
  */
 @Target(AnnotationTarget.CLASS)
 annotation class Serializer(
