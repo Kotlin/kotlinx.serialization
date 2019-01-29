@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-@file:UseSerializers(MultiplyingIntHolderSerializer::class, MultiplyingIntSerializer::class)
+// TODO: Move to common tests after https://youtrack.jetbrains.com/issue/KT-28927 is fixed
+
+@file:ContextualSerialization(Int::class, IntHolder::class)
 
 package kotlinx.serialization.features
 
+import kotlinx.serialization.ContextualSerialization
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
+import kotlinx.serialization.context.MapModule
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @Serializable
-data class Carrier2(
+data class Carrier3(
     val a: IntHolder,
     val i: Int,
     val nullable: Int?,
@@ -34,10 +37,16 @@ data class Carrier2(
     val nullableIntHolderNullableList: List<IntHolder?>? = null
 )
 
-class UseSerializersTest {
+class ContextualSerializationOnFileTest {
+    val module = MapModule(mapOf(Int::class to DividingIntSerializer, IntHolder::class to MultiplyingIntHolderSerializer))
+    val json = Json().apply { install(module) }
+
     @Test
     fun testOnFile() {
-        val str = Json.stringify(Carrier2.serializer(), Carrier2(IntHolder(42), 2, 2, IntHolder(42)))
-        assertEquals("""{"a":84,"i":4,"nullable":4,"nullableIntHolder":84,"nullableIntList":[],"nullableIntHolderNullableList":null}""", str)
+        val str = json.stringify(Carrier3.serializer(), Carrier3(IntHolder(42), 8, 8, IntHolder(42)))
+        assertEquals(
+            """{"a":84,"i":4,"nullable":4,"nullableIntHolder":84,"nullableIntList":[],"nullableIntHolderNullableList":null}""",
+            str
+        )
     }
 }
