@@ -52,6 +52,16 @@ fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
     return i
 }
 
+/**
+ * Searches for annotation of type [A] in annotations, obtained via
+ * [SerialDescriptor.getElementAnnotations] at given [elementIndex]
+ *
+ * Returns null if there is 0 or more than 1 annotation with such type.
+ */
+inline fun <reified A: Annotation> SerialDescriptor.findAnnotation(elementIndex: Int): A? {
+    return getElementAnnotations(elementIndex).filterIsInstance<A>().singleOrNull()
+}
+
 @Deprecated(deprecationText, ReplaceWith("elementsCount"))
 val SerialDescriptor.associatedFieldsCount: Int
     get() = elementsCount

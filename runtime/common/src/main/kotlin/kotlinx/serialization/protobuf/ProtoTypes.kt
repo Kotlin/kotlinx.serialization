@@ -3,15 +3,15 @@ package kotlinx.serialization.protobuf
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.onlySingleOrNull
 
-enum class ProtoNumberType {
+public enum class ProtoNumberType {
     DEFAULT, SIGNED, FIXED
 }
 
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
-annotation class ProtoType(val type: ProtoNumberType)
+public annotation class ProtoType(val type: ProtoNumberType)
 
-typealias ProtoDesc = Pair<Int, ProtoNumberType>
+internal typealias ProtoDesc = Pair<Int, ProtoNumberType>
 
 internal fun extractParameters(desc: SerialDescriptor, index: Int): ProtoDesc {
     val idx = getSerialId(desc, index) ?: index + 1
@@ -21,4 +21,4 @@ internal fun extractParameters(desc: SerialDescriptor, index: Int): ProtoDesc {
 }
 
 
-class ProtobufDecodingException(message: String) : SerializationException(message)
+public class ProtobufDecodingException(message: String) : SerializationException(message)

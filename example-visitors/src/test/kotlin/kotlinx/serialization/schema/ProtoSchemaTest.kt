@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kotlinx.serialization.protobuf
+package kotlinx.serialization.schema
 
 import kotlinx.serialization.SerialId
 import kotlinx.serialization.Serializable

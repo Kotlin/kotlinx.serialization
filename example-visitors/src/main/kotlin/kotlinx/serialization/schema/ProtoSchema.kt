@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
+ * Copyright 2019 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ data class ProtoField(val protoId: Int, val name: String, val rule: ProtoFieldRu
 }
 
 data class ProtoMessage(override val name: String, val fields: List<ProtoField>): ProtoType {
-    override val wireType: Int = ProtoBuf.SIZE_DELIMITED
+    override val wireType: Int = 2 // SIZE_DELIMITED
 
     override fun toString(): String {
         return "message $name {" + fields.joinToString("\n  ", "\n  ", "\n") + "}"
@@ -42,7 +42,7 @@ data class ProtoMessage(override val name: String, val fields: List<ProtoField>)
 
 data class ProtoMap(val keyType: ProtoType, val valueType: ProtoType) : ProtoType {
     override val name: String = "map<${keyType.name}, ${valueType.name}>"
-    override val wireType: Int = ProtoBuf.SIZE_DELIMITED
+    override val wireType: Int = 2 // SIZE_DELIMITED
 
     override fun toString(): String = name
 }
@@ -62,23 +62,23 @@ enum class ProtoFieldRule {
 enum class VarintType: ProtoType {
     int32, int64, sint32, sint64, bool, enum;
 
-    override val wireType: Int = ProtoBuf.VARINT
+    override val wireType: Int = 0 // VARINT
 }
 
 enum class Fixed64BitType: ProtoType {
     fixed64, double;
 
-    override val wireType: Int = ProtoBuf.i64
+    override val wireType: Int = 1 // i64
 }
 
 enum class Fixed32BitType: ProtoType {
     fixed32, float;
 
-    override val wireType: Int = ProtoBuf.i32
+    override val wireType: Int = 5 // i32
 }
 
 enum class LengthDelimited: ProtoType {
     string, bytes;
 
-    override val wireType: Int = ProtoBuf.SIZE_DELIMITED
+    override val wireType: Int = 2 // SIZE_DELIMITED
 }
