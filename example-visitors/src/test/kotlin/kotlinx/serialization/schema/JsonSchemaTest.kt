@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package kotlinx.serialization.json
+package kotlinx.serialization.schema
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
-import kotlinx.serialization.schema.JsonSchema
+import kotlinx.serialization.json.*
 import kotlin.test.*
 
 @Serializable
@@ -36,7 +36,7 @@ class JsonSchemaTest {
             "required" to jsonArray { +"s" }
             "properties" to json {
                 "l" to json {
-                    "description" to ARRAY_LIST_NAME
+                    "description" to ArrayListClassDesc(IntDescriptor).name
                     "type" to "array"
                     "items" to json { "type" to "number"; "description" to IntDescriptor.name }
                 }

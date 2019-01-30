@@ -3,6 +3,7 @@
 # IntelliJ files
 .idea/
 out/
+*.iml
 
 # Gradle files
 build/

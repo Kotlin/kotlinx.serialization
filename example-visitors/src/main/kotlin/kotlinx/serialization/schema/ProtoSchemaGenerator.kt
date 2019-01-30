@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
+ * Copyright 2019 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,20 @@ package kotlinx.serialization.schema
 
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.ProtoNumberType
-import kotlinx.serialization.protobuf.extractParameters
+import kotlinx.serialization.protobuf.ProtoType as ProtobufType
 
 fun ProtoSchema(descriptor: SerialDescriptor): ProtoMessage {
-    val fields = descriptor.elementDescriptors().mapIndexed { i, child ->
-        val (id, numberAnnotation) = extractParameters(descriptor, i)
+    val fields = descriptor.elementDescriptors().mapIndexed { index, child ->
+        val id = getSerialId(descriptor, index) ?: index + 1
+        val numberAnnotation = descriptor.findAnnotation<ProtobufType>(index)?.type
+                ?: ProtoNumberType.DEFAULT
         val rule = when {
             child.kind is StructureKind.LIST -> ProtoFieldRule.REPEATED
             child.kind is StructureKind.MAP -> ProtoFieldRule.MAP
-            descriptor.isElementOptional(i) -> ProtoFieldRule.OPTIONAL
+            descriptor.isElementOptional(index) -> ProtoFieldRule.OPTIONAL
             else -> ProtoFieldRule.REQUIRED
         }
-        val name = descriptor.getElementName(i)
+        val name = descriptor.getElementName(index)
         val type = child.accept(ProtoTypeInference(numberAnnotation))
         ProtoField(id, name, rule, type)
     }.toList()
