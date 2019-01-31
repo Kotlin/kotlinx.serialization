@@ -22,7 +22,7 @@ pluginManagement {
     }
 }
 
-includeBuild("../") {
+includeBuild("../../") {
     dependencySubstitution {
         substitute(module("org.jetbrains.kotlinx:kotlinx-serialization-runtime")).with(project(":jvm"))
     }
