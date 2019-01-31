@@ -2,6 +2,10 @@
 
 This folder contains various samples of setup and usage of kotlinx.serialization library, namely: 
 
+### Example-multiplatform
+
+Provides setup for multiplatform library with kotlinx.serialization on JVM, JS and Native targets using new multiplatform model from Kotlin 1.3 ('kotlin-multiplatform'  plugin). Also features how one can setup tests for JS.
+
 ### Example-jvm
 
 Provides setup for Gradle and Maven build systems for JVM target.
@@ -22,7 +26,7 @@ Provides setup for Gradle using 'kotlin-platform-native' plugin and Gradle metad
 
 ### Example-visitors
 
-Provides setup for Gradle using Kotlin Gradle DSL and 'kotlin.jvm' plugin.
+Provides setup for Gradle using **Kotlin Gradle DSL** and 'kotlin.jvm' plugin.
 Showcases how one can use functionality of visiting serializable class descriptors tree to extract different metadata from the class, e.g. Json schema or .proto definition.
 It also features ability to use kotlinx.serialization library in Gradle's [composite build with dependency substitution](https://docs.gradle.org/current/userguide/composite_builds.html#included_build_declaring_substitutions).
 
