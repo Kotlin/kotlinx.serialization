@@ -54,7 +54,7 @@ dependencies {
     compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
 }
 
-task runApp(type: JavaExec) {
+task run(type: JavaExec, dependsOn: "build") {
     classpath = sourceSets.main.compileClasspath + sourceSets.main.runtimeClasspath
 
     main = 'App'
