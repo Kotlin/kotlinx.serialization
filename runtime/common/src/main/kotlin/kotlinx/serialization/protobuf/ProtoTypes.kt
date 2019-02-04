@@ -1,7 +1,6 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.onlySingleOrNull
 
 public enum class ProtoNumberType {
     DEFAULT, SIGNED, FIXED
@@ -15,7 +14,7 @@ internal typealias ProtoDesc = Pair<Int, ProtoNumberType>
 
 internal fun extractParameters(desc: SerialDescriptor, index: Int): ProtoDesc {
     val idx = getSerialId(desc, index) ?: index + 1
-    val format = desc.getElementAnnotations(index).filterIsInstance<ProtoType>().onlySingleOrNull()?.type
+    val format = desc.findAnnotation<ProtoType>(index)?.type
             ?: ProtoNumberType.DEFAULT
     return idx to format
 }

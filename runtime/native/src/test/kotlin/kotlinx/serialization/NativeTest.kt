@@ -44,7 +44,7 @@ class CommonTest {
     @Test
     fun nativeSupportSerialIds() {
         val country = CountryData.serializer()
-        val id1 = country.descriptor.getElementAnnotations(0).filterIsInstance<SerialId>().onlySingleOrNull()?.id ?: 0
+        val id1 = country.descriptor.findAnnotation<SerialId>(0)?.id ?: 0
         val id2 = getSerialId(country.descriptor, 0)
         assertEquals(10, id1)
         assertEquals(10, id2)

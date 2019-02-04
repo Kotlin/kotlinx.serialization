@@ -56,10 +56,16 @@ fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
  * Searches for annotation of type [A] in annotations, obtained via
  * [SerialDescriptor.getElementAnnotations] at given [elementIndex]
  *
- * Returns null if there is 0 or more than 1 annotation with such type.
+ * Returns null if there are no annotations with such type.
+ * Throws [IllegalStateException] if there are duplicated annotations for a given type.
  */
 inline fun <reified A: Annotation> SerialDescriptor.findAnnotation(elementIndex: Int): A? {
-    return getElementAnnotations(elementIndex).filterIsInstance<A>().singleOrNull()
+    val candidates = getElementAnnotations(elementIndex).filterIsInstance<A>()
+    return when (candidates.size) {
+        0 -> null
+        1 -> candidates[0]
+        else -> throw IllegalStateException("There are duplicate annotations of type ${A::class} in the descriptor $this")
+    }
 }
 
 @Deprecated(deprecationText, ReplaceWith("elementsCount"))
