@@ -172,10 +172,10 @@ abstract class NamedValueEncoder(val rootName: String = "") : TaggedEncoder<Stri
 }
 
 fun getSerialId(desc: SerialDescriptor, index: Int): Int?
-        = desc.getElementAnnotations(index).filterIsInstance<SerialId>().singleOrNull()?.id
+        = desc.findAnnotation<SerialId>(index)?.id
 
 fun getSerialTag(desc: SerialDescriptor, index: Int): String?
-        = desc.getElementAnnotations(index).filterIsInstance<SerialTag>().singleOrNull()?.tag
+        = desc.findAnnotation<SerialTag>(index)?.tag
 
 abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     override var context: SerialContext = EmptyContext

@@ -20,12 +20,6 @@ import kotlinx.io.ByteBuffer
 import kotlinx.io.IOException
 import kotlinx.io.InputStream
 
-internal fun <T> List<T>.onlySingleOrNull() = when(this.size) {
-    0 -> null
-    1 -> this[0]
-    else -> throw IllegalStateException("Too much arguments in list")
-}
-
 internal fun InputStream.readExactNBytes(bytes: Int): ByteArray {
     val array = ByteArray(bytes)
     var read = 0
@@ -76,7 +70,7 @@ object HexConverter {
         else -> -1
     }
 
-    private val hexCode = "0123456789ABCDEF"
+    private const val hexCode = "0123456789ABCDEF"
 
     fun printHexBinary(data: ByteArray, lowerCase: Boolean = false): String {
         val r = StringBuilder(data.size * 2)
