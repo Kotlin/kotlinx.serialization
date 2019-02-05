@@ -30,7 +30,8 @@ buildscript {
         ext.konanVersion = property('konan.version')
     }
     ext.serializationCoordinates = "org.jetbrains.kotlin:kotlin-serialization"
-    ext.eapChannel = 'https://teamcity.jetbrains.com/guestAuth/app/rest/builds/id:1907319/artifacts/content/maven'
+    ext.tcChannel = 'https://teamcity.jetbrains.com/guestAuth/app/rest/builds/id:1907319/artifacts/content/maven'
+    ext.devChannel = 'https://kotlin.bintray.com/kotlin-dev'
     ext.serializationRepo = 'https://kotlin.bintray.com/kotlinx'
     ext.experimentalsEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
                                 "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
@@ -42,12 +43,13 @@ buildscript {
                                 ]
 
     repositories {
-        jcenter()
         mavenLocal()
-        maven { url "https://plugins.gradle.org/m2/" }
-        maven { url eapChannel }
+        maven { url tcChannel }
+        maven { url devChannel }
         maven { url serializationRepo }
+        maven { url "https://plugins.gradle.org/m2/" }
         maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
+        jcenter()
     }
 
     dependencies {
@@ -89,10 +91,11 @@ allprojects {
     }
 
     repositories {
-        jcenter()
         mavenLocal()
-        maven { url eapChannel }
+        maven { url tcChannel }
+        maven { url devChannel }
         maven { url serializationRepo }
+        jcenter()
     }
 }
 
