@@ -42,11 +42,11 @@ fun Boolean.Companion.serializer(): KSerializer<Boolean> = BooleanSerializer
  *
  * Size of a sequence is equal to [SerialDescriptor.elementsCount].
  */
-fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> {
+public fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> {
     return (0 until elementsCount).map { getElementDescriptor(it) }
 }
 
-fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
+public fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
     val i = getElementIndex(name)
     if (i == CompositeDecoder.UNKNOWN_NAME) throw SerializationException("Unknown name '$name'")
     return i
@@ -59,7 +59,7 @@ fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
  * Returns null if there are no annotations with such type.
  * Throws [IllegalStateException] if there are duplicated annotations for a given type.
  */
-inline fun <reified A: Annotation> SerialDescriptor.findAnnotation(elementIndex: Int): A? {
+internal inline fun <reified A: Annotation> SerialDescriptor.findAnnotation(elementIndex: Int): A? {
     val candidates = getElementAnnotations(elementIndex).filterIsInstance<A>()
     return when (candidates.size) {
         0 -> null
