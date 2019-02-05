@@ -18,7 +18,19 @@ pluginManagement {
         maven { url 'https://plugins.gradle.org/m2/' }
     }
 }
-rootProject.name = 'example-multiplatform'
 
+rootProject.name = 'kotlinx-serialization-examples'
+
+include ':example-visitors'
+include ':example-jvm'
+include ':example-js'
+include ':example-native'
+include ':example-multiplatform'
 
 enableFeaturePreview('GRADLE_METADATA')
+
+includeBuild("../") {
+    dependencySubstitution {
+        substitute(module("org.jetbrains.kotlinx:kotlinx-serialization-runtime-local")).with(project(":jvm"))
+    }
+}

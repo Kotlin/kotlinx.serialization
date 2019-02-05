@@ -11,14 +11,14 @@ Provides setup for multiplatform library with kotlinx.serialization on JVM, JS a
 Provides setup for Gradle and Maven build systems for JVM target.
 Contains examples of implementing your own formats.
 
-To launch this sample with Maven, use `mvn package exec:java`
+To launch this sample with Maven, use `mvn package exec:java` within `example-jvm` folder.
 
 ### Example-js
 
 Provides setup for Gradle using 'kotlin2js' plugin.
 Contains examples of using different formats (JSON, CBOR, Protobuf).
 
-To launch this sample, first run `./gradlew build` and then point your browser to `web/index.html`.
+To launch this sample, first run `./gradlew build` and then point your browser to `example-js/web/index.html`.
 
 ### Example-native
 
@@ -32,4 +32,4 @@ It also features ability to use kotlinx.serialization library in Gradle's [compo
 
 ## Launching samples
 
-You can use `./gradlew run`  in a folder with particular sample.
+You can use `./gradlew run` to run all samples or `./gradlew :folder-name:run` to run a particular sample.
