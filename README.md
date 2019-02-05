@@ -22,7 +22,7 @@ This project contains the runtime library. Runtime library provides:
 * Ready-to-use serialization formats.
 * Other useful classes that benefit from serialization framework (e.g. object-to-Map transformer)
 
-You can open example projects for [JVM](example-jvm) or [JS](example-js) to get started playing with it.
+You can open example projects for [JVM](examples/example-jvm) or [JS](examples/example-js) to get started playing with it.
 
 ## Table of contents
 
@@ -76,7 +76,7 @@ This document describes setup for Kotlin 1.3 and higher. To watch instructions r
 ## Setup
 
 Using Kotlin Serialization requires Kotlin compiler `1.3.20` or higher. Make sure that you have corresponding Kotlin plugin installed in the IDE. Since serialization is now bundled into Kotlin plugin, no additional plugins for IDE are required (but make sure you have deleted old additional plugin for 1.2, if you had one).
-Example projects on JVM are available for [Gradle](samples/example-jvm/build.gradle) and [Maven](samples/example-jvm/pom.xml).
+Example projects on JVM are available for [Gradle](examples/example-jvm/build.gradle) and [Maven](examples/example-jvm/pom.xml).
 
 ### Gradle
 
@@ -242,7 +242,7 @@ Replace dependency on `kotlinx-serialization-runtime` with `kotlinx-serializatio
 to use it in JavaScript and common projects, respectively. Both `kotlin-platform-***` and `kotlin-multiplatform` are supported.
 You have to apply `kotlinx-serialization` plugin to every module, including common and platform ones.
 
-JavaScript example is located at [`example-js`](samples/example-js) folder.
+JavaScript example is located at [`example-js`](examples/example-js) folder.
 
 ### Native
 
@@ -256,7 +256,7 @@ since platform-native from K/N 0.9.3 uses infrastructure in which compiler plugi
 Use `kotlinx-serialization-runtime-native` artifact. Don't forget to `enableFeaturePreview('GRADLE_METADATA')`
 in yours `settings.gradle`. You must have Gradle 4.8 or higher, because older versions have unsupported format of metadata.
 
-Sample project can be found in [example-native](samples/example-native) folder.
+Sample project can be found in [example-native](examples/example-native) folder.
 
 ### Incompatible changes
 
