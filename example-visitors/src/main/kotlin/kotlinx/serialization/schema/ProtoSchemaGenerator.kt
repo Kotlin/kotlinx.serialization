@@ -24,8 +24,8 @@ import kotlinx.serialization.protobuf.ProtoType as ProtobufType
 
 fun ProtoSchema(descriptor: SerialDescriptor): ProtoMessage {
     val fields = descriptor.elementDescriptors().mapIndexed { index, child ->
-        val id = getSerialId(descriptor, index) ?: index + 1
-        val numberAnnotation = descriptor.findAnnotation<ProtobufType>(index)?.type
+        val id = descriptor.getElementAnnotations(index).filterIsInstance<SerialId>().singleOrNull()?.id ?: index + 1
+        val numberAnnotation = descriptor.getElementAnnotations(index).filterIsInstance<ProtobufType>().singleOrNull()?.type
                 ?: ProtoNumberType.DEFAULT
         val rule = when {
             child.kind is StructureKind.LIST -> ProtoFieldRule.REPEATED
