@@ -109,7 +109,7 @@ override fun deserialize(input: Decoder): BinaryPayload {
 }
 ```
 
-You can see it in action [in tests](https://github.com/kotlin/kotlinx.serialization/blob/a4c41392bb735a36788db1d789ec60afdbad3ca8/runtime/common/src/test/kotlin/kotlinx/serialization/features/BinaryPayloadExampleTest.kt). Other useful examples from tests are [custom serializers which can omit some fields](https://github.com/Kotlin/kotlinx.serialization/blob/eap13/runtime/common/src/test/kotlin/kotlinx/serialization/CustomSerializersTest.kt#L67) and [custom serializer which uses ability to read JSON as tree](https://github.com/Kotlin/kotlinx.serialization/blob/master/runtime/jvm/src/test/kotlin/kotlinx/serialization/formats/json/JsonTreeAndMapperTest.kt#L35).
+You can see it in action [in tests](https://github.com/kotlin/kotlinx.serialization/blob/a4c41392bb735a36788db1d789ec60afdbad3ca8/runtime/common/src/test/kotlin/kotlinx/serialization/features/BinaryPayloadExampleTest.kt). Another useful example from tests is [custom serializer which uses ability to read JSON as tree](https://github.com/Kotlin/kotlinx.serialization/blob/master/runtime/common/src/test/kotlin/kotlinx/serialization/json/JsonTreeAndMapperTest.kt#L35).
 
 *Note:* this approach is not working for generic classes, see below.
 
