@@ -125,6 +125,10 @@ class JsonTreeTest {
                 "three" to JsonLiteral(3),
                 "four" to JsonLiteral(4)
         ))
+        val otherJsonObject: Map<String, JsonElement> = JsonObject(mapOf(
+            "three" to JsonLiteral(3),
+            "five" to JsonLiteral(5)
+        ))
         val otherHashMap: Map<String, JsonElement> = HashMap(mapOf(
                 "three" to JsonLiteral(3),
                 "four" to JsonLiteral(5)
@@ -134,5 +138,6 @@ class JsonTreeTest {
         assertEquals(hashMap, jsonObject)
         assertEquals(jsonObject.hashCode(), hashMap.hashCode())
         assertNotEquals(jsonObject, otherHashMap)
+        assertNotEquals(jsonObject, otherJsonObject)
     }
 }

@@ -205,7 +205,7 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
                     ?: throw SerializationException("This class can be loaded only by JSON")
             val tree = jsonReader.decodeJson() as? JsonObject
                     ?: throw SerializationException("Expected JSON object")
-            val typeName = tree[typeAttribute].primitive.content
+            val typeName = tree.getValue(typeAttribute).primitive.content
             val objTree = JsonObject(tree.content - typeAttribute)
             return when (typeName) {
                 typeNameA -> decoder.json.fromJson(DummyRecursive.A.serializer(), objTree)

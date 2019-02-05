@@ -149,7 +149,7 @@ private class JsonTreeMapInput(json: Json, override val obj: JsonObject) : JsonT
     }
 
     override fun currentElement(tag: String): JsonElement {
-        return if (position % 2 == 0) JsonLiteral(tag) else obj[tag]
+        return if (position % 2 == 0) JsonLiteral(tag) else obj.getValue(tag)
     }
 
     override fun endStructure(desc: SerialDescriptor) {

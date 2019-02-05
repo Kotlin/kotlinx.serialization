@@ -19,10 +19,10 @@ object UserAddressParser : JsonParser<UserAddress>() {
     }
 
     override fun read(json: JsonObject): UserAddress {
-        val country = json["country"].content
-        val city = json["city"].contentOrNull
-        val zipCode = json["zipCode"].intOrNull
-        val metadata = json["metadata"].jsonArray.map { it.content }
+        val country = json.getValue("country").content
+        val city = json["city"]?.contentOrNull
+        val zipCode = json["zipCode"]?.intOrNull
+        val metadata = json.getValue("metadata").jsonArray.map { it.content }
         return UserAddress(country, city, zipCode, metadata)
     }
 }
@@ -37,10 +37,10 @@ object UserPropertiesParser : JsonParser<UserProperties>() {
     }
 
     override fun read(json: JsonObject): UserProperties {
-        val flag = json["flag"].boolean
-        val int = json["int"].int
-        val double = json["double"].double
-        val nullableFlag = json["nullableFlag"].booleanOrNull
+        val flag = json.getValue("flag").boolean
+        val int = json.getValue("int").int
+        val double = json.getValue("double").double
+        val nullableFlag = json["nullableFlag"]?.booleanOrNull
         return UserProperties(flag, int, double, nullableFlag)
     }
 }
@@ -54,10 +54,10 @@ object UserParser : JsonParser<User>() {
     }
 
     override fun read(json: JsonObject): User {
-        val id = json["id"].int
-        val name = json["name"].content
-        val address = UserAddressParser.read(json["address"])
-        val bag = UserPropertiesParser.read(json["bag"].jsonObject)
+        val id = json.getValue("id").int
+        val name = json.getValue("name").content
+        val address = UserAddressParser.read(json.getValue("address"))
+        val bag = UserPropertiesParser.read(json.getValue("bag").jsonObject)
         return User(id, name, address, bag)
     }
 }
