@@ -19,10 +19,11 @@ package kotlinx.serialization
 import kotlin.reflect.KClass
 
 /**
- * Instructs to use specific serializer for class or property.
+ * Instructs to use specific serializer for class, property or type argument.
+ *
  * If argument is omitted, plugin will generate default implementation inside the class.
  */
-@Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS, AnnotationTarget.TYPE)
 public annotation class Serializable(
     val with: KClass<out KSerializer<*>> = KSerializer::class // it means -- use default serializer by default
 )
