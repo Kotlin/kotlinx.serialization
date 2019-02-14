@@ -113,4 +113,29 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
         val string = strict.stringify(JsonLiteralSerializer, literal)
         assertEquals(string, literal.toString())
     }
+
+    @Test
+    fun testJsonLiterals()  {
+        testLiteral(0L, "0")
+        testLiteral(0, "0")
+        testLiteral(0.0, "0.0")
+        testLiteral(0.0f, "0.0")
+        testLiteral(Long.MAX_VALUE, "9223372036854775807")
+        testLiteral(Long.MIN_VALUE, "-9223372036854775808")
+        testLiteral(Float.MAX_VALUE, "3.4028235E38")
+        testLiteral(Float.MIN_VALUE, "1.4E-45")
+        testLiteral(Double.MAX_VALUE, "1.7976931348623157E308")
+        testLiteral(Double.MIN_VALUE, "4.9E-324")
+        testLiteral(Int.MAX_VALUE, "2147483647")
+        testLiteral(Int.MIN_VALUE, "-2147483648")
+    }
+
+    private fun testLiteral(number: Number, jvmExpectedString: String) {
+        val literal = JsonLiteral(number)
+        val string = strict.stringify(JsonLiteralSerializer, literal)
+        assertEquals(string, literal.toString())
+        if (isJvm()) { // We can rely on stable double/float format only on JVM
+            assertEquals(string, jvmExpectedString)
+        }
+    }
 }
