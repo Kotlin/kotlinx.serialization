@@ -109,9 +109,9 @@ public object JsonLiteralSerializer : KSerializer<JsonLiteral> {
             return encoder.encodeString(obj.content)
         }
 
-        val integer = obj.intOrNull
-        if (integer != null) {
-            return encoder.encodeInt(integer)
+        val long = obj.longOrNull
+        if (long != null) {
+            return encoder.encodeLong(long)
         }
 
         val double = obj.doubleOrNull
