@@ -47,7 +47,7 @@ class SealedPolymorphismTest {
                 Foo.Baz::class with Foo.Baz.serializer()
             }
         })
-        val s = json.stringify(holder)
+        val s = json.stringify(FooHolder.serializer(), holder)
         assertEquals("""{"someMetadata":42,"payload":[["kotlinx.serialization.features.Foo.Bar",{"bar":1}],["kotlinx.serialization.features.Foo.Baz",{"baz":2}]]}""", s)
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
+ * Copyright 2019 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ class UnknownElementIndexTest {
     @Test
     fun compilerComplainsAboutIncorrectIndex() {
         assertFailsWith(UnknownFieldException::class) {
-            MalformedReader().decode<JsonOptionalTests.Data>()
+            MalformedReader().decode(SerialNamesTest.WithNames.serializer())
         }
     }
 

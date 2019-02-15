@@ -16,6 +16,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.test.shouldBe
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -41,8 +42,6 @@ class TaggedTest {
             return collected.tagList.getValue(tag)
         }
     }
-
-    infix fun <T> T.shouldBe(expected: T) = assertEquals(expected, this)
 
     @Test
     fun testTagged() {

@@ -26,9 +26,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
-@Serializable
-data class IntData(val intV: Int)
-
 class SerializeZooTest {
     @Test
     fun testZoo() {

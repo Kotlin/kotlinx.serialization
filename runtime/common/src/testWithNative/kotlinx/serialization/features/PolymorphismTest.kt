@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
+ * Copyright 2019 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ class PolymorphismTest {
     @Test
     fun testInheritanceJson() {
         val obj = Wrapper(PolyBase(2), PolyDerived("b"))
-        val bytes = json.stringify(obj)
+        val bytes = json.stringify(Wrapper.serializer(), obj)
         assertEquals("{polyBase1:[kotlinx.serialization.features.PolyBase,{id:2}]," +
                 "polyBase2:[kotlinx.serialization.features.PolyDerived,{id:1,s:b}]}", bytes)
     }
@@ -52,8 +52,8 @@ class PolymorphismTest {
     @Test
     fun testInheritanceProtobuf() {
         val obj = Wrapper(PolyBase(2), PolyDerived("b"))
-        val bytes = protobuf.dumps(obj)
-        val restored = protobuf.loads<Wrapper>(bytes)
+        val bytes = protobuf.dumps(Wrapper.serializer(), obj)
+        val restored = protobuf.loads(Wrapper.serializer(), bytes)
         assertEquals(obj, restored)
     }
 

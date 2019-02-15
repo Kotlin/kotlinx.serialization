@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2019 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-apply plugin: 'kotlin-platform-common'
+package kotlinx.serialization
 
-dependencies {
-    compile libraries.kotlin_stdlib_common
-
-    testCompile libraries.kotlin_test_annotations_common
-    testCompile libraries.kotlin_test_common
-}
-
-sourceSets.test.kotlin.srcDirs += ['src/testWithNative']
+@Serializable
+data class IntData(val intV: Int)

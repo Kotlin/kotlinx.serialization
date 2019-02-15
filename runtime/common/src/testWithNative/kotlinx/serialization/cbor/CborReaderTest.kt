@@ -19,69 +19,67 @@ package kotlinx.serialization.cbor
 import kotlinx.io.ByteArrayInputStream
 import kotlinx.serialization.internal.HexConverter
 import kotlinx.serialization.loads
+import kotlinx.serialization.test.shouldBe
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class CborReaderTest {
-    fun withDecoder(input: String, block: Cbor.CborDecoder.() -> Unit) {
+    private fun withDecoder(input: String, block: Cbor.CborDecoder.() -> Unit) {
         val bytes = HexConverter.parseHexBinary(input.toUpperCase())
         Cbor.CborDecoder(ByteArrayInputStream(bytes)).block()
     }
 
-    infix fun <T> T.shouldBe(expected: T) = assertEquals(expected, this)
-
-
     @Test
     fun testDecodeIntegers() {
-        withDecoder("0C1903E8", {
+        withDecoder("0C1903E8") {
             nextNumber() shouldBe 12L
             nextNumber() shouldBe 1000L
-        })
-        withDecoder("203903e7", {
+        }
+        withDecoder("203903e7") {
             nextNumber() shouldBe -1L
             nextNumber() shouldBe -1000L
-        })
+        }
     }
 
     @Test
     fun testDecodeStrings() {
-        withDecoder("6568656C6C6F", {
+        withDecoder("6568656C6C6F") {
             nextString() shouldBe "hello"
-        })
-        withDecoder("7828737472696E672074686174206973206C6F6E676572207468616E2032332063686172616374657273", {
+        }
+        withDecoder("7828737472696E672074686174206973206C6F6E676572207468616E2032332063686172616374657273") {
             nextString() shouldBe "string that is longer than 23 characters"
-        })
+        }
     }
 
     @Test
     fun testDecodeDoubles() {
-        withDecoder("fb7e37e43c8800759c", {
+        withDecoder("fb7e37e43c8800759c") {
             nextDouble() shouldBe 1e+300
-        })
-        withDecoder("fa47c35000", {
+        }
+        withDecoder("fa47c35000") {
             nextFloat() shouldBe 100000.0f
-        })
+        }
     }
 
     @Test
     fun testDecodeSimpleObject() {
-        Cbor.loads<Simple>("bf616163737472ff") shouldBe Simple("str")
+        Cbor.loads(Simple.serializer(), "bf616163737472ff") shouldBe Simple("str")
     }
 
     @Test
     fun testDecodeComplicatedObject() {
         val test = SmallZoo(
-                "Hello, world!",
-                42,
-                null,
-                listOf("a", "b"),
-                mapOf(1 to true, 2 to false),
-                Simple("lol"),
-                listOf(Simple("kek"))
+            "Hello, world!",
+            42,
+            null,
+            listOf("a", "b"),
+            mapOf(1 to true, 2 to false),
+            Simple("lol"),
+            listOf(Simple("kek"))
         )
 
-        Cbor.loads<SmallZoo>(
-                "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffffff"
+        Cbor.loads(SmallZoo.serializer(),
+            "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffffff"
         ) shouldBe test
     }
 }

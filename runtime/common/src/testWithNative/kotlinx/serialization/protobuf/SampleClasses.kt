@@ -44,8 +44,6 @@ data class TestIntWithList(
         @SerialId(10) val l: List<Int>
 )
 
-infix fun <T> T.shouldBe(expected: T) = assertEquals(expected, this)
-
 val t1 = TestInt(-150)
 val t1e = TestInt(0)
 val t2 = TestList(listOf(150, 228, 1337))

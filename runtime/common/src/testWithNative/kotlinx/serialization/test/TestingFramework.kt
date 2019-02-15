@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
+ * Copyright 2019 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import kotlin.test.assertEquals
 inline fun <reified T : Any> assertStringForm(
     expected: String,
     original: T,
-    serializer: KSerializer<T> = T::class.serializer(),
+    serializer: KSerializer<T>,
     format: StringFormat = Json.plain,
     printResult: Boolean = false
 ) {
@@ -35,7 +35,7 @@ inline fun <reified T : Any> assertStringForm(
 inline fun <reified T : Any> assertStringFormAndRestored(
     expected: String,
     original: T,
-    serializer: KSerializer<T> = T::class.serializer(),
+    serializer: KSerializer<T>,
     format: StringFormat = Json.plain,
     printResult: Boolean = false
 ) {
@@ -46,3 +46,5 @@ inline fun <reified T : Any> assertStringFormAndRestored(
     if (printResult) println("[Restored form] $original")
     assertEquals(original, restored)
 }
+
+infix fun <T> T.shouldBe(expected: T) = assertEquals(expected, this)
