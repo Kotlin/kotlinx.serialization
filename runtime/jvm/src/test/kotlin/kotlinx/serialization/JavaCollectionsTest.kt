@@ -43,7 +43,7 @@ class JavaCollectionsTest {
         val serializer = HasHashMap.serializer()
         val string = Json.plain.stringify(serializer = serializer, obj = original)
         assertEquals(
-            expected = """{"s":"42","hashMap":{1:"1",2:"2"},"hashSet":[11],"linkedHashMap":{},"kEntry":null}""",
+            expected = """{"s":"42","hashMap":{"1":"1","2":"2"},"hashSet":[11],"linkedHashMap":{},"kEntry":null}""",
             actual = string
         )
         val restored = Json.plain.parse(deserializer = serializer, string = string)

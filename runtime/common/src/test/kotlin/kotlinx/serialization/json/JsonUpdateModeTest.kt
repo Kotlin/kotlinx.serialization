@@ -38,7 +38,7 @@ class JsonUpdateModeTest : JsonTestBase() {
     @Test
     fun testCanUpdateObjectList() = parametrizedTest { useStreaming ->
         val parsed =
-                Json(unquoted = true, strictMode = false, updateMode = UpdateMode.UPDATE)
+            Json(unquoted = true, strictMode = false, updateMode = UpdateMode.UPDATE)
                 .parse<Updatable2>("""{f:bar,l:[{a:42}],l:[{a:43}]}""", useStreaming)
         assertEquals(Updatable2(listOf(Data(42), Data(43))), parsed)
     }

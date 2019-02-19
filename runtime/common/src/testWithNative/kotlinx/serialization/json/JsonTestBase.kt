@@ -1,25 +1,13 @@
 /*
- * Copyright 2019 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.modules.*
 import kotlinx.serialization.json.internal.*
-import kotlin.test.*
+import kotlinx.serialization.modules.*
+import kotlin.test.assertEquals
 
 abstract class JsonTestBase {
     protected val strict = Json()
@@ -105,7 +93,35 @@ abstract class JsonTestBase {
     protected fun parametrizedTest(test: (Boolean) -> Unit) {
         val streamingResult = kotlin.runCatching { test(true) }
         val treeResult = kotlin.runCatching { test(false) }
-        assertEquals(streamingResult, treeResult)
-        streamingResult.getOrThrow()
+        processResults(streamingResult, treeResult)
+    }
+
+    private inner class DualFormat(
+        val json: Json,
+        val useStreaming: Boolean,
+        override val context: SerialModule = EmptyModule
+    ) : StringFormat {
+        override fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String {
+            return json.stringify(serializer, obj, useStreaming)
+        }
+
+        override fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T {
+            return json.parse(deserializer, string, useStreaming)
+        }
+    }
+
+    protected fun parametrizedTest(json: Json, test: (StringFormat) -> Unit) {
+        val streamingResult = kotlin.runCatching { test(DualFormat(json, true)) }
+        val treeResult = kotlin.runCatching { test(DualFormat(json, false)) }
+        processResults(streamingResult, treeResult)
+    }
+
+    private fun processResults(streamingResult: Result<*>, treeResult: Result<*>) {
+        val results = listOf(streamingResult, treeResult)
+        results.forEachIndexed { index, result ->
+            if (result.isFailure)
+                throw Exception("Failed ${if (index == 0) "streaming" else "tree"} test", result.exceptionOrNull()!!)
+        }
+        assertEquals(streamingResult.getOrNull()!!, treeResult.getOrNull()!!)
     }
 }

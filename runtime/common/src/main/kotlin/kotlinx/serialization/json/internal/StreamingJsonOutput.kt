@@ -68,11 +68,14 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
                     if (index % 2 == 0) {
                         composer.print(COMMA)
                         composer.nextItem() // indent should only be put after commas in map
+                        forceQuoting = true
                     } else {
                         composer.print(COLON)
                         composer.space()
+                        forceQuoting = false
                     }
                 } else {
+                    forceQuoting = true
                     composer.nextItem()
                 }
             }

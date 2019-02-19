@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization
 
 import kotlinx.serialization.modules.SerialModule
@@ -10,7 +14,7 @@ interface SerialFormat {
     val context: SerialModule
 
     @Deprecated(INSTALL_DEPRECATION_TEXT, level = DeprecationLevel.ERROR)
-    fun install(module: SerialModule)
+    fun install(module: SerialModule) {}
 }
 
 abstract class AbstractSerialFormat(override val context: SerialModule): SerialFormat {
