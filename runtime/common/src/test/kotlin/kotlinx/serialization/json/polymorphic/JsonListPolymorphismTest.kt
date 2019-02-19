@@ -16,28 +16,32 @@ class JsonListPolymorphismTest : JsonTestBase() {
     }
 
     @Serializable
-    private data class ListWrapper(val list: List<@Polymorphic InnerBase> )
+    private data class ListWrapper(val list: List<@Polymorphic InnerBase>)
 
     @Test
-    fun testPolymorphicValues() = parametrizedTest { useStreaming ->
-        val wrapper = ListWrapper(listOf(InnerImpl(1), InnerImpl2(2)))
-        val serialized = unquoted.stringify(wrapper, useStreaming)
-        assertEquals("{list:[" +
-                "{\$type:kotlinx.serialization.json.polymorphic.InnerImpl,field:1,str:default,nullable:null}," +
-                "{\$type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:2}]}", serialized)
-        assertEquals(wrapper, unquoted.parse(serialized, useStreaming))
-    }
+    fun testPolymorphicValues() = parametrizedTest(
+        ListWrapper(listOf(InnerImpl(1), InnerImpl2(2))),
+        "{list:[" +
+                "{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:1,str:default,nullable:null}," +
+                "{type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:2}]}"
+    )
 
     @Serializable
     private data class ListNullableWrapper(val list: List<@Polymorphic InnerBase?>)
 
     @Test
-    fun testPolymorphicNullableValues() = parametrizedTest { useStreaming ->
-        val wrapper = ListNullableWrapper(listOf(InnerImpl(1), null))
-        val serialized = unquoted.stringify(wrapper, useStreaming)
-        assertEquals("{list:[" +
-                "{\$type:kotlinx.serialization.json.polymorphic.InnerImpl,field:1,str:default,nullable:null}," +
-                "null]}", serialized)
-        assertEquals(wrapper, unquoted.parse(serialized, useStreaming))
-    }
+    fun testPolymorphicNullableValues() = parametrizedTest(
+        ListNullableWrapper(listOf(InnerImpl(1), null)),
+        "{list:[" +
+                "{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:1,str:default,nullable:null}," +
+                "null]}"
+    )
+
+    @Test
+    fun testPolymorphicNullableValuesWithNonNullSerializerFails() =
+        parametrizedTest { useStreaming ->
+            val wrapper = ListNullableWrapper(listOf(InnerImpl(1), null))
+            val serialized = unquoted.stringify(wrapper, useStreaming)
+            assertFails { unquoted.parse(ListWrapper.serializer(), serialized, useStreaming) }
+        }
 }

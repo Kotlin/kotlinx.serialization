@@ -94,8 +94,16 @@ abstract class JsonTestBase {
         val results = listOf(streamingResult, treeResult)
         // better debugging
         if (results.count { it.isFailure } == 1) throw results.first { it.isFailure }.exceptionOrNull()!!
-
         assertEquals(streamingResult, treeResult)
         streamingResult.getOrThrow()
+    }
+
+    internal inline fun <reified T: Any> parametrizedTest(data: T, expected: String, json: Json = unquoted) {
+        parametrizedTest { useStreaming ->
+            val serialized = json.stringify(data, useStreaming)
+            assertEquals(expected, serialized)
+            val deserialized: T = json.parse(serialized, useStreaming)
+            assertEquals(data, deserialized)
+        }
     }
 }

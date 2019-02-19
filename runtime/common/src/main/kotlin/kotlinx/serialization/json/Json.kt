@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 package kotlinx.serialization.json
 
@@ -24,7 +24,7 @@ import kotlin.jvm.*
  * [indent] specifies which indent string to use with [indented] mode.
  * [strictMode] enables strict mode, which prohibits unknown keys and infinite values in floating point numbers.
  * [useArrayPolymorphism] switches polymorphic serialization to the default array format.
- * [polymorphicClassDescriptor] name of the class descriptor property in polymorphic serialization.
+ * [classDiscriminator] name of the class descriptor property in polymorphic serialization.
  *
  * Example of usage:
  * ```
@@ -60,7 +60,7 @@ public class Json(
     val updateMode: UpdateMode = UpdateMode.OVERWRITE,
     val encodeDefaults: Boolean = true,
     @JvmField internal val useArrayPolymorphism: Boolean = false,
-    @JvmField internal val polymorphicClassDescriptor: String = "\$type"
+    @JvmField internal val classDiscriminator: String = "type"
 ): AbstractSerialFormat(), StringFormat {
 
     init {

@@ -16,57 +16,44 @@ class JsonPropertyPolymorphicTest : JsonTestBase() {
     }
 
     @Test
-    fun testPolymorphicProperties() = parametrizedTest { useStreaming ->
-        val box = InnerBox(InnerImpl(42, "foo"))
-        val string = unquoted.stringify(InnerBox.serializer(), box, useStreaming)
-        assertEquals("{base:{\$type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}}", string)
-        assertEquals(box, unquoted.parse(InnerBox.serializer(), string, useStreaming))
-    }
+    fun testPolymorphicProperties() = parametrizedTest(
+        InnerBox(InnerImpl(42, "foo")),
+        "{base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}}"
+    )
 
     @Test
     fun testFlatPolymorphic(){//} = parametrizedTest { useStreaming -> // TODO issue #287
         val base: InnerBase = InnerImpl(42, "foo")
         val string = unquoted.stringify(PolymorphicSerializer(InnerBase::class), base, true)
-        assertEquals("{\$type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}", string)
+        assertEquals("{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}", string)
         assertEquals(base, unquoted.parse(PolymorphicSerializer(InnerBase::class), string, true))
     }
 
     @Test
-    fun testNestedPolymorphicProperties() = parametrizedTest { useStreaming ->
-        val box = OuterBox(OuterImpl(InnerImpl(42), InnerImpl2(42)), InnerImpl2(239))
-        val string = unquoted.stringify(OuterBox.serializer(), box, useStreaming)
-        assertEquals("{outerBase:{" +
-                "\$type:kotlinx.serialization.json.polymorphic.OuterImpl," +
-                "base:{\$type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:default,nullable:null}," +
-                "base2:{\$type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:42}}," +
-                "innerBase:{\$type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:239}}", string)
-        assertEquals(box, unquoted.parse(OuterBox.serializer(), string, useStreaming))
-    }
+    fun testNestedPolymorphicProperties() = parametrizedTest(
+        OuterBox(OuterImpl(InnerImpl(42), InnerImpl2(42)), InnerImpl2(239)),
+        "{outerBase:{" +
+                "type:kotlinx.serialization.json.polymorphic.OuterImpl," +
+                "base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:default,nullable:null}," +
+                "base2:{type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:42}}," +
+                "innerBase:{type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:239}}"
+    )
 
     @Test
-    fun testPolymorphicNullableProperties() = parametrizedTest { useStreaming ->
-        val box = InnerNullableBox(InnerImpl(42, "foo"))
-        val string = unquoted.stringify(InnerNullableBox.serializer(), box, useStreaming)
-        assertEquals("{base:{\$type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}}", string)
-        assertEquals(box, unquoted.parse(InnerNullableBox.serializer(), string, useStreaming))
-    }
+    fun testPolymorphicNullableProperties() = parametrizedTest(
+        InnerNullableBox(InnerImpl(42, "foo")),
+        "{base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}}"
+    )
 
     @Test
-    fun testPolymorphicNullablePropertiesWithNull() = parametrizedTest { useStreaming ->
-        val box = InnerNullableBox(null)
-        val string = unquoted.stringify(InnerNullableBox.serializer(), box, useStreaming)
-        assertEquals("{base:null}", string)
-        assertEquals(box, unquoted.parse(InnerNullableBox.serializer(), string, useStreaming))
-    }
+    fun testPolymorphicNullablePropertiesWithNull() = parametrizedTest(InnerNullableBox(null), "{base:null}")
 
     @Test
-    fun testNestedPolymorphicNullableProperties() = parametrizedTest { useStreaming ->
-        val box = OuterNullableBox(OuterNullableImpl(InnerImpl(42), null), InnerImpl2(239))
-        val string = unquoted.stringify(OuterNullableBox.serializer(), box, useStreaming)
-        assertEquals("{outerBase:{" +
-                "\$type:kotlinx.serialization.json.polymorphic.OuterNullableImpl," +
-                "base:{\$type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:default,nullable:null},base2:null}," +
-                "innerBase:{\$type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:239}}", string)
-        assertEquals(box, unquoted.parse(OuterNullableBox.serializer(), string, useStreaming))
-    }
+    fun testNestedPolymorphicNullableProperties() = parametrizedTest(
+        OuterNullableBox(OuterNullableImpl(InnerImpl(42), null), InnerImpl2(239)),
+        "{outerBase:{" +
+                "type:kotlinx.serialization.json.polymorphic.OuterNullableImpl," +
+                "base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:default,nullable:null},base2:null}," +
+                "innerBase:{type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:239}}"
+    )
 }

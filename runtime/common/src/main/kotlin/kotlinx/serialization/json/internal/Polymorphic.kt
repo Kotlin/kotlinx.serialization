@@ -23,18 +23,14 @@ internal inline fun <T> JsonOutput.encodePolymorphically(serializer: Serializati
     actualSerializer.serialize(this, value)
 }
 
-internal fun getTypeNameProperty(json: Json): String {
-    return json.polymorphicClassDescriptor
-}
-
 internal fun <T> JsonInput.decodeSerializableValuePolymorphic(deserializer: DeserializationStrategy<T>): T {
     if (deserializer !is PolymorphicSerializer<*> || json.useArrayPolymorphism) {
         return deserializer.deserialize(this)
     }
 
     val jsonTree = cast<JsonObject>(decodeJson())
-    val type = jsonTree[getTypeNameProperty(json)].content
-    (jsonTree.content as MutableMap).remove(json.polymorphicClassDescriptor)
+    val type = jsonTree[json.classDiscriminator].content
+    (jsonTree.content as MutableMap).remove(json.classDiscriminator)
     @Suppress("UNCHECKED_CAST")
     val actualSerializer = deserializer.findPolymorphicSerializer(this, type) as KSerializer<T>
     return json.readJson(jsonTree, actualSerializer)

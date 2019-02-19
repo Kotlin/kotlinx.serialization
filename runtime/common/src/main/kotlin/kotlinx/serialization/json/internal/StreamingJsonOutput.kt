@@ -41,7 +41,7 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
 
     private fun encodeTypeInfo(descriptor: SerialDescriptor) {
         composer.nextItem()
-        encodeString(getTypeNameProperty(json))
+        encodeString(json.classDiscriminator)
         composer.print(COLON)
         composer.space()
         composer.print(descriptor.name)

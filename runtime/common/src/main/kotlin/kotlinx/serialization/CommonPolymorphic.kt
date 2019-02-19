@@ -6,7 +6,7 @@ import kotlin.reflect.KClass
 
 /**
  * A [SerialDescriptor] for polymorphic serialization with special kind.
- * Currently bo guarantees on its semantics except referential equality.
+ * Currently no guarantees on its semantics except referential equality.
  */
 object PolymorphicClassDescriptor : SerialClassDescImpl("kotlin.Any") {
     override val kind: SerialKind = UnionKind.POLYMORPHIC

@@ -29,7 +29,7 @@ class JsonGenericTest : JsonTestBase() {
 
     @Test
     fun testWritePlainTriple() = parametrizedTest { useStreaming ->
-    val triple = Triple(42 , "foo", false)
+        val triple = Triple(42 , "foo", false)
         val serializer = TripleSerializer(IntSerializer, StringSerializer, BooleanSerializer)
         val s = unquoted.stringify(serializer, triple, useStreaming)
         assertEquals("{first:42,second:foo,third:false}", s)
@@ -39,7 +39,7 @@ class JsonGenericTest : JsonTestBase() {
 
     @Test
     fun testRecursiveArrays() = parametrizedTest { useStreaming ->
-    val arr = Array2DBox(arrayOf(arrayOf(2.1, 1.2), arrayOf(42.3, -3.4)))
+        val arr = Array2DBox(arrayOf(arrayOf(2.1, 1.2), arrayOf(42.3, -3.4)))
         val str = strict.stringify(arr, useStreaming)
         assertEquals("""{"arr":[[2.1,1.2],[42.3,-3.4]]}""", str)
         val restored = strict.parse<Array2DBox>(str, useStreaming)

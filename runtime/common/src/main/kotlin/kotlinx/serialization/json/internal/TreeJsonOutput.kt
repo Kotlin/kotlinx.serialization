@@ -99,7 +99,7 @@ private sealed class AbstractJsonTreeOutput(
 
         if (writePolymorphic) {
             writePolymorphic = false
-            encoder.putElement(getTypeNameProperty(json), JsonPrimitive(desc.name))
+            encoder.putElement(json.classDiscriminator, JsonPrimitive(desc.name))
         }
 
         return encoder
