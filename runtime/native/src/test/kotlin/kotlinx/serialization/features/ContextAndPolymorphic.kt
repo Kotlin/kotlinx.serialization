@@ -6,7 +6,7 @@ import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.Json
 import kotlin.test.*
 
-class ContextAndPolymorphicTest {
+class ContextAndPolymorphic {
 
     @Serializable
     data class Data(val a: Int, @Optional val b: Int = 42)

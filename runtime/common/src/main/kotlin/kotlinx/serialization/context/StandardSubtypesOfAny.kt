@@ -79,7 +79,7 @@ internal object StandardSubtypesOfAny {
     @Suppress("UNCHECKED_CAST")
     internal fun getSubclassSerializer(objectToCheck: Any): KSerializer<*>? {
         for ((k, v) in map) {
-            if (isInstance(k, objectToCheck)) return v
+            if (objectToCheck.isInstanceOf(k)) return v
         }
         return null
     }

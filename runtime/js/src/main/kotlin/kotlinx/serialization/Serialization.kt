@@ -44,4 +44,4 @@ actual fun <E: Enum<E>> KClass<E>.enumMembers(): Array<E> = (this.js.asDynamic()
 
 actual fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> = toTypedArray()
 
-internal actual fun isInstance(kclass: KClass<*>, obj: Any): Boolean = kclass.isInstance(obj)
+internal actual fun Any.isInstanceOf(kclass: KClass<*>): Boolean = kclass.isInstance(this)

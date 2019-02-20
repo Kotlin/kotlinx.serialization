@@ -18,8 +18,7 @@
 
 package kotlinx.serialization.context
 
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.isInstance
+import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
 private typealias SerializersMap = MutableMap<KClass<*>, KSerializer<*>>
@@ -54,7 +53,7 @@ class MutableSerialContextImpl(private val parentContext: SerialContext? = null)
     }
 
     override fun <T : Any> resolveFromBase(basePolyType: KClass<T>, obj: T): KSerializer<out T>? {
-        if (!isInstance(basePolyType, obj)) return null
+        if (!obj.isInstanceOf(basePolyType)) return null
         (if (basePolyType == Any::class) StandardSubtypesOfAny.getSubclassSerializer(obj) else null)?.let { return it as KSerializer<out T> }
         return polyMap[basePolyType]?.get(obj::class) as? KSerializer<out T>
     }
