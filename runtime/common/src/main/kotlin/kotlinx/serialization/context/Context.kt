@@ -6,15 +6,22 @@ import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
 /**
- * Serial context is a runtime mechanism used by [ContextSerializer] and [PolymorphicSerializer]
- * to obtain serializers which were not found at compile-time by the serialization plugin.
+ * Serial context is a mechanism used by [ContextSerializer] and [PolymorphicSerializer]
+ * to override or provide serializers at the runtime, whereas they provided in the compile-time by the
+ * serialization plugin.
  *
  * It can be regarded as a map where serializers are found using statically known KClasses.
+ *
+ * To allow a runtime resolving of serializers and usage of the particular SerialContext,
+ * one of the special annotations must be used.
+ *
+ * @see ContextualSerialization
+ * @see Polymorphic
  */
 interface SerialContext {
 
     /**
-     * Returns a dependent serializer associated with given [kclass].
+     * Returns a dependent serializer associated with a given [kclass].
      *
      * This method is used in context-sensitive operations
      * on a property marked with [ContextualSerialization], by a [ContextSerializer]
