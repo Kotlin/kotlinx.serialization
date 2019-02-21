@@ -1,17 +1,5 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -50,6 +38,10 @@ public annotation class SerialName(val value: String)
 @Deprecated("All properties with default values are considered optional now")
 public annotation class Optional
 
+/**
+ * Indicates that property must be present during deserialization process,
+ * even if it has default value.
+ */
 @Target(AnnotationTarget.PROPERTY)
 annotation class Required
 
@@ -98,5 +90,5 @@ public annotation class UseSerializers(vararg val serializerClasses: KClass<*>)
  * This annotation is applied automatically to interfaces and serializable abstract classes
  * and can be applied to open classes in addition to [Serializable] for the sake of simplicity.
  */
-@Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE)
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE, AnnotationTarget.CLASS)
 public annotation class Polymorphic
