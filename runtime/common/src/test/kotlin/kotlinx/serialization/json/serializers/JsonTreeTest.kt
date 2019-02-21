@@ -140,4 +140,30 @@ class JsonTreeTest {
         assertNotEquals(jsonObject, otherHashMap)
         assertNotEquals(jsonObject, otherJsonObject)
     }
+
+    @Test
+    fun testThatJsonLiteralsAreDistinguishable() {
+        val input = """{
+                "numberString": "10", "number": 10,
+                "boolString": "true", "boolInt": 1, "bool": true,
+                "nullString": "null", "null": null
+            }""".trimMargin()
+        val parsed = parse(input) as JsonObject
+
+        with(parsed) {
+            fun getLiteral(key: String) : JsonLiteral =
+                get(key) as JsonLiteral
+
+            assertNotEquals(getLiteral("numberString"), getLiteral("number"))
+            assertNotEquals(getLiteral("boolString"), getLiteral("bool"))
+            assertNotEquals(getLiteral("boolInt"), getLiteral("bool"))
+            assertNotEquals(getLiteral("boolInt"), getLiteral("boolString"))
+            assertNotEquals(get("nullString"), get("null"))
+
+            assertNotEquals(getLiteral("numberString").body, getLiteral("number").body)
+            assertNotEquals(getLiteral("boolString").body, getLiteral("bool").body)
+            assertNotEquals(getLiteral("boolInt").body, getLiteral("bool").body)
+            assertNotEquals(getLiteral("boolInt").body, getLiteral("boolString").body)
+        }
+    }
 }
