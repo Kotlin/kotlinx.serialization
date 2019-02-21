@@ -117,7 +117,7 @@ private class JsonTreeMapOutput(json: Json, nodeConsumer: (JsonElement) -> Unit)
     override fun putElement(key: String, element: JsonElement) {
         val idx = key.toInt()
         if (idx % 2 == 0) { // writing key
-            check(element is JsonLiteral) { "Expected JsonLiteral, but has $element" }
+            check(element is JsonLiteral<*>) { "Expected JsonLiteral, but has $element" }
             tag = element.content
         } else {
             content[tag] = element

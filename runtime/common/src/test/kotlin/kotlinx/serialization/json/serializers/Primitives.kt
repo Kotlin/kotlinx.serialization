@@ -17,7 +17,7 @@ data class JsonPrimitiveWrapper(val primitive: JsonPrimitive)
 data class JsonNullWrapper(val element: JsonNull)
 
 @Serializable
-data class JsonLiteralWrapper(val literal: JsonLiteral)
+data class JsonLiteralWrapper(val literal: JsonLiteral<*>)
 
 @Serializable
 data class JsonObjectWrapper(val element: JsonObject)

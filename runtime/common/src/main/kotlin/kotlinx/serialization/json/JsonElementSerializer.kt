@@ -54,7 +54,7 @@ public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
         return if (obj is JsonNull) {
             JsonNullSerializer.serialize(encoder, JsonNull)
         } else {
-            JsonLiteralSerializer.serialize(encoder, obj as JsonLiteral)
+            JsonLiteralSerializer.serialize(encoder, obj as JsonLiteral<*>)
         }
     }
 
@@ -99,11 +99,11 @@ public object JsonNullSerializer : KSerializer<JsonNull> {
  * It can only be used by with [Json] format an its input ([JsonInput] and [JsonOutput]).
  */
 @Serializer(forClass = JsonLiteral::class)
-public object JsonLiteralSerializer : KSerializer<JsonLiteral> {
+public object JsonLiteralSerializer : KSerializer<JsonLiteral<*>> {
 
     override val descriptor: SerialDescriptor get() = JsonLiteralDescriptor
 
-    override fun serialize(encoder: Encoder, obj: JsonLiteral) {
+    override fun serialize(encoder: Encoder, obj: JsonLiteral<*>) {
         verify(encoder)
         if (obj.isString) {
             return encoder.encodeString(obj.content)
@@ -127,7 +127,7 @@ public object JsonLiteralSerializer : KSerializer<JsonLiteral> {
         encoder.encodeString(obj.content)
     }
 
-    override fun deserialize(decoder: Decoder): JsonLiteral {
+    override fun deserialize(decoder: Decoder): JsonLiteral<*> {
         verify(decoder)
         return JsonLiteral(decoder.decodeString())
     }

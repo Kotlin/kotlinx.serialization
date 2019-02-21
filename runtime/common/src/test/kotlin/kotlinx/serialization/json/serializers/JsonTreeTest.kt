@@ -151,13 +151,13 @@ class JsonTreeTest {
         val parsed = parse(input) as JsonObject
 
         with(parsed) {
-            fun getLiteral(key: String) : JsonLiteral =
-                get(key) as JsonLiteral
+            fun getLiteral(key: String) : JsonLiteral<*> =
+                get(key) as JsonLiteral<*>
 
-            assertNotEquals(getLiteral("numberString"), getLiteral("number"))
-            assertNotEquals(getLiteral("boolString"), getLiteral("bool"))
-            assertNotEquals(getLiteral("boolInt"), getLiteral("bool"))
-            assertNotEquals(getLiteral("boolInt"), getLiteral("boolString"))
+            assertNotEquals(get("numberString"), get("number"))
+            assertNotEquals(get("boolString"), get("bool"))
+            assertNotEquals(get("boolInt"), get("bool"))
+            assertNotEquals(get("boolInt"), get("boolString"))
             assertNotEquals(get("nullString"), get("null"))
 
             assertNotEquals(getLiteral("numberString").body, getLiteral("number").body)

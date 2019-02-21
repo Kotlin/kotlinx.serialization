@@ -24,7 +24,7 @@ class JsonParserFuzzerTest {
     fun testQuotedBrace() {
         val tree = parse("""{x: "{"}""")
         assertTrue("x" in tree)
-        assertEquals("{", tree.getAs<JsonLiteral>("x").content)
+        assertEquals("{", tree.getAs<JsonLiteral<*>>("x").content)
     }
 
     private fun parse(input: String) = Json.plain.parseJson(input).jsonObject
@@ -33,7 +33,7 @@ class JsonParserFuzzerTest {
     fun testEmptyKey() {
         val tree = parse("""{"":"","":""}""")
         assertTrue("" in tree)
-        assertEquals("", tree.getAs<JsonLiteral>("").content)
+        assertEquals("", tree.getAs<JsonLiteral<*>>("").content)
     }
 
     @Test

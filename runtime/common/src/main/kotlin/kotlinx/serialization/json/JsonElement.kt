@@ -146,24 +146,11 @@ public sealed class JsonPrimitive : JsonElement() {
  * and `JsonLiteral("42", true)` will be serialized as `42` and `"42"` respectively.
  */
 @Serializable(JsonLiteralSerializer::class) // TODO val for body is workaround for plugin bug
-public class JsonLiteral internal constructor(val body: Any, public val isString: Boolean) : JsonPrimitive() {
+sealed class JsonLiteral<T> private constructor(val body: T) : JsonPrimitive() {
+    @Deprecated("Check types instead")
+    public abstract val isString: Boolean
     public override val content = body.toString()
     public override val contentOrNull: String = content
-
-    /**
-     * Creates number literal
-     */
-    public constructor(number: Number) : this(number, false)
-
-    /**
-     * Creates boolean literal
-     */
-    public constructor(boolean: Boolean) : this(boolean, false)
-
-    /**
-     * Creates quoted string literal
-     */
-    public constructor(string: String) : this(string, true)
 
     public override fun toString() =
         if (isString) buildString { printQuoted(content) }
@@ -174,7 +161,7 @@ public class JsonLiteral internal constructor(val body: Any, public val isString
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
-        other as JsonLiteral
+        other as JsonLiteral<*>
 
         if (isString != other.isString) return false
         if (content != other.content) return false
@@ -186,6 +173,61 @@ public class JsonLiteral internal constructor(val body: Any, public val isString
         var result = isString.hashCode()
         result = 31 * result + content.hashCode()
         return result
+    }
+
+    public class JsonNumberLiteral(body: Number) : JsonLiteral<Number>(body) {
+        override val isString: Boolean = false
+    }
+
+    public class JsonBooleanLiteral(body: Boolean) : JsonLiteral<Boolean>(body) {
+        override val isString: Boolean = false
+    }
+
+    public class JsonStringLiteral(body: String) : JsonLiteral<String>(body) {
+        override val isString: Boolean = true
+    }
+
+    @Deprecated("Included to not break the API, but should never occur.")
+    class JsonOtherLiteral(body: Any) : JsonLiteral<Any>(body) {
+        override val isString: Boolean = false
+    }
+
+    companion object {
+        @Deprecated("Use single-parameter variants.", ReplaceWith("JsonLiteral(body)"))
+        internal operator fun invoke(body: Any, isString: Boolean) : JsonLiteral<*> =
+                when (body) {
+                    is Number -> invoke(body)
+                    is Boolean -> invoke(body)
+                    is String -> invoke(body)
+                    else -> JsonOtherLiteral(body)
+                }
+
+// Interestingly (?), this doesn't type-check:
+//        internal operator fun <T> invoke(body: T, isString: Boolean) : JsonLiteral<T> =
+//                when (body) {
+//                    is Number -> invoke(body)
+//                    is Boolean -> invoke(body)
+//                    is String -> invoke(body)
+//                    else -> JsonOtherLiteral(body)
+//                }
+
+        /**
+         * Creates number literal
+         */
+        public operator fun invoke(number: Number) : JsonLiteral<Number> =
+                JsonNumberLiteral(number)
+
+        /**
+         * Creates boolean literal
+         */
+        public operator fun invoke(boolean: Boolean) : JsonLiteral<Boolean> =
+            JsonBooleanLiteral(boolean)
+
+        /**
+         * Creates quoted string literal
+         */
+        public operator fun invoke(string: String) : JsonLiteral<String> =
+                JsonStringLiteral(string)
     }
 }
 
