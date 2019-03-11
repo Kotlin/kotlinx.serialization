@@ -29,6 +29,7 @@ buildscript {
         ext.serializationPluginVersion = property('plugin.version')
         ext.konanVersion = property('konan.version')
     }
+    ext.serializationVersion = property('library.version')
     ext.serializationCoordinates = "org.jetbrains.kotlin:kotlin-serialization"
     ext.tcChannel = 'https://teamcity.jetbrains.com/guestAuth/app/rest/builds/id:1907319/artifacts/content/maven'
     ext.devChannel = 'https://kotlin.bintray.com/kotlin-dev'
@@ -84,7 +85,7 @@ ext {
 
 allprojects {
     group 'org.jetbrains.kotlinx'
-    version property('library.version')
+    version serializationVersion
 
     if (project.hasProperty("bootstrap")) {
         version = version + '-SNAPSHOT'
