@@ -142,15 +142,68 @@ class JsonTreeTest {
     }
 
     @Test
+    fun testThatLiteralsAreDetected() {
+        val input = """{
+                "number1": 10,
+                "number2": -3,
+                "number3": 0.7,
+                "number4": 9999999999,
+                "bool1": true,
+                "bool2": false,
+                "string": "abc",
+                "null": null
+            }""".trimMargin()
+
+        with(parse(input) as JsonObject) {
+            get("number1").let {
+                assertTrue(it is JsonLiteral.JsonNumberLiteral)
+                assertEquals(it.body, 10)
+            }
+            get("number2").let {
+                assertTrue(it is JsonLiteral.JsonNumberLiteral)
+                assertEquals(it.body, -3)
+            }
+            get("number3").let {
+                assertTrue(it is JsonLiteral.JsonNumberLiteral)
+                assertEquals(it.body, 0.7)
+            }
+            get("number4").let {
+                assertTrue(it is JsonLiteral.JsonNumberLiteral)
+                assertEquals(it.body, 9999999999L)
+            }
+            get("bool1").let {
+                assertTrue(it is JsonLiteral.JsonBooleanLiteral)
+                assertEquals(it.body, true)
+            }
+            get("bool2").let {
+                assertTrue(it is JsonLiteral.JsonBooleanLiteral)
+                assertEquals(it.body, false)
+            }
+            get("string").let {
+                assertTrue(it is JsonLiteral.JsonStringLiteral)
+                assertEquals(it.body, "abc")
+            }
+            assertTrue(get("null") is JsonNull)
+        }
+    }
+
+    @Test @Ignore // Not yet supported, cf [JsonReader.takeNumber]
+    fun testNumberLiteralsWithExponent() {
+        val input = "[1e3, 1000e-3, 1.75E2, 1e0]"
+
+        assertEquals(listOf<Number>(1000, 1.0, 175.0, 1).map { JsonLiteral.JsonNumberLiteral(it) } as List<JsonElement>,
+                     parse(input) as JsonArray)
+    }
+
+    @Test
     fun testThatJsonLiteralsAreDistinguishable() {
         val input = """{
                 "numberString": "10", "number": 10,
                 "boolString": "true", "boolInt": 1, "bool": true,
                 "nullString": "null", "null": null
             }""".trimMargin()
-        val parsed = parse(input) as JsonObject
 
-        with(parsed) {
+        with(parse(input) as JsonObject) {
             fun getLiteral(key: String) : JsonLiteral<*> =
                 get(key) as JsonLiteral<*>
 

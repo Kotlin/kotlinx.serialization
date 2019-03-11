@@ -26,11 +26,6 @@ internal class JsonParser(private val reader: JsonReader) {
         return JsonObject(result)
     }
 
-    private fun readValue(isString: Boolean): JsonElement {
-        val str = reader.takeString()
-        return JsonLiteral(str, isString)
-    }
-
     private fun readArray(): JsonElement {
         reader.requireTokenClass(TC_BEGIN_LIST) { "Expected start of array" }
         reader.nextToken()
@@ -47,12 +42,13 @@ internal class JsonParser(private val reader: JsonReader) {
     }
 
     fun read(): JsonElement {
-        if (!reader.canBeginValue) fail(reader.currentPosition, "Can't begin reading value from here")
+        if (!reader.canBeginValue) fail(reader.currentPosition, "Can't begin reading value from here") // TODO: Redundant?
         val tc = reader.tokenClass
         return when (tc) {
             TC_NULL -> JsonNull.also { reader.nextToken() }
-            TC_STRING -> readValue(isString = true)
-            TC_OTHER -> readValue(isString = false)
+            TC_STRING -> JsonLiteral.JsonStringLiteral(reader.takeString())
+            TC_NUMBER -> JsonLiteral.JsonNumberLiteral(reader.takeNumber())
+            TC_BOOL -> JsonLiteral.JsonBooleanLiteral(reader.takeBoolean())
             TC_BEGIN_OBJ -> readObject()
             TC_BEGIN_LIST -> readArray()
             else -> fail(reader.currentPosition, "Can't begin reading element")

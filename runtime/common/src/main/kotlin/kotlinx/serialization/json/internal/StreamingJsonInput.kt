@@ -16,7 +16,7 @@ internal class StreamingJsonInput internal constructor(override val  json: Json,
         context = json.context
     }
 
-    public override fun decodeJson(): JsonElement = JsonParser(reader).read()
+    override fun decodeJson(): JsonElement = JsonParser(reader).read()
 
     override val updateMode: UpdateMode
         get() = json.updateMode
@@ -47,12 +47,6 @@ internal class StreamingJsonInput internal constructor(override val  json: Json,
 
     override fun decodeNotNullMark(): Boolean {
         return reader.tokenClass != TC_NULL
-    }
-
-    override fun decodeNull(): Nothing? {
-        reader.requireTokenClass(TC_NULL) { "Expected 'null' literal" }
-        reader.nextToken()
-        return null
     }
 
     override fun decodeElementIndex(desc: SerialDescriptor): Int {
@@ -92,13 +86,18 @@ internal class StreamingJsonInput internal constructor(override val  json: Json,
         }
     }
 
-    override fun decodeBoolean(): Boolean = reader.takeString().run { if (json.strictMode) toBooleanStrict() else toBoolean() }
-    override fun decodeByte(): Byte = reader.takeString().toByte()
-    override fun decodeShort(): Short = reader.takeString().toShort()
-    override fun decodeInt(): Int = reader.takeString().toInt()
-    override fun decodeLong(): Long = reader.takeString().toLong()
-    override fun decodeFloat(): Float = reader.takeString().toFloat()
-    override fun decodeDouble(): Double = reader.takeString().toDouble()
+    override fun decodeNull(): Nothing? = reader.takeNull()
+    override fun decodeBoolean(): Boolean = if (json.strictMode) {
+            reader.takeBoolean()
+        } else {
+            reader.takeNonStrictBoolean() // TODO: Undocumented behaviour
+        }
+    override fun decodeByte(): Byte = reader.takeNumber().toByte()
+    override fun decodeShort(): Short = reader.takeNumber().toShort()
+    override fun decodeInt(): Int = reader.takeNumber().toInt()
+    override fun decodeLong(): Long = reader.takeNumber().toLong()
+    override fun decodeFloat(): Float = reader.takeNumber().toFloat()
+    override fun decodeDouble(): Double = reader.takeNumber().toDouble()
     override fun decodeChar(): Char = reader.takeString().single()
     override fun decodeString(): String = reader.takeString()
     override fun decodeEnum(enumDescription: EnumDescriptor): Int = enumDescription.getElementIndex(reader.takeString())

@@ -23,6 +23,8 @@ import kotlin.jvm.*
 
 // special strings
 internal const val NULL = "null"
+internal const val FALSE = "false"
+internal const val TRUE = "true"
 
 // special chars
 internal const val COMMA = ','
@@ -36,6 +38,14 @@ internal const val STRING_ESC = '\\'
 
 internal const val INVALID = 0.toChar()
 internal const val UNICODE_ESC = 'u'
+
+internal const val NUMBER_NEG = '-'
+internal const val NUMBER_POS = '+'
+internal const val NUMBER_SEP = '.'
+internal const val NUMBER_EXP = 'e'
+internal val NUMBER_DIGITS = arrayOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9') // TODO: ?
+internal const val NUMBER_ZERO = '0'
+internal val NUMBER_CHARS = NUMBER_DIGITS + NUMBER_NEG + NUMBER_POS + NUMBER_SEP + NUMBER_EXP + NUMBER_EXP.toUpperCase()
 
 // token classes
 internal const val TC_OTHER: Byte = 0
@@ -51,6 +61,8 @@ internal const val TC_END_LIST: Byte = 9
 internal const val TC_NULL: Byte = 10
 internal const val TC_INVALID: Byte = 11
 internal const val TC_EOF: Byte = 12
+internal const val TC_NUMBER: Byte = 13
+internal const val TC_BOOL: Byte = 14
 
 // mapping from chars to token classes
 private const val CTC_MAX = 0x7e
@@ -76,12 +88,17 @@ internal val C2TC = ByteArray(CTC_MAX).apply {
     initC2TC(END_LIST, TC_END_LIST)
     initC2TC(STRING, TC_STRING)
     initC2TC(STRING_ESC, TC_STRING_ESC)
+    initC2TC(NULL.first(), TC_NULL)
+    initC2TC(FALSE.first(), TC_BOOL)
+    initC2TC(TRUE.first(), TC_BOOL)
+    initC2TC(NUMBER_NEG, TC_NUMBER)
+    NUMBER_DIGITS.forEach { initC2TC(it, TC_NUMBER) }
 }
 
 // object instead of @SharedImmutable because there is mutual initialization in [initC2ESC]
 internal object EscapeCharMappings {
     @JvmField
-    public val ESCAPE_2_CHAR = CharArray(ESC2C_MAX)
+    val ESCAPE_2_CHAR = CharArray(ESC2C_MAX)
 
     init {
         for (i in 0x00..0x1f) {
@@ -127,18 +144,18 @@ internal class JsonReader(private val source: String) {
     @JvmField
     var tokenClass: Byte = TC_EOF
 
-    public val isDone: Boolean get() = tokenClass == TC_EOF
+    val isDone: Boolean get() = tokenClass == TC_EOF
 
-    public val canBeginValue: Boolean
+    val canBeginValue: Boolean
         get() = when (tokenClass) {
-            TC_BEGIN_LIST, TC_BEGIN_OBJ, TC_OTHER, TC_STRING, TC_NULL -> true
+            TC_BEGIN_LIST, TC_BEGIN_OBJ, TC_OTHER, TC_STRING, TC_NULL, TC_NUMBER, TC_BOOL -> true // TODO: remove TC_OTHER
             else -> false
         }
 
     // updated by nextToken
     private var tokenPosition: Int = 0
 
-    // update by nextString/nextLiteral
+    // update by nextString/next*
     private var offset = -1 // when offset >= 0 string is in source, otherwise in buf
     private var length = 0 // length of string
     private var buf = CharArray(16) // only used for strings with escapes
@@ -147,17 +164,53 @@ internal class JsonReader(private val source: String) {
         nextToken()
     }
 
-    internal inline fun requireTokenClass(expected: Byte, lazyErrorMsg: () -> String) {
-        if (tokenClass != expected) fail(tokenPosition, lazyErrorMsg())
+    internal inline fun requireTokenClass(vararg expected: Byte, lazyErrorMsg: () -> String) {
+        if (!expected.contains(tokenClass)) fail(tokenPosition, lazyErrorMsg()) // TODO: why not use require()?
+    }
+
+    fun takeNull(): Nothing? {
+        requireTokenClass(TC_NULL) { "Expected 'null' literal" }
+        nextToken()
+        return null
+    }
+
+    fun takeNumber(): Number {
+        requireTokenClass(TC_NUMBER) { "Expected number literal" }
+        return consumeBuffer().let {
+            // TODO: Should we use something like BigDecimal here?
+            // TODO: Cut off exponent /[eE][+-]\d+/ and apply later
+            return@let if (it.contains(".")) {
+                it.toDouble()
+            } else {
+                it.toIntOrNull() ?: it.toLong()
+            }
+        }
+    }
+
+    fun takeBoolean(): Boolean {
+        requireTokenClass(TC_BOOL) { "Expected boolean literal" }
+        return consumeBuffer().toBooleanStrict()
+    }
+
+    @Deprecated("This somewhat violates the JSON spec.")
+    fun takeNonStrictBoolean(): Boolean {
+        requireTokenClass(TC_BOOL, TC_STRING) { "Expected boolean or string literal" }
+        return consumeBuffer().toBoolean()
     }
 
     fun takeString(): String {
-        if (tokenClass != TC_OTHER && tokenClass != TC_STRING) fail(tokenPosition, "Expected string or non-null literal")
-        val prevStr = if (offset < 0)
-            String(buf, 0, length) else
+        requireTokenClass(TC_STRING) { "Expected string literal" }
+        return consumeBuffer()
+    }
+
+    private fun consumeBuffer(): String {
+        val token = if (offset < 0) {
+            String(buf, 0, length)
+        } else {
             source.substring(offset, offset + length)
+        }
         nextToken()
-        return prevStr
+        return token
     }
 
     private fun append(ch: Char) {
@@ -197,6 +250,18 @@ internal class JsonReader(private val source: String) {
                     nextString(source, curPos)
                     return
                 }
+                TC_BOOL -> {
+                    nextBoolean(source, curPos)
+                    return
+                }
+                TC_NUMBER -> {
+                    nextNumber(source, curPos)
+                    return
+                }
+                TC_NULL -> {
+                    nextNull(source, curPos)
+                    return
+                }
                 else -> {
                     this.tokenPosition = curPos
                     this.tokenClass = tc
@@ -207,6 +272,71 @@ internal class JsonReader(private val source: String) {
         }
     }
 
+    private fun nextNull(source: String, startPos: Int) {
+        nextFixedToken(source, startPos, NULL)
+    }
+
+    private fun nextBoolean(source: String, startPos: Int) {
+        when (source[startPos].toLowerCase()) {
+            FALSE.first() -> nextFixedToken(source, startPos, FALSE)
+            TRUE.first()  -> nextFixedToken(source, startPos, TRUE)
+            else -> {
+                fail(startPos, "Expected boolean literal ${source[startPos]}")
+            }
+        }
+    }
+
+    private fun nextFixedToken(source: String, startPos: Int, expected: String) {
+        require(source[startPos] == expected.first(),
+                { "Started reading literal in a bad position." }) // TODO: drop
+        if (source.length < startPos + expected.length) {
+            fail(source.length - 1, "Unexpected end of '${expected}' literal")
+        }
+
+        if (!rangeEquals(source, startPos, expected.length, expected)) {
+            fail(startPos, "Found invalid literal (expected '${expected}')")
+        }
+
+        tokenPosition = startPos
+        tokenClass = charToTokenClass(expected.first())
+        offset = startPos
+        length = expected.length
+        currentPosition = startPos + expected.length
+    }
+
+    /**
+     * According to the [JSON specification](http://json.org/),
+     * number literals conform to this regular expression.
+     */
+    private val numberPattern = Regex("^[-]?(0|[1-9][0-9]*)([.][0-9]+)?([eE][+-]?[0-9]+)?$")
+
+    private fun nextNumber(source: String, startPos: Int) {
+        require(source[startPos] in listOf(NUMBER_NEG) + NUMBER_DIGITS,
+                { "Started reading number literal in a bad position." }) // TODO: drop
+
+        // Consume input until first character that can't be part of this literal:
+        var curPos = startPos
+        val maxLen = source.length
+        while (true) {
+            curPos++
+            if (curPos >= maxLen || !NUMBER_CHARS.contains(source[curPos])) break
+        }
+
+        // Confirm that it's a valid number
+        // TODO: If this becomes a performance bottleneck, replace with hard-coded DFA
+        val literalSubstring = source.substring(startPos, curPos)
+        if ( !numberPattern.matches(literalSubstring) ) {
+            fail(startPos, "Found invalid number literal: '${literalSubstring}'")
+        }
+
+        tokenPosition = startPos
+        offset = startPos
+        currentPosition = curPos
+        length = curPos - offset
+        tokenClass = TC_NUMBER
+    }
+
+    @Deprecated("Whatever is caught by this is _not_ a valid JSON literal.")
     private fun nextLiteral(source: String, startPos: Int) {
         tokenPosition = startPos
         offset = startPos
