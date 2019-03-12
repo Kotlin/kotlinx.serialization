@@ -1,5 +1,6 @@
 import kotlinx.serialization.*
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.context.*
+import kotlinx.serialization.json.Json
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -24,7 +25,7 @@ import java.util.*
 data class Data(
         val id: Int,
         @Serializable(with = IX::class) val payload: Payload,
-        val date: Date
+        @ContextualSerialization val date: Date
 )
 
 data class Payload(val content: String)
@@ -36,19 +37,17 @@ object IX {}
 object DateSerializer : KSerializer<Date> {
     private val df: DateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS")
 
-    override fun save(output: KOutput, obj: Date) {
-        output.writeStringValue(df.format(obj))
+    override fun serialize(output: Encoder, obj: Date) {
+        output.encodeString(df.format(obj))
     }
 
-    override fun load(input: KInput): Date {
-        return df.parse(input.readStringValue())
+    override fun deserialize(decoder: Decoder): Date {
+        return df.parse(decoder.decodeString())
     }
 }
 
 fun main(args: Array<String>) {
     val o = Data(1, Payload("lorem ipsum dolor sit amet"), Date())
-    val json = JSON(indented = true,
-            context = SerialContext().apply { registerSerializer(Date::class, DateSerializer) }
-    )
-    println(json.stringify(o))
+    val json = Json(indented = true).apply { install(SimpleModule(Date::class, DateSerializer)) }
+    println(json.stringify(Data.serializer(), o))
 }

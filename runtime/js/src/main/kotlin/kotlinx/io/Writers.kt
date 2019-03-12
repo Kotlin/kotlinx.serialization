@@ -21,7 +21,10 @@ actual abstract class Writer protected actual constructor() {
         write(charArrayOf(ch.toChar()), 0, 1)
     }
     actual open fun write(str: String) {
-        write(str.toList().toCharArray(), 0, str.length)
+        val buf = CharArray(str.length)
+        for (i in str.indices)
+            buf[i] = str[i]
+        write(buf, 0, buf.size)
     }
     actual abstract fun write(src: CharArray, off: Int, len: Int)
     actual abstract fun flush()
@@ -70,7 +73,8 @@ actual class StringWriter: Writer() {
 actual abstract class Reader protected actual constructor() {
     actual open fun read(): Int {
         val a = CharArray(1)
-        read(a, 0, 1)
+        if (read(a, 0, 1) < 1)
+            return -1 // EOF
         return a[0].toInt()
     }
     actual abstract fun read(dst: CharArray, off: Int, len: Int): Int

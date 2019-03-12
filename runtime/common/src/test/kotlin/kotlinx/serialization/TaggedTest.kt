@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,15 +29,15 @@ class TaggedTest {
             @Optional @SerialId(42) val last: Boolean = true
     )
 
-    class Collector : IntTaggedOutput() {
+    class Collector : IntTaggedEncoder() {
         val tagList = mutableMapOf<Int?, Any>()
-        override fun writeTaggedValue(tag: Int?, value: Any) {
+        override fun encodeTaggedValue(tag: Int?, value: Any) {
             tagList[tag] = value
         }
     }
 
-    class Emitter(val collected: Collector) : IntTaggedInput() {
-        override fun readTaggedValue(tag: Int?): Any {
+    class Emitter(val collected: Collector) : IntTaggedDecoder() {
+        override fun decodeTaggedValue(tag: Int?): Any {
             return collected.tagList.getValue(tag)
         }
     }
@@ -48,10 +48,10 @@ class TaggedTest {
     fun testTagged() {
         val collector = Collector()
         val data = DataWithId(1, "2")
-        collector.write(data)
+        collector.encode(data)
 
         assertEquals(mapOf(1 to 1, 2 to "2", null to Unit, 42 to true), collector.tagList, "see all tags properly")
-        val obj = Emitter(collector).read(DataWithId::class.serializer())
+        val obj = Emitter(collector).decode(DataWithId::class.serializer())
         assertEquals(obj, data, "read tags back")
     }
 

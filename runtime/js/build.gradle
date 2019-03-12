@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ plugins {
 }
 
 ext {
-    nodeVersion = '6.11.2'
+    nodeVersion = '8.11.1'
     qunitjsVersion = '2.4.0'
 }
 
@@ -43,30 +43,48 @@ compileTestKotlin2Js {
     kotlinOptions.sourceMap = true
 }
 
-task populateNodeModules(type: Copy, dependsOn: compileKotlin2Js) {
-    from compileKotlin2Js.destinationDir
-
-    configurations.testCompile.each {
-        from zipTree(it.absolutePath).matching { include '*.js' }
-    }
-
-    into "${buildDir}/node_modules"
-}
-
 node {
     version = nodeVersion
     download = true
+    nodeModulesDir = file(buildDir)
+}
+
+task populateNodeModules(type: Copy, dependsOn: [compileKotlin2Js]) {
+    from compileKotlin2Js.destinationDir
+    into "$node.nodeModulesDir/node_modules"
+
+    afterEvaluate {
+        configurations.testCompile.each {
+            if (it.absolutePath.endsWith(".jar")) {
+                from zipTree(it.absolutePath).matching {
+                    include '*.js'
+                    include '*.js.map'
+                }
+            }
+        }
+    }
+}
+
+// Workaround the problem with Node downloading:
+// Konan plugin uses Gradle-metadata feature which is not compatible
+// with node plugin download implementation
+repositories.whenObjectAdded {
+    if (it instanceof IvyArtifactRepository) {
+        metadataSources {
+            artifact()
+        }
+    }
 }
 
 task installQunit(type: NpmTask) {
     inputs.property('qunitjsVersion', qunitjsVersion)
-    outputs.dir file('node_modules/qunitjs')
+    outputs.dir file("$node.nodeModulesDir/node_modules/qunitjs")
 
     args = ['install', "qunitjs@${qunitjsVersion}"]
 }
 
 task runQunit(type: NodeTask, dependsOn: [compileTestKotlin2Js, populateNodeModules, installQunit]) {
-    script = file('node_modules/qunitjs/bin/qunit')
+    script = file("$node.nodeModulesDir/node_modules/qunitjs/bin/qunit")
     args = [projectDir.toPath().relativize(file(compileTestKotlin2Js.outputFile).toPath())]
     if (project.hasProperty("tests")) args += ["-f", project.property('tests')]
 }

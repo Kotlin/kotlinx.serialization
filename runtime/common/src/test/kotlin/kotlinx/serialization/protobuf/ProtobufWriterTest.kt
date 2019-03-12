@@ -16,6 +16,7 @@
 
 package kotlinx.serialization.protobuf
 
+import kotlinx.serialization.dumps
 import kotlin.test.Test
 
 class ProtobufWriterTest {

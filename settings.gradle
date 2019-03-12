@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,20 @@
  */
 
 rootProject.name = 'kotlinx-serialization-runtime'
+enableFeaturePreview('GRADLE_METADATA')
 
 include ':common'
 include ':jvm'
 include ':js'
+include ':native'
+
 include ':configparser'
+include ':benchmark'
 
 project(':common').projectDir = file('./runtime/common')
 project(':jvm').projectDir = file('./runtime/jvm')
 project(':js').projectDir = file('./runtime/js')
+project(':native').projectDir = file('./runtime/native')
+
 project(':configparser').projectDir = file('./formats/config')
+project(':benchmark').projectDir = file('./benchmark')

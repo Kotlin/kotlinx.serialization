@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package kotlinx.serialization
 import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
-actual fun <T: Any> KClass<T>.serializer(): KSerializer<T> = this.java.invokeSerializerGetter()
-        ?: throw SerializationException("Can't locate default serializer for class $this")
+@ImplicitReflectionSerializer
+actual fun <T: Any> KClass<T>.compiledSerializer(): KSerializer<T>? = this.java.invokeSerializerGetter()
 
 actual fun String.toUtf8Bytes() = this.toByteArray(Charsets.UTF_8)
 actual fun stringFromUtf8Bytes(bytes: ByteArray) = String(bytes, Charsets.UTF_8)
@@ -29,11 +29,13 @@ actual fun <E: Enum<E>> enumFromName(enumClass: KClass<E>, value: String): E = j
 actual fun <E: Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E = enumClass.java.enumConstants[ordinal]
 
 actual fun <E: Enum<E>> KClass<E>.enumClassName(): String = this.java.canonicalName ?: ""
+actual fun <E : Enum<E>> KClass<E>.enumMembers(): Array<E> = this.java.enumConstants
 
 @Suppress("UNCHECKED_CAST")
 actual fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> = toArray(java.lang.reflect.Array.newInstance(eClass.java, size) as Array<E>)
 
 @Suppress("UNCHECKED_CAST")
+@ImplicitReflectionSerializer
 internal fun <T> Class<T>.invokeSerializerGetter(vararg args: KSerializer<Any>): KSerializer<T>? {
     var serializer: KSerializer<T>? = null
 
@@ -41,7 +43,9 @@ internal fun <T> Class<T>.invokeSerializerGetter(vararg args: KSerializer<Any>):
     val companion = declaredFields.singleOrNull { it.name == "Companion" }?.apply { isAccessible = true }?.get(null)
     if (companion != null) {
         serializer = companion.javaClass.methods
-            .find { it.name == "serializer" && it.parameterTypes.size == args.size && it.parameterTypes.all { it == KSerializer::class.java } }
+            .find { method ->
+                method.name == "serializer" && method.parameterTypes.size == args.size && method.parameterTypes.all { it == KSerializer::class.java }
+            }
             ?.invoke(companion, *args) as? KSerializer<T>
     }
 
@@ -52,5 +56,5 @@ internal fun <T> Class<T>.invokeSerializerGetter(vararg args: KSerializer<Any>):
             ?.getField("INSTANCE")?.get(null) as? KSerializer<T>
     }
 
-    return serializer?: throw SerializationException("Can't locate companion serializer for class $this")
+    return serializer
 }

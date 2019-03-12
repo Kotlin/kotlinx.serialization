@@ -1,29 +1,28 @@
 /*
- *  Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.JSON
-import kotlinx.serialization.protobuf.ProtoBuf
+import kotlinx.serialization.json.*
+import kotlinx.serialization.protobuf.*
 import org.junit.Test
-import java.text.DateFormat
-import java.text.SimpleDateFormat
+import java.text.*
 import java.util.*
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 @Serializable
 open class A(@SerialId(1) val id: Int) {
@@ -61,22 +60,22 @@ class PolymorphicTest {
     data class DateWrapper(@SerialId(1) @Serializable(with = PolymorphicSerializer::class) val date: Date)
 
     @Serializer(forClass = Date::class)
-    object DateSerializer: KSerializer<Date> {
+    object DateSerializer {
         private val df: DateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS")
 
-        override fun save(output: KOutput, obj: Date) {
-            output.writeStringValue(df.format(obj))
+        override fun serialize(encoder: Encoder, obj: Date) {
+            encoder.encodeString(df.format(obj))
         }
 
-        override fun load(input: KInput): Date {
-            return df.parse(input.readStringValue())
+        override fun deserialize(decoder: Decoder): Date {
+            return df.parse(decoder.decodeString())
         }
     }
 
     @Test
-    fun testInheritanceJSON() {
+    fun testInheritanceJson() {
         val obj = Wrapper(A(2), B("b"))
-        val bytes = JSON.unquoted.stringify(obj)
+        val bytes = Json.unquoted.stringify(obj)
         assertEquals("{a1:[kotlinx.serialization.features.A,{id:2}]," +
                 "a2:[kotlinx.serialization.features.B,{id:1,s:b}]}", bytes)
     }
@@ -101,7 +100,7 @@ class PolymorphicTest {
     @Test
     fun testExplicit() {
         val obj = B("b")
-        val s = JSON.unquoted.stringify(PolymorphicSerializer, obj)
+        val s = Json.unquoted.stringify(PolymorphicSerializer, obj)
         assertEquals("[kotlinx.serialization.features.B,{id:1,s:b}]", s)
     }
 }

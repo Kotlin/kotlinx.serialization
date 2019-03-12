@@ -1,4 +1,6 @@
 import kotlinx.serialization.*
+import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
+import kotlinx.serialization.internal.EnumDescriptor
 import utils.Parser
 import utils.Result
 import utils.testMethod
@@ -16,50 +18,54 @@ import kotlin.reflect.KClass
  * writeBegin and writeEnd methods.
  */
 
-class KeyValueOutput(val out: PrintWriter) : ElementValueOutput() {
-    override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
+class KeyValueOutput(val out: PrintWriter) : ElementValueEncoder () {
+    override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
         out.print('{')
         return this
     }
 
-    override fun writeEnd(desc: KSerialClassDesc) {
+    override fun endStructure(desc: SerialDescriptor) {
         out.print('}')
     }
 
     /**
-     * writeElement should return false, if this field must be skipped
+     * encodeElement should return false, if this field must be skipped
      */
-    override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean {
+    override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
         if (index > 0) out.print(", ")
         out.print(desc.getElementName(index));
         out.print(':')
         return true
     }
 
-    override fun writeNullValue() = out.print("null")
+    override fun encodeNull() = out.print("null")
 
     /**
-     * writeValue is called by default, if primitives write methods
-     * (like writeInt, etc) are not overridden.
+     * encodeValue is called by default, if primitives encode methods
+     * (like encodeInt, etc) are not overridden.
      */
-    override fun writeNonSerializableValue(value: Any) = out.print(value)
+    override fun encodeValue(value: Any) = out.print(value)
 
-    override fun writeStringValue(value: String) {
+    override fun encodeEnum(enumDescription: EnumDescriptor, ordinal: Int) {
+        out.print(enumDescription.getElementName(ordinal))
+    }
+
+    override fun encodeString(value: String) {
         out.print('"')
         out.print(value)
         out.print('"')
     }
 
-    override fun writeCharValue(value: Char) = writeStringValue(value.toString())
+    override fun encodeChar(value: Char) = encodeString(value.toString())
 }
 
-class KeyValueInput(val inp: Parser) : ElementValueInput() {
-    override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
+class KeyValueInput(val inp: Parser) : ElementValueDecoder() {
+    override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
         inp.expectAfterWhiteSpace('{')
         return this
     }
 
-    override fun readEnd(desc: KSerialClassDesc) {
+    override fun endStructure(desc: SerialDescriptor) {
         inp.expectAfterWhiteSpace('}')
     }
 
@@ -69,7 +75,7 @@ class KeyValueInput(val inp: Parser) : ElementValueInput() {
      * If you want to read fields in order without call to this method,
      * return READ_ALL (this is default behaviour).
      */
-    override fun readElement(desc: KSerialClassDesc): Int {
+    override fun decodeElementIndex(desc: SerialDescriptor): Int {
         inp.skipWhitespace(',')
         val name = inp.nextUntil(':', '}')
         if (name.isEmpty())
@@ -79,52 +85,53 @@ class KeyValueInput(val inp: Parser) : ElementValueInput() {
         return index
     }
 
-    private fun readToken(): String {
+    private fun decodeToken(): String {
         inp.skipWhitespace()
         return inp.nextUntil(' ', ',', '}')
     }
 
-    override fun readNotNullMark(): Boolean {
+    override fun decodeNotNullMark(): Boolean {
         inp.skipWhitespace()
         if (inp.cur != 'n'.toInt()) return true
         return false
     }
 
-    override fun readNullValue(): Nothing? {
-        check(readToken() == "null") { "'null' expected" }
+    override fun decodeNull(): Nothing? {
+        check(decodeToken() == "null") { "'null' expected" }
         return null
     }
 
-    override fun readBooleanValue(): Boolean = readToken().toBoolean()
-    override fun readByteValue(): Byte = readToken().toByte()
-    override fun readShortValue(): Short = readToken().toShort()
-    override fun readIntValue(): Int = readToken().toInt()
-    override fun readLongValue(): Long = readToken().toLong()
-    override fun readFloatValue(): Float = readToken().toFloat()
-    override fun readDoubleValue(): Double = readToken().toDouble()
+    override fun decodeBoolean(): Boolean = decodeToken().toBoolean()
+    override fun decodeByte(): Byte = decodeToken().toByte()
+    override fun decodeShort(): Short = decodeToken().toShort()
+    override fun decodeInt(): Int = decodeToken().toInt()
+    override fun decodeLong(): Long = decodeToken().toLong()
+    override fun decodeFloat(): Float = decodeToken().toFloat()
+    override fun decodeDouble(): Double = decodeToken().toDouble()
 
-    override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T =
-            java.lang.Enum.valueOf(enumClass.java, readToken())
+    override fun decodeEnum(enumDescription: EnumDescriptor): Int {
+        return enumDescription.getElementIndexOrThrow(decodeToken())
+    }
 
-    override fun readStringValue(): String {
+    override fun decodeString(): String {
         inp.expectAfterWhiteSpace('"')
         val value = inp.nextUntil('"')
         inp.expect('"')
         return value
     }
 
-    override fun readCharValue(): Char = readStringValue().single()
+    override fun decodeChar(): Char = decodeString().single()
 }
 
 fun testKeyValueIO(serializer: KSerializer<Any>, obj: Any): Result {
     // save
     val sw = StringWriter()
     val out = KeyValueOutput(PrintWriter(sw))
-    out.write(serializer, obj)
+    out.encode(serializer, obj)
     // load
     val str = sw.toString()
     val inp = KeyValueInput(Parser(StringReader(str)))
-    val other = inp.read(serializer)
+    val other = inp.decode(serializer)
     // result
     return Result(obj, other, "${str.length} chars $str")
 }

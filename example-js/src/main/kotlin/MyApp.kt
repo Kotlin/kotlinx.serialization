@@ -1,8 +1,6 @@
-import kotlinx.serialization.Optional
-import kotlinx.serialization.SerialId
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.cbor.CBOR
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.*
+import kotlinx.serialization.cbor.Cbor
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.protobuf.ProtoBuf
 import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.HTMLTextAreaElement
@@ -27,10 +25,11 @@ fun main() {
         val txt: String = txtInput.value
         try {
 
-            val kotl = JSON.parse<DataList>(txt)
-            val json = JSON.indented.stringify(kotl)
-            val proto = ProtoBuf.dumps(kotl)
-            val cbor = CBOR.dumps(kotl)
+            val serial = DataList.serializer()
+            val kotl = Json.parse(serial, txt)
+            val json = Json.indented.stringify(serial, kotl)
+            val proto = ProtoBuf.dumps(serial, kotl)
+            val cbor = Cbor.dumps(serial, kotl)
 
             kotlinLabel.value = kotl.toString()
             jsonLabel.value = json

@@ -2,7 +2,7 @@
 
 ## Obtaining serializers
 
-Serializers are represented at runtime as `KSerializer<T>`, which in turn, implements interfaces `KSerialSaver<T>` and `KSerialLoader<T>`, where `T` is class you serialize.
+Serializers are represented at runtime as `KSerializer<T>`, which in turn, implements interfaces `SerializationStrategy<T>` and `DeserializationStrategy<T>`, where `T` is class you serialize.
 You don't need to call them by yourself; you just have to pass them properly to serialization format. You can write them on your own (see [custom serializers](custom_serializers.md)) or let the compiler plugin do the dirty work by marking class `@Serializable`.
 To retrieve the generated serializer, plugin emits special function on companion object called `.serializer()`.
 If your class has generic type arguments, this function will have arguments for specifying serializers on type parameters, because it's impossible to serialize generic class statically in general case:
@@ -46,28 +46,31 @@ Runtime library provides three ready-to use formats: JSON, CBOR and ProtoBuf.
 
 ### JSON
 
-JSON format represented by `JSON` class from `kotlinx.serialization.json` package. It following parameters:
+JSON format represented by `Json` class from `kotlinx.serialization.json` package. It has following constructor parameters:
 
-* nonstrict - allow JSON parser skip fields which are not present in class. By default is false.
+* strict - Prohibits unknown keys when parsing JSON. Prohibits NaN and Infinity float values when serializing JSON. Enabled by default.
 * unquoted - means that all field names and other objects (where it's possible) would not be wrapped in quotes. Useful for debugging.
 * indented - classic pretty-printed multiline JSON.
 * indent - size of indent, applicable if parameter above is true.
+* encodeDefaults - set this to false to omit writing @Optional properties if they are equal to theirs default values.
 
-You can also use one of predefined instances, like `JSON.plain`, `JSON.indented`, `JSON.nonstrict` or `JSON.unquoted`. API is duplicated in companion object, so `JSON.parse(...)` equals to `JSON.plain.parse(...)`
+You can also use one of predefined instances, like `Json.plain`, `Json.indented`, `Json.nonstrict` or `Json.unquoted`. API is duplicated in companion object, so `Json.parse(...)` equals to `Json.plain.parse(...)`
 
 You can also specify desired behaviour for duplicating keys. By default it is `UpdateMode.OVERWRITE`. You can use `UpdateMode.UPDATE`, and by doing that you'll be able to merge two lists or maps with same key into one; but be aware that serializers for non-collection types are throwing `UpdateNotSupportedException` by default. To prohibit duplicated keys, you can use `UpdateMode.BANNED`.
 
 JSON API:
 
 ```kotlin
-fun <T> stringify(saver: KSerialSaver<T>, obj: T): String
+fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String
 inline fun <reified T : Any> stringify(obj: T): String = stringify(T::class.serializer(), obj)
 
-fun <T> parse(loader: KSerialLoader<T>, str: String): T
+fun <T> parse(loader: DeserializationStrategy<T>, str: String): T
 inline fun <reified T : Any> parse(str: String): T = parse(T::class.serializer(), str)
 ```
 
 `stringify` transforms object to string, `parse` parses. No surprises.
+
+Besides this, functions `toJson` and `fromJson` allow converting @Serializable Kotlin object to and from [abstract JSON syntax tree](https://github.com/Kotlin/kotlinx.serialization/blob/master/runtime/common/src/main/kotlin/kotlinx/serialization/json/JsonElement.kt). To build JSON AST from String, use `parseJson`.
 
 **Note**: because JSON doesn't support maps with keys other than
 strings (and primitives), Kotlin maps with non-trivial key types are serialized as JSON lists.
@@ -77,19 +80,19 @@ so it wouldn't work with root-level collections or external serializers out of t
 
 ### CBOR
 
-`CBOR` class provides following functions:
+`Cbor` class provides following functions:
 
 ```kotlin
-fun <T : Any> dump(saver: KSerialSaver<T>, obj: T): ByteArray // saves object to bytes
+fun <T : Any> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray // saves object to bytes
 inline fun <reified T : Any> dump(obj: T): ByteArray // same as above, resolves serializer by itself
 inline fun <reified T : Any> dumps(obj: T): String // dump object and then pretty-print bytes to string
 
-fun <T : Any> load(loader: KSerialLoader<T>, raw: ByteArray): T // load object from bytes
+fun <T : Any> load(loader: DeserializationStrategy<T>, raw: ByteArray): T // load object from bytes
 inline fun <reified T : Any> load(raw: ByteArray): T // save as above
 inline fun <reified T : Any> loads(hex: String): T // inverse operation for dumps
 ```
 
-It has `UpdateMode.BANNED` by default.
+It has `UpdateMode.BANNED` by default. As Json, Cbor supports omitting default values.
 
 **Note**: CBOR, unlike JSON, supports maps with non-trivial keys,
 and Kotlin maps are serialized as CBOR maps, but some parsers (like `jackson-dataformat-cbor`) don't support this.
@@ -125,7 +128,7 @@ Other known issues and limitations:
 * Packed repeated fields are not supported
 
 More examples of mappings from proto definitions to Koltin classes can be found in test data:
-[here](../runtime/jvm/src/test/proto/test_data.proto) and [here](../runtime/jvm/src/test/kotlin/kotlinx/serialization/formats/RandomTests.kt#L47)
+[here](../runtime/jvm/src/test/proto/test_data.proto) and [here](../runtime/jvm/src/test/kotlin/kotlinx/serialization/formats/RandomTests.kt)
 
 ## Useful classes
 
@@ -140,7 +143,7 @@ data class Data(val first: Int, val second: String)
 val map: Map<String, Any> = Mapper.map(Data(42, "foo")) // mapOf("first" to 42, "second" to "foo")
 ```
 
-To get your object back, use `unmap` function. To support objects with nullable values, use `mapNullable` and `unmapNullable`
+To get your object back, use `unmap` function. To support objects with nullable values, use `mapNullable` and `unmapNullable`.
 
 ### Dynamic object parser (JS only)
 
@@ -158,5 +161,5 @@ val parsed = DynamicObjectParser().parse<DataWrapper>(dyn)
 parsed == DataWrapper("foo", Data(42)) // true
 ```
 
-> This feature is still in development and may have some bugs. Parser does not support kotlin maps with keys other than `String`.
+> Parser does not support kotlin maps with keys other than `String`.
 

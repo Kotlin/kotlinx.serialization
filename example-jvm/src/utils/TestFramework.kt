@@ -1,7 +1,6 @@
 package utils
 
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.serializer
+import kotlinx.serialization.*
 import kotlin.reflect.KFunction
 
 data class Result(
@@ -12,21 +11,19 @@ data class Result(
 
 class Case<T: Any>(
         val obj: T,
+        val serializer: KSerializer<T>,
         val name: String = obj.javaClass.simpleName,
         val hasNulls: Boolean = false
-) {
-    @Suppress("UNCHECKED_CAST")
-    val serializer: KSerializer<T> = obj::class.serializer() as KSerializer<T>
-}
+)
 
 val testCases: List<Case<*>> = listOf(
-        Case(CityData(1, "New York")),
-        Case(StreetData(2, "Broadway", CityData(1, "New York"))),
-        Case(StreetData2(2, "Broadway", CityData(1, "New York"))),
-        Case(StreetData2(2, "Broadway", null), hasNulls = true),
-        Case(CountyData("US", listOf(CityData(1, "New York"), CityData(2, "Chicago")))),
-        Case(zoo, hasNulls = true),
-        Case(shop)
+        Case(CityData(1, "New York"), CityData.serializer()),
+        Case(StreetData(2, "Broadway", CityData(1, "New York")), StreetData.serializer()),
+        Case(StreetData2(2, "Broadway", CityData(1, "New York")), StreetData2.serializer()),
+        Case(StreetData2(2, "Broadway", null), StreetData2.serializer(), hasNulls = true),
+        Case(CountyData("US", listOf(CityData(1, "New York"), CityData(2, "Chicago"))), CountyData.serializer()),
+        Case(zoo, Zoo.serializer(), hasNulls = true),
+        Case(shop, Shop.serializer())
 )
 
 @Suppress("UNCHECKED_CAST")

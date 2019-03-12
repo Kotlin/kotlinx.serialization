@@ -1,30 +1,30 @@
 /*
- *  Copyright 2017 JetBrains s.r.o.
+ * Copyright 2018 JetBrains s.r.o.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package kotlinx.serialization.features
 
-import kotlinx.serialization.KInput
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
-import kotlinx.serialization.json.JSON
-import kotlinx.serialization.serializerByTypeToken
+import kotlinx.serialization.*
+import kotlinx.serialization.internal.IntDescriptor
+import kotlinx.serialization.internal.IntSerializer
+import kotlinx.serialization.json.Json
 import org.junit.Test
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import kotlin.test.assertEquals
+import kotlin.test.assertSame
 
 class ResolvingTest {
     @Serializable
@@ -37,8 +37,18 @@ class ResolvingTest {
     data class WithCustomDefault(val n: Int) {
         @Serializer(forClass = WithCustomDefault::class)
         companion object {
-            override fun load(input: KInput) = WithCustomDefault(input.readIntValue())
+            override val descriptor: SerialDescriptor = IntDescriptor.withName("WithCustomDefault")
+            override fun serialize(encoder: Encoder, obj: WithCustomDefault) = encoder.encodeInt(obj.n)
+            override fun deserialize(decoder: Decoder) = WithCustomDefault(decoder.decodeInt())
         }
+    }
+
+    @Test
+    fun primitiveDescriptorWithNameTest() {
+        val desc = WithCustomDefault.serializer().descriptor
+        assertEquals("WithCustomDefault", desc.name)
+        assertSame(PrimitiveKind.INT, desc.kind)
+        assertEquals(0, desc.elementsCount)
     }
 
     object IntBoxToken : ParameterizedType {
@@ -51,7 +61,7 @@ class ResolvingTest {
     fun intBoxTest() {
         val b = Box(42)
         val serial = serializerByTypeToken(IntBoxToken)
-        val s = JSON.unquoted.stringify(serial, b)
+        val s = Json.unquoted.stringify(serial, b)
         assertEquals("{a:42}", s)
     }
 
@@ -60,7 +70,7 @@ class ResolvingTest {
         val myArr = arrayOf("a", "b", "c")
         val token = myArr::class.java
         val serial = serializerByTypeToken(token)
-        val s = JSON.unquoted.stringify(serial, myArr)
+        val s = Json.unquoted.stringify(serial, myArr)
         assertEquals("[a,b,c]", s)
     }
 
@@ -73,21 +83,85 @@ class ResolvingTest {
             override fun getActualTypeArguments(): Array<Type> = arrayOf(String::class.java)
         }
         val serial = serializerByTypeToken(token)
-        val s = JSON.unquoted.stringify(serial, myArr)
+        val s = Json.unquoted.stringify(serial, myArr)
         assertEquals("[a,b,c]", s)
+    }
+
+
+    @Test
+    fun testReifiedArrayResolving() {
+        val myArr = arrayOf("a", "b", "c")
+        val token = typeTokenOf<Array<String>>()
+        val serial = serializerByTypeToken(token)
+        val s = Json.unquoted.stringify(serial, myArr)
+        assertEquals("[a,b,c]", s)
+    }
+
+    @Test
+    fun testReifiedListResolving() {
+        val myList = listOf("a", "b", "c")
+        val token = typeTokenOf<List<String>>()
+        val serial = serializerByTypeToken(token)
+        val s = Json.unquoted.stringify(serial, myList)
+        assertEquals("[a,b,c]", s)
+    }
+
+    @Test
+    fun testReifiedSetResolving() {
+        val mySet = setOf("a", "b", "c", "c")
+        val token = typeTokenOf<Set<String>>()
+        val serial = serializerByTypeToken(token)
+        val s = Json.unquoted.stringify(serial, mySet)
+        assertEquals("[a,b,c]", s)
+    }
+
+    @Test
+    fun testReifiedMapResolving() {
+        val myMap = mapOf("a" to Data(listOf("c"), Box(6)))
+        val token = typeTokenOf<Map<String, Data>>()
+        val serial = serializerByTypeToken(token)
+        val s = Json.unquoted.stringify(serial, myMap)
+        assertEquals("{a:{l:[c],b:{a:6}}}", s)
+    }
+
+    @Test
+    fun testNestedListResolving() {
+        val myList = listOf(listOf(listOf(1, 2, 3)), listOf())
+        val token = typeTokenOf<List<List<List<Int>>>>()
+        val serial = serializerByTypeToken(token)
+        val s = Json.unquoted.stringify(serial, myList)
+        assertEquals("[[[1,2,3]],[]]", s)
+    }
+
+    @Test
+    fun testNestedArrayResolving() {
+        val myList = arrayOf(arrayOf(arrayOf(1, 2, 3)), arrayOf())
+        val token = typeTokenOf<Array<Array<Array<Int>>>>()
+        val serial = serializerByTypeToken(token)
+        val s = Json.unquoted.stringify(serial, myList)
+        assertEquals("[[[1,2,3]],[]]", s)
+    }
+
+    @Test
+    fun testNestedMixedResolving() {
+        val myList = arrayOf(listOf(arrayOf(1, 2, 3)), listOf())
+        val token = typeTokenOf<Array<List<Array<Int>>>>()
+        val serial = serializerByTypeToken(token)
+        val s = Json.unquoted.stringify(serial, myList)
+        assertEquals("[[[1,2,3]],[]]", s)
     }
 
     @Test
     fun objectTest() {
         val b = Data(listOf("a", "b", "c"), Box(42))
         val serial = serializerByTypeToken(Data::class.java)
-        val s = JSON.unquoted.stringify(serial, b)
+        val s = Json.unquoted.stringify(serial, b)
         assertEquals("{l:[a,b,c],b:{a:42}}", s)
     }
 
     @Test
     fun customDefault() {
-        val foo = JSON.unquoted.parse<WithCustomDefault>("9")
+        val foo = Json.unquoted.parse<WithCustomDefault>("9")
         assertEquals(9, foo.n)
     }
 
@@ -100,7 +174,14 @@ class ResolvingTest {
     fun namedCompanionTest() {
         val namedCompanion = WithNamedCompanion(1)
         val serial = serializerByTypeToken(WithNamedCompanion::class.java)
-        val s = JSON.unquoted.stringify(serial, namedCompanion)
+        val s = Json.unquoted.stringify(serial, namedCompanion)
         assertEquals("{a:1}", s)
+    }
+
+    @Test
+    fun intResolve() {
+        val token = typeTokenOf<Int>()
+        val serial = serializerByTypeToken(token)
+        assertSame(IntSerializer as KSerializer<*>, serial)
     }
 }

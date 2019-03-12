@@ -20,13 +20,13 @@ import kotlinx.io.ByteBuffer
 import kotlinx.io.IOException
 import kotlinx.io.InputStream
 
-fun <T> List<T>.onlySingleOrNull() = when(this.size) {
+internal fun <T> List<T>.onlySingleOrNull() = when(this.size) {
     0 -> null
     1 -> this[0]
     else -> throw IllegalStateException("Too much arguments in list")
 }
 
-fun InputStream.readExactNBytes(bytes: Int): ByteArray {
+internal fun InputStream.readExactNBytes(bytes: Int): ByteArray {
     val array = ByteArray(bytes)
     var read = 0
     while (read < bytes) {
@@ -37,7 +37,7 @@ fun InputStream.readExactNBytes(bytes: Int): ByteArray {
     return array
 }
 
-fun InputStream.readToByteBuffer(bytes: Int): ByteBuffer {
+internal fun InputStream.readToByteBuffer(bytes: Int): ByteBuffer {
     val arr = readExactNBytes(bytes)
     val buf = ByteBuffer.allocate(bytes)
     buf.put(arr).flip()
