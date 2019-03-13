@@ -21,7 +21,7 @@ import kotlinx.serialization.internal.*
 import kotlin.test.*
 
 @Serializable
-data class Data1(@Optional val l: List<Int> = emptyList(), val s: String) {
+data class Data1(val l: List<Int> = emptyList(), val s: String) {
     @Serializer(forClass = Data1::class)
     companion object {
         override val descriptor: SerialDescriptor = object : SerialClassDescImpl("Data1") {
@@ -36,7 +36,7 @@ data class Data1(@Optional val l: List<Int> = emptyList(), val s: String) {
 }
 
 @Serializable
-data class Data2(@Optional val l: List<Int> = emptyList(), val s: String)
+data class Data2(val l: List<Int> = emptyList(), val s: String)
 
 
 @Serializable data class Box<T>(val boxed: T)
@@ -60,7 +60,7 @@ data class DataZooIsomorphic(
     val a: String,
     val cc: List<Data1>,
     val lll: List<List<Boolean>>,
-    @Optional val mm: Map<String, Data2>? = null
+    val mm: Map<String, Data2>? = null
 )
 
 private enum class SampleEnum { OptionA, OptionB, OptionC }

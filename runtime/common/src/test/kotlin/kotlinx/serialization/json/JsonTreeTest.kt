@@ -27,7 +27,7 @@ class JsonTreeTest : JsonTestBase() {
     data class DataWrapper(val s: String, val d: Data?)
 
     @Serializable
-    data class DataWrapperOptional(val s: String, @Optional val d: Data? = null)
+    data class DataWrapperOptional(val s: String, val d: Data? = null)
 
     @Serializable
     data class IntList(val l: List<Int>)

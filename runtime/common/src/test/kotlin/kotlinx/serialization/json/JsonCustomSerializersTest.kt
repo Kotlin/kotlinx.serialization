@@ -35,7 +35,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
     data class BList(@SerialId(1) val bs: List<B>)
 
     @Serializable
-    data class C(@SerialId(1) @Optional val a: Int = 31, @SerialId(2) val b: Int = 42) {
+    data class C(@SerialId(1) val a: Int = 31, @SerialId(2) val b: Int = 42) {
         @Serializer(forClass = C::class)
         companion object: KSerializer<C> {
             override fun serialize(encoder: Encoder, obj: C) {
@@ -51,7 +51,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
     data class CList1(@SerialId(1) val c: List<C>)
 
     @Serializable
-    data class CList2(@SerialId(1) @Optional val d: Int = 5, @SerialId(2) val c: List<C>) {
+    data class CList2(@SerialId(1) val d: Int = 5, @SerialId(2) val c: List<C>) {
         @Serializer(forClass = CList2::class)
         companion object: KSerializer<CList2> {
             override fun serialize(encoder: Encoder, obj: CList2) {
@@ -64,7 +64,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
     }
 
     @Serializable
-    data class CList3(@SerialId(1) @Optional val e: List<C> = emptyList(), @SerialId(2) val f: Int) {
+    data class CList3(@SerialId(1) val e: List<C> = emptyList(), @SerialId(2) val f: Int) {
         @Serializer(forClass = CList3::class)
         companion object: KSerializer<CList3> {
             override fun serialize(encoder: Encoder, obj: CList3) {
@@ -77,7 +77,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
     }
 
     @Serializable
-    data class CList4(@SerialId(1) @Optional val g: List<C> = emptyList(), @SerialId(2) val h: Int) {
+    data class CList4(@SerialId(1) val g: List<C> = emptyList(), @SerialId(2) val h: Int) {
         @Serializer(forClass = CList4::class)
         companion object: KSerializer<CList4> {
             override fun serialize(encoder: Encoder, obj: CList4) {
@@ -90,7 +90,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
     }
 
     @Serializable
-    data class CList5(@SerialId(1) @Optional val g: List<Int> = emptyList(), @SerialId(2) val h: Int) {
+    data class CList5(@SerialId(1) val g: List<Int> = emptyList(), @SerialId(2) val h: Int) {
         @Serializer(forClass = CList5::class)
         companion object: KSerializer<CList5> {
             override fun serialize(encoder: Encoder, obj: CList5) {

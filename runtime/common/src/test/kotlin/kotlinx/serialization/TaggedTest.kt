@@ -26,7 +26,7 @@ class TaggedTest {
             @SerialId(1) val first: Int,
             @SerialId(2) val second: String,
             val noId: Unit = Unit,
-            @Optional @SerialId(42) val last: Boolean = true
+            @SerialId(42) val last: Boolean = true
     )
 
     class Collector : IntTaggedEncoder() {

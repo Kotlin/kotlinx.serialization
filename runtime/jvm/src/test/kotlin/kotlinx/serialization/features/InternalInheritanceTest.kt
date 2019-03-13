@@ -24,7 +24,6 @@ import org.junit.Test
 class InternalInheritanceTest {
     @Serializable
     open class A(val parent: Int) {
-        @Optional
         private val rootOptional = "rootOptional"
 
         override fun equals(other: Any?): Boolean {
@@ -46,7 +45,6 @@ class InternalInheritanceTest {
 
     @Serializable
     class C(val parent3: Int) : B(parent3, derived = "derived") {
-        @Optional
         val lastDerived = "optional"
 
         override fun equals(other: Any?): Boolean {

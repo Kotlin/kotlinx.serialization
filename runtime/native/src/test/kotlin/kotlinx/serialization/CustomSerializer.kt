@@ -10,7 +10,7 @@ import kotlin.test.assertEquals
 class BinaryPayloadExampleTest {
 
     @Serializable
-    data class WithNull(@Optional @SerialName("value") val nullable: String? = null) {
+    data class WithNull(@SerialName("value") val nullable: String? = null) {
         @Serializer(forClass = WithNull::class)
         companion object : KSerializer<WithNull> {
             override fun serialize(encoder: Encoder, obj: WithNull) {

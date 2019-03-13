@@ -11,8 +11,8 @@ class JsonOptionalTests : JsonTestBase() {
 
     @Suppress("EqualsOrHashCode")
     @Serializable
-    internal class Data(@Required val a: Int = 0, @Optional val b: Int = 42) {
-        @Optional
+    internal class Data(@Required val a: Int = 0, val b: Int = 42) {
+
         var c = "Hello"
 
         override fun equals(other: Any?): Boolean {

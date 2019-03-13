@@ -6,11 +6,9 @@ import kotlinx.serialization.json.Json
 import kotlin.test.*
 
 @Serializable
-data class Data(val bar: String, @Optional val foo: Int = 42) {
-    @Optional
+data class Data(val bar: String, val foo: Int = 42) {
     var list: List<Int> = emptyList()
 
-    @Optional
     val listWithSomething: List<Int> = listOf(1, 2, 3)
 }
 

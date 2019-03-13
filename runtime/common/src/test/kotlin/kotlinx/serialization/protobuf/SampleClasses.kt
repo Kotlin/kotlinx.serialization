@@ -16,7 +16,6 @@
 
 package kotlinx.serialization.protobuf
 
-import kotlinx.serialization.Optional
 import kotlinx.serialization.SerialId
 import kotlinx.serialization.Serializable
 import kotlin.test.assertEquals
@@ -25,7 +24,7 @@ import kotlin.test.assertEquals
 data class TestInt(@SerialId(1) @ProtoType(ProtoNumberType.SIGNED) val a: Int)
 
 @Serializable
-data class TestList(@SerialId(1) @Optional val a: List<Int> = emptyList())
+data class TestList(@SerialId(1) val a: List<Int> = emptyList())
 
 @Serializable
 data class TestString(@SerialId(2) val b: String)

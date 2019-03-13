@@ -11,8 +11,7 @@ import kotlin.test.*
 class JsonTransientTest : JsonTestBase() {
 
     @Serializable
-    class Data(val a: Int = 0, @Transient var b: Int = 42, @Optional val e: Boolean = false) {
-        @Optional
+    class Data(val a: Int = 0, @Transient var b: Int = 42, val e: Boolean = false) {
         var c = "Hello"
 
         @Transient

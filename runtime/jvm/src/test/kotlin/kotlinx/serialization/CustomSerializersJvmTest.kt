@@ -28,7 +28,7 @@ import kotlin.test.assertEquals
 class CustomSerializersJvmTest {
 
     @Serializable
-    data class Data(val a: Int, @Optional val b: Int = 42)
+    data class Data(val a: Int, val b: Int = 42)
 
     @Serializable
     data class EnhancedData(
