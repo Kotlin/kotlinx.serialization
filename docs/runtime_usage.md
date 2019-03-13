@@ -52,7 +52,7 @@ JSON format represented by `Json` class from `kotlinx.serialization.json` packag
 * unquoted - means that all field names and other objects (where it's possible) would not be wrapped in quotes. Useful for debugging.
 * indented - classic pretty-printed multiline JSON.
 * indent - size of indent, applicable if parameter above is true.
-* encodeDefaults - set this to false to omit writing @Optional properties if they are equal to theirs default values.
+* encodeDefaults - set this to false to omit writing optional properties if they are equal to theirs default values.
 
 You can also use one of predefined instances, like `Json.plain`, `Json.indented`, `Json.nonstrict` or `Json.unquoted`. API is duplicated in companion object, so `Json.parse(...)` equals to `Json.plain.parse(...)`
 
@@ -121,7 +121,7 @@ Number format is set via `@ProtoType` annotation. `ProtoNumberType.DEFAULT` is d
 is signed ZigZag representation (`sintXX`), and `FIXED` is `fixedXX` type. `uintXX` and `sfixedXX` are not supported yet.
 
 Repeated fields represented as lists. Because format spec says that if the list is empty, there will be no elements in the stream with such tag,
-you must explicitly mark any field of list type with `@Optional` annotation with default ` = emptyList()`. Same for maps. Update mode for Protobuf is set to `UPDATE` and can't be changed, thus allowing merging several scattered lists into one.
+you must explicitly mark any field of list type with default ` = emptyList()`. Same for maps. Update mode for Protobuf is set to `UPDATE` and can't be changed, thus allowing merging several scattered lists into one.
 
 Other known issues and limitations:
 

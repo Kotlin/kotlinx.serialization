@@ -46,7 +46,11 @@ annotation class SerialName(val value: String)
  * Optional properties must have default values.
  */
 @Target(AnnotationTarget.PROPERTY)
+@Deprecated("All properties with default values are considered optional now")
 annotation class Optional
+
+@Target(AnnotationTarget.PROPERTY)
+annotation class Required
 
 /**
  * Marks this property invisible for whole serialization framework.

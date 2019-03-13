@@ -11,9 +11,7 @@ class JsonOptionalTests : JsonTestBase() {
 
     @Suppress("EqualsOrHashCode")
     @Serializable
-    internal class Data(val a: Int, @Optional val b: Int = 42) {
-        constructor(): this(0)
-
+    internal class Data(@Required val a: Int = 0, @Optional val b: Int = 42) {
         @Optional
         var c = "Hello"
 
@@ -35,7 +33,7 @@ class JsonOptionalTests : JsonTestBase() {
     @Test
     fun testAll() = parametrizedTest { useStreaming ->
         assertEquals("{a:0,b:42,c:Hello}", unquoted.stringify(Data(), useStreaming))
-        assertEquals(unquoted.parse("{a:0,b:43,c:Hello}", useStreaming), Data(a = 0, b = 43))
+        assertEquals(unquoted.parse("{a:0,b:43,c:Hello}", useStreaming), Data(b = 43))
         assertEquals(unquoted.parse("{a:0,b:42,c:Hello}", useStreaming), Data())
     }
 
