@@ -50,7 +50,7 @@ class DynamicObjectParser(): AbstractSerialFormat() {
         }
 
         override fun decodeTaggedEnum(tag: String, enumDescription: EnumDescriptor): Int =
-                enumDescription.getElementIndex(getByTag(tag) as String)
+                enumDescription.getElementIndexOrThrow(getByTag(tag) as String)
 
         protected open fun getByTag(tag: String): dynamic = obj[tag]
 

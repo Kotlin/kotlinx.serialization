@@ -247,7 +247,7 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
         override fun decodeNull() = decoder.nextNull()
 
         override fun decodeEnum(enumDescription: EnumDescriptor): Int =
-            enumDescription.getElementIndex(decoder.nextString())
+            enumDescription.getElementIndexOrThrow(decoder.nextString())
 
     }
 

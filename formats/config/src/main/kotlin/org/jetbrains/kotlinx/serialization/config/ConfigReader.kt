@@ -70,7 +70,7 @@ class ConfigParser(): AbstractSerialFormat() {
 
         override fun decodeTaggedEnum(tag: T, enumDescription: EnumDescriptor): Int {
             val s = validateAndCast<String>(tag, ConfigValueType.STRING)
-            return enumDescription.getElementIndex(s)
+            return enumDescription.getElementIndexOrThrow(s)
         }
     }
 

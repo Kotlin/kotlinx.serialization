@@ -101,5 +101,5 @@ internal class StreamingJsonInput internal constructor(override val  json: Json,
     override fun decodeDouble(): Double = reader.takeString().toDouble()
     override fun decodeChar(): Char = reader.takeString().single()
     override fun decodeString(): String = reader.takeString()
-    override fun decodeEnum(enumDescription: EnumDescriptor): Int = enumDescription.getElementIndex(reader.takeString())
+    override fun decodeEnum(enumDescription: EnumDescriptor): Int = enumDescription.getElementIndexOrThrow(reader.takeString())
 }

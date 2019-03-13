@@ -46,9 +46,16 @@ public fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> {
     return (0 until elementsCount).map { getElementDescriptor(it) }
 }
 
+/**
+ * Same as [SerialDescriptor.getElementIndex],
+ * but throws [SerializationException] if
+ * given name is not associated with any element
+ * in the descriptor.
+ */
 public fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
     val i = getElementIndex(name)
-    if (i == CompositeDecoder.UNKNOWN_NAME) throw SerializationException("Unknown name '$name'")
+    if (i == CompositeDecoder.UNKNOWN_NAME)
+        throw SerializationException("${this.name} does not contain element with name '$name'")
     return i
 }
 

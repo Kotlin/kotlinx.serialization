@@ -63,7 +63,7 @@ private sealed class AbstractJsonTreeInput(override val json: Json, open val obj
     }
 
     override fun decodeTaggedEnum(tag: String, enumDescription: EnumDescriptor): Int =
-        enumDescription.getElementIndex(getValue(tag).content)
+        enumDescription.getElementIndexOrThrow(getValue(tag).content)
 
     override fun decodeTaggedNull(tag: String): Nothing? = null
 

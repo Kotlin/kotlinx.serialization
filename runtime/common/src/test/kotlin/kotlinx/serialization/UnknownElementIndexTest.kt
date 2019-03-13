@@ -22,6 +22,9 @@ import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 class UnknownElementIndexTest {
+    enum class Choices {A, B, C}
+    @Serializable data class Holder(val c: Choices)
+
     class MalformedReader: ElementValueDecoder() {
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
             return UNKNOWN_NAME
@@ -32,6 +35,14 @@ class UnknownElementIndexTest {
     fun compilerComplainsAboutIncorrectIndex() {
         assertFailsWith(UnknownFieldException::class) {
             MalformedReader().decode<JsonOptionalTests.Data>()
+        }
+    }
+
+    @Test
+    fun errorMessage() {
+        val message = "kotlinx.serialization.UnknownElementIndexTest.Choices does not contain element with name 'D'"
+        assertFailsWith(SerializationException::class, message) {
+            Json.parse(Holder.serializer(), """{"c":"D"}""")
         }
     }
 }
