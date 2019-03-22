@@ -6,9 +6,10 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.context.*
+import kotlinx.serialization.modules.serializersModuleOf
 import kotlinx.serialization.internal.*
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class JsonCustomSerializersTest : JsonTestBase() {
     @Serializable
@@ -103,14 +104,9 @@ class JsonCustomSerializersTest : JsonTestBase() {
         }
     }
 
-    @Suppress("MemberVisibilityCanBePrivate") // BE bug =/
-    val moduleWithB = object : SerialModule {
-        override fun registerIn(context: MutableSerialContext) {
-            context.registerSerializer(B::class, BSerializer)
-        }
-    }
+    private val moduleWithB = serializersModuleOf(B::class, BSerializer)
 
-    private fun createJsonWithB() = Json(unquoted = true).apply { install(moduleWithB) }
+    private fun createJsonWithB() = Json(unquoted = true, context = moduleWithB)
 
     @Test
     fun testWriteCustom() = parametrizedTest { useStreaming ->

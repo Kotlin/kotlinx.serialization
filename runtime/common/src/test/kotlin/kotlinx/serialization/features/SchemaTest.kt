@@ -38,7 +38,6 @@ data class Data1(val l: List<Int> = emptyList(), val s: String) {
 @Serializable
 data class Data2(val l: List<Int> = emptyList(), val s: String)
 
-
 @Serializable data class Box<T>(val boxed: T)
 
 @Serializable data class BoxHolder(val stringBox: Box<String>, val intBox: Box<Int>)

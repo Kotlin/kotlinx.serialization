@@ -20,7 +20,7 @@ enableFeaturePreview('GRADLE_METADATA')
 include ':common'
 include ':jvm'
 include ':js'
-include ':native'
+//include ':native'
 
 include ':configparser'
 include ':benchmark'
@@ -28,7 +28,7 @@ include ':benchmark'
 project(':common').projectDir = file('./runtime/common')
 project(':jvm').projectDir = file('./runtime/jvm')
 project(':js').projectDir = file('./runtime/js')
-project(':native').projectDir = file('./runtime/native')
+//project(':native').projectDir = file('./runtime/native')
 
 project(':configparser').projectDir = file('./formats/config')
 project(':benchmark').projectDir = file('./benchmark')

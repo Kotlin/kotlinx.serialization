@@ -19,15 +19,15 @@ package kotlinx.serialization.protobuf
 import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
-import kotlinx.serialization.context.SerialContext
-import kotlinx.serialization.context.SerialModule
+import kotlinx.serialization.modules.EmptyModule
+import kotlinx.serialization.modules.SerialModule
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintInt
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintLong
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeVarint
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.encodeVarint
 
-class ProtoBuf : AbstractSerialFormat(), BinaryFormat {
+class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(context), BinaryFormat {
 
     internal open inner class ProtobufWriter(val encoder: ProtobufEncoder) : TaggedEncoder<ProtoDesc>() {
 
@@ -426,8 +426,8 @@ class ProtoBuf : AbstractSerialFormat(), BinaryFormat {
 
         override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray = plain.dump(serializer, obj)
         override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T = plain.load(deserializer, bytes)
-        override fun install(module: SerialModule) = plain.install(module)
-        override val context: SerialContext get() = plain.context
+        override fun install(module: SerialModule) = throw IllegalStateException("You should not install anything to global instance")
+        override val context: SerialModule get() = plain.context
     }
 
     override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray {

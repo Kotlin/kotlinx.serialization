@@ -35,7 +35,7 @@ interface SerialDescriptor {
     val isNullable: Boolean
         get() = false
 
-    fun isElementOptional(index: Int): Boolean
+    fun isElementOptional(index: Int): Boolean = false
 }
 
 interface SerializationStrategy<in T> {

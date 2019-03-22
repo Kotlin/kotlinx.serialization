@@ -16,9 +16,9 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.context.getOrDefault
+import kotlinx.serialization.modules.*
 
-class Mapper : AbstractSerialFormat() {
+class Mapper(context: SerialModule = EmptyModule) : AbstractSerialFormat(context) {
 
     inner class OutMapper : NamedValueEncoder() {
         init {
@@ -129,18 +129,18 @@ class Mapper : AbstractSerialFormat() {
     }
 
     @ImplicitReflectionSerializer
-    inline fun <reified T : Any> map(obj: T): Map<String, Any> = map(context.getOrDefault(T::class), obj)
+    inline fun <reified T : Any> map(obj: T): Map<String, Any> = map(context.getContextualOrDefault(T::class), obj)
 
     @ImplicitReflectionSerializer
     inline fun <reified T : Any> mapNullable(obj: T): Map<String, Any?> =
-        mapNullable(context.getOrDefault(T::class), obj)
+        mapNullable(context.getContextualOrDefault(T::class), obj)
 
     @ImplicitReflectionSerializer
-    inline fun <reified T : Any> unmap(map: Map<String, Any>): T = unmap(context.getOrDefault(T::class), map)
+    inline fun <reified T : Any> unmap(map: Map<String, Any>): T = unmap(context.getContextualOrDefault(T::class), map)
 
     @ImplicitReflectionSerializer
     inline fun <reified T : Any> unmapNullable(map: Map<String, Any?>): T =
-        unmapNullable(context.getOrDefault(T::class), map)
+        unmapNullable(context.getContextualOrDefault(T::class), map)
 
     companion object {
         val default = Mapper()

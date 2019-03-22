@@ -5,7 +5,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.context.*
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.json.internal.*
 import kotlin.test.*
 
@@ -15,7 +15,7 @@ abstract class JsonTestBase {
     protected val nonStrict = Json(strictMode = false)
 
     internal inline fun <reified T : Any> Json.stringify(value: T, useStreaming: Boolean): String {
-        val serializer = context.getOrDefault(T::class)
+        val serializer = context.getContextualOrDefault(T::class)
         return stringify(serializer, value, useStreaming)
     }
 
@@ -35,7 +35,7 @@ abstract class JsonTestBase {
             // Overload to test public list extension
             stringify(list)
         } else {
-            stringify(context.getOrDefault(T::class).list, list)
+            stringify(context.getContextualOrDefault(T::class).list, list)
         }
     }
 
@@ -45,12 +45,12 @@ abstract class JsonTestBase {
             // Overload to test public map extension
             stringify(map)
         } else {
-            stringify((context.getOrDefault(K::class) to context.getOrDefault(V::class)).map, map)
+            stringify((context.getContextualOrDefault(K::class) to context.getContextualOrDefault(V::class)).map, map)
         }
     }
 
     internal inline fun <reified T : Any> Json.parse(source: String, useStreaming: Boolean): T {
-        val deserializer = context.getOrDefault(T::class)
+        val deserializer = context.getContextualOrDefault(T::class)
         return parse(deserializer, source, useStreaming)
     }
 
@@ -71,7 +71,7 @@ abstract class JsonTestBase {
             // Overload to test public list extension
             parseList(content)
         } else {
-            parse(context.getOrDefault(T::class).list, content, useStreaming)
+            parse(context.getContextualOrDefault(T::class).list, content, useStreaming)
         }
     }
 
@@ -84,7 +84,7 @@ abstract class JsonTestBase {
             // Overload to test public map extension
             parseMap(content)
         } else {
-            parse((context.getOrDefault(K::class) to context.getOrDefault(V::class)).map, content, useStreaming)
+            parse((context.getContextualOrDefault(K::class) to context.getContextualOrDefault(V::class)).map, content, useStreaming)
         }
     }
 

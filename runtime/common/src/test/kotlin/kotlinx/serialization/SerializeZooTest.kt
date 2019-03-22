@@ -26,6 +26,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
+@Serializable
+data class IntData(val intV: Int)
+
 class SerializeZooTest {
     @Test
     fun testZoo() {
@@ -45,9 +48,6 @@ class SerializeZooTest {
     // Test data -- Zoo of types
 
     enum class Attitude { POSITIVE, NEUTRAL, NEGATIVE }
-
-    @Serializable
-    data class IntData(val intV: Int)
 
     @Serializable
     data class Tree(val name: String, val left: Tree? = null, val right: Tree? = null)
