@@ -4,9 +4,19 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.context.*
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.json.internal.*
-import kotlin.jvm.*
+import kotlin.jvm.JvmField
+import kotlin.reflect.KClass
+
+private val defaultJsonModule = serializersModuleOf(mapOf<KClass<*>, KSerializer<*>>(
+    JsonElement::class to JsonElementSerializer,
+    JsonPrimitive::class to JsonPrimitiveSerializer,
+    JsonLiteral::class to JsonLiteralSerializer,
+    JsonNull::class to JsonNullSerializer,
+    JsonObject::class to JsonObjectSerializer,
+    JsonArray::class to JsonArraySerializer
+))
 
 /**
  * The main entry point to work with JSON serialization.
@@ -56,29 +66,9 @@ public class Json(
     @JvmField internal val indent: String = "    ",
     @JvmField internal val strictMode: Boolean = true,
     val updateMode: UpdateMode = UpdateMode.OVERWRITE,
-    val encodeDefaults: Boolean = true
-): AbstractSerialFormat(), StringFormat {
-
-    init {
-        val module = object : SerialModule {
-            override fun registerIn(context: MutableSerialContext) {
-                context.registerSerializer(JsonElement::class,
-                    JsonElementSerializer
-                )
-                context.registerSerializer(JsonPrimitive::class,
-                    JsonPrimitiveSerializer
-                )
-                context.registerSerializer(JsonLiteral::class,
-                    JsonLiteralSerializer
-                )
-                context.registerSerializer(JsonNull::class, JsonNullSerializer)
-                context.registerSerializer(JsonObject::class, JsonObjectSerializer)
-                context.registerSerializer(JsonArray::class, JsonArraySerializer)
-            }
-        }
-        install(module)
-    }
-
+    val encodeDefaults: Boolean = true,
+    context: SerialModule = EmptyModule
+): AbstractSerialFormat(context + defaultJsonModule), StringFormat {
     /**
      * Serializes [obj] into an equivalent JSON using provided [serializer].
      * @throws [JsonException] subclass in case of serialization error.
@@ -103,12 +93,12 @@ public class Json(
     }
 
     /**
-     * Serializes [value] into an equivalent [JsonElement] using serializer registered in the context.
+     * Serializes [value] into an equivalent [JsonElement] using serializer registered in the module.
      * @throws [JsonException] subclass in case of serialization error.
      */
     @ImplicitReflectionSerializer
     public inline fun <reified T : Any> toJson(value: T): JsonElement {
-        return toJson(context.getOrDefault(T::class), value)
+        return toJson(context.getContextualOrDefault(T::class), value)
     }
 
     /**
@@ -140,11 +130,11 @@ public class Json(
     }
 
     /**
-     * Deserializes [json] element into a corresponding object of type [T] using serializer registered in the context.
+     * Deserializes [json] element into a corresponding object of type [T] using serializer registered in the module.
      * @throws [JsonException] subclass in case of serialization error.
      */
     @ImplicitReflectionSerializer
-    public inline fun <reified T : Any> fromJson(tree: JsonElement): T = fromJson(context.getOrDefault(T::class), tree)
+    public inline fun <reified T : Any> fromJson(tree: JsonElement): T = fromJson(context.getContextualOrDefault(T::class), tree)
 
     companion object : StringFormat {
         val plain = Json()
@@ -152,8 +142,8 @@ public class Json(
         val indented = Json(indented = true)
         val nonstrict = Json(strictMode = false)
 
-        override fun install(module: SerialModule) = plain.install(module)
-        override val context: SerialContext get() = plain.context
+        override fun install(module: SerialModule) = throw IllegalStateException("You should not install anything to global instance")
+        override val context: SerialModule get() = plain.context
         override fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String =
             plain.stringify(serializer, obj)
 

@@ -77,27 +77,27 @@ class CheckedDataSerializer<T : Any>(val dataSerializer: KSerializer<T>) : KSeri
 }
 
 @Serializable
-data class StringData(@Serializable(with = CheckedDataSerializer::class) val data: CheckedData<String>)
+data class DataWithString(@Serializable(with = CheckedDataSerializer::class) val data: CheckedData<String>)
 @Serializable
-data class IntData(@Serializable(with = CheckedDataSerializer::class) val data: CheckedData<Int>)
+data class DataWithInt(@Serializable(with = CheckedDataSerializer::class) val data: CheckedData<Int>)
 
 
 class GenericCustomSerializerTest {
     @Test
     fun testStringData() {
-        val original = StringData(CheckedData("my data", byteArrayOf(42, 32)))
-        val s = Json.stringify(StringData.serializer(), original)
+        val original = DataWithString(CheckedData("my data", byteArrayOf(42, 32)))
+        val s = Json.stringify(DataWithString.serializer(), original)
         assertEquals("""{"data":{"data":"my data","checkSum":"2A20"}}""", s)
-        val restored = Json.parse(StringData.serializer(), s)
+        val restored = Json.parse(DataWithString.serializer(), s)
         assertEquals(original, restored)
     }
 
     @Test
     fun testIntData() {
-        val original = IntData(CheckedData(42, byteArrayOf(42)))
-        val s = Json.stringify(IntData.serializer(), original)
+        val original = DataWithInt(CheckedData(42, byteArrayOf(42)))
+        val s = Json.stringify(DataWithInt.serializer(), original)
         assertEquals("""{"data":{"data":42,"checkSum":"2A"}}""", s)
-        val restored = Json.parse(IntData.serializer(), s)
+        val restored = Json.parse(DataWithInt.serializer(), s)
         assertEquals(original, restored)
     }
 }

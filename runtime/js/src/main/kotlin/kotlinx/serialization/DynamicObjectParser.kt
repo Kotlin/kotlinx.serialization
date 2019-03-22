@@ -17,7 +17,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
-import kotlinx.serialization.context.getOrDefault
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.internal.EnumDescriptor
 import kotlin.math.abs
 import kotlin.math.floor
@@ -27,9 +27,9 @@ import kotlin.math.floor
  */
 internal const val MAX_SAFE_INTEGER: Double = 9007199254740991.toDouble() // 2^53 - 1
 
-class DynamicObjectParser(): AbstractSerialFormat() {
+class DynamicObjectParser(context: SerialModule = EmptyModule): AbstractSerialFormat(context) {
     @ImplicitReflectionSerializer
-    inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.getOrDefault(T::class))
+    inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.getContextualOrDefault(T::class))
 
     fun <T> parse(obj: dynamic, deserializer: DeserializationStrategy<T>): T = DynamicInput(obj).decode(deserializer)
 

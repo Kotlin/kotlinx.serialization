@@ -16,11 +16,11 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.context.SerialContext
+import kotlinx.serialization.modules.SerialModule
 import kotlinx.serialization.internal.EnumDescriptor
 
 interface Encoder {
-    val context: SerialContext
+    val context: SerialModule
 
     fun encodeNotNullMark()
     fun encodeNull()
@@ -58,7 +58,7 @@ interface Encoder {
 }
 
 interface CompositeEncoder {
-    val context: SerialContext
+    val context: SerialModule
 
     fun endStructure(desc: SerialDescriptor) {}
 
@@ -84,7 +84,7 @@ interface CompositeEncoder {
 
 
 interface Decoder {
-    val context: SerialContext
+    val context: SerialModule
 
     /**
      * Returns true if the current value in decoder is not null, false otherwise
@@ -138,7 +138,7 @@ interface Decoder {
 }
 
 interface CompositeDecoder {
-    val context: SerialContext
+    val context: SerialModule
     fun endStructure(desc: SerialDescriptor) {}
 
     /**

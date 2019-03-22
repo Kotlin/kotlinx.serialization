@@ -19,11 +19,12 @@ package kotlinx.serialization.cbor
 import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
-import kotlinx.serialization.context.*
+import kotlinx.serialization.modules.EmptyModule
+import kotlinx.serialization.modules.SerialModule
 import kotlinx.serialization.internal.*
 import kotlin.experimental.or
 
-class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: Boolean = true): AbstractSerialFormat(), BinaryFormat {
+class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: Boolean = true, context: SerialModule = EmptyModule): AbstractSerialFormat(context), BinaryFormat {
     // Writes map entry as plain [key, value] pair, without bounds.
     private inner class CborEntryWriter(encoder: CborEncoder) : CborWriter(encoder) {
         override fun writeBeginToken() {
@@ -382,8 +383,8 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
 
         override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray = plain.dump(serializer, obj)
         override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T = plain.load(deserializer, bytes)
-        override fun install(module: SerialModule) = plain.install(module)
-        override val context: SerialContext get() = plain.context
+        override fun install(module: SerialModule) = throw IllegalStateException("You should not install anything to global instance")
+        override val context: SerialModule get() = plain.context
     }
 
     override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray {
