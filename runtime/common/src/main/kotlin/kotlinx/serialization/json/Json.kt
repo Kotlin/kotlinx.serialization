@@ -10,7 +10,7 @@ import kotlin.jvm.*
 
 /**
  * The main entry point to work with JSON serialization.
- * Is is typically used by constructing an application-specific instance, registering
+ * It is typically used by constructing an application-specific instance, registering
  * custom serializers via [Json.install] and then using it either as regular [SerialFormat] or [StringFormat]
  * or for converting objects to [JsonElement] back and forth.
  *
