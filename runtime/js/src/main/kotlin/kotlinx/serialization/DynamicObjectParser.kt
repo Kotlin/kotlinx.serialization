@@ -34,9 +34,9 @@ class DynamicObjectParser(context: SerialModule = EmptyModule): AbstractSerialFo
     fun <T> parse(obj: dynamic, deserializer: DeserializationStrategy<T>): T = DynamicInput(obj).decode(deserializer)
 
     private open inner class DynamicInput(val obj: dynamic) : NamedValueDecoder() {
-        init {
-            this.context = this@DynamicObjectParser.context
-        }
+        override val context: SerialModule
+            get() = this@DynamicObjectParser.context
+
         override fun composeName(parentName: String, childName: String): String = childName
 
         private var pos = 0
@@ -98,10 +98,6 @@ class DynamicObjectParser(context: SerialModule = EmptyModule): AbstractSerialFo
     }
 
     private inner class DynamicMapInput(obj: dynamic): DynamicInput(obj) {
-        init {
-            this.context = this@DynamicObjectParser.context
-        }
-
         private val keys: dynamic = js("Object").keys(obj)
         private val size: Int = (keys.length as Int) * 2
         private var pos = -1
@@ -126,10 +122,6 @@ class DynamicObjectParser(context: SerialModule = EmptyModule): AbstractSerialFo
     }
 
     private inner class DynamicListInput(obj: dynamic): DynamicInput(obj) {
-        init {
-            this.context = this@DynamicObjectParser.context
-        }
-
         private val size = obj.length as Int
         private var pos = -1
 

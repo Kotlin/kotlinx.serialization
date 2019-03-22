@@ -33,9 +33,8 @@ class ConfigParser(context: SerialModule = EmptyModule): AbstractSerialFormat(co
 
 
     private abstract inner class ConfigConverter<T> : TaggedDecoder<T>() {
-        init {
-            this.context = this@ConfigParser.context
-        }
+        override val context: SerialModule
+            get() = this@ConfigParser.context
 
         abstract fun getTaggedConfigValue(tag: T): ConfigValue
 
