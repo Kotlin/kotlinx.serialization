@@ -3,6 +3,7 @@ package kotlinx.serialization.json.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 import kotlin.jvm.*
 
 
@@ -14,11 +15,12 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
         modeReuseCache: Array<JsonOutput?>
     ) : this(Composer(output, json), json, mode, modeReuseCache)
 
+    public override val context: SerialModule = json.context
+
     // Forces serializer to wrap all values into quotes
     private var forceQuoting: Boolean = false
 
     init {
-        context = json.context
         val i = mode.ordinal
         if (modeReuseCache[i] !== null || modeReuseCache[i] !== this)
             modeReuseCache[i] = this

@@ -30,10 +30,8 @@ import kotlinx.serialization.protobuf.ProtoBuf.Varint.encodeVarint
 class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(context), BinaryFormat {
 
     internal open inner class ProtobufWriter(val encoder: ProtobufEncoder) : TaggedEncoder<ProtoDesc>() {
-
-        init {
-            context = this@ProtoBuf.context
-        }
+        public override val context
+            get() = this@ProtoBuf.context
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder = when (desc.kind) {
             StructureKind.LIST -> RepeatedWriter(encoder, currentTag)
@@ -157,10 +155,8 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
     }
 
     private open inner class ProtobufReader(val decoder: ProtobufDecoder) : TaggedDecoder<ProtoDesc>() {
-
-        init {
-            context = this@ProtoBuf.context
-        }
+        override val context: SerialModule
+            get() = this@ProtoBuf.context
 
         private val indexByTag: MutableMap<Int, Int> = mutableMapOf()
         private fun findIndexByTag(desc: SerialDescriptor, serialId: Int): Int {
@@ -406,6 +402,8 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
     }
 
     companion object: BinaryFormat {
+        public override val context: SerialModule get() = plain.context
+
         // todo: make more memory-efficient
         private fun makeDelimited(decoder: ProtobufDecoder, parentTag: ProtoDesc?): ProtobufDecoder {
             if (parentTag == null) return decoder
@@ -427,7 +425,6 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
         override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray = plain.dump(serializer, obj)
         override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T = plain.load(deserializer, bytes)
         override fun install(module: SerialModule) = throw IllegalStateException("You should not install anything to global instance")
-        override val context: SerialModule get() = plain.context
     }
 
     override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray {

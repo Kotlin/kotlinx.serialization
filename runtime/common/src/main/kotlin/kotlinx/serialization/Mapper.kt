@@ -20,10 +20,9 @@ import kotlinx.serialization.modules.*
 
 class Mapper(context: SerialModule = EmptyModule) : AbstractSerialFormat(context) {
 
-    inner class OutMapper : NamedValueEncoder() {
-        init {
-            this.context = this@Mapper.context
-        }
+    internal inner class OutMapper : NamedValueEncoder() {
+        override val context: SerialModule = this@Mapper.context
+
         override fun beginCollection(
             desc: SerialDescriptor,
             collectionSize: Int,
@@ -47,15 +46,10 @@ class Mapper(context: SerialModule = EmptyModule) : AbstractSerialFormat(context
         }
     }
 
-    inner class OutNullableMapper : NamedValueEncoder() {
-        init {
-            this.context = this@Mapper.context
-        }
+    internal inner class OutNullableMapper : NamedValueEncoder() {
+        override val context: SerialModule = this@Mapper.context
 
-        private var _map: MutableMap<String, Any?> = mutableMapOf()
-
-        val map: Map<String, Any?>
-            get() = _map
+        internal val map: MutableMap<String, Any?> = mutableMapOf()
 
         override fun beginCollection(
             desc: SerialDescriptor,
@@ -67,18 +61,16 @@ class Mapper(context: SerialModule = EmptyModule) : AbstractSerialFormat(context
         }
 
         override fun encodeTaggedValue(tag: String, value: Any) {
-            _map[tag] = value
+            map[tag] = value
         }
 
         override fun encodeTaggedNull(tag: String) {
-            _map[tag] = null
+            map[tag] = null
         }
     }
 
-    inner class InMapper(val map: Map<String, Any>) : NamedValueDecoder() {
-        init {
-            this.context = this@Mapper.context
-        }
+    internal inner class InMapper(val map: Map<String, Any>) : NamedValueDecoder() {
+        override val context: SerialModule = this@Mapper.context
 
         override fun decodeCollectionSize(desc: SerialDescriptor): Int {
             return decodeTaggedInt(nested("size"))
@@ -87,10 +79,8 @@ class Mapper(context: SerialModule = EmptyModule) : AbstractSerialFormat(context
         override fun decodeTaggedValue(tag: String): Any = map.getValue(tag)
     }
 
-    inner class InNullableMapper(val map: Map<String, Any?>) : NamedValueDecoder() {
-        init {
-            this.context = this@Mapper.context
-        }
+    internal inner class InNullableMapper(val map: Map<String, Any?>) : NamedValueDecoder() {
+        override val context: SerialModule = this@Mapper.context
 
         override fun decodeCollectionSize(desc: SerialDescriptor): Int {
             return decodeTaggedInt(nested("size"))

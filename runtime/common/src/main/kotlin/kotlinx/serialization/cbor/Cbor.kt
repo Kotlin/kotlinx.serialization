@@ -52,10 +52,8 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
 
     // Writes class as map [fieldName, fieldValue]
     private open inner class CborWriter(val encoder: CborEncoder) : ElementValueEncoder() {
-
-        init {
-            context = this@Cbor.context
-        }
+        override val context: SerialModule
+            get() = this@Cbor.context
 
         override fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean = encodeDefaults
 
@@ -203,9 +201,8 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
 
     private open inner class CborReader(val decoder: CborDecoder) : ElementValueDecoder() {
 
-        init {
-            context = this@Cbor.context
-        }
+        override val context: SerialModule
+            get() = this@Cbor.context
 
         override val updateMode: UpdateMode
             get() = this@Cbor.updateMode

@@ -5,6 +5,7 @@ package kotlinx.serialization.json.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 
 internal fun <T> Json.readJson(element: JsonElement, deserializer: DeserializationStrategy<T>): T {
     val descriptor = deserializer.descriptor
@@ -28,9 +29,8 @@ internal fun <T> Json.readJson(element: JsonElement, deserializer: Deserializati
 private sealed class AbstractJsonTreeInput(override val json: Json, open val obj: JsonElement)
     : NamedValueDecoder(), JsonInput {
 
-    init {
-        context = json.context
-    }
+    override val context: SerialModule
+        get() = json.context
 
     private fun currentObject() = currentTagOrNull?.let { currentElement(it) } ?: obj
 

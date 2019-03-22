@@ -19,6 +19,7 @@ package kotlinx.serialization.json.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 import kotlin.collections.set
 
 internal fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
@@ -32,6 +33,9 @@ private sealed class AbstractJsonTreeOutput(
     override val json: Json,
     val nodeConsumer: (JsonElement) -> Unit
 ) : NamedValueEncoder(), JsonOutput {
+
+    override val context: SerialModule
+        get() = json.context
 
     override fun encodeJson(element: JsonElement) {
         encodeSerializableValue(JsonElementSerializer, element)
@@ -97,11 +101,6 @@ private sealed class AbstractJsonTreeOutput(
 private open class JsonTreeOutput(final override val json: Json, nodeConsumer: (JsonElement) -> Unit) :
     AbstractJsonTreeOutput(json, nodeConsumer) {
 
-    init {
-        @Suppress("LeakingThis")
-        context = json.context
-    }
-
     protected val content: MutableMap<String, JsonElement> = linkedMapOf()
 
     override fun putElement(key: String, element: JsonElement) {
@@ -134,10 +133,6 @@ private class JsonTreeMapOutput(json: Json, nodeConsumer: (JsonElement) -> Unit)
 private class JsonTreeListOutput(json: Json, nodeConsumer: (JsonElement) -> Unit) :
     AbstractJsonTreeOutput(json, nodeConsumer) {
     private val array: ArrayList<JsonElement> = arrayListOf()
-
-    init {
-        context = json.context
-    }
 
     override fun shouldWriteElement(desc: SerialDescriptor, tag: String, index: Int): Boolean = true
 

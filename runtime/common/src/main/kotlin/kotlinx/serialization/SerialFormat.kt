@@ -7,10 +7,10 @@ import kotlinx.serialization.internal.HexConverter
 private const val INSTALL_DEPRECATION_TEXT = "Install is no longer supported, module can be added to format only in constructor"
 
 interface SerialFormat {
-    @Deprecated(INSTALL_DEPRECATION_TEXT)
-    fun install(module: SerialModule)
-
     val context: SerialModule
+
+    @Deprecated(INSTALL_DEPRECATION_TEXT, level = DeprecationLevel.ERROR)
+    fun install(module: SerialModule)
 }
 
 abstract class AbstractSerialFormat(override val context: SerialModule): SerialFormat {
