@@ -47,10 +47,10 @@ class TaggedTest {
     fun testTagged() {
         val collector = Collector()
         val data = DataWithId(1, "2")
-        collector.encode(data)
+        collector.encode(DataWithId.serializer(), data)
 
         assertEquals(mapOf(1 to 1, 2 to "2", null to Unit, 42 to true), collector.tagList, "see all tags properly")
-        val obj = Emitter(collector).decode(DataWithId::class.serializer())
+        val obj = Emitter(collector).decode(DataWithId.serializer())
         assertEquals(obj, data, "read tags back")
     }
 

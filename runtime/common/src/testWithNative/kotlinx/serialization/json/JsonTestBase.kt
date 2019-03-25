@@ -110,9 +110,9 @@ abstract class JsonTestBase {
         }
     }
 
-    protected fun parametrizedTest(json: Json, test: (StringFormat) -> Unit) {
-        val streamingResult = kotlin.runCatching { test(DualFormat(json, true)) }
-        val treeResult = kotlin.runCatching { test(DualFormat(json, false)) }
+    protected fun parametrizedTest(json: Json, test: StringFormat.(StringFormat) -> Unit) {
+        val streamingResult = kotlin.runCatching { json.test(DualFormat(json, true)) }
+        val treeResult = kotlin.runCatching { json.test(DualFormat(json, false)) }
         processResults(streamingResult, treeResult)
     }
 

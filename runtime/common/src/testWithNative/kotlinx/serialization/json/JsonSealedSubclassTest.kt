@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json
@@ -19,9 +19,9 @@ class JsonSealedSubclassTest : JsonTestBase() {
     @Test
     fun testCallSuperSealedConstructorProperly() = parametrizedTest { useStreaming ->
         val v1 = Var("a")
-        val s1 = strict.stringify(v1, useStreaming)// {"id":"a"}
+        val s1 = strict.stringify(Var.serializer(), v1, useStreaming)// {"id":"a"}
         assertEquals("""{"id":"a"}""", s1)
-        val v2: Var = strict.parse(s1, useStreaming = true) // should not throw IllegalAccessError
+        val v2: Var = strict.parse(Var.serializer(), s1, useStreaming = true) // should not throw IllegalAccessError
         assertEquals(v1, v2)
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json
@@ -31,7 +31,7 @@ class JsonUpdateModeTest : JsonTestBase() {
     fun testCanUpdatePrimitiveList() = parametrizedTest { useStreaming ->
         val parsed =
             Json(unquoted = true, strictMode = false, updateMode = UpdateMode.UPDATE)
-                .parse<Updatable1>("""{l:[1,2],f:foo,l:[3,4]}""", useStreaming)
+                .parse<Updatable1>(Updatable1.serializer(), """{l:[1,2],f:foo,l:[3,4]}""", useStreaming)
         assertEquals(Updatable1(listOf(1,2,3,4)), parsed)
     }
 
@@ -39,7 +39,7 @@ class JsonUpdateModeTest : JsonTestBase() {
     fun testCanUpdateObjectList() = parametrizedTest { useStreaming ->
         val parsed =
             Json(unquoted = true, strictMode = false, updateMode = UpdateMode.UPDATE)
-                .parse<Updatable2>("""{f:bar,l:[{a:42}],l:[{a:43}]}""", useStreaming)
+                .parse<Updatable2>(Updatable2.serializer(), """{f:bar,l:[{a:42}],l:[{a:43}]}""", useStreaming)
         assertEquals(Updatable2(listOf(Data(42), Data(43))), parsed)
     }
 
@@ -47,29 +47,29 @@ class JsonUpdateModeTest : JsonTestBase() {
     fun testCantUpdateNotUpdatable() = parametrizedTest { useStreaming ->
         assertFailsWith<UpdateNotSupportedException> {
             Json(unquoted = true, strictMode = false, updateMode = UpdateMode.UPDATE)
-                .parse<NotUpdatable>("""{d:{a:42},d:{a:43}}""", useStreaming)
+                .parse<NotUpdatable>(NotUpdatable.serializer(), """{d:{a:42},d:{a:43}}""", useStreaming)
         }
     }
 
     @Test
     fun testCanUpdateNullableValuesInside() = parametrizedTest { useStreaming ->
         val json = Json(updateMode = UpdateMode.UPDATE)
-        val a1 = json.parse<NullableInnerIntList>("""{data:[null],data:[1]}""", useStreaming)
+        val a1 = json.parse(NullableInnerIntList.serializer(), """{data:[null],data:[1]}""", useStreaming)
         assertEquals(NullableInnerIntList(listOf(null, 1)), a1)
-        val a2 = json.parse<NullableInnerIntList>("""{data:[42],data:[null]}""", useStreaming)
+        val a2 = json.parse(NullableInnerIntList.serializer(), """{data:[42],data:[null]}""", useStreaming)
         assertEquals(NullableInnerIntList(listOf(42, null)), a2)
-        val a3 = json.parse<NullableInnerIntList>("""{data:[31],data:[1]}""", useStreaming)
+        val a3 = json.parse(NullableInnerIntList.serializer(), """{data:[31],data:[1]}""", useStreaming)
         assertEquals(NullableInnerIntList(listOf(31, 1)), a3)
     }
 
     @Test
     fun testCanUpdateNullableValues() = parametrizedTest { useStreaming ->
         val json = Json(updateMode = UpdateMode.UPDATE)
-        val a1 = json.parse<NullableUpdatable>("""{data:null,data:[{a:42}]}""", useStreaming)
+        val a1 = json.parse(NullableUpdatable.serializer(), """{data:null,data:[{a:42}]}""", useStreaming)
         assertEquals(NullableUpdatable(listOf(Data(42))), a1)
-        val a2 = json.parse<NullableUpdatable>("""{data:[{a:42}],data:null}""", useStreaming)
+        val a2 = json.parse(NullableUpdatable.serializer(), """{data:[{a:42}],data:null}""", useStreaming)
         assertEquals(NullableUpdatable(listOf(Data(42))), a2)
-        val a3 = json.parse<NullableUpdatable>("""{data:[{a:42}],data:[{a:43}]}""", useStreaming)
+        val a3 = json.parse(NullableUpdatable.serializer(), """{data:[{a:42}],data:[{a:43}]}""", useStreaming)
         assertEquals(NullableUpdatable(listOf(Data(42), Data(43))), a3)
     }
 }
