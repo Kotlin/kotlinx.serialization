@@ -4,7 +4,9 @@ This folder contains various samples of setup and usage of kotlinx.serialization
 
 ### Example-multiplatform
 
-Provides setup for multiplatform library with kotlinx.serialization on JVM, JS and Native targets using new multiplatform model from Kotlin 1.3 ('kotlin-multiplatform'  plugin). Also features how one can setup tests for JS.
+Provides setup for multiplatform library with kotlinx.serialization on JVM, JS and Native targets using
+new multiplatform model from Kotlin 1.3 ('kotlin-multiplatform' plugin). Also features how one can
+setup tests for JS.
 
 ### Example-jvm
 
@@ -27,9 +29,23 @@ Provides setup for Gradle using 'kotlin-platform-native' plugin and Gradle metad
 ### Example-visitors
 
 Provides setup for Gradle using **Kotlin Gradle DSL** and 'kotlin.jvm' plugin.
-Showcases how one can use functionality of visiting serializable class descriptors tree to extract different metadata from the class, e.g. Json schema or .proto definition.
-It also features ability to use kotlinx.serialization library in Gradle's [composite build with dependency substitution](https://docs.gradle.org/current/userguide/composite_builds.html#included_build_declaring_substitutions).
+Showcases how one can use functionality of visiting serializable class descriptors tree to extract
+different metadata from the class, e.g. Json schema or .proto definition.
 
 ## Launching samples
 
 You can use `./gradlew run` to run all samples or `./gradlew :folder-name:run` to run a particular sample.
+
+## Opening samples in IDEA
+
+All samples are subprojects of the `kotlinx-serialization-examples` project, located in this folder. 
+Just import the `build.gradle` file into IDEA.
+
+## Grabbing samples
+
+Feel free to copy-paste any particular sample you need.
+Copy folder with sample and its `build.gradle`;
+you can also take the `gradle.properties` file from this folder, since it provides project properties
+with kotlin & serialization versions.
+For `example-multiplatform` and `example-visitors` you may also need 
+`pluginManagement` block from `settings.gradle`.

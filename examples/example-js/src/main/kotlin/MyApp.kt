@@ -10,7 +10,7 @@ import kotlin.browser.document
 data class Data(@SerialId(1) val a: Int, @SerialId(2) val b: String)
 
 @Serializable
-data class DataList(@SerialId(1) @Optional val list: List<Data> = emptyList())
+data class DataList(@SerialId(1) val list: List<Data> = emptyList())
 
 fun main() {
 

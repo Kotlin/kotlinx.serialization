@@ -23,7 +23,7 @@ import kotlin.test.assertEquals
 class JsonTest {
 
     private val originalData = Data("Hello", mapOf(42 to "forty-two"))
-    private val originalString = """{"s":"Hello","m":{42:"forty-two"}}"""
+    private val originalString = """{"s":"Hello","m":{"42":"forty-two"}}"""
 
     @Test
     fun testStringForm() {

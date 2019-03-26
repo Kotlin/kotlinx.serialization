@@ -20,7 +20,7 @@ import kotlinx.serialization.json.JsonObjectSerializer
 import kotlinx.serialization.schema.*
 
 @Serializable
-data class Data(val a: Int, @Optional val b: String = "42")
+data class Data(val a: Int, val b: String = "42")
 
 fun main(args: Array<String>) {
     println(">> Sample of Json schema: ")

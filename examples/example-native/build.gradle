@@ -16,6 +16,9 @@
 
 buildscript {
     ext.serializationRepo = "https://dl.bintray.com/kotlin/kotlinx/"
+    // see ../gradle.properties
+    ext.kotlin_version = mainKotlinVersion
+    ext.serialization_version = mainLibVersion
 
     repositories {
         jcenter()
@@ -24,7 +27,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:1.3.20-eap-100"
+        classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:$mainKotlinVersion"
     }
 }
 
@@ -51,7 +54,7 @@ sourceSets.main {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:0.10.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$mainLibVersion"
 }
 
 task run(type: Exec, dependsOn: "build") {

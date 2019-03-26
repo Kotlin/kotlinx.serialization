@@ -1,4 +1,6 @@
 buildscript {
+    ext.serialization_version = mainLibVersion
+
     repositories {
         mavenCentral()
         jcenter()
@@ -9,14 +11,17 @@ buildscript {
     }
 }
 
+// see ../settings.gradle so this plugins could be resolved
 plugins {
-    id 'kotlin-multiplatform' version '1.3.20'
-    id 'kotlinx-serialization' version '1.3.20'
+    id 'kotlin-multiplatform'
+    id 'kotlinx-serialization'
 }
+
 repositories {
     mavenCentral()
     maven { url "https://kotlin.bintray.com/kotlinx" }
 }
+
 group 'com.example'
 version '0.0.1'
 
@@ -45,7 +50,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation kotlin('stdlib-common')
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:0.10.0"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serialization_version"
             }
         }
         commonTest {
@@ -57,7 +62,7 @@ kotlin {
         jvmMain {
             dependencies {
                 implementation kotlin('stdlib-jdk8')
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.10.0"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
             }
         }
         jvmTest {
@@ -69,7 +74,7 @@ kotlin {
         jsMain {
             dependencies {
                 implementation kotlin('stdlib-js')
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:0.10.0"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
             }
         }
         jsTest {
@@ -79,7 +84,7 @@ kotlin {
         }
         macosMain {
             dependencies {
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:0.10.0"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$serialization_version"
             }
         }
         macosTest {
