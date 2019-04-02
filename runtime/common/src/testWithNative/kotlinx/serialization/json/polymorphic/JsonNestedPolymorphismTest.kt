@@ -5,13 +5,15 @@
 package kotlinx.serialization.json.polymorphic
 
 import kotlinx.serialization.*
-import kotlinx.serialization.modules.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 import kotlin.test.*
 
 class JsonNestedPolymorphismTest : JsonTestBase() {
 
-    private val polymorphicJson = Json(unquoted = true, context = SerializersModule {
+    private val polymorphicJson = Json {
+        unquoted = true
+        serialModule = SerializersModule {
         polymorphic(Any::class, InnerBase::class) {
             addSubclass(InnerImpl.serializer())
             addSubclass(InnerImpl2.serializer())
@@ -20,13 +22,15 @@ class JsonNestedPolymorphismTest : JsonTestBase() {
         polymorphic(Any::class) {
             addSubclass(OuterImpl.serializer())
         }
-    })
+    }
+    }
 
     @Serializable
-    private data class NestedGenericsList(val list: List<List<@Polymorphic Any>>)
+    internal data class NestedGenericsList(val list: List<List<@Polymorphic Any>>)
 
     @Test
     fun testAnyList() = parametrizedTest(
+        NestedGenericsList.serializer(),
         NestedGenericsList(listOf(listOf(InnerImpl(1)), listOf(InnerImpl(2)))),
         "{list:[[" +
                 "{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:1,str:default,nullable:null}],[" +
@@ -34,19 +38,21 @@ class JsonNestedPolymorphismTest : JsonTestBase() {
         polymorphicJson)
 
     @Serializable
-    private data class NestedGenericsMap(val list: Map<String, Map<String, @Polymorphic Any>>)
+    internal data class NestedGenericsMap(val list: Map<String, Map<String, @Polymorphic Any>>)
 
     @Test
     fun testAnyMap() = parametrizedTest(
+        NestedGenericsMap.serializer(),
         NestedGenericsMap(mapOf("k1" to mapOf("k1" to InnerImpl(1)))),
         "{list:{k1:{k1:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:1,str:default,nullable:null}}}}",
         polymorphicJson)
 
     @Serializable
-    private data class AnyWrapper(@Polymorphic val any: Any)
+    internal data class AnyWrapper(@Polymorphic val any: Any)
 
     @Test
     fun testAny() = parametrizedTest(
+        AnyWrapper.serializer(),
         AnyWrapper(OuterImpl(InnerImpl2(1), InnerImpl(2))),
         "{any:" +
                 "{type:kotlinx.serialization.json.polymorphic.OuterImpl,base:{type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:1}," +

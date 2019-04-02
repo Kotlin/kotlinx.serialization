@@ -12,6 +12,7 @@ class JsonPropertyPolymorphicTest : JsonTestBase() {
 
     @Test
     fun testPolymorphicProperties() = parametrizedTest(
+        InnerBox.serializer(),
         InnerBox(InnerImpl(42, "foo")),
         "{base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}}",
         polymorphicJson)
@@ -26,6 +27,7 @@ class JsonPropertyPolymorphicTest : JsonTestBase() {
 
     @Test
     fun testNestedPolymorphicProperties() = parametrizedTest(
+        OuterBox.serializer(),
         OuterBox(OuterImpl(InnerImpl(42), InnerImpl2(42)), InnerImpl2(239)),
         "{outerBase:{" +
                 "type:kotlinx.serialization.json.polymorphic.OuterImpl," +
@@ -36,15 +38,17 @@ class JsonPropertyPolymorphicTest : JsonTestBase() {
 
     @Test
     fun testPolymorphicNullableProperties() = parametrizedTest(
+        InnerNullableBox.serializer(),
         InnerNullableBox(InnerImpl(42, "foo")),
         "{base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}}",
         polymorphicJson)
 
     @Test
-    fun testPolymorphicNullablePropertiesWithNull() = parametrizedTest(InnerNullableBox(null), "{base:null}", polymorphicJson)
+    fun testPolymorphicNullablePropertiesWithNull() = parametrizedTest(InnerNullableBox.serializer(), InnerNullableBox(null), "{base:null}", polymorphicJson)
 
     @Test
     fun testNestedPolymorphicNullableProperties() = parametrizedTest(
+        OuterNullableBox.serializer(),
         OuterNullableBox(OuterNullableImpl(InnerImpl(42), null), InnerImpl2(239)),
         "{outerBase:{" +
                 "type:kotlinx.serialization.json.polymorphic.OuterNullableImpl," +

@@ -79,7 +79,7 @@ class PolymorphicOnClassesTest {
 
     @Test
     fun testEnablesImplicitlyOnInterfacesAndAbstractClasses() {
-        val json = Json(unquoted = true, indented = false, useArrayPolymorphism = true, context = testModule)
+        val json = Json { unquoted = true; prettyPrint = false; useArrayPolymorphism = true; serialModule = testModule }
         val data = genTestData()
         assertEquals("""{iMessage:[MessageWithId,{id:0,body:"Message #0"}],iMessageList:[[MessageWithId,{id:1,body:"Message #1"}],[MessageWithId,{id:2,body:"Message #2"}]],message:[MessageWithId,{id:3,body:"Message #3"}],msgSet:[[SimpleMessage,{body:Simple}]],simple:[DoubleSimpleMessage,{body:Simple,body2:DoubleSimple}],withId:{id:4,body:"Message #4"}}""", json.stringify(Holder.serializer(), data))
     }

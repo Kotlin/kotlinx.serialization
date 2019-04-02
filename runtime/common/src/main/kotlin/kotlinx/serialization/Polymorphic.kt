@@ -2,8 +2,6 @@
  * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:Suppress("RedundantVisibilityModifier")
-
 package kotlinx.serialization
 
 import kotlinx.serialization.PolymorphicClassDescriptor.kind
@@ -85,9 +83,7 @@ public class PolymorphicSerializer<T : Any>(private val baseClass: KClass<T>) : 
 
     @Suppress("UNCHECKED_CAST")
     public override fun serialize(encoder: Encoder, obj: Any) {
-        val actualSerializer = encoder.context.getPolymorphic(baseClass, obj as T)
-                ?: throwSubtypeNotRegistered(obj::class, baseClass)
-
+        val actualSerializer = findPolymorphicSerializer(encoder, obj)
         val compositeEncoder = encoder.beginStructure(descriptor)
         compositeEncoder.encodeStringElement(descriptor, 0, actualSerializer.descriptor.name)
         compositeEncoder.encodeSerializableElement(descriptor, 1, actualSerializer as KSerializer<Any>, obj)
@@ -102,9 +98,8 @@ public class PolymorphicSerializer<T : Any>(private val baseClass: KClass<T>) : 
             when (val index = compositeDecoder.decodeElementIndex(descriptor)) {
                 CompositeDecoder.READ_ALL -> {
                     klassName = compositeDecoder.decodeStringElement(descriptor, 0)
-                    val loader = compositeDecoder.context.getPolymorphic(baseClass, klassName)
-                            ?: throwSubtypeNotRegistered(klassName, baseClass)
-                    value = compositeDecoder.decodeSerializableElement(descriptor, 1, loader)
+                    val serializer = findPolymorphicSerializer(compositeDecoder, klassName)
+                    value = compositeDecoder.decodeSerializableElement(descriptor, 1, serializer)
                     break@mainLoop
                 }
                 CompositeDecoder.READ_DONE -> {
@@ -115,9 +110,8 @@ public class PolymorphicSerializer<T : Any>(private val baseClass: KClass<T>) : 
                 }
                 1 -> {
                     klassName = requireNotNull(klassName) { "Cannot read polymorphic value before its type token" }
-                    val loader = compositeDecoder.context.getPolymorphic(baseClass, klassName)
-                            ?: throwSubtypeNotRegistered(klassName, baseClass)
-                    value = compositeDecoder.decodeSerializableElement(descriptor, index, loader)
+                    val serializer = findPolymorphicSerializer(compositeDecoder, klassName)
+                    value = compositeDecoder.decodeSerializableElement(descriptor, index, serializer)
                 }
                 else -> throw SerializationException("Invalid index in polymorphic deserialization of " +
                         "${klassName ?: "unknown class"} with base $baseClass" +
@@ -130,23 +124,24 @@ public class PolymorphicSerializer<T : Any>(private val baseClass: KClass<T>) : 
     }
 
     /**
-     * Lookup of the polymorphic serializer by given [fqnClassName] in the context of [decoder] by the base class [basePolyType].
+     * Lookups a polymorphic serializer by given [klassName] in the context of [decoder] by the current [base class][baseClass].
      * Throws [SerializationException] if serializer is not found.
      */
     public fun findPolymorphicSerializer(
-        input: CompositeDecoder,
+        decoder: CompositeDecoder,
         klassName: String
-    ): KSerializer<out T> = input.context.getPolymorphic(baseClass, klassName)
+    ): KSerializer<out T> = decoder.context.getPolymorphic(baseClass, klassName)
         ?: throwSubtypeNotRegistered(klassName, baseClass)
+
     /**
-     * Lookup of the polymorphic serializer for given [value] in the context of [encoder] by the base class [basePolyType].
+     * Lookups a polymorphic serializer by given [value] in the context of [encoder] by the current [base class][baseClass].
      * Throws [SerializationException] if serializer is not found.
      */
     @Suppress("UNCHECKED_CAST")
     public fun findPolymorphicSerializer(
-        output: Encoder,
+        encoder: Encoder,
         value: Any
-    ): KSerializer<out T> = output.context.getPolymorphic(baseClass, value as T) ?: throwSubtypeNotRegistered(value::class, baseClass)
+    ): KSerializer<out T> = encoder.context.getPolymorphic(baseClass, value as T) ?: throwSubtypeNotRegistered(value::class, baseClass)
 }
 
 

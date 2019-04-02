@@ -50,4 +50,7 @@ internal val polymorphicTestModule = SerializersModule {
     }
 }
 
-internal val polymorphicJson = Json(unquoted = true, context = polymorphicTestModule)
+internal val polymorphicJson = Json {
+    unquoted = true
+    serialModule = polymorphicTestModule
+}

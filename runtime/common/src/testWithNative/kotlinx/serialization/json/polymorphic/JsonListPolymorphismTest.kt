@@ -11,10 +11,11 @@ import kotlin.test.*
 class JsonListPolymorphismTest : JsonTestBase() {
 
     @Serializable
-    private data class ListWrapper(val list: List<@Polymorphic InnerBase>)
+    internal data class ListWrapper(val list: List<@Polymorphic InnerBase>)
 
     @Test
     fun testPolymorphicValues() = parametrizedTest(
+        ListWrapper.serializer(),
         ListWrapper(listOf(InnerImpl(1), InnerImpl2(2))),
         "{list:[" +
                 "{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:1,str:default,nullable:null}," +
@@ -22,10 +23,11 @@ class JsonListPolymorphismTest : JsonTestBase() {
         polymorphicJson)
 
     @Serializable
-    private data class ListNullableWrapper(val list: List<@Polymorphic InnerBase?>)
+    internal data class ListNullableWrapper(val list: List<@Polymorphic InnerBase?>)
 
     @Test
     fun testPolymorphicNullableValues() = parametrizedTest(
+        ListNullableWrapper.serializer(),
         ListNullableWrapper(listOf(InnerImpl(1), null)),
         "{list:[" +
                 "{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:1,str:default,nullable:null}," +
@@ -36,7 +38,7 @@ class JsonListPolymorphismTest : JsonTestBase() {
     fun testPolymorphicNullableValuesWithNonNullSerializerFails() =
         parametrizedTest { useStreaming ->
             val wrapper = ListNullableWrapper(listOf(InnerImpl(1), null))
-            val serialized = polymorphicJson.stringify(wrapper, useStreaming)
+            val serialized = polymorphicJson.stringify(ListNullableWrapper.serializer(), wrapper, useStreaming)
             assertFails { polymorphicJson.parse(ListWrapper.serializer(), serialized, useStreaming) }
         }
 }

@@ -30,7 +30,7 @@ class JsonUpdateModeTest : JsonTestBase() {
     @Test
     fun testCanUpdatePrimitiveList() = parametrizedTest { useStreaming ->
         val parsed =
-            Json(unquoted = true, strictMode = false, updateMode = UpdateMode.UPDATE)
+            Json { unquoted = true; strictMode = false }
                 .parse<Updatable1>(Updatable1.serializer(), """{l:[1,2],f:foo,l:[3,4]}""", useStreaming)
         assertEquals(Updatable1(listOf(1,2,3,4)), parsed)
     }
@@ -38,7 +38,7 @@ class JsonUpdateModeTest : JsonTestBase() {
     @Test
     fun testCanUpdateObjectList() = parametrizedTest { useStreaming ->
         val parsed =
-            Json(unquoted = true, strictMode = false, updateMode = UpdateMode.UPDATE)
+            Json { unquoted = true; strictMode = false}
                 .parse<Updatable2>(Updatable2.serializer(), """{f:bar,l:[{a:42}],l:[{a:43}]}""", useStreaming)
         assertEquals(Updatable2(listOf(Data(42), Data(43))), parsed)
     }
@@ -46,14 +46,14 @@ class JsonUpdateModeTest : JsonTestBase() {
     @Test
     fun testCantUpdateNotUpdatable() = parametrizedTest { useStreaming ->
         assertFailsWith<UpdateNotSupportedException> {
-            Json(unquoted = true, strictMode = false, updateMode = UpdateMode.UPDATE)
+            Json { unquoted = true; strictMode = false }
                 .parse<NotUpdatable>(NotUpdatable.serializer(), """{d:{a:42},d:{a:43}}""", useStreaming)
         }
     }
 
     @Test
     fun testCanUpdateNullableValuesInside() = parametrizedTest { useStreaming ->
-        val json = Json(updateMode = UpdateMode.UPDATE)
+        val json = Json(JsonConfiguration.Default)
         val a1 = json.parse(NullableInnerIntList.serializer(), """{data:[null],data:[1]}""", useStreaming)
         assertEquals(NullableInnerIntList(listOf(null, 1)), a1)
         val a2 = json.parse(NullableInnerIntList.serializer(), """{data:[42],data:[null]}""", useStreaming)
@@ -64,7 +64,7 @@ class JsonUpdateModeTest : JsonTestBase() {
 
     @Test
     fun testCanUpdateNullableValues() = parametrizedTest { useStreaming ->
-        val json = Json(updateMode = UpdateMode.UPDATE)
+        val json = Json(JsonConfiguration.Default)
         val a1 = json.parse(NullableUpdatable.serializer(), """{data:null,data:[{a:42}]}""", useStreaming)
         assertEquals(NullableUpdatable(listOf(Data(42))), a1)
         val a2 = json.parse(NullableUpdatable.serializer(), """{data:[{a:42}],data:null}""", useStreaming)

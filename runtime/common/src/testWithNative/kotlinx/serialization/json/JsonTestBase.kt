@@ -10,9 +10,9 @@ import kotlinx.serialization.modules.*
 import kotlin.test.assertEquals
 
 abstract class JsonTestBase {
-    protected val strict = Json()
-    protected val unquoted = Json(unquoted = true)
-    protected val nonStrict = Json(strictMode = false)
+    protected val strict = Json(JsonConfiguration.Default)
+    protected val unquoted = Json { unquoted = true }
+    protected val nonStrict = Json { strictMode = false }
 
     @ImplicitReflectionSerializer
     internal inline fun <reified T : Any> Json.stringify(value: T, useStreaming: Boolean): String {
@@ -125,11 +125,11 @@ abstract class JsonTestBase {
         assertEquals(streamingResult.getOrNull()!!, treeResult.getOrNull()!!)
     }
 
-    internal inline fun <reified T: Any> parametrizedTest(data: T, expected: String, json: Json = unquoted) {
+    internal fun <T: Any> parametrizedTest(serializer: KSerializer<T>, data: T, expected: String, json: Json = unquoted) {
         parametrizedTest { useStreaming ->
-            val serialized = json.stringify(data, useStreaming)
+            val serialized = json.stringify(serializer, data, useStreaming)
             assertEquals(expected, serialized)
-            val deserialized: T = json.parse(serialized, useStreaming)
+            val deserialized: T = json.parse(serializer, serialized, useStreaming)
             assertEquals(data, deserialized)
         }
     }

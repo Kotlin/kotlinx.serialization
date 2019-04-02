@@ -21,6 +21,7 @@ import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.collections.set
+import kotlin.jvm.*
 
 internal fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
     lateinit var result: JsonElement
@@ -30,12 +31,15 @@ internal fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>):
 }
 
 private sealed class AbstractJsonTreeOutput(
-    override val json: Json,
+    final override val json: Json,
     val nodeConsumer: (JsonElement) -> Unit
 ) : NamedValueEncoder(), JsonOutput {
 
-    override val context: SerialModule
+    final override val context: SerialModule
         get() = json.context
+
+    @JvmField
+    protected val configuration = json.configuration
 
     private var writePolymorphic = false
 
@@ -43,7 +47,7 @@ private sealed class AbstractJsonTreeOutput(
         encodeSerializableValue(JsonElementSerializer, element)
     }
 
-    override fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean = json.encodeDefaults
+    override fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean = configuration.encodeDefaults
     override fun composeName(parentName: String, childName: String): String = childName
     abstract fun putElement(key: String, element: JsonElement)
     abstract fun getCurrent(): JsonElement
@@ -56,7 +60,7 @@ private sealed class AbstractJsonTreeOutput(
     override fun encodeTaggedLong(tag: String, value: Long) = putElement(tag, JsonLiteral(value))
 
     override fun encodeTaggedFloat(tag: String, value: Float) {
-        if (json.strictMode && !value.isFinite()) {
+        if (configuration.strictMode && !value.isFinite()) {
             throw JsonInvalidValueInStrictModeException(value)
         }
 
@@ -70,7 +74,7 @@ private sealed class AbstractJsonTreeOutput(
     }
 
     override fun encodeTaggedDouble(tag: String, value: Double) {
-        if (json.strictMode && !value.isFinite()) {
+        if (configuration.strictMode && !value.isFinite()) {
             throw JsonInvalidValueInStrictModeException(value)
         }
 
@@ -103,7 +107,7 @@ private sealed class AbstractJsonTreeOutput(
 
         if (writePolymorphic) {
             writePolymorphic = false
-            encoder.putElement(json.classDiscriminator, JsonPrimitive(desc.name))
+            encoder.putElement(configuration.classDiscriminator, JsonPrimitive(desc.name))
         }
 
         return encoder
@@ -114,7 +118,7 @@ private sealed class AbstractJsonTreeOutput(
     }
 }
 
-private open class JsonTreeOutput(final override val json: Json, nodeConsumer: (JsonElement) -> Unit) :
+private open class JsonTreeOutput(json: Json, nodeConsumer: (JsonElement) -> Unit) :
     AbstractJsonTreeOutput(json, nodeConsumer) {
 
     protected val content: MutableMap<String, JsonElement> = linkedMapOf()

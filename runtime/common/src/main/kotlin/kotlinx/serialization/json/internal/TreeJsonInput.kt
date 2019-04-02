@@ -6,6 +6,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
+import kotlin.jvm.*
 
 internal fun <T> Json.readJson(element: JsonElement, deserializer: DeserializationStrategy<T>): T {
     val descriptor = deserializer.descriptor
@@ -32,12 +33,16 @@ private sealed class AbstractJsonTreeInput(override val json: Json, open val obj
     override val context: SerialModule
         get() = json.context
 
+    @JvmField
+    protected val configuration = json.configuration
+
     private fun currentObject() = currentTagOrNull?.let { currentElement(it) } ?: obj
 
     override fun decodeJson(): JsonElement = currentObject()
 
+    @Suppress("DEPRECATION")
     override val updateMode: UpdateMode
-        get() = json.updateMode
+        get() = configuration.updateMode
 
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
         return decodeSerializableValuePolymorphic(deserializer)
@@ -119,7 +124,7 @@ private open class JsonTreeInput(json: Json, override val obj: JsonObject) : Abs
     override fun currentElement(tag: String): JsonElement = obj.getValue(tag)
 
     override fun endStructure(desc: SerialDescriptor) {
-        if (!json.strictMode || desc is PolymorphicClassDescriptor) return
+        if (!configuration.strictMode || desc is PolymorphicClassDescriptor) return
 
         // Validate keys
         val names = HashSet<String>(desc.elementsCount)

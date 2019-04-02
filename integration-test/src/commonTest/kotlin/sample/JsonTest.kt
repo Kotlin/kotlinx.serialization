@@ -62,7 +62,7 @@ class JsonTest {
 
     @Test
     fun testEnablesImplicitlyOnInterfacesAndAbstractClasses() {
-        val json = Json(unquoted = true, indented = false, context = testModule)
+        val json = Json { useArrayPolymorphism = true; unquoted = true; prettyPrint = false; serialModule = testModule }
         val data = genTestData()
         assertEquals("""{iMessage:[MessageWithId,{id:0,body:"Message #0"}],iMessageList:[[MessageWithId,{id:1,body:"Message #1"}],[MessageWithId,{id:2,body:"Message #2"}]],message:[MessageWithId,{id:3,body:"Message #3"}],msgSet:[[SimpleMessage,{body:Simple}]],simple:[DoubleSimpleMessage,{body:Simple,body2:DoubleSimple}],withId:{id:4,body:"Message #4"}}""", json.stringify(Holder.serializer(), data))
     }
@@ -139,9 +139,9 @@ class JsonTest {
     }
 
     @Test
-    fun withModules() {
-        val json =
-            Json(context = SerializersModule { polymorphic(Any::class) { IntData::class with IntData.serializer() } })
+    fun testWithModules() {
+        val json = Json {
+            useArrayPolymorphism = true; serialModule = SerializersModule { polymorphic(Any::class) { IntData::class with IntData.serializer() } } }
         assertStringFormAndRestored(
             expected = """{"data":{"a":["sample.IntData",{"intV":42}]}}""",
             original = MyPolyData(mapOf("a" to IntData(42))),
@@ -175,8 +175,8 @@ class JsonTest {
 
 
     @Test
-    fun rebindModules() {
-        val json = Json(context = baseAndDerivedModuleAtAny)
+    fun testRebindModules() {
+        val json = Json { useArrayPolymorphism = true; serialModule =  baseAndDerivedModuleAtAny }
         assertStringFormAndRestored(
             expected = """{"data":{"a":["sample.PolyDerived",{"id":1,"s":"foo"}]}}""",
             original = MyPolyData(mapOf("a" to PolyDerived("foo"))),
@@ -203,8 +203,8 @@ class JsonTest {
     }
 
     @Test
-    fun bindModules() {
-        val json = Json(context = (baseAndDerivedModuleAtAny + BaseAndDerivedModule))
+    fun testBindModules() {
+        val json = Json { useArrayPolymorphism = true; serialModule = (baseAndDerivedModuleAtAny + BaseAndDerivedModule) }
         assertStringFormAndRestored(
             expected = """{"data":{"a":["sample.PolyDerived",{"id":1,"s":"foo"}]},"polyBase":["sample.PolyDerived",{"id":1,"s":"foo"}]}""",
             original = MyPolyDataWithPolyBase(mapOf("a" to PolyDerived("foo")), PolyDerived("foo")),
