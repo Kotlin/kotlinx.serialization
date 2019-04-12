@@ -5,8 +5,7 @@
 package kotlinx.serialization.json.serializers
 
 import kotlinx.serialization.json.*
-import kotlinx.serialization.test.assertStringForm
-import kotlinx.serialization.test.assertStringFormAndRestored
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class JsonArraySerializerTest : JsonTestBase() {

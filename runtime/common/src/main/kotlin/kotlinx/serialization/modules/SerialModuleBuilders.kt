@@ -10,7 +10,6 @@ import kotlinx.serialization.*
 import kotlin.jvm.JvmField
 import kotlin.reflect.KClass
 
-
 /**
  * Returns a [SerialModule] which has one class with one serializer for [ContextSerializer].
  */
@@ -138,15 +137,14 @@ public class SerializersModuleBuilder internal constructor(@JvmField internal va
      */
     @Suppress("UNCHECKED_CAST")
     public fun polymorphic(
+        baseClass: KClass<*>,
         vararg baseClasses: KClass<*>,
         buildAction: PolymorphicModuleBuilder<Any>.() -> Unit = {}
     ) {
-        if (baseClasses.isEmpty()) return
-        val firstBase = baseClasses[0]
-        val builder = PolymorphicModuleBuilder(firstBase as KClass<Any>, null)
+        val builder = PolymorphicModuleBuilder(baseClass as KClass<Any>, null)
         builder.buildAction()
         builder.buildTo(impl)
-        for (base in baseClasses.drop(1)) {
+        for (base in baseClasses) {
             builder.changeBase(base as KClass<Any>, null).buildTo(impl)
         }
     }

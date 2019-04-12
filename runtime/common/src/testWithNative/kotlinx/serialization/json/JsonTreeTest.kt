@@ -44,7 +44,7 @@ class JsonTreeTest : JsonTestBase() {
         val S: String
     )
 
-    private val json = Json()
+    private val json = Json(JsonConfiguration.Default)
     private fun prepare(input: String): JsonElement = strict.parseJson(input)
 
     @Test
@@ -115,7 +115,7 @@ class JsonTreeTest : JsonTestBase() {
     }
 
     private inline fun <reified T: Any> writeAndTest(obj: T, serial: KSerializer<T>, printDiagnostics: Boolean = false): Pair<JsonElement, T> {
-        val tree = Json().toJson(serial, obj)
+        val tree = json.toJson(serial, obj)
         val str = tree.toString()
         if (printDiagnostics) println(str)
         val restored = json.fromJson(serial, json.parseJson(str))

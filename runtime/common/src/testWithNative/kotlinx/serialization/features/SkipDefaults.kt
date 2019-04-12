@@ -17,8 +17,8 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.cbor.Cbor
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.cbor.*
+import kotlinx.serialization.json.*
 import kotlin.test.*
 
 @Serializable
@@ -29,7 +29,7 @@ data class Data(val bar: String, val foo: Int = 42) {
 }
 
 class SkipDefaultsTest {
-    private val json = Json(encodeDefaults = false)
+    private val json = Json { encodeDefaults = false }
     private val cbor = Cbor(encodeDefaults = false)
 
     @Test

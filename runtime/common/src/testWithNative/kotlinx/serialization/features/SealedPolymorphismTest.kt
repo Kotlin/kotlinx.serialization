@@ -36,10 +36,10 @@ sealed class Foo {
     data class Baz(val baz: Int) : Foo()
 }
 
-
 class SealedPolymorphismTest {
+
     @Test
-    fun saveSealedClassesList() {
+    fun testSaveSealedClassesList() {
         val holder = FooHolder(42, listOf(Foo.Bar(1), Foo.Baz(2)))
         val json = Json(context = SerializersModule {
             polymorphic(Foo::class) {
@@ -47,7 +47,10 @@ class SealedPolymorphismTest {
                 Foo.Baz::class with Foo.Baz.serializer()
             }
         })
+
         val s = json.stringify(FooHolder.serializer(), holder)
-        assertEquals("""{"someMetadata":42,"payload":[["kotlinx.serialization.features.Foo.Bar",{"bar":1}],["kotlinx.serialization.features.Foo.Baz",{"baz":2}]]}""", s)
+        assertEquals("""{"someMetadata":42,"payload":[
+            |{"type":"kotlinx.serialization.features.Foo.Bar","bar":1},
+            |{"type":"kotlinx.serialization.features.Foo.Baz","baz":2}]}""".trimMargin().replace("\n", ""), s)
     }
 }

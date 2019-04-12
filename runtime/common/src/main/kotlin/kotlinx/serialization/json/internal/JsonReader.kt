@@ -147,8 +147,8 @@ internal class JsonReader(private val source: String) {
         nextToken()
     }
 
-    internal inline fun requireTokenClass(expected: Byte, lazyErrorMsg: () -> String) {
-        if (tokenClass != expected) fail(tokenPosition, lazyErrorMsg())
+    internal inline fun requireTokenClass(expected: Byte, errorMessage: (Char) -> String) {
+        if (tokenClass != expected) fail(tokenPosition, errorMessage(tokenClass.toChar()))
     }
 
     fun takeString(): String {
@@ -324,12 +324,11 @@ private fun rangeEquals(source: String, start: Int, length: Int, str: String): B
     return true
 }
 
-internal inline fun require(condition: Boolean, pos: Int, msg: () -> String) {
-    if (!condition)
-        fail(pos, msg())
+internal inline fun require(condition: Boolean, position: Int, msg: () -> String) {
+    if (!condition) fail(position, msg())
 }
 
 @Suppress("NOTHING_TO_INLINE")
-internal inline fun fail(pos: Int, msg: String): Nothing {
-    throw JsonParsingException(pos, msg)
+internal inline fun fail(position: Int, msg: String): Nothing {
+    throw JsonParsingException(position, msg)
 }

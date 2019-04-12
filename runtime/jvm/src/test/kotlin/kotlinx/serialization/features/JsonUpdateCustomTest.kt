@@ -43,8 +43,7 @@ class JsonUpdateCustomTest {
     @Test
     fun canUpdateCustom() {
         val parsed: Updatable =
-                Json(unquoted = true, strictMode = false, updateMode = UpdateMode.UPDATE)
-                        .parse("""{d:{a:42},d:{a:43}}""")
+                Json { unquoted = true; strictMode = false }.parse("""{d:{a:42},d:{a:43}}""")
         assertEquals(Data(42 + 43), parsed.d)
     }
 
@@ -53,14 +52,14 @@ class JsonUpdateCustomTest {
 
     @Test
     fun canUpdateMap() {
-        val json = Json(updateMode = UpdateMode.UPDATE)
+        val json = Json()
         val parsed = json.parse(WrappedMap.serializer(IntSerializer), """{"mp": { "x" : 23, "x" : 42, "y": 4 }}""")
         assertEquals(WrappedMap(mapOf("x" to 42, "y" to 4)), parsed)
     }
 
     @Test
     fun canUpdateValuesInMap() {
-        val json = Json(updateMode = UpdateMode.UPDATE)
+        val json = Json()
         val parsed = json.parse(WrappedMap.serializer(IntSerializer.list), """{"mp": { "x" : [23], "x" : [42], "y": [4] }}""")
         assertEquals(WrappedMap(mapOf("x" to listOf(23, 42), "y" to listOf(4))), parsed)
     }

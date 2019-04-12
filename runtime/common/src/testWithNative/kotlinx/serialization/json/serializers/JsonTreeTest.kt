@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json.serializers
@@ -9,7 +9,7 @@ import kotlin.test.*
 
 class JsonTreeTest {
 
-    private fun parse(input: String): JsonElement = Json().parse(JsonElementSerializer, input)
+    private fun parse(input: String): JsonElement = Json.plain.parse(JsonElementSerializer, input)
 
     @Test
     fun testParseWithoutExceptions() { 

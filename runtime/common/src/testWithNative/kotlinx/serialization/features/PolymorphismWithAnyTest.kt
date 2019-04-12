@@ -12,8 +12,8 @@ import kotlinx.serialization.test.assertStringFormAndRestored
 import kotlinx.serialization.test.isJs
 import kotlin.test.*
 
-
 class PolymorphismWithAnyTest {
+
     @Serializable
     data class MyPolyData(val data: Map<String, @Polymorphic Any>)
 
@@ -24,7 +24,7 @@ class PolymorphismWithAnyTest {
     )
 
     @Test
-    fun withoutModules() = assertStringFormAndRestored(
+    fun testWithoutModules() = assertStringFormAndRestored(
         expected = """{"data":{"stringKey":["kotlin.String","string1"],"mapKey":["kotlin.collections.HashMap",[["kotlin.String","nestedKey"],["kotlin.String","nestedValue"]]],"listKey":["kotlin.collections.ArrayList",[["kotlin.String","foo"]]]}}""",
         original = MyPolyData(
             linkedMapOf(
@@ -33,7 +33,8 @@ class PolymorphismWithAnyTest {
                 "listKey" to listOf("foo")
             )
         ),
-        serializer = MyPolyData.serializer()
+        serializer = MyPolyData.serializer(),
+        format = Json { useArrayPolymorphism = true }
     )
 
     // KClass.toString() on JS prints simple name, not FQ one
@@ -47,24 +48,23 @@ class PolymorphismWithAnyTest {
     }
 
     @Test
-    fun failWithoutModulesWithCustomClass() {
+    fun testFailWithoutModulesWithCustomClass() {
         checkNotRegisteredMessage(
             "kotlinx.serialization.IntData", "kotlin.Any",
             assertFailsWith<SerializationException>("not registered") {
-            Json.stringify(
-                MyPolyData.serializer(),
-                MyPolyData(mapOf("a" to IntData(42)))
-            )
+                Json.stringify(
+                    MyPolyData.serializer(),
+                    MyPolyData(mapOf("a" to IntData(42)))
+                )
             }
         )
     }
 
     @Test
-    fun withModules() {
-        val json =
-            Json(context = SerializersModule { polymorphic(Any::class) { IntData::class with IntData.serializer() } })
+    fun testWithModules() {
+        val json = Json(context = SerializersModule { polymorphic(Any::class) { IntData::class with IntData.serializer() } })
         assertStringFormAndRestored(
-            expected = """{"data":{"a":["kotlinx.serialization.IntData",{"intV":42}]}}""",
+            expected = """{"data":{"a":{"type":"kotlinx.serialization.IntData","intV":42}}}""",
             original = MyPolyData(mapOf("a" to IntData(42))),
             serializer = MyPolyData.serializer(),
             format = json
@@ -75,7 +75,7 @@ class PolymorphismWithAnyTest {
      * This test should fail because PolyDerived registered in the scope of PolyBase, not kotlin.Any
      */
     @Test
-    fun failWithModulesNotInAnyScope() {
+    fun testFailWithModulesNotInAnyScope() {
         val json = Json(context = BaseAndDerivedModule)
         checkNotRegisteredMessage(
             "kotlinx.serialization.features.PolyDerived", "kotlin.Any",
@@ -96,10 +96,10 @@ class PolymorphismWithAnyTest {
 
 
     @Test
-    fun rebindModules() {
+    fun testRebindModules() {
         val json = Json(context = baseAndDerivedModuleAtAny)
         assertStringFormAndRestored(
-            expected = """{"data":{"a":["kotlinx.serialization.features.PolyDerived",{"id":1,"s":"foo"}]}}""",
+            expected = """{"data":{"a":{"type":"kotlinx.serialization.features.PolyDerived","id":1,"s":"foo"}}}""",
             original = MyPolyData(mapOf("a" to PolyDerived("foo"))),
             serializer = MyPolyData.serializer(),
             format = json
@@ -110,24 +110,25 @@ class PolymorphismWithAnyTest {
      * This test should fail because PolyDerived registered in the scope of kotlin.Any, not PolyBase
      */
     @Test
-    fun failWithModulesNotInParticularScope() {
+    fun testFailWithModulesNotInParticularScope() {
         val json = Json(context = baseAndDerivedModuleAtAny)
         checkNotRegisteredMessage(
             "kotlinx.serialization.features.PolyDerived", "kotlinx.serialization.features.PolyBase",
-            assertFailsWith<SerializationException> {
-            json.stringify(
-                MyPolyDataWithPolyBase.serializer(),
-                MyPolyDataWithPolyBase(mapOf("a" to PolyDerived("foo")), PolyDerived("foo"))
-            )
+            assertFailsWith {
+                json.stringify(
+                    MyPolyDataWithPolyBase.serializer(),
+                    MyPolyDataWithPolyBase(mapOf("a" to PolyDerived("foo")), PolyDerived("foo"))
+                )
             }
         )
     }
 
     @Test
-    fun bindModules() {
+    fun testBindModules() {
         val json = Json(context = (baseAndDerivedModuleAtAny + BaseAndDerivedModule))
         assertStringFormAndRestored(
-            expected = """{"data":{"a":["kotlinx.serialization.features.PolyDerived",{"id":1,"s":"foo"}]},"polyBase":["kotlinx.serialization.features.PolyDerived",{"id":1,"s":"foo"}]}""",
+            expected = """{"data":{"a":{"type":"kotlinx.serialization.features.PolyDerived","id":1,"s":"foo"}},
+                |"polyBase":{"type":"kotlinx.serialization.features.PolyDerived","id":1,"s":"foo"}}""".trimMargin().lines().joinToString(""),
             original = MyPolyDataWithPolyBase(mapOf("a" to PolyDerived("foo")), PolyDerived("foo")),
             serializer = MyPolyDataWithPolyBase.serializer(),
             format = json

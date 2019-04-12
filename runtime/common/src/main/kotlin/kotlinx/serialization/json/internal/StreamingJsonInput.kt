@@ -17,11 +17,17 @@ internal class StreamingJsonInput internal constructor(
     public override val context: SerialModule = json.context
     private var currentIndex = -1
     private var entryIndex = 0
-
+    private val configuration = json.configuration
+    
     public override fun decodeJson(): JsonElement = JsonParser(reader).read()
 
+    @Suppress("DEPRECATION")
     override val updateMode: UpdateMode
-        get() = json.updateMode
+        get() = configuration.updateMode
+
+    override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+        return decodeSerializableValuePolymorphic(deserializer)
+    }
 
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
         val newMode = switchMode(desc, typeParams)
@@ -87,14 +93,14 @@ internal class StreamingJsonInput internal constructor(
                     if (index != CompositeDecoder.UNKNOWN_NAME) {
                         return index
                     }
-                    if (json.strictMode) throw JsonUnknownKeyException(key)
+                    if (configuration.strictMode) throw JsonUnknownKeyException(key)
                     else reader.skipElement()
                 }
             }
         }
     }
 
-    override fun decodeBoolean(): Boolean = reader.takeString().run { if (json.strictMode) toBooleanStrict() else toBoolean() }
+    override fun decodeBoolean(): Boolean = reader.takeString().run { if (configuration.strictMode) toBooleanStrict() else toBoolean() }
     override fun decodeByte(): Byte = reader.takeString().toByte()
     override fun decodeShort(): Short = reader.takeString().toShort()
     override fun decodeInt(): Int = reader.takeString().toInt()
