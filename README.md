@@ -75,7 +75,9 @@ This document describes setup for Kotlin 1.3 and higher. To watch instructions r
 
 ## Setup
 
-Using Kotlin Serialization requires Kotlin compiler `1.3.20` or higher. Make sure that you have corresponding Kotlin plugin installed in the IDE. Since serialization is now bundled into Kotlin plugin, no additional plugins for IDE are required (but make sure you have deleted old additional plugin for 1.2, if you had one).
+Using Kotlin Serialization requires Kotlin compiler `1.3.30` or higher.
+Make sure that you have corresponding Kotlin plugin installed in the IDE.
+Since serialization is now bundled into Kotlin plugin, no additional plugins for IDE are required (but make sure you have deleted old additional plugin for 1.2, if you had one).
 Example projects on JVM are available for [Gradle](examples/example-jvm/build.gradle) and [Maven](examples/example-jvm/pom.xml).
 
 ### Gradle
@@ -84,7 +86,7 @@ You have to add the serialization plugin as the other [compiler plugins](https:/
 
 ```gradle
 buildscript {
-    ext.kotlin_version = '1.3.20'
+    ext.kotlin_version = '1.3.30'
     repositories { jcenter() }
 
     dependencies {
@@ -112,7 +114,7 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.10.0"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.11.0"
 }
 ```
 
@@ -122,8 +124,8 @@ You can setup serialization plugin with the kotlin plugin using [Gradle plugins 
 
 ```gradle
 plugins {
-    id 'kotlin-multiplatform' version '1.3.20'
-    id 'kotlinx-serialization' version '1.3.20'
+    id 'kotlin-multiplatform' version '1.3.30'
+    id 'kotlinx-serialization' version '1.3.30'
 }
 ```
 
@@ -174,8 +176,8 @@ Ensure the proper version of Kotlin and serialization version:
 
 ```xml
 <properties>
-    <kotlin.version>1.3.20</kotlin.version>
-    <serialization.version>0.10.0</serialization.version>
+    <kotlin.version>1.3.30</kotlin.version>
+    <serialization.version>0.11.0</serialization.version>
 </properties>
 ```
 
@@ -260,8 +262,9 @@ Sample project can be found in [example-native](examples/example-native) folder.
 
 ### Incompatible changes
 
-All versions of library before 0.10.0 are using Gradle metadata v0.3 and therefore require Gradle 4.7 for build.
+All versions of library before `0.10.0` are using Gradle metadata v0.3 and therefore require Gradle 4.7 for build.
 Maven plugin coordinates before Kotlin 1.3.20 were `kotlinx-maven-serialization-plugin`.
+Library version `0.11.0` requires Kotlin 1.3.30 and higher and incompatible with previous versions.
 
 ## Troubleshooting IntelliJ IDEA
 
