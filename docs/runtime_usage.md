@@ -119,7 +119,7 @@ inline fun <reified T : Any> parse(str: String): T = parse(T::class.serializer()
 
 `stringify` transforms object to string, `parse` parses. No surprises.
 
-Besides this, functions `toJson` and `fromJson` allow converting @Serializable Kotlin object to and from [abstract JSON syntax tree](https://github.com/Kotlin/kotlinx.serialization/blob/master/runtime/common/src/main/kotlin/kotlinx/serialization/json/JsonElement.kt#L28). To build JSON AST from String, use `parseJson`.
+Besides this, functions `toJson` and `fromJson` allow converting @Serializable Kotlin object to and from [abstract JSON syntax tree](https://github.com/Kotlin/kotlinx.serialization/blob/master/runtime/common/src/main/kotlin/kotlinx/serialization/json/JsonElement.kt). To build JSON AST from String, use `parseJson`.
 
 You can also use one of predefined instances, like `Json.plain`, `Json.indented`, `Json.nonstrict` or `Json.unquoted`. API is duplicated in companion object, so `Json.parse(...)` equals to `Json.plain.parse(...)`.
 
@@ -179,7 +179,7 @@ Other known issues and limitations:
 * Packed repeated fields are not supported
 
 More examples of mappings from proto definitions to Koltin classes can be found in test data:
-[here](../runtime/jvm/src/test/proto/test_data.proto) and [here](../runtime/jvm/src/test/kotlin/kotlinx/serialization/formats/RandomTests.kt#L47)
+[here](../runtime/jvm/src/test/proto/test_data.proto) and [here](../runtime/jvm/src/test/kotlin/kotlinx/serialization/formats/RandomTests.kt)
 
 ## Useful classes
 

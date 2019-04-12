@@ -22,7 +22,7 @@ This project contains the runtime library. Runtime library provides:
 * Ready-to-use serialization formats.
 * Other useful classes that benefit from serialization framework (e.g. object-to-Map transformer)
 
-You can open example projects for [JVM](examples/example-jvm) or [JS](examples/example-js) to get started playing with it.
+You can open example projects for [JS](examples/example-js), [JVM](examples/example-jvm) or [Native](examples/example-native) to get started playing with it.
 
 ## Table of contents
 
