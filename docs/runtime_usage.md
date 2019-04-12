@@ -57,16 +57,16 @@ This approach is discouraged in general because it is implicit and uses reflecti
 but may be useful shorthand in some cases.
 
 Functions which uses this or similar functionality are annotated
-with [experimental](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-experimental/index.html) 
+with [experimental](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-experimental/index.html)
 annotation `kotlinx.serialization.ImplicitReflectionSerializer`.
-Consult [annotation documentation](https://github.com/kotlin/kotlinx.serialization/blob/master/runtime/common/src/main/kotlin/kotlinx/serialization/SerialImplicits.kt#L11) 
+Consult [annotation documentation](https://github.com/kotlin/kotlinx.serialization/blob/master/runtime/common/src/main/kotlin/kotlinx/serialization/SerialImplicits.kt#L11)
 to learn about restrictions of this approach.
 To learn how to use experimental annotations, look at theirs [KEEP](https://github.com/Kotlin/KEEP/blob/master/proposals/experimental.md)
 or use [this guide](https://kotlinlang.org/docs/reference/experimental.html#using-experimental-apis).
 
 ### Special serializers
 
-There are two special serializers which are turned on using corresponding annotations: 
+There are two special serializers which are turned on using corresponding annotations:
 `@Contextual` for `ContextSerializer` and `@Polymorphic` for `PolymorphicSerializer`.
 
 The former allows to switch to the run-time resolving of serializers instead of compile-time.
@@ -83,17 +83,29 @@ Runtime library provides three ready-to use formats: JSON, CBOR and ProtoBuf.
 
 ### JSON
 
-JSON format represented by `Json` class from `kotlinx.serialization.json` package. It has following constructor parameters:
+JSON format represented by `Json` class from `kotlinx.serialization.json` package.
+It is configurable via `JsonConfiguration` class, which has following parameters:
 
-* strict - Prohibits unknown keys when parsing JSON. Prohibits NaN and Infinity float values when serializing JSON. Enabled by default.
-* unquoted - means that all field names and other objects (where it's possible) would not be wrapped in quotes. Useful for debugging.
-* indented - classic pretty-printed multiline JSON.
-* indent - size of indent, applicable if parameter above is true.
 * encodeDefaults - set this to false to omit writing optional properties if they are equal to theirs default values.
+* strictMode - Prohibits unknown keys when parsing JSON. Prohibits NaN and Infinity float values when serializing JSON. Enabled by default.
+* unquoted - means that all field names and other objects (where it's possible) would not be wrapped in quotes. Useful for debugging.
+* prettyPrint - classic pretty-printed multiline JSON.
+* indent - size of indent, applicable if parameter above is true.
+* useArrayPolymorphism – switches to writing polymorphic values in `[className, object]` format. Disabled by default.
+* classDiscriminator – name of the class descriptor property in polymorphic serialization
 
-You can also use one of predefined instances, like `Json.plain`, `Json.indented`, `Json.nonstrict` or `Json.unquoted`. API is duplicated in companion object, so `Json.parse(...)` equals to `Json.plain.parse(...)`
+It also has two pre-defined sets of parameters: `Default` and `Stable`.
+`Default` provides recommended and sane configuration, however, due to a library evolution,
+it can be tweaked and changed between library releases.
+`Stable` provides backwards-compatible configuration, e.g. `useArrayPolymorphism` is set to `true` in it because early library versions have used this format.
+Since `JsonConfiguration` is a data class, you can `copy` any configuration you like to tweak it.
 
-You can also specify desired behaviour for duplicating keys. By default it is `UpdateMode.OVERWRITE`. You can use `UpdateMode.UPDATE`, and by doing that you'll be able to merge two lists or maps with same key into one; but be aware that serializers for non-collection types are throwing `UpdateNotSupportedException` by default. To prohibit duplicated keys, you can use `UpdateMode.BANNED`.
+All unstable constructors and configurations are annotated with [experimental annotation](https://kotlinlang.org/docs/reference/experimental.html#using-experimental-apis) `kotlinx.serialization.UnstableDefault`.
+
+You can also specify desired behaviour for duplicating keys.
+By default it is `UpdateMode.OVERWRITE`.
+You can use `UpdateMode.UPDATE`, and by doing that you'll be able to merge two lists or maps with same key into one; but be aware that serializers for non-collection types are throwing `UpdateNotSupportedException` by default.
+To prohibit duplicated keys, you can use `UpdateMode.BANNED`.
 
 JSON API:
 
@@ -108,6 +120,8 @@ inline fun <reified T : Any> parse(str: String): T = parse(T::class.serializer()
 `stringify` transforms object to string, `parse` parses. No surprises.
 
 Besides this, functions `toJson` and `fromJson` allow converting @Serializable Kotlin object to and from [abstract JSON syntax tree](https://github.com/Kotlin/kotlinx.serialization/blob/master/runtime/common/src/main/kotlin/kotlinx/serialization/json/JsonElement.kt#L28). To build JSON AST from String, use `parseJson`.
+
+You can also use one of predefined instances, like `Json.plain`, `Json.indented`, `Json.nonstrict` or `Json.unquoted`. API is duplicated in companion object, so `Json.parse(...)` equals to `Json.plain.parse(...)`.
 
 **Note**: because JSON doesn't support maps with keys other than
 strings (and primitives), Kotlin maps with non-trivial key types are serialized as JSON lists.
@@ -136,7 +150,7 @@ and Kotlin maps are serialized as CBOR maps, but some parsers (like `jackson-dat
 
 ### Protobuf
 
-Because protobuf relies on serial ids of fields, called 'tags', you have to provide this information, 
+Because protobuf relies on serial ids of fields, called 'tags', you have to provide this information,
 using serial annotation `@SerialId`:
 
 ```kotlin
@@ -199,4 +213,3 @@ parsed == DataWrapper("foo", Data(42)) // true
 ```
 
 > Parser does not support kotlin maps with keys other than `String`.
-
