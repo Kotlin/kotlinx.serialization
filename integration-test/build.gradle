@@ -15,6 +15,7 @@ buildscript {
 plugins {
     id 'kotlin-multiplatform'
     id 'kotlinx-serialization'
+    id 'org.jetbrains.kotlin.kapt'
 }
 
 repositories {
@@ -31,9 +32,9 @@ version '0.0.1'
 apply plugin: 'maven-publish'
 
 kotlin {
-    jvm()
     // Switching module kind for JS is required to run tests
     targets {
+        fromPreset(presets.jvmWithJava, 'jvm')
         fromPreset(presets.js, 'js') {
             configure([compilations.main, compilations.test]) {
                 tasks.getByName(compileKotlinTaskName).kotlinOptions {
@@ -66,6 +67,7 @@ kotlin {
             dependencies {
                 implementation kotlin('stdlib-jdk8')
                 implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
+                implementation 'com.google.dagger:dagger:2.13'
             }
         }
         jvmTest {
@@ -93,6 +95,15 @@ kotlin {
         macosTest {
         }
     }
+    sourceSets.all {
+        languageSettings {
+            useExperimentalAnnotation('kotlin.Experimental') // annotation FQ-name
+        }
+    }
+}
+
+dependencies {
+    kapt 'com.google.dagger:dagger-compiler:2.13'
 }
 
 apply from: rootProject.file('gradle/node-js.gradle')

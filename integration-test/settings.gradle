@@ -4,6 +4,9 @@ pluginManagement {
             if (requested.id.id == "kotlin-multiplatform") {
                 useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:$mainKotlinVersion")
             }
+            if (requested.id.id == "org.jetbrains.kotlin.kapt") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:$mainKotlinVersion")
+            }
             if (requested.id.id == "kotlinx-serialization") {
                 useModule("org.jetbrains.kotlin:kotlin-serialization:$mainKotlinVersion")
             }
@@ -11,6 +14,7 @@ pluginManagement {
     }
 
     repositories {
+        mavenLocal()
         mavenCentral()
         jcenter()
         maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
