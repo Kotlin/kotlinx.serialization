@@ -37,7 +37,7 @@
     assertEquals(Data(1), Json.unquoted.parse<Data>("{a:1, b:42}"))
     ```
 
- * Property will be considered _optional_ if it has default value.
+ * Property will be considered _optional_ if it has default value (kotlin 1.3.30 or higher is required).
 
     ```kotlin
     @Serializable
@@ -45,7 +45,7 @@
 
     // Serialization and deserialization with internal serializer
     assertEquals("{a:0,b:42}",Json.unquoted.stringify(Data(0)))
-    assertEquals(Json.unquoted.parse<Data>("{a:0,b:43}"),Data(b = 43))
+    assertEquals(Json.unquoted.parse<Data>("{a:0,b:43}"),Data(0, b = 43))
     assertEquals(Json.unquoted.parse<Data>("{a:0,b:42}"),Data(0))
     assertEquals(Json.unquoted.parse<Data>("{a:0}"),Data(0))
 
@@ -55,6 +55,8 @@
 
     > Tip: you can omit default values during serialization with
     `Json(encodeDefaults = false)` (see [here](runtime_usage#json)).
+    
+    > Tip: Deprecated `@Optional` annotation was used in older version and older kotlin version.
 
 
  * By default, only properties which have
