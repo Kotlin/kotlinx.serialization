@@ -219,6 +219,7 @@ public class JsonBuilder {
     public fun buildModule(): SerialModule = serialModule
 }
 
+@SharedImmutable
 private val defaultJsonModule = serializersModuleOf(
     mapOf<KClass<*>, KSerializer<*>>(
         JsonElement::class to JsonElementSerializer,
