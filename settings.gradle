@@ -17,18 +17,11 @@
 rootProject.name = 'kotlinx-serialization-runtime'
 enableFeaturePreview('GRADLE_METADATA')
 
-include ':common'
-include ':jvm'
-include ':js'
-include ':native'
+include ':runtime'
 
 include ':configparser'
-include ':benchmark'
-
-project(':common').projectDir = file('./runtime/common')
-project(':jvm').projectDir = file('./runtime/jvm')
-project(':js').projectDir = file('./runtime/js')
-project(':native').projectDir = file('./runtime/native')
-
 project(':configparser').projectDir = file('./formats/config')
+
+// todo: migrate benchmark to multiplatform benchmarks?
+include ':benchmark'
 project(':benchmark').projectDir = file('./benchmark')

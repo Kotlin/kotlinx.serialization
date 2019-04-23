@@ -17,9 +17,9 @@ jmhJar {
 }
 
 dependencies {
-    apt 'com.google.auto.value:auto-value:1.4.1'
-    apt 'com.ryanharter.auto.value:auto-value-gson:0.4.6'
-    apt 'com.ryanharter.auto.value:auto-value-moshi:0.4.3'
+    annotationProcessor 'com.google.auto.value:auto-value:1.4.1'
+    annotationProcessor 'com.ryanharter.auto.value:auto-value-gson:0.4.6'
+    annotationProcessor 'com.ryanharter.auto.value:auto-value-moshi:0.4.3'
 
     compileOnly 'com.google.auto.value:auto-value:1.4.1'
     compileOnly 'com.ryanharter.auto.value:auto-value-gson:0.4.6'
@@ -33,7 +33,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.1'
     compile 'com.esotericsoftware:kryo:4.0.0'
 
-    compile project(':jvm')
+    compile project(':runtime')
 
     // async profiler
     compile group: 'pl.project13.scala', name: 'sbt-jmh-extras', version: '0.3.3'

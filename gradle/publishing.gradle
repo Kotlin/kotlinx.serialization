@@ -1,0 +1,135 @@
+/*
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+// Configures publishing of Maven artifacts to Bintray
+
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+apply from: project.rootProject.file('gradle/mavenMetadata.gradle')
+
+def isMultiplatform = project.name == "runtime"
+def isCoreRuntime   = project.name == "runtime"
+
+task stubSources(type: Jar) {
+    classifier = 'sources'
+}
+
+task stubJavadoc(type: Jar) {
+    classifier = 'javadoc'
+}
+
+task emptyJar(type: Jar) {
+}
+
+afterEvaluate {
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        if (isMultiplatform) {
+            from kotlin.sourceSets.commonMain.kotlin
+        } else {
+            from sourceSets.main.allSource
+        }
+    }
+}
+
+afterEvaluate {
+    publishing {
+        def variantName = ""
+
+        if (isCoreRuntime) {
+            variantName = "${rootProject.name}"
+        } else {
+            variantName = "${rootProject.name}-${project.name}"
+        }
+
+        if (!isMultiplatform) {
+            publications {
+                maven(MavenPublication) { publication ->
+                    artifactId variantName
+                    publication.from components.java
+//                    publication.artifact stubJavadoc // todo
+                    publication.artifact sourcesJar
+                    publication.pom.withXml(configureMavenCentralMetadata)
+                }
+            }
+
+            disableMetadataPublicationKotlinJvm()
+            return
+        }
+
+        // Rename artifacts for backward compatibility
+        publications.all {
+            def type = it.name
+//            println("Configuring $type")
+            switch (type) {
+                case 'kotlinMultiplatform':
+                    it.artifactId = "$variantName-native"
+                    it.artifact emptyJar
+//                    it.artifact stubJavadoc
+                    it.artifact sourcesJar
+                    break
+
+                case 'metadata':
+                    it.artifactId = "$variantName-common"
+                    break
+
+                case 'jvm':
+                    it.artifactId = "$variantName"
+                    break
+
+                default:
+                    it.artifactId = "$variantName-$type"
+                    break
+            }
+//            println("Artifact id = ${it.artifactId}")
+
+            pom.withXml(configureMavenCentralMetadata)
+        }
+
+        disableMetadataPublication()
+    }
+}
+
+private void disableMetadataPublicationKotlinJvm() {
+    publishing.publications.each { pub ->
+        pub.moduleDescriptorGenerator = null
+        tasks.matching { it.name == "generateMetadataFileFor${pub.name.capitalize()}Publication" }.all {
+            onlyIf { false }
+        }
+    }
+}
+
+private void disableMetadataPublication() {
+    kotlin.targets.all { target ->
+        def publication = publishing.publications.findByName(target.name)
+
+        if (publication != null) {
+//            publication.artifact stubJavadoc
+            if (target.platformType.name != 'native') {
+                publication.moduleDescriptorGenerator = null
+                tasks.matching { it.name == "generateMetadataFileFor${name.capitalize()}Publication" }.all {
+                    onlyIf { false }
+                }
+            } else {
+                publication.artifact emptyJar
+            }
+        }
+    }
+}
+
+
+apply from: project.rootProject.file("gradle/bintray.gradle")
+
+// This is required for K/N publishing
+bintrayUpload.dependsOn publishToMavenLocal
+
+// This is for easier debugging of bintray uploading problems
+bintrayUpload.doFirst {
+    publications = project.publishing.publications.findAll { !it.name.contains('-test') }.collect {
+        println("Uploading artifact '$it.groupId:$it.artifactId:$it.version' from publication '$it.name'")
+        it
+    }
+}

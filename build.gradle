@@ -3,25 +3,12 @@
  */
 
 buildscript {
-    def deployNative = property('native.deploy') == 'true'
-
     if (project.hasProperty("bootstrap")) {
-        ext.compilerVersion = property('kotlin.version.snapshot')
-        ext.librariesVersion = property('kotlin.version.snapshot')
-        ext.serializationPluginVersion = property('plugin.version.snapshot')
-        ext.konanVersion = property('konan.version.snapshot')
+        ext.kotlin_version = property('kotlin.version.snapshot')
         ext["org.jetbrains.kotlin.native.home"] = System.getenv("KONAN_LOCAL_DIST")
     } else {
-        ext.compilerVersion = property('kotlin.version')
-        ext.librariesVersion = property('kotlin.version')
-        ext.serializationPluginVersion = property('plugin.version')
-        ext.konanVersion = property('konan.version')
+        ext.kotlin_version = property('kotlin.version')
     }
-    ext.serializationVersion = property('library.version')
-    ext.serializationCoordinates = "org.jetbrains.kotlin:kotlin-serialization"
-    ext.tcChannel = 'https://teamcity.jetbrains.com/guestAuth/app/rest/builds/id:2082584/artifacts/content/maven'
-    ext.devChannel = 'https://kotlin.bintray.com/kotlin-dev'
-    ext.serializationRepo = 'https://kotlin.bintray.com/kotlinx'
     ext.experimentalsEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
                                 "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
     ]
@@ -34,47 +21,45 @@ buildscript {
 
     repositories {
         mavenLocal()
-        maven { url tcChannel }
-        maven { url devChannel }
-        maven { url serializationRepo }
-        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url 'https://kotlin.bintray.com/kotlin-dev' }
+        maven { url 'https://kotlin.bintray.com/kotlin-eap' }
+        maven { url 'https://kotlin.bintray.com/kotlinx' }
+        maven { url "https://dl.bintray.com/orangy/maven" }
         maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
         jcenter()
+        gradlePluginPortal()
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$compilerVersion"
-        classpath "$serializationCoordinates:$serializationPluginVersion"
-        classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:$konanVersion"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
+        classpath "kotlinx.team:kotlinx.team.infra:$infra_version"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintray_version"
 
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.2'
+        // Protobuf is udes in JVM tests
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.8'
 
-        // Custom bintray plugin to publish with Gradle Metadata
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4-jetbrains-3"
-
-        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.2"
-        classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.5"
-        classpath "net.ltgt.gradle:gradle-apt-plugin:0.10"
+        // Various benchmarking stuff
+        classpath "com.github.jengelman.gradle.plugins:shadow:4.0.2"
+        classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.8"
+        classpath "net.ltgt.gradle:gradle-apt-plugin:0.21"
     }
 }
 
-ext {
-    libraries = [
-            kotlin_stdlib: "org.jetbrains.kotlin:kotlin-stdlib:$librariesVersion",
-            kotlin_stdlib_common: "org.jetbrains.kotlin:kotlin-stdlib-common:$librariesVersion",
-            kotlin_stdlib_js: "org.jetbrains.kotlin:kotlin-stdlib-js:$librariesVersion",
-            kotlin_test: "org.jetbrains.kotlin:kotlin-test:$librariesVersion",
-            kotlin_test_junit: "org.jetbrains.kotlin:kotlin-test-junit:$librariesVersion",
-            kotlin_test_common: "org.jetbrains.kotlin:kotlin-test-common:$librariesVersion",
-            kotlin_test_annotations_common: "org.jetbrains.kotlin:kotlin-test-annotations-common:$librariesVersion",
-            kotlin_test_js: "org.jetbrains.kotlin:kotlin-test-js:$librariesVersion",
-            kotlin_reflect: "org.jetbrains.kotlin:kotlin-reflect:$librariesVersion",
-    ]
+apply plugin: 'kotlinx.team.infra'
+
+infra {
+    teamcity {}
+    node {
+        version = '10.15.1'
+        mocha('4.1.0')
+        install("source-map-support", "0.5.3")
+        install("mocha-teamcity-reporter", "2.2.2")
+    }
 }
 
 allprojects {
     group 'org.jetbrains.kotlinx'
-    version serializationVersion
 
     if (project.hasProperty("bootstrap")) {
         version = version + '-SNAPSHOT'
@@ -82,29 +67,14 @@ allprojects {
 
     repositories {
         mavenLocal()
-        maven { url tcChannel }
-        maven { url devChannel }
-        maven { url serializationRepo }
         jcenter()
+        maven { url "https://dl.bintray.com/kotlin/kotlinx" }
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
+        maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
     }
 }
 
-apply plugin: 'kotlin'
-
 subprojects {
-    configurations.all {
-        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-            if (details.requested.group == 'org.jetbrains.kotlin' && details.requested.name == 'kotlinx-serialization-unshaded') {
-                details.useVersion serializationPluginVersion
-                details.because 'use not bundled one'
-            }
-        }
-    }
-
-    if (project.name.contains("native")) return
-
-    apply plugin: 'kotlinx-serialization'
-
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile).all { task ->
         if (task.name.contains("Test") || task.name.contains("Jmh")) {
             task.kotlinOptions.freeCompilerArgs += experimentalsInTestEnabled
@@ -113,69 +83,12 @@ subprojects {
         }
     }
 
+    // Configure publishing for some artifacts
     if (project.name.contains("benchmark")) return
 
-    apply plugin: 'maven-publish'
+    apply from: rootProject.file('gradle/publishing.gradle')
+}
 
-    def varintName = ""
-
-    if (project.name == "jvm") {
-        varintName = "${rootProject.name}"
-    } else {
-        varintName = "${rootProject.name}-${project.name}"
-    }
-
-    afterEvaluate {
-        task sourceJar(type: Jar, dependsOn: classes) {
-            classifier 'sources'
-            from sourceSets.main.kotlin
-            if (project.name == "jvm" || project.name == "js") {
-                duplicatesStrategy = "exclude"
-                def platformSrc = sourceSets.main.kotlin
-                def commonSrc = project(':common').sourceSets.main.kotlin
-                from(platformSrc + commonSrc)
-            }
-        }
-    }
-
-    tasks.withType(Jar) {
-        archivesBaseName = varintName
-    }
-
-    apply from: "${rootProject.rootDir}/gradle/mavenMetadata.gradle"
-
-    publishing {
-        publications {
-            mavenProject(MavenPublication) {
-                from components.java
-                groupId project.group
-                artifactId varintName
-                version project.version
-
-                artifact sourceJar {
-                    classifier "sources"
-                }
-                pom.withXml {
-                    def root = it.asNode()
-                    // NOTE: Don't try to move top-level things (especially "description") to the pomConfig block
-                    //       because they would resolve incorrectly to top-level project properties in Gradle/Groovy
-                    root.appendNode('name', varintName)
-                    root.appendNode('description', 'Kotlin multiplatform serialization runtime library')
-                    root.appendNode('url', 'https://github.com/Kotlin/kotlinx.serialization')
-                    root.children().last() + pomConfig
-                }
-            }
-        }
-    }
-
-    apply plugin: 'com.jfrog.bintray'
-
-    apply from: "${rootProject.rootDir}/gradle/bintray.gradle"
-
-    // Disable metadata for non-native modules
-    afterEvaluate {
-        publishing.publications.each { pub ->
-            pub.moduleDescriptorGenerator = null
-        }
-    }
+afterEvaluate {
+    println("Using Kotlin compiler version: $org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION")
 }
