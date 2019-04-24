@@ -3,21 +3,39 @@
  */
 
 buildscript {
-    def deployNative = property('native.deploy') == 'true'
+    /*
+     * These property group is used to build kotlinx.serialization against Kotlin compiler snapshot.
+     * When build_snapshot_train is set to true, kotlin_version property is overridden with kotlin_snapshot_version.
+     * DO NOT change the name of these properties without adapting kotlinx.train build chain.
+     */
+    def prop = rootProject.properties['build_snapshot_train']
+    ext.build_snapshot_train = prop != null && prop != ""
+    if (build_snapshot_train) {
+        ext.kotlin_version = rootProject.properties['kotlin_snapshot_version']
+        if (kotlin_version == null) {
+            throw new IllegalArgumentException("'kotlin_snapshot_version' should be defined when building with snapshot compiler")
+        }
+        repositories {
+            mavenLocal()
+            maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+            maven { url "https://bintray.com/jetbrains/kotlin-native-dependencies" }
+        }
+    }
+
 
     if (project.hasProperty("bootstrap")) {
-        ext.compilerVersion = property('kotlin.version.snapshot')
-        ext.librariesVersion = property('kotlin.version.snapshot')
-        ext.serializationPluginVersion = property('plugin.version.snapshot')
-        ext.konanVersion = property('konan.version.snapshot')
+        ext.compilerVersion = property('kotlin_version_snapshot')
+        ext.librariesVersion = property('kotlin_version_snapshot')
+        ext.serializationPluginVersion = property('plugin_version_snapshot')
+        ext.konanVersion = property('konan_version_snapshot')
         ext["org.jetbrains.kotlin.native.home"] = System.getenv("KONAN_LOCAL_DIST")
     } else {
-        ext.compilerVersion = property('kotlin.version')
-        ext.librariesVersion = property('kotlin.version')
-        ext.serializationPluginVersion = property('plugin.version')
-        ext.konanVersion = property('konan.version')
+        ext.compilerVersion = property('kotlin_version')
+        ext.librariesVersion = property('kotlin_version')
+        ext.serializationPluginVersion = property('plugin_version')
+        ext.konanVersion = property('konan_version')
     }
-    ext.serializationVersion = property('library.version')
+    ext.serializationVersion = property('library_version')
     ext.serializationCoordinates = "org.jetbrains.kotlin:kotlin-serialization"
     ext.tcChannel = 'https://teamcity.jetbrains.com/guestAuth/app/rest/builds/id:2082584/artifacts/content/maven'
     ext.devChannel = 'https://kotlin.bintray.com/kotlin-dev'
@@ -75,6 +93,19 @@ ext {
 allprojects {
     group 'org.jetbrains.kotlinx'
     version serializationVersion
+
+    if (build_snapshot_train) {
+        def deployVersion = properties['DeployVersion']
+        if (deployVersion != null) version = deployVersion
+        ext.kotlin_version = rootProject.properties['kotlin_snapshot_version']
+        kotlin_version = rootProject.properties['kotlin_snapshot_version']
+        println "Using Kotlin $kotlin_version for project $it"
+        repositories {
+            mavenLocal()
+            maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+        }
+    }
+
 
     if (project.hasProperty("bootstrap")) {
         version = version + '-SNAPSHOT'
@@ -176,6 +207,26 @@ subprojects {
     afterEvaluate {
         publishing.publications.each { pub ->
             pub.moduleDescriptorGenerator = null
+        }
+    }
+}
+
+println("Using Kotlin compiler version: $org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION")
+if (build_snapshot_train) {
+    configure(subprojects.findAll { it.name == "jvm" }) {
+        configurations.matching { it.name == "kotlinCompilerClasspath" }.all {
+            afterEvaluate {
+                println "Manifest of kotlin-compiler-embeddable.jar for serialization"
+                resolvedConfiguration.getFiles().findAll { it.name.contains("kotlin-compiler-embeddable") }.each {
+                    def manifest = zipTree(it).matching {
+                        include 'META-INF/MANIFEST.MF'
+                    }.getFiles().first()
+
+                    manifest.readLines().each {
+                        println it
+                    }
+                }
+            }
         }
     }
 }
