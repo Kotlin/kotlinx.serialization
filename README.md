@@ -268,5 +268,5 @@ Library version `0.11.0` requires Kotlin 1.3.30 and higher and incompatible with
 
 ## Troubleshooting IntelliJ IDEA
 
-Serialization support should work out of the box, if you have 1.3.x Kotlin plugin installed. If you have Kotlin 1.3.10 or lower, you have to delegate build to Gradle (`Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`). Starting from 1.3.11, no delegation is required.
+Serialization support should work out of the box, if you have 1.3.x Kotlin plugin installed and have imported the project from Maven or Gradle with serialization enabled in their buildscripts. If you have Kotlin 1.3.10 or lower, you have to delegate build to Gradle (`Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`). Starting from 1.3.11, no delegation is required.
 In case of problems, force project re-import from Gradle.
