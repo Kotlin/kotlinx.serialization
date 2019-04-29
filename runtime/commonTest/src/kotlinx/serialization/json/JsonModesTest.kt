@@ -67,17 +67,6 @@ class JsonModesTest : JsonTestBase() {
     }
 
     @Test
-    fun testParseEscapedSymbols() = parametrizedTest { useStreaming ->
-        assertEquals(
-            Url("https://t.co/M1uhwigsMT"),
-            strict.parse(Url.serializer(), """{"url":"https:\/\/t.co\/M1uhwigsMT"}""", useStreaming)
-        )
-        assertEquals(Url("\"test\""), strict.parse(Url.serializer(), """{"url": "\"test\""}""", useStreaming))
-        assertEquals(Url("\u00c9"), strict.parse(Url.serializer(), """{"url": "\u00c9"}""", useStreaming))
-        assertEquals(Url("""\\"""), strict.parse(Url.serializer(), """{"url": "\\\\"}""", useStreaming))
-    }
-
-    @Test
     fun testStrictJsonCanNotSkipValues() = parametrizedTest { useStreaming ->
         assertFailsWith(SerializationException::class) {
             strict.parse(JsonOptionalTests.Data.serializer(), "{strangeField: 100500, a:0}", useStreaming)
@@ -86,7 +75,4 @@ class JsonModesTest : JsonTestBase() {
 
     @Serializable
     data class Box(val double: Double, val float: Float)
-
-    @Serializable
-    data class Url(val url: String)
 }

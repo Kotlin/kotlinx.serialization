@@ -18,3 +18,6 @@ package kotlinx.serialization
 
 @Serializable
 data class IntData(val intV: Int)
+
+@Serializable
+data class StringData(val data: String)

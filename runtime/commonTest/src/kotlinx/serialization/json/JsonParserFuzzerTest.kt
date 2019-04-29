@@ -16,6 +16,8 @@
 
 package kotlinx.serialization.json
 
+import kotlinx.serialization.StringData
+import kotlinx.serialization.test.assertStringFormAndRestored
 import kotlin.test.*
 
 class JsonParserFuzzerTest {
@@ -48,5 +50,28 @@ class JsonParserFuzzerTest {
         assertFailsWith<JsonParsingException> {
             parse("""{"X": "\uDD1H"}""")
         }
+    }
+
+    val strict = Json(JsonConfiguration.Stable.copy(strictMode = true))
+
+    @Test
+    fun testParseEscapedSymbols() {
+        assertEquals(
+            StringData("https://t.co/M1uhwigsMT"),
+            strict.parse(StringData.serializer(), """{"data":"https:\/\/t.co\/M1uhwigsMT"}""")
+        )
+        assertEquals(StringData("\"test\""), strict.parse(StringData.serializer(), """{"data": "\"test\""}"""))
+        assertEquals(StringData("\u00c9"), strict.parse(StringData.serializer(), """{"data": "\u00c9"}"""))
+        assertEquals(StringData("""\\"""), strict.parse(StringData.serializer(), """{"data": "\\\\"}"""))
+    }
+
+    @Test
+    fun testWorkWithNonAsciiSymbols() {
+        assertStringFormAndRestored(
+            """{"data":"Русские Буквы 🤔"}""",
+            StringData("Русские Буквы \uD83E\uDD14"),
+            StringData.serializer(),
+            printResult = false
+        )
     }
 }
