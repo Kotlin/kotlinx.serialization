@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("RedundantVisibilityModifier")
@@ -34,6 +34,7 @@ public class JsonArrayBuilder internal constructor() {
     /**
      * Adds [this] value to the current [JsonArray] as [JsonPrimitive].
      */
+    @Deprecated("Deprecated due to ambiguity", ReplaceWith("add(this)"), DeprecationLevel.ERROR)
     public operator fun String?.unaryPlus() {
         content.add(JsonPrimitive(this))
     }
@@ -41,6 +42,7 @@ public class JsonArrayBuilder internal constructor() {
     /**
      * Adds [this] value to the current [JsonArray] as [JsonPrimitive].
      */
+    @Deprecated("Deprecated due to ambiguity", ReplaceWith("add(this)"), DeprecationLevel.ERROR)
     public operator fun Number?.unaryPlus() {
         content.add(JsonPrimitive(this))
     }
@@ -48,6 +50,7 @@ public class JsonArrayBuilder internal constructor() {
     /**
      * Adds [this] value to the current [JsonArray] as [JsonPrimitive].
      */
+    @Deprecated("Deprecated due to ambiguity", ReplaceWith("add(this)"), DeprecationLevel.ERROR)
     public operator fun Boolean?.unaryPlus() {
         content.add(JsonPrimitive(this))
     }
@@ -55,8 +58,37 @@ public class JsonArrayBuilder internal constructor() {
     /**
      * Adds [this] value to the current [JsonArray].
      */
+    @Deprecated("Deprecated due to ambiguity", ReplaceWith("add(this)"), DeprecationLevel.ERROR)
     public operator fun JsonElement.unaryPlus() {
         this@JsonArrayBuilder.content.add(this)
+    }
+
+    /**
+     * Adds [string] value to the current [JsonArray] as [JsonPrimitive].
+     */
+    public fun add(string: String?) {
+        content.add(JsonPrimitive(string))
+    }
+
+    /**
+     * Adds [number] value to the current [JsonArray] as [JsonPrimitive].
+     */
+    public fun add(number: Number?) {
+        content.add(JsonPrimitive(number))
+    }
+
+    /**
+     * Adds [bool] value to the current [JsonArray] as [JsonPrimitive].
+     */
+    public fun add(bool: Boolean?) {
+        content.add(JsonPrimitive(bool))
+    }
+
+    /**
+     * Adds [element] to the current [JsonArray].
+     */
+    public fun add(element: JsonElement) {
+        this@JsonArrayBuilder.content.add(element)
     }
 }
 

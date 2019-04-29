@@ -27,7 +27,7 @@ class JsonSerializerInGenericsTest : JsonTestBase() {
 
     private fun create(): NonTrivialClass {
         return NonTrivialClass(
-            arrayListOf(JsonPrimitive(42), jsonArray { +json { "key" to "value" } }, null),
+            arrayListOf(JsonPrimitive(42), jsonArray { add(json { "key" to "value" }) }, null),
             null,
             mapOf("key1" to mapOf("nested" to json {
                 "first" to "second"

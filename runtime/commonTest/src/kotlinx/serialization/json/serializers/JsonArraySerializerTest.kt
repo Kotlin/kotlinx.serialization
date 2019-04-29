@@ -42,15 +42,15 @@ class JsonArraySerializerTest : JsonTestBase() {
 
     private fun prebuiltJson(): JsonArray {
         return jsonArray {
-            +JsonLiteral(1)
-            +JsonNull
-            +jsonArray {
-                +JsonLiteral("nested literal")
-            }
-            +jsonArray { }
-            +json {
+            add(1)
+            add(JsonNull)
+            add(jsonArray {
+                add("nested literal")
+            })
+            add(jsonArray { })
+            add(json {
                 "key" to "value"
-            }
+            })
         }
     }
 }
