@@ -85,6 +85,9 @@ allprojects {
     }
 
     if (build_snapshot_train) {
+        // Snapshot-specific
+        def deployVersion = properties['DeployVersion']
+        if (deployVersion != null) version = deployVersion
         repositories {
             mavenLocal()
             maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
