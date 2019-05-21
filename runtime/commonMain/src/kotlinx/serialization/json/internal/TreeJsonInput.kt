@@ -1,27 +1,28 @@
+/*
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 @file:Suppress("LeakingThis")
 
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
+import kotlinx.serialization.internal.EnumDescriptor
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.*
-import kotlin.jvm.*
+import kotlinx.serialization.modules.SerialModule
+import kotlin.jvm.JvmField
 
 internal fun <T> Json.readJson(element: JsonElement, deserializer: DeserializationStrategy<T>): T {
-    val descriptor = deserializer.descriptor
-    if (element is JsonNull) {
-        // TODO temporary workaround (?)
-        require(descriptor.isNullable) { "Read JsonNull and expected nullable descriptor, but has $descriptor" }
-        @Suppress("NULL_FOR_NONNULL_TYPE")
-        return null
-    }
-
-    val input = when (descriptor.kind) {
-        StructureKind.LIST -> JsonTreeListInput(this, cast(element))
-        StructureKind.MAP -> JsonTreeMapInput(this, cast(element))
-        is PrimitiveKind -> JsonPrimitiveInput(this, cast(element))
-        else -> JsonTreeInput(this, cast(element))
+    val input = when (element) {
+        is JsonObject -> JsonTreeInput(this, element)
+        is JsonArray -> JsonTreeListInput(this, element)
+        is JsonLiteral -> JsonPrimitiveInput(this, element)
+        is JsonNull -> {
+            deserializer.descriptor
+                .also { desc -> require(desc.isNullable) { "Read JsonNull and expected nullable descriptor, but has $desc" } }
+            @Suppress("NULL_FOR_NONNULL_TYPE")
+            return null
+        }
     }
 
     return input.decode(deserializer)

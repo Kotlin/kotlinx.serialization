@@ -1,17 +1,5 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json.internal
@@ -21,7 +9,7 @@ import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.collections.set
-import kotlin.jvm.*
+import kotlin.jvm.JvmField
 
 internal fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
     lateinit var result: JsonElement
@@ -68,8 +56,13 @@ private sealed class AbstractJsonTreeOutput(
     }
 
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
-        encodePolymorphically(serializer, value) {
-            writePolymorphic = true
+        if (serializer.descriptor.kind !is PrimitiveKind && serializer.descriptor.kind !== UnionKind.ENUM_KIND || currentTagOrNull != null) {
+            encodePolymorphically(serializer, value) { writePolymorphic = true }
+        } else {
+            JsonTreePrimitiveOutput(json, nodeConsumer).apply {
+                encodeSerializableValue(serializer, value)
+                endEncode(serializer.descriptor)
+            }
         }
     }
 
@@ -116,6 +109,28 @@ private sealed class AbstractJsonTreeOutput(
     override fun endEncode(desc: SerialDescriptor) {
         nodeConsumer(getCurrent())
     }
+}
+
+private class JsonTreePrimitiveOutput(json: Json, nodeConsumer: (JsonElement) -> Unit) :
+    AbstractJsonTreeOutput(json, nodeConsumer) {
+    private var content: JsonElement? = null
+
+    companion object {
+        const val primitive = "primitive"
+    }
+
+    init {
+        pushTag(primitive)
+    }
+
+    override fun putElement(key: String, element: JsonElement) {
+        require(key == primitive)
+        require(content == null) { "Primitive element was already recorded. Does call to .encodeXxx happen more than once?" }
+        content = element
+    }
+
+    override fun getCurrent(): JsonElement =
+        requireNotNull(content) { "Primitive element has not been recorded. Is call to .encodeXxx is missing in serializer?" }
 }
 
 private open class JsonTreeOutput(json: Json, nodeConsumer: (JsonElement) -> Unit) :

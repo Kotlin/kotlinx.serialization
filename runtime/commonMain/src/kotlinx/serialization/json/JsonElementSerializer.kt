@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json
@@ -28,9 +28,9 @@ public object JsonElementSerializer : KSerializer<JsonElement> {
     override fun serialize(encoder: Encoder, obj: JsonElement) {
         verify(encoder)
         when (obj) {
-            is JsonPrimitive -> JsonPrimitiveSerializer.serialize(encoder, obj)
-            is JsonObject -> JsonObjectSerializer.serialize(encoder, obj)
-            is JsonArray -> JsonArraySerializer.serialize(encoder, obj)
+            is JsonPrimitive -> encoder.encodeSerializableValue(JsonPrimitiveSerializer, obj)
+            is JsonObject -> encoder.encodeSerializableValue(JsonObjectSerializer, obj)
+            is JsonArray -> encoder.encodeSerializableValue(JsonArraySerializer, obj)
         }
     }
 
