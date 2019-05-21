@@ -6,6 +6,7 @@ package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
+import kotlinx.serialization.test.CommonEnumSerializer
 import kotlinx.serialization.test.isJvm
 import kotlin.test.*
 
@@ -50,8 +51,6 @@ data class DataZooIsomorphic(
     val lll: List<List<Boolean>>,
     val mm: Map<String, Data2>? = null
 )
-
-private enum class SampleEnum { OptionA, OptionB, OptionC }
 
 @Serializable
 private data class DataWithEnum(val s: String, val enum: SampleEnum, val enumList: List<SampleEnum> = emptyList())
@@ -118,12 +117,8 @@ class SchemaTest {
     fun enumDescriptors() {
         val dataDescriptor = DataWithEnum.serializer().descriptor
         val enumDesc = dataDescriptor.getElementDescriptor(1)
-        val serialName = if (isJvm()) "kotlinx.serialization.features.SampleEnum" else "SampleEnum"
-        val manualSerializer = CommonEnumSerializer(
-            serialName,
-            enumValues<SampleEnum>(),
-            enumValues<SampleEnum>().map { it.name }.toTypedArray()
-        )
+        val serialName = if (isJvm()) "kotlinx.serialization.SampleEnum" else "SampleEnum"
+        val manualSerializer = CommonEnumSerializer<SampleEnum>(serialName)
 
         assertEquals(enumDesc, manualSerializer.descriptor)
         assertEquals(enumDesc, dataDescriptor.getElementDescriptor(2).getElementDescriptor(0))

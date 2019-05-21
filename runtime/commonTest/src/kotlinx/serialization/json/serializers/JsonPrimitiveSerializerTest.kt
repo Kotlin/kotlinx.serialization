@@ -78,26 +78,26 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
         assertEquals(JsonPrimitiveWrapper(JsonLiteral("239")), strict.parse(JsonPrimitiveWrapper.serializer(), string, useStreaming))
     }
 
-    @Test // TODO Top-level nulls are not supported in tagged encoders
-    fun testTopLevelPrimitive() {//} = parametrizedTest { useStreaming ->
-        val string = strict.stringify(JsonPrimitiveSerializer, JsonLiteral(42))
+    @Test
+    fun testTopLevelPrimitive() = parametrizedTest { useStreaming ->
+        val string = strict.stringify(JsonPrimitiveSerializer, JsonLiteral(42), useStreaming)
         assertEquals("42", string)
         assertEquals(JsonLiteral("42"), strict.parse(JsonPrimitiveSerializer, string))
     }
 
-    @Test // TODO Top-level nulls are not supported in tagged encoders
-    fun testTopLevelPrimitiveAsLiteral() { //= parametrizedTest { useStreaming ->
-        val string = strict.stringify(JsonLiteralSerializer, JsonLiteral("some string literal"))
+    @Test
+    fun testTopLevelPrimitiveAsLiteral() = parametrizedTest { useStreaming ->
+        val string = strict.stringify(JsonLiteralSerializer, JsonLiteral("some string literal"), useStreaming)
         assertEquals("\"some string literal\"", string)
-        assertEquals(JsonLiteral("some string literal"), strict.parse(JsonLiteralSerializer, string))
+        assertEquals(JsonLiteral("some string literal"), strict.parse(JsonLiteralSerializer, string, useStreaming))
     }
 
-    @Test // TODO Top-level nulls are not supported in tagged encoders
-    fun testTopLevelPrimitiveAsElement() { //= parametrizedTest { useStreaming ->
-        if (isJs()) return // JS toString numbers
-        val string = strict.stringify(JsonElementSerializer, JsonLiteral(1.3))
+    @Test
+    fun testTopLevelPrimitiveAsElement() = parametrizedTest { useStreaming ->
+        if (isJs()) return@parametrizedTest // JS toString numbers
+        val string = strict.stringify(JsonElementSerializer, JsonLiteral(1.3), useStreaming)
         assertEquals("1.3", string)
-        assertEquals(JsonLiteral(1.3), strict.parse(JsonElementSerializer, string))
+        assertEquals(JsonLiteral(1.3), strict.parse(JsonElementSerializer, string, useStreaming))
     }
 
     @Test

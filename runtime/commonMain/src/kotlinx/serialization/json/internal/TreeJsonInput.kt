@@ -1,27 +1,22 @@
+/*
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 @file:Suppress("LeakingThis")
 
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
+import kotlinx.serialization.internal.EnumDescriptor
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.*
-import kotlin.jvm.*
+import kotlinx.serialization.modules.SerialModule
+import kotlin.jvm.JvmField
 
 internal fun <T> Json.readJson(element: JsonElement, deserializer: DeserializationStrategy<T>): T {
-    val descriptor = deserializer.descriptor
-    if (element is JsonNull) {
-        // TODO temporary workaround (?)
-        require(descriptor.isNullable) { "Read JsonNull and expected nullable descriptor, but has $descriptor" }
-        @Suppress("NULL_FOR_NONNULL_TYPE")
-        return null
-    }
-
-    val input = when (descriptor.kind) {
-        StructureKind.LIST -> JsonTreeListInput(this, cast(element))
-        StructureKind.MAP -> JsonTreeMapInput(this, cast(element))
-        is PrimitiveKind -> JsonPrimitiveInput(this, cast(element))
-        else -> JsonTreeInput(this, cast(element))
+    val input = when (element) {
+        is JsonObject -> JsonTreeInput(this, element)
+        is JsonArray -> JsonTreeListInput(this, element)
+        is JsonLiteral, JsonNull -> JsonPrimitiveInput(this, element as JsonPrimitive)
     }
 
     return input.decode(deserializer)
@@ -94,16 +89,12 @@ private sealed class AbstractJsonTreeInput(override val json: Json, open val obj
 
 private class JsonPrimitiveInput(json: Json, override val obj: JsonPrimitive) : AbstractJsonTreeInput(json, obj) {
 
-    companion object {
-        const val primitive = "primitive"
-    }
-
     init {
-        pushTag(primitive)
+        pushTag(PRIMITIVE_TAG)
     }
 
     override fun currentElement(tag: String): JsonElement {
-        require(tag == primitive)
+        require(tag === PRIMITIVE_TAG) { "This input can only handle primitives with '$PRIMITIVE_TAG' tag" }
         return obj
     }
 }
