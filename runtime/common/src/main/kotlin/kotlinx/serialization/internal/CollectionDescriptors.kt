@@ -11,7 +11,6 @@ sealed class ListLikeDescriptor(val elementDesc: SerialDescriptor) : SerialDescr
         name.toIntOrNull() ?: throw IllegalArgumentException("$name is not a valid list index")
 
     override fun getElementDescriptor(index: Int): SerialDescriptor = elementDesc
-    override fun isElementOptional(index: Int): Boolean = false
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -40,7 +39,6 @@ sealed class MapLikeDescriptor(
 
     override fun getElementDescriptor(index: Int): SerialDescriptor =
         if (index % 2 == 0) keyDescriptor else valueDescriptor
-    override fun isElementOptional(index: Int): Boolean = false
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

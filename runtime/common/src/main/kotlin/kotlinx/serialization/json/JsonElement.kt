@@ -15,7 +15,9 @@ import kotlinx.serialization.json.internal.*
  *
  * [JsonElement.toString] properly prints JSON tree as valid JSON, taking into account quoted values and primitives.
  * Whole hierarchy is serializable, but only when used with [Json] as [JsonElement] is purely JSON-specific structure
- * which has a meaningful schameless semantics only for JSON.
+ * which has a meaningful schemaless semantics only for JSON.
+ *
+ * The whole hierarchy is [serializable][Serializable] only by [Json] format.
  */
 @Serializable(JsonElementSerializer::class)
 public sealed class JsonElement {
@@ -85,7 +87,7 @@ public sealed class JsonPrimitive : JsonElement() {
 
     /**
      * Returns content of current element as int or `null` if current element is not a valid representation of number
-     **/
+     */
     public val intOrNull: Int? get() = content.toIntOrNull()
 
     /**
@@ -199,6 +201,9 @@ public object JsonNull : JsonPrimitive() {
 
 /**
  * Class representing JSON object, consisting of name-value pairs, where value is arbitrary [JsonElement]
+ *
+ * Since this class also implements [Map] interface, you can use
+ * traditional methods like [Map.get] or [Map.getValue] to obtain Json elements.
  */
 @Serializable(JsonObjectSerializer::class)
 public data class JsonObject(val content: Map<String, JsonElement>) : JsonElement(), Map<String, JsonElement> by content {
@@ -206,23 +211,12 @@ public data class JsonObject(val content: Map<String, JsonElement>) : JsonElemen
     override val jsonObject: JsonObject = this
 
     /**
-     * Returns [JsonElement] associated with given [key]
-     * @throws NoSuchElementException if element is not present
-     */
-    public override fun get(key: String): JsonElement = content[key] ?: throw NoSuchElementException("Element $key is missing")
-
-    /**
-     * Returns [JsonElement] associated with given [key] or `null` if element is not present
-     */
-    public fun getOrNull(key: String): JsonElement? = content[key]
-
-    /**
      * Returns [JsonPrimitive] associated with given [key]
      *
      * @throws NoSuchElementException if element is not present
      * @throws JsonElementTypeMismatchException if element is present, but has invalid type
      */
-    public fun getPrimitive(key: String): JsonPrimitive = get(key) as? JsonPrimitive
+    public fun getPrimitive(key: String): JsonPrimitive = getValue(key) as? JsonPrimitive
             ?: unexpectedJson(key, "JsonPrimitive")
 
     /**
@@ -231,7 +225,7 @@ public data class JsonObject(val content: Map<String, JsonElement>) : JsonElemen
      * @throws NoSuchElementException if element is not present
      * @throws JsonElementTypeMismatchException if element is present, but has invalid type
      */
-    public fun getObject(key: String): JsonObject = get(key) as? JsonObject
+    public fun getObject(key: String): JsonObject = getValue(key) as? JsonObject
             ?: unexpectedJson(key, "JsonObject")
 
     /**
@@ -240,7 +234,7 @@ public data class JsonObject(val content: Map<String, JsonElement>) : JsonElemen
      * @throws NoSuchElementException if element is not present
      * @throws JsonElementTypeMismatchException if element is present, but has invalid type
      */
-    public fun getArray(key: String): JsonArray = get(key) as? JsonArray
+    public fun getArray(key: String): JsonArray = getValue(key) as? JsonArray
             ?: unexpectedJson(key, "JsonArray")
 
     /**
@@ -274,7 +268,7 @@ public data class JsonObject(val content: Map<String, JsonElement>) : JsonElemen
      * Returns [J] associated with given [key] or `null` if element
      * is not present or has different type
      */
-    public inline fun <reified J : JsonElement> lookup(key: String): J? = content[key] as? J
+    public inline fun <reified J : JsonElement> getAsOrNull(key: String): J? = content[key] as? J
 
     public override fun toString(): String {
         return content.entries.joinToString(
@@ -285,11 +279,17 @@ public data class JsonObject(val content: Map<String, JsonElement>) : JsonElemen
         )
     }
 
-    public override fun equals(other: Any?): Boolean = content.equals(other)
+    public override fun equals(other: Any?): Boolean = content == other
 
     public override fun hashCode(): Int = content.hashCode()
 }
 
+/**
+ * Class representing JSON array, consisting of indexed values, where value is arbitrary [JsonElement]
+ *
+ * Since this class also implements [List] interface, you can use
+ * traditional methods like [List.get] or [List.getOrNull] to obtain Json elements.
+ */
 @Serializable(JsonArraySerializer::class)
 public data class JsonArray(val content: List<JsonElement>) : JsonElement(), List<JsonElement> by content {
 
@@ -297,6 +297,7 @@ public data class JsonArray(val content: List<JsonElement>) : JsonElement(), Lis
 
     /**
      * Returns [index]-th element of an array as [JsonPrimitive]
+     * @throws IndexOutOfBoundsException if there is no element with given index
      * @throws JsonElementTypeMismatchException if element has invalid type
      */
     public fun getPrimitive(index: Int) = content[index] as? JsonPrimitive
@@ -304,6 +305,7 @@ public data class JsonArray(val content: List<JsonElement>) : JsonElement(), Lis
 
     /**
      * Returns [index]-th element of an array as [JsonObject]
+     * @throws IndexOutOfBoundsException if there is no element with given index
      * @throws JsonElementTypeMismatchException if element has invalid type
      */
     public fun getObject(index: Int) = content[index] as? JsonObject
@@ -311,6 +313,7 @@ public data class JsonArray(val content: List<JsonElement>) : JsonElement(), Lis
 
     /**
      * Returns [index]-th element of an array as [JsonArray]
+     * @throws IndexOutOfBoundsException if there is no element with given index
      * @throws JsonElementTypeMismatchException if element has invalid type
      */
     public fun getArray(index: Int) = content[index] as? JsonArray
@@ -345,7 +348,7 @@ public data class JsonArray(val content: List<JsonElement>) : JsonElement(), Lis
 
     public override fun toString() = content.joinToString(prefix = "[", postfix = "]", separator = ",")
 
-    public override fun equals(other: Any?): Boolean = content.equals(other)
+    public override fun equals(other: Any?): Boolean = content == other
 
     public override fun hashCode(): Int = content.hashCode()
 }

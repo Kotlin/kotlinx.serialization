@@ -16,7 +16,7 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.context.SimpleModule
+import kotlinx.serialization.modules.serializersModuleOf
 import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlin.test.*
 
@@ -28,7 +28,7 @@ class DynamicParserTest {
     data class DataWrapper(val s: String, val d: Data?)
 
     @Serializable
-    data class DataWrapperOptional(val s: String, @Optional val d: Data? = null)
+    data class DataWrapperOptional(val s: String,val d: Data? = null)
 
     @Serializable
     data class IntList(val l: List<Int>)
@@ -164,7 +164,7 @@ class DynamicParserTest {
 
     @Test
     fun parseWithCustomSerializers() {
-        val deserializer = DynamicObjectParser().apply { install(SimpleModule(NotDefault::class, NDSerializer)) }
+        val deserializer = DynamicObjectParser(context = serializersModuleOf(NotDefault::class, NDSerializer))
         val dyn1 = js("({data: 42})")
         assertEquals(NDWrapper(NotDefault(42)), deserializer.parse(dyn1))
     }

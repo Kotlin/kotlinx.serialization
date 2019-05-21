@@ -37,16 +37,44 @@ fun Float.Companion.serializer(): KSerializer<Float> = FloatSerializer
 fun Double.Companion.serializer(): KSerializer<Double> = DoubleSerializer
 fun Boolean.Companion.serializer(): KSerializer<Boolean> = BooleanSerializer
 
-fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> {
+/**
+ * Creates a [List] out of a child descriptors retrieved via [SerialDescriptor.getElementDescriptor].
+ *
+ * Size of a sequence is equal to [SerialDescriptor.elementsCount].
+ */
+public fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> {
     return (0 until elementsCount).map { getElementDescriptor(it) }
 }
 
-fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
+/**
+ * Same as [SerialDescriptor.getElementIndex],
+ * but throws [SerializationException] if
+ * given name is not associated with any element
+ * in the descriptor.
+ */
+public fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
     val i = getElementIndex(name)
-    if (i == CompositeDecoder.UNKNOWN_NAME) throw SerializationException("Unknown name '$name'")
+    if (i == CompositeDecoder.UNKNOWN_NAME)
+        throw SerializationException("${this.name} does not contain element with name '$name'")
     return i
 }
 
-@Deprecated("Obsolete name from preview version of library.", ReplaceWith("elementsCount"))
+/**
+ * Searches for annotation of type [A] in annotations, obtained via
+ * [SerialDescriptor.getElementAnnotations] at given [elementIndex]
+ *
+ * Returns null if there are no annotations with such type.
+ * Throws [IllegalStateException] if there are duplicated annotations for a given type.
+ */
+internal inline fun <reified A: Annotation> SerialDescriptor.findAnnotation(elementIndex: Int): A? {
+    val candidates = getElementAnnotations(elementIndex).filterIsInstance<A>()
+    return when (candidates.size) {
+        0 -> null
+        1 -> candidates[0]
+        else -> throw IllegalStateException("There are duplicate annotations of type ${A::class} in the descriptor $this")
+    }
+}
+
+@Deprecated(deprecationText, ReplaceWith("elementsCount"))
 val SerialDescriptor.associatedFieldsCount: Int
     get() = elementsCount

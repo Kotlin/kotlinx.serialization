@@ -28,7 +28,7 @@ data class StreetData2(
 @Serializable
 data class CountryData(
     @SerialId(10) val name: String,
-    @SerialId(20) @Optional val cities: List<CityData> = emptyList()
+    @SerialId(20) val cities: List<CityData> = emptyList()
 )
 
 val russia = CountryData("Russia", listOf(

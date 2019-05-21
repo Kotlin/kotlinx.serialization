@@ -146,7 +146,7 @@ actual class ByteBuffer private constructor(private var backingArray: ByteArray)
     actual fun getLong(): Long {
         val baseOffset = idx
         var bytes: Long = 0
-        if (order != ByteOrder.BIG_ENDIAN) {
+        if (order != ByteOrder.LITTLE_ENDIAN) {
             for (i in 0..7) {
                 bytes = bytes shl 8
                 bytes = bytes or (backingArray[baseOffset + i].toInt() and 0xFF).toLong()
@@ -169,7 +169,7 @@ actual class ByteBuffer private constructor(private var backingArray: ByteArray)
     actual fun putLong(value: Long): ByteBuffer {
         var value = value
         val baseOffset = idx
-        if (order != ByteOrder.BIG_ENDIAN) {
+        if (order != ByteOrder.LITTLE_ENDIAN) {
             for (i in 7 downTo 0) {
                 backingArray[baseOffset + i] = (value and 0xFF).toByte()
                 value = value shr 8

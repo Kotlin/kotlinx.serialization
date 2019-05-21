@@ -18,10 +18,15 @@ a generic class, this method will have arguments `KSerializer<T1>, KSerializer<T
 
 ## Table of contents
 
-* [Customizing default serializer](#customizing)
-* [External and generic serialization](#external-serializers-for-library-classes)
+* [Customizing default serializers](#customizing)
+    - [Representing classes as a single value](#representing-classes-as-a-single-value)
+    - [Representing classes as multiple values](#representing-classes-as-multiple-values)
+* [External serializers for library classes](#external-serializers-for-library-classes)
+  + [About generic serializers](#about-generic-serializers)
 * [Using custom serializers](#using-custom-serializers)
-
+  + [`UseSerializers` annotation](#useserializers-annotation)
+* [Registering and serial modules](#registering-and-context)
+  + [`ContextualSerialization` annotation](#contextualserialization-annotation)
 
 ## Customizing
 
@@ -200,14 +205,18 @@ If you have a lot of serializable classes, which use, say `java.util.Date`, it m
 
 By default, all serializers are resolved by plugin statically when compiling serializable class.
 This gives us type-safety, performance and eliminates reflection usage to minimum. However, if there is no
-`@Serializable` annotation of class and no `@Serializable(with=...)` on property, in general, it is impossible to know at compile time which serializer to
+`@Serializable` annotation of class and no `@Serializable(with=...)` on property, in general,
+it is impossible to know at compile time which serializer to
 use - user can define more than one external serializer, or define them in other module, or even it's a class from
 library which doesn't know anything about serialization.
 
-To support such cases, a concept of `SerialContext` was introduced. Roughly speaking, it's a map where
+To support such cases, a concept of `SerialModule` was introduced. Roughly speaking, it's a map where
 runtime part of framework is looking for serializers if they weren't resolved at compile time by plugin.
+Modules are intended to be reused in different formats or even different projects
+(e.g. Library A have some custom serializers and exports a module with them so Application B can use A's classes with serializers in B's output).
 
-If you want your external serializers to be used, you must register them in a context of serialization format. Registration is done via an _installation of modules_. Module is a bunch of serializers tied to classes. Modules are intended to be reused in different formats or even different projects (e.g. Library A have some custom serializers and exports a module with them so Application B can use A's classes with serializers in B's output).
+If you want your external serializers to be used, you pass a module with them to the serialization format.
+All standard formats have constructor parameter `context: SerialModule`.
 
 ### `ContextualSerialization` annotation
 
@@ -222,12 +231,12 @@ You can also install different modules for one class into different instances of
 ```kotlin
 // Imagine we have class Payload with 2 different serializers
 
-val simpleModule = SimpleModule(Payload::class, PayloadSerializer)
-// MapModule and CompositeModule are also available
-val binaryModule = SimpleModule(Payload::class, BinaryPayloadSerializer)
+val simpleModule = serializersModuleOf(Payload::class, PayloadSerializer)
+// You can also create modules from map or using a builder function SerializersModule { ... }
+val binaryModule = serializersModuleOf(Payload::class, BinaryPayloadSerializer)
 
-val json1 = Json().apply { install(simpleModule) }
-val json2 = Json().apply { install(binaryModule) }
+val json1 = Json(context = simpleModule)
+val json2 = Json(context = binaryModule)
 
 // in json1, Payload would be serialized with PayloadSerializer,
 // in json2, Payload would be serialized with BinaryPayloadSerializer

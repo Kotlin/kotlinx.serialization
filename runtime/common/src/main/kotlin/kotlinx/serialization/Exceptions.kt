@@ -22,6 +22,7 @@ import kotlin.jvm.JvmOverloads
 open class SerializationException @JvmOverloads constructor(message: String, cause: Throwable? = null)
     : RuntimeException(message, cause)
 
+// these are thrown from generated code
 class MissingFieldException(fieldName: String) : SerializationException("Field '$fieldName' is required, but it was missing")
 class UnknownFieldException(index: Int): SerializationException("Unknown field for index $index")
 

@@ -1,17 +1,5 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 buildscript {
@@ -29,25 +17,29 @@ buildscript {
         ext.serializationPluginVersion = property('plugin.version')
         ext.konanVersion = property('konan.version')
     }
+    ext.serializationVersion = property('library.version')
     ext.serializationCoordinates = "org.jetbrains.kotlin:kotlin-serialization"
-    ext.eapChannel = 'https://teamcity.jetbrains.com/guestAuth/app/rest/builds/id:1907319/artifacts/content/maven'
+    ext.tcChannel = 'https://teamcity.jetbrains.com/guestAuth/app/rest/builds/id:2082584/artifacts/content/maven'
+    ext.devChannel = 'https://kotlin.bintray.com/kotlin-dev'
     ext.serializationRepo = 'https://kotlin.bintray.com/kotlinx'
     ext.experimentalsEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
                                 "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
-                                ]
+    ]
 
     ext.experimentalsInTestEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
-                                "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
-                                "-Xuse-experimental=kotlinx.serialization.ImplicitReflectionSerializer",
-                                ]
+                                      "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
+                                      "-Xuse-experimental=kotlinx.serialization.ImplicitReflectionSerializer",
+                                      "-Xuse-experimental=kotlinx.serialization.UnstableDefault"
+    ]
 
     repositories {
-        jcenter()
         mavenLocal()
-        maven { url "https://plugins.gradle.org/m2/" }
-        maven { url eapChannel }
+        maven { url tcChannel }
+        maven { url devChannel }
         maven { url serializationRepo }
+        maven { url "https://plugins.gradle.org/m2/" }
         maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
+        jcenter()
     }
 
     dependencies {
@@ -82,23 +74,33 @@ ext {
 
 allprojects {
     group 'org.jetbrains.kotlinx'
-    version property('library.version')
+    version serializationVersion
 
     if (project.hasProperty("bootstrap")) {
         version = version + '-SNAPSHOT'
     }
 
     repositories {
-        jcenter()
         mavenLocal()
-        maven { url eapChannel }
+        maven { url tcChannel }
+        maven { url devChannel }
         maven { url serializationRepo }
+        jcenter()
     }
 }
 
 apply plugin: 'kotlin'
 
 subprojects {
+    configurations.all {
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'org.jetbrains.kotlin' && details.requested.name == 'kotlinx-serialization-unshaded') {
+                details.useVersion serializationPluginVersion
+                details.because 'use not bundled one'
+            }
+        }
+    }
+
     if (project.name.contains("native")) return
 
     apply plugin: 'kotlinx-serialization'

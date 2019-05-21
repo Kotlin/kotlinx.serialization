@@ -3,6 +3,7 @@ package kotlinx.serialization.json.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 import kotlin.jvm.*
 
 
@@ -14,11 +15,14 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
         modeReuseCache: Array<JsonOutput?>
     ) : this(Composer(output, json), json, mode, modeReuseCache)
 
+    public override val context: SerialModule = json.context
+    private val configuration = json.configuration
+
     // Forces serializer to wrap all values into quotes
     private var forceQuoting: Boolean = false
+    private var writePolymorphic = false
 
     init {
-        context = json.context
         val i = mode.ordinal
         if (modeReuseCache[i] !== null || modeReuseCache[i] !== this)
             modeReuseCache[i] = this
@@ -29,7 +33,21 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
     }
 
     override fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean {
-        return json.encodeDefaults
+        return configuration.encodeDefaults
+    }
+
+    override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
+        encodePolymorphically(serializer, value) {
+            writePolymorphic = true
+        }
+    }
+
+    private fun encodeTypeInfo(descriptor: SerialDescriptor) {
+        composer.nextItem()
+        encodeString(configuration.classDiscriminator)
+        composer.print(COLON)
+        composer.space()
+        encodeString(descriptor.name)
     }
 
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
@@ -37,6 +55,11 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
         if (newMode.begin != INVALID) { // entry
             composer.print(newMode.begin)
             composer.indent()
+        }
+
+        if (writePolymorphic) {
+            writePolymorphic = false
+            encodeTypeInfo(desc)
         }
 
         if (mode == newMode) {
@@ -66,11 +89,14 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
                     if (index % 2 == 0) {
                         composer.print(COMMA)
                         composer.nextItem() // indent should only be put after commas in map
+                        forceQuoting = true
                     } else {
                         composer.print(COLON)
                         composer.space()
+                        forceQuoting = false
                     }
                 } else {
+                    forceQuoting = true
                     composer.nextItem()
                 }
             }
@@ -120,7 +146,7 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
     }
 
     override fun encodeFloat(value: Float) {
-        if (json.strictMode && !value.isFinite()) {
+        if (configuration.strictMode && !value.isFinite()) {
             throw JsonInvalidValueInStrictModeException(value)
         }
 
@@ -128,7 +154,7 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
     }
 
     override fun encodeDouble(value: Double) {
-        if (json.strictMode && !value.isFinite()) {
+        if (configuration.strictMode && !value.isFinite()) {
             throw JsonInvalidValueInStrictModeException(value)
         }
 
@@ -140,7 +166,7 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
     }
 
     override fun encodeString(value: String) {
-        if (json.unquoted && !shouldBeQuoted(value)) {
+        if (configuration.unquoted && !shouldBeQuoted(value)) {
             composer.print(value)
         } else {
             composer.printQuoted(value)
@@ -152,7 +178,7 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
     }
 
     override fun encodeValue(value: Any) {
-        if (json.strictMode) super.encodeValue(value) else
+        if (configuration.strictMode) super.encodeValue(value) else
             encodeString(value.toString())
     }
 
@@ -171,14 +197,14 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
 
         fun nextItem() {
             writingFirst = false
-            if (json.indented) {
+            if (json.configuration.prettyPrint) {
                 print("\n")
-                repeat(level) { print(json.indent) }
+                repeat(level) { print(json.configuration.indent) }
             }
         }
 
         fun space() {
-            if (json.indented)
+            if (json.configuration.prettyPrint)
                 print(' ')
         }
 

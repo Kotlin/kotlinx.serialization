@@ -16,6 +16,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.test.shouldBe
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -26,7 +27,7 @@ class TaggedTest {
             @SerialId(1) val first: Int,
             @SerialId(2) val second: String,
             val noId: Unit = Unit,
-            @Optional @SerialId(42) val last: Boolean = true
+            @SerialId(42) val last: Boolean = true
     )
 
     class Collector : IntTaggedEncoder() {
@@ -42,16 +43,14 @@ class TaggedTest {
         }
     }
 
-    infix fun <T> T.shouldBe(expected: T) = assertEquals(expected, this)
-
     @Test
     fun testTagged() {
         val collector = Collector()
         val data = DataWithId(1, "2")
-        collector.encode(data)
+        collector.encode(DataWithId.serializer(), data)
 
         assertEquals(mapOf(1 to 1, 2 to "2", null to Unit, 42 to true), collector.tagList, "see all tags properly")
-        val obj = Emitter(collector).decode(DataWithId::class.serializer())
+        val obj = Emitter(collector).decode(DataWithId.serializer())
         assertEquals(obj, data, "read tags back")
     }
 

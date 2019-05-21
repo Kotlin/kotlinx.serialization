@@ -17,7 +17,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
-import kotlinx.serialization.context.getOrDefault
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.internal.EnumDescriptor
 import kotlin.math.abs
 import kotlin.math.floor
@@ -27,16 +27,16 @@ import kotlin.math.floor
  */
 internal const val MAX_SAFE_INTEGER: Double = 9007199254740991.toDouble() // 2^53 - 1
 
-class DynamicObjectParser(): AbstractSerialFormat() {
+class DynamicObjectParser(context: SerialModule = EmptyModule): AbstractSerialFormat(context) {
     @ImplicitReflectionSerializer
-    inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.getOrDefault(T::class))
+    inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.getContextualOrDefault(T::class))
 
     fun <T> parse(obj: dynamic, deserializer: DeserializationStrategy<T>): T = DynamicInput(obj).decode(deserializer)
 
     private open inner class DynamicInput(val obj: dynamic) : NamedValueDecoder() {
-        init {
-            this.context = this@DynamicObjectParser.context
-        }
+        override val context: SerialModule
+            get() = this@DynamicObjectParser.context
+
         override fun composeName(parentName: String, childName: String): String = childName
 
         private var pos = 0
@@ -50,7 +50,7 @@ class DynamicObjectParser(): AbstractSerialFormat() {
         }
 
         override fun decodeTaggedEnum(tag: String, enumDescription: EnumDescriptor): Int =
-                enumDescription.getElementIndex(getByTag(tag) as String)
+                enumDescription.getElementIndexOrThrow(getByTag(tag) as String)
 
         protected open fun getByTag(tag: String): dynamic = obj[tag]
 
@@ -98,10 +98,6 @@ class DynamicObjectParser(): AbstractSerialFormat() {
     }
 
     private inner class DynamicMapInput(obj: dynamic): DynamicInput(obj) {
-        init {
-            this.context = this@DynamicObjectParser.context
-        }
-
         private val keys: dynamic = js("Object").keys(obj)
         private val size: Int = (keys.length as Int) * 2
         private var pos = -1
@@ -126,10 +122,6 @@ class DynamicObjectParser(): AbstractSerialFormat() {
     }
 
     private inner class DynamicListInput(obj: dynamic): DynamicInput(obj) {
-        init {
-            this.context = this@DynamicObjectParser.context
-        }
-
         private val size = obj.length as Int
         private var pos = -1
 

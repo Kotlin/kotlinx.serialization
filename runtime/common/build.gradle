@@ -22,3 +22,5 @@ dependencies {
     testCompile libraries.kotlin_test_annotations_common
     testCompile libraries.kotlin_test_common
 }
+
+sourceSets.test.kotlin.srcDirs += ['src/testWithNative']

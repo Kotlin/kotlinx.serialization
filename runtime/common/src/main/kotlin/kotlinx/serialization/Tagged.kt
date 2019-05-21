@@ -17,8 +17,8 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
-import kotlinx.serialization.context.EmptyContext
-import kotlinx.serialization.context.SerialContext
+import kotlinx.serialization.modules.EmptyModule
+import kotlinx.serialization.modules.SerialModule
 import kotlinx.serialization.internal.EnumDescriptor
 
 @SerialInfo
@@ -38,7 +38,8 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
      */
     protected abstract fun SerialDescriptor.getTag(index: Int): Tag
 
-    override var context: SerialContext = EmptyContext
+    override val context: SerialModule
+        get() = EmptyModule
 
     // ---- API ----
     open fun encodeTaggedValue(tag: Tag, value: Any): Unit
@@ -171,14 +172,16 @@ abstract class NamedValueEncoder(val rootName: String = "") : TaggedEncoder<Stri
     open fun composeName(parentName: String, childName: String) = if (parentName.isEmpty()) childName else parentName + "." + childName
 }
 
-fun getSerialId(desc: SerialDescriptor, index: Int): Int?
-        = desc.getElementAnnotations(index).filterIsInstance<SerialId>().singleOrNull()?.id
+internal fun getSerialId(desc: SerialDescriptor, index: Int): Int?
+        = desc.findAnnotation<SerialId>(index)?.id
 
-fun getSerialTag(desc: SerialDescriptor, index: Int): String?
-        = desc.getElementAnnotations(index).filterIsInstance<SerialTag>().singleOrNull()?.tag
+internal fun getSerialTag(desc: SerialDescriptor, index: Int): String?
+        = desc.findAnnotation<SerialTag>(index)?.tag
 
 abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
-    override var context: SerialContext = EmptyContext
+    override val context: SerialModule
+        get() = EmptyModule
+
     override val updateMode: UpdateMode = UpdateMode.UPDATE
 
     protected abstract fun SerialDescriptor.getTag(index: Int): Tag

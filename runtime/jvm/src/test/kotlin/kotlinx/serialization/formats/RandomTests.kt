@@ -116,7 +116,7 @@ object KTestData {
             @SerialId(12) @ProtoType(ProtoNumberType.FIXED) val f64: Long,
             @SerialId(21) val f: Float,
             @SerialId(22) val d: Double,
-            @SerialId(41) @Optional val b: Boolean = false,
+            @SerialId(41) val b: Boolean = false,
             @SerialId(51) val s: String
     ) : IMessage {
         override fun toProtobufMessage(): TestAllTypes = TestAllTypes.newBuilder()
@@ -207,7 +207,7 @@ object KTestData {
     }
 
     @Serializable
-    data class KTestMap(@SerialId(1) val s: Map<String, String>, @Optional @SerialId(2) val o: Map<Int, KTestAllTypes> = emptyMap()) :
+    data class KTestMap(@SerialId(1) val s: Map<String, String>, @SerialId(2) val o: Map<Int, KTestAllTypes> = emptyMap()) :
         IMessage {
         override fun toProtobufMessage() = TestMap.newBuilder()
             .putAllStringMap(s)

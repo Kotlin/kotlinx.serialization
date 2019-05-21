@@ -1,17 +1,5 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -19,11 +7,12 @@ package kotlinx.serialization
 import kotlin.reflect.KClass
 
 /**
- * Instructs to use specific serializer for class or property.
+ * Instructs to use specific serializer for class, property or type argument.
+ *
  * If argument is omitted, plugin will generate default implementation inside the class.
  */
-@Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
-annotation class Serializable(
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS, AnnotationTarget.TYPE)
+public annotation class Serializable(
     val with: KClass<out KSerializer<*>> = KSerializer::class // it means -- use default serializer by default
 )
 
@@ -33,7 +22,7 @@ annotation class Serializable(
  * use [Serializable] or [UseSerializers], or [ContextualSerialization] with runtime registration.
  */
 @Target(AnnotationTarget.CLASS)
-annotation class Serializer(
+public annotation class Serializer(
     val forClass: KClass<*> // what class to create serializer for
 )
 
@@ -41,37 +30,45 @@ annotation class Serializer(
  * Overrides name visible to the runtime part of serialization framework
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
-annotation class SerialName(val value: String)
+public annotation class SerialName(val value: String)
 
 /**
  * Indicates that property is optional in deserialization process.
  * Optional properties must have default values.
  */
 @Target(AnnotationTarget.PROPERTY)
-annotation class Optional
+@Deprecated("All properties with default values are considered optional now")
+public annotation class Optional
+
+/**
+ * Indicates that property must be present during deserialization process,
+ * even if it has default value.
+ */
+@Target(AnnotationTarget.PROPERTY)
+annotation class Required
 
 /**
  * Marks this property invisible for whole serialization framework.
  * Transient properties must have default values.
  */
 @Target(AnnotationTarget.PROPERTY)
-annotation class Transient
+public annotation class Transient
 
 /**
  * When annotation class is marked with `@SerialInfo`, compiler plugin can instantiate it
  * and put into [SerialDescriptor], to be retrieved later during serialization process.
  */
 @Target(AnnotationTarget.ANNOTATION_CLASS)
-annotation class SerialInfo
+public annotation class SerialInfo
 
 /**
- * Instructs to use [ContextSerializer] on an annotated property or type.
+ * Instructs to use [ContextSerializer] on an annotated property or type usage.
  * If used on a file, instructs to use [ContextSerializer] for all listed KClasses.
  *
  * @param [forClasses] Classes to use ContextSerializer for in current file.
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.FILE, AnnotationTarget.TYPE)
-annotation class ContextualSerialization(vararg val forClasses: KClass<*>)
+public annotation class ContextualSerialization(vararg val forClasses: KClass<*>)
 
 /**
  *  Adds [serializerClasses] to serializers resolving process inside the plugin.
@@ -88,10 +85,12 @@ annotation class ContextualSerialization(vararg val forClasses: KClass<*>)
  *  serializers defined on the property itself, such as [Serializable] (with=...) or [ContextualSerialization].
  */
 @Target(AnnotationTarget.FILE)
-annotation class UseSerializers(vararg val serializerClasses: KClass<*>)
+public annotation class UseSerializers(vararg val serializerClasses: KClass<*>)
 
 /**
- * Instructs to use [PolymorphicSerializer] on an annotated property or type.
+ * Instructs to use [PolymorphicSerializer] on an annotated property or type usage.
+ * This annotation is applied automatically to interfaces and serializable abstract classes
+ * and can be applied to open classes in addition to [Serializable] for the sake of simplicity.
  */
-@Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE)
-annotation class Polymorphic
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE, AnnotationTarget.CLASS)
+public annotation class Polymorphic

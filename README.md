@@ -22,7 +22,7 @@ This project contains the runtime library. Runtime library provides:
 * Ready-to-use serialization formats.
 * Other useful classes that benefit from serialization framework (e.g. object-to-Map transformer)
 
-You can open example projects for [JS](example-js), [JVM](example-jvm) or [Native](example-native) to get started playing with it.
+You can open example projects for [JS](examples/example-js), [JVM](examples/example-jvm) or [Native](examples/example-native) to get started playing with it.
 
 ## Table of contents
 
@@ -47,7 +47,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 
 @Serializable
-data class Data(val a: Int, @Optional val b: String = "42")
+data class Data(val a: Int, val b: String = "42")
 
 fun main(args: Array<String>) {
     // serializing objects
@@ -58,7 +58,7 @@ fun main(args: Array<String>) {
     println(jsonList) // [{"a": 42, "b": "42"}]
 
     // parsing data back
-    val obj = Json.parse(Data.serializer(), """{"a":42}""")
+    val obj = Json.parse(Data.serializer(), """{"a":42}""") // b is optional since it has default value
     println(obj) // Data(a=42, b="42")
 }
 ```
@@ -75,8 +75,10 @@ This document describes setup for Kotlin 1.3 and higher. To watch instructions r
 
 ## Setup
 
-Using Kotlin Serialization requires Kotlin compiler `1.3.20` or higher. Make sure that you have corresponding Kotlin plugin installed in the IDE. Since serialization is now bundled into Kotlin plugin, no additional plugins for IDE are required (but make sure you have deleted old additional plugin for 1.2, if you had one).
-Example projects on JVM are available for [Gradle](example-jvm/build.gradle) and [Maven](example-jvm/pom.xml).
+Using Kotlin Serialization requires Kotlin compiler `1.3.30` or higher.
+Make sure that you have corresponding Kotlin plugin installed in the IDE.
+Since serialization is now bundled into Kotlin plugin, no additional plugins for IDE are required (but make sure you have deleted old additional plugin for 1.2, if you had one).
+Example projects on JVM are available for [Gradle](examples/example-jvm/build.gradle) and [Maven](examples/example-jvm/pom.xml).
 
 ### Gradle
 
@@ -84,7 +86,7 @@ You have to add the serialization plugin as the other [compiler plugins](https:/
 
 ```gradle
 buildscript {
-    ext.kotlin_version = '1.3.20'
+    ext.kotlin_version = '1.3.30'
     repositories { jcenter() }
 
     dependencies {
@@ -112,7 +114,7 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.10.0"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.11.0"
 }
 ```
 
@@ -122,8 +124,8 @@ You can setup serialization plugin with the kotlin plugin using [Gradle plugins 
 
 ```gradle
 plugins {
-    id 'kotlin-multiplatform' version '1.3.20'
-    id 'kotlinx-serialization' version '1.3.20'
+    id 'kotlin-multiplatform' version '1.3.30'
+    id 'kotlinx-serialization' version '1.3.30'
 }
 ```
 
@@ -174,8 +176,8 @@ Ensure the proper version of Kotlin and serialization version:
 
 ```xml
 <properties>
-    <kotlin.version>1.3.20</kotlin.version>
-    <serialization.version>0.10.0</serialization.version>
+    <kotlin.version>1.3.30</kotlin.version>
+    <serialization.version>0.11.0</serialization.version>
 </properties>
 ```
 
@@ -242,7 +244,7 @@ Replace dependency on `kotlinx-serialization-runtime` with `kotlinx-serializatio
 to use it in JavaScript and common projects, respectively. Both `kotlin-platform-***` and `kotlin-multiplatform` are supported.
 You have to apply `kotlinx-serialization` plugin to every module, including common and platform ones.
 
-JavaScript example is located at [`example-js`](example-js) folder.
+JavaScript example is located at [`example-js`](examples/example-js) folder.
 
 ### Native
 
@@ -256,14 +258,15 @@ since platform-native from K/N 0.9.3 uses infrastructure in which compiler plugi
 Use `kotlinx-serialization-runtime-native` artifact. Don't forget to `enableFeaturePreview('GRADLE_METADATA')`
 in yours `settings.gradle`. You must have Gradle 4.8 or higher, because older versions have unsupported format of metadata.
 
-Sample project can be found in [example-native](example-native) folder.
+Sample project can be found in [example-native](examples/example-native) folder.
 
 ### Incompatible changes
 
-All versions of library before 0.10.0 are using Gradle metadata v0.3 and therefore require Gradle 4.7 for build.
+All versions of library before `0.10.0` are using Gradle metadata v0.3 and therefore require Gradle 4.7 for build.
 Maven plugin coordinates before Kotlin 1.3.20 were `kotlinx-maven-serialization-plugin`.
+Library version `0.11.0` requires Kotlin 1.3.30 and higher and incompatible with previous versions.
 
 ## Troubleshooting IntelliJ IDEA
 
-Serialization support should work out of the box, if you have 1.3.x Kotlin plugin installed. If you have Kotlin 1.3.10 or lower, you have to delegate build to Gradle (`Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`). Starting from 1.3.11, no delegation is required.
+Serialization support should work out of the box, if you have 1.3.x Kotlin plugin installed and have imported the project from Maven or Gradle with serialization enabled in their buildscripts. If you have Kotlin 1.3.10 or lower, you have to delegate build to Gradle (`Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`). Starting from 1.3.11, no delegation is required.
 In case of problems, force project re-import from Gradle.

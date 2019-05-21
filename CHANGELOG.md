@@ -1,3 +1,37 @@
+v0.11.0 / 2019-04-12
+====================
+
+#### Plugin:
+
+  * **Semantic change**: Now properties with default values are @Optional by default, and properties without backing fields are @Transient by default.
+  * Allow '@Serializable' on a type usage (fixes #367)
+  * Auto-applying @Polymorphic for interfaces and serializable abstract classes
+  * Do not enable PolymorphicSerializer without special annotation
+  * Fix missing optionality of property when generating descriptor in Native
+  * Fix impossibility to make @Optional field in a class hierarchy on JS
+  * Add synthetic companion with .serializer() getter even if default serializer is overridden. (fixes #228)
+  * Ban primitive arrays in JVM codegen too (fixes #260)
+  * Don't generate writeSelf/internal constructor if corresponding serialize/deserialize aren't auto-generated
+  * Support Serializable class hierarchies on Native and JS
+  * Replace @Optional with @Required
+  * Support classes with more than 32 serializable properties (fixes #164)
+  * Make enums and interfaces not serializable internally. However, they still can be serialized using custom companion object. Fixes #138 and #304
+
+#### Runtime:
+  * Introduce JsonBuilder and JsonConfiguration as a better mechanism for configuring and changing configuration of the JSON
+  * Implement polymorphic serialization in JSON using class discriminator key
+  * Force quoting for map keys (fixes #379)
+  * Fix bug with endianness in Native for Longs/Doubles
+  * Do not allow to mutate SerialModule in formats
+  * Implement multiplatform (JVM, JS and Native) PolymorphicSerializer
+  * Remove obsolete and poorly designed global class cache. Remove JVM-only PolymorphicSerializer
+  * Replace old SerialModule with new one which: - Can not be installed, should be passed in format constructor - Has polymorphic resolve and contextual resolve - Has DSL for creation - Immutable, but can be combined or overwritten
+  * Improve error message for unknown enum constant
+  * Deprecate @Optional, introduce @Required
+  * Use long instead of int in JsonLiteralSerializer
+  * Json and protobuf schemas recording prototype
+  * Change JsonObject so it would comply to a Map interface: .get should return null for a missing key Incompatibility with standard Map contract may bring a lot of problems, e.g. broken equals.
+  * Make JsonElementSerializer public
 
 0.10.0 / 2019-01-22
 ==================
@@ -13,7 +47,7 @@
 0.10.0-eap-1 / 2018-12-19
 ==================
 
-#### Plugin: 
+#### Plugin:
 
   * Support @SerialInfo annotation for Native
   * Remove redundant check for 'all parameters are properties' in a case of fully-customized serializer.
@@ -26,7 +60,7 @@
   * Support skipping values equals to defaults in output stream for JS and Native backends (#58)
   * Support enums in Native
   * Support reference array and context serializers in Native
-  * Fix order of overriding @Serializable(with) on property: check override, than @ContextualSerialization. 
+  * Fix order of overriding @Serializable(with) on property: check override, than @ContextualSerialization.
   * Support @Transient properties initializers and init blocks in Native
   * Better lookup for `serializer()` function in companion for generic classes because user can define a parameterless shorthand one (#228)
   * Generics serialization in Native
@@ -34,7 +68,7 @@
   * Respect @ContextualSerialization on file
   * Remove auto-applying ContextSerializer. @ContextualSerialization should be used instead.
 
-#### Runtime: 
+#### Runtime:
 
   * Turn around messed endianness names (#308)
   * Update to Kotlin 1.3.20 EAP 2
@@ -45,7 +79,7 @@
   * Introduce LongAsStringSerializer
   * Add validation for parsing dynamic to Long Fixes #274
   * Merge pull request #294 from Kotlin/recursive_custom_parsing
-  * Fix recursive serialization for JsonOutputs/Inputs 
+  * Fix recursive serialization for JsonOutputs/Inputs
   * Production-ready JSON API
   * Remove ValueTransformer
   * Json improvements
@@ -91,8 +125,8 @@ v0.8.3-rc13 / 2018-10-19
 ==================
 
   * Set default byte order to BigEndian (to be more platform-independent and get rid of posix.BYTE_ORDER dependency)
-  * Update Kotlin version to 1.3-RC4 
-  * Remove Gradle metadata from non-native modules 
+  * Update Kotlin version to 1.3-RC4
+  * Remove Gradle metadata from non-native modules
   * Add missing targets (Fixes #232)
   * Add license, developer and scm information in Maven pom in publication (Fixes #239)
   * Add builder for JsonArray
@@ -112,7 +146,7 @@ v0.8.2-rc13 / 2018-10-03
   * Tests for generic descriptors
   * Generated serializer and stuff for providing descriptors from plugin
   * Tests on @ContextualSerialization on file
-  
+
 v0.8.1-rc13 / 2018-09-24
 ========================
 
@@ -153,7 +187,7 @@ v0.6.2 / 2018-09-12
 ===================
 
   * Updated Kotlin to 1.2.70 and Kotlin/Native to 0.9
-  
+
 v0.6.1 / 2018-08-06
 ===================
 
@@ -166,12 +200,12 @@ v0.6.0 / 2018-07-13
 ===================
 
   Plugin:
-  
+
   * Allow @SerialName and @SerialInfo on classes
   * Fix resolving serializers for classes from other modules (#153 and #166)
-  
+
   Runtime:
-  
+
   * Use new 0.8 K/N DSL
   * Simplify JSON AST API, Provide JSON builder, provide useful extensions, add documentation, update K/N
   * Get rid of JsonString to align json primitives with each other. Provide JSON AST pojo parser which exposes current design issues
@@ -191,7 +225,7 @@ v0.5.1 / 2018-06-13
 ===================
 
   Plugin:
-  
+
   * Fix 1.2.50 compatibility
   * Workaround for recursive resolve on @Serializable(with) and @Serializer(for) pair annotations
   * Don't generate additional constructor if @SerialInfo has no properties
@@ -201,11 +235,11 @@ v0.5.1 / 2018-06-13
   * Respect `@Serializable(with)` on properties on JS too.
   * Fix for Kotlin/kotlinx.serialization/136
   * Fix for Kotlin/kotlinx.serialization/125
-  * Fix for Kotlin/kotlinx.serialization/118 
+  * Fix for Kotlin/kotlinx.serialization/118
   * Fix for Kotlin/kotlinx.serialization/123: resolve annotation parameters in-place
-  	
+
   Runtime:
-  
+
   * Added some shorthands for standard serializers
   * Fix for bug #141 that uses an extra boolean to determine whether to write a separating comma rather than assuming that the element with the index 0 is written first(or at all) in all cases.
   * Move mode cache to output class to make .stringify stateless and thread-safe (#139)

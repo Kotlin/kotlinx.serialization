@@ -3,23 +3,31 @@ package kotlinx.serialization.json.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 
 /**
  * [JsonInput] which reads given JSON from [JsonReader] field by field.
  */
-internal class StreamingJsonInput internal constructor(override val  json: Json, private val mode: WriteMode,
-                                                       private val reader: JsonReader) : JsonInput, ElementValueDecoder() {
+internal class StreamingJsonInput internal constructor(
+    public override val json: Json,
+    private val mode: WriteMode,
+    private val reader: JsonReader
+) : JsonInput, ElementValueDecoder() {
+
+    public override val context: SerialModule = json.context
     private var currentIndex = -1
     private var entryIndex = 0
-
-    init {
-        context = json.context
-    }
-
+    private val configuration = json.configuration
+    
     public override fun decodeJson(): JsonElement = JsonParser(reader).read()
 
+    @Suppress("DEPRECATION")
     override val updateMode: UpdateMode
-        get() = json.updateMode
+        get() = configuration.updateMode
+
+    override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+        return decodeSerializableValuePolymorphic(deserializer)
+    }
 
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
         val newMode = switchMode(desc, typeParams)
@@ -85,14 +93,14 @@ internal class StreamingJsonInput internal constructor(override val  json: Json,
                     if (index != CompositeDecoder.UNKNOWN_NAME) {
                         return index
                     }
-                    if (json.strictMode) throw JsonUnknownKeyException(key)
+                    if (configuration.strictMode) throw JsonUnknownKeyException(key)
                     else reader.skipElement()
                 }
             }
         }
     }
 
-    override fun decodeBoolean(): Boolean = reader.takeString().run { if (json.strictMode) toBooleanStrict() else toBoolean() }
+    override fun decodeBoolean(): Boolean = reader.takeString().run { if (configuration.strictMode) toBooleanStrict() else toBoolean() }
     override fun decodeByte(): Byte = reader.takeString().toByte()
     override fun decodeShort(): Short = reader.takeString().toShort()
     override fun decodeInt(): Int = reader.takeString().toInt()
@@ -101,5 +109,5 @@ internal class StreamingJsonInput internal constructor(override val  json: Json,
     override fun decodeDouble(): Double = reader.takeString().toDouble()
     override fun decodeChar(): Char = reader.takeString().single()
     override fun decodeString(): String = reader.takeString()
-    override fun decodeEnum(enumDescription: EnumDescriptor): Int = enumDescription.getElementIndex(reader.takeString())
+    override fun decodeEnum(enumDescription: EnumDescriptor): Int = enumDescription.getElementIndexOrThrow(reader.takeString())
 }

@@ -17,13 +17,12 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
-import kotlinx.serialization.context.EmptyContext
-import kotlinx.serialization.context.SerialContext
-import kotlinx.serialization.internal.EnumDescriptor
-import kotlinx.serialization.internal.UnitSerializer
+import kotlinx.serialization.internal.*
+import kotlinx.serialization.modules.*
 
 abstract class ElementValueEncoder : Encoder, CompositeEncoder {
-    override var context: SerialContext = EmptyContext
+    override val context: SerialModule
+        get() = EmptyModule
 
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
         return this
@@ -90,7 +89,9 @@ abstract class ElementValueEncoder : Encoder, CompositeEncoder {
 }
 
 abstract class ElementValueDecoder : Decoder, CompositeDecoder {
-    override var context: SerialContext = EmptyContext
+    override val context: SerialModule
+        get() = EmptyModule
+
     override val updateMode: UpdateMode = UpdateMode.UPDATE
     // ------- implementation API -------
 

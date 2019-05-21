@@ -1,38 +1,39 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+
+@file:Suppress("RedundantVisibilityModifier")
 
 package kotlinx.serialization
 
-import kotlinx.serialization.context.getByValueOrDefault
-import kotlinx.serialization.context.getOrDefault
-import kotlinx.serialization.internal.SerialClassDescImpl
-import kotlin.reflect.KClass
+import kotlinx.serialization.internal.*
+import kotlinx.serialization.modules.*
+import kotlin.reflect.*
 
+/**
+ * This class provides support for retrieving a serializer in runtime, instead of using the one precompiled by the serialization plugin.
+ * This serializer is enabled by [ContextualSerialization].
+ *
+ * Typical usage of ContextSerializer would be a serialization of a class which does not have
+ * static serializer (e.g. Java class or class from 3rd party library);
+ * or desire to override serialized class form in one dedicated output format.
+ *
+ * Serializers are being looked for in a [SerialModule] from the target [Encoder] or [Decoder], using statically known [KClass].
+ * To create a serial module, use [SerializersModule] factory function.
+ * To pass it to encoder and decoder, refer to particular [SerialFormat]'s documentation.
+ *
+ */
 @ImplicitReflectionSerializer
-class ContextSerializer<T : Any>(val serializableClass: KClass<T>) : KSerializer<T> {
-    override fun serialize(encoder: Encoder, obj: T) {
-        val s = encoder.context.getByValueOrDefault(obj)
+public class ContextSerializer<T : Any>(private val serializableClass: KClass<T>) : KSerializer<T> {
+    public override val descriptor: SerialDescriptor = object : SerialClassDescImpl("CONTEXT") {} // todo: remove this crutch
+
+    public override fun serialize(encoder: Encoder, obj: T) {
+        val s = encoder.context.getContextualOrDefault(obj)
         encoder.encodeSerializableValue(s, obj)
     }
 
-    override fun deserialize(decoder: Decoder): T {
-        val s = decoder.context.getOrDefault(serializableClass)
-        @Suppress("UNCHECKED_CAST")
+    public override fun deserialize(decoder: Decoder): T {
+        val s = decoder.context.getContextualOrDefault(serializableClass)
         return decoder.decodeSerializableValue(s)
     }
-
-    override val descriptor: SerialDescriptor = object : SerialClassDescImpl("CONTEXT") {} // todo: remove this crutch
 }

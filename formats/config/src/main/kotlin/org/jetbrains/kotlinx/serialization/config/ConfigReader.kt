@@ -19,23 +19,22 @@ package org.jetbrains.kotlinx.serialization.config
 import com.typesafe.config.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
-import kotlinx.serialization.context.*
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.internal.EnumDescriptor
 
 private val SerialKind.listLike get() = this == StructureKind.LIST || this == UnionKind.POLYMORPHIC
 private val SerialKind.objLike get() = this == StructureKind.CLASS || this == UnionKind.OBJECT || this == UnionKind.SEALED
 
-class ConfigParser(): AbstractSerialFormat() {
+class ConfigParser(context: SerialModule = EmptyModule): AbstractSerialFormat(context) {
     @ImplicitReflectionSerializer
-    inline fun <reified T : Any> parse(conf: Config): T = parse(conf, context.getOrDefault(T::class))
+    inline fun <reified T : Any> parse(conf: Config): T = parse(conf, context.getContextualOrDefault(T::class))
 
     fun <T> parse(conf: Config, deserializer: DeserializationStrategy<T>): T = ConfigReader(conf).decode(deserializer)
 
 
     private abstract inner class ConfigConverter<T> : TaggedDecoder<T>() {
-        init {
-            this.context = this@ConfigParser.context
-        }
+        override val context: SerialModule
+            get() = this@ConfigParser.context
 
         abstract fun getTaggedConfigValue(tag: T): ConfigValue
 
@@ -70,7 +69,7 @@ class ConfigParser(): AbstractSerialFormat() {
 
         override fun decodeTaggedEnum(tag: T, enumDescription: EnumDescriptor): Int {
             val s = validateAndCast<String>(tag, ConfigValueType.STRING)
-            return enumDescription.getElementIndex(s)
+            return enumDescription.getElementIndexOrThrow(s)
         }
     }
 

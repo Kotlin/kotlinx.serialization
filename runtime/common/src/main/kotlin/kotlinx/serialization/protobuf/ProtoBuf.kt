@@ -19,21 +19,19 @@ package kotlinx.serialization.protobuf
 import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
-import kotlinx.serialization.context.SerialContext
-import kotlinx.serialization.context.SerialModule
+import kotlinx.serialization.modules.EmptyModule
+import kotlinx.serialization.modules.SerialModule
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintInt
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintLong
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeVarint
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.encodeVarint
 
-class ProtoBuf : AbstractSerialFormat(), BinaryFormat {
+class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(context), BinaryFormat {
 
     internal open inner class ProtobufWriter(val encoder: ProtobufEncoder) : TaggedEncoder<ProtoDesc>() {
-
-        init {
-            context = this@ProtoBuf.context
-        }
+        public override val context
+            get() = this@ProtoBuf.context
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder = when (desc.kind) {
             StructureKind.LIST -> RepeatedWriter(encoder, currentTag)
@@ -157,10 +155,8 @@ class ProtoBuf : AbstractSerialFormat(), BinaryFormat {
     }
 
     private open inner class ProtobufReader(val decoder: ProtobufDecoder) : TaggedDecoder<ProtoDesc>() {
-
-        init {
-            context = this@ProtoBuf.context
-        }
+        override val context: SerialModule
+            get() = this@ProtoBuf.context
 
         private val indexByTag: MutableMap<Int, Int> = mutableMapOf()
         private fun findIndexByTag(desc: SerialDescriptor, serialId: Int): Int {
@@ -406,6 +402,8 @@ class ProtoBuf : AbstractSerialFormat(), BinaryFormat {
     }
 
     companion object: BinaryFormat {
+        public override val context: SerialModule get() = plain.context
+
         // todo: make more memory-efficient
         private fun makeDelimited(decoder: ProtobufDecoder, parentTag: ProtoDesc?): ProtobufDecoder {
             if (parentTag == null) return decoder
@@ -417,17 +415,16 @@ class ProtoBuf : AbstractSerialFormat(), BinaryFormat {
             return extractParameters(this, index)
         }
 
-        private const val VARINT = 0
-        private const val i64 = 1
-        private const val SIZE_DELIMITED = 2
-        private const val i32 = 5
+        internal const val VARINT = 0
+        internal const val i64 = 1
+        internal const val SIZE_DELIMITED = 2
+        internal const val i32 = 5
 
         val plain = ProtoBuf()
 
         override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray = plain.dump(serializer, obj)
         override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T = plain.load(deserializer, bytes)
-        override fun install(module: SerialModule) = plain.install(module)
-        override val context: SerialContext get() = plain.context
+        override fun install(module: SerialModule) = throw IllegalStateException("You should not install anything to global instance")
     }
 
     override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray {
