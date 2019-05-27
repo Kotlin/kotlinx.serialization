@@ -52,16 +52,16 @@ public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
     override fun serialize(encoder: Encoder, obj: JsonPrimitive) {
         verify(encoder)
         return if (obj is JsonNull) {
-            JsonNullSerializer.serialize(encoder, JsonNull)
+            encoder.encodeSerializableValue(JsonNullSerializer, JsonNull)
         } else {
-            JsonLiteralSerializer.serialize(encoder, obj as JsonLiteral)
+            encoder.encodeSerializableValue(JsonLiteralSerializer, obj as JsonLiteral)
         }
     }
 
     override fun deserialize(decoder: Decoder): JsonPrimitive {
         verify(decoder)
         return if (decoder.decodeNotNullMark()) JsonPrimitive(decoder.decodeString())
-        else JsonNullSerializer.deserialize(decoder)
+        else decoder.decodeSerializableValue(JsonNullSerializer)
     }
 
     private object JsonPrimitiveDescriptor : SerialClassDescImpl("JsonPrimitive") {
@@ -90,7 +90,8 @@ public object JsonNullSerializer : KSerializer<JsonNull> {
     }
 
     private object JsonNullDescriptor : SerialClassDescImpl("JsonNull") {
-        override val kind: SerialKind get() = UnionKind.OBJECT
+        // technically, JsonNull is an object, but it does not call beginStructure/endStructure
+        override val kind: SerialKind get() = UnionKind.ENUM_KIND
     }
 }
 

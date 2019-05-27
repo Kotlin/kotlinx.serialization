@@ -54,14 +54,6 @@ open class CommonEnumSerializer<T>(val serialName: String, val choices: Array<T>
             { "$index is not among valid $serialName choices, choices size is ${choices.size}" }
         return choices[index]
     }
-
-    companion object {
-        /**
-         * Factory method for easier instantiation from user/test code.
-         */
-        inline fun <reified E: Enum<E>> create(serialName: String): CommonEnumSerializer<E> =
-            CommonEnumSerializer(serialName, enumValues<E>(), enumValues<E>().map { it.name }.toTypedArray())
-    }
 }
 
 // Binary backwards-compatible with plugin

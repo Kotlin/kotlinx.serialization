@@ -5,9 +5,9 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
+import kotlinx.serialization.internal.EnumDescriptor
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.*
+import kotlinx.serialization.modules.SerialModule
 import kotlin.collections.set
 import kotlin.jvm.JvmField
 
@@ -56,13 +56,12 @@ private sealed class AbstractJsonTreeOutput(
     }
 
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
-        if (serializer.descriptor.kind !is PrimitiveKind && serializer.descriptor.kind !== UnionKind.ENUM_KIND || currentTagOrNull != null) {
+        // Writing non-structured data (i.e. primitives) on top-level (e.g. without any tag) requires special output
+        if (currentTagOrNull != null || serializer.descriptor.kind !is PrimitiveKind && serializer.descriptor.kind !== UnionKind.ENUM_KIND) {
             encodePolymorphically(serializer, value) { writePolymorphic = true }
-        } else {
-            JsonTreePrimitiveOutput(json, nodeConsumer).apply {
-                encodeSerializableValue(serializer, value)
-                endEncode(serializer.descriptor)
-            }
+        } else JsonPrimitiveOutput(json, nodeConsumer).apply {
+            encodeSerializableValue(serializer, value)
+            endEncode(serializer.descriptor)
         }
     }
 
@@ -111,20 +110,18 @@ private sealed class AbstractJsonTreeOutput(
     }
 }
 
-private class JsonTreePrimitiveOutput(json: Json, nodeConsumer: (JsonElement) -> Unit) :
+internal const val PRIMITIVE_TAG = "primitive" // also used in JsonPrimitiveInput
+
+private class JsonPrimitiveOutput(json: Json, nodeConsumer: (JsonElement) -> Unit) :
     AbstractJsonTreeOutput(json, nodeConsumer) {
     private var content: JsonElement? = null
 
-    companion object {
-        const val primitive = "primitive"
-    }
-
     init {
-        pushTag(primitive)
+        pushTag(PRIMITIVE_TAG)
     }
 
     override fun putElement(key: String, element: JsonElement) {
-        require(key == primitive)
+        require(key === PRIMITIVE_TAG) { "This output can only consume primitives with '$PRIMITIVE_TAG' tag" }
         require(content == null) { "Primitive element was already recorded. Does call to .encodeXxx happen more than once?" }
         content = element
     }

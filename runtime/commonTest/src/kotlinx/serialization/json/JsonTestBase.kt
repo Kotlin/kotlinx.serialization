@@ -125,7 +125,7 @@ abstract class JsonTestBase {
         assertEquals(streamingResult.getOrNull()!!, treeResult.getOrNull()!!)
     }
 
-    internal fun <T: Any> parametrizedTest(serializer: KSerializer<T>, data: T, expected: String, json: Json = unquoted) {
+    internal fun <T> parametrizedTest(serializer: KSerializer<T>, data: T, expected: String, json: Json = unquoted) {
         parametrizedTest { useStreaming ->
             val serialized = json.stringify(serializer, data, useStreaming)
             assertEquals(expected, serialized)

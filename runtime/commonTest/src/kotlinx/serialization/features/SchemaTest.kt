@@ -6,6 +6,7 @@ package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
+import kotlinx.serialization.test.CommonEnumSerializer
 import kotlinx.serialization.test.isJvm
 import kotlin.test.*
 
@@ -117,7 +118,7 @@ class SchemaTest {
         val dataDescriptor = DataWithEnum.serializer().descriptor
         val enumDesc = dataDescriptor.getElementDescriptor(1)
         val serialName = if (isJvm()) "kotlinx.serialization.SampleEnum" else "SampleEnum"
-        val manualSerializer = CommonEnumSerializer.create<SampleEnum>(serialName)
+        val manualSerializer = CommonEnumSerializer<SampleEnum>(serialName)
 
         assertEquals(enumDesc, manualSerializer.descriptor)
         assertEquals(enumDesc, dataDescriptor.getElementDescriptor(2).getElementDescriptor(0))

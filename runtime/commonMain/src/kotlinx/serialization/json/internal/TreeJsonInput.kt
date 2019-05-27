@@ -16,13 +16,7 @@ internal fun <T> Json.readJson(element: JsonElement, deserializer: Deserializati
     val input = when (element) {
         is JsonObject -> JsonTreeInput(this, element)
         is JsonArray -> JsonTreeListInput(this, element)
-        is JsonLiteral -> JsonPrimitiveInput(this, element)
-        is JsonNull -> {
-            deserializer.descriptor
-                .also { desc -> require(desc.isNullable) { "Read JsonNull and expected nullable descriptor, but has $desc" } }
-            @Suppress("NULL_FOR_NONNULL_TYPE")
-            return null
-        }
+        is JsonLiteral, JsonNull -> JsonPrimitiveInput(this, element as JsonPrimitive)
     }
 
     return input.decode(deserializer)
@@ -95,16 +89,12 @@ private sealed class AbstractJsonTreeInput(override val json: Json, open val obj
 
 private class JsonPrimitiveInput(json: Json, override val obj: JsonPrimitive) : AbstractJsonTreeInput(json, obj) {
 
-    companion object {
-        const val primitive = "primitive"
-    }
-
     init {
-        pushTag(primitive)
+        pushTag(PRIMITIVE_TAG)
     }
 
     override fun currentElement(tag: String): JsonElement {
-        require(tag == primitive)
+        require(tag === PRIMITIVE_TAG) { "This input can only handle primitives with '$PRIMITIVE_TAG' tag" }
         return obj
     }
 }

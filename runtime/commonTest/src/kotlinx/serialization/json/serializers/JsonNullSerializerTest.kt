@@ -25,25 +25,25 @@ class JsonNullSerializerTest : JsonTestBase() {
         assertStringFormAndRestored("{\"primitive\":null}", JsonPrimitiveWrapper(JsonNull), JsonPrimitiveWrapper.serializer())
     }
 
-    @Test // TODO Top-level nulls are not supported in tagged encoders
-    fun testTopLevelJsonNull() { // parametrizedTest { useStreaming ->
-        val string = strict.stringify(JsonNullSerializer, JsonNull)
+    @Test
+    fun testTopLevelJsonNull() = parametrizedTest { useStreaming ->
+        val string = strict.stringify(JsonNullSerializer, JsonNull, useStreaming)
         assertEquals("null", string)
-        assertEquals(JsonNull, strict.parse(JsonNullSerializer, string))
+        assertEquals(JsonNull, strict.parse(JsonNullSerializer, string, useStreaming))
     }
 
-    @Test // TODO Top-level nulls are not supported in tagged encoders
-    fun testTopLevelJsonNullAsElement() { // parametrizedTest { useStreaming ->
-        val string = strict.stringify(JsonElementSerializer, JsonNull)
+    @Test
+    fun testTopLevelJsonNullAsElement() = parametrizedTest { useStreaming ->
+        val string = strict.stringify(JsonElementSerializer, JsonNull, useStreaming)
         assertEquals("null", string)
-        assertEquals(JsonNull, strict.parse(JsonElementSerializer, string))
+        assertEquals(JsonNull, strict.parse(JsonElementSerializer, string, useStreaming))
     }
 
-    @Test // TODO Top-level nulls are not supported in tagged encoders
-    fun testTopLevelJsonNullAsPrimitive() { // parametrizedTest { useStreaming ->
-        val string = strict.stringify(JsonPrimitiveSerializer, JsonNull)
+    @Test
+    fun testTopLevelJsonNullAsPrimitive() = parametrizedTest { useStreaming ->
+        val string = strict.stringify(JsonPrimitiveSerializer, JsonNull, useStreaming)
         assertEquals("null", string)
-        assertEquals(JsonNull, strict.parse(JsonPrimitiveSerializer, string))
+        assertEquals(JsonNull, strict.parse(JsonPrimitiveSerializer, string, useStreaming))
     }
 
     @Test

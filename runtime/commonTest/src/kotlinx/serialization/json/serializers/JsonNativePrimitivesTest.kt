@@ -7,6 +7,7 @@ package kotlinx.serialization.json.serializers
 import kotlinx.serialization.SampleEnum
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.JsonTestBase
+import kotlinx.serialization.test.CommonEnumSerializer
 import kotlin.test.Test
 
 class JsonNativePrimitivesTest : JsonTestBase() {
@@ -24,5 +25,8 @@ class JsonNativePrimitivesTest : JsonTestBase() {
 
     @Test
     fun testTopLevelNativeEnum() =
-        parametrizedTest(CommonEnumSerializer.create("SampleEnum"), SampleEnum.OptionB, "\"OptionB\"", strict)
+        parametrizedTest(CommonEnumSerializer("SampleEnum"), SampleEnum.OptionB, "\"OptionB\"", strict)
+
+    @Test
+    fun testTopLevelNativeNullable() = parametrizedTest(NullableSerializer(IntSerializer), null, "null", strict)
 }
