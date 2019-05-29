@@ -66,6 +66,7 @@ buildscript {
 }
 
 apply plugin: 'kotlinx.team.infra'
+ext.compilerVersion = org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION
 
 infra {
     teamcity {}
@@ -113,29 +114,7 @@ subprojects {
 
     // Configure publishing for some artifacts
     if (project.name.contains("benchmark")) return
-
     apply from: rootProject.file('gradle/publishing.gradle')
 }
 
-afterEvaluate {
-    println("Using Kotlin compiler version: $org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION")
-    if (build_snapshot_train) {
-        configure(subprojects.findAll { it.name == "jvm" }) {
-            configurations.matching { it.name == "kotlinCompilerClasspath" }.all {
-                afterEvaluate {
-                    println "Manifest of kotlin-compiler-embeddable.jar for serialization"
-                    resolvedConfiguration.getFiles().findAll { it.name.contains("kotlin-compiler-embeddable") }.each {
-                        def manifest = zipTree(it).matching {
-                            include 'META-INF/MANIFEST.MF'
-                        }.getFiles().first()
-
-                        manifest.readLines().each {
-                            println it
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
+apply from: rootProject.file('gradle/compilerVersion.gradle')
