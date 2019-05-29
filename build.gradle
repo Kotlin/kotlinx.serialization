@@ -19,6 +19,25 @@ buildscript {
                                       "-Xuse-experimental=kotlinx.serialization.UnstableDefault"
     ]
 
+    /*
+    * These property group is used to build kotlinx.serialization against Kotlin compiler snapshot.
+    * When build_snapshot_train is set to true, kotlin_version property is overridden with kotlin_snapshot_version.
+    * DO NOT change the name of these properties without adapting kotlinx.train build chain.
+    */
+    def prop = rootProject.properties['build_snapshot_train']
+    ext.build_snapshot_train = prop != null && prop != ""
+    if (build_snapshot_train) {
+        ext.kotlin_version = rootProject.properties['kotlin_snapshot_version']
+        if (kotlin_version == null) {
+            throw new IllegalArgumentException("'kotlin_snapshot_version' should be defined when building with snapshot compiler")
+        }
+        repositories {
+            mavenLocal()
+            maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+            maven { url "https://bintray.com/jetbrains/kotlin-native-dependencies" }
+        }
+    }
+
     repositories {
         mavenLocal()
         maven { url 'https://kotlin.bintray.com/kotlin-dev' }
@@ -47,6 +66,8 @@ buildscript {
 }
 
 apply plugin: 'kotlinx.team.infra'
+// To make it visible for compilerVersion.gradle  
+ext.compilerVersion = org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION
 
 infra {
     teamcity {}
@@ -65,6 +86,15 @@ allprojects {
         version = version + '-SNAPSHOT'
     }
 
+    if (build_snapshot_train) {
+        // Snapshot-specific
+        def deployVersion = properties['DeployVersion']
+        if (deployVersion != null) version = deployVersion
+        repositories {
+            mavenLocal()
+            maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+        }
+    }
     repositories {
         mavenLocal()
         jcenter()
@@ -85,10 +115,7 @@ subprojects {
 
     // Configure publishing for some artifacts
     if (project.name.contains("benchmark")) return
-
     apply from: rootProject.file('gradle/publishing.gradle')
 }
 
-afterEvaluate {
-    println("Using Kotlin compiler version: $org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION")
-}
+apply from: rootProject.file('gradle/compilerVersion.gradle')
