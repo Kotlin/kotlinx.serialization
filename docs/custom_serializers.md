@@ -71,7 +71,7 @@ First, we need to correctly fill-in descriptor so all formats would know about m
 @Serializable
 class BinaryPayload(val req: ByteArray, val res: ByteArray) {
     @Serializer(forClass = BinaryPayload::class)
-    companion object : KSerializer<MyData> {
+    companion object : KSerializer<BinaryPayload> {
         override val descriptor: SerialDescriptor = object : SerialClassDescImpl("BinaryPayload") {
             init {
                 addElement("req") // req will have index 0
