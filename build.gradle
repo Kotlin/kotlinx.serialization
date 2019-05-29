@@ -66,6 +66,7 @@ buildscript {
 }
 
 apply plugin: 'kotlinx.team.infra'
+// To make it visible for compilerVersion.gradle  
 ext.compilerVersion = org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION
 
 infra {
