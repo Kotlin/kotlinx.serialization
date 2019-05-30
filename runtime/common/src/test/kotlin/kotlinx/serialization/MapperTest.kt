@@ -92,4 +92,10 @@ class MapperTest {
         val map: Map<String, Any?> = mapOf("name" to "Name")
         assertFailsWith<NoSuchElementException> { Mapper.unmapNullable<Category>(map) }
     }
+
+    @Test
+    fun failsOnIncorrectValues() {
+        val map: Map<String, Any?> = mapOf("name" to 123)
+        assertFailsWith<SerializationException> { Mapper.unmapNullable<SubCategory>(map) }
+    }
 }

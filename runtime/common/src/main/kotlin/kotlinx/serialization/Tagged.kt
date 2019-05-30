@@ -202,17 +202,25 @@ abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
         }
     }
 
-    open fun decodeTaggedUnit(tag: Tag): Unit = decodeTaggedValue(tag) as Unit
-    open fun decodeTaggedBoolean(tag: Tag): Boolean = decodeTaggedValue(tag) as Boolean
-    open fun decodeTaggedByte(tag: Tag): Byte = decodeTaggedValue(tag) as Byte
-    open fun decodeTaggedShort(tag: Tag): Short = decodeTaggedValue(tag) as Short
-    open fun decodeTaggedInt(tag: Tag): Int = decodeTaggedValue(tag) as Int
-    open fun decodeTaggedLong(tag: Tag): Long = decodeTaggedValue(tag) as Long
-    open fun decodeTaggedFloat(tag: Tag): Float = decodeTaggedValue(tag) as Float
-    open fun decodeTaggedDouble(tag: Tag): Double = decodeTaggedValue(tag) as Double
-    open fun decodeTaggedChar(tag: Tag): Char = decodeTaggedValue(tag) as Char
-    open fun decodeTaggedString(tag: Tag): String = decodeTaggedValue(tag) as String
-    open fun decodeTaggedEnum(tag: Tag, enumDescription: EnumDescriptor): Int = decodeTaggedValue(tag) as Int
+    open fun decodeTaggedUnit(tag: Tag): Unit = tryDecode(tag)
+    open fun decodeTaggedBoolean(tag: Tag): Boolean = tryDecode(tag)
+    open fun decodeTaggedByte(tag: Tag): Byte = tryDecode(tag)
+    open fun decodeTaggedShort(tag: Tag): Short = tryDecode(tag)
+    open fun decodeTaggedInt(tag: Tag): Int = tryDecode(tag)
+    open fun decodeTaggedLong(tag: Tag): Long = tryDecode(tag)
+    open fun decodeTaggedFloat(tag: Tag): Float = tryDecode(tag)
+    open fun decodeTaggedDouble(tag: Tag): Double = tryDecode(tag)
+    open fun decodeTaggedChar(tag: Tag): Char = tryDecode(tag)
+    open fun decodeTaggedString(tag: Tag): String = tryDecode(tag)
+    open fun decodeTaggedEnum(tag: Tag, enumDescription: EnumDescriptor): Int = tryDecode(tag)
+
+    private inline fun <reified T : Any> tryDecode(tag: Tag): T {
+        return try {
+            decodeTaggedValue(tag) as T
+        } catch (e: ClassCastException) {
+            throw SerializationException("Error deserializing tag $tag", e)
+        }
+    }
 
 
     // ---- Implementation of low-level API ----
