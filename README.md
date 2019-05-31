@@ -44,21 +44,24 @@ You can open example projects for [JS](examples/example-js), [JVM](examples/exam
 ```kotlin
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 
 @Serializable
 data class Data(val a: Int, val b: String = "42")
 
 fun main(args: Array<String>) {
+    // Json also has .Default configuration which provides more reasonable settings,
+    // but is subject to change in future versions
+    val json = Json(JsonConfiguration.Stable)
     // serializing objects
-    val jsonData = Json.stringify(Data.serializer(), Data(42))
+    val jsonData = json.stringify(Data.serializer(), Data(42))
     // serializing lists
-    val jsonList = Json.stringify(Data.serializer().list, listOf(Data(42)))
+    val jsonList = json.stringify(Data.serializer().list, listOf(Data(42)))
     println(jsonData) // {"a": 42, "b": "42"}
     println(jsonList) // [{"a": 42, "b": "42"}]
 
     // parsing data back
-    val obj = Json.parse(Data.serializer(), """{"a":42}""") // b is optional since it has default value
+    val obj = json.parse(Data.serializer(), """{"a":42}""") // b is optional since it has default value
     println(obj) // Data(a=42, b="42")
 }
 ```
