@@ -63,11 +63,12 @@ afterEvaluate {
         // Rename artifacts for backward compatibility
         publications.all {
             def type = it.name
-//            println("Configuring $type")
+            logger.info("Configuring $type")
             switch (type) {
                 case 'kotlinMultiplatform':
                     it.artifactId = "$variantName-native"
-                    it.artifact emptyJar
+                    // bug in bintray plugin? jvm publication has empty jar after this
+//                    it.artifact emptyJar
 //                    it.artifact stubJavadoc
                     it.artifact sourcesJar
                     break
@@ -80,11 +81,12 @@ afterEvaluate {
                     it.artifactId = "$variantName"
                     break
 
-                default:
+                case 'js':
+                case 'native': // native most probably unused but I'll leave it just in case
                     it.artifactId = "$variantName-$type"
                     break
             }
-//            println("Artifact id = ${it.artifactId}")
+            logger.info("Artifact id = ${it.artifactId}")
 
             pom.withXml(configureMavenCentralMetadata)
         }
@@ -114,7 +116,8 @@ private void disableMetadataPublication() {
                     onlyIf { false }
                 }
             } else {
-                publication.artifact emptyJar
+                // bug in bintray plugin? jvm publication has empty jar after this
+//                publication.artifact emptyJar
             }
         }
     }
@@ -129,7 +132,7 @@ bintrayUpload.dependsOn publishToMavenLocal
 // This is for easier debugging of bintray uploading problems
 bintrayUpload.doFirst {
     publications = project.publishing.publications.findAll { !it.name.contains('-test') }.collect {
-        println("Uploading artifact '$it.groupId:$it.artifactId:$it.version' from publication '$it.name'")
+        logger.info("Uploading artifact '$it.groupId:$it.artifactId:$it.version' from publication '$it.name'")
         it
     }
 }

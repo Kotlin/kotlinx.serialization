@@ -85,7 +85,6 @@ class ContextAndPolymorphicTest {
     @Test
     fun testDifferentRepresentations() {
         val simpleModule = serializersModule(PayloadSerializer)
-        // MapModule and CompositeModule are also available
         val binaryModule = serializersModule(BinaryPayloadSerializer)
 
         val json1 = Json { useArrayPolymorphism = true; serialModule = simpleModule }

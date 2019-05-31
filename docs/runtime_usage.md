@@ -59,7 +59,7 @@ but may be useful shorthand in some cases.
 Functions which uses this or similar functionality are annotated
 with [experimental](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-experimental/index.html)
 annotation `kotlinx.serialization.ImplicitReflectionSerializer`.
-Consult [annotation documentation](https://github.com/kotlin/kotlinx.serialization/blob/master/runtime/common/src/main/kotlin/kotlinx/serialization/SerialImplicits.kt#L11)
+Consult [annotation documentation](../runtime/commonMain/src/kotlinx/serialization/SerialImplicits.kt#L8)
 to learn about restrictions of this approach.
 To learn how to use experimental annotations, look at theirs [KEEP](https://github.com/Kotlin/KEEP/blob/master/proposals/experimental.md)
 or use [this guide](https://kotlinlang.org/docs/reference/experimental.html#using-experimental-apis).
@@ -119,7 +119,7 @@ inline fun <reified T : Any> parse(str: String): T = parse(T::class.serializer()
 
 `stringify` transforms object to string, `parse` parses. No surprises.
 
-Besides this, functions `toJson` and `fromJson` allow converting @Serializable Kotlin object to and from [abstract JSON syntax tree](https://github.com/Kotlin/kotlinx.serialization/blob/master/runtime/common/src/main/kotlin/kotlinx/serialization/json/JsonElement.kt). To build JSON AST from String, use `parseJson`.
+Besides this, functions `toJson` and `fromJson` allow converting @Serializable Kotlin object to and from [abstract JSON syntax tree](../runtime/commonMain/src/kotlinx/serialization/json/JsonElement.kt#L23). To build JSON AST from String, use `parseJson`.
 
 You can also use one of predefined instances, like `Json.plain`, `Json.indented`, `Json.nonstrict` or `Json.unquoted`. API is duplicated in companion object, so `Json.parse(...)` equals to `Json.plain.parse(...)`.
 
@@ -179,7 +179,7 @@ Other known issues and limitations:
 * Packed repeated fields are not supported
 
 More examples of mappings from proto definitions to Koltin classes can be found in test data:
-[here](../runtime/jvm/src/test/proto/test_data.proto) and [here](../runtime/jvm/src/test/kotlin/kotlinx/serialization/formats/RandomTests.kt)
+[here](../runtime/testProto/test_data.proto) and [here](../runtime/jvmTest/src/kotlinx/serialization/formats/RandomTests.kt)
 
 ## Useful classes
 

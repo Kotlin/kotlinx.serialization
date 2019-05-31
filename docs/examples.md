@@ -1,6 +1,6 @@
 # Serialization documentation and example cases
 
-**Note**: Cases are presented here as a series of *unit-tests* using non-standard *unquoted* JSON for ease of presentation. 
+**Note**: Cases are presented here as a series of *unit-tests* using non-standard *unquoted* JSON for ease of presentation.
 It was created as `val json = Json(JsonConfiguration.Stable.copy(unquoted = true))`.
 Standards-compliant JSON is supported, too. Just use `.Stable` or `.Default` configurations or create your own.
 
@@ -57,7 +57,7 @@ Standards-compliant JSON is supported, too. Just use `.Stable` or `.Default` con
 
     > Tip: you can omit default values during serialization with
     `Json(encodeDefaults = false)` (see [here](runtime_usage.md#json)).
-    
+
     > Tip: Deprecated `@Optional` annotation was used in older version and older kotlin version.
 
 
