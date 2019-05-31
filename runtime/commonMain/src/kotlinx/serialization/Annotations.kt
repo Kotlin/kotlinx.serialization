@@ -85,12 +85,14 @@ public annotation class ContextualSerialization(vararg val forClasses: KClass<*>
  *  serializers defined on the property itself, such as [Serializable] (with=...) or [ContextualSerialization].
  */
 @Target(AnnotationTarget.FILE)
-public annotation class UseSerializers(vararg val serializerClasses: KClass<*>)
+public annotation class UseSerializers(vararg val serializerClasses: KClass<out KSerializer<*>>)
 
 /**
  * Instructs to use [PolymorphicSerializer] on an annotated property or type usage.
+ * When used on class, replaces its serializer with [PolymorphicSerializer] everywhere.
+ *
  * This annotation is applied automatically to interfaces and serializable abstract classes
- * and can be applied to open classes in addition to [Serializable] for the sake of simplicity.
+ * and can be applied to open and sealed classes in addition to [Serializable] for the sake of simplicity.
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE, AnnotationTarget.CLASS)
 public annotation class Polymorphic
