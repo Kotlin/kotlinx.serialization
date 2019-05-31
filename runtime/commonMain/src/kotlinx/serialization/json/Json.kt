@@ -108,7 +108,8 @@ public constructor(
 
     /**
      * Serializes [obj] into an equivalent JSON using provided [serializer].
-     * @throws [JsonException] subclass in case of serialization error.
+     * @throws [JsonException] if given value can not be encoded
+     * @throws [SerializationException] if given value can not be serialized
      */
     public override fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String {
         val result = StringBuilder()
@@ -123,7 +124,8 @@ public constructor(
 
     /**
      * Serializes [value] into an equivalent [JsonElement] using provided [serializer].
-     * @throws [JsonException] subclass in case of serialization error.
+     * @throws [JsonException] if given value can not be encoded
+     * @throws [SerializationException] if given value can not be serialized
      */
     public fun <T> toJson(serializer: SerializationStrategy<T>, value: T): JsonElement {
         return writeJson(value, serializer)
@@ -131,7 +133,8 @@ public constructor(
 
     /**
      * Serializes [value] into an equivalent [JsonElement] using serializer registered in the module.
-     * @throws [JsonException] subclass in case of serialization error.
+     * @throws [JsonException] if given value can not be encoded
+     * @throws [SerializationException] if given value can not be serialized
      */
     @ImplicitReflectionSerializer
     public inline fun <reified T : Any> toJson(value: T): JsonElement {
@@ -140,7 +143,8 @@ public constructor(
 
     /**
      * Deserializes given json [string] into a corresponding object of type [T] using provided [deserializer].
-     * @throws [JsonException] subclass in case of serialization error.
+     * @throws [JsonException] in case of malformed json
+     * @throws [SerializationException] if given input can not be deserialized
      */
     public override fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T {
         val reader = JsonReader(string)
@@ -152,7 +156,8 @@ public constructor(
 
     /**
      * Deserializes given json [string] into a corresponding [JsonElement] representation.
-     * @throws [JsonException] subclass in case of serialization error.
+     * @throws [JsonException] in case of malformed json
+     * @throws [SerializationException] if given input can not be deserialized
      */
     public fun parseJson(string: String): JsonElement {
         return parse(JsonElementSerializer, string)
@@ -160,7 +165,8 @@ public constructor(
 
     /**
      * Deserializes [json] element into a corresponding object of type [T] using provided [deserializer].
-     * @throws [JsonException] subclass in case of serialization error.
+     * @throws [JsonException] in case of malformed json
+     * @throws [SerializationException] if given input can not be deserialized
      */
     public fun <T> fromJson(deserializer: DeserializationStrategy<T>, json: JsonElement): T {
         return readJson(json, deserializer)
@@ -168,7 +174,8 @@ public constructor(
 
     /**
      * Deserializes [json] element into a corresponding object of type [T] using serializer registered in the module.
-     * @throws [JsonException] subclass in case of serialization error.
+     * @throws [JsonException] in case of malformed json
+     * @throws [SerializationException] if given input can not be deserialized
      */
     @ImplicitReflectionSerializer
     public inline fun <reified T : Any> fromJson(tree: JsonElement): T = fromJson(context.getContextualOrDefault(T::class), tree)

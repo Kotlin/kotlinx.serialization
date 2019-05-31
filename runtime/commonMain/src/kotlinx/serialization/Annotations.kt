@@ -92,7 +92,10 @@ public annotation class UseSerializers(vararg val serializerClasses: KClass<out 
  * When used on class, replaces its serializer with [PolymorphicSerializer] everywhere.
  *
  * This annotation is applied automatically to interfaces and serializable abstract classes
- * and can be applied to open and sealed classes in addition to [Serializable] for the sake of simplicity.
+ * and can be applied to open classes in addition to [Serializable] for the sake of simplicity.
+ *
+ * Does not affect sealed classes, because they are gonna be serialized with subclasses automatically
+ * with special compiler plugin support which would be added later.
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE, AnnotationTarget.CLASS)
 public annotation class Polymorphic
