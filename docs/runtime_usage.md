@@ -97,7 +97,7 @@ It is configurable via `JsonConfiguration` class, which has following parameters
 It also has two pre-defined sets of parameters: `Default` and `Stable`.
 `Default` provides recommended and sane configuration, however, due to a library evolution,
 it can be tweaked and changed between library releases.
-`Stable` provides backwards-compatible configuration, e.g. `useArrayPolymorphism` is set to `true` in it because early library versions have used this format.
+`Stable` provides configuration which is guaranteed to be unchanged between library releases.
 Since `JsonConfiguration` is a data class, you can `copy` any configuration you like to tweak it.
 
 All unstable constructors and configurations are annotated with [experimental annotation](https://kotlinlang.org/docs/reference/experimental.html#using-experimental-apis) `kotlinx.serialization.UnstableDefault`.
