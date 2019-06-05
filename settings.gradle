@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-rootProject.name = 'kotlinx-serialization-runtime'
+rootProject.name = 'kotlinx-serialization'
 enableFeaturePreview('GRADLE_METADATA')
 
-include ':runtime'
+include ':kotlinx-serialization-runtime'
+project(':kotlinx-serialization-runtime').projectDir = file('./runtime')
 
-include ':configparser'
-project(':configparser').projectDir = file('./formats/config')
+include ':kotlinx-serialization-runtime-configparser'
+project(':kotlinx-serialization-runtime-configparser').projectDir = file('./formats/config')
 
 // todo: migrate benchmark to multiplatform benchmarks?
 include ':benchmark'

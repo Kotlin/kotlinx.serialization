@@ -33,7 +33,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.1'
     compile 'com.esotericsoftware:kryo:4.0.0'
 
-    compile project(':runtime')
+    compile project(':kotlinx-serialization-runtime')
 
     // async profiler
     compile group: 'pl.project13.scala', name: 'sbt-jmh-extras', version: '0.3.3'

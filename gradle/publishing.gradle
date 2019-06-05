@@ -10,8 +10,7 @@ apply plugin: 'com.jfrog.bintray'
 
 apply from: project.rootProject.file('gradle/mavenMetadata.gradle')
 
-def isMultiplatform = project.name == "runtime"
-def isCoreRuntime   = project.name == "runtime"
+def isMultiplatform = project.name == "kotlinx-serialization-runtime"
 
 task stubSources(type: Jar) {
     classifier = 'sources'
@@ -37,13 +36,7 @@ afterEvaluate {
 
 afterEvaluate {
     publishing {
-        def variantName = ""
-
-        if (isCoreRuntime) {
-            variantName = "${rootProject.name}"
-        } else {
-            variantName = "${rootProject.name}-${project.name}"
-        }
+        def variantName = "${project.name}"
 
         if (!isMultiplatform) {
             publications {
