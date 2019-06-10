@@ -50,12 +50,12 @@ class MyData(val s: String) {
         override val descriptor: SerialDescriptor =
             StringDescriptor.withName("MyData")
 
-        override fun serialize(output: Encoder, obj: MyData) {
-            output.encodeString(HexConverter.printHexBinary(obj.s.toByteArray()))
+        override fun serialize(encoder: Encoder, obj: MyData) {
+            encoder.encodeString(HexConverter.printHexBinary(obj.s.toByteArray()))
         }
 
-        override fun deserialize(input: Decoder): MyData {
-            return MyData(String(HexConverter.parseHexBinary(input.decodeString())))
+        override fun deserialize(decoder: Decoder): MyData {
+            return MyData(String(HexConverter.parseHexBinary(decoder.decodeString())))
         }
     }
 }
@@ -85,8 +85,8 @@ class BinaryPayload(val req: ByteArray, val res: ByteArray) {
 Now we need to serialize class' properties one-by-one. Since they are structured, i.e. have their own position and name inside of `BinaryPayload` class, we would use `CompositeEncoder` instead of `Encoder`:
 
 ```kotlin
-override fun serialize(output: Encoder, obj: BinaryPayload) {
-    val compositeOutput: CompositeEncoder = output.beginStructure(descriptor)
+override fun serialize(encoder: Encoder, obj: BinaryPayload) {
+    val compositeOutput = encoder.beginStructure(descriptor)
     compositeOutput.encodeStringElement(descriptor, 0, HexConverter.printHexBinary(obj.req))
     compositeOutput.encodeStringElement(descriptor, 1, HexConverter.printHexBinary(obj.res))
     compositeOutput.endStructure(descriptor)
@@ -97,20 +97,23 @@ Deserializing a class with multiple values is a complex task, mainly because you
 So crucial part here is to make a `when` over an index of an incoming element:
 
 ```kotlin
-override fun deserialize(input: Decoder): BinaryPayload {
-    val inp: CompositeDecoder = input.beginStructure(descriptor)
-    lateinit var req: ByteArray // consider using flags or bit mask if you
-    lateinit var res: ByteArray // need to read nullable non-optional properties
+override fun deserialize(decoder: Decoder): BinaryPayload {
+    val dec: CompositeDecoder = decoder.beginStructure(descriptor)
+    var req: ByteArray? = null // consider using flags or bit mask if you
+    var res: ByteArray? = null // need to read nullable non-optional properties
     loop@ while (true) {
-        when (val i = inp.decodeElementIndex(descriptor)) {
+        when (val i = dec.decodeElementIndex(descriptor)) {
             CompositeDecoder.READ_DONE -> break@loop
-            0 -> req = HexConverter.parseHexBinary(inp.decodeStringElement(descriptor, i))
-            1 -> res = HexConverter.parseHexBinary(inp.decodeStringElement(descriptor, i))
+            0 -> req = HexConverter.parseHexBinary(dec.decodeStringElement(descriptor, i))
+            1 -> res = HexConverter.parseHexBinary(dec.decodeStringElement(descriptor, i))
             else -> throw SerializationException("Unknown index $i")
         }
     }
-    inp.endStructure(descriptor)
-    return BinaryPayload(req, res)
+    dec.endStructure(descriptor)
+    return BinaryPayload(
+        req ?: throw MissingFieldException("req"),
+        res ?: throw MissingFieldException("res")
+    )
 }
 ```
 
@@ -149,12 +152,12 @@ object DateSerializer: KSerializer<Date> {
     override val descriptor: SerialDescriptor =
         StringDescriptor.withName("WithCustomDefault")
 
-    override fun serialize(output: Encoder, obj: Date) {
-        output.encodeString(df.format(obj))
+    override fun serialize(encoder: Encoder, obj: Date) {
+        encoder.encodeString(df.format(obj))
     }
 
-    override fun deserialize(input: Decoder): Date {
-        return df.parse(input.decodeString())
+    override fun deserialize(decoder: Decoder): Date {
+        return df.parse(decoder.decodeString())
     }
 }
 ```

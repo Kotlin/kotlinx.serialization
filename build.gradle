@@ -71,12 +71,6 @@ ext.compilerVersion = org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION
 
 infra {
     teamcity {}
-    node {
-        version = '10.15.1'
-        mocha('4.1.0')
-        install("source-map-support", "0.5.3")
-        install("mocha-teamcity-reporter", "2.2.2")
-    }
 }
 
 allprojects {

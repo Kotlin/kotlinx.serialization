@@ -27,19 +27,22 @@ class BinaryPayloadExampleTest {
             }
 
             override fun deserialize(decoder: Decoder): BinaryPayload {
-                val inp = decoder.beginStructure(descriptor)
-                lateinit var req: ByteArray
-                lateinit var res: ByteArray
+                val dec: CompositeDecoder = decoder.beginStructure(descriptor)
+                var req: ByteArray? = null // consider using flags or bit mask if you
+                var res: ByteArray? = null // need to read nullable non-optional properties
                 loop@ while (true) {
-                    when (val i = inp.decodeElementIndex(descriptor)) {
+                    when (val i = dec.decodeElementIndex(descriptor)) {
                         CompositeDecoder.READ_DONE -> break@loop
-                        0 -> req = HexConverter.parseHexBinary(inp.decodeStringElement(descriptor, i))
-                        1 -> res = HexConverter.parseHexBinary(inp.decodeStringElement(descriptor, i))
+                        0 -> req = HexConverter.parseHexBinary(dec.decodeStringElement(descriptor, i))
+                        1 -> res = HexConverter.parseHexBinary(dec.decodeStringElement(descriptor, i))
                         else -> throw SerializationException("Unknown index $i")
                     }
                 }
-                inp.endStructure(descriptor)
-                return BinaryPayload(req, res)
+                dec.endStructure(descriptor)
+                return BinaryPayload(
+                    req ?: throw MissingFieldException("req"),
+                    res ?: throw MissingFieldException("res")
+                )
             }
         }
 
