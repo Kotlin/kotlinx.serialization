@@ -34,7 +34,7 @@ class PolymorphismWithAnyTest {
             )
         ),
         serializer = MyPolyData.serializer(),
-        format = Json { useArrayPolymorphism = true }
+        format = Json { useArrayPolymorphism = true; allowStructuredMapKeys = true }
     )
 
     // KClass.toString() on JS prints simple name, not FQ one

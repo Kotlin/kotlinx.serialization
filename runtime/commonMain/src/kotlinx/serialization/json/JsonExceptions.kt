@@ -1,9 +1,10 @@
 /*
- * Copyright 2017-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json
 
+import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.SerializationException
 
 /**
@@ -44,3 +45,9 @@ public class JsonParsingException(position: Int, message: String) : JsonExceptio
  * ```
  */
 public class JsonElementTypeMismatchException(key: String, expected: String) : JsonException("Element $key is not a $expected")
+
+public class JsonMapInvalidKeyKind(keyDescriptor: SerialDescriptor) : JsonException(
+    "Value of type ${keyDescriptor.name} can't be used in json as map key. " +
+            "It should have either primitive or enum kind, but its kind is ${keyDescriptor.kind}.\n" +
+            "You can convert such maps to arrays [key1, value1, key2, value2,...] with 'allowStructuredMapKeys' flag in JsonConfiguration."
+)

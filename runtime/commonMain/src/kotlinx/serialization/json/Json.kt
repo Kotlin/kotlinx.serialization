@@ -6,8 +6,8 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
-import kotlin.jvm.*
-import kotlin.reflect.*
+import kotlin.jvm.JvmField
+import kotlin.reflect.KClass
 
 /**
  * The main entry point to work with JSON serialization.
@@ -68,43 +68,16 @@ public constructor(
     @UnstableDefault
     public constructor(block: JsonBuilder.() -> Unit) : this(JsonBuilder().apply { block() })
 
+    @UseExperimental(UnstableDefault::class)
     @Deprecated(
         message = "Default constructor is deprecated, please specify desired configuration explicitly or use Json(JsonConfiguration.Default)",
         replaceWith = ReplaceWith("Json(JsonConfiguration.Default)"),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.ERROR
     )
-    @Suppress("DEPRECATION_ERROR")
-    public constructor() : this(unquoted = false)
+    public constructor() : this(JsonConfiguration(useArrayPolymorphism = true))
 
     @UseExperimental(UnstableDefault::class)
     private constructor(builder: JsonBuilder) : this(builder.buildConfiguration(), builder.buildModule())
-
-    @UseExperimental(UnstableDefault::class)
-    @Deprecated(
-        message = "Use constructor with JsonConfiguration instead",
-        level = DeprecationLevel.ERROR,
-        replaceWith = ReplaceWith("Json(JsonConfiguration(encodeDefaults, strictMode, unquoted, indented, indent, useArrayPolymorphism), context)")
-    )
-    public constructor(
-        unquoted: Boolean = false,
-        indented: Boolean = false,
-        indent: String = "    ",
-        strictMode: Boolean = true,
-        updateMode: UpdateMode = UpdateMode.OVERWRITE,
-        encodeDefaults: Boolean = true,
-        context: SerialModule = EmptyModule
-    ) : this(
-        JsonConfiguration(
-            encodeDefaults,
-            strictMode,
-            unquoted,
-            indented,
-            indent,
-            useArrayPolymorphism = true,
-            updateMode = updateMode
-        ), context
-    )
-
 
     /**
      * Serializes [obj] into an equivalent JSON using provided [serializer].
@@ -183,7 +156,7 @@ public constructor(
     companion object : StringFormat {
         @Suppress("DEPRECATION")
         @UnstableDefault
-        public val plain = Json()
+        public val plain = Json(JsonConfiguration(useArrayPolymorphism = true))
         @UnstableDefault
         public val unquoted = Json(JsonConfiguration(unquoted = true, useArrayPolymorphism = true))
         @UnstableDefault
@@ -214,6 +187,7 @@ public class JsonBuilder {
     public var encodeDefaults: Boolean = true
     public var strictMode: Boolean = true
     public var unquoted: Boolean = false
+    public var allowStructuredMapKeys: Boolean = false
     public var prettyPrint: Boolean = false
     public var indent: String = "    "
     public var useArrayPolymorphism: Boolean = false
@@ -221,7 +195,16 @@ public class JsonBuilder {
     public var serialModule: SerialModule = EmptyModule
 
     public fun buildConfiguration(): JsonConfiguration =
-        JsonConfiguration(encodeDefaults, strictMode, unquoted, prettyPrint, indent, useArrayPolymorphism, classDiscriminator)
+        JsonConfiguration(
+            encodeDefaults,
+            strictMode,
+            unquoted,
+            allowStructuredMapKeys,
+            prettyPrint,
+            indent,
+            useArrayPolymorphism,
+            classDiscriminator
+        )
 
     public fun buildModule(): SerialModule = serialModule
 }

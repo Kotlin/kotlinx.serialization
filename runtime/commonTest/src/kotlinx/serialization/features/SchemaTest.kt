@@ -123,4 +123,12 @@ class SchemaTest {
         assertEquals(enumDesc, manualSerializer.descriptor)
         assertEquals(enumDesc, dataDescriptor.getElementDescriptor(2).getElementDescriptor(0))
     }
+
+    @Test
+    fun kindNames() {
+        val classDesc = BoxHolder.serializer().descriptor
+        assertEquals("CLASS", classDesc.kind.toString())
+        val intDesc = classDesc.elementDescriptors()[1].elementDescriptors()[0]
+        assertEquals("INT", intDesc.kind.toString())
+    }
 }
