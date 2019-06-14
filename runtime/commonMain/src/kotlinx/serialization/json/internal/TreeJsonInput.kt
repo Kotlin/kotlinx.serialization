@@ -49,7 +49,11 @@ private sealed class AbstractJsonTreeInput(override val json: Json, open val obj
         val currentObject = currentObject()
         return when (desc.kind) {
             StructureKind.LIST -> JsonTreeListInput(json, cast(currentObject))
-            StructureKind.MAP -> JsonTreeMapInput(json, cast(currentObject))
+            StructureKind.MAP -> json.selectMapMode(
+                desc,
+                { JsonTreeMapInput(json, cast(currentObject)) },
+                { JsonTreeListInput(json, cast(currentObject)) }
+            )
             else -> JsonTreeInput(json, cast(currentObject))
         }
     }

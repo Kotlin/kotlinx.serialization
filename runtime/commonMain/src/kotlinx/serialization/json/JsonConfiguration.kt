@@ -4,20 +4,24 @@
 
 package kotlinx.serialization.json
 
-import kotlinx.serialization.*
-import kotlin.jvm.*
+import kotlinx.serialization.UnstableDefault
+import kotlinx.serialization.UpdateMode
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 /**
  * The class responsible for JSON-specific customizable behaviour in [Json] format.
  *
  * Options list:
- * [encodeDefaults] specifies whether default values are encoded.
- * [strictMode] enables strict mode, which prohibits unknown keys in the JSON and non-numerical values in floating point numbers.
- * [unquoted] specifies whether keys and values should be quoted;
- * [prettyPrint] specifies whether resulting JSON should be pretty-printed.
- * [indent] specifies indent string to use with [prettyPrint] mode.
- * [useArrayPolymorphism] switches polymorphic serialization to the default array format.
- * [classDiscriminator] name of the class descriptor property in polymorphic serialization.
+ * * [encodeDefaults] specifies whether default values are encoded.
+ * * [strictMode] enables strict mode, which prohibits unknown keys in the JSON and non-numerical values in floating point numbers.
+ * * [unquoted] specifies whether keys and values should be quoted;
+ * * [allowStructuredMapKeys] By default, only primitives and enums are allowed to be map keys as per Json spec.
+ *   Use this flag to convert maps with non-primitive keys to arrays like `[key1, value1, key2, value2, ...]`
+ * * [prettyPrint] specifies whether resulting JSON should be pretty-printed.
+ * * [indent] specifies indent string to use with [prettyPrint] mode.
+ * * [useArrayPolymorphism] switches polymorphic serialization to the default array format.
+ * * [classDiscriminator] name of the class descriptor property in polymorphic serialization.
  *
  * This class is marked with [UnstableDefault]: its semantics may be changes in the next releases, e.g.
  * additional flag may be introduced or default parameter values may be changed.
@@ -26,6 +30,7 @@ public data class JsonConfiguration @UnstableDefault constructor(
     @JvmField internal val encodeDefaults: Boolean = true,
     @JvmField internal val strictMode: Boolean = true,
     @JvmField internal val unquoted: Boolean = false,
+    @JvmField internal val allowStructuredMapKeys: Boolean = false,
     @JvmField internal val prettyPrint: Boolean = false,
     @JvmField internal val indent: String = defaultIndent,
     @JvmField internal val useArrayPolymorphism: Boolean = false,
@@ -69,6 +74,7 @@ public data class JsonConfiguration @UnstableDefault constructor(
             encodeDefaults = true,
             strictMode = true,
             unquoted = false,
+            allowStructuredMapKeys = true,
             prettyPrint = false,
             indent = defaultIndent,
             useArrayPolymorphism = false,

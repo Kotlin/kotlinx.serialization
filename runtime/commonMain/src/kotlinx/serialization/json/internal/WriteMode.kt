@@ -1,7 +1,13 @@
+/*
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
-import kotlin.jvm.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonMapInvalidKeyKind
+import kotlin.jvm.JvmField
 
 internal enum class WriteMode(@JvmField val begin: Char, @JvmField val end: Char) {
     OBJ(BEGIN_OBJ, END_OBJ),
@@ -15,15 +21,26 @@ internal enum class WriteMode(@JvmField val begin: Char, @JvmField val end: Char
     val endTc: Byte = charToTokenClass(end)
 }
 
-internal fun switchMode(desc: SerialDescriptor, typeParams: Array<out KSerializer<*>>): WriteMode =
+internal fun Json.switchMode(desc: SerialDescriptor): WriteMode =
     when (desc.kind) {
         UnionKind.POLYMORPHIC -> WriteMode.POLY_OBJ
         StructureKind.LIST -> WriteMode.LIST
-        StructureKind.MAP -> {
-            val keyKind = typeParams[0].descriptor.kind
-            if (keyKind is PrimitiveKind || keyKind == UnionKind.ENUM_KIND)
-                WriteMode.MAP
-            else WriteMode.LIST
-        }
+        StructureKind.MAP -> selectMapMode(desc, { WriteMode.MAP }, { WriteMode.LIST })
         else -> WriteMode.OBJ
     }
+
+internal inline fun <T, R1 : T, R2 : T> Json.selectMapMode(
+    mapDescriptor: SerialDescriptor,
+    ifMap: () -> R1,
+    ifList: () -> R2
+): T {
+    val keyDescriptor = mapDescriptor.getElementDescriptor(0)
+    val keyKind = keyDescriptor.kind
+    return if (keyKind is PrimitiveKind || keyKind == UnionKind.ENUM_KIND) {
+        ifMap()
+    } else if (configuration.allowStructuredMapKeys) {
+        ifList()
+    } else {
+        throw JsonMapInvalidKeyKind(keyDescriptor)
+    }
+}

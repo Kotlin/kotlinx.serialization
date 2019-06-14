@@ -93,7 +93,11 @@ private sealed class AbstractJsonTreeOutput(
 
         val encoder = when (desc.kind) {
             StructureKind.LIST, UnionKind.POLYMORPHIC -> JsonTreeListOutput(json, consumer)
-            StructureKind.MAP -> JsonTreeMapOutput(json, consumer)
+            StructureKind.MAP -> json.selectMapMode(
+                desc,
+                { JsonTreeMapOutput(json, consumer) },
+                { JsonTreeListOutput(json, consumer) }
+            )
             else -> JsonTreeOutput(json, consumer)
         }
 
@@ -148,8 +152,11 @@ private class JsonTreeMapOutput(json: Json, nodeConsumer: (JsonElement) -> Unit)
     override fun putElement(key: String, element: JsonElement) {
         val idx = key.toInt()
         if (idx % 2 == 0) { // writing key
-            check(element is JsonLiteral) { "Expected JsonLiteral, but has $element" }
-            tag = element.content
+            tag = when (element) {
+                is JsonPrimitive -> element.content
+                is JsonObject -> throw JsonMapInvalidKeyKind(JsonObjectSerializer.descriptor)
+                is JsonArray -> throw JsonMapInvalidKeyKind(JsonArraySerializer.descriptor)
+            }
         } else {
             content[tag] = element
         }

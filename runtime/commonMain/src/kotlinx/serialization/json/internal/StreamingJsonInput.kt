@@ -1,9 +1,13 @@
+/*
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
+import kotlinx.serialization.internal.EnumDescriptor
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.*
+import kotlinx.serialization.modules.SerialModule
 
 /**
  * [JsonInput] which reads given JSON from [JsonReader] field by field.
@@ -30,7 +34,7 @@ internal class StreamingJsonInput internal constructor(
     }
 
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
-        val newMode = switchMode(desc, typeParams)
+        val newMode = json.switchMode(desc)
         if (newMode.begin != INVALID) {
             reader.requireTokenClass(newMode.beginTc) { "Expected '${newMode.begin}, kind: ${desc.kind}'" }
             reader.nextToken()
