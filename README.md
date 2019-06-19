@@ -89,7 +89,7 @@ You have to add the serialization plugin as the other [compiler plugins](https:/
 
 ```gradle
 buildscript {
-    ext.kotlin_version = '1.3.30'
+    ext.kotlin_version = '1.3.40'
     repositories { jcenter() }
 
     dependencies {
@@ -110,14 +110,13 @@ Next, you have to add dependency on the serialization runtime library. Note that
 
 ```gradle
 repositories {
+    // artifacts are published to JCenter
     jcenter()
-    // artifacts are published to this repository
-    maven { url "https://kotlin.bintray.com/kotlinx" }
 }
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.11.0"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.11.1"
 }
 ```
 
@@ -127,8 +126,8 @@ You can setup serialization plugin with the kotlin plugin using [Gradle plugins 
 
 ```gradle
 plugins {
-    id 'kotlin-multiplatform' version '1.3.30'
-    id 'kotlinx-serialization' version '1.3.30'
+    id 'kotlin-multiplatform' version '1.3.40'
+    id 'kotlinx-serialization' version '1.3.40'
 }
 ```
 
@@ -179,12 +178,12 @@ Ensure the proper version of Kotlin and serialization version:
 
 ```xml
 <properties>
-    <kotlin.version>1.3.30</kotlin.version>
-    <serialization.version>0.11.0</serialization.version>
+    <kotlin.version>1.3.40</kotlin.version>
+    <serialization.version>0.11.1</serialization.version>
 </properties>
 ```
 
-Include bintray repository for library:
+Include kotlinx bintray repository for library:
 
 ```xml
 <repositories>
@@ -195,6 +194,8 @@ Include bintray repository for library:
     </repository>
 </repositories>
 ```
+
+You also can use JCenter.
 
 Add serialization plugin to Kotlin compiler plugin:
 

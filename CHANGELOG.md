@@ -1,3 +1,14 @@
+
+v0.11.1 / 2019-06-19
+==================
+
+  * Fixed some bugs in compiler plugin for Native (#472, #478) (Kotlin 1.3.40 required)
+  * Remove dependency on stdlib-jvm from common source set (Fixes #481)
+  * Fix @UseSerializers argument type and clarify some docs
+  * Support primitives (ints, strings, JsonLiterals, JsonNull, etc) on a top-level when saving/restoring JSON AST (#451)
+  * Migrate to the new (Kotlin 1.3) MPP model
+  * Add @SharedImmutable to default json module. Fixes #441 and #446
+
 v0.11.0 / 2019-04-12
 ====================
 
