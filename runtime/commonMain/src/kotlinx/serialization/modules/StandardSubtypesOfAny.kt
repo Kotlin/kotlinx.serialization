@@ -40,12 +40,12 @@ internal object StandardSubtypesOfAny {
         ),
         String::class to StringSerializer,
         Char::class to CharSerializer,
+        Int::class to IntSerializer,
+        Byte::class to ByteSerializer,
+        Short::class to ShortSerializer,
+        Long::class to LongSerializer,
         Double::class to DoubleSerializer,
         Float::class to FloatSerializer,
-        Long::class to LongSerializer,
-        Int::class to IntSerializer,
-        Short::class to ShortSerializer,
-        Byte::class to ByteSerializer,
         Boolean::class to BooleanSerializer,
         Unit::class to UnitSerializer
     )

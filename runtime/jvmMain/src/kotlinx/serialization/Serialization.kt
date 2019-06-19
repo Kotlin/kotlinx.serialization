@@ -63,6 +63,6 @@ internal fun <T> Class<T>.invokeSerializerGetter(vararg args: KSerializer<Any>):
  * on JVM, it falls back to java.lang.Class.isInstance which causes
  * difference when applied to function types with big arity.
  */
-internal actual fun Any.isInstanceOf(kclass: KClass<*>): Boolean = kclass.java.isInstance(this)
+internal actual fun Any.isInstanceOf(kclass: KClass<*>): Boolean = kclass.javaObjectType.isInstance(this)
 
 internal actual fun <T : Any> KClass<T>.simpleName(): String? = java.simpleName

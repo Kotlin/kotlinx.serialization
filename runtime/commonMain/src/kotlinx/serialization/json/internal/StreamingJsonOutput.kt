@@ -5,7 +5,6 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.EnumDescriptor
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.SerialModule
 import kotlin.jvm.JvmField
@@ -177,7 +176,7 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
         }
     }
 
-    override fun encodeEnum(enumDescription: EnumDescriptor, ordinal: Int) {
+    override fun encodeEnum(enumDescription: SerialDescriptor, ordinal: Int) {
         encodeString(enumDescription.getElementName(ordinal))
     }
 

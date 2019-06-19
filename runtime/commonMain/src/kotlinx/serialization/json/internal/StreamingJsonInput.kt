@@ -5,10 +5,10 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.EnumDescriptor
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
-import kotlin.jvm.*
+import kotlin.jvm.JvmField
 
 /**
  * [JsonInput] which reads given JSON from [JsonReader] field by field.
@@ -152,5 +152,6 @@ internal class StreamingJsonInput internal constructor(
     override fun decodeDouble(): Double = reader.takeString().toDouble()
     override fun decodeChar(): Char = reader.takeString().single()
     override fun decodeString(): String = reader.takeString()
-    override fun decodeEnum(enumDescription: EnumDescriptor): Int = enumDescription.getElementIndexOrThrow(reader.takeString())
+    override fun decodeEnum(enumDescription: SerialDescriptor): Int =
+        enumDescription.getElementIndexOrThrow(reader.takeString())
 }

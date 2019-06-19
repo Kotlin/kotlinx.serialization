@@ -7,7 +7,6 @@ package kotlinx.serialization.features
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.test.CommonEnumSerializer
-import kotlinx.serialization.test.isJvm
 import kotlin.test.*
 
 @Serializable
@@ -27,8 +26,6 @@ data class Data1(val l: List<Int> = emptyList(), val s: String) {
 
 @Serializable
 data class Data2(val l: List<Int> = emptyList(), val s: String)
-
-@Serializable data class Box<T>(val boxed: T)
 
 @Serializable data class BoxHolder(val stringBox: Box<String>, val intBox: Box<Int>)
 
@@ -117,7 +114,7 @@ class SchemaTest {
     fun enumDescriptors() {
         val dataDescriptor = DataWithEnum.serializer().descriptor
         val enumDesc = dataDescriptor.getElementDescriptor(1)
-        val serialName = if (isJvm()) "kotlinx.serialization.SampleEnum" else "SampleEnum"
+        val serialName = "kotlinx.serialization.SampleEnum"
         val manualSerializer = CommonEnumSerializer<SampleEnum>(serialName)
 
         assertEquals(enumDesc, manualSerializer.descriptor)

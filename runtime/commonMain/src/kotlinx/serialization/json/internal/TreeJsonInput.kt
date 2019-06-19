@@ -7,7 +7,6 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.EnumDescriptor
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.SerialModule
 import kotlin.jvm.JvmField
@@ -72,7 +71,7 @@ private sealed class AbstractJsonTreeInput(override val json: Json, open val obj
         return if (o.content.length == 1) o.content[0] else throw SerializationException("$o can't be represented as Char")
     }
 
-    override fun decodeTaggedEnum(tag: String, enumDescription: EnumDescriptor): Int =
+    override fun decodeTaggedEnum(tag: String, enumDescription: SerialDescriptor): Int =
         enumDescription.getElementIndexOrThrow(getValue(tag).content)
 
     override fun decodeTaggedNull(tag: String): Nothing? = null

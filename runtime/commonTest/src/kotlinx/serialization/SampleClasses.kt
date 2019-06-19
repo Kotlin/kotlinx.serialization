@@ -11,3 +11,6 @@ data class IntData(val intV: Int)
 data class StringData(val data: String)
 
 enum class SampleEnum { OptionA, OptionB, OptionC }
+
+@Serializable
+data class Box<T>(val boxed: T)
