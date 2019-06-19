@@ -78,7 +78,7 @@ private sealed class AbstractJsonTreeOutput(
     override fun encodeTaggedString(tag: String, value: String) = putElement(tag, JsonLiteral(value))
     override fun encodeTaggedEnum(
         tag: String,
-        enumDescription: EnumDescriptor,
+        enumDescription: SerialDescriptor,
         ordinal: Int
     ) = putElement(tag, JsonLiteral(enumDescription.getElementName(ordinal)))
 

@@ -1,17 +1,5 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -40,10 +28,19 @@ fun Boolean.Companion.serializer(): KSerializer<Boolean> = BooleanSerializer
 /**
  * Creates a [List] out of a child descriptors retrieved via [SerialDescriptor.getElementDescriptor].
  *
- * Size of a sequence is equal to [SerialDescriptor.elementsCount].
+ * Size of a list is equal to [SerialDescriptor.elementsCount].
  */
 public fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> {
     return (0 until elementsCount).map { getElementDescriptor(it) }
+}
+
+/**
+ * Creates a [List] out of a serial names of [this] descriptor's elements [SerialDescriptor.getElementDescriptor].
+ *
+ * Size of a list is equal to [SerialDescriptor.elementsCount].
+ */
+public fun SerialDescriptor.elementNames(): List<String> {
+    return (0 until elementsCount).map { getElementName(it) }
 }
 
 /**
