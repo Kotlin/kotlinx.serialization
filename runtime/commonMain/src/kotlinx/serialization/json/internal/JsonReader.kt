@@ -163,32 +163,58 @@ internal class JsonReader(private val source: String) {
         length += addLen
     }
 
-    fun nextToken() {
+    internal fun nextJsonKey() {
         val source = source
-        var curPos = currentPosition
+        var currentPosition = currentPosition
         val maxLen = source.length
+        // TODO this one can be optimized when we oll our benchmarks
         while (true) {
-            if (curPos >= maxLen) {
-                tokenPosition = curPos
-                tokenClass = TC_EOF
-                return
+            if (currentPosition >= maxLen) {
+               fail(currentPosition, "Expected next key name, but had trailing comma instead")
             }
-            val ch = source[curPos]
-            val tc = charToTokenClass(ch)
-            when (tc) {
-                TC_WS -> curPos++ // skip whitespace
+
+            when (charToTokenClass(source[currentPosition])) {
+                TC_WS -> currentPosition++ // skip whitespace
                 TC_OTHER -> {
-                    nextLiteral(source, curPos)
+                    nextLiteral(source, currentPosition)
                     return
                 }
                 TC_STRING -> {
-                    nextString(source, curPos)
+                    nextString(source, currentPosition)
                     return
                 }
                 else -> {
-                    this.tokenPosition = curPos
+                    fail(currentPosition, "Expected next key name, but had trailing comma instead")
+                }
+            }
+        }
+    }
+
+    internal fun nextToken() {
+        val source = source
+        var currentPosition = currentPosition
+        val maxLen = source.length
+        while (true) {
+            if (currentPosition >= maxLen) {
+                tokenPosition = currentPosition
+                tokenClass = TC_EOF
+                return
+            }
+            val ch = source[currentPosition]
+            when (val tc = charToTokenClass(ch)) {
+                TC_WS -> currentPosition++ // skip whitespace
+                TC_OTHER -> {
+                    nextLiteral(source, currentPosition)
+                    return
+                }
+                TC_STRING -> {
+                    nextString(source, currentPosition)
+                    return
+                }
+                else -> {
+                    this.tokenPosition = currentPosition
                     this.tokenClass = tc
-                    this.currentPosition = curPos + 1
+                    this.currentPosition = currentPosition + 1
                     return
                 }
             }
@@ -302,8 +328,7 @@ internal class JsonReader(private val source: String) {
 // Utility functions
 private fun fromHexChar(source: String, curPos: Int): Int {
     require(curPos < source.length, curPos) { "Unexpected end in unicode escape" }
-    val curChar = source[curPos]
-    return when (curChar) {
+    return when (val curChar = source[curPos]) {
         in '0'..'9' -> curChar.toInt() - '0'.toInt()
         in 'a'..'f' -> curChar.toInt() - 'a'.toInt() + 10
         in 'A'..'F' -> curChar.toInt() - 'A'.toInt() + 10
