@@ -4,11 +4,11 @@
 
 package kotlinx.serialization.json
 
-import kotlinx.serialization.StringData
-import kotlinx.serialization.test.assertStringFormAndRestored
+import kotlinx.serialization.*
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
-class JsonParserFuzzerTest {
+class JsonParserTest {
 
     @Test
     fun testQuotedBrace() {
@@ -61,5 +61,19 @@ class JsonParserFuzzerTest {
             StringData.serializer(),
             printResult = false
         )
+    }
+
+    @Test
+    fun testTrailingComma() {
+        testTrailingComma("{\"id\":0,}")
+        testTrailingComma("{\"id\":0  ,}")
+        testTrailingComma("{\"id\":0  , ,}")
+    }
+
+
+    private fun testTrailingComma(content: String) {
+        val e = assertFailsWith<JsonParsingException> {  Json.plain.parseJson(content) }
+        val msg = e.message!!
+        assertTrue(msg.contains("comma"))
     }
 }

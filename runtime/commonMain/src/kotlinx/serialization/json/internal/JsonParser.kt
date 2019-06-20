@@ -13,7 +13,7 @@ internal class JsonParser(private val reader: JsonReader) {
         reader.nextToken()
         val result: MutableMap<String, JsonElement> = linkedMapOf()
         while (true) {
-            if (reader.tokenClass == TC_COMMA) reader.nextToken()
+            if (reader.tokenClass == TC_COMMA) reader.nextJsonKey()
             if (!reader.canBeginValue) break
             val key = reader.takeString()
             reader.requireTokenClass(TC_COLON) { "Expected ':'" }
@@ -48,8 +48,7 @@ internal class JsonParser(private val reader: JsonReader) {
 
     fun read(): JsonElement {
         if (!reader.canBeginValue) fail(reader.currentPosition, "Can't begin reading value from here")
-        val tc = reader.tokenClass
-        return when (tc) {
+        return when (reader.tokenClass) {
             TC_NULL -> JsonNull.also { reader.nextToken() }
             TC_STRING -> readValue(isString = true)
             TC_OTHER -> readValue(isString = false)
