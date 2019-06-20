@@ -136,11 +136,11 @@ internal class JsonReader(private val source: String) {
     }
 
     internal inline fun requireTokenClass(expected: Byte, errorMessage: (Char) -> String) {
-        if (tokenClass != expected) fail(tokenPosition, errorMessage(tokenClass.toChar()))
+        if (tokenClass != expected) fail(errorMessage(tokenClass.toChar()), tokenPosition)
     }
 
     fun takeString(): String {
-        if (tokenClass != TC_OTHER && tokenClass != TC_STRING) fail(tokenPosition, "Expected string or non-null literal")
+        if (tokenClass != TC_OTHER && tokenClass != TC_STRING) fail("Expected string or non-null literal", tokenPosition)
         val prevStr = if (offset < 0)
             String(buf, 0, length) else
             source.substring(offset, offset + length)
@@ -163,14 +163,14 @@ internal class JsonReader(private val source: String) {
         length += addLen
     }
 
-    internal fun nextJsonKey() {
+    fun nextJsonKey() {
         val source = source
         var currentPosition = currentPosition
         val maxLen = source.length
         // TODO this one can be optimized when we oll our benchmarks
         while (true) {
             if (currentPosition >= maxLen) {
-               fail(currentPosition, "Expected next key name, but had trailing comma instead")
+               fail("Expected next key name, but had trailing comma instead", currentPosition)
             }
 
             when (charToTokenClass(source[currentPosition])) {
@@ -184,13 +184,13 @@ internal class JsonReader(private val source: String) {
                     return
                 }
                 else -> {
-                    fail(currentPosition, "Expected next key name, but had trailing comma instead")
+                    fail("Expected next key name, but had trailing comma instead", currentPosition)
                 }
             }
         }
     }
 
-    internal fun nextToken() {
+    fun nextToken() {
         val source = source
         var currentPosition = currentPosition
         val maxLen = source.length
@@ -235,35 +235,35 @@ internal class JsonReader(private val source: String) {
         tokenClass = if (rangeEquals(source, offset, length, NULL)) TC_NULL else TC_OTHER
     }
 
-    private fun nextString(source: String, startPos: Int) {
-        tokenPosition = startPos
+    private fun nextString(source: String, statPosition: Int) {
+        tokenPosition = statPosition
         length = 0 // in buffer
-        var curPos = startPos + 1
-        var lastPos = curPos
-        val maxLen = source.length
+        var currentPosition = statPosition + 1
+        var lastPosition = currentPosition
+        val length = source.length
         parse@ while (true) {
-            if (curPos >= maxLen) fail(curPos, "Unexpected end in string")
-            if (source[curPos] == STRING) {
+            if (currentPosition >= length) fail("Unexpected end in string", currentPosition)
+            if (source[currentPosition] == STRING) {
                 break@parse
-            } else if (source[curPos] == STRING_ESC) {
-                appendRange(source, lastPos, curPos)
-                val newPos = appendEsc(source, curPos + 1)
-                curPos = newPos
-                lastPos = newPos
+            } else if (source[currentPosition] == STRING_ESC) {
+                appendRange(source, lastPosition, currentPosition)
+                val newPos = appendEsc(source, currentPosition + 1)
+                currentPosition = newPos
+                lastPosition = newPos
             } else {
-                curPos++
+                currentPosition++
             }
         }
-        if (lastPos == startPos + 1) {
+        if (lastPosition == statPosition + 1) {
             // there was no escaped chars
-            this.offset = lastPos
-            this.length = curPos - lastPos
+            this.offset = lastPosition
+            this.length = currentPosition - lastPosition
         } else {
             // some escaped chars were there
-            appendRange(source, lastPos, curPos)
+            appendRange(source, lastPosition, currentPosition)
             this.offset = -1
         }
-        this.currentPosition = curPos + 1
+        this.currentPosition = currentPosition + 1
         tokenClass = TC_STRING
     }
 
@@ -323,16 +323,23 @@ internal class JsonReader(private val source: String) {
     override fun toString(): String {
         return "JsonReader(source='$source', currentPosition=$currentPosition, tokenClass=$tokenClass, tokenPosition=$tokenPosition, offset=$offset)"
     }
-}
 
-// Utility functions
-private fun fromHexChar(source: String, curPos: Int): Int {
-    require(curPos < source.length, curPos) { "Unexpected end in unicode escape" }
-    return when (val curChar = source[curPos]) {
-        in '0'..'9' -> curChar.toInt() - '0'.toInt()
-        in 'a'..'f' -> curChar.toInt() - 'a'.toInt() + 10
-        in 'A'..'F' -> curChar.toInt() - 'A'.toInt() + 10
-        else -> fail(curPos, "Invalid toHexChar char '$curChar' in unicode escape")
+    public fun fail(message: String, position: Int = currentPosition): Nothing {
+        throw JsonParsingException("$message at position $position in $source")
+    }
+
+    internal inline fun require(condition: Boolean, position: Int, message: () -> String) {
+        if (!condition) fail(message(), position)
+    }
+
+    private fun fromHexChar(source: String, curPos: Int): Int {
+        require(curPos < source.length, curPos) { "Unexpected end in unicode escape" }
+        return when (val curChar = source[curPos]) {
+            in '0'..'9' -> curChar.toInt() - '0'.toInt()
+            in 'a'..'f' -> curChar.toInt() - 'a'.toInt() + 10
+            in 'A'..'F' -> curChar.toInt() - 'A'.toInt() + 10
+            else -> fail("Invalid toHexChar char '$curChar' in unicode escape")
+        }
     }
 }
 

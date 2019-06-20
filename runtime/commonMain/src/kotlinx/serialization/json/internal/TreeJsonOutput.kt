@@ -49,7 +49,7 @@ private sealed class AbstractJsonTreeOutput(
 
     override fun encodeTaggedFloat(tag: String, value: Float) {
         if (configuration.strictMode && !value.isFinite()) {
-            throw JsonInvalidValueInStrictModeException(value)
+            throw JsonParsingException("$value at key $tag is not a valid float as per JSON specification. You can disable strict mode to serialize such values.")
         }
 
         putElement(tag, JsonLiteral(value))
@@ -67,7 +67,7 @@ private sealed class AbstractJsonTreeOutput(
 
     override fun encodeTaggedDouble(tag: String, value: Double) {
         if (configuration.strictMode && !value.isFinite()) {
-            throw JsonInvalidValueInStrictModeException(value)
+            throw JsonParsingException("$value at key $tag is not a valid double as per JSON specification. You can disable strict mode to serialize such values.")
         }
 
         putElement(tag, JsonLiteral(value))

@@ -47,14 +47,14 @@ internal class JsonParser(private val reader: JsonReader) {
     }
 
     fun read(): JsonElement {
-        if (!reader.canBeginValue) fail(reader.currentPosition, "Can't begin reading value from here")
+        if (!reader.canBeginValue) reader.fail("Can't begin reading value from here")
         return when (reader.tokenClass) {
             TC_NULL -> JsonNull.also { reader.nextToken() }
             TC_STRING -> readValue(isString = true)
             TC_OTHER -> readValue(isString = false)
             TC_BEGIN_OBJ -> readObject()
             TC_BEGIN_LIST -> readArray()
-            else -> fail(reader.currentPosition, "Can't begin reading element")
+            else -> reader.fail("Can't begin reading element, unexpected token")
         }
     }
 }
