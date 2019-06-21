@@ -328,7 +328,7 @@ internal class JsonReader(private val source: String) {
         throw JsonParsingException("$message at position $position in $source")
     }
 
-    internal inline fun require(condition: Boolean, position: Int, message: () -> String) {
+    internal inline fun require(condition: Boolean, position: Int = currentPosition, message: () -> String) {
         if (!condition) fail(message(), position)
     }
 

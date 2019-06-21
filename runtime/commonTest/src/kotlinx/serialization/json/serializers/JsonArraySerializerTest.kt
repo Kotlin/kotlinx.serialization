@@ -24,11 +24,6 @@ class JsonArraySerializerTest : JsonTestBase() {
     }
 
     @Test
-    fun testTopLevelJsonObject() = parametrizedTest(strict) {
-        assertStringFormAndRestored(expectedTopLevel, prebuiltJson(), JsonArraySerializer)
-    }
-
-    @Test
     fun testTopLevelJsonObjectAsElement() = parametrizedTest(strict) {
         assertStringFormAndRestored(expectedTopLevel, prebuiltJson(), JsonElementSerializer)
     }
@@ -38,6 +33,44 @@ class JsonArraySerializerTest : JsonTestBase() {
         val prebuiltJson = prebuiltJson()
         val string = nonStrict.stringify(JsonArraySerializer, prebuiltJson)
         assertEquals(string, prebuiltJson.toString())
+    }
+
+    @Test
+    fun testMissingCommas() = parametrizedTest { useStreaming ->
+        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonArraySerializer, "[a b c]", useStreaming) }
+        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonArraySerializer, "[ 1 2 3 ]", useStreaming) }
+        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonArraySerializer, "[null 1 null]", useStreaming) }
+        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonArraySerializer, "[1 \n 2]", useStreaming) }
+    }
+
+    @Test
+    fun testEmptyArray() = parametrizedTest { useStreaming ->
+        assertEquals(JsonArray(emptyList()), nonStrict.parse(JsonArraySerializer, "[]", useStreaming))
+        assertEquals(JsonArray(emptyList()), nonStrict.parse(JsonArraySerializer, "[    ]", useStreaming))
+        assertEquals(JsonArray(emptyList()), nonStrict.parse(JsonArraySerializer, "[\n\n]", useStreaming))
+        assertEquals(JsonArray(emptyList()), nonStrict.parse(JsonArraySerializer, "[     \t]", useStreaming))
+    }
+
+    @Test
+    fun testWhitespaces() = parametrizedTest { useStreaming ->
+        assertEquals(
+            JsonArray(listOf(1, 2, 3, 4, 5).map(::JsonLiteral)),
+            nonStrict.parse(JsonArraySerializer, "[1, 2,   3, \n 4, 5]", useStreaming)
+        )
+    }
+
+    @Test
+    fun testExcessiveCommas() = parametrizedTest { useStreaming ->
+        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonArraySerializer, "[a,]", useStreaming) }
+        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonArraySerializer, "[,1]", useStreaming) }
+        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonArraySerializer, "[,1,]", useStreaming) }
+        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonArraySerializer, "[,]", useStreaming) }
+        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonArraySerializer, "[,,]", useStreaming) }
+        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonArraySerializer, "[,,1]", useStreaming) }
+        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonArraySerializer, "[1,,]", useStreaming) }
+        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonArraySerializer, "[1,,2]", useStreaming) }
+        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonArraySerializer, "[,   ,]", useStreaming) }
+        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonArraySerializer, "[,\n,]", useStreaming) }
     }
 
     private fun prebuiltJson(): JsonArray {

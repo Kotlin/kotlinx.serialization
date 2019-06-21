@@ -68,28 +68,41 @@ internal class StreamingJsonInput internal constructor(
     }
 
     override fun decodeElementIndex(desc: SerialDescriptor): Int {
-        while (true) {
-            if (reader.tokenClass == TC_COMMA) reader.nextToken()
-            when (mode) {
-                WriteMode.LIST -> {
-                    return if (!reader.canBeginValue) CompositeDecoder.READ_DONE else ++currentIndex
+        val tokenClass = reader.tokenClass
+        if (tokenClass == TC_COMMA) reader.nextToken()
+        when (mode) {
+            WriteMode.LIST -> {
+                // Prohibit leading comma
+                if (tokenClass == TC_COMMA) {
+                    reader.require(currentIndex != -1, reader.currentPosition) { "Unexpected leading comma" }
+                } else if (currentIndex != -1) {
+                    // Prohibit leading comma
+                    reader.requireTokenClass(TC_END_LIST) { "Expected end of the array or comma" }
                 }
-                WriteMode.MAP -> {
-                    if (currentIndex % 2 == 0 && reader.tokenClass == TC_COLON) reader.nextToken()
-                    return if (!reader.canBeginValue) CompositeDecoder.READ_DONE else ++currentIndex
+
+                return if (!reader.canBeginValue) {
+                    reader.require(tokenClass != TC_COMMA) { "Unexpected trailing comma" }
+                    CompositeDecoder.READ_DONE
+                } else {
+                    ++currentIndex
                 }
-                WriteMode.POLY_OBJ -> {
-                    return when (entryIndex++) {
-                        0 -> 0
-                        1 -> 1
-                        else -> {
-                            entryIndex = 0
-                            CompositeDecoder.READ_DONE
-                        }
+            }
+            WriteMode.MAP -> {
+                if (currentIndex % 2 == 0 && reader.tokenClass == TC_COLON) reader.nextToken()
+                return if (!reader.canBeginValue) CompositeDecoder.READ_DONE else ++currentIndex
+            }
+            WriteMode.POLY_OBJ -> {
+                return when (entryIndex++) {
+                    0 -> 0
+                    1 -> 1
+                    else -> {
+                        entryIndex = 0
+                        CompositeDecoder.READ_DONE
                     }
                 }
-                else -> {
-                    if (!reader.canBeginValue) return CompositeDecoder.READ_DONE
+            }
+            else -> {
+                while (reader.canBeginValue) {
                     val key = reader.takeString()
                     reader.requireTokenClass(TC_COLON) { "Expected ':'" }
                     reader.nextToken()
@@ -99,7 +112,10 @@ internal class StreamingJsonInput internal constructor(
                     }
                     if (configuration.strictMode) throw jsonUnknownKeyException(reader.currentPosition, key)
                     else reader.skipElement()
+
+                    if (reader.tokenClass == TC_COMMA) reader.nextToken()
                 }
+                return CompositeDecoder.READ_DONE
             }
         }
     }
