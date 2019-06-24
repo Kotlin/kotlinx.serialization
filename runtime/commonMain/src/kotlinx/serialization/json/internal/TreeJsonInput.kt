@@ -22,8 +22,8 @@ internal fun <T> Json.readJson(element: JsonElement, deserializer: Deserializati
     return input.decode(deserializer)
 }
 
-private sealed class AbstractJsonTreeInput(override val json: Json, open val obj: JsonElement)
-    : NamedValueDecoder(), JsonInput {
+private sealed class AbstractJsonTreeInput(override val json: Json, open val obj: JsonElement) : NamedValueDecoder(),
+    JsonInput {
 
     override val context: SerialModule
         get() = json.context
@@ -48,7 +48,7 @@ private sealed class AbstractJsonTreeInput(override val json: Json, open val obj
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
         val currentObject = currentObject()
         return when (desc.kind) {
-            StructureKind.LIST -> JsonTreeListInput(json, cast(currentObject))
+            StructureKind.LIST, UnionKind.POLYMORPHIC -> JsonTreeListInput(json, cast(currentObject))
             StructureKind.MAP -> json.selectMapMode(
                 desc,
                 { JsonTreeMapInput(json, cast(currentObject)) },
