@@ -9,9 +9,8 @@ import kotlinx.io.PrintWriter
 import kotlinx.io.StringReader
 import kotlinx.io.StringWriter
 import kotlinx.serialization.*
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.plus
+import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 import kotlin.test.*
 
 class JsonTest {
@@ -104,7 +103,8 @@ class JsonTest {
                 "listKey" to listOf("foo")
             )
         ),
-        serializer = MyPolyData.serializer()
+        serializer = MyPolyData.serializer(),
+        format = Json(JsonConfiguration(useArrayPolymorphism = true, allowStructuredMapKeys = true))
     )
 
     @Suppress("NAME_SHADOWING")
