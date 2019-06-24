@@ -15,9 +15,9 @@ import kotlin.jvm.JvmStatic
  * Options list:
  * * [encodeDefaults] specifies whether default values are encoded.
  * * [strictMode] enables strict mode, which prohibits unknown keys in the JSON and non-numerical values in floating point numbers.
- * * [unquoted] specifies whether keys and values should be quoted;
- * * [allowStructuredMapKeys] By default, only primitives and enums are allowed to be map keys as per Json spec.
- *   Use this flag to convert maps with non-primitive keys to arrays like `[key1, value1, key2, value2, ...]`
+ * * [unquoted] specifies whether keys and values should be quoted.
+ * * [allowStructuredMapKeys] enables structured objects to be serialized as map keys by
+ *   changing serialized form of the map from JSON object (kv pairs) to flat array `[k1, v1, k2, v2]`.
  * * [prettyPrint] specifies whether resulting JSON should be pretty-printed.
  * * [indent] specifies indent string to use with [prettyPrint] mode.
  * * [useArrayPolymorphism] switches polymorphic serialization to the default array format.
