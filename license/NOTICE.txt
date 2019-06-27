@@ -5,4 +5,4 @@
    =========================================================================
 
    kotlinx.serialization library.
-   Copyright 2017 JetBrains s.r.o and respective authors and developers
+   Copyright 2017-2019 JetBrains s.r.o and respective authors and developers
