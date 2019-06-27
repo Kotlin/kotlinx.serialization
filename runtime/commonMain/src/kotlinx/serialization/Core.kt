@@ -63,7 +63,8 @@ interface KSerializer<T>: SerializationStrategy<T>, DeserializationStrategy<T> {
 
 
 @Suppress("UNUSED")
-internal class SerializationConstructorMarker private constructor()
+@Deprecated("Inserted into generated code and should not be used directly", level = DeprecationLevel.HIDDEN)
+public class SerializationConstructorMarker private constructor()
 
 
 @ImplicitReflectionSerializer

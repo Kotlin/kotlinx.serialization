@@ -4,10 +4,10 @@
 
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.SharedImmutable
 import kotlinx.serialization.json.*
 import kotlinx.serialization.json.internal.EscapeCharMappings.ESCAPE_2_CHAR
-import kotlin.jvm.JvmField
+import kotlin.jvm.*
+import kotlin.native.concurrent.SharedImmutable
 
 // special strings
 internal const val NULL = "null"

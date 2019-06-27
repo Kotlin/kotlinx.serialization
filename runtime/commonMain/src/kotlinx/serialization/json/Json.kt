@@ -7,6 +7,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.JvmField
+import kotlin.native.concurrent.SharedImmutable
 import kotlin.reflect.KClass
 
 /**

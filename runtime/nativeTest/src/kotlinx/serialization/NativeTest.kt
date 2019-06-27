@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization
 
 import kotlinx.io.*
@@ -48,5 +52,15 @@ class CommonTest {
         val id2 = getSerialId(country.descriptor, 0)
         assertEquals(10, id1)
         assertEquals(10, id2)
+    }
+
+    @Test
+    @Ignore // todo: unignore on 1.3.50-eap-2
+    @UseExperimental(ImplicitReflectionSerializer::class)
+    fun nativeSupportsSimpleReflectionSerializer() {
+        val s = Json.stringify(shop)
+        println(s)
+        val shop2 = Json.parse<Shop>(s)
+        assertEquals(shop, shop2)
     }
 }

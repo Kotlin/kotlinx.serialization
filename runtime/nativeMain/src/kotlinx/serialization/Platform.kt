@@ -1,22 +1,10 @@
 /*
- *  Copyright 2018 JetBrains s.r.o.
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
 
-import kotlin.reflect.KClass
+import kotlin.reflect.*
 
 
 actual fun String.toUtf8Bytes(): ByteArray {
@@ -28,10 +16,21 @@ actual fun stringFromUtf8Bytes(bytes: ByteArray): String {
 }
 
 
-@Suppress("UNCHECKED_CAST")
+@UseExperimental(ExperimentalAssociatedObjects::class)
+@AssociatedObjectKey
+@Retention(AnnotationRetention.BINARY)
+@Deprecated("Inserted into generated code and should not be used directly", level = DeprecationLevel.HIDDEN)
+public annotation class SerializableWith(val serializer: KClass<out KSerializer<*>>)
+
+
+@Suppress(
+    "UNCHECKED_CAST",
+    "DEPRECATION_ERROR"
+)
+@UseExperimental(ExperimentalAssociatedObjects::class)
 @ImplicitReflectionSerializer
-actual fun <T : Any> KClass<T>.compiledSerializer(): KSerializer<T>? = TODO("Obtaining serializer from KClass is not available on native due to the lack of reflection. " +
-        "Use .serializer() directly on serializable class.")
+actual fun <T : Any> KClass<T>.compiledSerializer(): KSerializer<T>? =
+    findAssociatedObject<SerializableWith>() as? KSerializer<T>
 
 actual fun <E : Enum<E>> enumFromName(enumClass: KClass<E>, value: String): E = TODO("Not supported in native")
 actual fun <E : Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E = TODO("Not supported in native")
@@ -51,5 +50,3 @@ actual fun <T : Any, E : T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Arra
 private fun <T> arrayOfAnyNulls(size: Int): Array<T> = arrayOfNulls<Any>(size) as Array<T>
 
 internal actual fun Any.isInstanceOf(kclass: KClass<*>): Boolean = kclass.isInstance(this)
-
-actual typealias SharedImmutable = kotlin.native.concurrent.SharedImmutable
