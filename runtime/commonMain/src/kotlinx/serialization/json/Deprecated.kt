@@ -7,7 +7,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.modules.*
+import kotlinx.serialization.modules.EmptyModule
 
 @Deprecated(deprecationText, ReplaceWith("Json"), DeprecationLevel.WARNING)
 typealias JSON = Json
@@ -40,3 +40,15 @@ class JsonTreeParser(private val input: String) {
         return Json.plain.parseJson(input)
     }
 }
+
+@Deprecated("Replaced with JsonEncodingException", ReplaceWith("JsonEncodingException"), DeprecationLevel.ERROR)
+typealias JsonInvalidValueInStrictModeException = JsonEncodingException
+
+@Deprecated("Merged with JsonDecodingException", ReplaceWith("JsonDecodingException"), DeprecationLevel.ERROR)
+typealias JsonUnknownKeyException = JsonDecodingException
+
+@Deprecated("Replaced with JsonDecodingException", ReplaceWith("JsonDecodingException"), DeprecationLevel.ERROR)
+typealias JsonParsingException = JsonDecodingException
+
+@Deprecated("Merged with JsonException", ReplaceWith("JsonException"), DeprecationLevel.ERROR)
+typealias JsonElementTypeMismatchException = JsonException

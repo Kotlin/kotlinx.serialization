@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("RedundantVisibilityModifier")
@@ -24,28 +24,28 @@ public sealed class JsonElement {
 
     /**
      * Convenience method to get current element as [JsonPrimitive]
-     * @throws JsonElementTypeMismatchException is current element is not a [JsonPrimitive]
+     * @throws JsonException is current element is not a [JsonPrimitive]
      */
     public open val primitive: JsonPrimitive
         get() = error("JsonLiteral")
 
     /**
      * Convenience method to get current element as [JsonObject]
-     * @throws JsonElementTypeMismatchException is current element is not a [JsonObject]
+     * @throws JsonException is current element is not a [JsonObject]
      */
     public open val jsonObject: JsonObject
         get() = error("JsonObject")
 
     /**
      * Convenience method to get current element as [JsonArray]
-     * @throws JsonElementTypeMismatchException is current element is not a [JsonArray]
+     * @throws JsonException is current element is not a [JsonArray]
      */
     public open val jsonArray: JsonArray
         get() = error("JsonArray")
 
     /**
      * Convenience method to get current element as [JsonNull]
-     * @throws JsonElementTypeMismatchException is current element is not a [JsonNull]
+     * @throws JsonException is current element is not a [JsonNull]
      */
     public open val jsonNull: JsonNull
         get() = error("JsonPrimitive")
@@ -57,7 +57,7 @@ public sealed class JsonElement {
         get() = this === JsonNull
 
     private fun error(element: String): Nothing =
-        throw JsonElementTypeMismatchException(this::class.toString(), element)
+        throw JsonException("Element ${this::class.toString()} is not a $element")
 }
 
 /**
@@ -214,7 +214,7 @@ public data class JsonObject(val content: Map<String, JsonElement>) : JsonElemen
      * Returns [JsonPrimitive] associated with given [key]
      *
      * @throws NoSuchElementException if element is not present
-     * @throws JsonElementTypeMismatchException if element is present, but has invalid type
+     * @throws JsonException if element is present, but has invalid type
      */
     public fun getPrimitive(key: String): JsonPrimitive = getValue(key) as? JsonPrimitive
             ?: unexpectedJson(key, "JsonPrimitive")
@@ -223,7 +223,7 @@ public data class JsonObject(val content: Map<String, JsonElement>) : JsonElemen
      * Returns [JsonObject] associated with given [key]
      *
      * @throws NoSuchElementException if element is not present
-     * @throws JsonElementTypeMismatchException if element is present, but has invalid type
+     * @throws JsonException if element is present, but has invalid type
      */
     public fun getObject(key: String): JsonObject = getValue(key) as? JsonObject
             ?: unexpectedJson(key, "JsonObject")
@@ -232,7 +232,7 @@ public data class JsonObject(val content: Map<String, JsonElement>) : JsonElemen
      * Returns [JsonArray] associated with given [key]
      *
      * @throws NoSuchElementException if element is not present
-     * @throws JsonElementTypeMismatchException if element is present, but has invalid type
+     * @throws JsonException if element is present, but has invalid type
      */
     public fun getArray(key: String): JsonArray = getValue(key) as? JsonArray
             ?: unexpectedJson(key, "JsonArray")
@@ -259,7 +259,7 @@ public data class JsonObject(val content: Map<String, JsonElement>) : JsonElemen
      * Returns [J] associated with given [key]
      *
      * @throws NoSuchElementException if element is not present
-     * @throws JsonElementTypeMismatchException if element is present, but has invalid type
+     * @throws JsonException if element is present, but has invalid type
      */
     public inline fun <reified J : JsonElement> getAs(key: String): J = get(key) as? J
             ?: unexpectedJson(key, J::class.toString())
@@ -298,7 +298,7 @@ public data class JsonArray(val content: List<JsonElement>) : JsonElement(), Lis
     /**
      * Returns [index]-th element of an array as [JsonPrimitive]
      * @throws IndexOutOfBoundsException if there is no element with given index
-     * @throws JsonElementTypeMismatchException if element has invalid type
+     * @throws JsonException if element has invalid type
      */
     public fun getPrimitive(index: Int) = content[index] as? JsonPrimitive
             ?: unexpectedJson("at $index", "JsonPrimitive")
@@ -306,7 +306,7 @@ public data class JsonArray(val content: List<JsonElement>) : JsonElement(), Lis
     /**
      * Returns [index]-th element of an array as [JsonObject]
      * @throws IndexOutOfBoundsException if there is no element with given index
-     * @throws JsonElementTypeMismatchException if element has invalid type
+     * @throws JsonException if element has invalid type
      */
     public fun getObject(index: Int) = content[index] as? JsonObject
             ?: unexpectedJson("at $index", "JsonObject")
@@ -314,7 +314,7 @@ public data class JsonArray(val content: List<JsonElement>) : JsonElement(), Lis
     /**
      * Returns [index]-th element of an array as [JsonArray]
      * @throws IndexOutOfBoundsException if there is no element with given index
-     * @throws JsonElementTypeMismatchException if element has invalid type
+     * @throws JsonException if element has invalid type
      */
     public fun getArray(index: Int) = content[index] as? JsonArray
             ?: unexpectedJson("at $index", "JsonArray")
@@ -336,7 +336,7 @@ public data class JsonArray(val content: List<JsonElement>) : JsonElement(), Lis
 
     /**
      * Returns [index]-th element of an array as [J]
-     * @throws JsonElementTypeMismatchException if element has invalid type
+     * @throws JsonException if element has invalid type
      */
     public inline fun <reified J : JsonElement> getAs(index: Int): J = content[index] as? J
             ?: unexpectedJson("at $index", J::class.toString())
@@ -355,4 +355,4 @@ public data class JsonArray(val content: List<JsonElement>) : JsonElement(), Lis
 
 @PublishedApi
 internal fun unexpectedJson(key: String, expected: String): Nothing =
-    throw JsonElementTypeMismatchException(key, expected)
+    throw JsonException("Element $key is not a $expected")

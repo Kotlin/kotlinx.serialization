@@ -5,7 +5,8 @@
 
 package kotlinx.serialization.json
 
-import kotlinx.serialization.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlin.test.*
 
 class JsonTransientTest : JsonTestBase() {
@@ -50,7 +51,7 @@ class JsonTransientTest : JsonTestBase() {
 
     @Test
     fun testThrowTransient() = parametrizedTest { useStreaming ->
-        assertFailsWith(JsonUnknownKeyException::class) {
+        assertFailsWith(JsonDecodingException::class) {
             strict.parse(Data.serializer(), "{a:0,b:100500,c:Hello}", useStreaming)
         }
     }
