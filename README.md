@@ -116,7 +116,7 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.11.1"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:0.11.1"
 }
 ```
 
