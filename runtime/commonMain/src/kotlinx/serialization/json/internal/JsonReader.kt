@@ -1,25 +1,13 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.SharedImmutable
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.JsonDecodingException
 import kotlinx.serialization.json.internal.EscapeCharMappings.ESCAPE_2_CHAR
-import kotlin.jvm.*
+import kotlin.jvm.JvmField
 
 // special strings
 internal const val NULL = "null"
@@ -288,11 +276,17 @@ internal class JsonReader(private val source: String) {
             when (tokenClass) {
                 TC_BEGIN_LIST, TC_BEGIN_OBJ -> tokenStack.add(tokenClass)
                 TC_END_LIST -> {
-                    if (tokenStack.last() != TC_BEGIN_LIST) throw JsonParsingException(currentPosition, "found ] instead of }")
+                    if (tokenStack.last() != TC_BEGIN_LIST) throw JsonDecodingException(
+                        currentPosition,
+                        "found ] instead of }"
+                    )
                     tokenStack.removeAt(tokenStack.size - 1)
                 }
                 TC_END_OBJ -> {
-                    if (tokenStack.last() != TC_BEGIN_OBJ) throw JsonParsingException(currentPosition, "found } instead of ]")
+                    if (tokenStack.last() != TC_BEGIN_OBJ) throw JsonDecodingException(
+                        currentPosition,
+                        "found } instead of ]"
+                    )
                     tokenStack.removeAt(tokenStack.size - 1)
                 }
             }
@@ -330,5 +324,5 @@ internal inline fun require(condition: Boolean, position: Int, msg: () -> String
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun fail(position: Int, msg: String): Nothing {
-    throw JsonParsingException(position, msg)
+    throw JsonDecodingException(position, msg)
 }

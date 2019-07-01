@@ -6,8 +6,7 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.test.assertStringFormAndRestored
-import kotlin.test.Test
-import kotlin.test.assertFailsWith
+import kotlin.test.*
 
 @Serializable
 private data class WithMap(val map: Map<Long, Long>)
@@ -31,13 +30,14 @@ class JsonMapKeysTest : JsonTestBase() {
 
     @Test
     fun structuredMapKeysShouldBeBannedByDefault() = parametrizedTest { streaming ->
-        assertFailsWith<JsonMapInvalidKeyKind> {
+        val e = assertFailsWith<JsonException> {
             Json(JsonConfiguration.Default).stringify(
                 WithComplexKey.serializer(),
                 WithComplexKey(mapOf(IntData(42) to "42")),
                 streaming
             )
         }
+        assertTrue(e.message?.contains("can't be used in json as map key") == true, "wrong exception text")
     }
 
     @Test
