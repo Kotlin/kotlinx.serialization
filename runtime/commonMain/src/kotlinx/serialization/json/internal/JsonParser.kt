@@ -9,19 +9,28 @@ import kotlinx.serialization.json.*
 internal class JsonParser(private val reader: JsonReader) {
 
     private fun readObject(): JsonElement {
-        reader.requireTokenClass(TC_BEGIN_OBJ) { "Expected start of object" }
+        reader.requireTokenClass(TC_BEGIN_OBJ) { "Expected start of the object" }
         reader.nextToken()
+        // Prohibit leading comma
+        reader.require(reader.tokenClass != TC_COMMA, reader.currentPosition) { "Unexpected leading comma" }
         val result = linkedMapOf<String, JsonElement>()
-        while (true) {
-            if (reader.tokenClass == TC_COMMA) reader.nextJsonKey()
-            if (!reader.canBeginValue) break
+        var valueExpected = false
+        while (reader.canBeginValue) {
+            valueExpected = false
             val key = reader.takeString()
             reader.requireTokenClass(TC_COLON) { "Expected ':'" }
             reader.nextToken()
             val element = read()
             result[key] = element
+            if (reader.tokenClass != TC_COMMA) {
+                // Prohibit whitespaces instead of commas {a:b c:d}
+                reader.requireTokenClass(TC_END_OBJ) { "Expected end of the object or comma" }
+            } else {
+                valueExpected = true
+                reader.nextToken()
+            }
         }
-        reader.requireTokenClass(TC_END_OBJ) { "Expected end of object" }
+        reader.require(!valueExpected && reader.tokenClass == TC_END_OBJ, reader.currentPosition) { "Expected end of the object" }
         reader.nextToken()
         return JsonObject(result)
     }
@@ -51,7 +60,7 @@ internal class JsonParser(private val reader: JsonReader) {
             }
         }
         // Prohibit trailing commas
-        reader.require(!valueExpected, reader.currentPosition) { "Expected end of the array or comma" }
+        reader.require(!valueExpected, reader.currentPosition) { "Unexpected trailing comma" }
         reader.nextToken()
         return JsonArray(result)
     }

@@ -105,7 +105,6 @@ internal fun charToTokenClass(c: Char) = if (c.toInt() < CTC_MAX) C2TC[c.toInt()
 
 internal fun escapeToChar(c: Int): Char = if (c < ESC2C_MAX) ESCAPE_2_CHAR[c] else INVALID
 
-
 // Streaming JSON reader
 internal class JsonReader(private val source: String) {
 
@@ -167,12 +166,8 @@ internal class JsonReader(private val source: String) {
         val source = source
         var currentPosition = currentPosition
         val maxLen = source.length
-        // TODO this one can be optimized when we oll our benchmarks
-        while (true) {
-            if (currentPosition >= maxLen) {
-               fail("Expected next key name, but had trailing comma instead", currentPosition)
-            }
-
+        // TODO this one can be optimized when we roll our benchmarks
+        while (currentPosition < maxLen) {
             when (charToTokenClass(source[currentPosition])) {
                 TC_WS -> currentPosition++ // skip whitespace
                 TC_OTHER -> {
@@ -188,18 +183,14 @@ internal class JsonReader(private val source: String) {
                 }
             }
         }
+        fail("Unexpected EOF", currentPosition)
     }
 
     fun nextToken() {
         val source = source
         var currentPosition = currentPosition
         val maxLen = source.length
-        while (true) {
-            if (currentPosition >= maxLen) {
-                tokenPosition = currentPosition
-                tokenClass = TC_EOF
-                return
-            }
+        while (currentPosition < maxLen) {
             val ch = source[currentPosition]
             when (val tc = charToTokenClass(ch)) {
                 TC_WS -> currentPosition++ // skip whitespace
@@ -219,6 +210,9 @@ internal class JsonReader(private val source: String) {
                 }
             }
         }
+
+        tokenPosition = currentPosition
+        tokenClass = TC_EOF
     }
 
     private fun nextLiteral(source: String, startPos: Int) {
