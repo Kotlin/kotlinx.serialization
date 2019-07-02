@@ -4,7 +4,7 @@
 
 package kotlinx.serialization.json
 
-import kotlinx.serialization.SerializationException
+import kotlinx.serialization.*
 
 /**
  * Generic exception indicating a problem with JSON operations.
@@ -25,4 +25,3 @@ public class JsonDecodingException(position: Int, message: String) :
  * Such exception usually indicates that input data can't be represented as a valid JSON
  */
 public class JsonEncodingException(message: String) : JsonException(message)
-

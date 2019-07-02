@@ -8,16 +8,16 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.SerialDescriptor
 
-internal fun JsonInvalidValueInStrictModeException(value: Float) = JsonEncodingException(
-    "$value is not a valid float as per JSON spec.\n" +
+internal fun InvalidFloatingPoint(value: Number, type: String) = JsonEncodingException(
+    "$value is not a valid $type as per JSON specification. " +
             "You can disable strict mode to serialize such values"
 )
 
-internal fun JsonInvalidValueInStrictModeException(value: Double) = JsonEncodingException(
-    "$value is not a valid double as per JSON spec.\n" +
+
+internal fun InvalidFloatingPoint(value: Number, key: String, type: String) = JsonEncodingException(
+    "$value with key $key is not a valid $type as per JSON specification. " +
             "You can disable strict mode to serialize such values"
 )
-
 
 internal fun jsonUnknownKeyException(position: Int, key: String) = JsonDecodingException(
     position,
