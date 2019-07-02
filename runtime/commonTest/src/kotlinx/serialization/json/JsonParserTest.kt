@@ -74,6 +74,6 @@ class JsonParserTest {
     private fun testTrailingComma(content: String) {
         val e = assertFailsWith<JsonParsingException> {  Json.plain.parseJson(content) }
         val msg = e.message!!
-        assertTrue(msg.contains("comma"))
+        assertTrue(msg.contains("Expected end of the object"))
     }
 }

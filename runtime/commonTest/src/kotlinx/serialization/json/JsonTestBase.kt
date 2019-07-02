@@ -7,7 +7,7 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 abstract class JsonTestBase {
     protected val strict = Json(JsonConfiguration.Default)
@@ -63,6 +63,7 @@ abstract class JsonTestBase {
             val parser = JsonReader(source)
             val input = StreamingJsonInput(this, WriteMode.OBJ, parser)
             val tree = input.decodeJson()
+            if (!input.reader.isDone) { error("Reader has not consumed the whole input: ${input.reader}") }
             readJson(tree, deserializer)
         }
     }
@@ -91,8 +92,8 @@ abstract class JsonTestBase {
     }
 
     protected fun parametrizedTest(test: (Boolean) -> Unit) {
-        val streamingResult = kotlin.runCatching { test(true) }
-        val treeResult = kotlin.runCatching { test(false) }
+        val streamingResult = runCatching { test(true) }
+        val treeResult = runCatching { test(false) }
         processResults(streamingResult, treeResult)
     }
 
@@ -111,8 +112,8 @@ abstract class JsonTestBase {
     }
 
     protected fun parametrizedTest(json: Json, test: StringFormat.(StringFormat) -> Unit) {
-        val streamingResult = kotlin.runCatching { json.test(DualFormat(json, true)) }
-        val treeResult = kotlin.runCatching { json.test(DualFormat(json, false)) }
+        val streamingResult = runCatching { json.test(DualFormat(json, true)) }
+        val treeResult = runCatching { json.test(DualFormat(json, false)) }
         processResults(streamingResult, treeResult)
     }
 
@@ -132,5 +133,10 @@ abstract class JsonTestBase {
             val deserialized: T = json.parse(serializer, serialized, useStreaming)
             assertEquals(data, deserialized)
         }
+    }
+
+    inline fun <reified T : Throwable> assertFailsWith(message: String, block: () -> Unit) {
+        val exception = assertFailsWith(T::class, null, block)
+        assertTrue(exception.message!!.contains(message), "Expected message '${exception.message}' to contain substring '$message'")
     }
 }

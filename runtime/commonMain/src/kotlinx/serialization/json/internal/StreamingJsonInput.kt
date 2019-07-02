@@ -7,7 +7,8 @@ package kotlinx.serialization.json.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.EnumDescriptor
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.modules.*
+import kotlin.jvm.*
 
 /**
  * [JsonInput] which reads given JSON from [JsonReader] field by field.
@@ -15,12 +16,11 @@ import kotlinx.serialization.modules.SerialModule
 internal class StreamingJsonInput internal constructor(
     public override val json: Json,
     private val mode: WriteMode,
-    private val reader: JsonReader
+    @JvmField internal val reader: JsonReader
 ) : JsonInput, ElementValueDecoder() {
 
     public override val context: SerialModule = json.context
     private var currentIndex = -1
-    private var entryIndex = 0
     private val configuration = json.configuration
     
     public override fun decodeJson(): JsonElement = JsonParser(reader).read()
@@ -69,54 +69,77 @@ internal class StreamingJsonInput internal constructor(
 
     override fun decodeElementIndex(desc: SerialDescriptor): Int {
         val tokenClass = reader.tokenClass
-        if (tokenClass == TC_COMMA) reader.nextToken()
-        when (mode) {
-            WriteMode.LIST -> {
-                // Prohibit leading comma
-                if (tokenClass == TC_COMMA) {
-                    reader.require(currentIndex != -1, reader.currentPosition) { "Unexpected leading comma" }
-                } else if (currentIndex != -1) {
-                    // Prohibit leading comma
-                    reader.requireTokenClass(TC_END_LIST) { "Expected end of the array or comma" }
-                }
-
-                return if (!reader.canBeginValue) {
-                    reader.require(tokenClass != TC_COMMA) { "Unexpected trailing comma" }
-                    CompositeDecoder.READ_DONE
-                } else {
-                    ++currentIndex
-                }
-            }
-            WriteMode.MAP -> {
-                if (currentIndex % 2 == 0 && reader.tokenClass == TC_COLON) reader.nextToken()
-                return if (!reader.canBeginValue) CompositeDecoder.READ_DONE else ++currentIndex
-            }
+        if (tokenClass == TC_COMMA) {
+            reader.require(currentIndex != -1, reader.currentPosition) { "Unexpected leading comma" }
+            reader.nextToken()
+        }
+        return when (mode) {
+            WriteMode.LIST -> decodeListIndex(tokenClass)
+            WriteMode.MAP -> decodeMapIndex(tokenClass)
             WriteMode.POLY_OBJ -> {
-                return when (entryIndex++) {
+                when (++currentIndex) {
                     0 -> 0
                     1 -> 1
                     else -> {
-                        entryIndex = 0
                         CompositeDecoder.READ_DONE
                     }
                 }
             }
-            else -> {
-                while (reader.canBeginValue) {
-                    val key = reader.takeString()
-                    reader.requireTokenClass(TC_COLON) { "Expected ':'" }
-                    reader.nextToken()
-                    val index = desc.getElementIndex(key)
-                    if (index != CompositeDecoder.UNKNOWN_NAME) {
-                        return index
-                    }
-                    if (configuration.strictMode) throw jsonUnknownKeyException(reader.currentPosition, key)
-                    else reader.skipElement()
+            else -> decodeObjectIndex(tokenClass, desc)
+        }
+    }
 
-                    if (reader.tokenClass == TC_COMMA) reader.nextToken()
-                }
-                return CompositeDecoder.READ_DONE
+    private fun decodeMapIndex(tokenClass: Byte): Int {
+        if (tokenClass != TC_COMMA && currentIndex % 2 == 1) {
+            reader.requireTokenClass(TC_END_OBJ) { "Expected end of the object or comma" }
+        }
+        if (currentIndex % 2 == 0) {
+            reader.requireTokenClass(TC_COLON) { "Expected ':' after the key" }
+            reader.nextToken()
+        }
+        return if (!reader.canBeginValue) {
+            reader.require(tokenClass != TC_COMMA) { "Unexpected trailing comma" }
+            CompositeDecoder.READ_DONE
+        } else {
+            ++currentIndex
+        }
+    }
+
+    private fun decodeObjectIndex(tokenClass: Byte, desc: SerialDescriptor): Int {
+        if (tokenClass == TC_COMMA && !reader.canBeginValue) {
+            reader.fail("Unexpected trailing comma")
+        }
+
+        while (reader.canBeginValue) {
+            ++currentIndex
+            val key = reader.takeString()
+            reader.requireTokenClass(TC_COLON) { "Expected ':'" }
+            reader.nextToken()
+            val index = desc.getElementIndex(key)
+            if (index != CompositeDecoder.UNKNOWN_NAME) {
+                return index
             }
+
+            if (configuration.strictMode) reader.fail("Encountered an unknown key $key")
+            else reader.skipElement()
+            if (reader.tokenClass == TC_COMMA) {
+                reader.nextToken()
+                reader.require(reader.canBeginValue, reader.currentPosition) { "Unexpected trailing comma" }
+            }
+        }
+        return CompositeDecoder.READ_DONE
+    }
+
+    private fun decodeListIndex(tokenClass: Byte): Int {
+        // Prohibit leading comma
+        if (tokenClass != TC_COMMA && currentIndex != -1) {
+            reader.requireTokenClass(TC_END_LIST) { "Expected end of the array or comma" }
+        }
+        return if (!reader.canBeginValue) {
+            reader.require(tokenClass != TC_COMMA) { "Unexpected trailing comma" }
+            CompositeDecoder.READ_DONE
+        } else {
+            ++currentIndex
         }
     }
 

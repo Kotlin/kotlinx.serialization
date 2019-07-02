@@ -18,7 +18,6 @@ internal fun <T> Json.readJson(element: JsonElement, deserializer: Deserializati
         is JsonArray -> JsonTreeListInput(this, element)
         is JsonLiteral, JsonNull -> JsonPrimitiveInput(this, element as JsonPrimitive)
     }
-
     return input.decode(deserializer)
 }
 
