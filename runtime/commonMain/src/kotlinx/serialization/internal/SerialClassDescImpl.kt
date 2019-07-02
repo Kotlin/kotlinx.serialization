@@ -13,35 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE")
+@file:Suppress("OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE", "UNUSED")
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
+import kotlin.LazyThreadSafetyMode.*
 import kotlin.jvm.JvmOverloads
-
-class MissingDescriptorException(index: Int, origin: SerialDescriptor) :
-    SerializationException("Element descriptor at index $index has not been found in $origin")
 
 open class SerialClassDescImpl @JvmOverloads constructor(
     override val name: String,
     private val generatedSerializer: GeneratedSerializer<*>? = null
 ) : SerialDescriptor {
+    /*
+     * Unused methods are invoked by auto-generated plugin code
+     */
     override val kind: SerialKind get() = StructureKind.CLASS
+    override val elementsCount: Int get() = annotations.size
 
     private val names: MutableList<String> = ArrayList()
     private val annotations: MutableList<MutableList<Annotation>> = mutableListOf()
     private val classAnnotations: MutableList<Annotation> = mutableListOf()
-
     private var flags = BooleanArray(4)
 
     private val descriptors: MutableList<SerialDescriptor> = mutableListOf()
-
-    private var _indices: Map<String, Int>? = null
-    private val indices: Map<String, Int> by lazy { buildIndices() }
+    private val indices: Map<String, Int> by lazy(PUBLICATION) { buildIndices() }
 
     @JvmOverloads
-    fun addElement(name: String, isOptional: Boolean = false) {
+    public fun addElement(name: String, isOptional: Boolean = false) {
         names.add(name)
         val idx = names.size - 1
         ensureFlagsCapacity(idx)
@@ -49,11 +48,15 @@ open class SerialClassDescImpl @JvmOverloads constructor(
         annotations.add(mutableListOf())
     }
 
-    fun pushAnnotation(a: Annotation) {
+    public fun pushAnnotation(a: Annotation) {
         annotations.last().add(a)
     }
 
-    fun pushDescriptor(desc: SerialDescriptor) {
+    public fun pushClassAnnotation(a: Annotation) {
+        classAnnotations.add(a)
+    }
+
+    public fun pushDescriptor(desc: SerialDescriptor) {
         descriptors.add(desc)
     }
 
@@ -68,15 +71,8 @@ open class SerialClassDescImpl @JvmOverloads constructor(
         return flags[index]
     }
 
-    fun pushClassAnnotation(a: Annotation) {
-        classAnnotations.add(a)
-    }
-
     override fun getEntityAnnotations(): List<Annotation> = classAnnotations
     override fun getElementAnnotations(index: Int): List<Annotation> = annotations[index]
-    override val elementsCount: Int
-        get() = annotations.size
-
     override fun getElementName(index: Int): String = names[index]
     override fun getElementIndex(name: String): Int = indices[name] ?: UNKNOWN_NAME
 
@@ -87,18 +83,17 @@ open class SerialClassDescImpl @JvmOverloads constructor(
 
     private fun buildIndices(): Map<String, Int> {
         val indices = HashMap<String, Int>()
-        for (i in 0..names.size - 1)
-            indices.put(names[i], i)
+        for (i in 0 until names.size) {
+            indices[names[i]] = i
+        }
         return indices
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SerialClassDescImpl) return false
-
         if (name != other.name) return false
         if (elementDescriptors() != other.elementDescriptors()) return false
-
         return true
     }
 
@@ -108,5 +103,10 @@ open class SerialClassDescImpl @JvmOverloads constructor(
         return result
     }
 
-    override fun toString() = "$name$names"
+    override fun toString(): String {
+        return indices.entries.joinToString(", ", "$name(", ")") { it.key + ": " + getElementDescriptor(it.value) }
+    }
+
+    private class MissingDescriptorException(index: Int, origin: SerialDescriptor) :
+        SerializationException("Element descriptor at index $index has not been found in $origin")
 }
