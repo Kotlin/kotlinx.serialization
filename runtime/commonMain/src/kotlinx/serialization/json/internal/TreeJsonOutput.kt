@@ -5,11 +5,11 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.EnumDescriptor
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.modules.*
 import kotlin.collections.set
-import kotlin.jvm.JvmField
+import kotlin.jvm.*
 
 internal fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
     lateinit var result: JsonElement
@@ -49,7 +49,7 @@ private sealed class AbstractJsonTreeOutput(
 
     override fun encodeTaggedFloat(tag: String, value: Float) {
         if (configuration.strictMode && !value.isFinite()) {
-            throw JsonParsingException("$value at key $tag is not a valid float as per JSON specification. You can disable strict mode to serialize such values.")
+            throw InvalidFloatingPoint(value, tag, "float")
         }
 
         putElement(tag, JsonLiteral(value))
@@ -67,7 +67,7 @@ private sealed class AbstractJsonTreeOutput(
 
     override fun encodeTaggedDouble(tag: String, value: Double) {
         if (configuration.strictMode && !value.isFinite()) {
-            throw JsonParsingException("$value at key $tag is not a valid double as per JSON specification. You can disable strict mode to serialize such values.")
+            throw InvalidFloatingPoint(value, tag, "double")
         }
 
         putElement(tag, JsonLiteral(value))

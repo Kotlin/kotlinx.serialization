@@ -151,7 +151,7 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
 
     override fun encodeFloat(value: Float) {
         if (configuration.strictMode && !value.isFinite()) {
-            throw JsonParsingException("$value is not a valid float as per JSON specification. You can disable strict mode to serialize such values. ")
+            throw InvalidFloatingPoint(value, "float")
         }
 
         if (forceQuoting) encodeString(value.toString()) else composer.print(value)
@@ -159,7 +159,7 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
 
     override fun encodeDouble(value: Double) {
         if (configuration.strictMode && !value.isFinite()) {
-            throw JsonParsingException("$value is not a valid float as per JSON specification. You can disable strict mode to serialize such values. ")
+            throw InvalidFloatingPoint(value, "double")
         }
 
         if (forceQuoting) encodeString(value.toString()) else composer.print(value)

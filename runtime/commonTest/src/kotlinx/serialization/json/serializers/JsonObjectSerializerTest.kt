@@ -50,7 +50,7 @@ class JsonObjectSerializerTest : JsonTestBase() {
 
     @Test
     fun testMissingCommas() = parametrizedTest { useStreaming ->
-        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonObjectSerializer, "{ \"1\": \"2\" \"3\":\"4\"}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(JsonObjectSerializer, "{ \"1\": \"2\" \"3\":\"4\"}", useStreaming) }
     }
 
     @Test
@@ -63,10 +63,10 @@ class JsonObjectSerializerTest : JsonTestBase() {
 
     @Test
     fun testInvalidObject() = parametrizedTest { useStreaming ->
-        assertFailsWith<JsonParsingException> { strict.parse(JsonObjectSerializer, "{\"a\":\"b\"]", false) }
-        assertFailsWith<JsonParsingException> { strict.parse(JsonObjectSerializer, "{", useStreaming) }
+        assertFailsWith<JsonDecodingException> { strict.parse(JsonObjectSerializer, "{\"a\":\"b\"]", false) }
+        assertFailsWith<JsonDecodingException> { strict.parse(JsonObjectSerializer, "{", useStreaming) }
         assertFailsWith<IllegalStateException> { strict.parse(JsonObjectSerializer, "{}}", useStreaming) }
-        assertFailsWith<JsonParsingException> { strict.parse(JsonObjectSerializer, "{]", useStreaming) }
+        assertFailsWith<JsonDecodingException> { strict.parse(JsonObjectSerializer, "{]", useStreaming) }
     }
 
     @Test
@@ -79,17 +79,17 @@ class JsonObjectSerializerTest : JsonTestBase() {
 
     @Test
     fun testExcessiveCommas() = parametrizedTest { useStreaming ->
-        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonObjectSerializer, "{\"a\":\"b\",}", useStreaming) }
-        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonObjectSerializer, "{\"a\",}", useStreaming) }
-        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonObjectSerializer, "{,\"1\":\"2\"}", useStreaming) }
-        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonObjectSerializer, "{,\"1\":\"2\",}", useStreaming) }
-        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonObjectSerializer, "{,}", useStreaming) }
-        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonObjectSerializer, "{,,}", useStreaming) }
-        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonObjectSerializer, "{,,\"1\":\"2\"}", useStreaming) }
-        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonObjectSerializer, "{\"1\":\"2\",,}", useStreaming) }
-        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonObjectSerializer, "{\"1\":\"2\",,\"2\":\"2\"}", useStreaming) }
-        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonObjectSerializer, "{,   ,}", useStreaming) }
-        assertFailsWith<JsonParsingException> { nonStrict.parse(JsonObjectSerializer, "{,\n,}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(JsonObjectSerializer, "{\"a\":\"b\",}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(JsonObjectSerializer, "{\"a\",}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(JsonObjectSerializer, "{,\"1\":\"2\"}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(JsonObjectSerializer, "{,\"1\":\"2\",}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(JsonObjectSerializer, "{,}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(JsonObjectSerializer, "{,,}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(JsonObjectSerializer, "{,,\"1\":\"2\"}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(JsonObjectSerializer, "{\"1\":\"2\",,}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(JsonObjectSerializer, "{\"1\":\"2\",,\"2\":\"2\"}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(JsonObjectSerializer, "{,   ,}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(JsonObjectSerializer, "{,\n,}", useStreaming) }
     }
 
     @Serializable
@@ -97,16 +97,16 @@ class JsonObjectSerializerTest : JsonTestBase() {
 
     @Test
     fun testExcessiveCommasInObject() = parametrizedTest { useStreaming ->
-        assertFailsWith<JsonParsingException> { nonStrict.parse(Holder.serializer(), "{\"a\":\"b\",}", useStreaming) }
-        assertFailsWith<JsonParsingException> { nonStrict.parse(Holder.serializer(), "{\"a\",}", useStreaming) }
-        assertFailsWith<JsonParsingException> { nonStrict.parse(Holder.serializer(), "{,\"a\":\"b\"}", useStreaming) }
-        assertFailsWith<JsonParsingException> { nonStrict.parse(Holder.serializer(), "{,\"a\":\"b\",}", useStreaming) }
-        assertFailsWith<JsonParsingException> { nonStrict.parse(Holder.serializer(), "{,}", useStreaming) }
-        assertFailsWith<JsonParsingException> { nonStrict.parse(Holder.serializer(), "{,,}", useStreaming) }
-        assertFailsWith<JsonParsingException> { nonStrict.parse(Holder.serializer(), "{,,\"a\":\"b\"}", useStreaming) }
-        assertFailsWith<JsonParsingException> { nonStrict.parse(Holder.serializer(), "{\"a\":\"b\",,}", useStreaming) }
-        assertFailsWith<JsonParsingException> { nonStrict.parse(Holder.serializer(), "{,   ,}", useStreaming) }
-        assertFailsWith<JsonParsingException> { nonStrict.parse(Holder.serializer(), "{,\n,}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(Holder.serializer(), "{\"a\":\"b\",}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(Holder.serializer(), "{\"a\",}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(Holder.serializer(), "{,\"a\":\"b\"}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(Holder.serializer(), "{,\"a\":\"b\",}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(Holder.serializer(), "{,}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(Holder.serializer(), "{,,}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(Holder.serializer(), "{,,\"a\":\"b\"}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(Holder.serializer(), "{\"a\":\"b\",,}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(Holder.serializer(), "{,   ,}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { nonStrict.parse(Holder.serializer(), "{,\n,}", useStreaming) }
     }
 
     private fun prebuiltJson(): JsonObject {
