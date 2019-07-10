@@ -140,6 +140,29 @@ class ModuleBuildersTest {
     }
 
     @Test
+    fun testPolymorphicDefaultDSL() {
+        val defaultSerializer = object : KSerializer<PolyBase> {
+            override fun serialize(encoder: Encoder, obj: PolyBase) = TODO()
+            override fun deserialize(decoder: Decoder): PolyBase = TODO()
+            override val descriptor: SerialDescriptor
+                get() = TODO()
+        }
+
+        val module = SerializersModule {
+            polymorphic<PolyBase> {
+                addSubclass(PolyDerived.serializer())
+                setDefaultSerializer(defaultSerializer)
+            }
+        }
+
+        val base = PolyBase(10)
+        val derived = PolyDerived("foo")
+
+        assertEquals(defaultSerializer, module.getPolymorphic(PolyBase::class, base))
+        assertEquals(PolyDerived.serializer(), module.getPolymorphic(PolyBase::class, derived))
+    }
+
+    @Test
     fun testOverwriteSerializer() {
         val moduleA = SerializersModule {
             contextual(A::class, ASerializer)
