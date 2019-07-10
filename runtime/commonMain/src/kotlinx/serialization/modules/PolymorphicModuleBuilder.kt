@@ -13,6 +13,7 @@ import kotlin.reflect.*
  * A builder which registers all its content for polymorphic serialization in the scope of [baseClass].
  * If [baseSerializer] is present, registers it as a serializer for [baseClass] (which will be used if base class is serializable).
  * Subclasses with its serializers can be added via [addSubclass] or [with].
+ * A Default polymorphic serializer can be set via [setDefaultSerializer], it will be used in case a type is not registered.
  *
  * To obtain an instance of this builder, use [SerializersModuleBuilder.polymorphic] DSL function.
  */
@@ -22,6 +23,7 @@ public class PolymorphicModuleBuilder<Base : Any> internal constructor(
     private val baseSerializer: KSerializer<Base>? = null
 ) {
     private val subclasses: MutableList<Pair<KClass<out Base>, KSerializer<out Base>>> = mutableListOf()
+    private val default: MutableList<KSerializer<Base>> = mutableListOf()
 
     internal fun buildTo(module: SerialModuleImpl) {
         if (baseSerializer != null) module.registerPolymorphicSerializer(baseClass, baseClass, baseSerializer)
@@ -30,6 +32,12 @@ public class PolymorphicModuleBuilder<Base : Any> internal constructor(
                 baseClass,
                 kclass as KClass<Base>,
                 serializer as KSerializer<Base>
+            )
+        }
+        default.forEach { defaultSerializer ->
+            module.registerPolymorphicDefaultSerializer(
+                baseClass,
+                defaultSerializer
             )
         }
     }
@@ -57,6 +65,13 @@ public class PolymorphicModuleBuilder<Base : Any> internal constructor(
      * @see addSubclass
      */
     public infix fun <T : Base> KClass<T>.with(serializer: KSerializer<T>): Unit = addSubclass(this, serializer)
+
+    /**
+     * Adds a default [serializer] to the resulting module under the initial [baseClass]
+     */
+    public fun setDefaultSerializer(serializer: KSerializer<Base>) {
+        default.add(serializer)
+    }
 
 
     /**

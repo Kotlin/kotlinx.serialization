@@ -22,6 +22,7 @@ internal class SerialModuleImpl : SerialModule {
     private val classMap: SerializersMap = hashMapOf()
 
     private val polyMap: MutableMap<KClass<*>, SerializersMap> = hashMapOf()
+    private val polyDefault: MutableMap<KClass<*>, KSerializer<*>> = hashMapOf()
     private val inverseClassNameMap: MutableMap<KClass<*>, MutableMap<String, KSerializer<*>>> = hashMapOf()
 
     internal fun <T : Any> registerSerializer(
@@ -50,17 +51,31 @@ internal class SerialModuleImpl : SerialModule {
         inverseClassNameMap.getOrPut(baseClass, ::hashMapOf)[name] = concreteSerializer
     }
 
+    internal fun <Base : Any> registerPolymorphicDefaultSerializer(
+        baseClass: KClass<Base>,
+        defaultSerializer: KSerializer<Base>,
+        allowOverwrite: Boolean = false
+    ) {
+        if (!allowOverwrite && baseClass in polyDefault) throw SerializerAlreadyRegisteredException(
+                baseClass,
+                baseClass
+        )
+        polyDefault[baseClass] = defaultSerializer
+    }
+
     override fun <T : Any> getPolymorphic(baseClass: KClass<T>, value: T): KSerializer<out T>? {
         if (!value.isInstanceOf(baseClass)) return null
         (if (baseClass == Any::class) StandardSubtypesOfAny.getSubclassSerializer(value) else null)?.let { return it as KSerializer<out T> }
-        return polyMap[baseClass]?.get(value::class) as? KSerializer<out T>
+        return polyMap[baseClass]?.get(value::class) as? KSerializer<out T> ?:
+            polyDefault[baseClass] as? KSerializer<out T>
     }
 
     override fun <T : Any> getPolymorphic(baseClass: KClass<T>, serializedClassName: String): KSerializer<out T>? {
         (if (baseClass == Any::class) StandardSubtypesOfAny.getDefaultDeserializer(
             serializedClassName
         ) else null)?.let { return it as KSerializer<out T> }
-        return inverseClassNameMap[baseClass]?.get(serializedClassName) as? KSerializer<out T>
+        return inverseClassNameMap[baseClass]?.get(serializedClassName) as? KSerializer<out T> ?:
+            polyDefault[baseClass] as? KSerializer<out T>
     }
 
     override fun <T: Any> getContextual(kclass: KClass<T>): KSerializer<T>? = classMap[kclass] as? KSerializer<T>
@@ -81,6 +96,13 @@ internal class SerialModuleImpl : SerialModule {
                     serializer as KSerializer<Any>
                 )
             }
+        }
+
+        polyDefault.forEach { (kclass, defaultSerializer) ->
+            collector.polymorphicDefault(
+                kclass as KClass<Any>,
+                defaultSerializer as KSerializer<Any>
+            )
         }
     }
 }

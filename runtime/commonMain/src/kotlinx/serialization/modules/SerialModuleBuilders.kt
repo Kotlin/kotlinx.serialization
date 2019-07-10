@@ -73,6 +73,19 @@ public class SerializersModuleBuilder internal constructor(@JvmField internal va
     }
 
     /**
+     * Adds [defaultSerializer] as the default serializer in the scope of [baseClass] for polymorphic serialization.
+     * It will be used in case a type that is not registered is found.
+     * Throws [SerializationException] if a module already has a default serializer in the scope of [baseClass].
+     * To overwrite an already registered serializer, [SerialModule.overwriteWith] can be used.
+     */
+    override fun <Base : Any> polymorphicDefault(
+        baseClass: KClass<Base>,
+        defaultSerializer: KSerializer<Base>
+    ) {
+       impl.registerPolymorphicDefaultSerializer(baseClass, defaultSerializer)
+    }
+
+    /**
      * Copies contents of [other] module into current builder.
      */
     public fun include(other: SerialModule) {
