@@ -4,7 +4,9 @@ import kotlinx.serialization.*
 import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlinx.serialization.json.JsonInput
 import kotlinx.serialization.json.JsonOutput
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 
 class ProtobufMissingFieldsTest {
 
