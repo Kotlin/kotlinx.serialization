@@ -1,17 +1,10 @@
 package kotlinx.serialization.protobuf
 
-import kotlinx.serialization.Decoder
-import kotlinx.serialization.Encoder
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerialDescriptor
-import kotlinx.serialization.SerialId
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
 import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlinx.serialization.json.JsonInput
 import kotlinx.serialization.json.JsonOutput
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
+import kotlin.test.*
 
 class ProtobufMissingFieldsTest {
 
@@ -31,7 +24,7 @@ class ProtobufMissingFieldsTest {
 
     @Test
     fun deserializeWithoutFields() {
-        val items = ProtoBuf.load(ItemsWithoutFields.serializer(), buffer)
+        val items = ProtoBuf.load(ItemsWithoutPageSize.serializer(), buffer)
         assertFalse(items.nextPage)
         assertEquals(1, items.items.size)
         assertEquals(11, items.items[0].id)
@@ -76,15 +69,15 @@ data class Item(
 )
 
 @Serializable
-data class ItemsWithoutFields(
+data class ItemsWithoutPageSize(
     @SerialId(1)
-    val items: List<ItemWithWithout> = emptyList(),
+    val items: List<ItemWithoutPlatform> = emptyList(),
     @SerialId(3)
     val nextPage: Boolean = false
 )
 
 @Serializable
-data class ItemWithWithout(
+data class ItemWithoutPlatform(
     @SerialId(1)
     val id: Int,
     @SerialId(3)
