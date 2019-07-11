@@ -47,7 +47,7 @@ typealias JsonInvalidValueInStrictModeException = JsonEncodingException
 @Deprecated("Merged with JsonDecodingException", ReplaceWith("JsonDecodingException"), DeprecationLevel.ERROR)
 typealias JsonUnknownKeyException = JsonDecodingException
 
-@Deprecated("Replaced with JsonDecodingException", ReplaceWith("JsonDecodingException"), DeprecationLevel.ERROR)
+@Deprecated("Replaced with JsonDecodingException", ReplaceWith("JsonDecodingException"), DeprecationLevel.WARNING)
 typealias JsonParsingException = JsonDecodingException
 
 @Deprecated("Merged with JsonException", ReplaceWith("JsonException"), DeprecationLevel.ERROR)

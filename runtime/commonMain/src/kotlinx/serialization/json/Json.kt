@@ -11,22 +11,22 @@ import kotlin.reflect.KClass
 
 /**
  * The main entry point to work with JSON serialization.
- * It is typically used by constructing an application-specific instance, registering
- * custom serializers via [Json.install] and then using it either as regular [SerialFormat] or [StringFormat]
+ * It is typically used by constructing an application-specific instance, with configured json-specific behaviour
+ * ([configuration] constructor parameter) and, if necessary, registered
+ * custom serializers (in [SerialModule] provided by [context] constructor parameter).
+ * Then constructed instance can be used either as regular [SerialFormat] or [StringFormat]
  * or for converting objects to [JsonElement] back and forth.
  *
  * This is the only serial format which has first-class [JsonElement] support.
  * Any serializable class can be serialized to or from [JsonElement] with [Json.fromJson] and [Json.toJson] respectively or
  * serialize properties of [JsonElement] type.
  *
- * Json-specific behaviour can be configured with [JsonConfiguration].
- *
  * Example of usage:
  * ```
  * @Serializable
  * class DataHolder(val id: Int, val data: String, val extensions: JsonElement)
  *
- * val json = Json()
+ * val json = Json(JsonConfiguration.Default)
  * val instance = DataHolder(42, "some data", json { "additional key" to "value" })
  *
  * // Plain StringFormat usage
