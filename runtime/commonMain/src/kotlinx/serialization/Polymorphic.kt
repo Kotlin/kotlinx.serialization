@@ -78,7 +78,7 @@ public object PolymorphicClassDescriptor : SerialClassDescImpl("kotlin.Any") {
  * @see SerializersModule
  * @see SerializersModuleBuilder.polymorphic
  */
-public class PolymorphicSerializer<T : Any>(private val baseClass: KClass<T>) : KSerializer<Any> {
+public class PolymorphicSerializer<T : Any>(public val baseClass: KClass<T>) : KSerializer<Any> {
     public override val descriptor: SerialDescriptor = PolymorphicClassDescriptor
 
     @Suppress("UNCHECKED_CAST")
