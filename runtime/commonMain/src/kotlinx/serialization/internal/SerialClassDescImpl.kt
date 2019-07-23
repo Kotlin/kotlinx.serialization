@@ -37,7 +37,9 @@ open class SerialClassDescImpl @JvmOverloads constructor(
     private var flags = BooleanArray(4)
 
     private val descriptors: MutableList<SerialDescriptor> = mutableListOf()
-    private val indices: Map<String, Int> by lazy(PUBLICATION) { buildIndices() }
+
+    // don't change lazy mode: KT-32871, KT-32872
+    private val indices: Map<String, Int> by lazy { buildIndices() }
 
     @JvmOverloads
     public fun addElement(name: String, isOptional: Boolean = false) {
