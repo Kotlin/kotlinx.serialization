@@ -67,6 +67,7 @@ kotlin {
             progressiveMode = true
             useExperimentalAnnotation("kotlin.Experimental")
             useExperimentalAnnotation("kotlin.ExperimentalMultiplatform")
+            useExperimentalAnnotation("kotlin.ExperimentalStdlibApi")
         }
     }
 
