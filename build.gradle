@@ -9,6 +9,9 @@ buildscript {
     } else {
         ext.kotlin_version = property('kotlin.version')
     }
+    if (project.hasProperty("library.version")) {
+        ext.overriden_version = property('library.version')
+    }
     ext.experimentalsEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
                                 "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
     ]
@@ -83,6 +86,10 @@ infra {
 
 allprojects {
     group 'org.jetbrains.kotlinx'
+
+    if (ext.has('overriden_version')) {
+        version = overriden_version
+    }
 
     if (project.hasProperty("bootstrap")) {
         version = version + '-SNAPSHOT'
