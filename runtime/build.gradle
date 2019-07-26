@@ -29,7 +29,6 @@ def deployMode = property('native.deploy') == 'true'
 
 kotlin {
     infra {
-        target('wasm32')
         target('macosX64')
         target('linuxX64')
         if (deployMode) {
@@ -37,10 +36,9 @@ kotlin {
             target('iosArm64')
             target('iosArm32')
             target('iosX64')
+            target('wasm32')
         }
     }
-
-    wasm32 {}
 
     targets {
         fromPreset(presets.jvm, 'jvm') {
@@ -123,17 +121,6 @@ kotlin {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-js'
             }
-        }
-
-        wasm32Main{
-            dependsOn nativeMain
-            dependencies {
-                implementation kotlin("stdlib")
-            }
-        }
-
-        wasm32Test{
-            dependsOn nativeTest
         }
 
         jsTest {
