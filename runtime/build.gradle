@@ -113,6 +113,7 @@ kotlin {
                 implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: jacksonVersion
                 implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-cbor', version: jacksonVersion
                 implementation group: 'com.google.code.gson', name: 'gson', version: '2.7'
+                implementation group: 'com.upokecenter', name: 'cbor', version: '4.0.0-beta1'
             }
         }
 

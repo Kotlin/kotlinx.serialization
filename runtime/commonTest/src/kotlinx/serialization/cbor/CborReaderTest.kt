@@ -21,7 +21,6 @@ import kotlinx.serialization.internal.HexConverter
 import kotlinx.serialization.loads
 import kotlinx.serialization.test.shouldBe
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class CborReaderTest {
     private fun withDecoder(input: String, block: Cbor.CborDecoder.() -> Unit) {
@@ -78,8 +77,15 @@ class CborReaderTest {
             listOf(Simple("kek"))
         )
 
+        // with maps & lists of indefinite length
         Cbor.loads(SmallZoo.serializer(),
             "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffffff"
+        ) shouldBe test
+
+        // with maps & lists of definite length
+        Cbor.loads(
+            SmallZoo.serializer(),
+            "a7646c6973748261616162686e756c6c61626c65f6636d6170a202f401f56169182a6a696e6e6572734c69737481a16161636b656b637374726d48656c6c6f2c20776f726c642165696e6e6572a16161636c6f6c"
         ) shouldBe test
     }
 }

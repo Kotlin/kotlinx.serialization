@@ -19,9 +19,9 @@ package kotlinx.serialization.cbor
 import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.EmptyModule
 import kotlinx.serialization.modules.SerialModule
-import kotlinx.serialization.internal.*
 import kotlin.experimental.or
 
 class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: Boolean = true, context: SerialModule = EmptyModule): AbstractSerialFormat(context), BinaryFormat {
@@ -123,22 +123,22 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
 
         fun encodeFloat(value: Float) {
             val data = ByteBuffer.allocate(5)
-                    .put(NEXT_FLOAT.toByte())
-                    .putFloat(value)
-                    .array()
+                .put(NEXT_FLOAT.toByte())
+                .putFloat(value)
+                .array()
             output.write(data)
         }
 
         fun encodeDouble(value: Double) {
             val data = ByteBuffer.allocate(9)
-                    .put(NEXT_DOUBLE.toByte())
-                    .putDouble(value)
-                    .array()
+                .put(NEXT_DOUBLE.toByte())
+                .putDouble(value)
+                .array()
             output.write(data)
         }
 
         private fun composeNumber(value: Long): ByteArray =
-                if (value >= 0) composePositive(value) else composeNegative(value)
+            if (value >= 0) composePositive(value) else composeNegative(value)
 
         private fun composePositive(value: Long): ByteArray = when (value) {
             in 0..23 -> byteArrayOf(value.toByte())
@@ -176,30 +176,31 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
     }
 
     private inner class CborMapReader(decoder: CborDecoder) : CborListReader(decoder) {
-        override fun skipBeginToken() = decoder.startMap()
+        override fun skipBeginToken() = setSize(decoder.startMap() * 2)
     }
 
     private open inner class CborListReader(decoder: CborDecoder) : CborReader(decoder) {
-        private var ind = -1
-        private var size = -1
-        protected var finiteMode = false
+        private var ind = 0
 
-        override fun skipBeginToken() {
-            val len = decoder.startArray()
-            if (len != -1) {
-                finiteMode = true
-                size = len
-            }
-        }
+        override fun skipBeginToken() = setSize(decoder.startArray())
 
-        override fun decodeElementIndex(desc: SerialDescriptor) = if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size - 1)) READ_DONE else ++ind
-
-        override fun endStructure(desc: SerialDescriptor) {
-            if (!finiteMode) decoder.end()
-        }
+        override fun decodeElementIndex(desc: SerialDescriptor) = if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size)) READ_DONE else ind++
     }
 
     private open inner class CborReader(val decoder: CborDecoder) : ElementValueDecoder() {
+
+        protected var size = -1
+            private set
+        protected var finiteMode = false
+            private set
+        private var readProperties: Int = 0
+
+        protected fun setSize(size: Int) {
+            if (size >= 0) {
+                finiteMode = true
+                this.size = size
+            }
+        }
 
         override val context: SerialModule
             get() = this@Cbor.context
@@ -207,7 +208,7 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
         override val updateMode: UpdateMode
             get() = this@Cbor.updateMode
 
-        protected open fun skipBeginToken() = decoder.startMap()
+        protected open fun skipBeginToken() = setSize(decoder.startMap())
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             val re = when (desc.kind) {
@@ -219,11 +220,14 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
             return re
         }
 
-        override fun endStructure(desc: SerialDescriptor) = decoder.end()
+        override fun endStructure(desc: SerialDescriptor) {
+            if (!finiteMode) decoder.end()
+        }
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
-            if (decoder.isEnd()) return READ_DONE
+            if (!finiteMode && decoder.isEnd() || (finiteMode && readProperties >= size)) return READ_DONE
             val elemName = decoder.nextString()
+            readProperties++
             return desc.getElementIndexOrThrow(elemName)
         }
 
@@ -283,19 +287,21 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
             return ans
         }
 
-        fun startArray(): Int {
-            if (curByte == BEGIN_ARRAY) {
-                skipByte(BEGIN_ARRAY)
+        fun startArray() = startSized(BEGIN_ARRAY, HEADER_ARRAY, "array")
+
+        fun startMap() = startSized(BEGIN_MAP, HEADER_MAP, "map")
+
+        private fun startSized(unboundedHeader: Int, boundedHeaderMask: Int, collectionType: String): Int {
+            if (curByte == unboundedHeader) {
+                skipByte(unboundedHeader)
                 return -1
             }
-            if ((curByte and 0b111_00000) != HEADER_ARRAY)
-                throw CborDecodingException("start of array", curByte)
-            val arrayLen = readNumber().toInt()
+            if ((curByte and 0b111_00000) != boundedHeaderMask)
+                throw CborDecodingException("start of $collectionType", curByte)
+            val size = readNumber().toInt()
             readByte()
-            return arrayLen
+            return size
         }
-
-        fun startMap() = skipByte(BEGIN_MAP)
 
         fun isEnd() = curByte == BREAK
 
@@ -375,6 +381,7 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
         private const val HEADER_STRING: Byte = 0b011_00000
         private const val HEADER_NEGATIVE: Byte = 0b001_00000
         private const val HEADER_ARRAY: Int = 0b100_00000
+        private const val HEADER_MAP: Int = 0b101_00000
 
         val plain = Cbor()
 
