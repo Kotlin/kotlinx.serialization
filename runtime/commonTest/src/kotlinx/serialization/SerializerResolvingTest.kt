@@ -12,13 +12,10 @@ import kotlin.reflect.typeOf
 import kotlin.test.*
 
 @UseExperimental(ImplicitReflectionSerializer::class)
-class TypeTokenResolvingTest {
+class SerializerResolvingTest {
 
     private inline fun run(block: () -> Unit) {
         if (isJs()) return // JS does not support typeof() yet
-
-        // todo: remove after 1.3.50-eap-2
-        if (isNative()) return
 
         block()
     }
@@ -75,6 +72,7 @@ class TypeTokenResolvingTest {
         val myList = arrayListOf(1, 2, 3)
         assertSerializedWithType<List<Int>>("[1,2,3]", myList)
         assertSerializedWithType<MutableList<out Int>>("[1,2,3]", myList)
+        assertSerializedWithType<ArrayList<in Int>>("[1,2,3]", myList)
     }
 
     @Test
@@ -93,7 +91,7 @@ class TypeTokenResolvingTest {
     @Test
     fun intResolve() = run {
         val token = typeOf<Int>()
-        val serial = serializerByKType(token)
+        val serial = serializer(token)
         assertSame(IntSerializer as KSerializer<*>, serial)
         assertSerializedWithType("42", 42)
     }
