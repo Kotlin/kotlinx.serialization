@@ -9,19 +9,20 @@ import kotlin.reflect.*
 
 /**
  * Reified version of `serializer(type)`, provided for convenience.
+ * This method constructs the serializer for provided reified type [T].
  *
- * This method is able to construct serializer for a given type.
- * [KType] is obtained via [typeOf] function, which is essentially
- * a compiler intrinsic and can provide full type information.
- * Since [KType], in contrary to [KClass], contains information about generic type parameters,
- * it is possible to construct serializers for collections using this method.
- * However, user-defined generic classes are not supported for now.
+ * This method works with generic parameters for built-in serializable classes such as [List] and [Map].
+ * User-defined generic classes are not supported for now.
  *
- * Keep in mind that this is a 'heavy' call, so result probably should be cached somewhere else.
+ * Example of usage:
+ * ```
+ * val map = mapOf(1 to listOf(listOf("1")))
+ * val serializer = serializer<Map<Int, List<List<String>>>()
+ * json.stringify(serializer, map)
+ * ```
  *
- * [typeOf] and [KType] APIs currently do not work on Kotlin/JS.
- *
- * @see typeOf
+ * This is a computation-heavy call, so it is recommended to cache the result.
+ * [typeOf] API currently does not work on Kotlin/JS.
  */
 @Suppress("UNCHECKED_CAST", "NO_REFLECTION_IN_CLASS_PATH")
 @ImplicitReflectionSerializer
@@ -30,16 +31,20 @@ public inline fun <reified T> serializer(): KSerializer<T> {
 }
 
 /**
- * This method is able to construct serializer for a given [type].
- * Since [KType], in contrary to [KClass], contains information about generic type parameters,
- * it is possible to construct serializers for collections using this method.
- * However, user-defined generic classes are not supported for now.
+ * Method that constructs a serializer for the given [type].
  *
- * Keep in mind that this is a 'heavy' call, so result probably should be cached somewhere else.
+ * This method works with generic parameters for built-in serializable classes such as [List] and [Map].
+ * User-defined generic classes are not supported for now.
  *
- * [typeOf] and [KType] APIs currently do not work on Kotlin/JS.
+ * Example of usage:
+ * ```
+ * val map = mapOf(1 to listOf(listOf("1")))
+ * val serializer = serializer(typeOf<Map<Int, List<List<String>>>())
+ * json.stringify(serializer, map)
+ * ```
  *
- * @see typeOf
+ * This is a computation-heavy call, so it is recommended to cache the result.
+ * [typeOf] API currently does not work on Kotlin/JS.
  */
 @Suppress("UNCHECKED_CAST", "NO_REFLECTION_IN_CLASS_PATH", "UNSUPPORTED")
 @ImplicitReflectionSerializer
@@ -49,6 +54,7 @@ public fun serializer(type: KType): KSerializer<Any?> {
             is KClass<*> -> t
             else -> error("Only KClass supported as classifier, got $t")
         } as KClass<Any>
+
         return when {
             type.arguments.isEmpty() -> rootClass.serializer()
             else -> {
