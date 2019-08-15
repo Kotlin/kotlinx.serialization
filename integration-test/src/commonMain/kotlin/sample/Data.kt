@@ -75,6 +75,12 @@ class Holder(
 )
 
 @Serializable
+class GenericMessage<T : IMessage, V: Any>(
+    @Polymorphic val value: T,
+    @Polymorphic val value2: V
+)
+
+@Serializable
 abstract class AbstractSerializable {
     public abstract val rootState: String // no backing field
 
@@ -257,3 +263,9 @@ val zoo = Zoo(
         arrayOf(IntData(1), IntData(2))
     )
 )
+
+@Serializable
+abstract class AbstractBase
+
+@Serializable
+class ConcreteClass : AbstractBase()

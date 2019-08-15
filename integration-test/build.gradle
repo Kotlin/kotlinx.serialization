@@ -50,6 +50,7 @@ kotlin {
     // For MacOS, should be changed to e.g. macosX64
     // For Windows, should be changed to e.g. mingwX64
     macosX64("macos")
+    linuxX64("linux")
     sourceSets {
         commonMain {
             dependencies {
@@ -92,7 +93,15 @@ kotlin {
                 implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$serialization_version"
             }
         }
-        macosTest {
+        macosTest {}
+        linuxMain {
+            kotlin.srcDirs = ["src/macosMain/kotlin"]
+            dependencies {
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$serialization_version"
+            }
+        }
+        linuxTest {
+            kotlin.srcDirs = ["src/macosTest/kotlin"]
         }
     }
     sourceSets.all {
