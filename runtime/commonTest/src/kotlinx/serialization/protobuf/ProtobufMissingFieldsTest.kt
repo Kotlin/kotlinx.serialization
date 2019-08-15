@@ -4,9 +4,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlinx.serialization.json.JsonInput
 import kotlinx.serialization.json.JsonOutput
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
+import kotlin.test.*
 
 class ProtobufMissingFieldsTest {
 
@@ -25,6 +23,7 @@ class ProtobufMissingFieldsTest {
     }
 
     @Test
+    @Ignore // TODO [JS IR]
     fun deserializeWithoutFields() {
         val items = ProtoBuf.load(ItemsWithoutPageSize.serializer(), buffer)
         assertFalse(items.nextPage)

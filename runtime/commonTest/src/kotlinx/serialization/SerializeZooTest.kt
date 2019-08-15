@@ -53,7 +53,7 @@ class SerializeZooTest {
             val longN: Long?,
             val floatN: Float?,
             val doubleN: Double?,
-            val charN: Char?,
+            val charN: Char, // TODO [JS IR]
             val stringN: String?,
             val enumN: Attitude?,
             val intDataN: IntData?,

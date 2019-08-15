@@ -66,9 +66,9 @@ actual class ByteBuffer private constructor(val capacity: Int) {
         return this
     }
 
-    var order: ByteOrder = ByteOrder.BIG_ENDIAN
+    private var _order: ByteOrder = ByteOrder.BIG_ENDIAN
     actual fun order(order: ByteOrder): ByteBuffer {
-        this.order = order
+        this._order = order
         return this
     }
 
@@ -97,19 +97,19 @@ actual class ByteBuffer private constructor(val capacity: Int) {
     actual fun getChar() = getChar(-1)
     actual fun getChar(index: Int): Char {
         val i = idx(index, 2)
-        return dw.getUint16(i, order == ByteOrder.LITTLE_ENDIAN).toChar()
+        return dw.getUint16(i, _order == ByteOrder.LITTLE_ENDIAN).toChar()
     }
 
     actual fun getShort() = getShort(-1)
     actual fun getShort(index: Int): Short {
         val i = idx(index, 2)
-        return dw.getInt16(i, order == ByteOrder.LITTLE_ENDIAN)
+        return dw.getInt16(i, _order == ByteOrder.LITTLE_ENDIAN)
     }
 
     actual fun getInt() = getInt(-1)
     actual fun getInt(index: Int): Int {
         val i = idx(index, 4)
-        return dw.getInt32(i, order == ByteOrder.LITTLE_ENDIAN)
+        return dw.getInt32(i, _order == ByteOrder.LITTLE_ENDIAN)
     }
 
     actual fun getLong() = getLong(-1)
@@ -117,7 +117,7 @@ actual class ByteBuffer private constructor(val capacity: Int) {
         val low:Int
         val high:Int
         val scndIdx = if (index == -1) -1 else index + 4
-        if (order == ByteOrder.LITTLE_ENDIAN) {
+        if (_order == ByteOrder.LITTLE_ENDIAN) {
             low = getInt(index)
             high = getInt(scndIdx)
         } else {
@@ -130,13 +130,13 @@ actual class ByteBuffer private constructor(val capacity: Int) {
     actual fun getFloat() = getFloat(-1)
     actual fun getFloat(index: Int): Float {
         val i = idx(index, 4)
-        return dw.getFloat32(i, order == ByteOrder.LITTLE_ENDIAN)
+        return dw.getFloat32(i, _order == ByteOrder.LITTLE_ENDIAN)
     }
 
     actual fun getDouble() = getDouble(-1)
     actual fun getDouble(index: Int): Double {
         val i = idx(index, 8)
-        return dw.getFloat64(i, order == ByteOrder.LITTLE_ENDIAN)
+        return dw.getFloat64(i, _order == ByteOrder.LITTLE_ENDIAN)
     }
 
     actual fun put(value: Byte): ByteBuffer = put(value, -1)
@@ -158,21 +158,21 @@ actual class ByteBuffer private constructor(val capacity: Int) {
     actual fun putChar(value: Char) = putChar(value, -1)
     actual fun putChar(value: Char, index: Int): ByteBuffer {
         val i = idx(index, 2)
-        dw.setUint16(i, value.toShort(), order == ByteOrder.LITTLE_ENDIAN)
+        dw.setUint16(i, value.toShort(), _order == ByteOrder.LITTLE_ENDIAN)
         return this
     }
 
     actual fun putShort(value: Short) = putShort(value, -1)
     actual fun putShort(value: Short, index: Int): ByteBuffer {
         val i = idx(index, 2)
-        dw.setInt16(i, value, order == ByteOrder.LITTLE_ENDIAN)
+        dw.setInt16(i, value, _order == ByteOrder.LITTLE_ENDIAN)
         return this
     }
 
     actual fun putInt(value: Int) = putInt(value, -1)
     actual fun putInt(value: Int, index: Int): ByteBuffer {
         val i = idx(index, 4)
-        dw.setInt32(i, value, order == ByteOrder.LITTLE_ENDIAN)
+        dw.setInt32(i, value, _order == ByteOrder.LITTLE_ENDIAN)
         return this
     }
 
@@ -181,7 +181,7 @@ actual class ByteBuffer private constructor(val capacity: Int) {
         val high = (value shr 32).toInt()
         val low = (value and 0xFFFFFFFFL).toInt()
         val scndIdx = if (index == -1) -1 else index + 4
-        if (order == ByteOrder.LITTLE_ENDIAN) {
+        if (_order == ByteOrder.LITTLE_ENDIAN) {
             putInt(low, index)
             putInt(high, scndIdx)
         } else {
@@ -194,14 +194,14 @@ actual class ByteBuffer private constructor(val capacity: Int) {
     actual fun putFloat(value: Float) = putFloat(value, -1)
     actual fun putFloat(value: Float, index: Int): ByteBuffer {
         val i = idx(index, 4)
-        dw.setFloat32(i, value, order == ByteOrder.LITTLE_ENDIAN)
+        dw.setFloat32(i, value, _order == ByteOrder.LITTLE_ENDIAN)
         return this
     }
 
     actual fun putDouble(value: Double) = putDouble(value, -1)
     actual fun putDouble(value: Double, index: Int): ByteBuffer {
         val i = idx(index, 8)
-        dw.setFloat64(i, value, order == ByteOrder.LITTLE_ENDIAN)
+        dw.setFloat64(i, value, _order == ByteOrder.LITTLE_ENDIAN)
         return this
     }
 

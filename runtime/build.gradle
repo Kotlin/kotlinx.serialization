@@ -39,9 +39,14 @@ kotlin {
             }
         }
         fromPreset(presets.js, 'js') {
-            nodejs {}
+            nodejs {
+                testTask {
+                    debug = false
+                }
+            }
             configure([compilations.main, compilations.test]) {
                 kotlinOptions {
+                    freeCompilerArgs += ["-Xir-produce-klib-dir", "-Xir-only", "-Xir-produce-js"]
                     sourceMap = true
                     moduleKind = "umd"
                     metaInfo = true
@@ -121,7 +126,8 @@ kotlin {
         }
 
         jsTest {
-            dependsOn jvmJsTest
+            // these tests use implicit reflection serializer which is not available anymore
+//            dependsOn jvmJsTest
 
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-test-js'

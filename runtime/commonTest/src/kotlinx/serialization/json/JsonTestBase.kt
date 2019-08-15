@@ -122,7 +122,8 @@ abstract class JsonTestBase {
         val results = listOf(streamingResult, treeResult)
         results.forEachIndexed { index, result ->
             if (result.isFailure)
-                throw Exception("Failed ${if (index == 0) "streaming" else "tree"} test", result.exceptionOrNull()!!)
+                throw result.exceptionOrNull()!!
+//                throw Exception("Failed ${if (index == 0) "streaming" else "tree"} test", result.exceptionOrNull()!!)
         }
         assertEquals(streamingResult.getOrNull()!!, treeResult.getOrNull()!!)
     }

@@ -47,7 +47,7 @@ private const val CTC_MAX = 0x7e
 private const val ESC2C_MAX = 0x75
 
 @SharedImmutable
-internal val C2TC = ByteArray(CTC_MAX).apply {
+internal val C2TC : ByteArray get() = ByteArray(CTC_MAX).apply {
     for (i in 0..0x20) {
         initC2TC(i, TC_INVALID)
     }
@@ -134,7 +134,7 @@ internal class JsonReader(private val source: String) {
         nextToken()
     }
 
-    internal inline fun requireTokenClass(expected: Byte, errorMessage: (Char) -> String) {
+    internal fun requireTokenClass(expected: Byte, errorMessage: (Char) -> String) {
         if (tokenClass != expected) fail(errorMessage(tokenClass.toChar()), tokenPosition)
     }
 

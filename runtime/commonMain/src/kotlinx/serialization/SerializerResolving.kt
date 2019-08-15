@@ -27,7 +27,7 @@ import kotlin.reflect.*
 @Suppress("UNCHECKED_CAST", "NO_REFLECTION_IN_CLASS_PATH")
 @ImplicitReflectionSerializer
 public inline fun <reified T> serializer(): KSerializer<T> {
-    return serializer(typeOf<T>()) as KSerializer<T>
+    return serializer(TODO("unsupported on JS BE")) as KSerializer<T>
 }
 
 /**

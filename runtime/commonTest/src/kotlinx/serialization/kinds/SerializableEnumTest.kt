@@ -6,8 +6,7 @@ package kotlinx.serialization.kinds
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.JsonTestBase
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 @Serializable
 @SerialName("custom_enum")
@@ -42,6 +41,7 @@ class SerializableEnumTest : JsonTestBase() {
         )
 
     @Test
+    @Ignore // TODO [JS IR]
     fun hasCorrectDescriptor() {
         val desc = WithCustomEnum.serializer().descriptor.getElementDescriptor(0)
         assertEquals("custom_enum", desc.name)

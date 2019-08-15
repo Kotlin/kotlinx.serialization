@@ -10,6 +10,7 @@ import kotlinx.serialization.test.shouldBe
 import kotlin.test.Ignore
 import kotlin.test.Test
 
+@Ignore // TODO [JS IR]
 class ProtobufReaderTest {
 
     @Test
