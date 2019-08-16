@@ -102,7 +102,7 @@ json.stringify(MessageWrapper.serializer(), MessageWrapper(IntMessage(121)))
 JSON with its `JsonConfiguration.Stable` and `JsonConfiguration.Default` offers you to store the type name inside the object itself with the key `type`.
 You can override key name by creating your own configuration: `JsonConfiguration(classDiscriminator = "class")` or by copying an existing one: `JsonConfiguration.Stable.copy(classDiscriminator = "class")`.
 
-There is also a possibility to change type name storage location to the first element of wrapping array, e.g. to form `[className, object]`:
+There is also a possibility to change type name storage location to the first element of wrapping array, i.e. to form `[className, object]`:
 
 ```kotlin
 val json = Json(
@@ -192,7 +192,7 @@ class MessageWrapper(@Polymorphic val m: Message)
 
 So, we can say that polymorphic serialization of sealed classes requires explicit opt-in on use site. Why is that?
 
-Because in an ideal solution, you ain't gonna need serial modules and other stuff at all. Compiler knowns all subclasses of sealed class anyway, therefore, serialization plugin knows them too and it would be possible to correctly serialize subclasses without a user's intervention.
+Because in an ideal solution, you ain't gonna need serial modules and other stuff at all. Compiler knows all subclasses of sealed class anyway, therefore, serialization plugin knows them too and it would be possible to correctly serialize subclasses without a user's intervention.
 
 Work for this solution is in progress now. Meanwhile, explicit opt-in is required to ease the migration path and avoid silent semantic change: to migrate on the new solution, you'll have to remove all `@Polymorphic` annotations from `val`s.
 
@@ -210,7 +210,7 @@ abstract class TimestampedMessage : Message {
 
 @Serializable
 class Wrapper(
-    val request: Message
+    val request: Message,
     val response: TimestampedMessage
 )
 ```
