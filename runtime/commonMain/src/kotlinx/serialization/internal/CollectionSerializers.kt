@@ -57,11 +57,7 @@ sealed class AbstractCollectionSerializer<Element, Collection, Builder> : KSeria
 
     protected abstract fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean = true)
 
-    private fun readAll(decoder: CompositeDecoder, builder: Builder, startIndex: Int, size: Int) {
-        require(size >= 0) { "Size must be known in advance when using READ_ALL" }
-        for (index in 0 until size)
-            readElement(decoder, startIndex + index, builder, checkIndex = false)
-    }
+    protected abstract fun readAll(decoder: CompositeDecoder, builder: Builder, startIndex: Int, size: Int)
 }
 
 sealed class ListLikeSerializer<Element, Collection, Builder>(
@@ -83,6 +79,12 @@ sealed class ListLikeSerializer<Element, Collection, Builder>(
         encoder.endStructure(descriptor)
     }
 
+    protected final override fun readAll(decoder: CompositeDecoder, builder: Builder, startIndex: Int, size: Int) {
+        require(size >= 0) { "Size must be known in advance when using READ_ALL" }
+        for (index in 0 until size)
+            readElement(decoder, startIndex + index, builder, checkIndex = false)
+    }
+
     protected override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
         builder.insert(index, decoder.decodeSerializableElement(descriptor, index, elementSerializer))
     }
@@ -97,6 +99,12 @@ sealed class MapLikeSerializer<Key, Value, Collection, Builder : MutableMap<Key,
     abstract override val descriptor: MapLikeDescriptor
 
     final override val typeParams = arrayOf(keySerializer, valueSerializer)
+
+    protected final override fun readAll(decoder: CompositeDecoder, builder: Builder, startIndex: Int, size: Int) {
+        require(size >= 0) { "Size must be known in advance when using READ_ALL" }
+        for (index in 0 until size * 2 step 2)
+            readElement(decoder, startIndex + index, builder, checkIndex = false)
+    }
 
     final override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
         val key: Key = decoder.decodeSerializableElement(descriptor, index, keySerializer)

@@ -36,6 +36,9 @@ class MapperTest {
     @Serializable
     data class SubCategory(var name: String? = null)
 
+    @Serializable
+    data class DataWithMap(val map: Map<String, Int>)
+
     @Test
     fun testListTagStack() {
         val data = Data(listOf("element1"), "property")
@@ -91,5 +94,22 @@ class MapperTest {
     fun failsOnIncorrectMaps() {
         val map: Map<String, Any?> = mapOf("name" to "Name")
         assertFailsWith<NoSuchElementException> { Mapper.unmapNullable<Category>(map) }
+    }
+
+    @Test
+    fun worksWithNestedMap() {
+        val map0 = DataWithMap(mapOf())
+        val map1 = DataWithMap(mapOf("one" to 1))
+        val map2 = DataWithMap(mapOf("one" to 1, "two" to 2))
+
+        fun doTest(testData: DataWithMap) {
+            val map = Mapper.map(DataWithMap.serializer(), testData)
+            val d2 = Mapper.unmap(DataWithMap.serializer(), map)
+            assertEquals(testData, d2)
+        }
+
+        doTest(map0)
+        doTest(map1)
+        doTest(map2)
     }
 }
