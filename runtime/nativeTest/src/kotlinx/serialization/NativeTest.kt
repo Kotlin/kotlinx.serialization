@@ -55,7 +55,6 @@ class CommonTest {
     }
 
     @Test
-    @Ignore // todo: unignore on 1.3.50-eap-2
     @UseExperimental(ImplicitReflectionSerializer::class)
     fun nativeSupportsSimpleReflectionSerializer() {
         val s = Json.stringify(shop)
