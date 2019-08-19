@@ -37,6 +37,7 @@ kotlin {
             target('iosArm32')
             target('iosX64')
             target('wasm32')
+            target('linuxArm32Hfp')
         }
     }
 
