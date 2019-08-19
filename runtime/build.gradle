@@ -36,6 +36,7 @@ kotlin {
             target('iosArm64')
             target('iosArm32')
             target('iosX64')
+            target('wasm32')
         }
     }
 
