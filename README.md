@@ -90,7 +90,7 @@ You have to add the serialization plugin as the other [compiler plugins](https:/
 
 ```gradle
 buildscript {
-    ext.kotlin_version = '1.3.40'
+    ext.kotlin_version = '1.3.50'
     repositories { jcenter() }
 
     dependencies {
@@ -117,7 +117,7 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.11.1"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.12.0"
 }
 ```
 
@@ -127,8 +127,8 @@ You can setup serialization plugin with the kotlin plugin using [Gradle plugins 
 
 ```gradle
 plugins {
-    id 'kotlin-multiplatform' version '1.3.40'
-    id 'kotlinx-serialization' version '1.3.40'
+    id 'kotlin-multiplatform' version '1.3.50'
+    id 'kotlinx-serialization' version '1.3.50'
 }
 ```
 
@@ -179,8 +179,8 @@ Ensure the proper version of Kotlin and serialization version:
 
 ```xml
 <properties>
-    <kotlin.version>1.3.40</kotlin.version>
-    <serialization.version>0.11.1</serialization.version>
+    <kotlin.version>1.3.50</kotlin.version>
+    <serialization.version>0.12.0</serialization.version>
 </properties>
 ```
 

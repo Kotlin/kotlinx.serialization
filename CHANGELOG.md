@@ -1,4 +1,22 @@
 
+v0.12.0 / 2019-08-23
+==================
+
+  * Set up linuxArm32Hfp target (#535)
+  * wasm32 is added as a build target (#518)
+  * MPP (JVM & Native) serializer resolving from KType (via typeOf()/serializer() function)
+  * Support maps and objects decoding when map size present in stream (fix #517)
+  * Add proper SerialClassDescImpl.toString
+  * Make JSON parser much more stricter; e.g. Prohibit all excessive separators in objects and maps
+  * Robust JsonArray parsing
+  * Improve json exceptions, add more contextual information, get rid of obsolete exception types
+  * Prohibit trailing commas in JSON parser
+  * Make the baseclass of the polymorphic serializer public to allow formats (#520)
+  * Fix decoding for ProtoBuf when there are missing properties in the model. (#506)
+  * Rework JsonException and related subclasses
+  * Fix #480 (deserialization of complex map keys). Add tests for structured map keys in conjuction with polymorphism
+  * Implement 'allowStructuredMapKeys' flag. Now this flag is required for serializing into JSON maps which keys are not primitive.
+
 v0.11.1 / 2019-06-19
 ==================
 
