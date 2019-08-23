@@ -47,11 +47,11 @@ public class ByteArraySerializer :
     override fun builder(): Builder = Builder()
     override fun ByteArray.toBuilder(): Builder = Builder(this)
 
-    override fun readItem(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
         builder.append(decoder.decodeByteElement(descriptor, index))
     }
 
-    override fun writeContents(encoder: CompositeEncoder, content: ByteArray, size: Int) {
+    override fun writeContent(encoder: CompositeEncoder, content: ByteArray, size: Int) {
         for (i in 0 until size)
             encoder.encodeByteElement(descriptor, i, content[i])
     }
@@ -99,11 +99,11 @@ public class ShortArraySerializer :
     override fun builder(): Builder = Builder()
     override fun ShortArray.toBuilder(): Builder = Builder(this)
 
-    override fun readItem(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
         builder.append(decoder.decodeShortElement(descriptor, index))
     }
 
-    override fun writeContents(encoder: CompositeEncoder, content: ShortArray, size: Int) {
+    override fun writeContent(encoder: CompositeEncoder, content: ShortArray, size: Int) {
         for (i in 0 until size)
             encoder.encodeShortElement(descriptor, i, content[i])
     }
@@ -147,11 +147,11 @@ public class IntArraySerializer :
     override fun builder(): Builder = Builder()
     override fun IntArray.toBuilder(): Builder = Builder(this)
 
-    override fun readItem(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
         builder.append(decoder.decodeIntElement(descriptor, index))
     }
 
-    override fun writeContents(encoder: CompositeEncoder, content: IntArray, size: Int) {
+    override fun writeContent(encoder: CompositeEncoder, content: IntArray, size: Int) {
         for (i in 0 until size)
             encoder.encodeIntElement(descriptor, i, content[i])
     }
@@ -195,11 +195,11 @@ public class LongArraySerializer :
     override fun builder(): Builder = Builder()
     override fun LongArray.toBuilder(): Builder = Builder(this)
 
-    override fun readItem(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
         builder.append(decoder.decodeLongElement(descriptor, index))
     }
 
-    override fun writeContents(encoder: CompositeEncoder, content: LongArray, size: Int) {
+    override fun writeContent(encoder: CompositeEncoder, content: LongArray, size: Int) {
         for (i in 0 until size)
             encoder.encodeLongElement(descriptor, i, content[i])
     }
@@ -243,11 +243,11 @@ public class FloatArraySerializer :
     override fun builder(): Builder = Builder()
     override fun FloatArray.toBuilder(): Builder = Builder(this)
 
-    override fun readItem(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
         builder.append(decoder.decodeFloatElement(descriptor, index))
     }
 
-    override fun writeContents(encoder: CompositeEncoder, content: FloatArray, size: Int) {
+    override fun writeContent(encoder: CompositeEncoder, content: FloatArray, size: Int) {
         for (i in 0 until size)
             encoder.encodeFloatElement(descriptor, i, content[i])
     }
@@ -291,11 +291,11 @@ public class DoubleArraySerializer :
     override fun builder(): Builder = Builder()
     override fun DoubleArray.toBuilder(): Builder = Builder(this)
 
-    override fun readItem(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
         builder.append(decoder.decodeDoubleElement(descriptor, index))
     }
 
-    override fun writeContents(encoder: CompositeEncoder, content: DoubleArray, size: Int) {
+    override fun writeContent(encoder: CompositeEncoder, content: DoubleArray, size: Int) {
         for (i in 0 until size)
             encoder.encodeDoubleElement(descriptor, i, content[i])
     }
@@ -339,11 +339,11 @@ public class CharArraySerializer :
     override fun builder(): Builder = Builder()
     override fun CharArray.toBuilder(): Builder = Builder(this)
 
-    override fun readItem(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
         builder.append(decoder.decodeCharElement(descriptor, index))
     }
 
-    override fun writeContents(encoder: CompositeEncoder, content: CharArray, size: Int) {
+    override fun writeContent(encoder: CompositeEncoder, content: CharArray, size: Int) {
         for (i in 0 until size)
             encoder.encodeCharElement(descriptor, i, content[i])
     }
@@ -365,7 +365,7 @@ public class BooleanArraySerializer :
         override var position: Int = 0
             private set
 
-        constructor(filledBuf: BooleanArray): this() {
+        constructor(filledBuf: BooleanArray) : this() {
             buf = filledBuf
             position = filledBuf.size
         }
@@ -387,11 +387,11 @@ public class BooleanArraySerializer :
     override fun builder(): Builder = Builder()
     override fun BooleanArray.toBuilder(): Builder = Builder(this)
 
-    override fun readItem(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
         builder.append(decoder.decodeBooleanElement(descriptor, index))
     }
 
-    override fun writeContents(encoder: CompositeEncoder, content: BooleanArray, size: Int) {
+    override fun writeContent(encoder: CompositeEncoder, content: BooleanArray, size: Int) {
         for (i in 0 until size)
             encoder.encodeBooleanElement(descriptor, i, content[i])
     }

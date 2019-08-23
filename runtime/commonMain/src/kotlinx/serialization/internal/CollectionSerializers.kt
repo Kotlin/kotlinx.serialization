@@ -36,7 +36,7 @@ sealed class AbstractCollectionSerializer<Element, Collection, Builder> : KSeria
                     break@mainLoop
                 }
                 READ_DONE -> break@mainLoop
-                else -> readItem(decoder, startIndex + index, builder)
+                else -> readElement(decoder, startIndex + index, builder)
             }
 
         }
@@ -55,12 +55,12 @@ sealed class AbstractCollectionSerializer<Element, Collection, Builder> : KSeria
         return size
     }
 
-    protected abstract fun readItem(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean = true)
+    protected abstract fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean = true)
 
     private fun readAll(decoder: CompositeDecoder, builder: Builder, startIndex: Int, size: Int) {
         require(size >= 0) { "Size must be known in advance when using READ_ALL" }
         for (index in 0 until size)
-            readItem(decoder, startIndex + index, builder, checkIndex = false)
+            readElement(decoder, startIndex + index, builder, checkIndex = false)
     }
 }
 
@@ -82,7 +82,7 @@ sealed class ListLikeSerializer<Element, Collection, Builder>(val elementSeriali
         encoder.endStructure(descriptor)
     }
 
-    protected override fun readItem(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
+    protected override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
         builder.insert(index, decoder.decodeSerializableElement(descriptor, index, elementSerializer))
     }
 }
@@ -97,7 +97,7 @@ sealed class MapLikeSerializer<Key, Value, Collection, Builder : MutableMap<Key,
 
     final override val typeParams = arrayOf(keySerializer, valueSerializer)
 
-    final override fun readItem(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
+    final override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
         val key: Key = decoder.decodeSerializableElement(descriptor, index, keySerializer)
         val vIndex = if (checkIndex) {
             decoder.decodeElementIndex(descriptor).also {
@@ -128,6 +128,12 @@ sealed class MapLikeSerializer<Key, Value, Collection, Builder : MutableMap<Key,
     }
 }
 
+/**
+ * Base serializer for all serializers for primitive arrays.
+ *
+ * It exists only to avoid code duplication and should not be used or implemented directly.
+ * Use concrete serializers ([ByteArraySerializer], etc) instead.
+ */
 public abstract class PrimitiveArraySerializer<Element, Array, Builder : PrimitiveArraySerializer<Element, Array, Builder>.Builder>
 internal constructor(
     primitiveSerializer: KSerializer<Element>,
@@ -151,20 +157,20 @@ internal constructor(
     final override fun Builder.insert(index: Int, element: Element) =
         error("This method lead to boxing and must not be used, use Builder.append instead")
 
-    protected abstract override fun readItem(
+    protected abstract override fun readElement(
         decoder: CompositeDecoder,
         index: Int,
         builder: Builder,
         checkIndex: Boolean
     )
 
-    protected abstract fun writeContents(encoder: CompositeEncoder, content: Array, size: Int)
+    protected abstract fun writeContent(encoder: CompositeEncoder, content: Array, size: Int)
 
     final override fun serialize(encoder: Encoder, obj: Array) {
         val size = obj.collectionSize()
         @Suppress("NAME_SHADOWING")
         val encoder = encoder.beginCollection(descriptor, size, *typeParams)
-        writeContents(encoder, obj, size)
+        writeContent(encoder, obj, size)
         encoder.endStructure(descriptor)
     }
 }
