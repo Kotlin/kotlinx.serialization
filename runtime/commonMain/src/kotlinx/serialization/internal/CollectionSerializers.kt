@@ -10,13 +10,13 @@ import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlin.reflect.KClass
 
 sealed class AbstractCollectionSerializer<Element, Collection, Builder> : KSerializer<Collection> {
-    abstract fun Collection.collectionSize(): Int
-    abstract fun Collection.collectionIterator(): Iterator<Element>
-    abstract fun builder(): Builder
-    abstract fun Builder.builderSize(): Int
-    abstract fun Builder.toResult(): Collection
-    abstract fun Collection.toBuilder(): Builder
-    abstract fun Builder.checkCapacity(size: Int)
+    protected abstract fun Collection.collectionSize(): Int
+    protected abstract fun Collection.collectionIterator(): Iterator<Element>
+    protected abstract fun builder(): Builder
+    protected abstract fun Builder.builderSize(): Int
+    protected abstract fun Builder.toResult(): Collection
+    protected abstract fun Collection.toBuilder(): Builder
+    protected abstract fun Builder.checkCapacity(size: Int)
 
     abstract val typeParams: Array<KSerializer<*>>
 
@@ -128,24 +128,24 @@ sealed class MapLikeSerializer<Key, Value, Collection, Builder : MutableMap<Key,
     }
 }
 
+public abstract class PrimitiveArrayBuilder<Array> internal constructor() {
+    abstract val position: Int
+    abstract fun ensureCapacity(requiredCapacity: Int = position * 2)
+    abstract fun build(): Array
+}
+
 /**
  * Base serializer for all serializers for primitive arrays.
  *
  * It exists only to avoid code duplication and should not be used or implemented directly.
  * Use concrete serializers ([ByteArraySerializer], etc) instead.
  */
-public abstract class PrimitiveArraySerializer<Element, Array, Builder : PrimitiveArraySerializer<Element, Array, Builder>.Builder>
+public abstract class PrimitiveArraySerializer<Element, Array, Builder : PrimitiveArrayBuilder<Array>>
 internal constructor(
     primitiveSerializer: KSerializer<Element>,
     primitiveDescriptor: PrimitiveDescriptor
 ) : ListLikeSerializer<Element, Array, Builder>(primitiveSerializer) {
-    final override val descriptor = PrimitiveArrayDescriptor(primitiveDescriptor)
-
-    abstract inner class Builder internal constructor() {
-        abstract val position: Int
-        abstract fun ensureCapacity(requiredCapacity: Int = position * 2 + 1)
-        abstract fun build(): Array
-    }
+    final override val descriptor: PrimitiveArrayDescriptor = PrimitiveArrayDescriptor(primitiveDescriptor)
 
     final override fun Builder.builderSize() = position
     final override fun Builder.toResult(): Array = build()

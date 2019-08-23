@@ -6,48 +6,23 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 
-private const val INITIAL_SIZE = 0
+private const val INITIAL_SIZE = 10
 
-// it could be an object, but https://youtrack.jetbrains.com/issue/KT-14628
 /**
  * Serializer for [ByteArray].
  *
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-public class ByteArraySerializer :
-    PrimitiveArraySerializer<Byte, ByteArray, ByteArraySerializer.Builder>(ByteSerializer, ByteDescriptor),
+public object ByteArraySerializer :
+    PrimitiveArraySerializer<Byte, ByteArray, ByteArrayBuilder>(ByteSerializer, ByteDescriptor),
     KSerializer<ByteArray> {
-    inner class Builder internal constructor() :
-        PrimitiveArraySerializer<Byte, ByteArray, ByteArraySerializer.Builder>.Builder() {
-
-        private var buf: ByteArray = ByteArray(INITIAL_SIZE)
-        override var position: Int = 0
-            private set
-
-        constructor(filledBuf: ByteArray): this() {
-            buf = filledBuf
-            position = filledBuf.size
-        }
-
-        override fun ensureCapacity(requiredCapacity: Int) {
-            if (buf.size < requiredCapacity)
-                buf = buf.copyOf(requiredCapacity)
-        }
-
-        internal fun append(c: Byte) {
-            ensureCapacity()
-            buf[position++] = c
-        }
-
-        override fun build() = buf.copyOf(position)
-    }
 
     override fun ByteArray.collectionSize(): Int = size
-    override fun builder(): Builder = Builder()
-    override fun ByteArray.toBuilder(): Builder = Builder(this)
+    override fun builder(): ByteArrayBuilder = ByteArrayBuilder()
+    override fun ByteArray.toBuilder(): ByteArrayBuilder = ByteArrayBuilder(this)
 
-    override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: ByteArrayBuilder, checkIndex: Boolean) {
         builder.append(decoder.decodeByteElement(descriptor, index))
     }
 
@@ -55,51 +30,49 @@ public class ByteArraySerializer :
         for (i in 0 until size)
             encoder.encodeByteElement(descriptor, i, content[i])
     }
+}
 
-    companion object : KSerializer<ByteArray> by ByteArraySerializer()
+public class ByteArrayBuilder internal constructor() :
+    PrimitiveArrayBuilder<ByteArray>() {
+
+    private var buf: ByteArray = ByteArray(INITIAL_SIZE)
+    override var position: Int = 0
+        private set
+
+    constructor(filledBuf: ByteArray): this() {
+        buf = filledBuf
+        position = filledBuf.size
+    }
+
+    override fun ensureCapacity(requiredCapacity: Int) {
+        if (buf.size < requiredCapacity)
+            buf = buf.copyOf(requiredCapacity)
+    }
+
+    internal fun append(c: Byte) {
+        ensureCapacity()
+        buf[position++] = c
+    }
+
+    override fun build() = buf.copyOf(position)
 }
 
 // the rest of the serializers are merely copy-paste
-
 /**
  * Serializer for [ShortArray].
  *
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-public class ShortArraySerializer :
-    PrimitiveArraySerializer<Short, ShortArray, ShortArraySerializer.Builder>(ShortSerializer, ShortDescriptor),
+public object ShortArraySerializer :
+    PrimitiveArraySerializer<Short, ShortArray, ShortArrayBuilder>(ShortSerializer, ShortDescriptor),
     KSerializer<ShortArray> {
-    inner class Builder internal constructor() :
-        PrimitiveArraySerializer<Short, ShortArray, ShortArraySerializer.Builder>.Builder() {
-
-        private var buf: ShortArray = ShortArray(INITIAL_SIZE)
-        override var position: Int = 0
-            private set
-
-        constructor(filledBuf: ShortArray): this() {
-            buf = filledBuf
-            position = filledBuf.size
-        }
-
-        override fun ensureCapacity(requiredCapacity: Int) {
-            if (buf.size < requiredCapacity)
-                buf = buf.copyOf(requiredCapacity)
-        }
-
-        internal fun append(c: Short) {
-            ensureCapacity()
-            buf[position++] = c
-        }
-
-        override fun build() = buf.copyOf(position)
-    }
 
     override fun ShortArray.collectionSize(): Int = size
-    override fun builder(): Builder = Builder()
-    override fun ShortArray.toBuilder(): Builder = Builder(this)
+    override fun builder(): ShortArrayBuilder = ShortArrayBuilder()
+    override fun ShortArray.toBuilder(): ShortArrayBuilder = ShortArrayBuilder(this)
 
-    override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: ShortArrayBuilder, checkIndex: Boolean) {
         builder.append(decoder.decodeShortElement(descriptor, index))
     }
 
@@ -109,45 +82,46 @@ public class ShortArraySerializer :
     }
 }
 
+public class ShortArrayBuilder internal constructor() :
+    PrimitiveArrayBuilder<ShortArray>() {
+
+    private var buf: ShortArray = ShortArray(INITIAL_SIZE)
+    override var position: Int = 0
+        private set
+
+    constructor(filledBuf: ShortArray) : this() {
+        buf = filledBuf
+        position = filledBuf.size
+    }
+
+    override fun ensureCapacity(requiredCapacity: Int) {
+        if (buf.size < requiredCapacity)
+            buf = buf.copyOf(requiredCapacity)
+    }
+
+    internal fun append(c: Short) {
+        ensureCapacity()
+        buf[position++] = c
+    }
+
+    override fun build() = buf.copyOf(position)
+}
+
 /**
  * Serializer for [IntArray].
  *
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-public class IntArraySerializer :
-    PrimitiveArraySerializer<Int, IntArray, IntArraySerializer.Builder>(IntSerializer, IntDescriptor),
+public object IntArraySerializer :
+    PrimitiveArraySerializer<Int, IntArray, IntArrayBuilder>(IntSerializer, IntDescriptor),
     KSerializer<IntArray> {
-    inner class Builder internal constructor() :
-        PrimitiveArraySerializer<Int, IntArray, IntArraySerializer.Builder>.Builder() {
-
-        private var buf: IntArray = IntArray(INITIAL_SIZE)
-        override var position: Int = 0
-            private set
-
-        constructor(filledBuf: IntArray): this() {
-            buf = filledBuf
-            position = filledBuf.size
-        }
-
-        override fun ensureCapacity(requiredCapacity: Int) {
-            if (buf.size < requiredCapacity)
-                buf = buf.copyOf(requiredCapacity)
-        }
-
-        internal fun append(c: Int) {
-            ensureCapacity()
-            buf[position++] = c
-        }
-
-        override fun build() = buf.copyOf(position)
-    }
 
     override fun IntArray.collectionSize(): Int = size
-    override fun builder(): Builder = Builder()
-    override fun IntArray.toBuilder(): Builder = Builder(this)
+    override fun builder(): IntArrayBuilder = IntArrayBuilder()
+    override fun IntArray.toBuilder(): IntArrayBuilder = IntArrayBuilder(this)
 
-    override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: IntArrayBuilder, checkIndex: Boolean) {
         builder.append(decoder.decodeIntElement(descriptor, index))
     }
 
@@ -157,45 +131,47 @@ public class IntArraySerializer :
     }
 }
 
+public class IntArrayBuilder internal constructor() :
+    PrimitiveArrayBuilder<IntArray>() {
+
+    private var buf: IntArray = IntArray(INITIAL_SIZE)
+    override var position: Int = 0
+        private set
+
+    constructor(filledBuf: IntArray) : this() {
+        buf = filledBuf
+        position = filledBuf.size
+    }
+
+    override fun ensureCapacity(requiredCapacity: Int) {
+        if (buf.size < requiredCapacity)
+            buf = buf.copyOf(requiredCapacity)
+    }
+
+    internal fun append(c: Int) {
+        ensureCapacity()
+        buf[position++] = c
+    }
+
+    override fun build() = buf.copyOf(position)
+}
+
+
 /**
  * Serializer for [LongArray].
  *
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-public class LongArraySerializer :
-    PrimitiveArraySerializer<Long, LongArray, LongArraySerializer.Builder>(LongSerializer, LongDescriptor),
+public object LongArraySerializer :
+    PrimitiveArraySerializer<Long, LongArray, LongArrayBuilder>(LongSerializer, LongDescriptor),
     KSerializer<LongArray> {
-    inner class Builder internal constructor() :
-        PrimitiveArraySerializer<Long, LongArray, LongArraySerializer.Builder>.Builder() {
-
-        private var buf: LongArray = LongArray(INITIAL_SIZE)
-        override var position: Int = 0
-            private set
-
-        constructor(filledBuf: LongArray): this() {
-            buf = filledBuf
-            position = filledBuf.size
-        }
-
-        override fun ensureCapacity(requiredCapacity: Int) {
-            if (buf.size < requiredCapacity)
-                buf = buf.copyOf(requiredCapacity)
-        }
-
-        internal fun append(c: Long) {
-            ensureCapacity()
-            buf[position++] = c
-        }
-
-        override fun build() = buf.copyOf(position)
-    }
 
     override fun LongArray.collectionSize(): Int = size
-    override fun builder(): Builder = Builder()
-    override fun LongArray.toBuilder(): Builder = Builder(this)
+    override fun builder(): LongArrayBuilder = LongArrayBuilder()
+    override fun LongArray.toBuilder(): LongArrayBuilder = LongArrayBuilder(this)
 
-    override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: LongArrayBuilder, checkIndex: Boolean) {
         builder.append(decoder.decodeLongElement(descriptor, index))
     }
 
@@ -205,100 +181,29 @@ public class LongArraySerializer :
     }
 }
 
-/**
- * Serializer for [FloatArray].
- *
- * Encode elements one-by-one, as regular list,
- * unless format's Encoder/Decoder have special handling for this serializer.
- */
-public class FloatArraySerializer :
-    PrimitiveArraySerializer<Float, FloatArray, FloatArraySerializer.Builder>(FloatSerializer, FloatDescriptor),
-    KSerializer<FloatArray> {
-    inner class Builder internal constructor() :
-        PrimitiveArraySerializer<Float, FloatArray, FloatArraySerializer.Builder>.Builder() {
+public class LongArrayBuilder internal constructor() :
+    PrimitiveArrayBuilder<LongArray>() {
 
-        private var buf: FloatArray = FloatArray(INITIAL_SIZE)
-        override var position: Int = 0
-            private set
+    private var buf: LongArray = LongArray(INITIAL_SIZE)
+    override var position: Int = 0
+        private set
 
-        constructor(filledBuf: FloatArray): this() {
-            buf = filledBuf
-            position = filledBuf.size
-        }
-
-        override fun ensureCapacity(requiredCapacity: Int) {
-            if (buf.size < requiredCapacity)
-                buf = buf.copyOf(requiredCapacity)
-        }
-
-        internal fun append(c: Float) {
-            ensureCapacity()
-            buf[position++] = c
-        }
-
-        override fun build() = buf.copyOf(position)
+    constructor(filledBuf: LongArray) : this() {
+        buf = filledBuf
+        position = filledBuf.size
     }
 
-    override fun FloatArray.collectionSize(): Int = size
-    override fun builder(): Builder = Builder()
-    override fun FloatArray.toBuilder(): Builder = Builder(this)
-
-    override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
-        builder.append(decoder.decodeFloatElement(descriptor, index))
+    override fun ensureCapacity(requiredCapacity: Int) {
+        if (buf.size < requiredCapacity)
+            buf = buf.copyOf(requiredCapacity)
     }
 
-    override fun writeContent(encoder: CompositeEncoder, content: FloatArray, size: Int) {
-        for (i in 0 until size)
-            encoder.encodeFloatElement(descriptor, i, content[i])
-    }
-}
-
-/**
- * Serializer for [DoubleArray].
- *
- * Encode elements one-by-one, as regular list,
- * unless format's Encoder/Decoder have special handling for this serializer.
- */
-public class DoubleArraySerializer :
-    PrimitiveArraySerializer<Double, DoubleArray, DoubleArraySerializer.Builder>(DoubleSerializer, DoubleDescriptor),
-    KSerializer<DoubleArray> {
-    inner class Builder internal constructor() :
-        PrimitiveArraySerializer<Double, DoubleArray, DoubleArraySerializer.Builder>.Builder() {
-
-        private var buf: DoubleArray = DoubleArray(INITIAL_SIZE)
-        override var position: Int = 0
-            private set
-
-        constructor(filledBuf: DoubleArray): this() {
-            buf = filledBuf
-            position = filledBuf.size
-        }
-
-        override fun ensureCapacity(requiredCapacity: Int) {
-            if (buf.size < requiredCapacity)
-                buf = buf.copyOf(requiredCapacity)
-        }
-
-        internal fun append(c: Double) {
-            ensureCapacity()
-            buf[position++] = c
-        }
-
-        override fun build() = buf.copyOf(position)
+    internal fun append(c: Long) {
+        ensureCapacity()
+        buf[position++] = c
     }
 
-    override fun DoubleArray.collectionSize(): Int = size
-    override fun builder(): Builder = Builder()
-    override fun DoubleArray.toBuilder(): Builder = Builder(this)
-
-    override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
-        builder.append(decoder.decodeDoubleElement(descriptor, index))
-    }
-
-    override fun writeContent(encoder: CompositeEncoder, content: DoubleArray, size: Int) {
-        for (i in 0 until size)
-            encoder.encodeDoubleElement(descriptor, i, content[i])
-    }
+    override fun build() = buf.copyOf(position)
 }
 
 /**
@@ -307,39 +212,15 @@ public class DoubleArraySerializer :
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-public class CharArraySerializer :
-    PrimitiveArraySerializer<Char, CharArray, CharArraySerializer.Builder>(CharSerializer, CharDescriptor),
+public object CharArraySerializer :
+    PrimitiveArraySerializer<Char, CharArray, CharArrayBuilder>(CharSerializer, CharDescriptor),
     KSerializer<CharArray> {
-    inner class Builder internal constructor() :
-        PrimitiveArraySerializer<Char, CharArray, CharArraySerializer.Builder>.Builder() {
-
-        private var buf: CharArray = CharArray(INITIAL_SIZE)
-        override var position: Int = 0
-            private set
-
-        constructor(filledBuf: CharArray): this() {
-            buf = filledBuf
-            position = filledBuf.size
-        }
-
-        override fun ensureCapacity(requiredCapacity: Int) {
-            if (buf.size < requiredCapacity)
-                buf = buf.copyOf(requiredCapacity)
-        }
-
-        internal fun append(c: Char) {
-            ensureCapacity()
-            buf[position++] = c
-        }
-
-        override fun build() = buf.copyOf(position)
-    }
 
     override fun CharArray.collectionSize(): Int = size
-    override fun builder(): Builder = Builder()
-    override fun CharArray.toBuilder(): Builder = Builder(this)
+    override fun builder(): CharArrayBuilder = CharArrayBuilder()
+    override fun CharArray.toBuilder(): CharArrayBuilder = CharArrayBuilder(this)
 
-    override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: CharArrayBuilder, checkIndex: Boolean) {
         builder.append(decoder.decodeCharElement(descriptor, index))
     }
 
@@ -349,45 +230,144 @@ public class CharArraySerializer :
     }
 }
 
+public class CharArrayBuilder internal constructor() :
+    PrimitiveArrayBuilder<CharArray>() {
+
+    private var buf: CharArray = CharArray(INITIAL_SIZE)
+    override var position: Int = 0
+        private set
+
+    constructor(filledBuf: CharArray) : this() {
+        buf = filledBuf
+        position = filledBuf.size
+    }
+
+    override fun ensureCapacity(requiredCapacity: Int) {
+        if (buf.size < requiredCapacity)
+            buf = buf.copyOf(requiredCapacity)
+    }
+
+    internal fun append(c: Char) {
+        ensureCapacity()
+        buf[position++] = c
+    }
+
+    override fun build() = buf.copyOf(position)
+}
+
+/**
+ * Serializer for [FloatArray].
+ *
+ * Encode elements one-by-one, as regular list,
+ * unless format's Encoder/Decoder have special handling for this serializer.
+ */
+public object FloatArraySerializer :
+    PrimitiveArraySerializer<Float, FloatArray, FloatArrayBuilder>(FloatSerializer, FloatDescriptor),
+    KSerializer<FloatArray> {
+
+    override fun FloatArray.collectionSize(): Int = size
+    override fun builder(): FloatArrayBuilder = FloatArrayBuilder()
+    override fun FloatArray.toBuilder(): FloatArrayBuilder = FloatArrayBuilder(this)
+
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: FloatArrayBuilder, checkIndex: Boolean) {
+        builder.append(decoder.decodeFloatElement(descriptor, index))
+    }
+
+    override fun writeContent(encoder: CompositeEncoder, content: FloatArray, size: Int) {
+        for (i in 0 until size)
+            encoder.encodeFloatElement(descriptor, i, content[i])
+    }
+}
+
+public class FloatArrayBuilder internal constructor() :
+    PrimitiveArrayBuilder<FloatArray>() {
+
+    private var buf: FloatArray = FloatArray(INITIAL_SIZE)
+    override var position: Int = 0
+        private set
+
+    constructor(filledBuf: FloatArray) : this() {
+        buf = filledBuf
+        position = filledBuf.size
+    }
+
+    override fun ensureCapacity(requiredCapacity: Int) {
+        if (buf.size < requiredCapacity)
+            buf = buf.copyOf(requiredCapacity)
+    }
+
+    internal fun append(c: Float) {
+        ensureCapacity()
+        buf[position++] = c
+    }
+
+    override fun build() = buf.copyOf(position)
+}
+
+/**
+ * Serializer for [DoubleArray].
+ *
+ * Encode elements one-by-one, as regular list,
+ * unless format's Encoder/Decoder have special handling for this serializer.
+ */
+public object DoubleArraySerializer :
+    PrimitiveArraySerializer<Double, DoubleArray, DoubleArrayBuilder>(DoubleSerializer, DoubleDescriptor),
+    KSerializer<DoubleArray> {
+
+    override fun DoubleArray.collectionSize(): Int = size
+    override fun builder(): DoubleArrayBuilder = DoubleArrayBuilder()
+    override fun DoubleArray.toBuilder(): DoubleArrayBuilder = DoubleArrayBuilder(this)
+
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: DoubleArrayBuilder, checkIndex: Boolean) {
+        builder.append(decoder.decodeDoubleElement(descriptor, index))
+    }
+
+    override fun writeContent(encoder: CompositeEncoder, content: DoubleArray, size: Int) {
+        for (i in 0 until size)
+            encoder.encodeDoubleElement(descriptor, i, content[i])
+    }
+}
+
+public class DoubleArrayBuilder internal constructor() :
+    PrimitiveArrayBuilder<DoubleArray>() {
+
+    private var buf: DoubleArray = DoubleArray(INITIAL_SIZE)
+    override var position: Int = 0
+        private set
+
+    constructor(filledBuf: DoubleArray) : this() {
+        buf = filledBuf
+        position = filledBuf.size
+    }
+
+    override fun ensureCapacity(requiredCapacity: Int) {
+        if (buf.size < requiredCapacity)
+            buf = buf.copyOf(requiredCapacity)
+    }
+
+    internal fun append(c: Double) {
+        ensureCapacity()
+        buf[position++] = c
+    }
+
+    override fun build() = buf.copyOf(position)
+}
+
 /**
  * Serializer for [BooleanArray].
  *
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-public class BooleanArraySerializer :
-    PrimitiveArraySerializer<Boolean, BooleanArray, BooleanArraySerializer.Builder>(BooleanSerializer, BooleanDescriptor),
+public object BooleanArraySerializer :
+    PrimitiveArraySerializer<Boolean, BooleanArray, BooleanArrayBuilder>(BooleanSerializer, BooleanDescriptor),
     KSerializer<BooleanArray> {
-    inner class Builder internal constructor() :
-        PrimitiveArraySerializer<Boolean, BooleanArray, BooleanArraySerializer.Builder>.Builder() {
-
-        private var buf: BooleanArray = BooleanArray(INITIAL_SIZE)
-        override var position: Int = 0
-            private set
-
-        constructor(filledBuf: BooleanArray) : this() {
-            buf = filledBuf
-            position = filledBuf.size
-        }
-
-        override fun ensureCapacity(requiredCapacity: Int) {
-            if (buf.size < requiredCapacity)
-                buf = buf.copyOf(requiredCapacity)
-        }
-
-        internal fun append(c: Boolean) {
-            ensureCapacity()
-            buf[position++] = c
-        }
-
-        override fun build() = buf.copyOf(position)
-    }
 
     override fun BooleanArray.collectionSize(): Int = size
-    override fun builder(): Builder = Builder()
-    override fun BooleanArray.toBuilder(): Builder = Builder(this)
+    override fun builder(): BooleanArrayBuilder = BooleanArrayBuilder()
+    override fun BooleanArray.toBuilder(): BooleanArrayBuilder = BooleanArrayBuilder(this)
 
-    override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: BooleanArrayBuilder, checkIndex: Boolean) {
         builder.append(decoder.decodeBooleanElement(descriptor, index))
     }
 
@@ -395,4 +375,29 @@ public class BooleanArraySerializer :
         for (i in 0 until size)
             encoder.encodeBooleanElement(descriptor, i, content[i])
     }
+}
+
+public class BooleanArrayBuilder internal constructor() :
+    PrimitiveArrayBuilder<BooleanArray>() {
+
+    private var buf: BooleanArray = BooleanArray(INITIAL_SIZE)
+    override var position: Int = 0
+        private set
+
+    constructor(filledBuf: BooleanArray) : this() {
+        buf = filledBuf
+        position = filledBuf.size
+    }
+
+    override fun ensureCapacity(requiredCapacity: Int) {
+        if (buf.size < requiredCapacity)
+            buf = buf.copyOf(requiredCapacity)
+    }
+
+    internal fun append(c: Boolean) {
+        ensureCapacity()
+        buf[position++] = c
+    }
+
+    override fun build() = buf.copyOf(position)
 }
