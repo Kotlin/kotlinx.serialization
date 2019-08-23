@@ -1,6 +1,6 @@
 import kotlinx.serialization.*
 import kotlinx.serialization.modules.*
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -32,6 +32,6 @@ object DateSerializer : KSerializer<Date> {
 
 fun main(args: Array<String>) {
     val o = Data(1, Payload("lorem ipsum dolor sit amet"), Date())
-    val json = Json(indented = true, context = serializersModule(DateSerializer))
+    val json = Json(JsonConfiguration.Stable.copy(prettyPrint = true), context = serializersModule(DateSerializer))
     println(json.stringify(Data.serializer(), o))
 }

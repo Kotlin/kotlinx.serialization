@@ -27,7 +27,6 @@ rootProject.name = 'kotlinx-serialization-examples'
 include ':example-visitors'
 include ':example-jvm'
 include ':example-js'
-include ':example-native'
 include ':example-multiplatform'
 
 enableFeaturePreview('GRADLE_METADATA')
