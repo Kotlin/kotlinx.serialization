@@ -44,6 +44,14 @@ val li: KSerializer<List<Data>>       = Data.serializer().list
 val mp: KSerializer<Map<String, Int>> = (StringSerializer to IntSerializer).map // extension on Pair of serializers
 ```
 
+To convert from serializer for type `T` to serializer for nullable type `T?`, you can use wrapping `NullableSerializer` or its factory method `makeNullable`:
+
+```kotlin
+val nullableIntSerializer: KSerializer<Int?> = NullableSerializer(IntSerializer)
+// or
+val nullableIntSerializer: KSerializer<Int?> = makeNullable(IntSerializer)
+```
+
 All external serializers (defined by user) are instantiated in a user-specific way. To learn how to write them, see [docs](custom_serializers.md).
 
 ### Implicit reflection serializers
@@ -73,7 +81,8 @@ The former allows to switch to the run-time resolving of serializers instead of 
 This can be useful when you want to use some custom external serializer
 or to define different serializers for different formats.
 The latter allows polymorphic serialization and deserialization using runtime class information
-and recorded name of a class. Consult theirs documentation for details.
+and recorded name of a class.
+Consult theirs documentation for details. Polymorphic serialization is explained in details [here](polymorphism.md).
 
 Both use serial modules system, which is explained [here](custom_serializers.md#registering-and-context).
 

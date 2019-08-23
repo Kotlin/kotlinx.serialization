@@ -34,6 +34,7 @@ You can open example projects for [JS](examples/example-js), [JVM](examples/exam
 * [Usage](docs/runtime_usage.md)
 * [More examples of supported Kotlin classes](docs/examples.md)
 * [Writing custom serializers](docs/custom_serializers.md)
+* [Multiplatform polymorphic serialization](docs/polymorphism.md)
 * [Add-on formats](formats/README.md)
 * [Building library and compiler plugin from source](docs/building.md)
 * [Instructions for old versions under Kotlin 1.2 and migration guide](docs/old12.md)

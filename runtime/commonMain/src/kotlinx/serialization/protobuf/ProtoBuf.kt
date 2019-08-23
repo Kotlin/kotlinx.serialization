@@ -255,8 +255,8 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
                 i64 -> nextLong(ProtoNumberType.FIXED)
                 SIZE_DELIMITED -> nextObject()
                 i32 -> nextInt(ProtoNumberType.FIXED)
+                else -> throw ProtobufDecodingException("Unsupported start group or end group wire type")
             }
-            readTag()
         }
 
         @Suppress("NOTHING_TO_INLINE")
