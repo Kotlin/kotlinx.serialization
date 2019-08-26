@@ -44,7 +44,7 @@ sealed class AbstractCollectionSerializer<Element, Collection, Builder> : KSeria
         return builder.toResult()
     }
 
-    final override fun deserialize(decoder: Decoder): Collection {
+    override fun deserialize(decoder: Decoder): Collection {
         val builder = builder()
         return patch(decoder, builder.toResult())
     }
@@ -130,7 +130,7 @@ sealed class MapLikeSerializer<Key, Value, Collection, Builder : MutableMap<Key,
 
 public abstract class PrimitiveArrayBuilder<Array> internal constructor() {
     abstract val position: Int
-    abstract fun ensureCapacity(requiredCapacity: Int = position * 2)
+    abstract fun ensureCapacity(requiredCapacity: Int = position + 1)
     abstract fun build(): Array
 }
 
@@ -154,8 +154,12 @@ internal constructor(
     final override fun Array.collectionIterator(): Iterator<Element> =
         error("This method lead to boxing and must not be used, use writeContents instead")
 
-    final override fun Builder.insert(index: Int, element: Element) =
+    final override fun Builder.insert(index: Int, element: Element): Unit =
         error("This method lead to boxing and must not be used, use Builder.append instead")
+
+    final override fun builder(): Builder = error("Use empty().toBuilder() instead")
+
+    protected abstract fun empty(): Array
 
     protected abstract override fun readElement(
         decoder: CompositeDecoder,
@@ -172,6 +176,13 @@ internal constructor(
         val encoder = encoder.beginCollection(descriptor, size, *typeParams)
         writeContent(encoder, obj, size)
         encoder.endStructure(descriptor)
+    }
+
+    final override fun deserialize(decoder: Decoder): Array {
+        // here we use empty() instead of builder().toResult() in AbstractCollectionSerializer
+        // because, unlike with ArrayLists, transformation builder(initialSize) > array > builder
+        // requires additional allocations
+        return patch(decoder, empty())
     }
 }
 
