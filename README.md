@@ -1,4 +1,4 @@
-# Kotlin cross-platform / multi-format reflectionless serialization 
+# Kotlin cross-platform / multi-format reflectionless serialization
 
 [![JetBrains incubator project](https://jb.gg/badges/incubator.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
@@ -7,7 +7,7 @@
 
 Kotlin serialization consists of a compiler plugin, which automatically produces visitor code for classes, and runtime library, which uses generated code to serialize objects without reflection.
 
-* Supports Kotlin classes marked as `@Serializable` and standard collections. 
+* Supports Kotlin classes marked as `@Serializable` and standard collections.
 * Supports JSON, CBOR, and Protobuf formats out-of-the-box.
 * The same code works on Kotlin/JVM, Kotlin/JS and Kotlin/Native
 
@@ -16,7 +16,7 @@ Kotlin serialization consists of a compiler plugin, which automatically produces
 This project contains the runtime library. Runtime library provides:
 
 * Interfaces which are called by compiler-generated code (`Encoder`, `Decoder`).
-* Basic skeleton implementations of these interfaces in which you should override some methods if you want to 
+* Basic skeleton implementations of these interfaces in which you should override some methods if you want to
   implement custom data format.
 * Some internal classes like built-ins and collections serializers.
 * Ready-to-use serialization formats.
@@ -29,8 +29,13 @@ You can open example projects for [JS](examples/example-js), [JVM](examples/exam
 * [Quick example](#quick-example)
 * [Current status](#current-project-status)
 * [Library installing](#setup)
-* [Kotlin/Native](#native)
-* [Working in IntelliJ IDEA](#troubleshooting-intellij-idea)
+    + [Gradle](#gradle)
+    + [Gradle (with `plugins` block)](#gradle--with--plugins--block-)
+    + [Android/JVM](#android-jvm)
+    + [Multiplatform (common, JS, Native)](#multiplatform--common--js--native-)
+    + [Maven/JVM](#maven-jvm)
+    + [Incompatible changes from older versions](#incompatible-changes)
+* [Troubleshooting IntelliJ IDEA](#troubleshooting-intellij-idea)
 * [Usage](docs/runtime_usage.md)
 * [More examples of supported Kotlin classes](docs/examples.md)
 * [Writing custom serializers](docs/custom_serializers.md)
@@ -117,40 +122,22 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.12.0"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.12.0" // JVM dependency
 }
 ```
 
 ### Gradle (with `plugins` block)
 
-You can setup serialization plugin with the kotlin plugin using [Gradle plugins DSL](https://docs.gradle.org/current/userguide/plugins.html#sec:plugins_block) instead of traditional `apply plugin`:
+You can setup serialization plugin with the kotlin plugin using [Gradle plugins DSL](https://docs.gradle.org/current/userguide/plugins.html#sec:plugins_block) **instead** of traditional `apply plugin`:
 
 ```gradle
 plugins {
-    id 'kotlin-multiplatform' version '1.3.50'
-    id 'kotlinx-serialization' version '1.3.50'
+    id 'org.jetbrains.kotlin.multiplatform' version '1.3.50' // or any other kotlin plugin
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.3.50'
 }
 ```
 
-In this case, since serialization plugin is not published to Gradle plugin portal [yet](https://youtrack.jetbrains.com/issue/KT-27612),
-you'll need to add [plugin resolution rules](https://docs.gradle.org/current/userguide/plugins.html#sec:plugin_resolution_rules) to your `settings.gradle`:
-
-```gradle
-pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == "kotlin-multiplatform") {
-                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
-            }
-            if (requested.id.id == "kotlinx-serialization") {
-                useModule("org.jetbrains.kotlin:kotlin-serialization:${requested.version}")
-            }
-        }
-    }
-}
-```
-
-Don't forget to drop `classpath` dependency on the plugin from the buildscript dependencies, otherwise, you'll get an error about conflicting versions.
+Note: plugin marker for serialization has been published in Kotlin 1.3.50. If you need to use the earlier Kotlin version, see [KT-27612](https://youtrack.jetbrains.com/issue/KT-27612) for workaround with [plugin resolution rules](https://docs.gradle.org/current/userguide/plugins.html#sec:plugin_resolution_rules).
 
 Runtime library should be added to dependencies the same way as before.
 
@@ -173,9 +160,64 @@ to add this to your `proguard-rules.pro`:
 
 You may also want to keep all custom serializers you've defined.
 
+### Multiplatform (common, JS, Native)
+
+Platform artifacts have the same names as JVM one, but with additional suffix (e.g. `org.jetbrains.kotlinx:kotlinx-serialization-runtime-native`). For Native artifact, Gradle metadata is required (put the line `enableFeaturePreview('GRADLE_METADATA')` in your `gradle.properties`) and minimal supported version of Gradle is 4.8.
+
+Typically, you need the following dependencies in your multiplatform project (don't forget to rename [source sets](https://kotlinlang.org/docs/reference/building-mpp-with-gradle.html#configuring-source-sets) according yo your setup):
+
+```gradle
+sourceSets {
+    commonMain {
+        dependencies {
+            implementation kotlin('stdlib-common')
+            implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serialization_version"
+        }
+    }
+    commonTest {
+        dependencies {
+            implementation kotlin('test-common')
+            implementation kotlin('test-annotations-common')
+        }
+    }
+    jvmMain {
+        dependencies {
+            implementation kotlin('stdlib-jdk8')
+            implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
+        }
+    }
+    jvmTest {
+        dependencies {
+            implementation kotlin('test')
+            implementation kotlin('test-junit')
+        }
+    }
+    jsMain {
+        dependencies {
+            implementation kotlin('stdlib-js')
+            implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
+        }
+    }
+    jsTest {
+        dependencies {
+            implementation kotlin('test-js')
+        }
+    }
+    nativeMain {
+        dependencies {
+            implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$serialization_version"
+        }
+    }
+    nativeTest {}
+}
+```
+
+JavaScript example is located at [`example-js`](examples/example-js) folder.
+Multiplatform example is located at [`example-multiplatform`](examples/example-multiplatform) folder.
+
 ### Maven/JVM
 
-Ensure the proper version of Kotlin and serialization version: 
+Ensure the proper version of Kotlin and serialization version:
 
 ```xml
 <properties>
@@ -243,33 +285,12 @@ Add dependency on serialization runtime library:
 </dependency>
 ```
 
-### Multiplatform (JS and common)
-
-Replace dependency on `kotlinx-serialization-runtime` with `kotlinx-serialization-runtime-js` or `kotlinx-serialization-runtime-common`
-to use it in JavaScript and common projects, respectively. Both `kotlin-platform-***` and `kotlin-multiplatform` are supported.
-You have to apply `kotlinx-serialization` plugin to every module, including common and platform ones.
-
-JavaScript example is located at [`example-js`](examples/example-js) folder.
-
-### Native
-
-You can apply the plugin to `kotlin-platform-native` or `kotlin-multiplatform` projects.
-`konan` plugin is not supported and deprecated.
-
-**Important note**: for `kotlin-multiplatform` project, apply usual `kotlinx-serialization` plugin.
-For `kotlin-platform-native` module, apply `kotlinx-serialization-native` plugin,
-since platform-native from K/N 0.9.3 uses infrastructure in which compiler plugins [are shaded](https://github.com/JetBrains/kotlin-native/issues/2210#issuecomment-429753168).
-
-Use `kotlinx-serialization-runtime-native` artifact. Don't forget to `enableFeaturePreview('GRADLE_METADATA')`
-in yours `settings.gradle`. You must have Gradle 4.8 or higher, because older versions have unsupported format of metadata.
-
-Sample project can be found in [example-native](examples/example-native) folder.
-
 ### Incompatible changes
 
 All versions of library before `0.10.0` are using Gradle metadata v0.3 and therefore require Gradle 4.7 for build.
 Maven plugin coordinates before Kotlin 1.3.20 were `kotlinx-maven-serialization-plugin`.
 Library version `0.11.0` requires Kotlin 1.3.30 and higher and incompatible with previous versions.
+For deprecated `kotlin-platform-native` plugin, you need to use `kotlinx-serialization-native` plugin (see [#2210](https://github.com/JetBrains/kotlin-native/issues/2210#issuecomment-429753168)).
 
 ## Troubleshooting IntelliJ IDEA
 
