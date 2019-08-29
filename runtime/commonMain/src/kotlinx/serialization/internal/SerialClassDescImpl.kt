@@ -110,5 +110,5 @@ open class SerialClassDescImpl @JvmOverloads constructor(
     }
 
     private class MissingDescriptorException(index: Int, origin: SerialDescriptor) :
-        SerializationException("Element descriptor at index $index has not been found in $origin")
+        SerializationException("Element descriptor at index $index has not been found in ${origin.name}")
 }
