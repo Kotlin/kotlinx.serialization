@@ -14,3 +14,12 @@ enum class SampleEnum { OptionA, OptionB, OptionC }
 
 @Serializable
 data class Box<T>(val boxed: T)
+
+@Serializable
+sealed class SimpleSealed {
+    @Serializable
+    public data class SubSealedA(val s: String) : SimpleSealed()
+
+    @Serializable
+    public data class SubSealedB(val i: Int) : SimpleSealed()
+}

@@ -45,7 +45,7 @@ public class SealedClassDescriptor(
     override val name: String,
     elementDescriptors: List<SerialDescriptor>
 ) : SerialClassDescImpl(name) {
-    override val kind: SerialKind = UnionKind.POLYMORPHIC
+    override val kind: SerialKind = PolymorphicKind.SEALED
 
     init {
         elementDescriptors.forEach {
