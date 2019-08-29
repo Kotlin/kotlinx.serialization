@@ -23,7 +23,7 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder = when (desc.kind) {
             StructureKind.LIST -> RepeatedWriter(encoder, currentTag)
-            StructureKind.CLASS, UnionKind.OBJECT, UnionKind.SEALED, UnionKind.POLYMORPHIC -> ObjectWriter(currentTagOrNull, encoder)
+            StructureKind.CLASS, UnionKind.OBJECT, is PolymorphicKind -> ObjectWriter(currentTagOrNull, encoder)
             StructureKind.MAP -> MapRepeatedWriter(currentTagOrNull, encoder)
             else -> throw SerializationException("Primitives are not supported at top-level")
         }
@@ -154,7 +154,7 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder = when (desc.kind) {
             StructureKind.LIST -> RepeatedReader(decoder, currentTag)
-            StructureKind.CLASS, UnionKind.OBJECT, UnionKind.SEALED, UnionKind.POLYMORPHIC ->
+            StructureKind.CLASS, UnionKind.OBJECT, is PolymorphicKind ->
                 ProtobufReader(makeDelimited(decoder, currentTagOrNull))
             StructureKind.MAP -> MapEntryReader(makeDelimited(decoder, currentTagOrNull), currentTagOrNull)
             else -> throw SerializationException("Primitives are not supported at top-level")

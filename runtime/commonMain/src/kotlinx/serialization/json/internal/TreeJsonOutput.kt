@@ -5,11 +5,10 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.*
+import kotlinx.serialization.modules.SerialModule
 import kotlin.collections.set
-import kotlin.jvm.*
+import kotlin.jvm.JvmField
 
 internal fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
     lateinit var result: JsonElement
@@ -92,7 +91,7 @@ private sealed class AbstractJsonTreeOutput(
             else { node -> putElement(currentTag, node) }
 
         val encoder = when (desc.kind) {
-            StructureKind.LIST, UnionKind.POLYMORPHIC -> JsonTreeListOutput(json, consumer)
+            StructureKind.LIST, is PolymorphicKind -> JsonTreeListOutput(json, consumer)
             StructureKind.MAP -> json.selectMapMode(
                 desc,
                 { JsonTreeMapOutput(json, consumer) },

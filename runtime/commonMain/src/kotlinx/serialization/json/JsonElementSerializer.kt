@@ -22,7 +22,7 @@ import kotlinx.serialization.internal.*
 @Serializer(forClass = JsonElement::class)
 public object JsonElementSerializer : KSerializer<JsonElement> {
     override val descriptor: SerialDescriptor = object : SerialClassDescImpl("JsonElementSerializer") {
-        override val kind: SerialKind get() = UnionKind.SEALED
+        override val kind: SerialKind get() = PolymorphicKind.SEALED
     }
 
     override fun serialize(encoder: Encoder, obj: JsonElement) {

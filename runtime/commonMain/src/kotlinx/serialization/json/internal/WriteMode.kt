@@ -23,7 +23,7 @@ internal enum class WriteMode(@JvmField val begin: Char, @JvmField val end: Char
 
 internal fun Json.switchMode(desc: SerialDescriptor): WriteMode =
     when (desc.kind) {
-        UnionKind.POLYMORPHIC -> WriteMode.POLY_OBJ
+        is PolymorphicKind -> WriteMode.POLY_OBJ
         StructureKind.LIST -> WriteMode.LIST
         StructureKind.MAP -> selectMapMode(desc, { WriteMode.MAP }, { WriteMode.LIST })
         else -> WriteMode.OBJ

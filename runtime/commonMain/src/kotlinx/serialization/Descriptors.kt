@@ -11,7 +11,7 @@ sealed class SerialKind {
         this::class.simpleName()!! // KNPE should never happen, because SerialKind is sealed and all inheritors are non-anonymous
 }
 
-sealed class PrimitiveKind: SerialKind() {
+sealed class PrimitiveKind : SerialKind() {
     object INT : PrimitiveKind()
     object UNIT : PrimitiveKind()
     object BOOLEAN : PrimitiveKind()
@@ -21,20 +21,37 @@ sealed class PrimitiveKind: SerialKind() {
     object FLOAT : PrimitiveKind()
     object DOUBLE : PrimitiveKind()
     object CHAR : PrimitiveKind()
-    object STRING: PrimitiveKind()
+    object STRING : PrimitiveKind()
 }
 
-sealed class StructureKind: SerialKind() {
-    object CLASS: StructureKind()
-    object LIST: StructureKind()
-    object MAP: StructureKind()
+sealed class StructureKind : SerialKind() {
+    object CLASS : StructureKind()
+    object LIST : StructureKind()
+    object MAP : StructureKind()
 }
 
-sealed class UnionKind: SerialKind() {
-    object OBJECT: UnionKind()
-    object ENUM_KIND: UnionKind() // https://github.com/JetBrains/kotlin-native/issues/1447
-    object SEALED: UnionKind()
-    object POLYMORPHIC: UnionKind()
+@Suppress("unused", "PropertyName")
+sealed class UnionKind : SerialKind() {
+    object OBJECT : UnionKind()
+    object ENUM_KIND : UnionKind() // https://github.com/JetBrains/kotlin-native/issues/1447
+
+    @Deprecated(
+        "Moved out from UnionKind to simplify instance check for both POLYMORPHIC and SEALED. You can use 'is PolymorphicKind' now.",
+        ReplaceWith("PolymorphicKind.OPEN"),
+        DeprecationLevel.ERROR
+    )
+    val POLYMORPHIC = PolymorphicKind.OPEN
+    @Deprecated(
+        "Moved out from UnionKind to simplify instance check for both POLYMORPHIC and SEALED. You can use 'is PolymorphicKind' now.",
+        ReplaceWith("PolymorphicKind.SEALED"),
+        DeprecationLevel.ERROR
+    )
+    val SEALED = PolymorphicKind.SEALED
+}
+
+sealed class PolymorphicKind : SerialKind() {
+    object SEALED : PolymorphicKind()
+    object OPEN : PolymorphicKind()
 }
 
 class PrimitiveDescriptorWithName(override val name: String, val original: PrimitiveDescriptor) :

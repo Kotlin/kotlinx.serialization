@@ -26,7 +26,7 @@ internal inline fun <T> JsonOutput.encodePolymorphically(serializer: Serializati
 fun checkKind(kind: SerialKind) {
     if (kind is UnionKind.ENUM_KIND) error("Enums cannot be serialized polymorphically with 'type' parameter. You can use 'JsonConfiguration.useArrayPolymorphism' instead")
     if (kind is PrimitiveKind) error("Primitives cannot be serialized polymorphically with 'type' parameter. You can use 'JsonConfiguration.useArrayPolymorphism' instead")
-    if (kind is UnionKind.POLYMORPHIC) error("Actual serializer for polymorphic cannot be polymorphic itself")
+    if (kind is PolymorphicKind) error("Actual serializer for polymorphic cannot be polymorphic itself")
 }
 
 internal fun <T> JsonInput.decodeSerializableValuePolymorphic(deserializer: DeserializationStrategy<T>): T {

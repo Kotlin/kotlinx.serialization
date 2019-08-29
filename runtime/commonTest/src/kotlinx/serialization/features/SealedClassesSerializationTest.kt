@@ -13,15 +13,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @Serializable
-sealed class SimpleSealed {
-    @Serializable
-    public data class SubSealedA(val s: String) : SimpleSealed()
-
-    @Serializable
-    public data class SubSealedB(val i: Int) : SimpleSealed()
-}
-
-@Serializable
 sealed class SealedProtocol {
     @Serializable
     data class StringMessage(val description: String, val message: String) : SealedProtocol()
@@ -118,7 +109,7 @@ class SealedClassesSerializationTest {
             ManualSerializer,
             SimpleSealed.SubSealedB(42)
         )
-        assertEquals("{\"type\":\"kotlinx.serialization.features.SimpleSealed.SubSealedB\",\"i\":42}", message)
+        assertEquals("{\"type\":\"kotlinx.serialization.SimpleSealed.SubSealedB\",\"i\":42}", message)
     }
 
     @Test
@@ -131,14 +122,14 @@ class SealedClassesSerializationTest {
             SimpleSealed.serializer(),
             SimpleSealed.SubSealedB(42)
         )
-        assertEquals("{\"type\":\"kotlinx.serialization.features.SimpleSealed.SubSealedB\",\"i\":42}", message)
-        assertEquals("[\"kotlinx.serialization.features.SimpleSealed.SubSealedB\",{\"i\":42}]", arrayMessage)
+        assertEquals("{\"type\":\"kotlinx.serialization.SimpleSealed.SubSealedB\",\"i\":42}", message)
+        assertEquals("[\"kotlinx.serialization.SimpleSealed.SubSealedB\",{\"i\":42}]", arrayMessage)
     }
 
     @Test
     fun insideClass() {
         assertStringFormAndRestored(
-            """{"s":{"type":"kotlinx.serialization.features.SimpleSealed.SubSealedA","s":"foo"}}""",
+            """{"s":{"type":"kotlinx.serialization.SimpleSealed.SubSealedA","s":"foo"}}""",
             SealedHolder(SimpleSealed.SubSealedA("foo")),
             SealedHolder.serializer(),
             json
@@ -148,13 +139,13 @@ class SealedClassesSerializationTest {
     @Test
     fun insideGeneric() {
         assertStringFormAndRestored(
-            """{"boxed":{"type":"kotlinx.serialization.features.SimpleSealed.SubSealedA","s":"foo"}}""",
+            """{"boxed":{"type":"kotlinx.serialization.SimpleSealed.SubSealedA","s":"foo"}}""",
             Box<SimpleSealed>(SimpleSealed.SubSealedA("foo")),
             Box.serializer(SimpleSealed.serializer()),
             json
         )
         assertStringFormAndRestored(
-            """{"b":{"boxed":{"type":"kotlinx.serialization.features.SimpleSealed.SubSealedA","s":"foo"}}}""",
+            """{"b":{"boxed":{"type":"kotlinx.serialization.SimpleSealed.SubSealedA","s":"foo"}}}""",
             SealedBoxHolder(Box(SimpleSealed.SubSealedA("foo"))),
             SealedBoxHolder.serializer(),
             json

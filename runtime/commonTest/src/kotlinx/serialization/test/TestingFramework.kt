@@ -5,6 +5,7 @@
 package kotlinx.serialization.test
 
 import kotlinx.serialization.*
+import kotlinx.serialization.internal.HexConverter
 import kotlinx.serialization.json.Json
 import kotlin.test.assertEquals
 
@@ -21,6 +22,19 @@ inline fun <reified T : Any> assertStringForm(
     assertEquals(expected, string)
 }
 
+inline fun <reified T : Any> assertSerializedToBinaryAndRestored(
+    original: T,
+    serializer: KSerializer<T>,
+    format: BinaryFormat,
+    printResult: Boolean = false
+) {
+    val bytes = format.dump(serializer, original)
+    if (printResult) println("[Serialized form] ${HexConverter.printHexBinary(bytes, lowerCase = true)}")
+    val restored = format.load(serializer, bytes)
+    if (printResult) println("[Restored form] $restored")
+    assertEquals(original, restored)
+}
+
 inline fun <reified T : Any> assertStringFormAndRestored(
     expected: String,
     original: T,
@@ -32,7 +46,7 @@ inline fun <reified T : Any> assertStringFormAndRestored(
     if (printResult) println("[Serialized form] $string")
     assertEquals(expected, string)
     val restored = format.parse(serializer, string)
-    if (printResult) println("[Restored form] $original")
+    if (printResult) println("[Restored form] $restored")
     assertEquals(original, restored)
 }
 
@@ -46,7 +60,7 @@ inline fun <reified T : Any> StringFormat.assertStringFormAndRestored(
     if (printResult) println("[Serialized form] $string")
     assertEquals(expected, string)
     val restored = this.parse(serializer, string)
-    if (printResult) println("[Restored form] $original")
+    if (printResult) println("[Restored form] $restored")
     assertEquals(original, restored)
 }
 
