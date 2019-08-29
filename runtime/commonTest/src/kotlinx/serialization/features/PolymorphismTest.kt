@@ -17,13 +17,12 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlinx.serialization.modules.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.protobuf.ProtoBuf
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.fail
+import kotlin.test.assertFailsWith
 
 class PolymorphismTest {
 
@@ -69,13 +68,8 @@ class PolymorphismTest {
     @Test
     fun testElementDescriptors() {
         val serializer = PolymorphicSerializer(PolyDerived::class)
-        try {
+        assertFailsWith(SerializationException::class) {
             serializer.descriptor.getElementDescriptor(1)
-            fail ("Exception expected")
-        } catch (e: Exception) {
-            if (e !is SerializationException) {
-                fail ("Exception is not a serialization exception, but $e")
-            }
         }
     }
 }
