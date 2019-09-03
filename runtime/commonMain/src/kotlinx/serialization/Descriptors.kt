@@ -8,7 +8,7 @@ import kotlinx.serialization.internal.PrimitiveDescriptor
 
 sealed class SerialKind {
     override fun toString(): String =
-        this::class.simpleName!! // KNPE should never happen, because SerialKind is sealed and all inheritors are non-anonymous
+        this::class.simpleName()!! // KNPE should never happen, because SerialKind is sealed and all inheritors are non-anonymous
 }
 
 sealed class PrimitiveKind: SerialKind() {

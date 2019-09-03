@@ -50,3 +50,5 @@ actual fun <T : Any, E : T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Arra
 private fun <T> arrayOfAnyNulls(size: Int): Array<T> = arrayOfNulls<Any>(size) as Array<T>
 
 internal actual fun Any.isInstanceOf(kclass: KClass<*>): Boolean = kclass.isInstance(this)
+
+internal actual fun <T : Any> KClass<T>.simpleName(): String? = simpleName

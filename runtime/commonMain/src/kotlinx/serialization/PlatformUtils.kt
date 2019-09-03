@@ -34,3 +34,11 @@ expect fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<
  * on JVM, it falls back to java.lang.Class.isInstance which causes difference when applied to function types with big arity.
  */
 internal expect fun Any.isInstanceOf(kclass: KClass<*>): Boolean
+
+/**
+ * Returns simple name (a last part of FQ name) of [this] kclass or null if class is local or anonymous.
+ *
+ * In contrary to [KClass.simpleName], does not require kotlin-reflect.jar on JVM (see KT-33646).
+ * On JVM, it uses `java.lang.Class.getSimpleName()` (therefore does not work for local classes and other edge cases).
+ */
+internal expect fun <T : Any> KClass<T>.simpleName(): String?
