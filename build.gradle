@@ -14,12 +14,14 @@ buildscript {
     }
     ext.experimentalsEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
                                 "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
+                                "-Xuse-experimental=kotlinx.serialization.InternalSerializationApi"
     ]
 
     ext.experimentalsInTestEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
                                       "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
                                       "-Xuse-experimental=kotlinx.serialization.ImplicitReflectionSerializer",
-                                      "-Xuse-experimental=kotlinx.serialization.UnstableDefault"
+                                      "-Xuse-experimental=kotlinx.serialization.UnstableDefault",
+                                      "-Xuse-experimental=kotlinx.serialization.InternalSerializationApi"
     ]
 
     /*

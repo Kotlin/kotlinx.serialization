@@ -78,5 +78,5 @@ public fun serializer(type: KType): KSerializer<Any?> {
     }
 
     val result = serializerByKTypeImpl(type)
-    return if (type.isMarkedNullable) makeNullable(result) else result as KSerializer<Any?>
+    return if (type.isMarkedNullable) result.nullable else result as KSerializer<Any?>
 }

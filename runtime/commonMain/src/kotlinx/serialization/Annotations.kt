@@ -4,7 +4,7 @@
 
 package kotlinx.serialization
 
-import kotlin.reflect.KClass
+import kotlin.reflect.*
 
 /**
  * Instructs to use specific serializer for class, property or type argument.
@@ -99,3 +99,15 @@ public annotation class UseSerializers(vararg val serializerClasses: KClass<out 
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE, AnnotationTarget.CLASS)
 public annotation class Polymorphic
+
+
+/**
+ * Public API marked with this annotation is effectively **internal**, which means
+ * it should not be used outside of `kotlinx.serialization`.
+ * Signature, semantics, source and binary compatibilities are not guaranteed for this API
+ * and will be changed without any warnings or migration aids.
+ * If you cannot avoid using internal API to solve your problem, please report your use-case to serialization's issue tracker.
+ */
+@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
+@Experimental(level = Experimental.Level.ERROR)
+public annotation class InternalSerializationApi
