@@ -11,44 +11,32 @@ import kotlin.reflect.KClass
 internal object StandardSubtypesOfAny {
     private val map: Map<KClass<*>, KSerializer<*>> = mapOf(
         List::class to ArrayListSerializer(
-            makeNullable(
-                PolymorphicSerializer(Any::class)
-            )
+            PolymorphicSerializer(Any::class).nullable
         ),
         LinkedHashSet::class to LinkedHashSetSerializer(
-            makeNullable(
-                PolymorphicSerializer(Any::class)
-            )
+            PolymorphicSerializer(Any::class).nullable
         ),
         HashSet::class to HashSetSerializer(
-            makeNullable(
-                PolymorphicSerializer(Any::class)
-            )
+            PolymorphicSerializer(Any::class).nullable
         ),
         Set::class to LinkedHashSetSerializer(
-            makeNullable(
-                PolymorphicSerializer(Any::class)
-            )
+            PolymorphicSerializer(Any::class).nullable
         ),
         LinkedHashMap::class to LinkedHashMapSerializer(
-            makeNullable(
-                PolymorphicSerializer(Any::class)
-            ), makeNullable(PolymorphicSerializer(Any::class))
+            PolymorphicSerializer(Any::class).nullable,
+            PolymorphicSerializer(Any::class).nullable
         ),
         HashMap::class to HashMapSerializer(
-            makeNullable(
-                PolymorphicSerializer(Any::class)
-            ), makeNullable(PolymorphicSerializer(Any::class))
+            PolymorphicSerializer(Any::class).nullable,
+            PolymorphicSerializer(Any::class).nullable
         ),
         Map::class to LinkedHashMapSerializer(
-            makeNullable(
-                PolymorphicSerializer(Any::class)
-            ), makeNullable(PolymorphicSerializer(Any::class))
+            PolymorphicSerializer(Any::class).nullable,
+            PolymorphicSerializer(Any::class).nullable
         ),
         Map.Entry::class to MapEntrySerializer(
-            makeNullable(
-                PolymorphicSerializer(Any::class)
-            ), makeNullable(PolymorphicSerializer(Any::class))
+            PolymorphicSerializer(Any::class).nullable,
+            PolymorphicSerializer(Any::class).nullable
         ),
         String::class to StringSerializer,
         Char::class to CharSerializer,

@@ -15,7 +15,7 @@ class CborRootLevelNullsTest {
     @Test
     fun testNull() {
         val obj: Simple? = null
-        val content = (Cbor as BinaryFormat).dump(makeNullable(Simple.serializer()), obj)
+        val content = (Cbor as BinaryFormat).dump(Simple.serializer().nullable, obj)
         assertTrue(content.contentEquals(byteArrayOf(0xf6.toByte())))
     }
 }
