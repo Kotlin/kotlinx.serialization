@@ -7,7 +7,8 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
-import kotlin.reflect.KClass
+import kotlin.jvm.*
+import kotlin.reflect.*
 
 sealed class AbstractCollectionSerializer<Element, Collection, Builder> : KSerializer<Collection> {
     protected abstract fun Collection.collectionSize(): Int
@@ -25,22 +26,20 @@ sealed class AbstractCollectionSerializer<Element, Collection, Builder> : KSeria
     final override fun patch(decoder: Decoder, old: Collection): Collection {
         val builder = old.toBuilder()
         val startIndex = builder.builderSize()
-        @Suppress("NAME_SHADOWING")
-        val decoder = decoder.beginStructure(descriptor, *typeParams)
-        val size = readSize(decoder, builder)
+        val compositeDecoder = decoder.beginStructure(descriptor, *typeParams)
+        val size = readSize(compositeDecoder, builder)
         mainLoop@ while (true) {
-            val index = decoder.decodeElementIndex(descriptor)
-            when (index) {
+            when (val index = compositeDecoder.decodeElementIndex(descriptor)) {
                 READ_ALL -> {
-                    readAll(decoder, builder, startIndex, size)
+                    readAll(compositeDecoder, builder, startIndex, size)
                     break@mainLoop
                 }
                 READ_DONE -> break@mainLoop
-                else -> readElement(decoder, startIndex + index, builder)
+                else -> readElement(compositeDecoder, startIndex + index, builder)
             }
 
         }
-        decoder.endStructure(descriptor)
+        compositeDecoder.endStructure(descriptor)
         return builder.toResult()
     }
 
@@ -64,8 +63,9 @@ sealed class AbstractCollectionSerializer<Element, Collection, Builder> : KSeria
     }
 }
 
-sealed class ListLikeSerializer<Element, Collection, Builder>(val elementSerializer: KSerializer<Element>) :
-    AbstractCollectionSerializer<Element, Collection, Builder>() {
+sealed class ListLikeSerializer<Element, Collection, Builder>(
+    private val elementSerializer: KSerializer<Element>
+) : AbstractCollectionSerializer<Element, Collection, Builder>() {
 
     abstract fun Builder.insert(index: Int, element: Element)
     abstract override val descriptor: ListLikeDescriptor
@@ -88,8 +88,8 @@ sealed class ListLikeSerializer<Element, Collection, Builder>(val elementSeriali
 }
 
 sealed class MapLikeSerializer<Key, Value, Collection, Builder : MutableMap<Key, Value>>(
-    val keySerializer: KSerializer<Key>,
-    val valueSerializer: KSerializer<Value>
+    @JvmField val keySerializer: KSerializer<Key>,
+    @JvmField val valueSerializer: KSerializer<Value>
 ) : AbstractCollectionSerializer<Map.Entry<Key, Value>, Collection, Builder>() {
 
     abstract fun Builder.insertKeyValuePair(index: Int, key: Key, value: Value)

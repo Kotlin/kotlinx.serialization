@@ -14,9 +14,8 @@ private const val INITIAL_SIZE = 10
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-public object ByteArraySerializer :
-    PrimitiveArraySerializer<Byte, ByteArray, ByteArrayBuilder>(ByteSerializer, ByteDescriptor),
-    KSerializer<ByteArray> {
+public object ByteArraySerializer : KSerializer<ByteArray>,
+    PrimitiveArraySerializer<Byte, ByteArray, ByteArrayBuilder>(ByteSerializer, ByteDescriptor) {
 
     override fun ByteArray.collectionSize(): Int = size
     override fun ByteArray.toBuilder(): ByteArrayBuilder = ByteArrayBuilder(this)
@@ -32,8 +31,9 @@ public object ByteArraySerializer :
     }
 }
 
-public class ByteArrayBuilder internal constructor(bufferWithData: ByteArray) :
-    PrimitiveArrayBuilder<ByteArray>() {
+public class ByteArrayBuilder internal constructor(
+    bufferWithData: ByteArray
+) : PrimitiveArrayBuilder<ByteArray>() {
 
     private var buffer: ByteArray = bufferWithData
     override var position: Int = bufferWithData.size
@@ -63,9 +63,8 @@ public class ByteArrayBuilder internal constructor(bufferWithData: ByteArray) :
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-public object ShortArraySerializer :
-    PrimitiveArraySerializer<Short, ShortArray, ShortArrayBuilder>(ShortSerializer, ShortDescriptor),
-    KSerializer<ShortArray> {
+public object ShortArraySerializer : KSerializer<ShortArray>,
+    PrimitiveArraySerializer<Short, ShortArray, ShortArrayBuilder>(ShortSerializer, ShortDescriptor) {
 
     override fun ShortArray.collectionSize(): Int = size
     override fun ShortArray.toBuilder(): ShortArrayBuilder = ShortArrayBuilder(this)
@@ -81,8 +80,9 @@ public object ShortArraySerializer :
     }
 }
 
-public class ShortArrayBuilder internal constructor(bufferWithData: ShortArray) :
-    PrimitiveArrayBuilder<ShortArray>() {
+public class ShortArrayBuilder internal constructor(
+    bufferWithData: ShortArray
+) : PrimitiveArrayBuilder<ShortArray>() {
 
     private var buffer: ShortArray = bufferWithData
     override var position: Int = bufferWithData.size
@@ -111,9 +111,8 @@ public class ShortArrayBuilder internal constructor(bufferWithData: ShortArray) 
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-public object IntArraySerializer :
-    PrimitiveArraySerializer<Int, IntArray, IntArrayBuilder>(IntSerializer, IntDescriptor),
-    KSerializer<IntArray> {
+public object IntArraySerializer : KSerializer<IntArray>,
+    PrimitiveArraySerializer<Int, IntArray, IntArrayBuilder>(IntSerializer, IntDescriptor) {
 
     override fun IntArray.collectionSize(): Int = size
     override fun IntArray.toBuilder(): IntArrayBuilder = IntArrayBuilder(this)
@@ -129,8 +128,9 @@ public object IntArraySerializer :
     }
 }
 
-public class IntArrayBuilder internal constructor(bufferWithData: IntArray) :
-    PrimitiveArrayBuilder<IntArray>() {
+public class IntArrayBuilder internal constructor(
+    bufferWithData: IntArray
+) : PrimitiveArrayBuilder<IntArray>() {
 
     private var buffer: IntArray = bufferWithData
     override var position: Int = bufferWithData.size
@@ -159,9 +159,8 @@ public class IntArrayBuilder internal constructor(bufferWithData: IntArray) :
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-public object LongArraySerializer :
-    PrimitiveArraySerializer<Long, LongArray, LongArrayBuilder>(LongSerializer, LongDescriptor),
-    KSerializer<LongArray> {
+public object LongArraySerializer : KSerializer<LongArray>,
+    PrimitiveArraySerializer<Long, LongArray, LongArrayBuilder>(LongSerializer, LongDescriptor) {
 
     override fun LongArray.collectionSize(): Int = size
     override fun LongArray.toBuilder(): LongArrayBuilder = LongArrayBuilder(this)
@@ -177,8 +176,9 @@ public object LongArraySerializer :
     }
 }
 
-public class LongArrayBuilder internal constructor(bufferWithData: LongArray) :
-    PrimitiveArrayBuilder<LongArray>() {
+public class LongArrayBuilder internal constructor(
+    bufferWithData: LongArray
+) : PrimitiveArrayBuilder<LongArray>() {
 
     private var buffer: LongArray = bufferWithData
     override var position: Int = bufferWithData.size
@@ -207,9 +207,8 @@ public class LongArrayBuilder internal constructor(bufferWithData: LongArray) :
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-public object FloatArraySerializer :
-    PrimitiveArraySerializer<Float, FloatArray, FloatArrayBuilder>(FloatSerializer, FloatDescriptor),
-    KSerializer<FloatArray> {
+public object FloatArraySerializer : KSerializer<FloatArray>,
+    PrimitiveArraySerializer<Float, FloatArray, FloatArrayBuilder>(FloatSerializer, FloatDescriptor) {
 
     override fun FloatArray.collectionSize(): Int = size
     override fun FloatArray.toBuilder(): FloatArrayBuilder = FloatArrayBuilder(this)
@@ -225,8 +224,9 @@ public object FloatArraySerializer :
     }
 }
 
-public class FloatArrayBuilder internal constructor(bufferWithData: FloatArray) :
-    PrimitiveArrayBuilder<FloatArray>() {
+public class FloatArrayBuilder internal constructor(
+    bufferWithData: FloatArray
+) : PrimitiveArrayBuilder<FloatArray>() {
 
     private var buffer: FloatArray = bufferWithData
     override var position: Int = bufferWithData.size
@@ -255,9 +255,8 @@ public class FloatArrayBuilder internal constructor(bufferWithData: FloatArray) 
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-public object DoubleArraySerializer :
-    PrimitiveArraySerializer<Double, DoubleArray, DoubleArrayBuilder>(DoubleSerializer, DoubleDescriptor),
-    KSerializer<DoubleArray> {
+public object DoubleArraySerializer : KSerializer<DoubleArray>,
+    PrimitiveArraySerializer<Double, DoubleArray, DoubleArrayBuilder>(DoubleSerializer, DoubleDescriptor) {
 
     override fun DoubleArray.collectionSize(): Int = size
     override fun DoubleArray.toBuilder(): DoubleArrayBuilder = DoubleArrayBuilder(this)
@@ -273,8 +272,9 @@ public object DoubleArraySerializer :
     }
 }
 
-public class DoubleArrayBuilder internal constructor(bufferWithData: DoubleArray) :
-    PrimitiveArrayBuilder<DoubleArray>() {
+public class DoubleArrayBuilder internal constructor(
+    bufferWithData: DoubleArray
+) : PrimitiveArrayBuilder<DoubleArray>() {
 
     private var buffer: DoubleArray = bufferWithData
     override var position: Int = bufferWithData.size
@@ -303,9 +303,8 @@ public class DoubleArrayBuilder internal constructor(bufferWithData: DoubleArray
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-public object CharArraySerializer :
-    PrimitiveArraySerializer<Char, CharArray, CharArrayBuilder>(CharSerializer, CharDescriptor),
-    KSerializer<CharArray> {
+public object CharArraySerializer : KSerializer<CharArray>,
+    PrimitiveArraySerializer<Char, CharArray, CharArrayBuilder>(CharSerializer, CharDescriptor) {
 
     override fun CharArray.collectionSize(): Int = size
     override fun CharArray.toBuilder(): CharArrayBuilder = CharArrayBuilder(this)
@@ -321,8 +320,9 @@ public object CharArraySerializer :
     }
 }
 
-public class CharArrayBuilder internal constructor(bufferWithData: CharArray) :
-    PrimitiveArrayBuilder<CharArray>() {
+public class CharArrayBuilder internal constructor(
+    bufferWithData: CharArray
+) : PrimitiveArrayBuilder<CharArray>() {
 
     private var buffer: CharArray = bufferWithData
     override var position: Int = bufferWithData.size
@@ -351,9 +351,8 @@ public class CharArrayBuilder internal constructor(bufferWithData: CharArray) :
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-public object BooleanArraySerializer :
-    PrimitiveArraySerializer<Boolean, BooleanArray, BooleanArrayBuilder>(BooleanSerializer, BooleanDescriptor),
-    KSerializer<BooleanArray> {
+public object BooleanArraySerializer : KSerializer<BooleanArray>,
+    PrimitiveArraySerializer<Boolean, BooleanArray, BooleanArrayBuilder>(BooleanSerializer, BooleanDescriptor) {
 
     override fun BooleanArray.collectionSize(): Int = size
     override fun BooleanArray.toBuilder(): BooleanArrayBuilder = BooleanArrayBuilder(this)
@@ -369,8 +368,9 @@ public object BooleanArraySerializer :
     }
 }
 
-public class BooleanArrayBuilder internal constructor(bufferWithData: BooleanArray) :
-    PrimitiveArrayBuilder<BooleanArray>() {
+public class BooleanArrayBuilder internal constructor(
+    bufferWithData: BooleanArray
+) : PrimitiveArrayBuilder<BooleanArray>() {
 
     private var buffer: BooleanArray = bufferWithData
     override var position: Int = bufferWithData.size
