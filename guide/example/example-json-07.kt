@@ -4,14 +4,15 @@ package example.exampleJson07
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-val format = Json { allowSpecialFloatingPointValues = true }
+val format = Json { allowStructuredMapKeys = true }
 
-@Serializable
-class Data(
-    val value: Double
-)                     
-
-fun main() {
-    val data = Data(Double.NaN)
-    println(format.encodeToString(data))
+@Serializable 
+data class Project(val name: String)
+    
+fun main() {             
+    val map = mapOf(
+        Project("kotlinx.serialization") to "Serialization",
+        Project("kotlinx.coroutines") to "Coroutines"
+    )
+    println(format.encodeToString(map))
 }

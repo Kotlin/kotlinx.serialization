@@ -7,6 +7,7 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
+import kotlin.native.concurrent.*
 
 /**
  * The main entry point to work with JSON serialization.
@@ -52,9 +53,12 @@ public sealed class Json(internal val configuration: JsonConfiguration) : String
     override val serializersModule: SerializersModule
         get() = configuration.serializersModule
 
+    internal val schemaCache: DescriptorSchemaCache = DescriptorSchemaCache()
+
     /**
      * The default instance of [Json] with default configuration.
      */
+    @ThreadLocal // to support caching
     public companion object Default : Json(JsonConfiguration())
 
     /**
@@ -229,6 +233,14 @@ public class JsonBuilder internal constructor(configuration: JsonConfiguration) 
     public var allowSpecialFloatingPointValues: Boolean = configuration.allowSpecialFloatingPointValues
 
     /**
+     * Switches whether Json instance make use of [JsonNames] annotation; enabled by default.
+     *
+     * Disabling this flag when one do not use [JsonNames] at all may sometimes result in better performance,
+     * particularly when a large count of fields is skipped with [ignoreUnknownKeys].
+     */
+    public var useAlternativeNames: Boolean = configuration.useAlternativeNames
+
+    /**
      * Module with contextual and polymorphic serializers to be used in the resulting [Json] instance.
      */
     public var serializersModule: SerializersModule = configuration.serializersModule
@@ -255,7 +267,8 @@ public class JsonBuilder internal constructor(configuration: JsonConfiguration) 
             encodeDefaults, ignoreUnknownKeys, isLenient,
             allowStructuredMapKeys, prettyPrint, prettyPrintIndent,
             coerceInputValues, useArrayPolymorphism,
-            classDiscriminator, allowSpecialFloatingPointValues, serializersModule
+            classDiscriminator, allowSpecialFloatingPointValues, useAlternativeNames,
+            serializersModule
         )
     }
 }

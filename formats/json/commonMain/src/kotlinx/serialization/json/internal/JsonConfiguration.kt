@@ -21,5 +21,6 @@ internal data class JsonConfiguration(
     @JvmField public val useArrayPolymorphism: Boolean = false,
     @JvmField public val classDiscriminator: String = "type",
     @JvmField public val allowSpecialFloatingPointValues: Boolean = false,
+    @JvmField public val useAlternativeNames: Boolean = true,
     @JvmField public val serializersModule: SerializersModule = EmptySerializersModule
 )

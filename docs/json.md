@@ -13,6 +13,7 @@ In this chapter we'll walk through various [Json] features.
   * [Pretty printing](#pretty-printing)
   * [Lenient parsing](#lenient-parsing)
   * [Ignoring unknown keys](#ignoring-unknown-keys)
+  * [Alternative Json names](#alternative-json-names)
   * [Coercing input values](#coercing-input-values)
   * [Encoding defaults](#encoding-defaults)
   * [Allowing structured map keys](#allowing-structured-map-keys)
@@ -151,6 +152,40 @@ Project(name=kotlinx.serialization)
 
 <!--- TEST -->
 
+### Alternative Json names
+
+It's not a rare case when JSON fields got renamed due to a schema version change or something else.
+Renaming JSON fields is available with [`@SerialName` annotation](basic-serialization.md#serial-field-names), but 
+such a renaming blocks ability to decode data with old name. 
+For the case when we want to support multiple JSON names for the one Kotlin property, there is a [JsonNames] annotation:
+
+```kotlin
+@Serializable
+data class Project(@JsonNames(["title"]) val name: String)
+
+fun main() {
+  val project = Json.decodeFromString<Project>("""{"name":"kotlinx.serialization"}""")
+  println(project)
+  val oldProject = Json.decodeFromString<Project>("""{"title":"kotlinx.coroutines"}""")
+  println(oldProject)
+}
+```
+
+> You can get the full code [here](../guide/example/example-json-04.kt).
+
+As you can see, both `name` and `title` Json fields correspond to `name` property:
+
+```text
+Project(name=kotlinx.serialization)
+Project(name=kotlinx.coroutines)
+```
+
+Support for [JsonNames] annotation is controlled via [JsonBuilder.useAlternativeNames] flag. 
+Unlike most of the configuration flags, this one is enabled by default and does not need attention 
+unless you want to do some fine-tuning.
+
+<!--- TEST -->
+
 ### Coercing input values
 
 JSON formats that are encountered in the wild can be flexible in terms of types and evolve quickly.
@@ -185,7 +220,7 @@ fun main() {
 }
 ```                                  
 
-> You can get the full code [here](../guide/example/example-json-04.kt).
+> You can get the full code [here](../guide/example/example-json-05.kt).
 
 We see that invalid `null` value for the `language` property was coerced into the default value.
 
@@ -219,7 +254,7 @@ fun main() {
 }
 ```                                  
 
-> You can get the full code [here](../guide/example/example-json-05.kt).
+> You can get the full code [here](../guide/example/example-json-06.kt).
 
 It produces the following output which encodes the values of all the properties:
 
@@ -251,7 +286,7 @@ fun main() {
 }
 ```                                  
 
-> You can get the full code [here](../guide/example/example-json-06.kt).
+> You can get the full code [here](../guide/example/example-json-07.kt).
 
 The map with structured keys gets represented as `[key1, value1, key2, value2,...]` JSON array.
  
@@ -282,7 +317,7 @@ fun main() {
 }
 ```                                   
 
-> You can get the full code [here](../guide/example/example-json-07.kt).
+> You can get the full code [here](../guide/example/example-json-08.kt).
 
 This example produces the following non-stardard JSON output, yet it is a widely used encoding for
 special values in JVM world.
@@ -316,7 +351,7 @@ fun main() {
 }  
 ```
 
-> You can get the full code [here](../guide/example/example-json-08.kt).
+> You can get the full code [here](../guide/example/example-json-09.kt).
 
 In combination with an explicitly specified [SerialName] of the class it provides full
 control on the resulting JSON object. 
@@ -348,7 +383,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-09.kt).
+> You can get the full code [here](../guide/example/example-json-10.kt).
 
 A `JsonElement` prints itself as a valid JSON.
 
@@ -391,7 +426,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-10.kt).
+> You can get the full code [here](../guide/example/example-json-11.kt).
 
 The above example sums `votes` in all objects in the `forks` array, ignoring the objects that have no `votes`, but 
 failing if the structure of the data is otherwise different.
@@ -430,7 +465,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-11.kt).
+> You can get the full code [here](../guide/example/example-json-12.kt).
 
 At the end, we get a proper JSON string.
  
@@ -459,7 +494,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-12.kt).
+> You can get the full code [here](../guide/example/example-json-13.kt).
 
 The result is exactly what we would expect.
 
@@ -536,7 +571,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-13.kt).
+> You can get the full code [here](../guide/example/example-json-14.kt).
 
 The output shows that both cases are correctly deserialized into a Kotlin [List].
 
@@ -588,7 +623,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-14.kt).
+> You can get the full code [here](../guide/example/example-json-15.kt).
 
 We end up with a single JSON object. 
 
@@ -633,7 +668,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-15.kt).
+> You can get the full code [here](../guide/example/example-json-16.kt).
 
 We can clearly see the effect of the custom serializer.
 
@@ -706,7 +741,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-16.kt).
+> You can get the full code [here](../guide/example/example-json-17.kt).
 
 No class discriminator is added in the JSON output.
 
@@ -802,7 +837,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-17.kt).
+> You can get the full code [here](../guide/example/example-json-18.kt).
 
 This gives us fine-grained control on the representation of the `Response` class in our JSON output.
 
@@ -867,7 +902,7 @@ fun main() {
 }
 ```  
 
-> You can get the full code [here](../guide/example/example-json-18.kt).
+> You can get the full code [here](../guide/example/example-json-19.kt).
 
 ```text
 UnknownProject(name=example, details={"type":"unknown","maintainer":"Unknown","license":"Apache 2.0"})
@@ -904,6 +939,8 @@ The next chapter covers [Alternative and custom formats (experimental)](formats.
 [JsonBuilder.prettyPrint]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/index.html#kotlinx.serialization.json%2FJsonBuilder%2FprettyPrint%2F%23%2FPointingToDeclaration%2F
 [JsonBuilder.isLenient]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/index.html#kotlinx.serialization.json%2FJsonBuilder%2FisLenient%2F%23%2FPointingToDeclaration%2F
 [JsonBuilder.ignoreUnknownKeys]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/index.html#kotlinx.serialization.json%2FJsonBuilder%2FignoreUnknownKeys%2F%23%2FPointingToDeclaration%2F
+[JsonNames]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-names/index.html
+[JsonBuilder.useAlternativeNames]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/index.html#kotlinx.serialization.json%2FJsonBuilder%2FuseAlternativeNames%2F%23%2FPointingToDeclaration%2F
 [JsonBuilder.coerceInputValues]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/index.html#kotlinx.serialization.json%2FJsonBuilder%2FcoerceInputValues%2F%23%2FPointingToDeclaration%2F
 [JsonBuilder.encodeDefaults]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/index.html#kotlinx.serialization.json%2FJsonBuilder%2FencodeDefaults%2F%23%2FPointingToDeclaration%2F
 [JsonBuilder.allowStructuredMapKeys]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/index.html#kotlinx.serialization.json%2FJsonBuilder%2FallowStructuredMapKeys%2F%23%2FPointingToDeclaration%2F
