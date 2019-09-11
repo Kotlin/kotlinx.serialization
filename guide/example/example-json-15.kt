@@ -4,19 +4,27 @@ package example.exampleJson15
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
+import kotlinx.serialization.builtins.*
+
+@Serializable 
+data class Project(
+    val name: String,
+    @Serializable(with = UserListSerializer::class)      
+    val users: List<User>
+)
+
 @Serializable
-class Project(val name: String, val language: String)
+data class User(val name: String)
 
-object ProjectSerializer : JsonTransformingSerializer<Project>(Project.serializer()) {
-    override fun transformSerialize(element: JsonElement): JsonElement =
-        // Filter out top-level key value pair with the key "language" and the value "Kotlin"
-        JsonObject(element.jsonObject.filterNot {
-            (k, v) -> k == "language" && v.jsonPrimitive.content == "Kotlin"
-        })
-}                           
+object UserListSerializer : JsonTransformingSerializer<List<User>>(ListSerializer(User.serializer())) {
 
-fun main() {
-    val data = Project("kotlinx.serialization", "Kotlin")
-    println(Json.encodeToString(data)) // using plugin-generated serializer
-    println(Json.encodeToString(ProjectSerializer, data)) // using custom serializer
+    override fun transformSerialize(element: JsonElement): JsonElement {
+        require(element is JsonArray) // we are using this serializer with lists only
+        return element.singleOrNull() ?: element
+    }
+}
+
+fun main() {     
+    val data = Project("kotlinx.serialization", listOf(User("kotlin")))
+    println(Json.encodeToString(data))
 }

@@ -10,6 +10,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.test.*
 import org.junit.Test
 import java.lang.reflect.*
 import kotlin.reflect.*

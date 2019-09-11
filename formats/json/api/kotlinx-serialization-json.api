@@ -83,6 +83,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun getPrettyPrint ()Z
 	public final fun getPrettyPrintIndent ()Ljava/lang/String;
 	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public final fun getUseAlternativeNames ()Z
 	public final fun getUseArrayPolymorphism ()Z
 	public final fun isLenient ()Z
 	public final fun setAllowSpecialFloatingPointValues (Z)V
@@ -95,6 +96,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun setPrettyPrint (Z)V
 	public final fun setPrettyPrintIndent (Ljava/lang/String;)V
 	public final fun setSerializersModule (Lkotlinx/serialization/modules/SerializersModule;)V
+	public final fun setUseAlternativeNames (Z)V
 	public final fun setUseArrayPolymorphism (Z)V
 }
 
@@ -188,6 +190,15 @@ public final class kotlinx/serialization/json/JsonEncoder$DefaultImpls {
 public final class kotlinx/serialization/json/JsonKt {
 	public static final fun Json (Lkotlinx/serialization/json/Json;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/Json;
 	public static synthetic fun Json$default (Lkotlinx/serialization/json/Json;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/json/Json;
+}
+
+public abstract interface annotation class kotlinx/serialization/json/JsonNames : java/lang/annotation/Annotation {
+	public abstract fun names ()[Ljava/lang/String;
+}
+
+public final class kotlinx/serialization/json/JsonNames$Impl : kotlinx/serialization/json/JsonNames {
+	public fun <init> ([Ljava/lang/String;)V
+	public final fun names ()[Ljava/lang/String;
 }
 
 public final class kotlinx/serialization/json/JsonNull : kotlinx/serialization/json/JsonPrimitive {

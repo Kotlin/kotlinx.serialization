@@ -106,6 +106,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='pretty-printing'></a>[Pretty printing](json.md#pretty-printing)
   * <a name='lenient-parsing'></a>[Lenient parsing](json.md#lenient-parsing)
   * <a name='ignoring-unknown-keys'></a>[Ignoring unknown keys](json.md#ignoring-unknown-keys)
+  * <a name='alternative-json-names'></a>[Alternative Json names](json.md#alternative-json-names)
   * <a name='coercing-input-values'></a>[Coercing input values](json.md#coercing-input-values)
   * <a name='encoding-defaults'></a>[Encoding defaults](json.md#encoding-defaults)
   * <a name='allowing-structured-map-keys'></a>[Allowing structured map keys](json.md#allowing-structured-map-keys)

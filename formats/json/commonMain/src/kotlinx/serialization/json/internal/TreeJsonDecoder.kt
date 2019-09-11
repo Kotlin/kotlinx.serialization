@@ -209,6 +209,20 @@ private open class JsonTreeDecoder(
         return CompositeDecoder.DECODE_DONE
     }
 
+    override fun elementName(desc: SerialDescriptor, index: Int): String {
+        val mainName = desc.getElementName(index)
+        if (!configuration.useAlternativeNames) return mainName
+        // Fast path, do not go through ConcurrentHashMap.get
+        // Note, it blocks ability to detect collisions between the primary name and alternate,
+        // but it eliminates a significant performance penalty (about -15% without this optimization)
+        if (mainName in value.keys) return mainName
+        // Slow path
+        val alternativeNamesMap =
+            json.schemaCache.getOrPut(desc, JsonAlternativeNamesKey, desc::buildAlternativeNamesMap)
+        val nameInObject = value.keys.find { it == mainName || alternativeNamesMap[it] == index }
+        return nameInObject ?: mainName
+    }
+
     override fun currentElement(tag: String): JsonElement = value.getValue(tag)
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
@@ -224,7 +238,12 @@ private open class JsonTreeDecoder(
         if (configuration.ignoreUnknownKeys || descriptor.kind is PolymorphicKind) return
         // Validate keys
         @Suppress("DEPRECATION_ERROR")
-        val names = descriptor.jsonCachedSerialNames()
+        val names: Set<String> =
+            if (!configuration.useAlternativeNames)
+                descriptor.jsonCachedSerialNames()
+            else
+                descriptor.jsonCachedSerialNames() + json.schemaCache[descriptor, JsonAlternativeNamesKey]?.keys.orEmpty()
+
         for (key in value.keys) {
             if (key !in names && key != polyDiscriminator) {
                 throw UnknownKeyException(key, value.toString())

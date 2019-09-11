@@ -24,6 +24,9 @@ open class TwitterFeedBenchmark {
      */
     private val input = TwitterFeedBenchmark::class.java.getResource("/twitter_macro.json").readBytes().decodeToString()
     private val twitter = Json.decodeFromString(MacroTwitterFeed.serializer(), input)
+    private val jsonNoAltNames = Json { useAlternativeNames = false }
+    private val jsonIgnoreUnknwn = Json { ignoreUnknownKeys = true }
+    private val jsonIgnoreUnknwnNoAltNames = Json { ignoreUnknownKeys = true; useAlternativeNames = false}
 
     @Setup
     fun init() {
@@ -35,5 +38,15 @@ open class TwitterFeedBenchmark {
     fun decodeTwitter() = Json.decodeFromString(MacroTwitterFeed.serializer(), input)
 
     @Benchmark
+    fun decodeTwitterNoAltNames() = jsonNoAltNames.decodeFromString(MacroTwitterFeed.serializer(), input)
+
+    @Benchmark
     fun encodeTwitter() = Json.encodeToString(MacroTwitterFeed.serializer(), twitter)
+
+    @Benchmark
+    fun decodeMicroTwitter() = jsonIgnoreUnknwn.decodeFromString(MicroTwitterFeed.serializer(), input)
+
+    @Benchmark
+    fun decodeMicroTwitterNoAltNames() = jsonIgnoreUnknwnNoAltNames.decodeFromString(MicroTwitterFeed.serializer(), input)
+
 }
