@@ -115,7 +115,7 @@ public open class SerialClassDescImpl(
     }
 
     override fun toString(): String {
-        return indices.entries.joinToString(", ", "$serialName(", ")") { it.key + ": " + getElementDescriptor(it.value).serialName }
+        return (0 until elementsCount).joinToString(prefix = "$serialName(", postfix = ")") { getElementName(it) + ": " + getElementDescriptor(it).serialName }
     }
 }
 

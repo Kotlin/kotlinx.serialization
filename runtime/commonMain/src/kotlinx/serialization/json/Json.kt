@@ -203,6 +203,7 @@ public class JsonBuilder {
     public var indent: String = "    "
     public var useArrayPolymorphism: Boolean = false
     public var classDiscriminator: String = "type"
+    public var supportAlternativeNames: Boolean = false
     public var serialModule: SerialModule = EmptyModule
 
     public fun buildConfiguration(): JsonConfiguration =
@@ -214,7 +215,8 @@ public class JsonBuilder {
             prettyPrint,
             indent,
             useArrayPolymorphism,
-            classDiscriminator
+            classDiscriminator,
+            supportAlternativeNames
         )
 
     public fun buildModule(): SerialModule = serialModule

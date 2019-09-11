@@ -145,8 +145,12 @@ abstract class JsonTestBase {
         }
     }
 
-    inline fun <reified T : Throwable> assertFailsWithMessage(message: String, block: () -> Unit) {
-        val exception = assertFailsWith(T::class, null, block)
+    inline fun <reified T : Throwable> assertFailsWithMessage(
+        message: String,
+        assertionMessage: String? = null,
+        block: () -> Unit
+    ) {
+        val exception = assertFailsWith(T::class, assertionMessage, block)
         assertTrue(exception.message!!.contains(message), "Expected message '${exception.message}' to contain substring '$message'")
     }
 }

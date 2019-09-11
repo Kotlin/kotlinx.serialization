@@ -79,7 +79,8 @@ public data class JsonConfiguration @UnstableDefault constructor(
             prettyPrint = false,
             indent = defaultIndent,
             useArrayPolymorphism = false,
-            classDiscriminator = defaultDiscriminator
+            classDiscriminator = defaultDiscriminator,
+            supportAlternateNames = false
         )
     }
 }
