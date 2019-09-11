@@ -62,7 +62,7 @@ abstract class JsonTestBase {
             parse(deserializer, source)
         } else {
             val parser = JsonReader(source)
-            val input = StreamingJsonInput(this, WriteMode.OBJ, parser)
+            val input = StreamingJsonInput(this, WriteMode.OBJ, parser, DescriptorSchemaCache())
             val tree = input.decodeJson()
             if (!input.reader.isDone) { error("Reader has not consumed the whole input: ${input.reader}") }
             readJson(tree, deserializer)

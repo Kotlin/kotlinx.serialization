@@ -126,7 +126,7 @@ public constructor(
      */
     public override fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T {
         val reader = JsonReader(string)
-        val input = StreamingJsonInput(this, WriteMode.OBJ, reader)
+        val input = StreamingJsonInput(this, WriteMode.OBJ, reader, DescriptorSchemaCache())
         val result = input.decode(deserializer)
         if (!reader.isDone) { error("Reader has not consumed the whole input: $reader") }
         return result

@@ -35,6 +35,7 @@ public data class JsonConfiguration @UnstableDefault constructor(
     @JvmField internal val indent: String = defaultIndent,
     @JvmField internal val useArrayPolymorphism: Boolean = false,
     @JvmField internal val classDiscriminator: String = defaultDiscriminator,
+    @JvmField internal val supportAlternateNames: Boolean = false,
     @Deprecated(message = "Custom update modes are not fully supported", level = DeprecationLevel.WARNING)
     @JvmField internal val updateMode: UpdateMode = UpdateMode.OVERWRITE) {
 
