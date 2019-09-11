@@ -209,6 +209,17 @@ private open class JsonTreeDecoder(
         return CompositeDecoder.DECODE_DONE
     }
 
+    override fun elementName(desc: SerialDescriptor, index: Int): String {
+        val mainName = desc.getElementName(index)
+        if (!configuration.useAlternativeNames) return mainName
+        // it is possible also to return mainName right away for optimization purposes, if it is contained in obj.keys.
+        // However, it blocks ability to detect collisions between the primary name and alternate.
+        val alternativeNamesMap =
+            json.schemaCache.getOrPut(desc, JsonAlternativeNamesKey, desc::buildAlternativeNamesMap)
+        val nameInObject = value.keys.find { it == mainName || alternativeNamesMap[it] == index }
+        return nameInObject ?: mainName
+    }
+
     override fun currentElement(tag: String): JsonElement = value.getValue(tag)
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {

@@ -97,8 +97,8 @@ internal open class PluginGeneratedSerialDescriptor(
     override fun hashCode(): Int = _hashCode
 
     override fun toString(): String {
-        return indices.entries.joinToString(", ", "$serialName(", ")") {
-            it.key + ": " + getElementDescriptor(it.value).serialName
+        return (0 until elementsCount).joinToString(", ", "$serialName(", ")") { i ->
+            getElementName(i) + ": " + getElementDescriptor(i).serialName
         }
     }
 }

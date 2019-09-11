@@ -7,6 +7,7 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
+import kotlin.native.concurrent.*
 
 /**
  * The main entry point to work with JSON serialization.
@@ -52,9 +53,12 @@ public sealed class Json(internal val configuration: JsonConf) : StringFormat {
     override val serializersModule: SerializersModule
         get() = configuration.serializersModule
 
+    internal val schemaCache: DescriptorSchemaCache = DescriptorSchemaCache()
+
     /**
      * The default instance of [Json] with default configuration.
      */
+    @ThreadLocal // to support caching
     public companion object Default : Json(JsonConf())
 
     /**
@@ -229,6 +233,11 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
     public var allowSpecialFloatingPointValues: Boolean = conf.allowSpecialFloatingPointValues
 
     /**
+     * todo
+     */
+    public var useAlternativeNames: Boolean = conf.useAlternativeNames
+
+    /**
      * Module with contextual and polymorphic serializers to be used in the resulting [Json] instance.
      */
     public var serializersModule: SerializersModule = conf.serializersModule
@@ -255,7 +264,8 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
             encodeDefaults, ignoreUnknownKeys, isLenient,
             allowStructuredMapKeys, prettyPrint, prettyPrintIndent,
             coerceInputValues, useArrayPolymorphism,
-            classDiscriminator, allowSpecialFloatingPointValues, serializersModule
+            classDiscriminator, allowSpecialFloatingPointValues, useAlternativeNames,
+            serializersModule
         )
     }
 }

@@ -101,6 +101,15 @@ internal open class StreamingJsonDecoder(
         }
     }
 
+    private fun SerialDescriptor.getJsonElementIndex(key: String): Int {
+        if (!json.configuration.useAlternativeNames) return this.getElementIndex(key)
+        // it is possible also to return result of .getElementIndex right away for optimization purposes,
+        // if it is not an UNKNOWN_NAME. However, it blocks ability to detect collisions between the primary name and alternate.
+        val alternativeNamesMap =
+            json.schemaCache.getOrPut(this, JsonAlternativeNamesKey, this::buildAlternativeNamesMap)
+        return alternativeNamesMap[key] ?: UNKNOWN_NAME
+    }
+
     /*
      * Checks whether JSON has `null` value for non-null property or unknown enum value for enum property
      */
@@ -127,7 +136,7 @@ internal open class StreamingJsonDecoder(
             hasComma = false
             val key = decodeStringKey()
             lexer.consumeNextToken(COLON)
-            val index = descriptor.getElementIndex(key)
+            val index = descriptor.getJsonElementIndex(key)
             val isUnknown = if (index != UNKNOWN_NAME) {
                 if (configuration.coerceInputValues && coerceInputValue(descriptor, index)) {
                     hasComma = lexer.tryConsumeComma()
