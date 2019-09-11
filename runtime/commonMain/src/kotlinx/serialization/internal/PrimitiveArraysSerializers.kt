@@ -31,6 +31,7 @@ public object ByteArraySerializer : KSerializer<ByteArray>,
     }
 }
 
+@InternalSerializationApi
 public class ByteArrayBuilder internal constructor(
     bufferWithData: ByteArray
 ) : PrimitiveArrayBuilder<ByteArray>() {
@@ -80,6 +81,7 @@ public object ShortArraySerializer : KSerializer<ShortArray>,
     }
 }
 
+@InternalSerializationApi
 public class ShortArrayBuilder internal constructor(
     bufferWithData: ShortArray
 ) : PrimitiveArrayBuilder<ShortArray>() {
@@ -128,6 +130,7 @@ public object IntArraySerializer : KSerializer<IntArray>,
     }
 }
 
+@InternalSerializationApi
 public class IntArrayBuilder internal constructor(
     bufferWithData: IntArray
 ) : PrimitiveArrayBuilder<IntArray>() {
@@ -176,6 +179,7 @@ public object LongArraySerializer : KSerializer<LongArray>,
     }
 }
 
+@InternalSerializationApi
 public class LongArrayBuilder internal constructor(
     bufferWithData: LongArray
 ) : PrimitiveArrayBuilder<LongArray>() {
@@ -224,6 +228,7 @@ public object FloatArraySerializer : KSerializer<FloatArray>,
     }
 }
 
+@InternalSerializationApi
 public class FloatArrayBuilder internal constructor(
     bufferWithData: FloatArray
 ) : PrimitiveArrayBuilder<FloatArray>() {
@@ -272,6 +277,7 @@ public object DoubleArraySerializer : KSerializer<DoubleArray>,
     }
 }
 
+@InternalSerializationApi
 public class DoubleArrayBuilder internal constructor(
     bufferWithData: DoubleArray
 ) : PrimitiveArrayBuilder<DoubleArray>() {
@@ -320,6 +326,7 @@ public object CharArraySerializer : KSerializer<CharArray>,
     }
 }
 
+@InternalSerializationApi
 public class CharArrayBuilder internal constructor(
     bufferWithData: CharArray
 ) : PrimitiveArrayBuilder<CharArray>() {
@@ -368,6 +375,7 @@ public object BooleanArraySerializer : KSerializer<BooleanArray>,
     }
 }
 
+@InternalSerializationApi
 public class BooleanArrayBuilder internal constructor(
     bufferWithData: BooleanArray
 ) : PrimitiveArrayBuilder<BooleanArray>() {

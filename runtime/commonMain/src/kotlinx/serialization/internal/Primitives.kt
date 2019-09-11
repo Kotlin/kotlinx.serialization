@@ -7,7 +7,9 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
-sealed class PrimitiveDescriptor(override val name: String, override val kind: PrimitiveKind): SerialDescriptor {
+@InternalSerializationApi
+public sealed class PrimitiveDescriptor(override val name: String, override val kind: PrimitiveKind) :
+    SerialDescriptor {
     private fun error(): Nothing = throw IllegalStateException("Primitives does not have elements")
 
     final override fun getElementName(index: Int): String = error()

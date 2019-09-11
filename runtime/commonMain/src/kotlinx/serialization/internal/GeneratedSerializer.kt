@@ -1,8 +1,12 @@
+/*
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.internal
 
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerialDescriptor
+import kotlinx.serialization.*
 
-interface GeneratedSerializer<T> : KSerializer<T> {
+@InternalSerializationApi
+public interface GeneratedSerializer<T> : KSerializer<T> {
     fun childSerializers(): Array<KSerializer<*>>
 }

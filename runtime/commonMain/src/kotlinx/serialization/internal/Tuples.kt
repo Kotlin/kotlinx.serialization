@@ -10,7 +10,8 @@ import kotlinx.serialization.*
 const val KEY_INDEX = 0
 const val VALUE_INDEX = 1
 
-sealed class KeyValueSerializer<K, V, R>(val kSerializer: KSerializer<K>, val vSerializer: KSerializer<V>) :
+@InternalSerializationApi
+public sealed class KeyValueSerializer<K, V, R>(val kSerializer: KSerializer<K>, val vSerializer: KSerializer<V>) :
     KSerializer<R> {
     abstract override val descriptor: SerialDescriptor
     abstract fun toResult(key: K, value: V): R

@@ -10,6 +10,7 @@ import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlin.jvm.*
 import kotlin.reflect.*
 
+@InternalSerializationApi
 sealed class AbstractCollectionSerializer<Element, Collection, Builder> : KSerializer<Collection> {
     protected abstract fun Collection.collectionSize(): Int
     protected abstract fun Collection.collectionIterator(): Iterator<Element>
@@ -128,6 +129,7 @@ sealed class MapLikeSerializer<Key, Value, Collection, Builder : MutableMap<Key,
     }
 }
 
+@InternalSerializationApi
 public abstract class PrimitiveArrayBuilder<Array> internal constructor() {
     abstract val position: Int
     abstract fun ensureCapacity(requiredCapacity: Int = position + 1)
@@ -140,6 +142,7 @@ public abstract class PrimitiveArrayBuilder<Array> internal constructor() {
  * It exists only to avoid code duplication and should not be used or implemented directly.
  * Use concrete serializers ([ByteArraySerializer], etc) instead.
  */
+@InternalSerializationApi
 public abstract class PrimitiveArraySerializer<Element, Array, Builder : PrimitiveArrayBuilder<Array>>
 internal constructor(
     primitiveSerializer: KSerializer<Element>,

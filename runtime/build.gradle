@@ -70,6 +70,7 @@ kotlin {
             useExperimentalAnnotation("kotlin.Experimental")
             useExperimentalAnnotation("kotlin.ExperimentalMultiplatform")
             useExperimentalAnnotation("kotlin.ExperimentalStdlibApi")
+            useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
         }
     }
 
