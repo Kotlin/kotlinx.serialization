@@ -122,7 +122,7 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.12.0" // JVM dependency
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.13.0" // JVM dependency
 }
 ```
 
@@ -162,7 +162,7 @@ You may also want to keep all custom serializers you've defined.
 
 ### Multiplatform (common, JS, Native)
 
-Platform artifacts have the same names as JVM one, but with additional suffix (e.g. `org.jetbrains.kotlinx:kotlinx-serialization-runtime-native`). For Native artifact, Gradle metadata is required (put the line `enableFeaturePreview('GRADLE_METADATA')` in your `gradle.properties`) and minimal supported version of Gradle is 4.8.
+Platform artifacts have the same names as JVM one, but with additional suffix (e.g. `org.jetbrains.kotlinx:kotlinx-serialization-runtime-native`). For Native artifact, Gradle metadata is required (put the line `enableFeaturePreview('GRADLE_METADATA')` in your `gradle.properties`) and minimal supported version of Gradle is 5.3.
 
 Typically, you need the following dependencies in your multiplatform project (don't forget to rename [source sets](https://kotlinlang.org/docs/reference/building-mpp-with-gradle.html#configuring-source-sets) according yo your setup):
 
@@ -222,7 +222,7 @@ Ensure the proper version of Kotlin and serialization version:
 ```xml
 <properties>
     <kotlin.version>1.3.50</kotlin.version>
-    <serialization.version>0.12.0</serialization.version>
+    <serialization.version>0.13.0</serialization.version>
 </properties>
 ```
 
@@ -287,9 +287,10 @@ Add dependency on serialization runtime library:
 
 ### Incompatible changes
 
+All versions of library before `0.13.0` are using Gradle metadata v0.4 and therefore it is recommended to use Gradle 4.8-5.1 to build
+Library versions `0.11.0` and higher require Kotlin 1.3.30 and higher and incompatible with previous versions.
 All versions of library before `0.10.0` are using Gradle metadata v0.3 and therefore require Gradle 4.7 for build.
 Maven plugin coordinates before Kotlin 1.3.20 were `kotlinx-maven-serialization-plugin`.
-Library version `0.11.0` requires Kotlin 1.3.30 and higher and incompatible with previous versions.
 For deprecated `kotlin-platform-native` plugin, you need to use `kotlinx-serialization-native` plugin (see [#2210](https://github.com/JetBrains/kotlin-native/issues/2210#issuecomment-429753168)).
 
 ## Troubleshooting IntelliJ IDEA

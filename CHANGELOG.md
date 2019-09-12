@@ -1,4 +1,15 @@
 
+v0.13.0 / 2019-09-12
+==================
+
+  * Add mingwX86 target (#556)
+  * Replace KClass.simpleName with artificial expect/actual with java.lang.Class.simpleName on JVM to overcome requirement for kotlin-reflect.jar (#549)
+  * Update Gradle to 5.6.1 (therefore Gradle metadata to 1.0)
+  * Fix incorrect index supply during map deserialization when READ_ALL was used (#526)
+  * Serializers for primitive arrays (ByteArray etc)
+  * Hide NullableSerializer, introduce '.nullable' extension instead
+  * Fix the library to not create a stack overflow exception when creating a MissingDescriptorException. (#545)
+
 v0.12.0 / 2019-08-23
 ==================
 
