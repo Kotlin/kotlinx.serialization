@@ -33,6 +33,7 @@ kotlin {
         target('linuxX64')
         if (deployMode) {
             target('mingwX64')
+            target('mingwX86')
             target('iosArm64')
             target('iosArm32')
             target('iosX64')
