@@ -25,3 +25,11 @@ You can learn about "Human-Optimized Config Object Notation" or HOCON from libra
 * Platform: JVM only
 
 Allows serialization and deserialization of objects to and from [YAML](http://yaml.org).
+
+### Bson
+
+* GitHub repo: [jershell/kbson](https://github.com/jershell/kbson)
+* Artifact ID: `com.github.jershell:kbson`
+* Platform: JVM only
+
+Allows serialization and deserialization of objects to and from [BSON](https://docs.mongodb.com/manual/reference/bson-types/).
