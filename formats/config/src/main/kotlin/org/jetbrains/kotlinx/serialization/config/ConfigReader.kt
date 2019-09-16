@@ -74,6 +74,18 @@ class ConfigParser(context: SerialModule = EmptyModule): AbstractSerialFormat(co
     }
 
     private inner class ConfigReader(val conf: Config) : ConfigConverter<String>() {
+        private var ind = -1
+
+        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+            while (++ind < desc.elementsCount) {
+                val name = desc.getTag(ind)
+                if (conf.hasPathOrNull(name)) {
+                    return ind
+                }
+            }
+            return READ_DONE
+        }
+
         private fun composeName(parentName: String, childName: String) =
             if (parentName.isEmpty()) childName else parentName + "." + childName
 
@@ -92,6 +104,7 @@ class ConfigParser(context: SerialModule = EmptyModule): AbstractSerialFormat(co
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder = when {
             desc.kind.listLike -> ListConfigReader(conf.getList(currentTag))
+            desc.kind.objLike -> if (ind > -1) ConfigReader(conf.getConfig(currentTag)) else this
             desc.kind == StructureKind.MAP -> MapConfigReader(conf.getObject(currentTag))
             else -> this
         }

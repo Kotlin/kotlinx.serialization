@@ -31,7 +31,7 @@ class ConfigParserObjectsTest {
     data class Simple(val a: Int)
 
     @Serializable
-    data class ConfigObjectInner(val e: String)
+    data class ConfigObjectInner(val e: String, val f: Float = 1.1f)
 
     @Serializable
     data class ConfigObject(val a: Int, val b: ConfigObjectInner)
@@ -68,7 +68,7 @@ class ConfigParserObjectsTest {
         inner = [{ a: 100500 }]
         ll = [[a, b],[x,z]]
         m : {
-            kek: {e: foo }
+            kek: {e: foo, f: 5.6 }
             bar: {e: baz }
         }
 """
@@ -92,7 +92,7 @@ class ConfigParserObjectsTest {
             assertEquals(listOf(1, 2, 3), iList)
             assertEquals(listOf(Simple(100500)), inner)
             assertEquals(listOf(listOf("a", "b"), listOf("x", "z")), ll)
-            assertEquals(mapOf("kek" to ConfigObjectInner("foo"), "bar" to ConfigObjectInner("baz")), m)
+            assertEquals(mapOf("kek" to ConfigObjectInner("foo", f = 5.6f), "bar" to ConfigObjectInner("baz")), m)
         }
     }
 
@@ -133,6 +133,7 @@ class ConfigParserObjectsTest {
         val obj = ConfigParser.parse(conf, ConfigObject.serializer())
         assertEquals(42, obj.a)
         assertEquals("foo", obj.b.e)
+        assertEquals(1.1f, obj.b.f)
     }
 
     @Test
