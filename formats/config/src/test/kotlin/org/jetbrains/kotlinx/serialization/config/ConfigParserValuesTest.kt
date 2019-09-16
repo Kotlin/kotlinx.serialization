@@ -31,7 +31,10 @@ class ConfigParserValuesTest() {
     data class StringConfig(val c: Char, val s: String)
 
     @Serializable
-    data class OtherConfig(val b: Boolean, val e: Choice, val u: Unit)
+    data class OtherConfig(val b: Boolean, val e: Choice, val u: Unit = Unit)
+
+    @Serializable
+    data class WithDefault(val i: Int = 5, val s: String = "foo")
 
     @Serializable
     data class WithNullable(val i: Int?, val s: String?)
@@ -65,6 +68,20 @@ class ConfigParserValuesTest() {
         val obj = deserializeConfig("e = A, b=true", OtherConfig.serializer())
         assertEquals(Choice.A, obj.e)
         assertEquals(true, obj.b)
+    }
+
+    @Test
+    fun `deserialize default values`() {
+        val obj = deserializeConfig("", WithDefault.serializer())
+        assertEquals(5, obj.i)
+        assertEquals("foo", obj.s)
+    }
+
+    @Test
+    fun `overwrite default values`() {
+        val obj = deserializeConfig("i = 42, s = bar", WithDefault.serializer())
+        assertEquals(42, obj.i)
+        assertEquals("bar", obj.s)
     }
 
     @Test
