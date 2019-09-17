@@ -1,55 +1,20 @@
 /*
- * Copyright 2017 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.formats
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.cbor.CBORFactory
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.google.protobuf.GeneratedMessageV3
 import io.kotlintest.properties.Gen
 import io.kotlintest.properties.forAll
 import io.kotlintest.specs.ShouldSpec
-import kotlinx.serialization.*
-import kotlinx.serialization.cbor.Cbor
+import kotlinx.serialization.SerialId
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.formats.proto.TestData.*
-import kotlinx.serialization.internal.HexConverter
-import kotlinx.serialization.protobuf.*
-import java.io.ByteArrayOutputStream
-
-fun GeneratedMessageV3.toHex(): String {
-    val b = ByteArrayOutputStream()
-    this.writeTo(b)
-    return (HexConverter.printHexBinary(b.toByteArray(), lowerCase = true))
-}
+import kotlinx.serialization.protobuf.ProtoNumberType
+import kotlinx.serialization.protobuf.ProtoType
 
 fun Gen<String>.generateNotEmpty() = nextPrintableString(Gen.choose(1, 100).generate())
-
-fun <K, V> Gen.Companion.map(genK: Gen<K>, genV: Gen<V>): Gen<Map<K,V>> = object : Gen<Map<K,V>>  {
-    private val entryGen = object : Gen<Pair<K,V>> {
-        override fun generate(): Pair<K, V> = genK.generate() to genV.generate()
-    }
-
-    override fun generate(): Map<K,V> = Gen.list(entryGen).generate().toMap()
-}
-
-interface IMessage {
-    fun toProtobufMessage(): GeneratedMessageV3
-}
 
 object KTestData {
     @Serializable
@@ -223,69 +188,6 @@ object KTestData {
 
 
 class RandomTest : ShouldSpec() {
-    val cborJackson = ObjectMapper(CBORFactory()).apply { registerKotlinModule() }
-
-    inline fun <reified T : IMessage> dumpCompare(it: T, alwaysPrint: Boolean = false): Boolean {
-        val msg = it.toProtobufMessage()
-        var parsed: GeneratedMessageV3?
-        val c = try {
-            val bytes = ProtoBuf.dump(it)
-            parsed = msg.parserForType.parseFrom(bytes)
-            msg == parsed
-        } catch (e: Exception) {
-            e.printStackTrace()
-            parsed = null
-            false
-        }
-        if (!c || alwaysPrint) println("Expected: $msg\nfound: $parsed")
-        return c
-    }
-
-    inline fun <reified T : IMessage> dumpCborCompare(it: T, alwaysPrint: Boolean = false): Boolean {
-        var parsed: T?
-        val c = try {
-            val bytes = Cbor.dump(it)
-            parsed = cborJackson.readValue<T>(bytes)
-            it == parsed
-        } catch (e: Exception) {
-            e.printStackTrace()
-            parsed = null
-            false
-        }
-        if (!c || alwaysPrint) println("Expected: $it\nfound: $parsed")
-        return c
-    }
-
-    inline fun <reified T : IMessage> readCompare(it: T, alwaysPrint: Boolean = false): Boolean {
-        var obj: T?
-        val c = try {
-            val msg = it.toProtobufMessage()
-            val hex = msg.toHex()
-            obj = ProtoBuf.loads<T>(hex)
-            obj == it
-        } catch (e: Exception) {
-            obj = null
-            e.printStackTrace()
-            false
-        }
-        if (!c || alwaysPrint) println("Expected: $it\nfound: $obj")
-        return c
-    }
-
-    inline fun <reified T : IMessage> readCborCompare(it: T, alwaysPrint: Boolean = false): Boolean {
-        var obj: T?
-        val c = try {
-            val hex = cborJackson.writeValueAsBytes(it)
-            obj = Cbor.load<T>(hex)
-            obj == it
-        } catch (e: Exception) {
-            obj = null
-            e.printStackTrace()
-            false
-        }
-        if (!c || alwaysPrint) println("Expected: $it\nfound: $obj")
-        return c
-    }
 
     init {
         "Protobuf serialization" {

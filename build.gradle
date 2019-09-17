@@ -103,6 +103,15 @@ allprojects {
             maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
         }
     }
+
+    configurations.all {
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'org.jetbrains.kotlin') {
+                details.useVersion kotlin_version
+            }
+        }
+    }
+
     repositories {
         mavenLocal()
         jcenter()
