@@ -63,6 +63,15 @@ message TestEnum {
     required Coffee a = 1;
 }
 
+enum TestEnumWithIds {
+    First = 10;
+    Second = 20;
+}
+
+message EnumHolder {
+    required TestEnumWithIds a = 5;
+}
+
 message TestMap {
     map<string, string> stringMap = 1;
     map<int32, TestAllTypes> intObjectMap = 2;

@@ -41,7 +41,11 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
             tag: ProtoDesc,
             enumDescription: SerialDescriptor,
             ordinal: Int
-        ) = encoder.writeInt(ordinal, tag.first, ProtoNumberType.DEFAULT)
+        ) = encoder.writeInt(
+            extractParameters(enumDescription, ordinal, zeroBasedDefault = true).first,
+            tag.first,
+            ProtoNumberType.DEFAULT
+        )
 
         override fun SerialDescriptor.getTag(index: Int) = this.getProtoDesc(index)
 
@@ -147,10 +151,14 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
             get() = this@ProtoBuf.context
 
         private val indexByTag: MutableMap<Int, Int> = mutableMapOf()
-        private fun findIndexByTag(desc: SerialDescriptor, serialId: Int): Int {
-            return (0 until desc.elementsCount).firstOrNull { desc.getTag(it).first == serialId }
-                    ?: -1
-        }
+        private fun findIndexByTag(desc: SerialDescriptor, serialId: Int, zeroBasedDefault: Boolean = false): Int =
+            (0 until desc.elementsCount).firstOrNull {
+                extractParameters(
+                    desc,
+                    it,
+                    zeroBasedDefault
+                ).first == serialId
+            } ?: -1
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder = when (desc.kind) {
             StructureKind.LIST -> RepeatedReader(decoder, currentTag)
@@ -175,7 +183,7 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
         override fun decodeTaggedChar(tag: ProtoDesc): Char = decoder.nextInt(tag.second).toChar()
         override fun decodeTaggedString(tag: ProtoDesc): String = decoder.nextString()
         override fun decodeTaggedEnum(tag: ProtoDesc, enumDescription: SerialDescriptor): Int =
-            decoder.nextInt(ProtoNumberType.DEFAULT)
+            findIndexByTag(enumDescription, decoder.nextInt(ProtoNumberType.DEFAULT), zeroBasedDefault = true)
 
         @Suppress("UNCHECKED_CAST")
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T = when {
