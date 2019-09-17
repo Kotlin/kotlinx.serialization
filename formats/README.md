@@ -33,3 +33,14 @@ Allows serialization and deserialization of objects to and from [YAML](http://ya
 * Platform: JVM only
 
 Allows serialization and deserialization of objects to and from [BSON](https://docs.mongodb.com/manual/reference/bson-types/).
+
+### XML
+* GitHub repo: [pdvrieze/xmlutil](https://github.com/pdvrieze/xmlutil)
+* Artifact ID: `net.devrieze:xmlutil-serialization`
+* Platform: JVM, Android, JavaScript
+
+This library allows for reading and writing of XML documents with the serialization library.
+It is multiplatform, but as the xmlutil library (which handles the multiplatform xml bit) 
+delegates to platform specific parsers each platform needs to  be implemented for each platform 
+specifically. The library is designed to handle existing formats that use features that would 
+not be available in other formats such as JSON.
