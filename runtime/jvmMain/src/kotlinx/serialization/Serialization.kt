@@ -40,8 +40,12 @@ internal fun <T> Class<T>.invokeSerializerGetter(vararg args: KSerializer<Any>):
     // Search for default serializer in case no serializer is defined on companion object.
     if (serializer == null) {
         serializer =
-            declaredClasses.singleOrNull { it.simpleName == ("\$serializer") }
-            ?.getField("INSTANCE")?.get(null) as? KSerializer<T>
+            try {
+                declaredClasses.singleOrNull { it.simpleName == ("\$serializer") }
+                    ?.getField("INSTANCE")?.get(null) as? KSerializer<T>
+            } catch (e: NoSuchFieldException) {
+                null
+            }
     }
 
     return serializer
