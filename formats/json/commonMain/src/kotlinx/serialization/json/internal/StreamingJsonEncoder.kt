@@ -11,6 +11,11 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
 
+internal val SerialDescriptor.isInlineNumber: Boolean
+    get() {
+        return this.isInline && this.serialName == "kotlin.UInt" // todo: others
+    }
+
 @OptIn(ExperimentalSerializationApi::class)
 internal class StreamingJsonEncoder(
     private val composer: Composer,
@@ -33,7 +38,7 @@ internal class StreamingJsonEncoder(
 
     init {
         val i = mode.ordinal
-        if (modeReuseCache[i] !== null || modeReuseCache[i] !== this)
+        if (modeReuseCache[i] == null)
             modeReuseCache[i] = this
     }
 
@@ -130,6 +135,17 @@ internal class StreamingJsonEncoder(
         return true
     }
 
+    @UseExperimental(ExperimentalUnsignedTypes::class)
+    override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder {
+        return if (inlineDescriptor.isInlineNumber) StreamingJsonEncoder(
+            ComposerForUnsignedNumbers(
+                composer.sb,
+                composer.json
+            ), json, mode, modeReuseCache
+        )
+        else this
+    }
+
     override fun encodeNull() {
         composer.print(NULL)
     }
@@ -180,7 +196,7 @@ internal class StreamingJsonEncoder(
         encodeString(enumDescriptor.getElementName(index))
     }
 
-    internal class Composer(@JvmField internal val sb: StringBuilder, private val json: Json) {
+    internal open class Composer(@JvmField internal val sb: StringBuilder, @JvmField internal val json: Json) {
         private var level = 0
         var writingFirst = true
             private set
@@ -206,15 +222,26 @@ internal class StreamingJsonEncoder(
                 print(' ')
         }
 
-        fun print(v: Char) = sb.append(v)
-        fun print(v: String) = sb.append(v)
-        fun print(v: Float) = sb.append(v)
-        fun print(v: Double) = sb.append(v)
-        fun print(v: Byte) = sb.append(v)
-        fun print(v: Short) = sb.append(v)
-        fun print(v: Int) = sb.append(v)
-        fun print(v: Long) = sb.append(v)
-        fun print(v: Boolean) = sb.append(v)
-        fun printQuoted(value: String): Unit = sb.printQuoted(value)
+        open fun print(v: Char) = sb.append(v)
+        open fun print(v: String) = sb.append(v)
+        open fun print(v: Float) = sb.append(v)
+        open fun print(v: Double) = sb.append(v)
+        open fun print(v: Byte) = sb.append(v)
+        open fun print(v: Short) = sb.append(v)
+        open fun print(v: Int) = sb.append(v)
+        open fun print(v: Long) = sb.append(v)
+        open fun print(v: Boolean) = sb.append(v)
+        open fun printQuoted(value: String): Unit = sb.printQuoted(value)
+    }
+
+    @ExperimentalUnsignedTypes
+    internal class ComposerForUnsignedNumbers(sb: StringBuilder, json: Json) : Composer(sb, json) {
+        override fun print(v: Int): StringBuilder {
+            return super.print(v.toUInt().toString())
+        }
+
+        override fun print(v: Long): StringBuilder {
+            return super.print(v.toULong().toString())
+        }
     }
 }

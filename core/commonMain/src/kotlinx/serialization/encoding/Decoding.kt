@@ -207,6 +207,8 @@ public interface Decoder {
      */
     public fun decodeEnum(enumDescriptor: SerialDescriptor): Int
 
+    fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder
+
     /**
      * Decodes the beginning of the nested structure in a serialized form
      * and returns [CompositeDecoder] responsible for decoding this very structure.
@@ -458,6 +460,8 @@ public interface CompositeDecoder {
      * The element at the given index should have [PrimitiveKind.STRING] kind.
      */
     public fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String
+
+    fun decodeInlineElement(desc: SerialDescriptor, index: Int, inlineDescriptor: SerialDescriptor): Decoder
 
 
     /**

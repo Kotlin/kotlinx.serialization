@@ -36,7 +36,7 @@ private val BUILTIN_SERIALIZERS = mapOf(
     Unit::class to Unit.serializer()
 )
 
-internal class PrimitiveSerialDescriptor(
+internal open class PrimitiveSerialDescriptor(
     override val serialName: String,
     override val kind: PrimitiveKind
 ) : SerialDescriptor {
@@ -138,4 +138,23 @@ internal object StringSerializer : KSerializer<String> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.String", PrimitiveKind.STRING)
     override fun serialize(encoder: Encoder, value: String): Unit = encoder.encodeString(value)
     override fun deserialize(decoder: Decoder): String = decoder.decodeString()
+}
+
+
+@PublishedApi
+internal object UIntDescriptor : PrimitiveSerialDescriptor("kotlin.UInt", PrimitiveKind.INT) { // todo: reconsider kind
+    override val isInline: Boolean
+        get() = true
+}
+
+object UIntSerializer : KSerializer<UInt> {
+    override val descriptor: SerialDescriptor = UIntDescriptor
+
+    override fun serialize(encoder: Encoder, obj: UInt) {
+        encoder.encodeInline(descriptor)?.encodeInt(obj.toInt())
+    }
+
+    override fun deserialize(decoder: Decoder): UInt {
+        return decoder.decodeInline(descriptor).decodeInt().toUInt()
+    }
 }

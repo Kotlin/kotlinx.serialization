@@ -165,6 +165,14 @@ subprojects {
         }
     }
 
+    configurations.all {
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'org.jetbrains.kotlin') {
+                details.useVersion kotlin_version
+            }
+        }
+    }
+
     apply from: rootProject.file('gradle/teamcity.gradle')
     // Configure publishing for some artifacts
     if (project.name != "benchmark" && project.name != "guide") {

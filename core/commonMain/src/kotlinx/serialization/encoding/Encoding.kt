@@ -206,6 +206,8 @@ public interface Encoder {
      */
     public fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int)
 
+    fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder?
+
     /**
      * Encodes the beginning of the nested structure in a serialized form
      * and returns [CompositeDecoder] responsible for encoding this very structure.
@@ -383,6 +385,8 @@ public interface CompositeEncoder {
      * The element at the given [index] should have [PrimitiveKind.STRING] kind.
      */
     public fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String)
+
+    fun encodeInlineElement(desc: SerialDescriptor, index: Int, inlineDescriptor: SerialDescriptor): Encoder?
 
     /**
      * Delegates [value] encoding of the type [T] to the given [serializer].

@@ -50,6 +50,8 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
     override fun encodeString(value: String): Unit = encodeValue(value)
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int): Unit = encodeValue(index)
 
+    override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder? = this
+
     // Delegating implementation of CompositeEncoder
     final override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) { if (encodeElement(descriptor, index)) encodeBoolean(value) }
     final override fun encodeByteElement(descriptor: SerialDescriptor, index: Int, value: Byte) { if (encodeElement(descriptor, index)) encodeByte(value) }
@@ -60,6 +62,14 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
     final override fun encodeDoubleElement(descriptor: SerialDescriptor, index: Int, value: Double) { if (encodeElement(descriptor, index)) encodeDouble(value) }
     final override fun encodeCharElement(descriptor: SerialDescriptor, index: Int, value: Char) { if (encodeElement(descriptor, index)) encodeChar(value) }
     final override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) { if (encodeElement(descriptor, index)) encodeString(value) }
+
+    final override fun encodeInlineElement(
+        desc: SerialDescriptor,
+        index: Int,
+        inlineDescriptor: SerialDescriptor
+    ): Encoder? {
+        return if (encodeElement(desc, index)) encodeInline(inlineDescriptor) else null
+    }
 
     final override fun <T : Any?> encodeSerializableElement(
         descriptor: SerialDescriptor,

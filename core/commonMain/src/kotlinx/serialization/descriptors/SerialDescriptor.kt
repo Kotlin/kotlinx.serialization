@@ -262,6 +262,9 @@ public interface SerialDescriptor {
      */
     @ExperimentalSerializationApi
     public fun isElementOptional(index: Int): Boolean
+
+    val isInline: Boolean
+        get() = false
 }
 
 /**

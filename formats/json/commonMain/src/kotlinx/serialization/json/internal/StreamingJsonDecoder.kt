@@ -17,7 +17,7 @@ import kotlin.jvm.*
  * [JsonDecoder] which reads given JSON from [JsonReader] field by field.
  */
 @OptIn(ExperimentalSerializationApi::class)
-internal class StreamingJsonDecoder internal constructor(
+internal open class StreamingJsonDecoder internal constructor(
     public override val json: Json,
     private val mode: WriteMode,
     @JvmField internal val reader: JsonReader
@@ -215,6 +215,10 @@ internal class StreamingJsonDecoder internal constructor(
         }
     }
 
+    override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder {
+        return if (inlineDescriptor.isInlineNumber) StreamingJsonInputForUnsigned(json, mode, reader) else this
+    }
+
     private inline fun <T> String.parse(type: String, block: String.() -> T): T {
         try {
             return block()
@@ -225,5 +229,12 @@ internal class StreamingJsonDecoder internal constructor(
 
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
         return enumDescriptor.getElementIndexOrThrow(decodeString())
+    }
+}
+
+internal class StreamingJsonInputForUnsigned(json: Json, mode: WriteMode, reader: JsonReader) :
+    StreamingJsonDecoder(json, mode, reader) {
+    override fun decodeInt(): Int {
+        return reader.takeString().toUInt().toInt()
     }
 }
