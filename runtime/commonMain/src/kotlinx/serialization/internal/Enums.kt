@@ -8,14 +8,14 @@ import kotlinx.serialization.*
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 
-public class EnumDescriptor @JvmOverloads constructor(
+internal class EnumDescriptor @JvmOverloads constructor(
     override val name: String,
-    private val choices: Array<String> = emptyArray()
+    private val values: Array<String> = emptyArray()
 ) : SerialClassDescImpl(name) {
     override val kind: SerialKind = UnionKind.ENUM_KIND
 
     init {
-        choices.forEach { addElement(it) }
+        values.forEach { addElement(it) }
     }
 
     override fun getElementDescriptor(index: Int): SerialDescriptor {
@@ -24,9 +24,10 @@ public class EnumDescriptor @JvmOverloads constructor(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || this::class != other::class) return false
+        if (other == null) return false
+        if (other !is SerialDescriptor) return false
 
-        other as EnumDescriptor
+        if (other.kind !== UnionKind.ENUM_KIND) return false
 
         if (name != other.name) return false
         if (elementNames() != other.elementNames()) return false
@@ -34,29 +35,33 @@ public class EnumDescriptor @JvmOverloads constructor(
         return true
     }
 
+    override fun toString(): String {
+        return elementNames().joinToString(", ", "$name(", ")")
+    }
+
     override fun hashCode(): Int {
         var result = super.hashCode()
         result = 31 * result + name.hashCode()
-        result = 31 * result + choices.contentHashCode()
+        result = 31 * result + values.contentHashCode()
         return result
     }
 }
 
-open class CommonEnumSerializer<T>(val serialName: String, val choices: Array<T>, choicesNames: Array<String>) :
+open class CommonEnumSerializer<T>(serialName: String, val values: Array<T>, valuesNames: Array<String>) :
     KSerializer<T> {
-    override val descriptor: EnumDescriptor = EnumDescriptor(serialName, choicesNames)
+    override val descriptor: SerialDescriptor = EnumDescriptor(serialName, valuesNames)
 
     final override fun serialize(encoder: Encoder, obj: T) {
-        val index = choices.indexOf(obj)
-            .also { check(it != -1) { "$obj is not a valid enum $serialName, choices are $choices" } }
+        val index = values.indexOf(obj)
+            .also { check(it != -1) { "$obj is not a valid enum ${descriptor.name}, must be one of ${values.contentToString()}" } }
         encoder.encodeEnum(descriptor, index)
     }
 
     final override fun deserialize(decoder: Decoder): T {
         val index = decoder.decodeEnum(descriptor)
-        check(index in choices.indices)
-            { "$index is not among valid $serialName choices, choices size is ${choices.size}" }
-        return choices[index]
+        check(index in values.indices)
+        { "$index is not among valid $${descriptor.name} enum values, values size is ${values.size}" }
+        return values[index]
     }
 }
 

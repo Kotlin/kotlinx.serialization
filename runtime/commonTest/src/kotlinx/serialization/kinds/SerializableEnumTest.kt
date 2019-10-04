@@ -45,6 +45,7 @@ class SerializableEnumTest {
         val desc = WithCustomEnum.serializer().descriptor.getElementDescriptor(0)
         assertEquals("custom_enum", desc.name)
         assertEquals(listOf("foo_a", "foo_b"), desc.elementNames())
+        assertEquals("""custom_enum(foo_a, foo_b)""", desc.toString())
         assertEquals(desc, desc.getElementDescriptor(0))
         assertEquals(10, getSerialId(desc, 1))
     }

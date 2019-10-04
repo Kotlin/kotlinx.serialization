@@ -7,20 +7,30 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
-abstract class AbstractPolymorphicSerializer<T : Any> internal constructor() : KSerializer<T> {
+/**
+ * Base class for providing multiplatform polymorphic serialization.
+ *
+ * This class cannot be implemented by library users. To learn how to use it for your case,
+ * see [PolymorphicSerializer] for interfaces/abstract classes and [SealedClassSerializer] for sealed classes.
+ *
+ * By default, (without special support from [Encoder]), polymorphic values are serialized as list with
+ * two elements: fully-qualified class name (String) and the object itself.
+ */
+@InternalSerializationApi
+public abstract class AbstractPolymorphicSerializer<T : Any> internal constructor() : KSerializer<T> {
 
     public abstract val baseClass: KClass<T>
 
-    @Suppress("UNCHECKED_CAST")
     public final override fun serialize(encoder: Encoder, obj: T) {
         val actualSerializer = findPolymorphicSerializer(encoder, obj)
         val compositeEncoder = encoder.beginStructure(descriptor)
         compositeEncoder.encodeStringElement(descriptor, 0, actualSerializer.descriptor.name)
+
+        @Suppress("UNCHECKED_CAST")
         compositeEncoder.encodeSerializableElement(descriptor, 1, actualSerializer as KSerializer<Any?>, obj)
         compositeEncoder.endStructure(descriptor)
     }
 
-    @Suppress("UNCHECKED_CAST")
     public final override fun deserialize(decoder: Decoder): T {
         val compositeDecoder = decoder.beginStructure(descriptor)
         var klassName: String? = null
@@ -53,6 +63,7 @@ abstract class AbstractPolymorphicSerializer<T : Any> internal constructor() : K
         }
 
         compositeDecoder.endStructure(descriptor)
+        @Suppress("UNCHECKED_CAST")
         return requireNotNull(value) { "Polymorphic value have not been read for class $klassName" } as T
     }
 
@@ -71,7 +82,6 @@ abstract class AbstractPolymorphicSerializer<T : Any> internal constructor() : K
      * Lookups a polymorphic serializer by given [value] in the context of [encoder] by the current [base class][baseClass].
      * Throws [SerializationException] if serializer is not found.
      */
-    @Suppress("UNCHECKED_CAST")
     public open fun findPolymorphicSerializer(
         encoder: Encoder,
         value: T
@@ -80,8 +90,8 @@ abstract class AbstractPolymorphicSerializer<T : Any> internal constructor() : K
 }
 
 
-internal fun throwSubtypeNotRegistered(subClassName: String, baseClass: KClass<*>): Nothing =
+private fun throwSubtypeNotRegistered(subClassName: String, baseClass: KClass<*>): Nothing =
     throw SerializationException("$subClassName is not registered for polymorphic serialization in the scope of $baseClass")
 
-internal fun throwSubtypeNotRegistered(subClass: KClass<*>, baseClass: KClass<*>): Nothing =
+private fun throwSubtypeNotRegistered(subClass: KClass<*>, baseClass: KClass<*>): Nothing =
     throwSubtypeNotRegistered(subClass.toString(), baseClass)

@@ -5,6 +5,7 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
+import kotlinx.serialization.internal.ObjectSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.test.assertStringFormAndRestored
@@ -55,5 +56,9 @@ class ObjectSerializationTest {
         assertEquals(UnionKind.OBJECT, serialDesc.kind)
         assertEquals(1, serialDesc.elementsCount)
         assertEquals("ApiError", serialDesc.name)
+        assertEquals(
+            ObjectSerializer("ApiError", ApiResponse.Error).descriptor,
+            serialDesc
+        )
     }
 }
