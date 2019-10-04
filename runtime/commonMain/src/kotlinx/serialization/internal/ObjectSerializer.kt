@@ -1,24 +1,23 @@
 /*
- * Copyright 2019 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 
-class ObjectSerializer<T : Any>(private val serialName: String, private val theInstance: T) : KSerializer<T> {
+/**
+ * Serializer for Kotlin's singletons (denoted by `object` keyword).
+ *
+ * To preserve singleton identity after serialization and deserialization process, this serializer
+ * accepts the instance itself as `theInstance` parameter. This action is automatically performed by the compiler plugin
+ * when you mark `object` as `@Serializable`.
+ *
+ * By default, a singleton is serialized as an empty structure, e.g. `{}` in JSON
+ */
+public class ObjectSerializer<T : Any>(serialName: String, private val theInstance: T) : KSerializer<T> {
+    override val descriptor: SerialDescriptor = ObjectDescriptor(serialName)
+
     override fun serialize(encoder: Encoder, obj: T) {
         encoder.beginStructure(descriptor).endStructure(descriptor)
     }
@@ -27,16 +26,10 @@ class ObjectSerializer<T : Any>(private val serialName: String, private val theI
         decoder.beginStructure(descriptor).endStructure(descriptor)
         return theInstance
     }
-
-    override val descriptor: SerialDescriptor = ObjectDescriptor(serialName)
 }
 
-/**
- * Object descriptor has UnionKind.OBJECT and consists of itself:
- * It has one element with name equals to object name
- * and [getElementDescriptor] returns the descriptor itself.
- */
-class ObjectDescriptor(name: String) : SerialClassDescImpl(name) {
+
+internal class ObjectDescriptor(name: String) : SerialClassDescImpl(name) {
     override val kind: SerialKind = UnionKind.OBJECT
 
     init {
@@ -45,5 +38,22 @@ class ObjectDescriptor(name: String) : SerialClassDescImpl(name) {
 
     override fun getElementDescriptor(index: Int): SerialDescriptor {
         return this
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SerialDescriptor) return false
+        if (other.kind !== UnionKind.OBJECT) return false
+
+        if (name != other.name) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return name.hashCode()
+    }
+
+    override fun toString(): String {
+        return "$name()"
     }
 }

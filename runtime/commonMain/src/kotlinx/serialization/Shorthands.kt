@@ -31,7 +31,7 @@ fun Boolean.Companion.serializer(): KSerializer<Boolean> = BooleanSerializer
  * Size of a list is equal to [SerialDescriptor.elementsCount].
  */
 public fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> {
-    return (0 until elementsCount).map { getElementDescriptor(it) }
+    return List(elementsCount) { getElementDescriptor(it) }
 }
 
 /**
@@ -40,13 +40,13 @@ public fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> {
  * Size of a list is equal to [SerialDescriptor.elementsCount].
  */
 public fun SerialDescriptor.elementNames(): List<String> {
-    return (0 until elementsCount).map { getElementName(it) }
+    return List(elementsCount) { getElementName(it) }
 }
 
 /**
  * Same as [SerialDescriptor.getElementIndex],
  * but throws [SerializationException] if
- * given name is not associated with any element
+ * given [name] is not associated with any element
  * in the descriptor.
  */
 public fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {

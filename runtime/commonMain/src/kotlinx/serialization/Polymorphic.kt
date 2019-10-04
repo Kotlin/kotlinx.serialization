@@ -27,7 +27,8 @@ public object PolymorphicClassDescriptor : SerialClassDescImpl("kotlin.Any") {
 }
 
 /**
- * This class provides support for multiplatform polymorphic serialization.
+ * This class provides support for multiplatform polymorphic serialization for interfaces and abstract classes.
+ *
  * Due to security and reflection usage concerns, all serializable implementations of some abstract class must be registered in advance.
  * However, it allows registering subclasses in runtime, not compile-time. For example, it allows adding additional subclasses to the registry
  * that were defined in a separate module, dependent on the base module with the base class.
@@ -36,7 +37,7 @@ public object PolymorphicClassDescriptor : SerialClassDescImpl("kotlin.Any") {
  * To enable this feature explicitly on other types, use `@SerializableWith(PolymorphicSerializer::class)`
  * or just [Polymorphic] annotation on the property.
  *
- * Another security requirement is that we only allow to register subclasses in the scope of a [baseClass]
+ * Another security requirement is that we only allow to register subclasses in the scope of a [baseClass].
  * The motivation for this is easily understandable from the example:
  *
  * ```
@@ -71,9 +72,6 @@ public object PolymorphicClassDescriptor : SerialClassDescImpl("kotlin.Any") {
  *     }
  * }
  * ```
- *
- * By default (without special support from [Encoder]), polymorphic values are serialized as list with
- * two elements: fully-qualified class name (String) and the object itself.
  *
  * @see SerializersModule
  * @see SerializersModuleBuilder.polymorphic
