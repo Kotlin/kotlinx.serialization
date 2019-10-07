@@ -18,13 +18,13 @@ You can learn about "Human-Optimized Config Object Notation" or HOCON from libra
 
 ## Other community-supported formats
 
-### YAML
+### Avro
 
-* GitHub repo: [charleskorn/kaml](https://github.com/charleskorn/kaml)
-* Artifact ID: `com.charleskorn.kaml:kaml`
+* GitHub repo: [sksamuel/avro4k](https://github.com/sksamuel/avro4k)
+* Artifact ID: `com.sksamuel.avro4k:avro4k`
 * Platform: JVM only
 
-Allows serialization and deserialization of objects to and from [YAML](http://yaml.org).
+This library allows serialization and deserialization of objects to and from [Avro](https://avro.apache.org). It will read and write from Avro binary or json streams or generate Avro Generic Records directly. It will also generate Avro schemas from data classes. The library allows for easy extension and overrides for custom schema formats, compatiblity with schemas defined outside out of the JVM and for types not supported out of the box.
 
 ### Bson
 
@@ -44,3 +44,11 @@ It is multiplatform, but as the xmlutil library (which handles the multiplatform
 delegates to platform specific parsers each platform needs to  be implemented for each platform 
 specifically. The library is designed to handle existing formats that use features that would 
 not be available in other formats such as JSON.
+
+### YAML
+
+* GitHub repo: [charleskorn/kaml](https://github.com/charleskorn/kaml)
+* Artifact ID: `com.charleskorn.kaml:kaml`
+* Platform: JVM only
+
+Allows serialization and deserialization of objects to and from [YAML](http://yaml.org).
