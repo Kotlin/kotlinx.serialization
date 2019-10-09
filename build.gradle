@@ -48,7 +48,6 @@ buildscript {
         maven { url 'https://kotlin.bintray.com/kotlin-dev' }
         maven { url 'https://kotlin.bintray.com/kotlin-eap' }
         maven { url 'https://kotlin.bintray.com/kotlinx' }
-        maven { url "https://dl.bintray.com/orangy/maven" }
         maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
         jcenter()
         gradlePluginPortal()
@@ -65,7 +64,6 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
-        classpath "kotlinx.team:kotlinx.team.infra:$infra_version"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintray_version"
 
         // Protobuf is udes in JVM tests
@@ -78,13 +76,9 @@ buildscript {
     }
 }
 
-apply plugin: 'kotlinx.team.infra'
-// To make it visible for compilerVersion.gradle  
+// To make it visible for compilerVersion.gradle
 ext.compilerVersion = org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION
 
-infra {
-    teamcity {}
-}
 
 allprojects {
     group 'org.jetbrains.kotlinx'
@@ -96,6 +90,9 @@ allprojects {
     if (project.hasProperty("bootstrap")) {
         version = version + '-SNAPSHOT'
     }
+
+    // the only place where HostManager could be instantiated
+    project.ext.hostManager = new org.jetbrains.kotlin.konan.target.HostManager()
 
     if (build_snapshot_train) {
         // Snapshot-specific
@@ -124,6 +121,7 @@ subprojects {
         }
     }
 
+    apply from: rootProject.file('gradle/teamcity.gradle')
     // Configure publishing for some artifacts
     if (project.name.contains("benchmark")) return
     apply from: rootProject.file('gradle/publishing.gradle')

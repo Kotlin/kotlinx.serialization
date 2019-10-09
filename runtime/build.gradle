@@ -25,23 +25,10 @@ clean {
     delete protobuf.generatedFilesBaseDir
 }
 
-def deployMode = property('native.deploy') == 'true'
+apply from: rootProject.file("gradle/targets.gradle")
+apply from: rootProject.file("gradle/native_mpp.gradle")
 
 kotlin {
-    infra {
-        target('macosX64')
-        target('linuxX64')
-        if (deployMode) {
-            target('mingwX64')
-            target('mingwX86')
-            target('iosArm64')
-            target('iosArm32')
-            target('iosX64')
-            target('wasm32')
-            target('linuxArm32Hfp')
-        }
-    }
-
     targets {
         fromPreset(presets.jvm, 'jvm') {
             withJava()

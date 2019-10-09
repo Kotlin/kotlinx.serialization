@@ -1,0 +1,63 @@
+/*
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+
+project.ext.deployMode = property('native.deploy') == 'true'
+project.ext.singleTargetMode = project.ext.ideaActive || !project.ext.deployMode
+
+project.ext.nativeMainSets = []
+project.ext.nativeTestSets = []
+
+kotlin {
+    targets.metaClass.addTarget = { preset ->
+        def target = delegate.fromPreset(preset, preset.name)
+        project.ext.nativeMainSets.add(target.compilations['main'].kotlinSourceSets.first())
+        project.ext.nativeTestSets.add(target.compilations['test'].kotlinSourceSets.first())
+    }
+
+    targets {
+        if (project.ext.singleTargetMode) {
+            fromPreset(project.ext.ideaPreset, 'native')
+        } else {
+            // Linux
+            addTarget(presets.linuxX64)
+            addTarget(presets.linuxArm32Hfp)
+
+            // Mac & iOS
+            addTarget(presets.macosX64)
+
+            addTarget(presets.iosArm64)
+            addTarget(presets.iosArm32)
+            addTarget(presets.iosX64)
+
+            // todo: uncomment when 1.3.60 out
+//            addTarget(presets.watchosX86)
+//            addTarget(presets.watchosArm32)
+//            addTarget(presets.watchosArm64)
+//
+//            addTarget(presets.tvosArm64)
+//            addTarget(presets.tvosX64)
+
+            // Windows
+            addTarget(presets.mingwX64)
+            addTarget(presets.mingwX86)
+        }
+    }
+
+    sourceSets {
+        nativeMain { dependsOn commonMain }
+        // Empty source set is required in order to have native tests task
+        nativeTest {}
+
+        if (!project.ext.singleTargetMode) {
+            configure(project.ext.nativeMainSets) {
+                dependsOn nativeMain
+            }
+
+            configure(project.ext.nativeTestSets) {
+                dependsOn nativeTest
+            }
+        }
+    }
+}
