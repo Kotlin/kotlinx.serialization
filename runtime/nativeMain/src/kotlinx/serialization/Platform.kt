@@ -8,11 +8,11 @@ import kotlin.reflect.*
 
 
 actual fun String.toUtf8Bytes(): ByteArray {
-    return this.toUtf8()
+    return this.encodeToByteArray()
 }
 
 actual fun stringFromUtf8Bytes(bytes: ByteArray): String {
-    return bytes.stringFromUtf8()
+    return bytes.decodeToString()
 }
 
 
