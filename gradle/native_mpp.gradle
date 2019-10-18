@@ -31,13 +31,12 @@ kotlin {
             addTarget(presets.iosArm32)
             addTarget(presets.iosX64)
 
-            // todo: uncomment when 1.3.60 out
-//            addTarget(presets.watchosX86)
-//            addTarget(presets.watchosArm32)
-//            addTarget(presets.watchosArm64)
-//
-//            addTarget(presets.tvosArm64)
-//            addTarget(presets.tvosX64)
+            addTarget(presets.watchosX86)
+            addTarget(presets.watchosArm32)
+            addTarget(presets.watchosArm64)
+
+            addTarget(presets.tvosArm64)
+            addTarget(presets.tvosX64)
 
             // Windows
             addTarget(presets.mingwX64)

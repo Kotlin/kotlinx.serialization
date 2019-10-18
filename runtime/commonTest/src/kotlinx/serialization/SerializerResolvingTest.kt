@@ -14,12 +14,6 @@ import kotlin.test.*
 @UseExperimental(ImplicitReflectionSerializer::class)
 class SerializerResolvingTest {
 
-    private inline fun run(block: () -> Unit) {
-        if (isJs()) return // JS does not support typeof() yet
-
-        block()
-    }
-
     private inline fun <reified T> assertSerializedWithType(
         expected: String,
         obj: T,
@@ -30,45 +24,45 @@ class SerializerResolvingTest {
     }
 
     @Test
-    fun testListWithDtoResolving() = run {
+    fun testListWithDtoResolving() {
         val source = """[{"intV":42}]"""
         val serial = serializer<List<IntData>>()
         assertEquals(listOf(IntData(42)), Json.parse(serial, source))
     }
 
     @Test
-    fun testListResolving() = run {
+    fun testListResolving() {
         val myArr = listOf("a", "b", "c")
         assertSerializedWithType("[a,b,c]", myArr)
     }
 
     @Test
-    fun testSetResolving() = run {
+    fun testSetResolving() {
         val mySet = setOf("a", "b", "c", "c")
         assertSerializedWithType("[a,b,c]", mySet)
     }
 
     @Test
-    fun testMapResolving() = run {
+    fun testMapResolving() {
         val myMap = mapOf("string" to StringData("foo"), "string2" to StringData("bar"))
         assertSerializedWithType("""{string:{data:foo},string2:{data:bar}}""", myMap)
     }
 
     @Test
-    fun testNestedListResolving() = run {
+    fun testNestedListResolving() {
         val myList = listOf(listOf(listOf(1, 2, 3)), listOf())
         assertSerializedWithType("[[[1,2,3]],[]]", myList)
     }
 
     @Test
-    fun equalityOfListAndArrayList() = run {
+    fun equalityOfListAndArrayList() {
         val myList = arrayListOf(1, 2, 3)
         assertSerializedWithType<ArrayList<Int>>("[1,2,3]", myList)
         assertSerializedWithType<List<Int>>("[1,2,3]", myList)
     }
 
     @Test
-    fun equalityOfProjectedLists() = run {
+    fun equalityOfProjectedLists() {
         val myList = arrayListOf(1, 2, 3)
         assertSerializedWithType<List<Int>>("[1,2,3]", myList)
         assertSerializedWithType<MutableList<out Int>>("[1,2,3]", myList)
@@ -76,20 +70,20 @@ class SerializerResolvingTest {
     }
 
     @Test
-    fun supportNullableTypes() = run {
+    fun supportNullableTypes() {
         val myList: List<Int?> = listOf(1, null, 3)
         assertSerializedWithType("[1,null,3]", myList)
         assertSerializedWithType<List<Int?>?>("[1,null,3]", myList)
     }
 
     @Test
-    fun objectTest() = run {
+    fun objectTest() {
         val b = StringData("some string")
         assertSerializedWithType("""{data:"some string"}""", b)
     }
 
     @Test
-    fun intResolve() = run {
+    fun intResolve() {
         val token = typeOf<Int>()
         val serial = serializer(token)
         assertSame(IntSerializer as KSerializer<*>, serial)
