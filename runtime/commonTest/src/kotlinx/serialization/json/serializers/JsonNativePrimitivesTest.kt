@@ -12,21 +12,22 @@ import kotlin.test.Test
 
 class JsonNativePrimitivesTest : JsonTestBase() {
     @Test
-    fun testTopLevelNativeInt() = parametrizedTest(IntSerializer, 42, "42", strict)
+    fun testTopLevelNativeInt() = assertJsonFormAndRestored(IntSerializer, 42, "42", strict)
 
     @Test
-    fun testTopLevelNativeString() = parametrizedTest(StringSerializer, "42", "\"42\"", strict)
+    fun testTopLevelNativeString() = assertJsonFormAndRestored(StringSerializer, "42", "\"42\"", strict)
 
     @Test
-    fun testTopLevelNativeChar() = parametrizedTest(CharSerializer, '4', "\"4\"", strict)
+    fun testTopLevelNativeChar() = assertJsonFormAndRestored(CharSerializer, '4', "\"4\"", strict)
 
     @Test
-    fun testTopLevelNativeBoolean() = parametrizedTest(BooleanSerializer, true, "true", strict)
+    fun testTopLevelNativeBoolean() = assertJsonFormAndRestored(BooleanSerializer, true, "true", strict)
 
     @Test
     fun testTopLevelNativeEnum() =
-        parametrizedTest(CommonEnumSerializer("SampleEnum"), SampleEnum.OptionB, "\"OptionB\"", strict)
+        assertJsonFormAndRestored(CommonEnumSerializer("SampleEnum"), SampleEnum.OptionB, "\"OptionB\"", strict)
 
     @Test
-    fun testTopLevelNativeNullable() = parametrizedTest(NullableSerializer(IntSerializer), null, "null", strict)
+    fun testTopLevelNativeNullable() =
+        assertJsonFormAndRestored(NullableSerializer(IntSerializer), null, "null", strict)
 }

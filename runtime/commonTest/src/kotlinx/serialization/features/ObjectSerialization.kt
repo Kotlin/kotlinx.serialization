@@ -7,8 +7,8 @@ package kotlinx.serialization.features
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.ObjectSerializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonTestBase
 import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.test.assertStringFormAndRestored
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -26,7 +26,7 @@ sealed class ApiResponse {
 @Serializable
 data class ApiCarrier(@Polymorphic val response: ApiResponse)
 
-class ObjectSerializationTest {
+class ObjectSerializationTest : JsonTestBase() {
 
     val module = SerializersModule {
         polymorphic(ApiResponse::class) {
@@ -41,11 +41,11 @@ class ObjectSerializationTest {
     fun canBeSerialized() {
         val carrier1 = ApiCarrier(ApiResponse.Error)
         val carrier2 = ApiCarrier(ApiResponse.Response("OK"))
-        assertStringFormAndRestored("""{"response":{"type":"ApiError"}}""", carrier1, ApiCarrier.serializer(), json)
-        assertStringFormAndRestored(
-            """{"response":{"type":"ApiResponse","message":"OK"}}""",
-            carrier2,
+        assertJsonFormAndRestored(ApiCarrier.serializer(), carrier1, """{"response":{"type":"ApiError"}}""", json)
+        assertJsonFormAndRestored(
             ApiCarrier.serializer(),
+            carrier2,
+            """{"response":{"type":"ApiResponse","message":"OK"}}""",
             json
         )
     }

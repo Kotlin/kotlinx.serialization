@@ -5,7 +5,7 @@
 package kotlinx.serialization.kinds
 
 import kotlinx.serialization.*
-import kotlinx.serialization.test.assertStringFormAndRestored
+import kotlinx.serialization.json.JsonTestBase
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -30,13 +30,14 @@ private data class TwoEnums(val one: One, val two: Two)
 @Serializable
 private data class WithCustomEnum(val c: CustomEnum)
 
-class SerializableEnumTest {
+class SerializableEnumTest : JsonTestBase() {
     @Test
     fun serializedCorrectly() =
-        assertStringFormAndRestored(
-            """{"c":"foo_b"}""",
-            WithCustomEnum(CustomEnum.FooB),
+        assertJsonFormAndRestored(
             WithCustomEnum.serializer(),
+            WithCustomEnum(CustomEnum.FooB),
+            """{"c":"foo_b"}""",
+            strict,
             printResult = true
         )
 
@@ -51,10 +52,11 @@ class SerializableEnumTest {
     }
 
     @Test
-    fun annotationDoesNotChangeEnum() = assertStringFormAndRestored(
-        """{"one":"B","two":"B"}""",
+    fun annotationDoesNotChangeEnum() = assertJsonFormAndRestored(
+        TwoEnums.serializer(),
         TwoEnums(One.B, Two.B),
-        TwoEnums.serializer()
+        """{"one":"B","two":"B"}""",
+        strict
     )
 
     @Test

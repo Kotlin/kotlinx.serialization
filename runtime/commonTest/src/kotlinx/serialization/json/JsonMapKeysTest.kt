@@ -41,7 +41,7 @@ class JsonMapKeysTest : JsonTestBase() {
     }
 
     @Test
-    fun structuredMapKeysAllowedWithFlag() = parametrizedTest(
+    fun structuredMapKeysAllowedWithFlag() = assertJsonFormAndRestored(
         WithComplexKey.serializer(),
         WithComplexKey(mapOf(IntData(42) to "42")),
         """{"map":[{"intV":42},"42"]}""",
@@ -49,7 +49,7 @@ class JsonMapKeysTest : JsonTestBase() {
     )
 
     @Test
-    fun enumsAreAllowedAsMapKeys() = parametrizedTest(
+    fun enumsAreAllowedAsMapKeys() = assertJsonFormAndRestored(
         WithEnum.serializer(),
         WithEnum(mapOf(SampleEnum.OptionA to 1L, SampleEnum.OptionC to 3L)),
         """{"map":{"OptionA":1,"OptionC":3}}""",
