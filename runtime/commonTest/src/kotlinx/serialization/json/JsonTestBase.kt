@@ -7,6 +7,7 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.test.assertStringFormAndRestored
 import kotlin.test.*
 
 abstract class JsonTestBase {
@@ -126,7 +127,17 @@ abstract class JsonTestBase {
         assertEquals(streamingResult.getOrNull()!!, treeResult.getOrNull()!!)
     }
 
-    internal fun <T> parametrizedTest(serializer: KSerializer<T>, data: T, expected: String, json: Json = unquoted) {
+    /**
+     * Same as [assertStringFormAndRestored], but tests both json converters (streaming and tree)
+     * via [parametrizedTest]
+     */
+    internal fun <T> assertJsonFormAndRestored(
+        serializer: KSerializer<T>,
+        data: T,
+        expected: String,
+        json: Json = unquoted,
+        printResult: Boolean = false
+    ) {
         parametrizedTest { useStreaming ->
             val serialized = json.stringify(serializer, data, useStreaming)
             assertEquals(expected, serialized)

@@ -5,10 +5,8 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
+import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.test.assertStringFormAndRestored
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -99,7 +97,7 @@ data class SealedHolder(val s: SimpleSealed)
 @Serializable
 data class SealedBoxHolder(val b: Box<SimpleSealed>)
 
-class SealedClassesSerializationTest {
+class SealedClassesSerializationTest : JsonTestBase() {
     private val arrayJson = Json(JsonConfiguration.Default.copy(useArrayPolymorphism = true))
     private val json = Json(JsonConfiguration.Default.copy(useArrayPolymorphism = false, prettyPrint = false))
 
@@ -128,26 +126,26 @@ class SealedClassesSerializationTest {
 
     @Test
     fun insideClass() {
-        assertStringFormAndRestored(
-            """{"s":{"type":"kotlinx.serialization.SimpleSealed.SubSealedA","s":"foo"}}""",
-            SealedHolder(SimpleSealed.SubSealedA("foo")),
+        assertJsonFormAndRestored(
             SealedHolder.serializer(),
+            SealedHolder(SimpleSealed.SubSealedA("foo")),
+            """{"s":{"type":"kotlinx.serialization.SimpleSealed.SubSealedA","s":"foo"}}""",
             json
         )
     }
 
     @Test
     fun insideGeneric() {
-        assertStringFormAndRestored(
-            """{"boxed":{"type":"kotlinx.serialization.SimpleSealed.SubSealedA","s":"foo"}}""",
-            Box<SimpleSealed>(SimpleSealed.SubSealedA("foo")),
+        assertJsonFormAndRestored(
             Box.serializer(SimpleSealed.serializer()),
+            Box<SimpleSealed>(SimpleSealed.SubSealedA("foo")),
+            """{"boxed":{"type":"kotlinx.serialization.SimpleSealed.SubSealedA","s":"foo"}}""",
             json
         )
-        assertStringFormAndRestored(
-            """{"b":{"boxed":{"type":"kotlinx.serialization.SimpleSealed.SubSealedA","s":"foo"}}}""",
-            SealedBoxHolder(Box(SimpleSealed.SubSealedA("foo"))),
+        assertJsonFormAndRestored(
             SealedBoxHolder.serializer(),
+            SealedBoxHolder(Box(SimpleSealed.SubSealedA("foo"))),
+            """{"b":{"boxed":{"type":"kotlinx.serialization.SimpleSealed.SubSealedA","s":"foo"}}}""",
             json
         )
     }
@@ -162,7 +160,7 @@ class SealedClassesSerializationTest {
         )
         val expected =
             """[{"type":"kotlinx.serialization.features.SealedProtocol.StringMessage","description":"string message","message":"foo"},{"type":"kotlinx.serialization.features.SealedProtocol.IntMessage","description":"int message","message":42},{"type":"kotlinx.serialization.features.SealedProtocol.ErrorMessage","error":"requesting termination"},{"type":"EOF"}]"""
-        assertStringFormAndRestored(expected, messages, SealedProtocol.serializer().list, json)
+        assertJsonFormAndRestored(SealedProtocol.serializer().list, messages, expected, json)
     }
 
     @Test
@@ -186,7 +184,7 @@ class SealedClassesSerializationTest {
             )
         val expected =
             """[{"type":"kotlinx.serialization.features.ProtocolWithAbstractClass.Message.StringMessage","description":"string message","message":"foo"},{"type":"kotlinx.serialization.features.ProtocolWithAbstractClass.Message.IntMessage","description":"int message","message":42},{"type":"kotlinx.serialization.features.ProtocolWithAbstractClass.ErrorMessage","error":"requesting termination"},{"type":"EOF"}]"""
-        assertStringFormAndRestored(expected, messages, ProtocolWithAbstractClass.serializer().list, json)
+        assertJsonFormAndRestored(ProtocolWithAbstractClass.serializer().list, messages, expected, json)
     }
 
     @Test
@@ -199,7 +197,7 @@ class SealedClassesSerializationTest {
         )
         val expected =
             """[{"type":"kotlinx.serialization.features.ProtocolWithSealedClass.Message.StringMessage","description":"string message","message":"foo"},{"type":"kotlinx.serialization.features.ProtocolWithSealedClass.Message.IntMessage","description":"int message","message":42},{"type":"kotlinx.serialization.features.ProtocolWithSealedClass.ErrorMessage","error":"requesting termination"},{"type":"EOF"}]"""
-        assertStringFormAndRestored(expected, messages, ProtocolWithSealedClass.serializer().list, json)
+        assertJsonFormAndRestored(ProtocolWithSealedClass.serializer().list, messages, expected, json)
     }
 
     @Test
@@ -211,8 +209,8 @@ class SealedClassesSerializationTest {
         val expected =
             """[{"type":"kotlinx.serialization.features.ProtocolWithSealedClass.Message.StringMessage","description":"string message","message":"foo"},{"type":"kotlinx.serialization.features.ProtocolWithSealedClass.Message.IntMessage","description":"int message","message":42}]"""
 
-        assertStringFormAndRestored(expected, messages, ProtocolWithSealedClass.serializer().list, json)
-        assertStringFormAndRestored(expected, messages, ProtocolWithSealedClass.Message.serializer().list, json)
+        assertJsonFormAndRestored(ProtocolWithSealedClass.serializer().list, messages, expected, json)
+        assertJsonFormAndRestored(ProtocolWithSealedClass.Message.serializer().list, messages, expected, json)
     }
 
     @Test
@@ -226,6 +224,6 @@ class SealedClassesSerializationTest {
         val expected =
             """[["kotlinx.serialization.features.ProtocolWithGenericClass.Message",{"description":"string message","message":["kotlin.String","foo"]}],["kotlinx.serialization.features.ProtocolWithGenericClass.Message",{"description":"int message","message":["kotlin.Int",42]}],["kotlinx.serialization.features.ProtocolWithGenericClass.ErrorMessage",{"error":"requesting termination"}],["EOF",{}]]"""
         val json = Json(JsonConfiguration.Default.copy(useArrayPolymorphism = true))
-        assertStringFormAndRestored(expected, messages, ProtocolWithGenericClass.serializer().list, json)
+        assertJsonFormAndRestored(ProtocolWithGenericClass.serializer().list, messages, expected, json)
     }
 }

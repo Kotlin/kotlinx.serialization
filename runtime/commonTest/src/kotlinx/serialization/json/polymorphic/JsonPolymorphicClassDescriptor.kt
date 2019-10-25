@@ -4,8 +4,9 @@
 
 package kotlinx.serialization.json.polymorphic
 
-import kotlinx.serialization.json.*
-import kotlin.test.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonTestBase
+import kotlin.test.Test
 
 class JsonPolymorphicClassDescriptor : JsonTestBase() {
 
@@ -16,7 +17,7 @@ class JsonPolymorphicClassDescriptor : JsonTestBase() {
     }
 
     @Test
-    fun testPolymorphicProperties() = parametrizedTest(
+    fun testPolymorphicProperties() = assertJsonFormAndRestored(
         InnerBox.serializer(),
         InnerBox(InnerImpl(42, "foo")),
         "{base:{class:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}}",

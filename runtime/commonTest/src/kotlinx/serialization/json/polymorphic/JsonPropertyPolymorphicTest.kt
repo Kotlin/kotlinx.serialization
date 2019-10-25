@@ -4,14 +4,15 @@
 
 package kotlinx.serialization.json.polymorphic
 
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-import kotlin.test.*
+import kotlinx.serialization.PolymorphicSerializer
+import kotlinx.serialization.json.JsonTestBase
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class JsonPropertyPolymorphicTest : JsonTestBase() {
 
     @Test
-    fun testPolymorphicProperties() = parametrizedTest(
+    fun testPolymorphicProperties() = assertJsonFormAndRestored(
         InnerBox.serializer(),
         InnerBox(InnerImpl(42, "foo")),
         "{base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}}",
@@ -26,7 +27,7 @@ class JsonPropertyPolymorphicTest : JsonTestBase() {
     }
 
     @Test
-    fun testNestedPolymorphicProperties() = parametrizedTest(
+    fun testNestedPolymorphicProperties() = assertJsonFormAndRestored(
         OuterBox.serializer(),
         OuterBox(OuterImpl(InnerImpl(42), InnerImpl2(42)), InnerImpl2(239)),
         "{outerBase:{" +
@@ -37,17 +38,18 @@ class JsonPropertyPolymorphicTest : JsonTestBase() {
         polymorphicJson)
 
     @Test
-    fun testPolymorphicNullableProperties() = parametrizedTest(
+    fun testPolymorphicNullableProperties() = assertJsonFormAndRestored(
         InnerNullableBox.serializer(),
         InnerNullableBox(InnerImpl(42, "foo")),
         "{base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}}",
         polymorphicJson)
 
     @Test
-    fun testPolymorphicNullablePropertiesWithNull() = parametrizedTest(InnerNullableBox.serializer(), InnerNullableBox(null), "{base:null}", polymorphicJson)
+    fun testPolymorphicNullablePropertiesWithNull() =
+        assertJsonFormAndRestored(InnerNullableBox.serializer(), InnerNullableBox(null), "{base:null}", polymorphicJson)
 
     @Test
-    fun testNestedPolymorphicNullableProperties() = parametrizedTest(
+    fun testNestedPolymorphicNullableProperties() = assertJsonFormAndRestored(
         OuterNullableBox.serializer(),
         OuterNullableBox(OuterNullableImpl(InnerImpl(42), null), InnerImpl2(239)),
         "{outerBase:{" +
