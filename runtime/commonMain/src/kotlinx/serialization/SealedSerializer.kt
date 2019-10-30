@@ -13,9 +13,9 @@ import kotlin.reflect.KClass
  * This class provides support for multiplatform polymorphic serialization of sealed classes.
  *
  * In contrary to [PolymorphicSerializer], all known subclasses with serializers must be passed
- * in `subclasses` and `subSerializers` constructor parameters. This action is automatically performed by a compiler plugin
- * when you mark sealed class as `@Serializable`. If a subclass is sealed class itself, all its subclasses are registered as well.
- * In most of the cases, you won't need to perform any additional manual setup:
+ * in `subclasses` and `subSerializers` constructor parameters.
+ * If a subclass is sealed class itself, all its subclasses are registered as well.
+ * In most of the cases, you won't need to perform any manual setup:
  *
  * ```
  * @Serializable
@@ -31,8 +31,8 @@ import kotlin.reflect.KClass
  * Json.stringify(SimpleSealed.serializer(), SubSealedA("foo"))
  * ```
  *
- * However, it is still possible to register additional subclasses later using regular [SerializersModule].
- * It is required when one of inheritors of sealed class is an abstract class:
+ * However, it is possible to register additional subclasses later using regular [SerializersModule].
+ * It is required when one of the subclasses is an abstract class itself:
  *
  * ```
  * @Serializable
@@ -64,6 +64,7 @@ import kotlin.reflect.KClass
  * }
  * ```
  */
+@InternalSerializationApi
 public class SealedClassSerializer<T : Any>(
     serialName: String,
     override val baseClass: KClass<T>,
@@ -78,7 +79,10 @@ public class SealedClassSerializer<T : Any>(
     private val inverseMap: Map<String, KSerializer<out T>>
 
     init {
-        require(subclasses.size == subclassSerializers.size) { "Arrays of classes and serializers must have the same length" }
+        require(subclasses.size == subclassSerializers.size) {
+            "Arrays of classes and serializers must have the same length," +
+                    " got arrays: ${subclasses.contentToString()}, ${subclassSerializers.contentToString()}"
+        }
         backingMap = subclasses.zip(subclassSerializers).toMap()
         inverseMap = backingMap.values.associateBy { serializer -> serializer.descriptor.name }
     }
@@ -98,8 +102,8 @@ public class SealedClassSerializer<T : Any>(
  * Descriptor for sealed class contains descriptors for all its serializable inheritors
  * which can be obtained via [getElementDescriptor].
  */
-public class SealedClassDescriptor(
-    override val name: String,
+internal class SealedClassDescriptor(
+    name: String,
     elementDescriptors: List<SerialDescriptor>
 ) : SerialClassDescImpl(name) {
     override val kind: SerialKind = PolymorphicKind.SEALED

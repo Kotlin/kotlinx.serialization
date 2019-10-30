@@ -8,7 +8,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonTestBase
 import kotlin.test.Test
 
-class JsonPolymorphicClassDescriptor : JsonTestBase() {
+class JsonPolymorphicClassDescriptorTest : JsonTestBase() {
 
     private val json = Json {
         unquoted = true
