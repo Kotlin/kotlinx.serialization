@@ -19,6 +19,9 @@ import kotlin.reflect.KClass
 @InternalSerializationApi
 public abstract class AbstractPolymorphicSerializer<T : Any> internal constructor() : KSerializer<T> {
 
+    /**
+     * Base class for all classes that this polymorphic serializer can serialize or deserialize.
+     */
     public abstract val baseClass: KClass<T>
 
     public final override fun serialize(encoder: Encoder, obj: T) {
@@ -64,11 +67,12 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
 
         compositeDecoder.endStructure(descriptor)
         @Suppress("UNCHECKED_CAST")
-        return requireNotNull(value) { "Polymorphic value have not been read for class $klassName" } as T
+        return requireNotNull(value) { "Polymorphic value has not been read for class $klassName" } as T
     }
 
     /**
-     * Lookups a polymorphic serializer by given [klassName] in the context of [decoder] by the current [base class][baseClass].
+     * Lookups an actual serializer for given [klassName] withing the current [base class][baseClass].
+     * May use context from the [decoder].
      * Throws [SerializationException] if serializer is not found.
      */
     public open fun findPolymorphicSerializer(
@@ -79,7 +83,8 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
 
 
     /**
-     * Lookups a polymorphic serializer by given [value] in the context of [encoder] by the current [base class][baseClass].
+     * Lookups an actual serializer for given [value] within the current [base class][baseClass].
+     * May use context from the [encoder].
      * Throws [SerializationException] if serializer is not found.
      */
     public open fun findPolymorphicSerializer(

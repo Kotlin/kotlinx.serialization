@@ -8,14 +8,12 @@ import kotlinx.serialization.*
 
 /**
  * Serializer for Kotlin's singletons (denoted by `object` keyword).
- *
- * To preserve singleton identity after serialization and deserialization process, this serializer
- * accepts the instance itself as `theInstance` parameter. This action is automatically performed by the compiler plugin
- * when you mark `object` as `@Serializable`.
- *
+ * To preserve singleton identity after serialization and deserialization, object serializer
+ * uses an [object instance][objectInstance].
  * By default, a singleton is serialized as an empty structure, e.g. `{}` in JSON
  */
-public class ObjectSerializer<T : Any>(serialName: String, private val theInstance: T) : KSerializer<T> {
+@InternalSerializationApi
+public class ObjectSerializer<T : Any>(serialName: String, private val objectInstance: T) : KSerializer<T> {
     override val descriptor: SerialDescriptor = ObjectDescriptor(serialName)
 
     override fun serialize(encoder: Encoder, obj: T) {
@@ -24,10 +22,9 @@ public class ObjectSerializer<T : Any>(serialName: String, private val theInstan
 
     override fun deserialize(decoder: Decoder): T {
         decoder.beginStructure(descriptor).endStructure(descriptor)
-        return theInstance
+        return objectInstance
     }
 }
-
 
 internal class ObjectDescriptor(name: String) : SerialClassDescImpl(name) {
     override val kind: SerialKind = UnionKind.OBJECT
@@ -44,7 +41,6 @@ internal class ObjectDescriptor(name: String) : SerialClassDescImpl(name) {
         if (this === other) return true
         if (other !is SerialDescriptor) return false
         if (other.kind !== UnionKind.OBJECT) return false
-
         if (name != other.name) return false
         return true
     }

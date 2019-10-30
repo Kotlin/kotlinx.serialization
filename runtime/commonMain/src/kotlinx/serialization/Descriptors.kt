@@ -35,18 +35,20 @@ sealed class UnionKind : SerialKind() {
     object OBJECT : UnionKind()
     object ENUM_KIND : UnionKind() // https://github.com/JetBrains/kotlin-native/issues/1447
 
-    @Deprecated(
-        "Moved out from UnionKind to simplify instance check for both POLYMORPHIC and SEALED. You can use 'is PolymorphicKind' now.",
-        ReplaceWith("PolymorphicKind.OPEN"),
-        DeprecationLevel.ERROR
-    )
-    val POLYMORPHIC = PolymorphicKind.OPEN
-    @Deprecated(
-        "Moved out from UnionKind to simplify instance check for both POLYMORPHIC and SEALED. You can use 'is PolymorphicKind' now.",
-        ReplaceWith("PolymorphicKind.SEALED"),
-        DeprecationLevel.ERROR
-    )
-    val SEALED = PolymorphicKind.SEALED
+    companion object {
+        @Deprecated(
+            "Moved out from UnionKind to simplify instance check for both POLYMORPHIC and SEALED. You can use 'is PolymorphicKind' now.",
+            ReplaceWith("PolymorphicKind.OPEN"),
+            DeprecationLevel.ERROR
+        )
+        val POLYMORPHIC = PolymorphicKind.OPEN
+        @Deprecated(
+            "Moved out from UnionKind to simplify instance check for both POLYMORPHIC and SEALED. You can use 'is PolymorphicKind' now.",
+            ReplaceWith("PolymorphicKind.SEALED"),
+            DeprecationLevel.ERROR
+        )
+        val SEALED = PolymorphicKind.SEALED
+    }
 }
 
 sealed class PolymorphicKind : SerialKind() {
