@@ -149,6 +149,3 @@ public class SerializersModuleBuilder internal constructor(@JvmField internal va
         }
     }
 }
-
-@Deprecated(deprecationText, ReplaceWith("serializersModuleOf"))
-typealias SimpleModule<@Suppress("UNUSED_TYPEALIAS_PARAMETER") T> = SerialModule

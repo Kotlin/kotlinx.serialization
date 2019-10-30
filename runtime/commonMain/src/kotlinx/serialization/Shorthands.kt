@@ -74,7 +74,3 @@ internal inline fun <reified A: Annotation> SerialDescriptor.findAnnotation(elem
         else -> throw IllegalStateException("There are duplicate annotations of type ${A::class} in the descriptor $this")
     }
 }
-
-@Deprecated(deprecationText, ReplaceWith("elementsCount"))
-val SerialDescriptor.associatedFieldsCount: Int
-    get() = elementsCount
