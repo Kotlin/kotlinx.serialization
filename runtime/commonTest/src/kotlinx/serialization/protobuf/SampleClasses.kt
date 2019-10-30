@@ -33,6 +33,9 @@ data class TestString(@SerialId(2) val b: String)
 data class TestInner(@SerialId(3) val a: TestInt)
 
 @Serializable
+data class TestInnerNullable(@SerialId(3) val a: TestInt, @SerialId(4) val b: TestInt? = null)
+
+@Serializable
 data class TestComplex(@SerialId(42) val b: Int, @SerialId(2) val c: String)
 
 @Serializable
@@ -53,3 +56,4 @@ val t3e = TestString("")
 val t4 = TestInner(t1)
 val t5 = TestComplex(42, "testing")
 val t6 = TestNumbers(100500, Long.MAX_VALUE)
+val t7 = TestInnerNullable(t1, null)
