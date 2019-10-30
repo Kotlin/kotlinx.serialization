@@ -5,7 +5,6 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.modules.SerialModule
-import kotlinx.serialization.modules.plus
 import kotlinx.serialization.internal.HexConverter
 
 private const val INSTALL_DEPRECATION_TEXT = "Install is no longer supported, module can be added to format only in constructor"

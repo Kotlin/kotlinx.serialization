@@ -73,33 +73,6 @@ public sealed class KeyValueSerializer<K, V, R>(val kSerializer: KSerializer<K>,
 }
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-class MapEntryUpdatingSerializer<K, V>(mSerializer: MapEntrySerializer<K, V>, private val mapBuilder: MutableMap<K, V>) :
-    KeyValueSerializer<K, V, Map.Entry<K, V>>(mSerializer.kSerializer, mSerializer.vSerializer) {
-
-    override val descriptor = MapEntryClassDesc
-    override fun toResult(key: K, value: V): Map.Entry<K, V> = MapEntry(key, value)
-
-    override fun readValue(decoder: CompositeDecoder, k: Any?, kSet: Boolean): V {
-        if (!kSet) throw SerializationException("Key must be before value in serialization stream")
-        @Suppress("UNCHECKED_CAST")
-        val key = k as K
-        val v = if (mapBuilder.containsKey(key) && vSerializer.descriptor.kind !is PrimitiveKind) {
-            decoder.updateSerializableElement(descriptor, VALUE_INDEX, vSerializer, mapBuilder.getValue(key))
-        } else {
-            decoder.decodeSerializableElement(descriptor, VALUE_INDEX, vSerializer)
-        }
-        mapBuilder[key] = v
-        return v
-    }
-
-    override val Map.Entry<K, V>.key: K
-        get() = this.key
-    override val Map.Entry<K, V>.value: V
-        get() = this.value
-
-}
-
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 class MapEntrySerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
     KeyValueSerializer<K, V, Map.Entry<K, V>>(kSerializer, vSerializer) {
     override val descriptor = MapEntryClassDesc

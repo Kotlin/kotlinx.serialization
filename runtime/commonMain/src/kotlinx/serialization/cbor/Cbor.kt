@@ -20,24 +20,10 @@ import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.internal.*
-import kotlinx.serialization.modules.EmptyModule
-import kotlinx.serialization.modules.SerialModule
-import kotlin.experimental.or
+import kotlinx.serialization.modules.*
+import kotlin.experimental.*
 
 class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: Boolean = true, context: SerialModule = EmptyModule): AbstractSerialFormat(context), BinaryFormat {
-    // Writes map entry as plain [key, value] pair, without bounds.
-    private inner class CborEntryWriter(encoder: CborEncoder) : CborWriter(encoder) {
-        override fun writeBeginToken() {
-            // no-op
-        }
-
-        override fun endStructure(desc: SerialDescriptor) {
-            // no-op
-        }
-
-        override fun encodeElement(desc: SerialDescriptor, index: Int) = true
-    }
-
     // Differs from List only in start byte
     private inner class CborMapWriter(encoder: CborEncoder) : CborListWriter(encoder) {
         override fun writeBeginToken() = encoder.startMap()
@@ -154,24 +140,6 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
             val data = composePositive(aVal)
             data[0] = data[0] or HEADER_NEGATIVE
             return data
-        }
-    }
-
-    private inner class CborEntryReader(decoder: CborDecoder) : CborReader(decoder) {
-        private var ind = 0
-
-        override fun skipBeginToken() {
-            // no-op
-        }
-
-        override fun endStructure(desc: SerialDescriptor) {
-            // no-op
-        }
-
-        override fun decodeElementIndex(desc: SerialDescriptor) = when (ind++) {
-            0 -> 0
-            1 -> 1
-            else -> READ_DONE
         }
     }
 
@@ -334,8 +302,8 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
                 else -> 0
             }
             if (bytesToRead == 0) {
-                if (negative) return -(value + 1).toLong()
-                else return value.toLong()
+                return if (negative) -(value + 1).toLong()
+                else value.toLong()
             }
             val buf = input.readToByteBuffer(bytesToRead)
             val res = when (bytesToRead) {

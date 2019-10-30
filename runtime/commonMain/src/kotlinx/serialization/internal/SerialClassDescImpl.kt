@@ -6,7 +6,6 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
-import kotlin.LazyThreadSafetyMode.*
 import kotlin.jvm.JvmOverloads
 
 open class SerialClassDescImpl @JvmOverloads constructor(

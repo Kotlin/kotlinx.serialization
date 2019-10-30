@@ -2,7 +2,7 @@
  * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:Suppress("RedundantVisibilityModifier")
+@file:Suppress("unused")
 
 package kotlinx.serialization.json
 
@@ -57,7 +57,7 @@ public sealed class JsonElement {
         get() = this === JsonNull
 
     private fun error(element: String): Nothing =
-        throw JsonException("Element ${this::class.toString()} is not a $element")
+        throw JsonException("Element ${this::class} is not a $element")
 }
 
 /**

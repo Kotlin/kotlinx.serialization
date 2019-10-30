@@ -13,11 +13,6 @@ import kotlinx.serialization.internal.EnumDescriptor
 @Target(AnnotationTarget.PROPERTY)
 annotation class SerialId(val id: Int)
 
-@SerialInfo
-@Target(AnnotationTarget.PROPERTY)
-annotation class SerialTag(val tag: String)
-
-
 abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
 
     /**
@@ -35,16 +30,6 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
 
     open fun encodeTaggedNotNullMark(tag: Tag) {}
     open fun encodeTaggedNull(tag: Tag): Unit = throw SerializationException("null is not supported")
-
-    private fun encodeTaggedNullable(tag: Tag, value: Any?) {
-        if (value == null) {
-            encodeTaggedNull(tag)
-        } else {
-            encodeTaggedNotNullMark(tag)
-            encodeTaggedValue(tag, value)
-        }
-    }
-
     open fun encodeTaggedUnit(tag: Tag) = encodeTaggedValue(tag, Unit)
     open fun encodeTaggedInt(tag: Tag, value: Int) = encodeTaggedValue(tag, value)
     open fun encodeTaggedByte(tag: Tag, value: Byte) = encodeTaggedValue(tag, value)
@@ -157,14 +142,11 @@ abstract class NamedValueEncoder(val rootName: String = "") : TaggedEncoder<Stri
 
     protected fun nested(nestedName: String) = composeName(currentTagOrNull ?: rootName, nestedName)
     open fun elementName(desc: SerialDescriptor, index: Int) = desc.getElementName(index)
-    open fun composeName(parentName: String, childName: String) = if (parentName.isEmpty()) childName else parentName + "." + childName
+    open fun composeName(parentName: String, childName: String) = if (parentName.isEmpty()) childName else "$parentName.$childName"
 }
 
 internal fun getSerialId(desc: SerialDescriptor, index: Int): Int?
         = desc.findAnnotation<SerialId>(index)?.id
-
-internal fun getSerialTag(desc: SerialDescriptor, index: Int): String?
-        = desc.findAnnotation<SerialTag>(index)?.tag
 
 abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     override val context: SerialModule
@@ -181,14 +163,6 @@ abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
 
     open fun decodeTaggedNotNullMark(tag: Tag): Boolean = true
     open fun decodeTaggedNull(tag: Tag): Nothing? = null
-
-    private fun decodeTaggedNullable(tag: Tag): Any? {
-        return if (decodeTaggedNotNullMark(tag)) {
-            decodeTaggedValue(tag)
-        } else {
-            decodeTaggedNull(tag)
-        }
-    }
 
     open fun decodeTaggedUnit(tag: Tag): Unit = decodeTaggedValue(tag) as Unit
     open fun decodeTaggedBoolean(tag: Tag): Boolean = decodeTaggedValue(tag) as Boolean
@@ -286,14 +260,10 @@ abstract class IntTaggedDecoder: TaggedDecoder<Int?>() {
     final override fun SerialDescriptor.getTag(index: Int): Int? = getSerialId(this, index)
 }
 
-abstract class StringTaggedDecoder : TaggedDecoder<String?>() {
-    final override fun SerialDescriptor.getTag(index: Int): String? = getSerialTag(this, index)
-}
-
 abstract class NamedValueDecoder(val rootName: String = "") : TaggedDecoder<String>() {
     final override fun SerialDescriptor.getTag(index: Int): String = nested(elementName(this, index))
 
     protected fun nested(nestedName: String) = composeName(currentTagOrNull ?: rootName, nestedName)
     open fun elementName(desc: SerialDescriptor, index: Int) = desc.getElementName(index)
-    open fun composeName(parentName: String, childName: String) = if (parentName.isEmpty()) childName else parentName + "." + childName
+    open fun composeName(parentName: String, childName: String) = if (parentName.isEmpty()) childName else "$parentName.$childName"
 }

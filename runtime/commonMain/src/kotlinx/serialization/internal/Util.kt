@@ -41,20 +41,14 @@ internal fun InputStream.readToByteBuffer(bytes: Int): ByteBuffer {
 object HexConverter {
     fun parseHexBinary(s: String): ByteArray {
         val len = s.length
-
-        if (len % 2 != 0) {
-            throw IllegalArgumentException("HexBinary string must be even length")
-        }
-
+        require(len % 2 == 0) { "HexBinary string must be even length" }
         val bytes = ByteArray(len / 2)
         var i = 0
 
         while (i < len) {
             val h = hexToInt(s[i])
             val l = hexToInt(s[i + 1])
-            if (h == -1 || l == -1) {
-                throw IllegalArgumentException("Invalid hex chars: ${s[i]}${s[i+1]}")
-            }
+            require(!(h == -1 || l == -1)) { "Invalid hex chars: ${s[i]}${s[i+1]}" }
 
             bytes[i / 2] = ((h shl 4) + l).toByte()
             i += 2
