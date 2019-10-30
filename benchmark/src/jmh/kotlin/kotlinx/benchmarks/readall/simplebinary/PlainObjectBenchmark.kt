@@ -19,13 +19,20 @@ open class SimpleBinaryFormatBenchmark {
     private val readAllDecoder = ReadAllBinaryDecoder(fixedData)
 
     @Serializable
-    data class Fields3(val i1: Byte, val i2: Float, val i3: Int)
+    data class Fields3(val i1: Float, val i2: Byte, val i3: Int)
     private val readByOneDecoder3 = ReadByOneBinaryDecoder(fixedData, 3)
+    private val readAllExtraDecoder3 = ReadAllWithExtraDecodeElementIndex(fixedData, 3)
 
     @Benchmark
     fun fields03All(): Fields3 {
         readAllDecoder.reset()
         return readAllDecoder.decode(Fields3.serializer())
+    }
+
+    @Benchmark
+    fun fields03AllExtra(): Fields3 {
+        readAllExtraDecoder3.reset()
+        return  readAllExtraDecoder3.decode(Fields3.serializer())
     }
 
     @Benchmark
@@ -35,13 +42,20 @@ open class SimpleBinaryFormatBenchmark {
     }
 
     @Serializable
-    data class Fields6(val i1: Byte, val i2: Float, val i3: Int, val i4: Byte, val i5: Float, val i6: Int)
+    data class Fields6(val i1: Float, val i2: Byte, val i3: Int, val i4: Float, val i5: Byte, val i6: Int)
     private val readByOneDecoder6 = ReadByOneBinaryDecoder(fixedData, 6)
+    private val readAllExtraDecoder6 = ReadAllWithExtraDecodeElementIndex(fixedData, 6)
 
     @Benchmark
     fun fields06All(): Fields6 {
         readAllDecoder.reset()
         return readAllDecoder.decode(Fields6.serializer())
+    }
+
+    @Benchmark
+    fun fields06AllExtra(): Fields6 {
+        readAllExtraDecoder6.reset()
+        return  readAllExtraDecoder6.decode(Fields6.serializer())
     }
 
     @Benchmark
@@ -51,13 +65,20 @@ open class SimpleBinaryFormatBenchmark {
     }
 
     @Serializable
-    data class Fields9(val i1: Byte, val i2: Float, val i3: Int, val i4: Byte, val i5: Float, val i6: Int, val i7: Byte, val i8: Float, val i9: Int)
+    data class Fields9(val i1: Float, val i2: Byte, val i3: Int, val i4: Float, val i5: Byte, val i6: Int, val i7: Float, val i8: Byte, val i9: Int)
     private val readByOneDecoder9 = ReadByOneBinaryDecoder(fixedData, 9)
+    private val readAllExtraDecoder9 = ReadAllWithExtraDecodeElementIndex(fixedData, 9)
 
     @Benchmark
     fun fields09All(): Fields9 {
         readAllDecoder.reset()
         return readAllDecoder.decode(Fields9.serializer())
+    }
+
+    @Benchmark
+    fun fields09AllExtra(): Fields9 {
+        readAllExtraDecoder9.reset()
+        return  readAllExtraDecoder9.decode(Fields9.serializer())
     }
 
     @Benchmark
@@ -67,13 +88,20 @@ open class SimpleBinaryFormatBenchmark {
     }
 
     @Serializable
-    data class Fields18(val i1: Byte, val i2: Float, val i3: Int, val i4: Byte, val i5: Float, val i6: Int, val i7: Byte, val i8: Float, val i9: Int, val i10: Byte, val i11: Float, val i12: Int, val i13: Byte, val i14: Float, val i15: Int, val i16: Byte, val i17: Float, val i18: Int)
+    data class Fields18(val i1: Float, val i2: Byte, val i3: Int, val i4: Float, val i5: Byte, val i6: Int, val i7: Float, val i8: Byte, val i9: Int, val i10: Float, val i11: Byte, val i12: Int, val i13: Float, val i14: Byte, val i15: Int, val i16: Float, val i17: Byte, val i18: Int)
     private val readByOneDecoder18 = ReadByOneBinaryDecoder(fixedData, 18)
+    private val readAllExtraDecoder18 = ReadAllWithExtraDecodeElementIndex(fixedData, 18)
 
     @Benchmark
     fun fields18All(): Fields18 {
         readAllDecoder.reset()
         return readAllDecoder.decode(Fields18.serializer())
+    }
+
+    @Benchmark
+    fun fields18AllExtra(): Fields18 {
+        readAllExtraDecoder18.reset()
+        return  readAllExtraDecoder18.decode(Fields18.serializer())
     }
 
     @Benchmark
@@ -83,13 +111,20 @@ open class SimpleBinaryFormatBenchmark {
     }
 
     @Serializable
-    data class Fields24(val i1: Byte, val i2: Float, val i3: Int, val i4: Byte, val i5: Float, val i6: Int, val i7: Byte, val i8: Float, val i9: Int, val i10: Byte, val i11: Float, val i12: Int, val i13: Byte, val i14: Float, val i15: Int, val i16: Byte, val i17: Float, val i18: Int, val i19: Byte, val i20: Float, val i21: Int, val i22: Byte, val i23: Float, val i24: Int)
+    data class Fields24(val i1: Float, val i2: Byte, val i3: Int, val i4: Float, val i5: Byte, val i6: Int, val i7: Float, val i8: Byte, val i9: Int, val i10: Float, val i11: Byte, val i12: Int, val i13: Float, val i14: Byte, val i15: Int, val i16: Float, val i17: Byte, val i18: Int, val i19: Float, val i20: Byte, val i21: Int, val i22: Float, val i23: Byte, val i24: Int)
     private val readByOneDecoder24 = ReadByOneBinaryDecoder(fixedData, 24)
+    private val readAllExtraDecoder24 = ReadAllWithExtraDecodeElementIndex(fixedData, 24)
 
     @Benchmark
     fun fields24All(): Fields24 {
         readAllDecoder.reset()
         return readAllDecoder.decode(Fields24.serializer())
+    }
+
+    @Benchmark
+    fun fields24AllExtra(): Fields24 {
+        readAllExtraDecoder24.reset()
+        return  readAllExtraDecoder24.decode(Fields24.serializer())
     }
 
     @Benchmark
@@ -99,13 +134,20 @@ open class SimpleBinaryFormatBenchmark {
     }
 
     @Serializable
-    data class Fields72(val i1: Byte, val i2: Float, val i3: Int, val i4: Byte, val i5: Float, val i6: Int, val i7: Byte, val i8: Float, val i9: Int, val i10: Byte, val i11: Float, val i12: Int, val i13: Byte, val i14: Float, val i15: Int, val i16: Byte, val i17: Float, val i18: Int, val i19: Byte, val i20: Float, val i21: Int, val i22: Byte, val i23: Float, val i24: Int, val i25: Byte, val i26: Float, val i27: Int, val i28: Byte, val i29: Float, val i30: Int, val i31: Byte, val i32: Float, val i33: Int, val i34: Byte, val i35: Float, val i36: Int, val i37: Byte, val i38: Float, val i39: Int, val i40: Byte, val i41: Float, val i42: Int, val i43: Byte, val i44: Float, val i45: Int, val i46: Byte, val i47: Float, val i48: Int, val i49: Byte, val i50: Float, val i51: Int, val i52: Byte, val i53: Float, val i54: Int, val i55: Byte, val i56: Float, val i57: Int, val i58: Byte, val i59: Float, val i60: Int, val i61: Byte, val i62: Float, val i63: Int, val i64: Byte, val i65: Float, val i66: Int, val i67: Byte, val i68: Float, val i69: Int, val i70: Byte, val i71: Float, val i72: Int)
+    data class Fields72(val i1: Float, val i2: Byte, val i3: Int, val i4: Float, val i5: Byte, val i6: Int, val i7: Float, val i8: Byte, val i9: Int, val i10: Float, val i11: Byte, val i12: Int, val i13: Float, val i14: Byte, val i15: Int, val i16: Float, val i17: Byte, val i18: Int, val i19: Float, val i20: Byte, val i21: Int, val i22: Float, val i23: Byte, val i24: Int, val i25: Float, val i26: Byte, val i27: Int, val i28: Float, val i29: Byte, val i30: Int, val i31: Float, val i32: Byte, val i33: Int, val i34: Float, val i35: Byte, val i36: Int, val i37: Float, val i38: Byte, val i39: Int, val i40: Float, val i41: Byte, val i42: Int, val i43: Float, val i44: Byte, val i45: Int, val i46: Float, val i47: Byte, val i48: Int, val i49: Float, val i50: Byte, val i51: Int, val i52: Float, val i53: Byte, val i54: Int, val i55: Float, val i56: Byte, val i57: Int, val i58: Float, val i59: Byte, val i60: Int, val i61: Float, val i62: Byte, val i63: Int, val i64: Float, val i65: Byte, val i66: Int, val i67: Float, val i68: Byte, val i69: Int, val i70: Float, val i71: Byte, val i72: Int)
     private val readByOneDecoder72 = ReadByOneBinaryDecoder(fixedData, 72)
+    private val readAllExtraDecoder72 = ReadAllWithExtraDecodeElementIndex(fixedData, 72)
 
     @Benchmark
     fun fields72All(): Fields72 {
         readAllDecoder.reset()
         return readAllDecoder.decode(Fields72.serializer())
+    }
+
+    @Benchmark
+    fun fields72AllExtra(): Fields72 {
+        readAllExtraDecoder72.reset()
+        return  readAllExtraDecoder72.decode(Fields72.serializer())
     }
 
     @Benchmark
@@ -144,12 +186,19 @@ private fun generateBenchmarks() {
             append(
                 """
                 private val readByOneDecoder$fields = ReadByOneBinaryDecoder(fixedData, $fields)
-
+                private val readAllExtraDecoder$fields = ReadAllWithExtraDecodeElementIndex(fixedData, $fields)
+                
                 @Benchmark
                 fun fields${cnt}All(): $clz {
                     readAllDecoder.reset()
                     return readAllDecoder.decode($clz.serializer())
-                }    
+                }  
+                  
+                @Benchmark
+                fun fields${cnt}AllExtra(): $clz {
+                     readAllExtraDecoder$fields.reset()
+                    return  readAllExtraDecoder$fields.decode($clz.serializer())
+                }   
 
                 @Benchmark
                 fun fields${cnt}ByOne(): $clz {
