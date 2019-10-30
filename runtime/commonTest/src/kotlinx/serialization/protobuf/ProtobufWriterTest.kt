@@ -58,4 +58,9 @@ class ProtobufWriterTest {
     fun writeNumbers() {
         ProtoBuf.dumps(TestNumbers.serializer(), t6).toLowerCase() shouldBe "0d9488010010ffffffffffffffff7f"
     }
+
+    @Test
+    fun writeNullableFields() {
+        ProtoBuf.dumps(TestInnerNullable.serializer(), t7).toLowerCase() shouldBe "1a0308ab02"
+    }
 }

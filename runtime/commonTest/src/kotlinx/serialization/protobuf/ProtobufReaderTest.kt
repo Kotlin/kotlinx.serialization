@@ -59,4 +59,9 @@ class ProtobufReaderTest {
         if (isNative()) return // todo: support update on Native
         ProtoBuf.loads(TestIntWithList.serializer(), "500308960150045005") shouldBe TestIntWithList(150, listOf(3, 4, 5))
     }
+
+    @Test
+    fun readObjectWithNullableMissingFields() {
+        ProtoBuf.loads(TestInnerNullable.serializer(), "1a0308ab02") shouldBe t7
+    }
 }
