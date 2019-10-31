@@ -64,9 +64,18 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
 
     // ---- Implementation of low-level API ----
 
-    fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
+    fun <T: Any?> encodeElement(desc: SerialDescriptor, index: Int, value: T): Boolean {
         val tag = desc.getTag(index)
-        val shouldWriteElement = shouldWriteElement(desc, tag, index)
+        val shouldWriteElement = shouldWriteElement(desc, tag, index, value)
+        if (shouldWriteElement) {
+            pushTag(tag)
+        }
+        return shouldWriteElement
+    }
+
+    fun encodeNullElement(desc: SerialDescriptor, index: Int): Boolean {
+        val tag = desc.getTag(index)
+        val shouldWriteElement = shouldWriteNullElement(desc, tag, index)
         if (shouldWriteElement) {
             pushTag(tag)
         }
@@ -74,7 +83,8 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
     }
 
     // For format-specific behaviour, invoked only on
-    open fun shouldWriteElement(desc: SerialDescriptor, tag: Tag, index: Int) = true
+    open fun <T: Any?> shouldWriteElement(desc: SerialDescriptor, tag: Tag, index: Int, value: T) = true
+    open fun shouldWriteNullElement(desc: SerialDescriptor, tag: Tag, index: Int) = true
 
     final override fun encodeNotNullMark() = encodeTaggedNotNullMark(currentTag)
     final override fun encodeNull() = encodeTaggedNull(popTag())
@@ -122,12 +132,13 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
     final override fun encodeStringElement(desc: SerialDescriptor, index: Int, value: String) = encodeTaggedString(desc.getTag(index), value)
 
     final override fun <T : Any?> encodeSerializableElement(desc: SerialDescriptor, index: Int, serializer: SerializationStrategy<T>, value: T) {
-        if (encodeElement(desc, index))
+        if (encodeElement(desc, index, value))
             encodeSerializableValue(serializer, value)
     }
 
     final override fun <T : Any> encodeNullableSerializableElement(desc: SerialDescriptor, index: Int, serializer: SerializationStrategy<T>, value: T?) {
-        if (encodeElement(desc, index))
+        if (value == null && encodeNullElement(desc, index)
+            || value != null && encodeElement(desc, index, value))
             encodeNullableSerializableValue(serializer, value)
     }
 

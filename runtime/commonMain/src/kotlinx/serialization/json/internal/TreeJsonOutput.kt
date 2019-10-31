@@ -166,7 +166,8 @@ private class JsonTreeMapOutput(json: Json, nodeConsumer: (JsonElement) -> Unit)
         return JsonObject(content)
     }
 
-    override fun shouldWriteElement(desc: SerialDescriptor, tag: String, index: Int): Boolean = true
+    override fun <T: Any?> shouldWriteElement(desc: SerialDescriptor, tag: String, index: Int, value: T): Boolean = true
+    override fun shouldWriteNullElement(desc: SerialDescriptor, tag: String, index: Int): Boolean = true
 }
 
 private class JsonTreeListOutput(json: Json, nodeConsumer: (JsonElement) -> Unit) :
@@ -174,7 +175,8 @@ private class JsonTreeListOutput(json: Json, nodeConsumer: (JsonElement) -> Unit
     private val array: ArrayList<JsonElement> = arrayListOf()
     override fun elementName(desc: SerialDescriptor, index: Int): String = index.toString()
 
-    override fun shouldWriteElement(desc: SerialDescriptor, tag: String, index: Int): Boolean = true
+    override fun <T: Any?> shouldWriteElement(desc: SerialDescriptor, tag: String, index: Int, value: T): Boolean = true
+    override fun shouldWriteNullElement(desc: SerialDescriptor, tag: String, index: Int): Boolean = true
 
     override fun putElement(key: String, element: JsonElement) {
         val idx = key.toInt()
