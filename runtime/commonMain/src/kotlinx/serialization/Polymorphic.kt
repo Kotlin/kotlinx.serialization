@@ -29,27 +29,31 @@ public object PolymorphicClassDescriptor : SerialClassDescImpl("kotlin.Any") {
 /**
  * This class provides support for multiplatform polymorphic serialization for interfaces and abstract classes.
  *
- * Due to security and reflection usage concerns, all serializable implementations of some abstract class must be registered in advance.
- * However, it allows registering subclasses in runtime, not compile-time. For example, it allows adding additional subclasses to the registry
- * that were defined in a separate module, dependent on the base module with the base class.
+ * To avoid the most common security pitfalls and reflective lookup (and potential load) of an arbitrary class,
+ * all serializable implementations of any polymorphic type must be [registered][SerializersModuleBuilder.polymorphic]
+ * in advance in the scope of base polymorphic type, efficiently preventing unbounded polymorphic serialization
+ * of an arbitrary type.
  *
- * Polymorphic serialization is enabled automatically by default only for types that are interfaces or [Serializable] abstract classes.
+ * Polymorphic serialization is enabled automatically by default for interfaces and [Serializable] abstract classes.
  * To enable this feature explicitly on other types, use `@SerializableWith(PolymorphicSerializer::class)`
- * or just [Polymorphic] annotation on the property.
+ * or [Polymorphic] annotation on the property.
  *
- * Another security requirement is that we only allow to register subclasses in the scope of a [baseClass].
- * The motivation for this is easily understandable from the example:
- *
+ * Usage of the polymorphic serialization can be demonstrated by the following example:
  * ```
  * abstract class BaseRequest()
- * @Serializable data class RequestA(val id: Int): BaseRequest()
- * @Serializable data class RequestB(val s: String): BaseRequest()
+ * @Serializable
+ * data class RequestA(val id: Int): BaseRequest()
+ * @Serializable
+ * data class RequestB(val s: String): BaseRequest()
  *
  * abstract class BaseResponse()
- * @Serializable data class ResponseC(val payload: Long): BaseResponse()
- * @Serializable data class ResponseD(val payload: ByteArray): BaseResponse()
+ * @Serializable
+ * data class ResponseC(val payload: Long): BaseResponse()
+ * @Serializable
+ * data class ResponseD(val payload: ByteArray): BaseResponse()
  *
- * @Serializable data class Message(
+ * @Serializable
+ * data class Message(
  *     @Polymorphic val request: BaseRequest,
  *     @Polymorphic val response: BaseResponse
  * )

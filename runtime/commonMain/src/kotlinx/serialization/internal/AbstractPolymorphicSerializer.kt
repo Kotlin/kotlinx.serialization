@@ -11,10 +11,11 @@ import kotlin.reflect.KClass
  * Base class for providing multiplatform polymorphic serialization.
  *
  * This class cannot be implemented by library users. To learn how to use it for your case,
- * see [PolymorphicSerializer] for interfaces/abstract classes and [SealedClassSerializer] for sealed classes.
+ * please refer to [PolymorphicSerializer] for interfaces/abstract classes and [SealedClassSerializer] for sealed classes.
  *
- * By default, (without special support from [Encoder]), polymorphic values are serialized as list with
- * two elements: fully-qualified class name (String) and the object itself.
+ * By default, without special support from [Encoder], polymorphic types are serialized as list with
+ * two elements: class [serial name][SerialDescriptor.name] (String) and the object itself.
+ * Serial name equals to fully-qualified class name by default and can be changed via @[SerialName] annotation.
  */
 @InternalSerializationApi
 public abstract class AbstractPolymorphicSerializer<T : Any> internal constructor() : KSerializer<T> {
@@ -93,7 +94,6 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
     ): KSerializer<out T> =
         encoder.context.getPolymorphic(baseClass, value) ?: throwSubtypeNotRegistered(value::class, baseClass)
 }
-
 
 private fun throwSubtypeNotRegistered(subClassName: String, baseClass: KClass<*>): Nothing =
     throw SerializationException("$subClassName is not registered for polymorphic serialization in the scope of $baseClass")

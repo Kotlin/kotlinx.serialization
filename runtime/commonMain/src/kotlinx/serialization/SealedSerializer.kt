@@ -14,7 +14,7 @@ import kotlin.reflect.KClass
  *
  * In contrary to [PolymorphicSerializer], all known subclasses with serializers must be passed
  * in `subclasses` and `subSerializers` constructor parameters.
- * If a subclass is sealed class itself, all its subclasses are registered as well.
+ * If a subclass is a sealed class itself, all its subclasses are registered as well.
  * In most of the cases, you won't need to perform any manual setup:
  *
  * ```
@@ -31,7 +31,7 @@ import kotlin.reflect.KClass
  * Json.stringify(SimpleSealed.serializer(), SubSealedA("foo"))
  * ```
  *
- * However, it is possible to register additional subclasses later using regular [SerializersModule].
+ * However, it is possible to register additional subclasses using regular [SerializersModule].
  * It is required when one of the subclasses is an abstract class itself:
  *
  * ```
@@ -52,7 +52,7 @@ import kotlin.reflect.KClass
  * ```
  *
  * In this case, `ErrorMessage` would be registered automatically by the plugin,
- * but `StringMessage` and `IntMessage` require regular registration, as described in [PolymorphicSerializer] documentation:
+ * but `StringMessage` and `IntMessage` require manual registration, as described in [PolymorphicSerializer] documentation:
  *
  * ```
  * val abstractContext = SerializersModule {
