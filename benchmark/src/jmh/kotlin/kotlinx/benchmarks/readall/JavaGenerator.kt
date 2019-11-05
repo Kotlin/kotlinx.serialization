@@ -54,7 +54,7 @@ import kotlinx.serialization.*;
     )
 
     for (i in 0 until fields) {
-        val pow = 2 shl (i - 1)
+        val pow = 2 shl i
         appendln(
             """
             case $i:
@@ -134,7 +134,7 @@ import kotlinx.serialization.*;
             switch (idx) {
     """.trimIndent())
     for (i in 0 until fields) {
-        val pow = 2 shl (i - 1)
+        val pow = 2 shl i
         appendln(
             """
             case $i:
@@ -159,6 +159,94 @@ import kotlinx.serialization.*;
     appendln("}}}")
 }
 
+
+fun generateClassNew2(fields: Int): String = buildString {
+    val clzName = "Fields${fields}New2"
+    appendln("package kotlinx.benchmarks.fields;")
+    append(
+        """
+import kotlin.jvm.internal.Intrinsics;
+import kotlinx.serialization.*;
+    """.trimIndent()
+    )
+
+    appendln("\npublic class $clzName {")
+    for (i in 1..fields) {
+        appendln("int i$i;")
+    }
+
+    append("public $clzName(int mask, ")
+    appendln((1..fields).toList().joinToString(separator = ",", postfix = ") {") { "int i$it" })
+    for (i in 1..fields) {
+        appendln("this.i$i = i$i;")
+    }
+    appendln("}")
+
+    appendln(
+        """
+        public static $clzName deserialize(Decoder decoder) {
+        Intrinsics.checkParameterIsNotNull(decoder, "decoder");
+        SerialDescriptor var2 = null;
+        CompositeDecoder composite = decoder.beginStructure(var2, new KSerializer[0]);
+    """.trimIndent()
+    )
+
+    appendln("""
+         if (composite.readAll()) {
+            return readAll(var2, composite);
+        } else {
+            return byOne(var2, composite);
+        }
+    }
+    """.trimIndent())
+
+    appendln("private static $clzName byOne(SerialDescriptor var2, CompositeDecoder composite) {")
+    for (i in 1..fields) {
+        appendln("int i$i = composite.decodeIntElement(var2, $i);")
+    }
+    appendln("""
+        composite.endStructure(var2);
+        return new $clzName(Integer.MAX_VALUE, ${(1..fields).toList().joinToString(separator = ",") { "i$it" }});
+        }
+    """.trimIndent())
+    appendln("""
+        private static $clzName readAll(SerialDescriptor var2, CompositeDecoder composite) {
+        """)
+    for (i in 1..fields) {
+        appendln("int i$i = 0;")
+    }
+    appendln("""
+        int mask = 0;
+         while (true) {
+            int idx = composite.decodeElementIndex(var2);
+            switch (idx) {
+    """.trimIndent())
+    for (i in 0 until fields) {
+        val pow = 2 shl i
+        appendln(
+            """
+            case $i:
+                i${i + 1} = composite.decodeIntElement(var2, $i);
+                mask |= $pow;
+            break;
+        """.trimIndent()
+        )
+    }
+
+    appendln(
+        """
+            case -1:
+                    composite.endStructure(var2);
+                    return new $clzName(mask, ${(1..fields).toList().joinToString(separator = ",") { "i$it" }});
+                default:
+                    throw new RuntimeException();
+            }
+        }}}
+    """.trimIndent()
+    )
+}
+
+
 fun writeClass(fields: Int) {
     val p =
         Paths.get("/Users/qwwdfsad/workspace/kotlinx.serialization/benchmark/src/jmh/java/kotlinx/benchmarks/fields/Fields$fields.java")
@@ -171,9 +259,16 @@ fun writeClassNew(fields: Int) {
     Files.write(p, listOf(generateClassNew(fields)))
 }
 
+fun writeClassNew2(fields: Int) {
+    val p =
+        Paths.get("/Users/qwwdfsad/workspace/kotlinx.serialization/benchmark/src/jmh/java/kotlinx/benchmarks/fields/Fields${fields}New2.java")
+    Files.write(p, listOf(generateClassNew2(fields)))
+}
+
 fun main() {
     for (i in 1..31) {
         writeClass(i)
         writeClassNew(i)
+        writeClassNew2(i)
     }
 }

@@ -117,95 +117,95 @@ public class Fields23New {
                 switch (idx) {
                     case 0:
                         i1 = composite.decodeIntElement(var2, 0);
-                        mask |= 0;
+                        mask |= 2;
                         break;
                     case 1:
                         i2 = composite.decodeIntElement(var2, 1);
-                        mask |= 2;
+                        mask |= 4;
                         break;
                     case 2:
                         i3 = composite.decodeIntElement(var2, 2);
-                        mask |= 4;
+                        mask |= 8;
                         break;
                     case 3:
                         i4 = composite.decodeIntElement(var2, 3);
-                        mask |= 8;
+                        mask |= 16;
                         break;
                     case 4:
                         i5 = composite.decodeIntElement(var2, 4);
-                        mask |= 16;
+                        mask |= 32;
                         break;
                     case 5:
                         i6 = composite.decodeIntElement(var2, 5);
-                        mask |= 32;
+                        mask |= 64;
                         break;
                     case 6:
                         i7 = composite.decodeIntElement(var2, 6);
-                        mask |= 64;
+                        mask |= 128;
                         break;
                     case 7:
                         i8 = composite.decodeIntElement(var2, 7);
-                        mask |= 128;
+                        mask |= 256;
                         break;
                     case 8:
                         i9 = composite.decodeIntElement(var2, 8);
-                        mask |= 256;
+                        mask |= 512;
                         break;
                     case 9:
                         i10 = composite.decodeIntElement(var2, 9);
-                        mask |= 512;
+                        mask |= 1024;
                         break;
                     case 10:
                         i11 = composite.decodeIntElement(var2, 10);
-                        mask |= 1024;
+                        mask |= 2048;
                         break;
                     case 11:
                         i12 = composite.decodeIntElement(var2, 11);
-                        mask |= 2048;
+                        mask |= 4096;
                         break;
                     case 12:
                         i13 = composite.decodeIntElement(var2, 12);
-                        mask |= 4096;
+                        mask |= 8192;
                         break;
                     case 13:
                         i14 = composite.decodeIntElement(var2, 13);
-                        mask |= 8192;
+                        mask |= 16384;
                         break;
                     case 14:
                         i15 = composite.decodeIntElement(var2, 14);
-                        mask |= 16384;
+                        mask |= 32768;
                         break;
                     case 15:
                         i16 = composite.decodeIntElement(var2, 15);
-                        mask |= 32768;
+                        mask |= 65536;
                         break;
                     case 16:
                         i17 = composite.decodeIntElement(var2, 16);
-                        mask |= 65536;
+                        mask |= 131072;
                         break;
                     case 17:
                         i18 = composite.decodeIntElement(var2, 17);
-                        mask |= 131072;
+                        mask |= 262144;
                         break;
                     case 18:
                         i19 = composite.decodeIntElement(var2, 18);
-                        mask |= 262144;
+                        mask |= 524288;
                         break;
                     case 19:
                         i20 = composite.decodeIntElement(var2, 19);
-                        mask |= 524288;
+                        mask |= 1048576;
                         break;
                     case 20:
                         i21 = composite.decodeIntElement(var2, 20);
-                        mask |= 1048576;
+                        mask |= 2097152;
                         break;
                     case 21:
                         i22 = composite.decodeIntElement(var2, 21);
-                        mask |= 2097152;
+                        mask |= 4194304;
                         break;
                     case 22:
                         i23 = composite.decodeIntElement(var2, 22);
-                        mask |= 4194304;
+                        mask |= 8388608;
                         break;
                     case -1:
                         composite.endStructure(var2);

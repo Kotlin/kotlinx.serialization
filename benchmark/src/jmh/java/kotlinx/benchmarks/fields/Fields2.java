@@ -31,13 +31,13 @@ public class Fields2 {
 
                 case 0:
                     i1 = composite.decodeIntElement(var2, 0);
-                    mask |= 0;
+                    mask |= 2;
                     if (!readAll) {
                         break;
                     }
                 case 1:
                     i2 = composite.decodeIntElement(var2, 1);
-                    mask |= 2;
+                    mask |= 4;
                     if (!readAll) {
                         break;
                     }

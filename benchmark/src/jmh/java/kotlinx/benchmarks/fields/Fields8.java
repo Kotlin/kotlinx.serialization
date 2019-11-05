@@ -49,49 +49,49 @@ public class Fields8 {
 
                 case 0:
                     i1 = composite.decodeIntElement(var2, 0);
-                    mask |= 0;
+                    mask |= 2;
                     if (!readAll) {
                         break;
                     }
                 case 1:
                     i2 = composite.decodeIntElement(var2, 1);
-                    mask |= 2;
+                    mask |= 4;
                     if (!readAll) {
                         break;
                     }
                 case 2:
                     i3 = composite.decodeIntElement(var2, 2);
-                    mask |= 4;
+                    mask |= 8;
                     if (!readAll) {
                         break;
                     }
                 case 3:
                     i4 = composite.decodeIntElement(var2, 3);
-                    mask |= 8;
+                    mask |= 16;
                     if (!readAll) {
                         break;
                     }
                 case 4:
                     i5 = composite.decodeIntElement(var2, 4);
-                    mask |= 16;
+                    mask |= 32;
                     if (!readAll) {
                         break;
                     }
                 case 5:
                     i6 = composite.decodeIntElement(var2, 5);
-                    mask |= 32;
+                    mask |= 64;
                     if (!readAll) {
                         break;
                     }
                 case 6:
                     i7 = composite.decodeIntElement(var2, 6);
-                    mask |= 64;
+                    mask |= 128;
                     if (!readAll) {
                         break;
                     }
                 case 7:
                     i8 = composite.decodeIntElement(var2, 7);
-                    mask |= 128;
+                    mask |= 256;
                     if (!readAll) {
                         break;
                     }

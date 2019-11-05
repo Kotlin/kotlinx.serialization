@@ -28,7 +28,7 @@ public class Fields1 {
 
                 case 0:
                     i1 = composite.decodeIntElement(var2, 0);
-                    mask |= 0;
+                    mask |= 2;
                     if (!readAll) {
                         break;
                     }

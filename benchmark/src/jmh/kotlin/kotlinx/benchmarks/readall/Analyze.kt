@@ -17,10 +17,10 @@ fun main() {
     for (i in 1..31) {
         val path = "/Users/qwwdfsad/workspace/kotlinx.serialization/benchmark/build/classes/java/jmh/kotlinx/benchmarks/fields"
         val old = File(path, "Fields$i.class").length()
-        val new = File(path, "Fields${i}New.class").length()
+        val new = File(path, "Fields${i}New2.class").length()
         val diff = new - old
         val ratio = (diff / old.toDouble()).r()
         val perField = diff / i
-        println("Fields: $i, diff: $ratio% ($diff bytes), overhead per field: $perField")
+        println("Fields: $i, diff: $ratio% ($diff bytes), overhead per field: $perField bytes")
     }
 }

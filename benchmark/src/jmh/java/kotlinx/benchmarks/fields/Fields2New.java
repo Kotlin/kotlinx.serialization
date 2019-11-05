@@ -33,11 +33,11 @@ public class Fields2New {
                 switch (idx) {
                     case 0:
                         i1 = composite.decodeIntElement(var2, 0);
-                        mask |= 0;
+                        mask |= 2;
                         break;
                     case 1:
                         i2 = composite.decodeIntElement(var2, 1);
-                        mask |= 2;
+                        mask |= 4;
                         break;
                     case -1:
                         composite.endStructure(var2);
