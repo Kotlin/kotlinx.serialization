@@ -150,6 +150,8 @@ interface CompositeDecoder {
         const val UNKNOWN_NAME = -3
     }
 
+    fun readAll() = false
+
     /**
      *  Returns either index or one of READ_XXX constants
      */
