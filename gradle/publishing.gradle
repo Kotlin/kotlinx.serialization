@@ -43,7 +43,7 @@ afterEvaluate {
                 maven(MavenPublication) { publication ->
                     artifactId variantName
                     publication.from components.java
-//                    publication.artifact stubJavadoc // todo
+                    publication.artifact stubJavadoc
                     publication.artifact sourcesJar
                     publication.pom.withXml(configureMavenCentralMetadata)
                 }
@@ -60,9 +60,7 @@ afterEvaluate {
             switch (type) {
                 case 'kotlinMultiplatform':
                     it.artifactId = "$variantName-native"
-                    // bug in bintray plugin? jvm publication has empty jar after this
-//                    it.artifact emptyJar
-//                    it.artifact stubJavadoc
+                    it.artifact stubJavadoc
                     it.artifact sourcesJar
                     break
 
@@ -102,15 +100,12 @@ private void disableMetadataPublication() {
         def publication = publishing.publications.findByName(target.name)
 
         if (publication != null) {
-//            publication.artifact stubJavadoc
+            publication.artifact stubJavadoc
             if (target.platformType.name != 'native') {
                 publication.moduleDescriptorGenerator = null
                 tasks.matching { it.name == "generateMetadataFileFor${name.capitalize()}Publication" }.all {
                     onlyIf { false }
                 }
-            } else {
-                // bug in bintray plugin? jvm publication has empty jar after this
-//                publication.artifact emptyJar
             }
         }
     }
