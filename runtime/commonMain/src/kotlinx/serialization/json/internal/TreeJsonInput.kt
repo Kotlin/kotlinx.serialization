@@ -126,7 +126,7 @@ private open class JsonTreeInput(json: Json, override val obj: JsonObject, schem
 
     override fun elementName(desc: SerialDescriptor, index: Int): String {
         val mainName = desc.getElementName(index)
-        if (!configuration.supportAlternateNames) return mainName
+        if (!configuration.supportAlternativeNames) return mainName
         val alternativeNamesMap = schemaCache.getOrPut(desc, JsonAlternativeNamesKey, desc::buildAlternativeNamesMap)
         val nameInObject = obj.keys.find { it == mainName || alternativeNamesMap[it] == index }
         return nameInObject ?: mainName

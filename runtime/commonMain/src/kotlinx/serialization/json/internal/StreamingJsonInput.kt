@@ -107,7 +107,7 @@ internal class StreamingJsonInput internal constructor(
     }
 
     private fun SerialDescriptor.getJsonElementIndex(key: String): Int {
-        if (!json.configuration.supportAlternateNames) return this.getElementIndex(key)
+        if (!json.configuration.supportAlternativeNames) return this.getElementIndex(key)
         val alternativeNamesMap = schemaCache.getOrPut(this, JsonAlternativeNamesKey, this::buildAlternativeNamesMap)
         return alternativeNamesMap[key] ?: CompositeDecoder.UNKNOWN_NAME
     }

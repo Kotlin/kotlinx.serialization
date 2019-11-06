@@ -23,7 +23,7 @@ data class WithDuplicateNames2(@JsonAlternativeNames(arrayOf("foo", "_foo")) val
 class JsonAlternativeNamesTest : JsonTestBase() {
     private val inputString1 = """{"foo":"foo"}"""
     private val inputString2 = """{"_foo":"foo"}"""
-    private val json = Json(JsonConfiguration(strictMode = false, supportAlternateNames = true))
+    private val json = Json(JsonConfiguration(strictMode = false, supportAlternativeNames = true))
 
     @Test
     fun parsesAllAlternativeNames() {
@@ -47,13 +47,13 @@ class JsonAlternativeNamesTest : JsonTestBase() {
 
     @Test
     fun throwsAnErrorOnDuplicateNames() = doThrowTest(
-        """Suggested name 'foo' for property data is already one of the names for property foo in kotlinx.serialization.json.WithDuplicateNames(foo: kotlin.String, data: kotlin.String)""",
+        """The suggested name 'foo' for property data is already one of the names for property foo in kotlinx.serialization.json.WithDuplicateNames(foo: kotlin.String, data: kotlin.String)""",
         WithDuplicateNames.serializer()
     )
 
     @Test
     fun throwsAnErrorOnDuplicateNames2() = doThrowTest(
-        """Suggested name 'foo' for property foo is already one of the names for property data in kotlinx.serialization.json.WithDuplicateNames2(data: kotlin.String, foo: kotlin.String)""",
+        """The suggested name 'foo' for property foo is already one of the names for property data in kotlinx.serialization.json.WithDuplicateNames2(data: kotlin.String, foo: kotlin.String)""",
         WithDuplicateNames2.serializer()
     )
 }

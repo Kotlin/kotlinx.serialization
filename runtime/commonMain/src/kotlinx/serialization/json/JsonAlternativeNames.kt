@@ -15,7 +15,7 @@ internal val JsonAlternativeNamesKey = DescriptorSchemaCache.Key<Map<String, Int
 internal fun SerialDescriptor.buildAlternativeNamesMap(): Map<String, Int> {
     fun MutableMap<String, Int>.putOrThrow(name: String, index: Int) {
         check(name !in this) {
-            "Suggested name '$name' for property ${getElementName(index)} is already one of the names for property " +
+            "The suggested name '$name' for property ${getElementName(index)} is already one of the names for property " +
                     "${getElementName(getValue(name))} in ${this@buildAlternativeNamesMap}"
         }
         this[name] = index
