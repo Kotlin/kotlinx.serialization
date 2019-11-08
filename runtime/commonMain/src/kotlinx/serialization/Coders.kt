@@ -4,7 +4,7 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.modules.*
 
 interface Encoder {
     val context: SerialModule
@@ -125,31 +125,130 @@ interface Decoder {
 }
 
 interface CompositeDecoder {
-    val context: SerialModule
-    fun endStructure(desc: SerialDescriptor) {}
 
     /**
      * Results of [decodeElementIndex]
      */
     companion object {
         const val READ_DONE = -1
+
+        @Deprecated(
+            message = "READ_ALL cannot be longer returned by 'decodeElementIndex', use 'decodeSequentially' instead",
+            level = DeprecationLevel.WARNING
+        )
         const val READ_ALL = -2
         const val UNKNOWN_NAME = -3
     }
 
-    /**
-     *  Returns either index or one of READ_XXX constants
-     */
-    fun decodeElementIndex(desc: SerialDescriptor): Int
+    val context: SerialModule
+    val updateMode: UpdateMode
+
+    fun endStructure(desc: SerialDescriptor) {}
 
     /**
-     * Optional method to specify collection size to pre-allocate memory.
-     * If decoder specifies stream reading ([READ_ALL] is returned from [decodeElementIndex], then
-     * correct implementation of this method is mandatory.
+     * Checks whether the current decoder supports strictly ordered decoding of the data
+     * without calling to [decodeElementIndex].
+     * If the method returns `true`, the caller might skip [decodeElementIndex] calls
+     * and start invoking `decode*Element` directly, incrementing the index of the element one by one.
+     * This method can be called by serializers (either generated or user-defined) as a performance optimization,
+     * but there is no guarantee that the method will be ever called. Practically, it means that implementations
+     * that may benefit from sequential decoding should also support a regular [decodeElementIndex]-based decoding as well.
      *
-     * @return Collection size or -1 if not available.
+     * Example of usage:
+     * ```
+     * class MyPair(i: Int, d: Double)
+     *
+     * object MyPairSerializer : KSerializer<MyPair> {
+     *     // ... other methods omitted
+     *
+     *    fun deserialize(decoder: Decoder): MyPair {
+     *        val composite = decoder.beginStructure(descriptor)
+     *        if (composite.decodeSequentially()) {
+     *            val i = composite.decodeIntElement(descriptor, index = 0) // Mind the sequential indexing
+     *            val d = composite.decodeIntElement(descriptor, index = 1)
+     *            composite.endStructure(descriptor)
+     *            return MyPair(i, d)
+     *        } else {
+     *            // Fallback to `decodeElementIndex` loop, refer to its documentation for details
+     *        }
+     *    }
+     * }
+     * ```
+     * This example is a rough equivalent of what serialization plugin generates for serializable pair class.
+     *
+     * Sequential decoding is a performance optimization for formats with strictly ordered schema,
+     * usually binary ones. Regular formats such as JSON or ProtoBuf cannot use this optimization,
+     * because e.g. in the latter example, the same data can be represented both as
+     * `{"i": 1, "d": 1.0}`"` and `{"d": 1.0, "i": 1}` (thus, unordered).
      */
-    fun decodeCollectionSize(desc: SerialDescriptor): Int = -1
+    public fun decodeSequentially(): Boolean = false
+
+    /**
+     *  Decodes the index of the next element to be decoded.
+     *  Index represents a position of the current element in the serial descriptor element that can be found
+     *  with [SerialDescriptor.getElementIndex].
+     *
+     *  If this method returns non-negative index, the caller should call one of the `decode*Element` methods
+     *  with a resulting index.
+     *  Apart from positive values, this method can return [READ_DONE] to indicate that no more elements
+     *  are left or [UNKNOWN_NAME] to indicate that symbol with an unknown name was encountered.
+     *
+     * Example of usage:
+     * ```
+     * class MyPair(i: Int, d: Double)
+     *
+     * object MyPairSerializer : KSerializer<MyPair> {
+     *     // ... other methods omitted
+     *
+     *    fun deserialize(decoder: Decoder): MyPair {
+     *        val composite = decoder.beginStructure(descriptor)
+     *        var i: Int? = null
+     *        var d: Double? = null
+     *        while (true) {
+     *            val index = composite.decodeElementIndex(descriptor)
+     *            if (index == READ_DONE) break // Input is over
+     *            when (index) {
+     *                0 -> {
+     *                    i = composite.decodeIntElement(descriptor, 0)
+     *                }
+     *                1 -> {
+     *                    d = composite.decodeDoubleElement(descriptor, 1)
+     *                }
+     *                else -> error("Unexpected index: $index)
+     *            }
+     *
+     *        }
+     *        composite.endStructure(descriptor)
+     *        if (i == null || d == null) throwMissingFieldException()
+     *        return MyPair(i, d)
+     *    }
+     * }
+     * ```
+     * This example is a rough equivalent of what serialization plugin generates for serializable pair class.
+     *
+     * The need in such loop comes from unstructured nature of most serialization formats.
+     * For example, JSON for the following input `{"d": 2.0, "i": 1}`, will first read `d` key with index `1`
+     * and only after `i` with index `0`.
+     *
+     * A potential implementation of this method for JSON format can be the following:
+     * ```
+     * fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+     *     // Ignore arrays
+     *     val nextKey: String? = myStringJsonParser.nextKey()
+     *     if (nextObjectKey == null) return READ_DONE
+     *     return descriptor.getElementIndex(nextKey) // getElementIndex can return UNKNOWN_FIELD
+     * }
+     * ```
+     */
+    public fun decodeElementIndex(descriptor: SerialDescriptor): Int
+
+    /**
+     * Method to decode collection size that may be called before the collection decoding.
+     * Collection type includes [Collection], [Map] and [Array] (including primitive arrays).
+     * Method can return `-1` if the size is not known in advance, though for [sequential decoding][decodeSequentially]
+     * precise size is a mandatory requirement.
+     */
+    public fun decodeCollectionSize(desc: SerialDescriptor): Int = -1
 
     fun decodeUnitElement(desc: SerialDescriptor, index: Int)
     fun decodeBooleanElement(desc: SerialDescriptor, index: Int): Boolean
@@ -165,7 +264,6 @@ interface CompositeDecoder {
     fun <T : Any?> decodeSerializableElement(desc: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T>): T
     fun <T : Any> decodeNullableSerializableElement(desc: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T?>): T?
 
-    val updateMode: UpdateMode
 
     fun <T> updateSerializableElement(desc: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T>, old: T): T
     fun <T: Any> updateNullableSerializableElement(desc: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T?>, old: T?): T?

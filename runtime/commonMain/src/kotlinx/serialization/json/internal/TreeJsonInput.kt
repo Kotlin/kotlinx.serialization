@@ -8,8 +8,8 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.SerialModule
-import kotlin.jvm.JvmField
+import kotlinx.serialization.modules.*
+import kotlin.jvm.*
 
 internal fun <T> Json.readJson(element: JsonElement, deserializer: DeserializationStrategy<T>): T {
     val input = when (element) {
@@ -20,8 +20,10 @@ internal fun <T> Json.readJson(element: JsonElement, deserializer: Deserializati
     return input.decode(deserializer)
 }
 
-private sealed class AbstractJsonTreeInput(override val json: Json, open val obj: JsonElement) : NamedValueDecoder(),
-    JsonInput {
+private sealed class AbstractJsonTreeInput(
+    override val json: Json,
+    open val obj: JsonElement
+) : NamedValueDecoder(), JsonInput {
 
     override val context: SerialModule
         get() = json.context
@@ -97,6 +99,8 @@ private class JsonPrimitiveInput(json: Json, override val obj: JsonPrimitive) : 
     init {
         pushTag(PRIMITIVE_TAG)
     }
+
+    override fun decodeElementIndex(desc: SerialDescriptor): Int = 0
 
     override fun currentElement(tag: String): JsonElement {
         require(tag === PRIMITIVE_TAG) { "This input can only handle primitives with '$PRIMITIVE_TAG' tag" }

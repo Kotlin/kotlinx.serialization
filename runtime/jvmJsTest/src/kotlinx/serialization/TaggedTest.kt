@@ -38,6 +38,10 @@ class TaggedTest {
     }
 
     class Emitter(val collected: Collector) : IntTaggedDecoder() {
+        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+            TODO("Should not be called")
+        }
+
         override fun decodeTaggedValue(tag: Int?): Any {
             return collected.tagList.getValue(tag)
         }
