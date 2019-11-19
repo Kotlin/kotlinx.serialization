@@ -78,7 +78,7 @@ class KeyValueInput(val inp: Parser) : ElementValueDecoder() {
     override fun decodeFloat(): Float = readToken().toFloat()
     override fun decodeDouble(): Double = readToken().toDouble()
 
-    override fun decodeEnum(enumDescription: EnumDescriptor): Int {
+    override fun decodeEnum(enumDescription: SerialDescriptor): Int {
         return readToken().toInt()
     }
 

@@ -5,7 +5,7 @@
 buildscript {
     if (project.hasProperty("bootstrap")) {
         ext.kotlin_version = property('kotlin.version.snapshot')
-        ext["org.jetbrains.kotlin.native.home"] = System.getenv("KONAN_LOCAL_DIST")
+        ext["kotlin.native.home"] = System.getenv("KONAN_LOCAL_DIST")
     } else {
         ext.kotlin_version = property('kotlin.version')
     }
@@ -25,7 +25,7 @@ buildscript {
     ]
 
     /*
-    * These property group is used to build kotlinx.serialization against Kotlin compiler snapshot.
+    * This property group is used to build kotlinx.serialization against Kotlin compiler snapshot.
     * When build_snapshot_train is set to true, kotlin_version property is overridden with kotlin_snapshot_version.
     * DO NOT change the name of these properties without adapting kotlinx.train build chain.
     */
