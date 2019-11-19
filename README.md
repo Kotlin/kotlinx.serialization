@@ -30,10 +30,10 @@ You can open example projects for [JS](examples/example-js), [JVM](examples/exam
 * [Current status](#current-project-status)
 * [Library installing](#setup)
     + [Gradle](#gradle)
-    + [Gradle (with `plugins` block)](#gradle--with--plugins--block-)
-    + [Android/JVM](#android-jvm)
-    + [Multiplatform (common, JS, Native)](#multiplatform--common--js--native-)
-    + [Maven/JVM](#maven-jvm)
+    + [Gradle (with `plugins` block)](#gradle-with-plugins-block)
+    + [Android/JVM](#androidjvm)
+    + [Multiplatform (common, JS, Native)](#multiplatform-common-js-native)
+    + [Maven/JVM](#mavenjvm)
     + [Incompatible changes from older versions](#incompatible-changes)
 * [Troubleshooting IntelliJ IDEA](#troubleshooting-intellij-idea)
 * [Usage](docs/runtime_usage.md)
@@ -55,7 +55,7 @@ import kotlinx.serialization.json.*
 @Serializable
 data class Data(val a: Int, val b: String = "42")
 
-fun main(args: Array<String>) {
+fun main() {
     // Json also has .Default configuration which provides more reasonable settings,
     // but is subject to change in future versions
     val json = Json(JsonConfiguration.Stable)
@@ -164,7 +164,7 @@ You may also want to keep all custom serializers you've defined.
 
 Platform artifacts have the same names as JVM one, but with additional suffix (e.g. `org.jetbrains.kotlinx:kotlinx-serialization-runtime-native`). For Native artifact, Gradle metadata is required (put the line `enableFeaturePreview('GRADLE_METADATA')` in your `gradle.properties`) and minimal supported version of Gradle is 5.3.
 
-Typically, you need the following dependencies in your multiplatform project (don't forget to rename [source sets](https://kotlinlang.org/docs/reference/building-mpp-with-gradle.html#configuring-source-sets) according yo your setup):
+Typically, you need the following dependencies in your multiplatform project (don't forget to rename [source sets](https://kotlinlang.org/docs/reference/building-mpp-with-gradle.html#configuring-source-sets) according to your setup):
 
 ```gradle
 sourceSets {
@@ -287,10 +287,14 @@ Add dependency on serialization runtime library:
 
 ### Incompatible changes
 
-All versions of library before `0.13.0` are using Gradle metadata v0.4 and therefore it is recommended to use Gradle 4.8-5.1 to build
+All versions of library before `0.13.0` are using Gradle metadata v0.4 and therefore it is recommended to use Gradle 4.8-5.1 to build.
+
 Library versions `0.11.0` and higher require Kotlin 1.3.30 and higher and incompatible with previous versions.
+
 All versions of library before `0.10.0` are using Gradle metadata v0.3 and therefore require Gradle 4.7 for build.
+
 Maven plugin coordinates before Kotlin 1.3.20 were `kotlinx-maven-serialization-plugin`.
+
 For deprecated `kotlin-platform-native` plugin, you need to use `kotlinx-serialization-native` plugin (see [#2210](https://github.com/JetBrains/kotlin-native/issues/2210#issuecomment-429753168)).
 
 ## Troubleshooting IntelliJ IDEA
