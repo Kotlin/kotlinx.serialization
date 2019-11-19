@@ -2,27 +2,33 @@
 
 ## Introduction
 
-Polymorphic serialization is usually a very complex and dangerous feature due to the amount of reflection it brings and security concerns you should address in your application (like "what if you accidentally load or deserialize a class that is not allowed to be in this part of the program").
+Polymorphic serialization is usually a very complicated and dangerous feature due to the amount of reflection it brings
+and security concerns you should address in your application
+(like "what if you accidentally load or deserialize a class that is not allowed to be in this part of the program").
 
 To overcome these drawbacks, we've focused our design on a _serializers registration_. It will eliminate need in cross-platform `Class.forName` analog and will help avoid security problems.
 
 So, to be able to serialize class hierarchies and restore them using a type's fully-qualified name, you should perform these steps:
 
-1. Register all subclasses that may appear in serialization and deserialization in some `SerialModule`
-2. Pass that serial module to a format instance
-3. Mark some properties or classes as `@Polymorphic`
+1. Register all subclasses that may appear in serialization and deserialization in some `SerialModule`.
+2. Pass that serial module to a format instance.
+3. Mark some properties or classes as `@Polymorphic`.
 
 Step 3 is required if you want to polymorphically serialize an `open` class.
-If class is `abstract` or `interface`, `@Polymorphic` annotation inferred automatically (see more in section [Differences for interfaces, abstract and open classes](#differences-for-interfaces-abstract-and-open-classes)).
+If class is `abstract` or `interface`, `@Polymorphic` annotation inferred automatically
+(see more in section [Differences for interfaces, abstract and open classes](#differences-for-interfaces-abstract-and-open-classes)).
+Moreover, if the class is `sealed`, we do not need to register all subclasses manually – since they are known at compile time,
+compiler plugin can enumerate them automatically (see more in section [Sealed classes](#sealed-classes)).
 
 ## Table of contents
 
-  * [Basic case](#basic-case)
-  * [A bit of customizing](#a-bit-of-customizing)
-  * [Differences for interfaces, abstract and open classes](#differences-for-interfaces-abstract-and-open-classes)
-  * [Sealed classes: present and future](#sealed-classes-present-and-future)
-  * [Complex hierarchies with several base classes](#complex-hierarchies-with-several-base-classes)
-  * [A word for multi-project applications and library developers](#a-word-for-multi-project-applications-and-library-developers)
+ * [Basic case](#basic-case)
+ * [A bit of customizing](#a-bit-of-customizing)
+ * [Differences for interfaces, abstract and open classes](#differences-for-interfaces-abstract-and-open-classes)
+ * [Sealed classes](#sealed-classes)
+   + [Sealed classes: before 0.14.0](#sealed-classes-before-0140)
+ * [Complex hierarchies with several base classes](#complex-hierarchies-with-several-base-classes)
+ * [A word for multi-project applications and library developers](#a-word-for-multi-project-applications-and-library-developers)
 
 ## Basic case
 
@@ -57,8 +63,9 @@ In other words, this module will work with `@Serializable class MessageWrapper(v
 This design decision was made for security and type-safety – it encourages you to use more specific types instead of `Any`.
 
 Lines 3) and 4) register corresponding actual serializers.
-Again, only classes `StringMessage` and `IntMessage` are allowed in the stream – even if you have `@Serializable class MyInternalSecretMessage: Message`, which should not be exposed to external clients, you shouldn't worry about it.
-Kotlinx.serialization will throw an exception on an attempt to serialize or deserialize a class polymorphically if it is not registered.
+Again, only classes `StringMessage` and `IntMessage` are allowed in the stream – even if you have
+`@Serializable class MyInternalSecretMessage: Message`, which should not be exposed to external clients, you shouldn't worry about it.
+Kotlinx.serialization throws an exception on an attempt to serialize or deserialize a class polymorphically if it is not registered.
 
 The only thing left to do is to create a format instance with `messageModule`:
 
@@ -66,7 +73,7 @@ The only thing left to do is to create a format instance with `messageModule`:
 val json = Json(context = messageModule)
 ```
 
-After that, you can use `json` object as usual:
+After that, you can use the `json` object as usual:
 
 ```kotlin
 @Serializable
@@ -79,7 +86,7 @@ json.stringify(MessageWrapper.serializer(), MessageWrapper(IntMessage(121)))
 // {"m":{"type":"package.IntMessage","number":121}}
 ```
 
-This works on JVM, JS, and Native without reflection (only with `KClass` comparison and `KClass.isInstance` calls)!
+Such an approach works on JVM, JS, and Native without reflection (only with `KClass` comparison and `KClass.isInstance` calls)!
 
 > Pro tip: to use `Message` without a wrapper, you can pass `PolymorphicSerializer(Message::class)` to parse/stringify.
 
@@ -99,8 +106,10 @@ json.stringify(MessageWrapper.serializer(), MessageWrapper(IntMessage(121)))
 // {"m":{"type":"msg_number","number":121}}
 ```
 
-JSON with its `JsonConfiguration.Stable` and `JsonConfiguration.Default` offers you to store the type name inside the object itself with the key `type`.
-You can override key name by creating your own configuration: `JsonConfiguration(classDiscriminator = "class")` or by copying an existing one: `JsonConfiguration.Stable.copy(classDiscriminator = "class")`.
+JSON with its `JsonConfiguration.Stable` and `JsonConfiguration.Default` offers you
+to store the type name inside the object itself with the key `type`.
+You can override key name by creating your own configuration: `JsonConfiguration(classDiscriminator = "class")` or
+by copying an existing one: `JsonConfiguration.Stable.copy(classDiscriminator = "class")`.
 
 There is also a possibility to change type name storage location to the first element of wrapping array, i.e. to form `[className, object]`:
 
@@ -114,11 +123,12 @@ json.stringify(MessageWrapper.serializer(), MessageWrapper(IntMessage(121)))
 // {"m":["msg_number",{"number":121}]}
 ```
 
-> Note: this form is default and can't be changed for formats that do not support polymorphism natively, e.g. Protobuf.
+> Note: this form is default and can't be changed for formats that do not support polymorphism natively, e.g., Protobuf.
 
 ## Differences for interfaces, abstract and open classes
 
-As you know, interfaces and abstract classes can't be instantiated. It means also that they can't be deserialized, and therefore, they're by default polymorphic. So if we have
+As you know, interfaces and abstract classes can't be instantiated.
+It also means that they can't be deserialized, and therefore, they're by default polymorphic. So if we have
 
 ```kotlin
 interface Message
@@ -141,7 +151,7 @@ class MessageWrapper(val message: Message)
 class MessageWrapper(@Polymorphic val message: Message)
 ```
 
-Open classes have state, can be instantiated and have usual serializer. So, for
+Open classes have a state, can be instantiated and have a usual serializer. So, for
 
 ```kotlin
 @Serializable
@@ -168,9 +178,43 @@ You can also make `Message` class polymorphic by default by annotating the class
 open class Message
 ```
 
-## Sealed classes: present and future
+## Sealed classes
 
-Currently, to serialize sealed hierarchies polymorphically, you have to perform the same steps as for any other class hierarchy: make a `SerialModule`, register all subclasses, etc, etc.
+Sealed classes in Kotlin use the same inheritance mechanism as abstract and open ones,
+so kotlinx.serialization works with them in the same way, too.
+
+However, they have one big difference: compiler knows all subclasses of sealed class anyway,
+therefore, the serialization plugin knows them too, and it is possible to serialize subclasses without a user's intervention correctly.
+Practically, it means that you do not need `@Polymorphic` and `SerialModule`:
+
+```kotlin
+@Serializable
+sealed class SimpleSealed {
+    @Serializable
+    public data class SubSealedA(val s: String) : SimpleSealed()
+
+    @Serializable
+    public data class SubSealedB(val i: Int) : SimpleSealed()
+}
+
+// will perform correct polymorphic serialization and deserialization:
+Json.stringify(SimpleSealed.serializer(), SubSealedA("foo"))
+// output will be
+// {"type":"package.SimpleSealed.SubSealedA", "s":"foo"}
+```
+
+You can use all polymorphism-related settings (see section [A bit of customizing](#a-bit-of-customizing))
+and combine sealed hierarchies with abstract ones
+(see section [Complex hierarchies with several base classes](#complex-hierarchies-with-several-base-classes) and documentation for `SealedClassSerializer`).
+
+Note that if you use `@Polymorphic` on a property with a type of sealed class,
+it will be serialized using a regular polymorphism mechanism (which requires `SerialModule`).
+This was an approach in previous versions of the library (see the next section).
+
+### Sealed classes: before 0.14.0
+
+If you, for some reason, use an older version of the library, to serialize sealed hierarchies polymorphically,
+you have to perform the same steps as for any other class hierarchy: make a `SerialModule`, register all subclasses, etc., etc.
 Moreover, you should explicitly mark every usage of sealed class in `@Serializable` classes as `@Polymorphic`:
 
 ```kotlin
@@ -190,15 +234,12 @@ class MessageWrapper(@Polymorphic val m: Message)
 // @Polymorphic is required!
 ```
 
-So, we can say that polymorphic serialization of sealed classes requires explicit opt-in on use site. Why is that?
-
-Because in an ideal solution, you ain't gonna need serial modules and other stuff at all. Compiler knows all subclasses of sealed class anyway, therefore, serialization plugin knows them too and it would be possible to correctly serialize subclasses without a user's intervention.
-
-Work for this solution is in progress now. Meanwhile, explicit opt-in is required to ease the migration path and avoid silent semantic change: to migrate on the new solution, you'll have to remove all `@Polymorphic` annotations from `val`s.
+So, we can say that polymorphic serialization (with explicit `SerialModule`) of sealed classes requires explicit opt-in on use site.
+To migrate to newer versions, you'll have to remove all `@Polymorphic` annotations from `val`s.
 
 ## Complex hierarchies with several base classes
 
-If you want to register subclasses for multiple base classes, e.g. in a situation like that:
+If you want to register subclasses for multiple base classes, e.g., in a situation like that:
 
 ```kotlin
 interface Message
@@ -225,9 +266,11 @@ val messageModule = SerializersModule {
 }
 ```
 
-You can even add `Any::class` to this list. By doing this, you'll make possible deserialization of your classes to `@Serializable class Wrapper(@Polymorphic val any: Any)`. Use this feature with caution.
+You can even add `Any::class` to this list. By doing this, you'll make possible deserialization
+of your classes to `@Serializable class Wrapper(@Polymorphic val any: Any)`. Use this feature with caution.
 
-If the base class itself needs serializer (in case it is `open`), you can use `polymorphic` overload with `KSerializer<BaseClass>` in arguments or just register serializer as usual inside DSL block.
+If the base class itself needs serializer (in case it is `open`), you can use `polymorphic`
+overload with `KSerializer<BaseClass>` in arguments or just register serializer as usual inside DSL block.
 
 ## A word for multi-project applications and library developers
 
@@ -240,4 +283,5 @@ val json = Json(context = messageModule + anotherModule)
 
 Or you can use `include` in the `SerializersModule {}` DSL.
 
-If you're writing a library or shared module with an abstract class and some implementations of it, you can export your own `MyLibrarySerialModule` for your clients to use, so a client can combine your module with their modules.
+If you're writing a library or shared module with an abstract class and some implementations of it,
+you can export your own `MyLibrarySerialModule` for your clients to use so that a client can combine your module with their modules.
