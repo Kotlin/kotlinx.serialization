@@ -1,4 +1,18 @@
 
+v0.14.0 / 2019-11-19
+==================
+
+  * Bump version to 0.14.0 @ Kotlin 1.3.60
+  * Add empty javadoc artifact to linking with Maven Central
+  * Mark more things as @InternalSerializationApi.
+  * Support @SerialId on enum members in protobuf encoding
+  * Move Polymorphic and sealed kinds from UnionKind to special PolymorphicKind
+  * Sealed classes serialization & generated serializers for enum classes (@SerialInfo support)
+  * Objects serialization
+  * Don't use deprecated UTF8<>ByteArray conversions in Native
+  * Improve error message when static non-generic serializer can't be found
+  * Support optional values for typesafe config format
+
 v0.13.0 / 2019-09-12
 ==================
 

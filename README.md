@@ -95,7 +95,7 @@ You have to add the serialization plugin as the other [compiler plugins](https:/
 
 ```gradle
 buildscript {
-    ext.kotlin_version = '1.3.50'
+    ext.kotlin_version = '1.3.60'
     repositories { jcenter() }
 
     dependencies {
@@ -122,7 +122,7 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.13.0" // JVM dependency
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0" // JVM dependency
 }
 ```
 
@@ -132,8 +132,8 @@ You can setup serialization plugin with the kotlin plugin using [Gradle plugins 
 
 ```gradle
 plugins {
-    id 'org.jetbrains.kotlin.multiplatform' version '1.3.50' // or any other kotlin plugin
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.3.50'
+    id 'org.jetbrains.kotlin.multiplatform' version '1.3.60' // or any other kotlin plugin
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.3.60'
 }
 ```
 
@@ -221,8 +221,8 @@ Ensure the proper version of Kotlin and serialization version:
 
 ```xml
 <properties>
-    <kotlin.version>1.3.50</kotlin.version>
-    <serialization.version>0.13.0</serialization.version>
+    <kotlin.version>1.3.60</kotlin.version>
+    <serialization.version>0.14.0</serialization.version>
 </properties>
 ```
 
@@ -286,6 +286,8 @@ Add dependency on serialization runtime library:
 ```
 
 ### Incompatible changes
+
+Library versions `0.14.0` and higher require Kotlin 1.3.60 and higher and incompatible with previous versions.
 
 All versions of library before `0.13.0` are using Gradle metadata v0.4 and therefore it is recommended to use Gradle 4.8-5.1 to build.
 
