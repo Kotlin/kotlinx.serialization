@@ -35,7 +35,7 @@ class DataBinaryNullableOutput(val out: DataOutput) : ElementValueEncoder() {
     override fun encodeDouble(value: Double) = out.writeDouble(value)
     override fun encodeChar(value: Char) = out.writeChar(value.toInt())
     override fun encodeString(value: String) = out.writeUTF(value)
-    override fun encodeEnum(enumDescription: EnumDescriptor, ordinal: Int) = out.writeInt(ordinal)
+    override fun encodeEnum(enumDescription: SerialDescriptor, ordinal: Int) = out.writeInt(ordinal)
 }
 
 class DataBinaryNullableInput(val inp: DataInput) : ElementValueDecoder() {
@@ -50,7 +50,7 @@ class DataBinaryNullableInput(val inp: DataInput) : ElementValueDecoder() {
     override fun decodeDouble(): Double = inp.readDouble()
     override fun decodeChar(): Char = inp.readChar()
     override fun decodeString(): String = inp.readUTF()
-    override fun decodeEnum(enumDescription: EnumDescriptor): Int = inp.readInt()
+    override fun decodeEnum(enumDescription: SerialDescriptor): Int = inp.readInt()
 }
 
 fun testDataBinaryIO(serializer: KSerializer<Any>, obj: Any): Result {

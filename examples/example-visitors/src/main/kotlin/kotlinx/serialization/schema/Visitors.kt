@@ -39,7 +39,7 @@ public abstract class BaseDescriptorVisitor<R>: DescriptorVisitor<R> {
         is StructureKind.CLASS -> visitClass(descriptor)
         is StructureKind -> visitCollection(descriptor)
         is UnionKind.ENUM_KIND -> visitEnum(descriptor)
-        is UnionKind -> visitUnion(descriptor)
+        is UnionKind, is PolymorphicKind -> visitUnion(descriptor)
     }
 
     abstract fun visitString(descriptor: SerialDescriptor): R

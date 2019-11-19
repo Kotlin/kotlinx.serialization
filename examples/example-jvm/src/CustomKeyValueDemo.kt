@@ -46,7 +46,7 @@ class KeyValueOutput(val out: PrintWriter) : ElementValueEncoder () {
      */
     override fun encodeValue(value: Any) = out.print(value)
 
-    override fun encodeEnum(enumDescription: EnumDescriptor, ordinal: Int) {
+    override fun encodeEnum(enumDescription: SerialDescriptor, ordinal: Int) {
         out.print(enumDescription.getElementName(ordinal))
     }
 
@@ -109,7 +109,7 @@ class KeyValueInput(val inp: Parser) : ElementValueDecoder() {
     override fun decodeFloat(): Float = decodeToken().toFloat()
     override fun decodeDouble(): Double = decodeToken().toDouble()
 
-    override fun decodeEnum(enumDescription: EnumDescriptor): Int {
+    override fun decodeEnum(enumDescription: SerialDescriptor): Int {
         return enumDescription.getElementIndexOrThrow(decodeToken())
     }
 
