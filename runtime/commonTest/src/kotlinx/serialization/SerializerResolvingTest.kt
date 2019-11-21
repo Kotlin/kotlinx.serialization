@@ -11,6 +11,7 @@ import kotlin.reflect.typeOf
 import kotlin.test.*
 
 @UseExperimental(ImplicitReflectionSerializer::class)
+@Ignore // not implemented
 class SerializerResolvingTest {
 
     private inline fun <reified T> assertSerializedWithType(
