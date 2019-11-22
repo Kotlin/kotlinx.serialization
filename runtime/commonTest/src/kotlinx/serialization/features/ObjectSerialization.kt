@@ -13,7 +13,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 sealed class ApiResponse {
-    @Suppress("PLUGIN_ERROR")
     @Serializable
     @SerialName("ApiError")
     object Error : ApiResponse()

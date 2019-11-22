@@ -21,7 +21,6 @@ sealed class SealedProtocol {
     @Serializable
     data class ErrorMessage(val error: String) : SealedProtocol()
 
-    @Suppress("PLUGIN_ERROR") // todo: remove this suppresses when objects serialization will be merged
     @SerialName("EOF")
     @Serializable
     object EOF : SealedProtocol()
@@ -42,7 +41,6 @@ sealed class ProtocolWithAbstractClass {
     @Serializable
     data class ErrorMessage(val error: String) : ProtocolWithAbstractClass()
 
-    @Suppress("PLUGIN_ERROR")
     @SerialName("EOF")
     @Serializable
     object EOF : ProtocolWithAbstractClass()
@@ -63,7 +61,6 @@ sealed class ProtocolWithSealedClass {
     @Serializable
     data class ErrorMessage(val error: String) : ProtocolWithSealedClass()
 
-    @Suppress("PLUGIN_ERROR")
     @SerialName("EOF")
     @Serializable
     object EOF : ProtocolWithSealedClass()
@@ -78,7 +75,6 @@ sealed class ProtocolWithGenericClass {
     @Serializable
     data class ErrorMessage(val error: String) : ProtocolWithGenericClass()
 
-    @Suppress("PLUGIN_ERROR")
     @SerialName("EOF")
     @Serializable
     object EOF : ProtocolWithGenericClass()

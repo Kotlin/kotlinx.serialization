@@ -11,7 +11,6 @@ import kotlinx.serialization.formats.proto.TestData
 import org.junit.Test
 import kotlin.test.assertTrue
 
-@Suppress("PLUGIN_ERROR")
 @Serializable
 enum class EnumWithIds(val id: Int) {
     @SerialId(10)

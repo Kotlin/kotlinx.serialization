@@ -5,6 +5,7 @@
 package kotlinx.serialization.kinds
 
 import kotlinx.serialization.*
+import kotlinx.serialization.internal.EnumDescriptor
 import kotlinx.serialization.json.JsonTestBase
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -30,6 +31,31 @@ private data class TwoEnums(val one: One, val two: Two)
 @Serializable
 private data class WithCustomEnum(val c: CustomEnum)
 
+@Serializable(CustomEnumSerializer::class)
+private enum class WithCustom {
+    @SerialName("1")
+    ONE,
+    @SerialName("2")
+    TWO
+}
+
+@Serializer(WithCustom::class)
+private class CustomEnumSerializer : KSerializer<WithCustom> {
+    override val descriptor: SerialDescriptor
+        get() = EnumDescriptor("WithCustom", arrayOf("1", "2"))
+
+    override fun serialize(encoder: Encoder, obj: WithCustom) {
+        encoder.encodeInt(obj.ordinal + 1)
+    }
+
+    override fun deserialize(decoder: Decoder): WithCustom {
+        return WithCustom.values()[decoder.decodeInt() - 1]
+    }
+}
+
+@Serializable
+private data class CustomInside(val inside: WithCustom)
+
 class SerializableEnumTest : JsonTestBase() {
     @Test
     fun serializedCorrectly() =
@@ -40,6 +66,10 @@ class SerializableEnumTest : JsonTestBase() {
             strict,
             printResult = true
         )
+
+    @Test
+    fun enumsCanHaveCustomSerializers() =
+        assertJsonFormAndRestored(CustomInside.serializer(), CustomInside(WithCustom.TWO), """{inside:2}""")
 
     @Test
     fun hasCorrectDescriptor() {
