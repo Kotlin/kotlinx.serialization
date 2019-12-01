@@ -217,5 +217,25 @@ val dyn = js("""{s:"foo", d:{a:42}}""")
 val parsed = DynamicObjectParser().parse<DataWrapper>(dyn)
 parsed == DataWrapper("foo", Data(42)) // true
 ```
-
 > Parser does not support kotlin maps with keys other than `String`.
+
+ ### Dynamic object serializer 
+ 
+ Allows you to convert kotlin data structures into their dynamic JS representation.
+
+```kotlin
+
+@Serializable
+data class Data(val a: Int)
+
+@Serializable
+open class DataWrapper(open val s: String, val d: Data?)
+
+val wrapper = DataWrapper("foo", Data(42))
+JSON.stringify(wrapper) // {"s_dsrefg$_0":"foo","d":{"a":42}}
+val plainJS: dynamic = DynamicObjectSerializer().serialize(DataWrapper.serializer(), wrapper)
+plainJS.s == wrapper.s // true
+JSON.stringify(plainJS) // {"s":"foo","d":{"a":42}}
+```
+
+
