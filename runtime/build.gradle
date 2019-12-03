@@ -26,7 +26,7 @@ clean {
 }
 
 apply from: rootProject.file("gradle/targets.gradle")
-apply from: rootProject.file("gradle/native_mpp.gradle")
+//apply from: rootProject.file("gradle/native_mpp.gradle")
 
 kotlin {
     targets {
@@ -134,8 +134,8 @@ kotlin {
             }
         }
 
-        nativeMain.dependencies {
-        }
+//        nativeMain.dependencies {
+//        }
     }
 
     sourceSets.findAll({ it.name.contains("Test") }).forEach { srcSet ->
