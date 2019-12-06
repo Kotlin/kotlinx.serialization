@@ -27,7 +27,7 @@ public sealed class JsonElement {
      * @throws JsonException is current element is not a [JsonPrimitive]
      */
     public open val primitive: JsonPrimitive
-        get() = error("JsonLiteral")
+        get() = error("JsonPrimitive")
 
     /**
      * Convenience method to get current element as [JsonObject]
@@ -48,7 +48,7 @@ public sealed class JsonElement {
      * @throws JsonException is current element is not a [JsonNull]
      */
     public open val jsonNull: JsonNull
-        get() = error("JsonPrimitive")
+        get() = error("JsonNull")
 
     /**
      * Checks whether current element is [JsonNull]
