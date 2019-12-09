@@ -14,13 +14,15 @@ buildscript {
     }
     ext.experimentalsEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
                                 "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
-                                "-Xuse-experimental=kotlinx.serialization.InternalSerializationApi"
+                                "-Xuse-experimental=kotlinx.serialization.InternalSerializationApi",
+                                "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
     ]
 
     ext.experimentalsInTestEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
                                       "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
                                       "-Xuse-experimental=kotlinx.serialization.ExperimentalSerializationApi",
                                       "-Xuse-experimental=kotlinx.serialization.InternalSerializationApi",
+                                      "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes",
                                       "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
     ]
 
@@ -163,6 +165,7 @@ subprojects {
         } else {
             task.kotlinOptions.freeCompilerArgs += experimentalsEnabled
         }
+        task.kotlinOptions.freeCompilerArgs += ["-Xinline-classes"]
     }
 
     configurations.all {

@@ -24,7 +24,7 @@ object WithUnsignedSerializer : KSerializer<WithUnsigned> {
         var u: UInt = 0.toUInt()
         loop@ while (true) {
             u = when (val i = cd.decodeElementIndex(descriptor)) {
-                0 -> cd.decodeInlineElement(descriptor, 0, UIntDescriptor)?.decodeInt().toUInt()
+                0 -> cd.decodeInlineElement(descriptor, i, UIntDescriptor)?.decodeInt().toUInt()
                 else -> break@loop
             }
         }

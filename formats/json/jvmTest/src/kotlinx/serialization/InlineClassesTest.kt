@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 @file:Suppress("PLUGIN_ERROR")
 @file:UseExperimental(ExperimentalUnsignedTypes::class)
 
@@ -7,46 +11,34 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.internal.*
+import kotlinx.serialization.internal.UIntDescriptor
+import kotlinx.serialization.internal.UIntSerializer
 import kotlinx.serialization.test.assertStringFormAndRestored
 import org.junit.Test
 
 @Serializable
 data class SimpleContainerForUInt(val i: UInt)
 
-@Serializable(MyIntSerializer::class)
-inline class MyInt(val m: Int)
+@Serializable(MyUIntSerializer::class)
+inline class MyUInt(val m: Int)
 
-@Serializer(forClass = MyInt::class)
-object MyIntSerializer {
+@Serializer(forClass = MyUInt::class)
+object MyUIntSerializer {
     override val descriptor = UIntDescriptor
-    override fun serialize(encoder: Encoder, obj: MyInt) {
-        error("inline class should not be boxed for serialization")
+    override fun serialize(encoder: Encoder, obj: MyUInt) {
+        encoder.encodeInline(descriptor)?.encodeInt(obj.m)
     }
 
-    override fun deserialize(decoder: Decoder): MyInt {
-        error("inline class should not be boxed for serialization")
+    override fun deserialize(decoder: Decoder): MyUInt {
+        return MyUInt(decoder.decodeInline(descriptor).decodeInt())
     }
 }
-
 
 @Serializable
-data class SimpleContainerForMyType(val i: MyInt)
+data class SimpleContainerForMyType(val i: MyUInt)
 
-@Serializable(MyListSerializer::class)
+@Serializable
 inline class MyList<T>(val list: List<T>)
-
-@Serializer(forClass = MyList::class)
-class MyListSerializer<T>(val tSerializer: KSerializer<T>) : KSerializer<MyList<T>> {
-    override val descriptor = ArrayListClassDesc(tSerializer.descriptor)
-    override fun serialize(encoder: Encoder, obj: MyList<T>) {
-        error("inline class should not be boxed for serialization")
-    }
-
-    override fun deserialize(decoder: Decoder): MyList<T> {
-        error("inline class should not be boxed for serialization")
-    }
-}
 
 @Serializable
 data class ContainerForList<T>(val i: MyList<T>)
@@ -67,11 +59,10 @@ data class MixedPositions(
 )
 
 class InlineClassesTest {
-    private val precedent = Int.MAX_VALUE.toUInt() + 10.toUInt()
+    private val precedent: UInt = Int.MAX_VALUE.toUInt() + 10.toUInt()
 
     @Test
     fun testSimpleContainer() {
-
         assertStringFormAndRestored(
             """{"i":2147483657}""",
             SimpleContainerForUInt(precedent),
@@ -81,18 +72,18 @@ class InlineClassesTest {
     }
 
     @Test
-    fun testSimpleContainerForMyType() = assertStringFormAndRestored(
+    fun testSimpleContainerForMyTypeWithCustomSerializer() = assertStringFormAndRestored(
         """{"i":2147483657}""",
-        SimpleContainerForMyType(MyInt(precedent.toInt())),
+        SimpleContainerForMyType(MyUInt(precedent.toInt())),
         SimpleContainerForMyType.serializer(),
         printResult = true
     )
 
     @Test
     fun testSimpleContainerForList() = assertStringFormAndRestored(
-        """{"i":[-2147483639]}""",
-        ContainerForList(MyList(listOf(precedent.toInt()))),
-        ContainerForList.serializer(IntSerializer),
+        """{"i":[2147483657]}""",
+        ContainerForList(MyList(listOf(precedent))),
+        ContainerForList.serializer(UIntSerializer),
         printResult = true
     )
 

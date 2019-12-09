@@ -37,3 +37,17 @@ inline fun <reified T : Any> StringFormat.assertStringFormAndRestored(
     if (printResult) println("[Restored form] $restored")
     assertEquals(original, restored)
 }
+
+inline fun <reified T : Any> assertSerializedAndRestored(
+    original: T,
+    serializer: KSerializer<T>,
+    format: StringFormat = Json { prettyPrint = true },
+    printResult: Boolean = false
+) {
+    if (printResult) println("[Input] $original")
+    val string = format.encodeToString(serializer, original)
+    if (printResult) println("[Serialized form] $string")
+    val restored = format.decodeFromString(serializer, string)
+    if (printResult) println("[Restored form] $restored")
+    assertEquals(original, restored)
+}

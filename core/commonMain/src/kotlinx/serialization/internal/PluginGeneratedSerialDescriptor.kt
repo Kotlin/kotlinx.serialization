@@ -108,6 +108,9 @@ internal inline fun <reified SD : SerialDescriptor> SD.equalsImpl(
 ): Boolean {
     if (this === other) return true
     if (other !is SD) return false
+    // todo: think
+//    if (other !is SerialDescriptor) return false
+//    if (kind !== other.kind) return false
     if (serialName != other.serialName) return false
     if (!typeParamsAreEqual(other)) return false
     if (this.elementsCount != other.elementsCount) return false
