@@ -26,10 +26,21 @@ inline fun <reified T : Any> assertSerializedToBinaryAndRestored(
     original: T,
     serializer: KSerializer<T>,
     format: BinaryFormat,
-    printResult: Boolean = false
+    printResult: Boolean = false,
+    hexResultToCheck: String? = null
 ) {
     val bytes = format.dump(serializer, original)
-    if (printResult) println("[Serialized form] ${HexConverter.printHexBinary(bytes, lowerCase = true)}")
+    val hexString = HexConverter.printHexBinary(bytes, lowerCase = true)
+    if (printResult) {
+        println("[Serialized form] $hexString")
+    }
+    if (hexResultToCheck != null) {
+        assertEquals(
+            hexResultToCheck.toLowerCase(),
+            hexString,
+            "Expected serialized binary to be equal in hex representation"
+        )
+    }
     val restored = format.load(serializer, bytes)
     if (printResult) println("[Restored form] $restored")
     assertEquals(original, restored)

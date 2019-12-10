@@ -5,8 +5,8 @@
 package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
-import kotlinx.serialization.features.PolyBase
-import kotlinx.serialization.features.PolyDerived
+import kotlinx.serialization.PolyBase
+import kotlinx.serialization.PolyDerived
 import kotlin.reflect.KClass
 import kotlin.test.*
 

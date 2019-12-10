@@ -78,7 +78,7 @@ class PolymorphismWithAnyTest {
     fun testFailWithModulesNotInAnyScope() {
         val json = Json(context = BaseAndDerivedModule)
         checkNotRegisteredMessage(
-            "kotlinx.serialization.features.PolyDerived", "kotlin.Any",
+            "kotlinx.serialization.PolyDerived", "kotlin.Any",
             assertFailsWith<SerializationException> {
                 json.stringify(
                     MyPolyData.serializer(),
@@ -99,7 +99,7 @@ class PolymorphismWithAnyTest {
     fun testRebindModules() {
         val json = Json(context = baseAndDerivedModuleAtAny)
         assertStringFormAndRestored(
-            expected = """{"data":{"a":{"type":"kotlinx.serialization.features.PolyDerived","id":1,"s":"foo"}}}""",
+            expected = """{"data":{"a":{"type":"kotlinx.serialization.PolyDerived","id":1,"s":"foo"}}}""",
             original = MyPolyData(mapOf("a" to PolyDerived("foo"))),
             serializer = MyPolyData.serializer(),
             format = json
@@ -113,11 +113,14 @@ class PolymorphismWithAnyTest {
     fun testFailWithModulesNotInParticularScope() {
         val json = Json(context = baseAndDerivedModuleAtAny)
         checkNotRegisteredMessage(
-            "kotlinx.serialization.features.PolyDerived", "kotlinx.serialization.features.PolyBase",
+            "kotlinx.serialization.PolyDerived", "kotlinx.serialization.PolyBase",
             assertFailsWith {
                 json.stringify(
                     MyPolyDataWithPolyBase.serializer(),
-                    MyPolyDataWithPolyBase(mapOf("a" to PolyDerived("foo")), PolyDerived("foo"))
+                    MyPolyDataWithPolyBase(
+                        mapOf("a" to PolyDerived("foo")),
+                        PolyDerived("foo")
+                    )
                 )
             }
         )
@@ -127,9 +130,14 @@ class PolymorphismWithAnyTest {
     fun testBindModules() {
         val json = Json(context = (baseAndDerivedModuleAtAny + BaseAndDerivedModule))
         assertStringFormAndRestored(
-            expected = """{"data":{"a":{"type":"kotlinx.serialization.features.PolyDerived","id":1,"s":"foo"}},
-                |"polyBase":{"type":"kotlinx.serialization.features.PolyDerived","id":1,"s":"foo"}}""".trimMargin().lines().joinToString(""),
-            original = MyPolyDataWithPolyBase(mapOf("a" to PolyDerived("foo")), PolyDerived("foo")),
+            expected = """{"data":{"a":{"type":"kotlinx.serialization.PolyDerived","id":1,"s":"foo"}},
+                |"polyBase":{"type":"kotlinx.serialization.PolyDerived","id":1,"s":"foo"}}""".trimMargin().lines().joinToString(
+                ""
+            ),
+            original = MyPolyDataWithPolyBase(
+                mapOf("a" to PolyDerived("foo")),
+                PolyDerived("foo")
+            ),
             serializer = MyPolyDataWithPolyBase.serializer(),
             format = json
         )

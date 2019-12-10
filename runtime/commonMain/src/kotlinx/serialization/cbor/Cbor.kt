@@ -8,8 +8,9 @@ import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.internal.*
-import kotlinx.serialization.modules.*
-import kotlin.experimental.*
+import kotlinx.serialization.modules.EmptyModule
+import kotlinx.serialization.modules.SerialModule
+import kotlin.experimental.or
 
 class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: Boolean = true, context: SerialModule = EmptyModule): AbstractSerialFormat(context), BinaryFormat {
     // Differs from List only in start byte
@@ -36,7 +37,7 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
         //todo: Write size of map or array if known
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
             val writer = when (desc.kind) {
-                StructureKind.LIST -> CborListWriter(encoder)
+                StructureKind.LIST, is PolymorphicKind -> CborListWriter(encoder)
                 StructureKind.MAP -> CborMapWriter(encoder)
                 else -> CborWriter(encoder)
             }
@@ -168,7 +169,7 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             val re = when (desc.kind) {
-                StructureKind.LIST -> CborListReader(decoder)
+                StructureKind.LIST, is PolymorphicKind -> CborListReader(decoder)
                 StructureKind.MAP -> CborMapReader(decoder)
                 else -> CborReader(decoder)
             }
