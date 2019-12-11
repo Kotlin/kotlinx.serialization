@@ -24,31 +24,31 @@ public sealed class JsonElement {
 
     /**
      * Convenience method to get current element as [JsonPrimitive]
-     * @throws JsonException is current element is not a [JsonPrimitive]
+     * @throws JsonException if current element is not a [JsonPrimitive]
      */
     public open val primitive: JsonPrimitive
-        get() = error("JsonLiteral")
+        get() = error("JsonPrimitive")
 
     /**
      * Convenience method to get current element as [JsonObject]
-     * @throws JsonException is current element is not a [JsonObject]
+     * @throws JsonException if current element is not a [JsonObject]
      */
     public open val jsonObject: JsonObject
         get() = error("JsonObject")
 
     /**
      * Convenience method to get current element as [JsonArray]
-     * @throws JsonException is current element is not a [JsonArray]
+     * @throws JsonException if current element is not a [JsonArray]
      */
     public open val jsonArray: JsonArray
         get() = error("JsonArray")
 
     /**
      * Convenience method to get current element as [JsonNull]
-     * @throws JsonException is current element is not a [JsonNull]
+     * @throws JsonException if current element is not a [JsonNull]
      */
     public open val jsonNull: JsonNull
-        get() = error("JsonPrimitive")
+        get() = error("JsonNull")
 
     /**
      * Checks whether current element is [JsonNull]
