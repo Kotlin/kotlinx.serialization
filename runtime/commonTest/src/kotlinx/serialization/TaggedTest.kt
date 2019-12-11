@@ -1,21 +1,11 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
 
+import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
+import kotlinx.serialization.test.isJs
 import kotlinx.serialization.test.shouldBe
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -24,10 +14,10 @@ class TaggedTest {
 
     @Serializable
     data class DataWithId(
-            @SerialId(1) val first: Int,
-            @SerialId(2) val second: String,
-            val noId: Unit = Unit,
-            @SerialId(42) val last: Boolean = true
+        @SerialId(1) val first: Int,
+        @SerialId(2) val second: String,
+        val noId: Unit = Unit,
+        @SerialId(42) val last: Boolean = true
     )
 
     class Collector : IntTaggedEncoder() {
@@ -38,8 +28,13 @@ class TaggedTest {
     }
 
     class Emitter(val collected: Collector) : IntTaggedDecoder() {
+        private var i = 0
+        override fun decodeSequentially(): Boolean = true
+
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
-            TODO("Should not be called")
+            // js doesn't generate code for .decodeSequentially for the sake of keeping output small
+            if (!isJs()) throw AssertionError("Should not be called in this test due to support of decodeSequentially")
+            return if (i == collected.tagList.size) READ_DONE else i++
         }
 
         override fun decodeTaggedValue(tag: Int?): Any {
@@ -54,14 +49,15 @@ class TaggedTest {
         collector.encode(DataWithId.serializer(), data)
 
         assertEquals(mapOf(1 to 1, 2 to "2", null to Unit, 42 to true), collector.tagList, "see all tags properly")
-        val obj = Emitter(collector).decode(DataWithId.serializer())
+        val obj = Emitter(collector)
+            .decode(DataWithId.serializer())
         assertEquals(obj, data, "read tags back")
     }
 
     @Test
     fun testMapper() {
         val data = DataWithId(1, "2")
-        Mapper.map(data) shouldBe mapOf("first" to 1, "second" to "2", "noId" to Unit, "last" to true)
+        Mapper.map(DataWithId.serializer(), data) shouldBe mapOf("first" to 1, "second" to "2", "noId" to Unit, "last" to true)
     }
 
 }
