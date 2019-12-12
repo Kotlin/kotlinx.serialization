@@ -41,6 +41,9 @@ kotlin {
             // Windows
             addTarget(presets.mingwX64)
             addTarget(presets.mingwX86)
+
+            // WASM
+            addTarget(presets.wasm32)
         }
     }
 
