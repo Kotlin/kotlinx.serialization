@@ -16,10 +16,12 @@ open class SerialClassDescImpl @JvmOverloads constructor(
      * Unused methods are invoked by auto-generated plugin code
      */
     override val kind: SerialKind get() = StructureKind.CLASS
-    override val elementsCount: Int get() = annotations.size
+    override val elementsCount: Int get() = _annotations.size
 
     private val names: MutableList<String> = ArrayList()
-    private val annotations: MutableList<MutableList<Annotation>> = mutableListOf()
+    private val _annotations: MutableList<MutableList<Annotation>> = mutableListOf()
+    override val annotations: List<Annotation>
+        get() = classAnnotations
     private val classAnnotations: MutableList<Annotation> = mutableListOf()
     private var flags = BooleanArray(4)
 
@@ -28,17 +30,17 @@ open class SerialClassDescImpl @JvmOverloads constructor(
     // don't change lazy mode: KT-32871, KT-32872
     private val indices: Map<String, Int> by lazy { buildIndices() }
 
-    @JvmOverloads
+    @JvmOverloads // TODO protected
     public fun addElement(name: String, isOptional: Boolean = false) {
         names.add(name)
         val idx = names.size - 1
         ensureFlagsCapacity(idx)
         flags[idx] = isOptional
-        annotations.add(mutableListOf())
+        _annotations.add(mutableListOf())
     }
 
     public fun pushAnnotation(a: Annotation) {
-        annotations.last().add(a)
+        _annotations.last().add(a)
     }
 
     public fun pushClassAnnotation(a: Annotation) {
@@ -60,8 +62,7 @@ open class SerialClassDescImpl @JvmOverloads constructor(
         return flags[index]
     }
 
-    override fun getEntityAnnotations(): List<Annotation> = classAnnotations
-    override fun getElementAnnotations(index: Int): List<Annotation> = annotations[index]
+    override fun getElementAnnotations(index: Int): List<Annotation> = _annotations[index]
     override fun getElementName(index: Int): String = names[index]
     override fun getElementIndex(name: String): Int = indices[name] ?: UNKNOWN_NAME
 

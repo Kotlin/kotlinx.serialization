@@ -67,6 +67,7 @@ object CustomSerializer : KSerializer<Custom> {
     override val descriptor = object : SerialDescriptor {
         override val serialName = "kotlinx.serialization.Custom"
         override val kind: SerialKind = StructureKind.CLASS
+        override val elementsCount: Int get() = 2
         override fun getElementName(index: Int) = when(index) {
             0 -> "value1"
             1 -> "value2"
@@ -77,6 +78,10 @@ object CustomSerializer : KSerializer<Custom> {
             "value2" -> 1
             else -> -1
         }
+
+        override fun getElementAnnotations(index: Int): List<Annotation> = emptyList()
+        override fun getElementDescriptor(index: Int): SerialDescriptor = TODO()
+        override fun isElementOptional(index: Int): Boolean = false
     }
 
     override fun serialize(encoder: Encoder, obj : Custom) {

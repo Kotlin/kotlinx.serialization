@@ -26,6 +26,9 @@ sealed class ListLikeDescriptor(val elementDesc: SerialDescriptor) : SerialDescr
     override fun hashCode(): Int {
         return elementDesc.hashCode() * 31 + serialName.hashCode()
     }
+
+    override fun isElementOptional(index: Int): Boolean = false
+    override fun getElementAnnotations(index: Int): List<Annotation> = emptyList()
 }
 
 sealed class MapLikeDescriptor(
@@ -59,6 +62,9 @@ sealed class MapLikeDescriptor(
         result = 31 * result + valueDescriptor.hashCode()
         return result
     }
+
+    override fun isElementOptional(index: Int): Boolean = false
+    override fun getElementAnnotations(index: Int): List<Annotation> = emptyList()
 }
 
 internal const val ARRAY_NAME = "kotlin.Array"

@@ -56,7 +56,7 @@ class SerialNamesTest {
     @Test
     fun haveCustomAnnotationOnClass() {
         val desc: SerialDescriptor = WithNames.serializer().descriptor
-        val name = desc.getEntityAnnotations().getCustom()
+        val name = desc.annotations.getCustom()
         assertEquals("onClass", name)
     }
 }

@@ -5,19 +5,21 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
-import kotlin.reflect.KClass
+import kotlin.reflect.*
 
 @InternalSerializationApi
-public sealed class PrimitiveDescriptor(override val serialName: String, override val kind: PrimitiveKind) :
-    SerialDescriptor {
-    private fun error(): Nothing = throw IllegalStateException("Primitives does not have elements")
-
+public sealed class PrimitiveDescriptor( // TODO internal constructor
+    override val serialName: String,
+    override val kind: PrimitiveKind
+) : SerialDescriptor {
+    override val elementsCount: Int get() = 0
     final override fun getElementName(index: Int): String = error()
     final override fun getElementIndex(name: String): Int = error()
     final override fun isElementOptional(index: Int): Boolean = error()
     final override fun getElementDescriptor(index: Int): SerialDescriptor = error()
-
+    override fun getElementAnnotations(index: Int): List<Annotation> = error()
     override fun toString(): String = serialName
+    private fun error(): Nothing = throw IllegalStateException("Primitive does not have elements")
 }
 
 object IntDescriptor: PrimitiveDescriptor("kotlin.Int", PrimitiveKind.INT) // or just "Int"?
