@@ -50,7 +50,7 @@ internal object StandardSubtypesOfAny {
         Unit::class to UnitSerializer
     )
 
-    private val deserializingMap: Map<String, KSerializer<*>> = map.mapKeys { (_, s) -> s.descriptor.name }
+    private val deserializingMap: Map<String, KSerializer<*>> = map.mapKeys { (_, s) -> s.descriptor.serialName }
 
     @Suppress("UNCHECKED_CAST")
     internal fun getSubclassSerializer(objectToCheck: Any): KSerializer<*>? {

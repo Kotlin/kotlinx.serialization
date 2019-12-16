@@ -108,7 +108,7 @@ interface Decoder {
 
     fun <T> updateSerializableValue(deserializer: DeserializationStrategy<T>, old: T): T {
         return when(updateMode) {
-            UpdateMode.BANNED -> throw UpdateNotSupportedException(deserializer.descriptor.name)
+            UpdateMode.BANNED -> throw UpdateNotSupportedException(deserializer.descriptor.serialName)
             UpdateMode.OVERWRITE -> decodeSerializableValue(deserializer)
             UpdateMode.UPDATE -> deserializer.patch(this, old)
         }
@@ -116,7 +116,7 @@ interface Decoder {
 
     fun <T: Any> updateNullableSerializableValue(deserializer: DeserializationStrategy<T?>, old: T?): T? {
         return when {
-            updateMode == UpdateMode.BANNED -> throw UpdateNotSupportedException(deserializer.descriptor.name)
+            updateMode == UpdateMode.BANNED -> throw UpdateNotSupportedException(deserializer.descriptor.serialName)
             updateMode == UpdateMode.OVERWRITE || old == null -> decodeNullableSerializableValue(deserializer)
             decodeNotNullMark() -> deserializer.patch(this, old)
             else -> decodeNull().let { old }

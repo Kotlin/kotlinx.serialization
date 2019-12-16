@@ -28,18 +28,18 @@ public class EnumDescriptor @JvmOverloads constructor(
         if (other == null) return false
         if (other !is SerialDescriptor) return false
         if (other.kind !== UnionKind.ENUM_KIND) return false
-        if (name != other.name) return false
+        if (serialName != other.serialName) return false
         if (elementNames() != other.elementNames()) return false
         return true
     }
 
     override fun toString(): String {
-        return elementNames().joinToString(", ", "$name(", ")")
+        return elementNames().joinToString(", ", "$serialName(", ")")
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + name.hashCode()
+        result = 31 * result + serialName.hashCode()
         result = 31 * result + elementNames().hashCode()
         return result
     }
@@ -56,7 +56,7 @@ open class CommonEnumSerializer<T>(
     final override fun serialize(encoder: Encoder, obj: T) {
         val index = values.indexOf(obj)
         check(index != -1) {
-            "$obj is not a valid enum ${descriptor.name}, must be one of ${values.contentToString()}"
+            "$obj is not a valid enum ${descriptor.serialName}, must be one of ${values.contentToString()}"
         }
         encoder.encodeEnum(descriptor, index)
     }
@@ -64,7 +64,7 @@ open class CommonEnumSerializer<T>(
     final override fun deserialize(decoder: Decoder): T {
         val index = decoder.decodeEnum(descriptor)
         check(index in values.indices) {
-            "$index is not among valid $${descriptor.name} enum values, values size is ${values.size}"
+            "$index is not among valid $${descriptor.serialName} enum values, values size is ${values.size}"
         }
         return values[index]
     }

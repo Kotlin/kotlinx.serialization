@@ -65,7 +65,7 @@ data class Custom(
 @Suppress("NAME_SHADOWING")
 object CustomSerializer : KSerializer<Custom> {
     override val descriptor = object : SerialDescriptor {
-        override val name = "kotlinx.serialization.Custom"
+        override val serialName = "kotlinx.serialization.Custom"
         override val kind: SerialKind = StructureKind.CLASS
         override fun getElementName(index: Int) = when(index) {
             0 -> "value1"
@@ -191,7 +191,7 @@ class SerializeFlatTest() {
         fun fail(msg: String): Nothing = throw RuntimeException(msg)
 
         fun checkDesc(name: String, desc: SerialDescriptor) {
-            if (desc.name != "kotlinx.serialization." + name) fail("checkDesc name $desc")
+            if (desc.serialName != "kotlinx.serialization." + name) fail("checkDesc name $desc")
             if (desc.kind != StructureKind.CLASS) fail("checkDesc kind ${desc.kind}")
             if (desc.getElementName(0) != "value1") fail("checkDesc[0] $desc")
             if (desc.getElementName(1) != "value2") fail("checkDesc[1] $desc")

@@ -59,7 +59,7 @@ class SchemaTest {
         assertTrue(nested is ListLikeDescriptor)
         val elem = nested.getElementDescriptor(0)
         assertTrue(elem is PrimitiveDescriptor)
-        assertEquals("kotlin.Int", elem.name)
+        assertEquals("kotlin.Int", elem.serialName)
         assertTrue(elem is IntDescriptor)
         assertTrue(serialDescriptor.isElementOptional(0))
     }

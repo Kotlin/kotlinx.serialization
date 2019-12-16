@@ -42,7 +42,7 @@ class SerialNamesTest {
     @Test
     fun haveCustomClassName() {
         val desc = WithNames.serializer().descriptor
-        val name = desc.name
+        val name = desc.serialName
         assertEquals("MyClass", name)
     }
 

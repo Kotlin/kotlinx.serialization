@@ -46,7 +46,7 @@ class ResolvingTest {
     @Test
     fun primitiveDescriptorWithNameTest() {
         val desc = WithCustomDefault.serializer().descriptor
-        assertEquals("WithCustomDefault", desc.name)
+        assertEquals("WithCustomDefault", desc.serialName)
         assertSame(PrimitiveKind.INT, desc.kind)
         assertEquals(0, desc.elementsCount)
     }

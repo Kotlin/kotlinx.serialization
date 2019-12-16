@@ -39,7 +39,7 @@ internal class SerialModuleImpl : SerialModule {
         concreteSerializer: KSerializer<Sub>,
         allowOverwrite: Boolean = false
     ) {
-        val name = concreteSerializer.descriptor.name
+        val name = concreteSerializer.descriptor.serialName
         polyMap.getOrPut(baseClass, ::hashMapOf).let { baseClassMap ->
             if (!allowOverwrite && concreteClass in baseClassMap) throw SerializerAlreadyRegisteredException(
                 baseClass,

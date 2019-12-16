@@ -54,7 +54,7 @@ class ObjectSerializationTest : JsonTestBase() {
         val serialDesc: SerialDescriptor = ApiResponse.Error.serializer().descriptor
         assertEquals(UnionKind.OBJECT, serialDesc.kind)
         assertEquals(1, serialDesc.elementsCount)
-        assertEquals("ApiError", serialDesc.name)
+        assertEquals("ApiError", serialDesc.serialName)
         assertEquals(
             ObjectSerializer("ApiError", ApiResponse.Error).descriptor,
             serialDesc

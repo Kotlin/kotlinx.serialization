@@ -19,19 +19,17 @@ sealed class ListLikeDescriptor(val elementDesc: SerialDescriptor) : SerialDescr
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ListLikeDescriptor) return false
-
-        if (elementDesc == other.elementDesc && name == other.name) return true
-
+        if (elementDesc == other.elementDesc && serialName == other.serialName) return true
         return false
     }
 
     override fun hashCode(): Int {
-        return elementDesc.hashCode() * 31 + name.hashCode()
+        return elementDesc.hashCode() * 31 + serialName.hashCode()
     }
 }
 
 sealed class MapLikeDescriptor(
-    override val name: String,
+    override val serialName: String,
     val keyDescriptor: SerialDescriptor,
     val valueDescriptor: SerialDescriptor
 ) : SerialDescriptor {
@@ -48,7 +46,7 @@ sealed class MapLikeDescriptor(
         if (this === other) return true
         if (other !is MapLikeDescriptor) return false
 
-        if (name != other.name) return false
+        if (serialName != other.serialName) return false
         if (keyDescriptor != other.keyDescriptor) return false
         if (valueDescriptor != other.valueDescriptor) return false
 
@@ -56,7 +54,7 @@ sealed class MapLikeDescriptor(
     }
 
     override fun hashCode(): Int {
-        var result = name.hashCode()
+        var result = serialName.hashCode()
         result = 31 * result + keyDescriptor.hashCode()
         result = 31 * result + valueDescriptor.hashCode()
         return result
@@ -78,26 +76,26 @@ internal const val HASH_MAP_NAME = "kotlin.collections.HashMap"
 public class PrimitiveArrayDescriptor internal constructor(
     primitive: PrimitiveDescriptor
 ) : ListLikeDescriptor(primitive) {
-    override val name: String = "${primitive.name}Array"
+    override val serialName: String = "${primitive.serialName}Array"
 }
 
 class ArrayClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
-    override val name: String get() = ARRAY_NAME
+    override val serialName: String get() = ARRAY_NAME
 }
 
 class ArrayListClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
-    override val name: String get() = ARRAY_LIST_NAME
+    override val serialName: String get() = ARRAY_LIST_NAME
 }
 
-class NamedListClassDescriptor(override val name: String, elementDescriptor: SerialDescriptor)
+class NamedListClassDescriptor(override val serialName: String, elementDescriptor: SerialDescriptor)
     : ListLikeDescriptor(elementDescriptor)
 
 class LinkedHashSetClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
-    override val name: String get() = LINKED_HASH_SET_NAME
+    override val serialName: String get() = LINKED_HASH_SET_NAME
 }
 
 class HashSetClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
-    override val name: String get() = HASH_SET_NAME
+    override val serialName: String get() = HASH_SET_NAME
 }
 
 // TODO revisit this whole hierarchy

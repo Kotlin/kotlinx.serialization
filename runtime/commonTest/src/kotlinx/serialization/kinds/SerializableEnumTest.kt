@@ -74,7 +74,7 @@ class SerializableEnumTest : JsonTestBase() {
     @Test
     fun hasCorrectDescriptor() {
         val desc = WithCustomEnum.serializer().descriptor.getElementDescriptor(0)
-        assertEquals("custom_enum", desc.name)
+        assertEquals("custom_enum", desc.serialName)
         assertEquals(listOf("foo_a", "foo_b"), desc.elementNames())
         assertEquals("""custom_enum(foo_a, foo_b)""", desc.toString())
         assertEquals(desc, desc.getElementDescriptor(0))
@@ -93,8 +93,8 @@ class SerializableEnumTest : JsonTestBase() {
     fun annotationDoesNotChangeEnumDescriptor() {
         val descOne = TwoEnums.serializer().descriptor.getElementDescriptor(0)
         val descTwo = TwoEnums.serializer().descriptor.getElementDescriptor(1)
-        assertEquals("kotlinx.serialization.kinds.Two", descTwo.name)
-        assertEquals("kotlinx.serialization.kinds.One", descOne.name)
+        assertEquals("kotlinx.serialization.kinds.Two", descTwo.serialName)
+        assertEquals("kotlinx.serialization.kinds.One", descOne.serialName)
         assertEquals(descTwo.elementNames(), descOne.elementNames())
     }
 }

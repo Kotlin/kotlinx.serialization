@@ -52,7 +52,7 @@ public fun SerialDescriptor.elementNames(): List<String> {
 public fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
     val i = getElementIndex(name)
     if (i == CompositeDecoder.UNKNOWN_NAME)
-        throw SerializationException("${this.name} does not contain element with name '$name'")
+        throw SerializationException("${this.serialName} does not contain element with name '$name'")
     return i
 }
 

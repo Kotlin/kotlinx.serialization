@@ -84,7 +84,7 @@ public class SealedClassSerializer<T : Any>(
                     " got arrays: ${subclasses.contentToString()}, ${subclassSerializers.contentToString()}"
         }
         backingMap = subclasses.zip(subclassSerializers).toMap()
-        inverseMap = backingMap.values.associateBy { serializer -> serializer.descriptor.name }
+        inverseMap = backingMap.values.associateBy { serializer -> serializer.descriptor.serialName }
     }
 
     override fun findPolymorphicSerializer(decoder: CompositeDecoder, klassName: String): KSerializer<out T> {
@@ -110,7 +110,7 @@ internal class SealedClassDescriptor(
 
     init {
         elementDescriptors.forEach {
-            addElement(it.name)
+            addElement(it.serialName)
             pushDescriptor(it)
         }
     }

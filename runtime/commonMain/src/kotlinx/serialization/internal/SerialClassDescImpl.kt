@@ -9,7 +9,7 @@ import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlin.jvm.JvmOverloads
 
 open class SerialClassDescImpl @JvmOverloads constructor(
-    override val name: String,
+    override val serialName: String,
     private val generatedSerializer: GeneratedSerializer<*>? = null
 ) : SerialDescriptor {
     /*
@@ -81,21 +81,21 @@ open class SerialClassDescImpl @JvmOverloads constructor(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SerialClassDescImpl) return false
-        if (name != other.name) return false
+        if (serialName != other.serialName) return false
         if (elementDescriptors() != other.elementDescriptors()) return false
         return true
     }
 
     override fun hashCode(): Int {
-        var result = name.hashCode()
+        var result = serialName.hashCode()
         result = 31 * result + elementDescriptors().hashCode()
         return result
     }
 
     override fun toString(): String {
-        return indices.entries.joinToString(", ", "$name(", ")") { it.key + ": " + getElementDescriptor(it.value).name }
+        return indices.entries.joinToString(", ", "$serialName(", ")") { it.key + ": " + getElementDescriptor(it.value).serialName }
     }
 
     private class MissingDescriptorException(index: Int, origin: SerialDescriptor) :
-        SerializationException("Element descriptor at index $index has not been found in ${origin.name}")
+        SerializationException("Element descriptor at index $index has not been found in ${origin.serialName}")
 }
