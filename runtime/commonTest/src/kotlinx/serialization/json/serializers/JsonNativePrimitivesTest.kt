@@ -7,6 +7,7 @@ package kotlinx.serialization.json.serializers
 import kotlinx.serialization.SampleEnum
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.JsonTestBase
+import kotlinx.serialization.*
 import kotlinx.serialization.test.CommonEnumSerializer
 import kotlin.test.Test
 

@@ -15,7 +15,7 @@ private const val INITIAL_SIZE = 10
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
 public object ByteArraySerializer : KSerializer<ByteArray>,
-    PrimitiveArraySerializer<Byte, ByteArray, ByteArrayBuilder>(ByteSerializer, ByteDescriptor) {
+    PrimitiveArraySerializer<Byte, ByteArray, ByteArrayBuilder>(ByteSerializer) {
 
     override fun ByteArray.collectionSize(): Int = size
     override fun ByteArray.toBuilder(): ByteArrayBuilder = ByteArrayBuilder(this)
@@ -65,7 +65,7 @@ public class ByteArrayBuilder internal constructor(
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
 public object ShortArraySerializer : KSerializer<ShortArray>,
-    PrimitiveArraySerializer<Short, ShortArray, ShortArrayBuilder>(ShortSerializer, ShortDescriptor) {
+    PrimitiveArraySerializer<Short, ShortArray, ShortArrayBuilder>(ShortSerializer) {
 
     override fun ShortArray.collectionSize(): Int = size
     override fun ShortArray.toBuilder(): ShortArrayBuilder = ShortArrayBuilder(this)
@@ -114,7 +114,7 @@ public class ShortArrayBuilder internal constructor(
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
 public object IntArraySerializer : KSerializer<IntArray>,
-    PrimitiveArraySerializer<Int, IntArray, IntArrayBuilder>(IntSerializer, IntDescriptor) {
+    PrimitiveArraySerializer<Int, IntArray, IntArrayBuilder>(IntSerializer) {
 
     override fun IntArray.collectionSize(): Int = size
     override fun IntArray.toBuilder(): IntArrayBuilder = IntArrayBuilder(this)
@@ -163,7 +163,7 @@ public class IntArrayBuilder internal constructor(
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
 public object LongArraySerializer : KSerializer<LongArray>,
-    PrimitiveArraySerializer<Long, LongArray, LongArrayBuilder>(LongSerializer, LongDescriptor) {
+    PrimitiveArraySerializer<Long, LongArray, LongArrayBuilder>(LongSerializer) {
 
     override fun LongArray.collectionSize(): Int = size
     override fun LongArray.toBuilder(): LongArrayBuilder = LongArrayBuilder(this)
@@ -212,7 +212,7 @@ public class LongArrayBuilder internal constructor(
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
 public object FloatArraySerializer : KSerializer<FloatArray>,
-    PrimitiveArraySerializer<Float, FloatArray, FloatArrayBuilder>(FloatSerializer, FloatDescriptor) {
+    PrimitiveArraySerializer<Float, FloatArray, FloatArrayBuilder>(FloatSerializer) {
 
     override fun FloatArray.collectionSize(): Int = size
     override fun FloatArray.toBuilder(): FloatArrayBuilder = FloatArrayBuilder(this)
@@ -261,7 +261,7 @@ public class FloatArrayBuilder internal constructor(
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
 public object DoubleArraySerializer : KSerializer<DoubleArray>,
-    PrimitiveArraySerializer<Double, DoubleArray, DoubleArrayBuilder>(DoubleSerializer, DoubleDescriptor) {
+    PrimitiveArraySerializer<Double, DoubleArray, DoubleArrayBuilder>(DoubleSerializer) {
 
     override fun DoubleArray.collectionSize(): Int = size
     override fun DoubleArray.toBuilder(): DoubleArrayBuilder = DoubleArrayBuilder(this)
@@ -310,7 +310,7 @@ public class DoubleArrayBuilder internal constructor(
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
 public object CharArraySerializer : KSerializer<CharArray>,
-    PrimitiveArraySerializer<Char, CharArray, CharArrayBuilder>(CharSerializer, CharDescriptor) {
+    PrimitiveArraySerializer<Char, CharArray, CharArrayBuilder>(CharSerializer) {
 
     override fun CharArray.collectionSize(): Int = size
     override fun CharArray.toBuilder(): CharArrayBuilder = CharArrayBuilder(this)
@@ -359,7 +359,7 @@ public class CharArrayBuilder internal constructor(
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
 public object BooleanArraySerializer : KSerializer<BooleanArray>,
-    PrimitiveArraySerializer<Boolean, BooleanArray, BooleanArrayBuilder>(BooleanSerializer, BooleanDescriptor) {
+    PrimitiveArraySerializer<Boolean, BooleanArray, BooleanArrayBuilder>(BooleanSerializer) {
 
     override fun BooleanArray.collectionSize(): Int = size
     override fun BooleanArray.toBuilder(): BooleanArrayBuilder = BooleanArrayBuilder(this)

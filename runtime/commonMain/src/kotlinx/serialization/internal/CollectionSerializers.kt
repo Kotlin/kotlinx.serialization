@@ -153,10 +153,9 @@ public abstract class PrimitiveArrayBuilder<Array> internal constructor() {
 @InternalSerializationApi
 public abstract class PrimitiveArraySerializer<Element, Array, Builder : PrimitiveArrayBuilder<Array>>
 internal constructor(
-    primitiveSerializer: KSerializer<Element>,
-    primitiveDescriptor: PrimitiveDescriptor
+    primitiveSerializer: KSerializer<Element>
 ) : ListLikeSerializer<Element, Array, Builder>(primitiveSerializer) {
-    final override val descriptor: PrimitiveArrayDescriptor = PrimitiveArrayDescriptor(primitiveDescriptor)
+    final override val descriptor: PrimitiveArrayDescriptor = PrimitiveArrayDescriptor(primitiveSerializer.descriptor)
 
     final override fun Builder.builderSize() = position
     final override fun Builder.toResult(): Array = build()

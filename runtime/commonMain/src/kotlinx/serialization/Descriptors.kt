@@ -4,8 +4,6 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.internal.PrimitiveDescriptor
-
 sealed class SerialKind {
     // KNPE should never happen, because SerialKind is sealed and all inheritors are non-anonymous
     override fun toString(): String = this::class.simpleName()!!
@@ -56,7 +54,3 @@ sealed class PolymorphicKind : SerialKind() {
     object OPEN : PolymorphicKind()
 }
 
-class PrimitiveDescriptorWithName(override val serialName: String, val original: PrimitiveDescriptor) :
-    SerialDescriptor by original
-
-fun PrimitiveDescriptor.withName(name: String): SerialDescriptor = PrimitiveDescriptorWithName(name, this)

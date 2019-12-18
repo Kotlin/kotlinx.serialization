@@ -151,24 +151,23 @@ class SerialDescriptorSpecificationTest {
 
     @Test
     fun testPrimitiveDescriptors() {
-        testPrimitiveDescriptor(IntDescriptor)
-        testPrimitiveDescriptor(UnitDescriptor)
-        testPrimitiveDescriptor(BooleanDescriptor)
-        testPrimitiveDescriptor(ByteDescriptor)
-        testPrimitiveDescriptor(ShortDescriptor)
-        testPrimitiveDescriptor(LongDescriptor)
-        testPrimitiveDescriptor(FloatDescriptor)
-        testPrimitiveDescriptor(DoubleDescriptor)
-        testPrimitiveDescriptor(CharDescriptor)
-        testPrimitiveDescriptor(StringDescriptor)
+        testPrimitiveDescriptor("int", IntSerializer.descriptor)
+        testPrimitiveDescriptor("unit", UnitSerializer.descriptor)
+        testPrimitiveDescriptor("boolean", BooleanSerializer.descriptor)
+        testPrimitiveDescriptor("byte", ByteSerializer.descriptor)
+        testPrimitiveDescriptor("short", ShortSerializer.descriptor)
+        testPrimitiveDescriptor("long", LongSerializer.descriptor)
+        testPrimitiveDescriptor("float", FloatSerializer.descriptor)
+        testPrimitiveDescriptor("double", DoubleSerializer.descriptor)
+        testPrimitiveDescriptor("char", CharSerializer.descriptor)
+        testPrimitiveDescriptor("string", StringSerializer.descriptor)
     }
 
-    fun testPrimitiveDescriptor(descriptor: SerialDescriptor) {
+    fun testPrimitiveDescriptor(type: String, descriptor: SerialDescriptor) {
         assertEquals(0, descriptor.elementsCount)
-        val primitive = descriptor::class.simpleName!!.removeSuffix("Descriptor").toLowerCase()
         val kind = descriptor.kind.toString().toLowerCase()
-        assertEquals(primitive, kind)
-        assertEquals("kotlin.${primitive.capitalize()}", descriptor.serialName)
+        assertEquals(type, kind)
+        assertEquals("kotlin.${type.capitalize()}", descriptor.serialName)
         assertEquals(0, descriptor.annotations.size)
         assertFalse(descriptor.isNullable)
         assertFailsWith<IllegalStateException> { descriptor.getElementName(0) }

@@ -15,20 +15,11 @@ val <T> KSerializer<T>.set: KSerializer<Set<T>>
 val <K, V> Pair<KSerializer<K>, KSerializer<V>>.map: KSerializer<Map<K, V>>
     get() = LinkedHashMapSerializer(this.first, this.second)
 
-fun String.Companion.serializer(): KSerializer<String> = StringSerializer
-fun Char.Companion.serializer(): KSerializer<Char> = CharSerializer
-fun Byte.Companion.serializer(): KSerializer<Byte> = ByteSerializer
-fun Short.Companion.serializer(): KSerializer<Short> = ShortSerializer
-fun Int.Companion.serializer(): KSerializer<Int> = IntSerializer
-fun Long.Companion.serializer(): KSerializer<Long> = LongSerializer
-fun Float.Companion.serializer(): KSerializer<Float> = FloatSerializer
-fun Double.Companion.serializer(): KSerializer<Double> = DoubleSerializer
-fun Boolean.Companion.serializer(): KSerializer<Boolean> = BooleanSerializer
-
 /**
  * Creates a [List] out of a child descriptors retrieved via [SerialDescriptor.getElementDescriptor].
  *
  * Size of a list is equal to [SerialDescriptor.elementsCount].
+ * TODO revisit
  */
 public fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> {
     return List(elementsCount) { getElementDescriptor(it) }

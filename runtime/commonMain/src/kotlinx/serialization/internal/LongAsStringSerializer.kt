@@ -5,8 +5,11 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.StringSerializer
 
 object LongAsStringSerializer : KSerializer<Long> {
+    override val descriptor: SerialDescriptor = StringSerializer.descriptor
+
     override fun serialize(encoder: Encoder, obj: Long) {
         encoder.encodeString(obj.toString())
     }
@@ -14,6 +17,4 @@ object LongAsStringSerializer : KSerializer<Long> {
     override fun deserialize(decoder: Decoder): Long {
         return decoder.decodeString().toLong()
     }
-
-    override val descriptor: SerialDescriptor = StringDescriptor
 }

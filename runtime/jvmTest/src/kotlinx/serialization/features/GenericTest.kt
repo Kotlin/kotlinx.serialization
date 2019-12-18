@@ -17,8 +17,8 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.internal.IntSerializer
-import kotlinx.serialization.internal.StringSerializer
+import kotlinx.serialization.IntSerializer
+import kotlinx.serialization.StringSerializer
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals

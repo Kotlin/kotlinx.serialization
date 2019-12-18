@@ -4,7 +4,7 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.internal.IntSerializer
+import kotlinx.serialization.IntSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.test.isJs
 import kotlin.reflect.typeOf

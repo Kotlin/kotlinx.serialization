@@ -1,7 +1,6 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.IntSerializer
 import kotlin.test.*
 
 @Serializable

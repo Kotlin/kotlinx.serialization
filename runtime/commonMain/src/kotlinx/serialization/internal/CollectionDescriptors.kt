@@ -100,7 +100,7 @@ internal const val HASH_MAP_NAME = "kotlin.collections.HashMap"
  * Can be obtained from corresponding serializers (e.g. [ByteArraySerializer.descriptor])
  */
 public class PrimitiveArrayDescriptor internal constructor(
-    primitive: PrimitiveDescriptor
+    primitive: SerialDescriptor
 ) : ListLikeDescriptor(primitive) {
     override val serialName: String = "${primitive.serialName}Array"
 }
