@@ -122,7 +122,7 @@ class SerialDescriptorSpecificationTest {
         // Element descriptors
         assertSame(d, d.getElementDescriptor(0))
         assertSame(d, d.getElementDescriptor(1))
-        // TODO consider adding a check assertFailsWith<IndexOutOfBoundsException> { d.getElementDescriptor(2) }
+        assertFailsWith<IndexOutOfBoundsException> { d.getElementDescriptor(2) }
         // Optionality
         assertFailsWith<IllegalStateException> { d.isElementOptional(0) }
         assertFailsWith<IllegalStateException> { d.isElementOptional(1) }

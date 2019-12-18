@@ -5,21 +5,23 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
-import kotlin.jvm.JvmOverloads
-import kotlin.reflect.KClass
+import kotlin.jvm.*
+import kotlin.reflect.*
 
 @InternalSerializationApi
 public class EnumDescriptor @JvmOverloads constructor(
     name: String,
     values: Array<String> = emptyArray()
 ) : SerialClassDescImpl(name) {
-    override val kind: SerialKind = UnionKind.ENUM_KIND
 
     init {
         values.forEach { addElement(it) }
     }
 
+    override val kind: SerialKind = UnionKind.ENUM_KIND
+
     override fun getElementDescriptor(index: Int): SerialDescriptor {
+        if (index !in 0 until elementsCount) throw IndexOutOfBoundsException("Index $index out of bounds ${0 until elementsCount}")
         return this
     }
 
@@ -51,12 +53,13 @@ public class EnumDescriptor @JvmOverloads constructor(
 }
 
 @InternalSerializationApi
-open class CommonEnumSerializer<T>(
+open class CommonEnumSerializer<T : Enum<T>>(
     serialName: String,
-    val values: Array<T>,
-    valuesNames: Array<String>
+    private val values: Array<T>,
+    valuesNames: Array<String> // TODO kill this parameter
 ) : KSerializer<T> {
-    override val descriptor: SerialDescriptor = EnumDescriptor(serialName, valuesNames)
+
+    override val descriptor: SerialDescriptor = EnumDescriptor(serialName, values.map { it.name }.toTypedArray())
 
     final override fun serialize(encoder: Encoder, obj: T) {
         val index = values.indexOf(obj)
@@ -84,5 +87,5 @@ class EnumSerializer<T : Enum<T>> @JvmOverloads constructor(
 ) : CommonEnumSerializer<T>(
     serialName,
     serializableClass.enumMembers(),
-    serializableClass.enumMembers().map { it.name }.toTypedArray()
+    emptyArray()
 )

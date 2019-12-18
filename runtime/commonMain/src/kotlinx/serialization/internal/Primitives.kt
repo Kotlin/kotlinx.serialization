@@ -22,7 +22,7 @@ public sealed class PrimitiveDescriptor(
     private fun error(): Nothing = throw IllegalStateException("Primitive does not have elements")
 }
 
-object IntDescriptor: PrimitiveDescriptor("kotlin.Int", PrimitiveKind.INT) // or just "Int"?
+object IntDescriptor: PrimitiveDescriptor("kotlin.Int", PrimitiveKind.INT)
 object UnitDescriptor: PrimitiveDescriptor("kotlin.Unit", PrimitiveKind.UNIT)
 object BooleanDescriptor: PrimitiveDescriptor("kotlin.Boolean", PrimitiveKind.BOOLEAN)
 object ByteDescriptor: PrimitiveDescriptor("kotlin.Byte", PrimitiveKind.BYTE)
