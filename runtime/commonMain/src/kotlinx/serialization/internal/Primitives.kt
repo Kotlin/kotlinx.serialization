@@ -8,7 +8,7 @@ import kotlinx.serialization.*
 import kotlin.reflect.*
 
 @InternalSerializationApi
-`public sealed class PrimitiveDescriptor(
+public sealed class PrimitiveDescriptor(
     override val serialName: String,
     override val kind: PrimitiveKind
 ) : SerialDescriptor {

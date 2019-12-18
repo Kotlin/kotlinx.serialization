@@ -14,7 +14,7 @@ import kotlin.reflect.*
  *
  * Currently, it has no guarantees neither on its reference transparency nor its [elementDescriptors], only on [kind].
  */
-public object PolymorphicClassDescriptor : SerialClassDescImpl("kotlin.Any") {
+public object PolymorphicClassDescriptor : SerialClassDescImpl("kotlinx.serialization.Polymorphic") {
     public override val kind: SerialKind = PolymorphicKind.OPEN
 
     init {
