@@ -21,7 +21,7 @@ class SerializeZooTest {
         val other = inp.decode(Zoo.serializer())
         // assert we've got it back from string
         assertEquals(zoo, other)
-        assertFalse(zoo === other)
+        assertNotSame(zoo, other)
     }
 
     // Test data -- Zoo of types

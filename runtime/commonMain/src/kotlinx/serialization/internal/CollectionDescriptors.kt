@@ -10,11 +10,24 @@ import kotlinx.serialization.*
 sealed class ListLikeDescriptor(val elementDesc: SerialDescriptor) : SerialDescriptor {
     override val kind: SerialKind get() = StructureKind.LIST
     override val elementsCount: Int = 1
+    
     override fun getElementName(index: Int): String = index.toString()
     override fun getElementIndex(name: String): Int =
         name.toIntOrNull() ?: throw IllegalArgumentException("$name is not a valid list index")
 
-    override fun getElementDescriptor(index: Int): SerialDescriptor = elementDesc
+    override fun isElementOptional(index: Int): Boolean {
+        error("isElementOptional does not make sense for lists")
+    }
+
+    override fun getElementAnnotations(index: Int): List<Annotation> {
+        if (index != 0) throw IndexOutOfBoundsException("List descriptor has only one child element, index: $index")
+        return emptyList()
+    }
+
+    override fun getElementDescriptor(index: Int): SerialDescriptor {
+        if (index != 0) throw IndexOutOfBoundsException("List descriptor has only one child element, index: $index")
+        return elementDesc
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -26,9 +39,6 @@ sealed class ListLikeDescriptor(val elementDesc: SerialDescriptor) : SerialDescr
     override fun hashCode(): Int {
         return elementDesc.hashCode() * 31 + serialName.hashCode()
     }
-
-    override fun isElementOptional(index: Int): Boolean = false
-    override fun getElementAnnotations(index: Int): List<Annotation> = emptyList()
 }
 
 sealed class MapLikeDescriptor(
@@ -42,8 +52,22 @@ sealed class MapLikeDescriptor(
     override fun getElementIndex(name: String): Int =
         name.toIntOrNull() ?: throw IllegalArgumentException("$name is not a valid map index")
 
-    override fun getElementDescriptor(index: Int): SerialDescriptor =
-        if (index % 2 == 0) keyDescriptor else valueDescriptor
+    override fun isElementOptional(index: Int): Boolean {
+        error("isElementOptional does not make sense for maps")
+    }
+
+    override fun getElementAnnotations(index: Int): List<Annotation> {
+        if (index !in 0..1) throw IndexOutOfBoundsException("Map descriptor has only two child elements, index: $index")
+        return emptyList()
+    }
+
+    override fun getElementDescriptor(index: Int): SerialDescriptor {
+        return when (index) {
+            0 -> keyDescriptor
+            1 -> valueDescriptor
+            else -> throw IndexOutOfBoundsException("Map descriptor has only one child element, index: $index")
+        }
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -62,9 +86,6 @@ sealed class MapLikeDescriptor(
         result = 31 * result + valueDescriptor.hashCode()
         return result
     }
-
-    override fun isElementOptional(index: Int): Boolean = false
-    override fun getElementAnnotations(index: Int): List<Annotation> = emptyList()
 }
 
 internal const val ARRAY_NAME = "kotlin.Array"

@@ -135,8 +135,7 @@ abstract class JsonTestBase {
         serializer: KSerializer<T>,
         data: T,
         expected: String,
-        json: Json = unquoted,
-        printResult: Boolean = false
+        json: Json = unquoted
     ) {
         parametrizedTest { useStreaming ->
             val serialized = json.stringify(serializer, data, useStreaming)

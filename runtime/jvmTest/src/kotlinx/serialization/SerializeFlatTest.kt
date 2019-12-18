@@ -17,6 +17,7 @@
 package kotlinx.serialization
 
 import org.junit.Test
+import kotlin.test.*
 
 // Serializable data class
 
@@ -80,7 +81,7 @@ object CustomSerializer : KSerializer<Custom> {
         }
 
         override fun getElementAnnotations(index: Int): List<Annotation> = emptyList()
-        override fun getElementDescriptor(index: Int): SerialDescriptor = TODO()
+        override fun getElementDescriptor(index: Int): SerialDescriptor = fail("Should not be called")
         override fun isElementOptional(index: Int): Boolean = false
     }
 

@@ -6,43 +6,57 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
-import kotlin.jvm.JvmOverloads
+import kotlin.jvm.*
 
-open class SerialClassDescImpl @JvmOverloads constructor(
+/**
+ * Implementation that plugin uses to implement descriptors
+ * for auto-generated serializers.
+ *
+ * Unused methods are invoked by auto-generated plugin code
+ */
+@InternalSerializationApi
+public open class SerialClassDescImpl @JvmOverloads constructor(
     override val serialName: String,
     private val generatedSerializer: GeneratedSerializer<*>? = null
 ) : SerialDescriptor {
-    /*
-     * Unused methods are invoked by auto-generated plugin code
-     */
     override val kind: SerialKind get() = StructureKind.CLASS
-    override val elementsCount: Int get() = _annotations.size
+    override val elementsCount: Int get() = propertiesAnnotations.size
+    override val annotations: List<Annotation> get() = classAnnotations
 
     private val names: MutableList<String> = ArrayList()
-    private val _annotations: MutableList<MutableList<Annotation>> = mutableListOf()
-    override val annotations: List<Annotation>
-        get() = classAnnotations
+    private val propertiesAnnotations: MutableList<MutableList<Annotation>?> = mutableListOf()
     private val classAnnotations: MutableList<Annotation> = mutableListOf()
-    private var flags = BooleanArray(4)
-
     private val descriptors: MutableList<SerialDescriptor> = mutableListOf()
+    // Properly guess size for generated serializer
+    private var flags = BooleanArray(4)
 
     // don't change lazy mode: KT-32871, KT-32872
     private val indices: Map<String, Int> by lazy { buildIndices() }
 
-    @JvmOverloads // TODO protected
+    @JvmOverloads
     public fun addElement(name: String, isOptional: Boolean = false) {
         names.add(name)
         val idx = names.size - 1
         ensureFlagsCapacity(idx)
         flags[idx] = isOptional
-        _annotations.add(mutableListOf())
+        propertiesAnnotations.add(null)
     }
 
-    public fun pushAnnotation(a: Annotation) {
-        _annotations.last().add(a)
+    // TODO rename
+    public fun pushAnnotation(annotation: Annotation) {
+        val list = propertiesAnnotations.last().let {
+            if (it == null) {
+                val result = ArrayList<Annotation>(1)
+                propertiesAnnotations[propertiesAnnotations.lastIndex] = result
+                result
+            } else {
+                it
+            }
+        }
+        list.add(annotation)
     }
 
+    // TODO rename
     public fun pushClassAnnotation(a: Annotation) {
         classAnnotations.add(a)
     }
@@ -52,17 +66,15 @@ open class SerialClassDescImpl @JvmOverloads constructor(
     }
 
     override fun getElementDescriptor(index: Int): SerialDescriptor {
-        // todo: cache
-        return generatedSerializer?.childSerializers()?.getOrNull(index)?.descriptor
-                ?: descriptors.getOrNull(index)
-                ?: throw MissingDescriptorException(index, this)
+        return generatedSerializer?.childSerializers()?.get(index)?.descriptor ?: descriptors[index]
     }
 
     override fun isElementOptional(index: Int): Boolean {
+        if (index !in flags.indices) throw IndexOutOfBoundsException("Index $index out of bounds ${flags.indices}")
         return flags[index]
     }
 
-    override fun getElementAnnotations(index: Int): List<Annotation> = _annotations[index]
+    override fun getElementAnnotations(index: Int): List<Annotation> = propertiesAnnotations[index] ?: emptyList()
     override fun getElementName(index: Int): String = names[index]
     override fun getElementIndex(name: String): Int = indices[name] ?: UNKNOWN_NAME
 
@@ -96,7 +108,11 @@ open class SerialClassDescImpl @JvmOverloads constructor(
     override fun toString(): String {
         return indices.entries.joinToString(", ", "$serialName(", ")") { it.key + ": " + getElementDescriptor(it.value).serialName }
     }
+}
 
-    private class MissingDescriptorException(index: Int, origin: SerialDescriptor) :
-        SerializationException("Element descriptor at index $index has not been found in ${origin.serialName}")
+internal fun SerialDescriptor(name: String, kind: SerialKind): SerialDescriptor {
+    return object : SerialClassDescImpl(name) {
+        override val kind: SerialKind
+            get() = kind
+    }
 }

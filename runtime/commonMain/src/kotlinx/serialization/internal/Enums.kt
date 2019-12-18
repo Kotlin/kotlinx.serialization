@@ -23,6 +23,11 @@ public class EnumDescriptor @JvmOverloads constructor(
         return this
     }
 
+    override fun isElementOptional(index: Int): Boolean {
+        throw IllegalStateException("Enums do not have elements, " +
+                "thus calling 'isElementOptional' does not make any sense")
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null) return false

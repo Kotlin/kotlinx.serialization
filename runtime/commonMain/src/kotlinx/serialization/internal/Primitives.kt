@@ -8,7 +8,7 @@ import kotlinx.serialization.*
 import kotlin.reflect.*
 
 @InternalSerializationApi
-public sealed class PrimitiveDescriptor( // TODO internal constructor
+`public sealed class PrimitiveDescriptor(
     override val serialName: String,
     override val kind: PrimitiveKind
 ) : SerialDescriptor {
@@ -35,7 +35,6 @@ object StringDescriptor: PrimitiveDescriptor("kotlin.String", PrimitiveKind.STRI
 
 object UnitSerializer : KSerializer<Unit> {
     override val descriptor: SerialDescriptor = UnitDescriptor
-
     override fun serialize(encoder: Encoder, obj: Unit) = encoder.encodeUnit()
     override fun deserialize(decoder: Decoder): Unit = decoder.decodeUnit()
 }

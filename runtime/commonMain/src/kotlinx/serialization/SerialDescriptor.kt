@@ -5,7 +5,7 @@
 package kotlinx.serialization
 
 /**
- * Serial descriptor is an intrinsic property of [KSerializer] that describes the structure of the serializable type.
+ * Serial descriptor is an inherent property of [KSerializer] that describes the structure of the serializable type.
  * The structure of the serializable type is not only the property of the type, but also of the serializer as well,
  * meaning that one type can have multiple descriptors that have completely different structure.
  *
@@ -46,9 +46,9 @@ package kotlinx.serialization
  * Serial descriptor API operates with children indices.
  * For the fixed-size structures, such as regular classes, index is represented by a value in
  * the range from zero to [elementsCount] and represent and index of the property in this class.
- * Consequently, primitives, enums and objects do not have children and their element count is zero.
+ * Consequently, primitives do not have children and their element count is zero.
  *
- * For collections and maps, though, index does not have fixed bound. Regular collections usually
+ * For collections and maps, though, index does not have fixed bound. Regular collections descriptors usually
  * have one element (`T`, maps have two, one for keys and one for values), but potentially unlimited
  * number of actual children values. In such cases, valid indices range is not known statically
  * and implementations of descriptor should provide consistent and unbounded names and indices.
@@ -65,7 +65,8 @@ public interface SerialDescriptor {
     /**
      * Serial name of the descriptor that uniquely identifies pair of the associated serializer and target class.
      *
-     * For generated serializers, serial name is equal to the corresponding class's fully-qualified name.
+     * For generated serializers, serial name is equal to the corresponding class's fully-qualified name
+     * or, if overridden [SerialName].
      * Custom serializers should provide a unique serial name that identify both the serializable class and
      * the serializer itself. // TODO #363
      */
@@ -90,7 +91,7 @@ public interface SerialDescriptor {
     public val isNullable: Boolean get() = false
 
     /**
-     * The number of elements this descriptor describes, besides from the element itself.
+     * The number of elements this descriptor describes, besides from the class itself.
      * [elementsCount] describes the number of **semantic** elements, not the number
      * of actual fields/properties in the serialized form, even though they frequently match.
      *
@@ -98,17 +99,14 @@ public interface SerialDescriptor {
      * `class Complex(val real: Long, val imaginary: Long)` the corresponding descriptor
      * and the serialized form both have two elements, while for `class IntList : ArrayList<Int>()`
      * the corresponding descriptor has a single element (`IntDescriptor`, the type of list element),
-     * but from zero up to `Int.MAX_VALUE` elements in the serialized form.
+     * but from zero up to `Int.MAX_VALUE` values in the serialized form.
      */
     public val elementsCount: Int
 
     /**
      * Returns a serial annotations of the associated class.
      * Serial annotations can be used to specify an additional
-     * metadata that may be used during serialization, for example a [serial name][SerialName].
-     *
-     * TODO `serialAnnotations` or get rid of it completely?
-     * TODO default shouldn't be here either?
+     * metadata that may be used during serialization, for example a [serial id][SerialId].
      */
     public val annotations: List<Annotation> get() = emptyList()
 
@@ -126,9 +124,7 @@ public interface SerialDescriptor {
      * Returns an index in the children list of the given element by its name or [CompositeDecoder.UNKNOWN_NAME]
      * if there is no such element.
      * The resulting index, if it is not [CompositeDecoder.UNKNOWN_NAME], is guaranteed to be usable with
-     * [getElementAnnotations], [getElementName] and [isElementOptional]
-     *
-     * TODO MapLike does not comply this contract
+     * [getElementAnnotations] and [getElementName].
      */
     public fun getElementIndex(name: String): Int
 
@@ -138,13 +134,13 @@ public interface SerialDescriptor {
      * declaration-specific annotations:
      * ```
      * @Serializable
-     * @SerialInfo("_nested")
+     * @SerialName("_nested")
      * class Nested(...)
      * @Serializable
-     * class Outer(@Polymorphic val nested: Nested)
+     * class Outer(@SerialId(1) val nested: Nested)
      *
-     * outerDescriptor.getElementAnnotations(0) // Returns [@Polymorphic]
-     * outerDescriptor.getElementDescriptor(0).annotations // Returns [@SerialInfo]
+     * outerDescriptor.getElementAnnotations(0) // Returns [@SerialId]
+     * outerDescriptor.getElementDescriptor(0).annotations // Returns [@SerialName]
      * ```
      *
      * @throws IndexOutOfBoundsException for an illegal [index] values.
@@ -155,7 +151,8 @@ public interface SerialDescriptor {
     /**
      * Retrieves the descriptor of the child element for the given [index].
      * For the property of type `T` on the position `i`, `getElementDescriptor(i)` yields the same result
-     * as for `T.serializer().descriptor`.
+     * as for `T.serializer().descriptor`, if the serializer for this property is not explicitly overriden
+     * with `@Serializable(with = ...`)`, [Polymorphic] or [ContextualSerialization].
      * This method can be used to completely introspect the type that the current descriptor describes.
      *
      * @throws IndexOutOfBoundsException for illegal [index] values.
@@ -177,7 +174,7 @@ public interface SerialDescriptor {
      *     val b: Int?, // Optional == false
      *     val c: Int? = null, // Optional == true
      *     val d: List<Int>, // Optional == false
-     *     val e: List<Int> = listOf(1), // Optional == false
+     *     val e: List<Int> = listOf(1), // Optional == true
      * )
      * ```
      *
