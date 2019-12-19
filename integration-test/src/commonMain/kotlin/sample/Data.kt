@@ -19,7 +19,6 @@ package sample
 import kotlinx.serialization.*
 import kotlinx.serialization.modules.SerializersModule
 
-
 @Serializable
 data class IntData(val intV: Int)
 

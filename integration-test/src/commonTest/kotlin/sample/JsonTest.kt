@@ -5,9 +5,6 @@
 
 package sample
 
-import kotlinx.io.PrintWriter
-import kotlinx.io.StringReader
-import kotlinx.io.StringWriter
 import kotlinx.serialization.*
 import kotlinx.serialization.IntSerializer
 import kotlinx.serialization.json.*
@@ -210,22 +207,6 @@ class JsonTest {
             serializer = MyPolyDataWithPolyBase.serializer(),
             format = json
         )
-    }
-
-    @Test
-    fun testZoo() {
-        // serialize to string
-        val sw = StringWriter()
-        val out = KeyValueOutput(PrintWriter(sw))
-        print(zoo)
-        out.encode(Zoo.serializer(), zoo)
-        // deserialize from string
-        val str = sw.toString()
-        val inp = KeyValueInput(Parser(StringReader(str)))
-        val other = inp.decode(Zoo.serializer())
-//         assert we've got it back from string
-        assertEquals(zoo, other)
-        assertNotSame(zoo, other)
     }
 
     @Test
