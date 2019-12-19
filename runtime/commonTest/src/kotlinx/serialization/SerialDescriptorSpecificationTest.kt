@@ -163,6 +163,13 @@ class SerialDescriptorSpecificationTest {
         testPrimitiveDescriptor("string", StringSerializer.descriptor)
     }
 
+    @Test
+    fun testCustomPrimitiveDescriptor() {
+        assertFailsWith<IllegalArgumentException> { PrimitiveDescriptor("kotlin.Int", PrimitiveKind.INT) }
+        assertFailsWith<IllegalArgumentException> { PrimitiveDescriptor("Int", PrimitiveKind.INT) }
+        assertFailsWith<IllegalArgumentException> { PrimitiveDescriptor("int", PrimitiveKind.INT) }
+    }
+
     fun testPrimitiveDescriptor(type: String, descriptor: SerialDescriptor) {
         assertEquals(0, descriptor.elementsCount)
         val kind = descriptor.kind.toString().toLowerCase()

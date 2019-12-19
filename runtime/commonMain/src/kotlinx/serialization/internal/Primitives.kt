@@ -5,7 +5,32 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.BooleanSerializer
+import kotlinx.serialization.ByteSerializer
+import kotlinx.serialization.CharSerializer
+import kotlinx.serialization.DoubleSerializer
+import kotlinx.serialization.FloatSerializer
+import kotlinx.serialization.IntSerializer
+import kotlinx.serialization.LongSerializer
+import kotlinx.serialization.ShortSerializer
+import kotlinx.serialization.StringSerializer
+import kotlinx.serialization.UnitSerializer
+import kotlin.native.concurrent.*
 import kotlin.reflect.*
+
+@SharedImmutable
+private val BUILTIN_SERIALIZERS = mapOf(
+    String::class to StringSerializer,
+    Char::class to CharSerializer,
+    Double::class to DoubleSerializer,
+    Float::class to FloatSerializer,
+    Long::class to LongSerializer,
+    Int::class to IntSerializer,
+    Short::class to ShortSerializer,
+    Byte::class to ByteSerializer,
+    Boolean::class to BooleanSerializer,
+    Unit::class to UnitSerializer
+)
 
 private class PrimitiveSerialDescriptor(
     override val serialName: String,
@@ -21,22 +46,32 @@ private class PrimitiveSerialDescriptor(
     private fun error(): Nothing = throw IllegalStateException("Primitive descriptor does not have elements")
 }
 
-internal fun PrimitiveDescriptor(serialName: String, kind: PrimitiveKind): SerialDescriptor = PrimitiveSerialDescriptor(serialName, kind)
+// TODO make private after plugin migartion
+internal fun BuiltinDescriptor(serialName: String, kind: PrimitiveKind): SerialDescriptor = PrimitiveSerialDescriptor(serialName, kind)
+
+internal fun PrimitiveDescriptorSafe(serialName: String, kind: PrimitiveKind): SerialDescriptor {
+    checkName(serialName)
+    return BuiltinDescriptor(serialName, kind)
+}
+
+private fun checkName(serialName: String) {
+    val keys = BUILTIN_SERIALIZERS.keys
+    for (primitive in keys) {
+        val simpleName = primitive.simpleName!!.capitalize()
+        val qualifiedName = "kotlin.$simpleName" // KClass.qualifiedName is not supported in JS
+        if (serialName.equals(qualifiedName, ignoreCase = true) || serialName.equals(simpleName, ignoreCase = true)) {
+            throw IllegalArgumentException("""
+                The name of serial descriptor should uniquely identify associated serializer.
+                For serial name $serialName there already exist ${simpleName.capitalize()}Serializer.
+                Please refer to SerialDescriptor documentation for additional information
+            """.trimIndent())
+        }
+    }
+}
 
 @Suppress("UNCHECKED_CAST")
-internal fun <T : Any> KClass<T>.primitiveSerializerOrNull(): KSerializer<T>? = when (this) {
-    String::class -> StringSerializer
-    Char::class -> CharSerializer
-    Double::class -> DoubleSerializer
-    Float::class -> FloatSerializer
-    Long::class -> LongSerializer
-    Int::class -> IntSerializer
-    Short::class -> ShortSerializer
-    Byte::class -> ByteSerializer
-    Boolean::class -> BooleanSerializer
-    Unit::class -> UnitSerializer
-    else -> null
-} as KSerializer<T>?
+internal fun <T : Any> KClass<T>.primitiveSerializerOrNull(): KSerializer<T>? =
+    BUILTIN_SERIALIZERS[this] as KSerializer<T>
 
 @Deprecated(level = DeprecationLevel.HIDDEN, message = "Binary compatibility")
 object UnitSerializer : KSerializer<Unit> {

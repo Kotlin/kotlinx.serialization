@@ -5,10 +5,10 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.StringSerializer
 
 object LongAsStringSerializer : KSerializer<Long> {
-    override val descriptor: SerialDescriptor = StringSerializer.descriptor
+    override val descriptor: SerialDescriptor =
+        PrimitiveDescriptor("kotlinx.serialization.LongAsStringSerializer", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, obj: Long) {
         encoder.encodeString(obj.toString())
