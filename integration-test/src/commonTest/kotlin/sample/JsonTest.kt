@@ -9,7 +9,7 @@ import kotlinx.io.PrintWriter
 import kotlinx.io.StringReader
 import kotlinx.io.StringWriter
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.IntSerializer
+import kotlinx.serialization.IntSerializer
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.test.*
