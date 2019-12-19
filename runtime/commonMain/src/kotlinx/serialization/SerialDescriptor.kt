@@ -68,7 +68,7 @@ public interface SerialDescriptor {
      * For generated serializers, serial name is equal to the corresponding class's fully-qualified name
      * or, if overridden [SerialName].
      * Custom serializers should provide a unique serial name that identify both the serializable class and
-     * the serializer itself. // TODO #363
+     * the serializer itself.
      */
     public val serialName: String
 
@@ -115,6 +115,9 @@ public interface SerialDescriptor {
      * Positional name usually represents a corresponding property name in the class, associated with
      * the current descriptor.
      *
+     * This method may be inconsistent with [elementsCount] for collection and map types. Refer to its documentation
+     * for more details.
+     *
      * @throws IndexOutOfBoundsException for an illegal [index] values.
      * @throws IllegalStateException if the current descriptor does not support children elements (e.g. is a primitive)
      */
@@ -123,8 +126,10 @@ public interface SerialDescriptor {
     /**
      * Returns an index in the children list of the given element by its name or [CompositeDecoder.UNKNOWN_NAME]
      * if there is no such element.
-     * The resulting index, if it is not [CompositeDecoder.UNKNOWN_NAME], is guaranteed to be usable with
-     * [getElementAnnotations] and [getElementName].
+     * The resulting index, if it is not [CompositeDecoder.UNKNOWN_NAME], is guaranteed to be usable with [getElementName].
+     *
+     * This method may be inconsistent with [elementsCount] for collection and map types. Refer to its documentation
+     * for more details.
      */
     public fun getElementIndex(name: String): Int
 
@@ -142,9 +147,10 @@ public interface SerialDescriptor {
      * outerDescriptor.getElementAnnotations(0) // Returns [@SerialId]
      * outerDescriptor.getElementDescriptor(0).annotations // Returns [@SerialName]
      * ```
+     * This method is guaranteed to be consistent with [elementsCount].
      *
      * @throws IndexOutOfBoundsException for an illegal [index] values.
-     * @throws IllegalStateException if the current descriptor does not support children elements (e.g. is a primitive)
+     * @throws IllegalStateException if the current descriptor does not support children elements (e.g. is a primitive).
      */
     public fun getElementAnnotations(index: Int): List<Annotation>
 
@@ -154,9 +160,10 @@ public interface SerialDescriptor {
      * as for `T.serializer().descriptor`, if the serializer for this property is not explicitly overriden
      * with `@Serializable(with = ...`)`, [Polymorphic] or [ContextualSerialization].
      * This method can be used to completely introspect the type that the current descriptor describes.
+     * This method is guaranteed to be consistent with [elementsCount].
      *
      * @throws IndexOutOfBoundsException for illegal [index] values.
-     * @throws IllegalStateException if the current descriptor does not support children elements (e.g. is a primitive)
+     * @throws IllegalStateException if the current descriptor does not support children elements (e.g. is a primitive).
      */
     public fun getElementDescriptor(index: Int): SerialDescriptor
 
@@ -177,9 +184,10 @@ public interface SerialDescriptor {
      *     val e: List<Int> = listOf(1), // Optional == true
      * )
      * ```
+     * This method is guaranteed to be consistent with [elementsCount].
      *
      * @throws IndexOutOfBoundsException for an illegal [index] values.
-     * @throws IllegalStateException if the current descriptor does not support children elements (e.g. is a primitive)
+     * @throws IllegalStateException if the current descriptor does not support children elements (e.g. is a primitive).
      */
     public fun isElementOptional(index: Int): Boolean
 }
