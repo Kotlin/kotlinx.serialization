@@ -9,7 +9,8 @@ import kotlinx.serialization.json.JsonTestBase
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class SerializableEnumTest : JsonTestBase() {
+class EnumSerializationTest : JsonTestBase() {
+
     @Serializable
     @SerialName("custom_enum")
     private enum class CustomEnum {
@@ -19,14 +20,6 @@ class SerializableEnumTest : JsonTestBase() {
         @SerialId(10)
         FooB
     }
-
-    @Serializable
-    private enum class One { A, B }
-
-    private enum class Two { A, B }
-
-    @Serializable
-    private data class TwoEnums(val one: One, val two: Two)
 
     @Serializable
     private data class WithCustomEnum(val c: CustomEnum)
