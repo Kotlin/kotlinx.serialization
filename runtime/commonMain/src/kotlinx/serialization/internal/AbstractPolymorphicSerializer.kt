@@ -14,7 +14,7 @@ import kotlin.reflect.KClass
  * please refer to [PolymorphicSerializer] for interfaces/abstract classes and [SealedClassSerializer] for sealed classes.
  *
  * By default, without special support from [Encoder], polymorphic types are serialized as list with
- * two elements: class [serial name][SerialDescriptor.serialName] (String) and the object itself.
+ * two elements: class [serial name][NamedDescriptor.serialName] (String) and the object itself.
  * Serial name equals to fully-qualified class name by default and can be changed via @[SerialName] annotation.
  */
 @InternalSerializationApi

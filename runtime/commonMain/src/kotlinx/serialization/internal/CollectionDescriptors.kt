@@ -15,7 +15,8 @@ sealed class ListLikeDescriptor(val elementDesc: SerialDescriptor) : SerialDescr
         name.toIntOrNull() ?: throw IllegalArgumentException("$name is not a valid list index")
 
     override fun isElementOptional(index: Int): Boolean {
-        error("isElementOptional does not make sense for lists")
+        if (index != 0) throw IllegalStateException("List descriptor has only one child element, index: $index")
+        return false
     }
 
     override fun getElementAnnotations(index: Int): List<Annotation> {
@@ -52,7 +53,8 @@ sealed class MapLikeDescriptor(
         name.toIntOrNull() ?: throw IllegalArgumentException("$name is not a valid map index")
 
     override fun isElementOptional(index: Int): Boolean {
-        error("isElementOptional does not make sense for maps")
+        if (index !in 0..1) throw IllegalStateException("Map descriptor has only two child elements, index: $index")
+        return false
     }
 
     override fun getElementAnnotations(index: Int): List<Annotation> {

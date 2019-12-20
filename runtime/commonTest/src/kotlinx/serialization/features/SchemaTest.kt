@@ -128,7 +128,7 @@ class SchemaTest {
         assertEquals("INT", intDesc.kind.toString())
     }
 
-    public fun SerialDescriptor.kinds(): List<SerialKind> {
+    private fun SerialDescriptor.kinds(): List<SerialKind> {
         return List(elementsCount) { getElementDescriptor(it).kind }
     }
 }

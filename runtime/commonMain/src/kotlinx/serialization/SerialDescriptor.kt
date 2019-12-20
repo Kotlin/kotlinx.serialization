@@ -72,6 +72,14 @@ public interface SerialDescriptor {
      */
     public val serialName: String
 
+    @Deprecated(
+        message = "name property deprecated in the favour of serialName",
+        level = DeprecationLevel.ERROR,
+        replaceWith = ReplaceWith("serialName")
+    )
+    public val name: String
+        get() = serialName
+
     /**
      * The kind of the serialized form that determines **the shape** of the serialized data.
      * Formats use serial kind to add and parse serializer-agnostic metadata to the result.
@@ -184,7 +192,7 @@ public interface SerialDescriptor {
      *     val e: List<Int> = listOf(1), // Optional == true
      * )
      * ```
-     * This method is guaranteed to be consistent with [elementsCount].
+     * This method is guaranteed to be consistent with [elementsCount] for non-collection like classes.
      *
      * @throws IndexOutOfBoundsException for an illegal [index] values.
      * @throws IllegalStateException if the current descriptor does not support children elements (e.g. is a primitive).

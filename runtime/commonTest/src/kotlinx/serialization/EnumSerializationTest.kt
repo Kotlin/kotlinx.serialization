@@ -4,10 +4,9 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.internal.EnumDescriptor
-import kotlinx.serialization.json.JsonTestBase
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlinx.serialization.internal.*
+import kotlinx.serialization.json.*
+import kotlin.test.*
 
 class EnumSerializationTest : JsonTestBase() {
 
@@ -54,7 +53,8 @@ class EnumSerializationTest : JsonTestBase() {
             WithCustomEnum.serializer(),
             WithCustomEnum(CustomEnum.FooB),
             """{"c":"foo_b"}""",
-            strict)
+            strict
+        )
 
     @Test
     fun testEnumWithCustomSerializers() =

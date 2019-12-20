@@ -61,7 +61,7 @@ class SerialDescriptorSpecificationTest {
         run {
             assertEquals(0, d.getElementAnnotations(0).size)
             d.assertSingleAnnotation(1) { it is SerialId && it.id == 42 }
-            assertEquals(0, d.getElementAnnotations(0).size)
+            assertEquals(0, d.getElementAnnotations(2).size)
         }
         // Optionality
         run {
@@ -135,6 +135,8 @@ class SerialDescriptorSpecificationTest {
         assertFalse(descriptor.isNullable)
         assertEquals(1, descriptor.elementsCount)
         assertSame(IntSerializer.descriptor, descriptor.getElementDescriptor(0))
+        assertFalse(descriptor.isElementOptional(0))
+        assertFailsWith<IllegalStateException> { descriptor.isElementOptional(1) }
     }
 
     @Test
@@ -147,6 +149,9 @@ class SerialDescriptorSpecificationTest {
         assertSame(LongSerializer.descriptor, descriptor.getElementDescriptor(1))
         assertTrue(descriptor.getElementAnnotations(0).isEmpty())
         assertTrue(descriptor.getElementAnnotations(1).isEmpty())
+        assertFalse(descriptor.isElementOptional(0))
+        assertFalse(descriptor.isElementOptional(1))
+        assertFailsWith<IllegalStateException> { descriptor.isElementOptional(3) }
     }
 
     @Test

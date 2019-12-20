@@ -22,7 +22,7 @@ import kotlinx.serialization.internal.*
 @Serializer(forClass = JsonElement::class)
 public object JsonElementSerializer : KSerializer<JsonElement> {
     override val descriptor: SerialDescriptor =
-        SerialDescriptor("kotlinx.serialization.json.JsonElement", PolymorphicKind.SEALED)
+        NamedDescriptor("kotlinx.serialization.json.JsonElement", PolymorphicKind.SEALED)
 
     override fun serialize(encoder: Encoder, obj: JsonElement) {
         verify(encoder)
@@ -46,7 +46,7 @@ public object JsonElementSerializer : KSerializer<JsonElement> {
  */
 @Serializer(forClass = JsonPrimitive::class)
 public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
-    override val descriptor: SerialDescriptor = SerialDescriptor("kotlinx.serialization.json.JsonPrimitive", PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor = NamedDescriptor("kotlinx.serialization.json.JsonPrimitive", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, obj: JsonPrimitive) {
         verify(encoder)
@@ -72,7 +72,7 @@ public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
 public object JsonNullSerializer : KSerializer<JsonNull> {
     // technically, JsonNull is an object, but it does not call beginStructure/endStructure
     override val descriptor: SerialDescriptor =
-        SerialDescriptor("kotlinx.serialization.json.JsonNull", UnionKind.ENUM_KIND)
+        NamedDescriptor("kotlinx.serialization.json.JsonNull", UnionKind.ENUM_KIND)
 
     override fun serialize(encoder: Encoder, obj: JsonNull) {
         verify(encoder)
@@ -94,7 +94,7 @@ public object JsonNullSerializer : KSerializer<JsonNull> {
 public object JsonLiteralSerializer : KSerializer<JsonLiteral> {
 
     override val descriptor: SerialDescriptor =
-        SerialDescriptor("kotlinx.serialization.json.JsonLiteral", PrimitiveKind.STRING)
+        NamedDescriptor("kotlinx.serialization.json.JsonLiteral", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, obj: JsonLiteral) {
         verify(encoder)

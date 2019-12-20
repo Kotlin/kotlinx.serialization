@@ -59,7 +59,7 @@ class PolymorphismTest {
     }
 
     @Test
-    fun testExplicit() { // TODO explicit what?
+    fun testSerializeWithExplicitPolymorhpicSerializer() {
         val obj = PolyDerived("b")
         val s = json.stringify(PolymorphicSerializer(PolyDerived::class), obj)
         assertEquals("[kotlinx.serialization.features.PolyDerived,{id:1,s:b}]", s)

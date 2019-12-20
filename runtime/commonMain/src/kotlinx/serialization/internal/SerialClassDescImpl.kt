@@ -110,7 +110,7 @@ public open class SerialClassDescImpl @JvmOverloads constructor(
     }
 }
 
-internal fun SerialDescriptor(name: String, kind: SerialKind): SerialDescriptor {
+internal fun NamedDescriptor(name: String, kind: SerialKind): SerialDescriptor {
     return object : SerialClassDescImpl(name) {
         override val kind: SerialKind
             get() = kind

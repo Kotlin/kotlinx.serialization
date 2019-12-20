@@ -46,7 +46,6 @@ private class PrimitiveSerialDescriptor(
     private fun error(): Nothing = throw IllegalStateException("Primitive descriptor does not have elements")
 }
 
-// TODO make private after plugin migartion
 internal fun BuiltinDescriptor(serialName: String, kind: PrimitiveKind): SerialDescriptor = PrimitiveSerialDescriptor(serialName, kind)
 
 internal fun PrimitiveDescriptorSafe(serialName: String, kind: PrimitiveKind): SerialDescriptor {
@@ -63,7 +62,7 @@ private fun checkName(serialName: String) {
             throw IllegalArgumentException("""
                 The name of serial descriptor should uniquely identify associated serializer.
                 For serial name $serialName there already exist ${simpleName.capitalize()}Serializer.
-                Please refer to SerialDescriptor documentation for additional information
+                Please refer to SerialDescriptor documentation for additional information.
             """.trimIndent())
         }
     }

@@ -125,3 +125,25 @@ public fun Long.Companion.serializer(): KSerializer<Long> = LongSerializer
 public fun Float.Companion.serializer(): KSerializer<Float> = FloatSerializer
 public fun Double.Companion.serializer(): KSerializer<Double> = DoubleSerializer
 public fun Boolean.Companion.serializer(): KSerializer<Boolean> = BooleanSerializer
+
+// Source-level migration aids
+
+
+@Deprecated(
+    message = "Deprecated in the favour of PrimitiveDescriptor factory function",
+    level = DeprecationLevel.ERROR
+)
+class PrimitiveDescriptorWithName
+@Deprecated(
+    message = "Deprecated in the favour of PrimitiveDescriptor factory function",
+    level = DeprecationLevel.ERROR,
+    replaceWith = ReplaceWith("PrimitiveDescriptor(name, original.kind)")
+)
+constructor(override val name: String, val original: SerialDescriptor) : SerialDescriptor by original
+
+@Deprecated(
+    message = "Deprecated in the favour of PrimitiveDescriptor factory function",
+    level = DeprecationLevel.ERROR,
+    replaceWith = ReplaceWith("PrimitiveDescriptor(name, this.kind)")
+)
+fun SerialDescriptor.withName(name: String): SerialDescriptor = error("No longer supported")
