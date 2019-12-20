@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -8,7 +8,7 @@ import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
 @ImplicitReflectionSerializer
-actual fun <T: Any> KClass<T>.compiledSerializer(): KSerializer<T>? = this.java.invokeSerializerGetter()
+actual fun <T : Any> KClass<T>.compiledSerializer(): KSerializer<T>? = this.constructSerializerForGivenTypeArgs()
 
 actual fun String.toUtf8Bytes() = this.toByteArray(Charsets.UTF_8)
 actual fun stringFromUtf8Bytes(bytes: ByteArray) = String(bytes, Charsets.UTF_8)
@@ -24,11 +24,13 @@ actual fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<
 
 @Suppress("UNCHECKED_CAST")
 @ImplicitReflectionSerializer
-internal fun <T> Class<T>.invokeSerializerGetter(vararg args: KSerializer<Any>): KSerializer<T>? {
+internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
     var serializer: KSerializer<T>? = null
+    val jClass = this.java
 
     // Search for serializer defined on companion object.
-    val companion = declaredFields.singleOrNull { it.name == "Companion" }?.apply { isAccessible = true }?.get(null)
+    val companion =
+        jClass.declaredFields.singleOrNull { it.name == "Companion" }?.apply { isAccessible = true }?.get(null)
     if (companion != null) {
         serializer = companion.javaClass.methods
             .find { method ->
@@ -41,7 +43,7 @@ internal fun <T> Class<T>.invokeSerializerGetter(vararg args: KSerializer<Any>):
     if (serializer == null) {
         serializer =
             try {
-                declaredClasses.singleOrNull { it.simpleName == ("\$serializer") }
+                jClass.declaredClasses.singleOrNull { it.simpleName == ("\$serializer") }
                     ?.getField("INSTANCE")?.get(null) as? KSerializer<T>
             } catch (e: NoSuchFieldException) {
                 null
@@ -60,7 +62,7 @@ internal fun <T> Class<T>.invokeSerializerGetter(vararg args: KSerializer<Any>):
  *
  * On JS and Native, this function delegates to aforementioned
  * [KClass.isInstance] since it is supported there out-of-the box;
- * on JVM, it falls back to java.lang.Class.isInstance which causes
+ * on JVM, it falls back to java.lang.Class.isInstance, which causes
  * difference when applied to function types with big arity.
  */
 internal actual fun Any.isInstanceOf(kclass: KClass<*>): Boolean = kclass.javaObjectType.isInstance(this)
