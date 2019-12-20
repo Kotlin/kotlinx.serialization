@@ -10,7 +10,7 @@ import kotlinx.serialization.modules.*
 import kotlin.reflect.*
 
 /**
- * A [NamedDescriptor] for polymorphic serialization with special kind.
+ * A [SerialDescriptor] for polymorphic serialization with special kind.
  *
  * Currently, it has no guarantees neither on its reference transparency nor its children descriptors, only on [kind].
  */

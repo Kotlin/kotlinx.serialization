@@ -4,11 +4,11 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.internal.primitiveSerializerOrNull
+import kotlinx.serialization.internal.builtinSerializerOrNull
 import kotlin.reflect.KClass
 
 @ImplicitReflectionSerializer
-fun <T : Any> KClass<T>.serializer(): KSerializer<T> = compiledSerializer() ?: primitiveSerializerOrNull()
+fun <T : Any> KClass<T>.serializer(): KSerializer<T> = compiledSerializer() ?: builtinSerializerOrNull()
     ?: throw SerializationException("Can't locate argument-less serializer for $this. For generic classes, such as lists, please provide serializer explicitly.")
 
 // TODO internals where it is possible

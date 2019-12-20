@@ -118,6 +118,9 @@ public interface SerialDescriptor {
      */
     public val annotations: List<Annotation> get() = emptyList()
 
+    @Deprecated(message = "Deprecated in the favour of 'annotations' property", replaceWith = ReplaceWith("annotations"))
+    public fun getEntityAnnotations(): List<Annotation> = emptyList()
+
     /**
      * Returns a _positional_ name of the child at the given [index].
      * Positional name usually represents a corresponding property name in the class, associated with
@@ -152,8 +155,8 @@ public interface SerialDescriptor {
      * @Serializable
      * class Outer(@SerialId(1) val nested: Nested)
      *
-     * outerDescriptor.getElementAnnotations(0) // Returns [@SerialId]
-     * outerDescriptor.getElementDescriptor(0).annotations // Returns [@SerialName]
+     * outerDescriptor.getElementAnnotations(0) // Returns [@SerialId(1)]
+     * outerDescriptor.getElementDescriptor(0).annotations // Returns [@SerialName("_nested")]
      * ```
      * This method is guaranteed to be consistent with [elementsCount].
      *
@@ -193,6 +196,7 @@ public interface SerialDescriptor {
      * )
      * ```
      * This method is guaranteed to be consistent with [elementsCount] for non-collection like classes.
+     * Returns `false` for valid indices of collections, maps and enums.
      *
      * @throws IndexOutOfBoundsException for an illegal [index] values.
      * @throws IllegalStateException if the current descriptor does not support children elements (e.g. is a primitive).

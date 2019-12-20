@@ -69,7 +69,7 @@ private fun checkName(serialName: String) {
 }
 
 @Suppress("UNCHECKED_CAST")
-internal fun <T : Any> KClass<T>.primitiveSerializerOrNull(): KSerializer<T>? =
+internal fun <T : Any> KClass<T>.builtinSerializerOrNull(): KSerializer<T>? =
     BUILTIN_SERIALIZERS[this] as KSerializer<T>
 
 @Deprecated(level = DeprecationLevel.HIDDEN, message = "Binary compatibility")
@@ -142,3 +142,66 @@ object StringSerializer : KSerializer<String> {
     override fun serialize(encoder: Encoder, obj: String) = encoder.encodeString(obj)
     override fun deserialize(decoder: Decoder): String = decoder.decodeString()
 }
+
+
+open class Migration : SerialDescriptor {
+    override val serialName: String
+        get() = error("Class used only for source-level migration")
+    override val kind: SerialKind
+        get() = error("Class used only for source-level migration")
+    override val elementsCount: Int
+        get() = error("Class used only for source-level migration")
+    override fun getElementName(index: Int): String {
+        error("Class used only for source-level migration")
+    }
+
+    override fun getElementIndex(name: String): Int {
+        error("Class used only for source-level migration")
+    }
+
+    override fun getElementAnnotations(index: Int): List<Annotation> {
+        error("Class used only for source-level migration")
+    }
+
+    override fun getElementDescriptor(index: Int): SerialDescriptor {
+        error("Class used only for source-level migration")
+    }
+
+    override fun isElementOptional(index: Int): Boolean {
+        error("Class used only for source-level migration")
+    }
+}
+
+const val message = "Top level primitive descriptors are unavailable to avoid accidental misuage. " +
+        "Please use kind for comparison and primitive descriptor with a unique name for implementation"
+
+@Deprecated(message = message,
+    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.INT)"))
+object IntDescriptor : Migration()
+@Deprecated(message = message,
+    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.UNIT)"))
+object UnitDescriptor : Migration()
+@Deprecated(message = message,
+    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.BOOLEAN)"))
+object BooleanDescriptor : Migration()
+@Deprecated(message = message,
+    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.BYTE)"))
+object ByteDescriptor : Migration()
+@Deprecated(message = message,
+    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.SHORT)"))
+object ShortDescriptor : Migration()
+@Deprecated(message = message,
+    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.LONG)"))
+object LongDescriptor : Migration()
+@Deprecated(message = message,
+    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.FLOAT)"))
+object FloatDescriptor : Migration()
+@Deprecated(message = message,
+    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.DOUBLE)"))
+object DoubleDescriptor : Migration()
+@Deprecated(message = message,
+    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.CHAR)"))
+object CharDescriptor : Migration()
+@Deprecated(message = message,
+    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.STRING)"))
+object StringDescriptor : Migration()

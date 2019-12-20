@@ -16,9 +16,9 @@ val <K, V> Pair<KSerializer<K>, KSerializer<V>>.map: KSerializer<Map<K, V>>
     get() = LinkedHashMapSerializer(this.first, this.second)
 
 /**
- * Creates a [List] out of a child descriptors retrieved via [NamedDescriptor.getElementDescriptor].
+ * Creates a [List] out of a child descriptors retrieved via [SerialDescriptor.getElementDescriptor].
  *
- * Size of a list is equal to [NamedDescriptor.elementsCount].
+ * Size of a list is equal to [SerialDescriptor.elementsCount].
  * TODO revisit
  */
 public fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> {
@@ -26,19 +26,17 @@ public fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> {
 }
 
 /**
- * Creates a [List] out of a serial names of [this] descriptor's elements [NamedDescriptor.getElementDescriptor].
+ * Creates a [List] out of a serial names of [this] descriptor's elements [SerialDescriptor.getElementDescriptor].
  *
- * Size of a list is equal to [NamedDescriptor.elementsCount].
+ * Size of a list is equal to [SerialDescriptor.elementsCount].
  */
 public fun SerialDescriptor.elementNames(): List<String> {
     return List(elementsCount) { getElementName(it) }
 }
 
 /**
- * Same as [NamedDescriptor.getElementIndex],
- * but throws [SerializationException] if
- * given [name] is not associated with any element
- * in the descriptor.
+ * Same as [SerialDescriptor.getElementIndex], but throws [SerializationException] if
+ * given [name] is not associated with any element in the descriptor.
  */
 public fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
     val i = getElementIndex(name)
@@ -49,7 +47,7 @@ public fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
 
 /**
  * Searches for annotation of type [A] in annotations, obtained via
- * [NamedDescriptor.getElementAnnotations] at given [elementIndex]
+ * [SerialDescriptor.getElementAnnotations] at given [elementIndex]
  *
  * Returns null if there are no annotations with such type.
  * Throws [IllegalStateException] if there are duplicated annotations for a given type.

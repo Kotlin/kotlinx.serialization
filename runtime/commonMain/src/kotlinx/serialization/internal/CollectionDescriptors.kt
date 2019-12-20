@@ -62,12 +62,10 @@ sealed class MapLikeDescriptor(
         return emptyList()
     }
 
-    override fun getElementDescriptor(index: Int): SerialDescriptor {
-        return when (index) {
-            0 -> keyDescriptor
-            1 -> valueDescriptor
-            else -> throw IndexOutOfBoundsException("Map descriptor has only one child element, index: $index")
-        }
+    override fun getElementDescriptor(index: Int): SerialDescriptor = when (index) {
+        0 -> keyDescriptor
+        1 -> valueDescriptor
+        else -> throw IndexOutOfBoundsException("Map descriptor has only one child element, index: $index")
     }
 
     override fun equals(other: Any?): Boolean {
