@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -21,6 +21,18 @@ actual fun stringFromUtf8Bytes(bytes: ByteArray): String {
 @Retention(AnnotationRetention.BINARY)
 @Deprecated("Inserted into generated code and should not be used directly", level = DeprecationLevel.HIDDEN)
 public annotation class SerializableWith(val serializer: KClass<out KSerializer<*>>)
+
+@Suppress(
+    "UNCHECKED_CAST",
+    "DEPRECATION_ERROR"
+)
+@UseExperimental(ExperimentalAssociatedObjects::class)
+internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? =
+    when (val assocObject = findAssociatedObject<SerializableWith>()) {
+        is KSerializer<*> -> assocObject as KSerializer<T>
+        is kotlinx.serialization.internal.SerializerFactory -> assocObject.serializer(*args) as KSerializer<T>
+        else -> null
+    }
 
 
 @Suppress(

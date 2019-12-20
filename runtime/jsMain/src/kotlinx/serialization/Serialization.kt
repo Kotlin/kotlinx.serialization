@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -35,3 +35,7 @@ actual fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<
 internal actual fun Any.isInstanceOf(kclass: KClass<*>): Boolean = kclass.isInstance(this)
 
 internal actual fun <T : Any> KClass<T>.simpleName(): String? = simpleName
+
+internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
+    throw NotImplementedError("This method is not supported for Kotlin/JS yet. Please provide serializer explicitly.")
+}
