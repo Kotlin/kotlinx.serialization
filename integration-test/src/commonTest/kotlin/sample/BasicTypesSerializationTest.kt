@@ -1,17 +1,13 @@
 /*
  * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-
-package kotlinx.serialization
-
-import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
+package sample
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 import kotlin.test.*
+import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 
-/*
- * Test ensures that type type that aggregate all basic (primitive/collection/maps/arrays)
- * types is properly serialized/deserialized with dummy format that supports only classes and primitives as
- * first-class citizens.
- */
 class BasicTypesSerializationTest {
 
     enum class Attitude { POSITIVE, NEUTRAL, NEGATIVE }
