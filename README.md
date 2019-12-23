@@ -91,11 +91,26 @@ Example projects on JVM are available for [Gradle](examples/example-jvm/build.gr
 
 ### Gradle
 
-You have to add the serialization plugin as the other [compiler plugins](https://kotlinlang.org/docs/reference/compiler-plugins.html):
+#### Adding the plugin to classpath
 
+You have to add the serialization plugin to your classpath as the other [compiler plugins](https://kotlinlang.org/docs/reference/compiler-plugins.html):
+
+Kotlin DSL:
+```kotlin
+buildscript {
+    repositories { jcenter() }
+
+    dependencies {
+        val kotlinVersion = "1.3.61"
+        classpath(kotlin("gradle-plugin", version = kotlinVersion))
+        classpath(kotlin("serialization", version = kotlinVersion))
+    }
+}
+```
+Groovy DSL:
 ```gradle
 buildscript {
-    ext.kotlin_version = '1.3.60'
+    ext.kotlin_version = '1.3.61'
     repositories { jcenter() }
 
     dependencies {
@@ -105,18 +120,52 @@ buildscript {
 }
 ```
 
-Don't forget to apply the plugin:
+#### Applying the plugin
 
+Next, apply the plugin to your project.
+
+You can setup serialization plugin with the kotlin plugin using [Gradle plugins DSL](https://docs.gradle.org/current/userguide/plugins.html#sec:plugins_block) **instead** of traditional `apply plugin`:
+
+Kotlin DSL:
+```kotlin
+plugins {
+    kotlin("multiplatform") // or kotlin("jvm") or any other kotlin plugin
+    id("kotlinx-serialization")
+}
+```
+Groovy DSL:
+```gradle
+plugins {
+    id 'org.jetbrains.kotlin.multiplatform' version '1.3.61' // or any other kotlin plugin
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.3.61'
+}
+```
+Using the old way (with `apply plugin`) the setup looks like this (in Groovy):
 ```gradle
 apply plugin: 'kotlin' // or 'kotlin-multiplatform' for multiplatform projects
 apply plugin: 'kotlinx-serialization'
 ```
+Note: plugin marker for serialization has been published in Kotlin 1.3.50. If you need to use the earlier Kotlin version, see [KT-27612](https://youtrack.jetbrains.com/issue/KT-27612) for workaround with [plugin resolution rules](https://docs.gradle.org/current/userguide/plugins.html#sec:plugin_resolution_rules).
 
-Next, you have to add dependency on the serialization runtime library. Note that while plugin have version the same as compiler one, runtime library has different coordinates, repository and versioning.
+#### Dependency on the runtime library
 
-```gradle
+And finally, you have to add a dependency on the serialization runtime library. Note that while the plugin has version the same as the compiler one, runtime library has different coordinates, repository and versioning.
+
+Kotlin DSL:
+```kotlin
 repositories {
     // artifacts are published to JCenter
+    jcenter()
+}
+
+dependencies {
+    implementation(kotlin("stdlib-jdk8", KotlinCompilerVersion.VERSION))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0") // JVM dependency
+}
+```
+Groovy DSL:
+```gradle
+repositories {
     jcenter()
 }
 
@@ -125,21 +174,6 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0" // JVM dependency
 }
 ```
-
-### Gradle (with `plugins` block)
-
-You can setup serialization plugin with the kotlin plugin using [Gradle plugins DSL](https://docs.gradle.org/current/userguide/plugins.html#sec:plugins_block) **instead** of traditional `apply plugin`:
-
-```gradle
-plugins {
-    id 'org.jetbrains.kotlin.multiplatform' version '1.3.60' // or any other kotlin plugin
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.3.60'
-}
-```
-
-Note: plugin marker for serialization has been published in Kotlin 1.3.50. If you need to use the earlier Kotlin version, see [KT-27612](https://youtrack.jetbrains.com/issue/KT-27612) for workaround with [plugin resolution rules](https://docs.gradle.org/current/userguide/plugins.html#sec:plugin_resolution_rules).
-
-Runtime library should be added to dependencies the same way as before.
 
 ### Android/JVM
 
