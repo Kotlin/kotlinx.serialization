@@ -6,119 +6,102 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 
+private val NULL = Any()
 
-const val KEY_INDEX = 0
-const val VALUE_INDEX = 1
+internal sealed class KeyValueSerializer<K, V, R>(
+    private val keySerializer: KSerializer<K>,
+    private val valueSerializer: KSerializer<V>
+) : KSerializer<R> {
 
-@InternalSerializationApi
-public sealed class KeyValueSerializer<K, V, R>(val kSerializer: KSerializer<K>, val vSerializer: KSerializer<V>) :
-    KSerializer<R> {
-    abstract override val descriptor: SerialDescriptor
-    abstract fun toResult(key: K, value: V): R
     abstract val R.key: K
     abstract val R.value: V
+    abstract fun toResult(key: K, value: V): R
 
     override fun serialize(encoder: Encoder, obj: R) {
-        @Suppress("NAME_SHADOWING")
-        val encoder = encoder.beginStructure(descriptor, kSerializer, vSerializer)
-        encoder.encodeSerializableElement(descriptor, KEY_INDEX, kSerializer, obj.key)
-        encoder.encodeSerializableElement(descriptor, VALUE_INDEX, vSerializer, obj.value)
-        encoder.endStructure(descriptor)
+        val structuredEncoder = encoder.beginStructure(descriptor, keySerializer, valueSerializer)
+        structuredEncoder.encodeSerializableElement(descriptor, 0, keySerializer, obj.key)
+        structuredEncoder.encodeSerializableElement(descriptor, 1, valueSerializer, obj.value)
+        structuredEncoder.endStructure(descriptor)
     }
 
     override fun deserialize(decoder: Decoder): R {
-        @Suppress("NAME_SHADOWING")
-        val input = decoder.beginStructure(descriptor, kSerializer, vSerializer)
-        var kSet = false
-        var vSet = false
-        var k: Any? = null
-        var v: Any? = null
+        val composite = decoder.beginStructure(descriptor, keySerializer, valueSerializer)
+        if (composite.decodeSequentially()) {
+            val key = composite.decodeSerializableElement(descriptor, 0, keySerializer)
+            val value = composite.decodeSerializableElement(descriptor, 1, valueSerializer)
+            return toResult(key, value)
+        }
+
+        var key: Any? = NULL
+        var value: Any? = NULL
         mainLoop@ while (true) {
-            when (input.decodeElementIndex(descriptor)) {
-                CompositeDecoder.READ_ALL -> {
-                    k = readKey(input)
-                    kSet = true
-                    v = readValue(input, k, kSet)
-                    vSet = true
-                    break@mainLoop
-                }
+            when (val idx = composite.decodeElementIndex(descriptor)) {
                 CompositeDecoder.READ_DONE -> {
                     break@mainLoop
                 }
-                KEY_INDEX -> {
-                    k = readKey(input)
-                    kSet = true
+                0 -> {
+                    key = composite.decodeSerializableElement(descriptor, 0, keySerializer)
                 }
-                VALUE_INDEX -> {
-                    v = readValue(input, k, kSet)
-                    vSet = true
+                1 -> {
+                    value = composite.decodeSerializableElement(descriptor, 1, valueSerializer)
                 }
-                else -> throw SerializationException("Invalid index")
+                else -> throw SerializationException("Invalid index: $idx")
             }
         }
-        input.endStructure(descriptor)
-        if (!kSet) throw SerializationException("Required key is missing")
-        if (!vSet) throw SerializationException("Required value is missing")
+        composite.endStructure(descriptor)
+        if (key === NULL) throw SerializationException("Element 'key' is missing")
+        if (value === NULL) throw SerializationException("Element 'value' is missing")
         @Suppress("UNCHECKED_CAST")
-        return toResult(k as K, v as V)
-    }
-
-    protected open fun readKey(decoder: CompositeDecoder): K {
-        return decoder.decodeSerializableElement(descriptor, KEY_INDEX, kSerializer)
-    }
-
-    protected open fun readValue(decoder: CompositeDecoder, k: Any?, kSet: Boolean): V {
-        return decoder.decodeSerializableElement(descriptor, VALUE_INDEX, vSerializer)
+        return toResult(key as K, value as V)
     }
 }
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-class MapEntrySerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
-    KeyValueSerializer<K, V, Map.Entry<K, V>>(kSerializer, vSerializer) {
-    override val descriptor = MapEntryClassDesc
+internal class MapEntrySerializer<K, V>(
+    keySerializer: KSerializer<K>,
+    valueSerializer: KSerializer<V>
+) : KeyValueSerializer<K, V, Map.Entry<K, V>>(keySerializer, valueSerializer) {
+    private object MapEntryClassDesc : SerialClassDescImpl("kotlin.collections.Map.Entry") {
+        override val kind = StructureKind.MAP
+
+        init {
+            addElement("key")
+            addElement("value")
+        }
+    }
+
+    override val descriptor: SerialDescriptor = MapEntryClassDesc
+    override val Map.Entry<K, V>.key: K get() = this.key
+    override val Map.Entry<K, V>.value: V get() = this.value
     override fun toResult(key: K, value: V): Map.Entry<K, V> = MapEntry(key, value)
-
-    override val Map.Entry<K, V>.key: K
-        get() = this.key
-    override val Map.Entry<K, V>.value: V
-        get() = this.value
 }
 
-class PairSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
-    KeyValueSerializer<K, V, Pair<K, V>>(kSerializer, vSerializer) {
-    override val descriptor = PairClassDesc
+internal class PairSerializer<K, V>(
+    ketSerializer: KSerializer<K>,
+    valueSerializer: KSerializer<V>
+) : KeyValueSerializer<K, V, Pair<K, V>>(ketSerializer, valueSerializer) {
+    private object PairClassDesc : SerialClassDescImpl("kotlin.Pair") {
+        init {
+            addElement("first")
+            addElement("second")
+        }
+    }
+
+    override val descriptor: SerialDescriptor get() = PairClassDesc
+    override val Pair<K, V>.key: K get() = this.first
+    override val Pair<K, V>.value: V get() = this.second
+
     override fun toResult(key: K, value: V) = key to value
-
-    override val Pair<K, V>.key: K
-        get() = this.first
-    override val Pair<K, V>.value: V
-        get() = this.second
 }
 
-data class MapEntry<K, V>(override val key: K, override val value: V) : Map.Entry<K, V>
+private data class MapEntry<K, V>(override val key: K, override val value: V) : Map.Entry<K, V>
 
-object MapEntryClassDesc : SerialClassDescImpl("kotlin.collections.Map.Entry") {
-    override val kind = StructureKind.MAP
-
-    init {
-        addElement("key")
-        addElement("value")
-    }
-}
-
-object PairClassDesc : SerialClassDescImpl("kotlin.Pair") {
-    init {
-        addElement("first")
-        addElement("second")
-    }
-}
-
-class TripleSerializer<A, B, C>(
+internal class TripleSerializer<A, B, C>(
     private val aSerializer: KSerializer<A>,
     private val bSerializer: KSerializer<B>,
     private val cSerializer: KSerializer<C>
 ) : KSerializer<Triple<A, B, C>> {
-    object TripleDesc : SerialClassDescImpl("kotlin.Triple") {
+    private object TripleDesc : SerialClassDescImpl("kotlin.Triple") {
         init {
             addElement("first")
             addElement("second")
@@ -126,59 +109,57 @@ class TripleSerializer<A, B, C>(
         }
     }
 
-    override val descriptor: SerialDescriptor = TripleDesc
+    override val descriptor: SerialDescriptor get() = TripleDesc
 
     override fun serialize(encoder: Encoder, obj: Triple<A, B, C>) {
-        @Suppress("NAME_SHADOWING")
-        val encoder = encoder.beginStructure(descriptor, aSerializer, bSerializer, cSerializer)
-        encoder.encodeSerializableElement(descriptor, 0, aSerializer, obj.first)
-        encoder.encodeSerializableElement(descriptor, 1, bSerializer, obj.second)
-        encoder.encodeSerializableElement(descriptor, 2, cSerializer, obj.third)
-        encoder.endStructure(descriptor)
+        val structuredEncoder = encoder.beginStructure(descriptor, aSerializer, bSerializer, cSerializer)
+        structuredEncoder.encodeSerializableElement(descriptor, 0, aSerializer, obj.first)
+        structuredEncoder.encodeSerializableElement(descriptor, 1, bSerializer, obj.second)
+        structuredEncoder.encodeSerializableElement(descriptor, 2, cSerializer, obj.third)
+        structuredEncoder.endStructure(descriptor)
     }
 
     override fun deserialize(decoder: Decoder): Triple<A, B, C> {
-        @Suppress("NAME_SHADOWING")
-        val input = decoder.beginStructure(descriptor, aSerializer, bSerializer, cSerializer)
-        var aSet = false
-        var bSet = false
-        var cSet = false
-        var a: Any? = null
-        var b: Any? = null
-        var c: Any? = null
+        val composite = decoder.beginStructure(descriptor, aSerializer, bSerializer, cSerializer)
+        if (composite.decodeSequentially()) {
+            return decodeSequentially(composite)
+        }
+        return decodeStructure(composite)
+    }
+
+    private fun decodeSequentially(composite: CompositeDecoder): Triple<A, B, C> {
+        val a = composite.decodeSerializableElement(descriptor, 0, aSerializer)
+        val b = composite.decodeSerializableElement(descriptor, 1, bSerializer)
+        val c = composite.decodeSerializableElement(descriptor, 2, cSerializer)
+        composite.endStructure(descriptor)
+        return Triple(a, b, c)
+    }
+
+    private fun decodeStructure(composite: CompositeDecoder): Triple<A, B, C> {
+        var a: Any? = NULL
+        var b: Any? = NULL
+        var c: Any? = NULL
         mainLoop@ while (true) {
-            when (input.decodeElementIndex(descriptor)) {
-                CompositeDecoder.READ_ALL -> {
-                    a = input.decodeSerializableElement(descriptor, 0, aSerializer)
-                    aSet = true
-                    b = input.decodeSerializableElement(descriptor, 1, bSerializer)
-                    bSet = true
-                    c = input.decodeSerializableElement(descriptor, 2, cSerializer)
-                    cSet = true
-                    break@mainLoop
-                }
+            when (val index = composite.decodeElementIndex(descriptor)) {
                 CompositeDecoder.READ_DONE -> {
                     break@mainLoop
                 }
                 0 -> {
-                    a = input.decodeSerializableElement(descriptor, 0, aSerializer)
-                    aSet = true
+                    a = composite.decodeSerializableElement(descriptor, 0, aSerializer)
                 }
                 1 -> {
-                    b = input.decodeSerializableElement(descriptor, 1, bSerializer)
-                    bSet = true
+                    b = composite.decodeSerializableElement(descriptor, 1, bSerializer)
                 }
                 2 -> {
-                    c = input.decodeSerializableElement(descriptor, 2, cSerializer)
-                    cSet = true
+                    c = composite.decodeSerializableElement(descriptor, 2, cSerializer)
                 }
-                else -> throw SerializationException("Invalid index")
+                else -> throw SerializationException("Unexpected index $index")
             }
         }
-        input.endStructure(descriptor)
-        if (!aSet) throw SerializationException("Required first is missing")
-        if (!bSet) throw SerializationException("Required second is missing")
-        if (!cSet) throw SerializationException("Required third is missing")
+        composite.endStructure(descriptor)
+        if (a === NULL) throw SerializationException("Element 'first' is missing")
+        if (b === NULL) throw SerializationException("Element 'second' is missing")
+        if (c === NULL) throw SerializationException("Element 'third' is missing")
         @Suppress("UNCHECKED_CAST")
         return Triple(a as A, b as B, c as C)
     }

@@ -198,10 +198,6 @@ abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
         return this
     }
 
-    /**
-     * Assumes that all elements go in order by default.
-     */
-    override fun decodeElementIndex(desc: SerialDescriptor): Int = READ_ALL
 
     final override fun decodeUnitElement(desc: SerialDescriptor, index: Int) = decodeTaggedUnit(desc.getTag(index))
     final override fun decodeBooleanElement(desc: SerialDescriptor, index: Int): Boolean = decodeTaggedBoolean(desc.getTag(index))
@@ -244,6 +240,10 @@ abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
 
     protected fun pushTag(name: Tag) {
         tagStack.add(name)
+    }
+
+    protected fun copyTagsTo(other: TaggedDecoder<Tag>) {
+        other.tagStack.addAll(tagStack)
     }
 
     private var flag = false

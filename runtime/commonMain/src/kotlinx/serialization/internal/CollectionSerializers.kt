@@ -28,17 +28,14 @@ sealed class AbstractCollectionSerializer<Element, Collection, Builder> : KSeria
         val builder = old.toBuilder()
         val startIndex = builder.builderSize()
         val compositeDecoder = decoder.beginStructure(descriptor, *typeParams)
-        val size = readSize(compositeDecoder, builder)
-        mainLoop@ while (true) {
-            when (val index = compositeDecoder.decodeElementIndex(descriptor)) {
-                READ_ALL -> {
-                    readAll(compositeDecoder, builder, startIndex, size)
-                    break@mainLoop
-                }
-                READ_DONE -> break@mainLoop
-                else -> readElement(compositeDecoder, startIndex + index, builder)
+        if (compositeDecoder.decodeSequentially()) {
+            readAll(compositeDecoder, builder, startIndex, readSize(compositeDecoder, builder))
+        } else {
+            while (true) {
+                val index = compositeDecoder.decodeElementIndex(descriptor)
+                if (index == READ_DONE) break
+                readElement(compositeDecoder, startIndex + index, builder)
             }
-
         }
         compositeDecoder.endStructure(descriptor)
         return builder.toResult()

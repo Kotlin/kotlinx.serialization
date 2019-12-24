@@ -16,6 +16,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.modules.*
 
 class Mapper(context: SerialModule = EmptyModule) : AbstractSerialFormat(context) {
@@ -69,21 +70,51 @@ class Mapper(context: SerialModule = EmptyModule) : AbstractSerialFormat(context
         }
     }
 
-    internal inner class InMapper(val map: Map<String, Any>) : NamedValueDecoder() {
+    internal inner class InMapper(private val map: Map<String, Any>) : NamedValueDecoder() {
+        private var currentIndex = -1
         override val context: SerialModule = this@Mapper.context
+
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+            return InMapper(map).also { copyTagsTo(it) }
+        }
 
         override fun decodeCollectionSize(desc: SerialDescriptor): Int {
             return decodeTaggedInt(nested("size"))
         }
 
-        override fun decodeTaggedValue(tag: String): Any = map.getValue(tag)
+        override fun decodeTaggedValue(tag: String): Any {
+            return map.getValue(tag)
+        }
+
+        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+            val tag = nested("size")
+            val size = if (map.containsKey(tag)) decodeTaggedInt(tag) else desc.elementsCount
+            if (++currentIndex == size) {
+                return READ_DONE
+            }
+            return currentIndex
+        }
     }
 
     internal inner class InNullableMapper(val map: Map<String, Any?>) : NamedValueDecoder() {
         override val context: SerialModule = this@Mapper.context
+        private var currentIndex = -1
+
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+            return InNullableMapper(map).also { copyTagsTo(it) }
+        }
 
         override fun decodeCollectionSize(desc: SerialDescriptor): Int {
             return decodeTaggedInt(nested("size"))
+        }
+
+        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+            val tag = nested("size")
+            val size = if (map.containsKey(tag)) decodeTaggedInt(tag) else desc.elementsCount
+            if (++currentIndex == size) {
+                return READ_DONE
+            }
+            return currentIndex
         }
 
         override fun decodeTaggedValue(tag: String): Any = map.getValue(tag)!!

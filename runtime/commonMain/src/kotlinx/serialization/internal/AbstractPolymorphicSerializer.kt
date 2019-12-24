@@ -39,14 +39,12 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
         val compositeDecoder = decoder.beginStructure(descriptor)
         var klassName: String? = null
         var value: Any? = null
+        if (compositeDecoder.decodeSequentially()) {
+            return decodeSequentially(compositeDecoder)
+        }
+
         mainLoop@ while (true) {
             when (val index = compositeDecoder.decodeElementIndex(descriptor)) {
-                CompositeDecoder.READ_ALL -> {
-                    klassName = compositeDecoder.decodeStringElement(descriptor, 0)
-                    val serializer = findPolymorphicSerializer(compositeDecoder, klassName)
-                    value = compositeDecoder.decodeSerializableElement(descriptor, 1, serializer)
-                    break@mainLoop
-                }
                 CompositeDecoder.READ_DONE -> {
                     break@mainLoop
                 }
@@ -69,6 +67,14 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
         compositeDecoder.endStructure(descriptor)
         @Suppress("UNCHECKED_CAST")
         return requireNotNull(value) { "Polymorphic value has not been read for class $klassName" } as T
+    }
+
+    private fun decodeSequentially(compositeDecoder: CompositeDecoder): T {
+        val klassName = compositeDecoder.decodeStringElement(descriptor, 0)
+        val serializer = findPolymorphicSerializer(compositeDecoder, klassName)
+        val value = compositeDecoder.decodeSerializableElement(descriptor, 1, serializer)
+        compositeDecoder.endStructure(descriptor)
+        return value
     }
 
     /**

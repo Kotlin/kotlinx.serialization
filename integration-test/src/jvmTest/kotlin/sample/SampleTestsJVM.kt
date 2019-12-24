@@ -24,12 +24,4 @@ class SampleTestsJVM {
         val name = kind.toString()
         assertEquals("INT", name)
     }
-
-    @Test
-    fun kotlinReflectNotInClasspath() {
-        val klass = Json::class
-        assertFailsWith<KotlinReflectionNotSupportedError> {
-            println(klass.qualifiedName)
-        }
-    }
 }

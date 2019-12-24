@@ -83,11 +83,6 @@ abstract class ElementValueDecoder : Decoder, CompositeDecoder {
     override val updateMode: UpdateMode = UpdateMode.UPDATE
     // ------- implementation API -------
 
-    /**
-     * Assumes that all elements go in order by default.
-     */
-    override fun decodeElementIndex(desc: SerialDescriptor): Int = READ_ALL
-
     override fun decodeNotNullMark(): Boolean = true
     override fun decodeNull(): Nothing? = null
 

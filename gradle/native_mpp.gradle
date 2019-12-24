@@ -17,6 +17,7 @@ kotlin {
     }
 
     targets {
+        return
         if (project.ext.singleTargetMode) {
             fromPreset(project.ext.ideaPreset, 'native')
         } else {
