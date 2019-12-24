@@ -14,9 +14,9 @@ import kotlinx.serialization.internal.*
  *
  * Example usage:
  * ```
- *   val string = Json.stringify(JsonElementSerializer, json { "key" to 1.0 })
- *   val literal = Json.parse(JsonElementSerializer, string)
- *   assertEquals(JsonObject(mapOf("key" to JsonLiteral(1.0))), literal)
+ * val string = Json.stringify(JsonElementSerializer, json { "key" to 1.0 })
+ * val literal = Json.parse(JsonElementSerializer, string)
+ * assertEquals(JsonObject(mapOf("key" to JsonLiteral(1.0))), literal)
  * ```
  */
 @Serializer(forClass = JsonElement::class)
