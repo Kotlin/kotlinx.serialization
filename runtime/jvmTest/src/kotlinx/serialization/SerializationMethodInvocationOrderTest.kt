@@ -28,12 +28,12 @@ class SerializationMethodInvocationOrderTest {
         fun fail(msg: String): Nothing = throw RuntimeException(msg)
 
         fun checkContainerDesc(desc: SerialDescriptor) {
-            if (desc.name != "kotlinx.serialization.Container") fail("checkContainerDesc name $desc")
+            if (desc.serialName != "kotlinx.serialization.Container") fail("checkContainerDesc name $desc")
             if (desc.getElementName(0) != "data") fail("checkContainerDesc $desc")
         }
 
         fun checkDataDesc(desc: SerialDescriptor) {
-            if (desc.name != "kotlinx.serialization.Data") fail("checkDataDesc name $desc")
+            if (desc.serialName != "kotlinx.serialization.Data") fail("checkDataDesc name $desc")
             if (desc.getElementName(0) != "value1") fail("checkDataDesc.0 $desc")
             if (desc.getElementName(1) != "value2") fail("checkDataDesc.1 $desc")
         }

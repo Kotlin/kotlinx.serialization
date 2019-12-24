@@ -12,9 +12,9 @@ import kotlin.reflect.*
 /**
  * A [SerialDescriptor] for polymorphic serialization with special kind.
  *
- * Currently, it has no guarantees neither on its reference transparency nor its [elementDescriptors], only on [kind].
+ * Currently, it has no guarantees neither on its reference transparency nor its children descriptors, only on [kind].
  */
-public object PolymorphicClassDescriptor : SerialClassDescImpl("kotlin.Any") {
+public object PolymorphicClassDescriptor : SerialClassDescImpl("kotlinx.serialization.Polymorphic") {
     public override val kind: SerialKind = PolymorphicKind.OPEN
 
     init {

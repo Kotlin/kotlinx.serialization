@@ -17,8 +17,8 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.IntDescriptor
-import kotlinx.serialization.internal.IntSerializer
+import kotlinx.serialization.IntSerializer
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import java.lang.reflect.ParameterizedType
@@ -37,7 +37,7 @@ class ResolvingTest {
     data class WithCustomDefault(val n: Int) {
         @Serializer(forClass = WithCustomDefault::class)
         companion object {
-            override val descriptor: SerialDescriptor = IntDescriptor.withName("WithCustomDefault")
+            override val descriptor: SerialDescriptor = PrimitiveDescriptor("WithCustomDefault", PrimitiveKind.INT)
             override fun serialize(encoder: Encoder, obj: WithCustomDefault) = encoder.encodeInt(obj.n)
             override fun deserialize(decoder: Decoder) = WithCustomDefault(decoder.decodeInt())
         }
@@ -46,7 +46,7 @@ class ResolvingTest {
     @Test
     fun primitiveDescriptorWithNameTest() {
         val desc = WithCustomDefault.serializer().descriptor
-        assertEquals("WithCustomDefault", desc.name)
+        assertEquals("WithCustomDefault", desc.serialName)
         assertSame(PrimitiveKind.INT, desc.kind)
         assertEquals(0, desc.elementsCount)
     }

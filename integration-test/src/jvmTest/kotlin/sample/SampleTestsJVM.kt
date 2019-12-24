@@ -4,7 +4,7 @@
 
 package sample
 
-import kotlinx.serialization.internal.IntSerializer
+import kotlinx.serialization.IntSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.*
 import kotlin.test.Test

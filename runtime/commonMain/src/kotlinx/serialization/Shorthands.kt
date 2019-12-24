@@ -15,20 +15,11 @@ val <T> KSerializer<T>.set: KSerializer<Set<T>>
 val <K, V> Pair<KSerializer<K>, KSerializer<V>>.map: KSerializer<Map<K, V>>
     get() = LinkedHashMapSerializer(this.first, this.second)
 
-fun String.Companion.serializer(): KSerializer<String> = StringSerializer
-fun Char.Companion.serializer(): KSerializer<Char> = CharSerializer
-fun Byte.Companion.serializer(): KSerializer<Byte> = ByteSerializer
-fun Short.Companion.serializer(): KSerializer<Short> = ShortSerializer
-fun Int.Companion.serializer(): KSerializer<Int> = IntSerializer
-fun Long.Companion.serializer(): KSerializer<Long> = LongSerializer
-fun Float.Companion.serializer(): KSerializer<Float> = FloatSerializer
-fun Double.Companion.serializer(): KSerializer<Double> = DoubleSerializer
-fun Boolean.Companion.serializer(): KSerializer<Boolean> = BooleanSerializer
-
 /**
  * Creates a [List] out of a child descriptors retrieved via [SerialDescriptor.getElementDescriptor].
  *
  * Size of a list is equal to [SerialDescriptor.elementsCount].
+ * TODO revisit
  */
 public fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> {
     return List(elementsCount) { getElementDescriptor(it) }
@@ -44,15 +35,13 @@ public fun SerialDescriptor.elementNames(): List<String> {
 }
 
 /**
- * Same as [SerialDescriptor.getElementIndex],
- * but throws [SerializationException] if
- * given [name] is not associated with any element
- * in the descriptor.
+ * Same as [SerialDescriptor.getElementIndex], but throws [SerializationException] if
+ * given [name] is not associated with any element in the descriptor.
  */
 public fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
     val i = getElementIndex(name)
     if (i == CompositeDecoder.UNKNOWN_NAME)
-        throw SerializationException("${this.name} does not contain element with name '$name'")
+        throw SerializationException("${this.serialName} does not contain element with name '$name'")
     return i
 }
 

@@ -41,15 +41,15 @@ internal class ObjectDescriptor(name: String) : SerialClassDescImpl(name) {
         if (this === other) return true
         if (other !is SerialDescriptor) return false
         if (other.kind !== UnionKind.OBJECT) return false
-        if (name != other.name) return false
+        if (serialName != other.serialName) return false
         return true
     }
 
     override fun hashCode(): Int {
-        return name.hashCode()
+        return serialName.hashCode()
     }
 
     override fun toString(): String {
-        return "$name()"
+        return "$serialName()"
     }
 }

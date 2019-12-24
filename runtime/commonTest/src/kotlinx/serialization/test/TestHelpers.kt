@@ -8,4 +8,4 @@ import kotlinx.serialization.internal.CommonEnumSerializer
 
 @Suppress("TestFunctionName")
 inline fun <reified E: Enum<E>> CommonEnumSerializer(serialName: String): CommonEnumSerializer<E> =
-    CommonEnumSerializer(serialName, enumValues(), enumValues<E>().map { it.name }.toTypedArray())
+    CommonEnumSerializer(serialName, enumValues(), emptyArray())

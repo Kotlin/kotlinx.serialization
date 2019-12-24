@@ -50,7 +50,7 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
         encodeString(configuration.classDiscriminator)
         composer.print(COLON)
         composer.space()
-        encodeString(descriptor.name)
+        encodeString(descriptor.serialName)
     }
 
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {

@@ -4,33 +4,38 @@
 
 package sample
 
-import kotlinx.io.PrintWriter
-import kotlinx.io.Reader
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.EnumDescriptor
 
-class KeyValueOutput(val out: PrintWriter) : ElementValueEncoder() {
+class KeyValueOutput(val sb: StringBuilder) : ElementValueEncoder() {
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
-        out.print('{')
+        sb.append('{')
         return this
     }
 
-    override fun endStructure(desc: SerialDescriptor) = out.print('}')
+    override fun endStructure(desc: SerialDescriptor) {
+        sb.append('}')
+    }
 
     override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
-        if (index > 0) out.print(", ")
-        out.print(desc.getElementName(index));
-        out.print(':')
+        if (index > 0) sb.append(", ")
+        sb.append(desc.getElementName(index));
+        sb.append(':')
         return true
     }
 
-    override fun encodeNull() = out.print("null")
-    override fun encodeValue(value: Any) = out.print(value)
+    override fun encodeNull() {
+        sb.append("null")
+    }
+
+    override fun encodeValue(value: Any) {
+        sb.append(value)
+    }
 
     override fun encodeString(value: String) {
-        out.print('"')
-        out.print(value)
-        out.print('"')
+        sb.append('"')
+        sb.append(value)
+        sb.append('"')
     }
 
     override fun encodeChar(value: Char) = encodeString(value.toString())
@@ -92,10 +97,16 @@ class KeyValueInput(val inp: Parser) : ElementValueDecoder() {
     override fun decodeChar(): Char = decodeString().single()
 }
 
-// Parser
+class StringReader(val str: String) {
+    private var position: Int = 0
+    fun read(): Int = when (position) {
+        str.length -> -1
+        else -> str[position++].toInt()
+    }
+}
 
 // Very simple char-by-char parser
-class Parser(private val inp: Reader) {
+class Parser(private val inp: StringReader) {
     var cur: Int = inp.read()
 
     fun next() {

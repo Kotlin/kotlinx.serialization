@@ -17,38 +17,16 @@
 package kotlinx.serialization
 
 
-interface SerialDescriptor {
-    val name: String
-    val kind: SerialKind
-
-    fun getElementName(index: Int): String
-    fun getElementIndex(name: String): Int
-
-    fun getEntityAnnotations(): List<Annotation> = emptyList()
-    fun getElementAnnotations(index: Int): List<Annotation> = emptyList()
-
-    val elementsCount: Int
-        get() = 0
-
-    fun getElementDescriptor(index: Int): SerialDescriptor = TODO()
-
-    val isNullable: Boolean
-        get() = false
-
-    fun isElementOptional(index: Int): Boolean = false
-}
-
 interface SerializationStrategy<in T> {
-    fun serialize(encoder: Encoder, obj : T)
-
     val descriptor: SerialDescriptor
+
+    fun serialize(encoder: Encoder, obj : T)
 }
 
 interface DeserializationStrategy<T> {
+    val descriptor: SerialDescriptor
     fun deserialize(decoder: Decoder): T
     fun patch(decoder: Decoder, old: T): T
-
-    val descriptor: SerialDescriptor
 }
 
 enum class UpdateMode {
@@ -57,8 +35,7 @@ enum class UpdateMode {
 
 interface KSerializer<T>: SerializationStrategy<T>, DeserializationStrategy<T> {
     override val descriptor: SerialDescriptor
-
-    override fun patch(decoder: Decoder, old: T): T = throw UpdateNotSupportedException(descriptor.name)
+    override fun patch(decoder: Decoder, old: T): T = throw UpdateNotSupportedException(descriptor.serialName)
 }
 
 

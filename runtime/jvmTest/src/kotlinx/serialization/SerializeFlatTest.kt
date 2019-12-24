@@ -17,6 +17,7 @@
 package kotlinx.serialization
 
 import org.junit.Test
+import kotlin.test.*
 
 // Serializable data class
 
@@ -65,8 +66,9 @@ data class Custom(
 @Suppress("NAME_SHADOWING")
 object CustomSerializer : KSerializer<Custom> {
     override val descriptor = object : SerialDescriptor {
-        override val name = "kotlinx.serialization.Custom"
+        override val serialName = "kotlinx.serialization.Custom"
         override val kind: SerialKind = StructureKind.CLASS
+        override val elementsCount: Int get() = 2
         override fun getElementName(index: Int) = when(index) {
             0 -> "value1"
             1 -> "value2"
@@ -77,6 +79,10 @@ object CustomSerializer : KSerializer<Custom> {
             "value2" -> 1
             else -> -1
         }
+
+        override fun getElementAnnotations(index: Int): List<Annotation> = emptyList()
+        override fun getElementDescriptor(index: Int): SerialDescriptor = fail("Should not be called")
+        override fun isElementOptional(index: Int): Boolean = false
     }
 
     override fun serialize(encoder: Encoder, obj : Custom) {
@@ -191,7 +197,7 @@ class SerializeFlatTest() {
         fun fail(msg: String): Nothing = throw RuntimeException(msg)
 
         fun checkDesc(name: String, desc: SerialDescriptor) {
-            if (desc.name != "kotlinx.serialization." + name) fail("checkDesc name $desc")
+            if (desc.serialName != "kotlinx.serialization." + name) fail("checkDesc name $desc")
             if (desc.kind != StructureKind.CLASS) fail("checkDesc kind ${desc.kind}")
             if (desc.getElementName(0) != "value1") fail("checkDesc[0] $desc")
             if (desc.getElementName(1) != "value2") fail("checkDesc[1] $desc")

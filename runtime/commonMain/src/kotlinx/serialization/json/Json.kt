@@ -77,7 +77,7 @@ public constructor(
     )
     public constructor() : this(JsonConfiguration(useArrayPolymorphism = true))
 
-    @UseExperimental(UnstableDefault::class)
+//    @UseExperimental(UnstableDefault::class)
     private constructor(builder: JsonBuilder) : this(builder.buildConfiguration(), builder.buildModule())
 
     /**

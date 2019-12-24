@@ -5,22 +5,29 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
-import kotlin.jvm.JvmOverloads
-import kotlin.reflect.KClass
+import kotlin.jvm.*
+import kotlin.reflect.*
 
 @InternalSerializationApi
 public class EnumDescriptor @JvmOverloads constructor(
     name: String,
     values: Array<String> = emptyArray()
 ) : SerialClassDescImpl(name) {
-    override val kind: SerialKind = UnionKind.ENUM_KIND
 
     init {
         values.forEach { addElement(it) }
     }
 
+    override val kind: SerialKind = UnionKind.ENUM_KIND
+
     override fun getElementDescriptor(index: Int): SerialDescriptor {
+        if (index !in 0 until elementsCount) throw IndexOutOfBoundsException("Index $index out of bounds ${0 until elementsCount}")
         return this
+    }
+
+    override fun isElementOptional(index: Int): Boolean {
+        throw IllegalStateException("Enums do not have elements, " +
+                "thus calling 'isElementOptional' does not make any sense")
     }
 
     override fun equals(other: Any?): Boolean {
@@ -28,35 +35,36 @@ public class EnumDescriptor @JvmOverloads constructor(
         if (other == null) return false
         if (other !is SerialDescriptor) return false
         if (other.kind !== UnionKind.ENUM_KIND) return false
-        if (name != other.name) return false
+        if (serialName != other.serialName) return false
         if (elementNames() != other.elementNames()) return false
         return true
     }
 
     override fun toString(): String {
-        return elementNames().joinToString(", ", "$name(", ")")
+        return elementNames().joinToString(", ", "$serialName(", ")")
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + name.hashCode()
+        result = 31 * result + serialName.hashCode()
         result = 31 * result + elementNames().hashCode()
         return result
     }
 }
 
 @InternalSerializationApi
-open class CommonEnumSerializer<T>(
+open class CommonEnumSerializer<T : Enum<T>>(
     serialName: String,
-    val values: Array<T>,
-    valuesNames: Array<String>
+    private val values: Array<T>,
+    valuesNames: Array<String> // TODO kill this parameter
 ) : KSerializer<T> {
-    override val descriptor: SerialDescriptor = EnumDescriptor(serialName, valuesNames)
+
+    override val descriptor: SerialDescriptor = EnumDescriptor(serialName, values.map { it.name }.toTypedArray())
 
     final override fun serialize(encoder: Encoder, obj: T) {
         val index = values.indexOf(obj)
         check(index != -1) {
-            "$obj is not a valid enum ${descriptor.name}, must be one of ${values.contentToString()}"
+            "$obj is not a valid enum ${descriptor.serialName}, must be one of ${values.contentToString()}"
         }
         encoder.encodeEnum(descriptor, index)
     }
@@ -64,7 +72,7 @@ open class CommonEnumSerializer<T>(
     final override fun deserialize(decoder: Decoder): T {
         val index = decoder.decodeEnum(descriptor)
         check(index in values.indices) {
-            "$index is not among valid $${descriptor.name} enum values, values size is ${values.size}"
+            "$index is not among valid $${descriptor.serialName} enum values, values size is ${values.size}"
         }
         return values[index]
     }
@@ -79,5 +87,5 @@ class EnumSerializer<T : Enum<T>> @JvmOverloads constructor(
 ) : CommonEnumSerializer<T>(
     serialName,
     serializableClass.enumMembers(),
-    serializableClass.enumMembers().map { it.name }.toTypedArray()
+    emptyArray()
 )

@@ -100,7 +100,6 @@ public annotation class UseSerializers(vararg val serializerClasses: KClass<out 
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE, AnnotationTarget.CLASS)
 public annotation class Polymorphic
 
-
 /**
  * Public API marked with this annotation is effectively **internal**, which means
  * it should not be used outside of `kotlinx.serialization`.

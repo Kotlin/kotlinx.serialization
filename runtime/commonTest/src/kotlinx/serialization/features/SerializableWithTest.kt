@@ -1,14 +1,14 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.IntDescriptor
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 object MultiplyingIntSerializer : KSerializer<Int> {
     override val descriptor: SerialDescriptor
-        get() = IntDescriptor
+        get() = PrimitiveDescriptor("MultiplyingInt", PrimitiveKind.INT)
 
     override fun deserialize(decoder: Decoder): Int {
         return decoder.decodeInt() / 2
@@ -21,7 +21,7 @@ object MultiplyingIntSerializer : KSerializer<Int> {
 
 object DividingIntSerializer : KSerializer<Int> {
     override val descriptor: SerialDescriptor
-        get() = IntDescriptor
+        get() = PrimitiveDescriptor("DividedInt", PrimitiveKind.INT)
 
     override fun deserialize(decoder: Decoder): Int {
         return decoder.decodeInt() * 2
