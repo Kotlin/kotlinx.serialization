@@ -76,23 +76,13 @@ kotlin {
             }
         }
 
-        jvmJsTest {
-            dependsOn commonTest
-
-            dependencies {
-                api 'org.jetbrains.kotlin:kotlin-test-common'
-                api 'org.jetbrains.kotlin:kotlin-test-annotations-common'
-            }
-        }
-
         jvmMain {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib'
             }
         }
-        jvmTest {
-            dependsOn jvmJsTest
 
+        jvmTest {
             kotlin.srcDirs += file("${protobuf.generatedFilesBaseDir}/test/java")
 
             dependencies {
@@ -121,8 +111,6 @@ kotlin {
         }
 
         jsTest {
-            dependsOn jvmJsTest
-
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-test-js'
             }

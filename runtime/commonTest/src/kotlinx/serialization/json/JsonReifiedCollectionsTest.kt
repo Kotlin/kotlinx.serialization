@@ -1,12 +1,17 @@
+/*
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlin.test.*
 
-@Serializable
-data class DataHolder(val data: String)
-
+@UseExperimental(ImplicitReflectionSerializer::class)
 class JsonReifiedCollectionsTest : JsonTestBase() {
+    @Serializable
+    data class DataHolder(val data: String)
+
     @Test
     fun testReifiedList() = parametrizedTest { useStreaming ->
         val data = listOf(DataHolder("data"), DataHolder("not data"))

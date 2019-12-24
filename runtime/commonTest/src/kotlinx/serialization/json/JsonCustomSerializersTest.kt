@@ -11,6 +11,7 @@ import kotlinx.serialization.internal.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@UseExperimental(ImplicitReflectionSerializer::class)
 class JsonCustomSerializersTest : JsonTestBase() {
     
     @Serializable
