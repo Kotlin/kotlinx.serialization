@@ -16,7 +16,7 @@ class EnumSerializationTest : JsonTestBase() {
         @SerialName("foo_a")
         FooA,
         @SerialName("foo_b")
-        @SerialId(10)
+        @Id(10)
         FooB
     }
 

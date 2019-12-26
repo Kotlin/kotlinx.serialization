@@ -6,7 +6,6 @@ package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
 import kotlinx.serialization.modules.serializersModuleOf
-import kotlinx.serialization.json.JsonCustomSerializersTest.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

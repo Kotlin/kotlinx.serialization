@@ -52,7 +52,7 @@ public fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
  * Returns null if there are no annotations with such type.
  * Throws [IllegalStateException] if there are duplicated annotations for a given type.
  */
-internal inline fun <reified A: Annotation> SerialDescriptor.findAnnotation(elementIndex: Int): A? {
+public inline fun <reified A: Annotation> SerialDescriptor.findAnnotation(elementIndex: Int): A? {
     val candidates = getElementAnnotations(elementIndex).filterIsInstance<A>()
     return when (candidates.size) {
         0 -> null

@@ -22,7 +22,7 @@ class ProtobufUnionEnumTest {
     fun testEnum() {
         val data = WithUnions("foo", SomeEnum.BETA)
         val hex = ProtoBuf.dumps(WithUnions.serializer(), data)
-        val restored = ProtoBuf.loads<WithUnions>(WithUnions.serializer(), hex)
+        val restored = ProtoBuf.loads(WithUnions.serializer(), hex)
         assertEquals(data, restored)
     }
 }

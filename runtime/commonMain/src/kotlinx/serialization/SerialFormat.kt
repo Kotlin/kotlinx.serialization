@@ -29,6 +29,7 @@ interface BinaryFormat: SerialFormat {
     fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T
 }
 
+// TODO migrate
 fun <T> BinaryFormat.dumps(serializer: SerializationStrategy<T>, obj: T): String =
     HexConverter.printHexBinary(dump(serializer, obj), lowerCase = true)
 

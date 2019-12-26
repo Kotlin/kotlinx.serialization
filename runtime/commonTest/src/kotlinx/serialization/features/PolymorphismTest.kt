@@ -7,15 +7,14 @@ package kotlinx.serialization.features
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.*
-import kotlinx.serialization.protobuf.ProtoBuf
 import kotlin.test.*
 
 class PolymorphismTest {
 
     @Serializable
     data class Wrapper(
-        @SerialId(1) @Polymorphic val polyBase1: PolyBase,
-        @SerialId(2) @Polymorphic val polyBase2: PolyBase
+        @Id(1) @Polymorphic val polyBase1: PolyBase,
+        @Id(2) @Polymorphic val polyBase2: PolyBase
     )
 
     private val module: SerialModule = BaseAndDerivedModule + SerializersModule {
@@ -26,7 +25,7 @@ class PolymorphismTest {
     }
 
     private val json = Json { unquoted = true; useArrayPolymorphism = true; serialModule = module }
-    private val protobuf = ProtoBuf(context = module)
+//    private val protobuf = ProtoBuf(context = module)
 
     @Test
     fun testInheritanceJson() {
@@ -41,16 +40,16 @@ class PolymorphismTest {
         )
     }
 
-    @Test
-    fun testInheritanceProtobuf() {
-        val obj = Wrapper(
-            PolyBase(2),
-            PolyDerived("b")
-        )
-        val bytes = protobuf.dumps(Wrapper.serializer(), obj)
-        val restored = protobuf.loads(Wrapper.serializer(), bytes)
-        assertEquals(obj, restored)
-    }
+//    @Test
+//    fun testInheritanceProtobuf() {
+//        val obj = Wrapper(
+//            PolyBase(2),
+//            PolyDerived("b")
+//        )
+//        val bytes = protobuf.dumps(Wrapper.serializer(), obj)
+//        val restored = protobuf.loads(Wrapper.serializer(), bytes)
+//        assertEquals(obj, restored)
+//    }
 
     @Test
     fun testSerializeWithExplicitPolymorhpicSerializer() {

@@ -16,7 +16,6 @@
 
 package kotlinx.serialization.protobuf
 
-import kotlinx.serialization.SerialId
 import kotlinx.serialization.Serializable
 import kotlin.test.Test
 import kotlin.test.assertEquals

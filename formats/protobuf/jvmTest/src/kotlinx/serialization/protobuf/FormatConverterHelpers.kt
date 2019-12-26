@@ -2,28 +2,53 @@
  * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization.internal
+package kotlinx.serialization.protobuf
 
-import kotlinx.io.ByteBuffer
-import kotlinx.io.IOException
-import kotlinx.io.InputStream
+import com.google.protobuf.GeneratedMessageV3
+import kotlinx.io.*
+import java.io.ByteArrayOutputStream
+import kotlinx.serialization.dump
+import kotlinx.serialization.loads
 
-public fun InputStream.readExactNBytes(bytes: Int): ByteArray {
-    val array = ByteArray(bytes)
-    var read = 0
-    while (read < bytes) {
-        val i = this.read(array, read, bytes - read)
-        if (i == -1) throw IOException("Unexpected EOF")
-        read += i
-    }
-    return array
+interface IMessage {
+    fun toProtobufMessage(): GeneratedMessageV3
 }
 
-public fun InputStream.readToByteBuffer(bytes: Int): ByteBuffer {
-    val arr = readExactNBytes(bytes)
-    val buf = ByteBuffer.allocate(bytes)
-    buf.put(arr).flip()
-    return buf
+fun GeneratedMessageV3.toHex(): String {
+    val b = ByteArrayOutputStream()
+    this.writeTo(b)
+    return (HexConverter.printHexBinary(b.toByteArray(), lowerCase = true))
+}
+
+inline fun <reified T : IMessage> dumpCompare(it: T): Boolean {
+    val msg = it.toProtobufMessage()
+    var parsed: GeneratedMessageV3?
+    val c = try {
+        val bytes = ProtoBuf.dump(it)
+        parsed = msg.parserForType.parseFrom(bytes)
+        msg == parsed
+    } catch (e: Exception) {
+        e.printStackTrace()
+        parsed = null
+        false
+    }
+    return c
+}
+
+inline fun <reified T : IMessage> readCompare(it: T, alwaysPrint: Boolean = false): Boolean {
+    var obj: T?
+    val c = try {
+        val msg = it.toProtobufMessage()
+        val hex = msg.toHex()
+        obj = ProtoBuf.loads(hex)
+        obj == it
+    } catch (e: Exception) {
+        obj = null
+        e.printStackTrace()
+        false
+    }
+    if (!c || alwaysPrint) println("Expected: $it\nfound: $obj")
+    return c
 }
 
 object HexConverter {
@@ -64,9 +89,5 @@ object HexConverter {
     }
 
     fun toHexString(n: Int) = printHexBinary(ByteBuffer.allocate(4).putInt(n).flip().array(), true)
-            .trimStart('0').takeIf { it.isNotEmpty() } ?: "0"
+        .trimStart('0').takeIf { it.isNotEmpty() } ?: "0"
 }
-
-fun ByteBuffer.getUnsignedByte(): Int = this.get().toInt() and 0xff
-fun ByteBuffer.getUnsignedShort(): Int = this.getShort().toInt() and 0xffff
-fun ByteBuffer.getUnsignedInt(): Long = this.getInt().toLong() and 0xffffffffL

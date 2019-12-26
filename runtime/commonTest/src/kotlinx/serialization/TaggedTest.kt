@@ -14,22 +14,25 @@ class TaggedTest {
 
     @Serializable
     data class DataWithId(
-        @SerialId(1) val first: Int,
-        @SerialId(2) val second: String,
+        @Id(1) val first: Int,
+        @Id(2) val second: String,
         val noId: Unit = Unit,
-        @SerialId(42) val last: Boolean = true
+        @Id(42) val last: Boolean = true
     )
 
-    class Collector : IntTaggedEncoder() {
+    class Collector : TaggedEncoder<Int?>() {
+        override fun SerialDescriptor.getTag(index: Int): Int? = getSerialId(this, index)
         val tagList = mutableMapOf<Int?, Any>()
         override fun encodeTaggedValue(tag: Int?, value: Any) {
             tagList[tag] = value
         }
     }
 
-    class Emitter(val collected: Collector) : IntTaggedDecoder() {
+    class Emitter(val collected: Collector) : TaggedDecoder<Int?>() {
         private var i = 0
+
         override fun decodeSequentially(): Boolean = true
+        override fun SerialDescriptor.getTag(index: Int): Int? = getSerialId(this, index)
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
             // js doesn't generate code for .decodeSequentially for the sake of keeping output small

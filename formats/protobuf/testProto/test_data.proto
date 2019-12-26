@@ -1,5 +1,5 @@
 syntax = "proto2";
-option java_package = "kotlinx.serialization.formats.proto";
+option java_package = "kotlinx.serialization.protobuf";
 
 message TestInt32 {
     required int32 a = 1;

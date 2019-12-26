@@ -2,7 +2,7 @@
  * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization.features
+package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.ByteArraySerializer
@@ -13,7 +13,7 @@ import kotlin.test.*
 class ByteArraySerializerTest {
 
     @Serializable
-    class ByteArrayCarrier(@Id(2) @Serializable(with = ByteArraySerializer::class) val data: ByteArray) {
+    class ByteArrayCarrier(@SerialId(2) @Serializable(with = ByteArraySerializer::class) val data: ByteArray) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
@@ -35,20 +35,20 @@ class ByteArraySerializerTest {
     }
 
     @Test
-    fun testByteArrayJson() {
-        val bytes = byteArrayOf(42, 43, 44, 45)
-        val s = Json.stringify(ByteArraySerializer, bytes)
-        assertEquals(s, """[42,43,44,45]""")
-        val bytes2 = Json.parse(ByteArraySerializer, s)
-        assertTrue(bytes.contentEquals(bytes2))
+    fun testByteArrayProtobuf() {
+        val obj = ByteArrayCarrier(byteArrayOf(42, 100))
+        val s = ProtoBuf.dumps(ByteArrayCarrier.serializer(), obj)
+        assertEquals("""12022a64""", s)
+        val obj2 = ProtoBuf.loads(ByteArrayCarrier.serializer(), s)
+        assertEquals(obj, obj2)
     }
 
     @Test
-    fun testWrappedByteArrayJson() {
-        val obj = ByteArrayCarrier(byteArrayOf(42, 100))
-        val s = Json.stringify(ByteArrayCarrier.serializer(), obj)
-        assertEquals("""{"data":[42,100]}""", s)
-        val obj2 = Json.parse(ByteArrayCarrier.serializer(), s)
-        assertEquals(obj, obj2)
+    fun testWrappedByteArrayProtobuf() {
+        val arraySize = 301
+        val arr = Random.nextBytes(ByteArray(arraySize))
+        val obj = ByteArrayCarrier(arr)
+        val bytes = ProtoBuf.dump(ByteArrayCarrier.serializer(), obj)
+        assertEquals(obj, ProtoBuf.load(ByteArrayCarrier.serializer(), bytes))
     }
 }

@@ -5,7 +5,6 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
-import kotlinx.serialization.test.assertSerializedToBinaryAndRestored
 import kotlin.test.Test
 
 class ProtobufPolymorphismTest {

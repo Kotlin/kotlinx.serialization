@@ -25,3 +25,6 @@ internal fun extractParameters(desc: SerialDescriptor, index: Int, zeroBasedDefa
 
 
 public class ProtobufDecodingException(message: String) : SerializationException(message)
+
+public fun getSerialId(desc: SerialDescriptor, index: Int): Int?
+        = desc.findAnnotation<SerialId>(index)?.id
