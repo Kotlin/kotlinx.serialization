@@ -17,20 +17,17 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.cbor.*
 import kotlinx.serialization.json.*
 import kotlin.test.*
 
-@Serializable
-data class Data(val bar: String, val foo: Int = 42) {
-    var list: List<Int> = emptyList()
-
-    val listWithSomething: List<Int> = listOf(1, 2, 3)
-}
-
 class SkipDefaultsTest {
     private val json = Json { encodeDefaults = false }
-    private val cbor = Cbor(encodeDefaults = false)
+
+    @Serializable
+    data class Data(val bar: String, val foo: Int = 42) {
+        var list: List<Int> = emptyList()
+        val listWithSomething: List<Int> = listOf(1, 2, 3)
+    }
 
     @Test
     fun serializeCorrectlyDefaults() {
@@ -56,9 +53,4 @@ class SkipDefaultsTest {
         assertEquals("""{"bar":"bar"}""", json.stringify(Data.serializer(), d))
     }
 
-    @Test
-    fun cborDropsDefaults() {
-        val d = Data("bar")
-        assertEquals("bf6362617263626172ff", cbor.dumps(Data.serializer(), d))
-    }
 }

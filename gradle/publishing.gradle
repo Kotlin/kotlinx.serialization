@@ -10,7 +10,7 @@ apply plugin: 'com.jfrog.bintray'
 
 apply from: project.rootProject.file('gradle/mavenMetadata.gradle')
 
-def isMultiplatform = project.name == "kotlinx-serialization-runtime" || project.name == "kotlinx-serialization-protobuf"
+def isMultiplatform = project.name == "kotlinx-serialization-runtime" || project.name == "kotlinx-serialization-protobuf" || project.name == "kotlinx-serialization-cbor"
 
 task stubSources(type: Jar) {
     classifier = 'sources'

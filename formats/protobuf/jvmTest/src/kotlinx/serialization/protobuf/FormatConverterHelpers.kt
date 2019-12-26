@@ -5,7 +5,6 @@
 package kotlinx.serialization.protobuf
 
 import com.google.protobuf.GeneratedMessageV3
-import kotlinx.io.*
 import java.io.ByteArrayOutputStream
 import kotlinx.serialization.dump
 import kotlinx.serialization.loads
@@ -22,17 +21,15 @@ fun GeneratedMessageV3.toHex(): String {
 
 inline fun <reified T : IMessage> dumpCompare(it: T): Boolean {
     val msg = it.toProtobufMessage()
-    var parsed: GeneratedMessageV3?
-    val c = try {
+    val parsed: GeneratedMessageV3?
+    return try {
         val bytes = ProtoBuf.dump(it)
         parsed = msg.parserForType.parseFrom(bytes)
         msg == parsed
     } catch (e: Exception) {
         e.printStackTrace()
-        parsed = null
         false
     }
-    return c
 }
 
 inline fun <reified T : IMessage> readCompare(it: T, alwaysPrint: Boolean = false): Boolean {
@@ -52,30 +49,7 @@ inline fun <reified T : IMessage> readCompare(it: T, alwaysPrint: Boolean = fals
 }
 
 object HexConverter {
-    fun parseHexBinary(s: String): ByteArray {
-        val len = s.length
-        require(len % 2 == 0) { "HexBinary string must be even length" }
-        val bytes = ByteArray(len / 2)
-        var i = 0
 
-        while (i < len) {
-            val h = hexToInt(s[i])
-            val l = hexToInt(s[i + 1])
-            require(!(h == -1 || l == -1)) { "Invalid hex chars: ${s[i]}${s[i+1]}" }
-
-            bytes[i / 2] = ((h shl 4) + l).toByte()
-            i += 2
-        }
-
-        return bytes
-    }
-
-    private fun hexToInt(ch: Char): Int = when (ch) {
-        in '0'..'9' -> ch - '0'
-        in 'A'..'F' -> ch - 'A' + 10
-        in 'a'..'f' -> ch - 'a' + 10
-        else -> -1
-    }
 
     private const val hexCode = "0123456789ABCDEF"
 
@@ -87,7 +61,4 @@ object HexConverter {
         }
         return if (lowerCase) r.toString().toLowerCase() else r.toString()
     }
-
-    fun toHexString(n: Int) = printHexBinary(ByteBuffer.allocate(4).putInt(n).flip().array(), true)
-        .trimStart('0').takeIf { it.isNotEmpty() } ?: "0"
 }

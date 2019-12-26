@@ -7,7 +7,7 @@ package kotlinx.serialization
 import kotlinx.serialization.modules.SerializersModule
 
 @Serializable
-open class PolyBase(@Id(1) val id: Int) {
+open class PolyBase(val id: Int) {
     override fun hashCode(): Int {
         return id
     }
@@ -30,32 +30,10 @@ open class PolyBase(@Id(1) val id: Int) {
 }
 
 @Serializable
-data class PolyDerived(@Id(2) val s: String) : PolyBase(1)
+data class PolyDerived(val s: String) : PolyBase(1)
 
 val BaseAndDerivedModule = SerializersModule {
     polymorphic(PolyBase::class, PolyBase.serializer()) {
         PolyDerived::class with PolyDerived.serializer()
     }
 }
-
-@Serializable
-abstract class SimpleAbstract
-
-@Serializable
-data class SimpleIntInheritor(val i: Int, val s: String) : SimpleAbstract()
-
-@Serializable
-data class SimpleStringInheritor(val s: String, val i: Int) : SimpleAbstract()
-
-@Serializable
-data class PolyBox(@Polymorphic val boxed: SimpleAbstract)
-
-val SimplePolymorphicModule = SerializersModule {
-    polymorphic<SimpleAbstract> {
-        SimpleIntInheritor::class with SimpleIntInheritor.serializer()
-        SimpleStringInheritor::class with SimpleStringInheritor.serializer()
-    }
-}
-
-@Serializable
-data class SealedBox(val boxed: List<SimpleSealed>)

@@ -5,17 +5,16 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
-import kotlinx.serialization.test.assertSerializedToBinaryAndRestored
 import kotlin.test.Test
 
-@Serializable
-sealed class A {
-    @Serializable
-    data class B(val b: String) : A()
-}
-
-
 class CborPolymorphismTest {
+
+    @Serializable
+    sealed class A {
+        @Serializable
+        data class B(val b: String) : A()
+    }
+
     val cbor = Cbor(context = SimplePolymorphicModule)
 
     @Test
