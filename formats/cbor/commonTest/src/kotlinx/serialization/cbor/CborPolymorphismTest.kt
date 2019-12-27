@@ -8,7 +8,6 @@ import kotlinx.serialization.*
 import kotlin.test.Test
 
 class CborPolymorphismTest {
-
     @Serializable
     sealed class A {
         @Serializable
@@ -23,7 +22,7 @@ class CborPolymorphismTest {
             A.B("bbb"),
             A.serializer(),
             cbor,
-            hexResultToCheck = "9f781e6b6f746c696e782e73657269616c697a6174696f6e2e63626f722e412e42bf616263626262ffff"
+            hexResultToCheck = "9f78336b6f746c696e782e73657269616c697a6174696f6e2e63626f722e43626f72506f6c796d6f72706869736d546573742e412e42bf616263626262ffff"
         )
     }
 

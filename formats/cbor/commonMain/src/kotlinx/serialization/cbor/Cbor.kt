@@ -8,9 +8,8 @@ import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.internal.*
-import kotlinx.serialization.modules.EmptyModule
-import kotlinx.serialization.modules.SerialModule
-import kotlin.experimental.or
+import kotlinx.serialization.modules.*
+import kotlin.experimental.*
 
 class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: Boolean = true, context: SerialModule = EmptyModule): AbstractSerialFormat(context), BinaryFormat {
     // Differs from List only in start byte
@@ -97,19 +96,19 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
         }
 
         fun encodeFloat(value: Float) {
-            val data = ByteBuffer.allocate(5)
-                .put(NEXT_FLOAT.toByte())
-                .putFloat(value)
-                .array()
-            output.write(data)
+            output.write(NEXT_FLOAT)
+            val bits = value.toRawBits()
+            for (i in 0..3) {
+                output.write((bits shr (24 - 8 * i)) and 0xFF)
+            }
         }
 
         fun encodeDouble(value: Double) {
-            val data = ByteBuffer.allocate(9)
-                .put(NEXT_DOUBLE.toByte())
-                .putDouble(value)
-                .array()
-            output.write(data)
+            output.write(NEXT_DOUBLE)
+            val bits = value.toRawBits()
+            for (i in 0..7) {
+                output.write(((bits shr (56 - 8 * i)) and 0xFF).toInt())
+            }
         }
 
         private fun composeNumber(value: Long): ByteArray =
@@ -118,10 +117,20 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
         private fun composePositive(value: Long): ByteArray = when (value) {
             in 0..23 -> byteArrayOf(value.toByte())
             in 24..Byte.MAX_VALUE -> byteArrayOf(24, value.toByte())
-            in Byte.MAX_VALUE + 1..Short.MAX_VALUE -> ByteBuffer.allocate(3).put(25.toByte()).putShort(value.toShort()).array()
-            in Short.MAX_VALUE + 1..Int.MAX_VALUE -> ByteBuffer.allocate(5).put(26.toByte()).putInt(value.toInt()).array()
-            in (Int.MAX_VALUE.toLong() + 1..Long.MAX_VALUE) -> ByteBuffer.allocate(9).put(27.toByte()).putLong(value).array()
+            in Byte.MAX_VALUE + 1..Short.MAX_VALUE -> encodeToByteArray(value, 2, 25)
+            in Short.MAX_VALUE + 1..Int.MAX_VALUE -> encodeToByteArray(value, 4, 26)
+            in (Int.MAX_VALUE.toLong() + 1..Long.MAX_VALUE) -> encodeToByteArray(value, 8, 27)
             else -> throw AssertionError("$value should be positive")
+        }
+
+        private fun encodeToByteArray(value: Long, bytes: Int, tag: Byte): ByteArray {
+            val result = ByteArray(bytes + 1)
+            val limit = bytes * 8 - 8
+            result[0] = tag
+            for (i in 0 until bytes) {
+                result[i + 1] = ((value shr (limit - 8 * i)) and 0xFF).toByte()
+            }
+            return result
         }
 
         private fun composeNegative(value: Long): ByteArray {
@@ -294,36 +303,54 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
                 return if (negative) -(value + 1).toLong()
                 else value.toLong()
             }
-            val buf = input.readToByteBuffer(bytesToRead)
-            val res = when (bytesToRead) {
-                1 -> buf.getUnsignedByte().toLong()
-                2 -> buf.getUnsignedShort().toLong()
-                4 -> buf.getUnsignedInt()
-                8 -> buf.getLong()
-                else -> throw AssertionError()
-            }
+            val res = input.readExact(bytesToRead)
             return if (negative) -(res + 1)
             else res
         }
 
+        private fun InputStream.readExact(bytes: Int): Long {
+            val arr = readExactNBytes(bytes)
+            var result = 0L
+            for (i in 0 until bytes) {
+                result = (result shl 8) or (arr[i].toInt() and 0xFF).toLong()
+            }
+            return result
+        }
+
         fun nextFloat(): Float {
             if (curByte != NEXT_FLOAT) throw CborDecodingException("float header", curByte)
-            val res = input.readToByteBuffer(4).getFloat()
+            val res = Float.fromBits(readInt())
             readByte()
             return res
         }
 
         fun nextDouble(): Double {
             if (curByte != NEXT_DOUBLE) throw CborDecodingException("double header", curByte)
-            val res = input.readToByteBuffer(8).getDouble()
+            val res = Double.fromBits(readLong())
             readByte()
             return res
         }
 
+        private fun readLong(): Long {
+            var result = 0L
+            for (i in 0..7) {
+                val byte = input.read()
+                result = (result shl 8) or byte.toLong()
+            }
+            return result
+        }
+
+        private fun readInt(): Int {
+            var result = 0
+            for (i in 0..3) {
+                val byte = input.read()
+                result = (result shl 8) or byte
+            }
+            return result
+        }
     }
 
     companion object: BinaryFormat {
-
         private const val FALSE = 0xf4
         private const val TRUE = 0xf5
         private const val NULL = 0xf6

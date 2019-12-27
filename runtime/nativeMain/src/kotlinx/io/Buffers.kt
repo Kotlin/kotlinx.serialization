@@ -13,9 +13,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
+@file:Suppress("DEPRECATION_ERROR")
 package kotlinx.io
 
+@Deprecated(message = message, level = DeprecationLevel.ERROR)
 actual class ByteBuffer private constructor(private var backingArray: ByteArray) {
 
     private var idx = 0

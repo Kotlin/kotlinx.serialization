@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2017 JetBrains s.r.o.
  *
@@ -13,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+@file:Suppress("DEPRECATION_ERROR")
 package kotlinx.io
 
+@Deprecated(message = message, level = DeprecationLevel.ERROR)
 expect class ByteBuffer {
 
     fun order(order: ByteOrder): ByteBuffer
@@ -64,6 +66,7 @@ expect class ByteBuffer {
     }
 }
 
+@Deprecated(message = message, level = DeprecationLevel.ERROR)
 enum class ByteOrder {
     LITTLE_ENDIAN, BIG_ENDIAN
 }

@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+@file:Suppress("DEPRECATION_ERROR")
 package kotlinx.io
 
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.DataView
 
-
+@Deprecated(message = message, level = DeprecationLevel.ERROR)
 actual class ByteBuffer private constructor(val capacity: Int) {
 
     init {

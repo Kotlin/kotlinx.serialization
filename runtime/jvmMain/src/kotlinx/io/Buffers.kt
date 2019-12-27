@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+@file:Suppress("DEPRECATION_ERROR")
 package kotlinx.io
 
 typealias JByteBuffer = java.nio.ByteBuffer
 typealias JByteOrder = java.nio.ByteOrder
 
+@Deprecated(message = message, level = DeprecationLevel.ERROR)
 actual class ByteBuffer private constructor() {
     private lateinit var dw: JByteBuffer
     constructor(dw: JByteBuffer): this() {

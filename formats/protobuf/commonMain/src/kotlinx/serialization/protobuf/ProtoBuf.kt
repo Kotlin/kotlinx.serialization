@@ -8,8 +8,7 @@ import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.internal.*
-import kotlinx.serialization.modules.EmptyModule
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintInt
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintLong
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeVarint
@@ -118,21 +117,21 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
 
         fun writeDouble(value: Double, tag: Int) {
             val header = encode32((tag shl 3) or i64)
-            val content = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putDouble(value).array()
+            val content = value.toLittleEndian().toByteArray()
             out.write(header)
             out.write(content)
         }
 
         fun writeFloat(value: Float, tag: Int) {
             val header = encode32((tag shl 3) or i32)
-            val content = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(value).array()
+            val content = value.toLittleEndian().toByteArray()
             out.write(header)
             out.write(content)
         }
 
         private fun encode32(number: Int, format: ProtoNumberType = ProtoNumberType.DEFAULT): ByteArray =
                 when (format) {
-                    ProtoNumberType.FIXED -> ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(number).array()
+                    ProtoNumberType.FIXED -> number.toLittleEndian().toByteArray()
                     ProtoNumberType.DEFAULT -> encodeVarint(number.toLong())
                     ProtoNumberType.SIGNED -> encodeVarint(((number shl 1) xor (number shr 31)))
                 }
@@ -140,7 +139,7 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
 
         private fun encode64(number: Long, format: ProtoNumberType = ProtoNumberType.DEFAULT): ByteArray =
                 when (format) {
-                    ProtoNumberType.FIXED -> ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(number).array()
+                    ProtoNumberType.FIXED -> number.toLittleEndian().toByteArray()
                     ProtoNumberType.DEFAULT -> encodeVarint(number)
                     ProtoNumberType.SIGNED -> encodeVarint((number shl 1) xor (number shr 63))
                 }
@@ -288,16 +287,34 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
 
         fun nextFloat(): Float {
             assertWireType(i32)
-            val ans = inp.readToByteBuffer(4).order(ByteOrder.LITTLE_ENDIAN).getFloat()
+            val ans = readIntLittleEndian()
             readTag()
-            return ans
+            return Float.fromBits(ans)
+        }
+
+        private fun readIntLittleEndian(): Int {
+            var result = 0
+            for (i in 0..3) {
+                val byte = inp.read()
+                result = (result shl 8) or byte
+            }
+            return result.toLittleEndian()
+        }
+
+        private fun readLongLittleEndian(): Long {
+            var result = 0L
+            for (i in 0..7) {
+                val byte = inp.read()
+                result = (result shl 8) or byte.toLong()
+            }
+            return result.toLittleEndian()
         }
 
         fun nextDouble(): Double {
             assertWireType(i64)
-            val ans = inp.readToByteBuffer(8).order(ByteOrder.LITTLE_ENDIAN).getDouble()
+            val ans = readLongLittleEndian()
             readTag()
-            return ans
+            return Double.fromBits(ans)
         }
 
         fun nextString(): String {
@@ -308,13 +325,13 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
         private fun decode32(format: ProtoNumberType = ProtoNumberType.DEFAULT, eofAllowed: Boolean = false): Int = when (format) {
             ProtoNumberType.DEFAULT -> decodeVarint(inp, 64, eofAllowed).toInt()
             ProtoNumberType.SIGNED -> decodeSignedVarintInt(inp)
-            ProtoNumberType.FIXED -> inp.readToByteBuffer(4).order(ByteOrder.LITTLE_ENDIAN).getInt()
+            ProtoNumberType.FIXED -> readIntLittleEndian()
         }
 
         private fun decode64(format: ProtoNumberType = ProtoNumberType.DEFAULT): Long = when (format) {
             ProtoNumberType.DEFAULT -> decodeVarint(inp, 64)
             ProtoNumberType.SIGNED -> decodeSignedVarintLong(inp)
-            ProtoNumberType.FIXED -> inp.readToByteBuffer(8).order(ByteOrder.LITTLE_ENDIAN).getLong()
+            ProtoNumberType.FIXED -> readLongLittleEndian()
         }
     }
 
@@ -437,4 +454,34 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
         return reader.decode(deserializer)
     }
 
+}
+
+private fun Short.toLittleEndian(): Short = (((this.toInt() and 0xff) shl 8) or ((this.toInt() and 0xffff) ushr 8)).toShort()
+
+private fun Int.toLittleEndian(): Int =
+    ((this and 0xffff).toShort().toLittleEndian().toInt() shl 16) or ((this ushr 16).toShort().toLittleEndian().toInt() and 0xffff)
+
+private fun Long.toLittleEndian(): Long =
+    ((this and 0xffffffff).toInt().toLittleEndian().toLong() shl 32) or ((this ushr 32).toInt().toLittleEndian().toLong() and 0xffffffff)
+
+private fun Float.toLittleEndian(): Int = toRawBits().toLittleEndian()
+
+private fun Double.toLittleEndian(): Long = toRawBits().toLittleEndian()
+
+private fun Int.toByteArray(): ByteArray {
+    val value = this
+    val result = ByteArray(4)
+    for (i in 3 downTo 0) {
+        result[3 - i] = (value shr i * 8).toByte()
+    }
+    return result
+}
+
+private fun Long.toByteArray(): ByteArray {
+    val value = this
+    val result = ByteArray(8)
+    for (i in 7 downTo 0) {
+        result[7 - i] = (value shr i * 8).toByte()
+    }
+    return result
 }
