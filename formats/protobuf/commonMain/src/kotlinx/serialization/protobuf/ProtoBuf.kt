@@ -387,7 +387,7 @@ class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(conte
                 b = inp.read()
                 if (b == -1) {
                     if (eofOnStartAllowed && shift == 0) return -1
-                    else throw IOException("Unexpected EOF")
+                    else error("Unexpected EOF")
                 }
                 result = result or (b.toLong() and 0x7FL shl shift)
                 shift += 7

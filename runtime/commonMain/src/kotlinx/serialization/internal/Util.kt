@@ -4,7 +4,6 @@
 
 package kotlinx.serialization.internal
 
-import kotlinx.io.IOException
 import kotlinx.io.InputStream
 
 public fun InputStream.readExactNBytes(bytes: Int): ByteArray {
@@ -12,7 +11,7 @@ public fun InputStream.readExactNBytes(bytes: Int): ByteArray {
     var read = 0
     while (read < bytes) {
         val i = this.read(array, read, bytes - read)
-        if (i == -1) throw IOException("Unexpected EOF")
+        if (i == -1) error("Unexpected EOF")
         read += i
     }
     return array

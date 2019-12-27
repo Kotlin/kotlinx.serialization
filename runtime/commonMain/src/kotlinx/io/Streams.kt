@@ -16,11 +16,15 @@
 
 package kotlinx.io
 
+import kotlinx.serialization.*
+
+@Deprecated(message = message, level = DeprecationLevel.ERROR)
 expect open class IOException: Exception {
     constructor()
     constructor(message: String)
 }
 
+@InternalSerializationApi
 expect abstract class InputStream {
     open fun available(): Int
     open fun close()
@@ -30,10 +34,12 @@ expect abstract class InputStream {
     open fun skip(n: Long): Long
 }
 
+@InternalSerializationApi
 expect class ByteArrayInputStream(buf: ByteArray): InputStream {
     override fun read(): Int
 }
 
+@InternalSerializationApi
 expect abstract class OutputStream {
     open fun close()
     open fun flush()
@@ -44,6 +50,7 @@ expect abstract class OutputStream {
 }
 
 @Suppress("NON_FINAL_MEMBER_IN_FINAL_CLASS") // KT-17944
+@InternalSerializationApi
 expect class ByteArrayOutputStream(): OutputStream {
     override fun write(oneByte: Int)
     fun toByteArray(): ByteArray
