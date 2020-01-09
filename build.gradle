@@ -72,7 +72,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintray_version"
 
-        // Protobuf is udes in JVM tests
+        // Protobuf is used in JVM tests
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.8'
 
         // Various benchmarking stuff
