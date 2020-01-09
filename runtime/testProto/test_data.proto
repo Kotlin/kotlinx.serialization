@@ -76,3 +76,16 @@ message TestMap {
     map<string, string> stringMap = 1;
     map<int32, TestAllTypes> intObjectMap = 2;
 }
+
+message MessageWithOptionals {
+    optional int32 a = 1;
+    optional string b = 2;
+    optional Position c = 3;
+    optional int32 d = 4 [default = 99];
+    repeated int32 e = 5;
+
+    enum Position {
+        FIRST = 0;
+        SECOND = 1;
+    }
+}

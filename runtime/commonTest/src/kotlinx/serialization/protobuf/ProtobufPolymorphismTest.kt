@@ -17,7 +17,7 @@ class ProtobufPolymorphismTest {
                 133
             )
         )
-        assertSerializedToBinaryAndRestored(obj, PolyBox.serializer(), ProtoBuf(SimplePolymorphicModule))
+        assertSerializedToBinaryAndRestored(obj, PolyBox.serializer(), ProtoBuf(context = SimplePolymorphicModule))
     }
 
     @Test
