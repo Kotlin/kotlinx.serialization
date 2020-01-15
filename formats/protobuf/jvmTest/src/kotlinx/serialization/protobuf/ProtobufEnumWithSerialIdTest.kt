@@ -12,14 +12,14 @@ class ProtobufEnumWithSerialIdTest {
 
     @Serializable
     enum class EnumWithIds(val id: Int) {
-        @SerialId(10)
+        @ProtoId(10)
         FIRST(10),
-        @SerialId(20)
+        @ProtoId(20)
         SECOND(20);
     }
 
     @Serializable
-    data class EnumHolder(@SerialId(5) val a: EnumWithIds) : IMessage {
+    data class EnumHolder(@ProtoId(5) val a: EnumWithIds) : IMessage {
         override fun toProtobufMessage(): TestData.EnumHolder =
             TestData.EnumHolder.newBuilder().setA(TestData.TestEnumWithIds.forNumber(a.id)).build()
     }

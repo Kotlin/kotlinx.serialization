@@ -6,14 +6,13 @@ package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.ByteArraySerializer
-import kotlinx.serialization.json.Json
 import kotlin.random.Random
 import kotlin.test.*
 
 class ByteArraySerializerTest {
 
     @Serializable
-    class ByteArrayCarrier(@SerialId(2) @Serializable(with = ByteArraySerializer::class) val data: ByteArray) {
+    class ByteArrayCarrier(@ProtoId(2) @Serializable(with = ByteArraySerializer::class) val data: ByteArray) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false

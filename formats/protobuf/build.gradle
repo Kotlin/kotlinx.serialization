@@ -8,6 +8,7 @@ apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.google.protobuf'
 apply from: rootProject.file("gradle/targets.gradle")
 apply from: rootProject.file("gradle/native_mpp.gradle")
+apply from: rootProject.file("gradle/configureSourceSets.gradle")
 
 protobuf {
     protoc {
@@ -21,92 +22,19 @@ clean {
 }
 
 kotlin {
-    targets {
-        fromPreset(presets.jvm, 'jvm') {
-            withJava()
-            configure([compilations.main, compilations.test]) {
-                kotlinOptions {
-                    jvmTarget = '1.6'
-                }
-            }
-        }
-        fromPreset(presets.js, 'js') {
-            nodejs {}
-            configure([compilations.main, compilations.test]) {
-                kotlinOptions {
-                    sourceMap = true
-                    moduleKind = "umd"
-                    metaInfo = true
-                }
-            }
-        }
-    }
-
-    sourceSets.all {
-        kotlin.srcDirs = ["$it.name/src"]
-        resources.srcDirs = ["$it.name/resources"]
-        languageSettings {
-            progressiveMode = true
-            useExperimentalAnnotation("kotlin.Experimental")
-            useExperimentalAnnotation("kotlin.ExperimentalMultiplatform")
-            useExperimentalAnnotation("kotlin.ExperimentalStdlibApi")
-            useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
-        }
-    }
 
     sourceSets {
         commonMain {
             dependencies {
-                api 'org.jetbrains.kotlin:kotlin-stdlib-common'
                 api project(":kotlinx-serialization-runtime")
-            }
-        }
-
-        commonTest {
-            dependencies {
-                api 'org.jetbrains.kotlin:kotlin-test-common'
-                api 'org.jetbrains.kotlin:kotlin-test-annotations-common'
-            }
-        }
-
-        jvmMain {
-            dependencies {
-                api 'org.jetbrains.kotlin:kotlin-stdlib'
             }
         }
 
         jvmTest {
             kotlin.srcDirs += file("${protobuf.generatedFilesBaseDir}/test/java")
             dependencies {
-                api 'org.jetbrains.kotlin:kotlin-test-junit'
                 implementation 'com.google.protobuf:protobuf-java:3.0.0'
                 implementation 'io.kotlintest:kotlintest:2.0.7'
-            }
-        }
-
-        jsMain {
-            dependencies {
-                api 'org.jetbrains.kotlin:kotlin-stdlib-js'
-            }
-        }
-
-        jsTest {
-            dependencies {
-                api 'org.jetbrains.kotlin:kotlin-test-js'
-            }
-        }
-
-        nativeMain.dependencies {
-        }
-    }
-
-    sourceSets.findAll({ it.name.contains("Test") }).forEach { srcSet ->
-        srcSet.languageSettings {
-            it.useExperimentalAnnotation("kotlinx.serialization.UnstableDefault")
-            it.useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
-
-            if (srcSet.name.contains("jvm") || srcSet.name.contains("js")) {
-                it.useExperimentalAnnotation("kotlinx.serialization.ImplicitReflectionSerializer")
             }
         }
     }

@@ -14,7 +14,7 @@ import kotlin.test.assertEquals
 
 class PolymorphicWithJvmClassTest {
     @Serializable
-    data class DateWrapper(@SerialId(1) @Serializable(with = PolymorphicSerializer::class) val date: Date)
+    data class DateWrapper(@ProtoId(1) @Serializable(with = PolymorphicSerializer::class) val date: Date)
 
     @Serializer(forClass = Date::class)
     object DateSerializer : KSerializer<Date> {
