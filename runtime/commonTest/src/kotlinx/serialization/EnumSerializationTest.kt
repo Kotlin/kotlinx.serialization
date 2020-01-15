@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -33,7 +33,11 @@ class EnumSerializationTest : JsonTestBase() {
 
     @Serializer(WithCustom::class)
     private class CustomEnumSerializer : KSerializer<WithCustom> {
-        override val descriptor: SerialDescriptor = EnumDescriptor("WithCustom", arrayOf("1", "2"))
+        override val descriptor: SerialDescriptor = EnumDescriptor("WithCustom").apply {
+            // fixme: when user-friendly builder would be created for SerialClassDescImpl, make a consistent analog here
+            addElement("1")
+            addElement("2")
+        }
 
         override fun serialize(encoder: Encoder, obj: WithCustom) {
             encoder.encodeInt(obj.ordinal + 1)

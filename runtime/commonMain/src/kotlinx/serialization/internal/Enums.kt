@@ -1,22 +1,15 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
-import kotlin.jvm.*
-import kotlin.reflect.*
 
 @InternalSerializationApi
-public class EnumDescriptor @JvmOverloads constructor(
-    name: String,
-    values: Array<String> = emptyArray()
+public class EnumDescriptor constructor(
+    name: String
 ) : SerialClassDescImpl(name) {
-
-    init {
-        values.forEach { addElement(it) }
-    }
 
     override val kind: SerialKind = UnionKind.ENUM_KIND
 
@@ -53,15 +46,16 @@ public class EnumDescriptor @JvmOverloads constructor(
 }
 
 @InternalSerializationApi
-open class CommonEnumSerializer<T : Enum<T>>(
+public class EnumSerializer<T : Enum<T>>(
     serialName: String,
-    private val values: Array<T>,
-    valuesNames: Array<String> // TODO kill this parameter
+    private val values: Array<T>
 ) : KSerializer<T> {
 
-    override val descriptor: SerialDescriptor = EnumDescriptor(serialName, values.map { it.name }.toTypedArray())
+    override val descriptor: SerialDescriptor = EnumDescriptor(serialName).apply {
+        values.forEach { addElement(it.name) }
+    }
 
-    final override fun serialize(encoder: Encoder, obj: T) {
+    override fun serialize(encoder: Encoder, obj: T) {
         val index = values.indexOf(obj)
         check(index != -1) {
             "$obj is not a valid enum ${descriptor.serialName}, must be one of ${values.contentToString()}"
@@ -69,7 +63,7 @@ open class CommonEnumSerializer<T : Enum<T>>(
         encoder.encodeEnum(descriptor, index)
     }
 
-    final override fun deserialize(decoder: Decoder): T {
+    override fun deserialize(decoder: Decoder): T {
         val index = decoder.decodeEnum(descriptor)
         check(index in values.indices) {
             "$index is not among valid $${descriptor.serialName} enum values, values size is ${values.size}"
@@ -77,15 +71,3 @@ open class CommonEnumSerializer<T : Enum<T>>(
         return values[index]
     }
 }
-
-// Binary backwards-compatible with the plugin
-// todo: replace with helper method
-@InternalSerializationApi
-class EnumSerializer<T : Enum<T>> @JvmOverloads constructor(
-    serializableClass: KClass<T>,
-    serialName: String = serializableClass.enumClassName()
-) : CommonEnumSerializer<T>(
-    serialName,
-    serializableClass.enumMembers(),
-    emptyArray()
-)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json.serializers
@@ -8,7 +8,7 @@ import kotlinx.serialization.SampleEnum
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.JsonTestBase
 import kotlinx.serialization.*
-import kotlinx.serialization.test.CommonEnumSerializer
+import kotlinx.serialization.test.EnumSerializer
 import kotlin.test.Test
 
 class JsonNativePrimitivesTest : JsonTestBase() {
@@ -26,7 +26,7 @@ class JsonNativePrimitivesTest : JsonTestBase() {
 
     @Test
     fun testTopLevelNativeEnum() =
-        assertJsonFormAndRestored(CommonEnumSerializer("SampleEnum"), SampleEnum.OptionB, "\"OptionB\"", strict)
+        assertJsonFormAndRestored(EnumSerializer("SampleEnum"), SampleEnum.OptionB, "\"OptionB\"", strict)
 
     @Test
     fun testTopLevelNativeNullable() =

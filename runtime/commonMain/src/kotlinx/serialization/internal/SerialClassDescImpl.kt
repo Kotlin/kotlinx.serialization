@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:Suppress("OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE", "UNUSED")
 package kotlinx.serialization.internal
@@ -15,7 +15,7 @@ import kotlin.jvm.*
  * Unused methods are invoked by auto-generated plugin code
  */
 @InternalSerializationApi
-public open class SerialClassDescImpl @JvmOverloads constructor(
+public open class SerialClassDescImpl(
     override val serialName: String,
     private val generatedSerializer: GeneratedSerializer<*>? = null
 ) : SerialDescriptor {
@@ -33,7 +33,6 @@ public open class SerialClassDescImpl @JvmOverloads constructor(
     // don't change lazy mode: KT-32871, KT-32872
     private val indices: Map<String, Int> by lazy { buildIndices() }
 
-    @JvmOverloads
     public fun addElement(name: String, isOptional: Boolean = false) {
         names.add(name)
         val idx = names.size - 1
