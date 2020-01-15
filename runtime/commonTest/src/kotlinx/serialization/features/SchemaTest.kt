@@ -1,12 +1,12 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
-import kotlinx.serialization.test.CommonEnumSerializer
+import kotlinx.serialization.test.EnumSerializer
 import kotlin.test.*
 
 class SchemaTest {
@@ -114,7 +114,7 @@ class SchemaTest {
         val dataDescriptor = DataWithEnum.serializer().descriptor
         val enumDesc = dataDescriptor.getElementDescriptor(1)
         val serialName = "kotlinx.serialization.SampleEnum"
-        val manualSerializer = CommonEnumSerializer<SampleEnum>(serialName)
+        val manualSerializer = EnumSerializer<SampleEnum>(serialName)
 
         assertEquals(enumDesc, manualSerializer.descriptor)
         assertEquals(enumDesc, dataDescriptor.getElementDescriptor(2).getElementDescriptor(0))
