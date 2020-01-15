@@ -17,7 +17,7 @@ public annotation class ProtoType(val type: ProtoNumberType)
 internal typealias ProtoDesc = Pair<Int, ProtoNumberType>
 
 internal fun extractParameters(desc: SerialDescriptor, index: Int, zeroBasedDefault: Boolean = false): ProtoDesc {
-    val idx = getSerialId(desc, index) ?: (if (zeroBasedDefault) index else index + 1)
+    val idx = getProtoId(desc, index) ?: (if (zeroBasedDefault) index else index + 1)
     val format = desc.findAnnotation<ProtoType>(index)?.type
             ?: ProtoNumberType.DEFAULT
     return idx to format
@@ -26,5 +26,6 @@ internal fun extractParameters(desc: SerialDescriptor, index: Int, zeroBasedDefa
 
 public class ProtobufDecodingException(message: String) : SerializationException(message)
 
-public fun getSerialId(desc: SerialDescriptor, index: Int): Int?
-        = desc.findAnnotation<SerialId>(index)?.id
+@Suppress("DEPRECATION_ERROR")
+internal fun getProtoId(desc: SerialDescriptor, index: Int): Int?
+        = desc.findAnnotation<ProtoId>(index)?.id ?: desc.findAnnotation<SerialId>(index)?.id

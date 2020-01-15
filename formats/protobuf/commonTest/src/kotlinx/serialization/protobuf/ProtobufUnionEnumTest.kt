@@ -5,7 +5,6 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
-import kotlinx.serialization.protobuf.ProtoBuf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -14,9 +13,9 @@ class ProtobufUnionEnumTest {
     enum class SomeEnum { ALPHA, BETA, GAMMA }
 
     @Serializable
-    data class WithUnions(@SerialId(5) val s: String,
-                          @SerialId(6) val e: SomeEnum = SomeEnum.ALPHA,
-                          @SerialId(7) val i: Int = 42)
+    data class WithUnions(@ProtoId(5) val s: String,
+                          @ProtoId(6) val e: SomeEnum = SomeEnum.ALPHA,
+                          @ProtoId(7) val i: Int = 42)
 
     @Test
     fun testEnum() {

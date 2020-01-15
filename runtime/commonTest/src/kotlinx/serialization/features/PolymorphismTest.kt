@@ -40,17 +40,6 @@ class PolymorphismTest {
         )
     }
 
-//    @Test
-//    fun testInheritanceProtobuf() {
-//        val obj = Wrapper(
-//            PolyBase(2),
-//            PolyDerived("b")
-//        )
-//        val bytes = protobuf.dumps(Wrapper.serializer(), obj)
-//        val restored = protobuf.loads(Wrapper.serializer(), bytes)
-//        assertEquals(obj, restored)
-//    }
-
     @Test
     fun testSerializeWithExplicitPolymorhpicSerializer() {
         val obj = PolyDerived("b")

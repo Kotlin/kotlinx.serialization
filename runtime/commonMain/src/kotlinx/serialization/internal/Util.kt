@@ -5,7 +5,9 @@
 package kotlinx.serialization.internal
 
 import kotlinx.io.InputStream
+import kotlinx.serialization.*
 
+@InternalSerializationApi
 public fun InputStream.readExactNBytes(bytes: Int): ByteArray {
     val array = ByteArray(bytes)
     var read = 0

@@ -16,6 +16,20 @@ Allows deserialization of `Config` object from popular [lightbend/config](https:
 into Kotlin objects.
 You can learn about "Human-Optimized Config Object Notation" or HOCON from library's [readme](https://github.com/lightbend/config#using-hocon-the-json-superset).
 
+## ProtoBuf
+
+* Artifact id: `kotlinx-serialization-protobuf`
+* Since version: 0.14.1
+* Platform: all supported platforms
+* Status: experimental
+
+## CBOR
+
+* Artifact id: `kotlinx-serialization-cbor`
+* Since version: 0.14.1
+* Platform: all supported platforms
+* Status: experimental
+
 ## Other community-supported formats
 
 ### Avro

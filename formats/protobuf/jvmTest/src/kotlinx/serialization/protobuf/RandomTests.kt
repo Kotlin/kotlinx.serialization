@@ -20,7 +20,7 @@ class RandomTest : ShouldSpec() {
 
     object KTestData {
         @Serializable
-        data class KTestInt32(@SerialId(1) val a: Int) : IMessage {
+        data class KTestInt32(@ProtoId(1) val a: Int) : IMessage {
             override fun toProtobufMessage(): GeneratedMessageV3 = TestInt32.newBuilder().setA(a).build()
 
             companion object : Gen<KTestInt32> {
@@ -29,7 +29,7 @@ class RandomTest : ShouldSpec() {
         }
 
         @Serializable
-        data class KTestSignedInt(@SerialId(1) @ProtoType(ProtoNumberType.SIGNED) val a: Int) : IMessage {
+        data class KTestSignedInt(@ProtoId(1) @ProtoType(ProtoNumberType.SIGNED) val a: Int) : IMessage {
             override fun toProtobufMessage(): GeneratedMessageV3 = TestSignedInt.newBuilder().setA(a).build()
 
             companion object : Gen<KTestSignedInt> {
@@ -38,7 +38,7 @@ class RandomTest : ShouldSpec() {
         }
 
         @Serializable
-        data class KTestSignedLong(@SerialId(1) @ProtoType(ProtoNumberType.SIGNED) val a: Long) : IMessage {
+        data class KTestSignedLong(@ProtoId(1) @ProtoType(ProtoNumberType.SIGNED) val a: Long) : IMessage {
             override fun toProtobufMessage(): GeneratedMessageV3 = TestSignedLong.newBuilder().setA(a).build()
 
             companion object : Gen<KTestSignedLong> {
@@ -47,7 +47,7 @@ class RandomTest : ShouldSpec() {
         }
 
         @Serializable
-        data class KTestFixedInt(@SerialId(1) @ProtoType(ProtoNumberType.FIXED) val a: Int) : IMessage {
+        data class KTestFixedInt(@ProtoId(1) @ProtoType(ProtoNumberType.FIXED) val a: Int) : IMessage {
             override fun toProtobufMessage(): GeneratedMessageV3 = TestFixedInt.newBuilder().setA(a).build()
 
             companion object : Gen<KTestFixedInt> {
@@ -56,7 +56,7 @@ class RandomTest : ShouldSpec() {
         }
 
         @Serializable
-        data class KTestDouble(@SerialId(1) val a: Double) : IMessage {
+        data class KTestDouble(@ProtoId(1) val a: Double) : IMessage {
             override fun toProtobufMessage(): GeneratedMessageV3 = TestDouble.newBuilder().setA(a).build()
 
             companion object : Gen<KTestDouble> {
@@ -65,7 +65,7 @@ class RandomTest : ShouldSpec() {
         }
 
         @Serializable
-        data class KTestBoolean(@SerialId(1) val a: Boolean) : IMessage {
+        data class KTestBoolean(@ProtoId(1) val a: Boolean) : IMessage {
             override fun toProtobufMessage(): GeneratedMessageV3 = TestBoolean.newBuilder().setA(a).build()
 
             companion object : Gen<KTestBoolean> {
@@ -75,16 +75,16 @@ class RandomTest : ShouldSpec() {
 
         @Serializable
         data class KTestAllTypes(
-            @SerialId(1) val i32: Int,
-            @SerialId(2) @ProtoType(ProtoNumberType.SIGNED) val si32: Int,
-            @SerialId(3) @ProtoType(ProtoNumberType.FIXED) val f32: Int,
-            @SerialId(10) val i64: Long,
-            @SerialId(11) @ProtoType(ProtoNumberType.SIGNED) val si64: Long,
-            @SerialId(12) @ProtoType(ProtoNumberType.FIXED) val f64: Long,
-            @SerialId(21) val f: Float,
-            @SerialId(22) val d: Double,
-            @SerialId(41) val b: Boolean = false,
-            @SerialId(51) val s: String
+            @ProtoId(1) val i32: Int,
+            @ProtoId(2) @ProtoType(ProtoNumberType.SIGNED) val si32: Int,
+            @ProtoId(3) @ProtoType(ProtoNumberType.FIXED) val f32: Int,
+            @ProtoId(10) val i64: Long,
+            @ProtoId(11) @ProtoType(ProtoNumberType.SIGNED) val si64: Long,
+            @ProtoId(12) @ProtoType(ProtoNumberType.FIXED) val f64: Long,
+            @ProtoId(21) val f: Float,
+            @ProtoId(22) val d: Double,
+            @ProtoId(41) val b: Boolean = false,
+            @ProtoId(51) val s: String
         ) : IMessage {
             override fun toProtobufMessage(): TestAllTypes = TestAllTypes.newBuilder()
                 .setI32(i32)
@@ -117,10 +117,10 @@ class RandomTest : ShouldSpec() {
 
         @Serializable
         data class KTestOuterMessage(
-            @SerialId(1) val a: Int,
-            @SerialId(2) val b: Double,
-            @SerialId(10) val inner: KTestAllTypes,
-            @SerialId(20) val s: String
+            @ProtoId(1) val a: Int,
+            @ProtoId(2) val b: Double,
+            @ProtoId(10) val inner: KTestAllTypes,
+            @ProtoId(20) val s: String
         ) : IMessage {
             override fun toProtobufMessage(): GeneratedMessageV3 = TestOuterMessage.newBuilder()
                 .setA(a)
@@ -141,8 +141,8 @@ class RandomTest : ShouldSpec() {
 
         @Serializable
         data class KTestIntListMessage(
-            @SerialId(1) val s: Int,
-            @SerialId(10) val l: List<Int>
+            @ProtoId(1) val s: Int,
+            @ProtoId(10) val l: List<Int>
         ) : IMessage {
             override fun toProtobufMessage(): GeneratedMessageV3 = TestRepeatedIntMessage.newBuilder().setS(s).addAllB(l).build()
 
@@ -153,7 +153,7 @@ class RandomTest : ShouldSpec() {
 
         @Serializable
         data class KTestObjectListMessage(
-            @SerialId(1) val inner: List<KTestAllTypes>
+            @ProtoId(1) val inner: List<KTestAllTypes>
         ) : IMessage {
             override fun toProtobufMessage(): GeneratedMessageV3 = TestRepeatedObjectMessage.newBuilder().addAllInner(inner.map { it.toProtobufMessage() }).build()
 
@@ -165,7 +165,7 @@ class RandomTest : ShouldSpec() {
         enum class KCoffee { AMERICANO, LATTE, CAPPUCCINO }
 
         @Serializable
-        data class KTestEnum(@SerialId(1) val a: KCoffee): IMessage {
+        data class KTestEnum(@ProtoId(1) val a: KCoffee): IMessage {
             override fun toProtobufMessage() = TestEnum.newBuilder().setA(TestEnum.Coffee.forNumber(a.ordinal)).build()
 
             companion object : Gen<KTestEnum> {
@@ -174,7 +174,7 @@ class RandomTest : ShouldSpec() {
         }
 
         @Serializable
-        data class KTestMap(@SerialId(1) val s: Map<String, String>, @SerialId(2) val o: Map<Int, KTestAllTypes> = emptyMap()) :
+        data class KTestMap(@ProtoId(1) val s: Map<String, String>, @ProtoId(2) val o: Map<Int, KTestAllTypes> = emptyMap()) :
             IMessage {
             override fun toProtobufMessage() = TestMap.newBuilder()
                 .putAllStringMap(s)

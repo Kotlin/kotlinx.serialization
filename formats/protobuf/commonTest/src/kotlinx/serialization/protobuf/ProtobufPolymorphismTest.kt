@@ -5,17 +5,12 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
-import kotlin.test.Test
+import kotlin.test.*
 
 class ProtobufPolymorphismTest {
     @Test
     fun testAbstract() {
-        val obj = PolyBox(
-            SimpleStringInheritor(
-                "str",
-                133
-            )
-        )
+        val obj = PolyBox(SimpleStringInheritor("str", 133))
         assertSerializedToBinaryAndRestored(obj, PolyBox.serializer(), ProtoBuf(SimplePolymorphicModule))
     }
 

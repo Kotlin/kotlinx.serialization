@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
 data class Simple(val a: String)
 
 @Serializable
-data class SmallZoo(
+data class TypesUmbrella(
         val str: String,
         val i: Int,
         val nullable: Double?,
@@ -21,7 +21,7 @@ data class SmallZoo(
 )
 
 @Serializable
-data class NumberZoo(
+data class NumberTypesUmbrella(
         val int: Int,
         val long: Long,
         val float: Float,

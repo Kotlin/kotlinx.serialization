@@ -50,41 +50,41 @@ enum class ItemContext {
 
 @Serializable
 data class Items(
-    @SerialId(1)
+    @ProtoId(1)
     val items: List<Item> = emptyList(),
-    @SerialId(2)
+    @ProtoId(2)
     val pageSize: Int? = null,
-    @SerialId(3)
+    @ProtoId(3)
     val nextPage: Boolean = false
 )
 
 @Serializable
 data class Item(
-    @SerialId(1)
+    @ProtoId(1)
     val id: Int,
-    @SerialId(2) @Serializable(with = ItemPlatformSerializer::class)
+    @ProtoId(2) @Serializable(with = ItemPlatformSerializer::class)
     val platform: ItemPlatform = ItemPlatform.Unknown,
-    @SerialId(3)
+    @ProtoId(3)
     val language: List<String> = emptyList(),
-    @SerialId(4) @Serializable(with = ItemContextSerializer::class)
+    @ProtoId(4) @Serializable(with = ItemContextSerializer::class)
     val context: ItemContext = ItemContext.Unknown
 )
 
 @Serializable
 data class ItemsWithoutPageSize(
-    @SerialId(1)
+    @ProtoId(1)
     val items: List<ItemWithoutPlatform> = emptyList(),
-    @SerialId(3)
+    @ProtoId(3)
     val nextPage: Boolean = false
 )
 
 @Serializable
 data class ItemWithoutPlatform(
-    @SerialId(1)
+    @ProtoId(1)
     val id: Int,
-    @SerialId(3)
+    @ProtoId(3)
     val language: List<String> = emptyList(),
-    @SerialId(4) @Serializable(with = ItemContextSerializer::class)
+    @ProtoId(4) @Serializable(with = ItemContextSerializer::class)
     val context: ItemContext = ItemContext.Unknown
 )
 

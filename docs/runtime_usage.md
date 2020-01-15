@@ -11,7 +11,6 @@
   + [Mapper](#mapper)
   + [Dynamic object parser (JS only)](#dynamic-object-parser-js-only)
 
-
 ## Obtaining serializers
 
 Serializers are represented at runtime as `KSerializer<T>`, which in turn, implements interfaces `SerializationStrategy<T>` and `DeserializationStrategy<T>`, where `T` is class you serialize.
@@ -26,30 +25,26 @@ data class Data(val a: Int)
 @Serializable
 data class Box<T>(val boxed: T)
 
-val dataSerial     : KSerializer<Data>      = Data.serializer()
-val boxedDataSerial: KSerializer<Box<Data>> = Box.serializer(dataSerial)
+val dataSerializer: KSerializer<Data> = Data.serializer()
+val boxedDataSerializer: KSerializer<Box<Data>> = Box.serializer(dataSerial)
 ```
 
-Built-in types, like Int, and standard collections doesn't have that method. You can use corresponding serializers from `kotlinx.serialization.internal` package:
-
+Built-in types, like `Int`, and standard collections doesn't have that method. You can use corresponding serializers from the library:
 ```kotlin
-val i : KSerializer<Int>       = IntSerializer // object
-val li: KSerializer<List<Int>> = ArrayListSerializer(IntSerializer) // generic, requires instantiation
+val intSerializer: KSerializer<Int>  = IntSerializer // object
+val intListSerializer: KSerializer<List<Int>> = ArrayListSerializer(IntSerializer) // generic, requires instantiation
 ```
 
 For convenience, serializers have extension properties:
-
 ```kotlin
-val li: KSerializer<List<Data>>       = Data.serializer().list
-val mp: KSerializer<Map<String, Int>> = (StringSerializer to IntSerializer).map // extension on Pair of serializers
+val dataListSerializer: KSerializer<List<Data>> = Data.serializer().list
+val mapSerializer: KSerializer<Map<String, Int>> = (StringSerializer to IntSerializer).map // extension on Pair of serializers
 ```
 
-To convert from serializer for type `T` to serializer for nullable type `T?`, you can use wrapping `NullableSerializer` or its factory method `makeNullable`:
+To convert from serializer for type `T` to serializer for nullable type `T?`, you can use extension factory method `nullable`:
 
 ```kotlin
-val nullableIntSerializer: KSerializer<Int?> = NullableSerializer(IntSerializer)
-// or
-val nullableIntSerializer: KSerializer<Int?> = makeNullable(IntSerializer)
+val nullableIntSerializer: KSerializer<Int?> = IntSerializer.nullable
 ```
 
 All external serializers (defined by user) are instantiated in a user-specific way. To learn how to write them, see [docs](custom_serializers.md).
