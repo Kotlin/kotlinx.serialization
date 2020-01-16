@@ -1,32 +1,21 @@
-# Kotlin cross-platform / multi-format reflectionless serialization
+# Kotlin multiplatform / multi-format serialization reflectionless serialization
 
 [![JetBrains incubator project](https://jb.gg/badges/incubator.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 [![TeamCity build](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/KotlinTools_KotlinxSerialization_Ko.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=KotlinTools_KotlinxSerialization_Ko&guest=1)
 [![Download](https://api.bintray.com/packages/kotlin/kotlinx/kotlinx.serialization.runtime/images/download.svg) ](https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime/_latestVersion)
 
-Kotlin serialization consists of a compiler plugin, which automatically produces visitor code for classes, and runtime library, which uses generated code to serialize objects without reflection.
+Kotlin serialization consists of a compiler plugin, that generates visitor code for serializable classes,
+ runtime library with core serialization API and JSON format, and support libraries with ProtoBuf, CBOR and properties formats.
 
 * Supports Kotlin classes marked as `@Serializable` and standard collections.
-* Supports JSON, CBOR, and Protobuf formats out-of-the-box.
-* The same code works on Kotlin/JVM, Kotlin/JS and Kotlin/Native
-
-## Runtime overview
-
-This project contains the runtime library. Runtime library provides:
-
-* Interfaces which are called by compiler-generated code (`Encoder`, `Decoder`).
-* Basic skeleton implementations of these interfaces in which you should override some methods if you want to
-  implement custom data format.
-* Some internal classes like built-ins and collections serializers.
-* Ready-to-use serialization formats.
-* Other useful classes that benefit from serialization framework (e.g. object-to-Map transformer)
-
-You can open example projects for [JS](examples/example-js), [JVM](examples/example-jvm) or [Native](examples/example-native) to get started playing with it.
+* Provides JSON, CBOR, and Protobuf formats.
+* Complete multiplatform support: JVM, JS and Native.
 
 ## Table of contents
 
-* [Quick example](#quick-example)
+* [Quick start](#quick-start)
+* [Runtime overview](#runtime-overview)
 * [Current status](#current-project-status)
 * [Library installing](#setup)
     + [Gradle](#gradle)
@@ -45,10 +34,9 @@ You can open example projects for [JS](examples/example-js), [JVM](examples/exam
 * [Instructions for old versions under Kotlin 1.2 and migration guide](docs/old12.md)
 
 
-## Quick example
+## Quick start
 
 ```kotlin
-
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
@@ -71,6 +59,17 @@ fun main() {
     println(obj) // Data(a=42, b="42")
 }
 ```
+
+## Runtime overview
+
+This project contains the runtime library. Runtime library provides:
+
+* Ready-to-use JSON serialization format.
+* Core primitives for plugin-generated code (`Encoder`, `Decoder`, `SerialDescriptor`).
+* Basic skeleton implementations of core primitives for custom serialization formats. 
+* Built-ins and collections serializers.
+
+You can open example projects for [JS](examples/example-js) and [JVM](examples/example-jvm).
 
 To learn more about JSON usage and other formats, see [usage](docs/runtime_usage.md).
 More examples of various kinds of Kotlin classes that can be serialized can be found [here](docs/examples.md).
@@ -132,7 +131,7 @@ You can setup serialization plugin with the kotlin plugin using [Gradle plugins 
 
 ```gradle
 plugins {
-    id 'org.jetbrains.kotlin.multiplatform' version '1.3.60' // or any other kotlin plugin
+    id 'org.jetbrains.kotlin.multiplatform' version '1.3.60' // or kotlin plugin
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.3.60'
 }
 ```
@@ -238,7 +237,7 @@ Include kotlinx bintray repository for library:
 </repositories>
 ```
 
-You also can use JCenter.
+You can also use JCenter.
 
 Add serialization plugin to Kotlin compiler plugin:
 
@@ -297,9 +296,10 @@ All versions of library before `0.10.0` are using Gradle metadata v0.3 and there
 
 Maven plugin coordinates before Kotlin 1.3.20 were `kotlinx-maven-serialization-plugin`.
 
-For deprecated `kotlin-platform-native` plugin, you need to use `kotlinx-serialization-native` plugin (see [#2210](https://github.com/JetBrains/kotlin-native/issues/2210#issuecomment-429753168)).
 
 ## Troubleshooting IntelliJ IDEA
 
-Serialization support should work out of the box, if you have 1.3.x Kotlin plugin installed and have imported the project from Maven or Gradle with serialization enabled in their buildscripts. If you have Kotlin 1.3.10 or lower, you have to delegate build to Gradle (`Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`). Starting from 1.3.11, no delegation is required.
+Serialization support should work out of the box, if you have `1.3.x` Kotlin plugin installed and have imported the project from Maven or Gradle with serialization enabled in their build scripts. 
+If you have Kotlin `1.3.10` or lower, you have to delegate build to Gradle (`Settings - Build, Execution, Deployment - Build Tools - Gradle - Runner -` tick `Delegate IDE build/run actions to gradle`). 
+Starting from `1.3.11`, no delegation is required.
 In case of problems, force project re-import from Gradle.
