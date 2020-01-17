@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -105,7 +105,7 @@ public class SealedClassSerializer<T : Any>(
 internal class SealedClassDescriptor(
     name: String,
     elementDescriptors: List<SerialDescriptor>
-) : SerialClassDescImpl(name) {
+) : SerialClassDescImpl(name, elementsCount = elementDescriptors.size) {
     override val kind: SerialKind = PolymorphicKind.SEALED
 
     init {
