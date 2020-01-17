@@ -8,9 +8,10 @@ import kotlinx.serialization.*
 
 private val NULL = Any()
 
+@InternalSerializationApi
 public sealed class KeyValueSerializer<K, V, R>(
-    private val keySerializer: KSerializer<K>,
-    private val valueSerializer: KSerializer<V>
+    protected val keySerializer: KSerializer<K>,
+    protected val valueSerializer: KSerializer<V>
 ) : KSerializer<R> {
 
     abstract val R.key: K
@@ -56,38 +57,44 @@ public sealed class KeyValueSerializer<K, V, R>(
     }
 }
 
+// todo: move from internal package and add documentation
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public class MapEntrySerializer<K, V>(
     keySerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>
 ) : KeyValueSerializer<K, V, Map.Entry<K, V>>(keySerializer, valueSerializer) {
-    private object MapEntryClassDesc : SerialClassDescImpl("kotlin.collections.Map.Entry") {
+    private inner class MapEntryClassDesc : SerialClassDescImpl("kotlin.collections.Map.Entry") {
         override val kind = StructureKind.MAP
 
         init {
             addElement("key")
+            pushDescriptor(keySerializer.descriptor)
             addElement("value")
+            pushDescriptor(valueSerializer.descriptor)
         }
     }
 
-    override val descriptor: SerialDescriptor = MapEntryClassDesc
+    override val descriptor: SerialDescriptor = MapEntryClassDesc()
     override val Map.Entry<K, V>.key: K get() = this.key
     override val Map.Entry<K, V>.value: V get() = this.value
     override fun toResult(key: K, value: V): Map.Entry<K, V> = MapEntry(key, value)
 }
 
-internal class PairSerializer<K, V>(
-    ketSerializer: KSerializer<K>,
+// todo: move from internal package and add documentation
+public class PairSerializer<K, V>(
+    keySerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>
-) : KeyValueSerializer<K, V, Pair<K, V>>(ketSerializer, valueSerializer) {
-    private object PairClassDesc : SerialClassDescImpl("kotlin.Pair", elementsCount = 2) {
+) : KeyValueSerializer<K, V, Pair<K, V>>(keySerializer, valueSerializer) {
+    private inner class PairClassDesc : SerialClassDescImpl("kotlin.Pair", elementsCount = 2) {
         init {
             addElement("first")
+            pushDescriptor(keySerializer.descriptor)
             addElement("second")
+            pushDescriptor(valueSerializer.descriptor)
         }
     }
 
-    override val descriptor: SerialDescriptor get() = PairClassDesc
+    override val descriptor: SerialDescriptor = PairClassDesc()
     override val Pair<K, V>.key: K get() = this.first
     override val Pair<K, V>.value: V get() = this.second
 
@@ -96,20 +103,24 @@ internal class PairSerializer<K, V>(
 
 private data class MapEntry<K, V>(override val key: K, override val value: V) : Map.Entry<K, V>
 
-internal class TripleSerializer<A, B, C>(
+// todo: move from internal package and add documentation
+public class TripleSerializer<A, B, C>(
     private val aSerializer: KSerializer<A>,
     private val bSerializer: KSerializer<B>,
     private val cSerializer: KSerializer<C>
 ) : KSerializer<Triple<A, B, C>> {
-    private object TripleDesc : SerialClassDescImpl("kotlin.Triple", elementsCount = 3) {
+    private inner class TripleDesc : SerialClassDescImpl("kotlin.Triple", elementsCount = 3) {
         init {
             addElement("first")
+            pushDescriptor(aSerializer.descriptor)
             addElement("second")
+            pushDescriptor(bSerializer.descriptor)
             addElement("third")
+            pushDescriptor(cSerializer.descriptor)
         }
     }
 
-    override val descriptor: SerialDescriptor get() = TripleDesc
+    override val descriptor: SerialDescriptor = TripleDesc()
 
     override fun serialize(encoder: Encoder, obj: Triple<A, B, C>) {
         val structuredEncoder = encoder.beginStructure(descriptor, aSerializer, bSerializer, cSerializer)

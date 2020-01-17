@@ -69,7 +69,7 @@ public open class SerialClassDescImpl(
 
     override fun getElementDescriptor(index: Int): SerialDescriptor {
         return generatedSerializer?.childSerializers()?.get(index)?.descriptor ?: descriptors?.get(index)
-        ?: throw IndexOutOfBoundsException("No child descriptor with index $index was provided in $this")
+        ?: throw IndexOutOfBoundsException("No child descriptor with index $index was provided in ${this.serialName}")
     }
 
     override fun isElementOptional(index: Int): Boolean {
