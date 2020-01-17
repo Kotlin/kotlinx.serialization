@@ -6,7 +6,6 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
-import kotlin.jvm.*
 
 /**
  * Implementation that plugin uses to implement descriptors
@@ -17,18 +16,20 @@ import kotlin.jvm.*
 @InternalSerializationApi
 public open class SerialClassDescImpl(
     override val serialName: String,
-    private val generatedSerializer: GeneratedSerializer<*>? = null
+    private val generatedSerializer: GeneratedSerializer<*>? = null,
+    elementsCount: Int = 1
 ) : SerialDescriptor {
     override val kind: SerialKind get() = StructureKind.CLASS
+    // todo: use actual elementsCount ctor param when there will be no user-defined inheritors
     override val elementsCount: Int get() = propertiesAnnotations.size
     override val annotations: List<Annotation> get() = classAnnotations
 
-    private val names: MutableList<String> = ArrayList()
-    private val propertiesAnnotations: MutableList<MutableList<Annotation>?> = mutableListOf()
+    private val names: MutableList<String> = ArrayList(elementsCount)
+    private val propertiesAnnotations: MutableList<MutableList<Annotation>?> = ArrayList(elementsCount)
     private val classAnnotations: MutableList<Annotation> = mutableListOf()
-    private val descriptors: MutableList<SerialDescriptor> = mutableListOf()
-    // Properly guess size for generated serializer
-    private var flags = BooleanArray(4)
+    // this array is only used when serializer is written by hand
+    private var descriptors: MutableList<SerialDescriptor>? = null
+    private var flags = BooleanArray(elementsCount)
 
     // don't change lazy mode: KT-32871, KT-32872
     private val indices: Map<String, Int> by lazy { buildIndices() }
@@ -61,11 +62,14 @@ public open class SerialClassDescImpl(
     }
 
     public fun pushDescriptor(desc: SerialDescriptor) {
-        descriptors.add(desc)
+        if (descriptors == null)
+            descriptors = mutableListOf()
+        descriptors!!.add(desc)
     }
 
     override fun getElementDescriptor(index: Int): SerialDescriptor {
-        return generatedSerializer?.childSerializers()?.get(index)?.descriptor ?: descriptors[index]
+        return generatedSerializer?.childSerializers()?.get(index)?.descriptor ?: descriptors?.get(index)
+        ?: throw IndexOutOfBoundsException("No child descriptor with index $index was provided in $this")
     }
 
     override fun isElementOptional(index: Int): Boolean {

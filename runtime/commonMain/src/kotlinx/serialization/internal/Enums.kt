@@ -8,8 +8,9 @@ import kotlinx.serialization.*
 
 @InternalSerializationApi
 public class EnumDescriptor constructor(
-    name: String
-) : SerialClassDescImpl(name) {
+    name: String,
+    elementsCount: Int = 1
+) : SerialClassDescImpl(name, elementsCount = elementsCount) {
 
     override val kind: SerialKind = UnionKind.ENUM_KIND
 
@@ -51,7 +52,7 @@ public class EnumSerializer<T : Enum<T>>(
     private val values: Array<T>
 ) : KSerializer<T> {
 
-    override val descriptor: SerialDescriptor = EnumDescriptor(serialName).apply {
+    override val descriptor: SerialDescriptor = EnumDescriptor(serialName, values.size).apply {
         values.forEach { addElement(it.name) }
     }
 

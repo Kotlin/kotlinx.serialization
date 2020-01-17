@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -14,7 +14,7 @@ import kotlin.reflect.*
  *
  * Currently, it has no guarantees neither on its reference transparency nor its children descriptors, only on [kind].
  */
-public object PolymorphicClassDescriptor : SerialClassDescImpl("kotlinx.serialization.Polymorphic") {
+public object PolymorphicClassDescriptor : SerialClassDescImpl("kotlinx.serialization.Polymorphic", elementsCount = 2) {
     public override val kind: SerialKind = PolymorphicKind.OPEN
 
     init {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.internal
@@ -80,7 +80,7 @@ internal class PairSerializer<K, V>(
     ketSerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>
 ) : KeyValueSerializer<K, V, Pair<K, V>>(ketSerializer, valueSerializer) {
-    private object PairClassDesc : SerialClassDescImpl("kotlin.Pair") {
+    private object PairClassDesc : SerialClassDescImpl("kotlin.Pair", elementsCount = 2) {
         init {
             addElement("first")
             addElement("second")
@@ -101,7 +101,7 @@ internal class TripleSerializer<A, B, C>(
     private val bSerializer: KSerializer<B>,
     private val cSerializer: KSerializer<C>
 ) : KSerializer<Triple<A, B, C>> {
-    private object TripleDesc : SerialClassDescImpl("kotlin.Triple") {
+    private object TripleDesc : SerialClassDescImpl("kotlin.Triple", elementsCount = 3) {
         init {
             addElement("first")
             addElement("second")
