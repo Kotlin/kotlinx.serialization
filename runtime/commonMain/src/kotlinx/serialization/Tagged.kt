@@ -4,8 +4,11 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.modules.EmptyModule
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.modules.*
+
+internal const val unitDeprecated =
+    "This method is deprecated with no replacement. Unit is encoded as an empty object and does not require a dedicated method. " +
+            "To migrate, just remove your own implementation of this method"
 
 abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
 
@@ -57,7 +60,6 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
 
     final override fun encodeNotNullMark() = encodeTaggedNotNullMark(currentTag)
     final override fun encodeNull() = encodeTaggedNull(popTag())
-
     final override fun encodeUnit() = encodeTaggedUnit(popTag())
     final override fun encodeBoolean(value: Boolean) = encodeTaggedBoolean(popTag(), value)
     final override fun encodeByte(value: Byte) = encodeTaggedByte(popTag(), value)
@@ -88,7 +90,6 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
     open fun endEncode(desc: SerialDescriptor) {}
 
     final override fun encodeNonSerializableElement(desc: SerialDescriptor, index: Int, value: Any) = encodeTaggedValue(desc.getTag(index), value)
-
     final override fun encodeUnitElement(desc: SerialDescriptor, index: Int) = encodeTaggedUnit(desc.getTag(index))
     final override fun encodeBooleanElement(desc: SerialDescriptor, index: Int, value: Boolean) = encodeTaggedBoolean(desc.getTag(index), value)
     final override fun encodeByteElement(desc: SerialDescriptor, index: Int, value: Byte) = encodeTaggedByte(desc.getTag(index), value)
@@ -145,12 +146,13 @@ abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
 
 
     // ---- API ----
-    open fun decodeTaggedValue(tag: Tag): Any
-            = throw SerializationException("${this::class} can't retrieve untyped values")
+    open fun decodeTaggedValue(tag: Tag): Any =
+        throw SerializationException("${this::class} can't retrieve untyped values")
 
     open fun decodeTaggedNotNullMark(tag: Tag): Boolean = true
     open fun decodeTaggedNull(tag: Tag): Nothing? = null
 
+    @Deprecated(message = unitDeprecated, level = DeprecationLevel.ERROR)
     open fun decodeTaggedUnit(tag: Tag): Unit = decodeTaggedValue(tag) as Unit
     open fun decodeTaggedBoolean(tag: Tag): Boolean = decodeTaggedValue(tag) as Boolean
     open fun decodeTaggedByte(tag: Tag): Byte = decodeTaggedValue(tag) as Byte
@@ -169,6 +171,8 @@ abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     final override fun decodeNotNullMark(): Boolean = decodeTaggedNotNullMark(currentTag)
     final override fun decodeNull(): Nothing? = null
 
+    @Deprecated(message = unitDeprecated, level = DeprecationLevel.ERROR)
+    @Suppress("DEPRECATION_ERROR")
     final override fun decodeUnit() = decodeTaggedUnit(popTag())
     final override fun decodeBoolean(): Boolean = decodeTaggedBoolean(popTag())
     final override fun decodeByte(): Byte = decodeTaggedByte(popTag())
@@ -186,6 +190,8 @@ abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
         return this
     }
 
+    @Deprecated(message = unitDeprecated, level = DeprecationLevel.ERROR)
+    @Suppress("DEPRECATION_ERROR")
     final override fun decodeUnitElement(desc: SerialDescriptor, index: Int) = decodeTaggedUnit(desc.getTag(index))
     final override fun decodeBooleanElement(desc: SerialDescriptor, index: Int): Boolean = decodeTaggedBoolean(desc.getTag(index))
     final override fun decodeByteElement(desc: SerialDescriptor, index: Int): Byte = decodeTaggedByte(desc.getTag(index))

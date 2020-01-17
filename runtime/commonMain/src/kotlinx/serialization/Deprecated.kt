@@ -16,7 +16,7 @@
 
 package kotlinx.serialization
 
-internal const val deprecationText = "Obsolete name from the preview version of library."
+private const val deprecationText = "Obsolete name from the preview version of library."
 
 @Deprecated(deprecationText, ReplaceWith("SerialKind"))
 typealias KSerialClassKind = SerialKind

@@ -26,16 +26,14 @@ public class ObjectSerializer<T : Any>(serialName: String, private val objectIns
     }
 }
 
-internal class ObjectDescriptor(name: String) : SerialClassDescImpl(name) {
+private class ObjectDescriptor(public override val serialName: String) : SerialDescriptor {
     override val kind: SerialKind = UnionKind.OBJECT
-
-    init {
-        addElement(name)
-    }
-
-    override fun getElementDescriptor(index: Int): SerialDescriptor {
-        return this
-    }
+    override val elementsCount: Int get() = 0
+    override fun getElementName(index: Int): String  = error()
+    override fun getElementIndex(name: String): Int = error()
+    override fun getElementAnnotations(index: Int): List<Annotation> = error()
+    override fun isElementOptional(index: Int): Boolean = error()
+    override fun getElementDescriptor(index: Int): SerialDescriptor = error()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -52,4 +50,6 @@ internal class ObjectDescriptor(name: String) : SerialClassDescImpl(name) {
     override fun toString(): String {
         return "$serialName()"
     }
+
+    private fun error(): Nothing = throw IllegalStateException("Object descriptor does not have elements")
 }

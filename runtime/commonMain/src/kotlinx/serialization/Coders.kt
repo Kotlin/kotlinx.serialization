@@ -12,7 +12,15 @@ interface Encoder {
     fun encodeNotNullMark()
     fun encodeNull()
 
-    fun encodeUnit()
+    @Deprecated(
+        message = "This method is deprecated with no replacement. Unit is encoded as an empty object and does not require a dedicated method. " +
+                "To migrate, just remove your implementation to fallback to default impl",
+        level = DeprecationLevel.ERROR
+    )
+    fun encodeUnit() {
+        error("This method is left only for source-level compatibility and is no longer called")
+    }
+
     fun encodeBoolean(value: Boolean)
     fun encodeByte(value: Byte)
     fun encodeShort(value: Short)
@@ -51,7 +59,10 @@ interface CompositeEncoder {
 
     fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean = true
 
-    fun encodeUnitElement(desc: SerialDescriptor, index: Int)
+    @Deprecated(message = unitDeprecated, level = DeprecationLevel.ERROR)
+    fun encodeUnitElement(desc: SerialDescriptor, index: Int) {
+        error("This method is left only for source-level compatibility and is no longer called")
+    }
     fun encodeBooleanElement(desc: SerialDescriptor, index: Int, value: Boolean)
     fun encodeByteElement(desc: SerialDescriptor, index: Int, value: Byte)
     fun encodeShortElement(desc: SerialDescriptor, index: Int, value: Short)
@@ -83,6 +94,7 @@ interface Decoder {
      */
     fun decodeNull(): Nothing?
 
+    @Deprecated(message = unitDeprecated, level = DeprecationLevel.ERROR)
     fun decodeUnit()
     fun decodeBoolean(): Boolean
     fun decodeByte(): Byte

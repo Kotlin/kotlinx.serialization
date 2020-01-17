@@ -9,11 +9,7 @@ import kotlinx.serialization.internal.*
 /**
  * Built-in serializer for [Unit] type.
  */
-public object UnitSerializer : KSerializer<Unit> {
-    override val descriptor: SerialDescriptor = BuiltinDescriptor("kotlin.Unit", PrimitiveKind.UNIT)
-    override fun serialize(encoder: Encoder, obj: Unit) = encoder.encodeUnit()
-    override fun deserialize(decoder: Decoder): Unit = decoder.decodeUnit()
-}
+public object UnitSerializer : KSerializer<Unit> by ObjectSerializer("kotlin.Unit", Unit)
 
 /**
  * Built-in serializer for [Boolean] type.
@@ -127,8 +123,6 @@ public fun Double.Companion.serializer(): KSerializer<Double> = DoubleSerializer
 public fun Boolean.Companion.serializer(): KSerializer<Boolean> = BooleanSerializer
 
 // Source-level migration aids
-
-
 @Deprecated(
     message = "Deprecated in the favour of PrimitiveDescriptor factory function",
     level = DeprecationLevel.ERROR
