@@ -16,10 +16,14 @@
 
 package kotlinx.io
 
+import kotlinx.serialization.*
+
+@Deprecated(message = message, level = DeprecationLevel.ERROR)
 actual open class IOException actual constructor(message: String) : Exception(message) {
     actual constructor(): this("IO Exception")
 }
 
+@InternalSerializationApi
 actual abstract class InputStream {
 
     actual open fun available(): Int {
@@ -42,20 +46,11 @@ actual abstract class InputStream {
         if (len < 0 || len > b.size - offset) {
             throw IndexOutOfBoundsException()
         }
-        for (i in 0..len - 1) {
-            var c: Int
-            try {
-                c = read()
-                if (c == -1) {
-                    return if (i == 0) -1 else i
-                }
-            } catch (e: IOException) {
-                if (i != 0) {
-                    return i
-                }
-                throw e
+        for (i in 0 until len) {
+            val c: Int = read()
+            if (c == -1) {
+                return if (i == 0) -1 else i
             }
-
             b[offset + i] = c.toByte()
         }
         return len
@@ -99,6 +94,7 @@ actual abstract class InputStream {
     }
 }
 
+@InternalSerializationApi
 actual class ByteArrayInputStream : InputStream {
 
     protected var buf: ByteArray
@@ -163,6 +159,7 @@ actual class ByteArrayInputStream : InputStream {
 }
 
 
+@InternalSerializationApi
 actual abstract class OutputStream {
     actual open fun close() {
         /* empty */
@@ -188,6 +185,7 @@ actual abstract class OutputStream {
 
 }
 
+@InternalSerializationApi
 actual class ByteArrayOutputStream : OutputStream {
     protected var buf: ByteArray
     protected var count: Int = 0

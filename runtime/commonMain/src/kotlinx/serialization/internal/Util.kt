@@ -4,26 +4,19 @@
 
 package kotlinx.serialization.internal
 
-import kotlinx.io.ByteBuffer
-import kotlinx.io.IOException
 import kotlinx.io.InputStream
+import kotlinx.serialization.*
 
-internal fun InputStream.readExactNBytes(bytes: Int): ByteArray {
+@InternalSerializationApi
+public fun InputStream.readExactNBytes(bytes: Int): ByteArray {
     val array = ByteArray(bytes)
     var read = 0
     while (read < bytes) {
         val i = this.read(array, read, bytes - read)
-        if (i == -1) throw IOException("Unexpected EOF")
+        if (i == -1) error("Unexpected EOF")
         read += i
     }
     return array
-}
-
-internal fun InputStream.readToByteBuffer(bytes: Int): ByteBuffer {
-    val arr = readExactNBytes(bytes)
-    val buf = ByteBuffer.allocate(bytes)
-    buf.put(arr).flip()
-    return buf
 }
 
 object HexConverter {
@@ -63,10 +56,11 @@ object HexConverter {
         return if (lowerCase) r.toString().toLowerCase() else r.toString()
     }
 
-    fun toHexString(n: Int) = printHexBinary(ByteBuffer.allocate(4).putInt(n).flip().array(), true)
-            .trimStart('0').takeIf { it.isNotEmpty() } ?: "0"
+    fun toHexString(n: Int): String {
+        val arr = ByteArray(4)
+        for (i in 0 until 4) {
+            arr[i] = (n shr (24 - i * 8)).toByte()
+        }
+        return printHexBinary(arr, true).trimStart('0').takeIf { it.isNotEmpty() } ?: "0"
+    }
 }
-
-fun ByteBuffer.getUnsignedByte(): Int = this.get().toInt() and 0xff
-fun ByteBuffer.getUnsignedShort(): Int = this.getShort().toInt() and 0xffff
-fun ByteBuffer.getUnsignedInt(): Long = this.getInt().toLong() and 0xffffffffL

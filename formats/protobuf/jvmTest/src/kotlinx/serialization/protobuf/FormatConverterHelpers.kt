@@ -1,0 +1,89 @@
+/*
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+package kotlinx.serialization.protobuf
+
+import com.google.protobuf.GeneratedMessageV3
+import java.io.ByteArrayOutputStream
+import kotlinx.serialization.dump
+import kotlinx.serialization.loads
+
+interface IMessage {
+    fun toProtobufMessage(): GeneratedMessageV3
+}
+
+fun GeneratedMessageV3.toHex(): String {
+    val b = ByteArrayOutputStream()
+    this.writeTo(b)
+    return (HexConverter.printHexBinary(b.toByteArray(), lowerCase = true))
+}
+
+/**
+ * Check serialization of [ProtoBuf].
+ *
+ * 1. Serializes the given [IMessage] into bytes using [ProtoBuf].
+ * 2. Parses those bytes via the `Java ProtoBuf library`.
+ * 3. Compares parsed `Java ProtoBuf object` to expected object ([IMessage.toProtobufMessage]).
+ *
+ * @param it The [IMessage] to check.
+ * @param protoBuf Provide custom [ProtoBuf] instance (default: [ProtoBuf.plain]).
+ *
+ * @return `true` if the de-serialization returns the expected object.
+ */
+inline fun <reified T : IMessage> dumpCompare(it: T, alwaysPrint: Boolean = false, protoBuf: ProtoBuf = ProtoBuf.plain): Boolean {
+    val msg = it.toProtobufMessage()
+    val parsed: GeneratedMessageV3?
+    return try {
+        val bytes = protoBuf.dump(it)
+        parsed = msg.parserForType.parseFrom(bytes)
+        msg == parsed
+    } catch (e: Exception) {
+        e.printStackTrace()
+        false
+    }
+}
+
+/**
+ * Check de-serialization of [ProtoBuf].
+ *
+ * 1. Converts expected `Java ProtoBuf object` ([IMessage.toProtobufMessage]) to bytes.
+ * 2. Parses those bytes via [ProtoBuf].
+ * 3. Compares parsed ProtoBuf object to given object.
+ *
+ * @param it The [IMessage] to check.
+ * @param alwaysPrint Set to `true` if expected/found objects should always get printed to console (default: `false`).
+ * @param protoBuf Provide custom [ProtoBuf] instance (default: [ProtoBuf.plain]).
+ *
+ * @return `true` if the de-serialization returns the original object.
+ */
+inline fun <reified T : IMessage> readCompare(it: T, alwaysPrint: Boolean = false, protoBuf: ProtoBuf = ProtoBuf.plain): Boolean {
+    var obj: T?
+    val c = try {
+        val msg = it.toProtobufMessage()
+        val hex = msg.toHex()
+        obj = protoBuf.loads(hex)
+        obj == it
+    } catch (e: Exception) {
+        obj = null
+        e.printStackTrace()
+        false
+    }
+    if (!c || alwaysPrint) println("Expected: $it\nfound: $obj")
+    return c
+}
+
+object HexConverter {
+
+
+    private const val hexCode = "0123456789ABCDEF"
+
+    fun printHexBinary(data: ByteArray, lowerCase: Boolean = false): String {
+        val r = StringBuilder(data.size * 2)
+        for (b in data) {
+            r.append(hexCode[b.toInt() shr 4 and 0xF])
+            r.append(hexCode[b.toInt() and 0xF])
+        }
+        return if (lowerCase) r.toString().toLowerCase() else r.toString()
+    }
+}

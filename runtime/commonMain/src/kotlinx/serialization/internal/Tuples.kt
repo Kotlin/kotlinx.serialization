@@ -8,7 +8,7 @@ import kotlinx.serialization.*
 
 private val NULL = Any()
 
-internal sealed class KeyValueSerializer<K, V, R>(
+public sealed class KeyValueSerializer<K, V, R>(
     private val keySerializer: KSerializer<K>,
     private val valueSerializer: KSerializer<V>
 ) : KSerializer<R> {
@@ -57,7 +57,7 @@ internal sealed class KeyValueSerializer<K, V, R>(
 }
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-internal class MapEntrySerializer<K, V>(
+public class MapEntrySerializer<K, V>(
     keySerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>
 ) : KeyValueSerializer<K, V, Map.Entry<K, V>>(keySerializer, valueSerializer) {

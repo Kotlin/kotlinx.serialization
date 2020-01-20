@@ -16,10 +16,14 @@
 
 package kotlinx.io
 
+import kotlinx.serialization.*
+
+@Deprecated(message = message, level = DeprecationLevel.ERROR)
 actual open class IOException actual constructor(message: String) : Exception(message) {
     actual constructor() : this("IO Exception")
 }
 
+@InternalSerializationApi
 actual abstract class InputStream {
 
     actual open fun available(): Int {
@@ -42,20 +46,11 @@ actual abstract class InputStream {
         if (len < 0 || len > b.size - offset) {
             throw IndexOutOfBoundsException()
         }
-        for (i in 0..len - 1) {
-            var c: Int
-            try {
-                c = read()
-                if (c == -1) {
-                    return if (i == 0) -1 else i
-                }
-            } catch (e: IOException) {
-                if (i != 0) {
-                    return i
-                }
-                throw e
+        for (i in 0 until len) {
+            val c: Int = read()
+            if (c == -1) {
+                return if (i == 0) -1 else i
             }
-
             b[offset + i] = c.toByte()
         }
         return len
@@ -99,6 +94,7 @@ actual abstract class InputStream {
     }
 }
 
+@InternalSerializationApi
 actual class ByteArrayInputStream : InputStream {
 
     protected var buf: ByteArray
@@ -120,7 +116,7 @@ actual class ByteArrayInputStream : InputStream {
         count = if (offset + length > buf.size) buf.size else offset + length
     }
 
-    override fun available(): Int {
+    actual override fun available(): Int {
         return count - pos
     }
 
@@ -152,7 +148,7 @@ actual class ByteArrayInputStream : InputStream {
         return copylen
     }
 
-    override fun skip(n: Long): Long {
+    actual override fun skip(n: Long): Long {
         if (n <= 0) {
             return 0
         }
@@ -163,6 +159,7 @@ actual class ByteArrayInputStream : InputStream {
 }
 
 
+@InternalSerializationApi
 actual abstract class OutputStream {
     actual open fun close() {
         /* empty */
@@ -189,6 +186,7 @@ actual abstract class OutputStream {
 
 }
 
+@InternalSerializationApi
 actual class ByteArrayOutputStream : OutputStream {
     protected var buf: ByteArray
     protected var count: Int = 0
@@ -226,7 +224,7 @@ actual class ByteArrayOutputStream : OutputStream {
         return newArray
     }
 
-    override fun write(buffer: ByteArray, offset: Int, count: Int) {
+    actual override fun write(buffer: ByteArray, offset: Int, count: Int) {
         // avoid int overflow
         if (offset < 0 || offset > buffer.size || count < 0
                 || count > buffer.size - offset) {

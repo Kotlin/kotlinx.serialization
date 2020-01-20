@@ -1,3 +1,6 @@
+/*
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 buildscript {
     ext.serialization_version = mainLibVersion
 
@@ -7,10 +10,6 @@ buildscript {
         maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
     }
 }
-
-/*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
- */
 
 // see ../settings.gradle so this plugins could be resolved
 plugins {
@@ -58,6 +57,8 @@ kotlin {
             dependencies {
                 implementation kotlin('stdlib-common')
                 implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serialization_version"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf-common:$serialization_version"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-cbor-common:$serialization_version"
             }
         }
         commonTest {
@@ -70,6 +71,8 @@ kotlin {
             dependencies {
                 implementation kotlin('stdlib-jdk8')
                 implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:$serialization_version"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-cbor:$serialization_version"
                 implementation 'com.google.dagger:dagger:2.13'
             }
         }
@@ -83,6 +86,9 @@ kotlin {
             dependencies {
                 implementation kotlin('stdlib-js')
                 implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf-js:$serialization_version"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-cbor-js:$serialization_version"
+
             }
         }
         jsTest {

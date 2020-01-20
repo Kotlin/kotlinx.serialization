@@ -16,7 +16,6 @@
 
 package kotlinx.serialization.schema
 
-import kotlinx.serialization.SerialId
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.protobuf.ProtoNumberType
 import kotlinx.serialization.protobuf.ProtoType

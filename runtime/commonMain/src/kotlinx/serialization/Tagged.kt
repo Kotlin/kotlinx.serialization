@@ -4,13 +4,8 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
 import kotlinx.serialization.modules.EmptyModule
 import kotlinx.serialization.modules.SerialModule
-
-@SerialInfo
-@Target(AnnotationTarget.PROPERTY)
-annotation class SerialId(val id: Int)
 
 abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
 
@@ -132,10 +127,6 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
             throw SerializationException("No tag in stack for requested element")
 }
 
-abstract class IntTaggedEncoder : TaggedEncoder<Int?>() {
-    final override fun SerialDescriptor.getTag(index: Int): Int? = getSerialId(this, index)
-}
-
 abstract class NamedValueEncoder(val rootName: String = "") : TaggedEncoder<String>() {
     final override fun SerialDescriptor.getTag(index: Int): String = nested(elementName(this, index))
 
@@ -143,9 +134,6 @@ abstract class NamedValueEncoder(val rootName: String = "") : TaggedEncoder<Stri
     open fun elementName(desc: SerialDescriptor, index: Int) = desc.getElementName(index)
     open fun composeName(parentName: String, childName: String) = if (parentName.isEmpty()) childName else "$parentName.$childName"
 }
-
-internal fun getSerialId(desc: SerialDescriptor, index: Int): Int?
-        = desc.findAnnotation<SerialId>(index)?.id
 
 abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     override val context: SerialModule
@@ -197,7 +185,6 @@ abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
         return this
     }
-
 
     final override fun decodeUnitElement(desc: SerialDescriptor, index: Int) = decodeTaggedUnit(desc.getTag(index))
     final override fun decodeBooleanElement(desc: SerialDescriptor, index: Int): Boolean = decodeTaggedBoolean(desc.getTag(index))
@@ -253,10 +240,6 @@ abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
         flag = true
         return r
     }
-}
-
-abstract class IntTaggedDecoder: TaggedDecoder<Int?>() {
-    final override fun SerialDescriptor.getTag(index: Int): Int? = getSerialId(this, index)
 }
 
 abstract class NamedValueDecoder(val rootName: String = "") : TaggedDecoder<String>() {

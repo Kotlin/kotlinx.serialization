@@ -16,10 +16,16 @@
 
 package kotlinx.io
 
-actual typealias IOException = java.io.IOException
+import kotlinx.serialization.*
 
+@Deprecated(message = message, level = DeprecationLevel.ERROR)
+actual typealias IOException = java.io.IOException
+@InternalSerializationApi
 actual typealias InputStream = java.io.InputStream
+@InternalSerializationApi
 actual typealias ByteArrayInputStream = java.io.ByteArrayInputStream
 
+@InternalSerializationApi
 actual typealias OutputStream = java.io.OutputStream
+@InternalSerializationApi
 actual typealias ByteArrayOutputStream = java.io.ByteArrayOutputStream

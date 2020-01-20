@@ -34,6 +34,7 @@ dependencies {
     compile 'com.esotericsoftware:kryo:4.0.0'
 
     compile project(':kotlinx-serialization-runtime')
+    compile project(':kotlinx-serialization-protobuf')
 
     // async profiler
     compile group: 'pl.project13.scala', name: 'sbt-jmh-extras', version: '0.3.3'

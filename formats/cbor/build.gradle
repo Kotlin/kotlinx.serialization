@@ -1,0 +1,31 @@
+/*
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+apply plugin: 'kotlin-multiplatform'
+apply plugin: 'kotlinx-serialization'
+apply from: rootProject.file("gradle/targets.gradle")
+apply from: rootProject.file("gradle/native_mpp.gradle")
+apply from: rootProject.file("gradle/configureSourceSets.gradle")
+
+kotlin {
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api project(":kotlinx-serialization-runtime")
+            }
+        }
+
+        jvmTest {
+            dependencies {
+                implementation 'io.kotlintest:kotlintest:2.0.7'
+                implementation group: 'com.upokecenter', name: 'cbor', version: '4.0.0-beta1'
+                implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jackson_version
+                implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
+                implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: jackson_version
+                implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-cbor', version: jackson_version
+            }
+        }
+    }
+}
