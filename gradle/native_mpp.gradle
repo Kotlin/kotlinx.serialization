@@ -24,6 +24,7 @@ kotlin {
             // Linux
             addTarget(presets.linuxX64)
             addTarget(presets.linuxArm32Hfp)
+            addTarget(presets.linuxArm64)
 
             // Mac & iOS
             addTarget(presets.macosX64)

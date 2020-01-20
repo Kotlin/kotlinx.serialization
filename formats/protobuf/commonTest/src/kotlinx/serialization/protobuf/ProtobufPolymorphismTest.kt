@@ -11,7 +11,7 @@ class ProtobufPolymorphismTest {
     @Test
     fun testAbstract() {
         val obj = PolyBox(SimpleStringInheritor("str", 133))
-        assertSerializedToBinaryAndRestored(obj, PolyBox.serializer(), ProtoBuf(SimplePolymorphicModule))
+        assertSerializedToBinaryAndRestored(obj, PolyBox.serializer(), ProtoBuf(context = SimplePolymorphicModule))
     }
 
     @Test

@@ -14,11 +14,95 @@ import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintLong
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeVarint
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.encodeVarint
 
-class ProtoBuf(context: SerialModule = EmptyModule) : AbstractSerialFormat(context), BinaryFormat {
+/**
+ * The main entry point to work with ProtoBuf serialization.
+ * It is typically used by constructing an application-specific instance, with configured ProtoBuf-specific behaviour
+ * ([encodeDefaults] constructor parameter) and, if necessary, registered
+ * custom serializers (in [SerialModule] provided by [context] constructor parameter).
+ *
+ * ## Usage Example
+ * Given a ProtoBuf definition with one required field, one optional field and one optional field with a custom default
+ * value:
+ * ```
+ * message MyMessage {
+ *     required int32 first = 1;
+ *     optional int32 second = 2;
+ *     optional int32 third = 3 [default = 42];
+ * }
+ * ```
+ *
+ * The corresponding [Serializable] class should match the ProtoBuf definition and should use the same default values:
+ * ```
+ * @Serializable
+ * data class MyMessage(val first: Int, val second: Int = 0, val third: Int = 42)
+ *
+ * // Serialize to ProtoBuf hex string
+ * val encoded = ProtoBuf.dumps(MyMessage.serializer(), MyMessage(15)) // "080f1000182a"
+ *
+ * // Deserialize from ProtoBuf hex string
+ * val decoded = ProtoBuf.loads<MyMessage>(MyMessage.serializer(), encoded) // MyMessage(first=15, second=0, third=42)
+ *
+ * // Serialize to ProtoBuf bytes (omitting default values)
+ * val encoded2 = ProtoBuf(encodeDefaults = false).dump(MyMessage.serializer(), MyMessage(15)) // [0x08, 0x0f]
+ *
+ * // Deserialize ProtoBuf bytes will use default values of the MyMessage class
+ * val decoded2 = ProtoBuf.load<MyMessage>(MyMessage.serializer(), encoded2) // MyMessage(first=15, second=0, third=42)
+ * ```
+ *
+ * ### Check existence of optional fields
+ * Null values can be used as default value for optional fields to implement more complex use-cases that rely on
+ * checking if a field was set or not. This requires the use of a custom ProtoBuf instance with
+ * `ProtoBuf(encodeDefaults = false)`.
+ *
+ * ```
+ * @Serializable
+ * data class MyMessage(val first: Int, private val _second: Int? = null, private val _third: Int? = null) {
+ *
+ *     val second: Int
+ *         get() = _second ?: 0
+ *
+ *     val third: Int
+ *         get() = _third ?: 42
+ *
+ *     fun hasSecond() = _second != null
+ *
+ *     fun hasThird() = _third != null
+ * }
+ *
+ * // Serialize to ProtoBuf bytes (encodeDefaults=false is required if null values are used)
+ * val encoded = ProtoBuf(encodeDefaults = false).dump(MyMessage(15)) // [0x08, 0x0f]
+ *
+ * // Deserialize ProtoBuf bytes
+ * val decoded = ProtoBuf.load<MyMessage>(MyMessage.serializer(), encoded) // MyMessage(first=15, _second=null, _third=null)
+ * decoded.hasSecond()     // false
+ * decoded.second          // 0
+ * decoded.hasThird()      // false
+ * decoded.third           // 42
+ *
+ * // Serialize to ProtoBuf bytes
+ * val encoded2 = ProtoBuf(encodeDefaults = false).dumps(MyMessage.serializer(), MyMessage(15, 0, 0)) // [0x08, 0x0f, 0x10, 0x00, 0x18, 0x00]
+ *
+ * // Deserialize ProtoBuf bytes
+ * val decoded2 = ProtoBuf.loads<MyMessage>(MyMessage.serializer(), encoded2) // MyMessage(first=15, _second=0, _third=0)
+ * decoded.hasSecond()     // true
+ * decoded.second          // 0
+ * decoded.hasThird()      // true
+ * decoded.third           // 0
+ * ```
+ *
+ * @param encodeDefaults specifies whether default values are encoded.
+ * @param context application-specific [SerialModule] to provide custom serializers.
+ */
+class ProtoBuf(
+        val encodeDefaults: Boolean = true,
+        context: SerialModule = EmptyModule
+) : AbstractSerialFormat(context), BinaryFormat {
 
     internal open inner class ProtobufWriter(val encoder: ProtobufEncoder) : TaggedEncoder<ProtoDesc>() {
         public override val context
             get() = this@ProtoBuf.context
+
+        override fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean = encodeDefaults
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder = when (desc.kind) {
             StructureKind.LIST -> RepeatedWriter(encoder, currentTag)
