@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.cbor
@@ -190,11 +190,11 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
             if (!finiteMode) decoder.end()
         }
 
-        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             if (!finiteMode && decoder.isEnd() || (finiteMode && readProperties >= size)) return READ_DONE
             val elemName = decoder.nextString()
             readProperties++
-            return desc.getElementIndexOrThrow(elemName)
+            return descriptor.getElementIndexOrThrow(elemName)
         }
 
         override fun decodeString() = decoder.nextString()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -141,6 +141,7 @@ class PrimitiveDescriptorWithName
 )
 constructor(override val name: String, val original: SerialDescriptor) : SerialDescriptor by original
 
+@Suppress("unused") // compiler still complains about unused parameter
 @Deprecated(
     message = "Deprecated in the favour of PrimitiveDescriptor factory function",
     level = DeprecationLevel.ERROR,

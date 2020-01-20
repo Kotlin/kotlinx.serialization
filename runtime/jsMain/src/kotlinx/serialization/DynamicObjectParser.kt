@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -14,7 +14,7 @@ import kotlin.math.floor
  */
 internal const val MAX_SAFE_INTEGER: Double = 9007199254740991.toDouble() // 2^53 - 1
 
-class DynamicObjectParser(context: SerialModule = EmptyModule): AbstractSerialFormat(context) {
+class DynamicObjectParser(context: SerialModule = EmptyModule) : AbstractSerialFormat(context) {
     @ImplicitReflectionSerializer
     inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.getContextualOrDefault(T::class))
 
@@ -28,22 +28,22 @@ class DynamicObjectParser(context: SerialModule = EmptyModule): AbstractSerialFo
 
         private var pos = 0
 
-        override fun decodeElementIndex(desc: SerialDescriptor): Int {
-            while (pos < desc.elementsCount) {
-                val name = desc.getTag(pos++)
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+            while (pos < descriptor.elementsCount) {
+                val name = descriptor.getTag(pos++)
                 if (obj[name] !== undefined) return pos - 1
             }
             return READ_DONE
         }
 
         override fun decodeTaggedEnum(tag: String, enumDescription: SerialDescriptor): Int =
-                enumDescription.getElementIndexOrThrow(getByTag(tag) as String)
+            enumDescription.getElementIndexOrThrow(getByTag(tag) as String)
 
         protected open fun getByTag(tag: String): dynamic = obj[tag]
 
         override fun decodeTaggedChar(tag: String): Char {
             val o = getByTag(tag)
-            return when(o) {
+            return when (o) {
                 is String -> if (o.length == 1) o[0] else throw SerializationException("$o can't be represented as Char")
                 is Number -> o.toChar()
                 else -> throw SerializationException("$o can't be represented as Char")
@@ -64,7 +64,7 @@ class DynamicObjectParser(context: SerialModule = EmptyModule): AbstractSerialFo
 
         override fun decodeTaggedValue(tag: String): Any {
             val o = getByTag(tag) ?: throw MissingFieldException(tag)
-            return o
+            return o as Any
         }
 
         override fun decodeTaggedNotNullMark(tag: String): Boolean {
@@ -84,7 +84,7 @@ class DynamicObjectParser(context: SerialModule = EmptyModule): AbstractSerialFo
         }
     }
 
-    private inner class DynamicMapInput(obj: dynamic): DynamicInput(obj) {
+    private inner class DynamicMapInput(obj: dynamic) : DynamicInput(obj) {
         private val keys: dynamic = js("Object").keys(obj)
         private val size: Int = (keys.length as Int) * 2
         private var pos = -1
@@ -94,7 +94,7 @@ class DynamicObjectParser(context: SerialModule = EmptyModule): AbstractSerialFo
             return keys[i] as String
         }
 
-        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             while (pos < size - 1) {
                 val i = pos++ / 2
                 val name = keys[i] as String
@@ -108,13 +108,13 @@ class DynamicObjectParser(context: SerialModule = EmptyModule): AbstractSerialFo
         }
     }
 
-    private inner class DynamicListInput(obj: dynamic): DynamicInput(obj) {
+    private inner class DynamicListInput(obj: dynamic) : DynamicInput(obj) {
         private val size = obj.length as Int
         private var pos = -1
 
         override fun elementName(desc: SerialDescriptor, index: Int): String = (index).toString()
 
-        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             while (pos < size - 1) {
                 val o = obj[++pos]
                 if (o !== undefined) return pos

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 
@@ -111,7 +111,7 @@ class MapperTest {
     }
 
     @Test
-    @Ignore // todo
+    @Ignore // todo: fix map1 and map2 tests
     fun worksWithNestedMap() {
         val map0 = DataWithMap(mapOf())
         val map1 = DataWithMap(mapOf("one" to 1))
@@ -129,8 +129,8 @@ class MapperTest {
             assertEquals(testData, d2)
         }
 
-//        doTest(map0)
+        doTest(map0)
         doTest(map1)
-//        doTest(map2)
+        doTest(map2)
     }
 }

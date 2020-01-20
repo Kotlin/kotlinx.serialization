@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 package kotlinx.serialization.json
 
@@ -71,13 +71,13 @@ public constructor(
 
     @UseExperimental(UnstableDefault::class)
     @Deprecated(
-        message = "Default constructor is deprecated, please specify desired configuration explicitly or use Json(JsonConfiguration.Default)",
+        message = "Default constructor is deprecated, please specify the desired configuration explicitly or use Json(JsonConfiguration.Default)",
         replaceWith = ReplaceWith("Json(JsonConfiguration.Default)"),
         level = DeprecationLevel.ERROR
     )
     public constructor() : this(JsonConfiguration(useArrayPolymorphism = true))
 
-//    @UseExperimental(UnstableDefault::class)
+    @UseExperimental(UnstableDefault::class)
     private constructor(builder: JsonBuilder) : this(builder.buildConfiguration(), builder.buildModule())
 
     /**

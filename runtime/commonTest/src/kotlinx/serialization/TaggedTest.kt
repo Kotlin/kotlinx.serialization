@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -28,13 +28,13 @@ class TaggedTest {
         }
     }
 
-    class Emitter(val collected: Collector) : TaggedDecoder<Int?>() {
+    class Emitter(private val collected: Collector) : TaggedDecoder<Int?>() {
         private var i = 0
 
         override fun decodeSequentially(): Boolean = true
         override fun SerialDescriptor.getTag(index: Int): Int? = getSerialId(this, index)
 
-        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             // js doesn't generate code for .decodeSequentially for the sake of keeping output small
             if (!isJs()) throw AssertionError("Should not be called in this test due to support of decodeSequentially")
             return if (i == collected.tagList.size) READ_DONE else i++
@@ -60,7 +60,12 @@ class TaggedTest {
     @Test
     fun testMapper() {
         val data = DataWithId(1, "2")
-        Mapper.map(DataWithId.serializer(), data) shouldBe mapOf("first" to 1, "second" to "2", "noId" to Unit, "last" to true)
+        Mapper.map(DataWithId.serializer(), data) shouldBe mapOf(
+            "first" to 1,
+            "second" to "2",
+            "noId" to Unit,
+            "last" to true
+        )
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.kotlinx.serialization.config
@@ -63,9 +63,9 @@ class ConfigParser(context: SerialModule = EmptyModule): AbstractSerialFormat(co
     private inner class ConfigReader(val conf: Config) : ConfigConverter<String>() {
         private var ind = -1
 
-        override fun decodeElementIndex(desc: SerialDescriptor): Int {
-            while (++ind < desc.elementsCount) {
-                val name = desc.getTag(ind)
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+            while (++ind < descriptor.elementsCount) {
+                val name = descriptor.getTag(ind)
                 if (conf.hasPathOrNull(name)) {
                     return ind
                 }
@@ -89,27 +89,29 @@ class ConfigParser(context: SerialModule = EmptyModule): AbstractSerialFormat(co
             return !conf.getIsNull(tag)
         }
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder = when {
-            desc.kind.listLike -> ListConfigReader(conf.getList(currentTag))
-            desc.kind.objLike -> if (ind > -1) ConfigReader(conf.getConfig(currentTag)) else this
-            desc.kind == StructureKind.MAP -> MapConfigReader(conf.getObject(currentTag))
-            else -> this
-        }
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder =
+            when {
+                desc.kind.listLike -> ListConfigReader(conf.getList(currentTag))
+                desc.kind.objLike -> if (ind > -1) ConfigReader(conf.getConfig(currentTag)) else this
+                desc.kind == StructureKind.MAP -> MapConfigReader(conf.getObject(currentTag))
+                else -> this
+            }
     }
 
     private inner class ListConfigReader(private val list: ConfigList) : ConfigConverter<Int>() {
         private var ind = -1
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder = when {
-            desc.kind.listLike -> ListConfigReader(list[currentTag] as ConfigList)
-            desc.kind.objLike -> ConfigReader((list[currentTag] as ConfigObject).toConfig())
-            desc.kind == StructureKind.MAP -> MapConfigReader(list[currentTag] as ConfigObject)
-            else -> this
-        }
+        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder =
+            when {
+                desc.kind.listLike -> ListConfigReader(list[currentTag] as ConfigList)
+                desc.kind.objLike -> ConfigReader((list[currentTag] as ConfigObject).toConfig())
+                desc.kind == StructureKind.MAP -> MapConfigReader(list[currentTag] as ConfigObject)
+                else -> this
+            }
 
         override fun SerialDescriptor.getTag(index: Int) = index
 
-        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             ind++
             return if (ind > list.size - 1) READ_DONE else ind
         }
@@ -137,11 +139,11 @@ class ConfigParser(context: SerialModule = EmptyModule): AbstractSerialFormat(co
                 desc.kind.objLike -> ConfigReader((values[currentTag / 2] as ConfigObject).toConfig())
                 desc.kind == StructureKind.MAP -> MapConfigReader(values[currentTag / 2] as ConfigObject)
                 else -> this
-        }
+            }
 
         override fun SerialDescriptor.getTag(index: Int) = index
 
-        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             ind++
             return if (ind >= indexSize) READ_DONE else ind
         }
@@ -156,10 +158,11 @@ class ConfigParser(context: SerialModule = EmptyModule): AbstractSerialFormat(co
         }
     }
 
+    @Suppress("UNUSED")
     companion object {
-        fun <T> parse(conf: Config, serial: DeserializationStrategy<T>) = ConfigParser().parse(conf, serial)
+        public fun <T> parse(conf: Config, serial: DeserializationStrategy<T>): T = ConfigParser().parse(conf, serial)
 
         @ImplicitReflectionSerializer
-        inline fun <reified T : Any> parse(conf: Config) = ConfigParser().parse(conf, T::class.serializer())
+        public inline fun <reified T : Any> parse(conf: Config): T = ConfigParser().parse(conf, T::class.serializer())
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -104,15 +104,25 @@ class SerializationMethodInvocationOrderTest {
             fail("@$step: beginStructure($desc)")
         }
 
-        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             when (step) {
-                2 -> { checkContainerDesc(desc); step++; return 0 }
-                5 -> { checkDataDesc(desc); step++; return 0 }
-                7 -> { checkDataDesc(desc); step++; return 1 }
-                9 -> { checkDataDesc(desc); step++; return -1 }
-                11 -> { checkContainerDesc(desc); step++; return -1 }
+                2 -> {
+                    checkContainerDesc(descriptor); step++; return 0
+                }
+                5 -> {
+                    checkDataDesc(descriptor); step++; return 0
+                }
+                7 -> {
+                    checkDataDesc(descriptor); step++; return 1
+                }
+                9 -> {
+                    checkDataDesc(descriptor); step++; return -1
+                }
+                11 -> {
+                    checkContainerDesc(descriptor); step++; return -1
+                }
             }
-            fail("@$step: decodeElementIndex($desc)")
+            fail("@$step: decodeElementIndex($descriptor)")
         }
 
         override fun <T : Any?> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {

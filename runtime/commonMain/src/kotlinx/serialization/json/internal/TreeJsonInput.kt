@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("LeakingThis")
@@ -100,7 +100,7 @@ private class JsonPrimitiveInput(json: Json, override val obj: JsonPrimitive) : 
         pushTag(PRIMITIVE_TAG)
     }
 
-    override fun decodeElementIndex(desc: SerialDescriptor): Int = 0
+    override fun decodeElementIndex(descriptor: SerialDescriptor): Int = 0
 
     override fun currentElement(tag: String): JsonElement {
         require(tag === PRIMITIVE_TAG) { "This input can only handle primitives with '$PRIMITIVE_TAG' tag" }
@@ -111,9 +111,9 @@ private class JsonPrimitiveInput(json: Json, override val obj: JsonPrimitive) : 
 private open class JsonTreeInput(json: Json, override val obj: JsonObject) : AbstractJsonTreeInput(json, obj) {
     private var position = 0
 
-    override fun decodeElementIndex(desc: SerialDescriptor): Int {
-        while (position < desc.elementsCount) {
-            val name = desc.getTag(position++)
+    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+        while (position < descriptor.elementsCount) {
+            val name = descriptor.getTag(position++)
             if (name in obj) {
                 return position - 1
             }
@@ -148,7 +148,7 @@ private class JsonTreeMapInput(json: Json, override val obj: JsonObject) : JsonT
         return keys[i]
     }
 
-    override fun decodeElementIndex(desc: SerialDescriptor): Int {
+    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         while (position < size - 1) {
             position++
             return position
@@ -175,7 +175,7 @@ private class JsonTreeListInput(json: Json, override val obj: JsonArray) : Abstr
         return obj[tag.toInt()]
     }
 
-    override fun decodeElementIndex(desc: SerialDescriptor): Int {
+    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         while (currentIndex < size - 1) {
             currentIndex++
             return currentIndex

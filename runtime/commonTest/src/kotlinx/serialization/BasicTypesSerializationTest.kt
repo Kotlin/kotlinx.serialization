@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -58,6 +58,7 @@ class BasicTypesSerializationTest {
         val arrays: ArraysUmbrella
     )
 
+    @Suppress("EqualsOrHashCode", "ArrayInDataClass") // no hashcode needed
     @Serializable
     data class ArraysUmbrella(
         val arrByte: Array<Byte>,
@@ -95,7 +96,7 @@ class BasicTypesSerializationTest {
 
     // KeyValue Input/Output
 
-    class KeyValueOutput(val sb: StringBuilder) : ElementValueEncoder() {
+    class KeyValueOutput(private val sb: StringBuilder) : ElementValueEncoder() {
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
             sb.append('{')
             return this
@@ -107,7 +108,7 @@ class BasicTypesSerializationTest {
 
         override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
             if (index > 0) sb.append(", ")
-            sb.append(desc.getElementName(index));
+            sb.append(desc.getElementName(index))
             sb.append(':')
             return true
         }
@@ -129,7 +130,7 @@ class BasicTypesSerializationTest {
         override fun encodeChar(value: Char) = encodeString(value.toString())
     }
 
-    class KeyValueInput(val inp: Parser) : ElementValueDecoder() {
+    class KeyValueInput(private val inp: Parser) : ElementValueDecoder() {
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             inp.expectAfterWhiteSpace('{')
             return this
@@ -137,12 +138,12 @@ class BasicTypesSerializationTest {
 
         override fun endStructure(desc: SerialDescriptor) = inp.expectAfterWhiteSpace('}')
 
-        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             inp.skipWhitespace(',')
             val name = inp.nextUntil(':', '}')
             if (name.isEmpty())
                 return READ_DONE
-            val index = desc.getElementIndexOrThrow(name)
+            val index = descriptor.getElementIndexOrThrow(name)
             inp.expect(':')
             return index
         }
@@ -208,7 +209,7 @@ class BasicTypesSerializationTest {
             expect(c)
         }
 
-        fun  nextUntil(vararg c: Char): String {
+        fun nextUntil(vararg c: Char): String {
             val sb = StringBuilder()
             while (cur >= 0 && cur.toChar() !in c) {
                 sb.append(cur.toChar())
