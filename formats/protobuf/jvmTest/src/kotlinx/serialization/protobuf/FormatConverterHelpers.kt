@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.protobuf
@@ -33,15 +33,19 @@ fun GeneratedMessageV3.toHex(): String {
  */
 inline fun <reified T : IMessage> dumpCompare(it: T, alwaysPrint: Boolean = false, protoBuf: ProtoBuf = ProtoBuf.plain): Boolean {
     val msg = it.toProtobufMessage()
-    val parsed: GeneratedMessageV3?
-    return try {
+    var parsed: GeneratedMessageV3?
+    val c = try {
         val bytes = protoBuf.dump(it)
+        if (alwaysPrint) println("Serialized bytes: ${HexConverter.printHexBinary(bytes)}")
         parsed = msg.parserForType.parseFrom(bytes)
         msg == parsed
     } catch (e: Exception) {
         e.printStackTrace()
+        parsed = null
         false
     }
+    if (!c || alwaysPrint) println("Expected: $msg\nfound: $parsed")
+    return c
 }
 
 /**

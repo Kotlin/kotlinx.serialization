@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.protobuf
@@ -283,11 +283,11 @@ class ProtoBuf(
 
         override fun SerialDescriptor.getTag(index: Int) = this.getProtoDesc(index)
 
-        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             while (true) {
                 if (decoder.curId == -1) // EOF
                     return READ_DONE
-                val ind = indexByTag.getOrPut(decoder.curId) { findIndexByTag(desc, decoder.curId) }
+                val ind = indexByTag.getOrPut(decoder.curId) { findIndexByTag(descriptor, decoder.curId) }
                 if (ind == -1) // not found
                     decoder.skipElement()
                 else return ind
@@ -298,7 +298,9 @@ class ProtoBuf(
     private inner class RepeatedReader(decoder: ProtobufDecoder, val targetTag: ProtoDesc) : ProtobufReader(decoder) {
         private var ind = -1
 
-        override fun decodeElementIndex(desc: SerialDescriptor) = if (decoder.curId == targetTag.first) ++ind else READ_DONE
+        override fun decodeElementIndex(descriptor: SerialDescriptor) =
+            if (decoder.curId == targetTag.first) ++ind else READ_DONE
+
         override fun SerialDescriptor.getTag(index: Int): ProtoDesc = targetTag
     }
 

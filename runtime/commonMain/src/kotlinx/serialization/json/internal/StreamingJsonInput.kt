@@ -1,11 +1,10 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.JvmField
@@ -67,7 +66,7 @@ internal class StreamingJsonInput internal constructor(
         return null
     }
 
-    override fun decodeElementIndex(desc: SerialDescriptor): Int {
+    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         val tokenClass = reader.tokenClass
         if (tokenClass == TC_COMMA) {
             reader.require(currentIndex != -1, reader.currentPosition) { "Unexpected leading comma" }
@@ -85,7 +84,7 @@ internal class StreamingJsonInput internal constructor(
                     }
                 }
             }
-            else -> decodeObjectIndex(tokenClass, desc)
+            else -> decodeObjectIndex(tokenClass, descriptor)
         }
     }
 

@@ -1,20 +1,22 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
 
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 class UnknownElementIndexTest {
-    enum class Choices {A, B, C}
-    @Serializable data class Holder(val c: Choices)
+    enum class Choices { A, B, C }
 
-    class MalformedReader: ElementValueDecoder() {
-        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+    @Serializable
+    data class Holder(val c: Choices)
+
+    class MalformedReader : ElementValueDecoder() {
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             return UNKNOWN_NAME
         }
     }
