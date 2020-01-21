@@ -168,14 +168,20 @@ public class SerializersModuleBuilder internal constructor() : SerialModuleColle
         allowOverwrite: Boolean = false
     ) {
         val name = concreteSerializer.descriptor.serialName
-        polyBase2Serializers.getOrPut(baseClass, ::hashMapOf).let { baseClassMap ->
-            if (!allowOverwrite && concreteClass in baseClassMap) throw SerializerAlreadyRegisteredException(
-                baseClass,
-                concreteClass
-            )
-            baseClassMap[concreteClass] = concreteSerializer
+        val baseClassSerializers = polyBase2Serializers.getOrPut(baseClass, ::hashMapOf)
+        if (!allowOverwrite && concreteClass in baseClassSerializers) throw SerializerAlreadyRegisteredException(
+            baseClass,
+            concreteClass
+        )
+        baseClassSerializers[concreteClass] = concreteSerializer
+
+        val names = polyBase2NamedSerializers.getOrPut(baseClass, ::hashMapOf)
+        val previous = names.put(name, concreteSerializer)
+        if (previous != null) {
+            val conflictingClass = polyBase2Serializers[baseClass]!!.filter { it.value === previous }.keys.firstOrNull()
+            throw IllegalArgumentException("Multiple polymorphic serializers for base class '$baseClass' " +
+                    "have the same serial name '$name': '$concreteClass' and '$conflictingClass'")
         }
-        polyBase2NamedSerializers.getOrPut(baseClass, ::hashMapOf)[name] = concreteSerializer
     }
 
     internal fun build(): SerialModule = SerialModuleImpl(class2Serializer, polyBase2Serializers, polyBase2NamedSerializers)

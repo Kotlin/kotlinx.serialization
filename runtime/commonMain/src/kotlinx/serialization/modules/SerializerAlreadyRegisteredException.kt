@@ -4,6 +4,7 @@
 
 package kotlinx.serialization.modules
 
+import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
 /**
@@ -13,6 +14,7 @@ import kotlin.reflect.KClass
  * Registering in the same module twice is prohibited. In case you are combining modules
  * with [SerialModule.plus], consider using [SerialModule.overwriteWith] if you want overwriting behaviour.
  */
+@InternalSerializationApi // Will be hidden in the next release
 public class SerializerAlreadyRegisteredException private constructor(msg: String) : IllegalArgumentException(msg) {
     constructor(
         baseClass: KClass<*>,

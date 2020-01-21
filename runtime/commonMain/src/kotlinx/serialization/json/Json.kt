@@ -6,9 +6,9 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
-import kotlin.jvm.JvmField
-import kotlin.native.concurrent.SharedImmutable
-import kotlin.reflect.KClass
+import kotlin.jvm.*
+import kotlin.native.concurrent.*
+import kotlin.reflect.*
 
 /**
  * The main entry point to work with JSON serialization.
@@ -60,7 +60,7 @@ public class Json
 public constructor(
     @JvmField internal val configuration: JsonConfiguration = JsonConfiguration.Stable,
     context: SerialModule = EmptyModule
-): AbstractSerialFormat(context + defaultJsonModule), StringFormat {
+) : AbstractSerialFormat(context + defaultJsonModule), StringFormat {
 
     /**
      * DSL-like constructor for Json.
@@ -79,6 +79,10 @@ public constructor(
 
     @UseExperimental(UnstableDefault::class)
     private constructor(builder: JsonBuilder) : this(builder.buildConfiguration(), builder.buildModule())
+
+    init {
+        validateConfiguration()
+    }
 
     /**
      * Serializes [obj] into an equivalent JSON using provided [serializer].
@@ -176,6 +180,12 @@ public constructor(
         @UnstableDefault
         override fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T =
             plain.parse(deserializer, string)
+    }
+
+    private fun validateConfiguration() {
+        if (configuration.useArrayPolymorphism) return
+        val collector = ContextValidator(configuration.classDiscriminator)
+        context.dumpTo(collector)
     }
 }
 

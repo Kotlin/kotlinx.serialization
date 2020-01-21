@@ -4,14 +4,14 @@
 
 package kotlinx.serialization
 
-import org.junit.*
-
-// Serializable data class
-
-@Serializable
-data class Container(val data: Data)
+import org.junit.Test
+import kotlin.test.*
 
 class SerializationMethodInvocationOrderTest {
+
+    @Serializable
+    @SerialName("kotlinx.serialization.Container")
+    data class Container(val data: Data)
 
     @Test
     fun testRec() {
@@ -25,8 +25,6 @@ class SerializationMethodInvocationOrderTest {
     }
 
     companion object {
-        fun fail(msg: String): Nothing = throw RuntimeException(msg)
-
         fun checkContainerDesc(desc: SerialDescriptor) {
             if (desc.serialName != "kotlinx.serialization.Container") fail("checkContainerDesc name $desc")
             if (desc.getElementName(0) != "data") fail("checkContainerDesc $desc")
