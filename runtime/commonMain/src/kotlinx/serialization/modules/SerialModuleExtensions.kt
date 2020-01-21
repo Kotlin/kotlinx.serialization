@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("RedundantVisibilityModifier")
@@ -51,7 +51,7 @@ public infix fun SerialModule.overwriteWith(other: SerialModule): SerialModule =
     include(this@overwriteWith)
     other.dumpTo(object : SerialModuleCollector {
         override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>) {
-            impl.registerSerializer(kClass, serializer, allowOverwrite = true)
+            registerSerializer(kClass, serializer, allowOverwrite = true)
         }
 
         override fun <Base : Any, Sub : Base> polymorphic(
@@ -59,7 +59,7 @@ public infix fun SerialModule.overwriteWith(other: SerialModule): SerialModule =
             actualClass: KClass<Sub>,
             actualSerializer: KSerializer<Sub>
         ) {
-            impl.registerPolymorphicSerializer(baseClass, actualClass, actualSerializer, allowOverwrite = true)
+            registerPolymorphicSerializer(baseClass, actualClass, actualSerializer, allowOverwrite = true)
         }
     })
 }

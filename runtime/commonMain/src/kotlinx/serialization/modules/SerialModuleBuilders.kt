@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("RedundantVisibilityModifier")
@@ -7,8 +7,7 @@
 package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
-import kotlin.jvm.JvmField
-import kotlin.reflect.KClass
+import kotlin.reflect.*
 
 /**
  * Returns a [SerialModule] which has one class with one serializer for [ContextSerializer].
@@ -38,9 +37,9 @@ public fun serializersModuleOf(map: Map<KClass<*>, KSerializer<*>>): SerialModul
  */
 @Suppress("FunctionName")
 public fun SerializersModule(buildAction: SerializersModuleBuilder.() -> Unit): SerialModule {
-    val builder = SerializersModuleBuilder(SerialModuleImpl())
+    val builder = SerializersModuleBuilder()
     builder.buildAction()
-    return builder.impl
+    return builder.build()
 }
 
 /**
@@ -52,15 +51,16 @@ public inline fun <reified T : Any> SerializersModuleBuilder.contextual() = cont
 /**
  * A builder class for [SerializersModule] DSL.
  */
-public class SerializersModuleBuilder internal constructor(@JvmField internal val impl: SerialModuleImpl) :
-    SerialModuleCollector {
-
+public class SerializersModuleBuilder internal constructor() : SerialModuleCollector {
+    private val class2Serializer: MutableMap<KClass<*>, KSerializer<*>> = hashMapOf()
+    private val polyBase2Serializers: MutableMap<KClass<*>, MutableMap<KClass<*>, KSerializer<*>>> = hashMapOf()
+    private val polyBase2NamedSerializers: MutableMap<KClass<*>, MutableMap<String, KSerializer<*>>> = hashMapOf()
     /**
      * Adds [serializer] associated with given [kClass] for contextual serialization.
      * Throws [SerializationException] if a module already has serializer associated with a [kClass].
      * To overwrite an already registered serializer, [SerialModule.overwriteWith] can be used.
      */
-    public override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>) = impl.registerSerializer(kClass, serializer)
+    public override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>) = registerSerializer(kClass, serializer)
 
     /**
      * Adds [serializer][actualSerializer] associated with given [actualClass] in the scope of [baseClass] for polymorphic serialization.
@@ -72,7 +72,7 @@ public class SerializersModuleBuilder internal constructor(@JvmField internal va
         actualClass: KClass<Sub>,
         actualSerializer: KSerializer<Sub>
     ) {
-        impl.registerPolymorphicSerializer(baseClass, actualClass, actualSerializer)
+        registerPolymorphicSerializer(baseClass, actualClass, actualSerializer)
     }
 
     /**
@@ -101,7 +101,7 @@ public class SerializersModuleBuilder internal constructor(@JvmField internal va
     ) {
         val builder = PolymorphicModuleBuilder(baseClass, baseSerializer)
         builder.buildAction()
-        builder.buildTo(impl)
+        builder.buildTo(this)
     }
 
     public inline fun <reified Base : Any> polymorphic(
@@ -144,11 +144,39 @@ public class SerializersModuleBuilder internal constructor(@JvmField internal va
         vararg baseClasses: KClass<*>,
         buildAction: PolymorphicModuleBuilder<Any>.() -> Unit = {}
     ) {
-        val builder = PolymorphicModuleBuilder(baseClass as KClass<Any>, null)
+        val builder = PolymorphicModuleBuilder(baseClass as KClass<Any>)
         builder.buildAction()
-        builder.buildTo(impl)
+        builder.buildTo(this)
         for (base in baseClasses) {
-            builder.changeBase(base as KClass<Any>, null).buildTo(impl)
+            builder.changeBase(base as KClass<Any>, null).buildTo(this)
         }
     }
+
+    internal fun <T : Any> registerSerializer(
+        forClass: KClass<T>,
+        serializer: KSerializer<T>,
+        allowOverwrite: Boolean = false
+    ) {
+        if (!allowOverwrite && forClass in class2Serializer) throw SerializerAlreadyRegisteredException(forClass)
+        class2Serializer[forClass] = serializer
+    }
+
+    internal fun <Base : Any, Sub : Base> registerPolymorphicSerializer(
+        baseClass: KClass<Base>,
+        concreteClass: KClass<Sub>,
+        concreteSerializer: KSerializer<Sub>,
+        allowOverwrite: Boolean = false
+    ) {
+        val name = concreteSerializer.descriptor.serialName
+        polyBase2Serializers.getOrPut(baseClass, ::hashMapOf).let { baseClassMap ->
+            if (!allowOverwrite && concreteClass in baseClassMap) throw SerializerAlreadyRegisteredException(
+                baseClass,
+                concreteClass
+            )
+            baseClassMap[concreteClass] = concreteSerializer
+        }
+        polyBase2NamedSerializers.getOrPut(baseClass, ::hashMapOf)[name] = concreteSerializer
+    }
+
+    internal fun build(): SerialModule = SerialModuleImpl(class2Serializer, polyBase2Serializers, polyBase2NamedSerializers)
 }
