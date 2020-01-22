@@ -4,6 +4,8 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.protobuf.*
+
 @Serializable
 data class SimpleData(val foo: String, val bar: Int)
 
@@ -11,8 +13,8 @@ data class SimpleData(val foo: String, val bar: Int)
 
 @Serializable
 data class CityData(
-    @Id(1) val id: Int,
-    @Id(2) val name: String
+    @ProtoId(1) val id: Int,
+    @ProtoId(2) val name: String
 )
 
 @Serializable
@@ -31,8 +33,8 @@ data class StreetData2(
 
 @Serializable
 data class CountryData(
-    @Id(10) val name: String,
-    @Id(20) val cities: List<CityData> = emptyList()
+    @ProtoId(10) val name: String,
+    @ProtoId(20) val cities: List<CityData> = emptyList()
 )
 
 val russia = CountryData("Russia", listOf(

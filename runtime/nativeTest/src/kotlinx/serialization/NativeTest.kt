@@ -1,14 +1,12 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
 
 import kotlinx.io.*
 import kotlinx.serialization.internal.*
-import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.protobuf.ProtoBuf
 import kotlin.test.*
 
 class CommonTest {
@@ -28,27 +26,9 @@ class CommonTest {
     }
 
     @Test
-    fun isomorphicCbor() {
-        val zoo = shop
-        val serial = Shop.serializer()
-        val zoo2 = Cbor.load(serial, Cbor.dump(serial, zoo))
-        assertTrue(zoo !== zoo2)
-        assertEquals(zoo, zoo2)
-    }
-
-    @Test
-    fun isomorphicProtobuf() {
-        val country = russia
-        val serial = CountryData.serializer()
-        val country2 = ProtoBuf.load(serial, ProtoBuf.dump(serial, country))
-        assertTrue(country !== country2)
-        assertEquals(country, country2)
-    }
-
-    @Test
     fun nativeSupportSerialIds() {
         val country = CountryData.serializer()
-        val id1 = country.descriptor.findAnnotation<SerialId>(0)?.id ?: 0
+        val id1 = country.descriptor.findAnnotation<Id>(0)?.id ?: 0
         val id2 = getSerialId(country.descriptor, 0)
         assertEquals(10, id1)
         assertEquals(10, id2)
