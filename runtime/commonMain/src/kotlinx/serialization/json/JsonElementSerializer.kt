@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json
@@ -24,12 +24,12 @@ public object JsonElementSerializer : KSerializer<JsonElement> {
     override val descriptor: SerialDescriptor =
         NamedDescriptor("kotlinx.serialization.json.JsonElement", PolymorphicKind.SEALED)
 
-    override fun serialize(encoder: Encoder, obj: JsonElement) {
+    override fun serialize(encoder: Encoder, value: JsonElement) {
         verify(encoder)
-        when (obj) {
-            is JsonPrimitive -> encoder.encodeSerializableValue(JsonPrimitiveSerializer, obj)
-            is JsonObject -> encoder.encodeSerializableValue(JsonObjectSerializer, obj)
-            is JsonArray -> encoder.encodeSerializableValue(JsonArraySerializer, obj)
+        when (value) {
+            is JsonPrimitive -> encoder.encodeSerializableValue(JsonPrimitiveSerializer, value)
+            is JsonObject -> encoder.encodeSerializableValue(JsonObjectSerializer, value)
+            is JsonArray -> encoder.encodeSerializableValue(JsonArraySerializer, value)
         }
     }
 
@@ -48,12 +48,12 @@ public object JsonElementSerializer : KSerializer<JsonElement> {
 public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
     override val descriptor: SerialDescriptor = NamedDescriptor("kotlinx.serialization.json.JsonPrimitive", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, obj: JsonPrimitive) {
+    override fun serialize(encoder: Encoder, value: JsonPrimitive) {
         verify(encoder)
-        return if (obj is JsonNull) {
+        return if (value is JsonNull) {
             encoder.encodeSerializableValue(JsonNullSerializer, JsonNull)
         } else {
-            encoder.encodeSerializableValue(JsonLiteralSerializer, obj as JsonLiteral)
+            encoder.encodeSerializableValue(JsonLiteralSerializer, value as JsonLiteral)
         }
     }
 
@@ -74,7 +74,7 @@ public object JsonNullSerializer : KSerializer<JsonNull> {
     override val descriptor: SerialDescriptor =
         NamedDescriptor("kotlinx.serialization.json.JsonNull", UnionKind.ENUM_KIND)
 
-    override fun serialize(encoder: Encoder, obj: JsonNull) {
+    override fun serialize(encoder: Encoder, value: JsonNull) {
         verify(encoder)
         encoder.encodeNull()
     }
@@ -96,28 +96,28 @@ public object JsonLiteralSerializer : KSerializer<JsonLiteral> {
     override val descriptor: SerialDescriptor =
         NamedDescriptor("kotlinx.serialization.json.JsonLiteral", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, obj: JsonLiteral) {
+    override fun serialize(encoder: Encoder, value: JsonLiteral) {
         verify(encoder)
-        if (obj.isString) {
-            return encoder.encodeString(obj.content)
+        if (value.isString) {
+            return encoder.encodeString(value.content)
         }
 
-        val long = obj.longOrNull
+        val long = value.longOrNull
         if (long != null) {
             return encoder.encodeLong(long)
         }
 
-        val double = obj.doubleOrNull
+        val double = value.doubleOrNull
         if (double != null) {
             return encoder.encodeDouble(double)
         }
 
-        val boolean = obj.booleanOrNull
+        val boolean = value.booleanOrNull
         if (boolean != null) {
             return encoder.encodeBoolean(boolean)
         }
 
-        encoder.encodeString(obj.content)
+        encoder.encodeString(value.content)
     }
 
     override fun deserialize(decoder: Decoder): JsonLiteral {
@@ -139,9 +139,9 @@ public object JsonObjectSerializer : KSerializer<JsonObject> {
             JsonElementSerializer.descriptor
         )
 
-    override fun serialize(encoder: Encoder, obj: JsonObject) {
+    override fun serialize(encoder: Encoder, value: JsonObject) {
         verify(encoder)
-        LinkedHashMapSerializer(StringSerializer, JsonElementSerializer).serialize(encoder, obj.content)
+        LinkedHashMapSerializer(StringSerializer, JsonElementSerializer).serialize(encoder, value.content)
     }
 
     override fun deserialize(decoder: Decoder): JsonObject {
@@ -162,9 +162,9 @@ public object JsonArraySerializer : KSerializer<JsonArray> {
         JsonElementSerializer.descriptor
     )
 
-    override fun serialize(encoder: Encoder, obj: JsonArray) {
+    override fun serialize(encoder: Encoder, value: JsonArray) {
         verify(encoder)
-        ArrayListSerializer(JsonElementSerializer).serialize(encoder, obj)
+        ArrayListSerializer(JsonElementSerializer).serialize(encoder, value)
     }
 
     override fun deserialize(decoder: Decoder): JsonArray {

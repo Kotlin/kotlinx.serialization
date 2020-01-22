@@ -18,10 +18,10 @@ public sealed class KeyValueSerializer<K, V, R>(
     abstract val R.value: V
     abstract fun toResult(key: K, value: V): R
 
-    override fun serialize(encoder: Encoder, obj: R) {
+    override fun serialize(encoder: Encoder, value: R) {
         val structuredEncoder = encoder.beginStructure(descriptor, keySerializer, valueSerializer)
-        structuredEncoder.encodeSerializableElement(descriptor, 0, keySerializer, obj.key)
-        structuredEncoder.encodeSerializableElement(descriptor, 1, valueSerializer, obj.value)
+        structuredEncoder.encodeSerializableElement(descriptor, 0, keySerializer, value.key)
+        structuredEncoder.encodeSerializableElement(descriptor, 1, valueSerializer, value.value)
         structuredEncoder.endStructure(descriptor)
     }
 
@@ -122,11 +122,11 @@ public class TripleSerializer<A, B, C>(
 
     override val descriptor: SerialDescriptor = TripleDesc()
 
-    override fun serialize(encoder: Encoder, obj: Triple<A, B, C>) {
+    override fun serialize(encoder: Encoder, value: Triple<A, B, C>) {
         val structuredEncoder = encoder.beginStructure(descriptor, aSerializer, bSerializer, cSerializer)
-        structuredEncoder.encodeSerializableElement(descriptor, 0, aSerializer, obj.first)
-        structuredEncoder.encodeSerializableElement(descriptor, 1, bSerializer, obj.second)
-        structuredEncoder.encodeSerializableElement(descriptor, 2, cSerializer, obj.third)
+        structuredEncoder.encodeSerializableElement(descriptor, 0, aSerializer, value.first)
+        structuredEncoder.encodeSerializableElement(descriptor, 1, bSerializer, value.second)
+        structuredEncoder.encodeSerializableElement(descriptor, 2, cSerializer, value.third)
         structuredEncoder.endStructure(descriptor)
     }
 

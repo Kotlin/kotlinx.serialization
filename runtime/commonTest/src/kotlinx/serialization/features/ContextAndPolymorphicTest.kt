@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.features
@@ -34,8 +34,8 @@ class ContextAndPolymorphicTest {
     object BinaryPayloadSerializer : KSerializer<Payload> {
         override val descriptor: SerialDescriptor = SerialClassDescImpl("Payload")
 
-        override fun serialize(encoder: Encoder, obj: Payload) {
-            encoder.encodeString(HexConverter.printHexBinary(obj.s.toUtf8Bytes()))
+        override fun serialize(encoder: Encoder, value: Payload) {
+            encoder.encodeString(HexConverter.printHexBinary(value.s.toUtf8Bytes()))
         }
 
         override fun deserialize(decoder: Decoder): Payload {

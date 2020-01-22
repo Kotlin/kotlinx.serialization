@@ -1,11 +1,10 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlin.jvm.*
 import kotlin.reflect.*
@@ -22,7 +21,7 @@ sealed class AbstractCollectionSerializer<Element, Collection, Builder> : KSeria
 
     abstract val typeParams: Array<KSerializer<*>>
 
-    abstract override fun serialize(encoder: Encoder, obj: Collection)
+    abstract override fun serialize(encoder: Encoder, value: Collection)
 
     final override fun patch(decoder: Decoder, old: Collection): Collection {
         val builder = old.toBuilder()
@@ -66,11 +65,11 @@ sealed class ListLikeSerializer<Element, Collection, Builder>(
 
     final override val typeParams: Array<KSerializer<*>> = arrayOf(elementSerializer)
 
-    override fun serialize(encoder: Encoder, obj: Collection) {
-        val size = obj.collectionSize()
+    override fun serialize(encoder: Encoder, value: Collection) {
+        val size = value.collectionSize()
         @Suppress("NAME_SHADOWING")
         val encoder = encoder.beginCollection(descriptor, size, *typeParams)
-        val iterator = obj.collectionIterator()
+        val iterator = value.collectionIterator()
         for (index in 0 until size)
             encoder.encodeSerializableElement(descriptor, index, elementSerializer, iterator.next())
         encoder.endStructure(descriptor)
@@ -120,11 +119,11 @@ sealed class MapLikeSerializer<Key, Value, Collection, Builder : MutableMap<Key,
         builder[key] = value
     }
 
-    override fun serialize(encoder: Encoder, obj: Collection) {
-        val size = obj.collectionSize()
+    override fun serialize(encoder: Encoder, value: Collection) {
+        val size = value.collectionSize()
         @Suppress("NAME_SHADOWING")
         val encoder = encoder.beginCollection(descriptor, size, *typeParams)
-        val iterator = obj.collectionIterator()
+        val iterator = value.collectionIterator()
         var index = 0
         iterator.forEach { (k, v) ->
             encoder.encodeSerializableElement(descriptor, index++, keySerializer, k)
@@ -177,11 +176,11 @@ internal constructor(
 
     protected abstract fun writeContent(encoder: CompositeEncoder, content: Array, size: Int)
 
-    final override fun serialize(encoder: Encoder, obj: Array) {
-        val size = obj.collectionSize()
+    final override fun serialize(encoder: Encoder, value: Array) {
+        val size = value.collectionSize()
         @Suppress("NAME_SHADOWING")
         val encoder = encoder.beginCollection(descriptor, size, *typeParams)
-        writeContent(encoder, obj, size)
+        writeContent(encoder, value, size)
         encoder.endStructure(descriptor)
     }
 

@@ -1,7 +1,10 @@
+/*
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -14,8 +17,8 @@ object MultiplyingIntSerializer : KSerializer<Int> {
         return decoder.decodeInt() / 2
     }
 
-    override fun serialize(encoder: Encoder, obj: Int) {
-        encoder.encodeInt(obj * 2)
+    override fun serialize(encoder: Encoder, value: Int) {
+        encoder.encodeInt(value * 2)
     }
 }
 
@@ -27,8 +30,8 @@ object DividingIntSerializer : KSerializer<Int> {
         return decoder.decodeInt() * 2
     }
 
-    override fun serialize(encoder: Encoder, obj: Int) {
-        encoder.encodeInt(obj / 2)
+    override fun serialize(encoder: Encoder, value: Int) {
+        encoder.encodeInt(value / 2)
     }
 }
 
@@ -41,8 +44,8 @@ object MultiplyingIntHolderSerializer {
         return IntHolder(decoder.decodeInt() / 2)
     }
 
-    override fun serialize(encoder: Encoder, obj: IntHolder) {
-        encoder.encodeInt(obj.data * 2)
+    override fun serialize(encoder: Encoder, value: IntHolder) {
+        encoder.encodeInt(value.data * 2)
     }
 }
 
@@ -52,8 +55,8 @@ object DividingIntHolderSerializer {
         return IntHolder(decoder.decodeInt() * 2)
     }
 
-    override fun serialize(encoder: Encoder, obj: IntHolder) {
-        encoder.encodeInt(obj.data / 2)
+    override fun serialize(encoder: Encoder, value: IntHolder) {
+        encoder.encodeInt(value.data / 2)
     }
 }
 

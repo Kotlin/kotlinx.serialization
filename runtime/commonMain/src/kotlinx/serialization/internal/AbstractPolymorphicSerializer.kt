@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.internal
@@ -25,13 +25,13 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
      */
     public abstract val baseClass: KClass<T>
 
-    public final override fun serialize(encoder: Encoder, obj: T) {
-        val actualSerializer = findPolymorphicSerializer(encoder, obj)
+    public final override fun serialize(encoder: Encoder, value: T) {
+        val actualSerializer = findPolymorphicSerializer(encoder, value)
         val compositeEncoder = encoder.beginStructure(descriptor)
         compositeEncoder.encodeStringElement(descriptor, 0, actualSerializer.descriptor.serialName)
 
         @Suppress("UNCHECKED_CAST")
-        compositeEncoder.encodeSerializableElement(descriptor, 1, actualSerializer as KSerializer<Any?>, obj)
+        compositeEncoder.encodeSerializableElement(descriptor, 1, actualSerializer as KSerializer<Any?>, value)
         compositeEncoder.endStructure(descriptor)
     }
 
