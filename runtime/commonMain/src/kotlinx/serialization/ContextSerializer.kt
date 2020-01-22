@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("RedundantVisibilityModifier")
@@ -27,9 +27,9 @@ import kotlin.reflect.*
 public class ContextSerializer<T : Any>(private val serializableClass: KClass<T>) : KSerializer<T> {
     public override val descriptor: SerialDescriptor = object : SerialClassDescImpl("CONTEXT") {} // todo: remove this crutch
 
-    public override fun serialize(encoder: Encoder, obj: T) {
-        val s = encoder.context.getContextualOrDefault(obj)
-        encoder.encodeSerializableValue(s, obj)
+    public override fun serialize(encoder: Encoder, value: T) {
+        val s = encoder.context.getContextualOrDefault(value)
+        encoder.encodeSerializableValue(s, value)
     }
 
     public override fun deserialize(decoder: Decoder): T {

@@ -39,8 +39,8 @@ class EnumSerializationTest : JsonTestBase() {
             addElement("2")
         }
 
-        override fun serialize(encoder: Encoder, obj: WithCustom) {
-            encoder.encodeInt(obj.ordinal + 1)
+        override fun serialize(encoder: Encoder, value: WithCustom) {
+            encoder.encodeInt(value.ordinal + 1)
         }
 
         override fun deserialize(decoder: Decoder): WithCustom {

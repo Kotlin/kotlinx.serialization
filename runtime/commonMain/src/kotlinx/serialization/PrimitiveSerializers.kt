@@ -11,7 +11,7 @@ import kotlinx.serialization.internal.*
  */
 public object UnitSerializer : KSerializer<Unit> {
     override val descriptor: SerialDescriptor = BuiltinDescriptor("kotlin.Unit", PrimitiveKind.UNIT)
-    override fun serialize(encoder: Encoder, obj: Unit) = encoder.encodeUnit()
+    override fun serialize(encoder: Encoder, value: Unit) = encoder.encodeUnit()
     override fun deserialize(decoder: Decoder): Unit = decoder.decodeUnit()
 }
 
@@ -20,7 +20,7 @@ public object UnitSerializer : KSerializer<Unit> {
  */
 public object BooleanSerializer : KSerializer<Boolean> {
     override val descriptor: SerialDescriptor = BuiltinDescriptor("kotlin.Boolean", PrimitiveKind.BOOLEAN)
-    override fun serialize(encoder: Encoder, obj: Boolean) = encoder.encodeBoolean(obj)
+    override fun serialize(encoder: Encoder, value: Boolean) = encoder.encodeBoolean(value)
     override fun deserialize(decoder: Decoder): Boolean = decoder.decodeBoolean()
 }
 
@@ -29,7 +29,7 @@ public object BooleanSerializer : KSerializer<Boolean> {
  */
 public object ByteSerializer : KSerializer<Byte> {
     override val descriptor: SerialDescriptor = BuiltinDescriptor("kotlin.Byte", PrimitiveKind.BYTE)
-    override fun serialize(encoder: Encoder, obj: Byte) = encoder.encodeByte(obj)
+    override fun serialize(encoder: Encoder, value: Byte) = encoder.encodeByte(value)
     override fun deserialize(decoder: Decoder): Byte = decoder.decodeByte()
 }
 
@@ -38,7 +38,7 @@ public object ByteSerializer : KSerializer<Byte> {
  */
 public object ShortSerializer : KSerializer<Short> {
     override val descriptor: SerialDescriptor = BuiltinDescriptor("kotlin.Short", PrimitiveKind.SHORT)
-    override fun serialize(encoder: Encoder, obj: Short) = encoder.encodeShort(obj)
+    override fun serialize(encoder: Encoder, value: Short) = encoder.encodeShort(value)
     override fun deserialize(decoder: Decoder): Short = decoder.decodeShort()
 }
 
@@ -47,7 +47,7 @@ public object ShortSerializer : KSerializer<Short> {
  */
 public object IntSerializer : KSerializer<Int> {
     override val descriptor: SerialDescriptor = BuiltinDescriptor("kotlin.Int", PrimitiveKind.INT)
-    override fun serialize(encoder: Encoder, obj: Int) = encoder.encodeInt(obj)
+    override fun serialize(encoder: Encoder, value: Int) = encoder.encodeInt(value)
     override fun deserialize(decoder: Decoder): Int = decoder.decodeInt()
 }
 
@@ -56,7 +56,7 @@ public object IntSerializer : KSerializer<Int> {
  */
 public object LongSerializer : KSerializer<Long> {
     override val descriptor: SerialDescriptor = BuiltinDescriptor("kotlin.Long", PrimitiveKind.LONG)
-    override fun serialize(encoder: Encoder, obj: Long) = encoder.encodeLong(obj)
+    override fun serialize(encoder: Encoder, value: Long) = encoder.encodeLong(value)
     override fun deserialize(decoder: Decoder): Long = decoder.decodeLong()
 }
 
@@ -65,7 +65,7 @@ public object LongSerializer : KSerializer<Long> {
  */
 public object FloatSerializer : KSerializer<Float> {
     override val descriptor: SerialDescriptor = BuiltinDescriptor("kotlin.Float", PrimitiveKind.FLOAT)
-    override fun serialize(encoder: Encoder, obj: Float) = encoder.encodeFloat(obj)
+    override fun serialize(encoder: Encoder, value: Float) = encoder.encodeFloat(value)
     override fun deserialize(decoder: Decoder): Float = decoder.decodeFloat()
 }
 
@@ -74,7 +74,7 @@ public object FloatSerializer : KSerializer<Float> {
  */
 public object DoubleSerializer : KSerializer<Double> {
     override val descriptor: SerialDescriptor = BuiltinDescriptor("kotlin.Double", PrimitiveKind.DOUBLE)
-    override fun serialize(encoder: Encoder, obj: Double) = encoder.encodeDouble(obj)
+    override fun serialize(encoder: Encoder, value: Double) = encoder.encodeDouble(value)
     override fun deserialize(decoder: Decoder): Double = decoder.decodeDouble()
 }
 
@@ -83,7 +83,7 @@ public object DoubleSerializer : KSerializer<Double> {
  */
 public object CharSerializer : KSerializer<Char> {
     override val descriptor: SerialDescriptor = BuiltinDescriptor("kotlin.Char", PrimitiveKind.CHAR)
-    override fun serialize(encoder: Encoder, obj: Char) = encoder.encodeChar(obj)
+    override fun serialize(encoder: Encoder, value: Char) = encoder.encodeChar(value)
     override fun deserialize(decoder: Decoder): Char = decoder.decodeChar()
 }
 
@@ -92,7 +92,7 @@ public object CharSerializer : KSerializer<Char> {
  */
 public object StringSerializer : KSerializer<String> {
     override val descriptor: SerialDescriptor = BuiltinDescriptor("kotlin.String", PrimitiveKind.STRING)
-    override fun serialize(encoder: Encoder, obj: String) = encoder.encodeString(obj)
+    override fun serialize(encoder: Encoder, value: String) = encoder.encodeString(value)
     override fun deserialize(decoder: Decoder): String = decoder.decodeString()
 }
 
@@ -141,7 +141,7 @@ class PrimitiveDescriptorWithName
 )
 constructor(override val name: String, val original: SerialDescriptor) : SerialDescriptor by original
 
-@Suppress("unused") // compiler still complains about unused parameter
+@Suppress("UNUSED") // compiler still complains about unused parameter
 @Deprecated(
     message = "Deprecated in the favour of PrimitiveDescriptor factory function",
     level = DeprecationLevel.ERROR,

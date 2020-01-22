@@ -73,10 +73,10 @@ object CustomSerializer : KSerializer<Custom> {
         override fun isElementOptional(index: Int): Boolean = false
     }
 
-    override fun serialize(encoder: Encoder, obj : Custom) {
+    override fun serialize(encoder: Encoder, value: Custom) {
         val encoder = encoder.beginStructure(descriptor)
-        encoder.encodeStringElement(descriptor, 0, obj._value1)
-        encoder.encodeIntElement(descriptor, 1, obj._value2)
+        encoder.encodeStringElement(descriptor, 0, value._value1)
+        encoder.encodeIntElement(descriptor, 1, value._value2)
         encoder.endStructure(descriptor)
     }
 

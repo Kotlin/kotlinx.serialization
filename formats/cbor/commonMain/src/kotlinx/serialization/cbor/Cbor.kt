@@ -150,7 +150,7 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
 
         override fun skipBeginToken() = setSize(decoder.startArray())
 
-        override fun decodeElementIndex(desc: SerialDescriptor) = if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size)) READ_DONE else ind++
+        override fun decodeElementIndex(descriptor: SerialDescriptor) = if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size)) READ_DONE else ind++
     }
 
     private open inner class CborReader(val decoder: CborDecoder) : ElementValueDecoder() {

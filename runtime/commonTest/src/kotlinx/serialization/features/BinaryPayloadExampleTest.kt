@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
@@ -19,10 +23,10 @@ class BinaryPayloadExampleTest {
                 }
             }
 
-            override fun serialize(encoder: Encoder, obj: BinaryPayload) {
+            override fun serialize(encoder: Encoder, value: BinaryPayload) {
                 val compositeOutput = encoder.beginStructure(descriptor)
-                compositeOutput.encodeStringElement(descriptor, 0, HexConverter.printHexBinary(obj.req))
-                compositeOutput.encodeStringElement(descriptor, 1, HexConverter.printHexBinary(obj.res))
+                compositeOutput.encodeStringElement(descriptor, 0, HexConverter.printHexBinary(value.req))
+                compositeOutput.encodeStringElement(descriptor, 1, HexConverter.printHexBinary(value.res))
                 compositeOutput.endStructure(descriptor)
             }
 

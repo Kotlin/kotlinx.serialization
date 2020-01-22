@@ -56,10 +56,10 @@ public class EnumSerializer<T : Enum<T>>(
         values.forEach { addElement(it.name) }
     }
 
-    override fun serialize(encoder: Encoder, obj: T) {
-        val index = values.indexOf(obj)
+    override fun serialize(encoder: Encoder, value: T) {
+        val index = values.indexOf(value)
         check(index != -1) {
-            "$obj is not a valid enum ${descriptor.serialName}, must be one of ${values.contentToString()}"
+            "$value is not a valid enum ${descriptor.serialName}, must be one of ${values.contentToString()}"
         }
         encoder.encodeEnum(descriptor, index)
     }

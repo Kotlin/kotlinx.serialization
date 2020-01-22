@@ -1,17 +1,5 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json
@@ -153,12 +141,12 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
             return DummyEither.Right(decoder.json.fromJson(Payload.serializer(), tree))
         }
 
-        override fun serialize(encoder: Encoder, obj: DummyEither) {
+        override fun serialize(encoder: Encoder, value: DummyEither) {
             val jsonWriter = encoder as? JsonOutput
                     ?: throw SerializationException("This class can be saved only by JSON")
-            val tree = when (obj) {
-                is DummyEither.Left -> JsonObject(mapOf("error" to JsonLiteral(obj.errorMsg)))
-                is DummyEither.Right -> encoder.json.toJson(Payload.serializer(), obj.data)
+            val tree = when (value) {
+                is DummyEither.Left -> JsonObject(mapOf("error" to JsonLiteral(value.errorMsg)))
+                is DummyEither.Right -> encoder.json.toJson(Payload.serializer(), value.data)
             }
             jsonWriter.encodeJson(tree)
         }
@@ -188,11 +176,11 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
         override val descriptor: SerialDescriptor
             get() = SerialClassDescImpl("DummyRecursive")
 
-        override fun serialize(encoder: Encoder, obj: DummyRecursive) {
+        override fun serialize(encoder: Encoder, value: DummyRecursive) {
             if (encoder !is JsonOutput) throw SerializationException("This class can be saved only by JSON")
-            val (tree, typeName) = when (obj) {
-                is DummyRecursive.A -> encoder.json.toJson(DummyRecursive.A.serializer(), obj) to typeNameA
-                is DummyRecursive.B -> encoder.json.toJson(DummyRecursive.B.serializer(), obj) to typeNameB
+            val (tree, typeName) = when (value) {
+                is DummyRecursive.A -> encoder.json.toJson(DummyRecursive.A.serializer(), value) to typeNameA
+                is DummyRecursive.B -> encoder.json.toJson(DummyRecursive.B.serializer(), value) to typeNameB
             }
             val contents: MutableMap<String, JsonElement> = mutableMapOf(typeAttribute to JsonPrimitive(typeName))
             contents.putAll(tree.jsonObject.content)

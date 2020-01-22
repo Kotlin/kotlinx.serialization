@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.internal
@@ -75,42 +75,42 @@ internal fun <T : Any> KClass<T>.builtinSerializerOrNull(): KSerializer<T>? =
 @Deprecated(level = DeprecationLevel.HIDDEN, message = "Binary compatibility")
 object UnitSerializer : KSerializer<Unit> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Unit", PrimitiveKind.UNIT)
-    override fun serialize(encoder: Encoder, obj: Unit) = encoder.encodeUnit()
+    override fun serialize(encoder: Encoder, value: Unit) = encoder.encodeUnit()
     override fun deserialize(decoder: Decoder): Unit = decoder.decodeUnit()
 }
 
 @Deprecated(level = DeprecationLevel.HIDDEN, message = "Binary compatibility")
 object BooleanSerializer : KSerializer<Boolean> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Boolean", PrimitiveKind.BOOLEAN)
-    override fun serialize(encoder: Encoder, obj: Boolean) = encoder.encodeBoolean(obj)
+    override fun serialize(encoder: Encoder, value: Boolean) = encoder.encodeBoolean(value)
     override fun deserialize(decoder: Decoder): Boolean = decoder.decodeBoolean()
 }
 
 @Deprecated(level = DeprecationLevel.HIDDEN, message = "Binary compatibility")
 object ByteSerializer : KSerializer<Byte> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Byte", PrimitiveKind.BYTE)
-    override fun serialize(encoder: Encoder, obj: Byte) = encoder.encodeByte(obj)
+    override fun serialize(encoder: Encoder, value: Byte) = encoder.encodeByte(value)
     override fun deserialize(decoder: Decoder): Byte = decoder.decodeByte()
 }
 
 @Deprecated(level = DeprecationLevel.HIDDEN, message = "Binary compatibility")
 object ShortSerializer : KSerializer<Short> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Short", PrimitiveKind.SHORT)
-    override fun serialize(encoder: Encoder, obj: Short) = encoder.encodeShort(obj)
+    override fun serialize(encoder: Encoder, value: Short) = encoder.encodeShort(value)
     override fun deserialize(decoder: Decoder): Short = decoder.decodeShort()
 }
 
 @Deprecated(level = DeprecationLevel.HIDDEN, message = "Binary compatibility")
 object IntSerializer : KSerializer<Int> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Int", PrimitiveKind.INT)
-    override fun serialize(encoder: Encoder, obj: Int) = encoder.encodeInt(obj)
+    override fun serialize(encoder: Encoder, value: Int) = encoder.encodeInt(value)
     override fun deserialize(decoder: Decoder): Int = decoder.decodeInt()
 }
 
 @Deprecated(level = DeprecationLevel.HIDDEN, message = "Binary compatibility")
 object LongSerializer : KSerializer<Long> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Long", PrimitiveKind.LONG)
-    override fun serialize(encoder: Encoder, obj: Long) = encoder.encodeLong(obj)
+    override fun serialize(encoder: Encoder, value: Long) = encoder.encodeLong(value)
     override fun deserialize(decoder: Decoder): Long = decoder.decodeLong()
 }
 
@@ -118,28 +118,28 @@ object LongSerializer : KSerializer<Long> {
 object FloatSerializer : KSerializer<Float> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Float", PrimitiveKind.FLOAT)
 
-    override fun serialize(encoder: Encoder, obj: Float) = encoder.encodeFloat(obj)
+    override fun serialize(encoder: Encoder, value: Float) = encoder.encodeFloat(value)
     override fun deserialize(decoder: Decoder): Float = decoder.decodeFloat()
 }
 
 @Deprecated(level = DeprecationLevel.HIDDEN, message = "Binary compatibility")
 object DoubleSerializer : KSerializer<Double> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Double", PrimitiveKind.DOUBLE)
-    override fun serialize(encoder: Encoder, obj: Double) = encoder.encodeDouble(obj)
+    override fun serialize(encoder: Encoder, value: Double) = encoder.encodeDouble(value)
     override fun deserialize(decoder: Decoder): Double = decoder.decodeDouble()
 }
 
 @Deprecated(level = DeprecationLevel.HIDDEN, message = "Binary compatibility")
 object CharSerializer : KSerializer<Char> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Char", PrimitiveKind.CHAR)
-    override fun serialize(encoder: Encoder, obj: Char) = encoder.encodeChar(obj)
+    override fun serialize(encoder: Encoder, value: Char) = encoder.encodeChar(value)
     override fun deserialize(decoder: Decoder): Char = decoder.decodeChar()
 }
 
 @Deprecated(level = DeprecationLevel.HIDDEN, message = "Binary compatibility")
 object StringSerializer : KSerializer<String> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.String", PrimitiveKind.STRING)
-    override fun serialize(encoder: Encoder, obj: String) = encoder.encodeString(obj)
+    override fun serialize(encoder: Encoder, value: String) = encoder.encodeString(value)
     override fun deserialize(decoder: Decoder): String = decoder.decodeString()
 }
 

@@ -1,7 +1,10 @@
+/*
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import java.text.DateFormat
@@ -18,8 +21,8 @@ object DateSerializer : KSerializer<Date> {
         timeZone = TimeZone.getTimeZone("GMT+2")
     }
 
-    override fun serialize(encoder: Encoder, obj: Date) {
-        encoder.encodeString(df.format(obj))
+    override fun serialize(encoder: Encoder, value: Date) {
+        encoder.encodeString(df.format(value))
     }
 
     override fun deserialize(decoder: Decoder): Date {

@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
@@ -101,11 +105,11 @@ class ItemPlatformSerializer : KSerializer<ItemPlatform> {
         return ItemPlatform.values()[index]
     }
 
-    override fun serialize(encoder: Encoder, obj: ItemPlatform) {
+    override fun serialize(encoder: Encoder, value: ItemPlatform) {
         if (encoder is JsonOutput) {
-            encoder.encodeString(obj.name.toLowerCase())
+            encoder.encodeString(value.name.toLowerCase())
         } else {
-            encoder.encodeInt(obj.ordinal)
+            encoder.encodeInt(value.ordinal)
         }
     }
 }
@@ -123,11 +127,11 @@ class ItemContextSerializer : KSerializer<ItemContext> {
         return ItemContext.values()[index]
     }
 
-    override fun serialize(encoder: Encoder, obj: ItemContext) {
+    override fun serialize(encoder: Encoder, value: ItemContext) {
         if (encoder is JsonOutput) {
-            encoder.encodeString(obj.name.toLowerCase())
+            encoder.encodeString(value.name.toLowerCase())
         } else {
-            encoder.encodeInt(obj.ordinal)
+            encoder.encodeInt(value.ordinal)
         }
     }
 }
