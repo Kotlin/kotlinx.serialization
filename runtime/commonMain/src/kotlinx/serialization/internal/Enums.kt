@@ -7,7 +7,7 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 
 @InternalSerializationApi
-public class EnumDescriptor constructor(
+public class EnumDescriptor(
     name: String,
     elementsCount: Int = 1
 ) : SerialClassDescImpl(name, elementsCount = elementsCount) {

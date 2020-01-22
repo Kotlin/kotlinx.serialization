@@ -22,11 +22,12 @@ public open class SerialClassDescImpl(
     override val kind: SerialKind get() = StructureKind.CLASS
     // todo: use actual elementsCount ctor param when there will be no user-defined inheritors
     override val elementsCount: Int get() = propertiesAnnotations.size
-    override val annotations: List<Annotation> get() = classAnnotations
+    override val annotations: List<Annotation> get() = classAnnotations ?: emptyList()
 
     private val names: MutableList<String> = ArrayList(elementsCount)
     private val propertiesAnnotations: MutableList<MutableList<Annotation>?> = ArrayList(elementsCount)
-    private val classAnnotations: MutableList<Annotation> = mutableListOf()
+    // Classes rarely have annotations, so we can save up a bit of allocations here
+    private var classAnnotations: MutableList<Annotation>? = null
     // this array is only used when serializer is written by hand
     private var descriptors: MutableList<SerialDescriptor>? = null
     private var flags = BooleanArray(elementsCount)
@@ -58,7 +59,9 @@ public open class SerialClassDescImpl(
 
     // TODO rename
     public fun pushClassAnnotation(a: Annotation) {
-        classAnnotations.add(a)
+        if (classAnnotations == null)
+            classAnnotations = mutableListOf()
+        classAnnotations!!.add(a)
     }
 
     public fun pushDescriptor(desc: SerialDescriptor) {
