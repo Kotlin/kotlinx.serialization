@@ -5,7 +5,7 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.AbstractPolymorphicSerializer
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 
 @Suppress("UNCHECKED_CAST")
@@ -16,10 +16,20 @@ internal inline fun <T> JsonOutput.encodePolymorphically(serializer: Serializati
     }
     serializer as AbstractPolymorphicSerializer<Any> // PolymorphicSerializer <*> projects 2nd argument of findPolymorphic... to Nothing, so we need an additional cast
     val actualSerializer = serializer.findPolymorphicSerializer(this, value as Any) as KSerializer<Any>
+    validateIfSealed(serializer, actualSerializer, json.configuration.classDiscriminator)
     val kind = actualSerializer.descriptor.kind
     checkKind(kind)
     ifPolymorphic()
     actualSerializer.serialize(this, value)
+}
+
+private fun validateIfSealed(
+    serializer: KSerializer<*>,
+    actualSerializer: KSerializer<Any>,
+    classDiscriminator: String
+) {
+    if (serializer !is SealedClassSerializer<*>) return
+    serializer.validate(actualSerializer, classDiscriminator)
 }
 
 internal fun checkKind(kind: SerialKind) {
