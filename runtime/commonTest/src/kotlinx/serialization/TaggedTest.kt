@@ -56,17 +56,5 @@ class TaggedTest {
             .decode(DataWithId.serializer())
         assertEquals(obj, data, "read tags back")
     }
-
-    @Test
-    fun testMapper() {
-        val data = DataWithId(1, "2")
-        Mapper.map(DataWithId.serializer(), data) shouldBe mapOf(
-            "first" to 1,
-            "second" to "2",
-            "noId" to Unit,
-            "last" to true
-        )
-    }
-
 }
 

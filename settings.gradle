@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 rootProject.name = 'kotlinx-serialization'
@@ -16,6 +16,9 @@ project(':kotlinx-serialization-cbor').projectDir = file('./formats/cbor')
 
 include ':kotlinx-serialization-runtime-configparser'
 project(':kotlinx-serialization-runtime-configparser').projectDir = file('./formats/config')
+
+include ':kotlinx-serialization-properties'
+project(':kotlinx-serialization-properties').projectDir = file('./formats/properties')
 
 include ':benchmark'
 project(':benchmark').projectDir = file('./benchmark')

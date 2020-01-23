@@ -28,6 +28,14 @@ class MapperTest {
     @Serializable
     data class DataWithMap(val map: Map<String, Int>)
 
+    @Serializable
+    data class DataWithId(
+        val first: Int,
+        val second: String,
+        val noId: Unit = Unit,
+        val last: Boolean = true
+    )
+
     @Test
     fun testListTagStack() {
         val data = Data(listOf("element1"), "property")
@@ -132,5 +140,14 @@ class MapperTest {
         doTest(map0)
         doTest(map1)
         doTest(map2)
+    }
+
+    @Test
+    fun testMapper() {
+        val data = DataWithId(1, "2")
+        assertEquals(
+            mapOf("first" to 1, "second" to "2", "noId" to Unit, "last" to true),
+            Mapper.map(DataWithId.serializer(), data)
+        )
     }
 }
