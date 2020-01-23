@@ -17,7 +17,10 @@ class Mapper(context: SerialModule = EmptyModule) : AbstractSerialFormat(context
             collectionSize: Int,
             vararg typeParams: KSerializer<*>
         ): CompositeEncoder {
-            encodeTaggedInt(nested("size"), collectionSize)
+            // todo: decide whether this is responsibility of the format
+            //       OR beginCollection should pass collectionSize = 2 * size in case of maps
+            val size = if (desc.kind is StructureKind.MAP) collectionSize * 2 else collectionSize
+            encodeTaggedInt(nested("size"), size)
             return this
         }
 
@@ -45,7 +48,8 @@ class Mapper(context: SerialModule = EmptyModule) : AbstractSerialFormat(context
             collectionSize: Int,
             vararg typeParams: KSerializer<*>
         ): CompositeEncoder {
-            encodeTaggedInt(nested("size"), collectionSize)
+            val size = if (desc.kind is StructureKind.MAP) collectionSize * 2 else collectionSize
+            encodeTaggedInt(nested("size"), size)
             return this
         }
 
