@@ -30,6 +30,15 @@ You can learn about "Human-Optimized Config Object Notation" or HOCON from libra
 * Platform: all supported platforms
 * Status: experimental
 
+## Properties
+
+* Artifact id: `kotlinx-serialization-properties`
+* Since version: 0.14.1
+* Platform: all supported platforms
+* Status: experimental
+
+Allows converting arbitrary hierarchy of Kotlin classes to a flat key-value structure à la Java Properties.
+
 ## Other community-supported formats
 
 ### Avro
