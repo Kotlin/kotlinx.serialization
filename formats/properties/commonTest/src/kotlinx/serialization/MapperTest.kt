@@ -119,7 +119,6 @@ class MapperTest {
     }
 
     @Test
-    @Ignore // todo: fix map1 and map2 tests
     fun worksWithNestedMap() {
         val map0 = DataWithMap(mapOf())
         val map1 = DataWithMap(mapOf("one" to 1))
