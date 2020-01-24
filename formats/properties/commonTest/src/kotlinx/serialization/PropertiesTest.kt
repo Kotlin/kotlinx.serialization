@@ -8,7 +8,7 @@ package kotlinx.serialization
 import kotlin.test.*
 
 @UseExperimental(ImplicitReflectionSerializer::class)
-class MapperTest {
+class PropertiesTest {
 
     @Serializable
     data class Data(val list: List<String>, val property: String)
@@ -39,9 +39,9 @@ class MapperTest {
     @Test
     fun testListTagStack() {
         val data = Data(listOf("element1"), "property")
-        val map = Mapper.map(data)
+        val map = Properties.store(data)
         val unmap =
-            Mapper.unmap<Data>(
+            Properties.load<Data>(
                 map
             )
         assertEquals(data.list, unmap.list)
@@ -57,9 +57,9 @@ class MapperTest {
             ), "string"
         )
 
-        val map = Mapper.map(recursive)
+        val map = Properties.store(recursive)
         val unmap =
-            Mapper.unmap<Recursive>(
+            Properties.load<Recursive>(
                 map
             )
 
@@ -72,9 +72,9 @@ class MapperTest {
     fun testNullableTagStack() {
         val data = NullableData(null, null, "property")
 
-        val map = Mapper.mapNullable(data)
+        val map = Properties.storeNullable(data)
         val unmap =
-            Mapper.unmapNullable<NullableData>(
+            Properties.loadNullable<NullableData>(
                 map
             )
 
@@ -86,9 +86,9 @@ class MapperTest {
     @Test
     fun testNestedNull() {
         val category = Category(name = "Name")
-        val map = Mapper.mapNullable(category)
+        val map = Properties.storeNullable(category)
         val recreatedCategory =
-            Mapper.unmapNullable<Category>(
+            Properties.loadNullable<Category>(
                 map
             )
         assertEquals(category, recreatedCategory)
@@ -100,9 +100,9 @@ class MapperTest {
             name = "Name",
             subCategory = SubCategory()
         )
-        val map = Mapper.mapNullable(category)
+        val map = Properties.storeNullable(category)
         val recreatedCategory =
-            Mapper.unmapNullable<Category>(
+            Properties.loadNullable<Category>(
                 map
             )
         assertEquals(category, recreatedCategory)
@@ -112,7 +112,7 @@ class MapperTest {
     fun failsOnIncorrectMaps() {
         val map: Map<String, Any?> = mapOf("name" to "Name")
         assertFailsWith<NoSuchElementException> {
-            Mapper.unmapNullable<Category>(
+            Properties.loadNullable<Category>(
                 map
             )
         }
@@ -125,11 +125,11 @@ class MapperTest {
         val map2 = DataWithMap(mapOf("one" to 1, "two" to 2))
 
         fun doTest(testData: DataWithMap) {
-            val map = Mapper.map(
+            val map = Properties.store(
                 DataWithMap.serializer(),
                 testData
             )
-            val d2 = Mapper.unmap(
+            val d2 = Properties.load(
                 DataWithMap.serializer(),
                 map
             )
@@ -146,7 +146,7 @@ class MapperTest {
         val data = DataWithId(1, "2")
         assertEquals(
             mapOf("first" to 1, "second" to "2", "noId" to Unit, "last" to true),
-            Mapper.map(DataWithId.serializer(), data)
+            Properties.store(DataWithId.serializer(), data)
         )
     }
 }
