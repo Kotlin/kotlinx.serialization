@@ -51,7 +51,7 @@ public class PolymorphicModuleBuilder<Base : Any> internal constructor(
      * @see addSubclass
      */
     @ImplicitReflectionSerializer
-    public inline fun <reified T : Base> addSubclass(): Unit = addSubclass(T::class, T::class.serializer())
+    public inline fun <reified T : Base> addSubclass(): Unit = addSubclass(T::class, serializer())
 
     /**
      * @see addSubclass

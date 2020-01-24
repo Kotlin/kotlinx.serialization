@@ -7,6 +7,7 @@ package kotlinx.serialization.modules
 import kotlinx.serialization.*
 import kotlinx.serialization.PolyBase
 import kotlinx.serialization.PolyDerived
+import kotlinx.serialization.test.*
 import kotlin.reflect.KClass
 import kotlin.test.*
 
@@ -37,6 +38,13 @@ class ModuleBuildersTest {
             aSerializer = true,
             bSerializer = false
         )
+    }
+
+    @Test
+    fun testModuleFromKType() {
+        if (isJs()) return // typeOf is not supported on JS
+        val module = serializersModule<A>()
+        assertEquals(A.serializer(), module.getContextual<A>())
     }
 
     @Test
@@ -92,6 +100,13 @@ class ModuleBuildersTest {
             contextual(BSerializer)
         }
         module.assertModuleHas(aSerializer = true, bSerializer = true)
+    }
+
+    @Test
+    fun testDSLFromKType() {
+        if (isJs()) return // typeOf is not supported on JS
+        val module = SerializersModule { contextual<A>() }
+        assertEquals(A.serializer(), module.getContextual<A>())
     }
 
     @Test

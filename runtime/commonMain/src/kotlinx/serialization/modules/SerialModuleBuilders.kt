@@ -24,6 +24,13 @@ public inline fun <reified T : Any> serializersModule(serializer: KSerializer<T>
     serializersModuleOf(T::class, serializer)
 
 /**
+ * Shortcut for [serializersModuleOf] function with type parameter.
+ */
+@ImplicitReflectionSerializer
+public inline fun <reified T : Any> serializersModule(): SerialModule =
+    serializersModuleOf(T::class, serializer())
+
+/**
  * Returns a [SerialModule] which has multiple classes with its serializers for [ContextSerializer].
  */
 @Suppress("UNCHECKED_CAST")
@@ -34,9 +41,7 @@ public fun serializersModuleOf(map: Map<KClass<*>, KSerializer<*>>): SerialModul
 
 /**
  * A builder function for creating a [SerialModule].
- *
  * Serializers can be add via [SerializersModuleBuilder.contextual] or [SerializersModuleBuilder.polymorphic].
- *
  * Since [SerializersModuleBuilder] also implements [SerialModuleCollector], it is possible to copy whole another module to this builder with [SerialModule.dumpTo]
  */
 @Suppress("FunctionName")
@@ -45,6 +50,12 @@ public fun SerializersModule(buildAction: SerializersModuleBuilder.() -> Unit): 
     builder.buildAction()
     return builder.impl
 }
+
+/**
+ * Reified version of `SerializersModuleBuilder.contextual(KClass, Serializer)`
+ */
+@ImplicitReflectionSerializer
+public inline fun <reified T : Any> SerializersModuleBuilder.contextual() = contextual(T::class, serializer())
 
 /**
  * A builder class for [SerializersModule] DSL.
@@ -125,7 +136,7 @@ public class SerializersModuleBuilder internal constructor(@JvmField internal va
      * ```
      * polymorphic(Any::class, PolyBase::class) {
      *   PolyBase::class with PolyBase.serializer()
-     *   PolyDerived::class with PolyDerived.serializer()
+     *   addSubclass<PolyDerived>() // Shorthand with default serializer
      * }
      * ```
      *

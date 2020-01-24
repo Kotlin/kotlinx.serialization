@@ -82,10 +82,7 @@ kotlin {
         srcSet.languageSettings {
             it.useExperimentalAnnotation("kotlinx.serialization.UnstableDefault")
             it.useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
-
-            if (srcSet.name.contains("jvm") || srcSet.name.contains("js")) {
-                it.useExperimentalAnnotation("kotlinx.serialization.ImplicitReflectionSerializer")
-            }
+            it.useExperimentalAnnotation("kotlinx.serialization.ImplicitReflectionSerializer")
         }
     }
 }
