@@ -78,8 +78,6 @@ inline fun <reified T : IMessage> readCompare(it: T, alwaysPrint: Boolean = fals
 }
 
 object HexConverter {
-
-
     private const val hexCode = "0123456789ABCDEF"
 
     fun printHexBinary(data: ByteArray, lowerCase: Boolean = false): String {

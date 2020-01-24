@@ -4,7 +4,7 @@
 
 package kotlinx.serialization.internal
 
-import kotlinx.io.InputStream
+import kotlinx.io.*
 import kotlinx.serialization.*
 
 @InternalSerializationApi
@@ -19,7 +19,15 @@ public fun InputStream.readExactNBytes(bytes: Int): ByteArray {
     return array
 }
 
+@InternalSerializationApi
+@Deprecated(
+    level = DeprecationLevel.WARNING,
+    message = "HexConverter slipped into public API surface accidentally and will be removed in the future releases. " +
+            "You can copy-paste it to your project or (better) find a polished implementation that initially was intended for public uses."
+)
 object HexConverter {
+    private const val hexCode = "0123456789ABCDEF"
+
     fun parseHexBinary(s: String): ByteArray {
         val len = s.length
         require(len % 2 == 0) { "HexBinary string must be even length" }
@@ -44,8 +52,6 @@ object HexConverter {
         in 'a'..'f' -> ch - 'a' + 10
         else -> -1
     }
-
-    private const val hexCode = "0123456789ABCDEF"
 
     fun printHexBinary(data: ByteArray, lowerCase: Boolean = false): String {
         val r = StringBuilder(data.size * 2)
