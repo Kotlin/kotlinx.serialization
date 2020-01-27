@@ -23,75 +23,80 @@ class PropertiesTest {
     data class Category(var name: String? = null, var subCategory: SubCategory? = null)
 
     @Serializable
-    data class SubCategory(var name: String? = null)
+    data class SubCategory(var name: String? = null, var option: String? = null)
 
     @Serializable
     data class DataWithMap(val map: Map<String, Int>)
 
     @Serializable
-    data class DataWithId(
+    data class MultiType(
         val first: Int,
         val second: String,
-        val noId: Unit = Unit,
+        val unit: Unit = Unit,
         val last: Boolean = true
     )
 
-    @Test
-    fun testListTagStack() {
-        val data = Data(listOf("element1"), "property")
-        val map = Properties.store(data)
-        val unmap =
-            Properties.load<Data>(
-                map
-            )
-        assertEquals(data.list, unmap.list)
-        assertEquals(data.property, unmap.property)
+    private inline fun <reified T : Any> assertMappedAndRestored(expectedMap: Map<String, Any>, obj: T) {
+        val map = Properties.store(obj)
+        assertEquals(expectedMap, map)
+        val unmap = Properties.load<T>(map)
+        assertEquals(obj, unmap)
+    }
+
+    private inline fun <reified T : Any> assertMappedNullableAndRestored(expectedMap: Map<String, Any?>, obj: T) {
+        val map = Properties.storeNullable(obj)
+        assertEquals(expectedMap, map)
+        val unmap = Properties.loadNullable<T>(map)
+        assertEquals(obj, unmap)
     }
 
     @Test
-    fun testRecursiveBlockTag() {
+    fun testMultipleTypes() {
+        val data = MultiType(1, "2")
+        assertMappedAndRestored(
+            mapOf("first" to 1, "second" to "2", "unit" to Unit, "last" to true),
+            data
+        )
+    }
+
+    @Test
+    fun testList() {
+        val data = Data(listOf("element1"), "property")
+        assertMappedAndRestored(
+            mapOf(
+                "list.size" to 1,
+                "list.0" to "element1",
+                "property" to "property"
+            ),
+            data
+        )
+    }
+
+    @Test
+    fun testNestedStructure() {
         val recursive = Recursive(
             Data(
                 listOf("l1"),
                 "property"
             ), "string"
         )
-
-        val map = Properties.store(recursive)
-        val unmap =
-            Properties.load<Recursive>(
-                map
-            )
-
-        assertEquals(recursive.data.list, unmap.data.list)
-        assertEquals(recursive.data.property, unmap.data.property)
-        assertEquals(recursive.property, unmap.property)
+        val mapOf =
+            mapOf("data.list.size" to 1, "data.list.0" to "l1", "data.property" to "property", "property" to "string")
+        assertMappedAndRestored(mapOf, recursive)
     }
 
     @Test
-    fun testNullableTagStack() {
+    fun testNullableProperties() {
         val data = NullableData(null, null, "property")
-
-        val map = Properties.storeNullable(data)
-        val unmap =
-            Properties.loadNullable<NullableData>(
-                map
-            )
-
-        assertEquals(data.nullable, unmap.nullable)
-        assertEquals(data.nullable2, unmap.nullable2)
-        assertEquals(data.property, unmap.property)
+        val expectedMap = mapOf("nullable" to null, "nullable2" to null, "property" to "property")
+        assertMappedNullableAndRestored(expectedMap, data)
     }
 
     @Test
     fun testNestedNull() {
         val category = Category(name = "Name")
-        val map = Properties.storeNullable(category)
-        val recreatedCategory =
-            Properties.loadNullable<Category>(
-                map
-            )
-        assertEquals(category, recreatedCategory)
+        val expectedMap = mapOf("name" to "Name", "subCategory" to null)
+        assertMappedNullableAndRestored(expectedMap, category)
     }
 
     @Test
@@ -100,26 +105,42 @@ class PropertiesTest {
             name = "Name",
             subCategory = SubCategory()
         )
-        val map = Properties.storeNullable(category)
-        val recreatedCategory =
-            Properties.loadNullable<Category>(
-                map
-            )
-        assertEquals(category, recreatedCategory)
+        val expectedMap = mapOf("name" to "Name", "subCategory.name" to null, "subCategory.option" to null)
+        assertMappedNullableAndRestored(expectedMap, category)
     }
 
     @Test
-    fun failsOnIncorrectMaps() {
+    fun testLoadOptionalProps() {
+        val map: Map<String, Any> = mapOf("name" to "Name")
+        val restored = Properties.load<Category>(map)
+        assertEquals(Category("Name"), restored)
+    }
+
+    @Test
+    fun testLoadOptionalNestedProps() {
+        val map: Map<String, Any> = mapOf("name" to "Name", "subCategory.name" to "SubName")
+        val restored = Properties.load<Category>(map)
+        assertEquals(Category("Name", SubCategory("SubName")), restored)
+    }
+
+
+    @Test
+    fun testLoadNullableOptionalNestedProps() {
+        val map: Map<String, Any?> = mapOf("name" to "Name", "subCategory.name" to null)
+        val restored = Properties.loadNullable<Category>(map)
+        assertEquals(Category("Name", SubCategory()), restored)
+    }
+
+    @Test
+    fun testThrowsOnIncorrectMaps() {
         val map: Map<String, Any?> = mapOf("name" to "Name")
-        assertFailsWith<NoSuchElementException> {
-            Properties.loadNullable<Category>(
-                map
-            )
+        assertFailsWith<MissingFieldException> {
+            Properties.loadNullable<Data>(map)
         }
     }
 
     @Test
-    fun worksWithNestedMap() {
+    fun testNestedMap() {
         val map0 = DataWithMap(mapOf())
         val map1 = DataWithMap(mapOf("one" to 1))
         val map2 = DataWithMap(mapOf("one" to 1, "two" to 2))
@@ -139,14 +160,5 @@ class PropertiesTest {
         doTest(map0)
         doTest(map1)
         doTest(map2)
-    }
-
-    @Test
-    fun testMapper() {
-        val data = DataWithId(1, "2")
-        assertEquals(
-            mapOf("first" to 1, "second" to "2", "noId" to Unit, "last" to true),
-            Properties.store(DataWithId.serializer(), data)
-        )
     }
 }
