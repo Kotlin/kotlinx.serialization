@@ -4,7 +4,8 @@
 
 package kotlinx.serialization
 
-import kotlin.reflect.KClass
+import java.lang.reflect.*
+import kotlin.reflect.*
 
 @Suppress("UNCHECKED_CAST")
 @ImplicitReflectionSerializer
@@ -25,32 +26,40 @@ actual fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<
 @Suppress("UNCHECKED_CAST")
 @ImplicitReflectionSerializer
 internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
-    var serializer: KSerializer<T>? = null
     val jClass = this.java
-
     // Search for serializer defined on companion object.
     val companion =
         jClass.declaredFields.singleOrNull { it.name == "Companion" }?.apply { isAccessible = true }?.get(null)
     if (companion != null) {
-        serializer = companion.javaClass.methods
+        val serializer = companion.javaClass.methods
             .find { method ->
                 method.name == "serializer" && method.parameterTypes.size == args.size && method.parameterTypes.all { it == KSerializer::class.java }
             }
             ?.invoke(companion, *args) as? KSerializer<T>
+        if (serializer != null) return serializer
     }
-
-    // Search for default serializer in case no serializer is defined on companion object.
-    if (serializer == null) {
-        serializer =
-            try {
-                jClass.declaredClasses.singleOrNull { it.simpleName == ("\$serializer") }
-                    ?.getField("INSTANCE")?.get(null) as? KSerializer<T>
-            } catch (e: NoSuchFieldException) {
-                null
-            }
+    // Check whether it's serializable object
+    findObjectSerializer(jClass)?.let { return it }
+    // Search for default serializer if no serializer is defined in companion object.
+    return try {
+        jClass.declaredClasses.singleOrNull { it.simpleName == ("\$serializer") }
+            ?.getField("INSTANCE")?.get(null) as? KSerializer<T>
+    } catch (e: NoSuchFieldException) {
+        null
     }
+}
 
-    return serializer
+private fun <T : Any> findObjectSerializer(jClass: Class<T>): KSerializer<T>? {
+    // Check it is an object without using kotlin-reflect
+    val field = jClass.declaredFields.singleOrNull { it.name == "INSTANCE" && it.type == jClass && Modifier.isStatic(it.modifiers) }
+        ?: return null
+    // Retrieve its instance and call serializer()
+    val instance = field.get(null)
+    val method =
+        jClass.methods.singleOrNull { it.name == "serializer" && it.parameters.isEmpty() && it.returnType == KSerializer::class.java }
+            ?: return null
+    val result = method.invoke(instance)
+    return result as? KSerializer<T>
 }
 
 /**
