@@ -5,15 +5,13 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.IntSerializer
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 import org.junit.Test
-import java.lang.reflect.ParameterizedType
-import java.lang.reflect.Type
-import kotlin.test.assertEquals
-import kotlin.test.assertSame
+import java.lang.reflect.*
+import kotlin.test.*
 
 class ResolvingTest {
+
     @Serializable
     data class Box<out T>(val a: T)
 
@@ -30,22 +28,22 @@ class ResolvingTest {
         }
     }
 
-    @Test
-    fun primitiveDescriptorWithNameTest() {
-        val desc = WithCustomDefault.serializer().descriptor
-        assertEquals("WithCustomDefault", desc.serialName)
-        assertSame(PrimitiveKind.INT, desc.kind)
-        assertEquals(0, desc.elementsCount)
-    }
-
     object IntBoxToken : ParameterizedType {
         override fun getRawType() = Box::class.java
         override fun getOwnerType() = null
         override fun getActualTypeArguments(): Array<Type> = arrayOf(Int::class.java)
     }
 
+    @Serializable
+    object SerializableObject
+
+    @Serializable
+    data class WithNamedCompanion(val a: Int) {
+        companion object Named
+    }
+
     @Test
-    fun intBoxTest() {
+    fun testGenericParameter() {
         val b = Box(42)
         val serial = serializerByTypeToken(IntBoxToken)
         val s = Json.unquoted.stringify(serial, b)
@@ -53,7 +51,7 @@ class ResolvingTest {
     }
 
     @Test
-    fun testArrayResolving() {
+    fun testArray() {
         val myArr = arrayOf("a", "b", "c")
         val token = myArr::class.java
         val serial = serializerByTypeToken(token)
@@ -62,7 +60,7 @@ class ResolvingTest {
     }
 
     @Test
-    fun testListResolving() {
+    fun testList() {
         val myArr = listOf("a", "b", "c")
         val token = object : ParameterizedType {
             override fun getRawType(): Type = List::class.java
@@ -139,7 +137,7 @@ class ResolvingTest {
     }
 
     @Test
-    fun objectTest() {
+    fun testGenericInHolder() {
         val b = Data(listOf("a", "b", "c"), Box(42))
         val serial = serializerByTypeToken(Data::class.java)
         val s = Json.unquoted.stringify(serial, b)
@@ -147,18 +145,13 @@ class ResolvingTest {
     }
 
     @Test
-    fun customDefault() {
+    fun testOverriddenSerializer() {
         val foo = Json.unquoted.parse<WithCustomDefault>("9")
         assertEquals(9, foo.n)
     }
 
-    @Serializable
-    data class WithNamedCompanion(val a: Int) {
-        companion object Named
-    }
-
     @Test
-    fun namedCompanionTest() {
+    fun testNamedCompanion() {
         val namedCompanion = WithNamedCompanion(1)
         val serial = serializerByTypeToken(WithNamedCompanion::class.java)
         val s = Json.unquoted.stringify(serial, namedCompanion)
@@ -166,9 +159,16 @@ class ResolvingTest {
     }
 
     @Test
-    fun intResolve() {
+    fun testPrimitive() {
         val token = typeTokenOf<Int>()
         val serial = serializerByTypeToken(token)
         assertSame(IntSerializer as KSerializer<*>, serial)
+    }
+
+    @Test
+    fun testObject() {
+        val token = typeTokenOf<SerializableObject>()
+        val serial = serializerByTypeToken(token)
+        assertEquals(SerializableObject.serializer().descriptor, serial.descriptor)
     }
 }
