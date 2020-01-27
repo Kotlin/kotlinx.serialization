@@ -92,7 +92,7 @@ public class Properties(context: SerialModule = EmptyModule) : AbstractSerialFor
     }
 
     internal inner class InMapper(private val map: Map<String, Any>) : NamedValueDecoder() {
-        private var currentIndex = -1
+        private var currentIndex = 0
         override val context: SerialModule = this@Properties.context
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
@@ -110,16 +110,17 @@ public class Properties(context: SerialModule = EmptyModule) : AbstractSerialFor
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             val tag = nested("size")
             val size = if (map.containsKey(tag)) decodeTaggedInt(tag) else descriptor.elementsCount
-            if (++currentIndex == size) {
-                return READ_DONE
+            while (currentIndex < size) {
+                val name = descriptor.getTag(currentIndex++)
+                if (map.keys.any { it.startsWith(name) }) return currentIndex - 1
             }
-            return currentIndex
+            return READ_DONE
         }
     }
 
     internal inner class InNullableMapper(val map: Map<String, Any?>) : NamedValueDecoder() {
         override val context: SerialModule = this@Properties.context
-        private var currentIndex = -1
+        private var currentIndex = 0
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             return InNullableMapper(map).also { copyTagsTo(it) }
@@ -132,10 +133,11 @@ public class Properties(context: SerialModule = EmptyModule) : AbstractSerialFor
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             val tag = nested("size")
             val size = if (map.containsKey(tag)) decodeTaggedInt(tag) else descriptor.elementsCount
-            if (++currentIndex == size) {
-                return READ_DONE
+            while (currentIndex < size) {
+                val name = descriptor.getTag(currentIndex++)
+                if (map.keys.any { it.startsWith(name) }) return currentIndex - 1
             }
-            return currentIndex
+            return READ_DONE
         }
 
         override fun decodeTaggedValue(tag: String): Any = map.getValue(tag)!!
