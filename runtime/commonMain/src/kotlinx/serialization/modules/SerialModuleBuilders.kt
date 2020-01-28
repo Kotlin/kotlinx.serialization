@@ -167,21 +167,36 @@ public class SerializersModuleBuilder internal constructor() : SerialModuleColle
         concreteSerializer: KSerializer<Sub>,
         allowOverwrite: Boolean = false
     ) {
+        // Check for overwrite
         val name = concreteSerializer.descriptor.serialName
         val baseClassSerializers = polyBase2Serializers.getOrPut(baseClass, ::hashMapOf)
-        if (!allowOverwrite && concreteClass in baseClassSerializers) throw SerializerAlreadyRegisteredException(
-            baseClass,
-            concreteClass
-        )
-        baseClassSerializers[concreteClass] = concreteSerializer
-
+        val previousSerializer = baseClassSerializers[concreteClass]
         val names = polyBase2NamedSerializers.getOrPut(baseClass, ::hashMapOf)
-        val previous = names.put(name, concreteSerializer)
-        if (previous != null) {
-            val conflictingClass = polyBase2Serializers[baseClass]!!.filter { it.value === previous }.keys.firstOrNull()
-            throw IllegalArgumentException("Multiple polymorphic serializers for base class '$baseClass' " +
-                    "have the same serial name '$name': '$concreteClass' and '$conflictingClass'")
+        if (allowOverwrite) {
+            // Remove previous serializers from name mapping
+            if (previousSerializer != null) {
+                names.remove(previousSerializer.descriptor.serialName)
+            }
+            // Update mappings
+            baseClassSerializers[concreteClass] = concreteSerializer
+            names[name] = concreteSerializer
+            return
         }
+        // Overwrite prohibited
+        if (previousSerializer != null) {
+            throw SerializerAlreadyRegisteredException(baseClass, concreteClass)
+        }
+        val previousByName = names[name]
+        if (previousByName != null) {
+            val conflictingClass = polyBase2Serializers[baseClass]!!.asSequence().find { it.value === previousByName }
+            throw IllegalArgumentException(
+                "Multiple polymorphic serializers for base class '$baseClass' " +
+                        "have the same serial name '$name': '$concreteClass' and '$conflictingClass'"
+            )
+        }
+        // Overwrite if no conflicts
+        baseClassSerializers[concreteClass] = concreteSerializer
+        names[name] = concreteSerializer
     }
 
     internal fun build(): SerialModule = SerialModuleImpl(class2Serializer, polyBase2Serializers, polyBase2NamedSerializers)

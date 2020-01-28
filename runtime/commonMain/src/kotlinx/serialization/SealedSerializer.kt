@@ -76,7 +76,6 @@ public class SealedClassSerializer<T : Any>(
 
     private val class2Serializer: Map<KClass<out T>, KSerializer<out T>>
     private val serialName2Serializer: Map<String, KSerializer<out T>>
-    private val serializer2AllProperties: Map<KSerializer<*>, Set<String>>
 
     init {
         require(subclasses.size == subclassSerializers.size) {
@@ -88,11 +87,13 @@ public class SealedClassSerializer<T : Any>(
             .aggregate<Map.Entry<KClass<out T>, KSerializer<out T>>, String, Map.Entry<KClass<*>, KSerializer<out T>>>
             { key, accumulator, element, _ ->
                 if (accumulator != null) {
-                    error("Multiple sealed subclasses of $baseClass have the same serial name '$key: ${accumulator.key}, ${element.key}")
+                    error(
+                        "Multiple sealed subclasses of '$baseClass' have the same serial name '$key':" +
+                                " '${accumulator.key}', '${element.key}'"
+                    )
                 }
                 element
             }.mapValues { it.value.value }
-        serializer2AllProperties = subclassSerializers.associate { it to it.descriptor.elementNames().toSet() }
     }
 
     override fun findPolymorphicSerializer(decoder: CompositeDecoder, klassName: String): KSerializer<out T> {
@@ -101,18 +102,6 @@ public class SealedClassSerializer<T : Any>(
 
     override fun findPolymorphicSerializer(encoder: Encoder, value: T): KSerializer<out T> {
         return class2Serializer[value::class] ?: super.findPolymorphicSerializer(encoder, value)
-    }
-
-    internal fun validate(actualSerializer: KSerializer<Any>, classDiscriminator: String) {
-        val properties = serializer2AllProperties[actualSerializer] ?: return
-        if (classDiscriminator !in properties) return
-        val clazz = class2Serializer.entries.first { it.value === actualSerializer }.key
-        error(
-            "Sealed $clazz cannot be serialized as base class $baseClass because it has property name that conflicts with JSON class discriminator. " +
-                    "You can either change class discriminator in JsonConfiguration, " +
-                    "rename property with @SerialName annotation " +
-                    "or fallback to array polymorphism"
-        )
     }
 }
 

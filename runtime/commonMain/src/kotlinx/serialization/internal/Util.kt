@@ -70,3 +70,12 @@ object HexConverter {
         return printHexBinary(arr, true).trimStart('0').takeIf { it.isNotEmpty() } ?: "0"
     }
 }
+
+internal fun SerialDescriptor.cachedSerialNames(): Set<String> {
+    if (this is SerialClassDescImpl) return namesSet
+    val result = HashSet<String>(elementsCount)
+    for (i in 0 until elementsCount) {
+        result += getElementName(i)
+    }
+    return result
+}

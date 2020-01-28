@@ -26,7 +26,7 @@ internal class ContextValidator(private val discriminator: String) : SerialModul
                     "Polymorphic serializer for $actualClass has property '$name' that conflicts " +
                             "with JSON class discriminator. You can either change class discriminator in JsonConfiguration, " +
                             "rename property with @SerialName annotation " +
-                            "or fallback to array polymorphism"
+                            "or fall back to array polymorphism"
                 )
             }
         }

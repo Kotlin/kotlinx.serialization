@@ -29,7 +29,16 @@ private fun validateIfSealed(
     classDiscriminator: String
 ) {
     if (serializer !is SealedClassSerializer<*>) return
-    serializer.validate(actualSerializer, classDiscriminator)
+    if (classDiscriminator in actualSerializer.descriptor.cachedSerialNames()) {
+        val baseName = serializer.descriptor.serialName
+        val actualName = actualSerializer.descriptor.serialName
+        error(
+            "Sealed class '$actualName' cannot be serialized as base class '$baseName' because" +
+                    " it has property name that conflicts with JSON class discriminator '$classDiscriminator'. " +
+                    "You can either change class discriminator in JsonConfiguration, " +
+                    "rename property with @SerialName annotation or fall back to array polymorphism"
+        )
+    }
 }
 
 internal fun checkKind(kind: SerialKind) {
