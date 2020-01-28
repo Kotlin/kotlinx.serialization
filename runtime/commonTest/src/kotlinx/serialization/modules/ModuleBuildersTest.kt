@@ -9,6 +9,7 @@ import kotlinx.serialization.PolyBase
 import kotlinx.serialization.PolyDerived
 import kotlinx.serialization.test.*
 import kotlin.reflect.KClass
+import kotlinx.serialization.internal.*
 import kotlin.test.*
 
 class ModuleBuildersTest {
@@ -175,5 +176,59 @@ class ModuleBuildersTest {
         assertFailsWith<SerializerAlreadyRegisteredException> {
             incorrect + correct
         }
+    }
+
+    @Serializable
+    @SerialName("C")
+    class C
+
+    @Serializer(forClass = C::class)
+    object CSerializer : KSerializer<C> {
+        override val descriptor: SerialDescriptor = NamedDescriptor("AnotherName", UnionKind.OBJECT)
+    }
+
+    @Serializer(forClass = C::class)
+    object CSerializer2 : KSerializer<C> {
+        override val descriptor: SerialDescriptor = NamedDescriptor("C", UnionKind.OBJECT)
+    }
+
+    @Test
+    fun testOverwriteWithDifferentSerialName() {
+        val m1 = SerializersModule {
+            polymorphic<Any> {
+                addSubclass(C::class, CSerializer)
+            }
+        }
+        val m2 = SerializersModule {
+            polymorphic<Any> {
+                addSubclass(C::class, C.serializer())
+            }
+        }
+        assertEquals(CSerializer, m1.getPolymorphic(Any::class, serializedClassName = "AnotherName"))
+        assertFailsWith<IllegalArgumentException> { m1 + m2 }
+        val result = m1 overwriteWith m2
+        assertEquals(C.serializer(), result.getPolymorphic(Any::class, C()))
+        assertEquals(C.serializer(), result.getPolymorphic(Any::class, serializedClassName = "C"))
+        assertNull(result.getPolymorphic(Any::class, serializedClassName = "AnotherName"))
+    }
+
+    @Test
+    fun testOverwriteWithSameSerialName() {
+        val m1 = SerializersModule {
+            polymorphic<Any> {
+                addSubclass(C::class, C.serializer())
+            }
+        }
+        val m2 = SerializersModule {
+            polymorphic<Any> {
+                addSubclass(C::class, CSerializer2)
+            }
+        }
+        assertEquals(C.serializer(), m1.getPolymorphic(Any::class, serializedClassName = "C"))
+        assertEquals(CSerializer2, m2.getPolymorphic(Any::class, serializedClassName = "C"))
+        assertFailsWith<IllegalArgumentException> { m1 + m2 }
+        val result = m1 overwriteWith m2
+        assertEquals(CSerializer2, result.getPolymorphic(Any::class, C()))
+        assertEquals(CSerializer2, result.getPolymorphic(Any::class, serializedClassName = "C"))
     }
 }

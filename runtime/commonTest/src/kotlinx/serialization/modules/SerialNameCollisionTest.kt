@@ -57,9 +57,6 @@ class SerialNameCollisionTest {
                 Derived::class with Derived.serializer()
             }
         }
-
-        Json("type", module, true)
-        Json("type", module, true)
         Json("type", module, true)
     }
 

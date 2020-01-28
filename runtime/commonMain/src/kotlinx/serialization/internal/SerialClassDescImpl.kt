@@ -31,6 +31,7 @@ public open class SerialClassDescImpl(
     // this array is only used when serializer is written by hand
     private var descriptors: MutableList<SerialDescriptor>? = null
     private var flags = BooleanArray(elementsCount)
+    internal val namesSet: Set<String> by lazy { names.toHashSet() }
 
     // don't change lazy mode: KT-32871, KT-32872
     private val indices: Map<String, Int> by lazy { buildIndices() }
@@ -101,12 +102,14 @@ public open class SerialClassDescImpl(
         if (this === other) return true
         if (other !is SerialClassDescImpl) return false
         if (serialName != other.serialName) return false
+        // TODO compare only serial names
         if (elementDescriptors() != other.elementDescriptors()) return false
         return true
     }
 
     override fun hashCode(): Int {
         var result = serialName.hashCode()
+        // TODO hashcode only for serial name
         result = 31 * result + elementDescriptors().hashCode()
         return result
     }

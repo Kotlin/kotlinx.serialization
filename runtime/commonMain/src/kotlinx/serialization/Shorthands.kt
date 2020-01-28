@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -35,11 +35,10 @@ public fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> {
 }
 
 /**
- * Creates a [List] out of a serial names of [this] descriptor's elements [SerialDescriptor.getElementDescriptor].
- *
- * Size of a list is equal to [SerialDescriptor.elementsCount].
+ * Returns a [List] out of all serial names of serial descriptor [elements][SerialDescriptor.getElementDescriptor]
  */
 public fun SerialDescriptor.elementNames(): List<String> {
+    // TODO always allocates, also revisit
     return List(elementsCount) { getElementName(it) }
 }
 
