@@ -15,14 +15,14 @@ import kotlinx.serialization.modules.*
  * If the given class has non-primitive property `d` of arbitrary type `D`, `D` values are inserted
  * into the same map; keys for such values are prefixed with string `d.`:
  *
- * ```kotlin
+ * ```
  * @Serializable
  * class Data(val property1: String)
  *
  * @Serializable
  * class DataHolder(val data: Data, val property2: String)
  *
- * val map = Mapper.store(DataHolder(Data("value1"), "value2"))
+ * val map = Properties.store(DataHolder(Data("value1"), "value2"))
  * // map contents will be the following:
  * // property2 = value2
  * // data.property1 = value1
@@ -38,8 +38,10 @@ import kotlinx.serialization.modules.*
  */
 public class Properties(context: SerialModule = EmptyModule) : AbstractSerialFormat(context) {
 
-    internal inner class OutMapper : NamedValueEncoder() {
+    private inner class OutMapper : NamedValueEncoder() {
         override val context: SerialModule = this@Properties.context
+
+        internal val map: MutableMap<String, Any> = mutableMapOf()
 
         override fun beginCollection(
             desc: SerialDescriptor,
@@ -53,21 +55,16 @@ public class Properties(context: SerialModule = EmptyModule) : AbstractSerialFor
             return this
         }
 
-        private var _map: MutableMap<String, Any> = mutableMapOf()
-
-        val map: Map<String, Any>
-            get() = _map
-
         override fun encodeTaggedValue(tag: String, value: Any) {
-            _map[tag] = value
+            map[tag] = value
         }
 
         override fun encodeTaggedNull(tag: String) {
-            throw SerializationException("null is not supported. use Mapper.mapNullable()/OutNullableMapper instead")
+            // ignore nulls in output
         }
     }
 
-    internal inner class OutNullableMapper : NamedValueEncoder() {
+    private inner class OutNullableMapper : NamedValueEncoder() {
         override val context: SerialModule = this@Properties.context
 
         internal val map: MutableMap<String, Any?> = mutableMapOf()
@@ -91,9 +88,10 @@ public class Properties(context: SerialModule = EmptyModule) : AbstractSerialFor
         }
     }
 
-    internal inner class InMapper(private val map: Map<String, Any>) : NamedValueDecoder() {
-        private var currentIndex = 0
+    private inner class InMapper(private val map: Map<String, Any>) : NamedValueDecoder() {
         override val context: SerialModule = this@Properties.context
+
+        private var currentIndex = 0
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             return InMapper(map).also { copyTagsTo(it) }
@@ -118,8 +116,9 @@ public class Properties(context: SerialModule = EmptyModule) : AbstractSerialFor
         }
     }
 
-    internal inner class InNullableMapper(val map: Map<String, Any?>) : NamedValueDecoder() {
+    private inner class InNullableMapper(val map: Map<String, Any?>) : NamedValueDecoder() {
         override val context: SerialModule = this@Properties.context
+
         private var currentIndex = 0
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
