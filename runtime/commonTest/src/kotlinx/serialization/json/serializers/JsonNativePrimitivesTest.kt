@@ -30,5 +30,5 @@ class JsonNativePrimitivesTest : JsonTestBase() {
 
     @Test
     fun testTopLevelNativeNullable() =
-        assertJsonFormAndRestored(NullableSerializer(IntSerializer), null, "null", strict)
+        assertJsonFormAndRestored(IntSerializer.nullable, null, "null", strict)
 }

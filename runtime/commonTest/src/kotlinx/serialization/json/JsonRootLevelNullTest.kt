@@ -5,7 +5,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.internal.*
+import kotlinx.serialization.*
 import kotlin.test.*
 
 class JsonRootLevelNullTest : JsonTestBase() {

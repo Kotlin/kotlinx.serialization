@@ -26,7 +26,7 @@ public class ObjectSerializer<T : Any>(serialName: String, private val objectIns
     }
 }
 
-internal class ObjectDescriptor(name: String) : SerialClassDescImpl(name) {
+private class ObjectDescriptor(name: String) : SerialClassDescImpl(name) {
     override val kind: SerialKind = UnionKind.OBJECT
 
     init {

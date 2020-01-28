@@ -5,22 +5,13 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 
-
-/**
- * Returns a nullable serializer for the given serializer of non-null type.
- */
-public val <T : Any> KSerializer<T>.nullable: KSerializer<T?>
-    get() {
-        @Suppress("UNCHECKED_CAST")
-        return if (descriptor.isNullable) (this as KSerializer<T?>) else NullableSerializer(this)
-    }
-
 @Deprecated(
     message = "Deprecated in the favor of extension",
-    level = DeprecationLevel.WARNING,
+    level = DeprecationLevel.ERROR,
     replaceWith = ReplaceWith("actualSerializer.nullable)")
 )
-fun <T : Any> makeNullable(actualSerializer: KSerializer<T>): KSerializer<T?> {
+@InternalSerializationApi
+public fun <T : Any> makeNullable(actualSerializer: KSerializer<T>): KSerializer<T?> {
     return NullableSerializer(actualSerializer)
 }
 
@@ -53,6 +44,18 @@ public class NullableSerializer<T : Any>(private val serializer: KSerializer<T>)
             decoder.decodeNotNullMark() -> decoder.updateSerializableValue(serializer, old)
             else -> decoder.decodeNull().let { old }
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        other as NullableSerializer<*>
+        if (serializer != other.serializer) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return serializer.hashCode()
     }
 
     private class SerialDescriptorForNullable(private val original: SerialDescriptor): SerialDescriptor by original {
