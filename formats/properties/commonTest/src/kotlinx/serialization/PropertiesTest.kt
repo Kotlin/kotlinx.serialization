@@ -123,6 +123,12 @@ class PropertiesTest {
         assertEquals(Category("Name", SubCategory("SubName")), restored)
     }
 
+    @Test
+    fun testOmitsNullAndCanLoadBack() {
+        val category = Category(name = "Name")
+        val expectedMap = mapOf("name" to "Name")
+        assertMappedAndRestored(expectedMap, category)
+    }
 
     @Test
     fun testLoadNullableOptionalNestedProps() {
