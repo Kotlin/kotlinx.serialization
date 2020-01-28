@@ -16,6 +16,15 @@ val <K, V> Pair<KSerializer<K>, KSerializer<V>>.map: KSerializer<Map<K, V>>
     get() = LinkedHashMapSerializer(this.first, this.second)
 
 /**
+ * Returns a nullable serializer for the given serializer of non-null type.
+ */
+public val <T : Any> KSerializer<T>.nullable: KSerializer<T?>
+    get() {
+        @Suppress("UNCHECKED_CAST")
+        return if (descriptor.isNullable) (this as KSerializer<T?>) else NullableSerializer(this)
+    }
+
+/**
  * Creates a [List] out of a child descriptors retrieved via [SerialDescriptor.getElementDescriptor].
  *
  * Size of a list is equal to [SerialDescriptor.elementsCount].
