@@ -94,7 +94,7 @@ public class SerializersModuleBuilder internal constructor(@JvmField internal va
      * Creates a builder to register all subclasses of a given [baseClass]
      * for polymorphic serialization. If [baseSerializer] is not null, registers it as a serializer for [baseClass]
      * (which is useful if base class is serializable). To add subclasses, use
-     * [PolymorphicModuleBuilder.addSubclass] or [PolymorphicModuleBuilder.with].
+     * [PolymorphicModuleBuilder.subclass] or [PolymorphicModuleBuilder.with].
      *
      * If serializer already registered for the given KClass in the given scope, a [SerializerAlreadyRegisteredException] is thrown.
      * To override registered serializers, combine built module with another using
@@ -136,7 +136,7 @@ public class SerializersModuleBuilder internal constructor(@JvmField internal va
      * ```
      * polymorphic(Any::class, PolyBase::class) {
      *   PolyBase::class with PolyBase.serializer()
-     *   addSubclass<PolyDerived>() // Shorthand with default serializer
+     *   subclass<PolyDerived>() // Shorthand with default serializer
      * }
      * ```
      *
