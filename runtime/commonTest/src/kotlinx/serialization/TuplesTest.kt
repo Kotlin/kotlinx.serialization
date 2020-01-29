@@ -53,7 +53,6 @@ class TuplesTest {
     )
 
     @Test
-    @Ignore
     fun testStandardTripleHasCorrectDescriptor() {
         val desc = TripleWrapper.serializer().descriptor.getElementDescriptor(0)
         assertEquals(desc.serialName, "kotlin.Triple")
