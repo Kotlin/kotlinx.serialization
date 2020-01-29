@@ -70,6 +70,10 @@ public class NullableSerializer<T : Any>(private val serializer: KSerializer<T>)
             return true
         }
 
+        override fun toString(): String {
+            return "$original?"
+        }
+
         override fun hashCode(): Int {
             return original.hashCode() * 31
         }

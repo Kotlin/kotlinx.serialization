@@ -39,8 +39,7 @@ public class EnumDescriptor(
     }
 
     override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + serialName.hashCode()
+        var result = serialName.hashCode()
         result = 31 * result + elementNames().hashCode()
         return result
     }
