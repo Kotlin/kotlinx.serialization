@@ -7,6 +7,7 @@ package kotlinx.serialization.modules
 import kotlinx.serialization.*
 import kotlinx.serialization.PolyBase
 import kotlinx.serialization.PolyDerived
+import kotlinx.serialization.test.*
 import kotlin.reflect.KClass
 import kotlin.test.*
 
@@ -95,6 +96,13 @@ class ModuleBuildersTest {
     }
 
     @Test
+    fun testDSLFromKType() {
+        if (isJs()) return // typeOf is not supported on JS
+        val module = SerializersModule { contextual<A>() }
+        assertEquals(A.serializer(), module.getContextual<A>())
+    }
+
+    @Test
     fun testPolymorphicDSL() {
         val module1 = SerializersModule {
             polymorphic(PolyBase.serializer()) {
@@ -108,8 +116,8 @@ class ModuleBuildersTest {
 
         val module2 = SerializersModule {
             polymorphic(Any::class, PolyBase::class) {
-                addSubclass(PolyBase.serializer())
-                addSubclass(PolyDerived.serializer())
+                subclass(PolyBase.serializer())
+                subclass(PolyDerived.serializer())
             }
         }
 

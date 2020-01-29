@@ -40,13 +40,13 @@ internal data class OuterNullableBox(@Polymorphic val outerBase: OuterBase?, @Po
 
 internal val polymorphicTestModule = SerializersModule {
     polymorphic(InnerBase::class) {
-        addSubclass(InnerImpl.serializer())
-        addSubclass(InnerImpl2.serializer())
+        subclass(InnerImpl.serializer())
+        subclass(InnerImpl2.serializer())
     }
 
     polymorphic(OuterBase::class) {
-        addSubclass(OuterImpl.serializer())
-        addSubclass(OuterNullableImpl.serializer())
+        subclass(OuterImpl.serializer())
+        subclass(OuterNullableImpl.serializer())
     }
 }
 

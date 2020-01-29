@@ -31,12 +31,9 @@ public fun serializersModuleOf(map: Map<KClass<*>, KSerializer<*>>): SerialModul
     map.forEach { (kclass, serializer) -> contextual(kclass as KClass<Any>, serializer as KSerializer<Any>) }
 }
 
-
 /**
  * A builder function for creating a [SerialModule].
- *
  * Serializers can be add via [SerializersModuleBuilder.contextual] or [SerializersModuleBuilder.polymorphic].
- *
  * Since [SerializersModuleBuilder] also implements [SerialModuleCollector], it is possible to copy whole another module to this builder with [SerialModule.dumpTo]
  */
 @Suppress("FunctionName")
@@ -45,6 +42,12 @@ public fun SerializersModule(buildAction: SerializersModuleBuilder.() -> Unit): 
     builder.buildAction()
     return builder.impl
 }
+
+/**
+ * Reified version of `SerializersModuleBuilder.contextual(KClass, Serializer)`
+ */
+@ImplicitReflectionSerializer
+public inline fun <reified T : Any> SerializersModuleBuilder.contextual() = contextual(T::class, serializer())
 
 /**
  * A builder class for [SerializersModule] DSL.
@@ -83,7 +86,7 @@ public class SerializersModuleBuilder internal constructor(@JvmField internal va
      * Creates a builder to register all subclasses of a given [baseClass]
      * for polymorphic serialization. If [baseSerializer] is not null, registers it as a serializer for [baseClass]
      * (which is useful if base class is serializable). To add subclasses, use
-     * [PolymorphicModuleBuilder.addSubclass] or [PolymorphicModuleBuilder.with].
+     * [PolymorphicModuleBuilder.subclass] or [PolymorphicModuleBuilder.with].
      *
      * If serializer already registered for the given KClass in the given scope, a [SerializerAlreadyRegisteredException] is thrown.
      * To override registered serializers, combine built module with another using
@@ -125,7 +128,7 @@ public class SerializersModuleBuilder internal constructor(@JvmField internal va
      * ```
      * polymorphic(Any::class, PolyBase::class) {
      *   PolyBase::class with PolyBase.serializer()
-     *   PolyDerived::class with PolyDerived.serializer()
+     *   subclass<PolyDerived>() // Shorthand with default serializer
      * }
      * ```
      *

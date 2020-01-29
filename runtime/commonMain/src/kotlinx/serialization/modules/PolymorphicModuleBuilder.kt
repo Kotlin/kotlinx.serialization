@@ -12,7 +12,7 @@ import kotlin.reflect.*
 /**
  * A builder which registers all its content for polymorphic serialization in the scope of [baseClass].
  * If [baseSerializer] is present, registers it as a serializer for [baseClass] (which will be used if base class is serializable).
- * Subclasses with its serializers can be added via [addSubclass] or [with].
+ * Subclasses with its serializers can be added via [subclass] or [with].
  *
  * To obtain an instance of this builder, use [SerializersModuleBuilder.polymorphic] DSL function.
  */
@@ -44,14 +44,33 @@ public class PolymorphicModuleBuilder<Base : Any> internal constructor(
     /**
      * @see addSubclass
      */
+    @Deprecated(
+        message = "Use 'subclass(serializer)' instead",
+        level = DeprecationLevel.WARNING,
+        replaceWith = ReplaceWith("subclass(serializer)")
+    )
     public inline fun <reified T : Base> addSubclass(serializer: KSerializer<T>): Unit =
+        addSubclass(T::class, serializer)
+
+    public inline fun <reified T : Base> subclass(serializer: KSerializer<T>): Unit =
         addSubclass(T::class, serializer)
 
     /**
      * @see addSubclass
      */
+    @Deprecated(
+        message = "Use 'subclass' instead",
+        level = DeprecationLevel.WARNING,
+        replaceWith = ReplaceWith("subclass<T>()")
+    )
     @ImplicitReflectionSerializer
     public inline fun <reified T : Base> addSubclass(): Unit = addSubclass(T::class, T::class.serializer())
+
+    /**
+     * @see addSubclass
+     */
+    @ImplicitReflectionSerializer
+    public inline fun <reified T : Base> subclass(): Unit = addSubclass(T::class, serializer())
 
     /**
      * @see addSubclass

@@ -4,27 +4,25 @@
 
 package kotlinx.serialization.json.polymorphic
 
-import kotlinx.serialization.Polymorphic
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonTestBase
-import kotlinx.serialization.modules.SerializersModule
-import kotlin.test.Test
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
+import kotlin.test.*
 
 class JsonNestedPolymorphismTest : JsonTestBase() {
 
     private val polymorphicJson = Json {
         unquoted = true
         serialModule = SerializersModule {
-        polymorphic(Any::class, InnerBase::class) {
-            addSubclass(InnerImpl.serializer())
-            addSubclass(InnerImpl2.serializer())
-        }
+            polymorphic(Any::class, InnerBase::class) {
+                subclass(InnerImpl.serializer())
+                subclass(InnerImpl2.serializer())
+            }
 
-        polymorphic(Any::class) {
-            addSubclass(OuterImpl.serializer())
+            polymorphic(Any::class) {
+                subclass(OuterImpl.serializer())
+            }
         }
-    }
     }
 
     @Serializable
