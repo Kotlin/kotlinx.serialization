@@ -4,17 +4,29 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.internal.*
-import kotlinx.serialization.json.*
+import kotlinx.serialization.internal.EnumDescriptor
+import kotlinx.serialization.json.JsonTestBase
 import kotlin.test.*
 
 class EnumSerializationTest : JsonTestBase() {
+
+    @Serializable
+    enum class RegularEnum {
+        VALUE
+    }
+
+    @Serializable
+    data class Regular(val a: RegularEnum)
+
+    @Serializable
+    data class RegularNullable(val a: RegularEnum?)
 
     @Serializable
     @SerialName("custom_enum")
     private enum class CustomEnum {
         @SerialName("foo_a")
         FooA,
+
         @SerialName("foo_b")
         @Id(10)
         FooB
@@ -66,4 +78,34 @@ class EnumSerializationTest : JsonTestBase() {
             CustomInside.serializer(),
             CustomInside(WithCustom.TWO), """{inside:2}"""
         )
+
+
+    @Test
+    fun testHasMeaningfulToString() {
+        val regular = Regular.serializer().descriptor.toString()
+        assertEquals(
+            "kotlinx.serialization.EnumSerializationTest.Regular(a: kotlinx.serialization.EnumSerializationTest.RegularEnum)",
+            regular
+        )
+        val regularNullable = RegularNullable.serializer().descriptor.toString()
+        assertEquals(
+            "kotlinx.serialization.EnumSerializationTest.RegularNullable(a: kotlinx.serialization.EnumSerializationTest.RegularEnum.nullable)",
+            regularNullable
+        )
+        // slightly differs from previous one
+        val regularNullableJoined = RegularNullable.serializer().descriptor.elementDescriptors().joinToString()
+        assertEquals("kotlinx.serialization.EnumSerializationTest.RegularEnum(VALUE)?", regularNullableJoined)
+
+        val regularEnum = RegularEnum.serializer().descriptor.toString()
+        assertEquals("kotlinx.serialization.EnumSerializationTest.RegularEnum(VALUE)", regularEnum)
+    }
+
+
+    @Test
+    fun testHasMeaningfulHashCode() {
+        val a = Regular.serializer().descriptor.hashCode()
+        val b = RegularNullable.serializer().descriptor.hashCode()
+        val c = RegularEnum.serializer().descriptor.hashCode()
+        assertTrue(setOf(a, b, c).size == 3, ".hashCode must give different result for different descriptors")
+    }
 }
