@@ -15,12 +15,12 @@ class JsonNestedPolymorphismTest : JsonTestBase() {
         unquoted = true
         serialModule = SerializersModule {
             polymorphic(Any::class, InnerBase::class) {
-                addSubclass(InnerImpl.serializer())
-                addSubclass(InnerImpl2.serializer())
+                subclass(InnerImpl.serializer())
+                subclass(InnerImpl2.serializer())
             }
 
             polymorphic(Any::class) {
-                addSubclass(OuterImpl.serializer())
+                subclass(OuterImpl.serializer())
             }
         }
     }

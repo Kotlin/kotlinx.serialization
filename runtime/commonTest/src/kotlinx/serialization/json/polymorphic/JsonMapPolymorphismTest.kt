@@ -78,7 +78,7 @@ class JsonMapPolymorphismTest : JsonTestBase() {
             allowStructuredMapKeys = true
             serialModule = SerializersModule {
                 polymorphic(Base::class) {
-                    addSubclass(Derived.serializer())
+                    subclass(Derived.serializer())
                 }
             }
         }

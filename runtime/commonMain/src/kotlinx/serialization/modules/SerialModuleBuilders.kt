@@ -24,20 +24,12 @@ public inline fun <reified T : Any> serializersModule(serializer: KSerializer<T>
     serializersModuleOf(T::class, serializer)
 
 /**
- * Shortcut for [serializersModuleOf] function with type parameter.
- */
-@ImplicitReflectionSerializer
-public inline fun <reified T : Any> serializersModule(): SerialModule =
-    serializersModuleOf(T::class, serializer())
-
-/**
  * Returns a [SerialModule] which has multiple classes with its serializers for [ContextSerializer].
  */
 @Suppress("UNCHECKED_CAST")
 public fun serializersModuleOf(map: Map<KClass<*>, KSerializer<*>>): SerialModule = SerializersModule {
     map.forEach { (kclass, serializer) -> contextual(kclass as KClass<Any>, serializer as KSerializer<Any>) }
 }
-
 
 /**
  * A builder function for creating a [SerialModule].

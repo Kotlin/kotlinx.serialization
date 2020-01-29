@@ -41,13 +41,6 @@ class ModuleBuildersTest {
     }
 
     @Test
-    fun testModuleFromKType() {
-        if (isJs()) return // typeOf is not supported on JS
-        val module = serializersModule<A>()
-        assertEquals(A.serializer(), module.getContextual<A>())
-    }
-
-    @Test
     fun testMapModule() {
         val module1 = serializersModuleOf(mapOf(B::class to BSerializer))
         module1.assertModuleHas(
@@ -123,8 +116,8 @@ class ModuleBuildersTest {
 
         val module2 = SerializersModule {
             polymorphic(Any::class, PolyBase::class) {
-                addSubclass(PolyBase.serializer())
-                addSubclass(PolyDerived.serializer())
+                subclass(PolyBase.serializer())
+                subclass(PolyDerived.serializer())
             }
         }
 
