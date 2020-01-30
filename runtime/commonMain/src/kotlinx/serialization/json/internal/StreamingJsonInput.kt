@@ -5,9 +5,10 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
-import kotlin.jvm.JvmField
+import kotlin.jvm.*
 
 /**
  * [JsonInput] which reads given JSON from [JsonReader] field by field.
@@ -105,10 +106,13 @@ internal class StreamingJsonInput internal constructor(
     }
 
     private fun SerialDescriptor.getJsonElementIndex(key: String): Int {
-        if (!json.configuration.useAlternativeNames) return this.getElementIndex(key)
+        val elementIndex = this.getElementIndex(key)
+        if (elementIndex != UNKNOWN_NAME || !json.configuration.useAlternativeNames) {
+            return elementIndex
+        }
         val alternativeNamesMap =
             json.schemaCache.getOrPut(this, JsonAlternativeNamesKey, this::buildAlternativeNamesMap)
-        return alternativeNamesMap[key] ?: CompositeDecoder.UNKNOWN_NAME
+        return alternativeNamesMap[key] ?: UNKNOWN_NAME
     }
 
     private fun decodeObjectIndex(tokenClass: Byte, desc: SerialDescriptor): Int {
@@ -122,7 +126,7 @@ internal class StreamingJsonInput internal constructor(
             reader.requireTokenClass(TC_COLON) { "Expected ':'" }
             reader.nextToken()
             val index = desc.getJsonElementIndex(key)
-            if (index != CompositeDecoder.UNKNOWN_NAME) {
+            if (index != UNKNOWN_NAME) {
                 return index
             }
 
