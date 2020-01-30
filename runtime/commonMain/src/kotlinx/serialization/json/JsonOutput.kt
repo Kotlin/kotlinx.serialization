@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json
@@ -51,3 +51,6 @@ public interface JsonOutput: Encoder, CompositeEncoder {
      */
     public fun encodeJson(element: JsonElement)
 }
+
+internal fun Encoder.asJsonOutput() = this as? JsonOutput
+        ?: throw SerializationException("This transformation can be used only with Json")
