@@ -15,11 +15,11 @@ class SerialDescriptorBuilderTest {
     @SerialName("Wrapper")
     class Wrapper(val i: Int)
 
-    private val wrapperDescriptor = SerialDescriptor("Wrapper", 1, StructureKind.CLASS) {
+    private val wrapperDescriptor = SerialDescriptor("Wrapper", StructureKind.CLASS) {
         element("i", IntSerializer.descriptor)
     }
 
-    private val dataHolderDescriptor = SerialDescriptor("DataHolder", 5, StructureKind.CLASS) {
+    private val dataHolderDescriptor = SerialDescriptor("DataHolder", StructureKind.CLASS) {
         element<String>("string")
         element("nullableWrapper", wrapperDescriptor.nullable)
         element("wrapper", wrapperDescriptor)
@@ -53,7 +53,7 @@ class SerialDescriptorBuilderTest {
     class Box<T>(val value: T, val list: List<T>)
 
     class CustomBoxSerializer<T>(val typeSerializer: KSerializer<T>) {
-        val descriptor: SerialDescriptor = SerialDescriptor("Box", 2, StructureKind.CLASS) {
+        val descriptor: SerialDescriptor = SerialDescriptor("Box", StructureKind.CLASS) {
             element("value", typeSerializer.descriptor)
             element("list", ArrayListSerializer(typeSerializer).descriptor)
         }
@@ -63,9 +63,7 @@ class SerialDescriptorBuilderTest {
     fun testGenericDescriptor() {
         val original = Box.serializer(Wrapper.serializer()).descriptor
         val userDefined = CustomBoxSerializer(object : KSerializer<Wrapper> {
-            override val descriptor: SerialDescriptor
-                get() = wrapperDescriptor
-
+            override val descriptor: SerialDescriptor = wrapperDescriptor
             override fun serialize(encoder: Encoder, value: Wrapper) = TODO()
             override fun deserialize(decoder: Decoder): Wrapper = TODO()
         }).descriptor
@@ -75,18 +73,7 @@ class SerialDescriptorBuilderTest {
     @Test
     fun testMisconfiguration() {
         assertFailsWith<IllegalStateException> {
-            SerialDescriptor("", 1, StructureKind.CLASS) {}
-        }
-
-        assertFailsWith<IllegalStateException> {
-            SerialDescriptor("", 1, StructureKind.CLASS) {
-                element<Int>("i")
-                element<Int>("l")
-            }
-        }
-
-        assertFailsWith<IllegalStateException> {
-            SerialDescriptor("", 2, StructureKind.CLASS) {
+            SerialDescriptor("", StructureKind.CLASS) {
                 element<Int>("i")
                 element<Int>("i")
             }

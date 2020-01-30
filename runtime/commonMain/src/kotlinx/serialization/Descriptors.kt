@@ -32,6 +32,7 @@ sealed class StructureKind : SerialKind() {
 sealed class UnionKind : SerialKind() {
     object OBJECT : UnionKind()
     object ENUM_KIND : UnionKind() // https://github.com/JetBrains/kotlin-native/issues/1447
+    object CONTEXTUAL: UnionKind()
 
     companion object {
         @Deprecated(

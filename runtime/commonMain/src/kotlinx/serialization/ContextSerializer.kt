@@ -6,7 +6,6 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.reflect.*
 
@@ -24,8 +23,7 @@ import kotlin.reflect.*
  */
 @ImplicitReflectionSerializer
 public class ContextSerializer<T : Any>(private val serializableClass: KClass<T>) : KSerializer<T> {
-    // TODO make a decision on this one, see polymorphic
-    public override val descriptor: SerialDescriptor = SerialDescriptor("CONTEXTUAL", 0) {}
+    public override val descriptor: SerialDescriptor = SerialDescriptor("kotlinx.serialization.ContextSerializer", UnionKind.CONTEXTUAL) {}
 
     public override fun serialize(encoder: Encoder, value: T) {
         val s = encoder.context.getContextualOrDefault(value)

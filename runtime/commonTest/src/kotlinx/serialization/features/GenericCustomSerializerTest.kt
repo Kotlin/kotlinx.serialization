@@ -31,7 +31,7 @@ class CheckedData<T : Any>(val data: T, val checkSum: ByteArray) {
 
 @Serializer(forClass = CheckedData::class)
 class CheckedDataSerializer<T : Any>(private val dataSerializer: KSerializer<T>) : KSerializer<CheckedData<T>> {
-    override val descriptor: SerialDescriptor = SerialDescriptor("CheckedDataSerializer", 2) {
+    override val descriptor: SerialDescriptor = SerialDescriptor("CheckedDataSerializer") {
         val typeDescriptor = dataSerializer.descriptor
         element("data", typeDescriptor)
         element("checkSum", ByteArraySerializer.descriptor)

@@ -5,7 +5,6 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlin.test.*
 
@@ -91,9 +90,9 @@ data class ItemWithoutPlatform(
 
 class ItemPlatformSerializer : KSerializer<ItemPlatform> {
 
-    override val descriptor: SerialDescriptor = SerialDescriptor("ItemPlatform", 3, UnionKind.ENUM_KIND) {
+    override val descriptor: SerialDescriptor = SerialDescriptor("ItemPlatform", UnionKind.ENUM_KIND) {
         enumValues<ItemPlatform>().forEach {
-            element(it.name, SerialDescriptor("$serialName.${it.name}", 0, UnionKind.OBJECT) {})
+            element(it.name, SerialDescriptor("$serialName.${it.name}", UnionKind.OBJECT) {})
         }
     }
 
@@ -117,9 +116,9 @@ class ItemPlatformSerializer : KSerializer<ItemPlatform> {
 
 class ItemContextSerializer : KSerializer<ItemContext> {
 
-    override val descriptor: SerialDescriptor = SerialDescriptor("ItemContext", 3, UnionKind.ENUM_KIND) {
+    override val descriptor: SerialDescriptor = SerialDescriptor("ItemContext", UnionKind.ENUM_KIND) {
         enumValues<ItemContext>().forEach {
-            element(it.name, SerialDescriptor("$serialName.${it.name}", 0, UnionKind.OBJECT) {})
+            element(it.name, SerialDescriptor("$serialName.${it.name}", UnionKind.OBJECT) {})
         }
     }
 

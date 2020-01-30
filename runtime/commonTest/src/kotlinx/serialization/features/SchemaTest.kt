@@ -16,7 +16,7 @@ class SchemaTest {
         @Serializer(forClass = Data1::class)
         companion object {
             // TODO removal of explicit type crashes the compiler
-            override val descriptor: SerialDescriptor = SerialDescriptor("Data1", 2) {
+            override val descriptor: SerialDescriptor = SerialDescriptor("Data1") {
                 element("l", listDescriptor<Int>(), isOptional = true)
                 element("s", descriptor<String>())
             }

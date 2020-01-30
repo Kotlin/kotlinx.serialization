@@ -33,14 +33,12 @@ import kotlinx.serialization.internal.*
  */
 public fun SerialDescriptor(
     serialName: String,
-    elementsCount: Int,
     kind: SerialKind = StructureKind.CLASS,
     builder: SerialDescriptorBuilder.() -> Unit
 ): SerialDescriptor {
-    val sdBuilder = SerialDescriptorBuilder(serialName, elementsCount)
+    val sdBuilder = SerialDescriptorBuilder(serialName)
     sdBuilder.builder()
-    sdBuilder.verify()
-    return SerialDescriptorImpl(serialName, kind, elementsCount, sdBuilder)
+    return SerialDescriptorImpl(serialName, kind, sdBuilder.elementNames.size, sdBuilder)
 }
 
 /**
@@ -64,8 +62,7 @@ public val SerialDescriptor.nullable: SerialDescriptor
  * Please refer to [SerialDescriptor] builder function for a complete example.
  */
 public class SerialDescriptorBuilder internal constructor(
-    public val serialName: String,
-    private val elementsCount: Int
+    public val serialName: String
 ) {
     /**
      * Whether the resulting descriptor represents [nullable][SerialDescriptor.isNullable] type
@@ -77,11 +74,11 @@ public class SerialDescriptorBuilder internal constructor(
      */
     public var annotations: List<Annotation> = emptyList()
 
-    internal val elementNames: MutableList<String> = ArrayList(elementsCount)
-    private val uniqueNames: MutableSet<String> = HashSet(elementsCount)
-    internal val elementDescriptors: MutableList<SerialDescriptor> = ArrayList(elementsCount)
-    internal val elementAnnotations: MutableList<List<Annotation>> = ArrayList(elementsCount)
-    internal val elementOptionality: MutableList<Boolean> = ArrayList(elementsCount)
+    internal val elementNames: MutableList<String> = ArrayList()
+    private val uniqueNames: MutableSet<String> = HashSet()
+    internal val elementDescriptors: MutableList<SerialDescriptor> = ArrayList()
+    internal val elementAnnotations: MutableList<List<Annotation>> = ArrayList()
+    internal val elementOptionality: MutableList<Boolean> = ArrayList()
 
     /**
      * Add an element with a given [name][elementName], [descriptor],
@@ -107,7 +104,6 @@ public class SerialDescriptorBuilder internal constructor(
         annotations: List<Annotation> = emptyList(),
         isOptional: Boolean = false
     ) {
-        checkOverflow(elementName)
         if (!uniqueNames.add(elementName)) {
             error("Element with name '$elementName' is already registered")
         }
@@ -129,17 +125,6 @@ public class SerialDescriptorBuilder internal constructor(
     ) {
         val descriptor = serializer<T>().descriptor
         element(elementName, descriptor, annotations, isOptional)
-    }
-
-    internal fun verify() {
-        if (elementNames.size != elementsCount) {
-            error("Expected $elementsCount elements, but has only ${elementNames.size}")
-        }
-    }
-
-    private fun checkOverflow(elementName: String) {
-        if (elementNames.size < elementsCount) return
-        error("Declared only $elementsCount elements, but tried to add one more: $elementName")
     }
 }
 
