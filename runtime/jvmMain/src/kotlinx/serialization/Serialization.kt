@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import java.lang.reflect.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.*
 
 @Suppress("UNCHECKED_CAST")
@@ -59,6 +60,7 @@ private fun <T : Any> findObjectSerializer(jClass: Class<T>): KSerializer<T>? {
         jClass.methods.singleOrNull { it.name == "serializer" && it.parameters.isEmpty() && it.returnType == KSerializer::class.java }
             ?: return null
     val result = method.invoke(instance)
+    @Suppress("UNCHECKED_CAST")
     return result as? KSerializer<T>
 }
 
@@ -77,3 +79,6 @@ private fun <T : Any> findObjectSerializer(jClass: Class<T>): KSerializer<T>? {
 internal actual fun Any.isInstanceOf(kclass: KClass<*>): Boolean = kclass.javaObjectType.isInstance(this)
 
 internal actual fun <T : Any> KClass<T>.simpleName(): String? = java.simpleName
+
+internal actual fun <K, V> createMapForCache(initialCapacity: Int): MutableMap<K, V> =
+    ConcurrentHashMap(initialCapacity)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -11,10 +11,11 @@ private typealias DescriptorData<T> = MutableMap<DescriptorSchemaCache.Key<T>, T
  *
  * This map is not thread safe. For thread safety and performance reasons, it is advised to pass it via stack (e.g. in function parameters)
  */
-public class DescriptorSchemaCache {
-    private val map: MutableMap<SerialDescriptor, DescriptorData<Any>> = hashMapOf()
+internal class DescriptorSchemaCache {
+    private val map: MutableMap<SerialDescriptor, DescriptorData<Any>> = createMapForCache()
 
-    public operator fun <T : Any> set(descriptor: SerialDescriptor, key: Key<T>, value: T): Unit {
+    @Suppress("UNCHECKED_CAST")
+    public operator fun <T : Any> set(descriptor: SerialDescriptor, key: Key<T>, value: T) {
         map.getOrPut(descriptor, ::hashMapOf)[key as Key<Any>] = value as Any
     }
 
@@ -25,6 +26,7 @@ public class DescriptorSchemaCache {
         return value
     }
 
+    @Suppress("UNCHECKED_CAST")
     public operator fun <T : Any> get(descriptor: SerialDescriptor, key: Key<T>): T? {
         return map[descriptor]?.get(key as Key<Any>) as? T
     }

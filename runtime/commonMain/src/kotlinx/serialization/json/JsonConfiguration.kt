@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json
@@ -35,9 +35,10 @@ public data class JsonConfiguration @UnstableDefault constructor(
     @JvmField internal val indent: String = defaultIndent,
     @JvmField internal val useArrayPolymorphism: Boolean = false,
     @JvmField internal val classDiscriminator: String = defaultDiscriminator,
-    @JvmField internal val supportAlternativeNames: Boolean = false,
+    @JvmField internal val useAlternativeNames: Boolean = false,
     @Deprecated(message = "Custom update modes are not fully supported", level = DeprecationLevel.WARNING)
-    @JvmField internal val updateMode: UpdateMode = UpdateMode.OVERWRITE) {
+    @JvmField internal val updateMode: UpdateMode = UpdateMode.OVERWRITE
+) {
 
     init {
         if (useArrayPolymorphism) require(classDiscriminator == defaultDiscriminator) {
@@ -80,7 +81,7 @@ public data class JsonConfiguration @UnstableDefault constructor(
             indent = defaultIndent,
             useArrayPolymorphism = false,
             classDiscriminator = defaultDiscriminator,
-            supportAlternativeNames = false
+            useAlternativeNames = false
         )
     }
 }

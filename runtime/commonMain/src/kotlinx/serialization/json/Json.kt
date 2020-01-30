@@ -80,6 +80,8 @@ public constructor(
     @UseExperimental(UnstableDefault::class)
     private constructor(builder: JsonBuilder) : this(builder.buildConfiguration(), builder.buildModule())
 
+    internal val schemaCache: DescriptorSchemaCache = DescriptorSchemaCache()
+
     init {
         validateConfiguration()
     }
@@ -126,7 +128,7 @@ public constructor(
      */
     public override fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T {
         val reader = JsonReader(string)
-        val input = StreamingJsonInput(this, WriteMode.OBJ, reader, DescriptorSchemaCache())
+        val input = StreamingJsonInput(this, WriteMode.OBJ, reader)
         val result = input.decode(deserializer)
         if (!reader.isDone) { error("Reader has not consumed the whole input: $reader") }
         return result
@@ -158,18 +160,23 @@ public constructor(
     @ImplicitReflectionSerializer
     public inline fun <reified T : Any> fromJson(tree: JsonElement): T = fromJson(context.getContextualOrDefault(T::class), tree)
 
+    @ThreadLocal // to support caching
     companion object : StringFormat {
         @Suppress("DEPRECATION")
         @UnstableDefault
         public val plain = Json(JsonConfiguration(useArrayPolymorphism = true))
+
         @UnstableDefault
         public val unquoted = Json(JsonConfiguration(unquoted = true, useArrayPolymorphism = true))
+
         @UnstableDefault
         public val indented = Json(JsonConfiguration(prettyPrint = true, useArrayPolymorphism = true))
+
         @UnstableDefault
         public val nonstrict = Json(JsonConfiguration(strictMode = false, useArrayPolymorphism = true))
 
         override fun install(module: SerialModule) = throw IllegalStateException("You should not install anything to global instance")
+
         @UseExperimental(UnstableDefault::class)
         override val context: SerialModule get() = plain.context
 
@@ -203,7 +210,7 @@ public class JsonBuilder {
     public var indent: String = "    "
     public var useArrayPolymorphism: Boolean = false
     public var classDiscriminator: String = "type"
-    public var supportAlternativeNames: Boolean = false
+    public var useAlternativeNames: Boolean = false
     public var serialModule: SerialModule = EmptyModule
 
     public fun buildConfiguration(): JsonConfiguration =
@@ -216,7 +223,7 @@ public class JsonBuilder {
             indent,
             useArrayPolymorphism,
             classDiscriminator,
-            supportAlternativeNames
+            useAlternativeNames
         )
 
     public fun buildModule(): SerialModule = serialModule

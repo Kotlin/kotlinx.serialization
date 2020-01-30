@@ -30,7 +30,7 @@ actual fun <E: Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E =
 actual fun <E: Enum<E>> KClass<E>.enumClassName(): String = this.js.name
 actual fun <E: Enum<E>> KClass<E>.enumMembers(): Array<E> = (this.js.asDynamic().values() as Array<E>)
 
-actual fun <T: Any, E: T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> = toTypedArray()
+actual fun <T : Any, E : T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> = toTypedArray()
 
 internal actual fun Any.isInstanceOf(kclass: KClass<*>): Boolean = kclass.isInstance(this)
 
@@ -39,3 +39,5 @@ internal actual fun <T : Any> KClass<T>.simpleName(): String? = simpleName
 internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
     throw NotImplementedError("This method is not supported for Kotlin/JS yet. Please provide serializer explicitly.")
 }
+
+internal actual fun <K, V> createMapForCache(initialCapacity: Int): MutableMap<K, V> = HashMap(initialCapacity)

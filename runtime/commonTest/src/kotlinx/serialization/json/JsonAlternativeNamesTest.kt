@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("ReplaceArrayOfWithLiteral") // https://youtrack.jetbrains.com/issue/KT-22578
@@ -8,22 +8,23 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.test.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @Serializable
-data class WithNames(@JsonAlternativeNames(arrayOf("foo", "_foo")) val data: String)
+data class WithNames(@JsonNames(arrayOf("foo", "_foo")) val data: String)
 
 @Serializable
-data class WithDuplicateNames(val foo: String, @JsonAlternativeNames(arrayOf("foo", "_foo")) val data: String)
+data class WithDuplicateNames(val foo: String, @JsonNames(arrayOf("foo", "_foo")) val data: String)
 
 @Serializable
-data class WithDuplicateNames2(@JsonAlternativeNames(arrayOf("foo", "_foo")) val data: String, val foo: String)
+data class WithDuplicateNames2(@JsonNames(arrayOf("foo", "_foo")) val data: String, val foo: String)
 
 class JsonAlternativeNamesTest : JsonTestBase() {
     private val inputString1 = """{"foo":"foo"}"""
     private val inputString2 = """{"_foo":"foo"}"""
-    private val json = Json(JsonConfiguration(strictMode = false, supportAlternativeNames = true))
+    private val json = Json(JsonConfiguration(strictMode = false, useAlternativeNames = true))
 
     @Test
     fun parsesAllAlternativeNames() {
@@ -39,7 +40,7 @@ class JsonAlternativeNamesTest : JsonTestBase() {
         parametrizedTest { streaming ->
             assertFailsWithMessage<IllegalStateException>(
                 expectedErrorMessage,
-                "Class ${serializer.descriptor.name} did not fail with streaming=$streaming"
+                "Class ${serializer.descriptor.serialName} did not fail with streaming=$streaming"
             ) {
                 json.parse(serializer, inputString1, useStreaming = streaming)
             }

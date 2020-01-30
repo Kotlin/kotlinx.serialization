@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json
@@ -62,7 +62,7 @@ abstract class JsonTestBase {
             parse(deserializer, source)
         } else {
             val parser = JsonReader(source)
-            val input = StreamingJsonInput(this, WriteMode.OBJ, parser, DescriptorSchemaCache())
+            val input = StreamingJsonInput(this, WriteMode.OBJ, parser)
             val tree = input.decodeJson()
             if (!input.reader.isDone) { error("Reader has not consumed the whole input: ${input.reader}") }
             readJson(tree, deserializer)
@@ -143,14 +143,5 @@ abstract class JsonTestBase {
             val deserialized: T = json.parse(serializer, serialized, useStreaming)
             assertEquals(data, deserialized)
         }
-    }
-
-    inline fun <reified T : Throwable> assertFailsWithMessage(
-        message: String,
-        assertionMessage: String? = null,
-        block: () -> Unit
-    ) {
-        val exception = assertFailsWith(T::class, assertionMessage, block)
-        assertTrue(exception.message!!.contains(message), "Expected message '${exception.message}' to contain substring '$message'")
     }
 }

@@ -64,3 +64,5 @@ private fun <T> arrayOfAnyNulls(size: Int): Array<T> = arrayOfNulls<Any>(size) a
 internal actual fun Any.isInstanceOf(kclass: KClass<*>): Boolean = kclass.isInstance(this)
 
 internal actual fun <T : Any> KClass<T>.simpleName(): String? = simpleName
+
+internal actual fun <K, V> createMapForCache(initialCapacity: Int): MutableMap<K, V> = HashMap(initialCapacity)

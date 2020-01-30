@@ -15,8 +15,7 @@ import kotlin.jvm.JvmField
 internal class StreamingJsonInput internal constructor(
     public override val json: Json,
     private val mode: WriteMode,
-    @JvmField internal val reader: JsonReader,
-    @JvmField private val schemaCache: DescriptorSchemaCache
+    @JvmField internal val reader: JsonReader
 ) : JsonInput, ElementValueDecoder() {
 
     public override val context: SerialModule = json.context
@@ -43,11 +42,10 @@ internal class StreamingJsonInput internal constructor(
             WriteMode.LIST, WriteMode.MAP, WriteMode.POLY_OBJ -> StreamingJsonInput(
                 json,
                 newMode,
-                reader,
-                schemaCache
+                reader
             ) // need fresh cur index
             else -> if (mode == newMode) this else
-                StreamingJsonInput(json, newMode, reader, schemaCache) // todo: reuse instance per mode
+                StreamingJsonInput(json, newMode, reader) // todo: reuse instance per mode
         }
     }
 
@@ -107,8 +105,9 @@ internal class StreamingJsonInput internal constructor(
     }
 
     private fun SerialDescriptor.getJsonElementIndex(key: String): Int {
-        if (!json.configuration.supportAlternativeNames) return this.getElementIndex(key)
-        val alternativeNamesMap = schemaCache.getOrPut(this, JsonAlternativeNamesKey, this::buildAlternativeNamesMap)
+        if (!json.configuration.useAlternativeNames) return this.getElementIndex(key)
+        val alternativeNamesMap =
+            json.schemaCache.getOrPut(this, JsonAlternativeNamesKey, this::buildAlternativeNamesMap)
         return alternativeNamesMap[key] ?: CompositeDecoder.UNKNOWN_NAME
     }
 

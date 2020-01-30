@@ -1,13 +1,12 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.test
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.HexConverter
-import kotlinx.serialization.json.Json
-import kotlin.test.assertEquals
+import kotlinx.serialization.json.*
+import kotlin.test.*
 
 
 inline fun <reified T : Any> assertStringForm(
@@ -53,3 +52,15 @@ inline fun <reified T : Any> StringFormat.assertStringFormAndRestored(
 }
 
 infix fun <T> T.shouldBe(expected: T) = assertEquals(expected, this)
+
+inline fun <reified T : Throwable> assertFailsWithMessage(
+    message: String,
+    assertionMessage: String? = null,
+    block: () -> Unit
+) {
+    val exception = assertFailsWith(T::class, assertionMessage, block)
+    assertTrue(
+        exception.message!!.contains(message),
+        "Expected message '${exception.message}' to contain substring '$message'"
+    )
+}

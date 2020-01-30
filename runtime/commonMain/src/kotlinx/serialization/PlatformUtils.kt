@@ -55,3 +55,5 @@ internal expect fun Any.isInstanceOf(kclass: KClass<*>): Boolean
  * On JVM, it uses `java.lang.Class.getSimpleName()` (therefore does not work for local classes and other edge cases).
  */
 internal expect fun <T : Any> KClass<T>.simpleName(): String?
+
+internal expect fun <K, V> createMapForCache(initialCapacity: Int = 8): MutableMap<K, V>
