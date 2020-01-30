@@ -34,7 +34,7 @@ import kotlinx.serialization.internal.*
 public fun SerialDescriptor(
     serialName: String,
     kind: SerialKind = StructureKind.CLASS,
-    builder: SerialDescriptorBuilder.() -> Unit
+    builder: SerialDescriptorBuilder.() -> Unit = {}
 ): SerialDescriptor {
     val sdBuilder = SerialDescriptorBuilder(serialName)
     sdBuilder.builder()
@@ -208,8 +208,7 @@ private class SerialDescriptorImpl(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || this::class != other::class) return false
-        other as SerialDescriptorImpl
+        if (other !is SerialDescriptor) return false
         if (serialName != other.serialName) return false
         return true
     }

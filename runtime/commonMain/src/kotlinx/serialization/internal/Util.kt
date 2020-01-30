@@ -80,10 +80,32 @@ object HexConverter {
 
 internal fun SerialDescriptor.cachedSerialNames(): Set<String> {
     @Suppress("DEPRECATION_ERROR")
-    if (this is SerialClassDescImpl) return namesSet
+    if (this is PluginGeneratedSerialDescriptor) return namesSet
     val result = HashSet<String>(elementsCount)
     for (i in 0 until elementsCount) {
         result += getElementName(i)
     }
     return result
+}
+
+/**
+ * Returns serial descriptor that delegates all the calls to descriptor returned by [deferred] block.
+ * Used to resolve cyclic dependencies between recursive serializable structures.
+ */
+internal fun defer(deferred: () -> SerialDescriptor): SerialDescriptor = object : SerialDescriptor {
+
+    private val original: SerialDescriptor by lazy(deferred)
+
+    override val serialName: String
+        get() = original.serialName
+    override val kind: SerialKind
+        get() = original.kind
+    override val elementsCount: Int
+        get() = original.elementsCount
+
+    override fun getElementName(index: Int): String = original.getElementName(index)
+    override fun getElementIndex(name: String): Int = original.getElementIndex(name)
+    override fun getElementAnnotations(index: Int): List<Annotation> = original.getElementAnnotations(index)
+    override fun getElementDescriptor(index: Int): SerialDescriptor = original.getElementDescriptor(index)
+    override fun isElementOptional(index: Int): Boolean = original.isElementOptional(index)
 }

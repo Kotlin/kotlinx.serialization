@@ -14,12 +14,12 @@ import kotlinx.serialization.*
 @Deprecated(level = DeprecationLevel.HIDDEN, message = "For plugin-generated code")
 public class EnumDescriptor(
     name: String,
-    elementsCount: Int = 1 // TODO get rid of default value in the next release
+    elementsCount: Int
 ) : SerialClassDescImpl(name, elementsCount = elementsCount) {
 
     override val kind: SerialKind = UnionKind.ENUM_KIND
     private val elementDescriptors by lazy {
-        Array(elementsCount) { SerialDescriptor(name + "." + getElementName(it), UnionKind.OBJECT) {} }
+        Array(elementsCount) { SerialDescriptor(name + "." + getElementName(it), UnionKind.OBJECT) }
     }
 
     override fun getElementDescriptor(index: Int): SerialDescriptor = elementDescriptors.getChecked(index)

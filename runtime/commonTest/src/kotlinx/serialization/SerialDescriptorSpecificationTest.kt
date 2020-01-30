@@ -29,10 +29,8 @@ class SerialDescriptorSpecificationTest {
         val userDefinedHolderDescriptor =
             SerialDescriptor("kotlinx.serialization.SerialDescriptorSpecificationTest.Holder", StructureKind.CLASS) {
                 element<Int?>("a")
-
                 val annotation = Holder.serializer().descriptor.findAnnotation<Id>(1)
                 element<String>("b", listOf(annotation!!), isOptional = true)
-
                 element<Long>("c")
             }
     }
@@ -153,6 +151,24 @@ class SerialDescriptorSpecificationTest {
         assertFalse(descriptor.isElementOptional(0))
         assertFalse(descriptor.isElementOptional(1))
         assertFailsWith<IllegalStateException> { descriptor.isElementOptional(3) }
+    }
+
+    @Serializable
+    @SerialName("SerializableObject")
+    object SerializableObject {}
+
+    @Test
+    fun testObjectDescriptor() {
+        val descriptor = SerializableObject.serializer().descriptor
+        assertEquals(UnionKind.OBJECT, descriptor.kind)
+        assertEquals("SerializableObject", descriptor.serialName)
+        assertEquals(0, descriptor.elementsCount)
+        assertEquals(UNKNOWN_NAME, descriptor.getElementIndex("?"))
+        // Failure modes
+        assertFailsWith<IndexOutOfBoundsException> { descriptor.isElementOptional(0) }
+        assertFailsWith<IndexOutOfBoundsException> { descriptor.getElementAnnotations(0) }
+        assertFailsWith<IndexOutOfBoundsException> { descriptor.getElementName(0) }
+        assertFailsWith<IndexOutOfBoundsException> { descriptor.getElementAnnotations(0) }
     }
 
     @Test

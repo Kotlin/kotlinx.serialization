@@ -55,7 +55,7 @@ class SerialDescriptorBuilderTest {
     class CustomBoxSerializer<T>(val typeSerializer: KSerializer<T>) {
         val descriptor: SerialDescriptor = SerialDescriptor("Box", StructureKind.CLASS) {
             element("value", typeSerializer.descriptor)
-            element("list", ArrayListSerializer(typeSerializer).descriptor)
+            element("list", listDescriptor(typeSerializer.descriptor))
         }
     }
 
