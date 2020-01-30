@@ -20,8 +20,13 @@ internal class SerialModuleImpl(
 
     override fun <T : Any> getPolymorphic(baseClass: KClass<T>, value: T): KSerializer<out T>? {
         if (!value.isInstanceOf(baseClass)) return null
-        (if (baseClass == Any::class) StandardSubtypesOfAny.getSubclassSerializer(value) else null)?.let { return it as KSerializer<out T> }
-        return polyBase2Serializers[baseClass]?.get(value::class) as? KSerializer<out T>
+        val custom = polyBase2Serializers[baseClass]?.get(value::class) as? KSerializer<out T>
+        if (custom != null) return custom
+        if (baseClass == Any::class) {
+            val serializer = StandardSubtypesOfAny.getSubclassSerializer(value)
+            return serializer as? KSerializer<out T>
+        }
+        return null
     }
 
     override fun <T : Any> getPolymorphic(baseClass: KClass<T>, serializedClassName: String): KSerializer<out T>? {

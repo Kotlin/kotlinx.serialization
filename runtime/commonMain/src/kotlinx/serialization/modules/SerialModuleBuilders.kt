@@ -7,6 +7,7 @@
 package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
+import kotlin.jvm.*
 import kotlin.reflect.*
 
 /**
@@ -152,15 +153,28 @@ public class SerializersModuleBuilder internal constructor() : SerialModuleColle
         }
     }
 
+    @JvmName("registerSerializer") // Don't mangle method name for prettier stack traces
     internal fun <T : Any> registerSerializer(
         forClass: KClass<T>,
         serializer: KSerializer<T>,
         allowOverwrite: Boolean = false
     ) {
-        if (!allowOverwrite && forClass in class2Serializer) throw SerializerAlreadyRegisteredException(forClass)
+        if (!allowOverwrite) {
+            val previous = class2Serializer[forClass]
+            if (previous != null && previous != serializer) {
+                // TODO when working on SD rework, provide a way to properly stringify serializer as its FQN
+                val currentName = serializer.descriptor.serialName
+                val previousName = previous.descriptor.serialName
+                throw SerializerAlreadyRegisteredException(
+                    "Serializer for $forClass already registered in this module: $previous ($previousName), " +
+                            "attempted to register $serializer ($currentName)"
+                )
+            }
+        }
         class2Serializer[forClass] = serializer
     }
 
+    @JvmName("registerPolymorphicSerializer") // Don't mangle method name for prettier stack traces
     internal fun <Base : Any, Sub : Base> registerPolymorphicSerializer(
         baseClass: KClass<Base>,
         concreteClass: KClass<Sub>,
@@ -184,7 +198,12 @@ public class SerializersModuleBuilder internal constructor() : SerialModuleColle
         }
         // Overwrite prohibited
         if (previousSerializer != null) {
-            throw SerializerAlreadyRegisteredException(baseClass, concreteClass)
+            if (previousSerializer != concreteSerializer) {
+                throw SerializerAlreadyRegisteredException(baseClass, concreteClass)
+            } else {
+                // Cleanup name mapping
+                names.remove(previousSerializer.descriptor.serialName)
+            }
         }
         val previousByName = names[name]
         if (previousByName != null) {
