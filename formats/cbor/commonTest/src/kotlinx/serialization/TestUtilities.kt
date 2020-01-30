@@ -16,7 +16,7 @@ inline fun <reified T : Any> assertSerializedToBinaryAndRestored(
     hexResultToCheck: String? = null
 ) {
     val bytes = format.dump(serializer, original)
-    val hexString = HexConverter.printHexBinary(bytes, lowerCase = true)
+    val hexString = InternalHexConverter.printHexBinary(bytes, lowerCase = true)
     if (printResult) {
         println("[Serialized form] $hexString")
     }

@@ -5,7 +5,7 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.HexConverter
+import kotlinx.serialization.internal.InternalHexConverter
 import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
@@ -25,8 +25,8 @@ class BinaryPayloadExampleTest {
 
             override fun serialize(encoder: Encoder, value: BinaryPayload) {
                 val compositeOutput = encoder.beginStructure(descriptor)
-                compositeOutput.encodeStringElement(descriptor, 0, HexConverter.printHexBinary(value.req))
-                compositeOutput.encodeStringElement(descriptor, 1, HexConverter.printHexBinary(value.res))
+                compositeOutput.encodeStringElement(descriptor, 0, InternalHexConverter.printHexBinary(value.req))
+                compositeOutput.encodeStringElement(descriptor, 1, InternalHexConverter.printHexBinary(value.res))
                 compositeOutput.endStructure(descriptor)
             }
 
@@ -37,8 +37,8 @@ class BinaryPayloadExampleTest {
                 loop@ while (true) {
                     when (val i = dec.decodeElementIndex(descriptor)) {
                         CompositeDecoder.READ_DONE -> break@loop
-                        0 -> req = HexConverter.parseHexBinary(dec.decodeStringElement(descriptor, i))
-                        1 -> res = HexConverter.parseHexBinary(dec.decodeStringElement(descriptor, i))
+                        0 -> req = InternalHexConverter.parseHexBinary(dec.decodeStringElement(descriptor, i))
+                        1 -> res = InternalHexConverter.parseHexBinary(dec.decodeStringElement(descriptor, i))
                         else -> throw SerializationException("Unknown index $i")
                     }
                 }

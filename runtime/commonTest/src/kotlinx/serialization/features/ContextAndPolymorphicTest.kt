@@ -35,11 +35,11 @@ class ContextAndPolymorphicTest {
         override val descriptor: SerialDescriptor = SerialClassDescImpl("Payload")
 
         override fun serialize(encoder: Encoder, value: Payload) {
-            encoder.encodeString(HexConverter.printHexBinary(value.s.toUtf8Bytes()))
+            encoder.encodeString(InternalHexConverter.printHexBinary(value.s.toUtf8Bytes()))
         }
 
         override fun deserialize(decoder: Decoder): Payload {
-            return Payload(stringFromUtf8Bytes(HexConverter.parseHexBinary(decoder.decodeString())))
+            return Payload(stringFromUtf8Bytes(InternalHexConverter.parseHexBinary(decoder.decodeString())))
         }
     }
 

@@ -5,7 +5,6 @@
 package kotlinx.serialization.test
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.HexConverter
 import kotlinx.serialization.json.Json
 import kotlin.test.assertEquals
 

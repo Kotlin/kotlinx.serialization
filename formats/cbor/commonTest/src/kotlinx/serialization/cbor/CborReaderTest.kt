@@ -5,13 +5,13 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.io.ByteArrayInputStream
-import kotlinx.serialization.internal.HexConverter
+import kotlinx.serialization.internal.InternalHexConverter
 import kotlinx.serialization.loads
 import kotlin.test.*
 
 class CborReaderTest {
     private fun withDecoder(input: String, block: Cbor.CborDecoder.() -> Unit) {
-        val bytes = HexConverter.parseHexBinary(input.toUpperCase())
+        val bytes = InternalHexConverter.parseHexBinary(input.toUpperCase())
         Cbor.CborDecoder(ByteArrayInputStream(bytes)).block()
     }
 

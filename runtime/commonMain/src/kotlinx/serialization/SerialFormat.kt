@@ -5,7 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.modules.SerialModule
-import kotlinx.serialization.internal.HexConverter
+import kotlinx.serialization.internal.InternalHexConverter
 
 private const val INSTALL_DEPRECATION_TEXT = "Install is no longer supported, module can be added to format only in constructor"
 
@@ -30,10 +30,10 @@ interface BinaryFormat: SerialFormat {
 }
 
 fun <T> BinaryFormat.dumps(serializer: SerializationStrategy<T>, obj: T): String =
-    HexConverter.printHexBinary(dump(serializer, obj), lowerCase = true)
+    InternalHexConverter.printHexBinary(dump(serializer, obj), lowerCase = true)
 
 fun <T> BinaryFormat.loads(deserializer: DeserializationStrategy<T>, hex: String): T =
-    load(deserializer, HexConverter.parseHexBinary(hex))
+    load(deserializer, InternalHexConverter.parseHexBinary(hex))
 
 interface StringFormat: SerialFormat {
     fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String

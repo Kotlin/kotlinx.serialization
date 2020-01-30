@@ -232,7 +232,7 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
         }
 
         private fun skipByte(expected: Int) {
-            if (curByte != expected) throw CborDecodingException("byte ${HexConverter.toHexString(expected)}", curByte)
+            if (curByte != expected) throw CborDecodingException("byte ${InternalHexConverter.toHexString(expected)}", curByte)
             readByte()
         }
 
@@ -390,4 +390,4 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
 }
 
 class CborDecodingException(expected: String, foundByte: Int) :
-    SerializationException("Expected $expected, but found ${HexConverter.toHexString(foundByte)}")
+    SerializationException("Expected $expected, but found ${InternalHexConverter.toHexString(foundByte)}")

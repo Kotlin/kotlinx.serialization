@@ -19,13 +19,7 @@ public fun InputStream.readExactNBytes(bytes: Int): ByteArray {
     return array
 }
 
-@InternalSerializationApi
-@Deprecated(
-    level = DeprecationLevel.WARNING,
-    message = "HexConverter slipped into public API surface accidentally and will be removed in the future releases. " +
-            "You can copy-paste it to your project or (better) find a polished implementation that initially was intended for public uses."
-)
-object HexConverter {
+object InternalHexConverter {
     private const val hexCode = "0123456789ABCDEF"
 
     fun parseHexBinary(s: String): ByteArray {
@@ -69,6 +63,19 @@ object HexConverter {
         }
         return printHexBinary(arr, true).trimStart('0').takeIf { it.isNotEmpty() } ?: "0"
     }
+}
+
+@InternalSerializationApi
+@Deprecated(
+    level = DeprecationLevel.WARNING,
+    message = "HexConverter slipped into public API surface accidentally and will be removed in the future releases. " +
+            "You can copy-paste it to your project or (better) find a polished implementation that initially was intended for public uses."
+)
+object HexConverter {
+    private const val hexCode = "0123456789ABCDEF"
+    fun parseHexBinary(s: String): ByteArray = InternalHexConverter.parseHexBinary(s)
+    fun printHexBinary(data: ByteArray, lowerCase: Boolean = false): String = InternalHexConverter.printHexBinary(data, lowerCase)
+    fun toHexString(n: Int): String = InternalHexConverter.toHexString(n)
 }
 
 internal fun SerialDescriptor.cachedSerialNames(): Set<String> {

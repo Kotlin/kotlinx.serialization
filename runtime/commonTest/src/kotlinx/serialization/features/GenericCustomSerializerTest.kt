@@ -5,7 +5,7 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.HexConverter
+import kotlinx.serialization.internal.InternalHexConverter
 import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
@@ -43,7 +43,7 @@ class CheckedDataSerializer<T : Any>(private val dataSerializer: KSerializer<T>)
     override fun serialize(encoder: Encoder, value: CheckedData<T>) {
         val out = encoder.beginStructure(descriptor)
         out.encodeSerializableElement(descriptor, 0, dataSerializer, value.data)
-        out.encodeStringElement(descriptor, 1, HexConverter.printHexBinary(value.checkSum))
+        out.encodeStringElement(descriptor, 1, InternalHexConverter.printHexBinary(value.checkSum))
         out.endStructure(descriptor)
     }
 
@@ -55,7 +55,7 @@ class CheckedDataSerializer<T : Any>(private val dataSerializer: KSerializer<T>)
             when (val i = inp.decodeElementIndex(descriptor)) {
                 CompositeDecoder.READ_DONE -> break@loop
                 0 -> data = inp.decodeSerializableElement(descriptor, i, dataSerializer)
-                1 -> sum = HexConverter.parseHexBinary(inp.decodeStringElement(descriptor, i))
+                1 -> sum = InternalHexConverter.parseHexBinary(inp.decodeStringElement(descriptor, i))
                 else -> throw SerializationException("Unknown index $i")
             }
         }

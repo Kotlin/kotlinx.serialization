@@ -1,7 +1,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.modules.getContextualOrDefault
-import kotlinx.serialization.internal.HexConverter
+import kotlinx.serialization.internal.InternalHexConverter
 import kotlinx.serialization.json.*
 
 /**
@@ -32,12 +32,12 @@ public annotation class UnstableDefault
 @ImplicitReflectionSerializer
 public inline fun <reified T : Any> BinaryFormat.dump(obj: T): ByteArray = dump(context.getContextualOrDefault(T::class), obj)
 @ImplicitReflectionSerializer
-public inline fun <reified T : Any> BinaryFormat.dumps(obj: T): String = HexConverter.printHexBinary(dump(obj), lowerCase = true)
+public inline fun <reified T : Any> BinaryFormat.dumps(obj: T): String = InternalHexConverter.printHexBinary(dump(obj), lowerCase = true)
 
 @ImplicitReflectionSerializer
 public inline fun <reified T : Any> BinaryFormat.load(raw: ByteArray): T = load(context.getContextualOrDefault(T::class), raw)
 @ImplicitReflectionSerializer
-public inline fun <reified T : Any> BinaryFormat.loads(hex: String): T = load(HexConverter.parseHexBinary(hex))
+public inline fun <reified T : Any> BinaryFormat.loads(hex: String): T = load(InternalHexConverter.parseHexBinary(hex))
 
 
 @ImplicitReflectionSerializer
