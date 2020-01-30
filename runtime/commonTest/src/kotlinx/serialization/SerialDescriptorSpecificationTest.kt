@@ -9,6 +9,7 @@ import kotlinx.serialization.internal.*
 
 import kotlin.test.*
 
+@ImplicitReflectionSerializer
 class SerialDescriptorSpecificationTest {
 
     @Serializable
@@ -24,22 +25,19 @@ class SerialDescriptorSpecificationTest {
         testHolderDescriptor(HolderDescriptor)
     }
 
-    private object HolderDescriptor : SerialClassDescImpl(
-        "kotlinx.serialization.SerialDescriptorSpecificationTest.Holder"
-    ) {
-        init {
-            addElement("a")
-            pushDescriptor(IntSerializer.nullable.descriptor)
+    private object StaticHolder {
+        val userDefinedHolderDescriptor =
+            SerialDescriptor("kotlinx.serialization.SerialDescriptorSpecificationTest.Holder", 3, StructureKind.CLASS) {
+                element<Int?>("a")
 
-            addElement("b", true)
-            pushDescriptor(StringSerializer.descriptor)
-            // Can't create an annotation manually
-            pushAnnotation(Holder.serializer().descriptor.findAnnotation<Id>(1)!!)
+                val annotation = Holder.serializer().descriptor.findAnnotation<Id>(1)
+                element<String>("b", listOf(annotation!!), isOptional = true)
 
-            addElement("c")
-            pushDescriptor(LongSerializer.descriptor)
-        }
+                element<Long>("c")
+            }
     }
+
+    private object HolderDescriptor : SerialDescriptor by StaticHolder.userDefinedHolderDescriptor
 
     private fun testHolderDescriptor(d: SerialDescriptor) {
         assertEquals(StructureKind.CLASS, d.kind)

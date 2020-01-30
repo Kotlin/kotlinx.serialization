@@ -77,8 +77,7 @@ public open class SerialClassDescImpl(
     }
 
     override fun isElementOptional(index: Int): Boolean {
-        if (index !in flags.indices) throw IndexOutOfBoundsException("Index $index out of bounds ${flags.indices}")
-        return flags[index]
+        return flags.getChecked(index)
     }
 
     override fun getElementAnnotations(index: Int): List<Annotation> = propertiesAnnotations[index] ?: emptyList()
@@ -120,8 +119,5 @@ public open class SerialClassDescImpl(
 }
 
 internal fun NamedDescriptor(name: String, kind: SerialKind): SerialDescriptor {
-    return object : SerialClassDescImpl(name) {
-        override val kind: SerialKind
-            get() = kind
-    }
+    return SerialDescriptor(name, 0, kind) {}
 }

@@ -15,13 +15,10 @@ class SchemaTest {
     data class Data1(val l: List<Int> = emptyList(), val s: String) {
         @Serializer(forClass = Data1::class)
         companion object {
-            override val descriptor: SerialDescriptor = object : SerialClassDescImpl("Data1") {
-                init {
-                    addElement("l", true)
-                    pushDescriptor(ArrayListSerializer(IntSerializer).descriptor)
-                    addElement("s")
-                    pushDescriptor(StringSerializer.descriptor)
-                }
+            // TODO removal of explicit type crashes the compiler
+            override val descriptor: SerialDescriptor = SerialDescriptor("Data1", 2) {
+                element("l", listDescriptor<Int>(), isOptional = true)
+                element("s", descriptor<String>())
             }
         }
     }

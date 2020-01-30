@@ -20,17 +20,13 @@ class JsonCustomSerializersTest : JsonTestBase() {
     data class B(@Id(1) val value: Int)
 
     object BSerializer : KSerializer<B> {
+        override val descriptor: SerialDescriptor = PrimitiveDescriptor("B", PrimitiveKind.INT)
         override fun serialize(encoder: Encoder, value: B) {
             encoder.encodeInt(value.value)
         }
 
         override fun deserialize(decoder: Decoder): B {
             return B(decoder.decodeInt())
-        }
-
-        override val descriptor: SerialDescriptor = object : SerialClassDescImpl("B") {
-            override val kind: SerialKind
-                get() = PrimitiveKind.INT
         }
     }
 

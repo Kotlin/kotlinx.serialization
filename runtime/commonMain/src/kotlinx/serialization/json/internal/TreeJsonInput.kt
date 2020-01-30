@@ -124,7 +124,7 @@ private open class JsonTreeInput(json: Json, override val obj: JsonObject) : Abs
     override fun currentElement(tag: String): JsonElement = obj.getValue(tag)
 
     override fun endStructure(desc: SerialDescriptor) {
-        if (!configuration.strictMode || desc is PolymorphicClassDescriptor) return
+        if (!configuration.strictMode || desc.kind is PolymorphicKind.OPEN) return
 
         // Validate keys
         val names = HashSet<String>(desc.elementsCount)

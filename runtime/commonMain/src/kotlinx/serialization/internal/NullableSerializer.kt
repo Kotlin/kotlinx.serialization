@@ -57,25 +57,25 @@ public class NullableSerializer<T : Any>(private val serializer: KSerializer<T>)
     override fun hashCode(): Int {
         return serializer.hashCode()
     }
+}
 
-    private class SerialDescriptorForNullable(private val original: SerialDescriptor): SerialDescriptor by original {
-        override val serialName: String = original.serialName + ".nullable"
-        override val isNullable: Boolean
-            get() = true
+internal class SerialDescriptorForNullable(private val original: SerialDescriptor): SerialDescriptor by original {
+    override val serialName: String = original.serialName + ".nullable"
+    override val isNullable: Boolean
+        get() = true
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other !is SerialDescriptorForNullable) return false
-            if (original != other.original) return false
-            return true
-        }
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SerialDescriptorForNullable) return false
+        if (original != other.original) return false
+        return true
+    }
 
-        override fun toString(): String {
-            return "$original?"
-        }
+    override fun toString(): String {
+        return "$original?"
+    }
 
-        override fun hashCode(): Int {
-            return original.hashCode() * 31
-        }
+    override fun hashCode(): Int {
+        return original.hashCode() * 31
     }
 }

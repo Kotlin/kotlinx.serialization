@@ -51,6 +51,10 @@ class DynamicParserTest {
     data class NotDefault(val a: Int)
 
     object NDSerializer : KSerializer<NotDefault> {
+        override val descriptor = SerialDescriptor("notDefault", 1) {
+            element<Int>("a")
+        }
+
         override fun serialize(encoder: Encoder, value: NotDefault) {
             encoder.encodeInt(value.a)
         }
@@ -58,8 +62,6 @@ class DynamicParserTest {
         override fun deserialize(decoder: Decoder): NotDefault {
             return NotDefault(decoder.decodeInt())
         }
-
-        override val descriptor = SerialClassDescImpl("notDefault")
     }
 
     @Serializable

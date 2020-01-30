@@ -21,11 +21,11 @@ import kotlin.reflect.*
  * Serializers are being looked for in a [SerialModule] from the target [Encoder] or [Decoder], using statically known [KClass].
  * To create a serial module, use [SerializersModule] factory function.
  * To pass it to encoder and decoder, refer to particular [SerialFormat]'s documentation.
- *
  */
 @ImplicitReflectionSerializer
 public class ContextSerializer<T : Any>(private val serializableClass: KClass<T>) : KSerializer<T> {
-    public override val descriptor: SerialDescriptor = object : SerialClassDescImpl("CONTEXT") {} // todo: remove this crutch
+    // TODO make a decision on this one, see polymorphic
+    public override val descriptor: SerialDescriptor = SerialDescriptor("CONTEXTUAL", 0) {}
 
     public override fun serialize(encoder: Encoder, value: T) {
         val s = encoder.context.getContextualOrDefault(value)

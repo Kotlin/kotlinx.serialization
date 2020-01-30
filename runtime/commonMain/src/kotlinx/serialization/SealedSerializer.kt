@@ -71,8 +71,12 @@ public class SealedClassSerializer<T : Any>(
     subclassSerializers: Array<KSerializer<out T>>
 ) : AbstractPolymorphicSerializer<T>() {
 
-    override val descriptor: SerialDescriptor =
-        SealedClassDescriptor(serialName, subclassSerializers.map { it.descriptor })
+    override val descriptor: SerialDescriptor = SerialDescriptor(serialName, subclasses.size, PolymorphicKind.SEALED) {
+        subclassSerializers.forEach {
+            val d = it.descriptor
+            element(d.serialName, d)
+        }
+    }
 
     private val class2Serializer: Map<KClass<out T>, KSerializer<out T>>
     private val serialName2Serializer: Map<String, KSerializer<out T>>
@@ -102,23 +106,5 @@ public class SealedClassSerializer<T : Any>(
 
     override fun findPolymorphicSerializer(encoder: Encoder, value: T): KSerializer<out T> {
         return class2Serializer[value::class] ?: super.findPolymorphicSerializer(encoder, value)
-    }
-}
-
-/**
- * Descriptor for sealed class contains descriptors for all its serializable inheritors
- * which can be obtained via [getElementDescriptor].
- */
-internal class SealedClassDescriptor(
-    name: String,
-    elementDescriptors: List<SerialDescriptor>
-) : SerialClassDescImpl(name, elementsCount = elementDescriptors.size) {
-    override val kind: SerialKind = PolymorphicKind.SEALED
-
-    init {
-        elementDescriptors.forEach {
-            addElement(it.serialName)
-            pushDescriptor(it)
-        }
     }
 }

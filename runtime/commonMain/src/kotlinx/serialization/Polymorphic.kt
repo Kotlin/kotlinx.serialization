@@ -4,26 +4,23 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.PolymorphicClassDescriptor.kind
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.reflect.*
 
 /**
  * A [SerialDescriptor] for polymorphic serialization with special kind.
- *
  * Currently, it has no guarantees neither on its reference transparency nor its children descriptors, only on [kind].
  */
-public object PolymorphicClassDescriptor : SerialClassDescImpl("kotlinx.serialization.Polymorphic", elementsCount = 2) {
-    public override val kind: SerialKind = PolymorphicKind.OPEN
-
-    init {
-        // serial ids would be assigned automatically, since
-        // we decided not to support @SerialInfo annotations
-        // in custom serializers code
-        addElement("class")
-        addElement("value")
-    }
+@Deprecated(
+    message = "Top-level polymorphic descriptor is deprecated, use descriptor from the instance of PolymorphicSerializer or" +
+            "check for descriptor kind instead", level = DeprecationLevel.WARNING
+)
+public val PolymorphicClassDescriptor = SerialDescriptor("kotlinx.serialization.Polymorphic", 2, PolymorphicKind.OPEN) {
+    element("class", StringSerializer.descriptor)
+    // TODO make a decision on this one, see contextual
+    val valueDescriptor = SerialDescriptor("value", 0) {}
+    element("value", valueDescriptor)
 }
 
 /**
