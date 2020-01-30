@@ -8,12 +8,11 @@ import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
 
 /**
- * Implementation that plugin uses to implement descriptors
- * for auto-generated serializers.
- *
- * Unused methods are invoked by auto-generated plugin code
+ * Implementation that plugin uses to implement descriptors for auto-generated serializers.
+ * TODO get rid of the rest of the usages and make it hidden
  */
 @InternalSerializationApi
+@Deprecated(level = DeprecationLevel.ERROR, message = "Should not be used in general code")
 public open class SerialClassDescImpl(
     override val serialName: String,
     private val generatedSerializer: GeneratedSerializer<*>? = null,
@@ -99,6 +98,7 @@ public open class SerialClassDescImpl(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
+        @Suppress("DEPRECATION_ERROR")
         if (other !is SerialClassDescImpl) return false
         if (serialName != other.serialName) return false
         // TODO compare only serial names

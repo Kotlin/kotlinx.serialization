@@ -4,8 +4,8 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.internal.EnumDescriptor
 import kotlinx.serialization.json.JsonTestBase
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class EnumSerializationTest : JsonTestBase() {
@@ -45,10 +45,9 @@ class EnumSerializationTest : JsonTestBase() {
 
     @Serializer(WithCustom::class)
     private class CustomEnumSerializer : KSerializer<WithCustom> {
-        override val descriptor: SerialDescriptor = EnumDescriptor("WithCustom").apply {
-            // fixme: when user-friendly builder would be created for SerialClassDescImpl, make a consistent analog here
-            addElement("1")
-            addElement("2")
+        override val descriptor: SerialDescriptor = SerialDescriptor("WithCustom", 2, UnionKind.ENUM_KIND) {
+            element("1", SerialDescriptor("WithCustom.1", 0, UnionKind.OBJECT) {})
+            element("2", SerialDescriptor("WithCustom.2", 0, UnionKind.OBJECT) {})
         }
 
         override fun serialize(encoder: Encoder, value: WithCustom) {
@@ -107,5 +106,26 @@ class EnumSerializationTest : JsonTestBase() {
         val b = RegularNullable.serializer().descriptor.hashCode()
         val c = RegularEnum.serializer().descriptor.hashCode()
         assertTrue(setOf(a, b, c).size == 3, ".hashCode must give different result for different descriptors")
+    }
+
+    enum class MyEnum {
+        A, B, C;
+    }
+
+    @Serializable
+    @SerialName("kotlinx.serialization.EnumSerializationTest.MyEnum")
+    enum class MyEnum2 {
+        A, B, C;
+    }
+
+    @Serializable
+    class Wrapper(val a: MyEnum)
+
+    @Test
+    fun testStructurallyEqualDescriptors() {
+        val libraryGenerated = Wrapper.serializer().descriptor.getElementDescriptor(0)
+        val codeGenerated = MyEnum2.serializer().descriptor
+        assertNotEquals(libraryGenerated::class, codeGenerated::class)
+        libraryGenerated.assertDescriptorEqualsTo(codeGenerated)
     }
 }

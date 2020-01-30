@@ -112,7 +112,6 @@ class SchemaTest {
         val enumDesc = dataDescriptor.getElementDescriptor(1)
         val serialName = "kotlinx.serialization.SampleEnum"
         val manualSerializer = EnumSerializer<SampleEnum>(serialName)
-
         assertEquals(enumDesc, manualSerializer.descriptor)
         assertEquals(enumDesc, dataDescriptor.getElementDescriptor(2).getElementDescriptor(0))
     }

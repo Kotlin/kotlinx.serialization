@@ -1,28 +1,28 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-
+@file:Suppress("DEPRECATION_ERROR")
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 
+/*
+ * Descriptor used for explicitly serializable enums by the plugin.
+ * Designed to be consistent with `EnumSerializer.descriptor` and weird plugin usage.
+ */
 @InternalSerializationApi
+@Deprecated(level = DeprecationLevel.HIDDEN, message = "For plugin-generated code")
 public class EnumDescriptor(
     name: String,
-    elementsCount: Int = 1
+    elementsCount: Int = 1 // TODO get rid of default value in the next release
 ) : SerialClassDescImpl(name, elementsCount = elementsCount) {
 
     override val kind: SerialKind = UnionKind.ENUM_KIND
-
-    override fun getElementDescriptor(index: Int): SerialDescriptor {
-        if (index !in 0 until elementsCount) throw IndexOutOfBoundsException("Index $index out of bounds ${0 until elementsCount}")
-        return this
+    private val elementDescriptors by lazy {
+        Array(elementsCount) { SerialDescriptor(name + "." + getElementName(it), 0, UnionKind.OBJECT) {} }
     }
 
-    override fun isElementOptional(index: Int): Boolean {
-        throw IllegalStateException("Enums do not have elements, " +
-                "thus calling 'isElementOptional' does not make any sense")
-    }
+    override fun getElementDescriptor(index: Int): SerialDescriptor = elementDescriptors.getChecked(index)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -45,14 +45,20 @@ public class EnumDescriptor(
     }
 }
 
+// Used for enums that are not explicitly serializable
 @InternalSerializationApi
+@Deprecated(level = DeprecationLevel.HIDDEN, message = "For plugin-generated code")
 public class EnumSerializer<T : Enum<T>>(
     serialName: String,
     private val values: Array<T>
 ) : KSerializer<T> {
 
-    override val descriptor: SerialDescriptor = EnumDescriptor(serialName, values.size).apply {
-        values.forEach { addElement(it.name) }
+    override val descriptor: SerialDescriptor = SerialDescriptor(serialName, values.size, UnionKind.ENUM_KIND) {
+        values.forEach {
+            val fqn = "$serialName.${it.name}"
+            val enumMemberDescriptor = SerialDescriptor(fqn, 0, UnionKind.OBJECT) {}
+            element(it.name, enumMemberDescriptor)
+        }
     }
 
     override fun serialize(encoder: Encoder, value: T) {
