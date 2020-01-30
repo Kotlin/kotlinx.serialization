@@ -5,7 +5,7 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
-import kotlin.reflect.KClass
+import kotlin.reflect.*
 
 /**
  * Base class for providing multiplatform polymorphic serialization.
@@ -100,5 +100,5 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
 private fun throwSubtypeNotRegistered(subClassName: String, baseClass: KClass<*>): Nothing =
     throw SerializationException("$subClassName is not registered for polymorphic serialization in the scope of $baseClass")
 
-private fun throwSubtypeNotRegistered(subClass: KClass<*>, baseClass: KClass<*>): Nothing =
+internal fun throwSubtypeNotRegistered(subClass: KClass<*>, baseClass: KClass<*>): Nothing =
     throwSubtypeNotRegistered(subClass.toString(), baseClass)

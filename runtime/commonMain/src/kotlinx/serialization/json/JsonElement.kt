@@ -1,12 +1,12 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("unused")
 
 package kotlinx.serialization.json
 
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 
 /**
@@ -55,6 +55,14 @@ public sealed class JsonElement {
      */
     public val isNull: Boolean
         get() = this === JsonNull
+
+    /**
+     * Convenience method to check whether element represents a [JsonObject] and contains given [key].
+     * Returns false if element is not a [JsonObject].
+     */
+    public operator fun contains(key: String): Boolean {
+        return this is JsonObject && key in this.content
+    }
 
     private fun error(element: String): Nothing =
         throw JsonException("Element ${this::class} is not a $element")
