@@ -144,7 +144,6 @@ object StringSerializer : KSerializer<String> {
     override fun deserialize(decoder: Decoder): String = decoder.decodeString()
 }
 
-
 open class Migration : SerialDescriptor {
     override val serialName: String
         get() = error("Class used only for source-level migration")

@@ -63,7 +63,11 @@ public class MapEntrySerializer<K, V>(
     keySerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>
 ) : KeyValueSerializer<K, V, Map.Entry<K, V>>(keySerializer, valueSerializer) {
-    // TODO map kind is most likely to be incorrect
+    private data class MapEntry<K, V>(override val key: K, override val value: V) : Map.Entry<K, V>
+
+    /*
+     * Kind 'MAP' because it it represented in a map-like manner with "key: value" serialized directly
+     */
     override val descriptor = SerialDescriptor("kotlin.collections.Map.Entry", StructureKind.MAP) {
         element("key", keySerializer.descriptor)
         element("value", valueSerializer.descriptor)
@@ -89,7 +93,6 @@ public class PairSerializer<K, V>(
     override fun toResult(key: K, value: V) = key to value
 }
 
-private data class MapEntry<K, V>(override val key: K, override val value: V) : Map.Entry<K, V>
 
 // todo: move from internal package and add documentation
 public class TripleSerializer<A, B, C>(
