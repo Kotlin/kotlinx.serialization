@@ -57,11 +57,28 @@ package kotlinx.serialization
  * ### Thread-safety and mutability
  * Serial descriptor implementation should be immutable after the publication and thread-safe.
  *
- * ### Examples
- * TODO Roman reference to examples: color, object as list, object as map, fixed size list etc.
+ * ### User-defined serial descriptors
+ * The best way to define a custom descriptor is to use [SerialDescriptor] builder function, where
+ * for each serializable property corresponding element is declared.
+ *
+ * Example:
+ * ```
+ * // Class with custom serializer and custom serial descriptor
+ * class Data(
+ *     val intField: Int, // This field is ignored by custom serializer
+ *     val longField: Long, // This field is written as long, but in serialized form is named as "_longField"
+ *     val stringList: List<String> // This field is written as regular list of strings
+ * )
+ *
+ * // Descriptor for such class:
+ * SerialDescriptor("my.package.Data", 3) {
+ *     // intField is deliberately ignored by serializer -- not present in the descriptor as well
+ *     element<Long>("_longField") // longField is named as _longField
+ *     element("stringField", listDescriptor<String>())
+ * }
+ * ```
  */
 public interface SerialDescriptor {
-
     /**
      * Serial name of the descriptor that uniquely identifies pair of the associated serializer and target class.
      *

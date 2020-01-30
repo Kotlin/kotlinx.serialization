@@ -5,11 +5,9 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.InternalHexConverter
-import kotlinx.serialization.internal.SerialClassDescImpl
-import kotlinx.serialization.json.Json
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlinx.serialization.internal.*
+import kotlinx.serialization.json.*
+import kotlin.test.*
 
 class CheckedData<T : Any>(val data: T, val checkSum: ByteArray) {
     override fun equals(other: Any?): Boolean {
@@ -33,11 +31,10 @@ class CheckedData<T : Any>(val data: T, val checkSum: ByteArray) {
 
 @Serializer(forClass = CheckedData::class)
 class CheckedDataSerializer<T : Any>(private val dataSerializer: KSerializer<T>) : KSerializer<CheckedData<T>> {
-    override val descriptor: SerialDescriptor = object : SerialClassDescImpl("CheckedDataSerializer") {
-        init {
-            addElement("data")
-            addElement("checkSum")
-        }
+    override val descriptor: SerialDescriptor = SerialDescriptor("CheckedDataSerializer", 2) {
+        val typeDescriptor = dataSerializer.descriptor
+        element("data", typeDescriptor)
+        element("checkSum", ByteArraySerializer.descriptor)
     }
 
     override fun serialize(encoder: Encoder, value: CheckedData<T>) {

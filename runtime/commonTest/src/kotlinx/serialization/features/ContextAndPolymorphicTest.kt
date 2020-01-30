@@ -32,7 +32,9 @@ class ContextAndPolymorphicTest {
     object PayloadSerializer {}
 
     object BinaryPayloadSerializer : KSerializer<Payload> {
-        override val descriptor: SerialDescriptor = SerialClassDescImpl("Payload")
+        override val descriptor: SerialDescriptor = SerialDescriptor("Payload", 1) {
+            element<String>("s")
+        }
 
         override fun serialize(encoder: Encoder, value: Payload) {
             encoder.encodeString(InternalHexConverter.printHexBinary(value.s.toUtf8Bytes()))

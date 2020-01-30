@@ -10,90 +10,103 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@Serializable
-sealed class SealedProtocol {
-    @Serializable
-    data class StringMessage(val description: String, val message: String) : SealedProtocol()
-
-    @Serializable
-    data class IntMessage(val description: String, val message: Int) : SealedProtocol()
-
-    @Serializable
-    data class ErrorMessage(val error: String) : SealedProtocol()
-
-    @SerialName("EOF")
-    @Serializable
-    object EOF : SealedProtocol()
-}
-
-@Serializable
-sealed class ProtocolWithAbstractClass {
-
-    @Serializable
-    abstract class Message : ProtocolWithAbstractClass() {
-        @Serializable
-        data class StringMessage(val description: String, val message: String) : Message()
-
-        @Serializable
-        data class IntMessage(val description: String, val message: Int) : Message()
-    }
-
-    @Serializable
-    data class ErrorMessage(val error: String) : ProtocolWithAbstractClass()
-
-    @SerialName("EOF")
-    @Serializable
-    object EOF : ProtocolWithAbstractClass()
-}
-
-@Serializable
-sealed class ProtocolWithSealedClass {
-
-    @Serializable
-    sealed class Message : ProtocolWithSealedClass() {
-        @Serializable
-        data class StringMessage(val description: String, val message: String) : Message()
-
-        @Serializable
-        data class IntMessage(val description: String, val message: Int) : Message()
-    }
-
-    @Serializable
-    data class ErrorMessage(val error: String) : ProtocolWithSealedClass()
-
-    @SerialName("EOF")
-    @Serializable
-    object EOF : ProtocolWithSealedClass()
-}
-
-@Serializable
-sealed class ProtocolWithGenericClass {
-
-    @Serializable
-    data class Message<T>(val description: String, val message: T) : ProtocolWithGenericClass()
-
-    @Serializable
-    data class ErrorMessage(val error: String) : ProtocolWithGenericClass()
-
-    @SerialName("EOF")
-    @Serializable
-    object EOF : ProtocolWithGenericClass()
-}
-
-val ManualSerializer = SealedClassSerializer(
-    "SimpleSealed",
-    SimpleSealed::class,
-    arrayOf(SimpleSealed.SubSealedA::class, SimpleSealed.SubSealedB::class),
-    arrayOf(SimpleSealed.SubSealedA.serializer(), SimpleSealed.SubSealedB.serializer())
-)
-
-@Serializable
-data class SealedHolder(val s: SimpleSealed)
-
-@Serializable
-data class SealedBoxHolder(val b: Box<SimpleSealed>)
-
 class SealedClassesSerializationTest : JsonTestBase() {
+    @Serializable
+    sealed class SealedProtocol {
+        @Serializable
+        @SerialName("SealedProtocol.StringMessage")
+        data class StringMessage(val description: String, val message: String) : SealedProtocol()
+
+        @Serializable
+        @SerialName("SealedProtocol.IntMessage")
+        data class IntMessage(val description: String, val message: Int) : SealedProtocol()
+
+        @Serializable
+        @SerialName("SealedProtocol.ErrorMessage")
+        data class ErrorMessage(val error: String) : SealedProtocol()
+
+        @SerialName("EOF")
+        @Serializable
+        object EOF : SealedProtocol()
+    }
+
+    @Serializable
+    sealed class ProtocolWithAbstractClass {
+
+        @Serializable
+        @SerialName("ProtocolWithAbstractClass.Message")
+        abstract class Message : ProtocolWithAbstractClass() {
+            @Serializable
+            @SerialName("ProtocolWithAbstractClass.Message.StringMessage")
+            data class StringMessage(val description: String, val message: String) : Message()
+
+            @Serializable
+            @SerialName("ProtocolWithAbstractClass.Message.IntMessage")
+            data class IntMessage(val description: String, val message: Int) : Message()
+        }
+
+        @Serializable
+        @SerialName("ProtocolWithAbstractClass.ErrorMessage")
+        data class ErrorMessage(val error: String) : ProtocolWithAbstractClass()
+
+        @SerialName("EOF")
+        @Serializable
+        object EOF : ProtocolWithAbstractClass()
+    }
+
+    @Serializable
+    sealed class ProtocolWithSealedClass {
+
+        @Serializable
+        @SerialName("ProtocolWithSealedClass.Message")
+        sealed class Message : ProtocolWithSealedClass() {
+            @Serializable
+            @SerialName("ProtocolWithSealedClass.Message.StringMessage")
+            data class StringMessage(val description: String, val message: String) : Message()
+
+            @Serializable
+            @SerialName("ProtocolWithSealedClass.Message.IntMessage")
+            data class IntMessage(val description: String, val message: Int) : Message()
+        }
+
+        @Serializable
+        @SerialName("ProtocolWithSealedClass.ErrorMessage")
+        data class ErrorMessage(val error: String) : ProtocolWithSealedClass()
+
+        @SerialName("EOF")
+        @Serializable
+        object EOF : ProtocolWithSealedClass()
+    }
+
+    @Serializable
+    sealed class ProtocolWithGenericClass {
+
+        @Serializable
+        @SerialName("ProtocolWithGenericClass.Message")
+        data class Message<T>(val description: String, val message: T) : ProtocolWithGenericClass()
+
+        @Serializable
+        @SerialName("ProtocolWithGenericClass.ErrorMessage")
+        data class ErrorMessage(val error: String) : ProtocolWithGenericClass()
+
+        @SerialName("EOF")
+        @Serializable
+        object EOF : ProtocolWithGenericClass()
+    }
+
+    val ManualSerializer = SealedClassSerializer(
+        "SimpleSealed",
+        SimpleSealed::class,
+        arrayOf(SimpleSealed.SubSealedA::class, SimpleSealed.SubSealedB::class),
+        arrayOf(SimpleSealed.SubSealedA.serializer(), SimpleSealed.SubSealedB.serializer())
+    )
+
+    @Serializable
+    data class SealedHolder(val s: SimpleSealed)
+
+    @Serializable
+    data class SealedBoxHolder(val b: Box<SimpleSealed>)
+
     private val arrayJson = Json(JsonConfiguration.Default.copy(useArrayPolymorphism = true))
     private val json = Json(JsonConfiguration.Default.copy(useArrayPolymorphism = false, prettyPrint = false))
 
@@ -155,7 +168,7 @@ class SealedClassesSerializationTest : JsonTestBase() {
             SealedProtocol.EOF
         )
         val expected =
-            """[{"type":"kotlinx.serialization.features.SealedProtocol.StringMessage","description":"string message","message":"foo"},{"type":"kotlinx.serialization.features.SealedProtocol.IntMessage","description":"int message","message":42},{"type":"kotlinx.serialization.features.SealedProtocol.ErrorMessage","error":"requesting termination"},{"type":"EOF"}]"""
+            """[{"type":"SealedProtocol.StringMessage","description":"string message","message":"foo"},{"type":"SealedProtocol.IntMessage","description":"int message","message":42},{"type":"SealedProtocol.ErrorMessage","error":"requesting termination"},{"type":"EOF"}]"""
         assertJsonFormAndRestored(SealedProtocol.serializer().list, messages, expected, json)
     }
 
@@ -179,7 +192,7 @@ class SealedClassesSerializationTest : JsonTestBase() {
                 context = abstractContext
             )
         val expected =
-            """[{"type":"kotlinx.serialization.features.ProtocolWithAbstractClass.Message.StringMessage","description":"string message","message":"foo"},{"type":"kotlinx.serialization.features.ProtocolWithAbstractClass.Message.IntMessage","description":"int message","message":42},{"type":"kotlinx.serialization.features.ProtocolWithAbstractClass.ErrorMessage","error":"requesting termination"},{"type":"EOF"}]"""
+            """[{"type":"ProtocolWithAbstractClass.Message.StringMessage","description":"string message","message":"foo"},{"type":"ProtocolWithAbstractClass.Message.IntMessage","description":"int message","message":42},{"type":"ProtocolWithAbstractClass.ErrorMessage","error":"requesting termination"},{"type":"EOF"}]"""
         assertJsonFormAndRestored(ProtocolWithAbstractClass.serializer().list, messages, expected, json)
     }
 
@@ -192,7 +205,7 @@ class SealedClassesSerializationTest : JsonTestBase() {
             ProtocolWithSealedClass.EOF
         )
         val expected =
-            """[{"type":"kotlinx.serialization.features.ProtocolWithSealedClass.Message.StringMessage","description":"string message","message":"foo"},{"type":"kotlinx.serialization.features.ProtocolWithSealedClass.Message.IntMessage","description":"int message","message":42},{"type":"kotlinx.serialization.features.ProtocolWithSealedClass.ErrorMessage","error":"requesting termination"},{"type":"EOF"}]"""
+            """[{"type":"ProtocolWithSealedClass.Message.StringMessage","description":"string message","message":"foo"},{"type":"ProtocolWithSealedClass.Message.IntMessage","description":"int message","message":42},{"type":"ProtocolWithSealedClass.ErrorMessage","error":"requesting termination"},{"type":"EOF"}]"""
         assertJsonFormAndRestored(ProtocolWithSealedClass.serializer().list, messages, expected, json)
     }
 
@@ -203,7 +216,7 @@ class SealedClassesSerializationTest : JsonTestBase() {
             ProtocolWithSealedClass.Message.IntMessage("int message", 42)
         )
         val expected =
-            """[{"type":"kotlinx.serialization.features.ProtocolWithSealedClass.Message.StringMessage","description":"string message","message":"foo"},{"type":"kotlinx.serialization.features.ProtocolWithSealedClass.Message.IntMessage","description":"int message","message":42}]"""
+            """[{"type":"ProtocolWithSealedClass.Message.StringMessage","description":"string message","message":"foo"},{"type":"ProtocolWithSealedClass.Message.IntMessage","description":"int message","message":42}]"""
 
         assertJsonFormAndRestored(ProtocolWithSealedClass.serializer().list, messages, expected, json)
         assertJsonFormAndRestored(ProtocolWithSealedClass.Message.serializer().list, messages, expected, json)
@@ -218,7 +231,7 @@ class SealedClassesSerializationTest : JsonTestBase() {
             ProtocolWithGenericClass.EOF
         )
         val expected =
-            """[["kotlinx.serialization.features.ProtocolWithGenericClass.Message",{"description":"string message","message":["kotlin.String","foo"]}],["kotlinx.serialization.features.ProtocolWithGenericClass.Message",{"description":"int message","message":["kotlin.Int",42]}],["kotlinx.serialization.features.ProtocolWithGenericClass.ErrorMessage",{"error":"requesting termination"}],["EOF",{}]]"""
+            """[["ProtocolWithGenericClass.Message",{"description":"string message","message":["kotlin.String","foo"]}],["ProtocolWithGenericClass.Message",{"description":"int message","message":["kotlin.Int",42]}],["ProtocolWithGenericClass.ErrorMessage",{"error":"requesting termination"}],["EOF",{}]]"""
         val json = Json(JsonConfiguration.Default.copy(useArrayPolymorphism = true))
         assertJsonFormAndRestored(ProtocolWithGenericClass.serializer().list, messages, expected, json)
     }

@@ -13,8 +13,10 @@ import kotlinx.serialization.*
  * By default, a singleton is serialized as an empty structure, e.g. `{}` in JSON
  */
 @InternalSerializationApi
+@Suppress("DEPRECATED") // Used by compiler plugin
+@Deprecated("", level = DeprecationLevel.HIDDEN)
 public class ObjectSerializer<T : Any>(serialName: String, private val objectInstance: T) : KSerializer<T> {
-    override val descriptor: SerialDescriptor = ObjectDescriptor(serialName)
+    override val descriptor: SerialDescriptor = SerialDescriptor(serialName, 0, UnionKind.OBJECT) {}
 
     override fun serialize(encoder: Encoder, value: T) {
         encoder.beginStructure(descriptor).endStructure(descriptor)
@@ -23,33 +25,5 @@ public class ObjectSerializer<T : Any>(serialName: String, private val objectIns
     override fun deserialize(decoder: Decoder): T {
         decoder.beginStructure(descriptor).endStructure(descriptor)
         return objectInstance
-    }
-}
-
-private class ObjectDescriptor(name: String) : SerialClassDescImpl(name) {
-    override val kind: SerialKind = UnionKind.OBJECT
-
-    init {
-        addElement(name)
-    }
-
-    override fun getElementDescriptor(index: Int): SerialDescriptor {
-        return this
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is SerialDescriptor) return false
-        if (other.kind !== UnionKind.OBJECT) return false
-        if (serialName != other.serialName) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return serialName.hashCode()
-    }
-
-    override fun toString(): String {
-        return "$serialName()"
     }
 }

@@ -5,8 +5,7 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.InternalHexConverter
-import kotlinx.serialization.internal.SerialClassDescImpl
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -16,11 +15,9 @@ class BinaryPayloadExampleTest {
     class BinaryPayload(val req: ByteArray, val res: ByteArray) {
         @Serializer(forClass = BinaryPayload::class)
         companion object : KSerializer<BinaryPayload> {
-            override val descriptor: SerialDescriptor = object : SerialClassDescImpl("BinaryPayload") {
-                init {
-                    addElement("req")
-                    addElement("res")
-                }
+            override val descriptor: SerialDescriptor = SerialDescriptor("BinaryPayload", 2) {
+                element("req", ByteArraySerializer.descriptor)
+                element("res", ByteArraySerializer.descriptor)
             }
 
             override fun serialize(encoder: Encoder, value: BinaryPayload) {

@@ -63,18 +63,12 @@ public class MapEntrySerializer<K, V>(
     keySerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>
 ) : KeyValueSerializer<K, V, Map.Entry<K, V>>(keySerializer, valueSerializer) {
-    private inner class MapEntryClassDesc : SerialClassDescImpl("kotlin.collections.Map.Entry") {
-        override val kind = StructureKind.MAP
-
-        init {
-            addElement("key")
-            pushDescriptor(keySerializer.descriptor)
-            addElement("value")
-            pushDescriptor(valueSerializer.descriptor)
-        }
+    // TODO map kind is most likely to be incorrect
+    override val descriptor = SerialDescriptor("kotlin.collections.Map.Entry", 2, StructureKind.MAP) {
+        element("key", keySerializer.descriptor)
+        element("value", valueSerializer.descriptor)
     }
 
-    override val descriptor: SerialDescriptor = MapEntryClassDesc()
     override val Map.Entry<K, V>.key: K get() = this.key
     override val Map.Entry<K, V>.value: V get() = this.value
     override fun toResult(key: K, value: V): Map.Entry<K, V> = MapEntry(key, value)
@@ -85,16 +79,10 @@ public class PairSerializer<K, V>(
     keySerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>
 ) : KeyValueSerializer<K, V, Pair<K, V>>(keySerializer, valueSerializer) {
-    private inner class PairClassDesc : SerialClassDescImpl("kotlin.Pair", elementsCount = 2) {
-        init {
-            addElement("first")
-            pushDescriptor(keySerializer.descriptor)
-            addElement("second")
-            pushDescriptor(valueSerializer.descriptor)
-        }
+    override val descriptor: SerialDescriptor = SerialDescriptor("kotlin.Pair", 2) {
+        element("first", keySerializer.descriptor)
+        element("second", valueSerializer.descriptor)
     }
-
-    override val descriptor: SerialDescriptor = PairClassDesc()
     override val Pair<K, V>.key: K get() = this.first
     override val Pair<K, V>.value: V get() = this.second
 
@@ -109,18 +97,12 @@ public class TripleSerializer<A, B, C>(
     private val bSerializer: KSerializer<B>,
     private val cSerializer: KSerializer<C>
 ) : KSerializer<Triple<A, B, C>> {
-    private inner class TripleDesc : SerialClassDescImpl("kotlin.Triple", elementsCount = 3) {
-        init {
-            addElement("first")
-            pushDescriptor(aSerializer.descriptor)
-            addElement("second")
-            pushDescriptor(bSerializer.descriptor)
-            addElement("third")
-            pushDescriptor(cSerializer.descriptor)
-        }
-    }
 
-    override val descriptor: SerialDescriptor = TripleDesc()
+    override val descriptor: SerialDescriptor = SerialDescriptor("kotlin.Triple", 3) {
+        element("first", aSerializer.descriptor)
+        element("second", bSerializer.descriptor)
+        element("third", cSerializer.descriptor)
+    }
 
     override fun serialize(encoder: Encoder, value: Triple<A, B, C>) {
         val structuredEncoder = encoder.beginStructure(descriptor, aSerializer, bSerializer, cSerializer)
