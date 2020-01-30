@@ -101,6 +101,12 @@ class SerialDescriptorSpecificationTest {
 
     @Test
     fun testEnumDescriptor() {
+        fun SerialDescriptor.verifyEnumMember(name: String) {
+            assertEquals("Named.$name", serialName)
+            assertEquals(0, elementsCount)
+            assertEquals(UnionKind.OBJECT, kind)
+        }
+
         val d = NamedEnum.serializer().descriptor
         assertEquals(UnionKind.ENUM_KIND, d.kind)
         assertEquals("Named", d.serialName)
@@ -118,12 +124,9 @@ class SerialDescriptorSpecificationTest {
         d.assertSingleAnnotation(0) { it is Id && it.id == 42 }
         assertEquals(0, d.getElementAnnotations(1).size)
         // Element descriptors
-        assertSame(d, d.getElementDescriptor(0))
-        assertSame(d, d.getElementDescriptor(1))
+        d.getElementDescriptor(0).verifyEnumMember("FIRST")
+        d.getElementDescriptor(1).verifyEnumMember("SECOND")
         assertFailsWith<IndexOutOfBoundsException> { d.getElementDescriptor(2) }
-        // Optionality
-        assertFailsWith<IllegalStateException> { d.isElementOptional(0) }
-        assertFailsWith<IllegalStateException> { d.isElementOptional(1) }
     }
 
     @Test

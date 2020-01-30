@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.internal.*
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 @ImplicitReflectionSerializer
@@ -89,23 +90,6 @@ class SerialDescriptorBuilderTest {
                 element<Int>("i")
                 element<Int>("i")
             }
-        }
-    }
-
-    fun SerialDescriptor.assertDescriptorEqualsTo(other: SerialDescriptor) {
-        assertEquals(serialName, other.serialName)
-        assertEquals(elementsCount, other.elementsCount)
-        assertEquals(isNullable, other.isNullable)
-        assertEquals(annotations, other.annotations)
-        assertEquals(kind, other.kind)
-        for (i in 0 until elementsCount) {
-            getElementDescriptor(i).assertDescriptorEqualsTo(other.getElementDescriptor(i))
-            val name = getElementName(i)
-            val otherName = other.getElementName(i)
-            assertEquals(name, otherName)
-            assertEquals(getElementAnnotations(i), other.getElementAnnotations(i))
-            assertEquals(name, otherName)
-            assertEquals(isElementOptional(i), other.isElementOptional(i))
         }
     }
 }

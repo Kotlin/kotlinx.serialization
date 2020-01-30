@@ -79,6 +79,7 @@ object HexConverter {
 }
 
 internal fun SerialDescriptor.cachedSerialNames(): Set<String> {
+    @Suppress("DEPRECATION_ERROR")
     if (this is SerialClassDescImpl) return namesSet
     val result = HashSet<String>(elementsCount)
     for (i in 0 until elementsCount) {

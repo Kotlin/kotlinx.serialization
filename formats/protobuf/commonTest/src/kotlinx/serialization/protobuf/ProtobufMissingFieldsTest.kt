@@ -5,12 +5,9 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.SerialClassDescImpl
-import kotlinx.serialization.json.JsonInput
-import kotlinx.serialization.json.JsonOutput
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
+import kotlinx.serialization.internal.*
+import kotlinx.serialization.json.*
+import kotlin.test.*
 
 class ProtobufMissingFieldsTest {
 
@@ -94,7 +91,11 @@ data class ItemWithoutPlatform(
 
 class ItemPlatformSerializer : KSerializer<ItemPlatform> {
 
-    override val descriptor: SerialDescriptor = SerialClassDescImpl("ItemPlatform")
+    override val descriptor: SerialDescriptor = SerialDescriptor("ItemPlatform", 3, UnionKind.ENUM_KIND) {
+        enumValues<ItemPlatform>().forEach {
+            element(it.name, SerialDescriptor("$serialName.${it.name}", 0, UnionKind.OBJECT) {})
+        }
+    }
 
     override fun deserialize(decoder: Decoder): ItemPlatform {
         if (decoder is JsonInput) {
@@ -116,7 +117,11 @@ class ItemPlatformSerializer : KSerializer<ItemPlatform> {
 
 class ItemContextSerializer : KSerializer<ItemContext> {
 
-    override val descriptor: SerialDescriptor = SerialClassDescImpl("ItemContext")
+    override val descriptor: SerialDescriptor = SerialDescriptor("ItemContext", 3, UnionKind.ENUM_KIND) {
+        enumValues<ItemContext>().forEach {
+            element(it.name, SerialDescriptor("$serialName.${it.name}", 0, UnionKind.OBJECT) {})
+        }
+    }
 
     override fun deserialize(decoder: Decoder): ItemContext {
         if (decoder is JsonInput) {

@@ -37,7 +37,7 @@ public fun SerialDescriptor(
     kind: SerialKind = StructureKind.CLASS,
     builder: SerialDescriptorBuilder.() -> Unit
 ): SerialDescriptor {
-    val sdBuilder = SerialDescriptorBuilder(elementsCount)
+    val sdBuilder = SerialDescriptorBuilder(serialName, elementsCount)
     sdBuilder.builder()
     sdBuilder.verify()
     return SerialDescriptorImpl(serialName, kind, elementsCount, sdBuilder)
@@ -64,6 +64,7 @@ public val SerialDescriptor.nullable: SerialDescriptor
  * Please refer to [SerialDescriptor] builder function for a complete example.
  */
 public class SerialDescriptorBuilder internal constructor(
+    public val serialName: String,
     private val elementsCount: Int
 ) {
     /**
@@ -107,10 +108,10 @@ public class SerialDescriptorBuilder internal constructor(
         isOptional: Boolean = false
     ) {
         checkOverflow(elementName)
-        elementNames += elementName
         if (!uniqueNames.add(elementName)) {
             error("Element with name '$elementName' is already registered")
         }
+        elementNames += elementName
         elementDescriptors += descriptor
         elementAnnotations += annotations
         elementOptionality += isOptional
