@@ -27,7 +27,7 @@ class SerialDescriptorSpecificationTest {
 
     private object StaticHolder {
         val userDefinedHolderDescriptor =
-            SerialDescriptor("kotlinx.serialization.SerialDescriptorSpecificationTest.Holder", 3, StructureKind.CLASS) {
+            SerialDescriptor("kotlinx.serialization.SerialDescriptorSpecificationTest.Holder", StructureKind.CLASS) {
                 element<Int?>("a")
 
                 val annotation = Holder.serializer().descriptor.findAnnotation<Id>(1)

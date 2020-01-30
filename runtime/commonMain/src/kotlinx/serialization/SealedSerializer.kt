@@ -71,7 +71,7 @@ public class SealedClassSerializer<T : Any>(
     subclassSerializers: Array<KSerializer<out T>>
 ) : AbstractPolymorphicSerializer<T>() {
 
-    override val descriptor: SerialDescriptor = SerialDescriptor(serialName, subclasses.size, PolymorphicKind.SEALED) {
+    override val descriptor: SerialDescriptor = SerialDescriptor(serialName, PolymorphicKind.SEALED) {
         subclassSerializers.forEach {
             val d = it.descriptor
             element(d.serialName, d)

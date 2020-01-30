@@ -119,5 +119,5 @@ public open class SerialClassDescImpl(
 }
 
 internal fun NamedDescriptor(name: String, kind: SerialKind): SerialDescriptor {
-    return SerialDescriptor(name, 0, kind) {}
+    return SerialDescriptor(name, kind) {}
 }

@@ -32,7 +32,7 @@ class ContextAndPolymorphicTest {
     object PayloadSerializer {}
 
     object BinaryPayloadSerializer : KSerializer<Payload> {
-        override val descriptor: SerialDescriptor = SerialDescriptor("Payload", 1) {
+        override val descriptor: SerialDescriptor = SerialDescriptor("Payload") {
             element<String>("s")
         }
 

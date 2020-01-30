@@ -20,11 +20,11 @@ class JsonTreeAndMapperTest {
     }
 
     object EitherSerializer : KSerializer<Either> {
-        override val descriptor: SerialDescriptor = SerialDescriptor("Either", 2, PolymorphicKind.SEALED) {
-            val leftDescriptor =  SerialDescriptor("Either.Left", 1) {
+        override val descriptor: SerialDescriptor = SerialDescriptor("Either", PolymorphicKind.SEALED) {
+            val leftDescriptor =  SerialDescriptor("Either.Left") {
                 element<String>("errorMsg")
             }
-            val rightDescriptor =  SerialDescriptor("Either.Right", 1) {
+            val rightDescriptor =  SerialDescriptor("Either.Right") {
                 element<Payload>("data")
             }
             element("left", leftDescriptor)

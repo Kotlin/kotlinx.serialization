@@ -16,10 +16,10 @@ import kotlin.reflect.*
     message = "Top-level polymorphic descriptor is deprecated, use descriptor from the instance of PolymorphicSerializer or" +
             "check for descriptor kind instead", level = DeprecationLevel.WARNING
 )
-public val PolymorphicClassDescriptor = SerialDescriptor("kotlinx.serialization.Polymorphic", 2, PolymorphicKind.OPEN) {
+public val PolymorphicClassDescriptor = SerialDescriptor("kotlinx.serialization.Polymorphic", PolymorphicKind.OPEN) {
     element("class", StringSerializer.descriptor)
     // TODO make a decision on this one, see contextual
-    val valueDescriptor = SerialDescriptor("value", 0) {}
+    val valueDescriptor = SerialDescriptor("value", UnionKind.CONTEXTUAL) {}
     element("value", valueDescriptor)
 }
 

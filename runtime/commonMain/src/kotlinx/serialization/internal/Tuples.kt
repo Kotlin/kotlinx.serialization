@@ -64,7 +64,7 @@ public class MapEntrySerializer<K, V>(
     valueSerializer: KSerializer<V>
 ) : KeyValueSerializer<K, V, Map.Entry<K, V>>(keySerializer, valueSerializer) {
     // TODO map kind is most likely to be incorrect
-    override val descriptor = SerialDescriptor("kotlin.collections.Map.Entry", 2, StructureKind.MAP) {
+    override val descriptor = SerialDescriptor("kotlin.collections.Map.Entry", StructureKind.MAP) {
         element("key", keySerializer.descriptor)
         element("value", valueSerializer.descriptor)
     }
@@ -79,7 +79,7 @@ public class PairSerializer<K, V>(
     keySerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>
 ) : KeyValueSerializer<K, V, Pair<K, V>>(keySerializer, valueSerializer) {
-    override val descriptor: SerialDescriptor = SerialDescriptor("kotlin.Pair", 2) {
+    override val descriptor: SerialDescriptor = SerialDescriptor("kotlin.Pair") {
         element("first", keySerializer.descriptor)
         element("second", valueSerializer.descriptor)
     }
@@ -98,7 +98,7 @@ public class TripleSerializer<A, B, C>(
     private val cSerializer: KSerializer<C>
 ) : KSerializer<Triple<A, B, C>> {
 
-    override val descriptor: SerialDescriptor = SerialDescriptor("kotlin.Triple", 3) {
+    override val descriptor: SerialDescriptor = SerialDescriptor("kotlin.Triple") {
         element("first", aSerializer.descriptor)
         element("second", bSerializer.descriptor)
         element("third", cSerializer.descriptor)

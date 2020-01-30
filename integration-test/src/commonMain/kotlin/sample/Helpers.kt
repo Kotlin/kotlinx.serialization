@@ -5,7 +5,6 @@
 package sample
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.EnumDescriptor
 
 class KeyValueOutput(val sb: StringBuilder) : ElementValueEncoder() {
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {

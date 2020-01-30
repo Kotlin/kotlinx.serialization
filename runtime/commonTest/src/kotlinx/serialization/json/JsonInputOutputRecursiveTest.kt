@@ -5,7 +5,6 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
 import kotlin.test.*
 
 class JsonInputOutputRecursiveTest : JsonTestBase() {
@@ -130,11 +129,11 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
     }
 
     private object EitherSerializer: KSerializer<Either> {
-        override val descriptor: SerialDescriptor = SerialDescriptor("Either", 2, PolymorphicKind.SEALED) {
-            val leftDescriptor =  SerialDescriptor("Either.Left", 1) {
+        override val descriptor: SerialDescriptor = SerialDescriptor("Either", PolymorphicKind.SEALED) {
+            val leftDescriptor =  SerialDescriptor("Either.Left") {
                 element<String>("errorMsg")
             }
-            val rightDescriptor =  SerialDescriptor("Either.Right", 1) {
+            val rightDescriptor =  SerialDescriptor("Either.Right") {
                 element("data", Payload.serializer().descriptor)
             }
             element("left", leftDescriptor)
@@ -183,7 +182,7 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
         private const val typeNameB = "b"
 
         // TODO in builder is not suitable for recursive descriptors
-        override val descriptor: SerialDescriptor = SerialDescriptor("SealedRecursive", 2, PolymorphicKind.SEALED) {
+        override val descriptor: SerialDescriptor = SerialDescriptor("SealedRecursive", PolymorphicKind.SEALED) {
             element("a", SealedRecursive.A.serializer().descriptor)
             element("b", SealedRecursive.B.serializer().descriptor)
         }
