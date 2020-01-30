@@ -15,7 +15,7 @@ import kotlin.reflect.KClass
  * with [SerialModule.plus], consider using [SerialModule.overwriteWith] if you want overwriting behaviour.
  */
 @InternalSerializationApi // Will be hidden in the next release
-public class SerializerAlreadyRegisteredException private constructor(msg: String) : IllegalArgumentException(msg) {
+public class SerializerAlreadyRegisteredException internal constructor(msg: String) : IllegalArgumentException(msg) {
     constructor(
         baseClass: KClass<*>,
         concreteClass: KClass<*>
