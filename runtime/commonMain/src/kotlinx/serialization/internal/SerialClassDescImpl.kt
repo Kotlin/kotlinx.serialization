@@ -7,7 +7,7 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 
 /**
- *
+ * Left for binary compatibility with plugin, PluginGeneratedSerialDescriptor should be preferred instead
  */
 @InternalSerializationApi
 @Suppress("DEPRECATION_ERROR")

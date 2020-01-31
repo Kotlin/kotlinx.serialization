@@ -47,8 +47,7 @@ import kotlinx.serialization.internal.*
 class MyData(val s: String) {
     @Serializer(forClass = MyData::class)
     companion object : KSerializer<MyData> {
-        override val descriptor: SerialDescriptor =
-            StringDescriptor.withName("MyData")
+        override val descriptor: SerialDescriptor = PrimitiveDescriptor("MyData", PrimitiveKind.STRING)
 
         override fun serialize(encoder: Encoder, obj: MyData) {
             encoder.encodeString(HexConverter.printHexBinary(obj.s.toByteArray()))
@@ -72,11 +71,9 @@ First, we need to correctly fill-in descriptor so all formats would know about m
 class BinaryPayload(val req: ByteArray, val res: ByteArray) {
     @Serializer(forClass = BinaryPayload::class)
     companion object : KSerializer<BinaryPayload> {
-        override val descriptor: SerialDescriptor = object : SerialClassDescImpl("BinaryPayload") {
-            init {
-                addElement("req") // req will have index 0
-                addElement("res") // res will have index 1
-            }
+        override val descriptor: SerialDescriptor = SerialDescriptor("BinaryPayload") {
+            element<String>("req") // req will have index 0
+            element<String>("res") // req will have index 1
         }
     }
 }
@@ -150,7 +147,7 @@ object DateSerializer: KSerializer<Date> {
     private val df: DateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS")
 
     override val descriptor: SerialDescriptor =
-        StringDescriptor.withName("WithCustomDefault")
+        PrimitiveDescriptor("WithCustomDefault", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, obj: Date) {
         encoder.encodeString(df.format(obj))
