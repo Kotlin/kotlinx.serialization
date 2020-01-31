@@ -42,6 +42,26 @@ public fun SerialDescriptor(
 }
 
 /**
+ * Factory to create a trivial primitive descriptors.
+ * Primitive descriptors should be used when the serialized form of the data has a primitive form, for example:
+ * ```
+ * object LongAsStringSerializer : KSerializer<Long> {
+ *     override val descriptor: SerialDescriptor =
+ *         PrimitiveDescriptor("kotlinx.serialization.LongAsStringSerializer", PrimitiveKind.STRING)
+ *
+ *     override fun serialize(encoder: Encoder, obj: Long) {
+ *         encoder.encodeString(obj.toString())
+ *     }
+ *
+ *     override fun deserialize(decoder: Decoder): Long {
+ *         return decoder.decodeString().toLong()
+ *     }
+ * }
+ * ```
+ */
+public fun PrimitiveDescriptor(serialName: String, kind: PrimitiveKind): SerialDescriptor = PrimitiveDescriptorSafe(serialName, kind)
+
+/**
  * Returns new serial descriptor for the same type with [isNullable][SerialDescriptor.isNullable]
  * property set to `true`.
  */
