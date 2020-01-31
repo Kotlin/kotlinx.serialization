@@ -156,16 +156,16 @@ class SerialDescriptorSpecificationTest {
 
     @Test
     fun testPrimitiveDescriptors() {
-        testPrimitiveDescriptor("int", IntSerializer.descriptor)
-        testPrimitiveDescriptor("unit", UnitSerializer.descriptor)
-        testPrimitiveDescriptor("boolean", BooleanSerializer.descriptor)
-        testPrimitiveDescriptor("byte", ByteSerializer.descriptor)
-        testPrimitiveDescriptor("short", ShortSerializer.descriptor)
-        testPrimitiveDescriptor("long", LongSerializer.descriptor)
-        testPrimitiveDescriptor("float", FloatSerializer.descriptor)
-        testPrimitiveDescriptor("double", DoubleSerializer.descriptor)
-        testPrimitiveDescriptor("char", CharSerializer.descriptor)
-        testPrimitiveDescriptor("string", StringSerializer.descriptor)
+        checkPrimitiveDescriptor("int", IntSerializer.descriptor)
+        checkPrimitiveDescriptor("unit", UnitSerializer.descriptor)
+        checkPrimitiveDescriptor("boolean", BooleanSerializer.descriptor)
+        checkPrimitiveDescriptor("byte", ByteSerializer.descriptor)
+        checkPrimitiveDescriptor("short", ShortSerializer.descriptor)
+        checkPrimitiveDescriptor("long", LongSerializer.descriptor)
+        checkPrimitiveDescriptor("float", FloatSerializer.descriptor)
+        checkPrimitiveDescriptor("double", DoubleSerializer.descriptor)
+        checkPrimitiveDescriptor("char", CharSerializer.descriptor)
+        checkPrimitiveDescriptor("string", StringSerializer.descriptor)
     }
 
     @Test
@@ -175,8 +175,7 @@ class SerialDescriptorSpecificationTest {
         assertFailsWith<IllegalArgumentException> { PrimitiveDescriptor("int", PrimitiveKind.INT) }
     }
 
-    @Test
-    fun testPrimitiveDescriptor(type: String, descriptor: SerialDescriptor) {
+    private fun checkPrimitiveDescriptor(type: String, descriptor: SerialDescriptor) {
         assertEquals(0, descriptor.elementsCount)
         val kind = descriptor.kind.toString().toLowerCase()
         assertEquals(type, kind)
