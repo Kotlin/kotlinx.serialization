@@ -4,7 +4,6 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.CompositeDecoder.Companion.READ_ALL
 import kotlinx.serialization.modules.EmptyModule
 import kotlinx.serialization.modules.SerialModule
 
@@ -12,7 +11,7 @@ abstract class ElementValueEncoder : Encoder, CompositeEncoder {
     override val context: SerialModule
         get() = EmptyModule
 
-    override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
+    override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
         return this
     }
 
@@ -50,21 +49,21 @@ abstract class ElementValueEncoder : Encoder, CompositeEncoder {
     override fun encodeChar(value: Char) = encodeValue(value)
     override fun encodeString(value: String) = encodeValue(value)
 
-    override fun encodeEnum(enumDescription: SerialDescriptor, ordinal: Int) = encodeValue(ordinal)
+    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) = encodeValue(index)
 
     // Delegating implementation of CompositeEncoder
 
-    final override fun encodeNonSerializableElement(desc: SerialDescriptor, index: Int, value: Any) { if (encodeElement(desc, index)) encodeValue(value) }
-    final override fun encodeUnitElement(desc: SerialDescriptor, index: Int) { if (encodeElement(desc, index)) encodeUnit() }
-    final override fun encodeBooleanElement(desc: SerialDescriptor, index: Int, value: Boolean) { if (encodeElement(desc, index)) encodeBoolean(value) }
-    final override fun encodeByteElement(desc: SerialDescriptor, index: Int, value: Byte) { if (encodeElement(desc, index)) encodeByte(value) }
-    final override fun encodeShortElement(desc: SerialDescriptor, index: Int, value: Short) { if (encodeElement(desc, index)) encodeShort(value) }
-    final override fun encodeIntElement(desc: SerialDescriptor, index: Int, value: Int) { if (encodeElement(desc, index)) encodeInt(value) }
-    final override fun encodeLongElement(desc: SerialDescriptor, index: Int, value: Long) { if (encodeElement(desc, index)) encodeLong(value) }
-    final override fun encodeFloatElement(desc: SerialDescriptor, index: Int, value: Float) { if (encodeElement(desc, index)) encodeFloat(value) }
-    final override fun encodeDoubleElement(desc: SerialDescriptor, index: Int, value: Double) { if (encodeElement(desc, index)) encodeDouble(value) }
-    final override fun encodeCharElement(desc: SerialDescriptor, index: Int, value: Char) { if (encodeElement(desc, index)) encodeChar(value) }
-    final override fun encodeStringElement(desc: SerialDescriptor, index: Int, value: String) { if (encodeElement(desc, index)) encodeString(value) }
+    final override fun encodeNonSerializableElement(descriptor: SerialDescriptor, index: Int, value: Any) { if (encodeElement(descriptor, index)) encodeValue(value) }
+    final override fun encodeUnitElement(descriptor: SerialDescriptor, index: Int) { if (encodeElement(descriptor, index)) encodeUnit() }
+    final override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) { if (encodeElement(descriptor, index)) encodeBoolean(value) }
+    final override fun encodeByteElement(descriptor: SerialDescriptor, index: Int, value: Byte) { if (encodeElement(descriptor, index)) encodeByte(value) }
+    final override fun encodeShortElement(descriptor: SerialDescriptor, index: Int, value: Short) { if (encodeElement(descriptor, index)) encodeShort(value) }
+    final override fun encodeIntElement(descriptor: SerialDescriptor, index: Int, value: Int) { if (encodeElement(descriptor, index)) encodeInt(value) }
+    final override fun encodeLongElement(descriptor: SerialDescriptor, index: Int, value: Long) { if (encodeElement(descriptor, index)) encodeLong(value) }
+    final override fun encodeFloatElement(descriptor: SerialDescriptor, index: Int, value: Float) { if (encodeElement(descriptor, index)) encodeFloat(value) }
+    final override fun encodeDoubleElement(descriptor: SerialDescriptor, index: Int, value: Double) { if (encodeElement(descriptor, index)) encodeDouble(value) }
+    final override fun encodeCharElement(descriptor: SerialDescriptor, index: Int, value: Char) { if (encodeElement(descriptor, index)) encodeChar(value) }
+    final override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) { if (encodeElement(descriptor, index)) encodeString(value) }
 
     final override fun <T : Any?> encodeSerializableElement(desc: SerialDescriptor, index: Int, serializer: SerializationStrategy<T>, value: T) {
         if (encodeElement(desc, index))

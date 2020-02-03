@@ -40,12 +40,12 @@ class SerializationMethodInvocationOrderTest {
     class Out : ElementValueEncoder() {
         var step = 0
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
+        override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
             when(step) {
-                1 -> { checkContainerDesc(desc); step++; return this }
-                4 -> { checkDataDesc(desc); step++; return this }
+                1 -> { checkContainerDesc(descriptor); step++; return this }
+                4 -> { checkDataDesc(descriptor); step++; return this }
             }
-            fail("@$step: beginStructure($desc)")
+            fail("@$step: beginStructure($descriptor)")
         }
 
         override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
@@ -78,12 +78,12 @@ class SerializationMethodInvocationOrderTest {
             fail("@$step: decodeInt($value)")
         }
 
-        override fun endStructure(desc: SerialDescriptor) {
+        override fun endStructure(descriptor: SerialDescriptor) {
             when(step) {
-                9 -> { checkDataDesc(desc); step++; return }
-                10 -> { checkContainerDesc(desc); step++; return }
+                9 -> { checkDataDesc(descriptor); step++; return }
+                10 -> { checkContainerDesc(descriptor); step++; return }
             }
-            fail("@$step: endStructure($desc)")
+            fail("@$step: endStructure($descriptor)")
         }
 
         fun done() {

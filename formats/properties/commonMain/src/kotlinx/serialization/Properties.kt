@@ -44,13 +44,13 @@ public class Properties(context: SerialModule = EmptyModule) : AbstractSerialFor
         internal val map: MutableMap<String, Any> = mutableMapOf()
 
         override fun beginCollection(
-            desc: SerialDescriptor,
+            descriptor: SerialDescriptor,
             collectionSize: Int,
-            vararg typeParams: KSerializer<*>
+            vararg typeSerializers: KSerializer<*>
         ): CompositeEncoder {
             // todo: decide whether this is responsibility of the format
             //       OR beginCollection should pass collectionSize = 2 * size in case of maps
-            val size = if (desc.kind is StructureKind.MAP) collectionSize * 2 else collectionSize
+            val size = if (descriptor.kind is StructureKind.MAP) collectionSize * 2 else collectionSize
             encodeTaggedInt(nested("size"), size)
             return this
         }
@@ -70,11 +70,11 @@ public class Properties(context: SerialModule = EmptyModule) : AbstractSerialFor
         internal val map: MutableMap<String, Any?> = mutableMapOf()
 
         override fun beginCollection(
-            desc: SerialDescriptor,
+            descriptor: SerialDescriptor,
             collectionSize: Int,
-            vararg typeParams: KSerializer<*>
+            vararg typeSerializers: KSerializer<*>
         ): CompositeEncoder {
-            val size = if (desc.kind is StructureKind.MAP) collectionSize * 2 else collectionSize
+            val size = if (descriptor.kind is StructureKind.MAP) collectionSize * 2 else collectionSize
             encodeTaggedInt(nested("size"), size)
             return this
         }

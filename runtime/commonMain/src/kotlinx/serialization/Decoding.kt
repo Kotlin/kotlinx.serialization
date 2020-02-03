@@ -7,8 +7,8 @@ package kotlinx.serialization
 import kotlinx.serialization.modules.*
 
 /**
- * Decoder is a core deserialization primitives that encapsulates the knowledge of the underlying
- * format and its storage, exposing only structural methods for the deserializer, making it completely
+ * Decoder is a core deserialization primitive that encapsulates the knowledge of the underlying
+ * format and its storage, exposing only structural methods to the deserializer, making it completely
  * format-agnostic.
  *
  * Decoder provides high-level API that operates with basic primitive types, collections
@@ -38,7 +38,7 @@ import kotlinx.serialization.modules.*
  *
  * E.g. if the decoder belongs to JSON format, then [beginStructure] will parse an opening bracket
  * (`{` or `[`, depending on the descriptor kind), returning the [CompositeDecoder] that is aware of semicolon separator,
- * whilst [CompositeDecoder.endStructure] will parse a closing bracket.
+ * that should be read after each key-value pair, whilst [CompositeDecoder.endStructure] will parse a closing bracket.
  *
  * ### Exception guarantees.
  * For the regular exceptions, such as invalid input, missing control symbols or attributes and unknown symbols,
@@ -61,23 +61,23 @@ import kotlinx.serialization.modules.*
  *            throw MissingFieldException("Field 'stringValue' is missing")
  *        // Decode the nested string value
  *        val value = composite.decodeStringElement(descriptor, index = 0)
- *        // Denotes and of the structure
+ *        // Denotes end of the structure
  *        composite.endStructure(descriptor)
  *    }
  * }
  * ```
  *
- * This deserializer does not know anything about the underlying data and will work with any properly-implemented format.
+ * This deserializer does not know anything about the underlying data and will work with any properly-implemented decoder.
  * JSON, for example, parses an opening bracket `{` during the `beginStructure` call, checks that the next key
  * after this bracket is `stringValue` (using the descriptor), returns the value after the semicolon as string value
- * and parses closing bracket `}` during the `structure`.
+ * and parses closing bracket `}` during the `endStructure`.
  * XML would do the roughly the same, but with different separators and parsing structures, while ProtoBuf
  * machinery could be completely different.
  * In any case, all these parsing details are encapsulated by a decoder.
  *
  * ### Decoder implementation
  *
- * While being strictly typed, an underlying format can transform these types in the way it wants.
+ * While being strictly typed, an underlying format can transform actual types in the way it wants.
  * For example, a format can support only string types and encode/decode all primitives in a string form:
  * ```
  * StringFormatDecoder : Decoder {
@@ -91,10 +91,11 @@ import kotlinx.serialization.modules.*
  */
 public interface Decoder {
     /**
-     * Context of the current decoding process, including contextual and polymorphic serialization and,
+     * Context of the current serialization process, including contextual and polymorphic serialization and,
      * potentially, a format-specific configuration.
      */
     public val context: SerialModule
+
     // Not documented, not decided on
     public val updateMode: UpdateMode
 
@@ -183,7 +184,7 @@ public interface Decoder {
      * E.g. for the enum `enum class Letters { A, B, C, D }` and
      * underlying input "C", [decodeEnum] method should return `2` as a result.
      *
-     * But such API shape does not enforce any restrictions on the storage format,
+     * This method does not imply any restrictions on the input format,
      * the format is free to store the enum by its name, index, ordinal or any other
      */
     public fun decodeEnum(enumDescriptor: SerialDescriptor): Int
@@ -207,7 +208,7 @@ public interface Decoder {
     public fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder
 
     /**
-     * Decodes the value of type [T] by delegating the decoding process to the given deserializer.
+     * Decodes the value of type [T] by delegating the decoding process to the given [deserializer].
      * For example, `decodeInt` call us equivalent to delegating integer decoding to [IntSerializer]:
      * `decodeSerializableValue(IntSerializer)`
      */
@@ -215,7 +216,7 @@ public interface Decoder {
         deserializer.deserialize(this)
 
     /**
-     * Decodes the nullable value of type [T] by delegating the decoding process to the given deserializer.
+     * Decodes the nullable value of type [T] by delegating the decoding process to the given [deserializer].
      */
     public fun <T : Any> decodeNullableSerializableValue(deserializer: DeserializationStrategy<T?>): T? =
         if (decodeNotNullMark()) decodeSerializableValue(deserializer) else decodeNull()
@@ -288,6 +289,7 @@ public interface CompositeDecoder {
      * potentially, a format-specific configuration.
      */
     public val context: SerialModule
+
     // Not documented, not decided on
     public val updateMode: UpdateMode
 
