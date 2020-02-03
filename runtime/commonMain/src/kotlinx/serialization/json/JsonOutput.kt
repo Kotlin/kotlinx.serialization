@@ -53,4 +53,7 @@ public interface JsonOutput: Encoder, CompositeEncoder {
 }
 
 internal fun Encoder.asJsonOutput() = this as? JsonOutput
-        ?: throw SerializationException("This transformation can be used only with Json")
+        ?: throw SerializationException(
+            "This serializer can be used only with Json format." +
+                    "Expected Encoder to be JsonOutput, got ${this::class}"
+        )

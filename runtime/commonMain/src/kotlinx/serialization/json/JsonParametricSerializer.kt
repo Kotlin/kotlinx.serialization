@@ -11,23 +11,23 @@ import kotlin.reflect.*
 
 /**
  * Base class for custom serializers that allows selecting polymorphic serializer
- * without dedicated class discriminator, on a content basis.
+ * without a dedicated class discriminator, on a content basis.
  *
  * Usually, polymorphic serialization (represented by [PolymorphicSerializer] and [SealedClassSerializer])
  * requires a dedicated `"type"` property in JSON stream to
- * determine actual serializer which can be used to deserialize Kotlin class. However, sometimes
- * (often when interacting with external API) such property is not present in input
- * and one should guess type using other evidence, e.g. presence of some keys in object.
+ * determine actual serializer, which can be used to deserialize Kotlin class. However, sometimes
+ * (often when interacting with external API) such property is not present in the input
+ * and one should guess type using other evidence, e.g. presence of some keys in the object.
  * This class offers a skeleton implementation of such guessing strategy. Please note that
  * since JSON content is represented by [JsonElement] class and could be read only with [JsonInput] decoder,
  * this class works only with [Json] format.
  *
- * Deserialization happens in two stages: first, value from JSON stream is read
+ * Deserialization happens in two stages: first, a value from the JSON stream is read
  * to a [JsonElement]. Then, [selectSerializer] function is called to determine which serializer should be used.
- * Returned serializer is used to deserialize [JsonElement] back to Kotlin object.
+ * The returned serializer is used to deserialize [JsonElement] back to Kotlin object.
  *
  * One could also serialize a value with this serializer. In that case, class discriminator property would not
- * be added to JSON stream, i.e. deserializing a class from the string and serializing it back yields the original string.
+ * be added to JSON stream, i.e., deserializing a class from the string and serializing it back yields the original string
  * However, to determine a serializer, a standard polymorphic mechanism represented by [SerialModule] is used.
  * For convenience, [serialize] method can lookup default serializer, but it is recommended to follow
  * standard procedure with [registering][SerializersModuleBuilder.polymorphic].
@@ -59,7 +59,6 @@ import kotlin.reflect.*
  *
  * @param T A root class for all classes that could be possibly encountered during serialization and deserialization.
  * @param baseClass A class token for [T].
- *
  */
 public abstract class JsonParametricSerializer<T : Any>(private val baseClass: KClass<T>) : KSerializer<T> {
     /**
@@ -93,7 +92,7 @@ public abstract class JsonParametricSerializer<T : Any>(private val baseClass: K
     }
 
     /**
-     * A function that determines a particular serializer looking on a parsed [element].
+     * Determines a particular serializer by looking on a parsed JSON [element].
      */
     protected abstract fun selectSerializer(element: JsonElement): KSerializer<out T>
 }

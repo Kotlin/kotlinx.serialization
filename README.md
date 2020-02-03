@@ -27,6 +27,7 @@ Kotlin serialization consists of a compiler plugin, that generates visitor code 
 * [Troubleshooting IntelliJ IDEA](#troubleshooting-intellij-idea)
 * [Usage](docs/runtime_usage.md)
 * [More examples of supported Kotlin classes](docs/examples.md)
+* [Writing JSON transformations](docs/json_transformations.md)
 * [Writing custom serializers](docs/custom_serializers.md)
 * [Multiplatform polymorphic serialization](docs/polymorphism.md)
 * [Add-on formats](formats/README.md)

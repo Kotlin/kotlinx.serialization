@@ -57,7 +57,7 @@ public sealed class JsonElement {
         get() = this === JsonNull
 
     /**
-     * Convenience method to check whether element represents a [JsonObject] and contains given [key].
+     * Checks whether element represents a [JsonObject] and contains given [key].
      * Returns false if element is not a [JsonObject].
      */
     public operator fun contains(key: String): Boolean {
