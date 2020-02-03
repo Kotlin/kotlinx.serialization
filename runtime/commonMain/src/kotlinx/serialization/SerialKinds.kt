@@ -81,7 +81,7 @@ public sealed class PrimitiveKind : SerialKind() {
     public object SHORT : PrimitiveKind()
 
     /**
-     * Primitive kind that represents an 32-bit int value.
+     * Primitive kind that represents a 32-bit int value.
      * Corresponding Kotlin primitive is [Int].
      * Corresponding encoder and decoder methods are [Encoder.encodeInt] and [Decoder.decodeInt].
      */
@@ -198,7 +198,9 @@ public sealed class UnionKind : SerialKind() {
     public object OBJECT : UnionKind()
 
     /**
-     * Represents a Kotlin [Enum] with statically known options.
+     * Represents a Kotlin [Enum] with statically known values.
+     * All enum values should be enumerated in descriptor elements.
+     * Corresponding encoder and decoder methods are [Encoder.encodeEnum] and [Decoder.decodeEnum].
      */
     public object ENUM_KIND : UnionKind() // https://github.com/JetBrains/kotlin-native/issues/1447
 

@@ -186,7 +186,7 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
             return re
         }
 
-        override fun endStructure(desc: SerialDescriptor) {
+        override fun endStructure(descriptor: SerialDescriptor) {
             if (!finiteMode) decoder.end()
         }
 
@@ -214,8 +214,8 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
 
         override fun decodeNull() = decoder.nextNull()
 
-        override fun decodeEnum(enumDescription: SerialDescriptor): Int =
-            enumDescription.getElementIndexOrThrow(decoder.nextString())
+        override fun decodeEnum(enumDescriptor: SerialDescriptor): Int =
+            enumDescriptor.getElementIndexOrThrow(decoder.nextString())
 
     }
 

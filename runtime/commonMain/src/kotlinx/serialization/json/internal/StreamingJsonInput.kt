@@ -49,7 +49,7 @@ internal class StreamingJsonInput internal constructor(
         }
     }
 
-    override fun endStructure(desc: SerialDescriptor) {
+    override fun endStructure(descriptor: SerialDescriptor) {
         if (mode.end != INVALID) {
             reader.requireTokenClass(mode.endTc) { "Expected '${mode.end}'" }
             reader.nextToken()
@@ -151,6 +151,6 @@ internal class StreamingJsonInput internal constructor(
     override fun decodeDouble(): Double = reader.takeString().toDouble()
     override fun decodeChar(): Char = reader.takeString().single()
     override fun decodeString(): String = reader.takeString()
-    override fun decodeEnum(enumDescription: SerialDescriptor): Int =
-        enumDescription.getElementIndexOrThrow(reader.takeString())
+    override fun decodeEnum(enumDescriptor: SerialDescriptor): Int =
+        enumDescriptor.getElementIndexOrThrow(reader.takeString())
 }

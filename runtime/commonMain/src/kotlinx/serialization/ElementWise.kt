@@ -102,7 +102,7 @@ abstract class ElementValueDecoder : Decoder, CompositeDecoder {
     override fun decodeChar(): Char = decodeValue() as Char
     override fun decodeString(): String = decodeValue() as String
 
-    override fun decodeEnum(enumDescription: SerialDescriptor): Int = decodeValue() as Int
+    override fun decodeEnum(enumDescriptor: SerialDescriptor): Int = decodeValue() as Int
 
     // Delegating implementation of CompositeEncoder
 
@@ -111,15 +111,15 @@ abstract class ElementValueDecoder : Decoder, CompositeDecoder {
     }
 
     final override fun decodeUnitElement(desc: SerialDescriptor, index: Int) = decodeUnit()
-    final override fun decodeBooleanElement(desc: SerialDescriptor, index: Int): Boolean = decodeBoolean()
-    final override fun decodeByteElement(desc: SerialDescriptor, index: Int): Byte = decodeByte()
-    final override fun decodeShortElement(desc: SerialDescriptor, index: Int): Short = decodeShort()
+    final override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean = decodeBoolean()
+    final override fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Byte = decodeByte()
+    final override fun decodeShortElement(descriptor: SerialDescriptor, index: Int): Short = decodeShort()
     final override fun decodeIntElement(desc: SerialDescriptor, index: Int): Int = decodeInt()
-    final override fun decodeLongElement(desc: SerialDescriptor, index: Int): Long = decodeLong()
-    final override fun decodeFloatElement(desc: SerialDescriptor, index: Int): Float = decodeFloat()
+    final override fun decodeLongElement(descriptor: SerialDescriptor, index: Int): Long = decodeLong()
+    final override fun decodeFloatElement(descriptor: SerialDescriptor, index: Int): Float = decodeFloat()
     final override fun decodeDoubleElement(desc: SerialDescriptor, index: Int): Double = decodeDouble()
-    final override fun decodeCharElement(desc: SerialDescriptor, index: Int): Char = decodeChar()
-    final override fun decodeStringElement(desc: SerialDescriptor, index: Int): String = decodeString()
+    final override fun decodeCharElement(descriptor: SerialDescriptor, index: Int): Char = decodeChar()
+    final override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String = decodeString()
 
     final override fun <T: Any?> decodeSerializableElement(desc: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T>): T =
         decodeSerializableValue(deserializer)
