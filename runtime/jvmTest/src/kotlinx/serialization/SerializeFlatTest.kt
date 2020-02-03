@@ -273,9 +273,9 @@ class SerializeFlatTest() {
             fail("@$step: decodeInt()")
         }
 
-        override fun endStructure(desc: SerialDescriptor) {
-            checkDesc(name, desc)
-            if (step == 6) step++ else fail("@$step: endStructure($desc)")
+        override fun endStructure(descriptor: SerialDescriptor) {
+            checkDesc(name, descriptor)
+            if (step == 6) step++ else fail("@$step: endStructure($descriptor)")
         }
 
         fun done() {

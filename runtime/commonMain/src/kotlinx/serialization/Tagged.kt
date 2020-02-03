@@ -180,22 +180,22 @@ abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     final override fun decodeChar(): Char = decodeTaggedChar(popTag())
     final override fun decodeString(): String = decodeTaggedString(popTag())
 
-    final override fun decodeEnum(enumDescription: SerialDescriptor): Int = decodeTaggedEnum(popTag(), enumDescription)
+    final override fun decodeEnum(enumDescriptor: SerialDescriptor): Int = decodeTaggedEnum(popTag(), enumDescriptor)
 
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
         return this
     }
 
     final override fun decodeUnitElement(desc: SerialDescriptor, index: Int) = decodeTaggedUnit(desc.getTag(index))
-    final override fun decodeBooleanElement(desc: SerialDescriptor, index: Int): Boolean = decodeTaggedBoolean(desc.getTag(index))
-    final override fun decodeByteElement(desc: SerialDescriptor, index: Int): Byte = decodeTaggedByte(desc.getTag(index))
-    final override fun decodeShortElement(desc: SerialDescriptor, index: Int): Short = decodeTaggedShort(desc.getTag(index))
+    final override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean = decodeTaggedBoolean(descriptor.getTag(index))
+    final override fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Byte = decodeTaggedByte(descriptor.getTag(index))
+    final override fun decodeShortElement(descriptor: SerialDescriptor, index: Int): Short = decodeTaggedShort(descriptor.getTag(index))
     final override fun decodeIntElement(desc: SerialDescriptor, index: Int): Int = decodeTaggedInt(desc.getTag(index))
-    final override fun decodeLongElement(desc: SerialDescriptor, index: Int): Long = decodeTaggedLong(desc.getTag(index))
-    final override fun decodeFloatElement(desc: SerialDescriptor, index: Int): Float = decodeTaggedFloat(desc.getTag(index))
+    final override fun decodeLongElement(descriptor: SerialDescriptor, index: Int): Long = decodeTaggedLong(descriptor.getTag(index))
+    final override fun decodeFloatElement(descriptor: SerialDescriptor, index: Int): Float = decodeTaggedFloat(descriptor.getTag(index))
     final override fun decodeDoubleElement(desc: SerialDescriptor, index: Int): Double = decodeTaggedDouble(desc.getTag(index))
-    final override fun decodeCharElement(desc: SerialDescriptor, index: Int): Char = decodeTaggedChar(desc.getTag(index))
-    final override fun decodeStringElement(desc: SerialDescriptor, index: Int): String = decodeTaggedString(desc.getTag(index))
+    final override fun decodeCharElement(descriptor: SerialDescriptor, index: Int): Char = decodeTaggedChar(descriptor.getTag(index))
+    final override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String = decodeTaggedString(descriptor.getTag(index))
 
     final override fun <T : Any?> decodeSerializableElement(desc: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T>): T =
         tagBlock(desc.getTag(index)) { decodeSerializableValue(deserializer) }

@@ -123,13 +123,13 @@ private open class JsonTreeInput(json: Json, override val obj: JsonObject) : Abs
 
     override fun currentElement(tag: String): JsonElement = obj.getValue(tag)
 
-    override fun endStructure(desc: SerialDescriptor) {
-        if (!configuration.strictMode || desc.kind is PolymorphicKind.OPEN) return
+    override fun endStructure(descriptor: SerialDescriptor) {
+        if (!configuration.strictMode || descriptor.kind is PolymorphicKind.OPEN) return
 
         // Validate keys
-        val names = HashSet<String>(desc.elementsCount)
-        for (i in 0 until desc.elementsCount) {
-            names += desc.getElementName(i)
+        val names = HashSet<String>(descriptor.elementsCount)
+        for (i in 0 until descriptor.elementsCount) {
+            names += descriptor.getElementName(i)
         }
 
         for (key in obj.keys) {
@@ -160,7 +160,7 @@ private class JsonTreeMapInput(json: Json, override val obj: JsonObject) : JsonT
         return if (position % 2 == 0) JsonLiteral(tag) else obj.getValue(tag)
     }
 
-    override fun endStructure(desc: SerialDescriptor) {
+    override fun endStructure(descriptor: SerialDescriptor) {
         // do nothing, maps do not have strict keys, so strict mode check is omitted
     }
 }

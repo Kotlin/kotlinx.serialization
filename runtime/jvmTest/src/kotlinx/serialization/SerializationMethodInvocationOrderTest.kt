@@ -144,12 +144,12 @@ class SerializationMethodInvocationOrderTest {
             fail("@$step: decodeInt()")
         }
 
-        override fun endStructure(desc: SerialDescriptor) {
+        override fun endStructure(descriptor: SerialDescriptor) {
             when(step) {
-                10 -> { checkDataDesc(desc); step++; return }
-                12 -> { checkContainerDesc(desc); step++; return }
+                10 -> { checkDataDesc(descriptor); step++; return }
+                12 -> { checkContainerDesc(descriptor); step++; return }
             }
-            fail("@$step: endStructure($desc)")
+            fail("@$step: endStructure($descriptor)")
         }
 
         fun done() {

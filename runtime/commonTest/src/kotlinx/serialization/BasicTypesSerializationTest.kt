@@ -136,7 +136,7 @@ class BasicTypesSerializationTest {
             return this
         }
 
-        override fun endStructure(desc: SerialDescriptor) = inp.expectAfterWhiteSpace('}')
+        override fun endStructure(descriptor: SerialDescriptor) = inp.expectAfterWhiteSpace('}')
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             inp.skipWhitespace(',')
@@ -172,7 +172,7 @@ class BasicTypesSerializationTest {
         override fun decodeFloat(): Float = readToken().toFloat()
         override fun decodeDouble(): Double = readToken().toDouble()
 
-        override fun decodeEnum(enumDescription: SerialDescriptor): Int {
+        override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
             return readToken().toInt()
         }
 

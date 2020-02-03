@@ -26,12 +26,12 @@ public class ContextSerializer<T : Any>(private val serializableClass: KClass<T>
     public override val descriptor: SerialDescriptor = SerialDescriptor("kotlinx.serialization.ContextSerializer", UnionKind.CONTEXTUAL) {}
 
     public override fun serialize(encoder: Encoder, value: T) {
-        val s = encoder.context.getContextualOrDefault(value)
-        encoder.encodeSerializableValue(s, value)
+        val serializer = encoder.context.getContextualOrDefault(value)
+        encoder.encodeSerializableValue(serializer, value)
     }
 
     public override fun deserialize(decoder: Decoder): T {
-        val s = decoder.context.getContextualOrDefault(serializableClass)
-        return decoder.decodeSerializableValue(s)
+        val serializer = decoder.context.getContextualOrDefault(serializableClass)
+        return decoder.decodeSerializableValue(serializer)
     }
 }
