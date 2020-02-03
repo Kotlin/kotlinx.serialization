@@ -53,4 +53,7 @@ public interface JsonInput : Decoder, CompositeDecoder {
 }
 
 internal fun Decoder.asJsonInput() = this as? JsonInput
-        ?: throw SerializationException("This transformation can be used only with Json")
+        ?: throw SerializationException(
+            "This serializer can be used only with Json format." +
+                    "Expected Decoder to be JsonInput, got ${this::class}"
+        )
