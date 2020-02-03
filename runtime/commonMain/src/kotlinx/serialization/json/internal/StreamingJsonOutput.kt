@@ -35,7 +35,7 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
         encodeSerializableValue(JsonElementSerializer, element)
     }
 
-    override fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean {
+    override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean {
         return configuration.encodeDefaults
     }
 
@@ -53,8 +53,8 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
         encodeString(descriptor.serialName)
     }
 
-    override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
-        val newMode = json.switchMode(desc)
+    override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
+        val newMode = json.switchMode(descriptor)
         if (newMode.begin != INVALID) { // entry
             composer.print(newMode.begin)
             composer.indent()
@@ -62,7 +62,7 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
 
         if (writePolymorphic) {
             writePolymorphic = false
-            encodeTypeInfo(desc)
+            encodeTypeInfo(descriptor)
         }
 
         if (mode == newMode) {
@@ -72,7 +72,7 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
         return modeReuseCache[newMode.ordinal] ?: StreamingJsonOutput(composer, json, newMode, modeReuseCache)
     }
 
-    override fun endStructure(desc: SerialDescriptor) {
+    override fun endStructure(descriptor: SerialDescriptor) {
         if (mode.end != INVALID) {
             composer.unIndent()
             composer.nextItem()
@@ -176,8 +176,8 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
         }
     }
 
-    override fun encodeEnum(enumDescription: SerialDescriptor, ordinal: Int) {
-        encodeString(enumDescription.getElementName(ordinal))
+    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
+        encodeString(enumDescriptor.getElementName(index))
     }
 
     override fun encodeValue(value: Any) {

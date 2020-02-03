@@ -29,13 +29,13 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
         override val context: SerialModule
             get() = this@Cbor.context
 
-        override fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean = encodeDefaults
+        override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = encodeDefaults
 
         protected open fun writeBeginToken() = encoder.startMap()
 
         //todo: Write size of map or array if known
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
-            val writer = when (desc.kind) {
+        override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
+            val writer = when (descriptor.kind) {
                 StructureKind.LIST, is PolymorphicKind -> CborListWriter(encoder)
                 StructureKind.MAP -> CborMapWriter(encoder)
                 else -> CborWriter(encoder)
@@ -44,7 +44,7 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
             return writer
         }
 
-        override fun endStructure(desc: SerialDescriptor) = encoder.end()
+        override fun endStructure(descriptor: SerialDescriptor) = encoder.end()
 
         override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
             val name = desc.getElementName(index)
@@ -68,10 +68,10 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
         override fun encodeNull() = encoder.encodeNull()
 
         override fun encodeEnum(
-            enumDescription: SerialDescriptor,
-            ordinal: Int
+            enumDescriptor: SerialDescriptor,
+            index: Int
         ) =
-            encoder.encodeString(enumDescription.getElementName(ordinal))
+            encoder.encodeString(enumDescriptor.getElementName(index))
     }
 
     // For details of representation, see https://tools.ietf.org/html/rfc7049#section-2.1

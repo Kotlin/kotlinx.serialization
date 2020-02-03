@@ -195,9 +195,9 @@ class SerializeFlatTest() {
     class Out(private val name: String) : ElementValueEncoder() {
         var step = 0
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
-            checkDesc(name, desc)
-            if (step == 0) step++ else fail("@$step: beginStructure($desc)")
+        override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
+            checkDesc(name, descriptor)
+            if (step == 0) step++ else fail("@$step: beginStructure($descriptor)")
             return this
         }
 
@@ -224,9 +224,9 @@ class SerializeFlatTest() {
             fail("@$step: decodeInt($value)")
         }
 
-        override fun endStructure(desc: SerialDescriptor) {
-            checkDesc(name, desc)
-            if (step == 5) step++ else fail("@$step: endStructure($desc)")
+        override fun endStructure(descriptor: SerialDescriptor) {
+            checkDesc(name, descriptor)
+            if (step == 5) step++ else fail("@$step: endStructure($descriptor)")
         }
 
         fun done() {

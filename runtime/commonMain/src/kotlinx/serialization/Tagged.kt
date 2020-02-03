@@ -70,16 +70,16 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
     final override fun encodeString(value: String) = encodeTaggedString(popTag(), value)
 
     final override fun encodeEnum(
-        enumDescription: SerialDescriptor,
-        ordinal: Int
-    ) = encodeTaggedEnum(popTag(), enumDescription, ordinal)
+        enumDescriptor: SerialDescriptor,
+        index: Int
+    ) = encodeTaggedEnum(popTag(), enumDescriptor, index)
 
-    override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
+    override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
         return this
     }
 
-    final override fun endStructure(desc: SerialDescriptor) {
-        if (tagStack.isNotEmpty()) popTag(); endEncode(desc)
+    final override fun endStructure(descriptor: SerialDescriptor) {
+        if (tagStack.isNotEmpty()) popTag(); endEncode(descriptor)
     }
 
     /**
@@ -87,18 +87,18 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
      */
     open fun endEncode(desc: SerialDescriptor) {}
 
-    final override fun encodeNonSerializableElement(desc: SerialDescriptor, index: Int, value: Any) = encodeTaggedValue(desc.getTag(index), value)
+    final override fun encodeNonSerializableElement(descriptor: SerialDescriptor, index: Int, value: Any) = encodeTaggedValue(descriptor.getTag(index), value)
 
-    final override fun encodeUnitElement(desc: SerialDescriptor, index: Int) = encodeTaggedUnit(desc.getTag(index))
-    final override fun encodeBooleanElement(desc: SerialDescriptor, index: Int, value: Boolean) = encodeTaggedBoolean(desc.getTag(index), value)
-    final override fun encodeByteElement(desc: SerialDescriptor, index: Int, value: Byte) = encodeTaggedByte(desc.getTag(index), value)
-    final override fun encodeShortElement(desc: SerialDescriptor, index: Int, value: Short) = encodeTaggedShort(desc.getTag(index), value)
-    final override fun encodeIntElement(desc: SerialDescriptor, index: Int, value: Int) = encodeTaggedInt(desc.getTag(index), value)
-    final override fun encodeLongElement(desc: SerialDescriptor, index: Int, value: Long) = encodeTaggedLong(desc.getTag(index), value)
-    final override fun encodeFloatElement(desc: SerialDescriptor, index: Int, value: Float) = encodeTaggedFloat(desc.getTag(index), value)
-    final override fun encodeDoubleElement(desc: SerialDescriptor, index: Int, value: Double) = encodeTaggedDouble(desc.getTag(index), value)
-    final override fun encodeCharElement(desc: SerialDescriptor, index: Int, value: Char) = encodeTaggedChar(desc.getTag(index), value)
-    final override fun encodeStringElement(desc: SerialDescriptor, index: Int, value: String) = encodeTaggedString(desc.getTag(index), value)
+    final override fun encodeUnitElement(descriptor: SerialDescriptor, index: Int) = encodeTaggedUnit(descriptor.getTag(index))
+    final override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) = encodeTaggedBoolean(descriptor.getTag(index), value)
+    final override fun encodeByteElement(descriptor: SerialDescriptor, index: Int, value: Byte) = encodeTaggedByte(descriptor.getTag(index), value)
+    final override fun encodeShortElement(descriptor: SerialDescriptor, index: Int, value: Short) = encodeTaggedShort(descriptor.getTag(index), value)
+    final override fun encodeIntElement(descriptor: SerialDescriptor, index: Int, value: Int) = encodeTaggedInt(descriptor.getTag(index), value)
+    final override fun encodeLongElement(descriptor: SerialDescriptor, index: Int, value: Long) = encodeTaggedLong(descriptor.getTag(index), value)
+    final override fun encodeFloatElement(descriptor: SerialDescriptor, index: Int, value: Float) = encodeTaggedFloat(descriptor.getTag(index), value)
+    final override fun encodeDoubleElement(descriptor: SerialDescriptor, index: Int, value: Double) = encodeTaggedDouble(descriptor.getTag(index), value)
+    final override fun encodeCharElement(descriptor: SerialDescriptor, index: Int, value: Char) = encodeTaggedChar(descriptor.getTag(index), value)
+    final override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) = encodeTaggedString(descriptor.getTag(index), value)
 
     final override fun <T : Any?> encodeSerializableElement(desc: SerialDescriptor, index: Int, serializer: SerializationStrategy<T>, value: T) {
         if (encodeElement(desc, index))

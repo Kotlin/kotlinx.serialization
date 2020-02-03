@@ -34,7 +34,7 @@ private sealed class AbstractJsonTreeOutput(
         encodeSerializableValue(JsonElementSerializer, element)
     }
 
-    override fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean = configuration.encodeDefaults
+    override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = configuration.encodeDefaults
     override fun composeName(parentName: String, childName: String): String = childName
     abstract fun putElement(key: String, element: JsonElement)
     abstract fun getCurrent(): JsonElement
@@ -85,15 +85,15 @@ private sealed class AbstractJsonTreeOutput(
         putElement(tag, JsonLiteral(value.toString()))
     }
 
-    override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
+    override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
         val consumer =
             if (currentTagOrNull == null) nodeConsumer
             else { node -> putElement(currentTag, node) }
 
-        val encoder = when (desc.kind) {
+        val encoder = when (descriptor.kind) {
             StructureKind.LIST, is PolymorphicKind -> JsonTreeListOutput(json, consumer)
             StructureKind.MAP -> json.selectMapMode(
-                desc,
+                descriptor,
                 { JsonTreeMapOutput(json, consumer) },
                 { JsonTreeListOutput(json, consumer) }
             )
@@ -102,7 +102,7 @@ private sealed class AbstractJsonTreeOutput(
 
         if (writePolymorphic) {
             writePolymorphic = false
-            encoder.putElement(configuration.classDiscriminator, JsonPrimitive(desc.serialName))
+            encoder.putElement(configuration.classDiscriminator, JsonPrimitive(descriptor.serialName))
         }
 
         return encoder
