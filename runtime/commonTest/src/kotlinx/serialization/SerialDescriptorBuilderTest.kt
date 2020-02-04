@@ -4,11 +4,9 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.internal.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
 
-@ImplicitReflectionSerializer
 class SerialDescriptorBuilderTest {
 
     @Serializable
@@ -72,11 +70,18 @@ class SerialDescriptorBuilderTest {
 
     @Test
     fun testMisconfiguration() {
-        assertFailsWith<IllegalStateException> {
-            SerialDescriptor("", StructureKind.CLASS) {
+        assertFailsWith<IllegalArgumentException> {
+            SerialDescriptor("a", StructureKind.CLASS) {
                 element<Int>("i")
                 element<Int>("i")
             }
         }
+
+        assertFailsWith<IllegalArgumentException> { SerialDescriptor("", StructureKind.CLASS) }
+        assertFailsWith<IllegalArgumentException> { SerialDescriptor("\t", StructureKind.CLASS) }
+        assertFailsWith<IllegalArgumentException> { SerialDescriptor("   ", StructureKind.CLASS) }
+        assertFailsWith<IllegalArgumentException> { PrimitiveDescriptor("", PrimitiveKind.STRING) }
+        assertFailsWith<IllegalArgumentException> { PrimitiveDescriptor(" ", PrimitiveKind.STRING) }
+        assertFailsWith<IllegalArgumentException> { PrimitiveDescriptor("\t", PrimitiveKind.STRING) }
     }
 }

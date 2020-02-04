@@ -69,9 +69,8 @@ private fun checkName(serialName: String) {
 }
 
 @Suppress("UNCHECKED_CAST")
-internal fun <T : Any> KClass<T>.builtinSerializerOrNull(): KSerializer<T>? {
-    return BUILTIN_SERIALIZERS[this] as? KSerializer<T>
-}
+internal fun <T : Any> KClass<T>.builtinSerializerOrNull(): KSerializer<T>? =
+    BUILTIN_SERIALIZERS[this] as KSerializer<T>?
 
 @Deprecated(level = DeprecationLevel.HIDDEN, message = "Binary compatibility")
 object UnitSerializer : KSerializer<Unit> {

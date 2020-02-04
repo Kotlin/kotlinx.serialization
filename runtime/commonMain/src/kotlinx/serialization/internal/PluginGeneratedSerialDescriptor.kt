@@ -27,8 +27,8 @@ public open class PluginGeneratedSerialDescriptor(
     // Classes rarely have annotations, so we can save up a bit of allocations here
     private var classAnnotations: MutableList<Annotation>? = null
     private var flags = BooleanArray(elementsCount)
+    internal val namesSet: Set<String> get() = indices.keys
     // don't change lazy mode: KT-32871, KT-32872
-    internal val namesSet: Set<String> by lazy { names.toHashSet() }
     private val indices: Map<String, Int> by lazy { buildIndices() }
 
     public fun addElement(name: String, isOptional: Boolean = false) {
@@ -59,7 +59,7 @@ public open class PluginGeneratedSerialDescriptor(
 
     override fun getElementDescriptor(index: Int): SerialDescriptor {
         return generatedSerializer?.childSerializers()?.get(index)?.descriptor
-        ?: error("Unexpected call to getElementDescriptor($index)")
+        ?: throw IndexOutOfBoundsException("$serialName descriptor has only $elementsCount elements, index: $index")
     }
 
     override fun isElementOptional(index: Int): Boolean = flags.getChecked(index)

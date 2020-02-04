@@ -4,6 +4,12 @@
 
 package kotlinx.serialization.internal
 
-// Array.get that checks indices on JS
+/**
+ *  Array.get that checks indices on JS
+ */
 internal expect fun <T> Array<T>.getChecked(index: Int): T
+
+/**
+ *  Array.get that checks indices on JS
+ */
 internal expect fun BooleanArray.getChecked(index: Int): Boolean

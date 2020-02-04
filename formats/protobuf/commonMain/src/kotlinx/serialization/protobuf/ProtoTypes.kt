@@ -16,9 +16,9 @@ public annotation class ProtoType(val type: ProtoNumberType)
 
 internal typealias ProtoDesc = Pair<Int, ProtoNumberType>
 
-internal fun extractParameters(desc: SerialDescriptor, index: Int, zeroBasedDefault: Boolean = false): ProtoDesc {
-    val idx = getProtoId(desc, index) ?: (if (zeroBasedDefault) index else index + 1)
-    val format = desc.findAnnotation<ProtoType>(index)?.type
+internal fun extractParameters(descriptor: SerialDescriptor, index: Int, zeroBasedDefault: Boolean = false): ProtoDesc {
+    val idx = getProtoId(descriptor, index) ?: (if (zeroBasedDefault) index else index + 1)
+    val format = descriptor.findAnnotation<ProtoType>(index)?.type
             ?: ProtoNumberType.DEFAULT
     return idx to format
 }

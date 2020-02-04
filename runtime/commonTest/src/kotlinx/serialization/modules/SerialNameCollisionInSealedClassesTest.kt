@@ -51,6 +51,6 @@ class SerialNameCollisionInSealedClassesTest {
         BaseCollision.Child()
         BaseCollision.ChildCollided()
         BaseCollision.ChildCollided.serializer().descriptor // Doesn't fail
-        assertFailsWith<IllegalStateException> { BaseCollision.serializer().descriptor }
+        assertFailsWith<IllegalArgumentException> { BaseCollision.serializer().descriptor }
     }
 }

@@ -89,11 +89,11 @@ class ConfigParser(context: SerialModule = EmptyModule): AbstractSerialFormat(co
             return !conf.getIsNull(tag)
         }
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder =
+        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder =
             when {
-                desc.kind.listLike -> ListConfigReader(conf.getList(currentTag))
-                desc.kind.objLike -> if (ind > -1) ConfigReader(conf.getConfig(currentTag)) else this
-                desc.kind == StructureKind.MAP -> MapConfigReader(conf.getObject(currentTag))
+                descriptor.kind.listLike -> ListConfigReader(conf.getList(currentTag))
+                descriptor.kind.objLike -> if (ind > -1) ConfigReader(conf.getConfig(currentTag)) else this
+                descriptor.kind == StructureKind.MAP -> MapConfigReader(conf.getObject(currentTag))
                 else -> this
             }
     }
@@ -101,11 +101,11 @@ class ConfigParser(context: SerialModule = EmptyModule): AbstractSerialFormat(co
     private inner class ListConfigReader(private val list: ConfigList) : ConfigConverter<Int>() {
         private var ind = -1
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder =
+        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder =
             when {
-                desc.kind.listLike -> ListConfigReader(list[currentTag] as ConfigList)
-                desc.kind.objLike -> ConfigReader((list[currentTag] as ConfigObject).toConfig())
-                desc.kind == StructureKind.MAP -> MapConfigReader(list[currentTag] as ConfigObject)
+                descriptor.kind.listLike -> ListConfigReader(list[currentTag] as ConfigList)
+                descriptor.kind.objLike -> ConfigReader((list[currentTag] as ConfigObject).toConfig())
+                descriptor.kind == StructureKind.MAP -> MapConfigReader(list[currentTag] as ConfigObject)
                 else -> this
             }
 
@@ -133,11 +133,11 @@ class ConfigParser(context: SerialModule = EmptyModule): AbstractSerialFormat(co
 
         private val indexSize = values.size * 2
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder =
+        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder =
             when {
-                desc.kind.listLike -> ListConfigReader(values[currentTag / 2] as ConfigList)
-                desc.kind.objLike -> ConfigReader((values[currentTag / 2] as ConfigObject).toConfig())
-                desc.kind == StructureKind.MAP -> MapConfigReader(values[currentTag / 2] as ConfigObject)
+                descriptor.kind.listLike -> ListConfigReader(values[currentTag / 2] as ConfigList)
+                descriptor.kind.objLike -> ConfigReader((values[currentTag / 2] as ConfigObject).toConfig())
+                descriptor.kind == StructureKind.MAP -> MapConfigReader(values[currentTag / 2] as ConfigObject)
                 else -> this
             }
 

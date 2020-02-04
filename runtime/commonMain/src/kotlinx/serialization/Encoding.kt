@@ -20,7 +20,7 @@ import kotlinx.serialization.modules.*
  * To be more specific, serialization transforms a value into a sequence of "here is an int, here is
  * a double, here a list of strings and here is another object that is a nested int", while encoding
  * transforms this sequence into a format-specific commands such as "insert opening curly bracket
- * for a nested object start, insert a name of the value and the value separated with semicolon for an int etc."
+ * for a nested object start, insert a name of the value and the value separated with colon for an int etc."
  *
  * The symmetric interface for the deserialization process is [Decoder].
  *
@@ -45,7 +45,7 @@ import kotlinx.serialization.modules.*
  * ```
  *
  * E.g. if the encoder belongs to JSON format, then [beginStructure] will write an opening bracket
- * (`{` or `[`, depending on the descriptor kind), returning the [CompositeEncoder] that is aware of semicolon separator,
+ * (`{` or `[`, depending on the descriptor kind), returning the [CompositeEncoder] that is aware of colon separator,
  * that should be appended between each key-value pair, whilst [CompositeEncoder.endStructure] will write a closing bracket.
  *
  * ### Exception guarantees.
@@ -118,7 +118,7 @@ public interface Encoder {
      * This method has a use in highly-performant binary formats and can
      * be safely ignore by most of the regular formats.
      */
-    public fun encodeNotNullMark()
+    public fun encodeNotNullMark() {}
 
     /**
      * Encodes `null` value.
@@ -136,7 +136,7 @@ public interface Encoder {
 
     /**
      * Encodes a single byte value.
-     * Corresponding kind is [PrimitiveKind.BOOLEAN].
+     * Corresponding kind is [PrimitiveKind.BYTE].
      */
     public fun encodeByte(value: Byte)
 
@@ -148,19 +148,19 @@ public interface Encoder {
 
     /**
      * Encodes a 16-bit unicode character value.
-     * Corresponding kind is [PrimitiveKind.BOOLEAN].
+     * Corresponding kind is [PrimitiveKind.CHAR].
      */
     public fun encodeChar(value: Char)
 
     /**
-     * Encodes a 32-bit int value
+     * Encodes a 32-bit integer value.
      * Corresponding kind is [PrimitiveKind.INT].
      */
     public fun encodeInt(value: Int)
 
     /**
-     * Encodes a 64-bit int value
-     * Corresponding kind is [PrimitiveKind.INT].
+     * Encodes a 64-bit integer value.
+     * Corresponding kind is [PrimitiveKind.LONG].
      */
     public fun encodeLong(value: Long)
 
@@ -172,7 +172,7 @@ public interface Encoder {
 
     /**
      * Encodes a 64-bit IEEE 754 floating point value.
-     * Corresponding kind is [PrimitiveKind.FLOAT].
+     * Corresponding kind is [PrimitiveKind.DOUBLE].
      */
     public fun encodeDouble(value: Double)
 
@@ -221,7 +221,7 @@ public interface Encoder {
      *
      * // StringHolder serializer
      * fun serialize(encoder: Encoder, value: StringHolder) {
-     *     val composite = encoder.beginStructure(descriptor) // One more '{' when the key "stringHolder" is already wriotten
+     *     val composite = encoder.beginStructure(descriptor) // One more '{' when the key "stringHolder" is already written
      *     composite.encodeStringElement(descriptor, 0, value.stringValue) // Serialize actual value
      *     composite.endStructure(descriptor) // Closing bracket
      * }
@@ -235,13 +235,13 @@ public interface Encoder {
 
     /**
      * Encodes the beginning of the collection with size [collectionSize] and the given serializer of its type parameters.
+     * This method has to be implemented only if you need to know collection size in advance, otherwise, [beginStructure] can be used.
      */
     public fun beginCollection(
         descriptor: SerialDescriptor,
         collectionSize: Int,
         vararg typeSerializers: KSerializer<*>
-    ): CompositeEncoder =
-        beginStructure(descriptor, *typeSerializers)
+    ): CompositeEncoder = beginStructure(descriptor, *typeSerializers)
 
     /**
      * Encodes the [value] of type [T] by delegating the encoding process to the given [serializer].
@@ -271,7 +271,6 @@ public interface Encoder {
  *
  * All `encode*` methods have `index` and `serialDescriptor` parameters with a strict semantics and constraints:
  *   * `descriptor` is always the same as one used in [Encoder.beginStructure]. While this parameter may seem redundant,
- *   * `descriptor` is always the same as one used in [Encoder.beginStructure]. While this parameter may seem redundant,
  *      it is required for efficient serialization process to avoid excessive field spilling.
  *      If you are writing your own format, you can safely ignore this parameter and use one used in `beginStructure`
  *      for simplicity.
@@ -292,9 +291,7 @@ public interface CompositeEncoder {
      * For example, composite encoder of JSON format will write
      * a closing bracket in the underlying input and reduce the number of nesting for pretty printing.
      */
-    public fun endStructure(descriptor: SerialDescriptor) {
-        // TODO get rid of default implementation, method is too important
-    }
+    public fun endStructure(descriptor: SerialDescriptor)
 
     /**
      * Whether the format should encode values that are equal to the default values.
@@ -390,8 +387,12 @@ public interface CompositeEncoder {
         value: T?
     )
 
-    // No idea
-    public fun encodeNonSerializableElement(descriptor: SerialDescriptor, index: Int, value: Any)
+    @Deprecated(
+        level = DeprecationLevel.ERROR,
+        message = "This method is deprecated for removal. Please remove it from your implementation and delegate to default method instead"
+    )
+    public fun encodeNonSerializableElement(descriptor: SerialDescriptor, index: Int, value: Any) {
+    }
 }
 
 /**

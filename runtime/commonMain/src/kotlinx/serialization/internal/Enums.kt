@@ -47,7 +47,8 @@ public class EnumDescriptor(
 
 // Used for enums that are not explicitly serializable
 @InternalSerializationApi
-@Deprecated(level = DeprecationLevel.HIDDEN, message = "For plugin-generated code")
+@Deprecated(level = DeprecationLevel.ERROR, message = "For plugin-generated code, " +
+        "should not be used directly. For the custom serializers please report your use-case to project issues, so proper public API could be introduced instead")
 public class EnumSerializer<T : Enum<T>>(
     serialName: String,
     private val values: Array<T>
