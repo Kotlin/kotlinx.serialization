@@ -8,18 +8,14 @@ import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.reflect.*
 
-/**
- * A [SerialDescriptor] for polymorphic serialization with special kind.
- * Currently, it has no guarantees neither on its reference transparency nor its children descriptors, only on [kind].
- */
 @Deprecated(
     message = "Top-level polymorphic descriptor is deprecated, use descriptor from the instance of PolymorphicSerializer or" +
             "check for descriptor kind instead", level = DeprecationLevel.WARNING
 )
 public val PolymorphicClassDescriptor = SerialDescriptor("kotlinx.serialization.Polymorphic", PolymorphicKind.OPEN) {
-    element("class", StringSerializer.descriptor)
-    // TODO make a decision on this one, see contextual
-    val valueDescriptor = SerialDescriptor("value", UnionKind.CONTEXTUAL) {}
+    // TODO annotations and polymorphic implementation
+    element("name", StringSerializer.descriptor)
+    val valueDescriptor = SerialDescriptor("value", UnionKind.CONTEXTUAL)
     element("value", valueDescriptor)
 }
 
@@ -64,12 +60,12 @@ public val PolymorphicClassDescriptor = SerialDescriptor("kotlinx.serialization.
  * ```
  * val requestAndResponseModule = SerializersModule {
  *     polymorphic(BaseRequest::class) {
- *         RequestA::class with RequestA.serializer()
- *         RequestB::class with RequestB.serializer()
+ *         subclass<RequestA>
+ *         subclass<RequestB>
  *     }
  *     polymorphic(BaseResponse::class) {
- *         ResponseC::class with ResponseC.serializer()
- *         ResponseD::class with ResponseD.serializer()
+ *         subclass<ResponseC>
+ *         subclass<ResponseD>
  *     }
  * }
  * ```

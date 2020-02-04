@@ -183,12 +183,12 @@ class ModuleBuildersTest {
 
     @Serializer(forClass = C::class)
     object CSerializer : KSerializer<C> {
-        override val descriptor: SerialDescriptor = SerialDescriptor("AnotherName", UnionKind.OBJECT)
+        override val descriptor: SerialDescriptor = SerialDescriptor("AnotherName", StructureKind.OBJECT)
     }
 
     @Serializer(forClass = C::class)
     object CSerializer2 : KSerializer<C> {
-        override val descriptor: SerialDescriptor = SerialDescriptor("C", UnionKind.OBJECT)
+        override val descriptor: SerialDescriptor = SerialDescriptor("C", StructureKind.OBJECT)
     }
 
     @Test

@@ -102,7 +102,7 @@ class SerialDescriptorSpecificationTest {
         fun SerialDescriptor.verifyEnumMember(name: String) {
             assertEquals("Named.$name", serialName)
             assertEquals(0, elementsCount)
-            assertEquals(UnionKind.OBJECT, kind)
+            assertEquals(StructureKind.OBJECT, kind)
         }
 
         val d = NamedEnum.serializer().descriptor
@@ -160,7 +160,7 @@ class SerialDescriptorSpecificationTest {
     @Test
     fun testObjectDescriptor() {
         val descriptor = SerializableObject.serializer().descriptor
-        assertEquals(UnionKind.OBJECT, descriptor.kind)
+        assertEquals(StructureKind.OBJECT, descriptor.kind)
         assertEquals("SerializableObject", descriptor.serialName)
         assertEquals(0, descriptor.elementsCount)
         assertEquals(UNKNOWN_NAME, descriptor.getElementIndex("?"))

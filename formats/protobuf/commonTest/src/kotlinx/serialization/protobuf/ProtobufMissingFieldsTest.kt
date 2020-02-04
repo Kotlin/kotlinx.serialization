@@ -92,7 +92,7 @@ class ItemPlatformSerializer : KSerializer<ItemPlatform> {
 
     override val descriptor: SerialDescriptor = SerialDescriptor("ItemPlatform", UnionKind.ENUM_KIND) {
         enumValues<ItemPlatform>().forEach {
-            element(it.name, SerialDescriptor("$serialName.${it.name}", UnionKind.OBJECT) {})
+            element(it.name, SerialDescriptor("$serialName.${it.name}", StructureKind.OBJECT))
         }
     }
 
@@ -118,7 +118,7 @@ class ItemContextSerializer : KSerializer<ItemContext> {
 
     override val descriptor: SerialDescriptor = SerialDescriptor("ItemContext", UnionKind.ENUM_KIND) {
         enumValues<ItemContext>().forEach {
-            element(it.name, SerialDescriptor("$serialName.${it.name}", UnionKind.OBJECT) {})
+            element(it.name, SerialDescriptor("$serialName.${it.name}", StructureKind.OBJECT))
         }
     }
 
