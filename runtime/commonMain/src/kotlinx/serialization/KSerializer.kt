@@ -11,14 +11,14 @@ package kotlinx.serialization
  *
  * Serialization is decoupled from the encoding process to make it completely format-agnostic.
  * Serialization represents a type as its serial form and is abstracted from the actual
- * format (whether its JSON, ProtoBuf or a hashing) and is not aware of the underlying storage
+ * format (whether its JSON, ProtoBuf or a hashing) and unaware of the underlying storage
  * (whether it is a string builder, byte array or a network socket), while
  * encoding/decoding is abstracted from a particular type and its serial form and is responsible
  * for transforming primitives ("here in an int property 'foo'" call from a serializer) into a particular
  * format-specific representation ("for a given int, append a property name in quotation marks,
- * then append a semicolon, then append an actual value" for JSON) and how to retrieve a primitive
+ * then append a colon, then append an actual value" for JSON) and how to retrieve a primitive
  * ("give me an int that is 'foo' property") from the underlying representation ("expect the next string to be 'foo',
- * parse it, then parse semicolon, then parse a string until the next comma as an int an return it).
+ * parse it, then parse colon, then parse a string until the next comma as an int and return it).
  *
  * Serial form consists of a structural description, declared by the [descriptor] and
  * actual serialization and deserialization processes, defined by the corresponding
@@ -54,9 +54,9 @@ public interface KSerializer<T> : SerializationStrategy<T>, DeserializationStrat
      * the shape of the serialized form (e.g. what elements are encoded as lists and what as primitives)
      * along with its metadata such as alternative names.
      *
-     * The descriptor is used dynamically, during serialization by encoders and decoders
-     * to introspect the type and metadata of [T]'s elements being encoded or decoded and
-     * statically, to introspect the type, infer the schema or to compare against the predefined schema.
+     * The descriptor is used during serialization by encoders and decoders
+     * to introspect the type and metadata of [T]'s elements being encoded or decoded, and
+     * to introspect the type, infer the schema or to compare against the predefined schema.
      */
     override val descriptor: SerialDescriptor
 

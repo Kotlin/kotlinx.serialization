@@ -7,6 +7,7 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
@@ -45,17 +46,21 @@ private sealed class AbstractJsonTreeInput(
 
     override fun composeName(parentName: String, childName: String): String = childName
 
-    override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+    override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
         val currentObject = currentObject()
-        return when (desc.kind) {
+        return when (descriptor.kind) {
             StructureKind.LIST, is PolymorphicKind -> JsonTreeListInput(json, cast(currentObject))
             StructureKind.MAP -> json.selectMapMode(
-                desc,
+                descriptor,
                 { JsonTreeMapInput(json, cast(currentObject)) },
                 { JsonTreeListInput(json, cast(currentObject)) }
             )
             else -> JsonTreeInput(json, cast(currentObject))
         }
+    }
+
+    override fun endStructure(descriptor: SerialDescriptor) {
+        // Nothing
     }
 
     protected open fun getValue(tag: String): JsonPrimitive {
@@ -124,14 +129,10 @@ private open class JsonTreeInput(json: Json, override val obj: JsonObject) : Abs
     override fun currentElement(tag: String): JsonElement = obj.getValue(tag)
 
     override fun endStructure(descriptor: SerialDescriptor) {
-        if (!configuration.strictMode || descriptor.kind is PolymorphicKind.OPEN) return
+        if (!configuration.strictMode || descriptor.kind is PolymorphicKind) return
 
         // Validate keys
-        val names = HashSet<String>(descriptor.elementsCount)
-        for (i in 0 until descriptor.elementsCount) {
-            names += descriptor.getElementName(i)
-        }
-
+        val names = descriptor.cachedSerialNames()
         for (key in obj.keys) {
             if (key !in names) throw jsonUnknownKeyException(-1, key)
         }

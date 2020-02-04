@@ -13,8 +13,8 @@ package kotlinx.serialization
  * depending on that, may write it as a plain value for primitive kinds, open a
  * curly brace '{' for class-like structures and square bracket '[' for list- and array- like structures.
  *
- * Kinds are used both in runtime, to serialize a value properly and statically,
- * to retrospect the type structure or build serialization schema.
+ * Kinds are used both during serialization, to serialize a value properly and statically, and
+ * to introspect the type structure or build serialization schema.
  *
  * Kind should match the structure of the serialized form, not the structure of the corresponding Kotlin class.
  * Meaning that if serializable class `class IntPair(val left: Int, val right: Int)` is represented by the serializer
@@ -29,7 +29,7 @@ public sealed class SerialKind {
 }
 
 /**
- * Values of primitive kinds that usually are represented as a single value.
+ * Values of primitive kinds usually are represented as a single value.
  * All default serializers for Kotlin [primitives types](https://kotlinlang.org/docs/tutorials/kotlin-for-py/primitive-data-types-and-their-limitations.html)
  * and [String] have primitive kind.
  *
@@ -40,7 +40,7 @@ public sealed class SerialKind {
  * as a single [Int] value, a typical serializer will serialize its value in the following manner:
  * ```
  * val intValue = color.rgbToInt()
- * encoder.encodeInt()
+ * encoder.encodeInt(intValue)
  * ```
  * and a corresponding [Decoder] counterpart.
  *
@@ -131,7 +131,7 @@ public sealed class PrimitiveKind : SerialKind() {
  *
  * ### Lists
  * [LIST] represent a structure with potentially unknown in advance number of elements of the same type.
- * All standard serializable [List] implementors are represented as [LIST] kind of the same type.
+ * All standard serializable [List] implementors and arrays are represented as [LIST] kind of the same type.
  *
  * ### Maps
  * [MAP] represent a structure with potentially unknown in advance number of key-value pairs of the same type.
@@ -149,7 +149,7 @@ public sealed class PrimitiveKind : SerialKind() {
  * ```
  * val composite = encoder.beginStructure(descriptor) // Denotes the start of the structure
  * composite.encodeIntElement(descriptor, index = 0, holder.myValue)
- * composite.beginStructure(descriptor) // Denotes the end of the structure
+ * composite.endStructure(descriptor) // Denotes the end of the structure
  * ```
  * and its corresponding [Decoder] counterpart.
  *
@@ -168,7 +168,7 @@ public sealed class StructureKind : SerialKind() {
     public object CLASS : StructureKind()
 
     /**
-     * Structure kind for lists of an arbitrary length.
+     * Structure kind for lists and arrays of an arbitrary length.
      * Serializers typically encode classes with calls to [Encoder.beginCollection] and [CompositeEncoder.endStructure],
      * writing the elements of the list between these calls.
      * Built-in list serializers treat elements as homogeneous, though application-specific serializers may impose
@@ -191,8 +191,8 @@ public sealed class StructureKind : SerialKind() {
     public object MAP : StructureKind()
 
     /**
-     * Structure kind for singleton objects defined with `object` keyword with.
-     * By default, objects are serialized as empty structures without any states and their identity is preserved
+     * Structure kind for singleton objects defined with `object` keyword.
+     * By default, objects are serialized as empty structures without any state and their identity is preserved
      * across serialization within the same process, so you always have the same instance of the object.
      *
      * Empty structure is represented as a call to [Encoder.beginStructure] with the following [CompositeEncoder.endStructure]
@@ -211,9 +211,9 @@ public sealed class UnionKind : SerialKind() {
     /**
      * Represents a Kotlin [Enum] with statically known values.
      * All enum values should be enumerated in descriptor elements.
-     * Each element descriptor of a [Enum] kind represents an instance of a particular enum,
-     * and each [positional name][SerialDescriptor.getElementName] contains a corresponding
-     * enum element [name][Enum.name].
+     * Each element descriptor of a [Enum] kind represents an instance of a particular enum
+     * and has an [StructureKind.OBJECT] kind.
+     * Each [positional name][SerialDescriptor.getElementName] contains a corresponding enum element [name][Enum.name].
      *
      * Corresponding encoder and decoder methods are [Encoder.encodeEnum] and [Decoder.decodeEnum].
      */
@@ -225,6 +225,15 @@ public sealed class UnionKind : SerialKind() {
      * be used for [contextual][ContextualSerialization] serialization.
      */
     public object CONTEXTUAL : UnionKind()
+
+    companion object {
+        @Deprecated(
+            "Moved out from UnionKind to StructureKind.",
+            ReplaceWith("StructureKind.OBJECT"),
+            DeprecationLevel.ERROR
+        )
+        val OBJECT = StructureKind.OBJECT
+    }
 }
 
 /**

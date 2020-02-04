@@ -71,12 +71,15 @@ package kotlinx.serialization
  * )
  *
  * // Descriptor for such class:
- * SerialDescriptor("my.package.Data", 3) {
+ * SerialDescriptor("my.package.Data") {
  *     // intField is deliberately ignored by serializer -- not present in the descriptor as well
  *     element<Long>("_longField") // longField is named as _longField
  *     element("stringField", listDescriptor<String>())
  * }
  * ```
+ *
+ * For a classes that are represented as a single primitive value,
+ * [PrimitiveDescriptor] builder function can be used instead.
  */
 public interface SerialDescriptor {
     /**

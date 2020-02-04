@@ -10,9 +10,6 @@ import kotlinx.serialization.internal.*
  * Builder for [SerialDescriptor].
  * The resulting descriptor will be uniquely identified by the given [serialName],
  * with the corresponding [kind] and structure described in [builder] function.
- * The count of descriptor elements should be known in advance to make API less error-prone,
- * and this builder will throw [IllegalStateException] if count of added elements will be
- * lesser or greater than [elementsCount].
  *
  * Example:
  * ```
@@ -24,7 +21,7 @@ import kotlinx.serialization.internal.*
  *     val nullableInt: Int?
  * )
  * // Descriptor for such class:
- * SerialDescriptor("my.package.Data", 3) {
+ * SerialDescriptor("my.package.Data") {
  *     // intField is deliberately ignored by serializer -- not present in the descriptor as well
  *     element<Long>("_longField") // longField is named as _longField
  *     element("stringField", listDescriptor<String>())
@@ -36,6 +33,7 @@ public fun SerialDescriptor(
     kind: SerialKind = StructureKind.CLASS,
     builder: SerialDescriptorBuilder.() -> Unit = {}
 ): SerialDescriptor {
+    require(serialName.isNotBlank()) { "Blank serial names are prohibited" }
     val sdBuilder = SerialDescriptorBuilder(serialName)
     sdBuilder.builder()
     return SerialDescriptorImpl(serialName, kind, sdBuilder.elementNames.size, sdBuilder)
@@ -49,7 +47,7 @@ public fun SerialDescriptor(
  *     override val descriptor: SerialDescriptor =
  *         PrimitiveDescriptor("kotlinx.serialization.LongAsStringSerializer", PrimitiveKind.STRING)
  *
- *     override fun serialize(encoder: Encoder, obj: Long) {
+ *     override fun serialize(encoder: Encoder, value: Long) {
  *         encoder.encodeString(obj.toString())
  *     }
  *
@@ -59,7 +57,10 @@ public fun SerialDescriptor(
  * }
  * ```
  */
-public fun PrimitiveDescriptor(serialName: String, kind: PrimitiveKind): SerialDescriptor = PrimitiveDescriptorSafe(serialName, kind)
+public fun PrimitiveDescriptor(serialName: String, kind: PrimitiveKind): SerialDescriptor {
+    require(serialName.isNotBlank()) { "Blank serial names are prohibited" }
+    return PrimitiveDescriptorSafe(serialName, kind)
+}
 
 /**
  * Returns new serial descriptor for the same type with [isNullable][SerialDescriptor.isNullable]
@@ -112,7 +113,7 @@ public class SerialDescriptorBuilder internal constructor(
      * )
      *
      * // Corresponding descriptor
-     * SerialDescriptor("package.Data", 2) {
+     * SerialDescriptor("package.Data") {
      *     element<Int?>("intField", isOptional = true)
      *     element<Long>("longField", annotations = listOf(protoIdAnnotationInstance))
      * }
@@ -124,9 +125,7 @@ public class SerialDescriptorBuilder internal constructor(
         annotations: List<Annotation> = emptyList(),
         isOptional: Boolean = false
     ) {
-        if (!uniqueNames.add(elementName)) {
-            error("Element with name '$elementName' is already registered")
-        }
+        require(uniqueNames.add(elementName)) { "Element with name '$elementName' is already registered" }
         elementNames += elementName
         elementDescriptors += descriptor
         elementAnnotations += annotations
@@ -135,7 +134,7 @@ public class SerialDescriptorBuilder internal constructor(
 
     /**
      * Reified version of [element] function that
-     * extract descriptor using `serializer<T>().descriptor` call with the all the restrictions of `serializer<T>().descriptor`.
+     * extract descriptor using `serializer<T>().descriptor` call with all the restrictions of `serializer<T>().descriptor`.
      */
     @ImplicitReflectionSerializer
     public inline fun <reified T> element(

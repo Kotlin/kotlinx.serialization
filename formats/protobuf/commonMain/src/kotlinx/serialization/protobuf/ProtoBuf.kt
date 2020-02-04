@@ -149,7 +149,7 @@ class ProtoBuf(
         val parentTag: ProtoDesc?, private val parentEncoder: ProtobufEncoder,
         private val stream: ByteArrayOutputStream = ByteArrayOutputStream()
     ) : ProtobufWriter(ProtobufEncoder(stream)) {
-        override fun endEncode(desc: SerialDescriptor) {
+        override fun endEncode(descriptor: SerialDescriptor) {
             if (parentTag != null) {
                 parentEncoder.writeBytes(stream.toByteArray(), parentTag.first)
             } else {
@@ -243,12 +243,17 @@ class ProtoBuf(
                 ).first == serialId
             } ?: -1
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder = when (desc.kind) {
-            StructureKind.LIST -> RepeatedReader(decoder, currentTag)
-            StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind ->
-                ProtobufReader(makeDelimited(decoder, currentTagOrNull))
-            StructureKind.MAP -> MapEntryReader(makeDelimited(decoder, currentTagOrNull), currentTagOrNull)
-            else -> throw SerializationException("Primitives are not supported at top-level")
+        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder =
+            when (descriptor.kind) {
+                StructureKind.LIST -> RepeatedReader(decoder, currentTag)
+                StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind ->
+                    ProtobufReader(makeDelimited(decoder, currentTagOrNull))
+                StructureKind.MAP -> MapEntryReader(makeDelimited(decoder, currentTagOrNull), currentTagOrNull)
+                else -> throw SerializationException("Primitives are not supported at top-level")
+            }
+
+        override fun endStructure(descriptor: SerialDescriptor) {
+            // Nothing
         }
 
         override fun decodeTaggedBoolean(tag: ProtoDesc): Boolean = when (val i = decoder.nextInt(ProtoNumberType.DEFAULT)) {

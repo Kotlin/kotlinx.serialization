@@ -22,12 +22,6 @@ abstract class ElementValueEncoder : Encoder, CompositeEncoder {
      */
     open fun encodeElement(desc: SerialDescriptor, index: Int): Boolean = true
 
-    /**
-     * Encodes that following value is not null.
-     * No-op by default.
-     */
-    override fun encodeNotNullMark() {}
-
     open fun encodeValue(value: Any): Unit
             = throw SerializationException("Non-serializable ${value::class} is not supported by ${this::class} encoder")
 
@@ -52,8 +46,6 @@ abstract class ElementValueEncoder : Encoder, CompositeEncoder {
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) = encodeValue(index)
 
     // Delegating implementation of CompositeEncoder
-
-    final override fun encodeNonSerializableElement(descriptor: SerialDescriptor, index: Int, value: Any) { if (encodeElement(descriptor, index)) encodeValue(value) }
     final override fun encodeUnitElement(descriptor: SerialDescriptor, index: Int) { if (encodeElement(descriptor, index)) encodeUnit() }
     final override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) { if (encodeElement(descriptor, index)) encodeBoolean(value) }
     final override fun encodeByteElement(descriptor: SerialDescriptor, index: Int, value: Byte) { if (encodeElement(descriptor, index)) encodeByte(value) }
@@ -107,6 +99,9 @@ abstract class ElementValueDecoder : Decoder, CompositeDecoder {
 
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
         return this
+    }
+
+    override fun endStructure(descriptor: SerialDescriptor) {
     }
 
     final override fun decodeUnitElement(desc: SerialDescriptor, index: Int) = decodeUnit()

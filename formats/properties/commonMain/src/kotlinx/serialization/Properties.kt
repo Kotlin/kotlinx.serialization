@@ -93,11 +93,11 @@ public class Properties(context: SerialModule = EmptyModule) : AbstractSerialFor
 
         private var currentIndex = 0
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             return InMapper(map).also { copyTagsTo(it) }
         }
 
-        override fun decodeCollectionSize(desc: SerialDescriptor): Int {
+        override fun decodeCollectionSize(descriptor: SerialDescriptor): Int {
             return decodeTaggedInt(nested("size"))
         }
 
@@ -121,11 +121,11 @@ public class Properties(context: SerialModule = EmptyModule) : AbstractSerialFor
 
         private var currentIndex = 0
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             return InNullableMapper(map).also { copyTagsTo(it) }
         }
 
-        override fun decodeCollectionSize(desc: SerialDescriptor): Int {
+        override fun decodeCollectionSize(descriptor: SerialDescriptor): Int {
             return decodeTaggedInt(nested("size"))
         }
 

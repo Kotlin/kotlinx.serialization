@@ -21,7 +21,7 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
     private open inner class CborListWriter(encoder: CborEncoder) : CborWriter(encoder) {
         override fun writeBeginToken() = encoder.startArray()
 
-        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean = true
+        override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean = true
     }
 
     // Writes class as map [fieldName, fieldValue]
@@ -46,8 +46,8 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
 
         override fun endStructure(descriptor: SerialDescriptor) = encoder.end()
 
-        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
-            val name = desc.getElementName(index)
+        override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
+            val name = descriptor.getElementName(index)
             encoder.encodeString(name)
             return true
         }
@@ -176,8 +176,8 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
 
         protected open fun skipBeginToken() = setSize(decoder.startMap())
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
-            val re = when (desc.kind) {
+        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+            val re = when (descriptor.kind) {
                 StructureKind.LIST, is PolymorphicKind -> CborListReader(decoder)
                 StructureKind.MAP -> CborMapReader(decoder)
                 else -> CborReader(decoder)

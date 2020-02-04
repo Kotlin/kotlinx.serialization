@@ -8,19 +8,19 @@ import kotlinx.serialization.modules.*
 
 /**
  * Decoder is a core deserialization primitive that encapsulates the knowledge of the underlying
- * format and its storage, exposing only structural methods to the deserializer, making it completely
+ * format and an underlying storage, exposing only structural methods to the deserializer, making it completely
  * format-agnostic. Deserialization process takes a decoder and asks him for a sequence of primitive elements,
- * defined by a deserializer serial form, while decoder knows hot to retrieve these primitive elements from an actual format
+ * defined by a deserializer serial form, while decoder knows how to retrieve these primitive elements from an actual format
  * representations.
  *
  * Decoder provides high-level API that operates with basic primitive types, collections
- * and nested structures. Internally, decoder represents input storage and operates with its state
+ * and nested structures. Internally, the decoder represents input storage, and operates with its state
  * and lower level format-specific details.
  *
  * To be more specific, serialization asks a decoder for a sequence of "give me an int, give me
  * a double, give me a list of strings and give me another object that is a nested int", while decoding
  * transforms this sequence into a format-specific commands such as "parse the part of the string until the next quotation mark
- * as an int to retrieve an int, parse everything withing the next curly braces to retrieve elements of a nested object etc."
+ * as an int to retrieve an int, parse everything within the next curly braces to retrieve elements of a nested object etc."
  *
  * The symmetric interface for the serialization process is [Encoder].
  *
@@ -46,7 +46,7 @@ import kotlinx.serialization.modules.*
  * ```
  *
  * E.g. if the decoder belongs to JSON format, then [beginStructure] will parse an opening bracket
- * (`{` or `[`, depending on the descriptor kind), returning the [CompositeDecoder] that is aware of semicolon separator,
+ * (`{` or `[`, depending on the descriptor kind), returning the [CompositeDecoder] that is aware of colon separator,
  * that should be read after each key-value pair, whilst [CompositeDecoder.endStructure] will parse a closing bracket.
  *
  * ### Exception guarantees.
@@ -78,7 +78,7 @@ import kotlinx.serialization.modules.*
  *
  * This deserializer does not know anything about the underlying data and will work with any properly-implemented decoder.
  * JSON, for example, parses an opening bracket `{` during the `beginStructure` call, checks that the next key
- * after this bracket is `stringValue` (using the descriptor), returns the value after the semicolon as string value
+ * after this bracket is `stringValue` (using the descriptor), returns the value after the colon as string value
  * and parses closing bracket `}` during the `endStructure`.
  * XML would do the roughly the same, but with different separators and parsing structures, while ProtoBuf
  * machinery could be completely different.
@@ -125,7 +125,7 @@ public interface Decoder {
     public fun decodeNotNullMark(): Boolean
 
     /**
-     * Parses the `null` value and returns it.
+     * Decodes the `null` value and returns it.
      */
     public fun decodeNull(): Nothing?
 
@@ -140,7 +140,7 @@ public interface Decoder {
 
     /**
      * Decodes a single byte value.
-     * Corresponding kind is [PrimitiveKind.BOOLEAN].
+     * Corresponding kind is [PrimitiveKind.BYTE].
      */
     public fun decodeByte(): Byte
 
@@ -152,18 +152,18 @@ public interface Decoder {
 
     /**
      * Decodes a 16-bit unicode character value.
-     * Corresponding kind is [PrimitiveKind.BOOLEAN].
+     * Corresponding kind is [PrimitiveKind.CHAR].
      */
     public fun decodeChar(): Char
 
     /**
-     * Decodes a 32-bit int value
+     * Decodes a 32-bit integer value.
      * Corresponding kind is [PrimitiveKind.INT].
      */
     public fun decodeInt(): Int
 
     /**
-     * Decodes a  64-bit long value.
+     * Decodes a 64-bit integer value.
      * Corresponding kind is [PrimitiveKind.LONG].
      */
     public fun decodeLong(): Long
@@ -194,7 +194,7 @@ public interface Decoder {
      * underlying input "C", [decodeEnum] method should return `2` as a result.
      *
      * This method does not imply any restrictions on the input format,
-     * the format is free to store the enum by its name, index, ordinal or any other
+     * the format is free to store the enum by its name, index, ordinal or any other enum representation.
      */
     public fun decodeEnum(enumDescriptor: SerialDescriptor): Int
 
@@ -214,7 +214,7 @@ public interface Decoder {
      * ```
      * has three nested structures: the very beginning of the data, "b" value and "c" value.
      */
-    public fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder
+    public fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder
 
     /**
      * Decodes the value of type [T] by delegating the decoding process to the given [deserializer].
@@ -258,10 +258,7 @@ public interface Decoder {
  * Please refer to [decodeElementIndex] for example of such loop.
  *
  * All `decode*` methods have `index` and `serialDescriptor` parameters with a strict semantics and constraints:
- *   * `descriptor` is always the same as one used in [Decoder.beginStructure]. While this parameter may seem redundant,
- *      it is required for efficient serialization process to avoid excessive field spilling.
- *      If you are writing your own format, you can safely ignore this parameter and use one used in `beginStructure`
- *      for simplicity.
+ *   * `descriptor` argument is always the same as one used in [Decoder.beginStructure].
  *   * `index` of the element being decoded. For [sequential][decodeSequentially] decoding, it is always a monotonic
  *      sequence from `0` to `descriptor.elementsCount` and for indexing-loop it is always an index that [decodeElementIndex]
  *      has returned from the last call.
@@ -309,9 +306,7 @@ public interface CompositeDecoder {
      * For example, composite decoder of JSON format will expect (and parse)
      * a closing bracket in the underlying input.
      */
-    public fun endStructure(descriptor: SerialDescriptor) {
-        // TODO get rid of default implementation, method is too important
-    }
+    public fun endStructure(descriptor: SerialDescriptor)
 
     /**
      * Checks whether the current decoder supports strictly ordered decoding of the data
@@ -403,8 +398,8 @@ public interface CompositeDecoder {
      * fun decodeElementIndex(descriptor: SerialDescriptor): Int {
      *     // Ignore arrays
      *     val nextKey: String? = myStringJsonParser.nextKey()
-     *     if (nextObjectKey == null) return READ_DONE
-     *     return descriptor.getElementIndex(nextKey) // getElementIndex can return UNKNOWN_FIELD
+     *     if (nextKey == null) return READ_DONE
+     *     return descriptor.getElementIndex(nextKey) // getElementIndex can return UNKNOWN_NAME
      * }
      * ```
      */
@@ -454,10 +449,10 @@ public interface CompositeDecoder {
      * The resulting value is associated with the [descriptor] element at the given [index].
      * The element at the given index should have [PrimitiveKind.INT] kind.
      */
-    public fun decodeIntElement(desc: SerialDescriptor, index: Int): Int
+    public fun decodeIntElement(descriptor: SerialDescriptor, index: Int): Int
 
     /**
-     * Decodes a 32-bit long value from the underlying input.
+     * Decodes a 64-bit integer value from the underlying input.
      * The resulting value is associated with the [descriptor] element at the given [index].
      * The element at the given index should have [PrimitiveKind.LONG] kind.
      */
@@ -473,7 +468,7 @@ public interface CompositeDecoder {
     /**
      * Decodes a 64-bit IEEE 754 floating point value from the underlying input.
      * The resulting value is associated with the [descriptor] element at the given [index].
-     * The element at the given index should have [PrimitiveKind.LONG] kind.
+     * The element at the given index should have [PrimitiveKind.DOUBLE] kind.
      */
     public fun decodeDoubleElement(descriptor: SerialDescriptor, index: Int): Double
 
@@ -512,7 +507,7 @@ public interface CompositeDecoder {
 
     // Not documented
     public fun <T : Any> updateNullableSerializableElement(
-        desc: SerialDescriptor,
+        descriptor: SerialDescriptor,
         index: Int,
         deserializer: DeserializationStrategy<T?>,
         old: T?
