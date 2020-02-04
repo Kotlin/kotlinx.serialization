@@ -27,45 +27,42 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
 
     public final override fun serialize(encoder: Encoder, value: T) {
         val actualSerializer = findPolymorphicSerializer(encoder, value)
-        val compositeEncoder = encoder.beginStructure(descriptor)
-        compositeEncoder.encodeStringElement(descriptor, 0, actualSerializer.descriptor.serialName)
-        @Suppress("UNCHECKED_CAST")
-        compositeEncoder.encodeSerializableElement(descriptor, 1, actualSerializer as KSerializer<Any?>, value)
-        compositeEncoder.endStructure(descriptor)
+        encoder.encodeStructure(descriptor) {
+            encodeStringElement(descriptor, 0, actualSerializer.descriptor.serialName)
+            @Suppress("UNCHECKED_CAST")
+            encodeSerializableElement(descriptor, 1, actualSerializer as KSerializer<Any?>, value)
+        }
     }
 
-    public final override fun deserialize(decoder: Decoder): T {
-        val compositeDecoder = decoder.beginStructure(descriptor)
+    public final override fun deserialize(decoder: Decoder): T = decoder.decodeStructure(descriptor) {
         var klassName: String? = null
         var value: Any? = null
-        if (compositeDecoder.decodeSequentially()) {
-            return decodeSequentially(compositeDecoder)
+        if (decodeSequentially()) {
+            return@decodeStructure decodeSequentially(this)
         }
 
         mainLoop@ while (true) {
-            when (val index = compositeDecoder.decodeElementIndex(descriptor)) {
+            when (val index = decodeElementIndex(descriptor)) {
                 CompositeDecoder.READ_DONE -> {
                     break@mainLoop
                 }
                 0 -> {
-                    klassName = compositeDecoder.decodeStringElement(descriptor, index)
+                    klassName = decodeStringElement(descriptor, index)
                 }
                 1 -> {
                     klassName = requireNotNull(klassName) { "Cannot read polymorphic value before its type token" }
-                    val serializer = findPolymorphicSerializer(compositeDecoder, klassName)
-                    value = compositeDecoder.decodeSerializableElement(descriptor, index, serializer)
+                    val serializer = findPolymorphicSerializer(this, klassName)
+                    value = decodeSerializableElement(descriptor, index, serializer)
                 }
                 else -> throw SerializationException(
                     "Invalid index in polymorphic deserialization of " +
                             (klassName ?: "unknown class") +
-                            "\n Expected 0, 1, READ_ALL(-2) or READ_DONE(-1), but found $index"
+                            "\n Expected 0, 1 or READ_DONE(-1), but found $index"
                 )
             }
         }
-
-        compositeDecoder.endStructure(descriptor)
         @Suppress("UNCHECKED_CAST")
-        return requireNotNull(value) { "Polymorphic value has not been read for class $klassName" } as T
+        requireNotNull(value) { "Polymorphic value has not been read for class $klassName" } as T
     }
 
     private fun decodeSequentially(compositeDecoder: CompositeDecoder): T {

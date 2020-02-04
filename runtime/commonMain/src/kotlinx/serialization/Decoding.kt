@@ -9,11 +9,20 @@ import kotlinx.serialization.modules.*
 /**
  * Decoder is a core deserialization primitive that encapsulates the knowledge of the underlying
  * format and its storage, exposing only structural methods to the deserializer, making it completely
- * format-agnostic.
+ * format-agnostic. Deserialization process takes a decoder and asks him for a sequence of primitive elements,
+ * defined by a deserializer serial form, while decoder knows hot to retrieve these primitive elements from an actual format
+ * representations.
  *
  * Decoder provides high-level API that operates with basic primitive types, collections
  * and nested structures. Internally, decoder represents input storage and operates with its state
  * and lower level format-specific details.
+ *
+ * To be more specific, serialization asks a decoder for a sequence of "give me an int, give me
+ * a double, give me a list of strings and give me another object that is a nested int", while decoding
+ * transforms this sequence into a format-specific commands such as "parse the part of the string until the next quotation mark
+ * as an int to retrieve an int, parse everything withing the next curly braces to retrieve elements of a nested object etc."
+ *
+ * The symmetric interface for the serialization process is [Encoder].
  *
  * ### Deserialization. Primitives
  *
@@ -256,6 +265,8 @@ public interface Decoder {
  *   * `index` of the element being decoded. For [sequential][decodeSequentially] decoding, it is always a monotonic
  *      sequence from `0` to `descriptor.elementsCount` and for indexing-loop it is always an index that [decodeElementIndex]
  *      has returned from the last call.
+ *
+ * The symmetric interface for the serialization process is [CompositeEncoder].
  */
 public interface CompositeDecoder {
 
@@ -506,4 +517,26 @@ public interface CompositeDecoder {
         deserializer: DeserializationStrategy<T?>,
         old: T?
     ): T?
+}
+
+/**
+ * Alias for [Decoder.decodeSerializableValue]
+ */
+public fun <T : Any?> Decoder.decode(deserializer: DeserializationStrategy<T>): T =
+    decodeSerializableValue(deserializer)
+
+/**
+ * [typeOf]-based version of [Decoder.decodeSerializableValue]
+ */
+@ImplicitReflectionSerializer
+public inline fun <reified T : Any> Decoder.decode(): T = decode(T::class.serializer())
+
+/**
+ * Begins a structure, decodes it using the given [block], ends it and returns decoded element.
+ */
+public inline fun <T> Decoder.decodeStructure(descriptor: SerialDescriptor, crossinline block: CompositeDecoder.() -> T): T {
+    val composite = beginStructure(descriptor)
+    val result = composite.block()
+    composite.endStructure(descriptor)
+    return result
 }
