@@ -99,7 +99,7 @@ Kotlin DSL:
 ```kotlin
 plugins {
     kotlin("multiplatform") // or kotlin("jvm") or any other kotlin plugin
-    id("kotlinx-serialization")
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.3.61"
 }
 ```
 Groovy DSL:
@@ -149,7 +149,7 @@ Then you can `apply plugin` (example in Groovy):
 
 ```gradle
 apply plugin: 'kotlin' // or 'kotlin-multiplatform' for multiplatform projects
-apply plugin: 'kotlinx-serialization'
+apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
 ```
 
 #### Dependency on the runtime library
