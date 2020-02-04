@@ -123,7 +123,7 @@ public sealed class PrimitiveKind : SerialKind() {
 
 /**
  * Structure kind represents values with composite structure of nested elements of depth and arbitrary number.
- * We acknowledge three structured kinds:
+ * We acknowledge following structured kinds:
  *
  * ### Regular classes
  * The most common case for serialization, that represents an arbitrary structure with fixed count of elements.
@@ -136,6 +136,11 @@ public sealed class PrimitiveKind : SerialKind() {
  * ### Maps
  * [MAP] represent a structure with potentially unknown in advance number of key-value pairs of the same type.
  * All standard serializable [Map] implementors are represented as [Map] kind of the same type.
+ *
+ * ### Kotlin objects
+ * A singleton object defined with `object` keyword with an [OBJECT] kind.
+ * By default, objects are serialized as empty structures without any states and their identity is preserved
+ * across serialization within the same process, so you always have the same instance of the object.
  *
  * ### Serializers interaction
  * Serialization formats typically handle these kinds by marking structure start and end.
@@ -184,22 +189,32 @@ public sealed class StructureKind : SerialKind() {
      * application-specific restrictions on specific [MAP] types.
      */
     public object MAP : StructureKind()
+
+    /**
+     * Structure kind for singleton objects defined with `object` keyword with.
+     * By default, objects are serialized as empty structures without any states and their identity is preserved
+     * across serialization within the same process, so you always have the same instance of the object.
+     *
+     * Empty structure is represented as a call to [Encoder.beginStructure] with the following [CompositeEncoder.endStructure]
+     * without any intermediate encodings.
+     */
+    public object OBJECT : StructureKind()
 }
 
 /**
  * Union structure kind represents a [tagged union][https://en.wikipedia.org/wiki/Tagged_union] structure,
  * meaning that the type is represent by one of a multiple possible values (potentially unknown).
- *
  * An example of such union kind can be enum or its derivatives, such as "one of known strings".
  */
 public sealed class UnionKind : SerialKind() {
 
-    // No documentation, let's decide whether it is a union at all
-    public object OBJECT : UnionKind()
-
     /**
      * Represents a Kotlin [Enum] with statically known values.
      * All enum values should be enumerated in descriptor elements.
+     * Each element descriptor of a [Enum] kind represents an instance of a particular enum,
+     * and each [positional name][SerialDescriptor.getElementName] contains a corresponding
+     * enum element [name][Enum.name].
+     *
      * Corresponding encoder and decoder methods are [Encoder.encodeEnum] and [Decoder.decodeEnum].
      */
     public object ENUM_KIND : UnionKind() // https://github.com/JetBrains/kotlin-native/issues/1447
@@ -215,13 +230,16 @@ public sealed class UnionKind : SerialKind() {
 /**
  * Polymorphic kind represents a (bounded) polymorphic value, that is referred
  * by some base class or interface, but its structure is defined by one of the possible implementations.
+ * Polymorphic kind is, by its definition, a union kind and is extracted to its own subtype to emphasize
+ * bounded and sealed polymorphism common property: not knowing the actual type statically and requiring
+ * formats to additionally encode it.
  */
-public sealed class PolymorphicKind : SerialKind() {
+public sealed class PolymorphicKind : UnionKind() {
     /**
      * Sealed kind represents Kotlin sealed classes, where all subclasses are known statically at the moment of declaration.
      * [SealedClassSerializer] can be used as an example of sealed serialization.
      */
-    object SEALED : PolymorphicKind()
+    public object SEALED : PolymorphicKind()
 
     /**
      * Open polymorphic kind represents statically unknown type that is hidden behind a given base class or interface.
@@ -231,6 +249,6 @@ public sealed class PolymorphicKind : SerialKind() {
      * `kotlinx.serialization` provides only bounded polymorphic serialization, forcing users to register all possible
      * serializers for a given base class or interface.
      */
-    object OPEN : PolymorphicKind()
+    public object OPEN : PolymorphicKind()
 }
 

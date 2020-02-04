@@ -19,7 +19,7 @@ public class EnumDescriptor(
 
     override val kind: SerialKind = UnionKind.ENUM_KIND
     private val elementDescriptors by lazy {
-        Array(elementsCount) { SerialDescriptor(name + "." + getElementName(it), UnionKind.OBJECT) }
+        Array(elementsCount) { SerialDescriptor(name + "." + getElementName(it), StructureKind.OBJECT) }
     }
 
     override fun getElementDescriptor(index: Int): SerialDescriptor = elementDescriptors.getChecked(index)
@@ -56,7 +56,7 @@ public class EnumSerializer<T : Enum<T>>(
     override val descriptor: SerialDescriptor = SerialDescriptor(serialName, UnionKind.ENUM_KIND) {
         values.forEach {
             val fqn = "$serialName.${it.name}"
-            val enumMemberDescriptor = SerialDescriptor(fqn, UnionKind.OBJECT) {}
+            val enumMemberDescriptor = SerialDescriptor(fqn, StructureKind.OBJECT)
             element(it.name, enumMemberDescriptor)
         }
     }

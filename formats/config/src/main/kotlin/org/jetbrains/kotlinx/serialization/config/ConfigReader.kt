@@ -10,7 +10,7 @@ import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.modules.*
 
 private val SerialKind.listLike get() = this == StructureKind.LIST || this is PolymorphicKind
-private val SerialKind.objLike get() = this == StructureKind.CLASS || this == UnionKind.OBJECT
+private val SerialKind.objLike get() = this == StructureKind.CLASS || this == StructureKind.OBJECT
 
 class ConfigParser(context: SerialModule = EmptyModule): AbstractSerialFormat(context) {
     @ImplicitReflectionSerializer

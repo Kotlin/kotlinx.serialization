@@ -14,7 +14,7 @@ import kotlinx.serialization.*
  */
 @Deprecated("", level = DeprecationLevel.HIDDEN)
 public class ObjectSerializer<T : Any>(serialName: String, private val objectInstance: T) : KSerializer<T> {
-    override val descriptor: SerialDescriptor = SerialDescriptor(serialName, UnionKind.OBJECT)
+    override val descriptor: SerialDescriptor = SerialDescriptor(serialName, StructureKind.OBJECT)
 
     override fun serialize(encoder: Encoder, value: T) {
         encoder.beginStructure(descriptor).endStructure(descriptor)
