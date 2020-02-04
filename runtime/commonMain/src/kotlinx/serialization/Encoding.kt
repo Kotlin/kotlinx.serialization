@@ -7,13 +7,22 @@ package kotlinx.serialization
 import kotlinx.serialization.modules.*
 
 /**
- * Encoder is a core serialization primitives that encapsulates the knowledge of the underlying
+ * Encoder is a core serialization primitive that encapsulates the knowledge of the underlying
  * format and its storage, exposing only structural methods to the serializer, making it completely
- * format-agnostic.
+ * format-agnostic. Serialization process transforms a single value into the sequence of its
+ * primitive elements, also called its serial form, while encoding transforms these primitive elements into an actual
+ * format representation: JSON string, ProtoBuf ByteArray, in-memory map representation etc.
  *
  * Encoder provides high-level API that operates with basic primitive types, collections
  * and nested structures. Internally, encoder represents output storage and operates with its state
  * and lower level format-specific details.
+ *
+ * To be more specific, serialization transforms a value into a sequence of "here is an int, here is
+ * a double, here a list of strings and here is another object that is a nested int", while encoding
+ * transforms this sequence into a format-specific commands such as "insert opening curly bracket
+ * for a nested object start, insert a name of the value and the value separated with semicolon for an int etc."
+ *
+ * The symmetric interface for the deserialization process is [Decoder].
  *
  * ### Serialization. Primitives
  *
@@ -268,6 +277,8 @@ public interface Encoder {
  *      for simplicity.
  *   * `index` of the element being encoded. This element at this index in the descriptor should be associated with
  *      the one being written.
+ *
+ * The symmetric interface for the deserialization process is [CompositeDecoder].
  */
 public interface CompositeEncoder {
     /**
@@ -381,4 +392,25 @@ public interface CompositeEncoder {
 
     // No idea
     public fun encodeNonSerializableElement(descriptor: SerialDescriptor, index: Int, value: Any)
+}
+
+/**
+ * Alias for [Encoder.encodeSerializableValue]
+ */
+public fun <T : Any?> Encoder.encode(strategy: SerializationStrategy<T>, value: T): Unit =
+    encodeSerializableValue(strategy, value)
+
+/**
+ * [typeOf]-based version of [Encoder.encodeSerializableValue]
+ */
+@ImplicitReflectionSerializer
+public inline fun <reified T : Any> Encoder.encode(obj: T): Unit = encode(serializer(), obj)
+
+/**
+ * Begins a structure, encodes it using the given [block] and ends it.
+ */
+public inline fun Encoder.encodeStructure(descriptor: SerialDescriptor, crossinline block: CompositeEncoder.() -> Unit) {
+    val composite = beginStructure(descriptor)
+    composite.block()
+    composite.endStructure(descriptor)
 }
