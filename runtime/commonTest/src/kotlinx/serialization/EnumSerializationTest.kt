@@ -88,7 +88,7 @@ class EnumSerializationTest : JsonTestBase() {
         )
         val regularNullable = RegularNullable.serializer().descriptor.toString()
         assertEquals(
-            "kotlinx.serialization.EnumSerializationTest.RegularNullable(a: kotlinx.serialization.EnumSerializationTest.RegularEnum.nullable)",
+            "kotlinx.serialization.EnumSerializationTest.RegularNullable(a: kotlinx.serialization.EnumSerializationTest.RegularEnum?)",
             regularNullable
         )
         // slightly differs from previous one
