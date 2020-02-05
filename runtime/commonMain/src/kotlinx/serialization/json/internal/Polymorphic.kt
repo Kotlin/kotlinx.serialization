@@ -15,7 +15,7 @@ internal inline fun <T> JsonOutput.encodePolymorphically(serializer: Serializati
         return
     }
     serializer as AbstractPolymorphicSerializer<Any> // PolymorphicSerializer <*> projects 2nd argument of findPolymorphic... to Nothing, so we need an additional cast
-    val actualSerializer = serializer.findPolymorphicSerializer(this, value as Any) as KSerializer<Any>
+    val actualSerializer = serializer.findPolymorphicSerializer(this, value as Any).cast<Any>()
     validateIfSealed(serializer, actualSerializer, json.configuration.classDiscriminator)
     val kind = actualSerializer.descriptor.kind
     checkKind(kind)
@@ -55,7 +55,6 @@ internal fun <T> JsonInput.decodeSerializableValuePolymorphic(deserializer: Dese
     val jsonTree = cast<JsonObject>(decodeJson())
     val type = jsonTree.getValue(json.configuration.classDiscriminator).content
     (jsonTree.content as MutableMap).remove(json.configuration.classDiscriminator)
-    @Suppress("UNCHECKED_CAST")
-    val actualSerializer = deserializer.findPolymorphicSerializer(this, type) as KSerializer<T>
+    val actualSerializer = deserializer.findPolymorphicSerializer(this, type).cast<T>()
     return json.readJson(jsonTree, actualSerializer)
 }

@@ -21,7 +21,7 @@ val <K, V> Pair<KSerializer<K>, KSerializer<V>>.map: KSerializer<Map<K, V>>
 public val <T : Any> KSerializer<T>.nullable: KSerializer<T?>
     get() {
         @Suppress("UNCHECKED_CAST")
-        return if (descriptor.isNullable) (this as KSerializer<T?>) else NullableSerializer(this)
+        return if (descriptor.isNullable) (this.cast()) else NullableSerializer(this)
     }
 
 /**

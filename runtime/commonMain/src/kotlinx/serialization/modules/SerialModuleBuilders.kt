@@ -7,6 +7,7 @@
 package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
+import kotlinx.serialization.internal.*
 import kotlin.jvm.*
 import kotlin.reflect.*
 
@@ -28,7 +29,7 @@ public inline fun <reified T : Any> serializersModule(serializer: KSerializer<T>
  */
 @Suppress("UNCHECKED_CAST")
 public fun serializersModuleOf(map: Map<KClass<*>, KSerializer<*>>): SerialModule = SerializersModule {
-    map.forEach { (kclass, serializer) -> contextual(kclass as KClass<Any>, serializer as KSerializer<Any>) }
+    map.forEach { (kclass, serializer) -> contextual(kclass as KClass<Any>, serializer.cast()) }
 }
 
 /**

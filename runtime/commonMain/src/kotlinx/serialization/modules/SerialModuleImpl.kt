@@ -7,6 +7,7 @@
 package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
+import kotlinx.serialization.internal.*
 import kotlin.reflect.*
 
 /**
@@ -44,7 +45,7 @@ internal class SerialModuleImpl(
         class2Serializer.forEach { (kclass, serial) ->
             collector.contextual(
                 kclass as KClass<Any>,
-                serial as KSerializer<Any>
+                serial.cast()
             )
         }
 
@@ -53,7 +54,7 @@ internal class SerialModuleImpl(
                 collector.polymorphic(
                     baseClass as KClass<Any>,
                     actualClass as KClass<Any>,
-                    serializer as KSerializer<Any>
+                    serializer.cast()
                 )
             }
         }
