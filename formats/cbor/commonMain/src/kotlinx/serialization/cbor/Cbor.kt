@@ -371,7 +371,6 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
 
         override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray = plain.dump(serializer, obj)
         override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T = plain.load(deserializer, bytes)
-        override fun install(module: SerialModule) = throw IllegalStateException("You should not install anything to global instance")
         override val context: SerialModule get() = plain.context
     }
 

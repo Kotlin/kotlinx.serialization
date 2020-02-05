@@ -169,7 +169,6 @@ public constructor(
         @UnstableDefault
         public val nonstrict = Json(JsonConfiguration(strictMode = false, useArrayPolymorphism = true))
 
-        override fun install(module: SerialModule) = throw IllegalStateException("You should not install anything to global instance")
         @UseExperimental(UnstableDefault::class)
         override val context: SerialModule get() = plain.context
 
