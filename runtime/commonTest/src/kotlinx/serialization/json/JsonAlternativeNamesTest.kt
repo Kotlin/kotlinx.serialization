@@ -6,20 +6,21 @@
 
 package kotlinx.serialization.json
 
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
 import kotlinx.serialization.test.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 @Serializable
 data class WithNames(@JsonNames(arrayOf("foo", "_foo")) val data: String)
 
 @Serializable
-data class WithDuplicateNames(val foo: String, @JsonNames(arrayOf("foo", "_foo")) val data: String)
+data class CollisionWithPrimary(val foo: String, @JsonNames(arrayOf("foo", "_foo")) val data: String)
 
 @Serializable
-data class WithDuplicateNames2(@JsonNames(arrayOf("foo", "_foo")) val data: String, val foo: String)
+data class CollisionWithAlternate(
+    @JsonNames(arrayOf("_foo")) val data: String,
+    @JsonNames(arrayOf("_foo")) val foo: String
+)
 
 class JsonAlternativeNamesTest : JsonTestBase() {
     private val inputString1 = """{"foo":"foo"}"""
@@ -36,25 +37,31 @@ class JsonAlternativeNamesTest : JsonTestBase() {
         }
     }
 
-    private fun <T> doThrowTest(expectedErrorMessage: String, serializer: KSerializer<T>) =
+    private fun <T> doThrowTest(
+        expectedErrorMessage: String,
+        serializer: KSerializer<T>,
+        input: String
+    ) =
         parametrizedTest { streaming ->
             assertFailsWithMessage<IllegalStateException>(
                 expectedErrorMessage,
                 "Class ${serializer.descriptor.serialName} did not fail with streaming=$streaming"
             ) {
-                json.parse(serializer, inputString1, useStreaming = streaming)
+                json.parse(serializer, input, useStreaming = streaming)
             }
         }
 
     @Test
     fun throwsAnErrorOnDuplicateNames() = doThrowTest(
-        """The suggested name 'foo' for property data is already one of the names for property foo in kotlinx.serialization.json.WithDuplicateNames(foo: kotlin.String, data: kotlin.String)""",
-        WithDuplicateNames.serializer()
+        """The suggested name 'foo' for property data is already one of the names for property foo in kotlinx.serialization.json.CollisionWithPrimary(foo: kotlin.String, data: kotlin.String)""",
+        CollisionWithPrimary.serializer(),
+        inputString1
     )
 
     @Test
     fun throwsAnErrorOnDuplicateNames2() = doThrowTest(
-        """The suggested name 'foo' for property foo is already one of the names for property data in kotlinx.serialization.json.WithDuplicateNames2(data: kotlin.String, foo: kotlin.String)""",
-        WithDuplicateNames2.serializer()
+        """The suggested name '_foo' for property foo is already one of the names for property data in kotlinx.serialization.json.CollisionWithAlternate(data: kotlin.String, foo: kotlin.String)""",
+        CollisionWithAlternate.serializer(),
+        inputString2
     )
 }

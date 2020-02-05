@@ -8,8 +8,8 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.SerialModule
-import kotlin.jvm.JvmField
+import kotlinx.serialization.modules.*
+import kotlin.jvm.*
 
 internal fun <T> Json.readJson(element: JsonElement, deserializer: DeserializationStrategy<T>): T {
     val input = when (element) {
@@ -125,7 +125,9 @@ private open class JsonTreeInput(json: Json, override val obj: JsonObject) :
 
     override fun elementName(desc: SerialDescriptor, index: Int): String {
         val mainName = desc.getElementName(index)
-        if (mainName in obj.keys || !configuration.useAlternativeNames) return mainName
+        if (!configuration.useAlternativeNames) return mainName
+        // it is possible also to return mainName right away for optimization purposes, if it is contained in obj.keys.
+        // However, it blocks ability to detect collisions between the primary name and alternate.
         val alternativeNamesMap =
             json.schemaCache.getOrPut(desc, JsonAlternativeNamesKey, desc::buildAlternativeNamesMap)
         val nameInObject = obj.keys.find { it == mainName || alternativeNamesMap[it] == index }

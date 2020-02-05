@@ -106,10 +106,9 @@ internal class StreamingJsonInput internal constructor(
     }
 
     private fun SerialDescriptor.getJsonElementIndex(key: String): Int {
-        val elementIndex = this.getElementIndex(key)
-        if (elementIndex != UNKNOWN_NAME || !json.configuration.useAlternativeNames) {
-            return elementIndex
-        }
+        if (!json.configuration.useAlternativeNames) return this.getElementIndex(key)
+        // it is possible also to return result of .getElementIndex right away for optimization purposes,
+        // if it is not an UNKNOWN_NAME. However, it blocks ability to detect collisions between the primary name and alternate.
         val alternativeNamesMap =
             json.schemaCache.getOrPut(this, JsonAlternativeNamesKey, this::buildAlternativeNamesMap)
         return alternativeNamesMap[key] ?: UNKNOWN_NAME

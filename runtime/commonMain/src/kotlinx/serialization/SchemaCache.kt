@@ -4,15 +4,18 @@
 
 package kotlinx.serialization
 
+import kotlin.native.concurrent.*
+
 private typealias DescriptorData<T> = MutableMap<DescriptorSchemaCache.Key<T>, T>
 
 /**
  * A type-safe map for storing custom information (such as format schema), associated with [SerialDescriptor].
  *
- * This map is not thread safe. For thread safety and performance reasons, it is advised to pass it via stack (e.g. in function parameters)
+ * This cache uses ConcurrentHashMap on JVM and regular maps on other platforms.
+ * To be able to work with it from multiple threads in Kotlin/Native, use @[ThreadLocal] in appropriate places.
  */
 internal class DescriptorSchemaCache {
-    private val map: MutableMap<SerialDescriptor, DescriptorData<Any>> = createMapForCache()
+    private val map: MutableMap<SerialDescriptor, DescriptorData<Any>> = createMapForCache(1)
 
     @Suppress("UNCHECKED_CAST")
     public operator fun <T : Any> set(descriptor: SerialDescriptor, key: Key<T>, value: T) {

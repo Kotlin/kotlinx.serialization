@@ -4,8 +4,9 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.internal.builtinSerializerOrNull
-import kotlin.reflect.KClass
+import kotlinx.serialization.internal.*
+import kotlin.native.concurrent.*
+import kotlin.reflect.*
 
 /**
  * Retrieves a [KSerializer] for the given [KClass].
@@ -56,4 +57,9 @@ internal expect fun Any.isInstanceOf(kclass: KClass<*>): Boolean
  */
 internal expect fun <T : Any> KClass<T>.simpleName(): String?
 
-internal expect fun <K, V> createMapForCache(initialCapacity: Int = 8): MutableMap<K, V>
+/**
+ * Creates a ConcurrentHashMap on JVM and regular HashMap on other platforms.
+ * To make actual use of cache in Kotlin/Native, mark a top-level object with this map
+ * as a @[ThreadLocal].
+ */
+internal expect fun <K, V> createMapForCache(initialCapacity: Int): MutableMap<K, V>

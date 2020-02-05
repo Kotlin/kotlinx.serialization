@@ -6,8 +6,7 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.UpdateMode
-import kotlin.jvm.JvmField
-import kotlin.jvm.JvmStatic
+import kotlin.jvm.*
 
 /**
  * The class responsible for JSON-specific customizable behaviour in [Json] format.
@@ -22,6 +21,7 @@ import kotlin.jvm.JvmStatic
  * * [indent] specifies indent string to use with [prettyPrint] mode.
  * * [useArrayPolymorphism] switches polymorphic serialization to the default array format.
  * * [classDiscriminator] name of the class descriptor property in polymorphic serialization.
+ * * [useAlternativeNames] enables support of [JsonNames] annotation.
  *
  * This class is marked with [UnstableDefault]: its semantics may be changes in the next releases, e.g.
  * additional flag may be introduced or default parameter values may be changed.
