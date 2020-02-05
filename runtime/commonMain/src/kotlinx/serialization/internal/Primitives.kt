@@ -73,11 +73,7 @@ internal fun <T : Any> KClass<T>.builtinSerializerOrNull(): KSerializer<T>? =
     BUILTIN_SERIALIZERS[this] as KSerializer<T>?
 
 @Deprecated(level = DeprecationLevel.HIDDEN, message = "Binary compatibility")
-object UnitSerializer : KSerializer<Unit> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Unit", PrimitiveKind.UNIT)
-    override fun serialize(encoder: Encoder, value: Unit) = encoder.encodeUnit()
-    override fun deserialize(decoder: Decoder): Unit = decoder.decodeUnit()
-}
+object UnitSerializer : KSerializer<Unit> by UnitSerializer
 
 @Deprecated(level = DeprecationLevel.HIDDEN, message = "Binary compatibility")
 object BooleanSerializer : KSerializer<Boolean> {

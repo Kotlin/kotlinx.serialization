@@ -95,7 +95,6 @@ class BasicTypesSerializationTest {
     )
 
     // KeyValue Input/Output
-
     class KeyValueOutput(private val sb: StringBuilder) : ElementValueEncoder() {
         override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
             sb.append('{')

@@ -111,6 +111,10 @@ public sealed class PrimitiveKind : SerialKind() {
     /*
      * Not documented, reworked in #664
      */
+    @Deprecated(
+        message = "Primitive kind Unit is deprecated with no replacement. Use StructureKind.OBJECT instead or check for a particular serialName",
+        level = DeprecationLevel.ERROR
+    )
     public object UNIT : PrimitiveKind()
 
     /**

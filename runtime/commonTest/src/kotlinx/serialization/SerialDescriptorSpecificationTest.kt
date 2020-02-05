@@ -174,7 +174,6 @@ class SerialDescriptorSpecificationTest {
     @Test
     fun testPrimitiveDescriptors() {
         checkPrimitiveDescriptor("int", IntSerializer.descriptor)
-        checkPrimitiveDescriptor("unit", UnitSerializer.descriptor)
         checkPrimitiveDescriptor("boolean", BooleanSerializer.descriptor)
         checkPrimitiveDescriptor("byte", ByteSerializer.descriptor)
         checkPrimitiveDescriptor("short", ShortSerializer.descriptor)
@@ -183,6 +182,16 @@ class SerialDescriptorSpecificationTest {
         checkPrimitiveDescriptor("double", DoubleSerializer.descriptor)
         checkPrimitiveDescriptor("char", CharSerializer.descriptor)
         checkPrimitiveDescriptor("string", StringSerializer.descriptor)
+    }
+
+    @Test
+    fun testUnitDescriptor() {
+        val descriptor = UnitSerializer.descriptor
+        assertEquals(StructureKind.OBJECT, descriptor.kind)
+        assertFalse(descriptor.isNullable)
+        assertEquals("kotlin.Unit", descriptor.serialName)
+        assertEquals(0, descriptor.annotations.size)
+        assertFailsWith<IndexOutOfBoundsException> { descriptor.getElementName(0) }
     }
 
     @Test
