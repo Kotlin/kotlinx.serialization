@@ -5,7 +5,7 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
-import kotlin.reflect.KClass
+import kotlin.reflect.*
 
 /**
  * Base class for providing multiplatform polymorphic serialization.
@@ -78,11 +78,29 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
      * May use context from the [decoder].
      * Throws [SerializationException] if serializer is not found.
      */
-    public open fun findPolymorphicSerializer(
+    public fun findPolymorphicSerializer(
         decoder: CompositeDecoder,
         klassName: String
-    ): KSerializer<out T> = decoder.context.getPolymorphic(baseClass, klassName)
-            ?: throwSubtypeNotRegistered(klassName, baseClass)
+    ): KSerializer<out T> = findPolymorphicSerializerOrNull(decoder, klassName) ?: throwSubtypeNotRegistered(klassName, baseClass)
+
+    /**
+     * Lookups an actual serializer for given [value] within the current [base class][baseClass].
+     * May use context from the [encoder].
+     * Throws [SerializationException] if serializer is not found.
+     */
+    public fun findPolymorphicSerializer(
+        encoder: Encoder,
+        value: T
+    ): KSerializer<out T> = findPolymorphicSerializerOrNull(encoder, value) ?: throwSubtypeNotRegistered(value::class, baseClass)
+
+    /**
+     * Lookups an actual serializer for given [klassName] withing the current [base class][baseClass].
+     * May use context from the [decoder].
+     */
+    public open fun findPolymorphicSerializerOrNull(
+        decoder: CompositeDecoder,
+        klassName: String
+    ): KSerializer<out T>? = decoder.context.getPolymorphic(baseClass, klassName)
 
 
     /**
@@ -90,11 +108,10 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
      * May use context from the [encoder].
      * Throws [SerializationException] if serializer is not found.
      */
-    public open fun findPolymorphicSerializer(
+    public open fun findPolymorphicSerializerOrNull(
         encoder: Encoder,
         value: T
-    ): KSerializer<out T> =
-        encoder.context.getPolymorphic(baseClass, value) ?: throwSubtypeNotRegistered(value::class, baseClass)
+    ): KSerializer<out T>? = encoder.context.getPolymorphic(baseClass, value)
 }
 
 private fun throwSubtypeNotRegistered(subClassName: String, baseClass: KClass<*>): Nothing =
