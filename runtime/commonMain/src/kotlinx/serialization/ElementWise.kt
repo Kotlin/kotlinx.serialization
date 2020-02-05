@@ -4,8 +4,7 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.modules.EmptyModule
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.modules.*
 
 abstract class ElementValueEncoder : Encoder, CompositeEncoder {
     override val context: SerialModule
@@ -30,7 +29,7 @@ abstract class ElementValueEncoder : Encoder, CompositeEncoder {
     }
 
     override fun encodeUnit() {
-        val encoder = beginStructure(UnitSerializer.descriptor); encoder.endStructure(UnitSerializer.descriptor)
+        UnitSerializer.serialize(this, Unit)
     }
 
     override fun encodeBoolean(value: Boolean) = encodeValue(value)
@@ -46,7 +45,13 @@ abstract class ElementValueEncoder : Encoder, CompositeEncoder {
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) = encodeValue(index)
 
     // Delegating implementation of CompositeEncoder
-    final override fun encodeUnitElement(descriptor: SerialDescriptor, index: Int) { if (encodeElement(descriptor, index)) encodeUnit() }
+    @Deprecated(message = unitDeprecated, level = DeprecationLevel.ERROR)
+    final override fun encodeUnitElement(descriptor: SerialDescriptor, index: Int) {
+        if (encodeElement(descriptor, index)) {
+            @Suppress("DEPRECATION_ERROR")
+            encodeUnit()
+        }
+    }
     final override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) { if (encodeElement(descriptor, index)) encodeBoolean(value) }
     final override fun encodeByteElement(descriptor: SerialDescriptor, index: Int, value: Byte) { if (encodeElement(descriptor, index)) encodeByte(value) }
     final override fun encodeShortElement(descriptor: SerialDescriptor, index: Int, value: Short) { if (encodeElement(descriptor, index)) encodeShort(value) }
@@ -79,8 +84,9 @@ abstract class ElementValueDecoder : Decoder, CompositeDecoder {
 
     open fun decodeValue(): Any = throw SerializationException("${this::class} can't retrieve untyped values")
 
+    @Deprecated(message = unitDeprecated, level = DeprecationLevel.ERROR)
     override fun decodeUnit() {
-        val reader = beginStructure(UnitSerializer.descriptor); reader.endStructure(UnitSerializer.descriptor)
+        UnitSerializer.deserialize(this)
     }
 
     override fun decodeBoolean(): Boolean = decodeValue() as Boolean
@@ -104,6 +110,8 @@ abstract class ElementValueDecoder : Decoder, CompositeDecoder {
     override fun endStructure(descriptor: SerialDescriptor) {
     }
 
+    @Deprecated(message = unitDeprecated, level = DeprecationLevel.ERROR)
+    @Suppress("DEPRECATION_ERROR")
     final override fun decodeUnitElement(desc: SerialDescriptor, index: Int) = decodeUnit()
     final override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean = decodeBoolean()
     final override fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Byte = decodeByte()
