@@ -63,3 +63,42 @@ public infix fun SerialModule.overwriteWith(other: SerialModule): SerialModule =
         }
     })
 }
+
+/**
+ * Looks up a descriptor of serializer registered for contextual serialization in [this],
+ * using [SerialDescriptor.capturedKClass] as a key.
+ *
+ * @see SerialModule.getContextual
+ * @see SerializersModuleBuilder.contextual
+ */
+public fun SerialModule.getContextualDescriptor(descriptor: SerialDescriptor): SerialDescriptor? =
+    descriptor.capturedKClass?.let { klass -> getContextual(klass)?.descriptor }
+
+/**
+ * Retrieves a collection of descriptors which serializers are registered for polymorphic serialization in [this]
+ * with base class equal to [descriptor]'s [SerialDescriptor.capturedKClass].
+ *
+ * @see SerialModule.getPolymorphic
+ * @see SerializersModuleBuilder.polymorphic
+ */
+public fun SerialModule.getPolymorphicDescriptors(descriptor: SerialDescriptor): List<SerialDescriptor> {
+    val kClass = descriptor.capturedKClass ?: return emptyList()
+    // shortcut
+    if (this is SerialModuleImpl) return this.polyBase2Serializers[kClass]?.values.orEmpty()
+        .map { it.descriptor }
+
+    val builder = ArrayList<SerialDescriptor>()
+    dumpTo(object : SerialModuleCollector {
+        override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>) { /*noop*/
+        }
+
+        override fun <Base : Any, Sub : Base> polymorphic(
+            baseClass: KClass<Base>,
+            actualClass: KClass<Sub>,
+            actualSerializer: KSerializer<Sub>
+        ) {
+            if (baseClass == kClass) builder.add(actualSerializer.descriptor)
+        }
+    })
+    return builder
+}
