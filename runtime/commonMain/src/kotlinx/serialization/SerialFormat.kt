@@ -12,7 +12,7 @@ interface SerialFormat {
 }
 
 @Deprecated(
-    "AbstractSerialFormat is deprecated for removal since it is indistinguishable from SerialFormat interface." +
+    "Deprecated for removal since it is indistinguishable from SerialFormat interface. " +
             "Use SerialFormat instead.", ReplaceWith("SerialFormat"), DeprecationLevel.WARNING
 )
 abstract class AbstractSerialFormat(override val context: SerialModule) : SerialFormat

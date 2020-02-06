@@ -6,11 +6,19 @@ package kotlinx.serialization
 
 import kotlinx.serialization.internal.*
 import java.lang.reflect.*
-import kotlin.reflect.KClass
+import kotlin.reflect.*
 
 @PublishedApi
 internal open class TypeBase<T>
 
+/**
+ * Provides an instance of [java.lang.reflect.Type] with
+ * generic arguments filled in.
+ *
+ * Consider using Kotlin's [typeOf] and [KType] since they can
+ * also provide information about nullability.
+ */
+@Deprecated("Consider using Kotlin type token instead", ReplaceWith("typeOf()"), level = DeprecationLevel.WARNING)
 inline fun <reified T> typeTokenOf(): Type {
     val base = object : TypeBase<T>() {}
     val superType = base::class.java.genericSuperclass!!
@@ -18,10 +26,14 @@ inline fun <reified T> typeTokenOf(): Type {
 }
 
 /**
- * This method uses reflection to construct serializer for given type. However,
- * since it accepts type token, it is available only on JVM by design,
+ * This method uses reflection to construct serializer for given type.
+ *
+ * However, since it accepts type token, it is available only on JVM by design,
  * and it can work correctly even with generics, so
  * it is not annotated with [ImplicitReflectionSerializer].
+ *
+ * Consider using Kotlin's [typeOf], [KType] and [serializer] since they can
+ * also provide information about nullability.
  *
  * Keep in mind that this is a 'heavy' call, so result probably should be cached somewhere else.
  *
@@ -29,7 +41,8 @@ inline fun <reified T> typeTokenOf(): Type {
  */
 @Suppress("UNCHECKED_CAST")
 @UseExperimental(ImplicitReflectionSerializer::class)
-fun serializerByTypeToken(type: Type): KSerializer<Any> = when (type) {
+// not deprecated because many converters (e.g. retrofit2-kotlinx-serialization-converter) still have to use java's Type
+public fun serializerByTypeToken(type: Type): KSerializer<Any> = when (type) {
     is GenericArrayType -> {
         val eType = type.genericComponentType.let {
             when (it) {

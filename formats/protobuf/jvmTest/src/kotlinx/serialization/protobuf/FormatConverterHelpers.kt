@@ -4,10 +4,9 @@
 
 package kotlinx.serialization.protobuf
 
-import com.google.protobuf.GeneratedMessageV3
-import java.io.ByteArrayOutputStream
-import kotlinx.serialization.dump
-import kotlinx.serialization.loads
+import com.google.protobuf.*
+import kotlinx.serialization.*
+import java.io.*
 
 interface IMessage {
     fun toProtobufMessage(): GeneratedMessageV3
@@ -77,15 +76,3 @@ inline fun <reified T : IMessage> readCompare(it: T, alwaysPrint: Boolean = fals
     return c
 }
 
-object HexConverter {
-    private const val hexCode = "0123456789ABCDEF"
-
-    fun printHexBinary(data: ByteArray, lowerCase: Boolean = false): String {
-        val r = StringBuilder(data.size * 2)
-        for (b in data) {
-            r.append(hexCode[b.toInt() shr 4 and 0xF])
-            r.append(hexCode[b.toInt() and 0xF])
-        }
-        return if (lowerCase) r.toString().toLowerCase() else r.toString()
-    }
-}

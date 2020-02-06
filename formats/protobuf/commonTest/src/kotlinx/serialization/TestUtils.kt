@@ -1,13 +1,12 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
 
-import kotlinx.serialization.internal.*
 import kotlin.test.*
 
-inline fun <reified T : Any> assertSerializedToBinaryAndRestored(
+internal inline fun <reified T : Any> assertSerializedToBinaryAndRestored(
     original: T,
     serializer: KSerializer<T>,
     format: BinaryFormat,
@@ -15,7 +14,7 @@ inline fun <reified T : Any> assertSerializedToBinaryAndRestored(
     hexResultToCheck: String? = null
 ) {
     val bytes = format.dump(serializer, original)
-    val hexString = InternalHexConverter.printHexBinary(bytes, lowerCase = true)
+    val hexString = HexConverter.printHexBinary(bytes, lowerCase = true)
     if (printResult) {
         println("[Serialized form] $hexString")
     }

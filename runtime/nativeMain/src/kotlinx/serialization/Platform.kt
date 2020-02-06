@@ -41,7 +41,7 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
 )
 @UseExperimental(ExperimentalAssociatedObjects::class)
 @ImplicitReflectionSerializer
-actual fun <T : Any> KClass<T>.compiledSerializer(): KSerializer<T>? =
+internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
     findAssociatedObject<SerializableWith>() as? KSerializer<T>
 
 actual fun <E : Enum<E>> enumFromName(enumClass: KClass<E>, value: String): E = TODO("Not supported in native")
@@ -50,7 +50,7 @@ actual fun <E : Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E 
 actual fun <E : Enum<E>> KClass<E>.enumClassName(): String = this.simpleName ?: ""
 actual fun <E : Enum<E>> KClass<E>.enumMembers(): Array<E> = TODO("Not supported in native")
 
-actual fun <T : Any, E : T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> {
+internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E> {
     val result = arrayOfAnyNulls<E>(size)
     var index = 0
     for (element in this) result[index++] = element

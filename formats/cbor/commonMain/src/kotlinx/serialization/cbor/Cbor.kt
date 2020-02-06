@@ -88,7 +88,7 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
         fun encodeNumber(value: Long) = output.write(composeNumber(value))
 
         fun encodeString(value: String) {
-            val data = value.toUtf8Bytes()
+            val data = value.encodeToByteArray()
             val header = composeNumber(data.size.toLong())
             header[0] = header[0] or HEADER_STRING
             output.write(header)
@@ -278,7 +278,7 @@ class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: B
                 throw CborDecodingException("start of string", curByte)
             val strLen = readNumber().toInt()
             val arr = input.readExactNBytes(strLen)
-            val ans = stringFromUtf8Bytes(arr)
+            val ans = arr.decodeToString()
             readByte()
             return ans
         }
