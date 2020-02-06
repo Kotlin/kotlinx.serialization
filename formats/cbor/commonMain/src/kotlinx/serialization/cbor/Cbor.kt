@@ -11,7 +11,11 @@ import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.experimental.*
 
-class Cbor(val updateMode: UpdateMode = UpdateMode.BANNED, val encodeDefaults: Boolean = true, context: SerialModule = EmptyModule): AbstractSerialFormat(context), BinaryFormat {
+class Cbor(
+    val updateMode: UpdateMode = UpdateMode.BANNED,
+    val encodeDefaults: Boolean = true,
+    override val context: SerialModule = EmptyModule
+) : BinaryFormat {
     // Differs from List only in start byte
     private inner class CborMapWriter(encoder: CborEncoder) : CborListWriter(encoder) {
         override fun writeBeginToken() = encoder.startMap()

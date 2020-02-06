@@ -37,11 +37,11 @@ class ContextAndPolymorphicTest {
         }
 
         override fun serialize(encoder: Encoder, value: Payload) {
-            encoder.encodeString(InternalHexConverter.printHexBinary(value.s.toUtf8Bytes()))
+            encoder.encodeString(InternalHexConverter.printHexBinary(value.s.encodeToByteArray()))
         }
 
         override fun deserialize(decoder: Decoder): Payload {
-            return Payload(stringFromUtf8Bytes(InternalHexConverter.parseHexBinary(decoder.decodeString())))
+            return Payload(InternalHexConverter.parseHexBinary(decoder.decodeString()).decodeToString())
         }
     }
 

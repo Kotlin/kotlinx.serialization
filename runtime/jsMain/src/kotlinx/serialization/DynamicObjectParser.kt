@@ -14,7 +14,7 @@ import kotlin.math.floor
  */
 internal const val MAX_SAFE_INTEGER: Double = 9007199254740991.toDouble() // 2^53 - 1
 
-class DynamicObjectParser(context: SerialModule = EmptyModule) : AbstractSerialFormat(context) {
+class DynamicObjectParser(override val context: SerialModule = EmptyModule) : SerialFormat {
     @ImplicitReflectionSerializer
     inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.getContextualOrDefault(T::class))
 

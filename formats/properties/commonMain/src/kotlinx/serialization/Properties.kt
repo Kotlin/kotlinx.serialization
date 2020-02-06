@@ -36,7 +36,7 @@ import kotlinx.serialization.modules.*
  * @param context A [SerialModule] which should contain registered serializers
  * for [ContextualSerialization] and [Polymorphic] serialization, if you have any.
  */
-public class Properties(context: SerialModule = EmptyModule) : AbstractSerialFormat(context) {
+public class Properties(override val context: SerialModule = EmptyModule) : SerialFormat {
 
     private inner class OutMapper : NamedValueEncoder() {
         override val context: SerialModule = this@Properties.context
