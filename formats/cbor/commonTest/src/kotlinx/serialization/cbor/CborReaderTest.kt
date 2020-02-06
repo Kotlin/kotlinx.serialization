@@ -1,12 +1,11 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.cbor
 
-import kotlinx.io.ByteArrayInputStream
-import kotlinx.serialization.internal.InternalHexConverter
-import kotlinx.serialization.loads
+import kotlinx.io.*
+import kotlinx.serialization.*
 import kotlin.test.*
 
 class CborReaderTest {

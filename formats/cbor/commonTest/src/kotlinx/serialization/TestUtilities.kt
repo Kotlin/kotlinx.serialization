@@ -1,14 +1,13 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
 
-import kotlinx.serialization.internal.*
+import kotlinx.serialization.cbor.*
 import kotlin.test.*
 
-
-inline fun <reified T : Any> assertSerializedToBinaryAndRestored(
+internal inline fun <reified T : Any> assertSerializedToBinaryAndRestored(
     original: T,
     serializer: KSerializer<T>,
     format: BinaryFormat,

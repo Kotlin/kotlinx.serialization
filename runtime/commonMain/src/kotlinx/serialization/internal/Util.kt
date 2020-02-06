@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.internal
@@ -19,7 +19,8 @@ public fun InputStream.readExactNBytes(bytes: Int): ByteArray {
     return array
 }
 
-object InternalHexConverter {
+@PublishedApi // reified BinaryFormat.dumps/loads
+internal object InternalHexConverter {
     private const val hexCode = "0123456789ABCDEF"
 
     fun parseHexBinary(s: String): ByteArray {

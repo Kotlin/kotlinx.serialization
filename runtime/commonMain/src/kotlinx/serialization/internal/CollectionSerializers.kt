@@ -204,8 +204,9 @@ class ReferenceArraySerializer<ElementKlass : Any, Element : ElementKlass?>(
     override fun Array<Element>.collectionIterator(): Iterator<Element> = iterator()
     override fun builder(): ArrayList<Element> = arrayListOf()
     override fun ArrayList<Element>.builderSize(): Int = size
+
     @Suppress("UNCHECKED_CAST")
-    override fun ArrayList<Element>.toResult(): Array<Element> = toNativeArray<ElementKlass, Element>(kClass)
+    override fun ArrayList<Element>.toResult(): Array<Element> = toNativeArrayImpl<ElementKlass, Element>(kClass)
 
     override fun Array<Element>.toBuilder(): ArrayList<Element> = ArrayList(this.asList())
     override fun ArrayList<Element>.checkCapacity(size: Int) = ensureCapacity(size)
