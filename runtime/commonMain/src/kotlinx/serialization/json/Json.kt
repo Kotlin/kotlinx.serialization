@@ -60,7 +60,8 @@ public class Json
 public constructor(
     @JvmField internal val configuration: JsonConfiguration = JsonConfiguration.Stable,
     context: SerialModule = EmptyModule
-) : AbstractSerialFormat(context + defaultJsonModule), StringFormat {
+) : StringFormat {
+    override val context: SerialModule = context + defaultJsonModule
 
     /**
      * DSL-like constructor for Json.

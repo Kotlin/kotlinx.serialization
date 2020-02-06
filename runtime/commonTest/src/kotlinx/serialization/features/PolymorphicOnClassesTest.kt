@@ -87,6 +87,7 @@ class PolymorphicOnClassesTest {
     @Test
     fun descriptorsSchemaIsCorrect() {
         val desc = Holder.serializer().descriptor
+        @Suppress("DEPRECATION")
         assertSame(PolymorphicClassDescriptor, desc.getElementDescriptor(0))
     }
 }

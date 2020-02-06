@@ -94,9 +94,9 @@ import kotlinx.serialization.protobuf.ProtoBuf.Varint.encodeVarint
  * @param context application-specific [SerialModule] to provide custom serializers.
  */
 class ProtoBuf(
-        val encodeDefaults: Boolean = true,
-        context: SerialModule = EmptyModule
-) : AbstractSerialFormat(context), BinaryFormat {
+    val encodeDefaults: Boolean = true,
+    override val context: SerialModule = EmptyModule
+) : BinaryFormat {
 
     internal open inner class ProtobufWriter(val encoder: ProtobufEncoder) : TaggedEncoder<ProtoDesc>() {
         public override val context
@@ -195,7 +195,7 @@ class ProtoBuf(
         }
 
         fun writeString(value: String, tag: Int) {
-            val bytes = value.toUtf8Bytes()
+            val bytes = value.encodeToByteArray()
             writeBytes(bytes, tag)
         }
 
@@ -410,7 +410,7 @@ class ProtoBuf(
 
         fun nextString(): String {
             val bytes = this.nextObject()
-            return stringFromUtf8Bytes(bytes)
+            return bytes.decodeToString()
         }
 
         private fun decode32(format: ProtoNumberType = ProtoNumberType.DEFAULT, eofAllowed: Boolean = false): Int = when (format) {
