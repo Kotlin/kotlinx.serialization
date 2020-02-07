@@ -10,7 +10,7 @@ import kotlin.test.*
 
 class CborReaderTest {
     private fun withDecoder(input: String, block: Cbor.CborDecoder.() -> Unit) {
-        val bytes = InternalHexConverter.parseHexBinary(input.toUpperCase())
+        val bytes = HexConverter.parseHexBinary(input.toUpperCase())
         Cbor.CborDecoder(ByteArrayInputStream(bytes)).block()
     }
 

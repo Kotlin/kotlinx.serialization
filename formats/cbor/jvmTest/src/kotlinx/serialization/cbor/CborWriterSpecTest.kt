@@ -8,6 +8,7 @@ import io.kotlintest.matchers.*
 import io.kotlintest.properties.*
 import io.kotlintest.specs.*
 import kotlinx.io.*
+import kotlinx.serialization.*
 
 class CborWriterSpecTest : WordSpec() {
     init {
@@ -15,7 +16,7 @@ class CborWriterSpecTest : WordSpec() {
         fun withEncoder(block: Cbor.CborEncoder.() -> Unit): String {
             val result = ByteArrayOutputStream()
             Cbor.CborEncoder(result).block()
-            return InternalHexConverter.printHexBinary(result.toByteArray()).toLowerCase()
+            return HexConverter.printHexBinary(result.toByteArray()).toLowerCase()
         }
 
         // Examples from https://tools.ietf.org/html/rfc7049#appendix-A

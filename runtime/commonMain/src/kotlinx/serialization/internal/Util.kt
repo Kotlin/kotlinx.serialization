@@ -19,7 +19,6 @@ public fun InputStream.readExactNBytes(bytes: Int): ByteArray {
     return array
 }
 
-@PublishedApi // reified BinaryFormat.dumps/loads
 internal object InternalHexConverter {
     private const val hexCode = "0123456789ABCDEF"
 
