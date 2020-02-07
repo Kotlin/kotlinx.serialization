@@ -18,6 +18,7 @@ package kotlinx.serialization
 
 import kotlinx.serialization.modules.serializersModuleOf
 import kotlinx.serialization.internal.SerialClassDescImpl
+import kotlinx.serialization.json.JsonConfiguration
 import kotlin.test.*
 
 class DynamicParserTest {
@@ -76,6 +77,13 @@ class DynamicParserTest {
 
     @Serializable
     data class NDWrapper(@ContextualSerialization val data: NotDefault)
+
+    @Serializable
+    sealed class Sealed {
+        @Serializable
+        @SerialName("one")
+        data class One(val string: String) : Sealed()
+    }
 
     @Test
     fun dynamicSimpleTest() {
@@ -167,5 +175,32 @@ class DynamicParserTest {
         val deserializer = DynamicObjectParser(context = serializersModuleOf(NotDefault::class, NDSerializer))
         val dyn1 = js("({data: 42})")
         assertEquals(NDWrapper(NotDefault(42)), deserializer.parse(dyn1))
+    }
+
+    @Test
+    @Ignore
+    fun parsePolymorphicDefault() {
+        // TODO object-based polymorphic deserialization requires additional special handling
+        //  because the discriminator lives inside the same object which is also being decoded.
+
+        val dyn = js("""({type:"one",string:"value"})""")
+        val expected = Sealed.One("value")
+
+        val actual1 = DynamicObjectParser().parse(dyn, Sealed.serializer())
+        assertEquals(expected, actual1)
+
+        val p = DynamicObjectParser(configuration = JsonConfiguration())
+        val actual2 = p.parse(dyn, Sealed.serializer())
+        assertEquals(expected, actual2)
+    }
+
+    @Test
+    fun parsePolymorphicArray() {
+        val dyn = js("""(["one",{"string":"value"}])""")
+        val expected = Sealed.One("value")
+
+        val p = DynamicObjectParser(configuration = JsonConfiguration(useArrayPolymorphism = true))
+        val actual = p.parse(dyn, Sealed.serializer())
+        assertEquals(expected, actual)
     }
 }
