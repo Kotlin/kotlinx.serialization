@@ -4,7 +4,6 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.cbor.*
 import kotlin.test.*
 
 internal inline fun <reified T : Any> assertSerializedToBinaryAndRestored(
@@ -15,7 +14,7 @@ internal inline fun <reified T : Any> assertSerializedToBinaryAndRestored(
     hexResultToCheck: String? = null
 ) {
     val bytes = format.dump(serializer, original)
-    val hexString = InternalHexConverter.printHexBinary(bytes, lowerCase = true)
+    val hexString = HexConverter.printHexBinary(bytes, lowerCase = true)
     if (printResult) {
         println("[Serialized form] $hexString")
     }

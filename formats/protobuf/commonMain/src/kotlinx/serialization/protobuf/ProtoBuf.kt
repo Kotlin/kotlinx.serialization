@@ -93,8 +93,8 @@ import kotlinx.serialization.protobuf.ProtoBuf.Varint.encodeVarint
  * @param encodeDefaults specifies whether default values are encoded.
  * @param context application-specific [SerialModule] to provide custom serializers.
  */
-class ProtoBuf(
-    val encodeDefaults: Boolean = true,
+public class ProtoBuf(
+    public val encodeDefaults: Boolean = true,
     override val context: SerialModule = EmptyModule
 ) : BinaryFormat {
 
@@ -104,7 +104,10 @@ class ProtoBuf(
 
         override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = encodeDefaults
 
-        override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder = when (descriptor.kind) {
+        override fun beginStructure(
+            descriptor: SerialDescriptor,
+            vararg typeSerializers: KSerializer<*>
+        ): CompositeEncoder = when (descriptor.kind) {
             StructureKind.LIST -> RepeatedWriter(encoder, currentTag)
             StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> ObjectWriter(currentTagOrNull, encoder)
             StructureKind.MAP -> MapRepeatedWriter(currentTagOrNull, encoder)
@@ -506,7 +509,7 @@ class ProtoBuf(
         }
     }
 
-    companion object: BinaryFormat {
+    companion object : BinaryFormat {
         public override val context: SerialModule get() = plain.context
 
         // todo: make more memory-efficient
@@ -525,7 +528,7 @@ class ProtoBuf(
         internal const val SIZE_DELIMITED = 2
         internal const val i32 = 5
 
-        val plain = ProtoBuf()
+        public val plain = ProtoBuf()
 
         override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray = plain.dump(serializer, obj)
         override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T = plain.load(deserializer, bytes)

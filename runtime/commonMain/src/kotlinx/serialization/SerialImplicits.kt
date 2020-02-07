@@ -1,8 +1,11 @@
+/*
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization
 
-import kotlinx.serialization.modules.getContextualOrDefault
-import kotlinx.serialization.internal.InternalHexConverter
 import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 
 /**
  * This annotation marks declaration which try to obtain serializer implicitly
@@ -30,28 +33,42 @@ public annotation class ImplicitReflectionSerializer
 public annotation class UnstableDefault
 
 @ImplicitReflectionSerializer
-public inline fun <reified T : Any> BinaryFormat.dump(obj: T): ByteArray = dump(context.getContextualOrDefault(T::class), obj)
-@ImplicitReflectionSerializer
-public inline fun <reified T : Any> BinaryFormat.dumps(obj: T): String = InternalHexConverter.printHexBinary(dump(obj), lowerCase = true)
+public inline fun <reified T : Any> BinaryFormat.dump(obj: T): ByteArray =
+    dump(context.getContextualOrDefault(T::class), obj)
 
 @ImplicitReflectionSerializer
-public inline fun <reified T : Any> BinaryFormat.load(raw: ByteArray): T = load(context.getContextualOrDefault(T::class), raw)
+public inline fun <reified T : Any> BinaryFormat.dumps(obj: T): String =
+    dumps(context.getContextualOrDefault(T::class), obj)
+
 @ImplicitReflectionSerializer
-public inline fun <reified T : Any> BinaryFormat.loads(hex: String): T = load(InternalHexConverter.parseHexBinary(hex))
+public inline fun <reified T : Any> BinaryFormat.load(raw: ByteArray): T =
+    load(context.getContextualOrDefault(T::class), raw)
+
+@ImplicitReflectionSerializer
+public inline fun <reified T : Any> BinaryFormat.loads(hex: String): T =
+    loads(context.getContextualOrDefault(T::class), hex)
 
 
 @ImplicitReflectionSerializer
-public inline fun <reified T : Any> StringFormat.stringify(obj: T): String = stringify(context.getContextualOrDefault(T::class), obj)
-@ImplicitReflectionSerializer
-public inline fun <reified T : Any> StringFormat.stringify(objects: List<T>): String = stringify(context.getContextualOrDefault(T::class).list, objects)
-@ImplicitReflectionSerializer
-public inline fun <reified K : Any, reified V: Any> StringFormat.stringify(map: Map<K, V>): String
-        = stringify((context.getContextualOrDefault(K::class) to context.getContextualOrDefault(V::class)).map, map)
+public inline fun <reified T : Any> StringFormat.stringify(obj: T): String =
+    stringify(context.getContextualOrDefault(T::class), obj)
 
 @ImplicitReflectionSerializer
-public inline fun <reified T : Any> StringFormat.parse(str: String): T = parse(context.getContextualOrDefault(T::class), str)
+public inline fun <reified T : Any> StringFormat.stringify(objects: List<T>): String =
+    stringify(context.getContextualOrDefault(T::class).list, objects)
+
 @ImplicitReflectionSerializer
-public inline fun <reified T : Any> StringFormat.parseList(objects: String): List<T> = parse(context.getContextualOrDefault(T::class).list, objects)
+public inline fun <reified K : Any, reified V : Any> StringFormat.stringify(map: Map<K, V>): String =
+    stringify((context.getContextualOrDefault(K::class) to context.getContextualOrDefault(V::class)).map, map)
+
 @ImplicitReflectionSerializer
-public inline fun <reified K : Any, reified V: Any> StringFormat.parseMap(map: String)
-        = parse((context.getContextualOrDefault(K::class) to context.getContextualOrDefault(V::class)).map, map)
+public inline fun <reified T : Any> StringFormat.parse(str: String): T =
+    parse(context.getContextualOrDefault(T::class), str)
+
+@ImplicitReflectionSerializer
+public inline fun <reified T : Any> StringFormat.parseList(objects: String): List<T> =
+    parse(context.getContextualOrDefault(T::class).list, objects)
+
+@ImplicitReflectionSerializer
+public inline fun <reified K : Any, reified V : Any> StringFormat.parseMap(map: String) =
+    parse((context.getContextualOrDefault(K::class) to context.getContextualOrDefault(V::class)).map, map)

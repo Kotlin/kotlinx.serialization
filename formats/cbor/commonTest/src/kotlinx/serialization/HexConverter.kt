@@ -2,9 +2,9 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization.cbor
+package kotlinx.serialization
 
-internal object InternalHexConverter {
+internal object HexConverter {
     private const val hexCode = "0123456789ABCDEF"
 
     fun parseHexBinary(s: String): ByteArray {

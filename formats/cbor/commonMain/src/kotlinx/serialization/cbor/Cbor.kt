@@ -11,9 +11,9 @@ import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.experimental.*
 
-class Cbor(
-    val updateMode: UpdateMode = UpdateMode.BANNED,
-    val encodeDefaults: Boolean = true,
+public class Cbor(
+    public val updateMode: UpdateMode = UpdateMode.BANNED,
+    public val encodeDefaults: Boolean = true,
     override val context: SerialModule = EmptyModule
 ) : BinaryFormat {
     // Differs from List only in start byte
@@ -79,7 +79,7 @@ class Cbor(
     }
 
     // For details of representation, see https://tools.ietf.org/html/rfc7049#section-2.1
-    class CborEncoder(val output: OutputStream) {
+    internal class CborEncoder(val output: OutputStream) {
 
         fun startArray() = output.write(BEGIN_ARRAY)
         fun startMap() = output.write(BEGIN_MAP)
@@ -223,7 +223,7 @@ class Cbor(
 
     }
 
-    class CborDecoder(val input: InputStream) {
+    internal class CborDecoder(val input: InputStream) {
         private var curByte: Int = -1
 
         init {
@@ -236,7 +236,7 @@ class Cbor(
         }
 
         private fun skipByte(expected: Int) {
-            if (curByte != expected) throw CborDecodingException("byte ${InternalHexConverter.toHexString(expected)}", curByte)
+            if (curByte != expected) throw CborDecodingException("byte ${printByte(expected)}", curByte)
             readByte()
         }
 
@@ -354,7 +354,7 @@ class Cbor(
         }
     }
 
-    companion object: BinaryFormat {
+    companion object : BinaryFormat {
         private const val FALSE = 0xf4
         private const val TRUE = 0xf5
         private const val NULL = 0xf6
@@ -371,10 +371,12 @@ class Cbor(
         private const val HEADER_ARRAY: Int = 0b100_00000
         private const val HEADER_MAP: Int = 0b101_00000
 
-        val plain = Cbor()
+        public val plain = Cbor()
 
         override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray = plain.dump(serializer, obj)
-        override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T = plain.load(deserializer, bytes)
+        override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T =
+            plain.load(deserializer, bytes)
+
         override val context: SerialModule get() = plain.context
     }
 
@@ -391,6 +393,3 @@ class Cbor(
         return reader.decode(deserializer)
     }
 }
-
-class CborDecodingException(expected: String, foundByte: Int) :
-    SerializationException("Expected $expected, but found ${InternalHexConverter.toHexString(foundByte)}")
