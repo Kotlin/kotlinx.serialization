@@ -171,7 +171,7 @@ open class Migration : SerialDescriptor {
     }
 }
 
-const val message = "Top level primitive descriptors are unavailable to avoid accidental misuage. " +
+private const val message = "Top level primitive descriptors are unavailable to avoid accidental misuage. " +
         "Please use kind for comparison and primitive descriptor with a unique name for implementation"
 
 @Deprecated(message = message,
