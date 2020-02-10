@@ -12,7 +12,10 @@ import kotlinx.serialization.modules.*
 private val SerialKind.listLike get() = this == StructureKind.LIST || this is PolymorphicKind
 private val SerialKind.objLike get() = this == StructureKind.CLASS || this == StructureKind.OBJECT
 
-class ConfigParser(context: SerialModule = EmptyModule): AbstractSerialFormat(context) {
+class ConfigParser(
+    private val configuration: ConfigParserConfiguration = ConfigParserConfiguration(),
+    override val context: SerialModule = EmptyModule
+) : SerialFormat {
     @ImplicitReflectionSerializer
     inline fun <reified T : Any> parse(conf: Config): T = parse(conf, context.getContextualOrDefault(T::class))
 
@@ -76,10 +79,14 @@ class ConfigParser(context: SerialModule = EmptyModule): AbstractSerialFormat(co
         private fun composeName(parentName: String, childName: String) =
             if (parentName.isEmpty()) childName else parentName + "." + childName
 
-        override fun SerialDescriptor.getTag(index: Int): String = composeName(
-            currentTagOrNull
-                    ?: "", getElementName(index)
-        )
+        override fun SerialDescriptor.getTag(index: Int): String =
+            composeName(currentTagOrNull ?: "", getConventionElementName(index))
+
+        private fun SerialDescriptor.getConventionElementName(index: Int): String {
+            val originalName = getElementName(index)
+            return if (!configuration.useConfigNamingConvention) originalName
+            else originalName.replace(NAMING_CONVENTION_REGEX) { "-${it.value.toLowerCase()}" }
+        }
 
         override fun getTaggedConfigValue(tag: String): ConfigValue {
             return conf.getValue(tag)
@@ -164,5 +171,7 @@ class ConfigParser(context: SerialModule = EmptyModule): AbstractSerialFormat(co
 
         @ImplicitReflectionSerializer
         public inline fun <reified T : Any> parse(conf: Config): T = ConfigParser().parse(conf, T::class.serializer())
+
+        private val NAMING_CONVENTION_REGEX by lazy { "[A-Z]".toRegex() }
     }
 }
