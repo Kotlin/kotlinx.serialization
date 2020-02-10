@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 JetBrains s.r.o.
+ * Copyright 2018-2020 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,12 @@ import kotlinx.serialization.Serializable
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-internal inline fun <reified T> deserializeConfig(configString: String, deserializer: DeserializationStrategy<T>): T =
-    ConfigParser.parse(ConfigFactory.parseString(configString), deserializer)
+internal inline fun <reified T> deserializeConfig(
+    configString: String,
+    deserializer: DeserializationStrategy<T>,
+    useNamingConvention: Boolean = false
+): T = ConfigParser(ConfigParserConfiguration(useNamingConvention))
+        .parse(ConfigFactory.parseString(configString), deserializer)
 
 class ConfigParserObjectsTest {
 
@@ -146,7 +150,7 @@ class ConfigParserObjectsTest {
     @Test
     fun `config with nested object`() {
         val obj = deserializeConfig("x: [{a: 42}, {a: 43}, {a: 44}]", NestedObj.serializer())
-        assertEquals(listOf(42,43,44).map { Simple(it) }, obj.x)
+        assertEquals(listOf(42, 43, 44).map { Simple(it) }, obj.x)
     }
 
     @Test
