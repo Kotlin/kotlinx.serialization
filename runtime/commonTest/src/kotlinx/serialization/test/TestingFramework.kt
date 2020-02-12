@@ -5,7 +5,7 @@
 package kotlinx.serialization.test
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 import kotlin.test.assertEquals
 
 
@@ -13,7 +13,7 @@ inline fun <reified T : Any> assertStringFormAndRestored(
     expected: String,
     original: T,
     serializer: KSerializer<T>,
-    format: StringFormat = Json.plain,
+    format: StringFormat = Json(JsonConfiguration.Default),
     printResult: Boolean = false
 ) {
     val string = format.stringify(serializer, original)

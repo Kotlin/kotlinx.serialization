@@ -217,8 +217,7 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
 
     public companion object {
         /**
-         * A [Properties] instance which
-         * does not have any [SerialModule]s installed.
+         * A [Properties] instance which does not have any [SerialModule] installed.
          */
         public val DEFAULT: Properties = Properties()
 

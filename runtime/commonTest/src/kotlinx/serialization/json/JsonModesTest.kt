@@ -61,7 +61,7 @@ class JsonModesTest : JsonTestBase() {
     @Test
     fun testSerializeQuotedJson() = parametrizedTest { useStreaming ->
         assertEquals(
-            """{"a":10,"e":false,"c":"Hello"}""", strict.stringify(
+            """{"a":10,"e":false,"c":"Hello"}""", default.stringify(
                 JsonTransientTest.Data.serializer(),
                 JsonTransientTest.Data(10, 100), useStreaming))
     }
@@ -69,7 +69,7 @@ class JsonModesTest : JsonTestBase() {
     @Test
     fun testStrictJsonCanNotSkipValues() = parametrizedTest { useStreaming ->
         assertFailsWith(SerializationException::class) {
-            strict.parse(JsonOptionalTests.Data.serializer(), "{strangeField: 100500, a:0}", useStreaming)
+            default.parse(JsonOptionalTests.Data.serializer(), "{strangeField: 100500, a:0}", useStreaming)
         }
     }
 

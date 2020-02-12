@@ -15,8 +15,8 @@ class JsonReifiedCollectionsTest : JsonTestBase() {
     @Test
     fun testReifiedList() = parametrizedTest { useStreaming ->
         val data = listOf(DataHolder("data"), DataHolder("not data"))
-        val json = strict.stringify(data, useStreaming)
-        val data2 = strict.parseList<DataHolder>(json, useStreaming)
+        val json = default.stringify(data, useStreaming)
+        val data2 = default.parseList<DataHolder>(json, useStreaming)
         assertEquals(data, data2)
     }
     @Test

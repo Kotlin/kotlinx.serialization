@@ -17,13 +17,13 @@ class JsonRootLevelNullTest : JsonTestBase() {
     fun testNullableStringify() {
         // Top-level nulls in tagged encoder is not yet supported, no parametrized test
         val obj: Simple? = null
-        val json = strict.stringify(Simple.serializer().nullable, obj)
+        val json = default.stringify(Simple.serializer().nullable, obj)
         assertEquals("null", json)
     }
 
     @Test
     fun testNullableParse() = parametrizedTest { useStreaming ->
-        val result = strict.parse(Simple.serializer().nullable, "null", useStreaming)
+        val result = default.parse(Simple.serializer().nullable, "null", useStreaming)
         assertNull(result)
     }
 }

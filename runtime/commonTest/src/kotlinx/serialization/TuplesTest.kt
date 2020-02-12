@@ -23,7 +23,7 @@ class TuplesTest {
         "{k:42,v:foo}",
         MyPair(42, "foo"),
         MyPair.serializer(IntSerializer, StringSerializer),
-        Json.unquoted
+        Json { unquoted = true }
     )
 
     @Test
@@ -31,7 +31,7 @@ class TuplesTest {
         "{p:{first:42,second:foo}}",
         PairWrapper(42 to "foo"),
         PairWrapper.serializer(),
-        Json.unquoted
+        Json { unquoted = true }
     )
 
     @Test
@@ -49,7 +49,7 @@ class TuplesTest {
         "{t:{first:42,second:foo,third:false}}",
         TripleWrapper(Triple(42, "foo", false)),
         TripleWrapper.serializer(),
-        Json.unquoted
+        Json { unquoted = true }
     )
 
     @Test

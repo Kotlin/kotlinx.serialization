@@ -28,17 +28,17 @@ class LongAsStringTest : JsonTestBase() {
     @Test
     fun canSerializeAsStringAndParseBack() = parametrizedTest { useStreaming ->
         val original = HasLong(Long.MAX_VALUE - 1)
-        val str = strict.stringify(HasLong.serializer(), original, useStreaming)
+        val str = default.stringify(HasLong.serializer(), original, useStreaming)
         assertEquals("""{"l":"9223372036854775806"}""", str)
-        val restored = strict.parse(HasLong.serializer(), str, useStreaming)
+        val restored = default.parse(HasLong.serializer(), str, useStreaming)
         assertEquals(original, restored)
     }
 
     @Test
     fun canNotDeserializeInvalidString() = parametrizedTest { useStreaming ->
         val str = """{"l": "this is definitely not a long"}"""
-        assertFailsWith<NumberFormatException> { strict.parse(HasLong.serializer(), str, useStreaming) }
+        assertFailsWith<NumberFormatException> { default.parse(HasLong.serializer(), str, useStreaming) }
         val str2 = """{"l": "1000000000000000000000"}""" // toooo long for Long
-        assertFailsWith<NumberFormatException> { strict.parse(HasLong.serializer(), str2, useStreaming) }
+        assertFailsWith<NumberFormatException> { default.parse(HasLong.serializer(), str2, useStreaming) }
     }
 }

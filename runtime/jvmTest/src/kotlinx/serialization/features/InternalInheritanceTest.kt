@@ -5,7 +5,7 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -56,11 +56,11 @@ class InternalInheritanceTest {
     fun testStringify() {
         assertEquals(
                 "{parent:42,rootOptional:rootOptional,parent2:42,derived:derived,bodyDerived:body,parent3:42,lastDerived:optional}",
-                Json.unquoted.stringify(C(42))
+                Json { unquotedPrint = true }.stringify(C(42))
         )
         assertEquals(
                 "{parent:13,rootOptional:rootOptional,parent2:13,derived:bbb,bodyDerived:body}",
-                Json.unquoted.stringify(B(13, derived = "bbb"))
+                Json { unquotedPrint = true }.stringify(B(13, derived = "bbb"))
         )
     }
 
@@ -68,11 +68,11 @@ class InternalInheritanceTest {
     fun testParse() {
         assertEquals(
                 C(42),
-                Json.unquoted.parse<C>("{parent:42,rootOptional:rootOptional,parent2:42,derived:derived,bodyDerived:body,parent3:42,lastDerived:optional}")
+                Json { unquotedPrint = true }.parse<C>("{parent:42,rootOptional:rootOptional,parent2:42,derived:derived,bodyDerived:body,parent3:42,lastDerived:optional}")
         )
         assertEquals(
                 C(43),
-                Json.unquoted.parse<C>("{parent:43,rootOptional:rootOptional,parent2:43,derived:derived,bodyDerived:body,parent3:43,lastDerived:optional}")
+                Json { unquotedPrint = true }.parse<C>("{parent:43,rootOptional:rootOptional,parent2:43,derived:derived,bodyDerived:body,parent3:43,lastDerived:optional}")
         )
 
     }
@@ -81,41 +81,41 @@ class InternalInheritanceTest {
     fun testParseOptionals() {
         assertEquals(
                 B(100, derived = "wowstring"),
-                Json.unquoted.parse<B>("{parent:100,rootOptional:rootOptional,parent2:100,derived:wowstring,bodyDerived:body}")
+                Json { unquotedPrint = true }.parse<B>("{parent:100,rootOptional:rootOptional,parent2:100,derived:wowstring,bodyDerived:body}")
         )
         assertEquals(
                 C(44),
-                Json.unquoted.parse<C>("{parent:44, parent2:44,derived:derived,bodyDerived:body,parent3:44}")
+                Json { unquotedPrint = true }.parse<C>("{parent:44, parent2:44,derived:derived,bodyDerived:body,parent3:44}")
         )
         assertEquals(
                 B(101, derived = "wowstring"),
-                Json.unquoted.parse<B>("{parent:101,parent2:101,derived:wowstring,bodyDerived:body}")
+                Json { unquotedPrint = true }.parse<B>("{parent:101,parent2:101,derived:wowstring,bodyDerived:body}")
         )
         assertEquals(
                 A(77),
-                Json.unquoted.parse<A>("{parent:77,rootOptional:rootOptional}")
+                Json { unquotedPrint = true }.parse<A>("{parent:77,rootOptional:rootOptional}")
         )
         assertEquals(
                 A(78),
-                Json.unquoted.parse<A>("{parent:78}")
+                Json { unquotedPrint = true }.parse<A>("{parent:78}")
         )
     }
 
     @Test(expected = SerializationException::class)
     fun testThrowTransient() {
-        Json.plain.parse<B>("""{"parent":100,"rootOptional":"rootOptional","transientDerived":"X","parent2":100,"derived":"wowstring","bodyDerived":"body"}""")
+        Json(JsonConfiguration.Stable).parse<B>("""{"parent":100,"rootOptional":"rootOptional","transientDerived":"X","parent2":100,"derived":"wowstring","bodyDerived":"body"}""")
     }
 
     @Test(expected = SerializationException::class)
     fun testThrowMissingField() {
-        Json.unquoted.parse<C>("{parent:42,rootOptional:rootOptional,derived:derived,bodyDerived:body,parent3:42,lastDerived:optional}")
+        Json { unquotedPrint = true }.parse<C>("{parent:42,rootOptional:rootOptional,derived:derived,bodyDerived:body,parent3:42,lastDerived:optional}")
     }
 
     @Test
     fun testSerializeAsParent() {
         val obj1: A = B(77, derived = "derived")
         val obj2: A = C(77)
-        assertEquals("""{parent:77,rootOptional:rootOptional}""", Json.unquoted.stringify(obj1))
-        assertEquals("""{parent:77,rootOptional:rootOptional}""", Json.unquoted.stringify(obj2))
+        assertEquals("""{parent:77,rootOptional:rootOptional}""", Json { unquoted = true }.stringify(obj1))
+        assertEquals("""{parent:77,rootOptional:rootOptional}""", Json { unquoted = true }.stringify(obj2))
     }
 }

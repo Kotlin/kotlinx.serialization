@@ -7,9 +7,9 @@ package kotlinx.serialization.json.serializers
 import kotlinx.serialization.json.*
 import kotlin.test.*
 
-class JsonTreeTest {
+class JsonTreeTest : JsonTestBase() {
 
-    private fun parse(input: String): JsonElement = Json.plain.parse(JsonElementSerializer, input)
+    private fun parse(input: String): JsonElement = default.parse(JsonElementSerializer, input)
 
     @Test
     fun testParseWithoutExceptions() { 

@@ -21,7 +21,7 @@ class JsonSerializerInGenericsTest : JsonTestBase() {
     private val expected = "{\"list\":[42,[{\"key\":\"value\"}],null],\"nullableNull\":null,\"nestedMap\":{\"key1\":{\"nested\":{\"first\":\"second\"},\"nullable\":null}}}"
 
     @Test
-    fun testGenericsWithNulls() = parametrizedTest(strict) {
+    fun testGenericsWithNulls() = parametrizedTest(default) {
         assertStringFormAndRestored(expected, create(), NonTrivialClass.serializer())
     }
 

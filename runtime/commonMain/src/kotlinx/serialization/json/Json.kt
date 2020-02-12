@@ -8,6 +8,7 @@ import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
 import kotlin.native.concurrent.*
+import kotlin.random.*
 import kotlin.reflect.*
 
 /**
@@ -159,11 +160,20 @@ public constructor(
     @ImplicitReflectionSerializer
     public inline fun <reified T : Any> fromJson(tree: JsonElement): T = fromJson(context.getContextualOrDefault(T::class), tree)
 
-    companion object : StringFormat {
-        @Suppress("DEPRECATION")
+    /**
+     * The default instance of [Json] in the form of companion object.
+     */
+    @UnstableDefault
+    public companion object Default: StringFormat {
+        private const val message =
+            "Top-level JSON instances are deprecated for removal in the favour of user-configured one. " +
+                    "You can either use a Json top-level object or configure your own instance  via 'Json {}' builder-like constructor"
+
         @UnstableDefault
+        @Deprecated(message = message, level = DeprecationLevel.WARNING)
         public val plain = Json(JsonConfiguration(useArrayPolymorphism = true))
         @UnstableDefault
+        @Deprecated(message = message, level = DeprecationLevel.WARNING)
         public val unquoted = Json(
             JsonConfiguration(
                 isLenient = true,
@@ -175,9 +185,11 @@ public constructor(
         )
 
         @UnstableDefault
+        @Deprecated(message = message, level = DeprecationLevel.WARNING)
         public val indented = Json(JsonConfiguration(prettyPrint = true, useArrayPolymorphism = true))
 
         @UnstableDefault
+        @Deprecated(message = message, level = DeprecationLevel.WARNING)
         public val nonstrict = Json(
             JsonConfiguration(
                 isLenient = true,
@@ -187,16 +199,51 @@ public constructor(
             )
         )
 
-        @UseExperimental(UnstableDefault::class)
-        override val context: SerialModule get() = plain.context
+        private val jsonInstance = Json(JsonConfiguration.Default)
 
-        @UnstableDefault
+        override val context: SerialModule
+            get() = jsonInstance.context
+
         override fun <T> stringify(serializer: SerializationStrategy<T>, value: T): String =
-            plain.stringify(serializer, value)
-
-        @UnstableDefault
+            jsonInstance.stringify(serializer, value)
         override fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T =
-            plain.parse(deserializer, string)
+            jsonInstance.parse(deserializer, string)
+
+        /**
+         * @see Json.toJson
+         */
+        public fun <T> toJson(serializer: SerializationStrategy<T>, value: T): JsonElement {
+            return jsonInstance.writeJson(value, serializer)
+        }
+
+        /**
+         * @see Json.toJson
+         */
+        @ImplicitReflectionSerializer
+        public inline fun <reified T : Any> toJson(value: T): JsonElement {
+            return toJson(context.getContextualOrDefault(T::class), value)
+        }
+
+        /**
+         * @see Json.parseJson
+         */
+        public fun parseJson(string: String): JsonElement {
+            return parse(JsonElementSerializer, string)
+        }
+
+        /**
+         * @see Json.fromJson
+         */
+        public fun <T> fromJson(deserializer: DeserializationStrategy<T>, json: JsonElement): T {
+            return jsonInstance.readJson(json, deserializer)
+        }
+
+        /**
+         * @see Json.fromJson
+         */
+        @ImplicitReflectionSerializer
+        public inline fun <reified T : Any> fromJson(tree: JsonElement): T =
+            fromJson(context.getContextualOrDefault(T::class), tree)
     }
 
     private fun validateConfiguration() {

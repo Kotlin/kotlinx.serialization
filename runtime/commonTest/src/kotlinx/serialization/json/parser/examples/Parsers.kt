@@ -18,5 +18,5 @@ abstract class JsonParser<T: Any> {
         return read(json.jsonObject)
     }
 
-    fun read(string: String): T = read(Json.plain.parseJson(string).jsonObject)
+    fun read(string: String): T = read(Json.parseJson(string).jsonObject)
 }

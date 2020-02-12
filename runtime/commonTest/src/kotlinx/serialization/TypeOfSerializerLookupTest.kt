@@ -4,18 +4,19 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.test.*
 import kotlin.reflect.*
 import kotlin.test.*
 
-class TypeOfSerializerLookupTest {
+class TypeOfSerializerLookupTest : JsonTestBase() {
 
     @Test
     fun testPrimitive() {
         val token = typeOf<Int>()
         val serial = serializer(token)
-        assertSame(IntSerializer as KSerializer<*>, serial)
+        assertSame(Int.serializer() as KSerializer<*>, serial)
         assertSerializedWithType("42", 42)
     }
 
@@ -131,7 +132,7 @@ class TypeOfSerializerLookupTest {
     private inline fun <reified T> assertSerializedWithType(
         expected: String,
         value: T,
-        json: StringFormat = Json.unquoted
+        json: StringFormat = unquoted
     ) {
         val serial = serializer<T>()
         assertEquals(expected, json.stringify(serial, value))
