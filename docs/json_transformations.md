@@ -1,10 +1,10 @@
 # Json-specific serializers
 
 To affect the shape and contents of JSON output after serialization, or adapt input to deserialization,
-one may write a [custom serializer](custom_serializers.md). However, it may not be convenient to
+it is possible to write a [custom serializer](custom_serializers.md). However, it may not be convenient to
 carefully follow complex Encoder and Decoder calling conventions, especially for relatively small and easy tasks.
-For that purpose, kotlinx.serialization library gives you some abstract classes, which
-can boil down the burden of implementing a custom serializer to a problem of manipulating a Json abstract syntax tree.
+For that purpose, `kotlinx.serialization` library gives you API that
+can boil down the burden of implementing a custom serializer to a problem of manipulating a Json elements tree.
 
 * [Prerequisites](#prerequisites)
 * [Json transformations](#json-transformations)
@@ -17,55 +17,52 @@ can boil down the burden of implementing a custom serializer to a problem of man
 It is still strongly recommended to be acquainted with [custom serializers guide](custom_serializers.md)
 in its [using serializers](custom_serializers.md#using-custom-serializers) part,
 since the instantiation process and annotations to enable custom serializers remain the same.
-It is also important to remember that since the discussed in this article serializers are manipulating Json AST,
-they have the following limitations:
-
-1. These serializers work only with `Json` format.
-2. One may expect slightly degraded performance or increased memory traffic since
-standard Json encoders do not usually create a full syntax tree.
-
-However, these limitations are not really the issue for all typical use-cases.
+It is also important to remember that since the discussed in this article serializers are manipulating Json tree,
+they work only with Json format.
 
 ## Json transformations
 
-Such functionality is provided by the class `JsonTransformingSerializer`. `JsonTransformingSerializer` is an abstract
-class that implements `KSerializer`. Instead of direct interaction with Encoder or Decoder, this class
-asks you to supply transformations for JSON AST represented by the `JsonElement` class.
-You may use it as a base class for your serializers. In that case, you won't be able to override
-`serialize` and `deserialize` methods — instead,
-you should define corresponding `writeTransform` or/and `readTransform` methods.
-These methods have extremely simple signature: `(JsonElement) -> JsonElement`, which does not need explanations.
-See `JsonElement`, `JsonObject`, `JsonArray`, and `JsonPrimitive` documentation for details.
+Transformation capabilities are provided by the abstract `JsonTransformingSerializer` class that implements `KSerializer`. 
 
-### Samples
+Instead of direct interaction with Encoder or Decoder, this class asks you to supply transformations for JSON tree represented by the `JsonElement` class
+using `writeTransform(element: JsonElement): JsonElement` and `readTransform(element: JsonElement): JsonElement` methods in order
+to transform the input or the putput JSON.
 
-Here are the samples of several popular (judged by open issues) transformations. You can copy-paste them to your project.
+
+### Transformation examples. List mainupulation
+
+The first example is our own implementation of list wrapping. Consider the API that returns list 
+of objects, or, if there is only one element in the result, then it is a single object, not wrapped in the list.
+ 
+To simplify object model, it is possible to implement transforming serializer that always returns list of objects,
+automatically wrapping a single object in a list as well: 
 
 ```kotlin
-// We're going to use this simple class as a target for our transformations
-@Serializable
+@Serializable // Sample class with data
 data class StringData(val data: String)
 
-// This transformation is suitable for APIs which can return either list or a single object
-// under the same key.
-// It always returns JsonArray, therefore serializer type is List<StringData>.
-object WrappingJsonListSerializer :
-    JsonTransformingSerializer<List<StringData>>(StringData.serializer().list, "WrappingList") {
+
+object WrappingJsonListSerializer : JsonTransformingSerializer<List<StringData>>(
+    StringData.serializer().list, "WrappingList"
+) {
+    // If response is not an array, then it is a single object that should be wrapped in the array
     override fun readTransform(element: JsonElement): JsonElement =
         if (element !is JsonArray) JsonArray(listOf(element)) else element
-    }
+}
 
-// This transformation does the opposite and can unwrap an element,
-// if it is returned in an array.
+// This transformation does the opposite and can unwrap an element, if it is returned in an array.
 object UnwrappingJsonListSerializer :
     JsonTransformingSerializer<StringData>(StringData.serializer(), "UnwrappingList") {
     override fun readTransform(element: JsonElement): JsonElement {
         if (element !is JsonArray) return element
-        require(element.size == 1) { "Array size must be equal to 1 to unwrap it" }
+        require(element.size == 1) { "Array size must be equal to 1 to unwrap it automatically" }
         return element.first()
     }
 }
+```
 
+Now these serializers can be used as regular custom serializers and all transformations will be applied automatically:
+```
 // We can use these transformations as regular serializers:
 @Serializable
 data class Example(
@@ -74,46 +71,50 @@ data class Example(
     @Serializable(WrappingJsonListSerializer::class) val moreData: List<StringData>
 )
 
-// And be able to parse different shapes of the same data, such as:
+// And for input 
+{"name":"test","data":{"data":"str1"},"moreData": {"data":"str2"} }
+
+the corresponding Example("test", Data("str1"), listOf(Data("str2"))) will be deserialized.
 ```
 
-```json
-{"name":"test","data":{"data":"str1"},"moreData":[{"data":"str2"}]}
-{"name":"test","data":{"data":"str1"},"moreData":{"data":"str2"}}
-{"name":"test","data":[{"data":"str1"}],"moreData":[{"data":"str2"}]}
-{"name":"test","data":[{"data":"str1"}],"moreData":{"data":"str2"}}
-```
+### Transformation examples. Default values mainupulation.
+
+Another example of a transformation is omitting specific values from the output JSON, e.g. because it 
+is treated as default when missing or for any other domain-specific reasons.
+ 
 
 ```kotlin
-// Here's the sample of complex write transformation
-// which elide values based on a predicate
+// Serializer that removes "name: Second" key-value pair from resultuing JSON
 object DroppingNameSerializer : JsonTransformingSerializer<Example>(Example.serializer(), "DropName") {
     override fun writeTransform(element: JsonElement): JsonElement =
+        // Filter top-level key value pair with key "name" with value equal to "Second"
         JsonObject(element.jsonObject.filterNot {
             (k, v) -> k == "name" && v.primitive.content == "Second"
         })
 }
 
-// Result of such transformation would be:
+// Result of such transformation is:
 json.stringify(DroppingNameSerializer, Example("First", StringData("str1")))
-    // =>  """{"name":"First","data":{"data":"str1"}}"""
+// =>  """{"name":"First","data":{"data":"str1"}}"""
 
 json.stringify(DroppingNameSerializer, Example("Second", StringData("str1")))
-    // =>  """{"data":{"data":"str1"}}"""
+// =>  """{"data":{"data":"str1"}}"""
 ```
 
 ## Json parametric polymorphic deserialization
 
-Usually, [polymorphic serialization](polymorphism.md) requires a dedicated `"type"` property
-(a so-called 'class discriminator') in JSON stream to determine actual serializer
+Typically, [polymorphic serialization](polymorphism.md) requires a dedicated `"type"` property
+(also known as class discriminator) in the incoming JSON to determine actual serializer
 which can be used to deserialize Kotlin class.
-However, sometimes (often when interacting with external API) such property is not present in input,
-and one should guess type using other evidence, e.g., presence of some keys in object.
-`JsonParametricSerializer` offers a skeleton implementation of such a guessing strategy.
+
+However, sometimes (e.g. when interacting with external API) type property may not be present in the input,
+and it is expected to guess the actual type by the shape of JSON, for example by the presence of specific key.
+
+`JsonParametricSerializer` provides a skeleton implementation for such strategy.
 As with `JsonTransformingSerializer`, `JsonParametricSerializer` is a base class for custom serializers.
 It does not allow to override `serialize` and `deserialize` methods; instead, one should
 implement `selectSerializer(element: JsonElement): KSerializer<out T>` method.
-The idea is understandable from the example:
+The idea can be demonstrated by the following example:
 
 ```kotlin
 interface Payment {
@@ -143,10 +144,11 @@ default serializer would be selected for the actual property type in runtime. No
 
 ## Under the hood
 
-Although abstract serializers mentioned above can cover most of the cases, it is not a hard task to implement such machinery
-by yourself, given only the `KSerializer`.
+Although abstract serializers mentioned above can cover most of the cases, it is possible to implement similar machinery
+by ourselves, using only the `KSerializer`.
 If one is not satisfied with abstract methods `writeTransform`/`readTransform`/`selectSerializer`,
 altering `serialize`/`deserialize` is a way to go.
+
 There are several hints on reading, working with and writing of `JsonElement`:
 
 * `Encoder` could be cast to `JsonInput`, and `Decoder` to `JsonOutput`, if the current format is `Json`.
@@ -156,7 +158,7 @@ which basically retrieve/insert an element from/to a current position in the str
 * `Json` has methods `fromJson(deserializer: DeserializationStrategy<T>, json: JsonElement): T`
 and `toJson(serializer: SerializationStrategy<T>, value: T): JsonElement`.
 
-Given all that, it is pretty straightforward to implement two-stage conversion `Decoder -> JsonElement -> T` or `T -> JsonElement -> Encoder`.
+Given all that, it is possible to implement two-stage conversion `Decoder -> JsonElement -> T` or `T -> JsonElement -> Encoder`.
 
 Typical usage would look like this:
 
@@ -169,7 +171,7 @@ sealed class Either {
 
 // Serializer injects custom behavior by inspecting object content and writing
 object EitherSerializer : KSerializer<Either> {
-    override val descriptor: SerialDescriptor = SerialClassDescImpl("Either")
+    override val descriptor: SerialDescriptor = SerialDescriptor("mypackage.Either", UnionKind.SEALED)
 
     override fun deserialize(decoder: Decoder): Either {
         // Decoder -> JsonInput
