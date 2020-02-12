@@ -26,22 +26,15 @@ inline fun <reified T> typeTokenOf(): Type {
 }
 
 /**
- * This method uses reflection to construct serializer for given type.
+ * Constructs a serializer for the given reflective Java [type].
+ * [serializerByTypeToken] is intended to be used as an interoperability layer for libraries like GSON and Retrofit,
+ * that operate with reflective Java [Type] and cannot use [typeOf].
  *
- * However, since it accepts type token, it is available only on JVM by design,
- * and it can work correctly even with generics, so
- * it is not annotated with [ImplicitReflectionSerializer].
- *
- * Consider using Kotlin's [typeOf], [KType] and [serializer] since they can
- * also provide information about nullability.
- *
- * Keep in mind that this is a 'heavy' call, so result probably should be cached somewhere else.
- *
- * This method intended for static, format-agnostic resolving (e.g. in adapter factories) so context is not used here.
+ * For application-level serialization, it is recommended to use `serializer<T>()` instead as it is aware of
+ * Kotlin-specific type information, such as nullability, sealed classes and object.
  */
 @Suppress("UNCHECKED_CAST")
 @UseExperimental(ImplicitReflectionSerializer::class)
-// not deprecated because many converters (e.g. retrofit2-kotlinx-serialization-converter) still have to use java's Type
 public fun serializerByTypeToken(type: Type): KSerializer<Any> = when (type) {
     is GenericArrayType -> {
         val eType = type.genericComponentType.let {
