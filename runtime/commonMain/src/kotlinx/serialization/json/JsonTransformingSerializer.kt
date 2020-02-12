@@ -9,21 +9,21 @@ import kotlinx.serialization.json.internal.*
 
 /**
  * Base class for custom serializers that allows manipulating an abstract JSON
- * representation of the class.
+ * representation of the class before serialization or deserialization.
  *
- * Instead of direct interaction with [Encoder] or [Decoder], this class
- * allows manipulation with [JsonElement] instead, what can be much easier
- * way to accomplish certain tasks. Please note that this class expects that
- * [Encoder] and [Decoder] are implemented by [JsonInput] and [JsonOutput], i.e.
- * serializers derived from this class work only with [Json] format.
+ * [JsonTransformingSerializer] provides capabilities to manipulate [JsonElement] representation
+ * directly instead of interacting with [Encoder] and [Decoder] in order to apply a custom
+ * transformation to the JSON.
+ * Please note that this class expects that [Encoder] and [Decoder] are implemented by [JsonInput] and [JsonOutput],
+ * i.e. serializers derived from this class work only with [Json] format.
  *
  * During serialization, this class first serializes original value with [tSerializer] to a [JsonElement],
  * then calls [writeTransform] method, which may contain a user-defined transformation, such as
  * wrapping a value into [JsonArray], filtering keys, adding keys, etc.
  *
- * During deserialization, reverse process happens: first, value from JSON stream is read
- * to a [JsonElement], then user transformation in [readTransform] applied,
- * then JSON tree is deserialized back to [T] with [tSerializer].
+ * During deserialization, the opposite process happens: first, value from JSON stream is read
+ * to a [JsonElement], second, user transformation in [readTransform] is applied,
+ * and then JSON tree is deserialized back to [T] with [tSerializer].
  *
  * Usage example:
  *
@@ -63,14 +63,13 @@ public abstract class JsonTransformingSerializer<T : Any>(
      * By default, it uses the name composed of [tSerializer]'s descriptor and transformation name,
      * kind of [tSerializer]'s descriptor and contains 0 elements.
      *
-     * However, this descriptor can be overridden to achieve better representation of custom transformed JSON shape
-     * for schema generating/introspection purposes.
+     * However, this descriptor can be overridden to achieve better representation of the resulting JSON shape
+     * for schema generating or introspection purposes.
      */
-    override val descriptor: SerialDescriptor =
-        SerialDescriptor(
-            "JsonTransformingSerializer<${tSerializer.descriptor.serialName}>($transformationName)",
-            tSerializer.descriptor.kind
-        )
+    override val descriptor: SerialDescriptor = SerialDescriptor(
+        "JsonTransformingSerializer<${tSerializer.descriptor.serialName}>($transformationName)",
+        tSerializer.descriptor.kind
+    )
 
     final override fun serialize(encoder: Encoder, value: T) {
         val output = encoder.asJsonOutput()
@@ -88,14 +87,12 @@ public abstract class JsonTransformingSerializer<T : Any>(
 
     /**
      * Transformation which happens during [serialize] call.
-     *
      * Does nothing by default.
      */
     protected open fun readTransform(element: JsonElement): JsonElement = element
 
     /**
      * Transformation which happens during [deserialize] call.
-     *
      * Does nothing by default.
      */
     protected open fun writeTransform(element: JsonElement): JsonElement = element
