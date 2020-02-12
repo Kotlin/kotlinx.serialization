@@ -16,10 +16,9 @@ abstract class ElementValueEncoder : Encoder, CompositeEncoder {
 
     /**
      * Always invoked before writing each element to determine if it should be encoded.
-     *
-     * @return True if value should be encoded, false otherwise
+     * @return `true` if value should be encoded, false otherwise
      */
-    open fun encodeElement(desc: SerialDescriptor, index: Int): Boolean = true
+    open fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean = true
 
     open fun encodeValue(value: Any): Unit
             = throw SerializationException("Non-serializable ${value::class} is not supported by ${this::class} encoder")

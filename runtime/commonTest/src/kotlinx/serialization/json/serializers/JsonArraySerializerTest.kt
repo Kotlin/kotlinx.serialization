@@ -15,17 +15,17 @@ class JsonArraySerializerTest : JsonTestBase() {
     private val expectedTopLevel = "[1,null,[\"nested literal\"],[],{\"key\":\"value\"}]"
 
     @Test
-    fun testJsonArray() = parametrizedTest(strict) {
+    fun testJsonArray() = parametrizedTest(default) {
         assertStringFormAndRestored(expected, JsonArrayWrapper(prebuiltJson()), JsonArrayWrapper.serializer())
     }
 
     @Test
-    fun testJsonArrayAsElement() = parametrizedTest(strict) {
+    fun testJsonArrayAsElement() = parametrizedTest(default) {
         assertStringFormAndRestored(expected.replace("array", "element"), JsonElementWrapper(prebuiltJson()), JsonElementWrapper.serializer())
     }
 
     @Test
-    fun testTopLevelJsonObjectAsElement() = parametrizedTest(strict) {
+    fun testTopLevelJsonObjectAsElement() = parametrizedTest(default) {
         assertStringFormAndRestored(expectedTopLevel, prebuiltJson(), JsonElementSerializer)
     }
 

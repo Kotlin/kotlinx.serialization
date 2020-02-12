@@ -48,7 +48,7 @@ class ResolvingTest {
     fun testGenericParameter() {
         val b = Box(42)
         val serial = serializerByTypeToken(IntBoxToken)
-        val s = Json.unquoted.stringify(serial, b)
+        val s = Json { unquoted = true }.stringify(serial, b)
         assertEquals("{a:42}", s)
     }
 
@@ -57,7 +57,7 @@ class ResolvingTest {
         val myArr = arrayOf("a", "b", "c")
         val token = myArr::class.java
         val serial = serializerByTypeToken(token)
-        val s = Json.unquoted.stringify(serial, myArr)
+        val s = Json { unquoted = true }.stringify(serial, myArr)
         assertEquals("[a,b,c]", s)
     }
 
@@ -70,7 +70,7 @@ class ResolvingTest {
             override fun getActualTypeArguments(): Array<Type> = arrayOf(String::class.java)
         }
         val serial = serializerByTypeToken(token)
-        val s = Json.unquoted.stringify(serial, myArr)
+        val s = Json { unquoted = true }.stringify(serial, myArr)
         assertEquals("[a,b,c]", s)
     }
 
@@ -80,7 +80,7 @@ class ResolvingTest {
         val myArr = arrayOf("a", "b", "c")
         val token = typeTokenOf<Array<String>>()
         val serial = serializerByTypeToken(token)
-        val s = Json.unquoted.stringify(serial, myArr)
+        val s = Json { unquoted = true }.stringify(serial, myArr)
         assertEquals("[a,b,c]", s)
     }
 
@@ -89,7 +89,7 @@ class ResolvingTest {
         val myList = listOf("a", "b", "c")
         val token = typeTokenOf<List<String>>()
         val serial = serializerByTypeToken(token)
-        val s = Json.unquoted.stringify(serial, myList)
+        val s = Json { unquoted = true }.stringify(serial, myList)
         assertEquals("[a,b,c]", s)
     }
 
@@ -98,7 +98,7 @@ class ResolvingTest {
         val mySet = setOf("a", "b", "c", "c")
         val token = typeTokenOf<Set<String>>()
         val serial = serializerByTypeToken(token)
-        val s = Json.unquoted.stringify(serial, mySet)
+        val s = Json { unquoted = true }.stringify(serial, mySet)
         assertEquals("[a,b,c]", s)
     }
 
@@ -107,7 +107,7 @@ class ResolvingTest {
         val myMap = mapOf("a" to Data(listOf("c"), Box(6)))
         val token = typeTokenOf<Map<String, Data>>()
         val serial = serializerByTypeToken(token)
-        val s = Json.unquoted.stringify(serial, myMap)
+        val s = Json { unquoted = true }.stringify(serial, myMap)
         assertEquals("{a:{l:[c],b:{a:6}}}", s)
     }
 
@@ -116,7 +116,7 @@ class ResolvingTest {
         val myList = listOf(listOf(listOf(1, 2, 3)), listOf())
         val token = typeTokenOf<List<List<List<Int>>>>()
         val serial = serializerByTypeToken(token)
-        val s = Json.unquoted.stringify(serial, myList)
+        val s = Json { unquoted = true }.stringify(serial, myList)
         assertEquals("[[[1,2,3]],[]]", s)
     }
 
@@ -125,7 +125,7 @@ class ResolvingTest {
         val myList = arrayOf(arrayOf(arrayOf(1, 2, 3)), arrayOf())
         val token = typeTokenOf<Array<Array<Array<Int>>>>()
         val serial = serializerByTypeToken(token)
-        val s = Json.unquoted.stringify(serial, myList)
+        val s = Json { unquoted = true }.stringify(serial, myList)
         assertEquals("[[[1,2,3]],[]]", s)
     }
 
@@ -134,7 +134,7 @@ class ResolvingTest {
         val myList = arrayOf(listOf(arrayOf(1, 2, 3)), listOf())
         val token = typeTokenOf<Array<List<Array<Int>>>>()
         val serial = serializerByTypeToken(token)
-        val s = Json.unquoted.stringify(serial, myList)
+        val s = Json { unquoted = true }.stringify(serial, myList)
         assertEquals("[[[1,2,3]],[]]", s)
     }
 
@@ -142,13 +142,13 @@ class ResolvingTest {
     fun testGenericInHolder() {
         val b = Data(listOf("a", "b", "c"), Box(42))
         val serial = serializerByTypeToken(Data::class.java)
-        val s = Json.unquoted.stringify(serial, b)
+        val s = Json { unquoted = true }.stringify(serial, b)
         assertEquals("{l:[a,b,c],b:{a:42}}", s)
     }
 
     @Test
     fun testOverriddenSerializer() {
-        val foo = Json.unquoted.parse<WithCustomDefault>("9")
+        val foo = Json { unquoted = true }.parse<WithCustomDefault>("9")
         assertEquals(9, foo.n)
     }
 
@@ -156,7 +156,7 @@ class ResolvingTest {
     fun testNamedCompanion() {
         val namedCompanion = WithNamedCompanion(1)
         val serial = serializerByTypeToken(WithNamedCompanion::class.java)
-        val s = Json.unquoted.stringify(serial, namedCompanion)
+        val s = Json { unquoted = true }.stringify(serial, namedCompanion)
         assertEquals("{a:1}", s)
     }
 

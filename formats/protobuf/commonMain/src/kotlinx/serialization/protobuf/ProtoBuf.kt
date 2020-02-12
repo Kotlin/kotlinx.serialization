@@ -528,6 +528,10 @@ public class ProtoBuf(
         internal const val SIZE_DELIMITED = 2
         internal const val i32 = 5
 
+        @Deprecated(
+            message = "Deprecated for removal in the favour of user-defined instances or ProtoBuf companion object",
+            level = DeprecationLevel.WARNING
+        )
         public val plain = ProtoBuf()
 
         override fun <T> dump(serializer: SerializationStrategy<T>, value: T): ByteArray = plain.dump(serializer, value)

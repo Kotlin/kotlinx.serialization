@@ -40,9 +40,9 @@ class JsonGenericTest : JsonTestBase() {
     @Test
     fun testRecursiveArrays() = parametrizedTest { useStreaming ->
         val arr = Array2DBox(arrayOf(arrayOf(2.1, 1.2), arrayOf(42.3, -3.4)))
-        val str = strict.stringify(Array2DBox.serializer(), arr, useStreaming)
+        val str = default.stringify(Array2DBox.serializer(), arr, useStreaming)
         assertEquals("""{"arr":[[2.1,1.2],[42.3,-3.4]]}""", str)
-        val restored = strict.parse(Array2DBox.serializer(), str, useStreaming)
+        val restored = default.parse(Array2DBox.serializer(), str, useStreaming)
         assertTrue(arr.arr.contentDeepEquals(restored.arr))
     }
 }

@@ -19,9 +19,9 @@ class JsonSealedSubclassTest : JsonTestBase() {
     @Test
     fun testCallSuperSealedConstructorProperly() = parametrizedTest { useStreaming ->
         val v1 = Var("a")
-        val s1 = strict.stringify(Var.serializer(), v1, useStreaming)// {"id":"a"}
+        val s1 = default.stringify(Var.serializer(), v1, useStreaming)// {"id":"a"}
         assertEquals("""{"id":"a"}""", s1)
-        val v2: Var = strict.parse(Var.serializer(), s1, useStreaming = true) // should not throw IllegalAccessError
+        val v2: Var = default.parse(Var.serializer(), s1, useStreaming = true) // should not throw IllegalAccessError
         assertEquals(v1, v2)
     }
 }

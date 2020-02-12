@@ -68,7 +68,7 @@ class EnumSerializationTest : JsonTestBase() {
             WithCustomEnum.serializer(),
             WithCustomEnum(CustomEnum.FooB),
             """{"c":"foo_b"}""",
-            strict
+            default
         )
 
     @Test

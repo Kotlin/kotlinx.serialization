@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json
@@ -11,7 +11,7 @@ import kotlinx.serialization.test.*
 import kotlin.test.*
 
 abstract class JsonTestBase {
-    protected val strict = Json(JsonConfiguration.Default)
+    protected val default = Json(JsonConfiguration.Default)
     protected val unquoted = Json { unquotedPrint = true }
     protected val unquotedLenient = Json { unquotedPrint = true; isLenient = true; ignoreUnknownKeys = true; serializeSpecialFloatingPointValues = true }
     protected val lenient = Json { isLenient = true; ignoreUnknownKeys = true; serializeSpecialFloatingPointValues = true }
