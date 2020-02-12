@@ -530,14 +530,14 @@ public class ProtoBuf(
 
         public val plain = ProtoBuf()
 
-        override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray = plain.dump(serializer, obj)
+        override fun <T> dump(serializer: SerializationStrategy<T>, value: T): ByteArray = plain.dump(serializer, value)
         override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T = plain.load(deserializer, bytes)
     }
 
-    override fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray {
+    override fun <T> dump(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val encoder = ByteArrayOutputStream()
         val dumper = ProtobufWriter(ProtobufEncoder(encoder))
-        dumper.encode(serializer, obj)
+        dumper.encode(serializer, value)
         return encoder.toByteArray()
     }
 
