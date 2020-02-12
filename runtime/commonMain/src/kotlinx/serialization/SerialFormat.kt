@@ -18,17 +18,17 @@ interface SerialFormat {
 abstract class AbstractSerialFormat(override val context: SerialModule) : SerialFormat
 
 interface BinaryFormat : SerialFormat {
-    fun <T> dump(serializer: SerializationStrategy<T>, obj: T): ByteArray
+    fun <T> dump(serializer: SerializationStrategy<T>, value: T): ByteArray
     fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T
 }
 
-fun <T> BinaryFormat.dumps(serializer: SerializationStrategy<T>, obj: T): String =
-    InternalHexConverter.printHexBinary(dump(serializer, obj), lowerCase = true)
+fun <T> BinaryFormat.dumps(serializer: SerializationStrategy<T>, value: T): String =
+    InternalHexConverter.printHexBinary(dump(serializer, value), lowerCase = true)
 
 fun <T> BinaryFormat.loads(deserializer: DeserializationStrategy<T>, hex: String): T =
     load(deserializer, InternalHexConverter.parseHexBinary(hex))
 
 interface StringFormat : SerialFormat {
-    fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String
+    fun <T> stringify(serializer: SerializationStrategy<T>, value: T): String
     fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T
 }

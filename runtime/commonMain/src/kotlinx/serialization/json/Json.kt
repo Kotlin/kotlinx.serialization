@@ -86,18 +86,18 @@ public constructor(
     }
 
     /**
-     * Serializes [obj] into an equivalent JSON using provided [serializer].
+     * Serializes [value] into an equivalent JSON using provided [serializer].
      * @throws [JsonException] if given value can not be encoded
      * @throws [SerializationException] if given value can not be serialized
      */
-    public override fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String {
+    public override fun <T> stringify(serializer: SerializationStrategy<T>, value: T): String {
         val result = StringBuilder()
         val encoder = StreamingJsonOutput(
             result, this,
             WriteMode.OBJ,
             arrayOfNulls(WriteMode.values().size)
         )
-        encoder.encode(serializer, obj)
+        encoder.encode(serializer, value)
         return result.toString()
     }
 
@@ -191,8 +191,8 @@ public constructor(
         override val context: SerialModule get() = plain.context
 
         @UnstableDefault
-        override fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String =
-            plain.stringify(serializer, obj)
+        override fun <T> stringify(serializer: SerializationStrategy<T>, value: T): String =
+            plain.stringify(serializer, value)
 
         @UnstableDefault
         override fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T =

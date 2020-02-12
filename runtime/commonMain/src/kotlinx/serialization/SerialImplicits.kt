@@ -33,12 +33,12 @@ public annotation class ImplicitReflectionSerializer
 public annotation class UnstableDefault
 
 @ImplicitReflectionSerializer
-public inline fun <reified T : Any> BinaryFormat.dump(obj: T): ByteArray =
-    dump(context.getContextualOrDefault(T::class), obj)
+public inline fun <reified T : Any> BinaryFormat.dump(value: T): ByteArray =
+    dump(context.getContextualOrDefault(T::class), value)
 
 @ImplicitReflectionSerializer
-public inline fun <reified T : Any> BinaryFormat.dumps(obj: T): String =
-    dumps(context.getContextualOrDefault(T::class), obj)
+public inline fun <reified T : Any> BinaryFormat.dumps(value: T): String =
+    dumps(context.getContextualOrDefault(T::class), value)
 
 @ImplicitReflectionSerializer
 public inline fun <reified T : Any> BinaryFormat.load(raw: ByteArray): T =
@@ -50,8 +50,8 @@ public inline fun <reified T : Any> BinaryFormat.loads(hex: String): T =
 
 
 @ImplicitReflectionSerializer
-public inline fun <reified T : Any> StringFormat.stringify(obj: T): String =
-    stringify(context.getContextualOrDefault(T::class), obj)
+public inline fun <reified T : Any> StringFormat.stringify(value: T): String =
+    stringify(context.getContextualOrDefault(T::class), value)
 
 @ImplicitReflectionSerializer
 public inline fun <reified T : Any> StringFormat.stringify(objects: List<T>): String =
