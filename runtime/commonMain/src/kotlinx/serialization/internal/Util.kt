@@ -109,3 +109,7 @@ internal fun defer(deferred: () -> SerialDescriptor): SerialDescriptor = object 
     override fun getElementDescriptor(index: Int): SerialDescriptor = original.getElementDescriptor(index)
     override fun isElementOptional(index: Int): Boolean = original.isElementOptional(index)
 }
+
+@Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
+@PublishedApi
+internal inline fun <T> KSerializer<*>.cast(): KSerializer<T> = this as KSerializer<T>

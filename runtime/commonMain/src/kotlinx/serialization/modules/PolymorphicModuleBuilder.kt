@@ -5,6 +5,7 @@
 package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
+import kotlinx.serialization.internal.*
 import kotlin.reflect.*
 
 /**
@@ -70,7 +71,7 @@ public class PolymorphicModuleBuilder<Base : Any> internal constructor(
             builder.registerPolymorphicSerializer(
                 baseClass,
                 kclass as KClass<Base>,
-                serializer as KSerializer<Base>
+                serializer.cast()
             )
         }
     }
@@ -90,7 +91,7 @@ public class PolymorphicModuleBuilder<Base : Any> internal constructor(
         newBaseClassSerializer: KSerializer<NewBase>? = null
     ): PolymorphicModuleBuilder<NewBase> {
         val newModule = PolymorphicModuleBuilder(newBaseClass, newBaseClassSerializer)
-        baseSerializer?.let { newModule.addSubclass(baseClass as KClass<NewBase>, baseSerializer as KSerializer<NewBase>) }
+        baseSerializer?.let { newModule.addSubclass(baseClass as KClass<NewBase>, baseSerializer.cast()) }
         subclasses.forEach { (k, v) ->
             newModule.addSubclass(k as KClass<NewBase>, v as KSerializer<NewBase>)
         }

@@ -7,6 +7,7 @@
 package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
+import kotlinx.serialization.internal.*
 import kotlin.reflect.KClass
 
 /**
@@ -17,18 +18,15 @@ public inline fun <reified T: Any> SerialModule.getContextual(): KSerializer<T>?
 /**
  * Returns a serializer associated with KClass of the given [value].
  */
-@Suppress("UNCHECKED_CAST")
 public fun <T: Any> SerialModule.getContextual(value: T): KSerializer<T>? {
-    val klass = value::class
-    return getContextual(klass) as? KSerializer<T>
+    return getContextual(value::class)?.cast()
 }
 
 @ImplicitReflectionSerializer
 public fun <T: Any> SerialModule.getContextualOrDefault(klass: KClass<T>): KSerializer<T> = getContextual(klass) ?: klass.serializer()
 
-@Suppress("UNCHECKED_CAST")
 @ImplicitReflectionSerializer
-public fun <T: Any> SerialModule.getContextualOrDefault(value: T): KSerializer<T> = getContextual(value) ?: value::class.serializer() as KSerializer<T>
+public fun <T: Any> SerialModule.getContextualOrDefault(value: T): KSerializer<T> = getContextual(value) ?: value::class.serializer().cast()
 
 /**
  * Returns a combination of two serial modules

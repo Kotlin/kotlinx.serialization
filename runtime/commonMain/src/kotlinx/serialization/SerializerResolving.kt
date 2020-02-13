@@ -20,10 +20,10 @@ import kotlin.reflect.*
  * This is a computation-heavy call, so it is recommended to cache its result.
  * [typeOf] API currently does not work with user-defined generic classes on Kotlin/JS.
  */
-@Suppress("UNCHECKED_CAST", "NO_REFLECTION_IN_CLASS_PATH")
+@Suppress("NO_REFLECTION_IN_CLASS_PATH")
 @ImplicitReflectionSerializer
 public inline fun <reified T> serializer(): KSerializer<T> {
-    return serializer(typeOf<T>()) as KSerializer<T>
+    return serializer(typeOf<T>()).cast()
 }
 
 /**
@@ -71,11 +71,11 @@ public fun serializer(type: KType): KSerializer<Any?> {
                     }
                 }
             }
-        } as KSerializer<Any>
+        }.cast()
     }
 
     val result = serializerByKTypeImpl(type)
-    return if (type.isMarkedNullable) result.nullable else result as KSerializer<Any?>
+    return if (type.isMarkedNullable) result.nullable else result.cast()
 }
 
 /**
