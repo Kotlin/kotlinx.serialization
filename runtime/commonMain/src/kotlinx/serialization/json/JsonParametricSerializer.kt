@@ -77,7 +77,7 @@ public abstract class JsonParametricSerializer<T : Any>(private val baseClass: K
     final override fun serialize(encoder: Encoder, value: T) {
         val actualSerializer =
             encoder.context.getPolymorphic(baseClass, value)
-                    ?: value::class.compiledSerializer()
+                    ?: value::class.serializerOrNull()
                     ?: throwSubtypeNotRegistered(value::class, baseClass)
         @Suppress("UNCHECKED_CAST")
         (actualSerializer as KSerializer<T>).serialize(encoder, value)
