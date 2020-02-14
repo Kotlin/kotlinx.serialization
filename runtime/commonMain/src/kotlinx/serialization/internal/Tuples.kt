@@ -25,14 +25,15 @@ public sealed class KeyValueSerializer<K, V, R>(
     protected abstract fun toResult(key: K, value: V): R
 
     override fun serialize(encoder: Encoder, value: R) {
-        val structuredEncoder = encoder.beginStructure(descriptor, keySerializer, valueSerializer)
+        val structuredEncoder = encoder.beginStructure(descriptor)
         structuredEncoder.encodeSerializableElement(descriptor, 0, keySerializer, value.key)
         structuredEncoder.encodeSerializableElement(descriptor, 1, valueSerializer, value.value)
         structuredEncoder.endStructure(descriptor)
     }
 
     override fun deserialize(decoder: Decoder): R {
-        val composite = decoder.beginStructure(descriptor, keySerializer, valueSerializer)
+        arrayOf(keySerializer, valueSerializer)
+        val composite = decoder.beginStructure(descriptor)
         if (composite.decodeSequentially()) {
             val key = composite.decodeSerializableElement(descriptor, 0, keySerializer)
             val value = composite.decodeSerializableElement(descriptor, 1, valueSerializer)
@@ -134,7 +135,7 @@ public class TripleSerializer<A, B, C>(
     }
 
     override fun serialize(encoder: Encoder, value: Triple<A, B, C>) {
-        val structuredEncoder = encoder.beginStructure(descriptor, aSerializer, bSerializer, cSerializer)
+        val structuredEncoder = encoder.beginStructure(descriptor)
         structuredEncoder.encodeSerializableElement(descriptor, 0, aSerializer, value.first)
         structuredEncoder.encodeSerializableElement(descriptor, 1, bSerializer, value.second)
         structuredEncoder.encodeSerializableElement(descriptor, 2, cSerializer, value.third)
@@ -142,7 +143,8 @@ public class TripleSerializer<A, B, C>(
     }
 
     override fun deserialize(decoder: Decoder): Triple<A, B, C> {
-        val composite = decoder.beginStructure(descriptor, aSerializer, bSerializer, cSerializer)
+        arrayOf(aSerializer, bSerializer, cSerializer)
+        val composite = decoder.beginStructure(descriptor)
         if (composite.decodeSequentially()) {
             return decodeSequentially(composite)
         }

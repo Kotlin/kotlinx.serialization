@@ -45,7 +45,7 @@ class TaggedTest {
     }
 
     @Test
-    @Ignore // todo: unignore after migration to 1.3.70-eap-3
+    @Ignore
     fun testTagged() {
         val collector = Collector()
         val data = DataWithId(1, "2")
