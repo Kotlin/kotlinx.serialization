@@ -228,21 +228,38 @@ public interface Encoder {
      * }
      *
      * ```
-     *
-     * [typeSerializers] are used for encoding collections or classes with type parameters and are serializers
-     * of type parameters.
      */
+    @Suppress("DEPRECATION_ERROR", "RemoveRedundantSpreadOperator")
+    public fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder =
+        beginStructure(descriptor, *arrayOf<KSerializer<*>>())
+
+    @Deprecated(
+        "Parameter typeSerializers is deprecated for removal. Please migrate to beginStructure method with one argument.",
+        ReplaceWith("beginStructure(descriptor)"),
+        DeprecationLevel.ERROR
+    )
     public fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder
 
     /**
      * Encodes the beginning of the collection with size [collectionSize] and the given serializer of its type parameters.
      * This method has to be implemented only if you need to know collection size in advance, otherwise, [beginStructure] can be used.
      */
+    @Suppress("DEPRECATION_ERROR", "RemoveRedundantSpreadOperator")
+    public fun beginCollection(
+        descriptor: SerialDescriptor,
+        collectionSize: Int
+    ): CompositeEncoder = beginCollection(descriptor, collectionSize, *arrayOf<KSerializer<*>>())
+
+    @Deprecated(
+        "Parameter typeSerializers is deprecated for removal. Please migrate to beginCollection method with two arguments.",
+        ReplaceWith("beginCollection(descriptor, collectionSize)"),
+        DeprecationLevel.ERROR
+    )
     public fun beginCollection(
         descriptor: SerialDescriptor,
         collectionSize: Int,
         vararg typeSerializers: KSerializer<*>
-    ): CompositeEncoder = beginStructure(descriptor, *typeSerializers)
+    ): CompositeEncoder = beginStructure(descriptor)
 
     /**
      * Encodes the [value] of type [T] by delegating the encoding process to the given [serializer].

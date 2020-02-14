@@ -68,7 +68,7 @@ public sealed class ListLikeSerializer<Element, Collection, Builder>(
 
     override fun serialize(encoder: Encoder, value: Collection) {
         val size = value.collectionSize()
-        val composite = encoder.beginCollection(descriptor, size, *typeParams)
+        val composite = encoder.beginCollection(descriptor, size)
         val iterator = value.collectionIterator()
         for (index in 0 until size)
             composite.encodeSerializableElement(descriptor, index, elementSerializer, iterator.next())
@@ -122,7 +122,7 @@ public sealed class MapLikeSerializer<Key, Value, Collection, Builder : MutableM
 
     override fun serialize(encoder: Encoder, value: Collection) {
         val size = value.collectionSize()
-        val composite = encoder.beginCollection(descriptor, size, *typeParams)
+        val composite = encoder.beginCollection(descriptor, size)
         val iterator = value.collectionIterator()
         var index = 0
         iterator.forEach { (k, v) ->
@@ -180,7 +180,7 @@ public abstract class PrimitiveArraySerializer<Element, Array, Builder
 
     final override fun serialize(encoder: Encoder, value: Array) {
         val size = value.collectionSize()
-        val composite = encoder.beginCollection(descriptor, size, *typeParams)
+        val composite = encoder.beginCollection(descriptor, size)
         writeContent(composite, value, size)
         composite.endStructure(descriptor)
     }

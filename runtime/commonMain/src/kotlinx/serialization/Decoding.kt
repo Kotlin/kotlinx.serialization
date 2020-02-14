@@ -214,6 +214,14 @@ public interface Decoder {
      * ```
      * has three nested structures: the very beginning of the data, "b" value and "c" value.
      */
+    @Suppress("DEPRECATION_ERROR", "RemoveRedundantSpreadOperator")
+    public fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder = beginStructure(descriptor, *arrayOf<KSerializer<*>>())
+
+    @Deprecated(
+        "Parameter typeSerializers is deprecated for removal. Please migrate to beginStructure method with one argument.",
+        ReplaceWith("beginStructure(descriptor)"),
+        DeprecationLevel.ERROR
+    )
     public fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder
 
     /**
