@@ -7,6 +7,7 @@ package kotlinx.serialization.config
 import com.typesafe.config.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 
 private val SerialKind.listLike get() = this == StructureKind.LIST || this is PolymorphicKind

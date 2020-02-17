@@ -7,6 +7,7 @@ package kotlinx.serialization
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.test.*
 import kotlin.test.*
+import kotlinx.serialization.internal.*
 
 class TaggedTest {
 
