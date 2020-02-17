@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.math.abs
 import kotlin.math.floor

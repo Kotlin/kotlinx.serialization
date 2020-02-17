@@ -1,8 +1,11 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization
+package kotlinx.serialization.internal
+
+import kotlinx.serialization.*
+import kotlinx.serialization.modules.*
 
 import kotlinx.serialization.modules.*
 
@@ -10,6 +13,12 @@ internal const val unitDeprecated =
     "This method is deprecated with no replacement. Unit is encoded as an empty object and does not require a dedicated method. " +
             "To migrate, just remove your own implementation of this method"
 
+/*
+ * These classes are intended to be used only within the kotlinx.serialization.
+ * They neither do have stable API, not internal invariants and are changed without any warnings.
+ */
+
+@InternalSerializationApi
 abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
 
     /**
@@ -22,8 +31,7 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
         get() = EmptyModule
 
     // ---- API ----
-    open fun encodeTaggedValue(tag: Tag, value: Any): Unit
-            = throw SerializationException("Non-serializable ${value::class} is not supported by ${this::class} encoder")
+    open fun encodeTaggedValue(tag: Tag, value: Any): Unit = throw SerializationException("Non-serializable ${value::class} is not supported by ${this::class} encoder")
 
     open fun encodeTaggedNotNullMark(tag: Tag) {}
     open fun encodeTaggedNull(tag: Tag): Unit = throw SerializationException("null is not supported")
@@ -130,6 +138,7 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
             throw SerializationException("No tag in stack for requested element")
 }
 
+@InternalSerializationApi
 abstract class NamedValueEncoder(val rootName: String = "") : TaggedEncoder<String>() {
     final override fun SerialDescriptor.getTag(index: Int): String = nested(elementName(this, index))
     protected fun nested(nestedName: String) = composeName(currentTagOrNull ?: rootName, nestedName)
@@ -137,11 +146,14 @@ abstract class NamedValueEncoder(val rootName: String = "") : TaggedEncoder<Stri
     open fun composeName(parentName: String, childName: String) = if (parentName.isEmpty()) childName else "$parentName.$childName"
 }
 
-abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
+@InternalSerializationApi
+abstract class TaggedDecoder<Tag : Any?> : Decoder,
+    CompositeDecoder {
     override val context: SerialModule
         get() = EmptyModule
 
-    override val updateMode: UpdateMode = UpdateMode.UPDATE
+    override val updateMode: UpdateMode =
+        UpdateMode.UPDATE
 
     protected abstract fun SerialDescriptor.getTag(index: Int): Tag
 
@@ -253,6 +265,7 @@ abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     }
 }
 
+@InternalSerializationApi
 abstract class NamedValueDecoder(val rootName: String = "") : TaggedDecoder<String>() {
     final override fun SerialDescriptor.getTag(index: Int): String = nested(elementName(this, index))
 
