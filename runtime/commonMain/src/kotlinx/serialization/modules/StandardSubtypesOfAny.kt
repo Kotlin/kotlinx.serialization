@@ -39,16 +39,16 @@ internal object StandardSubtypesOfAny {
             PolymorphicSerializer(Any::class).nullable,
             PolymorphicSerializer(Any::class).nullable
         ),
-        String::class to StringSerializer,
-        Char::class to CharSerializer,
-        Int::class to IntSerializer,
-        Byte::class to ByteSerializer,
-        Short::class to ShortSerializer,
-        Long::class to LongSerializer,
-        Double::class to DoubleSerializer,
-        Float::class to FloatSerializer,
-        Boolean::class to BooleanSerializer,
-        Unit::class to UnitSerializer
+        String::class to String.serializer(),
+        Char::class to Char.serializer(),
+        Int::class to Int.serializer(),
+        Byte::class to Byte.serializer(),
+        Short::class to Short.serializer(),
+        Long::class to Long.serializer(),
+        Double::class to Double.serializer(),
+        Float::class to Float.serializer(),
+        Boolean::class to Boolean.serializer(),
+        Unit::class to UnitSerializer()
     )
 
     private val deserializingMap: Map<String, KSerializer<*>> = map.mapKeys { (_, s) -> s.descriptor.serialName }

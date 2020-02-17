@@ -5,6 +5,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlin.test.*
 
 @UseExperimental(ImplicitReflectionSerializer::class)
@@ -31,6 +32,6 @@ class JsonReifiedCollectionsTest : JsonTestBase() {
     fun testPrimitiveSerializer() {
         val intClass = Int::class
         val serial = intClass.serializer()
-        assertSame(IntSerializer, serial)
+        assertSame(Int.serializer(), serial)
     }
 }

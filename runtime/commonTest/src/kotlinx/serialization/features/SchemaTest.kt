@@ -5,6 +5,7 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.test.EnumSerializer
 import kotlin.test.*
@@ -102,7 +103,7 @@ class SchemaTest {
         assertTrue(boxes[0].getElementDescriptor(0).kind is PrimitiveKind.STRING)
         assertTrue(boxes[1].getElementDescriptor(0).kind is PrimitiveKind.INT)
         assertNotEquals(boxes[0], boxes[1])
-        val intBox = Box.serializer(IntSerializer).descriptor
+        val intBox = Box.serializer(Int.serializer()).descriptor
         assertEquals(intBox.kind, boxes[1].kind)
     }
 

@@ -4,6 +4,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
 
@@ -14,7 +15,7 @@ class SerialDescriptorBuilderTest {
     class Wrapper(val i: Int)
 
     private val wrapperDescriptor = SerialDescriptor("Wrapper", StructureKind.CLASS) {
-        element("i", IntSerializer.descriptor)
+        element("i", Int.serializer().descriptor)
     }
 
     private val dataHolderDescriptor = SerialDescriptor("DataHolder", StructureKind.CLASS) {

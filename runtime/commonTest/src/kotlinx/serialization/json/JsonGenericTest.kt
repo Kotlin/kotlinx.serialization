@@ -6,7 +6,6 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
-import kotlinx.serialization.internal.*
 import kotlin.test.*
 
 class JsonGenericTest : JsonTestBase() {
@@ -21,20 +20,27 @@ class JsonGenericTest : JsonTestBase() {
     @Test
     fun testWriteDefaultPair() = parametrizedTest { useStreaming ->
         val pair = 42 to "foo"
-        val serializer = PairSerializer(IntSerializer, StringSerializer)
-        val s = strict.stringify(serializer, pair, useStreaming)
+        val serializer = PairSerializer(
+            Int.serializer(),
+            String.serializer()
+        )
+        val s = default.stringify(serializer, pair, useStreaming)
         assertEquals("""{"first":42,"second":"foo"}""", s)
-        val restored = strict.parse(serializer, s, useStreaming)
+        val restored = default.parse(serializer, s, useStreaming)
         assertEquals(pair, restored)
     }
 
     @Test
     fun testWritePlainTriple() = parametrizedTest { useStreaming ->
         val triple = Triple(42 , "foo", false)
-        val serializer = TripleSerializer(IntSerializer, StringSerializer, BooleanSerializer)
-        val s = strict.stringify(serializer, triple, useStreaming)
-        assertEquals("""{"first":42,"second":"foo","third":false}""", s)
-        val restored = strict.parse(serializer, s, useStreaming)
+        val serializer = TripleSerializer(
+            Int.serializer(),
+            String.serializer(),
+            Boolean.serializer()
+        )
+        val s = unquoted.stringify(serializer, triple, useStreaming)
+        assertEquals("{first:42,second:foo,third:false}", s)
+        val restored = unquoted.parse(serializer, s, useStreaming)
         assertEquals(triple, restored)
     }
 

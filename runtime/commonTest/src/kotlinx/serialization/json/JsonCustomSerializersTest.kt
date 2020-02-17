@@ -7,9 +7,9 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.builtins.*
 import kotlin.test.*
 
-@UseExperimental(ImplicitReflectionSerializer::class)
 class JsonCustomSerializersTest : JsonTestBase() {
     
     @Serializable
@@ -94,7 +94,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
                 val elemOutput = encoder.beginStructure(descriptor)
                 elemOutput.encodeIntElement(descriptor, 1, value.h)
                 if (value.g.isNotEmpty()) elemOutput.encodeSerializableElement(
-                    descriptor, 0, IntSerializer.list,
+                    descriptor, 0, Int.serializer().list,
                     value.g
                 )
                 elemOutput.endStructure(descriptor)
@@ -335,7 +335,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
     @Test
     fun testMapBuiltinsTest() = parametrizedTest { useStreaming ->
         val map = mapOf(1 to "1", 2 to "2")
-        val serial = (IntSerializer to StringSerializer).map
+        val serial = MapSerializer(Int.serializer(), String.serializer())
         val s = unquotedLenient.stringify(serial, map, useStreaming)
         assertEquals("{1:1,2:2}", s)
     }

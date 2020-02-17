@@ -4,6 +4,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.test.assertStringFormAndRestored
 import kotlin.test.*
@@ -22,7 +23,10 @@ class TuplesTest {
     fun testCustomPair() = assertStringFormAndRestored(
         "{k:42,v:foo}",
         MyPair(42, "foo"),
-        MyPair.serializer(IntSerializer, StringSerializer),
+        MyPair.serializer(
+            Int.serializer(),
+            String.serializer()
+        ),
         Json { unquoted = true }
     )
 
