@@ -58,8 +58,6 @@ public class ConfigParser(
         override fun decodeTaggedFloat(tag: T): Float = getTaggedNumber(tag).toFloat()
         override fun decodeTaggedDouble(tag: T): Double = getTaggedNumber(tag).toDouble()
 
-        override fun decodeTaggedUnit(tag: T) = Unit
-
         override fun decodeTaggedChar(tag: T): Char {
             val s = validateAndCast<String>(tag, ConfigValueType.STRING)
             if (s.length != 1) throw SerializationException("String \"$s\" is not convertible to Char")
@@ -109,7 +107,7 @@ public class ConfigParser(
             return !conf.getIsNull(tag)
         }
 
-        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder =
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
             when {
                 descriptor.kind.listLike -> ListConfigReader(conf.getList(currentTag))
                 descriptor.kind.objLike -> if (ind > -1) ConfigReader(conf.getConfig(currentTag)) else this
@@ -121,7 +119,7 @@ public class ConfigParser(
     private inner class ListConfigReader(private val list: ConfigList) : ConfigConverter<Int>() {
         private var ind = -1
 
-        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder =
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
             when {
                 descriptor.kind.listLike -> ListConfigReader(list[currentTag] as ConfigList)
                 descriptor.kind.objLike -> ConfigReader((list[currentTag] as ConfigObject).toConfig())
@@ -153,7 +151,7 @@ public class ConfigParser(
 
         private val indexSize = values.size * 2
 
-        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder =
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
             when {
                 descriptor.kind.listLike -> ListConfigReader(values[currentTag / 2] as ConfigList)
                 descriptor.kind.objLike -> ConfigReader((values[currentTag / 2] as ConfigObject).toConfig())

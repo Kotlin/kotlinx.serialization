@@ -57,7 +57,7 @@ internal class StreamingJsonOutput(
         encodeString(descriptor.serialName)
     }
 
-    override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
         val newMode = json.switchMode(descriptor)
         if (newMode.begin != INVALID) { // entry
             composer.print(newMode.begin)

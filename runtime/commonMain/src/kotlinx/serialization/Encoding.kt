@@ -238,7 +238,8 @@ public interface Encoder {
         ReplaceWith("beginStructure(descriptor)"),
         DeprecationLevel.ERROR
     )
-    public fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder
+    public fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder =
+        beginStructure(descriptor)
 
     /**
      * Encodes the beginning of the collection with size [collectionSize] and the given serializer of its type parameters.

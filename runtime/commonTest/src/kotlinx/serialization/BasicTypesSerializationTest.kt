@@ -9,16 +9,15 @@ import kotlinx.serialization.builtins.*
 import kotlin.test.*
 
 /*
- * Test ensures that type type that aggregate all basic (primitive/collection/maps/arrays)
+ * Test ensures that type that aggregate all basic (primitive/collection/maps/arrays)
  * types is properly serialized/deserialized with dummy format that supports only classes and primitives as
  * first-class citizens.
  */
 class BasicTypesSerializationTest {
 
     // KeyValue Input/Output
-
     class KeyValueOutput(private val sb: StringBuilder) : AbstractEncoder() {
-        override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
             sb.append('{')
             return this
         }
@@ -52,7 +51,7 @@ class BasicTypesSerializationTest {
     }
 
     class KeyValueInput(private val inp: Parser) : AbstractDecoder() {
-        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             inp.expectAfterWhiteSpace('{')
             return this
         }

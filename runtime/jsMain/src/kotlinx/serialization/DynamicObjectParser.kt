@@ -108,7 +108,7 @@ public class DynamicObjectParser @OptIn(UnstableDefault::class) constructor(
             return o != null
         }
 
-        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             val curObj = currentTagOrNull?.let { obj[it] } ?: obj
             val kind = when (descriptor.kind) {
                 is PolymorphicKind -> {

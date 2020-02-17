@@ -36,17 +36,13 @@ private sealed class AbstractJsonTreeInput(
 
     override fun decodeJson(): JsonElement = currentObject()
 
-    @Suppress("DEPRECATION")
-    override val updateMode: UpdateMode
-        get() = configuration.updateMode
-
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
         return decodeSerializableValuePolymorphic(deserializer)
     }
 
     override fun composeName(parentName: String, childName: String): String = childName
 
-    override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         val currentObject = currentObject()
         return when (descriptor.kind) {
             StructureKind.LIST, is PolymorphicKind -> JsonTreeListInput(json, cast(currentObject))
