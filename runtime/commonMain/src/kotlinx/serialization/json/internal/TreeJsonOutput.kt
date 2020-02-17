@@ -6,9 +6,9 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.modules.*
 import kotlin.collections.set
-import kotlin.jvm.JvmField
+import kotlin.jvm.*
 
 internal fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
     lateinit var result: JsonElement
@@ -108,7 +108,7 @@ private sealed class AbstractJsonTreeOutput(
         return encoder
     }
 
-    override fun endEncode(desc: SerialDescriptor) {
+    override fun endEncode(descriptor: SerialDescriptor) {
         nodeConsumer(getCurrent())
     }
 }
@@ -133,8 +133,9 @@ private class JsonPrimitiveOutput(json: Json, nodeConsumer: (JsonElement) -> Uni
         requireNotNull(content) { "Primitive element has not been recorded. Is call to .encodeXxx is missing in serializer?" }
 }
 
-private open class JsonTreeOutput(json: Json, nodeConsumer: (JsonElement) -> Unit) :
-    AbstractJsonTreeOutput(json, nodeConsumer) {
+private open class JsonTreeOutput(
+    json: Json, nodeConsumer: (JsonElement) -> Unit
+) : AbstractJsonTreeOutput(json, nodeConsumer) {
 
     protected val content: MutableMap<String, JsonElement> = linkedMapOf()
 
@@ -171,7 +172,7 @@ private class JsonTreeMapOutput(json: Json, nodeConsumer: (JsonElement) -> Unit)
 private class JsonTreeListOutput(json: Json, nodeConsumer: (JsonElement) -> Unit) :
     AbstractJsonTreeOutput(json, nodeConsumer) {
     private val array: ArrayList<JsonElement> = arrayListOf()
-    override fun elementName(desc: SerialDescriptor, index: Int): String = index.toString()
+    override fun elementName(descriptor: SerialDescriptor, index: Int): String = index.toString()
 
     override fun shouldWriteElement(desc: SerialDescriptor, tag: String, index: Int): Boolean = true
 
@@ -183,8 +184,7 @@ private class JsonTreeListOutput(json: Json, nodeConsumer: (JsonElement) -> Unit
     override fun getCurrent(): JsonElement = JsonArray(array)
 }
 
-@Suppress("USELESS_CAST") // Contracts does not work in K/N
-internal inline fun <reified T : JsonElement> cast(obj: JsonElement): T {
-    check(obj is T) { "Expected ${T::class} but found ${obj::class}" }
-    return obj as T
+internal inline fun <reified T : JsonElement> cast(value: JsonElement): T {
+    check(value is T) { "Expected ${T::class} but found ${value::class}" }
+    return value
 }

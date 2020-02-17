@@ -75,7 +75,7 @@ class EnumSerializationTest : JsonTestBase() {
     fun testEnumWithCustomSerializers() =
         assertJsonFormAndRestored(
             CustomInside.serializer(),
-            CustomInside(WithCustom.TWO), """{inside:2}"""
+            CustomInside(WithCustom.TWO), """{"inside":2}"""
         )
 
 

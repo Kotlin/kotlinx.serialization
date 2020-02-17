@@ -7,7 +7,7 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
-import kotlinx.serialization.test.assertStringFormAndRestored
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 abstract class JsonTestBase {
@@ -120,9 +120,8 @@ abstract class JsonTestBase {
 
     private fun processResults(streamingResult: Result<*>, treeResult: Result<*>) {
         val results = listOf(streamingResult, treeResult)
-        results.forEachIndexed { index, result ->
-            if (result.isFailure)
-                throw Exception("Failed ${if (index == 0) "streaming" else "tree"} test", result.exceptionOrNull()!!)
+        results.forEachIndexed { _, result ->
+            result.onFailure { throw it }
         }
         assertEquals(streamingResult.getOrNull()!!, treeResult.getOrNull()!!)
     }
@@ -135,7 +134,7 @@ abstract class JsonTestBase {
         serializer: KSerializer<T>,
         data: T,
         expected: String,
-        json: Json = unquoted
+        json: Json = Json.plain
     ) {
         parametrizedTest { useStreaming ->
             val serialized = json.stringify(serializer, data, useStreaming)
