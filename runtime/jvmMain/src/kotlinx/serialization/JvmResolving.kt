@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.internal.*
+import kotlinx.serialization.builtins.*
 import java.lang.reflect.*
 import kotlin.reflect.*
 

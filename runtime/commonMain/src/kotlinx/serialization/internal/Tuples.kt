@@ -1,14 +1,20 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+@file:Suppress("DEPRECATION_ERROR")
 
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
+import kotlin.native.concurrent.*
 
+@SharedImmutable
 private val NULL = Any()
+private const val deprecationMessage =
+    "This class is used only by the plugin in generated code and should not be used directly. Use corresponding factory functions instead"
 
 @InternalSerializationApi
+@Deprecated(message = deprecationMessage, level = DeprecationLevel.HIDDEN)
 public sealed class KeyValueSerializer<K, V, R>(
     protected val keySerializer: KSerializer<K>,
     protected val valueSerializer: KSerializer<V>
@@ -57,8 +63,9 @@ public sealed class KeyValueSerializer<K, V, R>(
     }
 }
 
-// todo: move from internal package and add documentation
+@InternalSerializationApi
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+@Deprecated(message = deprecationMessage, level = DeprecationLevel.HIDDEN)
 public class MapEntrySerializer<K, V>(
     keySerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>
@@ -78,7 +85,8 @@ public class MapEntrySerializer<K, V>(
     override fun toResult(key: K, value: V): Map.Entry<K, V> = MapEntry(key, value)
 }
 
-// todo: move from internal package and add documentation
+@InternalSerializationApi
+@Deprecated(message = deprecationMessage, level = DeprecationLevel.HIDDEN)
 public class PairSerializer<K, V>(
     keySerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>
@@ -94,7 +102,8 @@ public class PairSerializer<K, V>(
 }
 
 
-// todo: move from internal package and add documentation
+@InternalSerializationApi
+@Deprecated(message = deprecationMessage, level = DeprecationLevel.HIDDEN)
 public class TripleSerializer<A, B, C>(
     private val aSerializer: KSerializer<A>,
     private val bSerializer: KSerializer<B>,

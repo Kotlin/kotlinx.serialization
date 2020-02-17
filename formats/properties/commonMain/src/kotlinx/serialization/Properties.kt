@@ -7,7 +7,6 @@ package kotlinx.serialization
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.modules.*
 
-
 /**
  * Transforms a [Serializable] class' properties into a single flat [Map] which consists of
  * string keys and primitive type values, and vice versa.
