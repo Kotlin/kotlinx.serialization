@@ -197,8 +197,7 @@ class SerializeFlatTest() {
         var step = 0
 
         override fun beginStructure(
-            descriptor: SerialDescriptor,
-            vararg typeSerializers: KSerializer<*>
+            descriptor: SerialDescriptor
         ): CompositeEncoder {
             checkDesc(name, descriptor)
             if (step == 0) step++ else fail("@$step: beginStructure($descriptor)")
@@ -247,7 +246,7 @@ class SerializeFlatTest() {
     class Inp(private val name: String) : AbstractDecoder() {
         var step = 0
 
-        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             checkDesc(name, descriptor)
             if (step == 0) step++ else fail("@$step: beginStructure($descriptor)")
             return this

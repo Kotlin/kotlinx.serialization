@@ -53,7 +53,7 @@ public class Cbor(
         protected open fun writeBeginToken() = encoder.startMap()
 
         //todo: Write size of map or array if known
-        override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
             val writer = when (descriptor.kind) {
                 StructureKind.LIST, is PolymorphicKind -> CborListWriter(encoder)
                 StructureKind.MAP -> CborMapWriter(encoder)
@@ -190,12 +190,9 @@ public class Cbor(
         override val context: SerialModule
             get() = this@Cbor.context
 
-        override val updateMode: UpdateMode
-            get() = this@Cbor.updateMode
-
         protected open fun skipBeginToken() = setSize(decoder.startMap())
 
-        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             val re = when (descriptor.kind) {
                 StructureKind.LIST, is PolymorphicKind -> CborListReader(decoder)
                 StructureKind.MAP -> CborMapReader(decoder)

@@ -25,15 +25,11 @@ internal class StreamingJsonInput internal constructor(
 
     public override fun decodeJson(): JsonElement = JsonParser(json.configuration, reader).read()
 
-    @Suppress("DEPRECATION")
-    override val updateMode: UpdateMode
-        get() = configuration.updateMode
-
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
         return decodeSerializableValuePolymorphic(deserializer)
     }
 
-    override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         val newMode = json.switchMode(descriptor)
         if (newMode.begin != INVALID) {
             reader.requireTokenClass(newMode.beginTc) { "Expected '${newMode.begin}, kind: ${descriptor.kind}'" }

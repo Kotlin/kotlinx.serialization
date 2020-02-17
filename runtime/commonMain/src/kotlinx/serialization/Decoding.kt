@@ -105,7 +105,7 @@ public interface Decoder {
      */
     public val context: SerialModule
 
-    // Not documented, not decided on
+    @Deprecated(updateModeDeprecated, level = DeprecationLevel.ERROR)
     public val updateMode: UpdateMode
 
     /**
@@ -222,7 +222,8 @@ public interface Decoder {
         ReplaceWith("beginStructure(descriptor)"),
         DeprecationLevel.ERROR
     )
-    public fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder
+    public fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder =
+        beginStructure(descriptor)
 
     /**
      * Decodes the value of type [T] by delegating the decoding process to the given [deserializer].
@@ -238,23 +239,17 @@ public interface Decoder {
     public fun <T : Any> decodeNullableSerializableValue(deserializer: DeserializationStrategy<T?>): T? =
         if (decodeNotNullMark()) decodeSerializableValue(deserializer) else decodeNull()
 
-    // Not documented
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated(updateMethodDeprecated, level = DeprecationLevel.ERROR)
     public fun <T> updateSerializableValue(deserializer: DeserializationStrategy<T>, old: T): T {
-        return when (updateMode) {
-            UpdateMode.BANNED -> throw UpdateNotSupportedException(deserializer.descriptor.serialName)
-            UpdateMode.OVERWRITE -> decodeSerializableValue(deserializer)
-            UpdateMode.UPDATE -> deserializer.patch(this, old)
-        }
+        return decodeSerializableValue(deserializer)
     }
 
     // Not documented
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated(updateMethodDeprecated, level = DeprecationLevel.ERROR)
     public fun <T : Any> updateNullableSerializableValue(deserializer: DeserializationStrategy<T?>, old: T?): T? {
-        return when {
-            updateMode == UpdateMode.BANNED -> throw UpdateNotSupportedException(deserializer.descriptor.serialName)
-            updateMode == UpdateMode.OVERWRITE || old == null -> decodeNullableSerializableValue(deserializer)
-            decodeNotNullMark() -> deserializer.patch(this, old)
-            else -> decodeNull().let { old }
-        }
+        return decodeNullableSerializableValue(deserializer)
     }
 }
 
@@ -307,7 +302,7 @@ public interface CompositeDecoder {
      */
     public val context: SerialModule
 
-    // Not documented, not decided on
+    @Deprecated(updateModeDeprecated, level = DeprecationLevel.ERROR)
     public val updateMode: UpdateMode
 
     /**
@@ -488,39 +483,84 @@ public interface CompositeDecoder {
      */
     public fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String
 
+    @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE", "DeprecatedCallableAddReplaceWith")
+    @kotlin.internal.LowPriorityInOverloadResolution
+    @Deprecated(decodeMethodDeprecated, level = DeprecationLevel.ERROR)
+    public fun <T : Any?> decodeSerializableElement(
+        descriptor: SerialDescriptor,
+        i: Int, // renamed from index to be called even with LowPriority
+        deserializer: DeserializationStrategy<T>
+    ): T = decodeSerializableElement(descriptor, i, deserializer, null)
+
     /**
-     * Delegates decoding value of the type [T] to the given [deserializer].
+     * Decodes value of the type [T] with the given [deserializer].
+     *
+     * Particular implementations of [CompositeDecoder] may use their format-specific deserializers
+     * for particular data types, e.g. handle [ByteArray] specifically if format is binary.
+     *
+     * If value at given [index] was already decoded with previous [decodeSerializableElement] call with the same index,
+     * [oldValue] would contain a previously decoded value.
+     * Implementation may ignore it and return new value, efficiently overwriting decoded value,
+     * or process it and return merged value if format supports such an operation.
      */
+    @Suppress("DEPRECATION_ERROR")
     public fun <T : Any?> decodeSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
-        deserializer: DeserializationStrategy<T>
-    ): T
+        deserializer: DeserializationStrategy<T>,
+        oldValue: T? = null
+    ): T = decodeSerializableElement(descriptor, i = index, deserializer = deserializer)
 
     /**
-     * Delegates decoding nullable value of the type [T] to the given [deserializer].
+     * Decodes nullable value of the type [T] with the given [deserializer].
+     *
+     * If value at given [index] was already decoded with previous [decodeNullableSerializableElement] call with the same index,
+     * [oldValue] would contain a previously decoded value.
+     * Implementation may ignore it and return new value, efficiently overwriting decoded value,
+     * or process it and return merged value if format supports such an operation.
      */
+    @Suppress("DEPRECATION_ERROR")
     public fun <T : Any> decodeNullableSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
+        deserializer: DeserializationStrategy<T?>,
+        oldValue: T? = null
+    ): T? = decodeNullableSerializableElement(descriptor, i = index, deserializer = deserializer)
+
+    @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE", "DeprecatedCallableAddReplaceWith")
+    @kotlin.internal.LowPriorityInOverloadResolution
+    @Deprecated(decodeMethodDeprecated, level = DeprecationLevel.ERROR)
+    public fun <T : Any> decodeNullableSerializableElement(
+        descriptor: SerialDescriptor,
+        i: Int, // renamed from index to be called even with LowPriority
         deserializer: DeserializationStrategy<T?>
-    ): T?
+    ): T? = decodeNullableSerializableElement(descriptor, i, deserializer, null)
 
     // Not documented
+    @Deprecated(
+        updateElementMethodDeprecated,
+        ReplaceWith("decodeSerializableElement(descriptor, index, deserializer, old)"),
+        level = DeprecationLevel.ERROR
+    )
     public fun <T> updateSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
         deserializer: DeserializationStrategy<T>,
         old: T
-    ): T
+    ): T = decodeSerializableElement(descriptor, index, deserializer, old)
 
     // Not documented
+    @Deprecated(
+        updateElementMethodDeprecated,
+        ReplaceWith("decodeNullableSerializableElement(descriptor, index, deserializer, old)"),
+        level = DeprecationLevel.ERROR
+    )
     public fun <T : Any> updateNullableSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
         deserializer: DeserializationStrategy<T?>,
         old: T?
-    ): T?
+    ): T? = decodeNullableSerializableElement(descriptor, index, deserializer, old)
 }
 
 /**
@@ -538,9 +578,27 @@ public inline fun <reified T : Any> Decoder.decode(): T = decode(T::class.serial
 /**
  * Begins a structure, decodes it using the given [block], ends it and returns decoded element.
  */
-public inline fun <T> Decoder.decodeStructure(descriptor: SerialDescriptor, crossinline block: CompositeDecoder.() -> T): T {
+public inline fun <T> Decoder.decodeStructure(
+    descriptor: SerialDescriptor,
+    crossinline block: CompositeDecoder.() -> T
+): T {
     val composite = beginStructure(descriptor)
     val result = composite.block()
     composite.endStructure(descriptor)
     return result
 }
+
+
+private const val updateModeDeprecated = "Update mode in Decoder is deprecated for removal. " +
+        "Update behaviour is now considered an implementation detail of the format that should not concern serializer."
+
+private const val updateMethodDeprecated = "Update* methods are deprecated for removal. " +
+        "Update behaviour is now considered an implementation detail of the format." +
+        "Updating elements that are outside of structure is an unsupported operation."
+
+private const val updateElementMethodDeprecated = "Update* methods are deprecated for removal. " +
+        "Update behaviour is now considered an implementation detail of the format." +
+        "Pass the old value to decodeSerializable*, so formats that support update could use it."
+
+private const val decodeMethodDeprecated = "Please migrate to decodeElement method which accepts old value." +
+        "Feel free to ignore it if your format does not support updates."

@@ -45,8 +45,7 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
 
         override fun beginCollection(
             descriptor: SerialDescriptor,
-            collectionSize: Int,
-            vararg typeSerializers: KSerializer<*>
+            collectionSize: Int
         ): CompositeEncoder {
             // todo: decide whether this is responsibility of the format
             //       OR beginCollection should pass collectionSize = 2 * size in case of maps
@@ -71,8 +70,7 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
 
         override fun beginCollection(
             descriptor: SerialDescriptor,
-            collectionSize: Int,
-            vararg typeSerializers: KSerializer<*>
+            collectionSize: Int
         ): CompositeEncoder {
             val size = if (descriptor.kind is StructureKind.MAP) collectionSize * 2 else collectionSize
             encodeTaggedInt(nested("size"), size)
@@ -93,7 +91,7 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
 
         private var currentIndex = 0
 
-        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             return InMapper(map).also { copyTagsTo(it) }
         }
 
@@ -121,7 +119,7 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
 
         private var currentIndex = 0
 
-        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             return InNullableMapper(map).also { copyTagsTo(it) }
         }
 
