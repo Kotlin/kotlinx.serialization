@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.internal.*
 
 import kotlin.test.*
@@ -129,23 +130,26 @@ class SerialDescriptorSpecificationTest {
 
     @Test
     fun testListDescriptor() {
-        val descriptor = ArrayListSerializer(IntSerializer).descriptor
+        val descriptor = ArrayListSerializer(Int.serializer()).descriptor
         assertEquals("kotlin.collections.ArrayList", descriptor.serialName)
         assertFalse(descriptor.isNullable)
         assertEquals(1, descriptor.elementsCount)
-        assertSame(IntSerializer.descriptor, descriptor.getElementDescriptor(0))
+        assertSame(Int.serializer().descriptor, descriptor.getElementDescriptor(0))
         assertFalse(descriptor.isElementOptional(0))
         assertFailsWith<IllegalStateException> { descriptor.isElementOptional(1) }
     }
 
     @Test
     fun testMapDescriptor() {
-        val descriptor = HashMapSerializer(IntSerializer, LongSerializer).descriptor
+        val descriptor = HashMapSerializer(
+            Int.serializer(),
+            Long.serializer()
+        ).descriptor
         assertEquals("kotlin.collections.HashMap", descriptor.serialName)
         assertFalse(descriptor.isNullable)
         assertEquals(2, descriptor.elementsCount)
-        assertSame(IntSerializer.descriptor, descriptor.getElementDescriptor(0))
-        assertSame(LongSerializer.descriptor, descriptor.getElementDescriptor(1))
+        assertSame(Int.serializer().descriptor, descriptor.getElementDescriptor(0))
+        assertSame(Long.serializer().descriptor, descriptor.getElementDescriptor(1))
         assertTrue(descriptor.getElementAnnotations(0).isEmpty())
         assertTrue(descriptor.getElementAnnotations(1).isEmpty())
         assertFalse(descriptor.isElementOptional(0))
@@ -173,15 +177,15 @@ class SerialDescriptorSpecificationTest {
 
     @Test
     fun testPrimitiveDescriptors() {
-        checkPrimitiveDescriptor("int", IntSerializer.descriptor)
-        checkPrimitiveDescriptor("boolean", BooleanSerializer.descriptor)
-        checkPrimitiveDescriptor("byte", ByteSerializer.descriptor)
-        checkPrimitiveDescriptor("short", ShortSerializer.descriptor)
-        checkPrimitiveDescriptor("long", LongSerializer.descriptor)
-        checkPrimitiveDescriptor("float", FloatSerializer.descriptor)
-        checkPrimitiveDescriptor("double", DoubleSerializer.descriptor)
-        checkPrimitiveDescriptor("char", CharSerializer.descriptor)
-        checkPrimitiveDescriptor("string", StringSerializer.descriptor)
+        checkPrimitiveDescriptor("int", Int.serializer().descriptor)
+        checkPrimitiveDescriptor("boolean", Boolean.serializer().descriptor)
+        checkPrimitiveDescriptor("byte", Byte.serializer().descriptor)
+        checkPrimitiveDescriptor("short", Short.serializer().descriptor)
+        checkPrimitiveDescriptor("long", Long.serializer().descriptor)
+        checkPrimitiveDescriptor("float", Float.serializer().descriptor)
+        checkPrimitiveDescriptor("double", Double.serializer().descriptor)
+        checkPrimitiveDescriptor("char", Char.serializer().descriptor)
+        checkPrimitiveDescriptor("string", String.serializer().descriptor)
     }
 
     @Test

@@ -5,6 +5,7 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 
 @Serializable
 data class A(@ProtoId(1) val b: B)
@@ -88,7 +89,7 @@ data class CList5(@ProtoId(1) val g: List<Int> = emptyList(), @ProtoId(2) val h:
         override fun serialize(encoder: Encoder, value: CList5) {
             val elemOutput = encoder.beginStructure(descriptor)
             elemOutput.encodeIntElement(descriptor, 1, value.h)
-            if (value.g.isNotEmpty()) elemOutput.encodeSerializableElement(descriptor, 0, IntSerializer.list,
+            if (value.g.isNotEmpty()) elemOutput.encodeSerializableElement(descriptor, 0, Int.serializer().list,
                 value.g)
             elemOutput.endStructure(descriptor)
         }

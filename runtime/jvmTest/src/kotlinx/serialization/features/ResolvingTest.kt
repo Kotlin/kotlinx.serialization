@@ -7,6 +7,7 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
 import org.junit.Test
 import java.lang.reflect.*
@@ -164,7 +165,7 @@ class ResolvingTest {
     fun testPrimitive() {
         val token = typeTokenOf<Int>()
         val serial = serializerByTypeToken(token)
-        assertSame(IntSerializer as KSerializer<*>, serial)
+        assertSame(Int.serializer() as KSerializer<*>, serial)
     }
 
     @Test

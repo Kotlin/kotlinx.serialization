@@ -5,6 +5,7 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
@@ -77,7 +78,7 @@ class ContextAndPolymorphicTest {
     @Test
     fun testPolymorphicResolve() {
         val map = mapOf<String, Any>("Payload" to Payload("data"))
-        val serializer = (StringSerializer to PolymorphicSerializer(Any::class)).map
+        val serializer = (String.serializer() to PolymorphicSerializer(Any::class)).map
         val s = json.stringify(serializer, map)
         assertEquals("""{Payload:[kotlinx.serialization.features.ContextAndPolymorphicTest.Payload,{s:data}]}""", s)
     }

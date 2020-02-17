@@ -4,6 +4,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.modules.*
 
 abstract class ElementValueEncoder : Encoder, CompositeEncoder {
@@ -85,7 +86,7 @@ abstract class ElementValueDecoder : Decoder, CompositeDecoder {
 
     @Deprecated(message = unitDeprecated, level = DeprecationLevel.ERROR)
     override fun decodeUnit() {
-        UnitSerializer.deserialize(this)
+        UnitSerializer().deserialize(this)
     }
 
     override fun decodeBoolean(): Boolean = decodeValue() as Boolean

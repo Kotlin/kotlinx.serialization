@@ -6,6 +6,7 @@ package kotlinx.serialization.cbor
 
 import com.upokecenter.cbor.CBORObject
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import org.junit.Test
 import kotlin.test.assertEquals
 

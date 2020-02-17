@@ -5,7 +5,7 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.IntSerializer
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
 import org.junit.Ignore
 import org.junit.Test
@@ -42,13 +42,13 @@ class JsonUpdateCustomTest : JsonTestBase() {
 
     @Test
     fun canUpdateMap() {
-        val parsed = json.parse(WrappedMap.serializer(IntSerializer), """{"mp": { "x" : 23, "x" : 42, "y": 4 }}""")
+        val parsed = json.parse(WrappedMap.serializer(Int.serializer()), """{"mp": { "x" : 23, "x" : 42, "y": 4 }}""")
         assertEquals(WrappedMap(mapOf("x" to 42, "y" to 4)), parsed)
     }
 
     @Test
     fun canUpdateValuesInMap() {
-        val parsed = json.parse(WrappedMap.serializer(IntSerializer.list), """{"mp": { "x" : [23], "x" : [42], "y": [4] }}""")
+        val parsed = json.parse(WrappedMap.serializer(Int.serializer().list), """{"mp": { "x" : [23], "x" : [42], "y": [4] }}""")
         assertEquals(WrappedMap(mapOf("x" to listOf(23, 42), "y" to listOf(4))), parsed)
     }
 }

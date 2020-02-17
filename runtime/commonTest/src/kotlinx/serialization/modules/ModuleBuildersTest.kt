@@ -7,6 +7,7 @@ package kotlinx.serialization.modules
 import kotlinx.serialization.*
 import kotlinx.serialization.PolyBase
 import kotlinx.serialization.PolyDerived
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.test.*
 import kotlin.reflect.*
 import kotlin.test.*
@@ -241,11 +242,11 @@ class ModuleBuildersTest {
 
     @Test
     fun testDoesntThrowOnTheEqualSerializers() {
-        val delegate = object : KSerializer<Unit> by UnitSerializer {
+        val delegate = object : KSerializer<Unit> by UnitSerializer() {
             override fun equals(other: Any?): Boolean = (other is KSerializer<*>) && other.descriptor == descriptor
         }
 
-        val delegate2 = object : KSerializer<Unit> by UnitSerializer {
+        val delegate2 = object : KSerializer<Unit> by UnitSerializer() {
             override fun equals(other: Any?): Boolean = (other is KSerializer<*>) && other.descriptor == descriptor
         }
 
@@ -265,11 +266,11 @@ class ModuleBuildersTest {
 
     @Test
     fun testDoesntThrowOnEqualPolymorphicSerializer() {
-        val delegate = object : KSerializer<Unit> by UnitSerializer {
+        val delegate = object : KSerializer<Unit> by UnitSerializer() {
             override fun equals(other: Any?): Boolean = (other is KSerializer<*>) && other.descriptor == descriptor
         }
 
-        val delegate2 = object : KSerializer<Unit> by UnitSerializer {
+        val delegate2 = object : KSerializer<Unit> by UnitSerializer() {
             override fun equals(other: Any?): Boolean = (other is KSerializer<*>) && other.descriptor == descriptor
         }
 

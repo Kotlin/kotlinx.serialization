@@ -83,7 +83,7 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
     fun testCustomGeneric() = noJs {
         val intBox = Box(42)
         val intBoxSerializer = serializer<Box<Int>>()
-        assertEquals(Box.serializer(IntSerializer).descriptor, intBoxSerializer.descriptor)
+        assertEquals(Box.serializer(Int.serializer()).descriptor, intBoxSerializer.descriptor)
         assertSerializedWithType("""{boxed:42}""", intBox)
         val dataBox = Box(StringData("foo"))
         assertSerializedWithType("""{boxed:{data:foo}}""", dataBox)

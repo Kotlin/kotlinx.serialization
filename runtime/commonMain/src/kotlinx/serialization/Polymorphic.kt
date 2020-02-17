@@ -4,6 +4,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.reflect.*
@@ -14,7 +15,7 @@ import kotlin.reflect.*
 )
 public val PolymorphicClassDescriptor = SerialDescriptor("kotlinx.serialization.Polymorphic", PolymorphicKind.OPEN) {
     // TODO annotations and polymorphic implementation
-    element("name", StringSerializer.descriptor)
+    element("name", String.serializer().descriptor)
     val valueDescriptor = SerialDescriptor("value", UnionKind.CONTEXTUAL)
     element("value", valueDescriptor)
 }

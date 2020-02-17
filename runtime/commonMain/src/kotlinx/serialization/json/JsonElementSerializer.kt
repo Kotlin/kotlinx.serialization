@@ -5,6 +5,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.internal.*
 
 /**
@@ -142,18 +143,18 @@ public object JsonObjectSerializer : KSerializer<JsonObject> {
     override val descriptor: SerialDescriptor =
         NamedMapClassDescriptor(
             "kotlinx.serialization.json.JsonObject",
-            StringSerializer.descriptor,
+            String.serializer().descriptor,
             JsonElementSerializer.descriptor
         )
 
     override fun serialize(encoder: Encoder, value: JsonObject) {
         verify(encoder)
-        LinkedHashMapSerializer(StringSerializer, JsonElementSerializer).serialize(encoder, value.content)
+        LinkedHashMapSerializer(String.serializer(), JsonElementSerializer).serialize(encoder, value.content)
     }
 
     override fun deserialize(decoder: Decoder): JsonObject {
         verify(decoder)
-        return JsonObject(LinkedHashMapSerializer(StringSerializer, JsonElementSerializer).deserialize(decoder))
+        return JsonObject(LinkedHashMapSerializer(String.serializer(), JsonElementSerializer).deserialize(decoder))
     }
 }
 
