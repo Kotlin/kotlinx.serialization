@@ -203,6 +203,35 @@ public inline fun <reified T> SerialDescriptorBuilder.setDescriptor(): SerialDes
     return HashSetClassDesc(serializer<T>().descriptor)
 }
 
+/**
+ * Creates a [List] out of a child descriptors retrieved via [SerialDescriptor.getElementDescriptor].
+ *
+ * Size of a list is equal to [SerialDescriptor.elementsCount].
+ * TODO revisit
+ */
+public fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> {
+    return List(elementsCount) { getElementDescriptor(it) }
+}
+
+/**
+ * Returns a [List] out of all serial names of serial descriptor [elements][SerialDescriptor.getElementDescriptor]
+ */
+public fun SerialDescriptor.elementNames(): List<String> {
+    // TODO always allocates, also revisit
+    return List(elementsCount) { getElementName(it) }
+}
+
+/**
+ * Same as [SerialDescriptor.getElementIndex], but throws [SerializationException] if
+ * given [name] is not associated with any element in the descriptor.
+ */
+public fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
+    val i = getElementIndex(name)
+    if (i == CompositeDecoder.UNKNOWN_NAME)
+        throw SerializationException("${this.serialName} does not contain element with name '$name'")
+    return i
+}
+
 private class SerialDescriptorImpl(
     override val serialName: String,
     override val kind: SerialKind,

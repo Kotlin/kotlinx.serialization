@@ -6,6 +6,7 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.modules.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
@@ -48,7 +49,7 @@ abstract class JsonTestBase {
             // Overload to test public map extension
             stringify(map)
         } else {
-            stringify((context.getContextualOrDefault(K::class) to context.getContextualOrDefault(V::class)).map, map)
+            stringify(MapSerializer(context.getContextualOrDefault(K::class), context.getContextualOrDefault(V::class)), map)
         }
     }
 
@@ -89,7 +90,7 @@ abstract class JsonTestBase {
             // Overload to test public map extension
             parseMap(content)
         } else {
-            parse((context.getContextualOrDefault(K::class) to context.getContextualOrDefault(V::class)).map, content, useStreaming)
+            parse(MapSerializer(context.getContextualOrDefault(K::class), context.getContextualOrDefault(V::class)), content, useStreaming)
         }
     }
 

@@ -17,15 +17,18 @@ public annotation class ProtoType(val type: ProtoNumberType)
 internal typealias ProtoDesc = Pair<Int, ProtoNumberType>
 
 internal fun extractParameters(descriptor: SerialDescriptor, index: Int, zeroBasedDefault: Boolean = false): ProtoDesc {
-    val idx = getProtoId(descriptor, index) ?: (if (zeroBasedDefault) index else index + 1)
+    val protoId = descriptor.findAnnotation<ProtoId>(index)
+    val idx = protoId?.id ?: (if (zeroBasedDefault) index else index + 1)
     val format = descriptor.findAnnotation<ProtoType>(index)?.type
             ?: ProtoNumberType.DEFAULT
     return idx to format
 }
 
-
 public class ProtobufDecodingException(message: String) : SerializationException(message)
 
-@Suppress("DEPRECATION_ERROR")
-internal fun getProtoId(desc: SerialDescriptor, index: Int): Int?
-        = desc.findAnnotation<ProtoId>(index)?.id ?: desc.findAnnotation<SerialId>(index)?.id
+internal inline fun <reified A: Annotation> SerialDescriptor.findAnnotation(elementIndex: Int): A? {
+    for (a in getElementAnnotations(elementIndex)) {
+        if (a is A) return a
+    }
+    return null
+}

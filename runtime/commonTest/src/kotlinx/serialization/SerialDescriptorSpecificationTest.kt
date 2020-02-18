@@ -130,7 +130,7 @@ class SerialDescriptorSpecificationTest {
 
     @Test
     fun testListDescriptor() {
-        val descriptor = ArrayListSerializer(Int.serializer()).descriptor
+        val descriptor = ListSerializer<Int>().descriptor
         assertEquals("kotlin.collections.ArrayList", descriptor.serialName)
         assertFalse(descriptor.isNullable)
         assertEquals(1, descriptor.elementsCount)

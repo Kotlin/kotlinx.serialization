@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.json.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.modules.*
 
 /**
@@ -58,8 +59,8 @@ public inline fun <reified T : Any> StringFormat.stringify(objects: List<T>): St
     stringify(context.getContextualOrDefault(T::class).list, objects)
 
 @ImplicitReflectionSerializer
-public inline fun <reified K : Any, reified V : Any> StringFormat.stringify(map: Map<K, V>): String =
-    stringify((context.getContextualOrDefault(K::class) to context.getContextualOrDefault(V::class)).map, map)
+public inline fun <reified K : Any, reified V : Any> StringFormat.stringify(map: Map<K, V>): String
+        = stringify(MapSerializer(context.getContextualOrDefault(K::class), context.getContextualOrDefault(V::class)), map)
 
 @ImplicitReflectionSerializer
 public inline fun <reified T : Any> StringFormat.parse(str: String): T =
@@ -70,5 +71,5 @@ public inline fun <reified T : Any> StringFormat.parseList(objects: String): Lis
     parse(context.getContextualOrDefault(T::class).list, objects)
 
 @ImplicitReflectionSerializer
-public inline fun <reified K : Any, reified V : Any> StringFormat.parseMap(map: String) =
-    parse((context.getContextualOrDefault(K::class) to context.getContextualOrDefault(V::class)).map, map)
+public inline fun <reified K : Any, reified V : Any> StringFormat.parseMap(map: String)
+        = parse(MapSerializer(context.getContextualOrDefault(K::class), context.getContextualOrDefault(V::class)), map)

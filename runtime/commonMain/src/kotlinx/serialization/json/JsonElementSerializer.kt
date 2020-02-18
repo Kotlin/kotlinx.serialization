@@ -172,12 +172,12 @@ public object JsonArraySerializer : KSerializer<JsonArray> {
 
     override fun serialize(encoder: Encoder, value: JsonArray) {
         verify(encoder)
-        ArrayListSerializer(JsonElementSerializer).serialize(encoder, value)
+        ListSerializer(JsonElementSerializer).serialize(encoder, value)
     }
 
     override fun deserialize(decoder: Decoder): JsonArray {
         verify(decoder)
-        return JsonArray(ArrayListSerializer(JsonElementSerializer).deserialize(decoder))
+        return JsonArray(ListSerializer(JsonElementSerializer).deserialize(decoder))
     }
 }
 

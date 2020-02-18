@@ -7,20 +7,20 @@ package kotlinx.serialization.modules
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.internal.*
-import kotlin.reflect.KClass
+import kotlin.reflect.*
 
 internal object StandardSubtypesOfAny {
     private val map: Map<KClass<*>, KSerializer<*>> = mapOf(
-        List::class to ArrayListSerializer(
+        List::class to ListSerializer(
             PolymorphicSerializer(Any::class).nullable
         ),
-        LinkedHashSet::class to LinkedHashSetSerializer(
+        LinkedHashSet::class to SetSerializer(
             PolymorphicSerializer(Any::class).nullable
         ),
         HashSet::class to HashSetSerializer(
             PolymorphicSerializer(Any::class).nullable
         ),
-        Set::class to LinkedHashSetSerializer(
+        Set::class to SetSerializer(
             PolymorphicSerializer(Any::class).nullable
         ),
         LinkedHashMap::class to LinkedHashMapSerializer(

@@ -6,6 +6,16 @@
 package kotlinx.serialization.builtins
 
 import kotlinx.serialization.*
+import kotlinx.serialization.internal.*
+
+/**
+ * Returns a nullable serializer for the given serializer of non-null type.
+ */
+public val <T : Any> KSerializer<T>.nullable: KSerializer<T?>
+    get() {
+        @Suppress("UNCHECKED_CAST")
+        return if (descriptor.isNullable) (this as KSerializer<T?>) else NullableSerializer(this)
+    }
 
 /**
  * Returns built-in serializer for Kotlin [Pair].

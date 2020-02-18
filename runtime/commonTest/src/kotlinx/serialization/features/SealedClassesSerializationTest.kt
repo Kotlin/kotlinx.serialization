@@ -5,6 +5,7 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.SerializersModule
 import kotlin.test.Test
