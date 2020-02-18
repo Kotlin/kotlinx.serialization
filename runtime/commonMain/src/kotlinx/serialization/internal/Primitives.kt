@@ -22,17 +22,25 @@ import kotlin.reflect.*
 private val BUILTIN_SERIALIZERS = mapOf(
     String::class to StringSerializer,
     Char::class to CharSerializer,
+    CharArray::class to CharArraySerializer,
     Double::class to DoubleSerializer,
+    DoubleArray::class to DoubleArraySerializer,
     Float::class to FloatSerializer,
+    FloatArray::class to FloatArraySerializer,
     Long::class to LongSerializer,
+    LongArray::class to LongArraySerializer,
     Int::class to IntSerializer,
+    IntArray::class to IntArraySerializer,
     Short::class to ShortSerializer,
+    ShortArray::class to ShortArraySerializer,
     Byte::class to ByteSerializer,
+    ByteArray::class to ByteArraySerializer,
     Boolean::class to BooleanSerializer,
+    BooleanArray::class to BooleanArraySerializer,
     Unit::class to UnitSerializer
 )
 
-private class PrimitiveSerialDescriptor(
+internal class PrimitiveSerialDescriptor(
     override val serialName: String,
     override val kind: PrimitiveKind
 ) : SerialDescriptor {
@@ -46,11 +54,9 @@ private class PrimitiveSerialDescriptor(
     private fun error(): Nothing = throw IllegalStateException("Primitive descriptor does not have elements")
 }
 
-internal fun BuiltinDescriptor(serialName: String, kind: PrimitiveKind): SerialDescriptor = PrimitiveSerialDescriptor(serialName, kind)
-
 internal fun PrimitiveDescriptorSafe(serialName: String, kind: PrimitiveKind): SerialDescriptor {
     checkName(serialName)
-    return BuiltinDescriptor(serialName, kind)
+    return PrimitiveSerialDescriptor(serialName, kind)
 }
 
 private fun checkName(serialName: String) {
