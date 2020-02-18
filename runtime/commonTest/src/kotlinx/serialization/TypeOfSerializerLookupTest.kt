@@ -4,22 +4,12 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.test.isJs
-import kotlin.reflect.typeOf
+import kotlinx.serialization.json.*
+import kotlinx.serialization.test.*
+import kotlin.reflect.*
 import kotlin.test.*
 
-@UseExperimental(ImplicitReflectionSerializer::class)
 class TypeOfSerializerLookupTest {
-
-    private inline fun <reified T> assertSerializedWithType(
-        expected: String,
-        obj: T,
-        json: StringFormat = Json.unquoted
-    ) {
-        val serial = serializer<T>()
-        assertEquals(expected, json.stringify(serial, obj))
-    }
 
     @Test
     fun testPrimitive() {
@@ -88,11 +78,6 @@ class TypeOfSerializerLookupTest {
         assertSerializedWithType<List<Int?>?>("[1,null,3]", myList)
     }
 
-    // Tests with [constructSerializerForGivenTypeArgs] are unsupported on Kotlin/JS
-    private inline fun noJs(test: () -> Unit) {
-        if (!isJs()) test()
-    }
-
     @Test
     fun testCustomGeneric() = noJs {
         val intBox = Box(42)
@@ -115,5 +100,30 @@ class TypeOfSerializerLookupTest {
         assertSerializedWithType("""[{boxed:foo},{boxed:bar}]""", listOfBoxes)
         val boxedList = Box(listOf("foo", "bar"))
         assertSerializedWithType("""{boxed:[foo,bar]}""", boxedList)
+    }
+
+    @Test
+    fun testReferenceArrays() {
+        assertSerializedWithType("[1,2,3]", Array<Int>(3) { it + 1 }, Json.plain)
+        assertSerializedWithType("""["1","2","3"]""", Array<String>(3) { (it + 1).toString() }, Json.plain)
+        assertSerializedWithType("[[0],[1],[2]]", Array<Array<Int>>(3) { cnt -> Array(1) { cnt } }, Json.plain)
+        noJs {
+            assertSerializedWithType("""[{"boxed":"foo"}]""", Array(1) { Box("foo") }, Json.plain)
+            assertSerializedWithType("""[[{"boxed":"foo"}]]""", Array(1) { Array(1) { Box("foo") } }, Json.plain)
+        }
+    }
+
+    // Tests with [constructSerializerForGivenTypeArgs] are unsupported on Kotlin/JS
+    private inline fun noJs(test: () -> Unit) {
+        if (!isJs()) test()
+    }
+
+    private inline fun <reified T> assertSerializedWithType(
+        expected: String,
+        value: T,
+        json: StringFormat = Json.unquoted
+    ) {
+        val serial = serializer<T>()
+        assertEquals(expected, json.stringify(serial, value))
     }
 }

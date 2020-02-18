@@ -51,6 +51,7 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
     }
 }
 
+
 private fun <T : Any> findObjectSerializer(jClass: Class<T>): KSerializer<T>? {
     // Check it is an object without using kotlin-reflect
     val field = jClass.declaredFields.singleOrNull { it.name == "INSTANCE" && it.type == jClass && Modifier.isStatic(it.modifiers) }
@@ -80,3 +81,5 @@ private fun <T : Any> findObjectSerializer(jClass: Class<T>): KSerializer<T>? {
 internal actual fun Any.isInstanceOf(kclass: KClass<*>): Boolean = kclass.javaObjectType.isInstance(this)
 
 internal actual fun <T : Any> KClass<T>.simpleName(): String? = java.simpleName
+
+internal actual fun isReferenceArray(type: KType, rootClass: KClass<Any>): Boolean = rootClass.java.isArray
