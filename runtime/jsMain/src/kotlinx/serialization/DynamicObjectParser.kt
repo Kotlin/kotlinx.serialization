@@ -75,9 +75,9 @@ class DynamicObjectParser(override val context: SerialModule = EmptyModule) : Se
             return o != null
         }
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             val curObj = currentTagOrNull?.let { obj[it] } ?: obj
-            return when (desc.kind) {
+            return when (descriptor.kind) {
                 StructureKind.LIST -> DynamicListInput(curObj)
                 StructureKind.MAP -> DynamicMapInput(curObj)
                 else -> DynamicInput(curObj)

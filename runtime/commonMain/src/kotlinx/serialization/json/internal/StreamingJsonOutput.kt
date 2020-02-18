@@ -5,13 +5,14 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.SerialModule
 import kotlin.jvm.JvmField
 
 
 internal class StreamingJsonOutput(private val composer: Composer, override val json: Json, private val mode: WriteMode,
-                                   private val modeReuseCache: Array<JsonOutput?>) : JsonOutput, ElementValueEncoder() {
+                                   private val modeReuseCache: Array<JsonOutput?>) : JsonOutput, AbstractEncoder() {
 
     internal constructor(
         output: StringBuilder, json: Json, mode: WriteMode,

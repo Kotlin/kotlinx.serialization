@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -15,7 +16,7 @@ class UnknownElementIndexTest {
     @Serializable
     data class Holder(val c: Choices)
 
-    class MalformedReader : ElementValueDecoder() {
+    class MalformedReader : AbstractDecoder() {
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             return UNKNOWN_NAME
         }

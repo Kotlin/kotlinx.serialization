@@ -1,11 +1,12 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE", "UNUSED", "UNUSED_PARAMETER")
 package kotlinx.serialization
 
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.internal.*
-import kotlin.internal.LowPriorityInOverloadResolution
+import kotlin.internal.*
 
 public interface MigrationAid<T> : KSerializer<T> {
     override val descriptor: SerialDescriptor
@@ -90,7 +91,6 @@ object CharSerializer : MigrationAid<Char>
 )
 object StringSerializer : MigrationAid<String>
 
-
 @Deprecated(
     message = "Deprecated in the favour of PrimitiveDescriptor factory function",
     level = DeprecationLevel.ERROR
@@ -103,7 +103,6 @@ class PrimitiveDescriptorWithName
 )
 constructor(override val name: String, val original: SerialDescriptor) : SerialDescriptor by original
 
-@Suppress("UNUSED") // compiler still complains about unused parameter
 @Deprecated(
     message = "Deprecated in the favour of PrimitiveDescriptor factory function",
     level = DeprecationLevel.ERROR,
@@ -128,14 +127,30 @@ public val <T : Any> KSerializer<T>.nullable: KSerializer<T?>
 val <T> KSerializer<T>.list: KSerializer<List<T>>
     get() = ArrayListSerializer(this)
 
-@Deprecated(level = DeprecationLevel.ERROR,
+@Deprecated(
+    level = DeprecationLevel.ERROR,
     message = "Deprecated in the favour of the same extension from builtins package",
-    replaceWith = ReplaceWith("nullable", imports = ["kotlinx.serialization.builtins.set"]))
+    replaceWith = ReplaceWith("set", imports = ["kotlinx.serialization.builtins.set"])
+)
 @LowPriorityInOverloadResolution
 val <T> KSerializer<T>.set: KSerializer<Set<T>>
     get() = LinkedHashSetSerializer(this)
 
+@Deprecated(
+    level = DeprecationLevel.ERROR, message = "Deprecated in the favour of the same extension from builtins package",
+    replaceWith = ReplaceWith("MapSerializer(this.first, this.second)", imports = ["kotlinx.serialization.builtins.map"])
+)
+val <K, V> Pair<KSerializer<K>, KSerializer<V>>.map: KSerializer<Map<K, V>>
+    get() = LinkedHashMapSerializer(this.first, this.second)
 
-// TODO
-//val <K, V> Pair<KSerializer<K>, KSerializer<V>>.map: KSerializer<Map<K, V>>
-//    get() = LinkedHashMapSerializer(this.first, this.second)
+@Deprecated(
+    "Renamed to AbstractEncoder",
+    replaceWith = ReplaceWith("AbstractEncoder", imports = ["kotlinx.serialization.builtins.AbstractEncoder"])
+)
+typealias ElementValueEncoder = AbstractEncoder
+
+@Deprecated(
+    "Renamed to AbstractDecoder",
+    replaceWith = ReplaceWith("AbstractDecoder", imports = ["kotlinx.serialization.builtins.AbstractDecoder"])
+)
+typealias ElementValueDecoder = AbstractDecoder
