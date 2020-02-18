@@ -2,7 +2,7 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.kotlinx.serialization.config
+package kotlinx.serialization.config
 
 import com.typesafe.config.*
 import kotlinx.serialization.*
@@ -12,14 +12,15 @@ import kotlinx.serialization.modules.*
 private val SerialKind.listLike get() = this == StructureKind.LIST || this is PolymorphicKind
 private val SerialKind.objLike get() = this == StructureKind.CLASS || this == StructureKind.OBJECT
 
-class ConfigParser(
+public class ConfigParser(
     private val configuration: ConfigParserConfiguration = ConfigParserConfiguration(),
     override val context: SerialModule = EmptyModule
 ) : SerialFormat {
     @ImplicitReflectionSerializer
-    inline fun <reified T : Any> parse(conf: Config): T = parse(conf, context.getContextualOrDefault(T::class))
+    public inline fun <reified T : Any> parse(conf: Config): T = parse(conf, context.getContextualOrDefault(T::class))
 
-    fun <T> parse(conf: Config, deserializer: DeserializationStrategy<T>): T = ConfigReader(conf).decode(deserializer)
+    public fun <T> parse(conf: Config, deserializer: DeserializationStrategy<T>): T =
+        ConfigReader(conf).decode(deserializer)
 
 
     private abstract inner class ConfigConverter<T> : TaggedDecoder<T>() {
