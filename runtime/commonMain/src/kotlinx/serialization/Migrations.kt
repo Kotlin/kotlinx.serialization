@@ -1,7 +1,11 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 package kotlinx.serialization
+
+import kotlinx.serialization.internal.*
+import kotlin.internal.LowPriorityInOverloadResolution
 
 public interface MigrationAid<T> : KSerializer<T> {
     override val descriptor: SerialDescriptor
@@ -106,3 +110,32 @@ constructor(override val name: String, val original: SerialDescriptor) : SerialD
     replaceWith = ReplaceWith("PrimitiveDescriptor(name, this.kind)")
 )
 fun SerialDescriptor.withName(name: String): SerialDescriptor = error("No longer supported")
+
+@Deprecated(level = DeprecationLevel.ERROR,
+    message = "Deprecated in the favour of the same extension from builtins package",
+    replaceWith = ReplaceWith("nullable", imports = ["kotlinx.serialization.builtins.nullable"]))
+@LowPriorityInOverloadResolution
+public val <T : Any> KSerializer<T>.nullable: KSerializer<T?>
+    get() {
+        @Suppress("UNCHECKED_CAST")
+        return if (descriptor.isNullable) (this as KSerializer<T?>) else NullableSerializer(this)
+    }
+
+@Deprecated(level = DeprecationLevel.ERROR,
+    message = "Deprecated in the favour of the same extension from builtins package",
+    replaceWith = ReplaceWith("list", imports = ["kotlinx.serialization.builtins.list"]))
+@LowPriorityInOverloadResolution
+val <T> KSerializer<T>.list: KSerializer<List<T>>
+    get() = ArrayListSerializer(this)
+
+@Deprecated(level = DeprecationLevel.ERROR,
+    message = "Deprecated in the favour of the same extension from builtins package",
+    replaceWith = ReplaceWith("nullable", imports = ["kotlinx.serialization.builtins.set"]))
+@LowPriorityInOverloadResolution
+val <T> KSerializer<T>.set: KSerializer<Set<T>>
+    get() = LinkedHashSetSerializer(this)
+
+
+// TODO
+//val <K, V> Pair<KSerializer<K>, KSerializer<V>>.map: KSerializer<Map<K, V>>
+//    get() = LinkedHashMapSerializer(this.first, this.second)

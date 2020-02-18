@@ -78,7 +78,7 @@ class ContextAndPolymorphicTest {
     @Test
     fun testPolymorphicResolve() {
         val map = mapOf<String, Any>("Payload" to Payload("data"))
-        val serializer = (String.serializer() to PolymorphicSerializer(Any::class)).map
+        val serializer = MapSerializer(String.serializer(), PolymorphicSerializer(Any::class))
         val s = json.stringify(serializer, map)
         assertEquals("""{Payload:[kotlinx.serialization.features.ContextAndPolymorphicTest.Payload,{s:data}]}""", s)
     }

@@ -64,9 +64,9 @@ public fun serializerByTypeToken(type: Type): KSerializer<Any> = when (type) {
         val rootClass = (type.rawType as Class<*>)
         val args = (type.actualTypeArguments)
         when {
-            List::class.java.isAssignableFrom(rootClass) -> ArrayListSerializer(serializerByTypeToken(args[0])) as KSerializer<Any>
-            Set::class.java.isAssignableFrom(rootClass) -> HashSetSerializer(serializerByTypeToken(args[0])) as KSerializer<Any>
-            Map::class.java.isAssignableFrom(rootClass) -> HashMapSerializer(
+            List::class.java.isAssignableFrom(rootClass) -> ListSerializer(serializerByTypeToken(args[0])) as KSerializer<Any>
+            Set::class.java.isAssignableFrom(rootClass) -> SetSerializer(serializerByTypeToken(args[0])) as KSerializer<Any>
+            Map::class.java.isAssignableFrom(rootClass) -> MapSerializer(
                 serializerByTypeToken(args[0]),
                 serializerByTypeToken(args[1])
             ) as KSerializer<Any>

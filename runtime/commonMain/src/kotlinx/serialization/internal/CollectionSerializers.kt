@@ -147,8 +147,8 @@ public abstract class PrimitiveArrayBuilder<Array> internal constructor() {
  * Use concrete serializers ([ByteArraySerializer], etc) instead.
  */
 @InternalSerializationApi
-public abstract class PrimitiveArraySerializer<Element, Array, Builder : PrimitiveArrayBuilder<Array>>
-internal constructor(
+public abstract class PrimitiveArraySerializer<Element, Array, Builder
+: PrimitiveArrayBuilder<Array>> internal constructor(
     primitiveSerializer: KSerializer<Element>
 ) : ListLikeSerializer<Element, Array, Builder>(primitiveSerializer) {
     final override val descriptor: PrimitiveArrayDescriptor = PrimitiveArrayDescriptor(primitiveSerializer.descriptor)
@@ -193,11 +193,11 @@ internal constructor(
 }
 
 // todo: can be more efficient when array size is know in advance, this one always uses temporary ArrayList as builder
+@InternalSerializationApi
 class ReferenceArraySerializer<ElementKlass : Any, Element : ElementKlass?>(
     private val kClass: KClass<ElementKlass>,
     eSerializer: KSerializer<Element>
-) :
-    ListLikeSerializer<Element, Array<Element>, ArrayList<Element>>(eSerializer) {
+) : ListLikeSerializer<Element, Array<Element>, ArrayList<Element>>(eSerializer) {
     override val descriptor = ArrayClassDesc(eSerializer.descriptor)
 
     override fun Array<Element>.collectionSize(): Int = size
@@ -215,9 +215,10 @@ class ReferenceArraySerializer<ElementKlass : Any, Element : ElementKlass?>(
     }
 }
 
+@InternalSerializationApi // Use kotlinx.serialization.builtins.ListSerializer() instead
 class ArrayListSerializer<E>(element: KSerializer<E>) : ListLikeSerializer<E, List<E>, ArrayList<E>>(element) {
-    override val descriptor = ArrayListClassDesc(element.descriptor)
 
+    override val descriptor = ArrayListClassDesc(element.descriptor)
     override fun List<E>.collectionSize(): Int = size
     override fun List<E>.collectionIterator(): Iterator<E> = iterator()
     override fun builder(): ArrayList<E> = arrayListOf()
@@ -228,9 +229,12 @@ class ArrayListSerializer<E>(element: KSerializer<E>) : ListLikeSerializer<E, Li
     override fun ArrayList<E>.insert(index: Int, element: E) { add(index, element) }
 }
 
-class LinkedHashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializer<E, Set<E>, LinkedHashSet<E>>(eSerializer) {
-    override val descriptor = LinkedHashSetClassDesc(eSerializer.descriptor)
+@InternalSerializationApi // Use kotlinx.serialization.builtins.SetSerializer() instead
+class LinkedHashSetSerializer<E>(
+    eSerializer: KSerializer<E>
+) : ListLikeSerializer<E, Set<E>, LinkedHashSet<E>>(eSerializer) {
 
+    override val descriptor = LinkedHashSetClassDesc(eSerializer.descriptor)
     override fun Set<E>.collectionSize(): Int = size
     override fun Set<E>.collectionIterator(): Iterator<E> = iterator()
     override fun builder(): LinkedHashSet<E> = linkedSetOf()
@@ -241,9 +245,12 @@ class LinkedHashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializ
     override fun LinkedHashSet<E>.insert(index: Int, element: E) { add(element) }
 }
 
-class HashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializer<E, Set<E>, HashSet<E>>(eSerializer) {
-    override val descriptor = HashSetClassDesc(eSerializer.descriptor)
+@InternalSerializationApi // Use kotlinx.serialization.builtins.SetSerializer() instead
+class HashSetSerializer<E>(
+    eSerializer: KSerializer<E>
+) : ListLikeSerializer<E, Set<E>, HashSet<E>>(eSerializer) {
 
+    override val descriptor = HashSetClassDesc(eSerializer.descriptor)
     override fun Set<E>.collectionSize(): Int = size
     override fun Set<E>.collectionIterator(): Iterator<E> = iterator()
     override fun builder(): HashSet<E> = HashSet()
@@ -254,10 +261,12 @@ class HashSetSerializer<E>(eSerializer: KSerializer<E>) : ListLikeSerializer<E, 
     override fun HashSet<E>.insert(index: Int, element: E) { add(element) }
 }
 
-class LinkedHashMapSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
-    MapLikeSerializer<K, V, Map<K, V>, LinkedHashMap<K, V>>(kSerializer, vSerializer) {
-    override val descriptor = LinkedHashMapClassDesc(kSerializer.descriptor, vSerializer.descriptor)
+@InternalSerializationApi // Use kotlinx.serialization.builtins.MapSerializer() instead
+class LinkedHashMapSerializer<K, V>(
+    kSerializer: KSerializer<K>, vSerializer: KSerializer<V>
+) : MapLikeSerializer<K, V, Map<K, V>, LinkedHashMap<K, V>>(kSerializer, vSerializer) {
 
+    override val descriptor = LinkedHashMapClassDesc(kSerializer.descriptor, vSerializer.descriptor)
     override fun Map<K, V>.collectionSize(): Int = size
     override fun Map<K, V>.collectionIterator(): Iterator<Map.Entry<K, V>> = iterator()
     override fun builder(): LinkedHashMap<K, V> = LinkedHashMap()
@@ -268,10 +277,12 @@ class LinkedHashMapSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KS
     override fun LinkedHashMap<K, V>.insertKeyValuePair(index: Int, key: K, value: V) = set(key, value)
 }
 
-class HashMapSerializer<K, V>(kSerializer: KSerializer<K>, vSerializer: KSerializer<V>) :
-    MapLikeSerializer<K, V, Map<K, V>, HashMap<K, V>>(kSerializer, vSerializer) {
-    override val descriptor = HashMapClassDesc(kSerializer.descriptor, vSerializer.descriptor)
+@InternalSerializationApi // Use kotlinx.serialization.builtins.MapSerializer() instead
+class HashMapSerializer<K, V>(
+    kSerializer: KSerializer<K>, vSerializer: KSerializer<V>
+) : MapLikeSerializer<K, V, Map<K, V>, HashMap<K, V>>(kSerializer, vSerializer) {
 
+    override val descriptor = HashMapClassDesc(kSerializer.descriptor, vSerializer.descriptor)
     override fun Map<K, V>.collectionSize(): Int = size
     override fun Map<K, V>.collectionIterator(): Iterator<Map.Entry<K, V>> = iterator()
     override fun builder(): HashMap<K, V> = HashMap()

@@ -5,6 +5,7 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlin.test.*
 
 class CborRootLevelNullsTest {
