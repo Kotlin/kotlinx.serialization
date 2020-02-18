@@ -51,6 +51,7 @@ class PropertiesTest {
     }
 
     @Test
+    @Ignore // todo: unignore after migration to 1.3.70-eap-3
     fun testMultipleTypes() {
         val data = MultiType(1, "2")
         assertMappedAndRestored(

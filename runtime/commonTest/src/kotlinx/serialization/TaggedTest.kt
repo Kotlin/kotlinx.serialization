@@ -5,9 +5,8 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
-import kotlinx.serialization.test.isJs
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlinx.serialization.test.*
+import kotlin.test.*
 
 class TaggedTest {
 
@@ -45,6 +44,7 @@ class TaggedTest {
     }
 
     @Test
+    @Ignore // todo: unignore after migration to 1.3.70-eap-3
     fun testTagged() {
         val collector = Collector()
         val data = DataWithId(1, "2")
