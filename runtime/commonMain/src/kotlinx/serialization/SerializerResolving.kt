@@ -49,25 +49,31 @@ public fun serializer(type: KType): KSerializer<Any?> {
             else -> error("Only KClass supported as classifier, got $t")
         } as KClass<Any>
 
+        val typeArguments =  type.arguments
+            .map { requireNotNull(it.type) { "Star projections are not allowed, had $it instead" } }
         return when {
-            type.arguments.isEmpty() -> rootClass.serializer()
+            typeArguments.isEmpty() -> rootClass.serializer()
             else -> {
-                val args = type.arguments
-                    .map { requireNotNull(it.type) { "Star projections are not allowed" } }
+                val serializers = typeArguments
                     .map(::serializer)
                 // Array is not supported, see KT-32839
                 when (rootClass) {
-                    List::class, MutableList::class, ArrayList::class -> ArrayListSerializer(args[0])
-                    HashSet::class -> HashSetSerializer(args[0])
-                    Set::class, MutableSet::class, LinkedHashSet::class -> LinkedHashSetSerializer(args[0])
-                    HashMap::class -> HashMapSerializer(args[0], args[1])
-                    Map::class, MutableMap::class, LinkedHashMap::class -> LinkedHashMapSerializer(args[0], args[1])
-                    Map.Entry::class -> MapEntrySerializer(args[0], args[1])
-                    Pair::class -> PairSerializer(args[0], args[1])
-                    Triple::class -> TripleSerializer(args[0], args[1], args[2])
-                    else -> requireNotNull(rootClass.constructSerializerForGivenTypeArgs(*args.toTypedArray())) {
-                        "Can't find a method to construct serializer for type ${rootClass.simpleName()}. " +
-                                "Make sure this class is marked as @Serializable or provide serializer explicitly."
+                    List::class, MutableList::class, ArrayList::class -> ArrayListSerializer(serializers[0])
+                    HashSet::class -> HashSetSerializer(serializers[0])
+                    Set::class, MutableSet::class, LinkedHashSet::class -> LinkedHashSetSerializer(serializers[0])
+                    HashMap::class -> HashMapSerializer(serializers[0], serializers[1])
+                    Map::class, MutableMap::class, LinkedHashMap::class -> LinkedHashMapSerializer(serializers[0], serializers[1])
+                    Map.Entry::class -> MapEntrySerializer(serializers[0], serializers[1])
+                    Pair::class -> PairSerializer(serializers[0], serializers[1])
+                    Triple::class -> TripleSerializer(serializers[0], serializers[1], serializers[2])
+                    else -> {
+                        if (isReferenceArray(type, rootClass)) {
+                            return ReferenceArraySerializer<Any, Any?>(typeArguments[0].classifier as KClass<Any>, serializers[0]).cast()
+                        }
+                        requireNotNull(rootClass.constructSerializerForGivenTypeArgs(*serializers.toTypedArray())) {
+                            "Can't find a method to construct serializer for type ${rootClass.simpleName()}. " +
+                                    "Make sure this class is marked as @Serializable or provide serializer explicitly."
+                        }
                     }
                 }
             }
@@ -86,3 +92,8 @@ public fun serializer(type: KType): KSerializer<Any?> {
  */
 @ImplicitReflectionSerializer
 internal expect fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>?
+
+/**
+ * Checks whether given KType and its corresponding KClass represent a reference array
+ */
+internal expect fun isReferenceArray(type: KType, rootClass: KClass<Any>): Boolean
