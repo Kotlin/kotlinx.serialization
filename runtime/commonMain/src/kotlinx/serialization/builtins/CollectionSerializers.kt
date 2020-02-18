@@ -41,7 +41,7 @@ public fun <T> SetSerializer(elementSerializer: KSerializer<T>): KSerializer<Set
  * Reified version of [SetSerializer]
  */
 @ImplicitReflectionSerializer
-public inline fun <reified T> SetSerializer(): KSerializer<Set<T>> = LinkedHashSetSerializer(serializer())
+public inline fun <reified T> SetSerializer(): KSerializer<Set<T>> = SetSerializer(serializer())
 
 /**
  * Creates a serializer for [`Map<K, V>`][Map] for the given serializers for

@@ -139,10 +139,11 @@ public class ProtoBuf(
         @Suppress("UNCHECKED_CAST", "NAME_SHADOWING")
         override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) = when {
             // encode maps as collection of map entries, not merged collection of key-values
-            serializer.descriptor is MapLikeDescriptor -> {
+            serializer is MapLikeSerializer<*, *, *, *> -> {
+                // TODO it probably requires some common interface exposure
                 val serializer = (serializer as MapLikeSerializer<Any?, Any?, T, *>)
                 val mapEntrySerial = MapEntrySerializer(serializer.keySerializer, serializer.valueSerializer)
-                HashSetSerializer(mapEntrySerial).serialize(this, (value as Map<*, *>).entries)
+                SetSerializer(mapEntrySerial).serialize(this, (value as Map<*, *>).entries)
             }
             serializer.descriptor == ByteArraySerializer.descriptor -> encoder.writeBytes(value as ByteArray, popTag().first)
             else -> serializer.serialize(this, value)
@@ -280,10 +281,10 @@ public class ProtoBuf(
         @Suppress("UNCHECKED_CAST")
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T = when {
             // encode maps as collection of map entries, not merged collection of key-values
-            deserializer.descriptor is MapLikeDescriptor -> {
+            deserializer is MapLikeSerializer<*, *, *, *> -> {
                 val serializer = (deserializer as MapLikeSerializer<Any?, Any?, T, *>)
                 val mapEntrySerial = MapEntrySerializer(serializer.keySerializer, serializer.valueSerializer)
-                val setOfEntries = HashSetSerializer(mapEntrySerial).deserialize(this)
+                val setOfEntries = SetSerializer(mapEntrySerial).deserialize(this)
                 setOfEntries.associateBy({ it.key }, {it.value}) as T
             }
             deserializer.descriptor == ByteArraySerializer.descriptor -> decoder.nextObject() as T
