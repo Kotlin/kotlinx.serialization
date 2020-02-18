@@ -6,7 +6,7 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 
-sealed class ListLikeDescriptor(val elementDesc: SerialDescriptor) : SerialDescriptor {
+internal sealed class ListLikeDescriptor(val elementDesc: SerialDescriptor) : SerialDescriptor {
     override val kind: SerialKind get() = StructureKind.LIST
     override val elementsCount: Int = 1
     
@@ -41,7 +41,7 @@ sealed class ListLikeDescriptor(val elementDesc: SerialDescriptor) : SerialDescr
     }
 }
 
-sealed class MapLikeDescriptor(
+internal sealed class MapLikeDescriptor(
     override val serialName: String,
     val keyDescriptor: SerialDescriptor,
     val valueDescriptor: SerialDescriptor
@@ -99,37 +99,36 @@ internal const val HASH_MAP_NAME = "kotlin.collections.HashMap"
  *
  * Can be obtained from corresponding serializers (e.g. [ByteArraySerializer.descriptor])
  */
-public class PrimitiveArrayDescriptor internal constructor(
+internal class PrimitiveArrayDescriptor internal constructor(
     primitive: SerialDescriptor
 ) : ListLikeDescriptor(primitive) {
     override val serialName: String = "${primitive.serialName}Array"
 }
 
-class ArrayClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
+internal class ArrayClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
     override val serialName: String get() = ARRAY_NAME
 }
 
-class ArrayListClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
+internal class ArrayListClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
     override val serialName: String get() = ARRAY_LIST_NAME
 }
 
-class NamedListClassDescriptor(override val serialName: String, elementDescriptor: SerialDescriptor)
+internal class NamedListClassDescriptor(override val serialName: String, elementDescriptor: SerialDescriptor)
     : ListLikeDescriptor(elementDescriptor)
 
-class LinkedHashSetClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
+internal class LinkedHashSetClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
     override val serialName: String get() = LINKED_HASH_SET_NAME
 }
 
-class HashSetClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
+internal class HashSetClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
     override val serialName: String get() = HASH_SET_NAME
 }
 
-// TODO revisit this whole hierarchy
-class NamedMapClassDescriptor(name: String, keyDescriptor: SerialDescriptor, valueDescriptor: SerialDescriptor) :
+internal class NamedMapClassDescriptor(name: String, keyDescriptor: SerialDescriptor, valueDescriptor: SerialDescriptor) :
     MapLikeDescriptor(name, keyDescriptor, valueDescriptor)
 
-class LinkedHashMapClassDesc(keyDesc: SerialDescriptor, valueDesc: SerialDescriptor) :
+internal class LinkedHashMapClassDesc(keyDesc: SerialDescriptor, valueDesc: SerialDescriptor) :
     MapLikeDescriptor(LINKED_HASH_MAP_NAME, keyDesc, valueDesc)
 
-class HashMapClassDesc(keyDesc: SerialDescriptor, valueDesc: SerialDescriptor) :
+internal class HashMapClassDesc(keyDesc: SerialDescriptor, valueDesc: SerialDescriptor) :
     MapLikeDescriptor(HASH_MAP_NAME, keyDesc, valueDesc)

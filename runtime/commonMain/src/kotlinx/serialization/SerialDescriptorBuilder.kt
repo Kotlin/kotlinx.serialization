@@ -166,7 +166,7 @@ public fun SerialDescriptorBuilder.listDescriptor(typeDescriptor: SerialDescript
  */
 @ImplicitReflectionSerializer
 public inline fun <reified T> SerialDescriptorBuilder.listDescriptor(): SerialDescriptor {
-    return ArrayListClassDesc(serializer<T>().descriptor)
+    return listDescriptor(serializer<T>().descriptor)
 }
 
 /**
@@ -185,7 +185,7 @@ public fun SerialDescriptorBuilder.mapDescriptor(
  */
 @ImplicitReflectionSerializer
 public inline fun <reified K, reified V> SerialDescriptorBuilder.mapDescriptor(): SerialDescriptor {
-    return HashMapClassDesc(serializer<K>().descriptor, serializer<V>().descriptor)
+    return mapDescriptor(serializer<K>().descriptor, serializer<V>().descriptor)
 }
 
 /**
@@ -200,7 +200,7 @@ public fun SerialDescriptorBuilder.setDescriptor(typeDescriptor: SerialDescripto
  */
 @ImplicitReflectionSerializer
 public inline fun <reified T> SerialDescriptorBuilder.setDescriptor(): SerialDescriptor {
-    return HashSetClassDesc(serializer<T>().descriptor)
+    return setDescriptor(serializer<T>().descriptor)
 }
 
 /**
