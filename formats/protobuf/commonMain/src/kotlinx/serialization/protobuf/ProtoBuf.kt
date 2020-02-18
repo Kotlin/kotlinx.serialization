@@ -129,9 +129,7 @@ public class ProtoBuf(
 
         override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = encodeDefaults
 
-        override fun beginStructure(
-            descriptor: SerialDescriptor
-        ): CompositeEncoder = when (descriptor.kind) {
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder = when (descriptor.kind) {
             StructureKind.LIST -> RepeatedWriter(encoder, currentTag)
             StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> ObjectWriter(currentTagOrNull, encoder)
             StructureKind.MAP -> MapRepeatedWriter(currentTagOrNull, encoder)
@@ -373,20 +371,27 @@ public class ProtoBuf(
             findIndexByTag(enumDescription, decoder.nextInt(ProtoNumberType.DEFAULT))
 
         @Suppress("UNCHECKED_CAST")
-        override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T = when {
+        override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T = when {
             deserializer is MapLikeSerializer<*, *, *, *> -> {
-                deserializeMap(deserializer as DeserializationStrategy<T>)
+                deserializeMap(deserializer as DeserializationStrategy<T>, previousValue)
             }
-            deserializer.descriptor == ByteArraySerializer().descriptor -> decoder.nextObject() as T
+            deserializer.descriptor == ByteArraySerializer().descriptor -> {
+                val newValue = decoder.nextObject()
+                (if (previousValue == null) newValue else (previousValue as ByteArray) + newValue) as T
+            }
+            deserializer is AbstractCollectionSerializer<*, *, *> ->
+                (deserializer as AbstractCollectionSerializer<*, T, *>).merge(this, previousValue)
             else -> deserializer.deserialize(this)
         }
 
         @Suppress("UNCHECKED_CAST")
-        private fun <T> deserializeMap(deserializer: DeserializationStrategy<T>): T {
-            // encode maps as collection of map entries, not merged collection of key-values
+        private fun <T> deserializeMap(deserializer: DeserializationStrategy<T>, oldValue: T?): T {
             val serializer = (deserializer as MapLikeSerializer<Any?, Any?, T, *>)
             val mapEntrySerial = MapEntrySerializer(serializer.keySerializer, serializer.valueSerializer)
-            val setOfEntries = SetSerializer(mapEntrySerial).deserialize(this)
+            val oldSet = (oldValue as? Map<Any?, Any?>)?.entries
+
+            @Suppress("DEPRECATION_ERROR") // to use .merge from LinkedHashSetSer
+            val setOfEntries = LinkedHashSetSerializer(mapEntrySerial).merge(this, oldSet)
             return setOfEntries.associateBy({ it.key }, { it.value }) as T
         }
 

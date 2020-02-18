@@ -32,7 +32,6 @@ public sealed class KeyValueSerializer<K, V, R>(
     }
 
     override fun deserialize(decoder: Decoder): R {
-        arrayOf(keySerializer, valueSerializer)
         val composite = decoder.beginStructure(descriptor)
         if (composite.decodeSequentially()) {
             val key = composite.decodeSerializableElement(descriptor, 0, keySerializer)
@@ -143,7 +142,6 @@ public class TripleSerializer<A, B, C>(
     }
 
     override fun deserialize(decoder: Decoder): Triple<A, B, C> {
-        arrayOf(aSerializer, bSerializer, cSerializer)
         val composite = decoder.beginStructure(descriptor)
         if (composite.decodeSequentially()) {
             return decodeSequentially(composite)

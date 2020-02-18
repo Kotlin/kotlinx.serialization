@@ -105,8 +105,10 @@ public interface Decoder {
      */
     public val context: SerialModule
 
+    @Suppress("DEPRECATION")
     @Deprecated(updateModeDeprecated, level = DeprecationLevel.ERROR)
     public val updateMode: UpdateMode
+        get() = UpdateMode.OVERWRITE
 
     /**
      * Returns `true` if the current value in decoder is not null, false otherwise.
@@ -214,7 +216,7 @@ public interface Decoder {
      * ```
      * has three nested structures: the very beginning of the data, "b" value and "c" value.
      */
-    @Suppress("DEPRECATION_ERROR", "RemoveRedundantSpreadOperator")
+    @Suppress("DEPRECATION_ERROR")
     public fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder = beginStructure(descriptor, *arrayOf<KSerializer<*>>())
 
     @Deprecated(
@@ -302,8 +304,10 @@ public interface CompositeDecoder {
      */
     public val context: SerialModule
 
+    @Suppress("DEPRECATION")
     @Deprecated(updateModeDeprecated, level = DeprecationLevel.ERROR)
     public val updateMode: UpdateMode
+        get() = UpdateMode.OVERWRITE
 
     /**
      * Denotes the end of the structure associated with current decoder.
@@ -495,36 +499,38 @@ public interface CompositeDecoder {
     /**
      * Decodes value of the type [T] with the given [deserializer].
      *
-     * Particular implementations of [CompositeDecoder] may use their format-specific deserializers
+     * Implementations of [CompositeDecoder] may use their format-specific deserializers
      * for particular data types, e.g. handle [ByteArray] specifically if format is binary.
      *
      * If value at given [index] was already decoded with previous [decodeSerializableElement] call with the same index,
-     * [oldValue] would contain a previously decoded value.
-     * Implementation may ignore it and return new value, efficiently overwriting decoded value,
-     * or process it and return merged value if format supports such an operation.
+     * [previousValue] would contain a previously decoded value.
+     * This parameter can be used to aggregate multiple values of the given property to the only one.
+     * Implementation can safely ignore it and return a new value, effectively using 'the last one wins' strategy,
+     * or apply format-specific aggregating strategies, e.g. appending scattered Protobuf lists to a single one.
      */
     @Suppress("DEPRECATION_ERROR")
     public fun <T : Any?> decodeSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
         deserializer: DeserializationStrategy<T>,
-        oldValue: T? = null
+        previousValue: T? = null
     ): T = decodeSerializableElement(descriptor, i = index, deserializer = deserializer)
 
     /**
      * Decodes nullable value of the type [T] with the given [deserializer].
      *
-     * If value at given [index] was already decoded with previous [decodeNullableSerializableElement] call with the same index,
-     * [oldValue] would contain a previously decoded value.
-     * Implementation may ignore it and return new value, efficiently overwriting decoded value,
-     * or process it and return merged value if format supports such an operation.
+     * If value at given [index] was already decoded with previous [decodeSerializableElement] call with the same index,
+     * [previousValue] would contain a previously decoded value.
+     * This parameter can be used to aggregate multiple values of the given property to the only one.
+     * Implementation can safely ignore it and return a new value, efficiently using 'the last one wins' strategy,
+     * or apply format-specific aggregating strategies, e.g. appending scattered Protobuf lists to a single one.
      */
     @Suppress("DEPRECATION_ERROR")
     public fun <T : Any> decodeNullableSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
         deserializer: DeserializationStrategy<T?>,
-        oldValue: T? = null
+        previousValue: T? = null
     ): T? = decodeNullableSerializableElement(descriptor, i = index, deserializer = deserializer)
 
     @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE", "DeprecatedCallableAddReplaceWith")
@@ -589,7 +595,7 @@ public inline fun <T> Decoder.decodeStructure(
 }
 
 
-private const val updateModeDeprecated = "Update mode in Decoder is deprecated for removal. " +
+internal const val updateModeDeprecated = "Update mode in Decoder is deprecated for removal. " +
         "Update behaviour is now considered an implementation detail of the format that should not concern serializer."
 
 private const val updateMethodDeprecated = "Update* methods are deprecated for removal. " +

@@ -187,8 +187,10 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder,
     override val context: SerialModule
         get() = EmptyModule
 
+    @Suppress("DEPRECATION")
+    @Deprecated(updateModeDeprecated, level = DeprecationLevel.ERROR)
     override val updateMode: UpdateMode =
-        UpdateMode.UPDATE
+        UpdateMode.OVERWRITE
 
     protected abstract fun SerialDescriptor.getTag(index: Int): Tag
 
@@ -201,6 +203,7 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder,
     protected open fun decodeTaggedNull(tag: Tag): Nothing? = null
 
     @Deprecated(message = unitDeprecated, level = DeprecationLevel.ERROR)
+    @Suppress("DEPRECATION_ERROR")
     protected open fun decodeTaggedUnit(tag: Tag): Unit = UnitSerializer.deserialize(this)
     protected open fun decodeTaggedBoolean(tag: Tag): Boolean = decodeTaggedValue(tag) as Boolean
     protected open fun decodeTaggedByte(tag: Tag): Byte = decodeTaggedValue(tag) as Byte
@@ -213,6 +216,9 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder,
     protected open fun decodeTaggedString(tag: Tag): String = decodeTaggedValue(tag) as String
     protected open fun decodeTaggedEnum(tag: Tag, enumDescription: SerialDescriptor): Int =
         decodeTaggedValue(tag) as Int
+
+    protected open fun <T : Any?> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T =
+        decodeSerializableValue(deserializer)
 
 
     // ---- Implementation of low-level API ----
@@ -286,27 +292,23 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder,
     final override fun <T : Any?> decodeSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
-        deserializer: DeserializationStrategy<T>
+        deserializer: DeserializationStrategy<T>,
+        previousValue: T?
     ): T =
-        tagBlock(descriptor.getTag(index)) { decodeSerializableValue(deserializer) }
+        tagBlock(descriptor.getTag(index)) { decodeSerializableValue(deserializer, previousValue) }
 
     final override fun <T : Any> decodeNullableSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
-        deserializer: DeserializationStrategy<T?>
+        deserializer: DeserializationStrategy<T?>,
+        previousValue: T?
     ): T? =
-        tagBlock(descriptor.getTag(index)) { decodeNullableSerializableValue(deserializer) }
-
-    override fun <T> updateSerializableElement(
-        descriptor: SerialDescriptor,
-        index: Int,
-        deserializer: DeserializationStrategy<T>,
-        old: T
-    ): T =
-        tagBlock(descriptor.getTag(index)) { updateSerializableValue(deserializer, old) }
-
-    override fun <T : Any> updateNullableSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T?>, old: T?): T? =
-        tagBlock(descriptor.getTag(index)) { updateNullableSerializableValue(deserializer, old) }
+        tagBlock(descriptor.getTag(index)) {
+            if (decodeNotNullMark()) decodeSerializableValue(
+                deserializer,
+                previousValue
+            ) else decodeNull()
+        }
 
     private fun <E> tagBlock(tag: Tag, block: () -> E): E {
         pushTag(tag)

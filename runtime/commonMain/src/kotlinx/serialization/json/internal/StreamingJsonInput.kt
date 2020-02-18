@@ -23,6 +23,13 @@ internal class StreamingJsonInput internal constructor(
     private var currentIndex = -1
     private val configuration = json.configuration
 
+    // must override public open val updateMode: UpdateMode defined in kotlinx.serialization.json.JsonInput
+    // because it inherits many implementations of it
+    @Suppress("DEPRECATION")
+    @Deprecated(updateModeDeprecated, level = DeprecationLevel.HIDDEN)
+    override val updateMode: UpdateMode
+        get() = UpdateMode.OVERWRITE
+
     public override fun decodeJson(): JsonElement = JsonParser(json.configuration, reader).read()
 
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
