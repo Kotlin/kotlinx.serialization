@@ -113,6 +113,16 @@ class TypeOfSerializerLookupTest {
         }
     }
 
+    @Test
+    fun testPrimitiveArrays() {
+        assertSerializedWithType("[1,2,3]", intArrayOf(1, 2, 3), Json.plain)
+        assertSerializedWithType("[1,2,3]", longArrayOf(1, 2, 3), Json.plain)
+        assertSerializedWithType("[1,2,3]", byteArrayOf(1, 2, 3), Json.plain)
+        assertSerializedWithType("[1,2,3]", shortArrayOf(1, 2, 3), Json.plain)
+        assertSerializedWithType("[true,false]", booleanArrayOf(true, false), Json.plain)
+        assertSerializedWithType("""["a","b","c"]""", charArrayOf('a', 'b', 'c'), Json.plain)
+    }
+
     // Tests with [constructSerializerForGivenTypeArgs] are unsupported on Kotlin/JS
     private inline fun noJs(test: () -> Unit) {
         if (!isJs()) test()

@@ -95,5 +95,6 @@ internal expect fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
 
 /**
  * Checks whether given KType and its corresponding KClass represent a reference array
+ * TODO replace this one in 1.4 where comparison against Array::class is allowed
  */
 internal expect fun isReferenceArray(type: KType, rootClass: KClass<Any>): Boolean
