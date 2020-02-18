@@ -5,6 +5,7 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
@@ -16,7 +17,7 @@ internal class StreamingJsonInput internal constructor(
     public override val json: Json,
     private val mode: WriteMode,
     @JvmField internal val reader: JsonReader
-) : JsonInput, ElementValueDecoder() {
+) : JsonInput, AbstractDecoder() {
 
     public override val context: SerialModule = json.context
     private var currentIndex = -1

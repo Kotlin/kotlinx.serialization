@@ -7,6 +7,7 @@ package kotlinx.serialization.cbor
 import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.experimental.*
@@ -29,7 +30,7 @@ public class Cbor(
     }
 
     // Writes class as map [fieldName, fieldValue]
-    private open inner class CborWriter(val encoder: CborEncoder) : ElementValueEncoder() {
+    private open inner class CborWriter(val encoder: CborEncoder) : AbstractEncoder() {
         override val context: SerialModule
             get() = this@Cbor.context
 
@@ -157,7 +158,7 @@ public class Cbor(
         override fun decodeElementIndex(descriptor: SerialDescriptor) = if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size)) READ_DONE else ind++
     }
 
-    private open inner class CborReader(val decoder: CborDecoder) : ElementValueDecoder() {
+    private open inner class CborReader(val decoder: CborDecoder) : AbstractDecoder() {
 
         protected var size = -1
             private set

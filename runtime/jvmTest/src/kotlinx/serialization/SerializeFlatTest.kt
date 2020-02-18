@@ -4,6 +4,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.builtins.*
 import org.junit.Test
 import kotlin.test.*
 
@@ -192,7 +193,7 @@ class SerializeFlatTest() {
         }
     }
 
-    class Out(private val name: String) : ElementValueEncoder() {
+    class Out(private val name: String) : AbstractEncoder() {
         var step = 0
 
         override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
@@ -201,13 +202,13 @@ class SerializeFlatTest() {
             return this
         }
 
-        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
-            checkDesc(name, desc)
+        override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
+            checkDesc(name, descriptor)
             when (step) {
                 1 -> if (index == 0) { step++; return true }
                 3 -> if (index == 1) { step++; return true }
             }
-            fail("@$step: encodeElement($desc, $index)")
+            fail("@$step: encodeElement($descriptor, $index)")
         }
 
         override fun encodeString(value: String) {
@@ -234,12 +235,12 @@ class SerializeFlatTest() {
         }
     }
 
-    class Inp(private val name: String) : ElementValueDecoder() {
+    class Inp(private val name: String) : AbstractDecoder() {
         var step = 0
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
-            checkDesc(name, desc)
-            if (step == 0) step++ else fail("@$step: beginStructure($desc)")
+        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+            checkDesc(name, descriptor)
+            if (step == 0) step++ else fail("@$step: beginStructure($descriptor)")
             return this
         }
 

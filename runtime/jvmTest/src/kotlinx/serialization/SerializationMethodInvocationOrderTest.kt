@@ -4,6 +4,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.builtins.*
 import org.junit.Test
 import kotlin.test.*
 
@@ -37,7 +38,7 @@ class SerializationMethodInvocationOrderTest {
         }
     }
 
-    class Out : ElementValueEncoder() {
+    class Out : AbstractEncoder() {
         var step = 0
 
         override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
@@ -91,7 +92,7 @@ class SerializationMethodInvocationOrderTest {
         }
     }
 
-    class Inp : ElementValueDecoder() {
+    class Inp : AbstractDecoder() {
         var step = 0
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
