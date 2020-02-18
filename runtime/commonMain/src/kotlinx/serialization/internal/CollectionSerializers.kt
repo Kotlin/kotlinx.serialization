@@ -18,12 +18,11 @@ public sealed class AbstractCollectionSerializer<Element, Collection, Builder> :
     protected abstract fun Collection.toBuilder(): Builder
     protected abstract fun Builder.checkCapacity(size: Int)
 
-    protected abstract val typeParams: Array<KSerializer<*>>
-
     abstract override fun serialize(encoder: Encoder, value: Collection)
 
-    final override fun patch(decoder: Decoder, old: Collection): Collection {
-        val builder = old.toBuilder()
+    @InternalSerializationApi
+    public fun merge(decoder: Decoder, previous: Collection?): Collection {
+        val builder = previous?.toBuilder() ?: builder()
         val startIndex = builder.builderSize()
         val compositeDecoder = decoder.beginStructure(descriptor)
         if (compositeDecoder.decodeSequentially()) {
@@ -39,10 +38,7 @@ public sealed class AbstractCollectionSerializer<Element, Collection, Builder> :
         return builder.toResult()
     }
 
-    override fun deserialize(decoder: Decoder): Collection {
-        val builder = builder()
-        return patch(decoder, builder.toResult())
-    }
+    override fun deserialize(decoder: Decoder): Collection = merge(decoder, null)
 
     private fun readSize(decoder: CompositeDecoder, builder: Builder): Int {
         val size = decoder.decodeCollectionSize(descriptor)
@@ -63,8 +59,6 @@ public sealed class ListLikeSerializer<Element, Collection, Builder>(
 
     protected abstract fun Builder.insert(index: Int, element: Element)
     abstract override val descriptor: SerialDescriptor
-
-    final override val typeParams: Array<KSerializer<*>> = arrayOf(elementSerializer)
 
     override fun serialize(encoder: Encoder, value: Collection) {
         val size = value.collectionSize()
@@ -94,8 +88,6 @@ public sealed class MapLikeSerializer<Key, Value, Collection, Builder : MutableM
 
     protected abstract fun Builder.insertKeyValuePair(index: Int, key: Key, value: Value)
     abstract override val descriptor: SerialDescriptor
-
-    final override val typeParams: Array<KSerializer<*>> = arrayOf(keySerializer, valueSerializer)
 
     protected final override fun readAll(decoder: CompositeDecoder, builder: Builder, startIndex: Int, size: Int) {
         require(size >= 0) { "Size must be known in advance when using READ_ALL" }
@@ -165,7 +157,7 @@ public abstract class PrimitiveArraySerializer<Element, Array, Builder
     final override fun Builder.insert(index: Int, element: Element): Unit =
         error("This method lead to boxing and must not be used, use Builder.append instead")
 
-    final override fun builder(): Builder = error("Use empty().toBuilder() instead")
+    final override fun builder(): Builder = empty().toBuilder()
 
     protected abstract fun empty(): Array
 
@@ -185,12 +177,7 @@ public abstract class PrimitiveArraySerializer<Element, Array, Builder
         composite.endStructure(descriptor)
     }
 
-    final override fun deserialize(decoder: Decoder): Array {
-        // here we use empty() instead of builder().toResult() in AbstractCollectionSerializer
-        // because, unlike with ArrayLists, transformation builder(initialSize) > array > builder
-        // requires additional allocations
-        return patch(decoder, empty())
-    }
+    final override fun deserialize(decoder: Decoder): Array = merge(decoder, null)
 }
 
 // todo: can be more efficient when array size is know in advance, this one always uses temporary ArrayList as builder

@@ -4,8 +4,7 @@
 
 package kotlinx.serialization.json
 
-import kotlinx.serialization.UnstableDefault
-import kotlinx.serialization.UpdateMode
+import kotlinx.serialization.*
 import kotlin.jvm.*
 
 /**
@@ -56,9 +55,7 @@ public data class JsonConfiguration @UnstableDefault constructor(
     internal val unquotedPrint: Boolean = false,
     internal val indent: String = defaultIndent,
     internal val useArrayPolymorphism: Boolean = false,
-    internal val classDiscriminator: String = defaultDiscriminator,
-    @Deprecated(message = "Custom update modes are not fully supported", level = DeprecationLevel.WARNING)
-    internal val updateMode: UpdateMode = UpdateMode.OVERWRITE
+    internal val classDiscriminator: String = defaultDiscriminator
 ) {
 
     init {

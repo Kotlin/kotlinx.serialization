@@ -27,7 +27,6 @@ import kotlin.experimental.*
  * @param encodeDefaults specifies whether default values of Kotlin properties are encoded.
  */
 public class Cbor(
-    public val updateMode: UpdateMode = UpdateMode.BANNED,
     public val encodeDefaults: Boolean = true,
     override val context: SerialModule = EmptyModule
 ) : BinaryFormat {

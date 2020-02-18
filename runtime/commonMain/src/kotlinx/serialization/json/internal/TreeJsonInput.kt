@@ -29,6 +29,13 @@ private sealed class AbstractJsonTreeInput(
     override val context: SerialModule
         get() = json.context
 
+    // must override public final val updateMode: UpdateMode defined in kotlinx.serialization.NamedValueDecoder
+    // because it inherits many implementations of it
+    @Suppress("DEPRECATION")
+    @Deprecated(updateModeDeprecated, level = DeprecationLevel.HIDDEN)
+    override val updateMode: UpdateMode
+        get() = UpdateMode.OVERWRITE
+
     @JvmField
     protected val configuration = json.configuration
 

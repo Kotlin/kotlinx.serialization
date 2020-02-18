@@ -43,23 +43,21 @@ class JsonOverwriteTest : JsonTestBase() {
 
     @Test
     fun testCanUpdateNullableValuesInside() = parametrizedTest { useStreaming ->
-        val json = Json(JsonConfiguration.Default)
-        val a1 = json.parse(NullableInnerIntList.serializer(), """{data:[null],data:[1]}""", useStreaming)
+        val a1 = unquotedLenient.parse(NullableInnerIntList.serializer(), """{data:[null],data:[1]}""", useStreaming)
         assertEquals(NullableInnerIntList(listOf(1)), a1)
-        val a2 = json.parse(NullableInnerIntList.serializer(), """{data:[42],data:[null]}""", useStreaming)
+        val a2 = unquotedLenient.parse(NullableInnerIntList.serializer(), """{data:[42],data:[null]}""", useStreaming)
         assertEquals(NullableInnerIntList(listOf(null)), a2)
-        val a3 = json.parse(NullableInnerIntList.serializer(), """{data:[31],data:[1]}""", useStreaming)
+        val a3 = unquotedLenient.parse(NullableInnerIntList.serializer(), """{data:[31],data:[1]}""", useStreaming)
         assertEquals(NullableInnerIntList(listOf(1)), a3)
     }
 
     @Test
     fun testCanUpdateNullableValues() = parametrizedTest { useStreaming ->
-        val json = Json(JsonConfiguration.Default)
-        val a1 = json.parse(NullableUpdatable.serializer(), """{data:null,data:[{a:42}]}""", useStreaming)
+        val a1 = unquotedLenient.parse(NullableUpdatable.serializer(), """{data:null,data:[{a:42}]}""", useStreaming)
         assertEquals(NullableUpdatable(listOf(Data(42))), a1)
-        val a2 = json.parse(NullableUpdatable.serializer(), """{data:[{a:42}],data:null}""", useStreaming)
+        val a2 = unquotedLenient.parse(NullableUpdatable.serializer(), """{data:[{a:42}],data:null}""", useStreaming)
         assertEquals(NullableUpdatable(null), a2)
-        val a3 = json.parse(NullableUpdatable.serializer(), """{data:[{a:42}],data:[{a:43}]}""", useStreaming)
+        val a3 = unquotedLenient.parse(NullableUpdatable.serializer(), """{data:[{a:42}],data:[{a:43}]}""", useStreaming)
         assertEquals(NullableUpdatable(listOf(Data(43))), a3)
     }
 }

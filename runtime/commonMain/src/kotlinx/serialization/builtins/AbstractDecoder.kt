@@ -17,7 +17,9 @@ public abstract class AbstractDecoder : Decoder, CompositeDecoder {
     override val context: SerialModule
         get() = EmptyModule
 
-    override val updateMode: UpdateMode = UpdateMode.UPDATE
+    @Suppress("DEPRECATION")
+    @Deprecated(updateModeDeprecated, level = DeprecationLevel.ERROR)
+    override val updateMode: UpdateMode = UpdateMode.OVERWRITE
 
     /**
      * Invoked to decode a value when specialized `encode*` method was not overridden.
@@ -39,8 +41,20 @@ public abstract class AbstractDecoder : Decoder, CompositeDecoder {
     override fun decodeString(): String = decodeValue() as String
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int = decodeValue() as Int
 
-    // Delegating implementation of CompositeDecoder
+    // overwrite by default
+    public open fun <T : Any?> decodeSerializableValue(
+        deserializer: DeserializationStrategy<T>,
+        previousValue: T? = null
+    ): T = decodeSerializableValue(deserializer)
 
+    // do not update signature here because new signature is called by the plugin;
+    // and clients that have old signature would not be called.
+    @Suppress("OverridingDeprecatedMember")
+    @Deprecated(
+        "Parameter typeSerializers is deprecated for removal. Please migrate to beginStructure method with one argument.",
+        ReplaceWith("beginStructure(descriptor)"),
+        DeprecationLevel.ERROR
+    )
     override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
         return this
     }
@@ -59,12 +73,17 @@ public abstract class AbstractDecoder : Decoder, CompositeDecoder {
     final override fun decodeCharElement(descriptor: SerialDescriptor, index: Int): Char = decodeChar()
     final override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String = decodeString()
 
-    final override fun <T: Any?> decodeSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T>): T =
-        decodeSerializableValue(deserializer)
-    final override fun <T: Any> decodeNullableSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T?>): T? =
-        decodeNullableSerializableValue(deserializer)
-    final override fun <T> updateSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T>, old: T): T =
-        updateSerializableValue(deserializer, old)
-    final override fun <T: Any> updateNullableSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T?>, old: T?): T? =
-        updateNullableSerializableValue(deserializer, old)
+    final override fun <T> decodeSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        deserializer: DeserializationStrategy<T>,
+        previousValue: T?
+    ): T = decodeSerializableValue(deserializer, previousValue)
+
+    final override fun <T : Any> decodeNullableSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        deserializer: DeserializationStrategy<T?>,
+        previousValue: T?
+    ): T? = if (decodeNotNullMark()) decodeSerializableValue(deserializer, previousValue) else decodeNull()
 }

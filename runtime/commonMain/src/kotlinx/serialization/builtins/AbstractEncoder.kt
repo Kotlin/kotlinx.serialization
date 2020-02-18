@@ -17,6 +17,14 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
     override val context: SerialModule
         get() = EmptyModule
 
+    // do not update signature here because new signature is called by the plugin;
+    // and clients that have old signature would not be called.
+    @Suppress("OverridingDeprecatedMember")
+    @Deprecated(
+        "Parameter typeSerializers is deprecated for removal. Please migrate to beginStructure method with one argument.",
+        ReplaceWith("beginStructure(descriptor)"),
+        DeprecationLevel.ERROR
+    )
     override fun beginStructure(
         descriptor: SerialDescriptor,
         vararg typeSerializers: KSerializer<*>
@@ -67,11 +75,22 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
     final override fun encodeCharElement(descriptor: SerialDescriptor, index: Int, value: Char) { if (encodeElement(descriptor, index)) encodeChar(value) }
     final override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) { if (encodeElement(descriptor, index)) encodeString(value) }
 
-    final override fun <T : Any?> encodeSerializableElement(descriptor: SerialDescriptor, index: Int, serializer: SerializationStrategy<T>, value: T) {
+    final override fun <T : Any?> encodeSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        serializer: SerializationStrategy<T>,
+        value: T
+    ) {
         if (encodeElement(descriptor, index))
             encodeSerializableValue(serializer, value)
     }
-    final override fun <T : Any> encodeNullableSerializableElement(descriptor: SerialDescriptor, index: Int, serializer: SerializationStrategy<T>, value: T?) {
+
+    final override fun <T : Any> encodeNullableSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        serializer: SerializationStrategy<T>,
+        value: T?
+    ) {
         if (encodeElement(descriptor, index))
             encodeNullableSerializableValue(serializer, value)
     }
