@@ -17,7 +17,7 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
         val wrapper = JsonLiteralWrapper(JsonLiteral(1.0))
         val string = strict.stringify(JsonLiteralWrapper.serializer(), wrapper, useStreaming)
         assertEquals("{\"literal\":1.0}", string)
-        assertEquals(JsonLiteralWrapper(JsonLiteral("1.0")), strict.parse(JsonLiteralWrapper.serializer(), string, useStreaming))
+        assertEquals(JsonLiteralWrapper(JsonLiteral(1.0)), strict.parse(JsonLiteralWrapper.serializer(), string, useStreaming))
     }
 
     @Test
@@ -35,7 +35,7 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
         val wrapper = JsonLiteralWrapper(JsonLiteral(1))
         val string = strict.stringify(JsonLiteralWrapper.serializer(), wrapper, useStreaming)
         assertEquals("{\"literal\":1}", string)
-        assertEquals(JsonLiteralWrapper(JsonLiteral("1")), strict.parse(JsonLiteralWrapper.serializer(), string, useStreaming))
+        assertEquals(JsonLiteralWrapper(JsonLiteral(1)), strict.parse(JsonLiteralWrapper.serializer(), string, useStreaming))
     }
 
     @Test
