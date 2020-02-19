@@ -130,7 +130,11 @@ public object JsonLiteralSerializer : KSerializer<JsonLiteral> {
 
     override fun deserialize(decoder: Decoder): JsonLiteral {
         verify(decoder)
-        return JsonLiteral(decoder.decodeString())
+        val result = (decoder as JsonInput).decodeJson()
+        if (result !is JsonLiteral) {
+            error("Unexpected json type: " + result::class)
+        }
+        return result
     }
 }
 

@@ -37,6 +37,16 @@ class JsonArraySerializerTest : JsonTestBase() {
     }
 
     @Test
+    fun testMixedLiterals() = parametrizedTest { useStreaming ->
+        val json = """[1, "2", 3, "4"]"""
+        val array = Json.plain.parse(JsonArraySerializer, json, useStreaming)
+        array.content.forEachIndexed { index, element ->
+            require(element is JsonLiteral)
+            assertEquals(index % 2 == 1, element.isString)
+        }
+    }
+
+    @Test
     fun testMissingCommas() = parametrizedTest { useStreaming ->
         val message = "Expected end of the array or comma"
         testFails("[a b c]", message, useStreaming)
