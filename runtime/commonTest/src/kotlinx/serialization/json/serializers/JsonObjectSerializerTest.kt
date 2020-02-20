@@ -11,26 +11,26 @@ import kotlin.test.*
 
 class JsonObjectSerializerTest : JsonTestBase() {
 
-    private val expected = "{element:{literal:1,nullKey:null,nested:{\"another literal\":\"some value\"}}}"
-    private val expectedTopLevel = "{literal:1,nullKey:null,nested:{\"another literal\":\"some value\"}}"
+    private val expected = """{"element":{"literal":1,"nullKey":null,"nested":{"another literal":"some value"}}}"""
+    private val expectedTopLevel = """{"literal":1,"nullKey":null,"nested":{"another literal":"some value"}}"""
 
     @Test
-    fun testJsonObject() = parametrizedTest(unquoted) {
+    fun testJsonObject() = parametrizedTest(strict) {
         assertStringFormAndRestored(expected, JsonObjectWrapper(prebuiltJson()), JsonObjectWrapper.serializer())
     }
 
     @Test
-    fun testJsonObjectAsElement() = parametrizedTest(unquoted) {
+    fun testJsonObjectAsElement() = parametrizedTest(strict) {
         assertStringFormAndRestored(expected, JsonElementWrapper(prebuiltJson()), JsonElementWrapper.serializer())
     }
 
     @Test
-    fun testTopLevelJsonObject() = parametrizedTest (unquoted) {
+    fun testTopLevelJsonObject() = parametrizedTest (strict) {
         assertStringFormAndRestored(expectedTopLevel, prebuiltJson(), JsonObjectSerializer)
     }
 
     @Test
-    fun testTopLevelJsonObjectAsElement() = parametrizedTest (unquoted) {
+    fun testTopLevelJsonObjectAsElement() = parametrizedTest (strict) {
         assertStringFormAndRestored(expectedTopLevel, prebuiltJson(), JsonElementSerializer)
     }
 

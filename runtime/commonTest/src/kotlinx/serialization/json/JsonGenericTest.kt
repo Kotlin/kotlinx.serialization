@@ -21,9 +21,9 @@ class JsonGenericTest : JsonTestBase() {
     fun testWriteDefaultPair() = parametrizedTest { useStreaming ->
         val pair = 42 to "foo"
         val serializer = PairSerializer(IntSerializer, StringSerializer)
-        val s = unquoted.stringify(serializer, pair, useStreaming)
-        assertEquals("{first:42,second:foo}", s)
-        val restored = unquoted.parse(serializer, s, useStreaming)
+        val s = strict.stringify(serializer, pair, useStreaming)
+        assertEquals("""{"first":42,"second":"foo"}""", s)
+        val restored = strict.parse(serializer, s, useStreaming)
         assertEquals(pair, restored)
     }
 
@@ -31,9 +31,9 @@ class JsonGenericTest : JsonTestBase() {
     fun testWritePlainTriple() = parametrizedTest { useStreaming ->
         val triple = Triple(42 , "foo", false)
         val serializer = TripleSerializer(IntSerializer, StringSerializer, BooleanSerializer)
-        val s = unquoted.stringify(serializer, triple, useStreaming)
-        assertEquals("{first:42,second:foo,third:false}", s)
-        val restored = unquoted.parse(serializer, s, useStreaming)
+        val s = strict.stringify(serializer, triple, useStreaming)
+        assertEquals("""{"first":42,"second":"foo","third":false}""", s)
+        val restored = strict.parse(serializer, s, useStreaming)
         assertEquals(triple, restored)
     }
 

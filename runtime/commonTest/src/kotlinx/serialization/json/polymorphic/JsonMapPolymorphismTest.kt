@@ -6,8 +6,8 @@ package kotlinx.serialization.json.polymorphic
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.SerializersModule
-import kotlin.test.Test
+import kotlinx.serialization.modules.*
+import kotlin.test.*
 
 class JsonMapPolymorphismTest : JsonTestBase() {
 
@@ -18,10 +18,9 @@ class JsonMapPolymorphismTest : JsonTestBase() {
     fun testPolymorphicValues() = assertJsonFormAndRestored(
         MapWrapper.serializer(),
         MapWrapper(mapOf("k1" to InnerImpl(1), "k2" to InnerImpl2(2))),
-        "{map:" +
-                "{k1:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:1,str:default,nullable:null}," +
-                "k2:{type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:2}}}",
-        polymorphicJson)
+        """{"map":{"k1":{"type":"kotlinx.serialization.json.polymorphic.InnerImpl","field":1,"str":"default","nullable":null},"k2":{"type":"kotlinx.serialization.json.polymorphic.InnerImpl2","field":2}}}""".trimMargin(),
+        polymorphicJson
+    )
 
     @Serializable
     internal data class MapNullableWrapper(val map: Map<String, @Polymorphic InnerBase?>)
@@ -33,10 +32,9 @@ class JsonMapPolymorphismTest : JsonTestBase() {
     fun testPolymorphicNullableValues() = assertJsonFormAndRestored(
         MapNullableWrapper.serializer(),
         MapNullableWrapper(mapOf("k1" to InnerImpl(1), "k2" to null)),
-        "{map:" +
-                "{k1:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:1,str:default,nullable:null}," +
-                "k2:null}}",
-        polymorphicJson)
+        """{"map":{"k1":{"type":"kotlinx.serialization.json.polymorphic.InnerImpl","field":1,"str":"default","nullable":null},"k2":null}}""",
+        polymorphicJson
+    )
 
     @Test
     fun testPolymorphicKeys() {

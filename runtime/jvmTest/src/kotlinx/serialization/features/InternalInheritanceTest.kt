@@ -23,7 +23,6 @@ class InternalInheritanceTest {
 
             return true
         }
-
     }
 
     @Serializable
@@ -51,10 +50,7 @@ class InternalInheritanceTest {
 
             return true
         }
-
-
     }
-
 
     @Test
     fun testStringify() {
@@ -107,7 +103,7 @@ class InternalInheritanceTest {
 
     @Test(expected = SerializationException::class)
     fun testThrowTransient() {
-        Json.unquoted.parse<B>("{parent:100,rootOptional:rootOptional,transientDerived:X,parent2:100,derived:wowstring,bodyDerived:body}")
+        Json.plain.parse<B>("""{"parent":100,"rootOptional":"rootOptional","transientDerived":"X","parent2":100,"derived":"wowstring","bodyDerived":"body"}""")
     }
 
     @Test(expected = SerializationException::class)

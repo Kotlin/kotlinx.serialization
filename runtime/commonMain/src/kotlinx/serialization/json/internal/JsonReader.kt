@@ -7,7 +7,7 @@ package kotlinx.serialization.json.internal
 import kotlinx.serialization.json.*
 import kotlinx.serialization.json.internal.EscapeCharMappings.ESCAPE_2_CHAR
 import kotlin.jvm.*
-import kotlin.native.concurrent.SharedImmutable
+import kotlin.native.concurrent.*
 
 // special strings
 internal const val NULL = "null"
@@ -139,7 +139,27 @@ internal class JsonReader(private val source: String) {
     }
 
     fun takeString(): String {
-        if (tokenClass != TC_OTHER && tokenClass != TC_STRING) fail("Expected string or non-null literal", tokenPosition)
+        if (tokenClass != TC_OTHER && tokenClass != TC_STRING) fail(
+            "Expected string or non-null literal. Use JsonConfiguration.strictMode = false to accept non-compliant JSON",
+            tokenPosition
+        )
+        return takeStringInternal()
+    }
+
+    fun takeStringQuoted(): String {
+        if (tokenClass != TC_STRING) fail(
+            "Expected string literal with quotes. Use JsonConfiguration.strictMode = false to accept non-compliant JSON",
+            tokenPosition
+        )
+        return takeStringInternal()
+    }
+
+    fun takeBooleanStringUnquoted(): String {
+        if (tokenClass != TC_OTHER) fail("Expected start of the unquoted boolean literal.  Use JsonConfiguration.strictMode = false to accept non-compliant JSON", tokenPosition)
+        return takeStringInternal()
+    }
+
+    private fun takeStringInternal(): String {
         val prevStr = if (offset < 0)
             String(buf, 0, length) else
             source.substring(offset, offset + length)

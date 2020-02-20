@@ -20,12 +20,12 @@ import kotlinx.serialization.json.*
 import org.junit.*
 import org.junit.Assert.*
 
-class SerializationCasesTest {
+class SerializationCasesTest : JsonTestBase() {
 
     @Serializable
     data class Data1(val a: Int, val b: Int)
 
-    @Serializer(forClass=Data1::class)
+    @Serializer(forClass = Data1::class)
     object ExtDataSerializer1
 
     @Test
@@ -33,12 +33,12 @@ class SerializationCasesTest {
         val data = Data1(1, 2)
 
         // Serialize with internal serializer for Data class
-        assertEquals("{a:1,b:2}", Json.unquoted.stringify(data))
-        assertEquals(data, Json.parse<Data1>("{a:1,b:2}"))
+        assertEquals("""{"a":1,"b":2}""", strict.stringify(data))
+        assertEquals(data, Json.parse<Data1>("""{"a":1,"b":2}"""))
 
         // Serialize with external serializer for Data class
-        assertEquals("{a:1,b:2}", Json.unquoted.stringify(ExtDataSerializer1, data))
-        assertEquals(data, Json.parse(ExtDataSerializer1, "{a:1,b:2}"))
+        assertEquals("""{"a":1,"b":2}""", strict.stringify(ExtDataSerializer1, data))
+        assertEquals(data, Json.parse(ExtDataSerializer1, """{"a":1,"b":2}"""))
     }
 
     @Serializable
@@ -59,12 +59,12 @@ class SerializationCasesTest {
         }
 
         // Serialize with internal serializer for Data class
-        assertEquals("{a:1,b:2}", Json.unquoted.stringify(data))
-        assertEquals(data, Json.parse<Data2>("{a:1,b:2}"))
+        assertEquals("""{"a":1,"b":2}""", strict.stringify(data))
+        assertEquals(data, Json.parse<Data2>("""{"a":1,"b":2}"""))
 
         // Serialize with external serializer for Data class
-        assertEquals("{a:1,b:2}", Json.unquoted.stringify(ExtDataSerializer2, data))
-        assertEquals(data, Json.parse(ExtDataSerializer2, "{a:1,b:2}"))
+        assertEquals("""{"a":1,"b":2}""", strict.stringify(ExtDataSerializer2, data))
+        assertEquals(data, Json.parse(ExtDataSerializer2, """{"a":1,"b":2}"""))
     }
 
     enum class TintEnum { LIGHT, DARK }
@@ -77,20 +77,16 @@ class SerializationCasesTest {
     )
 
     // Serialize with external serializer for Data class
-    @Serializer(forClass=Data3::class)
+    @Serializer(forClass = Data3::class)
     object ExtDataSerializer3
 
     @Test
     fun testNestedValues() {
-
         val data = Data3("Str", listOf(1, 2), mapOf("lt" to TintEnum.LIGHT, "dk" to TintEnum.DARK))
-
-        // Serialize with internal serializer for Data class
+//        // Serialize with internal serializer for Data class
         assertEquals("{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}", Json.unquoted.stringify(data))
-        assertEquals(data, Json.parse<Data3>("{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}"))
-
-
+        assertEquals(data, Json.parse<Data3>("""{"a":"Str","b":[1,2],"c":{"lt":"LIGHT","dk":"DARK"}}"""))
         assertEquals("{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}", Json.unquoted.stringify(ExtDataSerializer3, data))
-        assertEquals(data, Json.parse(ExtDataSerializer3, "{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}"))
+        assertEquals(data, Json.parse(ExtDataSerializer3, """{"a":"Str","b":[1,2],"c":{"lt":"LIGHT","dk":"DARK"}}"""))
     }
 }

@@ -7,7 +7,7 @@ package kotlinx.serialization.json.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
-import kotlin.jvm.JvmField
+import kotlin.jvm.*
 
 /**
  * [JsonInput] which reads given JSON from [JsonReader] field by field.
@@ -22,7 +22,7 @@ internal class StreamingJsonInput internal constructor(
     private var currentIndex = -1
     private val configuration = json.configuration
     
-    public override fun decodeJson(): JsonElement = JsonParser(reader).read()
+    public override fun decodeJson(): JsonElement = JsonParser(json.configuration, reader).read()
 
     @Suppress("DEPRECATION")
     override val updateMode: UpdateMode
@@ -111,7 +111,7 @@ internal class StreamingJsonInput internal constructor(
 
         while (reader.canBeginValue) {
             ++currentIndex
-            val key = reader.takeString()
+            val key = decodeString()
             reader.requireTokenClass(TC_COLON) { "Expected ':'" }
             reader.nextToken()
             val index = desc.getElementIndex(key)
@@ -142,7 +142,23 @@ internal class StreamingJsonInput internal constructor(
         }
     }
 
-    override fun decodeBoolean(): Boolean = reader.takeString().run { if (configuration.strictMode) toBooleanStrict() else toBoolean() }
+    override fun decodeBoolean(): Boolean {
+        /*
+         * We prohibit non true/false boolean literals at all as it is considered way too error-prone,
+         * but allow quoted literal in relaxed mode for booleans.
+         */
+        return if (configuration.strictMode) {
+            val string = reader.takeBooleanStringUnquoted()
+            string.toBooleanStrict()
+        } else {
+            reader.takeString().toBooleanStrict()
+        }
+    }
+
+    /*
+     * The rest of the primitives are allowed to be quoted and unqouted
+     * to simplify integrations with third-party API.
+     */
     override fun decodeByte(): Byte = reader.takeString().toByte()
     override fun decodeShort(): Short = reader.takeString().toShort()
     override fun decodeInt(): Int = reader.takeString().toInt()
@@ -150,7 +166,15 @@ internal class StreamingJsonInput internal constructor(
     override fun decodeFloat(): Float = reader.takeString().toFloat()
     override fun decodeDouble(): Double = reader.takeString().toDouble()
     override fun decodeChar(): Char = reader.takeString().single()
-    override fun decodeString(): String = reader.takeString()
-    override fun decodeEnum(enumDescriptor: SerialDescriptor): Int =
-        enumDescriptor.getElementIndexOrThrow(reader.takeString())
+    override fun decodeString(): String {
+        return if (configuration.strictMode) {
+            reader.takeStringQuoted()
+        } else {
+            reader.takeString()
+        }
+    }
+
+    override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
+        return enumDescriptor.getElementIndexOrThrow(decodeString())
+    }
 }

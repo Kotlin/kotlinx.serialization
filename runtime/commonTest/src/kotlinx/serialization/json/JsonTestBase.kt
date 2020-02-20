@@ -13,6 +13,7 @@ import kotlin.test.*
 abstract class JsonTestBase {
     protected val strict = Json(JsonConfiguration.Default)
     protected val unquoted = Json { unquoted = true }
+    protected val unquotedNonStrict = Json { unquoted = true; strictMode = false }
     protected val nonStrict = Json { strictMode = false }
 
     @ImplicitReflectionSerializer

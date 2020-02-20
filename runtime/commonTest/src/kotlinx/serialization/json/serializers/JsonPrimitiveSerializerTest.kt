@@ -24,10 +24,11 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
     fun testJsonPrimitiveDouble() = parametrizedTest { useStreaming ->
         if (isJs()) return@parametrizedTest // JS toString numbers
 
+
         val wrapper = JsonPrimitiveWrapper(JsonLiteral(1.0))
         val string = strict.stringify(JsonPrimitiveWrapper.serializer(), wrapper, useStreaming)
         assertEquals("{\"primitive\":1.0}", string)
-        assertEquals(JsonPrimitiveWrapper(JsonLiteral("1.0")), strict.parse(JsonPrimitiveWrapper.serializer(), string, useStreaming))
+        assertEquals(JsonPrimitiveWrapper(JsonLiteral(1.0)), strict.parse(JsonPrimitiveWrapper.serializer(), string, useStreaming))
     }
 
     @Test
@@ -43,7 +44,7 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
         val wrapper = JsonPrimitiveWrapper(JsonLiteral(1))
         val string = strict.stringify(JsonPrimitiveWrapper.serializer(), wrapper, useStreaming)
         assertEquals("{\"primitive\":1}", string)
-        assertEquals(JsonPrimitiveWrapper(JsonLiteral("1")), strict.parse(JsonPrimitiveWrapper.serializer(), string, useStreaming))
+        assertEquals(JsonPrimitiveWrapper(JsonLiteral(1)), strict.parse(JsonPrimitiveWrapper.serializer(), string, useStreaming))
     }
 
     @Test
@@ -82,7 +83,7 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
     fun testTopLevelPrimitive() = parametrizedTest { useStreaming ->
         val string = strict.stringify(JsonPrimitiveSerializer, JsonLiteral(42), useStreaming)
         assertEquals("42", string)
-        assertEquals(JsonLiteral("42"), strict.parse(JsonPrimitiveSerializer, string))
+        assertEquals(JsonLiteral(42), strict.parse(JsonPrimitiveSerializer, string))
     }
 
     @Test

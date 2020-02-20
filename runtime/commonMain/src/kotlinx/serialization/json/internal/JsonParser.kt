@@ -6,7 +6,11 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.json.*
 
-internal class JsonParser(private val reader: JsonReader) {
+internal class JsonParser(
+    configuration: JsonConfiguration,
+    private val reader: JsonReader
+) {
+    private val isStrict = configuration.strictMode
 
     private fun readObject(): JsonElement {
         reader.requireTokenClass(TC_BEGIN_OBJ) { "Expected start of the object" }
@@ -17,7 +21,7 @@ internal class JsonParser(private val reader: JsonReader) {
         var valueExpected = false
         while (reader.canBeginValue) {
             valueExpected = false
-            val key = reader.takeString()
+            val key = if (isStrict) reader.takeStringQuoted() else reader.takeString()
             reader.requireTokenClass(TC_COLON) { "Expected ':'" }
             reader.nextToken()
             val element = read()
@@ -33,11 +37,6 @@ internal class JsonParser(private val reader: JsonReader) {
         reader.require(!valueExpected && reader.tokenClass == TC_END_OBJ, reader.currentPosition) { "Expected end of the object" }
         reader.nextToken()
         return JsonObject(result)
-    }
-
-    private fun readValue(isString: Boolean): JsonElement {
-        val str = reader.takeString()
-        return JsonLiteral(str, isString)
     }
 
     private fun readArray(): JsonElement {
@@ -65,12 +64,21 @@ internal class JsonParser(private val reader: JsonReader) {
         return JsonArray(result)
     }
 
+    private fun readValue(isString: Boolean, isStrict: Boolean): JsonElement {
+        val str = if (isStrict) {
+            if (isString) reader.takeStringQuoted() else reader.takeString()
+        } else {
+            reader.takeString()
+        }
+        return JsonLiteral(str, isString)
+    }
+
     fun read(): JsonElement {
         if (!reader.canBeginValue) reader.fail("Can't begin reading value from here")
         return when (reader.tokenClass) {
             TC_NULL -> JsonNull.also { reader.nextToken() }
-            TC_STRING -> readValue(isString = true)
-            TC_OTHER -> readValue(isString = false)
+            TC_STRING -> readValue(isString = true, isStrict = isStrict)
+            TC_OTHER -> readValue(isString = false, isStrict = isStrict)
             TC_BEGIN_OBJ -> readObject()
             TC_BEGIN_LIST -> readArray()
             else -> reader.fail("Can't begin reading element, unexpected token")
