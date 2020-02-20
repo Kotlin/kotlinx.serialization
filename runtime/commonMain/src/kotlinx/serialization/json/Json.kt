@@ -164,7 +164,7 @@ public constructor(
         @UnstableDefault
         public val plain = Json(JsonConfiguration(useArrayPolymorphism = true))
         @UnstableDefault
-        public val unquoted = Json(JsonConfiguration(unquoted = true, useArrayPolymorphism = true))
+        public val unquoted = Json(JsonConfiguration(strictMode = false, unquoted = true, useArrayPolymorphism = true))
         @UnstableDefault
         public val indented = Json(JsonConfiguration(prettyPrint = true, useArrayPolymorphism = true))
         @UnstableDefault

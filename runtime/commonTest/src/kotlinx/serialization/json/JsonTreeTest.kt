@@ -45,19 +45,19 @@ class JsonTreeTest : JsonTestBase() {
     )
 
     private val json = Json(JsonConfiguration.Default)
-    private fun prepare(input: String): JsonElement = strict.parseJson(input)
+    private fun prepare(input: String): JsonElement = nonStrict.parseJson(input)
 
     @Test
     fun testReadTreeSimple() {
         val tree = prepare("{a: 42}")
-        val parsed = json.fromJson(Data.serializer(), tree)
+        val parsed = nonStrict.fromJson(Data.serializer(), tree)
         assertEquals(Data(42), parsed)
     }
 
     @Test
     fun testReadTreeNested() {
         val tree = prepare("""{s:"foo", d:{a:42}}""")
-        val parsed = json.fromJson(DataWrapper.serializer(), tree)
+        val parsed = nonStrict.fromJson(DataWrapper.serializer(), tree)
         val expected = DataWrapper("foo", Data(42))
         assertEquals(expected, parsed)
         assertEquals(3, parsed.s.length)
@@ -76,8 +76,8 @@ class JsonTreeTest : JsonTestBase() {
         val tree1 = prepare("""{s:"foo", d: null}""")
         val tree2 = prepare("""{s:"foo"}""")
 
-        assertEquals(DataWrapper("foo", null), json.fromJson(DataWrapper.serializer(), tree1))
-        assertFailsWith(MissingFieldException::class) { json.fromJson(DataWrapper.serializer(), tree2) }
+        assertEquals(DataWrapper("foo", null), nonStrict.fromJson(DataWrapper.serializer(), tree1))
+        assertFailsWith(MissingFieldException::class) { nonStrict.fromJson(DataWrapper.serializer(), tree2) }
     }
 
     @Test
@@ -95,8 +95,8 @@ class JsonTreeTest : JsonTestBase() {
         val tree2 = prepare("""{l:[{a:42},{a:43}]}""")
         val tree3 = prepare("""{l:[[],[{a:42}]]}""")
 
-        assertEquals(IntList(listOf(1, 2)), json.fromJson(IntList.serializer(), tree1))
-        assertEquals(DataList(listOf(Data(42), Data(43))), json.fromJson(DataList.serializer(), tree2))
+        assertEquals(IntList(listOf(1, 2)), nonStrict.fromJson(IntList.serializer(), tree1))
+        assertEquals(DataList(listOf(Data(42), Data(43))), nonStrict.fromJson(DataList.serializer(), tree2))
         assertEquals(ListOfLists(listOf(listOf(), listOf(Data(42)))), json.fromJson(ListOfLists.serializer(), tree3))
     }
 
@@ -104,21 +104,21 @@ class JsonTreeTest : JsonTestBase() {
     fun testReadTreeMap() {
         val dyn = prepare("{m : {\"a\": 1, \"b\" : 2}}")
         val m = MapWrapper(mapOf("a" to 1, "b" to 2))
-        assertEquals(m, json.fromJson(MapWrapper.serializer(), dyn))
+        assertEquals(m, nonStrict.fromJson(MapWrapper.serializer(), dyn))
     }
 
     @Test
     fun testReadTreeComplexMap() {
         val dyn = prepare("{m : {1: {a: 42}, 2: {a: 43}}}")
         val m = ComplexMapWrapper(mapOf("1" to Data(42), "2" to Data(43)))
-        assertEquals(m, json.fromJson(ComplexMapWrapper.serializer(), dyn))
+        assertEquals(m, nonStrict.fromJson(ComplexMapWrapper.serializer(), dyn))
     }
 
     private inline fun <reified T: Any> writeAndTest(obj: T, serial: KSerializer<T>, printDiagnostics: Boolean = false): Pair<JsonElement, T> {
-        val tree = json.toJson(serial, obj)
+        val tree = nonStrict.toJson(serial, obj)
         val str = tree.toString()
         if (printDiagnostics) println(str)
-        val restored = json.fromJson(serial, json.parseJson(str))
+        val restored = nonStrict.fromJson(serial, nonStrict.parseJson(str))
         assertEquals(obj, restored)
         return tree to restored
     }

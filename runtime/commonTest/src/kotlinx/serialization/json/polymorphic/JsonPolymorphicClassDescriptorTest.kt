@@ -12,6 +12,7 @@ class JsonPolymorphicClassDescriptorTest : JsonTestBase() {
 
     private val json = Json {
         unquoted = true
+        strictMode = false
         classDiscriminator = "class"
         serialModule = polymorphicTestModule
     }

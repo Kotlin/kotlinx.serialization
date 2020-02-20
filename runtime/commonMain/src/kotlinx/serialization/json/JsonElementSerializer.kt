@@ -6,6 +6,7 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
+import kotlin.contracts.*
 
 /**
  * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonElement].
@@ -67,8 +68,7 @@ public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
 
     override fun deserialize(decoder: Decoder): JsonPrimitive {
         verify(decoder)
-        return if (decoder.decodeNotNullMark()) JsonPrimitive(decoder.decodeString())
-        else decoder.decodeSerializableValue(JsonNullSerializer)
+        return (decoder as JsonInput).decodeJson() as JsonPrimitive
     }
 }
 
@@ -186,9 +186,9 @@ public object JsonArraySerializer : KSerializer<JsonArray> {
 }
 
 private fun verify(encoder: Encoder) {
-    if (encoder !is JsonOutput) error("Json element serializer can be used only by Json format")
+    if (encoder !is JsonOutput) error("Json element serializer can be used only by Json format, had $encoder")
 }
 
 private fun verify(decoder: Decoder) {
-    if (decoder !is JsonInput) error("Json element serializer can be used only by Json format")
+    if (decoder !is JsonInput) error("Json element serializer can be used only by Json format, had $decoder")
 }

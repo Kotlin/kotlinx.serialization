@@ -29,13 +29,10 @@ class ContextAndPolymorphicTest {
     data class PayloadList(val ps: List<@ContextualSerialization Payload>)
 
     @Serializer(forClass = Payload::class)
-    object PayloadSerializer {}
+    object PayloadSerializer
 
     object BinaryPayloadSerializer : KSerializer<Payload> {
-        override val descriptor: SerialDescriptor = SerialDescriptor("Payload") {
-            element<String>("s")
-        }
-
+        override val descriptor: SerialDescriptor = PrimitiveDescriptor("Payload", PrimitiveKind.STRING)
         override fun serialize(encoder: Encoder, value: Payload) {
             encoder.encodeString(InternalHexConverter.printHexBinary(value.s.encodeToByteArray()))
         }
@@ -66,7 +63,8 @@ class ContextAndPolymorphicTest {
 
     @Test
     fun testReadCustom() {
-        val s = json.parse(EnhancedData.serializer(), "{data:{a:100500,b:42},stringPayload:{s:string},binaryPayload:62696E617279}")
+        val s = json.parse(EnhancedData.serializer(),
+            """{"data":{"a":100500,"b":42},"stringPayload":{"s":"string"},"binaryPayload":"62696E617279"}""")
         assertEquals(obj, s)
     }
 

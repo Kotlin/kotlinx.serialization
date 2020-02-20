@@ -89,14 +89,35 @@ private sealed class AbstractJsonTreeInput(
         return
     }
 
-    override fun decodeTaggedBoolean(tag: String): Boolean = getValue(tag).boolean
+    override fun decodeTaggedBoolean(tag: String): Boolean {
+        val value = getValue(tag)
+        if (json.configuration.strictMode) {
+            val literal = value as JsonLiteral
+            if (literal.isString) throw JsonException(
+                "Boolean literal for ley '$tag' should be unquoted." +
+                        " Use JsonConfiguration.strictMode = false to accept non-compliant JSON"
+            )
+        }
+        return value.boolean
+    }
+
     override fun decodeTaggedByte(tag: String): Byte = getValue(tag).int.toByte()
     override fun decodeTaggedShort(tag: String) = getValue(tag).int.toShort()
     override fun decodeTaggedInt(tag: String) = getValue(tag).int
     override fun decodeTaggedLong(tag: String) = getValue(tag).long
     override fun decodeTaggedFloat(tag: String) = getValue(tag).float
     override fun decodeTaggedDouble(tag: String) = getValue(tag).double
-    override fun decodeTaggedString(tag: String) = getValue(tag).content
+    override fun decodeTaggedString(tag: String): String {
+        val value = getValue(tag)
+        if (json.configuration.strictMode) {
+            val literal = value as JsonLiteral
+            if (!literal.isString) throw JsonException(
+                "String literal for key '$tag' should be quoted." +
+                        " Use JsonConfiguration.strictMode = false to accept non-compliant JSON"
+            )
+        }
+        return value.content
+    }
 }
 
 private class JsonPrimitiveInput(json: Json, override val obj: JsonPrimitive) : AbstractJsonTreeInput(json, obj) {

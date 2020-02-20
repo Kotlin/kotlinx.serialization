@@ -13,6 +13,7 @@ class JsonNestedPolymorphismTest : JsonTestBase() {
 
     private val polymorphicJson = Json {
         unquoted = true
+        strictMode = false
         serialModule = SerializersModule {
             polymorphic(Any::class, InnerBase::class) {
                 subclass(InnerImpl.serializer())

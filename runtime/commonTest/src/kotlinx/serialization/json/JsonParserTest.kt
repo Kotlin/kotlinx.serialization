@@ -12,7 +12,7 @@ class JsonParserTest {
 
     @Test
     fun testQuotedBrace() {
-        val tree = parse("""{x: "{"}""")
+        val tree = parse("""{"x": "{"}""")
         assertTrue("x" in tree)
         assertEquals("{", tree.getAs<JsonLiteral>("x").content)
     }

@@ -16,14 +16,14 @@ class JsonPropertyPolymorphicTest : JsonTestBase() {
         InnerBox.serializer(),
         InnerBox(InnerImpl(42, "foo")),
         "{base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}}",
-        polymorphicJson)
+        polymorphicUnqoutedJson)
 
     @Test
-    fun testFlatPolymorphic(){//} = parametrizedTest { useStreaming -> // TODO issue #287
+    fun testFlatPolymorphic() = parametrizedTest { useStreaming ->
         val base: InnerBase = InnerImpl(42, "foo")
-        val string = polymorphicJson.stringify(PolymorphicSerializer(InnerBase::class), base, true)
+        val string = polymorphicUnqoutedJson.stringify(PolymorphicSerializer(InnerBase::class), base, useStreaming)
         assertEquals("{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}", string)
-        assertEquals(base, polymorphicJson.parse(PolymorphicSerializer(InnerBase::class), string, true))
+        assertEquals(base, polymorphicUnqoutedJson.parse(PolymorphicSerializer(InnerBase::class), string, useStreaming))
     }
 
     @Test
@@ -35,18 +35,18 @@ class JsonPropertyPolymorphicTest : JsonTestBase() {
                 "base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:default,nullable:null}," +
                 "base2:{type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:42}}," +
                 "innerBase:{type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:239}}",
-        polymorphicJson)
+        polymorphicUnqoutedJson)
 
     @Test
     fun testPolymorphicNullableProperties() = assertJsonFormAndRestored(
         InnerNullableBox.serializer(),
         InnerNullableBox(InnerImpl(42, "foo")),
         "{base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}}",
-        polymorphicJson)
+        polymorphicUnqoutedJson)
 
     @Test
     fun testPolymorphicNullablePropertiesWithNull() =
-        assertJsonFormAndRestored(InnerNullableBox.serializer(), InnerNullableBox(null), "{base:null}", polymorphicJson)
+        assertJsonFormAndRestored(InnerNullableBox.serializer(), InnerNullableBox(null), """{"base":null}""", polymorphicJson)
 
     @Test
     fun testNestedPolymorphicNullableProperties() = assertJsonFormAndRestored(
@@ -56,5 +56,5 @@ class JsonPropertyPolymorphicTest : JsonTestBase() {
                 "type:kotlinx.serialization.json.polymorphic.OuterNullableImpl," +
                 "base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:default,nullable:null},base2:null}," +
                 "innerBase:{type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:239}}",
-        polymorphicJson)
+        polymorphicUnqoutedJson)
 }

@@ -22,7 +22,7 @@ class JsonListPolymorphismTest : JsonTestBase() {
         "{list:[" +
                 "{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:1,str:default,nullable:null}," +
                 "{type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:2}]}",
-        polymorphicJson)
+        polymorphicUnqoutedJson)
 
     @Serializable
     internal data class ListNullableWrapper(val list: List<@Polymorphic InnerBase?>)
@@ -34,13 +34,13 @@ class JsonListPolymorphismTest : JsonTestBase() {
         "{list:[" +
                 "{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:1,str:default,nullable:null}," +
                 "null]}",
-        polymorphicJson)
+        polymorphicUnqoutedJson)
 
     @Test
     fun testPolymorphicNullableValuesWithNonNullSerializerFails() =
         parametrizedTest { useStreaming ->
             val wrapper = ListNullableWrapper(listOf(InnerImpl(1), null))
-            val serialized = polymorphicJson.stringify(ListNullableWrapper.serializer(), wrapper, useStreaming)
-            assertFails { polymorphicJson.parse(ListWrapper.serializer(), serialized, useStreaming) }
+            val serialized = polymorphicUnqoutedJson.stringify(ListNullableWrapper.serializer(), wrapper, useStreaming)
+            assertFails { polymorphicUnqoutedJson.parse(ListWrapper.serializer(), serialized, useStreaming) }
         }
 }

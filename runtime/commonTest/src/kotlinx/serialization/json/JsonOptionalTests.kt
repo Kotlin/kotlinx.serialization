@@ -27,26 +27,25 @@ class JsonOptionalTests : JsonTestBase() {
 
             return true
         }
-
     }
 
     @Test
     fun testAll() = parametrizedTest { useStreaming ->
         assertEquals("{a:0,b:42,c:Hello}", unquoted.stringify(Data.serializer(), Data(), useStreaming))
-        assertEquals(unquoted.parse(Data.serializer(), "{a:0,b:43,c:Hello}", useStreaming), Data(b = 43))
-        assertEquals(unquoted.parse(Data.serializer(), "{a:0,b:42,c:Hello}", useStreaming), Data())
+        assertEquals(nonStrict.parse(Data.serializer(), "{a:0,b:43,c:Hello}", useStreaming), Data(b = 43))
+        assertEquals(nonStrict.parse(Data.serializer(), "{a:0,b:42,c:Hello}", useStreaming), Data())
     }
 
     @Test
     fun testMissingOptionals() = parametrizedTest { useStreaming ->
-        assertEquals(unquoted.parse(Data.serializer(), "{a:0,c:Hello}", useStreaming), Data())
-        assertEquals(unquoted.parse(Data.serializer(), "{a:0}", useStreaming), Data())
+        assertEquals(strict.parse(Data.serializer(), """{"a":0,"c":"Hello"}""", useStreaming), Data())
+        assertEquals(strict.parse(Data.serializer(), """{"a":0}""", useStreaming), Data())
     }
 
     @Test
     fun testThrowMissingField() = parametrizedTest { useStreaming ->
         assertFailsWith(MissingFieldException::class) {
-            unquoted.parse(Data.serializer(), "{b:0}", useStreaming)
+            nonStrict.parse(Data.serializer(), "{b:0}", useStreaming)
         }
     }
 
