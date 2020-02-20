@@ -8,7 +8,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
 
-class JsonParserTest {
+class JsonParserTest : JsonTestBase() {
 
     @Test
     fun testQuotedBrace() {
@@ -40,7 +40,6 @@ class JsonParserTest {
         }
     }
 
-    val strict = Json(JsonConfiguration.Stable.copy(strictMode = true))
 
     @Test
     fun testParseEscapedSymbols() {

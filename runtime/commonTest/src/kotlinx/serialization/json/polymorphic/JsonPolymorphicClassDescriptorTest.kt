@@ -11,8 +11,8 @@ import kotlin.test.Test
 class JsonPolymorphicClassDescriptorTest : JsonTestBase() {
 
     private val json = Json {
-        unquoted = true
-        strictMode = false
+        unquotedPrint = true
+        isLenient = true
         classDiscriminator = "class"
         serialModule = polymorphicTestModule
     }

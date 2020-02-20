@@ -6,8 +6,7 @@ package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.IntSerializer
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
+import kotlinx.serialization.json.*
 import org.junit.Ignore
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -15,7 +14,7 @@ import kotlin.test.assertEquals
 // can't be in common yet because of issue with class literal annotations
 // and .serializer() resolving
 @Ignore
-class JsonUpdateCustomTest {
+class JsonUpdateCustomTest : JsonTestBase() {
     @Serializable
     data class Data(val a: Int)
 
@@ -32,8 +31,7 @@ class JsonUpdateCustomTest {
 
     @Test
     fun canUpdateCustom() {
-        val parsed: Updatable =
-                Json { unquoted = true; strictMode = false }.parse("""{d:{a:42},d:{a:43}}""")
+        val parsed: Updatable = unquotedLenient.parse("""{d:{a:42},d:{a:43}}""")
         assertEquals(Data(42 + 43), parsed.d)
     }
 

@@ -16,14 +16,14 @@ class JsonPropertyPolymorphicTest : JsonTestBase() {
         InnerBox.serializer(),
         InnerBox(InnerImpl(42, "foo")),
         "{base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}}",
-        polymorphicUnqoutedJson)
+        polymorphicRelaxedJson)
 
     @Test
     fun testFlatPolymorphic() = parametrizedTest { useStreaming ->
         val base: InnerBase = InnerImpl(42, "foo")
-        val string = polymorphicUnqoutedJson.stringify(PolymorphicSerializer(InnerBase::class), base, useStreaming)
+        val string = polymorphicRelaxedJson.stringify(PolymorphicSerializer(InnerBase::class), base, useStreaming)
         assertEquals("{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}", string)
-        assertEquals(base, polymorphicUnqoutedJson.parse(PolymorphicSerializer(InnerBase::class), string, useStreaming))
+        assertEquals(base, polymorphicRelaxedJson.parse(PolymorphicSerializer(InnerBase::class), string, useStreaming))
     }
 
     @Test
@@ -35,14 +35,14 @@ class JsonPropertyPolymorphicTest : JsonTestBase() {
                 "base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:default,nullable:null}," +
                 "base2:{type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:42}}," +
                 "innerBase:{type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:239}}",
-        polymorphicUnqoutedJson)
+        polymorphicRelaxedJson)
 
     @Test
     fun testPolymorphicNullableProperties() = assertJsonFormAndRestored(
         InnerNullableBox.serializer(),
         InnerNullableBox(InnerImpl(42, "foo")),
         "{base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}}",
-        polymorphicUnqoutedJson)
+        polymorphicRelaxedJson)
 
     @Test
     fun testPolymorphicNullablePropertiesWithNull() =
@@ -56,5 +56,5 @@ class JsonPropertyPolymorphicTest : JsonTestBase() {
                 "type:kotlinx.serialization.json.polymorphic.OuterNullableImpl," +
                 "base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:default,nullable:null},base2:null}," +
                 "innerBase:{type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:239}}",
-        polymorphicUnqoutedJson)
+        polymorphicRelaxedJson)
 }

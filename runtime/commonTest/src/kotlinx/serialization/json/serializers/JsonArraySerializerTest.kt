@@ -32,7 +32,7 @@ class JsonArraySerializerTest : JsonTestBase() {
     @Test
     fun testJsonArrayToString() {
         val prebuiltJson = prebuiltJson()
-        val string = nonStrict.stringify(JsonArraySerializer, prebuiltJson)
+        val string = lenient.stringify(JsonArraySerializer, prebuiltJson)
         assertEquals(string, prebuiltJson.toString())
     }
 
@@ -57,17 +57,17 @@ class JsonArraySerializerTest : JsonTestBase() {
 
     @Test
     fun testEmptyArray() = parametrizedTest { useStreaming ->
-        assertEquals(JsonArray(emptyList()), nonStrict.parse(JsonArraySerializer, "[]", useStreaming))
-        assertEquals(JsonArray(emptyList()), nonStrict.parse(JsonArraySerializer, "[    ]", useStreaming))
-        assertEquals(JsonArray(emptyList()), nonStrict.parse(JsonArraySerializer, "[\n\n]", useStreaming))
-        assertEquals(JsonArray(emptyList()), nonStrict.parse(JsonArraySerializer, "[     \t]", useStreaming))
+        assertEquals(JsonArray(emptyList()), lenient.parse(JsonArraySerializer, "[]", useStreaming))
+        assertEquals(JsonArray(emptyList()), lenient.parse(JsonArraySerializer, "[    ]", useStreaming))
+        assertEquals(JsonArray(emptyList()), lenient.parse(JsonArraySerializer, "[\n\n]", useStreaming))
+        assertEquals(JsonArray(emptyList()), lenient.parse(JsonArraySerializer, "[     \t]", useStreaming))
     }
 
     @Test
     fun testWhitespaces() = parametrizedTest { useStreaming ->
         assertEquals(
             JsonArray(listOf(1, 2, 3, 4, 5).map(::JsonLiteral)),
-            nonStrict.parse(JsonArraySerializer, "[1, 2,   3, \n 4, 5]", useStreaming)
+            lenient.parse(JsonArraySerializer, "[1, 2,   3, \n 4, 5]", useStreaming)
         )
     }
 
@@ -89,7 +89,7 @@ class JsonArraySerializerTest : JsonTestBase() {
 
     private fun testFails(input: String, errorMessage: String, useStreaming: Boolean) {
         assertFailsWithMessage<JsonDecodingException>(errorMessage) {
-            nonStrict.parse(
+            lenient.parse(
                 JsonArraySerializer,
                 input,
                 useStreaming

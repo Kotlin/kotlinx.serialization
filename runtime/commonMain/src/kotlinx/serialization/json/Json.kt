@@ -54,7 +54,7 @@ public class Json
  * Default Json constructor not marked as unstable API.
  * To configure Json format behavior while still using only stable API it is possible to use `JsonConfiguration.copy` factory:
  * ```
- * val json = Json(configuration: = JsonConfiguration.Stable.copy(strictMode = false))
+ * val json = Json(configuration: = JsonConfiguration.Stable.copy(prettyPrint = false))
  * ```
  */
 public constructor(
@@ -164,11 +164,27 @@ public constructor(
         @UnstableDefault
         public val plain = Json(JsonConfiguration(useArrayPolymorphism = true))
         @UnstableDefault
-        public val unquoted = Json(JsonConfiguration(strictMode = false, unquoted = true, useArrayPolymorphism = true))
+        public val unquoted = Json(
+            JsonConfiguration(
+                isLenient = true,
+                ignoreUnknownKeys = true,
+                serializeSpecialFloatingPointValues = true,
+                unquotedPrint = true,
+                useArrayPolymorphism = true
+            )
+        )
+
         @UnstableDefault
         public val indented = Json(JsonConfiguration(prettyPrint = true, useArrayPolymorphism = true))
+
         @UnstableDefault
-        public val nonstrict = Json(JsonConfiguration(strictMode = false, useArrayPolymorphism = true))
+        public val nonstrict = Json(
+            JsonConfiguration(
+                isLenient = true,
+                ignoreUnknownKeys = true,
+                serializeSpecialFloatingPointValues = true, useArrayPolymorphism = true
+            )
+        )
 
         @UseExperimental(UnstableDefault::class)
         override val context: SerialModule get() = plain.context
@@ -194,12 +210,25 @@ public constructor(
  * Properties of this builder are directly matched with properties of [JsonConfiguration].
  */
 @UnstableDefault
+@Suppress("unused")
 public class JsonBuilder {
     public var encodeDefaults: Boolean = true
+    @Deprecated(level = DeprecationLevel.ERROR,
+        message = "'strictMode = true' is replaced with 3 new configuration parameters: " +
+                "'ignoreUnknownKeys = false' to fail if an unknown key is encountered, " +
+                "'serializeSpecialFloatingPointValues = false' to fail on 'NaN' and 'Infinity' values, " +
+                "'isLenient = false' to prohibit parsing of any non-compliant or malformed JSON")
     public var strictMode: Boolean = true
+    public var ignoreUnknownKeys: Boolean = false
+    public var isLenient: Boolean = false
+    public var serializeSpecialFloatingPointValues: Boolean = false
+    @Deprecated(level = DeprecationLevel.ERROR,
+        message = "'unquoted' is deprecated in the favour of 'unquotedPrint'",
+        replaceWith = ReplaceWith("unquotedPrint"))
     public var unquoted: Boolean = false
     public var allowStructuredMapKeys: Boolean = false
     public var prettyPrint: Boolean = false
+    public var unquotedPrint: Boolean = false
     public var indent: String = "    "
     public var useArrayPolymorphism: Boolean = false
     public var classDiscriminator: String = "type"
@@ -208,10 +237,12 @@ public class JsonBuilder {
     public fun buildConfiguration(): JsonConfiguration =
         JsonConfiguration(
             encodeDefaults,
-            strictMode,
-            unquoted,
+            ignoreUnknownKeys,
+            isLenient,
+            serializeSpecialFloatingPointValues,
             allowStructuredMapKeys,
             prettyPrint,
+            unquotedPrint,
             indent,
             useArrayPolymorphism,
             classDiscriminator
@@ -231,3 +262,5 @@ private val defaultJsonModule = serializersModuleOf(
         JsonArray::class to JsonArraySerializer
     )
 )
+
+internal const val lenientHint = "Use 'JsonConfiguration.isLenient = true' to accept non-compliant JSON"

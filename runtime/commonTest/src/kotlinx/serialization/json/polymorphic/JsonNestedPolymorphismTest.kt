@@ -12,8 +12,8 @@ import kotlin.test.*
 class JsonNestedPolymorphismTest : JsonTestBase() {
 
     private val polymorphicJson = Json {
-        unquoted = true
-        strictMode = false
+        unquotedPrint = true
+        isLenient = true
         serialModule = SerializersModule {
             polymorphic(Any::class, InnerBase::class) {
                 subclass(InnerImpl.serializer())

@@ -24,7 +24,7 @@ class PolymorphismTest {
         )
     }
 
-    private val json = Json { unquoted = true; useArrayPolymorphism = true; serialModule = module }
+    private val json = Json { unquotedPrint = true; useArrayPolymorphism = true; serialModule = module }
 
     @Test
     fun testInheritanceJson() {

@@ -6,7 +6,6 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
-import kotlin.contracts.*
 
 /**
  * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonElement].
@@ -68,7 +67,11 @@ public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
 
     override fun deserialize(decoder: Decoder): JsonPrimitive {
         verify(decoder)
-        return (decoder as JsonInput).decodeJson() as JsonPrimitive
+        val result = (decoder as JsonInput).decodeJson()
+        if (result !is JsonPrimitive) {
+            error("Unexpected JsonElement type: " + result::class)
+        }
+        return result
     }
 }
 
@@ -124,7 +127,6 @@ public object JsonLiteralSerializer : KSerializer<JsonLiteral> {
         if (boolean != null) {
             return encoder.encodeBoolean(boolean)
         }
-
         encoder.encodeString(value.content)
     }
 
@@ -132,7 +134,7 @@ public object JsonLiteralSerializer : KSerializer<JsonLiteral> {
         verify(decoder)
         val result = (decoder as JsonInput).decodeJson()
         if (result !is JsonLiteral) {
-            error("Unexpected json type: " + result::class)
+            error("Unexpected JsonElement type: " + result::class)
         }
         return result
     }
