@@ -12,9 +12,9 @@ import kotlin.test.*
 
 abstract class JsonTestBase {
     protected val strict = Json(JsonConfiguration.Default)
-    protected val unquoted = Json { unquoted = true }
-    protected val unquotedNonStrict = Json { unquoted = true; strictMode = false }
-    protected val nonStrict = Json { strictMode = false }
+    protected val unquoted = Json { unquotedPrint = true }
+    protected val unquotedLenient = Json { unquotedPrint = true; isLenient = true; ignoreUnknownKeys = true; serializeSpecialFloatingPointValues = true }
+    protected val lenient = Json { isLenient = true; ignoreUnknownKeys = true; serializeSpecialFloatingPointValues = true }
 
     @ImplicitReflectionSerializer
     internal inline fun <reified T : Any> Json.stringify(value: T, useStreaming: Boolean): String {

@@ -149,18 +149,16 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
     }
 
     override fun encodeFloat(value: Float) {
-        if (configuration.strictMode && !value.isFinite()) {
+        if (!configuration.serializeSpecialFloatingPointValues && !value.isFinite()) {
             throw InvalidFloatingPoint(value, "float")
         }
-
         if (forceQuoting) encodeString(value.toString()) else composer.print(value)
     }
 
     override fun encodeDouble(value: Double) {
-        if (configuration.strictMode && !value.isFinite()) {
+        if (!configuration.serializeSpecialFloatingPointValues && !value.isFinite()) {
             throw InvalidFloatingPoint(value, "double")
         }
-
         if (forceQuoting) encodeString(value.toString()) else composer.print(value)
     }
 
@@ -169,7 +167,7 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
     }
 
     override fun encodeString(value: String) {
-        if (configuration.unquoted && !shouldBeQuoted(value)) {
+        if (configuration.unquotedPrint && !shouldBeQuoted(value)) {
             composer.print(value)
         } else {
             composer.printQuoted(value)
@@ -178,11 +176,6 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
 
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
         encodeString(enumDescriptor.getElementName(index))
-    }
-
-    override fun encodeValue(value: Any) {
-        if (configuration.strictMode) super.encodeValue(value) else
-            encodeString(value.toString())
     }
 
     internal class Composer(@JvmField internal val sb: StringBuilder, private val json: Json) {

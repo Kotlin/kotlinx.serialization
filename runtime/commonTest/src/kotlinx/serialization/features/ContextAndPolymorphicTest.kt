@@ -50,7 +50,7 @@ class ContextAndPolymorphicTest {
         val scope = serializersModuleOf(Payload::class, PayloadSerializer)
         val bPolymorphicModule = SerializersModule { polymorphic(Any::class) { Payload::class with PayloadSerializer } }
         json = Json(
-            JsonConfiguration(unquoted = true, useArrayPolymorphism = true),
+            JsonConfiguration(unquotedPrint = true, useArrayPolymorphism = true),
             context = scope + bPolymorphicModule
         )
     }

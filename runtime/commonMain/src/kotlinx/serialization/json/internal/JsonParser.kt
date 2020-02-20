@@ -10,7 +10,7 @@ internal class JsonParser(
     configuration: JsonConfiguration,
     private val reader: JsonReader
 ) {
-    private val isStrict = configuration.strictMode
+    private val isLenient = configuration.isLenient
 
     private fun readObject(): JsonElement {
         reader.requireTokenClass(TC_BEGIN_OBJ) { "Expected start of the object" }
@@ -21,7 +21,7 @@ internal class JsonParser(
         var valueExpected = false
         while (reader.canBeginValue) {
             valueExpected = false
-            val key = if (isStrict) reader.takeStringQuoted() else reader.takeString()
+            val key = if (isLenient) reader.takeString() else reader.takeStringQuoted()
             reader.requireTokenClass(TC_COLON) { "Expected ':'" }
             reader.nextToken()
             val element = read()
@@ -64,11 +64,11 @@ internal class JsonParser(
         return JsonArray(result)
     }
 
-    private fun readValue(isString: Boolean, isStrict: Boolean): JsonElement {
-        val str = if (isStrict) {
-            if (isString) reader.takeStringQuoted() else reader.takeString()
-        } else {
+    private fun readValue(isString: Boolean): JsonElement {
+        val str = if (isLenient) {
             reader.takeString()
+        } else {
+            if (isString) reader.takeStringQuoted() else reader.takeString()
         }
         return JsonLiteral(str, isString)
     }
@@ -77,8 +77,8 @@ internal class JsonParser(
         if (!reader.canBeginValue) reader.fail("Can't begin reading value from here")
         return when (reader.tokenClass) {
             TC_NULL -> JsonNull.also { reader.nextToken() }
-            TC_STRING -> readValue(isString = true, isStrict = isStrict)
-            TC_OTHER -> readValue(isString = false, isStrict = isStrict)
+            TC_STRING -> readValue(isString = true)
+            TC_OTHER -> readValue(isString = false)
             TC_BEGIN_OBJ -> readObject()
             TC_BEGIN_LIST -> readArray()
             else -> reader.fail("Can't begin reading element, unexpected token")

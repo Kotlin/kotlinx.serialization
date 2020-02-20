@@ -47,10 +47,9 @@ private sealed class AbstractJsonTreeOutput(
     override fun encodeTaggedLong(tag: String, value: Long) = putElement(tag, JsonLiteral(value))
 
     override fun encodeTaggedFloat(tag: String, value: Float) {
-        if (configuration.strictMode && !value.isFinite()) {
+        if (!configuration.serializeSpecialFloatingPointValues && !value.isFinite()) {
             throw InvalidFloatingPoint(value, tag, "float")
         }
-
         putElement(tag, JsonLiteral(value))
     }
 
@@ -65,10 +64,9 @@ private sealed class AbstractJsonTreeOutput(
     }
 
     override fun encodeTaggedDouble(tag: String, value: Double) {
-        if (configuration.strictMode && !value.isFinite()) {
+        if (!configuration.serializeSpecialFloatingPointValues && !value.isFinite()) {
             throw InvalidFloatingPoint(value, tag, "double")
         }
-
         putElement(tag, JsonLiteral(value))
     }
 

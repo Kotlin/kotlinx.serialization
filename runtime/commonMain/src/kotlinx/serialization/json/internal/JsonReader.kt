@@ -140,7 +140,7 @@ internal class JsonReader(private val source: String) {
 
     fun takeString(): String {
         if (tokenClass != TC_OTHER && tokenClass != TC_STRING) fail(
-            "Expected string or non-null literal. Use JsonConfiguration.strictMode = false to accept non-compliant JSON",
+            "Expected string or non-null literal. $lenientHint",
             tokenPosition
         )
         return takeStringInternal()
@@ -148,14 +148,14 @@ internal class JsonReader(private val source: String) {
 
     fun takeStringQuoted(): String {
         if (tokenClass != TC_STRING) fail(
-            "Expected string literal with quotes. Use JsonConfiguration.strictMode = false to accept non-compliant JSON",
+            "Expected string literal with quotes. $lenientHint",
             tokenPosition
         )
         return takeStringInternal()
     }
 
     fun takeBooleanStringUnquoted(): String {
-        if (tokenClass != TC_OTHER) fail("Expected start of the unquoted boolean literal.  Use JsonConfiguration.strictMode = false to accept non-compliant JSON", tokenPosition)
+        if (tokenClass != TC_OTHER) fail("Expected start of the unquoted boolean literal. $lenientHint", tokenPosition)
         return takeStringInternal()
     }
 

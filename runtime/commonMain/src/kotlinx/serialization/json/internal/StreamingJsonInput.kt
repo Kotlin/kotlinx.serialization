@@ -119,7 +119,10 @@ internal class StreamingJsonInput internal constructor(
                 return index
             }
 
-            if (configuration.strictMode) reader.fail("Encountered an unknown key $key")
+            if (!configuration.ignoreUnknownKeys) {
+                reader.fail("Encountered an unknown key $key. You can enable 'ignoreUnknownKeys' property" +
+                        " to silently ignore such keys")
+            }
             else reader.skipElement()
             if (reader.tokenClass == TC_COMMA) {
                 reader.nextToken()
@@ -147,11 +150,11 @@ internal class StreamingJsonInput internal constructor(
          * We prohibit non true/false boolean literals at all as it is considered way too error-prone,
          * but allow quoted literal in relaxed mode for booleans.
          */
-        return if (configuration.strictMode) {
+        return if (configuration.isLenient) {
+            reader.takeString().toBooleanStrict()
+        } else {
             val string = reader.takeBooleanStringUnquoted()
             string.toBooleanStrict()
-        } else {
-            reader.takeString().toBooleanStrict()
         }
     }
 
@@ -167,10 +170,10 @@ internal class StreamingJsonInput internal constructor(
     override fun decodeDouble(): Double = reader.takeString().toDouble()
     override fun decodeChar(): Char = reader.takeString().single()
     override fun decodeString(): String {
-        return if (configuration.strictMode) {
-            reader.takeStringQuoted()
-        } else {
+        return if (configuration.isLenient) {
             reader.takeString()
+        } else {
+            reader.takeStringQuoted()
         }
     }
 

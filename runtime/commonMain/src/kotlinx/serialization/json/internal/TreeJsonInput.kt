@@ -91,11 +91,10 @@ private sealed class AbstractJsonTreeInput(
 
     override fun decodeTaggedBoolean(tag: String): Boolean {
         val value = getValue(tag)
-        if (json.configuration.strictMode) {
+        if (!json.configuration.isLenient) {
             val literal = value as JsonLiteral
             if (literal.isString) throw JsonException(
-                "Boolean literal for ley '$tag' should be unquoted." +
-                        " Use JsonConfiguration.strictMode = false to accept non-compliant JSON"
+                "Boolean literal for ley '$tag' should be unquoted. $lenientHint"
             )
         }
         return value.boolean
@@ -109,11 +108,10 @@ private sealed class AbstractJsonTreeInput(
     override fun decodeTaggedDouble(tag: String) = getValue(tag).double
     override fun decodeTaggedString(tag: String): String {
         val value = getValue(tag)
-        if (json.configuration.strictMode) {
+        if (!json.configuration.isLenient) {
             val literal = value as JsonLiteral
             if (!literal.isString) throw JsonException(
-                "String literal for key '$tag' should be quoted." +
-                        " Use JsonConfiguration.strictMode = false to accept non-compliant JSON"
+                "String literal for key '$tag' should be quoted. $lenientHint"
             )
         }
         return value.content
@@ -150,7 +148,7 @@ private open class JsonTreeInput(json: Json, override val obj: JsonObject) : Abs
     override fun currentElement(tag: String): JsonElement = obj.getValue(tag)
 
     override fun endStructure(descriptor: SerialDescriptor) {
-        if (!configuration.strictMode || descriptor.kind is PolymorphicKind) return
+        if (configuration.ignoreUnknownKeys || descriptor.kind is PolymorphicKind) return
 
         // Validate keys
         val names = descriptor.cachedSerialNames()

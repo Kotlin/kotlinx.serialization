@@ -32,8 +32,8 @@ class JsonOptionalTests : JsonTestBase() {
     @Test
     fun testAll() = parametrizedTest { useStreaming ->
         assertEquals("{a:0,b:42,c:Hello}", unquoted.stringify(Data.serializer(), Data(), useStreaming))
-        assertEquals(nonStrict.parse(Data.serializer(), "{a:0,b:43,c:Hello}", useStreaming), Data(b = 43))
-        assertEquals(nonStrict.parse(Data.serializer(), "{a:0,b:42,c:Hello}", useStreaming), Data())
+        assertEquals(lenient.parse(Data.serializer(), "{a:0,b:43,c:Hello}", useStreaming), Data(b = 43))
+        assertEquals(lenient.parse(Data.serializer(), "{a:0,b:42,c:Hello}", useStreaming), Data())
     }
 
     @Test
@@ -45,7 +45,7 @@ class JsonOptionalTests : JsonTestBase() {
     @Test
     fun testThrowMissingField() = parametrizedTest { useStreaming ->
         assertFailsWith(MissingFieldException::class) {
-            nonStrict.parse(Data.serializer(), "{b:0}", useStreaming)
+            lenient.parse(Data.serializer(), "{b:0}", useStreaming)
         }
     }
 
