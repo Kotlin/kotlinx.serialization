@@ -23,7 +23,7 @@ internal fun <T> Json.readJson(element: JsonElement, deserializer: Deserializati
 
 private sealed class AbstractJsonTreeInput(
     override val json: Json,
-    open val obj: JsonElement
+    open val value: JsonElement
 ) : NamedValueDecoder(), JsonInput {
 
     override val context: SerialModule
@@ -32,7 +32,7 @@ private sealed class AbstractJsonTreeInput(
     @JvmField
     protected val configuration = json.configuration
 
-    private fun currentObject() = currentTagOrNull?.let { currentElement(it) } ?: obj
+    private fun currentObject() = currentTagOrNull?.let { currentElement(it) } ?: value
 
     override fun decodeJson(): JsonElement = currentObject()
 
@@ -67,7 +67,7 @@ private sealed class AbstractJsonTreeInput(
         val currentElement = currentElement(tag)
         return currentElement as? JsonPrimitive ?: throw JsonDecodingException(
             -1,
-            "Expected JsonPrimitive at $tag, found $currentElement"
+            "Expected JsonPrimitive at $tag, found $currentElement", currentObject().toString()
         )
     }
 
@@ -93,8 +93,8 @@ private sealed class AbstractJsonTreeInput(
         val value = getValue(tag)
         if (!json.configuration.isLenient) {
             val literal = value as JsonLiteral
-            if (literal.isString) throw JsonException(
-                "Boolean literal for ley '$tag' should be unquoted. $lenientHint"
+            if (literal.isString) throw JsonDecodingException(
+                -1, "Boolean literal for key '$tag' should be unquoted. $lenientHint", currentObject().toString()
             )
         }
         return value.boolean
@@ -110,15 +110,15 @@ private sealed class AbstractJsonTreeInput(
         val value = getValue(tag)
         if (!json.configuration.isLenient) {
             val literal = value as JsonLiteral
-            if (!literal.isString) throw JsonException(
-                "String literal for key '$tag' should be quoted. $lenientHint"
+            if (!literal.isString) throw JsonDecodingException(
+                -1, "String literal for key '$tag' should be quoted. $lenientHint", currentObject().toString()
             )
         }
         return value.content
     }
 }
 
-private class JsonPrimitiveInput(json: Json, override val obj: JsonPrimitive) : AbstractJsonTreeInput(json, obj) {
+private class JsonPrimitiveInput(json: Json, override val value: JsonPrimitive) : AbstractJsonTreeInput(json, value) {
 
     init {
         pushTag(PRIMITIVE_TAG)
@@ -128,38 +128,37 @@ private class JsonPrimitiveInput(json: Json, override val obj: JsonPrimitive) : 
 
     override fun currentElement(tag: String): JsonElement {
         require(tag === PRIMITIVE_TAG) { "This input can only handle primitives with '$PRIMITIVE_TAG' tag" }
-        return obj
+        return value
     }
 }
 
-private open class JsonTreeInput(json: Json, override val obj: JsonObject) : AbstractJsonTreeInput(json, obj) {
+private open class JsonTreeInput(json: Json, override val value: JsonObject) : AbstractJsonTreeInput(json, value) {
     private var position = 0
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         while (position < descriptor.elementsCount) {
             val name = descriptor.getTag(position++)
-            if (name in obj) {
+            if (name in value) {
                 return position - 1
             }
         }
         return CompositeDecoder.READ_DONE
     }
 
-    override fun currentElement(tag: String): JsonElement = obj.getValue(tag)
+    override fun currentElement(tag: String): JsonElement = value.getValue(tag)
 
     override fun endStructure(descriptor: SerialDescriptor) {
         if (configuration.ignoreUnknownKeys || descriptor.kind is PolymorphicKind) return
-
         // Validate keys
         val names = descriptor.cachedSerialNames()
-        for (key in obj.keys) {
-            if (key !in names) throw jsonUnknownKeyException(-1, key)
+        for (key in value.keys) {
+            if (key !in names) throw UnknownKeyException(key, value.toString())
         }
     }
 }
 
-private class JsonTreeMapInput(json: Json, override val obj: JsonObject) : JsonTreeInput(json, obj) {
-    private val keys = obj.keys.toList()
+private class JsonTreeMapInput(json: Json, override val value: JsonObject) : JsonTreeInput(json, value) {
+    private val keys = value.keys.toList()
     private val size: Int = keys.size * 2
     private var position = -1
 
@@ -177,7 +176,7 @@ private class JsonTreeMapInput(json: Json, override val obj: JsonObject) : JsonT
     }
 
     override fun currentElement(tag: String): JsonElement {
-        return if (position % 2 == 0) JsonLiteral(tag) else obj.getValue(tag)
+        return if (position % 2 == 0) JsonLiteral(tag) else value.getValue(tag)
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
@@ -185,14 +184,14 @@ private class JsonTreeMapInput(json: Json, override val obj: JsonObject) : JsonT
     }
 }
 
-private class JsonTreeListInput(json: Json, override val obj: JsonArray) : AbstractJsonTreeInput(json, obj) {
-    private val size = obj.content.size
+private class JsonTreeListInput(json: Json, override val value: JsonArray) : AbstractJsonTreeInput(json, value) {
+    private val size = value.content.size
     private var currentIndex = -1
 
     override fun elementName(desc: SerialDescriptor, index: Int): String = (index).toString()
 
     override fun currentElement(tag: String): JsonElement {
-        return obj[tag.toInt()]
+        return value[tag.toInt()]
     }
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {

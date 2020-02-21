@@ -48,7 +48,7 @@ class JsonTest {
 
     @Test
     fun testEnablesImplicitlyOnInterfacesAndAbstractClasses() {
-        val json = Json { useArrayPolymorphism = true; unquoted = true; prettyPrint = false; serialModule = testModule }
+        val json = Json { useArrayPolymorphism = true; unquotedPrint = true; prettyPrint = false; serialModule = testModule }
         val data = genTestData()
         assertEquals("""{iMessage:[MessageWithId,{id:0,body:"Message #0"}],iMessageList:[[MessageWithId,{id:1,body:"Message #1"}],[MessageWithId,{id:2,body:"Message #2"}]],message:[MessageWithId,{id:3,body:"Message #3"}],msgSet:[[SimpleMessage,{body:Simple}]],simple:[DoubleSimpleMessage,{body:Simple,body2:DoubleSimple}],withId:{id:4,body:"Message #4"}}""", json.stringify(Holder.serializer(), data))
     }
@@ -57,7 +57,7 @@ class JsonTest {
     fun polymorphicForGenericUpperBound() {
         val generic = GenericMessage<Message, Any>(MessageWithId(42, "body"), "body2")
         val serial = GenericMessage.serializer(Message.serializer(), IntSerializer as KSerializer<Any>)
-        val json = Json { useArrayPolymorphism = true; unquoted = true; prettyPrint = false; serialModule = testModule }
+        val json = Json { useArrayPolymorphism = true; unquotedPrint = true; prettyPrint = false; serialModule = testModule }
         val s = json.stringify(serial, generic)
         assertEquals("""{value:[MessageWithId,{id:42,body:body}],value2:[kotlin.String,body2]}""", s)
     }

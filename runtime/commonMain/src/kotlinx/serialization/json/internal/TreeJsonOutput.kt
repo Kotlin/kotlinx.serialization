@@ -47,10 +47,11 @@ private sealed class AbstractJsonTreeOutput(
     override fun encodeTaggedLong(tag: String, value: Long) = putElement(tag, JsonLiteral(value))
 
     override fun encodeTaggedFloat(tag: String, value: Float) {
-        if (!configuration.serializeSpecialFloatingPointValues && !value.isFinite()) {
-            throw InvalidFloatingPoint(value, tag, "float")
-        }
+        // First encode value, then check, to have a prettier error message
         putElement(tag, JsonLiteral(value))
+        if (!configuration.serializeSpecialFloatingPointValues && !value.isFinite()) {
+            throw InvalidFloatingPoint(value, tag, "float", getCurrent().toString())
+        }
     }
 
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
@@ -64,10 +65,11 @@ private sealed class AbstractJsonTreeOutput(
     }
 
     override fun encodeTaggedDouble(tag: String, value: Double) {
-        if (!configuration.serializeSpecialFloatingPointValues && !value.isFinite()) {
-            throw InvalidFloatingPoint(value, tag, "double")
-        }
+        // First encode value, then check, to have a prettier error message
         putElement(tag, JsonLiteral(value))
+        if (!configuration.serializeSpecialFloatingPointValues && !value.isFinite()) {
+            throw InvalidFloatingPoint(value, tag, "double", getCurrent().toString())
+        }
     }
 
     override fun encodeTaggedBoolean(tag: String, value: Boolean) = putElement(tag, JsonLiteral(value))
@@ -152,8 +154,8 @@ private class JsonTreeMapOutput(json: Json, nodeConsumer: (JsonElement) -> Unit)
         if (idx % 2 == 0) { // writing key
             tag = when (element) {
                 is JsonPrimitive -> element.content
-                is JsonObject -> throw JsonMapInvalidKeyKind(JsonObjectSerializer.descriptor)
-                is JsonArray -> throw JsonMapInvalidKeyKind(JsonArraySerializer.descriptor)
+                is JsonObject -> throw InvalidKeyKindException(JsonObjectSerializer.descriptor)
+                is JsonArray -> throw InvalidKeyKindException(JsonArraySerializer.descriptor)
             }
         } else {
             content[tag] = element

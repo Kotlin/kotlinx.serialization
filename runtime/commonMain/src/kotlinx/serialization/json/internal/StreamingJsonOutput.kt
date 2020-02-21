@@ -149,17 +149,19 @@ internal class StreamingJsonOutput(private val composer: Composer, override val 
     }
 
     override fun encodeFloat(value: Float) {
-        if (!configuration.serializeSpecialFloatingPointValues && !value.isFinite()) {
-            throw InvalidFloatingPoint(value, "float")
-        }
+        // First encode value, then check, to have a prettier error message
         if (forceQuoting) encodeString(value.toString()) else composer.print(value)
+        if (!configuration.serializeSpecialFloatingPointValues && !value.isFinite()) {
+            throw InvalidFloatingPoint(value, "float", composer.sb.toString())
+        }
     }
 
     override fun encodeDouble(value: Double) {
-        if (!configuration.serializeSpecialFloatingPointValues && !value.isFinite()) {
-            throw InvalidFloatingPoint(value, "double")
-        }
+        // First encode value, then check, to have a prettier error message
         if (forceQuoting) encodeString(value.toString()) else composer.print(value)
+        if (!configuration.serializeSpecialFloatingPointValues && !value.isFinite()) {
+            throw InvalidFloatingPoint(value, "double", composer.sb.toString())
+        }
     }
 
     override fun encodeChar(value: Char) {

@@ -104,7 +104,7 @@ internal class StreamingJsonInput internal constructor(
         }
     }
 
-    private fun decodeObjectIndex(tokenClass: Byte, desc: SerialDescriptor): Int {
+    private fun decodeObjectIndex(tokenClass: Byte, descriptor: SerialDescriptor): Int {
         if (tokenClass == TC_COMMA && !reader.canBeginValue) {
             reader.fail("Unexpected trailing comma")
         }
@@ -114,16 +114,20 @@ internal class StreamingJsonInput internal constructor(
             val key = decodeString()
             reader.requireTokenClass(TC_COLON) { "Expected ':'" }
             reader.nextToken()
-            val index = desc.getElementIndex(key)
+            val index = descriptor.getElementIndex(key)
             if (index != CompositeDecoder.UNKNOWN_NAME) {
                 return index
             }
 
             if (!configuration.ignoreUnknownKeys) {
-                reader.fail("Encountered an unknown key $key. You can enable 'ignoreUnknownKeys' property" +
-                        " to silently ignore such keys")
+                reader.fail(
+                    "Encountered an unknown key '$key'. You can enable 'ignoreUnknownKeys' property" +
+                            " to ignore unknown keys"
+                )
+            } else {
+                reader.skipElement()
             }
-            else reader.skipElement()
+
             if (reader.tokenClass == TC_COMMA) {
                 reader.nextToken()
                 reader.require(reader.canBeginValue, reader.currentPosition) { "Unexpected trailing comma" }
@@ -153,8 +157,7 @@ internal class StreamingJsonInput internal constructor(
         return if (configuration.isLenient) {
             reader.takeString().toBooleanStrict()
         } else {
-            val string = reader.takeBooleanStringUnquoted()
-            string.toBooleanStrict()
+            reader.takeBooleanStringUnquoted().toBooleanStrict()
         }
     }
 

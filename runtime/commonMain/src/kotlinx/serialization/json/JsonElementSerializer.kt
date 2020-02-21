@@ -68,8 +68,8 @@ public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
     override fun deserialize(decoder: Decoder): JsonPrimitive {
         verify(decoder)
         val result = (decoder as JsonInput).decodeJson()
-        if (result !is JsonPrimitive) {
-            error("Unexpected JsonElement type: " + result::class)
+        require(result is JsonPrimitive) {
+            "Unexpected JsonElement type: " + result::class
         }
         return result
     }
@@ -133,8 +133,8 @@ public object JsonLiteralSerializer : KSerializer<JsonLiteral> {
     override fun deserialize(decoder: Decoder): JsonLiteral {
         verify(decoder)
         val result = (decoder as JsonInput).decodeJson()
-        if (result !is JsonLiteral) {
-            error("Unexpected JsonElement type: " + result::class)
+        require(result is JsonLiteral) {
+            "Unexpected JsonElement type: " + result::class
         }
         return result
     }
@@ -188,9 +188,13 @@ public object JsonArraySerializer : KSerializer<JsonArray> {
 }
 
 private fun verify(encoder: Encoder) {
-    if (encoder !is JsonOutput) error("Json element serializer can be used only by Json format, had $encoder")
+    require(encoder is JsonOutput) {
+        "Json element serializer can be used only by Json format, had $encoder"
+    }
 }
 
 private fun verify(decoder: Decoder) {
-    if (decoder !is JsonInput) error("Json element serializer can be used only by Json format, had $decoder")
+    require(decoder is JsonInput) {
+        "Json element serializer can be used only by Json format, had $decoder"
+    }
 }
