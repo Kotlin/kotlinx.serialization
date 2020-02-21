@@ -17,18 +17,19 @@ import kotlin.jvm.*
  * * [ignoreUnknownKeys] ignores encounters of unknown properties in the input JSON.
  *
  * * [isLenient] removes JSON specification restriction (RFC-4627) and makes parser
- *   more liberal to the malformed input. In lenient modes quoted string literals an unquoted
- *   string literals are allowed.
+ *   more liberal to the malformed input. In lenient modes quoted string literals,
+ *   and unquoted string literals are allowed.
  *
- *  * [serializeSpecialFloatingPointValues] removes JSON specification restriction on
- *    special floating point values such as `NaN` and `Infinity` and enables their
- *    serialization. When enabling it, please assure that the receiving party will be
- *    able to parse these special value.
+ * * [serializeSpecialFloatingPointValues] removes JSON specification restriction on
+ *   special floating-point values such as `NaN` and `Infinity` and enables their
+ *   serialization. When enabling it, please assure that the receiving party will be
+ *   able to parse these special value.
  *
  * * [unquotedPrint] specifies whether keys and values should be quoted when building the
  *   JSON string. This option is intended to be used for debugging and pretty-printing,
- *   enabling it in the production code is not recommended as strings producer with
- *   this setting are not valid JSON.
+ *   enabling it in the production code is not recommended as strings produced with
+ *   this setting are not valid JSON. String values containing whitespaces and delimiter characters
+ *   will be quoted anyway.
  *
  * * [allowStructuredMapKeys] enables structured objects to be serialized as map keys by
  *   changing serialized form of the map from JSON object (kv pairs) to flat array `[k1, v1, k2, v2]`.
@@ -59,6 +60,7 @@ public data class JsonConfiguration @UnstableDefault constructor(
     @Deprecated(message = "Custom update modes are not fully supported", level = DeprecationLevel.WARNING)
     internal val updateMode: UpdateMode = UpdateMode.OVERWRITE
 ) {
+
     init {
         if (useArrayPolymorphism) require(classDiscriminator == defaultDiscriminator) {
             "Class discriminator should not be specified when array polymorphism is specified"
@@ -67,6 +69,7 @@ public data class JsonConfiguration @UnstableDefault constructor(
         if (!prettyPrint) require(indent == defaultIndent) {
             "Indent should not be specified when default printing mode is used"
         }
+
     }
 
     companion object {

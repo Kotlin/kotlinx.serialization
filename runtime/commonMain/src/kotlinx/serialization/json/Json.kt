@@ -54,7 +54,7 @@ public class Json
  * Default Json constructor not marked as unstable API.
  * To configure Json format behavior while still using only stable API it is possible to use `JsonConfiguration.copy` factory:
  * ```
- * val json = Json(configuration: = JsonConfiguration.Stable.copy(prettyPrint = false))
+ * val json = Json(configuration: = JsonConfiguration.Stable.copy(prettyPrint = true))
  * ```
  */
 public constructor(
@@ -182,7 +182,8 @@ public constructor(
             JsonConfiguration(
                 isLenient = true,
                 ignoreUnknownKeys = true,
-                serializeSpecialFloatingPointValues = true, useArrayPolymorphism = true
+                serializeSpecialFloatingPointValues = true,
+                useArrayPolymorphism = true
             )
         )
 

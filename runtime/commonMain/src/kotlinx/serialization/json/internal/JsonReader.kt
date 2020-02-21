@@ -140,9 +140,7 @@ internal class JsonReader(private val source: String) {
 
     fun takeString(): String {
         if (tokenClass != TC_OTHER && tokenClass != TC_STRING) fail(
-            "Expected string or non-null literal. $lenientHint",
-            tokenPosition
-        )
+            "Expected string or non-null literal", tokenPosition)
         return takeStringInternal()
     }
 
@@ -289,14 +287,16 @@ internal class JsonReader(private val source: String) {
                 TC_END_LIST -> {
                     if (tokenStack.last() != TC_BEGIN_LIST) throw JsonDecodingException(
                         currentPosition,
-                        "found ] instead of }"
+                        "found ] instead of }",
+                        source
                     )
                     tokenStack.removeAt(tokenStack.size - 1)
                 }
                 TC_END_OBJ -> {
                     if (tokenStack.last() != TC_BEGIN_OBJ) throw JsonDecodingException(
                         currentPosition,
-                        "found } instead of ]"
+                        "found } instead of ]",
+                        source
                     )
                     tokenStack.removeAt(tokenStack.size - 1)
                 }
@@ -310,7 +310,7 @@ internal class JsonReader(private val source: String) {
     }
 
     public fun fail(message: String, position: Int = currentPosition): Nothing {
-        throw JsonDecodingException(position, message)
+        throw JsonDecodingException(position, message, source)
     }
 
     internal inline fun require(condition: Boolean, position: Int = currentPosition, message: () -> String) {
@@ -333,13 +333,4 @@ private fun rangeEquals(source: String, start: Int, length: Int, str: String): B
     if (length != n) return false
     for (i in 0 until n) if (source[start + i] != str[i]) return false
     return true
-}
-
-internal inline fun require(condition: Boolean, position: Int, msg: () -> String) {
-    if (!condition) fail(position, msg())
-}
-
-@Suppress("NOTHING_TO_INLINE")
-internal inline fun fail(position: Int, msg: String): Nothing {
-    throw JsonDecodingException(position, msg)
 }

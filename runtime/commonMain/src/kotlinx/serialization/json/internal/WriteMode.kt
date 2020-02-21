@@ -6,7 +6,7 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonMapInvalidKeyKind
+import kotlinx.serialization.json.InvalidKeyKindException
 import kotlin.jvm.JvmField
 
 internal enum class WriteMode(@JvmField val begin: Char, @JvmField val end: Char) {
@@ -41,6 +41,6 @@ internal inline fun <T, R1 : T, R2 : T> Json.selectMapMode(
     } else if (configuration.allowStructuredMapKeys) {
         ifList()
     } else {
-        throw JsonMapInvalidKeyKind(keyDescriptor)
+        throw InvalidKeyKindException(keyDescriptor)
     }
 }

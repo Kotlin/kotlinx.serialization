@@ -7,21 +7,57 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 
 /**
- * Generic exception indicating a problem with JSON operations.
+ * Generic exception indicating a problem with JSON serialization.
  */
 public open class JsonException(message: String) : SerializationException(message)
 
 /**
- * Exception thrown when [Json] has failed to parse provided JSON or deserialize it to a given model.
- *
- * Such exception usually indicate that [Json] input is not a valid JSON.
+ * Thrown when [Json] has failed to parse the given JSON string or deserialize it to a target class.
  */
-public class JsonDecodingException(position: Int, message: String) :
-    JsonException("Invalid JSON at $position: $message")
+public class JsonDecodingException(offset: Int, message: String) :
+    JsonException("Unexpected JSON token at offset $offset: $message")
 
 /**
- * Exception thrown when [Json] has failed to create JSON string or encode particular value
- *
- * Such exception usually indicates that input data can't be represented as a valid JSON
+ * Thrown when [Json] has failed to create a JSON string from the given value.
  */
 public class JsonEncodingException(message: String) : JsonException(message)
+
+internal fun JsonDecodingException(offset: Int, message: String, input: String) =
+    JsonDecodingException(offset, "$message.\n JSON input: ${input.minify(offset)}")
+
+internal fun InvalidFloatingPoint(value: Number, type: String, output: String) = JsonEncodingException(
+    "'$value' is not a valid '$type' as per JSON specification. " +
+            "You can enable 'serializeSpecialFloatingPointValues' property to serialize such values\n" +
+            "Current output: ${output.minify()}"
+)
+
+internal fun InvalidFloatingPoint(value: Number, key: String, type: String, output: String) = JsonEncodingException(
+    "'$value' with key '$key' is not a valid $type as per JSON specification. " +
+            "You can enable 'serializeSpecialFloatingPointValues' property to serialize such values.\n" +
+            "Current output: ${output.minify()}"
+)
+
+internal fun UnknownKeyException(key: String, input: String) = JsonDecodingException(
+    -1,
+    "JSON encountered unknown key: '$key'. You can enable 'ignoreUnknownKeys' property to ignore unknown keys. JSON input: $input")
+
+internal fun InvalidKeyKindException(keyDescriptor: SerialDescriptor) = JsonEncodingException(
+    "Value of type '${keyDescriptor.serialName}' can't be used in JSON as a key in the map. " +
+            "It should have either primitive or enum kind, but its kind is '${keyDescriptor.kind}.'\n" +
+            "You can convert such maps to arrays [key1, value1, key2, value2,...] using 'allowStructuredMapKeys' property in JsonConfiguration"
+)
+
+private fun String.minify(offset: Int = -1): String {
+    if (offset < 200) return this
+    if (offset == -1) {
+        val start = this.length - 60
+        if (start <= 0) return this
+        return "....." + substring(start)
+    }
+
+    val start = offset - 30
+    val end = offset + 30
+    val prefix = if (start <= 0) "" else "....."
+    val suffix = if (end >= length) "" else "....."
+    return prefix + substring(start.coerceAtLeast(0), end.coerceAtMost(length)) + suffix
+}

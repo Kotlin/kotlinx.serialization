@@ -4,10 +4,10 @@
 
 package kotlinx.serialization.features
 
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.test.assertStringFormAndRestored
-import kotlin.test.Test
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+import kotlinx.serialization.test.*
+import kotlin.test.*
 
 class PrimitiveArraySerializersTest {
 
@@ -54,10 +54,12 @@ class PrimitiveArraySerializersTest {
             return "A(arr=${arr.contentToString()}, arr2=${arr2.contentToString()}, arr3=${arr3.contentToString()}, arr4=${arr4.contentToString()}, arr5=${arr5.contentToString()}, arr6=${arr6.contentToString()}, arr7=${arr7.contentToString()}, arr8=${arr8.contentToString()})"
         }
     }
+
     @Test
     fun testCanBeSerialized() = assertStringFormAndRestored(
         """{"arr":[1,2,3],"arr2":[1,2],"arr3":[true,false],"arr4":["a","b","c"],"arr5":[NaN,0.1,-0.25],"arr6":[1,2,3],"arr7":[1,2,3],"arr8":[1.25,2.25,3.25]}""",
         A(byteArrayOf(1, 2, 3)),
         A.serializer(),
-        Json.nonstrict)
+        Json.nonstrict
+    )
 }

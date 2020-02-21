@@ -8,18 +8,18 @@ import kotlinx.serialization.*
 import kotlinx.serialization.test.assertStringFormAndRestored
 import kotlin.test.*
 
-@Serializable
-private data class WithMap(val map: Map<Long, Long>)
-
-@Serializable
-private data class WithEnum(val map: Map<SampleEnum, Long>)
-
-@Serializable
-private data class WithComplexKey(val map: Map<IntData, String>)
-
 class JsonMapKeysTest : JsonTestBase() {
+    @Serializable
+    private data class WithMap(val map: Map<Long, Long>)
+
+    @Serializable
+    private data class WithEnum(val map: Map<SampleEnum, Long>)
+
+    @Serializable
+    private data class WithComplexKey(val map: Map<IntData, String>)
+
     @Test
-    fun mapKeysShouldBeStrings() = parametrizedTest(strict) { fmt ->
+    fun testMapKeysShouldBeStrings() = parametrizedTest(strict) { fmt ->
         assertStringFormAndRestored(
             """{"map":{"10":10,"20":20}}""",
             WithMap(mapOf(10L to 10L, 20L to 20L)),
@@ -37,11 +37,11 @@ class JsonMapKeysTest : JsonTestBase() {
                 streaming
             )
         }
-        assertTrue(e.message?.contains("can't be used in json as map key") == true, "wrong exception text")
+        assertTrue(e.message?.contains("can't be used in JSON as a key in the map") == true)
     }
 
     @Test
-    fun structuredMapKeysAllowedWithFlag() = assertJsonFormAndRestored(
+    fun testStructuredMapKeysAllowedWithFlag() = assertJsonFormAndRestored(
         WithComplexKey.serializer(),
         WithComplexKey(mapOf(IntData(42) to "42")),
         """{"map":[{"intV":42},"42"]}""",
@@ -49,7 +49,7 @@ class JsonMapKeysTest : JsonTestBase() {
     )
 
     @Test
-    fun enumsAreAllowedAsMapKeys() = assertJsonFormAndRestored(
+    fun testEnumsAreAllowedAsMapKeys() = assertJsonFormAndRestored(
         WithEnum.serializer(),
         WithEnum(mapOf(SampleEnum.OptionA to 1L, SampleEnum.OptionC to 3L)),
         """{"map":{"OptionA":1,"OptionC":3}}""",
