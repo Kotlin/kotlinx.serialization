@@ -7,7 +7,7 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 
 /**
- * Generic exception indicating a problem with JSON serialization.
+ * Generic exception indicating a problem with JSON serialization and deserialization.
  */
 public open class JsonException(message: String) : SerializationException(message)
 
@@ -39,7 +39,9 @@ internal fun InvalidFloatingPoint(value: Number, key: String, type: String, outp
 
 internal fun UnknownKeyException(key: String, input: String) = JsonDecodingException(
     -1,
-    "JSON encountered unknown key: '$key'. You can enable 'ignoreUnknownKeys' property to ignore unknown keys. JSON input: $input")
+    "JSON encountered unknown key: '$key'. You can enable 'JsonConfiguration.ignoreUnknownKeys' property to ignore unknown keys.\n" +
+            " JSON input: ${input.minify()}"
+)
 
 internal fun InvalidKeyKindException(keyDescriptor: SerialDescriptor) = JsonEncodingException(
     "Value of type '${keyDescriptor.serialName}' can't be used in JSON as a key in the map. " +
@@ -48,7 +50,7 @@ internal fun InvalidKeyKindException(keyDescriptor: SerialDescriptor) = JsonEnco
 )
 
 private fun String.minify(offset: Int = -1): String {
-    if (offset < 200) return this
+    if (length < 200) return this
     if (offset == -1) {
         val start = this.length - 60
         if (start <= 0) return this

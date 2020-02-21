@@ -17,13 +17,13 @@ import kotlin.jvm.*
  * * [ignoreUnknownKeys] ignores encounters of unknown properties in the input JSON.
  *
  * * [isLenient] removes JSON specification restriction (RFC-4627) and makes parser
- *   more liberal to the malformed input. In lenient modes quoted string literals,
+ *   more liberal to the malformed input. In lenient mode quoted boolean literals,
  *   and unquoted string literals are allowed.
  *
  * * [serializeSpecialFloatingPointValues] removes JSON specification restriction on
  *   special floating-point values such as `NaN` and `Infinity` and enables their
- *   serialization. When enabling it, please assure that the receiving party will be
- *   able to parse these special value.
+ *   serialization. When enabling it, please ensure that the receiving party will be
+ *   able to parse these special values.
  *
  * * [unquotedPrint] specifies whether keys and values should be quoted when building the
  *   JSON string. This option is intended to be used for debugging and pretty-printing,
@@ -114,6 +114,6 @@ public data class JsonConfiguration @UnstableDefault constructor(
         "'ignoreUnknownKeys', 'isLenient' and 'serializeSpecialFloatingPointValues'")
 @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 @kotlin.internal.LowPriorityInOverloadResolution
-fun JsonConfiguration(strictMode: Boolean = true, unquoted: Boolean = false) {
+public fun JsonConfiguration(strictMode: Boolean = true, unquoted: Boolean = false) {
     error("Should not be called")
 }

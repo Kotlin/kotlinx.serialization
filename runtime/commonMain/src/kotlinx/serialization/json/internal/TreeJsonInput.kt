@@ -73,11 +73,6 @@ private sealed class AbstractJsonTreeInput(
 
     protected abstract fun currentElement(tag: String): JsonElement
 
-    override fun decodeTaggedChar(tag: String): Char {
-        val o = getValue(tag)
-        return if (o.content.length == 1) o.content[0] else throw SerializationException("$o can't be represented as Char")
-    }
-
     override fun decodeTaggedEnum(tag: String, enumDescription: SerialDescriptor): Int =
         enumDescription.getElementIndexOrThrow(getValue(tag).content)
 
@@ -100,12 +95,22 @@ private sealed class AbstractJsonTreeInput(
         return value.boolean
     }
 
-    override fun decodeTaggedByte(tag: String): Byte = getValue(tag).int.toByte()
-    override fun decodeTaggedShort(tag: String) = getValue(tag).int.toShort()
-    override fun decodeTaggedInt(tag: String) = getValue(tag).int
-    override fun decodeTaggedLong(tag: String) = getValue(tag).long
-    override fun decodeTaggedFloat(tag: String) = getValue(tag).float
-    override fun decodeTaggedDouble(tag: String) = getValue(tag).double
+    override fun decodeTaggedByte(tag: String) = getValue(tag).primitive("byte") { int.toByte() }
+    override fun decodeTaggedShort(tag: String) = getValue(tag).primitive("short") { int.toShort() }
+    override fun decodeTaggedInt(tag: String) = getValue(tag).primitive("int") { int }
+    override fun decodeTaggedLong(tag: String) = getValue(tag).primitive("long") { long }
+    override fun decodeTaggedFloat(tag: String) = getValue(tag).primitive("float") { float }
+    override fun decodeTaggedDouble(tag: String) = getValue(tag).primitive("double") { double }
+    override fun decodeTaggedChar(tag: String): Char = getValue(tag).primitive("char") { content.single() }
+
+    private inline fun <T: Any> JsonPrimitive.primitive(primitive: String, block: JsonPrimitive.() -> T): T {
+        try {
+            return block()
+        } catch (e: Throwable) {
+            throw JsonDecodingException(-1, "Failed to parse '$primitive'", currentObject().toString())
+        }
+    }
+
     override fun decodeTaggedString(tag: String): String {
         val value = getValue(tag)
         if (!json.configuration.isLenient) {

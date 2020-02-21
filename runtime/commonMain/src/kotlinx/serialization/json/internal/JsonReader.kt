@@ -225,16 +225,14 @@ internal class JsonReader(private val source: String) {
         length = 0 // in buffer
         var currentPosition = startPosition + 1
         var lastPosition = currentPosition
-        val length = source.length
         while (source[currentPosition] != STRING) {
-            if (currentPosition >= length) fail("Unexpected EOF", currentPosition)
             if (source[currentPosition] == STRING_ESC) {
                 appendRange(source, lastPosition, currentPosition)
                 val newPosition = appendEsc(source, currentPosition + 1)
                 currentPosition = newPosition
                 lastPosition = newPosition
-            } else {
-                currentPosition++
+            } else if (++currentPosition >= source.length) {
+                fail("EOF", currentPosition)
             }
         }
         if (lastPosition == startPosition + 1) {

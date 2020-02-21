@@ -121,7 +121,7 @@ internal class StreamingJsonInput internal constructor(
 
             if (!configuration.ignoreUnknownKeys) {
                 reader.fail(
-                    "Encountered an unknown key '$key'. You can enable 'ignoreUnknownKeys' property" +
+                    "Encountered an unknown key '$key'. You can enable 'JsonConfiguration.ignoreUnknownKeys' property" +
                             " to ignore unknown keys"
                 )
             } else {
@@ -165,18 +165,27 @@ internal class StreamingJsonInput internal constructor(
      * The rest of the primitives are allowed to be quoted and unqouted
      * to simplify integrations with third-party API.
      */
-    override fun decodeByte(): Byte = reader.takeString().toByte()
-    override fun decodeShort(): Short = reader.takeString().toShort()
-    override fun decodeInt(): Int = reader.takeString().toInt()
-    override fun decodeLong(): Long = reader.takeString().toLong()
-    override fun decodeFloat(): Float = reader.takeString().toFloat()
-    override fun decodeDouble(): Double = reader.takeString().toDouble()
-    override fun decodeChar(): Char = reader.takeString().single()
+    override fun decodeByte(): Byte = reader.takeString().parse("byte") { toByte() }
+    override fun decodeShort(): Short = reader.takeString().parse("short") { toShort() }
+    override fun decodeInt(): Int = reader.takeString().parse("int") { toInt() }
+    override fun decodeLong(): Long = reader.takeString().parse("long") { toLong() }
+    override fun decodeFloat(): Float = reader.takeString().parse("float") { toFloat() }
+    override fun decodeDouble(): Double = reader.takeString().parse("double") { toDouble() }
+    override fun decodeChar(): Char = reader.takeString().parse("char") { single() }
+
     override fun decodeString(): String {
         return if (configuration.isLenient) {
             reader.takeString()
         } else {
             reader.takeStringQuoted()
+        }
+    }
+
+    private inline fun <T> String.parse(type: String, block: String.() -> T): T {
+        try {
+            return block()
+        } catch (e: Throwable) {
+            reader.fail("Failed to parse '$type'")
         }
     }
 
