@@ -41,8 +41,7 @@ public object JsonElementSerializer : KSerializer<JsonElement> {
     }
 
     override fun deserialize(decoder: Decoder): JsonElement {
-        verify(decoder)
-        val input = decoder as JsonInput
+        val input = decoder.asJsonInput()
         return input.decodeJson()
     }
 }
@@ -66,11 +65,8 @@ public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
     }
 
     override fun deserialize(decoder: Decoder): JsonPrimitive {
-        verify(decoder)
-        val result = (decoder as JsonInput).decodeJson()
-        require(result is JsonPrimitive) {
-            "Unexpected JsonElement type: " + result::class
-        }
+        val result = decoder.asJsonInput().decodeJson()
+        if (result !is JsonPrimitive) throw JsonDecodingException(-1, "Unexpected JSON element, expected JsonPrimitive, had ${result::class}", result.toString())
         return result
     }
 }
@@ -131,11 +127,8 @@ public object JsonLiteralSerializer : KSerializer<JsonLiteral> {
     }
 
     override fun deserialize(decoder: Decoder): JsonLiteral {
-        verify(decoder)
-        val result = (decoder as JsonInput).decodeJson()
-        require(result is JsonLiteral) {
-            "Unexpected JsonElement type: " + result::class
-        }
+        val result = decoder.asJsonInput().decodeJson()
+        if (result !is JsonLiteral) throw JsonDecodingException(-1, "Unexpected JSON element, expected JsonLiteral, had ${result::class}", result.toString())
         return result
     }
 }
@@ -188,13 +181,21 @@ public object JsonArraySerializer : KSerializer<JsonArray> {
 }
 
 private fun verify(encoder: Encoder) {
-    require(encoder is JsonOutput) {
-        "Json element serializer can be used only by Json format, had $encoder"
-    }
+    encoder.asJsonOutput()
 }
 
 private fun verify(decoder: Decoder) {
-    require(decoder is JsonInput) {
-        "Json element serializer can be used only by Json format, had $decoder"
-    }
+    decoder.asJsonInput()
 }
+
+internal fun Decoder.asJsonInput(): JsonInput = this as? JsonInput
+    ?: throw IllegalStateException(
+        "This serializer can be used only with Json format." +
+                "Expected Decoder to be JsonInput, got ${this::class}"
+    )
+
+internal fun Encoder.asJsonOutput() = this as? JsonOutput
+    ?: throw IllegalStateException(
+        "This serializer can be used only with Json format." +
+                "Expected Encoder to be JsonOutput, got ${this::class}"
+    )
