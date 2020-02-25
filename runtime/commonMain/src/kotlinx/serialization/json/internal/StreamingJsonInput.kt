@@ -22,7 +22,7 @@ internal class StreamingJsonInput internal constructor(
     public override val context: SerialModule = json.context
     private var currentIndex = -1
     private val configuration = json.configuration
-    
+
     public override fun decodeJson(): JsonElement = JsonParser(json.configuration, reader).read()
 
     @Suppress("DEPRECATION")

@@ -7,6 +7,7 @@ package kotlinx.serialization
 import kotlinx.serialization.json.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.modules.*
+import kotlin.RequiresOptIn.Level.*
 
 /**
  * This annotation marks declaration which try to obtain serializer implicitly
@@ -21,7 +22,7 @@ import kotlinx.serialization.modules.*
  * It's always better to specify serializer explicitly, using generated `.serializer()`
  * function on serializable class' companion.
  */
-@Experimental
+@RequiresOptIn
 public annotation class ImplicitReflectionSerializer
 
 /**
@@ -30,7 +31,7 @@ public annotation class ImplicitReflectionSerializer
  * For example, [JsonConfiguration.Default] marked as unstable, thus indicating that it can change its default values
  * in the next releases (e.g. disable strict-mode by default), leading to a semantic (not source code level) change.
  */
-@Experimental(level = Experimental.Level.WARNING)
+@RequiresOptIn(level = WARNING)
 public annotation class UnstableDefault
 
 @ImplicitReflectionSerializer

@@ -4,9 +4,7 @@
 
 package kotlinx.serialization
 
-import kotlinx.io.*
-import kotlinx.serialization.internal.*
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 import kotlin.test.*
 
 class CommonTest {
@@ -35,7 +33,7 @@ class CommonTest {
     }
 
     @Test
-    @UseExperimental(ImplicitReflectionSerializer::class)
+    @OptIn(ImplicitReflectionSerializer::class)
     fun nativeSupportsSimpleReflectionSerializer() {
         val s = Json.stringify(shop)
         println(s)

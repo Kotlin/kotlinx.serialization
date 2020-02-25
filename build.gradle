@@ -87,9 +87,8 @@ ext.compilerVersion = org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION
 allprojects {
     group 'org.jetbrains.kotlinx'
 
-    if (ext.has('overriden_version')) {
-        version = overriden_version
-    }
+    def deployVersion = properties['DeployVersion']
+    if (deployVersion != null) version = deployVersion
 
     if (project.hasProperty("bootstrap")) {
         version = version + '-SNAPSHOT'
@@ -100,8 +99,6 @@ allprojects {
 
     if (build_snapshot_train) {
         // Snapshot-specific
-        def deployVersion = properties['DeployVersion']
-        if (deployVersion != null) version = deployVersion
         repositories {
             mavenLocal()
             maven { url "https://oss.sonatype.org/content/repositories/snapshots" }

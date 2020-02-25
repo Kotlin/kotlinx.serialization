@@ -20,7 +20,7 @@ internal open class TypeBase<T>
  * also provide information about nullability.
  */
 @Deprecated("Consider using Kotlin type token instead", ReplaceWith("typeOf()"), level = DeprecationLevel.WARNING)
-inline fun <reified T> typeTokenOf(): Type {
+public inline fun <reified T> typeTokenOf(): Type {
     val base = object : TypeBase<T>() {}
     val superType = base::class.java.genericSuperclass!!
     return (superType as ParameterizedType).actualTypeArguments.first()!!
@@ -35,7 +35,7 @@ inline fun <reified T> typeTokenOf(): Type {
  * Kotlin-specific type information, such as nullability, sealed classes and object.
  */
 @Suppress("UNCHECKED_CAST")
-@UseExperimental(ImplicitReflectionSerializer::class)
+@OptIn(ImplicitReflectionSerializer::class)
 public fun serializerByTypeToken(type: Type): KSerializer<Any> = when (type) {
     is GenericArrayType -> {
         val eType = type.genericComponentType.let {

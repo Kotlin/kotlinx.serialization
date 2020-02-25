@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json.internal
@@ -84,7 +84,7 @@ internal class StreamingJsonOutput(
         }
     }
 
-    override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
+    override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         when (mode) {
             WriteMode.LIST -> {
                 if (!composer.writingFirst)
@@ -120,7 +120,7 @@ internal class StreamingJsonOutput(
                 if (!composer.writingFirst)
                     composer.print(COMMA)
                 composer.nextItem()
-                encodeString(desc.getElementName(index))
+                encodeString(descriptor.getElementName(index))
                 composer.print(COLON)
                 composer.space()
             }

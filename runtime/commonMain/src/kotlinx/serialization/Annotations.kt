@@ -108,5 +108,5 @@ public annotation class Polymorphic
  * If you cannot avoid using internal API to solve your problem, please report your use-case to serialization's issue tracker.
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPEALIAS)
-@Experimental(level = Experimental.Level.ERROR)
+@RequiresOptIn(level = RequiresOptIn.Level.ERROR)
 public annotation class InternalSerializationApi

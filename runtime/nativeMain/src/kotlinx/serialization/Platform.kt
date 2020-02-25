@@ -16,7 +16,7 @@ actual fun stringFromUtf8Bytes(bytes: ByteArray): String {
 }
 
 
-@UseExperimental(ExperimentalAssociatedObjects::class)
+@OptIn(ExperimentalAssociatedObjects::class)
 @AssociatedObjectKey
 @Retention(AnnotationRetention.BINARY)
 @Deprecated("Inserted into generated code and should not be used directly", level = DeprecationLevel.HIDDEN)
@@ -26,7 +26,7 @@ public annotation class SerializableWith(val serializer: KClass<out KSerializer<
     "UNCHECKED_CAST",
     "DEPRECATION_ERROR"
 )
-@UseExperimental(ExperimentalAssociatedObjects::class)
+@OptIn(ExperimentalAssociatedObjects::class)
 internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? =
     when (val assocObject = findAssociatedObject<SerializableWith>()) {
         is KSerializer<*> -> assocObject as KSerializer<T>
@@ -39,7 +39,7 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
     "UNCHECKED_CAST",
     "DEPRECATION_ERROR"
 )
-@UseExperimental(ExperimentalAssociatedObjects::class)
+@OptIn(ExperimentalAssociatedObjects::class)
 @ImplicitReflectionSerializer
 internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
     findAssociatedObject<SerializableWith>() as? KSerializer<T>

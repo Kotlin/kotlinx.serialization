@@ -42,7 +42,7 @@ public inline fun <reified T> serializer(): KSerializer<T> {
  * [typeOf] API currently does not work with user-defined generic classes on Kotlin/JS.
  */
 @Suppress("UNCHECKED_CAST", "NO_REFLECTION_IN_CLASS_PATH", "UNSUPPORTED")
-@UseExperimental(ImplicitReflectionSerializer::class)
+@OptIn(ImplicitReflectionSerializer::class)
 public fun serializer(type: KType): KSerializer<Any?> {
     fun serializerByKTypeImpl(type: KType): KSerializer<Any> {
         val rootClass = when (val t = type.classifier) {

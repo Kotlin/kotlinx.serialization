@@ -70,7 +70,7 @@ public constructor(
     @UnstableDefault
     public constructor(block: JsonBuilder.() -> Unit) : this(JsonBuilder().apply { block() })
 
-    @UseExperimental(UnstableDefault::class)
+    @OptIn(UnstableDefault::class)
     @Deprecated(
         message = "Default constructor is deprecated, please specify the desired configuration explicitly or use Json(JsonConfiguration.Default)",
         replaceWith = ReplaceWith("Json(JsonConfiguration.Default)"),
@@ -78,7 +78,7 @@ public constructor(
     )
     public constructor() : this(JsonConfiguration(useArrayPolymorphism = true))
 
-    @UseExperimental(UnstableDefault::class)
+    @OptIn(UnstableDefault::class)
     private constructor(builder: JsonBuilder) : this(builder.buildConfiguration(), builder.buildModule())
 
     init {
