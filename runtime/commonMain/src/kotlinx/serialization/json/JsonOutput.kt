@@ -61,7 +61,7 @@ public interface JsonOutput: Encoder, CompositeEncoder {
      * fun serialize(encoder: Encoder, value: Holder) {
      *     // Completely okay, the whole Holder object is read
      *     val jsonObject = JsonObject(...) // build a JsonObject from Holder
-     *     (encoder asJsonOutput).encodeJson(jsonObject) // Write it
+     *     (encoder as JsonOutput).encodeJson(jsonObject) // Write it
      * }
      *
      * // Incorrect Holder serialize method
