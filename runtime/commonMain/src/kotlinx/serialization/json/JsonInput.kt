@@ -63,7 +63,7 @@ public interface JsonInput : Decoder, CompositeDecoder {
      * // Holder deserialize method
      * fun deserialize(decoder: Decoder): Holder {
      *     // Completely okay, the whole Holder object is read
-     *     val jsonObject = decoder.asJsonInput().decodeJson()
+     *     val jsonObject = (decoder as JsonInput).decodeJson()
      *     // ...
      * }
      *
