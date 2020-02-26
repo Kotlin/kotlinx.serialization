@@ -13,27 +13,29 @@ import kotlinx.serialization.*
  * Typical example of the usage:
  * ```
  * // Class representing Either<Left|Right>
- * sealed class DummyEither {
- *     data class Left(val errorMsg: String) : DummyEither()
- *     data class Right(val data: Payload) : DummyEither()
+ * sealed class Either {
+ *     data class Left(val errorMsg: String) : Either()
+ *     data class Right(val data: Payload) : Either()
  * }
  *
  * // Serializer injects custom behaviour by inspecting object content and writing
- * object EitherSerializer : KSerializer<DummyEither> {
- *     override val descriptor: SerialDescriptor = SerialClassDescImpl("DummyEither")
+ * object EitherSerializer : KSerializer<Either> {
+ *     override val descriptor: SerialDescriptor = SerialDescriptor("package.Either", PolymorphicKind.SEALED) {
+ *          // ..
+ *      }
  *
- *     override fun deserialize(decoder: Decoder): DummyEither {
+ *     override fun deserialize(decoder: Decoder): Either {
  *         val input = decoder as? JsonInput ?: throw SerializationException("This class can be loaded only by Json")
  *         val tree = input.decodeJson() as? JsonObject ?: throw SerializationException("Expected JsonObject")
- *         if ("error" in tree) return DummyEither.Left(tree.getPrimitive("error").content)
- *         return DummyEither.Right(input.json.decodeJson(tree, Payload.serializer()))
+ *         if ("error" in tree) return Either.Left(tree.getPrimitive("error").content)
+ *         return Either.Right(input.json.decodeJson(tree, Payload.serializer()))
  *     }
  *
- *     override fun serialize(encoder: Encoder, obj: DummyEither) {
+ *     override fun serialize(encoder: Encoder, value: Either) {
  *         val output = encoder as? JsonOutput ?: throw SerializationException("This class can be saved only by Json")
- *         val tree = when (obj) {
- *           is DummyEither.Left -> JsonObject(mapOf("error" to JsonLiteral(obj.errorMsg)))
- *           is DummyEither.Right -> output.json.toJson(obj.data, Payload.serializer())
+ *         val tree = when (value) {
+ *           is Either.Left -> JsonObject(mapOf("error" to JsonLiteral(value.errorMsg)))
+ *           is Either.Right -> output.json.toJson(value.data, Payload.serializer())
  *         }
  *         output.encodeJson(tree)
  *     }
@@ -47,7 +49,32 @@ public interface JsonOutput: Encoder, CompositeEncoder {
     public val json: Json
 
     /**
-     * Appends given [element] to the output.
+     * Appends the given JSON [element] to the current output.
+     * This method is allowed to invoke only as the part of the whole serialization process of the class,
+     * calling this method after invoking [beginStructure] or any `encode*` method will lead to unspecified behaviour
+     * and may produce an invalid JSON result.
+     * For example:
+     * ```
+     * class Holder(val value: Int, val list: List<Int>())
+     *
+     * // Holder serialize method
+     * fun serialize(encoder: Encoder, value: Holder) {
+     *     // Completely okay, the whole Holder object is read
+     *     val jsonObject = JsonObject(...) // build a JsonObject from Holder
+     *     (encoder as JsonOutput).encodeJson(jsonObject) // Write it
+     * }
+     *
+     * // Incorrect Holder serialize method
+     * fun serialize(encoder: Encoder, value: Holder) {
+     *     val composite = encoder.beginStructure(descriptor)
+     *     composite.encodeSerializableElement(descriptor, 0, Int.serializer(), value.value)
+     *     val array = JsonArray(value.list)
+     *     // Incorrect, encoder is already in an intermediate state after encodeSerializableElement
+     *     (composite as JsonOutput).encodeJson(array)
+     *     composite.endStructure(descriptor)
+     *     // ...
+     * }
+     * ```
      */
     public fun encodeJson(element: JsonElement)
 }
