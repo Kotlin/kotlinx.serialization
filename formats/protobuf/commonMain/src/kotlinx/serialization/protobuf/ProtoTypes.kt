@@ -27,8 +27,5 @@ internal fun extractParameters(descriptor: SerialDescriptor, index: Int, zeroBas
 public class ProtobufDecodingException(message: String) : SerializationException(message)
 
 internal inline fun <reified A: Annotation> SerialDescriptor.findAnnotation(elementIndex: Int): A? {
-    for (a in getElementAnnotations(elementIndex)) {
-        if (a is A) return a
-    }
-    return null
+    return getElementAnnotations(elementIndex).find { it is A } as A?
 }

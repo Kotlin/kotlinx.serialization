@@ -355,7 +355,7 @@ public class Cbor(
         }
     }
 
-    companion object : BinaryFormat {
+    companion object Default : BinaryFormat by Cbor() {
         private const val FALSE = 0xf4
         private const val TRUE = 0xf5
         private const val NULL = 0xf6
@@ -374,15 +374,10 @@ public class Cbor(
 
         @Deprecated(
             message = "Deprecated for removal in the favour of user-defined instances or Cbor companion object",
-            level = DeprecationLevel.WARNING
+            level = DeprecationLevel.ERROR,
+            replaceWith = ReplaceWith("Cbor")
         )
         public val plain = Cbor()
-
-        override fun <T> dump(serializer: SerializationStrategy<T>, value: T): ByteArray = plain.dump(serializer, value)
-        override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T =
-            plain.load(deserializer, bytes)
-
-        override val context: SerialModule get() = plain.context
     }
 
     override fun <T> dump(serializer: SerializationStrategy<T>, value: T): ByteArray {

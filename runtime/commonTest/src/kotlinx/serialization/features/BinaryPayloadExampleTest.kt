@@ -5,6 +5,7 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
@@ -16,8 +17,8 @@ class BinaryPayloadExampleTest {
         @Serializer(forClass = BinaryPayload::class)
         companion object : KSerializer<BinaryPayload> {
             override val descriptor: SerialDescriptor = SerialDescriptor("BinaryPayload") {
-                element("req", ByteArraySerializer.descriptor)
-                element("res", ByteArraySerializer.descriptor)
+                element("req", ByteArraySerializer().descriptor)
+                element("res", ByteArraySerializer().descriptor)
             }
 
             override fun serialize(encoder: Encoder, value: BinaryPayload) {

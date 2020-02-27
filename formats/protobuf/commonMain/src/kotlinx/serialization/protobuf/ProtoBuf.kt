@@ -7,8 +7,8 @@ package kotlinx.serialization.protobuf
 import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
-import kotlinx.serialization.internal.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintInt
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintLong
@@ -145,7 +145,7 @@ public class ProtoBuf(
                 val mapEntrySerial = MapEntrySerializer(serializer.keySerializer, serializer.valueSerializer)
                 SetSerializer(mapEntrySerial).serialize(this, (value as Map<*, *>).entries)
             }
-            serializer.descriptor == ByteArraySerializer.descriptor -> encoder.writeBytes(value as ByteArray, popTag().first)
+            serializer.descriptor == ByteArraySerializer().descriptor -> encoder.writeBytes(value as ByteArray, popTag().first)
             else -> serializer.serialize(this, value)
         }
     }
@@ -287,7 +287,7 @@ public class ProtoBuf(
                 val setOfEntries = SetSerializer(mapEntrySerial).deserialize(this)
                 setOfEntries.associateBy({ it.key }, {it.value}) as T
             }
-            deserializer.descriptor == ByteArraySerializer.descriptor -> decoder.nextObject() as T
+            deserializer.descriptor == ByteArraySerializer().descriptor -> decoder.nextObject() as T
             else -> deserializer.deserialize(this)
         }
 
@@ -511,9 +511,7 @@ public class ProtoBuf(
         }
     }
 
-    companion object : BinaryFormat {
-        public override val context: SerialModule get() = plain.context
-
+    companion object Default : BinaryFormat by ProtoBuf() {
         // todo: make more memory-efficient
         private fun makeDelimited(decoder: ProtobufDecoder, parentTag: ProtoDesc?): ProtobufDecoder {
             if (parentTag == null) return decoder
@@ -532,12 +530,10 @@ public class ProtoBuf(
 
         @Deprecated(
             message = "Deprecated for removal in the favour of user-defined instances or ProtoBuf companion object",
-            level = DeprecationLevel.WARNING
+            level = DeprecationLevel.ERROR,
+            replaceWith = ReplaceWith("ProtoBuf")
         )
         public val plain = ProtoBuf()
-
-        override fun <T> dump(serializer: SerializationStrategy<T>, value: T): ByteArray = plain.dump(serializer, value)
-        override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T = plain.load(deserializer, bytes)
     }
 
     override fun <T> dump(serializer: SerializationStrategy<T>, value: T): ByteArray {

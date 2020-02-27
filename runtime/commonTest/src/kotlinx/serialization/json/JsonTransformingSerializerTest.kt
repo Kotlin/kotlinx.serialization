@@ -18,7 +18,7 @@ class JsonTransformingSerializerTest : JsonTestBase() {
     )
 
     object WrappingJsonListSerializer :
-        JsonTransformingSerializer<List<StringData>>(StringData.serializer().list, "WrappingList") {
+        JsonTransformingSerializer<List<StringData>>(serializer(), "WrappingList") {
         override fun readTransform(element: JsonElement): JsonElement =
             if (element !is JsonArray) JsonArray(listOf(element)) else element
     }
@@ -83,7 +83,7 @@ class JsonTransformingSerializerTest : JsonTestBase() {
     )
 
     object DocJsonListSerializer :
-        JsonTransformingSerializer<String>(String.serializer(), "UnwrappingList") {
+        JsonTransformingSerializer<String>(serializer(), "UnwrappingList") {
         override fun readTransform(element: JsonElement): JsonElement {
             if (element !is JsonArray) return element
             require(element.size == 1) { "Array size must be equal to 1 to unwrap it" }

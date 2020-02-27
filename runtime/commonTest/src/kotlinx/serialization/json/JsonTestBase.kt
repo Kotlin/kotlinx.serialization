@@ -105,8 +105,8 @@ abstract class JsonTestBase {
         val useStreaming: Boolean,
         override val context: SerialModule = EmptyModule
     ) : StringFormat {
-        override fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String {
-            return json.stringify(serializer, obj, useStreaming)
+        override fun <T> stringify(serializer: SerializationStrategy<T>, value: T): String {
+            return json.stringify(serializer, value, useStreaming)
         }
 
         override fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T {
@@ -136,7 +136,7 @@ abstract class JsonTestBase {
         serializer: KSerializer<T>,
         data: T,
         expected: String,
-        json: Json = Json.plain
+        json: Json = default
     ) {
         parametrizedTest { useStreaming ->
             val serialized = json.stringify(serializer, data, useStreaming)

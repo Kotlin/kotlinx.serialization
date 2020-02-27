@@ -208,7 +208,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
     @Test
     fun testWriteOptionalList1Quoted() = parametrizedTest { useStreaming ->
         val obj = CList1(listOf(C(a = 1), C(b = 2), C(3, 4)))
-        val s = strict.stringify(obj, useStreaming)
+        val s = default.stringify(obj, useStreaming)
         assertEquals("""{"c":[{"b":42,"a":1},{"b":2},{"b":4,"a":3}]}""", s)
     }
 

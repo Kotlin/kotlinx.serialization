@@ -15,22 +15,22 @@ class JsonObjectSerializerTest : JsonTestBase() {
     private val expectedTopLevel = """{"literal":1,"nullKey":null,"nested":{"another literal":"some value"}}"""
 
     @Test
-    fun testJsonObject() = parametrizedTest(strict) {
+    fun testJsonObject() = parametrizedTest(default) {
         assertStringFormAndRestored(expected, JsonObjectWrapper(prebuiltJson()), JsonObjectWrapper.serializer())
     }
 
     @Test
-    fun testJsonObjectAsElement() = parametrizedTest(strict) {
+    fun testJsonObjectAsElement() = parametrizedTest(default) {
         assertStringFormAndRestored(expected, JsonElementWrapper(prebuiltJson()), JsonElementWrapper.serializer())
     }
 
     @Test
-    fun testTopLevelJsonObject() = parametrizedTest (strict) {
+    fun testTopLevelJsonObject() = parametrizedTest (default) {
         assertStringFormAndRestored(expectedTopLevel, prebuiltJson(), JsonObjectSerializer)
     }
 
     @Test
-    fun testTopLevelJsonObjectAsElement() = parametrizedTest (strict) {
+    fun testTopLevelJsonObjectAsElement() = parametrizedTest (default) {
         assertStringFormAndRestored(expectedTopLevel, prebuiltJson(), JsonElementSerializer)
     }
 

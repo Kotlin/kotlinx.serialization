@@ -20,12 +20,6 @@ public fun <T> ListSerializer(elementSerializer: KSerializer<T>): KSerializer<Li
     ArrayListSerializer(elementSerializer)
 
 /**
- * Reified version of [ListSerializer]
- */
-@ImplicitReflectionSerializer
-public inline fun <reified T> ListSerializer(): KSerializer<List<T>> = ListSerializer(serializer())
-
-/**
  * Creates a serializer for [`Set<T>`][Set] for the given serializer of type [T].
  */
 public val <T> KSerializer<T>.set: KSerializer<Set<T>>
@@ -38,12 +32,6 @@ public fun <T> SetSerializer(elementSerializer: KSerializer<T>): KSerializer<Set
     LinkedHashSetSerializer(elementSerializer)
 
 /**
- * Reified version of [SetSerializer]
- */
-@ImplicitReflectionSerializer
-public inline fun <reified T> SetSerializer(): KSerializer<Set<T>> = SetSerializer(serializer())
-
-/**
  * Creates a serializer for [`Map<K, V>`][Map] for the given serializers for
  * its ket type [K] and value type [V].
  */
@@ -51,10 +39,3 @@ public fun <K, V> MapSerializer(
     keySerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>
 ): KSerializer<Map<K, V>> = LinkedHashMapSerializer(keySerializer, valueSerializer)
-
-/**
- * Reified version of [MapSerializer]
- */
-@ImplicitReflectionSerializer
-public inline fun <reified K, reified V> MapSerializer(): KSerializer<Map<K, V>> =
-    MapSerializer(serializer(), serializer())

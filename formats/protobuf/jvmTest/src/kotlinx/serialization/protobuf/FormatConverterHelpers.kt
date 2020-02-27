@@ -30,7 +30,7 @@ fun GeneratedMessageV3.toHex(): String {
  *
  * @return `true` if the de-serialization returns the expected object.
  */
-inline fun <reified T : IMessage> dumpCompare(it: T, alwaysPrint: Boolean = false, protoBuf: ProtoBuf = ProtoBuf.plain): Boolean {
+inline fun <reified T : IMessage> dumpCompare(it: T, alwaysPrint: Boolean = false, protoBuf: BinaryFormat = ProtoBuf): Boolean {
     val msg = it.toProtobufMessage()
     var parsed: GeneratedMessageV3?
     val c = try {
@@ -60,7 +60,7 @@ inline fun <reified T : IMessage> dumpCompare(it: T, alwaysPrint: Boolean = fals
  *
  * @return `true` if the de-serialization returns the original object.
  */
-inline fun <reified T : IMessage> readCompare(it: T, alwaysPrint: Boolean = false, protoBuf: ProtoBuf = ProtoBuf.plain): Boolean {
+inline fun <reified T : IMessage> readCompare(it: T, alwaysPrint: Boolean = false, protoBuf: BinaryFormat = ProtoBuf): Boolean {
     var obj: T?
     val c = try {
         val msg = it.toProtobufMessage()

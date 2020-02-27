@@ -11,6 +11,7 @@ import kotlinx.serialization.modules.*
  * A skeleton implementation of both [Decoder] and [CompositeDecoder] that can be used
  * for simple formats and for testability purpose.
  * Most of the `decode*` methods have default implementation that delegates `decodeValue(value: Any) as TargetType`.
+ * See [Decoder] documentation for information about each particular `decode*` method.
  */
 public abstract class AbstractDecoder : Decoder, CompositeDecoder {
     override val context: SerialModule
@@ -25,11 +26,7 @@ public abstract class AbstractDecoder : Decoder, CompositeDecoder {
 
     override fun decodeNotNullMark(): Boolean = true
     override fun decodeNull(): Nothing? = null
-    override fun decodeUnit() {
-        val descriptor = UnitSerializer().descriptor
-        val reader = beginStructure(descriptor)
-        reader.endStructure(descriptor)
-    }
+    override fun decodeUnit() = UnitSerializer().deserialize(this)
 
     override fun decodeBoolean(): Boolean = decodeValue() as Boolean
     override fun decodeByte(): Byte = decodeValue() as Byte
@@ -42,7 +39,7 @@ public abstract class AbstractDecoder : Decoder, CompositeDecoder {
     override fun decodeString(): String = decodeValue() as String
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int = decodeValue() as Int
 
-    // Delegating implementation of CompositeEncoder
+    // Delegating implementation of CompositeDecoder
 
     override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
         return this

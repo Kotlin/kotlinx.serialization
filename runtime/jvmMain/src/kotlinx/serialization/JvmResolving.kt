@@ -50,14 +50,14 @@ public fun serializerByTypeToken(type: Type): KSerializer<Any> = when (type) {
             is KClass<*> -> eType
             else -> throw IllegalStateException("unsupported type in GenericArray: ${eType::class}")
         } as KClass<Any>
-        ReferenceArraySerializer(kclass, serializer) as KSerializer<Any>
+        ArraySerializer(kclass, serializer) as KSerializer<Any>
     }
     is Class<*> -> if (!type.isArray) {
         requireNotNull<KSerializer<out Any>>((type.kotlin as KClass<Any>).serializer<Any>()) as KSerializer<Any>
     } else {
         val eType: Class<*> = type.componentType
         val s = serializerByTypeToken(eType)
-        val arraySerializer = ReferenceArraySerializer(eType.kotlin as KClass<Any>, s)
+        val arraySerializer = ArraySerializer(eType.kotlin as KClass<Any>, s)
         arraySerializer as KSerializer<Any>
     }
     is ParameterizedType -> {

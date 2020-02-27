@@ -5,6 +5,7 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlin.test.*
@@ -34,7 +35,7 @@ class CheckedDataSerializer<T : Any>(private val dataSerializer: KSerializer<T>)
     override val descriptor: SerialDescriptor = SerialDescriptor("CheckedDataSerializer") {
         val dataDescriptor = dataSerializer.descriptor
         element("data", dataDescriptor)
-        element("checkSum", ByteArraySerializer.descriptor)
+        element("checkSum", ByteArraySerializer().descriptor)
     }
 
     override fun serialize(encoder: Encoder, value: CheckedData<T>) {

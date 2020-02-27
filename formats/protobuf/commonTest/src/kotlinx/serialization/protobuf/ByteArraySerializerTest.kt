@@ -12,7 +12,7 @@ import kotlin.test.*
 class ByteArraySerializerTest {
 
     @Serializable
-    class ByteArrayCarrier(@ProtoId(2) @Serializable(with = ByteArraySerializer::class) val data: ByteArray) {
+    class ByteArrayCarrier(@ProtoId(2) val data: ByteArray) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
