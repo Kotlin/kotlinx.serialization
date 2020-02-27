@@ -35,6 +35,8 @@ To release new `<version>` of `kotlinx.serialization`:
 4. In [Bintray](https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime) admin interface:
    * Publish artifacts of the new version.
    * Wait until newly published version becomes the most recent.
+   
+       * For intermediate releases, you may override version with `reverse.dep.*.system.DeployVersion` build parameter.
 
 6. Update Kotlin and library versions  in [examples](examples/gradle.properties)
 
