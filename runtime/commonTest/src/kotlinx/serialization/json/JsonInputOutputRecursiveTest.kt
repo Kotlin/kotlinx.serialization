@@ -20,7 +20,7 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
 
     @Test
     fun testParseDataString() = parametrizedTest { streaming ->
-        val ev = default.parse(Event.serializer(), inputDataString, true)
+        val ev = default.parse(Event.serializer(), inputDataString, streaming)
         with(ev) {
             assertEquals(0, id)
             assertEquals(Either.Right(Payload(42, 43, "Hello world")), payload)

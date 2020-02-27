@@ -112,7 +112,7 @@ public data class JsonConfiguration @UnstableDefault constructor(
 @Deprecated(level = DeprecationLevel.ERROR, message = "This named parameters were deprecated." +
         "Intstead of 'unquoted' please use 'unquotedPrint'. 'strictMode' was splitted into" +
         "'ignoreUnknownKeys', 'isLenient' and 'serializeSpecialFloatingPointValues'")
-@Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+@Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE", "UNUSED_PARAMETER")
 @kotlin.internal.LowPriorityInOverloadResolution
 public fun JsonConfiguration(strictMode: Boolean = true, unquoted: Boolean = false) {
     error("Should not be called")

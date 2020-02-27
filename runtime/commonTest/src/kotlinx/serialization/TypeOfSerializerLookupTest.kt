@@ -105,23 +105,23 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
 
     @Test
     fun testReferenceArrays() {
-        assertSerializedWithType("[1,2,3]", Array<Int>(3) { it + 1 }, Json.plain)
-        assertSerializedWithType("""["1","2","3"]""", Array<String>(3) { (it + 1).toString() }, Json.plain)
-        assertSerializedWithType("[[0],[1],[2]]", Array<Array<Int>>(3) { cnt -> Array(1) { cnt } }, Json.plain)
+        assertSerializedWithType("[1,2,3]", Array<Int>(3) { it + 1 }, default)
+        assertSerializedWithType("""["1","2","3"]""", Array<String>(3) { (it + 1).toString() }, default)
+        assertSerializedWithType("[[0],[1],[2]]", Array<Array<Int>>(3) { cnt -> Array(1) { cnt } }, default)
         noJs {
-            assertSerializedWithType("""[{"boxed":"foo"}]""", Array(1) { Box("foo") }, Json.plain)
-            assertSerializedWithType("""[[{"boxed":"foo"}]]""", Array(1) { Array(1) { Box("foo") } }, Json.plain)
+            assertSerializedWithType("""[{"boxed":"foo"}]""", Array(1) { Box("foo") }, default)
+            assertSerializedWithType("""[[{"boxed":"foo"}]]""", Array(1) { Array(1) { Box("foo") } }, default)
         }
     }
 
     @Test
     fun testPrimitiveArrays() {
-        assertSerializedWithType("[1,2,3]", intArrayOf(1, 2, 3), Json.plain)
-        assertSerializedWithType("[1,2,3]", longArrayOf(1, 2, 3), Json.plain)
-        assertSerializedWithType("[1,2,3]", byteArrayOf(1, 2, 3), Json.plain)
-        assertSerializedWithType("[1,2,3]", shortArrayOf(1, 2, 3), Json.plain)
-        assertSerializedWithType("[true,false]", booleanArrayOf(true, false), Json.plain)
-        assertSerializedWithType("""["a","b","c"]""", charArrayOf('a', 'b', 'c'), Json.plain)
+        assertSerializedWithType("[1,2,3]", intArrayOf(1, 2, 3), default)
+        assertSerializedWithType("[1,2,3]", longArrayOf(1, 2, 3), default)
+        assertSerializedWithType("[1,2,3]", byteArrayOf(1, 2, 3), default)
+        assertSerializedWithType("[1,2,3]", shortArrayOf(1, 2, 3), default)
+        assertSerializedWithType("[true,false]", booleanArrayOf(true, false), default)
+        assertSerializedWithType("""["a","b","c"]""", charArrayOf('a', 'b', 'c'), default)
     }
 
     // Tests with [constructSerializerForGivenTypeArgs] are unsupported on Kotlin/JS

@@ -50,7 +50,7 @@ class JsonTransientTest : JsonTestBase() {
     @Test
     fun testThrowTransient() = parametrizedTest { useStreaming ->
         assertFailsWith(JsonDecodingException::class) {
-            default.parse(Data.serializer(), """{"a":0,"b":100500,"c":"Hello"}""", false)
+            default.parse(Data.serializer(), """{"a":0,"b":100500,"c":"Hello"}""", useStreaming)
         }
     }
 }
