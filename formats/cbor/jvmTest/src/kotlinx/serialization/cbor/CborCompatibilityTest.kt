@@ -33,7 +33,7 @@ class CborCompatibilityTest {
 
     private inline fun <reified T> compare(obj: T, serializer: KSerializer<T>) {
         val bytes = CBORObject.FromObject(obj).EncodeToBytes()
-        assertEquals(obj, Cbor.plain.load(serializer, bytes))
+        assertEquals(obj, Cbor.load(serializer, bytes))
     }
 
     @Test

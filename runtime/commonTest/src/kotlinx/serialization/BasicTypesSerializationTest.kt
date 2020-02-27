@@ -109,7 +109,7 @@ class BasicTypesSerializationTest {
 
         override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
             if (index > 0) sb.append(", ")
-            sb.append(desc.getElementName(index))
+            sb.append(descriptor.getElementName(index))
             sb.append(':')
             return true
         }

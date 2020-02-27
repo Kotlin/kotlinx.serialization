@@ -1,3 +1,4 @@
+
 # Runtime library contents and usage
 
 * [Obtaining serializers](#obtaining-serializers)
@@ -29,16 +30,17 @@ val dataSerializer: KSerializer<Data> = Data.serializer()
 val boxedDataSerializer: KSerializer<Box<Data>> = Box.serializer(dataSerial)
 ```
 
-Built-in types, like `Int`, and standard collections doesn't have that method. You can use corresponding serializers from the library:
+Built-in types, like `Int`, and standard collections doesn't have that method and instead are available via 
+factories and companion extensions:
 ```kotlin
-val intSerializer: KSerializer<Int>  = IntSerializer // object
-val intListSerializer: KSerializer<List<Int>> = ArrayListSerializer(IntSerializer) // generic, requires instantiation
+val intSerializer: KSerializer<Int>  = Int.serializer()
+val intListSerializer: KSerializer<List<Int>> = ListSerializer(Int.serializer()) // generic, requires instantiation
 ```
 
 For convenience, serializers have extension properties:
 ```kotlin
 val dataListSerializer: KSerializer<List<Data>> = Data.serializer().list
-val mapSerializer: KSerializer<Map<String, Int>> = (StringSerializer to IntSerializer).map // extension on Pair of serializers
+val mapSerializer: KSerializer<Map<String, Int>> = MapSerializer(String.serializer(), Int.serializer())
 ```
 
 To convert from serializer for type `T` to serializer for nullable type `T?`, you can use extension factory method `nullable`:

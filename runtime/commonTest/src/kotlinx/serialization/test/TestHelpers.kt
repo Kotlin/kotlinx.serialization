@@ -29,3 +29,12 @@ fun SerialDescriptor.assertDescriptorEqualsTo(other: SerialDescriptor) {
         assertEquals(isElementOptional(i), other.isElementOptional(i))
     }
 }
+
+inline fun noJs(test: () -> Unit) {
+    if (!isJs()) test()
+}
+
+inline fun jvmOnly(test: () -> Unit) {
+    if (isJvm()) test()
+}
+

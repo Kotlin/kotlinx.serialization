@@ -65,7 +65,12 @@ public sealed class KeyValueSerializer<K, V, R>(
 
 @InternalSerializationApi
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-@Deprecated(message = deprecationMessage, level = DeprecationLevel.HIDDEN)
+@Deprecated(
+    message = deprecationMessage, level = DeprecationLevel.HIDDEN, replaceWith = ReplaceWith(
+        "MapEntrySerializer(keySerializer, valueSerializer, cSerializer)",
+        imports = ["kotlinx.serialization.builtins.MapEntrySerializer"]
+    )
+)
 public class MapEntrySerializer<K, V>(
     keySerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>
@@ -86,7 +91,12 @@ public class MapEntrySerializer<K, V>(
 }
 
 @InternalSerializationApi
-@Deprecated(message = deprecationMessage, level = DeprecationLevel.HIDDEN)
+@Deprecated(
+    message = deprecationMessage, level = DeprecationLevel.HIDDEN, replaceWith = ReplaceWith(
+        "PairSerializer(keySerializer, valueSerializer, cSerializer)",
+        imports = ["kotlinx.serialization.builtins.PairSerializer"]
+    )
+)
 public class PairSerializer<K, V>(
     keySerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>
@@ -103,7 +113,14 @@ public class PairSerializer<K, V>(
 
 
 @InternalSerializationApi
-@Deprecated(message = deprecationMessage, level = DeprecationLevel.HIDDEN)
+@Deprecated(
+    message = deprecationMessage,
+    level = DeprecationLevel.HIDDEN,
+    replaceWith = ReplaceWith(
+        "TripleSerializer(aSerializer, bSerializer, cSerializer)",
+        imports = ["kotlinx.serialization.builtins.TripleSerializer"]
+    )
+)
 public class TripleSerializer<A, B, C>(
     private val aSerializer: KSerializer<A>,
     private val bSerializer: KSerializer<B>,

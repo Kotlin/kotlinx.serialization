@@ -191,15 +191,15 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
      * A reified version of [store].
      */
     @ImplicitReflectionSerializer
-    public inline fun <reified T : Any> store(obj: T): Map<String, Any> =
-        store(context.getContextualOrDefault(T::class), obj)
+    public inline fun <reified T : Any> store(value: T): Map<String, Any> =
+        store(context.getContextualOrDefault(T::class), value)
 
     /**
      * A reified version of [storeNullable].
      */
     @ImplicitReflectionSerializer
-    public inline fun <reified T : Any> storeNullable(obj: T): Map<String, Any?> =
-        storeNullable(context.getContextualOrDefault(T::class), obj)
+    public inline fun <reified T : Any> storeNullable(value: T): Map<String, Any?> =
+        storeNullable(context.getContextualOrDefault(T::class), value)
 
     /**
      * A reified version of [load].
@@ -215,25 +215,31 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
     public inline fun <reified T : Any> loadNullable(map: Map<String, Any?>): T =
         loadNullable(context.getContextualOrDefault(T::class), map)
 
-    public companion object {
-        /**
-         * A [Properties] instance which does not have any [SerialModule] installed.
-         */
-        public val DEFAULT: Properties = Properties()
+
+    /**
+     * A top-level [SerialFormat] instance that mimic an instance of [Properties] and does not have any [SerialModule] installed.
+     */
+    public companion object Default : SerialFormat {
+
+        override val context: SerialModule
+            get() = DEFAULT.context
+
+        @PublishedApi
+        internal val DEFAULT: Properties = Properties()
 
         /**
          * Shorthand for [Properties.store] call on a [DEFAULT] instance of [Properties], which
          * does not have any [SerialModule]s installed.
          */
-        public fun <T> store(strategy: SerializationStrategy<T>, obj: T): Map<String, Any> =
-            DEFAULT.store(strategy, obj)
+        public fun <T> store(strategy: SerializationStrategy<T>, value: T): Map<String, Any> =
+            DEFAULT.store(strategy, value)
 
         /**
          * Shorthand for [Properties.storeNullable] call on a [DEFAULT] instance of [Properties], which
          * does not have any [SerialModule]s installed.
          */
-        public fun <T> storeNullable(strategy: SerializationStrategy<T>, obj: T): Map<String, Any?> =
-            DEFAULT.storeNullable(strategy, obj)
+        public fun <T> storeNullable(strategy: SerializationStrategy<T>, value: T): Map<String, Any?> =
+            DEFAULT.storeNullable(strategy, value)
 
         /**
          * Shorthand for [Properties.load] call on a [DEFAULT] instance of [Properties], which
@@ -253,13 +259,13 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
          * A reified version of [store].
          */
         @ImplicitReflectionSerializer
-        public inline fun <reified T : Any> store(obj: T): Map<String, Any> = DEFAULT.store(obj)
+        public inline fun <reified T : Any> store(value: T): Map<String, Any> = DEFAULT.store(value)
 
         /**
          * A reified version of [storeNullable].
          */
         @ImplicitReflectionSerializer
-        public inline fun <reified T : Any> storeNullable(obj: T): Map<String, Any?> = DEFAULT.storeNullable(obj)
+        public inline fun <reified T : Any> storeNullable(value: T): Map<String, Any?> = DEFAULT.storeNullable(value)
 
         /**
          * A reified version of [load].

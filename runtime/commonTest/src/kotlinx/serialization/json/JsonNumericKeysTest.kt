@@ -5,7 +5,8 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
+import kotlinx.serialization.builtins.*
+import kotlinx.serialization.serializer
 import kotlin.test.*
 
 class JsonNumericKeysTest : JsonTestBase() {
@@ -38,7 +39,7 @@ class JsonNumericKeysTest : JsonTestBase() {
 
     // Workaround equals on JS and Native
     fun getEntry(): Map.Entry<Int, Int> {
-        val e = Json.plain.parse(MapEntrySerializer(Int.serializer(), Int.serializer()), """{"1":2}""")
+        val e = default.parse(MapEntrySerializer(Int.serializer(), Int.serializer()), """{"1":2}""")
         assertEquals(1, e.key)
         assertEquals(2, e.value)
         return e

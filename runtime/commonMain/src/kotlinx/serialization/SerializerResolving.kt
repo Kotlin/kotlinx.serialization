@@ -69,7 +69,7 @@ public fun serializer(type: KType): KSerializer<Any?> {
                     Triple::class -> TripleSerializer(serializers[0], serializers[1], serializers[2])
                     else -> {
                         if (isReferenceArray(type, rootClass)) {
-                            return ReferenceArraySerializer<Any, Any?>(typeArguments[0].classifier as KClass<Any>, serializers[0]).cast()
+                            return ArraySerializer<Any, Any?>(typeArguments[0].classifier as KClass<Any>, serializers[0]).cast()
                         }
                         requireNotNull(rootClass.constructSerializerForGivenTypeArgs(*serializers.toTypedArray())) {
                             "Can't find a method to construct serializer for type ${rootClass.simpleName()}. " +

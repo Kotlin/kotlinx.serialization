@@ -32,15 +32,15 @@ class JsonGenericTest : JsonTestBase() {
 
     @Test
     fun testWritePlainTriple() = parametrizedTest { useStreaming ->
-        val triple = Triple(42 , "foo", false)
+        val triple = Triple(42, "foo", false)
         val serializer = TripleSerializer(
             Int.serializer(),
             String.serializer(),
             Boolean.serializer()
         )
-        val s = unquoted.stringify(serializer, triple, useStreaming)
+        val s = unquotedLenient.stringify(serializer, triple, useStreaming)
         assertEquals("{first:42,second:foo,third:false}", s)
-        val restored = unquoted.parse(serializer, s, useStreaming)
+        val restored = unquotedLenient.parse(serializer, s, useStreaming)
         assertEquals(triple, restored)
     }
 

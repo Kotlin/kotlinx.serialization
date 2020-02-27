@@ -45,11 +45,11 @@ class JsonParserTest : JsonTestBase() {
     fun testParseEscapedSymbols() {
         assertEquals(
             StringData("https://t.co/M1uhwigsMT"),
-            strict.parse(StringData.serializer(), """{"data":"https:\/\/t.co\/M1uhwigsMT"}""")
+            default.parse(StringData.serializer(), """{"data":"https:\/\/t.co\/M1uhwigsMT"}""")
         )
-        assertEquals(StringData("\"test\""), strict.parse(StringData.serializer(), """{"data": "\"test\""}"""))
-        assertEquals(StringData("\u00c9"), strict.parse(StringData.serializer(), """{"data": "\u00c9"}"""))
-        assertEquals(StringData("""\\"""), strict.parse(StringData.serializer(), """{"data": "\\\\"}"""))
+        assertEquals(StringData("\"test\""), default.parse(StringData.serializer(), """{"data": "\"test\""}"""))
+        assertEquals(StringData("\u00c9"), default.parse(StringData.serializer(), """{"data": "\u00c9"}"""))
+        assertEquals(StringData("""\\"""), default.parse(StringData.serializer(), """{"data": "\\\\"}"""))
     }
 
     @Test

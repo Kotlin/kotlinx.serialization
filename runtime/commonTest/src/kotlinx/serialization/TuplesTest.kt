@@ -5,11 +5,11 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 import kotlinx.serialization.test.assertStringFormAndRestored
 import kotlin.test.*
 
-class TuplesTest {
+class TuplesTest : JsonTestBase() {
     @Serializable
     data class MyPair<K, V>(val k: K, val v: V)
 
@@ -27,7 +27,7 @@ class TuplesTest {
             Int.serializer(),
             String.serializer()
         ),
-        Json { unquoted = true }
+        unquotedLenient
     )
 
     @Test
@@ -35,7 +35,7 @@ class TuplesTest {
         "{p:{first:42,second:foo}}",
         PairWrapper(42 to "foo"),
         PairWrapper.serializer(),
-        Json { unquoted = true }
+        unquotedLenient
     )
 
     @Test
@@ -53,7 +53,7 @@ class TuplesTest {
         "{t:{first:42,second:foo,third:false}}",
         TripleWrapper(Triple(42, "foo", false)),
         TripleWrapper.serializer(),
-        Json { unquoted = true }
+        unquotedLenient
     )
 
     @Test

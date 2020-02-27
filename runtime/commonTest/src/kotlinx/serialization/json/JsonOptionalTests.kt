@@ -38,8 +38,8 @@ class JsonOptionalTests : JsonTestBase() {
 
     @Test
     fun testMissingOptionals() = parametrizedTest { useStreaming ->
-        assertEquals(strict.parse(Data.serializer(), """{"a":0,"c":"Hello"}""", useStreaming), Data())
-        assertEquals(strict.parse(Data.serializer(), """{"a":0}""", useStreaming), Data())
+        assertEquals(default.parse(Data.serializer(), """{"a":0,"c":"Hello"}""", useStreaming), Data())
+        assertEquals(default.parse(Data.serializer(), """{"a":0}""", useStreaming), Data())
     }
 
     @Test

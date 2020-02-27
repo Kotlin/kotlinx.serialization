@@ -6,7 +6,7 @@
 package sample
 
 import kotlinx.serialization.*
-import kotlinx.serialization.IntSerializer
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.test.*
@@ -56,16 +56,16 @@ class JsonTest {
     @Test
     fun polymorphicForGenericUpperBound() {
         val generic = GenericMessage<Message, Any>(MessageWithId(42, "body"), "body2")
-        val serial = GenericMessage.serializer(Message.serializer(), IntSerializer as KSerializer<Any>)
+        val serial = GenericMessage.serializer(Message.serializer(), Int.serializer() as KSerializer<Any>)
         val json = Json { useArrayPolymorphism = true; unquotedPrint = true; prettyPrint = false; serialModule = testModule }
         val s = json.stringify(serial, generic)
         assertEquals("""{value:[MessageWithId,{id:42,body:body}],value2:[kotlin.String,body2]}""", s)
     }
 
     @Test
-    fun descriptorsSchemaIsCorrect() {
+    fun testDescriptor() {
         val desc = Holder.serializer().descriptor
-        assertSame(PolymorphicClassDescriptor, desc.getElementDescriptor(0))
+        assertSame(PolymorphicKind.OPEN, desc.getElementDescriptor(0).kind)
     }
 
     @Test

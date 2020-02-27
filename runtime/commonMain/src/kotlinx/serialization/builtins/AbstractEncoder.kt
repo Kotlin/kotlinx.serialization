@@ -11,6 +11,7 @@ import kotlinx.serialization.modules.*
  * A skeleton implementation of both [Encoder] and [CompositeEncoder] that can be used
  * for simple formats and for testability purpose.
  * Most of the `encode*` methods have default implementation that delegates `encodeValue(value: Any)`.
+ * See [Encoder] documentation for information about each particular `encode*` method.
  */
 public abstract class AbstractEncoder : Encoder, CompositeEncoder {
     override val context: SerialModule
@@ -40,9 +41,7 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
     }
 
     override fun encodeUnit() {
-        val unitDescriptor = UnitSerializer().descriptor
-        val encoder = beginStructure(unitDescriptor)
-        encoder.endStructure(unitDescriptor)
+        UnitSerializer().serialize(this, Unit)
     }
 
     override fun encodeBoolean(value: Boolean) = encodeValue(value)

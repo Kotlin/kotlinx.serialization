@@ -5,15 +5,14 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.ByteArraySerializer
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.Json
-import kotlin.random.Random
 import kotlin.test.*
 
 class ByteArraySerializerTest {
 
     @Serializable
-    class ByteArrayCarrier(@Id(2) @Serializable(with = ByteArraySerializer::class) val data: ByteArray) {
+    class ByteArrayCarrier(@Id(2) val data: ByteArray) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
@@ -37,9 +36,9 @@ class ByteArraySerializerTest {
     @Test
     fun testByteArrayJson() {
         val bytes = byteArrayOf(42, 43, 44, 45)
-        val s = Json.stringify(ByteArraySerializer, bytes)
+        val s = Json.stringify(ByteArraySerializer(), bytes)
         assertEquals(s, """[42,43,44,45]""")
-        val bytes2 = Json.parse(ByteArraySerializer, s)
+        val bytes2 = Json.parse(ByteArraySerializer(), s)
         assertTrue(bytes.contentEquals(bytes2))
     }
 

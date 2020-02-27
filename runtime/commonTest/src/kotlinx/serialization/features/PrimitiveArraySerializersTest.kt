@@ -60,6 +60,6 @@ class PrimitiveArraySerializersTest : JsonTestBase() {
         """{"arr":[1,2,3],"arr2":[1,2],"arr3":[true,false],"arr4":["a","b","c"],"arr5":[NaN,0.1,-0.25],"arr6":[1,2,3],"arr7":[1,2,3],"arr8":[1.25,2.25,3.25]}""",
         A(byteArrayOf(1, 2, 3)),
         A.serializer(),
-        lenient,
+        lenient
     )
 }

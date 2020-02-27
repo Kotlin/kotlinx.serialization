@@ -149,12 +149,12 @@ public object JsonObjectSerializer : KSerializer<JsonObject> {
 
     override fun serialize(encoder: Encoder, value: JsonObject) {
         verify(encoder)
-        LinkedHashMapSerializer(String.serializer(), JsonElementSerializer).serialize(encoder, value.content)
+        MapSerializer(String.serializer(), JsonElementSerializer).serialize(encoder, value.content)
     }
 
     override fun deserialize(decoder: Decoder): JsonObject {
         verify(decoder)
-        return JsonObject(LinkedHashMapSerializer(String.serializer(), JsonElementSerializer).deserialize(decoder))
+        return JsonObject(MapSerializer(String.serializer(), JsonElementSerializer).deserialize(decoder))
     }
 }
 

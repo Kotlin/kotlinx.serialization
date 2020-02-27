@@ -4,13 +4,8 @@
 
 package sample
 
-import kotlinx.serialization.IntSerializer
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
+import kotlinx.serialization.builtins.*
+import kotlin.test.*
 
 class SampleTestsJVM {
     @Test
@@ -20,7 +15,7 @@ class SampleTestsJVM {
 
     @Test
     fun kindSimpleName() {
-        val kind = IntSerializer.descriptor.kind
+        val kind = Int.serializer().descriptor.kind
         val name = kind.toString()
         assertEquals("INT", name)
     }
