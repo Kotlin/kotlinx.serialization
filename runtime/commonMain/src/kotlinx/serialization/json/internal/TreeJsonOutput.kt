@@ -149,17 +149,19 @@ private open class JsonTreeOutput(
 
 private class JsonTreeMapOutput(json: Json, nodeConsumer: (JsonElement) -> Unit) : JsonTreeOutput(json, nodeConsumer) {
     private lateinit var tag: String
+    private var isKey = true
 
     override fun putElement(key: String, element: JsonElement) {
-        val idx = key.toInt()
-        if (idx % 2 == 0) { // writing key
+        if (isKey) { // writing key
             tag = when (element) {
                 is JsonPrimitive -> element.content
                 is JsonObject -> throw InvalidKeyKindException(JsonObjectSerializer.descriptor)
                 is JsonArray -> throw InvalidKeyKindException(JsonArraySerializer.descriptor)
             }
+            isKey = false
         } else {
             content[tag] = element
+            isKey = true
         }
     }
 
