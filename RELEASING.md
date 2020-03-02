@@ -31,12 +31,11 @@ To release new `<version>` of `kotlinx.serialization`:
 1. On [TeamCity integration server](https://teamcity.jetbrains.com/project.html?projectId=KotlinTools_KotlinxSerialization&tab=projectOverview):
    * Wait until "Runtime library (Build)" configuration for committed `dev` branch passes tests.
    * Run "Runtime library (Depoly - Train)" configuration with selected changes from `dev`.
+      * For intermediate releases, you may override version with `reverse.dep.*.system.DeployVersion` build parameter.
 
 4. In [Bintray](https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime) admin interface:
    * Publish artifacts of the new version.
    * Wait until newly published version becomes the most recent.
-   
-       * For intermediate releases, you may override version with `reverse.dep.*.system.DeployVersion` build parameter.
 
 6. Update Kotlin and library versions  in [examples](examples/gradle.properties)
 
