@@ -140,7 +140,6 @@ public class ProtoBuf(
         override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) = when {
             // encode maps as collection of map entries, not merged collection of key-values
             serializer is MapLikeSerializer<*, *, *, *> -> {
-                // TODO it probably requires some common interface exposure
                 val serializer = (serializer as MapLikeSerializer<Any?, Any?, T, *>)
                 val mapEntrySerial = MapEntrySerializer(serializer.keySerializer, serializer.valueSerializer)
                 SetSerializer(mapEntrySerial).serialize(this, (value as Map<*, *>).entries)
@@ -548,7 +547,6 @@ public class ProtoBuf(
         val reader = ProtobufReader(ProtobufDecoder(stream))
         return reader.decode(deserializer)
     }
-
 }
 
 private fun Short.toLittleEndian(): Short = (((this.toInt() and 0xff) shl 8) or ((this.toInt() and 0xffff) ushr 8)).toShort()
