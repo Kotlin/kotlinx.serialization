@@ -80,19 +80,18 @@ public abstract class JsonTransformingSerializer<T : Any>(
 
     final override fun deserialize(decoder: Decoder): T {
         val input = decoder.asJsonInput()
-        var element = input.decodeJson()
-        element = readTransform(element)
-        return input.json.fromJson(tSerializer, element)
+        val element = input.decodeJson()
+        return input.json.fromJson(tSerializer, readTransform(element))
     }
 
     /**
-     * Transformation which happens during [serialize] call.
+     * Transformation that happens during [serialize] call.
      * Does nothing by default.
      */
     protected open fun readTransform(element: JsonElement): JsonElement = element
 
     /**
-     * Transformation which happens during [deserialize] call.
+     * Transformation that happens during [deserialize] call.
      * Does nothing by default.
      */
     protected open fun writeTransform(element: JsonElement): JsonElement = element

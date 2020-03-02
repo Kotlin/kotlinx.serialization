@@ -281,4 +281,34 @@ class ModuleBuildersTest {
         assertEquals(delegate2, aggregate.getPolymorphic(Any::class, Unit))
         assertEquals(delegate, aggregate.getPolymorphic(Any::class, Unit))
     }
+
+    @Test
+    fun testPolymorphicCollision() {
+        val m1 = SerializersModule {
+            polymorphic<Any> {
+                default { _ -> UnitSerializer() }
+            }
+        }
+
+        val m2 = SerializersModule {
+            polymorphic<Any> {
+                default { _ -> UnitSerializer() }
+            }
+        }
+
+        assertFailsWith<IllegalArgumentException> { m1 + m2 }
+    }
+
+    @Test
+    fun testNoPolymorphicCollision() {
+        val defaultSerializerProvider = { _: String -> UnitSerializer() }
+        val m1 = SerializersModule {
+            polymorphic<Any> {
+                default(defaultSerializerProvider)
+            }
+        }
+
+        val m2 = m1 + m1
+        assertEquals<Any?>(UnitSerializer(), m2.getDefaultPolymorphic(Any::class, "foo"))
+    }
 }

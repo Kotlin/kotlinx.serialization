@@ -80,7 +80,8 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
     public open fun findPolymorphicSerializer(
         decoder: CompositeDecoder,
         klassName: String
-    ): KSerializer<out T> = decoder.context.getPolymorphic(baseClass, klassName)
+    ): DeserializationStrategy<out T> = decoder.context.getPolymorphic(baseClass, klassName)
+        ?: decoder.context.getDefaultPolymorphic(baseClass, klassName)
             ?: throwSubtypeNotRegistered(klassName, baseClass)
 
 

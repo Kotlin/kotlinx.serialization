@@ -59,5 +59,12 @@ public infix fun SerialModule.overwriteWith(other: SerialModule): SerialModule =
         ) {
             registerPolymorphicSerializer(baseClass, actualClass, actualSerializer, allowOverwrite = true)
         }
+
+        override fun <Base : Any> defaultPolymorphic(
+            baseClass: KClass<Base>,
+            defaultSerializerProvider: (className: String) -> DeserializationStrategy<out Base>?
+        ) {
+            registerDefaultPolymorphicSerializer(baseClass, defaultSerializerProvider, allowOverwrite = true)
+        }
     })
 }

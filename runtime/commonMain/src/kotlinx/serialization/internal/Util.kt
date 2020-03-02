@@ -113,3 +113,7 @@ internal fun defer(deferred: () -> SerialDescriptor): SerialDescriptor = object 
 @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
 @PublishedApi
 internal inline fun <T> KSerializer<*>.cast(): KSerializer<T> = this as KSerializer<T>
+
+@Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
+@PublishedApi
+internal inline fun <T> DeserializationStrategy<*>.cast(): DeserializationStrategy<T> = this as DeserializationStrategy<T>
