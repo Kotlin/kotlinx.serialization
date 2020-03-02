@@ -17,7 +17,7 @@ internal const val MAX_SAFE_INTEGER: Double = 9007199254740991.toDouble() // 2^5
 
 class DynamicObjectParser(override val context: SerialModule = EmptyModule) : SerialFormat {
     @ImplicitReflectionSerializer
-    inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.getContextualOrDefault(T::class))
+    inline fun <reified T : Any> parse(value: dynamic): T = parse(value, context.getContextualOrDefault())
 
     fun <T> parse(obj: dynamic, deserializer: DeserializationStrategy<T>): T = DynamicInput(obj).decode(deserializer)
 

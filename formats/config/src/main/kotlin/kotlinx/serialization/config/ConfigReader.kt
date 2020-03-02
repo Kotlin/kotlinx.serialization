@@ -18,7 +18,7 @@ public class ConfigParser(
     override val context: SerialModule = EmptyModule
 ) : SerialFormat {
     @ImplicitReflectionSerializer
-    public inline fun <reified T : Any> parse(conf: Config): T = parse(conf, context.getContextualOrDefault(T::class))
+    public inline fun <reified T : Any> parse(conf: Config): T = parse(conf, context.getContextualOrDefault())
 
     public fun <T> parse(conf: Config, deserializer: DeserializationStrategy<T>): T =
         ConfigReader(conf).decode(deserializer)

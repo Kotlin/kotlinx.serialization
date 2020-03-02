@@ -8,7 +8,7 @@ package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
-import kotlin.reflect.KClass
+import kotlin.reflect.*
 
 /**
  * Returns a dependent serializer associated with a given reified type.
@@ -18,15 +18,25 @@ public inline fun <reified T: Any> SerialModule.getContextual(): KSerializer<T>?
 /**
  * Returns a serializer associated with KClass of the given [value].
  */
-public fun <T: Any> SerialModule.getContextual(value: T): KSerializer<T>? {
+public fun <T : Any> SerialModule.getContextual(value: T): KSerializer<T>? {
     return getContextual(value::class)?.cast()
 }
 
+/**
+ * Attempts to retrieve a serializer from the current module and, if not found, construct it using [typeOf] API.
+ */
 @ImplicitReflectionSerializer
-public fun <T: Any> SerialModule.getContextualOrDefault(klass: KClass<T>): KSerializer<T> = getContextual(klass) ?: klass.serializer()
+public inline fun <reified T : Any> SerialModule.getContextualOrDefault(): KSerializer<T> =
+    // Even though serializer(KType) also invokes serializerOrNull, it is a serious performance optimization
+    getContextual(T::class) ?: T::class.serializerOrNull() ?: serializer(typeOf<T>()).cast()
 
 @ImplicitReflectionSerializer
-public fun <T: Any> SerialModule.getContextualOrDefault(value: T): KSerializer<T> = getContextual(value) ?: value::class.serializer().cast()
+public fun <T : Any> SerialModule.getContextualOrDefault(klass: KClass<T>): KSerializer<T> =
+    getContextual(klass) ?: klass.serializer()
+
+@ImplicitReflectionSerializer
+public fun <T : Any> SerialModule.getContextualOrDefault(value: T): KSerializer<T> =
+    getContextual(value) ?: value::class.serializer().cast()
 
 /**
  * Returns a combination of two serial modules

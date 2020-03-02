@@ -117,7 +117,7 @@ public constructor(
      */
     @ImplicitReflectionSerializer
     public inline fun <reified T : Any> toJson(value: T): JsonElement {
-        return toJson(context.getContextualOrDefault(T::class), value)
+        return toJson(context.getContextualOrDefault(), value)
     }
 
     /**
@@ -157,7 +157,7 @@ public constructor(
      * @throws [SerializationException] if given input can not be deserialized
      */
     @ImplicitReflectionSerializer
-    public inline fun <reified T : Any> fromJson(tree: JsonElement): T = fromJson(context.getContextualOrDefault(T::class), tree)
+    public inline fun <reified T : Any> fromJson(tree: JsonElement): T = fromJson(context.getContextualOrDefault(), tree)
 
     /**
      * The default instance of [Json] in the form of companion object.
@@ -221,7 +221,7 @@ public constructor(
          */
         @ImplicitReflectionSerializer
         public inline fun <reified T : Any> toJson(value: T): JsonElement {
-            return toJson(context.getContextualOrDefault(T::class), value)
+            return toJson(context.getContextualOrDefault(), value)
         }
 
         /**
@@ -243,7 +243,7 @@ public constructor(
          */
         @ImplicitReflectionSerializer
         public inline fun <reified T : Any> fromJson(tree: JsonElement): T =
-            fromJson(context.getContextualOrDefault(T::class), tree)
+            fromJson(context.getContextualOrDefault(), tree)
     }
 
     private fun validateConfiguration() {

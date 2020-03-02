@@ -4,22 +4,21 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.json.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.RequiresOptIn.Level.*
+import kotlin.reflect.typeOf
 
 /**
- * This annotation marks declaration which try to obtain serializer implicitly
- * using reflection, e.g. from KClass or instance itself.
+ * Marks declaration that obtain serializer implicitly using experimental [typeOf] function and/or reflection.
  *
- * This approach is discouraged in general because it has several drawbacks, including:
- * - Reflection is not available on Kotlin/Native and is very limited on Kotlin/JS.
- * - Reflection won't infer correct serializers for generic classes, like collections.
- * - SerialModule may not be available, since it is bound to particular format, not serializer.
- * - Such reflection calls are usually slow.
+ * These declarations have the following limitations:
+ * - [typeOf] API does not work properly on K/JS with user-defined serializers.
+ * - Reflection can't infer correct serializers for generic classes, like collections.
+ * - Performance of reflective calls is usually worse than direct access to `.serializer`.
  *
- * It's always better to specify serializer explicitly, using generated `.serializer()`
+ * It is recommended to specify serializer explicitly, using generated `.serializer()`
  * function on serializable class' companion.
  */
 @RequiresOptIn
@@ -36,41 +35,41 @@ public annotation class UnstableDefault
 
 @ImplicitReflectionSerializer
 public inline fun <reified T : Any> BinaryFormat.dump(value: T): ByteArray =
-    dump(context.getContextualOrDefault(T::class), value)
+    dump(context.getContextualOrDefault(), value)
 
 @ImplicitReflectionSerializer
 public inline fun <reified T : Any> BinaryFormat.dumps(value: T): String =
-    dumps(context.getContextualOrDefault(T::class), value)
+    dumps(context.getContextualOrDefault(), value)
 
 @ImplicitReflectionSerializer
 public inline fun <reified T : Any> BinaryFormat.load(raw: ByteArray): T =
-    load(context.getContextualOrDefault(T::class), raw)
+    load(context.getContextualOrDefault(), raw)
 
 @ImplicitReflectionSerializer
 public inline fun <reified T : Any> BinaryFormat.loads(hex: String): T =
-    loads(context.getContextualOrDefault(T::class), hex)
+    loads(context.getContextualOrDefault(), hex)
 
 
 @ImplicitReflectionSerializer
 public inline fun <reified T : Any> StringFormat.stringify(value: T): String =
-    stringify(context.getContextualOrDefault(T::class), value)
+    stringify(context.getContextualOrDefault(), value)
 
 @ImplicitReflectionSerializer
 public inline fun <reified T : Any> StringFormat.stringify(objects: List<T>): String =
-    stringify(context.getContextualOrDefault(T::class).list, objects)
+    stringify(context.getContextualOrDefault<T>().list, objects)
 
 @ImplicitReflectionSerializer
 public inline fun <reified K : Any, reified V : Any> StringFormat.stringify(map: Map<K, V>): String
-        = stringify(MapSerializer(context.getContextualOrDefault(K::class), context.getContextualOrDefault(V::class)), map)
+        = stringify(MapSerializer(context.getContextualOrDefault<K>(), context.getContextualOrDefault<V>()), map)
 
 @ImplicitReflectionSerializer
 public inline fun <reified T : Any> StringFormat.parse(str: String): T =
-    parse(context.getContextualOrDefault(T::class), str)
+    parse(context.getContextualOrDefault(), str)
 
 @ImplicitReflectionSerializer
 public inline fun <reified T : Any> StringFormat.parseList(objects: String): List<T> =
-    parse(context.getContextualOrDefault(T::class).list, objects)
+    parse(context.getContextualOrDefault<T>().list, objects)
 
 @ImplicitReflectionSerializer
 public inline fun <reified K : Any, reified V : Any> StringFormat.parseMap(map: String)
-        = parse(MapSerializer(context.getContextualOrDefault(K::class), context.getContextualOrDefault(V::class)), map)
+        = parse(MapSerializer(context.getContextualOrDefault<K>(), context.getContextualOrDefault<V>()), map)
