@@ -52,7 +52,6 @@ package kotlinx.serialization
  * have one element (`T`, maps have two, one for keys and one for values), but potentially unlimited
  * number of actual children values. In such cases, valid indices range is not known statically
  * and implementations of descriptor should provide consistent and unbounded names and indices.
- * See [kotlinx.serialization.internal.ListLikeSerializer] for the reference.
  *
  * ### Thread-safety and mutability
  * Serial descriptor implementation should be immutable after the publication and thread-safe.

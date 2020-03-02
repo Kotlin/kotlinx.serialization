@@ -81,7 +81,7 @@ class SerialDescriptorSpecificationTest {
             assertTrue(cDescriptor.kind is PrimitiveKind.LONG)
         }
         // Failure modes
-        // TODO sandwraith initialization order assertFailsWith<IndexOutOfBoundsException> { d.isElementOptional(3) }
+        assertFailsWith<IndexOutOfBoundsException> { d.isElementOptional(3) }
         assertFailsWith<IndexOutOfBoundsException> { d.isElementOptional(Int.MAX_VALUE) }
         assertFailsWith<IndexOutOfBoundsException> { d.getElementAnnotations(3) }
         assertFailsWith<IndexOutOfBoundsException> { d.getElementName(3) }
@@ -141,11 +141,11 @@ class SerialDescriptorSpecificationTest {
 
     @Test
     fun testMapDescriptor() {
-        val descriptor = HashMapSerializer(
+        val descriptor = MapSerializer(
             Int.serializer(),
             Long.serializer()
         ).descriptor
-        assertEquals("kotlin.collections.HashMap", descriptor.serialName)
+        assertEquals("kotlin.collections.LinkedHashMap", descriptor.serialName)
         assertFalse(descriptor.isNullable)
         assertEquals(2, descriptor.elementsCount)
         assertSame(Int.serializer().descriptor, descriptor.getElementDescriptor(0))
