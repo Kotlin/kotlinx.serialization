@@ -7,6 +7,7 @@ package kotlinx.serialization
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.internal.*
 import kotlin.internal.*
+import kotlin.reflect.*
 
 @Deprecated(
     message = "Deprecated in the favour of PrimitiveDescriptor factory function",
@@ -71,3 +72,66 @@ typealias ElementValueEncoder = AbstractEncoder
     replaceWith = ReplaceWith("AbstractDecoder", imports = ["kotlinx.serialization.builtins.AbstractDecoder"])
 )
 typealias ElementValueDecoder = AbstractDecoder
+
+@ImplicitReflectionSerializer
+@Deprecated(
+    "This function accidentally slipped to a public API surface and is not intended for public use " +
+            "since it does not have clear specification.",
+    ReplaceWith("serializerOrNull"),
+    level = DeprecationLevel.ERROR
+)
+public fun <T : Any> KClass<T>.compiledSerializer(): KSerializer<T>? = compiledSerializerImpl()
+
+@Deprecated(
+    "Deprecated in favor of standard library function.",
+    ReplaceWith("encodeToByteArray()"),
+    level = DeprecationLevel.ERROR
+)
+expect fun String.toUtf8Bytes(): ByteArray
+
+@Deprecated(
+    "Deprecated in favor of standard library function.",
+    ReplaceWith("bytes.decodeToString()"),
+    level = DeprecationLevel.ERROR
+)
+expect fun stringFromUtf8Bytes(bytes: ByteArray): String
+
+private const val enumReflectiveAccessMessage =
+    "Deprecated because reflected operations on enums are not supported correctly on Kotlin/JS and Kotlin/Native.\n" +
+            "Prefer using reified functions or enum serializers."
+
+@Deprecated(enumReflectiveAccessMessage, level = DeprecationLevel.ERROR)
+expect fun <E : Enum<E>> enumFromName(enumClass: KClass<E>, value: String): E
+
+@Deprecated(enumReflectiveAccessMessage, level = DeprecationLevel.ERROR)
+expect fun <E : Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E
+
+@Deprecated(enumReflectiveAccessMessage, level = DeprecationLevel.ERROR)
+expect fun <E : Enum<E>> KClass<E>.enumClassName(): String
+
+@Deprecated(enumReflectiveAccessMessage, level = DeprecationLevel.ERROR)
+expect fun <E : Enum<E>> KClass<E>.enumMembers(): Array<E>
+
+@Deprecated(
+    "This function accidentally slipped to a public API surface and is not intended for public use " +
+            "since it does not have clear specification. Provide your own replacement.", level = DeprecationLevel.ERROR
+)
+public fun <T : Any, E : T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> = toNativeArrayImpl<T, E>(eClass)
+
+private const val message =
+    "Mapper was renamed to Properties to better reflect its semantics and extracted to separate artifact kotlinx-serialization-properties"
+
+@Deprecated(message = message, level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("Properties"))
+public class Mapper()
+
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY)
+@Deprecated(
+    message = "SerialId is renamed to ProtoId to better reflect its semantics and extracted to separate artifact kotlinx-serialization-protobuf",
+    level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("ProtoId", imports = ["kotlinx.serialization.protobuf.*"])
+)
+annotation class SerialId @Deprecated(
+    message = "SerialId is renamed to ProtoId to better reflect its semantics and extracted to separate artifact kotlinx-serialization-protobuf",
+    level = DeprecationLevel.ERROR,
+    replaceWith = ReplaceWith("ProtoId(id)", imports = ["kotlinx.serialization.protobuf.*"])
+) constructor(val id: Int)

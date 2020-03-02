@@ -34,53 +34,8 @@ public fun <T : Any> KClass<T>.serializer(): KSerializer<T> = serializerOrNull()
 public fun <T : Any> KClass<T>.serializerOrNull(): KSerializer<T>? = compiledSerializerImpl()
         ?: builtinSerializerOrNull()
 
-@ImplicitReflectionSerializer
-@Deprecated(
-    "This function accidentally slipped to a public API surface and is not intended for public use " +
-            "since it does not have clear specification.",
-    ReplaceWith("serializerOrNull"),
-    level = DeprecationLevel.ERROR
-)
-public fun <T : Any> KClass<T>.compiledSerializer(): KSerializer<T>? = compiledSerializerImpl()
 
 internal expect fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>?
-
-@Deprecated(
-    "Deprecated in favor of standard library function.",
-    ReplaceWith("encodeToByteArray()"),
-    level = DeprecationLevel.ERROR
-)
-expect fun String.toUtf8Bytes(): ByteArray
-
-@Deprecated(
-    "Deprecated in favor of standard library function.",
-    ReplaceWith("bytes.decodeToString()"),
-    level = DeprecationLevel.ERROR
-)
-expect fun stringFromUtf8Bytes(bytes: ByteArray): String
-
-private const val enumReflectiveAccessMessage =
-    "Deprecated because reflected operations on enums are not supported correctly on Kotlin/JS and Kotlin/Native.\n" +
-            "Prefer using reified functions or enum serializers."
-
-@Deprecated(enumReflectiveAccessMessage, level = DeprecationLevel.ERROR)
-expect fun <E : Enum<E>> enumFromName(enumClass: KClass<E>, value: String): E
-
-@Deprecated(enumReflectiveAccessMessage, level = DeprecationLevel.ERROR)
-expect fun <E : Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E
-
-@Deprecated(enumReflectiveAccessMessage, level = DeprecationLevel.ERROR)
-expect fun <E : Enum<E>> KClass<E>.enumClassName(): String
-
-@Deprecated(enumReflectiveAccessMessage, level = DeprecationLevel.ERROR)
-expect fun <E : Enum<E>> KClass<E>.enumMembers(): Array<E>
-
-
-@Deprecated(
-    "This function accidentally slipped to a public API surface and is not intended for public use " +
-            "since it does not have clear specification. Provide your own replacement.", level = DeprecationLevel.ERROR
-)
-public fun <T : Any, E : T?> ArrayList<E>.toNativeArray(eClass: KClass<T>): Array<E> = toNativeArrayImpl<T, E>(eClass)
 
 internal expect fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E>
 
