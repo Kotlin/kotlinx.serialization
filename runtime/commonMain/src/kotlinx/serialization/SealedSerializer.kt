@@ -75,7 +75,7 @@ public class SealedClassSerializer<T : Any>(
     override val descriptor: SerialDescriptor = SerialDescriptor(serialName, PolymorphicKind.SEALED) {
         element("type", String.serializer().descriptor)
         val elementDescriptor =
-            SerialDescriptor("kotlinx.serialization.Sealed.${baseClass.simpleName}", PolymorphicKind.SEALED) {
+            SerialDescriptor("kotlinx.serialization.Sealed<${baseClass.simpleName}>", UnionKind.CONTEXTUAL) {
                 subclassSerializers.forEach {
                     val d = it.descriptor
                     element(d.serialName, d)
@@ -91,7 +91,8 @@ public class SealedClassSerializer<T : Any>(
     init {
         require(subclasses.size == subclassSerializers.size) {
             "Arrays of classes and serializers must have the same length," +
-                    " got arrays: ${subclasses.contentToString()}, ${subclassSerializers.contentToString()}"
+                    " got arrays: ${subclasses.contentToString()}, ${subclassSerializers.contentToString()}\n" +
+                    "Please ensure that @Serializable annotation is present on each sealed subclass"
         }
         class2Serializer = subclasses.zip(subclassSerializers).toMap()
         serialName2Serializer = class2Serializer.entries.groupingBy { it.value.descriptor.serialName }

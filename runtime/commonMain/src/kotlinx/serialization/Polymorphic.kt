@@ -79,7 +79,7 @@ public class PolymorphicSerializer<T : Any>(override val baseClass: KClass<T>) :
             element("type", String.serializer().descriptor)
             element(
                 "value",
-                SerialDescriptor("kotlinx.serialization.Polymorphic.${baseClass.simpleName}", UnionKind.CONTEXTUAL)
+                SerialDescriptor("kotlinx.serialization.Polymorphic<${baseClass.simpleName}>", UnionKind.CONTEXTUAL)
             )
         }
 }
