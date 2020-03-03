@@ -227,6 +227,8 @@ public sealed class UnionKind : SerialKind() {
      * Represents an "unknown" type that will be known only at the moment of the serialization.
      * Effectively it defers the choice of the serializer to a moment of the serialization, and can
      * be used for [contextual][ContextualSerialization] serialization.
+     * Possible options can be known statically (e.g. for sealed classes), in that case they can be
+     * enumerated in child descriptors similarly to [ENUM_KIND].
      */
     public object CONTEXTUAL : UnionKind()
 
@@ -247,7 +249,7 @@ public sealed class UnionKind : SerialKind() {
  * bounded and sealed polymorphism common property: not knowing the actual type statically and requiring
  * formats to additionally encode it.
  */
-public sealed class PolymorphicKind : UnionKind() {
+public sealed class PolymorphicKind : SerialKind() {
     /**
      * Sealed kind represents Kotlin sealed classes, where all subclasses are known statically at the moment of declaration.
      * [SealedClassSerializer] can be used as an example of sealed serialization.

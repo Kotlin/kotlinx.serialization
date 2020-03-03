@@ -29,8 +29,7 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
         val actualSerializer = findPolymorphicSerializer(encoder, value)
         encoder.encodeStructure(descriptor) {
             encodeStringElement(descriptor, 0, actualSerializer.descriptor.serialName)
-            @Suppress("UNCHECKED_CAST")
-            encodeSerializableElement(descriptor, 1, actualSerializer as KSerializer<Any?>, value)
+            encodeSerializableElement(descriptor, 1, actualSerializer.cast(), value)
         }
     }
 
