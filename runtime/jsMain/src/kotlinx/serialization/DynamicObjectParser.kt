@@ -86,7 +86,7 @@ class DynamicObjectParser(
                     if (configuration.useArrayPolymorphism) StructureKind.LIST
                     else StructureKind.MAP
                 }
-                else -> desc.kind
+                else -> descriptor.kind
             }
             return when (kind) {
                 StructureKind.LIST -> DynamicListInput(curObj)

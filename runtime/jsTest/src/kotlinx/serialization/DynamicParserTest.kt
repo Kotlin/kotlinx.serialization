@@ -5,7 +5,6 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.modules.serializersModuleOf
-import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlinx.serialization.json.JsonConfiguration
 import kotlin.test.*
 
