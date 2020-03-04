@@ -10,6 +10,7 @@ import kotlinx.serialization.internal.*
  * Builder for [SerialDescriptor].
  * The resulting descriptor will be uniquely identified by the given [serialName],
  * with the corresponding [kind] and structure described in [builder] function.
+ * This builder function is not intended to be used for serializers of generic classes.
  *
  * Example:
  * ```
