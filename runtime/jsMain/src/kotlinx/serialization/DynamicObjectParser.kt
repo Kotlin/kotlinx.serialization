@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
+import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.math.abs
@@ -15,7 +16,10 @@ import kotlin.math.floor
  */
 internal const val MAX_SAFE_INTEGER: Double = 9007199254740991.toDouble() // 2^53 - 1
 
-class DynamicObjectParser(override val context: SerialModule = EmptyModule) : SerialFormat {
+class DynamicObjectParser(
+    override val context: SerialModule = EmptyModule,
+    internal val configuration: JsonConfiguration = JsonConfiguration.Default
+) : SerialFormat {
     @ImplicitReflectionSerializer
     inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.getContextualOrDefault(T::class))
 
@@ -77,7 +81,14 @@ class DynamicObjectParser(override val context: SerialModule = EmptyModule) : Se
 
         override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             val curObj = currentTagOrNull?.let { obj[it] } ?: obj
-            return when (descriptor.kind) {
+            val kind = when (descriptor.kind) {
+                is PolymorphicKind -> {
+                    if (configuration.useArrayPolymorphism) StructureKind.LIST
+                    else StructureKind.MAP
+                }
+                else -> desc.kind
+            }
+            return when (kind) {
                 StructureKind.LIST -> DynamicListInput(curObj)
                 StructureKind.MAP -> DynamicMapInput(curObj)
                 else -> DynamicInput(curObj)
