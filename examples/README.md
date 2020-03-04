@@ -22,10 +22,6 @@ Contains examples of using different formats (JSON, CBOR, Protobuf).
 
 To launch this sample, first run `./gradlew build` and then point your browser to `example-js/web/index.html`.
 
-### Example-native
-
-Provides setup for Gradle using 'kotlin-platform-native' plugin and Gradle metadata (Gradle 4.8+ required, used one is 4.10).
-
 ### Example-visitors
 
 Provides setup for Gradle using **Kotlin Gradle DSL** and 'kotlin.jvm' plugin.

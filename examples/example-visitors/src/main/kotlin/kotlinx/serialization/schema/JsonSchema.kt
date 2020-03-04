@@ -58,7 +58,7 @@ fun JsonSchema(descriptor: SerialDescriptor): JsonObject {
 
     val jsonType = descriptor.jsonType
     val objectData: MutableMap<String, JsonElement> = mutableMapOf(
-        "description" to JsonLiteral(descriptor.name),
+        "description" to JsonLiteral(descriptor.serialName),
         "type" to JsonLiteral(jsonType)
     )
     if (isEnum) {

@@ -1,6 +1,6 @@
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
-import kotlinx.serialization.internal.EnumDescriptor
+import kotlinx.serialization.builtins.AbstractEncoder
 import utils.Parser
 import utils.Result
 import utils.testMethod
@@ -18,7 +18,7 @@ import kotlin.reflect.KClass
  * writeBegin and writeEnd methods.
  */
 
-class KeyValueOutput(val out: PrintWriter) : ElementValueEncoder () {
+class KeyValueOutput(val out: PrintWriter) : AbstractEncoder() {
     override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
         out.print('{')
         return this

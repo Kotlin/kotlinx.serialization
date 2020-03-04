@@ -17,23 +17,23 @@
 package kotlinx.serialization.schema
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.protobuf.ProtoNumberType
+import kotlinx.serialization.protobuf.*
 import kotlinx.serialization.protobuf.ProtoType
 import kotlinx.serialization.schema.*
 import kotlin.test.*
 
 
 @Serializable
-private data class Simple(val int: Int, @SerialId(10) val embedded: SimpleEmbedded, @SerialId(25) val someMap: Map<String, String> = emptyMap())
+private data class Simple(val int: Int, @ProtoId(10) val embedded: SimpleEmbedded, @ProtoId(25) val someMap: Map<String, String> = emptyMap())
 
 @Serializable
 private data class SimpleEmbedded(val int0: Int, @ProtoType(ProtoNumberType.SIGNED) val int1: Int)
 
 class ProtoSchemaTest {
 
-    private val correctSchemaText = """message ${Simple.serializer().descriptor.name} {
+    private val correctSchemaText = """message ${Simple.serializer().descriptor.serialName} {
   required int32 int = 1;
-  required ${SimpleEmbedded.serializer().descriptor.name} embedded = 10;
+  required ${SimpleEmbedded.serializer().descriptor.serialName} embedded = 10;
   map<string, string> someMap = 25;
 }"""
 

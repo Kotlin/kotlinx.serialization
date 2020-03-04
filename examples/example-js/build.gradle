@@ -39,6 +39,8 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
     compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-protobuf-js:$serialization_version"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-cbor-js:$serialization_version"
 }
 
 compileKotlin2Js {

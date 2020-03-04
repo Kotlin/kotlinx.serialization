@@ -19,12 +19,13 @@
 package kotlinx.serialization.schema
 
 import kotlinx.serialization.*
+import kotlinx.serialization.protobuf.ProtoId
 import kotlinx.serialization.protobuf.ProtoNumberType
 import kotlinx.serialization.protobuf.ProtoType as ProtobufType
 
 fun ProtoSchema(descriptor: SerialDescriptor): ProtoMessage {
     val fields = descriptor.elementDescriptors().mapIndexed { index, child ->
-        val id = descriptor.getElementAnnotations(index).filterIsInstance<SerialId>().singleOrNull()?.id ?: index + 1
+        val id = descriptor.getElementAnnotations(index).filterIsInstance<ProtoId>().singleOrNull()?.id ?: index + 1
         val numberAnnotation = descriptor.getElementAnnotations(index).filterIsInstance<ProtobufType>().singleOrNull()?.type
                 ?: ProtoNumberType.DEFAULT
         val rule = when {
@@ -37,7 +38,7 @@ fun ProtoSchema(descriptor: SerialDescriptor): ProtoMessage {
         val type = child.accept(ProtoTypeInference(numberAnnotation))
         ProtoField(id, name, rule, type)
     }.toList()
-    return ProtoMessage(descriptor.name, fields)
+    return ProtoMessage(descriptor.serialName, fields)
 }
 
 
@@ -58,7 +59,6 @@ private class ProtoTypeInference(val protoNumberType: ProtoNumberType) : BaseDes
         is PrimitiveKind.BOOLEAN -> VarintType.bool
         is PrimitiveKind.FLOAT -> Fixed32BitType.float
         is PrimitiveKind.DOUBLE -> Fixed64BitType.double
-        is PrimitiveKind.UNIT -> throw UnsupportedOperationException()
         else -> throw AssertionError()
     }
 

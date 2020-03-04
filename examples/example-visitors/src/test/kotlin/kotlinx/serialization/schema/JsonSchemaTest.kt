@@ -17,12 +17,16 @@
 package kotlinx.serialization.schema
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
-import kotlinx.serialization.json.*
-import kotlin.test.*
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.json
+import kotlinx.serialization.json.jsonArray
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
 
 @Serializable
-private data class Data2(@Optional val l: List<Int> = emptyList(), val s: String)
+private data class Data2(val l: List<Int> = emptyList(), val s: String)
 
 class JsonSchemaTest {
     @Test
@@ -31,17 +35,17 @@ class JsonSchemaTest {
         val schema = JsonSchema(desc)
 
         val correctSchema = json {
-            "description" to desc.name
+            "description" to desc.serialName
             "type" to "object"
             "required" to jsonArray { +"s" }
             "properties" to json {
                 "l" to json {
-                    "description" to ArrayListClassDesc(IntDescriptor).name
+                    "description" to ListSerializer(Int.serializer()).descriptor.serialName
                     "type" to "array"
-                    "items" to json { "type" to "number"; "description" to IntDescriptor.name }
+                    "items" to json { "type" to "number"; "description" to Int.serializer().descriptor.serialName }
                 }
                 "s" to json {
-                    "description" to StringDescriptor.name
+                    "description" to String.serializer().descriptor.serialName
                     "type" to "string"
                 }
             }

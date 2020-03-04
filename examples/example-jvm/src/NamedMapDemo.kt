@@ -1,4 +1,5 @@
 import kotlinx.serialization.*
+import kotlinx.serialization.internal.*
 import utils.*
 
 /**
@@ -13,6 +14,7 @@ import utils.*
  * Note that null values are not supported here.
  */
 
+@OptIn(InternalSerializationApi::class)
 class MapOutput(val map: MutableMap<String, Any> = mutableMapOf()) : NamedValueEncoder () {
     override fun beginCollection(
         desc: SerialDescriptor,
@@ -28,6 +30,7 @@ class MapOutput(val map: MutableMap<String, Any> = mutableMapOf()) : NamedValueE
     }
 }
 
+@OptIn(InternalSerializationApi::class)
 class MapInput(val map: Map<String, Any>) : NamedValueDecoder() {
     override fun decodeCollectionSize(desc: SerialDescriptor): Int {
         return decodeTaggedInt(nested("size"))
@@ -35,6 +38,11 @@ class MapInput(val map: Map<String, Any>) : NamedValueDecoder() {
 
     override fun decodeTaggedValue(tag: String): Any {
         return map[tag]!!
+    }
+
+    override fun decodeSequentially(): Boolean = true
+    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+        TODO("Supports only decodeSequentially for now")
     }
 }
 

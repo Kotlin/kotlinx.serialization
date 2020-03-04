@@ -1,4 +1,6 @@
 import kotlinx.serialization.*
+import kotlinx.serialization.internal.TaggedDecoder
+import kotlinx.serialization.internal.TaggedEncoder
 import utils.Result
 import utils.testCase
 
@@ -18,6 +20,8 @@ annotation class MyId(val id: Int)
 @Serializable
 data class DataWithMyId(@MyId(1) val a: Int, @MyId(2) val b: String)
 
+
+@OptIn(InternalSerializationApi::class)
 object MyIdMapper {
 
     class Collector : TaggedEncoder<Int>() {
@@ -41,6 +45,11 @@ object MyIdMapper {
 
         override fun decodeTaggedValue(tag: Int): Any {
             return collected.tagList.getValue(tag)
+        }
+
+        override fun decodeSequentially(): Boolean = true
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+            TODO("Supports only decodeSequentially for now")
         }
     }
 }

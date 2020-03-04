@@ -2,15 +2,16 @@ import kotlinx.serialization.*
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.protobuf.ProtoBuf
+import kotlinx.serialization.protobuf.ProtoId
 import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.HTMLTextAreaElement
 import kotlin.browser.document
 
 @Serializable
-data class Data(@SerialId(1) val a: Int, @SerialId(2) val b: String)
+data class Data(@ProtoId(1) val a: Int, @ProtoId(2) val b: String)
 
 @Serializable
-data class DataList(@SerialId(1) val list: List<Data> = emptyList())
+data class DataList(@ProtoId(1) val list: List<Data> = emptyList())
 
 fun main() {
 
@@ -24,15 +25,15 @@ fun main() {
     fun convert() {
         val txt: String = txtInput.value
         try {
-
+            val json = Json { prettyPrint = true }
             val serial = DataList.serializer()
-            val kotl = Json.parse(serial, txt)
-            val json = Json.indented.stringify(serial, kotl)
+            val kotl = json.parse(serial, txt)
+            val jsonString = json.stringify(serial, kotl)
             val proto = ProtoBuf.dumps(serial, kotl)
             val cbor = Cbor.dumps(serial, kotl)
 
             kotlinLabel.value = kotl.toString()
-            jsonLabel.value = json
+            jsonLabel.value = jsonString
             protoLabel.value = proto
             cborLabel.value = cbor
         } catch (e: Exception) {
