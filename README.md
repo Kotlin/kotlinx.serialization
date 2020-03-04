@@ -99,15 +99,15 @@ Kotlin DSL:
 ```kotlin
 plugins {
     kotlin("multiplatform") // or kotlin("jvm") or any other kotlin plugin
-    kotlin("plugin.serialization") version "1.3.61"
+    kotlin("plugin.serialization") version "1.3.70"
 }
 ```
 Groovy DSL:
 
 ```gradle
 plugins {
-    id 'org.jetbrains.kotlin.multiplatform' version '1.3.61' // or any other kotlin plugin
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.3.61'
+    id 'org.jetbrains.kotlin.multiplatform' version '1.3.70' // or any other kotlin plugin
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.3.70'
 }
 ```
 
@@ -124,7 +124,7 @@ buildscript {
     repositories { jcenter() }
 
     dependencies {
-        val kotlinVersion = "1.3.61"
+        val kotlinVersion = "1.3.70"
         classpath(kotlin("gradle-plugin", version = kotlinVersion))
         classpath(kotlin("serialization", version = kotlinVersion))
     }
@@ -135,7 +135,7 @@ Groovy DSL:
 
 ```gradle
 buildscript {
-    ext.kotlin_version = '1.3.61'
+    ext.kotlin_version = '1.3.70'
     repositories { jcenter() }
 
     dependencies {
@@ -164,7 +164,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib", KotlinCompilerVersion.VERSION)) // or "stdlib-jdk8"
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0") // JVM dependency
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0") // JVM dependency
 }
 ```
 
@@ -177,7 +177,7 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version" // or "kotlin-stdlib-jdk8"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0" // JVM dependency
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0" // JVM dependency
 }
 ```
 
@@ -261,8 +261,8 @@ Ensure the proper version of Kotlin and serialization version:
 
 ```xml
 <properties>
-    <kotlin.version>1.3.60</kotlin.version>
-    <serialization.version>0.14.0</serialization.version>
+    <kotlin.version>1.3.70</kotlin.version>
+    <serialization.version>0.20.0</serialization.version>
 </properties>
 ```
 
@@ -315,7 +315,9 @@ Add dependency on serialization runtime library:
 
 ### Incompatible changes
 
-Library versions `0.14.0` and higher require Kotlin 1.3.60 and higher and incompatible with previous versions.
+Library versions `0.20.0` and higher require Kotlin 1.3.70 and higher and incompatible with previous versions.
+
+Library version `0.14.0` require Kotlin 1.3.60/61 and incompatible with other versions.
 
 All versions of library before `0.13.0` are using Gradle metadata v0.4 and therefore it is recommended to use Gradle 4.8-5.1 to build.
 
