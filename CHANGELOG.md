@@ -2,33 +2,40 @@
 0.20.0 / 2020-03-04
 ==================
 
-**Release note**:
-0.20.0 release is focused on giving a library the final API shape. We've carefully weighted every `public` method and
-decided whether it should be publicly available or not. As a result, some symbols were deprecated with an intention of removing
-them from public API because they're going to be replaced with other, more valuable and useful for users, constructions. 
-Such symbols include: pre-defined JSON instances like `nonStrict` — strictMode is now much more configurable via 3 separate flags,
-so users are encouraged to create their own configuration; direct usage of standard serializer's objects,
-such as `IntSerializer` and `ArrayListSerializer` —
-they were replaced with constructor-like factory functions; `SerialClassDescImpl` creation is replaced with `SerialDescriptor` 
-builder function to ease writing of custom serializers; internal utilities, like HexConverter and ByteBuffer —
-they will be replaced with upcoming kotlinx.io library. Moreover, add-on formats like Protobuf, CBOR and Properties (formerly Mapper)
-are now extracted to [separate artifacts](formats/README.md#protobuf), so the main core can be kept lightweight.
+### Release notes
 
-We've also paid attention to quality, thus
-documenting most of the core interfaces, fixing numerous of bugs, and even introducing new features that may be useful for those of you who
-writes custom serializers — see [JsonTransformingSerializer](docs/json_transformations.md).  
+0.20.0 release is focused on giving a library its final and stable API shape. 
+
+We have carefully evaluated every `public` declaration and
+decided whether it should be publicly available. As a result, some declarations were deprecated with an intention of removing
+them from public API because they are going to be replaced with other, more valuable and useful for users. 
+
+Deprecated symbols include: 
+ - Pre-defined JSON instances like `nonStrict` — `strictMode` was split to 3 separate, more granular, flags.
+Users are encouraged to create their own configuration; 
+ - Top-level serializers like `IntSerializer` and `ArrayListSerializer`.
+They were replaced with constructor-like factory functions.
+ - `SerialClassDescImpl` creation class replaced with `SerialDescriptor` 
+builder function to ease writing of custom serializers and maintain `SerialDescriptor` contract.
+ - Internal utilities, like HexConverter and ByteBuffer, were deprecated as not relevant to serialization public API.
+ - Add-on formats like Protobuf, CBOR and Properties (formerly Mapper)
+are now extracted to [separate artifacts](formats/README.md#protobuf) to keep the core API lightweight.
+
+We have spent a lot of effort into the quality,
+documenting most of the core interfaces, establishing their contracts,
+fixing numerous of bugs, and even introducing new features that may be useful for those of you who
+write custom serializers — see [JsonTransformingSerializer](docs/json_transformations.md).  
 
 Such API changes, of course, may be not backwards-compatible in some places, in particular, between compiler plugin and runtime.
 Given that the library is still is in the experimental phase, we took the liberty to introduce breaking changes in order to give users
 the better, more convenient API. Therefore, this release has number `0.20.0` instead of `0.15.0`;
 Kotlin 1.3.70 is compatible _only_ with this release.
 
-Full changelog-by-commit:
+### Full changelog (by commit):
   
   * This release is compatible with Kotlin 1.3.70 
-  * Rework polymorphic descriptors: polymorphic and sealed descriptor elements are now aligned with an actual serialization process
+  * Rework polymorphic descriptors: polymorphic and sealed descriptor elements are now aligned with an actual serialization process (#731)
   * Hide internal collection and map serializers
-  * Get rid of weird Map contract from TreeJsonOutput, enable proper map-like support for JSON
   * Introduce factories for ArraySerializers as well, deprecate top-level array serializers
   * Extract ElementValue encoder and decoder to builtins and rename it to AbstractEncoder and AbstractDecoder respectively
   * Hide as much internal API as possible for collections
@@ -44,8 +51,7 @@ Full changelog-by-commit:
   * Preserve quotation information during JsonLiteral parsing (#536, #537)
   * Change MapEntrySerializer.descriptor to be truly map-like. Otherwise, it cannot be properly serialized by TaggedDecoder (-> to JsonObject)
   * Cleanup ConfigParser: move to proper package to be consistent with other formats
-  * Support primitive arrays in serializer(KType)
-  * Support reference arrays in serializer(KType)
+  * Support primitive and reference arrays in serializer(KType)
   * Add option to use HOCON naming convention
   * Allow DynamicObjectParser to handle polymorphic types (array-mode polymorphism only)
   * Get rid of PrimitiveKind.UNIT and corresponding encoder methods. Now UNIT encoded as regular object.
@@ -53,12 +59,10 @@ Full changelog-by-commit:
   * Get rid of AbstractSerialFormat superclass
   * Deprecate most of functions intended on internal use
   * Migration paths, documentation improvements and additional SerialDescriptorBuilder validation
-  * Serial kinds re-adjustments
   * Document KSerializer, SerializationStrategy and DeserializationStrategy
   * Document Encoder and CompositeEncoder
   * Document Decoder and CompositeDecoder, split encoding and decoding to different files
   * SerialKind documentation
-  * Optimize footprint of SerialClassDescImpl by using the fact that it is used only by plugin-generated code.
   * Introduce UnionKind.CONTEXTUAL to cover Polymorphic/Contextual serializers, get rid of elementsCount in builders
   * SerialDescriptor for enums rework: now each enum member has object kind
   * Introduce DSL for creating user-defined serial descriptors
@@ -80,7 +84,6 @@ Full changelog-by-commit:
   * Object serializer support in KType and Type based serializer lookups on JVM (#656)
   * Deprecate HexConverter
   * Supply correct child descriptors for Pair and Triple
-  * Optimize space allocation for SerialClassDescImpl
   * Refactor EnumSerializer
   * Rename SerialId to ProtoId to better reflect its semantics
   * Support of custom generic classes in typeOf()/serializer() API (except JS)
