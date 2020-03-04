@@ -142,6 +142,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
     }
 }
+```
 
 Then you can `apply plugin` (example in Groovy):
 
