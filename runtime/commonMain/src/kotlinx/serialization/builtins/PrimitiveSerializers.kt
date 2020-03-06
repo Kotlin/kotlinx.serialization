@@ -1,7 +1,7 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-@file:Suppress("DEPRECATION_ERROR")
+@file:Suppress("DEPRECATION_ERROR", "FunctionName")
 
 package kotlinx.serialization.builtins
 
@@ -113,12 +113,14 @@ public fun String.Companion.serializer(): KSerializer<String> = kotlinx.serializ
  * Each element of the array is serialized with the given [elementSerializer].
  */
 @Suppress("UNCHECKED_CAST")
-public inline fun <reified T : Any, reified E : T?> ArraySerializer(elementSerializer: KSerializer<E>): KSerializer<Array<E>>
-        = ArraySerializer<T, E>(T::class, elementSerializer)
+public inline fun <reified T : Any, reified E : T?> ArraySerializer(elementSerializer: KSerializer<E>): KSerializer<Array<E>> =
+    ArraySerializer<T, E>(T::class, elementSerializer)
 
 /**
  * Returns serializer for reference [Array] of type [E] with [descriptor][SerialDescriptor] of [StructureKind.LIST] kind.
  * Each element of the array is serialized with the given [elementSerializer].
  */
-public fun <T : Any, E : T?> ArraySerializer(kClass: KClass<T>, elementSerializer: KSerializer<E>): KSerializer<Array<E>>
-        = ReferenceArraySerializer<T, E>(kClass, elementSerializer)
+public fun <T : Any, E : T?> ArraySerializer(
+    kClass: KClass<T>,
+    elementSerializer: KSerializer<E>
+): KSerializer<Array<E>> = ReferenceArraySerializer<T, E>(kClass, elementSerializer)

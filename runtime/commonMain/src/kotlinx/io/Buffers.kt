@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION_ERROR")
+@file:Suppress("DEPRECATION_ERROR", "NO_EXPLICIT_VISIBILITY_IN_API_MODE_WARNING") // deprecated anyway
 package kotlinx.io
 
 @Deprecated(message = message, level = DeprecationLevel.ERROR)

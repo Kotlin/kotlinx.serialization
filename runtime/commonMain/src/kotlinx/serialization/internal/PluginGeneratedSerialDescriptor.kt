@@ -9,8 +9,8 @@ import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
 
 /**
  * Implementation that plugin uses to implement descriptors for auto-generated serializers.
- * TODO get rid of the rest of the usages and make it hidden
  */
+// TODO get rid of the rest of the usages and make it hidden
 @InternalSerializationApi
 @Deprecated(level = DeprecationLevel.ERROR, message = "Should not be used in general code")
 public open class PluginGeneratedSerialDescriptor(
@@ -59,7 +59,7 @@ public open class PluginGeneratedSerialDescriptor(
 
     override fun getElementDescriptor(index: Int): SerialDescriptor {
         return generatedSerializer?.childSerializers()?.get(index)?.descriptor
-        ?: throw IndexOutOfBoundsException("$serialName descriptor has only $elementsCount elements, index: $index")
+            ?: throw IndexOutOfBoundsException("$serialName descriptor has only $elementsCount elements, index: $index")
     }
 
     override fun isElementOptional(index: Int): Boolean = flags.getChecked(index)

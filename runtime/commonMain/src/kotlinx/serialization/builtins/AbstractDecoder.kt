@@ -26,7 +26,7 @@ public abstract class AbstractDecoder : Decoder, CompositeDecoder {
 
     override fun decodeNotNullMark(): Boolean = true
     override fun decodeNull(): Nothing? = null
-    override fun decodeUnit() = UnitSerializer().deserialize(this)
+    override fun decodeUnit(): Unit = UnitSerializer().deserialize(this)
 
     override fun decodeBoolean(): Boolean = decodeValue() as Boolean
     override fun decodeByte(): Byte = decodeValue() as Byte
@@ -48,7 +48,7 @@ public abstract class AbstractDecoder : Decoder, CompositeDecoder {
     override fun endStructure(descriptor: SerialDescriptor) {
     }
 
-    final override fun decodeUnitElement(descriptor: SerialDescriptor, index: Int) = decodeUnit()
+    final override fun decodeUnitElement(descriptor: SerialDescriptor, index: Int): Unit = decodeUnit()
     final override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean = decodeBoolean()
     final override fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Byte = decodeByte()
     final override fun decodeShortElement(descriptor: SerialDescriptor, index: Int): Short = decodeShort()

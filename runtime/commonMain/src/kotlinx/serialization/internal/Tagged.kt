@@ -7,8 +7,6 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.modules.*
 
-import kotlinx.serialization.modules.*
-
 internal const val unitDeprecated =
     "This method is deprecated with no replacement. Unit is encoded as an empty object and does not require a dedicated method. " +
             "To migrate, just remove your own implementation of this method"
@@ -19,7 +17,7 @@ internal const val unitDeprecated =
  */
 
 @InternalSerializationApi
-abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
+public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
 
     /**
      * Provides a tag object for given serial descriptor and index.
@@ -31,27 +29,27 @@ abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
         get() = EmptyModule
 
     // ---- API ----
-    open fun encodeTaggedValue(tag: Tag, value: Any): Unit = throw SerializationException("Non-serializable ${value::class} is not supported by ${this::class} encoder")
+    public open fun encodeTaggedValue(tag: Tag, value: Any): Unit = throw SerializationException("Non-serializable ${value::class} is not supported by ${this::class} encoder")
 
-    open fun encodeTaggedNotNullMark(tag: Tag) {}
-    open fun encodeTaggedNull(tag: Tag): Unit = throw SerializationException("null is not supported")
+    public open fun encodeTaggedNotNullMark(tag: Tag) {}
+    public open fun encodeTaggedNull(tag: Tag): Unit = throw SerializationException("null is not supported")
     @Deprecated(message = unitDeprecated, level = DeprecationLevel.ERROR)
-    open fun encodeTaggedUnit(tag: Tag) = encodeTaggedValue(tag, Unit)
-    open fun encodeTaggedInt(tag: Tag, value: Int) = encodeTaggedValue(tag, value)
-    open fun encodeTaggedByte(tag: Tag, value: Byte) = encodeTaggedValue(tag, value)
-    open fun encodeTaggedShort(tag: Tag, value: Short) = encodeTaggedValue(tag, value)
-    open fun encodeTaggedLong(tag: Tag, value: Long) = encodeTaggedValue(tag, value)
-    open fun encodeTaggedFloat(tag: Tag, value: Float) = encodeTaggedValue(tag, value)
-    open fun encodeTaggedDouble(tag: Tag, value: Double) = encodeTaggedValue(tag, value)
-    open fun encodeTaggedBoolean(tag: Tag, value: Boolean) = encodeTaggedValue(tag, value)
-    open fun encodeTaggedChar(tag: Tag, value: Char) = encodeTaggedValue(tag, value)
-    open fun encodeTaggedString(tag: Tag, value: String) = encodeTaggedValue(tag, value)
+    public open fun encodeTaggedUnit(tag: Tag): Unit = encodeTaggedValue(tag, Unit)
+    public open fun encodeTaggedInt(tag: Tag, value: Int): Unit = encodeTaggedValue(tag, value)
+    public open fun encodeTaggedByte(tag: Tag, value: Byte): Unit = encodeTaggedValue(tag, value)
+    public open fun encodeTaggedShort(tag: Tag, value: Short): Unit = encodeTaggedValue(tag, value)
+    public open fun encodeTaggedLong(tag: Tag, value: Long): Unit = encodeTaggedValue(tag, value)
+    public open fun encodeTaggedFloat(tag: Tag, value: Float): Unit = encodeTaggedValue(tag, value)
+    public open fun encodeTaggedDouble(tag: Tag, value: Double): Unit = encodeTaggedValue(tag, value)
+    public open fun encodeTaggedBoolean(tag: Tag, value: Boolean): Unit = encodeTaggedValue(tag, value)
+    public open fun encodeTaggedChar(tag: Tag, value: Char): Unit = encodeTaggedValue(tag, value)
+    public open fun encodeTaggedString(tag: Tag, value: String): Unit = encodeTaggedValue(tag, value)
 
-    open fun encodeTaggedEnum(
+    public open fun encodeTaggedEnum(
         tag: Tag,
         enumDescription: SerialDescriptor,
         ordinal: Int
-    ) = encodeTaggedValue(tag, ordinal)
+    ): Unit = encodeTaggedValue(tag, ordinal)
 
     // ---- Implementation of low-level API ----
 
