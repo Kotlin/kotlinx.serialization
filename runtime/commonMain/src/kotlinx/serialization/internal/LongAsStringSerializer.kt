@@ -4,17 +4,9 @@
 
 package kotlinx.serialization.internal
 
-import kotlinx.serialization.*
-
-object LongAsStringSerializer : KSerializer<Long> {
-    override val descriptor: SerialDescriptor =
-        PrimitiveDescriptor("kotlinx.serialization.LongAsStringSerializer", PrimitiveKind.STRING)
-
-    override fun serialize(encoder: Encoder, value: Long) {
-        encoder.encodeString(value.toString())
-    }
-
-    override fun deserialize(decoder: Decoder): Long {
-        return decoder.decodeString().toLong()
-    }
-}
+@Deprecated(
+    "Moved to kotlinx.serialization.builtins package",
+    ReplaceWith("LongAsStringSerializer", "kotlinx.serialization.builtins.LongAsStringSerializer"),
+    level = DeprecationLevel.ERROR
+)
+public typealias LongAsStringSerializer = kotlinx.serialization.builtins.LongAsStringSerializer
