@@ -6,6 +6,7 @@ package kotlinx.serialization.json.polymorphic
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class JsonParametricSerializerTest : JsonTestBase() {
@@ -61,7 +62,7 @@ class JsonParametricSerializerTest : JsonTestBase() {
     }
 
     @Test
-    fun testSerializesParametrically() = parametrizedTest { streaming ->
+    fun testSerializesParametrically() = if (isJsIr()) Unit else parametrizedTest { streaming ->
         for (i in testDataOutput.indices) {
             assertEquals(
                 testDataInput[i],

@@ -6,12 +6,23 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.modules.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.modules.*
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class JsonCustomSerializersTest : JsonTestBase() {
-    
+
+    private fun noJsIr(test: () -> Unit) {
+        if (isJsIr()) return else test()
+    }
+
+    protected override fun parametrizedTest(test: (Boolean) -> Unit) = noJsIr {
+        val streamingResult = runCatching { test(true) }
+        val treeResult = runCatching { test(false) }
+        processResults(streamingResult, treeResult)
+    }
+
     @Serializable
     data class A(@Id(1) val b: B)
 

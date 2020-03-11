@@ -21,13 +21,13 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
     }
 
     @Test
-    fun testPlainObject() {
+    fun testPlainObject() = noJsIr {
         val b = StringData("some string")
         assertSerializedWithType("""{data:"some string"}""", b)
     }
 
     @Test
-    fun testListWithT() {
+    fun testListWithT() = noJsIr {
         val source = """[{"intV":42}]"""
         val serial = serializer<List<IntData>>()
         assertEquals(listOf(IntData(42)), Json.parse(serial, source))
@@ -46,7 +46,7 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
     }
 
     @Test
-    fun testMapWithT() {
+    fun testMapWithT() = noJsIr {
         val myMap = mapOf("string" to StringData("foo"), "string2" to StringData("bar"))
         assertSerializedWithType("""{string:{data:foo},string2:{data:bar}}""", myMap)
     }
@@ -127,6 +127,10 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
     // Tests with [constructSerializerForGivenTypeArgs] are unsupported on Kotlin/JS
     private inline fun noJs(test: () -> Unit) {
         if (!isJs()) test()
+    }
+
+    private inline fun noJsIr(test: () -> Unit) {
+        if (!isJsIr()) test()
     }
 
     private inline fun <reified T> assertSerializedWithType(

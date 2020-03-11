@@ -6,6 +6,7 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 @OptIn(ImplicitReflectionSerializer::class)
@@ -14,14 +15,15 @@ class JsonReifiedCollectionsTest : JsonTestBase() {
     data class DataHolder(val data: String)
 
     @Test
-    fun testReifiedList() = parametrizedTest { useStreaming ->
+    fun testReifiedList() = if (isJsIr()) Unit else parametrizedTest { useStreaming ->
         val data = listOf(DataHolder("data"), DataHolder("not data"))
         val json = default.stringify(data, useStreaming)
         val data2 = default.parseList<DataHolder>(json, useStreaming)
         assertEquals(data, data2)
     }
+
     @Test
-    fun testReifiedMap() = parametrizedTest { useStreaming ->
+    fun testReifiedMap() = if (isJsIr()) Unit else parametrizedTest { useStreaming ->
         val data = mapOf("data" to DataHolder("data"), "smth" to DataHolder("not data"))
         val json = lenient.stringify(data, useStreaming)
         val data2 = lenient.parseMap<String, DataHolder>(json, useStreaming)

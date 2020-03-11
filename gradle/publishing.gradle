@@ -102,7 +102,7 @@ private void disableMetadataPublication() {
 
         if (publication != null) {
             publication.artifact stubJavadoc
-            if (target.platformType.name != 'native') {
+            if (target.platformType.name != 'native' && target.platformType.name != 'js') {
                 publication.moduleDescriptorGenerator = null
                 tasks.matching { it.name == "generateMetadataFileFor${name.capitalize()}Publication" }.all {
                     onlyIf { false }

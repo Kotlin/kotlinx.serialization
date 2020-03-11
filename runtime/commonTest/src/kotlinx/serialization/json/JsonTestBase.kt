@@ -5,8 +5,8 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
@@ -94,7 +94,7 @@ abstract class JsonTestBase {
         }
     }
 
-    protected fun parametrizedTest(test: (Boolean) -> Unit) {
+    protected open fun parametrizedTest(test: (Boolean) -> Unit) {
         val streamingResult = runCatching { test(true) }
         val treeResult = runCatching { test(false) }
         processResults(streamingResult, treeResult)
@@ -120,7 +120,7 @@ abstract class JsonTestBase {
         processResults(streamingResult, treeResult)
     }
 
-    private fun processResults(streamingResult: Result<*>, treeResult: Result<*>) {
+    protected fun processResults(streamingResult: Result<*>, treeResult: Result<*>) {
         val results = listOf(streamingResult, treeResult)
         results.forEachIndexed { _, result ->
             result.onFailure { throw it }

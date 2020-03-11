@@ -5,6 +5,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlin.test.*
 
 class JsonTransformingSerializerTest : JsonTestBase() {
@@ -18,7 +19,7 @@ class JsonTransformingSerializerTest : JsonTestBase() {
     )
 
     object WrappingJsonListSerializer :
-        JsonTransformingSerializer<List<StringData>>(serializer(), "WrappingList") {
+        JsonTransformingSerializer<List<StringData>>(StringData.serializer().list, "WrappingList") {
         override fun readTransform(element: JsonElement): JsonElement =
             if (element !is JsonArray) JsonArray(listOf(element)) else element
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.features
@@ -7,9 +7,9 @@ package kotlinx.serialization.features
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.SerializersModule
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlinx.serialization.modules.*
+import kotlinx.serialization.test.*
+import kotlin.test.*
 
 class SealedClassesSerializationTest : JsonTestBase() {
     @Serializable
@@ -225,6 +225,7 @@ class SealedClassesSerializationTest : JsonTestBase() {
 
     @Test
     fun protocolWithGenericClass() {
+        if (isJsIr()) return // bug in kotlinx-serialization plugin (#753)
         val messages = listOf<ProtocolWithGenericClass>(
             ProtocolWithGenericClass.Message<String>("string message", "foo"),
             ProtocolWithGenericClass.Message<Int>("int message", 42),
