@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("RedundantVisibilityModifier")
@@ -7,7 +7,7 @@
 package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
-import kotlin.reflect.KClass
+import kotlin.reflect.*
 
 /**
  * [SerialModuleCollector] can introspect and accumulate content of any [SerialModule] via [SerialModule.dumpTo],
@@ -33,6 +33,6 @@ public interface SerialModuleCollector {
 /**
  * Version of [SerialModuleCollector.contextual] with reified argument.
  */
-public inline fun <reified T: Any> SerialModuleCollector.contextual(serializer: KSerializer<T>) {
+public inline fun <reified T : Any> SerialModuleCollector.contextual(serializer: KSerializer<T>) {
     contextual(T::class, serializer)
 }

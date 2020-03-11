@@ -171,10 +171,11 @@ public constructor(
 
         @UnstableDefault
         @Deprecated(message = message, level = DeprecationLevel.WARNING)
-        public val plain = Json(JsonConfiguration(useArrayPolymorphism = true))
+        public val plain: Json = Json(JsonConfiguration(useArrayPolymorphism = true))
+
         @UnstableDefault
         @Deprecated(message = message, level = DeprecationLevel.WARNING)
-        public val unquoted = Json(
+        public val unquoted: Json = Json(
             JsonConfiguration(
                 isLenient = true,
                 ignoreUnknownKeys = true,
@@ -186,11 +187,11 @@ public constructor(
 
         @UnstableDefault
         @Deprecated(message = message, level = DeprecationLevel.WARNING)
-        public val indented = Json(JsonConfiguration(prettyPrint = true, useArrayPolymorphism = true))
+        public val indented: Json = Json(JsonConfiguration(prettyPrint = true, useArrayPolymorphism = true))
 
         @UnstableDefault
         @Deprecated(message = message, level = DeprecationLevel.WARNING)
-        public val nonstrict = Json(
+        public val nonstrict: Json = Json(
             JsonConfiguration(
                 isLenient = true,
                 ignoreUnknownKeys = true,

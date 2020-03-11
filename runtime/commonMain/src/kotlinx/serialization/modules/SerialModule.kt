@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("UNCHECKED_CAST", "RedundantVisibilityModifier")
@@ -35,7 +35,7 @@ public interface SerialModule {
     public fun <T : Any> getPolymorphic(baseClass: KClass<T>, value: T): KSerializer<out T>?
 
     /**
-     * Returns a polymorphic serializer registered for for a [serializedClassName] in the scope of [baseClass].
+     * Returns a polymorphic serializer registered for a [serializedClassName] in the scope of [baseClass].
      */
     public fun <T : Any> getPolymorphic(baseClass: KClass<T>, serializedClassName: String): KSerializer<out T>?
 
@@ -56,5 +56,5 @@ public object EmptyModule : SerialModule {
         serializedClassName: String
     ): KSerializer<out T>? = null
 
-    public override fun dumpTo(collector: SerialModuleCollector) = Unit
+    public override fun dumpTo(collector: SerialModuleCollector): Unit = Unit
 }

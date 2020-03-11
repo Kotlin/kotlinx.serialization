@@ -42,7 +42,7 @@ import kotlinx.serialization.*
  * }
  * ```
  */
-public interface JsonOutput: Encoder, CompositeEncoder {
+public interface JsonOutput : Encoder, CompositeEncoder {
     /**
      * An instance of the current [Json].
      */

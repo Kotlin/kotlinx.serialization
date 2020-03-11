@@ -8,25 +8,27 @@ package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
-import kotlin.reflect.KClass
+import kotlin.reflect.*
 
 /**
  * Returns a dependent serializer associated with a given reified type.
  */
-public inline fun <reified T: Any> SerialModule.getContextual(): KSerializer<T>? = getContextual(T::class)
+public inline fun <reified T : Any> SerialModule.getContextual(): KSerializer<T>? = getContextual(T::class)
 
 /**
  * Returns a serializer associated with KClass of the given [value].
  */
-public fun <T: Any> SerialModule.getContextual(value: T): KSerializer<T>? {
+public fun <T : Any> SerialModule.getContextual(value: T): KSerializer<T>? {
     return getContextual(value::class)?.cast()
 }
 
 @ImplicitReflectionSerializer
-public fun <T: Any> SerialModule.getContextualOrDefault(klass: KClass<T>): KSerializer<T> = getContextual(klass) ?: klass.serializer()
+public fun <T : Any> SerialModule.getContextualOrDefault(klass: KClass<T>): KSerializer<T> =
+    getContextual(klass) ?: klass.serializer()
 
 @ImplicitReflectionSerializer
-public fun <T: Any> SerialModule.getContextualOrDefault(value: T): KSerializer<T> = getContextual(value) ?: value::class.serializer().cast()
+public fun <T : Any> SerialModule.getContextualOrDefault(value: T): KSerializer<T> =
+    getContextual(value) ?: value::class.serializer().cast()
 
 /**
  * Returns a combination of two serial modules
