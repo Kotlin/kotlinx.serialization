@@ -12,15 +12,6 @@ import kotlin.reflect.*
 internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
     this.constructSerializerForGivenTypeArgs()
 
-actual fun String.toUtf8Bytes() = this.toByteArray(Charsets.UTF_8)
-actual fun stringFromUtf8Bytes(bytes: ByteArray) = String(bytes, Charsets.UTF_8)
-
-actual fun <E: Enum<E>> enumFromName(enumClass: KClass<E>, value: String): E = java.lang.Enum.valueOf(enumClass.java, value)
-actual fun <E: Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E = enumClass.java.enumConstants[ordinal]
-
-actual fun <E: Enum<E>> KClass<E>.enumClassName(): String = this.java.canonicalName ?: ""
-actual fun <E : Enum<E>> KClass<E>.enumMembers(): Array<E> = this.java.enumConstants
-
 @Suppress("UNCHECKED_CAST")
 internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E> =
     toArray(java.lang.reflect.Array.newInstance(eClass.java, size) as Array<E>)

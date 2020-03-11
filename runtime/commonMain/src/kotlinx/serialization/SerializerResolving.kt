@@ -5,8 +5,8 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.internal.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.internal.*
 import kotlin.reflect.*
 
 /**
@@ -51,7 +51,7 @@ public fun serializer(type: KType): KSerializer<Any?> {
             else -> error("Only KClass supported as classifier, got $t")
         } as KClass<Any>
 
-        val typeArguments =  type.arguments
+        val typeArguments = type.arguments
             .map { requireNotNull(it.type) { "Star projections are not allowed, had $it instead" } }
         return when {
             typeArguments.isEmpty() -> rootClass.serializer()
