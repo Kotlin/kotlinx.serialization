@@ -174,6 +174,7 @@ public interface DeserializationStrategy<T> {
     public fun patch(decoder: Decoder, old: T): T
 }
 
+@Suppress("NO_EXPLICIT_VISIBILITY_IN_API_MODE_WARNING")
 public enum class UpdateMode {
     BANNED, OVERWRITE, UPDATE
 }

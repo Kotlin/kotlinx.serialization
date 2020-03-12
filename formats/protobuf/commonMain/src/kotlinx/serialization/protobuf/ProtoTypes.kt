@@ -5,7 +5,6 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
-import kotlinx.serialization.protobuf.ProtoNumberType.*
 
 /**
  * Represents a number format in protobuf encoding.
@@ -17,6 +16,7 @@ import kotlinx.serialization.protobuf.ProtoNumberType.*
  *
  * See [https://developers.google.com/protocol-buffers/docs/proto#scalar]
  */
+@Suppress("NO_EXPLICIT_VISIBILITY_IN_API_MODE_WARNING")
 public enum class ProtoNumberType {
     DEFAULT, SIGNED, FIXED
 }
