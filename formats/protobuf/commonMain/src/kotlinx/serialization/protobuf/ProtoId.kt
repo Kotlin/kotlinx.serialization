@@ -6,6 +6,12 @@ package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
 
+/**
+ * Specifies protobuf id (unique number for a field in protobuf message)
+ * assigned to Kotlin property.
+ *
+ * See [https://developers.google.com/protocol-buffers/docs/proto#assigning-field-numbers]
+ */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
-annotation class ProtoId(val id: Int)
+public annotation class ProtoId(public val id: Int)
