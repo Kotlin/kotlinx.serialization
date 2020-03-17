@@ -8,8 +8,8 @@ import kotlinx.serialization.internal.*
 
 /**
  * Builder for [SerialDescriptor].
- * The resulting descriptor will be uniquely identified by the given [serialName],
- * with the corresponding [kind] and structure described in [builder] function.
+ * The resulting descriptor will be uniquely identified by the given [serialName], [typeParameters] and
+ * elements structure described in [builder] function.
  *
  * Example:
  * ```
@@ -27,17 +27,32 @@ import kotlinx.serialization.internal.*
  *     element("stringField", listDescriptor<String>())
  * }
  * ```
+ *
+ * Example for generic classes:
+ * ```
+ * @Serializable(CustomSerializer::class)
+ * class BoxedList<T>(val list: List<T>)
+ *
+ * class CustomSerializer<T>(typeParamSerializer: KSerializer<T>): KSerializer<BoxedList<T>> {
+ *   // here we use typeParamSerializer.descriptor because it represents T
+ *   override val descriptor = SerialDescriptor("pkg.BoxedList", CLASS, typeParamSerializer.descriptor) {
+ *     // here we need to wrap it with List first, because property has type List<T>
+ *     element("list", typeParamSerializer.list.descriptor) // or listDescriptor(typeParamSerializer.descriptor)
+ *   }
+ * }
+ * ```
  */
 @Suppress("FunctionName")
 public fun SerialDescriptor(
     serialName: String,
     kind: SerialKind = StructureKind.CLASS,
+    vararg typeParameters: SerialDescriptor,
     builder: SerialDescriptorBuilder.() -> Unit = {}
 ): SerialDescriptor {
     require(serialName.isNotBlank()) { "Blank serial names are prohibited" }
     val sdBuilder = SerialDescriptorBuilder(serialName)
     sdBuilder.builder()
-    return SerialDescriptorImpl(serialName, kind, sdBuilder.elementNames.size, sdBuilder)
+    return SerialDescriptorImpl(serialName, kind, sdBuilder.elementNames.size, typeParameters.toList(), sdBuilder)
 }
 
 /**
@@ -205,10 +220,11 @@ public class SerialDescriptorBuilder internal constructor(
     }
 }
 
-private class SerialDescriptorImpl(
+internal class SerialDescriptorImpl(
     override val serialName: String,
     override val kind: SerialKind,
     override val elementsCount: Int,
+    typeParameters: List<SerialDescriptor>,
     builder: SerialDescriptorBuilder
 ) : SerialDescriptor {
 
@@ -216,10 +232,12 @@ private class SerialDescriptorImpl(
     public override val annotations: List<Annotation> = builder.annotations
 
     private val elementNames: Array<String> = builder.elementNames.toTypedArray()
-    private val elementDescriptors: Array<SerialDescriptor> = builder.elementDescriptors.toTypedArray()
+    private val elementDescriptors: Array<SerialDescriptor> = builder.elementDescriptors.compactArray()
     private val elementAnnotations: Array<List<Annotation>> = builder.elementAnnotations.toTypedArray()
     private val elementOptionality: BooleanArray = builder.elementOptionality.toBooleanArray()
     private val name2Index: Map<String, Int> = elementNames.withIndex().map { it.value to it.index }.toMap()
+    private val typeParametersDescriptors: Array<SerialDescriptor> = typeParameters.compactArray()
+    private val _hashCode: Int by lazy { hashCodeImpl(typeParametersDescriptors) }
 
     override fun getElementName(index: Int): String = elementNames.getChecked(index)
     override fun getElementIndex(name: String): Int = name2Index[name] ?: CompositeDecoder.UNKNOWN_NAME
@@ -227,16 +245,14 @@ private class SerialDescriptorImpl(
     override fun getElementDescriptor(index: Int): SerialDescriptor = elementDescriptors.getChecked(index)
     override fun isElementOptional(index: Int): Boolean = elementOptionality.getChecked(index)
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is SerialDescriptor) return false
-        if (serialName != other.serialName) return false
-        return true
-    }
+    override fun equals(other: Any?): Boolean =
+        equalsImpl(other) { otherDescriptor: SerialDescriptorImpl ->
+            typeParametersDescriptors.contentEquals(
+                otherDescriptor.typeParametersDescriptors
+            )
+        }
 
-    override fun hashCode(): Int {
-        return serialName.hashCode()
-    }
+    override fun hashCode(): Int = _hashCode
 
     override fun toString(): String {
         return (0 until elementsCount).joinToString(", ", prefix = "$serialName(", postfix = ")") {

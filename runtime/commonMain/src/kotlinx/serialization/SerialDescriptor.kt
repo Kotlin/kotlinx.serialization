@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -19,16 +19,16 @@ package kotlinx.serialization
  * children elements and additional metadata.
  *
  * * [serialName] uniquely identifies descriptor (and the corresponding serializer) for non-generic types.
- *   For generic types, the actual type substitution  is omitted from the string representation and the name
- *   identifies the family of the serializers without type substitutions.
+ *   For generic types, the actual type substitution is omitted from the string representation and the name
+ *   identifies the family of the serializers without type substitutions. However, type substitution is accounted
+ *   in [equals] and [hashCode] operations, meaning that descriptors of generic classes with the same name, but different type
+ *   parameters, are not equal to each other.
  *   [serialName] is typically used to specify the type of the target class during serialization of polymorphic and sealed
  *   classes, for observability and diagnostics.
- * Serial descriptor is uniquely identified by its name and consists of kind, potentially empty set of
- * children elements and additional metadata.
  * * [Kind][SerialKind] defines what this descriptor represents: primitive, enum, object, collection et cetera.
  * * Children elements are represented as serial descriptors as well and define the structure of the type's elements.
- * * Metadata carries additional potentially useful information, such as nullability, optionality
- *   and serial annotations.
+ * * Metadata carries additional potentially useful information, such as [nullability][nullable], [optionality][isElementOptional]
+ *   and [serial annotations][getElementAnnotations].
  *
  * ### Usages
  * There are two general usages of the descriptors: THE serialization process and serialization introspection.
@@ -63,6 +63,32 @@ package kotlinx.serialization
  *
  * ### Thread-safety and mutability
  * Serial descriptor implementation should be immutable after the publication and thread-safe.
+ *
+ * ### Equality and caching
+ * Serial descriptor can be used as a unique identifier for format-specific data or schemas and
+ * this implies the following restrictions on its `equals` and `hashCode`:
+ *   *
+ *
+ * An [equals] implementation should use both [serialName] and elements structure.
+ * Comparing [elementDescriptors] directly is discouraged,
+ * because it may cause a stack overflow error, e.g. if a serializable class `T` contains elements of type `T`.
+ * To avoid it, a serial descriptor implementation should compare only descriptors
+ * of class' type parameters, in a way that `serializer<Box<Int>>().descriptor != serializer<Box<String>>().descriptor`.
+ * If type parameters are equal, descriptors structure should be compared by using children elements
+ * descriptors' [serialName]s, which correspond to class names
+ * (do not confuse with elements own names, which correspond to properties names); and/or other [SerialDescriptor]
+ * properties, such as [kind].
+ * An example of [equals] implementation:
+ * ```
+ * if (this === other) return true
+ * if (other::class != this::class) return false
+ * if (serialName != other.serialName) return false
+ * if (!typeParametersAreEqual(other)) return false
+ * if (this.elementDescriptors().map { it.serialName } != other.elementDescriptors().map { it.serialName }) return false
+ * return true
+ * ```
+ *
+ * [hashCode] implementation should use the same properties for computing the result.
  *
  * ### User-defined serial descriptors
  * The best way to define a custom descriptor is to use [SerialDescriptor] builder function, where

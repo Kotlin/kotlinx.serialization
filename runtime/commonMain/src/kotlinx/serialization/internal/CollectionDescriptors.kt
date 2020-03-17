@@ -1,15 +1,15 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 
-internal sealed class ListLikeDescriptor(val elementDesc: SerialDescriptor) : SerialDescriptor {
+internal sealed class ListLikeDescriptor(val elementDescriptor: SerialDescriptor) : SerialDescriptor {
     override val kind: SerialKind get() = StructureKind.LIST
     override val elementsCount: Int = 1
-    
+
     override fun getElementName(index: Int): String = index.toString()
     override fun getElementIndex(name: String): Int =
         name.toIntOrNull() ?: throw IllegalArgumentException("$name is not a valid list index")
@@ -26,18 +26,18 @@ internal sealed class ListLikeDescriptor(val elementDesc: SerialDescriptor) : Se
 
     override fun getElementDescriptor(index: Int): SerialDescriptor {
         if (index != 0) throw IndexOutOfBoundsException("List descriptor has only one child element, index: $index")
-        return elementDesc
+        return elementDescriptor
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ListLikeDescriptor) return false
-        if (elementDesc == other.elementDesc && serialName == other.serialName) return true
+        if (elementDescriptor == other.elementDescriptor && serialName == other.serialName) return true
         return false
     }
 
     override fun hashCode(): Int {
-        return elementDesc.hashCode() * 31 + serialName.hashCode()
+        return elementDescriptor.hashCode() * 31 + serialName.hashCode()
     }
 }
 

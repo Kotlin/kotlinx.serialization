@@ -2,6 +2,7 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:Suppress("OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE", "UNUSED")
+
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
@@ -24,12 +25,22 @@ public open class PluginGeneratedSerialDescriptor(
     private var added = -1
     private val names = Array(elementsCount) { "[UNINITIALIZED]" }
     private val propertiesAnnotations = arrayOfNulls<MutableList<Annotation>?>(elementsCount)
+
     // Classes rarely have annotations, so we can save up a bit of allocations here
     private var classAnnotations: MutableList<Annotation>? = null
     private var elementsOptionality = BooleanArray(elementsCount)
     internal val namesSet: Set<String> get() = indices.keys
+
     // don't change lazy mode: KT-32871, KT-32872
     private val indices: Map<String, Int> by lazy { buildIndices() }
+
+    // Lazy because of JS specific initialization order (#789)
+    private val typeParameterDescriptors: Array<SerialDescriptor> by lazy {
+        generatedSerializer?.typeParametersSerializers()?.map { it.descriptor }.compactArray()
+    }
+
+    // Can be without synchronization but Native will likely break due to freezing
+    private val _hashCode: Int by lazy { hashCodeImpl(typeParameterDescriptors) }
 
     public fun addElement(name: String, isOptional: Boolean = false) {
         names[++added] = name
@@ -59,11 +70,12 @@ public open class PluginGeneratedSerialDescriptor(
 
     override fun getElementDescriptor(index: Int): SerialDescriptor {
         return generatedSerializer?.childSerializers()?.get(index)?.descriptor
-            ?: throw IndexOutOfBoundsException("$serialName descriptor has only $elementsCount elements, index: $index")
+                ?: throw IndexOutOfBoundsException("$serialName descriptor has only $elementsCount elements, index: $index")
     }
 
     override fun isElementOptional(index: Int): Boolean = elementsOptionality.getChecked(index)
-    override fun getElementAnnotations(index: Int): List<Annotation> = propertiesAnnotations.getChecked(index) ?: emptyList()
+    override fun getElementAnnotations(index: Int): List<Annotation> =
+        propertiesAnnotations.getChecked(index) ?: emptyList()
     override fun getElementName(index: Int): String = names.getChecked(index)
     override fun getElementIndex(name: String): Int = indices[name] ?: UNKNOWN_NAME
 
@@ -75,24 +87,41 @@ public open class PluginGeneratedSerialDescriptor(
         return indices
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        @Suppress("DEPRECATION_ERROR")
-        if (other !is SerialDescriptor) return false
-        if (serialName != other.serialName) return false
-        // TODO compare only serial names
-        if (elementDescriptors() != other.elementDescriptors()) return false
-        return true
+    override fun equals(other: Any?): Boolean = equalsImpl(other) { otherDescriptor ->
+        typeParameterDescriptors.contentEquals(otherDescriptor.typeParameterDescriptors)
     }
 
-    override fun hashCode(): Int {
-        var result = serialName.hashCode()
-        // TODO hashcode only for serial name
-        result = 31 * result + elementDescriptors().hashCode()
-        return result
-    }
+    override fun hashCode(): Int = _hashCode
 
     override fun toString(): String {
-        return indices.entries.joinToString(", ", "$serialName(", ")") { it.key + ": " + getElementDescriptor(it.value).serialName }
+        return indices.entries.joinToString(", ", "$serialName(", ")") {
+            it.key + ": " + getElementDescriptor(it.value).serialName
+        }
     }
+}
+
+internal inline fun <reified SD : SerialDescriptor> SD.equalsImpl(
+    other: Any?,
+    typeParamsAreEqual: (otherDescriptor: SD) -> Boolean
+): Boolean {
+    if (this === other) return true
+    if (other !is SD) return false
+    if (serialName != other.serialName) return false
+    if (!typeParamsAreEqual(other)) return false
+    if (this.elementsCount != other.elementsCount) return false
+    for (index in 0 until elementsCount) {
+        if (getElementDescriptor(index).serialName != other.getElementDescriptor(index).serialName) return false
+        if (getElementDescriptor(index).kind != other.getElementDescriptor(index).kind) return false
+    }
+    return true
+}
+
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun SerialDescriptor.hashCodeImpl(typeParams: Array<SerialDescriptor>): Int {
+    var result = serialName.hashCode()
+    result = 31 * result + typeParams.contentHashCode()
+    val elementDescriptors = elementDescriptors()
+    result = 31 * result + elementDescriptors.map { it.serialName }.hashCode()
+    result = 31 * result + elementDescriptors.map { it.kind }.hashCode()
+    return result
 }
