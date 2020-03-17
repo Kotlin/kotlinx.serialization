@@ -78,7 +78,7 @@ public class MapEntrySerializer<K, V>(
     private data class MapEntry<K, V>(override val key: K, override val value: V) : Map.Entry<K, V>
 
     /*
-     * Kind 'MAP' because it it represented in a map-like manner with "key: value" serialized directly
+     * Kind 'MAP' because it is represented in a map-like manner with "key: value" serialized directly
      */
     override val descriptor: SerialDescriptor = SerialDescriptor("kotlin.collections.Map.Entry", StructureKind.MAP) {
         element("key", keySerializer.descriptor)
