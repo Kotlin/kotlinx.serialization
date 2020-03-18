@@ -6,15 +6,14 @@ package kotlinx.serialization
 
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.json.*
 
 /**
- * A particular instance of a serialization format
- * that can interact with [KSerializer] and should be used as a main entry point
- * for serialization.
- *
- * Does not impose any particular restrictions on serialized form
- * or used storage; such restrictions are represented by
- * [SerialFormat]'s subinterfaces: [StringFormat] or [BinaryFormat].
+ * Represents an instance of a serialization format
+ * that can interact with [KSerializer] and is a supertype of all entry points for a serialization.
+ * It does not impose any restrictions on a serialized form or underlying storage, neither it exposes them.
+ * Concrete data types and API for user-interaction are responsibility of a concrete subclass or subinterface,
+ * e.g. [StringFormat], [BinaryFormat] or [Json].
  *
  * Typically, formats have their specific [Encoder] and [Decoder] implementations
  * as private inner classes and do not expose them.

@@ -16,7 +16,7 @@ import kotlin.math.*
 internal const val MAX_SAFE_INTEGER: Double = 9007199254740991.toDouble() // 2^53 - 1
 
 /**
- * Converts native JavaScript objects to Kotlin ones, verifying their types.
+ * Converts native JavaScript objects into Kotlin ones, verifying their types.
  *
  * A result of `parse(nativeObj)` should be the same as
  * `kotlinx.serialization.json.Json.parse(kotlin.js.JSON.stringify(nativeObj))`.
