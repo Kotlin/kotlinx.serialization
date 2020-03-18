@@ -140,22 +140,22 @@ public class ProtoBuf(
             else -> throw SerializationException("Primitives are not supported at top-level")
         }
 
-        override fun encodeTaggedInt(tag: ProtoDesc, value: Int) = encoder.writeInt(value, tag.first, tag.second)
-        override fun encodeTaggedByte(tag: ProtoDesc, value: Byte) = encoder.writeInt(value.toInt(), tag.first, tag.second)
-        override fun encodeTaggedShort(tag: ProtoDesc, value: Short) = encoder.writeInt(value.toInt(), tag.first, tag.second)
-        override fun encodeTaggedLong(tag: ProtoDesc, value: Long) = encoder.writeLong(value, tag.first, tag.second)
-        override fun encodeTaggedFloat(tag: ProtoDesc, value: Float) = encoder.writeFloat(value, tag.first)
-        override fun encodeTaggedDouble(tag: ProtoDesc, value: Double) = encoder.writeDouble(value, tag.first)
-        override fun encodeTaggedBoolean(tag: ProtoDesc, value: Boolean) = encoder.writeInt(if (value) 1 else 0, tag.first, ProtoNumberType.DEFAULT)
-        override fun encodeTaggedChar(tag: ProtoDesc, value: Char) = encoder.writeInt(value.toInt(), tag.first, tag.second)
-        override fun encodeTaggedString(tag: ProtoDesc, value: String) = encoder.writeString(value, tag.first)
+        override fun encodeTaggedInt(tag: ProtoDesc, value: Int) = encoder.writeInt(value, tag.protoId, tag.numberType)
+        override fun encodeTaggedByte(tag: ProtoDesc, value: Byte) = encoder.writeInt(value.toInt(), tag.protoId, tag.numberType)
+        override fun encodeTaggedShort(tag: ProtoDesc, value: Short) = encoder.writeInt(value.toInt(), tag.protoId, tag.numberType)
+        override fun encodeTaggedLong(tag: ProtoDesc, value: Long) = encoder.writeLong(value, tag.protoId, tag.numberType)
+        override fun encodeTaggedFloat(tag: ProtoDesc, value: Float) = encoder.writeFloat(value, tag.protoId)
+        override fun encodeTaggedDouble(tag: ProtoDesc, value: Double) = encoder.writeDouble(value, tag.protoId)
+        override fun encodeTaggedBoolean(tag: ProtoDesc, value: Boolean) = encoder.writeInt(if (value) 1 else 0, tag.protoId, ProtoNumberType.DEFAULT)
+        override fun encodeTaggedChar(tag: ProtoDesc, value: Char) = encoder.writeInt(value.toInt(), tag.protoId, tag.numberType)
+        override fun encodeTaggedString(tag: ProtoDesc, value: String) = encoder.writeString(value, tag.protoId)
         override fun encodeTaggedEnum(
             tag: ProtoDesc,
             enumDescription: SerialDescriptor,
             ordinal: Int
         ) = encoder.writeInt(
-            extractParameters(enumDescription, ordinal, zeroBasedDefault = true).first,
-            tag.first,
+            extractProtoId(enumDescription, ordinal, zeroBasedDefault = true),
+            tag.protoId,
             ProtoNumberType.DEFAULT
         )
 
@@ -169,7 +169,7 @@ public class ProtoBuf(
                 val mapEntrySerial = MapEntrySerializer(serializer.keySerializer, serializer.valueSerializer)
                 SetSerializer(mapEntrySerial).serialize(this, (value as Map<*, *>).entries)
             }
-            serializer.descriptor == ByteArraySerializer().descriptor -> encoder.writeBytes(value as ByteArray, popTag().first)
+            serializer.descriptor == ByteArraySerializer().descriptor -> encoder.writeBytes(value as ByteArray, popTag().protoId)
             else -> serializer.serialize(this, value)
         }
     }
@@ -180,7 +180,7 @@ public class ProtoBuf(
     ) : ProtobufWriter(ProtobufEncoder(stream)) {
         override fun endEncode(descriptor: SerialDescriptor) {
             if (parentTag != null) {
-                parentEncoder.writeBytes(stream.toByteArray(), parentTag.first)
+                parentEncoder.writeBytes(stream.toByteArray(), parentTag.protoId)
             } else {
                 parentEncoder.out.write(stream.toByteArray())
             }
@@ -189,8 +189,8 @@ public class ProtoBuf(
 
     internal inner class MapRepeatedWriter(parentTag: ProtoDesc?, parentEncoder: ProtobufEncoder): ObjectWriter(parentTag, parentEncoder) {
         override fun SerialDescriptor.getTag(index: Int): ProtoDesc =
-                if (index % 2 == 0) 1 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
-                else 2 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
+                if (index % 2 == 0) ProtoDesc(1, (parentTag?.numberType ?: ProtoNumberType.DEFAULT))
+                else ProtoDesc(2, (parentTag?.numberType ?: ProtoNumberType.DEFAULT))
     }
 
     internal inner class RepeatedWriter(encoder: ProtobufEncoder, private val curTag: ProtoDesc) :
@@ -266,11 +266,11 @@ public class ProtoBuf(
         private val indexByTag: MutableMap<Int, Int> = mutableMapOf()
         private fun findIndexByTag(desc: SerialDescriptor, serialId: Int, zeroBasedDefault: Boolean = false): Int =
             (0 until desc.elementsCount).firstOrNull {
-                extractParameters(
+                extractProtoId(
                     desc,
                     it,
                     zeroBasedDefault
-                ).first == serialId
+                ) == serialId
             } ?: -1
 
         override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder =
@@ -292,13 +292,13 @@ public class ProtoBuf(
             else -> throw ProtobufDecodingException("Expected boolean value (0 or 1), found $i")
         }
 
-        override fun decodeTaggedByte(tag: ProtoDesc): Byte = decoder.nextInt(tag.second).toByte()
-        override fun decodeTaggedShort(tag: ProtoDesc): Short = decoder.nextInt(tag.second).toShort()
-        override fun decodeTaggedInt(tag: ProtoDesc): Int = decoder.nextInt(tag.second)
-        override fun decodeTaggedLong(tag: ProtoDesc): Long = decoder.nextLong(tag.second)
+        override fun decodeTaggedByte(tag: ProtoDesc): Byte = decoder.nextInt(tag.numberType).toByte()
+        override fun decodeTaggedShort(tag: ProtoDesc): Short = decoder.nextInt(tag.numberType).toShort()
+        override fun decodeTaggedInt(tag: ProtoDesc): Int = decoder.nextInt(tag.numberType)
+        override fun decodeTaggedLong(tag: ProtoDesc): Long = decoder.nextLong(tag.numberType)
         override fun decodeTaggedFloat(tag: ProtoDesc): Float = decoder.nextFloat()
         override fun decodeTaggedDouble(tag: ProtoDesc): Double = decoder.nextDouble()
-        override fun decodeTaggedChar(tag: ProtoDesc): Char = decoder.nextInt(tag.second).toChar()
+        override fun decodeTaggedChar(tag: ProtoDesc): Char = decoder.nextInt(tag.numberType).toChar()
         override fun decodeTaggedString(tag: ProtoDesc): String = decoder.nextString()
         override fun decodeTaggedEnum(tag: ProtoDesc, enumDescription: SerialDescriptor): Int =
             findIndexByTag(enumDescription, decoder.nextInt(ProtoNumberType.DEFAULT), zeroBasedDefault = true)
@@ -334,15 +334,15 @@ public class ProtoBuf(
         private var ind = -1
 
         override fun decodeElementIndex(descriptor: SerialDescriptor) =
-            if (decoder.curId == targetTag.first) ++ind else READ_DONE
+            if (decoder.curId == targetTag.protoId) ++ind else READ_DONE
 
         override fun SerialDescriptor.getTag(index: Int): ProtoDesc = targetTag
     }
 
     private inner class MapEntryReader(decoder: ProtobufDecoder, val parentTag: ProtoDesc?): ProtobufReader(decoder) {
         override fun SerialDescriptor.getTag(index: Int): ProtoDesc =
-                if (index % 2 == 0) 1 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
-                else 2 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
+                if (index % 2 == 0) ProtoDesc(1, (parentTag?.numberType ?: ProtoNumberType.DEFAULT))
+                else ProtoDesc(2, (parentTag?.numberType ?: ProtoNumberType.DEFAULT))
     }
 
     internal class ProtobufDecoder(private val inp: ByteArrayInputStream) {
