@@ -55,7 +55,6 @@ public object EmptyModule : SerialModule() {
         serializedClassName: String
     ): DeserializationStrategy<out T>? = null
 
-
     public override fun dumpTo(collector: SerialModuleCollector) = Unit
 }
 
