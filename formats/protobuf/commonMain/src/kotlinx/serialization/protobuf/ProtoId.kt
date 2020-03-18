@@ -7,8 +7,8 @@ package kotlinx.serialization.protobuf
 import kotlinx.serialization.*
 
 /**
- * Specifies protobuf id (unique number for a field in protobuf message)
- * assigned to Kotlin property.
+ * Specifies protobuf id (a unique number for a field in the protobuf message)
+ * assigned to a Kotlin property.
  *
  * See [https://developers.google.com/protocol-buffers/docs/proto#assigning-field-numbers]
  */

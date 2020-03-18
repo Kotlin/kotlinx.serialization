@@ -21,7 +21,7 @@ import kotlinx.serialization.protobuf.ProtoBuf.Varint.encodeVarint
  * It is typically used by constructing an application-specific instance, with configured specific behaviour
  * and, if necessary, registered custom serializers (in [SerialModule] provided by [context] constructor parameter).
  *
- * ## Correspondence between Protobuf message definitions and Kotlin classes
+ * ### Correspondence between Protobuf message definitions and Kotlin classes
  * Given a ProtoBuf definition with one required field, one optional field and one optional field with a custom default
  * value:
  * ```
@@ -39,28 +39,28 @@ import kotlinx.serialization.protobuf.ProtoBuf.Varint.encodeVarint
  * ```
  *
  * By default, protobuf fields ids are being assigned to Kotlin properties in incremental order, i.e.
- * first property in class has id 1, second has id 2, and so forth.
- * If you need more stable order (e.g. to avoid breaking changes when reordering properties),
+ * the first property in the class has id 1, the second has id 2, and so forth.
+ * If you need a more stable order (e.g. to avoid breaking changes when reordering properties),
  * provide custom ids using [ProtoId] annotation.
  *
  * By default, all numbers are encoded using [varint][https://developers.google.com/protocol-buffers/docs/encoding#varints]
- * encoding. This can be changed via [ProtoNumberType] annotation.
+ * encoding. This behaviour can be changed via [ProtoNumberType] annotation.
  *
- * ## Known caveats and limitations
+ * ### Known caveats and limitations
  * Lists are represented as repeated fields. Because format spec says that if the list is empty,
- * there will be no elements in the stream with such tag, you must explicitly mark any
+ * there are no elements in the stream with such tag, you must explicitly mark any
  * field of list type with default = emptyList(). Same for maps.
  * There's no special support for `oneof` protobuf fields. However, this implementation
  * supports standard kotlinx.serialization's polymorphic and sealed serializers,
  * using their default form (message of serialName: string and other embedded message with actual content).
  *
- * ## Proto3 support
+ * ### Proto3 support
  * This implementation does not support repeated packed fields, so you won't be able to deserialize
- * Proto3 lists. However, other messages could be decoded. You need to remember that since fields in Proto3
+ * Proto3 lists. However, other messages could be decoded. You have to remember that since fields in Proto3
  * messages by default are implicitly optional,
  * corresponding Kotlin properties have to be nullable with default value `null`.
  *
- * ## Usage example
+ * ### Usage example
  * ```
  * // Serialize to ProtoBuf hex string
  * val encoded = ProtoBuf.dumps(MyMessage.serializer(), MyMessage(15)) // "080f1000182a"
@@ -76,7 +76,7 @@ import kotlinx.serialization.protobuf.ProtoBuf.Varint.encodeVarint
  * ```
  *
  * ### Check existence of optional fields
- * Null values can be used as default value for optional fields to implement more complex use-cases that rely on
+ * Null values can be used as the default value for optional fields to implement more complex use-cases that rely on
  * checking if a field was set or not. This requires the use of a custom ProtoBuf instance with
  * `ProtoBuf(encodeDefaults = false)`.
  *

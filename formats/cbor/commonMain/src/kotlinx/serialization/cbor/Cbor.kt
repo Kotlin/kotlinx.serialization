@@ -17,7 +17,7 @@ import kotlin.experimental.*
  * It is typically used by constructing an application-specific instance, with configured behaviour, and,
  * if necessary, registered custom serializers (in [SerialModule] provided by [context] constructor parameter).
  *
- * ## Known caveats and limitations:
+ * ### Known caveats and limitations:
  * Supports reading collections of both definite and indefinite lengths; however,
  * serialization always writes maps and lists as [indefinite-length](https://tools.ietf.org/html/rfc7049#section-2.2.1) ones.
  * Does not support [optional tags](https://tools.ietf.org/html/rfc7049#section-2.4) representing datetime, bignums, etc.

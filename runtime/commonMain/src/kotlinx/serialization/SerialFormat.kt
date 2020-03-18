@@ -56,8 +56,8 @@ public interface BinaryFormat : SerialFormat {
  * represents bytes in a human-readable form.
  *
  * Each byte from byte array represented by its hex value in range 00..FF
- * (i.e. each byte corresponds to two chars in resulting string).
- * Resulting string is lowercase and does not contain `0x` prefix.
+ * (i.e. each byte corresponds to two chars in the resulting string).
+ * The resulting string is lowercase and does not contain `0x` prefix.
  *
  * This method may be useful for debugging and testing.
  *

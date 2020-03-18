@@ -16,13 +16,14 @@ import kotlin.math.*
 internal const val MAX_SAFE_INTEGER: Double = 9007199254740991.toDouble() // 2^53 - 1
 
 /**
- * Converts native JavaScript objects to a Kotlin ones, verifying their types.
+ * Converts native JavaScript objects to Kotlin ones, verifying their types.
  *
  * A result of `parse(nativeObj)` should be the same as
  * `kotlinx.serialization.json.Json.parse(kotlin.js.JSON.stringify(nativeObj))`.
- * This class also supports array-based polymorphism, if corresponding flag in [configuration] is set to `true`.
+ * This class also supports array-based polymorphism if the corresponding flag in [configuration] is set to `true`.
  * Does not support any other [Map] keys than [String].
- * Has limitation on [Long] type: any JS number that is greater than [`abs(2^53-1)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)
+ * Has limitation on [Long] type: any JS number that is greater than
+ * [`abs(2^53-1)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)
  * is considered to be imprecise and therefore can't be deserialized to [Long]. Either use [Double] type
  * for such values or pass them as strings using [LongAsStringSerializer] afterwards.
  *
