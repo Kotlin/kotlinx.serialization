@@ -86,3 +86,10 @@ kotlin {
         }
     }
 }
+// see https://github.com/Kotlin/kotlinx.coroutines/issues/1797
+// and https://github.com/Kotlin/kotlinx.serialization/issues/761
+compileKotlinMetadata {
+    kotlinOptions {
+        freeCompilerArgs += ["-module-name", "${project.name}-common"]
+    }
+}
