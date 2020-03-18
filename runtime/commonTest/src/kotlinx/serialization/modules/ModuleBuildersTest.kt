@@ -309,6 +309,6 @@ class ModuleBuildersTest {
         }
 
         val m2 = m1 + m1
-        assertEquals<Any?>(UnitSerializer(), m2.getDefaultPolymorphic(Any::class, "foo"))
+        assertEquals<Any?>(UnitSerializer(), m2.getPolymorphic(Any::class, serializedClassName = "foo"))
     }
 }

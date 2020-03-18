@@ -24,8 +24,8 @@ internal inline fun <T> JsonOutput.encodePolymorphically(serializer: Serializati
 }
 
 private fun validateIfSealed(
-    serializer: KSerializer<*>,
-    actualSerializer: KSerializer<Any>,
+    serializer: SerializationStrategy<*>,
+    actualSerializer: SerializationStrategy<Any>,
     classDiscriminator: String
 ) {
     if (serializer !is SealedClassSerializer<*>) return

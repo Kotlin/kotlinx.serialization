@@ -116,4 +116,8 @@ internal inline fun <T> KSerializer<*>.cast(): KSerializer<T> = this as KSeriali
 
 @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
 @PublishedApi
+internal inline fun <T> SerializationStrategy<*>.cast(): SerializationStrategy<T> = this as SerializationStrategy<T>
+
+@Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
+@PublishedApi
 internal inline fun <T> DeserializationStrategy<*>.cast(): DeserializationStrategy<T> = this as DeserializationStrategy<T>

@@ -81,8 +81,7 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
         decoder: CompositeDecoder,
         klassName: String
     ): DeserializationStrategy<out T> = decoder.context.getPolymorphic(baseClass, klassName)
-        ?: decoder.context.getDefaultPolymorphic(baseClass, klassName)
-            ?: throwSubtypeNotRegistered(klassName, baseClass)
+        ?: throwSubtypeNotRegistered(klassName, baseClass)
 
 
     /**
@@ -93,7 +92,7 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
     public open fun findPolymorphicSerializer(
         encoder: Encoder,
         value: T
-    ): KSerializer<out T> =
+    ): SerializationStrategy<T> =
         encoder.context.getPolymorphic(baseClass, value) ?: throwSubtypeNotRegistered(value::class, baseClass)
 }
 
