@@ -5,6 +5,7 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
+import kotlin.jvm.*
 
 /**
  * Represents a number format in protobuf encoding.
@@ -29,14 +30,21 @@ public enum class ProtoNumberType {
 @Target(AnnotationTarget.PROPERTY)
 public annotation class ProtoType(public val type: ProtoNumberType)
 
-internal typealias ProtoDesc = Pair<Int, ProtoNumberType>
+internal data class ProtoDesc(
+    @JvmField val protoId: Int,
+    @JvmField val numberType: ProtoNumberType)
 
 internal fun extractParameters(descriptor: SerialDescriptor, index: Int, zeroBasedDefault: Boolean = false): ProtoDesc {
     val protoId = descriptor.findAnnotation<ProtoId>(index)
     val idx = protoId?.id ?: (if (zeroBasedDefault) index else index + 1)
     val format = descriptor.findAnnotation<ProtoType>(index)?.type
             ?: ProtoNumberType.DEFAULT
-    return idx to format
+    return ProtoDesc(idx, format)
+}
+
+internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedDefault: Boolean = false): Int {
+    val protoId = descriptor.findAnnotation<ProtoId>(index)
+    return protoId?.id ?: (if (zeroBasedDefault) index else index + 1)
 }
 
 public class ProtobufDecodingException(message: String) : SerializationException(message)
