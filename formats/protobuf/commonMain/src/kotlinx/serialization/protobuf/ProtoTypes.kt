@@ -5,7 +5,8 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
-import kotlin.jvm.*
+
+private const val MASK = Int.MAX_VALUE.toLong() shl 32
 
 /**
  * Represents a number format in protobuf encoding.
@@ -18,8 +19,15 @@ import kotlin.jvm.*
  * See [https://developers.google.com/protocol-buffers/docs/proto#scalar]
  */
 @Suppress("NO_EXPLICIT_VISIBILITY_IN_API_MODE_WARNING")
-public enum class ProtoNumberType {
-    DEFAULT, SIGNED, FIXED
+public enum class ProtoNumberType(internal val signature: Long) {
+    DEFAULT(1L shl 32),
+    SIGNED(2L shl 32),
+    FIXED(3L shl 32);
+
+
+    internal fun equalTo(descriptor: ProtoDesc): Boolean {
+        return descriptor and MASK == signature
+    }
 }
 
 /**
@@ -30,16 +38,33 @@ public enum class ProtoNumberType {
 @Target(AnnotationTarget.PROPERTY)
 public annotation class ProtoType(public val type: ProtoNumberType)
 
-internal data class ProtoDesc(
-    @JvmField val protoId: Int,
-    @JvmField val numberType: ProtoNumberType)
+internal typealias ProtoDesc = Long
 
-internal fun extractParameters(descriptor: SerialDescriptor, index: Int, zeroBasedDefault: Boolean = false): ProtoDesc {
-    val protoId = descriptor.findAnnotation<ProtoId>(index)
-    val idx = protoId?.id ?: (if (zeroBasedDefault) index else index + 1)
-    val format = descriptor.findAnnotation<ProtoType>(index)?.type
-            ?: ProtoNumberType.DEFAULT
-    return ProtoDesc(idx, format)
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun ProtoDesc(protoId: Int, type: ProtoNumberType): ProtoDesc {
+    return type.signature or protoId.toLong()
+}
+
+internal inline val ProtoDesc.protoId: Int get() = (this and Int.MAX_VALUE.toLong()).toInt()
+
+internal val ProtoDesc.numberType: ProtoNumberType get() {
+    if (ProtoNumberType.DEFAULT.equalTo(this)) return ProtoNumberType.DEFAULT
+    if (ProtoNumberType.SIGNED.equalTo(this)) return ProtoNumberType.SIGNED
+    return ProtoNumberType.FIXED
+}
+
+internal fun extractParameters(descriptor: SerialDescriptor, index: Int): ProtoDesc {
+    val annotations = descriptor.getElementAnnotations(index)
+    var protoId: Int = index + 1
+    var format: ProtoNumberType = ProtoNumberType.DEFAULT
+    for (annotation in annotations) {
+        if (annotation is ProtoId) {
+            protoId = annotation.id
+        } else if (annotation is ProtoType) {
+            format = annotation.type
+        }
+    }
+    return ProtoDesc(protoId, format)
 }
 
 internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedDefault: Boolean = false): Int {
