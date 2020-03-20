@@ -12,7 +12,6 @@ import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintInt
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintLong
-import kotlinx.serialization.protobuf.ProtoBuf.Varint.encodeVarint
 import kotlin.jvm.*
 
 /**
@@ -196,14 +195,17 @@ public class ProtoBuf(
         }
     }
 
-    internal inner class MapRepeatedWriter(parentTag: ProtoDesc?, parentEncoder: ProtobufEncoder): ObjectWriter(parentTag, parentEncoder) {
+    internal inner class MapRepeatedWriter(parentTag: ProtoDesc?, parentEncoder: ProtobufEncoder) :
+        ObjectWriter(parentTag, parentEncoder) {
         override fun SerialDescriptor.getTag(index: Int): ProtoDesc =
-                if (index % 2 == 0) ProtoDesc(1, (parentTag?.numberType ?: ProtoNumberType.DEFAULT))
-                else ProtoDesc(2, (parentTag?.numberType ?: ProtoNumberType.DEFAULT))
+            if (index % 2 == 0) ProtoDesc(1, (parentTag?.numberType ?: ProtoNumberType.DEFAULT))
+            else ProtoDesc(2, (parentTag?.numberType ?: ProtoNumberType.DEFAULT))
     }
 
-    internal inner class RepeatedWriter(encoder: ProtobufEncoder, private val curTag: ProtoDesc) :
-        ProtobufWriter(encoder) {
+    internal inner class RepeatedWriter(
+        encoder: ProtobufEncoder,
+        @JvmField val curTag: ProtoDesc
+    ) : ProtobufWriter(encoder) {
         override fun SerialDescriptor.getTag(index: Int) = curTag
     }
 
@@ -234,12 +236,12 @@ public class ProtoBuf(
 
         fun writeDouble(value: Double, tag: Int) {
             out.encode32((tag shl 3) or i64)
-            value.reverseBytes().writeTo(out)
+            out.writeLong(value.reverseBytes())
         }
 
         fun writeFloat(value: Float, tag: Int) {
             out.encode32((tag shl 3) or i32)
-            value.reverseBytes().writeTo(out)
+            out.writeInt(value.reverseBytes())
         }
 
         private fun OutputStream.encode32(
@@ -247,28 +249,25 @@ public class ProtoBuf(
             format: ProtoNumberType = ProtoNumberType.DEFAULT
         ) {
             when (format) {
-                ProtoNumberType.FIXED -> number.reverseBytes().writeTo(this)
-                ProtoNumberType.DEFAULT -> encodeVarint(number.toLong())
-                ProtoNumberType.SIGNED -> encodeVarint(((number shl 1) xor (number shr 31)))
+                ProtoNumberType.FIXED -> out.writeInt(number.reverseBytes())
+                ProtoNumberType.DEFAULT -> encodeVarint64(number.toLong())
+                ProtoNumberType.SIGNED -> encodeVarint32(((number shl 1) xor (number shr 31)))
             }
         }
-
 
         private fun OutputStream.encode64(number: Long, format: ProtoNumberType = ProtoNumberType.DEFAULT) {
             when (format) {
-                ProtoNumberType.FIXED -> number.reverseBytes().writeTo(this)
-                ProtoNumberType.DEFAULT -> encodeVarint(number)
-                ProtoNumberType.SIGNED -> encodeVarint((number shl 1) xor (number shr 63))
+                ProtoNumberType.FIXED -> out.writeLong(number.reverseBytes())
+                ProtoNumberType.DEFAULT -> encodeVarint64(number)
+                ProtoNumberType.SIGNED -> encodeVarint64((number shl 1) xor (number shr 63))
             }
         }
     }
-
 
     private open inner class ProtobufReader(@JvmField val decoder: ProtobufDecoder) : TaggedDecoder<ProtoDesc>() {
         override val context: SerialModule
             get() = this@ProtoBuf.context
 
-        //        val index = indexByTag.getOrPut(decoder.currentId) { findIndexByTag(descriptor, decoder.currentId) }
         private var indexCache: IntArray? = null
         private var sparseIndexCache: MutableMap<Int, Int>? = null
 
@@ -301,7 +300,6 @@ public class ProtoBuf(
             }
             return cache.getOrPut(serialId) { findIndexByTag(descriptor, serialId, zeroBasedDefault) }
         }
-
 
         private fun findIndexByTag(desc: SerialDescriptor, serialId: Int, zeroBasedDefault: Boolean = false): Int {
             for (i in 0 until desc.elementsCount) {
@@ -481,6 +479,7 @@ public class ProtoBuf(
         }
 
         private fun readIntLittleEndian(): Int {
+            // TODO this could be optimized by extracting method to the IS
             var result = 0
             for (i in 0..3) {
                 val byte = input.read() and 0x000000FF
@@ -490,6 +489,7 @@ public class ProtoBuf(
         }
 
         private fun readLongLittleEndian(): Long {
+            // TODO this could be optimized by extracting method to the IS
             var result = 0L
             for (i in 0..7) {
                 val byte = (input.read() and 0x000000FF).toLong()
@@ -532,24 +532,6 @@ public class ProtoBuf(
      *  https://github.com/addthis/stream-lib/blob/master/src/main/java/com/clearspring/analytics/util/Varint.java
      */
     internal object Varint {
-        internal fun OutputStream.encodeVarint(inp: Int) {
-            var value = inp
-            while (value and 0xFFFFFF80.toInt() != 0) {
-                write(((value and 0x7F) or 0x80))
-                value = value ushr 7
-            }
-            write((value and 0x7F))
-        }
-
-        internal fun OutputStream.encodeVarint(inp: Long) {
-            var value = inp
-            while (value and 0x7FL.inv() != 0L) {
-                write(((value and 0x7F) or 0x80).toInt())
-                value = value ushr 7
-            }
-            write((value and 0x7F).toInt())
-        }
-
         internal fun decodeSignedVarintInt(input: InputStream): Int {
             val raw = input.readVarint32()
             val temp = raw shl 31 shr 31 xor raw shr 1
@@ -571,9 +553,9 @@ public class ProtoBuf(
     }
 
     public companion object Default : BinaryFormat by ProtoBuf() {
-        // todo: make more memory-efficient
         private fun makeDelimited(decoder: ProtobufDecoder, parentTag: ProtoDesc?): ProtobufDecoder {
             if (parentTag == null) return decoder
+            // TODO use array slice instead of array copy
             val bytes = decoder.nextObject()
             return ProtobufDecoder(ByteArrayInputStream(bytes))
         }
@@ -601,15 +583,3 @@ public class ProtoBuf(
 private fun Float.reverseBytes(): Int = toRawBits().reverseBytes()
 
 private fun Double.reverseBytes(): Long = toRawBits().reverseBytes()
-
-private fun Int.writeTo(out: OutputStream) {
-    for (i in 3 downTo 0) {
-        out.write((this shr i * 8))
-    }
-}
-
-private fun Long.writeTo(out: OutputStream) {
-    for (i in 7 downTo 0) {
-        out.write((this shr i * 8).toInt())
-    }
-}

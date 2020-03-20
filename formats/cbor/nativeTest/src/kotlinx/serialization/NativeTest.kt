@@ -4,10 +4,7 @@
 
 package kotlinx.serialization
 
-import kotlinx.io.*
 import kotlinx.serialization.cbor.*
-import kotlinx.serialization.internal.*
-import kotlinx.serialization.json.Json
 import kotlin.test.*
 
 class CommonTest {
