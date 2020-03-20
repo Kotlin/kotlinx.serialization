@@ -84,16 +84,16 @@ internal class SerialModuleImpl(
     }
 
     override fun <T : Any> getPolymorphic(baseClass: KClass<in T>, serializedClassName: String): DeserializationStrategy<out T>? {
-        // Any subtypes
-        val standardPolymorphic =
-            if (baseClass == Any::class) StandardSubtypesOfAny.getDefaultDeserializer(serializedClassName)
-            else null
-        if (standardPolymorphic != null) return standardPolymorphic as KSerializer<out T>
         // Registered
         val registered = polyBase2NamedSerializers[baseClass]?.get(serializedClassName) as? KSerializer<out T>
         if (registered != null) return registered
         // Default
-        return (polyBase2DefaultProvider[baseClass] as? PolymorphicProvider<T>)?.invoke(serializedClassName)
+        val default = (polyBase2DefaultProvider[baseClass] as? PolymorphicProvider<T>)?.invoke(serializedClassName)
+        if (default != null) return default
+        // Any subtypes
+        return if (baseClass == Any::class)
+            StandardSubtypesOfAny.getDefaultDeserializer(serializedClassName)?.cast()
+        else null
     }
 
     override fun <T : Any> getContextual(kclass: KClass<T>): KSerializer<T>? =

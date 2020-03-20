@@ -144,7 +144,7 @@ class SuccessfulApiResponse(val code: Int) : ApiResponse()
 
 val responseModule = SerializersModule {
     polymorphic(ApiResponse::class) {
-        subclass<StringMessage>()
+        subclass<SuccessfulApiResponse>()
         default { className -> 
             if (className == "successful_response_v2") SuccessfulApiResponse.serializer() // 1
             else null
@@ -154,7 +154,7 @@ val responseModule = SerializersModule {
 ```
 
 Line `1` implies that objects of type `successful_response_v3` and `successful_response_v2` have the same serialized form,
-though nothing prevents us to return a different serializer here, potentially a customized with runtime behaviour, such as
+though nothing prevents us to return a different serializer here, potentially customized with runtime behaviour, such as
 [JsonParametricSerializer](json_transformations.md#json-parametric-polymorphic-deserialization) .
 
 ## Differences for interfaces, abstract and open classes

@@ -311,4 +311,18 @@ class ModuleBuildersTest {
         val m2 = m1 + m1
         assertEquals<Any?>(UnitSerializer(), m2.getPolymorphic(Any::class, serializedClassName = "foo"))
     }
+
+    @Test
+    fun testPolymorphicForStandardSubtypesOfAny() {
+        val serializer = object : KSerializer<Int> by Int.serializer() {}
+
+        val module = SerializersModule {
+            polymorphic<Any> {
+                subclass<Int>(serializer)
+            }
+        }
+
+        assertSame(serializer, module.getPolymorphic(Any::class, 42))
+        assertSame(serializer, module.getPolymorphic(Any::class, serializedClassName =  "kotlin.Int"))
+    }
 }
