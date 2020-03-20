@@ -7,7 +7,9 @@
 )
 package kotlinx.io
 
+@Deprecated(message = message, level = DeprecationLevel.ERROR)
 typealias JByteBuffer = java.nio.ByteBuffer
+@Deprecated(message = message, level = DeprecationLevel.ERROR)
 typealias JByteOrder = java.nio.ByteOrder
 
 @Deprecated(message = message, level = DeprecationLevel.ERROR)
