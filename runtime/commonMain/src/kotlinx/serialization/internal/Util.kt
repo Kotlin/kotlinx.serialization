@@ -13,7 +13,8 @@ import kotlinx.serialization.*
     message = "readExactNBytes slipped into public API surface accidentally and will be removed in the future releases. " +
             "You can copy-paste it to your project or (better) find a polished implementation that initially was intended for public uses."
 )
-public fun InputStream.readExactNBytes(bytes: Int): ByteArray {
+
+public fun Input.readExactNBytes(bytes: Int): ByteArray {
     throw NotImplementedError("Deprecated")
 }
 

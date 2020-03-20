@@ -7,7 +7,7 @@ package kotlinx.io
 import kotlinx.serialization.*
 
 @InternalSerializationApi
-abstract class InputStream {
+abstract class Input {
     abstract fun read(): Int
     abstract fun read(b: ByteArray, offset: Int, length: Int): Int
     abstract fun readString(length: Int): String
@@ -16,7 +16,7 @@ abstract class InputStream {
 }
 
 @InternalSerializationApi
-class ByteArrayInputStream(private var array: ByteArray) : InputStream() {
+class ByteArrayInput(private var array: ByteArray) : Input() {
 
     private var position: Int = 0
 
@@ -127,7 +127,7 @@ class ByteArrayInputStream(private var array: ByteArray) : InputStream() {
 
 
 @InternalSerializationApi
-abstract class OutputStream {
+abstract class Output {
     fun write(buffer: ByteArray) = write(buffer, 0, buffer.size)
     abstract fun write(buffer: ByteArray, offset: Int, count: Int)
     abstract fun write(byteValue: Int)
@@ -138,7 +138,7 @@ abstract class OutputStream {
 }
 
 @InternalSerializationApi
-class ByteArrayOutputStream : OutputStream {
+class ByteArrayOutput : Output {
     private var array: ByteArray
     private var position: Int = 0
 

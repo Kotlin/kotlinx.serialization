@@ -94,7 +94,7 @@ public class Cbor(
     }
 
     // For details of representation, see https://tools.ietf.org/html/rfc7049#section-2.1
-    internal class CborEncoder(private val output: OutputStream) {
+    internal class CborEncoder(private val output: Output) {
 
         fun startArray() = output.write(BEGIN_ARRAY)
         fun startMap() = output.write(BEGIN_MAP)
@@ -238,7 +238,7 @@ public class Cbor(
 
     }
 
-    internal class CborDecoder(private val input: InputStream) {
+    internal class CborDecoder(private val input: Input) {
         private var curByte: Int = -1
 
         init {
@@ -327,7 +327,7 @@ public class Cbor(
             else res
         }
 
-        private fun InputStream.readExact(bytes: Int): Long {
+        private fun Input.readExact(bytes: Int): Long {
             val arr = readExactNBytes(bytes)
             var result = 0L
             for (i in 0 until bytes) {
@@ -336,7 +336,7 @@ public class Cbor(
             return result
         }
 
-        private fun InputStream.readExactNBytes(bytes: Int): ByteArray {
+        private fun Input.readExactNBytes(bytes: Int): ByteArray {
             val array = ByteArray(bytes)
             var read = 0
             while (read < bytes) {
@@ -402,7 +402,7 @@ public class Cbor(
      * Serializes [value] to CBOR bytes using given [serializer].
      */
     override fun <T> dump(serializer: SerializationStrategy<T>, value: T): ByteArray {
-        val output = ByteArrayOutputStream()
+        val output = ByteArrayOutput()
         val dumper = CborWriter(CborEncoder(output))
         dumper.encode(serializer, value)
         return output.toByteArray()
@@ -412,7 +412,7 @@ public class Cbor(
      * Loads value of type [T] from given CBOR [bytes] using [deserializer].
      */
     override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
-        val stream = ByteArrayInputStream(bytes)
+        val stream = ByteArrayInput(bytes)
         val reader = CborReader(CborDecoder(stream))
         return reader.decode(deserializer)
     }
