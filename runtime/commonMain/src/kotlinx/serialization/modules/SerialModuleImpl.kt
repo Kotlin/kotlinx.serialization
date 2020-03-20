@@ -16,7 +16,7 @@ import kotlin.reflect.*
  */
 internal class SerialModuleImpl(
     private val class2Serializer: Map<KClass<*>, KSerializer<*>>,
-    private val polyBase2Serializers: Map<KClass<*>, Map<KClass<*>, KSerializer<*>>>,
+    internal val polyBase2Serializers: Map<KClass<*>, Map<KClass<*>, KSerializer<*>>>,
     private val polyBase2NamedSerializers: Map<KClass<*>, Map<String, KSerializer<*>>>
 ) : SerialModule {
 
