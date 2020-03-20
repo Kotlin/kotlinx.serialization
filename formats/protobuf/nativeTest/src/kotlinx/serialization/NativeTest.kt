@@ -27,4 +27,9 @@ class CommonTest {
         val id1 = country.descriptor.findAnnotation<ProtoId>(0)?.id ?: 0
         assertEquals(10, id1)
     }
+
+    private inline fun <reified A: Annotation> SerialDescriptor.findAnnotation(elementIndex: Int): A? {
+        return getElementAnnotations(elementIndex).find { it is A } as A?
+    }
+
 }
