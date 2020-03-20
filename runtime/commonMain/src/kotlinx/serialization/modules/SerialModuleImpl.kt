@@ -17,7 +17,8 @@ import kotlin.reflect.*
 internal class SerialModuleImpl(
     private val class2Serializer: Map<KClass<*>, KSerializer<*>>,
     private val polyBase2Serializers: Map<KClass<*>, Map<KClass<*>, KSerializer<*>>>,
-    private val polyBase2NamedSerializers: Map<KClass<*>, Map<String, KSerializer<*>>>) : SerialModule {
+    private val polyBase2NamedSerializers: Map<KClass<*>, Map<String, KSerializer<*>>>
+) : SerialModule {
 
     override fun <T : Any> getPolymorphic(baseClass: KClass<T>, value: T): KSerializer<out T>? {
         if (!value.isInstanceOf(baseClass)) return null
@@ -39,7 +40,8 @@ internal class SerialModuleImpl(
         return polyBase2NamedSerializers[baseClass]?.get(serializedClassName) as? KSerializer<out T>
     }
 
-    override fun <T: Any> getContextual(kclass: KClass<T>): KSerializer<T>? = class2Serializer[kclass] as? KSerializer<T>
+    override fun <T : Any> getContextual(kclass: KClass<T>): KSerializer<T>? =
+        class2Serializer[kclass] as? KSerializer<T>
 
     override fun dumpTo(collector: SerialModuleCollector) {
         class2Serializer.forEach { (kclass, serial) ->

@@ -78,7 +78,7 @@ public interface KSerializer<T> : SerializationStrategy<T>, DeserializationStrat
  *
  * For a more detailed explanation of the serialization process, please refer to [KSerializer] documentation.
  */
-interface SerializationStrategy<in T> {
+public interface SerializationStrategy<in T> {
     /**
      * Describes the structure of the serializable representation of [T], produced
      * by this serializer.
@@ -123,7 +123,7 @@ interface SerializationStrategy<in T> {
  *
  * For a more detailed explanation of the serialization process, please refer to [KSerializer] documentation.
  */
-interface DeserializationStrategy<T> {
+public interface DeserializationStrategy<T> {
     /**
      * Describes the structure of the serializable representation of [T], that current
      * deserializer is able to deserialize.
@@ -174,6 +174,7 @@ interface DeserializationStrategy<T> {
     public fun patch(decoder: Decoder, old: T): T
 }
 
+@Suppress("NO_EXPLICIT_VISIBILITY_IN_API_MODE_WARNING")
 public enum class UpdateMode {
     BANNED, OVERWRITE, UPDATE
 }

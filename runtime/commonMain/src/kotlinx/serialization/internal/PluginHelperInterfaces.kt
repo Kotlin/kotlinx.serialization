@@ -8,7 +8,7 @@ import kotlinx.serialization.*
 
 @InternalSerializationApi
 public interface GeneratedSerializer<T> : KSerializer<T> {
-    fun childSerializers(): Array<KSerializer<*>>
+    public fun childSerializers(): Array<KSerializer<*>>
 }
 
 /**
@@ -22,5 +22,5 @@ public interface GeneratedSerializer<T> : KSerializer<T> {
 @InternalSerializationApi
 @Deprecated("Inserted into generated code and should not be used directly", level = DeprecationLevel.HIDDEN)
 public interface SerializerFactory {
-    fun serializer(vararg typeParamsSerializers: KSerializer<*>): KSerializer<*>
+    public fun serializer(vararg typeParamsSerializers: KSerializer<*>): KSerializer<*>
 }

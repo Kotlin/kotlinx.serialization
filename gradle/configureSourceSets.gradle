@@ -85,4 +85,8 @@ kotlin {
             it.useExperimentalAnnotation("kotlinx.serialization.ImplicitReflectionSerializer")
         }
     }
+
+    sourceSets.matching({ it.name.contains("Main") }).all { srcSet ->
+        project.ext.set("kotlin.mpp.freeCompilerArgsForSourceSet.${srcSet.name}", "-Xexplicit-api=warning")
+    }
 }

@@ -7,20 +7,11 @@ package kotlinx.serialization
 import kotlin.reflect.*
 
 
-actual fun String.toUtf8Bytes(): ByteArray {
-    return this.encodeToByteArray()
-}
-
-actual fun stringFromUtf8Bytes(bytes: ByteArray): String {
-    return bytes.decodeToString()
-}
-
-
 @OptIn(ExperimentalAssociatedObjects::class)
 @AssociatedObjectKey
 @Retention(AnnotationRetention.BINARY)
 @Deprecated("Inserted into generated code and should not be used directly", level = DeprecationLevel.HIDDEN)
-public annotation class SerializableWith(val serializer: KClass<out KSerializer<*>>)
+public annotation class SerializableWith(public val serializer: KClass<out KSerializer<*>>)
 
 @Suppress(
     "UNCHECKED_CAST",
@@ -43,12 +34,6 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
 @ImplicitReflectionSerializer
 internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
     findAssociatedObject<SerializableWith>() as? KSerializer<T>
-
-actual fun <E : Enum<E>> enumFromName(enumClass: KClass<E>, value: String): E = TODO("Not supported in native")
-actual fun <E : Enum<E>> enumFromOrdinal(enumClass: KClass<E>, ordinal: Int): E = TODO("Not supported in native")
-
-actual fun <E : Enum<E>> KClass<E>.enumClassName(): String = this.simpleName ?: ""
-actual fun <E : Enum<E>> KClass<E>.enumMembers(): Array<E> = TODO("Not supported in native")
 
 internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E> {
     val result = arrayOfAnyNulls<E>(size)

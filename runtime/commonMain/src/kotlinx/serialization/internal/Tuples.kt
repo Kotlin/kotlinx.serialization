@@ -20,9 +20,9 @@ public sealed class KeyValueSerializer<K, V, R>(
     protected val valueSerializer: KSerializer<V>
 ) : KSerializer<R> {
 
-    abstract val R.key: K
-    abstract val R.value: V
-    abstract fun toResult(key: K, value: V): R
+    protected abstract val R.key: K
+    protected abstract val R.value: V
+    protected abstract fun toResult(key: K, value: V): R
 
     override fun serialize(encoder: Encoder, value: R) {
         val structuredEncoder = encoder.beginStructure(descriptor, keySerializer, valueSerializer)
@@ -80,7 +80,7 @@ public class MapEntrySerializer<K, V>(
     /*
      * Kind 'MAP' because it it represented in a map-like manner with "key: value" serialized directly
      */
-    override val descriptor = SerialDescriptor("kotlin.collections.Map.Entry", StructureKind.MAP) {
+    override val descriptor: SerialDescriptor = SerialDescriptor("kotlin.collections.Map.Entry", StructureKind.MAP) {
         element("key", keySerializer.descriptor)
         element("value", valueSerializer.descriptor)
     }
@@ -108,7 +108,7 @@ public class PairSerializer<K, V>(
     override val Pair<K, V>.key: K get() = this.first
     override val Pair<K, V>.value: V get() = this.second
 
-    override fun toResult(key: K, value: V) = key to value
+    override fun toResult(key: K, value: V): Pair<K, V> = key to value
 }
 
 

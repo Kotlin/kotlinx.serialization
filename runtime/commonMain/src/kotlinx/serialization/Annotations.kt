@@ -2,6 +2,8 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("NO_EXPLICIT_VISIBILITY_IN_API_MODE_WARNING") // Parameters of annotations should probably be ignored, too
+
 package kotlinx.serialization
 
 import kotlin.reflect.*
@@ -45,7 +47,7 @@ public annotation class Optional
  * even if it has default value.
  */
 @Target(AnnotationTarget.PROPERTY)
-annotation class Required
+public annotation class Required
 
 /**
  * Marks this property invisible for whole serialization framework.

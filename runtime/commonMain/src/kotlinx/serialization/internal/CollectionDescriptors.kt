@@ -113,8 +113,8 @@ internal class ArrayListClassDesc(elementDesc: SerialDescriptor) : ListLikeDescr
     override val serialName: String get() = ARRAY_LIST_NAME
 }
 
-internal class NamedListClassDescriptor(override val serialName: String, elementDescriptor: SerialDescriptor)
-    : ListLikeDescriptor(elementDescriptor)
+internal class NamedListClassDescriptor(override val serialName: String, elementDescriptor: SerialDescriptor) :
+    ListLikeDescriptor(elementDescriptor)
 
 internal class LinkedHashSetClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
     override val serialName: String get() = LINKED_HASH_SET_NAME

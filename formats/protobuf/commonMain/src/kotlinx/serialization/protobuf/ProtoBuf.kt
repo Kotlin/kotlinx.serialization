@@ -16,12 +16,12 @@ import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeVarint
 import kotlinx.serialization.protobuf.ProtoBuf.Varint.encodeVarint
 
 /**
- * The main entry point to work with ProtoBuf serialization.
- * It is typically used by constructing an application-specific instance, with configured ProtoBuf-specific behaviour
- * ([encodeDefaults] constructor parameter) and, if necessary, registered
- * custom serializers (in [SerialModule] provided by [context] constructor parameter).
+ * Implements [encoding][dump] and [decoding][load] classes to/from bytes
+ * using [Proto2][https://developers.google.com/protocol-buffers/docs/proto] specification.
+ * It is typically used by constructing an application-specific instance, with configured specific behaviour
+ * and, if necessary, registered custom serializers (in [SerialModule] provided by [context] constructor parameter).
  *
- * ## Usage Example
+ * ### Correspondence between Protobuf message definitions and Kotlin classes
  * Given a ProtoBuf definition with one required field, one optional field and one optional field with a custom default
  * value:
  * ```
@@ -36,7 +36,32 @@ import kotlinx.serialization.protobuf.ProtoBuf.Varint.encodeVarint
  * ```
  * @Serializable
  * data class MyMessage(val first: Int, val second: Int = 0, val third: Int = 42)
+ * ```
  *
+ * By default, protobuf fields ids are being assigned to Kotlin properties in incremental order, i.e.
+ * the first property in the class has id 1, the second has id 2, and so forth.
+ * If you need a more stable order (e.g. to avoid breaking changes when reordering properties),
+ * provide custom ids using [ProtoId] annotation.
+ *
+ * By default, all numbers are encoded using [varint][https://developers.google.com/protocol-buffers/docs/encoding#varints]
+ * encoding. This behaviour can be changed via [ProtoNumberType] annotation.
+ *
+ * ### Known caveats and limitations
+ * Lists are represented as repeated fields. Because format spec says that if the list is empty,
+ * there are no elements in the stream with such tag, you must explicitly mark any
+ * field of list type with default = emptyList(). Same for maps.
+ * There's no special support for `oneof` protobuf fields. However, this implementation
+ * supports standard kotlinx.serialization's polymorphic and sealed serializers,
+ * using their default form (message of serialName: string and other embedded message with actual content).
+ *
+ * ### Proto3 support
+ * This implementation does not support repeated packed fields, so you won't be able to deserialize
+ * Proto3 lists. However, other messages could be decoded. You have to remember that since fields in Proto3
+ * messages by default are implicitly optional,
+ * corresponding Kotlin properties have to be nullable with default value `null`.
+ *
+ * ### Usage example
+ * ```
  * // Serialize to ProtoBuf hex string
  * val encoded = ProtoBuf.dumps(MyMessage.serializer(), MyMessage(15)) // "080f1000182a"
  *
@@ -51,7 +76,7 @@ import kotlinx.serialization.protobuf.ProtoBuf.Varint.encodeVarint
  * ```
  *
  * ### Check existence of optional fields
- * Null values can be used as default value for optional fields to implement more complex use-cases that rely on
+ * Null values can be used as the default value for optional fields to implement more complex use-cases that rely on
  * checking if a field was set or not. This requires the use of a custom ProtoBuf instance with
  * `ProtoBuf(encodeDefaults = false)`.
  *
@@ -99,7 +124,7 @@ public class ProtoBuf(
     override val context: SerialModule = EmptyModule
 ) : BinaryFormat {
 
-    internal open inner class ProtobufWriter(val encoder: ProtobufEncoder) : TaggedEncoder<ProtoDesc>() {
+    internal open inner class ProtobufWriter(private val encoder: ProtobufEncoder) : TaggedEncoder<ProtoDesc>() {
         public override val context
             get() = this@ProtoBuf.context
 
@@ -168,7 +193,8 @@ public class ProtoBuf(
                 else 2 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
     }
 
-    internal inner class RepeatedWriter(encoder: ProtobufEncoder, val curTag: ProtoDesc) : ProtobufWriter(encoder) {
+    internal inner class RepeatedWriter(encoder: ProtobufEncoder, private val curTag: ProtoDesc) :
+        ProtobufWriter(encoder) {
         override fun SerialDescriptor.getTag(index: Int) = curTag
     }
 
@@ -218,19 +244,19 @@ public class ProtoBuf(
         }
 
         private fun encode32(number: Int, format: ProtoNumberType = ProtoNumberType.DEFAULT): ByteArray =
-                when (format) {
-                    ProtoNumberType.FIXED -> number.toLittleEndian().toByteArray()
-                    ProtoNumberType.DEFAULT -> encodeVarint(number.toLong())
-                    ProtoNumberType.SIGNED -> encodeVarint(((number shl 1) xor (number shr 31)))
-                }
+            when (format) {
+                ProtoNumberType.FIXED -> number.toLittleEndian().toByteArray()
+                ProtoNumberType.DEFAULT -> encodeVarint(number.toLong())
+                ProtoNumberType.SIGNED -> encodeVarint(((number shl 1) xor (number shr 31)))
+            }
 
 
         private fun encode64(number: Long, format: ProtoNumberType = ProtoNumberType.DEFAULT): ByteArray =
-                when (format) {
-                    ProtoNumberType.FIXED -> number.toLittleEndian().toByteArray()
-                    ProtoNumberType.DEFAULT -> encodeVarint(number)
-                    ProtoNumberType.SIGNED -> encodeVarint((number shl 1) xor (number shr 63))
-                }
+            when (format) {
+                ProtoNumberType.FIXED -> number.toLittleEndian().toByteArray()
+                ProtoNumberType.DEFAULT -> encodeVarint(number)
+                ProtoNumberType.SIGNED -> encodeVarint((number shl 1) xor (number shr 63))
+            }
     }
 
     private open inner class ProtobufReader(val decoder: ProtobufDecoder) : TaggedDecoder<ProtoDesc>() {
@@ -319,7 +345,7 @@ public class ProtoBuf(
                 else 2 to (parentTag?.second ?: ProtoNumberType.DEFAULT)
     }
 
-    internal class ProtobufDecoder(val inp: ByteArrayInputStream) {
+    internal class ProtobufDecoder(private val inp: ByteArrayInputStream) {
         val curId
             get() = curTag.first
         private var curTag: Pair<Int, Int> = -1 to -1
@@ -362,6 +388,17 @@ public class ProtoBuf(
             val ans = inp.readExactNBytes(len)
             readTag()
             return ans
+        }
+
+        private fun InputStream.readExactNBytes(bytes: Int): ByteArray {
+            val array = ByteArray(bytes)
+            var read = 0
+            while (read < bytes) {
+                val i = this.read(array, read, bytes - read)
+                if (i == -1) error("Unexpected EOF")
+                read += i
+            }
+            return array
         }
 
         fun nextInt(format: ProtoNumberType): Int {
@@ -417,11 +454,12 @@ public class ProtoBuf(
             return bytes.decodeToString()
         }
 
-        private fun decode32(format: ProtoNumberType = ProtoNumberType.DEFAULT, eofAllowed: Boolean = false): Int = when (format) {
-            ProtoNumberType.DEFAULT -> decodeVarint(inp, 64, eofAllowed).toInt()
-            ProtoNumberType.SIGNED -> decodeSignedVarintInt(inp)
-            ProtoNumberType.FIXED -> readIntLittleEndian()
-        }
+        private fun decode32(format: ProtoNumberType = ProtoNumberType.DEFAULT, eofAllowed: Boolean = false): Int =
+            when (format) {
+                ProtoNumberType.DEFAULT -> decodeVarint(inp, 64, eofAllowed).toInt()
+                ProtoNumberType.SIGNED -> decodeSignedVarintInt(inp)
+                ProtoNumberType.FIXED -> readIntLittleEndian()
+            }
 
         private fun decode64(format: ProtoNumberType = ProtoNumberType.DEFAULT): Long = when (format) {
             ProtoNumberType.DEFAULT -> decodeVarint(inp, 64)
@@ -510,7 +548,7 @@ public class ProtoBuf(
         }
     }
 
-    companion object Default : BinaryFormat by ProtoBuf() {
+    public companion object Default : BinaryFormat by ProtoBuf() {
         // todo: make more memory-efficient
         private fun makeDelimited(decoder: ProtobufDecoder, parentTag: ProtoDesc?): ProtobufDecoder {
             if (parentTag == null) return decoder
@@ -526,13 +564,6 @@ public class ProtoBuf(
         internal const val i64 = 1
         internal const val SIZE_DELIMITED = 2
         internal const val i32 = 5
-
-        @Deprecated(
-            message = "Deprecated for removal in the favour of user-defined instances or ProtoBuf companion object",
-            level = DeprecationLevel.ERROR,
-            replaceWith = ReplaceWith("ProtoBuf")
-        )
-        public val plain = ProtoBuf()
     }
 
     override fun <T> dump(serializer: SerializationStrategy<T>, value: T): ByteArray {
@@ -549,7 +580,8 @@ public class ProtoBuf(
     }
 }
 
-private fun Short.toLittleEndian(): Short = (((this.toInt() and 0xff) shl 8) or ((this.toInt() and 0xffff) ushr 8)).toShort()
+private fun Short.toLittleEndian(): Short =
+    (((this.toInt() and 0xff) shl 8) or ((this.toInt() and 0xffff) ushr 8)).toShort()
 
 private fun Int.toLittleEndian(): Int =
     ((this and 0xffff).toShort().toLittleEndian().toInt() shl 16) or ((this ushr 16).toShort().toLittleEndian().toInt() and 0xffff)

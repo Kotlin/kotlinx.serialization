@@ -28,6 +28,7 @@ import kotlinx.serialization.internal.*
  * }
  * ```
  */
+@Suppress("FunctionName")
 public fun SerialDescriptor(
     serialName: String,
     kind: SerialKind = StructureKind.CLASS,

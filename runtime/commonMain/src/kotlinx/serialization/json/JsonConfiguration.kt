@@ -72,9 +72,10 @@ public data class JsonConfiguration @UnstableDefault constructor(
 
     }
 
-    companion object {
+    public companion object {
         @JvmStatic
         private val defaultIndent = "    "
+
         @JvmStatic
         private val defaultDiscriminator = "type"
 
@@ -86,7 +87,7 @@ public data class JsonConfiguration @UnstableDefault constructor(
          */
         @JvmStatic
         @UnstableDefault
-        public val Default = JsonConfiguration()
+        public val Default: JsonConfiguration = JsonConfiguration()
 
         /**
          * Stable [JsonConfiguration] that is guaranteed to preserve its semantics between releases.
@@ -94,7 +95,7 @@ public data class JsonConfiguration @UnstableDefault constructor(
          */
         @OptIn(UnstableDefault::class)
         @JvmStatic
-        public val Stable = JsonConfiguration(
+        public val Stable: JsonConfiguration = JsonConfiguration(
             encodeDefaults = true,
             ignoreUnknownKeys = false,
             isLenient = false,

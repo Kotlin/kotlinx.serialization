@@ -48,7 +48,7 @@ public fun SerializersModule(buildAction: SerializersModuleBuilder.() -> Unit): 
  * Reified version of `SerializersModuleBuilder.contextual(KClass, Serializer)`
  */
 @ImplicitReflectionSerializer
-public inline fun <reified T : Any> SerializersModuleBuilder.contextual() = contextual(T::class, serializer())
+public inline fun <reified T : Any> SerializersModuleBuilder.contextual(): Unit = contextual(T::class, serializer())
 
 /**
  * A builder class for [SerializersModule] DSL.
@@ -57,12 +57,14 @@ public class SerializersModuleBuilder internal constructor() : SerialModuleColle
     private val class2Serializer: MutableMap<KClass<*>, KSerializer<*>> = hashMapOf()
     private val polyBase2Serializers: MutableMap<KClass<*>, MutableMap<KClass<*>, KSerializer<*>>> = hashMapOf()
     private val polyBase2NamedSerializers: MutableMap<KClass<*>, MutableMap<String, KSerializer<*>>> = hashMapOf()
+
     /**
      * Adds [serializer] associated with given [kClass] for contextual serialization.
      * Throws [SerializationException] if a module already has serializer associated with a [kClass].
      * To overwrite an already registered serializer, [SerialModule.overwriteWith] can be used.
      */
-    public override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>) = registerSerializer(kClass, serializer)
+    public override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>): Unit =
+        registerSerializer(kClass, serializer)
 
     /**
      * Adds [serializer][actualSerializer] associated with given [actualClass] in the scope of [baseClass] for polymorphic serialization.
@@ -109,7 +111,7 @@ public class SerializersModuleBuilder internal constructor() : SerialModuleColle
     public inline fun <reified Base : Any> polymorphic(
         baseSerializer: KSerializer<Base>? = null,
         noinline buildAction: PolymorphicModuleBuilder<Base>.() -> Unit = {}
-    ) = polymorphic(Base::class, baseSerializer, buildAction)
+    ): Unit = polymorphic(Base::class, baseSerializer, buildAction)
 
     /**
      * Creates a builder to register all serializable subclasses for polymorphic serialization
@@ -219,5 +221,6 @@ public class SerializersModuleBuilder internal constructor() : SerialModuleColle
         names[name] = concreteSerializer
     }
 
-    internal fun build(): SerialModule = SerialModuleImpl(class2Serializer, polyBase2Serializers, polyBase2NamedSerializers)
+    internal fun build(): SerialModule =
+        SerialModuleImpl(class2Serializer, polyBase2Serializers, polyBase2NamedSerializers)
 }

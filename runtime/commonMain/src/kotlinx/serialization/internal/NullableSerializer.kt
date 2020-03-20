@@ -28,8 +28,7 @@ public class NullableSerializer<T : Any>(private val serializer: KSerializer<T>)
         if (value != null) {
             encoder.encodeNotNullMark()
             encoder.encodeSerializableValue(serializer, value)
-        }
-        else {
+        } else {
             encoder.encodeNull()
         }
     }
@@ -59,7 +58,7 @@ public class NullableSerializer<T : Any>(private val serializer: KSerializer<T>)
     }
 }
 
-internal class SerialDescriptorForNullable(private val original: SerialDescriptor): SerialDescriptor by original {
+internal class SerialDescriptorForNullable(private val original: SerialDescriptor) : SerialDescriptor by original {
     override val serialName: String = original.serialName + "?"
     override val isNullable: Boolean
         get() = true

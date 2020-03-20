@@ -231,15 +231,6 @@ public sealed class UnionKind : SerialKind() {
      * enumerated in child descriptors similarly to [ENUM_KIND].
      */
     public object CONTEXTUAL : UnionKind()
-
-    companion object {
-        @Deprecated(
-            "Moved out from UnionKind to StructureKind.",
-            ReplaceWith("StructureKind.OBJECT"),
-            DeprecationLevel.ERROR
-        )
-        val OBJECT = StructureKind.OBJECT
-    }
 }
 
 /**
