@@ -184,7 +184,7 @@ public class ProtoBuf(
     internal open inner class ObjectWriter(
         val parentTag: ProtoDesc?,
         private val parentEncoder: ProtobufEncoder,
-        private val stream: ByteArrayOutputStream = ByteArrayOutputStream()
+        private val stream: ByteArrayOutput = ByteArrayOutput()
     ) : ProtobufWriter(ProtobufEncoder(stream)) {
         override fun endEncode(descriptor: SerialDescriptor) {
             if (parentTag != null) {
@@ -209,7 +209,7 @@ public class ProtoBuf(
         override fun SerialDescriptor.getTag(index: Int) = curTag
     }
 
-    internal class ProtobufEncoder(val out: ByteArrayOutputStream) {
+    internal class ProtobufEncoder(val out: ByteArrayOutput) {
 
         fun writeBytes(bytes: ByteArray, tag: Int) {
             out.encode32((tag shl 3) or SIZE_DELIMITED)
@@ -244,7 +244,7 @@ public class ProtoBuf(
             out.writeInt(value.reverseBytes())
         }
 
-        private fun OutputStream.encode32(
+        private fun Output.encode32(
             number: Int,
             format: ProtoNumberType = ProtoNumberType.DEFAULT
         ) {
@@ -255,7 +255,7 @@ public class ProtoBuf(
             }
         }
 
-        private fun OutputStream.encode64(number: Long, format: ProtoNumberType = ProtoNumberType.DEFAULT) {
+        private fun Output.encode64(number: Long, format: ProtoNumberType = ProtoNumberType.DEFAULT) {
             when (format) {
                 ProtoNumberType.FIXED -> out.writeLong(number.reverseBytes())
                 ProtoNumberType.DEFAULT -> encodeVarint64(number)
@@ -399,7 +399,7 @@ public class ProtoBuf(
                 else ProtoDesc(2, (parentTag?.numberType ?: ProtoNumberType.DEFAULT))
     }
 
-    internal class ProtobufDecoder(private val input: ByteArrayInputStream) {
+    internal class ProtobufDecoder(private val input: ByteArrayInput) {
         @JvmField
         public var currentId = -1
         @JvmField
@@ -444,7 +444,7 @@ public class ProtoBuf(
             return result
         }
 
-        private fun InputStream.readExactNBytes(bytes: Int): ByteArray {
+        private fun Input.readExactNBytes(bytes: Int): ByteArray {
             val array = ByteArray(bytes)
             var read = 0
             while (read < bytes) {
@@ -532,7 +532,7 @@ public class ProtoBuf(
      *  https://github.com/addthis/stream-lib/blob/master/src/main/java/com/clearspring/analytics/util/Varint.java
      */
     internal object Varint {
-        internal fun decodeSignedVarintInt(input: InputStream): Int {
+        internal fun decodeSignedVarintInt(input: Input): Int {
             val raw = input.readVarint32()
             val temp = raw shl 31 shr 31 xor raw shr 1
             // This extra step lets us deal with the largest signed values by treating
@@ -541,7 +541,7 @@ public class ProtoBuf(
             return temp xor (raw and (1 shl 31))
         }
 
-        internal fun decodeSignedVarintLong(input: InputStream): Long {
+        internal fun decodeSignedVarintLong(input: Input): Long {
             val raw = input.readVarint64(false)
             val temp = raw shl 63 shr 63 xor raw shr 1
             // This extra step lets us deal with the largest signed values by treating
@@ -557,7 +557,7 @@ public class ProtoBuf(
             if (parentTag == null) return decoder
             // TODO use array slice instead of array copy
             val bytes = decoder.nextObject()
-            return ProtobufDecoder(ByteArrayInputStream(bytes))
+            return ProtobufDecoder(ByteArrayInput(bytes))
         }
 
         internal const val VARINT = 0
@@ -567,14 +567,14 @@ public class ProtoBuf(
     }
 
     override fun <T> dump(serializer: SerializationStrategy<T>, value: T): ByteArray {
-        val encoder = ByteArrayOutputStream()
+        val encoder = ByteArrayOutput()
         val dumper = ProtobufWriter(ProtobufEncoder(encoder))
         dumper.encode(serializer, value)
         return encoder.toByteArray()
     }
 
     override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
-        val stream = ByteArrayInputStream(bytes)
+        val stream = ByteArrayInput(bytes)
         val reader = ProtobufReader(ProtobufDecoder(stream))
         return reader.decode(deserializer)
     }

@@ -14,7 +14,7 @@ class CborWriterSpecTest : WordSpec() {
     init {
 
         fun withEncoder(block: Cbor.CborEncoder.() -> Unit): String {
-            val result = ByteArrayOutputStream()
+            val result = ByteArrayOutput()
             Cbor.CborEncoder(result).block()
             return HexConverter.printHexBinary(result.toByteArray()).toLowerCase()
         }
