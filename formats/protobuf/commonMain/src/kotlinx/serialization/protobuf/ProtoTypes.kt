@@ -24,7 +24,6 @@ public enum class ProtoNumberType(internal val signature: Long) {
     SIGNED(2L shl 32),
     FIXED(3L shl 32);
 
-
     internal fun equalTo(descriptor: ProtoDesc): Boolean {
         return descriptor and MASK == signature
     }
@@ -53,11 +52,12 @@ internal val ProtoDesc.numberType: ProtoNumberType get() {
     return ProtoNumberType.FIXED
 }
 
-internal fun extractParameters(descriptor: SerialDescriptor, index: Int): ProtoDesc {
-    val annotations = descriptor.getElementAnnotations(index)
+internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
+    val annotations = getElementAnnotations(index)
     var protoId: Int = index + 1
     var format: ProtoNumberType = ProtoNumberType.DEFAULT
-    for (annotation in annotations) {
+    for (i in annotations.indices) { // Allocation-friendly loop
+        val annotation = annotations[i]
         if (annotation is ProtoId) {
             protoId = annotation.id
         } else if (annotation is ProtoType) {
@@ -68,12 +68,17 @@ internal fun extractParameters(descriptor: SerialDescriptor, index: Int): ProtoD
 }
 
 internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedDefault: Boolean = false): Int {
-    val protoId = descriptor.findAnnotation<ProtoId>(index)
-    return protoId?.id ?: (if (zeroBasedDefault) index else index + 1)
+    val annotations = descriptor.getElementAnnotations(index)
+    for (i in annotations.indices) { // Allocation-friendly loop
+        val annotation = annotations[i]
+        if (annotation is ProtoId) {
+            return annotation.id
+        }
+    }
+    return if (zeroBasedDefault) index else index + 1
 }
 
 public class ProtobufDecodingException(message: String) : SerializationException(message)
 
-internal inline fun <reified A: Annotation> SerialDescriptor.findAnnotation(elementIndex: Int): A? {
-    return getElementAnnotations(elementIndex).find { it is A } as A?
-}
+internal expect fun Int.reverseBytes(): Int
+internal expect fun Long.reverseBytes(): Long
