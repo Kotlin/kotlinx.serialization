@@ -6,6 +6,7 @@ package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
+import kotlin.jvm.*
 import kotlin.reflect.*
 
 /**
@@ -67,7 +68,7 @@ internal typealias PolymorphicProvider<Base> = (className: String) -> Deserializ
 @Suppress("UNCHECKED_CAST")
 internal class SerialModuleImpl(
     private val class2Serializer: Map<KClass<*>, KSerializer<*>>,
-    private val polyBase2Serializers: Map<KClass<*>, Map<KClass<*>, KSerializer<*>>>,
+    @JvmField val polyBase2Serializers: Map<KClass<*>, Map<KClass<*>, KSerializer<*>>>,
     private val polyBase2NamedSerializers: Map<KClass<*>, Map<String, KSerializer<*>>>,
     private val polyBase2DefaultProvider: Map<KClass<*>, PolymorphicProvider<*>>
 ) : SerialModule() {

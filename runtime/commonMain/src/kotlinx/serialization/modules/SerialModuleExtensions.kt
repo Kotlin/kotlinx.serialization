@@ -106,6 +106,13 @@ public fun SerialModule.getPolymorphicDescriptors(descriptor: SerialDescriptor):
         ) {
             if (baseClass == kClass) builder.add(actualSerializer.descriptor)
         }
+
+        override fun <Base : Any> defaultPolymorphic(
+            baseClass: KClass<Base>,
+            defaultSerializerProvider: (className: String) -> DeserializationStrategy<out Base>?
+        ) {
+            // Nothing
+        }
     })
     return builder
 }
