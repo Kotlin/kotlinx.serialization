@@ -5,25 +5,54 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
-import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.internal.*
+import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
-import kotlin.math.abs
-import kotlin.math.floor
+import kotlin.math.*
 
 /**
  * [https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER]
  */
 internal const val MAX_SAFE_INTEGER: Double = 9007199254740991.toDouble() // 2^53 - 1
 
-class DynamicObjectParser(
+/**
+ * Converts native JavaScript objects into Kotlin ones, verifying their types.
+ *
+ * A result of `parse(nativeObj)` should be the same as
+ * `kotlinx.serialization.json.Json.parse(kotlin.js.JSON.stringify(nativeObj))`.
+ * This class also supports array-based polymorphism if the corresponding flag in [configuration] is set to `true`.
+ * Does not support any other [Map] keys than [String].
+ * Has limitation on [Long] type: any JS number that is greater than
+ * [`abs(2^53-1)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)
+ * is considered to be imprecise and therefore can't be deserialized to [Long]. Either use [Double] type
+ * for such values or pass them as strings using [LongAsStringSerializer] afterwards.
+ *
+ * Usage example:
+ *
+ * ```
+ * @Serializable
+ * data class Data(val a: Int)
+ *
+ * @Serializable
+ * data class DataWrapper(val s: String, val d: Data?)
+ *
+ * val dyn: dynamic = js("""{s:"foo", d:{a:42}}""")
+ * val parsed = DynamicObjectParser().parse(dyn, DataWrapper.serializer())
+ * parsed == DataWrapper("foo", Data(42)) // true
+ * ```
+ */
+public class DynamicObjectParser @OptIn(UnstableDefault::class) constructor(
     override val context: SerialModule = EmptyModule,
     internal val configuration: JsonConfiguration = JsonConfiguration.Default
 ) : SerialFormat {
     @ImplicitReflectionSerializer
-    inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.getContextualOrDefault(T::class))
+    public inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.getContextualOrDefault(T::class))
 
-    fun <T> parse(obj: dynamic, deserializer: DeserializationStrategy<T>): T = DynamicInput(obj).decode(deserializer)
+    /**
+     * Deserializes given [obj] from dynamic form to type [T] using [deserializer].
+     */
+    public fun <T> parse(obj: dynamic, deserializer: DeserializationStrategy<T>): T =
+        DynamicInput(obj).decode(deserializer)
 
     private open inner class DynamicInput(val obj: dynamic) : NamedValueDecoder() {
         override val context: SerialModule

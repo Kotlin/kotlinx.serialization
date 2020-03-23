@@ -13,6 +13,17 @@ import kotlinx.serialization.modules.*
 private val SerialKind.listLike get() = this == StructureKind.LIST || this is PolymorphicKind
 private val SerialKind.objLike get() = this == StructureKind.CLASS || this == StructureKind.OBJECT
 
+/**
+ * Allows [deserialization][parse]
+ * of [Config] object from popular lightbend/config library into Kotlin objects.
+ *
+ * [Config] object represents "Human-Optimized Config Object Notation" —
+ * [HOCON][https://github.com/lightbend/config#using-hocon-the-json-superset].
+ *
+ * @param configuration configuration for a parser instance.
+ * @param context A [SerialModule] which should contain registered serializers
+ * for [ContextualSerialization] and [Polymorphic] serialization, if you have any.
+ */
 public class ConfigParser(
     private val configuration: ConfigParserConfiguration = ConfigParserConfiguration(),
     override val context: SerialModule = EmptyModule

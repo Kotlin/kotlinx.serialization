@@ -276,20 +276,20 @@ public interface CompositeDecoder {
          * (apart from the end of the structure).
          * When this value is returned, no methods of the decoder should be called but [endStructure].
          */
-        public const val READ_DONE = -1
+        public const val READ_DONE: Int = -1
 
         @Deprecated(
             message = "READ_ALL cannot be longer returned by 'decodeElementIndex', use 'decodeSequentially' instead",
             level = DeprecationLevel.WARNING
         )
         @Suppress("UNUSED")
-        public const val READ_ALL = -2
+        public const val READ_ALL: Int = -2
 
         /**
          * Value returned by [decodeElementIndex] when the format encountered an unknown element
          * (expected neither by the structure of serial descriptor, nor by the format itself).
          */
-        public const val UNKNOWN_NAME = -3
+        public const val UNKNOWN_NAME: Int = -3
     }
 
     /**

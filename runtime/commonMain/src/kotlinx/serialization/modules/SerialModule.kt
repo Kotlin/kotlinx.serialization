@@ -33,7 +33,7 @@ public sealed class SerialModule {
     public abstract fun <T : Any> getPolymorphic(baseClass: KClass<in T>, value: T): SerializationStrategy<T>?
 
     /**
-     * Returns a polymorphic deserializer registered for for a [serializedClassName] in the scope of [baseClass]
+     * Returns a polymorphic deserializer registered for a [serializedClassName] in the scope of [baseClass]
      * or default value constructed from [serializedClassName] if default serializer provider was registered.
      */
     public abstract fun <T : Any> getPolymorphic(baseClass: KClass<in T>, serializedClassName: String): DeserializationStrategy<out T>?
@@ -55,7 +55,7 @@ public object EmptyModule : SerialModule() {
         serializedClassName: String
     ): DeserializationStrategy<out T>? = null
 
-    public override fun dumpTo(collector: SerialModuleCollector) = Unit
+    public override fun dumpTo(collector: SerialModuleCollector): Unit = Unit
 }
 
 internal typealias PolymorphicProvider<Base> = (className: String) -> DeserializationStrategy<out Base>?

@@ -1,18 +1,33 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
 
+/**
+ * Represents a number format in protobuf encoding.
+ *
+ * [DEFAULT] is default varint encoding (intXX),
+ * [SIGNED] is signed ZigZag representation (sintXX), and
+ * [FIXED] is fixedXX type.
+ * uintXX and sfixedXX are not supported yet.
+ *
+ * See [https://developers.google.com/protocol-buffers/docs/proto#scalar]
+ */
+@Suppress("NO_EXPLICIT_VISIBILITY_IN_API_MODE_WARNING")
 public enum class ProtoNumberType {
     DEFAULT, SIGNED, FIXED
 }
 
+/**
+ * Instructs to use a particular [ProtoNumberType] for a property of integer number type.
+ * Affect [Byte], [Short], [Int], [Long] and [Char] properties and does not affect others.
+ */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
-public annotation class ProtoType(val type: ProtoNumberType)
+public annotation class ProtoType(public val type: ProtoNumberType)
 
 internal typealias ProtoDesc = Pair<Int, ProtoNumberType>
 

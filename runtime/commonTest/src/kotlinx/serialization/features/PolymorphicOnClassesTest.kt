@@ -1,24 +1,12 @@
 /*
- * Copyright 2019 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
-import kotlinx.serialization.json.Json
 import kotlin.test.*
 
 // this has implicit @Polymorphic
@@ -81,12 +69,49 @@ class PolymorphicOnClassesTest {
     fun testEnablesImplicitlyOnInterfacesAndAbstractClasses() {
         val json = Json { unquotedPrint = true; prettyPrint = false; useArrayPolymorphism = true; serialModule = testModule }
         val data = genTestData()
-        assertEquals("""{iMessage:[MessageWithId,{id:0,body:"Message #0"}],iMessageList:[[MessageWithId,{id:1,body:"Message #1"}],[MessageWithId,{id:2,body:"Message #2"}]],message:[MessageWithId,{id:3,body:"Message #3"}],msgSet:[[SimpleMessage,{body:Simple}]],simple:[DoubleSimpleMessage,{body:Simple,body2:DoubleSimple}],withId:{id:4,body:"Message #4"}}""", json.stringify(Holder.serializer(), data))
+        assertEquals(
+            """{iMessage:[MessageWithId,{id:0,body:"Message #0"}],iMessageList:[[MessageWithId,{id:1,body:"Message #1"}],[MessageWithId,{id:2,body:"Message #2"}]],message:[MessageWithId,{id:3,body:"Message #3"}],msgSet:[[SimpleMessage,{body:Simple}]],simple:[DoubleSimpleMessage,{body:Simple,body2:DoubleSimple}],withId:{id:4,body:"Message #4"}}""",
+            json.stringify(Holder.serializer(), data)
+        )
     }
 
     @Test
     fun testDescriptor() {
-        val desc = Holder.serializer().descriptor
-        assertSame(PolymorphicKind.OPEN, desc.getElementDescriptor(0).kind)
+        val polyDesc = Holder.serializer().descriptor.elementDescriptors().first()
+        assertEquals(PolymorphicSerializer(IMessage::class).descriptor, polyDesc)
+        assertEquals(2, polyDesc.elementsCount)
+        assertEquals(PrimitiveKind.STRING, polyDesc.getElementDescriptor(0).kind)
+    }
+
+    private fun SerialDescriptor.inContext(module: SerialModule): List<SerialDescriptor> = when (kind) {
+        PolymorphicKind.OPEN -> module.getPolymorphicDescriptors(this)
+        else -> error("Expected this function to be called on OPEN descriptor")
+    }
+
+    @Test
+    fun testResolvePolymorphicDescriptor() {
+        val polyDesc = Holder.serializer().descriptor.elementDescriptors().first() // iMessage: IMessage
+
+        assertEquals(PolymorphicKind.OPEN, polyDesc.kind)
+
+        val inheritors = polyDesc.inContext(testModule)
+        val names = listOf("SimpleMessage", "DoubleSimpleMessage", "MessageWithId").toSet()
+        assertEquals(names, inheritors.map(SerialDescriptor::serialName).toSet(), "Expected correct inheritor names")
+        assertTrue(inheritors.all { it.kind == StructureKind.CLASS }, "Expected all inheritors to be CLASS")
+    }
+
+    @Test
+    fun testDocSampleWithAllDistinct() {
+        fun allDistinctNames(descriptor: SerialDescriptor, module: SerialModule) = when (descriptor.kind) {
+            is PolymorphicKind.OPEN -> module.getPolymorphicDescriptors(descriptor)
+                .map { it.elementNames() }.flatten().toSet()
+            is UnionKind.CONTEXTUAL -> module.getContextualDescriptor(descriptor)
+                ?.elementNames().orEmpty().toSet()
+            else -> descriptor.elementNames().toSet()
+        }
+
+        val polyDesc = Holder.serializer().descriptor.elementDescriptors().first() // iMessage: IMessage
+        assertEquals(setOf("id", "body", "body2"), allDistinctNames(polyDesc, testModule))
+        assertEquals(setOf("id", "body"), allDistinctNames(MessageWithId.serializer().descriptor, testModule))
     }
 }

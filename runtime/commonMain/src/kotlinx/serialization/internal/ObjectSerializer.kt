@@ -10,7 +10,7 @@ import kotlinx.serialization.*
  * Serializer for Kotlin's singletons (denoted by `object` keyword).
  * To preserve singleton identity after serialization and deserialization, object serializer
  * uses an [object instance][objectInstance].
- * By default, a singleton is serialized as an empty structure, e.g. `{}` in JSON
+ * By default, a singleton is serialized as an empty structure, e.g. `{}` in JSON.
  */
 @Deprecated(
     "For plugin-generated code, " +

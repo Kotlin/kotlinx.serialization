@@ -8,10 +8,24 @@ import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.builtins.*
-import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.experimental.*
 
+/**
+ * Implements [encoding][dump] and [decoding][load] classes to/from bytes
+ * using [CBOR](https://tools.ietf.org/html/rfc7049) specification.
+ * It is typically used by constructing an application-specific instance, with configured behaviour, and,
+ * if necessary, registered custom serializers (in [SerialModule] provided by [context] constructor parameter).
+ *
+ * ### Known caveats and limitations:
+ * Supports reading collections of both definite and indefinite lengths; however,
+ * serialization always writes maps and lists as [indefinite-length](https://tools.ietf.org/html/rfc7049#section-2.2.1) ones.
+ * Does not support [optional tags](https://tools.ietf.org/html/rfc7049#section-2.4) representing datetime, bignums, etc.
+ * Fully support CBOR maps, which, unlike JSON ones, may contain keys of non-primitive types, and may produce such maps
+ * from corresponding Kotlin objects. However, other 3rd-party parsers (e.g. `jackson-dataformat-cbor`) may not accept such maps.
+ *
+ * @param encodeDefaults specifies whether default values of Kotlin properties are encoded.
+ */
 public class Cbor(
     public val updateMode: UpdateMode = UpdateMode.BANNED,
     public val encodeDefaults: Boolean = true,
@@ -80,7 +94,7 @@ public class Cbor(
     }
 
     // For details of representation, see https://tools.ietf.org/html/rfc7049#section-2.1
-    internal class CborEncoder(val output: OutputStream) {
+    internal class CborEncoder(private val output: OutputStream) {
 
         fun startArray() = output.write(BEGIN_ARRAY)
         fun startMap() = output.write(BEGIN_MAP)
@@ -224,7 +238,7 @@ public class Cbor(
 
     }
 
-    internal class CborDecoder(val input: InputStream) {
+    internal class CborDecoder(private val input: InputStream) {
         private var curByte: Int = -1
 
         init {
@@ -322,6 +336,17 @@ public class Cbor(
             return result
         }
 
+        private fun InputStream.readExactNBytes(bytes: Int): ByteArray {
+            val array = ByteArray(bytes)
+            var read = 0
+            while (read < bytes) {
+                val i = this.read(array, read, bytes - read)
+                if (i == -1) error("Unexpected EOF")
+                read += i
+            }
+            return array
+        }
+
         fun nextFloat(): Float {
             if (curByte != NEXT_FLOAT) throw CborDecodingException("float header", curByte)
             val res = Float.fromBits(readInt())
@@ -355,7 +380,7 @@ public class Cbor(
         }
     }
 
-    companion object Default : BinaryFormat by Cbor() {
+    public companion object Default : BinaryFormat by Cbor() {
         private const val FALSE = 0xf4
         private const val TRUE = 0xf5
         private const val NULL = 0xf6
@@ -371,15 +396,11 @@ public class Cbor(
         private const val HEADER_NEGATIVE: Byte = 0b001_00000
         private const val HEADER_ARRAY: Int = 0b100_00000
         private const val HEADER_MAP: Int = 0b101_00000
-
-        @Deprecated(
-            message = "Deprecated for removal in the favour of user-defined instances or Cbor companion object",
-            level = DeprecationLevel.ERROR,
-            replaceWith = ReplaceWith("Cbor")
-        )
-        public val plain = Cbor()
     }
 
+    /**
+     * Serializes [value] to CBOR bytes using given [serializer].
+     */
     override fun <T> dump(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutputStream()
         val dumper = CborWriter(CborEncoder(output))
@@ -387,6 +408,9 @@ public class Cbor(
         return output.toByteArray()
     }
 
+    /**
+     * Loads value of type [T] from given CBOR [bytes] using [deserializer].
+     */
     override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
         val stream = ByteArrayInputStream(bytes)
         val reader = CborReader(CborDecoder(stream))

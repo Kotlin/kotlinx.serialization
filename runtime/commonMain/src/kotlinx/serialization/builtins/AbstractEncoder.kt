@@ -44,16 +44,16 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
         UnitSerializer().serialize(this, Unit)
     }
 
-    override fun encodeBoolean(value: Boolean) = encodeValue(value)
-    override fun encodeByte(value: Byte) = encodeValue(value)
-    override fun encodeShort(value: Short) = encodeValue(value)
-    override fun encodeInt(value: Int) = encodeValue(value)
-    override fun encodeLong(value: Long) = encodeValue(value)
-    override fun encodeFloat(value: Float) = encodeValue(value)
-    override fun encodeDouble(value: Double) = encodeValue(value)
-    override fun encodeChar(value: Char) = encodeValue(value)
-    override fun encodeString(value: String) = encodeValue(value)
-    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) = encodeValue(index)
+    override fun encodeBoolean(value: Boolean): Unit = encodeValue(value)
+    override fun encodeByte(value: Byte): Unit = encodeValue(value)
+    override fun encodeShort(value: Short): Unit = encodeValue(value)
+    override fun encodeInt(value: Int): Unit = encodeValue(value)
+    override fun encodeLong(value: Long): Unit = encodeValue(value)
+    override fun encodeFloat(value: Float): Unit = encodeValue(value)
+    override fun encodeDouble(value: Double): Unit = encodeValue(value)
+    override fun encodeChar(value: Char): Unit = encodeValue(value)
+    override fun encodeString(value: String): Unit = encodeValue(value)
+    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int): Unit = encodeValue(index)
 
     // Delegating implementation of CompositeEncoder
     final override fun encodeUnitElement(descriptor: SerialDescriptor, index: Int) { if (encodeElement(descriptor, index)) encodeUnit() }

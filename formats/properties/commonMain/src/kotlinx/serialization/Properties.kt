@@ -29,7 +29,7 @@ import kotlinx.serialization.modules.*
  * ```
  *
  * If the given class has a [List] property `l`, each value from the list
- * would be prefixed with `l.N.`, where N is an index for particular value.
+ * would be prefixed with `l.N.`, where N is an index for a particular value.
  * Additional `l.size` property with a list size would be added.
  * [Map] is treated as a [key,value,...] list.
  *

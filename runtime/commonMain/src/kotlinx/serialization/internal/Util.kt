@@ -8,15 +8,13 @@ import kotlinx.io.*
 import kotlinx.serialization.*
 
 @InternalSerializationApi
+@Deprecated(
+    level = DeprecationLevel.ERROR,
+    message = "readExactNBytes slipped into public API surface accidentally and will be removed in the future releases. " +
+            "You can copy-paste it to your project or (better) find a polished implementation that initially was intended for public uses."
+)
 public fun InputStream.readExactNBytes(bytes: Int): ByteArray {
-    val array = ByteArray(bytes)
-    var read = 0
-    while (read < bytes) {
-        val i = this.read(array, read, bytes - read)
-        if (i == -1) error("Unexpected EOF")
-        read += i
-    }
-    return array
+    throw NotImplementedError("Deprecated")
 }
 
 internal object InternalHexConverter {
@@ -67,15 +65,15 @@ internal object InternalHexConverter {
 
 @InternalSerializationApi
 @Deprecated(
-    level = DeprecationLevel.WARNING,
+    level = DeprecationLevel.ERROR,
     message = "HexConverter slipped into public API surface accidentally and will be removed in the future releases. " +
             "You can copy-paste it to your project or (better) find a polished implementation that initially was intended for public uses."
 )
-object HexConverter {
+public object HexConverter {
     private const val hexCode = "0123456789ABCDEF"
-    fun parseHexBinary(s: String): ByteArray = InternalHexConverter.parseHexBinary(s)
-    fun printHexBinary(data: ByteArray, lowerCase: Boolean = false): String = InternalHexConverter.printHexBinary(data, lowerCase)
-    fun toHexString(n: Int): String = InternalHexConverter.toHexString(n)
+    public fun parseHexBinary(s: String): ByteArray = InternalHexConverter.parseHexBinary(s)
+    public fun printHexBinary(data: ByteArray, lowerCase: Boolean = false): String = InternalHexConverter.printHexBinary(data, lowerCase)
+    public fun toHexString(n: Int): String = InternalHexConverter.toHexString(n)
 }
 
 internal fun SerialDescriptor.cachedSerialNames(): Set<String> {

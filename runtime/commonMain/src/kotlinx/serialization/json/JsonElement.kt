@@ -142,7 +142,7 @@ public sealed class JsonPrimitive : JsonElement() {
      */
     public val booleanOrNull: Boolean? get() = content.toBooleanStrictOrNull()
 
-    public override fun toString() = content
+    public override fun toString(): String = content
 }
 
 /**
@@ -153,9 +153,9 @@ public sealed class JsonPrimitive : JsonElement() {
  * whether it should be serialized as one. E.g. `JsonLiteral("42", false)`
  * and `JsonLiteral("42", true)` will be serialized as `42` and `"42"` respectively.
  */
-@Serializable(JsonLiteralSerializer::class) // TODO val for body is workaround for plugin bug
-public class JsonLiteral internal constructor(val body: Any, public val isString: Boolean) : JsonPrimitive() {
-    public override val content = body.toString()
+@Serializable(JsonLiteralSerializer::class)
+public class JsonLiteral internal constructor(body: Any, public val isString: Boolean) : JsonPrimitive() {
+    public override val content: String = body.toString()
     public override val contentOrNull: String = content
 
     /**
@@ -173,7 +173,7 @@ public class JsonLiteral internal constructor(val body: Any, public val isString
      */
     public constructor(string: String) : this(string, true)
 
-    public override fun toString() =
+    public override fun toString(): String =
         if (isString) buildString { printQuoted(content) }
         else content
 
@@ -308,7 +308,7 @@ public data class JsonArray(val content: List<JsonElement>) : JsonElement(), Lis
      * @throws IndexOutOfBoundsException if there is no element with given index
      * @throws JsonException if element has invalid type
      */
-    public fun getPrimitive(index: Int) = content[index] as? JsonPrimitive
+    public fun getPrimitive(index: Int): JsonPrimitive = content[index] as? JsonPrimitive
             ?: unexpectedJson("at $index", "JsonPrimitive")
 
     /**
@@ -316,7 +316,7 @@ public data class JsonArray(val content: List<JsonElement>) : JsonElement(), Lis
      * @throws IndexOutOfBoundsException if there is no element with given index
      * @throws JsonException if element has invalid type
      */
-    public fun getObject(index: Int) = content[index] as? JsonObject
+    public fun getObject(index: Int): JsonObject = content[index] as? JsonObject
             ?: unexpectedJson("at $index", "JsonObject")
 
     /**
@@ -324,23 +324,23 @@ public data class JsonArray(val content: List<JsonElement>) : JsonElement(), Lis
      * @throws IndexOutOfBoundsException if there is no element with given index
      * @throws JsonException if element has invalid type
      */
-    public fun getArray(index: Int) = content[index] as? JsonArray
+    public fun getArray(index: Int): JsonArray = content[index] as? JsonArray
             ?: unexpectedJson("at $index", "JsonArray")
 
     /**
      * Returns [index]-th element of an array as [JsonPrimitive] or `null` if element is missing or has different type
      */
-    public fun getPrimitiveOrNull(index: Int) = content.getOrNull(index) as? JsonPrimitive
+    public fun getPrimitiveOrNull(index: Int): JsonPrimitive? = content.getOrNull(index) as? JsonPrimitive
 
     /**
      * Returns [index]-th element of an array as [JsonObject] or `null` if element is missing or has different type
      */
-    public fun getObjectOrNull(index: Int) = content.getOrNull(index) as? JsonObject
+    public fun getObjectOrNull(index: Int): JsonObject? = content.getOrNull(index) as? JsonObject
 
     /**
      * Returns [index]-th element of an array as [JsonArray] or `null` if element is missing or has different type
      */
-    public fun getArrayOrNull(index: Int) = content.getOrNull(index) as? JsonArray
+    public fun getArrayOrNull(index: Int): JsonArray? = content.getOrNull(index) as? JsonArray
 
     /**
      * Returns [index]-th element of an array as [J]
@@ -354,7 +354,7 @@ public data class JsonArray(val content: List<JsonElement>) : JsonElement(), Lis
      */
     public inline fun <reified J : JsonElement> getAsOrNull(index: Int): J? = content.getOrNull(index) as? J
 
-    public override fun toString() = content.joinToString(prefix = "[", postfix = "]", separator = ",")
+    public override fun toString(): String = content.joinToString(prefix = "[", postfix = "]", separator = ",")
 
     public override fun equals(other: Any?): Boolean = content == other
 
