@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Polymorphic serialization is usually a very complicated and dangerous feature due to the amount of reflection it brings
+Polymorphic serialization is usually a complicated and dangerous feature due to the amount of reflection it brings
 and security concerns you should address in your application
 (like "what if you accidentally load or deserialize a class that is not allowed to be in this part of the program").
 
@@ -22,15 +22,17 @@ compiler plugin can enumerate them automatically (see more in section [Sealed cl
 
 ## Table of contents
 
- * [Basic case](#basic-case)
- * [A bit of customizing](#a-bit-of-customizing)
+ * [Quick start](#quick-start)
+ * [Customization](#customization)
+    + [Class name](#class-name)
+    + [Default serializer](#default-serializer)
  * [Differences for interfaces, abstract and open classes](#differences-for-interfaces-abstract-and-open-classes)
  * [Sealed classes](#sealed-classes)
    + [Sealed classes: before 0.14.0](#sealed-classes-before-0140)
  * [Complex hierarchies with several base classes](#complex-hierarchies-with-several-base-classes)
  * [A word for multi-project applications and library developers](#a-word-for-multi-project-applications-and-library-developers)
 
-## Basic case
+## Quick start
 
 Let's break down a basic case with a simple class hierarchy:
 
@@ -50,8 +52,8 @@ To be able to serialize and deserialize both `StringMessage` and `IntMessage`, w
 ```kotlin
 val messageModule = SerializersModule { // 1
     polymorphic(Message::class) { // 2
-        StringMessage::class with StringMessage.serializer() // 3
-        IntMessage::class with IntMessage.serializer() // 4
+        subclass<StringMessage>() // 3
+        subclass<IntMessage>() // 4
     }
 }
 ```
@@ -90,8 +92,9 @@ Such an approach works on JVM, JS, and Native without reflection (only with `KCl
 
 > Pro tip: to use `Message` without a wrapper, you can pass `PolymorphicSerializer(Message::class)` to parse/stringify.
 
-## A bit of customizing
+## Customization
 
+### Class name
 By default, encoded _type name_ is equal to class' fully-qualified name. To change that, you can annotate the class with `@SerialName` annotation:
 
 ```kotlin
@@ -124,6 +127,35 @@ json.stringify(MessageWrapper.serializer(), MessageWrapper(IntMessage(121)))
 ```
 
 > Note: this form is default and can't be changed for formats that do not support polymorphism natively, e.g., Protobuf.
+
+### Default serializer
+
+It is possible to register a factory of default serializers, e.g. in order to return error object in 
+case of unknown subclasses or to migrate API from one version to another.
+
+The following module allows us to deserialize polymorphically both JSON with `successful_response_v2` and `successful_response_v3`
+ as its type discriminator:
+ 
+```kotlin
+abstract class ApiResponse
+
+@SerialName("successful_response_v3")
+class SuccessfulApiResponse(val code: Int) : ApiResponse()
+
+val responseModule = SerializersModule {
+    polymorphic(ApiResponse::class) {
+        subclass<SuccessfulApiResponse>()
+        default { className -> 
+            if (className == "successful_response_v2") SuccessfulApiResponse.serializer() // 1
+            else null
+        }
+    }
+}
+```
+
+Line `1` implies that objects of type `successful_response_v3` and `successful_response_v2` have the same serialized form,
+though nothing prevents us to return a different serializer here, potentially customized with runtime behaviour, such as
+[JsonParametricSerializer](json_transformations.md#json-parametric-polymorphic-deserialization) .
 
 ## Differences for interfaces, abstract and open classes
 

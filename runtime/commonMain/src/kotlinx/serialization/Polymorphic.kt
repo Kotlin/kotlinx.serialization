@@ -57,12 +57,12 @@ public val PolymorphicClassDescriptor: SerialDescriptor get() = error("This prop
  * ```
  * val requestAndResponseModule = SerializersModule {
  *     polymorphic(BaseRequest::class) {
- *         subclass<RequestA>
- *         subclass<RequestB>
+ *         subclass<RequestA>()
+ *         subclass<RequestB>()
  *     }
  *     polymorphic(BaseResponse::class) {
- *         subclass<ResponseC>
- *         subclass<ResponseD>
+ *         subclass<ResponseC>()
+ *         subclass<ResponseD>()
  *     }
  * }
  * ```

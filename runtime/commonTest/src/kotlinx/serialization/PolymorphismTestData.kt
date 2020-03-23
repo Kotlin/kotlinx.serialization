@@ -4,6 +4,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.SerializersModule
 
 @Serializable
@@ -19,15 +20,16 @@ open class PolyBase(val id: Int) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
-
         other as PolyBase
-
         if (id != other.id) return false
-
         return true
     }
 
 }
+
+// TODO sandwwraith moving this class to the corresponding tests breaks runtime in unexpected ways
+@Serializable
+data class PolyDefault(val json: JsonElement) : PolyBase(-1)
 
 @Serializable
 data class PolyDerived(val s: String) : PolyBase(1)

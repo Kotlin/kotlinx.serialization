@@ -31,4 +31,11 @@ internal class ContextValidator(private val discriminator: String) : SerialModul
             }
         }
     }
+
+    override fun <Base : Any> defaultPolymorphic(
+        baseClass: KClass<Base>,
+        defaultSerializerProvider: (className: String) -> DeserializationStrategy<out Base>?
+    ) {
+        // Nothing here
+    }
 }

@@ -57,8 +57,8 @@ import kotlin.reflect.*
  * ```
  * val abstractContext = SerializersModule {
  *     polymorphic(ProtocolWithAbstractClass::class, ProtocolWithAbstractClass.Message::class) {
- *         ProtocolWithAbstractClass.Message.IntMessage::class with ProtocolWithAbstractClass.Message.IntMessage.serializer()
- *         ProtocolWithAbstractClass.Message.StringMessage::class with ProtocolWithAbstractClass.Message.StringMessage.serializer()
+ *         subclass<ProtocolWithAbstractClass.Message.IntMessage>()
+ *         subclass<ProtocolWithAbstractClass.Message.StringMessage>()
  *         // no need to register ProtocolWithAbstractClass.ErrorMessage
  *     }
  * }
@@ -108,11 +108,11 @@ public class SealedClassSerializer<T : Any>(
             }.mapValues { it.value.value }
     }
 
-    override fun findPolymorphicSerializer(decoder: CompositeDecoder, klassName: String): KSerializer<out T> {
+    override fun findPolymorphicSerializer(decoder: CompositeDecoder, klassName: String): DeserializationStrategy<out T> {
         return serialName2Serializer[klassName] ?: super.findPolymorphicSerializer(decoder, klassName)
     }
 
-    override fun findPolymorphicSerializer(encoder: Encoder, value: T): KSerializer<out T> {
-        return class2Serializer[value::class] ?: super.findPolymorphicSerializer(encoder, value)
+    override fun findPolymorphicSerializer(encoder: Encoder, value: T): SerializationStrategy<T> {
+        return (class2Serializer[value::class] ?: super.findPolymorphicSerializer(encoder, value)).cast()
     }
 }

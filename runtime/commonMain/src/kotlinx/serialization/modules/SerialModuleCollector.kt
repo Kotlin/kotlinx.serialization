@@ -28,6 +28,14 @@ public interface SerialModuleCollector {
         actualClass: KClass<Sub>,
         actualSerializer: KSerializer<Sub>
     )
+
+    /**
+     * Accept a default serializer provider, associated with the [baseClass] for polymorphic serialization.
+     */
+    public fun <Base : Any> defaultPolymorphic(
+        baseClass: KClass<Base>,
+        defaultSerializerProvider: (className: String) -> DeserializationStrategy<out Base>?
+    )
 }
 
 /**

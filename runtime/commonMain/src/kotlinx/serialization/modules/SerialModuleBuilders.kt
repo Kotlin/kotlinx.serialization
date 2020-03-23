@@ -57,6 +57,7 @@ public class SerializersModuleBuilder internal constructor() : SerialModuleColle
     private val class2Serializer: MutableMap<KClass<*>, KSerializer<*>> = hashMapOf()
     private val polyBase2Serializers: MutableMap<KClass<*>, MutableMap<KClass<*>, KSerializer<*>>> = hashMapOf()
     private val polyBase2NamedSerializers: MutableMap<KClass<*>, MutableMap<String, KSerializer<*>>> = hashMapOf()
+    private val polyBase2DefaultProvider: MutableMap<KClass<*>, PolymorphicProvider<*>> = hashMapOf()
 
     /**
      * Adds [serializer] associated with given [kClass] for contextual serialization.
@@ -77,6 +78,13 @@ public class SerializersModuleBuilder internal constructor() : SerialModuleColle
         actualSerializer: KSerializer<Sub>
     ) {
         registerPolymorphicSerializer(baseClass, actualClass, actualSerializer)
+    }
+
+    public override fun <Base : Any> defaultPolymorphic(
+        baseClass: KClass<Base>,
+        defaultSerializerProvider: (className: String) -> DeserializationStrategy<out Base>?
+    ) {
+        registerDefaultPolymorphicSerializer(baseClass, defaultSerializerProvider, false)
     }
 
     /**
@@ -177,6 +185,19 @@ public class SerializersModuleBuilder internal constructor() : SerialModuleColle
         class2Serializer[forClass] = serializer
     }
 
+    @JvmName("registerDefaultPolymorphicSerializer") // Don't mangle method name for prettier stack traces
+    internal fun <Base : Any> registerDefaultPolymorphicSerializer(
+        baseClass: KClass<Base>,
+        defaultSerializerProvider: (className: String) -> DeserializationStrategy<out Base>?,
+        allowOverwrite: Boolean
+    ) {
+        val previous = polyBase2DefaultProvider[baseClass]
+        if (previous != null && previous != defaultSerializerProvider && !allowOverwrite) {
+            throw IllegalArgumentException("Default serializers provider for class $baseClass is already registered: $previous")
+        }
+        polyBase2DefaultProvider[baseClass] = defaultSerializerProvider
+    }
+
     @JvmName("registerPolymorphicSerializer") // Don't mangle method name for prettier stack traces
     internal fun <Base : Any, Sub : Base> registerPolymorphicSerializer(
         baseClass: KClass<Base>,
@@ -222,5 +243,5 @@ public class SerializersModuleBuilder internal constructor() : SerialModuleColle
     }
 
     internal fun build(): SerialModule =
-        SerialModuleImpl(class2Serializer, polyBase2Serializers, polyBase2NamedSerializers)
+        SerialModuleImpl(class2Serializer, polyBase2Serializers, polyBase2NamedSerializers, polyBase2DefaultProvider)
 }

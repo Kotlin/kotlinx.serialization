@@ -6,6 +6,7 @@ package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
+import kotlinx.serialization.json.*
 import kotlin.reflect.*
 
 /**
@@ -20,6 +21,7 @@ public class PolymorphicModuleBuilder<Base : Any> internal constructor(
     private val baseSerializer: KSerializer<Base>? = null
 ) {
     private val subclasses: MutableList<Pair<KClass<out Base>, KSerializer<out Base>>> = mutableListOf()
+    private var defaultSerializerProvider: ((String) -> DeserializationStrategy<out Base>?)? = null
 
     /**
      * Adds a [subclass] [serializer] to the resulting module under the initial [baseClass].
@@ -60,6 +62,22 @@ public class PolymorphicModuleBuilder<Base : Any> internal constructor(
     public inline fun <reified T : Base> subclass(): Unit = addSubclass(T::class, serializer())
 
     /**
+     * Registers serializer provider that will be invoked if no polymorphic serializer is present.
+     * [defaultSerializerProvider] can be stateful and lookup a serializer for the missing type dynamically.
+     *
+     * Typically, if the class is not registered in advance, it is not possible to know the structure of the unknown
+     * type and have a precise serializer, so the default serializer has limited capabilities.
+     * To have a structural access to the unknown data, it is recommended to use [JsonTransformingSerializer]
+     * or [JsonParametricSerializer] classes.
+     */
+    public fun default(defaultSerializerProvider: (className: String) -> DeserializationStrategy<out Base>?) {
+        require(this.defaultSerializerProvider == null) {
+            "Default serializer provider is already registered for class $baseClass: ${this.defaultSerializerProvider}"
+        }
+        this.defaultSerializerProvider = defaultSerializerProvider
+    }
+
+    /**
      * @see addSubclass
      */
     public infix fun <T : Base> KClass<T>.with(serializer: KSerializer<T>): Unit = addSubclass(this, serializer)
@@ -73,6 +91,10 @@ public class PolymorphicModuleBuilder<Base : Any> internal constructor(
                 kclass as KClass<Base>,
                 serializer.cast()
             )
+        }
+
+        if (defaultSerializerProvider != null) {
+            builder.registerDefaultPolymorphicSerializer(baseClass, defaultSerializerProvider!!, false)
         }
     }
 
