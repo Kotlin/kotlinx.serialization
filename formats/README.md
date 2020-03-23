@@ -19,21 +19,21 @@ You can learn about "Human-Optimized Config Object Notation" or HOCON from libra
 ## ProtoBuf
 
 * Artifact id: `kotlinx-serialization-protobuf`
-* Since version: 0.14.1
+* Since version: 0.20.0
 * Platform: all supported platforms
 * Status: experimental
 
 ## CBOR
 
 * Artifact id: `kotlinx-serialization-cbor`
-* Since version: 0.14.1
+* Since version: 0.20.0
 * Platform: all supported platforms
 * Status: experimental
 
 ## Properties
 
 * Artifact id: `kotlinx-serialization-properties`
-* Since version: 0.14.1
+* Since version: 0.20.0
 * Platform: all supported platforms
 * Status: experimental
 
