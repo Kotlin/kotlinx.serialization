@@ -10,8 +10,7 @@ import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
-import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintInt
-import kotlinx.serialization.protobuf.ProtoBuf.Varint.decodeSignedVarintLong
+import kotlinx.serialization.protobuf.internal.*
 import kotlin.jvm.*
 
 /**
@@ -123,33 +122,35 @@ public class ProtoBuf(
     override val context: SerialModule = EmptyModule
 ) : BinaryFormat {
 
-    internal open inner class ProtobufWriter(private val encoder: ProtobufEncoder) : TaggedEncoder<ProtoDesc>() {
+    internal open inner class ProtobufEncoder(private val writer: ProtobufWriter) : TaggedEncoder<ProtoDesc>() {
         public override val context
             get() = this@ProtoBuf.context
 
         override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = encodeDefaults
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder = when (descriptor.kind) {
-            StructureKind.LIST -> RepeatedWriter(encoder, currentTag)
-            StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> ObjectWriter(currentTagOrNull, encoder)
-            StructureKind.MAP -> MapRepeatedWriter(currentTagOrNull, encoder)
+            StructureKind.LIST -> RepeatedEncoder(writer, currentTag)
+            StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> ObjectEncoder(currentTagOrNull, writer)
+            StructureKind.MAP -> MapRepeatedEncoder(currentTag, writer)
             else -> throw SerializationException("Primitives are not supported at top-level")
         }
 
-        override fun encodeTaggedInt(tag: ProtoDesc, value: Int) = encoder.writeInt(value, tag.protoId, tag.numberType)
-        override fun encodeTaggedByte(tag: ProtoDesc, value: Byte) = encoder.writeInt(value.toInt(), tag.protoId, tag.numberType)
-        override fun encodeTaggedShort(tag: ProtoDesc, value: Short) = encoder.writeInt(value.toInt(), tag.protoId, tag.numberType)
-        override fun encodeTaggedLong(tag: ProtoDesc, value: Long) = encoder.writeLong(value, tag.protoId, tag.numberType)
-        override fun encodeTaggedFloat(tag: ProtoDesc, value: Float) = encoder.writeFloat(value, tag.protoId)
-        override fun encodeTaggedDouble(tag: ProtoDesc, value: Double) = encoder.writeDouble(value, tag.protoId)
-        override fun encodeTaggedBoolean(tag: ProtoDesc, value: Boolean) = encoder.writeInt(if (value) 1 else 0, tag.protoId, ProtoNumberType.DEFAULT)
-        override fun encodeTaggedChar(tag: ProtoDesc, value: Char) = encoder.writeInt(value.toInt(), tag.protoId, tag.numberType)
-        override fun encodeTaggedString(tag: ProtoDesc, value: String) = encoder.writeString(value, tag.protoId)
+        override fun encodeTaggedInt(tag: ProtoDesc, value: Int) = writer.writeInt(value, tag.protoId, tag.numberType)
+        override fun encodeTaggedByte(tag: ProtoDesc, value: Byte) = writer.writeInt(value.toInt(), tag.protoId, tag.numberType)
+        override fun encodeTaggedShort(tag: ProtoDesc, value: Short) = writer.writeInt(value.toInt(), tag.protoId, tag.numberType)
+        override fun encodeTaggedLong(tag: ProtoDesc, value: Long) = writer.writeLong(value, tag.protoId, tag.numberType)
+
+        override fun encodeTaggedFloat(tag: ProtoDesc, value: Float) = writer.writeFloat(value, tag.protoId)
+        override fun encodeTaggedDouble(tag: ProtoDesc, value: Double) = writer.writeDouble(value, tag.protoId)
+        override fun encodeTaggedBoolean(tag: ProtoDesc, value: Boolean) = writer.writeInt(if (value) 1 else 0, tag.protoId, ProtoNumberType.DEFAULT)
+        override fun encodeTaggedChar(tag: ProtoDesc, value: Char) = writer.writeInt(value.toInt(), tag.protoId, tag.numberType)
+
+        override fun encodeTaggedString(tag: ProtoDesc, value: String) = writer.writeString(value, tag.protoId)
         override fun encodeTaggedEnum(
             tag: ProtoDesc,
             enumDescription: SerialDescriptor,
             ordinal: Int
-        ): Unit = encoder.writeInt(
+        ): Unit = writer.writeInt(
             extractProtoId(enumDescription, ordinal, zeroBasedDefault = true),
             tag.protoId,
             ProtoNumberType.DEFAULT
@@ -157,12 +158,11 @@ public class ProtoBuf(
 
         override fun SerialDescriptor.getTag(index: Int) = extractParameters(index)
 
-        @Suppress("UNCHECKED_CAST", "NAME_SHADOWING")
         override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) = when {
             serializer is MapLikeSerializer<*, *, *, *> -> {
                 serializeMap(serializer as SerializationStrategy<T>, value)
             }
-            serializer.descriptor == ByteArraySerializer().descriptor -> encoder.writeBytes(
+            serializer.descriptor == ByteArraySerializer().descriptor -> writer.writeBytes(
                 value as ByteArray,
                 popTag().protoId
             )
@@ -178,94 +178,40 @@ public class ProtoBuf(
         }
     }
 
-    internal open inner class ObjectWriter(
+    internal open inner class ObjectEncoder(
         val parentTag: ProtoDesc?,
-        private val parentEncoder: ProtobufEncoder,
+        private val parentWriter: ProtobufWriter,
         private val stream: ByteArrayOutput = ByteArrayOutput()
-    ) : ProtobufWriter(ProtobufEncoder(stream)) {
+    ) : ProtobufEncoder(ProtobufWriter(stream)) {
         override fun endEncode(descriptor: SerialDescriptor) {
             if (parentTag != null) {
-                parentEncoder.writeBytes(stream.toByteArray(), parentTag.protoId)
+                parentWriter.writeBytes(stream.toByteArray(), parentTag.protoId)
             } else {
-                parentEncoder.out.write(stream.toByteArray())
+                parentWriter.out.write(stream.toByteArray())
             }
         }
     }
 
-    internal inner class MapRepeatedWriter(parentTag: ProtoDesc?, parentEncoder: ProtobufEncoder) :
-        ObjectWriter(parentTag, parentEncoder) {
+    internal inner class MapRepeatedEncoder(
+        parentTag: ProtoDesc,
+        parentWriter: ProtobufWriter
+    ) : ObjectEncoder(parentTag, parentWriter) {
         override fun SerialDescriptor.getTag(index: Int): ProtoDesc =
-            if (index % 2 == 0) ProtoDesc(1, (parentTag?.numberType ?: ProtoNumberType.DEFAULT))
-            else ProtoDesc(2, (parentTag?.numberType ?: ProtoNumberType.DEFAULT))
+            if (index % 2 == 0) ProtoDesc(1, (parentTag!!.numberType))
+            else ProtoDesc(2, (parentTag!!.numberType))
     }
 
-    internal inner class RepeatedWriter(
-        encoder: ProtobufEncoder,
+    internal inner class RepeatedEncoder(
+        writer: ProtobufWriter,
         @JvmField val curTag: ProtoDesc
-    ) : ProtobufWriter(encoder) {
+    ) : ProtobufEncoder(writer) {
         override fun SerialDescriptor.getTag(index: Int) = curTag
     }
 
-    internal class ProtobufEncoder(val out: ByteArrayOutput) {
-
-        fun writeBytes(bytes: ByteArray, tag: Int) {
-            out.encode32((tag shl 3) or SIZE_DELIMITED)
-            out.encode32(bytes.size)
-            out.write(bytes)
-        }
-
-        fun writeInt(value: Int, tag: Int, format: ProtoNumberType) {
-            val wireType = if (format == ProtoNumberType.FIXED) i32 else VARINT
-            out.encode32((tag shl 3) or wireType)
-            out.encode32(value, format)
-        }
-
-        fun writeLong(value: Long, tag: Int, format: ProtoNumberType) {
-            val wireType = if (format == ProtoNumberType.FIXED) i64 else VARINT
-            out.encode32((tag shl 3) or wireType)
-            out.encode64(value, format)
-        }
-
-        fun writeString(value: String, tag: Int) {
-            val bytes = value.encodeToByteArray()
-            writeBytes(bytes, tag)
-        }
-
-        fun writeDouble(value: Double, tag: Int) {
-            out.encode32((tag shl 3) or i64)
-            out.writeLong(value.reverseBytes())
-        }
-
-        fun writeFloat(value: Float, tag: Int) {
-            out.encode32((tag shl 3) or i32)
-            out.writeInt(value.reverseBytes())
-        }
-
-        private fun Output.encode32(
-            number: Int,
-            format: ProtoNumberType = ProtoNumberType.DEFAULT
-        ) {
-            when (format) {
-                ProtoNumberType.FIXED -> out.writeInt(number.reverseBytes())
-                ProtoNumberType.DEFAULT -> encodeVarint64(number.toLong())
-                ProtoNumberType.SIGNED -> encodeVarint32(((number shl 1) xor (number shr 31)))
-            }
-        }
-
-        private fun Output.encode64(number: Long, format: ProtoNumberType = ProtoNumberType.DEFAULT) {
-            when (format) {
-                ProtoNumberType.FIXED -> out.writeLong(number.reverseBytes())
-                ProtoNumberType.DEFAULT -> encodeVarint64(number)
-                ProtoNumberType.SIGNED -> encodeVarint64((number shl 1) xor (number shr 63))
-            }
-        }
-    }
-
-    private open inner class ProtobufReader(
-        @JvmField val decoder: ProtobufDecoder,
+    private open inner class ProtobufDecoder(
+        @JvmField val reader: ProtobufReader,
         descriptor: SerialDescriptor
     ) : TaggedDecoder<ProtoDesc>() {
-
         override val context: SerialModule
             get() = this@ProtoBuf.context
 
@@ -339,10 +285,10 @@ public class ProtoBuf(
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
             when (descriptor.kind) {
-                StructureKind.LIST -> RepeatedReader(decoder, currentTag, descriptor)
+                StructureKind.LIST -> RepeatedDecoder(reader, currentTag, descriptor)
                 StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind ->
-                    ProtobufReader(makeDelimited(decoder, currentTagOrNull), descriptor)
-                StructureKind.MAP -> MapEntryReader(makeDelimited(decoder, currentTagOrNull), currentTagOrNull, descriptor)
+                    ProtobufDecoder(makeDelimited(reader, currentTagOrNull), descriptor)
+                StructureKind.MAP -> MapEntryReader(makeDelimited(reader, currentTagOrNull), currentTagOrNull, descriptor)
                 else -> throw SerializationException("Primitives are not supported at top-level")
             }
 
@@ -350,25 +296,17 @@ public class ProtoBuf(
             // Nothing
         }
 
-        override fun decodeTaggedBoolean(tag: ProtoDesc): Boolean = when (val i = decoder.nextInt(ProtoNumberType.DEFAULT)) {
-            0 -> false
-            1 -> true
-            else -> throw ProtobufDecodingException("Expected boolean value (0 or 1), found $i")
-        }
-
-        override fun decodeTaggedByte(tag: ProtoDesc): Byte = decoder.nextInt(tag.numberType).toByte()
-        override fun decodeTaggedShort(tag: ProtoDesc): Short = decoder.nextInt(tag.numberType).toShort()
-
-        override fun decodeTaggedInt(tag: ProtoDesc): Int {
-            return decoder.nextInt(tag.numberType)
-        }
-        override fun decodeTaggedLong(tag: ProtoDesc): Long = decoder.nextLong(tag.numberType)
-        override fun decodeTaggedFloat(tag: ProtoDesc): Float = decoder.nextFloat()
-        override fun decodeTaggedDouble(tag: ProtoDesc): Double = decoder.nextDouble()
-        override fun decodeTaggedChar(tag: ProtoDesc): Char = decoder.nextInt(tag.numberType).toChar()
-        override fun decodeTaggedString(tag: ProtoDesc): String = decoder.nextString()
+        override fun decodeTaggedBoolean(tag: ProtoDesc): Boolean = reader.nextBoolean()
+        override fun decodeTaggedByte(tag: ProtoDesc): Byte = reader.nextInt(tag.numberType).toByte()
+        override fun decodeTaggedShort(tag: ProtoDesc): Short = reader.nextInt(tag.numberType).toShort()
+        override fun decodeTaggedInt(tag: ProtoDesc): Int = reader.nextInt(tag.numberType)
+        override fun decodeTaggedLong(tag: ProtoDesc): Long = reader.nextLong(tag.numberType)
+        override fun decodeTaggedFloat(tag: ProtoDesc): Float = reader.nextFloat()
+        override fun decodeTaggedDouble(tag: ProtoDesc): Double = reader.nextDouble()
+        override fun decodeTaggedChar(tag: ProtoDesc): Char = reader.nextInt(tag.numberType).toChar()
+        override fun decodeTaggedString(tag: ProtoDesc): String = reader.nextString()
         override fun decodeTaggedEnum(tag: ProtoDesc, enumDescription: SerialDescriptor): Int =
-            findIndexByTag(enumDescription, decoder.nextInt(ProtoNumberType.DEFAULT))
+            findIndexByTag(enumDescription, reader.nextInt(ProtoNumberType.DEFAULT))
 
         @Suppress("UNCHECKED_CAST")
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T = when {
@@ -399,11 +337,11 @@ public class ProtoBuf(
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             while (true) {
-                if (decoder.currentId == -1) // EOF
+                if (reader.currentId == -1) // EOF
                     return READ_DONE
-                val index = getIndexByTag(decoder.currentId)
+                val index = getIndexByTag(reader.currentId)
                 if (index == -1) { // not found
-                    decoder.skipElement()
+                    reader.skipElement()
                 } else { // not found
                     return index
                 }
@@ -411,188 +349,35 @@ public class ProtoBuf(
         }
     }
 
-    private inner class RepeatedReader(
-        decoder: ProtobufDecoder,
+    private inner class RepeatedDecoder(
+        decoder: ProtobufReader,
         private val targetTag: ProtoDesc,
         descriptor: SerialDescriptor
-    ) : ProtobufReader(decoder, descriptor) {
+    ) : ProtobufDecoder(decoder, descriptor) {
         private var index = -1
 
         override fun decodeElementIndex(descriptor: SerialDescriptor) =
-            if (decoder.currentId == targetTag.protoId) ++index else READ_DONE
+            if (reader.currentId == targetTag.protoId) ++index else READ_DONE
 
         override fun SerialDescriptor.getTag(index: Int): ProtoDesc = targetTag
     }
 
     private inner class MapEntryReader(
-        decoder: ProtobufDecoder,
+        decoder: ProtobufReader,
         @JvmField val parentTag: ProtoDesc?,
         descriptor: SerialDescriptor
-    ) : ProtobufReader(decoder, descriptor) {
+    ) : ProtobufDecoder(decoder, descriptor) {
         override fun SerialDescriptor.getTag(index: Int): ProtoDesc =
             if (index % 2 == 0) ProtoDesc(1, (parentTag?.numberType ?: ProtoNumberType.DEFAULT))
             else ProtoDesc(2, (parentTag?.numberType ?: ProtoNumberType.DEFAULT))
     }
 
-    internal class ProtobufDecoder(private val input: ByteArrayInput) {
-        @JvmField
-        public var currentId = -1
-        @JvmField
-        public var currentType = -1
-
-        init {
-            readTag()
-        }
-
-        private fun readTag() {
-            val header = decode32(eofAllowed = true)
-            if (header == -1) {
-                currentId = -1
-                currentType = -1
-            } else {
-                currentId = header ushr 3
-                currentType = header and 0b111
-            }
-        }
-
-        fun skipElement() {
-            when (currentType) {
-                VARINT -> nextInt(ProtoNumberType.DEFAULT)
-                i64 -> nextLong(ProtoNumberType.FIXED)
-                SIZE_DELIMITED -> nextObject()
-                i32 -> nextInt(ProtoNumberType.FIXED)
-                else -> throw ProtobufDecodingException("Unsupported start group or end group wire type")
-            }
-        }
-
-        @Suppress("NOTHING_TO_INLINE")
-        private inline fun assertWireType(expected: Int) {
-            if (currentType != expected) throw ProtobufDecodingException("Expected wire type $expected, but found $currentType")
-        }
-
-        fun nextObject(): ByteArray {
-            assertWireType(SIZE_DELIMITED)
-            val length = decode32()
-            check(length >= 0)
-            val result = input.readExactNBytes(length)
-            readTag()
-            return result
-        }
-
-        private fun Input.readExactNBytes(bytes: Int): ByteArray {
-            val array = ByteArray(bytes)
-            var read = 0
-            while (read < bytes) {
-                val i = this.read(array, read, bytes - read)
-                if (i == -1) error("Unexpected EOF")
-                read += i
-            }
-            return array
-        }
-
-        fun nextInt(format: ProtoNumberType): Int {
-            val wireType = if (format == ProtoNumberType.FIXED) i32 else VARINT
-            assertWireType(wireType)
-            val result = decode32(format)
-            readTag()
-            return result
-        }
-
-        fun nextLong(format: ProtoNumberType): Long {
-            val wireType = if (format == ProtoNumberType.FIXED) i64 else VARINT
-            assertWireType(wireType)
-            val result = decode64(format)
-            readTag()
-            return result
-        }
-
-        fun nextFloat(): Float {
-            assertWireType(i32)
-            val result = Float.fromBits(readIntLittleEndian())
-            readTag()
-            return result
-        }
-
-        private fun readIntLittleEndian(): Int {
-            // TODO this could be optimized by extracting method to the IS
-            var result = 0
-            for (i in 0..3) {
-                val byte = input.read() and 0x000000FF
-                result = result or (byte shl (i * 8))
-            }
-            return result
-        }
-
-        private fun readLongLittleEndian(): Long {
-            // TODO this could be optimized by extracting method to the IS
-            var result = 0L
-            for (i in 0..7) {
-                val byte = (input.read() and 0x000000FF).toLong()
-                result = result or (byte shl (i * 8))
-            }
-            return result
-        }
-
-        fun nextDouble(): Double {
-            assertWireType(i64)
-            val result = Double.fromBits(readLongLittleEndian())
-            readTag()
-            return result
-        }
-
-        fun nextString(): String {
-            assertWireType(SIZE_DELIMITED)
-            val length = decode32()
-            check(length >= 0)
-            val result = input.readString(length)
-            readTag()
-            return result
-        }
-
-        private fun decode32(format: ProtoNumberType = ProtoNumberType.DEFAULT, eofAllowed: Boolean = false): Int = when (format) {
-            ProtoNumberType.DEFAULT -> input.readVarint64(eofAllowed).toInt()
-            ProtoNumberType.SIGNED -> decodeSignedVarintInt(input)
-            ProtoNumberType.FIXED -> readIntLittleEndian()
-        }
-
-        private fun decode64(format: ProtoNumberType = ProtoNumberType.DEFAULT): Long = when (format) {
-            ProtoNumberType.DEFAULT -> input.readVarint64(false)
-            ProtoNumberType.SIGNED -> decodeSignedVarintLong(input)
-            ProtoNumberType.FIXED -> readLongLittleEndian()
-        }
-    }
-
-    /**
-     *  Source for all varint operations:
-     *  https://github.com/addthis/stream-lib/blob/master/src/main/java/com/clearspring/analytics/util/Varint.java
-     */
-    internal object Varint {
-        internal fun decodeSignedVarintInt(input: Input): Int {
-            val raw = input.readVarint32()
-            val temp = raw shl 31 shr 31 xor raw shr 1
-            // This extra step lets us deal with the largest signed values by treating
-            // negative results from read unsigned methods as like unsigned values.
-            // Must re-flip the top bit if the original read value had it set.
-            return temp xor (raw and (1 shl 31))
-        }
-
-        internal fun decodeSignedVarintLong(input: Input): Long {
-            val raw = input.readVarint64(false)
-            val temp = raw shl 63 shr 63 xor raw shr 1
-            // This extra step lets us deal with the largest signed values by treating
-            // negative results from read unsigned methods as like unsigned values
-            // Must re-flip the top bit if the original read value had it set.
-            return temp xor (raw and (1L shl 63))
-
-        }
-    }
-
     public companion object Default : BinaryFormat by ProtoBuf() {
-        private fun makeDelimited(decoder: ProtobufDecoder, parentTag: ProtoDesc?): ProtobufDecoder {
-            if (parentTag == null) return decoder
+        private fun makeDelimited(decoder2: ProtobufReader, parentTag: ProtoDesc?): ProtobufReader {
+            if (parentTag == null) return decoder2
             // TODO use array slice instead of array copy
-            val bytes = decoder.nextObject()
-            return ProtobufDecoder(ByteArrayInput(bytes))
+            val bytes = decoder2.nextObject()
+            return ProtobufReader(ByteArrayInput(bytes))
         }
 
         internal const val VARINT = 0
@@ -602,19 +387,15 @@ public class ProtoBuf(
     }
 
     override fun <T> dump(serializer: SerializationStrategy<T>, value: T): ByteArray {
-        val encoder = ByteArrayOutput()
-        val dumper = ProtobufWriter(ProtobufEncoder(encoder))
-        dumper.encode(serializer, value)
-        return encoder.toByteArray()
+        val output = ByteArrayOutput()
+        val encoder = ProtobufEncoder(ProtobufWriter(output))
+        encoder.encode(serializer, value)
+        return output.toByteArray()
     }
 
     override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
-        val stream = ByteArrayInput(bytes)
-        val reader = ProtobufReader(ProtobufDecoder(stream), deserializer.descriptor)
-        return reader.decode(deserializer)
+        val input = ByteArrayInput(bytes)
+        val decoder = ProtobufDecoder(ProtobufReader(input), deserializer.descriptor)
+        return decoder.decode(deserializer)
     }
 }
-
-private fun Float.reverseBytes(): Int = toRawBits().reverseBytes()
-
-private fun Double.reverseBytes(): Long = toRawBits().reverseBytes()
