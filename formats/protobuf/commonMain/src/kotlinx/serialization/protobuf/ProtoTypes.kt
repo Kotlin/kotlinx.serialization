@@ -5,6 +5,7 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
+import kotlin.jvm.*
 
 private const val MASK = Int.MAX_VALUE.toLong() shl 32
 
@@ -19,7 +20,7 @@ private const val MASK = Int.MAX_VALUE.toLong() shl 32
  * See [https://developers.google.com/protocol-buffers/docs/proto#scalar]
  */
 @Suppress("NO_EXPLICIT_VISIBILITY_IN_API_MODE_WARNING")
-public enum class ProtoNumberType(internal val signature: Long) {
+public enum class ProtoNumberType(@JvmField internal val signature: Long) {
     DEFAULT(1L shl 32),
     SIGNED(2L shl 32),
     FIXED(3L shl 32);
@@ -46,10 +47,10 @@ internal inline fun ProtoDesc(protoId: Int, type: ProtoNumberType): ProtoDesc {
 
 internal inline val ProtoDesc.protoId: Int get() = (this and Int.MAX_VALUE.toLong()).toInt()
 
-internal val ProtoDesc.numberType: ProtoNumberType get() {
-    if (ProtoNumberType.DEFAULT.equalTo(this)) return ProtoNumberType.DEFAULT
-    if (ProtoNumberType.SIGNED.equalTo(this)) return ProtoNumberType.SIGNED
-    return ProtoNumberType.FIXED
+internal val ProtoDesc.numberType: ProtoNumberType get() = when(this and MASK) {
+    ProtoNumberType.DEFAULT.signature -> ProtoNumberType.DEFAULT
+    ProtoNumberType.SIGNED.signature -> ProtoNumberType.SIGNED
+    else -> ProtoNumberType.FIXED
 }
 
 internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
