@@ -7,16 +7,16 @@ package kotlinx.io
 import kotlinx.serialization.*
 
 @InternalSerializationApi
-abstract class Input {
-    abstract fun read(): Int
-    abstract fun read(b: ByteArray, offset: Int, length: Int): Int
-    abstract fun readString(length: Int): String
-    abstract fun readVarint32(): Int
-    abstract fun readVarint64(eofAllowed: Boolean): Long
+public abstract class Input {
+    public abstract fun read(): Int
+    public abstract fun read(b: ByteArray, offset: Int, length: Int): Int
+    public abstract fun readString(length: Int): String
+    public abstract fun readVarint32(): Int
+    public abstract fun readVarint64(eofAllowed: Boolean): Long
 }
 
 @InternalSerializationApi
-class ByteArrayInput(private var array: ByteArray) : Input() {
+public class ByteArrayInput(private var array: ByteArray) : Input() {
 
     private var position: Int = 0
 
@@ -56,7 +56,7 @@ class ByteArrayInput(private var array: ByteArray) : Input() {
             error("Unexpected EOF")
         }
 
-        // Fast-path: single and two byte values
+        // Fast-path: unrolled loop for single and two byte values
         var currentPosition = position
         var result = array[currentPosition++].toInt()
         if (result >= 0) {
@@ -127,29 +127,20 @@ class ByteArrayInput(private var array: ByteArray) : Input() {
 
 
 @InternalSerializationApi
-abstract class Output {
-    fun write(buffer: ByteArray) = write(buffer, 0, buffer.size)
-    abstract fun write(buffer: ByteArray, offset: Int, count: Int)
-    abstract fun write(byteValue: Int)
-    abstract fun writeInt(intValue: Int)
-    abstract fun writeLong(longValue: Long)
-    abstract fun encodeVarint32(value: Int)
-    abstract fun encodeVarint64(value: Long)
+public abstract class Output {
+    public fun write(buffer: ByteArray): Unit = write(buffer, 0, buffer.size)
+    public abstract fun write(buffer: ByteArray, offset: Int, count: Int)
+    public abstract fun write(byteValue: Int)
+    public abstract fun writeInt(intValue: Int)
+    public abstract fun writeLong(longValue: Long)
+    public abstract fun encodeVarint32(value: Int)
+    public abstract fun encodeVarint64(value: Long)
 }
 
 @InternalSerializationApi
-class ByteArrayOutput : Output {
-    private var array: ByteArray
+public class ByteArrayOutput() : Output() {
+    private var array: ByteArray = ByteArray(32)
     private var position: Int = 0
-
-    constructor() : super() {
-        array = ByteArray(32)
-    }
-
-    constructor(size: Int) : super() {
-        require(size >= 0)
-        array = ByteArray(size)
-    }
 
     private fun ensureCapacity(elementsToAppend: Int) {
         if (position + elementsToAppend <= array.size) {
@@ -160,11 +151,11 @@ class ByteArrayOutput : Output {
         array = newArray
     }
 
-    fun size(): Int {
+    public fun size(): Int {
         return position
     }
 
-    fun toByteArray(): ByteArray {
+    public fun toByteArray(): ByteArray {
         val newArray = ByteArray(position)
         array.copyInto(newArray, startIndex = 0, endIndex = this.position)
         return newArray
@@ -212,12 +203,12 @@ class ByteArrayOutput : Output {
 
     override fun encodeVarint32(value: Int) {
         ensureCapacity(5)
-        // Single-byte fast-path
+        // Fast-path: unrolled loop for single byte
         if (value and 0x7F.inv() == 0) {
             array[position++] = value.toByte()
             return
         }
-        // Two-bytes fast-path
+        // Fast-path: unrolled loop for two bytes
         var current = value
         array[position++] = (current or 0x80).toByte()
         current = current ushr 7

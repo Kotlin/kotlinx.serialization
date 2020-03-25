@@ -264,51 +264,77 @@ public class ProtoBuf(
         }
     }
 
-    private open inner class ProtobufReader(@JvmField val decoder: ProtobufDecoder) : TaggedDecoder<ProtoDesc>() {
+    private open inner class ProtobufReader(
+        @JvmField val decoder: ProtobufDecoder,
+        descriptor: SerialDescriptor
+    ) : TaggedDecoder<ProtoDesc>() {
+
         override val context: SerialModule
             get() = this@ProtoBuf.context
 
         private var indexCache: IntArray? = null
         private var sparseIndexCache: MutableMap<Int, Int>? = null
 
-        private fun getIndexByTag(descriptor: SerialDescriptor, serialId: Int, zeroBasedDefault: Boolean): Int {
-            if (serialId < 32) {
-                // Fast path
-                var cache = indexCache
-                if (cache == null) {
-                    cache = IntArray(32) { -2 }
-                    indexCache = cache
-                }
-                if (cache[serialId] == -2) {
-                    cache[serialId] = findIndexByTag(descriptor, serialId, zeroBasedDefault)
-                }
-                return cache[serialId]
-            }
+        init {
+            populateCache(descriptor)
+        }
 
-            return getIndexByTagSlowPath(serialId, descriptor, zeroBasedDefault)
+        public fun populateCache(descriptor: SerialDescriptor) {
+            val elements = descriptor.elementsCount
+            if (elements < 32) {
+                /*
+                 * If we have reasonably small count of elements, try to build sequential
+                 * array for the fast-path. Fast-path implies that elements are not marked with @ProtoId
+                 * explicitly or are monotonic and incremental (maybe, 1-indexed)
+                 */
+                val cache = IntArray(elements + 1)
+                for (i in 0 until elements) {
+                    val protoId = extractProtoId(descriptor, i, false)
+                    if (protoId <= elements) {
+                        cache[protoId] = i
+                    } else {
+                        return populateCacheMap(descriptor, elements)
+                    }
+                }
+                indexCache = cache
+            } else {
+                populateCacheMap(descriptor, elements)
+            }
+        }
+
+        private fun populateCacheMap(descriptor: SerialDescriptor, elements: Int) {
+            val map = HashMap<Int, Int>(elements)
+            for (i in 0 until elements) {
+                map[extractProtoId(descriptor, i, false)] = i
+            }
+            sparseIndexCache = map
+        }
+
+        private fun getIndexByTag(protoTag: Int): Int {
+            val array = indexCache
+            if (array != null) {
+                return array.getOrElse(protoTag) { -1 }
+            }
+            return getIndexByTagSlowPath(protoTag)
         }
 
         private fun getIndexByTagSlowPath(
-            serialId: Int,
-            descriptor: SerialDescriptor,
-            zeroBasedDefault: Boolean
-        ): Int {
-            var cache = sparseIndexCache
-            if (cache == null) {
-                cache = mutableMapOf()
-                sparseIndexCache = cache
+            protoTag: Int
+        ): Int = sparseIndexCache!!.getOrElse(protoTag) { -1 }
+
+        private fun findIndexByTag(descriptor: SerialDescriptor, protoTag: Int): Int {
+            // Fast-path: tags are incremental, 1-based
+            if (protoTag < descriptor.elementsCount) {
+                val protoId = extractProtoId(descriptor, protoTag, true)
+                if (protoId == protoTag) return protoTag
             }
-            return cache.getOrPut(serialId) { findIndexByTag(descriptor, serialId, zeroBasedDefault) }
+            return findIndexByTagSlowPath(descriptor, protoTag)
         }
 
-        private fun findIndexByTag(desc: SerialDescriptor, serialId: Int, zeroBasedDefault: Boolean = false): Int {
+        private fun findIndexByTagSlowPath(desc: SerialDescriptor, protoTag: Int): Int {
             for (i in 0 until desc.elementsCount) {
-                val protoId = extractProtoId(
-                    desc,
-                    i,
-                    zeroBasedDefault
-                )
-                if (protoId == serialId) return i
+                val protoId = extractProtoId(desc, i, true)
+                if (protoId == protoTag) return i
             }
 
             return -1
@@ -316,10 +342,10 @@ public class ProtoBuf(
 
         override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder =
             when (descriptor.kind) {
-                StructureKind.LIST -> RepeatedReader(decoder, currentTag)
+                StructureKind.LIST -> RepeatedReader(decoder, currentTag, descriptor)
                 StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind ->
-                    ProtobufReader(makeDelimited(decoder, currentTagOrNull))
-                StructureKind.MAP -> MapEntryReader(makeDelimited(decoder, currentTagOrNull), currentTagOrNull)
+                    ProtobufReader(makeDelimited(decoder, currentTagOrNull), descriptor)
+                StructureKind.MAP -> MapEntryReader(makeDelimited(decoder, currentTagOrNull), currentTagOrNull, descriptor)
                 else -> throw SerializationException("Primitives are not supported at top-level")
             }
 
@@ -345,7 +371,7 @@ public class ProtoBuf(
         override fun decodeTaggedChar(tag: ProtoDesc): Char = decoder.nextInt(tag.numberType).toChar()
         override fun decodeTaggedString(tag: ProtoDesc): String = decoder.nextString()
         override fun decodeTaggedEnum(tag: ProtoDesc, enumDescription: SerialDescriptor): Int =
-            findIndexByTag(enumDescription, decoder.nextInt(ProtoNumberType.DEFAULT), zeroBasedDefault = true)
+            findIndexByTag(enumDescription, decoder.nextInt(ProtoNumberType.DEFAULT))
 
         @Suppress("UNCHECKED_CAST")
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T = when {
@@ -371,7 +397,7 @@ public class ProtoBuf(
             while (true) {
                 if (decoder.currentId == -1) // EOF
                     return READ_DONE
-                val index = getIndexByTag(descriptor, decoder.currentId, false)
+                val index = getIndexByTag(decoder.currentId)
                 if (index == -1) { // not found
                     decoder.skipElement()
                 } else { // not found
@@ -383,8 +409,9 @@ public class ProtoBuf(
 
     private inner class RepeatedReader(
         decoder: ProtobufDecoder,
-        private val targetTag: ProtoDesc
-    ) : ProtobufReader(decoder) {
+        private val targetTag: ProtoDesc,
+        descriptor: SerialDescriptor
+    ) : ProtobufReader(decoder, descriptor) {
         private var index = -1
 
         override fun decodeElementIndex(descriptor: SerialDescriptor) =
@@ -393,10 +420,14 @@ public class ProtoBuf(
         override fun SerialDescriptor.getTag(index: Int): ProtoDesc = targetTag
     }
 
-    private inner class MapEntryReader(decoder: ProtobufDecoder, val parentTag: ProtoDesc?) : ProtobufReader(decoder) {
+    private inner class MapEntryReader(
+        decoder: ProtobufDecoder,
+        @JvmField val parentTag: ProtoDesc?,
+        descriptor: SerialDescriptor
+    ) : ProtobufReader(decoder, descriptor) {
         override fun SerialDescriptor.getTag(index: Int): ProtoDesc =
-                if (index % 2 == 0) ProtoDesc(1, (parentTag?.numberType ?: ProtoNumberType.DEFAULT))
-                else ProtoDesc(2, (parentTag?.numberType ?: ProtoNumberType.DEFAULT))
+            if (index % 2 == 0) ProtoDesc(1, (parentTag?.numberType ?: ProtoNumberType.DEFAULT))
+            else ProtoDesc(2, (parentTag?.numberType ?: ProtoNumberType.DEFAULT))
     }
 
     internal class ProtobufDecoder(private val input: ByteArrayInput) {
@@ -575,7 +606,7 @@ public class ProtoBuf(
 
     override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
         val stream = ByteArrayInput(bytes)
-        val reader = ProtobufReader(ProtobufDecoder(stream))
+        val reader = ProtobufReader(ProtobufDecoder(stream), deserializer.descriptor)
         return reader.decode(deserializer)
     }
 }
