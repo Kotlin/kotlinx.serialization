@@ -13,20 +13,28 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
     public var currentId = -1
     @JvmField
     public var currentType = -1
+    private var pushBack = false
 
-    init {
-        readTag()
-    }
+    public fun readTag(): Int {
+        if (pushBack) {
+            pushBack = false
+            return currentId
+        }
 
-    private fun readTag() {
         val header = input.readVarint64(true).toInt()
-        if (header == -1) {
+        return if (header == -1) {
             currentId = -1
             currentType = -1
+            -1
         } else {
             currentId = header ushr 3
             currentType = header and 0b111
+            currentId
         }
+    }
+
+    public fun pushBack() {
+        pushBack = true
     }
 
     fun skipElement() {
@@ -48,9 +56,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
         assertWireType(ProtoBuf.SIZE_DELIMITED)
         val length = decode32()
         check(length >= 0)
-        val result = input.readExactNBytes(length)
-        readTag()
-        return result
+        return input.readExactNBytes(length)
     }
 
     fun nextObjectNoTag(): ByteArray {
@@ -73,9 +79,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
     fun nextInt(format: ProtoNumberType): Int {
         val wireType = if (format == ProtoNumberType.FIXED) ProtoBuf.i32 else ProtoBuf.VARINT
         assertWireType(wireType)
-        val result = decode32(format)
-        readTag()
-        return result
+        return decode32(format)
     }
 
     fun nextInt32NoTag(): Int = decode32()
@@ -83,18 +87,14 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
     fun nextLong(format: ProtoNumberType): Long {
         val wireType = if (format == ProtoNumberType.FIXED) ProtoBuf.i64 else ProtoBuf.VARINT
         assertWireType(wireType)
-        val result = decode64(format)
-        readTag()
-        return result
+        return decode64(format)
     }
 
     fun nextLongNoTag(): Long = decode64(ProtoNumberType.DEFAULT)
 
     fun nextFloat(): Float {
         assertWireType(ProtoBuf.i32)
-        val result = Float.fromBits(readIntLittleEndian())
-        readTag()
-        return result
+        return Float.fromBits(readIntLittleEndian())
     }
 
     fun nextFloatNoTag(): Float = Float.fromBits(readIntLittleEndian())
@@ -121,9 +121,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
 
     fun nextDouble(): Double {
         assertWireType(ProtoBuf.i64)
-        val result = Double.fromBits(readLongLittleEndian())
-        readTag()
-        return result
+        return Double.fromBits(readLongLittleEndian())
     }
 
     fun nextDoubleNoTag(): Double {
@@ -134,13 +132,10 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
         assertWireType(ProtoBuf.SIZE_DELIMITED)
         val length = decode32()
         check(length >= 0)
-        val result = input.readString(length)
-        readTag()
-        return result
+        return input.readString(length)
     }
 
     fun nextStringNoTag(): String {
-        assertWireType(ProtoBuf.SIZE_DELIMITED)
         val length = decode32()
         check(length >= 0)
         return input.readString(length)

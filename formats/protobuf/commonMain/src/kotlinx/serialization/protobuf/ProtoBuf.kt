@@ -166,6 +166,8 @@ public class ProtoBuf(
 
         override fun encodeTaggedByte(tag: ProtoDesc, value: Byte) = encodeTaggedInt(tag, value.toInt())
         override fun encodeTaggedShort(tag: ProtoDesc, value: Short) = encodeTaggedInt(tag, value.toInt())
+        override fun encodeTaggedBoolean(tag: ProtoDesc, value: Boolean) = encodeTaggedInt(tag, if (value) 1 else 0)
+        override fun encodeTaggedChar(tag: ProtoDesc, value: Char) = encodeTaggedInt(tag, value.toInt())
 
         override fun encodeTaggedLong(tag: ProtoDesc, value: Long) {
             if (tag == MISSING_TAG) {
@@ -190,9 +192,6 @@ public class ProtoBuf(
                 writer.writeDouble(value, tag.protoId)
             }
         }
-
-        override fun encodeTaggedBoolean(tag: ProtoDesc, value: Boolean) = encodeTaggedInt(tag, if (value) 1 else 0)
-        override fun encodeTaggedChar(tag: ProtoDesc, value: Char) = encodeTaggedInt(tag, value.toInt())
 
         override fun encodeTaggedString(tag: ProtoDesc, value: String) {
             if (tag == MISSING_TAG) {
@@ -247,12 +246,12 @@ public class ProtoBuf(
     }
 
     internal open inner class ObjectEncoder(
-        val parentTag: ProtoDesc?,
-        private val parentWriter: ProtobufWriter,
-        private val stream: ByteArrayOutput = ByteArrayOutput()
+        @JvmField val parentTag: ProtoDesc,
+        @JvmField protected val parentWriter: ProtobufWriter,
+        @JvmField protected val stream: ByteArrayOutput = ByteArrayOutput()
     ) : ProtobufEncoder(ProtobufWriter(stream)) {
         override fun endEncode(descriptor: SerialDescriptor) {
-            if (parentTag != null) {
+            if (parentTag != MISSING_TAG) {
                 parentWriter.writeBytes(stream.toByteArray(), parentTag.protoId)
             } else {
                 parentWriter.out.write(stream.toByteArray())
@@ -265,21 +264,30 @@ public class ProtoBuf(
         parentWriter: ProtobufWriter
     ) : ObjectEncoder(parentTag, parentWriter) {
         override fun SerialDescriptor.getTag(index: Int): ProtoDesc =
-            if (index % 2 == 0) ProtoDesc(1, (parentTag!!.numberType))
-            else ProtoDesc(2, (parentTag!!.numberType))
+            if (index % 2 == 0) ProtoDesc(1, (parentTag.numberType))
+            else ProtoDesc(2, (parentTag.numberType))
+
+        override fun endEncode(descriptor: SerialDescriptor) {
+            if (parentTag != MISSING_TAG) {
+                parentWriter.writeBytes(stream.toByteArray(), parentTag.protoId)
+            } else {
+                parentWriter.writeBytes(stream.toByteArray())
+            }
+        }
     }
 
     internal inner class RepeatedEncoder(
         writer: ProtobufWriter,
         @JvmField val curTag: ProtoDesc
     ) : ProtobufEncoder(writer) {
+
         override fun SerialDescriptor.getTag(index: Int) = curTag
     }
 
     private open inner class ProtobufDecoder(
         @JvmField val reader: ProtobufReader,
         descriptor: SerialDescriptor
-    ) : TaggedDecoder<ProtoDesc>() {
+    ) : ProtobufTaggedDecoder() {
         override val context: SerialModule
             get() = this@ProtoBuf.context
 
@@ -351,43 +359,89 @@ public class ProtoBuf(
             return -1
         }
 
-        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
-            when (descriptor.kind) {
-                StructureKind.LIST -> RepeatedDecoder(reader, currentTag, descriptor)
-                StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind ->
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
+            return when (descriptor.kind) {
+                StructureKind.LIST -> RepeatedDecoder(reader, currentTagOrDefault, descriptor)
+                StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> {
                     ProtobufDecoder(makeDelimited(reader, currentTagOrNull), descriptor)
-                StructureKind.MAP -> MapEntryReader(makeDelimited(reader, currentTagOrNull), currentTagOrNull, descriptor)
+                }
+                StructureKind.MAP -> MapEntryReader(makeDelimitedForced(reader, currentTagOrNull), currentTagOrNull, descriptor)
                 else -> throw SerializationException("Primitives are not supported at top-level")
             }
+        }
 
         override fun endStructure(descriptor: SerialDescriptor) {
             // Nothing
         }
 
-        override fun decodeTaggedBoolean(tag: ProtoDesc): Boolean = reader.nextBoolean()
-        override fun decodeTaggedByte(tag: ProtoDesc): Byte = reader.nextInt(tag.numberType).toByte()
-        override fun decodeTaggedShort(tag: ProtoDesc): Short = reader.nextInt(tag.numberType).toShort()
-        override fun decodeTaggedInt(tag: ProtoDesc): Int = reader.nextInt(tag.numberType)
-        override fun decodeTaggedLong(tag: ProtoDesc): Long = reader.nextLong(tag.numberType)
-        override fun decodeTaggedFloat(tag: ProtoDesc): Float = reader.nextFloat()
-        override fun decodeTaggedDouble(tag: ProtoDesc): Double = reader.nextDouble()
-        override fun decodeTaggedChar(tag: ProtoDesc): Char = reader.nextInt(tag.numberType).toChar()
-        override fun decodeTaggedString(tag: ProtoDesc): String = reader.nextString()
-        override fun decodeTaggedEnum(tag: ProtoDesc, enumDescription: SerialDescriptor): Int =
-            findIndexByTag(enumDescription, reader.nextInt(ProtoNumberType.DEFAULT))
+        override fun decodeTaggedBoolean(tag: ProtoDesc): Boolean = when(val value = decodeTaggedInt(tag)) {
+            1 -> true
+            0 -> false
+            else -> throw SerializationException("Unexpected boolean value: $value")
+        }
+
+        override fun decodeTaggedByte(tag: ProtoDesc): Byte = decodeTaggedInt(tag).toByte()
+        override fun decodeTaggedShort(tag: ProtoDesc): Short = decodeTaggedInt(tag).toShort()
+        override fun decodeTaggedInt(tag: ProtoDesc): Int {
+            return if (tag == MISSING_TAG) {
+                reader.nextInt32NoTag()
+            } else {
+                reader.nextInt(tag.numberType)
+            }
+        }
+        override fun decodeTaggedLong(tag: ProtoDesc): Long {
+            return if (tag == MISSING_TAG) {
+                reader.nextLongNoTag()
+            } else {
+                reader.nextLong(tag.numberType)
+            }
+        }
+
+        override fun decodeTaggedFloat(tag: ProtoDesc): Float {
+            return if (tag == MISSING_TAG) {
+                reader.nextFloatNoTag()
+            } else {
+                reader.nextFloat()
+            }
+        }
+        override fun decodeTaggedDouble(tag: ProtoDesc): Double {
+            return if (tag == MISSING_TAG) {
+                reader.nextDoubleNoTag()
+            } else {
+                reader.nextDouble()
+            }
+        }
+        override fun decodeTaggedChar(tag: ProtoDesc): Char = decodeTaggedInt(tag).toChar()
+
+        override fun decodeTaggedString(tag: ProtoDesc): String {
+            return if (tag == MISSING_TAG) {
+                reader.nextStringNoTag()
+            } else {
+                reader.nextString()
+            }
+        }
+
+        override fun decodeTaggedEnum(tag: ProtoDesc, enumDescription: SerialDescriptor): Int {
+            return findIndexByTag(enumDescription, decodeTaggedInt(tag))
+        }
 
         @Suppress("UNCHECKED_CAST")
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T = when {
             deserializer is MapLikeSerializer<*, *, *, *> -> {
                 deserializeMap(deserializer as DeserializationStrategy<T>, previousValue)
             }
-            deserializer.descriptor == ByteArraySerializer().descriptor -> {
-                val newValue = decoder.nextObject()
-                (if (previousValue == null) newValue else (previousValue as ByteArray) + newValue) as T
-            }
-            deserializer is AbstractCollectionSerializer<*, *, *> ->
-                (deserializer as AbstractCollectionSerializer<*, T, *>).merge(this, previousValue)
+            deserializer.descriptor == ByteArraySerializer().descriptor -> deserializeByteArray(previousValue as ByteArray?) as T
             else -> deserializer.deserialize(this)
+        }
+
+        private fun deserializeByteArray(previousValue: ByteArray?): ByteArray {
+            val tag = currentTagOrDefault
+            val array = if (tag == MISSING_TAG) {
+                reader.nextObjectNoTag()
+            } else {
+                reader.nextObject()
+            }
+            return if (previousValue == null) array else previousValue + array
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -405,12 +459,14 @@ public class ProtoBuf(
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             while (true) {
-                if (reader.currentId == -1) // EOF
+                val protoId = reader.readTag()
+                if (protoId == -1) { // EOF
                     return READ_DONE
-                val index = getIndexByTag(reader.currentId)
+                }
+                val index = getIndexByTag(protoId)
                 if (index == -1) { // not found
                     reader.skipElement()
-                } else { // not found
+                } else {
                     return index
                 }
             }
@@ -419,15 +475,64 @@ public class ProtoBuf(
 
     private inner class RepeatedDecoder(
         decoder: ProtobufReader,
-        private val targetTag: ProtoDesc,
+        currentTag: ProtoDesc,
         descriptor: SerialDescriptor
     ) : ProtobufDecoder(decoder, descriptor) {
+        // Current index
         private var index = -1
 
-        override fun decodeElementIndex(descriptor: SerialDescriptor) =
-            if (reader.currentId == targetTag.protoId) ++index else READ_DONE
+        /*
+         * For regular messages, it is always a tag.
+         * For out-of-spec top-level lists (and maps) the very first varint
+         * represents this list size. It is stored in a single variable
+         * as negative value and branched based on that fact.
+         */
+        private val tagOrSize: Long
 
-        override fun SerialDescriptor.getTag(index: Int): ProtoDesc = targetTag
+        init {
+            tagOrSize = if (currentTag == MISSING_TAG) {
+                val length = reader.nextInt32NoTag()
+                -length.toLong()
+            } else {
+                currentTag
+            }
+        }
+
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+            if (tagOrSize > 0) {
+                return decodeTaggedListIndex()
+            }
+            return decodeListIndexNoTag()
+        }
+
+        private fun decodeListIndexNoTag(): Int {
+            val size = -tagOrSize
+            val idx = ++index
+            if (idx.toLong() == size) return READ_DONE
+            return idx
+        }
+
+        private fun decodeTaggedListIndex(): Int {
+            val protoId = if (index == -1) {
+                // For the very first element tag is already read by the parent
+                reader.currentId
+            } else {
+                reader.readTag()
+            }
+
+            return if (protoId == tagOrSize.protoId) {
+                ++index
+            } else {
+                // If we read tag of a different message, push it back to the reader and bail out
+                reader.pushBack()
+                READ_DONE
+            }
+        }
+
+        override fun SerialDescriptor.getTag(index: Int): ProtoDesc {
+            if (tagOrSize > 0) return tagOrSize
+            return MISSING_TAG
+        }
     }
 
     private inner class MapEntryReader(
@@ -445,6 +550,12 @@ public class ProtoBuf(
             if (parentTag == null) return decoder
             // TODO use array slice instead of array copy
             val bytes = decoder.nextObject()
+            return ProtobufReader(ByteArrayInput(bytes))
+        }
+
+        private fun makeDelimitedForced(decoder: ProtobufReader, parentTag: ProtoDesc?): ProtobufReader {
+            val bytes = if (parentTag == null) decoder.nextObjectNoTag()
+            else decoder.nextObject()
             return ProtobufReader(ByteArrayInput(bytes))
         }
 
