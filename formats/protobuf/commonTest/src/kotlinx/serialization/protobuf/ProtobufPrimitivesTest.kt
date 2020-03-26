@@ -4,15 +4,10 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
+import kotlinx.serialization.serializer
 import kotlin.test.*
 
-/*
- * TODO improve these tests:
- *  * All primitive types
- *  * All nullable types
- *  * Built-in types (TBD)
- *  * Primitives nullability
- */
 class ProtobufPrimitivesTest {
 
     private fun <T> testConversion(data: T, serializer: KSerializer<T>, expectedHexString: String) {
@@ -22,40 +17,16 @@ class ProtobufPrimitivesTest {
     }
 
     @Test
-    fun testSignedInteger() {
-        testConversion(TestInt(-150), TestInt.serializer(), "08AB02")
-    }
-
-    @Test
-    fun testIntList() {
-        testConversion(TestList(listOf(150, 228, 1337)), TestList.serializer(), "08960108E40108B90A")
-
-    }
-
-    @Test
-    fun testString() {
-        testConversion(TestString("testing"), TestString.serializer(), "120774657374696E67")
-    }
-
-    @Test
-    fun testTwiceNested() {
-        testConversion(TestInner(TestInt(-150)), TestInner.serializer(), "1A0308AB02")
-    }
-
-    @Test
-    fun testMixedTags() {
-        testConversion(TestComplex(42, "testing"), TestComplex.serializer(), "D0022A120774657374696E67")
-    }
-
-    @Test
-    fun testDefaultPrimitiveValues() {
-        testConversion(TestInt(0), TestInt.serializer(), "0800")
-        testConversion(TestList(listOf()), TestList.serializer(), "")
-        testConversion(TestString(""), TestString.serializer(), "1200")
-    }
-
-    @Test
-    fun testFixedIntWithLong() {
-        testConversion(TestNumbers(100500, Long.MAX_VALUE), TestNumbers.serializer(), "0D9488010010FFFFFFFFFFFFFFFF7F")
+    fun testPrimitiveTypes() {
+        testConversion(true, Boolean.serializer(), "01")
+        testConversion('c', Char.serializer(), "63")
+        testConversion(1, Byte.serializer(), "01")
+        testConversion(1, Short.serializer(), "01")
+        testConversion(1, Int.serializer(), "01")
+        testConversion(1, Long.serializer(), "01")
+        testConversion(1f, Float.serializer(), "0000803F")
+        testConversion(1.0, Double.serializer(), "000000000000F03F")
+        testConversion("string", String.serializer(), "06737472696E67")
+        testConversion(Unit, UnitSerializer(), "")
     }
 }

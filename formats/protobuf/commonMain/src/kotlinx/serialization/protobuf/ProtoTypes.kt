@@ -64,7 +64,7 @@ internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
     return ProtoDesc(protoId, format)
 }
 
-internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedDefault: Boolean = false): Int {
+internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedDefault: Boolean): Int {
     val annotations = descriptor.getElementAnnotations(index)
     for (i in annotations.indices) { // Allocation-friendly loop
         val annotation = annotations[i]
