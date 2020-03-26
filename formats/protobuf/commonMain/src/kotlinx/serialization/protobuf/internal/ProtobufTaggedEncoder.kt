@@ -8,7 +8,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
 
 
-internal abstract class ProtobufTaggedEncoder : TaggedBase(), Encoder, CompositeEncoder {
+internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, CompositeEncoder {
 
     protected abstract fun SerialDescriptor.getTag(index: Int): ProtoDesc
 
@@ -27,45 +27,45 @@ internal abstract class ProtobufTaggedEncoder : TaggedBase(), Encoder, Composite
     public final override fun encodeNull(): Unit = encodeTaggedNull()
 
     public final override fun encodeBoolean(value: Boolean) {
-        encodeTaggedBoolean(popTagOrMissing(), value)
+        encodeTaggedBoolean(popTagOrDefault(), value)
     }
 
     public final override fun encodeByte(value: Byte) {
-        encodeTaggedByte(popTagOrMissing(), value)
+        encodeTaggedByte(popTagOrDefault(), value)
     }
 
     public final override fun encodeShort(value: Short) {
-        encodeTaggedShort(popTagOrMissing(), value)
+        encodeTaggedShort(popTagOrDefault(), value)
     }
 
     public final override fun encodeInt(value: Int) {
-        encodeTaggedInt(popTagOrMissing(), value)
+        encodeTaggedInt(popTagOrDefault(), value)
     }
 
     public final override fun encodeLong(value: Long) {
-        encodeTaggedLong(popTagOrMissing(), value)
+        encodeTaggedLong(popTagOrDefault(), value)
     }
 
     public final override fun encodeFloat(value: Float) {
-        encodeTaggedFloat(popTagOrMissing(), value)
+        encodeTaggedFloat(popTagOrDefault(), value)
     }
 
     public final override fun encodeDouble(value: Double) {
-        encodeTaggedDouble(popTagOrMissing(), value)
+        encodeTaggedDouble(popTagOrDefault(), value)
     }
 
     public final override fun encodeChar(value: Char) {
-        encodeTaggedChar(popTagOrMissing(), value)
+        encodeTaggedChar(popTagOrDefault(), value)
     }
 
     public final override fun encodeString(value: String) {
-        encodeTaggedString(popTagOrMissing(), value)
+        encodeTaggedString(popTagOrDefault(), value)
     }
 
     public final override fun encodeEnum(
         enumDescriptor: SerialDescriptor,
         index: Int
-    ): Unit = encodeTaggedEnum(popTagOrMissing(), enumDescriptor, index)
+    ): Unit = encodeTaggedEnum(popTagOrDefault(), enumDescriptor, index)
 
     public override fun beginStructure(
         descriptor: SerialDescriptor,

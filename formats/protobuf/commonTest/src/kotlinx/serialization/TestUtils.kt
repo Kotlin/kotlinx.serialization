@@ -6,7 +6,7 @@ package kotlinx.serialization
 
 import kotlin.test.*
 
-internal inline fun <reified T : Any> assertSerializedToBinaryAndRestored(
+internal inline fun <reified T> assertSerializedToBinaryAndRestored(
     original: T,
     serializer: KSerializer<T>,
     format: BinaryFormat,
