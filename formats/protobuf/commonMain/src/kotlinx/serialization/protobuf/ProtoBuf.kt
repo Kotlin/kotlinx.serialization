@@ -122,39 +122,101 @@ public class ProtoBuf(
     override val context: SerialModule = EmptyModule
 ) : BinaryFormat {
 
-    internal open inner class ProtobufEncoder(private val writer: ProtobufWriter) : TaggedEncoder<ProtoDesc>() {
+    internal open inner class ProtobufEncoder(private val writer: ProtobufWriter) : ProtobufTaggedEncoder() {
         public override val context
             get() = this@ProtoBuf.context
 
         override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = encodeDefaults
 
-        override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder = when (descriptor.kind) {
-            StructureKind.LIST -> RepeatedEncoder(writer, currentTag)
-            StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> ObjectEncoder(currentTagOrNull, writer)
-            StructureKind.MAP -> MapRepeatedEncoder(currentTag, writer)
-            else -> throw SerializationException("Primitives are not supported at top-level")
+        override fun beginCollection(
+            descriptor: SerialDescriptor,
+            collectionSize: Int
+        ): CompositeEncoder = when (descriptor.kind) {
+            StructureKind.LIST -> {
+                val tag = currentTagOrDefault
+                if (tag == MISSING_TAG) {
+                    writer.writeInt(collectionSize)
+                }
+                RepeatedEncoder(writer, tag)
+            }
+            StructureKind.MAP -> {
+                // Size and missing tag are managed by the implementation that delegated to the list
+                MapRepeatedEncoder(currentTag, writer)
+            }
+            else -> throw SerializationException("This serial kind is not supported as collection: $descriptor")
         }
 
-        override fun encodeTaggedInt(tag: ProtoDesc, value: Int) = writer.writeInt(value, tag.protoId, tag.numberType)
-        override fun encodeTaggedByte(tag: ProtoDesc, value: Byte) = writer.writeInt(value.toInt(), tag.protoId, tag.numberType)
-        override fun encodeTaggedShort(tag: ProtoDesc, value: Short) = writer.writeInt(value.toInt(), tag.protoId, tag.numberType)
-        override fun encodeTaggedLong(tag: ProtoDesc, value: Long) = writer.writeLong(value, tag.protoId, tag.numberType)
+        override fun beginStructure(
+            descriptor: SerialDescriptor,
+            vararg typeSerializers: KSerializer<*>
+        ): CompositeEncoder = when (descriptor.kind) {
+            StructureKind.LIST -> RepeatedEncoder(writer, currentTagOrDefault)
+            StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> ObjectEncoder(currentTagOrDefault, writer)
+            StructureKind.MAP -> MapRepeatedEncoder(currentTagOrDefault, writer)
+            else -> throw SerializationException("This serial kind is not supported as structure: $descriptor")
+        }
 
-        override fun encodeTaggedFloat(tag: ProtoDesc, value: Float) = writer.writeFloat(value, tag.protoId)
-        override fun encodeTaggedDouble(tag: ProtoDesc, value: Double) = writer.writeDouble(value, tag.protoId)
-        override fun encodeTaggedBoolean(tag: ProtoDesc, value: Boolean) = writer.writeInt(if (value) 1 else 0, tag.protoId, ProtoNumberType.DEFAULT)
-        override fun encodeTaggedChar(tag: ProtoDesc, value: Char) = writer.writeInt(value.toInt(), tag.protoId, tag.numberType)
+        override fun encodeTaggedInt(tag: ProtoDesc, value: Int) {
+            if (tag == MISSING_TAG) {
+                writer.writeInt(value)
+            } else {
+                writer.writeInt(value, tag.protoId, tag.numberType)
+            }
+        }
 
-        override fun encodeTaggedString(tag: ProtoDesc, value: String) = writer.writeString(value, tag.protoId)
+        override fun encodeTaggedByte(tag: ProtoDesc, value: Byte) = encodeTaggedInt(tag, value.toInt())
+        override fun encodeTaggedShort(tag: ProtoDesc, value: Short) = encodeTaggedInt(tag, value.toInt())
+
+        override fun encodeTaggedLong(tag: ProtoDesc, value: Long) {
+            if (tag == MISSING_TAG) {
+                writer.writeLong(value)
+            } else {
+                writer.writeLong(value, tag.protoId, tag.numberType)
+            }
+        }
+
+        override fun encodeTaggedFloat(tag: ProtoDesc, value: Float) {
+            if (tag == MISSING_TAG) {
+                writer.writeFloat(value)
+            } else {
+                writer.writeFloat(value, tag.protoId)
+            }
+        }
+
+        override fun encodeTaggedDouble(tag: ProtoDesc, value: Double) {
+            if (tag == MISSING_TAG) {
+                writer.writeDouble(value)
+            } else {
+                writer.writeDouble(value, tag.protoId)
+            }
+        }
+
+        override fun encodeTaggedBoolean(tag: ProtoDesc, value: Boolean) = encodeTaggedInt(tag, if (value) 1 else 0)
+        override fun encodeTaggedChar(tag: ProtoDesc, value: Char) = encodeTaggedInt(tag, value.toInt())
+
+        override fun encodeTaggedString(tag: ProtoDesc, value: String) {
+            if (tag == MISSING_TAG) {
+                writer.writeString(value)
+            } else {
+                writer.writeString(value, tag.protoId)
+            }
+        }
+
         override fun encodeTaggedEnum(
             tag: ProtoDesc,
             enumDescription: SerialDescriptor,
             ordinal: Int
-        ): Unit = writer.writeInt(
-            extractProtoId(enumDescription, ordinal, zeroBasedDefault = true),
-            tag.protoId,
-            ProtoNumberType.DEFAULT
-        )
+        ) {
+            if (tag == MISSING_TAG) {
+                writer.writeInt(extractProtoId(enumDescription, ordinal, zeroBasedDefault = true))
+            } else {
+                writer.writeInt(
+                    extractProtoId(enumDescription, ordinal, zeroBasedDefault = true),
+                    tag.protoId,
+                    ProtoNumberType.DEFAULT
+                )
+            }
+        }
 
         override fun SerialDescriptor.getTag(index: Int) = extractParameters(index)
 
@@ -162,11 +224,17 @@ public class ProtoBuf(
             serializer is MapLikeSerializer<*, *, *, *> -> {
                 serializeMap(serializer as SerializationStrategy<T>, value)
             }
-            serializer.descriptor == ByteArraySerializer().descriptor -> writer.writeBytes(
-                value as ByteArray,
-                popTag().protoId
-            )
+            serializer.descriptor == ByteArraySerializer().descriptor -> serializeByteArray(value as ByteArray)
             else -> serializer.serialize(this, value)
+        }
+
+        private fun serializeByteArray(value: ByteArray) {
+            val tag = popTagOrMissing()
+            if (tag == MISSING_TAG) {
+                writer.writeBytes(value)
+            } else {
+                writer.writeBytes(value, tag.protoId)
+            }
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -373,10 +441,10 @@ public class ProtoBuf(
     }
 
     public companion object Default : BinaryFormat by ProtoBuf() {
-        private fun makeDelimited(decoder2: ProtobufReader, parentTag: ProtoDesc?): ProtobufReader {
-            if (parentTag == null) return decoder2
+        private fun makeDelimited(decoder: ProtobufReader, parentTag: ProtoDesc?): ProtobufReader {
+            if (parentTag == null) return decoder
             // TODO use array slice instead of array copy
-            val bytes = decoder2.nextObject()
+            val bytes = decoder.nextObject()
             return ProtobufReader(ByteArrayInput(bytes))
         }
 

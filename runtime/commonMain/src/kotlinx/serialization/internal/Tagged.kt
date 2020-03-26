@@ -96,7 +96,10 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
     }
 
     final override fun endStructure(descriptor: SerialDescriptor) {
-        if (tagStack.isNotEmpty()) popTag(); endEncode(descriptor)
+        if (tagStack.isNotEmpty()) {
+            popTag()
+        }
+        endEncode(descriptor)
     }
 
     /**
