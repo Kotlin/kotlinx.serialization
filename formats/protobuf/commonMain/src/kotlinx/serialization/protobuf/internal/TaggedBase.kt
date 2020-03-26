@@ -56,7 +56,7 @@ internal abstract class TaggedBase {
         }
     }
 
-    protected fun <E> tagBlock(tag: ProtoDesc, block: () -> E): E {
+    protected inline fun <E> tagBlock(tag: ProtoDesc, block: () -> E): E {
         pushTag(tag)
         return block()
     }

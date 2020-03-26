@@ -49,6 +49,17 @@ class ProtobufTopLevelPrimitivesCompatibilityTest {
         }
     }
 
+
+    @Serializable
+    class HolderExplicit(@ProtoId(1) val a: Int, @ProtoId(2) val b: Int, @ProtoId(3) val c: Long, @ProtoId(4) val d: Double)
+
+    @Test
+    fun foo() {
+        val a = HolderExplicit(1, 2, 3L, 5.0)
+        val b = ProtoBuf.dumps(a)
+        val c = ProtoBuf.loads(HolderExplicit.serializer(), b)
+    }
+
     @Test
     fun testListsCompatibility() {
         testConversion(listOf(1, 2, 3), serializer(), "03010203") {

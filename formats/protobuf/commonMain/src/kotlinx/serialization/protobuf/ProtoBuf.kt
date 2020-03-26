@@ -122,7 +122,10 @@ public class ProtoBuf(
     override val context: SerialModule = EmptyModule
 ) : BinaryFormat {
 
-    internal open inner class ProtobufEncoder(private val writer: ProtobufWriter) : ProtobufTaggedEncoder() {
+    internal open inner class ProtobufEncoder(
+        private val writer: ProtobufWriter,
+        @JvmField val descriptor: SerialDescriptor
+    ) : ProtobufTaggedEncoder() {
         public override val context
             get() = this@ProtoBuf.context
 
@@ -138,11 +141,11 @@ public class ProtoBuf(
                 if (tag == MISSING_TAG) {
                     writer.writeInt(collectionSize)
                 }
-                RepeatedEncoder(writer, tag)
+                RepeatedEncoder(writer, tag, descriptor)
             }
             StructureKind.MAP -> {
                 // Size and missing tag are managed by the implementation that delegated to the list
-                MapRepeatedEncoder(currentTag, writer)
+                MapRepeatedEncoder(currentTag, writer, descriptor)
             }
             else -> throw SerializationException("This serial kind is not supported as collection: $descriptor")
         }
@@ -151,9 +154,13 @@ public class ProtoBuf(
             descriptor: SerialDescriptor,
             vararg typeSerializers: KSerializer<*>
         ): CompositeEncoder = when (descriptor.kind) {
-            StructureKind.LIST -> RepeatedEncoder(writer, currentTagOrDefault)
-            StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> ObjectEncoder(currentTagOrDefault, writer)
-            StructureKind.MAP -> MapRepeatedEncoder(currentTagOrDefault, writer)
+            StructureKind.LIST -> RepeatedEncoder(writer, currentTagOrDefault, descriptor)
+            StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> {
+                val tag = currentTagOrDefault
+                if (tag == MISSING_TAG && descriptor == this.descriptor) this
+                else ObjectEncoder(currentTagOrDefault, writer, descriptor =  descriptor)
+            }
+            StructureKind.MAP -> MapRepeatedEncoder(currentTagOrDefault, writer, descriptor)
             else -> throw SerializationException("This serial kind is not supported as structure: $descriptor")
         }
 
@@ -249,9 +256,11 @@ public class ProtoBuf(
     internal open inner class ObjectEncoder(
         @JvmField val parentTag: ProtoDesc,
         @JvmField protected val parentWriter: ProtobufWriter,
-        @JvmField protected val stream: ByteArrayOutput = ByteArrayOutput()
-    ) : ProtobufEncoder(ProtobufWriter(stream)) {
+        @JvmField protected val stream: ByteArrayOutput = ByteArrayOutput(),
+        descriptor: SerialDescriptor
+    ) : ProtobufEncoder(ProtobufWriter(stream), descriptor) {
         override fun endEncode(descriptor: SerialDescriptor) {
+            // TODO this is exactly the lookahead scenario
             if (parentTag != MISSING_TAG) {
                 parentWriter.writeBytes(stream.toByteArray(), parentTag.protoId)
             } else {
@@ -262,8 +271,9 @@ public class ProtoBuf(
 
     internal inner class MapRepeatedEncoder(
         parentTag: ProtoDesc,
-        parentWriter: ProtobufWriter
-    ) : ObjectEncoder(parentTag, parentWriter) {
+        parentWriter: ProtobufWriter,
+        descriptor: SerialDescriptor
+    ) : ObjectEncoder(parentTag, parentWriter, descriptor = descriptor) {
         override fun SerialDescriptor.getTag(index: Int): ProtoDesc =
             if (index % 2 == 0) ProtoDesc(1, (parentTag.numberType))
             else ProtoDesc(2, (parentTag.numberType))
@@ -279,19 +289,21 @@ public class ProtoBuf(
 
     internal inner class RepeatedEncoder(
         writer: ProtobufWriter,
-        @JvmField val curTag: ProtoDesc
-    ) : ProtobufEncoder(writer) {
+        @JvmField val curTag: ProtoDesc,
+        descriptor: SerialDescriptor
+    ) : ProtobufEncoder(writer, descriptor) {
 
         override fun SerialDescriptor.getTag(index: Int) = curTag
     }
 
     private open inner class ProtobufDecoder(
         @JvmField val reader: ProtobufReader,
-        descriptor: SerialDescriptor
+        @JvmField val descriptor: SerialDescriptor
     ) : ProtobufTaggedDecoder() {
         override val context: SerialModule
             get() = this@ProtoBuf.context
 
+        // Proto id -> index in serial descriptor cache
         private var indexCache: IntArray? = null
         private var sparseIndexCache: MutableMap<Int, Int>? = null
 
@@ -364,7 +376,10 @@ public class ProtoBuf(
             return when (descriptor.kind) {
                 StructureKind.LIST -> RepeatedDecoder(reader, currentTagOrDefault, descriptor)
                 StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> {
-                    ProtobufDecoder(makeDelimited(reader, currentTagOrNull), descriptor)
+                    val tag = currentTagOrNull
+                    // Do not create redundant copy
+                    if (tag == null && this.descriptor == descriptor) return this
+                    return ProtobufDecoder(makeDelimited(reader, tag), descriptor)
                 }
                 StructureKind.MAP -> MapEntryReader(makeDelimitedForced(reader, currentTagOrNull), currentTagOrNull, descriptor)
                 else -> throw SerializationException("Primitives are not supported at top-level")
@@ -385,40 +400,40 @@ public class ProtoBuf(
         override fun decodeTaggedShort(tag: ProtoDesc): Short = decodeTaggedInt(tag).toShort()
         override fun decodeTaggedInt(tag: ProtoDesc): Int {
             return if (tag == MISSING_TAG) {
-                reader.nextInt32NoTag()
+                reader.readInt32NoTag()
             } else {
-                reader.nextInt(tag.numberType)
+                reader.readInt(tag.numberType)
             }
         }
         override fun decodeTaggedLong(tag: ProtoDesc): Long {
             return if (tag == MISSING_TAG) {
-                reader.nextLongNoTag()
+                reader.readLongNoTag()
             } else {
-                reader.nextLong(tag.numberType)
+                reader.readLong(tag.numberType)
             }
         }
 
         override fun decodeTaggedFloat(tag: ProtoDesc): Float {
             return if (tag == MISSING_TAG) {
-                reader.nextFloatNoTag()
+                reader.readFloatNoTag()
             } else {
-                reader.nextFloat()
+                reader.readFloat()
             }
         }
         override fun decodeTaggedDouble(tag: ProtoDesc): Double {
             return if (tag == MISSING_TAG) {
-                reader.nextDoubleNoTag()
+                reader.readDoubleNoTag()
             } else {
-                reader.nextDouble()
+                reader.readDouble()
             }
         }
         override fun decodeTaggedChar(tag: ProtoDesc): Char = decodeTaggedInt(tag).toChar()
 
         override fun decodeTaggedString(tag: ProtoDesc): String {
             return if (tag == MISSING_TAG) {
-                reader.nextStringNoTag()
+                reader.readStringNoTag()
             } else {
-                reader.nextString()
+                reader.readString()
             }
         }
 
@@ -438,9 +453,9 @@ public class ProtoBuf(
         private fun deserializeByteArray(): ByteArray {
             val tag = currentTagOrDefault
             return if (tag == MISSING_TAG) {
-                reader.nextObjectNoTag()
+                reader.readObjectNoTag()
             } else {
-                reader.nextObject()
+                reader.readObject()
             }
         }
 
@@ -489,7 +504,7 @@ public class ProtoBuf(
 
         init {
             tagOrSize = if (currentTag == MISSING_TAG) {
-                val length = reader.nextInt32NoTag()
+                val length = reader.readInt32NoTag()
                 -length.toLong()
             } else {
                 currentTag
@@ -522,7 +537,7 @@ public class ProtoBuf(
                 ++index
             } else {
                 // If we read tag of a different message, push it back to the reader and bail out
-                reader.pushBack()
+                reader.pushBackTag()
                 READ_DONE
             }
         }
@@ -547,13 +562,13 @@ public class ProtoBuf(
         private fun makeDelimited(decoder: ProtobufReader, parentTag: ProtoDesc?): ProtobufReader {
             if (parentTag == null) return decoder
             // TODO use array slice instead of array copy
-            val bytes = decoder.nextObject()
+            val bytes = decoder.readObject()
             return ProtobufReader(ByteArrayInput(bytes))
         }
 
         private fun makeDelimitedForced(decoder: ProtobufReader, parentTag: ProtoDesc?): ProtobufReader {
-            val bytes = if (parentTag == null) decoder.nextObjectNoTag()
-            else decoder.nextObject()
+            val bytes = if (parentTag == null) decoder.readObjectNoTag()
+            else decoder.readObject()
             return ProtobufReader(ByteArrayInput(bytes))
         }
 
@@ -565,7 +580,7 @@ public class ProtoBuf(
 
     override fun <T> dump(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutput()
-        val encoder = ProtobufEncoder(ProtobufWriter(output))
+        val encoder = ProtobufEncoder(ProtobufWriter(output), serializer.descriptor)
         encoder.encode(serializer, value)
         return output.toByteArray()
     }

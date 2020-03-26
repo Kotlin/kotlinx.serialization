@@ -79,8 +79,7 @@ internal abstract class ProtobufTaggedDecoder : TaggedBase(), Decoder, Composite
         descriptor: SerialDescriptor,
         index: Int,
         deserializer: DeserializationStrategy<T>
-    ): T = // TODO inline
-        tagBlock(descriptor.getTag(index)) { decodeSerializableValue(deserializer) }
+    ): T = tagBlock(descriptor.getTag(index)) { decodeSerializableValue(deserializer) }
 
     final override fun <T : Any> decodeNullableSerializableElement(
         descriptor: SerialDescriptor,
