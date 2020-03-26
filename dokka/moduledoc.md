@@ -18,3 +18,7 @@ Various JSON stuff
 # Package kotlinx.serialization.protobuf
 
 Protobuf stuff
+
+# Package kotlinx.serialization.cbor
+
+Cbor stuff
