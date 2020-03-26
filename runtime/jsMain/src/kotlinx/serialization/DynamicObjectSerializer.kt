@@ -125,7 +125,7 @@ private class DynamicObjectEncoder(val configuration: JsonConfiguration, val enc
         if (!configuration.isLenient && conversionHasLossOfPrecision) {
             throw IllegalArgumentException(
                 "$value can't be serialized to number due to a potential precision loss. " +
-                        "Use the JsonConfiguration option isLenient to serialise anyway"
+                        "Use the JsonConfiguration option isLenient to serialize anyway"
             )
         }
 
