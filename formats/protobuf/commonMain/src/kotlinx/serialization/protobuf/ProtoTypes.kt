@@ -21,14 +21,10 @@ private const val MASK = Int.MAX_VALUE.toLong() shl 32
  * @see ProtoType
  */
 @Suppress("NO_EXPLICIT_VISIBILITY_IN_API_MODE_WARNING")
-public enum class ProtoNumberType(@JvmField internal val signature: Long) {
-    DEFAULT(1L shl 32),
-    SIGNED(2L shl 32),
-    FIXED(3L shl 32);
-
-    internal fun equalTo(descriptor: ProtoDesc): Boolean {
-        return descriptor and MASK == signature
-    }
+public enum class ProtoNumberType(internal val signature: Long) {
+    DEFAULT(0L shl 32),
+    SIGNED(1L shl 32),
+    FIXED(2L shl 32);
 }
 
 /**
