@@ -54,7 +54,6 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
     }
 
     fun nextObjectNoTag(): ByteArray {
-        assertWireType(ProtoBuf.SIZE_DELIMITED)
         val length = decode32()
         check(length >= 0)
         return input.readExactNBytes(length)
@@ -71,12 +70,6 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
         return array
     }
 
-    fun nextBoolean(): Boolean = when (val i = nextInt(ProtoNumberType.DEFAULT)) {
-        0 -> false
-        1 -> true
-        else -> throw ProtobufDecodingException("Expected boolean value (0 or 1), found $i")
-    }
-
     fun nextInt(format: ProtoNumberType): Int {
         val wireType = if (format == ProtoNumberType.FIXED) ProtoBuf.i32 else ProtoBuf.VARINT
         assertWireType(wireType)
@@ -85,10 +78,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
         return result
     }
 
-    fun nextInt32NoTag(): Int {
-        assertWireType(ProtoBuf.i32)
-        return decode32()
-    }
+    fun nextInt32NoTag(): Int = decode32()
 
     fun nextLong(format: ProtoNumberType): Long {
         val wireType = if (format == ProtoNumberType.FIXED) ProtoBuf.i64 else ProtoBuf.VARINT
@@ -98,10 +88,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
         return result
     }
 
-    fun nextLongNoTag(): Long {
-        assertWireType(ProtoBuf.i64)
-        return decode64(ProtoNumberType.DEFAULT)
-    }
+    fun nextLongNoTag(): Long = decode64(ProtoNumberType.DEFAULT)
 
     fun nextFloat(): Float {
         assertWireType(ProtoBuf.i32)
@@ -110,10 +97,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
         return result
     }
 
-    fun nextFloatNoTag(): Float {
-        assertWireType(ProtoBuf.i32)
-        return Float.fromBits(readIntLittleEndian())
-    }
+    fun nextFloatNoTag(): Float = Float.fromBits(readIntLittleEndian())
 
     private fun readIntLittleEndian(): Int {
         // TODO this could be optimized by extracting method to the IS
@@ -143,7 +127,6 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
     }
 
     fun nextDoubleNoTag(): Double {
-        assertWireType(ProtoBuf.i64)
         return Double.fromBits(readLongLittleEndian())
     }
 
