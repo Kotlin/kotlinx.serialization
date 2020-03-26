@@ -19,64 +19,64 @@ class ProtobufTopLevelPrimitivesCompatibilityTest {
 
     @Test
     fun testPrimitivesCompatibility() {
-        testConversion(true, Boolean.serializer(), "01") { writeBoolNoTag(it) }
-        testConversion('c', Char.serializer(), "63") { writeInt32NoTag(it.toInt()) }
-        testConversion(1, Byte.serializer(), "01") { writeInt32NoTag(it.toInt()) }
-        testConversion(1, Short.serializer(), "01") { writeInt32NoTag(it.toInt()) }
-        testConversion(1, Int.serializer(), "01") { writeInt32NoTag(it) }
-        testConversion(1, Long.serializer(), "01") { writeInt64NoTag(it) }
-        testConversion(1f, Float.serializer(), "0000803F") { writeFloatNoTag(it) }
-        testConversion(1.0, Double.serializer(), "000000000000F03F") { writeDoubleNoTag(it) }
-        testConversion("string", String.serializer(), "06737472696E67") { writeStringNoTag(it) }
+        testCompatibility(true, Boolean.serializer(), "01") { writeBoolNoTag(it) }
+        testCompatibility('c', Char.serializer(), "63") { writeInt32NoTag(it.toInt()) }
+        testCompatibility(1, Byte.serializer(), "01") { writeInt32NoTag(it.toInt()) }
+        testCompatibility(1, Short.serializer(), "01") { writeInt32NoTag(it.toInt()) }
+        testCompatibility(1, Int.serializer(), "01") { writeInt32NoTag(it) }
+        testCompatibility(1, Long.serializer(), "01") { writeInt64NoTag(it) }
+        testCompatibility(1f, Float.serializer(), "0000803F") { writeFloatNoTag(it) }
+        testCompatibility(1.0, Double.serializer(), "000000000000F03F") { writeDoubleNoTag(it) }
+        testCompatibility("string", String.serializer(), "06737472696E67") { writeStringNoTag(it) }
     }
 
     @Test
     fun testArraysCompatibility() {
-        testConversion(byteArrayOf(1, 2, 3), ByteArraySerializer(), "03010203") { writeByteArrayNoTag(it) }
-        testConversion(byteArrayOf(), ByteArraySerializer(), "00") { writeByteArrayNoTag(it) }
-        testConversion(intArrayOf(1, 2, 3), IntArraySerializer(), "03010203") {
+        testCompatibility(byteArrayOf(1, 2, 3), ByteArraySerializer(), "03010203") { writeByteArrayNoTag(it) }
+        testCompatibility(byteArrayOf(), ByteArraySerializer(), "00") { writeByteArrayNoTag(it) }
+        testCompatibility(intArrayOf(1, 2, 3), IntArraySerializer(), "03010203") {
             writeUInt32NoTag(it.size)
             for (i in it) writeInt32NoTag(i)
         }
 
-        testConversion(arrayOf(Box(2)), serializer(), "010802") {
+        testCompatibility(arrayOf(Box(2)), serializer(), "010802") {
             writeUInt32NoTag(it.size)
             for (box in it) writeInt32(1, box.i)
         }
 
-        testConversion(arrayOf<Box>(), serializer(), "00") {
+        testCompatibility(arrayOf<Box>(), serializer(), "00") {
             writeUInt32NoTag(it.size)
         }
     }
 
     @Test
     fun testListsCompatibility() {
-        testConversion(listOf(1, 2, 3), serializer(), "03010203") {
+        testCompatibility(listOf(1, 2, 3), serializer(), "03010203") {
             writeUInt32NoTag(it.size)
             for (i in it) writeInt32NoTag(i)
         }
-        testConversion(listOf(Box(2)), serializer(), "010802") {
+        testCompatibility(listOf(Box(2)), serializer(), "010802") {
             writeUInt32NoTag(it.size)
             for (box in it) writeInt32(1, box.i)
         }
 
-        testConversion(listOf<Int>(), serializer(), "00") {
+        testCompatibility(listOf<Int>(), serializer(), "00") {
             writeUInt32NoTag(it.size)
         }
     }
 
     @Test
     fun testMapsCompatibility() {
-        testConversion(mapOf(1 to 2, 3 to 4), serializer(), "0204080110020408031004") {
+        testCompatibility(mapOf(1 to 2, 3 to 4), serializer(), "0204080110020408031004") {
             writeUInt32NoTag(it.size)
             for (pair in it) {
-                writeInt32NoTag(4)
+                writeInt32NoTag(4) // tag
                 writeInt32(1, pair.key)
                 writeInt32(2, pair.value)
             }
         }
 
-        testConversion(mapOf<Int, Int>(), serializer(), "00") {
+        testCompatibility(mapOf<Int, Int>(), serializer(), "00") {
             writeInt32NoTag(0)
         }
     }
@@ -88,16 +88,16 @@ class ProtobufTopLevelPrimitivesCompatibilityTest {
 
     @Test
     fun testTopLevelEnum() {
-        testConversion(Enum.E1, serializer<Enum>(), "00") {
+        testCompatibility(Enum.E1, serializer<Enum>(), "00") {
             writeUInt32NoTag(0)
         }
 
-        testConversion(Enum.E2, serializer<Enum>(), "01") {
+        testCompatibility(Enum.E2, serializer<Enum>(), "01") {
             writeUInt32NoTag(1)
         }
     }
 
-    private fun <T> testConversion(
+    private fun <T> testCompatibility(
         data: T,
         serializer: KSerializer<T>,
         expectedHexString: String,

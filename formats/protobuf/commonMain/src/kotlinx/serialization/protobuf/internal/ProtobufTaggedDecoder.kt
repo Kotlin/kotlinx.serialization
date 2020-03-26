@@ -7,10 +7,9 @@ package kotlinx.serialization.protobuf.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
 
-internal abstract class ProtobufTaggedDecoder : TaggedBase(), Decoder, CompositeDecoder {
+internal abstract class ProtobufTaggedDecoder : ProtobufTaggedBase(), Decoder, CompositeDecoder {
     override val updateMode: UpdateMode =
         UpdateMode.UPDATE
-
 
     protected abstract fun SerialDescriptor.getTag(index: Int): ProtoDesc
 
@@ -24,23 +23,22 @@ internal abstract class ProtobufTaggedDecoder : TaggedBase(), Decoder, Composite
     protected abstract fun decodeTaggedChar(tag: ProtoDesc): Char
     protected abstract fun decodeTaggedString(tag: ProtoDesc): String
     protected abstract fun decodeTaggedEnum(tag: ProtoDesc, enumDescription: SerialDescriptor): Int
-
-    // ---- Implementation of low-level API ----
+    protected abstract fun <T : Any?> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T
 
     final override fun decodeNotNullMark(): Boolean = true
     final override fun decodeNull(): Nothing? = null
-    final override fun decodeBoolean(): Boolean = decodeTaggedBoolean(popTagOrMissing())
-    final override fun decodeByte(): Byte = decodeTaggedByte(popTagOrMissing())
-    final override fun decodeShort(): Short = decodeTaggedShort(popTagOrMissing())
-    final override fun decodeInt(): Int = decodeTaggedInt(popTagOrMissing())
-    final override fun decodeLong(): Long = decodeTaggedLong(popTagOrMissing())
-    final override fun decodeFloat(): Float = decodeTaggedFloat(popTagOrMissing())
-    final override fun decodeDouble(): Double = decodeTaggedDouble(popTagOrMissing())
-    final override fun decodeChar(): Char = decodeTaggedChar(popTagOrMissing())
-    final override fun decodeString(): String = decodeTaggedString(popTagOrMissing())
-    final override fun decodeEnum(enumDescriptor: SerialDescriptor): Int = decodeTaggedEnum(popTagOrMissing(), enumDescriptor)
+    final override fun decodeBoolean(): Boolean = decodeTaggedBoolean(popTagOrDefault())
+    final override fun decodeByte(): Byte = decodeTaggedByte(popTagOrDefault())
+    final override fun decodeShort(): Short = decodeTaggedShort(popTagOrDefault())
+    final override fun decodeInt(): Int = decodeTaggedInt(popTagOrDefault())
+    final override fun decodeLong(): Long = decodeTaggedLong(popTagOrDefault())
+    final override fun decodeFloat(): Float = decodeTaggedFloat(popTagOrDefault())
+    final override fun decodeDouble(): Double = decodeTaggedDouble(popTagOrDefault())
+    final override fun decodeChar(): Char = decodeTaggedChar(popTagOrDefault())
+    final override fun decodeString(): String = decodeTaggedString(popTagOrDefault())
+    final override fun decodeEnum(enumDescriptor: SerialDescriptor): Int = decodeTaggedEnum(popTagOrDefault(), enumDescriptor)
 
-    override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         return this
     }
 
@@ -78,31 +76,22 @@ internal abstract class ProtobufTaggedDecoder : TaggedBase(), Decoder, Composite
     final override fun <T : Any?> decodeSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
-        deserializer: DeserializationStrategy<T>
-    ): T = // TODO inline
-        tagBlock(descriptor.getTag(index)) { decodeSerializableValue(deserializer) }
+        deserializer: DeserializationStrategy<T>,
+        previousValue: T?
+    ): T = tagBlock(descriptor.getTag(index)) { decodeSerializableValue(deserializer, previousValue) }
 
     final override fun <T : Any> decodeNullableSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
-        deserializer: DeserializationStrategy<T?>
-    ): T? =
-        tagBlock(descriptor.getTag(index)) { decodeNullableSerializableValue(deserializer) }
-
-    override fun <T> updateSerializableElement(
-        descriptor: SerialDescriptor,
-        index: Int,
-        deserializer: DeserializationStrategy<T>,
-        old: T
-    ): T = tagBlock(descriptor.getTag(index)) { updateSerializableValue(deserializer, old) }
-
-    override fun <T : Any> updateNullableSerializableElement(
-        descriptor: SerialDescriptor,
-        index: Int,
         deserializer: DeserializationStrategy<T?>,
-        old: T?
-    ): T? =
-        tagBlock(descriptor.getTag(index)) { updateNullableSerializableValue(deserializer, old) }
+        previousValue: T?
+    ): T? = tagBlock(descriptor.getTag(index)) {
+        if (decodeNotNullMark()) {
+            decodeSerializableValue(deserializer, previousValue)
+        } else {
+            decodeNull()
+        }
+    }
 
     override fun decodeUnit() {
         error("Should not be called")
