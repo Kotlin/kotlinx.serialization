@@ -56,15 +56,9 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
 
     private fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
         val tag = desc.getTag(index)
-        val shouldWriteElement = shouldWriteElement(desc, tag, index)
-        if (shouldWriteElement) {
-            pushTag(tag)
-        }
-        return shouldWriteElement
+        pushTag(tag)
+        return true
     }
-
-    // For format-specific behaviour, invoked only on non-primitives
-    protected open fun shouldWriteElement(desc: SerialDescriptor, tag: Tag, index: Int): Boolean = true
 
     final override fun encodeNotNullMark(): Unit = encodeTaggedNotNullMark(currentTag)
     final override fun encodeNull(): Unit = encodeTaggedNull(popTag())
