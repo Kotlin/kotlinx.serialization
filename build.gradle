@@ -73,7 +73,6 @@ buildscript {
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintray_version"
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
 
-        // Protobuf is udes in JVM tests
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.8'
 
         // Various benchmarking stuff
