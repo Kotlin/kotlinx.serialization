@@ -26,14 +26,14 @@ public open class PluginGeneratedSerialDescriptor(
     private val propertiesAnnotations = arrayOfNulls<MutableList<Annotation>?>(elementsCount)
     // Classes rarely have annotations, so we can save up a bit of allocations here
     private var classAnnotations: MutableList<Annotation>? = null
-    private var flags = BooleanArray(elementsCount)
+    private var elementsOptionality = BooleanArray(elementsCount)
     internal val namesSet: Set<String> get() = indices.keys
     // don't change lazy mode: KT-32871, KT-32872
     private val indices: Map<String, Int> by lazy { buildIndices() }
 
     public fun addElement(name: String, isOptional: Boolean = false) {
         names[++added] = name
-        flags[added] = isOptional
+        elementsOptionality[added] = isOptional
         propertiesAnnotations[added] = null
     }
 
@@ -62,7 +62,7 @@ public open class PluginGeneratedSerialDescriptor(
             ?: throw IndexOutOfBoundsException("$serialName descriptor has only $elementsCount elements, index: $index")
     }
 
-    override fun isElementOptional(index: Int): Boolean = flags.getChecked(index)
+    override fun isElementOptional(index: Int): Boolean = elementsOptionality.getChecked(index)
     override fun getElementAnnotations(index: Int): List<Annotation> = propertiesAnnotations.getChecked(index) ?: emptyList()
     override fun getElementName(index: Int): String = names.getChecked(index)
     override fun getElementIndex(name: String): Int = indices[name] ?: UNKNOWN_NAME

@@ -168,16 +168,12 @@ private class JsonTreeMapOutput(json: Json, nodeConsumer: (JsonElement) -> Unit)
     override fun getCurrent(): JsonElement {
         return JsonObject(content)
     }
-
-    override fun shouldWriteElement(desc: SerialDescriptor, tag: String, index: Int): Boolean = true
 }
 
 private class JsonTreeListOutput(json: Json, nodeConsumer: (JsonElement) -> Unit) :
     AbstractJsonTreeOutput(json, nodeConsumer) {
     private val array: ArrayList<JsonElement> = arrayListOf()
     override fun elementName(descriptor: SerialDescriptor, index: Int): String = index.toString()
-
-    override fun shouldWriteElement(desc: SerialDescriptor, tag: String, index: Int): Boolean = true
 
     override fun putElement(key: String, element: JsonElement) {
         val idx = key.toInt()
