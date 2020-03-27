@@ -19,7 +19,8 @@ Classes that provides runtime mechanisms for resolving serializers, typically us
 
 # Package kotlinx.serialization.json
 
-JSON serialization format implementation and JSON syntax tree data structures with builders for them.
+JSON serialization format implementation, JSON syntax tree data structures with builders for them,
+and JSON-specific serializers.
 
 # Package kotlinx.serialization.protobuf
 

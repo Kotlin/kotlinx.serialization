@@ -7,7 +7,8 @@ package kotlinx.serialization
 /**
  * KSerializer is responsible for the representation of a serial form of a type [T]
  * in terms of [encoders][Encoder] and [decoders][Decoder] and for constructing and deconstructing [T]
- * from/to a sequence of encoding primitives.
+ * from/to a sequence of encoding primitives. For classes marked with [@Serializable][Serializable], can be
+ * obtained from generated companion extension `.serializer()` or from [serializer<T>()][serializer] function.
  *
  * Serialization is decoupled from the encoding process to make it completely format-agnostic.
  * Serialization represents a type as its serial form and is abstracted from the actual

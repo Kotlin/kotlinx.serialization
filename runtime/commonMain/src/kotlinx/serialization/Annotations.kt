@@ -9,9 +9,10 @@ package kotlinx.serialization
 import kotlin.reflect.*
 
 /**
- * Instructs to use specific serializer for class, property or type argument.
+ * Sets specific serializer for class, property or type argument.
+ * When argument is omitted, plugin will generate default implementation inside the class.
  *
- * If argument is omitted, plugin will generate default implementation inside the class.
+ * @see UseSerializers
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS, AnnotationTarget.TYPE)
 public annotation class Serializable(

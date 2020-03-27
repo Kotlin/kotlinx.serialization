@@ -160,7 +160,7 @@ public constructor(
     public inline fun <reified T : Any> fromJson(tree: JsonElement): T = fromJson(context.getContextualOrDefault(T::class), tree)
 
     /**
-     * The default instance of [Json] in the form of companion object.
+     * The default instance of [Json] in the form of companion object. Configured with [JsonConfiguration.Default].
      */
     @UnstableDefault
     public companion object Default : StringFormat {

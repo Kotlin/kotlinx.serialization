@@ -45,13 +45,7 @@ public fun SerializersModule(buildAction: SerializersModuleBuilder.() -> Unit): 
 }
 
 /**
- * Reified version of `SerializersModuleBuilder.contextual(KClass, Serializer)`
- */
-@ImplicitReflectionSerializer
-public inline fun <reified T : Any> SerializersModuleBuilder.contextual(): Unit = contextual(T::class, serializer())
-
-/**
- * A builder class for [SerializersModule] DSL.
+ * A builder class for [SerializersModule] DSL. To create an instance of builder, use [SerializersModule] factory function.
  */
 public class SerializersModuleBuilder internal constructor() : SerialModuleCollector {
     private val class2Serializer: MutableMap<KClass<*>, KSerializer<*>> = hashMapOf()
@@ -66,6 +60,12 @@ public class SerializersModuleBuilder internal constructor() : SerialModuleColle
      */
     public override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>): Unit =
         registerSerializer(kClass, serializer)
+
+    /**
+     * A reified version of `contextual(KClass, Serializer)`
+     */
+    @ImplicitReflectionSerializer
+    public inline fun <reified T : Any> contextual(): Unit = contextual(T::class, serializer())
 
     /**
      * Adds [serializer][actualSerializer] associated with given [actualClass] in the scope of [baseClass] for polymorphic serialization.
@@ -88,7 +88,7 @@ public class SerializersModuleBuilder internal constructor() : SerialModuleColle
     }
 
     /**
-     * Copies contents of [other] module into current builder.
+     * Copies contents of [other] module into the current builder.
      */
     public fun include(other: SerialModule) {
         other.dumpTo(this)

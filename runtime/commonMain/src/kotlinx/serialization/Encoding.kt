@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.modules.*
+import kotlin.reflect.*
 
 /**
  * Encoder is a core serialization primitive that encapsulates the knowledge of the underlying
@@ -246,7 +247,7 @@ public interface Encoder {
     /**
      * Encodes the [value] of type [T] by delegating the encoding process to the given [serializer].
      * For example, `encodeInt` call us equivalent to delegating integer encoding to [IntSerializer]:
-     * `encodeSerializableValue(IntSerializer)`
+     * `encodeSerializableValue(IntSerializer())`
      */
     public fun <T : Any?> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
         serializer.serialize(this, value)

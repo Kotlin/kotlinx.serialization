@@ -85,13 +85,13 @@ public abstract class JsonTransformingSerializer<T : Any>(
     }
 
     /**
-     * Transformation that happens during [serialize] call.
+     * Transformation that happens during [deserialize] call.
      * Does nothing by default.
      */
     protected open fun readTransform(element: JsonElement): JsonElement = element
 
     /**
-     * Transformation that happens during [deserialize] call.
+     * Transformation that happens during [serialize] call.
      * Does nothing by default.
      */
     protected open fun writeTransform(element: JsonElement): JsonElement = element

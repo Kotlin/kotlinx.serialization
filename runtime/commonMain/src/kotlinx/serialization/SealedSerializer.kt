@@ -15,6 +15,8 @@ import kotlin.reflect.*
  * In contrary to [PolymorphicSerializer], all known subclasses with serializers must be passed
  * in `subclasses` and `subSerializers` constructor parameters.
  * If a subclass is a sealed class itself, all its subclasses are registered as well.
+ *
+ * If sealed hierarchy is marked [@Serializable][Serializable], an instance of this class is constructed automatically.
  * In most of the cases, you won't need to perform any manual setup:
  *
  * ```

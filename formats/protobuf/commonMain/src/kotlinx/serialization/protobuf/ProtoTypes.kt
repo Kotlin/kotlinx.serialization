@@ -18,6 +18,7 @@ private const val MASK = Int.MAX_VALUE.toLong() shl 32
  * uintXX and sfixedXX are not supported yet.
  *
  * See [https://developers.google.com/protocol-buffers/docs/proto#scalar]
+ * @see ProtoType
  */
 @Suppress("NO_EXPLICIT_VISIBILITY_IN_API_MODE_WARNING")
 public enum class ProtoNumberType(@JvmField internal val signature: Long) {
