@@ -25,7 +25,7 @@ task emptyJar(type: Jar) {
 }
 
 afterEvaluate {
-    task sourcesJar(type: Jar) {
+    task mainSourcesJar(type: Jar) {
         classifier = 'sources'
         if (isMultiplatform) {
             from kotlin.sourceSets.commonMain.kotlin
@@ -45,12 +45,10 @@ afterEvaluate {
                     artifactId variantName
                     publication.from components.java
                     publication.artifact stubJavadoc
-                    publication.artifact sourcesJar
+                    publication.artifact mainSourcesJar
                     publication.pom.withXml(configureMavenCentralMetadata)
                 }
             }
-
-            disableMetadataPublicationKotlinJvm()
             return
         }
 
@@ -62,7 +60,7 @@ afterEvaluate {
                 case 'kotlinMultiplatform':
                     it.artifactId = "$variantName-native"
                     it.artifact stubJavadoc
-                    it.artifact sourcesJar
+                    it.artifact mainSourcesJar
                     break
 
                 case 'metadata':
@@ -81,33 +79,6 @@ afterEvaluate {
             logger.info("Artifact id = ${it.artifactId}")
 
             pom.withXml(configureMavenCentralMetadata)
-        }
-
-        disableMetadataPublication()
-    }
-}
-
-private void disableMetadataPublicationKotlinJvm() {
-    publishing.publications.each { pub ->
-        pub.moduleDescriptorGenerator = null
-        tasks.matching { it.name == "generateMetadataFileFor${pub.name.capitalize()}Publication" }.all {
-            onlyIf { false }
-        }
-    }
-}
-
-private void disableMetadataPublication() {
-    kotlin.targets.all { target ->
-        def publication = publishing.publications.findByName(target.name)
-
-        if (publication != null) {
-            publication.artifact stubJavadoc
-            if (target.platformType.name != 'native' && target.platformType.name != 'js') {
-                publication.moduleDescriptorGenerator = null
-                tasks.matching { it.name == "generateMetadataFileFor${name.capitalize()}Publication" }.all {
-                    onlyIf { false }
-                }
-            }
         }
     }
 }
