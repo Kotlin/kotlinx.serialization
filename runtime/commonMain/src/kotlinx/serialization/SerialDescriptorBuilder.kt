@@ -74,7 +74,7 @@ public val SerialDescriptor.nullable: SerialDescriptor
     }
 
 /**
- * Builder for [SerialDescriptor] to be used in custom serializers.
+ * Builder for [SerialDescriptor] for user-defined serializers.
  *
  * Both explicit builder functions and implicit (using `typeOf`) are present and
  * are equivalent.

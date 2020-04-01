@@ -11,7 +11,7 @@ public open class SerializationException(message: String, cause: Throwable? = nu
 
 // thrown from generated code
 /**
- * Thrown when [KSerializer] hasn't received property from [Decoder], and this property was not optional.
+ * Thrown when [KSerializer] did not receive property from [Decoder], and this property was not optional.
  */
 public class MissingFieldException(fieldName: String) :
     SerializationException("Field '$fieldName' is required, but it was missing")
