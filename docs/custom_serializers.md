@@ -122,7 +122,7 @@ override fun deserialize(decoder: Decoder): BinaryPayload {
 
 You can see it in action [in tests](../runtime/commonTest/src/kotlinx/serialization/features/BinaryPayloadExampleTest.kt#L10). Another useful example from tests is [custom serializer which uses ability to read JSON as tree](../runtime/commonTest/src/kotlinx/serialization/json/JsonTreeAndMapperTest.kt#L35).
 
-*Note:* this approach is not working for generic classes, see below.
+*Note:* this approach does not work for generic classes, [see below](#about-generic-serializers).
 
 ## External serializers for library classes
 
@@ -137,13 +137,17 @@ If it is Kotlin class, you can just let the plugin know you want to create a ser
 object DataSerializer {}
 ```
 
-This is called external serialization and it imposes certain restrictions: classes should only have primary constructors' vals/vars and class body `var` properties (you can learn more in [docs](examples.md))
+This is called external serialization, which only supports serializing the following:
+* Classes with primary constructors that only contain property declarations (i.e. no parameterized primary constructors)
+* internal or public class body vars
+
+Any class body vals or private/protected vars will not be seen by the serializer. You can learn more in the [example docs](examples.md)
 
 As in the first example, you can customize the process by overriding the `serialize` and `deserialize` methods.
 
 If it is a Java class, things get more complicated: Java has no concept of a primary constructor and the plugin doesn't know which properties it can serialize. For Java classes, you should always override the `serialize`/`deserialize` methods.
-You can still use `@Serializer(forClass = ...)` to generate an empty serial descriptor.
-For example, let's write a serializer for `java.util.Date`:
+You can still use `@Serializer(forClass = ...)` to generate an empty `SerialDescriptor`.
+To illustrate, let's write a serializer for `java.util.Date`:
 
 ```kotlin
 @Serializer(forClass = Date::class)
