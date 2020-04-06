@@ -21,7 +21,7 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
     }
 
     @Test
-    fun testPlainObject() = noJsIr {
+    fun testPlainClass() = noJsIr {
         val b = StringData("some string")
         assertSerializedWithType("""{data:"some string"}""", b)
     }
@@ -122,6 +122,11 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
         assertSerializedWithType("[1,2,3]", shortArrayOf(1, 2, 3), default)
         assertSerializedWithType("[true,false]", booleanArrayOf(true, false), default)
         assertSerializedWithType("""["a","b","c"]""", charArrayOf('a', 'b', 'c'), default)
+    }
+
+    @Test
+    fun testSerializableObject() = noJs {
+        assertSerializedWithType("{}", SampleObject)
     }
 
     // Tests with [constructSerializerForGivenTypeArgs] are unsupported on Kotlin/JS
