@@ -21,7 +21,7 @@ public class ConfigParser(
     public inline fun <reified T : Any> parse(conf: Config): T = parse(conf, context.getContextualOrDefault(T::class))
 
     public fun <T> parse(conf: Config, deserializer: DeserializationStrategy<T>): T =
-        ConfigReader(conf).decode(deserializer)
+        ConfigDecoder(conf).decode(deserializer)
 
 
     private abstract inner class ConfigConverter<T> : TaggedDecoder<T>() {
@@ -65,7 +65,7 @@ public class ConfigParser(
         }
     }
 
-    private inner class ConfigReader(val conf: Config) : ConfigConverter<String>() {
+    private inner class ConfigDecoder(val conf: Config) : ConfigConverter<String>() {
         private var ind = -1
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
@@ -100,21 +100,21 @@ public class ConfigParser(
 
         override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder =
             when {
-                descriptor.kind.listLike -> ListConfigReader(conf.getList(currentTag))
-                descriptor.kind.objLike -> if (ind > -1) ConfigReader(conf.getConfig(currentTag)) else this
-                descriptor.kind == StructureKind.MAP -> MapConfigReader(conf.getObject(currentTag))
+                descriptor.kind.listLike -> ListConfigDecoder(conf.getList(currentTag))
+                descriptor.kind.objLike -> if (ind > -1) ConfigDecoder(conf.getConfig(currentTag)) else this
+                descriptor.kind == StructureKind.MAP -> MapConfigDecoder(conf.getObject(currentTag))
                 else -> this
             }
     }
 
-    private inner class ListConfigReader(private val list: ConfigList) : ConfigConverter<Int>() {
+    private inner class ListConfigDecoder(private val list: ConfigList) : ConfigConverter<Int>() {
         private var ind = -1
 
         override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder =
             when {
-                descriptor.kind.listLike -> ListConfigReader(list[currentTag] as ConfigList)
-                descriptor.kind.objLike -> ConfigReader((list[currentTag] as ConfigObject).toConfig())
-                descriptor.kind == StructureKind.MAP -> MapConfigReader(list[currentTag] as ConfigObject)
+                descriptor.kind.listLike -> ListConfigDecoder(list[currentTag] as ConfigList)
+                descriptor.kind.objLike -> ConfigDecoder((list[currentTag] as ConfigObject).toConfig())
+                descriptor.kind == StructureKind.MAP -> MapConfigDecoder(list[currentTag] as ConfigObject)
                 else -> this
             }
 
@@ -128,7 +128,7 @@ public class ConfigParser(
         override fun getTaggedConfigValue(tag: Int): ConfigValue = list[tag]
     }
 
-    private inner class MapConfigReader(map: ConfigObject) : ConfigConverter<Int>() {
+    private inner class MapConfigDecoder(map: ConfigObject) : ConfigConverter<Int>() {
 
         private var ind = -1
         private val keys: List<String>
@@ -144,9 +144,9 @@ public class ConfigParser(
 
         override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder =
             when {
-                descriptor.kind.listLike -> ListConfigReader(values[currentTag / 2] as ConfigList)
-                descriptor.kind.objLike -> ConfigReader((values[currentTag / 2] as ConfigObject).toConfig())
-                descriptor.kind == StructureKind.MAP -> MapConfigReader(values[currentTag / 2] as ConfigObject)
+                descriptor.kind.listLike -> ListConfigDecoder(values[currentTag / 2] as ConfigList)
+                descriptor.kind.objLike -> ConfigDecoder((values[currentTag / 2] as ConfigObject).toConfig())
+                descriptor.kind == StructureKind.MAP -> MapConfigDecoder(values[currentTag / 2] as ConfigObject)
                 else -> this
             }
 
