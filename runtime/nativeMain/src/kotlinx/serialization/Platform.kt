@@ -33,7 +33,7 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
 @OptIn(ExperimentalAssociatedObjects::class)
 @ImplicitReflectionSerializer
 internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
-    findAssociatedObject<SerializableWith>() as? KSerializer<T>
+    this.constructSerializerForGivenTypeArgs()
 
 internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E> {
     val result = arrayOfAnyNulls<E>(size)
