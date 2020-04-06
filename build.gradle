@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 buildscript {
@@ -71,6 +71,8 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintray_version"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
+
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.8'
 
         // Various benchmarking stuff
@@ -144,3 +146,4 @@ subprojects {
 }
 
 apply from: rootProject.file('gradle/compilerVersion.gradle')
+apply from: rootProject.file("gradle/dokka.gradle")

@@ -253,6 +253,7 @@ public interface Decoder {
 /**
  * [CompositeDecoder] is a part of decoding process that is bound to a particular structured part of
  * the serialized form, described by the serial descriptor passed to [Decoder.beginStructure].
+ *
  * Typically, for unordered data, [CompositeDecoder] is used by a serializer withing a [decodeElementIndex]-based
  * loop that decodes all the required data one-by-one in any order and then terminates by calling [endStructure].
  * Please refer to [decodeElementIndex] for example of such loop.

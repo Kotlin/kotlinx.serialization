@@ -10,7 +10,7 @@ import kotlinx.serialization.modules.*
 
 /**
  * Transforms a [Serializable] class' properties into a single flat [Map] which consists of
- * string keys and primitive type values, and vice versa.
+ * string keys and primitive type values, and vice versa. Located in separated `kotlinx-serialization-properties` artifact.
  *
  * If the given class has non-primitive property `d` of arbitrary type `D`, `D` values are inserted
  * into the same map; keys for such values are prefixed with string `d.`:

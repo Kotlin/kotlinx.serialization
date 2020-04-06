@@ -28,7 +28,7 @@ import kotlin.reflect.*
  * The returned serializer is used to deserialize [JsonElement] back to Kotlin object.
  *
  * It is possible to serialize values this serializer. In that case, class discriminator property won't
- * be added to JSON stream, i.e., deserializing a class from the string and serializing it back yields the original string
+ * be added to JSON stream, i.e., deserializing a class from the string and serializing it back yields the original string.
  * However, to determine a serializer, a standard polymorphic mechanism represented by [SerialModule] is used.
  * For convenience, [serialize] method can lookup default serializer, but it is recommended to follow
  * standard procedure with [registering][SerializersModuleBuilder.polymorphic].

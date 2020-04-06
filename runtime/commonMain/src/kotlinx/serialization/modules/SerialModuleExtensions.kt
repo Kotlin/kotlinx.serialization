@@ -22,10 +22,20 @@ public fun <T : Any> SerialModule.getContextual(value: T): KSerializer<T>? {
     return getContextual(value::class)?.cast()
 }
 
+/**
+ * Returns a serializer associated with [klass], or a [default one][KClass.serializer].
+ *
+ * @throws SerializationException if serializer can't be found.
+ */
 @ImplicitReflectionSerializer
 public fun <T : Any> SerialModule.getContextualOrDefault(klass: KClass<T>): KSerializer<T> =
     getContextual(klass) ?: klass.serializer()
 
+/**
+ * Returns a serializer associated with KClass of the given [value], or a [default one][KClass.serializer].
+ *
+ * @throws SerializationException if serializer can't be found.
+ */
 @ImplicitReflectionSerializer
 public fun <T : Any> SerialModule.getContextualOrDefault(value: T): KSerializer<T> =
     getContextual(value) ?: value::class.serializer().cast()
@@ -33,7 +43,7 @@ public fun <T : Any> SerialModule.getContextualOrDefault(value: T): KSerializer<
 /**
  * Returns a combination of two serial modules
  *
- * If some serializer present in both modules, an [SerializerAlreadyRegisteredException] is thrown.
+ * If serializer for some class presents in both modules, a [SerializerAlreadyRegisteredException] is thrown.
  * To overwrite serializers, use [SerialModule.overwriteWith] function.
  */
 public operator fun SerialModule.plus(other: SerialModule): SerialModule = SerializersModule {
@@ -44,7 +54,7 @@ public operator fun SerialModule.plus(other: SerialModule): SerialModule = Seria
 /**
  * Returns a combination of two serial modules
  *
- * If some serializers present in both modules, result module
+ * If serializer for some class presents in both modules, result module
  * will contain serializer from [other] module.
  */
 public infix fun SerialModule.overwriteWith(other: SerialModule): SerialModule = SerializersModule {

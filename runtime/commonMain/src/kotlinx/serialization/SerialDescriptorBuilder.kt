@@ -74,7 +74,8 @@ public val SerialDescriptor.nullable: SerialDescriptor
     }
 
 /**
- * Builder for [SerialDescriptor].
+ * Builder for [SerialDescriptor] for user-defined serializers.
+ *
  * Both explicit builder functions and implicit (using `typeOf`) are present and
  * are equivalent.
  * For example, `element<Int?>("nullableIntField")` is indistinguishable from
@@ -134,7 +135,7 @@ public class SerialDescriptorBuilder internal constructor(
     }
 
     /**
-     * Reified version of [element] function that
+     * A reified version of [element] function that
      * extract descriptor using `serializer<T>().descriptor` call with all the restrictions of `serializer<T>().descriptor`.
      */
     @ImplicitReflectionSerializer
@@ -146,62 +147,62 @@ public class SerialDescriptorBuilder internal constructor(
         val descriptor = serializer<T>().descriptor
         element(elementName, descriptor, annotations, isOptional)
     }
-}
 
-// All these methods are extensions to avoid top-level scope pollution
 
-/**
- * Retrieves descriptor of type [T] using reified [serializer] function.
- */
-@ImplicitReflectionSerializer
-public inline fun <reified T> SerialDescriptorBuilder.descriptor(): SerialDescriptor = serializer<T>().descriptor
+    /**
+     * Retrieves descriptor of type [T] using reified [serializer] function.
+     */
+    @ImplicitReflectionSerializer
+    public inline fun <reified T> descriptor(): SerialDescriptor = serializer<T>().descriptor
 
-/**
- * Creates descriptor for the type `List<T>` where `T` is the type associated with [typeDescriptor].
- */
-public fun SerialDescriptorBuilder.listDescriptor(typeDescriptor: SerialDescriptor): SerialDescriptor {
-    return ArrayListClassDesc(typeDescriptor)
-}
-/**
- * Creates descriptor for the type `List<T>`.
- */
-@ImplicitReflectionSerializer
-public inline fun <reified T> SerialDescriptorBuilder.listDescriptor(): SerialDescriptor {
-    return listDescriptor(serializer<T>().descriptor)
-}
+    /**
+     * Creates a descriptor for the type `List<T>` where `T` is the type associated with [typeDescriptor].
+     */
+    public fun listDescriptor(typeDescriptor: SerialDescriptor): SerialDescriptor {
+        return ArrayListClassDesc(typeDescriptor)
+    }
 
-/**
- * Creates descriptor for the type `Map<K, V>` where `K` and `V` are types
- * associated with [keyDescriptor] and [valueDescriptor] respectively.
- */
-public fun SerialDescriptorBuilder.mapDescriptor(
-    keyDescriptor: SerialDescriptor,
-    valueDescriptor: SerialDescriptor
-): SerialDescriptor {
-    return HashMapClassDesc(keyDescriptor, valueDescriptor)
-}
+    /**
+     * Creates a descriptor for the type `List<T>`.
+     */
+    @ImplicitReflectionSerializer
+    public inline fun <reified T> listDescriptor(): SerialDescriptor {
+        return listDescriptor(serializer<T>().descriptor)
+    }
 
-/**
- * Creates descriptor for the type `Map<K, V>`.
- */
-@ImplicitReflectionSerializer
-public inline fun <reified K, reified V> SerialDescriptorBuilder.mapDescriptor(): SerialDescriptor {
-    return mapDescriptor(serializer<K>().descriptor, serializer<V>().descriptor)
-}
+    /**
+     * Creates a descriptor for the type `Map<K, V>` where `K` and `V` are types
+     * associated with [keyDescriptor] and [valueDescriptor] respectively.
+     */
+    public fun mapDescriptor(
+        keyDescriptor: SerialDescriptor,
+        valueDescriptor: SerialDescriptor
+    ): SerialDescriptor {
+        return HashMapClassDesc(keyDescriptor, valueDescriptor)
+    }
 
-/**
- * Creates descriptor for the type `Set<T>` where `T` is the type associated with [typeDescriptor].
- */
-public fun SerialDescriptorBuilder.setDescriptor(typeDescriptor: SerialDescriptor): SerialDescriptor {
-    return HashSetClassDesc(typeDescriptor)
-}
+    /**
+     * Creates a descriptor for the type `Map<K, V>`.
+     */
+    @ImplicitReflectionSerializer
+    public inline fun <reified K, reified V> mapDescriptor(): SerialDescriptor {
+        return mapDescriptor(serializer<K>().descriptor, serializer<V>().descriptor)
+    }
 
-/**
- * Creates descriptor for the type `Set<T>`.
- */
-@ImplicitReflectionSerializer
-public inline fun <reified T> SerialDescriptorBuilder.setDescriptor(): SerialDescriptor {
-    return setDescriptor(serializer<T>().descriptor)
+    /**
+     * Creates a descriptor for the type `Set<T>` where `T` is the type associated with [typeDescriptor].
+     */
+    public fun setDescriptor(typeDescriptor: SerialDescriptor): SerialDescriptor {
+        return HashSetClassDesc(typeDescriptor)
+    }
+
+    /**
+     * Creates a descriptor for the type `Set<T>`.
+     */
+    @ImplicitReflectionSerializer
+    public inline fun <reified T> setDescriptor(): SerialDescriptor {
+        return setDescriptor(serializer<T>().descriptor)
+    }
 }
 
 private class SerialDescriptorImpl(

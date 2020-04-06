@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("RedundantVisibilityModifier")
@@ -25,7 +25,7 @@ public fun jsonArray(init: JsonArrayBuilder.() -> Unit): JsonArray {
 }
 
 /**
- * DSL builder for a [JsonArray].
+ * DSL builder for a [JsonArray]. To create an instance of builder, use [jsonArray].
  */
 public class JsonArrayBuilder internal constructor() {
 
@@ -61,7 +61,7 @@ public class JsonArrayBuilder internal constructor() {
 }
 
 /**
- * DSL builder for a [JsonObject].
+ * DSL builder for a [JsonObject]. To create an instance of builder, use [json].
  */
 public class JsonObjectBuilder internal constructor() {
 

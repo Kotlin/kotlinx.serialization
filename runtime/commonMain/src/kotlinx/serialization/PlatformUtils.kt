@@ -15,6 +15,8 @@ import kotlin.reflect.*
  * This method has all the restrictions implied by [ImplicitReflectionSerializer], i.e.,
  * it will fail on an attempt to retrieve a serializer for generic class.
  * For classes with type parameters `serializer(KType)` should be used instead.
+ *
+ * @throws SerializationException if serializer can't be found.
  */
 @ImplicitReflectionSerializer
 public fun <T : Any> KClass<T>.serializer(): KSerializer<T> = serializerOrNull()
@@ -28,7 +30,7 @@ public fun <T : Any> KClass<T>.serializer(): KSerializer<T> = serializerOrNull()
  * The class must be annotated as `@Serializable` or be one of the built-in types.
  *
  * This method has all the restrictions implied by [ImplicitReflectionSerializer].
- * It will return `null` in case serializer can't be obtained reflectively.
+ * It returns `null` in case serializer can't be obtained reflectively.
  */
 @ImplicitReflectionSerializer
 public fun <T : Any> KClass<T>.serializerOrNull(): KSerializer<T>? = compiledSerializerImpl()
