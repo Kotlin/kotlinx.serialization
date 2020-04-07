@@ -23,6 +23,8 @@ public class ConfigParser(
     public fun <T> parse(conf: Config, deserializer: DeserializationStrategy<T>): T =
         ConfigDecoder(conf).decode(deserializer)
 
+    public interface ConfigInput : Decoder, CompositeDecoder {}
+
 
     private abstract inner class ConfigConverter<T> : TaggedDecoder<T>() {
         override val context: SerialModule
@@ -65,7 +67,7 @@ public class ConfigParser(
         }
     }
 
-    private inner class ConfigDecoder(val conf: Config) : ConfigConverter<String>() {
+    private inner class ConfigDecoder(val conf: Config) : ConfigConverter<String>(), ConfigInput {
         private var ind = -1
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
