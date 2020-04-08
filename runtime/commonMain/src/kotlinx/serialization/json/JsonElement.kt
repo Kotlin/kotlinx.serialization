@@ -152,26 +152,31 @@ public sealed class JsonPrimitive : JsonElement() {
  * [isString] indicates whether literal was explicitly constructed as a [String] and
  * whether it should be serialized as one. E.g. `JsonLiteral("42", false)`
  * and `JsonLiteral("42", true)` will be serialized as `42` and `"42"` respectively.
+ *
+ * [String] content is not escaped by default, but is escaped by [JsonLiteral.toString] and the [JsonLiteralSerializer].
  */
 @Serializable(JsonLiteralSerializer::class)
-public class JsonLiteral internal constructor(body: Any, public val isString: Boolean) : JsonPrimitive() {
+public class JsonLiteral internal constructor(
+    body: Any,
+    public val isString: Boolean
+) : JsonPrimitive() {
     public override val content: String = body.toString()
     public override val contentOrNull: String = content
 
     /**
      * Creates number literal
      */
-    public constructor(number: Number) : this(number, false)
+    public constructor(number: Number) : this(number, isString = false)
 
     /**
      * Creates boolean literal
      */
-    public constructor(boolean: Boolean) : this(boolean, false)
+    public constructor(boolean: Boolean) : this(boolean, isString = false)
 
     /**
      * Creates quoted string literal
      */
-    public constructor(string: String) : this(string, true)
+    public constructor(string: String) : this(string, isString = true)
 
     public override fun toString(): String =
         if (isString) buildString { printQuoted(content) }
@@ -181,12 +186,9 @@ public class JsonLiteral internal constructor(body: Any, public val isString: Bo
     public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
-
         other as JsonLiteral
-
         if (isString != other.isString) return false
         if (content != other.content) return false
-
         return true
     }
 
