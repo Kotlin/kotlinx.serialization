@@ -152,7 +152,7 @@ public constructor(
     }
 
     /**
-     * Deserializes [json] element into a corresponding object of type [T] using serializer registered in the module.
+     * Deserializes [tree] element into a corresponding object of type [T] using serializer registered in the module.
      * @throws [JsonException] in case of malformed json
      * @throws [SerializationException] if given input can not be deserialized
      */
