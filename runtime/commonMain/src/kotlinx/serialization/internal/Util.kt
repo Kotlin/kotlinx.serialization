@@ -9,6 +9,8 @@ import kotlinx.serialization.*
 
 @InternalSerializationApi
 public fun InputStream.readExactNBytes(bytes: Int): ByteArray {
+    val available = this.available()
+    check(available >= bytes) { "$available bytes available is not enough to read $bytes bytes" }
     val array = ByteArray(bytes)
     var read = 0
     while (read < bytes) {
@@ -31,7 +33,7 @@ internal object InternalHexConverter {
         while (i < len) {
             val h = hexToInt(s[i])
             val l = hexToInt(s[i + 1])
-            require(!(h == -1 || l == -1)) { "Invalid hex chars: ${s[i]}${s[i+1]}" }
+            require(!(h == -1 || l == -1)) { "Invalid hex chars: ${s[i]}${s[i + 1]}" }
 
             bytes[i / 2] = ((h shl 4) + l).toByte()
             i += 2
@@ -67,9 +69,9 @@ internal object InternalHexConverter {
 
 @InternalSerializationApi
 @Deprecated(
-    level = DeprecationLevel.WARNING,
-    message = "HexConverter slipped into public API surface accidentally and will be removed in the future releases. " +
-            "You can copy-paste it to your project or (better) find a polished implementation that initially was intended for public uses."
+        level = DeprecationLevel.WARNING,
+        message = "HexConverter slipped into public API surface accidentally and will be removed in the future releases. " +
+                "You can copy-paste it to your project or (better) find a polished implementation that initially was intended for public uses."
 )
 object HexConverter {
     private const val hexCode = "0123456789ABCDEF"
