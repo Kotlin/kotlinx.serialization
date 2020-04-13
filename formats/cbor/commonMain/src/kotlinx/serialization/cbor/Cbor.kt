@@ -332,14 +332,12 @@ public class Cbor(
             return result
         }
 
-        private fun Input.readExactNBytes(bytes: Int): ByteArray {
-            val array = ByteArray(bytes)
-            var read = 0
-            while (read < bytes) {
-                val i = this.read(array, read, bytes - read)
-                if (i == -1) error("Unexpected EOF")
-                read += i
+        private fun Input.readExactNBytes(bytesCount: Int): ByteArray {
+            if (bytesCount > availableBytes) {
+                error("Unexpected EOF, available $availableBytes bytes, requested: $bytesCount")
             }
+            val array = ByteArray(bytesCount)
+            read(array, 0, bytesCount)
             return array
         }
 

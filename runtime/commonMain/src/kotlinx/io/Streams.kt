@@ -8,6 +8,7 @@ import kotlinx.serialization.*
 
 @InternalSerializationApi
 public abstract class Input {
+    abstract val availableBytes: Int
     public abstract fun read(): Int
     public abstract fun read(b: ByteArray, offset: Int, length: Int): Int
     public abstract fun readString(length: Int): String
@@ -19,6 +20,7 @@ public abstract class Input {
 public class ByteArrayInput(private var array: ByteArray) : Input() {
 
     private var position: Int = 0
+    public override val availableBytes: Int get() = array.size - position
 
     override fun read(): Int {
         return if (position < array.size) array[position++].toInt() and 0xFF else -1
