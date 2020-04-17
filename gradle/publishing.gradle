@@ -58,9 +58,9 @@ afterEvaluate {
             logger.info("Configuring $type")
             switch (type) {
                 case 'kotlinMultiplatform':
-                    it.artifactId = "$variantName-native"
-                    it.artifact stubJavadoc
-                    it.artifact mainSourcesJar
+                    it.artifactId = "$variantName"
+                    apply from: "$rootDir/gradle/publish-mpp-root-module-in-platform.gradle"
+                    publishPlatformArtifactsInRootModule(publications["jvm"])
                     break
 
                 case 'metadata':
@@ -68,11 +68,10 @@ afterEvaluate {
                     break
 
                 case 'jvm':
-                    it.artifactId = "$variantName"
+                    it.artifactId = "$variantName-jvm"
                     break
 
                 case 'js':
-                case 'native': // native most probably unused but I'll leave it just in case
                     it.artifactId = "$variantName-$type"
                     break
             }
