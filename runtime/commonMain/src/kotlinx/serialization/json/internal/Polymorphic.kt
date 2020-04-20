@@ -53,8 +53,8 @@ internal fun <T> JsonInput.decodeSerializableValuePolymorphic(deserializer: Dese
     }
 
     val jsonTree = cast<JsonObject>(decodeJson())
-    val type = jsonTree.getValue(json.configuration.classDiscriminator).content
-    (jsonTree.content as MutableMap).remove(json.configuration.classDiscriminator)
+    val discriminator = json.configuration.classDiscriminator
+    val type = jsonTree.getValue(discriminator).content
     val actualSerializer = deserializer.findPolymorphicSerializer(this, type).cast<T>()
-    return json.readJson(jsonTree, actualSerializer)
+    return json.readPolymorphicJson(discriminator, jsonTree, actualSerializer)
 }

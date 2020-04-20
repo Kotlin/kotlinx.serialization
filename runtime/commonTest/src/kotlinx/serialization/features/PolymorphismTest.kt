@@ -48,6 +48,7 @@ class PolymorphismTest : JsonTestBase() {
 
     object PolyDefaultSerializer : JsonTransformingSerializer<PolyDefault>(PolyDefault.serializer(), "foo") {
         override fun readTransform(element: JsonElement): JsonElement {
+            (element.jsonObject.content as MutableMap).remove("type")
             return buildJson {
                 add("json", element)
                 add("id", 42)
