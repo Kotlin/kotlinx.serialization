@@ -4,12 +4,13 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.protobuf.*
 import kotlin.test.*
 
 internal inline fun <reified T> assertSerializedToBinaryAndRestored(
     original: T,
     serializer: KSerializer<T>,
-    format: BinaryFormat,
+    format: BinaryFormat = ProtoBuf,
     printResult: Boolean = false,
     hexResultToCheck: String? = null
 ) {

@@ -223,12 +223,77 @@ public class ProtoBuf(
 
         override fun SerialDescriptor.getTag(index: Int) = extractParameters(index)
 
-        override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) = when {
-            serializer is MapLikeSerializer<*, *, *, *> -> {
-                serializeMap(serializer as SerializationStrategy<T>, value)
+        override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T): Unit {
+            if (serializer.descriptor == ByteArraySerializer().descriptor) {
+                serializeByteArray(value as ByteArray)
+            } else {
+                if (serializer is AbstractCollectionSerializer<*, *, *>) {
+                    // Top-level collections can be empty because they have size encoded
+                    if (currentTagOrDefault != MISSING_TAG) {
+                        checkIfEmpty(serializer, value)
+                    }
+
+                    if (serializer is MapLikeSerializer<*, *, *, *>) {
+                        return serializeMap(serializer as SerializationStrategy<T>, value)
+                    }
+                }
+                serializer.serialize(this, value)
             }
-            serializer.descriptor == ByteArraySerializer().descriptor -> serializeByteArray(value as ByteArray)
-            else -> serializer.serialize(this, value)
+        }
+
+        private fun <T> checkIfEmpty(serializer: SerializationStrategy<*>, value: T) {
+            val size = when (value) {
+                is Collection<*> -> {
+                    value.size
+                }
+                is Map<*, *> -> {
+                    value.size
+                }
+                is Array<*> -> {
+                    value.size
+                }
+                else -> {
+                    primitiveArraySize(value)
+                }
+            }
+
+            if (size == 0) {
+                val index = currentTag.protoId - 1
+                if (descriptor.isElementOptional(index)) return
+                val element = descriptor.getElementName(index)
+                val clazz = descriptor.serialName.substringAfterLast(".")
+                val type = serializer.descriptor.serialName
+                    .substringAfterLast(".")
+                val idx = type.indexOfLast { it.toUpperCase() == it }
+                val factoryType = type.substring(idx)
+                /*
+                 * By the specification, collection (even map) is just a repeated record.
+                 * It means that empty collection is not even encoded, thus during decoding it is impossible to
+                 * distinguish empty collection from missing one.
+                 * In order to fix that, please provide a default value for your collection parameter, e.g.
+                 * replace `class MyClass(... val listThatMayBeEmpty: List<Int>,  ...)` with
+                 * `class MyClass(... val listThatMayBeEmpty: List<Int> = emptyList(),  ...)`
+                 */
+                throw SerializationException(
+                    "Empty collections, maps and arrays are not supported in kotlin Protobuf as is.\n" +
+                            "In order to fix that, please add a default empty value to property '$element' in class '$clazz'.\n" +
+                            "E.g. change its signature to 'class $clazz(... val $element: $type = empty${factoryType.capitalize()}()) ... '"
+                )
+            }
+        }
+
+        private fun <T> primitiveArraySize(value: T): Int {
+            // ByteArray is skipped intentionally
+            return when (value) {
+                is CharArray -> value.size
+                is IntArray -> value.size
+                is LongArray -> value.size
+                is DoubleArray -> value.size
+                is FloatArray -> value.size
+                is BooleanArray -> value.size
+                is ShortArray -> value.size
+                else -> error("Should not be reached")
+            }
         }
 
         private fun serializeByteArray(value: ByteArray) {
