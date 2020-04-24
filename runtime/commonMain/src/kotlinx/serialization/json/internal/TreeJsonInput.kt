@@ -173,7 +173,7 @@ private open class JsonTreeInput(
          * For polymorphic serialization we'd like to avoid excessive decoder creating in
          * beginStructure to properly preserve 'polyDiscriminator' field and filter it out.
          */
-        if (descriptor == polyDescriptor) return this
+        if (descriptor === polyDescriptor) return this
         return super.beginStructure(descriptor)
     }
 
