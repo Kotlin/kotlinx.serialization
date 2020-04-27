@@ -49,7 +49,7 @@ class PolymorphismTest : JsonTestBase() {
     object PolyDefaultSerializer : JsonTransformingSerializer<PolyDefault>(PolyDefault.serializer(), "foo") {
         override fun readTransform(element: JsonElement): JsonElement {
             return buildJson {
-                add("json", element)
+                add("json", JsonObject(element.jsonObject.filterKeys { it != "type" }))
                 add("id", 42)
             }
         }

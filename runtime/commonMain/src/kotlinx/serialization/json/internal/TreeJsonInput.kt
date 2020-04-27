@@ -21,6 +21,14 @@ internal fun <T> Json.readJson(element: JsonElement, deserializer: Deserializati
     return input.decode(deserializer)
 }
 
+internal fun <T> Json.readPolymorphicJson(
+    discriminator: String,
+    element: JsonObject,
+    deserializer: DeserializationStrategy<T>
+): T {
+    return JsonTreeInput(this, element, discriminator, deserializer.descriptor).decode(deserializer)
+}
+
 private sealed class AbstractJsonTreeInput(
     override val json: Json,
     open val value: JsonElement
@@ -140,7 +148,12 @@ private class JsonPrimitiveInput(json: Json, override val value: JsonPrimitive) 
     }
 }
 
-private open class JsonTreeInput(json: Json, override val value: JsonObject) : AbstractJsonTreeInput(json, value) {
+private open class JsonTreeInput(
+    json: Json,
+    override val value: JsonObject,
+    private val polyDiscriminator: String? = null,
+    private val polyDescriptor: SerialDescriptor? = null
+) : AbstractJsonTreeInput(json, value) {
     private var position = 0
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
@@ -155,12 +168,23 @@ private open class JsonTreeInput(json: Json, override val value: JsonObject) : A
 
     override fun currentElement(tag: String): JsonElement = value.getValue(tag)
 
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
+        /*
+         * For polymorphic serialization we'd like to avoid excessive decoder creating in
+         * beginStructure to properly preserve 'polyDiscriminator' field and filter it out.
+         */
+        if (descriptor === polyDescriptor) return this
+        return super.beginStructure(descriptor)
+    }
+
     override fun endStructure(descriptor: SerialDescriptor) {
         if (configuration.ignoreUnknownKeys || descriptor.kind is PolymorphicKind) return
         // Validate keys
         val names = descriptor.cachedSerialNames()
         for (key in value.keys) {
-            if (key !in names) throw UnknownKeyException(key, value.toString())
+            if (key !in names && key != polyDiscriminator) {
+                throw UnknownKeyException(key, value.toString())
+            }
         }
     }
 }
