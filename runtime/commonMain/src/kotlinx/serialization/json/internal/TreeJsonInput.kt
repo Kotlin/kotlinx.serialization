@@ -60,13 +60,13 @@ private sealed class AbstractJsonTreeInput(
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         val currentObject = currentObject()
         return when (descriptor.kind) {
-            StructureKind.LIST, is PolymorphicKind -> JsonTreeListInput(json, cast(currentObject))
+            StructureKind.LIST, is PolymorphicKind -> JsonTreeListInput(json, cast(currentObject, descriptor))
             StructureKind.MAP -> json.selectMapMode(
                 descriptor,
-                { JsonTreeMapInput(json, cast(currentObject)) },
-                { JsonTreeListInput(json, cast(currentObject)) }
+                { JsonTreeMapInput(json, cast(currentObject, descriptor)) },
+                { JsonTreeListInput(json, cast(currentObject, descriptor)) }
             )
-            else -> JsonTreeInput(json, cast(currentObject))
+            else -> JsonTreeInput(json, cast(currentObject, descriptor))
         }
     }
 
