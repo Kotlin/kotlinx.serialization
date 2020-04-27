@@ -183,7 +183,9 @@ private class JsonTreeListOutput(json: Json, nodeConsumer: (JsonElement) -> Unit
     override fun getCurrent(): JsonElement = JsonArray(array)
 }
 
-internal inline fun <reified T : JsonElement> cast(value: JsonElement): T {
-    check(value is T) { "Expected ${T::class} but found ${value::class}" }
+internal inline fun <reified T : JsonElement> cast(value: JsonElement, descriptor: SerialDescriptor): T {
+    if (value !is T) {
+        throw JsonDecodingException(-1, "Expected ${T::class} as the serialized body of ${descriptor.serialName}, but had ${value::class}")
+    }
     return value
 }
