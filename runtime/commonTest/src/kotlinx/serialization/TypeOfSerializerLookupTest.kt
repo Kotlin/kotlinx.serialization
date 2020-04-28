@@ -21,13 +21,13 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
     }
 
     @Test
-    fun testPlainClass() = noJsIr {
+    fun testPlainClass() {
         val b = StringData("some string")
         assertSerializedWithType("""{data:"some string"}""", b)
     }
 
     @Test
-    fun testListWithT() = noJsIr {
+    fun testListWithT() {
         val source = """[{"intV":42}]"""
         val serial = serializer<List<IntData>>()
         assertEquals(listOf(IntData(42)), Json.parse(serial, source))
@@ -46,7 +46,7 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
     }
 
     @Test
-    fun testMapWithT() = noJsIr {
+    fun testMapWithT() {
         val myMap = mapOf("string" to StringData("foo"), "string2" to StringData("bar"))
         assertSerializedWithType("""{string:{data:foo},string2:{data:bar}}""", myMap)
     }
@@ -80,7 +80,7 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
     }
 
     @Test
-    fun testCustomGeneric() = noJs {
+    fun testCustomGeneric() = noLegacyJs {
         val intBox = Box(42)
         val intBoxSerializer = serializer<Box<Int>>()
         assertEquals(Box.serializer(Int.serializer()).descriptor, intBoxSerializer.descriptor)
@@ -90,13 +90,13 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
     }
 
     @Test
-    fun testRecursiveGeneric() = noJs {
+    fun testRecursiveGeneric() = noLegacyJs {
         val boxBox = Box(Box(Box(IntData(42))))
         assertSerializedWithType("""{boxed:{boxed:{boxed:{intV:42}}}}""", boxBox)
     }
 
     @Test
-    fun testMixedGeneric() = noJs {
+    fun testMixedGeneric() = noLegacyJs {
         val listOfBoxes = listOf(Box("foo"), Box("bar"))
         assertSerializedWithType("""[{boxed:foo},{boxed:bar}]""", listOfBoxes)
         val boxedList = Box(listOf("foo", "bar"))
@@ -108,7 +108,7 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
         assertSerializedWithType("[1,2,3]", Array<Int>(3) { it + 1 }, default)
         assertSerializedWithType("""["1","2","3"]""", Array<String>(3) { (it + 1).toString() }, default)
         assertSerializedWithType("[[0],[1],[2]]", Array<Array<Int>>(3) { cnt -> Array(1) { cnt } }, default)
-        noJs {
+        noLegacyJs {
             assertSerializedWithType("""[{"boxed":"foo"}]""", Array(1) { Box("foo") }, default)
             assertSerializedWithType("""[[{"boxed":"foo"}]]""", Array(1) { Array(1) { Box("foo") } }, default)
         }
@@ -125,17 +125,13 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
     }
 
     @Test
-    fun testSerializableObject() = noJs {
+    fun testSerializableObject() = noLegacyJs {
         assertSerializedWithType("{}", SampleObject)
     }
 
-    // Tests with [constructSerializerForGivenTypeArgs] are unsupported on Kotlin/JS
-    private inline fun noJs(test: () -> Unit) {
-        if (!isJs()) test()
-    }
-
-    private inline fun noJsIr(test: () -> Unit) {
-        if (!isJsIr()) test()
+    // Tests with [constructSerializerForGivenTypeArgs] are unsupported on legacy Kotlin/JS
+    private inline fun noLegacyJs(test: () -> Unit) {
+        if (!isJsLegacy()) test()
     }
 
     private inline fun <reified T> assertSerializedWithType(

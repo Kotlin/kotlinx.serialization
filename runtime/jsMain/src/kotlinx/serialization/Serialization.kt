@@ -9,7 +9,7 @@ import kotlin.reflect.*
 @Suppress("UNCHECKED_CAST")
 @ImplicitReflectionSerializer
 internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
-    this.js.asDynamic().Companion?.serializer() as? KSerializer<T>
+    this.constructSerializerForGivenTypeArgs() ?: this.js.asDynamic().Companion?.serializer() as? KSerializer<T>
 
 internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E> = toTypedArray()
 
@@ -17,8 +17,27 @@ internal actual fun Any.isInstanceOf(kclass: KClass<*>): Boolean = kclass.isInst
 
 internal actual fun <T : Any> KClass<T>.simpleName(): String? = simpleName
 
+@OptIn(ExperimentalAssociatedObjects::class)
+@AssociatedObjectKey
+@Retention(AnnotationRetention.BINARY)
+@Deprecated("Inserted into generated code and should not be used directly", level = DeprecationLevel.HIDDEN)
+public annotation class SerializableWith(public val serializer: KClass<out KSerializer<*>>)
+
+@Suppress(
+    "UNCHECKED_CAST",
+    "DEPRECATION_ERROR"
+)
+@OptIn(ExperimentalAssociatedObjects::class)
 internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
-    throw NotImplementedError("This method is not supported for Kotlin/JS yet. Please provide serializer explicitly.")
+    return try {
+        when (val assocObject = findAssociatedObject<SerializableWith>()) {
+            is KSerializer<*> -> assocObject as KSerializer<T>
+            is kotlinx.serialization.internal.SerializerFactory -> assocObject.serializer(*args) as KSerializer<T>
+            else -> null
+        }
+    } catch (e: dynamic) {
+        null
+    }
 }
 
 internal actual fun isReferenceArray(type: KType, rootClass: KClass<Any>): Boolean {

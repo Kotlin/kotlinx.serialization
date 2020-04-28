@@ -225,7 +225,6 @@ class SealedClassesSerializationTest : JsonTestBase() {
 
     @Test
     fun protocolWithGenericClass() {
-        if (isJsIr()) return // bug in kotlinx-serialization plugin (#753)
         val messages = listOf<ProtocolWithGenericClass>(
             ProtocolWithGenericClass.Message<String>("string message", "foo"),
             ProtocolWithGenericClass.Message<Int>("int message", 42),

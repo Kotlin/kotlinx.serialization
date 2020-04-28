@@ -11,6 +11,6 @@ enum class Platform {
 public expect val currentPlatform: Platform
 
 public fun isJs(): Boolean = currentPlatform == Platform.JS_LEGACY || currentPlatform == Platform.JS_IR
-public fun isJsIr(): Boolean = currentPlatform == Platform.JS_IR
+public fun isJsLegacy(): Boolean = currentPlatform == Platform.JS_LEGACY
 public fun isJvm(): Boolean = currentPlatform == Platform.JVM
 public fun isNative(): Boolean = currentPlatform == Platform.NATIVE

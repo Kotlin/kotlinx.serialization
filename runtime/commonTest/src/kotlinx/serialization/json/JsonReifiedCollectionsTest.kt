@@ -15,7 +15,7 @@ class JsonReifiedCollectionsTest : JsonTestBase() {
     data class DataHolder(val data: String)
 
     @Test
-    fun testReifiedList() = if (isJsIr()) Unit else parametrizedTest { useStreaming ->
+    fun testReifiedList() = parametrizedTest { useStreaming ->
         val data = listOf(DataHolder("data"), DataHolder("not data"))
         val json = default.stringify(data, useStreaming)
         val data2 = default.parseList<DataHolder>(json, useStreaming)
@@ -23,7 +23,7 @@ class JsonReifiedCollectionsTest : JsonTestBase() {
     }
 
     @Test
-    fun testReifiedMap() = if (isJsIr()) Unit else parametrizedTest { useStreaming ->
+    fun testReifiedMap() = parametrizedTest { useStreaming ->
         val data = mapOf("data" to DataHolder("data"), "smth" to DataHolder("not data"))
         val json = lenient.stringify(data, useStreaming)
         val data2 = lenient.parseMap<String, DataHolder>(json, useStreaming)

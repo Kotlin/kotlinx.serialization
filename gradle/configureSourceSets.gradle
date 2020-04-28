@@ -12,14 +12,14 @@ kotlin {
                 }
             }
         }
-        fromPreset(presets.js, 'js') {
-            nodejs {}
-            configure([compilations.main, compilations.test]) {
-                kotlinOptions {
-                    sourceMap = true
-                    moduleKind = "umd"
-                    metaInfo = true
-                }
+    }
+    js {
+        nodejs {}
+        configure([compilations.main, compilations.test]) {
+            kotlinOptions {
+                sourceMap = true
+                moduleKind = "umd"
+                metaInfo = true
             }
         }
     }

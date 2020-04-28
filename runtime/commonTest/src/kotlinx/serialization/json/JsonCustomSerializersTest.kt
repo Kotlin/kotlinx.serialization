@@ -13,11 +13,7 @@ import kotlin.test.*
 
 class JsonCustomSerializersTest : JsonTestBase() {
 
-    private fun noJsIr(test: () -> Unit) {
-        if (isJsIr()) return else test()
-    }
-
-    protected override fun parametrizedTest(test: (Boolean) -> Unit) = noJsIr {
+    protected override fun parametrizedTest(test: (Boolean) -> Unit) {
         val streamingResult = runCatching { test(true) }
         val treeResult = runCatching { test(false) }
         processResults(streamingResult, treeResult)

@@ -62,7 +62,7 @@ class JsonParametricSerializerTest : JsonTestBase() {
     }
 
     @Test
-    fun testSerializesParametrically() = if (isJsIr()) Unit else parametrizedTest { streaming ->
+    fun testSerializesParametrically() = parametrizedTest { streaming ->
         for (i in testDataOutput.indices) {
             assertEquals(
                 testDataInput[i],
