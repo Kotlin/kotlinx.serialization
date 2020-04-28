@@ -103,6 +103,14 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
             return map.getValue(tag)
         }
 
+        override fun decodeTaggedEnum(tag: String, enumDescription: SerialDescriptor): Int {
+            return when (val taggedValue = map.getValue(tag)) {
+                is Int -> taggedValue
+                is String -> enumDescription.getElementIndex(taggedValue)
+                else -> throw SerializationException("Value of enum entry '$tag' is neither an Int nor a String")
+            }
+        }
+
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             val tag = nested("size")
             val size = if (map.containsKey(tag)) decodeTaggedInt(tag) else descriptor.elementsCount
@@ -138,6 +146,14 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
         }
 
         override fun decodeTaggedValue(tag: String): Any = map.getValue(tag)!!
+
+        override fun decodeTaggedEnum(tag: String, enumDescription: SerialDescriptor): Int {
+            return when (val taggedValue = map.getValue(tag)!!) {
+                is Int -> taggedValue
+                is String -> enumDescription.getElementIndex(taggedValue)
+                else -> throw SerializationException("Value of enum entry '$tag' is neither an Int nor a String")
+            }
+        }
 
         override fun decodeTaggedNotNullMark(tag: String): Boolean {
             return tag !in map || // in case of complex object, its fields are
