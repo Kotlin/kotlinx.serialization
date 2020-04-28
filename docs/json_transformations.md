@@ -26,7 +26,7 @@ Transformation capabilities are provided by the abstract `JsonTransformingSerial
 
 Instead of direct interaction with Encoder or Decoder, this class asks you to supply transformations for JSON tree represented by the `JsonElement` class
 using `writeTransform(element: JsonElement): JsonElement` and `readTransform(element: JsonElement): JsonElement` methods in order
-to transform the input or the putput JSON.
+to transform the input or the output JSON.
 
 
 ### Transformation examples. List mainupulation
