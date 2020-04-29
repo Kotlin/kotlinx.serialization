@@ -203,8 +203,6 @@ You may also want to keep all custom serializers you've defined.
 
 ### Multiplatform (common, JS, Native)
 
-Platform artifacts have the same names as JVM one, but with additional suffix (e.g. `org.jetbrains.kotlinx:kotlinx-serialization-runtime-native`). For Native artifact, Gradle metadata is required (put the line `enableFeaturePreview('GRADLE_METADATA')` in your `gradle.properties`) and minimal supported version of Gradle is 5.3.
-
 Typically, you need the following dependencies in your multiplatform project (don't forget to rename [source sets](https://kotlinlang.org/docs/reference/building-mpp-with-gradle.html#configuring-source-sets) according to your setup):
 
 ```gradle
@@ -212,7 +210,7 @@ sourceSets {
     commonMain {
         dependencies {
             implementation kotlin('stdlib-common')
-            implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serialization_version"
+            implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
         }
     }
     commonTest {
@@ -224,7 +222,6 @@ sourceSets {
     jvmMain {
         dependencies {
             implementation kotlin('stdlib-jdk8')
-            implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
         }
     }
     jvmTest {
@@ -236,7 +233,6 @@ sourceSets {
     jsMain {
         dependencies {
             implementation kotlin('stdlib-js')
-            implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
         }
     }
     jsTest {
@@ -244,11 +240,7 @@ sourceSets {
             implementation kotlin('test-js')
         }
     }
-    nativeMain {
-        dependencies {
-            implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$serialization_version"
-        }
-    }
+    nativeMain {}
     nativeTest {}
 }
 ```
