@@ -70,7 +70,6 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintray_version"
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
 
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.8'

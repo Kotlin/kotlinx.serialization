@@ -6,7 +6,6 @@
 
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.bintray'
 
 apply from: project.rootProject.file('gradle/mavenMetadata.gradle')
 
@@ -85,13 +84,8 @@ afterEvaluate {
 
 apply from: project.rootProject.file("gradle/bintray.gradle")
 
+// Compatibility with old TeamCity configurations that perform :kotlinx-coroutines-core:bintrayUpload
+task bintrayUpload(dependsOn: publish)
+
 // This is required for K/N publishing
 bintrayUpload.dependsOn publishToMavenLocal
-
-// This is for easier debugging of bintray uploading problems
-bintrayUpload.doFirst {
-    publications = project.publishing.publications.findAll { !it.name.contains('-test') }.collect {
-        logger.info("Uploading artifact '$it.groupId:$it.artifactId:$it.version' from publication '$it.name'")
-        it
-    }
-}
