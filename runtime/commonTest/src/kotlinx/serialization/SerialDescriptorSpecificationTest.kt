@@ -10,7 +10,6 @@ import kotlinx.serialization.internal.*
 
 import kotlin.test.*
 
-@ImplicitReflectionSerializer
 class SerialDescriptorSpecificationTest {
 
     @Serializable
@@ -135,8 +134,10 @@ class SerialDescriptorSpecificationTest {
         assertFalse(descriptor.isNullable)
         assertEquals(1, descriptor.elementsCount)
         assertSame(Int.serializer().descriptor, descriptor.getElementDescriptor(0))
+        assertSame(Int.serializer().descriptor, descriptor.getElementDescriptor(1))
         assertFalse(descriptor.isElementOptional(0))
-        assertFailsWith<IllegalStateException> { descriptor.isElementOptional(1) }
+        assertFalse(descriptor.isElementOptional(1))
+        assertFailsWith<IllegalArgumentException> { descriptor.isElementOptional(-1) }
     }
 
     @Test
@@ -150,11 +151,15 @@ class SerialDescriptorSpecificationTest {
         assertEquals(2, descriptor.elementsCount)
         assertSame(Int.serializer().descriptor, descriptor.getElementDescriptor(0))
         assertSame(Long.serializer().descriptor, descriptor.getElementDescriptor(1))
+        assertSame(Int.serializer().descriptor, descriptor.getElementDescriptor(2))
+        assertSame(Long.serializer().descriptor, descriptor.getElementDescriptor(3))
         assertTrue(descriptor.getElementAnnotations(0).isEmpty())
         assertTrue(descriptor.getElementAnnotations(1).isEmpty())
         assertFalse(descriptor.isElementOptional(0))
         assertFalse(descriptor.isElementOptional(1))
-        assertFailsWith<IllegalStateException> { descriptor.isElementOptional(3) }
+        assertFalse(descriptor.isElementOptional(2))
+        assertFalse(descriptor.isElementOptional(3))
+        assertFailsWith<IllegalArgumentException> { descriptor.isElementOptional(-1) }
     }
 
     @Serializable

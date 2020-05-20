@@ -56,13 +56,19 @@ package kotlinx.serialization
  * the range from zero to [elementsCount] and represent and index of the property in this class.
  * Consequently, primitives do not have children and their element count is zero.
  *
- * For collections and maps, though, index does not have fixed bound. Regular collections descriptors usually
+ * For collections and maps, though, indices does not have fixed bound. Regular collections descriptors usually
  * have one element (`T`, maps have two, one for keys and one for values), but potentially unlimited
- * number of actual children values. In such cases, valid indices range is not known statically
+ * number of actual children values. Valid indices range is not known statically
  * and implementations of descriptor should provide consistent and unbounded names and indices.
  *
+ * In practice, it means that for regular classes it is allowed to invoke `getElement*(index)` methods
+ * with index within `0 until elementsCount` range and element at the particular index corresponds to the
+ * serializable property at the given position.
+ * For collections and maps, index parameter for `getElement*(index)` methods is effectively bound
+ * by the maximal number of collection/map elements.
+ *
  * ### Thread-safety and mutability
- * Serial descriptor implementation should be immutable after the publication and thread-safe.
+ * Serial descriptor implementation should be immutable and, thus, thread-safe.
  *
  * ### Equality and caching
  * Serial descriptor can be used as a unique identifier for format-specific data or schemas and
@@ -111,8 +117,7 @@ package kotlinx.serialization
  * }
  * ```
  *
- * For a classes that are represented as a single primitive value,
- * [PrimitiveDescriptor] builder function can be used instead.
+ * For a classes that are represented as a single primitive value, [PrimitiveDescriptor] builder function can be used instead.
  */
 public interface SerialDescriptor {
     /**
@@ -179,9 +184,6 @@ public interface SerialDescriptor {
      * Positional name usually represents a corresponding property name in the class, associated with
      * the current descriptor.
      *
-     * This method may be inconsistent with [elementsCount] for collection and map types. Refer to its documentation
-     * for more details.
-     *
      * @throws IndexOutOfBoundsException for an illegal [index] values.
      * @throws IllegalStateException if the current descriptor does not support children elements (e.g. is a primitive)
      */
@@ -191,9 +193,6 @@ public interface SerialDescriptor {
      * Returns an index in the children list of the given element by its name or [CompositeDecoder.UNKNOWN_NAME]
      * if there is no such element.
      * The resulting index, if it is not [CompositeDecoder.UNKNOWN_NAME], is guaranteed to be usable with [getElementName].
-     *
-     * This method may be inconsistent with [elementsCount] for collection and map types. Refer to its documentation
-     * for more details.
      */
     public fun getElementIndex(name: String): Int
 
@@ -211,7 +210,6 @@ public interface SerialDescriptor {
      * outerDescriptor.getElementAnnotations(0) // Returns [@SerialId(1)]
      * outerDescriptor.getElementDescriptor(0).annotations // Returns [@SerialName("_nested")]
      * ```
-     * This method is guaranteed to be consistent with [elementsCount].
      *
      * @throws IndexOutOfBoundsException for an illegal [index] values.
      * @throws IllegalStateException if the current descriptor does not support children elements (e.g. is a primitive).
@@ -221,10 +219,9 @@ public interface SerialDescriptor {
     /**
      * Retrieves the descriptor of the child element for the given [index].
      * For the property of type `T` on the position `i`, `getElementDescriptor(i)` yields the same result
-     * as for `T.serializer().descriptor`, if the serializer for this property is not explicitly overriden
+     * as for `T.serializer().descriptor`, if the serializer for this property is not explicitly overridden
      * with `@Serializable(with = ...`)`, [Polymorphic] or [ContextualSerialization].
      * This method can be used to completely introspect the type that the current descriptor describes.
-     * This method is guaranteed to be consistent with [elementsCount].
      *
      * @throws IndexOutOfBoundsException for illegal [index] values.
      * @throws IllegalStateException if the current descriptor does not support children elements (e.g. is a primitive).
@@ -248,7 +245,6 @@ public interface SerialDescriptor {
      *     val e: List<Int> = listOf(1), // Optional == true
      * )
      * ```
-     * This method is guaranteed to be consistent with [elementsCount] for non-collection like classes.
      * Returns `false` for valid indices of collections, maps and enums.
      *
      * @throws IndexOutOfBoundsException for an illegal [index] values.
