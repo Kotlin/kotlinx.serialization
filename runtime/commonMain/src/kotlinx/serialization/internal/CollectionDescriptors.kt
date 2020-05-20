@@ -15,17 +15,17 @@ internal sealed class ListLikeDescriptor(val elementDescriptor: SerialDescriptor
         name.toIntOrNull() ?: throw IllegalArgumentException("$name is not a valid list index")
 
     override fun isElementOptional(index: Int): Boolean {
-        require(index >= 0) { "Illegal index $index"}
+        require(index >= 0) { "Illegal index $index, $serialName expects only non-negative indices"}
         return false
     }
 
     override fun getElementAnnotations(index: Int): List<Annotation> {
-        require(index >= 0) { "Illegal index $index"}
+        require(index >= 0) { "Illegal index $index, $serialName expects only non-negative indices"}
         return emptyList()
     }
 
     override fun getElementDescriptor(index: Int): SerialDescriptor {
-        require(index >= 0) { "Illegal index $index"}
+        require(index >= 0) { "Illegal index $index, $serialName expects only non-negative indices"}
         return elementDescriptor
     }
 
@@ -53,17 +53,17 @@ internal sealed class MapLikeDescriptor(
         name.toIntOrNull() ?: throw IllegalArgumentException("$name is not a valid map index")
 
     override fun isElementOptional(index: Int): Boolean {
-        require(index >= 0) { "Illegal index $index"}
+        require(index >= 0) { "Illegal index $index, $serialName expects only non-negative indices"}
         return false
     }
 
     override fun getElementAnnotations(index: Int): List<Annotation> {
-        require(index >= 0) { "Illegal index $index"}
+        require(index >= 0) { "Illegal index $index, $serialName expects only non-negative indices"}
         return emptyList()
     }
 
     override fun getElementDescriptor(index: Int): SerialDescriptor {
-        require(index >= 0) { "Illegal index $index"}
+        require(index >= 0) { "Illegal index $index, $serialName expects only non-negative indices"}
         return when (index % 2) {
             0 -> keyDescriptor
             1 -> valueDescriptor
