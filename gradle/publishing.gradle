@@ -63,7 +63,7 @@ afterEvaluate {
                     break
 
                 case 'metadata':
-                    it.artifactId = "$variantName-common"
+                    it.artifactId = "$variantName-metadata"
                     break
 
                 case 'jvm':
