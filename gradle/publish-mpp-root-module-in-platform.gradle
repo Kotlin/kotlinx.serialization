@@ -3,8 +3,11 @@
  */
 
 
-/** Publish the platform JAR and POM so that consumers who depend on this module and can't read Gradle module
- metadata can still get the platform artifact and transitive dependencies from the POM: */
+/**
+ * Publish the platform JAR and POM so that consumers who depend on this module and can't read Gradle module
+ * metadata can still get the platform artifact and transitive dependencies from the POM
+ * (see details in https://youtrack.jetbrains.com/issue/KT-39184#focus=streamItem-27-4115233.0-0)
+ */
 project.ext.publishPlatformArtifactsInRootModule = { platformPublication ->
     afterEvaluate {
         def platformPomBuilder = null
