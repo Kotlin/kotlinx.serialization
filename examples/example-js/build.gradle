@@ -20,7 +20,6 @@ buildscript {
     // see ../gradle.properties
     ext.kotlin_version = mainKotlinVersion
     ext.serialization_version = mainLibVersion
-    ext.web_path = 'web'
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -28,47 +27,30 @@ buildscript {
     }
 }
 
-apply plugin: 'kotlin2js'
+apply plugin: 'org.jetbrains.kotlin.js'
 apply plugin: 'kotlinx-serialization'
 
-repositories {
-    jcenter()
-    maven { url "https://kotlin.bintray.com/kotlinx" }
-}
+kotlin {
+    target {
+        browser {
+            webpackTask {
+                outputFileName = "output.js"
+            }
 
-dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-protobuf-js:$serialization_version"
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-cbor-js:$serialization_version"
-}
-
-compileKotlin2Js {
-    kotlinOptions.outputFile = "${projectDir}/$web_path/output.js"
-    kotlinOptions.moduleKind = "amd"
-    kotlinOptions.sourceMap = true
-}
-
-clean {
-    delete new File("${projectDir}/$web_path")
-}
-
-build.doLast {
-    configurations.compile.each { File file ->
-        copy {
-            includeEmptyDirs = false
-
-            from zipTree(file.absolutePath)
-            into "${projectDir}/$web_path"
-            include { fileTreeElement ->
-                def path = fileTreeElement.path
-                path.endsWith(".js") && (path.startsWith("META-INF/resources/") || !path.startsWith("META-INF/"))
+            runTask {
+                outputFileName = "output.js"
             }
         }
     }
 
-    copy {
-        from sourceSets.main.resources.srcDirs
-        into "${projectDir}/$web_path"
+    sourceSets {
+        main {
+            dependencies {
+                implementation kotlin('stdlib-js')
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf-js:$serialization_version"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-cbor-js:$serialization_version"
+            }
+        }
     }
 }

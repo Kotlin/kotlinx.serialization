@@ -17,10 +17,11 @@ To launch this sample with Maven, use `mvn package exec:java` within `example-jv
 
 ### Example-js
 
-Provides setup for Gradle using 'kotlin2js' plugin.
+Provides setup for Gradle using 'org.jetbrains.kotlin.js' plugin.
 Contains examples of using different formats (JSON, CBOR, Protobuf).
 
-To launch this sample, first run `./gradlew build` and then point your browser to `example-js/web/index.html`.
+- run with hot reload `./gradlew run -t`
+- build with `./gradlew build` and find distribution in `example-js/build/distributions`
 
 ### Example-visitors
 
