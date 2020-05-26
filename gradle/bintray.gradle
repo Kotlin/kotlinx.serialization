@@ -2,24 +2,18 @@
  * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-bintray {
-    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-    publications = ['maven']
-    publish = false
-    override = true
-    pkg {
-        repo = 'kotlinx'
-        name = 'kotlinx.serialization.runtime'
-        userOrg = 'kotlin'
-        licenses = ['Apache-2.0']
-        vcsUrl = 'https://github.com/Kotlin/kotlinx.serialization'
-        websiteUrl = 'https://github.com/Kotlin/kotlinx.serialization'
-        issueTrackerUrl = 'https://github.com/Kotlin/kotlinx.serialization/issues'
+publishing {
+    repositories {
+        maven {
+            def user = 'kotlin'
+            def repo = 'kotlinx'
+            def name = 'kotlinx.serialization.runtime'
+            url = "https://api.bintray.com/maven/$user/$repo/$name/;publish=0"
 
-        githubRepo = 'Kotlin/kotlinx.serialization'
-        version {
-            name = project.version
+            credentials {
+                username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+                password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+            }
         }
     }
 }

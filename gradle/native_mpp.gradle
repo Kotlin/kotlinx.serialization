@@ -51,7 +51,7 @@ kotlin {
     sourceSets {
         nativeMain { dependsOn commonMain }
         // Empty source set is required in order to have native tests task
-        nativeTest {}
+        nativeTest { dependsOn commonTest }
 
         if (!project.ext.singleTargetMode) {
             configure(project.ext.nativeMainSets) {

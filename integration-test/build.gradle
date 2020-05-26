@@ -56,9 +56,9 @@ kotlin {
         commonMain {
             dependencies {
                 implementation kotlin('stdlib-common')
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serialization_version"
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf-common:$serialization_version"
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-cbor-common:$serialization_version"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:$serialization_version"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-cbor:$serialization_version"
             }
         }
         commonTest {
@@ -70,9 +70,6 @@ kotlin {
         jvmMain {
             dependencies {
                 implementation kotlin('stdlib-jdk8')
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:$serialization_version"
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-cbor:$serialization_version"
                 implementation 'com.google.dagger:dagger:2.13'
             }
         }
@@ -85,9 +82,6 @@ kotlin {
         jsMain {
             dependencies {
                 implementation kotlin('stdlib-js')
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf-js:$serialization_version"
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-cbor-js:$serialization_version"
 
             }
         }
@@ -98,19 +92,11 @@ kotlin {
         }
         macosMain {
             dependencies {
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$serialization_version"
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-cbor-native:$serialization_version"
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf-native:$serialization_version"
             }
         }
         macosTest {}
         linuxMain {
             kotlin.srcDirs = ["src/macosMain/kotlin"]
-            dependencies {
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$serialization_version"
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-cbor-native:$serialization_version"
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf-native:$serialization_version"
-            }
         }
         linuxTest {
             kotlin.srcDirs = ["src/macosTest/kotlin"]
