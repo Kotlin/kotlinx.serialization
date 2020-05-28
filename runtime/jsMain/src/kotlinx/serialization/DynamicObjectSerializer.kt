@@ -209,6 +209,7 @@ private class DynamicObjectEncoder(val configuration: JsonConfiguration, val enc
         StructureKind.CLASS, StructureKind.OBJECT, UnionKind.CONTEXTUAL -> WriteMode.OBJ
         StructureKind.LIST, is PolymorphicKind -> WriteMode.LIST
         StructureKind.MAP -> WriteMode.MAP
+        StructureKind.BYTE_STRING -> error("DynamicObjectSerializer does not support ByteString serialization.")
         is PrimitiveKind, UnionKind.ENUM_KIND -> {
             // the two cases are handled in DynamicObjectSerializer. But compiler does not know
             error("DynamicObjectSerializer does not support serialization of singular primitive values or enum types.")
