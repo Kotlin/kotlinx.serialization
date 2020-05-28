@@ -199,6 +199,18 @@ public sealed class StructureKind : SerialKind() {
     public object MAP : StructureKind()
 
     /**
+     * **ONLY SUPPORTED IN THE CBOR FORMAT**
+     *
+     * Structure kind for byte strings.
+     *
+     * While serializers typically encode classes with calls to [Encoder.beginStructure] and [CompositeEncoder.endStructure],
+     * [BYTE_STRING]s of known lengths do not contain a collection begin or end marker, therefore it
+     * is not necessary to invoke [Encoder.beginStructure] and [CompositeEncoder.endStructure] before encoding
+     * objects of this [StructureKind].
+     */
+    public object BYTE_STRING: StructureKind()
+
+    /**
      * Structure kind for singleton objects defined with `object` keyword.
      * By default, objects are serialized as empty structures without any state and their identity is preserved
      * across serialization within the same process, so you always have the same instance of the object.

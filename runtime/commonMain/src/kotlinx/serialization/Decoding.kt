@@ -4,6 +4,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.internal.ByteString
 import kotlinx.serialization.modules.*
 
 /**
@@ -145,6 +146,15 @@ public interface Decoder {
      * Corresponding kind is [PrimitiveKind.BYTE].
      */
     public fun decodeByte(): Byte
+
+    /**
+     * Decodes a CBOR ByteString.
+     * @return [ByteString]
+     *
+     * @throws SerializationException if used by any format other than CBOR.
+     */
+    public fun decodeByteString(): ByteString =
+        throw SerializationException("ByteString encoding is currently only supported for the CBOR format.")
 
     /**
      * Decodes a 16-bit short value.
@@ -437,6 +447,16 @@ public interface CompositeDecoder {
      * The element at the given index should have [PrimitiveKind.BYTE] kind.
      */
     public fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Byte
+
+    /**
+     * Decodes a ByteString value from the underlying input.
+     *
+     * The resulting value is associated with the [descriptor] element at the given [index].
+     *
+     * @throws SerializationException if used by any format other than CBOR.
+     */
+    public fun decodeByteStringElement(descriptor: SerialDescriptor, index: Int): ByteString =
+        throw SerializationException("ByteString encoding is currently only supported for the CBOR format.")
 
     /**
      * Decodes a 16-bit unicode character value from the underlying input.

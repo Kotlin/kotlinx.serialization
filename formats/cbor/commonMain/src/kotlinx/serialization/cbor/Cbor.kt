@@ -8,6 +8,7 @@ import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.internal.ByteString
 import kotlinx.serialization.modules.*
 import kotlin.experimental.*
 
@@ -26,6 +27,13 @@ import kotlin.experimental.*
  *
  * @param encodeDefaults specifies whether default values of Kotlin properties are encoded.
  */
+
+private const val ADD_DATA_ONE_BYTE = 24
+private const val ADD_DATA_TWO_BYTES = 25
+private const val ADD_DATA_FOUR_BYTES = 26
+private const val ADD_DATA_EIGHT_BYTES = 27
+private const val ADD_DATA_INDEF_LENGTH = 31
+
 public class Cbor(
     public val encodeDefaults: Boolean = true,
     override val context: SerialModule = EmptyModule
@@ -71,6 +79,7 @@ public class Cbor(
         }
 
         override fun encodeString(value: String) = encoder.encodeString(value)
+        override fun encodeByteString(value: ByteString) = encoder.encodeByteString(value)
 
         override fun encodeFloat(value: Float) = encoder.encodeFloat(value)
         override fun encodeDouble(value: Double) = encoder.encodeDouble(value)
@@ -104,6 +113,13 @@ public class Cbor(
         fun encodeBoolean(value: Boolean) = output.write(if (value) TRUE else FALSE)
 
         fun encodeNumber(value: Long) = output.write(composeNumber(value))
+
+        fun encodeByteString(value: ByteString) {
+            val header = composeNumber(value.size.toLong())
+            header[0] = header[0] or HEADER_BYTESTRING
+            output.write(header)
+            output.write(value.bytes)
+        }
 
         fun encodeString(value: String) {
             val data = value.encodeToByteArray()
@@ -222,6 +238,7 @@ public class Cbor(
         override fun decodeBoolean() = decoder.nextBoolean()
 
         override fun decodeByte() = decoder.nextNumber().toByte()
+        override fun decodeByteString() = ByteString(decoder.nextByteString())
         override fun decodeShort() = decoder.nextNumber().toShort()
         override fun decodeChar() = decoder.nextNumber().toChar()
         override fun decodeInt() = decoder.nextNumber().toInt()
@@ -236,6 +253,7 @@ public class Cbor(
 
     internal class CborDecoder(private val input: Input) {
         private var curByte: Int = -1
+        private var isReadingUnknownLengthByteString: Boolean = false
 
         init {
             readByte()
@@ -304,6 +322,31 @@ public class Cbor(
             return res
         }
 
+        fun nextByteString(): ByteArray {
+            if ((curByte and 0b111_00000) != HEADER_BYTESTRING.toInt())
+                throw CborDecodingException("start of a ByteString.", curByte)
+
+            val bytesToRead: Long = when (val additionalData = curByte and 0b000_11111) {
+                ADD_DATA_ONE_BYTE -> input.readExact(1)
+                ADD_DATA_TWO_BYTES -> input.readExact(2)
+                ADD_DATA_FOUR_BYTES -> input.readExact(4)
+                ADD_DATA_EIGHT_BYTES -> input.readExact(8)
+                ADD_DATA_INDEF_LENGTH -> -1L
+                else -> additionalData.toLong()
+            }
+
+            val bytes = when (bytesToRead) {
+                -1L -> {
+                    readByte()
+                    readIndefiniteLengthByteString()
+                }
+                else -> input.readBytes(bytesToRead)
+            }
+
+            readByte()
+            return bytes
+        }
+
         private fun readNumber(): Long {
             val value = curByte and 0b000_11111
             val negative = (curByte and 0b111_00000) == HEADER_NEGATIVE.toInt()
@@ -341,6 +384,19 @@ public class Cbor(
             return array
         }
 
+        /**
+         * Reads the specified number of bytes from the input stream and returns a [ByteArray]
+         * containing the read bytes.
+         *
+         * @throws SerializationException if the provided length does not fit in a 32-bit signed [Int].
+         */
+        private fun Input.readBytes(length: Long): ByteArray =
+            if (length > Int.MAX_VALUE) {
+                throw SerializationException("Unsupported length: $length at current byte: $curByte.")
+            } else {
+                readExactNBytes(length.toInt())
+            }
+
         fun nextFloat(): Float {
             if (curByte != NEXT_FLOAT) throw CborDecodingException("float header", curByte)
             val res = Float.fromBits(readInt())
@@ -372,6 +428,32 @@ public class Cbor(
             }
             return result
         }
+
+        /**
+         * Indefinite-length byte strings contain an unknown number of fixed-length byte strings (chunks).
+         * Chunks should always provide their own lengths, that is, nested, indefinite-length
+         * byte strings are not allowed per the CBOR RFC.
+         *
+         * @return A [ByteArray] containing all of the concatenated byte strings found in the buffer.
+         * @throws CborDecodingException if invoked while already reading an indefinite-length byte string.
+         */
+        private fun readIndefiniteLengthByteString(): ByteArray {
+            if (isReadingUnknownLengthByteString)
+                throw CborDecodingException("Nested indefinite-length bytestrings are not allowed", curByte)
+
+            val byteStrings = mutableListOf<ByteArray>()
+
+            try {
+                isReadingUnknownLengthByteString = true
+                do {
+                    byteStrings.add(nextByteString())
+                } while (!isEnd())
+            } finally {
+                isReadingUnknownLengthByteString = false
+            }
+
+            return byteStrings.flatten()
+        }
     }
 
     public companion object Default : BinaryFormat by Cbor() {
@@ -388,6 +470,7 @@ public class Cbor(
 
         private const val HEADER_STRING: Byte = 0b011_00000
         private const val HEADER_NEGATIVE: Byte = 0b001_00000
+        private const val HEADER_BYTESTRING: Byte = 0b010_00000
         private const val HEADER_ARRAY: Int = 0b100_00000
         private const val HEADER_MAP: Int = 0b101_00000
     }
@@ -410,4 +493,16 @@ public class Cbor(
         val reader = CborReader(CborDecoder(stream))
         return reader.decode(deserializer)
     }
+}
+
+private fun Iterable<ByteArray>.flatten(): ByteArray {
+    val output = ByteArray(sumBy { it.size })
+
+    var position = 0
+    for (chunk in this) {
+        chunk.copyInto(output, position)
+        position += chunk.size
+    }
+
+    return output
 }

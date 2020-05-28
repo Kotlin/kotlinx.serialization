@@ -5,6 +5,7 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
+import kotlinx.serialization.internal.ByteString
 import kotlin.test.*
 
 
@@ -44,6 +45,18 @@ class CbrWriterTest {
         assertEquals(
             "bf63696e741a00018894646c6f6e671b7fffffffffffffff65666c6f6174fa4228000066646f75626c65fb4271fb0c5a2b700067626f6f6c65616ef564636861721861ff",
             Cbor.dumps(NumberTypesUmbrella.serializer(), test)
+        )
+    }
+
+    @Test
+    fun writeByteStringWithDefaultSerializer() {
+        val shortData = HexConverter.parseHexBinary("6332383500000000000001ad")
+        val longData = HexConverter.parseHexBinary("6332383500000000000001ad9e8bac4209005a478736ad000010011001ad")
+
+        val test = BinaryPayload(ByteString(shortData), ByteString(longData))
+        assertEquals (
+            "bf63666f6f4c6332383500000000000001ad63626172581e6332383500000000000001ad9e8bac4209005a478736ad000010011001adff",
+            Cbor.dumps(BinaryPayload.serializer(), test)
         )
     }
 }

@@ -5,6 +5,7 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
+import kotlinx.serialization.internal.ByteString
 
 @Serializable
 data class Simple(val a: String)
@@ -28,4 +29,10 @@ data class NumberTypesUmbrella(
         val double: Double,
         val boolean: Boolean,
         val char: Char
+)
+
+@Serializable
+data class BinaryPayload(
+    val foo: ByteString,
+    val bar: ByteString
 )
