@@ -6,7 +6,6 @@ package kotlinx.serialization.cbor
 
 import kotlinx.io.*
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.ByteString
 import kotlin.test.*
 
 class CborReaderTest {

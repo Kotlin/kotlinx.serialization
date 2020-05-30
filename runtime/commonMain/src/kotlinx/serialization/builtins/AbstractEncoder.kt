@@ -5,7 +5,6 @@
 package kotlinx.serialization.builtins
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.ByteString
 import kotlinx.serialization.modules.*
 
 /**
@@ -55,7 +54,6 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
 
     override fun encodeBoolean(value: Boolean): Unit = encodeValue(value)
     override fun encodeByte(value: Byte): Unit = encodeValue(value)
-    override fun encodeByteString(value: ByteString): Unit = encodeValue(value)
     override fun encodeShort(value: Short): Unit = encodeValue(value)
     override fun encodeInt(value: Int): Unit = encodeValue(value)
     override fun encodeLong(value: Long): Unit = encodeValue(value)
@@ -69,7 +67,6 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
     final override fun encodeUnitElement(descriptor: SerialDescriptor, index: Int) { if (encodeElement(descriptor, index)) encodeUnit() }
     final override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) { if (encodeElement(descriptor, index)) encodeBoolean(value) }
     final override fun encodeByteElement(descriptor: SerialDescriptor, index: Int, value: Byte) { if (encodeElement(descriptor, index)) encodeByte(value) }
-    final override fun encodeByteStringElement(descriptor: SerialDescriptor, index: Int, value: ByteString) { if (encodeElement(descriptor, index)) encodeByteString(value) }
     final override fun encodeShortElement(descriptor: SerialDescriptor, index: Int, value: Short) { if (encodeElement(descriptor, index)) encodeShort(value) }
     final override fun encodeIntElement(descriptor: SerialDescriptor, index: Int, value: Int) { if (encodeElement(descriptor, index)) encodeInt(value) }
     final override fun encodeLongElement(descriptor: SerialDescriptor, index: Int, value: Long) { if (encodeElement(descriptor, index)) encodeLong(value) }

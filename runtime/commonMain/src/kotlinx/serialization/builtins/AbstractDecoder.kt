@@ -5,7 +5,6 @@
 package kotlinx.serialization.builtins
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.ByteString
 import kotlinx.serialization.modules.*
 
 /**
@@ -33,7 +32,6 @@ public abstract class AbstractDecoder : Decoder, CompositeDecoder {
 
     override fun decodeBoolean(): Boolean = decodeValue() as Boolean
     override fun decodeByte(): Byte = decodeValue() as Byte
-    override fun decodeByteString(): ByteString = decodeValue() as ByteString
     override fun decodeShort(): Short = decodeValue() as Short
     override fun decodeInt(): Int = decodeValue() as Int
     override fun decodeLong(): Long = decodeValue() as Long
@@ -67,7 +65,6 @@ public abstract class AbstractDecoder : Decoder, CompositeDecoder {
     final override fun decodeUnitElement(descriptor: SerialDescriptor, index: Int): Unit = decodeUnit()
     final override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean = decodeBoolean()
     final override fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Byte = decodeByte()
-    final override fun decodeByteStringElement(descriptor: SerialDescriptor, index: Int): ByteString = decodeByteString()
     final override fun decodeShortElement(descriptor: SerialDescriptor, index: Int): Short = decodeShort()
     final override fun decodeIntElement(descriptor: SerialDescriptor, index: Int): Int = decodeInt()
     final override fun decodeLongElement(descriptor: SerialDescriptor, index: Int): Long = decodeLong()

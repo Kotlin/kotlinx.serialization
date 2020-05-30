@@ -5,7 +5,6 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.ByteString
 
 @Serializable
 data class Simple(val a: String)

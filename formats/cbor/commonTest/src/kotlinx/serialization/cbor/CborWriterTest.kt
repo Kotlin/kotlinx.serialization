@@ -5,7 +5,6 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.ByteString
 import kotlin.test.*
 
 
