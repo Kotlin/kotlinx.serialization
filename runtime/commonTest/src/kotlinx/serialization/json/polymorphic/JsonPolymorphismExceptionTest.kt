@@ -33,4 +33,17 @@ class JsonPolymorphismExceptionTest : JsonTestBase() {
             Json(context = serialModule).parse(Base.serializer(), """{"type":"derived","nested":null}""", useStreaming)
         }
     }
+
+    @Test
+    fun testMissingDiscriminator() = parametrizedTest { useStreaming ->
+        val serialModule = SerializersModule {
+            polymorphic(Base::class) {
+                subclass<Derived>()
+            }
+        }
+
+        assertFailsWith<JsonDecodingException> {
+            Json(context = serialModule).parse(Base.serializer(), """{"nested":{}}""", useStreaming)
+        }
+    }
 }
