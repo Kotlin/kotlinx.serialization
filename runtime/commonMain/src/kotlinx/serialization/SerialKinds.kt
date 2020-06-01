@@ -199,16 +199,14 @@ public sealed class StructureKind : SerialKind() {
     public object MAP : StructureKind()
 
     /**
-     * **ONLY SUPPORTED IN THE CBOR FORMAT**
-     *
-     * Structure kind for byte strings.
+     * Structure kind for value types.
      *
      * While serializers typically encode classes with calls to [Encoder.beginStructure] and [CompositeEncoder.endStructure],
-     * [BYTE_STRING]s of known lengths do not contain a collection begin or end marker, therefore it
+     * [VALUE_TYPE]s of known lengths do not contain a collection begin or end marker, therefore it
      * is not necessary to invoke [Encoder.beginStructure] and [CompositeEncoder.endStructure] before encoding
      * objects of this [StructureKind].
      */
-    public object BYTE_STRING: StructureKind()
+    public object VALUE_TYPE: StructureKind()
 
     /**
      * Structure kind for singleton objects defined with `object` keyword.

@@ -15,8 +15,8 @@ public class ByteString(
     @Serializer(forClass = ByteString::class)
     public companion object : CborKSerializer<ByteString> {
         override val descriptor: SerialDescriptor = SerialDescriptor(
-            serialName = "kotlinx.serialization.ByteString",
-            kind = StructureKind.BYTE_STRING
+            serialName = "kotlinx.serialization.cbor.ByteString",
+            kind = StructureKind.VALUE_TYPE
         )
 
         override fun serialize(encoder: CborEncoder, value: ByteString): Unit = encoder.encodeByteString(value)
