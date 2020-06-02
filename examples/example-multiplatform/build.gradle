@@ -30,18 +30,8 @@ apply plugin: 'maven-publish'
 
 kotlin {
     jvm()
-    // Switching module kind for JS is required to run tests
-    targets {
-        fromPreset(presets.js, 'js') {
-            nodejs {}
-            configure([compilations.main, compilations.test]) {
-                tasks.getByName(compileKotlinTaskName).kotlinOptions {
-                    sourceMap = true
-                    moduleKind = "umd"
-                    metaInfo = true
-                }
-            }
-        }
+    js {
+        nodejs()
     }
     // For ARM, should be changed to iosArm32 or iosArm64
     // For Linux, should be changed to e.g. linuxX64
@@ -52,7 +42,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation kotlin('stdlib-common')
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serialization_version"
             }
         }
         commonTest {
@@ -64,6 +54,8 @@ kotlin {
         jvmMain {
             dependencies {
                 implementation kotlin('stdlib-jdk8')
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
+
             }
         }
         jvmTest {
@@ -75,6 +67,7 @@ kotlin {
         jsMain {
             dependencies {
                 implementation kotlin('stdlib-js')
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
             }
         }
         jsTest {
@@ -83,6 +76,9 @@ kotlin {
             }
         }
         macosMain {
+            dependencies {
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$serialization_version"
+            }
         }
         macosTest {
         }
