@@ -7,7 +7,6 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlin.test.*
 
-@OptIn(ImplicitReflectionSerializer::class)
 class BasicTypesSerializationTest : JsonTestBase() {
 
     val goldenValue = """

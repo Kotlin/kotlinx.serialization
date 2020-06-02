@@ -2,22 +2,19 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("UNCHECKED_CAST")
+
 package kotlinx.serialization
 
 import java.lang.reflect.*
 import kotlin.reflect.*
 
-@Suppress("UNCHECKED_CAST")
-@ImplicitReflectionSerializer
 internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
     this.constructSerializerForGivenTypeArgs()
 
-@Suppress("UNCHECKED_CAST")
 internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E> =
     toArray(java.lang.reflect.Array.newInstance(eClass.java, size) as Array<E>)
 
-@Suppress("UNCHECKED_CAST")
-@ImplicitReflectionSerializer
 internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
     val jClass = this.java
     // Search for serializer defined on companion object.
@@ -41,7 +38,6 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
         null
     }
 }
-
 
 private fun <T : Any> findObjectSerializer(jClass: Class<T>): KSerializer<T>? {
     // Check it is an object without using kotlin-reflect

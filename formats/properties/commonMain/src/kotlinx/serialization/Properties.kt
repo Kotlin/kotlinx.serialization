@@ -204,31 +204,26 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
     /**
      * A reified version of [store].
      */
-    @ImplicitReflectionSerializer
     public inline fun <reified T : Any> store(value: T): Map<String, Any> =
-        store(context.getContextualOrDefault(T::class), value)
+        store(context.getContextualOrDefault(), value)
 
     /**
      * A reified version of [storeNullable].
      */
-    @ImplicitReflectionSerializer
     public inline fun <reified T : Any> storeNullable(value: T): Map<String, Any?> =
-        storeNullable(context.getContextualOrDefault(T::class), value)
+        storeNullable(context.getContextualOrDefault(), value)
 
     /**
      * A reified version of [load].
      */
-    @ImplicitReflectionSerializer
     public inline fun <reified T : Any> load(map: Map<String, Any>): T =
-        load(context.getContextualOrDefault(T::class), map)
+        load(context.getContextualOrDefault(), map)
 
     /**
      * A reified version of [loadNullable].
      */
-    @ImplicitReflectionSerializer
     public inline fun <reified T : Any> loadNullable(map: Map<String, Any?>): T =
-        loadNullable(context.getContextualOrDefault(T::class), map)
-
+        loadNullable(context.getContextualOrDefault(), map)
 
     /**
      * A top-level [SerialFormat] instance that mimic an instance of [Properties] and does not have any [SerialModule] installed.
@@ -272,25 +267,21 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
         /**
          * A reified version of [store].
          */
-        @ImplicitReflectionSerializer
         public inline fun <reified T : Any> store(value: T): Map<String, Any> = DEFAULT.store(value)
 
         /**
          * A reified version of [storeNullable].
          */
-        @ImplicitReflectionSerializer
         public inline fun <reified T : Any> storeNullable(value: T): Map<String, Any?> = DEFAULT.storeNullable(value)
 
         /**
          * A reified version of [load].
          */
-        @ImplicitReflectionSerializer
         public inline fun <reified T : Any> load(map: Map<String, Any>): T = DEFAULT.load(map)
 
         /**
          * A reified version of [loadNullable].
          */
-        @ImplicitReflectionSerializer
         public inline fun <reified T : Any> loadNullable(map: Map<String, Any?>): T = DEFAULT.loadNullable(map)
     }
 }

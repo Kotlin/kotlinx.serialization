@@ -21,7 +21,7 @@ import kotlin.reflect.*
  * To create a serial module, use [SerializersModule] factory function.
  * To pass it to encoder and decoder, refer to particular [SerialFormat]'s documentation.
  */
-@ImplicitReflectionSerializer
+@OptIn(ImplicitReflectionSerializer::class) // TODO do not use into getDefault
 public class ContextSerializer<T : Any>(private val serializableClass: KClass<T>) : KSerializer<T> {
     public override val descriptor: SerialDescriptor =
         SerialDescriptor("kotlinx.serialization.ContextSerializer", UnionKind.CONTEXTUAL).withContext(serializableClass)

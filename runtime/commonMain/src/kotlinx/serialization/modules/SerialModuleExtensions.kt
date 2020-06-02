@@ -23,6 +23,15 @@ public fun <T : Any> SerialModule.getContextual(value: T): KSerializer<T>? {
 }
 
 /**
+ * Attempts to retrieve a serializer from the current module and, if not found, fallbacks to [serializer] method
+ */
+@OptIn(ImplicitReflectionSerializer::class)
+public inline fun <reified T : Any> SerialModule.getContextualOrDefault(): KSerializer<T> =
+    // Even though serializer(KType) also invokes serializerOrNull, it is a significant performance optimization
+    // TODO replace with serializer(typeOf<T>()) when intrinsics are here
+    getContextual(T::class) ?: T::class.serializerOrNull() ?: serializer(typeOf<T>()).cast()
+
+/**
  * Returns a serializer associated with [klass], or a [default one][KClass.serializer].
  *
  * @throws SerializationException if serializer can't be found.

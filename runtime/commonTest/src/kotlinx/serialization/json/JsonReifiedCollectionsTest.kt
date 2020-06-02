@@ -9,7 +9,6 @@ import kotlinx.serialization.builtins.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
 
-@OptIn(ImplicitReflectionSerializer::class)
 class JsonReifiedCollectionsTest : JsonTestBase() {
     @Serializable
     data class DataHolder(val data: String)

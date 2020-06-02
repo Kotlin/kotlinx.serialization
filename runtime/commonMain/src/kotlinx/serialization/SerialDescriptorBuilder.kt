@@ -91,8 +91,7 @@ public val SerialDescriptor.nullable: SerialDescriptor
 /**
  * Builder for [SerialDescriptor] for user-defined serializers.
  *
- * Both explicit builder functions and implicit (using `typeOf`) are present and
- * are equivalent.
+ * Both explicit builder functions and implicit (using reified type-parameters) are present and are equivalent.
  * For example, `element<Int?>("nullableIntField")` is indistinguishable from
  * `element("nullableIntField", IntSerializer.descriptor.nullable)` and
  * from `element("nullableIntField", descriptor<Int?>)`.
@@ -153,7 +152,6 @@ public class SerialDescriptorBuilder internal constructor(
      * A reified version of [element] function that
      * extract descriptor using `serializer<T>().descriptor` call with all the restrictions of `serializer<T>().descriptor`.
      */
-    @ImplicitReflectionSerializer
     public inline fun <reified T> element(
         elementName: String,
         annotations: List<Annotation> = emptyList(),
@@ -167,7 +165,6 @@ public class SerialDescriptorBuilder internal constructor(
     /**
      * Retrieves descriptor of type [T] using reified [serializer] function.
      */
-    @ImplicitReflectionSerializer
     public inline fun <reified T> descriptor(): SerialDescriptor = serializer<T>().descriptor
 
     /**
@@ -180,7 +177,6 @@ public class SerialDescriptorBuilder internal constructor(
     /**
      * Creates a descriptor for the type `List<T>`.
      */
-    @ImplicitReflectionSerializer
     public inline fun <reified T> listDescriptor(): SerialDescriptor {
         return listDescriptor(serializer<T>().descriptor)
     }
@@ -199,7 +195,6 @@ public class SerialDescriptorBuilder internal constructor(
     /**
      * Creates a descriptor for the type `Map<K, V>`.
      */
-    @ImplicitReflectionSerializer
     public inline fun <reified K, reified V> mapDescriptor(): SerialDescriptor {
         return mapDescriptor(serializer<K>().descriptor, serializer<V>().descriptor)
     }
@@ -214,7 +209,6 @@ public class SerialDescriptorBuilder internal constructor(
     /**
      * Creates a descriptor for the type `Set<T>`.
      */
-    @ImplicitReflectionSerializer
     public inline fun <reified T> setDescriptor(): SerialDescriptor {
         return setDescriptor(serializer<T>().descriptor)
     }

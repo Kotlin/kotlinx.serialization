@@ -52,13 +52,11 @@ public class DynamicObjectSerializer @OptIn(UnstableDefault::class) constructor(
         return serializer.result
     }
 
-    @ImplicitReflectionSerializer
     public inline fun <reified T : Any> serialize(obj: T): dynamic =
-        serialize(context.getContextualOrDefault(T::class), obj)
+        serialize(serializer(), obj)
 
-    @ImplicitReflectionSerializer
     public inline fun <reified T : Any> serialize(obj: List<T?>): dynamic =
-        serialize(context.getContextualOrDefault(T::class).nullable.list, obj)
+        serialize(serializer<T>().nullable.list, obj)
 }
 
 private class DynamicObjectEncoder(val configuration: JsonConfiguration, val encodeNullAsUndefined: Boolean) :

@@ -15,7 +15,7 @@ private val SerialKind.objLike get() = this == StructureKind.CLASS || this == St
 
 /**
  * Allows [deserialization][parse]
- * of [Config] object from popular lightbend/config library into Kotlin objects.
+ * of [Config] object from popular Lighbend/config library into Kotlin objects.
  *
  * [Config] object represents "Human-Optimized Config Object Notation" —
  * [HOCON][https://github.com/lightbend/config#using-hocon-the-json-superset].
@@ -28,8 +28,8 @@ public class ConfigParser(
     private val configuration: ConfigParserConfiguration = ConfigParserConfiguration(),
     override val context: SerialModule = EmptyModule
 ) : SerialFormat {
-    @ImplicitReflectionSerializer
-    public inline fun <reified T : Any> parse(conf: Config): T = parse(conf, context.getContextualOrDefault(T::class))
+
+    public inline fun <reified T : Any> parse(conf: Config): T = parse(conf, context.getContextualOrDefault())
 
     public fun <T> parse(conf: Config, deserializer: DeserializationStrategy<T>): T =
         ConfigReader(conf).decode(deserializer)
@@ -180,8 +180,7 @@ public class ConfigParser(
     companion object {
         public fun <T> parse(conf: Config, serial: DeserializationStrategy<T>): T = ConfigParser().parse(conf, serial)
 
-        @ImplicitReflectionSerializer
-        public inline fun <reified T : Any> parse(conf: Config): T = ConfigParser().parse(conf, T::class.serializer())
+        public inline fun <reified T : Any> parse(conf: Config): T = ConfigParser().parse(conf, serializer())
 
         private val NAMING_CONVENTION_REGEX by lazy { "[A-Z]".toRegex() }
     }

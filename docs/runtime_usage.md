@@ -1,8 +1,8 @@
 
 # Runtime library contents and usage
 
-* [Obtaining serializers](#obtaining-serializers)
-  + [Implicit reflection serializers](#implicit-reflection-serializers)
+* [Retrieving serializers](#retrieving-serializers)
+  + [Reified API](#reified-api)
   + [Special serializers](#special-serializers)
 * [Serialization formats](#serialization-formats)
   + [JSON](#json)
@@ -12,7 +12,7 @@
   + [Mapper](#mapper)
   + [Dynamic object parser (JS only)](#dynamic-object-parser-js-only)
 
-## Obtaining serializers
+## Retrieving serializers
 
 Serializers are represented at runtime as `KSerializer<T>`, which in turn, implements interfaces `SerializationStrategy<T>` and `DeserializationStrategy<T>`, where `T` is class you serialize.
 You don't need to call them by yourself; you just have to pass them properly to serialization format. You can write them on your own (see [custom serializers](custom_serializers.md)) or let the compiler plugin do the dirty work by marking class `@Serializable`.
@@ -27,7 +27,7 @@ data class Data(val a: Int)
 data class Box<T>(val boxed: T)
 
 val dataSerializer: KSerializer<Data> = Data.serializer()
-val boxedDataSerializer: KSerializer<Box<Data>> = Box.serializer(dataSerial)
+val boxedDataSerializer: KSerializer<Box<Data>> = Box.serializer(dataSerializer)
 ```
 
 Built-in types, like `Int`, and standard collections doesn't have that method and instead are available via 
@@ -51,23 +51,27 @@ val nullableIntSerializer: KSerializer<Int?> = IntSerializer.nullable
 
 All external serializers (defined by user) are instantiated in a user-specific way. To learn how to write them, see [docs](custom_serializers.md).
 
-### Implicit reflection serializers
+## Reified API
 
-In following special case:
-* Class explicitly marked `@Serializable`
-* Class does not have generic type arguments
+Most of the API provided by `kotlinx.serialization` can be used without providing a serializer instance, but a corresponding type arguments.
 
-You can obtain serializer from KClass instance: `val d: KSerializer<MyData> = MyData::class.serializer()`.
-This approach is discouraged in general because it is implicit and uses reflection (and therefore not working on Kotlin/Native),
-but may be useful shorthand in some cases.
+For example, the recommended way to serialize class `Data` to JSON is the following:
+```kotlin
+val json: Json = Json.Default
+val string = json.stringify(Data(...)) // infers as json.stringify<Data>(Data(...)) by the compiler
+val deserializedInstance = json.parse<Data>(string)
+```
 
-Functions which uses this or similar functionality are annotated
-with [experimental](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-experimental/index.html)
-annotation `kotlinx.serialization.ImplicitReflectionSerializer`.
-Consult [annotation documentation](../runtime/commonMain/src/kotlinx/serialization/SerialImplicits.kt#L8)
-to learn about restrictions of this approach.
-To learn how to use experimental annotations, look at theirs [KEEP](https://github.com/Kotlin/KEEP/blob/master/proposals/experimental.md)
-or use [this guide](https://kotlinlang.org/docs/reference/experimental.html#using-experimental-apis).
+Same principle applies to serial module builders, serial descriptors and serializers:
+```kotlin
+val intSerializer = serializer<Int>() // 
+
+val module = SerialModule {
+    polymorphic<Any> {
+        subclass<MyClass>()
+    }
+}
+```
 
 ### Special serializers
 
@@ -117,10 +121,10 @@ JSON API:
 
 ```kotlin
 fun <T> stringify(serializer: SerializationStrategy<T>, obj: T): String
-inline fun <reified T : Any> stringify(obj: T): String = stringify(T::class.serializer(), obj)
+inline fun <reified T : Any> stringify(obj: T): String = stringify(serializer<T>(), obj)
 
 fun <T> parse(loader: DeserializationStrategy<T>, str: String): T
-inline fun <reified T : Any> parse(str: String): T = parse(T::class.serializer(), str)
+inline fun <reified T : Any> parse(str: String): T = parse(serializer<T>(), str)
 ```
 
 `stringify` transforms object to string, `parse` parses. No surprises.

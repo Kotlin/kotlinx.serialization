@@ -421,9 +421,8 @@ public fun <T : Any?> Encoder.encode(strategy: SerializationStrategy<T>, value: 
     encodeSerializableValue(strategy, value)
 
 /**
- * [typeOf]-based version of [Encoder.encodeSerializableValue]
+ * Reified version of [Encoder.encodeSerializableValue]
  */
-@ImplicitReflectionSerializer
 public inline fun <reified T : Any> Encoder.encode(obj: T): Unit = encode(serializer(), obj)
 
 /**

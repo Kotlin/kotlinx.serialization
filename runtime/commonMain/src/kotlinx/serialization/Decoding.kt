@@ -576,10 +576,9 @@ public fun <T : Any?> Decoder.decode(deserializer: DeserializationStrategy<T>): 
     decodeSerializableValue(deserializer)
 
 /**
- * [typeOf]-based version of [Decoder.decodeSerializableValue]
+ * Reified version of [Decoder.decodeSerializableValue]
  */
-@ImplicitReflectionSerializer
-public inline fun <reified T : Any> Decoder.decode(): T = decode(T::class.serializer())
+public inline fun <reified T : Any> Decoder.decode(): T = decode(serializer())
 
 /**
  * Begins a structure, decodes it using the given [block], ends it and returns decoded element.
