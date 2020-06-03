@@ -8,7 +8,7 @@ publishing {
             def user = 'kotlin'
             def repo = 'kotlinx'
             def name = 'kotlinx.serialization.runtime'
-            url = "https://api.bintray.com/maven/$user/$repo/$name/;publish=0"
+            url = "https://api.bintray.com/maven/$user/$repo/$name/;publish=0;override=1"
 
             credentials {
                 username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
