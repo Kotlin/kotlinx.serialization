@@ -5,6 +5,7 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
@@ -108,6 +109,19 @@ internal class StreamingJsonInput internal constructor(
         }
     }
 
+    private fun treatAsMissing(descriptor: SerialDescriptor, index: Int): Boolean {
+        if (!configuration.treatNullAsMissing) return false
+        val elementDescriptor = descriptor.getElementDescriptor(index)
+        if (reader.tokenClass == TC_NULL && !elementDescriptor.isNullable) return true // null for non-nullable
+        if (elementDescriptor.kind == UnionKind.ENUM_KIND) {
+            val enumValue = reader.peekString(configuration.isLenient)
+                    ?: return false // if value is not a string, decodeEnum() will throw correct exception
+            val enumIndex = elementDescriptor.getElementIndex(enumValue)
+            if (enumIndex == UNKNOWN_NAME) return true
+        }
+        return false
+    }
+
     private fun decodeObjectIndex(tokenClass: Byte, descriptor: SerialDescriptor): Int {
         if (tokenClass == TC_COMMA && !reader.canBeginValue) {
             reader.fail("Unexpected trailing comma")
@@ -119,11 +133,17 @@ internal class StreamingJsonInput internal constructor(
             reader.requireTokenClass(TC_COLON) { "Expected ':'" }
             reader.nextToken()
             val index = descriptor.getElementIndex(key)
-            if (index != CompositeDecoder.UNKNOWN_NAME) {
-                return index
+            val isUnknown = if (index != UNKNOWN_NAME) {
+                if (treatAsMissing(descriptor, index)) {
+                    false // skip known element
+                } else {
+                    return index // read known element
+                }
+            } else {
+                true // unknown element
             }
 
-            if (!configuration.ignoreUnknownKeys) {
+            if (isUnknown && !configuration.ignoreUnknownKeys) {
                 reader.fail(
                     "Encountered an unknown key '$key'. You can enable 'JsonConfiguration.ignoreUnknownKeys' property" +
                             " to ignore unknown keys"
