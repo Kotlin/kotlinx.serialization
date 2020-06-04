@@ -92,7 +92,7 @@ class DynamicSerializerTest {
         serializer: SerializationStrategy<T>? = null,
         noinline assertions: ((T, dynamic) -> Unit)? = null
     ) {
-        val effectiveSerializer = serializer ?: EmptyModule.getContextualOrDefault(T::class)
+        val effectiveSerializer = serializer ?: EmptyModule.getContextualOrDefault<T>()
         val serialized = DynamicObjectSerializer().serialize(effectiveSerializer, data)
         assertions?.invoke(data, serialized)
         assertEquals(

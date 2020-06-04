@@ -78,7 +78,6 @@ public typealias ElementValueEncoder = AbstractEncoder
 )
 public typealias ElementValueDecoder = AbstractDecoder
 
-@ImplicitReflectionSerializer
 @Deprecated(
     "This function accidentally slipped to a public API surface and is not intended for public use " +
             "since it does not have clear specification.",

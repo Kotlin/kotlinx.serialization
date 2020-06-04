@@ -8,7 +8,6 @@ import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.RequiresOptIn.Level.*
-import kotlin.reflect.typeOf
 
 /**
  * Marks declaration that obtains serializer implicitly using limited reflection capabilities.
@@ -21,6 +20,7 @@ import kotlin.reflect.typeOf
  * function on serializable class' companion.
  */
 @RequiresOptIn
+@Deprecated(level = DeprecationLevel.WARNING, message = "This annotation is obsolete and deprecated for removal")
 public annotation class ImplicitReflectionSerializer
 
 /**
@@ -55,5 +55,5 @@ public inline fun <reified T : Any> StringFormat.parse(str: String): T =
 public inline fun <reified T : Any> StringFormat.parseList(objects: String): List<T> =
     parse(context.getContextualOrDefault<T>().list, objects)
 
-public inline fun <reified K : Any, reified V : Any> StringFormat.parseMap(map: String)
+public inline fun <reified K : Any, reified V : Any> StringFormat.parseMap(map: String): Map<K, V>
         = parse(MapSerializer(context.getContextualOrDefault<K>(), context.getContextualOrDefault<V>()), map)

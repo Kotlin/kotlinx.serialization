@@ -28,11 +28,4 @@ class JsonReifiedCollectionsTest : JsonTestBase() {
         val data2 = lenient.parseMap<String, DataHolder>(json, useStreaming)
         assertEquals(data, data2)
     }
-
-    @Test
-    fun testPrimitiveSerializer() {
-        val intClass = Int::class
-        val serial = intClass.serializer()
-        assertSame(Int.serializer(), serial)
-    }
 }

@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.internal.*
 import java.lang.reflect.*
 import kotlin.reflect.*
 
@@ -34,7 +35,7 @@ public inline fun <reified T> typeTokenOf(): Type {
  * Kotlin-specific type information, such as nullability, sealed classes and object.
  */
 @Suppress("UNCHECKED_CAST")
-@OptIn(ImplicitReflectionSerializer::class)
+@OptIn(UnsafeSerializationApi::class)
 public fun serializerByTypeToken(type: Type): KSerializer<Any> = when (type) {
     // TODO stabilize for Spring
     is GenericArrayType -> {

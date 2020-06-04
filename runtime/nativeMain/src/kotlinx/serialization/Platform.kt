@@ -31,7 +31,6 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
     "DEPRECATION_ERROR"
 )
 @OptIn(ExperimentalAssociatedObjects::class)
-@ImplicitReflectionSerializer
 internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
     this.constructSerializerForGivenTypeArgs()
 

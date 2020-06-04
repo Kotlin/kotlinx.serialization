@@ -25,7 +25,7 @@ public fun <T : Any> SerialModule.getContextual(value: T): KSerializer<T>? {
 /**
  * Attempts to retrieve a serializer from the current module and, if not found, fallbacks to [serializer] method
  */
-@OptIn(ImplicitReflectionSerializer::class)
+@OptIn(UnsafeSerializationApi::class)
 public inline fun <reified T : Any> SerialModule.getContextualOrDefault(): KSerializer<T> =
     // Even though serializer(KType) also invokes serializerOrNull, it is a significant performance optimization
     // TODO replace with serializer(typeOf<T>()) when intrinsics are here
@@ -37,6 +37,8 @@ public inline fun <reified T : Any> SerialModule.getContextualOrDefault(): KSeri
  * @throws SerializationException if serializer can't be found.
  */
 @ImplicitReflectionSerializer
+@OptIn(UnsafeSerializationApi::class)
+@Deprecated(level = DeprecationLevel.WARNING, message = "This method is deprecated for removal. Please use reified getContextualOrDefault<T>() instead")
 public fun <T : Any> SerialModule.getContextualOrDefault(klass: KClass<T>): KSerializer<T> =
     getContextual(klass) ?: klass.serializer()
 
@@ -46,6 +48,8 @@ public fun <T : Any> SerialModule.getContextualOrDefault(klass: KClass<T>): KSer
  * @throws SerializationException if serializer can't be found.
  */
 @ImplicitReflectionSerializer
+@OptIn(UnsafeSerializationApi::class)
+@Deprecated(level = DeprecationLevel.WARNING, message = "This method is deprecated for removal. Please use reified getContextualOrDefault<T>() instead")
 public fun <T : Any> SerialModule.getContextualOrDefault(value: T): KSerializer<T> =
     getContextual(value) ?: value::class.serializer().cast()
 

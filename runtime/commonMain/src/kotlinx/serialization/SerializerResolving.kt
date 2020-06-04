@@ -39,7 +39,7 @@ public inline fun <reified T> serializer(): KSerializer<T> {
  * This is a computation-heavy call, so it is recommended to cache its result.
  * [typeOf] API currently does not work with user-defined generic classes on Kotlin/JS.
  */
-@OptIn(ImplicitReflectionSerializer::class)
+@OptIn(UnsafeSerializationApi::class)
 public fun serializer(type: KType): KSerializer<Any?> {
     fun serializerByKTypeImpl(type: KType): KSerializer<Any> {
         val rootClass = when (val t = type.classifier) {
@@ -68,7 +68,6 @@ public fun serializer(type: KType): KSerializer<Any?> {
                         if (isReferenceArray(type, rootClass)) {
                             return ArraySerializer<Any, Any?>(typeArguments[0].classifier as KClass<Any>, serializers[0]).cast()
                         }
-                        @OptIn(ImplicitReflectionSerializer::class)
                         requireNotNull(rootClass.constructSerializerForGivenTypeArgs(*serializers.toTypedArray())) {
                             "Can't find a method to construct serializer for type ${rootClass.simpleName()}. " +
                                     "Make sure this class is marked as @Serializable or provide serializer explicitly."
