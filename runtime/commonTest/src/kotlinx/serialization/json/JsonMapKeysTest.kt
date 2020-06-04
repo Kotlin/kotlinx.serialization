@@ -5,7 +5,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.test.assertStringFormAndRestored
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class JsonMapKeysTest : JsonTestBase() {
@@ -19,12 +19,12 @@ class JsonMapKeysTest : JsonTestBase() {
     private data class WithComplexKey(val map: Map<IntData, String>)
 
     @Test
-    fun testMapKeysShouldBeStrings() = parametrizedTest(default) { fmt ->
+    fun testMapKeysShouldBeStrings() = parametrizedTest(default) {
         assertStringFormAndRestored(
             """{"map":{"10":10,"20":20}}""",
             WithMap(mapOf(10L to 10L, 20L to 20L)),
             WithMap.serializer(),
-            fmt
+            this
         )
     }
 

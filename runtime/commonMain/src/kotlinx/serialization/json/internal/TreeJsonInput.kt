@@ -156,10 +156,23 @@ private open class JsonTreeInput(
 ) : AbstractJsonTreeInput(json, value) {
     private var position = 0
 
+    private fun treatAsMissing(descriptor: SerialDescriptor, index: Int, tag: String): Boolean {
+        if (!configuration.treatNullAsMissing) return false
+        val elementDescriptor = descriptor.getElementDescriptor(index)
+        if (currentElement(tag).isNull && !elementDescriptor.isNullable) return true // null for non-nullable
+        if (elementDescriptor.kind == UnionKind.ENUM_KIND) {
+            val enumValue = (currentElement(tag) as? JsonElement)?.contentOrNull
+                    ?: return false // if value is not a string, decodeEnum() will throw correct exception
+            val enumIndex = elementDescriptor.getElementIndex(enumValue)
+            if (enumIndex == CompositeDecoder.UNKNOWN_NAME) return true
+        }
+        return false
+    }
+
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         while (position < descriptor.elementsCount) {
             val name = descriptor.getTag(position++)
-            if (name in value) {
+            if (name in value && !treatAsMissing(descriptor, position - 1, name)) {
                 return position - 1
             }
         }

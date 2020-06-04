@@ -25,13 +25,11 @@ class JsonUseDefaultOnNullTest : JsonTestBase() {
 
     val json = Json(JsonConfiguration.Default.copy(treatNullAsMissing = true, isLenient = true))
 
-    private inline fun <reified T> doTest(inputs: List<String>, expected: T) {
+    private inline fun <T> doTest(inputs: List<String>, expected: T, serializer: KSerializer<T>) {
         for (input in inputs) {
-            // todo : this overload works incorrectly
-//            parametrizedTest(json) { j ->
-            val parsed = json.parse(serializer<T>(), input)
-            assertEquals(expected, parsed, "Failed on input: $input")
-//            }
+            parametrizedTest(json) {
+                assertEquals(expected, parse(serializer, input), "Failed on input: $input")
+            }
         }
     }
 
@@ -42,7 +40,8 @@ class JsonUseDefaultOnNullTest : JsonTestBase() {
             """{"b":null}""",
             """{}""",
         ),
-        WithBoolean()
+        WithBoolean(),
+        WithBoolean.serializer()
     )
 
     @Test
@@ -54,7 +53,8 @@ class JsonUseDefaultOnNullTest : JsonTestBase() {
                 """{"e":null}""",
                 """{}""",
             ),
-            WithEnum()
+            WithEnum(),
+            WithEnum.serializer()
         )
         assertFailsWith<JsonDecodingException> {
             json.parse(WithEnum.serializer(), """{"e":{"x":"definitely not a valid enum value"}}""")

@@ -100,7 +100,7 @@ abstract class JsonTestBase {
         processResults(streamingResult, treeResult)
     }
 
-    private inner class DualFormat(
+    private inner class SwitchableJson(
         val json: Json,
         val useStreaming: Boolean,
         override val context: SerialModule = EmptyModule
@@ -114,9 +114,9 @@ abstract class JsonTestBase {
         }
     }
 
-    protected fun parametrizedTest(json: Json, test: StringFormat.(StringFormat) -> Unit) {
-        val streamingResult = runCatching { json.test(DualFormat(json, true)) }
-        val treeResult = runCatching { json.test(DualFormat(json, false)) }
+    protected fun parametrizedTest(json: Json, test: StringFormat.() -> Unit) {
+        val streamingResult = runCatching { SwitchableJson(json, true).test() }
+        val treeResult = runCatching { SwitchableJson(json, false).test() }
         processResults(streamingResult, treeResult)
     }
 
