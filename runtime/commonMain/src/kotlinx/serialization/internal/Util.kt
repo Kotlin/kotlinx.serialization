@@ -6,6 +6,7 @@ package kotlinx.serialization.internal
 
 import kotlinx.io.*
 import kotlinx.serialization.*
+import kotlin.jvm.*
 import kotlin.native.concurrent.*
 import kotlin.reflect.*
 
@@ -139,3 +140,7 @@ internal fun KClass<*>.serializerNotRegistered(): Nothing {
                 "For generic classes, such as lists, please provide serializer explicitly."
     )
 }
+
+@SharedImmutable
+@JvmField
+internal val EMPTY_ARRAY = emptyArray<KSerializer<*>>()
