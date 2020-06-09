@@ -152,7 +152,7 @@ class ModuleBuildersTest {
     fun testOverwriteSerializer() {
         val moduleA = SerializersModule {
             contextual(A::class, ASerializer)
-            assertFailsWith<SerializerAlreadyRegisteredException> {
+            assertFailsWith<IllegalArgumentException> {
                 contextual(A::class, object : KSerializer<A> by A.serializer() {})
             }
         }
@@ -173,7 +173,7 @@ class ModuleBuildersTest {
         val incorrect = serializersModuleOf(mapOf<KClass<*>, KSerializer<*>>(A::class to BSerializer))
         val correct = serializersModuleOf(mapOf<KClass<*>, KSerializer<*>>(A::class to ASerializer))
         correct.assertModuleHas(aSerializer = true, bSerializer = false)
-        assertFailsWith<SerializerAlreadyRegisteredException> {
+        assertFailsWith<IllegalArgumentException> {
             incorrect + correct
         }
     }
@@ -261,7 +261,7 @@ class ModuleBuildersTest {
     fun testThrowOnTheSamePolymorphicSerializer() {
         val m1 = SerializersModule { polymorphic<Any> { A::class with A.serializer() } }
         val m2 = SerializersModule { polymorphic<Any> { A::class with ASerializer } }
-        assertFailsWith<SerializerAlreadyRegisteredException> { m1 + m2 }
+        assertFailsWith<IllegalArgumentException> { m1 + m2 }
     }
 
     @Test

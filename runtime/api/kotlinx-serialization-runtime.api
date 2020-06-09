@@ -1862,9 +1862,6 @@ public final class kotlinx/serialization/modules/SerialModuleExtensionsKt {
 	public static final fun plus (Lkotlinx/serialization/modules/SerialModule;Lkotlinx/serialization/modules/SerialModule;)Lkotlinx/serialization/modules/SerialModule;
 }
 
-public final class kotlinx/serialization/modules/SerializerAlreadyRegisteredException : java/lang/IllegalArgumentException {
-}
-
 public final class kotlinx/serialization/modules/SerializersModuleBuilder : kotlinx/serialization/modules/SerialModuleCollector {
 	public fun contextual (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
 	public fun defaultPolymorphic (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
