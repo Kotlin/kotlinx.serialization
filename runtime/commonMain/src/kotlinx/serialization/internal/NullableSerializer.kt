@@ -9,7 +9,7 @@ import kotlinx.serialization.*
     message = "Deprecated in the favor of extension",
     level = DeprecationLevel.ERROR,
     replaceWith = ReplaceWith("actualSerializer.nullable)")
-)
+) // TODO still used by the plugin
 @InternalSerializationApi
 public fun <T : Any> makeNullable(actualSerializer: KSerializer<T>): KSerializer<T?> {
     return NullableSerializer(actualSerializer)

@@ -13,7 +13,7 @@ import org.junit.Test
 import java.lang.reflect.*
 import kotlin.test.*
 
-class ResolvingTest {
+class SerializerByTypeTest {
 
     val unquoted = Json { unquotedPrint = true }
 
@@ -175,5 +175,11 @@ class ResolvingTest {
         val token = typeTokenOf<SerializableObject>()
         val serial = serializerByTypeToken(token)
         assertEquals(SerializableObject.serializer().descriptor, serial.descriptor)
+    }
+
+    public inline fun <reified T> typeTokenOf(): Type {
+        val base = object : TypeBase<T>() {}
+        val superType = base::class.java.genericSuperclass!!
+        return (superType as ParameterizedType).actualTypeArguments.first()!!
     }
 }

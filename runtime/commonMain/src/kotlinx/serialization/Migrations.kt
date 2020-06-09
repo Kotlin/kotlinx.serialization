@@ -20,7 +20,7 @@ public class PrimitiveDescriptorWithName
     level = DeprecationLevel.ERROR,
     replaceWith = ReplaceWith("PrimitiveDescriptor(name, original.kind)")
 )
-constructor(override val name: String, private val original: SerialDescriptor) : SerialDescriptor by original
+constructor(override val serialName: String, private val original: SerialDescriptor) : SerialDescriptor by original
 
 @Deprecated(
     message = "Deprecated in the favour of PrimitiveDescriptor factory function",

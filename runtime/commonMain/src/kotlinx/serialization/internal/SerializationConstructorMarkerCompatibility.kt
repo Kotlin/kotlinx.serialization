@@ -8,5 +8,5 @@ package kotlinx.serialization
 
 // Binary compatibility with the plugin
 @Suppress("UNUSED")
-@Deprecated("Inserted into generated code and should not be used directly", level = DeprecationLevel.HIDDEN)
+@Deprecated("Inserted into generated code and should not be used directly", level = DeprecationLevel.HIDDEN) // TODO still used by the plugin
 public class SerializationConstructorMarker private constructor()

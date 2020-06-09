@@ -35,7 +35,7 @@ public class PolymorphicModuleBuilder<Base : Any> internal constructor(
      */
     @Deprecated(
         message = "Use 'subclass(serializer)' instead",
-        level = DeprecationLevel.WARNING,
+        level = DeprecationLevel.ERROR,
         replaceWith = ReplaceWith("subclass(serializer)")
     )
     public inline fun <reified T : Base> addSubclass(serializer: KSerializer<T>): Unit =
@@ -49,7 +49,7 @@ public class PolymorphicModuleBuilder<Base : Any> internal constructor(
      */
     @Deprecated(
         message = "Use 'subclass' instead",
-        level = DeprecationLevel.WARNING,
+        level = DeprecationLevel.ERROR,
         replaceWith = ReplaceWith("subclass<T>()")
     )
     public inline fun <reified T : Base> addSubclass(): Unit = addSubclass(T::class, serializer())

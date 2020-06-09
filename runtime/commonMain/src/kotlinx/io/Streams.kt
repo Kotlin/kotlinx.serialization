@@ -8,7 +8,7 @@ import kotlinx.serialization.*
 
 @InternalSerializationApi
 public abstract class Input {
-    abstract val availableBytes: Int
+    public abstract val availableBytes: Int
     public abstract fun read(): Int
     public abstract fun read(b: ByteArray, offset: Int, length: Int): Int
     public abstract fun readString(length: Int): String
