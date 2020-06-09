@@ -140,7 +140,3 @@ internal fun KClass<*>.serializerNotRegistered(): Nothing {
                 "For generic classes, such as lists, please provide serializer explicitly."
     )
 }
-
-@SharedImmutable
-@JvmField
-internal val EMPTY_ARRAY = emptyArray<KSerializer<*>>()

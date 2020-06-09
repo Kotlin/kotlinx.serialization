@@ -38,7 +38,11 @@ public inline fun <reified T : Any> SerialModule.getContextualOrDefault(): KSeri
  */
 @ImplicitReflectionSerializer
 @OptIn(UnsafeSerializationApi::class)
-@Deprecated(level = DeprecationLevel.WARNING, message = "This method is deprecated for removal. Please use reified getContextualOrDefault<T>() instead")
+@Deprecated(
+    level = DeprecationLevel.WARNING,
+    message = "This method is deprecated for removal. Please use reified getContextualOrDefault<T>() instead",
+    replaceWith = ReplaceWith("getContextual(klass) ?: klass.serializer()")
+)
 public fun <T : Any> SerialModule.getContextualOrDefault(klass: KClass<T>): KSerializer<T> =
     getContextual(klass) ?: klass.serializer()
 
@@ -49,7 +53,11 @@ public fun <T : Any> SerialModule.getContextualOrDefault(klass: KClass<T>): KSer
  */
 @ImplicitReflectionSerializer
 @OptIn(UnsafeSerializationApi::class)
-@Deprecated(level = DeprecationLevel.WARNING, message = "This method is deprecated for removal. Please use reified getContextualOrDefault<T>() instead")
+@Deprecated(
+    level = DeprecationLevel.WARNING,
+    message = "This method is deprecated for removal. Please use reified getContextualOrDefault<T>() instead",
+    replaceWith = ReplaceWith("getContextual(value) ?: value::class.serializer()")
+)
 public fun <T : Any> SerialModule.getContextualOrDefault(value: T): KSerializer<T> =
     getContextual(value) ?: value::class.serializer().cast()
 
