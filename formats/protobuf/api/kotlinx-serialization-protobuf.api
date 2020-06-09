@@ -1,0 +1,47 @@
+public final class kotlinx/serialization/protobuf/ProtoBuf : kotlinx/serialization/BinaryFormat {
+	public static final field Default Lkotlinx/serialization/protobuf/ProtoBuf$Default;
+	public fun <init> ()V
+	public fun <init> (ZLkotlinx/serialization/modules/SerialModule;)V
+	public synthetic fun <init> (ZLkotlinx/serialization/modules/SerialModule;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun dump (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
+	public fun getContext ()Lkotlinx/serialization/modules/SerialModule;
+	public final fun getEncodeDefaults ()Z
+	public fun load (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/protobuf/ProtoBuf$Default : kotlinx/serialization/BinaryFormat {
+	public fun dump (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
+	public fun getContext ()Lkotlinx/serialization/modules/SerialModule;
+	public fun load (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
+}
+
+public abstract interface annotation class kotlinx/serialization/protobuf/ProtoId : java/lang/annotation/Annotation {
+	public abstract fun id ()I
+}
+
+public final class kotlinx/serialization/protobuf/ProtoId$Impl : kotlinx/serialization/protobuf/ProtoId {
+	public fun <init> (I)V
+	public final fun id ()I
+}
+
+public final class kotlinx/serialization/protobuf/ProtoNumberType : java/lang/Enum {
+	public static final field DEFAULT Lkotlinx/serialization/protobuf/ProtoNumberType;
+	public static final field FIXED Lkotlinx/serialization/protobuf/ProtoNumberType;
+	public static final field SIGNED Lkotlinx/serialization/protobuf/ProtoNumberType;
+	public static fun valueOf (Ljava/lang/String;)Lkotlinx/serialization/protobuf/ProtoNumberType;
+	public static fun values ()[Lkotlinx/serialization/protobuf/ProtoNumberType;
+}
+
+public abstract interface annotation class kotlinx/serialization/protobuf/ProtoType : java/lang/annotation/Annotation {
+	public abstract fun type ()Lkotlinx/serialization/protobuf/ProtoNumberType;
+}
+
+public final class kotlinx/serialization/protobuf/ProtoType$Impl : kotlinx/serialization/protobuf/ProtoType {
+	public fun <init> (Lkotlinx/serialization/protobuf/ProtoNumberType;)V
+	public final fun type ()Lkotlinx/serialization/protobuf/ProtoNumberType;
+}
+
+public final class kotlinx/serialization/protobuf/ProtobufDecodingException : kotlinx/serialization/SerializationException {
+	public fun <init> (Ljava/lang/String;)V
+}
+

@@ -71,6 +71,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
+        classpath "org.jetbrains.kotlinx:binary-compatibility-validator:$validator_version"
 
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.8'
 
@@ -83,7 +84,11 @@ buildscript {
 
 // To make it visible for compilerVersion.gradle
 ext.compilerVersion = org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION
+apply plugin: 'binary-compatibility-validator'
 
+apiValidation {
+    ignoredProjects += ["benchmark", "kotlinx-serialization"]
+}
 
 allprojects {
     group 'org.jetbrains.kotlinx'

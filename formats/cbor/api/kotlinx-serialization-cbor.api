@@ -1,0 +1,21 @@
+public final class kotlinx/serialization/cbor/Cbor : kotlinx/serialization/BinaryFormat {
+	public static final field Default Lkotlinx/serialization/cbor/Cbor$Default;
+	public fun <init> ()V
+	public fun <init> (ZLkotlinx/serialization/modules/SerialModule;)V
+	public synthetic fun <init> (ZLkotlinx/serialization/modules/SerialModule;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun dump (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
+	public fun getContext ()Lkotlinx/serialization/modules/SerialModule;
+	public final fun getEncodeDefaults ()Z
+	public fun load (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/cbor/Cbor$Default : kotlinx/serialization/BinaryFormat {
+	public fun dump (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
+	public fun getContext ()Lkotlinx/serialization/modules/SerialModule;
+	public fun load (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/cbor/CborDecodingException : kotlinx/serialization/SerializationException {
+	public fun <init> (Ljava/lang/String;I)V
+}
+
