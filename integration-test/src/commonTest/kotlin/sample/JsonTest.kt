@@ -15,7 +15,15 @@ class JsonTest {
 
     private val originalData = Data("Hello")
     private val originalString = """{"s":"Hello","box":{"boxed":42},"boxes":{"desc":"boxes","boxes":[{"boxed":"foo"},{"boxed":"bar"}]},"m":{}}"""
-
+    private val nonstrict: Json = Json(
+        JsonConfiguration(
+            isLenient = true,
+            ignoreUnknownKeys = true,
+            serializeSpecialFloatingPointValues = true,
+            useArrayPolymorphism = true
+        )
+    )
+    
     @Test
     fun testStringForm() {
         val str = Json.stringify(Data.serializer(), originalData)
@@ -211,20 +219,20 @@ class JsonTest {
 
     @Test
     fun geoTest() {
-        val deser = Json.nonstrict.parse(GeoCoordinate.serializer(), """{"latitude":1.0,"longitude":1.0}""")
+        val deser = nonstrict.parse(GeoCoordinate.serializer(), """{"latitude":1.0,"longitude":1.0}""")
         assertEquals(GeoCoordinate(1.0, 1.0), deser)
     }
 
     @Test
     fun geoTest2() {
-        val deser = Json.nonstrict.parse(GeoCoordinate.serializer(), """{}""")
+        val deser = nonstrict.parse(GeoCoordinate.serializer(), """{}""")
         assertEquals(GeoCoordinate(0.0, 0.0), deser)
     }
 
     @Test
     fun geoTestValidation() {
         assertFailsWith<IllegalArgumentException> {
-            Json.nonstrict.parse(GeoCoordinate.serializer(), """{"latitude":-1.0,"longitude":1.0}""")
+            nonstrict.parse(GeoCoordinate.serializer(), """{"latitude":-1.0,"longitude":1.0}""")
         }
     }
 }
@@ -233,7 +241,7 @@ inline fun <reified T : Any> assertStringFormAndRestored(
     expected: String,
     original: T,
     serializer: KSerializer<T>,
-    format: StringFormat = Json.plain,
+    format: StringFormat = Json,
     printResult: Boolean = false
 ) {
     val string = format.stringify(serializer, original)
