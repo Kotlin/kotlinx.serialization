@@ -79,7 +79,7 @@ class BinaryPayload(val req: ByteArray, val res: ByteArray) {
     companion object : KSerializer<BinaryPayload> {
         override val descriptor: SerialDescriptor = SerialDescriptor("BinaryPayload") {
             element<String>("req") // req will have index 0
-            element<String>("res") // req will have index 1
+            element<String>("res") // res will have index 1
         }
     }
 }
