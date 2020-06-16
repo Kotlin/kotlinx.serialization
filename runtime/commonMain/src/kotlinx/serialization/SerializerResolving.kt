@@ -42,10 +42,7 @@ public inline fun <reified T> serializer(): KSerializer<T> {
 @OptIn(UnsafeSerializationApi::class)
 public fun serializer(type: KType): KSerializer<Any?> {
     fun serializerByKTypeImpl(type: KType): KSerializer<Any> {
-        val rootClass = when (val t = type.classifier) {
-            is KClass<*> -> t
-            else -> error("Only KClass supported as classifier, got $t")
-        } as KClass<Any>
+        val rootClass = type.kclass()
 
         val typeArguments = type.arguments
             .map { requireNotNull(it.type) { "Star projections are not allowed, had $it instead" } }
@@ -81,6 +78,11 @@ public fun serializer(type: KType): KSerializer<Any?> {
     val result = serializerByKTypeImpl(type)
     return if (type.isMarkedNullable) result.nullable else result.cast()
 }
+
+internal fun KType.kclass() = when (val t = classifier) {
+    is KClass<*> -> t
+    else -> error("Only KClass supported as classifier, got $t")
+} as KClass<Any>
 
 /**
  * Constructs KSerializer<D<T0, T1, ...>> by given KSerializer<T0>, KSerializer<T1>, ...

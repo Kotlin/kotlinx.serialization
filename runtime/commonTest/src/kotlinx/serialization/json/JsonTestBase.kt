@@ -32,24 +32,6 @@ abstract class JsonTestBase {
         }
     }
 
-    inline fun <reified T : Any> Json.stringify(list: List<T>, useStreaming: Boolean): String {
-        return if (useStreaming) {
-            // Overload to test public list extension
-            stringify(list)
-        } else {
-            stringify(context.getContextualOrDefault<T>().list, list)
-        }
-    }
-
-    inline fun <reified K : Any, reified V : Any> Json.stringify(map: Map<K, V>, useStreaming: Boolean): String {
-        return if (useStreaming) {
-            // Overload to test public map extension
-            stringify(map)
-        } else {
-            stringify(MapSerializer(context.getContextualOrDefault<K>(), context.getContextualOrDefault<V>()), map)
-        }
-    }
-
     internal inline fun <reified T : Any> Json.parse(source: String, useStreaming: Boolean): T {
         val deserializer = context.getContextualOrDefault<T>()
         return parse(deserializer, source, useStreaming)
@@ -64,27 +46,6 @@ abstract class JsonTestBase {
             val tree = input.decodeJson()
             if (!input.reader.isDone) { error("Reader has not consumed the whole input: ${input.reader}") }
             readJson(tree, deserializer)
-        }
-    }
-
-    internal inline fun <reified T : Any> Json.parseList(content: String, useStreaming: Boolean): List<T> {
-        return if (useStreaming) {
-            // Overload to test public list extension
-            parseList(content)
-        } else {
-            parse(context.getContextualOrDefault<T>().list, content, useStreaming)
-        }
-    }
-
-    internal inline fun <reified K : Any, reified V : Any> Json.parseMap(
-        content: String,
-        useStreaming: Boolean
-    ): Map<K, V> {
-        return if (useStreaming) {
-            // Overload to test public map extension
-            parseMap(content)
-        } else {
-            parse(MapSerializer(context.getContextualOrDefault<K>(), context.getContextualOrDefault<V>()), content, useStreaming)
         }
     }
 

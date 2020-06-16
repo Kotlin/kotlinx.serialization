@@ -80,6 +80,14 @@ public fun <T> BinaryFormat.dumps(serializer: SerializationStrategy<T>, value: T
 public fun <T> BinaryFormat.loads(deserializer: DeserializationStrategy<T>, hex: String): T =
     load(deserializer, InternalHexConverter.parseHexBinary(hex))
 
+public inline fun <reified T : Any> BinaryFormat.dump(value: T): ByteArray = dump(context.getContextualOrDefault(), value)
+
+public inline fun <reified T : Any> BinaryFormat.dumps(value: T): String = dumps(context.getContextualOrDefault(), value)
+
+public inline fun <reified T : Any> BinaryFormat.load(raw: ByteArray): T = load(context.getContextualOrDefault(), raw)
+
+public inline fun <reified T : Any> BinaryFormat.loads(hex: String): T = loads(context.getContextualOrDefault(), hex)
+
 /**
  * [SerialFormat] that allows conversion to and from [String]
  * via [stringify] and [parse] methods
@@ -95,3 +103,15 @@ public interface StringFormat : SerialFormat {
      */
     public fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T
 }
+
+/**
+ * Reified version of [StringFormat.stringify]
+ */
+public inline fun <reified T : Any> StringFormat.stringify(value: T): String =
+    stringify(context.getContextualOrDefault(), value)
+
+/**
+ * Reified version of [StringFormat.parse]
+ */
+public inline fun <reified T : Any> StringFormat.parse(string: String): T =
+    parse(context.getContextualOrDefault(), string)

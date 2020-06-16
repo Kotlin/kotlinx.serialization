@@ -17,7 +17,7 @@ class JsonReifiedCollectionsTest : JsonTestBase() {
     fun testReifiedList() = parametrizedTest { useStreaming ->
         val data = listOf(DataHolder("data"), DataHolder("not data"))
         val json = default.stringify(data, useStreaming)
-        val data2 = default.parseList<DataHolder>(json, useStreaming)
+        val data2 = default.parse<List<DataHolder>>(json, useStreaming)
         assertEquals(data, data2)
     }
 
@@ -25,7 +25,7 @@ class JsonReifiedCollectionsTest : JsonTestBase() {
     fun testReifiedMap() = parametrizedTest { useStreaming ->
         val data = mapOf("data" to DataHolder("data"), "smth" to DataHolder("not data"))
         val json = lenient.stringify(data, useStreaming)
-        val data2 = lenient.parseMap<String, DataHolder>(json, useStreaming)
+        val data2 = lenient.parse<Map<String, DataHolder>>(json, useStreaming)
         assertEquals(data, data2)
     }
 }

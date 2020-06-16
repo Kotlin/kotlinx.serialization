@@ -32,34 +32,15 @@ public inline fun <reified T : Any> SerialModule.getContextualOrDefault(): KSeri
     getContextual(T::class) ?: T::class.serializerOrNull() ?: serializer(typeOf<T>()).cast()
 
 /**
- * Returns a serializer associated with [klass], or a [default one][KClass.serializer].
- *
- * @throws SerializationException if serializer can't be found.
+ * Attempts to retrieve a serializer from the current module using the given [type] and, if not found, fallbacks to [serializer] method
  */
-@ImplicitReflectionSerializer
 @OptIn(UnsafeSerializationApi::class)
-@Deprecated(
-    level = DeprecationLevel.WARNING,
-    message = "This method is deprecated for removal. Please use reified getContextualOrDefault<T>() instead",
-    replaceWith = ReplaceWith("getContextual(klass) ?: klass.serializer()")
-)
-public fun <T : Any> SerialModule.getContextualOrDefault(klass: KClass<T>): KSerializer<T> =
-    getContextual(klass) ?: klass.serializer()
-
-/**
- * Returns a serializer associated with KClass of the given [value], or a [default one][KClass.serializer].
- *
- * @throws SerializationException if serializer can't be found.
- */
-@ImplicitReflectionSerializer
-@OptIn(UnsafeSerializationApi::class)
-@Deprecated(
-    level = DeprecationLevel.WARNING,
-    message = "This method is deprecated for removal. Please use reified getContextualOrDefault<T>() instead",
-    replaceWith = ReplaceWith("getContextual(value) ?: value::class.serializer()")
-)
-public fun <T : Any> SerialModule.getContextualOrDefault(value: T): KSerializer<T> =
-    getContextual(value) ?: value::class.serializer().cast()
+public fun <T : Any> SerialModule.getContextualOrDefault(type: KType): KSerializer<T> {
+    // Even though serializer(KType) also invokes serializerOrNull, it is a significant performance optimization
+    // TODO replace with serializer(typeOf<T>()) when intrinsics are here
+    val kclass = type.kclass()
+    return (getContextual(kclass) ?: kclass.serializerOrNull() ?: serializer(type)).cast()
+}
 
 /**
  * Returns a combination of two serial modules
