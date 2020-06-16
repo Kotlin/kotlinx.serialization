@@ -14,6 +14,8 @@ import kotlin.reflect.*
  * It is not recommended to use this method for anything, but last-ditch resort, e.g.
  * when all type info is lost, your application has crashed and it is the final attempt to log or send some serializable data.
  *
+ * The recommended way to retrieve the serializer is inline [serializer] function and [`serializer(KType)`][serializer]
+ *
  * This API is not guaranteed to work consistent across different platforms or
  * to work in cases that slightly differ from "plain @Serializable class".
  *
