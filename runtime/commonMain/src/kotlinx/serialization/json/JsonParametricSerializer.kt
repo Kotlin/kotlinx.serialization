@@ -73,7 +73,7 @@ public abstract class JsonParametricSerializer<T : Any>(private val baseClass: K
     override val descriptor: SerialDescriptor =
         SerialDescriptor("JsonParametricSerializer<${baseClass.simpleName()}>", PolymorphicKind.OPEN)
 
-    @OptIn(ImplicitReflectionSerializer::class)
+    @OptIn(UnsafeSerializationApi::class)
     final override fun serialize(encoder: Encoder, value: T) {
         val actualSerializer =
             encoder.context.getPolymorphic(baseClass, value)

@@ -7,7 +7,6 @@ package kotlinx.serialization
 
 import kotlin.test.*
 
-@OptIn(ImplicitReflectionSerializer::class)
 class PropertiesTest {
 
     @Serializable

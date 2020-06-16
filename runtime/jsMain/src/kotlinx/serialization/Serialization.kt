@@ -7,7 +7,6 @@ package kotlinx.serialization
 import kotlin.reflect.*
 
 @Suppress("UNCHECKED_CAST")
-@ImplicitReflectionSerializer
 internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
     this.constructSerializerForGivenTypeArgs() ?: this.js.asDynamic().Companion?.serializer() as? KSerializer<T>
 

@@ -6,7 +6,9 @@ package kotlinx.serialization.internal
 
 import kotlinx.io.*
 import kotlinx.serialization.*
+import kotlin.jvm.*
 import kotlin.native.concurrent.*
+import kotlin.reflect.*
 
 @InternalSerializationApi
 @Deprecated(
@@ -131,3 +133,10 @@ internal inline fun <T> SerializationStrategy<*>.cast(): SerializationStrategy<T
 @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
 @PublishedApi
 internal inline fun <T> DeserializationStrategy<*>.cast(): DeserializationStrategy<T> = this as DeserializationStrategy<T>
+
+internal fun KClass<*>.serializerNotRegistered(): Nothing {
+    throw SerializationException(
+        "Can't locate argument-less serializer for class ${simpleName()}. " +
+                "For generic classes, such as lists, please provide serializer explicitly."
+    )
+}

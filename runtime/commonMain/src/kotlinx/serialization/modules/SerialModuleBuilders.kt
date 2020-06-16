@@ -64,7 +64,6 @@ public class SerializersModuleBuilder internal constructor() : SerialModuleColle
     /**
      * A reified version of `contextual(KClass, Serializer)`
      */
-    @ImplicitReflectionSerializer
     public inline fun <reified T : Any> contextual(): Unit = contextual(T::class, serializer())
 
     /**

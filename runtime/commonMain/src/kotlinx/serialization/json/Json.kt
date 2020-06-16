@@ -45,8 +45,6 @@ import kotlin.reflect.*
  *  // Deserialize from string to json tree, Json-specific
  *  val deserializedToTree: JsonElement = json.fromJson<JsonElement>(stringOutput)
  * ```
- *
- * Note that `@ImplicitReflectionSerializer` are used in order to omit `DataHolder.serializer`, but this is a temporary limitation.
  */
 public class Json
 
@@ -115,9 +113,8 @@ public constructor(
      * @throws [JsonException] if given value can not be encoded
      * @throws [SerializationException] if given value can not be serialized
      */
-    @ImplicitReflectionSerializer
     public inline fun <reified T : Any> toJson(value: T): JsonElement {
-        return toJson(context.getContextualOrDefault(T::class), value)
+        return toJson(context.getContextualOrDefault(), value)
     }
 
     /**
@@ -156,8 +153,7 @@ public constructor(
      * @throws [JsonException] in case of malformed json
      * @throws [SerializationException] if given input can not be deserialized
      */
-    @ImplicitReflectionSerializer
-    public inline fun <reified T : Any> fromJson(tree: JsonElement): T = fromJson(context.getContextualOrDefault(T::class), tree)
+    public inline fun <reified T : Any> fromJson(tree: JsonElement): T = fromJson(context.getContextualOrDefault(), tree)
 
     /**
      * The default instance of [Json] in the form of companion object. Configured with [JsonConfiguration.Default].
@@ -220,9 +216,8 @@ public constructor(
         /**
          * @see Json.toJson
          */
-        @ImplicitReflectionSerializer
         public inline fun <reified T : Any> toJson(value: T): JsonElement {
-            return toJson(context.getContextualOrDefault(T::class), value)
+            return toJson(context.getContextualOrDefault(), value)
         }
 
         /**
@@ -242,9 +237,8 @@ public constructor(
         /**
          * @see Json.fromJson
          */
-        @ImplicitReflectionSerializer
         public inline fun <reified T : Any> fromJson(tree: JsonElement): T =
-            fromJson(context.getContextualOrDefault(T::class), tree)
+            fromJson(context.getContextualOrDefault(), tree)
     }
 
     private fun validateConfiguration() {

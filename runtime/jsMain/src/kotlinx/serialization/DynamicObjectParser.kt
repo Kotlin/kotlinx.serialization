@@ -45,8 +45,8 @@ public class DynamicObjectParser @OptIn(UnstableDefault::class) constructor(
     override val context: SerialModule = EmptyModule,
     internal val configuration: JsonConfiguration = JsonConfiguration.Default
 ) : SerialFormat {
-    @ImplicitReflectionSerializer
-    public inline fun <reified T : Any> parse(obj: dynamic): T = parse(obj, context.getContextualOrDefault(T::class))
+
+    inline fun <reified T : Any> parse(value: dynamic): T = parse(value, context.getContextualOrDefault())
 
     /**
      * Deserializes given [obj] from dynamic form to type [T] using [deserializer].

@@ -8,7 +8,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.modules.*
 import kotlin.test.*
 
-@OptIn(ImplicitReflectionSerializer::class)
 class CustomSerializersProtobufTest {
 
     private fun protoBufWithB() =

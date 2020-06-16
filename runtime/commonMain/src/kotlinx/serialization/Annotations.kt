@@ -6,6 +6,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.json.*
 import kotlin.reflect.*
 
 /**
@@ -113,3 +114,36 @@ public annotation class Polymorphic
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPEALIAS)
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
 public annotation class InternalSerializationApi
+
+/**
+ * Public API marked with this annotation is considered unstable and unsafe for general use.
+ * Instability implies inconsistent behaviour across platforms, various edge-cases and use-cases that differ from very basic ones.
+ * Unsafe API should not be generally used as the first-class mechanism and **may** be used as the last-ditch effort when every other
+ * ways have failed.
+ */
+@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPEALIAS)
+@RequiresOptIn(level = RequiresOptIn.Level.ERROR)
+public annotation class UnsafeSerializationApi
+
+/**
+ * Marks declaration that obtains serializer implicitly using limited reflection capabilities.
+ *
+ * These declarations have the following limitations:
+ * - Reflection cannot infer correct serializers for generic classes, like collections.
+ * - Performance of reflective calls is usually worse than direct access to `.serializer`.
+ *
+ * It is recommended to specify serializer explicitly, using generated `.serializer()`
+ * function on serializable class' companion.
+ */
+@RequiresOptIn
+@Deprecated(level = DeprecationLevel.WARNING, message = "This annotation is obsolete and deprecated for removal")
+public annotation class ImplicitReflectionSerializer
+
+/**
+ * This annotation marks declarations with default parameters that are subject to semantic change without a migration path.
+ *
+ * For example, [JsonConfiguration.Default] marked as unstable, thus indicating that it can change its default values
+ * in the next releases (e.g. disable strict-mode by default), leading to a semantic (not source code level) change.
+ */
+@RequiresOptIn(level = RequiresOptIn.Level.WARNING)
+public annotation class UnstableDefault

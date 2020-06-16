@@ -23,22 +23,24 @@ public fun <T : Any> SerialModule.getContextual(value: T): KSerializer<T>? {
 }
 
 /**
- * Returns a serializer associated with [klass], or a [default one][KClass.serializer].
- *
- * @throws SerializationException if serializer can't be found.
+ * Attempts to retrieve a serializer from the current module and, if not found, fallbacks to [serializer] method
  */
-@ImplicitReflectionSerializer
-public fun <T : Any> SerialModule.getContextualOrDefault(klass: KClass<T>): KSerializer<T> =
-    getContextual(klass) ?: klass.serializer()
+@OptIn(UnsafeSerializationApi::class)
+public inline fun <reified T : Any> SerialModule.getContextualOrDefault(): KSerializer<T> =
+    // Even though serializer(KType) also invokes serializerOrNull, it is a significant performance optimization
+    // TODO replace with serializer(typeOf<T>()) when intrinsics are here
+    getContextual(T::class) ?: T::class.serializerOrNull() ?: serializer(typeOf<T>()).cast()
 
 /**
- * Returns a serializer associated with KClass of the given [value], or a [default one][KClass.serializer].
- *
- * @throws SerializationException if serializer can't be found.
+ * Attempts to retrieve a serializer from the current module using the given [type] and, if not found, fallbacks to [serializer] method
  */
-@ImplicitReflectionSerializer
-public fun <T : Any> SerialModule.getContextualOrDefault(value: T): KSerializer<T> =
-    getContextual(value) ?: value::class.serializer().cast()
+@OptIn(UnsafeSerializationApi::class)
+public fun <T : Any> SerialModule.getContextualOrDefault(type: KType): KSerializer<T> {
+    // Even though serializer(KType) also invokes serializerOrNull, it is a significant performance optimization
+    // TODO replace with serializer(typeOf<T>()) when intrinsics are here
+    val kclass = type.kclass()
+    return (getContextual(kclass) ?: kclass.serializerOrNull() ?: serializer(type)).cast()
+}
 
 /**
  * Returns a combination of two serial modules

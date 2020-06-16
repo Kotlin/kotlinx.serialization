@@ -82,7 +82,7 @@ kotlin {
         srcSet.languageSettings {
             it.useExperimentalAnnotation("kotlinx.serialization.UnstableDefault")
             it.useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
-            it.useExperimentalAnnotation("kotlinx.serialization.ImplicitReflectionSerializer")
+            it.useExperimentalAnnotation("kotlinx.serialization.UnsafeSerializationApi")
         }
     }
 

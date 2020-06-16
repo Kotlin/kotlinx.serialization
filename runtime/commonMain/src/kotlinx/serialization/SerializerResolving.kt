@@ -1,7 +1,7 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-@file:Suppress("DEPRECATION_ERROR")
+@file:Suppress("DEPRECATION_ERROR", "UNCHECKED_CAST")
 
 package kotlinx.serialization
 
@@ -20,10 +20,7 @@ import kotlin.reflect.*
  * ```
  *
  * This is a computation-heavy call, so it is recommended to cache its result.
- * [typeOf] API currently does not work with user-defined generic classes on Kotlin/JS.
  */
-@Suppress("NO_REFLECTION_IN_CLASS_PATH")
-@ImplicitReflectionSerializer
 public inline fun <reified T> serializer(): KSerializer<T> {
     return serializer(typeOf<T>()).cast()
 }
@@ -42,14 +39,10 @@ public inline fun <reified T> serializer(): KSerializer<T> {
  * This is a computation-heavy call, so it is recommended to cache its result.
  * [typeOf] API currently does not work with user-defined generic classes on Kotlin/JS.
  */
-@Suppress("UNCHECKED_CAST", "NO_REFLECTION_IN_CLASS_PATH", "UNSUPPORTED")
-@OptIn(ImplicitReflectionSerializer::class)
+@OptIn(UnsafeSerializationApi::class)
 public fun serializer(type: KType): KSerializer<Any?> {
     fun serializerByKTypeImpl(type: KType): KSerializer<Any> {
-        val rootClass = when (val t = type.classifier) {
-            is KClass<*> -> t
-            else -> error("Only KClass supported as classifier, got $t")
-        } as KClass<Any>
+        val rootClass = type.kclass()
 
         val typeArguments = type.arguments
             .map { requireNotNull(it.type) { "Star projections are not allowed, had $it instead" } }
@@ -86,13 +79,15 @@ public fun serializer(type: KType): KSerializer<Any?> {
     return if (type.isMarkedNullable) result.nullable else result.cast()
 }
 
+internal fun KType.kclass() = when (val t = classifier) {
+    is KClass<*> -> t
+    else -> error("Only KClass supported as classifier, got $t")
+} as KClass<Any>
+
 /**
  * Constructs KSerializer<D<T0, T1, ...>> by given KSerializer<T0>, KSerializer<T1>, ...
  * via reflection (on JVM) or compiler+plugin intrinsic `SerializerFactory` (on Native)
- *
- * Currently, unsupported on JS.
  */
-@ImplicitReflectionSerializer
 internal expect fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>?
 
 /**

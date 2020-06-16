@@ -33,7 +33,6 @@ class CommonTest {
     }
 
     @Test
-    @OptIn(ImplicitReflectionSerializer::class)
     fun nativeSupportsSimpleReflectionSerializer() {
         val s = Json.stringify(shop)
         println(s)

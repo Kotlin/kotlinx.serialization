@@ -17,9 +17,8 @@ abstract class JsonTestBase {
     protected val unquotedLenient = Json { unquotedPrint = true; isLenient = true; ignoreUnknownKeys = true; serializeSpecialFloatingPointValues = true }
     protected val lenient = Json { isLenient = true; ignoreUnknownKeys = true; serializeSpecialFloatingPointValues = true }
 
-    @ImplicitReflectionSerializer
     internal inline fun <reified T : Any> Json.stringify(value: T, useStreaming: Boolean): String {
-        val serializer = context.getContextualOrDefault(T::class)
+        val serializer = context.getContextualOrDefault<T>()
         return stringify(serializer, value, useStreaming)
     }
 
@@ -33,29 +32,8 @@ abstract class JsonTestBase {
         }
     }
 
-    @ImplicitReflectionSerializer
-    inline fun <reified T : Any> Json.stringify(list: List<T>, useStreaming: Boolean): String {
-        return if (useStreaming) {
-            // Overload to test public list extension
-            stringify(list)
-        } else {
-            stringify(context.getContextualOrDefault(T::class).list, list)
-        }
-    }
-
-    @ImplicitReflectionSerializer
-    inline fun <reified K : Any, reified V : Any> Json.stringify(map: Map<K, V>, useStreaming: Boolean): String {
-        return if (useStreaming) {
-            // Overload to test public map extension
-            stringify(map)
-        } else {
-            stringify(MapSerializer(context.getContextualOrDefault(K::class), context.getContextualOrDefault(V::class)), map)
-        }
-    }
-
-    @ImplicitReflectionSerializer
     internal inline fun <reified T : Any> Json.parse(source: String, useStreaming: Boolean): T {
-        val deserializer = context.getContextualOrDefault(T::class)
+        val deserializer = context.getContextualOrDefault<T>()
         return parse(deserializer, source, useStreaming)
     }
 
@@ -68,29 +46,6 @@ abstract class JsonTestBase {
             val tree = input.decodeJson()
             if (!input.reader.isDone) { error("Reader has not consumed the whole input: ${input.reader}") }
             readJson(tree, deserializer)
-        }
-    }
-
-    @ImplicitReflectionSerializer
-    internal inline fun <reified T : Any> Json.parseList(content: String, useStreaming: Boolean): List<T> {
-        return if (useStreaming) {
-            // Overload to test public list extension
-            parseList(content)
-        } else {
-            parse(context.getContextualOrDefault(T::class).list, content, useStreaming)
-        }
-    }
-
-    @ImplicitReflectionSerializer
-    internal inline fun <reified K : Any, reified V : Any> Json.parseMap(
-        content: String,
-        useStreaming: Boolean
-    ): Map<K, V> {
-        return if (useStreaming) {
-            // Overload to test public map extension
-            parseMap(content)
-        } else {
-            parse(MapSerializer(context.getContextualOrDefault(K::class), context.getContextualOrDefault(V::class)), content, useStreaming)
         }
     }
 
