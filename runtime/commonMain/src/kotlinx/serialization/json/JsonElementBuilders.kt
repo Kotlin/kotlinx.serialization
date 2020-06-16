@@ -31,8 +31,7 @@ public fun buildJson(builderAction: JsonObjectBuilder.() -> Unit): JsonObject {
 
 @Deprecated(
     "json function deprecated for removal to be consistent with a standard library",
-    replaceWith = ReplaceWith("buildJson"),
-    level = DeprecationLevel.ERROR
+    replaceWith = ReplaceWith("buildJson")
 )
 public fun json(init: JsonObjectBuilder.() -> Unit): JsonObject = buildJson(init)
 
@@ -60,8 +59,7 @@ public fun buildJsonArray(builderAction: JsonArrayBuilder.() -> Unit): JsonArray
 
 @Deprecated(
     "jsonArray function deprecated for removal to be consistent with a standard library",
-    replaceWith = ReplaceWith("buildJsonArray"),
-    level = DeprecationLevel.ERROR
+    replaceWith = ReplaceWith("buildJsonArray")
 )
 public fun jsonArray(init: JsonArrayBuilder.() -> Unit): JsonArray = buildJsonArray(init)
 

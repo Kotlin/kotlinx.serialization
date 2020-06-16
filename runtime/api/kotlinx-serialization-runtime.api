@@ -248,9 +248,12 @@ public final class kotlinx/serialization/Mapper {
 
 public final class kotlinx/serialization/MigrationsKt {
 	public static final fun compiledSerializer (Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
+	public static final fun getContextualOrDefault (Lkotlinx/serialization/modules/SerialModule;Ljava/lang/Object;)Lkotlinx/serialization/KSerializer;
+	public static final fun getContextualOrDefault (Lkotlinx/serialization/modules/SerialModule;Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
 	public static final fun getList (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
 	public static final fun getMap (Lkotlin/Pair;)Lkotlinx/serialization/KSerializer;
 	public static final fun getNullable (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public static final fun getPolymorphicClassDescriptor ()Lkotlinx/serialization/SerialDescriptor;
 	public static final fun getSet (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
 	public static final fun withName (Lkotlinx/serialization/SerialDescriptor;Ljava/lang/String;)Lkotlinx/serialization/SerialDescriptor;
 }
@@ -490,6 +493,9 @@ public final class kotlinx/serialization/UnionKind$ENUM_KIND : kotlinx/serializa
 
 public final class kotlinx/serialization/UnknownFieldException : kotlinx/serialization/SerializationException {
 	public fun <init> (I)V
+}
+
+public abstract interface annotation class kotlinx/serialization/UnsafeSerializationApi : java/lang/annotation/Annotation {
 }
 
 public abstract interface annotation class kotlinx/serialization/UnstableDefault : java/lang/annotation/Annotation {
@@ -894,6 +900,14 @@ public final class kotlinx/serialization/internal/HashSetSerializer : kotlinx/se
 	public synthetic fun insert (Ljava/lang/Object;ILjava/lang/Object;)V
 	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
 	public synthetic fun toResult (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/internal/HexConverter {
+	public static final field INSTANCE Lkotlinx/serialization/internal/HexConverter;
+	public final fun parseHexBinary (Ljava/lang/String;)[B
+	public final fun printHexBinary ([BZ)Ljava/lang/String;
+	public static synthetic fun printHexBinary$default (Lkotlinx/serialization/internal/HexConverter;[BZILjava/lang/Object;)Ljava/lang/String;
+	public final fun toHexString (I)Ljava/lang/String;
 }
 
 public final class kotlinx/serialization/internal/IntArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {
@@ -1855,8 +1869,7 @@ public abstract interface class kotlinx/serialization/modules/SerialModuleCollec
 public final class kotlinx/serialization/modules/SerialModuleExtensionsKt {
 	public static final fun getContextual (Lkotlinx/serialization/modules/SerialModule;Ljava/lang/Object;)Lkotlinx/serialization/KSerializer;
 	public static final fun getContextualDescriptor (Lkotlinx/serialization/modules/SerialModule;Lkotlinx/serialization/SerialDescriptor;)Lkotlinx/serialization/SerialDescriptor;
-	public static final fun getContextualOrDefault (Lkotlinx/serialization/modules/SerialModule;Ljava/lang/Object;)Lkotlinx/serialization/KSerializer;
-	public static final fun getContextualOrDefault (Lkotlinx/serialization/modules/SerialModule;Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
+	public static final fun getContextualOrDefault (Lkotlinx/serialization/modules/SerialModule;Lkotlin/reflect/KType;)Lkotlinx/serialization/KSerializer;
 	public static final fun getPolymorphicDescriptors (Lkotlinx/serialization/modules/SerialModule;Lkotlinx/serialization/SerialDescriptor;)Ljava/util/List;
 	public static final fun overwriteWith (Lkotlinx/serialization/modules/SerialModule;Lkotlinx/serialization/modules/SerialModule;)Lkotlinx/serialization/modules/SerialModule;
 	public static final fun plus (Lkotlinx/serialization/modules/SerialModule;Lkotlinx/serialization/modules/SerialModule;)Lkotlinx/serialization/modules/SerialModule;
