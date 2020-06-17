@@ -286,7 +286,7 @@ public interface CompositeDecoder {
 
         @Deprecated(
             message = "READ_ALL cannot be longer returned by 'decodeElementIndex', use 'decodeSequentially' instead",
-            level = DeprecationLevel.WARNING
+            level = DeprecationLevel.ERROR
         )
         @Suppress("UNUSED")
         public const val READ_ALL: Int = -2

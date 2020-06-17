@@ -20,7 +20,7 @@ public class PrimitiveDescriptorWithName
     level = DeprecationLevel.ERROR,
     replaceWith = ReplaceWith("PrimitiveDescriptor(name, original.kind)")
 )
-constructor(override val name: String, private val original: SerialDescriptor) : SerialDescriptor by original
+constructor(override val serialName: String, private val original: SerialDescriptor) : SerialDescriptor by original
 
 @Deprecated(
     message = "Deprecated in the favour of PrimitiveDescriptor factory function",
@@ -145,3 +145,9 @@ public fun <T : Any> SerialModule.getContextualOrDefault(klass: KClass<T>): KSer
 )
 public fun <T : Any> SerialModule.getContextualOrDefault(value: T): KSerializer<T> =
     getContextual(value) ?: value::class.serializer().cast()
+
+@Suppress("UNUSED", "DeprecatedCallableAddReplaceWith")
+@Deprecated(
+    message = "Top-level polymorphic descriptor is deprecated, use descriptor from the instance of PolymorphicSerializer or" +
+            "check for descriptor kind instead", level = DeprecationLevel.ERROR)
+public val PolymorphicClassDescriptor: SerialDescriptor get() = error("This property is no longer supported")

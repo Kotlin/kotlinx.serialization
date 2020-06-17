@@ -112,15 +112,6 @@ public sealed class PrimitiveKind : SerialKind() {
      */
     public object DOUBLE : PrimitiveKind()
 
-    /*
-     * Not documented, reworked in #664
-     */
-    @Deprecated(
-        message = "Primitive kind Unit is deprecated with no replacement. Use StructureKind.OBJECT instead or check for a particular serialName",
-        level = DeprecationLevel.ERROR
-    )
-    public object UNIT : PrimitiveKind()
-
     /**
      * Primitive kind that represents a string value.
      * Corresponding Kotlin primitive is [String].

@@ -166,11 +166,11 @@ public constructor(
                     "'Json(JsonConfiguration)' constructor or by tweaking stable configuration 'Json(JsonConfiguration.Stable.copy(prettyPrint = true))'"
 
         @UnstableDefault
-        @Deprecated(message = message, level = DeprecationLevel.WARNING)
+        @Deprecated(message = message, level = DeprecationLevel.ERROR)
         public val plain: Json = Json(JsonConfiguration(useArrayPolymorphism = true))
 
         @UnstableDefault
-        @Deprecated(message = message, level = DeprecationLevel.WARNING)
+        @Deprecated(message = message, level = DeprecationLevel.ERROR)
         public val unquoted: Json = Json(
             JsonConfiguration(
                 isLenient = true,
@@ -182,11 +182,11 @@ public constructor(
         )
 
         @UnstableDefault
-        @Deprecated(message = message, level = DeprecationLevel.WARNING)
+        @Deprecated(message = message, level = DeprecationLevel.ERROR)
         public val indented: Json = Json(JsonConfiguration(prettyPrint = true, useArrayPolymorphism = true))
 
         @UnstableDefault
-        @Deprecated(message = message, level = DeprecationLevel.WARNING)
+        @Deprecated(message = message, level = DeprecationLevel.ERROR)
         public val nonstrict: Json = Json(
             JsonConfiguration(
                 isLenient = true,

@@ -37,14 +37,6 @@ public annotation class Serializer(
 public annotation class SerialName(val value: String)
 
 /**
- * Indicates that property is optional in deserialization process.
- * Optional properties must have default values.
- */
-@Target(AnnotationTarget.PROPERTY)
-@Deprecated("All properties with default values are considered optional now", level = DeprecationLevel.ERROR)
-public annotation class Optional
-
-/**
  * Indicates that property must be present during deserialization process,
  * even if it has default value.
  */
