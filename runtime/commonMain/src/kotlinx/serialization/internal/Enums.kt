@@ -30,7 +30,7 @@ public class EnumDescriptor(
         if (other !is SerialDescriptor) return false
         if (other.kind !== UnionKind.ENUM_KIND) return false
         if (serialName != other.serialName) return false
-        if (elementNames() != other.elementNames()) return false
+        if (cachedSerialNames() != other.cachedSerialNames()) return false
         return true
     }
 
