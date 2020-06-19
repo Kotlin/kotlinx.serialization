@@ -38,13 +38,14 @@ class JsonTransientTest : JsonTestBase() {
 
     @Test
     fun testAll() = parametrizedTest { useStreaming ->
-        assertEquals("{a:0,e:false,c:Hello}", unquoted.stringify(Data.serializer(), Data(), useStreaming))
+        assertEquals("""{"a":0,"e":false,"c":"Hello"}""",
+            default.stringify(Data.serializer(), Data(), useStreaming))
     }
 
     @Test
     fun testMissingOptionals() = parametrizedTest { useStreaming ->
-        assertEquals(unquotedLenient.parse(Data.serializer(), "{a:0,c:Hello}", useStreaming), Data())
-        assertEquals(unquotedLenient.parse(Data.serializer(), "{a:0}", useStreaming), Data())
+        assertEquals(default.parse(Data.serializer(), """{"a":0,"c":"Hello"}""", useStreaming), Data())
+        assertEquals(default.parse(Data.serializer(), """{"a":0}""", useStreaming), Data())
     }
 
     @Test

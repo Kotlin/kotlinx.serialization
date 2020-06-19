@@ -26,16 +26,15 @@ class JsonOverwriteTest : JsonTestBase() {
     @Test
     fun testCanUpdatePrimitiveList() = parametrizedTest { useStreaming ->
         val parsed =
-            unquotedLenient
-                .parse<Updatable1>(Updatable1.serializer(), """{l:[1,2],f:foo,l:[3,4]}""", useStreaming)
+            lenient.parse<Updatable1>(Updatable1.serializer(), """{"l":[1,2],"f":"foo","l":[3,4]}""", useStreaming)
         assertEquals(Updatable1(listOf(3, 4)), parsed)
     }
 
     @Test
     fun testCanUpdateObjectList() = parametrizedTest { useStreaming ->
-        val parsed = unquotedLenient.parse<Updatable2>(
+        val parsed = lenient.parse<Updatable2>(
             Updatable2.serializer(),
-            """{f:bar,l:[{a:42}],l:[{a:43}]}""",
+            """{"f":"bar","l":[{"a":42}],"l":[{"a":43}]}""",
             useStreaming
         )
         assertEquals(Updatable2(listOf(Data(43))), parsed)
@@ -43,21 +42,21 @@ class JsonOverwriteTest : JsonTestBase() {
 
     @Test
     fun testCanUpdateNullableValuesInside() = parametrizedTest { useStreaming ->
-        val a1 = unquotedLenient.parse(NullableInnerIntList.serializer(), """{data:[null],data:[1]}""", useStreaming)
+        val a1 = default.parse(NullableInnerIntList.serializer(), """{"data":[null],"data":[1]}""", useStreaming)
         assertEquals(NullableInnerIntList(listOf(1)), a1)
-        val a2 = unquotedLenient.parse(NullableInnerIntList.serializer(), """{data:[42],data:[null]}""", useStreaming)
+        val a2 = default.parse(NullableInnerIntList.serializer(), """{"data":[42],"data":[null]}""", useStreaming)
         assertEquals(NullableInnerIntList(listOf(null)), a2)
-        val a3 = unquotedLenient.parse(NullableInnerIntList.serializer(), """{data:[31],data:[1]}""", useStreaming)
+        val a3 = default.parse(NullableInnerIntList.serializer(), """{"data":[31],"data":[1]}""", useStreaming)
         assertEquals(NullableInnerIntList(listOf(1)), a3)
     }
 
     @Test
     fun testCanUpdateNullableValues() = parametrizedTest { useStreaming ->
-        val a1 = unquotedLenient.parse(NullableUpdatable.serializer(), """{data:null,data:[{a:42}]}""", useStreaming)
+        val a1 = lenient.parse(NullableUpdatable.serializer(), """{"data":null,"data":[{"a":42}]}""", useStreaming)
         assertEquals(NullableUpdatable(listOf(Data(42))), a1)
-        val a2 = unquotedLenient.parse(NullableUpdatable.serializer(), """{data:[{a:42}],data:null}""", useStreaming)
+        val a2 = lenient.parse(NullableUpdatable.serializer(), """{"data":[{a:42}],"data":null}""", useStreaming)
         assertEquals(NullableUpdatable(null), a2)
-        val a3 = unquotedLenient.parse(NullableUpdatable.serializer(), """{data:[{a:42}],data:[{a:43}]}""", useStreaming)
+        val a3 = lenient.parse(NullableUpdatable.serializer(), """{"data":[{a:42}],"data":[{"a":43}]}""", useStreaming)
         assertEquals(NullableUpdatable(listOf(Data(43))), a3)
     }
 }

@@ -13,8 +13,6 @@ import kotlin.test.*
 
 abstract class JsonTestBase {
     protected val default = Json(JsonConfiguration.Default)
-    protected val unquoted = Json { unquotedPrint = true }
-    protected val unquotedLenient = Json { unquotedPrint = true; isLenient = true; ignoreUnknownKeys = true; serializeSpecialFloatingPointValues = true }
     protected val lenient = Json { isLenient = true; ignoreUnknownKeys = true; serializeSpecialFloatingPointValues = true }
 
     internal inline fun <reified T : Any> Json.stringify(value: T, useStreaming: Boolean): String {

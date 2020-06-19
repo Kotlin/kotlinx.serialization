@@ -83,10 +83,11 @@ class SerializationCasesTest : JsonTestBase() {
     @Test
     fun testNestedValues() {
         val data = Data3("Str", listOf(1, 2), mapOf("lt" to TintEnum.LIGHT, "dk" to TintEnum.DARK))
-//        // Serialize with internal serializer for Data class
-        assertEquals("{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}", unquoted.stringify(data))
-        assertEquals(data, Json.parse<Data3>("""{"a":"Str","b":[1,2],"c":{"lt":"LIGHT","dk":"DARK"}}"""))
-        assertEquals("{a:Str,b:[1,2],c:{lt:LIGHT,dk:DARK}}", unquoted.stringify(ExtDataSerializer3, data))
-        assertEquals(data, Json.parse(ExtDataSerializer3, """{"a":"Str","b":[1,2],"c":{"lt":"LIGHT","dk":"DARK"}}"""))
+        // Serialize with internal serializer for Data class
+        val expected = """{"a":"Str","b":[1,2],"c":{"lt":"LIGHT","dk":"DARK"}}"""
+        assertEquals(expected, default.stringify(data))
+        assertEquals(data, Json.parse<Data3>(expected))
+        assertEquals(expected, default.stringify(ExtDataSerializer3, data))
+        assertEquals(data, Json.parse(ExtDataSerializer3, expected))
     }
 }

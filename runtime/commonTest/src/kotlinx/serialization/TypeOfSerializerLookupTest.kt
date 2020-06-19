@@ -10,6 +10,7 @@ import kotlinx.serialization.test.*
 import kotlin.reflect.*
 import kotlin.test.*
 
+@Suppress("RemoveExplicitTypeArguments") // This is exactly what's being tested
 class TypeOfSerializerLookupTest : JsonTestBase() {
 
     @Test
@@ -23,7 +24,7 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
     @Test
     fun testPlainClass() {
         val b = StringData("some string")
-        assertSerializedWithType("""{data:"some string"}""", b)
+        assertSerializedWithType("""{"data":"some string"}""", b)
     }
 
     @Test
@@ -36,19 +37,19 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
     @Test
     fun testPrimitiveList() {
         val myArr = listOf("a", "b", "c")
-        assertSerializedWithType("[a,b,c]", myArr)
+        assertSerializedWithType("""["a","b","c"]""", myArr)
     }
 
     @Test
     fun testPrimitiveSet() {
         val mySet = setOf("a", "b", "c", "c")
-        assertSerializedWithType("[a,b,c]", mySet)
+        assertSerializedWithType("""["a","b","c"]""", mySet)
     }
 
     @Test
     fun testMapWithT() {
         val myMap = mapOf("string" to StringData("foo"), "string2" to StringData("bar"))
-        assertSerializedWithType("""{string:{data:foo},string2:{data:bar}}""", myMap)
+        assertSerializedWithType("""{"string":{"data":"foo"},"string2":{"data":"bar"}}""", myMap)
     }
 
     @Test
@@ -84,23 +85,23 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
         val intBox = Box(42)
         val intBoxSerializer = serializer<Box<Int>>()
         assertEquals(Box.serializer(Int.serializer()).descriptor, intBoxSerializer.descriptor)
-        assertSerializedWithType("""{boxed:42}""", intBox)
+        assertSerializedWithType("""{"boxed":42}""", intBox)
         val dataBox = Box(StringData("foo"))
-        assertSerializedWithType("""{boxed:{data:foo}}""", dataBox)
+        assertSerializedWithType("""{"boxed":{"data":"foo"}}""", dataBox)
     }
 
     @Test
     fun testRecursiveGeneric() = noLegacyJs {
         val boxBox = Box(Box(Box(IntData(42))))
-        assertSerializedWithType("""{boxed:{boxed:{boxed:{intV:42}}}}""", boxBox)
+        assertSerializedWithType("""{"boxed":{"boxed":{"boxed":{"intV":42}}}}""", boxBox)
     }
 
     @Test
     fun testMixedGeneric() = noLegacyJs {
         val listOfBoxes = listOf(Box("foo"), Box("bar"))
-        assertSerializedWithType("""[{boxed:foo},{boxed:bar}]""", listOfBoxes)
+        assertSerializedWithType("""[{"boxed":"foo"},{"boxed":"bar"}]""", listOfBoxes)
         val boxedList = Box(listOf("foo", "bar"))
-        assertSerializedWithType("""{boxed:[foo,bar]}""", boxedList)
+        assertSerializedWithType("""{"boxed":["foo","bar"]}""", boxedList)
     }
 
     @Test
@@ -137,7 +138,7 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
     private inline fun <reified T> assertSerializedWithType(
         expected: String,
         value: T,
-        json: StringFormat = unquoted
+        json: StringFormat = default
     ) {
         val serial = serializer<T>()
         assertEquals(expected, json.stringify(serial, value))

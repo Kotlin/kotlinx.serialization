@@ -45,7 +45,7 @@ class ContextAndPolymorphicTest {
         }
     }
 
-    private val obj = EnhancedData(Data(100500), Payload("string"), Payload("binary"))
+    private val value = EnhancedData(Data(100500), Payload("string"), Payload("binary"))
     private lateinit var json: Json
 
     @BeforeTest
@@ -53,28 +53,28 @@ class ContextAndPolymorphicTest {
         val scope = serializersModuleOf(Payload::class, PayloadSerializer)
         val bPolymorphicModule = SerializersModule { polymorphic(Any::class) { Payload::class with PayloadSerializer } }
         json = Json(
-            JsonConfiguration(unquotedPrint = true, useArrayPolymorphism = true),
+            JsonConfiguration(useArrayPolymorphism = true),
             context = scope + bPolymorphicModule
         )
     }
 
     @Test
     fun testWriteCustom() {
-        val s = json.stringify(EnhancedData.serializer(), obj)
-        assertEquals("{data:{a:100500,b:42},stringPayload:{s:string},binaryPayload:62696E617279}", s)
+        val s = json.stringify(EnhancedData.serializer(), value)
+        assertEquals("""{"data":{"a":100500,"b":42},"stringPayload":{"s":"string"},"binaryPayload":"62696E617279"}""", s)
     }
 
     @Test
     fun testReadCustom() {
         val s = json.parse(EnhancedData.serializer(),
             """{"data":{"a":100500,"b":42},"stringPayload":{"s":"string"},"binaryPayload":"62696E617279"}""")
-        assertEquals(obj, s)
+        assertEquals(value, s)
     }
 
     @Test
     fun testWriteCustomList() {
         val s = json.stringify(PayloadList.serializer(), PayloadList(listOf(Payload("1"), Payload("2"))))
-        assertEquals("{ps:[{s:1},{s:2}]}", s)
+        assertEquals("""{"ps":[{"s":"1"},{"s":"2"}]}""", s)
     }
 
     @Test
@@ -82,7 +82,7 @@ class ContextAndPolymorphicTest {
         val map = mapOf<String, Any>("Payload" to Payload("data"))
         val serializer = MapSerializer(String.serializer(), PolymorphicSerializer(Any::class))
         val s = json.stringify(serializer, map)
-        assertEquals("""{Payload:[Payload,{s:data}]}""", s)
+        assertEquals("""{"Payload":["Payload",{"s":"data"}]}""", s)
     }
 
     @Test

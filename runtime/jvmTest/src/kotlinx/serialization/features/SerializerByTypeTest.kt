@@ -15,7 +15,7 @@ import kotlin.test.*
 
 class SerializerByTypeTest {
 
-    val unquoted = Json { unquotedPrint = true }
+    val json = Json { }
 
     @Serializable
     data class Box<out T>(val a: T)
@@ -51,8 +51,8 @@ class SerializerByTypeTest {
     fun testGenericParameter() {
         val b = Box(42)
         val serial = serializerByTypeToken(IntBoxToken)
-        val s = unquoted.stringify(serial, b)
-        assertEquals("{a:42}", s)
+        val s = json.stringify(serial, b)
+        assertEquals("""{"a":42}""", s)
     }
 
     @Test
@@ -60,8 +60,8 @@ class SerializerByTypeTest {
         val myArr = arrayOf("a", "b", "c")
         val token = myArr::class.java
         val serial = serializerByTypeToken(token)
-        val s = unquoted.stringify(serial, myArr)
-        assertEquals("[a,b,c]", s)
+        val s = json.stringify(serial, myArr)
+        assertEquals("""["a","b","c"]""", s)
     }
 
     @Test
@@ -73,8 +73,8 @@ class SerializerByTypeTest {
             override fun getActualTypeArguments(): Array<Type> = arrayOf(String::class.java)
         }
         val serial = serializerByTypeToken(token)
-        val s = unquoted.stringify(serial, myArr)
-        assertEquals("[a,b,c]", s)
+        val s = json.stringify(serial, myArr)
+        assertEquals("""["a","b","c"]""", s)
     }
 
 
@@ -83,8 +83,8 @@ class SerializerByTypeTest {
         val myArr = arrayOf("a", "b", "c")
         val token = typeTokenOf<Array<String>>()
         val serial = serializerByTypeToken(token)
-        val s = unquoted.stringify(serial, myArr)
-        assertEquals("[a,b,c]", s)
+        val s = json.stringify(serial, myArr)
+        assertEquals("""["a","b","c"]""", s)
     }
 
     @Test
@@ -92,8 +92,8 @@ class SerializerByTypeTest {
         val myList = listOf("a", "b", "c")
         val token = typeTokenOf<List<String>>()
         val serial = serializerByTypeToken(token)
-        val s = unquoted.stringify(serial, myList)
-        assertEquals("[a,b,c]", s)
+        val s = json.stringify(serial, myList)
+        assertEquals("""["a","b","c"]""", s)
     }
 
     @Test
@@ -101,8 +101,8 @@ class SerializerByTypeTest {
         val mySet = setOf("a", "b", "c", "c")
         val token = typeTokenOf<Set<String>>()
         val serial = serializerByTypeToken(token)
-        val s = unquoted.stringify(serial, mySet)
-        assertEquals("[a,b,c]", s)
+        val s = json.stringify(serial, mySet)
+        assertEquals("""["a","b","c"]""", s)
     }
 
     @Test
@@ -110,8 +110,8 @@ class SerializerByTypeTest {
         val myMap = mapOf("a" to Data(listOf("c"), Box(6)))
         val token = typeTokenOf<Map<String, Data>>()
         val serial = serializerByTypeToken(token)
-        val s = unquoted.stringify(serial, myMap)
-        assertEquals("{a:{l:[c],b:{a:6}}}", s)
+        val s = json.stringify(serial, myMap)
+        assertEquals("""{"a":{"l":["c"],"b":{"a":6}}}""", s)
     }
 
     @Test
@@ -119,7 +119,7 @@ class SerializerByTypeTest {
         val myList = listOf(listOf(listOf(1, 2, 3)), listOf())
         val token = typeTokenOf<List<List<List<Int>>>>()
         val serial = serializerByTypeToken(token)
-        val s = unquoted.stringify(serial, myList)
+        val s = json.stringify(serial, myList)
         assertEquals("[[[1,2,3]],[]]", s)
     }
 
@@ -128,7 +128,7 @@ class SerializerByTypeTest {
         val myList = arrayOf(arrayOf(arrayOf(1, 2, 3)), arrayOf())
         val token = typeTokenOf<Array<Array<Array<Int>>>>()
         val serial = serializerByTypeToken(token)
-        val s = unquoted.stringify(serial, myList)
+        val s = json.stringify(serial, myList)
         assertEquals("[[[1,2,3]],[]]", s)
     }
 
@@ -137,7 +137,7 @@ class SerializerByTypeTest {
         val myList = arrayOf(listOf(arrayOf(1, 2, 3)), listOf())
         val token = typeTokenOf<Array<List<Array<Int>>>>()
         val serial = serializerByTypeToken(token)
-        val s = unquoted.stringify(serial, myList)
+        val s = json.stringify(serial, myList)
         assertEquals("[[[1,2,3]],[]]", s)
     }
 
@@ -145,13 +145,13 @@ class SerializerByTypeTest {
     fun testGenericInHolder() {
         val b = Data(listOf("a", "b", "c"), Box(42))
         val serial = serializerByTypeToken(Data::class.java)
-        val s = unquoted.stringify(serial, b)
-        assertEquals("{l:[a,b,c],b:{a:42}}", s)
+        val s = json.stringify(serial, b)
+        assertEquals("""{"l":["a","b","c"],"b":{"a":42}}""", s)
     }
 
     @Test
     fun testOverriddenSerializer() {
-        val foo = unquoted.parse<WithCustomDefault>("9")
+        val foo = json.parse<WithCustomDefault>("9")
         assertEquals(9, foo.n)
     }
 
@@ -159,8 +159,8 @@ class SerializerByTypeTest {
     fun testNamedCompanion() {
         val namedCompanion = WithNamedCompanion(1)
         val serial = serializerByTypeToken(WithNamedCompanion::class.java)
-        val s = unquoted.stringify(serial, namedCompanion)
-        assertEquals("{a:1}", s)
+        val s = json.stringify(serial, namedCompanion)
+        assertEquals("""{"a":1}""", s)
     }
 
     @Test

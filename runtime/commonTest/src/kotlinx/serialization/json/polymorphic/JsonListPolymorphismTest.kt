@@ -19,9 +19,9 @@ class JsonListPolymorphismTest : JsonTestBase() {
     fun testPolymorphicValues() = assertJsonFormAndRestored(
         ListWrapper.serializer(),
         ListWrapper(listOf(InnerImpl(1), InnerImpl2(2))),
-        "{list:[" +
-                "{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:1,str:default,nullable:null}," +
-                "{type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:2}]}",
+        """{"list":[""" +
+                """{"type":"kotlinx.serialization.json.polymorphic.InnerImpl","field":1,"str":"default","nullable":null},""" +
+                """{"type":"kotlinx.serialization.json.polymorphic.InnerImpl2","field":2}]}""",
         polymorphicRelaxedJson)
 
     @Serializable
@@ -31,8 +31,8 @@ class JsonListPolymorphismTest : JsonTestBase() {
     fun testPolymorphicNullableValues() = assertJsonFormAndRestored(
         ListNullableWrapper.serializer(),
         ListNullableWrapper(listOf(InnerImpl(1), null)),
-        "{list:[" +
-                "{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:1,str:default,nullable:null}," +
+        """{"list":[""" +
+                """{"type":"kotlinx.serialization.json.polymorphic.InnerImpl","field":1,"str":"default","nullable":null},""" +
                 "null]}",
         polymorphicRelaxedJson)
 
