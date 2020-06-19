@@ -24,7 +24,7 @@ class PolymorphismTest : JsonTestBase() {
         )
     }
 
-    private val json = Json { unquotedPrint = true; useArrayPolymorphism = true; serialModule = module }
+    private val json = Json { useArrayPolymorphism = true; serialModule = module }
 
     @Test
     fun testInheritanceJson() = parametrizedTest { useStreaming ->
@@ -34,8 +34,8 @@ class PolymorphismTest : JsonTestBase() {
         )
         val bytes = json.stringify(Wrapper.serializer(), obj, useStreaming)
         assertEquals(
-            "{polyBase1:[kotlinx.serialization.PolyBase,{id:2}]," +
-                    "polyBase2:[kotlinx.serialization.PolyDerived,{id:1,s:b}]}", bytes
+            """{"polyBase1":["kotlinx.serialization.PolyBase",{"id":2}],""" +
+                    """"polyBase2":["kotlinx.serialization.PolyDerived",{"id":1,"s":"b"}]}""", bytes
         )
     }
 
@@ -43,7 +43,7 @@ class PolymorphismTest : JsonTestBase() {
     fun testSerializeWithExplicitPolymorphicSerializer() = parametrizedTest { useStreaming ->
         val obj = PolyDerived("b")
         val s = json.stringify(PolymorphicSerializer(PolyDerived::class), obj, useStreaming)
-        assertEquals("[kotlinx.serialization.PolyDerived,{id:1,s:b}]", s)
+        assertEquals("""["kotlinx.serialization.PolyDerived",{"id":1,"s":"b"}]""", s)
     }
 
     object PolyDefaultSerializer : JsonTransformingSerializer<PolyDefault>(PolyDefault.serializer(), "foo") {

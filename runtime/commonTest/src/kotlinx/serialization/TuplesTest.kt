@@ -21,21 +21,21 @@ class TuplesTest : JsonTestBase() {
 
     @Test
     fun testCustomPair() = assertStringFormAndRestored(
-        "{k:42,v:foo}",
+        """{"k":42,"v":"foo"}""",
         MyPair(42, "foo"),
         MyPair.serializer(
             Int.serializer(),
             String.serializer()
         ),
-        unquotedLenient
+        lenient
     )
 
     @Test
     fun testStandardPair() = assertStringFormAndRestored(
-        "{p:{first:42,second:foo}}",
+        """{"p":{"first":42,"second":"foo"}}""",
         PairWrapper(42 to "foo"),
         PairWrapper.serializer(),
-        unquotedLenient
+        lenient
     )
 
     @Test
@@ -50,10 +50,10 @@ class TuplesTest : JsonTestBase() {
 
     @Test
     fun testStandardTriple() = assertStringFormAndRestored(
-        "{t:{first:42,second:foo,third:false}}",
+        """{"t":{"first":42,"second":"foo","third":false}}""",
         TripleWrapper(Triple(42, "foo", false)),
         TripleWrapper.serializer(),
-        unquotedLenient
+        lenient
     )
 
     @Test

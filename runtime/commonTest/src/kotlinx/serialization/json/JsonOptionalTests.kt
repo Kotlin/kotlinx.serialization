@@ -31,7 +31,8 @@ class JsonOptionalTests : JsonTestBase() {
 
     @Test
     fun testAll() = parametrizedTest { useStreaming ->
-        assertEquals("{a:0,b:42,c:Hello}", unquoted.stringify(Data.serializer(), Data(), useStreaming))
+        assertEquals("""{"a":0,"b":42,"c":"Hello"}""",
+            default.stringify(Data.serializer(), Data(), useStreaming))
         assertEquals(lenient.parse(Data.serializer(), "{a:0,b:43,c:Hello}", useStreaming), Data(b = 43))
         assertEquals(lenient.parse(Data.serializer(), "{a:0,b:42,c:Hello}", useStreaming), Data())
     }

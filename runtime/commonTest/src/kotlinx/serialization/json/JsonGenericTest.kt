@@ -38,9 +38,9 @@ class JsonGenericTest : JsonTestBase() {
             String.serializer(),
             Boolean.serializer()
         )
-        val s = unquotedLenient.stringify(serializer, triple, useStreaming)
-        assertEquals("{first:42,second:foo,third:false}", s)
-        val restored = unquotedLenient.parse(serializer, s, useStreaming)
+        val s = default.stringify(serializer, triple, useStreaming)
+        assertEquals("""{"first":42,"second":"foo","third":false}""", s)
+        val restored = default.parse(serializer, s, useStreaming)
         assertEquals(triple, restored)
     }
 

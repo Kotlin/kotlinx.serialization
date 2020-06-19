@@ -46,13 +46,6 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
     }
 
     @Test
-    fun testWriteDataStringUnquoted() = parametrizedTest { useStreaming ->
-        val outputData = Event(0, Either.Right(Payload(42, 43, "Hello world")), 1000)
-        val ev = unquoted.stringify(Event.serializer(), outputData, useStreaming)
-        assertEquals("""{id:0,payload:{from:42,to:43,msg:"Hello world"},timestamp:1000}""", ev)
-    }
-
-    @Test
     fun testWriteDataStringIndented() = parametrizedTest { useStreaming ->
         val outputData = Event(0, Either.Right(Payload(42, 43, "Hello world")), 1000)
         val ev = Json { prettyPrint = true }.stringify(Event.serializer(), outputData, useStreaming)

@@ -12,7 +12,6 @@ import kotlin.test.*
 class JsonNestedPolymorphismTest : JsonTestBase() {
 
     private val polymorphicJson = Json {
-        unquotedPrint = true
         isLenient = true
         serialModule = SerializersModule {
             polymorphic(Any::class, InnerBase::class) {
@@ -33,9 +32,9 @@ class JsonNestedPolymorphismTest : JsonTestBase() {
     fun testAnyList() = assertJsonFormAndRestored(
         NestedGenericsList.serializer(),
         NestedGenericsList(listOf(listOf(InnerImpl(1)), listOf(InnerImpl(2)))),
-        "{list:[[" +
-                "{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:1,str:default,nullable:null}],[" +
-                "{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:2,str:default,nullable:null}]]}",
+        """{"list":[[""" +
+                """{"type":"kotlinx.serialization.json.polymorphic.InnerImpl","field":1,"str":"default","nullable":null}],[""" +
+                """{"type":"kotlinx.serialization.json.polymorphic.InnerImpl","field":2,"str":"default","nullable":null}]]}""",
         polymorphicJson)
 
     @Serializable
@@ -45,7 +44,8 @@ class JsonNestedPolymorphismTest : JsonTestBase() {
     fun testAnyMap() = assertJsonFormAndRestored(
         NestedGenericsMap.serializer(),
         NestedGenericsMap(mapOf("k1" to mapOf("k1" to InnerImpl(1)))),
-        "{list:{k1:{k1:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:1,str:default,nullable:null}}}}",
+        """{"list":{"k1":{"k1":{"type":"kotlinx.serialization.json.polymorphic.InnerImpl",""" +
+                """"field":1,"str":"default","nullable":null}}}}""",
         polymorphicJson)
 
     @Serializable
@@ -55,8 +55,9 @@ class JsonNestedPolymorphismTest : JsonTestBase() {
     fun testAny() = assertJsonFormAndRestored(
         AnyWrapper.serializer(),
         AnyWrapper(OuterImpl(InnerImpl2(1), InnerImpl(2))),
-        "{any:" +
-                "{type:kotlinx.serialization.json.polymorphic.OuterImpl,base:{type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:1}," +
-                "base2:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:2,str:default,nullable:null}}}",
+        """{"any":""" +
+                """{"type":"kotlinx.serialization.json.polymorphic.OuterImpl",""" +
+                """"base":{"type":"kotlinx.serialization.json.polymorphic.InnerImpl2","field":1},""" +
+                """"base2":{"type":"kotlinx.serialization.json.polymorphic.InnerImpl","field":2,"str":"default","nullable":null}}}""",
         polymorphicJson)
 }

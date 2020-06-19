@@ -15,14 +15,16 @@ class JsonPropertyPolymorphicTest : JsonTestBase() {
     fun testPolymorphicProperties() = assertJsonFormAndRestored(
         InnerBox.serializer(),
         InnerBox(InnerImpl(42, "foo")),
-        "{base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}}",
+        """{"base":{"type":"kotlinx.serialization.json.polymorphic.InnerImpl",""" +
+                """"field":42,"str":"foo","nullable":null}}""",
         polymorphicRelaxedJson)
 
     @Test
     fun testFlatPolymorphic() = parametrizedTest { useStreaming ->
         val base: InnerBase = InnerImpl(42, "foo")
         val string = polymorphicRelaxedJson.stringify(PolymorphicSerializer(InnerBase::class), base, useStreaming)
-        assertEquals("{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}", string)
+        assertEquals("""{"type":"kotlinx.serialization.json.polymorphic.InnerImpl",""" +
+                """"field":42,"str":"foo","nullable":null}""", string)
         assertEquals(base, polymorphicRelaxedJson.parse(PolymorphicSerializer(InnerBase::class), string, useStreaming))
     }
 
@@ -30,18 +32,19 @@ class JsonPropertyPolymorphicTest : JsonTestBase() {
     fun testNestedPolymorphicProperties() = assertJsonFormAndRestored(
         OuterBox.serializer(),
         OuterBox(OuterImpl(InnerImpl(42), InnerImpl2(42)), InnerImpl2(239)),
-        "{outerBase:{" +
-                "type:kotlinx.serialization.json.polymorphic.OuterImpl," +
-                "base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:default,nullable:null}," +
-                "base2:{type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:42}}," +
-                "innerBase:{type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:239}}",
+        """{"outerBase":{""" +
+                """"type":"kotlinx.serialization.json.polymorphic.OuterImpl",""" +
+                """"base":{"type":"kotlinx.serialization.json.polymorphic.InnerImpl","field":42,"str":"default","nullable":null},""" +
+                """"base2":{"type":"kotlinx.serialization.json.polymorphic.InnerImpl2","field":42}},""" +
+                """"innerBase":{"type":"kotlinx.serialization.json.polymorphic.InnerImpl2","field":239}}""",
         polymorphicRelaxedJson)
 
     @Test
     fun testPolymorphicNullableProperties() = assertJsonFormAndRestored(
         InnerNullableBox.serializer(),
         InnerNullableBox(InnerImpl(42, "foo")),
-        "{base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:foo,nullable:null}}",
+        """{"base":{"type":"kotlinx.serialization.json.polymorphic.InnerImpl",""" +
+                """"field":42,"str":"foo","nullable":null}}""",
         polymorphicRelaxedJson)
 
     @Test
@@ -52,9 +55,9 @@ class JsonPropertyPolymorphicTest : JsonTestBase() {
     fun testNestedPolymorphicNullableProperties() = assertJsonFormAndRestored(
         OuterNullableBox.serializer(),
         OuterNullableBox(OuterNullableImpl(InnerImpl(42), null), InnerImpl2(239)),
-        "{outerBase:{" +
-                "type:kotlinx.serialization.json.polymorphic.OuterNullableImpl," +
-                "base:{type:kotlinx.serialization.json.polymorphic.InnerImpl,field:42,str:default,nullable:null},base2:null}," +
-                "innerBase:{type:kotlinx.serialization.json.polymorphic.InnerImpl2,field:239}}",
+        """{"outerBase":{""" +
+                """"type":"kotlinx.serialization.json.polymorphic.OuterNullableImpl",""" +
+                """"base":{"type":"kotlinx.serialization.json.polymorphic.InnerImpl","field":42,"str":"default","nullable":null},"base2":null},""" +
+                """"innerBase":{"type":"kotlinx.serialization.json.polymorphic.InnerImpl2","field":239}}""",
         polymorphicRelaxedJson)
 }

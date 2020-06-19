@@ -9,44 +9,46 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.test.*
 
-// this has implicit @Polymorphic
-interface IMessage {
-    val body: String
-}
-
-// and this class too has implicit @Polymorphic
-@Serializable
-abstract class Message() : IMessage {
-    abstract override val body: String
-}
-
-@Polymorphic
-@Serializable
-@SerialName("SimpleMessage") // to cut out package prefix
-open class SimpleMessage() : Message() {
-    override var body: String = "Simple"
-}
-
-@Serializable
-@SerialName("DoubleSimpleMessage")
-class DoubleSimpleMessage(val body2: String) : SimpleMessage()
-
-@Serializable
-@SerialName("MessageWithId")
-open class MessageWithId(val id: Int, override val body: String) : Message()
-
-@Serializable
-class Holder(
-    val iMessage: IMessage,
-    val iMessageList: List<IMessage>,
-    val message: Message,
-    val msgSet: Set<Message>,
-    val simple: SimpleMessage,
-    // all above should be polymorphic
-    val withId: MessageWithId // but this not
-)
-
 class PolymorphicOnClassesTest {
+
+    // this has implicit @Polymorphic
+    interface IMessage {
+        val body: String
+    }
+
+    // and this class too has implicit @Polymorphic
+    @Serializable
+    abstract class Message : IMessage {
+        abstract override val body: String
+    }
+
+    @Polymorphic
+    @Serializable
+    @SerialName("SimpleMessage") // to cut out package prefix
+    open class SimpleMessage : Message() {
+        override var body: String = "Simple"
+    }
+
+    @Serializable
+    @SerialName("DoubleSimpleMessage")
+    class DoubleSimpleMessage(val body2: String) : SimpleMessage()
+
+    @Serializable
+    @SerialName("MessageWithId")
+    open class MessageWithId(val id: Int, override val body: String) : Message()
+
+    @Serializable
+    class Holder(
+        val iMessage: IMessage,
+        val iMessageList: List<IMessage>,
+        val message: Message,
+        val msgSet: Set<Message>,
+        val simple: SimpleMessage,
+        // all above should be polymorphic
+        val withId: MessageWithId // but this not
+    )
+
+
     private fun genTestData(): Holder {
         var cnt = -1
         fun gen(): MessageWithId {
@@ -67,10 +69,14 @@ class PolymorphicOnClassesTest {
 
     @Test
     fun testEnablesImplicitlyOnInterfacesAndAbstractClasses() {
-        val json = Json { unquotedPrint = true; prettyPrint = false; useArrayPolymorphism = true; serialModule = testModule }
+        val json = Json { prettyPrint = false; useArrayPolymorphism = true; serialModule = testModule }
         val data = genTestData()
         assertEquals(
-            """{iMessage:[MessageWithId,{id:0,body:"Message #0"}],iMessageList:[[MessageWithId,{id:1,body:"Message #1"}],[MessageWithId,{id:2,body:"Message #2"}]],message:[MessageWithId,{id:3,body:"Message #3"}],msgSet:[[SimpleMessage,{body:Simple}]],simple:[DoubleSimpleMessage,{body:Simple,body2:DoubleSimple}],withId:{id:4,body:"Message #4"}}""",
+            """{"iMessage":["MessageWithId",{"id":0,"body":"Message #0"}],""" +
+                    """"iMessageList":[["MessageWithId",{"id":1,"body":"Message #1"}],""" +
+                    """["MessageWithId",{"id":2,"body":"Message #2"}]],"message":["MessageWithId",{"id":3,"body":"Message #3"}],""" +
+                    """"msgSet":[["SimpleMessage",{"body":"Simple"}]],"simple":["DoubleSimpleMessage",{"body":"Simple",""" +
+                    """"body2":"DoubleSimple"}],"withId":{"id":4,"body":"Message #4"}}""",
             json.stringify(Holder.serializer(), data)
         )
     }

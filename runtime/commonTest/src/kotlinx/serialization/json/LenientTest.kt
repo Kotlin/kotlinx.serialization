@@ -58,11 +58,4 @@ class LenientTest : JsonTestBase() {
         assertFailsWith<JsonDecodingException> { default.parse(ListHolder.serializer(), json, it) }
         assertEquals(listValue, lenient.parse(ListHolder.serializer(), json, it))
     }
-
-    @Test
-    fun testUnquotedStringInArray2() = parametrizedTest {
-        val json = """{"l":[1, 2, "ss"]}"""
-        assertFailsWith<JsonDecodingException> { default.parse(ListHolder.serializer(), json, it) }
-        assertEquals(listValue, lenient.parse(ListHolder.serializer(), json, it))
-    }
 }

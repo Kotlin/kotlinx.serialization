@@ -30,7 +30,7 @@ class JsonUpdateCustomTest : JsonTestBase() {
 
     @Test
     fun canUpdateCustom() {
-        val parsed: Updatable = unquotedLenient.parse("""{d:{a:42},d:{a:43}}""")
+        val parsed: Updatable = default.parse("""{"d":{"a":"42"},"d":{"a":43}}""")
         assertEquals(Data(43), parsed.d)
     }
 
