@@ -7,7 +7,7 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlin.test.*
 
-class JsonUseDefaultOnNullTest : JsonTestBase() {
+class JsonUseDefaultOnNullAndUnknownTest : JsonTestBase() {
     @Serializable
     data class WithBoolean(val b: Boolean = false)
 
@@ -23,7 +23,7 @@ class JsonUseDefaultOnNullTest : JsonTestBase() {
         val foo: String
     )
 
-    val json = Json(JsonConfiguration.Default.copy(treatNullAsMissing = true, isLenient = true))
+    val json = Json(JsonConfiguration.Default.copy(coerceInputValues = true, isLenient = true))
 
     private inline fun <T> doTest(inputs: List<String>, expected: T, serializer: KSerializer<T>) {
         for (input in inputs) {
@@ -34,7 +34,7 @@ class JsonUseDefaultOnNullTest : JsonTestBase() {
     }
 
     @Test
-    fun testBoolean() = doTest(
+    fun testUseDefaultOnNonNullableBoolean() = doTest(
         listOf(
             """{"b":false}""",
             """{"b":null}""",
@@ -45,7 +45,7 @@ class JsonUseDefaultOnNullTest : JsonTestBase() {
     )
 
     @Test
-    fun testEnum() {
+    fun testUseDefaultOnUnknownEnum() {
         doTest(
             listOf(
                 """{"e":unknown_value}""",
@@ -65,8 +65,8 @@ class JsonUseDefaultOnNullTest : JsonTestBase() {
     }
 
     @Test
-    fun testAll() {
-        val testData = mapOf<String, MultipleValues>(
+    fun testUseDefaultInMultipleCases() {
+        val testData = mapOf(
             """{"data":{"data":"foo"},"data2":null,"i":null,"e":null,"foo":"bar"}""" to MultipleValues(
                 StringData("foo"),
                 foo = "bar"

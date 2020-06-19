@@ -157,7 +157,6 @@ private open class JsonTreeInput(
     private var position = 0
 
     private fun treatAsMissing(descriptor: SerialDescriptor, index: Int, tag: String): Boolean {
-        if (!configuration.treatNullAsMissing) return false
         val elementDescriptor = descriptor.getElementDescriptor(index)
         if (currentElement(tag).isNull && !elementDescriptor.isNullable) return true // null for non-nullable
         if (elementDescriptor.kind == UnionKind.ENUM_KIND) {
@@ -172,7 +171,7 @@ private open class JsonTreeInput(
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         while (position < descriptor.elementsCount) {
             val name = descriptor.getTag(position++)
-            if (name in value && !treatAsMissing(descriptor, position - 1, name)) {
+            if (name in value && (!configuration.coerceInputValues || !treatAsMissing(descriptor, position - 1, name))) {
                 return position - 1
             }
         }

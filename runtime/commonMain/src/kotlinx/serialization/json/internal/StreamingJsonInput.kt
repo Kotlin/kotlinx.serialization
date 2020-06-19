@@ -110,7 +110,6 @@ internal class StreamingJsonInput internal constructor(
     }
 
     private fun treatAsMissing(descriptor: SerialDescriptor, index: Int): Boolean {
-        if (!configuration.treatNullAsMissing) return false
         val elementDescriptor = descriptor.getElementDescriptor(index)
         if (reader.tokenClass == TC_NULL && !elementDescriptor.isNullable) return true // null for non-nullable
         if (elementDescriptor.kind == UnionKind.ENUM_KIND) {
@@ -134,7 +133,7 @@ internal class StreamingJsonInput internal constructor(
             reader.nextToken()
             val index = descriptor.getElementIndex(key)
             val isUnknown = if (index != UNKNOWN_NAME) {
-                if (treatAsMissing(descriptor, index)) {
+                if (configuration.coerceInputValues && treatAsMissing(descriptor, index)) {
                     false // skip known element
                 } else {
                     return index // read known element
