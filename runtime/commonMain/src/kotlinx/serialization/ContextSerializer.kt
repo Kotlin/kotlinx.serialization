@@ -21,20 +21,27 @@ import kotlin.reflect.*
  * To pass it to encoder and decoder, refer to particular [SerialFormat]'s documentation.
  */
 @OptIn(UnsafeSerializationApi::class)
-public class ContextSerializer<T : Any>(private val serializableClass: KClass<T>) : KSerializer<T> {
+public class ContextSerializer<T : Any>(
+    private val serializableClass: KClass<T>,
+    private val fallbackSerializer: KSerializer<T>?,
+    private val typeParametersSerializers: Array<KSerializer<*>>
+) : KSerializer<T> {
+
+    // Used from auto-generated code
+    public constructor(serializableClass: KClass<T>) : this(serializableClass, null, EMPTY_SERIALIZER_ARRAY)
 
     public override val descriptor: SerialDescriptor =
         SerialDescriptor("kotlinx.serialization.ContextSerializer", UnionKind.CONTEXTUAL).withContext(serializableClass)
 
     public override fun serialize(encoder: Encoder, value: T) {
         val clz = value::class
-        val serializer = encoder.context.getContextual(clz) ?: clz.serializer()
+        val serializer = encoder.context.getContextual(clz) ?: fallbackSerializer ?: serializableClass.serializerNotRegistered()
         @Suppress("UNCHECKED_CAST")
         encoder.encodeSerializableValue(serializer as SerializationStrategy<T>, value)
     }
 
     public override fun deserialize(decoder: Decoder): T {
-        val serializer = decoder.context.getContextual(serializableClass) ?: serializableClass.serializer()
+        val serializer = decoder.context.getContextual(serializableClass) ?: fallbackSerializer ?: serializableClass.serializerNotRegistered()
         return decoder.decodeSerializableValue(serializer)
     }
 }
