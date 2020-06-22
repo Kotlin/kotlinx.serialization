@@ -45,6 +45,12 @@ kotlin {
 
             // WASM
             addTarget(presets.wasm32)
+
+            // Android NDK
+            addTarget(presets.androidNativeArm32)
+            addTarget(presets.androidNativeArm64)
+            addTarget(presets.androidNativeX86)
+            addTarget(presets.androidNativeX64)
         }
     }
 
