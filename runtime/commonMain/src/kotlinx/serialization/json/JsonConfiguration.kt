@@ -37,6 +37,10 @@ import kotlin.jvm.*
  *
  * * [indent] specifies indent string to use with [prettyPrint] mode.
  *
+ * * [coerceInputValues] allows coercing incorrect json value to the default property value in the following cases:
+ *   1. Json value is `null` but property type is non-nullable.
+ *   2. Property type is an enum type, but json value contains unknown enum member.
+ *
  * * [useArrayPolymorphism] switches polymorphic serialization to the default array format.
  *   This is an option for legacy JSON format and should not be generally used.
  *
@@ -54,6 +58,7 @@ public data class JsonConfiguration @UnstableDefault constructor(
     internal val prettyPrint: Boolean = false,
     internal val unquotedPrint: Boolean = false,
     internal val indent: String = defaultIndent,
+    internal val coerceInputValues: Boolean = false,
     internal val useArrayPolymorphism: Boolean = false,
     internal val classDiscriminator: String = defaultDiscriminator
 ) {

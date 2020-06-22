@@ -140,8 +140,14 @@ internal class JsonReader(private val source: String) {
 
     fun takeString(): String {
         if (tokenClass != TC_OTHER && tokenClass != TC_STRING) fail(
-            "Expected string or non-null literal", tokenPosition)
+            "Expected string or non-null literal", tokenPosition
+        )
         return takeStringInternal()
+    }
+
+    fun peekString(isLenient: Boolean): String? {
+        return if (tokenClass != TC_STRING && (!isLenient || tokenClass != TC_OTHER)) null
+        else takeStringInternal(advance = false)
     }
 
     fun takeStringQuoted(): String {
@@ -157,11 +163,11 @@ internal class JsonReader(private val source: String) {
         return takeStringInternal()
     }
 
-    private fun takeStringInternal(): String {
+    private fun takeStringInternal(advance: Boolean = true): String {
         val prevStr = if (offset < 0)
             String(buf, 0, length) else
             source.substring(offset, offset + length)
-        nextToken()
+        if (advance) nextToken()
         return prevStr
     }
 
