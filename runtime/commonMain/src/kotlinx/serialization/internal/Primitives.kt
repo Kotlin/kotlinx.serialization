@@ -30,7 +30,7 @@ private val BUILTIN_SERIALIZERS = mapOf(
     ByteArray::class to ByteArraySerializer(),
     Boolean::class to Boolean.serializer(),
     BooleanArray::class to BooleanArraySerializer(),
-    Unit::class to UnitSerializer()
+    Unit::class to Unit.serializer()
 )
 
 internal class PrimitiveSerialDescriptor(
@@ -72,9 +72,9 @@ internal fun <T : Any> KClass<T>.builtinSerializerOrNull(): KSerializer<T>? =
     BUILTIN_SERIALIZERS[this] as KSerializer<T>?
 
 @Deprecated(
-    message = "Deprecated in the favour of top-level UnitSerializer() function",
+    message = "Deprecated in the favour of Unit.serializer() extension",
     level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("UnitSerializer()", imports = ["kotlinx.serialization.builtins.UnitSerializer"])
+    replaceWith = ReplaceWith("Unit.serializer()", imports = ["kotlinx.serialization.builtins.serializer"])
 )
 @Suppress("DEPRECATION_ERROR")
 public object UnitSerializer : KSerializer<Unit> by ObjectSerializer("kotlin.Unit", Unit)
