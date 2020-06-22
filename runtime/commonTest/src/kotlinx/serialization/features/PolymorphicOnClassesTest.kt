@@ -77,7 +77,7 @@ class PolymorphicOnClassesTest {
                     """["MessageWithId",{"id":2,"body":"Message #2"}]],"message":["MessageWithId",{"id":3,"body":"Message #3"}],""" +
                     """"msgSet":[["SimpleMessage",{"body":"Simple"}]],"simple":["DoubleSimpleMessage",{"body":"Simple",""" +
                     """"body2":"DoubleSimple"}],"withId":{"id":4,"body":"Message #4"}}""",
-            json.stringify(Holder.serializer(), data)
+            json.encodeToString(Holder.serializer(), data)
         )
     }
 

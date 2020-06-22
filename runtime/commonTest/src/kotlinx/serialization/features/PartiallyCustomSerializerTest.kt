@@ -24,7 +24,7 @@ data class WithNull(@SerialName("value") val nullable: String? = null) {
 class PartiallyCustomSerializerTest {
     @Test
     fun partiallyCustom() {
-        assertEquals("""{"value":"foo"}""", Json.stringify(WithNull.serializer(), WithNull("foo")))
-        assertEquals("""{}""", Json.stringify(WithNull.serializer(), WithNull()))
+        assertEquals("""{"value":"foo"}""", Json.encodeToString(WithNull.serializer(), WithNull("foo")))
+        assertEquals("""{}""", Json.encodeToString(WithNull.serializer(), WithNull()))
     }
 }

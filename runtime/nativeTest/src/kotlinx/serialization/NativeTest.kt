@@ -11,7 +11,7 @@ class CommonTest {
     @Test
     fun canSerialize() {
         val serializer = Shop.serializer()
-        val jsonShop = Json.stringify(serializer, shop)
+        val jsonShop = Json.encodeToString(serializer, shop)
         assertTrue(jsonShop.isNotBlank())
     }
 
@@ -19,7 +19,7 @@ class CommonTest {
     fun basicJson() {
         val serializer = SimpleData.serializer()
         val data = SimpleData("foo", 42)
-        val json = Json.stringify(serializer, data)
+        val json = Json.encodeToString(serializer, data)
         assertEquals("""{"foo":"foo","bar":42}""", json)
     }
 
@@ -34,9 +34,9 @@ class CommonTest {
 
     @Test
     fun nativeSupportsSimpleReflectionSerializer() {
-        val s = Json.stringify(shop)
+        val s = Json.encodeToString(shop)
         println(s)
-        val shop2 = Json.parse<Shop>(s)
+        val shop2 = Json.decodeFromString<Shop>(s)
         assertEquals(shop, shop2)
     }
 }

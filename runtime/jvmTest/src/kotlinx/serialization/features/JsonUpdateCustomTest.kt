@@ -7,7 +7,6 @@ package kotlinx.serialization.features
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
-import org.junit.Ignore
 import org.junit.Test
 import kotlin.test.*
 
@@ -30,7 +29,7 @@ class JsonUpdateCustomTest : JsonTestBase() {
 
     @Test
     fun canUpdateCustom() {
-        val parsed: Updatable = default.parse("""{"d":{"a":"42"},"d":{"a":43}}""")
+        val parsed: Updatable = default.decodeFromString("""{"d":{"a":"42"},"d":{"a":43}}""")
         assertEquals(Data(43), parsed.d)
     }
 
@@ -41,13 +40,13 @@ class JsonUpdateCustomTest : JsonTestBase() {
 
     @Test
     fun canUpdateMap() {
-        val parsed = json.parse(WrappedMap.serializer(Int.serializer()), """{"mp": { "x" : 23, "x" : 42, "y": 4 }}""")
+        val parsed = json.decodeFromString(WrappedMap.serializer(Int.serializer()), """{"mp": { "x" : 23, "x" : 42, "y": 4 }}""")
         assertEquals(WrappedMap(mapOf("x" to 42, "y" to 4)), parsed)
     }
 
     @Test
     fun canUpdateValuesInMap() {
-        val parsed = json.parse(WrappedMap.serializer(Int.serializer().list), """{"mp": { "x" : [23], "x" : [42], "y": [4] }}""")
+        val parsed = json.decodeFromString(WrappedMap.serializer(Int.serializer().list), """{"mp": { "x" : [23], "x" : [42], "y": [4] }}""")
         assertEquals(WrappedMap(mapOf("x" to listOf(42), "y" to listOf(4))), parsed)
     }
 }

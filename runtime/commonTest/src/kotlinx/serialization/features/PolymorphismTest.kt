@@ -32,7 +32,7 @@ class PolymorphismTest : JsonTestBase() {
             PolyBase(2),
             PolyDerived("b")
         )
-        val bytes = json.stringify(Wrapper.serializer(), obj, useStreaming)
+        val bytes = json.encodeToString(Wrapper.serializer(), obj, useStreaming)
         assertEquals(
             """{"polyBase1":["kotlinx.serialization.PolyBase",{"id":2}],""" +
                     """"polyBase2":["kotlinx.serialization.PolyDerived",{"id":1,"s":"b"}]}""", bytes
@@ -42,7 +42,7 @@ class PolymorphismTest : JsonTestBase() {
     @Test
     fun testSerializeWithExplicitPolymorphicSerializer() = parametrizedTest { useStreaming ->
         val obj = PolyDerived("b")
-        val s = json.stringify(PolymorphicSerializer(PolyDerived::class), obj, useStreaming)
+        val s = json.encodeToString(PolymorphicSerializer(PolyDerived::class), obj, useStreaming)
         assertEquals("""["kotlinx.serialization.PolyDerived",{"id":1,"s":"b"}]""", s)
     }
 
@@ -71,10 +71,10 @@ class PolymorphismTest : JsonTestBase() {
         val string = """
             {"polyBase1":{"type":"kotlinx.serialization.PolyBase","id":239},
             "polyBase2":{"type":"foo","key":42}}""".trimIndent()
-        val result = adjustedJson.parse(Wrapper.serializer(), string, useStreaming)
+        val result = adjustedJson.decodeFromString(Wrapper.serializer(), string, useStreaming)
         assertEquals(Wrapper(PolyBase(239), PolyDefault(JsonObject(mapOf("key" to JsonPrimitive(42))))), result)
 
         val replaced = string.replace("foo", "bar")
-        assertFailsWithMessage<SerializationException>("not registered") { adjustedJson.parse(Wrapper.serializer(), replaced, useStreaming) }
+        assertFailsWithMessage<SerializationException>("not registered") { adjustedJson.decodeFromString(Wrapper.serializer(), replaced, useStreaming) }
     }
 }

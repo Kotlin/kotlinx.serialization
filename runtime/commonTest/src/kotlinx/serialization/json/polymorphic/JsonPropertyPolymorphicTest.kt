@@ -22,10 +22,10 @@ class JsonPropertyPolymorphicTest : JsonTestBase() {
     @Test
     fun testFlatPolymorphic() = parametrizedTest { useStreaming ->
         val base: InnerBase = InnerImpl(42, "foo")
-        val string = polymorphicRelaxedJson.stringify(PolymorphicSerializer(InnerBase::class), base, useStreaming)
+        val string = polymorphicRelaxedJson.encodeToString(PolymorphicSerializer(InnerBase::class), base, useStreaming)
         assertEquals("""{"type":"kotlinx.serialization.json.polymorphic.InnerImpl",""" +
                 """"field":42,"str":"foo","nullable":null}""", string)
-        assertEquals(base, polymorphicRelaxedJson.parse(PolymorphicSerializer(InnerBase::class), string, useStreaming))
+        assertEquals(base, polymorphicRelaxedJson.decodeFromString(PolymorphicSerializer(InnerBase::class), string, useStreaming))
     }
 
     @Test

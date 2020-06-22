@@ -6,7 +6,6 @@ package kotlinx.serialization.json.polymorphic
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class JsonParametricSerializerTest : JsonTestBase() {
@@ -55,7 +54,7 @@ class JsonParametricSerializerTest : JsonTestBase() {
         for (i in testDataInput.indices) {
             assertEquals(
                 testDataOutput[i],
-                json.parse(WithChoices.serializer(), testDataInput[i], streaming),
+                json.decodeFromString(WithChoices.serializer(), testDataInput[i], streaming),
                 "failed test on ${testDataInput[i]}, useStreaming = $streaming"
             )
         }
@@ -66,7 +65,7 @@ class JsonParametricSerializerTest : JsonTestBase() {
         for (i in testDataOutput.indices) {
             assertEquals(
                 testDataInput[i],
-                json.stringify(WithChoices.serializer(), testDataOutput[i], streaming),
+                json.encodeToString(WithChoices.serializer(), testDataOutput[i], streaming),
                 "failed test on ${testDataOutput[i]}, useStreaming = $streaming"
             )
         }
@@ -93,11 +92,11 @@ class JsonParametricSerializerTest : JsonTestBase() {
     fun testDocumentationSample() = parametrizedTest { streaming ->
         assertEquals(
             SuccessfulPayment("1.0", "03.02.2020"),
-            json.parse(PaymentSerializer, """{"amount":"1.0","date":"03.02.2020"}""", streaming)
+            json.decodeFromString(PaymentSerializer, """{"amount":"1.0","date":"03.02.2020"}""", streaming)
         )
         assertEquals(
             RefundedPayment("2.0", "03.02.2020", "complaint"),
-            json.parse(PaymentSerializer, """{"amount":"2.0","date":"03.02.2020","reason":"complaint"}""", streaming)
+            json.decodeFromString(PaymentSerializer, """{"amount":"2.0","date":"03.02.2020","reason":"complaint"}""", streaming)
         )
     }
 }

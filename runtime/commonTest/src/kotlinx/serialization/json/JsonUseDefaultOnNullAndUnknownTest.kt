@@ -28,7 +28,7 @@ class JsonUseDefaultOnNullAndUnknownTest : JsonTestBase() {
     private inline fun <T> doTest(inputs: List<String>, expected: T, serializer: KSerializer<T>) {
         for (input in inputs) {
             parametrizedTest(json) {
-                assertEquals(expected, parse(serializer, input), "Failed on input: $input")
+                assertEquals(expected, decodeFromString(serializer, input), "Failed on input: $input")
             }
         }
     }
@@ -57,10 +57,10 @@ class JsonUseDefaultOnNullAndUnknownTest : JsonTestBase() {
             WithEnum.serializer()
         )
         assertFailsWith<JsonDecodingException> {
-            json.parse(WithEnum.serializer(), """{"e":{"x":"definitely not a valid enum value"}}""")
+            json.decodeFromString(WithEnum.serializer(), """{"e":{"x":"definitely not a valid enum value"}}""")
         }
         assertFailsWith<JsonDecodingException> { // test user still sees exception on missing quotes
-            Json(json.configuration.copy(isLenient = false)).parse(WithEnum.serializer(), """{"e":unknown_value}""")
+            Json(json.configuration.copy(isLenient = false)).decodeFromString(WithEnum.serializer(), """{"e":unknown_value}""")
         }
     }
 
@@ -91,7 +91,7 @@ class JsonUseDefaultOnNullAndUnknownTest : JsonTestBase() {
             ),
         )
         for ((input, expected) in testData) {
-            assertEquals(expected, json.parse(MultipleValues.serializer(), input), "Failed on input: $input")
+            assertEquals(expected, json.decodeFromString(MultipleValues.serializer(), input), "Failed on input: $input")
         }
     }
 

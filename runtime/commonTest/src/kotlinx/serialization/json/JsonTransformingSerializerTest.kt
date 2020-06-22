@@ -52,7 +52,7 @@ class JsonTransformingSerializerTest : JsonTestBase() {
         for (i in testDataInput.indices) {
             assertEquals(
                 goldenVal,
-                json.parse(Example.serializer(), testDataInput[i], streaming),
+                json.decodeFromString(Example.serializer(), testDataInput[i], streaming),
                 "failed test on ${testDataInput[i]}, useStreaming = $streaming"
             )
         }
@@ -72,7 +72,7 @@ class JsonTransformingSerializerTest : JsonTestBase() {
         for (i in testDataInput.indices) {
             assertEquals(
                 goldenVals[i],
-                json.stringify(DroppingNameSerializer, testDataInput[i], streaming),
+                json.encodeToString(DroppingNameSerializer, testDataInput[i], streaming),
                 "failed test on ${testDataInput[i]}, useStreaming = $streaming"
             )
         }
@@ -95,7 +95,7 @@ class JsonTransformingSerializerTest : JsonTestBase() {
     @Test
     fun testDocumentationSample() = parametrizedTest { streaming ->
         val correctExample = DocExample("str1")
-        assertEquals(correctExample, json.parse(DocExample.serializer(), """{"data":["str1"]}""", streaming))
-        assertEquals(correctExample, json.parse(DocExample.serializer(), """{"data":"str1"}""", streaming))
+        assertEquals(correctExample, json.decodeFromString(DocExample.serializer(), """{"data":["str1"]}""", streaming))
+        assertEquals(correctExample, json.decodeFromString(DocExample.serializer(), """{"data":"str1"}""", streaming))
     }
 }

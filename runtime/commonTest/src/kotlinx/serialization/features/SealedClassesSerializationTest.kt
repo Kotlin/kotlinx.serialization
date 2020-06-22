@@ -8,7 +8,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
-import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class SealedClassesSerializationTest : JsonTestBase() {
@@ -113,7 +112,7 @@ class SealedClassesSerializationTest : JsonTestBase() {
 
     @Test
     fun manualSerializer() {
-        val message = json.stringify(
+        val message = json.encodeToString(
             ManualSerializer,
             SimpleSealed.SubSealedB(42)
         )
@@ -122,11 +121,11 @@ class SealedClassesSerializationTest : JsonTestBase() {
 
     @Test
     fun onTopLevel() {
-        val arrayMessage = arrayJson.stringify(
+        val arrayMessage = arrayJson.encodeToString(
             SimpleSealed.serializer(),
             SimpleSealed.SubSealedB(42)
         )
-        val message = json.stringify(
+        val message = json.encodeToString(
             SimpleSealed.serializer(),
             SimpleSealed.SubSealedB(42)
         )

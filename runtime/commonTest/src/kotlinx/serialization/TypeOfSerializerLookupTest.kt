@@ -31,7 +31,7 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
     fun testListWithT() {
         val source = """[{"intV":42}]"""
         val serial = serializer<List<IntData>>()
-        assertEquals(listOf(IntData(42)), Json.parse(serial, source))
+        assertEquals(listOf(IntData(42)), Json.decodeFromString(serial, source))
     }
 
     @Test
@@ -141,6 +141,6 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
         json: StringFormat = default
     ) {
         val serial = serializer<T>()
-        assertEquals(expected, json.stringify(serial, value))
+        assertEquals(expected, json.encodeToString(serial, value))
     }
 }

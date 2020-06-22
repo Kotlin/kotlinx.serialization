@@ -33,7 +33,7 @@ class UnknownElementIndexTest {
     fun testErrorMessage() {
         val message = "kotlinx.serialization.UnknownElementIndexTest.Choices does not contain element with name 'D'"
         assertFailsWith(SerializationException::class, message) {
-            Json.parse(Holder.serializer(), """{"c":"D"}""")
+            Json.decodeFromString(Holder.serializer(), """{"c":"D"}""")
         }
     }
 }

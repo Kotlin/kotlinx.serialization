@@ -36,12 +36,12 @@ class GsonCompatibilityTest {
     }
 
     private fun checkCompatibility(box: Box, gson: Gson, json: Json) {
-        val jsonResult = resultOrNull { json.stringify(box) }
+        val jsonResult = resultOrNull { json.encodeToString(box) }
         val gsonResult = resultOrNull { gson.toJson(box) }
         assertEquals(gsonResult, jsonResult)
 
         if (jsonResult != null && gsonResult != null) {
-            val jsonDeserialized: Box = json.parse(jsonResult)
+            val jsonDeserialized: Box = json.decodeFromString(jsonResult)
             val gsonDeserialized: Box = gson.fromJson(gsonResult, Box::class.java)
             assertEquals(gsonDeserialized, jsonDeserialized)
         }

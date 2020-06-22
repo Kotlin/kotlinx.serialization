@@ -31,7 +31,7 @@ class JsonMapKeysTest : JsonTestBase() {
     @Test
     fun structuredMapKeysShouldBeBannedByDefault() = parametrizedTest { streaming ->
         val e = assertFailsWith<JsonException> {
-            Json(JsonConfiguration.Default).stringify(
+            Json(JsonConfiguration.Default).encodeToString(
                 WithComplexKey.serializer(),
                 WithComplexKey(mapOf(IntData(42) to "42")),
                 streaming

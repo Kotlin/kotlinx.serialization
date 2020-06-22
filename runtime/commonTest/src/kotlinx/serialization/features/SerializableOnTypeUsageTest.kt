@@ -20,9 +20,9 @@ class SerializableOnTypeUsageTest {
     @Test
     fun testAnnotationIsApplied() {
         val data = SerializableOnArguments(listOf(1, 2), listOf(listOf(IntHolder(42))))
-        val str = Json.stringify(SerializableOnArguments.serializer(), data)
+        val str = Json.encodeToString(SerializableOnArguments.serializer(), data)
         assertEquals("""{"list1":[2,4],"list2":[[84]]}""", str)
-        val restored = Json.parse(SerializableOnArguments.serializer(), str)
+        val restored = Json.decodeFromString(SerializableOnArguments.serializer(), str)
         assertEquals(data, restored)
     }
 }

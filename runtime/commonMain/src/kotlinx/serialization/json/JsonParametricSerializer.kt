@@ -89,7 +89,7 @@ public abstract class JsonParametricSerializer<T : Any>(private val baseClass: K
 
         @Suppress("UNCHECKED_CAST")
         val actualSerializer = selectSerializer(tree) as KSerializer<T>
-        return input.json.fromJson(actualSerializer, tree)
+        return input.json.decodeFromJsonElement(actualSerializer, tree)
     }
 
     /**

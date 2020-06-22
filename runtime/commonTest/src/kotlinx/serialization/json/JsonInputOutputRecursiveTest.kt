@@ -10,8 +10,8 @@ import kotlin.test.*
 class JsonInputOutputRecursiveTest : JsonTestBase() {
     private val inputDataString = """{"id":0,"payload":{"from":42,"to":43,"msg":"Hello world"},"timestamp":1000}"""
     private val inputErrorString = """{"id":1,"payload":{"error":"Connection timed out"},"timestamp":1001}"""
-    private val inputDataJson = default.parseJson(inputDataString)
-    private val inputErrorJson = default.parseJson(inputErrorString)
+    private val inputDataJson = default.parseJsonElement(inputDataString)
+    private val inputErrorJson = default.parseJsonElement(inputErrorString)
     private val inputRecursive =
         """{"type":"b","children":[{"type":"a","value":1},{"type":"a","value":2},{"type":"b","children":[]}]}"""
     private val outputRecursive = SealedRecursive.B(
@@ -20,7 +20,7 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
 
     @Test
     fun testParseDataString() = parametrizedTest { streaming ->
-        val ev = default.parse(Event.serializer(), inputDataString, streaming)
+        val ev = default.decodeFromString(Event.serializer(), inputDataString, streaming)
         with(ev) {
             assertEquals(0, id)
             assertEquals(Either.Right(Payload(42, 43, "Hello world")), payload)
@@ -30,7 +30,7 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
 
     @Test
     fun testParseErrorString() = parametrizedTest { useStreaming ->
-        val ev = default.parse(Event.serializer(), inputErrorString, useStreaming)
+        val ev = default.decodeFromString(Event.serializer(), inputErrorString, useStreaming)
         with(ev) {
             assertEquals(1, id)
             assertEquals(Either.Left("Connection timed out"), payload)
@@ -41,14 +41,14 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
     @Test
     fun testWriteDataString() = parametrizedTest { useStreaming ->
         val outputData = Event(0, Either.Right(Payload(42, 43, "Hello world")), 1000)
-        val ev = default.stringify(Event.serializer(), outputData, useStreaming)
+        val ev = default.encodeToString(Event.serializer(), outputData, useStreaming)
         assertEquals(inputDataString, ev)
     }
 
     @Test
     fun testWriteDataStringIndented() = parametrizedTest { useStreaming ->
         val outputData = Event(0, Either.Right(Payload(42, 43, "Hello world")), 1000)
-        val ev = Json { prettyPrint = true }.stringify(Event.serializer(), outputData, useStreaming)
+        val ev = Json { prettyPrint = true }.encodeToString(Event.serializer(), outputData, useStreaming)
         assertEquals("""{
             |    "id": 0,
             |    "payload": {
@@ -63,13 +63,13 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
     @Test
     fun testWriteErrorString() = parametrizedTest { useStreaming ->
         val outputError = Event(1, Either.Left("Connection timed out"), 1001)
-        val ev = default.stringify(Event.serializer(), outputError, useStreaming)
+        val ev = default.encodeToString(Event.serializer(), outputError, useStreaming)
         assertEquals(inputErrorString, ev)
     }
 
     @Test
     fun testParseDataJson() {
-        val ev = default.fromJson(Event.serializer(), inputDataJson)
+        val ev = default.decodeFromJsonElement(Event.serializer(), inputDataJson)
         with(ev) {
             assertEquals(0, id)
             assertEquals(Either.Right(Payload(42, 43, "Hello world")), payload)
@@ -79,7 +79,7 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
 
     @Test
     fun testParseErrorJson() {
-        val ev = default.fromJson(Event.serializer(), inputErrorJson)
+        val ev = default.decodeFromJsonElement(Event.serializer(), inputErrorJson)
         with(ev) {
             assertEquals(1, id)
             assertEquals(Either.Left("Connection timed out"), payload)
@@ -90,26 +90,26 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
     @Test
     fun testWriteDataJson() {
         val outputData = Event(0, Either.Right(Payload(42, 43, "Hello world")), 1000)
-        val ev = default.toJson(Event.serializer(), outputData)
+        val ev = default.encodeToJsonElement(Event.serializer(), outputData)
         assertEquals(inputDataJson, ev)
     }
 
     @Test
     fun testWriteErrorJson() {
         val outputError = Event(1, Either.Left("Connection timed out"), 1001)
-        val ev = default.toJson(Event.serializer(), outputError)
+        val ev = default.encodeToJsonElement(Event.serializer(), outputError)
         assertEquals(inputErrorJson, ev)
     }
 
     @Test
     fun testParseRecursive() = parametrizedTest { useStreaming ->
-        val ev = default.parse(RecursiveSerializer, inputRecursive, useStreaming)
+        val ev = default.decodeFromString(RecursiveSerializer, inputRecursive, useStreaming)
         assertEquals(outputRecursive, ev)
     }
 
     @Test
     fun testWriteRecursive() = parametrizedTest { useStreaming ->
-        val ev = default.stringify(RecursiveSerializer, outputRecursive, useStreaming)
+        val ev = default.encodeToString(RecursiveSerializer, outputRecursive, useStreaming)
         assertEquals(inputRecursive, ev)
     }
 
@@ -139,7 +139,7 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
             val tree = jsonReader.decodeJson() as? JsonObject
                     ?: throw SerializationException("Expected JSON object")
             if ("error" in tree) return Either.Left(tree.getPrimitive("error").content)
-            return Either.Right(decoder.json.fromJson(Payload.serializer(), tree))
+            return Either.Right(decoder.json.decodeFromJsonElement(Payload.serializer(), tree))
         }
 
         override fun serialize(encoder: Encoder, value: Either) {
@@ -147,7 +147,7 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
                     ?: throw SerializationException("This class can be saved only by JSON")
             val tree = when (value) {
                 is Either.Left -> JsonObject(mapOf("error" to JsonLiteral(value.errorMsg)))
-                is Either.Right -> encoder.json.toJson(Payload.serializer(), value.data)
+                is Either.Right -> encoder.json.encodeToJsonElement(Payload.serializer(), value.data)
             }
             jsonWriter.encodeJson(tree)
         }
@@ -183,8 +183,8 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
         override fun serialize(encoder: Encoder, value: SealedRecursive) {
             if (encoder !is JsonOutput) throw SerializationException("This class can be saved only by JSON")
             val (tree, typeName) = when (value) {
-                is SealedRecursive.A -> encoder.json.toJson(SealedRecursive.A.serializer(), value) to typeNameA
-                is SealedRecursive.B -> encoder.json.toJson(SealedRecursive.B.serializer(), value) to typeNameB
+                is SealedRecursive.A -> encoder.json.encodeToJsonElement(SealedRecursive.A.serializer(), value) to typeNameA
+                is SealedRecursive.B -> encoder.json.encodeToJsonElement(SealedRecursive.B.serializer(), value) to typeNameB
             }
             val contents: MutableMap<String, JsonElement> = mutableMapOf(typeAttribute to JsonPrimitive(typeName))
             contents.putAll(tree.jsonObject.content)
@@ -200,8 +200,8 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
             val typeName = tree.getValue(typeAttribute).primitive.content
             val objTree = JsonObject(tree.content - typeAttribute)
             return when (typeName) {
-                typeNameA -> decoder.json.fromJson(SealedRecursive.A.serializer(), objTree)
-                typeNameB -> decoder.json.fromJson(SealedRecursive.B.serializer(), objTree)
+                typeNameA -> decoder.json.decodeFromJsonElement(SealedRecursive.A.serializer(), objTree)
+                typeNameB -> decoder.json.decodeFromJsonElement(SealedRecursive.B.serializer(), objTree)
                 else -> throw SerializationException("Unknown type: $typeName")
             }
         }

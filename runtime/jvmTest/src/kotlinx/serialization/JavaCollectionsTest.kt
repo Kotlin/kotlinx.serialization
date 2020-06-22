@@ -41,12 +41,12 @@ class JavaCollectionsTest {
     fun test() {
         val original = HasHashMap("42", hashMapOf(1 to "1", 2 to "2"), hashSetOf(11), LinkedHashMap(), null)
         val serializer = HasHashMap.serializer()
-        val string = Json.stringify(serializer = serializer, value = original)
+        val string = Json.encodeToString(serializer = serializer, value = original)
         assertEquals(
             expected = """{"s":"42","hashMap":{"1":"1","2":"2"},"hashSet":[11],"linkedHashMap":{},"kEntry":null}""",
             actual = string
         )
-        val restored = Json.parse(deserializer = serializer, string = string)
+        val restored = Json.decodeFromString(deserializer = serializer, string = string)
         assertEquals(expected = original, actual = restored)
     }
 }

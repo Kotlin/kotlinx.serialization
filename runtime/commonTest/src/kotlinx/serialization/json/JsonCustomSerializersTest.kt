@@ -116,7 +116,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
     fun testWriteCustom() = parametrizedTest { useStreaming ->
         val a = A(B(2))
         val j = createJsonWithB()
-        val s = j.stringify(a, useStreaming)
+        val s = j.encodeToString(a, useStreaming)
         assertEquals("""{"b":2}""", s)
     }
 
@@ -124,7 +124,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
     fun testReadCustom() = parametrizedTest { useStreaming ->
         val a = A(B(2))
         val j = createJsonWithB()
-        val s = j.parse<A>("{b:2}", useStreaming)
+        val s = j.decodeFromString<A>("{b:2}", useStreaming)
         assertEquals(a, s)
     }
 
@@ -132,7 +132,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
     fun testWriteCustomList() = parametrizedTest { useStreaming ->
         val obj = BList(listOf(B(1), B(2), B(3)))
         val j = createJsonWithB()
-        val s = j.stringify(obj, useStreaming)
+        val s = j.encodeToString(obj, useStreaming)
         assertEquals("""{"bs":[1,2,3]}""", s)
     }
 
@@ -140,7 +140,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
     fun testReadCustomList() = parametrizedTest { useStreaming ->
         val obj = BList(listOf(B(1), B(2), B(3)))
         val j = createJsonWithB()
-        val bs = j.parse<BList>("{bs:[1,2,3]}", useStreaming)
+        val bs = j.decodeFromString<BList>("{bs:[1,2,3]}", useStreaming)
         assertEquals(obj, bs)
     }
 
@@ -148,7 +148,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
     fun testWriteCustomListRootLevel() = parametrizedTest { useStreaming ->
         val obj = listOf(B(1), B(2), B(3))
         val j = createJsonWithB()
-        val s = j.stringify(BSerializer.list, obj, useStreaming)
+        val s = j.encodeToString(BSerializer.list, obj, useStreaming)
         assertEquals("[1,2,3]", s)
     }
 
@@ -156,42 +156,42 @@ class JsonCustomSerializersTest : JsonTestBase() {
     fun testReadCustomListRootLevel() = parametrizedTest { useStreaming ->
         val obj = listOf(B(1), B(2), B(3))
         val j = createJsonWithB()
-        val bs = j.parse(BSerializer.list, "[1,2,3]", useStreaming)
+        val bs = j.decodeFromString(BSerializer.list, "[1,2,3]", useStreaming)
         assertEquals(obj, bs)
     }
 
     @Test
     fun testWriteCustomInvertedOrder() = parametrizedTest { useStreaming ->
         val obj = C(1, 2)
-        val s = default.stringify(obj, useStreaming)
+        val s = default.encodeToString(obj, useStreaming)
         assertEquals("""{"b":2,"a":1}""", s)
     }
 
     @Test
     fun testWriteCustomOmitDefault() = parametrizedTest { useStreaming ->
         val obj = C(b = 2)
-        val s = default.stringify(obj, useStreaming)
+        val s = default.encodeToString(obj, useStreaming)
         assertEquals("""{"b":2}""", s)
     }
 
     @Test
     fun testReadCustomInvertedOrder() = parametrizedTest { useStreaming ->
         val obj = C(1, 2)
-        val s = default.parse<C>("""{"b":2,"a":1}""", useStreaming)
+        val s = default.decodeFromString<C>("""{"b":2,"a":1}""", useStreaming)
         assertEquals(obj, s)
     }
 
     @Test
     fun testReadCustomOmitDefault() = parametrizedTest { useStreaming ->
         val obj = C(b = 2)
-        val s = default.parse<C>("""{"b":2}""", useStreaming)
+        val s = default.decodeFromString<C>("""{"b":2}""", useStreaming)
         assertEquals(obj, s)
     }
 
     @Test
     fun testWriteListOfOptional() = parametrizedTest { useStreaming ->
         val obj = listOf(C(a = 1), C(b = 2), C(3, 4))
-        val s = default.stringify(C.list, obj, useStreaming)
+        val s = default.encodeToString(C.list, obj, useStreaming)
         assertEquals("""[{"b":42,"a":1},{"b":2},{"b":4,"a":3}]""", s)
     }
 
@@ -199,21 +199,21 @@ class JsonCustomSerializersTest : JsonTestBase() {
     fun testReadListOfOptional() = parametrizedTest { useStreaming ->
         val obj = listOf(C(a = 1), C(b = 2), C(3, 4))
         val j = """[{"b":42,"a":1},{"b":2},{"b":4,"a":3}]"""
-        val s = default.parse(C.list, j, useStreaming)
+        val s = default.decodeFromString(C.list, j, useStreaming)
         assertEquals(obj, s)
     }
 
     @Test
     fun testWriteOptionalList1() = parametrizedTest { useStreaming ->
         val obj = CList1(listOf(C(a = 1), C(b = 2), C(3, 4)))
-        val s = default.stringify(obj, useStreaming)
+        val s = default.encodeToString(obj, useStreaming)
         assertEquals("""{"c":[{"b":42,"a":1},{"b":2},{"b":4,"a":3}]}""", s)
     }
 
     @Test
     fun testWriteOptionalList1Quoted() = parametrizedTest { useStreaming ->
         val obj = CList1(listOf(C(a = 1), C(b = 2), C(3, 4)))
-        val s = default.stringify(obj, useStreaming)
+        val s = default.encodeToString(obj, useStreaming)
         assertEquals("""{"c":[{"b":42,"a":1},{"b":2},{"b":4,"a":3}]}""", s)
     }
 
@@ -221,13 +221,13 @@ class JsonCustomSerializersTest : JsonTestBase() {
     fun testReadOptionalList1() = parametrizedTest { useStreaming ->
         val obj = CList1(listOf(C(a = 1), C(b = 2), C(3, 4)))
         val j = """{"c":[{"b":42,"a":1},{"b":2},{"b":4,"a":3}]}"""
-        assertEquals(obj, default.parse(j, useStreaming))
+        assertEquals(obj, default.decodeFromString(j, useStreaming))
     }
 
     @Test
     fun testWriteOptionalList2a() = parametrizedTest { useStreaming ->
         val obj = CList2(7, listOf(C(a = 5), C(b = 6), C(7, 8)))
-        val s = default.stringify(obj, useStreaming)
+        val s = default.encodeToString(obj, useStreaming)
         assertEquals("""{"c":[{"b":42,"a":5},{"b":6},{"b":8,"a":7}],"d":7}""", s)
     }
 
@@ -235,13 +235,13 @@ class JsonCustomSerializersTest : JsonTestBase() {
     fun testReadOptionalList2a() = parametrizedTest { useStreaming ->
         val obj = CList2(7, listOf(C(a = 5), C(b = 6), C(7, 8)))
         val j = """{"c":[{"b":42,"a":5},{"b":6},{"b":8,"a":7}],"d":7}"""
-        assertEquals(obj, default.parse(j, useStreaming))
+        assertEquals(obj, default.decodeFromString(j, useStreaming))
     }
 
     @Test
     fun testWriteOptionalList2b() = parametrizedTest { useStreaming ->
         val obj = CList2(c = listOf(C(a = 5), C(b = 6), C(7, 8)))
-        val s = default.stringify(obj, useStreaming)
+        val s = default.encodeToString(obj, useStreaming)
         assertEquals("""{"c":[{"b":42,"a":5},{"b":6},{"b":8,"a":7}]}""", s)
     }
 
@@ -249,13 +249,13 @@ class JsonCustomSerializersTest : JsonTestBase() {
     fun testReadOptionalList2b() = parametrizedTest { useStreaming ->
         val obj = CList2(c = listOf(C(a = 5), C(b = 6), C(7, 8)))
         val j = """{"c":[{"b":42,"a":5},{"b":6},{"b":8,"a":7}]}"""
-        assertEquals(obj, default.parse(j, useStreaming))
+        assertEquals(obj, default.decodeFromString(j, useStreaming))
     }
 
     @Test
     fun testWriteOptionalList3a() = parametrizedTest { useStreaming ->
         val obj = CList3(listOf(C(a = 1), C(b = 2), C(3, 4)), 99)
-        val s = default.stringify(obj, useStreaming)
+        val s = default.encodeToString(obj, useStreaming)
         assertEquals("""{"e":[{"b":42,"a":1},{"b":2},{"b":4,"a":3}],"f":99}""", s)
     }
 
@@ -263,13 +263,13 @@ class JsonCustomSerializersTest : JsonTestBase() {
     fun testReadOptionalList3a() = parametrizedTest { useStreaming ->
         val obj = CList3(listOf(C(a = 1), C(b = 2), C(3, 4)), 99)
         val j = """{"e":[{"b":42,"a":1},{"b":2},{"b":4,"a":3}],"f":99}"""
-        assertEquals(obj, default.parse(j, useStreaming))
+        assertEquals(obj, default.decodeFromString(j, useStreaming))
     }
 
     @Test
     fun testWriteOptionalList3b() = parametrizedTest { useStreaming ->
         val obj = CList3(f = 99)
-        val s = default.stringify(obj, useStreaming)
+        val s = default.encodeToString(obj, useStreaming)
         assertEquals("""{"f":99}""", s)
     }
 
@@ -277,13 +277,13 @@ class JsonCustomSerializersTest : JsonTestBase() {
     fun testReadOptionalList3b() = parametrizedTest { useStreaming ->
         val obj = CList3(f = 99)
         val j = """{"f":99}"""
-        assertEquals(obj, default.parse(j, useStreaming))
+        assertEquals(obj, default.decodeFromString(j, useStreaming))
     }
 
     @Test
     fun testWriteOptionalList4a() = parametrizedTest { useStreaming ->
         val obj = CList4(listOf(C(a = 1), C(b = 2), C(3, 4)), 54)
-        val s = default.stringify(obj, useStreaming)
+        val s = default.encodeToString(obj, useStreaming)
         assertEquals("""{"h":54,"g":[{"b":42,"a":1},{"b":2},{"b":4,"a":3}]}""", s)
     }
 
@@ -291,14 +291,14 @@ class JsonCustomSerializersTest : JsonTestBase() {
     fun testReadOptionalList4a() = parametrizedTest { useStreaming ->
         val obj = CList4(listOf(C(a = 1), C(b = 2), C(3, 4)), 54)
         val j = """{"h":54,"g":[{"b":42,"a":1},{"b":2},{"b":4,"a":3}]}"""
-        assertEquals(obj, default.parse(j, useStreaming))
+        assertEquals(obj, default.decodeFromString(j, useStreaming))
     }
 
     @Test
     fun testWriteOptionalList4b() = parametrizedTest { useStreaming ->
         val obj = CList4(h = 97)
         val j = """{"h":97}"""
-        val s = default.stringify(obj, useStreaming)
+        val s = default.encodeToString(obj, useStreaming)
         assertEquals(j, s)
     }
 
@@ -306,13 +306,13 @@ class JsonCustomSerializersTest : JsonTestBase() {
     fun testReadOptionalList4b() = parametrizedTest { useStreaming ->
         val obj = CList4(h = 97)
         val j = """{"h":97}"""
-        assertEquals(obj, default.parse(j, useStreaming))
+        assertEquals(obj, default.decodeFromString(j, useStreaming))
     }
 
     @Test
     fun testWriteOptionalList5a() = parametrizedTest { useStreaming ->
         val obj = CList5(listOf(9, 8, 7, 6, 5), 5)
-        val s = default.stringify(obj, useStreaming)
+        val s = default.encodeToString(obj, useStreaming)
         assertEquals("""{"h":5,"g":[9,8,7,6,5]}""", s)
     }
 
@@ -320,13 +320,13 @@ class JsonCustomSerializersTest : JsonTestBase() {
     fun testReadOptionalList5a() = parametrizedTest { useStreaming ->
         val obj = CList5(listOf(9, 8, 7, 6, 5), 5)
         val j = """{"h":5,"g":[9,8,7,6,5]}"""
-        assertEquals(obj, default.parse(j, useStreaming))
+        assertEquals(obj, default.decodeFromString(j, useStreaming))
     }
 
     @Test
     fun testWriteOptionalList5b() = parametrizedTest { useStreaming ->
         val obj = CList5(h = 999)
-        val s = default.stringify(obj, useStreaming)
+        val s = default.encodeToString(obj, useStreaming)
         assertEquals("""{"h":999}""", s)
     }
 
@@ -334,21 +334,21 @@ class JsonCustomSerializersTest : JsonTestBase() {
     fun testReadOptionalList5b() = parametrizedTest { useStreaming ->
         val obj = CList5(h = 999)
         val j = """{"h":999}"""
-        assertEquals(obj, default.parse(j, useStreaming))
+        assertEquals(obj, default.decodeFromString(j, useStreaming))
     }
 
     @Test
     fun testMapBuiltinsTest() = parametrizedTest { useStreaming ->
         val map = mapOf(1 to "1", 2 to "2")
         val serial = MapSerializer(Int.serializer(), String.serializer())
-        val s = default.stringify(serial, map, useStreaming)
+        val s = default.encodeToString(serial, map, useStreaming)
         assertEquals("""{"1":"1","2":"2"}""", s)
     }
 
     @Test
     fun testResolveAtRootLevel() = parametrizedTest { useStreaming ->
         val j = createJsonWithB()
-        val bs = j.parse<B>("1", useStreaming)
+        val bs = j.decodeFromString<B>("1", useStreaming)
         assertEquals(B(1), bs)
     }
 }

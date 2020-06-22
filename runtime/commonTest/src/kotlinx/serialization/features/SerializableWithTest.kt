@@ -69,7 +69,7 @@ data class Carrier(
 class SerializableWithTest {
     @Test
     fun testOnProperties() {
-        val str = Json.stringify(Carrier.serializer(), Carrier(IntHolder(42), 2))
+        val str = Json.encodeToString(Carrier.serializer(), Carrier(IntHolder(42), 2))
         assertEquals("""{"a":84,"i":4}""", str)
     }
 }
