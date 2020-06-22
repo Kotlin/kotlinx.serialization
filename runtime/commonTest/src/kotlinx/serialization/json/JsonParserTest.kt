@@ -17,7 +17,7 @@ class JsonParserTest : JsonTestBase() {
         assertEquals("{", tree.getAs<JsonLiteral>("x").content)
     }
 
-    private fun parse(input: String) = default.parseJson(input).jsonObject
+    private fun parse(input: String) = default.parseJsonElement(input).jsonObject
 
     @Test
     fun testEmptyKey() {
@@ -45,11 +45,11 @@ class JsonParserTest : JsonTestBase() {
     fun testParseEscapedSymbols() {
         assertEquals(
             StringData("https://t.co/M1uhwigsMT"),
-            default.parse(StringData.serializer(), """{"data":"https:\/\/t.co\/M1uhwigsMT"}""")
+            default.decodeFromString(StringData.serializer(), """{"data":"https:\/\/t.co\/M1uhwigsMT"}""")
         )
-        assertEquals(StringData("\"test\""), default.parse(StringData.serializer(), """{"data": "\"test\""}"""))
-        assertEquals(StringData("\u00c9"), default.parse(StringData.serializer(), """{"data": "\u00c9"}"""))
-        assertEquals(StringData("""\\"""), default.parse(StringData.serializer(), """{"data": "\\\\"}"""))
+        assertEquals(StringData("\"test\""), default.decodeFromString(StringData.serializer(), """{"data": "\"test\""}"""))
+        assertEquals(StringData("\u00c9"), default.decodeFromString(StringData.serializer(), """{"data": "\u00c9"}"""))
+        assertEquals(StringData("""\\"""), default.decodeFromString(StringData.serializer(), """{"data": "\\\\"}"""))
     }
 
     @Test
@@ -71,7 +71,7 @@ class JsonParserTest : JsonTestBase() {
 
 
     private fun testTrailingComma(content: String) {
-        val e = assertFailsWith<JsonDecodingException> {  Json.parseJson(content) }
+        val e = assertFailsWith<JsonDecodingException> {  Json.parseJsonElement(content) }
         val msg = e.message!!
         assertTrue(msg.contains("Expected end of the object"))
     }

@@ -38,9 +38,9 @@ class KeyValueSerializersTest : JsonTestBase() {
         expectedJson: String
     ) {
         val serializer = PairSerializer(kSerializer, vSerializer)
-        val json = default.stringify(serializer, pairInstance, useStreaming)
+        val json = default.encodeToString(serializer, pairInstance, useStreaming)
         assertEquals(expectedJson, json)
-        val pair = default.parse(serializer, json, useStreaming)
+        val pair = default.decodeFromString(serializer, json, useStreaming)
         assertEquals(pairInstance, pair)
     }
 
@@ -83,9 +83,9 @@ class KeyValueSerializersTest : JsonTestBase() {
         expectedJson: String
     ) {
         val serializer = TripleSerializer(aSerializer, bSerializer, cSerializer)
-        val json = default.stringify(serializer, tripleInstance, useStreaming)
+        val json = default.encodeToString(serializer, tripleInstance, useStreaming)
         assertEquals(expectedJson, json)
-        val triple = default.parse(serializer, json, useStreaming)
+        val triple = default.decodeFromString(serializer, json, useStreaming)
         assertEquals(tripleInstance, triple)
     }
 
@@ -134,9 +134,9 @@ class KeyValueSerializersTest : JsonTestBase() {
         expectedJson: String
     ) {
         val serializer = MapEntrySerializer(kSerializer, vSerializer)
-        val json = default.stringify(serializer, entryInstance, useStreaming)
+        val json = default.encodeToString(serializer, entryInstance, useStreaming)
         assertEquals(expectedJson, json)
-        val entry = default.parse(serializer, json, useStreaming)
+        val entry = default.decodeFromString(serializer, json, useStreaming)
         assertEquals(entryInstance, entry)
     }
 }

@@ -29,11 +29,11 @@ class JsonModesTest : JsonTestBase() {
     fun nonStrictJsonCanSkipValues() = parametrizedTest { useStreaming ->
         val data = JsonOptionalTests.Data()
         assertEquals(
-            lenient.parse(JsonOptionalTests.Data.serializer(), "{strangeField: 100500, a:0}", useStreaming),
+            lenient.decodeFromString(JsonOptionalTests.Data.serializer(), "{strangeField: 100500, a:0}", useStreaming),
             data
         )
         assertEquals(
-            lenient.parse(JsonOptionalTests.Data.serializer(), "{a:0, strangeField: 100500}", useStreaming),
+            lenient.decodeFromString(JsonOptionalTests.Data.serializer(), "{a:0, strangeField: 100500}", useStreaming),
             data
         )
     }
@@ -43,14 +43,14 @@ class JsonModesTest : JsonTestBase() {
         val data = JsonOptionalTests.Data()
 
         assertEquals(
-            lenient.parse(
+            lenient.decodeFromString(
                 JsonOptionalTests.Data.serializer(),
                 "{a: 0, strangeField: {a: b, c: {d: e}, f: [g,h,j] }}",
                 useStreaming
             ),
             data)
         assertEquals(
-            lenient.parse(
+            lenient.decodeFromString(
                 JsonOptionalTests.Data.serializer(),
                 "{strangeField: {a: b, c: {d: e}, f: [g,h,j] }, a: 0}",
                 useStreaming
@@ -61,7 +61,7 @@ class JsonModesTest : JsonTestBase() {
     @Test
     fun testSerializeQuotedJson() = parametrizedTest { useStreaming ->
         assertEquals(
-            """{"a":10,"e":false,"c":"Hello"}""", default.stringify(
+            """{"a":10,"e":false,"c":"Hello"}""", default.encodeToString(
                 JsonTransientTest.Data.serializer(),
                 JsonTransientTest.Data(10, 100), useStreaming))
     }
@@ -69,7 +69,7 @@ class JsonModesTest : JsonTestBase() {
     @Test
     fun testStrictJsonCanNotSkipValues() = parametrizedTest { useStreaming ->
         assertFailsWith(SerializationException::class) {
-            default.parse(JsonOptionalTests.Data.serializer(), "{strangeField: 100500, a:0}", useStreaming)
+            default.decodeFromString(JsonOptionalTests.Data.serializer(), "{strangeField: 100500, a:0}", useStreaming)
         }
     }
 

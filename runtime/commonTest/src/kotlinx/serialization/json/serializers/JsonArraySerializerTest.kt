@@ -32,14 +32,14 @@ class JsonArraySerializerTest : JsonTestBase() {
     @Test
     fun testJsonArrayToString() {
         val prebuiltJson = prebuiltJson()
-        val string = lenient.stringify(JsonArraySerializer, prebuiltJson)
+        val string = lenient.encodeToString(JsonArraySerializer, prebuiltJson)
         assertEquals(string, prebuiltJson.toString())
     }
 
     @Test
     fun testMixedLiterals() = parametrizedTest { useStreaming ->
         val json = """[1, "2", 3, "4"]"""
-        val array = default.parse(JsonArraySerializer, json, useStreaming)
+        val array = default.decodeFromString(JsonArraySerializer, json, useStreaming)
         array.content.forEachIndexed { index, element ->
             require(element is JsonLiteral)
             assertEquals(index % 2 == 1, element.isString)
@@ -57,17 +57,17 @@ class JsonArraySerializerTest : JsonTestBase() {
 
     @Test
     fun testEmptyArray() = parametrizedTest { useStreaming ->
-        assertEquals(JsonArray(emptyList()), lenient.parse(JsonArraySerializer, "[]", useStreaming))
-        assertEquals(JsonArray(emptyList()), lenient.parse(JsonArraySerializer, "[    ]", useStreaming))
-        assertEquals(JsonArray(emptyList()), lenient.parse(JsonArraySerializer, "[\n\n]", useStreaming))
-        assertEquals(JsonArray(emptyList()), lenient.parse(JsonArraySerializer, "[     \t]", useStreaming))
+        assertEquals(JsonArray(emptyList()), lenient.decodeFromString(JsonArraySerializer, "[]", useStreaming))
+        assertEquals(JsonArray(emptyList()), lenient.decodeFromString(JsonArraySerializer, "[    ]", useStreaming))
+        assertEquals(JsonArray(emptyList()), lenient.decodeFromString(JsonArraySerializer, "[\n\n]", useStreaming))
+        assertEquals(JsonArray(emptyList()), lenient.decodeFromString(JsonArraySerializer, "[     \t]", useStreaming))
     }
 
     @Test
     fun testWhitespaces() = parametrizedTest { useStreaming ->
         assertEquals(
             JsonArray(listOf(1, 2, 3, 4, 5).map(::JsonLiteral)),
-            lenient.parse(JsonArraySerializer, "[1, 2,   3, \n 4, 5]", useStreaming)
+            lenient.decodeFromString(JsonArraySerializer, "[1, 2,   3, \n 4, 5]", useStreaming)
         )
     }
 
@@ -89,7 +89,7 @@ class JsonArraySerializerTest : JsonTestBase() {
 
     private fun testFails(input: String, errorMessage: String, useStreaming: Boolean) {
         assertFailsWithMessage<JsonDecodingException>(errorMessage) {
-            lenient.parse(
+            lenient.decodeFromString(
                 JsonArraySerializer,
                 input,
                 useStreaming

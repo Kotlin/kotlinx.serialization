@@ -6,7 +6,6 @@ package kotlinx.serialization.json.polymorphic
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
-import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class JsonDeserializePolymorphicTwiceTest {
@@ -19,8 +18,8 @@ class JsonDeserializePolymorphicTwiceTest {
 
     @Test
     fun testDeserializeTwice() { // #812
-        val json = Json.toJson(Foo.serializer(), Foo.Bar(1))
-        assertEquals(Foo.Bar(1), Json.fromJson(Foo.serializer(), json))
-        assertEquals(Foo.Bar(1), Json.fromJson(Foo.serializer(), json))
+        val json = Json.encodeToJsonElement(Foo.serializer(), Foo.Bar(1))
+        assertEquals(Foo.Bar(1), Json.decodeFromJsonElement(Foo.serializer(), json))
+        assertEquals(Foo.Bar(1), Json.decodeFromJsonElement(Foo.serializer(), json))
     }
 }

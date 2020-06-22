@@ -9,7 +9,7 @@ import kotlin.test.*
 
 class JsonTreeTest : JsonTestBase() {
 
-    private fun parse(input: String): JsonElement = default.parse(JsonElementSerializer, input)
+    private fun parse(input: String): JsonElement = default.decodeFromString(JsonElementSerializer, input)
 
     @Test
     fun testParseWithoutExceptions() { 

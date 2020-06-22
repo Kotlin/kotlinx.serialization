@@ -16,10 +16,10 @@ inline fun <reified T : Any> assertStringFormAndRestored(
     format: StringFormat = Json(JsonConfiguration.Default),
     printResult: Boolean = false
 ) {
-    val string = format.stringify(serializer, original)
+    val string = format.encodeToString(serializer, original)
     if (printResult) println("[Serialized form] $string")
     assertEquals(expected, string)
-    val restored = format.parse(serializer, string)
+    val restored = format.decodeFromString(serializer, string)
     if (printResult) println("[Restored form] $restored")
     assertEquals(original, restored)
 }
@@ -30,10 +30,10 @@ inline fun <reified T : Any> StringFormat.assertStringFormAndRestored(
     serializer: KSerializer<T>,
     printResult: Boolean = false
 ) {
-    val string = this.stringify(serializer, original)
+    val string = this.encodeToString(serializer, original)
     if (printResult) println("[Serialized form] $string")
     assertEquals(expected, string)
-    val restored = this.parse(serializer, string)
+    val restored = this.decodeFromString(serializer, string)
     if (printResult) println("[Restored form] $restored")
     assertEquals(original, restored)
 }

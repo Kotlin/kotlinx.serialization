@@ -5,8 +5,8 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.internal.*
-import kotlinx.serialization.modules.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 
 /**
  * Represents an instance of a serialization format
@@ -26,12 +26,6 @@ public interface SerialFormat {
      */
     public val context: SerialModule
 }
-
-@Deprecated(
-    "Deprecated for removal since it is indistinguishable from SerialFormat interface. " +
-            "Use SerialFormat instead.", ReplaceWith("SerialFormat"), DeprecationLevel.ERROR
-)
-public abstract class AbstractSerialFormat(override val context: SerialModule) : SerialFormat
 
 /**
  * [SerialFormat] that allows conversion to and from [ByteArray]
@@ -89,29 +83,29 @@ public inline fun <reified T : Any> BinaryFormat.load(raw: ByteArray): T = load(
 public inline fun <reified T : Any> BinaryFormat.loads(hex: String): T = loads(context.getContextualOrDefault(), hex)
 
 /**
- * [SerialFormat] that allows conversion to and from [String]
- * via [stringify] and [parse] methods
+ * [SerialFormat] that allows conversions to and from [String] via [encodeToString] and [decodeFromString] methods.
  */
 public interface StringFormat : SerialFormat {
-    /**
-     * Serializes [value] to [String] using given [serializer].
-     */
-    public fun <T> stringify(serializer: SerializationStrategy<T>, value: T): String
 
     /**
-     * Deserializes given [string] to an object of type [T] using given [deserializer].
+     * Serializes and encodes the given value [value] to string using the given [serializer].
      */
-    public fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T
+    public fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String
+
+    /**
+     * Decodes and deserializes the given [string] to to the value of type [T] using the given [deserializer]
+     */
+    public fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T
 }
 
 /**
- * Reified version of [StringFormat.stringify]
+ * Serializes and encodes the given value [value] to string using serializer retrieved from the reified type parameter.
  */
-public inline fun <reified T : Any> StringFormat.stringify(value: T): String =
-    stringify(context.getContextualOrDefault(), value)
+public inline fun <reified T : Any> StringFormat.encodeToString(value: T): String =
+    encodeToString(context.getContextualOrDefault(), value)
 
 /**
- * Reified version of [StringFormat.parse]
+ * Decodes and deserializes the given [string] to to the value of type [T] using deserializer retrieved from the reified type parameter.
  */
-public inline fun <reified T : Any> StringFormat.parse(string: String): T =
-    parse(context.getContextualOrDefault(), string)
+public inline fun <reified T : Any> StringFormat.decodeFromString(string: String): T =
+    decodeFromString(context.getContextualOrDefault(), string)

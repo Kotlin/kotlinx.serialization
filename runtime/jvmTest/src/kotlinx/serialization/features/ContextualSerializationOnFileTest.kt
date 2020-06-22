@@ -43,7 +43,7 @@ class ContextualSerializationOnFileTest {
 
     @Test
     fun testOnFile() {
-        val str = json.stringify(Carrier3.serializer(), Carrier3(IntHolder(42), 8, 8, IntHolder(42)))
+        val str = json.encodeToString(Carrier3.serializer(), Carrier3(IntHolder(42), 8, 8, IntHolder(42)))
         assertEquals(
             """{"a":84,"i":4,"nullable":4,"nullableIntHolder":84,"nullableIntList":[],"nullableIntHolderNullableList":null}""",
             str

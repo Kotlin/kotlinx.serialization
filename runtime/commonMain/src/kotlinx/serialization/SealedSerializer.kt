@@ -30,7 +30,7 @@ import kotlin.reflect.*
  * }
  *
  * // will perform correct polymorphic serialization and deserialization:
- * Json.stringify(SimpleSealed.serializer(), SubSealedA("foo"))
+ * Json.encodeToString(SimpleSealed.serializer(), SubSealedA("foo"))
  * ```
  *
  * However, it is possible to register additional subclasses using regular [SerializersModule].

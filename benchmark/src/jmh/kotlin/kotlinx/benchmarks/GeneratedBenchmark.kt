@@ -27,8 +27,8 @@ open class GeneratedBenchmark {
     @Benchmark
     fun jsonRoundTrip1(): Fields1 {
         val instance = Fields1(1)
-        val string = json.stringify(Fields1.serializer(), instance)
-        return json.parse(Fields1.serializer(), string)
+        val string = json.encodeToString(Fields1.serializer(), instance)
+        return json.decodeFromString(Fields1.serializer(), string)
     }
 
     @Serializable
@@ -39,8 +39,8 @@ open class GeneratedBenchmark {
     @Benchmark
     fun jsonRoundTrip2(): Fields2 {
         val instance = Fields2(1, 2)
-        val string = json.stringify(Fields2.serializer(), instance)
-        return json.parse(Fields2.serializer(), string)
+        val string = json.encodeToString(Fields2.serializer(), instance)
+        return json.decodeFromString(Fields2.serializer(), string)
     }
 
     @Serializable
@@ -51,8 +51,8 @@ open class GeneratedBenchmark {
     @Benchmark
     fun jsonRoundTrip3(): Fields3 {
         val instance = Fields3(1, 2, 3)
-        val string = json.stringify(Fields3.serializer(), instance)
-        return json.parse(Fields3.serializer(), string)
+        val string = json.encodeToString(Fields3.serializer(), instance)
+        return json.decodeFromString(Fields3.serializer(), string)
     }
 
     @Serializable
@@ -63,8 +63,8 @@ open class GeneratedBenchmark {
     @Benchmark
     fun jsonRoundTrip4(): Fields4 {
         val instance = Fields4(1, 2, 3, 4)
-        val string = json.stringify(Fields4.serializer(), instance)
-        return json.parse(Fields4.serializer(), string)
+        val string = json.encodeToString(Fields4.serializer(), instance)
+        return json.decodeFromString(Fields4.serializer(), string)
     }
 
     @Serializable
@@ -75,8 +75,8 @@ open class GeneratedBenchmark {
     @Benchmark
     fun jsonRoundTrip5(): Fields5 {
         val instance = Fields5(1, 2, 3, 4, 5)
-        val string = json.stringify(Fields5.serializer(), instance)
-        return json.parse(Fields5.serializer(), string)
+        val string = json.encodeToString(Fields5.serializer(), instance)
+        return json.decodeFromString(Fields5.serializer(), string)
     }
 
     @Serializable
@@ -96,8 +96,8 @@ open class GeneratedBenchmark {
     @Benchmark
     fun jsonRoundTrip10(): Fields10 {
         val instance = Fields10(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-        val string = json.stringify(Fields10.serializer(), instance)
-        return json.parse(Fields10.serializer(), string)
+        val string = json.encodeToString(Fields10.serializer(), instance)
+        return json.decodeFromString(Fields10.serializer(), string)
     }
 
     @Serializable
@@ -127,8 +127,8 @@ open class GeneratedBenchmark {
     @Benchmark
     fun jsonRoundTrip20(): Fields20 {
         val instance = Fields20(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
-        val string = json.stringify(Fields20.serializer(), instance)
-        return json.parse(Fields20.serializer(), string)
+        val string = json.encodeToString(Fields20.serializer(), instance)
+        return json.decodeFromString(Fields20.serializer(), string)
     }
 
     @Serializable
@@ -239,8 +239,8 @@ open class GeneratedBenchmark {
             49,
             50
         )
-        val string = json.stringify(Fields50.serializer(), instance)
-        return json.parse(Fields50.serializer(), string)
+        val string = json.encodeToString(Fields50.serializer(), instance)
+        return json.decodeFromString(Fields50.serializer(), string)
     }
 }
 

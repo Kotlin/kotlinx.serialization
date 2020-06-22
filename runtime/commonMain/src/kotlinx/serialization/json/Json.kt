@@ -19,7 +19,7 @@ import kotlin.reflect.*
  * or for converting objects to [JsonElement] back and forth.
  *
  * This is the only serial format which has first-class [JsonElement] support.
- * Any serializable class can be serialized to or from [JsonElement] with [Json.fromJson] and [Json.toJson] respectively or
+ * Any serializable class can be serialized to or from [JsonElement] with [Json.decodeFromJsonElement] and [Json.encodeToJsonElement] respectively or
  * serialize properties of [JsonElement] type.
  *
  * Example of usage:
@@ -31,19 +31,19 @@ import kotlin.reflect.*
  * val instance = DataHolder(42, "some data", json { "additional key" to "value" })
  *
  * // Plain StringFormat usage
- * val stringOutput: String = json.stringify(instance)
+ * val stringOutput: String = json.encodeToString(instance)
  *
- * // JsonElement serialization specific for Json only
- * val jsonTree: JsonElement = json.toJson(instance)
+ * // JsonElement serialization specific for JSON only
+ * val jsonTree: JsonElement = json.encodeToJsonElement(instance)
  *
  * // Deserialize from string
- * val deserialized: DataHolder = json.parse<DataHolder>(stringOutput)
+ * val deserialized: DataHolder = json.decodeFromString<DataHolder>(stringOutput)
  *
- * // Deserialize from json tree, Json-specific
- * val deserializedFromTree: DataHolder = json.fromJson<DataHolder>(jsonTree)
+ * // Deserialize from json tree, JSON-specific
+ * val deserializedFromTree: DataHolder = json.decodeFromJsonElement<DataHolder>(jsonTree)
  *
- *  // Deserialize from string to json tree, Json-specific
- *  val deserializedToTree: JsonElement = json.fromJson<JsonElement>(stringOutput)
+ *  // Deserialize from string to JSON tree, Json-specific
+ *  val deserializedToTree: JsonElement = json.parseJsonElement(stringOutput)
  * ```
  */
 public class Json
@@ -88,7 +88,7 @@ public constructor(
      * @throws [JsonException] if given value can not be encoded
      * @throws [SerializationException] if given value can not be serialized
      */
-    public override fun <T> stringify(serializer: SerializationStrategy<T>, value: T): String {
+    public override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
         val result = StringBuilder()
         val encoder = StreamingJsonOutput(
             result, this,
@@ -104,7 +104,7 @@ public constructor(
      * @throws [JsonException] if given value can not be encoded
      * @throws [SerializationException] if given value can not be serialized
      */
-    public fun <T> toJson(serializer: SerializationStrategy<T>, value: T): JsonElement {
+    public fun <T> encodeToJsonElement(serializer: SerializationStrategy<T>, value: T): JsonElement {
         return writeJson(value, serializer)
     }
 
@@ -113,8 +113,8 @@ public constructor(
      * @throws [JsonException] if given value can not be encoded
      * @throws [SerializationException] if given value can not be serialized
      */
-    public inline fun <reified T : Any> toJson(value: T): JsonElement {
-        return toJson(context.getContextualOrDefault(), value)
+    public inline fun <reified T : Any> encodeToJsonElement(value: T): JsonElement {
+        return encodeToJsonElement(context.getContextualOrDefault(), value)
     }
 
     /**
@@ -122,7 +122,7 @@ public constructor(
      * @throws [JsonException] in case of malformed json
      * @throws [SerializationException] if given input can not be deserialized
      */
-    public override fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T {
+    public override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
         val reader = JsonReader(string)
         val input = StreamingJsonInput(this, WriteMode.OBJ, reader)
         val result = input.decode(deserializer)
@@ -135,8 +135,8 @@ public constructor(
      * @throws [JsonException] in case of malformed json
      * @throws [SerializationException] if given input can not be deserialized
      */
-    public fun parseJson(string: String): JsonElement {
-        return parse(JsonElementSerializer, string)
+    public fun parseJsonElement(string: String): JsonElement {
+        return decodeFromString(JsonElementSerializer, string)
     }
 
     /**
@@ -144,101 +144,68 @@ public constructor(
      * @throws [JsonException] in case of malformed json
      * @throws [SerializationException] if given input can not be deserialized
      */
-    public fun <T> fromJson(deserializer: DeserializationStrategy<T>, json: JsonElement): T {
+    public fun <T> decodeFromJsonElement(deserializer: DeserializationStrategy<T>, json: JsonElement): T {
         return readJson(json, deserializer)
     }
 
     /**
-     * Deserializes [tree] element into a corresponding object of type [T] using serializer registered in the module.
+     * Deserializes [element] element into a corresponding object of type [T] using serializer registered in the module.
      * @throws [JsonException] in case of malformed json
      * @throws [SerializationException] if given input can not be deserialized
      */
-    public inline fun <reified T : Any> fromJson(tree: JsonElement): T = fromJson(context.getContextualOrDefault(), tree)
+    public inline fun <reified T : Any> decodeFromJsonElement(element: JsonElement): T =
+        decodeFromJsonElement(context.getContextualOrDefault(), element)
 
     /**
      * The default instance of [Json] in the form of companion object. Configured with [JsonConfiguration.Default].
      */
     @UnstableDefault
     public companion object Default : StringFormat {
-        private const val message =
-            "Top-level JSON instances are deprecated for removal in the favour of user-configured one. " +
-                    "You can either use a Json top-level object, configure your own instance  via 'Json {}' builder-like constructor, " +
-                    "'Json(JsonConfiguration)' constructor or by tweaking stable configuration 'Json(JsonConfiguration.Stable.copy(prettyPrint = true))'"
-
-        @UnstableDefault
-        @Deprecated(message = message, level = DeprecationLevel.ERROR)
-        public val plain: Json = Json(JsonConfiguration(useArrayPolymorphism = true))
-
-        @UnstableDefault
-        @Deprecated(message = message, level = DeprecationLevel.ERROR)
-        public val unquoted: Json = Json(
-            JsonConfiguration(
-                isLenient = true,
-                ignoreUnknownKeys = true,
-                serializeSpecialFloatingPointValues = true,
-                unquotedPrint = true,
-                useArrayPolymorphism = true
-            )
-        )
-
-        @UnstableDefault
-        @Deprecated(message = message, level = DeprecationLevel.ERROR)
-        public val indented: Json = Json(JsonConfiguration(prettyPrint = true, useArrayPolymorphism = true))
-
-        @UnstableDefault
-        @Deprecated(message = message, level = DeprecationLevel.ERROR)
-        public val nonstrict: Json = Json(
-            JsonConfiguration(
-                isLenient = true,
-                ignoreUnknownKeys = true,
-                serializeSpecialFloatingPointValues = true,
-                useArrayPolymorphism = true
-            )
-        )
 
         private val jsonInstance = Json(JsonConfiguration.Default)
 
         override val context: SerialModule
             get() = jsonInstance.context
 
-        override fun <T> stringify(serializer: SerializationStrategy<T>, value: T): String =
-            jsonInstance.stringify(serializer, value)
-        override fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T =
-            jsonInstance.parse(deserializer, string)
+        override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String =
+            jsonInstance.encodeToString(serializer, value)
+
+        override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T =
+            jsonInstance.decodeFromString(deserializer, string)
 
         /**
-         * @see Json.toJson
+         * @see Json.encodeToJsonElement
          */
-        public fun <T> toJson(serializer: SerializationStrategy<T>, value: T): JsonElement {
+        public fun <T> encodeToJsonElement(serializer: SerializationStrategy<T>, value: T): JsonElement {
             return jsonInstance.writeJson(value, serializer)
         }
 
         /**
-         * @see Json.toJson
+         * @see Json.encodeToJsonElement
          */
-        public inline fun <reified T : Any> toJson(value: T): JsonElement {
-            return toJson(context.getContextualOrDefault(), value)
+        public inline fun <reified T : Any> encodeToJsonElement(value: T): JsonElement {
+            return encodeToJsonElement(context.getContextualOrDefault(), value)
         }
 
         /**
-         * @see Json.parseJson
+         * @see Json.parseJsonElement
          */
-        public fun parseJson(string: String): JsonElement {
-            return parse(JsonElementSerializer, string)
+        public fun parseJsonElement(string: String): JsonElement {
+            return decodeFromString(JsonElementSerializer, string)
         }
 
         /**
-         * @see Json.fromJson
+         * @see Json.decodeFromJsonElement
          */
-        public fun <T> fromJson(deserializer: DeserializationStrategy<T>, json: JsonElement): T {
+        public fun <T> decodeFromJsonElement(deserializer: DeserializationStrategy<T>, json: JsonElement): T {
             return jsonInstance.readJson(json, deserializer)
         }
 
         /**
-         * @see Json.fromJson
+         * @see Json.decodeFromJsonElement
          */
-        public inline fun <reified T : Any> fromJson(tree: JsonElement): T =
-            fromJson(context.getContextualOrDefault(), tree)
+        public inline fun <reified T : Any> decodeFromJsonElement(tree: JsonElement): T =
+            decodeFromJsonElement(context.getContextualOrDefault(), tree)
     }
 
     private fun validateConfiguration() {

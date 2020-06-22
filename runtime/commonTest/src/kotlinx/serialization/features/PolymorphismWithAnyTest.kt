@@ -52,7 +52,7 @@ class PolymorphismWithAnyTest {
         checkNotRegisteredMessage(
             "kotlinx.serialization.IntData", "kotlin.Any",
             assertFailsWith<SerializationException>("not registered") {
-                Json.stringify(
+                Json.encodeToString(
                     MyPolyData.serializer(),
                     MyPolyData(mapOf("a" to IntData(42)))
                 )
@@ -80,7 +80,7 @@ class PolymorphismWithAnyTest {
         checkNotRegisteredMessage(
             "kotlinx.serialization.PolyDerived", "kotlin.Any",
             assertFailsWith<SerializationException> {
-                json.stringify(
+                json.encodeToString(
                     MyPolyData.serializer(),
                     MyPolyData(mapOf("a" to PolyDerived("foo")))
                 )
@@ -115,7 +115,7 @@ class PolymorphismWithAnyTest {
         checkNotRegisteredMessage(
             "kotlinx.serialization.PolyDerived", "kotlinx.serialization.PolyBase",
             assertFailsWith {
-                json.stringify(
+                json.encodeToString(
                     MyPolyDataWithPolyBase.serializer(),
                     MyPolyDataWithPolyBase(
                         mapOf("a" to PolyDerived("foo")),

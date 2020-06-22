@@ -16,10 +16,8 @@ import kotlin.reflect.*
  * Example of usage:
  * ```
  * val map = mapOf(1 to listOf(listOf("1")))
- * json.stringify(serializer(), map)
+ * json.encodeToString(serializer(), map)
  * ```
- *
- * This is a computation-heavy call, so it is recommended to cache its result.
  */
 public inline fun <reified T> serializer(): KSerializer<T> {
     return serializer(typeOf<T>()).cast()
@@ -33,11 +31,8 @@ public inline fun <reified T> serializer(): KSerializer<T> {
  * ```
  * val map = mapOf(1 to listOf(listOf("1")))
  * val serializer = serializer(typeOf<Map<Int, List<List<String>>>>())
- * json.stringify(serializer, map)
+ * json.encodeToString(serializer, map)
  * ```
- *
- * This is a computation-heavy call, so it is recommended to cache its result.
- * [typeOf] API currently does not work with user-defined generic classes on Kotlin/JS.
  */
 @OptIn(UnsafeSerializationApi::class)
 public fun serializer(type: KType): KSerializer<Any?> {

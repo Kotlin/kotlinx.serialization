@@ -37,7 +37,7 @@ data class Carrier2(
 class UseSerializersTest {
     @Test
     fun testOnFile() {
-        val str = Json.stringify(Carrier2.serializer(), Carrier2(IntHolder(42), 2, 2, IntHolder(42)))
+        val str = Json.encodeToString(Carrier2.serializer(), Carrier2(IntHolder(42), 2, 2, IntHolder(42)))
         assertEquals("""{"a":84,"i":4,"nullable":4,"nullableIntHolder":84,"nullableIntList":[],"nullableIntHolderNullableList":null}""", str)
     }
 }

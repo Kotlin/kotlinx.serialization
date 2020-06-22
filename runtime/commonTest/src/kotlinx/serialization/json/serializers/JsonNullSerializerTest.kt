@@ -27,28 +27,28 @@ class JsonNullSerializerTest : JsonTestBase() {
 
     @Test
     fun testTopLevelJsonNull() = parametrizedTest { useStreaming ->
-        val string = default.stringify(JsonNullSerializer, JsonNull, useStreaming)
+        val string = default.encodeToString(JsonNullSerializer, JsonNull, useStreaming)
         assertEquals("null", string)
-        assertEquals(JsonNull, default.parse(JsonNullSerializer, string, useStreaming))
+        assertEquals(JsonNull, default.decodeFromString(JsonNullSerializer, string, useStreaming))
     }
 
     @Test
     fun testTopLevelJsonNullAsElement() = parametrizedTest { useStreaming ->
-        val string = default.stringify(JsonElementSerializer, JsonNull, useStreaming)
+        val string = default.encodeToString(JsonElementSerializer, JsonNull, useStreaming)
         assertEquals("null", string)
-        assertEquals(JsonNull, default.parse(JsonElementSerializer, string, useStreaming))
+        assertEquals(JsonNull, default.decodeFromString(JsonElementSerializer, string, useStreaming))
     }
 
     @Test
     fun testTopLevelJsonNullAsPrimitive() = parametrizedTest { useStreaming ->
-        val string = default.stringify(JsonPrimitiveSerializer, JsonNull, useStreaming)
+        val string = default.encodeToString(JsonPrimitiveSerializer, JsonNull, useStreaming)
         assertEquals("null", string)
-        assertEquals(JsonNull, default.parse(JsonPrimitiveSerializer, string, useStreaming))
+        assertEquals(JsonNull, default.decodeFromString(JsonPrimitiveSerializer, string, useStreaming))
     }
 
     @Test
     fun testJsonNullToString() {
-        val string = default.stringify(JsonPrimitiveSerializer, JsonNull)
+        val string = default.encodeToString(JsonPrimitiveSerializer, JsonNull)
         assertEquals(string, JsonNull.toString())
     }
 }

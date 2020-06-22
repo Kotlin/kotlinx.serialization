@@ -63,9 +63,9 @@ class ClassWithMultipleMasksTest {
     @Test
     fun testMoreThan32Fields() {
         val data = BigDummyData("a")
-        val message = Json.stringify(BigDummyData.serializer(), data)
+        val message = Json.encodeToString(BigDummyData.serializer(), data)
         println(message)
-        val restored = Json.parse(BigDummyData.serializer(), """{"regular": "0","requiredLast":"r"}""")
+        val restored = Json.decodeFromString(BigDummyData.serializer(), """{"regular": "0","requiredLast":"r"}""")
         with(restored) {
             assertEquals("0", regular)
             assertEquals("b", field40)
@@ -73,13 +73,13 @@ class ClassWithMultipleMasksTest {
             assertEquals("r", requiredLast)
         }
 
-        val restored2 = Json.parse(BigDummyData.serializer(), """{"regular": "0", "field39":"f","requiredLast":"required"}""")
+        val restored2 = Json.decodeFromString(BigDummyData.serializer(), """{"regular": "0", "field39":"f","requiredLast":"required"}""")
         with(restored2) {
             assertEquals("0", regular)
             assertEquals("b", field40)
             assertEquals("f", field39)
             assertEquals("required", requiredLast)
         }
-        assertFailsWith<MissingFieldException> { Json.parse(BigDummyData.serializer(), """{"regular": "0"}""") }
+        assertFailsWith<MissingFieldException> { Json.decodeFromString(BigDummyData.serializer(), """{"regular": "0"}""") }
     }
 }

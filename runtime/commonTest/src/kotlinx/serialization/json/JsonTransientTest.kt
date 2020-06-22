@@ -39,19 +39,19 @@ class JsonTransientTest : JsonTestBase() {
     @Test
     fun testAll() = parametrizedTest { useStreaming ->
         assertEquals("""{"a":0,"e":false,"c":"Hello"}""",
-            default.stringify(Data.serializer(), Data(), useStreaming))
+            default.encodeToString(Data.serializer(), Data(), useStreaming))
     }
 
     @Test
     fun testMissingOptionals() = parametrizedTest { useStreaming ->
-        assertEquals(default.parse(Data.serializer(), """{"a":0,"c":"Hello"}""", useStreaming), Data())
-        assertEquals(default.parse(Data.serializer(), """{"a":0}""", useStreaming), Data())
+        assertEquals(default.decodeFromString(Data.serializer(), """{"a":0,"c":"Hello"}""", useStreaming), Data())
+        assertEquals(default.decodeFromString(Data.serializer(), """{"a":0}""", useStreaming), Data())
     }
 
     @Test
     fun testThrowTransient() = parametrizedTest { useStreaming ->
         assertFailsWith(JsonDecodingException::class) {
-            default.parse(Data.serializer(), """{"a":0,"b":100500,"c":"Hello"}""", useStreaming)
+            default.decodeFromString(Data.serializer(), """{"a":0,"b":100500,"c":"Hello"}""", useStreaming)
         }
     }
 }

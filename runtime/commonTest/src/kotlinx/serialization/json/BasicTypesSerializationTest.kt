@@ -15,9 +15,9 @@ class BasicTypesSerializationTest : JsonTestBase() {
 
     @Test
     fun testSerialization() = parametrizedTest { useStreaming ->
-        val json = default.stringify(TypesUmbrella.serializer(), umbrellaInstance)
+        val json = default.encodeToString(TypesUmbrella.serializer(), umbrellaInstance)
         assertEquals(goldenValue, json)
-        val instance = default.parse(TypesUmbrella.serializer(), json, useStreaming)
+        val instance = default.decodeFromString(TypesUmbrella.serializer(), json, useStreaming)
         assertEquals(umbrellaInstance, instance)
         assertNotSame(umbrellaInstance, instance)
     }
@@ -37,9 +37,9 @@ class BasicTypesSerializationTest : JsonTestBase() {
     }
 
     private inline fun <reified T : Any> testPrimitive(primitive: T, expectedJson: String, useStreaming: Boolean) {
-        val json = default.stringify(primitive, false)
+        val json = default.encodeToString(primitive, false)
         assertEquals(expectedJson, json)
-        val instance = default.parse<T>(json, useStreaming)
+        val instance = default.decodeFromString<T>(json, useStreaming)
         assertEquals(primitive, instance)
     }
 }

@@ -73,18 +73,18 @@ class GenericCustomSerializerTest {
     @Test
     fun testStringData() {
         val original = DataWithString(CheckedData("my data", byteArrayOf(42, 32)))
-        val s = Json.stringify(DataWithString.serializer(), original)
+        val s = Json.encodeToString(DataWithString.serializer(), original)
         assertEquals("""{"data":{"data":"my data","checkSum":"2A20"}}""", s)
-        val restored = Json.parse(DataWithString.serializer(), s)
+        val restored = Json.decodeFromString(DataWithString.serializer(), s)
         assertEquals(original, restored)
     }
 
     @Test
     fun testIntData() {
         val original = DataWithInt(CheckedData(42, byteArrayOf(42)))
-        val s = Json.stringify(DataWithInt.serializer(), original)
+        val s = Json.encodeToString(DataWithInt.serializer(), original)
         assertEquals("""{"data":{"data":42,"checkSum":"2A"}}""", s)
-        val restored = Json.parse(DataWithInt.serializer(), s)
+        val restored = Json.decodeFromString(DataWithInt.serializer(), s)
         assertEquals(original, restored)
     }
 }

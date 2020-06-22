@@ -45,19 +45,19 @@ class JsonTreeTest : JsonTestBase() {
     )
 
     private val json = Json(JsonConfiguration.Default)
-    private fun prepare(input: String): JsonElement = lenient.parseJson(input)
+    private fun prepare(input: String): JsonElement = lenient.parseJsonElement(input)
 
     @Test
     fun testReadTreeSimple() {
         val tree = prepare("{a: 42}")
-        val parsed = lenient.fromJson(Data.serializer(), tree)
+        val parsed = lenient.decodeFromJsonElement(Data.serializer(), tree)
         assertEquals(Data(42), parsed)
     }
 
     @Test
     fun testReadTreeNested() {
         val tree = prepare("""{s:"foo", d:{a:42}}""")
-        val parsed = lenient.fromJson(DataWrapper.serializer(), tree)
+        val parsed = lenient.decodeFromJsonElement(DataWrapper.serializer(), tree)
         val expected = DataWrapper("foo", Data(42))
         assertEquals(expected, parsed)
         assertEquals(3, parsed.s.length)
@@ -68,7 +68,7 @@ class JsonTreeTest : JsonTestBase() {
         val tree = prepare("""{ b: 1, s: 2, i: 3, f: 1.0, d: 42.0, c: "a", B: true, S: "str"}""")
         val kotlinObj = AllTypes(1, 2, 3, 1.0f, 42.0, 'a', true, "str")
 
-        assertEquals(kotlinObj, json.fromJson(AllTypes.serializer(), tree))
+        assertEquals(kotlinObj, json.decodeFromJsonElement(AllTypes.serializer(), tree))
     }
 
     @Test
@@ -76,8 +76,8 @@ class JsonTreeTest : JsonTestBase() {
         val tree1 = prepare("""{s:"foo", d: null}""")
         val tree2 = prepare("""{s:"foo"}""")
 
-        assertEquals(DataWrapper("foo", null), lenient.fromJson(DataWrapper.serializer(), tree1))
-        assertFailsWith(MissingFieldException::class) { lenient.fromJson(DataWrapper.serializer(), tree2) }
+        assertEquals(DataWrapper("foo", null), lenient.decodeFromJsonElement(DataWrapper.serializer(), tree1))
+        assertFailsWith(MissingFieldException::class) { lenient.decodeFromJsonElement(DataWrapper.serializer(), tree2) }
     }
 
     @Test
@@ -85,8 +85,8 @@ class JsonTreeTest : JsonTestBase() {
         val tree1 = prepare("""{s:"foo", d: null}""")
         val tree2 = prepare("""{s:"foo"}""")
 
-        assertEquals(DataWrapperOptional("foo", null), json.fromJson(DataWrapperOptional.serializer(), tree1))
-        assertEquals(DataWrapperOptional("foo", null), json.fromJson(DataWrapperOptional.serializer(), tree2))
+        assertEquals(DataWrapperOptional("foo", null), json.decodeFromJsonElement(DataWrapperOptional.serializer(), tree1))
+        assertEquals(DataWrapperOptional("foo", null), json.decodeFromJsonElement(DataWrapperOptional.serializer(), tree2))
     }
 
     @Test
@@ -95,30 +95,30 @@ class JsonTreeTest : JsonTestBase() {
         val tree2 = prepare("""{l:[{a:42},{a:43}]}""")
         val tree3 = prepare("""{l:[[],[{a:42}]]}""")
 
-        assertEquals(IntList(listOf(1, 2)), lenient.fromJson(IntList.serializer(), tree1))
-        assertEquals(DataList(listOf(Data(42), Data(43))), lenient.fromJson(DataList.serializer(), tree2))
-        assertEquals(ListOfLists(listOf(listOf(), listOf(Data(42)))), json.fromJson(ListOfLists.serializer(), tree3))
+        assertEquals(IntList(listOf(1, 2)), lenient.decodeFromJsonElement(IntList.serializer(), tree1))
+        assertEquals(DataList(listOf(Data(42), Data(43))), lenient.decodeFromJsonElement(DataList.serializer(), tree2))
+        assertEquals(ListOfLists(listOf(listOf(), listOf(Data(42)))), json.decodeFromJsonElement(ListOfLists.serializer(), tree3))
     }
 
     @Test
     fun testReadTreeMap() {
         val dyn = prepare("{m : {\"a\": 1, \"b\" : 2}}")
         val m = MapWrapper(mapOf("a" to 1, "b" to 2))
-        assertEquals(m, lenient.fromJson(MapWrapper.serializer(), dyn))
+        assertEquals(m, lenient.decodeFromJsonElement(MapWrapper.serializer(), dyn))
     }
 
     @Test
     fun testReadTreeComplexMap() {
         val dyn = prepare("{m : {1: {a: 42}, 2: {a: 43}}}")
         val m = ComplexMapWrapper(mapOf("1" to Data(42), "2" to Data(43)))
-        assertEquals(m, lenient.fromJson(ComplexMapWrapper.serializer(), dyn))
+        assertEquals(m, lenient.decodeFromJsonElement(ComplexMapWrapper.serializer(), dyn))
     }
 
     private inline fun <reified T: Any> writeAndTest(obj: T, serial: KSerializer<T>, printDiagnostics: Boolean = false): Pair<JsonElement, T> {
-        val tree = lenient.toJson(serial, obj)
+        val tree = lenient.encodeToJsonElement(serial, obj)
         val str = tree.toString()
         if (printDiagnostics) println(str)
-        val restored = lenient.fromJson(serial, lenient.parseJson(str))
+        val restored = lenient.decodeFromJsonElement(serial, lenient.parseJsonElement(str))
         assertEquals(obj, restored)
         return tree to restored
     }

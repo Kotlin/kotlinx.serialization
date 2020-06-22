@@ -24,9 +24,9 @@ class JsonGenericTest : JsonTestBase() {
             Int.serializer(),
             String.serializer()
         )
-        val s = default.stringify(serializer, pair, useStreaming)
+        val s = default.encodeToString(serializer, pair, useStreaming)
         assertEquals("""{"first":42,"second":"foo"}""", s)
-        val restored = default.parse(serializer, s, useStreaming)
+        val restored = default.decodeFromString(serializer, s, useStreaming)
         assertEquals(pair, restored)
     }
 
@@ -38,18 +38,18 @@ class JsonGenericTest : JsonTestBase() {
             String.serializer(),
             Boolean.serializer()
         )
-        val s = default.stringify(serializer, triple, useStreaming)
+        val s = default.encodeToString(serializer, triple, useStreaming)
         assertEquals("""{"first":42,"second":"foo","third":false}""", s)
-        val restored = default.parse(serializer, s, useStreaming)
+        val restored = default.decodeFromString(serializer, s, useStreaming)
         assertEquals(triple, restored)
     }
 
     @Test
     fun testRecursiveArrays() = parametrizedTest { useStreaming ->
         val arr = Array2DBox(arrayOf(arrayOf(2.1, 1.2), arrayOf(42.3, -3.4)))
-        val str = default.stringify(Array2DBox.serializer(), arr, useStreaming)
+        val str = default.encodeToString(Array2DBox.serializer(), arr, useStreaming)
         assertEquals("""{"arr":[[2.1,1.2],[42.3,-3.4]]}""", str)
-        val restored = default.parse(Array2DBox.serializer(), str, useStreaming)
+        val restored = default.decodeFromString(Array2DBox.serializer(), str, useStreaming)
         assertTrue(arr.arr.contentDeepEquals(restored.arr))
     }
 }

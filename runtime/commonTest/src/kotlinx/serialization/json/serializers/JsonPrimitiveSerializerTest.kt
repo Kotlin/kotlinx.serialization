@@ -15,9 +15,9 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
         if (isJs()) return@parametrizedTest // JS toString numbers
 
         val wrapper = JsonLiteralWrapper(JsonLiteral(1.0))
-        val string = default.stringify(JsonLiteralWrapper.serializer(), wrapper, useStreaming)
+        val string = default.encodeToString(JsonLiteralWrapper.serializer(), wrapper, useStreaming)
         assertEquals("{\"literal\":1.0}", string)
-        assertEquals(JsonLiteralWrapper(JsonLiteral(1.0)), default.parse(JsonLiteralWrapper.serializer(), string, useStreaming))
+        assertEquals(JsonLiteralWrapper(JsonLiteral(1.0)), default.decodeFromString(JsonLiteralWrapper.serializer(), string, useStreaming))
     }
 
     @Test
@@ -26,92 +26,92 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
 
 
         val wrapper = JsonPrimitiveWrapper(JsonLiteral(1.0))
-        val string = default.stringify(JsonPrimitiveWrapper.serializer(), wrapper, useStreaming)
+        val string = default.encodeToString(JsonPrimitiveWrapper.serializer(), wrapper, useStreaming)
         assertEquals("{\"primitive\":1.0}", string)
-        assertEquals(JsonPrimitiveWrapper(JsonLiteral(1.0)), default.parse(JsonPrimitiveWrapper.serializer(), string, useStreaming))
+        assertEquals(JsonPrimitiveWrapper(JsonLiteral(1.0)), default.decodeFromString(JsonPrimitiveWrapper.serializer(), string, useStreaming))
     }
 
     @Test
     fun testJsonLiteralInt() = parametrizedTest { useStreaming ->
         val wrapper = JsonLiteralWrapper(JsonLiteral(1))
-        val string = default.stringify(JsonLiteralWrapper.serializer(), wrapper, useStreaming)
+        val string = default.encodeToString(JsonLiteralWrapper.serializer(), wrapper, useStreaming)
         assertEquals("{\"literal\":1}", string)
-        assertEquals(JsonLiteralWrapper(JsonLiteral(1)), default.parse(JsonLiteralWrapper.serializer(), string, useStreaming))
+        assertEquals(JsonLiteralWrapper(JsonLiteral(1)), default.decodeFromString(JsonLiteralWrapper.serializer(), string, useStreaming))
     }
 
     @Test
     fun testJsonPrimitiveInt() = parametrizedTest { useStreaming ->
         val wrapper = JsonPrimitiveWrapper(JsonLiteral(1))
-        val string = default.stringify(JsonPrimitiveWrapper.serializer(), wrapper, useStreaming)
+        val string = default.encodeToString(JsonPrimitiveWrapper.serializer(), wrapper, useStreaming)
         assertEquals("{\"primitive\":1}", string)
-        assertEquals(JsonPrimitiveWrapper(JsonLiteral(1)), default.parse(JsonPrimitiveWrapper.serializer(), string, useStreaming))
+        assertEquals(JsonPrimitiveWrapper(JsonLiteral(1)), default.decodeFromString(JsonPrimitiveWrapper.serializer(), string, useStreaming))
     }
 
     @Test
     fun testJsonLiteralString() = parametrizedTest { useStreaming ->
         val wrapper = JsonLiteralWrapper(JsonLiteral("foo"))
-        val string = default.stringify(JsonLiteralWrapper.serializer(), wrapper, useStreaming)
+        val string = default.encodeToString(JsonLiteralWrapper.serializer(), wrapper, useStreaming)
         assertEquals("{\"literal\":\"foo\"}", string)
-        assertEquals(JsonLiteralWrapper(JsonLiteral("foo")), default.parse(JsonLiteralWrapper.serializer(), string, useStreaming))
+        assertEquals(JsonLiteralWrapper(JsonLiteral("foo")), default.decodeFromString(JsonLiteralWrapper.serializer(), string, useStreaming))
     }
 
     @Test
     fun testJsonPrimitiveString() = parametrizedTest { useStreaming ->
         val wrapper = JsonPrimitiveWrapper(JsonLiteral("foo"))
-        val string = default.stringify(JsonPrimitiveWrapper.serializer(), wrapper, useStreaming)
+        val string = default.encodeToString(JsonPrimitiveWrapper.serializer(), wrapper, useStreaming)
         assertEquals("{\"primitive\":\"foo\"}", string)
-        assertEquals(JsonPrimitiveWrapper(JsonLiteral("foo")), default.parse(JsonPrimitiveWrapper.serializer(), string, useStreaming))
+        assertEquals(JsonPrimitiveWrapper(JsonLiteral("foo")), default.decodeFromString(JsonPrimitiveWrapper.serializer(), string, useStreaming))
     }
 
     @Test
     fun testJsonLiteralStringNumber() = parametrizedTest { useStreaming ->
         val wrapper = JsonLiteralWrapper(JsonLiteral("239"))
-        val string = default.stringify(JsonLiteralWrapper.serializer(), wrapper, useStreaming)
+        val string = default.encodeToString(JsonLiteralWrapper.serializer(), wrapper, useStreaming)
         assertEquals("{\"literal\":\"239\"}", string)
-        assertEquals(JsonLiteralWrapper(JsonLiteral("239")), default.parse(JsonLiteralWrapper.serializer(), string, useStreaming))
+        assertEquals(JsonLiteralWrapper(JsonLiteral("239")), default.decodeFromString(JsonLiteralWrapper.serializer(), string, useStreaming))
     }
 
     @Test
     fun testJsonPrimitiveStringNumber() = parametrizedTest { useStreaming ->
         val wrapper = JsonPrimitiveWrapper(JsonLiteral("239"))
-        val string = default.stringify(JsonPrimitiveWrapper.serializer(), wrapper, useStreaming)
+        val string = default.encodeToString(JsonPrimitiveWrapper.serializer(), wrapper, useStreaming)
         assertEquals("{\"primitive\":\"239\"}", string)
-        assertEquals(JsonPrimitiveWrapper(JsonLiteral("239")), default.parse(JsonPrimitiveWrapper.serializer(), string, useStreaming))
+        assertEquals(JsonPrimitiveWrapper(JsonLiteral("239")), default.decodeFromString(JsonPrimitiveWrapper.serializer(), string, useStreaming))
     }
 
     @Test
     fun testTopLevelPrimitive() = parametrizedTest { useStreaming ->
-        val string = default.stringify(JsonPrimitiveSerializer, JsonLiteral(42), useStreaming)
+        val string = default.encodeToString(JsonPrimitiveSerializer, JsonLiteral(42), useStreaming)
         assertEquals("42", string)
-        assertEquals(JsonLiteral(42), default.parse(JsonPrimitiveSerializer, string))
+        assertEquals(JsonLiteral(42), default.decodeFromString(JsonPrimitiveSerializer, string))
     }
 
     @Test
     fun testTopLevelPrimitiveAsLiteral() = parametrizedTest { useStreaming ->
-        val string = default.stringify(JsonLiteralSerializer, JsonLiteral("some string literal"), useStreaming)
+        val string = default.encodeToString(JsonLiteralSerializer, JsonLiteral("some string literal"), useStreaming)
         assertEquals("\"some string literal\"", string)
-        assertEquals(JsonLiteral("some string literal"), default.parse(JsonLiteralSerializer, string, useStreaming))
+        assertEquals(JsonLiteral("some string literal"), default.decodeFromString(JsonLiteralSerializer, string, useStreaming))
     }
 
     @Test
     fun testTopLevelPrimitiveAsElement() = parametrizedTest { useStreaming ->
         if (isJs()) return@parametrizedTest // JS toString numbers
-        val string = default.stringify(JsonElementSerializer, JsonLiteral(1.3), useStreaming)
+        val string = default.encodeToString(JsonElementSerializer, JsonLiteral(1.3), useStreaming)
         assertEquals("1.3", string)
-        assertEquals(JsonLiteral(1.3), default.parse(JsonElementSerializer, string, useStreaming))
+        assertEquals(JsonLiteral(1.3), default.decodeFromString(JsonElementSerializer, string, useStreaming))
     }
 
     @Test
     fun testJsonLiteralStringToString() {
         val literal = JsonLiteral("some string literal")
-        val string = default.stringify(JsonLiteralSerializer, literal)
+        val string = default.encodeToString(JsonLiteralSerializer, literal)
         assertEquals(string, literal.toString())
     }
 
     @Test
     fun testJsonLiteralIntToString() {
         val literal = JsonLiteral(0)
-        val string = default.stringify(JsonLiteralSerializer, literal)
+        val string = default.encodeToString(JsonLiteralSerializer, literal)
         assertEquals(string, literal.toString())
     }
 
@@ -133,7 +133,7 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
 
     private fun testLiteral(number: Number, jvmExpectedString: String) {
         val literal = JsonLiteral(number)
-        val string = default.stringify(JsonLiteralSerializer, literal)
+        val string = default.encodeToString(JsonLiteralSerializer, literal)
         assertEquals(string, literal.toString())
         if (isJvm()) { // We can rely on stable double/float format only on JVM
             assertEquals(string, jvmExpectedString)

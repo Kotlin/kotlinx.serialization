@@ -10,6 +10,8 @@ import kotlinx.serialization.modules.*
 import kotlin.internal.*
 import kotlin.reflect.*
 
+private fun noImpl(): Nothing = throw UnsupportedOperationException("Not implemented, should not be called")
+
 @Deprecated(
     message = "Deprecated in the favour of PrimitiveDescriptor factory function",
     level = DeprecationLevel.ERROR
@@ -108,23 +110,31 @@ public annotation class SerialId @Deprecated(
 
 @Deprecated(level = DeprecationLevel.WARNING, message = "Use default parse overload instead", replaceWith = ReplaceWith("parse(objects)"))
 public inline fun <reified T : Any> StringFormat.parseList(objects: String): List<T> =
-    parse(context.getContextualOrDefault<T>().list, objects)
+    decodeFromString(context.getContextualOrDefault<T>().list, objects)
 
-@Deprecated(level = DeprecationLevel.WARNING, message = "Use default parse overload instead", replaceWith = ReplaceWith("parse(map)"))
-public inline fun <reified K : Any, reified V : Any> StringFormat.parseMap(map: String): Map<K, V>
-        = parse(MapSerializer(context.getContextualOrDefault<K>(), context.getContextualOrDefault<V>()), map)
+@Deprecated(
+    level = DeprecationLevel.WARNING,
+    message = "Use default parse overload instead",
+    replaceWith = ReplaceWith("parse(map)")
+)
+public inline fun <reified K : Any, reified V : Any> StringFormat.parseMap(map: String): Map<K, V> =
+    decodeFromString(MapSerializer(context.getContextualOrDefault<K>(), context.getContextualOrDefault<V>()), map)
 
 // ERROR migrations that affect **only** users that called these functions with named parameters
 
 @LowPriorityInOverloadResolution
 @Deprecated(level = DeprecationLevel.ERROR, message = "Use default stringify overload instead", replaceWith = ReplaceWith("stringify(objects)"))
 public inline fun <reified T : Any> StringFormat.stringify(objects: List<T>): String =
-    stringify(context.getContextualOrDefault<T>().list, objects)
+    encodeToString(context.getContextualOrDefault<T>().list, objects)
 
 @LowPriorityInOverloadResolution
-@Deprecated(level = DeprecationLevel.ERROR, message = "Use default stringify overload instead", replaceWith = ReplaceWith("stringify(map)"))
-public inline fun <reified K : Any, reified V : Any> StringFormat.stringify(map: Map<K, V>): String
-        = stringify(MapSerializer(context.getContextualOrDefault<K>(), context.getContextualOrDefault<V>()), map)
+@Deprecated(
+    level = DeprecationLevel.ERROR,
+    message = "Use default stringify overload instead",
+    replaceWith = ReplaceWith("stringify(map)")
+)
+public inline fun <reified K : Any, reified V : Any> StringFormat.stringify(map: Map<K, V>): String =
+    encodeToString(MapSerializer(context.getContextualOrDefault<K>(), context.getContextualOrDefault<V>()), map)
 
 @ImplicitReflectionSerializer
 @OptIn(UnsafeSerializationApi::class)
@@ -149,5 +159,37 @@ public fun <T : Any> SerialModule.getContextualOrDefault(value: T): KSerializer<
 @Suppress("UNUSED", "DeprecatedCallableAddReplaceWith")
 @Deprecated(
     message = "Top-level polymorphic descriptor is deprecated, use descriptor from the instance of PolymorphicSerializer or" +
-            "check for descriptor kind instead", level = DeprecationLevel.ERROR)
-public val PolymorphicClassDescriptor: SerialDescriptor get() = error("This property is no longer supported")
+            "check for descriptor kind instead", level = DeprecationLevel.ERROR
+)
+public val PolymorphicClassDescriptor: SerialDescriptor
+    get() = error("This property is no longer supported")
+
+@Deprecated(
+    "Deprecated for removal since it is indistinguishable from SerialFormat interface. " +
+            "Use SerialFormat instead.", ReplaceWith("SerialFormat"), DeprecationLevel.ERROR
+)
+public abstract class AbstractSerialFormat(override val context: SerialModule) : SerialFormat
+
+@Deprecated(
+    "This method was renamed to encodeToString during serialization 1.0 stabilization",
+    ReplaceWith("encodeToString<T>(value)"), DeprecationLevel.ERROR
+)
+public fun <T : Any> StringFormat.stringify(value: T): String = noImpl()
+
+@Deprecated(
+    "This method was renamed to decodeFromString during serialization 1.0 stabilization",
+    ReplaceWith("decodeFromString<T>(string)"), DeprecationLevel.ERROR
+)
+public fun <T : Any> StringFormat.parse(string: String): T = noImpl()
+
+@Deprecated(
+    "This method was renamed to encodeToString during serialization 1.0 stabilization",
+    ReplaceWith("encodeToString<T>(serializer, value)"), DeprecationLevel.ERROR
+)
+public fun <T> StringFormat.stringify(serializer: SerializationStrategy<T>, value: T): String = noImpl()
+
+@Deprecated(
+    "This method was renamed to decodeFromString during serialization 1.0 stabilization",
+    ReplaceWith("decodeFromString<T>(deserializer, string)"), DeprecationLevel.ERROR
+)
+public fun <T> StringFormat.parse(deserializer: DeserializationStrategy<T>, string: String): T = noImpl()

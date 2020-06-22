@@ -36,18 +36,18 @@ class ByteArraySerializerTest {
     @Test
     fun testByteArrayJson() {
         val bytes = byteArrayOf(42, 43, 44, 45)
-        val s = Json.stringify(ByteArraySerializer(), bytes)
+        val s = Json.encodeToString(ByteArraySerializer(), bytes)
         assertEquals(s, """[42,43,44,45]""")
-        val bytes2 = Json.parse(ByteArraySerializer(), s)
+        val bytes2 = Json.decodeFromString(ByteArraySerializer(), s)
         assertTrue(bytes.contentEquals(bytes2))
     }
 
     @Test
     fun testWrappedByteArrayJson() {
         val obj = ByteArrayCarrier(byteArrayOf(42, 100))
-        val s = Json.stringify(ByteArrayCarrier.serializer(), obj)
+        val s = Json.encodeToString(ByteArrayCarrier.serializer(), obj)
         assertEquals("""{"data":[42,100]}""", s)
-        val obj2 = Json.parse(ByteArrayCarrier.serializer(), s)
+        val obj2 = Json.decodeFromString(ByteArrayCarrier.serializer(), s)
         assertEquals(obj, obj2)
     }
 }

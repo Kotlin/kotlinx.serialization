@@ -33,12 +33,12 @@ class SerializationCasesTest : JsonTestBase() {
         val data = Data1(1, 2)
 
         // Serialize with internal serializer for Data class
-        assertEquals("""{"a":1,"b":2}""", default.stringify(data))
-        assertEquals(data, Json.parse<Data1>("""{"a":1,"b":2}"""))
+        assertEquals("""{"a":1,"b":2}""", default.encodeToString(data))
+        assertEquals(data, Json.decodeFromString<Data1>("""{"a":1,"b":2}"""))
 
         // Serialize with external serializer for Data class
-        assertEquals("""{"a":1,"b":2}""", default.stringify(ExtDataSerializer1, data))
-        assertEquals(data, Json.parse(ExtDataSerializer1, """{"a":1,"b":2}"""))
+        assertEquals("""{"a":1,"b":2}""", default.encodeToString(ExtDataSerializer1, data))
+        assertEquals(data, Json.decodeFromString(ExtDataSerializer1, """{"a":1,"b":2}"""))
     }
 
     @Serializable
@@ -59,12 +59,12 @@ class SerializationCasesTest : JsonTestBase() {
         }
 
         // Serialize with internal serializer for Data class
-        assertEquals("""{"a":1,"b":2}""", default.stringify(data))
-        assertEquals(data, Json.parse<Data2>("""{"a":1,"b":2}"""))
+        assertEquals("""{"a":1,"b":2}""", default.encodeToString(data))
+        assertEquals(data, Json.decodeFromString<Data2>("""{"a":1,"b":2}"""))
 
         // Serialize with external serializer for Data class
-        assertEquals("""{"a":1,"b":2}""", default.stringify(ExtDataSerializer2, data))
-        assertEquals(data, Json.parse(ExtDataSerializer2, """{"a":1,"b":2}"""))
+        assertEquals("""{"a":1,"b":2}""", default.encodeToString(ExtDataSerializer2, data))
+        assertEquals(data, Json.decodeFromString(ExtDataSerializer2, """{"a":1,"b":2}"""))
     }
 
     enum class TintEnum { LIGHT, DARK }
@@ -85,9 +85,9 @@ class SerializationCasesTest : JsonTestBase() {
         val data = Data3("Str", listOf(1, 2), mapOf("lt" to TintEnum.LIGHT, "dk" to TintEnum.DARK))
         // Serialize with internal serializer for Data class
         val expected = """{"a":"Str","b":[1,2],"c":{"lt":"LIGHT","dk":"DARK"}}"""
-        assertEquals(expected, default.stringify(data))
-        assertEquals(data, Json.parse<Data3>(expected))
-        assertEquals(expected, default.stringify(ExtDataSerializer3, data))
-        assertEquals(data, Json.parse(ExtDataSerializer3, expected))
+        assertEquals(expected, default.encodeToString(data))
+        assertEquals(data, Json.decodeFromString<Data3>(expected))
+        assertEquals(expected, default.encodeToString(ExtDataSerializer3, data))
+        assertEquals(data, Json.decodeFromString(ExtDataSerializer3, expected))
     }
 }
