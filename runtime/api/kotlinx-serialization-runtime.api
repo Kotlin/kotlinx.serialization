@@ -1495,6 +1495,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun buildModule ()Lkotlinx/serialization/modules/SerialModule;
 	public final fun getAllowStructuredMapKeys ()Z
 	public final fun getClassDiscriminator ()Ljava/lang/String;
+	public final fun getCoerceInputValues ()Z
 	public final fun getEncodeDefaults ()Z
 	public final fun getIgnoreUnknownKeys ()Z
 	public final fun getIndent ()Ljava/lang/String;
@@ -1508,6 +1509,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun isLenient ()Z
 	public final fun setAllowStructuredMapKeys (Z)V
 	public final fun setClassDiscriminator (Ljava/lang/String;)V
+	public final fun setCoerceInputValues (Z)V
 	public final fun setEncodeDefaults (Z)V
 	public final fun setIgnoreUnknownKeys (Z)V
 	public final fun setIndent (Ljava/lang/String;)V
@@ -1524,10 +1526,10 @@ public final class kotlinx/serialization/json/JsonBuilder {
 public final class kotlinx/serialization/json/JsonConfiguration {
 	public static final field Companion Lkotlinx/serialization/json/JsonConfiguration$Companion;
 	public fun <init> ()V
-	public fun <init> (ZZZZZZZLjava/lang/String;ZLjava/lang/String;)V
-	public synthetic fun <init> (ZZZZZZZLjava/lang/String;ZLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun copy (ZZZZZZZLjava/lang/String;ZLjava/lang/String;)Lkotlinx/serialization/json/JsonConfiguration;
-	public static synthetic fun copy$default (Lkotlinx/serialization/json/JsonConfiguration;ZZZZZZZLjava/lang/String;ZLjava/lang/String;ILjava/lang/Object;)Lkotlinx/serialization/json/JsonConfiguration;
+	public fun <init> (ZZZZZZZLjava/lang/String;ZZLjava/lang/String;)V
+	public synthetic fun <init> (ZZZZZZZLjava/lang/String;ZZLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun copy (ZZZZZZZLjava/lang/String;ZZLjava/lang/String;)Lkotlinx/serialization/json/JsonConfiguration;
+	public static synthetic fun copy$default (Lkotlinx/serialization/json/JsonConfiguration;ZZZZZZZLjava/lang/String;ZZLjava/lang/String;ILjava/lang/Object;)Lkotlinx/serialization/json/JsonConfiguration;
 	public fun equals (Ljava/lang/Object;)Z
 	public static final fun getDefault ()Lkotlinx/serialization/json/JsonConfiguration;
 	public static final fun getStable ()Lkotlinx/serialization/json/JsonConfiguration;
