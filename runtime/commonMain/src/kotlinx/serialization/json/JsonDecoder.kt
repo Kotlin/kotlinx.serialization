@@ -25,14 +25,14 @@ import kotlinx.serialization.*
  *      }
  *
  *     override fun deserialize(decoder: Decoder): Either {
- *         val input = decoder as? JsonInput ?: throw SerializationException("This class can be loaded only by Json")
+ *         val input = decoder as? JsonDecoder ?: throw SerializationException("This class can be loaded only by Json")
  *         val tree = input.decodeJson() as? JsonObject ?: throw SerializationException("Expected JsonObject")
  *         if ("error" in tree) return Either.Left(tree.getPrimitive("error").content)
  *         return Either.Right(input.json.decodeJson(tree, Payload.serializer()))
  *     }
  *
  *     override fun serialize(encoder: Encoder, value: Either) {
- *         val output = encoder as? JsonOutput ?: throw SerializationException("This class can be saved only by Json")
+ *         val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
  *         val tree = when (value) {
  *           is Either.Left -> JsonObject(mapOf("error" to JsonLiteral(value.errorMsg)))
  *           is Either.Right -> output.json.toJson(value.data, Payload.serializer())
@@ -42,7 +42,7 @@ import kotlinx.serialization.*
  * }
  * ```
  */
-public interface JsonInput : Decoder, CompositeDecoder {
+public interface JsonDecoder : Decoder, CompositeDecoder {
     /**
      * An instance of the current [Json].
      */
@@ -63,7 +63,7 @@ public interface JsonInput : Decoder, CompositeDecoder {
      * // Holder deserialize method
      * fun deserialize(decoder: Decoder): Holder {
      *     // Completely okay, the whole Holder object is read
-     *     val jsonObject = (decoder as JsonInput).decodeJson()
+     *     val jsonObject = (decoder as JsonDecoder).decodeJson()
      *     // ...
      * }
      *
@@ -73,14 +73,14 @@ public interface JsonInput : Decoder, CompositeDecoder {
      *     decoder.decodeElementIndex(descriptor)
      *     val value = decode.decodeInt()
      *     // Incorrect, decoder is already in an intermediate state after decodeInt
-     *     val json = (decoder as JsonInput).decodeJson()
+     *     val json = (decoder as JsonDecoder).decodeJsonElement()
      *     // ...
      * }
      * ```
      */
-    public fun decodeJson(): JsonElement
+    public fun decodeJsonElement(): JsonElement
 
-    // Class 'JsonInput' must override public open val updateMode: UpdateMode defined in kotlinx.serialization.Decoder
+    // Class 'JsonDecoder' must override public open val updateMode: UpdateMode defined in kotlinx.serialization.Decoder
     // because it inherits multiple interface methods of it
     @Suppress("DEPRECATION")
     @Deprecated(updateModeDeprecated, level = DeprecationLevel.HIDDEN)

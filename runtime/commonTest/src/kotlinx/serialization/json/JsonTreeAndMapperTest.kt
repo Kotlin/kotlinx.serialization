@@ -32,8 +32,8 @@ class JsonTreeAndMapperTest {
         }
 
         override fun deserialize(decoder: Decoder): Either {
-            val input = decoder as? JsonInput ?: throw SerializationException("This class can be loaded only by Json")
-            val tree = input.decodeJson() as? JsonObject
+            val input = decoder as? JsonDecoder ?: throw SerializationException("This class can be loaded only by Json")
+            val tree = input.decodeJsonElement() as? JsonObject
                 ?: throw SerializationException("Expected JsonObject")
             if ("error" in tree) return Either.Left(tree.getPrimitive("error").content)
 
@@ -41,13 +41,13 @@ class JsonTreeAndMapperTest {
         }
 
         override fun serialize(encoder: Encoder, value: Either) {
-            val output = encoder as? JsonOutput ?: throw SerializationException("This class can be saved only by Json")
+            val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
             val tree = when (value) {
                 is Either.Left -> JsonObject(mapOf("error" to JsonLiteral(value.errorMsg)))
                 is Either.Right -> output.json.encodeToJsonElement(Payload.serializer(), value.data)
             }
 
-            output.encodeJson(tree)
+            output.encodeJsonElement(tree)
         }
     }
 

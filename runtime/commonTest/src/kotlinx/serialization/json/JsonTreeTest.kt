@@ -45,7 +45,7 @@ class JsonTreeTest : JsonTestBase() {
     )
 
     private val json = Json(JsonConfiguration.Default)
-    private fun prepare(input: String): JsonElement = lenient.parseJsonElement(input)
+    private fun prepare(input: String): JsonElement = lenient.parseToJsonElement(input)
 
     @Test
     fun testReadTreeSimple() {
@@ -118,7 +118,7 @@ class JsonTreeTest : JsonTestBase() {
         val tree = lenient.encodeToJsonElement(serial, obj)
         val str = tree.toString()
         if (printDiagnostics) println(str)
-        val restored = lenient.decodeFromJsonElement(serial, lenient.parseJsonElement(str))
+        val restored = lenient.decodeFromJsonElement(serial, lenient.parseToJsonElement(str))
         assertEquals(obj, restored)
         return tree to restored
     }

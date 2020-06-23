@@ -9,7 +9,7 @@ import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 
 @Suppress("UNCHECKED_CAST")
-internal inline fun <T> JsonOutput.encodePolymorphically(serializer: SerializationStrategy<T>, value: T, ifPolymorphic: () -> Unit) {
+internal inline fun <T> JsonEncoder.encodePolymorphically(serializer: SerializationStrategy<T>, value: T, ifPolymorphic: () -> Unit) {
     if (serializer !is AbstractPolymorphicSerializer<*> || json.configuration.useArrayPolymorphism) {
         serializer.serialize(this, value)
         return
@@ -47,12 +47,12 @@ internal fun checkKind(kind: SerialKind) {
     if (kind is PolymorphicKind) error("Actual serializer for polymorphic cannot be polymorphic itself")
 }
 
-internal fun <T> JsonInput.decodeSerializableValuePolymorphic(deserializer: DeserializationStrategy<T>): T {
+internal fun <T> JsonDecoder.decodeSerializableValuePolymorphic(deserializer: DeserializationStrategy<T>): T {
     if (deserializer !is AbstractPolymorphicSerializer<*> || json.configuration.useArrayPolymorphism) {
         return deserializer.deserialize(this)
     }
 
-    val jsonTree = cast<JsonObject>(decodeJson(), deserializer.descriptor)
+    val jsonTree = cast<JsonObject>(decodeJsonElement(), deserializer.descriptor)
     val discriminator = json.configuration.classDiscriminator
     val type = jsonTree[discriminator]?.content ?: throw JsonDecodingException(-1, "Missing polymorphic discriminator $discriminator", jsonTree.toString())
     val actualSerializer = deserializer.findPolymorphicSerializer(this, type).cast<T>()

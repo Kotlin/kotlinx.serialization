@@ -10,7 +10,7 @@ import kotlinx.serialization.internal.*
 
 /**
  * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonElement].
- * It can only be used by with [Json] format an its input ([JsonInput] and [JsonOutput]).
+ * It can only be used by with [Json] format an its input ([JsonDecoder] and [JsonEncoder]).
  * Currently, this hierarchy has no guarantees on descriptor content.
  *
  * Example usage:
@@ -42,14 +42,14 @@ public object JsonElementSerializer : KSerializer<JsonElement> {
     }
 
     override fun deserialize(decoder: Decoder): JsonElement {
-        val input = decoder.asJsonInput()
-        return input.decodeJson()
+        val input = decoder.asJsonDecoder()
+        return input.decodeJsonElement()
     }
 }
 
 /**
  * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonPrimitive].
- * It can only be used by with [Json] format an its input ([JsonInput] and [JsonOutput]).
+ * It can only be used by with [Json] format an its input ([JsonDecoder] and [JsonEncoder]).
  */
 @Serializer(forClass = JsonPrimitive::class)
 public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
@@ -66,7 +66,7 @@ public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
     }
 
     override fun deserialize(decoder: Decoder): JsonPrimitive {
-        val result = decoder.asJsonInput().decodeJson()
+        val result = decoder.asJsonDecoder().decodeJsonElement()
         if (result !is JsonPrimitive) throw JsonDecodingException(-1, "Unexpected JSON element, expected JsonPrimitive, had ${result::class}", result.toString())
         return result
     }
@@ -74,7 +74,7 @@ public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
 
 /**
  * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonNull].
- * It can only be used by with [Json] format an its input ([JsonInput] and [JsonOutput]).
+ * It can only be used by with [Json] format an its input ([JsonDecoder] and [JsonEncoder]).
  */
 @Serializer(forClass = JsonNull::class)
 public object JsonNullSerializer : KSerializer<JsonNull> {
@@ -96,7 +96,7 @@ public object JsonNullSerializer : KSerializer<JsonNull> {
 
 /**
  * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonLiteral].
- * It can only be used by with [Json] format an its input ([JsonInput] and [JsonOutput]).
+ * It can only be used by with [Json] format an its input ([JsonDecoder] and [JsonEncoder]).
  */
 @Serializer(forClass = JsonLiteral::class)
 public object JsonLiteralSerializer : KSerializer<JsonLiteral> {
@@ -128,7 +128,7 @@ public object JsonLiteralSerializer : KSerializer<JsonLiteral> {
     }
 
     override fun deserialize(decoder: Decoder): JsonLiteral {
-        val result = decoder.asJsonInput().decodeJson()
+        val result = decoder.asJsonDecoder().decodeJsonElement()
         if (result !is JsonLiteral) throw JsonDecodingException(-1, "Unexpected JSON element, expected JsonLiteral, had ${result::class}", result.toString())
         return result
     }
@@ -136,7 +136,7 @@ public object JsonLiteralSerializer : KSerializer<JsonLiteral> {
 
 /**
  * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonObject].
- * It can only be used by with [Json] format an its input ([JsonInput] and [JsonOutput]).
+ * It can only be used by with [Json] format an its input ([JsonDecoder] and [JsonEncoder]).
  */
 @Serializer(forClass = JsonObject::class)
 public object JsonObjectSerializer : KSerializer<JsonObject> {
@@ -160,7 +160,7 @@ public object JsonObjectSerializer : KSerializer<JsonObject> {
 
 /**
  * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonArray].
- * It can only be used by with [Json] format an its input ([JsonInput] and [JsonOutput]).
+ * It can only be used by with [Json] format an its input ([JsonDecoder] and [JsonEncoder]).
  */
 @Serializer(forClass = JsonArray::class)
 public object JsonArraySerializer : KSerializer<JsonArray> {
@@ -182,21 +182,21 @@ public object JsonArraySerializer : KSerializer<JsonArray> {
 }
 
 private fun verify(encoder: Encoder) {
-    encoder.asJsonOutput()
+    encoder.asJsonEncoder()
 }
 
 private fun verify(decoder: Decoder) {
-    decoder.asJsonInput()
+    decoder.asJsonDecoder()
 }
 
-internal fun Decoder.asJsonInput(): JsonInput = this as? JsonInput
+internal fun Decoder.asJsonDecoder(): JsonDecoder = this as? JsonDecoder
     ?: throw IllegalStateException(
         "This serializer can be used only with Json format." +
-                "Expected Decoder to be JsonInput, got ${this::class}"
+                "Expected Decoder to be JsonDecoder, got ${this::class}"
     )
 
-internal fun Encoder.asJsonOutput() = this as? JsonOutput
+internal fun Encoder.asJsonEncoder() = this as? JsonEncoder
     ?: throw IllegalStateException(
         "This serializer can be used only with Json format." +
-                "Expected Encoder to be JsonOutput, got ${this::class}"
+                "Expected Encoder to be JsonEncoder, got ${this::class}"
     )

@@ -17,7 +17,7 @@ class JsonParserTest : JsonTestBase() {
         assertEquals("{", tree.getAs<JsonLiteral>("x").content)
     }
 
-    private fun parse(input: String) = default.parseJsonElement(input).jsonObject
+    private fun parse(input: String) = default.parseToJsonElement(input).jsonObject
 
     @Test
     fun testEmptyKey() {
@@ -71,7 +71,7 @@ class JsonParserTest : JsonTestBase() {
 
 
     private fun testTrailingComma(content: String) {
-        val e = assertFailsWith<JsonDecodingException> {  Json.parseJsonElement(content) }
+        val e = assertFailsWith<JsonDecodingException> {  Json.parseToJsonElement(content) }
         val msg = e.message!!
         assertTrue(msg.contains("Expected end of the object"))
     }

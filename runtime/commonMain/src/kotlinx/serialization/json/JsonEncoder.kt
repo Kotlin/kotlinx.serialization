@@ -25,14 +25,14 @@ import kotlinx.serialization.*
  *      }
  *
  *     override fun deserialize(decoder: Decoder): Either {
- *         val input = decoder as? JsonInput ?: throw SerializationException("This class can be loaded only by Json")
+ *         val input = decoder as? JsonDecoder ?: throw SerializationException("This class can be loaded only by Json")
  *         val tree = input.decodeJson() as? JsonObject ?: throw SerializationException("Expected JsonObject")
  *         if ("error" in tree) return Either.Left(tree.getPrimitive("error").content)
  *         return Either.Right(input.json.decodeJson(tree, Payload.serializer()))
  *     }
  *
  *     override fun serialize(encoder: Encoder, value: Either) {
- *         val output = encoder as? JsonOutput ?: throw SerializationException("This class can be saved only by Json")
+ *         val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
  *         val tree = when (value) {
  *           is Either.Left -> JsonObject(mapOf("error" to JsonLiteral(value.errorMsg)))
  *           is Either.Right -> output.json.toJson(value.data, Payload.serializer())
@@ -42,7 +42,7 @@ import kotlinx.serialization.*
  * }
  * ```
  */
-public interface JsonOutput : Encoder, CompositeEncoder {
+public interface JsonEncoder : Encoder, CompositeEncoder {
     /**
      * An instance of the current [Json].
      */
@@ -61,7 +61,7 @@ public interface JsonOutput : Encoder, CompositeEncoder {
      * fun serialize(encoder: Encoder, value: Holder) {
      *     // Completely okay, the whole Holder object is read
      *     val jsonObject = JsonObject(...) // build a JsonObject from Holder
-     *     (encoder as JsonOutput).encodeJson(jsonObject) // Write it
+     *     (encoder as JsonEncoder).encodeJson(jsonObject) // Write it
      * }
      *
      * // Incorrect Holder serialize method
@@ -70,11 +70,11 @@ public interface JsonOutput : Encoder, CompositeEncoder {
      *     composite.encodeSerializableElement(descriptor, 0, Int.serializer(), value.value)
      *     val array = JsonArray(value.list)
      *     // Incorrect, encoder is already in an intermediate state after encodeSerializableElement
-     *     (composite as JsonOutput).encodeJson(array)
+     *     (composite as JsonEncoder).encodeJson(array)
      *     composite.endStructure(descriptor)
      *     // ...
      * }
      * ```
      */
-    public fun encodeJson(element: JsonElement)
+    public fun encodeJsonElement(element: JsonElement)
 }

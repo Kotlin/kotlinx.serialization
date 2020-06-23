@@ -90,7 +90,7 @@ public constructor(
      */
     public override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
         val result = StringBuilder()
-        val encoder = StreamingJsonOutput(
+        val encoder = StreamingJsonEncoder(
             result, this,
             WriteMode.OBJ,
             arrayOfNulls(WriteMode.values().size)
@@ -124,7 +124,7 @@ public constructor(
      */
     public override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
         val reader = JsonReader(string)
-        val input = StreamingJsonInput(this, WriteMode.OBJ, reader)
+        val input = StreamingJsonDecoder(this, WriteMode.OBJ, reader)
         val result = input.decode(deserializer)
         if (!reader.isDone) { error("Reader has not consumed the whole input: $reader") }
         return result
@@ -135,7 +135,7 @@ public constructor(
      * @throws [JsonException] in case of malformed json
      * @throws [SerializationException] if given input can not be deserialized
      */
-    public fun parseJsonElement(string: String): JsonElement {
+    public fun parseToJsonElement(string: String): JsonElement {
         return decodeFromString(JsonElementSerializer, string)
     }
 
@@ -188,9 +188,9 @@ public constructor(
         }
 
         /**
-         * @see Json.parseJsonElement
+         * @see Json.parseToJsonElement
          */
-        public fun parseJsonElement(string: String): JsonElement {
+        public fun parseToJsonElement(string: String): JsonElement {
             return decodeFromString(JsonElementSerializer, string)
         }
 

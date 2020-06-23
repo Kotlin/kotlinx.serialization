@@ -7,11 +7,11 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlin.test.*
 
-class JsonInputOutputRecursiveTest : JsonTestBase() {
+class JsonEncoderDecoderRecursiveTest : JsonTestBase() {
     private val inputDataString = """{"id":0,"payload":{"from":42,"to":43,"msg":"Hello world"},"timestamp":1000}"""
     private val inputErrorString = """{"id":1,"payload":{"error":"Connection timed out"},"timestamp":1001}"""
-    private val inputDataJson = default.parseJsonElement(inputDataString)
-    private val inputErrorJson = default.parseJsonElement(inputErrorString)
+    private val inputDataJson = default.parseToJsonElement(inputDataString)
+    private val inputErrorJson = default.parseToJsonElement(inputErrorString)
     private val inputRecursive =
         """{"type":"b","children":[{"type":"a","value":1},{"type":"a","value":2},{"type":"b","children":[]}]}"""
     private val outputRecursive = SealedRecursive.B(
@@ -134,22 +134,22 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
         }
 
         override fun deserialize(decoder: Decoder): Either {
-            val jsonReader = decoder as? JsonInput
+            val jsonReader = decoder as? JsonDecoder
                     ?: throw SerializationException("This class can be loaded only by JSON")
-            val tree = jsonReader.decodeJson() as? JsonObject
+            val tree = jsonReader.decodeJsonElement() as? JsonObject
                     ?: throw SerializationException("Expected JSON object")
             if ("error" in tree) return Either.Left(tree.getPrimitive("error").content)
             return Either.Right(decoder.json.decodeFromJsonElement(Payload.serializer(), tree))
         }
 
         override fun serialize(encoder: Encoder, value: Either) {
-            val jsonWriter = encoder as? JsonOutput
+            val jsonWriter = encoder as? JsonEncoder
                     ?: throw SerializationException("This class can be saved only by JSON")
             val tree = when (value) {
                 is Either.Left -> JsonObject(mapOf("error" to JsonLiteral(value.errorMsg)))
                 is Either.Right -> encoder.json.encodeToJsonElement(Payload.serializer(), value.data)
             }
-            jsonWriter.encodeJson(tree)
+            jsonWriter.encodeJsonElement(tree)
         }
     }
 
@@ -181,7 +181,7 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
         }
 
         override fun serialize(encoder: Encoder, value: SealedRecursive) {
-            if (encoder !is JsonOutput) throw SerializationException("This class can be saved only by JSON")
+            if (encoder !is JsonEncoder) throw SerializationException("This class can be saved only by JSON")
             val (tree, typeName) = when (value) {
                 is SealedRecursive.A -> encoder.json.encodeToJsonElement(SealedRecursive.A.serializer(), value) to typeNameA
                 is SealedRecursive.B -> encoder.json.encodeToJsonElement(SealedRecursive.B.serializer(), value) to typeNameB
@@ -189,13 +189,13 @@ class JsonInputOutputRecursiveTest : JsonTestBase() {
             val contents: MutableMap<String, JsonElement> = mutableMapOf(typeAttribute to JsonPrimitive(typeName))
             contents.putAll(tree.jsonObject.content)
             val element = JsonObject(contents)
-            encoder.encodeJson(element)
+            encoder.encodeJsonElement(element)
         }
 
         override fun deserialize(decoder: Decoder): SealedRecursive {
-            val jsonReader = decoder as? JsonInput
+            val jsonReader = decoder as? JsonDecoder
                 ?: throw SerializationException("This class can be loaded only by JSON")
-            val tree = jsonReader.decodeJson() as? JsonObject
+            val tree = jsonReader.decodeJsonElement() as? JsonObject
                 ?: throw SerializationException("Expected JSON object")
             val typeName = tree.getValue(typeAttribute).primitive.content
             val objTree = JsonObject(tree.content - typeAttribute)

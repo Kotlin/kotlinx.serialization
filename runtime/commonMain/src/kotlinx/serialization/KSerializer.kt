@@ -178,7 +178,7 @@ public interface DeserializationStrategy<T> {
 }
 
 // Can't be error yet because it's impossible to add default implementations for `val updateMode` in Decoder:
-// 'Class JsonInput must implement updateMode because it inherits it from multiple interfaces'
+// 'Class JsonDecoder must implement updateMode because it inherits it from multiple interfaces'
 // so users will have it in signature until we delete updateMode
 @Deprecated(updateModeDeprecated, level = DeprecationLevel.WARNING)
 @Suppress("NO_EXPLICIT_VISIBILITY_IN_API_MODE_WARNING")

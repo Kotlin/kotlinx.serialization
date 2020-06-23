@@ -49,8 +49,8 @@ public fun <T : Any> Json.toJson(value: T): JsonElement = noImpl()
 
 @Deprecated(
     level = DeprecationLevel.ERROR,
-    message = "This method was renamed to parseJsonElement during serialization 1.0 stabilization",
-    replaceWith = ReplaceWith("parseJsonElement(string)")
+    message = "This method was renamed to parseToJsonElement during serialization 1.0 stabilization",
+    replaceWith = ReplaceWith("parseToJsonElement(string)")
 )
 public fun Json.parseJson(string: String): JsonElement = noImpl()
 
@@ -67,3 +67,21 @@ public fun <T> Json.fromJson(deserializer: DeserializationStrategy<T>, json: Jso
     replaceWith = ReplaceWith("decodeFromJsonElement(value)")
 )
 public fun <T : Any> Json.fromJson(tree: JsonElement): T = noImpl()
+
+@Deprecated(
+    level = DeprecationLevel.ERROR,
+    message = "This interface was renamed to JsonDecoder during serialization 1.0 stabilization",
+    replaceWith = ReplaceWith("JsonDecoder")
+)
+public interface JsonInput {
+    public fun decodeJson(): JsonElement
+}
+
+@Deprecated(
+    level = DeprecationLevel.ERROR,
+    message = "This interface was renamed to JsonEncoder during serialization 1.0 stabilization",
+    replaceWith = ReplaceWith("JsonEncoder")
+)
+public interface JsonOutput {
+    public fun encodeJson(element: JsonElement)
+}
