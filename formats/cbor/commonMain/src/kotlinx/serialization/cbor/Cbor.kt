@@ -4,10 +4,11 @@
 
 package kotlinx.serialization.cbor
 
-import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.cbor.internal.ByteArrayInput
+import kotlinx.serialization.cbor.internal.ByteArrayOutput
 import kotlinx.serialization.modules.*
 import kotlin.experimental.*
 
@@ -93,7 +94,7 @@ public class Cbor(
     }
 
     // For details of representation, see https://tools.ietf.org/html/rfc7049#section-2.1
-    internal class CborEncoder(private val output: Output) {
+    internal class CborEncoder(private val output: ByteArrayOutput) {
 
         fun startArray() = output.write(BEGIN_ARRAY)
         fun startMap() = output.write(BEGIN_MAP)
@@ -234,7 +235,7 @@ public class Cbor(
 
     }
 
-    internal class CborDecoder(private val input: Input) {
+    internal class CborDecoder(private val input: ByteArrayInput) {
         private var curByte: Int = -1
 
         init {
@@ -323,7 +324,7 @@ public class Cbor(
             else res
         }
 
-        private fun Input.readExact(bytes: Int): Long {
+        private fun ByteArrayInput.readExact(bytes: Int): Long {
             val arr = readExactNBytes(bytes)
             var result = 0L
             for (i in 0 until bytes) {
@@ -332,7 +333,7 @@ public class Cbor(
             return result
         }
 
-        private fun Input.readExactNBytes(bytesCount: Int): ByteArray {
+        private fun ByteArrayInput.readExactNBytes(bytesCount: Int): ByteArray {
             if (bytesCount > availableBytes) {
                 error("Unexpected EOF, available $availableBytes bytes, requested: $bytesCount")
             }

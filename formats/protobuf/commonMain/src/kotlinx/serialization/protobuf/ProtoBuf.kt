@@ -4,7 +4,6 @@
 
 package kotlinx.serialization.protobuf
 
-import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.builtins.*

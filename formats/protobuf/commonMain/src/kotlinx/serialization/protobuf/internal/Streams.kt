@@ -2,31 +2,19 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.io
+package kotlinx.serialization.protobuf.internal
 
 import kotlinx.serialization.*
 
-@InternalSerializationApi
-public abstract class Input {
-    public abstract val availableBytes: Int
-    public abstract fun read(): Int
-    public abstract fun read(b: ByteArray, offset: Int, length: Int): Int
-    public abstract fun readString(length: Int): String
-    public abstract fun readVarint32(): Int
-    public abstract fun readVarint64(eofAllowed: Boolean): Long
-}
-
-@InternalSerializationApi
-public class ByteArrayInput(private var array: ByteArray) : Input() {
-
+internal class ByteArrayInput(private var array: ByteArray) {
     private var position: Int = 0
-    public override val availableBytes: Int get() = array.size - position
+    public val availableBytes: Int get() = array.size - position
 
-    override fun read(): Int {
+    fun read(): Int {
         return if (position < array.size) array[position++].toInt() and 0xFF else -1
     }
 
-    override fun read(b: ByteArray, offset: Int, length: Int): Int {
+    fun read(b: ByteArray, offset: Int, length: Int): Int {
         // avoid int overflow
         if (offset < 0 || offset > b.size || length < 0
             || length > b.size - offset
@@ -47,13 +35,13 @@ public class ByteArrayInput(private var array: ByteArray) : Input() {
         return copied
     }
 
-    override fun readString(length: Int): String {
+    fun readString(length: Int): String {
         val result = array.decodeToString(position, position + length)
         position += length
         return result
     }
 
-    override fun readVarint32(): Int {
+    fun readVarint32(): Int {
         if (position == array.size) {
             error("Unexpected EOF")
         }
@@ -75,7 +63,7 @@ public class ByteArrayInput(private var array: ByteArray) : Input() {
         return readVarint32SlowPath()
     }
 
-    override fun readVarint64(eofAllowed: Boolean): Long {
+    fun readVarint64(eofAllowed: Boolean): Long {
         if (position == array.size) {
             if (eofAllowed) return -1
             else error("Unexpected EOF")
@@ -127,20 +115,7 @@ public class ByteArrayInput(private var array: ByteArray) : Input() {
     }
 }
 
-
-@InternalSerializationApi
-public abstract class Output {
-    public fun write(buffer: ByteArray): Unit = write(buffer, 0, buffer.size)
-    public abstract fun write(buffer: ByteArray, offset: Int, count: Int)
-    public abstract fun write(byteValue: Int)
-    public abstract fun writeInt(intValue: Int)
-    public abstract fun writeLong(longValue: Long)
-    public abstract fun encodeVarint32(value: Int)
-    public abstract fun encodeVarint64(value: Long)
-}
-
-@InternalSerializationApi
-public class ByteArrayOutput() : Output() {
+internal class ByteArrayOutput {
     private var array: ByteArray = ByteArray(32)
     private var position: Int = 0
 
@@ -163,7 +138,7 @@ public class ByteArrayOutput() : Output() {
         return newArray
     }
 
-    override fun write(buffer: ByteArray, offset: Int, count: Int) {
+    fun write(buffer: ByteArray, offset: Int = 0, count: Int = buffer.size) {
         // avoid int overflow
         if (offset < 0 || offset > buffer.size || count < 0
             || count > buffer.size - offset
@@ -184,26 +159,26 @@ public class ByteArrayOutput() : Output() {
         this.position += count
     }
 
-    override fun write(byteValue: Int) {
+    fun write(byteValue: Int) {
         ensureCapacity(1)
         array[position++] = byteValue.toByte()
     }
 
-    override fun writeInt(intValue: Int) {
+    fun writeInt(intValue: Int) {
         ensureCapacity(4)
         for (i in 3 downTo 0) {
             array[position++] = (intValue shr i * 8).toByte()
         }
     }
 
-    override fun writeLong(longValue: Long) {
+    fun writeLong(longValue: Long) {
         ensureCapacity(8)
         for (i in 7 downTo 0) {
             array[position++] = (longValue shr i * 8).toByte()
         }
     }
 
-    override fun encodeVarint32(value: Int) {
+    fun encodeVarint32(value: Int) {
         ensureCapacity(5)
         // Fast-path: unrolled loop for single byte
         if (value and 0x7F.inv() == 0) {
@@ -230,7 +205,7 @@ public class ByteArrayOutput() : Output() {
         array[position++] = (current and 0x7F).toByte()
     }
 
-    override fun encodeVarint64(value: Long) {
+    fun encodeVarint64(value: Long) {
         ensureCapacity(10)
         var currentValue = value
         while (true) {

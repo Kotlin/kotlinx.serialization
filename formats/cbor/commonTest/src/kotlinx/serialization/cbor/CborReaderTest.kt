@@ -4,8 +4,8 @@
 
 package kotlinx.serialization.cbor
 
-import kotlinx.io.*
 import kotlinx.serialization.*
+import kotlinx.serialization.cbor.internal.*
 import kotlin.test.*
 
 class CborReaderTest {
