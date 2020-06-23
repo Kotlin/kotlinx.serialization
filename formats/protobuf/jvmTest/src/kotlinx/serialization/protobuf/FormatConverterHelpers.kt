@@ -34,7 +34,7 @@ inline fun <reified T : IMessage> dumpCompare(it: T, alwaysPrint: Boolean = fals
     val msg = it.toProtobufMessage()
     var parsed: GeneratedMessageV3?
     val c = try {
-        val bytes = protoBuf.dump(it)
+        val bytes = protoBuf.encodeToByteArray(it)
         if (alwaysPrint) println("Serialized bytes: ${HexConverter.printHexBinary(bytes)}")
         parsed = msg.parserForType.parseFrom(bytes)
         msg == parsed
@@ -65,7 +65,7 @@ inline fun <reified T : IMessage> readCompare(it: T, alwaysPrint: Boolean = fals
     val c = try {
         val msg = it.toProtobufMessage()
         val hex = msg.toHex()
-        obj = protoBuf.loads(hex)
+        obj = protoBuf.decodeFromHexString(hex)
         obj == it
     } catch (e: Exception) {
         obj = null

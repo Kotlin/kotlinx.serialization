@@ -36,7 +36,8 @@ class ScatteredArraysTest {
         // Protobuf per spec must read it as ListData([1,2,3], bar)
         val d1 = ListData(listOf("1", "2"), "foo")
         val d2 = ListData(listOf("3"), "bar")
-        return ProtoBuf.dumps(ListData.serializer(), d1) + ProtoBuf.dumps(ListData.serializer(), d2)
+        return ProtoBuf.encodeToHexString(ListData.serializer(), d1) +
+                ProtoBuf.encodeToHexString(ListData.serializer(), d2)
     }
 
     private fun prepareByteTestData(): String {
@@ -45,11 +46,12 @@ class ScatteredArraysTest {
         // Protobuf per spec must read it as ByteData([1,2,3], bar)
         val d1 = ByteData(byteArrayOf(1, 2), "foo")
         val d2 = ByteData(byteArrayOf(3), "bar")
-        return ProtoBuf.dumps(ByteData.serializer(), d1) + ProtoBuf.dumps(ByteData.serializer(), d2)
+        return ProtoBuf.encodeToHexString(ByteData.serializer(), d1) +
+                ProtoBuf.encodeToHexString(ByteData.serializer(), d2)
     }
 
     private fun <T> doTest(serializer: KSerializer<T>, testData: String, goldenValue: T) {
-        val parsed = ProtoBuf.loads(serializer, testData)
+        val parsed = ProtoBuf.decodeFromHexString(serializer, testData)
         assertEquals(goldenValue, parsed)
     }
 

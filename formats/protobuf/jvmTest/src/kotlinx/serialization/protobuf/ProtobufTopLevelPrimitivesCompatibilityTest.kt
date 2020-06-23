@@ -103,7 +103,7 @@ class ProtobufTopLevelPrimitivesCompatibilityTest {
         expectedHexString: String,
         block: CodedOutputStream.(T) -> Unit
     ) {
-        val bytes = ProtoBuf.dump(serializer, data)
+        val bytes = ProtoBuf.encodeToByteArray(serializer, data)
         val string = HexConverter.printHexBinary(bytes)
         val baos = ByteArrayOutputStream()
         val cos = CodedOutputStream.newInstance(baos)
@@ -114,7 +114,7 @@ class ProtobufTopLevelPrimitivesCompatibilityTest {
             "Original: ${baos.toByteArray().contentToString()}, kx: ${bytes.contentToString()}"
         )
         assertEquals(expectedHexString, string)
-        val deserialized = ProtoBuf.loads(serializer, string)
+        val deserialized = ProtoBuf.decodeFromHexString(serializer, string)
         when (data) {
             is Array<*> -> {
                 assertTrue(data.contentEquals(deserialized as Array<out Any?>))

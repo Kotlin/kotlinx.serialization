@@ -35,7 +35,7 @@ class ProtobufPolymorphismTest {
     fun testSingleSealedClass() {
         val expected =
             "0a436b6f746c696e782e73657269616c697a6174696f6e2e70726f746f6275662e50726f746f627566506f6c796d6f72706869736d546573742e53696e676c652e496d706c1202082a"
-        assertEquals(expected, ProtoBuf.dumps(Single.serializer(), Single.Impl(42)))
-        assertEquals(Single.Impl(42), ProtoBuf.loads(Single.serializer(), expected))
+        assertEquals(expected, ProtoBuf.encodeToHexString(Single.serializer(), Single.Impl(42)))
+        assertEquals(Single.Impl(42), ProtoBuf.decodeFromHexString(Single.serializer(), expected))
     }
 }

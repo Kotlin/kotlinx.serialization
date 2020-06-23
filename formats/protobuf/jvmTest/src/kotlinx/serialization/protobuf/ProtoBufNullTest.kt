@@ -3,10 +3,8 @@
  */
 package kotlinx.serialization.protobuf
 
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.dump
+import kotlinx.serialization.*
 
-import kotlinx.serialization.load
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -63,7 +61,7 @@ class ProtoBufNullTest {
     @Test
     fun testThatNullValuesAreNotEncoded() {
         val data = MessageWithOptionals()
-        val parsed = TestData.MessageWithOptionals.parseFrom(protoBuf.dump(data))
+        val parsed = TestData.MessageWithOptionals.parseFrom(protoBuf.encodeToByteArray(data))
 
         assertFalse(parsed.hasA(), "Expected that null value for optional field `a` is not encoded.")
         assertFalse(parsed.hasB(), "Expected that null value for optional field `b` is not encoded.")
@@ -80,7 +78,7 @@ class ProtoBufNullTest {
     @Test
     fun testThatDefaultValuesAreEncodedCorrectly() {
         val data = MessageWithOptionals(0, "", MessageWithOptionals.Position.FIRST, 99, emptyList())
-        val parsed = TestData.MessageWithOptionals.parseFrom(protoBuf.dump(data))
+        val parsed = TestData.MessageWithOptionals.parseFrom(protoBuf.encodeToByteArray(data))
 
         assertTrue(parsed.hasA(), "Expected that custom value for optional field `a` is encoded.")
         assertTrue(parsed.hasB(), "Expected that custom value for optional field `b` is encoded.")
@@ -97,7 +95,7 @@ class ProtoBufNullTest {
     @Test
     fun testThatCustomValuesAreEncodedCorrectly() {
         val data = MessageWithOptionals(42, "Test", MessageWithOptionals.Position.SECOND, 24, listOf(1, 2, 3))
-        val parsed = TestData.MessageWithOptionals.parseFrom(protoBuf.dump(data))
+        val parsed = TestData.MessageWithOptionals.parseFrom(protoBuf.encodeToByteArray(data))
 
         assertTrue(parsed.hasA(), "Expected that custom value for optional field `a` is encoded.")
         assertTrue(parsed.hasB(), "Expected that custom value for optional field `b` is encoded.")
@@ -114,7 +112,7 @@ class ProtoBufNullTest {
     @Test
     fun testThatNullValuesAreNotDecoded() {
         val data = TestData.MessageWithOptionals.newBuilder().build()
-        val parsed = protoBuf.load<MessageWithOptionals>(data.toByteArray())
+        val parsed = protoBuf.decodeFromByteArray<MessageWithOptionals>(data.toByteArray())
 
         assertFalse(parsed.hasA(), "Expected that null value for optional field `a` is not decoded.")
         assertFalse(parsed.hasB(), "Expected that null value for optional field `b` is not decoded.")
@@ -137,7 +135,7 @@ class ProtoBufNullTest {
                 .setD(99)
                 .addAllE(emptyList())
                 .build()
-        val parsed = protoBuf.load<MessageWithOptionals>(data.toByteArray())
+        val parsed = protoBuf.decodeFromByteArray<MessageWithOptionals>(data.toByteArray())
 
         assertTrue(parsed.hasA(), "Expected that custom value for optional field `a` is decoded.")
         assertTrue(parsed.hasB(), "Expected that custom value for optional field `b` is decoded.")
@@ -160,7 +158,7 @@ class ProtoBufNullTest {
                 .setD(24)
                 .addAllE(listOf(1, 2, 3))
                 .build()
-        val parsed = protoBuf.load<MessageWithOptionals>(data.toByteArray())
+        val parsed = protoBuf.decodeFromByteArray<MessageWithOptionals>(data.toByteArray())
 
         assertTrue(parsed.hasA(), "Expected that custom value for optional field `a` is decoded.")
         assertTrue(parsed.hasB(), "Expected that custom value for optional field `b` is decoded.")

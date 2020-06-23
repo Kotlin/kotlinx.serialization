@@ -12,7 +12,7 @@ import kotlinx.serialization.modules.*
 import kotlin.experimental.*
 
 /**
- * Implements [encoding][dump] and [decoding][load] classes to/from bytes
+ * Implements [encoding][encodeToByteArray] and [decoding][decodeFromByteArray] classes to/from bytes
  * using [CBOR](https://tools.ietf.org/html/rfc7049) specification.
  * It is typically used by constructing an application-specific instance, with configured behaviour, and,
  * if necessary, registered custom serializers (in [SerialModule] provided by [context] constructor parameter).
@@ -392,20 +392,14 @@ public class Cbor(
         private const val HEADER_MAP: Int = 0b101_00000
     }
 
-    /**
-     * Serializes [value] to CBOR bytes using given [serializer].
-     */
-    override fun <T> dump(serializer: SerializationStrategy<T>, value: T): ByteArray {
+    override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutput()
         val dumper = CborWriter(CborEncoder(output))
         dumper.encode(serializer, value)
         return output.toByteArray()
     }
 
-    /**
-     * Loads value of type [T] from given CBOR [bytes] using [deserializer].
-     */
-    override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
+    override fun <T> decodeFromByteArray(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
         val stream = ByteArrayInput(bytes)
         val reader = CborReader(CborDecoder(stream))
         return reader.decode(deserializer)

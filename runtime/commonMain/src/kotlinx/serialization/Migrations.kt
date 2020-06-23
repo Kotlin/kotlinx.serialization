@@ -114,8 +114,8 @@ public inline fun <reified T : Any> StringFormat.parseList(objects: String): Lis
 
 @Deprecated(
     level = DeprecationLevel.WARNING,
-    message = "Use default parse overload instead",
-    replaceWith = ReplaceWith("parse(map)")
+    message = "Use default decodeFromString overload instead",
+    replaceWith = ReplaceWith("decodeFromString(map)")
 )
 public inline fun <reified K : Any, reified V : Any> StringFormat.parseMap(map: String): Map<K, V> =
     decodeFromString(MapSerializer(context.getContextualOrDefault<K>(), context.getContextualOrDefault<V>()), map)
@@ -123,7 +123,11 @@ public inline fun <reified K : Any, reified V : Any> StringFormat.parseMap(map: 
 // ERROR migrations that affect **only** users that called these functions with named parameters
 
 @LowPriorityInOverloadResolution
-@Deprecated(level = DeprecationLevel.ERROR, message = "Use default stringify overload instead", replaceWith = ReplaceWith("stringify(objects)"))
+@Deprecated(
+    level = DeprecationLevel.ERROR,
+    message = "Use default encodeToString overload instead",
+    replaceWith = ReplaceWith("encodeToString(objects)")
+)
 public inline fun <reified T : Any> StringFormat.stringify(objects: List<T>): String =
     encodeToString(context.getContextualOrDefault<T>().list, objects)
 
@@ -193,3 +197,51 @@ public fun <T> StringFormat.stringify(serializer: SerializationStrategy<T>, valu
     ReplaceWith("decodeFromString<T>(deserializer, string)"), DeprecationLevel.ERROR
 )
 public fun <T> StringFormat.parse(deserializer: DeserializationStrategy<T>, string: String): T = noImpl()
+
+@Deprecated(
+    "This method was renamed to decodeFromByteArray during serialization 1.0 stabilization",
+    ReplaceWith("decodeFromByteArray<T>(deserializer, bytes)"), DeprecationLevel.ERROR
+)
+public fun <T> BinaryFormat.load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T = noImpl()
+
+@Deprecated(
+    "This method was renamed to encodeToByteArray during serialization 1.0 stabilization",
+    ReplaceWith("encodeToByteArray<T>(serializer, value)"), DeprecationLevel.ERROR
+)
+public fun <T> BinaryFormat.dump(serializer: SerializationStrategy<T>, value: T): ByteArray = noImpl()
+
+@Deprecated(
+    "This method was renamed to encodeToHexString during serialization 1.0 stabilization",
+    ReplaceWith("encodeToHexString<T>(serializer, value)"), DeprecationLevel.ERROR
+)
+public fun <T> BinaryFormat.dumps(serializer: SerializationStrategy<T>, value: T): String = noImpl()
+
+@Deprecated(
+    "This method was renamed to decodeFromHexString during serialization 1.0 stabilization",
+    ReplaceWith("decodeFromHexString<T>(deserializer, hex)"), DeprecationLevel.ERROR
+)
+public fun <T> BinaryFormat.loads(deserializer: DeserializationStrategy<T>, hex: String): T = noImpl()
+
+@Deprecated(
+    "This method was renamed to encodeToByteArray during serialization 1.0 stabilization",
+    ReplaceWith("encodeToByteArray<T>(value)"), DeprecationLevel.ERROR
+)
+public fun <T : Any> BinaryFormat.dump(value: T): ByteArray = noImpl()
+
+@Deprecated(
+    "This method was renamed to encodeToHexString during serialization 1.0 stabilization",
+    ReplaceWith("encodeToHexString<T>(value)"), DeprecationLevel.ERROR
+)
+public fun <T : Any> BinaryFormat.dumps(value: T): String = noImpl()
+
+@Deprecated(
+    "This method was renamed to decodeFromByteArray during serialization 1.0 stabilization",
+    ReplaceWith("this.decodeFromByteArray<T>(raw)"), DeprecationLevel.ERROR
+)
+public fun <T : Any> BinaryFormat.load(raw: ByteArray): T = noImpl()
+
+@Deprecated(
+    "This method was renamed to decodeFromHexString during serialization 1.0 stabilization",
+    ReplaceWith("decodeFromHexString<T>(hex)"), DeprecationLevel.ERROR
+)
+public fun <T : Any> BinaryFormat.loads(hex: String): T = noImpl()

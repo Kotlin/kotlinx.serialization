@@ -14,7 +14,7 @@ import kotlinx.serialization.protobuf.internal.*
 import kotlin.jvm.*
 
 /**
- * Implements [encoding][dump] and [decoding][load] classes to/from bytes
+ * Implements [encoding][encodeToByteArray] and [decoding][decodeFromByteArray] classes to/from bytes
  * using [Proto2][https://developers.google.com/protocol-buffers/docs/proto] specification.
  * It is typically used by constructing an application-specific instance, with configured specific behaviour
  * and, if necessary, registered custom serializers (in [SerialModule] provided by [context] constructor parameter).
@@ -61,16 +61,16 @@ import kotlin.jvm.*
  * ### Usage example
  * ```
  * // Serialize to ProtoBuf hex string
- * val encoded = ProtoBuf.dumps(MyMessage.serializer(), MyMessage(15)) // "080f1000182a"
+ * val encoded = ProtoBuf.decodeToHexString(MyMessage(15)) // "080f1000182a"
  *
  * // Deserialize from ProtoBuf hex string
- * val decoded = ProtoBuf.loads<MyMessage>(MyMessage.serializer(), encoded) // MyMessage(first=15, second=0, third=42)
+ * val decoded = ProtoBuf.decodeFromHexString<MyMessage>(encoded) // MyMessage(first=15, second=0, third=42)
  *
  * // Serialize to ProtoBuf bytes (omitting default values)
- * val encoded2 = ProtoBuf(encodeDefaults = false).dump(MyMessage.serializer(), MyMessage(15)) // [0x08, 0x0f]
+ * val encoded2 = ProtoBuf(encodeDefaults = false).encodeToByteArray( MyMessage(15)) // [0x08, 0x0f]
  *
  * // Deserialize ProtoBuf bytes will use default values of the MyMessage class
- * val decoded2 = ProtoBuf.load<MyMessage>(MyMessage.serializer(), encoded2) // MyMessage(first=15, second=0, third=42)
+ * val decoded2 = ProtoBuf.decodeFromByteArray<MyMessage>(encoded2) // MyMessage(first=15, second=0, third=42)
  * ```
  *
  * ### Check existence of optional fields
@@ -94,20 +94,20 @@ import kotlin.jvm.*
  * }
  *
  * // Serialize to ProtoBuf bytes (encodeDefaults=false is required if null values are used)
- * val encoded = ProtoBuf(encodeDefaults = false).dump(MyMessage(15)) // [0x08, 0x0f]
+ * val encoded = ProtoBuf(encodeDefaults = false).encodeToByteArray(MyMessage(15)) // [0x08, 0x0f]
  *
  * // Deserialize ProtoBuf bytes
- * val decoded = ProtoBuf.load<MyMessage>(MyMessage.serializer(), encoded) // MyMessage(first=15, _second=null, _third=null)
+ * val decoded = ProtoBuf.decodeFromByteArray<MyMessage>(encoded) // MyMessage(first=15, _second=null, _third=null)
  * decoded.hasSecond()     // false
  * decoded.second          // 0
  * decoded.hasThird()      // false
  * decoded.third           // 42
  *
  * // Serialize to ProtoBuf bytes
- * val encoded2 = ProtoBuf(encodeDefaults = false).dumps(MyMessage.serializer(), MyMessage(15, 0, 0)) // [0x08, 0x0f, 0x10, 0x00, 0x18, 0x00]
+ * val encoded2 = ProtoBuf(encodeDefaults = false).encodeToByteArray(MyMessage(15, 0, 0)) // [0x08, 0x0f, 0x10, 0x00, 0x18, 0x00]
  *
  * // Deserialize ProtoBuf bytes
- * val decoded2 = ProtoBuf.loads<MyMessage>(MyMessage.serializer(), encoded2) // MyMessage(first=15, _second=0, _third=0)
+ * val decoded2 = ProtoBuf.decodeFromByteArray<MyMessage>(encoded2) // MyMessage(first=15, _second=0, _third=0)
  * decoded.hasSecond()     // true
  * decoded.second          // 0
  * decoded.hasThird()      // true
@@ -581,14 +581,14 @@ public class ProtoBuf(
         internal const val i32 = 5
     }
 
-    override fun <T> dump(serializer: SerializationStrategy<T>, value: T): ByteArray {
+    override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutput()
         val encoder = ProtobufEncoder(ProtobufWriter(output), serializer.descriptor)
         encoder.encode(serializer, value)
         return output.toByteArray()
     }
 
-    override fun <T> load(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
+    override fun <T> decodeFromByteArray(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
         val input = ByteArrayInput(bytes)
         val decoder = ProtobufDecoder(ProtobufReader(input), deserializer.descriptor)
         return decoder.decode(deserializer)

@@ -3,16 +3,16 @@ public final class kotlinx/serialization/protobuf/ProtoBuf : kotlinx/serializati
 	public fun <init> ()V
 	public fun <init> (ZLkotlinx/serialization/modules/SerialModule;)V
 	public synthetic fun <init> (ZLkotlinx/serialization/modules/SerialModule;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun dump (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
+	public fun decodeFromByteArray (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
+	public fun encodeToByteArray (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
 	public fun getContext ()Lkotlinx/serialization/modules/SerialModule;
 	public final fun getEncodeDefaults ()Z
-	public fun load (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
 }
 
 public final class kotlinx/serialization/protobuf/ProtoBuf$Default : kotlinx/serialization/BinaryFormat {
-	public fun dump (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
+	public fun decodeFromByteArray (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
+	public fun encodeToByteArray (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
 	public fun getContext ()Lkotlinx/serialization/modules/SerialModule;
-	public fun load (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
 }
 
 public abstract interface annotation class kotlinx/serialization/protobuf/ProtoId : java/lang/annotation/Annotation {

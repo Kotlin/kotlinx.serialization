@@ -14,11 +14,11 @@ class ProtoCompatibilityTest {
     @Test
     fun testMap() {
         val mapData = RandomTest.KTestData.KTestMap(mapOf("a" to "b", "c" to "d"), emptyMap())
-        val kxData = ProtoBuf.dump(mapData)
-        val kxHex = ProtoBuf.dumps(mapData)
+        val kxData = ProtoBuf.encodeToByteArray(mapData)
+        val kxHex = ProtoBuf.encodeToHexString(mapData)
         val protoHex = mapData.toProtobufMessage().toHex()
         assertTrue(kxHex.equals(protoHex, ignoreCase = true))
-        val deserializedData: RandomTest.KTestData.KTestMap = ProtoBuf.loads(kxHex)
+        val deserializedData: RandomTest.KTestData.KTestMap = ProtoBuf.decodeFromHexString(kxHex)
         val parsedMsg = mapData.toProtobufMessage().parserForType.parseFrom(kxData)
         assertEquals(mapData, deserializedData)
         assertEquals(parsedMsg, deserializedData.toProtobufMessage())

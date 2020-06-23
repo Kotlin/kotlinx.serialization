@@ -48,7 +48,7 @@ class CborReaderTest {
 
     @Test
     fun testDecodeSimpleObject() {
-        assertEquals(Simple("str"), Cbor.loads(Simple.serializer(), "bf616163737472ff"))
+        assertEquals(Simple("str"), Cbor.decodeFromHexString(Simple.serializer(), "bf616163737472ff"))
     }
 
     @Test
@@ -63,12 +63,16 @@ class CborReaderTest {
             listOf(Simple("kek"))
         )
         // with maps & lists of indefinite length
-        assertEquals(test, Cbor.loads(TypesUmbrella.serializer(),
+        assertEquals(test, Cbor.decodeFromHexString(
+            TypesUmbrella.serializer(),
             "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffffff"
-        ))
+        )
+        )
         // with maps & lists of definite length
-        assertEquals(test, Cbor.loads(TypesUmbrella.serializer(),
+        assertEquals(test, Cbor.decodeFromHexString(
+            TypesUmbrella.serializer(),
             "a7646c6973748261616162686e756c6c61626c65f6636d6170a202f401f56169182a6a696e6e6572734c69737481a16161636b656b637374726d48656c6c6f2c20776f726c642165696e6e6572a16161636c6f6c"
-        ))
+        )
+        )
     }
 }
