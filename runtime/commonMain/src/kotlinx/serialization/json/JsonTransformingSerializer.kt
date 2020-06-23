@@ -14,7 +14,7 @@ import kotlinx.serialization.json.internal.*
  * [JsonTransformingSerializer] provides capabilities to manipulate [JsonElement] representation
  * directly instead of interacting with [Encoder] and [Decoder] in order to apply a custom
  * transformation to the JSON.
- * Please note that this class expects that [Encoder] and [Decoder] are implemented by [JsonInput] and [JsonOutput],
+ * Please note that this class expects that [Encoder] and [Decoder] are implemented by [JsonDecoder] and [JsonEncoder],
  * i.e. serializers derived from this class work only with [Json] format.
  *
  * During serialization, this class first serializes original value with [tSerializer] to a [JsonElement],
@@ -72,15 +72,15 @@ public abstract class JsonTransformingSerializer<T : Any>(
     )
 
     final override fun serialize(encoder: Encoder, value: T) {
-        val output = encoder.asJsonOutput()
+        val output = encoder.asJsonEncoder()
         var element = output.json.writeJson(value, tSerializer)
         element = writeTransform(element)
-        output.encodeJson(element)
+        output.encodeJsonElement(element)
     }
 
     final override fun deserialize(decoder: Decoder): T {
-        val input = decoder.asJsonInput()
-        val element = input.decodeJson()
+        val input = decoder.asJsonDecoder()
+        val element = input.decodeJsonElement()
         return input.json.decodeFromJsonElement(tSerializer, readTransform(element))
     }
 

@@ -14,9 +14,9 @@ import kotlin.jvm.*
 
 internal fun <T> Json.readJson(element: JsonElement, deserializer: DeserializationStrategy<T>): T {
     val input = when (element) {
-        is JsonObject -> JsonTreeInput(this, element)
-        is JsonArray -> JsonTreeListInput(this, element)
-        is JsonLiteral, JsonNull -> JsonPrimitiveInput(this, element as JsonPrimitive)
+        is JsonObject -> JsonTreeDecoder(this, element)
+        is JsonArray -> JsonTreeListDecoder(this, element)
+        is JsonLiteral, JsonNull -> JsonPrimitiveDecoder(this, element as JsonPrimitive)
     }
     return input.decode(deserializer)
 }
@@ -26,13 +26,13 @@ internal fun <T> Json.readPolymorphicJson(
     element: JsonObject,
     deserializer: DeserializationStrategy<T>
 ): T {
-    return JsonTreeInput(this, element, discriminator, deserializer.descriptor).decode(deserializer)
+    return JsonTreeDecoder(this, element, discriminator, deserializer.descriptor).decode(deserializer)
 }
 
-private sealed class AbstractJsonTreeInput(
+private sealed class AbstractJsonTreeDecoder(
     override val json: Json,
     open val value: JsonElement
-) : NamedValueDecoder(), JsonInput {
+) : NamedValueDecoder(), JsonDecoder {
 
     override val context: SerialModule
         get() = json.context
@@ -49,7 +49,7 @@ private sealed class AbstractJsonTreeInput(
 
     private fun currentObject() = currentTagOrNull?.let { currentElement(it) } ?: value
 
-    override fun decodeJson(): JsonElement = currentObject()
+    override fun decodeJsonElement(): JsonElement = currentObject()
 
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
         return decodeSerializableValuePolymorphic(deserializer)
@@ -60,13 +60,13 @@ private sealed class AbstractJsonTreeInput(
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         val currentObject = currentObject()
         return when (descriptor.kind) {
-            StructureKind.LIST, is PolymorphicKind -> JsonTreeListInput(json, cast(currentObject, descriptor))
+            StructureKind.LIST, is PolymorphicKind -> JsonTreeListDecoder(json, cast(currentObject, descriptor))
             StructureKind.MAP -> json.selectMapMode(
                 descriptor,
-                { JsonTreeMapInput(json, cast(currentObject, descriptor)) },
-                { JsonTreeListInput(json, cast(currentObject, descriptor)) }
+                { JsonTreeMapDecoder(json, cast(currentObject, descriptor)) },
+                { JsonTreeListDecoder(json, cast(currentObject, descriptor)) }
             )
-            else -> JsonTreeInput(json, cast(currentObject, descriptor))
+            else -> JsonTreeDecoder(json, cast(currentObject, descriptor))
         }
     }
 
@@ -134,7 +134,7 @@ private sealed class AbstractJsonTreeInput(
     }
 }
 
-private class JsonPrimitiveInput(json: Json, override val value: JsonPrimitive) : AbstractJsonTreeInput(json, value) {
+private class JsonPrimitiveDecoder(json: Json, override val value: JsonPrimitive) : AbstractJsonTreeDecoder(json, value) {
 
     init {
         pushTag(PRIMITIVE_TAG)
@@ -148,12 +148,12 @@ private class JsonPrimitiveInput(json: Json, override val value: JsonPrimitive) 
     }
 }
 
-private open class JsonTreeInput(
+private open class JsonTreeDecoder(
     json: Json,
     override val value: JsonObject,
     private val polyDiscriminator: String? = null,
     private val polyDescriptor: SerialDescriptor? = null
-) : AbstractJsonTreeInput(json, value) {
+) : AbstractJsonTreeDecoder(json, value) {
     private var position = 0
 
     /*
@@ -204,7 +204,7 @@ private open class JsonTreeInput(
     }
 }
 
-private class JsonTreeMapInput(json: Json, override val value: JsonObject) : JsonTreeInput(json, value) {
+private class JsonTreeMapDecoder(json: Json, override val value: JsonObject) : JsonTreeDecoder(json, value) {
     private val keys = value.keys.toList()
     private val size: Int = keys.size * 2
     private var position = -1
@@ -231,7 +231,7 @@ private class JsonTreeMapInput(json: Json, override val value: JsonObject) : Jso
     }
 }
 
-private class JsonTreeListInput(json: Json, override val value: JsonArray) : AbstractJsonTreeInput(json, value) {
+private class JsonTreeListDecoder(json: Json, override val value: JsonArray) : AbstractJsonTreeDecoder(json, value) {
     private val size = value.content.size
     private var currentIndex = -1
 

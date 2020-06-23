@@ -13,15 +13,15 @@ import kotlin.jvm.*
 
 internal fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
     lateinit var result: JsonElement
-    val encoder = JsonTreeOutput(this) { result = it }
+    val encoder = JsonTreeEncoder(this) { result = it }
     encoder.encode(serializer, value)
     return result
 }
 
-private sealed class AbstractJsonTreeOutput(
+private sealed class AbstractJsonTreeEncoder(
     final override val json: Json,
     val nodeConsumer: (JsonElement) -> Unit
-) : NamedValueEncoder(), JsonOutput {
+) : NamedValueEncoder(), JsonEncoder {
 
     final override val context: SerialModule
         get() = json.context
@@ -31,7 +31,7 @@ private sealed class AbstractJsonTreeOutput(
 
     private var writePolymorphic = false
 
-    override fun encodeJson(element: JsonElement) {
+    override fun encodeJsonElement(element: JsonElement) {
         encodeSerializableValue(JsonElementSerializer, element)
     }
 
@@ -59,7 +59,7 @@ private sealed class AbstractJsonTreeOutput(
         // Writing non-structured data (i.e. primitives) on top-level (e.g. without any tag) requires special output
         if (currentTagOrNull != null || serializer.descriptor.kind !is PrimitiveKind && serializer.descriptor.kind !== UnionKind.ENUM_KIND) {
             encodePolymorphically(serializer, value) { writePolymorphic = true }
-        } else JsonPrimitiveOutput(json, nodeConsumer).apply {
+        } else JsonPrimitiveEncoder(json, nodeConsumer).apply {
             encodeSerializableValue(serializer, value)
             endEncode(serializer.descriptor)
         }
@@ -92,13 +92,13 @@ private sealed class AbstractJsonTreeOutput(
             else { node -> putElement(currentTag, node) }
 
         val encoder = when (descriptor.kind) {
-            StructureKind.LIST, is PolymorphicKind -> JsonTreeListOutput(json, consumer)
+            StructureKind.LIST, is PolymorphicKind -> JsonTreeListEncoder(json, consumer)
             StructureKind.MAP -> json.selectMapMode(
                 descriptor,
-                { JsonTreeMapOutput(json, consumer) },
-                { JsonTreeListOutput(json, consumer) }
+                { JsonTreeMapEncoder(json, consumer) },
+                { JsonTreeListEncoder(json, consumer) }
             )
-            else -> JsonTreeOutput(json, consumer)
+            else -> JsonTreeEncoder(json, consumer)
         }
 
         if (writePolymorphic) {
@@ -116,8 +116,8 @@ private sealed class AbstractJsonTreeOutput(
 
 internal const val PRIMITIVE_TAG = "primitive" // also used in JsonPrimitiveInput
 
-private class JsonPrimitiveOutput(json: Json, nodeConsumer: (JsonElement) -> Unit) :
-    AbstractJsonTreeOutput(json, nodeConsumer) {
+private class JsonPrimitiveEncoder(json: Json, nodeConsumer: (JsonElement) -> Unit) :
+    AbstractJsonTreeEncoder(json, nodeConsumer) {
     private var content: JsonElement? = null
 
     init {
@@ -134,9 +134,9 @@ private class JsonPrimitiveOutput(json: Json, nodeConsumer: (JsonElement) -> Uni
         requireNotNull(content) { "Primitive element has not been recorded. Is call to .encodeXxx is missing in serializer?" }
 }
 
-private open class JsonTreeOutput(
+private open class JsonTreeEncoder(
     json: Json, nodeConsumer: (JsonElement) -> Unit
-) : AbstractJsonTreeOutput(json, nodeConsumer) {
+) : AbstractJsonTreeEncoder(json, nodeConsumer) {
 
     protected val content: MutableMap<String, JsonElement> = linkedMapOf()
 
@@ -147,7 +147,7 @@ private open class JsonTreeOutput(
     override fun getCurrent(): JsonElement = JsonObject(content)
 }
 
-private class JsonTreeMapOutput(json: Json, nodeConsumer: (JsonElement) -> Unit) : JsonTreeOutput(json, nodeConsumer) {
+private class JsonTreeMapEncoder(json: Json, nodeConsumer: (JsonElement) -> Unit) : JsonTreeEncoder(json, nodeConsumer) {
     private lateinit var tag: String
     private var isKey = true
 
@@ -170,8 +170,8 @@ private class JsonTreeMapOutput(json: Json, nodeConsumer: (JsonElement) -> Unit)
     }
 }
 
-private class JsonTreeListOutput(json: Json, nodeConsumer: (JsonElement) -> Unit) :
-    AbstractJsonTreeOutput(json, nodeConsumer) {
+private class JsonTreeListEncoder(json: Json, nodeConsumer: (JsonElement) -> Unit) :
+    AbstractJsonTreeEncoder(json, nodeConsumer) {
     private val array: ArrayList<JsonElement> = arrayListOf()
     override fun elementName(descriptor: SerialDescriptor, index: Int): String = index.toString()
 

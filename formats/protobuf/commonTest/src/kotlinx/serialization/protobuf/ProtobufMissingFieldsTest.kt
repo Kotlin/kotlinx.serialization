@@ -95,20 +95,12 @@ class ProtobufMissingFieldsTest {
         }
 
         override fun deserialize(decoder: Decoder): ItemPlatform {
-            if (decoder is JsonInput) {
-                val str = decoder.decodeString()
-                return ItemPlatform.valueOf(str)
-            }
             val index = decoder.decodeInt()
             return ItemPlatform.values()[index]
         }
 
         override fun serialize(encoder: Encoder, value: ItemPlatform) {
-            if (encoder is JsonOutput) {
-                encoder.encodeString(value.name.toLowerCase())
-            } else {
-                encoder.encodeInt(value.ordinal)
-            }
+            encoder.encodeInt(value.ordinal)
         }
     }
 
@@ -121,20 +113,12 @@ class ProtobufMissingFieldsTest {
         }
 
         override fun deserialize(decoder: Decoder): ItemContext {
-            if (decoder is JsonInput) {
-                val str = decoder.decodeString()
-                return ItemContext.valueOf(str)
-            }
             val index = decoder.decodeInt()
             return ItemContext.values()[index]
         }
 
         override fun serialize(encoder: Encoder, value: ItemContext) {
-            if (encoder is JsonOutput) {
-                encoder.encodeString(value.name.toLowerCase())
-            } else {
-                encoder.encodeInt(value.ordinal)
-            }
+            encoder.encodeInt(value.ordinal)
         }
     }
 }

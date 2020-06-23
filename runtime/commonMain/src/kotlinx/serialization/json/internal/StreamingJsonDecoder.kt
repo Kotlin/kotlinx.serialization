@@ -12,26 +12,26 @@ import kotlinx.serialization.modules.*
 import kotlin.jvm.*
 
 /**
- * [JsonInput] which reads given JSON from [JsonReader] field by field.
+ * [JsonDecoder] which reads given JSON from [JsonReader] field by field.
  */
-internal class StreamingJsonInput internal constructor(
+internal class StreamingJsonDecoder internal constructor(
     public override val json: Json,
     private val mode: WriteMode,
     @JvmField internal val reader: JsonReader
-) : JsonInput, AbstractDecoder() {
+) : JsonDecoder, AbstractDecoder() {
 
     public override val context: SerialModule = json.context
     private var currentIndex = -1
     private val configuration = json.configuration
 
-    // must override public open val updateMode: UpdateMode defined in kotlinx.serialization.json.JsonInput
+    // must override public open val updateMode: UpdateMode defined in kotlinx.serialization.json.JsonDecoder
     // because it inherits many implementations of it
     @Suppress("DEPRECATION")
     @Deprecated(updateModeDeprecated, level = DeprecationLevel.HIDDEN)
     override val updateMode: UpdateMode
         get() = UpdateMode.OVERWRITE
 
-    public override fun decodeJson(): JsonElement = JsonParser(json.configuration, reader).read()
+    public override fun decodeJsonElement(): JsonElement = JsonParser(json.configuration, reader).read()
 
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
         return decodeSerializableValuePolymorphic(deserializer)
@@ -44,13 +44,13 @@ internal class StreamingJsonInput internal constructor(
             reader.nextToken()
         }
         return when (newMode) {
-            WriteMode.LIST, WriteMode.MAP, WriteMode.POLY_OBJ -> StreamingJsonInput(
+            WriteMode.LIST, WriteMode.MAP, WriteMode.POLY_OBJ -> StreamingJsonDecoder(
                 json,
                 newMode,
                 reader
             ) // need fresh cur index
             else -> if (mode == newMode) this else
-                StreamingJsonInput(json, newMode, reader) // todo: reuse instance per mode
+                StreamingJsonDecoder(json, newMode, reader) // todo: reuse instance per mode
         }
     }
 

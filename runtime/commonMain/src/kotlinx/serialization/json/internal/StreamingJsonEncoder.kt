@@ -11,15 +11,15 @@ import kotlinx.serialization.modules.*
 import kotlin.jvm.*
 
 
-internal class StreamingJsonOutput(
+internal class StreamingJsonEncoder(
     private val composer: Composer, override val json: Json,
     private val mode: WriteMode,
-    private val modeReuseCache: Array<JsonOutput?>
-) : JsonOutput, AbstractEncoder() {
+    private val modeReuseCache: Array<JsonEncoder?>
+) : JsonEncoder, AbstractEncoder() {
 
     internal constructor(
         output: StringBuilder, json: Json, mode: WriteMode,
-        modeReuseCache: Array<JsonOutput?>
+        modeReuseCache: Array<JsonEncoder?>
     ) : this(Composer(output, json), json, mode, modeReuseCache)
 
     public override val context: SerialModule = json.context
@@ -35,7 +35,7 @@ internal class StreamingJsonOutput(
             modeReuseCache[i] = this
     }
 
-    override fun encodeJson(element: JsonElement) {
+    override fun encodeJsonElement(element: JsonElement) {
         encodeSerializableValue(JsonElementSerializer, element)
     }
 
@@ -73,7 +73,7 @@ internal class StreamingJsonOutput(
             return this
         }
 
-        return modeReuseCache[newMode.ordinal] ?: StreamingJsonOutput(composer, json, newMode, modeReuseCache)
+        return modeReuseCache[newMode.ordinal] ?: StreamingJsonEncoder(composer, json, newMode, modeReuseCache)
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
