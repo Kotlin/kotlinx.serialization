@@ -14,7 +14,7 @@ class ProtobufMissingFieldsTest {
 
     @Test
     fun testDeserializeAllFields() {
-        val items = ProtoBuf.load(Items.serializer(), buffer)
+        val items = ProtoBuf.decodeFromByteArray(Items.serializer(), buffer)
         assertEquals(25, items.pageSize)
         assertFalse(items.nextPage)
         assertEquals(1, items.items.size)
@@ -26,7 +26,7 @@ class ProtobufMissingFieldsTest {
 
     @Test
     fun testDeserializeSomeTagsAreNotInSchema() {
-        val items = ProtoBuf.load(ItemsWithoutPageSize.serializer(), buffer)
+        val items = ProtoBuf.decodeFromByteArray(ItemsWithoutPageSize.serializer(), buffer)
         assertFalse(items.nextPage)
         assertEquals(1, items.items.size)
         assertEquals(11, items.items[0].id)

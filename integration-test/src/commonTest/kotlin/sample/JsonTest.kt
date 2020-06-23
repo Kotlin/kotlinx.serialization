@@ -26,13 +26,13 @@ class JsonTest {
     
     @Test
     fun testStringForm() {
-        val str = Json.stringify(Data.serializer(), originalData)
+        val str = Json.encodeToString(Data.serializer(), originalData)
         assertEquals(originalString, str)
     }
 
     @Test
     fun testSerializeBack() {
-        val restored = Json.parse(Data.serializer(), originalString)
+        val restored = Json.decodeFromString(Data.serializer(), originalString)
         assertEquals(originalData, restored)
     }
 
@@ -61,7 +61,8 @@ class JsonTest {
         assertEquals("""{"iMessage":["MessageWithId",{"id":0,"body":"Message #0"}],"iMessageList":[["MessageWithId",{"id":1,"body":"Message #1"}],""" +
                 """["MessageWithId",{"id":2,"body":"Message #2"}]],"message":["MessageWithId",{"id":3,"body":"Message #3"}],"msgSet":[["SimpleMessage",""" +
                 """{"body":"Simple"}]],"simple":["DoubleSimpleMessage",{"body":"Simple","body2":"DoubleSimple"}],"withId":{"id":4,"body":"Message #4"}}""",
-            json.stringify(Holder.serializer(), data))
+            json.encodeToString(Holder.serializer(), data)
+        )
     }
 
     @Test
@@ -69,7 +70,7 @@ class JsonTest {
         val generic = GenericMessage<Message, Any>(MessageWithId(42, "body"), "body2")
         val serial = GenericMessage.serializer(Message.serializer(), Int.serializer() as KSerializer<Any>)
         val json = Json { useArrayPolymorphism = true; prettyPrint = false; serialModule = testModule }
-        val s = json.stringify(serial, generic)
+        val s = json.encodeToString(serial, generic)
         assertEquals("""{"value":["MessageWithId",{"id":42,"body":"body"}],"value2":["kotlin.String","body2"]}""", s)
     }
 
@@ -82,31 +83,32 @@ class JsonTest {
     @Test
     fun canBeSerializedAsDerived() {
         val derived = Derived(42)
-        val msg = Json.stringify(Derived.serializer(), derived)
+        val msg = Json.encodeToString(Derived.serializer(), derived)
         assertEquals("""{"publicState":"A","privateState":"B","derivedState":42,"rootState":"foo"}""", msg)
-        val d2 = Json.parse(Derived.serializer(), msg)
+        val d2 = Json.decodeFromString(Derived.serializer(), msg)
         assertEquals(derived, d2)
     }
 
     @Test
     fun canBeSerializedAsParent() {
         val derived = Derived(42)
-        val msg = Json.stringify(SerializableBase.serializer(), derived)
+        val msg = Json.encodeToString(SerializableBase.serializer(), derived)
         assertEquals("""{"publicState":"A","privateState":"B"}""", msg)
-        val d2 = Json.parse(SerializableBase.serializer(), msg)
+        val d2 = Json.decodeFromString(SerializableBase.serializer(), msg)
         assertEquals(SerializableBase(), d2)
         // no derivedState
-        assertFailsWith<MissingFieldException> { Json.parse(Derived.serializer(), msg) }
+        assertFailsWith<MissingFieldException> { Json.decodeFromString(Derived.serializer(), msg) }
     }
 
     @Test
     fun testWithOpenProperty() {
         val d = Derived2("foo")
-        val msgFull = Json.stringify(Derived2.serializer(), d)
+        val msgFull = Json.encodeToString(Derived2.serializer(), d)
         assertEquals("""{"state1":"foo","state2":"foo"}""", msgFull)
-        assertEquals("""{"state1":"foo"}""", Json.stringify(Base1.serializer(), d))
-        val restored = Json.parse(Derived2.serializer(), msgFull)
-        val restored2 = Json.parse(Derived2.serializer(), """{"state1":"bar","state2":"foo"}""") // state1 is ignored anyway
+        assertEquals("""{"state1":"foo"}""", Json.encodeToString(Base1.serializer(), d))
+        val restored = Json.decodeFromString(Derived2.serializer(), msgFull)
+        val restored2 =
+            Json.decodeFromString(Derived2.serializer(), """{"state1":"bar","state2":"foo"}""") // state1 is ignored anyway
         assertEquals("""Derived2(state1='foo')""", restored.toString())
         assertEquals("""Derived2(state1='foo')""", restored2.toString())
     }
@@ -137,7 +139,7 @@ class JsonTest {
         checkNotRegisteredMessage(
             "sample.IntData", "kotlin.Any",
             assertFailsWith<SerializationException>("not registered") {
-                Json.stringify(
+                Json.encodeToString(
                     MyPolyData.serializer(),
                     MyPolyData(mapOf("a" to IntData(42)))
                 )
@@ -166,7 +168,7 @@ class JsonTest {
         checkNotRegisteredMessage(
             "sample.PolyDerived", "kotlin.Any",
             assertFailsWith<SerializationException> {
-                json.stringify(
+                json.encodeToString(
                     MyPolyData.serializer(),
                     MyPolyData(mapOf("a" to PolyDerived("foo")))
                 )
@@ -201,7 +203,7 @@ class JsonTest {
         checkNotRegisteredMessage(
             "sample.PolyDerived", "sample.PolyBase",
             assertFailsWith<SerializationException> {
-                json.stringify(
+                json.encodeToString(
                     MyPolyDataWithPolyBase.serializer(),
                     MyPolyDataWithPolyBase(mapOf("a" to PolyDerived("foo")), PolyDerived("foo"))
                 )
@@ -222,20 +224,20 @@ class JsonTest {
 
     @Test
     fun geoTest() {
-        val deser = nonstrict.parse(GeoCoordinate.serializer(), """{"latitude":1.0,"longitude":1.0}""")
+        val deser = nonstrict.decodeFromString(GeoCoordinate.serializer(), """{"latitude":1.0,"longitude":1.0}""")
         assertEquals(GeoCoordinate(1.0, 1.0), deser)
     }
 
     @Test
     fun geoTest2() {
-        val deser = nonstrict.parse(GeoCoordinate.serializer(), """{}""")
+        val deser = nonstrict.decodeFromString(GeoCoordinate.serializer(), """{}""")
         assertEquals(GeoCoordinate(0.0, 0.0), deser)
     }
 
     @Test
     fun geoTestValidation() {
         assertFailsWith<IllegalArgumentException> {
-            nonstrict.parse(GeoCoordinate.serializer(), """{"latitude":-1.0,"longitude":1.0}""")
+            nonstrict.decodeFromString(GeoCoordinate.serializer(), """{"latitude":-1.0,"longitude":1.0}""")
         }
     }
 }
@@ -247,10 +249,10 @@ inline fun <reified T : Any> assertStringFormAndRestored(
     format: StringFormat = Json,
     printResult: Boolean = false
 ) {
-    val string = format.stringify(serializer, original)
+    val string = format.encodeToString(serializer, original)
     if (printResult) println("[Serialized form] $string")
     assertEquals(expected, string)
-    val restored = format.parse(serializer, string)
+    val restored = format.decodeFromString(serializer, string)
     if (printResult) println("[Restored form] $original")
     assertEquals(original, restored)
 }

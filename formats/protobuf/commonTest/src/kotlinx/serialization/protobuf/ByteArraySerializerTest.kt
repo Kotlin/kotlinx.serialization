@@ -36,9 +36,9 @@ class ByteArraySerializerTest {
     @Test
     fun testByteArrayProtobuf() {
         val obj = ByteArrayCarrier(byteArrayOf(42, 100))
-        val s = ProtoBuf.dumps(ByteArrayCarrier.serializer(), obj)
+        val s = ProtoBuf.encodeToHexString(ByteArrayCarrier.serializer(), obj)
         assertEquals("""12022a64""", s)
-        val obj2 = ProtoBuf.loads(ByteArrayCarrier.serializer(), s)
+        val obj2 = ProtoBuf.decodeFromHexString(ByteArrayCarrier.serializer(), s)
         assertEquals(obj, obj2)
     }
 
@@ -47,7 +47,7 @@ class ByteArraySerializerTest {
         val arraySize = 301
         val arr = Random.nextBytes(ByteArray(arraySize))
         val obj = ByteArrayCarrier(arr)
-        val bytes = ProtoBuf.dump(ByteArrayCarrier.serializer(), obj)
-        assertEquals(obj, ProtoBuf.load(ByteArrayCarrier.serializer(), bytes))
+        val bytes = ProtoBuf.encodeToByteArray(ByteArrayCarrier.serializer(), obj)
+        assertEquals(obj, ProtoBuf.decodeFromByteArray(ByteArrayCarrier.serializer(), bytes))
     }
 }

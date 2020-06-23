@@ -47,8 +47,8 @@ public abstract class kotlinx/serialization/AbstractSerialFormat : kotlinx/seria
 }
 
 public abstract interface class kotlinx/serialization/BinaryFormat : kotlinx/serialization/SerialFormat {
-	public abstract fun dump (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
-	public abstract fun load (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
+	public abstract fun decodeFromByteArray (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
+	public abstract fun encodeToByteArray (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
 }
 
 public abstract interface class kotlinx/serialization/CompositeDecoder {
@@ -248,6 +248,10 @@ public final class kotlinx/serialization/Mapper {
 
 public final class kotlinx/serialization/MigrationsKt {
 	public static final fun compiledSerializer (Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
+	public static final fun dump (Lkotlinx/serialization/BinaryFormat;Ljava/lang/Object;)[B
+	public static final fun dump (Lkotlinx/serialization/BinaryFormat;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
+	public static final fun dumps (Lkotlinx/serialization/BinaryFormat;Ljava/lang/Object;)Ljava/lang/String;
+	public static final fun dumps (Lkotlinx/serialization/BinaryFormat;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/lang/String;
 	public static final fun getContextualOrDefault (Lkotlinx/serialization/modules/SerialModule;Ljava/lang/Object;)Lkotlinx/serialization/KSerializer;
 	public static final fun getContextualOrDefault (Lkotlinx/serialization/modules/SerialModule;Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
 	public static final fun getList (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
@@ -255,6 +259,10 @@ public final class kotlinx/serialization/MigrationsKt {
 	public static final fun getNullable (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
 	public static final fun getPolymorphicClassDescriptor ()Lkotlinx/serialization/SerialDescriptor;
 	public static final fun getSet (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public static final fun load (Lkotlinx/serialization/BinaryFormat;Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
+	public static final fun load (Lkotlinx/serialization/BinaryFormat;[B)Ljava/lang/Object;
+	public static final fun loads (Lkotlinx/serialization/BinaryFormat;Ljava/lang/String;)Ljava/lang/Object;
+	public static final fun loads (Lkotlinx/serialization/BinaryFormat;Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
 	public static final fun parse (Lkotlinx/serialization/StringFormat;Ljava/lang/String;)Ljava/lang/Object;
 	public static final fun parse (Lkotlinx/serialization/StringFormat;Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
 	public static final fun stringify (Lkotlinx/serialization/StringFormat;Ljava/lang/Object;)Ljava/lang/String;
@@ -404,8 +412,8 @@ public abstract interface class kotlinx/serialization/SerialFormat {
 }
 
 public final class kotlinx/serialization/SerialFormatKt {
-	public static final fun dumps (Lkotlinx/serialization/BinaryFormat;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/lang/String;
-	public static final fun loads (Lkotlinx/serialization/BinaryFormat;Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
+	public static final fun decodeFromHexString (Lkotlinx/serialization/BinaryFormat;Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
+	public static final fun encodeToHexString (Lkotlinx/serialization/BinaryFormat;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/lang/String;
 }
 
 public abstract interface annotation class kotlinx/serialization/SerialId : java/lang/annotation/Annotation {

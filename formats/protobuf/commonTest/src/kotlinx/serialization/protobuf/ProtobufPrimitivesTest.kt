@@ -11,9 +11,9 @@ import kotlin.test.*
 class ProtobufPrimitivesTest {
 
     private fun <T> testConversion(data: T, serializer: KSerializer<T>, expectedHexString: String) {
-        val string = ProtoBuf.dumps(serializer, data).toUpperCase()
+        val string = ProtoBuf.encodeToHexString(serializer, data).toUpperCase()
         assertEquals(expectedHexString, string)
-        assertEquals(data, ProtoBuf.loads(serializer, string))
+        assertEquals(data, ProtoBuf.decodeFromHexString(serializer, string))
     }
 
     @Test

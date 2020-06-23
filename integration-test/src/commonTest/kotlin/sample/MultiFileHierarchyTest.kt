@@ -5,10 +5,7 @@
 
 package sample
 
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
-import kotlinx.serialization.UnstableDefault
+import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 
@@ -19,15 +16,15 @@ class AbstractBaseTest {
     @Test
     fun concreteClass_test() {
         val concrete = ConcreteClass()
-        val serialized: String = Json.stringify(ConcreteClass.serializer(), concrete)
-        val parsed: ConcreteClass = Json.parse(ConcreteClass.serializer(), serialized)
+        val serialized: String = Json.encodeToString(ConcreteClass.serializer(), concrete)
+        val parsed: ConcreteClass = Json.decodeFromString(ConcreteClass.serializer(), serialized)
     }
 
     @Test
     fun stubConcreteClass_test() {
         val concrete = StubConcreteClass()
-        val serialized: String = Json.stringify(StubConcreteClass.serializer(), concrete)
-        val parsed: StubConcreteClass = Json.parse(StubConcreteClass.serializer(), serialized)
+        val serialized: String = Json.encodeToString(StubConcreteClass.serializer(), concrete)
+        val parsed: StubConcreteClass = Json.decodeFromString(StubConcreteClass.serializer(), serialized)
     }
 
 
