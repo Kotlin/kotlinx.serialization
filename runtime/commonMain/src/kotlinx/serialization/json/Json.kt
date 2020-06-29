@@ -1,12 +1,13 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+@file:OptIn(UnstableDefault::class)
+
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
-import kotlin.jvm.*
 import kotlin.native.concurrent.*
 import kotlin.reflect.*
 
@@ -46,49 +47,14 @@ import kotlin.reflect.*
  *  val deserializedToTree: JsonElement = json.parseJsonElement(stringOutput)
  * ```
  */
-public class Json
-
-/**
- * Default Json constructor not marked as unstable API.
- * To configure Json format behavior while still using only stable API it is possible to use `JsonConfiguration.copy` factory:
- * ```
- * val json = Json(configuration: = JsonConfiguration.Stable.copy(prettyPrint = true))
- * ```
- */
-public constructor(
-    @JvmField internal val configuration: JsonConfiguration = JsonConfiguration.Stable,
-    context: SerialModule = EmptyModule
-) : StringFormat {
-    override val context: SerialModule = context + defaultJsonModule
+public sealed class Json(internal val configuration: JsonConfiguration) : StringFormat {
 
     /**
-     * DSL-like constructor for Json.
-     * This constructor is marked with unstable default: its default parameters values and behaviour may change in the next releases.
+     * Serializes the [value] into an equivalent JSON using the given [serializer].
+     * @throws [JsonException] if the given value can not be encoded to JSON
+     * @throws [SerializationException] if the given value cannot be serialized
      */
-    @UnstableDefault
-    public constructor(block: JsonBuilder.() -> Unit) : this(JsonBuilder().apply { block() })
-
-    @OptIn(UnstableDefault::class)
-    @Deprecated(
-        message = "Default constructor is deprecated, please specify the desired configuration explicitly or use Json(JsonConfiguration.Default)",
-        replaceWith = ReplaceWith("Json(JsonConfiguration.Default)"),
-        level = DeprecationLevel.ERROR
-    )
-    public constructor() : this(JsonConfiguration(useArrayPolymorphism = true))
-
-    @OptIn(UnstableDefault::class)
-    private constructor(builder: JsonBuilder) : this(builder.buildConfiguration(), builder.buildModule())
-
-    init {
-        validateConfiguration()
-    }
-
-    /**
-     * Serializes [value] into an equivalent JSON using provided [serializer].
-     * @throws [JsonException] if given value can not be encoded
-     * @throws [SerializationException] if given value can not be serialized
-     */
-    public override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
+    public final override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
         val result = StringBuilder()
         val encoder = StreamingJsonEncoder(
             result, this,
@@ -100,38 +66,41 @@ public constructor(
     }
 
     /**
-     * Serializes [value] into an equivalent [JsonElement] using provided [serializer].
-     * @throws [JsonException] if given value can not be encoded
-     * @throws [SerializationException] if given value can not be serialized
+     * Deserializes the given JSON [string] into a value of type [T] using the given [deserializer].
+     *
+     * @throws [JsonException] if the given JSON string is malformed and cannot be decoded.
+     * @throws [SerializationException] if the given input cannot be deserialized.
      */
-    public fun <T> encodeToJsonElement(serializer: SerializationStrategy<T>, value: T): JsonElement {
-        return writeJson(value, serializer)
-    }
-
-    /**
-     * Serializes [value] into an equivalent [JsonElement] using serializer registered in the module.
-     * @throws [JsonException] if given value can not be encoded
-     * @throws [SerializationException] if given value can not be serialized
-     */
-    public inline fun <reified T : Any> encodeToJsonElement(value: T): JsonElement {
-        return encodeToJsonElement(context.getContextualOrDefault(), value)
-    }
-
-    /**
-     * Deserializes given json [string] into a corresponding object of type [T] using provided [deserializer].
-     * @throws [JsonException] in case of malformed json
-     * @throws [SerializationException] if given input can not be deserialized
-     */
-    public override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
+    public final override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
         val reader = JsonReader(string)
         val input = StreamingJsonDecoder(this, WriteMode.OBJ, reader)
         val result = input.decode(deserializer)
         if (!reader.isDone) { error("Reader has not consumed the whole input: $reader") }
         return result
     }
+    /**
+     * Serializes the given [value] into an equivalent [JsonElement] using the given [serializer]
+     *
+     * @throws [JsonException] if the given value can not be encoded.
+     * @throws [SerializationException] if the given value can not be serialized.
+     */
+    public fun <T> encodeToJsonElement(serializer: SerializationStrategy<T>, value: T): JsonElement {
+        return writeJson(value, serializer)
+    }
 
     /**
-     * Deserializes given json [string] into a corresponding [JsonElement] representation.
+     * Deserializes the given [json] element into a value of type [T] using the given [deserializer].
+     *
+     * @throws [JsonException] if the given JSON string is malformed and cannot be decoded.
+     * @throws [SerializationException] if the given input can not be deserialized.
+     */
+    public fun <T> decodeFromJsonElement(deserializer: DeserializationStrategy<T>, json: JsonElement): T {
+        return readJson(json, deserializer)
+    }
+
+    /**
+     * Deserializes the given JSON [string] into a corresponding [JsonElement] representation.
+     *
      * @throws [JsonException] in case of malformed json
      * @throws [SerializationException] if given input can not be deserialized
      */
@@ -140,80 +109,48 @@ public constructor(
     }
 
     /**
-     * Deserializes [json] element into a corresponding object of type [T] using provided [deserializer].
-     * @throws [JsonException] in case of malformed json
-     * @throws [SerializationException] if given input can not be deserialized
+     * The default instance of [Json] with default configuration.
      */
-    public fun <T> decodeFromJsonElement(deserializer: DeserializationStrategy<T>, json: JsonElement): T {
-        return readJson(json, deserializer)
-    }
-
-    /**
-     * Deserializes [element] element into a corresponding object of type [T] using serializer registered in the module.
-     * @throws [JsonException] in case of malformed json
-     * @throws [SerializationException] if given input can not be deserialized
-     */
-    public inline fun <reified T : Any> decodeFromJsonElement(element: JsonElement): T =
-        decodeFromJsonElement(context.getContextualOrDefault(), element)
-
-    /**
-     * The default instance of [Json] in the form of companion object. Configured with [JsonConfiguration.Default].
-     */
-    @UnstableDefault
-    public companion object Default : StringFormat {
-
-        private val jsonInstance = Json(JsonConfiguration.Default)
-
-        override val context: SerialModule
-            get() = jsonInstance.context
-
-        override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String =
-            jsonInstance.encodeToString(serializer, value)
-
-        override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T =
-            jsonInstance.decodeFromString(deserializer, string)
-
-        /**
-         * @see Json.encodeToJsonElement
-         */
-        public fun <T> encodeToJsonElement(serializer: SerializationStrategy<T>, value: T): JsonElement {
-            return jsonInstance.writeJson(value, serializer)
-        }
-
-        /**
-         * @see Json.encodeToJsonElement
-         */
-        public inline fun <reified T : Any> encodeToJsonElement(value: T): JsonElement {
-            return encodeToJsonElement(context.getContextualOrDefault(), value)
-        }
-
-        /**
-         * @see Json.parseToJsonElement
-         */
-        public fun parseToJsonElement(string: String): JsonElement {
-            return decodeFromString(JsonElementSerializer, string)
-        }
-
-        /**
-         * @see Json.decodeFromJsonElement
-         */
-        public fun <T> decodeFromJsonElement(deserializer: DeserializationStrategy<T>, json: JsonElement): T {
-            return jsonInstance.readJson(json, deserializer)
-        }
-
-        /**
-         * @see Json.decodeFromJsonElement
-         */
-        public inline fun <reified T : Any> decodeFromJsonElement(tree: JsonElement): T =
-            decodeFromJsonElement(context.getContextualOrDefault(), tree)
-    }
-
-    private fun validateConfiguration() {
-        if (configuration.useArrayPolymorphism) return
-        val collector = ContextValidator(configuration.classDiscriminator)
-        context.dumpTo(collector)
+    public companion object Default : Json(JsonConfiguration.Default) {
+        override val context: SerialModule = defaultJsonModule
     }
 }
+
+/**
+ * Default Json constructor .
+ * To configure Json format behavior while still using only stable API it is possible to use `JsonConfiguration.copy` factory:
+ * ```
+ * val json = Json(configuration: = JsonConfiguration.Stable.copy(prettyPrint = true))
+ * ```
+ */
+public fun Json(configuration: JsonConfiguration = JsonConfiguration.Stable, context: SerialModule = EmptyModule
+): Json = JsonImpl(configuration, context)
+
+/**
+ * DSL-like constructor for [Json].
+ */
+public fun Json(block: JsonBuilder.() -> Unit): Json = JsonImpl(JsonBuilder().apply { block() })
+
+/**
+ * Serializes the given [value] into an equivalent [JsonElement] using a serializer retrieved
+ * from reified type parameter.
+ *
+ * @throws [JsonException] if the given value can not be encoded.
+ * @throws [SerializationException] if the given value can not be serialized.
+ */
+public inline fun <reified T : Any> Json.encodeToJsonElement(value: T): JsonElement {
+    return encodeToJsonElement(context.getContextualOrDefault(), value)
+}
+
+/**
+ * Deserializes the given [json] element into a value of type [T] using a deserialize retrieved
+ * from reified type parameter.
+ *
+ * @throws [JsonException] if the given JSON string is malformed and cannot be decoded.
+ * @throws [SerializationException] if the given input can not be deserialized.
+ */
+public inline fun <reified T : Any> Json.decodeFromJsonElement(tree: JsonElement): T =
+    decodeFromJsonElement(context.getContextualOrDefault(), tree)
 
 /**
  * Builder to conveniently build Json instances.
@@ -276,3 +213,23 @@ private val defaultJsonModule = serializersModuleOf(
 )
 
 internal const val lenientHint = "Use 'JsonConfiguration.isLenient = true' to accept non-compliant JSON"
+
+
+internal class JsonImpl(
+    configuration: JsonConfiguration = JsonConfiguration.Stable,
+    context: SerialModule = EmptyModule
+) : Json(configuration) {
+    override val context: SerialModule = context + defaultJsonModule
+
+    constructor(builder: JsonBuilder) : this(builder.buildConfiguration(), builder.buildModule())
+
+    init {
+        validateConfiguration()
+    }
+
+    private fun validateConfiguration() {
+        if (configuration.useArrayPolymorphism) return
+        val collector = ContextValidator(configuration.classDiscriminator)
+        context.dumpTo(collector)
+    }
+}
