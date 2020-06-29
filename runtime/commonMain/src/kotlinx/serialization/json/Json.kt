@@ -1,7 +1,7 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-@file:Suppress("EXPERIMENTAL_API_USAGE")
+@file:OptIn(UnstableDefault::class)
 
 package kotlinx.serialization.json
 
@@ -54,7 +54,16 @@ public sealed class Json(internal val configuration: JsonConfiguration) : String
      * @throws [JsonException] if the given value can not be encoded to JSON
      * @throws [SerializationException] if the given value cannot be serialized
      */
-    public abstract override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String
+    public final override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
+        val result = StringBuilder()
+        val encoder = StreamingJsonEncoder(
+            result, this,
+            WriteMode.OBJ,
+            arrayOfNulls(WriteMode.values().size)
+        )
+        encoder.encode(serializer, value)
+        return result.toString()
+    }
 
     /**
      * Deserializes the given JSON [string] into a value of type [T] using the given [deserializer].
@@ -62,15 +71,22 @@ public sealed class Json(internal val configuration: JsonConfiguration) : String
      * @throws [JsonException] if the given JSON string is malformed and cannot be decoded.
      * @throws [SerializationException] if the given input cannot be deserialized.
      */
-    public abstract override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T
-
+    public final override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
+        val reader = JsonReader(string)
+        val input = StreamingJsonDecoder(this, WriteMode.OBJ, reader)
+        val result = input.decode(deserializer)
+        if (!reader.isDone) { error("Reader has not consumed the whole input: $reader") }
+        return result
+    }
     /**
      * Serializes the given [value] into an equivalent [JsonElement] using the given [serializer]
      *
      * @throws [JsonException] if the given value can not be encoded.
      * @throws [SerializationException] if the given value can not be serialized.
      */
-    public abstract fun <T> encodeToJsonElement(serializer: SerializationStrategy<T>, value: T): JsonElement
+    public fun <T> encodeToJsonElement(serializer: SerializationStrategy<T>, value: T): JsonElement {
+        return writeJson(value, serializer)
+    }
 
     /**
      * Deserializes the given [json] element into a value of type [T] using the given [deserializer].
@@ -96,20 +112,7 @@ public sealed class Json(internal val configuration: JsonConfiguration) : String
      * The default instance of [Json] with default configuration.
      */
     public companion object Default : Json(JsonConfiguration.Default) {
-        private val jsonInstance = Json(JsonConfiguration.Default, EmptyModule)
-
-        override val context: SerialModule
-            get() = jsonInstance.context
-
-        override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String =
-            jsonInstance.encodeToString(serializer, value)
-
-        override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T =
-            jsonInstance.decodeFromString(deserializer, string)
-
-        override fun <T> encodeToJsonElement(serializer: SerializationStrategy<T>, value: T): JsonElement {
-            return jsonInstance.writeJson(value, serializer)
-        }
+        override val context: SerialModule = defaultJsonModule
     }
 }
 
@@ -223,30 +226,6 @@ internal class JsonImpl(
     init {
         validateConfiguration()
     }
-
-    public override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
-        val result = StringBuilder()
-        val encoder = StreamingJsonEncoder(
-            result, this,
-            WriteMode.OBJ,
-            arrayOfNulls(WriteMode.values().size)
-        )
-        encoder.encode(serializer, value)
-        return result.toString()
-    }
-
-    public override fun <T> encodeToJsonElement(serializer: SerializationStrategy<T>, value: T): JsonElement {
-        return writeJson(value, serializer)
-    }
-
-    public override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
-        val reader = JsonReader(string)
-        val input = StreamingJsonDecoder(this, WriteMode.OBJ, reader)
-        val result = input.decode(deserializer)
-        if (!reader.isDone) { error("Reader has not consumed the whole input: $reader") }
-        return result
-    }
-
 
     private fun validateConfiguration() {
         if (configuration.useArrayPolymorphism) return
