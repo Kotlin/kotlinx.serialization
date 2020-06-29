@@ -4,7 +4,6 @@
 
 package kotlinx.serialization.protobuf.internal
 
-import kotlinx.io.*
 import kotlinx.serialization.protobuf.*
 import kotlin.jvm.*
 
@@ -68,7 +67,7 @@ internal class ProtobufWriter(@JvmField val out: ByteArrayOutput) {
         out.writeInt(value.reverseBytes())
     }
 
-    private fun Output.encode32(
+    private fun ByteArrayOutput.encode32(
         number: Int,
         format: ProtoNumberType = ProtoNumberType.DEFAULT
     ) {
@@ -79,7 +78,7 @@ internal class ProtobufWriter(@JvmField val out: ByteArrayOutput) {
         }
     }
 
-    private fun Output.encode64(number: Long, format: ProtoNumberType = ProtoNumberType.DEFAULT) {
+    private fun ByteArrayOutput.encode64(number: Long, format: ProtoNumberType = ProtoNumberType.DEFAULT) {
         when (format) {
             ProtoNumberType.FIXED -> out.writeLong(number.reverseBytes())
             ProtoNumberType.DEFAULT -> encodeVarint64(number)

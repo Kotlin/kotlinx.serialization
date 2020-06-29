@@ -4,22 +4,9 @@
 
 package kotlinx.serialization.internal
 
-import kotlinx.io.*
 import kotlinx.serialization.*
-import kotlin.jvm.*
 import kotlin.native.concurrent.*
 import kotlin.reflect.*
-
-@InternalSerializationApi
-@Deprecated(
-    level = DeprecationLevel.ERROR,
-    message = "readExactNBytes slipped into public API surface accidentally and will be removed in the future releases. " +
-            "You can copy-paste it to your project or (better) find a polished implementation that initially was intended for public uses."
-)
-
-public fun Input.readExactNBytes(bytes: Int): ByteArray {
-    throw NotImplementedError("Deprecated")
-}
 
 @InternalSerializationApi
 @Deprecated(

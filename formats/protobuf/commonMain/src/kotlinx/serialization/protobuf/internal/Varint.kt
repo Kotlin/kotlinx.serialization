@@ -4,7 +4,6 @@
 
 package kotlinx.serialization.protobuf.internal
 
-import kotlinx.io.*
 import kotlin.jvm.*
 
 /**
@@ -13,7 +12,7 @@ import kotlin.jvm.*
  */
 internal object Varint {
     @JvmStatic
-    internal fun decodeSignedVarintInt(input: Input): Int {
+    internal fun decodeSignedVarintInt(input: ByteArrayInput): Int {
         val raw = input.readVarint32()
         val temp = raw shl 31 shr 31 xor raw shr 1
         // This extra step lets us deal with the largest signed values by treating
@@ -23,7 +22,7 @@ internal object Varint {
     }
 
     @JvmStatic
-    internal fun decodeSignedVarintLong(input: Input): Long {
+    internal fun decodeSignedVarintLong(input: ByteArrayInput): Long {
         val raw = input.readVarint64(false)
         val temp = raw shl 63 shr 63 xor raw shr 1
         // This extra step lets us deal with the largest signed values by treating

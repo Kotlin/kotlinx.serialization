@@ -4,7 +4,6 @@
 
 package kotlinx.serialization.protobuf.internal
 
-import kotlinx.io.*
 import kotlinx.serialization.protobuf.*
 import kotlin.jvm.*
 
@@ -65,7 +64,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
         return input.readExactNBytes(length)
     }
 
-    private fun Input.readExactNBytes(bytesCount: Int): ByteArray {
+    private fun ByteArrayInput.readExactNBytes(bytesCount: Int): ByteArray {
         if (bytesCount > availableBytes) {
             error("Unexpected EOF, available $availableBytes bytes, requested: $bytesCount")
         }

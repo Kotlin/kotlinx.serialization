@@ -1,46 +1,3 @@
-public final class kotlinx/io/ByteArrayInput : kotlinx/io/Input {
-	public fun <init> ([B)V
-	public fun getAvailableBytes ()I
-	public fun read ()I
-	public fun read ([BII)I
-	public fun readString (I)Ljava/lang/String;
-	public fun readVarint32 ()I
-	public fun readVarint64 (Z)J
-}
-
-public final class kotlinx/io/ByteArrayOutput : kotlinx/io/Output {
-	public fun <init> ()V
-	public fun encodeVarint32 (I)V
-	public fun encodeVarint64 (J)V
-	public final fun size ()I
-	public final fun toByteArray ()[B
-	public fun write (I)V
-	public fun write ([BII)V
-	public fun writeInt (I)V
-	public fun writeLong (J)V
-}
-
-public abstract class kotlinx/io/Input {
-	public fun <init> ()V
-	public abstract fun getAvailableBytes ()I
-	public abstract fun read ()I
-	public abstract fun read ([BII)I
-	public abstract fun readString (I)Ljava/lang/String;
-	public abstract fun readVarint32 ()I
-	public abstract fun readVarint64 (Z)J
-}
-
-public abstract class kotlinx/io/Output {
-	public fun <init> ()V
-	public abstract fun encodeVarint32 (I)V
-	public abstract fun encodeVarint64 (J)V
-	public abstract fun write (I)V
-	public final fun write ([B)V
-	public abstract fun write ([BII)V
-	public abstract fun writeInt (I)V
-	public abstract fun writeLong (J)V
-}
-
 public abstract class kotlinx/serialization/AbstractSerialFormat : kotlinx/serialization/SerialFormat {
 	public fun <init> (Lkotlinx/serialization/modules/SerialModule;)V
 	public fun getContext ()Lkotlinx/serialization/modules/SerialModule;
@@ -1390,7 +1347,6 @@ public final class kotlinx/serialization/internal/UtilKt {
 	public static final fun cast (Lkotlinx/serialization/DeserializationStrategy;)Lkotlinx/serialization/DeserializationStrategy;
 	public static final fun cast (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
 	public static final fun cast (Lkotlinx/serialization/SerializationStrategy;)Lkotlinx/serialization/SerializationStrategy;
-	public static final fun readExactNBytes (Lkotlinx/io/Input;I)[B
 }
 
 public final class kotlinx/serialization/json/Json : kotlinx/serialization/StringFormat {

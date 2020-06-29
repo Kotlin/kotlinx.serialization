@@ -7,8 +7,8 @@ package kotlinx.serialization.cbor
 import io.kotlintest.matchers.*
 import io.kotlintest.properties.*
 import io.kotlintest.specs.*
-import kotlinx.io.*
 import kotlinx.serialization.*
+import kotlinx.serialization.cbor.internal.*
 
 class CborWriterSpecTest : WordSpec() {
     init {
