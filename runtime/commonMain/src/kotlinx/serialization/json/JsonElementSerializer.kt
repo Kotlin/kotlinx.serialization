@@ -149,7 +149,7 @@ public object JsonObjectSerializer : KSerializer<JsonObject> {
 
     override fun serialize(encoder: Encoder, value: JsonObject) {
         verify(encoder)
-        MapSerializer(String.serializer(), JsonElementSerializer).serialize(encoder, value.content)
+        MapSerializer(String.serializer(), JsonElementSerializer).serialize(encoder, value)
     }
 
     override fun deserialize(decoder: Decoder): JsonObject {

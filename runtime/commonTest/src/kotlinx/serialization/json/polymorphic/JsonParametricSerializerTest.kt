@@ -25,10 +25,11 @@ class JsonParametricSerializerTest : JsonTestBase() {
 
     object ChoicesParametricSerializer : JsonParametricSerializer<Choices>(Choices::class) {
         override fun selectSerializer(element: JsonElement): KSerializer<out Choices> {
+            val obj = element.jsonObject
             return when {
-                "a" in element -> Choices.HasA.serializer()
-                "b" in element -> Choices.HasB.serializer()
-                "c" in element -> Choices.HasC.serializer()
+                "a" in obj -> Choices.HasA.serializer()
+                "b" in obj -> Choices.HasB.serializer()
+                "c" in obj -> Choices.HasC.serializer()
                 else -> throw SerializationException("Unknown choice")
             }
         }
@@ -83,7 +84,7 @@ class JsonParametricSerializerTest : JsonTestBase() {
 
     object PaymentSerializer : JsonParametricSerializer<Payment>(Payment::class) {
         override fun selectSerializer(element: JsonElement): KSerializer<out Payment> = when {
-            "reason" in element -> RefundedPayment.serializer()
+            "reason" in element.jsonObject -> RefundedPayment.serializer()
             else -> SuccessfulPayment.serializer()
         }
     }

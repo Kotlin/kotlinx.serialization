@@ -12,7 +12,7 @@ class JsonTreeTest : JsonTestBase() {
     private fun parse(input: String): JsonElement = default.decodeFromString(JsonElementSerializer, input)
 
     @Test
-    fun testParseWithoutExceptions() { 
+    fun testParseWithoutExceptions() {
         val input = """{"a": "foo",              "b": 10, "c": ["foo", 100500, {"bar": "baz"}]}"""
         parse(input)
     }
@@ -32,9 +32,9 @@ class JsonTreeTest : JsonTestBase() {
         assertEquals(setOf("a", "b", "c", "d"), elem.keys)
 
         assertEquals(JsonLiteral("foo"), elem["a"])
-        assertEquals(10, elem.getPrimitiveOrNull("b")?.int)
-        assertEquals(true, elem.getPrimitiveOrNull("c")?.boolean)
-        assertSame(elem.getAs("d"), JsonNull)
+        assertEquals(10, elem["b"]?.jsonPrimitive?.int)
+        assertEquals(true, elem["c"]?.jsonPrimitive?.boolean)
+        assertSame(elem.getValue("d") as JsonNull, JsonNull)
     }
 
     @Test
@@ -46,13 +46,13 @@ class JsonTreeTest : JsonTestBase() {
         assertEquals(setOf("a", "b", "c"), elem.keys)
         assertTrue(elem.getValue("c") is JsonArray)
 
-        val array = elem.getArray("c")
-        assertEquals("foo", array.getPrimitiveOrNull(0)?.content)
-        assertEquals(100500, array.getPrimitiveOrNull(1)?.int)
+        val array = elem.getValue("c").jsonArray
+        assertEquals("foo", array.getOrNull(0)?.jsonPrimitive?.content)
+        assertEquals(100500, array.getOrNull(1)?.jsonPrimitive?.int)
 
         assertTrue(array[2] is JsonObject)
-        val third = array.getObject(2)
-        assertEquals("baz", third.getPrimitive("bar").content)
+        val third = array[2].jsonObject
+        assertEquals("baz", third.getValue("bar").jsonPrimitive.content)
     }
 
     @Test
@@ -90,12 +90,12 @@ class JsonTreeTest : JsonTestBase() {
     fun testExceptionalState() {
         val tree =
             JsonObject(mapOf("a" to JsonLiteral(42), "b" to JsonArray(listOf(JsonNull)), "c" to JsonLiteral(false)))
-        assertFailsWith<NoSuchElementException> { tree.getObject("no key") }
-        assertFailsWith<JsonException> { tree.getArray("a") }
-        assertEquals(null, tree.getObjectOrNull("no key"))
-        assertEquals(null, tree.getArrayOrNull("a"))
+        assertFailsWith<NoSuchElementException> { tree.getValue("no key").jsonObject }
+        assertFailsWith<JsonException> { tree.getValue("a").jsonArray }
+        assertEquals(null, tree["no key"]?.jsonObject)
+        assertEquals(null, tree["a"] as? JsonArray)
 
-        val n = tree.getArray("b").getPrimitive(0)
+        val n = tree.getValue("b").jsonArray[0].jsonPrimitive
         assertFailsWith<NumberFormatException> { n.int }
         assertEquals(null, n.intOrNull)
 
@@ -117,22 +117,30 @@ class JsonTreeTest : JsonTestBase() {
 
     @Test
     fun testThatJsonObjectsCompareWithMaps() {
-        val jsonObject: Map<String, JsonElement> = JsonObject(mapOf(
+        val jsonObject: Map<String, JsonElement> = JsonObject(
+            mapOf(
                 "three" to JsonLiteral(3),
                 "four" to JsonLiteral(4)
-        ))
-        val hashMap: Map<String, JsonElement> = HashMap(mapOf(
+            )
+        )
+        val hashMap: Map<String, JsonElement> = HashMap(
+            mapOf(
                 "three" to JsonLiteral(3),
                 "four" to JsonLiteral(4)
-        ))
-        val otherJsonObject: Map<String, JsonElement> = JsonObject(mapOf(
-            "three" to JsonLiteral(3),
-            "five" to JsonLiteral(5)
-        ))
-        val otherHashMap: Map<String, JsonElement> = HashMap(mapOf(
+            )
+        )
+        val otherJsonObject: Map<String, JsonElement> = JsonObject(
+            mapOf(
+                "three" to JsonLiteral(3),
+                "five" to JsonLiteral(5)
+            )
+        )
+        val otherHashMap: Map<String, JsonElement> = HashMap(
+            mapOf(
                 "three" to JsonLiteral(3),
                 "four" to JsonLiteral(5)
-        ))
+            )
+        )
 
         assertEquals(jsonObject, hashMap)
         assertEquals(hashMap, jsonObject)

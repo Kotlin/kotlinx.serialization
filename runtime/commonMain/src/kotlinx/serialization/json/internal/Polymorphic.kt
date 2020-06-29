@@ -54,7 +54,8 @@ internal fun <T> JsonDecoder.decodeSerializableValuePolymorphic(deserializer: De
 
     val jsonTree = cast<JsonObject>(decodeJsonElement(), deserializer.descriptor)
     val discriminator = json.configuration.classDiscriminator
-    val type = jsonTree[discriminator]?.content ?: throw JsonDecodingException(-1, "Missing polymorphic discriminator $discriminator", jsonTree.toString())
+    val type = jsonTree[discriminator]?.jsonPrimitive?.content
+        ?: throw JsonDecodingException(-1, "Missing polymorphic discriminator $discriminator", jsonTree.toString())
     val actualSerializer = deserializer.findPolymorphicSerializer(this, type).cast<T>()
     return json.readPolymorphicJson(discriminator, jsonTree, actualSerializer)
 }

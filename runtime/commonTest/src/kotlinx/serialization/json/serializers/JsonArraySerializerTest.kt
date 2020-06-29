@@ -40,7 +40,7 @@ class JsonArraySerializerTest : JsonTestBase() {
     fun testMixedLiterals() = parametrizedTest { useStreaming ->
         val json = """[1, "2", 3, "4"]"""
         val array = default.decodeFromString(JsonArraySerializer, json, useStreaming)
-        array.content.forEachIndexed { index, element ->
+        array.forEachIndexed { index, element ->
             require(element is JsonLiteral)
             assertEquals(index % 2 == 1, element.isString)
         }
