@@ -46,6 +46,7 @@ import kotlin.jvm.*
  * This class is marked with [UnstableDefault]: its semantics may be changes in the next releases, e.g.
  * additional flag may be introduced or default parameter values may be changed.
  */
+@Serializable
 public data class JsonConfiguration @UnstableDefault constructor(
     internal val encodeDefaults: Boolean = true,
     internal val ignoreUnknownKeys: Boolean = false,
