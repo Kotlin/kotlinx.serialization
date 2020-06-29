@@ -35,7 +35,7 @@ class JsonTransformingSerializerTest : JsonTestBase() {
 
     object DroppingNameSerializer : JsonTransformingSerializer<Example>(Example.serializer(), "DropName") {
         override fun writeTransform(element: JsonElement): JsonElement =
-            JsonObject(element.jsonObject.filterNot { (k, v) -> k == "name" && v.primitive.content == "First" })
+            JsonObject(element.jsonObject.filterNot { (k, v) -> k == "name" && v.jsonPrimitive.content == "First" })
     }
 
     @Test

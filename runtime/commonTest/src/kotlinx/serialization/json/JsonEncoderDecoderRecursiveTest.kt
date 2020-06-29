@@ -138,7 +138,7 @@ class JsonEncoderDecoderRecursiveTest : JsonTestBase() {
                     ?: throw SerializationException("This class can be loaded only by JSON")
             val tree = jsonReader.decodeJsonElement() as? JsonObject
                     ?: throw SerializationException("Expected JSON object")
-            if ("error" in tree) return Either.Left(tree.getPrimitive("error").content)
+            if ("error" in tree) return Either.Left(tree.getValue("error").jsonPrimitive.content)
             return Either.Right(decoder.json.decodeFromJsonElement(Payload.serializer(), tree))
         }
 
@@ -187,7 +187,7 @@ class JsonEncoderDecoderRecursiveTest : JsonTestBase() {
                 is SealedRecursive.B -> encoder.json.encodeToJsonElement(SealedRecursive.B.serializer(), value) to typeNameB
             }
             val contents: MutableMap<String, JsonElement> = mutableMapOf(typeAttribute to JsonPrimitive(typeName))
-            contents.putAll(tree.jsonObject.content)
+            contents.putAll(tree.jsonObject)
             val element = JsonObject(contents)
             encoder.encodeJsonElement(element)
         }
@@ -197,8 +197,8 @@ class JsonEncoderDecoderRecursiveTest : JsonTestBase() {
                 ?: throw SerializationException("This class can be loaded only by JSON")
             val tree = jsonReader.decodeJsonElement() as? JsonObject
                 ?: throw SerializationException("Expected JSON object")
-            val typeName = tree.getValue(typeAttribute).primitive.content
-            val objTree = JsonObject(tree.content - typeAttribute)
+            val typeName = tree.getValue(typeAttribute).jsonPrimitive.content
+            val objTree = JsonObject(tree - typeAttribute)
             return when (typeName) {
                 typeNameA -> decoder.json.decodeFromJsonElement(SealedRecursive.A.serializer(), objTree)
                 typeNameB -> decoder.json.decodeFromJsonElement(SealedRecursive.B.serializer(), objTree)

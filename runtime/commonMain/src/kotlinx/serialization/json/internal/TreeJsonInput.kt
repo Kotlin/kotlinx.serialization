@@ -161,9 +161,9 @@ private open class JsonTreeDecoder(
      */
     private fun coerceInputValue(descriptor: SerialDescriptor, index: Int, tag: String): Boolean {
         val elementDescriptor = descriptor.getElementDescriptor(index)
-        if (currentElement(tag).isNull && !elementDescriptor.isNullable) return true // null for non-nullable
+        if (currentElement(tag) is JsonNull && !elementDescriptor.isNullable) return true // null for non-nullable
         if (elementDescriptor.kind == UnionKind.ENUM_KIND) {
-            val enumValue = (currentElement(tag) as? JsonElement)?.contentOrNull
+            val enumValue = (currentElement(tag) as? JsonPrimitive)?.contentOrNull
                     ?: return false // if value is not a string, decodeEnum() will throw correct exception
             val enumIndex = elementDescriptor.getElementIndex(enumValue)
             if (enumIndex == CompositeDecoder.UNKNOWN_NAME) return true
@@ -232,7 +232,7 @@ private class JsonTreeMapDecoder(json: Json, override val value: JsonObject) : J
 }
 
 private class JsonTreeListDecoder(json: Json, override val value: JsonArray) : AbstractJsonTreeDecoder(json, value) {
-    private val size = value.content.size
+    private val size = value.size
     private var currentIndex = -1
 
     override fun elementName(desc: SerialDescriptor, index: Int): String = (index).toString()

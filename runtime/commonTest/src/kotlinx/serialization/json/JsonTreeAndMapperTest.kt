@@ -35,7 +35,7 @@ class JsonTreeAndMapperTest {
             val input = decoder as? JsonDecoder ?: throw SerializationException("This class can be loaded only by Json")
             val tree = input.decodeJsonElement() as? JsonObject
                 ?: throw SerializationException("Expected JsonObject")
-            if ("error" in tree) return Either.Left(tree.getPrimitive("error").content)
+            if ("error" in tree) return Either.Left(tree.getValue("error").jsonPrimitive.content)
 
             return Either.Right(input.json.decodeFromJsonElement(Payload.serializer(), tree))
         }
