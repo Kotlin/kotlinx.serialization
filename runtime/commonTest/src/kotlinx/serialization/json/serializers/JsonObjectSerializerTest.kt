@@ -45,7 +45,7 @@ class JsonObjectSerializerTest : JsonTestBase() {
     fun testDocumentationSample() {
         val string = Json.encodeToString(JsonElementSerializer, buildJson { add("key", 1.0) })
         val literal = Json.decodeFromString(JsonElementSerializer, string)
-        assertEquals(JsonObject(mapOf("key" to JsonLiteral(1.0))), literal)
+        assertEquals(JsonObject(mapOf("key" to JsonPrimitive(1.0))), literal)
     }
 
     @Test

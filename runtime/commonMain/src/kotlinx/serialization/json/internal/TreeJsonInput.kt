@@ -223,7 +223,7 @@ private class JsonTreeMapDecoder(json: Json, override val value: JsonObject) : J
     }
 
     override fun currentElement(tag: String): JsonElement {
-        return if (position % 2 == 0) JsonLiteral(tag) else value.getValue(tag)
+        return if (position % 2 == 0) JsonPrimitive(tag) else value.getValue(tag)
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {

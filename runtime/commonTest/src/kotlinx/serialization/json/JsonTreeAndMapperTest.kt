@@ -43,7 +43,7 @@ class JsonTreeAndMapperTest {
         override fun serialize(encoder: Encoder, value: Either) {
             val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
             val tree = when (value) {
-                is Either.Left -> JsonObject(mapOf("error" to JsonLiteral(value.errorMsg)))
+                is Either.Left -> JsonObject(mapOf("error" to JsonPrimitive(value.errorMsg)))
                 is Either.Right -> output.json.encodeToJsonElement(Payload.serializer(), value.data)
             }
 

@@ -66,7 +66,7 @@ class JsonArraySerializerTest : JsonTestBase() {
     @Test
     fun testWhitespaces() = parametrizedTest { useStreaming ->
         assertEquals(
-            JsonArray(listOf(1, 2, 3, 4, 5).map(::JsonLiteral)),
+            JsonArray(listOf(1, 2, 3, 4, 5).map(::JsonPrimitive)),
             lenient.decodeFromString(JsonArraySerializer, "[1, 2,   3, \n 4, 5]", useStreaming)
         )
     }

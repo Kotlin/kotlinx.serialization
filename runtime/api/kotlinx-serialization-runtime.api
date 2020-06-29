@@ -1376,8 +1376,6 @@ public final class kotlinx/serialization/json/JsonArray : kotlinx/serialization/
 	public final fun contains (Ljava/lang/Object;)Z
 	public fun contains (Lkotlinx/serialization/json/JsonElement;)Z
 	public fun containsAll (Ljava/util/Collection;)Z
-	public final fun copy (Ljava/util/List;)Lkotlinx/serialization/json/JsonArray;
-	public static synthetic fun copy$default (Lkotlinx/serialization/json/JsonArray;Ljava/util/List;ILjava/lang/Object;)Lkotlinx/serialization/json/JsonArray;
 	public fun equals (Ljava/lang/Object;)Z
 	public synthetic fun get (I)Ljava/lang/Object;
 	public fun get (I)Lkotlinx/serialization/json/JsonElement;
@@ -1537,6 +1535,9 @@ public final class kotlinx/serialization/json/JsonElementBuildersKt {
 }
 
 public final class kotlinx/serialization/json/JsonElementKt {
+	public static final fun JsonPrimitive (Ljava/lang/Boolean;)Lkotlinx/serialization/json/JsonPrimitive;
+	public static final fun JsonPrimitive (Ljava/lang/Number;)Lkotlinx/serialization/json/JsonPrimitive;
+	public static final fun JsonPrimitive (Ljava/lang/String;)Lkotlinx/serialization/json/JsonPrimitive;
 	public static final fun getBoolean (Lkotlinx/serialization/json/JsonPrimitive;)Z
 	public static final fun getBooleanOrNull (Lkotlinx/serialization/json/JsonPrimitive;)Ljava/lang/Boolean;
 	public static final fun getContentOrNull (Lkotlinx/serialization/json/JsonPrimitive;)Ljava/lang/String;
@@ -1564,12 +1565,6 @@ public final class kotlinx/serialization/json/JsonElementSerializer : kotlinx/se
 	public fun patch (Lkotlinx/serialization/Decoder;Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
 	public synthetic fun serialize (Lkotlinx/serialization/Encoder;Ljava/lang/Object;)V
 	public fun serialize (Lkotlinx/serialization/Encoder;Lkotlinx/serialization/json/JsonElement;)V
-}
-
-public final class kotlinx/serialization/json/JsonElementsKt {
-	public static final fun JsonPrimitive (Ljava/lang/Boolean;)Lkotlinx/serialization/json/JsonPrimitive;
-	public static final fun JsonPrimitive (Ljava/lang/Number;)Lkotlinx/serialization/json/JsonPrimitive;
-	public static final fun JsonPrimitive (Ljava/lang/String;)Lkotlinx/serialization/json/JsonPrimitive;
 }
 
 public abstract interface class kotlinx/serialization/json/JsonEncoder : kotlinx/serialization/CompositeEncoder, kotlinx/serialization/Encoder {
@@ -1607,35 +1602,11 @@ public final class kotlinx/serialization/json/JsonKt {
 	public static synthetic fun Json$default (Lkotlinx/serialization/json/JsonConfiguration;Lkotlinx/serialization/modules/SerialModule;ILjava/lang/Object;)Lkotlinx/serialization/json/Json;
 }
 
-public final class kotlinx/serialization/json/JsonLiteral : kotlinx/serialization/json/JsonPrimitive {
-	public static final field Companion Lkotlinx/serialization/json/JsonLiteral$Companion;
-	public fun <init> (Ljava/lang/Number;)V
-	public fun <init> (Ljava/lang/String;)V
-	public fun <init> (Z)V
-	public fun equals (Ljava/lang/Object;)Z
-	public fun getContent ()Ljava/lang/String;
-	public fun hashCode ()I
-	public final fun isString ()Z
-	public fun toString ()Ljava/lang/String;
-}
-
-public final class kotlinx/serialization/json/JsonLiteral$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class kotlinx/serialization/json/JsonLiteralSerializer : kotlinx/serialization/KSerializer {
-	public static final field INSTANCE Lkotlinx/serialization/json/JsonLiteralSerializer;
-	public synthetic fun deserialize (Lkotlinx/serialization/Decoder;)Ljava/lang/Object;
-	public fun deserialize (Lkotlinx/serialization/Decoder;)Lkotlinx/serialization/json/JsonLiteral;
-	public fun getDescriptor ()Lkotlinx/serialization/SerialDescriptor;
-	public synthetic fun patch (Lkotlinx/serialization/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
-	public fun patch (Lkotlinx/serialization/Decoder;Lkotlinx/serialization/json/JsonLiteral;)Lkotlinx/serialization/json/JsonLiteral;
-	public synthetic fun serialize (Lkotlinx/serialization/Encoder;Ljava/lang/Object;)V
-	public fun serialize (Lkotlinx/serialization/Encoder;Lkotlinx/serialization/json/JsonLiteral;)V
-}
-
 public final class kotlinx/serialization/json/JsonMigrationsKt {
+	public static final fun JsonLiteral (Ljava/lang/Object;)Lkotlinx/serialization/json/JsonPrimitive;
 	public static final fun contains (Lkotlinx/serialization/json/JsonElement;Ljava/lang/String;)Z
+	public static final fun fromJson (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
+	public static final fun fromJson (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
 	public static final fun getArray (Lkotlinx/serialization/json/JsonArray;I)Lkotlinx/serialization/json/JsonArray;
 	public static final fun getArray (Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lkotlinx/serialization/json/JsonArray;
 	public static final fun getArrayOrNull (Lkotlinx/serialization/json/JsonArray;I)Lkotlinx/serialization/json/JsonArray;
@@ -1652,25 +1623,33 @@ public final class kotlinx/serialization/json/JsonMigrationsKt {
 	public static final fun getDoubleOrNull (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Double;
 	public static final fun getFloat (Lkotlinx/serialization/json/JsonElement;)F
 	public static final fun getFloatOrNull (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Float;
+	public static final fun getIndented (Lkotlinx/serialization/json/Json$Default;)Lkotlinx/serialization/json/Json;
 	public static final fun getInt (Lkotlinx/serialization/json/JsonElement;)I
 	public static final fun getIntOrNull (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Integer;
 	public static final fun getLong (Lkotlinx/serialization/json/JsonElement;)J
 	public static final fun getLongOrNull (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Long;
+	public static final fun getNonstrict (Lkotlinx/serialization/json/Json$Default;)Lkotlinx/serialization/json/Json;
 	public static final fun getObject (Lkotlinx/serialization/json/JsonArray;I)Lkotlinx/serialization/json/JsonObject;
 	public static final fun getObject (Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lkotlinx/serialization/json/JsonObject;
 	public static final fun getObjectOrNull (Lkotlinx/serialization/json/JsonArray;I)Lkotlinx/serialization/json/JsonObject;
 	public static final fun getObjectOrNull (Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun getPlain (Lkotlinx/serialization/json/Json$Default;)Lkotlinx/serialization/json/Json;
 	public static final fun getPrimitive (Lkotlinx/serialization/json/JsonArray;I)Lkotlinx/serialization/json/JsonPrimitive;
 	public static final fun getPrimitive (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonPrimitive;
 	public static final fun getPrimitive (Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lkotlinx/serialization/json/JsonPrimitive;
 	public static final fun getPrimitiveOrNull (Lkotlinx/serialization/json/JsonArray;I)Lkotlinx/serialization/json/JsonPrimitive;
 	public static final fun getPrimitiveOrNull (Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lkotlinx/serialization/json/JsonPrimitive;
+	public static final fun getUnquoted (Lkotlinx/serialization/json/Json$Default;)Lkotlinx/serialization/json/Json;
 	public static final fun isNull (Lkotlinx/serialization/json/JsonElement;)Z
+	public static final fun parseJson (Lkotlinx/serialization/json/Json;Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
+	public static final fun toJson (Lkotlinx/serialization/json/Json;Ljava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
+	public static final fun toJson (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
 }
 
 public final class kotlinx/serialization/json/JsonNull : kotlinx/serialization/json/JsonPrimitive {
 	public static final field INSTANCE Lkotlinx/serialization/json/JsonNull;
 	public fun getContent ()Ljava/lang/String;
+	public fun isString ()Z
 }
 
 public final class kotlinx/serialization/json/JsonNullSerializer : kotlinx/serialization/KSerializer {
@@ -1698,8 +1677,6 @@ public final class kotlinx/serialization/json/JsonObject : kotlinx/serialization
 	public fun containsKey (Ljava/lang/String;)Z
 	public final fun containsValue (Ljava/lang/Object;)Z
 	public fun containsValue (Lkotlinx/serialization/json/JsonElement;)Z
-	public final fun copy (Ljava/util/Map;)Lkotlinx/serialization/json/JsonObject;
-	public static synthetic fun copy$default (Lkotlinx/serialization/json/JsonObject;Ljava/util/Map;ILjava/lang/Object;)Lkotlinx/serialization/json/JsonObject;
 	public final fun entrySet ()Ljava/util/Set;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun get (Ljava/lang/Object;)Ljava/lang/Object;
@@ -1774,6 +1751,7 @@ public abstract class kotlinx/serialization/json/JsonParametricSerializer : kotl
 public abstract class kotlinx/serialization/json/JsonPrimitive : kotlinx/serialization/json/JsonElement {
 	public static final field Companion Lkotlinx/serialization/json/JsonPrimitive$Companion;
 	public abstract fun getContent ()Ljava/lang/String;
+	public abstract fun isString ()Z
 	public fun toString ()Ljava/lang/String;
 }
 

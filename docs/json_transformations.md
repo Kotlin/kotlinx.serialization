@@ -89,7 +89,7 @@ object DroppingNameSerializer : JsonTransformingSerializer<Example>(Example.seri
     override fun writeTransform(element: JsonElement): JsonElement =
         // Filter top-level key value pair with key "name" with value equal to "Second"
         JsonObject(element.jsonObject.filterNot {
-            (k, v) -> k == "name" && v.primitive.content == "Second"
+            (k, v) -> k == "name" && v.jsonPrimitive.content == "Second"
         })
 }
 

@@ -222,7 +222,8 @@ public val JsonElement.primitive: JsonPrimitive get() = noImpl()
 
 @Deprecated(
     level = DeprecationLevel.ERROR,
-    message = "This method was deprecated during serialization 1.0 stabilization"
+    message = "This method was deprecated during serialization 1.0 stabilization",
+    replaceWith = ReplaceWith("(this as? JsonObject)?.contains(key) ?: false")
 )
 @kotlin.internal.LowPriorityInOverloadResolution // to work with JsonObject properly
 public operator fun JsonElement.contains(key: String): Boolean = noImpl()
@@ -310,3 +311,11 @@ public val JsonElement.content: String get() = noImpl()
     replaceWith = ReplaceWith("jsonPrimitive.contentOrNull")
 )
 public val JsonElement.contentOrNull: String? get() = noImpl()
+
+
+@Deprecated(
+    level = DeprecationLevel.ERROR,
+    message = "This API was deprecated during serialization 1.0 stabilization",
+    replaceWith = ReplaceWith("JsonPrimitive(value)")
+)
+public fun JsonLiteral(value: Any?): JsonPrimitive = noImpl()

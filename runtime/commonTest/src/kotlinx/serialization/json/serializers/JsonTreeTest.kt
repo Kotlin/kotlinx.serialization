@@ -19,7 +19,7 @@ class JsonTreeTest : JsonTestBase() {
 
     @Test
     fun testJsonLiteral() {
-        val v = JsonLiteral("foo")
+        val v = JsonPrimitive("foo")
         assertEquals(v, parse("\"foo\""))
     }
 
@@ -31,7 +31,7 @@ class JsonTreeTest : JsonTestBase() {
         assertTrue(elem is JsonObject)
         assertEquals(setOf("a", "b", "c", "d"), elem.keys)
 
-        assertEquals(JsonLiteral("foo"), elem["a"])
+        assertEquals(JsonPrimitive("foo"), elem["a"])
         assertEquals(10, elem["b"]?.jsonPrimitive?.int)
         assertEquals(true, elem["c"]?.jsonPrimitive?.boolean)
         assertSame(elem.getValue("d") as JsonNull, JsonNull)
@@ -89,7 +89,7 @@ class JsonTreeTest : JsonTestBase() {
     @Test
     fun testExceptionalState() {
         val tree =
-            JsonObject(mapOf("a" to JsonLiteral(42), "b" to JsonArray(listOf(JsonNull)), "c" to JsonLiteral(false)))
+            JsonObject(mapOf("a" to JsonPrimitive(42), "b" to JsonArray(listOf(JsonNull)), "c" to JsonPrimitive(false)))
         assertFailsWith<NoSuchElementException> { tree.getValue("no key").jsonObject }
         assertFailsWith<JsonException> { tree.getValue("a").jsonArray }
         assertEquals(null, tree["no key"]?.jsonObject)
@@ -105,9 +105,9 @@ class JsonTreeTest : JsonTestBase() {
 
     @Test
     fun testThatJsonArraysCompareWithLists() {
-        val jsonArray: List<JsonElement> = JsonArray(listOf(JsonLiteral(3), JsonLiteral(4)))
-        val arrayList: List<JsonElement> = ArrayList(listOf(JsonLiteral(3), JsonLiteral(4)))
-        val otherArrayList: List<JsonElement> = ArrayList(listOf(JsonLiteral(3), JsonLiteral(5)))
+        val jsonArray: List<JsonElement> = JsonArray(listOf(JsonPrimitive(3), JsonPrimitive(4)))
+        val arrayList: List<JsonElement> = ArrayList(listOf(JsonPrimitive(3), JsonPrimitive(4)))
+        val otherArrayList: List<JsonElement> = ArrayList(listOf(JsonPrimitive(3), JsonPrimitive(5)))
 
         assertEquals(jsonArray, arrayList)
         assertEquals(arrayList, jsonArray)
@@ -119,26 +119,26 @@ class JsonTreeTest : JsonTestBase() {
     fun testThatJsonObjectsCompareWithMaps() {
         val jsonObject: Map<String, JsonElement> = JsonObject(
             mapOf(
-                "three" to JsonLiteral(3),
-                "four" to JsonLiteral(4)
+                "three" to JsonPrimitive(3),
+                "four" to JsonPrimitive(4)
             )
         )
         val hashMap: Map<String, JsonElement> = HashMap(
             mapOf(
-                "three" to JsonLiteral(3),
-                "four" to JsonLiteral(4)
+                "three" to JsonPrimitive(3),
+                "four" to JsonPrimitive(4)
             )
         )
         val otherJsonObject: Map<String, JsonElement> = JsonObject(
             mapOf(
-                "three" to JsonLiteral(3),
-                "five" to JsonLiteral(5)
+                "three" to JsonPrimitive(3),
+                "five" to JsonPrimitive(5)
             )
         )
         val otherHashMap: Map<String, JsonElement> = HashMap(
             mapOf(
-                "three" to JsonLiteral(3),
-                "four" to JsonLiteral(5)
+                "three" to JsonPrimitive(3),
+                "four" to JsonPrimitive(5)
             )
         )
 
