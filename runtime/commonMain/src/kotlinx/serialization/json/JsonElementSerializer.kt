@@ -94,12 +94,7 @@ public object JsonNullSerializer : KSerializer<JsonNull> {
     }
 }
 
-/**
- * External [Serializer] object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonLiteral].
- * It can only be used by with [Json] format an its input ([JsonDecoder] and [JsonEncoder]).
- */
-@Serializer(forClass = JsonLiteral::class)
-public object JsonLiteralSerializer : KSerializer<JsonLiteral> {
+private object JsonLiteralSerializer : KSerializer<JsonLiteral> {
 
     override val descriptor: SerialDescriptor =
         PrimitiveDescriptor("kotlinx.serialization.json.JsonLiteral", PrimitiveKind.STRING)

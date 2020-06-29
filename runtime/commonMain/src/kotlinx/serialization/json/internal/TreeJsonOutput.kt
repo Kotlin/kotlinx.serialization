@@ -42,14 +42,14 @@ private sealed class AbstractJsonTreeEncoder(
 
     override fun encodeTaggedNull(tag: String) = putElement(tag, JsonNull)
 
-    override fun encodeTaggedInt(tag: String, value: Int) = putElement(tag, JsonLiteral(value))
-    override fun encodeTaggedByte(tag: String, value: Byte) = putElement(tag, JsonLiteral(value))
-    override fun encodeTaggedShort(tag: String, value: Short) = putElement(tag, JsonLiteral(value))
-    override fun encodeTaggedLong(tag: String, value: Long) = putElement(tag, JsonLiteral(value))
+    override fun encodeTaggedInt(tag: String, value: Int) = putElement(tag, JsonPrimitive(value))
+    override fun encodeTaggedByte(tag: String, value: Byte) = putElement(tag, JsonPrimitive(value))
+    override fun encodeTaggedShort(tag: String, value: Short) = putElement(tag, JsonPrimitive(value))
+    override fun encodeTaggedLong(tag: String, value: Long) = putElement(tag, JsonPrimitive(value))
 
     override fun encodeTaggedFloat(tag: String, value: Float) {
         // First encode value, then check, to have a prettier error message
-        putElement(tag, JsonLiteral(value))
+        putElement(tag, JsonPrimitive(value))
         if (!configuration.serializeSpecialFloatingPointValues && !value.isFinite()) {
             throw InvalidFloatingPoint(value, tag, "float", getCurrent().toString())
         }
@@ -67,23 +67,23 @@ private sealed class AbstractJsonTreeEncoder(
 
     override fun encodeTaggedDouble(tag: String, value: Double) {
         // First encode value, then check, to have a prettier error message
-        putElement(tag, JsonLiteral(value))
+        putElement(tag, JsonPrimitive(value))
         if (!configuration.serializeSpecialFloatingPointValues && !value.isFinite()) {
             throw InvalidFloatingPoint(value, tag, "double", getCurrent().toString())
         }
     }
 
-    override fun encodeTaggedBoolean(tag: String, value: Boolean) = putElement(tag, JsonLiteral(value))
-    override fun encodeTaggedChar(tag: String, value: Char) = putElement(tag, JsonLiteral(value.toString()))
-    override fun encodeTaggedString(tag: String, value: String) = putElement(tag, JsonLiteral(value))
+    override fun encodeTaggedBoolean(tag: String, value: Boolean) = putElement(tag, JsonPrimitive(value))
+    override fun encodeTaggedChar(tag: String, value: Char) = putElement(tag, JsonPrimitive(value.toString()))
+    override fun encodeTaggedString(tag: String, value: String) = putElement(tag, JsonPrimitive(value))
     override fun encodeTaggedEnum(
         tag: String,
         enumDescription: SerialDescriptor,
         ordinal: Int
-    ) = putElement(tag, JsonLiteral(enumDescription.getElementName(ordinal)))
+    ) = putElement(tag, JsonPrimitive(enumDescription.getElementName(ordinal)))
 
     override fun encodeTaggedValue(tag: String, value: Any) {
-        putElement(tag, JsonLiteral(value.toString()))
+        putElement(tag, JsonPrimitive(value.toString()))
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {

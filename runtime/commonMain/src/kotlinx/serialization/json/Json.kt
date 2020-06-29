@@ -205,7 +205,6 @@ private val defaultJsonModule = serializersModuleOf(
     mapOf<KClass<*>, KSerializer<*>>(
         JsonElement::class to JsonElementSerializer,
         JsonPrimitive::class to JsonPrimitiveSerializer,
-        JsonLiteral::class to JsonLiteralSerializer,
         JsonNull::class to JsonNullSerializer,
         JsonObject::class to JsonObjectSerializer,
         JsonArray::class to JsonArraySerializer

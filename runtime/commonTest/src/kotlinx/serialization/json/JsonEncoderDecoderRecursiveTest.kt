@@ -146,7 +146,7 @@ class JsonEncoderDecoderRecursiveTest : JsonTestBase() {
             val jsonWriter = encoder as? JsonEncoder
                     ?: throw SerializationException("This class can be saved only by JSON")
             val tree = when (value) {
-                is Either.Left -> JsonObject(mapOf("error" to JsonLiteral(value.errorMsg)))
+                is Either.Left -> JsonObject(mapOf("error" to JsonPrimitive(value.errorMsg)))
                 is Either.Right -> encoder.json.encodeToJsonElement(Payload.serializer(), value.data)
             }
             jsonWriter.encodeJsonElement(tree)

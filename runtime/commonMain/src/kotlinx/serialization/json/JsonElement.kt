@@ -23,10 +23,19 @@ import kotlinx.serialization.json.internal.*
 public sealed class JsonElement
 
 /**
- * Class representing JSON primitive value. Can be either [JsonLiteral] or [JsonNull].
+ * Class representing JSON primitive value.
+ * JSON primitives include numbers, strings, booleans and special null value [JsonNull].
  */
 @Serializable(JsonPrimitiveSerializer::class)
 public sealed class JsonPrimitive : JsonElement() {
+
+    /**
+     * Indicates whether the primitive was explicitly constructed from [String] and
+     * whether it should be serialized as one. E.g. `JsonPrimitive("42")` is represented
+     * by a string, while `JsonPrimitive(42)` is not.
+     * These primitives will be serialized as `42` and `"42"` respectively.
+     */
+    public abstract val isString: Boolean
 
     /**
      * Content of given element without quotes. For [JsonNull] this methods returns `null`
@@ -37,37 +46,35 @@ public sealed class JsonPrimitive : JsonElement() {
 }
 
 /**
- * Class representing JSON literals: numbers, booleans and string.
- * Strings are always quoted.
- * [JsonLiteral] can be constructed using corresponding factory-functions instead of direct calls to constructor.
- *
- * [isString] indicates whether literal was explicitly constructed as a [String] and
- * whether it should be serialized as one. E.g. `JsonLiteral("42", false)`
- * and `JsonLiteral("42", true)` will be serialized as `42` and `"42"` respectively.
- *
- * [String] content is not escaped by default, but is escaped by [JsonLiteral.toString] and the [JsonLiteralSerializer].
+ * Creates [JsonPrimitive] from the given boolean.
  */
-@Serializable(JsonLiteralSerializer::class)
-public class JsonLiteral internal constructor(
+public fun JsonPrimitive(value: Boolean?): JsonPrimitive {
+    if (value == null) return JsonNull
+    return JsonLiteral(value, isString = false)
+}
+
+/**
+ * Creates [JsonPrimitive] from the given number.
+ */
+public fun JsonPrimitive(value: Number?): JsonPrimitive {
+    if (value == null) return JsonNull
+    return JsonLiteral(value, isString = false)
+}
+
+/**
+ * Creates [JsonPrimitive] from the given string.
+ */
+public fun JsonPrimitive(value: String?): JsonPrimitive {
+    if (value == null) return JsonNull
+    return JsonLiteral(value, isString = true)
+}
+
+// JsonLiteral is deprecated for public use and no longer available. Please use JsonPrimitive instead
+internal class JsonLiteral internal constructor(
     body: Any,
-    public val isString: Boolean
+    public override val isString: Boolean
 ) : JsonPrimitive() {
     public override val content: String = body.toString()
-
-    /**
-     * Creates number literal
-     */
-    public constructor(number: Number) : this(number, isString = false)
-
-    /**
-     * Creates boolean literal
-     */
-    public constructor(boolean: Boolean) : this(boolean, isString = false)
-
-    /**
-     * Creates quoted string literal
-     */
-    public constructor(string: String) : this(string, isString = true)
 
     public override fun toString(): String =
         if (isString) buildString { printQuoted(content) }
@@ -95,6 +102,7 @@ public class JsonLiteral internal constructor(
  */
 @Serializable(JsonNullSerializer::class)
 public object JsonNull : JsonPrimitive() {
+    override val isString: Boolean get() = false
     override val content: String = "null"
 }
 
@@ -105,8 +113,7 @@ public object JsonNull : JsonPrimitive() {
  * traditional methods like [Map.get] or [Map.getValue] to obtain Json elements.
  */
 @Serializable(JsonObjectSerializer::class)
-public data class JsonObject(private val content: Map<String, JsonElement>) : JsonElement(), Map<String, JsonElement> by content {
-
+public class JsonObject(private val content: Map<String, JsonElement>) : JsonElement(), Map<String, JsonElement> by content {
     public override fun equals(other: Any?): Boolean = content == other
     public override fun hashCode(): Int = content.hashCode()
     public override fun toString(): String {
@@ -126,7 +133,7 @@ public data class JsonObject(private val content: Map<String, JsonElement>) : Js
  * traditional methods like [List.get] or [List.getOrNull] to obtain Json elements.
  */
 @Serializable(JsonArraySerializer::class)
-public data class JsonArray(private val content: List<JsonElement>) : JsonElement(), List<JsonElement> by content {
+public class JsonArray(private val content: List<JsonElement>) : JsonElement(), List<JsonElement> by content {
     public override fun equals(other: Any?): Boolean = content == other
     public override fun hashCode(): Int = content.hashCode()
     public override fun toString(): String = content.joinToString(prefix = "[", postfix = "]", separator = ",")
@@ -161,13 +168,13 @@ public val JsonElement.jsonNull: JsonNull
     get() = this as? JsonNull ?: error("JsonNull")
 
 /**
- * Returns content of current element as int
+ * Returns content of the current element as int
  * @throws NumberFormatException if current element is not a valid representation of number
  */
 public val JsonPrimitive.int: Int get() = content.toInt()
 
 /**
- * Returns content of current element as int or `null` if current element is not a valid representation of number
+ * Returns content of the current element as int or `null` if current element is not a valid representation of number
  */
 public val JsonPrimitive.intOrNull: Int? get() = content.toIntOrNull()
 
