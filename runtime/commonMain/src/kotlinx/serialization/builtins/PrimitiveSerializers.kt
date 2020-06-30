@@ -99,9 +99,19 @@ public fun Boolean.Companion.serializer(): KSerializer<Boolean> = kotlinx.serial
 public fun BooleanArraySerializer(): KSerializer<BooleanArray> = BooleanArraySerializer
 
 /**
- * Returns serializer for [UnitSerializer] with [descriptor][SerialDescriptor] of [StructureKind.OBJECT] kind.
+ * Returns serializer for [Unit] with [descriptor][SerialDescriptor] of [StructureKind.OBJECT] kind.
  */
+@Deprecated(
+    message = "Deprecated in the favour of Unit.serializer() extension",
+    level = DeprecationLevel.ERROR,
+    replaceWith = ReplaceWith("Unit.serializer()", imports = ["kotlinx.serialization.builtins.serializer"])
+)
 public fun UnitSerializer(): KSerializer<Unit> = kotlinx.serialization.internal.UnitSerializer
+
+/**
+ * Returns serializer for [Unit] with [descriptor][SerialDescriptor] of [StructureKind.OBJECT] kind.
+ */
+public fun Unit.serializer(): KSerializer<Unit> = kotlinx.serialization.internal.UnitSerializer
 
 /**
  * Returns serializer for [String] with [descriptor][SerialDescriptor] of [PrimitiveKind.STRING] kind.

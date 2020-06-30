@@ -49,7 +49,7 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
     }
 
     override fun encodeUnit() {
-        UnitSerializer().serialize(this, Unit)
+        Unit.serializer().serialize(this, Unit)
     }
 
     override fun encodeBoolean(value: Boolean): Unit = encodeValue(value)

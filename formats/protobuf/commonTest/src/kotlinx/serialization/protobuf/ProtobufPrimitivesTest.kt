@@ -5,7 +5,6 @@ package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
-import kotlinx.serialization.serializer
 import kotlin.test.*
 
 class ProtobufPrimitivesTest {
@@ -27,6 +26,6 @@ class ProtobufPrimitivesTest {
         testConversion(1f, Float.serializer(), "0000803F")
         testConversion(1.0, Double.serializer(), "000000000000F03F")
         testConversion("string", String.serializer(), "06737472696E67")
-        testConversion(Unit, UnitSerializer(), "")
+        testConversion(Unit, Unit.serializer(), "")
     }
 }

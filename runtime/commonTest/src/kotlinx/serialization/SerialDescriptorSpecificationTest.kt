@@ -6,8 +6,6 @@ package kotlinx.serialization
 
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlinx.serialization.builtins.*
-import kotlinx.serialization.internal.*
-
 import kotlin.test.*
 
 class SerialDescriptorSpecificationTest {
@@ -195,7 +193,7 @@ class SerialDescriptorSpecificationTest {
 
     @Test
     fun testUnitDescriptor() {
-        val descriptor = UnitSerializer().descriptor
+        val descriptor = Unit.serializer().descriptor
         assertEquals(StructureKind.OBJECT, descriptor.kind)
         assertFalse(descriptor.isNullable)
         assertEquals("kotlin.Unit", descriptor.serialName)

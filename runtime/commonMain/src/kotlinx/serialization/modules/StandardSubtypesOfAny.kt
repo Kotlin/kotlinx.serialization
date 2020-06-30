@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:Suppress("DEPRECATION_ERROR")
 
@@ -49,7 +49,7 @@ internal object StandardSubtypesOfAny {
         Double::class to Double.serializer(),
         Float::class to Float.serializer(),
         Boolean::class to Boolean.serializer(),
-        Unit::class to UnitSerializer()
+        Unit::class to Unit.serializer()
     )
 
     private val deserializingMap: Map<String, KSerializer<*>> = map.mapKeys { (_, s) -> s.descriptor.serialName }

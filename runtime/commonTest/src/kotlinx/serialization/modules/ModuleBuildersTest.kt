@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.modules
@@ -242,11 +242,11 @@ class ModuleBuildersTest {
 
     @Test
     fun testDoesntThrowOnTheEqualSerializers() {
-        val delegate = object : KSerializer<Unit> by UnitSerializer() {
+        val delegate = object : KSerializer<Unit> by Unit.serializer() {
             override fun equals(other: Any?): Boolean = (other is KSerializer<*>) && other.descriptor == descriptor
         }
 
-        val delegate2 = object : KSerializer<Unit> by UnitSerializer() {
+        val delegate2 = object : KSerializer<Unit> by Unit.serializer() {
             override fun equals(other: Any?): Boolean = (other is KSerializer<*>) && other.descriptor == descriptor
         }
 
@@ -266,11 +266,11 @@ class ModuleBuildersTest {
 
     @Test
     fun testDoesntThrowOnEqualPolymorphicSerializer() {
-        val delegate = object : KSerializer<Unit> by UnitSerializer() {
+        val delegate = object : KSerializer<Unit> by Unit.serializer() {
             override fun equals(other: Any?): Boolean = (other is KSerializer<*>) && other.descriptor == descriptor
         }
 
-        val delegate2 = object : KSerializer<Unit> by UnitSerializer() {
+        val delegate2 = object : KSerializer<Unit> by Unit.serializer() {
             override fun equals(other: Any?): Boolean = (other is KSerializer<*>) && other.descriptor == descriptor
         }
 
@@ -286,13 +286,13 @@ class ModuleBuildersTest {
     fun testPolymorphicCollision() {
         val m1 = SerializersModule {
             polymorphic<Any> {
-                default { _ -> UnitSerializer() }
+                default { _ -> Unit.serializer() }
             }
         }
 
         val m2 = SerializersModule {
             polymorphic<Any> {
-                default { _ -> UnitSerializer() }
+                default { _ -> Unit.serializer() }
             }
         }
 
@@ -301,7 +301,7 @@ class ModuleBuildersTest {
 
     @Test
     fun testNoPolymorphicCollision() {
-        val defaultSerializerProvider = { _: String -> UnitSerializer() }
+        val defaultSerializerProvider = { _: String -> Unit.serializer() }
         val m1 = SerializersModule {
             polymorphic<Any> {
                 default(defaultSerializerProvider)
@@ -309,7 +309,7 @@ class ModuleBuildersTest {
         }
 
         val m2 = m1 + m1
-        assertEquals<Any?>(UnitSerializer(), m2.getPolymorphic(Any::class, serializedClassName = "foo"))
+        assertEquals<Any?>(Unit.serializer(), m2.getPolymorphic(Any::class, serializedClassName = "foo"))
     }
 
     @Test

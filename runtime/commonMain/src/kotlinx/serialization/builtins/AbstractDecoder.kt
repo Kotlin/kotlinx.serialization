@@ -28,7 +28,7 @@ public abstract class AbstractDecoder : Decoder, CompositeDecoder {
 
     override fun decodeNotNullMark(): Boolean = true
     override fun decodeNull(): Nothing? = null
-    override fun decodeUnit(): Unit = UnitSerializer().deserialize(this)
+    override fun decodeUnit(): Unit = Unit.serializer().deserialize(this)
 
     override fun decodeBoolean(): Boolean = decodeValue() as Boolean
     override fun decodeByte(): Byte = decodeValue() as Byte

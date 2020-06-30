@@ -610,6 +610,7 @@ public final class kotlinx/serialization/builtins/PrimitiveSerializersKt {
 	public static final fun LongArraySerializer ()Lkotlinx/serialization/KSerializer;
 	public static final fun ShortArraySerializer ()Lkotlinx/serialization/KSerializer;
 	public static final fun UnitSerializer ()Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlin/Unit;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Lkotlin/jvm/internal/BooleanCompanionObject;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Lkotlin/jvm/internal/ByteCompanionObject;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Lkotlin/jvm/internal/CharCompanionObject;)Lkotlinx/serialization/KSerializer;
