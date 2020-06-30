@@ -211,7 +211,7 @@ public interface SerialDescriptor {
      * Retrieves the descriptor of the child element for the given [index].
      * For the property of type `T` on the position `i`, `getElementDescriptor(i)` yields the same result
      * as for `T.serializer().descriptor`, if the serializer for this property is not explicitly overridden
-     * with `@Serializable(with = ...`)`, [Polymorphic] or [ContextualSerialization].
+     * with `@Serializable(with = ...`)`, [Polymorphic] or [Contextual].
      * This method can be used to completely introspect the type that the current descriptor describes.
      *
      * @throws IndexOutOfBoundsException for illegal [index] values.

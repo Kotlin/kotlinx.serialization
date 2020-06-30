@@ -7,11 +7,12 @@ package kotlinx.serialization
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.internal.*
 import kotlin.reflect.*
 
 /**
  * This class provides support for retrieving a serializer in runtime, instead of using the one precompiled by the serialization plugin.
- * This serializer is enabled by [ContextualSerialization].
+ * This serializer is enabled by [Contextual] or [UseContextualSerialization].
  *
  * Typical usage of ContextSerializer would be a serialization of a class which does not have
  * static serializer (e.g. Java class or class from 3rd party library);
@@ -20,6 +21,18 @@ import kotlin.reflect.*
  * Serializers are being looked for in a [SerializersModule] from the target [Encoder] or [Decoder], using statically known [KClass].
  * To create a serial module, use [SerializersModule] factory function.
  * To pass it to encoder and decoder, refer to particular [SerialFormat]'s documentation.
+ *
+ * Usage of context serializer can be demonstrated by the following example:
+ * ```
+ * import java.util.Date
+ *
+ * @Serializable
+ * class ClassWithDate(val data: String, @Contextual val timestamp: Date)
+ *
+ * val moduleForDate = serializersModule(MyISO8601DateSerializer)
+ * val json = Json(JsonConfiguration.Default, moduleForDate)
+ * json.stringify(ClassWithDate("foo", Date())
+ * ```
  */
 @OptIn(UnsafeSerializationApi::class)
 public class ContextSerializer<T : Any>(

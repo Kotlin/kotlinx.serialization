@@ -96,6 +96,9 @@ public final class kotlinx/serialization/ContextSerializer : kotlinx/serializati
 	public fun serialize (Lkotlinx/serialization/Encoder;Ljava/lang/Object;)V
 }
 
+public abstract interface annotation class kotlinx/serialization/Contextual : java/lang/annotation/Annotation {
+}
+
 public abstract interface annotation class kotlinx/serialization/ContextualSerialization : java/lang/annotation/Annotation {
 	public abstract fun forClasses ()[Ljava/lang/Class;
 }
@@ -461,6 +464,10 @@ public final class kotlinx/serialization/UpdateMode : java/lang/Enum {
 	public static final field UPDATE Lkotlinx/serialization/UpdateMode;
 	public static fun valueOf (Ljava/lang/String;)Lkotlinx/serialization/UpdateMode;
 	public static fun values ()[Lkotlinx/serialization/UpdateMode;
+}
+
+public abstract interface annotation class kotlinx/serialization/UseContextualSerialization : java/lang/annotation/Annotation {
+	public abstract fun forClasses ()[Ljava/lang/Class;
 }
 
 public abstract interface annotation class kotlinx/serialization/UseSerializers : java/lang/annotation/Annotation {

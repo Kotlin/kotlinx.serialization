@@ -41,7 +41,7 @@ public sealed class SerialKind {
     /**
      * Represents an "unknown" type that will be known only at the moment of the serialization.
      * Effectively it defers the choice of the serializer to a moment of the serialization, and can
-     * be used for [contextual][ContextualSerialization] serialization.
+     * be used for [contextual][Contextual] serialization.
      *
      * To introspect descriptor of this kind, an instance of [SerializersModule] is required.
      * See [capturedKClass] extension property for more details.

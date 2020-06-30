@@ -26,7 +26,7 @@ import kotlin.reflect.*
  *
  * ### Example
  * Imagine we need to find all distinct properties names, which may occur in output after serializing a given class
- * with respect to [`@ContextualSerialization`][ContextualSerialization] annotation and all possible inheritors when the class is
+ * with respect to [`@Contextual`][Contextual] annotation and all possible inheritors when the class is
  * serialized polymorphically.
  * Then we can write following function:
  * ```
