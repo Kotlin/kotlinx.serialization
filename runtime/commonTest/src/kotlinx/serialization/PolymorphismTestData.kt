@@ -5,7 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.*
 
 @Serializable
 open class PolyBase(val id: Int) {
@@ -36,6 +36,6 @@ data class PolyDerived(val s: String) : PolyBase(1)
 
 val BaseAndDerivedModule = SerializersModule {
     polymorphic(PolyBase::class, PolyBase.serializer()) {
-        PolyDerived::class with PolyDerived.serializer()
+        subclass(PolyDerived.serializer())
     }
 }

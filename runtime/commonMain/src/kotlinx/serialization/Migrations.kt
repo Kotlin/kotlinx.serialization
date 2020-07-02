@@ -159,7 +159,7 @@ public fun <T : Any> SerializersModule.getContextualOrDefault(klass: KClass<T>):
     replaceWith = ReplaceWith("getContextualOrDefault<T>()")
 )
 public fun <T : Any> SerializersModule.getContextualOrDefault(value: T): KSerializer<T> =
-    getContextual(value) ?: value::class.serializer().cast()
+    getContextual(value::class)?.cast() ?: value::class.serializer().cast()
 
 @Suppress("UNUSED", "DeprecatedCallableAddReplaceWith")
 @Deprecated(

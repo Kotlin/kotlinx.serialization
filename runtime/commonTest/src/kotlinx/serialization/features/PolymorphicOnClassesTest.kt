@@ -7,6 +7,7 @@ package kotlinx.serialization.features
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
+import kotlin.reflect.*
 import kotlin.test.*
 
 class PolymorphicOnClassesTest {
@@ -59,11 +60,14 @@ class PolymorphicOnClassesTest {
         return Holder(gen(), listOf(gen(), gen()), gen(), setOf(SimpleMessage()), DoubleSimpleMessage("DoubleSimple"), gen())
     }
 
+    @Suppress("UNCHECKED_CAST")
     private val testModule = SerializersModule {
-        polymorphic(Message::class, IMessage::class, SimpleMessage::class) {
-            addSubclass(SimpleMessage::class, SimpleMessage.serializer())
-            addSubclass(DoubleSimpleMessage::class, DoubleSimpleMessage.serializer())
-            addSubclass(MessageWithId::class, MessageWithId.serializer())
+        listOf(Message::class, IMessage::class, SimpleMessage::class).forEach { clz ->
+            polymorphic(clz as KClass<IMessage>) {
+                subclass(SimpleMessage.serializer())
+                subclass(DoubleSimpleMessage.serializer())
+                subclass(MessageWithId.serializer())
+            }
         }
     }
 

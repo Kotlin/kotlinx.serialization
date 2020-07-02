@@ -4,7 +4,7 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.protobuf.*
 
 @Serializable
@@ -46,9 +46,9 @@ data class SimpleStringInheritor(val s: String, val i: Int) : SimpleAbstract()
 data class PolyBox(@Polymorphic val boxed: SimpleAbstract)
 
 val SimplePolymorphicModule = SerializersModule {
-    polymorphic<SimpleAbstract> {
-        SimpleIntInheritor::class with SimpleIntInheritor.serializer()
-        SimpleStringInheritor::class with SimpleStringInheritor.serializer()
+    polymorphic(SimpleAbstract::class) {
+        subclass(SimpleIntInheritor.serializer())
+        subclass(SimpleStringInheritor.serializer())
     }
 }
 

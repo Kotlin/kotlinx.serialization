@@ -22,8 +22,8 @@ package kotlinx.serialization.features
 
 import kotlinx.serialization.ContextualSerialization
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.modules.serializersModuleOf
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -38,7 +38,10 @@ data class Carrier3(
 )
 
 class ContextualSerializationOnFileTest {
-    val module = serializersModuleOf(mapOf(Int::class to DividingIntSerializer, IntHolder::class to MultiplyingIntHolderSerializer))
+    val module = SerializersModule {
+        contextual(DividingIntSerializer)
+        contextual(MultiplyingIntHolderSerializer)
+    }
     val json = Json(context = module)
 
     @Test

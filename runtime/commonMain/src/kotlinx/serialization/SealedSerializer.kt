@@ -58,9 +58,9 @@ import kotlin.reflect.*
  *
  * ```
  * val abstractContext = SerializersModule {
- *     polymorphic(ProtocolWithAbstractClass::class, ProtocolWithAbstractClass.Message::class) {
- *         subclass<ProtocolWithAbstractClass.Message.IntMessage>()
- *         subclass<ProtocolWithAbstractClass.Message.StringMessage>()
+ *     polymorphic(ProtocolWithAbstractClass::class) {
+ *         subclass(ProtocolWithAbstractClass.Message.IntMessage::class)
+ *         subclass(ProtocolWithAbstractClass.Message.StringMessage::class)
  *         // no need to register ProtocolWithAbstractClass.ErrorMessage
  *     }
  * }

@@ -32,7 +32,7 @@ public interface SerializersModuleCollector {
     /**
      * Accept a default serializer provider, associated with the [baseClass] for polymorphic serialization.
      */
-    public fun <Base : Any> defaultPolymorphic(
+    public fun <Base : Any> polymorphicDefault(
         baseClass: KClass<Base>,
         defaultSerializerProvider: (className: String) -> DeserializationStrategy<out Base>?
     )
