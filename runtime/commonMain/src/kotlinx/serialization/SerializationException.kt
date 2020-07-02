@@ -5,10 +5,11 @@
 package kotlinx.serialization
 
 /**
- * A generic exception indicating the problem during serialization or deserialization process.
+ * A generic exception indicating the problem in serialization or deserialization process.
  * This is a generic exception type that can be thrown during the problem at any stage of the serialization,
  * including encoding, decoding, serialization, deserialization.
- * [SerialFormat] implementors should throw the subclass of this exception at any
+ * [SerialFormat] implementors should throw subclasses of this exception at any unexpected event,
+ * whether it is a malformed input or unsupported class layout.
  */
 public open class SerializationException : IllegalArgumentException {
     /*
@@ -17,7 +18,7 @@ public open class SerializationException : IllegalArgumentException {
      * it is a serializer that does not support specific structure or an invalid input.
      * Making it IAE just aligns the implementation with this fact.
      *
-     * Another point is input validation. The most simple way to validate
+     * Another point is input validation. The simplest way to validate
      * deserialized data is `require` in `init` block:
      * ```
      * @Serializable class Foo(...) {
@@ -47,8 +48,7 @@ public open class SerializationException : IllegalArgumentException {
     public constructor(message: String?) : super(message)
 
     /**
-     * Creates an instance of [SerializationException] with the specified detail [message]
-     * and the given [cause].
+     * Creates an instance of [SerializationException] with the specified detail [message], and the given [cause].
      */
     public constructor(message: String?, cause: Throwable?) : super(message, cause)
 
@@ -71,4 +71,4 @@ internal class MissingFieldException(fieldName: String) :
  * This exception means that data schema has changed in backwards-incompatible way.
  */
 @PublishedApi
-internal class UnknownFieldException(index: Int) : SerializationException("Unknown field for index $index")
+internal class UnknownFieldException(index: Int) : SerializationException("An unknown field for index $index")
