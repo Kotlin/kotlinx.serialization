@@ -101,7 +101,7 @@ class ContextAndPolymorphicTest {
         assertEquals("""{"ps":["737472696E67"]}""", json2.encodeToString(PayloadList.serializer(), list))
     }
 
-    private fun SerialDescriptor.inContext(module: SerialModule): SerialDescriptor = when (kind) {
+    private fun SerialDescriptor.inContext(module: SerializersModule): SerialDescriptor = when (kind) {
         UnionKind.CONTEXTUAL -> requireNotNull(module.getContextualDescriptor(this)) { "Expected $this to be registered in module" }
         else -> error("Expected this function to be called on CONTEXTUAL descriptor")
     }

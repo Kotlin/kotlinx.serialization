@@ -41,11 +41,11 @@ internal const val MAX_SAFE_INTEGER: Double = 9007199254740991.toDouble() // 2^5
  * ```
  */
 public class DynamicObjectParser @OptIn(UnstableDefault::class) constructor(
-    override val context: SerialModule = EmptyModule,
+    override val serializersModule: SerializersModule = EmptySerializersModule,
     internal val configuration: JsonConfiguration = JsonConfiguration.Default
 ) : SerialFormat {
 
-    inline fun <reified T : Any> parse(value: dynamic): T = parse(value, context.getContextualOrDefault())
+    inline fun <reified T : Any> parse(value: dynamic): T = parse(value, serializersModule.getContextualOrDefault())
 
     /**
      * Deserializes given [obj] from dynamic form to type [T] using [deserializer].
@@ -54,8 +54,8 @@ public class DynamicObjectParser @OptIn(UnstableDefault::class) constructor(
         DynamicInput(obj).decodeSerializableValue(deserializer)
 
     private open inner class DynamicInput(val obj: dynamic) : NamedValueDecoder() {
-        override val serializersModule: SerialModule
-            get() = this@DynamicObjectParser.context
+        override val serializersModule: SerializersModule
+            get() = this@DynamicObjectParser.serializersModule
 
         override fun composeName(parentName: String, childName: String): String = childName
 

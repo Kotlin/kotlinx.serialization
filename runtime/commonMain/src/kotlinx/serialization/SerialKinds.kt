@@ -223,7 +223,7 @@ public sealed class UnionKind : SerialKind() {
      * Effectively it defers the choice of the serializer to a moment of the serialization, and can
      * be used for [contextual][ContextualSerialization] serialization.
      *
-     * To introspect descriptor of this kind, an instance of [SerialModule] is required.
+     * To introspect descriptor of this kind, an instance of [SerializersModule] is required.
      * See [capturedKClass] extension property for more details.
      * However, if possible options are known statically (e.g. for sealed classes), they can be
      * enumerated in child descriptors similarly to [ENUM_KIND].
@@ -253,7 +253,7 @@ public sealed class PolymorphicKind : SerialKind() {
      * `kotlinx.serialization` provides only bounded polymorphic serialization, forcing users to register all possible
      * serializers for a given base class or interface.
      *
-     * To introspect descriptor of this kind (e.g. list possible subclasses), an instance of [SerialModule] is required.
+     * To introspect descriptor of this kind (e.g. list possible subclasses), an instance of [SerializersModule] is required.
      * See [capturedKClass] extension property for more details.
      */
     public object OPEN : PolymorphicKind()

@@ -111,7 +111,7 @@ public annotation class SerialId @Deprecated(
 
 @Deprecated(level = DeprecationLevel.WARNING, message = "Use default parse overload instead", replaceWith = ReplaceWith("parse(objects)"))
 public inline fun <reified T : Any> StringFormat.parseList(objects: String): List<T> =
-    decodeFromString(ListSerializer(context.getContextualOrDefault<T>()), objects)
+    decodeFromString(ListSerializer(serializersModule.getContextualOrDefault<T>()), objects)
 
 @Deprecated(
     level = DeprecationLevel.WARNING,
@@ -119,7 +119,7 @@ public inline fun <reified T : Any> StringFormat.parseList(objects: String): Lis
     replaceWith = ReplaceWith("decodeFromString(map)")
 )
 public inline fun <reified K : Any, reified V : Any> StringFormat.parseMap(map: String): Map<K, V> =
-    decodeFromString(MapSerializer(context.getContextualOrDefault<K>(), context.getContextualOrDefault<V>()), map)
+    decodeFromString(MapSerializer(serializersModule.getContextualOrDefault<K>(), serializersModule.getContextualOrDefault<V>()), map)
 
 // ERROR migrations that affect **only** users that called these functions with named parameters
 
@@ -130,7 +130,7 @@ public inline fun <reified K : Any, reified V : Any> StringFormat.parseMap(map: 
     replaceWith = ReplaceWith("encodeToString(objects)")
 )
 public inline fun <reified T : Any> StringFormat.stringify(objects: List<T>): String =
-    encodeToString(ListSerializer(context.getContextualOrDefault<T>()), objects)
+    encodeToString(ListSerializer(serializersModule.getContextualOrDefault<T>()), objects)
 
 @LowPriorityInOverloadResolution
 @Deprecated(
@@ -139,7 +139,7 @@ public inline fun <reified T : Any> StringFormat.stringify(objects: List<T>): St
     replaceWith = ReplaceWith("stringify(map)")
 )
 public inline fun <reified K : Any, reified V : Any> StringFormat.stringify(map: Map<K, V>): String =
-    encodeToString(MapSerializer(context.getContextualOrDefault<K>(), context.getContextualOrDefault<V>()), map)
+    encodeToString(MapSerializer(serializersModule.getContextualOrDefault<K>(), serializersModule.getContextualOrDefault<V>()), map)
 
 @ImplicitReflectionSerializer
 @OptIn(UnsafeSerializationApi::class)
@@ -148,7 +148,7 @@ public inline fun <reified K : Any, reified V : Any> StringFormat.stringify(map:
     message = "This method is deprecated for removal. Please use reified getContextualOrDefault<T>() instead",
     replaceWith = ReplaceWith("getContextual(klass) ?: klass.serializer()")
 )
-public fun <T : Any> SerialModule.getContextualOrDefault(klass: KClass<T>): KSerializer<T> =
+public fun <T : Any> SerializersModule.getContextualOrDefault(klass: KClass<T>): KSerializer<T> =
     getContextual(klass) ?: klass.serializer()
 
 @ImplicitReflectionSerializer
@@ -158,7 +158,7 @@ public fun <T : Any> SerialModule.getContextualOrDefault(klass: KClass<T>): KSer
     message = "This method is deprecated for removal. Please use reified getContextualOrDefault<T>() instead",
     replaceWith = ReplaceWith("getContextualOrDefault<T>()")
 )
-public fun <T : Any> SerialModule.getContextualOrDefault(value: T): KSerializer<T> =
+public fun <T : Any> SerializersModule.getContextualOrDefault(value: T): KSerializer<T> =
     getContextual(value) ?: value::class.serializer().cast()
 
 @Suppress("UNUSED", "DeprecatedCallableAddReplaceWith")
@@ -173,7 +173,7 @@ public val PolymorphicClassDescriptor: SerialDescriptor
     "Deprecated for removal since it is indistinguishable from SerialFormat interface. " +
             "Use SerialFormat instead.", ReplaceWith("SerialFormat"), DeprecationLevel.ERROR
 )
-public abstract class AbstractSerialFormat(override val context: SerialModule) : SerialFormat
+public abstract class AbstractSerialFormat(override val serializersModule: SerializersModule) : SerialFormat
 
 @Deprecated(
     "This method was renamed to encodeToString during serialization 1.0 stabilization",
@@ -270,3 +270,9 @@ public fun <T : Any?> Encoder.encode(strategy: SerializationStrategy<T>, value: 
     ReplaceWith("encodeSerializableValue<T>(serializer(), value)"), DeprecationLevel.ERROR
 ) // TODO make internal when migrations are removed
 public fun <T : Any> Encoder.encode(obj: T): Unit = noImpl()
+
+@Deprecated(
+    "This property was renamed to serializersModule during serialization 1.0 stabilization",
+    ReplaceWith("serializersModule"), DeprecationLevel.ERROR
+)
+public val SerialFormat.context: SerializersModule get() = noImpl()

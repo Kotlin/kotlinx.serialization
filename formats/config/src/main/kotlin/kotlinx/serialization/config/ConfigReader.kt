@@ -21,16 +21,16 @@ private val SerialKind.objLike get() = this == StructureKind.CLASS || this == St
  * [HOCON][https://github.com/lightbend/config#using-hocon-the-json-superset].
  *
  * @param configuration configuration for a parser instance.
- * @param context A [SerialModule] which should contain registered serializers
+ * @param serializersModule A [SerializersModule] which should contain registered serializers
  * for [ContextualSerialization] and [Polymorphic] serialization, if you have any.
  */
 public class ConfigParser(
     private val configuration: ConfigParserConfiguration = ConfigParserConfiguration(),
-    override val context: SerialModule = EmptyModule
+    override val serializersModule: SerializersModule = EmptySerializersModule
 ) : SerialFormat {
 
     public inline fun <reified T : Any> decodeFromConfig(config: Config): T =
-        decodeFromConfig(context.getContextualOrDefault(), config)
+        decodeFromConfig(serializersModule.getContextualOrDefault(), config)
 
     public fun <T> decodeFromConfig(deserializer: DeserializationStrategy<T>, config: Config): T =
         ConfigReader(config).decodeSerializableValue(deserializer)
@@ -41,7 +41,7 @@ public class ConfigParser(
         replaceWith = ReplaceWith("decodeFromConfig<T>(conf)")
     )
     public inline fun <reified T : Any> parse(conf: Config): T =
-        decodeFromConfig(context.getContextualOrDefault(), conf)
+        decodeFromConfig(serializersModule.getContextualOrDefault(), conf)
 
     @Deprecated(
         "This method was renamed to decodeFromConfig during serialization 1.0 API stabilization",
@@ -52,8 +52,8 @@ public class ConfigParser(
         decodeFromConfig(deserializer, conf)
 
     private abstract inner class ConfigConverter<T> : TaggedDecoder<T>() {
-        override val serializersModule: SerialModule
-            get() = this@ConfigParser.context
+        override val serializersModule: SerializersModule
+            get() = this@ConfigParser.serializersModule
 
         abstract fun getTaggedConfigValue(tag: T): ConfigValue
 
@@ -211,10 +211,7 @@ public class ConfigParser(
         )
         public inline fun <reified T : Any> parse(conf: Config): T = ConfigParser().decodeFromConfig(serializer(), conf)
 
-        public inline fun <reified T : Any> decodeFromConfig(config: Config): T = ConfigParser().decodeFromConfig(
-            serializer(),
-            config
-        )
+        public inline fun <reified T : Any> decodeFromConfig(config: Config): T = ConfigParser().decodeFromConfig(serializer(), config)
 
         public fun <T> decodeFromConfig(deserializer: DeserializationStrategy<T>, config: Config): T =
             ConfigParser().decodeFromConfig(deserializer, config)

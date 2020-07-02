@@ -7,10 +7,11 @@ package kotlinx.serialization.modules
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlin.jvm.*
+import kotlin.native.concurrent.*
 import kotlin.reflect.*
 
 /**
- * [SerialModule] is a collection of serializers used by [ContextSerializer] and [PolymorphicSerializer]
+ * [SerializersModule] is a collection of serializers used by [ContextSerializer] and [PolymorphicSerializer]
  * to override or provide serializers at the runtime, whereas at the compile-time they provided by the serialization plugin.
  * It can be considered as a map where serializers can be found using their statically known KClasses.
  *
@@ -20,7 +21,7 @@ import kotlin.reflect.*
  * @see ContextualSerialization
  * @see Polymorphic
  */
-public sealed class SerialModule {
+public sealed class SerializersModule {
 
     /**
      * Returns a contextual serializer associated with a given [kclass].
@@ -42,27 +43,17 @@ public sealed class SerialModule {
     /**
      * Copies contents of this module to the given [collector].
      */
-    public abstract fun dumpTo(collector: SerialModuleCollector)
+    public abstract fun dumpTo(collector: SerializersModuleCollector)
 }
 
 /**
- * A [SerialModule] which is empty and always returns `null`.
+ * A [SerializersModule] which is empty and always returns `null`.
  */
-public object EmptyModule : SerialModule() {
-    public override fun <T : Any> getContextual(kclass: KClass<T>): KSerializer<T>? = null
-    public override fun <T : Any> getPolymorphic(baseClass: KClass<in T>, value: T): SerializationStrategy<T>? = null
-    public override fun <T : Any> getPolymorphic(
-        baseClass: KClass<in T>,
-        serializedClassName: String
-    ): DeserializationStrategy<out T>? = null
-
-    public override fun dumpTo(collector: SerialModuleCollector): Unit = Unit
-}
-
-internal typealias PolymorphicProvider<Base> = (className: String) -> DeserializationStrategy<out Base>?
+@SharedImmutable
+public val EmptySerializersModule: SerializersModule = SerialModuleImpl(emptyMap(), emptyMap(), emptyMap(), emptyMap())
 
 /**
- * A default implementation of [SerialModule]
+ * A default implementation of [SerializersModule]
  * which uses hash maps to store serializers associated with KClasses.
  */
 @Suppress("UNCHECKED_CAST")
@@ -71,7 +62,7 @@ internal class SerialModuleImpl(
     @JvmField val polyBase2Serializers: Map<KClass<*>, Map<KClass<*>, KSerializer<*>>>,
     private val polyBase2NamedSerializers: Map<KClass<*>, Map<String, KSerializer<*>>>,
     private val polyBase2DefaultProvider: Map<KClass<*>, PolymorphicProvider<*>>
-) : SerialModule() {
+) : SerializersModule() {
 
     override fun <T : Any> getPolymorphic(baseClass: KClass<in T>, value: T): SerializationStrategy<T>? {
         if (!value.isInstanceOf(baseClass)) return null
@@ -100,7 +91,7 @@ internal class SerialModuleImpl(
     override fun <T : Any> getContextual(kclass: KClass<T>): KSerializer<T>? =
         class2Serializer[kclass] as? KSerializer<T>
 
-    override fun dumpTo(collector: SerialModuleCollector) {
+    override fun dumpTo(collector: SerializersModuleCollector) {
         class2Serializer.forEach { (kclass, serial) ->
             collector.contextual(
                 kclass as KClass<Any>,
@@ -123,3 +114,5 @@ internal class SerialModuleImpl(
         }
     }
 }
+
+internal typealias PolymorphicProvider<Base> = (className: String) -> DeserializationStrategy<out Base>?

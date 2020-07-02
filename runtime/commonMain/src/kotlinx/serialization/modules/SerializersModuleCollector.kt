@@ -10,10 +10,10 @@ import kotlinx.serialization.*
 import kotlin.reflect.*
 
 /**
- * [SerialModuleCollector] can introspect and accumulate content of any [SerialModule] via [SerialModule.dumpTo],
+ * [SerializersModuleCollector] can introspect and accumulate content of any [SerializersModule] via [SerializersModule.dumpTo],
  * using a visitor-like pattern: [contextual] and [polymorphic] functions are invoked for each registered serializer.
  */
-public interface SerialModuleCollector {
+public interface SerializersModuleCollector {
 
     /**
      * Accept a serializer, associated with [kClass] for contextual serialization.
@@ -36,11 +36,4 @@ public interface SerialModuleCollector {
         baseClass: KClass<Base>,
         defaultSerializerProvider: (className: String) -> DeserializationStrategy<out Base>?
     )
-}
-
-/**
- * Version of [SerialModuleCollector.contextual] with reified argument.
- */
-public inline fun <reified T : Any> SerialModuleCollector.contextual(serializer: KSerializer<T>) {
-    contextual(T::class, serializer)
 }

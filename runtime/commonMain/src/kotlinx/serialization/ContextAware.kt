@@ -13,7 +13,7 @@ import kotlin.reflect.*
 /**
  * Retrieves [KClass] associated with serializer and its descriptor, if it was captured.
  *
- * For schema introspection purposes, [capturedKClass] can be used in [SerialModule] as a key
+ * For schema introspection purposes, [capturedKClass] can be used in [SerializersModule] as a key
  * to retrieve registered descriptor at runtime.
  * This property is intended to be used on [UnionKind.CONTEXTUAL] and [PolymorphicKind.OPEN] kinds of descriptors,
  * where actual serializer used for a property can be determined only at runtime.
@@ -38,8 +38,8 @@ import kotlin.reflect.*
  *   else -> descriptor.elementNames().toSet()
  * }
  * ```
- * @see SerialModule.getContextualDescriptor
- * @see SerialModule.getPolymorphicDescriptors
+ * @see SerializersModule.getContextualDescriptor
+ * @see SerializersModule.getPolymorphicDescriptors
  */
 public val SerialDescriptor.capturedKClass: KClass<*>?
     get() = when (this) {
@@ -56,7 +56,7 @@ internal fun SerialDescriptor.withContext(context: KClass<*>): SerialDescriptor 
 
 /**
  * Descriptor that captures [kClass] and allows retrieving additional runtime information,
- * if proper [SerialModule] is provided.
+ * if proper [SerializersModule] is provided.
  */
 private class ContextDescriptor(
     private val original: SerialDescriptor,

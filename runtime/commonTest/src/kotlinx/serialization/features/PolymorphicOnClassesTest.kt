@@ -89,7 +89,7 @@ class PolymorphicOnClassesTest {
         assertEquals(PrimitiveKind.STRING, polyDesc.getElementDescriptor(0).kind)
     }
 
-    private fun SerialDescriptor.inContext(module: SerialModule): List<SerialDescriptor> = when (kind) {
+    private fun SerialDescriptor.inContext(module: SerializersModule): List<SerialDescriptor> = when (kind) {
         PolymorphicKind.OPEN -> module.getPolymorphicDescriptors(this)
         else -> error("Expected this function to be called on OPEN descriptor")
     }
@@ -108,7 +108,7 @@ class PolymorphicOnClassesTest {
 
     @Test
     fun testDocSampleWithAllDistinct() {
-        fun allDistinctNames(descriptor: SerialDescriptor, module: SerialModule) = when (descriptor.kind) {
+        fun allDistinctNames(descriptor: SerialDescriptor, module: SerializersModule) = when (descriptor.kind) {
             is PolymorphicKind.OPEN -> module.getPolymorphicDescriptors(descriptor)
                 .map { it.elementNames() }.flatten().toSet()
             is UnionKind.CONTEXTUAL -> module.getContextualDescriptor(descriptor)

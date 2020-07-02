@@ -7,8 +7,8 @@ import kotlinx.serialization.json.internal.BEGIN_LIST
 import kotlinx.serialization.json.internal.BEGIN_OBJ
 import kotlinx.serialization.json.internal.END_LIST
 import kotlinx.serialization.json.internal.END_OBJ
-import kotlinx.serialization.modules.EmptyModule
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.modules.EmptySerializersModule
+import kotlinx.serialization.modules.SerializersModule
 import kotlin.math.abs
 import kotlin.math.floor
 
@@ -34,7 +34,7 @@ import kotlin.math.floor
  * @param encodeNullAsUndefined if true null properties will be omitted from the output
  */
 public class DynamicObjectSerializer @OptIn(UnstableDefault::class) constructor(
-    public val context: SerialModule = EmptyModule,
+    public val context: SerializersModule = EmptySerializersModule,
     private val configuration: JsonConfiguration = JsonConfiguration.Default,
     private val encodeNullAsUndefined: Boolean = false
 ) {

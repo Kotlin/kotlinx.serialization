@@ -17,7 +17,7 @@ import kotlin.experimental.*
  * Implements [encoding][encodeToByteArray] and [decoding][decodeFromByteArray] classes to/from bytes
  * using [CBOR](https://tools.ietf.org/html/rfc7049) specification.
  * It is typically used by constructing an application-specific instance, with configured behaviour, and,
- * if necessary, registered custom serializers (in [SerialModule] provided by [context] constructor parameter).
+ * if necessary, registered custom serializers (in [SerializersModule] provided by [serializersModule] constructor parameter).
  *
  * ### Known caveats and limitations:
  * Supports reading collections of both definite and indefinite lengths; however,
@@ -30,7 +30,7 @@ import kotlin.experimental.*
  */
 public class Cbor(
     public val encodeDefaults: Boolean = true,
-    override val context: SerialModule = EmptyModule
+    override val serializersModule: SerializersModule = EmptySerializersModule
 ) : BinaryFormat {
     // Differs from List only in start byte
     private inner class CborMapWriter(encoder: CborEncoder) : CborListWriter(encoder) {
@@ -46,8 +46,8 @@ public class Cbor(
 
     // Writes class as map [fieldName, fieldValue]
     private open inner class CborWriter(val encoder: CborEncoder) : AbstractEncoder() {
-        override val serializersModule: SerialModule
-            get() = this@Cbor.context
+        override val serializersModule: SerializersModule
+            get() = this@Cbor.serializersModule
 
         override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = encodeDefaults
 
@@ -188,8 +188,8 @@ public class Cbor(
             }
         }
 
-        override val serializersModule: SerialModule
-            get() = this@Cbor.context
+        override val serializersModule: SerializersModule
+            get() = this@Cbor.serializersModule
 
         protected open fun skipBeginToken() = setSize(decoder.startMap())
 

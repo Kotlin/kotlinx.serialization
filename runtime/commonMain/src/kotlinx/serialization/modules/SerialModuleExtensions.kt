@@ -13,12 +13,12 @@ import kotlin.reflect.*
 /**
  * Returns a dependent serializer associated with a given reified type.
  */
-public inline fun <reified T : Any> SerialModule.getContextual(): KSerializer<T>? = getContextual(T::class)
+public inline fun <reified T : Any> SerializersModule.getContextual(): KSerializer<T>? = getContextual(T::class)
 
 /**
  * Returns a serializer associated with KClass of the given [value].
  */
-public fun <T : Any> SerialModule.getContextual(value: T): KSerializer<T>? {
+public fun <T : Any> SerializersModule.getContextual(value: T): KSerializer<T>? {
     return getContextual(value::class)?.cast()
 }
 
@@ -26,7 +26,7 @@ public fun <T : Any> SerialModule.getContextual(value: T): KSerializer<T>? {
  * Attempts to retrieve a serializer from the current module and, if not found, fallbacks to [serializer] method
  */
 @OptIn(UnsafeSerializationApi::class)
-public inline fun <reified T : Any> SerialModule.getContextualOrDefault(): KSerializer<T> =
+public inline fun <reified T : Any> SerializersModule.getContextualOrDefault(): KSerializer<T> =
     // Even though serializer(KType) also invokes serializerOrNull, it is a significant performance optimization
     // TODO replace with serializer(typeOf<T>()) when intrinsics are here
     getContextual(T::class) ?: T::class.serializerOrNull() ?: serializer(typeOf<T>()).cast()
@@ -35,7 +35,7 @@ public inline fun <reified T : Any> SerialModule.getContextualOrDefault(): KSeri
  * Attempts to retrieve a serializer from the current module using the given [type] and, if not found, fallbacks to [serializer] method
  */
 @OptIn(UnsafeSerializationApi::class)
-public fun <T : Any> SerialModule.getContextualOrDefault(type: KType): KSerializer<T> {
+public fun <T : Any> SerializersModule.getContextualOrDefault(type: KType): KSerializer<T> {
     // Even though serializer(KType) also invokes serializerOrNull, it is a significant performance optimization
     // TODO replace with serializer(typeOf<T>()) when intrinsics are here
     val kclass = type.kclass()
@@ -46,9 +46,9 @@ public fun <T : Any> SerialModule.getContextualOrDefault(type: KType): KSerializ
  * Returns a combination of two serial modules
  *
  * If serializer for some class presents in both modules, a [SerializerAlreadyRegisteredException] is thrown.
- * To overwrite serializers, use [SerialModule.overwriteWith] function.
+ * To overwrite serializers, use [SerializersModule.overwriteWith] function.
  */
-public operator fun SerialModule.plus(other: SerialModule): SerialModule = SerializersModule {
+public operator fun SerializersModule.plus(other: SerializersModule): SerializersModule = SerializersModule {
     include(this@plus)
     include(other)
 }
@@ -59,9 +59,9 @@ public operator fun SerialModule.plus(other: SerialModule): SerialModule = Seria
  * If serializer for some class presents in both modules, result module
  * will contain serializer from [other] module.
  */
-public infix fun SerialModule.overwriteWith(other: SerialModule): SerialModule = SerializersModule {
+public infix fun SerializersModule.overwriteWith(other: SerializersModule): SerializersModule = SerializersModule {
     include(this@overwriteWith)
-    other.dumpTo(object : SerialModuleCollector {
+    other.dumpTo(object : SerializersModuleCollector {
         override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>) {
             registerSerializer(kClass, serializer, allowOverwrite = true)
         }
@@ -87,27 +87,27 @@ public infix fun SerialModule.overwriteWith(other: SerialModule): SerialModule =
  * Looks up a descriptor of serializer registered for contextual serialization in [this],
  * using [SerialDescriptor.capturedKClass] as a key.
  *
- * @see SerialModule.getContextual
+ * @see SerializersModule.getContextual
  * @see SerializersModuleBuilder.contextual
  */
-public fun SerialModule.getContextualDescriptor(descriptor: SerialDescriptor): SerialDescriptor? =
+public fun SerializersModule.getContextualDescriptor(descriptor: SerialDescriptor): SerialDescriptor? =
     descriptor.capturedKClass?.let { klass -> getContextual(klass)?.descriptor }
 
 /**
  * Retrieves a collection of descriptors which serializers are registered for polymorphic serialization in [this]
  * with base class equal to [descriptor]'s [SerialDescriptor.capturedKClass].
  *
- * @see SerialModule.getPolymorphic
+ * @see SerializersModule.getPolymorphic
  * @see SerializersModuleBuilder.polymorphic
  */
-public fun SerialModule.getPolymorphicDescriptors(descriptor: SerialDescriptor): List<SerialDescriptor> {
+public fun SerializersModule.getPolymorphicDescriptors(descriptor: SerialDescriptor): List<SerialDescriptor> {
     val kClass = descriptor.capturedKClass ?: return emptyList()
     // shortcut
     if (this is SerialModuleImpl) return this.polyBase2Serializers[kClass]?.values.orEmpty()
         .map { it.descriptor }
 
     val builder = ArrayList<SerialDescriptor>()
-    dumpTo(object : SerialModuleCollector {
+    dumpTo(object : SerializersModuleCollector {
         override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>) { /*noop*/
         }
 
