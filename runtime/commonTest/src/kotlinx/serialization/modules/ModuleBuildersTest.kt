@@ -25,7 +25,7 @@ class ModuleBuildersTest {
     @Serializer(forClass = B::class)
     object BSerializer : KSerializer<B>
 
-    private fun SerialModule.assertModuleHas(aSerializer: Boolean = false, bSerializer: Boolean = false) {
+    private fun SerializersModule.assertModuleHas(aSerializer: Boolean = false, bSerializer: Boolean = false) {
         with(this) {
             assertSame(if (aSerializer) ASerializer else null, getContextual<A>())
             assertSame(if (bSerializer) BSerializer else null, getContextual<B>())
@@ -70,7 +70,7 @@ class ModuleBuildersTest {
             bSerializer = true
         )
 
-        var composite: SerialModule = SerializersModule { }
+        var composite: SerializersModule = SerializersModule { }
         composite.assertModuleHas(
             aSerializer = false,
             bSerializer = false
@@ -91,9 +91,8 @@ class ModuleBuildersTest {
     fun testDSL() {
         val module = SerializersModule {
             contextual(A::class, ASerializer)
-            contextual(BSerializer)
         }
-        module.assertModuleHas(aSerializer = true, bSerializer = true)
+        module.assertModuleHas(aSerializer = true, bSerializer = false)
     }
 
     @Test

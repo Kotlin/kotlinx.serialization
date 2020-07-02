@@ -20,7 +20,7 @@ internal class StreamingJsonDecoder internal constructor(
     @JvmField internal val reader: JsonReader
 ) : JsonDecoder, AbstractDecoder() {
 
-    public override val serializersModule: SerialModule = json.context
+    public override val serializersModule: SerializersModule = json.serializersModule
     private var currentIndex = -1
     private val configuration = json.configuration
 

@@ -15,8 +15,8 @@ import kotlinx.serialization.modules.*
  * See [Encoder] documentation for information about each particular `encode*` method.
  */
 public abstract class AbstractEncoder : Encoder, CompositeEncoder {
-    override val serializersModule: SerialModule
-        get() = EmptyModule
+    override val serializersModule: SerializersModule
+        get() = EmptySerializersModule
 
     // do not update signature here because new signature is called by the plugin;
     // and clients that have old signature would not be called.

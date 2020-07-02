@@ -12,19 +12,20 @@ import kotlinx.serialization.modules.*
  * Represents an instance of a serialization format
  * that can interact with [KSerializer] and is a supertype of all entry points for a serialization.
  * It does not impose any restrictions on a serialized form or underlying storage, neither it exposes them.
+ *
  * Concrete data types and API for user-interaction are responsibility of a concrete subclass or subinterface,
- * e.g. [StringFormat], [BinaryFormat] or [Json].
+ * for example [StringFormat], [BinaryFormat] or [Json].
  *
  * Typically, formats have their specific [Encoder] and [Decoder] implementations
- * as private inner classes and do not expose them.
+ * as private classes and do not expose them.
  */
 public interface SerialFormat {
     /**
      * Contains all serializers registered by format user for [ContextualSerialization] and [Polymorphic] serialization.
      *
-     * The same context should be exposed in the format's [Encoder] and [Decoder].
+     * The same module should be exposed in the format's [Encoder] and [Decoder].
      */
-    public val context: SerialModule
+    public val serializersModule: SerializersModule
 }
 
 /**
@@ -63,14 +64,14 @@ public interface StringFormat : SerialFormat {
  * Serializes and encodes the given [value] to string using serializer retrieved from the reified type parameter.
  */
 public inline fun <reified T : Any> StringFormat.encodeToString(value: T): String =
-    encodeToString(context.getContextualOrDefault(), value)
+    encodeToString(serializersModule.getContextualOrDefault(), value)
 
 /**
  * Decodes and deserializes the given [string] to to the value of type [T] using deserializer
  * retrieved from the reified type parameter.
  */
 public inline fun <reified T : Any> StringFormat.decodeFromString(string: String): T =
-    decodeFromString(context.getContextualOrDefault(), string)
+    decodeFromString(serializersModule.getContextualOrDefault(), string)
 
 
 /**
@@ -102,7 +103,7 @@ public fun <T> BinaryFormat.decodeFromHexString(deserializer: DeserializationStr
  * testing purposes.
  */
 public inline fun <reified T : Any> BinaryFormat.encodeToHexString(value: T): String =
-    encodeToHexString(context.getContextualOrDefault(), value)
+    encodeToHexString(serializersModule.getContextualOrDefault(), value)
 
 /**
  * Decodes byte array from the given [hex] string and the decodes and deserializes it
@@ -111,18 +112,18 @@ public inline fun <reified T : Any> BinaryFormat.encodeToHexString(value: T): St
  * This method is a counterpart to [encodeToHexString]
  */
 public inline fun <reified T : Any> BinaryFormat.decodeFromHexString(hex: String): T =
-    decodeFromHexString(context.getContextualOrDefault(), hex)
+    decodeFromHexString(serializersModule.getContextualOrDefault(), hex)
 
 /**
  * Serializes and encodes the given [value] to byte array using serializer
  * retrieved from the reified type parameter.
  */
 public inline fun <reified T : Any> BinaryFormat.encodeToByteArray(value: T): ByteArray =
-    encodeToByteArray(context.getContextualOrDefault(), value)
+    encodeToByteArray(serializersModule.getContextualOrDefault(), value)
 
 /**
  * Decodes and deserializes the given [byte array][bytes] to to the value of type [T] using deserializer
  * retrieved from the reified type parameter.
  */
 public inline fun <reified T : Any> BinaryFormat.decodeFromByteArray(bytes: ByteArray): T =
-    decodeFromByteArray(context.getContextualOrDefault(), bytes)
+    decodeFromByteArray(serializersModule.getContextualOrDefault(), bytes)

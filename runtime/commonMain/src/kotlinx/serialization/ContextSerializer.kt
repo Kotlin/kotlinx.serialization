@@ -16,7 +16,7 @@ import kotlin.reflect.*
  * static serializer (e.g. Java class or class from 3rd party library);
  * or desire to override serialized class form in one dedicated output format.
  *
- * Serializers are being looked for in a [SerialModule] from the target [Encoder] or [Decoder], using statically known [KClass].
+ * Serializers are being looked for in a [SerializersModule] from the target [Encoder] or [Decoder], using statically known [KClass].
  * To create a serial module, use [SerializersModule] factory function.
  * To pass it to encoder and decoder, refer to particular [SerialFormat]'s documentation.
  */

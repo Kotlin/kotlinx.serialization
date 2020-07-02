@@ -15,7 +15,7 @@ import kotlin.reflect.*
  * The main entry point to work with JSON serialization.
  * It is typically used by constructing an application-specific instance, with configured json-specific behaviour
  * ([configuration] constructor parameter) and, if necessary, registered
- * custom serializers (in [SerialModule] provided by [context] constructor parameter).
+ * custom serializers (in [SerializersModule] provided by [serializersModule] constructor parameter).
  * Then constructed instance can be used either as regular [SerialFormat] or [StringFormat]
  * or for converting objects to [JsonElement] back and forth.
  *
@@ -108,7 +108,7 @@ public sealed class Json(internal val configuration: JsonConfiguration) : String
      * The default instance of [Json] with default configuration.
      */
     public companion object Default : Json(JsonConfiguration.Default) {
-        override val context: SerialModule = defaultJsonModule
+        override val serializersModule: SerializersModule = defaultJsonModule
     }
 }
 
@@ -119,7 +119,7 @@ public sealed class Json(internal val configuration: JsonConfiguration) : String
  * val json = Json(configuration: = JsonConfiguration.Stable.copy(prettyPrint = true))
  * ```
  */
-public fun Json(configuration: JsonConfiguration = JsonConfiguration.Stable, context: SerialModule = EmptyModule
+public fun Json(configuration: JsonConfiguration = JsonConfiguration.Stable, context: SerializersModule = EmptySerializersModule
 ): Json = JsonImpl(configuration, context)
 
 /**
@@ -134,7 +134,7 @@ public fun Json(block: JsonBuilder.() -> Unit): Json = JsonImpl(JsonBuilder().ap
  * @throws [SerializationException] if the given value cannot be serialized to JSON.
  */
 public inline fun <reified T : Any> Json.encodeToJsonElement(value: T): JsonElement {
-    return encodeToJsonElement(context.getContextualOrDefault(), value)
+    return encodeToJsonElement(serializersModule.getContextualOrDefault(), value)
 }
 
 /**
@@ -144,7 +144,7 @@ public inline fun <reified T : Any> Json.encodeToJsonElement(value: T): JsonElem
  * @throws [SerializationException] if the given JSON string is malformed or cannot be deserialized to the value of type [T].
  */
 public inline fun <reified T : Any> Json.decodeFromJsonElement(tree: JsonElement): T =
-    decodeFromJsonElement(context.getContextualOrDefault(), tree)
+    decodeFromJsonElement(serializersModule.getContextualOrDefault(), tree)
 
 /**
  * Builder to conveniently build Json instances.
@@ -174,7 +174,7 @@ public class JsonBuilder {
     public var coerceInputValues: Boolean = false
     public var useArrayPolymorphism: Boolean = false
     public var classDiscriminator: String = "type"
-    public var serialModule: SerialModule = EmptyModule
+    public var serialModule: SerializersModule = EmptySerializersModule
 
     public fun buildConfiguration(): JsonConfiguration =
         JsonConfiguration(
@@ -191,7 +191,7 @@ public class JsonBuilder {
             classDiscriminator
         )
 
-    public fun buildModule(): SerialModule = serialModule
+    public fun buildModule(): SerializersModule = serialModule
 }
 
 @SharedImmutable
@@ -210,9 +210,9 @@ internal const val lenientHint = "Use 'JsonConfiguration.isLenient = true' to ac
 
 internal class JsonImpl(
     configuration: JsonConfiguration = JsonConfiguration.Stable,
-    context: SerialModule = EmptyModule
+    context: SerializersModule = EmptySerializersModule
 ) : Json(configuration) {
-    override val context: SerialModule = context + defaultJsonModule
+    override val serializersModule: SerializersModule = context + defaultJsonModule
 
     constructor(builder: JsonBuilder) : this(builder.buildConfiguration(), builder.buildModule())
 
@@ -223,6 +223,6 @@ internal class JsonImpl(
     private fun validateConfiguration() {
         if (configuration.useArrayPolymorphism) return
         val collector = ContextValidator(configuration.classDiscriminator)
-        context.dumpTo(collector)
+        serializersModule.dumpTo(collector)
     }
 }

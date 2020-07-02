@@ -3,7 +3,7 @@ package kotlinx.serialization
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
-import kotlinx.serialization.modules.EmptyModule
+import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.getContextualOrDefault
 import kotlin.test.*
 
@@ -92,7 +92,7 @@ class DynamicSerializerTest {
         serializer: SerializationStrategy<T>? = null,
         noinline assertions: ((T, dynamic) -> Unit)? = null
     ) {
-        val effectiveSerializer = serializer ?: EmptyModule.getContextualOrDefault<T>()
+        val effectiveSerializer = serializer ?: EmptySerializersModule.getContextualOrDefault<T>()
         val serialized = DynamicObjectSerializer().serialize(effectiveSerializer, data)
         assertions?.invoke(data, serialized)
         assertEquals(

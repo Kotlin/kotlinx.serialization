@@ -183,7 +183,7 @@ class DynamicParserTest {
 
     @Test
     fun parseWithCustomSerializers() {
-        val deserializer = DynamicObjectParser(context = serializersModuleOf(NotDefault::class, NDSerializer))
+        val deserializer = DynamicObjectParser(serializersModule = serializersModuleOf(NotDefault::class, NDSerializer))
         val dyn1 = js("({data: 42})")
         assertEquals(NDWrapper(NotDefault(42)), deserializer.parse(dyn1, NDWrapper.serializer()))
     }

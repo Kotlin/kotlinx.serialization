@@ -103,7 +103,7 @@ public interface Decoder {
      * Context of the current serialization process, including contextual and polymorphic serialization and,
      * potentially, a format-specific configuration.
      */
-    public val serializersModule: SerialModule
+    public val serializersModule: SerializersModule
 
     @Suppress("DEPRECATION")
     @Deprecated(updateModeDeprecated, level = DeprecationLevel.ERROR)
@@ -304,7 +304,7 @@ public interface CompositeDecoder {
      * Context of the current decoding process, including contextual and polymorphic serialization and,
      * potentially, a format-specific configuration.
      */
-    public val serializersModule: SerialModule
+    public val serializersModule: SerializersModule
 
     @Suppress("DEPRECATION")
     @Deprecated(updateModeDeprecated, level = DeprecationLevel.ERROR)

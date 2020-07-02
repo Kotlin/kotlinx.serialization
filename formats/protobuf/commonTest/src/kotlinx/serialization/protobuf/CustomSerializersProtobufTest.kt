@@ -11,7 +11,7 @@ import kotlin.test.*
 class CustomSerializersProtobufTest {
 
     private fun protoBufWithB() =
-        ProtoBuf(context = serializersModuleOf(B::class, BSerializer))
+        ProtoBuf(serializersModule = serializersModuleOf(B::class, BSerializer))
 
     @Test
     fun writeCustom() {

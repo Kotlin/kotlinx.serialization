@@ -23,8 +23,8 @@ private sealed class AbstractJsonTreeEncoder(
     val nodeConsumer: (JsonElement) -> Unit
 ) : NamedValueEncoder(), JsonEncoder {
 
-    final override val serializersModule: SerialModule
-        get() = json.context
+    final override val serializersModule: SerializersModule
+        get() = json.serializersModule
 
     @JvmField
     protected val configuration = json.configuration

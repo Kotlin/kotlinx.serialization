@@ -100,7 +100,7 @@ public interface Encoder {
      * Context of the current serialization process, including contextual and polymorphic serialization and,
      * potentially, a format-specific configuration.
      */
-    public val serializersModule: SerialModule
+    public val serializersModule: SerializersModule
 
     /**
      * Notifies the encoder that value of a nullable type that is
@@ -299,7 +299,7 @@ public interface CompositeEncoder {
      * Context of the current serialization process, including contextual and polymorphic serialization and,
      * potentially, a format-specific configuration.
      */
-    public val serializersModule: SerialModule
+    public val serializersModule: SerializersModule
 
     /**
      * Denotes the end of the structure associated with current encoder.

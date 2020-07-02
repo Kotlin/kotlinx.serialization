@@ -17,7 +17,7 @@ class PolymorphismTest : JsonTestBase() {
         @Id(2) @Polymorphic val polyBase2: PolyBase
     )
 
-    private val module: SerialModule = BaseAndDerivedModule + SerializersModule {
+    private val module: SerializersModule = BaseAndDerivedModule + SerializersModule {
         polymorphic(
             PolyDerived::class,
             PolyDerived.serializer()

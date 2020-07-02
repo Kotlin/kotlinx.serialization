@@ -34,8 +34,8 @@ private sealed class AbstractJsonTreeDecoder(
     open val value: JsonElement
 ) : NamedValueDecoder(), JsonDecoder {
 
-    override val serializersModule: SerialModule
-        get() = json.context
+    override val serializersModule: SerializersModule
+        get() = json.serializersModule
 
     // must override public final val updateMode: UpdateMode defined in kotlinx.serialization.NamedValueDecoder
     // because it inherits many implementations of it

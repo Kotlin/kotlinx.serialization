@@ -15,7 +15,7 @@ import kotlin.jvm.*
  * Implements [encoding][encodeToByteArray] and [decoding][decodeFromByteArray] classes to/from bytes
  * using [Proto2][https://developers.google.com/protocol-buffers/docs/proto] specification.
  * It is typically used by constructing an application-specific instance, with configured specific behaviour
- * and, if necessary, registered custom serializers (in [SerialModule] provided by [context] constructor parameter).
+ * and, if necessary, registered custom serializers (in [SerializersModule] provided by [serializersModule] constructor parameter).
  *
  * ### Correspondence between Protobuf message definitions and Kotlin classes
  * Given a ProtoBuf definition with one required field, one optional field and one optional field with a custom default
@@ -113,11 +113,11 @@ import kotlin.jvm.*
  * ```
  *
  * @param encodeDefaults specifies whether default values are encoded.
- * @param context application-specific [SerialModule] to provide custom serializers.
+ * @param serializersModule application-specific [SerializersModule] to provide custom serializers.
  */
 public class ProtoBuf(
     public val encodeDefaults: Boolean = true,
-    override val context: SerialModule = EmptyModule
+    override val serializersModule: SerializersModule = EmptySerializersModule
 ) : BinaryFormat {
 
     internal open inner class ProtobufEncoder(
@@ -125,7 +125,7 @@ public class ProtoBuf(
         @JvmField val descriptor: SerialDescriptor
     ) : ProtobufTaggedEncoder() {
         public override val serializersModule
-            get() = this@ProtoBuf.context
+            get() = this@ProtoBuf.serializersModule
 
         override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = encodeDefaults
 
@@ -294,8 +294,8 @@ public class ProtoBuf(
         @JvmField val reader: ProtobufReader,
         @JvmField val descriptor: SerialDescriptor
     ) : ProtobufTaggedDecoder() {
-        override val serializersModule: SerialModule
-            get() = this@ProtoBuf.context
+        override val serializersModule: SerializersModule
+            get() = this@ProtoBuf.serializersModule
 
         // Proto id -> index in serial descriptor cache
         private var indexCache: IntArray? = null
