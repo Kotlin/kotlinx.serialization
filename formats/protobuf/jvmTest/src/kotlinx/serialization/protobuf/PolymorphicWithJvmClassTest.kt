@@ -5,7 +5,7 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
-import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.*
 
 import org.junit.Test
 import java.text.*

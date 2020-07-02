@@ -7,40 +7,31 @@
 package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
 import kotlin.jvm.*
 import kotlin.reflect.*
 
 /**
- * Returns a [SerializersModule] which has one class with one serializer for [ContextSerializer].
+ * Returns a [SerializersModule] which has one class with one [serializer] for [ContextSerializer].
  */
 public fun <T : Any> serializersModuleOf(kClass: KClass<T>, serializer: KSerializer<T>): SerializersModule =
     SerializersModule { contextual(kClass, serializer) }
 
 /**
- * Shortcut for [serializersModuleOf] function with type parameter.
+ * Returns a [SerializersModule] which has one class with one [serializer] for [ContextSerializer].
  */
-// it could be named `serializersModuleOf`, too, but https://youtrack.jetbrains.com/issue/KT-30176.
-public inline fun <reified T : Any> serializersModule(serializer: KSerializer<T>): SerializersModule =
+public inline fun <reified T : Any> serializersModuleOf(serializer: KSerializer<T>): SerializersModule =
     serializersModuleOf(T::class, serializer)
 
 /**
- * Returns a [SerializersModule] which has multiple classes with its serializers for [ContextSerializer].
- */
-@Suppress("UNCHECKED_CAST")
-public fun serializersModuleOf(map: Map<KClass<*>, KSerializer<*>>): SerializersModule = SerializersModule {
-    map.forEach { (kclass, serializer) -> contextual(kclass as KClass<Any>, serializer.cast()) }
-}
-
-/**
  * A builder function for creating a [SerializersModule].
- * Serializers can be add via [SerializersModuleBuilder.contextual] or [SerializersModuleBuilder.polymorphic].
- * Since [SerializersModuleBuilder] also implements [SerializersModuleCollector], it is possible to copy whole another module to this builder with [SerializersModule.dumpTo]
+ * Serializers can be added via [SerializersModuleBuilder.contextual] or [SerializersModuleBuilder.polymorphic].
+ * Since [SerializersModuleBuilder] also implements [SerialModuleCollector],
+ * it is possible to copy whole another module to this builder with [SerializersModule.dumpTo]
  */
 @Suppress("FunctionName")
-public fun SerializersModule(buildAction: SerializersModuleBuilder.() -> Unit): SerializersModule {
+public fun SerializersModule(builderAction: SerializersModuleBuilder.() -> Unit): SerializersModule {
     val builder = SerializersModuleBuilder()
-    builder.buildAction()
+    builder.builderAction()
     return builder.build()
 }
 
@@ -62,11 +53,6 @@ public class SerializersModuleBuilder internal constructor() : SerializersModule
         registerSerializer(kClass, serializer)
 
     /**
-     * A reified version of `contextual(KClass, Serializer)`
-     */
-    public inline fun <reified T : Any> contextual(): Unit = contextual(T::class, serializer())
-
-    /**
      * Adds [serializer][actualSerializer] associated with given [actualClass] in the scope of [baseClass] for polymorphic serialization.
      * Throws [SerializationException] if a module already has serializer associated with a [actualClass].
      * To overwrite an already registered serializer, [SerializersModule.overwriteWith] can be used.
@@ -79,7 +65,7 @@ public class SerializersModuleBuilder internal constructor() : SerializersModule
         registerPolymorphicSerializer(baseClass, actualClass, actualSerializer)
     }
 
-    public override fun <Base : Any> defaultPolymorphic(
+    public override fun <Base : Any> polymorphicDefault(
         baseClass: KClass<Base>,
         defaultSerializerProvider: (className: String) -> DeserializationStrategy<out Base>?
     ) {
@@ -87,80 +73,10 @@ public class SerializersModuleBuilder internal constructor() : SerializersModule
     }
 
     /**
-     * Copies contents of [other] module into the current builder.
+     * Copies the content of [module] module into the current builder.
      */
-    public fun include(other: SerializersModule) {
-        other.dumpTo(this)
-    }
-
-    /**
-     * Creates a builder to register all subclasses of a given [baseClass]
-     * for polymorphic serialization. If [baseSerializer] is not null, registers it as a serializer for [baseClass]
-     * (which is useful if base class is serializable). To add subclasses, use
-     * [PolymorphicModuleBuilder.subclass] or [PolymorphicModuleBuilder.with].
-     *
-     * If serializer already registered for the given KClass in the given scope, a [IllegalArgumentException] is thrown.
-     * To override registered serializers, combine built module with another using
-     * [SerializersModule.overwriteWith].
-     *
-     * @see PolymorphicSerializer
-     */
-    public fun <Base : Any> polymorphic(
-        baseClass: KClass<Base>,
-        baseSerializer: KSerializer<Base>? = null,
-        buildAction: PolymorphicModuleBuilder<Base>.() -> Unit = {}
-    ) {
-        val builder = PolymorphicModuleBuilder(baseClass, baseSerializer)
-        builder.buildAction()
-        builder.buildTo(this)
-    }
-
-    public inline fun <reified Base : Any> polymorphic(
-        baseSerializer: KSerializer<Base>? = null,
-        noinline buildAction: PolymorphicModuleBuilder<Base>.() -> Unit = {}
-    ): Unit = polymorphic(Base::class, baseSerializer, buildAction)
-
-    /**
-     * Creates a builder to register all serializable subclasses for polymorphic serialization
-     * for multiple base classes. This is useful when you have more two or more super classes in a large hierarchy, e.g.:
-     *
-     * ```
-     * interface I
-     * @Serializable abstract class A() : I
-     * @Serializable final class B : A()
-     * @Serializable class Message(@Polymorphic val i: I, @Polymorphic val a: A)
-     * ```
-     *
-     * In this case, you have to register B as subclass for two base classes: I and A.
-     *
-     * Note that serializer (if present) for each of the [baseClasses] should be
-     * registered separately inside [buildAction] to avoid duplicates, e.g.:
-     *
-     * ```
-     * polymorphic(Any::class, PolyBase::class) {
-     *   PolyBase::class with PolyBase.serializer()
-     *   subclass<PolyDerived>() // Shorthand with default serializer
-     * }
-     * ```
-     *
-     * If serializer already registered for the given KClass in the given scope, a [IllegalArgumentException] is thrown.
-     * To override registered serializers, combine built module with another using
-     * [SerializersModule.overwriteWith].
-     *
-     * @see PolymorphicSerializer
-     */
-    @Suppress("UNCHECKED_CAST")
-    public fun polymorphic(
-        baseClass: KClass<*>,
-        vararg baseClasses: KClass<*>,
-        buildAction: PolymorphicModuleBuilder<Any>.() -> Unit = {}
-    ) {
-        val builder = PolymorphicModuleBuilder(baseClass as KClass<Any>)
-        builder.buildAction()
-        builder.buildTo(this)
-        for (base in baseClasses) {
-            builder.changeBase(base as KClass<Any>, null).buildTo(this)
-        }
+    public fun include(module: SerializersModule) {
+        module.dumpTo(this)
     }
 
     @JvmName("registerSerializer") // Don't mangle method name for prettier stack traces
@@ -245,10 +161,38 @@ public class SerializersModuleBuilder internal constructor() : SerializersModule
         SerialModuleImpl(class2Serializer, polyBase2Serializers, polyBase2NamedSerializers, polyBase2DefaultProvider)
 }
 
+/**
+ * Adds [serializer] associated with given type [T] for contextual serialization.
+ * Throws [SerializationException] if a module already has serializer associated with the given type.
+ * To overwrite an already registered serializer, [SerializersModule.overwriteWith] can be used.
+ */
+public inline fun <reified T : Any> SerializersModuleBuilder.contextual(serializer: KSerializer<T>): Unit =
+    contextual(T::class, serializer)
+
+/**
+ * Creates a builder to register subclasses of a given [baseClass] for polymorphic serialization.
+ * If [baseSerializer] is not null, registers it as a serializer for [baseClass],
+ * which is useful if the base class is serializable itself. To register subclasses,
+ * [PolymorphicModuleBuilder.subclass] builder function can be used.
+ *
+ * If a serializer already registered for the given KClass in the given scope, an [IllegalArgumentException] is thrown.
+ * To override registered serializers, combine built module with another using [SerializersModule.overwriteWith].
+ *
+ * @see PolymorphicSerializer
+ */
+public fun <Base : Any> SerializersModuleBuilder.polymorphic(
+    baseClass: KClass<Base>,
+    baseSerializer: KSerializer<Base>? = null,
+    builderAction: PolymorphicModuleBuilder<Base>.() -> Unit = {}
+) {
+    val builder = PolymorphicModuleBuilder(baseClass, baseSerializer)
+    builder.builderAction()
+    builder.buildTo(this)
+}
+
 private class SerializerAlreadyRegisteredException internal constructor(msg: String) : IllegalArgumentException(msg) {
     internal constructor(
         baseClass: KClass<*>,
         concreteClass: KClass<*>
     ) : this("Serializer for $concreteClass already registered in the scope of $baseClass")
 }
-

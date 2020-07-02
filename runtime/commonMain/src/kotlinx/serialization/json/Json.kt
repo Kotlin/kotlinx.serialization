@@ -9,7 +9,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.native.concurrent.*
-import kotlin.reflect.*
 
 /**
  * The main entry point to work with JSON serialization.
@@ -195,15 +194,14 @@ public class JsonBuilder {
 }
 
 @SharedImmutable
-private val defaultJsonModule = serializersModuleOf(
-    mapOf<KClass<*>, KSerializer<*>>(
-        JsonElement::class to JsonElementSerializer,
-        JsonPrimitive::class to JsonPrimitiveSerializer,
-        JsonNull::class to JsonNullSerializer,
-        JsonObject::class to JsonObjectSerializer,
-        JsonArray::class to JsonArraySerializer
-    )
-)
+private val defaultJsonModule = SerializersModule {
+    // TODO revisit the need of this module
+    contextual(JsonElementSerializer)
+    contextual(JsonPrimitiveSerializer)
+    contextual(JsonNullSerializer)
+    contextual(JsonObjectSerializer)
+    contextual(JsonArraySerializer)
+}
 
 internal const val lenientHint = "Use 'JsonConfiguration.isLenient = true' to accept non-compliant JSON"
 

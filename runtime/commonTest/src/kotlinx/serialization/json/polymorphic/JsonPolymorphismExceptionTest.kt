@@ -25,7 +25,7 @@ class JsonPolymorphismExceptionTest : JsonTestBase() {
     fun testDecodingException() = parametrizedTest { useStreaming ->
         val serialModule = SerializersModule {
             polymorphic(Base::class) {
-                subclass<Derived>()
+                subclass(Derived::class)
             }
         }
 
@@ -38,7 +38,7 @@ class JsonPolymorphismExceptionTest : JsonTestBase() {
     fun testMissingDiscriminator() = parametrizedTest { useStreaming ->
         val serialModule = SerializersModule {
             polymorphic(Base::class) {
-                subclass<Derived>()
+                subclass(Derived::class)
             }
         }
 

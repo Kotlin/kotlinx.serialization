@@ -6,7 +6,7 @@ package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.modules.plus
 import kotlinx.serialization.test.assertStringFormAndRestored
 import kotlinx.serialization.test.isJs
@@ -62,7 +62,7 @@ class PolymorphismWithAnyTest {
 
     @Test
     fun testWithModules() {
-        val json = Json(context = SerializersModule { polymorphic(Any::class) { IntData::class with IntData.serializer() } })
+        val json = Json(context = SerializersModule { polymorphic(Any::class) { subclass(IntData.serializer()) } })
         assertStringFormAndRestored(
             expected = """{"data":{"a":{"type":"kotlinx.serialization.IntData","intV":42}}}""",
             original = MyPolyData(mapOf("a" to IntData(42))),
@@ -90,7 +90,7 @@ class PolymorphismWithAnyTest {
 
     private val baseAndDerivedModuleAtAny = SerializersModule {
         polymorphic(Any::class) {
-            PolyDerived::class with PolyDerived.serializer()
+            subclass(PolyDerived.serializer())
         }
     }
 

@@ -49,6 +49,29 @@ public val SerialDescriptor.capturedKClass: KClass<*>?
     }
 
 /**
+ * Looks up a descriptor of serializer registered for contextual serialization in [this],
+ * using [SerialDescriptor.capturedKClass] as a key.
+ *
+ * @see SerializersModuleBuilder.contextual
+ */
+public fun SerializersModule.getContextualDescriptor(descriptor: SerialDescriptor): SerialDescriptor? =
+    descriptor.capturedKClass?.let { klass -> getContextual(klass)?.descriptor }
+
+/**
+ * Retrieves a collection of descriptors which serializers are registered for polymorphic serialization in [this]
+ * with base class equal to [descriptor]'s [SerialDescriptor.capturedKClass].
+ * This method does not retrieve serializers registered registered with [PolymorphicModuleBuilder.default].
+ *
+ * @see SerializersModule.getPolymorphic
+ * @see SerializersModuleBuilder.polymorphic
+ */
+public fun SerializersModule.getPolymorphicDescriptors(descriptor: SerialDescriptor): List<SerialDescriptor> {
+    val kClass = descriptor.capturedKClass ?: return emptyList()
+    // SerializersModule is sealed class with the only implementation
+    return (this as SerialModuleImpl).polyBase2Serializers[kClass]?.values.orEmpty().map { it.descriptor }
+}
+
+/**
  * Wraps [this] in [ContextDescriptor].
  */
 internal fun SerialDescriptor.withContext(context: KClass<*>): SerialDescriptor =

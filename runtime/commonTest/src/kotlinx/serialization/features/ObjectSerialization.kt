@@ -7,7 +7,7 @@ package kotlinx.serialization.features
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonTestBase
-import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.*
 import kotlin.test.Test
 
 class ObjectSerializationTest : JsonTestBase() {
@@ -27,8 +27,8 @@ class ObjectSerializationTest : JsonTestBase() {
 
     val module = SerializersModule {
         polymorphic(ApiResponse::class) {
-            ApiResponse.Error::class with ApiResponse.Error.serializer()
-            ApiResponse.Response::class with ApiResponse.Response.serializer()
+            subclass(ApiResponse.Error.serializer())
+            subclass(ApiResponse.Response.serializer())
         }
     }
 

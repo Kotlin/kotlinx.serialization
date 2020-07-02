@@ -50,12 +50,12 @@ import kotlin.reflect.*
  * ```
  * val requestAndResponseModule = SerializersModule {
  *     polymorphic(BaseRequest::class) {
- *         subclass<RequestA>()
- *         subclass<RequestB>()
+ *         subclass(RequestA::class)
+ *         subclass(RequestB::class)
  *     }
  *     polymorphic(BaseResponse::class) {
- *         subclass<ResponseC>()
- *         subclass<ResponseD>()
+ *         subclass(ResponseC::class)
+ *         subclass(ResponseD::class)
  *     }
  * }
  * ```

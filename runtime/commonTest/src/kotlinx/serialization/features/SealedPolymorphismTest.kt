@@ -6,7 +6,7 @@ package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.test.assertStringFormAndRestored
 import kotlin.test.Test
 
@@ -31,8 +31,8 @@ class SealedPolymorphismTest {
 
     val sealedModule = SerializersModule {
         polymorphic(Foo::class) {
-            Foo.Bar::class with Foo.Bar.serializer()
-            Foo.Baz::class with Foo.Baz.serializer()
+            subclass(Foo.Bar.serializer())
+            subclass(Foo.Baz.serializer())
         }
     }
 

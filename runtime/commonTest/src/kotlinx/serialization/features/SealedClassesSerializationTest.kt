@@ -181,9 +181,15 @@ class SealedClassesSerializationTest : JsonTestBase() {
             ProtocolWithAbstractClass.EOF
         )
         val abstractContext = SerializersModule {
-            polymorphic(ProtocolWithAbstractClass::class, ProtocolWithAbstractClass.Message::class) {
-                ProtocolWithAbstractClass.Message.IntMessage::class with ProtocolWithAbstractClass.Message.IntMessage.serializer()
-                ProtocolWithAbstractClass.Message.StringMessage::class with ProtocolWithAbstractClass.Message.StringMessage.serializer()
+
+            polymorphic(ProtocolWithAbstractClass::class) {
+                subclass(ProtocolWithAbstractClass.Message.IntMessage.serializer())
+                subclass(ProtocolWithAbstractClass.Message.StringMessage.serializer())
+            }
+
+            polymorphic(ProtocolWithAbstractClass.Message::class) {
+                subclass(ProtocolWithAbstractClass.Message.IntMessage.serializer())
+                subclass(ProtocolWithAbstractClass.Message.StringMessage.serializer())
             }
         }
         val json =

@@ -6,7 +6,7 @@ package sample
 
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
-import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.*
 
 @Serializable
 data class IntData(val intV: Int)
@@ -159,7 +159,7 @@ data class PolyDerived(@ProtoId(2) val s: String) : PolyBase(1)
 
 val BaseAndDerivedModule = SerializersModule {
     polymorphic(PolyBase::class, PolyBase.serializer()) {
-        PolyDerived::class with PolyDerived.serializer()
+        subclass(PolyDerived.serializer())
     }
 }
 
