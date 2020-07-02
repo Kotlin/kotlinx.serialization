@@ -68,7 +68,7 @@ class JsonTreeTest : JsonTestBase() {
         val input = """{"a": "foo", "b": 10}"""
         val parsed = parse(input)
         val parsed2 = parse(input)
-        val handCrafted = buildJson { add("a", JsonPrimitive("foo")); add("b", JsonPrimitive(10)) }
+        val handCrafted = buildJsonObject { put("a", JsonPrimitive("foo")); put("b", JsonPrimitive(10)) }
         assertEquals(parsed, parsed2)
         assertEquals(parsed, handCrafted)
     }
@@ -77,7 +77,7 @@ class JsonTreeTest : JsonTestBase() {
     fun testInEqualityTest() {
         val input = """{"a": "10", "b": 10}"""
         val parsed = parse(input) as JsonObject
-        val handCrafted = buildJson { add("a", JsonPrimitive("10")); add("b", JsonPrimitive(10)) }
+        val handCrafted = buildJsonObject { put("a", JsonPrimitive("10")); put("b", JsonPrimitive(10)) }
         assertEquals(parsed, handCrafted)
 
         assertNotEquals(parsed["a"], parsed["b"])

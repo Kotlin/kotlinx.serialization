@@ -101,12 +101,12 @@ class JsonArraySerializerTest : JsonTestBase() {
         return buildJsonArray {
             add(1)
             add(JsonNull)
-            addArray {
+            putJsonArray {
                 add("nested literal")
             }
-            addArray {}
-            addJson {
-                add("key", "value")
+            putJsonArray {}
+            putJsonObject {
+                put("key", "value")
             }
         }
     }
