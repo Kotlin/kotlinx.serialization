@@ -5,16 +5,6 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 
-@Deprecated(
-    message = "Deprecated in the favor of extension",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("actualSerializer.nullable)")
-) // TODO still used by the plugin
-@InternalSerializationApi
-public fun <T : Any> makeNullable(actualSerializer: KSerializer<T>): KSerializer<T?> {
-    return NullableSerializer(actualSerializer)
-}
-
 /**
  * Use [KSerializer.nullable][nullable] instead.
  * @suppress internal API

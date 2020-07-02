@@ -87,6 +87,7 @@ public final class kotlinx/serialization/ContextAwareKt {
 
 public final class kotlinx/serialization/ContextSerializer : kotlinx/serialization/KSerializer {
 	public fun <init> (Lkotlin/reflect/KClass;)V
+	public fun <init> (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;[Lkotlinx/serialization/KSerializer;)V
 	public fun deserialize (Lkotlinx/serialization/Decoder;)Ljava/lang/Object;
 	public fun getDescriptor ()Lkotlinx/serialization/SerialDescriptor;
 	public fun patch (Lkotlinx/serialization/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
@@ -395,9 +396,6 @@ public abstract interface annotation class kotlinx/serialization/SerialName : ja
 
 public abstract interface annotation class kotlinx/serialization/Serializable : java/lang/annotation/Annotation {
 	public abstract fun with ()Ljava/lang/Class;
-}
-
-public final class kotlinx/serialization/SerializationConstructorMarker {
 }
 
 public class kotlinx/serialization/SerializationException : java/lang/RuntimeException {
@@ -785,7 +783,7 @@ public final class kotlinx/serialization/internal/DoubleSerializer : kotlinx/ser
 	public synthetic fun serialize (Lkotlinx/serialization/Encoder;Ljava/lang/Object;)V
 }
 
-public final class kotlinx/serialization/internal/EnumDescriptor : kotlinx/serialization/internal/SerialClassDescImpl {
+public final class kotlinx/serialization/internal/EnumDescriptor : kotlinx/serialization/internal/PluginGeneratedSerialDescriptor {
 	public fun <init> (Ljava/lang/String;I)V
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getElementDescriptor (I)Lkotlinx/serialization/SerialDescriptor;
@@ -1058,10 +1056,6 @@ public final class kotlinx/serialization/internal/NullableSerializer : kotlinx/s
 	public fun serialize (Lkotlinx/serialization/Encoder;Ljava/lang/Object;)V
 }
 
-public final class kotlinx/serialization/internal/NullableSerializerKt {
-	public static final fun makeNullable (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
-}
-
 public final class kotlinx/serialization/internal/ObjectSerializer : kotlinx/serialization/KSerializer {
 	public fun <init> (Ljava/lang/String;Ljava/lang/Object;)V
 	public fun deserialize (Lkotlinx/serialization/Decoder;)Ljava/lang/Object;
@@ -1134,11 +1128,6 @@ public final class kotlinx/serialization/internal/ReferenceArraySerializer : kot
 	public synthetic fun insert (Ljava/lang/Object;ILjava/lang/Object;)V
 	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
 	public synthetic fun toResult (Ljava/lang/Object;)Ljava/lang/Object;
-}
-
-public class kotlinx/serialization/internal/SerialClassDescImpl : kotlinx/serialization/internal/PluginGeneratedSerialDescriptor {
-	public fun <init> (Ljava/lang/String;Lkotlinx/serialization/internal/GeneratedSerializer;I)V
-	public synthetic fun <init> (Ljava/lang/String;Lkotlinx/serialization/internal/GeneratedSerializer;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
 }
 
 public final class kotlinx/serialization/internal/SerializationConstructorMarker {

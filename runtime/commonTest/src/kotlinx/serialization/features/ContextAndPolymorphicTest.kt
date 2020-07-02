@@ -124,4 +124,10 @@ class ContextAndPolymorphicTest {
         assertEquals(PrimitiveKind.STRING, resolvedToBinary.kind)
         assertEquals("BinaryPayload", resolvedToBinary.serialName)
     }
+
+    @Test
+    fun testContextSerializerUsesDefaultIfModuleIsEmpty() {
+        val s = Json(JsonConfiguration(unquotedPrint = true, useArrayPolymorphism = true)).encodeToString(EnhancedData.serializer(), value)
+        assertEquals("{data:{a:100500,b:42},stringPayload:{s:string},binaryPayload:62696E617279}", s)
+    }
 }
