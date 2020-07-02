@@ -66,7 +66,7 @@ public class PolymorphicModuleBuilder<Base : Any> internal constructor(
      * Typically, if the class is not registered in advance, it is not possible to know the structure of the unknown
      * type and have a precise serializer, so the default serializer has limited capabilities.
      * To have a structural access to the unknown data, it is recommended to use [JsonTransformingSerializer]
-     * or [JsonParametricSerializer] classes.
+     * or [JsonContentPolymorphicSerializer] classes.
      */
     public fun default(defaultSerializerProvider: (className: String) -> DeserializationStrategy<out Base>?) {
         require(this.defaultSerializerProvider == null) {

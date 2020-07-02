@@ -155,7 +155,7 @@ val responseModule = SerializersModule {
 
 Line `1` implies that objects of type `successful_response_v3` and `successful_response_v2` have the same serialized form,
 though nothing prevents us to return a different serializer here, potentially customized with runtime behaviour, such as
-[JsonParametricSerializer](json_transformations.md#json-parametric-polymorphic-deserialization) .
+[JsonContentPolymorphicSerializer](json_transformations.md#json-parametric-polymorphic-deserialization) .
 
 ## Differences for interfaces, abstract and open classes
 

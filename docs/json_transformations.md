@@ -25,7 +25,7 @@ they work only with Json format.
 Transformation capabilities are provided by the abstract `JsonTransformingSerializer` class that implements `KSerializer`. 
 
 Instead of direct interaction with Encoder or Decoder, this class asks you to supply transformations for JSON tree represented by the `JsonElement` class
-using `writeTransform(element: JsonElement): JsonElement` and `readTransform(element: JsonElement): JsonElement` methods in order
+using `transformSerialize(element: JsonElement): JsonElement` and `transformDeserialize(element: JsonElement): JsonElement` methods in order
 to transform the input or the putput JSON.
 
 
@@ -43,17 +43,17 @@ data class StringData(val data: String)
 
 
 object WrappingJsonListSerializer : JsonTransformingSerializer<List<StringData>>(
-    StringData.serializer().list, "WrappingList"
+    StringData.serializer().list
 ) {
     // If response is not an array, then it is a single object that should be wrapped in the array
-    override fun readTransform(element: JsonElement): JsonElement =
+    override fun transformDeserialize(element: JsonElement): JsonElement =
         if (element !is JsonArray) JsonArray(listOf(element)) else element
 }
 
 // This transformation does the opposite and can unwrap an element, if it is returned in an array.
 object UnwrappingJsonListSerializer :
-    JsonTransformingSerializer<StringData>(StringData.serializer(), "UnwrappingList") {
-    override fun readTransform(element: JsonElement): JsonElement {
+    JsonTransformingSerializer<StringData>(StringData.serializer()) {
+    override fun transformDeserialize(element: JsonElement): JsonElement {
         if (element !is JsonArray) return element
         require(element.size == 1) { "Array size must be equal to 1 to unwrap it automatically" }
         return element.first()
@@ -85,8 +85,8 @@ is treated as default when missing or for any other domain-specific reasons.
 
 ```kotlin
 // Serializer that removes "name: Second" key-value pair from resultuing JSON
-object DroppingNameSerializer : JsonTransformingSerializer<Example>(Example.serializer(), "DropName") {
-    override fun writeTransform(element: JsonElement): JsonElement =
+object DroppingNameSerializer : JsonTransformingSerializer<Example>(Example.serializer()) {
+    override fun transformSerialize(element: JsonElement): JsonElement =
         // Filter top-level key value pair with key "name" with value equal to "Second"
         JsonObject(element.jsonObject.filterNot {
             (k, v) -> k == "name" && v.jsonPrimitive.content == "Second"
@@ -110,10 +110,10 @@ which can be used to deserialize Kotlin class.
 However, sometimes (e.g. when interacting with external API) type property may not be present in the input,
 and it is expected to guess the actual type by the shape of JSON, for example by the presence of specific key.
 
-`JsonParametricSerializer` provides a skeleton implementation for such strategy.
-As with `JsonTransformingSerializer`, `JsonParametricSerializer` is a base class for custom serializers.
+`JsonContentPolymorphicSerializer` provides a skeleton implementation for such strategy.
+As with `JsonTransformingSerializer`, `JsonContentPolymorphicSerializer` is a base class for custom serializers.
 It does not allow to override `serialize` and `deserialize` methods; instead, one should
-implement `selectSerializer(element: JsonElement): KSerializer<out T>` method.
+implement `selectDeserializer(content: JsonElement): DeserializationStrategy<out T>` method.
 The idea can be demonstrated by the following example:
 
 ```kotlin
@@ -127,9 +127,9 @@ data class SuccessfulPayment(override val amount: String, val date: String) : Pa
 @Serializable
 data class RefundedPayment(override val amount: String, val date: String, val reason: String) : Payment
 
-object PaymentSerializer : JsonParametricSerializer<Payment>(Payment::class) {
-    override fun selectSerializer(element: JsonElement): KSerializer<out Payment> = when {
-        "reason" in element -> RefundedPayment.serializer()
+object PaymentSerializer : JsonContentPolymorphicSerializer<Payment>(Payment::class) {
+    override fun selectDeserializer(content: JsonElement) = when {
+        "reason" in element.jsonObject -> RefundedPayment.serializer()
         else -> SuccessfulPayment.serializer()
     }
 }
@@ -146,7 +146,7 @@ default serializer would be selected for the actual property type in runtime. No
 
 Although abstract serializers mentioned above can cover most of the cases, it is possible to implement similar machinery
 by ourselves, using only the `KSerializer`.
-If one is not satisfied with abstract methods `writeTransform`/`readTransform`/`selectSerializer`,
+If one is unsatisfied with abstract methods `transformSerialize`/`transformDeserialize`/`selectDeserializer`,
 altering `serialize`/`deserialize` is a way to go.
 
 There are several hints on reading, working with and writing of `JsonElement`:
