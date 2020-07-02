@@ -141,28 +141,28 @@ public class JsonArray(private val content: List<JsonElement>) : JsonElement(), 
 
 /**
  * Convenience method to get current element as [JsonPrimitive]
- * @throws JsonException if current element is not a [JsonPrimitive]
+ * @throws IllegalArgumentException if current element is not a [JsonPrimitive]
  */
 public val JsonElement.jsonPrimitive: JsonPrimitive
     get() = this as? JsonPrimitive ?: error("JsonPrimitive")
 
 /**
  * Convenience method to get current element as [JsonObject]
- * @throws JsonException if current element is not a [JsonObject]
+ * @throws IllegalArgumentException if current element is not a [JsonObject]
  */
 public val JsonElement.jsonObject: JsonObject
     get() = this as? JsonObject ?: error("JsonObject")
 
 /**
  * Convenience method to get current element as [JsonArray]
- * @throws JsonException if current element is not a [JsonArray]
+ * @throws IllegalArgumentException if current element is not a [JsonArray]
  */
 public val JsonElement.jsonArray: JsonArray
     get() = this as? JsonArray ?: error("JsonArray")
 
 /**
  * Convenience method to get current element as [JsonNull]
- * @throws JsonException if current element is not a [JsonNull]
+ * @throws IllegalArgumentException if current element is not a [JsonNull]
  */
 public val JsonElement.jsonNull: JsonNull
     get() = this as? JsonNull ?: error("JsonNull")
@@ -228,8 +228,8 @@ public val JsonPrimitive.booleanOrNull: Boolean? get() = content.toBooleanStrict
 public val JsonPrimitive.contentOrNull: String? get() = if (this is JsonNull) null else content
 
 private fun JsonElement.error(element: String): Nothing =
-    throw JsonException("Element ${this::class} is not a $element")
+    throw IllegalArgumentException("Element ${this::class} is not a $element")
 
 @PublishedApi
 internal fun unexpectedJson(key: String, expected: String): Nothing =
-    throw JsonException("Element $key is not a $expected")
+    throw IllegalArgumentException("Element $key is not a $expected")

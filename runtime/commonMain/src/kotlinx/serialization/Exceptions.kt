@@ -5,25 +5,70 @@
 package kotlinx.serialization
 
 /**
- * A generic exception indicating the problem during serialization or deserialization process
+ * A generic exception indicating the problem during serialization or deserialization process.
+ * This is a generic exception type that can be thrown during the problem at any stage of the serialization,
+ * including encoding, decoding, serialization, deserialization.
+ * [SerialFormat] implementors should throw the subclass of this exception at any
  */
-public open class SerializationException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
+public open class SerializationException : IllegalArgumentException {
+    /*
+     * Rationale behind making it IllegalArgumentException:
+     * Any serialization exception is triggered by the illegal argument, whether
+     * it is a serializer that does not support specific structure or an invalid input.
+     * Making it IAE just aligns the implementation with this fact.
+     *
+     * Another point is input validation. The most simple way to validate
+     * deserialized data is `require` in `init` block:
+     * ```
+     * @Serializable class Foo(...) {
+     *     init {
+     *         required(age > 0) { ... }
+     *         require(name.isNotBlank()) { ... }
+     *     }
+     * }
+     * ```
+     * While clearly being serialization error (when compromised data was deserialized),
+     * Kotlin way is to throw IAE here instead of using library-specific SerializationException.
+     *
+     * Also, any production-grade system has a general try-catch around deserialization of potentially
+     * untrusted/invalid/corrupted data with the corresponding logging, error reporting and diagnostic.
+     * Such handling should catch some subtype of exception (e.g. it's unlikely that catching OOM is desirable).
+     * Taking it into account, it becomes clear that SE should be subtype of IAE.
+     */
 
-// thrown from generated code
+    /**
+     * Creates an instance of [SerializationException] without any details.
+     */
+    public constructor()
+
+    /**
+     * Creates an instance of [SerializationException] with the specified detail [message].
+     */
+    public constructor(message: String?) : super(message)
+
+    /**
+     * Creates an instance of [SerializationException] with the specified detail [message]
+     * and the given [cause].
+     */
+    public constructor(message: String?, cause: Throwable?) : super(message, cause)
+
+    /**
+     * Creates an instance of [SerializationException] with the specified [cause].
+     */
+    public constructor(cause: Throwable?) : super(cause)
+}
+
 /**
  * Thrown when [KSerializer] did not receive property from [Decoder], and this property was not optional.
  */
-public class MissingFieldException(fieldName: String) :
+@PublishedApi
+internal class MissingFieldException(fieldName: String) :
     SerializationException("Field '$fieldName' is required, but it was missing")
 
 /**
  * Thrown when [KSerializer] received unknown property index from [CompositeDecoder.decodeElementIndex].
  *
- * Usually this exception means that data schema has changed in backwards-incompatible way.
- * Index may be negative, in that case it should be equal to [CompositeDecoder.UNKNOWN_NAME].
+ * This exception means that data schema has changed in backwards-incompatible way.
  */
-public class UnknownFieldException(index: Int) : SerializationException("Unknown field for index $index")
-
-// thrown from generated code, deprecated with update removal
-public class UpdateNotSupportedException(className: String) :
-    SerializationException("Update is not supported for $className")
+@PublishedApi
+internal class UnknownFieldException(index: Int) : SerializationException("Unknown field for index $index")

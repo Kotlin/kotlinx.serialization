@@ -11,18 +11,18 @@ import kotlinx.serialization.*
 /**
  * Generic exception indicating a problem with JSON serialization and deserialization.
  */
-public open class JsonException(message: String) : SerializationException(message)
+internal open class JsonException(message: String) : SerializationException(message)
 
 /**
  * Thrown when [Json] has failed to parse the given JSON string or deserialize it to a target class.
  */
-public class JsonDecodingException(offset: Int, message: String) :
+internal class JsonDecodingException(offset: Int, message: String) :
     JsonException("Unexpected JSON token at offset $offset: $message")
 
 /**
  * Thrown when [Json] has failed to create a JSON string from the given value.
  */
-public class JsonEncodingException(message: String) : JsonException(message)
+internal class JsonEncodingException(message: String) : JsonException(message)
 
 internal fun JsonDecodingException(offset: Int, message: String, input: String) =
     JsonDecodingException(offset, "$message.\n JSON input: ${input.minify(offset)}")

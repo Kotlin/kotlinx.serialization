@@ -91,7 +91,7 @@ class JsonTreeTest : JsonTestBase() {
         val tree =
             JsonObject(mapOf("a" to JsonPrimitive(42), "b" to JsonArray(listOf(JsonNull)), "c" to JsonPrimitive(false)))
         assertFailsWith<NoSuchElementException> { tree.getValue("no key").jsonObject }
-        assertFailsWith<JsonException> { tree.getValue("a").jsonArray }
+        assertFailsWith<IllegalArgumentException> { tree.getValue("a").jsonArray }
         assertEquals(null, tree["no key"]?.jsonObject)
         assertEquals(null, tree["a"] as? JsonArray)
 

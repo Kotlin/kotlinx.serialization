@@ -62,7 +62,7 @@ public interface KSerializer<T> : SerializationStrategy<T>, DeserializationStrat
     override val descriptor: SerialDescriptor
 
     @Deprecated(patchDeprecated, level = DeprecationLevel.ERROR)
-    override fun patch(decoder: Decoder, old: T): T = throw UpdateNotSupportedException(descriptor.serialName)
+    override fun patch(decoder: Decoder, old: T): T = throw UnsupportedOperationException("Not implemented, should not be called")
 }
 
 /**
