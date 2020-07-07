@@ -222,6 +222,7 @@ public final class kotlinx/serialization/MigrationsKt {
 	public static final fun load (Lkotlinx/serialization/BinaryFormat;[B)Ljava/lang/Object;
 	public static final fun loads (Lkotlinx/serialization/BinaryFormat;Ljava/lang/String;)Ljava/lang/Object;
 	public static final fun loads (Lkotlinx/serialization/BinaryFormat;Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
+	public static final fun noImpl ()Ljava/lang/Void;
 	public static final fun parse (Lkotlinx/serialization/StringFormat;Ljava/lang/String;)Ljava/lang/Object;
 	public static final fun parse (Lkotlinx/serialization/StringFormat;Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
 	public static final fun stringify (Lkotlinx/serialization/StringFormat;Ljava/lang/Object;)Ljava/lang/String;
