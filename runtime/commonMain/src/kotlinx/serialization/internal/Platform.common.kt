@@ -122,7 +122,47 @@ internal inline fun <T> DeserializationStrategy<*>.cast(): DeserializationStrate
 
 internal fun KClass<*>.serializerNotRegistered(): Nothing {
     throw SerializationException(
-        "Can't locate argument-less serializer for class ${simpleName()}. " +
+        "Can't locate argument-less serializer for class ${simpleName}. " +
                 "For generic classes, such as lists, please provide serializer explicitly."
     )
 }
+
+internal fun KType.kclass() = when (val t = classifier) {
+    is KClass<*> -> t
+    else -> error("Only KClass supported as classifier, got $t")
+} as KClass<Any>
+
+/**
+ * Constructs KSerializer<D<T0, T1, ...>> by given KSerializer<T0>, KSerializer<T1>, ...
+ * via reflection (on JVM) or compiler+plugin intrinsic `SerializerFactory` (on Native)
+ */
+internal expect fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>?
+
+/**
+ * Checks whether given KType and its corresponding KClass represent a reference array
+ */
+internal expect fun isReferenceArray(rootClass: KClass<Any>): Boolean
+
+/**
+ *  Array.get that checks indices on JS
+ */
+internal expect fun <T> Array<T>.getChecked(index: Int): T
+
+/**
+ *  Array.get that checks indices on JS
+ */
+internal expect fun BooleanArray.getChecked(index: Int): Boolean
+
+internal expect fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>?
+
+internal expect fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E>
+
+/**
+ * Checks whether the receiver is an instance of a given kclass.
+ *
+ * This check is a replacement for [KClass.isInstance] because on JVM it requires kotlin-reflect.jar in classpath (see KT-14720).
+ *
+ * On JS and Native, this function delegates to aforementioned [KClass.isInstance] since it is supported there out-of-the-box;
+ * on JVM, it falls back to `java.lang.Class.isInstance`, which causes difference when applied to function types with big arity.
+ */
+internal expect fun Any.isInstanceOf(kclass: KClass<*>): Boolean

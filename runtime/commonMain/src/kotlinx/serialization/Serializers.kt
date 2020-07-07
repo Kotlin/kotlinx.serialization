@@ -2,11 +2,14 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:Suppress("DEPRECATION_ERROR", "UNCHECKED_CAST")
+@file:JvmMultifileClass
+@file:JvmName("SerializersKt")
 
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.internal.*
+import kotlin.jvm.*
 import kotlin.reflect.*
 
 /**
@@ -57,11 +60,11 @@ public fun serializer(type: KType): KSerializer<Any?> {
                     Pair::class -> PairSerializer(serializers[0], serializers[1])
                     Triple::class -> TripleSerializer(serializers[0], serializers[1], serializers[2])
                     else -> {
-                        if (isReferenceArray(type, rootClass)) {
+                        if (isReferenceArray(rootClass)) {
                             return ArraySerializer<Any, Any?>(typeArguments[0].classifier as KClass<Any>, serializers[0]).cast()
                         }
                         requireNotNull(rootClass.constructSerializerForGivenTypeArgs(*serializers.toTypedArray())) {
-                            "Can't find a method to construct serializer for type ${rootClass.simpleName()}. " +
+                            "Can't find a method to construct serializer for type ${rootClass.simpleName}. " +
                                     "Make sure this class is marked as @Serializable or provide serializer explicitly."
                         }
                     }
@@ -74,19 +77,32 @@ public fun serializer(type: KType): KSerializer<Any?> {
     return if (type.isMarkedNullable) result.nullable else result.cast()
 }
 
-internal fun KType.kclass() = when (val t = classifier) {
-    is KClass<*> -> t
-    else -> error("Only KClass supported as classifier, got $t")
-} as KClass<Any>
+/**
+ * Retrieves a [KSerializer] for the given [KClass].
+ * The given class must be annotated with [Serializable] or be one of the built-in types.
+ * It is not recommended to use this method for anything, but last-ditch resort, e.g.
+ * when all type info is lost, your application has crashed and it is the final attempt to log or send some serializable data.
+ *
+ * The recommended way to retrieve the serializer is inline [serializer] function and [`serializer(KType)`][serializer]
+ *
+ * This API is not guaranteed to work consistent across different platforms or
+ * to work in cases that slightly differ from "plain @Serializable class".
+ *
+ * @throws SerializationException if serializer can't be found.
+ */
+@UnsafeSerializationApi
+public fun <T : Any> KClass<T>.serializer(): KSerializer<T> = serializerOrNull() ?: serializerNotRegistered()
 
 /**
- * Constructs KSerializer<D<T0, T1, ...>> by given KSerializer<T0>, KSerializer<T1>, ...
- * via reflection (on JVM) or compiler+plugin intrinsic `SerializerFactory` (on Native)
+ * Retrieves a [KSerializer] for the given [KClass] or returns `null` if none is found.
+ * The given class must be annotated with [Serializable] or be one of the built-in types.
+ * It is not recommended to use this method for anything, but last-ditch resort, e.g.
+ * when all type info is lost, your application has crashed and it is the final attempt to log or send some serializable data.
+ *
+ * This API is not guaranteed to work consistent across different platforms or
+ * to work in cases that slightly differ from "plain @Serializable class".
  */
-internal expect fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>?
+@UnsafeSerializationApi
+public fun <T : Any> KClass<T>.serializerOrNull(): KSerializer<T>? =
+    compiledSerializerImpl() ?: builtinSerializerOrNull()
 
-/**
- * Checks whether given KType and its corresponding KClass represent a reference array
- * TODO replace this one in 1.4 where comparison against Array::class is allowed
- */
-internal expect fun isReferenceArray(type: KType, rootClass: KClass<Any>): Boolean

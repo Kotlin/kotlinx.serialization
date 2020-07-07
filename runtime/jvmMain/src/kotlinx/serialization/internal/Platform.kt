@@ -2,19 +2,31 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:Suppress("UNCHECKED_CAST")
+package kotlinx.serialization.internal
 
-package kotlinx.serialization
-
+import kotlinx.serialization.*
 import java.lang.reflect.*
 import kotlin.reflect.*
 
+@Suppress("NOTHING_TO_INLINE")
+internal actual inline fun <T> Array<T>.getChecked(index: Int): T {
+    return get(index)
+}
+
+@Suppress("NOTHING_TO_INLINE")
+internal actual inline fun BooleanArray.getChecked(index: Int): Boolean {
+    return get(index)
+}
+
+@Suppress("UNCHECKED_CAST")
 internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
     this.constructSerializerForGivenTypeArgs()
 
+@Suppress("UNCHECKED_CAST")
 internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E> =
     toArray(java.lang.reflect.Array.newInstance(eClass.java, size) as Array<E>)
 
+@Suppress("UNCHECKED_CAST")
 internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
     val jClass = this.java
     // Search for serializer defined on companion object.
@@ -67,6 +79,4 @@ private fun <T : Any> findObjectSerializer(jClass: Class<T>): KSerializer<T>? {
  */
 internal actual fun Any.isInstanceOf(kclass: KClass<*>): Boolean = kclass.javaObjectType.isInstance(this)
 
-internal actual fun <T : Any> KClass<T>.simpleName(): String? = java.simpleName
-
-internal actual fun isReferenceArray(type: KType, rootClass: KClass<Any>): Boolean = rootClass.java.isArray
+internal actual fun isReferenceArray(rootClass: KClass<Any>): Boolean = rootClass.java.isArray
