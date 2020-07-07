@@ -158,7 +158,7 @@ class PropertiesTest {
     @Test
     fun testThrowsOnIncorrectMaps() {
         val map: Map<String, Any?> = mapOf("name" to "Name")
-        assertFailsWith<MissingFieldException> {
+        assertFailsWith<SerializationException> {
             Properties.loadNullable<Data>(Data.serializer(), map)
         }
     }

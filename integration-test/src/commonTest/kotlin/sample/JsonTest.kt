@@ -97,7 +97,7 @@ class JsonTest {
         val d2 = Json.decodeFromString(SerializableBase.serializer(), msg)
         assertEquals(SerializableBase(), d2)
         // no derivedState
-        assertFailsWith<MissingFieldException> { Json.decodeFromString(Derived.serializer(), msg) }
+        assertFailsWith<SerializationException> { Json.decodeFromString(Derived.serializer(), msg) }
     }
 
     @Test

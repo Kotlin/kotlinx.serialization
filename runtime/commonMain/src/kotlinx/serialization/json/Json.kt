@@ -51,8 +51,8 @@ public sealed class Json(internal val configuration: JsonConfiguration) : String
 
     /**
      * Serializes the [value] into an equivalent JSON using the given [serializer].
-     * @throws [JsonException] if the given value can not be encoded to JSON
-     * @throws [SerializationException] if the given value cannot be serialized
+     *
+     * @throws [SerializationException] if the given value cannot be serialized to JSON.
      */
     public final override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
         val result = StringBuilder()
@@ -68,8 +68,7 @@ public sealed class Json(internal val configuration: JsonConfiguration) : String
     /**
      * Deserializes the given JSON [string] into a value of type [T] using the given [deserializer].
      *
-     * @throws [JsonException] if the given JSON string is malformed and cannot be decoded.
-     * @throws [SerializationException] if the given input cannot be deserialized.
+     * @throws [SerializationException] if the given JSON string cannot be deserialized to the value of type [T].
      */
     public final override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
         val reader = JsonReader(string)
@@ -81,28 +80,25 @@ public sealed class Json(internal val configuration: JsonConfiguration) : String
     /**
      * Serializes the given [value] into an equivalent [JsonElement] using the given [serializer]
      *
-     * @throws [JsonException] if the given value can not be encoded.
-     * @throws [SerializationException] if the given value can not be serialized.
+     * @throws [SerializationException] if the given value cannot be serialized.
      */
     public fun <T> encodeToJsonElement(serializer: SerializationStrategy<T>, value: T): JsonElement {
         return writeJson(value, serializer)
     }
 
     /**
-     * Deserializes the given [json] element into a value of type [T] using the given [deserializer].
+     * Deserializes the given [element] into a value of type [T] using the given [deserializer].
      *
-     * @throws [JsonException] if the given JSON string is malformed and cannot be decoded.
-     * @throws [SerializationException] if the given input can not be deserialized.
+     * @throws [SerializationException] if the given JSON string cannot be deserialized to the value of type [T].
      */
-    public fun <T> decodeFromJsonElement(deserializer: DeserializationStrategy<T>, json: JsonElement): T {
-        return readJson(json, deserializer)
+    public fun <T> decodeFromJsonElement(deserializer: DeserializationStrategy<T>, element: JsonElement): T {
+        return readJson(element, deserializer)
     }
 
     /**
      * Deserializes the given JSON [string] into a corresponding [JsonElement] representation.
      *
-     * @throws [JsonException] in case of malformed json
-     * @throws [SerializationException] if given input can not be deserialized
+     * @throws [SerializationException] if the given JSON string is malformed and cannot be deserialized.g
      */
     public fun parseToJsonElement(string: String): JsonElement {
         return decodeFromString(JsonElementSerializer, string)
@@ -135,8 +131,7 @@ public fun Json(block: JsonBuilder.() -> Unit): Json = JsonImpl(JsonBuilder().ap
  * Serializes the given [value] into an equivalent [JsonElement] using a serializer retrieved
  * from reified type parameter.
  *
- * @throws [JsonException] if the given value can not be encoded.
- * @throws [SerializationException] if the given value can not be serialized.
+ * @throws [SerializationException] if the given value cannot be serialized to JSON.
  */
 public inline fun <reified T : Any> Json.encodeToJsonElement(value: T): JsonElement {
     return encodeToJsonElement(context.getContextualOrDefault(), value)
@@ -146,8 +141,7 @@ public inline fun <reified T : Any> Json.encodeToJsonElement(value: T): JsonElem
  * Deserializes the given [json] element into a value of type [T] using a deserialize retrieved
  * from reified type parameter.
  *
- * @throws [JsonException] if the given JSON string is malformed and cannot be decoded.
- * @throws [SerializationException] if the given input can not be deserialized.
+ * @throws [SerializationException] if the given JSON string is malformed or cannot be deserialized to the value of type [T].
  */
 public inline fun <reified T : Any> Json.decodeFromJsonElement(tree: JsonElement): T =
     decodeFromJsonElement(context.getContextualOrDefault(), tree)

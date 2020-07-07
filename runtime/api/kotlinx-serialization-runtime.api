@@ -398,9 +398,11 @@ public abstract interface annotation class kotlinx/serialization/Serializable : 
 	public abstract fun with ()Ljava/lang/Class;
 }
 
-public class kotlinx/serialization/SerializationException : java/lang/RuntimeException {
+public class kotlinx/serialization/SerializationException : java/lang/IllegalArgumentException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
 	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/Throwable;)V
 }
 
 public abstract interface class kotlinx/serialization/SerializationStrategy {
@@ -474,10 +476,6 @@ public final class kotlinx/serialization/UpdateMode : java/lang/Enum {
 	public static final field UPDATE Lkotlinx/serialization/UpdateMode;
 	public static fun valueOf (Ljava/lang/String;)Lkotlinx/serialization/UpdateMode;
 	public static fun values ()[Lkotlinx/serialization/UpdateMode;
-}
-
-public final class kotlinx/serialization/UpdateNotSupportedException : kotlinx/serialization/SerializationException {
-	public fun <init> (Ljava/lang/String;)V
 }
 
 public abstract interface annotation class kotlinx/serialization/UseSerializers : java/lang/annotation/Annotation {
@@ -1505,10 +1503,6 @@ public final class kotlinx/serialization/json/JsonDecoder$DefaultImpls {
 	public static fun updateSerializableValue (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
 }
 
-public final class kotlinx/serialization/json/JsonDecodingException : kotlinx/serialization/json/JsonException {
-	public fun <init> (ILjava/lang/String;)V
-}
-
 public abstract class kotlinx/serialization/json/JsonElement {
 	public static final field Companion Lkotlinx/serialization/json/JsonElement$Companion;
 }
@@ -1572,14 +1566,6 @@ public final class kotlinx/serialization/json/JsonEncoder$DefaultImpls {
 	public static fun encodeNullableSerializableValue (Lkotlinx/serialization/json/JsonEncoder;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
 	public static fun encodeSerializableValue (Lkotlinx/serialization/json/JsonEncoder;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
 	public static fun shouldEncodeElementDefault (Lkotlinx/serialization/json/JsonEncoder;Lkotlinx/serialization/SerialDescriptor;I)Z
-}
-
-public final class kotlinx/serialization/json/JsonEncodingException : kotlinx/serialization/json/JsonException {
-	public fun <init> (Ljava/lang/String;)V
-}
-
-public class kotlinx/serialization/json/JsonException : kotlinx/serialization/SerializationException {
-	public fun <init> (Ljava/lang/String;)V
 }
 
 public abstract interface class kotlinx/serialization/json/JsonInput {
