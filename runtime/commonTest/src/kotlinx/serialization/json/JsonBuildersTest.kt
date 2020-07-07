@@ -16,7 +16,7 @@ class JsonBuildersTest {
             }
 
             putJsonArray("array") {
-                putJsonObject { put("nestedLiteral", true) }
+                addJsonObject { put("nestedLiteral", true) }
             }
 
             val number: Number? = null
@@ -32,10 +32,10 @@ class JsonBuildersTest {
     fun testBuildJsonArray() {
         val json = buildJsonArray {
             add(true)
-            putJsonArray {
+            addJsonArray {
                 for (i in 1..10) add(i)
             }
-            putJsonObject {
+            addJsonObject {
                 put("stringKey", "stringValue")
             }
         }

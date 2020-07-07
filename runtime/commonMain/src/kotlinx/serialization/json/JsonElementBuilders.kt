@@ -17,7 +17,7 @@ import kotlin.contracts.*
  *         for (i in 1..10) add(i)
  *     }
  *     putJsonObject("objectKey") {
- *         add("stringKey", "stringValue")
+ *         put("stringKey", "stringValue")
  *     }
  * }
  * ```
@@ -244,7 +244,7 @@ public fun JsonArrayBuilder.add(value: String?): Boolean = add(JsonPrimitive(val
  *
  * Always returns `true` similarly to [ArrayList] specification.
  */
-public fun JsonArrayBuilder.putJsonObject(builderAction: JsonObjectBuilder.() -> Unit): Boolean =
+public fun JsonArrayBuilder.addJsonObject(builderAction: JsonObjectBuilder.() -> Unit): Boolean =
     add(buildJsonObject(builderAction))
 
 /**
@@ -252,7 +252,7 @@ public fun JsonArrayBuilder.putJsonObject(builderAction: JsonObjectBuilder.() ->
  *
  * Always returns `true` similarly to [ArrayList] specification.
  */
-public fun JsonArrayBuilder.putJsonArray(builderAction: JsonArrayBuilder.() -> Unit): Boolean =
+public fun JsonArrayBuilder.addJsonArray(builderAction: JsonArrayBuilder.() -> Unit): Boolean =
     add(buildJsonArray(builderAction))
 
 private const val infixToDeprecated = "Infix 'to' operator is deprecated for removal for the favour of 'add'"
