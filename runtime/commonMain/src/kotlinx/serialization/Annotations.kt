@@ -88,7 +88,7 @@ public annotation class Serializer(
  * Overrides the name of the current element in the [SerialDescriptor].
  *
  * By default, [SerialDescriptor.serialName] and [SerialDescriptor.getElementName]
- * are matched with fully-qualified name of the target class and the name of the property respectively.
+ * are filled with fully-qualified name of the target class and the name of the property respectively.
  * Applying this annotation changes the visible name to the given [value]:
  *
  * ```
