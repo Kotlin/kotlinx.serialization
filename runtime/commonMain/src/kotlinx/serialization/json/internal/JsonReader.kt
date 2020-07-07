@@ -165,7 +165,7 @@ internal class JsonReader(private val source: String) {
 
     private fun takeStringInternal(advance: Boolean = true): String {
         val prevStr = if (offset < 0)
-            String(buf, 0, length) else
+            buf.concatToString(0, 0 + length) else
             source.substring(offset, offset + length)
         if (advance) nextToken()
         return prevStr

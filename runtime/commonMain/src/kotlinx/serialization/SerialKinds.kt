@@ -28,7 +28,7 @@ import kotlinx.serialization.modules.*
 public sealed class SerialKind {
     override fun toString(): String {
         // KNPE should never happen, because SerialKind is sealed and all inheritors are non-anonymous
-        return this::class.simpleName()!!
+        return this::class.simpleName!!
     }
 }
 

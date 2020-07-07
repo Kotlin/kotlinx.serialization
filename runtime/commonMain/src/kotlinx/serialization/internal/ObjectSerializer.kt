@@ -12,13 +12,8 @@ import kotlinx.serialization.*
  * uses an [object instance][objectInstance].
  * By default, a singleton is serialized as an empty structure, e.g. `{}` in JSON.
  */
-@Deprecated(
-    "For plugin-generated code, " +
-            "should not be used directly. For the custom serializers please report your use-case to project issues, so proper public API could be introduced instead",
-    level = DeprecationLevel.ERROR
-)
-@InternalSerializationApi
-public class ObjectSerializer<T : Any>(serialName: String, private val objectInstance: T) : KSerializer<T> {
+@PublishedApi
+internal class ObjectSerializer<T : Any>(serialName: String, private val objectInstance: T) : KSerializer<T> {
     override val descriptor: SerialDescriptor = SerialDescriptor(serialName, StructureKind.OBJECT)
 
     override fun serialize(encoder: Encoder, value: T) {

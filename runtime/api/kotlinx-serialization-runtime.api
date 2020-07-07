@@ -187,10 +187,6 @@ public abstract interface annotation class kotlinx/serialization/ImplicitReflect
 public abstract interface annotation class kotlinx/serialization/InternalSerializationApi : java/lang/annotation/Annotation {
 }
 
-public final class kotlinx/serialization/JvmResolvingKt {
-	public static final fun serializerByTypeToken (Ljava/lang/reflect/Type;)Lkotlinx/serialization/KSerializer;
-}
-
 public abstract interface class kotlinx/serialization/KSerializer : kotlinx/serialization/DeserializationStrategy, kotlinx/serialization/SerializationStrategy {
 	public abstract fun getDescriptor ()Lkotlinx/serialization/SerialDescriptor;
 	public abstract fun patch (Lkotlinx/serialization/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
@@ -230,11 +226,6 @@ public final class kotlinx/serialization/MigrationsKt {
 
 public final class kotlinx/serialization/MissingFieldException : kotlinx/serialization/SerializationException {
 	public fun <init> (Ljava/lang/String;)V
-}
-
-public final class kotlinx/serialization/PlatformUtilsKt {
-	public static final fun serializer (Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
-	public static final fun serializerOrNull (Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
 }
 
 public abstract interface annotation class kotlinx/serialization/Polymorphic : java/lang/annotation/Annotation {
@@ -414,8 +405,12 @@ public abstract interface annotation class kotlinx/serialization/Serializer : ja
 	public abstract fun forClass ()Ljava/lang/Class;
 }
 
-public final class kotlinx/serialization/SerializerResolvingKt {
+public final class kotlinx/serialization/SerializersKt {
+	public static final fun serializer (Ljava/lang/reflect/Type;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Lkotlin/reflect/KType;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializerByTypeToken (Ljava/lang/reflect/Type;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializerOrNull (Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
 }
 
 public abstract interface class kotlinx/serialization/StringFormat : kotlinx/serialization/SerialFormat {
@@ -443,10 +438,6 @@ public final class kotlinx/serialization/StructureKind$OBJECT : kotlinx/serializ
 }
 
 public abstract interface annotation class kotlinx/serialization/Transient : java/lang/annotation/Annotation {
-}
-
-public class kotlinx/serialization/TypeBase {
-	public fun <init> ()V
 }
 
 public abstract class kotlinx/serialization/UnionKind : kotlinx/serialization/SerialKind {
@@ -1070,6 +1061,12 @@ public final class kotlinx/serialization/internal/PairSerializer : kotlinx/seria
 	public synthetic fun toResult (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 }
 
+public final class kotlinx/serialization/internal/Platform_commonKt {
+	public static final fun cast (Lkotlinx/serialization/DeserializationStrategy;)Lkotlinx/serialization/DeserializationStrategy;
+	public static final fun cast (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public static final fun cast (Lkotlinx/serialization/SerializationStrategy;)Lkotlinx/serialization/SerializationStrategy;
+}
+
 public class kotlinx/serialization/internal/PluginGeneratedSerialDescriptor : kotlinx/serialization/SerialDescriptor {
 	public fun <init> (Ljava/lang/String;Lkotlinx/serialization/internal/GeneratedSerializer;I)V
 	public synthetic fun <init> (Ljava/lang/String;Lkotlinx/serialization/internal/GeneratedSerializer;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -1329,12 +1326,6 @@ public final class kotlinx/serialization/internal/UnitSerializer : kotlinx/seria
 	public fun patch (Lkotlinx/serialization/Decoder;Lkotlin/Unit;)V
 	public synthetic fun serialize (Lkotlinx/serialization/Encoder;Ljava/lang/Object;)V
 	public fun serialize (Lkotlinx/serialization/Encoder;Lkotlin/Unit;)V
-}
-
-public final class kotlinx/serialization/internal/UtilKt {
-	public static final fun cast (Lkotlinx/serialization/DeserializationStrategy;)Lkotlinx/serialization/DeserializationStrategy;
-	public static final fun cast (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
-	public static final fun cast (Lkotlinx/serialization/SerializationStrategy;)Lkotlinx/serialization/SerializationStrategy;
 }
 
 public abstract class kotlinx/serialization/json/Json : kotlinx/serialization/StringFormat {

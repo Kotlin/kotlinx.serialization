@@ -62,7 +62,7 @@ private class ContextDescriptor(
     private val original: SerialDescriptor,
     @JvmField val kClass: KClass<*>
 ) : SerialDescriptor by original {
-    override val serialName = "${original.serialName}<${kClass.simpleName()}>"
+    override val serialName = "${original.serialName}<${kClass.simpleName}>"
 
     override fun equals(other: Any?): Boolean {
         val another = other as? ContextDescriptor ?: return false

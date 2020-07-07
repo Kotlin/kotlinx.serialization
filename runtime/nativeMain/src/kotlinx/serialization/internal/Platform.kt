@@ -2,16 +2,20 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization
+package kotlinx.serialization.internal
 
+import kotlinx.serialization.*
 import kotlin.reflect.*
 
+@Suppress("NOTHING_TO_INLINE")
+internal actual inline fun <T> Array<T>.getChecked(index: Int): T {
+    return get(index)
+}
 
-@OptIn(ExperimentalAssociatedObjects::class)
-@AssociatedObjectKey
-@Retention(AnnotationRetention.BINARY)
-@Deprecated("Inserted into generated code and should not be used directly", level = DeprecationLevel.HIDDEN)
-public annotation class SerializableWith(public val serializer: KClass<out KSerializer<*>>)
+@Suppress("NOTHING_TO_INLINE")
+internal actual inline fun BooleanArray.getChecked(index: Int): Boolean {
+    return get(index)
+}
 
 @Suppress(
     "UNCHECKED_CAST",
@@ -24,7 +28,6 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
         is kotlinx.serialization.internal.SerializerFactory -> assocObject.serializer(*args) as KSerializer<T>
         else -> null
     }
-
 
 @Suppress(
     "UNCHECKED_CAST",
@@ -47,21 +50,4 @@ private fun <T> arrayOfAnyNulls(size: Int): Array<T> = arrayOfNulls<Any>(size) a
 
 internal actual fun Any.isInstanceOf(kclass: KClass<*>): Boolean = kclass.isInstance(this)
 
-internal actual fun <T : Any> KClass<T>.simpleName(): String? = simpleName
-
-internal actual fun isReferenceArray(type: KType, rootClass: KClass<Any>): Boolean {
-    val typeParameters = type.arguments
-    if (typeParameters.size != 1) return false
-    val parameter = typeParameters.single()
-    // Fun fact -- star projections pass this check
-    val variance = parameter.variance ?: error("Star projections are forbidden: $type")
-    if (parameter.type == null) error("Star projections are forbidden: $type")
-    val prefix = if (variance == KVariance.IN || variance == KVariance.OUT)
-        variance.toString().toLowerCase() + " " else ""
-    val parameterName = prefix + parameter.type.toString()
-    val expectedName = "kotlin.Array<$parameterName>"
-    if (type.toString() != expectedName) {
-        return false
-    }
-    return true
-}
+internal actual fun isReferenceArray(rootClass: KClass<Any>): Boolean = rootClass == Array::class
