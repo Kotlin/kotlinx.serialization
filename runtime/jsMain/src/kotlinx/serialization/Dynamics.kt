@@ -66,7 +66,7 @@ public inline fun <reified T> Json.decodeFromDynamic(dynamic: dynamic): T =
  *
  */
 public fun <T> Json.encodeToDynamic(serializer: SerializationStrategy<T>, value: T): dynamic {
-    return DynamicObjectSerializer(context, configuration, false).serialize(serializer, value)
+    return DynamicObjectSerializer(context, configuration).serialize(serializer, value)
 }
 
 /**

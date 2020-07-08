@@ -40,7 +40,7 @@ private sealed class AbstractJsonTreeEncoder(
     abstract fun putElement(key: String, element: JsonElement)
     abstract fun getCurrent(): JsonElement
 
-    override fun encodeTaggedNull(tag: String) = putElement(tag, JsonNull)
+    override fun encodeTaggedNull(tag: String) = if (configuration.alwaysDropNulls) Unit else putElement(tag, JsonNull)
 
     override fun encodeTaggedInt(tag: String, value: Int) = putElement(tag, JsonPrimitive(value))
     override fun encodeTaggedByte(tag: String, value: Byte) = putElement(tag, JsonPrimitive(value))
@@ -151,6 +151,11 @@ private class JsonTreeMapEncoder(json: Json, nodeConsumer: (JsonElement) -> Unit
     private lateinit var tag: String
     private var isKey = true
 
+    override fun encodeTaggedNull(tag: String) {
+        if (!configuration.alwaysDropNulls) putElement(tag, JsonNull)
+        else isKey = !isKey
+    }
+
     override fun putElement(key: String, element: JsonElement) {
         if (isKey) { // writing key
             tag = when (element) {
@@ -176,8 +181,7 @@ private class JsonTreeListEncoder(json: Json, nodeConsumer: (JsonElement) -> Uni
     override fun elementName(descriptor: SerialDescriptor, index: Int): String = index.toString()
 
     override fun putElement(key: String, element: JsonElement) {
-        val idx = key.toInt()
-        array.add(idx, element)
+        array.add(element)
     }
 
     override fun getCurrent(): JsonElement = JsonArray(array)
