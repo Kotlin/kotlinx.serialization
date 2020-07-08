@@ -25,7 +25,7 @@ class UnknownElementIndexTest {
     @Test
     fun testCompilerComplainsAboutIncorrectIndex() {
         assertFailsWith(UnknownFieldException::class) {
-            MalformedReader().decode(Holder.serializer())
+            MalformedReader().decodeSerializableValue(Holder.serializer())
         }
     }
 

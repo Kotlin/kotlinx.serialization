@@ -15,7 +15,7 @@ import kotlinx.serialization.modules.*
  * See [Encoder] documentation for information about each particular `encode*` method.
  */
 public abstract class AbstractEncoder : Encoder, CompositeEncoder {
-    override val context: SerialModule
+    override val serializersModule: SerialModule
         get() = EmptyModule
 
     // do not update signature here because new signature is called by the plugin;
@@ -49,10 +49,6 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
         throw SerializationException("'null' is not supported by default")
     }
 
-    override fun encodeUnit() {
-        Unit.serializer().serialize(this, Unit)
-    }
-
     override fun encodeBoolean(value: Boolean): Unit = encodeValue(value)
     override fun encodeByte(value: Byte): Unit = encodeValue(value)
     override fun encodeShort(value: Short): Unit = encodeValue(value)
@@ -65,7 +61,6 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int): Unit = encodeValue(index)
 
     // Delegating implementation of CompositeEncoder
-    final override fun encodeUnitElement(descriptor: SerialDescriptor, index: Int) { if (encodeElement(descriptor, index)) encodeUnit() }
     final override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) { if (encodeElement(descriptor, index)) encodeBoolean(value) }
     final override fun encodeByteElement(descriptor: SerialDescriptor, index: Int, value: Byte) { if (encodeElement(descriptor, index)) encodeByte(value) }
     final override fun encodeShortElement(descriptor: SerialDescriptor, index: Int, value: Short) { if (encodeElement(descriptor, index)) encodeShort(value) }

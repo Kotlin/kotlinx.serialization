@@ -4,7 +4,6 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
@@ -52,10 +51,10 @@ public class DynamicObjectParser @OptIn(UnstableDefault::class) constructor(
      * Deserializes given [obj] from dynamic form to type [T] using [deserializer].
      */
     public fun <T> parse(obj: dynamic, deserializer: DeserializationStrategy<T>): T =
-        DynamicInput(obj).decode(deserializer)
+        DynamicInput(obj).decodeSerializableValue(deserializer)
 
     private open inner class DynamicInput(val obj: dynamic) : NamedValueDecoder() {
-        override val context: SerialModule
+        override val serializersModule: SerialModule
             get() = this@DynamicObjectParser.context
 
         override fun composeName(parentName: String, childName: String): String = childName
@@ -67,7 +66,7 @@ public class DynamicObjectParser @OptIn(UnstableDefault::class) constructor(
                 val name = descriptor.getTag(pos++)
                 if (obj[name] !== undefined) return pos - 1
             }
-            return READ_DONE
+            return CompositeDecoder.DECODE_DONE
         }
 
         override fun decodeTaggedEnum(tag: String, enumDescription: SerialDescriptor): Int =
@@ -141,7 +140,7 @@ public class DynamicObjectParser @OptIn(UnstableDefault::class) constructor(
                 val name = keys[i] as String
                 if (this.obj[name] !== undefined) return pos
             }
-            return READ_DONE
+            return CompositeDecoder.DECODE_DONE
         }
 
         override fun getByTag(tag: String): dynamic {
@@ -160,7 +159,7 @@ public class DynamicObjectParser @OptIn(UnstableDefault::class) constructor(
                 val o = obj[++pos]
                 if (o !== undefined) return pos
             }
-            return READ_DONE
+            return CompositeDecoder.DECODE_DONE
         }
     }
 }

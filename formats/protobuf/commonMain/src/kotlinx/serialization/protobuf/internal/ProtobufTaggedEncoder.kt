@@ -129,12 +129,4 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
         pushTag(descriptor.getTag(index))
         encodeNullableSerializableValue(serializer, value)
     }
-
-    override fun encodeUnit() {
-        error("Should not be called")
-    }
-
-    override fun encodeUnitElement(descriptor: SerialDescriptor, index: Int) {
-        error("Should not be called")
-    }
 }

@@ -92,12 +92,4 @@ internal abstract class ProtobufTaggedDecoder : ProtobufTaggedBase(), Decoder, C
             decodeNull()
         }
     }
-
-    override fun decodeUnit() {
-        error("Should not be called")
-    }
-
-    override fun decodeUnitElement(descriptor: SerialDescriptor, index: Int) {
-        error("Should not be called")
-    }
 }

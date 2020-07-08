@@ -36,11 +36,11 @@ class PrivateClassOutOfSerializationLibraryPackageTest {
     @Test
     fun testDataPrivate() {
         val out = Out("privateclasstest.DataPrivate")
-        out.encode(serializer(), DataPrivate("s1", 42))
+        out.encodeSerializableValue(serializer(), DataPrivate("s1", 42))
         out.done()
 
         val inp = Inp("privateclasstest.DataPrivate")
-        val data = inp.decode(serializer<DataPrivate>())
+        val data = inp.decodeSerializableValue(serializer<DataPrivate>())
         inp.done()
         assert(data.value1 == "s1" && data.value2 == 42)
     }

@@ -42,11 +42,11 @@ public class DynamicObjectSerializer @OptIn(UnstableDefault::class) constructor(
     public fun <T> serialize(strategy: SerializationStrategy<T>, obj: T): dynamic {
         if (strategy.descriptor.kind is PrimitiveKind || strategy.descriptor.kind is UnionKind.ENUM_KIND) {
             val serializer = DynamicPrimitiveEncoder(configuration)
-            serializer.encode(strategy, obj)
+            serializer.encodeSerializableValue(strategy, obj)
             return serializer.result
         }
         val serializer = DynamicObjectEncoder(configuration, encodeNullAsUndefined)
-        serializer.encode(strategy, obj)
+        serializer.encodeSerializableValue(strategy, obj)
         return serializer.result
     }
 

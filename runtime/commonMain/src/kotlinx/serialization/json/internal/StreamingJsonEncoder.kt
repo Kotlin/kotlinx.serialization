@@ -22,7 +22,7 @@ internal class StreamingJsonEncoder(
         modeReuseCache: Array<JsonEncoder?>
     ) : this(Composer(output, json), json, mode, modeReuseCache)
 
-    public override val context: SerialModule = json.context
+    public override val serializersModule: SerialModule = json.context
     private val configuration = json.configuration
 
     // Forces serializer to wrap all values into quotes

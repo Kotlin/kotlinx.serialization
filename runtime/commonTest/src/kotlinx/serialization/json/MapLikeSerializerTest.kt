@@ -40,7 +40,7 @@ class MapLikeSerializerTest : JsonTestBase() {
             var value: String? = null
             mainLoop@ while (true) {
                 when (val idx = composite.decodeElementIndex(descriptor)) {
-                    CompositeDecoder.READ_DONE -> {
+                    CompositeDecoder.DECODE_DONE -> {
                         break@mainLoop
                     }
                     0 -> {

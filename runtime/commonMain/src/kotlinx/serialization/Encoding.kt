@@ -21,7 +21,7 @@ import kotlin.reflect.*
  * To be more specific, serialization transforms a value into a sequence of "here is an int, here is
  * a double, here a list of strings and here is another object that is a nested int", while encoding
  * transforms this sequence into a format-specific commands such as "insert opening curly bracket
- * for a nested object start, insert a name of the value and the value separated with colon for an int etc."
+ * for a nested object start, insert a name of the value, and the value separated with colon for an int etc."
  *
  * The symmetric interface for the deserialization process is [Decoder].
  *
@@ -30,10 +30,10 @@ import kotlin.reflect.*
  * If a class is represented as a single [primitive][PrimitiveKind] value in its serialized form,
  * then one of the `encode*` methods (e.g. [encodeInt]) can be used directly.
  *
- * ### Serialization. Structured types
+ * ### Serialization. Structured types.
  *
  * If a class is represented as a structure or has multiple values in its serialized form,
- * `encode*` methods are not that helpful, because they do not allow to work with collection types or establish structure boundaries.
+ * `encode*` methods are not that helpful, because they do not allow working with collection types or establish structure boundaries.
  * All these capabilities are delegated to the [CompositeEncoder] interface with a more specific API surface.
  * To denote a structure start, [beginStructure] should be used.
  * ```
@@ -77,11 +77,11 @@ import kotlin.reflect.*
  * This serializer does not know anything about the underlying storage and will work with any properly-implemented encoder.
  * JSON, for example, writes an opening bracket `{` during the `beginStructure` call, writes 'stringValue` key along
  * with its value in `encodeStringElement` and writes the closing bracket `}` during the `endStructure`.
- * XML would do the roughly the same, but with different separators and structures, while ProtoBuf
+ * XML would do roughly the same, but with different separators and structures, while ProtoBuf
  * machinery could be completely different.
  * In any case, all these parsing details are encapsulated by an encoder.
  *
- * ### Encoder implementation
+ * ### Encoder implementation.
  *
  * While being strictly typed, an underlying format can transform actual types in the way it wants.
  * For example, a format can support only string types and encode/decode all primitives in a string form:
@@ -100,7 +100,7 @@ public interface Encoder {
      * Context of the current serialization process, including contextual and polymorphic serialization and,
      * potentially, a format-specific configuration.
      */
-    public val context: SerialModule
+    public val serializersModule: SerialModule
 
     /**
      * Notifies the encoder that value of a nullable type that is
@@ -125,9 +125,6 @@ public interface Encoder {
      * Encodes `null` value.
      */
     public fun encodeNull()
-
-    // Not documented.
-    public fun encodeUnit()
 
     /**
      * Encodes a boolean value.
@@ -226,7 +223,6 @@ public interface Encoder {
      *     composite.encodeStringElement(descriptor, 0, value.stringValue) // Serialize actual value
      *     composite.endStructure(descriptor) // Closing bracket
      * }
-     *
      * ```
      */
     @Suppress("DEPRECATION_ERROR", "RemoveRedundantSpreadOperator")
@@ -303,7 +299,7 @@ public interface CompositeEncoder {
      * Context of the current serialization process, including contextual and polymorphic serialization and,
      * potentially, a format-specific configuration.
      */
-    public val context: SerialModule
+    public val serializersModule: SerialModule
 
     /**
      * Denotes the end of the structure associated with current encoder.
@@ -325,9 +321,6 @@ public interface CompositeEncoder {
      * ```
      */
     public fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = true
-
-    // Not documented, was reworked
-    public fun encodeUnitElement(descriptor: SerialDescriptor, index: Int)
 
     /**
      * Encodes a boolean [value] associated with an element at the given [index] in [serial descriptor][descriptor].
@@ -413,17 +406,6 @@ public interface CompositeEncoder {
     public fun encodeNonSerializableElement(descriptor: SerialDescriptor, index: Int, value: Any) {
     }
 }
-
-/**
- * Alias for [Encoder.encodeSerializableValue]
- */
-public fun <T : Any?> Encoder.encode(strategy: SerializationStrategy<T>, value: T): Unit =
-    encodeSerializableValue(strategy, value)
-
-/**
- * Reified version of [Encoder.encodeSerializableValue]
- */
-public inline fun <reified T : Any> Encoder.encode(obj: T): Unit = encode(serializer(), obj)
 
 /**
  * Begins a structure, encodes it using the given [block] and ends it.

@@ -4,7 +4,6 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.test.*
 import kotlin.test.*
 import kotlinx.serialization.internal.*
@@ -36,7 +35,7 @@ class TaggedTest {
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             // js doesn't generate code for .decodeSequentially for the sake of keeping output small
             if (!isJs()) throw AssertionError("Should not be called in this test due to support of decodeSequentially")
-            return if (i == collected.tagList.size) READ_DONE else i++
+            return if (i == collected.tagList.size) CompositeDecoder.DECODE_DONE else i++
         }
 
         override fun decodeTaggedValue(tag: Int?): Any {
@@ -49,9 +48,9 @@ class TaggedTest {
     fun testTagged() {
         val collector = Collector()
         val data = DataWithId(1, "2")
-        collector.encode(DataWithId.serializer(), data)
+        collector.encodeSerializableValue(DataWithId.serializer(), data)
         assertEquals(mapOf(1 to 1, 2 to "2", null to Unit, 42 to true), collector.tagList, "see all tags properly")
-        val obj = Emitter(collector).decode(DataWithId.serializer())
+        val obj = Emitter(collector).decodeSerializableValue(DataWithId.serializer())
         assertEquals(obj, data, "read tags back")
     }
 }

@@ -34,7 +34,7 @@ class BinaryPayloadExampleTest {
                 var res: ByteArray? = null // need to read nullable non-optional properties
                 loop@ while (true) {
                     when (val i = dec.decodeElementIndex(descriptor)) {
-                        CompositeDecoder.READ_DONE -> break@loop
+                        CompositeDecoder.DECODE_DONE -> break@loop
                         0 -> req = InternalHexConverter.parseHexBinary(dec.decodeStringElement(descriptor, i))
                         1 -> res = InternalHexConverter.parseHexBinary(dec.decodeStringElement(descriptor, i))
                         else -> throw SerializationException("Unknown index $i")

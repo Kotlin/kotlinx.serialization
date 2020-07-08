@@ -76,7 +76,7 @@ public abstract class JsonParametricSerializer<T : Any>(private val baseClass: K
     @OptIn(UnsafeSerializationApi::class)
     final override fun serialize(encoder: Encoder, value: T) {
         val actualSerializer =
-            encoder.context.getPolymorphic(baseClass, value)
+            encoder.serializersModule.getPolymorphic(baseClass, value)
                     ?: value::class.serializerOrNull()
                     ?: throwSubtypeNotRegistered(value::class, baseClass)
         @Suppress("UNCHECKED_CAST")

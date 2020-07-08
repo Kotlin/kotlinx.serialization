@@ -51,7 +51,7 @@ class CheckedDataSerializer<T : Any>(private val dataSerializer: KSerializer<T>)
         lateinit var sum: ByteArray
         loop@ while (true) {
             when (val i = inp.decodeElementIndex(descriptor)) {
-                CompositeDecoder.READ_DONE -> break@loop
+                CompositeDecoder.DECODE_DONE -> break@loop
                 0 -> data = inp.decodeSerializableElement(descriptor, i, dataSerializer)
                 1 -> sum = InternalHexConverter.parseHexBinary(inp.decodeStringElement(descriptor, i))
                 else -> throw SerializationException("Unknown index $i")

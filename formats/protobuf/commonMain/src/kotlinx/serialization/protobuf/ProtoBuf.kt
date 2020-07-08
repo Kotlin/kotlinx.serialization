@@ -5,7 +5,6 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
-import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
@@ -125,7 +124,7 @@ public class ProtoBuf(
         private val writer: ProtobufWriter,
         @JvmField val descriptor: SerialDescriptor
     ) : ProtobufTaggedEncoder() {
-        public override val context
+        public override val serializersModule
             get() = this@ProtoBuf.context
 
         override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = encodeDefaults
@@ -295,7 +294,7 @@ public class ProtoBuf(
         @JvmField val reader: ProtobufReader,
         @JvmField val descriptor: SerialDescriptor
     ) : ProtobufTaggedDecoder() {
-        override val context: SerialModule
+        override val serializersModule: SerialModule
             get() = this@ProtoBuf.context
 
         // Proto id -> index in serial descriptor cache
@@ -475,7 +474,7 @@ public class ProtoBuf(
             while (true) {
                 val protoId = reader.readTag()
                 if (protoId == -1) { // EOF
-                    return READ_DONE
+                    return CompositeDecoder.DECODE_DONE
                 }
                 val index = getIndexByTag(protoId)
                 if (index == -1) { // not found
@@ -523,7 +522,7 @@ public class ProtoBuf(
         private fun decodeListIndexNoTag(): Int {
             val size = -tagOrSize
             val idx = ++index
-            if (idx.toLong() == size) return READ_DONE
+            if (idx.toLong() == size) return CompositeDecoder.DECODE_DONE
             return idx
         }
 
@@ -540,7 +539,7 @@ public class ProtoBuf(
             } else {
                 // If we read tag of a different message, push it back to the reader and bail out
                 reader.pushBackTag()
-                READ_DONE
+                CompositeDecoder.DECODE_DONE
             }
         }
 
@@ -583,13 +582,13 @@ public class ProtoBuf(
     override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutput()
         val encoder = ProtobufEncoder(ProtobufWriter(output), serializer.descriptor)
-        encoder.encode(serializer, value)
+        encoder.encodeSerializableValue(serializer, value)
         return output.toByteArray()
     }
 
     override fun <T> decodeFromByteArray(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
         val input = ByteArrayInput(bytes)
         val decoder = ProtobufDecoder(ProtobufReader(input), deserializer.descriptor)
-        return decoder.decode(deserializer)
+        return decoder.decodeSerializableValue(deserializer)
     }
 }

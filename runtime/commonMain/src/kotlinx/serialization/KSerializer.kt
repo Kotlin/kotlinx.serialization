@@ -153,7 +153,7 @@ public interface DeserializationStrategy<T> {
      *     var list: List<String>? = null
      *     loop@ while (true) {
      *         when (val index = decodeElementIndex(descriptor)) {
-     *             READ_DONE -> break@loop
+     *             DECODE_DONE -> break@loop
      *             0 -> {
      *                 // Decode 'int' property as Int
      *                 int = decodeIntElement(descriptor, index = 0)

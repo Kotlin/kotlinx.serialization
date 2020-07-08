@@ -4,7 +4,6 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 
@@ -39,7 +38,7 @@ import kotlinx.serialization.modules.*
 public class Properties(override val context: SerialModule = EmptyModule) : SerialFormat {
 
     private inner class OutMapper : NamedValueEncoder() {
-        override val context: SerialModule = this@Properties.context
+        override val serializersModule: SerialModule = this@Properties.context
 
         internal val map: MutableMap<String, Any> = mutableMapOf()
 
@@ -64,7 +63,7 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
     }
 
     private inner class OutNullableMapper : NamedValueEncoder() {
-        override val context: SerialModule = this@Properties.context
+        override val serializersModule: SerialModule = this@Properties.context
 
         internal val map: MutableMap<String, Any?> = mutableMapOf()
 
@@ -87,7 +86,7 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
     }
 
     private inner class InMapper(private val map: Map<String, Any>) : NamedValueDecoder() {
-        override val context: SerialModule = this@Properties.context
+        override val serializersModule: SerialModule = this@Properties.context
 
         private var currentIndex = 0
 
@@ -118,12 +117,12 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
                 val name = descriptor.getTag(currentIndex++)
                 if (map.keys.any { it.startsWith(name) }) return currentIndex - 1
             }
-            return READ_DONE
+            return CompositeDecoder.DECODE_DONE
         }
     }
 
     private inner class InNullableMapper(val map: Map<String, Any?>) : NamedValueDecoder() {
-        override val context: SerialModule = this@Properties.context
+        override val serializersModule: SerialModule = this@Properties.context
 
         private var currentIndex = 0
 
@@ -142,7 +141,7 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
                 val name = descriptor.getTag(currentIndex++)
                 if (map.keys.any { it.startsWith(name) }) return currentIndex - 1
             }
-            return READ_DONE
+            return CompositeDecoder.DECODE_DONE
         }
 
         override fun decodeTaggedValue(tag: String): Any = map.getValue(tag)!!
@@ -169,7 +168,7 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
      */
     public fun <T> store(strategy: SerializationStrategy<T>, value: T): Map<String, Any> {
         val m = OutMapper()
-        m.encode(strategy, value)
+        m.encodeSerializableValue(strategy, value)
         return m.map
     }
 
@@ -179,7 +178,7 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
      */
     public fun <T> storeNullable(strategy: SerializationStrategy<T>, value: T): Map<String, Any?> {
         val m = OutNullableMapper()
-        m.encode(strategy, value)
+        m.encodeSerializableValue(strategy, value)
         return m.map
     }
 
@@ -189,7 +188,7 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
      */
     public fun <T> load(strategy: DeserializationStrategy<T>, map: Map<String, Any>): T {
         val m = InMapper(map)
-        return m.decode(strategy)
+        return m.decodeSerializableValue(strategy)
     }
 
     /**
@@ -198,7 +197,7 @@ public class Properties(override val context: SerialModule = EmptyModule) : Seri
      */
     public fun <T> loadNullable(strategy: DeserializationStrategy<T>, map: Map<String, Any?>): T {
         val m = InNullableMapper(map)
-        return m.decode(strategy)
+        return m.decodeSerializableValue(strategy)
     }
 
     /**
