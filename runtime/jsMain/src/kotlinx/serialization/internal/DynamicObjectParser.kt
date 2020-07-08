@@ -14,9 +14,9 @@ import kotlin.math.*
  */
 internal const val MAX_SAFE_INTEGER: Double = 9007199254740991.toDouble() // 2^53 - 1
 
-internal class DynamicObjectParser @OptIn(UnstableDefault::class) constructor(
-    override val serializersModule: SerializersModule = EmptySerializersModule,
-    internal val configuration: JsonConfiguration = JsonConfiguration.Default
+internal class DynamicObjectParser(
+    override val serializersModule: SerializersModule,
+    internal val configuration: JsonConfiguration
 ) : SerialFormat {
     /**
      * Deserializes given [obj] from dynamic form to type [T] using [deserializer].

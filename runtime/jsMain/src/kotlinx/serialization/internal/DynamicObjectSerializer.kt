@@ -31,9 +31,9 @@ import kotlin.math.*
  *  val plainJS: dynamic = DynamicObjectSerializer().serialize(DataWrapper.serializer(), wrapper)
  * ```
  */
-internal class DynamicObjectSerializer @OptIn(UnstableDefault::class) constructor(
-    public val context: SerializersModule = EmptySerializersModule,
-    private val configuration: JsonConfiguration = JsonConfiguration.Default
+internal class DynamicObjectSerializer(
+    public val context: SerializersModule,
+    private val configuration: JsonConfiguration
 ) {
 
     public fun <T> serialize(strategy: SerializationStrategy<T>, obj: T): dynamic {
