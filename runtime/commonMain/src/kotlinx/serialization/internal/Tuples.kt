@@ -43,7 +43,7 @@ public sealed class KeyValueSerializer<K, V, R>(
         var value: Any? = NULL
         mainLoop@ while (true) {
             when (val idx = composite.decodeElementIndex(descriptor)) {
-                CompositeDecoder.READ_DONE -> {
+                CompositeDecoder.DECODE_DONE -> {
                     break@mainLoop
                 }
                 0 -> {
@@ -163,7 +163,7 @@ public class TripleSerializer<A, B, C>(
         var c: Any? = NULL
         mainLoop@ while (true) {
             when (val index = composite.decodeElementIndex(descriptor)) {
-                CompositeDecoder.READ_DONE -> {
+                CompositeDecoder.DECODE_DONE -> {
                     break@mainLoop
                 }
                 0 -> {

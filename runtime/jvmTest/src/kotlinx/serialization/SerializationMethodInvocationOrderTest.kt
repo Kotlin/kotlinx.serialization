@@ -17,11 +17,11 @@ class SerializationMethodInvocationOrderTest {
     @Test
     fun testRec() {
         val out = Out()
-        out.encode(serializer(), Container(Data("s1", 42)))
+        out.encodeSerializableValue(serializer(), Container(Data("s1", 42)))
         out.done()
 
         val inp = Inp()
-        inp.decode(serializer<Container>())
+        inp.decodeSerializableValue(serializer<Container>())
         inp.done()
     }
 

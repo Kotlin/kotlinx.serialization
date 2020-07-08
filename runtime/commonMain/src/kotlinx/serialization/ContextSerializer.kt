@@ -35,13 +35,13 @@ public class ContextSerializer<T : Any>(
 
     public override fun serialize(encoder: Encoder, value: T) {
         val clz = value::class
-        val serializer = encoder.context.getContextual(clz) ?: fallbackSerializer ?: serializableClass.serializerNotRegistered()
+        val serializer = encoder.serializersModule.getContextual(clz) ?: fallbackSerializer ?: serializableClass.serializerNotRegistered()
         @Suppress("UNCHECKED_CAST")
         encoder.encodeSerializableValue(serializer as SerializationStrategy<T>, value)
     }
 
     public override fun deserialize(decoder: Decoder): T {
-        val serializer = decoder.context.getContextual(serializableClass) ?: fallbackSerializer ?: serializableClass.serializerNotRegistered()
+        val serializer = decoder.serializersModule.getContextual(serializableClass) ?: fallbackSerializer ?: serializableClass.serializerNotRegistered()
         return decoder.decodeSerializableValue(serializer)
     }
 }

@@ -61,7 +61,7 @@ public sealed class Json(internal val configuration: JsonConfiguration) : String
             WriteMode.OBJ,
             arrayOfNulls(WriteMode.values().size)
         )
-        encoder.encode(serializer, value)
+        encoder.encodeSerializableValue(serializer, value)
         return result.toString()
     }
 
@@ -73,7 +73,7 @@ public sealed class Json(internal val configuration: JsonConfiguration) : String
     public final override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
         val reader = JsonReader(string)
         val input = StreamingJsonDecoder(this, WriteMode.OBJ, reader)
-        val result = input.decode(deserializer)
+        val result = input.decodeSerializableValue(deserializer)
         if (!reader.isDone) { error("Reader has not consumed the whole input: $reader") }
         return result
     }

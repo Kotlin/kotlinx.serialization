@@ -246,3 +246,27 @@ public fun <T : Any> BinaryFormat.load(raw: ByteArray): T = noImpl()
     ReplaceWith("decodeFromHexString<T>(hex)"), DeprecationLevel.ERROR
 )
 public fun <T : Any> BinaryFormat.loads(hex: String): T = noImpl()
+
+@Deprecated(
+    "This method was deprecated during serialization 1.0 API stabilization",
+    ReplaceWith("decodeSerializableValue(deserializer)"), DeprecationLevel.ERROR
+) // TODO make internal when migrations are removed
+public fun <T : Any?> Decoder.decode(deserializer: DeserializationStrategy<T>): T = noImpl()
+
+@Deprecated(
+    "This method was deprecated during serialization 1.0 API stabilization",
+    ReplaceWith("decodeSerializableValue<T>(serializer())"), DeprecationLevel.ERROR
+) // TODO make internal when migrations are removed
+public fun <T : Any> Decoder.decode(): T = noImpl()
+
+@Deprecated(
+    "This method was deprecated during serialization 1.0 API stabilization",
+    ReplaceWith("encodeSerializableValue(strategy, value)"), DeprecationLevel.ERROR
+) // TODO make internal when migrations are removed
+public fun <T : Any?> Encoder.encode(strategy: SerializationStrategy<T>, value: T): Unit = noImpl()
+
+@Deprecated(
+    "This method was deprecated during serialization 1.0 API stabilization",
+    ReplaceWith("encodeSerializableValue<T>(serializer(), value)"), DeprecationLevel.ERROR
+) // TODO make internal when migrations are removed
+public fun <T : Any> Encoder.encode(obj: T): Unit = noImpl()

@@ -18,7 +18,7 @@ internal fun <T> Json.readJson(element: JsonElement, deserializer: Deserializati
         is JsonArray -> JsonTreeListDecoder(this, element)
         is JsonLiteral, JsonNull -> JsonPrimitiveDecoder(this, element as JsonPrimitive)
     }
-    return input.decode(deserializer)
+    return input.decodeSerializableValue(deserializer)
 }
 
 internal fun <T> Json.readPolymorphicJson(
@@ -26,7 +26,7 @@ internal fun <T> Json.readPolymorphicJson(
     element: JsonObject,
     deserializer: DeserializationStrategy<T>
 ): T {
-    return JsonTreeDecoder(this, element, discriminator, deserializer.descriptor).decode(deserializer)
+    return JsonTreeDecoder(this, element, discriminator, deserializer.descriptor).decodeSerializableValue(deserializer)
 }
 
 private sealed class AbstractJsonTreeDecoder(
@@ -34,7 +34,7 @@ private sealed class AbstractJsonTreeDecoder(
     open val value: JsonElement
 ) : NamedValueDecoder(), JsonDecoder {
 
-    override val context: SerialModule
+    override val serializersModule: SerialModule
         get() = json.context
 
     // must override public final val updateMode: UpdateMode defined in kotlinx.serialization.NamedValueDecoder
@@ -90,10 +90,6 @@ private sealed class AbstractJsonTreeDecoder(
     override fun decodeTaggedNull(tag: String): Nothing? = null
 
     override fun decodeTaggedNotNullMark(tag: String): Boolean = currentElement(tag) !== JsonNull
-
-    override fun decodeTaggedUnit(tag: String) {
-        return
-    }
 
     override fun decodeTaggedBoolean(tag: String): Boolean {
         val value = getValue(tag)
@@ -178,7 +174,7 @@ private open class JsonTreeDecoder(
                 return position - 1
             }
         }
-        return CompositeDecoder.READ_DONE
+        return CompositeDecoder.DECODE_DONE
     }
 
     override fun currentElement(tag: String): JsonElement = value.getValue(tag)
@@ -219,7 +215,7 @@ private class JsonTreeMapDecoder(json: Json, override val value: JsonObject) : J
             position++
             return position
         }
-        return CompositeDecoder.READ_DONE
+        return CompositeDecoder.DECODE_DONE
     }
 
     override fun currentElement(tag: String): JsonElement {
@@ -246,6 +242,6 @@ private class JsonTreeListDecoder(json: Json, override val value: JsonArray) : A
             currentIndex++
             return currentIndex
         }
-        return CompositeDecoder.READ_DONE
+        return CompositeDecoder.DECODE_DONE
     }
 }

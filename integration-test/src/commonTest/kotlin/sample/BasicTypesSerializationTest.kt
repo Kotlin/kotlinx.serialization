@@ -137,7 +137,7 @@ class BasicTypesSerializationTest {
             inp.skipWhitespace(',')
             val name = inp.nextUntil(':', '}')
             if (name.isEmpty())
-                return READ_DONE
+                return CompositeDecoder.DECODE_DONE
             val index = desc.getElementIndexOrThrow(name)
             inp.expect(':')
             return index
@@ -228,11 +228,11 @@ class BasicTypesSerializationTest {
         // serialize to string
         val sb = StringBuilder()
         val out = KeyValueOutput(sb)
-        out.encode(TypesUmbrella.serializer(), data)
+        out.encodeSerializableValue(TypesUmbrella.serializer(), data)
         // deserialize from string
         val str = sb.toString()
         val inp = KeyValueInput(Parser(StringReader(str)))
-        val other = inp.decode(TypesUmbrella.serializer())
+        val other = inp.decodeSerializableValue(TypesUmbrella.serializer())
         // assert we've got it back from string
         assertEquals(data, other)
         assertNotSame(data, other)

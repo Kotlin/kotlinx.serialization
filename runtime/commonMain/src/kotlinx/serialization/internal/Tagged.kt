@@ -6,11 +6,6 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.modules.*
-
-internal const val unitDeprecated =
-    "This method is deprecated with no replacement. Unit is encoded as an empty object and does not require a dedicated method. " +
-            "To migrate, just remove your own implementation of this method"
-
 /*
  * These classes are intended to be used only within the kotlinx.serialization.
  * They neither do have stable API, not internal invariants and are changed without any warnings.
@@ -24,7 +19,7 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
      */
     protected abstract fun SerialDescriptor.getTag(index: Int): Tag
 
-    override val context: SerialModule
+    override val serializersModule: SerialModule
         get() = EmptyModule
 
     // ---- API ----
@@ -34,8 +29,6 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
     protected open fun encodeTaggedNotNullMark(tag: Tag) {}
     protected open fun encodeTaggedNull(tag: Tag): Unit = throw SerializationException("null is not supported")
 
-    @Deprecated(message = unitDeprecated, level = DeprecationLevel.ERROR)
-    protected open fun encodeTaggedUnit(tag: Tag): Unit = encodeTaggedValue(tag, Unit)
     protected open fun encodeTaggedInt(tag: Tag, value: Int): Unit = encodeTaggedValue(tag, value)
     protected open fun encodeTaggedByte(tag: Tag, value: Byte): Unit = encodeTaggedValue(tag, value)
     protected open fun encodeTaggedShort(tag: Tag, value: Short): Unit = encodeTaggedValue(tag, value)
@@ -62,9 +55,6 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
 
     final override fun encodeNotNullMark(): Unit = encodeTaggedNotNullMark(currentTag)
     final override fun encodeNull(): Unit = encodeTaggedNull(popTag())
-
-    @Suppress("DEPRECATION_ERROR")
-    final override fun encodeUnit(): Unit = UnitSerializer.serialize(this, Unit)
     final override fun encodeBoolean(value: Boolean): Unit = encodeTaggedBoolean(popTag(), value)
     final override fun encodeByte(value: Byte): Unit = encodeTaggedByte(popTag(), value)
     final override fun encodeShort(value: Short): Unit = encodeTaggedShort(popTag(), value)
@@ -106,10 +96,6 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
      * Format-specific replacement for [endStructure], because latter is overridden to manipulate tag stack.
      */
     protected open fun endEncode(descriptor: SerialDescriptor) {}
-
-    @Suppress("DEPRECATION_ERROR")
-    final override fun encodeUnitElement(descriptor: SerialDescriptor, index: Int): Unit =
-        encodeTaggedUnit(descriptor.getTag(index))
 
     final override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean): Unit =
         encodeTaggedBoolean(descriptor.getTag(index), value)
@@ -187,7 +173,7 @@ public abstract class NamedValueEncoder(protected val rootName: String = "") : T
 @InternalSerializationApi
 public abstract class TaggedDecoder<Tag : Any?> : Decoder,
     CompositeDecoder {
-    override val context: SerialModule
+    override val serializersModule: SerialModule
         get() = EmptyModule
 
     @Suppress("DEPRECATION")
@@ -205,9 +191,6 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder,
     protected open fun decodeTaggedNotNullMark(tag: Tag): Boolean = true
     protected open fun decodeTaggedNull(tag: Tag): Nothing? = null
 
-    @Deprecated(message = unitDeprecated, level = DeprecationLevel.ERROR)
-    @Suppress("DEPRECATION_ERROR")
-    protected open fun decodeTaggedUnit(tag: Tag): Unit = UnitSerializer.deserialize(this)
     protected open fun decodeTaggedBoolean(tag: Tag): Boolean = decodeTaggedValue(tag) as Boolean
     protected open fun decodeTaggedByte(tag: Tag): Byte = decodeTaggedValue(tag) as Byte
     protected open fun decodeTaggedShort(tag: Tag): Short = decodeTaggedValue(tag) as Short
@@ -229,9 +212,6 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder,
     final override fun decodeNotNullMark(): Boolean = decodeTaggedNotNullMark(currentTag)
     final override fun decodeNull(): Nothing? = null
 
-    @Deprecated(message = unitDeprecated, level = DeprecationLevel.ERROR)
-    @Suppress("DEPRECATION_ERROR")
-    final override fun decodeUnit(): Unit = UnitSerializer.deserialize(this)
     final override fun decodeBoolean(): Boolean = decodeTaggedBoolean(popTag())
     final override fun decodeByte(): Byte = decodeTaggedByte(popTag())
     final override fun decodeShort(): Short = decodeTaggedShort(popTag())
@@ -259,11 +239,6 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder,
     override fun endStructure(descriptor: SerialDescriptor) {
         // Nothing
     }
-
-    @Deprecated(message = unitDeprecated, level = DeprecationLevel.ERROR)
-    @Suppress("DEPRECATION_ERROR")
-    final override fun decodeUnitElement(descriptor: SerialDescriptor, index: Int): Unit =
-        decodeTaggedUnit(descriptor.getTag(index))
 
     final override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean =
         decodeTaggedBoolean(descriptor.getTag(index))

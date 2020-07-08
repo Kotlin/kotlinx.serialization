@@ -14,7 +14,7 @@ import kotlin.jvm.*
 internal fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
     lateinit var result: JsonElement
     val encoder = JsonTreeEncoder(this) { result = it }
-    encoder.encode(serializer, value)
+    encoder.encodeSerializableValue(serializer, value)
     return result
 }
 
@@ -23,7 +23,7 @@ private sealed class AbstractJsonTreeEncoder(
     val nodeConsumer: (JsonElement) -> Unit
 ) : NamedValueEncoder(), JsonEncoder {
 
-    final override val context: SerialModule
+    final override val serializersModule: SerialModule
         get() = json.context
 
     @JvmField

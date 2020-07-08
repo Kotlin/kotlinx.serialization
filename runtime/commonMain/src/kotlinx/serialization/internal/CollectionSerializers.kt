@@ -5,7 +5,6 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlin.reflect.*
 
 @InternalSerializationApi
@@ -30,7 +29,7 @@ public sealed class AbstractCollectionSerializer<Element, Collection, Builder> :
         } else {
             while (true) {
                 val index = compositeDecoder.decodeElementIndex(descriptor)
-                if (index == READ_DONE) break
+                if (index == CompositeDecoder.DECODE_DONE) break
                 readElement(compositeDecoder, startIndex + index, builder)
             }
         }

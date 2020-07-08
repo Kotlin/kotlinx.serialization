@@ -5,7 +5,8 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
-import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
+import kotlinx.serialization.CompositeDecoder.Companion.DECODE_DONE
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.cbor.internal.ByteArrayInput
 import kotlinx.serialization.cbor.internal.ByteArrayOutput
 import kotlinx.serialization.encoding.*
@@ -45,7 +46,7 @@ public class Cbor(
 
     // Writes class as map [fieldName, fieldValue]
     private open inner class CborWriter(val encoder: CborEncoder) : AbstractEncoder() {
-        override val context: SerialModule
+        override val serializersModule: SerialModule
             get() = this@Cbor.context
 
         override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = encodeDefaults
@@ -169,7 +170,7 @@ public class Cbor(
 
         override fun skipBeginToken() = setSize(decoder.startArray())
 
-        override fun decodeElementIndex(descriptor: SerialDescriptor) = if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size)) READ_DONE else ind++
+        override fun decodeElementIndex(descriptor: SerialDescriptor) = if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size)) DECODE_DONE else ind++
     }
 
     private open inner class CborReader(val decoder: CborDecoder) : AbstractDecoder() {
@@ -187,7 +188,7 @@ public class Cbor(
             }
         }
 
-        override val context: SerialModule
+        override val serializersModule: SerialModule
             get() = this@Cbor.context
 
         protected open fun skipBeginToken() = setSize(decoder.startMap())
@@ -207,7 +208,7 @@ public class Cbor(
         }
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-            if (!finiteMode && decoder.isEnd() || (finiteMode && readProperties >= size)) return READ_DONE
+            if (!finiteMode && decoder.isEnd() || (finiteMode && readProperties >= size)) return DECODE_DONE
             val elemName = decoder.nextString()
             readProperties++
             return descriptor.getElementIndexOrThrow(elemName)
@@ -396,13 +397,13 @@ public class Cbor(
     override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutput()
         val dumper = CborWriter(CborEncoder(output))
-        dumper.encode(serializer, value)
+        dumper.encodeSerializableValue(serializer, value)
         return output.toByteArray()
     }
 
     override fun <T> decodeFromByteArray(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
         val stream = ByteArrayInput(bytes)
         val reader = CborReader(CborDecoder(stream))
-        return reader.decode(deserializer)
+        return reader.decodeSerializableValue(deserializer)
     }
 }

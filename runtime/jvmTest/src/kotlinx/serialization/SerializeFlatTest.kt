@@ -87,7 +87,7 @@ object CustomSerializer : KSerializer<Custom> {
         val value1 = decoder.decodeStringElement(descriptor, 0)
         if (decoder.decodeElementIndex(descriptor) != 1) throw java.lang.IllegalStateException()
         val value2 = decoder.decodeIntElement(descriptor, 1)
-        if (decoder.decodeElementIndex(descriptor) != CompositeDecoder.READ_DONE) throw java.lang.IllegalStateException()
+        if (decoder.decodeElementIndex(descriptor) != CompositeDecoder.DECODE_DONE) throw java.lang.IllegalStateException()
         decoder.endStructure(descriptor)
         return Custom(value1, value2)
     }
@@ -110,11 +110,11 @@ class SerializeFlatTest() {
     @Test
     fun testData() {
         val out = Out("Data")
-        out.encode(serializer(), Data("s1", 42))
+        out.encodeSerializableValue(serializer(), Data("s1", 42))
         out.done()
 
         val inp = Inp("Data")
-        val data = inp.decode(serializer<Data>())
+        val data = inp.decodeSerializableValue(serializer<Data>())
         inp.done()
         assert(data.value1 == "s1" && data.value2 == 42)
     }
@@ -122,11 +122,11 @@ class SerializeFlatTest() {
     @Test
     fun testDataExplicit() {
         val out = Out("DataExplicit")
-        out.encode(serializer(), DataExplicit("s1", 42))
+        out.encodeSerializableValue(serializer(), DataExplicit("s1", 42))
         out.done()
 
         val inp = Inp("DataExplicit")
-        val data = inp.decode(serializer<DataExplicit>())
+        val data = inp.decodeSerializableValue(serializer<DataExplicit>())
         inp.done()
         assert(data.value1 == "s1" && data.value2 == 42)
     }
@@ -137,11 +137,11 @@ class SerializeFlatTest() {
         val reg = Reg()
         reg.value1 = "s1"
         reg.value2 = 42
-        out.encode(serializer(), reg)
+        out.encodeSerializableValue(serializer(), reg)
         out.done()
 
         val inp = Inp("Reg")
-        val data = inp.decode(serializer<Reg>())
+        val data = inp.decodeSerializableValue(serializer<Reg>())
         inp.done()
         assert(data.value1 == "s1" && data.value2 == 42)
     }
@@ -149,11 +149,11 @@ class SerializeFlatTest() {
     @Test
     fun testNames() {
         val out = Out("Names")
-        out.encode(serializer(), Names("s1", 42))
+        out.encodeSerializableValue(serializer(), Names("s1", 42))
         out.done()
 
         val inp = Inp("Names")
-        val data = inp.decode(serializer<Names>())
+        val data = inp.decodeSerializableValue(serializer<Names>())
         inp.done()
         assert(data.custom1 == "s1" && data.custom2 == 42)
     }
@@ -161,11 +161,11 @@ class SerializeFlatTest() {
     @Test
     fun testCustom() {
         val out = Out("Custom")
-        out.encode(CustomSerializer, Custom("s1", 42))
+        out.encodeSerializableValue(CustomSerializer, Custom("s1", 42))
         out.done()
 
         val inp = Inp("Custom")
-        val data = inp.decode(CustomSerializer)
+        val data = inp.decodeSerializableValue(CustomSerializer)
         inp.done()
         assert(data._value1 == "s1" && data._value2 == 42)
     }
@@ -173,11 +173,11 @@ class SerializeFlatTest() {
     @Test
     fun testExternalData() {
         val out = Out("ExternalData")
-        out.encode(ExternalSerializer, ExternalData("s1", 42))
+        out.encodeSerializableValue(ExternalSerializer, ExternalData("s1", 42))
         out.done()
 
         val inp = Inp("ExternalData")
-        val data = inp.decode(ExternalSerializer)
+        val data = inp.decodeSerializableValue(ExternalSerializer)
         inp.done()
         assert(data.value1 == "s1" && data.value2 == 42)
     }

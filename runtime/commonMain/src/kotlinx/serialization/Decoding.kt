@@ -33,7 +33,7 @@ import kotlinx.serialization.modules.*
  *
  * If a class is represented as a structure or has multiple values in its serialized form,
  * `decode*` methods are not that helpful, because format may not require a strict order of data
- * (e.g. JSON or XML), do not allow to work with collection types or establish structure boundaries.
+ * (e.g. JSON or XML), do not allow working with collection types or establish structure boundaries.
  * All these capabilities are delegated to the [CompositeDecoder] interface with a more specific API surface.
  * To denote a structure start, [beginStructure] should be used.
  * ```
@@ -80,7 +80,7 @@ import kotlinx.serialization.modules.*
  * JSON, for example, parses an opening bracket `{` during the `beginStructure` call, checks that the next key
  * after this bracket is `stringValue` (using the descriptor), returns the value after the colon as string value
  * and parses closing bracket `}` during the `endStructure`.
- * XML would do the roughly the same, but with different separators and parsing structures, while ProtoBuf
+ * XML would do roughly the same, but with different separators and parsing structures, while ProtoBuf
  * machinery could be completely different.
  * In any case, all these parsing details are encapsulated by a decoder.
  *
@@ -103,7 +103,7 @@ public interface Decoder {
      * Context of the current serialization process, including contextual and polymorphic serialization and,
      * potentially, a format-specific configuration.
      */
-    public val context: SerialModule
+    public val serializersModule: SerialModule
 
     @Suppress("DEPRECATION")
     @Deprecated(updateModeDeprecated, level = DeprecationLevel.ERROR)
@@ -130,9 +130,6 @@ public interface Decoder {
      * Decodes the `null` value and returns it.
      */
     public fun decodeNull(): Nothing?
-
-    // Not documented, will be reworked
-    public fun decodeUnit()
 
     /**
      * Decodes a boolean value.
@@ -278,31 +275,36 @@ public interface CompositeDecoder {
      */
     public companion object {
         /**
-         * Value returned by [decodeElementIndex] when the underlying input has no more data
-         * (apart from the end of the structure).
+         * Value returned by [decodeElementIndex] when the underlying input has no more data in the current structure.
          * When this value is returned, no methods of the decoder should be called but [endStructure].
          */
-        public const val READ_DONE: Int = -1
-
-        @Deprecated(
-            message = "READ_ALL cannot be longer returned by 'decodeElementIndex', use 'decodeSequentially' instead",
-            level = DeprecationLevel.ERROR
-        )
-        @Suppress("UNUSED")
-        public const val READ_ALL: Int = -2
+        public const val DECODE_DONE: Int = -1
 
         /**
          * Value returned by [decodeElementIndex] when the format encountered an unknown element
          * (expected neither by the structure of serial descriptor, nor by the format itself).
          */
         public const val UNKNOWN_NAME: Int = -3
+
+        @Deprecated(
+            message = "READ_DONE was renamed to DECODE_DONE during 1.0 API stabilization",
+            level = DeprecationLevel.ERROR,
+            replaceWith = ReplaceWith("CompositeDecoder.DECODE_DONE")
+        )
+        public const val READ_DONE: Int = -1
+
+        @Deprecated(
+            message = "READ_ALL cannot be longer returned by 'decodeElementIndex', use 'decodeSequentially' instead",
+            level = DeprecationLevel.ERROR
+        )
+        public const val READ_ALL: Int = -2
     }
 
     /**
      * Context of the current decoding process, including contextual and polymorphic serialization and,
      * potentially, a format-specific configuration.
      */
-    public val context: SerialModule
+    public val serializersModule: SerialModule
 
     @Suppress("DEPRECATION")
     @Deprecated(updateModeDeprecated, level = DeprecationLevel.ERROR)
@@ -361,7 +363,7 @@ public interface CompositeDecoder {
      *
      *  If this method returns non-negative index, the caller should call one of the `decode*Element` methods
      *  with a resulting index.
-     *  Apart from positive values, this method can return [READ_DONE] to indicate that no more elements
+     *  Apart from positive values, this method can return [DECODE_DONE] to indicate that no more elements
      *  are left or [UNKNOWN_NAME] to indicate that symbol with an unknown name was encountered.
      *
      * Example of usage:
@@ -377,7 +379,7 @@ public interface CompositeDecoder {
      *        var d: Double? = null
      *        while (true) {
      *            val index = composite.decodeElementIndex(descriptor)
-     *            if (index == READ_DONE) break // Input is over
+     *            if (index == DECODE_DONE) break // Input is over
      *            when (index) {
      *                0 -> {
      *                    i = composite.decodeIntElement(descriptor, 0)
@@ -397,16 +399,16 @@ public interface CompositeDecoder {
      * ```
      * This example is a rough equivalent of what serialization plugin generates for serializable pair class.
      *
-     * The need in such loop comes from unstructured nature of most serialization formats.
+     * The need in such a loop comes from unstructured nature of most serialization formats.
      * For example, JSON for the following input `{"d": 2.0, "i": 1}`, will first read `d` key with index `1`
-     * and only after `i` with index `0`.
+     * and only after `i` with the index `0`.
      *
      * A potential implementation of this method for JSON format can be the following:
      * ```
      * fun decodeElementIndex(descriptor: SerialDescriptor): Int {
      *     // Ignore arrays
      *     val nextKey: String? = myStringJsonParser.nextKey()
-     *     if (nextKey == null) return READ_DONE
+     *     if (nextKey == null) return DECODE_DONE
      *     return descriptor.getElementIndex(nextKey) // getElementIndex can return UNKNOWN_NAME
      * }
      * ```
@@ -420,9 +422,6 @@ public interface CompositeDecoder {
      * knowing precise size is a mandatory requirement.
      */
     public fun decodeCollectionSize(descriptor: SerialDescriptor): Int = -1
-
-    // Not documented, was reworked
-    public fun decodeUnitElement(descriptor: SerialDescriptor, index: Int)
 
     /**
      * Decodes a boolean value from the underlying input.
@@ -568,17 +567,6 @@ public interface CompositeDecoder {
         old: T?
     ): T? = decodeNullableSerializableElement(descriptor, index, deserializer, old)
 }
-
-/**
- * Alias for [Decoder.decodeSerializableValue]
- */
-public fun <T : Any?> Decoder.decode(deserializer: DeserializationStrategy<T>): T =
-    decodeSerializableValue(deserializer)
-
-/**
- * Reified version of [Decoder.decodeSerializableValue]
- */
-public inline fun <reified T : Any> Decoder.decode(): T = decode(serializer())
 
 /**
  * Begins a structure, decodes it using the given [block], ends it and returns decoded element.
