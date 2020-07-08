@@ -5,7 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
-import kotlinx.serialization.builtins.*
+import kotlinx.serialization.encoding.*
 import kotlin.test.*
 
 /*

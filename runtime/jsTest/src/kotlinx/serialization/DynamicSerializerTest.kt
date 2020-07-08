@@ -145,7 +145,7 @@ class DynamicSerializerTest {
 
     @Test
     fun listTest() {
-        assertDynamicForm(listOf(1, 2, 3, 44), serializer = Int.serializer().list) { data, serialized ->
+        assertDynamicForm(listOf(1, 2, 3, 44), serializer = ListSerializer(Int.serializer())) { data, serialized ->
             assertNotNull(serialized.length, "length property should exist")
             assertEquals(data.size, serialized.length)
 

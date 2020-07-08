@@ -46,7 +46,7 @@ class JsonUpdateCustomTest : JsonTestBase() {
 
     @Test
     fun canUpdateValuesInMap() {
-        val parsed = json.decodeFromString(WrappedMap.serializer(Int.serializer().list), """{"mp": { "x" : [23], "x" : [42], "y": [4] }}""")
+        val parsed = json.decodeFromString(WrappedMap.serializer(ListSerializer(Int.serializer())), """{"mp": { "x" : [23], "x" : [42], "y": [4] }}""")
         assertEquals(WrappedMap(mapOf("x" to listOf(42), "y" to listOf(4))), parsed)
     }
 }

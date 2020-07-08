@@ -5,7 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
-import kotlinx.serialization.builtins.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertFailsWith

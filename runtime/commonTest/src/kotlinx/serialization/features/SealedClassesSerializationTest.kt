@@ -169,7 +169,7 @@ class SealedClassesSerializationTest : JsonTestBase() {
         )
         val expected =
             """[{"type":"SealedProtocol.StringMessage","description":"string message","message":"foo"},{"type":"SealedProtocol.IntMessage","description":"int message","message":42},{"type":"SealedProtocol.ErrorMessage","error":"requesting termination"},{"type":"EOF"}]"""
-        assertJsonFormAndRestored(SealedProtocol.serializer().list, messages, expected, json)
+        assertJsonFormAndRestored(ListSerializer(SealedProtocol.serializer()), messages, expected, json)
     }
 
     @Test
@@ -193,7 +193,7 @@ class SealedClassesSerializationTest : JsonTestBase() {
             )
         val expected =
             """[{"type":"ProtocolWithAbstractClass.Message.StringMessage","description":"string message","message":"foo"},{"type":"ProtocolWithAbstractClass.Message.IntMessage","description":"int message","message":42},{"type":"ProtocolWithAbstractClass.ErrorMessage","error":"requesting termination"},{"type":"EOF"}]"""
-        assertJsonFormAndRestored(ProtocolWithAbstractClass.serializer().list, messages, expected, json)
+        assertJsonFormAndRestored(ListSerializer(ProtocolWithAbstractClass.serializer()), messages, expected, json)
     }
 
     @Test
@@ -206,7 +206,7 @@ class SealedClassesSerializationTest : JsonTestBase() {
         )
         val expected =
             """[{"type":"ProtocolWithSealedClass.Message.StringMessage","description":"string message","message":"foo"},{"type":"ProtocolWithSealedClass.Message.IntMessage","description":"int message","message":42},{"type":"ProtocolWithSealedClass.ErrorMessage","error":"requesting termination"},{"type":"EOF"}]"""
-        assertJsonFormAndRestored(ProtocolWithSealedClass.serializer().list, messages, expected, json)
+        assertJsonFormAndRestored(ListSerializer(ProtocolWithSealedClass.serializer()), messages, expected, json)
     }
 
     @Test
@@ -218,8 +218,8 @@ class SealedClassesSerializationTest : JsonTestBase() {
         val expected =
             """[{"type":"ProtocolWithSealedClass.Message.StringMessage","description":"string message","message":"foo"},{"type":"ProtocolWithSealedClass.Message.IntMessage","description":"int message","message":42}]"""
 
-        assertJsonFormAndRestored(ProtocolWithSealedClass.serializer().list, messages, expected, json)
-        assertJsonFormAndRestored(ProtocolWithSealedClass.Message.serializer().list, messages, expected, json)
+        assertJsonFormAndRestored(ListSerializer(ProtocolWithSealedClass.serializer()), messages, expected, json)
+        assertJsonFormAndRestored(ListSerializer(ProtocolWithSealedClass.Message.serializer()), messages, expected, json)
     }
 
     @Test
@@ -233,6 +233,6 @@ class SealedClassesSerializationTest : JsonTestBase() {
         val expected =
             """[["ProtocolWithGenericClass.Message",{"description":"string message","message":["kotlin.String","foo"]}],["ProtocolWithGenericClass.Message",{"description":"int message","message":["kotlin.Int",42]}],["ProtocolWithGenericClass.ErrorMessage",{"error":"requesting termination"}],["EOF",{}]]"""
         val json = Json(JsonConfiguration.Default.copy(useArrayPolymorphism = true))
-        assertJsonFormAndRestored(ProtocolWithGenericClass.serializer().list, messages, expected, json)
+        assertJsonFormAndRestored(ListSerializer(ProtocolWithGenericClass.serializer()), messages, expected, json)
     }
 }

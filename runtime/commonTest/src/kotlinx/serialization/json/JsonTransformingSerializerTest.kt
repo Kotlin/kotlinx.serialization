@@ -19,7 +19,7 @@ class JsonTransformingSerializerTest : JsonTestBase() {
     )
 
     object WrappingJsonListSerializer :
-        JsonTransformingSerializer<List<StringData>>(StringData.serializer().list, "WrappingList") {
+        JsonTransformingSerializer<List<StringData>>(ListSerializer(StringData.serializer()), "WrappingList") {
         override fun readTransform(element: JsonElement): JsonElement =
             if (element !is JsonArray) JsonArray(listOf(element)) else element
     }

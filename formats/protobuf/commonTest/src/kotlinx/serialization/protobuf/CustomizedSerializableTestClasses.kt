@@ -49,7 +49,7 @@ data class CList2(@ProtoId(1) val d: Int = 5, @ProtoId(2) val c: List<C>) {
     companion object: KSerializer<CList2> {
         override fun serialize(encoder: Encoder, value: CList2) {
             val elemOutput = encoder.beginStructure(descriptor)
-            elemOutput.encodeSerializableElement(descriptor, 1, C.list, value.c)
+            elemOutput.encodeSerializableElement(descriptor, 1, ListSerializer(C), value.c)
             if (value.d != 5) elemOutput.encodeIntElement(descriptor, 0, value.d)
             elemOutput.endStructure(descriptor)
         }
@@ -62,7 +62,7 @@ data class CList3(@ProtoId(1) val e: List<C> = emptyList(), @ProtoId(2) val f: I
     companion object: KSerializer<CList3> {
         override fun serialize(encoder: Encoder, value: CList3) {
             val elemOutput = encoder.beginStructure(descriptor)
-            if (value.e.isNotEmpty()) elemOutput.encodeSerializableElement(descriptor, 0, C.list, value.e)
+            if (value.e.isNotEmpty()) elemOutput.encodeSerializableElement(descriptor, 0, ListSerializer(C), value.e)
             elemOutput.encodeIntElement(descriptor, 1, value.f)
             elemOutput.endStructure(descriptor)
         }
@@ -76,7 +76,7 @@ data class CList4(@ProtoId(1) val g: List<C> = emptyList(), @ProtoId(2) val h: I
         override fun serialize(encoder: Encoder, value: CList4) {
             val elemOutput = encoder.beginStructure(descriptor)
             elemOutput.encodeIntElement(descriptor, 1, value.h)
-            if (value.g.isNotEmpty()) elemOutput.encodeSerializableElement(descriptor, 0, C.list, value.g)
+            if (value.g.isNotEmpty()) elemOutput.encodeSerializableElement(descriptor, 0, ListSerializer(C), value.g)
             elemOutput.endStructure(descriptor)
         }
     }
@@ -89,8 +89,11 @@ data class CList5(@ProtoId(1) val g: List<Int> = emptyList(), @ProtoId(2) val h:
         override fun serialize(encoder: Encoder, value: CList5) {
             val elemOutput = encoder.beginStructure(descriptor)
             elemOutput.encodeIntElement(descriptor, 1, value.h)
-            if (value.g.isNotEmpty()) elemOutput.encodeSerializableElement(descriptor, 0, Int.serializer().list,
-                value.g)
+            if (value.g.isNotEmpty()) elemOutput.encodeSerializableElement(
+                descriptor, 0,
+                ListSerializer(Int.serializer()),
+                value.g
+            )
             elemOutput.endStructure(descriptor)
         }
     }
