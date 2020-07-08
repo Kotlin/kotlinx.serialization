@@ -1398,12 +1398,7 @@ public final class kotlinx/serialization/json/JsonArray$Companion {
 }
 
 public final class kotlinx/serialization/json/JsonArrayBuilder {
-	public final fun add (Ljava/lang/Boolean;)V
-	public final fun add (Ljava/lang/Number;)V
-	public final fun add (Ljava/lang/String;)V
-	public final fun add (Lkotlinx/serialization/json/JsonElement;)V
-	public final fun addArray (Lkotlin/jvm/functions/Function1;)V
-	public final fun addJson (Lkotlin/jvm/functions/Function1;)V
+	public final fun add (Lkotlinx/serialization/json/JsonElement;)Z
 	public final fun unaryPlus (Ljava/lang/Boolean;)V
 	public final fun unaryPlus (Ljava/lang/Number;)V
 	public final fun unaryPlus (Ljava/lang/String;)V
@@ -1512,10 +1507,19 @@ public final class kotlinx/serialization/json/JsonElement$Companion {
 }
 
 public final class kotlinx/serialization/json/JsonElementBuildersKt {
-	public static final fun buildJson (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun add (Lkotlinx/serialization/json/JsonArrayBuilder;Ljava/lang/Boolean;)Z
+	public static final fun add (Lkotlinx/serialization/json/JsonArrayBuilder;Ljava/lang/Number;)Z
+	public static final fun add (Lkotlinx/serialization/json/JsonArrayBuilder;Ljava/lang/String;)Z
+	public static final fun addJsonArray (Lkotlinx/serialization/json/JsonArrayBuilder;Lkotlin/jvm/functions/Function1;)Z
+	public static final fun addJsonObject (Lkotlinx/serialization/json/JsonArrayBuilder;Lkotlin/jvm/functions/Function1;)Z
 	public static final fun buildJsonArray (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonArray;
-	public static final fun json (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun buildJsonObject (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonObject;
 	public static final fun jsonArray (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonArray;
+	public static final fun put (Lkotlinx/serialization/json/JsonObjectBuilder;Ljava/lang/String;Ljava/lang/Boolean;)Lkotlinx/serialization/json/JsonElement;
+	public static final fun put (Lkotlinx/serialization/json/JsonObjectBuilder;Ljava/lang/String;Ljava/lang/Number;)Lkotlinx/serialization/json/JsonElement;
+	public static final fun put (Lkotlinx/serialization/json/JsonObjectBuilder;Ljava/lang/String;Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
+	public static final fun putJsonArray (Lkotlinx/serialization/json/JsonObjectBuilder;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonElement;
+	public static final fun putJsonObject (Lkotlinx/serialization/json/JsonObjectBuilder;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonElement;
 }
 
 public final class kotlinx/serialization/json/JsonElementKt {
@@ -1617,6 +1621,7 @@ public final class kotlinx/serialization/json/JsonMigrationsKt {
 	public static final fun getPrimitiveOrNull (Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lkotlinx/serialization/json/JsonPrimitive;
 	public static final fun getUnquoted (Lkotlinx/serialization/json/Json$Default;)Lkotlinx/serialization/json/Json;
 	public static final fun isNull (Lkotlinx/serialization/json/JsonElement;)Z
+	public static final fun json (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonObject;
 	public static final fun parseJson (Lkotlinx/serialization/json/Json;Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
 	public static final fun toJson (Lkotlinx/serialization/json/Json;Ljava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
 	public static final fun toJson (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
@@ -1688,12 +1693,7 @@ public final class kotlinx/serialization/json/JsonObject$Companion {
 }
 
 public final class kotlinx/serialization/json/JsonObjectBuilder {
-	public final fun add (Ljava/lang/String;Ljava/lang/Boolean;)V
-	public final fun add (Ljava/lang/String;Ljava/lang/Number;)V
-	public final fun add (Ljava/lang/String;Ljava/lang/String;)V
-	public final fun add (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;)V
-	public final fun addArray (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
-	public final fun addJson (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public final fun put (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
 	public final fun to (Ljava/lang/String;Ljava/lang/Boolean;)V
 	public final fun to (Ljava/lang/String;Ljava/lang/Number;)V
 	public final fun to (Ljava/lang/String;Ljava/lang/String;)V

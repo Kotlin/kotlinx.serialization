@@ -319,3 +319,11 @@ public val JsonElement.contentOrNull: String? get() = noImpl()
     replaceWith = ReplaceWith("JsonPrimitive(value)")
 )
 public fun JsonLiteral(value: Any?): JsonPrimitive = noImpl()
+
+
+@Deprecated(
+    "json function deprecated for removal to be consistent with a standard library",
+    replaceWith = ReplaceWith("buildJsonObject"),
+    level = DeprecationLevel.ERROR
+)
+public fun json(init: JsonObjectBuilder.() -> Unit): JsonObject = noImpl()

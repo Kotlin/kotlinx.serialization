@@ -10,20 +10,20 @@ class JsonBuildersTest {
 
     @Test
     fun testBuildJson() {
-        val json = buildJson {
-            addJson("object") {
-                add("k", JsonPrimitive("v"))
+        val json = buildJsonObject {
+            putJsonObject("object") {
+                put("k", JsonPrimitive("v"))
             }
 
-            addArray("array") {
-                addJson { add("nestedLiteral", true) }
+            putJsonArray("array") {
+                addJsonObject { put("nestedLiteral", true) }
             }
 
             val number: Number? = null
-            add("null", number)
-            add("primitive", JsonPrimitive(42))
-            add("boolean", true)
-            add("literal", "foo")
+            put("null", number)
+            put("primitive", JsonPrimitive(42))
+            put("boolean", true)
+            put("literal", "foo")
         }
         assertEquals("""{"object":{"k":"v"},"array":[{"nestedLiteral":true}],"null":null,"primitive":42,"boolean":true,"literal":"foo"}""", json.toString())
     }
@@ -32,11 +32,11 @@ class JsonBuildersTest {
     fun testBuildJsonArray() {
         val json = buildJsonArray {
             add(true)
-            addArray {
+            addJsonArray {
                 for (i in 1..10) add(i)
             }
-            addJson {
-                add("stringKey", "stringValue")
+            addJsonObject {
+                put("stringKey", "stringValue")
             }
         }
         assertEquals("""[true,[1,2,3,4,5,6,7,8,9,10],{"stringKey":"stringValue"}]""", json.toString())

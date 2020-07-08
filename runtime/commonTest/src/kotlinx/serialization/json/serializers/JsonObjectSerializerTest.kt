@@ -43,7 +43,7 @@ class JsonObjectSerializerTest : JsonTestBase() {
 
     @Test
     fun testDocumentationSample() {
-        val string = Json.encodeToString(JsonElementSerializer, buildJson { add("key", 1.0) })
+        val string = Json.encodeToString(JsonElementSerializer, buildJsonObject { put("key", 1.0) })
         val literal = Json.decodeFromString(JsonElementSerializer, string)
         assertEquals(JsonObject(mapOf("key" to JsonPrimitive(1.0))), literal)
     }
@@ -110,11 +110,11 @@ class JsonObjectSerializerTest : JsonTestBase() {
     }
 
     private fun prebuiltJson(): JsonObject {
-        return buildJson {
-            add("literal", 1)
-            add("nullKey", JsonNull)
-            addJson("nested") {
-                add("another literal", "some value")
+        return buildJsonObject {
+            put("literal", 1)
+            put("nullKey", JsonNull)
+            putJsonObject("nested") {
+                put("another literal", "some value")
             }
         }
     }
