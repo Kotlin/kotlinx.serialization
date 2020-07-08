@@ -98,7 +98,7 @@ public sealed class Json(internal val configuration: JsonConfiguration) : String
     /**
      * Deserializes the given JSON [string] into a corresponding [JsonElement] representation.
      *
-     * @throws [SerializationException] if the given JSON string is malformed and cannot be deserialized.g
+     * @throws [SerializationException] if the given JSON string is malformed and cannot be deserialized
      */
     public fun parseToJsonElement(string: String): JsonElement {
         return decodeFromString(JsonElementSerializer, string)
