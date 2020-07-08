@@ -59,7 +59,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
         companion object : KSerializer<CList2> {
             override fun serialize(encoder: Encoder, value: CList2) {
                 val elemOutput = encoder.beginStructure(descriptor)
-                elemOutput.encodeSerializableElement(descriptor, 1, C.list, value.c)
+                elemOutput.encodeSerializableElement(descriptor, 1, ListSerializer(C), value.c)
                 if (value.d != 5) elemOutput.encodeIntElement(descriptor, 0, value.d)
                 elemOutput.endStructure(descriptor)
             }
@@ -72,7 +72,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
         companion object : KSerializer<CList3> {
             override fun serialize(encoder: Encoder, value: CList3) {
                 val elemOutput = encoder.beginStructure(descriptor)
-                if (value.e.isNotEmpty()) elemOutput.encodeSerializableElement(descriptor, 0, C.list, value.e)
+                if (value.e.isNotEmpty()) elemOutput.encodeSerializableElement(descriptor, 0, ListSerializer(C), value.e)
                 elemOutput.encodeIntElement(descriptor, 1, value.f)
                 elemOutput.endStructure(descriptor)
             }
@@ -86,7 +86,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
             override fun serialize(encoder: Encoder, value: CList4) {
                 val elemOutput = encoder.beginStructure(descriptor)
                 elemOutput.encodeIntElement(descriptor, 1, value.h)
-                if (value.g.isNotEmpty()) elemOutput.encodeSerializableElement(descriptor, 0, C.list, value.g)
+                if (value.g.isNotEmpty()) elemOutput.encodeSerializableElement(descriptor, 0, ListSerializer(C), value.g)
                 elemOutput.endStructure(descriptor)
             }
         }
@@ -100,7 +100,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
                 val elemOutput = encoder.beginStructure(descriptor)
                 elemOutput.encodeIntElement(descriptor, 1, value.h)
                 if (value.g.isNotEmpty()) elemOutput.encodeSerializableElement(
-                    descriptor, 0, Int.serializer().list,
+                    descriptor, 0, ListSerializer(Int.serializer()),
                     value.g
                 )
                 elemOutput.endStructure(descriptor)
@@ -148,7 +148,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
     fun testWriteCustomListRootLevel() = parametrizedTest { useStreaming ->
         val obj = listOf(B(1), B(2), B(3))
         val j = createJsonWithB()
-        val s = j.encodeToString(BSerializer.list, obj, useStreaming)
+        val s = j.encodeToString(ListSerializer(BSerializer), obj, useStreaming)
         assertEquals("[1,2,3]", s)
     }
 
@@ -156,7 +156,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
     fun testReadCustomListRootLevel() = parametrizedTest { useStreaming ->
         val obj = listOf(B(1), B(2), B(3))
         val j = createJsonWithB()
-        val bs = j.decodeFromString(BSerializer.list, "[1,2,3]", useStreaming)
+        val bs = j.decodeFromString(ListSerializer(BSerializer), "[1,2,3]", useStreaming)
         assertEquals(obj, bs)
     }
 
@@ -191,7 +191,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
     @Test
     fun testWriteListOfOptional() = parametrizedTest { useStreaming ->
         val obj = listOf(C(a = 1), C(b = 2), C(3, 4))
-        val s = default.encodeToString(C.list, obj, useStreaming)
+        val s = default.encodeToString(ListSerializer(C), obj, useStreaming)
         assertEquals("""[{"b":42,"a":1},{"b":2},{"b":4,"a":3}]""", s)
     }
 
@@ -199,7 +199,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
     fun testReadListOfOptional() = parametrizedTest { useStreaming ->
         val obj = listOf(C(a = 1), C(b = 2), C(3, 4))
         val j = """[{"b":42,"a":1},{"b":2},{"b":4,"a":3}]"""
-        val s = default.decodeFromString(C.list, j, useStreaming)
+        val s = default.decodeFromString(ListSerializer<kotlinx.serialization.json.JsonCustomSerializersTest.C>(C), j, useStreaming)
         assertEquals(obj, s)
     }
 

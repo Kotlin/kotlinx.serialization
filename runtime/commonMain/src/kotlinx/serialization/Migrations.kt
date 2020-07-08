@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.internal.*
@@ -71,13 +72,13 @@ public val <K, V> Pair<KSerializer<K>, KSerializer<V>>.map: KSerializer<Map<K, V
 
 @Deprecated(
     "Renamed to AbstractEncoder",
-    replaceWith = ReplaceWith("AbstractEncoder", imports = ["kotlinx.serialization.builtins.AbstractEncoder"])
+    replaceWith = ReplaceWith("AbstractEncoder", imports = ["kotlinx.serialization.encoding.AbstractEncoder"])
 )
 public typealias ElementValueEncoder = AbstractEncoder
 
 @Deprecated(
     "Renamed to AbstractDecoder",
-    replaceWith = ReplaceWith("AbstractDecoder", imports = ["kotlinx.serialization.builtins.AbstractDecoder"])
+    replaceWith = ReplaceWith("AbstractDecoder", imports = ["kotlinx.serialization.encoding.AbstractDecoder"])
 )
 public typealias ElementValueDecoder = AbstractDecoder
 
@@ -110,7 +111,7 @@ public annotation class SerialId @Deprecated(
 
 @Deprecated(level = DeprecationLevel.WARNING, message = "Use default parse overload instead", replaceWith = ReplaceWith("parse(objects)"))
 public inline fun <reified T : Any> StringFormat.parseList(objects: String): List<T> =
-    decodeFromString(context.getContextualOrDefault<T>().list, objects)
+    decodeFromString(ListSerializer(context.getContextualOrDefault<T>()), objects)
 
 @Deprecated(
     level = DeprecationLevel.WARNING,
@@ -129,7 +130,7 @@ public inline fun <reified K : Any, reified V : Any> StringFormat.parseMap(map: 
     replaceWith = ReplaceWith("encodeToString(objects)")
 )
 public inline fun <reified T : Any> StringFormat.stringify(objects: List<T>): String =
-    encodeToString(context.getContextualOrDefault<T>().list, objects)
+    encodeToString(ListSerializer(context.getContextualOrDefault<T>()), objects)
 
 @LowPriorityInOverloadResolution
 @Deprecated(

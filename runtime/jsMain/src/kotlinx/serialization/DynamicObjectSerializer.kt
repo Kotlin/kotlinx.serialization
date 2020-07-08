@@ -1,8 +1,7 @@
 package kotlinx.serialization
 
-import kotlinx.serialization.builtins.AbstractEncoder
-import kotlinx.serialization.builtins.list
-import kotlinx.serialization.builtins.nullable
+import kotlinx.serialization.builtins.*
+import kotlinx.serialization.encoding.AbstractEncoder
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.json.internal.BEGIN_LIST
 import kotlinx.serialization.json.internal.BEGIN_OBJ
@@ -10,7 +9,6 @@ import kotlinx.serialization.json.internal.END_LIST
 import kotlinx.serialization.json.internal.END_OBJ
 import kotlinx.serialization.modules.EmptyModule
 import kotlinx.serialization.modules.SerialModule
-import kotlinx.serialization.modules.getContextualOrDefault
 import kotlin.math.abs
 import kotlin.math.floor
 
@@ -56,7 +54,7 @@ public class DynamicObjectSerializer @OptIn(UnstableDefault::class) constructor(
         serialize(serializer(), obj)
 
     public inline fun <reified T : Any> serialize(obj: List<T?>): dynamic =
-        serialize(serializer<T>().nullable.list, obj)
+        serialize(ListSerializer(serializer<T>().nullable), obj)
 }
 
 private class DynamicObjectEncoder(val configuration: JsonConfiguration, val encodeNullAsUndefined: Boolean) :
