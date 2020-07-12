@@ -187,7 +187,7 @@ public interface Decoder {
 
     /**
      * Decodes a enum value and returns its index in [enumDescriptor] elements collection.
-     * Corresponding kind is [UnionKind.ENUM_KIND].
+     * Corresponding kind is [SerialKind.ENUM].
      *
      * E.g. for the enum `enum class Letters { A, B, C, D }` and
      * underlying input "C", [decodeEnum] method should return `2` as a result.

@@ -66,8 +66,8 @@ import kotlin.reflect.*
  * }
  * ```
  */
-@InternalSerializationApi
-public class SealedClassSerializer<T : Any>(
+@PublishedApi
+internal class SealedClassSerializer<T : Any>(
     serialName: String,
     override val baseClass: KClass<T>,
     subclasses: Array<KClass<out T>>,
@@ -77,7 +77,7 @@ public class SealedClassSerializer<T : Any>(
     override val descriptor: SerialDescriptor = SerialDescriptor(serialName, PolymorphicKind.SEALED) {
         element("type", String.serializer().descriptor)
         val elementDescriptor =
-            SerialDescriptor("kotlinx.serialization.Sealed<${baseClass.simpleName}>", UnionKind.CONTEXTUAL) {
+            SerialDescriptor("kotlinx.serialization.Sealed<${baseClass.simpleName}>", SerialKind.CONTEXTUAL) {
                 subclassSerializers.forEach {
                     val d = it.descriptor
                     element(d.serialName, d)

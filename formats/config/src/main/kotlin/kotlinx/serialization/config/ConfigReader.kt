@@ -218,4 +218,12 @@ public class ConfigParser(
 
         private val NAMING_CONVENTION_REGEX by lazy { "[A-Z]".toRegex() }
     }
+
+
+    internal fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
+        val index = getElementIndex(name)
+        if (index == CompositeDecoder.UNKNOWN_NAME)
+            throw SerializationException("$serialName does not contain element with name '$name'")
+        return index
+    }
 }

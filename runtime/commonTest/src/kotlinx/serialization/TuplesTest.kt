@@ -43,7 +43,7 @@ class TuplesTest : JsonTestBase() {
         val desc = PairWrapper.serializer().descriptor.getElementDescriptor(0)
         assertEquals(desc.serialName, "kotlin.Pair")
         assertEquals(
-            desc.elementDescriptors().map(SerialDescriptor::kind),
+            desc.elementDescriptors.map(SerialDescriptor::kind),
             listOf(PrimitiveKind.INT, PrimitiveKind.STRING)
         )
     }
@@ -61,7 +61,7 @@ class TuplesTest : JsonTestBase() {
         val desc = TripleWrapper.serializer().descriptor.getElementDescriptor(0)
         assertEquals(desc.serialName, "kotlin.Triple")
         assertEquals(
-            desc.elementDescriptors().map(SerialDescriptor::kind),
+            desc.elementDescriptors.map(SerialDescriptor::kind),
             listOf(PrimitiveKind.INT, PrimitiveKind.STRING, PrimitiveKind.BOOLEAN)
         )
     }

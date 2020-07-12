@@ -18,7 +18,7 @@ package kotlinx.serialization
  * Serial descriptor is identified by its [name][serialName] and consists of kind, potentially empty set of
  * children elements and additional metadata.
  *
- * * [serialName] uniquely identifies descriptor (and the corresponding serializer) for non-generic types.
+ * * [serialName] uniquely identifies the descriptor (and the corresponding serializer) for non-generic types.
  *   For generic types, the actual type substitution is omitted from the string representation and the name
  *   identifies the family of the serializers without type substitutions. However, type substitution is accounted
  *   in [equals] and [hashCode] operations, meaning that descriptors of generic classes with the same name, but different type
@@ -61,8 +61,8 @@ package kotlinx.serialization
  * number of actual children values. Valid indices range is not known statically
  * and implementations of descriptor should provide consistent and unbounded names and indices.
  *
- * In practice, it means that for regular classes it is allowed to invoke `getElement*(index)` methods
- * with index within `0 until elementsCount` range and element at the particular index corresponds to the
+ * In practice, for regular classes it is allowed to invoke `getElement*(index)` methods
+ * with an index within `0 until elementsCount` range and element at the particular index corresponds to the
  * serializable property at the given position.
  * For collections and maps, index parameter for `getElement*(index)` methods is effectively bound
  * by the maximal number of collection/map elements.
@@ -135,7 +135,7 @@ public interface SerialDescriptor {
      * Formats use serial kind to add and parse serializer-agnostic metadata to the result.
      *
      * For example, JSON format wraps [classes][StructureKind.CLASS] and [StructureKind.MAP] into
-     * brackets, while ProtoBuf just serialize these types in a separate ways.
+     * brackets, while ProtoBuf just serialize these types in separate ways.
      *
      * Kind should be consistent with the implementation, for example, if it is a [primitive][PrimitiveKind],
      * then its elements count should be zero and vice versa.
@@ -162,15 +162,15 @@ public interface SerialDescriptor {
     public val elementsCount: Int
 
     /**
-     * Returns a serial annotations of the associated class.
-     * Serial annotations can be used to specify an additional
-     * metadata that may be used during serialization, for example a [serial id][SerialId].
+     * Returns serial annotations of the associated class.
+     * Serial annotations can be used to specify an additional metadata that may be used during serialization.
+     * Only annotations marked with [SerialInfo] are added to the resulting list.
      */
     public val annotations: List<Annotation> get() = emptyList()
 
     /**
-     * Returns a _positional_ name of the child at the given [index].
-     * Positional name usually represents a corresponding property name in the class, associated with
+     * Returns a positional name of the child at the given [index].
+     * Positional name represents a corresponding property name in the class, associated with
      * the current descriptor.
      *
      * @throws IndexOutOfBoundsException for an illegal [index] values.
@@ -187,18 +187,20 @@ public interface SerialDescriptor {
 
     /**
      * Returns serial annotations of the child element at the given [index].
-     * This method differs from `getElementDescriptor(index).annotations` as it reports only
+     * This method differs from `getElementDescriptor(index).annotations` by reporting only
      * declaration-specific annotations:
      * ```
      * @Serializable
-     * @SerialName("_nested")
+     * @SomeSerialAnnotation
      * class Nested(...)
-     * @Serializable
-     * class Outer(@SerialId(1) val nested: Nested)
      *
-     * outerDescriptor.getElementAnnotations(0) // Returns [@SerialId(1)]
-     * outerDescriptor.getElementDescriptor(0).annotations // Returns [@SerialName("_nested")]
+     * @Serializable
+     * class Outer(@AnotherSerialAnnotation val nested: Nested)
+     *
+     * outerDescriptor.getElementAnnotations(0) // Returns [@SomeSerialAnnotation]
+     * outerDescriptor.getElementDescriptor(0).annotations // Returns [@AnotherSerialAnnotation]
      * ```
+     * Only annotations marked with [SerialInfo] are added to the resulting list.
      *
      * @throws IndexOutOfBoundsException for an illegal [index] values.
      * @throws IllegalStateException if the current descriptor does not support children elements (e.g. is a primitive).
@@ -243,29 +245,31 @@ public interface SerialDescriptor {
 }
 
 /**
- * Creates a [List] out of a child descriptors retrieved via [SerialDescriptor.getElementDescriptor].
- *
- * Size of a list is equal to [SerialDescriptor.elementsCount].
+ * Returns an iterable of all descriptor [elements][SerialDescriptor.getElementDescriptor].
  */
-public fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> {
-    return List(elementsCount) { getElementDescriptor(it) } // TODO revisit
-}
+public val SerialDescriptor.elementDescriptors: Iterable<SerialDescriptor>
+    get() = Iterable {
+        object : Iterator<SerialDescriptor> {
+            private var elementsLeft = elementsCount
+            override fun hasNext(): Boolean = elementsLeft > 0
+
+            override fun next(): SerialDescriptor {
+                return getElementDescriptor(elementsCount - (elementsLeft--))
+            }
+        }
+    }
 
 /**
- * Returns a [List] out of all serial names of serial descriptor [elements][SerialDescriptor.getElementDescriptor]
+ * Returns an iterable of all descriptor [element names][SerialDescriptor.getElementName].
  */
-public fun SerialDescriptor.elementNames(): List<String> {
-    // TODO always allocates, also revisit
-    return List(elementsCount) { getElementName(it) }
-}
+public val SerialDescriptor.elementNames: Iterable<String>
+    get() = Iterable {
+        object : Iterator<String> {
+            private var elementsLeft = elementsCount
+            override fun hasNext(): Boolean = elementsLeft > 0
 
-/**
- * Same as [SerialDescriptor.getElementIndex], but throws [SerializationException] if
- * given [name] is not associated with any element in the descriptor.
- */
-public fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
-    val index = getElementIndex(name)
-    if (index == CompositeDecoder.UNKNOWN_NAME)
-        throw SerializationException("$serialName does not contain element with name '$name'")
-    return index
-}
+            override fun next(): String {
+                return getElementName(elementsCount - (elementsLeft--))
+            }
+        }
+    }

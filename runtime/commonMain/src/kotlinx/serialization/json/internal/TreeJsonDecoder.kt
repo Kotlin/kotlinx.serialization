@@ -158,7 +158,7 @@ private open class JsonTreeDecoder(
     private fun coerceInputValue(descriptor: SerialDescriptor, index: Int, tag: String): Boolean {
         val elementDescriptor = descriptor.getElementDescriptor(index)
         if (currentElement(tag) is JsonNull && !elementDescriptor.isNullable) return true // null for non-nullable
-        if (elementDescriptor.kind == UnionKind.ENUM_KIND) {
+        if (elementDescriptor.kind == SerialKind.ENUM) {
             val enumValue = (currentElement(tag) as? JsonPrimitive)?.contentOrNull
                     ?: return false // if value is not a string, decodeEnum() will throw correct exception
             val enumIndex = elementDescriptor.getElementIndex(enumValue)

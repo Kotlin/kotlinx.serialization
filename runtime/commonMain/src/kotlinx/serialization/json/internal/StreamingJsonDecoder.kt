@@ -6,6 +6,8 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
+import kotlinx.serialization.builtins.*
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
@@ -115,7 +117,7 @@ internal class StreamingJsonDecoder internal constructor(
     private fun coerceInputValue(descriptor: SerialDescriptor, index: Int): Boolean {
         val elementDescriptor = descriptor.getElementDescriptor(index)
         if (reader.tokenClass == TC_NULL && !elementDescriptor.isNullable) return true // null for non-nullable
-        if (elementDescriptor.kind == UnionKind.ENUM_KIND) {
+        if (elementDescriptor.kind == SerialKind.ENUM) {
             val enumValue = reader.peekString(configuration.isLenient)
                     ?: return false // if value is not a string, decodeEnum() will throw correct exception
             val enumIndex = elementDescriptor.getElementIndex(enumValue)

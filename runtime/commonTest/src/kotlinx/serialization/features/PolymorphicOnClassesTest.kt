@@ -87,7 +87,7 @@ class PolymorphicOnClassesTest {
 
     @Test
     fun testDescriptor() {
-        val polyDesc = Holder.serializer().descriptor.elementDescriptors().first()
+        val polyDesc = Holder.serializer().descriptor.elementDescriptors.first()
         assertEquals(PolymorphicSerializer(IMessage::class).descriptor, polyDesc)
         assertEquals(2, polyDesc.elementsCount)
         assertEquals(PrimitiveKind.STRING, polyDesc.getElementDescriptor(0).kind)
@@ -100,7 +100,7 @@ class PolymorphicOnClassesTest {
 
     @Test
     fun testResolvePolymorphicDescriptor() {
-        val polyDesc = Holder.serializer().descriptor.elementDescriptors().first() // iMessage: IMessage
+        val polyDesc = Holder.serializer().descriptor.elementDescriptors.first() // iMessage: IMessage
 
         assertEquals(PolymorphicKind.OPEN, polyDesc.kind)
 
@@ -114,13 +114,12 @@ class PolymorphicOnClassesTest {
     fun testDocSampleWithAllDistinct() {
         fun allDistinctNames(descriptor: SerialDescriptor, module: SerializersModule) = when (descriptor.kind) {
             is PolymorphicKind.OPEN -> module.getPolymorphicDescriptors(descriptor)
-                .map { it.elementNames() }.flatten().toSet()
-            is UnionKind.CONTEXTUAL -> module.getContextualDescriptor(descriptor)
-                ?.elementNames().orEmpty().toSet()
-            else -> descriptor.elementNames().toSet()
+                .map { it.elementNames.toList() }.flatten().toSet()
+            is SerialKind.CONTEXTUAL -> module.getContextualDescriptor(descriptor)?.elementNames?.toList().orEmpty().toSet()
+            else -> descriptor.elementNames.toSet()
         }
 
-        val polyDesc = Holder.serializer().descriptor.elementDescriptors().first() // iMessage: IMessage
+        val polyDesc = Holder.serializer().descriptor.elementDescriptors.first() // iMessage: IMessage
         assertEquals(setOf("id", "body", "body2"), allDistinctNames(polyDesc, testModule))
         assertEquals(setOf("id", "body"), allDistinctNames(MessageWithId.serializer().descriptor, testModule))
     }

@@ -206,6 +206,8 @@ public final class kotlinx/serialization/MigrationsKt {
 	public static final fun dump (Lkotlinx/serialization/BinaryFormat;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
 	public static final fun dumps (Lkotlinx/serialization/BinaryFormat;Ljava/lang/Object;)Ljava/lang/String;
 	public static final fun dumps (Lkotlinx/serialization/BinaryFormat;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/lang/String;
+	public static final fun elementDescriptors (Lkotlinx/serialization/SerialDescriptor;)Ljava/util/List;
+	public static final fun elementNames (Lkotlinx/serialization/SerialDescriptor;)Ljava/util/List;
 	public static final fun encode (Lkotlinx/serialization/Encoder;Ljava/lang/Object;)V
 	public static final fun encode (Lkotlinx/serialization/Encoder;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
 	public static final fun getContext (Lkotlinx/serialization/SerialFormat;)Lkotlinx/serialization/modules/SerializersModule;
@@ -354,9 +356,8 @@ public final class kotlinx/serialization/SerialDescriptorBuilderKt {
 }
 
 public final class kotlinx/serialization/SerialDescriptorKt {
-	public static final fun elementDescriptors (Lkotlinx/serialization/SerialDescriptor;)Ljava/util/List;
-	public static final fun elementNames (Lkotlinx/serialization/SerialDescriptor;)Ljava/util/List;
-	public static final fun getElementIndexOrThrow (Lkotlinx/serialization/SerialDescriptor;Ljava/lang/String;)I
+	public static final fun getElementDescriptors (Lkotlinx/serialization/SerialDescriptor;)Ljava/lang/Iterable;
+	public static final fun getElementNames (Lkotlinx/serialization/SerialDescriptor;)Ljava/lang/Iterable;
 }
 
 public abstract interface class kotlinx/serialization/SerialFormat {
@@ -381,7 +382,16 @@ public abstract interface annotation class kotlinx/serialization/SerialInfo : ja
 }
 
 public abstract class kotlinx/serialization/SerialKind {
+	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public final class kotlinx/serialization/SerialKind$CONTEXTUAL : kotlinx/serialization/SerialKind {
+	public static final field INSTANCE Lkotlinx/serialization/SerialKind$CONTEXTUAL;
+}
+
+public final class kotlinx/serialization/SerialKind$ENUM : kotlinx/serialization/SerialKind {
+	public static final field INSTANCE Lkotlinx/serialization/SerialKind$ENUM;
 }
 
 public abstract interface annotation class kotlinx/serialization/SerialName : java/lang/annotation/Annotation {
@@ -443,15 +453,10 @@ public final class kotlinx/serialization/StructureKind$OBJECT : kotlinx/serializ
 public abstract interface annotation class kotlinx/serialization/Transient : java/lang/annotation/Annotation {
 }
 
-public abstract class kotlinx/serialization/UnionKind : kotlinx/serialization/SerialKind {
-}
-
-public final class kotlinx/serialization/UnionKind$CONTEXTUAL : kotlinx/serialization/UnionKind {
-	public static final field INSTANCE Lkotlinx/serialization/UnionKind$CONTEXTUAL;
-}
-
-public final class kotlinx/serialization/UnionKind$ENUM_KIND : kotlinx/serialization/UnionKind {
-	public static final field INSTANCE Lkotlinx/serialization/UnionKind$ENUM_KIND;
+public final class kotlinx/serialization/UnionKind {
+	public static final field INSTANCE Lkotlinx/serialization/UnionKind;
+	public final fun getCONTEXTUAL ()Lkotlinx/serialization/SerialKind;
+	public final fun getENUM_KIND ()Lkotlinx/serialization/SerialKind;
 }
 
 public final class kotlinx/serialization/UnknownFieldException : kotlinx/serialization/SerializationException {

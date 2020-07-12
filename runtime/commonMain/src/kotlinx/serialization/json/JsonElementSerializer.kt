@@ -80,7 +80,7 @@ public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
 public object JsonNullSerializer : KSerializer<JsonNull> {
     // technically, JsonNull is an object, but it does not call beginStructure/endStructure at all
     override val descriptor: SerialDescriptor =
-        SerialDescriptor("kotlinx.serialization.json.JsonNull", UnionKind.ENUM_KIND)
+        SerialDescriptor("kotlinx.serialization.json.JsonNull", SerialKind.ENUM)
 
     override fun serialize(encoder: Encoder, value: JsonNull) {
         verify(encoder)

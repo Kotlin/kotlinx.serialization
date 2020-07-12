@@ -104,7 +104,7 @@ class SerialDescriptorSpecificationTest {
         }
 
         val d = NamedEnum.serializer().descriptor
-        assertEquals(UnionKind.ENUM_KIND, d.kind)
+        assertEquals(SerialKind.ENUM, d.kind)
         assertEquals("Named", d.serialName)
         assertEquals(2, d.elementsCount)
         assertFalse(d.isNullable)

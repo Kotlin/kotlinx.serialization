@@ -127,6 +127,7 @@ internal fun KClass<*>.serializerNotRegistered(): Nothing {
     )
 }
 
+@Suppress("UNCHECKED_CAST")
 internal fun KType.kclass() = when (val t = classifier) {
     is KClass<*> -> t
     else -> error("Only KClass supported as classifier, got $t")
@@ -166,3 +167,18 @@ internal expect fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KCl
  * on JVM, it falls back to `java.lang.Class.isInstance`, which causes difference when applied to function types with big arity.
  */
 internal expect fun Any.isInstanceOf(kclass: KClass<*>): Boolean
+
+/**
+ * Same as [SerialDescriptor.getElementIndex], but throws [SerializationException] if
+ * given [name] is not associated with any element in the descriptor.
+ */
+internal fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
+    val index = getElementIndex(name)
+    if (index == CompositeDecoder.UNKNOWN_NAME)
+        throw SerializationException("$serialName does not contain element with name '$name'")
+    return index
+}
+
+internal inline fun <T, K> Iterable<T>.elementsHashCodeBy(selector: (T) -> K): Int {
+    return fold(1) { hash, element -> 31 * hash + selector(element).hashCode() }
+}
