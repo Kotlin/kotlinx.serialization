@@ -40,7 +40,7 @@ public class DynamicObjectSerializer @OptIn(UnstableDefault::class) constructor(
 ) {
 
     public fun <T> serialize(strategy: SerializationStrategy<T>, obj: T): dynamic {
-        if (strategy.descriptor.kind is PrimitiveKind || strategy.descriptor.kind is UnionKind.ENUM_KIND) {
+        if (strategy.descriptor.kind is PrimitiveKind || strategy.descriptor.kind is SerialKind.ENUM) {
             val serializer = DynamicPrimitiveEncoder(configuration)
             serializer.encodeSerializableValue(strategy, obj)
             return serializer.result
@@ -202,10 +202,10 @@ private class DynamicObjectEncoder(val configuration: JsonConfiguration, val enc
     }
 
     fun selectMode(desc: SerialDescriptor) = when (desc.kind) {
-        StructureKind.CLASS, StructureKind.OBJECT, UnionKind.CONTEXTUAL -> WriteMode.OBJ
+        StructureKind.CLASS, StructureKind.OBJECT, SerialKind.CONTEXTUAL -> WriteMode.OBJ
         StructureKind.LIST, is PolymorphicKind -> WriteMode.LIST
         StructureKind.MAP -> WriteMode.MAP
-        is PrimitiveKind, UnionKind.ENUM_KIND -> {
+        is PrimitiveKind, SerialKind.ENUM -> {
             // the two cases are handled in DynamicObjectSerializer. But compiler does not know
             error("DynamicObjectSerializer does not support serialization of singular primitive values or enum types.")
         }

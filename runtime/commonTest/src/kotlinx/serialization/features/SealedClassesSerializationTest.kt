@@ -94,7 +94,7 @@ class SealedClassesSerializationTest : JsonTestBase() {
         object EOF : ProtocolWithGenericClass()
     }
 
-    val ManualSerializer = SealedClassSerializer(
+    val ManualSerializer: KSerializer<SimpleSealed> = SealedClassSerializer(
         "SimpleSealed",
         SimpleSealed::class,
         arrayOf(SimpleSealed.SubSealedA::class, SimpleSealed.SubSealedB::class),

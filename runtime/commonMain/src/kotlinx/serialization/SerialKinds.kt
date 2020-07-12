@@ -26,10 +26,37 @@ import kotlinx.serialization.modules.*
  * represents a structure with two primitive fields.
  */
 public sealed class SerialKind {
+
+    /**
+     * Represents a Kotlin [Enum] with statically known values.
+     * All enum values should be enumerated in descriptor elements.
+     * Each element descriptor of a [Enum] kind represents an instance of a particular enum
+     * and has an [StructureKind.OBJECT] kind.
+     * Each [positional name][SerialDescriptor.getElementName] contains a corresponding enum element [name][Enum.name].
+     *
+     * Corresponding encoder and decoder methods are [Encoder.encodeEnum] and [Decoder.decodeEnum].
+     */
+    public object ENUM : SerialKind()
+
+    /**
+     * Represents an "unknown" type that will be known only at the moment of the serialization.
+     * Effectively it defers the choice of the serializer to a moment of the serialization, and can
+     * be used for [contextual][ContextualSerialization] serialization.
+     *
+     * To introspect descriptor of this kind, an instance of [SerializersModule] is required.
+     * See [capturedKClass] extension property for more details.
+     * However, if possible options are known statically (e.g. for sealed classes), they can be
+     * enumerated in child descriptors similarly to [ENUM].
+     */
+    public object CONTEXTUAL : SerialKind()
+
     override fun toString(): String {
         // KNPE should never happen, because SerialKind is sealed and all inheritors are non-anonymous
         return this::class.simpleName!!
     }
+
+    // Provide a stable hashcode for objects
+    override fun hashCode(): Int = toString().hashCode()
 }
 
 /**
@@ -201,37 +228,6 @@ public sealed class StructureKind : SerialKind() {
 }
 
 /**
- * Union structure kind represents a [tagged union][https://en.wikipedia.org/wiki/Tagged_union] structure,
- * meaning that the type is represent by one of a multiple possible values (potentially unknown).
- * An example of such union kind can be enum or its derivatives, such as "one of known strings".
- */
-public sealed class UnionKind : SerialKind() {
-
-    /**
-     * Represents a Kotlin [Enum] with statically known values.
-     * All enum values should be enumerated in descriptor elements.
-     * Each element descriptor of a [Enum] kind represents an instance of a particular enum
-     * and has an [StructureKind.OBJECT] kind.
-     * Each [positional name][SerialDescriptor.getElementName] contains a corresponding enum element [name][Enum.name].
-     *
-     * Corresponding encoder and decoder methods are [Encoder.encodeEnum] and [Decoder.decodeEnum].
-     */
-    public object ENUM_KIND : UnionKind() // https://github.com/JetBrains/kotlin-native/issues/1447
-
-    /**
-     * Represents an "unknown" type that will be known only at the moment of the serialization.
-     * Effectively it defers the choice of the serializer to a moment of the serialization, and can
-     * be used for [contextual][ContextualSerialization] serialization.
-     *
-     * To introspect descriptor of this kind, an instance of [SerializersModule] is required.
-     * See [capturedKClass] extension property for more details.
-     * However, if possible options are known statically (e.g. for sealed classes), they can be
-     * enumerated in child descriptors similarly to [ENUM_KIND].
-     */
-    public object CONTEXTUAL : UnionKind()
-}
-
-/**
  * Polymorphic kind represents a (bounded) polymorphic value, that is referred
  * by some base class or interface, but its structure is defined by one of the possible implementations.
  * Polymorphic kind is, by its definition, a union kind and is extracted to its own subtype to emphasize
@@ -259,3 +255,20 @@ public sealed class PolymorphicKind : SerialKind() {
     public object OPEN : PolymorphicKind()
 }
 
+@Deprecated(
+    level = DeprecationLevel.ERROR,
+    message = "UnionKind is deprecated during 1.0 API stabilization"
+)
+public object UnionKind {
+    @Deprecated(
+        "Was moved to the top-level serial kind during 1.0 API stabilization", level = DeprecationLevel.ERROR,
+        replaceWith = ReplaceWith("SerialKind.ENUM")
+    )
+    public val ENUM_KIND: SerialKind get() = error("Should not be called")
+
+    @Deprecated(
+        "Was moved to the top-level serial kind during 1.0 API stabilization", level = DeprecationLevel.ERROR,
+        replaceWith = ReplaceWith("SerialKind.CONTEXTUAL")
+    )
+    public val CONTEXTUAL: SerialKind get() = error("Should not be called")
+}

@@ -276,3 +276,15 @@ public fun <T : Any> Encoder.encode(obj: T): Unit = noImpl()
     ReplaceWith("serializersModule"), DeprecationLevel.ERROR
 )
 public val SerialFormat.context: SerializersModule get() = noImpl()
+
+@Deprecated(
+    "This method was replaced with property during serialization 1.0 stabilization",
+    ReplaceWith("elementDescriptors.toList()"), DeprecationLevel.ERROR
+)
+public fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> = noImpl()
+
+@Deprecated(
+    "This method was replaced with property during serialization 1.0 stabilization",
+    ReplaceWith("elementNames.toList()"), DeprecationLevel.ERROR
+)
+public fun SerialDescriptor.elementNames(): List<String>  = noImpl()

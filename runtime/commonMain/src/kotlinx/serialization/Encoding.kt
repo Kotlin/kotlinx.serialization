@@ -5,7 +5,6 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.modules.*
-import kotlin.reflect.*
 
 /**
  * Encoder is a core serialization primitive that encapsulates the knowledge of the underlying
@@ -182,7 +181,7 @@ public interface Encoder {
 
     /**
      * Encodes a enum value that is stored at the [index] in [enumDescriptor] elements collection.
-     * Corresponding kind is [UnionKind.ENUM_KIND].
+     * Corresponding kind is [SerialKind.ENUM].
      *
      * E.g. for the enum `enum class Letters { A, B, C, D }` and
      * serializable value "C", [encodeEnum] method should be called with `2` as am index.

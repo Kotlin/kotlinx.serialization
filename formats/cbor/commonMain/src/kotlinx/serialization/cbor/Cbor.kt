@@ -406,4 +406,11 @@ public class Cbor(
         val reader = CborReader(CborDecoder(stream))
         return reader.decodeSerializableValue(deserializer)
     }
+
+    internal fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
+        val index = getElementIndex(name)
+        if (index == CompositeDecoder.UNKNOWN_NAME)
+            throw SerializationException("$serialName does not contain element with name '$name'")
+        return index
+    }
 }

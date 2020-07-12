@@ -102,7 +102,7 @@ class ContextAndPolymorphicTest {
     }
 
     private fun SerialDescriptor.inContext(module: SerializersModule): SerialDescriptor = when (kind) {
-        UnionKind.CONTEXTUAL -> requireNotNull(module.getContextualDescriptor(this)) { "Expected $this to be registered in module" }
+        SerialKind.CONTEXTUAL -> requireNotNull(module.getContextualDescriptor(this)) { "Expected $this to be registered in module" }
         else -> error("Expected this function to be called on CONTEXTUAL descriptor")
     }
 
@@ -111,8 +111,8 @@ class ContextAndPolymorphicTest {
         val simpleModule = serializersModuleOf(PayloadSerializer)
         val binaryModule = serializersModuleOf(BinaryPayloadSerializer)
 
-        val contextDesc = EnhancedData.serializer().descriptor.elementDescriptors()[1] // @ContextualSer stringPayload
-        assertEquals(UnionKind.CONTEXTUAL, contextDesc.kind)
+        val contextDesc = EnhancedData.serializer().descriptor.elementDescriptors.toList()[1] // @ContextualSer stringPayload
+        assertEquals(SerialKind.CONTEXTUAL, contextDesc.kind)
         assertEquals(0, contextDesc.elementsCount)
 
         val resolvedToDefault = contextDesc.inContext(simpleModule)

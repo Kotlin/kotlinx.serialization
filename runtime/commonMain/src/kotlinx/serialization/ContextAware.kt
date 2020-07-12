@@ -15,12 +15,12 @@ import kotlin.reflect.*
  *
  * For schema introspection purposes, [capturedKClass] can be used in [SerializersModule] as a key
  * to retrieve registered descriptor at runtime.
- * This property is intended to be used on [UnionKind.CONTEXTUAL] and [PolymorphicKind.OPEN] kinds of descriptors,
+ * This property is intended to be used on [SerialKind.CONTEXTUAL] and [PolymorphicKind.OPEN] kinds of descriptors,
  * where actual serializer used for a property can be determined only at runtime.
  * Serializers which represent contextual serialization and open polymorphism (namely, [ContextSerializer] and
  * [PolymorphicSerializer]) capture statically known KClass in a descriptor and can expose it via this property.
  *
- * This property is `null` for descriptors that are not of [UnionKind.CONTEXTUAL] or [PolymorphicKind.OPEN] kinds.
+ * This property is `null` for descriptors that are not of [SerialKind.CONTEXTUAL] or [PolymorphicKind.OPEN] kinds.
  * It _may_ be `null` for descriptors of these kinds, if captured class information is unavailable for various reasons.
  * It means that schema introspection should be performed in an application-specific manner.
  *
@@ -33,7 +33,7 @@ import kotlin.reflect.*
  * fun allDistinctNames(descriptor: SerialDescriptor, module: SerialModule) = when (descriptor.kind) {
  *   is PolymorphicKind.OPEN -> module.getPolymorphicDescriptors(descriptor)
  *     .map { it.elementNames() }.flatten().toSet()
- *   is UnionKind.CONTEXTUAL -> module.getContextualDescriptor(descriptor)
+ *   is SerialKind.CONTEXTUAL -> module.getContextualDescriptor(descriptor)
  *     ?.elementNames().orEmpty().toSet()
  *   else -> descriptor.elementNames().toSet()
  * }
