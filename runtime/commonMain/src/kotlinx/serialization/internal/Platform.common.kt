@@ -122,8 +122,8 @@ internal inline fun <T> DeserializationStrategy<*>.cast(): DeserializationStrate
 
 internal fun KClass<*>.serializerNotRegistered(): Nothing {
     throw SerializationException(
-        "Can't locate argument-less serializer for class ${simpleName}. " +
-                "For generic classes, such as lists, please provide serializer explicitly."
+        "Serializer for class '${simpleName}' is not found. " +
+            "Mark the class as @Serializable or provide the serializer explicitly."
     )
 }
 
