@@ -323,7 +323,7 @@ public fun JsonLiteral(value: Any?): JsonPrimitive = noImpl()
 
 @Deprecated(
     "json function deprecated for removal to be consistent with a standard library",
-    replaceWith = ReplaceWith("buildJsonObject"),
+    replaceWith = ReplaceWith("buildJsonObject(init)"),
     level = DeprecationLevel.ERROR
 )
 public fun json(init: JsonObjectBuilder.() -> Unit): JsonObject = noImpl()
