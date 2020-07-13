@@ -3,11 +3,13 @@ public final class kotlinx/serialization/config/ConfigParser : kotlinx/serializa
 	public fun <init> ()V
 	public fun <init> (Lkotlinx/serialization/config/ConfigParserConfiguration;Lkotlinx/serialization/modules/SerialModule;)V
 	public synthetic fun <init> (Lkotlinx/serialization/config/ConfigParserConfiguration;Lkotlinx/serialization/modules/SerialModule;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun decodeFromConfig (Lkotlinx/serialization/DeserializationStrategy;Lcom/typesafe/config/Config;)Ljava/lang/Object;
 	public fun getContext ()Lkotlinx/serialization/modules/SerialModule;
 	public final fun parse (Lcom/typesafe/config/Config;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
 }
 
 public final class kotlinx/serialization/config/ConfigParser$Companion {
+	public final fun decodeFromConfig (Lkotlinx/serialization/DeserializationStrategy;Lcom/typesafe/config/Config;)Ljava/lang/Object;
 	public final fun parse (Lcom/typesafe/config/Config;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
 }
 

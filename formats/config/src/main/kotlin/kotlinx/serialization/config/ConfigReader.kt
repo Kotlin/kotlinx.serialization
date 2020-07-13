@@ -6,15 +6,15 @@ package kotlinx.serialization.config
 
 import com.typesafe.config.*
 import kotlinx.serialization.*
+import kotlinx.serialization.CompositeDecoder.Companion.DECODE_DONE
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
-import kotlinx.serialization.CompositeDecoder.Companion.DECODE_DONE
 
 private val SerialKind.listLike get() = this == StructureKind.LIST || this is PolymorphicKind
 private val SerialKind.objLike get() = this == StructureKind.CLASS || this == StructureKind.OBJECT
 
 /**
- * Allows [deserialization][parse]
+ * Allows [deserialization][decodeFromConfig]
  * of [Config] object from popular Lightbend/config library into Kotlin objects.
  *
  * [Config] object represents "Human-Optimized Config Object Notation" —
@@ -29,11 +29,27 @@ public class ConfigParser(
     override val context: SerialModule = EmptyModule
 ) : SerialFormat {
 
-    public inline fun <reified T : Any> parse(conf: Config): T = parse(conf, context.getContextualOrDefault())
+    public inline fun <reified T : Any> decodeFromConfig(config: Config): T =
+        decodeFromConfig(context.getContextualOrDefault(), config)
 
+    public fun <T> decodeFromConfig(deserializer: DeserializationStrategy<T>, config: Config): T =
+        ConfigReader(config).decodeSerializableValue(deserializer)
+
+    @Deprecated(
+        "This method was renamed to decodeFromConfig during serialization 1.0 API stabilization",
+        level = DeprecationLevel.ERROR,
+        replaceWith = ReplaceWith("decodeFromConfig<T>(conf)")
+    )
+    public inline fun <reified T : Any> parse(conf: Config): T =
+        decodeFromConfig(context.getContextualOrDefault(), conf)
+
+    @Deprecated(
+        "This method was renamed to decodeFromConfig during serialization 1.0 API stabilization",
+        level = DeprecationLevel.ERROR,
+        replaceWith = ReplaceWith("decodeFromConfig(deserializer, conf)")
+    )
     public fun <T> parse(conf: Config, deserializer: DeserializationStrategy<T>): T =
-        ConfigReader(conf).decodeSerializableValue(deserializer)
-
+        decodeFromConfig(deserializer, conf)
 
     private abstract inner class ConfigConverter<T> : TaggedDecoder<T>() {
         override val serializersModule: SerialModule
@@ -178,9 +194,30 @@ public class ConfigParser(
 
     @Suppress("UNUSED")
     companion object {
-        public fun <T> parse(conf: Config, serial: DeserializationStrategy<T>): T = ConfigParser().parse(conf, serial)
+        @Deprecated(
+            "This method was renamed to decodeFromConfig during serialization 1.0 API stabilization",
+            level = DeprecationLevel.ERROR,
+            replaceWith = ReplaceWith("ConfigParser.decodeFromConfig(serial, conf)")
+        )
+        public fun <T> parse(conf: Config, serial: DeserializationStrategy<T>): T = ConfigParser().decodeFromConfig(
+            serial,
+            conf
+        )
 
-        public inline fun <reified T : Any> parse(conf: Config): T = ConfigParser().parse(conf, serializer())
+        @Deprecated(
+            "This method was renamed to decodeFromConfig during serialization 1.0 API stabilization",
+            level = DeprecationLevel.ERROR,
+            replaceWith = ReplaceWith("ConfigParser.decodeFromConfig(conf)")
+        )
+        public inline fun <reified T : Any> parse(conf: Config): T = ConfigParser().decodeFromConfig(serializer(), conf)
+
+        public inline fun <reified T : Any> decodeFromConfig(config: Config): T = ConfigParser().decodeFromConfig(
+            serializer(),
+            config
+        )
+
+        public fun <T> decodeFromConfig(deserializer: DeserializationStrategy<T>, config: Config): T =
+            ConfigParser().decodeFromConfig(deserializer, config)
 
         private val NAMING_CONVENTION_REGEX by lazy { "[A-Z]".toRegex() }
     }
