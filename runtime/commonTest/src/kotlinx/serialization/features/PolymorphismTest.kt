@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.features
@@ -46,12 +46,10 @@ class PolymorphismTest : JsonTestBase() {
         assertEquals("""["kotlinx.serialization.PolyDerived",{"id":1,"s":"b"}]""", s)
     }
 
-    object PolyDefaultSerializer : JsonTransformingSerializer<PolyDefault>(PolyDefault.serializer(), "foo") {
-        override fun readTransform(element: JsonElement): JsonElement {
-            return buildJsonObject {
-                put("json", JsonObject(element.jsonObject.filterKeys { it != "type" }))
-                put("id", 42)
-            }
+    object PolyDefaultSerializer : JsonTransformingSerializer<PolyDefault>(PolyDefault.serializer()) {
+        override fun transformDeserialize(element: JsonElement): JsonElement = buildJsonObject {
+            put("json", JsonObject(element.jsonObject.filterKeys { it != "type" }))
+            put("id", 42)
         }
     }
 

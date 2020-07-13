@@ -8,7 +8,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import kotlin.test.*
 
-class JsonParametricSerializerTest : JsonTestBase() {
+class JsonContentPolymorphicSerializerTest : JsonTestBase() {
     val json = Json(JsonConfiguration.Default)
 
     @Serializable
@@ -23,9 +23,9 @@ class JsonParametricSerializerTest : JsonTestBase() {
         data class HasC(val c: Boolean) : Choices()
     }
 
-    object ChoicesParametricSerializer : JsonParametricSerializer<Choices>(Choices::class) {
-        override fun selectSerializer(element: JsonElement): KSerializer<out Choices> {
-            val obj = element.jsonObject
+    object ChoicesParametricSerializer : JsonContentPolymorphicSerializer<Choices>(Choices::class) {
+        override fun selectDeserializer(content: JsonElement): KSerializer<out Choices> {
+            val obj = content.jsonObject
             return when {
                 "a" in obj -> Choices.HasA.serializer()
                 "b" in obj -> Choices.HasB.serializer()
@@ -82,9 +82,9 @@ class JsonParametricSerializerTest : JsonTestBase() {
     @Serializable
     data class RefundedPayment(override val amount: String, val date: String, val reason: String) : Payment
 
-    object PaymentSerializer : JsonParametricSerializer<Payment>(Payment::class) {
-        override fun selectSerializer(element: JsonElement): KSerializer<out Payment> = when {
-            "reason" in element.jsonObject -> RefundedPayment.serializer()
+    object PaymentSerializer : JsonContentPolymorphicSerializer<Payment>(Payment::class) {
+        override fun selectDeserializer(content: JsonElement) = when {
+            "reason" in content.jsonObject -> RefundedPayment.serializer()
             else -> SuccessfulPayment.serializer()
         }
     }

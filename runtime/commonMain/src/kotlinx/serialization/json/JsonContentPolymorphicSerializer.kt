@@ -19,12 +19,12 @@ import kotlin.reflect.*
  *
  * However, sometimes (e.g. when interacting with external API) type property is not present in the input
  * and it is expected to guess the actual type by the shape of JSON, for example by the presence of specific key.
- * [JsonParametricSerializer] provides a skeleton implementation for such strategy. Please note that
+ * [JsonContentPolymorphicSerializer] provides a skeleton implementation for such strategy. Please note that
  * since JSON content is represented by [JsonElement] class and could be read only with [JsonDecoder] decoder,
  * this class works only with [Json] format.
  *
  * Deserialization happens in two stages: first, a value from the input JSON is read
- * to as a [JsonElement]. Second, [selectSerializer] function is called to determine which serializer should be used.
+ * to as a [JsonElement]. Second, [selectDeserializer] function is called to determine which serializer should be used.
  * The returned serializer is used to deserialize [JsonElement] back to Kotlin object.
  *
  * It is possible to serialize values this serializer. In that case, class discriminator property won't
@@ -45,9 +45,9 @@ import kotlin.reflect.*
  * @Serializable
  * data class RefundedPayment(override val amount: String, val date: String, val reason: String) : Payment
  *
- * object PaymentSerializer : JsonParametricSerializer<Payment>(Payment::class) {
- *     override fun selectSerializer(element: JsonElement): KSerializer<out Payment> = when {
- *         "reason" in element -> RefundedPayment.serializer()
+ * object PaymentSerializer : JsonContentPolymorphicSerializer<Payment>(Payment::class) {
+ *     override fun selectDeserializer(content: JsonElement) = when {
+ *         "reason" in content.jsonObject -> RefundedPayment.serializer()
  *         else -> SuccessfulPayment.serializer()
  *     }
  * }
@@ -61,9 +61,9 @@ import kotlin.reflect.*
  * @param T A root class for all classes that could be possibly encountered during serialization and deserialization.
  * @param baseClass A class token for [T].
  */
-public abstract class JsonParametricSerializer<T : Any>(private val baseClass: KClass<T>) : KSerializer<T> {
+public abstract class JsonContentPolymorphicSerializer<T : Any>(private val baseClass: KClass<T>) : KSerializer<T> {
     /**
-     * A descriptor for this set of parametric serializers.
+     * A descriptor for this set of content-based serializers.
      * By default, it uses the name composed of [baseClass] simple name,
      * kind is set to [PolymorphicKind.SEALED] and contains 0 elements.
      *
@@ -71,7 +71,7 @@ public abstract class JsonParametricSerializer<T : Any>(private val baseClass: K
      * for schema generating/introspection purposes.
      */
     override val descriptor: SerialDescriptor =
-        SerialDescriptor("JsonParametricSerializer<${baseClass.simpleName}>", PolymorphicKind.OPEN)
+        SerialDescriptor("JsonContentPolymorphicSerializer<${baseClass.simpleName}>", PolymorphicKind.SEALED)
 
     @OptIn(UnsafeSerializationApi::class)
     final override fun serialize(encoder: Encoder, value: T) {
@@ -88,12 +88,27 @@ public abstract class JsonParametricSerializer<T : Any>(private val baseClass: K
         val tree = input.decodeJsonElement()
 
         @Suppress("UNCHECKED_CAST")
-        val actualSerializer = selectSerializer(tree) as KSerializer<T>
+        val actualSerializer = selectDeserializer(tree) as KSerializer<T>
         return input.json.decodeFromJsonElement(actualSerializer, tree)
     }
 
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated(
+        "This method was renamed to selectDeserializer during serialization 1.0 API stabilization, please override it instead",
+        level = DeprecationLevel.ERROR
+    )
+    protected fun selectSerializer(element: JsonElement): KSerializer<out T> =
+        selectDeserializer(element) as KSerializer<out T>
+
     /**
-     * Determines a particular serializer by looking on a parsed JSON [element].
+     * Determines a particular strategy for deserialization by looking on a parsed JSON [content].
      */
-    protected abstract fun selectSerializer(element: JsonElement): KSerializer<out T>
+    protected abstract fun selectDeserializer(content: JsonElement): DeserializationStrategy<out T>
 }
+
+@Deprecated(
+    "This class was renamed during serialization 1.0 API stabilization",
+    ReplaceWith("JsonContentPolymorphicSerializer<T>"),
+    DeprecationLevel.ERROR
+)
+public typealias JsonParametricSerializer<T> = JsonContentPolymorphicSerializer<T>

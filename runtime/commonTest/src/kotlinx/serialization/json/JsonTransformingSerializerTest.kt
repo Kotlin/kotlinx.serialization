@@ -19,22 +19,22 @@ class JsonTransformingSerializerTest : JsonTestBase() {
     )
 
     object WrappingJsonListSerializer :
-        JsonTransformingSerializer<List<StringData>>(ListSerializer(StringData.serializer()), "WrappingList") {
-        override fun readTransform(element: JsonElement): JsonElement =
+        JsonTransformingSerializer<List<StringData>>(ListSerializer(StringData.serializer())) {
+        override fun transformDeserialize(element: JsonElement): JsonElement =
             if (element !is JsonArray) JsonArray(listOf(element)) else element
     }
 
     object UnwrappingJsonListSerializer :
-        JsonTransformingSerializer<StringData>(StringData.serializer(), "UnwrappingList") {
-        override fun readTransform(element: JsonElement): JsonElement {
+        JsonTransformingSerializer<StringData>(StringData.serializer()) {
+        override fun transformDeserialize(element: JsonElement): JsonElement {
             if (element !is JsonArray) return element
             require(element.size == 1) { "Array size must be equal to 1 to unwrap it" }
             return element.first()
         }
     }
 
-    object DroppingNameSerializer : JsonTransformingSerializer<Example>(Example.serializer(), "DropName") {
-        override fun writeTransform(element: JsonElement): JsonElement =
+    object DroppingNameSerializer : JsonTransformingSerializer<Example>(Example.serializer()) {
+        override fun transformSerialize(element: JsonElement): JsonElement =
             JsonObject(element.jsonObject.filterNot { (k, v) -> k == "name" && v.jsonPrimitive.content == "First" })
     }
 
@@ -84,8 +84,8 @@ class JsonTransformingSerializerTest : JsonTestBase() {
     )
 
     object DocJsonListSerializer :
-        JsonTransformingSerializer<String>(serializer(), "UnwrappingList") {
-        override fun readTransform(element: JsonElement): JsonElement {
+        JsonTransformingSerializer<String>(serializer()) {
+        override fun transformDeserialize(element: JsonElement): JsonElement {
             if (element !is JsonArray) return element
             require(element.size == 1) { "Array size must be equal to 1 to unwrap it" }
             return element.first()
