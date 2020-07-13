@@ -14,7 +14,7 @@ internal inline fun <reified T> deserializeConfig(
     deserializer: DeserializationStrategy<T>,
     useNamingConvention: Boolean = false
 ): T = ConfigParser(ConfigParserConfiguration(useNamingConvention))
-    .parse(ConfigFactory.parseString(configString), deserializer)
+    .decodeFromConfig(deserializer, ConfigFactory.parseString(configString))
 
 class ConfigParserObjectsTest {
 
@@ -112,7 +112,7 @@ class ConfigParserObjectsTest {
     fun `simple config`() {
         val conf = ConfigFactory.parseString("a: 42")
         assertEquals(42, conf.getInt("a"))
-        val simple = ConfigParser.parse(conf, Simple.serializer())
+        val simple = ConfigParser.decodeFromConfig(Simple.serializer(), conf)
         assertEquals(Simple(42), simple)
     }
 
@@ -121,7 +121,7 @@ class ConfigParserObjectsTest {
         val conf = ConfigFactory.parseString("a: 42, b: {e = foo}")
         assertEquals(42, conf.getInt("a"))
         assertEquals("foo", conf.getString("b.e"))
-        val obj = ConfigParser.parse(conf, ConfigObject.serializer())
+        val obj = ConfigParser.decodeFromConfig(ConfigObject.serializer(), conf)
         assertEquals(42, obj.a)
         assertEquals("foo", obj.b.e)
         assertEquals(1.1f, obj.b.f)
