@@ -6,6 +6,7 @@ package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
 
 @Serializable
 data class A(@ProtoId(1) val b: B)

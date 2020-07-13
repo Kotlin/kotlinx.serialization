@@ -5,6 +5,7 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import java.text.DateFormat

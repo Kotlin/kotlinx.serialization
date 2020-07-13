@@ -5,7 +5,7 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.*
+import kotlinx.serialization.descriptors.*
 import kotlin.test.*
 
 class ProtobufMissingFieldsTest {
