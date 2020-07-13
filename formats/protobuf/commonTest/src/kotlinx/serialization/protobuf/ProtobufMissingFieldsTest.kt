@@ -87,10 +87,10 @@ class ProtobufMissingFieldsTest {
     )
 
     class ItemPlatformSerializer : KSerializer<ItemPlatform> {
-
-        override val descriptor: SerialDescriptor = SerialDescriptor("ItemPlatform", UnionKind.ENUM_KIND) {
+        @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+        override val descriptor: SerialDescriptor = buildSerialDescriptor("ItemPlatform", UnionKind.ENUM_KIND) {
             enumValues<ItemPlatform>().forEach {
-                element(it.name, SerialDescriptor("$serialName.${it.name}", StructureKind.OBJECT))
+                element(it.name, buildSerialDescriptor("$serialName.${it.name}", StructureKind.OBJECT))
             }
         }
 
@@ -106,9 +106,10 @@ class ProtobufMissingFieldsTest {
 
     class ItemContextSerializer : KSerializer<ItemContext> {
 
-        override val descriptor: SerialDescriptor = SerialDescriptor("ItemContext", UnionKind.ENUM_KIND) {
+        @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+        override val descriptor: SerialDescriptor = buildSerialDescriptor("ItemContext", UnionKind.ENUM_KIND) {
             enumValues<ItemContext>().forEach {
-                element(it.name, SerialDescriptor("$serialName.${it.name}", StructureKind.OBJECT))
+                element(it.name, buildSerialDescriptor("$serialName.${it.name}", StructureKind.OBJECT))
             }
         }
 

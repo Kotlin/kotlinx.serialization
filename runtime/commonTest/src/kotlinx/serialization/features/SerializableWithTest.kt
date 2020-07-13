@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 
 object MultiplyingIntSerializer : KSerializer<Int> {
     override val descriptor: SerialDescriptor
-        get() = PrimitiveDescriptor("MultiplyingInt", PrimitiveKind.INT)
+        get() = PrimitiveSerialDescriptor("MultiplyingInt", PrimitiveKind.INT)
 
     override fun deserialize(decoder: Decoder): Int {
         return decoder.decodeInt() / 2
@@ -25,7 +25,7 @@ object MultiplyingIntSerializer : KSerializer<Int> {
 
 object DividingIntSerializer : KSerializer<Int> {
     override val descriptor: SerialDescriptor
-        get() = PrimitiveDescriptor("DividedInt", PrimitiveKind.INT)
+        get() = PrimitiveSerialDescriptor("DividedInt", PrimitiveKind.INT)
 
     override fun deserialize(decoder: Decoder): Int {
         return decoder.decodeInt() * 2

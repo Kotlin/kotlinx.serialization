@@ -66,11 +66,11 @@ import kotlin.reflect.*
  */
 public class PolymorphicSerializer<T : Any>(override val baseClass: KClass<T>) : AbstractPolymorphicSerializer<T>() {
     public override val descriptor: SerialDescriptor =
-        SerialDescriptor("kotlinx.serialization.Polymorphic", PolymorphicKind.OPEN) {
+        buildSerialDescriptor("kotlinx.serialization.Polymorphic", PolymorphicKind.OPEN) {
             element("type", String.serializer().descriptor)
             element(
                 "value",
-                SerialDescriptor("kotlinx.serialization.Polymorphic<${baseClass.simpleName}>", UnionKind.CONTEXTUAL)
+                buildSerialDescriptor("kotlinx.serialization.Polymorphic<${baseClass.simpleName}>", UnionKind.CONTEXTUAL)
             )
         }.withContext(baseClass)
 }

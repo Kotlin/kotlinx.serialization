@@ -22,7 +22,7 @@ object BSerializer : KSerializer<B> {
         return B(decoder.decodeInt())
     }
 
-    override val descriptor: SerialDescriptor = PrimitiveDescriptor("B", PrimitiveKind.INT)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("B", PrimitiveKind.INT)
 }
 
 @Serializable

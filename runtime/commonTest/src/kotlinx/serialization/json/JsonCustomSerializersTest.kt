@@ -25,7 +25,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
     data class B(@Id(1) val value: Int)
 
     object BSerializer : KSerializer<B> {
-        override val descriptor: SerialDescriptor = PrimitiveDescriptor("B", PrimitiveKind.INT)
+        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("B", PrimitiveKind.INT)
         override fun serialize(encoder: Encoder, value: B) {
             encoder.encodeInt(value.value)
         }

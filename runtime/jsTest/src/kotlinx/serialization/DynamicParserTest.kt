@@ -52,7 +52,7 @@ class DynamicParserTest {
     data class NotDefault(val a: Int)
 
     object NDSerializer : KSerializer<NotDefault> {
-        override val descriptor = SerialDescriptor("notDefault") {
+        override val descriptor = buildClassSerialDescriptor("notDefault") {
             element<Int>("a")
         }
 

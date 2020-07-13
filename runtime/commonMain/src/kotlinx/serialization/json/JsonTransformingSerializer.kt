@@ -67,7 +67,7 @@ public abstract class JsonTransformingSerializer<T : Any>(
      * However, this descriptor can be overridden to achieve better representation of the resulting JSON shape
      * for schema generating or introspection purposes.
      */
-    override val descriptor: SerialDescriptor = SerialDescriptor(
+    override val descriptor: SerialDescriptor = buildSerialDescriptor(
         "JsonTransformingSerializer<${tSerializer.descriptor.serialName}>($transformationName)",
         tSerializer.descriptor.kind
     )

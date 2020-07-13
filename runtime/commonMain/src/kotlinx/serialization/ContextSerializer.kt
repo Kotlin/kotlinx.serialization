@@ -32,7 +32,7 @@ public class ContextSerializer<T : Any>(
     public constructor(serializableClass: KClass<T>) : this(serializableClass, null, EMPTY_SERIALIZER_ARRAY)
 
     public override val descriptor: SerialDescriptor =
-        SerialDescriptor("kotlinx.serialization.ContextSerializer", UnionKind.CONTEXTUAL).withContext(serializableClass)
+        buildSerialDescriptor("kotlinx.serialization.ContextSerializer", UnionKind.CONTEXTUAL).withContext(serializableClass)
 
     public override fun serialize(encoder: Encoder, value: T) {
         val clz = value::class

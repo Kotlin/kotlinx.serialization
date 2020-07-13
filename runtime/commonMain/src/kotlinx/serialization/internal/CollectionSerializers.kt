@@ -249,7 +249,7 @@ public class LinkedHashSetSerializer<E>(
     level = DeprecationLevel.ERROR, message = "Use SetSerializer() instead",
     replaceWith = ReplaceWith("SetSerializer(eSerializer)", imports = ["kotlinx.serialization.builtins.SetSerializer"])
 )
-public class HashSetSerializer<E>(
+internal class HashSetSerializer<E>(
     eSerializer: KSerializer<E>
 ) : ListLikeSerializer<E, Set<E>, HashSet<E>>(eSerializer) {
 
