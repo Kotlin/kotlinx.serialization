@@ -180,12 +180,12 @@ class ModuleBuildersTest {
 
     @Serializer(forClass = C::class)
     object CSerializer : KSerializer<C> {
-        override val descriptor: SerialDescriptor = SerialDescriptor("AnotherName", StructureKind.OBJECT)
+        override val descriptor: SerialDescriptor = buildSerialDescriptor("AnotherName", StructureKind.OBJECT)
     }
 
     @Serializer(forClass = C::class)
     object CSerializer2 : KSerializer<C> {
-        override val descriptor: SerialDescriptor = SerialDescriptor("C", StructureKind.OBJECT)
+        override val descriptor: SerialDescriptor = buildSerialDescriptor("C", StructureKind.OBJECT)
     }
 
     @Test

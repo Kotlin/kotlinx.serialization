@@ -81,7 +81,7 @@ class DynamicSerializerTest {
         @Serializer(forClass = MyFancyClass::class)
         companion object : KSerializer<MyFancyClass> {
 
-            override val descriptor: SerialDescriptor = PrimitiveDescriptor("MyFancyClass", PrimitiveKind.STRING)
+            override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("MyFancyClass", PrimitiveKind.STRING)
             override fun serialize(encoder: Encoder, value: MyFancyClass) {
                 encoder.encodeString("fancy ${value.value}")
             }

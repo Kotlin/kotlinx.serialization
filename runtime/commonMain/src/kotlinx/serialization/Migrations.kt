@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
@@ -271,6 +272,34 @@ public fun <T : Any?> Encoder.encode(strategy: SerializationStrategy<T>, value: 
     ReplaceWith("encodeSerializableValue<T>(serializer(), value)"), DeprecationLevel.ERROR
 ) // TODO make internal when migrations are removed
 public fun <T : Any> Encoder.encode(obj: T): Unit = noImpl()
+
+@Deprecated(
+    "This method was renamed to buildClassSerialDescriptor during serialization 1.0 API stabilization",
+    ReplaceWith("buildClassSerialDescriptor(serialName, *typeParameters, builderAction)"), DeprecationLevel.ERROR
+)
+public fun SerialDescriptor(
+    serialName: String,
+    vararg typeParameters: SerialDescriptor,
+    builderAction: ClassSerialDescriptorBuilder.() -> Unit = {}
+): SerialDescriptor = noImpl()
+
+@Deprecated(
+    "Builder with SerialKind was deprecated during serialization 1.0 API stabilization. ",
+    replaceWith = ReplaceWith("buildSerialDescriptor(serialName, kind, *typeParameters, builderAction)"),
+    level = DeprecationLevel.ERROR
+)
+public fun SerialDescriptor(
+    serialName: String,
+    kind: SerialKind,
+    vararg typeParameters: SerialDescriptor,
+    builderAction: ClassSerialDescriptorBuilder.() -> Unit = {}
+): SerialDescriptor = noImpl()
+
+@Deprecated(
+    "This method was renamed to PrimitiveSerialDescriptor during serialization 1.0 API stabilization",
+    ReplaceWith("PrimitiveSerialDescriptor(serialName, kind)"), DeprecationLevel.ERROR
+)
+public fun PrimitiveDescriptor(serialName: String, kind: PrimitiveKind): SerialDescriptor = noImpl()
 
 @Deprecated(
     "This property was renamed to serializersModule during serialization 1.0 stabilization",

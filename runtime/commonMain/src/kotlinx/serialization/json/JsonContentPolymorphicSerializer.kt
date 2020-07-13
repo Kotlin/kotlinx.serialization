@@ -72,7 +72,7 @@ public abstract class JsonContentPolymorphicSerializer<T : Any>(private val base
      * for schema generating/introspection purposes.
      */
     override val descriptor: SerialDescriptor =
-        SerialDescriptor("JsonContentPolymorphicSerializer<${baseClass.simpleName}>", PolymorphicKind.SEALED)
+        buildSerialDescriptor("JsonContentPolymorphicSerializer<${baseClass.simpleName}>", PolymorphicKind.SEALED)
 
     @OptIn(UnsafeSerializationApi::class)
     final override fun serialize(encoder: Encoder, value: T) {
