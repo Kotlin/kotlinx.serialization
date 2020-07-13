@@ -43,7 +43,7 @@ public fun serializer(type: KType): KSerializer<Any?> {
         val rootClass = type.kclass()
 
         val typeArguments = type.arguments
-            .map { requireNotNull(it.type) { "Star projections are not allowed, had $it instead" } }
+            .map { requireNotNull(it.type) { "Star projections in type arguments are not allowed, but had $type" } }
         return when {
             typeArguments.isEmpty() -> rootClass.serializer()
             else -> {
