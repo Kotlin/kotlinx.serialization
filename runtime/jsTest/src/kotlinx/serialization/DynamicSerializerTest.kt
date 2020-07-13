@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.internal.DynamicObjectSerializer
 import kotlinx.serialization.json.*
