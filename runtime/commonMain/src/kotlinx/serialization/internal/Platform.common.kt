@@ -124,7 +124,7 @@ internal inline fun <T> DeserializationStrategy<*>.cast(): DeserializationStrate
 
 internal fun KClass<*>.serializerNotRegistered(): Nothing {
     throw SerializationException(
-        "Serializer for class '${simpleName}' is not found. " +
+        "Serializer for class '${simpleName}' is not found.\n" +
             "Mark the class as @Serializable or provide the serializer explicitly."
     )
 }

@@ -22,3 +22,6 @@ project(':kotlinx-serialization-properties').projectDir = file('./formats/proper
 
 include ':benchmark'
 project(':benchmark').projectDir = file('./benchmark')
+
+include ':guide'
+project(':guide').projectDir = file('./guide')

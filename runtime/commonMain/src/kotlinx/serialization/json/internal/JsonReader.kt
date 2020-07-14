@@ -9,7 +9,11 @@ import kotlinx.serialization.json.internal.EscapeCharMappings.ESCAPE_2_CHAR
 import kotlin.jvm.*
 import kotlin.native.concurrent.*
 
-internal const val lenientHint = "Use 'JsonBuilder.isLenient = true' to accept non-compliant JSON"
+internal const val lenientHint = "Use 'isLenient = true' in 'Json {}` builder to accept non-compliant JSON."
+internal const val coerceInputValuesHint = "Use 'coerceInputValues = true' in 'Json {}` builder to coerce nulls to default values."
+internal const val specialFlowingValuesHint = "Use 'serializeSpecialFloatingPointValues = true' in 'Json {}' builder to serialize special values."
+internal const val ignoreUnknownKeysHint = "Use 'ignoreUnknownKeys = true' in 'Json {}' builder to ignore unknown keys."
+internal const val allowStructuredMapKeysHint = "Use 'allowStructuredMapKeys = true' in 'Json {}' builder to convert such maps to [key1, value1, key2, value2,...] arrays."
 
 // special strings
 internal const val NULL = "null"
@@ -153,15 +157,22 @@ internal class JsonReader(private val source: String) {
     }
 
     fun takeStringQuoted(): String {
-        if (tokenClass != TC_STRING) fail(
-            "Expected string literal with quotes. $lenientHint",
-            tokenPosition
-        )
+        when (tokenClass) {
+            TC_STRING -> {} // ok
+            TC_NULL -> fail(
+                "Expected string literal but 'null' literal was found.\n$coerceInputValuesHint",
+                tokenPosition
+            )
+            else -> fail(
+                "Expected string literal with quotes.\n$lenientHint",
+                tokenPosition
+            )
+        }
         return takeStringInternal()
     }
 
     fun takeBooleanStringUnquoted(): String {
-        if (tokenClass != TC_OTHER) fail("Expected start of the unquoted boolean literal. $lenientHint", tokenPosition)
+        if (tokenClass != TC_OTHER) fail("Expected start of the unquoted boolean literal.\n$lenientHint", tokenPosition)
         return takeStringInternal()
     }
 

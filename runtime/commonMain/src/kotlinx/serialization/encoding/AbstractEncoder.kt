@@ -31,6 +31,8 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
         vararg typeSerializers: KSerializer<*>
     ): CompositeEncoder = this
 
+    override fun endStructure(descriptor: SerialDescriptor) {}
+
     /**
      * Invoked before writing an element that is part of the structure to determine whether it should be encoded.
      * Element information can be obtained from the [descriptor] by the given [index].

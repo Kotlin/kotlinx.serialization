@@ -382,21 +382,15 @@ public interface CompositeDecoder {
      *        var i: Int? = null
      *        var d: Double? = null
      *        while (true) {
-     *            val index = composite.decodeElementIndex(descriptor)
-     *            if (index == DECODE_DONE) break // Input is over
-     *            when (index) {
-     *                0 -> {
-     *                    i = composite.decodeIntElement(descriptor, 0)
-     *                }
-     *                1 -> {
-     *                    d = composite.decodeDoubleElement(descriptor, 1)
-     *                }
+     *            when (val index = composite.decodeElementIndex(descriptor)) {
+     *                0 -> i = composite.decodeIntElement(descriptor, 0)
+     *                1 -> d = composite.decodeDoubleElement(descriptor, 1)
+     *                DECODE_DONE -> break // Input is over
      *                else -> error("Unexpected index: $index)
      *            }
-     *
      *        }
      *        composite.endStructure(descriptor)
-     *        if (i == null || d == null) throwMissingFieldException()
+     *        require(i != null && d != null)
      *        return MyPair(i, d)
      *    }
      * }

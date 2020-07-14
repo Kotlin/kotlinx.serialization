@@ -39,6 +39,8 @@ internal sealed class ListLikeDescriptor(val elementDescriptor: SerialDescriptor
     override fun hashCode(): Int {
         return elementDescriptor.hashCode() * 31 + serialName.hashCode()
     }
+
+    override fun toString(): String = "$serialName($elementDescriptor)"
 }
 
 internal sealed class MapLikeDescriptor(
@@ -86,6 +88,8 @@ internal sealed class MapLikeDescriptor(
         result = 31 * result + valueDescriptor.hashCode()
         return result
     }
+
+    override fun toString(): String = "$serialName($keyDescriptor, $valueDescriptor)"
 }
 
 internal const val ARRAY_NAME = "kotlin.Array"

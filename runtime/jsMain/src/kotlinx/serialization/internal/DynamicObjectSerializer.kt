@@ -113,7 +113,7 @@ private class DynamicObjectEncoder(
     override fun encodeLong(value: Long) {
         val asDouble = value.toDouble()
         val conversionHasLossOfPrecision = abs(asDouble) > MAX_SAFE_INTEGER
-
+        // todo: shall it be driven by isLenient or another configuration key?
         if (!configuration.isLenient && conversionHasLossOfPrecision) {
             throw IllegalArgumentException(
                 "$value can't be serialized to number due to a potential precision loss. " +
@@ -220,7 +220,7 @@ private class DynamicPrimitiveEncoder(
 
     override fun encodeLong(value: Long) {
         val asDouble = value.toDouble()
-
+        // todo: shall it be driven by isLenient or another configuration key?
         if (!configuration.isLenient && abs(value) > MAX_SAFE_INTEGER) {
             throw IllegalArgumentException(
                 "$value can't be deserialized to number due to a potential precision loss. " +

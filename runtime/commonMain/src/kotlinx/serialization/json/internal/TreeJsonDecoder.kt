@@ -99,7 +99,7 @@ private sealed class AbstractJsonTreeDecoder(
         if (!json.configuration.isLenient) {
             val literal = value as JsonLiteral
             if (literal.isString) throw JsonDecodingException(
-                -1, "Boolean literal for key '$tag' should be unquoted. $lenientHint", currentObject().toString()
+                -1, "Boolean literal for key '$tag' should be unquoted.\n$lenientHint", currentObject().toString()
             )
         }
         return value.boolean
@@ -126,7 +126,7 @@ private sealed class AbstractJsonTreeDecoder(
         if (!json.configuration.isLenient) {
             val literal = value as JsonLiteral
             if (!literal.isString) throw JsonDecodingException(
-                -1, "String literal for key '$tag' should be quoted. $lenientHint", currentObject().toString()
+                -1, "String literal for key '$tag' should be quoted.\n$lenientHint", currentObject().toString()
             )
         }
         return value.content

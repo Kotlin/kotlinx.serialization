@@ -18,4 +18,5 @@ internal data class JsonConf(
     public val useArrayPolymorphism: Boolean = false,
     public val classDiscriminator: String = "type",
     public val allowSpecialFloatingPointValues: Boolean = false,
-    public val serializersModule: SerializersModule = EmptySerializersModule)
+    public val serializersModule: SerializersModule = EmptySerializersModule
+)

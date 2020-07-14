@@ -26,11 +26,12 @@ class PolymorphismWithAnyTest {
     // KClass.toString() on JS prints simple name, not FQ one
     @Suppress("NAME_SHADOWING")
     private fun checkNotRegisteredMessage(className: String, scopeName: String, exception: SerializationException) {
-        val className = if (isJs()) className.split('.').last() else className
-        val scopeName = if (isJs()) scopeName.split('.').last() else scopeName
+        val className = className.substringAfterLast('.')
+        val scopeName = scopeName.substringAfterLast('.')
         val expectedText =
-            "class $className is not registered for polymorphic serialization in the scope of class $scopeName"
-        assertEquals(expectedText, exception.message)
+            "Class '$className' is not registered for polymorphic serialization in the scope of '$scopeName'"
+        assertTrue(exception.message!!.startsWith(expectedText),
+            "Found $exception, but expected to start with: $expectedText")
     }
 
     @Test

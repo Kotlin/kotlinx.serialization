@@ -77,6 +77,8 @@ public annotation class Serializable(
  * Instructs the serialization plugin to turn this class into serializer for specified class [forClass].
  * However, it would not be used automatically. To apply it on particular class or property,
  * use [Serializable] or [UseSerializers], or [Contextual] with runtime registration.
+ *
+ * **Experimental API**: This annotation is experimental. Details of its behavior will change in future releases.
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)

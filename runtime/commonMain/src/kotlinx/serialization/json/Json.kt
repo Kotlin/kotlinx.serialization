@@ -144,7 +144,7 @@ public inline fun <reified T> Json.decodeFromJsonElement(json: JsonElement): T =
     decodeFromJsonElement(serializersModule.serializer(), json)
 
 /**
- * Builder of the [Json] instance provided by `Json` factory function.
+ * Builder of the [Json] instance provided by `Json { ... }` factory function.
  */
 @Suppress("unused", "DeprecatedCallableAddReplaceWith")
 public class JsonBuilder internal constructor(conf: JsonConf) {
