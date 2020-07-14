@@ -7,6 +7,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.internal.*
 
 /**

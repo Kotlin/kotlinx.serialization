@@ -6,7 +6,8 @@ package kotlinx.serialization.config
 
 import com.typesafe.config.*
 import kotlinx.serialization.*
-import kotlinx.serialization.CompositeDecoder.Companion.DECODE_DONE
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.encoding.CompositeDecoder.Companion.DECODE_DONE
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 

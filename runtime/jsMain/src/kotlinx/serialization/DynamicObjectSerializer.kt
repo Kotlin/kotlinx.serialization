@@ -1,7 +1,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
-import kotlinx.serialization.encoding.AbstractEncoder
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.json.internal.BEGIN_LIST
 import kotlinx.serialization.json.internal.BEGIN_OBJ

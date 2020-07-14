@@ -4,6 +4,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
 import kotlinx.serialization.internal.*
