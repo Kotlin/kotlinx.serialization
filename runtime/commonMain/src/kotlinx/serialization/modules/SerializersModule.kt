@@ -11,7 +11,7 @@ import kotlin.native.concurrent.*
 import kotlin.reflect.*
 
 /**
- * [SerializersModule] is a collection of serializers used by [ContextSerializer] and [PolymorphicSerializer]
+ * [SerializersModule] is a collection of serializers used by [ContextualSerializer] and [PolymorphicSerializer]
  * to override or provide serializers at the runtime, whereas at the compile-time they provided by the serialization plugin.
  * It can be considered as a map where serializers can be found using their statically known KClasses.
  *
@@ -25,7 +25,7 @@ public sealed class SerializersModule {
 
     /**
      * Returns a contextual serializer associated with a given [kclass].
-     * This method is used in context-sensitive operations on a property marked with [Contextual] by a [ContextSerializer]
+     * This method is used in context-sensitive operations on a property marked with [Contextual] by a [ContextualSerializer]
      */
     public abstract fun <T : Any> getContextual(kclass: KClass<T>): KSerializer<T>?
 

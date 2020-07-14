@@ -138,8 +138,8 @@ public annotation class Transient
 public annotation class SerialInfo
 
 /**
- * Commands to use [ContextSerializer] on an annotated property or type usage.
- * If used on a file, commands using [ContextSerializer] for all listed KClasses.
+ * Commands to use [ContextualSerializer] on an annotated property or type usage.
+ * If used on a file, commands using [ContextualSerializer] for all listed KClasses.
  *
  * @param [forClasses] Classes to use ContextSerializer for in the current file.
  */

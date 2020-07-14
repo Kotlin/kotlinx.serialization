@@ -35,7 +35,7 @@ import kotlin.reflect.*
  * ```
  */
 @OptIn(UnsafeSerializationApi::class)
-public class ContextSerializer<T : Any>(
+public class ContextualSerializer<T : Any>(
     private val serializableClass: KClass<T>,
     private val fallbackSerializer: KSerializer<T>?,
     private val typeParametersSerializers: Array<KSerializer<*>>
@@ -59,3 +59,6 @@ public class ContextSerializer<T : Any>(
         return decoder.decodeSerializableValue(serializer)
     }
 }
+
+@Deprecated("Renamed", ReplaceWith("ContextualSerializer"), level = DeprecationLevel.ERROR)
+public typealias ContextSerializer<T> = ContextualSerializer<T>

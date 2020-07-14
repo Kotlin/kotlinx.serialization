@@ -11,13 +11,13 @@ import kotlin.jvm.*
 import kotlin.reflect.*
 
 /**
- * Returns a [SerializersModule] which has one class with one [serializer] for [ContextSerializer].
+ * Returns a [SerializersModule] which has one class with one [serializer] for [ContextualSerializer].
  */
 public fun <T : Any> serializersModuleOf(kClass: KClass<T>, serializer: KSerializer<T>): SerializersModule =
     SerializersModule { contextual(kClass, serializer) }
 
 /**
- * Returns a [SerializersModule] which has one class with one [serializer] for [ContextSerializer].
+ * Returns a [SerializersModule] which has one class with one [serializer] for [ContextualSerializer].
  */
 public inline fun <reified T : Any> serializersModuleOf(serializer: KSerializer<T>): SerializersModule =
     serializersModuleOf(T::class, serializer)
