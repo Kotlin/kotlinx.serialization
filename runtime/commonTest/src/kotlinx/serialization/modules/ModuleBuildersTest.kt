@@ -10,7 +10,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.PolyBase
 import kotlinx.serialization.PolyDerived
 import kotlinx.serialization.builtins.*
-import kotlinx.serialization.test.*
+import kotlinx.serialization.descriptors.*
 import kotlin.reflect.*
 import kotlin.test.*
 

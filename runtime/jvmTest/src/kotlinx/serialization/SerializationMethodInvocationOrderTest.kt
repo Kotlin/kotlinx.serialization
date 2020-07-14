@@ -4,6 +4,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import org.junit.Test
 import kotlin.test.*

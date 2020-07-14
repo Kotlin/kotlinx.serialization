@@ -5,7 +5,7 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
-import kotlin.jvm.*
+import kotlinx.serialization.descriptors.*
 
 private const val MASK = Int.MAX_VALUE.toLong() shl 32
 
