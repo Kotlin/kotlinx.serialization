@@ -6,6 +6,7 @@ package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.internal.*
+import kotlinx.serialization.internal.DynamicObjectSerializer
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.test.*
@@ -132,15 +133,16 @@ class DynamicSerializerTest {
         }
     }
 
+    // todo: this is a test for internal class. Rewrite it after implementing 'omitNulls' JSON flag.
     @Test
     fun nullsTest() {
         val data = DataWrapper("a string", null)
 
-        val serialized = Json(JsonConfiguration(alwaysDropNulls = true)).encodeToDynamic(data)
+        val serialized = DynamicObjectSerializer(encodeNullAsUndefined = true).serialize(data)
         assertNull(serialized.d)
         assertFalse(js("""Object.keys(serialized).includes("d")"""), "should omit null properties")
 
-        val serializedWithNull = Json(JsonConfiguration(alwaysDropNulls = false)).encodeToDynamic(data)
+        val serializedWithNull = DynamicObjectSerializer(encodeNullAsUndefined = false).serialize(data)
         assertNull(serializedWithNull.d)
         assertTrue(js("""Object.keys(serializedWithNull).includes("d")"""), "should contain null properties")
         Json(JsonConfiguration())

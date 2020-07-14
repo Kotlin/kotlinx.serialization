@@ -87,7 +87,6 @@ internal class StreamingJsonEncoder(
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         when (mode) {
             WriteMode.LIST -> {
-                composer.mark()
                 if (!composer.writingFirst)
                     composer.print(COMMA)
                 composer.nextItem()
@@ -95,7 +94,6 @@ internal class StreamingJsonEncoder(
             WriteMode.MAP -> {
                 if (!composer.writingFirst) {
                     forceQuoting = if (index % 2 == 0) {
-                        composer.mark()
                         composer.print(COMMA)
                         composer.nextItem() // indent should only be put after commas in map
                         true
@@ -105,27 +103,20 @@ internal class StreamingJsonEncoder(
                         false
                     }
                 } else {
-                    composer.mark()
                     forceQuoting = true
                     composer.nextItem()
                 }
             }
-            WriteMode.POLY_OBJ -> forceQuoting = when (index) {
-                0 -> {
-                    composer.mark()
-                    true
-                }
-                1 -> {
+            WriteMode.POLY_OBJ -> {
+                if (index == 0)
+                    forceQuoting = true
+                if (index == 1) {
                     composer.print(COMMA)
                     composer.space()
-                    false
-                }
-                else -> {
-                    error("Index must be 0 or 1 in $mode, got $index")
+                    forceQuoting = false
                 }
             }
             else -> {
-                composer.mark()
                 if (!composer.writingFirst)
                     composer.print(COMMA)
                 composer.nextItem()
@@ -138,11 +129,7 @@ internal class StreamingJsonEncoder(
     }
 
     override fun encodeNull() {
-        if (configuration.alwaysDropNulls) {
-            composer.reset()
-        } else {
-            composer.print(NULL)
-        }
+        composer.print(NULL)
     }
 
     override fun encodeBoolean(value: Boolean) {
@@ -202,25 +189,12 @@ internal class StreamingJsonEncoder(
         var writingFirst = true
             private set
 
-        private var markPosition: Int = -1
-        private var markWritingFirstState = writingFirst
-
         fun indent() {
             writingFirst = true; level++
         }
 
         fun unIndent() {
             level--
-        }
-
-        fun mark() {
-            markPosition = sb.length
-            markWritingFirstState = writingFirst
-        }
-
-        fun reset() {
-            sb.setLength(markPosition)
-            writingFirst = markWritingFirstState
         }
 
         fun nextItem() {
