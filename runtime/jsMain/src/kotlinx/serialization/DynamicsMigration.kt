@@ -14,7 +14,7 @@ private const val parserMessage = "DynamicObjectParser and its 'parse' method we
 // we'll get incorrect `parse` deprecation (because of StringFormat.parse(serializer, string) overload)
 @Deprecated(parserMessage, level = DeprecationLevel.ERROR)
 public class DynamicObjectParser constructor(
-    public val context: SerialModule = EmptyModule,
+    public val context: SerializersModule = EmptySerializersModule,
     public val configuration: JsonConfiguration = JsonConfiguration.Default
 ) {
     @Deprecated(

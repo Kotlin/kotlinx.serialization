@@ -34,7 +34,7 @@ import kotlin.math.*
 internal class DynamicObjectSerializer(
     public val context: SerializersModule,
     private val configuration: JsonConfiguration,
-    private val encodeNullAsUndefined: Boolean = false
+    private val encodeNullAsUndefined: Boolean
 ) {
 
     public fun <T> serialize(strategy: SerializationStrategy<T>, obj: T): dynamic {

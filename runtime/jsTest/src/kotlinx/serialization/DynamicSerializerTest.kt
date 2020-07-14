@@ -138,11 +138,19 @@ class DynamicSerializerTest {
     fun nullsTest() {
         val data = DataWrapper("a string", null)
 
-        val serialized = DynamicObjectSerializer(encodeNullAsUndefined = true).serialize(data)
+        val serialized = DynamicObjectSerializer(
+            EmptySerializersModule,
+            JsonConfiguration.Default,
+            encodeNullAsUndefined = true
+        ).serialize(DataWrapper.serializer(), data)
         assertNull(serialized.d)
         assertFalse(js("""Object.keys(serialized).includes("d")"""), "should omit null properties")
 
-        val serializedWithNull = DynamicObjectSerializer(encodeNullAsUndefined = false).serialize(data)
+        val serializedWithNull = DynamicObjectSerializer(
+            EmptySerializersModule,
+            JsonConfiguration.Default,
+            encodeNullAsUndefined = false
+        ).serialize(DataWrapper.serializer(), data)
         assertNull(serializedWithNull.d)
         assertTrue(js("""Object.keys(serializedWithNull).includes("d")"""), "should contain null properties")
         Json(JsonConfiguration())
