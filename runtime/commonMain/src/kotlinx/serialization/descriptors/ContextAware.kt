@@ -18,7 +18,7 @@ import kotlin.reflect.*
  * to retrieve registered descriptor at runtime.
  * This property is intended to be used on [SerialKind.CONTEXTUAL] and [PolymorphicKind.OPEN] kinds of descriptors,
  * where actual serializer used for a property can be determined only at runtime.
- * Serializers which represent contextual serialization and open polymorphism (namely, [ContextSerializer] and
+ * Serializers which represent contextual serialization and open polymorphism (namely, [ContextualSerializer] and
  * [PolymorphicSerializer]) capture statically known KClass in a descriptor and can expose it via this property.
  *
  * This property is `null` for descriptors that are not of [SerialKind.CONTEXTUAL] or [PolymorphicKind.OPEN] kinds.

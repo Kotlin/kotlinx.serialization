@@ -8,17 +8,17 @@ public abstract interface class kotlinx/serialization/BinaryFormat : kotlinx/ser
 	public abstract fun encodeToByteArray (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
 }
 
-public final class kotlinx/serialization/ContextSerializer : kotlinx/serialization/KSerializer {
+public abstract interface annotation class kotlinx/serialization/ContextualSerialization : java/lang/annotation/Annotation {
+	public abstract fun forClasses ()[Ljava/lang/Class;
+}
+
+public final class kotlinx/serialization/ContextualSerializer : kotlinx/serialization/KSerializer {
 	public fun <init> (Lkotlin/reflect/KClass;)V
 	public fun <init> (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;[Lkotlinx/serialization/KSerializer;)V
 	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
 	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-}
-
-public abstract interface annotation class kotlinx/serialization/ContextualSerialization : java/lang/annotation/Annotation {
-	public abstract fun forClasses ()[Ljava/lang/Class;
 }
 
 public abstract interface class kotlinx/serialization/DeserializationStrategy {
