@@ -5,6 +5,8 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.encoding.updateModeDeprecated
 
 /**
  * Decoder used by [Json] during deserialization.
@@ -80,7 +82,7 @@ public interface JsonDecoder : Decoder, CompositeDecoder {
      */
     public fun decodeJsonElement(): JsonElement
 
-    // Class 'JsonDecoder' must override public open val updateMode: UpdateMode defined in kotlinx.serialization.Decoder
+    // Class 'JsonDecoder' must override public open val updateMode: UpdateMode defined in kotlinx.serialization.encoding.Decoder
     // because it inherits multiple interface methods of it
     @Suppress("DEPRECATION")
     @Deprecated(updateModeDeprecated, level = DeprecationLevel.HIDDEN)

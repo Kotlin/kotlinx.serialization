@@ -5,6 +5,8 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.encoding.updateModeDeprecated
 import kotlinx.serialization.modules.*
 /*
  * These classes are intended to be used only within the kotlinx.serialization.

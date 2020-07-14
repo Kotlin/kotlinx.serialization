@@ -5,8 +5,7 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
-import kotlinx.serialization.CompositeDecoder.Companion.DECODE_DONE
-import kotlinx.serialization.builtins.*
+import kotlinx.serialization.encoding.CompositeDecoder.Companion.DECODE_DONE
 import kotlinx.serialization.cbor.internal.ByteArrayInput
 import kotlinx.serialization.cbor.internal.ByteArrayOutput
 import kotlinx.serialization.encoding.*

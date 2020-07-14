@@ -4,6 +4,7 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.encoding.*
 
 /**
  * Use [KSerializer.nullable][nullable] instead.

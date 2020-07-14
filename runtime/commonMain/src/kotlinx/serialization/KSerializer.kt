@@ -4,6 +4,9 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.encoding.updateModeDeprecated
+
 /**
  * KSerializer is responsible for the representation of a serial form of a type [T]
  * in terms of [encoders][Encoder] and [decoders][Decoder] and for constructing and deconstructing [T]

@@ -6,7 +6,7 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
+import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
 
 /**
  * Implementation that plugin uses to implement descriptors for auto-generated serializers.

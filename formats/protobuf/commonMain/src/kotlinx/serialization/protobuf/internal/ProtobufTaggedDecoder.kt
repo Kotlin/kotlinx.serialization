@@ -5,6 +5,7 @@
 package kotlinx.serialization.protobuf.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.protobuf.*
 
 internal abstract class ProtobufTaggedDecoder : ProtobufTaggedBase(), Decoder, CompositeDecoder {
