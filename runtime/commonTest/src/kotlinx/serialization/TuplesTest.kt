@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.test.assertStringFormAndRestored
 import kotlin.test.*
@@ -43,7 +44,7 @@ class TuplesTest : JsonTestBase() {
         val desc = PairWrapper.serializer().descriptor.getElementDescriptor(0)
         assertEquals(desc.serialName, "kotlin.Pair")
         assertEquals(
-            desc.elementDescriptors.map(SerialDescriptor::kind),
+            desc.elementDescriptors.map(kotlinx.serialization.descriptors.SerialDescriptor::kind),
             listOf(PrimitiveKind.INT, PrimitiveKind.STRING)
         )
     }
@@ -61,7 +62,7 @@ class TuplesTest : JsonTestBase() {
         val desc = TripleWrapper.serializer().descriptor.getElementDescriptor(0)
         assertEquals(desc.serialName, "kotlin.Triple")
         assertEquals(
-            desc.elementDescriptors.map(SerialDescriptor::kind),
+            desc.elementDescriptors.map(kotlinx.serialization.descriptors.SerialDescriptor::kind),
             listOf(PrimitiveKind.INT, PrimitiveKind.STRING, PrimitiveKind.BOOLEAN)
         )
     }

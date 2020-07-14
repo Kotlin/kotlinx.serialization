@@ -2,8 +2,9 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization
+package kotlinx.serialization.descriptors
 
+import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
@@ -60,7 +61,7 @@ public fun SerializersModule.getContextualDescriptor(descriptor: SerialDescripto
 /**
  * Retrieves a collection of descriptors which serializers are registered for polymorphic serialization in [this]
  * with base class equal to [descriptor]'s [SerialDescriptor.capturedKClass].
- * This method does not retrieve serializers registered registered with [PolymorphicModuleBuilder.default].
+ * This method does not retrieve serializers registered with [PolymorphicModuleBuilder.default].
  *
  * @see SerializersModule.getPolymorphic
  * @see SerializersModuleBuilder.polymorphic

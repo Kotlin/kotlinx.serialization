@@ -8,6 +8,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.DECODE_DONE
 import kotlinx.serialization.cbor.internal.ByteArrayInput
 import kotlinx.serialization.cbor.internal.ByteArrayOutput
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 import kotlin.experimental.*

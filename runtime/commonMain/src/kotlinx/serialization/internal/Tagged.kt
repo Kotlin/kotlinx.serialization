@@ -5,6 +5,7 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.encoding.updateModeDeprecated
 import kotlinx.serialization.modules.*

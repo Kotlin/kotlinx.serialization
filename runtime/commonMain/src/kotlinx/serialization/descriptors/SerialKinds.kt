@@ -2,10 +2,10 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization
+package kotlinx.serialization.descriptors
 
-import kotlinx.serialization.PrimitiveKind.*
-import kotlinx.serialization.StructureKind.*
+import kotlinx.serialization.descriptors.PrimitiveKind.*
+import kotlinx.serialization.descriptors.StructureKind.*
 import kotlinx.serialization.modules.*
 
 /**
@@ -264,11 +264,13 @@ public object UnionKind {
         "Was moved to the top-level serial kind during 1.0 API stabilization", level = DeprecationLevel.ERROR,
         replaceWith = ReplaceWith("SerialKind.ENUM")
     )
-    public val ENUM_KIND: SerialKind get() = error("Should not be called")
+    public val ENUM_KIND: SerialKind
+        get() = error("Should not be called")
 
     @Deprecated(
         "Was moved to the top-level serial kind during 1.0 API stabilization", level = DeprecationLevel.ERROR,
         replaceWith = ReplaceWith("SerialKind.CONTEXTUAL")
     )
-    public val CONTEXTUAL: SerialKind get() = error("Should not be called")
+    public val CONTEXTUAL: SerialKind
+        get() = error("Should not be called")
 }

@@ -4,6 +4,8 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.descriptors.*
+
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
 annotation class Id(val id: Int)

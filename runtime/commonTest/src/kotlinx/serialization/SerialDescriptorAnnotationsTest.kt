@@ -4,6 +4,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.descriptors.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
