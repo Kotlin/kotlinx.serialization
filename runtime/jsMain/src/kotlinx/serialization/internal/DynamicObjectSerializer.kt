@@ -5,7 +5,6 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.builtins.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.json.internal.*
@@ -32,24 +31,28 @@ import kotlin.math.*
  * ```
  */
 internal class DynamicObjectSerializer(
-    public val context: SerializersModule,
+    val serializersModule: SerializersModule,
     private val configuration: JsonConfiguration,
     private val encodeNullAsUndefined: Boolean
 ) {
 
     public fun <T> serialize(strategy: SerializationStrategy<T>, obj: T): dynamic {
         if (strategy.descriptor.kind is PrimitiveKind || strategy.descriptor.kind is SerialKind.ENUM) {
-            val serializer = DynamicPrimitiveEncoder(configuration)
+            val serializer = DynamicPrimitiveEncoder(serializersModule, configuration)
             serializer.encodeSerializableValue(strategy, obj)
             return serializer.result
         }
-        val serializer = DynamicObjectEncoder(configuration, encodeNullAsUndefined)
+        val serializer = DynamicObjectEncoder(serializersModule, configuration, encodeNullAsUndefined)
         serializer.encodeSerializableValue(strategy, obj)
         return serializer.result
     }
 }
 
-private class DynamicObjectEncoder(val configuration: JsonConfiguration, val encodeNullAsUndefined: Boolean) :
+private class DynamicObjectEncoder(
+    override val serializersModule: SerializersModule,
+    val configuration: JsonConfiguration,
+    val encodeNullAsUndefined: Boolean
+) :
     AbstractEncoder() {
     private object NoOutputMark
 
@@ -204,7 +207,10 @@ private class DynamicObjectEncoder(val configuration: JsonConfiguration, val enc
     }
 }
 
-private class DynamicPrimitiveEncoder(private val configuration: JsonConfiguration) : AbstractEncoder() {
+private class DynamicPrimitiveEncoder(
+    override val serializersModule: SerializersModule,
+    private val configuration: JsonConfiguration
+) : AbstractEncoder() {
     var result: dynamic = null
 
     override fun encodeNull() {
