@@ -1,0 +1,44 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.SerialDescriptor - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="index.html">kotlinx.serialization</a>&nbsp;/&nbsp;<a href="./-serial-descriptor.html">SerialDescriptor</a><br/>
+<br/>
+<h1>SerialDescriptor</h1>
+<a name="kotlinx.serialization$SerialDescriptor(kotlin.String, kotlinx.serialization.SerialKind, kotlin.Array((kotlinx.serialization.SerialDescriptor)), kotlin.Function1((kotlinx.serialization.SerialDescriptorBuilder, kotlin.Unit)))"></a>
+(common, jvm, native) <code><span class="keyword">fun </span><span class="identifier">SerialDescriptor</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization$SerialDescriptor(kotlin.String, kotlinx.serialization.SerialKind, kotlin.Array((kotlinx.serialization.SerialDescriptor)), kotlin.Function1((kotlinx.serialization.SerialDescriptorBuilder, kotlin.Unit)))/serialName">serialName</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization$SerialDescriptor(kotlin.String, kotlinx.serialization.SerialKind, kotlin.Array((kotlinx.serialization.SerialDescriptor)), kotlin.Function1((kotlinx.serialization.SerialDescriptorBuilder, kotlin.Unit)))/kind">kind</span><span class="symbol">:</span>&nbsp;<a href="-serial-kind/index.html"><span class="identifier">SerialKind</span></a>&nbsp;<span class="symbol">=</span>&nbsp;StructureKind.CLASS<span class="symbol">, </span><span class="keyword">vararg</span> <span class="identifier" id="kotlinx.serialization$SerialDescriptor(kotlin.String, kotlinx.serialization.SerialKind, kotlin.Array((kotlinx.serialization.SerialDescriptor)), kotlin.Function1((kotlinx.serialization.SerialDescriptorBuilder, kotlin.Unit)))/typeParameters">typeParameters</span><span class="symbol">:</span>&nbsp;<a href="-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization$SerialDescriptor(kotlin.String, kotlinx.serialization.SerialKind, kotlin.Array((kotlinx.serialization.SerialDescriptor)), kotlin.Function1((kotlinx.serialization.SerialDescriptorBuilder, kotlin.Unit)))/builder">builder</span><span class="symbol">:</span>&nbsp;<a href="-serial-descriptor-builder/index.html"><span class="identifier">SerialDescriptorBuilder</span></a><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a>&nbsp;<span class="symbol">=</span>&nbsp;{}<span class="symbol">)</span><span class="symbol">: </span><a href="-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a></code>
+<p>Builder for <a href="-serial-descriptor/index.html#kotlinx.serialization.SerialDescriptor">SerialDescriptor</a>.
+The resulting descriptor will be uniquely identified by the given <a href="-serial-descriptor.html#kotlinx.serialization$SerialDescriptor(kotlin.String, kotlinx.serialization.SerialKind, kotlin.Array((kotlinx.serialization.SerialDescriptor)), kotlin.Function1((kotlinx.serialization.SerialDescriptorBuilder, kotlin.Unit)))/serialName">serialName</a>, <a href="-serial-descriptor.html#kotlinx.serialization$SerialDescriptor(kotlin.String, kotlinx.serialization.SerialKind, kotlin.Array((kotlinx.serialization.SerialDescriptor)), kotlin.Function1((kotlinx.serialization.SerialDescriptorBuilder, kotlin.Unit)))/typeParameters">typeParameters</a> and
+elements structure described in <a href="-serial-descriptor.html#kotlinx.serialization$SerialDescriptor(kotlin.String, kotlinx.serialization.SerialKind, kotlin.Array((kotlinx.serialization.SerialDescriptor)), kotlin.Function1((kotlinx.serialization.SerialDescriptorBuilder, kotlin.Unit)))/builder">builder</a> function.</p>
+<p>Example:</p>
+<pre><code>// Class with custom serializer and custom serial descriptor
+class Data(
+    val intField: Int, // This field is ignored by custom serializer
+    val longField: Long, // This field is written as long, but in serialized form is named as "_longField"
+    val stringList: List&lt;String&gt; // This field is written as regular list of strings
+    val nullableInt: Int?
+)
+// Descriptor for such class:
+SerialDescriptor("my.package.Data") {
+    // intField is deliberately ignored by serializer -- not present in the descriptor as well
+    element&lt;Long&gt;("_longField") // longField is named as _longField
+    element("stringField", listDescriptor&lt;String&gt;())
+}
+</code></pre>
+<p>Example for generic classes:</p>
+<pre><code>@Serializable(CustomSerializer::class)
+class BoxedList&lt;T&gt;(val list: List&lt;T&gt;)
+
+class CustomSerializer&lt;T&gt;(typeParamSerializer: KSerializer&lt;T&gt;): KSerializer&lt;BoxedList&lt;T&gt;&gt; {
+  // here we use typeParamSerializer.descriptor because it represents T
+  override val descriptor = SerialDescriptor("pkg.BoxedList", CLASS, typeParamSerializer.descriptor) {
+    // here we need to wrap it with List first, because property has type List&lt;T&gt;
+    element("list", typeParamSerializer.list.descriptor) // or listDescriptor(typeParamSerializer.descriptor)
+  }
+}
+</code></pre>
+</BODY>
+</HTML>

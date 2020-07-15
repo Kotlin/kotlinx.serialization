@@ -1,0 +1,27 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.cbor.Cbor.<init> - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.cbor</a>&nbsp;/&nbsp;<a href="index.html">Cbor</a>&nbsp;/&nbsp;<a href="./-init-.html">&lt;init&gt;</a><br/>
+<br/>
+<h1>&lt;init&gt;</h1>
+<a name="kotlinx.serialization.cbor.Cbor$&lt;init&gt;(kotlin.Boolean, kotlinx.serialization.modules.SerializersModule)"></a>
+(common, jvm, native) <code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.cbor.Cbor$<init>(kotlin.Boolean, kotlinx.serialization.modules.SerializersModule)/encodeDefaults">encodeDefaults</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;true<span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.cbor.Cbor$<init>(kotlin.Boolean, kotlinx.serialization.modules.SerializersModule)/serializersModule">serializersModule</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization.modules/-serializers-module/index.html"><span class="identifier">SerializersModule</span></a>&nbsp;<span class="symbol">=</span>&nbsp;EmptySerializersModule<span class="symbol">)</span></code>
+<p>Implements <a href="encode-to-byte-array.html#kotlinx.serialization.cbor.Cbor$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.cbor.Cbor.encodeToByteArray.T)), kotlinx.serialization.cbor.Cbor.encodeToByteArray.T)">encoding</a> and <a href="decode-from-byte-array.html#kotlinx.serialization.cbor.Cbor$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.cbor.Cbor.decodeFromByteArray.T)), kotlin.ByteArray)">decoding</a> classes to/from bytes
+using <a href="https://tools.ietf.org/html/rfc7049">CBOR</a> specification.
+It is typically used by constructing an application-specific instance, with configured behaviour, and,
+if necessary, registered custom serializers (in <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> provided by <a href="serializers-module.html#kotlinx.serialization.cbor.Cbor$serializersModule">serializersModule</a> constructor parameter).</p>
+<h3>Known caveats and limitations:</h3>
+<p>Supports reading collections of both definite and indefinite lengths; however,
+serialization always writes maps and lists as <a href="https://tools.ietf.org/html/rfc7049#section-2.2.1">indefinite-length</a> ones.
+Does not support <a href="https://tools.ietf.org/html/rfc7049#section-2.4">optional tags</a> representing datetime, bignums, etc.
+Fully support CBOR maps, which, unlike JSON ones, may contain keys of non-primitive types, and may produce such maps
+from corresponding Kotlin objects. However, other 3rd-party parsers (e.g. <code>jackson-dataformat-cbor</code>) may not accept such maps.</p>
+<h3>Parameters</h3>
+<p><a name="encodeDefaults"></a>
+<code>encodeDefaults</code> - specifies whether default values of Kotlin properties are encoded.</p>
+</BODY>
+</HTML>

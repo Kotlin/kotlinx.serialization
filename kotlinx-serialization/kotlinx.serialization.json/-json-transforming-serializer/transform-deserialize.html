@@ -1,0 +1,19 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.json.JsonTransformingSerializer.transformDeserialize - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.json</a>&nbsp;/&nbsp;<a href="index.html">JsonTransformingSerializer</a>&nbsp;/&nbsp;<a href="./transform-deserialize.html">transformDeserialize</a><br/>
+<br/>
+<h1>transformDeserialize</h1>
+<a name="kotlinx.serialization.json.JsonTransformingSerializer$transformDeserialize(kotlinx.serialization.json.JsonElement)"></a>
+(common, jvm, native) <code><span class="keyword">protected</span> <span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">transformDeserialize</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.json.JsonTransformingSerializer$transformDeserialize(kotlinx.serialization.json.JsonElement)/element">element</span><span class="symbol">:</span>&nbsp;<a href="../-json-element.html"><span class="identifier">JsonElement</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-json-element.html"><span class="identifier">JsonElement</span></a></code>
+<p>Transformation that happens during <a href="deserialize.html#kotlinx.serialization.json.JsonTransformingSerializer$deserialize(kotlinx.serialization.Decoder)">deserialize</a> call.
+Does nothing by default.</p>
+<p>During deserialization, a value from JSON is firstly decoded to a <a href="../-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a>,
+user transformation in <a href="transform-deserialize.html#kotlinx.serialization.json.JsonTransformingSerializer$transformDeserialize(kotlinx.serialization.json.JsonElement)">transformDeserialize</a> is applied,
+and then resulting <a href="../-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> is deserialized to <a href="index.html#T">T</a> with <a href="#">tSerializer</a>.</p>
+</BODY>
+</HTML>

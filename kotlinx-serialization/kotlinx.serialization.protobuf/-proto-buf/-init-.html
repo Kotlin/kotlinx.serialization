@@ -1,0 +1,105 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.protobuf.ProtoBuf.<init> - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.protobuf</a>&nbsp;/&nbsp;<a href="index.html">ProtoBuf</a>&nbsp;/&nbsp;<a href="./-init-.html">&lt;init&gt;</a><br/>
+<br/>
+<h1>&lt;init&gt;</h1>
+<a name="kotlinx.serialization.protobuf.ProtoBuf$&lt;init&gt;(kotlin.Boolean, kotlinx.serialization.modules.SerializersModule)"></a>
+(common, jvm, native) <code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.protobuf.ProtoBuf$<init>(kotlin.Boolean, kotlinx.serialization.modules.SerializersModule)/encodeDefaults">encodeDefaults</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;true<span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.protobuf.ProtoBuf$<init>(kotlin.Boolean, kotlinx.serialization.modules.SerializersModule)/serializersModule">serializersModule</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization.modules/-serializers-module/index.html"><span class="identifier">SerializersModule</span></a>&nbsp;<span class="symbol">=</span>&nbsp;EmptySerializersModule<span class="symbol">)</span></code>
+<p>Implements <a href="encode-to-byte-array.html#kotlinx.serialization.protobuf.ProtoBuf$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.protobuf.ProtoBuf.encodeToByteArray.T)), kotlinx.serialization.protobuf.ProtoBuf.encodeToByteArray.T)">encoding</a> and <a href="decode-from-byte-array.html#kotlinx.serialization.protobuf.ProtoBuf$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.protobuf.ProtoBuf.decodeFromByteArray.T)), kotlin.ByteArray)">decoding</a> classes to/from bytes
+using <a href="https://developers.google.com/protocol-buffers/docs/proto">Proto2</a> specification.
+It is typically used by constructing an application-specific instance, with configured specific behaviour
+and, if necessary, registered custom serializers (in <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> provided by <a href="serializers-module.html#kotlinx.serialization.protobuf.ProtoBuf$serializersModule">serializersModule</a> constructor parameter).</p>
+<h3>Correspondence between Protobuf message definitions and Kotlin classes</h3>
+<p>Given a ProtoBuf definition with one required field, one optional field and one optional field with a custom default
+value:</p>
+<pre><code>message MyMessage {
+    required int32 first = 1;
+    optional int32 second = 2;
+    optional int32 third = 3 [default = 42];
+}
+</code></pre>
+<p>The corresponding <a href="../../kotlinx.serialization/-serializable/index.html#kotlinx.serialization.Serializable">Serializable</a> class should match the ProtoBuf definition and should use the same default values:</p>
+<pre><code>@Serializable
+data class MyMessage(val first: Int, val second: Int = 0, val third: Int = 42)
+</code></pre>
+<p>By default, protobuf fields ids are being assigned to Kotlin properties in incremental order, i.e.
+the first property in the class has id 1, the second has id 2, and so forth.
+If you need a more stable order (e.g. to avoid breaking changes when reordering properties),
+provide custom ids using <a href="../-proto-id/index.html#kotlinx.serialization.protobuf.ProtoId">ProtoId</a> annotation.</p>
+<p>By default, all numbers are encoded using <a href="https://developers.google.com/protocol-buffers/docs/encoding#varints">varint</a>
+encoding. This behaviour can be changed via <a href="../-proto-number-type/index.html#kotlinx.serialization.protobuf.ProtoNumberType">ProtoNumberType</a> annotation.</p>
+<h3>Known caveats and limitations</h3>
+<p>Lists are represented as repeated fields. Because format spec says that if the list is empty,
+there are no elements in the stream with such tag, you must explicitly mark any
+field of list type with default = emptyList(). Same for maps.
+There's no special support for <code>oneof</code> protobuf fields. However, this implementation
+supports standard kotlinx.serialization's polymorphic and sealed serializers,
+using their default form (message of serialName: string and other embedded message with actual content).</p>
+<h3>Proto3 support</h3>
+<p>This implementation does not support repeated packed fields, so you won't be able to deserialize
+Proto3 lists. However, other messages could be decoded. You have to remember that since fields in Proto3
+messages by default are implicitly optional,
+corresponding Kotlin properties have to be nullable with default value <code>null</code>.</p>
+<h3>Usage example</h3>
+<pre><code>// Serialize to ProtoBuf hex string
+val encoded = ProtoBuf.decodeToHexString(MyMessage(15)) // "080f1000182a"
+
+// Deserialize from ProtoBuf hex string
+val decoded = ProtoBuf.decodeFromHexString&lt;MyMessage&gt;(encoded) // MyMessage(first=15, second=0, third=42)
+
+// Serialize to ProtoBuf bytes (omitting default values)
+val encoded2 = ProtoBuf(encodeDefaults = false).encodeToByteArray( MyMessage(15)) // [0x08, 0x0f]
+
+// Deserialize ProtoBuf bytes will use default values of the MyMessage class
+val decoded2 = ProtoBuf.decodeFromByteArray&lt;MyMessage&gt;(encoded2) // MyMessage(first=15, second=0, third=42)
+</code></pre>
+<h3>Check existence of optional fields</h3>
+<p>Null values can be used as the default value for optional fields to implement more complex use-cases that rely on
+checking if a field was set or not. This requires the use of a custom ProtoBuf instance with
+<code>ProtoBuf(encodeDefaults = false)</code>.</p>
+<pre><code>@Serializable
+data class MyMessage(val first: Int, private val _second: Int? = null, private val _third: Int? = null) {
+
+    val second: Int
+        get() = _second ?: 0
+
+    val third: Int
+        get() = _third ?: 42
+
+    fun hasSecond() = _second != null
+
+    fun hasThird() = _third != null
+}
+
+// Serialize to ProtoBuf bytes (encodeDefaults=false is required if null values are used)
+val encoded = ProtoBuf(encodeDefaults = false).encodeToByteArray(MyMessage(15)) // [0x08, 0x0f]
+
+// Deserialize ProtoBuf bytes
+val decoded = ProtoBuf.decodeFromByteArray&lt;MyMessage&gt;(encoded) // MyMessage(first=15, _second=null, _third=null)
+decoded.hasSecond()     // false
+decoded.second          // 0
+decoded.hasThird()      // false
+decoded.third           // 42
+
+// Serialize to ProtoBuf bytes
+val encoded2 = ProtoBuf(encodeDefaults = false).encodeToByteArray(MyMessage(15, 0, 0)) // [0x08, 0x0f, 0x10, 0x00, 0x18, 0x00]
+
+// Deserialize ProtoBuf bytes
+val decoded2 = ProtoBuf.decodeFromByteArray&lt;MyMessage&gt;(encoded2) // MyMessage(first=15, _second=0, _third=0)
+decoded.hasSecond()     // true
+decoded.second          // 0
+decoded.hasThird()      // true
+decoded.third           // 0
+</code></pre>
+<h3>Parameters</h3>
+<p><a name="encodeDefaults"></a>
+<code>encodeDefaults</code> - specifies whether default values are encoded.</p>
+<p><a name="serializersModule"></a>
+<code>serializersModule</code> - application-specific <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> to provide custom serializers.</p>
+</BODY>
+</HTML>

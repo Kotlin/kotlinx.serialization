@@ -1,0 +1,21 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.json.JsonArraySerializer.descriptor - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.json</a>&nbsp;/&nbsp;<a href="index.html">JsonArraySerializer</a>&nbsp;/&nbsp;<a href="./descriptor.html">descriptor</a><br/>
+<br/>
+<h1>descriptor</h1>
+<a name="kotlinx.serialization.json.JsonArraySerializer$descriptor"></a>
+(common, jvm, native) <code><span class="keyword">val </span><span class="identifier">descriptor</span><span class="symbol">: </span><a href="../../kotlinx.serialization/-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a></code>
+<p>Describes the structure of the serializable representation of <a href="../../kotlinx.serialization/-k-serializer/index.html#T">T</a>, produced
+by this serializer. Knowing the structure of the descriptor is required to determine
+the shape of the serialized form (e.g. what elements are encoded as lists and what as primitives)
+along with its metadata such as alternative names.</p>
+<p>The descriptor is used during serialization by encoders and decoders
+to introspect the type and metadata of <a href="../../kotlinx.serialization/-k-serializer/index.html#T">T</a>'s elements being encoded or decoded, and
+to introspect the type, infer the schema or to compare against the predefined schema.</p>
+</BODY>
+</HTML>

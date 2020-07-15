@@ -1,0 +1,19 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.SerialDescriptor.serialName - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization</a>&nbsp;/&nbsp;<a href="index.html">SerialDescriptor</a>&nbsp;/&nbsp;<a href="./serial-name.html">serialName</a><br/>
+<br/>
+<h1>serialName</h1>
+<a name="kotlinx.serialization.SerialDescriptor$serialName"></a>
+(common, jvm, native) <code><span class="keyword">abstract</span> <span class="keyword">val </span><span class="identifier">serialName</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>Serial name of the descriptor that identifies pair of the associated serializer and target class.</p>
+<p>For generated serializers, serial name is equal to the corresponding class's fully-qualified name
+or, if overridden, <a href="../-serial-name/index.html#kotlinx.serialization.SerialName">SerialName</a>.
+Custom serializers should provide a unique serial name that identify both the serializable class and
+the serializer itself, ignoring type arguments, if they are present.</p>
+</BODY>
+</HTML>

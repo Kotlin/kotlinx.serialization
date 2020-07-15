@@ -1,0 +1,78 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.json.JsonEncoder - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.json</a>&nbsp;/&nbsp;<a href="./index.html">JsonEncoder</a><br/>
+<br/>
+<h1>JsonEncoder</h1>
+<a name="kotlinx.serialization.json.JsonEncoder"></a>
+(common, jvm, native) <code><span class="keyword">interface </span><span class="identifier">JsonEncoder</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-encoder/index.html"><span class="identifier">Encoder</span></a><span class="symbol">, </span><a href="../../kotlinx.serialization/-composite-encoder/index.html"><span class="identifier">CompositeEncoder</span></a></code>
+<p>Encoder used by <a href="../-json/index.html#kotlinx.serialization.json.Json">Json</a> during serialization.
+This interface can be used to inject desired behaviour into a serialization process of <a href="../-json/index.html#kotlinx.serialization.json.Json">Json</a>.</p>
+<p>Typical example of the usage:</p>
+<pre><code>// Class representing Either&lt;Left|Right&gt;
+sealed class Either {
+    data class Left(val errorMsg: String) : Either()
+    data class Right(val data: Payload) : Either()
+}
+
+// Serializer injects custom behaviour by inspecting object content and writing
+object EitherSerializer : KSerializer&lt;Either&gt; {
+    override val descriptor: SerialDescriptor = SerialDescriptor("package.Either", PolymorphicKind.SEALED) {
+         // ..
+     }
+
+    override fun deserialize(decoder: Decoder): Either {
+        val input = decoder as? JsonDecoder ?: throw SerializationException("This class can be loaded only by Json")
+        val tree = input.decodeJson() as? JsonObject ?: throw SerializationException("Expected JsonObject")
+        if ("error" in tree) return Either.Left(tree.getPrimitive("error").content)
+        return Either.Right(input.json.decodeJson(tree, Payload.serializer()))
+    }
+
+    override fun serialize(encoder: Encoder, value: Either) {
+        val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
+        val tree = when (value) {
+          is Either.Left -&gt; JsonObject(mapOf("error" to JsonLiteral(value.errorMsg)))
+          is Either.Right -&gt; output.json.toJson(value.data, Payload.serializer())
+        }
+        output.encodeJson(tree)
+    }
+}
+</code></pre>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="json.html">json</a></h4>
+</td>
+<td>
+<p>An instance of the current <a href="../-json/index.html#kotlinx.serialization.json.Json">Json</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">val </span><span class="identifier">json</span><span class="symbol">: </span><a href="../-json/index.html"><span class="identifier">Json</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="encode-json-element.html">encodeJsonElement</a></h4>
+</td>
+<td>
+<p>Appends the given JSON <a href="encode-json-element.html#kotlinx.serialization.json.JsonEncoder$encodeJsonElement(kotlinx.serialization.json.JsonElement)/element">element</a> to the current output.
+This method is allowed to invoke only as the part of the whole serialization process of the class,
+calling this method after invoking <a href="../../kotlinx.serialization/-encoder/begin-structure.html#kotlinx.serialization.Encoder$beginStructure(kotlinx.serialization.SerialDescriptor)">beginStructure</a> or any <code>encode*</code> method will lead to unspecified behaviour
+and may produce an invalid JSON result.
+For example:</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">encodeJsonElement</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.json.JsonEncoder$encodeJsonElement(kotlinx.serialization.json.JsonElement)/element">element</span><span class="symbol">:</span>&nbsp;<a href="../-json-element.html"><span class="identifier">JsonElement</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

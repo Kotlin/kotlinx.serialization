@@ -1,0 +1,41 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.encoding - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="./index.html">kotlinx.serialization.encoding</a><br/>
+<br/>
+<h2>Package kotlinx.serialization.encoding</h2>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-abstract-decoder/index.html">AbstractDecoder</a></h4>
+</td>
+<td>
+<p>A skeleton implementation of both <a href="../kotlinx.serialization/-decoder/index.html#kotlinx.serialization.Decoder">Decoder</a> and <a href="../kotlinx.serialization/-composite-decoder/index.html#kotlinx.serialization.CompositeDecoder">CompositeDecoder</a> that can be used
+for simple formats and for testability purpose.
+Most of the <code>decode*</code> methods have default implementation that delegates <code>decodeValue(value: Any) as TargetType</code>.
+See <a href="../kotlinx.serialization/-decoder/index.html#kotlinx.serialization.Decoder">Decoder</a> documentation for information about each particular <code>decode*</code> method.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">AbstractDecoder</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../kotlinx.serialization/-decoder/index.html"><span class="identifier">Decoder</span></a><span class="symbol">, </span><a href="../kotlinx.serialization/-composite-decoder/index.html"><span class="identifier">CompositeDecoder</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-abstract-encoder/index.html">AbstractEncoder</a></h4>
+</td>
+<td>
+<p>A skeleton implementation of both <a href="../kotlinx.serialization/-encoder/index.html#kotlinx.serialization.Encoder">Encoder</a> and <a href="../kotlinx.serialization/-composite-encoder/index.html#kotlinx.serialization.CompositeEncoder">CompositeEncoder</a> that can be used
+for simple formats and for testability purpose.
+Most of the <code>encode*</code> methods have default implementation that delegates <code>encodeValue(value: Any)</code>.
+See <a href="../kotlinx.serialization/-encoder/index.html#kotlinx.serialization.Encoder">Encoder</a> documentation for information about each particular <code>encode*</code> method.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">AbstractEncoder</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../kotlinx.serialization/-encoder/index.html"><span class="identifier">Encoder</span></a><span class="symbol">, </span><a href="../kotlinx.serialization/-composite-encoder/index.html"><span class="identifier">CompositeEncoder</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

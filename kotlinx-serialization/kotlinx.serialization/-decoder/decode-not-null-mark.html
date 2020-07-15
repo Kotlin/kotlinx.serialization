@@ -1,0 +1,25 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.Decoder.decodeNotNullMark - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization</a>&nbsp;/&nbsp;<a href="index.html">Decoder</a>&nbsp;/&nbsp;<a href="./decode-not-null-mark.html">decodeNotNullMark</a><br/>
+<br/>
+<h1>decodeNotNullMark</h1>
+<a name="kotlinx.serialization.Decoder$decodeNotNullMark()"></a>
+(common, jvm, native) <code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">decodeNotNullMark</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>Returns <code>true</code> if the current value in decoder is not null, false otherwise.
+This method is usually used to decode potentially nullable data:</p>
+<pre><code>// Could be String? deserialize() method
+public fun deserialize(decoder: Decoder): String? {
+    if (decoder.decodeNotNullMark()) {
+        return decoder.decodeString()
+    } else {
+        return decoder.decodeNull()
+    }
+}
+</code></pre>
+</BODY>
+</HTML>

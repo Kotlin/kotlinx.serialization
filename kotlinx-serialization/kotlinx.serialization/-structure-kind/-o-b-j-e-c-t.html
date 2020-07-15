@@ -1,0 +1,19 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.StructureKind.OBJECT - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization</a>&nbsp;/&nbsp;<a href="index.html">StructureKind</a>&nbsp;/&nbsp;<a href="./-o-b-j-e-c-t.html">OBJECT</a><br/>
+<br/>
+<h1>OBJECT</h1>
+<a name="kotlinx.serialization.StructureKind.OBJECT"></a>
+(common, jvm, native) <code><span class="keyword">object </span><span class="identifier">OBJECT</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="index.html"><span class="identifier">StructureKind</span></a></code>
+<p>Structure kind for singleton objects defined with <code>object</code> keyword.
+By default, objects are serialized as empty structures without any state and their identity is preserved
+across serialization within the same process, so you always have the same instance of the object.</p>
+<p>Empty structure is represented as a call to <a href="../-encoder/begin-structure.html#kotlinx.serialization.Encoder$beginStructure(kotlinx.serialization.SerialDescriptor)">Encoder.beginStructure</a> with the following <a href="../-composite-encoder/end-structure.html#kotlinx.serialization.CompositeEncoder$endStructure(kotlinx.serialization.SerialDescriptor)">CompositeEncoder.endStructure</a>
+without any intermediate encodings.</p>
+</BODY>
+</HTML>

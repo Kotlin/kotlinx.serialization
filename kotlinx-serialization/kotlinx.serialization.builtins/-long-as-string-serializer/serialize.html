@@ -1,0 +1,29 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.builtins.LongAsStringSerializer.serialize - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.builtins</a>&nbsp;/&nbsp;<a href="index.html">LongAsStringSerializer</a>&nbsp;/&nbsp;<a href="./serialize.html">serialize</a><br/>
+<br/>
+<h1>serialize</h1>
+<a name="kotlinx.serialization.builtins.LongAsStringSerializer$serialize(kotlinx.serialization.Encoder, kotlin.Long)"></a>
+(common, jvm, native) <code><span class="keyword">fun </span><span class="identifier">serialize</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.builtins.LongAsStringSerializer$serialize(kotlinx.serialization.Encoder, kotlin.Long)/encoder">encoder</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-encoder/index.html"><span class="identifier">Encoder</span></a><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.builtins.LongAsStringSerializer$serialize(kotlinx.serialization.Encoder, kotlin.Long)/value">value</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Serializes the <a href="../../kotlinx.serialization/-serialization-strategy/serialize.html#kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.Encoder, kotlinx.serialization.SerializationStrategy.T)/value">value</a> of type <a href="../../kotlinx.serialization/-serialization-strategy/index.html#T">T</a> using the format that is represented by the given <a href="../../kotlinx.serialization/-serialization-strategy/serialize.html#kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.Encoder, kotlinx.serialization.SerializationStrategy.T)/encoder">encoder</a>.
+<a href="../../kotlinx.serialization/-serialization-strategy/serialize.html#kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.Encoder, kotlinx.serialization.SerializationStrategy.T)">serialize</a> method is format-agnostic and operates with a high-level structured <a href="../../kotlinx.serialization/-encoder/index.html#kotlinx.serialization.Encoder">Encoder</a> API.
+Throws <a href="../../kotlinx.serialization/-serialization-exception/index.html#kotlinx.serialization.SerializationException">SerializationException</a> if value cannot be serialized.</p>
+<p>Example of serialize method:</p>
+<pre><code>class MyData(int: Int, stringList: List&lt;String&gt;, alwaysZero: Long)
+
+fun serialize(encoder: Encoder, value: MyData): Unit = encoder.encodeStructure(descriptor) {
+    // encodeStructure encodes beginning and end of the structure
+    // encode 'int' property as Int
+    encodeIntElement(descriptor, index = 0, value.int)
+    // encode 'stringList' property as List&lt;String&gt;
+    encodeSerializableElement(descriptor, index = 1, serializer&lt;List&lt;String&gt;&gt;, value.stringList)
+    // don't encode 'alwaysZero' property because we decided to do so
+} // end of the structure
+</code></pre>
+</BODY>
+</HTML>

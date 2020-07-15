@@ -1,0 +1,112 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.SerialDescriptorBuilder - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization</a>&nbsp;/&nbsp;<a href="./index.html">SerialDescriptorBuilder</a><br/>
+<br/>
+<h1>SerialDescriptorBuilder</h1>
+<a name="kotlinx.serialization.SerialDescriptorBuilder"></a>
+(common, jvm, native) <code><span class="keyword">class </span><span class="identifier">SerialDescriptorBuilder</span></code>
+<p>Builder for <a href="../-serial-descriptor/index.html#kotlinx.serialization.SerialDescriptor">SerialDescriptor</a> for user-defined serializers.</p>
+<p>Both explicit builder functions and implicit (using reified type-parameters) are present and are equivalent.
+For example, <code>element&lt;Int?&gt;("nullableIntField")</code> is indistinguishable from
+<code>element("nullableIntField", IntSerializer.descriptor.nullable)</code> and
+from <code>element("nullableIntField", descriptor&lt;Int?&gt;)</code>.</p>
+<p>Please refer to <a href="../-serial-descriptor/index.html#kotlinx.serialization.SerialDescriptor">SerialDescriptor</a> builder function for a complete example.</p>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="annotations.html">annotations</a></h4>
+</td>
+<td>
+<p><a href="../-serial-info/index.html#kotlinx.serialization.SerialInfo">Serial</a> annotations on a target type.</p>
+<code><span class="keyword">var </span><span class="identifier">annotations</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-annotation/index.html"><span class="identifier">Annotation</span></a><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="is-nullable.html">isNullable</a></h4>
+</td>
+<td>
+<p>Whether the resulting descriptor represents <a href="../-serial-descriptor/is-nullable.html#kotlinx.serialization.SerialDescriptor$isNullable">nullable</a> type</p>
+<code><span class="keyword">var </span><span class="identifier">isNullable</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="serial-name.html">serialName</a></h4>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">serialName</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="descriptor.html">descriptor</a></h4>
+</td>
+<td>
+<p>Retrieves descriptor of type <a href="descriptor.html#T">T</a> using reified <a href="../serializer.html#kotlinx.serialization$serializer()">serializer</a> function.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">descriptor</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="element.html">element</a></h4>
+</td>
+<td>
+<p>Add an element with a given <a href="element.html#kotlinx.serialization.SerialDescriptorBuilder$element(kotlin.String, kotlinx.serialization.SerialDescriptor, kotlin.collections.List((kotlin.Annotation)), kotlin.Boolean)/elementName">name</a>, <a href="element.html#kotlinx.serialization.SerialDescriptorBuilder$element(kotlin.String, kotlinx.serialization.SerialDescriptor, kotlin.collections.List((kotlin.Annotation)), kotlin.Boolean)/descriptor">descriptor</a>,
+type annotations and optionality the resulting descriptor.</p>
+<code><span class="keyword">fun </span><span class="identifier">element</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.SerialDescriptorBuilder$element(kotlin.String, kotlinx.serialization.SerialDescriptor, kotlin.collections.List((kotlin.Annotation)), kotlin.Boolean)/elementName">elementName</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.SerialDescriptorBuilder$element(kotlin.String, kotlinx.serialization.SerialDescriptor, kotlin.collections.List((kotlin.Annotation)), kotlin.Boolean)/descriptor">descriptor</span><span class="symbol">:</span>&nbsp;<a href="../-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.SerialDescriptorBuilder$element(kotlin.String, kotlinx.serialization.SerialDescriptor, kotlin.collections.List((kotlin.Annotation)), kotlin.Boolean)/annotations">annotations</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-annotation/index.html"><span class="identifier">Annotation</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;emptyList()<span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.SerialDescriptorBuilder$element(kotlin.String, kotlinx.serialization.SerialDescriptor, kotlin.collections.List((kotlin.Annotation)), kotlin.Boolean)/isOptional">isOptional</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>A reified version of <a href="element.html#kotlinx.serialization.SerialDescriptorBuilder$element(kotlin.String, kotlinx.serialization.SerialDescriptor, kotlin.collections.List((kotlin.Annotation)), kotlin.Boolean)">element</a> function that
+extract descriptor using <code>serializer&lt;T&gt;().descriptor</code> call with all the restrictions of <code>serializer&lt;T&gt;().descriptor</code>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">element</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.SerialDescriptorBuilder$element(kotlin.String, kotlin.collections.List((kotlin.Annotation)), kotlin.Boolean)/elementName">elementName</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.SerialDescriptorBuilder$element(kotlin.String, kotlin.collections.List((kotlin.Annotation)), kotlin.Boolean)/annotations">annotations</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-annotation/index.html"><span class="identifier">Annotation</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;emptyList()<span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.SerialDescriptorBuilder$element(kotlin.String, kotlin.collections.List((kotlin.Annotation)), kotlin.Boolean)/isOptional">isOptional</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="list-descriptor.html">listDescriptor</a></h4>
+</td>
+<td>
+<p>Creates a descriptor for the type <code>List&lt;T&gt;</code> where <code>T</code> is the type associated with <a href="list-descriptor.html#kotlinx.serialization.SerialDescriptorBuilder$listDescriptor(kotlinx.serialization.SerialDescriptor)/typeDescriptor">typeDescriptor</a>.</p>
+<code><span class="keyword">fun </span><span class="identifier">listDescriptor</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.SerialDescriptorBuilder$listDescriptor(kotlinx.serialization.SerialDescriptor)/typeDescriptor">typeDescriptor</span><span class="symbol">:</span>&nbsp;<a href="../-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a></code>
+<p>Creates a descriptor for the type <code>List&lt;T&gt;</code>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">listDescriptor</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="map-descriptor.html">mapDescriptor</a></h4>
+</td>
+<td>
+<p>Creates a descriptor for the type <code>Map&lt;K, V&gt;</code> where <code>K</code> and <code>V</code> are types
+associated with <a href="map-descriptor.html#kotlinx.serialization.SerialDescriptorBuilder$mapDescriptor(kotlinx.serialization.SerialDescriptor, kotlinx.serialization.SerialDescriptor)/keyDescriptor">keyDescriptor</a> and <a href="map-descriptor.html#kotlinx.serialization.SerialDescriptorBuilder$mapDescriptor(kotlinx.serialization.SerialDescriptor, kotlinx.serialization.SerialDescriptor)/valueDescriptor">valueDescriptor</a> respectively.</p>
+<code><span class="keyword">fun </span><span class="identifier">mapDescriptor</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.SerialDescriptorBuilder$mapDescriptor(kotlinx.serialization.SerialDescriptor, kotlinx.serialization.SerialDescriptor)/keyDescriptor">keyDescriptor</span><span class="symbol">:</span>&nbsp;<a href="../-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.SerialDescriptorBuilder$mapDescriptor(kotlinx.serialization.SerialDescriptor, kotlinx.serialization.SerialDescriptor)/valueDescriptor">valueDescriptor</span><span class="symbol">:</span>&nbsp;<a href="../-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a></code>
+<p>Creates a descriptor for the type <code>Map&lt;K, V&gt;</code>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">K</span><span class="symbol">, </span><span class="identifier">V</span><span class="symbol">&gt;</span> <span class="identifier">mapDescriptor</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="set-descriptor.html">setDescriptor</a></h4>
+</td>
+<td>
+<p>Creates a descriptor for the type <code>Set&lt;T&gt;</code> where <code>T</code> is the type associated with <a href="set-descriptor.html#kotlinx.serialization.SerialDescriptorBuilder$setDescriptor(kotlinx.serialization.SerialDescriptor)/typeDescriptor">typeDescriptor</a>.</p>
+<code><span class="keyword">fun </span><span class="identifier">setDescriptor</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.SerialDescriptorBuilder$setDescriptor(kotlinx.serialization.SerialDescriptor)/typeDescriptor">typeDescriptor</span><span class="symbol">:</span>&nbsp;<a href="../-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a></code>
+<p>Creates a descriptor for the type <code>Set&lt;T&gt;</code>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">setDescriptor</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

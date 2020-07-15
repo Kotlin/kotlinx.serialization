@@ -1,0 +1,62 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.modules.SerializersModuleCollector - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.modules</a>&nbsp;/&nbsp;<a href="./index.html">SerializersModuleCollector</a><br/>
+<br/>
+<h1>SerializersModuleCollector</h1>
+<a name="kotlinx.serialization.modules.SerializersModuleCollector"></a>
+(common, jvm, native) <code><span class="keyword">interface </span><span class="identifier">SerializersModuleCollector</span></code>
+<p><a href="index.html#kotlinx.serialization.modules.SerializersModuleCollector">SerializersModuleCollector</a> can introspect and accumulate content of any <a href="../-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> via <a href="../-serializers-module/dump-to.html#kotlinx.serialization.modules.SerializersModule$dumpTo(kotlinx.serialization.modules.SerializersModuleCollector)">SerializersModule.dumpTo</a>,
+using a visitor-like pattern: <a href="contextual.html#kotlinx.serialization.modules.SerializersModuleCollector$contextual(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleCollector.contextual.T)), kotlinx.serialization.KSerializer((kotlinx.serialization.modules.SerializersModuleCollector.contextual.T)))">contextual</a> and <a href="polymorphic.html#kotlinx.serialization.modules.SerializersModuleCollector$polymorphic(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleCollector.polymorphic.Base)), kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleCollector.polymorphic.Sub)), kotlinx.serialization.KSerializer((kotlinx.serialization.modules.SerializersModuleCollector.polymorphic.Sub)))">polymorphic</a> functions are invoked for each registered serializer.</p>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="contextual.html">contextual</a></h4>
+</td>
+<td>
+<p>Accept a serializer, associated with <a href="contextual.html#kotlinx.serialization.modules.SerializersModuleCollector$contextual(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleCollector.contextual.T)), kotlinx.serialization.KSerializer((kotlinx.serialization.modules.SerializersModuleCollector.contextual.T)))/kClass">kClass</a> for contextual serialization.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">contextual</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.modules.SerializersModuleCollector$contextual(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleCollector.contextual.T)), kotlinx.serialization.KSerializer((kotlinx.serialization.modules.SerializersModuleCollector.contextual.T)))/kClass">kClass</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html"><span class="identifier">KClass</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.modules.SerializersModuleCollector$contextual(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleCollector.contextual.T)), kotlinx.serialization.KSerializer((kotlinx.serialization.modules.SerializersModuleCollector.contextual.T)))/serializer">serializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-k-serializer/index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="polymorphic.html">polymorphic</a></h4>
+</td>
+<td>
+<p>Accept a serializer, associated with <a href="polymorphic.html#kotlinx.serialization.modules.SerializersModuleCollector$polymorphic(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleCollector.polymorphic.Base)), kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleCollector.polymorphic.Sub)), kotlinx.serialization.KSerializer((kotlinx.serialization.modules.SerializersModuleCollector.polymorphic.Sub)))/actualClass">actualClass</a> for polymorphic serialization.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">Base</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier">Sub</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">Base</span><span class="symbol">&gt;</span> <span class="identifier">polymorphic</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.modules.SerializersModuleCollector$polymorphic(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleCollector.polymorphic.Base)), kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleCollector.polymorphic.Sub)), kotlinx.serialization.KSerializer((kotlinx.serialization.modules.SerializersModuleCollector.polymorphic.Sub)))/baseClass">baseClass</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html"><span class="identifier">KClass</span></a><span class="symbol">&lt;</span><span class="identifier">Base</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.modules.SerializersModuleCollector$polymorphic(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleCollector.polymorphic.Base)), kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleCollector.polymorphic.Sub)), kotlinx.serialization.KSerializer((kotlinx.serialization.modules.SerializersModuleCollector.polymorphic.Sub)))/actualClass">actualClass</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html"><span class="identifier">KClass</span></a><span class="symbol">&lt;</span><span class="identifier">Sub</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.modules.SerializersModuleCollector$polymorphic(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleCollector.polymorphic.Base)), kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleCollector.polymorphic.Sub)), kotlinx.serialization.KSerializer((kotlinx.serialization.modules.SerializersModuleCollector.polymorphic.Sub)))/actualSerializer">actualSerializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-k-serializer/index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><span class="identifier">Sub</span><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="polymorphic-default.html">polymorphicDefault</a></h4>
+</td>
+<td>
+<p>Accept a default serializer provider, associated with the <a href="polymorphic-default.html#kotlinx.serialization.modules.SerializersModuleCollector$polymorphicDefault(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleCollector.polymorphicDefault.Base)), kotlin.Function1((kotlin.String, kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.modules.SerializersModuleCollector.polymorphicDefault.Base)))))/baseClass">baseClass</a> for polymorphic serialization.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">Base</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">polymorphicDefault</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.modules.SerializersModuleCollector$polymorphicDefault(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleCollector.polymorphicDefault.Base)), kotlin.Function1((kotlin.String, kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.modules.SerializersModuleCollector.polymorphicDefault.Base)))))/baseClass">baseClass</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html"><span class="identifier">KClass</span></a><span class="symbol">&lt;</span><span class="identifier">Base</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.modules.SerializersModuleCollector$polymorphicDefault(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleCollector.polymorphicDefault.Base)), kotlin.Function1((kotlin.String, kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.modules.SerializersModuleCollector.polymorphicDefault.Base)))))/defaultSerializerProvider">defaultSerializerProvider</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">className</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="../../kotlinx.serialization/-deserialization-strategy/index.html"><span class="identifier">DeserializationStrategy</span></a><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<span class="identifier">Base</span><span class="symbol">&gt;</span><span class="symbol">?</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="../-serializers-module-builder/index.html">SerializersModuleBuilder</a></h4>
+</td>
+<td>
+<p>A builder class for <a href="../-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> DSL. To create an instance of builder, use <a href="../-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> factory function.</p>
+<code><span class="keyword">class </span><span class="identifier">SerializersModuleBuilder</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">SerializersModuleCollector</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

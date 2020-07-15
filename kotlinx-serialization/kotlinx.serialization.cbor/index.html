@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.cbor - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="./index.html">kotlinx.serialization.cbor</a><br/>
+<br/>
+<h2>Package kotlinx.serialization.cbor</h2>
+<p>Concise Binary Object Representation (CBOR) format implementation, as per <a href="https://tools.ietf.org/html/rfc7049">RFC7049</a>. Located in separate <code>kotlinx-serialization-cbor</code> artifact.</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-cbor/index.html">Cbor</a></h4>
+</td>
+<td>
+<p>Implements <a href="-cbor/encode-to-byte-array.html#kotlinx.serialization.cbor.Cbor$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.cbor.Cbor.encodeToByteArray.T)), kotlinx.serialization.cbor.Cbor.encodeToByteArray.T)">encoding</a> and <a href="-cbor/decode-from-byte-array.html#kotlinx.serialization.cbor.Cbor$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.cbor.Cbor.decodeFromByteArray.T)), kotlin.ByteArray)">decoding</a> classes to/from bytes
+using <a href="https://tools.ietf.org/html/rfc7049">CBOR</a> specification.
+It is typically used by constructing an application-specific instance, with configured behaviour, and,
+if necessary, registered custom serializers (in <a href="../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> provided by <a href="-cbor/serializers-module.html#kotlinx.serialization.cbor.Cbor$serializersModule">serializersModule</a> constructor parameter).</p>
+<code><span class="keyword">class </span><span class="identifier">Cbor</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../kotlinx.serialization/-binary-format/index.html"><span class="identifier">BinaryFormat</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Exceptions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-cbor-decoding-exception/index.html">CborDecodingException</a></h4>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">CborDecodingException</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../kotlinx.serialization/-serialization-exception/index.html"><span class="identifier">SerializationException</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

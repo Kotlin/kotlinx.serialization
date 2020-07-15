@@ -1,0 +1,26 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.json.buildJsonArray - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="index.html">kotlinx.serialization.json</a>&nbsp;/&nbsp;<a href="./build-json-array.html">buildJsonArray</a><br/>
+<br/>
+<h1>buildJsonArray</h1>
+<a name="kotlinx.serialization.json$buildJsonArray(kotlin.Function1((kotlinx.serialization.json.JsonArrayBuilder, kotlin.Unit)))"></a>
+(common, jvm, native) <code><span class="keyword">fun </span><span class="identifier">buildJsonArray</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.json$buildJsonArray(kotlin.Function1((kotlinx.serialization.json.JsonArrayBuilder, kotlin.Unit)))/builderAction">builderAction</span><span class="symbol">:</span>&nbsp;<a href="-json-array-builder/index.html"><span class="identifier">JsonArrayBuilder</span></a><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-json-array/index.html"><span class="identifier">JsonArray</span></a></code>
+<p>Builds <a href="-json-array/index.html#kotlinx.serialization.json.JsonArray">JsonArray</a> with the given <a href="build-json-array.html#kotlinx.serialization.json$buildJsonArray(kotlin.Function1((kotlinx.serialization.json.JsonArrayBuilder, kotlin.Unit)))/builderAction">builderAction</a> builder.
+Example of usage:</p>
+<pre><code>val json = buildJsonArray {
+    add(true)
+    addJsonArray {
+        for (i in 1..10) add(i)
+    }
+    addJsonObject {
+        put("stringKey", "stringValue")
+    }
+}
+</code></pre>
+</BODY>
+</HTML>

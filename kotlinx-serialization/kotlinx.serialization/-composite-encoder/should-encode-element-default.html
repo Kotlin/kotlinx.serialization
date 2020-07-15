@@ -1,0 +1,23 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.CompositeEncoder.shouldEncodeElementDefault - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization</a>&nbsp;/&nbsp;<a href="index.html">CompositeEncoder</a>&nbsp;/&nbsp;<a href="./should-encode-element-default.html">shouldEncodeElementDefault</a><br/>
+<br/>
+<h1>shouldEncodeElementDefault</h1>
+<a name="kotlinx.serialization.CompositeEncoder$shouldEncodeElementDefault(kotlinx.serialization.SerialDescriptor, kotlin.Int)"></a>
+(common, jvm, native) <code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">shouldEncodeElementDefault</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.CompositeEncoder$shouldEncodeElementDefault(kotlinx.serialization.SerialDescriptor, kotlin.Int)/descriptor">descriptor</span><span class="symbol">:</span>&nbsp;<a href="../-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.CompositeEncoder$shouldEncodeElementDefault(kotlinx.serialization.SerialDescriptor, kotlin.Int)/index">index</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>Whether the format should encode values that are equal to the default values.
+This method is used by plugin-generated serializers for properties with default values:</p>
+<pre><code>@Serializable
+class WithDefault(val int: Int = 42)
+// serialize method
+if (value.int != 42 || output.shouldEncodeElementDefault(serialDesc, 0)) {
+   encoder.encodeIntElement(serialDesc, 0, value.int);
+}
+</code></pre>
+</BODY>
+</HTML>

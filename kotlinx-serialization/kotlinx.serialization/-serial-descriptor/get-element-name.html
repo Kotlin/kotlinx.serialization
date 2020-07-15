@@ -1,0 +1,22 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.SerialDescriptor.getElementName - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization</a>&nbsp;/&nbsp;<a href="index.html">SerialDescriptor</a>&nbsp;/&nbsp;<a href="./get-element-name.html">getElementName</a><br/>
+<br/>
+<h1>getElementName</h1>
+<a name="kotlinx.serialization.SerialDescriptor$getElementName(kotlin.Int)"></a>
+(common, jvm, native) <code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">getElementName</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.SerialDescriptor$getElementName(kotlin.Int)/index">index</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>Returns a positional name of the child at the given <a href="get-element-name.html#kotlinx.serialization.SerialDescriptor$getElementName(kotlin.Int)/index">index</a>.
+Positional name represents a corresponding property name in the class, associated with
+the current descriptor.</p>
+<h3>Exceptions</h3>
+<p><a name="IndexOutOfBoundsException"></a>
+<code>IndexOutOfBoundsException</code> - for an illegal <a href="get-element-name.html#kotlinx.serialization.SerialDescriptor$getElementName(kotlin.Int)/index">index</a> values.</p>
+<p><a name="IllegalStateException"></a>
+<code>IllegalStateException</code> - if the current descriptor does not support children elements (e.g. is a primitive)</p>
+</BODY>
+</HTML>

@@ -1,0 +1,26 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.Decoder.beginStructure - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization</a>&nbsp;/&nbsp;<a href="index.html">Decoder</a>&nbsp;/&nbsp;<a href="./begin-structure.html">beginStructure</a><br/>
+<br/>
+<h1>beginStructure</h1>
+<a name="kotlinx.serialization.Decoder$beginStructure(kotlinx.serialization.SerialDescriptor)"></a>
+(common, jvm, native) <code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">beginStructure</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.Decoder$beginStructure(kotlinx.serialization.SerialDescriptor)/descriptor">descriptor</span><span class="symbol">:</span>&nbsp;<a href="../-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-composite-decoder/index.html"><span class="identifier">CompositeDecoder</span></a></code>
+<p>Decodes the beginning of the nested structure in a serialized form
+and returns <a href="../-composite-decoder/index.html#kotlinx.serialization.CompositeDecoder">CompositeDecoder</a> responsible for decoding this very structure.</p>
+<p>Typically, classes, collections and maps are represented as a nested structure in a serialized form.
+E.g. the following JSON</p>
+<pre><code>{
+    "a": 2,
+    "b": { "nested": "c" }
+    "c": [1, 2, 3],
+    "d": null
+}
+</code></pre>
+<p>has three nested structures: the very beginning of the data, "b" value and "c" value.</p>
+</BODY>
+</HTML>

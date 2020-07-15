@@ -1,0 +1,17 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.modules.contextual - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="index.html">kotlinx.serialization.modules</a>&nbsp;/&nbsp;<a href="./contextual.html">contextual</a><br/>
+<br/>
+<h1>contextual</h1>
+<a name="kotlinx.serialization.modules$contextual(kotlinx.serialization.modules.SerializersModuleBuilder, kotlinx.serialization.KSerializer((kotlinx.serialization.modules.contextual.T)))"></a>
+(common, jvm, native) <code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="keyword">reified</span>&nbsp;<span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <a href="-serializers-module-builder/index.html"><span class="identifier">SerializersModuleBuilder</span></a><span class="symbol">.</span><span class="identifier">contextual</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.modules$contextual(kotlinx.serialization.modules.SerializersModuleBuilder, kotlinx.serialization.KSerializer((kotlinx.serialization.modules.contextual.T)))/serializer">serializer</span><span class="symbol">:</span>&nbsp;<a href="../kotlinx.serialization/-k-serializer/index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Adds <a href="contextual.html#kotlinx.serialization.modules$contextual(kotlinx.serialization.modules.SerializersModuleBuilder, kotlinx.serialization.KSerializer((kotlinx.serialization.modules.contextual.T)))/serializer">serializer</a> associated with given type <a href="contextual.html#T">T</a> for contextual serialization.
+Throws <a href="../kotlinx.serialization/-serialization-exception/index.html#kotlinx.serialization.SerializationException">SerializationException</a> if a module already has serializer associated with the given type.
+To overwrite an already registered serializer, <a href="overwrite-with.html#kotlinx.serialization.modules$overwriteWith(kotlinx.serialization.modules.SerializersModule, kotlinx.serialization.modules.SerializersModule)">SerializersModule.overwriteWith</a> can be used.</p>
+</BODY>
+</HTML>

@@ -1,0 +1,77 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.protobuf - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="./index.html">kotlinx.serialization.protobuf</a><br/>
+<br/>
+<h2>Package kotlinx.serialization.protobuf</h2>
+<p>Protocol buffers serialization format implementation, mostly complaint to <a href="https://developers.google.com/protocol-buffers/docs/proto">proto2</a> specification. Located in separate <code>kotlinx-serialization-protobuf</code> artifact.</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-proto-buf/index.html">ProtoBuf</a></h4>
+</td>
+<td>
+<p>Implements <a href="-proto-buf/encode-to-byte-array.html#kotlinx.serialization.protobuf.ProtoBuf$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.protobuf.ProtoBuf.encodeToByteArray.T)), kotlinx.serialization.protobuf.ProtoBuf.encodeToByteArray.T)">encoding</a> and <a href="-proto-buf/decode-from-byte-array.html#kotlinx.serialization.protobuf.ProtoBuf$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.protobuf.ProtoBuf.decodeFromByteArray.T)), kotlin.ByteArray)">decoding</a> classes to/from bytes
+using <a href="https://developers.google.com/protocol-buffers/docs/proto">Proto2</a> specification.
+It is typically used by constructing an application-specific instance, with configured specific behaviour
+and, if necessary, registered custom serializers (in <a href="../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> provided by <a href="-proto-buf/serializers-module.html#kotlinx.serialization.protobuf.ProtoBuf$serializersModule">serializersModule</a> constructor parameter).</p>
+<code><span class="keyword">class </span><span class="identifier">ProtoBuf</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../kotlinx.serialization/-binary-format/index.html"><span class="identifier">BinaryFormat</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-proto-number-type/index.html">ProtoNumberType</a></h4>
+</td>
+<td>
+<p>Represents a number format in protobuf encoding.</p>
+<code><span class="keyword">enum</span> <span class="keyword">class </span><span class="identifier">ProtoNumberType</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Annotations</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-proto-id/index.html">ProtoId</a></h4>
+</td>
+<td>
+<p>Specifies protobuf id (a unique number for a field in the protobuf message)
+assigned to a Kotlin property.</p>
+<code><span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">ProtoId</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-proto-type/index.html">ProtoType</a></h4>
+</td>
+<td>
+<p>Instructs to use a particular <a href="-proto-number-type/index.html#kotlinx.serialization.protobuf.ProtoNumberType">ProtoNumberType</a> for a property of integer number type.
+Affect <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte/index.html">Byte</a>, <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-short/index.html">Short</a>, <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html">Long</a> and <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-char/index.html">Char</a> properties and does not affect others.</p>
+<code><span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">ProtoType</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Exceptions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-protobuf-decoding-exception/index.html">ProtobufDecodingException</a></h4>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">ProtobufDecodingException</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../kotlinx.serialization/-serialization-exception/index.html"><span class="identifier">SerializationException</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

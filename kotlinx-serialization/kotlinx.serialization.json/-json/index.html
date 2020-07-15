@@ -1,0 +1,137 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.json.Json - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.json</a>&nbsp;/&nbsp;<a href="./index.html">Json</a><br/>
+<br/>
+<h1>Json</h1>
+<a name="kotlinx.serialization.json.Json"></a>
+(common, jvm, native) <code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">Json</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-string-format/index.html"><span class="identifier">StringFormat</span></a></code>
+<p>The main entry point to work with JSON serialization.
+It is typically used by constructing an application-specific instance, with configured json-specific behaviour
+(<a href="#">configuration</a> constructor parameter) and, if necessary, registered
+custom serializers (in <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> provided by <a href="#">serializersModule</a> constructor parameter).
+Then constructed instance can be used either as regular <a href="../../kotlinx.serialization/-serial-format/index.html#kotlinx.serialization.SerialFormat">SerialFormat</a> or <a href="../../kotlinx.serialization/-string-format/index.html#kotlinx.serialization.StringFormat">StringFormat</a>
+or for converting objects to <a href="../-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> back and forth.</p>
+<p>This is the only serial format which has first-class <a href="../-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> support.
+Any serializable class can be serialized to or from <a href="../-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> with <a href="decode-from-json-element.html#kotlinx.serialization.json.Json$decodeFromJsonElement(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.json.Json.decodeFromJsonElement.T)), kotlinx.serialization.json.JsonElement)">Json.decodeFromJsonElement</a> and <a href="encode-to-json-element.html#kotlinx.serialization.json.Json$encodeToJsonElement(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.json.Json.encodeToJsonElement.T)), kotlinx.serialization.json.Json.encodeToJsonElement.T)">Json.encodeToJsonElement</a> respectively or
+serialize properties of <a href="../-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> type.</p>
+<p>Example of usage:</p>
+<pre><code>@Serializable
+class DataHolder(val id: Int, val data: String, val extensions: JsonElement)
+
+val json = Json(JsonConfiguration.Default)
+val instance = DataHolder(42, "some data", json { "additional key" to "value" })
+
+// Plain StringFormat usage
+val stringOutput: String = json.encodeToString(instance)
+
+// JsonElement serialization specific for JSON only
+val jsonTree: JsonElement = json.encodeToJsonElement(instance)
+
+// Deserialize from string
+val deserialized: DataHolder = json.decodeFromString&lt;DataHolder&gt;(stringOutput)
+
+// Deserialize from json tree, JSON-specific
+val deserializedFromTree: DataHolder = json.decodeFromJsonElement&lt;DataHolder&gt;(jsonTree)
+
+ // Deserialize from string to JSON tree, Json-specific
+ val deserializedToTree: JsonElement = json.parseJsonElement(stringOutput)
+</code></pre>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-default/index.html">Default</a></h4>
+</td>
+<td>
+<p>The default instance of <a href="index.html#kotlinx.serialization.json.Json">Json</a> with default configuration.</p>
+<code><span class="keyword">companion</span> <span class="keyword">object </span><span class="identifier">Default</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">Json</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-from-json-element.html">decodeFromJsonElement</a></h4>
+</td>
+<td>
+<p>Deserializes the given <a href="decode-from-json-element.html#kotlinx.serialization.json.Json$decodeFromJsonElement(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.json.Json.decodeFromJsonElement.T)), kotlinx.serialization.json.JsonElement)/element">element</a> into a value of type <a href="decode-from-json-element.html#T">T</a> using the given <a href="decode-from-json-element.html#kotlinx.serialization.json.Json$decodeFromJsonElement(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.json.Json.decodeFromJsonElement.T)), kotlinx.serialization.json.JsonElement)/deserializer">deserializer</a>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">decodeFromJsonElement</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.json.Json$decodeFromJsonElement(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.json.Json.decodeFromJsonElement.T)), kotlinx.serialization.json.JsonElement)/deserializer">deserializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-deserialization-strategy/index.html"><span class="identifier">DeserializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.json.Json$decodeFromJsonElement(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.json.Json.decodeFromJsonElement.T)), kotlinx.serialization.json.JsonElement)/element">element</span><span class="symbol">:</span>&nbsp;<a href="../-json-element.html"><span class="identifier">JsonElement</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-from-string.html">decodeFromString</a></h4>
+</td>
+<td>
+<p>Deserializes the given JSON <a href="decode-from-string.html#kotlinx.serialization.json.Json$decodeFromString(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.json.Json.decodeFromString.T)), kotlin.String)/string">string</a> into a value of type <a href="decode-from-string.html#T">T</a> using the given <a href="decode-from-string.html#kotlinx.serialization.json.Json$decodeFromString(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.json.Json.decodeFromString.T)), kotlin.String)/deserializer">deserializer</a>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">decodeFromString</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.json.Json$decodeFromString(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.json.Json.decodeFromString.T)), kotlin.String)/deserializer">deserializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-deserialization-strategy/index.html"><span class="identifier">DeserializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.json.Json$decodeFromString(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.json.Json.decodeFromString.T)), kotlin.String)/string">string</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="encode-to-json-element.html">encodeToJsonElement</a></h4>
+</td>
+<td>
+<p>Serializes the given <a href="encode-to-json-element.html#kotlinx.serialization.json.Json$encodeToJsonElement(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.json.Json.encodeToJsonElement.T)), kotlinx.serialization.json.Json.encodeToJsonElement.T)/value">value</a> into an equivalent <a href="../-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> using the given <a href="encode-to-json-element.html#kotlinx.serialization.json.Json$encodeToJsonElement(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.json.Json.encodeToJsonElement.T)), kotlinx.serialization.json.Json.encodeToJsonElement.T)/serializer">serializer</a></p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">encodeToJsonElement</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.json.Json$encodeToJsonElement(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.json.Json.encodeToJsonElement.T)), kotlinx.serialization.json.Json.encodeToJsonElement.T)/serializer">serializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-serialization-strategy/index.html"><span class="identifier">SerializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.json.Json$encodeToJsonElement(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.json.Json.encodeToJsonElement.T)), kotlinx.serialization.json.Json.encodeToJsonElement.T)/value">value</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><a href="../-json-element.html"><span class="identifier">JsonElement</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="encode-to-string.html">encodeToString</a></h4>
+</td>
+<td>
+<p>Serializes the <a href="encode-to-string.html#kotlinx.serialization.json.Json$encodeToString(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.json.Json.encodeToString.T)), kotlinx.serialization.json.Json.encodeToString.T)/value">value</a> into an equivalent JSON using the given <a href="encode-to-string.html#kotlinx.serialization.json.Json$encodeToString(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.json.Json.encodeToString.T)), kotlinx.serialization.json.Json.encodeToString.T)/serializer">serializer</a>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">encodeToString</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.json.Json$encodeToString(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.json.Json.encodeToString.T)), kotlinx.serialization.json.Json.encodeToString.T)/serializer">serializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-serialization-strategy/index.html"><span class="identifier">SerializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.json.Json$encodeToString(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.json.Json.encodeToString.T)), kotlinx.serialization.json.Json.encodeToString.T)/value">value</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="parse-to-json-element.html">parseToJsonElement</a></h4>
+</td>
+<td>
+<p>Deserializes the given JSON <a href="parse-to-json-element.html#kotlinx.serialization.json.Json$parseToJsonElement(kotlin.String)/string">string</a> into a corresponding <a href="../-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> representation.</p>
+<code><span class="keyword">fun </span><span class="identifier">parseToJsonElement</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.json.Json$parseToJsonElement(kotlin.String)/string">string</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-json-element.html"><span class="identifier">JsonElement</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Companion Object Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="serializers-module.html">serializersModule</a></h4>
+</td>
+<td>
+<p>Contains all serializers registered by format user for <a href="../../kotlinx.serialization/-contextual-serialization/index.html#kotlinx.serialization.ContextualSerialization">ContextualSerialization</a> and <a href="../../kotlinx.serialization/-polymorphic/index.html#kotlinx.serialization.Polymorphic">Polymorphic</a> serialization.</p>
+<code><span class="keyword">val </span><span class="identifier">serializersModule</span><span class="symbol">: </span><a href="../../kotlinx.serialization.modules/-serializers-module/index.html"><span class="identifier">SerializersModule</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-default/index.html">Default</a></h4>
+</td>
+<td>
+<p>The default instance of <a href="index.html#kotlinx.serialization.json.Json">Json</a> with default configuration.</p>
+<code><span class="keyword">companion</span> <span class="keyword">object </span><span class="identifier">Default</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">Json</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

@@ -1,0 +1,72 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.SerializationStrategy - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization</a>&nbsp;/&nbsp;<a href="./index.html">SerializationStrategy</a><br/>
+<br/>
+<h1>SerializationStrategy</h1>
+<a name="kotlinx.serialization.SerializationStrategy"></a>
+(common, jvm, native) <code><span class="keyword">interface </span><span class="identifier">SerializationStrategy</span><span class="symbol">&lt;</span><span class="keyword">in</span>&nbsp;<span class="identifier">T</span><span class="symbol">&gt;</span></code>
+<p>Serialization strategy defines the serial form of a type <a href="index.html#T">T</a>, including its structural description,
+declared by the <a href="descriptor.html#kotlinx.serialization.SerializationStrategy$descriptor">descriptor</a> and the actual serialization process, defined by the implementation
+of the <a href="serialize.html#kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.Encoder, kotlinx.serialization.SerializationStrategy.T)">serialize</a> method.</p>
+<p><a href="serialize.html#kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.Encoder, kotlinx.serialization.SerializationStrategy.T)">serialize</a> method takes an instance of <a href="index.html#T">T</a> and transforms it into its serial form (a sequence of primitives),
+calling the corresponding <a href="../-encoder/index.html#kotlinx.serialization.Encoder">Encoder</a> methods.</p>
+<p>A serial form of the type is a transformation of the concrete instance into a sequence of primitive values
+and vice versa. The serial form is not required to completely mimic the structure of the class, for example,
+a specific implementation may represent multiple integer values as a single string, omit or add some
+values that are present in the type, but not in the instance.</p>
+<p>For a more detailed explanation of the serialization process, please refer to <a href="../-k-serializer/index.html#kotlinx.serialization.KSerializer">KSerializer</a> documentation.</p>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="descriptor.html">descriptor</a></h4>
+</td>
+<td>
+<p>Describes the structure of the serializable representation of <a href="index.html#T">T</a>, produced
+by this serializer.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">val </span><span class="identifier">descriptor</span><span class="symbol">: </span><a href="../-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="serialize.html">serialize</a></h4>
+</td>
+<td>
+<p>Serializes the <a href="serialize.html#kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.Encoder, kotlinx.serialization.SerializationStrategy.T)/value">value</a> of type <a href="index.html#T">T</a> using the format that is represented by the given <a href="serialize.html#kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.Encoder, kotlinx.serialization.SerializationStrategy.T)/encoder">encoder</a>.
+<a href="serialize.html#kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.Encoder, kotlinx.serialization.SerializationStrategy.T)">serialize</a> method is format-agnostic and operates with a high-level structured <a href="../-encoder/index.html#kotlinx.serialization.Encoder">Encoder</a> API.
+Throws <a href="../-serialization-exception/index.html#kotlinx.serialization.SerializationException">SerializationException</a> if value cannot be serialized.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">serialize</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.Encoder, kotlinx.serialization.SerializationStrategy.T)/encoder">encoder</span><span class="symbol">:</span>&nbsp;<a href="../-encoder/index.html"><span class="identifier">Encoder</span></a><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.Encoder, kotlinx.serialization.SerializationStrategy.T)/value">value</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="../-k-serializer/index.html">KSerializer</a></h4>
+</td>
+<td>
+<p>KSerializer is responsible for the representation of a serial form of a type <a href="../-k-serializer/index.html#T">T</a>
+in terms of <a href="../-encoder/index.html#kotlinx.serialization.Encoder">encoders</a> and <a href="../-decoder/index.html#kotlinx.serialization.Decoder">decoders</a> and for constructing and deconstructing <a href="../-k-serializer/index.html#T">T</a>
+from/to a sequence of encoding primitives. For classes marked with <a href="../-serializable/index.html#kotlinx.serialization.Serializable">@Serializable</a>, can be
+obtained from generated companion extension <code>.serializer()</code> or from <a href="../serializer.html#kotlinx.serialization$serializer()">serializer()</a> function.</p>
+<code><span class="keyword">interface </span><span class="identifier">KSerializer</span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">SerializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><a href="../-deserialization-strategy/index.html"><span class="identifier">DeserializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

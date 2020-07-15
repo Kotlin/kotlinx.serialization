@@ -1,0 +1,57 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.StringFormat - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization</a>&nbsp;/&nbsp;<a href="./index.html">StringFormat</a><br/>
+<br/>
+<h1>StringFormat</h1>
+<a name="kotlinx.serialization.StringFormat"></a>
+(common, jvm, native) <code><span class="keyword">interface </span><span class="identifier">StringFormat</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../-serial-format/index.html"><span class="identifier">SerialFormat</span></a></code>
+<p><a href="../-serial-format/index.html#kotlinx.serialization.SerialFormat">SerialFormat</a> that allows conversions to and from <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> via <a href="encode-to-string.html#kotlinx.serialization.StringFormat$encodeToString(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.StringFormat.encodeToString.T)), kotlinx.serialization.StringFormat.encodeToString.T)">encodeToString</a> and <a href="decode-from-string.html#kotlinx.serialization.StringFormat$decodeFromString(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.StringFormat.decodeFromString.T)), kotlin.String)">decodeFromString</a> methods.</p>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-from-string.html">decodeFromString</a></h4>
+</td>
+<td>
+<p>Decodes and deserializes the given <a href="decode-from-string.html#kotlinx.serialization.StringFormat$decodeFromString(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.StringFormat.decodeFromString.T)), kotlin.String)/string">string</a> to to the value of type <a href="decode-from-string.html#T">T</a> using the given <a href="decode-from-string.html#kotlinx.serialization.StringFormat$decodeFromString(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.StringFormat.decodeFromString.T)), kotlin.String)/deserializer">deserializer</a></p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">decodeFromString</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.StringFormat$decodeFromString(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.StringFormat.decodeFromString.T)), kotlin.String)/deserializer">deserializer</span><span class="symbol">:</span>&nbsp;<a href="../-deserialization-strategy/index.html"><span class="identifier">DeserializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.StringFormat$decodeFromString(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.StringFormat.decodeFromString.T)), kotlin.String)/string">string</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="encode-to-string.html">encodeToString</a></h4>
+</td>
+<td>
+<p>Serializes and encodes the given <a href="encode-to-string.html#kotlinx.serialization.StringFormat$encodeToString(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.StringFormat.encodeToString.T)), kotlinx.serialization.StringFormat.encodeToString.T)/value">value</a> to string using the given <a href="encode-to-string.html#kotlinx.serialization.StringFormat$encodeToString(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.StringFormat.encodeToString.T)), kotlinx.serialization.StringFormat.encodeToString.T)/serializer">serializer</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">encodeToString</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.StringFormat$encodeToString(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.StringFormat.encodeToString.T)), kotlinx.serialization.StringFormat.encodeToString.T)/serializer">serializer</span><span class="symbol">:</span>&nbsp;<a href="../-serialization-strategy/index.html"><span class="identifier">SerializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.StringFormat$encodeToString(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.StringFormat.encodeToString.T)), kotlinx.serialization.StringFormat.encodeToString.T)/value">value</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="../../kotlinx.serialization.json/-json/index.html">Json</a></h4>
+</td>
+<td>
+<p>The main entry point to work with JSON serialization.
+It is typically used by constructing an application-specific instance, with configured json-specific behaviour
+(<a href="#">configuration</a> constructor parameter) and, if necessary, registered
+custom serializers (in <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> provided by <a href="#">serializersModule</a> constructor parameter).
+Then constructed instance can be used either as regular <a href="../-serial-format/index.html#kotlinx.serialization.SerialFormat">SerialFormat</a> or <a href="index.html#kotlinx.serialization.StringFormat">StringFormat</a>
+or for converting objects to <a href="../../kotlinx.serialization.json/-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> back and forth.</p>
+<code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">Json</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">StringFormat</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

@@ -1,0 +1,59 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.modules.SerializersModule - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.modules</a>&nbsp;/&nbsp;<a href="./index.html">SerializersModule</a><br/>
+<br/>
+<h1>SerializersModule</h1>
+<a name="kotlinx.serialization.modules.SerializersModule"></a>
+(common, jvm, native) <code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">SerializersModule</span></code>
+<p><a href="index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> is a collection of serializers used by <a href="../../kotlinx.serialization/-context-serializer/index.html#kotlinx.serialization.ContextSerializer">ContextSerializer</a> and <a href="../../kotlinx.serialization/-polymorphic-serializer/index.html#kotlinx.serialization.PolymorphicSerializer">PolymorphicSerializer</a>
+to override or provide serializers at the runtime, whereas at the compile-time they provided by the serialization plugin.
+It can be considered as a map where serializers can be found using their statically known KClasses.</p>
+<p>To enable runtime serializers resolution, one of the special annotations must be used on target types
+(<a href="../../kotlinx.serialization/-polymorphic/index.html#kotlinx.serialization.Polymorphic">Polymorphic</a> or <a href="../../kotlinx.serialization/-contextual-serialization/index.html#kotlinx.serialization.ContextualSerialization">ContextualSerialization</a>), and a serial module with serializers should be used during construction of <a href="../../kotlinx.serialization/-serial-format/index.html#kotlinx.serialization.SerialFormat">SerialFormat</a>.</p>
+<p><strong>See Also</strong><br/>
+<p><a href="../../kotlinx.serialization/-contextual-serialization/index.html#kotlinx.serialization.ContextualSerialization">ContextualSerialization</a></p>
+<p><a href="../../kotlinx.serialization/-polymorphic/index.html#kotlinx.serialization.Polymorphic">Polymorphic</a></p>
+</p>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="dump-to.html">dumpTo</a></h4>
+</td>
+<td>
+<p>Copies contents of this module to the given <a href="dump-to.html#kotlinx.serialization.modules.SerializersModule$dumpTo(kotlinx.serialization.modules.SerializersModuleCollector)/collector">collector</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">dumpTo</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.modules.SerializersModule$dumpTo(kotlinx.serialization.modules.SerializersModuleCollector)/collector">collector</span><span class="symbol">:</span>&nbsp;<a href="../-serializers-module-collector/index.html"><span class="identifier">SerializersModuleCollector</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="get-contextual.html">getContextual</a></h4>
+</td>
+<td>
+<p>Returns a contextual serializer associated with a given <a href="get-contextual.html#kotlinx.serialization.modules.SerializersModule$getContextual(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModule.getContextual.T)))/kclass">kclass</a>.
+This method is used in context-sensitive operations on a property marked with <a href="../../kotlinx.serialization/-contextual-serialization/index.html#kotlinx.serialization.ContextualSerialization">ContextualSerialization</a> by a <a href="../../kotlinx.serialization/-context-serializer/index.html#kotlinx.serialization.ContextSerializer">ContextSerializer</a></p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">getContextual</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.modules.SerializersModule$getContextual(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModule.getContextual.T)))/kclass">kclass</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html"><span class="identifier">KClass</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="../../kotlinx.serialization/-k-serializer/index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="get-polymorphic.html">getPolymorphic</a></h4>
+</td>
+<td>
+<p>Returns a polymorphic serializer registered for a class of the given <a href="get-polymorphic.html#kotlinx.serialization.modules.SerializersModule$getPolymorphic(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModule.getPolymorphic.T)), kotlinx.serialization.modules.SerializersModule.getPolymorphic.T)/value">value</a> in the scope of <a href="get-polymorphic.html#kotlinx.serialization.modules.SerializersModule$getPolymorphic(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModule.getPolymorphic.T)), kotlinx.serialization.modules.SerializersModule.getPolymorphic.T)/baseClass">baseClass</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">getPolymorphic</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.modules.SerializersModule$getPolymorphic(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModule.getPolymorphic.T)), kotlinx.serialization.modules.SerializersModule.getPolymorphic.T)/baseClass">baseClass</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html"><span class="identifier">KClass</span></a><span class="symbol">&lt;</span><span class="keyword">in</span>&nbsp;<span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.modules.SerializersModule$getPolymorphic(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModule.getPolymorphic.T)), kotlinx.serialization.modules.SerializersModule.getPolymorphic.T)/value">value</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><a href="../../kotlinx.serialization/-serialization-strategy/index.html"><span class="identifier">SerializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">?</span></code>
+<p>Returns a polymorphic deserializer registered for a <a href="get-polymorphic.html#kotlinx.serialization.modules.SerializersModule$getPolymorphic(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModule.getPolymorphic.T)), kotlin.String)/serializedClassName">serializedClassName</a> in the scope of <a href="get-polymorphic.html#kotlinx.serialization.modules.SerializersModule$getPolymorphic(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModule.getPolymorphic.T)), kotlin.String)/baseClass">baseClass</a>
+or default value constructed from <a href="get-polymorphic.html#kotlinx.serialization.modules.SerializersModule$getPolymorphic(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModule.getPolymorphic.T)), kotlin.String)/serializedClassName">serializedClassName</a> if default serializer provider was registered.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">getPolymorphic</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.modules.SerializersModule$getPolymorphic(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModule.getPolymorphic.T)), kotlin.String)/baseClass">baseClass</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html"><span class="identifier">KClass</span></a><span class="symbol">&lt;</span><span class="keyword">in</span>&nbsp;<span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.modules.SerializersModule$getPolymorphic(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModule.getPolymorphic.T)), kotlin.String)/serializedClassName">serializedClassName</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../../kotlinx.serialization/-deserialization-strategy/index.html"><span class="identifier">DeserializationStrategy</span></a><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">?</span></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

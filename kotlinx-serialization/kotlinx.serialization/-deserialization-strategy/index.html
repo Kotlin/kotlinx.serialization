@@ -1,0 +1,77 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.DeserializationStrategy - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization</a>&nbsp;/&nbsp;<a href="./index.html">DeserializationStrategy</a><br/>
+<br/>
+<h1>DeserializationStrategy</h1>
+<a name="kotlinx.serialization.DeserializationStrategy"></a>
+(common, jvm, native) <code><span class="keyword">interface </span><span class="identifier">DeserializationStrategy</span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code>
+<p>Deserialization strategy defines the serial form of a type <a href="index.html#T">T</a>, including its structural description,
+declared by the <a href="descriptor.html#kotlinx.serialization.DeserializationStrategy$descriptor">descriptor</a> and the actual deserialization process, defined by the implementation
+of the <a href="deserialize.html#kotlinx.serialization.DeserializationStrategy$deserialize(kotlinx.serialization.Decoder)">deserialize</a> method.</p>
+<p><a href="deserialize.html#kotlinx.serialization.DeserializationStrategy$deserialize(kotlinx.serialization.Decoder)">deserialize</a> method takes an instance of <a href="../-decoder/index.html#kotlinx.serialization.Decoder">Decoder</a>, and, knowing the serial form of the <a href="index.html#T">T</a>,
+invokes primitive retrieval methods on the decoder and then transforms the received primitives
+to an instance of <a href="index.html#T">T</a>.</p>
+<p>A serial form of the type is a transformation of the concrete instance into a sequence of primitive values
+and vice versa. The serial form is not required to completely mimic the structure of the class, for example,
+a specific implementation may represent multiple integer values as a single string, omit or add some
+values that are present in the type, but not in the instance.</p>
+<p>For a more detailed explanation of the serialization process, please refer to <a href="../-k-serializer/index.html#kotlinx.serialization.KSerializer">KSerializer</a> documentation.</p>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="descriptor.html">descriptor</a></h4>
+</td>
+<td>
+<p>Describes the structure of the serializable representation of <a href="index.html#T">T</a>, that current
+deserializer is able to deserialize.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">val </span><span class="identifier">descriptor</span><span class="symbol">: </span><a href="../-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="deserialize.html">deserialize</a></h4>
+</td>
+<td>
+<p>Deserializes the value of type <a href="index.html#T">T</a> using the format that is represented by the given <a href="deserialize.html#kotlinx.serialization.DeserializationStrategy$deserialize(kotlinx.serialization.Decoder)/decoder">decoder</a>.
+<a href="deserialize.html#kotlinx.serialization.DeserializationStrategy$deserialize(kotlinx.serialization.Decoder)">deserialize</a> method is format-agnostic and operates with a high-level structured <a href="../-decoder/index.html#kotlinx.serialization.Decoder">Decoder</a> API.
+As long as most of the formats imply an arbitrary order of properties, deserializer should be able
+to decode these properties in an arbitrary order and in a format-agnostic way.
+For that purposes, <a href="../-composite-decoder/decode-element-index.html#kotlinx.serialization.CompositeDecoder$decodeElementIndex(kotlinx.serialization.SerialDescriptor)">CompositeDecoder.decodeElementIndex</a>-based loop is used: decoder firstly
+signals property at which index it is ready to decode and then expects caller to decode
+property with the given index.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">deserialize</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.DeserializationStrategy$deserialize(kotlinx.serialization.Decoder)/decoder">decoder</span><span class="symbol">:</span>&nbsp;<a href="../-decoder/index.html"><span class="identifier">Decoder</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="../-k-serializer/index.html">KSerializer</a></h4>
+</td>
+<td>
+<p>KSerializer is responsible for the representation of a serial form of a type <a href="../-k-serializer/index.html#T">T</a>
+in terms of <a href="../-encoder/index.html#kotlinx.serialization.Encoder">encoders</a> and <a href="../-decoder/index.html#kotlinx.serialization.Decoder">decoders</a> and for constructing and deconstructing <a href="../-k-serializer/index.html#T">T</a>
+from/to a sequence of encoding primitives. For classes marked with <a href="../-serializable/index.html#kotlinx.serialization.Serializable">@Serializable</a>, can be
+obtained from generated companion extension <code>.serializer()</code> or from <a href="../serializer.html#kotlinx.serialization$serializer()">serializer()</a> function.</p>
+<code><span class="keyword">interface </span><span class="identifier">KSerializer</span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../-serialization-strategy/index.html"><span class="identifier">SerializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><a href="./index.html"><span class="identifier">DeserializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>
