@@ -132,7 +132,7 @@ class Derived2(@SerialName("state2") override var state1: String): Base1(state1)
 }
 
 @Serializable
-open class PolyBase(@ProtoId(1) val id: Int) {
+open class PolyBase(@ProtoNumber(1) val id: Int) {
     override fun hashCode(): Int {
         return id
     }
@@ -155,7 +155,7 @@ open class PolyBase(@ProtoId(1) val id: Int) {
 }
 
 @Serializable
-data class PolyDerived(@ProtoId(2) val s: String) : PolyBase(1)
+data class PolyDerived(@ProtoNumber(2) val s: String) : PolyBase(1)
 
 val BaseAndDerivedModule = SerializersModule {
     polymorphic(PolyBase::class, PolyBase.serializer()) {

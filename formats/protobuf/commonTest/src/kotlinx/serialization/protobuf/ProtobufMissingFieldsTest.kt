@@ -50,41 +50,41 @@ class ProtobufMissingFieldsTest {
 
     @Serializable
     data class Items(
-        @ProtoId(1)
+        @ProtoNumber(1)
         val items: List<Item> = emptyList(),
-        @ProtoId(2)
+        @ProtoNumber(2)
         val pageSize: Int? = null,
-        @ProtoId(3)
+        @ProtoNumber(3)
         val nextPage: Boolean = false
     )
 
     @Serializable
     data class Item(
-        @ProtoId(1)
+        @ProtoNumber(1)
         val id: Int,
-        @ProtoId(2) @Serializable(with = ItemPlatformSerializer::class)
+        @ProtoNumber(2) @Serializable(with = ItemPlatformSerializer::class)
         val platform: ItemPlatform = ItemPlatform.Unknown,
-        @ProtoId(3)
+        @ProtoNumber(3)
         val language: List<String> = emptyList(),
-        @ProtoId(4) @Serializable(with = ItemContextSerializer::class)
+        @ProtoNumber(4) @Serializable(with = ItemContextSerializer::class)
         val context: ItemContext = ItemContext.Unknown
     )
 
     @Serializable
     data class ItemsWithoutPageSize(
-        @ProtoId(1)
+        @ProtoNumber(1)
         val items: List<ItemWithoutPlatform> = emptyList(),
-        @ProtoId(3)
+        @ProtoNumber(3)
         val nextPage: Boolean = false
     )
 
     @Serializable
     data class ItemWithoutPlatform(
-        @ProtoId(1)
+        @ProtoNumber(1)
         val id: Int,
-        @ProtoId(3)
+        @ProtoNumber(3)
         val language: List<String> = emptyList(),
-        @ProtoId(4) @Serializable(with = ItemContextSerializer::class)
+        @ProtoNumber(4) @Serializable(with = ItemContextSerializer::class)
         val context: ItemContext = ItemContext.Unknown
     )
 

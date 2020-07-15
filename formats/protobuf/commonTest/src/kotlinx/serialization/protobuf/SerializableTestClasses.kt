@@ -7,25 +7,25 @@ package kotlinx.serialization.protobuf
 import kotlinx.serialization.*
 
 @Serializable
-data class TestInt(@ProtoId(1) @ProtoType(ProtoNumberType.SIGNED) val a: Int)
+data class TestInt(@ProtoNumber(1) @ProtoType(ProtoIntegerType.SIGNED) val a: Int)
 
 @Serializable
-data class TestList(@ProtoId(1) val a: List<Int> = emptyList())
+data class TestList(@ProtoNumber(1) val a: List<Int> = emptyList())
 
 @Serializable
-data class TestString(@ProtoId(2) val b: String)
+data class TestString(@ProtoNumber(2) val b: String)
 
 @Serializable
-data class TestInner(@ProtoId(3) val a: TestInt)
+data class TestInner(@ProtoNumber(3) val a: TestInt)
 
 @Serializable
-data class TestComplex(@ProtoId(42) val b: Int, @ProtoId(2) val c: String)
+data class TestComplex(@ProtoNumber(42) val b: Int, @ProtoNumber(2) val c: String)
 
 @Serializable
-data class TestNumbers(@ProtoId(1) @ProtoType(ProtoNumberType.FIXED) val a: Int, @ProtoId(2) val b: Long)
+data class TestNumbers(@ProtoNumber(1) @ProtoType(ProtoIntegerType.FIXED) val a: Int, @ProtoNumber(2) val b: Long)
 
 @Serializable
 data class TestIntWithList(
-    @ProtoId(1) val s: Int,
-    @ProtoId(10) val l: List<Int>
+    @ProtoNumber(1) val s: Int,
+    @ProtoNumber(10) val l: List<Int>
 )

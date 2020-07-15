@@ -9,7 +9,7 @@ import kotlin.jvm.*
 
 internal class ProtobufWriter(private val out: ByteArrayOutput) {
     fun writeBytes(bytes: ByteArray, tag: Int) {
-        out.encode32((tag shl 3) or ProtoBuf.SIZE_DELIMITED)
+        out.encode32((tag shl 3) or SIZE_DELIMITED)
         writeBytes(bytes)
     }
 
@@ -19,7 +19,7 @@ internal class ProtobufWriter(private val out: ByteArrayOutput) {
     }
 
     fun writeOutput(output: ByteArrayOutput, tag: Int) {
-        out.encode32((tag shl 3) or ProtoBuf.SIZE_DELIMITED)
+        out.encode32((tag shl 3) or SIZE_DELIMITED)
         writeOutput(output)
     }
 
@@ -28,8 +28,8 @@ internal class ProtobufWriter(private val out: ByteArrayOutput) {
         out.write(output)
     }
 
-    fun writeInt(value: Int, tag: Int, format: ProtoNumberType) {
-        val wireType = if (format == ProtoNumberType.FIXED) ProtoBuf.i32 else ProtoBuf.VARINT
+    fun writeInt(value: Int, tag: Int, format: ProtoIntegerType) {
+        val wireType = if (format == ProtoIntegerType.FIXED) i32 else VARINT
         out.encode32((tag shl 3) or wireType)
         out.encode32(value, format)
     }
@@ -38,8 +38,8 @@ internal class ProtobufWriter(private val out: ByteArrayOutput) {
         out.encode32(value)
     }
 
-    fun writeLong(value: Long, tag: Int, format: ProtoNumberType) {
-        val wireType = if (format == ProtoNumberType.FIXED) ProtoBuf.i64 else ProtoBuf.VARINT
+    fun writeLong(value: Long, tag: Int, format: ProtoIntegerType) {
+        val wireType = if (format == ProtoIntegerType.FIXED) i64 else VARINT
         out.encode32((tag shl 3) or wireType)
         out.encode64(value, format)
     }
@@ -59,7 +59,7 @@ internal class ProtobufWriter(private val out: ByteArrayOutput) {
     }
 
     fun writeDouble(value: Double, tag: Int) {
-        out.encode32((tag shl 3) or ProtoBuf.i64)
+        out.encode32((tag shl 3) or i64)
         out.writeLong(value.reverseBytes())
     }
 
@@ -68,7 +68,7 @@ internal class ProtobufWriter(private val out: ByteArrayOutput) {
     }
 
     fun writeFloat(value: Float, tag: Int) {
-        out.encode32((tag shl 3) or ProtoBuf.i32)
+        out.encode32((tag shl 3) or i32)
         out.writeInt(value.reverseBytes())
     }
 
@@ -78,20 +78,20 @@ internal class ProtobufWriter(private val out: ByteArrayOutput) {
 
     private fun ByteArrayOutput.encode32(
         number: Int,
-        format: ProtoNumberType = ProtoNumberType.DEFAULT
+        format: ProtoIntegerType = ProtoIntegerType.DEFAULT
     ) {
         when (format) {
-            ProtoNumberType.FIXED -> out.writeInt(number.reverseBytes())
-            ProtoNumberType.DEFAULT -> encodeVarint64(number.toLong())
-            ProtoNumberType.SIGNED -> encodeVarint32(((number shl 1) xor (number shr 31)))
+            ProtoIntegerType.FIXED -> out.writeInt(number.reverseBytes())
+            ProtoIntegerType.DEFAULT -> encodeVarint64(number.toLong())
+            ProtoIntegerType.SIGNED -> encodeVarint32(((number shl 1) xor (number shr 31)))
         }
     }
 
-    private fun ByteArrayOutput.encode64(number: Long, format: ProtoNumberType = ProtoNumberType.DEFAULT) {
+    private fun ByteArrayOutput.encode64(number: Long, format: ProtoIntegerType = ProtoIntegerType.DEFAULT) {
         when (format) {
-            ProtoNumberType.FIXED -> out.writeLong(number.reverseBytes())
-            ProtoNumberType.DEFAULT -> encodeVarint64(number)
-            ProtoNumberType.SIGNED -> encodeVarint64((number shl 1) xor (number shr 63))
+            ProtoIntegerType.FIXED -> out.writeLong(number.reverseBytes())
+            ProtoIntegerType.DEFAULT -> encodeVarint64(number)
+            ProtoIntegerType.SIGNED -> encodeVarint64((number shl 1) xor (number shr 63))
         }
     }
 

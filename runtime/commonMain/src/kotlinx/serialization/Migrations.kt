@@ -101,13 +101,13 @@ public class Mapper()
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
 @Deprecated(
-    message = "SerialId is renamed to ProtoId to better reflect its semantics and extracted to separate artifact kotlinx-serialization-protobuf",
-    level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("ProtoId", imports = ["kotlinx.serialization.protobuf.*"])
+    message = "SerialId is renamed to ProtoNumber to better reflect its semantics and extracted to separate artifact kotlinx-serialization-protobuf",
+    level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("ProtoNumber", imports = ["kotlinx.serialization.protobuf.*"])
 )
 public annotation class SerialId @Deprecated(
     message = "SerialId is renamed to ProtoId to better reflect its semantics and extracted to separate artifact kotlinx-serialization-protobuf",
     level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("ProtoId(id)", imports = ["kotlinx.serialization.protobuf.*"])
+    replaceWith = ReplaceWith("ProtoNumber(id)", imports = ["kotlinx.serialization.protobuf.*"])
 ) constructor(public val id: Int)
 
 

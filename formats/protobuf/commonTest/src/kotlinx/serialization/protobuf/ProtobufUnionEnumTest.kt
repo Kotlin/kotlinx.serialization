@@ -12,9 +12,9 @@ class ProtobufUnionEnumTest {
     enum class SomeEnum { ALPHA, BETA, GAMMA }
 
     @Serializable
-    data class WithUnions(@ProtoId(5) val s: String,
-                          @ProtoId(6) val e: SomeEnum = SomeEnum.ALPHA,
-                          @ProtoId(7) val i: Int = 42)
+    data class WithUnions(@ProtoNumber(5) val s: String,
+                          @ProtoNumber(6) val e: SomeEnum = SomeEnum.ALPHA,
+                          @ProtoNumber(7) val i: Int = 42)
 
     @Test
     fun testEnum() {

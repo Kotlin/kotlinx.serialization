@@ -15,7 +15,7 @@ import kotlin.test.*
 class ProtobufTopLevelPrimitivesCompatibilityTest {
 
     @Serializable
-    data class Box(@ProtoId(1) val i: Int)
+    data class Box(@ProtoNumber(1) val i: Int)
 
     @Serializable
     data class StringHolder(val foo: String)

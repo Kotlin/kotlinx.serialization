@@ -7,7 +7,15 @@ package kotlinx.serialization.protobuf
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 
-private const val MASK = Int.MAX_VALUE.toLong() shl 32
+/**
+ * Specifies protobuf field number (a unique number for a field in the protobuf message)
+ * assigned to a Kotlin property.
+ *
+ * See [https://developers.google.com/protocol-buffers/docs/proto#assigning-field-numbers]
+ */
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY)
+public annotation class ProtoNumber(public val number: Int)
 
 /**
  * Represents a number format in protobuf encoding.
@@ -21,62 +29,38 @@ private const val MASK = Int.MAX_VALUE.toLong() shl 32
  * @see ProtoType
  */
 @Suppress("NO_EXPLICIT_VISIBILITY_IN_API_MODE_WARNING")
-public enum class ProtoNumberType(internal val signature: Long) {
+public enum class ProtoIntegerType(internal val signature: Long) {
     DEFAULT(0L shl 32),
     SIGNED(1L shl 32),
     FIXED(2L shl 32);
 }
 
 /**
- * Instructs to use a particular [ProtoNumberType] for a property of integer number type.
+ * Instructs to use a particular [ProtoIntegerType] for a property of integer number type.
  * Affect [Byte], [Short], [Int], [Long] and [Char] properties and does not affect others.
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
-public annotation class ProtoType(public val type: ProtoNumberType)
+public annotation class ProtoType(public val type: ProtoIntegerType)
 
-internal typealias ProtoDesc = Long
 
-@Suppress("NOTHING_TO_INLINE")
-internal inline fun ProtoDesc(protoId: Int, type: ProtoNumberType): ProtoDesc {
-    return type.signature or protoId.toLong()
-}
+@Deprecated(
+    level = DeprecationLevel.ERROR,
+    message = "This annotation was renamed to ProtoNumber during serialization 1.0 API stabilization",
+    replaceWith = ReplaceWith("ProtoNumber")
+)
+public annotation class ProtoId
+@Deprecated(
+    level = DeprecationLevel.ERROR,
+    message = "This annotation was renamed to ProtoNumber during serialization 1.0 API stabilization.\n" +
+            "ProtoBuf doesn't have notion of 'id', only field numbers in its specification",
+    replaceWith = ReplaceWith("ProtoNumber(id)")
+)
+constructor(public val id: Int)
 
-internal inline val ProtoDesc.protoId: Int get() = (this and Int.MAX_VALUE.toLong()).toInt()
-
-internal val ProtoDesc.numberType: ProtoNumberType get() = when(this and MASK) {
-    ProtoNumberType.DEFAULT.signature -> ProtoNumberType.DEFAULT
-    ProtoNumberType.SIGNED.signature -> ProtoNumberType.SIGNED
-    else -> ProtoNumberType.FIXED
-}
-
-internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
-    val annotations = getElementAnnotations(index)
-    var protoId: Int = index + 1
-    var format: ProtoNumberType = ProtoNumberType.DEFAULT
-    for (i in annotations.indices) { // Allocation-friendly loop
-        val annotation = annotations[i]
-        if (annotation is ProtoId) {
-            protoId = annotation.id
-        } else if (annotation is ProtoType) {
-            format = annotation.type
-        }
-    }
-    return ProtoDesc(protoId, format)
-}
-
-internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedDefault: Boolean): Int {
-    val annotations = descriptor.getElementAnnotations(index)
-    for (i in annotations.indices) { // Allocation-friendly loop
-        val annotation = annotations[i]
-        if (annotation is ProtoId) {
-            return annotation.id
-        }
-    }
-    return if (zeroBasedDefault) index else index + 1
-}
-
-public class ProtobufDecodingException(message: String) : SerializationException(message)
-
-internal expect fun Int.reverseBytes(): Int
-internal expect fun Long.reverseBytes(): Long
+@Deprecated(
+    level = DeprecationLevel.ERROR,
+    message = "ProtoNumberType was renamed to ProtoIntegerType during serialization 1.0 API stabilization",
+    replaceWith = ReplaceWith("ProtoIntegerType")
+)
+public typealias ProtoNumberType = ProtoIntegerType
