@@ -32,6 +32,9 @@ public sealed class Hocon(
     public fun <T> decodeFromConfig(deserializer: DeserializationStrategy<T>, config: Config): T =
         ConfigReader(config).decodeSerializableValue(deserializer)
 
+    /**
+     * The default instance of Hocon parser.
+     */
     public companion object Default : Hocon(false, EmptySerializersModule) {
         private val NAMING_CONVENTION_REGEX by lazy { "[A-Z]".toRegex() }
     }
@@ -222,8 +225,18 @@ public fun Hocon(from: Hocon = Hocon, builderAction: HoconBuilder.() -> Unit): H
     return HoconImpl(builder.useConfigNamingConvention, builder.serializersModule)
 }
 
+/**
+ * Builder of the [Hocon] instance provided by `Hocon` factory function.
+ */
 public class HoconBuilder internal constructor(hocon: Hocon) {
+    /**
+     * Module with contextual and polymorphic serializers to be used in the resulting [Hocon] instance.
+     */
     public var serializersModule: SerializersModule = hocon.serializersModule
+
+    /**
+     * Switches naming resolution to config naming convention: hyphen separated.
+     */
     public var useConfigNamingConvention: Boolean = hocon.useConfigNamingConvention
 }
 
