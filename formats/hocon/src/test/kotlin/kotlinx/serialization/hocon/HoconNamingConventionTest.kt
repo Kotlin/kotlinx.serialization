@@ -8,7 +8,7 @@ import kotlinx.serialization.*
 import org.junit.*
 import org.junit.Assert.*
 
-class ConfigParserNamingConventionTest {
+class HoconNamingConventionTest {
 
     @Serializable
     data class CaseConfig(val aCharValue: Char, val aStringValue: String)

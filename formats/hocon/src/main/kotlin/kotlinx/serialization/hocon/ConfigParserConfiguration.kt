@@ -5,7 +5,7 @@
 package kotlinx.serialization.hocon
 
 /**
- * The class responsible for Config-specific customizable behaviour in [ConfigParser] format.
+ * The class responsible for Config-specific customizable behaviour in [Hocon] format.
  *
  * Options list:
  * * [useConfigNamingConvention] switches naming resolution to config naming convention (hyphen separated)

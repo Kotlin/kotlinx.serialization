@@ -4,7 +4,6 @@
 
 package org.jetbrains.kotlinx.serialization.config
 
-
 private const val pkg = "kotlinx.serialization.config"
 private const val message = "Moved to $pkg package"
 
@@ -12,4 +11,4 @@ private const val message = "Moved to $pkg package"
 typealias ConfigParserConfiguration = kotlinx.serialization.hocon.ConfigParserConfiguration
 
 @Deprecated(message, ReplaceWith("ConfigParser", pkg), level = DeprecationLevel.ERROR)
-typealias ConfigParser = kotlinx.serialization.hocon.ConfigParser
+typealias ConfigParser = kotlinx.serialization.hocon.Hocon

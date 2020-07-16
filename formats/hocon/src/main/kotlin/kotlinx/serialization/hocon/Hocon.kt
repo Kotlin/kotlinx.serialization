@@ -26,7 +26,7 @@ private val SerialKind.objLike get() = this == StructureKind.CLASS || this == St
  * @param serializersModule A [SerializersModule] which should contain registered serializers
  * for [Contextual] and [Polymorphic] serialization, if you have any.
  */
-public class ConfigParser(
+public class Hocon(
     private val configuration: ConfigParserConfiguration = ConfigParserConfiguration(),
     override val serializersModule: SerializersModule = EmptySerializersModule
 ) : SerialFormat {
@@ -55,7 +55,7 @@ public class ConfigParser(
 
     private abstract inner class ConfigConverter<T> : TaggedDecoder<T>() {
         override val serializersModule: SerializersModule
-            get() = this@ConfigParser.serializersModule
+            get() = this@Hocon.serializersModule
 
         abstract fun getTaggedConfigValue(tag: T): ConfigValue
 
@@ -201,7 +201,7 @@ public class ConfigParser(
             level = DeprecationLevel.ERROR,
             replaceWith = ReplaceWith("ConfigParser.decodeFromConfig(serial, conf)")
         )
-        public fun <T> parse(conf: Config, serial: DeserializationStrategy<T>): T = ConfigParser().decodeFromConfig(
+        public fun <T> parse(conf: Config, serial: DeserializationStrategy<T>): T = Hocon().decodeFromConfig(
             serial,
             conf
         )
@@ -211,12 +211,12 @@ public class ConfigParser(
             level = DeprecationLevel.ERROR,
             replaceWith = ReplaceWith("ConfigParser.decodeFromConfig(conf)")
         )
-        public inline fun <reified T : Any> parse(conf: Config): T = ConfigParser().decodeFromConfig(serializer(), conf)
+        public inline fun <reified T : Any> parse(conf: Config): T = Hocon().decodeFromConfig(serializer(), conf)
 
-        public inline fun <reified T : Any> decodeFromConfig(config: Config): T = ConfigParser().decodeFromConfig(serializer(), config)
+        public inline fun <reified T : Any> decodeFromConfig(config: Config): T = Hocon().decodeFromConfig(serializer(), config)
 
         public fun <T> decodeFromConfig(deserializer: DeserializationStrategy<T>, config: Config): T =
-            ConfigParser().decodeFromConfig(deserializer, config)
+            Hocon().decodeFromConfig(deserializer, config)
 
         private val NAMING_CONVENTION_REGEX by lazy { "[A-Z]".toRegex() }
     }
