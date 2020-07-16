@@ -13,8 +13,11 @@ internal inline fun <reified T> deserializeConfig(
     configString: String,
     deserializer: DeserializationStrategy<T>,
     useNamingConvention: Boolean = false
-): T = Hocon(ConfigParserConfiguration(useNamingConvention))
-    .decodeFromConfig(deserializer, ConfigFactory.parseString(configString))
+): T {
+    val ucnc = useNamingConvention
+    return Hocon { useConfigNamingConvention = ucnc }
+        .decodeFromConfig(deserializer, ConfigFactory.parseString(configString))
+}
 
 class ConfigParserObjectsTest {
 

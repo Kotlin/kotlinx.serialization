@@ -7,8 +7,9 @@ package org.jetbrains.kotlinx.serialization.config
 private const val pkg = "kotlinx.serialization.config"
 private const val message = "Moved to $pkg package"
 
+@Suppress("DEPRECATION_ERROR")
 @Deprecated(message, ReplaceWith("ConfigParserConfiguration", pkg), level = DeprecationLevel.ERROR)
-typealias ConfigParserConfiguration = kotlinx.serialization.hocon.ConfigParserConfiguration
+typealias ConfigParserConfiguration = kotlinx.serialization.config.ConfigParserConfiguration
 
 @Deprecated(message, ReplaceWith("ConfigParser", pkg), level = DeprecationLevel.ERROR)
 typealias ConfigParser = kotlinx.serialization.hocon.Hocon
