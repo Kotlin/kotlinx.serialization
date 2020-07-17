@@ -14,7 +14,7 @@ import kotlin.reflect.*
  * This class provides support for retrieving a serializer in runtime, instead of using the one precompiled by the serialization plugin.
  * This serializer is enabled by [Contextual] or [UseContextualSerialization].
  *
- * Typical usage of ContextSerializer would be a serialization of a class which does not have
+ * Typical usage of ContextualSerializer would be a serialization of a class which does not have
  * static serializer (e.g. Java class or class from 3rd party library);
  * or desire to override serialized class form in one dedicated output format.
  *
@@ -22,7 +22,7 @@ import kotlin.reflect.*
  * To create a serial module, use [SerializersModule] factory function.
  * To pass it to encoder and decoder, refer to particular [SerialFormat]'s documentation.
  *
- * Usage of context serializer can be demonstrated by the following example:
+ * Usage of contextual serializer can be demonstrated by the following example:
  * ```
  * import java.util.Date
  *
@@ -45,7 +45,7 @@ public class ContextualSerializer<T : Any>(
     public constructor(serializableClass: KClass<T>) : this(serializableClass, null, EMPTY_SERIALIZER_ARRAY)
 
     public override val descriptor: SerialDescriptor =
-        buildSerialDescriptor("kotlinx.serialization.ContextSerializer", SerialKind.CONTEXTUAL).withContext(serializableClass)
+        buildSerialDescriptor("kotlinx.serialization.ContextualSerializer", SerialKind.CONTEXTUAL).withContext(serializableClass)
 
     public override fun serialize(encoder: Encoder, value: T) {
         val clz = value::class

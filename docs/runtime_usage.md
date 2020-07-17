@@ -76,7 +76,7 @@ val module = SerialModule {
 ### Special serializers
 
 There are two special serializers which are turned on using corresponding annotations:
-`@Contextual` for `ContextSerializer` and `@Polymorphic` for `PolymorphicSerializer`.
+`@Contextual` for `ContextualSerializer` and `@Polymorphic` for `PolymorphicSerializer`.
 
 The former allows to switch to the run-time resolving of serializers instead of compile-time.
 This can be useful when you want to use some custom external serializer
