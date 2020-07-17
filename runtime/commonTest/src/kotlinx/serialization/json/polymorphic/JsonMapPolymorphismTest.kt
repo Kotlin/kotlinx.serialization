@@ -38,10 +38,10 @@ class JsonMapPolymorphismTest : JsonTestBase() {
 
     @Test
     fun testPolymorphicKeys() {
-        val json = Json(
-            JsonConfiguration.Default.copy(allowStructuredMapKeys = true),
-            context = polymorphicTestModule
-        )
+        val json = Json {
+            allowStructuredMapKeys = true
+            serializersModule = polymorphicTestModule
+        }
         assertJsonFormAndRestored(
             MapKeys.serializer(),
             MapKeys(mapOf(InnerImpl(1) to "k2", InnerImpl2(2) to "k2")),
@@ -52,10 +52,11 @@ class JsonMapPolymorphismTest : JsonTestBase() {
 
     @Test
     fun testPolymorphicKeysInArray() {
-        val json = Json(
-            JsonConfiguration.Default.copy(allowStructuredMapKeys = true, useArrayPolymorphism = true),
-            context = polymorphicTestModule
-        )
+        val json = Json {
+            allowStructuredMapKeys = true
+            useArrayPolymorphism = true
+            serializersModule = polymorphicTestModule
+        }
         assertJsonFormAndRestored(
             MapKeys.serializer(),
             MapKeys(mapOf(InnerImpl(1) to "k2", InnerImpl2(2) to "k2")),
@@ -74,7 +75,7 @@ class JsonMapPolymorphismTest : JsonTestBase() {
     fun testIssue480() {
         val json = Json {
             allowStructuredMapKeys = true
-            serialModule = SerializersModule {
+            serializersModule = SerializersModule {
                 polymorphic(Base::class) {
                     subclass(Derived.serializer())
                 }

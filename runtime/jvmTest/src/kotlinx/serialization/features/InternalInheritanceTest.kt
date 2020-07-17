@@ -107,7 +107,7 @@ class InternalInheritanceTest : JsonTestBase() {
 
     @Test(expected = SerializationException::class)
     fun testThrowTransient() {
-        Json(JsonConfiguration.Stable).decodeFromString<B>("""{"parent":100,"rootOptional":"rootOptional","transientDerived":"X",""" +
+        Json.decodeFromString<B>("""{"parent":100,"rootOptional":"rootOptional","transientDerived":"X",""" +
                 """"parent2":100,"derived":"wowstring","bodyDerived":"body"}""")
     }
 

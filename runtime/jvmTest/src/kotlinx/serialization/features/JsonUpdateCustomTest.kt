@@ -37,7 +37,7 @@ class JsonUpdateCustomTest : JsonTestBase() {
     @Serializable
     data class WrappedMap<T>(val mp: Map<String, T>)
 
-    val json = Json(JsonConfiguration.Default)
+    val json = Json
 
     @Test
     fun canUpdateMap() {

@@ -335,3 +335,14 @@ public fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> = noImp
     ), DeprecationLevel.ERROR
 )
 public fun SerialDescriptor.elementNames(): List<String> = noImpl()
+
+
+@RequiresOptIn
+@Deprecated(level = DeprecationLevel.ERROR, message = "This annotation is obsolete and deprecated for removal")
+public annotation class ImplicitReflectionSerializer
+
+@RequiresOptIn(level = RequiresOptIn.Level.WARNING)
+@Deprecated(
+    level = DeprecationLevel.ERROR,
+    message = "Deprecated for removal during serialization 1.0 API stabilization")
+public annotation class UnstableDefault

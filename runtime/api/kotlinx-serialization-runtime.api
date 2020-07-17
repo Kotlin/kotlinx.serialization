@@ -1344,16 +1344,16 @@ public final class kotlinx/serialization/internal/UnitSerializer : kotlinx/seria
 
 public abstract class kotlinx/serialization/json/Json : kotlinx/serialization/StringFormat {
 	public static final field Default Lkotlinx/serialization/json/Json$Default;
-	public synthetic fun <init> (Lkotlinx/serialization/json/JsonConfiguration;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lkotlinx/serialization/json/internal/JsonConf;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun decodeFromJsonElement (Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
 	public final fun decodeFromString (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
 	public final fun encodeToJsonElement (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
 	public final fun encodeToString (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/lang/String;
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 	public final fun parseToJsonElement (Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
 }
 
 public final class kotlinx/serialization/json/Json$Default : kotlinx/serialization/json/Json {
-	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 }
 
 public final class kotlinx/serialization/json/JsonArray : kotlinx/serialization/json/JsonElement, java/util/List, kotlin/jvm/internal/markers/KMappedMarker {
@@ -1422,9 +1422,9 @@ public final class kotlinx/serialization/json/JsonArraySerializer : kotlinx/seri
 }
 
 public final class kotlinx/serialization/json/JsonBuilder {
-	public fun <init> ()V
 	public final fun buildConfiguration ()Lkotlinx/serialization/json/JsonConfiguration;
 	public final fun buildModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public final fun getAllowSpecialFloatingPointValues ()Z
 	public final fun getAllowStructuredMapKeys ()Z
 	public final fun getClassDiscriminator ()Ljava/lang/String;
 	public final fun getCoerceInputValues ()Z
@@ -1432,13 +1432,16 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun getIgnoreUnknownKeys ()Z
 	public final fun getIndent ()Ljava/lang/String;
 	public final fun getPrettyPrint ()Z
+	public final fun getPrettyPrintIndent ()Ljava/lang/String;
 	public final fun getSerialModule ()Lkotlinx/serialization/modules/SerializersModule;
 	public final fun getSerializeSpecialFloatingPointValues ()Z
+	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 	public final fun getStrictMode ()Z
 	public final fun getUnquoted ()Z
 	public final fun getUnquotedPrint ()Z
 	public final fun getUseArrayPolymorphism ()Z
 	public final fun isLenient ()Z
+	public final fun setAllowSpecialFloatingPointValues (Z)V
 	public final fun setAllowStructuredMapKeys (Z)V
 	public final fun setClassDiscriminator (Ljava/lang/String;)V
 	public final fun setCoerceInputValues (Z)V
@@ -1447,31 +1450,30 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun setIndent (Ljava/lang/String;)V
 	public final fun setLenient (Z)V
 	public final fun setPrettyPrint (Z)V
+	public final fun setPrettyPrintIndent (Ljava/lang/String;)V
 	public final fun setSerialModule (Lkotlinx/serialization/modules/SerializersModule;)V
 	public final fun setSerializeSpecialFloatingPointValues (Z)V
+	public final fun setSerializersModule (Lkotlinx/serialization/modules/SerializersModule;)V
 	public final fun setStrictMode (Z)V
 	public final fun setUnquoted (Z)V
 	public final fun setUnquotedPrint (Z)V
 	public final fun setUseArrayPolymorphism (Z)V
 }
 
-public final class kotlinx/serialization/json/JsonConfiguration {
+public class kotlinx/serialization/json/JsonConfiguration {
 	public static final field Companion Lkotlinx/serialization/json/JsonConfiguration$Companion;
 	public fun <init> ()V
 	public fun <init> (ZZZZZZZLjava/lang/String;ZZLjava/lang/String;)V
 	public synthetic fun <init> (ZZZZZZZLjava/lang/String;ZZLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun copy (ZZZZZZZLjava/lang/String;ZZLjava/lang/String;)Lkotlinx/serialization/json/JsonConfiguration;
 	public static synthetic fun copy$default (Lkotlinx/serialization/json/JsonConfiguration;ZZZZZZZLjava/lang/String;ZZLjava/lang/String;ILjava/lang/Object;)Lkotlinx/serialization/json/JsonConfiguration;
-	public fun equals (Ljava/lang/Object;)Z
-	public static final fun getDefault ()Lkotlinx/serialization/json/JsonConfiguration;
-	public static final fun getStable ()Lkotlinx/serialization/json/JsonConfiguration;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
+	public static final fun getDefault ()Lkotlinx/serialization/json/SubtypeToDetectDefault;
+	public static final fun getStable ()Lkotlinx/serialization/json/SubtypeToDetectStable;
 }
 
 public final class kotlinx/serialization/json/JsonConfiguration$Companion {
-	public final fun getDefault ()Lkotlinx/serialization/json/JsonConfiguration;
-	public final fun getStable ()Lkotlinx/serialization/json/JsonConfiguration;
+	public final fun getDefault ()Lkotlinx/serialization/json/SubtypeToDetectDefault;
+	public final fun getStable ()Lkotlinx/serialization/json/SubtypeToDetectStable;
 }
 
 public final class kotlinx/serialization/json/JsonConfigurationKt {
@@ -1529,7 +1531,6 @@ public final class kotlinx/serialization/json/JsonElementBuildersKt {
 	public static final fun addJsonObject (Lkotlinx/serialization/json/JsonArrayBuilder;Lkotlin/jvm/functions/Function1;)Z
 	public static final fun buildJsonArray (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonArray;
 	public static final fun buildJsonObject (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonObject;
-	public static final fun jsonArray (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonArray;
 	public static final fun put (Lkotlinx/serialization/json/JsonObjectBuilder;Ljava/lang/String;Ljava/lang/Boolean;)Lkotlinx/serialization/json/JsonElement;
 	public static final fun put (Lkotlinx/serialization/json/JsonObjectBuilder;Ljava/lang/String;Ljava/lang/Number;)Lkotlinx/serialization/json/JsonElement;
 	public static final fun put (Lkotlinx/serialization/json/JsonObjectBuilder;Ljava/lang/String;Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
@@ -1592,8 +1593,14 @@ public abstract interface class kotlinx/serialization/json/JsonInput {
 }
 
 public final class kotlinx/serialization/json/JsonKt {
-	public static final fun Json (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/Json;
+	public static final fun Json ()Lkotlinx/serialization/json/Json;
+	public static final fun Json (Lkotlinx/serialization/json/Json;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/Json;
 	public static final fun Json (Lkotlinx/serialization/json/JsonConfiguration;Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/json/Json;
+	public static final fun Json (Lkotlinx/serialization/json/SubtypeToDetectDefault;)Lkotlinx/serialization/json/Json;
+	public static final fun Json (Lkotlinx/serialization/json/SubtypeToDetectDefault;Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/json/Json;
+	public static final fun Json (Lkotlinx/serialization/json/SubtypeToDetectStable;)Lkotlinx/serialization/json/Json;
+	public static final fun Json (Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/json/Json;
+	public static synthetic fun Json$default (Lkotlinx/serialization/json/Json;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/json/Json;
 	public static synthetic fun Json$default (Lkotlinx/serialization/json/JsonConfiguration;Lkotlinx/serialization/modules/SerializersModule;ILjava/lang/Object;)Lkotlinx/serialization/json/Json;
 }
 
@@ -1637,6 +1644,7 @@ public final class kotlinx/serialization/json/JsonMigrationsKt {
 	public static final fun getUnquoted (Lkotlinx/serialization/json/Json$Default;)Lkotlinx/serialization/json/Json;
 	public static final fun isNull (Lkotlinx/serialization/json/JsonElement;)Z
 	public static final fun json (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun jsonArray (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonArray;
 	public static final fun parseJson (Lkotlinx/serialization/json/Json;Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
 	public static final fun toJson (Lkotlinx/serialization/json/Json;Ljava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
 	public static final fun toJson (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
@@ -1763,6 +1771,14 @@ public abstract class kotlinx/serialization/json/JsonTransformingSerializer : ko
 	protected fun transformDeserialize (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
 	protected fun transformSerialize (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
 	protected final fun writeTransform (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+}
+
+public final class kotlinx/serialization/json/SubtypeToDetectDefault : kotlinx/serialization/json/JsonConfiguration {
+	public fun <init> ()V
+}
+
+public final class kotlinx/serialization/json/SubtypeToDetectStable : kotlinx/serialization/json/JsonConfiguration {
+	public fun <init> ()V
 }
 
 public final class kotlinx/serialization/modules/ModulesMigrationsKt {

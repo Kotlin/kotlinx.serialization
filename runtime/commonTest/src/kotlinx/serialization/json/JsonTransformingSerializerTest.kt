@@ -9,7 +9,7 @@ import kotlinx.serialization.builtins.*
 import kotlin.test.*
 
 class JsonTransformingSerializerTest : JsonTestBase() {
-    val json = Json(JsonConfiguration.Default.copy(encodeDefaults = false))
+    val json = Json { encodeDefaults = false }
 
     @Serializable
     data class Example(

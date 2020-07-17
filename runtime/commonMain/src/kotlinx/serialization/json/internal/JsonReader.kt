@@ -9,6 +9,8 @@ import kotlinx.serialization.json.internal.EscapeCharMappings.ESCAPE_2_CHAR
 import kotlin.jvm.*
 import kotlin.native.concurrent.*
 
+internal const val lenientHint = "Use 'JsonBuilder.isLenient = true' to accept non-compliant JSON"
+
 // special strings
 internal const val NULL = "null"
 

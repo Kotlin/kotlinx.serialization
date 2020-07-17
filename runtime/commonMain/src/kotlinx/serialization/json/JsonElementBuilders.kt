@@ -52,12 +52,6 @@ public fun buildJsonArray(builderAction: JsonArrayBuilder.() -> Unit): JsonArray
     return builder.build()
 }
 
-@Deprecated(
-    "jsonArray function deprecated for removal to be consistent with a standard library",
-    replaceWith = ReplaceWith("buildJsonArray")
-)
-public fun jsonArray(init: JsonArrayBuilder.() -> Unit): JsonArray = buildJsonArray(init)
-
 /**
  * DSL builder for a [JsonObject]. To create an instance of builder, use [buildJsonObject] build function.
  */

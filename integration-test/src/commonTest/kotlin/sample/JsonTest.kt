@@ -1,7 +1,6 @@
 /*
  * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-@file:OptIn(UnstableDefault::class)
 @file:Suppress("UNCHECKED_CAST")
 
 package sample
@@ -16,16 +15,16 @@ import kotlin.test.*
 class JsonTest {
 
     private val originalData = Data("Hello")
-    private val originalString = """{"s":"Hello","box":{"boxed":42},"boxes":{"desc":"boxes","boxes":[{"boxed":"foo"},{"boxed":"bar"}]},"m":{}}"""
-    private val nonstrict: Json = Json(
-        JsonConfiguration(
-            isLenient = true,
-            ignoreUnknownKeys = true,
-            serializeSpecialFloatingPointValues = true,
-            useArrayPolymorphism = true
-        )
-    )
-    
+    private val originalString =
+        """{"s":"Hello","box":{"boxed":42},"boxes":{"desc":"boxes","boxes":[{"boxed":"foo"},{"boxed":"bar"}]},"m":{}}"""
+    private val nonstrict: Json = Json {
+        isLenient = true
+        ignoreUnknownKeys = true
+        allowSpecialFloatingPointValues = true
+        useArrayPolymorphism = true
+
+    }
+
     @Test
     fun testStringForm() {
         val str = Json.encodeToString(Data.serializer(), originalData)
@@ -60,7 +59,7 @@ class JsonTest {
 
     @Test
     fun testEnablesImplicitlyOnInterfacesAndAbstractClasses() {
-        val json = Json { useArrayPolymorphism = true; prettyPrint = false; serialModule = testModule }
+        val json = Json { useArrayPolymorphism = true; prettyPrint = false; serializersModule = testModule }
         val data = genTestData()
         assertEquals("""{"iMessage":["MessageWithId",{"id":0,"body":"Message #0"}],"iMessageList":[["MessageWithId",{"id":1,"body":"Message #1"}],""" +
                 """["MessageWithId",{"id":2,"body":"Message #2"}]],"message":["MessageWithId",{"id":3,"body":"Message #3"}],"msgSet":[["SimpleMessage",""" +
@@ -73,7 +72,7 @@ class JsonTest {
     fun testPolymorphicForGenericUpperBound() {
         val generic = GenericMessage<Message, Any>(MessageWithId(42, "body"), "body2")
         val serial = GenericMessage.serializer(Message.serializer(), Int.serializer() as KSerializer<Any>)
-        val json = Json { useArrayPolymorphism = true; prettyPrint = false; serialModule = testModule }
+        val json = Json { useArrayPolymorphism = true; prettyPrint = false; serializersModule = testModule }
         val s = json.encodeToString(serial, generic)
         assertEquals("""{"value":["MessageWithId",{"id":42,"body":"body"}],"value2":["kotlin.String","body2"]}""", s)
     }
@@ -128,7 +127,7 @@ class JsonTest {
             )
         ),
         serializer = MyPolyData.serializer(),
-        format = Json(JsonConfiguration(useArrayPolymorphism = true, allowStructuredMapKeys = true))
+        format = Json { useArrayPolymorphism = true; allowStructuredMapKeys = true }
     )
 
     @Suppress("NAME_SHADOWING")
@@ -154,7 +153,7 @@ class JsonTest {
     @Test
     fun testWithModules() {
         val json = Json {
-            useArrayPolymorphism = true; serialModule = SerializersModule { polymorphic(Any::class) { subclass(IntData::class) } } }
+            useArrayPolymorphism = true; serializersModule = SerializersModule { polymorphic(Any::class) { subclass(IntData::class) } } }
         assertStringFormAndRestored(
             expected = """{"data":{"a":["sample.IntData",{"intV":42}]}}""",
             original = MyPolyData(mapOf("a" to IntData(42))),
@@ -168,7 +167,7 @@ class JsonTest {
      */
     @Test
     fun failWithModulesNotInAnyScope() {
-        val json = Json(context = BaseAndDerivedModule)
+        val json = Json { serializersModule = BaseAndDerivedModule }
         checkNotRegisteredMessage(
             "sample.PolyDerived", "kotlin.Any",
             assertFailsWith<SerializationException> {
@@ -189,7 +188,7 @@ class JsonTest {
 
     @Test
     fun testRebindModules() {
-        val json = Json { useArrayPolymorphism = true; serialModule =  baseAndDerivedModuleAtAny }
+        val json = Json { useArrayPolymorphism = true; serializersModule =  baseAndDerivedModuleAtAny }
         assertStringFormAndRestored(
             expected = """{"data":{"a":["sample.PolyDerived",{"id":1,"s":"foo"}]}}""",
             original = MyPolyData(mapOf("a" to PolyDerived("foo"))),
@@ -203,7 +202,7 @@ class JsonTest {
      */
     @Test
     fun failWithModulesNotInParticularScope() {
-        val json = Json(context = baseAndDerivedModuleAtAny)
+        val json = Json { serializersModule = baseAndDerivedModuleAtAny }
         checkNotRegisteredMessage(
             "sample.PolyDerived", "sample.PolyBase",
             assertFailsWith<SerializationException> {
@@ -217,7 +216,7 @@ class JsonTest {
 
     @Test
     fun testBindModules() {
-        val json = Json { useArrayPolymorphism = true; serialModule = (baseAndDerivedModuleAtAny + BaseAndDerivedModule) }
+        val json = Json { useArrayPolymorphism = true; serializersModule = (baseAndDerivedModuleAtAny + BaseAndDerivedModule) }
         assertStringFormAndRestored(
             expected = """{"data":{"a":["sample.PolyDerived",{"id":1,"s":"foo"}]},"polyBase":["sample.PolyDerived",{"id":1,"s":"foo"}]}""",
             original = MyPolyDataWithPolyBase(mapOf("a" to PolyDerived("foo")), PolyDerived("foo")),
