@@ -17,7 +17,7 @@ import java.util.concurrent.*
 @Fork(2)
 open class GeneratedBenchmark {
     @JvmField
-    val json = Json(JsonConfiguration.Default)
+    val json = Json
 
     @Serializable
     class Fields1(

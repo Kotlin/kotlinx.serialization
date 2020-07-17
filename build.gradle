@@ -20,7 +20,6 @@ buildscript {
     ext.experimentalsInTestEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
                                       "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
                                       "-Xuse-experimental=kotlinx.serialization.UnsafeSerializationApi",
-                                      "-Xuse-experimental=kotlinx.serialization.UnstableDefault",
                                       "-Xuse-experimental=kotlinx.serialization.InternalSerializationApi"
     ]
 

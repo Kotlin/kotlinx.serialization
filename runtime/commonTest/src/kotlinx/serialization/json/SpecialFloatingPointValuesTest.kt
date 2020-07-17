@@ -28,7 +28,7 @@ class SpecialFloatingPointValuesTest : JsonTestBase() {
         }
     }
 
-    val json = Json { serializeSpecialFloatingPointValues = true }
+    val json = Json { allowSpecialFloatingPointValues = true }
 
     @Test
     fun testNans() = parametrizedTest {

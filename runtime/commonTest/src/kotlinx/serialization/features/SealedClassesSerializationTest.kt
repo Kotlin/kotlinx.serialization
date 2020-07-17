@@ -107,8 +107,8 @@ class SealedClassesSerializationTest : JsonTestBase() {
     @Serializable
     data class SealedBoxHolder(val b: Box<SimpleSealed>)
 
-    private val arrayJson = Json(JsonConfiguration.Default.copy(useArrayPolymorphism = true))
-    private val json = Json(JsonConfiguration.Default.copy(useArrayPolymorphism = false, prettyPrint = false))
+    private val arrayJson = Json { useArrayPolymorphism = true }
+    private val json = Json
 
     @Test
     fun manualSerializer() {
@@ -192,11 +192,9 @@ class SealedClassesSerializationTest : JsonTestBase() {
                 subclass(ProtocolWithAbstractClass.Message.StringMessage.serializer())
             }
         }
-        val json =
-            Json(
-                JsonConfiguration.Default.copy(useArrayPolymorphism = false, prettyPrint = false),
-                context = abstractContext
-            )
+        val json = Json {
+            serializersModule = abstractContext
+        }
         val expected =
             """[{"type":"ProtocolWithAbstractClass.Message.StringMessage","description":"string message","message":"foo"},{"type":"ProtocolWithAbstractClass.Message.IntMessage","description":"int message","message":42},{"type":"ProtocolWithAbstractClass.ErrorMessage","error":"requesting termination"},{"type":"EOF"}]"""
         assertJsonFormAndRestored(ListSerializer(ProtocolWithAbstractClass.serializer()), messages, expected, json)
@@ -238,7 +236,7 @@ class SealedClassesSerializationTest : JsonTestBase() {
         )
         val expected =
             """[["ProtocolWithGenericClass.Message",{"description":"string message","message":["kotlin.String","foo"]}],["ProtocolWithGenericClass.Message",{"description":"int message","message":["kotlin.Int",42]}],["ProtocolWithGenericClass.ErrorMessage",{"error":"requesting termination"}],["EOF",{}]]"""
-        val json = Json(JsonConfiguration.Default.copy(useArrayPolymorphism = true))
+        val json = Json { useArrayPolymorphism = true }
         assertJsonFormAndRestored(ListSerializer(ProtocolWithGenericClass.serializer()), messages, expected, json)
     }
 }

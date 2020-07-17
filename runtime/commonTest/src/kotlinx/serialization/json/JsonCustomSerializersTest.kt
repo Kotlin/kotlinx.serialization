@@ -112,7 +112,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
 
     private val moduleWithB = serializersModuleOf(B::class, BSerializer)
 
-    private fun createJsonWithB() = Json { isLenient = true; serialModule = moduleWithB }
+    private fun createJsonWithB() = Json { isLenient = true; serializersModule = moduleWithB }
 
     @Test
     fun testWriteCustom() = parametrizedTest { useStreaming ->

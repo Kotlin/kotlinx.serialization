@@ -32,8 +32,8 @@ import kotlin.math.*
  * ```
  */
 internal class DynamicObjectSerializer(
-    val serializersModule: SerializersModule,
-    private val configuration: JsonConfiguration,
+    private val serializersModule: SerializersModule,
+    private val configuration: JsonConf,
     private val encodeNullAsUndefined: Boolean
 ) {
 
@@ -51,7 +51,7 @@ internal class DynamicObjectSerializer(
 
 private class DynamicObjectEncoder(
     override val serializersModule: SerializersModule,
-    val configuration: JsonConfiguration,
+    val configuration: JsonConf,
     val encodeNullAsUndefined: Boolean
 ) :
     AbstractEncoder() {
@@ -210,7 +210,7 @@ private class DynamicObjectEncoder(
 
 private class DynamicPrimitiveEncoder(
     override val serializersModule: SerializersModule,
-    private val configuration: JsonConfiguration
+    private val configuration: JsonConf
 ) : AbstractEncoder() {
     var result: dynamic = null
 

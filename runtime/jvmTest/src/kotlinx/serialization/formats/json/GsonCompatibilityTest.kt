@@ -31,8 +31,8 @@ class GsonCompatibilityTest {
     }
 
     private fun checkCompatibility(box: Box) {
-        checkCompatibility(box, Gson(), Json(JsonConfiguration.Stable))
-        checkCompatibility(box, GsonBuilder().serializeSpecialFloatingPointValues().create(), Json { serializeSpecialFloatingPointValues = true })
+        checkCompatibility(box, Gson(), Json)
+        checkCompatibility(box, GsonBuilder().serializeSpecialFloatingPointValues().create(), Json { allowSpecialFloatingPointValues = true })
     }
 
     private fun checkCompatibility(box: Box, gson: Gson, json: Json) {

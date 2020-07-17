@@ -31,7 +31,7 @@ class JsonMapKeysTest : JsonTestBase() {
     @Test
     fun structuredMapKeysShouldBeBannedByDefault() = parametrizedTest { streaming ->
         val e = assertFailsWith<JsonException> {
-            Json(JsonConfiguration.Default).encodeToString(
+            Json.encodeToString(
                 WithComplexKey.serializer(),
                 WithComplexKey(mapOf(IntData(42) to "42")),
                 streaming
@@ -45,7 +45,7 @@ class JsonMapKeysTest : JsonTestBase() {
         WithComplexKey.serializer(),
         WithComplexKey(mapOf(IntData(42) to "42")),
         """{"map":[{"intV":42},"42"]}""",
-        Json(JsonConfiguration.Default.copy(allowStructuredMapKeys = true))
+        Json { allowStructuredMapKeys = true }
     )
 
     @Test
@@ -53,6 +53,6 @@ class JsonMapKeysTest : JsonTestBase() {
         WithEnum.serializer(),
         WithEnum(mapOf(SampleEnum.OptionA to 1L, SampleEnum.OptionC to 3L)),
         """{"map":{"OptionA":1,"OptionC":3}}""",
-        Json(JsonConfiguration.Stable)
+        Json
     )
 }

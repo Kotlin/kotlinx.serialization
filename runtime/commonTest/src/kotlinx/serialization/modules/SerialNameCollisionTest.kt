@@ -30,12 +30,12 @@ class SerialNameCollisionTest {
     @SerialName("$prefix.Derived")
     data class DerivedRenamed(val type: String, val type2: String) : Base()
 
-    private fun Json(discriminator: String, context: SerializersModule, useArrayPolymorphism: Boolean = false) = Json(
-        configuration = JsonConfiguration.Stable.copy(
-            classDiscriminator = discriminator,
-            useArrayPolymorphism = useArrayPolymorphism
-        ), context = context
-    )
+    private fun Json(discriminator: String, context: SerializersModule, useArrayPolymorphism: Boolean = false) = Json {
+        classDiscriminator = discriminator
+        this.useArrayPolymorphism = useArrayPolymorphism
+        serializersModule = context
+
+    }
 
     @Test
     fun testCollisionWithDiscriminator() {

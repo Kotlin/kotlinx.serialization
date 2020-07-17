@@ -42,14 +42,14 @@ internal fun InvalidFloatingPoint(value: Number, key: String, type: String, outp
 
 internal fun UnknownKeyException(key: String, input: String) = JsonDecodingException(
     -1,
-    "JSON encountered unknown key: '$key'. You can enable 'JsonConfiguration.ignoreUnknownKeys' property to ignore unknown keys.\n" +
+    "JSON encountered unknown key: '$key'. You can enable 'JsonBuilder.ignoreUnknownKeys' property to ignore unknown keys.\n" +
             " JSON input: ${input.minify()}"
 )
 
 internal fun InvalidKeyKindException(keyDescriptor: SerialDescriptor) = JsonEncodingException(
     "Value of type '${keyDescriptor.serialName}' can't be used in JSON as a key in the map. " +
             "It should have either primitive or enum kind, but its kind is '${keyDescriptor.kind}.'\n" +
-            "You can convert such maps to arrays [key1, value1, key2, value2,...] using 'allowStructuredMapKeys' property in JsonConfiguration"
+            "You can convert such maps to arrays [key1, value1, key2, value2,...] using 'JsonBuilder.allowStructuredMapKeys' property"
 )
 
 private fun String.minify(offset: Int = -1): String {

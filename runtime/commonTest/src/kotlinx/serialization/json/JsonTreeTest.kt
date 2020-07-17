@@ -44,7 +44,7 @@ class JsonTreeTest : JsonTestBase() {
         val S: String
     )
 
-    private val json = Json(JsonConfiguration.Default)
+    private val json = Json
     private fun prepare(input: String): JsonElement = lenient.parseToJsonElement(input)
 
     @Test

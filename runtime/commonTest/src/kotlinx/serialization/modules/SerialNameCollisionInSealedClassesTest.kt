@@ -17,12 +17,10 @@ class SerialNameCollisionInSealedClassesTest {
         data class Child(val type: String, @SerialName("type2") val f: String = "2") : Base()
     }
 
-    private fun Json(discriminator: String, useArrayPolymorphism: Boolean = false) = Json(
-        configuration = JsonConfiguration.Stable.copy(
-            classDiscriminator = discriminator,
-            useArrayPolymorphism = useArrayPolymorphism
-        )
-    )
+    private fun Json(discriminator: String, useArrayPolymorphism: Boolean = false) = Json {
+        classDiscriminator = discriminator
+        this.useArrayPolymorphism = useArrayPolymorphism
+    }
 
     @Test
     fun testCollisionWithDiscriminator() {

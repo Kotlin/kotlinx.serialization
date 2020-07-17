@@ -13,7 +13,8 @@ import kotlin.jvm.*
 
 
 internal class StreamingJsonEncoder(
-    private val composer: Composer, override val json: Json,
+    private val composer: Composer,
+    override val json: Json,
     private val mode: WriteMode,
     private val modeReuseCache: Array<JsonEncoder?>
 ) : JsonEncoder, AbstractEncoder() {
@@ -156,7 +157,7 @@ internal class StreamingJsonEncoder(
     override fun encodeFloat(value: Float) {
         // First encode value, then check, to have a prettier error message
         if (forceQuoting) encodeString(value.toString()) else composer.print(value)
-        if (!configuration.serializeSpecialFloatingPointValues && !value.isFinite()) {
+        if (!configuration.allowSpecialFloatingPointValues && !value.isFinite()) {
             throw InvalidFloatingPoint(value, "float", composer.sb.toString())
         }
     }
@@ -164,7 +165,7 @@ internal class StreamingJsonEncoder(
     override fun encodeDouble(value: Double) {
         // First encode value, then check, to have a prettier error message
         if (forceQuoting) encodeString(value.toString()) else composer.print(value)
-        if (!configuration.serializeSpecialFloatingPointValues && !value.isFinite()) {
+        if (!configuration.allowSpecialFloatingPointValues && !value.isFinite()) {
             throw InvalidFloatingPoint(value, "double", composer.sb.toString())
         }
     }
@@ -173,13 +174,7 @@ internal class StreamingJsonEncoder(
         encodeString(value.toString())
     }
 
-    override fun encodeString(value: String) {
-        if (configuration.unquotedPrint && !shouldBeQuoted(value)) {
-            composer.print(value)
-        } else {
-            composer.printQuoted(value)
-        }
-    }
+    override fun encodeString(value: String) = composer.printQuoted(value)
 
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
         encodeString(enumDescriptor.getElementName(index))
@@ -202,7 +197,7 @@ internal class StreamingJsonEncoder(
             writingFirst = false
             if (json.configuration.prettyPrint) {
                 print("\n")
-                repeat(level) { print(json.configuration.indent) }
+                repeat(level) { print(json.configuration.prettyPrintIndent) }
             }
         }
 
