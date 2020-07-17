@@ -20,3 +20,12 @@ kotlin {
         }
     }
 }
+
+tasks.withType(Jar).named(kotlin.jvm().artifactsTaskName) {
+    manifest {
+        attributes(
+                "Implementation-Version": version,
+                "Require-Kotlin-Version": "1.4-RC",
+        )
+    }
+}
