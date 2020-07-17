@@ -1,10 +1,14 @@
+/*
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
-import kotlinx.serialization.modules.EmptySerializersModule
-import kotlinx.serialization.modules.getContextualOrDefault
+import kotlinx.serialization.internal.*
+import kotlinx.serialization.internal.DynamicObjectSerializer
+import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 import kotlin.test.*
 
 
@@ -93,7 +97,7 @@ class DynamicSerializerTest {
         noinline assertions: ((T, dynamic) -> Unit)? = null
     ) {
         val effectiveSerializer = serializer ?: EmptySerializersModule.getContextualOrDefault<T>()
-        val serialized = DynamicObjectSerializer().serialize(effectiveSerializer, data)
+        val serialized = Json.encodeToDynamic(effectiveSerializer, data)
         assertions?.invoke(data, serialized)
         assertEquals(
             Json.encodeToString(effectiveSerializer, data),
@@ -129,15 +133,24 @@ class DynamicSerializerTest {
         }
     }
 
+    // todo: this is a test for internal class. Rewrite it after implementing 'omitNulls' JSON flag.
     @Test
     fun nullsTest() {
         val data = DataWrapper("a string", null)
 
-        val serialized = DynamicObjectSerializer(encodeNullAsUndefined = true).serialize(data)
+        val serialized = DynamicObjectSerializer(
+            EmptySerializersModule,
+            JsonConfiguration.Default,
+            encodeNullAsUndefined = true
+        ).serialize(DataWrapper.serializer(), data)
         assertNull(serialized.d)
         assertFalse(js("""Object.keys(serialized).includes("d")"""), "should omit null properties")
 
-        val serializedWithNull = DynamicObjectSerializer(encodeNullAsUndefined = false).serialize(data)
+        val serializedWithNull = DynamicObjectSerializer(
+            EmptySerializersModule,
+            JsonConfiguration.Default,
+            encodeNullAsUndefined = false
+        ).serialize(DataWrapper.serializer(), data)
         assertNull(serializedWithNull.d)
         assertTrue(js("""Object.keys(serializedWithNull).includes("d")"""), "should contain null properties")
         Json(JsonConfiguration())
@@ -243,7 +256,7 @@ class DynamicSerializerTest {
         assertDynamicForm(true)
         assertDynamicForm(false)
         assertDynamicForm(1L)
-        val result = DynamicObjectSerializer().serialize(String.serializer().nullable, null)
+        val result = Json.encodeToDynamic(String.serializer().nullable, null)
         assertEquals(null, result)
     }
 
@@ -261,7 +274,7 @@ class DynamicSerializerTest {
 
     @Test
     fun mapWithNullKey() {
-        val serialized = DynamicObjectSerializer().serialize(
+        val serialized = Json.encodeToDynamic(
             MapSerializer(String.serializer().nullable, Int.serializer()),
             mapOf(null to 0, "a" to 1)
         )
@@ -300,7 +313,7 @@ class DynamicSerializerTest {
     fun mapWithIllegalKey() {
 
         val exception = assertFails {
-            DynamicObjectSerializer().serialize(
+            Json.encodeToDynamic(
                 MapSerializer(Data.serializer(), String.serializer()),
                 mapOf(
                     Data(1) to "data",

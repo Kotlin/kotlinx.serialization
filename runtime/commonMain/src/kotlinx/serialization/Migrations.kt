@@ -11,7 +11,8 @@ import kotlinx.serialization.modules.*
 import kotlin.internal.*
 import kotlin.reflect.*
 
-private fun noImpl(): Nothing = throw UnsupportedOperationException("Not implemented, should not be called")
+@PublishedApi
+internal fun noImpl(): Nothing = throw UnsupportedOperationException("Not implemented, should not be called")
 
 @Deprecated(
     message = "Deprecated in the favour of PrimitiveDescriptor factory function",

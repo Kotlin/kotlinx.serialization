@@ -11,7 +11,8 @@ private fun noImpl(): Nothing = throw UnsupportedOperationException("Not impleme
 
 @Deprecated(
     level = DeprecationLevel.ERROR,
-    message = "SerialModule was renamed to SerializersModule during serialization 1.0 API stabilization"
+    message = "SerialModule was renamed to SerializersModule during serialization 1.0 API stabilization",
+    replaceWith = ReplaceWith("SerializersModule")
 )
 public typealias SerialModule = SerializersModule
 

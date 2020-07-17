@@ -2,9 +2,9 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization
+package kotlinx.serialization.internal
 
-import kotlinx.serialization.internal.*
+import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.math.*
@@ -14,39 +14,10 @@ import kotlin.math.*
  */
 internal const val MAX_SAFE_INTEGER: Double = 9007199254740991.toDouble() // 2^53 - 1
 
-/**
- * Converts native JavaScript objects into Kotlin ones, verifying their types.
- *
- * A result of `parse(nativeObj)` should be the same as
- * `kotlinx.serialization.json.Json.parse(kotlin.js.JSON.stringify(nativeObj))`.
- * This class also supports array-based polymorphism if the corresponding flag in [configuration] is set to `true`.
- * Does not support any other [Map] keys than [String].
- * Has limitation on [Long] type: any JS number that is greater than
- * [`abs(2^53-1)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)
- * is considered to be imprecise and therefore can't be deserialized to [Long]. Either use [Double] type
- * for such values or pass them as strings using [LongAsStringSerializer] afterwards.
- *
- * Usage example:
- *
- * ```
- * @Serializable
- * data class Data(val a: Int)
- *
- * @Serializable
- * data class DataWrapper(val s: String, val d: Data?)
- *
- * val dyn: dynamic = js("""{s:"foo", d:{a:42}}""")
- * val parsed = DynamicObjectParser().parse(dyn, DataWrapper.serializer())
- * parsed == DataWrapper("foo", Data(42)) // true
- * ```
- */
-public class DynamicObjectParser @OptIn(UnstableDefault::class) constructor(
-    override val serializersModule: SerializersModule = EmptySerializersModule,
-    internal val configuration: JsonConfiguration = JsonConfiguration.Default
+internal class DynamicObjectParser(
+    override val serializersModule: SerializersModule,
+    internal val configuration: JsonConfiguration
 ) : SerialFormat {
-
-    inline fun <reified T : Any> parse(value: dynamic): T = parse(value, serializersModule.getContextualOrDefault())
-
     /**
      * Deserializes given [obj] from dynamic form to type [T] using [deserializer].
      */

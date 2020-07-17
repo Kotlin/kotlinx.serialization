@@ -1,16 +1,15 @@
-package kotlinx.serialization
+/*
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 
-import kotlinx.serialization.builtins.*
-import kotlinx.serialization.encoding.AbstractEncoder
-import kotlinx.serialization.json.JsonConfiguration
-import kotlinx.serialization.json.internal.BEGIN_LIST
-import kotlinx.serialization.json.internal.BEGIN_OBJ
-import kotlinx.serialization.json.internal.END_LIST
-import kotlinx.serialization.json.internal.END_OBJ
-import kotlinx.serialization.modules.EmptySerializersModule
-import kotlinx.serialization.modules.SerializersModule
-import kotlin.math.abs
-import kotlin.math.floor
+package kotlinx.serialization.internal
+
+import kotlinx.serialization.*
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.json.*
+import kotlinx.serialization.json.internal.*
+import kotlinx.serialization.modules.*
+import kotlin.math.*
 
 
 /**
@@ -30,34 +29,30 @@ import kotlin.math.floor
  *  val wrapper = DataWrapper("foo", "bar")
  *  val plainJS: dynamic = DynamicObjectSerializer().serialize(DataWrapper.serializer(), wrapper)
  * ```
- *
- * @param encodeNullAsUndefined if true null properties will be omitted from the output
  */
-public class DynamicObjectSerializer @OptIn(UnstableDefault::class) constructor(
-    public val context: SerializersModule = EmptySerializersModule,
-    private val configuration: JsonConfiguration = JsonConfiguration.Default,
-    private val encodeNullAsUndefined: Boolean = false
+internal class DynamicObjectSerializer(
+    val serializersModule: SerializersModule,
+    private val configuration: JsonConfiguration,
+    private val encodeNullAsUndefined: Boolean
 ) {
 
     public fun <T> serialize(strategy: SerializationStrategy<T>, obj: T): dynamic {
         if (strategy.descriptor.kind is PrimitiveKind || strategy.descriptor.kind is SerialKind.ENUM) {
-            val serializer = DynamicPrimitiveEncoder(configuration)
+            val serializer = DynamicPrimitiveEncoder(serializersModule, configuration)
             serializer.encodeSerializableValue(strategy, obj)
             return serializer.result
         }
-        val serializer = DynamicObjectEncoder(configuration, encodeNullAsUndefined)
+        val serializer = DynamicObjectEncoder(serializersModule, configuration, encodeNullAsUndefined)
         serializer.encodeSerializableValue(strategy, obj)
         return serializer.result
     }
-
-    public inline fun <reified T : Any> serialize(obj: T): dynamic =
-        serialize(serializer(), obj)
-
-    public inline fun <reified T : Any> serialize(obj: List<T?>): dynamic =
-        serialize(ListSerializer(serializer<T>().nullable), obj)
 }
 
-private class DynamicObjectEncoder(val configuration: JsonConfiguration, val encodeNullAsUndefined: Boolean) :
+private class DynamicObjectEncoder(
+    override val serializersModule: SerializersModule,
+    val configuration: JsonConfiguration,
+    val encodeNullAsUndefined: Boolean
+) :
     AbstractEncoder() {
     private object NoOutputMark
 
@@ -212,7 +207,10 @@ private class DynamicObjectEncoder(val configuration: JsonConfiguration, val enc
     }
 }
 
-private class DynamicPrimitiveEncoder(private val configuration: JsonConfiguration) : AbstractEncoder() {
+private class DynamicPrimitiveEncoder(
+    override val serializersModule: SerializersModule,
+    private val configuration: JsonConfiguration
+) : AbstractEncoder() {
     var result: dynamic = null
 
     override fun encodeNull() {
