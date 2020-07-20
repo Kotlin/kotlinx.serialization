@@ -47,10 +47,9 @@ internal class EnumDescriptor(
     }
 }
 
-// Used for enums that are not explicitly serializable
-@Deprecated(level = DeprecationLevel.ERROR, message = "For plugin-generated code, " +
-        "should not be used directly. For the custom serializers please report your use-case to project issues, so proper public API could be introduced instead")
-public class EnumSerializer<T : Enum<T>>(
+// Used for enums that are not explicitly serializable by the plugin
+@PublishedApi
+internal class EnumSerializer<T : Enum<T>>(
     serialName: String,
     private val values: Array<T>
 ) : KSerializer<T> {
@@ -78,4 +77,6 @@ public class EnumSerializer<T : Enum<T>>(
         }
         return values[index]
     }
+
+    override fun toString(): String = "kotlinx.serialization.internal.EnumSerializer<${descriptor.serialName}>"
 }

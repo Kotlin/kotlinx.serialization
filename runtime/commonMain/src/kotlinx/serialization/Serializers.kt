@@ -44,7 +44,6 @@ public inline fun <reified T> serializer(): KSerializer<T> {
 public fun serializer(type: KType): KSerializer<Any?> {
     fun serializerByKTypeImpl(type: KType): KSerializer<Any> {
         val rootClass = type.kclass()
-
         val typeArguments = type.arguments
             .map { requireNotNull(it.type) { "Star projections in type arguments are not allowed, but had $type" } }
         return when {
