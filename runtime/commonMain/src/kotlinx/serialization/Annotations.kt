@@ -141,7 +141,7 @@ public annotation class SerialInfo
  * Commands to use [ContextualSerializer] on an annotated property or type usage.
  * If used on a file, commands using [ContextualSerializer] for all listed KClasses.
  *
- * @param [forClasses] Classes to use ContextSerializer for in the current file.
+ * @param [forClasses] Classes to use ContextualSerializer for in the current file.
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.FILE, AnnotationTarget.TYPE)
 @Retention(AnnotationRetention.BINARY)

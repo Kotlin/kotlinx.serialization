@@ -128,7 +128,7 @@ class ContextAndPolymorphicTest {
     }
 
     @Test
-    fun testContextSerializerUsesDefaultIfModuleIsEmpty() {
+    fun testContextualSerializerUsesDefaultIfModuleIsEmpty() {
         val s = Json(JsonConfiguration(unquotedPrint = true, useArrayPolymorphism = true)).encodeToString(EnhancedData.serializer(), value)
         assertEquals("{data:{a:100500,b:42},stringPayload:{s:string},binaryPayload:62696E617279}", s)
     }
