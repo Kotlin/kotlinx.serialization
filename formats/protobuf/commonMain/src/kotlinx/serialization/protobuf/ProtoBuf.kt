@@ -258,7 +258,8 @@ public class ProtoBuf(
             if (parentTag != MISSING_TAG) {
                 parentWriter.writeBytes(stream.toByteArray(), parentTag.protoId)
             } else {
-                parentWriter.out.write(stream.toByteArray())
+                // Top-level objects are always length-prefixed to know when to stop reading them
+                parentWriter.writeBytes(stream.toByteArray())
             }
         }
     }
@@ -561,9 +562,8 @@ public class ProtoBuf(
 
     public companion object Default : BinaryFormat by ProtoBuf() {
         private fun makeDelimited(decoder: ProtobufReader, parentTag: ProtoDesc): ProtobufReader {
-            if (parentTag == MISSING_TAG) return decoder
-            // TODO use array slice instead of array copy
-            val bytes = decoder.readObject()
+            val tagless = parentTag == MISSING_TAG
+            val bytes = if (tagless) decoder.readObjectNoTag() else decoder.readObject()
             return ProtobufReader(ByteArrayInput(bytes))
         }
 
