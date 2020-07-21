@@ -6,6 +6,7 @@ package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.test.EnumSerializer
 import kotlin.test.*
@@ -17,9 +18,9 @@ class SchemaTest {
         @Serializer(forClass = Data1::class)
         companion object {
             // TODO removal of explicit type crashes the compiler
-            override val descriptor: SerialDescriptor = SerialDescriptor("Data1") {
-                element("l", listDescriptor<Int>(), isOptional = true)
-                element("s", descriptor<String>())
+            override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Data1") {
+                element("l", listSerialDescriptor<Int>(), isOptional = true)
+                element("s", serialDescriptor<String>())
             }
         }
     }

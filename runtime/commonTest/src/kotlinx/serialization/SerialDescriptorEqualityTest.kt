@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
 import kotlin.test.*
 
 class SerialDescriptorEqualityTest {
@@ -79,9 +80,9 @@ class SerialDescriptorEqualityTest {
     fun testCantBeComparedToUserDescriptor() {
         val typeParam = Int.serializer().descriptor
         val userDefinedWithInt =
-            SerialDescriptor("TypeParamUsedTwice", StructureKind.CLASS, typeParam) {
+            buildClassSerialDescriptor("TypeParamUsedTwice", typeParam) {
                 element("t", typeParam)
-                element("l", listDescriptor(typeParam))
+                element("l", listSerialDescriptor(typeParam))
             }
 
         val generatedWithInt = TypeParamUsedTwice.serializer(Int.serializer()).descriptor

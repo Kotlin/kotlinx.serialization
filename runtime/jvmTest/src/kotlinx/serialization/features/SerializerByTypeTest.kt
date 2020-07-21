@@ -6,6 +6,7 @@ package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.json.*
 import org.junit.Test
 import java.lang.reflect.*
@@ -25,7 +26,7 @@ class SerializerByTypeTest {
     data class WithCustomDefault(val n: Int) {
         @Serializer(forClass = WithCustomDefault::class)
         companion object {
-            override val descriptor: SerialDescriptor = PrimitiveDescriptor("WithCustomDefault", PrimitiveKind.INT)
+            override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("WithCustomDefault", PrimitiveKind.INT)
             override fun serialize(encoder: Encoder, value: WithCustomDefault) = encoder.encodeInt(value.n)
             override fun deserialize(decoder: Decoder) = WithCustomDefault(decoder.decodeInt())
         }

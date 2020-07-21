@@ -5,6 +5,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
 import kotlin.test.*
 
 class JsonTreeAndMapperTest {
@@ -20,11 +21,11 @@ class JsonTreeAndMapperTest {
     }
 
     object EitherSerializer : KSerializer<Either> {
-        override val descriptor: SerialDescriptor = SerialDescriptor("Either", PolymorphicKind.SEALED) {
-            val leftDescriptor = SerialDescriptor("Either.Left") {
+        override val descriptor: SerialDescriptor = buildSerialDescriptor("Either", PolymorphicKind.SEALED) {
+            val leftDescriptor = buildClassSerialDescriptor("Either.Left") {
                 element<String>("errorMsg")
             }
-            val rightDescriptor = SerialDescriptor("Either.Right") {
+            val rightDescriptor = buildClassSerialDescriptor("Either.Right") {
                 element("data", Payload.serializer().descriptor)
             }
             element("left", leftDescriptor)

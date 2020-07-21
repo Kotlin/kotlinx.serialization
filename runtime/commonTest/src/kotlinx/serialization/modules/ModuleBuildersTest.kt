@@ -10,6 +10,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.PolyBase
 import kotlinx.serialization.PolyDerived
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.test.*
 import kotlin.reflect.*
 import kotlin.test.*
@@ -179,12 +180,12 @@ class ModuleBuildersTest {
 
     @Serializer(forClass = C::class)
     object CSerializer : KSerializer<C> {
-        override val descriptor: SerialDescriptor = SerialDescriptor("AnotherName", StructureKind.OBJECT)
+        override val descriptor: SerialDescriptor = buildSerialDescriptor("AnotherName", StructureKind.OBJECT)
     }
 
     @Serializer(forClass = C::class)
     object CSerializer2 : KSerializer<C> {
-        override val descriptor: SerialDescriptor = SerialDescriptor("C", StructureKind.OBJECT)
+        override val descriptor: SerialDescriptor = buildSerialDescriptor("C", StructureKind.OBJECT)
     }
 
     @Test

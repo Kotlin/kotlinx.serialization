@@ -199,6 +199,11 @@ public final class kotlinx/serialization/Mapper {
 }
 
 public final class kotlinx/serialization/MigrationsKt {
+	public static final fun PrimitiveDescriptor (Ljava/lang/String;Lkotlinx/serialization/PrimitiveKind;)Lkotlinx/serialization/SerialDescriptor;
+	public static final fun SerialDescriptor (Ljava/lang/String;Lkotlinx/serialization/SerialKind;[Lkotlinx/serialization/SerialDescriptor;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/SerialDescriptor;
+	public static final fun SerialDescriptor (Ljava/lang/String;[Lkotlinx/serialization/SerialDescriptor;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/SerialDescriptor;
+	public static synthetic fun SerialDescriptor$default (Ljava/lang/String;Lkotlinx/serialization/SerialKind;[Lkotlinx/serialization/SerialDescriptor;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/SerialDescriptor;
+	public static synthetic fun SerialDescriptor$default (Ljava/lang/String;[Lkotlinx/serialization/SerialDescriptor;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/SerialDescriptor;
 	public static final fun compiledSerializer (Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
 	public static final fun decode (Lkotlinx/serialization/Decoder;)Ljava/lang/Object;
 	public static final fun decode (Lkotlinx/serialization/Decoder;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
@@ -334,26 +339,6 @@ public abstract interface class kotlinx/serialization/SerialDescriptor {
 public final class kotlinx/serialization/SerialDescriptor$DefaultImpls {
 	public static fun getAnnotations (Lkotlinx/serialization/SerialDescriptor;)Ljava/util/List;
 	public static fun isNullable (Lkotlinx/serialization/SerialDescriptor;)Z
-}
-
-public final class kotlinx/serialization/SerialDescriptorBuilder {
-	public final fun element (Ljava/lang/String;Lkotlinx/serialization/SerialDescriptor;Ljava/util/List;Z)V
-	public static synthetic fun element$default (Lkotlinx/serialization/SerialDescriptorBuilder;Ljava/lang/String;Lkotlinx/serialization/SerialDescriptor;Ljava/util/List;ZILjava/lang/Object;)V
-	public final fun getAnnotations ()Ljava/util/List;
-	public final fun getSerialName ()Ljava/lang/String;
-	public final fun isNullable ()Z
-	public final fun listDescriptor (Lkotlinx/serialization/SerialDescriptor;)Lkotlinx/serialization/SerialDescriptor;
-	public final fun mapDescriptor (Lkotlinx/serialization/SerialDescriptor;Lkotlinx/serialization/SerialDescriptor;)Lkotlinx/serialization/SerialDescriptor;
-	public final fun setAnnotations (Ljava/util/List;)V
-	public final fun setDescriptor (Lkotlinx/serialization/SerialDescriptor;)Lkotlinx/serialization/SerialDescriptor;
-	public final fun setNullable (Z)V
-}
-
-public final class kotlinx/serialization/SerialDescriptorBuilderKt {
-	public static final fun PrimitiveDescriptor (Ljava/lang/String;Lkotlinx/serialization/PrimitiveKind;)Lkotlinx/serialization/SerialDescriptor;
-	public static final fun SerialDescriptor (Ljava/lang/String;Lkotlinx/serialization/SerialKind;[Lkotlinx/serialization/SerialDescriptor;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/SerialDescriptor;
-	public static synthetic fun SerialDescriptor$default (Ljava/lang/String;Lkotlinx/serialization/SerialKind;[Lkotlinx/serialization/SerialDescriptor;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/SerialDescriptor;
-	public static final fun getNullable (Lkotlinx/serialization/SerialDescriptor;)Lkotlinx/serialization/SerialDescriptor;
 }
 
 public final class kotlinx/serialization/SerialDescriptorKt {
@@ -526,6 +511,32 @@ public final class kotlinx/serialization/builtins/LongAsStringSerializer : kotli
 	public synthetic fun patch (Lkotlinx/serialization/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
 	public fun serialize (Lkotlinx/serialization/Encoder;J)V
 	public synthetic fun serialize (Lkotlinx/serialization/Encoder;Ljava/lang/Object;)V
+}
+
+public final class kotlinx/serialization/descriptors/ClassSerialDescriptorBuilder {
+	public final fun element (Ljava/lang/String;Lkotlinx/serialization/SerialDescriptor;Ljava/util/List;Z)V
+	public static synthetic fun element$default (Lkotlinx/serialization/descriptors/ClassSerialDescriptorBuilder;Ljava/lang/String;Lkotlinx/serialization/SerialDescriptor;Ljava/util/List;ZILjava/lang/Object;)V
+	public final fun getAnnotations ()Ljava/util/List;
+	public final fun getSerialName ()Ljava/lang/String;
+	public final fun isNullable ()Z
+	public final fun listDescriptor (Lkotlinx/serialization/SerialDescriptor;)Lkotlinx/serialization/SerialDescriptor;
+	public final fun mapDescriptor (Lkotlinx/serialization/SerialDescriptor;Lkotlinx/serialization/SerialDescriptor;)Lkotlinx/serialization/SerialDescriptor;
+	public final fun setAnnotations (Ljava/util/List;)V
+	public final fun setDescriptor (Lkotlinx/serialization/SerialDescriptor;)Lkotlinx/serialization/SerialDescriptor;
+	public final fun setNullable (Z)V
+}
+
+public final class kotlinx/serialization/descriptors/SerialDescriptorsKt {
+	public static final fun PrimitiveSerialDescriptor (Ljava/lang/String;Lkotlinx/serialization/PrimitiveKind;)Lkotlinx/serialization/SerialDescriptor;
+	public static final fun buildClassSerialDescriptor (Ljava/lang/String;[Lkotlinx/serialization/SerialDescriptor;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/SerialDescriptor;
+	public static synthetic fun buildClassSerialDescriptor$default (Ljava/lang/String;[Lkotlinx/serialization/SerialDescriptor;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/SerialDescriptor;
+	public static final fun buildSerialDescriptor (Ljava/lang/String;Lkotlinx/serialization/SerialKind;[Lkotlinx/serialization/SerialDescriptor;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/SerialDescriptor;
+	public static synthetic fun buildSerialDescriptor$default (Ljava/lang/String;Lkotlinx/serialization/SerialKind;[Lkotlinx/serialization/SerialDescriptor;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/SerialDescriptor;
+	public static final fun getNullable (Lkotlinx/serialization/SerialDescriptor;)Lkotlinx/serialization/SerialDescriptor;
+	public static final fun listSerialDescriptor (Lkotlinx/serialization/SerialDescriptor;)Lkotlinx/serialization/SerialDescriptor;
+	public static final fun mapSerialDescriptor (Lkotlinx/serialization/SerialDescriptor;Lkotlinx/serialization/SerialDescriptor;)Lkotlinx/serialization/SerialDescriptor;
+	public static final fun serialDescriptor (Lkotlin/reflect/KType;)Lkotlinx/serialization/SerialDescriptor;
+	public static final fun setSerialDescriptor (Lkotlinx/serialization/SerialDescriptor;)Lkotlinx/serialization/SerialDescriptor;
 }
 
 public abstract class kotlinx/serialization/encoding/AbstractDecoder : kotlinx/serialization/CompositeDecoder, kotlinx/serialization/Decoder {

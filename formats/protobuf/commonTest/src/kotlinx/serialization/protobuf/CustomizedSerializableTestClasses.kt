@@ -6,6 +6,7 @@ package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
 
 @Serializable
 data class A(@ProtoId(1) val b: B)
@@ -21,7 +22,7 @@ object BSerializer : KSerializer<B> {
         return B(decoder.decodeInt())
     }
 
-    override val descriptor: SerialDescriptor = PrimitiveDescriptor("B", PrimitiveKind.INT)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("B", PrimitiveKind.INT)
 }
 
 @Serializable

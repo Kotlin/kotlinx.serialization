@@ -2,14 +2,16 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization
+package kotlinx.serialization.descriptors
 
+import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
+import kotlin.reflect.*
 
 /**
  * Builder for [SerialDescriptor].
  * The resulting descriptor will be uniquely identified by the given [serialName], [typeParameters] and
- * elements structure described in [builder] function.
+ * elements structure described in [builderAction] function.
  *
  * Example:
  * ```
@@ -43,16 +45,21 @@ import kotlinx.serialization.internal.*
  * ```
  */
 @Suppress("FunctionName")
-public fun SerialDescriptor(
+public fun buildClassSerialDescriptor(
     serialName: String,
-    kind: SerialKind = StructureKind.CLASS,
     vararg typeParameters: SerialDescriptor,
-    builder: SerialDescriptorBuilder.() -> Unit = {}
+    builderAction: ClassSerialDescriptorBuilder.() -> Unit = {}
 ): SerialDescriptor {
     require(serialName.isNotBlank()) { "Blank serial names are prohibited" }
-    val sdBuilder = SerialDescriptorBuilder(serialName)
-    sdBuilder.builder()
-    return SerialDescriptorImpl(serialName, kind, sdBuilder.elementNames.size, typeParameters.toList(), sdBuilder)
+    val sdBuilder = ClassSerialDescriptorBuilder(serialName)
+    sdBuilder.builderAction()
+    return SerialDescriptorImpl(
+        serialName,
+        StructureKind.CLASS,
+        sdBuilder.elementNames.size,
+        typeParameters.toList(),
+        sdBuilder
+    )
 }
 
 /**
@@ -73,9 +80,87 @@ public fun SerialDescriptor(
  * }
  * ```
  */
-public fun PrimitiveDescriptor(serialName: String, kind: PrimitiveKind): SerialDescriptor {
+public fun PrimitiveSerialDescriptor(serialName: String, kind: PrimitiveKind): SerialDescriptor {
     require(serialName.isNotBlank()) { "Blank serial names are prohibited" }
     return PrimitiveDescriptorSafe(serialName, kind)
+}
+
+/**
+ * An unsafe alternative to [buildClassSerialDescriptor] that supports an arbitrary [SerialKind].
+ * This function is left public only for migration of pre-release users and is not intended to be used
+ * as generally-safe and stable mechanism. Beware that it can produce inconsistent or non spec-compliant instances.
+ *
+ * If you end up using this builder, please file an issue with your use-case in kotlinx.serialization
+ */
+@InternalSerializationApi
+public fun buildSerialDescriptor(
+    serialName: String,
+    kind: SerialKind,
+    vararg typeParameters: SerialDescriptor,
+    builder: ClassSerialDescriptorBuilder.() -> Unit = {}
+): SerialDescriptor {
+    require(serialName.isNotBlank()) { "Blank serial names are prohibited" }
+    require(kind != StructureKind.CLASS) { "For StructureKind.CLASS please use 'buildClassSerialDescriptor' instead" }
+    val sdBuilder = ClassSerialDescriptorBuilder(serialName)
+    sdBuilder.builder()
+    return SerialDescriptorImpl(serialName, kind, sdBuilder.elementNames.size, typeParameters.toList(), sdBuilder)
+}
+
+
+/**
+ * Retrieves descriptor of type [T] using reified [serializer] function.
+ */
+public inline fun <reified T> serialDescriptor(): SerialDescriptor = serializer<T>().descriptor
+
+/**
+ * Retrieves descriptor of type associated with the given [KType][type]
+ */
+public fun serialDescriptor(type: KType): SerialDescriptor = serializer(type).descriptor
+
+/**
+ * Creates a descriptor for the type `List<T>` where `T` is the type associated with [elementDescriptor].
+ */
+public fun listSerialDescriptor(elementDescriptor: SerialDescriptor): SerialDescriptor {
+    return ArrayListClassDesc(elementDescriptor)
+}
+
+/**
+ * Creates a descriptor for the type `List<T>`.
+ */
+public inline fun <reified T> listSerialDescriptor(): SerialDescriptor {
+    return listSerialDescriptor(serializer<T>().descriptor)
+}
+
+/**
+ * Creates a descriptor for the type `Map<K, V>` where `K` and `V` are types
+ * associated with [keyDescriptor] and [valueDescriptor] respectively.
+ */
+public fun mapSerialDescriptor(
+    keyDescriptor: SerialDescriptor,
+    valueDescriptor: SerialDescriptor
+): SerialDescriptor {
+    return HashMapClassDesc(keyDescriptor, valueDescriptor)
+}
+
+/**
+ * Creates a descriptor for the type `Map<K, V>`.
+ */
+public inline fun <reified K, reified V> mapSerialDescriptor(): SerialDescriptor {
+    return mapSerialDescriptor(serializer<K>().descriptor, serializer<V>().descriptor)
+}
+
+/**
+ * Creates a descriptor for the type `Set<T>` where `T` is the type associated with [elementDescriptor].
+ */
+public fun setSerialDescriptor(elementDescriptor: SerialDescriptor): SerialDescriptor {
+    return HashSetClassDesc(elementDescriptor)
+}
+
+/**
+ * Creates a descriptor for the type `Set<T>`.
+ */
+public inline fun <reified T> setSerialDescriptor(): SerialDescriptor {
+    return setSerialDescriptor(serializer<T>().descriptor)
 }
 
 /**
@@ -98,12 +183,14 @@ public val SerialDescriptor.nullable: SerialDescriptor
  *
  * Please refer to [SerialDescriptor] builder function for a complete example.
  */
-public class SerialDescriptorBuilder internal constructor(
+public class ClassSerialDescriptorBuilder internal constructor(
     public val serialName: String
 ) {
-    /**
-     * Whether the resulting descriptor represents [nullable][SerialDescriptor.isNullable] type
-     */
+
+    @Deprecated(
+        "isNullable was deprecated during serialization 1.0 API stabilization. ",
+        level = DeprecationLevel.ERROR
+    )
     public var isNullable: Boolean = false
 
     /**
@@ -162,56 +249,51 @@ public class SerialDescriptorBuilder internal constructor(
     }
 
 
-    /**
-     * Retrieves descriptor of type [T] using reified [serializer] function.
-     */
+    @Deprecated(
+        "Renamed to serialDescriptor() during serialization 1.0 API stabilization",
+        level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("serialDescriptor<T>()")
+    )
     public inline fun <reified T> descriptor(): SerialDescriptor = serializer<T>().descriptor
 
-    /**
-     * Creates a descriptor for the type `List<T>` where `T` is the type associated with [typeDescriptor].
-     */
-    public fun listDescriptor(typeDescriptor: SerialDescriptor): SerialDescriptor {
-        return ArrayListClassDesc(typeDescriptor)
-    }
+    @Deprecated(
+        "Renamed to listSerialDescriptor() during serialization 1.0 API stabilization",
+        level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("listSerialDescriptor(typeDescriptor)")
+    )
+    public fun listDescriptor(typeDescriptor: SerialDescriptor): SerialDescriptor = listSerialDescriptor(typeDescriptor)
 
-    /**
-     * Creates a descriptor for the type `List<T>`.
-     */
-    public inline fun <reified T> listDescriptor(): SerialDescriptor {
-        return listDescriptor(serializer<T>().descriptor)
-    }
+    @Deprecated(
+        "Renamed to listSerialDescriptor() during serialization 1.0 API stabilization",
+        level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("listSerialDescriptor<T>()")
+    )
+    public inline fun <reified T> listDescriptor(): SerialDescriptor = listSerialDescriptor<T>()
 
-    /**
-     * Creates a descriptor for the type `Map<K, V>` where `K` and `V` are types
-     * associated with [keyDescriptor] and [valueDescriptor] respectively.
-     */
+    @Deprecated(
+        "Renamed to mapSerialDescriptor() during serialization 1.0 API stabilization",
+        level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("mapSerialDescriptor(keyDescriptor, valueDescriptor)")
+    )
     public fun mapDescriptor(
         keyDescriptor: SerialDescriptor,
         valueDescriptor: SerialDescriptor
-    ): SerialDescriptor {
-        return HashMapClassDesc(keyDescriptor, valueDescriptor)
-    }
+    ): SerialDescriptor = HashMapClassDesc(keyDescriptor, valueDescriptor)
 
-    /**
-     * Creates a descriptor for the type `Map<K, V>`.
-     */
-    public inline fun <reified K, reified V> mapDescriptor(): SerialDescriptor {
-        return mapDescriptor(serializer<K>().descriptor, serializer<V>().descriptor)
-    }
+    @Deprecated(
+        "Renamed to mapSerialDescriptor() during serialization 1.0 API stabilization",
+        level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("mapSerialDescriptor<K, V>()")
+    )
+    public inline fun <reified K, reified V> mapDescriptor(): SerialDescriptor =
+        mapSerialDescriptor(serializer<K>().descriptor, serializer<V>().descriptor)
 
-    /**
-     * Creates a descriptor for the type `Set<T>` where `T` is the type associated with [typeDescriptor].
-     */
-    public fun setDescriptor(typeDescriptor: SerialDescriptor): SerialDescriptor {
-        return HashSetClassDesc(typeDescriptor)
-    }
+    @Deprecated(
+        "Renamed to setSerialDescriptor() during serialization 1.0 API stabilization",
+        level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("setSerialDescriptor(typeDescriptor)")
+    )
+    public fun setDescriptor(typeDescriptor: SerialDescriptor): SerialDescriptor = HashSetClassDesc(typeDescriptor)
 
-    /**
-     * Creates a descriptor for the type `Set<T>`.
-     */
-    public inline fun <reified T> setDescriptor(): SerialDescriptor {
-        return setDescriptor(serializer<T>().descriptor)
-    }
+    @Deprecated(
+        "Renamed to setSerialDescriptor() during serialization 1.0 API stabilization",
+        level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("setSerialDescriptor<T>()")
+    )
+    public inline fun <reified T> setDescriptor(): SerialDescriptor = setSerialDescriptor(serializer<T>().descriptor)
 }
 
 internal class SerialDescriptorImpl(
@@ -219,10 +301,9 @@ internal class SerialDescriptorImpl(
     override val kind: SerialKind,
     override val elementsCount: Int,
     typeParameters: List<SerialDescriptor>,
-    builder: SerialDescriptorBuilder
+    builder: ClassSerialDescriptorBuilder
 ) : SerialDescriptor {
 
-    public override val isNullable: Boolean = builder.isNullable
     public override val annotations: List<Annotation> = builder.annotations
 
     private val elementNames: Array<String> = builder.elementNames.toTypedArray()
@@ -254,3 +335,4 @@ internal class SerialDescriptorImpl(
         }
     }
 }
+

@@ -6,6 +6,7 @@ package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
@@ -34,7 +35,7 @@ class ContextAndPolymorphicTest {
     object PayloadSerializer
 
     object BinaryPayloadSerializer : KSerializer<Payload> {
-        override val descriptor: SerialDescriptor = PrimitiveDescriptor("BinaryPayload", PrimitiveKind.STRING)
+        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("BinaryPayload", PrimitiveKind.STRING)
 
         override fun serialize(encoder: Encoder, value: Payload) {
             encoder.encodeString(InternalHexConverter.printHexBinary(value.s.encodeToByteArray()))

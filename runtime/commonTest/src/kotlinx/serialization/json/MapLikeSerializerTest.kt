@@ -6,6 +6,7 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
 import kotlin.test.*
 
 class MapLikeSerializerTest : JsonTestBase() {
@@ -16,7 +17,7 @@ class MapLikeSerializerTest : JsonTestBase() {
     @Serializer(forClass = StringPair::class)
     object StringPairSerializer : KSerializer<StringPair> {
 
-        override val descriptor: SerialDescriptor = SerialDescriptor("package.StringPair", StructureKind.MAP) {
+        override val descriptor: SerialDescriptor = buildSerialDescriptor("package.StringPair", StructureKind.MAP) {
             element<String>("a")
             element<String>("b")
         }

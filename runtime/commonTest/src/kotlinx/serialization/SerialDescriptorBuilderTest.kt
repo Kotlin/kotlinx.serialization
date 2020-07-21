@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
 
@@ -14,11 +15,11 @@ class SerialDescriptorBuilderTest {
     @SerialName("Wrapper")
     class Wrapper(val i: Int)
 
-    private val wrapperDescriptor = SerialDescriptor("Wrapper", StructureKind.CLASS) {
+    private val wrapperDescriptor = buildClassSerialDescriptor("Wrapper") {
         element("i", Int.serializer().descriptor)
     }
 
-    private val dataHolderDescriptor = SerialDescriptor("DataHolder", StructureKind.CLASS) {
+    private val dataHolderDescriptor = buildClassSerialDescriptor("DataHolder") {
         element<String>("string")
         element("nullableWrapper", wrapperDescriptor.nullable)
         element("wrapper", wrapperDescriptor)
@@ -52,9 +53,9 @@ class SerialDescriptorBuilderTest {
     class Box<T>(val value: T, val list: List<T>)
 
     class CustomBoxSerializer<T>(val typeSerializer: KSerializer<T>) {
-        val descriptor: SerialDescriptor = SerialDescriptor("Box", StructureKind.CLASS) {
+        val descriptor: SerialDescriptor = buildClassSerialDescriptor("Box") {
             element("value", typeSerializer.descriptor)
-            element("list", listDescriptor(typeSerializer.descriptor))
+            element("list", listSerialDescriptor(typeSerializer.descriptor))
         }
     }
 
@@ -72,17 +73,17 @@ class SerialDescriptorBuilderTest {
     @Test
     fun testMisconfiguration() {
         assertFailsWith<IllegalArgumentException> {
-            SerialDescriptor("a", StructureKind.CLASS) {
+            buildClassSerialDescriptor("a") {
                 element<Int>("i")
                 element<Int>("i")
             }
         }
 
-        assertFailsWith<IllegalArgumentException> { SerialDescriptor("", StructureKind.CLASS) }
-        assertFailsWith<IllegalArgumentException> { SerialDescriptor("\t", StructureKind.CLASS) }
-        assertFailsWith<IllegalArgumentException> { SerialDescriptor("   ", StructureKind.CLASS) }
-        assertFailsWith<IllegalArgumentException> { PrimitiveDescriptor("", PrimitiveKind.STRING) }
-        assertFailsWith<IllegalArgumentException> { PrimitiveDescriptor(" ", PrimitiveKind.STRING) }
-        assertFailsWith<IllegalArgumentException> { PrimitiveDescriptor("\t", PrimitiveKind.STRING) }
+        assertFailsWith<IllegalArgumentException> { buildClassSerialDescriptor("") }
+        assertFailsWith<IllegalArgumentException> { buildClassSerialDescriptor("\t") }
+        assertFailsWith<IllegalArgumentException> { buildClassSerialDescriptor("   ") }
+        assertFailsWith<IllegalArgumentException> { PrimitiveSerialDescriptor("", PrimitiveKind.STRING) }
+        assertFailsWith<IllegalArgumentException> { PrimitiveSerialDescriptor(" ", PrimitiveKind.STRING) }
+        assertFailsWith<IllegalArgumentException> { PrimitiveSerialDescriptor("\t", PrimitiveKind.STRING) }
     }
 }

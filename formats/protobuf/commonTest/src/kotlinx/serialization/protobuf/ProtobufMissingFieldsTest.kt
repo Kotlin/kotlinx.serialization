@@ -5,6 +5,7 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
 import kotlin.test.*
 
 class ProtobufMissingFieldsTest {
@@ -86,10 +87,9 @@ class ProtobufMissingFieldsTest {
     )
 
     class ItemPlatformSerializer : KSerializer<ItemPlatform> {
-
-        override val descriptor: SerialDescriptor = SerialDescriptor("ItemPlatform", SerialKind.ENUM) {
+        override val descriptor: SerialDescriptor = buildSerialDescriptor("ItemPlatform", SerialKind.ENUM) {
             enumValues<ItemPlatform>().forEach {
-                element(it.name, SerialDescriptor("$serialName.${it.name}", StructureKind.OBJECT))
+                element(it.name, buildSerialDescriptor("$serialName.${it.name}", StructureKind.OBJECT))
             }
         }
 
@@ -105,9 +105,9 @@ class ProtobufMissingFieldsTest {
 
     class ItemContextSerializer : KSerializer<ItemContext> {
 
-        override val descriptor: SerialDescriptor = SerialDescriptor("ItemContext", SerialKind.ENUM) {
+        override val descriptor: SerialDescriptor = buildSerialDescriptor("ItemContext", SerialKind.ENUM) {
             enumValues<ItemContext>().forEach {
-                element(it.name, SerialDescriptor("$serialName.${it.name}", StructureKind.OBJECT))
+                element(it.name, buildSerialDescriptor("$serialName.${it.name}", StructureKind.OBJECT))
             }
         }
 

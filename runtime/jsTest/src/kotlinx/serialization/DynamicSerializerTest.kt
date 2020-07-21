@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.internal.DynamicObjectSerializer
 import kotlinx.serialization.json.*
@@ -80,7 +81,7 @@ class DynamicSerializerTest {
         @Serializer(forClass = MyFancyClass::class)
         companion object : KSerializer<MyFancyClass> {
 
-            override val descriptor: SerialDescriptor = PrimitiveDescriptor("MyFancyClass", PrimitiveKind.STRING)
+            override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("MyFancyClass", PrimitiveKind.STRING)
             override fun serialize(encoder: Encoder, value: MyFancyClass) {
                 encoder.encodeString("fancy ${value.value}")
             }

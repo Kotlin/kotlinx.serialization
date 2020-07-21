@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.reflect.*
@@ -74,10 +75,10 @@ internal class SealedClassSerializer<T : Any>(
     subclassSerializers: Array<KSerializer<out T>>
 ) : AbstractPolymorphicSerializer<T>() {
 
-    override val descriptor: SerialDescriptor = SerialDescriptor(serialName, PolymorphicKind.SEALED) {
+    override val descriptor: SerialDescriptor = buildSerialDescriptor(serialName, PolymorphicKind.SEALED) {
         element("type", String.serializer().descriptor)
         val elementDescriptor =
-            SerialDescriptor("kotlinx.serialization.Sealed<${baseClass.simpleName}>", SerialKind.CONTEXTUAL) {
+            buildSerialDescriptor("kotlinx.serialization.Sealed<${baseClass.simpleName}>", SerialKind.CONTEXTUAL) {
                 subclassSerializers.forEach {
                     val d = it.descriptor
                     element(d.serialName, d)

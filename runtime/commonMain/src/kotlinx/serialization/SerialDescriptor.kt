@@ -117,7 +117,7 @@ package kotlinx.serialization
  * }
  * ```
  *
- * For a classes that are represented as a single primitive value, [PrimitiveDescriptor] builder function can be used instead.
+ * For a classes that are represented as a single primitive value, [PrimitiveSerialDescriptor] builder function can be used instead.
  */
 public interface SerialDescriptor {
     /**

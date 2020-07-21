@@ -5,6 +5,7 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import java.text.DateFormat
@@ -14,7 +15,7 @@ import kotlin.test.assertEquals
 
 @Serializer(forClass = Date::class)
 object DateSerializer : KSerializer<Date> {
-    override val descriptor: SerialDescriptor = PrimitiveDescriptor("java.util.Date", PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("java.util.Date", PrimitiveKind.STRING)
 
     // Consider wrapping in ThreadLocal if serialization may happen in multiple threads
     private val df: DateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS").apply {

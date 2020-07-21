@@ -11,10 +11,8 @@ import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
 /**
  * Implementation that plugin uses to implement descriptors for auto-generated serializers.
  */
-// TODO get rid of the rest of the usages and make it hidden
-@InternalSerializationApi
-@Deprecated(level = DeprecationLevel.ERROR, message = "Should not be used in general code")
-public open class PluginGeneratedSerialDescriptor(
+@PublishedApi
+internal open class PluginGeneratedSerialDescriptor(
     override val serialName: String,
     private val generatedSerializer: GeneratedSerializer<*>? = null,
     final override val elementsCount: Int

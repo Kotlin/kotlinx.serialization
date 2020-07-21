@@ -1,25 +1,25 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-@file:Suppress("DEPRECATION_ERROR")
+
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
 
 /*
  * Descriptor used for explicitly serializable enums by the plugin.
  * Designed to be consistent with `EnumSerializer.descriptor` and weird plugin usage.
  */
-@InternalSerializationApi
-@Deprecated(level = DeprecationLevel.HIDDEN, message = "For plugin-generated code")
-public class EnumDescriptor(
+@PublishedApi
+internal class EnumDescriptor(
     name: String,
     elementsCount: Int
 ) : PluginGeneratedSerialDescriptor(name, elementsCount = elementsCount) {
 
     override val kind: SerialKind = SerialKind.ENUM
     private val elementDescriptors by lazy {
-        Array(elementsCount) { SerialDescriptor(name + "." + getElementName(it), StructureKind.OBJECT) }
+        Array(elementsCount) { buildSerialDescriptor(name + "." + getElementName(it), StructureKind.OBJECT) }
     }
 
     override fun getElementDescriptor(index: Int): SerialDescriptor = elementDescriptors.getChecked(index)
@@ -54,10 +54,10 @@ public class EnumSerializer<T : Enum<T>>(
     private val values: Array<T>
 ) : KSerializer<T> {
 
-    override val descriptor: SerialDescriptor = SerialDescriptor(serialName, SerialKind.ENUM) {
+    override val descriptor: SerialDescriptor = buildSerialDescriptor(serialName, SerialKind.ENUM) {
         values.forEach {
             val fqn = "$serialName.${it.name}"
-            val enumMemberDescriptor = SerialDescriptor(fqn, StructureKind.OBJECT)
+            val enumMemberDescriptor = buildSerialDescriptor(fqn, StructureKind.OBJECT)
             element(it.name, enumMemberDescriptor)
         }
     }

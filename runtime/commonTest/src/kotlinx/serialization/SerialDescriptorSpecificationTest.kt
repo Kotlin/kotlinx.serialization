@@ -6,6 +6,7 @@ package kotlinx.serialization
 
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
 import kotlin.test.*
 
 class SerialDescriptorSpecificationTest {
@@ -25,7 +26,7 @@ class SerialDescriptorSpecificationTest {
 
     private object StaticHolder {
         val userDefinedHolderDescriptor =
-            SerialDescriptor("kotlinx.serialization.SerialDescriptorSpecificationTest.Holder", StructureKind.CLASS) {
+            buildClassSerialDescriptor("kotlinx.serialization.SerialDescriptorSpecificationTest.Holder") {
                 element<Int?>("a")
                 val annotation = Holder.serializer().descriptor.findAnnotation<Id>(1)
                 element<String>("b", listOf(annotation!!), isOptional = true)
@@ -203,9 +204,9 @@ class SerialDescriptorSpecificationTest {
 
     @Test
     fun testCustomPrimitiveDescriptor() {
-        assertFailsWith<IllegalArgumentException> { PrimitiveDescriptor("kotlin.Int", PrimitiveKind.INT) }
-        assertFailsWith<IllegalArgumentException> { PrimitiveDescriptor("Int", PrimitiveKind.INT) }
-        assertFailsWith<IllegalArgumentException> { PrimitiveDescriptor("int", PrimitiveKind.INT) }
+        assertFailsWith<IllegalArgumentException> { PrimitiveSerialDescriptor("kotlin.Int", PrimitiveKind.INT) }
+        assertFailsWith<IllegalArgumentException> { PrimitiveSerialDescriptor("Int", PrimitiveKind.INT) }
+        assertFailsWith<IllegalArgumentException> { PrimitiveSerialDescriptor("int", PrimitiveKind.INT) }
     }
 
     private fun checkPrimitiveDescriptor(type: String, descriptor: SerialDescriptor) {
