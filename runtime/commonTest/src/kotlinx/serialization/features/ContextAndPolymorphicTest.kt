@@ -6,7 +6,9 @@ package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
@@ -20,7 +22,7 @@ class ContextAndPolymorphicTest {
     @Serializable
     data class EnhancedData(
         val data: Data,
-        @ContextualSerialization val stringPayload: Payload,
+        @Contextual val stringPayload: Payload,
         @Serializable(with = BinaryPayloadSerializer::class) val binaryPayload: Payload
     )
 
@@ -29,7 +31,7 @@ class ContextAndPolymorphicTest {
     data class Payload(val s: String)
 
     @Serializable
-    data class PayloadList(val ps: List<@ContextualSerialization Payload>)
+    data class PayloadList(val ps: List<@Contextual Payload>)
 
     @Serializer(forClass = Payload::class)
     object PayloadSerializer
@@ -53,10 +55,10 @@ class ContextAndPolymorphicTest {
     fun initContext() {
         val scope = serializersModuleOf(Payload::class, PayloadSerializer)
         val bPolymorphicModule = SerializersModule { polymorphic(Any::class) { subclass(PayloadSerializer) } }
-        json = Json(
-            JsonConfiguration(useArrayPolymorphism = true),
-            context = scope + bPolymorphicModule
-        )
+        json = Json {
+            useArrayPolymorphism = true
+            serializersModule = scope + bPolymorphicModule
+        }
     }
 
     @Test
@@ -91,8 +93,8 @@ class ContextAndPolymorphicTest {
         val simpleModule = serializersModuleOf(PayloadSerializer)
         val binaryModule = serializersModuleOf(BinaryPayloadSerializer)
 
-        val json1 = Json { useArrayPolymorphism = true; serialModule = simpleModule }
-        val json2 = Json { useArrayPolymorphism = true; serialModule = binaryModule }
+        val json1 = Json { useArrayPolymorphism = true; serializersModule = simpleModule }
+        val json2 = Json { useArrayPolymorphism = true; serializersModule = binaryModule }
 
         // in json1, Payload would be serialized with PayloadSerializer,
         // in json2, Payload would be serialized with BinaryPayloadSerializer
@@ -127,8 +129,8 @@ class ContextAndPolymorphicTest {
     }
 
     @Test
-    fun testContextSerializerUsesDefaultIfModuleIsEmpty() {
-        val s = Json(JsonConfiguration(unquotedPrint = true, useArrayPolymorphism = true)).encodeToString(EnhancedData.serializer(), value)
-        assertEquals("{data:{a:100500,b:42},stringPayload:{s:string},binaryPayload:62696E617279}", s)
+    fun testContextualSerializerUsesDefaultIfModuleIsEmpty() {
+        val s = Json { useArrayPolymorphism = true }.encodeToString(EnhancedData.serializer(), value)
+        assertEquals("""{"data":{"a":100500,"b":42},"stringPayload":{"s":"string"},"binaryPayload":"62696E617279"}""", s)
     }
 }

@@ -2,8 +2,9 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization
+package kotlinx.serialization.descriptors
 
+import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
@@ -17,7 +18,7 @@ import kotlin.reflect.*
  * to retrieve registered descriptor at runtime.
  * This property is intended to be used on [SerialKind.CONTEXTUAL] and [PolymorphicKind.OPEN] kinds of descriptors,
  * where actual serializer used for a property can be determined only at runtime.
- * Serializers which represent contextual serialization and open polymorphism (namely, [ContextSerializer] and
+ * Serializers which represent contextual serialization and open polymorphism (namely, [ContextualSerializer] and
  * [PolymorphicSerializer]) capture statically known KClass in a descriptor and can expose it via this property.
  *
  * This property is `null` for descriptors that are not of [SerialKind.CONTEXTUAL] or [PolymorphicKind.OPEN] kinds.
@@ -26,7 +27,7 @@ import kotlin.reflect.*
  *
  * ### Example
  * Imagine we need to find all distinct properties names, which may occur in output after serializing a given class
- * with respect to [`@ContextualSerialization`][ContextualSerialization] annotation and all possible inheritors when the class is
+ * with respect to [`@Contextual`][Contextual] annotation and all possible inheritors when the class is
  * serialized polymorphically.
  * Then we can write following function:
  * ```
@@ -60,7 +61,7 @@ public fun SerializersModule.getContextualDescriptor(descriptor: SerialDescripto
 /**
  * Retrieves a collection of descriptors which serializers are registered for polymorphic serialization in [this]
  * with base class equal to [descriptor]'s [SerialDescriptor.capturedKClass].
- * This method does not retrieve serializers registered registered with [PolymorphicModuleBuilder.default].
+ * This method does not retrieve serializers registered with [PolymorphicModuleBuilder.default].
  *
  * @see SerializersModule.getPolymorphic
  * @see SerializersModuleBuilder.polymorphic

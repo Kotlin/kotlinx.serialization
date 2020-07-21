@@ -7,6 +7,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.json.*
+import kotlinx.serialization.descriptors.*
 import kotlin.reflect.*
 
 /**
@@ -75,7 +76,7 @@ public annotation class Serializable(
 /**
  * Instructs the serialization plugin to turn this class into serializer for specified class [forClass].
  * However, it would not be used automatically. To apply it on particular class or property,
- * use [Serializable] or [UseSerializers], or [ContextualSerialization] with runtime registration.
+ * use [Serializable] or [UseSerializers], or [Contextual] with runtime registration.
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
@@ -137,14 +138,40 @@ public annotation class Transient
 public annotation class SerialInfo
 
 /**
- * Commands to use [ContextSerializer] on an annotated property or type usage.
- * If used on a file, commands using [ContextSerializer] for all listed KClasses.
+ * Commands to use [ContextualSerializer] on an annotated property or type usage.
+ * If used on a file, commands using [ContextualSerializer] for all listed KClasses.
  *
- * @param [forClasses] Classes to use ContextSerializer for in the current file.
+ * @param [forClasses] Classes to use ContextualSerializer for in the current file.
  */
+@Deprecated(
+    "This annotation had several meanings and was split in two for readability: use @Contextual on properties and @UseContextualSerialization on files.",
+    ReplaceWith("Contextual"),
+    level = DeprecationLevel.ERROR
+)
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.FILE, AnnotationTarget.TYPE)
 @Retention(AnnotationRetention.BINARY)
 public annotation class ContextualSerialization(vararg val forClasses: KClass<*>)
+
+/**
+ * Instructs the plugin to use [ContextSerializer] on a given property or type.
+ * Context serializer is usually used when serializer for type can only be found in runtime.
+ * It is also possible to apply [ContextSerializer] to every property of the given type,
+ * using file-level [UseContextualSerialization] annotation.
+ *
+ * @see ContextSerializer
+ * @see UseContextualSerialization
+ */
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE)
+public annotation class Contextual
+
+/**
+ * Instructs the plugin to use [ContextSerializer] for every type in the current file that is listed in the [forClasses].
+ *
+ * @see Contextual
+ * @see ContextSerializer
+ */
+@Target(AnnotationTarget.FILE)
+public annotation class UseContextualSerialization(vararg val forClasses: KClass<*>)
 
 /**
  *  Adds [serializerClasses] to serializers resolving process inside the plugin.
@@ -158,7 +185,7 @@ public annotation class ContextualSerialization(vararg val forClasses: KClass<*>
  *  on each property with custom serializer.
  *
  *  Serializers from this list have higher priority than default, but lesser priority than
- *  serializers defined on the property itself, such as [Serializable] (with=...) or [ContextualSerialization].
+ *  serializers defined on the property itself, such as [Serializable] (with=...) or [Contextual].
  */
 @Target(AnnotationTarget.FILE)
 @Retention(AnnotationRetention.BINARY)
@@ -199,25 +226,3 @@ public annotation class InternalSerializationApi
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
 public annotation class UnsafeSerializationApi
 
-/**
- * Marks declaration that obtains serializer implicitly using limited reflection capabilities.
- *
- * These declarations have the following limitations:
- * - Reflection cannot infer correct serializers for generic classes, like collections.
- * - Performance of reflective calls is usually worse than direct access to `.serializer`.
- *
- * It is recommended to specify serializer explicitly, using generated `.serializer()`
- * function on serializable class' companion.
- */
-@RequiresOptIn
-@Deprecated(level = DeprecationLevel.WARNING, message = "This annotation is obsolete and deprecated for removal")
-public annotation class ImplicitReflectionSerializer
-
-/**
- * This annotation marks declarations with default parameters that are subject to semantic change without a migration path.
- *
- * For example, [JsonConfiguration.Default] marked as unstable, thus indicating that it can change its default values
- * in the next releases (e.g. disable strict-mode by default), leading to a semantic (not source code level) change.
- */
-@RequiresOptIn(level = RequiresOptIn.Level.WARNING)
-public annotation class UnstableDefault

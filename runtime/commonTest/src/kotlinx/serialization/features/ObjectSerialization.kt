@@ -32,7 +32,7 @@ class ObjectSerializationTest : JsonTestBase() {
         }
     }
 
-    val json = Json(context = module)
+    val json = Json { serializersModule = module }
 
     @Test
     fun testSealedClassSerialization() {

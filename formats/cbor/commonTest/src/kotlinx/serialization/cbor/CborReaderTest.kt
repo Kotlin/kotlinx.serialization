@@ -9,9 +9,9 @@ import kotlinx.serialization.cbor.internal.*
 import kotlin.test.*
 
 class CborReaderTest {
-    private fun withDecoder(input: String, block: Cbor.CborDecoder.() -> Unit) {
+    private fun withDecoder(input: String, block: CborDecoder.() -> Unit) {
         val bytes = HexConverter.parseHexBinary(input.toUpperCase())
-        Cbor.CborDecoder(ByteArrayInput(bytes)).block()
+        CborDecoder(ByteArrayInput(bytes)).block()
     }
 
     @Test

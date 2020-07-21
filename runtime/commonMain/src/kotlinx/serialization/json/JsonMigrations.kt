@@ -14,22 +14,18 @@ private const val message =
 
 private fun noImpl(): Nothing = throw UnsupportedOperationException("Not implemented, should not be called")
 
-@UnstableDefault
 @Deprecated(message = message, level = DeprecationLevel.ERROR)
 public val Json.Default.plain: Json
     get() = noImpl()
 
-@UnstableDefault
 @Deprecated(message = message, level = DeprecationLevel.ERROR)
 public val Json.Default.unquoted: Json
     get() = noImpl()
 
-@UnstableDefault
 @Deprecated(message = message, level = DeprecationLevel.ERROR)
 public val Json.Default.indented: Json
     get() = noImpl()
 
-@UnstableDefault
 @Deprecated(message = message, level = DeprecationLevel.ERROR)
 public val Json.Default.nonstrict: Json
     get() = noImpl()
@@ -327,3 +323,10 @@ public fun JsonLiteral(value: Any?): JsonPrimitive = noImpl()
     level = DeprecationLevel.ERROR
 )
 public fun json(init: JsonObjectBuilder.() -> Unit): JsonObject = noImpl()
+
+@Deprecated(
+    "jsonArray function deprecated for removal to be consistent with a standard library",
+    replaceWith = ReplaceWith("buildJsonArray(init)"),
+    level = DeprecationLevel.ERROR
+)
+public fun jsonArray(init: JsonArrayBuilder.() -> Unit): JsonArray = buildJsonArray(init)

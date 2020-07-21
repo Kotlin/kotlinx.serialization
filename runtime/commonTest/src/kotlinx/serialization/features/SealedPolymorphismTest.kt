@@ -36,7 +36,7 @@ class SealedPolymorphismTest {
         }
     }
 
-    val json = Json(context = sealedModule)
+    val json = Json { serializersModule = sealedModule }
 
     @Test
     fun testSaveSealedClassesList() {

@@ -5,6 +5,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.encoding.*
 
 /**
  * Encoder used by [Json] during serialization.

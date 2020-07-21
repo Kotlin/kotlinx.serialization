@@ -5,6 +5,8 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
@@ -50,7 +52,7 @@ private sealed class AbstractJsonTreeEncoder(
     override fun encodeTaggedFloat(tag: String, value: Float) {
         // First encode value, then check, to have a prettier error message
         putElement(tag, JsonPrimitive(value))
-        if (!configuration.serializeSpecialFloatingPointValues && !value.isFinite()) {
+        if (!configuration.allowSpecialFloatingPointValues && !value.isFinite()) {
             throw InvalidFloatingPoint(value, tag, "float", getCurrent().toString())
         }
     }
@@ -68,7 +70,7 @@ private sealed class AbstractJsonTreeEncoder(
     override fun encodeTaggedDouble(tag: String, value: Double) {
         // First encode value, then check, to have a prettier error message
         putElement(tag, JsonPrimitive(value))
-        if (!configuration.serializeSpecialFloatingPointValues && !value.isFinite()) {
+        if (!configuration.allowSpecialFloatingPointValues && !value.isFinite()) {
             throw InvalidFloatingPoint(value, tag, "double", getCurrent().toString())
         }
     }

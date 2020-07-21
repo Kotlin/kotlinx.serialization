@@ -62,7 +62,9 @@ class PolymorphismWithAnyTest {
 
     @Test
     fun testWithModules() {
-        val json = Json(context = SerializersModule { polymorphic(Any::class) { subclass(IntData.serializer()) } })
+        val json = Json {
+            serializersModule = SerializersModule { polymorphic(Any::class) { subclass(IntData.serializer()) } }
+        }
         assertStringFormAndRestored(
             expected = """{"data":{"a":{"type":"kotlinx.serialization.IntData","intV":42}}}""",
             original = MyPolyData(mapOf("a" to IntData(42))),
@@ -76,7 +78,7 @@ class PolymorphismWithAnyTest {
      */
     @Test
     fun testFailWithModulesNotInAnyScope() {
-        val json = Json(context = BaseAndDerivedModule)
+        val json = Json { serializersModule = BaseAndDerivedModule }
         checkNotRegisteredMessage(
             "kotlinx.serialization.PolyDerived", "kotlin.Any",
             assertFailsWith<SerializationException> {
@@ -97,7 +99,7 @@ class PolymorphismWithAnyTest {
 
     @Test
     fun testRebindModules() {
-        val json = Json(context = baseAndDerivedModuleAtAny)
+        val json = Json { serializersModule = baseAndDerivedModuleAtAny }
         assertStringFormAndRestored(
             expected = """{"data":{"a":{"type":"kotlinx.serialization.PolyDerived","id":1,"s":"foo"}}}""",
             original = MyPolyData(mapOf("a" to PolyDerived("foo"))),
@@ -111,7 +113,7 @@ class PolymorphismWithAnyTest {
      */
     @Test
     fun testFailWithModulesNotInParticularScope() {
-        val json = Json(context = baseAndDerivedModuleAtAny)
+        val json = Json { serializersModule = baseAndDerivedModuleAtAny }
         checkNotRegisteredMessage(
             "kotlinx.serialization.PolyDerived", "kotlinx.serialization.PolyBase",
             assertFailsWith {
@@ -128,7 +130,7 @@ class PolymorphismWithAnyTest {
 
     @Test
     fun testBindModules() {
-        val json = Json(context = (baseAndDerivedModuleAtAny + BaseAndDerivedModule))
+        val json = Json { serializersModule = (baseAndDerivedModuleAtAny + BaseAndDerivedModule) }
         assertStringFormAndRestored(
             expected = """{"data":{"a":{"type":"kotlinx.serialization.PolyDerived","id":1,"s":"foo"}},
                 |"polyBase":{"type":"kotlinx.serialization.PolyDerived","id":1,"s":"foo"}}""".trimMargin().lines().joinToString(

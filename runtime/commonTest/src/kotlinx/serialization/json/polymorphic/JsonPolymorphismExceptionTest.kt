@@ -30,7 +30,7 @@ class JsonPolymorphismExceptionTest : JsonTestBase() {
         }
 
         assertFailsWith<JsonDecodingException> {
-            Json(context = serialModule).decodeFromString(Base.serializer(), """{"type":"derived","nested":null}""", useStreaming)
+            Json { serializersModule = serialModule }.decodeFromString(Base.serializer(), """{"type":"derived","nested":null}""", useStreaming)
         }
     }
 
@@ -43,7 +43,7 @@ class JsonPolymorphismExceptionTest : JsonTestBase() {
         }
 
         assertFailsWith<JsonDecodingException> {
-            Json(context = serialModule).decodeFromString(Base.serializer(), """{"nested":{}}""", useStreaming)
+            Json { serializersModule = serialModule }.decodeFromString(Base.serializer(), """{"nested":{}}""", useStreaming)
         }
     }
 }

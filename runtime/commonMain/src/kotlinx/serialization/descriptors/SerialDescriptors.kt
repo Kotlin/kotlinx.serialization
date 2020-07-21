@@ -5,6 +5,7 @@
 package kotlinx.serialization.descriptors
 
 import kotlinx.serialization.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.*
 import kotlin.reflect.*
 

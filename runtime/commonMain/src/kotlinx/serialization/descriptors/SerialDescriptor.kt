@@ -2,7 +2,9 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization
+package kotlinx.serialization.descriptors
+
+import kotlinx.serialization.*
 
 /**
  * Serial descriptor is an inherent property of [KSerializer] that describes the structure of the serializable type.
@@ -211,7 +213,7 @@ public interface SerialDescriptor {
      * Retrieves the descriptor of the child element for the given [index].
      * For the property of type `T` on the position `i`, `getElementDescriptor(i)` yields the same result
      * as for `T.serializer().descriptor`, if the serializer for this property is not explicitly overridden
-     * with `@Serializable(with = ...`)`, [Polymorphic] or [ContextualSerialization].
+     * with `@Serializable(with = ...`)`, [Polymorphic] or [Contextual].
      * This method can be used to completely introspect the type that the current descriptor describes.
      *
      * @throws IndexOutOfBoundsException for illegal [index] values.

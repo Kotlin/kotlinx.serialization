@@ -6,6 +6,7 @@ package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
 import org.junit.Test
 import kotlin.test.*
@@ -36,7 +37,7 @@ class JsonUpdateCustomTest : JsonTestBase() {
     @Serializable
     data class WrappedMap<T>(val mp: Map<String, T>)
 
-    val json = Json(JsonConfiguration.Default)
+    val json = Json
 
     @Test
     fun canUpdateMap() {

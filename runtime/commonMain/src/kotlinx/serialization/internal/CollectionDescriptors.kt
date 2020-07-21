@@ -4,7 +4,7 @@
 
 package kotlinx.serialization.internal
 
-import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
 
 internal sealed class ListLikeDescriptor(val elementDescriptor: SerialDescriptor) : SerialDescriptor {
     override val kind: SerialKind get() = StructureKind.LIST

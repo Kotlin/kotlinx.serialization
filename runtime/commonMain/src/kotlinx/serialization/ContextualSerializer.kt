@@ -5,24 +5,37 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.reflect.*
 
 /**
  * This class provides support for retrieving a serializer in runtime, instead of using the one precompiled by the serialization plugin.
- * This serializer is enabled by [ContextualSerialization].
+ * This serializer is enabled by [Contextual] or [UseContextualSerialization].
  *
- * Typical usage of ContextSerializer would be a serialization of a class which does not have
+ * Typical usage of ContextualSerializer would be a serialization of a class which does not have
  * static serializer (e.g. Java class or class from 3rd party library);
  * or desire to override serialized class form in one dedicated output format.
  *
  * Serializers are being looked for in a [SerializersModule] from the target [Encoder] or [Decoder], using statically known [KClass].
  * To create a serial module, use [SerializersModule] factory function.
  * To pass it to encoder and decoder, refer to particular [SerialFormat]'s documentation.
+ *
+ * Usage of contextual serializer can be demonstrated by the following example:
+ * ```
+ * import java.util.Date
+ *
+ * @Serializable
+ * class ClassWithDate(val data: String, @Contextual val timestamp: Date)
+ *
+ * val moduleForDate = serializersModule(MyISO8601DateSerializer)
+ * val json = Json(JsonConfiguration.Default, moduleForDate)
+ * json.stringify(ClassWithDate("foo", Date())
+ * ```
  */
 @OptIn(UnsafeSerializationApi::class)
-public class ContextSerializer<T : Any>(
+public class ContextualSerializer<T : Any>(
     private val serializableClass: KClass<T>,
     private val fallbackSerializer: KSerializer<T>?,
     private val typeParametersSerializers: Array<KSerializer<*>>
@@ -32,7 +45,7 @@ public class ContextSerializer<T : Any>(
     public constructor(serializableClass: KClass<T>) : this(serializableClass, null, EMPTY_SERIALIZER_ARRAY)
 
     public override val descriptor: SerialDescriptor =
-        buildSerialDescriptor("kotlinx.serialization.ContextSerializer", SerialKind.CONTEXTUAL).withContext(serializableClass)
+        buildSerialDescriptor("kotlinx.serialization.ContextualSerializer", SerialKind.CONTEXTUAL).withContext(serializableClass)
 
     public override fun serialize(encoder: Encoder, value: T) {
         val clz = value::class
@@ -46,3 +59,6 @@ public class ContextSerializer<T : Any>(
         return decoder.decodeSerializableValue(serializer)
     }
 }
+
+@Deprecated("Renamed", ReplaceWith("ContextualSerializer"), level = DeprecationLevel.ERROR)
+public typealias ContextSerializer<T> = ContextualSerializer<T>

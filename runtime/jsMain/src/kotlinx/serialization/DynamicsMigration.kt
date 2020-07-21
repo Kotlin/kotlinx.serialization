@@ -13,6 +13,7 @@ private const val parserMessage = "DynamicObjectParser and its 'parse' method we
 // ReplaceWith/typealias is missing intentionally because if we replace all instances of DynamicObjectParser with Json,
 // we'll get incorrect `parse` deprecation (because of StringFormat.parse(serializer, string) overload)
 @Deprecated(parserMessage, level = DeprecationLevel.ERROR)
+@Suppress("DEPRECATION_ERROR")
 public class DynamicObjectParser constructor(
     public val context: SerializersModule = EmptySerializersModule,
     public val configuration: JsonConfiguration = JsonConfiguration.Default

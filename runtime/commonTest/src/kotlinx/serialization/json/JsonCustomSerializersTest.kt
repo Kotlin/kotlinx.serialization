@@ -1,13 +1,14 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-@file:ContextualSerialization(JsonCustomSerializersTest.B::class)
+@file:UseContextualSerialization(JsonCustomSerializersTest.B::class)
 
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 import kotlin.test.*
 
@@ -111,7 +112,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
 
     private val moduleWithB = serializersModuleOf(B::class, BSerializer)
 
-    private fun createJsonWithB() = Json { isLenient = true; serialModule = moduleWithB }
+    private fun createJsonWithB() = Json { isLenient = true; serializersModule = moduleWithB }
 
     @Test
     fun testWriteCustom() = parametrizedTest { useStreaming ->

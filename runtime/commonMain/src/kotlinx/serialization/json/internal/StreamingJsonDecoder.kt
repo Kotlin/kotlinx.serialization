@@ -5,8 +5,8 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
-import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
@@ -149,7 +149,7 @@ internal class StreamingJsonDecoder internal constructor(
 
             if (isUnknown && !configuration.ignoreUnknownKeys) {
                 reader.fail(
-                    "Encountered an unknown key '$key'. You can enable 'JsonConfiguration.ignoreUnknownKeys' property" +
+                    "Encountered an unknown key '$key'. You can enable 'JsonBuilder.ignoreUnknownKeys' property" +
                             " to ignore unknown keys"
                 )
             } else {

@@ -4,7 +4,7 @@
 @file:Suppress("DEPRECATION_ERROR")
 package kotlinx.serialization.test
 
-import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.internal.EnumSerializer
 import kotlin.test.*
 

@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.test.*
@@ -66,7 +67,7 @@ class DynamicParserTest {
     }
 
     @Serializable
-    data class NDWrapper(@ContextualSerialization val data: NotDefault)
+    data class NDWrapper(@Contextual val data: NotDefault)
 
     @Serializable
     sealed class Sealed {
@@ -184,7 +185,7 @@ class DynamicParserTest {
 
     @Test
     fun parseWithCustomSerializers() {
-        val deserializer = Json { serialModule = serializersModuleOf(NotDefault::class, NDSerializer) }
+        val deserializer = Json { serializersModule = serializersModuleOf(NotDefault::class, NDSerializer) }
         val dyn1 = js("({data: 42})")
         assertEquals(NDWrapper(NotDefault(42)),
             deserializer.decodeFromDynamic(NDWrapper.serializer(), dyn1)
@@ -203,7 +204,7 @@ class DynamicParserTest {
         val actual1 = Json.decodeFromDynamic(Sealed.serializer(), dyn)
         assertEquals(expected, actual1)
 
-        val p = Json(configuration = JsonConfiguration())
+        val p = Json
         val actual2 = p.decodeFromDynamic(Sealed.serializer(), dyn)
         assertEquals(expected, actual2)
     }
@@ -213,7 +214,7 @@ class DynamicParserTest {
         val dyn = js("""(["one",{"string":"value"}])""")
         val expected = Sealed.One("value")
 
-        val p = Json(configuration = JsonConfiguration(useArrayPolymorphism = true))
+        val p = Json { useArrayPolymorphism = true }
         val actual = p.decodeFromDynamic(Sealed.serializer(), dyn)
         assertEquals(expected, actual)
     }

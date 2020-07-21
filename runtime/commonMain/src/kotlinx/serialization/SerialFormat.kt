@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.internal.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 
@@ -21,7 +22,7 @@ import kotlinx.serialization.modules.*
  */
 public interface SerialFormat {
     /**
-     * Contains all serializers registered by format user for [ContextualSerialization] and [Polymorphic] serialization.
+     * Contains all serializers registered by format user for [Contextual] and [Polymorphic] serialization.
      *
      * The same module should be exposed in the format's [Encoder] and [Decoder].
      */

@@ -2,13 +2,13 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization.config
+package kotlinx.serialization.hocon
 
 import kotlinx.serialization.*
 import org.junit.*
 import org.junit.Assert.*
 
-class ConfigParserNamingConventionTest {
+class HoconNamingConventionTest {
 
     @Serializable
     data class CaseConfig(val aCharValue: Char, val aStringValue: String)

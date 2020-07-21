@@ -6,6 +6,7 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 
 /*
  * Descriptor used for explicitly serializable enums by the plugin.

@@ -13,7 +13,7 @@ inline fun <reified T : Any> assertStringFormAndRestored(
     expected: String,
     original: T,
     serializer: KSerializer<T>,
-    format: StringFormat = Json(JsonConfiguration.Default),
+    format: StringFormat = Json,
     printResult: Boolean = false
 ) {
     val string = format.encodeToString(serializer, original)

@@ -9,7 +9,7 @@ import kotlinx.serialization.json.*
 import kotlin.test.*
 
 class JsonContentPolymorphicSerializerTest : JsonTestBase() {
-    val json = Json(JsonConfiguration.Default)
+    val json = Json
 
     @Serializable
     sealed class Choices {

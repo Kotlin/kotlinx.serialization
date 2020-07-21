@@ -11,7 +11,7 @@ class JsonDefaultContextTest {
     @Test
     fun testRepeatedSerializer() {
         // #616
-        val json = Json(JsonConfiguration.Default)
-        Json(JsonConfiguration.Default, json.serializersModule)
+        val json = Json
+        Json { serializersModule = json.serializersModule }
     }
 }
