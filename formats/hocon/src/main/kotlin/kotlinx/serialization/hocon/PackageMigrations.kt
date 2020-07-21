@@ -11,5 +11,5 @@ private const val message = "Moved to $pkg package"
 @Deprecated(message, ReplaceWith("ConfigParserConfiguration", pkg), level = DeprecationLevel.ERROR)
 typealias ConfigParserConfiguration = kotlinx.serialization.config.ConfigParserConfiguration
 
-@Deprecated(message, ReplaceWith("ConfigParser", pkg), level = DeprecationLevel.ERROR)
+@Deprecated(message, ReplaceWith("Hocon", pkg), level = DeprecationLevel.ERROR)
 typealias ConfigParser = kotlinx.serialization.hocon.Hocon
