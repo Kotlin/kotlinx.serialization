@@ -258,9 +258,10 @@ public class ProtoBuf(
         override fun endEncode(descriptor: SerialDescriptor) {
             // TODO this is exactly the lookahead scenario
             if (parentTag != MISSING_TAG) {
-                parentWriter.writeBytes(stream.toByteArray(), parentTag.protoId)
+                parentWriter.writeOutput(stream, parentTag.protoId)
             } else {
-                parentWriter.out.write(stream.toByteArray())
+                // Top-level objects are always length-prefixed to know when to stop reading them
+                parentWriter.writeOutput(stream)
             }
         }
     }
@@ -276,9 +277,9 @@ public class ProtoBuf(
 
         override fun endEncode(descriptor: SerialDescriptor) {
             if (parentTag != MISSING_TAG) {
-                parentWriter.writeBytes(stream.toByteArray(), parentTag.protoId)
+                parentWriter.writeOutput(stream, parentTag.protoId)
             } else {
-                parentWriter.writeBytes(stream.toByteArray())
+                parentWriter.writeOutput(stream)
             }
         }
     }
@@ -378,7 +379,7 @@ public class ProtoBuf(
                     return ProtobufDecoder(makeDelimited(reader, tag), descriptor)
                 }
                 StructureKind.MAP -> MapEntryReader(makeDelimitedForced(reader, currentTagOrDefault), currentTagOrDefault, descriptor)
-                else -> throw SerializationException("Primitives are not supported at top-level")
+                else -> throw SerializationException("Unsupported top-level serial kind: ${descriptor.kind}, descriptor: $descriptor")
             }
         }
 
@@ -389,7 +390,7 @@ public class ProtoBuf(
         override fun decodeTaggedBoolean(tag: ProtoDesc): Boolean = when(val value = decodeTaggedInt(tag)) {
             0 -> false
             1 -> true
-            else -> throw SerializationException("Unexpected boolean value: $value")
+            else -> throw SerializationException("Unexpected boolean value: $value when deserializing field with tag $tag")
         }
 
         override fun decodeTaggedByte(tag: ProtoDesc): Byte = decodeTaggedInt(tag).toByte()
@@ -453,9 +454,9 @@ public class ProtoBuf(
         private fun deserializeByteArray(previousValue: ByteArray?): ByteArray {
             val tag = currentTagOrDefault
             val array = if (tag == MISSING_TAG) {
-                reader.readObjectNoTag()
+                reader.readByteArrayNoTag()
             } else {
-                reader.readObject()
+                reader.readByteArray()
             }
             return if (previousValue == null) array else previousValue + array
         }
@@ -507,7 +508,7 @@ public class ProtoBuf(
         init {
             tagOrSize = if (currentTag == MISSING_TAG) {
                 val length = reader.readInt32NoTag()
-                require(length >= 0) { "Expected positive length for $descriptor, but got $length" }
+                if (length < 0) throw SerializationException("Expected positive length for $descriptor, but got $length")
                 -length.toLong()
             } else {
                 currentTag
@@ -563,16 +564,15 @@ public class ProtoBuf(
 
     public companion object Default : BinaryFormat by ProtoBuf() {
         private fun makeDelimited(decoder: ProtobufReader, parentTag: ProtoDesc): ProtobufReader {
-            if (parentTag == MISSING_TAG) return decoder
-            // TODO use array slice instead of array copy
-            val bytes = decoder.readObject()
-            return ProtobufReader(ByteArrayInput(bytes))
+            val tagless = parentTag == MISSING_TAG
+            val input = if (tagless) decoder.objectTaglessInput() else decoder.objectInput()
+            return ProtobufReader(input)
         }
 
         private fun makeDelimitedForced(decoder: ProtobufReader, parentTag: ProtoDesc): ProtobufReader {
-            val bytes = if (parentTag == MISSING_TAG) decoder.readObjectNoTag()
-            else decoder.readObject()
-            return ProtobufReader(ByteArrayInput(bytes))
+            val tagless = parentTag == MISSING_TAG
+            val input = if (tagless) decoder.objectTaglessInput() else decoder.objectInput()
+            return ProtobufReader(input)
         }
 
         internal const val VARINT = 0

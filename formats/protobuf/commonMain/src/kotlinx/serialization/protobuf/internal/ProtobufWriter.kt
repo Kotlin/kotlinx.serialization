@@ -7,16 +7,25 @@ package kotlinx.serialization.protobuf.internal
 import kotlinx.serialization.protobuf.*
 import kotlin.jvm.*
 
-internal class ProtobufWriter(@JvmField val out: ByteArrayOutput) {
+internal class ProtobufWriter(private val out: ByteArrayOutput) {
     fun writeBytes(bytes: ByteArray, tag: Int) {
         out.encode32((tag shl 3) or ProtoBuf.SIZE_DELIMITED)
-        out.encode32(bytes.size)
-        out.write(bytes)
+        writeBytes(bytes)
     }
 
     fun writeBytes(bytes: ByteArray) {
         out.encode32(bytes.size)
         out.write(bytes)
+    }
+
+    fun writeOutput(output: ByteArrayOutput, tag: Int) {
+        out.encode32((tag shl 3) or ProtoBuf.SIZE_DELIMITED)
+        writeOutput(output)
+    }
+
+    fun writeOutput(output: ByteArrayOutput) {
+        out.encode32(output.size())
+        out.write(output)
     }
 
     fun writeInt(value: Int, tag: Int, format: ProtoNumberType) {

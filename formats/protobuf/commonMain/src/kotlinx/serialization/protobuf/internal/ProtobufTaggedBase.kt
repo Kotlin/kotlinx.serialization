@@ -42,11 +42,9 @@ internal abstract class ProtobufTaggedBase {
     }
 
     protected fun popTag(): ProtoDesc {
-        return if (stackSize >= 0) {
-            tagsStack[stackSize--]
-        } else {
-            throw SerializationException("No tag in stack for requested element")
-        }
+        if (stackSize >= 0) return tagsStack[stackSize--]
+        // Unreachable
+        throw SerializationException("No tag in stack for requested element")
     }
 
     protected inline fun <E> tagBlock(tag: ProtoDesc, block: () -> E): E {

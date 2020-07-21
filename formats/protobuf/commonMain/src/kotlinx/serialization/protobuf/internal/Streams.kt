@@ -6,33 +6,37 @@ package kotlinx.serialization.protobuf.internal
 
 import kotlinx.serialization.*
 
-internal class ByteArrayInput(private var array: ByteArray) {
+internal class ByteArrayInput(private var array: ByteArray, private val endIndex: Int = array.size) {
     private var position: Int = 0
-    public val availableBytes: Int get() = array.size - position
+    public val availableBytes: Int get() = endIndex - position
 
-    fun read(): Int {
-        return if (position < array.size) array[position++].toInt() and 0xFF else -1
+    fun slice(size: Int): ByteArrayInput {
+        ensureEnoughBytes(size)
+        val result = ByteArrayInput(array, position + size)
+        result.position = position
+        position += size
+        return result
     }
 
-    fun read(b: ByteArray, offset: Int, length: Int): Int {
-        // avoid int overflow
-        if (offset < 0 || offset > b.size || length < 0
-            || length > b.size - offset
-        ) {
-            throw IndexOutOfBoundsException()
-        }
-        // Are there any bytes available?
-        if (this.position >= array.size) {
-            return -1
-        }
-        if (length == 0) {
-            return 0
-        }
+    fun read(): Int {
+        return if (position < endIndex) array[position++].toInt() and 0xFF else -1
+    }
 
-        val copied = if (this.array.size - position < length) this.array.size - position else length
-        array.copyInto(destination = b, destinationOffset = offset, startIndex = position, endIndex = position + copied)
+    fun readExactNBytes(bytesCount: Int): ByteArray {
+        ensureEnoughBytes(bytesCount)
+        val b = ByteArray(bytesCount)
+        val length = b.size
+        // Are there any bytes available?
+        val copied = if (endIndex - position < length) endIndex - position else length
+        array.copyInto(destination = b, destinationOffset = 0, startIndex = position, endIndex = position + copied)
         position += copied
-        return copied
+        return b
+    }
+
+    private fun ensureEnoughBytes(bytesCount: Int) {
+        if (bytesCount > availableBytes) {
+            throw SerializationException("Unexpected EOF, available $availableBytes bytes, requested: $bytesCount")
+        }
     }
 
     fun readString(length: Int): String {
@@ -42,8 +46,8 @@ internal class ByteArrayInput(private var array: ByteArray) {
     }
 
     fun readVarint32(): Int {
-        if (position == array.size) {
-            error("Unexpected EOF")
+        if (position == endIndex) {
+            eof()
         }
 
         // Fast-path: unrolled loop for single and two byte values
@@ -52,7 +56,7 @@ internal class ByteArrayInput(private var array: ByteArray) {
         if (result >= 0) {
             position  = currentPosition
             return result
-        } else if (array.size - position > 1) {
+        } else if (endIndex - position > 1) {
             result = result xor (array[currentPosition++].toInt() shl 7)
             if (result < 0) {
                 position = currentPosition
@@ -64,9 +68,9 @@ internal class ByteArrayInput(private var array: ByteArray) {
     }
 
     fun readVarint64(eofAllowed: Boolean): Long {
-        if (position == array.size) {
+        if (position == endIndex) {
             if (eofAllowed) return -1
-            else error("Unexpected EOF")
+            else eof()
         }
 
         // Fast-path: single and two byte values
@@ -75,7 +79,7 @@ internal class ByteArrayInput(private var array: ByteArray) {
         if (result >= 0) {
             position  = currentPosition
             return result
-        } else if (array.size - position > 1) {
+        } else if (endIndex - position > 1) {
             result = result xor (array[currentPosition++].toLong() shl 7)
             if (result < 0) {
                 position = currentPosition
@@ -84,6 +88,10 @@ internal class ByteArrayInput(private var array: ByteArray) {
         }
 
         return readVarint64SlowPath()
+    }
+
+    private fun eof() {
+        throw SerializationException("Unexpected EOF")
     }
 
     private fun readVarint64SlowPath(): Long {
@@ -138,13 +146,8 @@ internal class ByteArrayOutput {
         return newArray
     }
 
-    fun write(buffer: ByteArray, offset: Int = 0, count: Int = buffer.size) {
-        // avoid int overflow
-        if (offset < 0 || offset > buffer.size || count < 0
-            || count > buffer.size - offset
-        ) {
-            throw IndexOutOfBoundsException()
-        }
+    fun write(buffer: ByteArray) {
+        val count = buffer.size
         if (count == 0) {
             return
         }
@@ -153,15 +156,22 @@ internal class ByteArrayOutput {
         buffer.copyInto(
             destination = array,
             destinationOffset = this.position,
-            startIndex = offset,
-            endIndex = offset + count
+            startIndex = 0,
+            endIndex = count
         )
         this.position += count
     }
 
-    fun write(byteValue: Int) {
-        ensureCapacity(1)
-        array[position++] = byteValue.toByte()
+    fun write(output: ByteArrayOutput) {
+        val count = output.size()
+        ensureCapacity(count)
+        output.array.copyInto(
+            destination = array,
+            destinationOffset = this.position,
+            startIndex = 0,
+            endIndex = count
+        )
+        this.position += count
     }
 
     fun writeInt(intValue: Int) {

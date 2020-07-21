@@ -14,7 +14,7 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
 
     protected abstract fun SerialDescriptor.getTag(index: Int): ProtoDesc
 
-    protected fun encodeTaggedNull(): Unit = throw SerializationException("null is not supported") // TODO investigate null support separately
+    protected fun encodeTaggedNull(): Unit = throw SerializationException("'null' is not supported in ProtoBuf") // TODO investigate null support separately
     protected abstract fun encodeTaggedInt(tag: ProtoDesc, value: Int)
     protected abstract fun encodeTaggedByte(tag: ProtoDesc, value: Byte)
     protected abstract fun encodeTaggedShort(tag: ProtoDesc, value: Short)
