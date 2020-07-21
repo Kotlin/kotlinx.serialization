@@ -26,7 +26,7 @@ a generic class, this method will have arguments `KSerializer<T1>, KSerializer<T
 * [Using custom serializers](#using-custom-serializers)
   + [`UseSerializers` annotation](#useserializers-annotation)
 * [Registering and serial modules](#registering-and-context)
-  + [`ContextualSerialization` annotation](#contextualserialization-annotation)
+  + [`Contextual` annotation](#Contextual-annotation)
 
 ## Customizing
 
@@ -225,9 +225,9 @@ Modules are intended to be reused in different formats or even different project
 If you want your external serializers to be used, you pass a module with them to the serialization format.
 All standard formats have constructor parameter `context: SerialModule`.
 
-### `ContextualSerialization` annotation
+### `Contextual` annotation
 
-When some runtime ambiguity involved, it's always better to be explicit about your intentions — especially in such a security-sensitive thing like a serialization framework. Therefore, to be able to use Context at runtime, you need to explicitly use special ContextSerializer — otherwise compiler will report you an error about missing serializer. To enable contextual serialization, simply use `@Serializable(with=ContextSerializer::class)` or `@ContextualSerialization` on a property with type which does not have default serializer. To be less verbose, it is also possible to apply this annotation on file — `@file:ContextualSerialization(A::class, B::class)` instructs compiler plugin to use ContextSerializer everywhere in this file for properties of types `A` and `B`. It also can be used on type usages: `List<@ContextualSerialization MyDate>`.
+When some runtime ambiguity involved, it's always better to be explicit about your intentions — especially in such a security-sensitive thing like a serialization framework. Therefore, to be able to use Context at runtime, you need to explicitly use special ContextSerializer — otherwise compiler will report you an error about missing serializer. To enable contextual serialization, simply use `@Serializable(with=ContextSerializer::class)` or `@Contextual` on a property with type which does not have default serializer. To be less verbose, it is also possible to apply this annotation on file — `@file:UseContextualSerialization(A::class, B::class)` instructs compiler plugin to use ContextSerializer everywhere in this file for properties of types `A` and `B`. It also can be used on type usages: `List<@Contextual MyDate>`.
 
 > In next releases, the same thing would be required for polymorphism and `PolymorphicSerializer`. Start using `@Polymorphic` right now!
 

@@ -66,7 +66,7 @@ class DynamicParserTest {
     }
 
     @Serializable
-    data class NDWrapper(@ContextualSerialization val data: NotDefault)
+    data class NDWrapper(@Contextual val data: NotDefault)
 
     @Serializable
     sealed class Sealed {

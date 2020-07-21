@@ -22,7 +22,7 @@ private val SerialKind.objLike get() = this == StructureKind.CLASS || this == St
  *
  * @param configuration configuration for a parser instance.
  * @param serializersModule A [SerializersModule] which should contain registered serializers
- * for [ContextualSerialization] and [Polymorphic] serialization, if you have any.
+ * for [Contextual] and [Polymorphic] serialization, if you have any.
  */
 public class ConfigParser(
     private val configuration: ConfigParserConfiguration = ConfigParserConfiguration(),

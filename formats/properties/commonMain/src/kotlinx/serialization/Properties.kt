@@ -33,7 +33,7 @@ import kotlinx.serialization.modules.*
  * [Map] is treated as a [key,value,...] list.
  *
  * @param serializersModule A [SerializersModule] which should contain registered serializers
- * for [ContextualSerialization] and [Polymorphic] serialization, if you have any.
+ * for [Contextual] and [Polymorphic] serialization, if you have any.
  */
 public class Properties(override val serializersModule: SerializersModule = EmptySerializersModule) : SerialFormat {
 
