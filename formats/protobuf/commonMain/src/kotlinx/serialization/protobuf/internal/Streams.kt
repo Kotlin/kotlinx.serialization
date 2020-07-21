@@ -11,9 +11,7 @@ internal class ByteArrayInput(private var array: ByteArray, private val endIndex
     public val availableBytes: Int get() = endIndex - position
 
     fun slice(size: Int): ByteArrayInput {
-        if (size > availableBytes) {
-            error("Unexpected EOF, available $availableBytes bytes, requested: $size")
-        }
+        ensureEnoughBytes(size)
         val result = ByteArrayInput(array, position + size)
         result.position = position
         position += size
@@ -24,20 +22,21 @@ internal class ByteArrayInput(private var array: ByteArray, private val endIndex
         return if (position < endIndex) array[position++].toInt() and 0xFF else -1
     }
 
-    fun read(b: ByteArray): Int {
+    fun readExactNBytes(bytesCount: Int): ByteArray {
+        ensureEnoughBytes(bytesCount)
+        val b = ByteArray(bytesCount)
         val length = b.size
         // Are there any bytes available?
-        if (this.position >= endIndex) {
-            return -1
-        }
-        if (length == 0) {
-            return 0
-        }
-
         val copied = if (endIndex - position < length) endIndex - position else length
         array.copyInto(destination = b, destinationOffset = 0, startIndex = position, endIndex = position + copied)
         position += copied
-        return copied
+        return b
+    }
+
+    private fun ensureEnoughBytes(bytesCount: Int) {
+        if (bytesCount > availableBytes) {
+            throw SerializationException("Unexpected EOF, available $availableBytes bytes, requested: $bytesCount")
+        }
     }
 
     fun readString(length: Int): String {
@@ -48,7 +47,7 @@ internal class ByteArrayInput(private var array: ByteArray, private val endIndex
 
     fun readVarint32(): Int {
         if (position == endIndex) {
-            error("Unexpected EOF")
+            eof()
         }
 
         // Fast-path: unrolled loop for single and two byte values
@@ -71,7 +70,7 @@ internal class ByteArrayInput(private var array: ByteArray, private val endIndex
     fun readVarint64(eofAllowed: Boolean): Long {
         if (position == endIndex) {
             if (eofAllowed) return -1
-            else error("Unexpected EOF")
+            else eof()
         }
 
         // Fast-path: single and two byte values
@@ -89,6 +88,10 @@ internal class ByteArrayInput(private var array: ByteArray, private val endIndex
         }
 
         return readVarint64SlowPath()
+    }
+
+    private fun eof() {
+        throw SerializationException("Unexpected EOF")
     }
 
     private fun readVarint64SlowPath(): Long {

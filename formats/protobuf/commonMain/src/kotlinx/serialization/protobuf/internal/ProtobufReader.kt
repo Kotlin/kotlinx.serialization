@@ -73,15 +73,6 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
         return input.slice(length)
     }
 
-    private fun ByteArrayInput.readExactNBytes(bytesCount: Int): ByteArray {
-        if (bytesCount > availableBytes) {
-            error("Unexpected EOF, available $availableBytes bytes, requested: $bytesCount")
-        }
-        val array = ByteArray(bytesCount)
-        read(array)
-        return array
-    }
-
     fun readInt(format: ProtoNumberType): Int {
         val wireType = if (format == ProtoNumberType.FIXED) ProtoBuf.i32 else ProtoBuf.VARINT
         assertWireType(wireType)
