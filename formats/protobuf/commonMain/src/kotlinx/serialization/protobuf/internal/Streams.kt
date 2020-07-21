@@ -14,13 +14,8 @@ internal class ByteArrayInput(private var array: ByteArray) {
         return if (position < array.size) array[position++].toInt() and 0xFF else -1
     }
 
-    fun read(b: ByteArray, offset: Int, length: Int): Int {
-        // avoid int overflow
-        if (offset < 0 || offset > b.size || length < 0
-            || length > b.size - offset
-        ) {
-            throw IndexOutOfBoundsException()
-        }
+    fun read(b: ByteArray): Int {
+        val length = b.size
         // Are there any bytes available?
         if (this.position >= array.size) {
             return -1
@@ -30,7 +25,7 @@ internal class ByteArrayInput(private var array: ByteArray) {
         }
 
         val copied = if (this.array.size - position < length) this.array.size - position else length
-        array.copyInto(destination = b, destinationOffset = offset, startIndex = position, endIndex = position + copied)
+        array.copyInto(destination = b, destinationOffset = 0, startIndex = position, endIndex = position + copied)
         position += copied
         return copied
     }
@@ -138,13 +133,8 @@ internal class ByteArrayOutput {
         return newArray
     }
 
-    fun write(buffer: ByteArray, offset: Int = 0, count: Int = buffer.size) {
-        // avoid int overflow
-        if (offset < 0 || offset > buffer.size || count < 0
-            || count > buffer.size - offset
-        ) {
-            throw IndexOutOfBoundsException()
-        }
+    fun write(buffer: ByteArray) {
+        val count = buffer.size
         if (count == 0) {
             return
         }
@@ -153,15 +143,10 @@ internal class ByteArrayOutput {
         buffer.copyInto(
             destination = array,
             destinationOffset = this.position,
-            startIndex = offset,
-            endIndex = offset + count
+            startIndex = 0,
+            endIndex = count
         )
         this.position += count
-    }
-
-    fun write(byteValue: Int) {
-        ensureCapacity(1)
-        array[position++] = byteValue.toByte()
     }
 
     fun writeInt(intValue: Int) {

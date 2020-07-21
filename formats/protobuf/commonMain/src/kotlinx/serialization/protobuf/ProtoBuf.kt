@@ -376,7 +376,7 @@ public class ProtoBuf(
                     return ProtobufDecoder(makeDelimited(reader, tag), descriptor)
                 }
                 StructureKind.MAP -> MapEntryReader(makeDelimitedForced(reader, currentTagOrDefault), currentTagOrDefault, descriptor)
-                else -> throw SerializationException("Primitives are not supported at top-level")
+                else -> throw SerializationException("Unsupported top-level serial kind: ${descriptor.kind}, descriptor: $descriptor")
             }
         }
 
@@ -387,7 +387,7 @@ public class ProtoBuf(
         override fun decodeTaggedBoolean(tag: ProtoDesc): Boolean = when(val value = decodeTaggedInt(tag)) {
             0 -> false
             1 -> true
-            else -> throw SerializationException("Unexpected boolean value: $value")
+            else -> throw SerializationException("Unexpected boolean value: $value when deserializing field with tag $tag")
         }
 
         override fun decodeTaggedByte(tag: ProtoDesc): Byte = decodeTaggedInt(tag).toByte()
@@ -505,7 +505,7 @@ public class ProtoBuf(
         init {
             tagOrSize = if (currentTag == MISSING_TAG) {
                 val length = reader.readInt32NoTag()
-                require(length >= 0) { "Expected positive length for $descriptor, but got $length" }
+                if (length < 0) throw SerializationException("Expected positive length for $descriptor, but got $length")
                 -length.toLong()
             } else {
                 currentTag
