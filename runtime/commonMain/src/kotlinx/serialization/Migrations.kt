@@ -275,7 +275,11 @@ public fun <T : Any> Encoder.encode(obj: T): Unit = noImpl()
 
 @Deprecated(
     "This method was renamed to buildClassSerialDescriptor during serialization 1.0 API stabilization",
-    ReplaceWith("buildClassSerialDescriptor(serialName, *typeParameters, builderAction)"), DeprecationLevel.ERROR
+    replaceWith = ReplaceWith(
+        "buildClassSerialDescriptor(serialName, *typeParameters, builderAction)",
+        imports = ["kotlinx.serialization.descriptors.buildClassSerialDescriptor"]
+    ),
+    DeprecationLevel.ERROR
 )
 public fun SerialDescriptor(
     serialName: String,
@@ -285,8 +289,11 @@ public fun SerialDescriptor(
 
 @Deprecated(
     "Builder with SerialKind was deprecated during serialization 1.0 API stabilization. ",
-    replaceWith = ReplaceWith("buildSerialDescriptor(serialName, kind, *typeParameters, builderAction)"),
-    level = DeprecationLevel.ERROR
+    replaceWith = ReplaceWith(
+        "buildSerialDescriptor(serialName, kind, *typeParameters, builderAction)",
+        imports = ["kotlinx.serialization.descriptors.buildSerialDescriptor"]
+    ),
+    DeprecationLevel.ERROR
 )
 public fun SerialDescriptor(
     serialName: String,
@@ -297,7 +304,11 @@ public fun SerialDescriptor(
 
 @Deprecated(
     "This method was renamed to PrimitiveSerialDescriptor during serialization 1.0 API stabilization",
-    ReplaceWith("PrimitiveSerialDescriptor(serialName, kind)"), DeprecationLevel.ERROR
+    ReplaceWith(
+        "PrimitiveSerialDescriptor(serialName, kind)",
+        imports = ["kotlinx.serialization.descriptors.PrimitiveSerialDescriptor"]
+    ),
+    DeprecationLevel.ERROR
 )
 public fun PrimitiveDescriptor(serialName: String, kind: PrimitiveKind): SerialDescriptor = noImpl()
 
@@ -305,16 +316,22 @@ public fun PrimitiveDescriptor(serialName: String, kind: PrimitiveKind): SerialD
     "This property was renamed to serializersModule during serialization 1.0 stabilization",
     ReplaceWith("serializersModule"), DeprecationLevel.ERROR
 )
-public val SerialFormat.context: SerializersModule get() = noImpl()
+public val SerialFormat.context: SerializersModule
+    get() = noImpl()
 
 @Deprecated(
     "This method was replaced with property during serialization 1.0 stabilization",
-    ReplaceWith("elementDescriptors.toList()"), DeprecationLevel.ERROR
+    ReplaceWith("elementDescriptors.toList()",
+        imports = ["kotlinx.serialization.descriptors.elementNames"]
+    ), DeprecationLevel.ERROR
 )
 public fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> = noImpl()
 
 @Deprecated(
     "This method was replaced with property during serialization 1.0 stabilization",
-    ReplaceWith("elementNames.toList()"), DeprecationLevel.ERROR
+    ReplaceWith(
+        "elementNames.toList()",
+        imports = ["kotlinx.serialization.descriptors.elementNames"]
+    ), DeprecationLevel.ERROR
 )
-public fun SerialDescriptor.elementNames(): List<String>  = noImpl()
+public fun SerialDescriptor.elementNames(): List<String> = noImpl()
