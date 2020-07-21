@@ -57,7 +57,7 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
 
 @Suppress("UNCHECKED_CAST")
 private fun <T : Any> KClass<T>.createEnumSerializer(): KSerializer<T>? {
-    if (!Enum::class.java.isAssignableFrom(java)) return null
+    if (!Enum::class.java.isAssignableFrom(this.java)) return null
     val enum = java
     val constants = enum.enumConstants
     return EnumSerializer(enum.canonicalName, constants as Array<out Enum<*>>) as? KSerializer<T>
