@@ -191,6 +191,6 @@ class SerializerByTypeTest {
     @Test
     fun testNonSerializableEnum() {
         val serializer = serializer<Foo>()
-        assertTrue { serializer.descriptor.kind is SerialKind.ENUM }
+        assertTrue(serializer.descriptor.kind is SerialKind.ENUM)
     }
 }
