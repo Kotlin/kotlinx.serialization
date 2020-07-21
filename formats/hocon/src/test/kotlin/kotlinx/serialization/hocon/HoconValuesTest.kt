@@ -2,13 +2,13 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization.config
+package kotlinx.serialization.hocon
 
 import kotlinx.serialization.*
 import org.junit.*
 import org.junit.Assert.*
 
-class ConfigParserValuesTest {
+class HoconValuesTest {
 
     @Serializable
     data class NumbersConfig(val b: Byte, val s: Short, val i: Int, val l: Long, val f: Float, val d: Double)

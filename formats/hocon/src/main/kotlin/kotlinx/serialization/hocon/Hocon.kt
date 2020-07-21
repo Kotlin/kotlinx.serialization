@@ -2,7 +2,7 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization.config
+package kotlinx.serialization.hocon
 
 import com.typesafe.config.*
 import kotlinx.serialization.*
@@ -10,10 +10,8 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.DECODE_DONE
 import kotlinx.serialization.internal.*
+import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
-
-private val SerialKind.listLike get() = this == StructureKind.LIST || this is PolymorphicKind
-private val SerialKind.objLike get() = this == StructureKind.CLASS || this == StructureKind.OBJECT
 
 /**
  * Allows [deserialization][decodeFromConfig]
@@ -22,20 +20,26 @@ private val SerialKind.objLike get() = this == StructureKind.CLASS || this == St
  * [Config] object represents "Human-Optimized Config Object Notation" —
  * [HOCON][https://github.com/lightbend/config#using-hocon-the-json-superset].
  *
- * @param configuration configuration for a parser instance.
+ * @param [useConfigNamingConvention] switches naming resolution to config naming convention (hyphen separated).
  * @param serializersModule A [SerializersModule] which should contain registered serializers
  * for [Contextual] and [Polymorphic] serialization, if you have any.
  */
-public class ConfigParser(
-    private val configuration: ConfigParserConfiguration = ConfigParserConfiguration(),
-    override val serializersModule: SerializersModule = EmptySerializersModule
+public sealed class Hocon(
+    internal val useConfigNamingConvention: Boolean,
+    override val serializersModule: SerializersModule
 ) : SerialFormat {
-
-    public inline fun <reified T : Any> decodeFromConfig(config: Config): T =
-        decodeFromConfig(serializersModule.getContextualOrDefault(), config)
 
     public fun <T> decodeFromConfig(deserializer: DeserializationStrategy<T>, config: Config): T =
         ConfigReader(config).decodeSerializableValue(deserializer)
+
+    /**
+     * The default instance of Hocon parser.
+     */
+    public companion object Default : Hocon(false, EmptySerializersModule) {
+        private val NAMING_CONVENTION_REGEX by lazy { "[A-Z]".toRegex() }
+    }
+
+    // Implementation below
 
     @Deprecated(
         "This method was renamed to decodeFromConfig during serialization 1.0 API stabilization",
@@ -55,7 +59,7 @@ public class ConfigParser(
 
     private abstract inner class ConfigConverter<T> : TaggedDecoder<T>() {
         override val serializersModule: SerializersModule
-            get() = this@ConfigParser.serializersModule
+            get() = this@Hocon.serializersModule
 
         abstract fun getTaggedConfigValue(tag: T): ConfigValue
 
@@ -113,7 +117,7 @@ public class ConfigParser(
 
         private fun SerialDescriptor.getConventionElementName(index: Int): String {
             val originalName = getElementName(index)
-            return if (!configuration.useConfigNamingConvention) originalName
+            return if (!useConfigNamingConvention) originalName
             else originalName.replace(NAMING_CONVENTION_REGEX) { "-${it.value.toLowerCase()}" }
         }
 
@@ -156,7 +160,6 @@ public class ConfigParser(
     }
 
     private inner class MapConfigReader(map: ConfigObject) : ConfigConverter<Int>() {
-
         private var ind = -1
         private val keys: List<String>
         private val values: List<ConfigValue>
@@ -194,38 +197,50 @@ public class ConfigParser(
         }
     }
 
-    @Suppress("UNUSED")
-    companion object {
-        @Deprecated(
-            "This method was renamed to decodeFromConfig during serialization 1.0 API stabilization",
-            level = DeprecationLevel.ERROR,
-            replaceWith = ReplaceWith("ConfigParser.decodeFromConfig(serial, conf)")
-        )
-        public fun <T> parse(conf: Config, serial: DeserializationStrategy<T>): T = ConfigParser().decodeFromConfig(
-            serial,
-            conf
-        )
-
-        @Deprecated(
-            "This method was renamed to decodeFromConfig during serialization 1.0 API stabilization",
-            level = DeprecationLevel.ERROR,
-            replaceWith = ReplaceWith("ConfigParser.decodeFromConfig(conf)")
-        )
-        public inline fun <reified T : Any> parse(conf: Config): T = ConfigParser().decodeFromConfig(serializer(), conf)
-
-        public inline fun <reified T : Any> decodeFromConfig(config: Config): T = ConfigParser().decodeFromConfig(serializer(), config)
-
-        public fun <T> decodeFromConfig(deserializer: DeserializationStrategy<T>, config: Config): T =
-            ConfigParser().decodeFromConfig(deserializer, config)
-
-        private val NAMING_CONVENTION_REGEX by lazy { "[A-Z]".toRegex() }
-    }
-
-
-    internal fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
+    private fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
         val index = getElementIndex(name)
         if (index == CompositeDecoder.UNKNOWN_NAME)
             throw SerializationException("$serialName does not contain element with name '$name'")
         return index
     }
+
+    private val SerialKind.listLike get() = this == StructureKind.LIST || this is PolymorphicKind
+    private val SerialKind.objLike get() = this == StructureKind.CLASS || this == StructureKind.OBJECT
 }
+
+/**
+ * Decodes the given [config] into a value of type [T] using a deserialize retrieved
+ * from reified type parameter.
+ */
+public inline fun <reified T : Any> Hocon.decodeFromConfig(config: Config): T =
+    decodeFromConfig(serializersModule.getContextualOrDefault(), config)
+
+/**
+ * Creates an instance of [Hocon] configured from the optionally given [Hocon instance][from]
+ * and adjusted with [builderAction].
+ */
+public fun Hocon(from: Hocon = Hocon, builderAction: HoconBuilder.() -> Unit): Hocon {
+    val builder = HoconBuilder(from)
+    builder.builderAction()
+    return HoconImpl(builder.useConfigNamingConvention, builder.serializersModule)
+}
+
+/**
+ * Builder of the [Hocon] instance provided by `Hocon` factory function.
+ */
+public class HoconBuilder internal constructor(hocon: Hocon) {
+    /**
+     * Module with contextual and polymorphic serializers to be used in the resulting [Hocon] instance.
+     */
+    public var serializersModule: SerializersModule = hocon.serializersModule
+
+    /**
+     * Switches naming resolution to config naming convention: hyphen separated.
+     */
+    public var useConfigNamingConvention: Boolean = hocon.useConfigNamingConvention
+}
+
+private class HoconImpl(
+    useConfigNamingConvention: Boolean = false,
+    serializersModule: SerializersModule = EmptySerializersModule
+): Hocon(useConfigNamingConvention, serializersModule)
