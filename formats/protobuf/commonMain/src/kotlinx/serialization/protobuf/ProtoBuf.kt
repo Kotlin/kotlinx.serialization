@@ -256,10 +256,10 @@ public class ProtoBuf(
         override fun endEncode(descriptor: SerialDescriptor) {
             // TODO this is exactly the lookahead scenario
             if (parentTag != MISSING_TAG) {
-                parentWriter.writeBytes(stream.toByteArray(), parentTag.protoId)
+                parentWriter.writeOutput(stream, parentTag.protoId)
             } else {
                 // Top-level objects are always length-prefixed to know when to stop reading them
-                parentWriter.writeBytes(stream.toByteArray())
+                parentWriter.writeOutput(stream)
             }
         }
     }
@@ -275,9 +275,9 @@ public class ProtoBuf(
 
         override fun endEncode(descriptor: SerialDescriptor) {
             if (parentTag != MISSING_TAG) {
-                parentWriter.writeBytes(stream.toByteArray(), parentTag.protoId)
+                parentWriter.writeOutput(stream, parentTag.protoId)
             } else {
-                parentWriter.writeBytes(stream.toByteArray())
+                parentWriter.writeOutput(stream)
             }
         }
     }
@@ -452,9 +452,9 @@ public class ProtoBuf(
         private fun deserializeByteArray(previousValue: ByteArray?): ByteArray {
             val tag = currentTagOrDefault
             val array = if (tag == MISSING_TAG) {
-                reader.readObjectNoTag()
+                reader.readByteArrayNoTag()
             } else {
-                reader.readObject()
+                reader.readByteArray()
             }
             return if (previousValue == null) array else previousValue + array
         }
@@ -563,14 +563,14 @@ public class ProtoBuf(
     public companion object Default : BinaryFormat by ProtoBuf() {
         private fun makeDelimited(decoder: ProtobufReader, parentTag: ProtoDesc): ProtobufReader {
             val tagless = parentTag == MISSING_TAG
-            val bytes = if (tagless) decoder.readObjectNoTag() else decoder.readObject()
-            return ProtobufReader(ByteArrayInput(bytes))
+            val input = if (tagless) decoder.objectTaglessInput() else decoder.objectInput()
+            return ProtobufReader(input)
         }
 
         private fun makeDelimitedForced(decoder: ProtobufReader, parentTag: ProtoDesc): ProtobufReader {
-            val bytes = if (parentTag == MISSING_TAG) decoder.readObjectNoTag()
-            else decoder.readObject()
-            return ProtobufReader(ByteArrayInput(bytes))
+            val tagless = parentTag == MISSING_TAG
+            val input = if (tagless) decoder.objectTaglessInput() else decoder.objectInput()
+            return ProtobufReader(input)
         }
 
         internal const val VARINT = 0

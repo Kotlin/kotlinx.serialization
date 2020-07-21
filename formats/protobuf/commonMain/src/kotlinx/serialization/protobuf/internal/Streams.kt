@@ -6,25 +6,35 @@ package kotlinx.serialization.protobuf.internal
 
 import kotlinx.serialization.*
 
-internal class ByteArrayInput(private var array: ByteArray) {
+internal class ByteArrayInput(private var array: ByteArray, private val endIndex: Int = array.size) {
     private var position: Int = 0
-    public val availableBytes: Int get() = array.size - position
+    public val availableBytes: Int get() = endIndex - position
+
+    fun slice(size: Int): ByteArrayInput {
+        if (size > availableBytes) {
+            error("Unexpected EOF, available $availableBytes bytes, requested: $size")
+        }
+        val result = ByteArrayInput(array, position + size)
+        result.position = position
+        position += size
+        return result
+    }
 
     fun read(): Int {
-        return if (position < array.size) array[position++].toInt() and 0xFF else -1
+        return if (position < endIndex) array[position++].toInt() and 0xFF else -1
     }
 
     fun read(b: ByteArray): Int {
         val length = b.size
         // Are there any bytes available?
-        if (this.position >= array.size) {
+        if (this.position >= endIndex) {
             return -1
         }
         if (length == 0) {
             return 0
         }
 
-        val copied = if (this.array.size - position < length) this.array.size - position else length
+        val copied = if (endIndex - position < length) endIndex - position else length
         array.copyInto(destination = b, destinationOffset = 0, startIndex = position, endIndex = position + copied)
         position += copied
         return copied
@@ -37,7 +47,7 @@ internal class ByteArrayInput(private var array: ByteArray) {
     }
 
     fun readVarint32(): Int {
-        if (position == array.size) {
+        if (position == endIndex) {
             error("Unexpected EOF")
         }
 
@@ -47,7 +57,7 @@ internal class ByteArrayInput(private var array: ByteArray) {
         if (result >= 0) {
             position  = currentPosition
             return result
-        } else if (array.size - position > 1) {
+        } else if (endIndex - position > 1) {
             result = result xor (array[currentPosition++].toInt() shl 7)
             if (result < 0) {
                 position = currentPosition
@@ -59,7 +69,7 @@ internal class ByteArrayInput(private var array: ByteArray) {
     }
 
     fun readVarint64(eofAllowed: Boolean): Long {
-        if (position == array.size) {
+        if (position == endIndex) {
             if (eofAllowed) return -1
             else error("Unexpected EOF")
         }
@@ -70,7 +80,7 @@ internal class ByteArrayInput(private var array: ByteArray) {
         if (result >= 0) {
             position  = currentPosition
             return result
-        } else if (array.size - position > 1) {
+        } else if (endIndex - position > 1) {
             result = result xor (array[currentPosition++].toLong() shl 7)
             if (result < 0) {
                 position = currentPosition
@@ -141,6 +151,18 @@ internal class ByteArrayOutput {
 
         ensureCapacity(count)
         buffer.copyInto(
+            destination = array,
+            destinationOffset = this.position,
+            startIndex = 0,
+            endIndex = count
+        )
+        this.position += count
+    }
+
+    fun write(output: ByteArrayOutput) {
+        val count = output.size()
+        ensureCapacity(count)
+        output.array.copyInto(
             destination = array,
             destinationOffset = this.position,
             startIndex = 0,
