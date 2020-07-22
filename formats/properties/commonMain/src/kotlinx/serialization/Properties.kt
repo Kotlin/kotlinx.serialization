@@ -62,6 +62,10 @@ public class Properties(override val serializersModule: SerializersModule = Empt
         override fun encodeTaggedNull(tag: String) {
             // ignore nulls in output
         }
+
+        override fun encodeTaggedEnum(tag: String, enumDescription: SerialDescriptor, ordinal: Int) {
+            map[tag] = enumDescription.getElementName(ordinal)
+        }
     }
 
     private inner class OutNullableMapper : NamedValueEncoder() {
@@ -80,6 +84,10 @@ public class Properties(override val serializersModule: SerializersModule = Empt
 
         override fun encodeTaggedValue(tag: String, value: Any) {
             map[tag] = value
+        }
+
+        override fun encodeTaggedEnum(tag: String, enumDescription: SerialDescriptor, ordinal: Int) {
+            map[tag] = enumDescription.getElementName(ordinal)
         }
 
         override fun encodeTaggedNull(tag: String) {
