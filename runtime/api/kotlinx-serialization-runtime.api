@@ -810,6 +810,7 @@ public final class kotlinx/serialization/internal/EnumSerializer : kotlinx/seria
 	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
 	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Enum;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class kotlinx/serialization/internal/FloatArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {

@@ -43,18 +43,31 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
     // Check whether it's serializable object
     findObjectSerializer(jClass)?.let { return it }
     // Search for default serializer if no serializer is defined in companion object.
-    return try {
+    val default = try {
         jClass.declaredClasses.singleOrNull { it.simpleName == ("\$serializer") }
             ?.getField("INSTANCE")?.get(null) as? KSerializer<T>
     } catch (e: NoSuchFieldException) {
         null
     }
+
+    if (default != null) return default
+    // Fallback: enum without @Serializable annotation as last resort
+    return createEnumSerializer()
+}
+
+@Suppress("UNCHECKED_CAST")
+private fun <T : Any> KClass<T>.createEnumSerializer(): KSerializer<T>? {
+    if (!Enum::class.java.isAssignableFrom(this.java)) return null
+    val enum = java
+    val constants = enum.enumConstants
+    return EnumSerializer(enum.canonicalName, constants as Array<out Enum<*>>) as? KSerializer<T>
 }
 
 private fun <T : Any> findObjectSerializer(jClass: Class<T>): KSerializer<T>? {
     // Check it is an object without using kotlin-reflect
-    val field = jClass.declaredFields.singleOrNull { it.name == "INSTANCE" && it.type == jClass && Modifier.isStatic(it.modifiers) }
-        ?: return null
+    val field =
+        jClass.declaredFields.singleOrNull { it.name == "INSTANCE" && it.type == jClass && Modifier.isStatic(it.modifiers) }
+            ?: return null
     // Retrieve its instance and call serializer()
     val instance = field.get(null)
     val method =

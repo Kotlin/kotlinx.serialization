@@ -185,4 +185,12 @@ class SerializerByTypeTest {
         val superType = base::class.java.genericSuperclass!!
         return (superType as ParameterizedType).actualTypeArguments.first()!!
     }
+
+    enum class Foo
+
+    @Test
+    fun testNonSerializableEnum() {
+        val serializer = serializer<Foo>()
+        assertTrue(serializer.descriptor.kind is SerialKind.ENUM)
+    }
 }
