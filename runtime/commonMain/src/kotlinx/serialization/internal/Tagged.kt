@@ -44,7 +44,7 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
 
     protected open fun encodeTaggedEnum(
         tag: Tag,
-        enumDescription: SerialDescriptor,
+        enumDescriptor: SerialDescriptor,
         ordinal: Int
     ): Unit = encodeTaggedValue(tag, ordinal)
 
@@ -203,7 +203,7 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder,
     protected open fun decodeTaggedDouble(tag: Tag): Double = decodeTaggedValue(tag) as Double
     protected open fun decodeTaggedChar(tag: Tag): Char = decodeTaggedValue(tag) as Char
     protected open fun decodeTaggedString(tag: Tag): String = decodeTaggedValue(tag) as String
-    protected open fun decodeTaggedEnum(tag: Tag, enumDescription: SerialDescriptor): Int =
+    protected open fun decodeTaggedEnum(tag: Tag, enumDescriptor: SerialDescriptor): Int =
         decodeTaggedValue(tag) as Int
 
     protected open fun <T : Any?> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T =

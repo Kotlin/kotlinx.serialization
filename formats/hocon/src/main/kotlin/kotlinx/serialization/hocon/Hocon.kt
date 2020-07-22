@@ -10,7 +10,6 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.DECODE_DONE
 import kotlinx.serialization.internal.*
-import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 
 /**
@@ -90,9 +89,9 @@ public sealed class Hocon(
 
         override fun decodeTaggedNotNullMark(tag: T) = getTaggedConfigValue(tag).valueType() != ConfigValueType.NULL
 
-        override fun decodeTaggedEnum(tag: T, enumDescription: SerialDescriptor): Int {
+        override fun decodeTaggedEnum(tag: T, enumDescriptor: SerialDescriptor): Int {
             val s = validateAndCast<String>(tag, ConfigValueType.STRING)
-            return enumDescription.getElementIndexOrThrow(s)
+            return enumDescriptor.getElementIndexOrThrow(s)
         }
     }
 

@@ -187,28 +187,16 @@ class PropertiesTest {
     }
 
     @Test
-    fun testEnum() {
-        val obj = EnumData(TestEnum.ZERO)
-        assertMappedAndRestored(
-                mapOf("data" to 0),
-                obj,
-                EnumData.serializer()
-        )
-    }
-
-    @Test
-    fun testNullableEnum() {
-        val obj = NullableEnumData(null, TestEnum.ONE)
-        assertMappedNullableAndRestored(
-                mapOf("data0" to null, "data1" to 1),
-                obj,
-                NullableEnumData.serializer()
-        )
-    }
-
-    @Test
     fun testEnumString() {
         val map = mapOf("data" to "ZERO")
+        val loaded = Properties.load(EnumData.serializer(), map)
+        assertEquals(EnumData(TestEnum.ZERO), loaded)
+    }
+
+
+    @Test
+    fun testEnumInteger() {
+        val map = mapOf("data" to 0)
         val loaded = Properties.load(EnumData.serializer(), map)
         assertEquals(EnumData(TestEnum.ZERO), loaded)
     }
@@ -216,6 +204,13 @@ class PropertiesTest {
     @Test
     fun testNullableEnumString() {
         val map = mapOf("data0" to null, "data1" to "ONE")
+        val loaded = Properties.loadNullable(NullableEnumData.serializer(), map)
+        assertEquals(NullableEnumData(null, TestEnum.ONE), loaded)
+    }
+
+    @Test
+    fun testNullableEnumInteger() {
+        val map = mapOf("data0" to null, "data1" to 1)
         val loaded = Properties.loadNullable(NullableEnumData.serializer(), map)
         assertEquals(NullableEnumData(null, TestEnum.ONE), loaded)
     }
