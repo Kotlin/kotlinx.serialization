@@ -63,8 +63,8 @@ public class Properties(override val serializersModule: SerializersModule = Empt
             // ignore nulls in output
         }
 
-        override fun encodeTaggedEnum(tag: String, enumDescription: SerialDescriptor, ordinal: Int) {
-            map[tag] = enumDescription.getElementName(ordinal)
+        override fun encodeTaggedEnum(tag: String, enumDescriptor: SerialDescriptor, ordinal: Int) {
+            map[tag] = enumDescriptor.getElementName(ordinal)
         }
     }
 
@@ -86,8 +86,8 @@ public class Properties(override val serializersModule: SerializersModule = Empt
             map[tag] = value
         }
 
-        override fun encodeTaggedEnum(tag: String, enumDescription: SerialDescriptor, ordinal: Int) {
-            map[tag] = enumDescription.getElementName(ordinal)
+        override fun encodeTaggedEnum(tag: String, enumDescriptor: SerialDescriptor, ordinal: Int) {
+            map[tag] = enumDescriptor.getElementName(ordinal)
         }
 
         override fun encodeTaggedNull(tag: String) {
@@ -112,10 +112,10 @@ public class Properties(override val serializersModule: SerializersModule = Empt
             return map.getValue(tag)
         }
 
-        override fun decodeTaggedEnum(tag: String, enumDescription: SerialDescriptor): Int {
+        override fun decodeTaggedEnum(tag: String, enumDescriptor: SerialDescriptor): Int {
             return when (val taggedValue = map.getValue(tag)) {
                 is Int -> taggedValue
-                is String -> enumDescription.getElementIndex(taggedValue)
+                is String -> enumDescriptor.getElementIndex(taggedValue)
                 else -> throw SerializationException("Value of enum entry '$tag' is neither an Int nor a String")
             }
         }
@@ -156,10 +156,10 @@ public class Properties(override val serializersModule: SerializersModule = Empt
 
         override fun decodeTaggedValue(tag: String): Any = map.getValue(tag)!!
 
-        override fun decodeTaggedEnum(tag: String, enumDescription: SerialDescriptor): Int {
+        override fun decodeTaggedEnum(tag: String, enumDescriptor: SerialDescriptor): Int {
             return when (val taggedValue = map.getValue(tag)!!) {
                 is Int -> taggedValue
-                is String -> enumDescription.getElementIndex(taggedValue)
+                is String -> enumDescriptor.getElementIndex(taggedValue)
                 else -> throw SerializationException("Value of enum entry '$tag' is neither an Int nor a String")
             }
         }

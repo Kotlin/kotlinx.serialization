@@ -87,8 +87,8 @@ private sealed class AbstractJsonTreeDecoder(
 
     protected abstract fun currentElement(tag: String): JsonElement
 
-    override fun decodeTaggedEnum(tag: String, enumDescription: SerialDescriptor): Int =
-        enumDescription.getElementIndexOrThrow(getValue(tag).content)
+    override fun decodeTaggedEnum(tag: String, enumDescriptor: SerialDescriptor): Int =
+        enumDescriptor.getElementIndexOrThrow(getValue(tag).content)
 
     override fun decodeTaggedNull(tag: String): Nothing? = null
 
