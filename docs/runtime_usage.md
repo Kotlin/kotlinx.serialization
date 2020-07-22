@@ -79,7 +79,7 @@ This can be useful when you want to use some custom external serializer
 or to define different serializers for different formats.
 The latter allows polymorphic serialization and deserialization using runtime class information
 and recorded name of a class.
-Consult theirs documentation for details. Polymorphic serialization is explained in details [here](polymorphism.md).
+Consult their documentation for details. Polymorphic serialization is explained in details [here](polymorphism.md).
 
 Both use serial modules system, which is explained [here](custom_serializers.md#registering-and-context).
 
@@ -92,13 +92,13 @@ Runtime library provides three ready-to use formats: JSON, CBOR and ProtoBuf.
 JSON format represented by `Json` class from `kotlinx.serialization.json` package.
 It is configurable via `JsonConfiguration` class, which has following parameters:
 
-* encodeDefaults - set this to false to omit writing optional properties if they are equal to theirs default values.
+* encodeDefaults - set this to false to omit writing optional properties if they are equal to their default values.
 * strictMode - Prohibits unknown keys when parsing JSON. Prohibits NaN and Infinity float values when serializing JSON. Enabled by default.
 * unquoted - means that all field names and other objects (where it's possible) would not be wrapped in quotes. Useful for debugging.
 * prettyPrint - classic pretty-printed multiline JSON.
 * indent - size of indent, applicable if parameter above is true.
 * useArrayPolymorphism – switches to writing polymorphic values in `[className, object]` format. Disabled by default.
-* classDiscriminator – name of the class descriptor property in polymorphic serialization
+* classDiscriminator – name of the class descriptor property in polymorphic serialization.
 
 It also has two pre-defined sets of parameters: `Default` and `Stable`.
 `Default` provides recommended and sane configuration, however, due to a library evolution,
