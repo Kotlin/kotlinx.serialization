@@ -12,7 +12,7 @@ class AutoAssignIdsTest {
     data class WithoutIds(val a: Int, val b: String)
 
     @Serializable
-    data class WithId(@ProtoId(1) val a: Int, @ProtoId(2) val b: String)
+    data class WithId(@ProtoNumber(1) val a: Int, @ProtoNumber(2) val b: String)
 
     @Test
     fun saveAndRestoreWithoutIds() {

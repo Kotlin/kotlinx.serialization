@@ -21,7 +21,7 @@ open class ProtoBaseline {
     class Holder(val a: Int, val b: Int, val c: Long, val d: Double)
 
     @Serializable
-    class HolderExplicit(@ProtoId(1) val a: Int, @ProtoId(2) val b: Int, @ProtoId(3) val c: Long, @ProtoId(4) val d: Double)
+    class HolderExplicit(@ProtoNumber(1) val a: Int, @ProtoNumber(2) val b: Int, @ProtoNumber(3) val c: Long, @ProtoNumber(4) val d: Double)
 
     private val holder = Holder(1, 2, 3L, 4.0)
     private val holderBytes = ProtoBuf.encodeToByteArray(Holder.serializer(), holder)

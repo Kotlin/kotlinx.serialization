@@ -11,9 +11,9 @@ import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
 
 @Serializable
-data class A(@ProtoId(1) val b: B)
+data class A(@ProtoNumber(1) val b: B)
 
-data class B(@ProtoId(1) val value: Int)
+data class B(@ProtoNumber(1) val value: Int)
 
 object BSerializer : KSerializer<B> {
     override fun serialize(encoder: Encoder, value: B) {
@@ -28,10 +28,10 @@ object BSerializer : KSerializer<B> {
 }
 
 @Serializable
-data class BList(@ProtoId(1) val bs: List<B>)
+data class BList(@ProtoNumber(1) val bs: List<B>)
 
 @Serializable
-data class C(@ProtoId(1) val a: Int = 31, @ProtoId(2) val b: Int = 42) {
+data class C(@ProtoNumber(1) val a: Int = 31, @ProtoNumber(2) val b: Int = 42) {
     @Serializer(forClass = C::class)
     companion object: KSerializer<C> {
         override fun serialize(encoder: Encoder, value: C) {
@@ -44,10 +44,10 @@ data class C(@ProtoId(1) val a: Int = 31, @ProtoId(2) val b: Int = 42) {
 }
 
 @Serializable
-data class CList1(@ProtoId(1) val c: List<C>)
+data class CList1(@ProtoNumber(1) val c: List<C>)
 
 @Serializable
-data class CList2(@ProtoId(1) val d: Int = 5, @ProtoId(2) val c: List<C>) {
+data class CList2(@ProtoNumber(1) val d: Int = 5, @ProtoNumber(2) val c: List<C>) {
     @Serializer(forClass = CList2::class)
     companion object: KSerializer<CList2> {
         override fun serialize(encoder: Encoder, value: CList2) {
@@ -60,7 +60,7 @@ data class CList2(@ProtoId(1) val d: Int = 5, @ProtoId(2) val c: List<C>) {
 }
 
 @Serializable
-data class CList3(@ProtoId(1) val e: List<C> = emptyList(), @ProtoId(2) val f: Int) {
+data class CList3(@ProtoNumber(1) val e: List<C> = emptyList(), @ProtoNumber(2) val f: Int) {
     @Serializer(forClass = CList3::class)
     companion object: KSerializer<CList3> {
         override fun serialize(encoder: Encoder, value: CList3) {
@@ -73,7 +73,7 @@ data class CList3(@ProtoId(1) val e: List<C> = emptyList(), @ProtoId(2) val f: I
 }
 
 @Serializable
-data class CList4(@ProtoId(1) val g: List<C> = emptyList(), @ProtoId(2) val h: Int) {
+data class CList4(@ProtoNumber(1) val g: List<C> = emptyList(), @ProtoNumber(2) val h: Int) {
     @Serializer(forClass = CList4::class)
     companion object: KSerializer<CList4> {
         override fun serialize(encoder: Encoder, value: CList4) {
@@ -86,7 +86,7 @@ data class CList4(@ProtoId(1) val g: List<C> = emptyList(), @ProtoId(2) val h: I
 }
 
 @Serializable
-data class CList5(@ProtoId(1) val g: List<Int> = emptyList(), @ProtoId(2) val h: Int) {
+data class CList5(@ProtoNumber(1) val g: List<Int> = emptyList(), @ProtoNumber(2) val h: Int) {
     @Serializer(forClass = CList5::class)
     companion object: KSerializer<CList5> {
         override fun serialize(encoder: Encoder, value: CList5) {

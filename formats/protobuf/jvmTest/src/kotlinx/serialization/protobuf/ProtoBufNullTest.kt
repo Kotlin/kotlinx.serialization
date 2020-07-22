@@ -20,7 +20,7 @@ import kotlin.test.assertTrue
 class ProtoBufNullTest {
 
     /** ProtoBuf instance that does **not** encode defaults. */
-    private val protoBuf = ProtoBuf(encodeDefaults = false)
+    private val protoBuf = ProtoBuf { encodeDefaults = false }
 
     @Test
     fun testReadCompareWithNulls() {

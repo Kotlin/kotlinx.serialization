@@ -5,14 +5,13 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
 import kotlin.random.*
 import kotlin.test.*
 
 class ByteArraySerializerTest {
 
     @Serializable
-    class ByteArrayCarrier(@ProtoId(2) val data: ByteArray) {
+    class ByteArrayCarrier(@ProtoNumber(2) val data: ByteArray) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
