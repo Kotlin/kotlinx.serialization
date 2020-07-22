@@ -37,7 +37,7 @@ import kotlin.js.*
  * If you need a more stable order (e.g. to avoid breaking changes when reordering properties),
  * provide custom ids using [ProtoNumber] annotation.
  *
- * By default, all numbers are encoded using [varint][https://developers.google.com/protocol-buffers/docs/encoding#varints]
+ * By default, all integer numbers are encoded using [varint][https://developers.google.com/protocol-buffers/docs/encoding#varints]
  * encoding. This behaviour can be changed via [ProtoType] annotation.
  *
  * ### Known caveats and limitations
