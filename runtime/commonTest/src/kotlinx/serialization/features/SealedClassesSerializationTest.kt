@@ -94,7 +94,7 @@ class SealedClassesSerializationTest : JsonTestBase() {
         object EOF : ProtocolWithGenericClass()
     }
 
-    val ManualSerializer: KSerializer<SimpleSealed> = SealedClassSerializer(
+    private val ManualSerializer: KSerializer<SimpleSealed> = SealedClassSerializer(
         "SimpleSealed",
         SimpleSealed::class,
         arrayOf(SimpleSealed.SubSealedA::class, SimpleSealed.SubSealedB::class),
@@ -236,7 +236,15 @@ class SealedClassesSerializationTest : JsonTestBase() {
         )
         val expected =
             """[["ProtocolWithGenericClass.Message",{"description":"string message","message":["kotlin.String","foo"]}],["ProtocolWithGenericClass.Message",{"description":"int message","message":["kotlin.Int",42]}],["ProtocolWithGenericClass.ErrorMessage",{"error":"requesting termination"}],["EOF",{}]]"""
-        val json = Json { useArrayPolymorphism = true }
+        val json = Json {
+            useArrayPolymorphism = true
+            serializersModule = SerializersModule {
+                polymorphic(Any::class) {
+                    subclass(Int::class)
+                    subclass(String::class)
+                }
+            }
+        }
         assertJsonFormAndRestored(ListSerializer(ProtocolWithGenericClass.serializer()), messages, expected, json)
     }
 }
