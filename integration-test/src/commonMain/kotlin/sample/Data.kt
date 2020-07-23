@@ -4,9 +4,14 @@
 
 package sample
 
-import kotlinx.serialization.*
-import kotlinx.serialization.protobuf.*
-import kotlinx.serialization.modules.*
+import kotlinx.serialization.Polymorphic
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
+import kotlinx.serialization.protobuf.ProtoNumber
 
 @Serializable
 data class IntData(val intV: Int)
@@ -251,9 +256,3 @@ val zoo = Zoo(
         arrayOf(IntData(1), IntData(2))
     )
 )
-
-@Serializable
-abstract class AbstractBase
-
-@Serializable
-class ConcreteClass : AbstractBase()

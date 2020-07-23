@@ -3,13 +3,15 @@
  */
 package sample
 
-import kotlinx.serialization.*
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.AbstractDecoder
 import kotlinx.serialization.encoding.AbstractEncoder
 import kotlinx.serialization.encoding.CompositeDecoder
-import kotlin.test.*
 import kotlinx.serialization.encoding.CompositeEncoder
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotSame
 
 class BasicTypesSerializationTest {
 
@@ -91,6 +93,30 @@ class BasicTypesSerializationTest {
             arrayOf(IntData(1), IntData(2))
         )
     )
+
+    @Serializable
+    class WithSecondaryConstructor(var someProperty: Int) {
+        var test: String = "Test"
+
+        constructor() : this(42)
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is WithSecondaryConstructor) return false
+
+            if (someProperty != other.someProperty) return false
+            if (test != other.test) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = someProperty
+            result = 31 * result + test.hashCode()
+            return result
+        }
+    }
+
 
     // KeyValue Input/Output
 
@@ -239,5 +265,10 @@ class BasicTypesSerializationTest {
         // assert we've got it back from string
         assertEquals(data, other)
         assertNotSame(data, other)
+    }
+
+    @Test
+    fun someConstructor() {
+        assertStringFormAndRestored("""{"someProperty":42,"test":"Test"}""", WithSecondaryConstructor(), WithSecondaryConstructor.serializer())
     }
 }

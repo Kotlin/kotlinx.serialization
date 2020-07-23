@@ -34,7 +34,6 @@ apply plugin: 'maven-publish'
 kotlin {
     // Switching module kind for JS is required to run tests
     targets {
-        fromPreset(presets.jvmWithJava, 'jvm')
         fromPreset(presets.js, 'js') {
             nodejs {}
             configure([compilations.main, compilations.test]) {
@@ -45,6 +44,9 @@ kotlin {
                 }
             }
         }
+    }
+    jvm {
+        withJava()
     }
     // For ARM, should be changed to iosArm32 or iosArm64
     // For Linux, should be changed to e.g. linuxX64
