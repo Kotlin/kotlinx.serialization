@@ -313,8 +313,8 @@ private class JsonImpl(configuration: JsonConf) : Json(configuration) {
     }
 
     private fun validateConfiguration() {
-        if (configuration.useArrayPolymorphism) return
-        val collector = ContextValidator(configuration.classDiscriminator)
+        if (serializersModule == EmptySerializersModule) return // Fast-path for in-place JSON allocations
+        val collector = PolymorphismValidator(configuration.useArrayPolymorphism, configuration.classDiscriminator)
         serializersModule.dumpTo(collector)
     }
 }

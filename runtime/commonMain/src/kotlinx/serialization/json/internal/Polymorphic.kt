@@ -15,13 +15,21 @@ internal inline fun <T> JsonEncoder.encodePolymorphically(serializer: Serializat
         serializer.serialize(this, value)
         return
     }
+    val actualSerializer = findActualSerializer(serializer.cast(), value as Any)
+    ifPolymorphic()
+    actualSerializer.serialize(this, value)
+}
+
+private fun JsonEncoder.findActualSerializer(
+    serializer: SerializationStrategy<Any>,
+    value: Any
+): SerializationStrategy<Any> {
     val casted = serializer as AbstractPolymorphicSerializer<Any>
     val actualSerializer = casted.findPolymorphicSerializer(this, value as Any)
     validateIfSealed(casted, actualSerializer, json.configuration.classDiscriminator)
     val kind = actualSerializer.descriptor.kind
     checkKind(kind)
-    ifPolymorphic()
-    actualSerializer.serialize(this, value)
+    return actualSerializer
 }
 
 private fun validateIfSealed(
