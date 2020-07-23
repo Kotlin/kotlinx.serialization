@@ -93,11 +93,10 @@ internal class SealedClassSerializer<T : Any>(
     private val serialName2Serializer: Map<String, KSerializer<out T>>
 
     init {
-        require(subclasses.size == subclassSerializers.size) {
-            "Arrays of classes and serializers must have the same length," +
-                    " got arrays: ${subclasses.contentToString()}, ${subclassSerializers.contentToString()}\n" +
-                    "Please ensure that @Serializable annotation is present on each sealed subclass"
+        if (subclasses.size != subclassSerializers.size) {
+            throw IllegalArgumentException("All subclasses of sealed class ${baseClass.simpleName} should be marked @Serializable")
         }
+
         class2Serializer = subclasses.zip(subclassSerializers).toMap()
         serialName2Serializer = class2Serializer.entries.groupingBy { it.value.descriptor.serialName }
             .aggregate<Map.Entry<KClass<out T>, KSerializer<out T>>, String, Map.Entry<KClass<*>, KSerializer<out T>>>

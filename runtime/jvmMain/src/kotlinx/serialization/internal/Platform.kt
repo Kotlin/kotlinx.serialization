@@ -30,16 +30,8 @@ internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KCl
 internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
     val jClass = this.java
     // Search for serializer defined on companion object.
-    val companion =
-        jClass.declaredFields.singleOrNull { it.name == "Companion" }?.apply { isAccessible = true }?.get(null)
-    if (companion != null) {
-        val serializer = companion.javaClass.methods
-            .find { method ->
-                method.name == "serializer" && method.parameterTypes.size == args.size && method.parameterTypes.all { it == KSerializer::class.java }
-            }
-            ?.invoke(companion, *args) as? KSerializer<T>
-        if (serializer != null) return serializer
-    }
+   val serializer = invokeSerializerOnCompanion<T>(jClass, *args)
+    if (serializer != null) return serializer
     // Check whether it's serializable object
     findObjectSerializer(jClass)?.let { return it }
     // Search for default serializer if no serializer is defined in companion object.
@@ -53,6 +45,22 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
     if (default != null) return default
     // Fallback: enum without @Serializable annotation as last resort
     return createEnumSerializer()
+}
+
+private fun <T : Any> invokeSerializerOnCompanion(jClass: Class<*>, vararg args: KSerializer<Any?>): KSerializer<T>? {
+    val companion =
+        jClass.declaredFields.singleOrNull { it.name == "Companion" }?.apply { isAccessible = true }?.get(null)
+            ?: return null
+    try {
+        return companion.javaClass.methods
+            .find { method ->
+                method.name == "serializer" && method.parameterTypes.size == args.size && method.parameterTypes.all { it == KSerializer::class.java }
+            }
+            ?.invoke(companion, *args) as? KSerializer<T>
+    } catch (e: InvocationTargetException) {
+        val cause = e.cause ?: throw e
+        throw InvocationTargetException(cause, cause.message ?: e.message)
+    }
 }
 
 @Suppress("UNCHECKED_CAST")
