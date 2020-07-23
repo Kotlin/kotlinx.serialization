@@ -72,7 +72,16 @@ class JsonTest {
     fun testPolymorphicForGenericUpperBound() {
         val generic = GenericMessage<Message, Any>(MessageWithId(42, "body"), "body2")
         val serial = GenericMessage.serializer(Message.serializer(), Int.serializer() as KSerializer<Any>)
-        val json = Json { useArrayPolymorphism = true; prettyPrint = false; serializersModule = testModule }
+        val json = Json {
+            useArrayPolymorphism = true
+            prettyPrint = false
+            serializersModule = testModule + SerializersModule {
+                polymorphic(Any::class) {
+                    subclass(Int::class)
+                    subclass(String::class)
+                }
+            }
+        }
         val s = json.encodeToString(serial, generic)
         assertEquals("""{"value":["MessageWithId",{"id":42,"body":"body"}],"value2":["kotlin.String","body2"]}""", s)
     }
@@ -115,20 +124,6 @@ class JsonTest {
         assertEquals("""Derived2(state1='foo')""", restored.toString())
         assertEquals("""Derived2(state1='foo')""", restored2.toString())
     }
-
-    @Test
-    fun withoutModules() = assertStringFormAndRestored(
-        expected = """{"data":{"stringKey":["kotlin.String","string1"],"mapKey":["kotlin.collections.HashMap",[["kotlin.String","nestedKey"],["kotlin.String","nestedValue"]]],"listKey":["kotlin.collections.ArrayList",[["kotlin.String","foo"]]]}}""",
-        original = MyPolyData(
-            linkedMapOf(
-                "stringKey" to "string1",
-                "mapKey" to hashMapOf("nestedKey" to "nestedValue"),
-                "listKey" to listOf("foo")
-            )
-        ),
-        serializer = MyPolyData.serializer(),
-        format = Json { useArrayPolymorphism = true; allowStructuredMapKeys = true }
-    )
 
     @Suppress("NAME_SHADOWING")
     private fun checkNotRegisteredMessage(className: String, scopeName: String, exception: SerializationException) {

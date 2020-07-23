@@ -73,6 +73,26 @@ class PolymorphismTest : JsonTestBase() {
         assertEquals(Wrapper(PolyBase(239), PolyDefault(JsonObject(mapOf("key" to JsonPrimitive(42))))), result)
 
         val replaced = string.replace("foo", "bar")
-        assertFailsWithMessage<SerializationException>("not registered") { adjustedJson.decodeFromString(Wrapper.serializer(), replaced, useStreaming) }
+        assertFailsWithMessage<SerializationException>("not found") { adjustedJson.decodeFromString(Wrapper.serializer(), replaced, useStreaming) }
+    }
+
+    @Test
+    fun testDefaultSerializerForMissingDiscriminator() = parametrizedTest { useStreaming ->
+        val json = Json {
+            serializersModule = module + SerializersModule {
+                polymorphicDefault(PolyBase::class) { name ->
+                    if (name == null) {
+                        PolyDefaultSerializer
+                    } else {
+                        null
+                    }
+                }
+            }
+        }
+        val string = """
+            {"polyBase1":{"type":"kotlinx.serialization.PolyBase","id":239},
+            "polyBase2":{"key":42}}""".trimIndent()
+        val result = json.decodeFromString(Wrapper.serializer(), string, useStreaming)
+        assertEquals(Wrapper(PolyBase(239), PolyDefault(JsonObject(mapOf("key" to JsonPrimitive(42))))), result)
     }
 }

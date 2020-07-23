@@ -76,7 +76,7 @@ class ModuleBuildersTest {
             bSerializer = true
         )
 
-        var composite: SerializersModule = SerializersModule { }
+        var composite = SerializersModule { }
         composite.assertModuleHas(
             aSerializer = false,
             bSerializer = false
@@ -297,7 +297,7 @@ class ModuleBuildersTest {
 
     @Test
     fun testNoPolymorphicCollision() {
-        val defaultSerializerProvider = { _: String -> Unit.serializer() }
+        val defaultSerializerProvider = { _: String? -> Unit.serializer() }
         val m1 = SerializersModule {
             polymorphic(Any::class) {
                 default(defaultSerializerProvider)

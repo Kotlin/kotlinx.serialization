@@ -7,6 +7,7 @@
 package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 import kotlin.jvm.*
 import kotlin.reflect.*
 
@@ -65,9 +66,17 @@ public class SerializersModuleBuilder internal constructor() : SerializersModule
         registerPolymorphicSerializer(baseClass, actualClass, actualSerializer)
     }
 
+    /**
+     * Adds a default serializers provider associated with the given [baseClass] to the resulting module.
+     * [defaultSerializerProvider] is invoked when no polymorphic serializers associated with the `className`
+     * were found. `className` could be `null` for formats that support nullable class discriminators
+     * (currently only [Json] with [useArrayPolymorphism][JsonBuilder.useArrayPolymorphism] set to `false`)
+     *
+     * @see PolymorphicModuleBuilder.default
+     */
     public override fun <Base : Any> polymorphicDefault(
         baseClass: KClass<Base>,
-        defaultSerializerProvider: (className: String) -> DeserializationStrategy<out Base>?
+        defaultSerializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
     ) {
         registerDefaultPolymorphicSerializer(baseClass, defaultSerializerProvider, false)
     }
@@ -103,7 +112,7 @@ public class SerializersModuleBuilder internal constructor() : SerializersModule
     @JvmName("registerDefaultPolymorphicSerializer") // Don't mangle method name for prettier stack traces
     internal fun <Base : Any> registerDefaultPolymorphicSerializer(
         baseClass: KClass<Base>,
-        defaultSerializerProvider: (className: String) -> DeserializationStrategy<out Base>?,
+        defaultSerializerProvider: (className: String?) -> DeserializationStrategy<out Base>?,
         allowOverwrite: Boolean
     ) {
         val previous = polyBase2DefaultProvider[baseClass]

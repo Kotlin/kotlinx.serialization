@@ -36,9 +36,9 @@ public sealed class SerializersModule {
 
     /**
      * Returns a polymorphic deserializer registered for a [serializedClassName] in the scope of [baseClass]
-     * or default value constructed from [serializedClassName] if default serializer provider was registered.
+     * or default value constructed from [serializedClassName] if a default serializer provider was registered.
      */
-    public abstract fun <T : Any> getPolymorphic(baseClass: KClass<in T>, serializedClassName: String): DeserializationStrategy<out T>?
+    public abstract fun <T : Any> getPolymorphic(baseClass: KClass<in T>, serializedClassName: String?): DeserializationStrategy<out T>?
 
     /**
      * Copies contents of this module to the given [collector].
@@ -106,7 +106,7 @@ public infix fun SerializersModule.overwriteWith(other: SerializersModule): Seri
 
         override fun <Base : Any> polymorphicDefault(
             baseClass: KClass<Base>,
-            defaultSerializerProvider: (className: String) -> DeserializationStrategy<out Base>?
+            defaultSerializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
         ) {
             registerDefaultPolymorphicSerializer(baseClass, defaultSerializerProvider, allowOverwrite = true)
         }
@@ -132,7 +132,7 @@ internal class SerialModuleImpl(
         return polyBase2Serializers[baseClass]?.get(value::class) as? SerializationStrategy<T>
     }
 
-    override fun <T : Any> getPolymorphic(baseClass: KClass<in T>, serializedClassName: String): DeserializationStrategy<out T>? {
+    override fun <T : Any> getPolymorphic(baseClass: KClass<in T>, serializedClassName: String?): DeserializationStrategy<out T>? {
         // Registered
         val registered = polyBase2NamedSerializers[baseClass]?.get(serializedClassName) as? KSerializer<out T>
         if (registered != null) return registered
@@ -167,4 +167,4 @@ internal class SerialModuleImpl(
     }
 }
 
-internal typealias PolymorphicProvider<Base> = (className: String) -> DeserializationStrategy<out Base>?
+internal typealias PolymorphicProvider<Base> = (className: String?) -> DeserializationStrategy<out Base>?

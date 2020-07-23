@@ -34,7 +34,7 @@ internal class ContextValidator(private val discriminator: String) : Serializers
 
     override fun <Base : Any> polymorphicDefault(
         baseClass: KClass<Base>,
-        defaultSerializerProvider: (className: String) -> DeserializationStrategy<out Base>?
+        defaultSerializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
     ) {
         // Nothing here
     }
