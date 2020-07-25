@@ -227,10 +227,29 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
     }
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-        if (!finiteMode && decoder.isEnd() || (finiteMode && readProperties >= size)) return CompositeDecoder.DECODE_DONE
-        val elemName = decoder.nextString()
-        readProperties++
-        val index = descriptor.getElementIndexOrThrow(elemName)
+        val index = if (cbor.ignoreUnknownKeys) {
+            val knownIndex: Int
+            while (true) {
+                if (isDone()) return CompositeDecoder.DECODE_DONE
+                val elemName = decoder.nextString()
+                readProperties++
+
+                val index = descriptor.getElementIndex(elemName)
+                if (index == CompositeDecoder.UNKNOWN_NAME) {
+                    decoder.skipElement()
+                } else {
+                    knownIndex = index
+                    break
+                }
+            }
+            knownIndex
+        } else {
+            if (isDone()) return CompositeDecoder.DECODE_DONE
+            val elemName = decoder.nextString()
+            readProperties++
+            descriptor.getElementIndexOrThrow(elemName)
+        }
+
         decodeByteArrayAsByteString = descriptor.isByteString(index)
         return index
     }
@@ -263,6 +282,7 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int =
         enumDescriptor.getElementIndexOrThrow(decoder.nextString())
 
+    private fun isDone(): Boolean = !finiteMode && decoder.isEnd() || (finiteMode && readProperties >= size)
 }
 
 internal class CborDecoder(private val input: ByteArrayInput) {
@@ -420,6 +440,65 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         return result
     }
 
+    fun skipElement() {
+        check(!isEnd()) { "Unexpected end marker" }
+        val lengthStack = mutableListOf<Int>()
+
+        do {
+            var prune = false
+
+            if (isEnd()) {
+                check(lengthStack.lastOrNull() == -1) { "Unexpected end marker" }
+                lengthStack.removeAt(lengthStack.lastIndex)
+                prune = true
+            } else {
+                val header = curByte and 0b111_00000
+                val isIndefinite = curByte and 0b000_11111 == 0b000_11111 &&
+                    (header == HEADER_ARRAY || header == HEADER_MAP ||
+                        header == HEADER_BYTE_STRING.toInt() || header == HEADER_STRING.toInt())
+
+                if (isIndefinite) {
+                    lengthStack.add(-1)
+                } else {
+                    val length = when (header) {
+                        HEADER_BYTE_STRING.toInt(), HEADER_STRING.toInt(), HEADER_ARRAY -> readNumber().toInt()
+                        HEADER_MAP -> readNumber().toInt() * 2
+                        else -> when (curByte and 0b000_11111) {
+                            24 -> 1
+                            25 -> 2
+                            26 -> 4
+                            27 -> 8
+                            else -> 0
+                        }
+                    }
+
+                    if (header == HEADER_ARRAY || header == HEADER_MAP) {
+                        check(length > 0) { "Length must be > 0" }
+                        lengthStack.add(length)
+                    } else {
+                        input.skip(length)
+                        prune = true
+                    }
+                }
+            }
+
+            if (prune) {
+                for (i in lengthStack.lastIndex downTo 0) {
+                    when (lengthStack[i]) {
+                        -1 -> break
+                        1 -> lengthStack.removeAt(i)
+                        else -> {
+                            lengthStack[i] = lengthStack[i] - 1
+                            break
+                        }
+                    }
+                }
+            }
+
+            if (readByte() == -1 && lengthStack.isNotEmpty()) error("Unexpected end of bytes")
+        } while (lengthStack.isNotEmpty())
+    }
+
     /**
      * Indefinite-length byte sequences contain an unknown number of fixed-length byte sequences (chunks).
      *
@@ -438,7 +517,8 @@ internal class CborDecoder(private val input: ByteArrayInput) {
 private fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
     val index = getElementIndex(name)
     if (index == CompositeDecoder.UNKNOWN_NAME)
-        throw SerializationException("$serialName does not contain element with name '$name'")
+        throw SerializationException("$serialName does not contain element with name '$name." +
+            " You can enable 'CborBuilder.ignoreUnknownKeys' property to ignore unknown keys")
     return index
 }
 

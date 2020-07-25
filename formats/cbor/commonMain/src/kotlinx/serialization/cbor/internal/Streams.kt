@@ -33,6 +33,10 @@ internal class ByteArrayInput(private var array: ByteArray) {
         return copied
     }
 
+    fun skip(length: Int) {
+        require(length >= 0) { "Cannot skip $length bytes" }
+        position += length
+    }
 }
 
 internal class ByteArrayOutput {
