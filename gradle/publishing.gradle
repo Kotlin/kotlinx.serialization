@@ -47,7 +47,6 @@ afterEvaluate {
                 maven(MavenPublication) { publication ->
                     artifactId variantName
                     publication.from components.java
-                    publication.artifact stubJavadoc
                     publication.artifact mainSourcesJar
                     publication.pom.withXml(configureMavenCentralMetadata)
                 }
@@ -68,7 +67,6 @@ afterEvaluate {
                 case 'kotlinMultiplatform':
                     if (isKotlin137x) {
                         it.artifactId = "$variantName-native"
-                        it.artifact stubJavadoc
                         it.artifact sourcesJar
                     } else {
                         // With Kotlin 1.4.0, the root module ID has no suffix, but for compatibility with
@@ -94,6 +92,11 @@ afterEvaluate {
             logger.info("Artifact id = ${it.artifactId}")
 
             pom.withXml(configureMavenCentralMetadata)
+
+            // The 'root' module publishes the JVM module's Javadoc JAR as per publishPlatformArtifactsInRootModule, and
+            // every other module should publish an empty Javadoc JAR. TODO: provide proper documentation artifacts?
+            if (name != "kotlinMultiplatform")
+                artifact stubJavadoc
         }
 
         if (isKotlin137x) {
@@ -126,7 +129,6 @@ private void disableMetadataPublication() {
         def publication = publishing.publications.findByName(target.name)
 
         if (publication != null) {
-            publication.artifact stubJavadoc
             if (target.platformType.name != 'native' && target.platformType.name != 'js') {
                 publication.moduleDescriptorGenerator = null
                 tasks.matching { it.name == "generateMetadataFileFor${name.capitalize()}Publication" }.all {
