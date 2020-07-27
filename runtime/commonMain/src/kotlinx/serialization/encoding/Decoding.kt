@@ -237,8 +237,10 @@ public interface Decoder {
     /**
      * Decodes the nullable value of type [T] by delegating the decoding process to the given [deserializer].
      */
-    public fun <T : Any> decodeNullableSerializableValue(deserializer: DeserializationStrategy<T?>): T? =
-        if (decodeNotNullMark()) decodeSerializableValue(deserializer) else decodeNull()
+    public fun <T : Any> decodeNullableSerializableValue(deserializer: DeserializationStrategy<T?>): T? {
+        val isNullabilitySupported = deserializer.descriptor.isNullable
+        return if (isNullabilitySupported || decodeNotNullMark()) decodeSerializableValue(deserializer) else decodeNull()
+    }
 
     @Suppress("DeprecatedCallableAddReplaceWith")
     @Deprecated(updateMethodDeprecated, level = DeprecationLevel.ERROR)

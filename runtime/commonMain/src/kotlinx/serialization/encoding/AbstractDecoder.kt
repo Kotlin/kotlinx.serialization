@@ -83,5 +83,8 @@ public abstract class AbstractDecoder : Decoder, CompositeDecoder {
         index: Int,
         deserializer: DeserializationStrategy<T?>,
         previousValue: T?
-    ): T? = if (decodeNotNullMark()) decodeSerializableValue(deserializer, previousValue) else decodeNull()
+    ): T? {
+        val isNullabilitySupported = deserializer.descriptor.isNullable
+        return if (isNullabilitySupported || decodeNotNullMark()) decodeSerializableValue(deserializer, previousValue) else decodeNull()
+    }
 }

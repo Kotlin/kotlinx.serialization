@@ -11,9 +11,8 @@ import kotlinx.serialization.encoding.*
  * Use [KSerializer.nullable][nullable] instead.
  * @suppress internal API
  */
-@InternalSerializationApi
-public class NullableSerializer<T : Any>(private val serializer: KSerializer<T>) : KSerializer<T?> {
-
+@PublishedApi
+internal class NullableSerializer<T : Any>(private val serializer: KSerializer<T>) : KSerializer<T?> {
     override val descriptor: SerialDescriptor = SerialDescriptorForNullable(serializer.descriptor)
 
     override fun serialize(encoder: Encoder, value: T?) {
