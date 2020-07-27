@@ -34,7 +34,6 @@ import kotlinx.serialization.modules.*
  *
  * If the given class has a [List] property `l`, each value from the list
  * would be prefixed with `l.N.`, where N is an index for a particular value.
- * Additional `l.size` property with a list size would be added.
  * [Map] is treated as a [key,value,...] list.
  *
  * @param serializersModule A [SerializersModule] which should contain registered serializers
@@ -50,17 +49,6 @@ public sealed class Properties(
 
         internal val map: MutableMap<String, Any> = mutableMapOf()
 
-        override fun beginCollection(
-            descriptor: SerialDescriptor,
-            collectionSize: Int
-        ): CompositeEncoder {
-            // todo: decide whether this is responsibility of the format
-            //       OR beginCollection should pass collectionSize = 2 * size in case of maps
-            val size = if (descriptor.kind is StructureKind.MAP) collectionSize * 2 else collectionSize
-            encodeTaggedInt(nested("size"), size)
-            return this
-        }
-
         override fun encodeTaggedValue(tag: String, value: Any) {
             map[tag] = value
         }
@@ -74,17 +62,17 @@ public sealed class Properties(
         }
     }
 
-    private inner class InMapper(private val map: Map<String, Any>) : NamedValueDecoder() {
+    private inner class InMapper(
+        private val map: Map<String, Any>, descriptor: SerialDescriptor
+    ) : NamedValueDecoder() {
         override val serializersModule: SerializersModule = this@Properties.serializersModule
 
         private var currentIndex = 0
+        private val isCollection = descriptor.kind == StructureKind.LIST || descriptor.kind == StructureKind.MAP
+        private val size = if (isCollection) Int.MAX_VALUE else descriptor.elementsCount
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
-            return InMapper(map).also { copyTagsTo(it) }
-        }
-
-        override fun decodeCollectionSize(descriptor: SerialDescriptor): Int {
-            return decodeTaggedInt(nested("size"))
+            return InMapper(map, descriptor).also { copyTagsTo(it) }
         }
 
         override fun decodeTaggedValue(tag: String): Any {
@@ -100,11 +88,13 @@ public sealed class Properties(
         }
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-            val tag = nested("size")
-            val size = if (map.containsKey(tag)) decodeTaggedInt(tag) else descriptor.elementsCount
             while (currentIndex < size) {
                 val name = descriptor.getTag(currentIndex++)
                 if (map.keys.any { it.startsWith(name) }) return currentIndex - 1
+                if (isCollection) {
+                    // if map does not contain key we look for, then indices in collection have ended
+                    break
+                }
             }
             return CompositeDecoder.DECODE_DONE
         }
@@ -125,7 +115,7 @@ public sealed class Properties(
      * [T] may contain properties of nullable types; they will be filled by non-null values from the [map], if present.
      */
     public fun <T> decodeFromMap(strategy: DeserializationStrategy<T>, map: Map<String, Any>): T {
-        val m = InMapper(map)
+        val m = InMapper(map, strategy.descriptor)
         return m.decodeSerializableValue(strategy)
     }
 

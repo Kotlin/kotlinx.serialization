@@ -27,7 +27,7 @@ class PropertiesTest {
     data class SubCategory(var name: String? = null, var option: String? = null)
 
     @Serializable
-    data class DataWithMap(val map: Map<String, Int>)
+    data class DataWithMap(val map: Map<String, Int> = mapOf())
 
     @Serializable
     data class MultiType(
@@ -35,6 +35,12 @@ class PropertiesTest {
         val second: String,
         val unit: Unit = Unit,
         val last: Boolean = true
+    )
+
+    @Serializable
+    data class TestWithSize(
+        val p: String? = null,
+        val size: String? = null
     )
 
     @Serializable
@@ -87,7 +93,6 @@ class PropertiesTest {
         val data = Data(listOf("element1"), "property")
         assertMappedAndRestored(
             mapOf(
-                "list.size" to 1,
                 "list.0" to "element1",
                 "property" to "property"
             ),
@@ -105,7 +110,7 @@ class PropertiesTest {
             ), "string"
         )
         val mapOf =
-            mapOf("data.list.size" to 1, "data.list.0" to "l1", "data.property" to "property", "property" to "string")
+            mapOf("data.list.0" to "l1", "data.property" to "property", "property" to "string")
         assertMappedAndRestored(mapOf, recursive, Recursive.serializer())
     }
 
@@ -188,5 +193,10 @@ class PropertiesTest {
         val map = mapOf("data" to 0)
         val loaded = Properties.decodeFromMap(EnumData.serializer(), map)
         assertEquals(EnumData(TestEnum.ZERO), loaded)
+    }
+
+    @Test
+    fun testCanReadSizeProperty() {
+        assertMappedAndRestored(mapOf("p" to "a", "size" to "b"), TestWithSize("a", "b"), TestWithSize.serializer())
     }
 }
