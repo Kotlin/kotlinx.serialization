@@ -5,6 +5,7 @@
 package kotlinx.serialization.cbor.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.cbor.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
@@ -22,11 +23,13 @@ private const val BEGIN_ARRAY = 0x9f
 private const val BEGIN_MAP = 0xbf
 private const val BREAK = 0xff
 
+private const val ADDITIONAL_INFORMATION_INDEFINITE_LENGTH = 0x1f
+
+private const val HEADER_BYTE_STRING: Byte = 0b010_00000
 private const val HEADER_STRING: Byte = 0b011_00000
 private const val HEADER_NEGATIVE: Byte = 0b001_00000
 private const val HEADER_ARRAY: Int = 0b100_00000
 private const val HEADER_MAP: Int = 0b101_00000
-
 
 // Differs from List only in start byte
 private class CborMapWriter(cbor: Cbor, encoder: CborEncoder) : CborListWriter(cbor, encoder) {
@@ -44,6 +47,16 @@ private open class CborListWriter(cbor: Cbor, encoder: CborEncoder) : CborWriter
 internal open class CborWriter(private val cbor: Cbor, protected val encoder: CborEncoder) : AbstractEncoder() {
     override val serializersModule: SerializersModule
         get() = cbor.serializersModule
+
+    private var encodeByteArrayAsByteString = false
+
+    override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
+        if (encodeByteArrayAsByteString && serializer.descriptor == ByteArraySerializer().descriptor) {
+            encoder.encodeByteString(value as ByteArray)
+        } else {
+            super.encodeSerializableValue(serializer, value)
+        }
+    }
 
     override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = cbor.encodeDefaults
 
@@ -63,6 +76,7 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
     override fun endStructure(descriptor: SerialDescriptor) = encoder.end()
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
+        encodeByteArrayAsByteString = descriptor.isByteString(index)
         val name = descriptor.getElementName(index)
         encoder.encodeString(name)
         return true
@@ -103,10 +117,17 @@ internal class CborEncoder(private val output: ByteArrayOutput) {
 
     fun encodeNumber(value: Long) = output.write(composeNumber(value))
 
+    fun encodeByteString(data: ByteArray) {
+        encodeByteArray(data, HEADER_BYTE_STRING)
+    }
+
     fun encodeString(value: String) {
-        val data = value.encodeToByteArray()
+        encodeByteArray(value.encodeToByteArray(), HEADER_STRING)
+    }
+
+    private fun encodeByteArray(data: ByteArray, type: Byte) {
         val header = composeNumber(data.size.toLong())
-        header[0] = header[0] or HEADER_STRING
+        header[0] = header[0] or type
         output.write(header)
         output.write(data)
     }
@@ -177,6 +198,8 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
         private set
     private var readProperties: Int = 0
 
+    private var decodeByteArrayAsByteString = false
+
     protected fun setSize(size: Int) {
         if (size >= 0) {
             finiteMode = true
@@ -207,7 +230,17 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
         if (!finiteMode && decoder.isEnd() || (finiteMode && readProperties >= size)) return CompositeDecoder.DECODE_DONE
         val elemName = decoder.nextString()
         readProperties++
-        return descriptor.getElementIndexOrThrow(elemName)
+        val index = descriptor.getElementIndexOrThrow(elemName)
+        decodeByteArrayAsByteString = descriptor.isByteString(index)
+        return index
+    }
+
+    override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+        return if (decodeByteArrayAsByteString && deserializer.descriptor == ByteArraySerializer().descriptor) {
+            decoder.nextByteString() as T
+        } else {
+            super.decodeSerializableValue(deserializer)
+        }
     }
 
     override fun decodeString() = decoder.nextString()
@@ -286,15 +319,31 @@ internal class CborDecoder(private val input: ByteArrayInput) {
 
     fun end() = skipByte(BREAK)
 
+    fun nextByteString(): ByteArray {
+        if ((curByte and 0b111_00000) != HEADER_BYTE_STRING.toInt())
+            throw CborDecodingException("start of byte string", curByte)
+        val arr = readBytes()
+        readByte()
+        return arr
+    }
+
     fun nextString(): String {
         if ((curByte and 0b111_00000) != HEADER_STRING.toInt())
             throw CborDecodingException("start of string", curByte)
-        val strLen = readNumber().toInt()
-        val arr = input.readExactNBytes(strLen)
+        val arr = readBytes()
         val ans = arr.decodeToString()
         readByte()
         return ans
     }
+
+    private fun readBytes(): ByteArray =
+        if (curByte and 0b000_11111 == ADDITIONAL_INFORMATION_INDEFINITE_LENGTH) {
+            readByte()
+            readIndefiniteLengthBytes()
+        } else {
+            val strLen = readNumber().toInt()
+            input.readExactNBytes(strLen)
+        }
 
     fun nextNumber(): Long {
         val res = readNumber()
@@ -370,6 +419,20 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         }
         return result
     }
+
+    /**
+     * Indefinite-length byte sequences contain an unknown number of fixed-length byte sequences (chunks).
+     *
+     * @return [ByteArray] containing all of the concatenated bytes found in the buffer.
+     */
+    private fun readIndefiniteLengthBytes(): ByteArray {
+        val byteStrings = mutableListOf<ByteArray>()
+        do {
+            byteStrings.add(readBytes())
+            readByte()
+        } while (!isEnd())
+        return byteStrings.flatten()
+    }
 }
 
 private fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
@@ -378,3 +441,19 @@ private fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
         throw SerializationException("$serialName does not contain element with name '$name'")
     return index
 }
+
+private fun Iterable<ByteArray>.flatten(): ByteArray {
+    val output = ByteArray(sumBy { it.size })
+
+    var position = 0
+    for (chunk in this) {
+        chunk.copyInto(output, position)
+        position += chunk.size
+    }
+
+    return output
+}
+
+private fun SerialDescriptor.isByteString(index: Int): Boolean =
+    getElementDescriptor(index) == ByteArraySerializer().descriptor &&
+        getElementAnnotations(index).find { it is ByteString } != null

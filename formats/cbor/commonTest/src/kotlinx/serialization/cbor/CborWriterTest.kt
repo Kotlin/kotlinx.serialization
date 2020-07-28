@@ -23,10 +23,12 @@ class CbrWriterTest {
             listOf("a", "b"),
             mapOf(1 to true, 2 to false),
             Simple("lol"),
-            listOf(Simple("kek"))
+            listOf(Simple("kek")),
+            HexConverter.parseHexBinary("cafe"),
+            HexConverter.parseHexBinary("cafe")
         )
         assertEquals(
-            "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffffff",
+            "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffff6a62797465537472696e6742cafe696279746541727261799f383521ffff",
             Cbor.encodeToHexString(TypesUmbrella.serializer(), test)
         )
     }
