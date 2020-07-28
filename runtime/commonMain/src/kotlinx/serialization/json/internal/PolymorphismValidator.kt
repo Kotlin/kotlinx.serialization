@@ -34,7 +34,8 @@ internal class PolymorphismValidator(
     private fun checkKind(descriptor: SerialDescriptor, actualClass: KClass<*>) {
         val kind = descriptor.kind
         if (kind is PolymorphicKind || kind == SerialKind.CONTEXTUAL) {
-            throw IllegalArgumentException("$kind kind in serializer for $actualClass is not supported as subclass for polymorphic serialization")
+            throw IllegalArgumentException("Serializer for ${actualClass.simpleName} can't be registered as a subclass for polymorphic serialization " +
+                    "because its kind $kind is not concrete. To work with multiple hierarchies, register it as a base class.")
         }
 
         if (useArrayPolymorphism) return
@@ -47,8 +48,7 @@ internal class PolymorphismValidator(
             || kind is SerialKind.ENUM
         ) {
             throw IllegalArgumentException(
-                "$kind kind in serializer for $actualClass cannot be serialized polymorphically with class discriminator. " +
-                        "Alternatively, 'JsonBuilder.useArrayPolymorphism' can be used"
+                "Serializer for ${actualClass.simpleName} of kind $kind cannot be serialized polymorphically with class discriminator."
             )
         }
     }
