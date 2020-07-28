@@ -271,7 +271,15 @@ public interface Encoder {
     /**
      * Encodes the nullable [value] of type [T] by delegating the encoding process to the given [serializer].
      */
+    @Suppress("UNCHECKED_CAST")
     public fun <T : Any> encodeNullableSerializableValue(serializer: SerializationStrategy<T>, value: T?) {
+        val isNullabilitySupported = serializer.descriptor.isNullable
+        if (isNullabilitySupported) {
+            // Instead of `serializer.serialize` to be able to intercept this
+            return encodeSerializableValue(serializer as SerializationStrategy<T?>, value)
+        }
+
+        // Else default path used to avoid allocation of NullableSerializer
         if (value == null) {
             encodeNull()
         } else {

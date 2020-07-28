@@ -57,19 +57,15 @@ public val EmptySerializersModule: SerializersModule = SerialModuleImpl(emptyMap
  */
 @OptIn(UnsafeSerializationApi::class)
 public inline fun <reified T : Any> SerializersModule.getContextualOrDefault(): KSerializer<T> =
-// Even though serializer(KType) also invokes serializerOrNull, it is a significant performance optimization
-    // TODO replace with serializer(typeOf<T>()) when intrinsics are here
-    getContextual(T::class) ?: T::class.serializerOrNull() ?: serializer(typeOf<T>()).cast()
+    getContextual(T::class) ?: serializer(typeOf<T>()).cast()
 
 /**
  * Attempts to retrieve a serializer from the current module using the given [type] and, if not found, fallbacks to [serializer] method
  */
 @OptIn(UnsafeSerializationApi::class)
 public fun <T : Any> SerializersModule.getContextualOrDefault(type: KType): KSerializer<T> {
-    // Even though serializer(KType) also invokes serializerOrNull, it is a significant performance optimization
-    // TODO replace with serializer(typeOf<T>()) when intrinsics are here
     val kclass = type.kclass()
-    return (getContextual(kclass) ?: kclass.serializerOrNull() ?: serializer(type)).cast()
+    return (getContextual(kclass) ?: serializer(type)).cast()
 }
 
 /**
