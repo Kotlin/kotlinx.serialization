@@ -184,7 +184,6 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
 
     /**
      * Specifies indent string to use with [prettyPrint] mode.
-     * TODO specify whitespaces
      */
     public var prettyPrintIndent: String = conf.prettyPrintIndent
 
@@ -212,7 +211,7 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
 
     /**
      * Removes JSON specification restriction on
-     * special floating-point values such as `NaN` and `Infinity` and enables their serialization.
+     * special floating-point values such as `NaN` and `Infinity` and enables their serialization and deserialization.
      * When enabling it, please ensure that the receiving party will be able to encode and decode these special values.
      * `false` by default.
      */
@@ -228,8 +227,16 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
             "Class discriminator should not be specified when array polymorphism is specified"
         }
 
-        if (!prettyPrint) require(prettyPrintIndent == defaultIndent) {
-            "Indent should not be specified when default printing mode is used"
+        if (!prettyPrint) {
+            require(prettyPrintIndent == defaultIndent) {
+                "Indent should not be specified when default printing mode is used"
+            }
+        } else if (prettyPrintIndent != defaultIndent) {
+            // Values allowed by JSON specification as whitespaces
+            val allWhitespaces = prettyPrintIndent.all { it == ' ' || it == '\t' || it == '\r' || it == '\n' }
+            require(allWhitespaces) {
+                "Only whitespace, tab, newline and carriage return are allowed as pretty print symbols. Had $prettyPrintIndent"
+            }
         }
 
         return JsonConf(

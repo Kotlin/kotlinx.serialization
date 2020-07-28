@@ -49,6 +49,6 @@ class SpecialFloatingPointValuesTest : JsonTestBase() {
         assertFailsWith<JsonException> { default.encodeToString(Box.serializer(), box, useStreaming) }
         assertEquals(expected, json.encodeToString(Box.serializer(), box, useStreaming))
         assertEquals(box, json.decodeFromString(Box.serializer(), expected, useStreaming))
-        assertEquals(box, default.decodeFromString(Box.serializer(), expected, useStreaming))
+        assertFailsWith<JsonException> { default.decodeFromString(Box.serializer(), expected, useStreaming) }
     }
 }
