@@ -122,7 +122,7 @@ public class SerializerForNullableTypeTest : JsonTestBase() {
 
     @Test
     fun testGenericNullableBoxFromNull() {
-        if (isJsLegacy()) return // BE bug
+        if (isJsLegacy()) return
         assertEquals(GenericBox(StringHolder("nullable")), Json.decodeFromString("""{"value":null}"""))
     }
 
