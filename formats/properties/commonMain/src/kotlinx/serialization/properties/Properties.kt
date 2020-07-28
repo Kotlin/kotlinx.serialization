@@ -101,7 +101,7 @@ public sealed class Properties(
     }
 
     /**
-     * Stores properties from given [value] to a map and returns this map.
+     * Encodes properties from given [value] to a map using [strategy] and returns this map.
      * `null` values are omitted from the output.
      */
     public fun <T> encodeToMap(strategy: SerializationStrategy<T>, value: T): Map<String, Any> {
@@ -111,7 +111,7 @@ public sealed class Properties(
     }
 
     /**
-     * Loads properties from given [map], assigns them to an object and returns this object.
+     * Decodes properties from given [map], assigns them to an object using [strategy] and returns this object.
      * [T] may contain properties of nullable types; they will be filled by non-null values from the [map], if present.
      */
     public fun <T> decodeFromMap(strategy: DeserializationStrategy<T>, map: Map<String, Any>): T {
@@ -141,18 +141,20 @@ public sealed class Properties(
 private class PropertiesImpl(serializersModule: SerializersModule) : Properties(serializersModule, null)
 
 /**
- * Create an instance of [Properties] with a given [module].
+ * Creates an instance of [Properties] with a given [module].
  */
 public fun Properties(module: SerializersModule): Properties = PropertiesImpl(module)
 
 /**
- * A reified version of [encodeToMap].
+ * Encodes properties from given [value] to a map using serializer for reified type [T] and returns this map.
+ * `null` values are omitted from the output.
  */
 public inline fun <reified T : Any> Properties.encodeToMap(value: T): Map<String, Any> =
     encodeToMap(serializersModule.getContextualOrDefault(), value)
 
 /**
- * A reified version of [decodeFromMap].
+ * Decodes properties from given [map], assigns them to an object using serializer for reified type [T] and returns this object.
+ * [T] may contain properties of nullable types; they will be filled by non-null values from the [map], if present.
  */
 public inline fun <reified T : Any> Properties.decodeFromMap(map: Map<String, Any>): T =
     decodeFromMap(serializersModule.getContextualOrDefault(), map)
