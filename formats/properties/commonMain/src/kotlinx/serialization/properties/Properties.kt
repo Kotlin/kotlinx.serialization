@@ -13,8 +13,8 @@ import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 
 /**
- * Transforms a [Serializable] class' properties into a single flat [Map] which consists of
- * string keys and primitive type values, and vice versa. Located in separated `kotlinx-serialization-properties` artifact.
+ * Transforms a [Serializable] class' properties into a single flat [Map] consisting of
+ * string keys and primitive type values, and vice versa.
  *
  * If the given class has non-primitive property `d` of arbitrary type `D`, `D` values are inserted
  * into the same map; keys for such values are prefixed with string `d.`:
@@ -101,22 +101,22 @@ public sealed class Properties(
     }
 
     /**
-     * Encodes properties from given [value] to a map using [strategy] and returns this map.
+     * Encodes properties from the given [value] to a map using the given [serializer].
      * `null` values are omitted from the output.
      */
-    public fun <T> encodeToMap(strategy: SerializationStrategy<T>, value: T): Map<String, Any> {
+    public fun <T> encodeToMap(serializer: SerializationStrategy<T>, value: T): Map<String, Any> {
         val m = OutMapper()
-        m.encodeSerializableValue(strategy, value)
+        m.encodeSerializableValue(serializer, value)
         return m.map
     }
 
     /**
-     * Decodes properties from given [map], assigns them to an object using [strategy] and returns this object.
+     * Decodes properties from the given [map] to a value of type [T] using the given [deserializer].
      * [T] may contain properties of nullable types; they will be filled by non-null values from the [map], if present.
      */
-    public fun <T> decodeFromMap(strategy: DeserializationStrategy<T>, map: Map<String, Any>): T {
-        val m = InMapper(map, strategy.descriptor)
-        return m.decodeSerializableValue(strategy)
+    public fun <T> decodeFromMap(deserializer: DeserializationStrategy<T>, map: Map<String, Any>): T {
+        val m = InMapper(map, deserializer.descriptor)
+        return m.decodeSerializableValue(deserializer)
     }
 
     @Deprecated(removedMsg, level = DeprecationLevel.ERROR)
