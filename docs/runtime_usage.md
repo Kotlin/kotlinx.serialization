@@ -158,6 +158,9 @@ It has `UpdateMode.BANNED` by default. As Json, Cbor supports omitting default v
 **Note**: CBOR, unlike JSON, supports maps with non-trivial keys,
 and Kotlin maps are serialized as CBOR maps, but some parsers (like `jackson-dataformat-cbor`) don't support this.
 
+`ByteArray`s are serialized as either major type 4: an array of data items (default), or major type 2: a byte string.
+See [CBOR byte string](cbor_byte_string.md) document for details.
+
 ### Protobuf
 
 Because protobuf relies on serial ids of fields, called 'tags', you have to provide this information,

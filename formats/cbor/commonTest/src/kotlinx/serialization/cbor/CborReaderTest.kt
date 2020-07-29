@@ -60,19 +60,48 @@ class CborReaderTest {
             listOf("a", "b"),
             mapOf(1 to true, 2 to false),
             Simple("lol"),
-            listOf(Simple("kek"))
+            listOf(Simple("kek")),
+            HexConverter.parseHexBinary("cafe"),
+            HexConverter.parseHexBinary("cafe")
         )
-        // with maps & lists of indefinite length
+        // with maps, lists & strings of indefinite length
         assertEquals(test, Cbor.decodeFromHexString(
             TypesUmbrella.serializer(),
-            "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffffff"
+            "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffff6a62797465537472696e675f42cafeff696279746541727261799f383521ffff"
         )
         )
-        // with maps & lists of definite length
+        // with maps, lists & strings of definite length
         assertEquals(test, Cbor.decodeFromHexString(
             TypesUmbrella.serializer(),
-            "a7646c6973748261616162686e756c6c61626c65f6636d6170a202f401f56169182a6a696e6e6572734c69737481a16161636b656b637374726d48656c6c6f2c20776f726c642165696e6e6572a16161636c6f6c"
+            "a9646c6973748261616162686e756c6c61626c65f6636d6170a202f401f56169182a6a696e6e6572734c69737481a16161636b656b637374726d48656c6c6f2c20776f726c642165696e6e6572a16161636c6f6c6a62797465537472696e6742cafe6962797465417272617982383521"
         )
         )
+    }
+
+    /**
+     * Test using example shown on page 11 of [RFC 7049 2.2.2](https://tools.ietf.org/html/rfc7049#section-2.2.2):
+     *
+     * ```
+     * 0b010_11111 0b010_00100 0xaabbccdd 0b010_00011 0xeeff99 0b111_11111
+     *
+     * 5F              -- Start indefinite-length byte string
+     *    44           -- Byte string of length 4
+     *       aabbccdd  -- Bytes content
+     *    43           -- Byte string of length 3
+     *       eeff99    -- Bytes content
+     *    FF           -- "break"
+     *
+     * After decoding, this results in a single byte string with seven
+     * bytes: 0xaabbccddeeff99.
+     * ```
+     */
+    @Test
+    fun testRfc7049IndefiniteByteStringExample() {
+        withDecoder(input = "5F44aabbccdd43eeff99FF") {
+            assertEquals(
+                expected = "aabbccddeeff99",
+                actual = HexConverter.printHexBinary(nextByteString(), lowerCase = true)
+            )
+        }
     }
 }
