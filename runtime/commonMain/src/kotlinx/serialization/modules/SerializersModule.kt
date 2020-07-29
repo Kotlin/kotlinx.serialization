@@ -55,14 +55,12 @@ public val EmptySerializersModule: SerializersModule = SerialModuleImpl(emptyMap
 /**
  * Attempts to retrieve a serializer from the current module and, if not found, fallbacks to [serializer] method
  */
-@OptIn(UnsafeSerializationApi::class)
 public inline fun <reified T : Any> SerializersModule.getContextualOrDefault(): KSerializer<T> =
     getContextual(T::class) ?: serializer(typeOf<T>()).cast()
 
 /**
  * Attempts to retrieve a serializer from the current module using the given [type] and, if not found, fallbacks to [serializer] method
  */
-@OptIn(UnsafeSerializationApi::class)
 public fun <T : Any> SerializersModule.getContextualOrDefault(type: KType): KSerializer<T> {
     val kclass = type.kclass()
     return (getContextual(kclass) ?: serializer(type)).cast()

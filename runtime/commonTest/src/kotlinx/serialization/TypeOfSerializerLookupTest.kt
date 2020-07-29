@@ -5,7 +5,12 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.test.*
 import kotlin.reflect.*
 import kotlin.test.*
@@ -128,6 +133,27 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
     @Test
     fun testSerializableObject() = noLegacyJs {
         assertSerializedWithType("{}", SampleObject)
+    }
+
+
+    object CustomIntSerializer : KSerializer<Int> {
+        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("CIS", PrimitiveKind.INT)
+
+        override fun serialize(encoder: Encoder, value: Int) {
+            encoder.encodeInt(42)
+        }
+
+        override fun deserialize(decoder: Decoder): Int {
+            TODO()
+        }
+    }
+
+    @Test
+    fun testContextualLookup() {
+        val module = SerializersModule { contextual(CustomIntSerializer) }
+        val json = Json { serializersModule = module }
+        val data = listOf(listOf(1))
+        assertEquals("[[42]]", json.encodeToString(data))
     }
 
     // Tests with [constructSerializerForGivenTypeArgs] are unsupported on legacy Kotlin/JS

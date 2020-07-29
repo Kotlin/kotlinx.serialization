@@ -144,9 +144,8 @@ public inline fun <reified K : Any, reified V : Any> StringFormat.stringify(map:
     encodeToString(MapSerializer(serializersModule.getContextualOrDefault<K>(), serializersModule.getContextualOrDefault<V>()), map)
 
 @ImplicitReflectionSerializer
-@OptIn(UnsafeSerializationApi::class)
 @Deprecated(
-    level = DeprecationLevel.WARNING,
+    level = DeprecationLevel.ERROR,
     message = "This method is deprecated for removal. Please use reified getContextualOrDefault<T>() instead",
     replaceWith = ReplaceWith("getContextual(klass) ?: klass.serializer()")
 )
@@ -154,9 +153,8 @@ public fun <T : Any> SerializersModule.getContextualOrDefault(klass: KClass<T>):
     getContextual(klass) ?: klass.serializer()
 
 @ImplicitReflectionSerializer
-@OptIn(UnsafeSerializationApi::class)
 @Deprecated(
-    level = DeprecationLevel.WARNING,
+    level = DeprecationLevel.ERROR,
     message = "This method is deprecated for removal. Please use reified getContextualOrDefault<T>() instead",
     replaceWith = ReplaceWith("getContextualOrDefault<T>()")
 )

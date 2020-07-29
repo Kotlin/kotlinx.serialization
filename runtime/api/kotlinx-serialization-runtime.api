@@ -175,9 +175,11 @@ public abstract interface annotation class kotlinx/serialization/Serializer : ja
 }
 
 public final class kotlinx/serialization/SerializersKt {
+	public static final fun getContextualOrDefault (Lkotlinx/serialization/modules/SerializersModule;Ljava/lang/reflect/Type;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Ljava/lang/reflect/Type;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Lkotlin/reflect/KType;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlinx/serialization/modules/SerializersModule;Lkotlin/reflect/KType;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializerByTypeToken (Ljava/lang/reflect/Type;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializerOrNull (Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
 }
@@ -192,9 +194,6 @@ public abstract interface annotation class kotlinx/serialization/Transient : jav
 
 public final class kotlinx/serialization/UnknownFieldException : kotlinx/serialization/SerializationException {
 	public fun <init> (I)V
-}
-
-public abstract interface annotation class kotlinx/serialization/UnsafeSerializationApi : java/lang/annotation/Annotation {
 }
 
 public abstract interface annotation class kotlinx/serialization/UnstableDefault : java/lang/annotation/Annotation {
