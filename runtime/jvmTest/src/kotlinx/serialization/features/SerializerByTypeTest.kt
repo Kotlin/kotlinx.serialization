@@ -211,7 +211,7 @@ class SerializerByTypeTest {
     @Test
     fun testContextualLookup() {
         val module = SerializersModule { contextual(CustomIntSerializer) }
-        val serializer = module.getContextualOrDefault(typeTokenOf<List<List<Int>>>())
+        val serializer = module.serializer(typeTokenOf<List<List<Int>>>())
         assertEquals("[[42]]", Json.encodeToString(serializer, listOf(listOf(1))))
     }
 }

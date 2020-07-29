@@ -165,14 +165,14 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
     @Test
     fun testContextualLookupNullable() {
         val module = SerializersModule { contextual(CustomIntSerializer(true).cast<Int>()) }
-        val serializer = module.getContextualOrDefault<List<List<Int?>>>()
+        val serializer = module.serializer<List<List<Int?>>>()
         assertEquals("[[41]]", Json.encodeToString(serializer, listOf(listOf<Int?>(null))))
     }
 
     @Test
     fun testContextualLookupNonNullable() {
         val module = SerializersModule { contextual(CustomIntSerializer(false).cast<Int>()) }
-        val serializer = module.getContextualOrDefault<List<List<Int?>>>()
+        val serializer = module.serializer<List<List<Int?>>>()
         assertEquals("[[null]]", Json.encodeToString(serializer, listOf(listOf<Int?>(null))))
     }
 

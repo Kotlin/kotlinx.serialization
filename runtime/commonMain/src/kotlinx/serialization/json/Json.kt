@@ -130,8 +130,8 @@ public fun Json(from: Json = Json.Default, builderAction: JsonBuilder.() -> Unit
  *
  * @throws [SerializationException] if the given value cannot be serialized to JSON.
  */
-public inline fun <reified T : Any> Json.encodeToJsonElement(value: T): JsonElement {
-    return encodeToJsonElement(serializersModule.getContextualOrDefault(), value)
+public inline fun <reified T> Json.encodeToJsonElement(value: T): JsonElement {
+    return encodeToJsonElement(serializersModule.serializer(), value)
 }
 
 /**
@@ -140,8 +140,8 @@ public inline fun <reified T : Any> Json.encodeToJsonElement(value: T): JsonElem
  *
  * @throws [SerializationException] if the given JSON string is malformed or cannot be deserialized to the value of type [T].
  */
-public inline fun <reified T : Any> Json.decodeFromJsonElement(json: JsonElement): T =
-    decodeFromJsonElement(serializersModule.getContextualOrDefault(), json)
+public inline fun <reified T> Json.decodeFromJsonElement(json: JsonElement): T =
+    decodeFromJsonElement(serializersModule.serializer(), json)
 
 /**
  * Builder of the [Json] instance provided by `Json` factory function.

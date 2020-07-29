@@ -65,7 +65,7 @@ inline fun <reified T : IMessage> readCompare(it: T, alwaysPrint: Boolean = fals
     val c = try {
         val msg = it.toProtobufMessage()
         val hex = msg.toHex()
-        obj = protoBuf.decodeFromHexString(hex)
+        obj = protoBuf.decodeFromHexString<T>(hex)
         obj == it
     } catch (e: Exception) {
         obj = null

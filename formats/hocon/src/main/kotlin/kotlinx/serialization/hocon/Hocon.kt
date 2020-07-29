@@ -46,7 +46,7 @@ public sealed class Hocon(
         replaceWith = ReplaceWith("decodeFromConfig<T>(conf)")
     )
     public inline fun <reified T : Any> parse(conf: Config): T =
-        decodeFromConfig(serializersModule.getContextualOrDefault(), conf)
+        decodeFromConfig(serializersModule.serializer(), conf)
 
     @Deprecated(
         "This method was renamed to decodeFromConfig during serialization 1.0 API stabilization",
@@ -211,8 +211,8 @@ public sealed class Hocon(
  * Decodes the given [config] into a value of type [T] using a deserialize retrieved
  * from reified type parameter.
  */
-public inline fun <reified T : Any> Hocon.decodeFromConfig(config: Config): T =
-    decodeFromConfig(serializersModule.getContextualOrDefault(), config)
+public inline fun <reified T> Hocon.decodeFromConfig(config: Config): T =
+    decodeFromConfig(serializersModule.serializer(), config)
 
 /**
  * Creates an instance of [Hocon] configured from the optionally given [Hocon instance][from]

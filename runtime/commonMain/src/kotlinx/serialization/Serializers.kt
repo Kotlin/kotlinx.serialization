@@ -15,37 +15,24 @@ import kotlin.jvm.*
 import kotlin.reflect.*
 
 /**
- * Creates a serializer for the provided reified type [T] with support of user-defined generic classes.
- * This method is a reified version of `serializer(KType)`
- *
- * Example of usage:
- * ```
- * val map = mapOf(1 to listOf(listOf("1")))
- * json.encodeToString(serializer(), map)
- * ```
+ * Retrieves a serializer for the given type [T].
+ * This method is a reified version of `serializer(KType)`.
  */
 public inline fun <reified T> serializer(): KSerializer<T> {
     return serializer(typeOf<T>()).cast()
 }
 
 /**
- * Attempts to retrieve a serializer from the current module and, if not found,
- * fallbacks to [serializer] method
+ * Retrieves serializer for the given type [T] from the current [SerializersModule] and,
+ * if not found, fallbacks to plain [serializer] method.
  */
-public inline fun <reified T> SerializersModule.getContextualOrDefault(): KSerializer<T> {
+public inline fun <reified T> SerializersModule.serializer(): KSerializer<T> {
     return serializer(typeOf<T>()).cast()
 }
 
 /**
- * Creates a serializer for the given [type] with support of user-defined generic classes.
+ * Creates a serializer for the given [type].
  * [type] argument can be obtained with experimental [typeOf] method.
- *
- * Example of usage:
- * ```
- * val map = mapOf(1 to listOf(listOf("1")))
- * val serializer = serializer(typeOf<Map<Int, List<List<String>>>>())
- * json.encodeToString(serializer, map)
- * ```
  */
 public fun serializer(type: KType): KSerializer<Any?> {
     val result = EmptySerializersModule.serializerByKTypeImpl(type)
@@ -53,7 +40,9 @@ public fun serializer(type: KType): KSerializer<Any?> {
 }
 
 /**
- * Attempts to retrieve a serializer from the current module using the given [type] and, if not found, fallbacks to [serializer] method
+ * Retrieves serializer for the given [type] from the current [SerializersModule] and,
+ * if not found, fallbacks to plain [serializer] method.
+ * [type] argument can be obtained with experimental [typeOf] method.
  */
 public fun SerializersModule.serializer(type: KType): KSerializer<Any?> {
     val kclass = type.kclass()

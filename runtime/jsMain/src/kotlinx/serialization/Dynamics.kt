@@ -8,7 +8,6 @@ import kotlinx.serialization.builtins.LongAsStringSerializer
 import kotlinx.serialization.internal.DynamicObjectParser
 import kotlinx.serialization.internal.DynamicObjectSerializer
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.*
 
 /**
  * Converts native JavaScript objects into Kotlin ones, verifying their types.
@@ -44,7 +43,7 @@ public fun <T> Json.decodeFromDynamic(deserializer: DeserializationStrategy<T>, 
  * A reified version of [decodeFromDynamic].
  */
 public inline fun <reified T> Json.decodeFromDynamic(dynamic: dynamic): T =
-    decodeFromDynamic(serializersModule.getContextualOrDefault(), dynamic)
+    decodeFromDynamic(serializersModule.serializer(), dynamic)
 
 /**
  * Converts Kotlin data structures to plain Javascript objects
@@ -72,5 +71,5 @@ public fun <T> Json.encodeToDynamic(serializer: SerializationStrategy<T>, value:
 /**
  * A reified version of [encodeToDynamic].
  */
-public inline fun <reified T : Any> Json.encodeToDynamic(value: T): dynamic =
-    encodeToDynamic(serializersModule.getContextualOrDefault(), value)
+public inline fun <reified T> Json.encodeToDynamic(value: T): dynamic =
+    encodeToDynamic(serializersModule.serializer(), value)

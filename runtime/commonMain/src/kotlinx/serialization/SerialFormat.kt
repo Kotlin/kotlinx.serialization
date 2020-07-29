@@ -64,15 +64,15 @@ public interface StringFormat : SerialFormat {
 /**
  * Serializes and encodes the given [value] to string using serializer retrieved from the reified type parameter.
  */
-public inline fun <reified T : Any> StringFormat.encodeToString(value: T): String =
-    encodeToString(serializersModule.getContextualOrDefault(), value)
+public inline fun <reified T> StringFormat.encodeToString(value: T): String =
+    encodeToString(serializersModule.serializer(), value)
 
 /**
  * Decodes and deserializes the given [string] to to the value of type [T] using deserializer
  * retrieved from the reified type parameter.
  */
-public inline fun <reified T : Any> StringFormat.decodeFromString(string: String): T =
-    decodeFromString(serializersModule.getContextualOrDefault(), string)
+public inline fun <reified T> StringFormat.decodeFromString(string: String): T =
+    decodeFromString(serializersModule.serializer(), string)
 
 
 /**
@@ -103,8 +103,8 @@ public fun <T> BinaryFormat.decodeFromHexString(deserializer: DeserializationStr
  * only applies transformation to the resulting array. It is recommended to use for debugging and
  * testing purposes.
  */
-public inline fun <reified T : Any> BinaryFormat.encodeToHexString(value: T): String =
-    encodeToHexString(serializersModule.getContextualOrDefault(), value)
+public inline fun <reified T> BinaryFormat.encodeToHexString(value: T): String =
+    encodeToHexString(serializersModule.serializer(), value)
 
 /**
  * Decodes byte array from the given [hex] string and the decodes and deserializes it
@@ -112,19 +112,19 @@ public inline fun <reified T : Any> BinaryFormat.encodeToHexString(value: T): St
  *
  * This method is a counterpart to [encodeToHexString]
  */
-public inline fun <reified T : Any> BinaryFormat.decodeFromHexString(hex: String): T =
-    decodeFromHexString(serializersModule.getContextualOrDefault(), hex)
+public inline fun <reified T> BinaryFormat.decodeFromHexString(hex: String): T =
+    decodeFromHexString(serializersModule.serializer(), hex)
 
 /**
  * Serializes and encodes the given [value] to byte array using serializer
  * retrieved from the reified type parameter.
  */
-public inline fun <reified T : Any> BinaryFormat.encodeToByteArray(value: T): ByteArray =
-    encodeToByteArray(serializersModule.getContextualOrDefault(), value)
+public inline fun <reified T> BinaryFormat.encodeToByteArray(value: T): ByteArray =
+    encodeToByteArray(serializersModule.serializer(), value)
 
 /**
  * Decodes and deserializes the given [byte array][bytes] to to the value of type [T] using deserializer
  * retrieved from the reified type parameter.
  */
-public inline fun <reified T : Any> BinaryFormat.decodeFromByteArray(bytes: ByteArray): T =
-    decodeFromByteArray(serializersModule.getContextualOrDefault(), bytes)
+public inline fun <reified T> BinaryFormat.decodeFromByteArray(bytes: ByteArray): T =
+    decodeFromByteArray(serializersModule.serializer(), bytes)

@@ -149,15 +149,15 @@ public fun Properties(module: SerializersModule): Properties = PropertiesImpl(mo
  * Encodes properties from given [value] to a map using serializer for reified type [T] and returns this map.
  * `null` values are omitted from the output.
  */
-public inline fun <reified T : Any> Properties.encodeToMap(value: T): Map<String, Any> =
-    encodeToMap(serializersModule.getContextualOrDefault(), value)
+public inline fun <reified T> Properties.encodeToMap(value: T): Map<String, Any> =
+    encodeToMap(serializersModule.serializer(), value)
 
 /**
  * Decodes properties from given [map], assigns them to an object using serializer for reified type [T] and returns this object.
  * [T] may contain properties of nullable types; they will be filled by non-null values from the [map], if present.
  */
-public inline fun <reified T : Any> Properties.decodeFromMap(map: Map<String, Any>): T =
-    decodeFromMap(serializersModule.getContextualOrDefault(), map)
+public inline fun <reified T> Properties.decodeFromMap(map: Map<String, Any>): T =
+    decodeFromMap(serializersModule.serializer(), map)
 
 // Migrations below
 

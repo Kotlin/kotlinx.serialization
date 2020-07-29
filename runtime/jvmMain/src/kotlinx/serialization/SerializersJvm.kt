@@ -21,20 +21,20 @@ import kotlin.reflect.*
  * For application-level serialization, it is recommended to use `serializer<T>()` instead as it is aware of
  * Kotlin-specific type information, such as nullability, sealed classes and object.
  */
-public fun serializer(type: Type): KSerializer<Any> = EmptySerializersModule.getContextualOrDefault(type)
+public fun serializer(type: Type): KSerializer<Any> = EmptySerializersModule.serializer(type)
 
 /**
  * Retrieves serializer for the given reflective Java [type] using
  * [contextual][SerializersModule.getContextual] lookup and fallback to reflective construction.
  *
- * [getContextualOrDefault] is intended to be used as an interoperability layer for libraries like GSON and Retrofit,
+ * [serializer] is intended to be used as an interoperability layer for libraries like GSON and Retrofit,
  * that operate with reflective Java [Type] and cannot use [typeOf].
  * Serializers is looked up in the contextual serializers of the module and then constructed reflectively.
  *
  * For application-level serialization, it is recommended to use `serializer<T>()` instead as it is aware of
  * Kotlin-specific type information, such as nullability, sealed classes and object.
  */
-public fun SerializersModule.getContextualOrDefault(type: Type): KSerializer<Any> = when (type) {
+public fun SerializersModule.serializer(type: Type): KSerializer<Any> = when (type) {
     is GenericArrayType -> {
         genericArraySerializer(type)
     }
@@ -43,27 +43,27 @@ public fun SerializersModule.getContextualOrDefault(type: Type): KSerializer<Any
         val rootClass = (type.rawType as Class<*>)
         val args = (type.actualTypeArguments)
         when {
-            List::class.java.isAssignableFrom(rootClass) -> ListSerializer(getContextualOrDefault(args[0])) as KSerializer<Any>
-            Set::class.java.isAssignableFrom(rootClass) -> SetSerializer(getContextualOrDefault(args[0])) as KSerializer<Any>
+            List::class.java.isAssignableFrom(rootClass) -> ListSerializer(serializer(args[0])) as KSerializer<Any>
+            Set::class.java.isAssignableFrom(rootClass) -> SetSerializer(serializer(args[0])) as KSerializer<Any>
             Map::class.java.isAssignableFrom(rootClass) -> MapSerializer(
-                getContextualOrDefault(args[0]),
-                getContextualOrDefault(args[1])
+                serializer(args[0]),
+                serializer(args[1])
             ) as KSerializer<Any>
             Map.Entry::class.java.isAssignableFrom(rootClass) -> MapEntrySerializer(
-                getContextualOrDefault(args[0]),
-                getContextualOrDefault(args[1])
+                serializer(args[0]),
+                serializer(args[1])
             ) as KSerializer<Any>
 
             else -> {
                 // probably we should deprecate this method because it can't differ nullable vs non-nullable types
                 // since it uses Java TypeToken, not Kotlin one
-                val varargs = args.map { getContextualOrDefault(it) as KSerializer<Any?> }.toTypedArray()
+                val varargs = args.map { serializer(it) as KSerializer<Any?> }.toTypedArray()
                 (rootClass.kotlin.constructSerializerForGivenTypeArgs(*varargs) as? KSerializer<Any>)
                     ?: contextualOrReflective(rootClass.kotlin as KClass<Any>)
             }
         }
     }
-    is WildcardType -> getContextualOrDefault(type.upperBounds.first())
+    is WildcardType -> serializer(type.upperBounds.first())
     else -> throw IllegalArgumentException("typeToken should be an instance of Class<?>, GenericArray, ParametrizedType or WildcardType, but actual type is $type ${type::class}")
 }
 
@@ -72,7 +72,7 @@ private fun SerializersModule.typeSerializer(type: Class<*>): KSerializer<Any> {
         contextualOrReflective(type.kotlin as KClass<Any>)
     } else {
         val eType: Class<*> = type.componentType
-        val s = getContextualOrDefault(eType)
+        val s = serializer(eType)
         val arraySerializer = ArraySerializer(eType.kotlin as KClass<Any>, s)
         arraySerializer as KSerializer<Any>
     }
@@ -85,7 +85,7 @@ private fun SerializersModule.genericArraySerializer(type: GenericArrayType): KS
             else -> it
         }
     }
-    val serializer = getContextualOrDefault(eType)
+    val serializer = serializer(eType)
     val kclass = when (eType) {
         is ParameterizedType -> (eType.rawType as Class<*>).kotlin
         is KClass<*> -> eType
