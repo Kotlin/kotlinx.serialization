@@ -111,11 +111,11 @@ internal class SealedClassSerializer<T : Any>(
             }.mapValues { it.value.value }
     }
 
-    override fun findPolymorphicSerializer(decoder: CompositeDecoder, klassName: String): DeserializationStrategy<out T> {
-        return serialName2Serializer[klassName] ?: super.findPolymorphicSerializer(decoder, klassName)
+    override fun findPolymorphicSerializerOrNull(decoder: CompositeDecoder, klassName: String?): DeserializationStrategy<out T>? {
+        return serialName2Serializer[klassName] ?: super.findPolymorphicSerializerOrNull(decoder, klassName)
     }
 
-    override fun findPolymorphicSerializer(encoder: Encoder, value: T): SerializationStrategy<T> {
-        return (class2Serializer[value::class] ?: super.findPolymorphicSerializer(encoder, value)).cast()
+    override fun findPolymorphicSerializerOrNull(encoder: Encoder, value: T): SerializationStrategy<T>? {
+        return (class2Serializer[value::class] ?: super.findPolymorphicSerializerOrNull(encoder, value))?.cast()
     }
 }

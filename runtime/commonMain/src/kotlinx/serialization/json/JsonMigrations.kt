@@ -54,7 +54,7 @@ public fun Json.parseJson(string: String): JsonElement = noImpl()
 @Deprecated(
     level = DeprecationLevel.ERROR,
     message = "This method was renamed to decodeFromJsonElement during serialization 1.0 stabilization",
-    replaceWith = ReplaceWith("decodeFromJsonElement(deserializer, value)")
+    replaceWith = ReplaceWith("decodeFromJsonElement(deserializer, json)")
 )
 public fun <T> Json.fromJson(deserializer: DeserializationStrategy<T>, json: JsonElement): T = noImpl()
 
@@ -312,7 +312,7 @@ public val JsonElement.contentOrNull: String? get() = noImpl()
 @Deprecated(
     level = DeprecationLevel.ERROR,
     message = "This API was deprecated during serialization 1.0 stabilization",
-    replaceWith = ReplaceWith("JsonPrimitive(value)")
+    replaceWith = ReplaceWith("JsonPrimitive(value)", imports = ["kotlinx.serialization.json.JsonPrimitive"])
 )
 public fun JsonLiteral(value: Any?): JsonPrimitive = noImpl()
 

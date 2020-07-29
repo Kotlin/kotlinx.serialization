@@ -21,7 +21,7 @@ public class PolymorphicModuleBuilder<Base : Any> internal constructor(
     private val baseSerializer: KSerializer<Base>? = null
 ) {
     private val subclasses: MutableList<Pair<KClass<out Base>, KSerializer<out Base>>> = mutableListOf()
-    private var defaultSerializerProvider: ((String) -> DeserializationStrategy<out Base>?)? = null
+    private var defaultSerializerProvider: ((String?) -> DeserializationStrategy<out Base>?)? = null
 
     /**
      * Registers a [subclass] [serializer] in the resulting module under the [base class][Base].
@@ -31,7 +31,11 @@ public class PolymorphicModuleBuilder<Base : Any> internal constructor(
     }
 
     /**
-     * Registers serializer provider that will be invoked if no polymorphic serializer is present.
+     * Adds a default serializers provider associated with the given [baseClass] to the resulting module.
+     * [defaultSerializerProvider] is invoked when no polymorphic serializers associated with the `className`
+     * were found. `className` could be `null` for formats that support nullable class discriminators
+     * (currently only [Json] with [useArrayPolymorphism][JsonBuilder.useArrayPolymorphism] set to `false`)
+     *
      * [defaultSerializerProvider] can be stateful and lookup a serializer for the missing type dynamically.
      *
      * Typically, if the class is not registered in advance, it is not possible to know the structure of the unknown
@@ -39,7 +43,7 @@ public class PolymorphicModuleBuilder<Base : Any> internal constructor(
      * To have a structural access to the unknown data, it is recommended to use [JsonTransformingSerializer]
      * or [JsonContentPolymorphicSerializer] classes.
      */
-    public fun default(defaultSerializerProvider: (className: String) -> DeserializationStrategy<out Base>?) {
+    public fun default(defaultSerializerProvider: (className: String?) -> DeserializationStrategy<out Base>?) {
         require(this.defaultSerializerProvider == null) {
             "Default serializer provider is already registered for class $baseClass: ${this.defaultSerializerProvider}"
         }
@@ -57,8 +61,9 @@ public class PolymorphicModuleBuilder<Base : Any> internal constructor(
             )
         }
 
-        if (defaultSerializerProvider != null) {
-            builder.registerDefaultPolymorphicSerializer(baseClass, defaultSerializerProvider!!, false)
+        val default = defaultSerializerProvider
+        if (default != null) {
+            builder.registerDefaultPolymorphicSerializer(baseClass, default, false)
         }
     }
 

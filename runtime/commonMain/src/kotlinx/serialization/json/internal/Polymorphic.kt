@@ -15,13 +15,21 @@ internal inline fun <T> JsonEncoder.encodePolymorphically(serializer: Serializat
         serializer.serialize(this, value)
         return
     }
-    serializer as AbstractPolymorphicSerializer<Any> // PolymorphicSerializer <*> projects 2nd argument of findPolymorphic... to Nothing, so we need an additional cast
-    val actualSerializer = serializer.findPolymorphicSerializer(this, value as Any).cast<Any>()
-    validateIfSealed(serializer, actualSerializer, json.configuration.classDiscriminator)
-    val kind = actualSerializer.descriptor.kind
-    checkKind(kind)
+    val actualSerializer = findActualSerializer(serializer.cast(), value as Any)
     ifPolymorphic()
     actualSerializer.serialize(this, value)
+}
+
+private fun JsonEncoder.findActualSerializer(
+    serializer: SerializationStrategy<Any>,
+    value: Any
+): SerializationStrategy<Any> {
+    val casted = serializer as AbstractPolymorphicSerializer<Any>
+    val actualSerializer = casted.findPolymorphicSerializer(this, value as Any)
+    validateIfSealed(casted, actualSerializer, json.configuration.classDiscriminator)
+    val kind = actualSerializer.descriptor.kind
+    checkKind(kind)
+    return actualSerializer
 }
 
 private fun validateIfSealed(
@@ -56,7 +64,14 @@ internal fun <T> JsonDecoder.decodeSerializableValuePolymorphic(deserializer: De
     val jsonTree = cast<JsonObject>(decodeJsonElement(), deserializer.descriptor)
     val discriminator = json.configuration.classDiscriminator
     val type = jsonTree[discriminator]?.jsonPrimitive?.content
-        ?: throw JsonDecodingException(-1, "Missing polymorphic discriminator $discriminator", jsonTree.toString())
-    val actualSerializer = deserializer.findPolymorphicSerializer(this, type).cast<T>()
+    val actualSerializer = deserializer.findPolymorphicSerializerOrNull(this, type)?.cast<T>()
+        ?: throwSerializerNotFound(type, jsonTree)
     return json.readPolymorphicJson(discriminator, jsonTree, actualSerializer)
+}
+
+private fun throwSerializerNotFound(type: String?, jsonTree: JsonObject): Nothing {
+    val suffix =
+        if (type == null) "missing class discriminator ('null')"
+        else "class discriminator '$type'"
+    throw JsonDecodingException(-1, "Polymorphic serializer was not found for $suffix", jsonTree.toString())
 }

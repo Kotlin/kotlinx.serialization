@@ -6,6 +6,7 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.encoding.*
+import kotlin.jvm.*
 import kotlin.reflect.*
 
 /**
@@ -76,29 +77,33 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
     /**
      * Lookups an actual serializer for given [klassName] withing the current [base class][baseClass].
      * May use context from the [decoder].
-     * Throws [SerializationException] if serializer is not found.
      */
-    public open fun findPolymorphicSerializer(
+    public open fun findPolymorphicSerializerOrNull(
         decoder: CompositeDecoder,
-        klassName: String
-    ): DeserializationStrategy<out T> = decoder.serializersModule.getPolymorphic(baseClass, klassName)
-        ?: throwSubtypeNotRegistered(klassName, baseClass)
+        klassName: String?
+    ): DeserializationStrategy<out T>? = decoder.serializersModule.getPolymorphic(baseClass, klassName)
 
 
     /**
      * Lookups an actual serializer for given [value] within the current [base class][baseClass].
      * May use context from the [encoder].
-     * Throws [SerializationException] if serializer is not found.
      */
-    public open fun findPolymorphicSerializer(
+    public open fun findPolymorphicSerializerOrNull(
         encoder: Encoder,
         value: T
-    ): SerializationStrategy<T> =
-        encoder.serializersModule.getPolymorphic(baseClass, value) ?: throwSubtypeNotRegistered(value::class, baseClass)
+    ): SerializationStrategy<T>? =
+        encoder.serializersModule.getPolymorphic(baseClass, value)
 }
 
-private fun throwSubtypeNotRegistered(subClassName: String, baseClass: KClass<*>): Nothing =
-    throw SerializationException("$subClassName is not registered for polymorphic serialization in the scope of $baseClass")
+@JvmName("throwSubtypeNotRegistered")
+internal fun throwSubtypeNotRegistered(subClassName: String?, baseClass: KClass<*>): Nothing {
+    val prefix =
+        if (subClassName == null) "Class discriminator was missing and no default polymorphic serializers were registered"
+        else "Discriminator '$subClassName' is not registered for polymorphic serialization"
+    throw SerializationException("$prefix in the scope of $baseClass")
+}
 
-internal fun throwSubtypeNotRegistered(subClass: KClass<*>, baseClass: KClass<*>): Nothing =
-    throwSubtypeNotRegistered(subClass.toString(), baseClass)
+@JvmName("throwSubtypeNotRegistered")
+internal fun throwSubtypeNotRegistered(subClass: KClass<*>, baseClass: KClass<*>): Nothing {
+    throw SerializationException("$subClass is not registered for polymorphic serialization in the scope of $baseClass")
+}

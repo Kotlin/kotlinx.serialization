@@ -6,6 +6,7 @@ package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.reflect.*
@@ -74,3 +75,15 @@ public class PolymorphicSerializer<T : Any>(override val baseClass: KClass<T>) :
             )
         }.withContext(baseClass)
 }
+
+public fun <T : Any> AbstractPolymorphicSerializer<T>.findPolymorphicSerializer(
+    decoder: CompositeDecoder,
+    klassName: String?
+): DeserializationStrategy<out T> =
+    findPolymorphicSerializerOrNull(decoder, klassName) ?: throwSubtypeNotRegistered(klassName, baseClass)
+
+public fun <T : Any> AbstractPolymorphicSerializer<T>.findPolymorphicSerializer(
+    encoder: Encoder,
+    value: T
+): SerializationStrategy<T> =
+    findPolymorphicSerializerOrNull(encoder, value) ?: throwSubtypeNotRegistered(value::class, baseClass)

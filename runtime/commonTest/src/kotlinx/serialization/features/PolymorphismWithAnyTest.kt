@@ -23,20 +23,6 @@ class PolymorphismWithAnyTest {
         @Polymorphic val polyBase: PolyBase
     )
 
-    @Test
-    fun testWithoutModules() = assertStringFormAndRestored(
-        expected = """{"data":{"stringKey":["kotlin.String","string1"],"mapKey":["kotlin.collections.HashMap",[["kotlin.String","nestedKey"],["kotlin.String","nestedValue"]]],"listKey":["kotlin.collections.ArrayList",[["kotlin.String","foo"]]]}}""",
-        original = MyPolyData(
-            linkedMapOf(
-                "stringKey" to "string1",
-                "mapKey" to hashMapOf("nestedKey" to "nestedValue"),
-                "listKey" to listOf("foo")
-            )
-        ),
-        serializer = MyPolyData.serializer(),
-        format = Json { useArrayPolymorphism = true; allowStructuredMapKeys = true }
-    )
-
     // KClass.toString() on JS prints simple name, not FQ one
     @Suppress("NAME_SHADOWING")
     private fun checkNotRegisteredMessage(className: String, scopeName: String, exception: SerializationException) {
