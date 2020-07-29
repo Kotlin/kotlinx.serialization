@@ -1,0 +1,139 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.descriptors.SerialKind - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.descriptors</a>&nbsp;/&nbsp;<a href="./index.html">SerialKind</a><br/>
+<br/>
+<h1>SerialKind</h1>
+<a name="kotlinx.serialization.descriptors.SerialKind"></a>
+(common, jvm, native) <code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">SerialKind</span></code>
+<p>Serial kind is an intrinsic property of <a href="../-serial-descriptor/index.html#kotlinx.serialization.descriptors.SerialDescriptor">SerialDescriptor</a> that indicates how
+the corresponding type is structurally represented by its serializer.</p>
+<p>Kind is used by serialization formats to determine how exactly the given type
+should be serialized. For example, JSON format detects the kind of the value and,
+depending on that, may write it as a plain value for primitive kinds, open a
+curly brace '{' for class-like structures and square bracket '[' for list- and array- like structures.</p>
+<p>Kinds are used both during serialization, to serialize a value properly and statically, and
+to introspect the type structure or build serialization schema.</p>
+<p>Kind should match the structure of the serialized form, not the structure of the corresponding Kotlin class.
+Meaning that if serializable class <code>class IntPair(val left: Int, val right: Int)</code> is represented by the serializer
+as a single <code>Long</code> value, its descriptor should have <a href="../-primitive-kind/-l-o-n-g.html#kotlinx.serialization.descriptors.PrimitiveKind.LONG">PrimitiveKind.LONG</a> without nested elements even though the class itself
+represents a structure with two primitive fields.</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-c-o-n-t-e-x-t-u-a-l.html">CONTEXTUAL</a></h4>
+</td>
+<td>
+<p>Represents an "unknown" type that will be known only at the moment of the serialization.
+Effectively it defers the choice of the serializer to a moment of the serialization, and can
+be used for <a href="#">contextual</a> serialization.</p>
+<code><span class="keyword">object </span><span class="identifier">CONTEXTUAL</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">SerialKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-e-n-u-m.html">ENUM</a></h4>
+</td>
+<td>
+<p>Represents a Kotlin <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a> with statically known values.
+All enum values should be enumerated in descriptor elements.
+Each element descriptor of a <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a> kind represents an instance of a particular enum
+and has an <a href="../-structure-kind/-o-b-j-e-c-t.html#kotlinx.serialization.descriptors.StructureKind.OBJECT">StructureKind.OBJECT</a> kind.
+Each <a href="../-serial-descriptor/get-element-name.html#kotlinx.serialization.descriptors.SerialDescriptor$getElementName(kotlin.Int)">positional name</a> contains a corresponding enum element <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/name.html">name</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">ENUM</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">SerialKind</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="hash-code.html">hashCode</a></h4>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">hashCode</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="to-string.html">toString</a></h4>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">toString</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-c-o-n-t-e-x-t-u-a-l.html">CONTEXTUAL</a></h4>
+</td>
+<td>
+<p>Represents an "unknown" type that will be known only at the moment of the serialization.
+Effectively it defers the choice of the serializer to a moment of the serialization, and can
+be used for <a href="#">contextual</a> serialization.</p>
+<code><span class="keyword">object </span><span class="identifier">CONTEXTUAL</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">SerialKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-e-n-u-m.html">ENUM</a></h4>
+</td>
+<td>
+<p>Represents a Kotlin <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a> with statically known values.
+All enum values should be enumerated in descriptor elements.
+Each element descriptor of a <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a> kind represents an instance of a particular enum
+and has an <a href="../-structure-kind/-o-b-j-e-c-t.html#kotlinx.serialization.descriptors.StructureKind.OBJECT">StructureKind.OBJECT</a> kind.
+Each <a href="../-serial-descriptor/get-element-name.html#kotlinx.serialization.descriptors.SerialDescriptor$getElementName(kotlin.Int)">positional name</a> contains a corresponding enum element <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/name.html">name</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">ENUM</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">SerialKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="../-polymorphic-kind/index.html">PolymorphicKind</a></h4>
+</td>
+<td>
+<p>Polymorphic kind represents a (bounded) polymorphic value, that is referred
+by some base class or interface, but its structure is defined by one of the possible implementations.
+Polymorphic kind is, by its definition, a union kind and is extracted to its own subtype to emphasize
+bounded and sealed polymorphism common property: not knowing the actual type statically and requiring
+formats to additionally encode it.</p>
+<code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">PolymorphicKind</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">SerialKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="../-primitive-kind/index.html">PrimitiveKind</a></h4>
+</td>
+<td>
+<p>Values of primitive kinds usually are represented as a single value.
+All default serializers for Kotlin <a href="https://kotlinlang.org/docs/tutorials/kotlin-for-py/primitive-data-types-and-their-limitations.html">primitives types</a>
+and <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> have primitive kind.</p>
+<code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">PrimitiveKind</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">SerialKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="../-structure-kind/index.html">StructureKind</a></h4>
+</td>
+<td>
+<p>Structure kind represents values with composite structure of nested elements of depth and arbitrary number.
+We acknowledge following structured kinds:</p>
+<code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">StructureKind</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">SerialKind</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

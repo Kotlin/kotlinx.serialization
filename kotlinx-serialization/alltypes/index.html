@@ -15,18 +15,18 @@ Other formats implementations (Protobuf, CBOR) are provided by separate artifact
 <tr>
 (common, jvm, native) 
 <h5><a href="../kotlinx.serialization.encoding/-abstract-decoder/index.html">kotlinx.serialization.encoding.AbstractDecoder</a></h5>
-<p>A skeleton implementation of both <a href="../kotlinx.serialization/-decoder/index.html#kotlinx.serialization.Decoder">Decoder</a> and <a href="../kotlinx.serialization/-composite-decoder/index.html#kotlinx.serialization.CompositeDecoder">CompositeDecoder</a> that can be used
+<p>A skeleton implementation of both <a href="../kotlinx.serialization.encoding/-decoder/index.html#kotlinx.serialization.encoding.Decoder">Decoder</a> and <a href="../kotlinx.serialization.encoding/-composite-decoder/index.html#kotlinx.serialization.encoding.CompositeDecoder">CompositeDecoder</a> that can be used
 for simple formats and for testability purpose.
 Most of the <code>decode*</code> methods have default implementation that delegates <code>decodeValue(value: Any) as TargetType</code>.
-See <a href="../kotlinx.serialization/-decoder/index.html#kotlinx.serialization.Decoder">Decoder</a> documentation for information about each particular <code>decode*</code> method.</p>
+See <a href="../kotlinx.serialization.encoding/-decoder/index.html#kotlinx.serialization.encoding.Decoder">Decoder</a> documentation for information about each particular <code>decode*</code> method.</p>
 </tr>
 <tr>
 (common, jvm, native) 
 <h5><a href="../kotlinx.serialization.encoding/-abstract-encoder/index.html">kotlinx.serialization.encoding.AbstractEncoder</a></h5>
-<p>A skeleton implementation of both <a href="../kotlinx.serialization/-encoder/index.html#kotlinx.serialization.Encoder">Encoder</a> and <a href="../kotlinx.serialization/-composite-encoder/index.html#kotlinx.serialization.CompositeEncoder">CompositeEncoder</a> that can be used
+<p>A skeleton implementation of both <a href="../kotlinx.serialization.encoding/-encoder/index.html#kotlinx.serialization.encoding.Encoder">Encoder</a> and <a href="../kotlinx.serialization.encoding/-composite-encoder/index.html#kotlinx.serialization.encoding.CompositeEncoder">CompositeEncoder</a> that can be used
 for simple formats and for testability purpose.
 Most of the <code>encode*</code> methods have default implementation that delegates <code>encodeValue(value: Any)</code>.
-See <a href="../kotlinx.serialization/-encoder/index.html#kotlinx.serialization.Encoder">Encoder</a> documentation for information about each particular <code>encode*</code> method.</p>
+See <a href="../kotlinx.serialization.encoding/-encoder/index.html#kotlinx.serialization.encoding.Encoder">Encoder</a> documentation for information about each particular <code>encode*</code> method.</p>
 </tr>
 <tr>
 (common, jvm, native) 
@@ -51,7 +51,8 @@ if necessary, registered custom serializers (in <a href="../kotlinx.serializatio
 </tr>
 <tr>
 (common, jvm, native) 
-<h5><a href="../kotlinx.serialization.cbor/-cbor-decoding-exception/index.html">kotlinx.serialization.cbor.CborDecodingException</a></h5>
+<h5><a href="../kotlinx.serialization.cbor/-cbor-builder/index.html">kotlinx.serialization.cbor.CborBuilder</a></h5>
+<p>Builder of the <a href="../kotlinx.serialization.cbor/-cbor/index.html#kotlinx.serialization.cbor.Cbor">Cbor</a> instance provided by <code>Cbor</code> factory function.</p>
 </tr>
 <tr>
 (common, jvm, native)  (extensions in package kotlinx.serialization.builtins)
@@ -59,31 +60,38 @@ if necessary, registered custom serializers (in <a href="../kotlinx.serializatio
 </tr>
 <tr>
 (common, jvm, native) 
-<h5><a href="../kotlinx.serialization/-composite-decoder/index.html">kotlinx.serialization.CompositeDecoder</a></h5>
-<p><a href="../kotlinx.serialization/-composite-decoder/index.html#kotlinx.serialization.CompositeDecoder">CompositeDecoder</a> is a part of decoding process that is bound to a particular structured part of
-the serialized form, described by the serial descriptor passed to <a href="../kotlinx.serialization/-decoder/begin-structure.html#kotlinx.serialization.Decoder$beginStructure(kotlinx.serialization.SerialDescriptor)">Decoder.beginStructure</a>.</p>
+<h5><a href="../kotlinx.serialization.descriptors/-class-serial-descriptor-builder/index.html">kotlinx.serialization.descriptors.ClassSerialDescriptorBuilder</a></h5>
+<p>Builder for <a href="../kotlinx.serialization.descriptors/-serial-descriptor/index.html#kotlinx.serialization.descriptors.SerialDescriptor">SerialDescriptor</a> for user-defined serializers.</p>
 </tr>
 <tr>
 (common, jvm, native) 
-<h5><a href="../kotlinx.serialization/-composite-encoder/index.html">kotlinx.serialization.CompositeEncoder</a></h5>
-<p><a href="../kotlinx.serialization/-composite-encoder/index.html#kotlinx.serialization.CompositeEncoder">CompositeEncoder</a> is a part of encoding process that is bound to a particular structured part of
-the serialized form, described by the serial descriptor passed to <a href="../kotlinx.serialization/-encoder/begin-structure.html#kotlinx.serialization.Encoder$beginStructure(kotlinx.serialization.SerialDescriptor)">Encoder.beginStructure</a>.</p>
+<h5><a href="../kotlinx.serialization.encoding/-composite-decoder/index.html">kotlinx.serialization.encoding.CompositeDecoder</a></h5>
+<p><a href="../kotlinx.serialization.encoding/-composite-decoder/index.html#kotlinx.serialization.encoding.CompositeDecoder">CompositeDecoder</a> is a part of decoding process that is bound to a particular structured part of
+the serialized form, described by the serial descriptor passed to <a href="../kotlinx.serialization.encoding/-decoder/begin-structure.html#kotlinx.serialization.encoding.Decoder$beginStructure(kotlinx.serialization.descriptors.SerialDescriptor)">Decoder.beginStructure</a>.</p>
 </tr>
 <tr>
 (common, jvm, native) 
-<h5><a href="../kotlinx.serialization/-context-serializer/index.html">kotlinx.serialization.ContextSerializer</a></h5>
+<h5><a href="../kotlinx.serialization.encoding/-composite-encoder/index.html">kotlinx.serialization.encoding.CompositeEncoder</a></h5>
+<p><a href="../kotlinx.serialization.encoding/-composite-encoder/index.html#kotlinx.serialization.encoding.CompositeEncoder">CompositeEncoder</a> is a part of encoding process that is bound to a particular structured part of
+the serialized form, described by the serial descriptor passed to <a href="../kotlinx.serialization.encoding/-encoder/begin-structure.html#kotlinx.serialization.encoding.Encoder$beginStructure(kotlinx.serialization.descriptors.SerialDescriptor)">Encoder.beginStructure</a>.</p>
+</tr>
+<tr>
+(common, jvm, native) 
+<h5><a href="../kotlinx.serialization/-contextual/index.html">kotlinx.serialization.Contextual</a></h5>
+<p>Instructs the plugin to use <a href="../kotlinx.serialization/-contextual-serializer/index.html#kotlinx.serialization.ContextualSerializer">ContextSerializer</a> on a given property or type.
+Context serializer is usually used when serializer for type can only be found in runtime.
+It is also possible to apply <a href="../kotlinx.serialization/-contextual-serializer/index.html#kotlinx.serialization.ContextualSerializer">ContextSerializer</a> to every property of the given type,
+using file-level <a href="../kotlinx.serialization/-use-contextual-serialization/index.html#kotlinx.serialization.UseContextualSerialization">UseContextualSerialization</a> annotation.</p>
+</tr>
+<tr>
+(common, jvm, native) 
+<h5><a href="../kotlinx.serialization/-contextual-serializer/index.html">kotlinx.serialization.ContextualSerializer</a></h5>
 <p>This class provides support for retrieving a serializer in runtime, instead of using the one precompiled by the serialization plugin.
-This serializer is enabled by <a href="../kotlinx.serialization/-contextual-serialization/index.html#kotlinx.serialization.ContextualSerialization">ContextualSerialization</a>.</p>
+This serializer is enabled by <a href="../kotlinx.serialization/-contextual/index.html#kotlinx.serialization.Contextual">Contextual</a> or <a href="../kotlinx.serialization/-use-contextual-serialization/index.html#kotlinx.serialization.UseContextualSerialization">UseContextualSerialization</a>.</p>
 </tr>
 <tr>
 (common, jvm, native) 
-<h5><a href="../kotlinx.serialization/-contextual-serialization/index.html">kotlinx.serialization.ContextualSerialization</a></h5>
-<p>Commands to use <a href="../kotlinx.serialization/-context-serializer/index.html#kotlinx.serialization.ContextSerializer">ContextSerializer</a> on an annotated property or type usage.
-If used on a file, commands using <a href="../kotlinx.serialization/-context-serializer/index.html#kotlinx.serialization.ContextSerializer">ContextSerializer</a> for all listed KClasses.</p>
-</tr>
-<tr>
-(common, jvm, native) 
-<h5><a href="../kotlinx.serialization/-decoder/index.html">kotlinx.serialization.Decoder</a></h5>
+<h5><a href="../kotlinx.serialization.encoding/-decoder/index.html">kotlinx.serialization.encoding.Decoder</a></h5>
 <p>Decoder is a core deserialization primitive that encapsulates the knowledge of the underlying
 format and an underlying storage, exposing only structural methods to the deserializer, making it completely
 format-agnostic. Deserialization process takes a decoder and asks him for a sequence of primitive elements,
@@ -95,7 +103,7 @@ representations.</p>
 <h5><a href="../kotlinx.serialization/-deserialization-strategy/index.html">kotlinx.serialization.DeserializationStrategy</a></h5>
 <p>Deserialization strategy defines the serial form of a type <a href="../kotlinx.serialization/-deserialization-strategy/index.html#T">T</a>, including its structural description,
 declared by the <a href="../kotlinx.serialization/-deserialization-strategy/descriptor.html#kotlinx.serialization.DeserializationStrategy$descriptor">descriptor</a> and the actual deserialization process, defined by the implementation
-of the <a href="../kotlinx.serialization/-deserialization-strategy/deserialize.html#kotlinx.serialization.DeserializationStrategy$deserialize(kotlinx.serialization.Decoder)">deserialize</a> method.</p>
+of the <a href="../kotlinx.serialization/-deserialization-strategy/deserialize.html#kotlinx.serialization.DeserializationStrategy$deserialize(kotlinx.serialization.encoding.Decoder)">deserialize</a> method.</p>
 </tr>
 <tr>
 (common, jvm, native)  (extensions in package kotlinx.serialization.builtins)
@@ -103,7 +111,7 @@ of the <a href="../kotlinx.serialization/-deserialization-strategy/deserialize.h
 </tr>
 <tr>
 (common, jvm, native) 
-<h5><a href="../kotlinx.serialization/-encoder/index.html">kotlinx.serialization.Encoder</a></h5>
+<h5><a href="../kotlinx.serialization.encoding/-encoder/index.html">kotlinx.serialization.encoding.Encoder</a></h5>
 <p>Encoder is a core serialization primitive that encapsulates the knowledge of the underlying
 format and its storage, exposing only structural methods to the serializer, making it completely
 format-agnostic. Serialization process transforms a single value into the sequence of its
@@ -131,11 +139,10 @@ If you cannot avoid using internal API to solve your problem, please report your
 (common, jvm, native) 
 <h5><a href="../kotlinx.serialization.json/-json/index.html">kotlinx.serialization.json.Json</a></h5>
 <p>The main entry point to work with JSON serialization.
-It is typically used by constructing an application-specific instance, with configured json-specific behaviour
-(<a href="#">configuration</a> constructor parameter) and, if necessary, registered
-custom serializers (in <a href="../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> provided by <a href="#">serializersModule</a> constructor parameter).
-Then constructed instance can be used either as regular <a href="../kotlinx.serialization/-serial-format/index.html#kotlinx.serialization.SerialFormat">SerialFormat</a> or <a href="../kotlinx.serialization/-string-format/index.html#kotlinx.serialization.StringFormat">StringFormat</a>
-or for converting objects to <a href="../kotlinx.serialization.json/-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> back and forth.</p>
+It is typically used by constructing an application-specific instance, with configured JSON-specific behaviour
+and, if necessary, registered in <a href="../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> custom serializers.
+<code>Json</code> instance can be configured in its <code>Json {}</code> factory function using <a href="../kotlinx.serialization.json/-json-builder/index.html#kotlinx.serialization.json.JsonBuilder">JsonBuilder</a>.
+For demonstration purposes or trivial usages, Json <a href="../kotlinx.serialization.json/-json/-default.html#kotlinx.serialization.json.Json.Default">companion</a> can be used instead.</p>
 </tr>
 <tr>
 (common, jvm, native) 
@@ -156,13 +163,7 @@ It can only be used by with <a href="../kotlinx.serialization.json/-json/index.h
 <tr>
 (common, jvm, native) 
 <h5><a href="../kotlinx.serialization.json/-json-builder/index.html">kotlinx.serialization.json.JsonBuilder</a></h5>
-<p>Builder to conveniently build Json instances.
-Properties of this builder are directly matched with properties of <a href="../kotlinx.serialization.json/-json-configuration/index.html#kotlinx.serialization.json.JsonConfiguration">JsonConfiguration</a>.</p>
-</tr>
-<tr>
-(common, jvm, native) 
-<h5><a href="../kotlinx.serialization.json/-json-configuration/index.html">kotlinx.serialization.json.JsonConfiguration</a></h5>
-<p>The class responsible for JSON-specific customizable behaviour in <a href="../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a> format.</p>
+<p>Builder of the <a href="../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a> instance provided by <code>Json { ... }</code> factory function.</p>
 </tr>
 <tr>
 (common, jvm, native) 
@@ -248,7 +249,7 @@ representation of the class before serialization or deserialization.</p>
 (common, jvm, native) 
 <h5><a href="../kotlinx.serialization/-k-serializer/index.html">kotlinx.serialization.KSerializer</a></h5>
 <p>KSerializer is responsible for the representation of a serial form of a type <a href="../kotlinx.serialization/-k-serializer/index.html#T">T</a>
-in terms of <a href="../kotlinx.serialization/-encoder/index.html#kotlinx.serialization.Encoder">encoders</a> and <a href="../kotlinx.serialization/-decoder/index.html#kotlinx.serialization.Decoder">decoders</a> and for constructing and deconstructing <a href="../kotlinx.serialization/-k-serializer/index.html#T">T</a>
+in terms of <a href="../kotlinx.serialization.encoding/-encoder/index.html#kotlinx.serialization.encoding.Encoder">encoders</a> and <a href="../kotlinx.serialization.encoding/-decoder/index.html#kotlinx.serialization.encoding.Decoder">decoders</a> and for constructing and deconstructing <a href="../kotlinx.serialization/-k-serializer/index.html#T">T</a>
 from/to a sequence of encoding primitives. For classes marked with <a href="../kotlinx.serialization/-serializable/index.html#kotlinx.serialization.Serializable">@Serializable</a>, can be
 obtained from generated companion extension <code>.serializer()</code> or from <a href="../kotlinx.serialization/serializer.html#kotlinx.serialization$serializer()">serializer()</a> function.</p>
 </tr>
@@ -269,7 +270,7 @@ When used on class, replaces its serializer with <a href="../kotlinx.serializati
 </tr>
 <tr>
 (common, jvm, native) 
-<h5><a href="../kotlinx.serialization/-polymorphic-kind/index.html">kotlinx.serialization.PolymorphicKind</a></h5>
+<h5><a href="../kotlinx.serialization.descriptors/-polymorphic-kind/index.html">kotlinx.serialization.descriptors.PolymorphicKind</a></h5>
 <p>Polymorphic kind represents a (bounded) polymorphic value, that is referred
 by some base class or interface, but its structure is defined by one of the possible implementations.
 Polymorphic kind is, by its definition, a union kind and is extracted to its own subtype to emphasize
@@ -290,16 +291,16 @@ Subclasses and its serializers can be added with <a href="../kotlinx.serializati
 </tr>
 <tr>
 (common, jvm, native) 
-<h5><a href="../kotlinx.serialization/-primitive-kind/index.html">kotlinx.serialization.PrimitiveKind</a></h5>
+<h5><a href="../kotlinx.serialization.descriptors/-primitive-kind/index.html">kotlinx.serialization.descriptors.PrimitiveKind</a></h5>
 <p>Values of primitive kinds usually are represented as a single value.
 All default serializers for Kotlin <a href="https://kotlinlang.org/docs/tutorials/kotlin-for-py/primitive-data-types-and-their-limitations.html">primitives types</a>
 and <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> have primitive kind.</p>
 </tr>
 <tr>
 (common, jvm, native) 
-<h5><a href="../kotlinx.serialization/-properties/index.html">kotlinx.serialization.Properties</a></h5>
-<p>Transforms a <a href="../kotlinx.serialization/-serializable/index.html#kotlinx.serialization.Serializable">Serializable</a> class' properties into a single flat <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a> which consists of
-string keys and primitive type values, and vice versa. Located in separated <code>kotlinx-serialization-properties</code> artifact.</p>
+<h5><a href="../kotlinx.serialization.properties/-properties/index.html">kotlinx.serialization.properties.Properties</a></h5>
+<p>Transforms a <a href="../kotlinx.serialization/-serializable/index.html#kotlinx.serialization.Serializable">Serializable</a> class' properties into a single flat <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a> consisting of
+string keys and primitive type values, and vice versa.</p>
 </tr>
 <tr>
 (common, jvm, native) 
@@ -311,23 +312,24 @@ and, if necessary, registered custom serializers (in <a href="../kotlinx.seriali
 </tr>
 <tr>
 (common, jvm, native) 
-<h5><a href="../kotlinx.serialization.protobuf/-protobuf-decoding-exception/index.html">kotlinx.serialization.protobuf.ProtobufDecodingException</a></h5>
+<h5><a href="../kotlinx.serialization.protobuf/-proto-buf-builder/index.html">kotlinx.serialization.protobuf.ProtoBufBuilder</a></h5>
+<p>Builder of the <a href="../kotlinx.serialization.protobuf/-proto-buf/index.html#kotlinx.serialization.protobuf.ProtoBuf">ProtoBuf</a> instance provided by <code>ProtoBuf</code> factory function.</p>
 </tr>
 <tr>
 (common, jvm, native) 
-<h5><a href="../kotlinx.serialization.protobuf/-proto-id/index.html">kotlinx.serialization.protobuf.ProtoId</a></h5>
-<p>Specifies protobuf id (a unique number for a field in the protobuf message)
-assigned to a Kotlin property.</p>
-</tr>
-<tr>
-(common, jvm, native) 
-<h5><a href="../kotlinx.serialization.protobuf/-proto-number-type/index.html">kotlinx.serialization.protobuf.ProtoNumberType</a></h5>
+<h5><a href="../kotlinx.serialization.protobuf/-proto-integer-type/index.html">kotlinx.serialization.protobuf.ProtoIntegerType</a></h5>
 <p>Represents a number format in protobuf encoding.</p>
 </tr>
 <tr>
 (common, jvm, native) 
+<h5><a href="../kotlinx.serialization.protobuf/-proto-number/index.html">kotlinx.serialization.protobuf.ProtoNumber</a></h5>
+<p>Specifies protobuf field number (a unique number for a field in the protobuf message)
+assigned to a Kotlin property.</p>
+</tr>
+<tr>
+(common, jvm, native) 
 <h5><a href="../kotlinx.serialization.protobuf/-proto-type/index.html">kotlinx.serialization.protobuf.ProtoType</a></h5>
-<p>Instructs to use a particular <a href="../kotlinx.serialization.protobuf/-proto-number-type/index.html#kotlinx.serialization.protobuf.ProtoNumberType">ProtoNumberType</a> for a property of integer number type.
+<p>Instructs to use a particular <a href="../kotlinx.serialization.protobuf/-proto-integer-type/index.html#kotlinx.serialization.protobuf.ProtoIntegerType">ProtoIntegerType</a> for a property of integer number type.
 Affect <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte/index.html">Byte</a>, <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-short/index.html">Short</a>, <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html">Long</a> and <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-char/index.html">Char</a> properties and does not affect others.</p>
 </tr>
 <tr>
@@ -337,15 +339,10 @@ Affect <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte/index.
 </tr>
 <tr>
 (common, jvm, native) 
-<h5><a href="../kotlinx.serialization/-serial-descriptor/index.html">kotlinx.serialization.SerialDescriptor</a></h5>
+<h5><a href="../kotlinx.serialization.descriptors/-serial-descriptor/index.html">kotlinx.serialization.descriptors.SerialDescriptor</a></h5>
 <p>Serial descriptor is an inherent property of <a href="../kotlinx.serialization/-k-serializer/index.html#kotlinx.serialization.KSerializer">KSerializer</a> that describes the structure of the serializable type.
 The structure of the serializable type is not only the property of the type, but also of the serializer as well,
 meaning that one type can have multiple descriptors that have completely different structure.</p>
-</tr>
-<tr>
-(common, jvm, native) 
-<h5><a href="../kotlinx.serialization/-serial-descriptor-builder/index.html">kotlinx.serialization.SerialDescriptorBuilder</a></h5>
-<p>Builder for <a href="../kotlinx.serialization/-serial-descriptor/index.html#kotlinx.serialization.SerialDescriptor">SerialDescriptor</a> for user-defined serializers.</p>
 </tr>
 <tr>
 (common, jvm, native) 
@@ -358,8 +355,8 @@ It does not impose any restrictions on a serialized form or underlying storage, 
 (common, jvm, native) 
 <h5><a href="../kotlinx.serialization/-serial-info/index.html">kotlinx.serialization.SerialInfo</a></h5>
 <p>Meta-annotation that commands the compiler plugin to handle the annotation as serialization-specific.
-Serialization-specific annotations are preserved in the <a href="../kotlinx.serialization/-serial-descriptor/index.html#kotlinx.serialization.SerialDescriptor">SerialDescriptor</a> and can be retrieved
-during serialization process with <a href="../kotlinx.serialization/-serial-descriptor/get-element-annotations.html#kotlinx.serialization.SerialDescriptor$getElementAnnotations(kotlin.Int)">SerialDescriptor.getElementAnnotations</a>.</p>
+Serialization-specific annotations are preserved in the <a href="../kotlinx.serialization.descriptors/-serial-descriptor/index.html#kotlinx.serialization.descriptors.SerialDescriptor">SerialDescriptor</a> and can be retrieved
+during serialization process with <a href="../kotlinx.serialization.descriptors/-serial-descriptor/get-element-annotations.html#kotlinx.serialization.descriptors.SerialDescriptor$getElementAnnotations(kotlin.Int)">SerialDescriptor.getElementAnnotations</a>.</p>
 </tr>
 <tr>
 (common, jvm, native) 
@@ -384,19 +381,19 @@ whether it is a malformed input or unsupported class layout.</p>
 <h5><a href="../kotlinx.serialization/-serialization-strategy/index.html">kotlinx.serialization.SerializationStrategy</a></h5>
 <p>Serialization strategy defines the serial form of a type <a href="../kotlinx.serialization/-serialization-strategy/index.html#T">T</a>, including its structural description,
 declared by the <a href="../kotlinx.serialization/-serialization-strategy/descriptor.html#kotlinx.serialization.SerializationStrategy$descriptor">descriptor</a> and the actual serialization process, defined by the implementation
-of the <a href="../kotlinx.serialization/-serialization-strategy/serialize.html#kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.Encoder, kotlinx.serialization.SerializationStrategy.T)">serialize</a> method.</p>
+of the <a href="../kotlinx.serialization/-serialization-strategy/serialize.html#kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.encoding.Encoder, kotlinx.serialization.SerializationStrategy.T)">serialize</a> method.</p>
 </tr>
 <tr>
 (common, jvm, native) 
 <h5><a href="../kotlinx.serialization/-serializer/index.html">kotlinx.serialization.Serializer</a></h5>
 <p>Instructs the serialization plugin to turn this class into serializer for specified class <a href="../kotlinx.serialization/-serializer/for-class.html#kotlinx.serialization.Serializer$forClass">forClass</a>.
 However, it would not be used automatically. To apply it on particular class or property,
-use <a href="../kotlinx.serialization/-serializable/index.html#kotlinx.serialization.Serializable">Serializable</a> or <a href="../kotlinx.serialization/-use-serializers/index.html#kotlinx.serialization.UseSerializers">UseSerializers</a>, or <a href="../kotlinx.serialization/-contextual-serialization/index.html#kotlinx.serialization.ContextualSerialization">ContextualSerialization</a> with runtime registration.</p>
+use <a href="../kotlinx.serialization/-serializable/index.html#kotlinx.serialization.Serializable">Serializable</a> or <a href="../kotlinx.serialization/-use-serializers/index.html#kotlinx.serialization.UseSerializers">UseSerializers</a>, or <a href="../kotlinx.serialization/-contextual/index.html#kotlinx.serialization.Contextual">Contextual</a> with runtime registration.</p>
 </tr>
 <tr>
 (common, jvm, native) 
 <h5><a href="../kotlinx.serialization.modules/-serializers-module/index.html">kotlinx.serialization.modules.SerializersModule</a></h5>
-<p><a href="../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> is a collection of serializers used by <a href="../kotlinx.serialization/-context-serializer/index.html#kotlinx.serialization.ContextSerializer">ContextSerializer</a> and <a href="../kotlinx.serialization/-polymorphic-serializer/index.html#kotlinx.serialization.PolymorphicSerializer">PolymorphicSerializer</a>
+<p><a href="../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> is a collection of serializers used by <a href="../kotlinx.serialization/-contextual-serializer/index.html#kotlinx.serialization.ContextualSerializer">ContextualSerializer</a> and <a href="../kotlinx.serialization/-polymorphic-serializer/index.html#kotlinx.serialization.PolymorphicSerializer">PolymorphicSerializer</a>
 to override or provide serializers at the runtime, whereas at the compile-time they provided by the serialization plugin.
 It can be considered as a map where serializers can be found using their statically known KClasses.</p>
 </tr>
@@ -413,14 +410,14 @@ using a visitor-like pattern: <a href="../kotlinx.serialization.modules/-seriali
 </tr>
 <tr>
 (common, jvm, native) 
-<h5><a href="../kotlinx.serialization/-serial-kind/index.html">kotlinx.serialization.SerialKind</a></h5>
-<p>Serial kind is an intrinsic property of <a href="../kotlinx.serialization/-serial-descriptor/index.html#kotlinx.serialization.SerialDescriptor">SerialDescriptor</a> that indicates how
+<h5><a href="../kotlinx.serialization.descriptors/-serial-kind/index.html">kotlinx.serialization.descriptors.SerialKind</a></h5>
+<p>Serial kind is an intrinsic property of <a href="../kotlinx.serialization.descriptors/-serial-descriptor/index.html#kotlinx.serialization.descriptors.SerialDescriptor">SerialDescriptor</a> that indicates how
 the corresponding type is structurally represented by its serializer.</p>
 </tr>
 <tr>
 (common, jvm, native) 
 <h5><a href="../kotlinx.serialization/-serial-name/index.html">kotlinx.serialization.SerialName</a></h5>
-<p>Overrides the name of a class or a property in the corresponding <a href="../kotlinx.serialization/-serial-descriptor/index.html#kotlinx.serialization.SerialDescriptor">SerialDescriptor</a>.
+<p>Overrides the name of a class or a property in the corresponding <a href="../kotlinx.serialization.descriptors/-serial-descriptor/index.html#kotlinx.serialization.descriptors.SerialDescriptor">SerialDescriptor</a>.
 Names and serial names are used by text-based serial formats in order to encode the name of the class or
 the name of the property, e.g. by <a href="../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a>.</p>
 </tr>
@@ -439,14 +436,22 @@ the name of the property, e.g. by <a href="../kotlinx.serialization.json/-json/i
 </tr>
 <tr>
 (common, jvm, native) 
-<h5><a href="../kotlinx.serialization/-structure-kind/index.html">kotlinx.serialization.StructureKind</a></h5>
+<h5><a href="../kotlinx.serialization.descriptors/-structure-kind/index.html">kotlinx.serialization.descriptors.StructureKind</a></h5>
 <p>Structure kind represents values with composite structure of nested elements of depth and arbitrary number.
 We acknowledge following structured kinds:</p>
 </tr>
 <tr>
 (common, jvm, native) 
+<h5><a href="../kotlinx.serialization.json/-subtype-to-detect-default/index.html">kotlinx.serialization.json.SubtypeToDetectDefault</a></h5>
+</tr>
+<tr>
+(common, jvm, native) 
+<h5><a href="../kotlinx.serialization.json/-subtype-to-detect-stable/index.html">kotlinx.serialization.json.SubtypeToDetectStable</a></h5>
+</tr>
+<tr>
+(common, jvm, native) 
 <h5><a href="../kotlinx.serialization/-transient/index.html">kotlinx.serialization.Transient</a></h5>
-<p>Marks this property invisible for the whole serialization process, including <a href="../kotlinx.serialization/-serial-descriptor/index.html#kotlinx.serialization.SerialDescriptor">serial descriptors</a>.
+<p>Marks this property invisible for the whole serialization process, including <a href="../kotlinx.serialization.descriptors/-serial-descriptor/index.html#kotlinx.serialization.descriptors.SerialDescriptor">serial descriptors</a>.
 Transient properties should have default values.</p>
 </tr>
 <tr>
@@ -463,8 +468,8 @@ ways have failed.</p>
 </tr>
 <tr>
 (common, jvm, native) 
-<h5><a href="../kotlinx.serialization/-unstable-default/index.html">kotlinx.serialization.UnstableDefault</a></h5>
-<p>This annotation marks declarations with default parameters that are subject to semantic change without a migration path.</p>
+<h5><a href="../kotlinx.serialization/-use-contextual-serialization/index.html">kotlinx.serialization.UseContextualSerialization</a></h5>
+<p>Instructs the plugin to use <a href="../kotlinx.serialization/-contextual-serializer/index.html#kotlinx.serialization.ContextualSerializer">ContextSerializer</a> for every type in the current file that is listed in the <a href="../kotlinx.serialization/-use-contextual-serialization/for-classes.html#kotlinx.serialization.UseContextualSerialization$forClasses">forClasses</a>.</p>
 </tr>
 <tr>
 (common, jvm, native) 

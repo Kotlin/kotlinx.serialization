@@ -9,7 +9,7 @@
 <br/>
 <h1>PolymorphicModuleBuilder</h1>
 <a name="kotlinx.serialization.modules.PolymorphicModuleBuilder"></a>
-(common, jvm, native) <code><span class="keyword">class </span><span class="identifier">PolymorphicModuleBuilder</span><span class="symbol">&lt;</span><span class="identifier">Base</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span></code>
+(common, jvm, native) <code><span class="keyword">class </span><span class="identifier">PolymorphicModuleBuilder</span><span class="symbol">&lt;</span><span class="keyword">in</span>&nbsp;<span class="identifier">Base</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span></code>
 <p>A builder which registers all its content for polymorphic serialization in the scope of the <a href="#">base class</a>.
 If <a href="#">baseSerializer</a> is present, registers it as a serializer for <a href="#">baseClass</a> (which will be used if base class is serializable).
 Subclasses and its serializers can be added with <a href="subclass.html#kotlinx.serialization.modules.PolymorphicModuleBuilder$subclass(kotlin.reflect.KClass((kotlinx.serialization.modules.PolymorphicModuleBuilder.subclass.T)), kotlinx.serialization.KSerializer((kotlinx.serialization.modules.PolymorphicModuleBuilder.subclass.T)))">subclass</a> builder function.</p>

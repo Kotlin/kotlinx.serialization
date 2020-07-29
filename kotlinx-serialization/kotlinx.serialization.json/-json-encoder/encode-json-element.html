@@ -12,7 +12,7 @@
 (common, jvm, native) <code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">encodeJsonElement</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.json.JsonEncoder$encodeJsonElement(kotlinx.serialization.json.JsonElement)/element">element</span><span class="symbol">:</span>&nbsp;<a href="../-json-element.html"><span class="identifier">JsonElement</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
 <p>Appends the given JSON <a href="encode-json-element.html#kotlinx.serialization.json.JsonEncoder$encodeJsonElement(kotlinx.serialization.json.JsonElement)/element">element</a> to the current output.
 This method is allowed to invoke only as the part of the whole serialization process of the class,
-calling this method after invoking <a href="../../kotlinx.serialization/-encoder/begin-structure.html#kotlinx.serialization.Encoder$beginStructure(kotlinx.serialization.SerialDescriptor)">beginStructure</a> or any <code>encode*</code> method will lead to unspecified behaviour
+calling this method after invoking <a href="../../kotlinx.serialization.encoding/-encoder/begin-structure.html#kotlinx.serialization.encoding.Encoder$beginStructure(kotlinx.serialization.descriptors.SerialDescriptor)">beginStructure</a> or any <code>encode*</code> method will lead to unspecified behaviour
 and may produce an invalid JSON result.
 For example:</p>
 <pre><code>class Holder(val value: Int, val list: List&lt;Int&gt;())

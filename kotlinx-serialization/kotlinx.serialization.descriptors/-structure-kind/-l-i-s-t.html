@@ -1,0 +1,22 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.descriptors.StructureKind.LIST - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.descriptors</a>&nbsp;/&nbsp;<a href="index.html">StructureKind</a>&nbsp;/&nbsp;<a href="./-l-i-s-t.html">LIST</a><br/>
+<br/>
+<h1>LIST</h1>
+<a name="kotlinx.serialization.descriptors.StructureKind.LIST"></a>
+(common, jvm, native) <code><span class="keyword">object </span><span class="identifier">LIST</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="index.html"><span class="identifier">StructureKind</span></a></code>
+<p>Structure kind for lists and arrays of an arbitrary length.
+Serializers typically encode classes with calls to <a href="#">Encoder.beginCollection</a> and <a href="#">CompositeEncoder.endStructure</a>,
+writing the elements of the list between these calls.
+Built-in list serializers treat elements as homogeneous, though application-specific serializers may impose
+application-specific restrictions on specific <a href="-l-i-s-t.html#kotlinx.serialization.descriptors.StructureKind.LIST">LIST</a> types.</p>
+<p>Example of such application-specific serialization may be class <code>class ListOfThreeElements() : List&lt;Any&gt;</code>,
+for which an author of the serializer knows that while it is <code>List&lt;Any&gt;</code>, in fact, is always has three elements
+of a known type (e.g. the first is always a string, the second one is always an int etc.)</p>
+</BODY>
+</HTML>

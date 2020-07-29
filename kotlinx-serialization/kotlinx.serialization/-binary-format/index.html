@@ -47,23 +47,7 @@
 using <a href="https://tools.ietf.org/html/rfc7049">CBOR</a> specification.
 It is typically used by constructing an application-specific instance, with configured behaviour, and,
 if necessary, registered custom serializers (in <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> provided by <a href="../../kotlinx.serialization.cbor/-cbor/serializers-module.html#kotlinx.serialization.cbor.Cbor$serializersModule">serializersModule</a> constructor parameter).</p>
-<code><span class="keyword">class </span><span class="identifier">Cbor</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">BinaryFormat</span></a></code></td>
-</tr>
-<tr>
-<td>
-(common, jvm, native) 
-<h4><a href="../../kotlinx.serialization.cbor/-cbor/-default.html">Default</a></h4>
-</td>
-<td>
-<code><span class="keyword">companion</span> <span class="keyword">object </span><span class="identifier">Default</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">BinaryFormat</span></a></code></td>
-</tr>
-<tr>
-<td>
-(common, jvm, native) 
-<h4><a href="../../kotlinx.serialization.protobuf/-proto-buf/-default.html">Default</a></h4>
-</td>
-<td>
-<code><span class="keyword">companion</span> <span class="keyword">object </span><span class="identifier">Default</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">BinaryFormat</span></a></code></td>
+<code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">Cbor</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">BinaryFormat</span></a></code></td>
 </tr>
 <tr>
 <td>
@@ -75,7 +59,7 @@ if necessary, registered custom serializers (in <a href="../../kotlinx.serializa
 using <a href="https://developers.google.com/protocol-buffers/docs/proto">Proto2</a> specification.
 It is typically used by constructing an application-specific instance, with configured specific behaviour
 and, if necessary, registered custom serializers (in <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> provided by <a href="../../kotlinx.serialization.protobuf/-proto-buf/serializers-module.html#kotlinx.serialization.protobuf.ProtoBuf$serializersModule">serializersModule</a> constructor parameter).</p>
-<code><span class="keyword">class </span><span class="identifier">ProtoBuf</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">BinaryFormat</span></a></code></td>
+<code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">ProtoBuf</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">BinaryFormat</span></a></code></td>
 </tr>
 </tbody>
 </table>

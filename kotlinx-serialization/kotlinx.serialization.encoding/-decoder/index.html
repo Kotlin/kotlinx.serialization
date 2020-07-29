@@ -1,0 +1,283 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.encoding.Decoder - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.encoding</a>&nbsp;/&nbsp;<a href="./index.html">Decoder</a><br/>
+<br/>
+<h1>Decoder</h1>
+<a name="kotlinx.serialization.encoding.Decoder"></a>
+(common, jvm, native) <code><span class="keyword">interface </span><span class="identifier">Decoder</span></code>
+<p>Decoder is a core deserialization primitive that encapsulates the knowledge of the underlying
+format and an underlying storage, exposing only structural methods to the deserializer, making it completely
+format-agnostic. Deserialization process takes a decoder and asks him for a sequence of primitive elements,
+defined by a deserializer serial form, while decoder knows how to retrieve these primitive elements from an actual format
+representations.</p>
+<p>Decoder provides high-level API that operates with basic primitive types, collections
+and nested structures. Internally, the decoder represents input storage, and operates with its state
+and lower level format-specific details.</p>
+<p>To be more specific, serialization asks a decoder for a sequence of "give me an int, give me
+a double, give me a list of strings and give me another object that is a nested int", while decoding
+transforms this sequence into a format-specific commands such as "parse the part of the string until the next quotation mark
+as an int to retrieve an int, parse everything within the next curly braces to retrieve elements of a nested object etc."</p>
+<p>The symmetric interface for the serialization process is <a href="../-encoder/index.html#kotlinx.serialization.encoding.Encoder">Encoder</a>.</p>
+<h3>Deserialization. Primitives</h3>
+<p>If a class is represented as a single <a href="../../kotlinx.serialization.descriptors/-primitive-kind/index.html#kotlinx.serialization.descriptors.PrimitiveKind">primitive</a> value in its serialized form,
+then one of the <code>decode*</code> methods (e.g. <a href="decode-int.html#kotlinx.serialization.encoding.Decoder$decodeInt()">decodeInt</a>) can be used directly.</p>
+<h3>Deserialization. Structured types</h3>
+<p>If a class is represented as a structure or has multiple values in its serialized form,
+<code>decode*</code> methods are not that helpful, because format may not require a strict order of data
+(e.g. JSON or XML), do not allow working with collection types or establish structure boundaries.
+All these capabilities are delegated to the <a href="../-composite-decoder/index.html#kotlinx.serialization.encoding.CompositeDecoder">CompositeDecoder</a> interface with a more specific API surface.
+To denote a structure start, <a href="begin-structure.html#kotlinx.serialization.encoding.Decoder$beginStructure(kotlinx.serialization.descriptors.SerialDescriptor)">beginStructure</a> should be used.</p>
+<pre><code>// Denote the structure start,
+val composite = decoder.beginStructure(descriptor)
+// Decode all elements within the structure using 'composite'
+...
+// Denote the structure end
+composite.endStructure(descriptor)
+</code></pre>
+<p>E.g. if the decoder belongs to JSON format, then <a href="begin-structure.html#kotlinx.serialization.encoding.Decoder$beginStructure(kotlinx.serialization.descriptors.SerialDescriptor)">beginStructure</a> will parse an opening bracket
+(<code>{</code> or <code>[</code>, depending on the descriptor kind), returning the <a href="../-composite-decoder/index.html#kotlinx.serialization.encoding.CompositeDecoder">CompositeDecoder</a> that is aware of colon separator,
+that should be read after each key-value pair, whilst <a href="../-composite-decoder/end-structure.html#kotlinx.serialization.encoding.CompositeDecoder$endStructure(kotlinx.serialization.descriptors.SerialDescriptor)">CompositeDecoder.endStructure</a> will parse a closing bracket.</p>
+<h3>Exception guarantees.</h3>
+<p>For the regular exceptions, such as invalid input, missing control symbols or attributes and unknown symbols,
+<a href="../../kotlinx.serialization/-serialization-exception/index.html#kotlinx.serialization.SerializationException">SerializationException</a> can be thrown by any decoder methods. It is recommended to declare a format-specific
+subclass of <a href="../../kotlinx.serialization/-serialization-exception/index.html#kotlinx.serialization.SerializationException">SerializationException</a> and throw it.</p>
+<h3>Format encapsulation</h3>
+<p>For example, for the following deserializer:</p>
+<pre><code>class StringHolder(val stringValue: String)
+
+object StringPairDeserializer : DeserializationStrategy&lt;StringHolder&gt; {
+   override val descriptor = ...
+
+   override fun deserializer(decoder: Decoder): StringHolder {
+       // Denotes start of the structure, StringHolder is not a "plain" data type
+       val composite = decoder.beginStructure(descriptor)
+       if (composite.decodeElementIndex(descriptor) != 0)
+           throw MissingFieldException("Field 'stringValue' is missing")
+       // Decode the nested string value
+       val value = composite.decodeStringElement(descriptor, index = 0)
+       // Denotes end of the structure
+       composite.endStructure(descriptor)
+   }
+}
+</code></pre>
+<p>This deserializer does not know anything about the underlying data and will work with any properly-implemented decoder.
+JSON, for example, parses an opening bracket <code>{</code> during the <code>beginStructure</code> call, checks that the next key
+after this bracket is <code>stringValue</code> (using the descriptor), returns the value after the colon as string value
+and parses closing bracket <code>}</code> during the <code>endStructure</code>.
+XML would do roughly the same, but with different separators and parsing structures, while ProtoBuf
+machinery could be completely different.
+In any case, all these parsing details are encapsulated by a decoder.</p>
+<h3>Decoder implementation</h3>
+<p>While being strictly typed, an underlying format can transform actual types in the way it wants.
+For example, a format can support only string types and encode/decode all primitives in a string form:</p>
+<pre><code>StringFormatDecoder : Decoder {
+
+    ...
+    override fun decodeDouble(): Double = decodeString().toDouble()
+    override fun decodeInt(): Double = decodeString().toInt()
+    ...
+}
+</code></pre>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="serializers-module.html">serializersModule</a></h4>
+</td>
+<td>
+<p>Context of the current serialization process, including contextual and polymorphic serialization and,
+potentially, a format-specific configuration.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">val </span><span class="identifier">serializersModule</span><span class="symbol">: </span><a href="../../kotlinx.serialization.modules/-serializers-module/index.html"><span class="identifier">SerializersModule</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="begin-structure.html">beginStructure</a></h4>
+</td>
+<td>
+<p>Decodes the beginning of the nested structure in a serialized form
+and returns <a href="../-composite-decoder/index.html#kotlinx.serialization.encoding.CompositeDecoder">CompositeDecoder</a> responsible for decoding this very structure.</p>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">beginStructure</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.encoding.Decoder$beginStructure(kotlinx.serialization.descriptors.SerialDescriptor)/descriptor">descriptor</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-composite-decoder/index.html"><span class="identifier">CompositeDecoder</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-boolean.html">decodeBoolean</a></h4>
+</td>
+<td>
+<p>Decodes a boolean value.
+Corresponding kind is <a href="../../kotlinx.serialization.descriptors/-primitive-kind/-b-o-o-l-e-a-n.html#kotlinx.serialization.descriptors.PrimitiveKind.BOOLEAN">PrimitiveKind.BOOLEAN</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">decodeBoolean</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-byte.html">decodeByte</a></h4>
+</td>
+<td>
+<p>Decodes a single byte value.
+Corresponding kind is <a href="../../kotlinx.serialization.descriptors/-primitive-kind/-b-y-t-e.html#kotlinx.serialization.descriptors.PrimitiveKind.BYTE">PrimitiveKind.BYTE</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">decodeByte</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte/index.html"><span class="identifier">Byte</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-char.html">decodeChar</a></h4>
+</td>
+<td>
+<p>Decodes a 16-bit unicode character value.
+Corresponding kind is <a href="../../kotlinx.serialization.descriptors/-primitive-kind/-c-h-a-r.html#kotlinx.serialization.descriptors.PrimitiveKind.CHAR">PrimitiveKind.CHAR</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">decodeChar</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-char/index.html"><span class="identifier">Char</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-double.html">decodeDouble</a></h4>
+</td>
+<td>
+<p>Decodes a 64-bit IEEE 754 floating point value.
+Corresponding kind is <a href="../../kotlinx.serialization.descriptors/-primitive-kind/-d-o-u-b-l-e.html#kotlinx.serialization.descriptors.PrimitiveKind.DOUBLE">PrimitiveKind.DOUBLE</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">decodeDouble</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double/index.html"><span class="identifier">Double</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-enum.html">decodeEnum</a></h4>
+</td>
+<td>
+<p>Decodes a enum value and returns its index in <a href="decode-enum.html#kotlinx.serialization.encoding.Decoder$decodeEnum(kotlinx.serialization.descriptors.SerialDescriptor)/enumDescriptor">enumDescriptor</a> elements collection.
+Corresponding kind is <a href="../../kotlinx.serialization.descriptors/-serial-kind/-e-n-u-m.html#kotlinx.serialization.descriptors.SerialKind.ENUM">SerialKind.ENUM</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">decodeEnum</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.encoding.Decoder$decodeEnum(kotlinx.serialization.descriptors.SerialDescriptor)/enumDescriptor">enumDescriptor</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-float.html">decodeFloat</a></h4>
+</td>
+<td>
+<p>Decodes a 32-bit IEEE 754 floating point value.
+Corresponding kind is <a href="../../kotlinx.serialization.descriptors/-primitive-kind/-f-l-o-a-t.html#kotlinx.serialization.descriptors.PrimitiveKind.FLOAT">PrimitiveKind.FLOAT</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">decodeFloat</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-int.html">decodeInt</a></h4>
+</td>
+<td>
+<p>Decodes a 32-bit integer value.
+Corresponding kind is <a href="../../kotlinx.serialization.descriptors/-primitive-kind/-i-n-t.html#kotlinx.serialization.descriptors.PrimitiveKind.INT">PrimitiveKind.INT</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">decodeInt</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-long.html">decodeLong</a></h4>
+</td>
+<td>
+<p>Decodes a 64-bit integer value.
+Corresponding kind is <a href="../../kotlinx.serialization.descriptors/-primitive-kind/-l-o-n-g.html#kotlinx.serialization.descriptors.PrimitiveKind.LONG">PrimitiveKind.LONG</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">decodeLong</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-not-null-mark.html">decodeNotNullMark</a></h4>
+</td>
+<td>
+<p>Returns <code>true</code> if the current value in decoder is not null, false otherwise.
+This method is usually used to decode potentially nullable data:</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">decodeNotNullMark</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-null.html">decodeNull</a></h4>
+</td>
+<td>
+<p>Decodes the <code>null</code> value and returns it.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">decodeNull</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-nothing/index.html"><span class="identifier">Nothing</span></a><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-nullable-serializable-value.html">decodeNullableSerializableValue</a></h4>
+</td>
+<td>
+<p>Decodes the nullable value of type <a href="decode-nullable-serializable-value.html#T">T</a> by delegating the decoding process to the given <a href="decode-nullable-serializable-value.html#kotlinx.serialization.encoding.Decoder$decodeNullableSerializableValue(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.encoding.Decoder.decodeNullableSerializableValue.T)))/deserializer">deserializer</a>.</p>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">decodeNullableSerializableValue</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.encoding.Decoder$decodeNullableSerializableValue(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.encoding.Decoder.decodeNullableSerializableValue.T)))/deserializer">deserializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-deserialization-strategy/index.html"><span class="identifier">DeserializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">?</span><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-serializable-value.html">decodeSerializableValue</a></h4>
+</td>
+<td>
+<p>Decodes the value of type <a href="decode-serializable-value.html#T">T</a> by delegating the decoding process to the given <a href="decode-serializable-value.html#kotlinx.serialization.encoding.Decoder$decodeSerializableValue(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.encoding.Decoder.decodeSerializableValue.T)))/deserializer">deserializer</a>.
+For example, <code>decodeInt</code> call us equivalent to delegating integer decoding to <a href="#">Int.serializer</a>:
+<code>decodeSerializableValue(IntSerializer)</code></p>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">decodeSerializableValue</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.encoding.Decoder$decodeSerializableValue(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.encoding.Decoder.decodeSerializableValue.T)))/deserializer">deserializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-deserialization-strategy/index.html"><span class="identifier">DeserializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-short.html">decodeShort</a></h4>
+</td>
+<td>
+<p>Decodes a 16-bit short value.
+Corresponding kind is <a href="../../kotlinx.serialization.descriptors/-primitive-kind/-s-h-o-r-t.html#kotlinx.serialization.descriptors.PrimitiveKind.SHORT">PrimitiveKind.SHORT</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">decodeShort</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-short/index.html"><span class="identifier">Short</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-string.html">decodeString</a></h4>
+</td>
+<td>
+<p>Decodes a string value.
+Corresponding kind is <a href="../../kotlinx.serialization.descriptors/-primitive-kind/-s-t-r-i-n-g.html#kotlinx.serialization.descriptors.PrimitiveKind.STRING">PrimitiveKind.STRING</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">decodeString</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="../-abstract-decoder/index.html">AbstractDecoder</a></h4>
+</td>
+<td>
+<p>A skeleton implementation of both <a href="index.html#kotlinx.serialization.encoding.Decoder">Decoder</a> and <a href="../-composite-decoder/index.html#kotlinx.serialization.encoding.CompositeDecoder">CompositeDecoder</a> that can be used
+for simple formats and for testability purpose.
+Most of the <code>decode*</code> methods have default implementation that delegates <code>decodeValue(value: Any) as TargetType</code>.
+See <a href="index.html#kotlinx.serialization.encoding.Decoder">Decoder</a> documentation for information about each particular <code>decode*</code> method.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">AbstractDecoder</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">Decoder</span></a><span class="symbol">, </span><a href="../-composite-decoder/index.html"><span class="identifier">CompositeDecoder</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="../../kotlinx.serialization.json/-json-decoder/index.html">JsonDecoder</a></h4>
+</td>
+<td>
+<p>Decoder used by <a href="../../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a> during deserialization.
+This interface can be used to inject desired behaviour into a serialization process of <a href="../../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a>.</p>
+<code><span class="keyword">interface </span><span class="identifier">JsonDecoder</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">Decoder</span></a><span class="symbol">, </span><a href="../-composite-decoder/index.html"><span class="identifier">CompositeDecoder</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

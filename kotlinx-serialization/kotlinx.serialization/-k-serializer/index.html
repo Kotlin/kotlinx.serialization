@@ -11,7 +11,7 @@
 <a name="kotlinx.serialization.KSerializer"></a>
 (common, jvm, native) <code><span class="keyword">interface </span><span class="identifier">KSerializer</span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../-serialization-strategy/index.html"><span class="identifier">SerializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><a href="../-deserialization-strategy/index.html"><span class="identifier">DeserializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code>
 <p>KSerializer is responsible for the representation of a serial form of a type <a href="index.html#T">T</a>
-in terms of <a href="../-encoder/index.html#kotlinx.serialization.Encoder">encoders</a> and <a href="../-decoder/index.html#kotlinx.serialization.Decoder">decoders</a> and for constructing and deconstructing <a href="index.html#T">T</a>
+in terms of <a href="../../kotlinx.serialization.encoding/-encoder/index.html#kotlinx.serialization.encoding.Encoder">encoders</a> and <a href="../../kotlinx.serialization.encoding/-decoder/index.html#kotlinx.serialization.encoding.Decoder">decoders</a> and for constructing and deconstructing <a href="index.html#T">T</a>
 from/to a sequence of encoding primitives. For classes marked with <a href="../-serializable/index.html#kotlinx.serialization.Serializable">@Serializable</a>, can be
 obtained from generated companion extension <code>.serializer()</code> or from <a href="../serializer.html#kotlinx.serialization$serializer()">serializer()</a> function.</p>
 <p>Serialization is decoupled from the encoding process to make it completely format-agnostic.
@@ -26,11 +26,11 @@ then append a colon, then append an actual value" for JSON) and how to retrieve 
 parse it, then parse colon, then parse a string until the next comma as an int and return it).</p>
 <p>Serial form consists of a structural description, declared by the <a href="descriptor.html#kotlinx.serialization.KSerializer$descriptor">descriptor</a> and
 actual serialization and deserialization processes, defined by the corresponding
-<a href="../-serialization-strategy/serialize.html#kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.Encoder, kotlinx.serialization.SerializationStrategy.T)">serialize</a> and <a href="../-deserialization-strategy/deserialize.html#kotlinx.serialization.DeserializationStrategy$deserialize(kotlinx.serialization.Decoder)">deserialize</a> methods implementation.</p>
+<a href="../-serialization-strategy/serialize.html#kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.encoding.Encoder, kotlinx.serialization.SerializationStrategy.T)">serialize</a> and <a href="../-deserialization-strategy/deserialize.html#kotlinx.serialization.DeserializationStrategy$deserialize(kotlinx.serialization.encoding.Decoder)">deserialize</a> methods implementation.</p>
 <p>Structural description specifies how the <a href="index.html#T">T</a> is represented in the serial form:
-its <a href="../-serial-kind/index.html#kotlinx.serialization.SerialKind">kind</a> (e.g. whether it is represented as a primitive, a list or a class),
-its <a href="#">elements</a> and their <a href="../-serial-descriptor/get-element-name.html#kotlinx.serialization.SerialDescriptor$getElementName(kotlin.Int)">positional names</a>.</p>
-<p>Serialization process is defined as a sequence of calls to an <a href="../-encoder/index.html#kotlinx.serialization.Encoder">Encoder</a>, and transforms a type <a href="index.html#T">T</a>
+its <a href="../../kotlinx.serialization.descriptors/-serial-kind/index.html#kotlinx.serialization.descriptors.SerialKind">kind</a> (e.g. whether it is represented as a primitive, a list or a class),
+its <a href="#">elements</a> and their <a href="../../kotlinx.serialization.descriptors/-serial-descriptor/get-element-name.html#kotlinx.serialization.descriptors.SerialDescriptor$getElementName(kotlin.Int)">positional names</a>.</p>
+<p>Serialization process is defined as a sequence of calls to an <a href="../../kotlinx.serialization.encoding/-encoder/index.html#kotlinx.serialization.encoding.Encoder">Encoder</a>, and transforms a type <a href="index.html#T">T</a>
 into a stream of format-agnostic primitives that represent <a href="index.html#T">T</a>, such as "here is an int, here is a double
 and here is another nested object". It can be demonstrated by the example:</p>
 <pre><code>class MyData(int: Int, stringList: List&lt;String&gt;, alwaysZero: Long)
@@ -45,7 +45,7 @@ fun serialize(encoder: Encoder, value: MyData): Unit = encoder.encodeStructure(d
     // don't encode 'alwaysZero' property because we decided to do so
 } // end of the structure
 </code></pre>
-<p>Deserialization process is symmetric and uses <a href="../-decoder/index.html#kotlinx.serialization.Decoder">Decoder</a>.</p>
+<p>Deserialization process is symmetric and uses <a href="../../kotlinx.serialization.encoding/-decoder/index.html#kotlinx.serialization.encoding.Decoder">Decoder</a>.</p>
 <h3>Properties</h3>
 <table>
 <tbody>
@@ -59,7 +59,7 @@ fun serialize(encoder: Encoder, value: MyData): Unit = encoder.encodeStructure(d
 by this serializer. Knowing the structure of the descriptor is required to determine
 the shape of the serialized form (e.g. what elements are encoded as lists and what as primitives)
 along with its metadata such as alternative names.</p>
-<code><span class="keyword">abstract</span> <span class="keyword">val </span><span class="identifier">descriptor</span><span class="symbol">: </span><a href="../-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a></code></td>
+<code><span class="keyword">abstract</span> <span class="keyword">val </span><span class="identifier">descriptor</span><span class="symbol">: </span><a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a></code></td>
 </tr>
 </tbody>
 </table>
@@ -69,12 +69,12 @@ along with its metadata such as alternative names.</p>
 <tr>
 <td>
 (common, jvm, native) 
-<h4><a href="../-context-serializer/index.html">ContextSerializer</a></h4>
+<h4><a href="../-contextual-serializer/index.html">ContextualSerializer</a></h4>
 </td>
 <td>
 <p>This class provides support for retrieving a serializer in runtime, instead of using the one precompiled by the serialization plugin.
-This serializer is enabled by <a href="../-contextual-serialization/index.html#kotlinx.serialization.ContextualSerialization">ContextualSerialization</a>.</p>
-<code><span class="keyword">class </span><span class="identifier">ContextSerializer</span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
+This serializer is enabled by <a href="../-contextual/index.html#kotlinx.serialization.Contextual">Contextual</a> or <a href="../-use-contextual-serialization/index.html#kotlinx.serialization.UseContextualSerialization">UseContextualSerialization</a>.</p>
+<code><span class="keyword">class </span><span class="identifier">ContextualSerializer</span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
 </tr>
 <tr>
 <td>

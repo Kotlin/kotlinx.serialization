@@ -9,8 +9,7 @@
 <br/>
 <h1>SerializationException</h1>
 <a name="kotlinx.serialization.SerializationException"></a>
-(common, native) <code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">SerializationException</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://docs.oracle.com/javase/6/docs/api/java/lang/IllegalArgumentException.html"><span class="identifier">IllegalArgumentException</span></a></code><a name="kotlinx.serialization.SerializationException"></a>
-(jvm) <code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">SerializationException</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-illegal-argument-exception/index.html"><span class="identifier">IllegalArgumentException</span></a></code>
+(common, jvm, native) <code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">SerializationException</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-illegal-argument-exception/index.html"><span class="identifier">IllegalArgumentException</span></a></code>
 <p>A generic exception indicating the problem in serialization or deserialization process.
 This is a generic exception type that can be thrown during the problem at any stage of the serialization,
 including encoding, decoding, serialization, deserialization.
@@ -33,27 +32,6 @@ whether it is a malformed input or unsupported class layout.</p>
 <code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.SerializationException$<init>(kotlin.String, kotlin.Throwable)/message">message</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.SerializationException$<init>(kotlin.String, kotlin.Throwable)/cause">cause</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-throwable/index.html"><span class="identifier">Throwable</span></a><span class="symbol">?</span><span class="symbol">)</span></code>
 <p>Creates an instance of <a href="index.html#kotlinx.serialization.SerializationException">SerializationException</a> with the specified <a href="-init-.html#kotlinx.serialization.SerializationException$<init>(kotlin.Throwable)/cause">cause</a>.</p>
 <code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.SerializationException$<init>(kotlin.Throwable)/cause">cause</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-throwable/index.html"><span class="identifier">Throwable</span></a><span class="symbol">?</span><span class="symbol">)</span></code></td>
-</tr>
-</tbody>
-</table>
-<h3>Inheritors</h3>
-<table>
-<tbody>
-<tr>
-<td>
-(common, jvm, native) 
-<h4><a href="../../kotlinx.serialization.cbor/-cbor-decoding-exception/index.html">CborDecodingException</a></h4>
-</td>
-<td>
-<code><span class="keyword">class </span><span class="identifier">CborDecodingException</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">SerializationException</span></a></code></td>
-</tr>
-<tr>
-<td>
-(common, jvm, native) 
-<h4><a href="../../kotlinx.serialization.protobuf/-protobuf-decoding-exception/index.html">ProtobufDecodingException</a></h4>
-</td>
-<td>
-<code><span class="keyword">class </span><span class="identifier">ProtobufDecodingException</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">SerializationException</span></a></code></td>
 </tr>
 </tbody>
 </table>

@@ -12,7 +12,8 @@
 (common, jvm, native) <code><span class="identifier">@Target</span><span class="symbol">(</span>[AnnotationTarget.CLASS]<span class="symbol">)</span> <span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">Serializer</span></code>
 <p>Instructs the serialization plugin to turn this class into serializer for specified class <a href="for-class.html#kotlinx.serialization.Serializer$forClass">forClass</a>.
 However, it would not be used automatically. To apply it on particular class or property,
-use <a href="../-serializable/index.html#kotlinx.serialization.Serializable">Serializable</a> or <a href="../-use-serializers/index.html#kotlinx.serialization.UseSerializers">UseSerializers</a>, or <a href="../-contextual-serialization/index.html#kotlinx.serialization.ContextualSerialization">ContextualSerialization</a> with runtime registration.</p>
+use <a href="../-serializable/index.html#kotlinx.serialization.Serializable">Serializable</a> or <a href="../-use-serializers/index.html#kotlinx.serialization.UseSerializers">UseSerializers</a>, or <a href="../-contextual/index.html#kotlinx.serialization.Contextual">Contextual</a> with runtime registration.</p>
+<p><strong>Experimental API</strong>: This annotation is experimental. Details of its behavior will change in future releases.</p>
 <h3>Constructors</h3>
 <table>
 <tbody>
@@ -24,7 +25,7 @@ use <a href="../-serializable/index.html#kotlinx.serialization.Serializable">Ser
 <td>
 <p>Instructs the serialization plugin to turn this class into serializer for specified class <a href="for-class.html#kotlinx.serialization.Serializer$forClass">forClass</a>.
 However, it would not be used automatically. To apply it on particular class or property,
-use <a href="../-serializable/index.html#kotlinx.serialization.Serializable">Serializable</a> or <a href="../-use-serializers/index.html#kotlinx.serialization.UseSerializers">UseSerializers</a>, or <a href="../-contextual-serialization/index.html#kotlinx.serialization.ContextualSerialization">ContextualSerialization</a> with runtime registration.</p>
+use <a href="../-serializable/index.html#kotlinx.serialization.Serializable">Serializable</a> or <a href="../-use-serializers/index.html#kotlinx.serialization.UseSerializers">UseSerializers</a>, or <a href="../-contextual/index.html#kotlinx.serialization.Contextual">Contextual</a> with runtime registration.</p>
 <code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.Serializer$<init>(kotlin.reflect.KClass((kotlin.Any)))/forClass">forClass</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html"><span class="identifier">KClass</span></a><span class="symbol">&lt;</span><span class="identifier">*</span><span class="symbol">&gt;</span><span class="symbol">)</span></code></td>
 </tr>
 </tbody>

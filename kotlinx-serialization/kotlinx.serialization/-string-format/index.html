@@ -44,11 +44,10 @@
 </td>
 <td>
 <p>The main entry point to work with JSON serialization.
-It is typically used by constructing an application-specific instance, with configured json-specific behaviour
-(<a href="#">configuration</a> constructor parameter) and, if necessary, registered
-custom serializers (in <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> provided by <a href="#">serializersModule</a> constructor parameter).
-Then constructed instance can be used either as regular <a href="../-serial-format/index.html#kotlinx.serialization.SerialFormat">SerialFormat</a> or <a href="index.html#kotlinx.serialization.StringFormat">StringFormat</a>
-or for converting objects to <a href="../../kotlinx.serialization.json/-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> back and forth.</p>
+It is typically used by constructing an application-specific instance, with configured JSON-specific behaviour
+and, if necessary, registered in <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> custom serializers.
+<code>Json</code> instance can be configured in its <code>Json {}</code> factory function using <a href="../../kotlinx.serialization.json/-json-builder/index.html#kotlinx.serialization.json.JsonBuilder">JsonBuilder</a>.
+For demonstration purposes or trivial usages, Json <a href="../../kotlinx.serialization.json/-json/-default.html#kotlinx.serialization.json.Json.Default">companion</a> can be used instead.</p>
 <code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">Json</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">StringFormat</span></a></code></td>
 </tr>
 </tbody>

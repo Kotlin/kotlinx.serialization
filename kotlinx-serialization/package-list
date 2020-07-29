@@ -15,7 +15,9 @@ $dokka.location:kotlinx.serialization.builtins$serializer(kotlin.Unit)kotlinx.s
 kotlinx.serialization
 kotlinx.serialization.builtins
 kotlinx.serialization.cbor
+kotlinx.serialization.descriptors
 kotlinx.serialization.encoding
 kotlinx.serialization.json
 kotlinx.serialization.modules
+kotlinx.serialization.properties
 kotlinx.serialization.protobuf

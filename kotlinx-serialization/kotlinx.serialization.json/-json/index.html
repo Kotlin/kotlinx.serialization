@@ -11,20 +11,21 @@
 <a name="kotlinx.serialization.json.Json"></a>
 (common, jvm, native) <code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">Json</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-string-format/index.html"><span class="identifier">StringFormat</span></a></code>
 <p>The main entry point to work with JSON serialization.
-It is typically used by constructing an application-specific instance, with configured json-specific behaviour
-(<a href="#">configuration</a> constructor parameter) and, if necessary, registered
-custom serializers (in <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> provided by <a href="#">serializersModule</a> constructor parameter).
-Then constructed instance can be used either as regular <a href="../../kotlinx.serialization/-serial-format/index.html#kotlinx.serialization.SerialFormat">SerialFormat</a> or <a href="../../kotlinx.serialization/-string-format/index.html#kotlinx.serialization.StringFormat">StringFormat</a>
+It is typically used by constructing an application-specific instance, with configured JSON-specific behaviour
+and, if necessary, registered in <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> custom serializers.
+<code>Json</code> instance can be configured in its <code>Json {}</code> factory function using <a href="../-json-builder/index.html#kotlinx.serialization.json.JsonBuilder">JsonBuilder</a>.
+For demonstration purposes or trivial usages, Json <a href="-default.html#kotlinx.serialization.json.Json.Default">companion</a> can be used instead.</p>
+<p>Then constructed instance can be used either as regular <a href="../../kotlinx.serialization/-serial-format/index.html#kotlinx.serialization.SerialFormat">SerialFormat</a> or <a href="../../kotlinx.serialization/-string-format/index.html#kotlinx.serialization.StringFormat">StringFormat</a>
 or for converting objects to <a href="../-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> back and forth.</p>
-<p>This is the only serial format which has first-class <a href="../-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> support.
+<p>This is the only serial format which has the first-class <a href="../-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> support.
 Any serializable class can be serialized to or from <a href="../-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> with <a href="decode-from-json-element.html#kotlinx.serialization.json.Json$decodeFromJsonElement(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.json.Json.decodeFromJsonElement.T)), kotlinx.serialization.json.JsonElement)">Json.decodeFromJsonElement</a> and <a href="encode-to-json-element.html#kotlinx.serialization.json.Json$encodeToJsonElement(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.json.Json.encodeToJsonElement.T)), kotlinx.serialization.json.Json.encodeToJsonElement.T)">Json.encodeToJsonElement</a> respectively or
 serialize properties of <a href="../-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> type.</p>
 <p>Example of usage:</p>
 <pre><code>@Serializable
 class DataHolder(val id: Int, val data: String, val extensions: JsonElement)
 
-val json = Json(JsonConfiguration.Default)
-val instance = DataHolder(42, "some data", json { "additional key" to "value" })
+val json = Json
+val instance = DataHolder(42, "some data", buildJsonObject { put("additional key", "value") }
 
 // Plain StringFormat usage
 val stringOutput: String = json.encodeToString(instance)
@@ -38,7 +39,7 @@ val deserialized: DataHolder = json.decodeFromString&lt;DataHolder&gt;(stringOut
 // Deserialize from json tree, JSON-specific
 val deserializedFromTree: DataHolder = json.decodeFromJsonElement&lt;DataHolder&gt;(jsonTree)
 
- // Deserialize from string to JSON tree, Json-specific
+ // Deserialize from string to JSON tree, JSON-specific
  val deserializedToTree: JsonElement = json.parseJsonElement(stringOutput)
 </code></pre>
 <h3>Types</h3>
@@ -47,11 +48,25 @@ val deserializedFromTree: DataHolder = json.decodeFromJsonElement&lt;DataHolder&
 <tr>
 <td>
 (common, jvm, native) 
-<h4><a href="-default/index.html">Default</a></h4>
+<h4><a href="-default.html">Default</a></h4>
 </td>
 <td>
 <p>The default instance of <a href="index.html#kotlinx.serialization.json.Json">Json</a> with default configuration.</p>
 <code><span class="keyword">companion</span> <span class="keyword">object </span><span class="identifier">Default</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">Json</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="serializers-module.html">serializersModule</a></h4>
+</td>
+<td>
+<p>Contains all serializers registered by format user for <a href="../../kotlinx.serialization/-contextual/index.html#kotlinx.serialization.Contextual">Contextual</a> and <a href="../../kotlinx.serialization/-polymorphic/index.html#kotlinx.serialization.Polymorphic">Polymorphic</a> serialization.</p>
+<code><span class="keyword">open</span> <span class="keyword">val </span><span class="identifier">serializersModule</span><span class="symbol">: </span><a href="../../kotlinx.serialization.modules/-serializers-module/index.html"><span class="identifier">SerializersModule</span></a></code></td>
 </tr>
 </tbody>
 </table>
@@ -105,27 +120,13 @@ val deserializedFromTree: DataHolder = json.decodeFromJsonElement&lt;DataHolder&
 </tr>
 </tbody>
 </table>
-<h3>Companion Object Properties</h3>
-<table>
-<tbody>
-<tr>
-<td>
-(common, jvm, native) 
-<h4><a href="serializers-module.html">serializersModule</a></h4>
-</td>
-<td>
-<p>Contains all serializers registered by format user for <a href="../../kotlinx.serialization/-contextual-serialization/index.html#kotlinx.serialization.ContextualSerialization">ContextualSerialization</a> and <a href="../../kotlinx.serialization/-polymorphic/index.html#kotlinx.serialization.Polymorphic">Polymorphic</a> serialization.</p>
-<code><span class="keyword">val </span><span class="identifier">serializersModule</span><span class="symbol">: </span><a href="../../kotlinx.serialization.modules/-serializers-module/index.html"><span class="identifier">SerializersModule</span></a></code></td>
-</tr>
-</tbody>
-</table>
 <h3>Inheritors</h3>
 <table>
 <tbody>
 <tr>
 <td>
 (common, jvm, native) 
-<h4><a href="-default/index.html">Default</a></h4>
+<h4><a href="-default.html">Default</a></h4>
 </td>
 <td>
 <p>The default instance of <a href="index.html#kotlinx.serialization.json.Json">Json</a> with default configuration.</p>

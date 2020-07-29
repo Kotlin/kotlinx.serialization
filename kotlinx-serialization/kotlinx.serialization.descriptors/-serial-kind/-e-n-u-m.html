@@ -1,0 +1,20 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.descriptors.SerialKind.ENUM - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.descriptors</a>&nbsp;/&nbsp;<a href="index.html">SerialKind</a>&nbsp;/&nbsp;<a href="./-e-n-u-m.html">ENUM</a><br/>
+<br/>
+<h1>ENUM</h1>
+<a name="kotlinx.serialization.descriptors.SerialKind.ENUM"></a>
+(common, jvm, native) <code><span class="keyword">object </span><span class="identifier">ENUM</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="index.html"><span class="identifier">SerialKind</span></a></code>
+<p>Represents a Kotlin <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a> with statically known values.
+All enum values should be enumerated in descriptor elements.
+Each element descriptor of a <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a> kind represents an instance of a particular enum
+and has an <a href="../-structure-kind/-o-b-j-e-c-t.html#kotlinx.serialization.descriptors.StructureKind.OBJECT">StructureKind.OBJECT</a> kind.
+Each <a href="../-serial-descriptor/get-element-name.html#kotlinx.serialization.descriptors.SerialDescriptor$getElementName(kotlin.Int)">positional name</a> contains a corresponding enum element <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/name.html">name</a>.</p>
+<p>Corresponding encoder and decoder methods are <a href="#">Encoder.encodeEnum</a> and <a href="#">Decoder.decodeEnum</a>.</p>
+</BODY>
+</HTML>

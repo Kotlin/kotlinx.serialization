@@ -1,0 +1,238 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.descriptors.PrimitiveKind - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.descriptors</a>&nbsp;/&nbsp;<a href="./index.html">PrimitiveKind</a><br/>
+<br/>
+<h1>PrimitiveKind</h1>
+<a name="kotlinx.serialization.descriptors.PrimitiveKind"></a>
+(common, jvm, native) <code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">PrimitiveKind</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../-serial-kind/index.html"><span class="identifier">SerialKind</span></a></code>
+<p>Values of primitive kinds usually are represented as a single value.
+All default serializers for Kotlin <a href="https://kotlinlang.org/docs/tutorials/kotlin-for-py/primitive-data-types-and-their-limitations.html">primitives types</a>
+and <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> have primitive kind.</p>
+<h3>Serializers interaction</h3>
+<p>Serialization formats typically handle these kinds by calling a corresponding primitive method on encoder or decoder.
+For example, if the following serializable class <code>class Color(val red: Byte, val green: Byte, val blue: Byte)</code> is represented by your serializer
+as a single <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a> value, a typical serializer will serialize its value in the following manner:</p>
+<pre><code>val intValue = color.rgbToInt()
+encoder.encodeInt(intValue)
+</code></pre>
+<p>and a corresponding <a href="#">Decoder</a> counterpart.</p>
+<h3>Implementation note</h3>
+<p>Serial descriptors for primitive kinds are not expected to have any nested elements, thus its element count should be zero.
+If a class is represented as a primitive value, its corresponding serial name <em>should not</em> be equal to the corresponding primitive type name.
+For the <code>Color</code> example, represented as single <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, its descriptor should have <a href="-i-n-t.html#kotlinx.serialization.descriptors.PrimitiveKind.INT">INT</a> kind, zero elements and serial name <strong>not equals</strong>
+to <code>kotlin.Int</code>: <code>PrimitiveDescriptor("my.package.ColorAsInt", PrimitiveKind.INT)</code></p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-b-o-o-l-e-a-n.html">BOOLEAN</a></h4>
+</td>
+<td>
+<p>Primitive kind that represents a boolean <code>true</code>/<code>false</code> value.
+Corresponding Kotlin primitive is <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a>.
+Corresponding encoder and decoder methods are <a href="#">Encoder.encodeBoolean</a> and <a href="#">Decoder.decodeBoolean</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">BOOLEAN</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PrimitiveKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-b-y-t-e.html">BYTE</a></h4>
+</td>
+<td>
+<p>Primitive kind that represents a single byte value.
+Corresponding Kotlin primitive is <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte/index.html">Byte</a>.
+Corresponding encoder and decoder methods are <a href="#">Encoder.encodeByte</a> and <a href="#">Decoder.decodeByte</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">BYTE</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PrimitiveKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-c-h-a-r.html">CHAR</a></h4>
+</td>
+<td>
+<p>Primitive kind that represents a 16-bit unicode character value.
+Corresponding Kotlin primitive is <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-char/index.html">Char</a>.
+Corresponding encoder and decoder methods are <a href="#">Encoder.encodeChar</a> and <a href="#">Decoder.decodeChar</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">CHAR</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PrimitiveKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-d-o-u-b-l-e.html">DOUBLE</a></h4>
+</td>
+<td>
+<p>Primitive kind that represents a 64-bit IEEE 754 floating point value.
+Corresponding Kotlin primitive is <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double/index.html">Double</a>.
+Corresponding encoder and decoder methods are <a href="#">Encoder.encodeDouble</a> and <a href="#">Decoder.decodeDouble</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">DOUBLE</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PrimitiveKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-f-l-o-a-t.html">FLOAT</a></h4>
+</td>
+<td>
+<p>Primitive kind that represents a 32-bit IEEE 754 floating point value.
+Corresponding Kotlin primitive is <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>.
+Corresponding encoder and decoder methods are <a href="#">Encoder.encodeFloat</a> and <a href="#">Decoder.decodeFloat</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">FLOAT</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PrimitiveKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-i-n-t.html">INT</a></h4>
+</td>
+<td>
+<p>Primitive kind that represents a 32-bit int value.
+Corresponding Kotlin primitive is <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>.
+Corresponding encoder and decoder methods are <a href="#">Encoder.encodeInt</a> and <a href="#">Decoder.decodeInt</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">INT</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PrimitiveKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-l-o-n-g.html">LONG</a></h4>
+</td>
+<td>
+<p>Primitive kind that represents a 64-bit long value.
+Corresponding Kotlin primitive is <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html">Long</a>.
+Corresponding encoder and decoder methods are <a href="#">Encoder.encodeLong</a> and <a href="#">Decoder.decodeLong</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">LONG</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PrimitiveKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-s-h-o-r-t.html">SHORT</a></h4>
+</td>
+<td>
+<p>Primitive kind that represents a 16-bit short value.
+Corresponding Kotlin primitive is <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-short/index.html">Short</a>.
+Corresponding encoder and decoder methods are <a href="#">Encoder.encodeShort</a> and <a href="#">Decoder.decodeShort</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">SHORT</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PrimitiveKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-s-t-r-i-n-g.html">STRING</a></h4>
+</td>
+<td>
+<p>Primitive kind that represents a string value.
+Corresponding Kotlin primitive is <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>.
+Corresponding encoder and decoder methods are <a href="#">Encoder.encodeString</a> and <a href="#">Decoder.decodeString</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">STRING</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PrimitiveKind</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-b-o-o-l-e-a-n.html">BOOLEAN</a></h4>
+</td>
+<td>
+<p>Primitive kind that represents a boolean <code>true</code>/<code>false</code> value.
+Corresponding Kotlin primitive is <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a>.
+Corresponding encoder and decoder methods are <a href="#">Encoder.encodeBoolean</a> and <a href="#">Decoder.decodeBoolean</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">BOOLEAN</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PrimitiveKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-b-y-t-e.html">BYTE</a></h4>
+</td>
+<td>
+<p>Primitive kind that represents a single byte value.
+Corresponding Kotlin primitive is <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte/index.html">Byte</a>.
+Corresponding encoder and decoder methods are <a href="#">Encoder.encodeByte</a> and <a href="#">Decoder.decodeByte</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">BYTE</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PrimitiveKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-c-h-a-r.html">CHAR</a></h4>
+</td>
+<td>
+<p>Primitive kind that represents a 16-bit unicode character value.
+Corresponding Kotlin primitive is <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-char/index.html">Char</a>.
+Corresponding encoder and decoder methods are <a href="#">Encoder.encodeChar</a> and <a href="#">Decoder.decodeChar</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">CHAR</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PrimitiveKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-d-o-u-b-l-e.html">DOUBLE</a></h4>
+</td>
+<td>
+<p>Primitive kind that represents a 64-bit IEEE 754 floating point value.
+Corresponding Kotlin primitive is <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double/index.html">Double</a>.
+Corresponding encoder and decoder methods are <a href="#">Encoder.encodeDouble</a> and <a href="#">Decoder.decodeDouble</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">DOUBLE</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PrimitiveKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-f-l-o-a-t.html">FLOAT</a></h4>
+</td>
+<td>
+<p>Primitive kind that represents a 32-bit IEEE 754 floating point value.
+Corresponding Kotlin primitive is <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>.
+Corresponding encoder and decoder methods are <a href="#">Encoder.encodeFloat</a> and <a href="#">Decoder.decodeFloat</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">FLOAT</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PrimitiveKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-i-n-t.html">INT</a></h4>
+</td>
+<td>
+<p>Primitive kind that represents a 32-bit int value.
+Corresponding Kotlin primitive is <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>.
+Corresponding encoder and decoder methods are <a href="#">Encoder.encodeInt</a> and <a href="#">Decoder.decodeInt</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">INT</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PrimitiveKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-l-o-n-g.html">LONG</a></h4>
+</td>
+<td>
+<p>Primitive kind that represents a 64-bit long value.
+Corresponding Kotlin primitive is <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html">Long</a>.
+Corresponding encoder and decoder methods are <a href="#">Encoder.encodeLong</a> and <a href="#">Decoder.decodeLong</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">LONG</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PrimitiveKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-s-h-o-r-t.html">SHORT</a></h4>
+</td>
+<td>
+<p>Primitive kind that represents a 16-bit short value.
+Corresponding Kotlin primitive is <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-short/index.html">Short</a>.
+Corresponding encoder and decoder methods are <a href="#">Encoder.encodeShort</a> and <a href="#">Decoder.decodeShort</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">SHORT</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PrimitiveKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-s-t-r-i-n-g.html">STRING</a></h4>
+</td>
+<td>
+<p>Primitive kind that represents a string value.
+Corresponding Kotlin primitive is <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>.
+Corresponding encoder and decoder methods are <a href="#">Encoder.encodeString</a> and <a href="#">Decoder.decodeString</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">STRING</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PrimitiveKind</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

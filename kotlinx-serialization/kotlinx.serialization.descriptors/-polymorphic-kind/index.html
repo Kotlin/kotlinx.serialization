@@ -1,0 +1,69 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.descriptors.PolymorphicKind - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.descriptors</a>&nbsp;/&nbsp;<a href="./index.html">PolymorphicKind</a><br/>
+<br/>
+<h1>PolymorphicKind</h1>
+<a name="kotlinx.serialization.descriptors.PolymorphicKind"></a>
+(common, jvm, native) <code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">PolymorphicKind</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../-serial-kind/index.html"><span class="identifier">SerialKind</span></a></code>
+<p>Polymorphic kind represents a (bounded) polymorphic value, that is referred
+by some base class or interface, but its structure is defined by one of the possible implementations.
+Polymorphic kind is, by its definition, a union kind and is extracted to its own subtype to emphasize
+bounded and sealed polymorphism common property: not knowing the actual type statically and requiring
+formats to additionally encode it.</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-o-p-e-n.html">OPEN</a></h4>
+</td>
+<td>
+<p>Open polymorphic kind represents statically unknown type that is hidden behind a given base class or interface.
+<a href="#">PolymorphicSerializer</a> can be used as an example of polymorphic serialization.</p>
+<code><span class="keyword">object </span><span class="identifier">OPEN</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PolymorphicKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-s-e-a-l-e-d.html">SEALED</a></h4>
+</td>
+<td>
+<p>Sealed kind represents Kotlin sealed classes, where all subclasses are known statically at the moment of declaration.
+<a href="#">SealedClassSerializer</a> can be used as an example of sealed serialization.</p>
+<code><span class="keyword">object </span><span class="identifier">SEALED</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PolymorphicKind</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-o-p-e-n.html">OPEN</a></h4>
+</td>
+<td>
+<p>Open polymorphic kind represents statically unknown type that is hidden behind a given base class or interface.
+<a href="#">PolymorphicSerializer</a> can be used as an example of polymorphic serialization.</p>
+<code><span class="keyword">object </span><span class="identifier">OPEN</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PolymorphicKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-s-e-a-l-e-d.html">SEALED</a></h4>
+</td>
+<td>
+<p>Sealed kind represents Kotlin sealed classes, where all subclasses are known statically at the moment of declaration.
+<a href="#">SealedClassSerializer</a> can be used as an example of sealed serialization.</p>
+<code><span class="keyword">object </span><span class="identifier">SEALED</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">PolymorphicKind</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

@@ -1,0 +1,18 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.encoding.CompositeDecoder.decodeCollectionSize - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.encoding</a>&nbsp;/&nbsp;<a href="index.html">CompositeDecoder</a>&nbsp;/&nbsp;<a href="./decode-collection-size.html">decodeCollectionSize</a><br/>
+<br/>
+<h1>decodeCollectionSize</h1>
+<a name="kotlinx.serialization.encoding.CompositeDecoder$decodeCollectionSize(kotlinx.serialization.descriptors.SerialDescriptor)"></a>
+(common, jvm, native) <code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">decodeCollectionSize</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.encoding.CompositeDecoder$decodeCollectionSize(kotlinx.serialization.descriptors.SerialDescriptor)/descriptor">descriptor</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a></code>
+<p>Method to decode collection size that may be called before the collection decoding.
+Collection type includes <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-collection/index.html">Collection</a>, <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a> and <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html">Array</a> (including primitive arrays).
+Method can return <code>-1</code> if the size is not known in advance, though for <a href="decode-sequentially.html#kotlinx.serialization.encoding.CompositeDecoder$decodeSequentially()">sequential decoding</a>
+knowing precise size is a mandatory requirement.</p>
+</BODY>
+</HTML>

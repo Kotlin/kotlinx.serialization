@@ -1,0 +1,20 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.descriptors.SerialDescriptor.kind - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.descriptors</a>&nbsp;/&nbsp;<a href="index.html">SerialDescriptor</a>&nbsp;/&nbsp;<a href="./kind.html">kind</a><br/>
+<br/>
+<h1>kind</h1>
+<a name="kotlinx.serialization.descriptors.SerialDescriptor$kind"></a>
+(common, jvm, native) <code><span class="keyword">abstract</span> <span class="keyword">val </span><span class="identifier">kind</span><span class="symbol">: </span><a href="../-serial-kind/index.html"><span class="identifier">SerialKind</span></a></code>
+<p>The kind of the serialized form that determines <strong>the shape</strong> of the serialized data.
+Formats use serial kind to add and parse serializer-agnostic metadata to the result.</p>
+<p>For example, JSON format wraps <a href="../-structure-kind/-c-l-a-s-s.html#kotlinx.serialization.descriptors.StructureKind.CLASS">classes</a> and <a href="../-structure-kind/-m-a-p.html#kotlinx.serialization.descriptors.StructureKind.MAP">StructureKind.MAP</a> into
+brackets, while ProtoBuf just serialize these types in separate ways.</p>
+<p>Kind should be consistent with the implementation, for example, if it is a <a href="../-primitive-kind/index.html#kotlinx.serialization.descriptors.PrimitiveKind">primitive</a>,
+then its elements count should be zero and vice versa.</p>
+</BODY>
+</HTML>

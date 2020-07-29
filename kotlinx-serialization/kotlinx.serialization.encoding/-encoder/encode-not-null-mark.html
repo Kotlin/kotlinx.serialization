@@ -1,0 +1,27 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.encoding.Encoder.encodeNotNullMark - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.encoding</a>&nbsp;/&nbsp;<a href="index.html">Encoder</a>&nbsp;/&nbsp;<a href="./encode-not-null-mark.html">encodeNotNullMark</a><br/>
+<br/>
+<h1>encodeNotNullMark</h1>
+<a name="kotlinx.serialization.encoding.Encoder$encodeNotNullMark()"></a>
+(common, jvm, native) <code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">encodeNotNullMark</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Notifies the encoder that value of a nullable type that is
+being serialized is not null. It should be called before writing a non-null value
+of nullable type:</p>
+<pre><code>// Could be String? serialize method
+if (value != null) {
+    encoder.encodeNotNullMark()
+    encoder.encodeStringValue(value)
+} else {
+    encoder.encodeNull()
+}
+</code></pre>
+<p>This method has a use in highly-performant binary formats and can
+be safely ignore by most of the regular formats.</p>
+</BODY>
+</HTML>

@@ -12,10 +12,10 @@
 (common, jvm, native) <code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">decodeJsonElement</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../-json-element.html"><span class="identifier">JsonElement</span></a></code>
 <p>Decodes the next element in the current input as <a href="../-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a>.
 The type of the decoded element depends on the current state of the input and, when received
-by <a href="../../kotlinx.serialization/-k-serializer/index.html#kotlinx.serialization.KSerializer">serializer</a> in its <a href="../../kotlinx.serialization/-serialization-strategy/serialize.html#kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.Encoder, kotlinx.serialization.SerializationStrategy.T)">KSerializer.serialize</a> method, the type of the token directly matches
-the <a href="../../kotlinx.serialization/-serial-descriptor/kind.html#kotlinx.serialization.SerialDescriptor$kind">kind</a>.</p>
+by <a href="../../kotlinx.serialization/-k-serializer/index.html#kotlinx.serialization.KSerializer">serializer</a> in its <a href="../../kotlinx.serialization/-serialization-strategy/serialize.html#kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.encoding.Encoder, kotlinx.serialization.SerializationStrategy.T)">KSerializer.serialize</a> method, the type of the token directly matches
+the <a href="#">kind</a>.</p>
 <p>This method is allowed to invoke only as the part of the whole deserialization process of the class,
-calling this method after invoking <a href="../../kotlinx.serialization/-decoder/begin-structure.html#kotlinx.serialization.Decoder$beginStructure(kotlinx.serialization.SerialDescriptor)">beginStructure</a> or any <code>decode*</code> method will lead to unspecified behaviour.
+calling this method after invoking <a href="../../kotlinx.serialization.encoding/-decoder/begin-structure.html#kotlinx.serialization.encoding.Decoder$beginStructure(kotlinx.serialization.descriptors.SerialDescriptor)">beginStructure</a> or any <code>decode*</code> method will lead to unspecified behaviour.
 For example:</p>
 <pre><code>class Holder(val value: Int, val list: List&lt;Int&gt;())
 

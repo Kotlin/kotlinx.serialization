@@ -15,7 +15,7 @@ that can interact with <a href="../-k-serializer/index.html#kotlinx.serializatio
 It does not impose any restrictions on a serialized form or underlying storage, neither it exposes them.</p>
 <p>Concrete data types and API for user-interaction are responsibility of a concrete subclass or subinterface,
 for example <a href="../-string-format/index.html#kotlinx.serialization.StringFormat">StringFormat</a>, <a href="../-binary-format/index.html#kotlinx.serialization.BinaryFormat">BinaryFormat</a> or <a href="../../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a>.</p>
-<p>Typically, formats have their specific <a href="../-encoder/index.html#kotlinx.serialization.Encoder">Encoder</a> and <a href="../-decoder/index.html#kotlinx.serialization.Decoder">Decoder</a> implementations
+<p>Typically, formats have their specific <a href="../../kotlinx.serialization.encoding/-encoder/index.html#kotlinx.serialization.encoding.Encoder">Encoder</a> and <a href="../../kotlinx.serialization.encoding/-decoder/index.html#kotlinx.serialization.encoding.Decoder">Decoder</a> implementations
 as private classes and do not expose them.</p>
 <h3>Properties</h3>
 <table>
@@ -26,7 +26,7 @@ as private classes and do not expose them.</p>
 <h4><a href="serializers-module.html">serializersModule</a></h4>
 </td>
 <td>
-<p>Contains all serializers registered by format user for <a href="../-contextual-serialization/index.html#kotlinx.serialization.ContextualSerialization">ContextualSerialization</a> and <a href="../-polymorphic/index.html#kotlinx.serialization.Polymorphic">Polymorphic</a> serialization.</p>
+<p>Contains all serializers registered by format user for <a href="../-contextual/index.html#kotlinx.serialization.Contextual">Contextual</a> and <a href="../-polymorphic/index.html#kotlinx.serialization.Polymorphic">Polymorphic</a> serialization.</p>
 <code><span class="keyword">abstract</span> <span class="keyword">val </span><span class="identifier">serializersModule</span><span class="symbol">: </span><a href="../../kotlinx.serialization.modules/-serializers-module/index.html"><span class="identifier">SerializersModule</span></a></code></td>
 </tr>
 </tbody>
@@ -46,21 +46,12 @@ as private classes and do not expose them.</p>
 <tr>
 <td>
 (common, jvm, native) 
-<h4><a href="../-properties/-default/index.html">Default</a></h4>
+<h4><a href="../../kotlinx.serialization.properties/-properties/index.html">Properties</a></h4>
 </td>
 <td>
-<p>A top-level <a href="index.html#kotlinx.serialization.SerialFormat">SerialFormat</a> instance that mimic an instance of <a href="../-properties/index.html#kotlinx.serialization.Properties">Properties</a> and does not have any <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> installed.</p>
-<code><span class="keyword">companion</span> <span class="keyword">object </span><span class="identifier">Default</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">SerialFormat</span></a></code></td>
-</tr>
-<tr>
-<td>
-(common, jvm, native) 
-<h4><a href="../-properties/index.html">Properties</a></h4>
-</td>
-<td>
-<p>Transforms a <a href="../-serializable/index.html#kotlinx.serialization.Serializable">Serializable</a> class' properties into a single flat <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a> which consists of
-string keys and primitive type values, and vice versa. Located in separated <code>kotlinx-serialization-properties</code> artifact.</p>
-<code><span class="keyword">class </span><span class="identifier">Properties</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">SerialFormat</span></a></code></td>
+<p>Transforms a <a href="../-serializable/index.html#kotlinx.serialization.Serializable">Serializable</a> class' properties into a single flat <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a> consisting of
+string keys and primitive type values, and vice versa.</p>
+<code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">Properties</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">SerialFormat</span></a></code></td>
 </tr>
 <tr>
 <td>

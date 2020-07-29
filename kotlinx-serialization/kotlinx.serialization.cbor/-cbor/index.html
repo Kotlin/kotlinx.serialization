@@ -9,7 +9,7 @@
 <br/>
 <h1>Cbor</h1>
 <a name="kotlinx.serialization.cbor.Cbor"></a>
-(common, jvm, native) <code><span class="keyword">class </span><span class="identifier">Cbor</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-binary-format/index.html"><span class="identifier">BinaryFormat</span></a></code>
+(common, jvm, native) <code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">Cbor</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-binary-format/index.html"><span class="identifier">BinaryFormat</span></a></code>
 <p>Implements <a href="encode-to-byte-array.html#kotlinx.serialization.cbor.Cbor$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.cbor.Cbor.encodeToByteArray.T)), kotlinx.serialization.cbor.Cbor.encodeToByteArray.T)">encoding</a> and <a href="decode-from-byte-array.html#kotlinx.serialization.cbor.Cbor$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.cbor.Cbor.decodeFromByteArray.T)), kotlin.ByteArray)">decoding</a> classes to/from bytes
 using <a href="https://tools.ietf.org/html/rfc7049">CBOR</a> specification.
 It is typically used by constructing an application-specific instance, with configured behaviour, and,
@@ -32,24 +32,8 @@ from corresponding Kotlin objects. However, other 3rd-party parsers (e.g. <code>
 <h4><a href="-default.html">Default</a></h4>
 </td>
 <td>
-<code><span class="keyword">companion</span> <span class="keyword">object </span><span class="identifier">Default</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-binary-format/index.html"><span class="identifier">BinaryFormat</span></a></code></td>
-</tr>
-</tbody>
-</table>
-<h3>Constructors</h3>
-<table>
-<tbody>
-<tr>
-<td>
-(common, jvm, native) 
-<h4><a href="-init-.html">&lt;init&gt;</a></h4>
-</td>
-<td>
-<p>Implements <a href="encode-to-byte-array.html#kotlinx.serialization.cbor.Cbor$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.cbor.Cbor.encodeToByteArray.T)), kotlinx.serialization.cbor.Cbor.encodeToByteArray.T)">encoding</a> and <a href="decode-from-byte-array.html#kotlinx.serialization.cbor.Cbor$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.cbor.Cbor.decodeFromByteArray.T)), kotlin.ByteArray)">decoding</a> classes to/from bytes
-using <a href="https://tools.ietf.org/html/rfc7049">CBOR</a> specification.
-It is typically used by constructing an application-specific instance, with configured behaviour, and,
-if necessary, registered custom serializers (in <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> provided by <a href="serializers-module.html#kotlinx.serialization.cbor.Cbor$serializersModule">serializersModule</a> constructor parameter).</p>
-<code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.cbor.Cbor$<init>(kotlin.Boolean, kotlinx.serialization.modules.SerializersModule)/encodeDefaults">encodeDefaults</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;true<span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.cbor.Cbor$<init>(kotlin.Boolean, kotlinx.serialization.modules.SerializersModule)/serializersModule">serializersModule</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization.modules/-serializers-module/index.html"><span class="identifier">SerializersModule</span></a>&nbsp;<span class="symbol">=</span>&nbsp;EmptySerializersModule<span class="symbol">)</span></code></td>
+<p>The default instance of <a href="index.html#kotlinx.serialization.cbor.Cbor">Cbor</a></p>
+<code><span class="keyword">companion</span> <span class="keyword">object </span><span class="identifier">Default</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">Cbor</span></a></code></td>
 </tr>
 </tbody>
 </table>
@@ -59,20 +43,11 @@ if necessary, registered custom serializers (in <a href="../../kotlinx.serializa
 <tr>
 <td>
 (common, jvm, native) 
-<h4><a href="encode-defaults.html">encodeDefaults</a></h4>
-</td>
-<td>
-<p>specifies whether default values of Kotlin properties are encoded.</p>
-<code><span class="keyword">val </span><span class="identifier">encodeDefaults</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
-</tr>
-<tr>
-<td>
-(common, jvm, native) 
 <h4><a href="serializers-module.html">serializersModule</a></h4>
 </td>
 <td>
-<p>Contains all serializers registered by format user for <a href="../../kotlinx.serialization/-contextual-serialization/index.html#kotlinx.serialization.ContextualSerialization">ContextualSerialization</a> and <a href="../../kotlinx.serialization/-polymorphic/index.html#kotlinx.serialization.Polymorphic">Polymorphic</a> serialization.</p>
-<code><span class="keyword">val </span><span class="identifier">serializersModule</span><span class="symbol">: </span><a href="../../kotlinx.serialization.modules/-serializers-module/index.html"><span class="identifier">SerializersModule</span></a></code></td>
+<p>Contains all serializers registered by format user for <a href="../../kotlinx.serialization/-contextual/index.html#kotlinx.serialization.Contextual">Contextual</a> and <a href="../../kotlinx.serialization/-polymorphic/index.html#kotlinx.serialization.Polymorphic">Polymorphic</a> serialization.</p>
+<code><span class="keyword">open</span> <span class="keyword">val </span><span class="identifier">serializersModule</span><span class="symbol">: </span><a href="../../kotlinx.serialization.modules/-serializers-module/index.html"><span class="identifier">SerializersModule</span></a></code></td>
 </tr>
 </tbody>
 </table>
@@ -86,7 +61,7 @@ if necessary, registered custom serializers (in <a href="../../kotlinx.serializa
 </td>
 <td>
 <p>Decodes and deserializes the given <a href="../../kotlinx.serialization/-binary-format/decode-from-byte-array.html#kotlinx.serialization.BinaryFormat$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.BinaryFormat.decodeFromByteArray.T)), kotlin.ByteArray)/bytes">byte array</a> to to the value of type <a href="../../kotlinx.serialization/-binary-format/decode-from-byte-array.html#T">T</a> using the given <a href="../../kotlinx.serialization/-binary-format/decode-from-byte-array.html#kotlinx.serialization.BinaryFormat$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.BinaryFormat.decodeFromByteArray.T)), kotlin.ByteArray)/deserializer">deserializer</a></p>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">decodeFromByteArray</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.cbor.Cbor$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.cbor.Cbor.decodeFromByteArray.T)), kotlin.ByteArray)/deserializer">deserializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-deserialization-strategy/index.html"><span class="identifier">DeserializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.cbor.Cbor$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.cbor.Cbor.decodeFromByteArray.T)), kotlin.ByteArray)/bytes">bytes</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte-array/index.html"><span class="identifier">ByteArray</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code></td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">decodeFromByteArray</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.cbor.Cbor$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.cbor.Cbor.decodeFromByteArray.T)), kotlin.ByteArray)/deserializer">deserializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-deserialization-strategy/index.html"><span class="identifier">DeserializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.cbor.Cbor$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.cbor.Cbor.decodeFromByteArray.T)), kotlin.ByteArray)/bytes">bytes</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte-array/index.html"><span class="identifier">ByteArray</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code></td>
 </tr>
 <tr>
 <td>
@@ -95,7 +70,21 @@ if necessary, registered custom serializers (in <a href="../../kotlinx.serializa
 </td>
 <td>
 <p>Serializes and encodes the given <a href="../../kotlinx.serialization/-binary-format/encode-to-byte-array.html#kotlinx.serialization.BinaryFormat$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.BinaryFormat.encodeToByteArray.T)), kotlinx.serialization.BinaryFormat.encodeToByteArray.T)/value">value</a> to byte array using the given <a href="../../kotlinx.serialization/-binary-format/encode-to-byte-array.html#kotlinx.serialization.BinaryFormat$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.BinaryFormat.encodeToByteArray.T)), kotlinx.serialization.BinaryFormat.encodeToByteArray.T)/serializer">serializer</a>.</p>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">encodeToByteArray</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.cbor.Cbor$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.cbor.Cbor.encodeToByteArray.T)), kotlinx.serialization.cbor.Cbor.encodeToByteArray.T)/serializer">serializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-serialization-strategy/index.html"><span class="identifier">SerializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.cbor.Cbor$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.cbor.Cbor.encodeToByteArray.T)), kotlinx.serialization.cbor.Cbor.encodeToByteArray.T)/value">value</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte-array/index.html"><span class="identifier">ByteArray</span></a></code></td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">encodeToByteArray</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.cbor.Cbor$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.cbor.Cbor.encodeToByteArray.T)), kotlinx.serialization.cbor.Cbor.encodeToByteArray.T)/serializer">serializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-serialization-strategy/index.html"><span class="identifier">SerializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.cbor.Cbor$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.cbor.Cbor.encodeToByteArray.T)), kotlinx.serialization.cbor.Cbor.encodeToByteArray.T)/value">value</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte-array/index.html"><span class="identifier">ByteArray</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-default.html">Default</a></h4>
+</td>
+<td>
+<p>The default instance of <a href="index.html#kotlinx.serialization.cbor.Cbor">Cbor</a></p>
+<code><span class="keyword">companion</span> <span class="keyword">object </span><span class="identifier">Default</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">Cbor</span></a></code></td>
 </tr>
 </tbody>
 </table>

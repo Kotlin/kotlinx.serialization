@@ -1,0 +1,46 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.UseContextualSerialization - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization</a>&nbsp;/&nbsp;<a href="./index.html">UseContextualSerialization</a><br/>
+<br/>
+<h1>UseContextualSerialization</h1>
+<a name="kotlinx.serialization.UseContextualSerialization"></a>
+(common, jvm, native) <code><span class="identifier">@Target</span><span class="symbol">(</span>[AnnotationTarget.FILE]<span class="symbol">)</span> <span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">UseContextualSerialization</span></code>
+<p>Instructs the plugin to use <a href="../-contextual-serializer/index.html#kotlinx.serialization.ContextualSerializer">ContextSerializer</a> for every type in the current file that is listed in the <a href="for-classes.html#kotlinx.serialization.UseContextualSerialization$forClasses">forClasses</a>.</p>
+<p><strong>See Also</strong><br/>
+<p><a href="../-contextual/index.html#kotlinx.serialization.Contextual">Contextual</a></p>
+<p><a href="../-contextual-serializer/index.html#kotlinx.serialization.ContextualSerializer">ContextSerializer</a></p>
+</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-init-.html">&lt;init&gt;</a></h4>
+</td>
+<td>
+<p>Instructs the plugin to use <a href="../-contextual-serializer/index.html#kotlinx.serialization.ContextualSerializer">ContextSerializer</a> for every type in the current file that is listed in the <a href="for-classes.html#kotlinx.serialization.UseContextualSerialization$forClasses">forClasses</a>.</p>
+<code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="kotlinx.serialization.UseContextualSerialization$<init>(kotlin.Array((kotlin.reflect.KClass((kotlin.Any)))))/forClasses">forClasses</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html"><span class="identifier">KClass</span></a><span class="symbol">&lt;</span><span class="identifier">*</span><span class="symbol">&gt;</span><span class="symbol">)</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="for-classes.html">forClasses</a></h4>
+</td>
+<td>
+<code><span class="keyword">vararg</span> <span class="keyword">val </span><span class="identifier">forClasses</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html"><span class="identifier">Array</span></a><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html"><span class="identifier">KClass</span></a><span class="symbol">&lt;</span><span class="identifier">*</span><span class="symbol">&gt;</span><span class="symbol">&gt;</span></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

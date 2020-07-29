@@ -1,0 +1,104 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.properties.Properties - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.properties</a>&nbsp;/&nbsp;<a href="./index.html">Properties</a><br/>
+<br/>
+<h1>Properties</h1>
+<a name="kotlinx.serialization.properties.Properties"></a>
+(common, jvm, native) <code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">Properties</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-serial-format/index.html"><span class="identifier">SerialFormat</span></a></code>
+<p>Transforms a <a href="../../kotlinx.serialization/-serializable/index.html#kotlinx.serialization.Serializable">Serializable</a> class' properties into a single flat <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a> consisting of
+string keys and primitive type values, and vice versa.</p>
+<p>If the given class has non-primitive property <code>d</code> of arbitrary type <code>D</code>, <code>D</code> values are inserted
+into the same map; keys for such values are prefixed with string <code>d.</code>:</p>
+<pre><code>@Serializable
+class Data(val property1: String)
+
+@Serializable
+class DataHolder(val data: Data, val property2: String)
+
+val map = Properties.store(DataHolder(Data("value1"), "value2"))
+// map contents will be the following:
+// property2 = value2
+// data.property1 = value1
+</code></pre>
+<p>If the given class has a <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a> property <code>l</code>, each value from the list
+would be prefixed with <code>l.N.</code>, where N is an index for a particular value.
+<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a> is treated as a <a href="#">key,value,...</a> list.</p>
+<h3>Parameters</h3>
+<p><a name="serializersModule"></a>
+<code>serializersModule</code> - A <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> which should contain registered serializers
+for <a href="../../kotlinx.serialization/-contextual/index.html#kotlinx.serialization.Contextual">Contextual</a> and <a href="../../kotlinx.serialization/-polymorphic/index.html#kotlinx.serialization.Polymorphic">Polymorphic</a> serialization, if you have any.</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-default.html">Default</a></h4>
+</td>
+<td>
+<p>A <a href="index.html#kotlinx.serialization.properties.Properties">Properties</a> instance that can be used as default and does not have any <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> installed.</p>
+<code><span class="keyword">companion</span> <span class="keyword">object </span><span class="identifier">Default</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">Properties</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="serializers-module.html">serializersModule</a></h4>
+</td>
+<td>
+<p>A <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> which should contain registered serializers
+for <a href="../../kotlinx.serialization/-contextual/index.html#kotlinx.serialization.Contextual">Contextual</a> and <a href="../../kotlinx.serialization/-polymorphic/index.html#kotlinx.serialization.Polymorphic">Polymorphic</a> serialization, if you have any.</p>
+<code><span class="keyword">open</span> <span class="keyword">val </span><span class="identifier">serializersModule</span><span class="symbol">: </span><a href="../../kotlinx.serialization.modules/-serializers-module/index.html"><span class="identifier">SerializersModule</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-from-map.html">decodeFromMap</a></h4>
+</td>
+<td>
+<p>Decodes properties from the given <a href="decode-from-map.html#kotlinx.serialization.properties.Properties$decodeFromMap(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.properties.Properties.decodeFromMap.T)), kotlin.collections.Map((kotlin.String, kotlin.Any)))/map">map</a> to a value of type <a href="decode-from-map.html#T">T</a> using the given <a href="decode-from-map.html#kotlinx.serialization.properties.Properties$decodeFromMap(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.properties.Properties.decodeFromMap.T)), kotlin.collections.Map((kotlin.String, kotlin.Any)))/deserializer">deserializer</a>.
+<a href="decode-from-map.html#T">T</a> may contain properties of nullable types; they will be filled by non-null values from the <a href="decode-from-map.html#kotlinx.serialization.properties.Properties$decodeFromMap(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.properties.Properties.decodeFromMap.T)), kotlin.collections.Map((kotlin.String, kotlin.Any)))/map">map</a>, if present.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">decodeFromMap</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.properties.Properties$decodeFromMap(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.properties.Properties.decodeFromMap.T)), kotlin.collections.Map((kotlin.String, kotlin.Any)))/deserializer">deserializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-deserialization-strategy/index.html"><span class="identifier">DeserializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.properties.Properties$decodeFromMap(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.properties.Properties.decodeFromMap.T)), kotlin.collections.Map((kotlin.String, kotlin.Any)))/map">map</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html"><span class="identifier">Map</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">,</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="encode-to-map.html">encodeToMap</a></h4>
+</td>
+<td>
+<p>Encodes properties from the given <a href="encode-to-map.html#kotlinx.serialization.properties.Properties$encodeToMap(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.properties.Properties.encodeToMap.T)), kotlinx.serialization.properties.Properties.encodeToMap.T)/value">value</a> to a map using the given <a href="encode-to-map.html#kotlinx.serialization.properties.Properties$encodeToMap(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.properties.Properties.encodeToMap.T)), kotlinx.serialization.properties.Properties.encodeToMap.T)/serializer">serializer</a>.
+<code>null</code> values are omitted from the output.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">encodeToMap</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.properties.Properties$encodeToMap(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.properties.Properties.encodeToMap.T)), kotlinx.serialization.properties.Properties.encodeToMap.T)/serializer">serializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-serialization-strategy/index.html"><span class="identifier">SerializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.properties.Properties$encodeToMap(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.properties.Properties.encodeToMap.T)), kotlinx.serialization.properties.Properties.encodeToMap.T)/value">value</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html"><span class="identifier">Map</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">,</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-default.html">Default</a></h4>
+</td>
+<td>
+<p>A <a href="index.html#kotlinx.serialization.properties.Properties">Properties</a> instance that can be used as default and does not have any <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> installed.</p>
+<code><span class="keyword">companion</span> <span class="keyword">object </span><span class="identifier">Default</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">Properties</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

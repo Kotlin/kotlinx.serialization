@@ -1,0 +1,17 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.encoding.Decoder.decodeSerializableValue - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.encoding</a>&nbsp;/&nbsp;<a href="index.html">Decoder</a>&nbsp;/&nbsp;<a href="./decode-serializable-value.html">decodeSerializableValue</a><br/>
+<br/>
+<h1>decodeSerializableValue</h1>
+<a name="kotlinx.serialization.encoding.Decoder$decodeSerializableValue(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.encoding.Decoder.decodeSerializableValue.T)))"></a>
+(common, jvm, native) <code><span class="keyword">open</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">decodeSerializableValue</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.encoding.Decoder$decodeSerializableValue(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.encoding.Decoder.decodeSerializableValue.T)))/deserializer">deserializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-deserialization-strategy/index.html"><span class="identifier">DeserializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code>
+<p>Decodes the value of type <a href="decode-serializable-value.html#T">T</a> by delegating the decoding process to the given <a href="decode-serializable-value.html#kotlinx.serialization.encoding.Decoder$decodeSerializableValue(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.encoding.Decoder.decodeSerializableValue.T)))/deserializer">deserializer</a>.
+For example, <code>decodeInt</code> call us equivalent to delegating integer decoding to <a href="#">Int.serializer</a>:
+<code>decodeSerializableValue(IntSerializer)</code></p>
+</BODY>
+</HTML>

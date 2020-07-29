@@ -1,0 +1,144 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.descriptors.StructureKind - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.descriptors</a>&nbsp;/&nbsp;<a href="./index.html">StructureKind</a><br/>
+<br/>
+<h1>StructureKind</h1>
+<a name="kotlinx.serialization.descriptors.StructureKind"></a>
+(common, jvm, native) <code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">StructureKind</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../-serial-kind/index.html"><span class="identifier">SerialKind</span></a></code>
+<p>Structure kind represents values with composite structure of nested elements of depth and arbitrary number.
+We acknowledge following structured kinds:</p>
+<h3>Regular classes</h3>
+<p>The most common case for serialization, that represents an arbitrary structure with fixed count of elements.
+When the regular Kotlin class is marked as <a href="https://docs.oracle.com/javase/6/docs/api/java/io/Serializable.html">Serializable</a>, its descriptor kind will be <a href="-c-l-a-s-s.html#kotlinx.serialization.descriptors.StructureKind.CLASS">CLASS</a>.</p>
+<h3>Lists</h3>
+<p><a href="-l-i-s-t.html#kotlinx.serialization.descriptors.StructureKind.LIST">LIST</a> represent a structure with potentially unknown in advance number of elements of the same type.
+All standard serializable <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a> implementors and arrays are represented as <a href="-l-i-s-t.html#kotlinx.serialization.descriptors.StructureKind.LIST">LIST</a> kind of the same type.</p>
+<h3>Maps</h3>
+<p><a href="-m-a-p.html#kotlinx.serialization.descriptors.StructureKind.MAP">MAP</a> represent a structure with potentially unknown in advance number of key-value pairs of the same type.
+All standard serializable <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a> implementors are represented as <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a> kind of the same type.</p>
+<h3>Kotlin objects</h3>
+<p>A singleton object defined with <code>object</code> keyword with an <a href="-o-b-j-e-c-t.html#kotlinx.serialization.descriptors.StructureKind.OBJECT">OBJECT</a> kind.
+By default, objects are serialized as empty structures without any states and their identity is preserved
+across serialization within the same process, so you always have the same instance of the object.</p>
+<h3>Serializers interaction</h3>
+<p>Serialization formats typically handle these kinds by marking structure start and end.
+E.g. the following serializable class <code>class IntHolder(myValue: Int)</code> of structure kind <a href="-c-l-a-s-s.html#kotlinx.serialization.descriptors.StructureKind.CLASS">CLASS</a> is handled by
+serializer as the following call sequence:</p>
+<pre><code>val composite = encoder.beginStructure(descriptor) // Denotes the start of the structure
+composite.encodeIntElement(descriptor, index = 0, holder.myValue)
+composite.endStructure(descriptor) // Denotes the end of the structure
+</code></pre>
+<p>and its corresponding <a href="#">Decoder</a> counterpart.</p>
+<h3>Serial descriptor implementors note</h3>
+<p>These kinds can be used not only for collection and regular classes.
+For example, provided serializer for <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/-entry/index.html">Map.Entry</a> represents it as <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a> type, so it is serialized
+as <code>{"actualKey": "actualValue"}</code> map directly instead of <code>{"key": "actualKey", "value": "actualValue"}</code></p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-c-l-a-s-s.html">CLASS</a></h4>
+</td>
+<td>
+<p>Structure kind for regular classes with an arbitrary, but known statically, structure.
+Serializers typically encode classes with calls to <a href="#">Encoder.beginStructure</a> and <a href="#">CompositeEncoder.endStructure</a>,
+writing the elements of the class between these calls.</p>
+<code><span class="keyword">object </span><span class="identifier">CLASS</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">StructureKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-l-i-s-t.html">LIST</a></h4>
+</td>
+<td>
+<p>Structure kind for lists and arrays of an arbitrary length.
+Serializers typically encode classes with calls to <a href="#">Encoder.beginCollection</a> and <a href="#">CompositeEncoder.endStructure</a>,
+writing the elements of the list between these calls.
+Built-in list serializers treat elements as homogeneous, though application-specific serializers may impose
+application-specific restrictions on specific <a href="-l-i-s-t.html#kotlinx.serialization.descriptors.StructureKind.LIST">LIST</a> types.</p>
+<code><span class="keyword">object </span><span class="identifier">LIST</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">StructureKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-m-a-p.html">MAP</a></h4>
+</td>
+<td>
+<p>Structure kind for maps of an arbitrary length.
+Serializers typically encode classes with calls to <a href="#">Encoder.beginCollection</a> and <a href="#">CompositeEncoder.endStructure</a>,
+writing the elements of the map between these calls.</p>
+<code><span class="keyword">object </span><span class="identifier">MAP</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">StructureKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-o-b-j-e-c-t.html">OBJECT</a></h4>
+</td>
+<td>
+<p>Structure kind for singleton objects defined with <code>object</code> keyword.
+By default, objects are serialized as empty structures without any state and their identity is preserved
+across serialization within the same process, so you always have the same instance of the object.</p>
+<code><span class="keyword">object </span><span class="identifier">OBJECT</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">StructureKind</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-c-l-a-s-s.html">CLASS</a></h4>
+</td>
+<td>
+<p>Structure kind for regular classes with an arbitrary, but known statically, structure.
+Serializers typically encode classes with calls to <a href="#">Encoder.beginStructure</a> and <a href="#">CompositeEncoder.endStructure</a>,
+writing the elements of the class between these calls.</p>
+<code><span class="keyword">object </span><span class="identifier">CLASS</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">StructureKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-l-i-s-t.html">LIST</a></h4>
+</td>
+<td>
+<p>Structure kind for lists and arrays of an arbitrary length.
+Serializers typically encode classes with calls to <a href="#">Encoder.beginCollection</a> and <a href="#">CompositeEncoder.endStructure</a>,
+writing the elements of the list between these calls.
+Built-in list serializers treat elements as homogeneous, though application-specific serializers may impose
+application-specific restrictions on specific <a href="-l-i-s-t.html#kotlinx.serialization.descriptors.StructureKind.LIST">LIST</a> types.</p>
+<code><span class="keyword">object </span><span class="identifier">LIST</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">StructureKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-m-a-p.html">MAP</a></h4>
+</td>
+<td>
+<p>Structure kind for maps of an arbitrary length.
+Serializers typically encode classes with calls to <a href="#">Encoder.beginCollection</a> and <a href="#">CompositeEncoder.endStructure</a>,
+writing the elements of the map between these calls.</p>
+<code><span class="keyword">object </span><span class="identifier">MAP</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">StructureKind</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-o-b-j-e-c-t.html">OBJECT</a></h4>
+</td>
+<td>
+<p>Structure kind for singleton objects defined with <code>object</code> keyword.
+By default, objects are serialized as empty structures without any state and their identity is preserved
+across serialization within the same process, so you always have the same instance of the object.</p>
+<code><span class="keyword">object </span><span class="identifier">OBJECT</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">StructureKind</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

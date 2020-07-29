@@ -10,32 +10,31 @@
 <h1>JsonBuilder</h1>
 <a name="kotlinx.serialization.json.JsonBuilder"></a>
 (common, jvm, native) <code><span class="keyword">class </span><span class="identifier">JsonBuilder</span></code>
-<p>Builder to conveniently build Json instances.
-Properties of this builder are directly matched with properties of <a href="../-json-configuration/index.html#kotlinx.serialization.json.JsonConfiguration">JsonConfiguration</a>.</p>
-<h3>Constructors</h3>
-<table>
-<tbody>
-<tr>
-<td>
-(common, jvm, native) 
-<h4><a href="-init-.html">&lt;init&gt;</a></h4>
-</td>
-<td>
-<p>Builder to conveniently build Json instances.
-Properties of this builder are directly matched with properties of <a href="../-json-configuration/index.html#kotlinx.serialization.json.JsonConfiguration">JsonConfiguration</a>.</p>
-<code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="symbol">)</span></code></td>
-</tr>
-</tbody>
-</table>
+<p>Builder of the <a href="../-json/index.html#kotlinx.serialization.json.Json">Json</a> instance provided by <code>Json { ... }</code> factory function.</p>
 <h3>Properties</h3>
 <table>
 <tbody>
 <tr>
 <td>
 (common, jvm, native) 
+<h4><a href="allow-special-floating-point-values.html">allowSpecialFloatingPointValues</a></h4>
+</td>
+<td>
+<p>Removes JSON specification restriction on
+special floating-point values such as <code>NaN</code> and <code>Infinity</code> and enables their serialization.
+When enabling it, please ensure that the receiving party will be able to encode and decode these special values.
+<code>false</code> by default.</p>
+<code><span class="keyword">var </span><span class="identifier">allowSpecialFloatingPointValues</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
 <h4><a href="allow-structured-map-keys.html">allowStructuredMapKeys</a></h4>
 </td>
 <td>
+<p>Enables structured objects to be serialized as map keys by
+changing serialized form of the map from JSON object (key-value pairs) to flat array like <code>[k1, v1, k2, v2]</code>.
+<code>false</code> by default.</p>
 <code><span class="keyword">var </span><span class="identifier">allowStructuredMapKeys</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
 </tr>
 <tr>
@@ -44,6 +43,8 @@ Properties of this builder are directly matched with properties of <a href="../-
 <h4><a href="class-discriminator.html">classDiscriminator</a></h4>
 </td>
 <td>
+<p>Name of the class descriptor property for polymorphic serialization.
+"type" by default.</p>
 <code><span class="keyword">var </span><span class="identifier">classDiscriminator</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
 </tr>
 <tr>
@@ -52,6 +53,7 @@ Properties of this builder are directly matched with properties of <a href="../-
 <h4><a href="coerce-input-values.html">coerceInputValues</a></h4>
 </td>
 <td>
+<p>Enables coercing incorrect JSON values to the default property value in the following cases:</p>
 <code><span class="keyword">var </span><span class="identifier">coerceInputValues</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
 </tr>
 <tr>
@@ -60,6 +62,8 @@ Properties of this builder are directly matched with properties of <a href="../-
 <h4><a href="encode-defaults.html">encodeDefaults</a></h4>
 </td>
 <td>
+<p>Specifies whether default values of Kotlin properties should be encoded.
+<code>true</code> by default.</p>
 <code><span class="keyword">var </span><span class="identifier">encodeDefaults</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
 </tr>
 <tr>
@@ -68,15 +72,10 @@ Properties of this builder are directly matched with properties of <a href="../-
 <h4><a href="ignore-unknown-keys.html">ignoreUnknownKeys</a></h4>
 </td>
 <td>
+<p>Specifies whether encounters of unknown properties in the input JSON
+should be ignored instead of throwing <a href="../../kotlinx.serialization/-serialization-exception/index.html#kotlinx.serialization.SerializationException">SerializationException</a>.
+<code>false</code> by default.</p>
 <code><span class="keyword">var </span><span class="identifier">ignoreUnknownKeys</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
-</tr>
-<tr>
-<td>
-(common, jvm, native) 
-<h4><a href="indent.html">indent</a></h4>
-</td>
-<td>
-<code><span class="keyword">var </span><span class="identifier">indent</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
 </tr>
 <tr>
 <td>
@@ -84,6 +83,10 @@ Properties of this builder are directly matched with properties of <a href="../-
 <h4><a href="is-lenient.html">isLenient</a></h4>
 </td>
 <td>
+<p>Removes JSON specification restriction (RFC-4627) and makes parser
+more liberal to the malformed input. In lenient mode quoted boolean literals,
+and unquoted string literals are allowed.
+<code>false</code> by default.</p>
 <code><span class="keyword">var </span><span class="identifier">isLenient</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
 </tr>
 <tr>
@@ -92,31 +95,28 @@ Properties of this builder are directly matched with properties of <a href="../-
 <h4><a href="pretty-print.html">prettyPrint</a></h4>
 </td>
 <td>
+<p>Specifies whether resulting JSON should be pretty-printed.
+<code>false</code> by default.</p>
 <code><span class="keyword">var </span><span class="identifier">prettyPrint</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
 </tr>
 <tr>
 <td>
 (common, jvm, native) 
-<h4><a href="serialize-special-floating-point-values.html">serializeSpecialFloatingPointValues</a></h4>
+<h4><a href="pretty-print-indent.html">prettyPrintIndent</a></h4>
 </td>
 <td>
-<code><span class="keyword">var </span><span class="identifier">serializeSpecialFloatingPointValues</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
+<p>Specifies indent string to use with <a href="pretty-print.html#kotlinx.serialization.json.JsonBuilder$prettyPrint">prettyPrint</a> mode.
+TODO specify whitespaces</p>
+<code><span class="keyword">var </span><span class="identifier">prettyPrintIndent</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
 </tr>
 <tr>
 <td>
 (common, jvm, native) 
-<h4><a href="serial-module.html">serialModule</a></h4>
+<h4><a href="serializers-module.html">serializersModule</a></h4>
 </td>
 <td>
-<code><span class="keyword">var </span><span class="identifier">serialModule</span><span class="symbol">: </span><a href="../../kotlinx.serialization.modules/-serializers-module/index.html"><span class="identifier">SerializersModule</span></a></code></td>
-</tr>
-<tr>
-<td>
-(common, jvm, native) 
-<h4><a href="unquoted-print.html">unquotedPrint</a></h4>
-</td>
-<td>
-<code><span class="keyword">var </span><span class="identifier">unquotedPrint</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
+<p>Module with contextual and polymorphic serializers to be used in the resulting <a href="../-json/index.html#kotlinx.serialization.json.Json">Json</a> instance.</p>
+<code><span class="keyword">var </span><span class="identifier">serializersModule</span><span class="symbol">: </span><a href="../../kotlinx.serialization.modules/-serializers-module/index.html"><span class="identifier">SerializersModule</span></a></code></td>
 </tr>
 <tr>
 <td>
@@ -124,28 +124,10 @@ Properties of this builder are directly matched with properties of <a href="../-
 <h4><a href="use-array-polymorphism.html">useArrayPolymorphism</a></h4>
 </td>
 <td>
+<p>Switches polymorphic serialization to the default array format.
+This is an option for legacy JSON format and should not be generally used.
+<code>false</code> by default.</p>
 <code><span class="keyword">var </span><span class="identifier">useArrayPolymorphism</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
-</tr>
-</tbody>
-</table>
-<h3>Functions</h3>
-<table>
-<tbody>
-<tr>
-<td>
-(common, jvm, native) 
-<h4><a href="build-configuration.html">buildConfiguration</a></h4>
-</td>
-<td>
-<code><span class="keyword">fun </span><span class="identifier">buildConfiguration</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../-json-configuration/index.html"><span class="identifier">JsonConfiguration</span></a></code></td>
-</tr>
-<tr>
-<td>
-(common, jvm, native) 
-<h4><a href="build-module.html">buildModule</a></h4>
-</td>
-<td>
-<code><span class="keyword">fun </span><span class="identifier">buildModule</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../../kotlinx.serialization.modules/-serializers-module/index.html"><span class="identifier">SerializersModule</span></a></code></td>
 </tr>
 </tbody>
 </table>

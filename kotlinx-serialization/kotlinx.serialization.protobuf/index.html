@@ -22,16 +22,25 @@
 using <a href="https://developers.google.com/protocol-buffers/docs/proto">Proto2</a> specification.
 It is typically used by constructing an application-specific instance, with configured specific behaviour
 and, if necessary, registered custom serializers (in <a href="../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> provided by <a href="-proto-buf/serializers-module.html#kotlinx.serialization.protobuf.ProtoBuf$serializersModule">serializersModule</a> constructor parameter).</p>
-<code><span class="keyword">class </span><span class="identifier">ProtoBuf</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../kotlinx.serialization/-binary-format/index.html"><span class="identifier">BinaryFormat</span></a></code></td>
+<code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">ProtoBuf</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../kotlinx.serialization/-binary-format/index.html"><span class="identifier">BinaryFormat</span></a></code></td>
 </tr>
 <tr>
 <td>
 (common, jvm, native) 
-<h4><a href="-proto-number-type/index.html">ProtoNumberType</a></h4>
+<h4><a href="-proto-buf-builder/index.html">ProtoBufBuilder</a></h4>
+</td>
+<td>
+<p>Builder of the <a href="-proto-buf/index.html#kotlinx.serialization.protobuf.ProtoBuf">ProtoBuf</a> instance provided by <code>ProtoBuf</code> factory function.</p>
+<code><span class="keyword">class </span><span class="identifier">ProtoBufBuilder</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-proto-integer-type/index.html">ProtoIntegerType</a></h4>
 </td>
 <td>
 <p>Represents a number format in protobuf encoding.</p>
-<code><span class="keyword">enum</span> <span class="keyword">class </span><span class="identifier">ProtoNumberType</span></code></td>
+<code><span class="keyword">enum</span> <span class="keyword">class </span><span class="identifier">ProtoIntegerType</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -41,12 +50,12 @@ and, if necessary, registered custom serializers (in <a href="../kotlinx.seriali
 <tr>
 <td>
 (common, jvm, native) 
-<h4><a href="-proto-id/index.html">ProtoId</a></h4>
+<h4><a href="-proto-number/index.html">ProtoNumber</a></h4>
 </td>
 <td>
-<p>Specifies protobuf id (a unique number for a field in the protobuf message)
+<p>Specifies protobuf field number (a unique number for a field in the protobuf message)
 assigned to a Kotlin property.</p>
-<code><span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">ProtoId</span></code></td>
+<code><span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">ProtoNumber</span></code></td>
 </tr>
 <tr>
 <td>
@@ -54,22 +63,24 @@ assigned to a Kotlin property.</p>
 <h4><a href="-proto-type/index.html">ProtoType</a></h4>
 </td>
 <td>
-<p>Instructs to use a particular <a href="-proto-number-type/index.html#kotlinx.serialization.protobuf.ProtoNumberType">ProtoNumberType</a> for a property of integer number type.
+<p>Instructs to use a particular <a href="-proto-integer-type/index.html#kotlinx.serialization.protobuf.ProtoIntegerType">ProtoIntegerType</a> for a property of integer number type.
 Affect <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte/index.html">Byte</a>, <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-short/index.html">Short</a>, <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html">Long</a> and <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-char/index.html">Char</a> properties and does not affect others.</p>
 <code><span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">ProtoType</span></code></td>
 </tr>
 </tbody>
 </table>
-<h3>Exceptions</h3>
+<h3>Functions</h3>
 <table>
 <tbody>
 <tr>
 <td>
 (common, jvm, native) 
-<h4><a href="-protobuf-decoding-exception/index.html">ProtobufDecodingException</a></h4>
+<h4><a href="-proto-buf.html">ProtoBuf</a></h4>
 </td>
 <td>
-<code><span class="keyword">class </span><span class="identifier">ProtobufDecodingException</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../kotlinx.serialization/-serialization-exception/index.html"><span class="identifier">SerializationException</span></a></code></td>
+<p>Creates an instance of <a href="-proto-buf/index.html#kotlinx.serialization.protobuf.ProtoBuf">ProtoBuf</a> configured from the optionally given <a href="-proto-buf.html#kotlinx.serialization.protobuf$ProtoBuf(kotlinx.serialization.protobuf.ProtoBuf, kotlin.Function1((kotlinx.serialization.protobuf.ProtoBufBuilder, kotlin.Unit)))/from">ProtoBuf instance</a>
+and adjusted with <a href="-proto-buf.html#kotlinx.serialization.protobuf$ProtoBuf(kotlinx.serialization.protobuf.ProtoBuf, kotlin.Function1((kotlinx.serialization.protobuf.ProtoBufBuilder, kotlin.Unit)))/builderAction">builderAction</a>.</p>
+<code><span class="keyword">fun </span><span class="identifier">ProtoBuf</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.protobuf$ProtoBuf(kotlinx.serialization.protobuf.ProtoBuf, kotlin.Function1((kotlinx.serialization.protobuf.ProtoBufBuilder, kotlin.Unit)))/from">from</span><span class="symbol">:</span>&nbsp;<a href="-proto-buf/index.html"><span class="identifier">ProtoBuf</span></a>&nbsp;<span class="symbol">=</span>&nbsp;ProtoBuf<span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.protobuf$ProtoBuf(kotlinx.serialization.protobuf.ProtoBuf, kotlin.Function1((kotlinx.serialization.protobuf.ProtoBufBuilder, kotlin.Unit)))/builderAction">builderAction</span><span class="symbol">:</span>&nbsp;<a href="-proto-buf-builder/index.html"><span class="identifier">ProtoBufBuilder</span></a><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-proto-buf/index.html"><span class="identifier">ProtoBuf</span></a></code></td>
 </tr>
 </tbody>
 </table>

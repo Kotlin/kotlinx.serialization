@@ -26,7 +26,7 @@ The returned serializer is used to deserialize <a href="../-json-element.html#ko
 <p>It is possible to serialize values this serializer. In that case, class discriminator property won't
 be added to JSON stream, i.e., deserializing a class from the string and serializing it back yields the original string.
 However, to determine a serializer, a standard polymorphic mechanism represented by <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> is used.
-For convenience, <a href="serialize.html#kotlinx.serialization.json.JsonContentPolymorphicSerializer$serialize(kotlinx.serialization.Encoder, kotlinx.serialization.json.JsonContentPolymorphicSerializer.T)">serialize</a> method can lookup default serializer, but it is recommended to follow
+For convenience, <a href="serialize.html#kotlinx.serialization.json.JsonContentPolymorphicSerializer$serialize(kotlinx.serialization.encoding.Encoder, kotlinx.serialization.json.JsonContentPolymorphicSerializer.T)">serialize</a> method can lookup default serializer, but it is recommended to follow
 standard procedure with <a href="../../kotlinx.serialization.modules/-serializers-module-builder/polymorphic.html#kotlinx.serialization.modules.SerializersModuleBuilder$polymorphic(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleBuilder.polymorphic.Base)), kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleBuilder.polymorphic.Sub)), kotlinx.serialization.KSerializer((kotlinx.serialization.modules.SerializersModuleBuilder.polymorphic.Sub)))">registering</a>.</p>
 <p>Usage example:</p>
 <pre><code>interface Payment {

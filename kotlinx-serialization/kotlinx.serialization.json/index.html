@@ -20,11 +20,10 @@ and JSON-specific serializers.</p>
 </td>
 <td>
 <p>The main entry point to work with JSON serialization.
-It is typically used by constructing an application-specific instance, with configured json-specific behaviour
-(<a href="#">configuration</a> constructor parameter) and, if necessary, registered
-custom serializers (in <a href="../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> provided by <a href="#">serializersModule</a> constructor parameter).
-Then constructed instance can be used either as regular <a href="../kotlinx.serialization/-serial-format/index.html#kotlinx.serialization.SerialFormat">SerialFormat</a> or <a href="../kotlinx.serialization/-string-format/index.html#kotlinx.serialization.StringFormat">StringFormat</a>
-or for converting objects to <a href="-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> back and forth.</p>
+It is typically used by constructing an application-specific instance, with configured JSON-specific behaviour
+and, if necessary, registered in <a href="../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> custom serializers.
+<code>Json</code> instance can be configured in its <code>Json {}</code> factory function using <a href="-json-builder/index.html#kotlinx.serialization.json.JsonBuilder">JsonBuilder</a>.
+For demonstration purposes or trivial usages, Json <a href="-json/-default.html#kotlinx.serialization.json.Json.Default">companion</a> can be used instead.</p>
 <code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">Json</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../kotlinx.serialization/-string-format/index.html"><span class="identifier">StringFormat</span></a></code></td>
 </tr>
 <tr>
@@ -61,18 +60,8 @@ It can only be used by with <a href="-json/index.html#kotlinx.serialization.json
 <h4><a href="-json-builder/index.html">JsonBuilder</a></h4>
 </td>
 <td>
-<p>Builder to conveniently build Json instances.
-Properties of this builder are directly matched with properties of <a href="-json-configuration/index.html#kotlinx.serialization.json.JsonConfiguration">JsonConfiguration</a>.</p>
+<p>Builder of the <a href="-json/index.html#kotlinx.serialization.json.Json">Json</a> instance provided by <code>Json { ... }</code> factory function.</p>
 <code><span class="keyword">class </span><span class="identifier">JsonBuilder</span></code></td>
-</tr>
-<tr>
-<td>
-(common, jvm, native) 
-<h4><a href="-json-configuration/index.html">JsonConfiguration</a></h4>
-</td>
-<td>
-<p>The class responsible for JSON-specific customizable behaviour in <a href="-json/index.html#kotlinx.serialization.json.Json">Json</a> format.</p>
-<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">JsonConfiguration</span></code></td>
 </tr>
 <tr>
 <td>
@@ -92,7 +81,7 @@ without a dedicated class discriminator, on a content basis.</p>
 <td>
 <p>Decoder used by <a href="-json/index.html#kotlinx.serialization.json.Json">Json</a> during deserialization.
 This interface can be used to inject desired behaviour into a serialization process of <a href="-json/index.html#kotlinx.serialization.json.Json">Json</a>.</p>
-<code><span class="keyword">interface </span><span class="identifier">JsonDecoder</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../kotlinx.serialization/-decoder/index.html"><span class="identifier">Decoder</span></a><span class="symbol">, </span><a href="../kotlinx.serialization/-composite-decoder/index.html"><span class="identifier">CompositeDecoder</span></a></code></td>
+<code><span class="keyword">interface </span><span class="identifier">JsonDecoder</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../kotlinx.serialization.encoding/-decoder/index.html"><span class="identifier">Decoder</span></a><span class="symbol">, </span><a href="../kotlinx.serialization.encoding/-composite-decoder/index.html"><span class="identifier">CompositeDecoder</span></a></code></td>
 </tr>
 <tr>
 <td>
@@ -123,7 +112,7 @@ Currently, this hierarchy has no guarantees on descriptor content.</p>
 <td>
 <p>Encoder used by <a href="-json/index.html#kotlinx.serialization.json.Json">Json</a> during serialization.
 This interface can be used to inject desired behaviour into a serialization process of <a href="-json/index.html#kotlinx.serialization.json.Json">Json</a>.</p>
-<code><span class="keyword">interface </span><span class="identifier">JsonEncoder</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../kotlinx.serialization/-encoder/index.html"><span class="identifier">Encoder</span></a><span class="symbol">, </span><a href="../kotlinx.serialization/-composite-encoder/index.html"><span class="identifier">CompositeEncoder</span></a></code></td>
+<code><span class="keyword">interface </span><span class="identifier">JsonEncoder</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../kotlinx.serialization.encoding/-encoder/index.html"><span class="identifier">Encoder</span></a><span class="symbol">, </span><a href="../kotlinx.serialization.encoding/-composite-encoder/index.html"><span class="identifier">CompositeEncoder</span></a></code></td>
 </tr>
 <tr>
 <td>
@@ -201,6 +190,22 @@ It can only be used by with <a href="-json/index.html#kotlinx.serialization.json
 <p>Base class for custom serializers that allows manipulating an abstract JSON
 representation of the class before serialization or deserialization.</p>
 <code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">JsonTransformingSerializer</span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../kotlinx.serialization/-k-serializer/index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-subtype-to-detect-default/index.html">SubtypeToDetectDefault</a></h4>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">SubtypeToDetectDefault</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">JsonConfiguration</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-subtype-to-detect-stable/index.html">SubtypeToDetectStable</a></h4>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">SubtypeToDetectStable</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">JsonConfiguration</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -424,11 +429,8 @@ from reified type parameter.</p>
 <h4><a href="-json.html">Json</a></h4>
 </td>
 <td>
-<p>Default Json constructor .
-To configure Json format behavior while still using only stable API it is possible to use <code>JsonConfiguration.copy</code> factory:</p>
-<code><span class="keyword">fun </span><span class="identifier">Json</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.json$Json(kotlinx.serialization.json.JsonConfiguration, kotlinx.serialization.modules.SerializersModule)/configuration">configuration</span><span class="symbol">:</span>&nbsp;<a href="-json-configuration/index.html"><span class="identifier">JsonConfiguration</span></a>&nbsp;<span class="symbol">=</span>&nbsp;JsonConfiguration.Stable<span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.json$Json(kotlinx.serialization.json.JsonConfiguration, kotlinx.serialization.modules.SerializersModule)/context">context</span><span class="symbol">:</span>&nbsp;<a href="../kotlinx.serialization.modules/-serializers-module/index.html"><span class="identifier">SerializersModule</span></a>&nbsp;<span class="symbol">=</span>&nbsp;EmptySerializersModule<span class="symbol">)</span><span class="symbol">: </span><a href="-json/index.html"><span class="identifier">Json</span></a></code>
-<p>DSL-like constructor for <a href="-json/index.html#kotlinx.serialization.json.Json">Json</a>.</p>
-<code><span class="keyword">fun </span><span class="identifier">Json</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.json$Json(kotlin.Function1((kotlinx.serialization.json.JsonBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="-json-builder/index.html"><span class="identifier">JsonBuilder</span></a><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-json/index.html"><span class="identifier">Json</span></a></code></td>
+<p>Creates an instance of <a href="-json/index.html#kotlinx.serialization.json.Json">Json</a> configured from the optionally given <a href="-json.html#kotlinx.serialization.json$Json(kotlinx.serialization.json.Json, kotlin.Function1((kotlinx.serialization.json.JsonBuilder, kotlin.Unit)))/from">Json instance</a> and adjusted with <a href="-json.html#kotlinx.serialization.json$Json(kotlinx.serialization.json.Json, kotlin.Function1((kotlinx.serialization.json.JsonBuilder, kotlin.Unit)))/builderAction">builderAction</a>.</p>
+<code><span class="keyword">fun </span><span class="identifier">Json</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.json$Json(kotlinx.serialization.json.Json, kotlin.Function1((kotlinx.serialization.json.JsonBuilder, kotlin.Unit)))/from">from</span><span class="symbol">:</span>&nbsp;<a href="-json/index.html"><span class="identifier">Json</span></a>&nbsp;<span class="symbol">=</span>&nbsp;Json.Default<span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.json$Json(kotlinx.serialization.json.Json, kotlin.Function1((kotlinx.serialization.json.JsonBuilder, kotlin.Unit)))/builderAction">builderAction</span><span class="symbol">:</span>&nbsp;<a href="-json-builder/index.html"><span class="identifier">JsonBuilder</span></a><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-json/index.html"><span class="identifier">Json</span></a></code></td>
 </tr>
 <tr>
 <td>
