@@ -8,6 +8,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
@@ -28,6 +29,14 @@ public inline fun <reified T> serializer(): KSerializer<T> {
 }
 
 /**
+ * Attempts to retrieve a serializer from the current module and, if not found,
+ * fallbacks to [serializer] method
+ */
+public inline fun <reified T> SerializersModule.getContextualOrDefault(): KSerializer<T> {
+    return serializer(typeOf<T>()).cast()
+}
+
+/**
  * Creates a serializer for the given [type] with support of user-defined generic classes.
  * [type] argument can be obtained with experimental [typeOf] method.
  *
@@ -40,13 +49,17 @@ public inline fun <reified T> serializer(): KSerializer<T> {
  */
 public fun serializer(type: KType): KSerializer<Any?> {
     val result = EmptySerializersModule.serializerByKTypeImpl(type)
-    return if (type.isMarkedNullable) result.nullable else result.cast()
+    return result.nullable(type.isMarkedNullable)
 }
 
-@PublishedApi
-internal fun SerializersModule.serializer(type: KType): KSerializer<Any?> {
-    val result = serializerByKTypeImpl(type)
-    return if (type.isMarkedNullable) result.nullable else result.cast()
+/**
+ * Attempts to retrieve a serializer from the current module using the given [type] and, if not found, fallbacks to [serializer] method
+ */
+public fun SerializersModule.serializer(type: KType): KSerializer<Any?> {
+    val kclass = type.kclass()
+    val isNullable = type.isMarkedNullable
+    getContextual(kclass)?.nullable(isNullable)?.let { return it.cast() }
+    return serializerByKTypeImpl(type).nullable(isNullable).cast()
 }
 
 private fun SerializersModule.serializerByKTypeImpl(type: KType): KSerializer<Any> {
@@ -119,3 +132,7 @@ public fun <T : Any> KClass<T>.serializer(): KSerializer<T> = serializerOrNull()
 public fun <T : Any> KClass<T>.serializerOrNull(): KSerializer<T>? =
     compiledSerializerImpl() ?: builtinSerializerOrNull()
 
+private fun <T: Any> KSerializer<T>.nullable(shouldBeNullable: Boolean): KSerializer<T?> {
+    if (shouldBeNullable) return nullable
+    return this as KSerializer<T?>
+}

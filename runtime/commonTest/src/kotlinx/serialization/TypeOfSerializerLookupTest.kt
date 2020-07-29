@@ -136,24 +136,44 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
     }
 
 
-    object CustomIntSerializer : KSerializer<Int> {
-        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("CIS", PrimitiveKind.INT)
+    class CustomIntSerializer(isNullable: Boolean) : KSerializer<Int?> {
+        override val descriptor: SerialDescriptor
 
-        override fun serialize(encoder: Encoder, value: Int) {
-            encoder.encodeInt(42)
+        init {
+            val d = PrimitiveSerialDescriptor("CIS", PrimitiveKind.INT)
+            descriptor = if (isNullable) d.nullable else d
         }
 
-        override fun deserialize(decoder: Decoder): Int {
+        override fun serialize(encoder: Encoder, value: Int?) {
+            if (value == null) encoder.encodeInt(41)
+            else encoder.encodeInt(42)
+        }
+
+        override fun deserialize(decoder: Decoder): Int? {
             TODO()
         }
     }
 
     @Test
     fun testContextualLookup() {
-        val module = SerializersModule { contextual(CustomIntSerializer) }
+        val module = SerializersModule { contextual(CustomIntSerializer(false).cast<Int>()) }
         val json = Json { serializersModule = module }
         val data = listOf(listOf(1))
         assertEquals("[[42]]", json.encodeToString(data))
+    }
+
+    @Test
+    fun testContextualLookupNullable() {
+        val module = SerializersModule { contextual(CustomIntSerializer(true).cast<Int>()) }
+        val serializer = module.getContextualOrDefault<List<List<Int?>>>()
+        assertEquals("[[41]]", Json.encodeToString(serializer, listOf(listOf<Int?>(null))))
+    }
+
+    @Test
+    fun testContextualLookupNonNullable() {
+        val module = SerializersModule { contextual(CustomIntSerializer(false).cast<Int>()) }
+        val serializer = module.getContextualOrDefault<List<List<Int?>>>()
+        assertEquals("[[null]]", Json.encodeToString(serializer, listOf(listOf<Int?>(null))))
     }
 
     // Tests with [constructSerializerForGivenTypeArgs] are unsupported on legacy Kotlin/JS
