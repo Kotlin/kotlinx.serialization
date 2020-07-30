@@ -673,7 +673,7 @@ public final class kotlinx/serialization/internal/ArrayListSerializer : kotlinx/
 }
 
 public final class kotlinx/serialization/internal/BooleanArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {
-	public synthetic fun build$kotlinx_serialization_runtime ()Ljava/lang/Object;
+	public synthetic fun build$kotlinx_serialization_core ()Ljava/lang/Object;
 }
 
 public final class kotlinx/serialization/internal/BooleanArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
@@ -704,7 +704,7 @@ public final class kotlinx/serialization/internal/BooleanSerializer : kotlinx/se
 }
 
 public final class kotlinx/serialization/internal/ByteArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {
-	public synthetic fun build$kotlinx_serialization_runtime ()Ljava/lang/Object;
+	public synthetic fun build$kotlinx_serialization_core ()Ljava/lang/Object;
 }
 
 public final class kotlinx/serialization/internal/ByteArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
@@ -735,7 +735,7 @@ public final class kotlinx/serialization/internal/ByteSerializer : kotlinx/seria
 }
 
 public final class kotlinx/serialization/internal/CharArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {
-	public synthetic fun build$kotlinx_serialization_runtime ()Ljava/lang/Object;
+	public synthetic fun build$kotlinx_serialization_core ()Ljava/lang/Object;
 }
 
 public final class kotlinx/serialization/internal/CharArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
@@ -766,7 +766,7 @@ public final class kotlinx/serialization/internal/CharSerializer : kotlinx/seria
 }
 
 public final class kotlinx/serialization/internal/DoubleArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {
-	public synthetic fun build$kotlinx_serialization_runtime ()Ljava/lang/Object;
+	public synthetic fun build$kotlinx_serialization_core ()Ljava/lang/Object;
 }
 
 public final class kotlinx/serialization/internal/DoubleArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
@@ -818,7 +818,7 @@ public final class kotlinx/serialization/internal/EnumSerializer : kotlinx/seria
 }
 
 public final class kotlinx/serialization/internal/FloatArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {
-	public synthetic fun build$kotlinx_serialization_runtime ()Ljava/lang/Object;
+	public synthetic fun build$kotlinx_serialization_core ()Ljava/lang/Object;
 }
 
 public final class kotlinx/serialization/internal/FloatArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
@@ -893,7 +893,7 @@ public final class kotlinx/serialization/internal/HexConverter {
 }
 
 public final class kotlinx/serialization/internal/IntArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {
-	public synthetic fun build$kotlinx_serialization_runtime ()Ljava/lang/Object;
+	public synthetic fun build$kotlinx_serialization_core ()Ljava/lang/Object;
 }
 
 public final class kotlinx/serialization/internal/IntArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
@@ -971,7 +971,7 @@ public abstract class kotlinx/serialization/internal/ListLikeSerializer : kotlin
 }
 
 public final class kotlinx/serialization/internal/LongArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {
-	public synthetic fun build$kotlinx_serialization_runtime ()Ljava/lang/Object;
+	public synthetic fun build$kotlinx_serialization_core ()Ljava/lang/Object;
 }
 
 public final class kotlinx/serialization/internal/LongArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
@@ -1158,7 +1158,7 @@ public abstract interface class kotlinx/serialization/internal/SerializerFactory
 }
 
 public final class kotlinx/serialization/internal/ShortArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {
-	public synthetic fun build$kotlinx_serialization_runtime ()Ljava/lang/Object;
+	public synthetic fun build$kotlinx_serialization_core ()Ljava/lang/Object;
 }
 
 public final class kotlinx/serialization/internal/ShortArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
