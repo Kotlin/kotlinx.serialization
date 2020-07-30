@@ -9,6 +9,7 @@ import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 import org.junit.Test
 import java.lang.reflect.*
 import kotlin.test.*
@@ -190,7 +191,27 @@ class SerializerByTypeTest {
 
     @Test
     fun testNonSerializableEnum() {
+        // Works only on JVM righ tnow
         val serializer = serializer<Foo>()
         assertTrue(serializer.descriptor.kind is SerialKind.ENUM)
+    }
+
+    object CustomIntSerializer : KSerializer<Int> {
+        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("CIS", PrimitiveKind.INT)
+
+        override fun serialize(encoder: Encoder, value: Int) {
+            encoder.encodeInt(42)
+        }
+
+        override fun deserialize(decoder: Decoder): Int {
+            TODO()
+        }
+    }
+
+    @Test
+    fun testContextualLookup() {
+        val module = SerializersModule { contextual(CustomIntSerializer) }
+        val serializer = module.serializer(typeTokenOf<List<List<Int>>>())
+        assertEquals("[[42]]", Json.encodeToString(serializer, listOf(listOf(1))))
     }
 }

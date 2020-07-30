@@ -5,7 +5,12 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.test.*
 import kotlin.reflect.*
 import kotlin.test.*
@@ -128,6 +133,47 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
     @Test
     fun testSerializableObject() = noLegacyJs {
         assertSerializedWithType("{}", SampleObject)
+    }
+
+
+    class CustomIntSerializer(isNullable: Boolean) : KSerializer<Int?> {
+        override val descriptor: SerialDescriptor
+
+        init {
+            val d = PrimitiveSerialDescriptor("CIS", PrimitiveKind.INT)
+            descriptor = if (isNullable) d.nullable else d
+        }
+
+        override fun serialize(encoder: Encoder, value: Int?) {
+            if (value == null) encoder.encodeInt(41)
+            else encoder.encodeInt(42)
+        }
+
+        override fun deserialize(decoder: Decoder): Int? {
+            TODO()
+        }
+    }
+
+    @Test
+    fun testContextualLookup() {
+        val module = SerializersModule { contextual(CustomIntSerializer(false).cast<Int>()) }
+        val json = Json { serializersModule = module }
+        val data = listOf(listOf(1))
+        assertEquals("[[42]]", json.encodeToString(data))
+    }
+
+    @Test
+    fun testContextualLookupNullable() {
+        val module = SerializersModule { contextual(CustomIntSerializer(true).cast<Int>()) }
+        val serializer = module.serializer<List<List<Int?>>>()
+        assertEquals("[[41]]", Json.encodeToString(serializer, listOf(listOf<Int?>(null))))
+    }
+
+    @Test
+    fun testContextualLookupNonNullable() {
+        val module = SerializersModule { contextual(CustomIntSerializer(false).cast<Int>()) }
+        val serializer = module.serializer<List<List<Int?>>>()
+        assertEquals("[[null]]", Json.encodeToString(serializer, listOf(listOf<Int?>(null))))
     }
 
     // Tests with [constructSerializerForGivenTypeArgs] are unsupported on legacy Kotlin/JS

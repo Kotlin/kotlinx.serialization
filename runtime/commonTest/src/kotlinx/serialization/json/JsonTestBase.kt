@@ -15,7 +15,7 @@ abstract class JsonTestBase {
     protected val lenient = Json { isLenient = true; ignoreUnknownKeys = true; allowSpecialFloatingPointValues = true }
 
     internal inline fun <reified T : Any> Json.encodeToString(value: T, useStreaming: Boolean): String {
-        val serializer = serializersModule.getContextualOrDefault<T>()
+        val serializer = serializersModule.serializer<T>()
         return encodeToString(serializer, value, useStreaming)
     }
 
@@ -29,7 +29,7 @@ abstract class JsonTestBase {
     }
 
     internal inline fun <reified T : Any> Json.decodeFromString(source: String, useStreaming: Boolean): T {
-        val deserializer = serializersModule.getContextualOrDefault<T>()
+        val deserializer = serializersModule.serializer<T>()
         return decodeFromString(deserializer, source, useStreaming)
     }
 

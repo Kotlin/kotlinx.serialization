@@ -216,13 +216,4 @@ public annotation class Polymorphic
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
 public annotation class InternalSerializationApi
 
-/**
- * Public API marked with this annotation is considered unstable and unsafe for general use.
- * Instability implies inconsistent behaviour across platforms, various edge-cases and use-cases that differ from very basic ones.
- * Unsafe API should not be generally used as the first-class mechanism and **may** be used as the last-ditch effort when every other
- * ways have failed.
- */
-@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPEALIAS)
-@RequiresOptIn(level = RequiresOptIn.Level.ERROR)
-public annotation class UnsafeSerializationApi
 

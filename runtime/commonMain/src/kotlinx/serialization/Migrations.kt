@@ -113,7 +113,7 @@ public annotation class SerialId @Deprecated(
 
 @Deprecated(level = DeprecationLevel.WARNING, message = "Use default parse overload instead", replaceWith = ReplaceWith("parse(objects)"))
 public inline fun <reified T : Any> StringFormat.parseList(objects: String): List<T> =
-    decodeFromString(ListSerializer(serializersModule.getContextualOrDefault<T>()), objects)
+    decodeFromString(ListSerializer(serializersModule.serializer<T>()), objects)
 
 @Deprecated(
     level = DeprecationLevel.WARNING,
@@ -121,7 +121,7 @@ public inline fun <reified T : Any> StringFormat.parseList(objects: String): Lis
     replaceWith = ReplaceWith("decodeFromString(map)")
 )
 public inline fun <reified K : Any, reified V : Any> StringFormat.parseMap(map: String): Map<K, V> =
-    decodeFromString(MapSerializer(serializersModule.getContextualOrDefault<K>(), serializersModule.getContextualOrDefault<V>()), map)
+    decodeFromString(MapSerializer(serializersModule.serializer<K>(), serializersModule.serializer<V>()), map)
 
 // ERROR migrations that affect **only** users that called these functions with named parameters
 
@@ -132,7 +132,7 @@ public inline fun <reified K : Any, reified V : Any> StringFormat.parseMap(map: 
     replaceWith = ReplaceWith("encodeToString(objects)")
 )
 public inline fun <reified T : Any> StringFormat.stringify(objects: List<T>): String =
-    encodeToString(ListSerializer(serializersModule.getContextualOrDefault<T>()), objects)
+    encodeToString(ListSerializer(serializersModule.serializer<T>()), objects)
 
 @LowPriorityInOverloadResolution
 @Deprecated(
@@ -141,24 +141,20 @@ public inline fun <reified T : Any> StringFormat.stringify(objects: List<T>): St
     replaceWith = ReplaceWith("stringify(map)")
 )
 public inline fun <reified K : Any, reified V : Any> StringFormat.stringify(map: Map<K, V>): String =
-    encodeToString(MapSerializer(serializersModule.getContextualOrDefault<K>(), serializersModule.getContextualOrDefault<V>()), map)
+    encodeToString(MapSerializer(serializersModule.serializer<K>(), serializersModule.serializer<V>()), map)
 
-@ImplicitReflectionSerializer
-@OptIn(UnsafeSerializationApi::class)
 @Deprecated(
-    level = DeprecationLevel.WARNING,
-    message = "This method is deprecated for removal. Please use reified getContextualOrDefault<T>() instead",
-    replaceWith = ReplaceWith("getContextual(klass) ?: klass.serializer()")
+    level = DeprecationLevel.ERROR,
+    message = "This method is deprecated for removal. Please use reified serializer<T>() instead",
+    replaceWith = ReplaceWith("serializer<T>()")
 )
 public fun <T : Any> SerializersModule.getContextualOrDefault(klass: KClass<T>): KSerializer<T> =
-    getContextual(klass) ?: klass.serializer()
+    noImpl()
 
-@ImplicitReflectionSerializer
-@OptIn(UnsafeSerializationApi::class)
 @Deprecated(
-    level = DeprecationLevel.WARNING,
-    message = "This method is deprecated for removal. Please use reified getContextualOrDefault<T>() instead",
-    replaceWith = ReplaceWith("getContextualOrDefault<T>()")
+    level = DeprecationLevel.ERROR,
+    message = "This method is deprecated for removal. Please use reified serializer<T>() instead",
+    replaceWith = ReplaceWith("serializer<T>()")
 )
 public fun <T : Any> SerializersModule.getContextualOrDefault(value: T): KSerializer<T> =
     getContextual(value::class)?.cast() ?: value::class.serializer().cast()

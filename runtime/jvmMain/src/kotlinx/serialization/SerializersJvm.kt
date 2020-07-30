@@ -3,10 +3,13 @@
  */
 @file:JvmMultifileClass
 @file:JvmName("SerializersKt")
+@file:Suppress("UNCHECKED_CAST")
+
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.internal.*
+import kotlinx.serialization.modules.*
 import java.lang.reflect.*
 import kotlin.reflect.*
 
@@ -18,33 +21,24 @@ import kotlin.reflect.*
  * For application-level serialization, it is recommended to use `serializer<T>()` instead as it is aware of
  * Kotlin-specific type information, such as nullability, sealed classes and object.
  */
-@Suppress("UNCHECKED_CAST")
-@OptIn(UnsafeSerializationApi::class)
-public fun serializer(type: Type): KSerializer<Any> = when (type) {
-    // TODO stabilize for Spring
+public fun serializer(type: Type): KSerializer<Any> = EmptySerializersModule.serializer(type)
+
+/**
+ * Retrieves serializer for the given reflective Java [type] using
+ * [contextual][SerializersModule.getContextual] lookup and fallback to reflective construction.
+ *
+ * [serializer] is intended to be used as an interoperability layer for libraries like GSON and Retrofit,
+ * that operate with reflective Java [Type] and cannot use [typeOf].
+ * Serializers is looked up in the contextual serializers of the module and then constructed reflectively.
+ *
+ * For application-level serialization, it is recommended to use `serializer<T>()` instead as it is aware of
+ * Kotlin-specific type information, such as nullability, sealed classes and object.
+ */
+public fun SerializersModule.serializer(type: Type): KSerializer<Any> = when (type) {
     is GenericArrayType -> {
-        val eType = type.genericComponentType.let {
-            when (it) {
-                is WildcardType -> it.upperBounds.first()
-                else -> it
-            }
-        }
-        val serializer = serializer(eType)
-        val kclass = when (eType) {
-            is ParameterizedType -> (eType.rawType as Class<*>).kotlin
-            is KClass<*> -> eType
-            else -> throw IllegalStateException("unsupported type in GenericArray: ${eType::class}")
-        } as KClass<Any>
-        ArraySerializer(kclass, serializer) as KSerializer<Any>
+        genericArraySerializer(type)
     }
-    is Class<*> -> if (!type.isArray) {
-        (type.kotlin as KClass<Any>).serializer<Any>()
-    } else {
-        val eType: Class<*> = type.componentType
-        val s = serializer(eType)
-        val arraySerializer = ArraySerializer(eType.kotlin as KClass<Any>, s)
-        arraySerializer as KSerializer<Any>
-    }
+    is Class<*> -> typeSerializer(type)
     is ParameterizedType -> {
         val rootClass = (type.rawType as Class<*>)
         val args = (type.actualTypeArguments)
@@ -65,12 +59,43 @@ public fun serializer(type: Type): KSerializer<Any> = when (type) {
                 // since it uses Java TypeToken, not Kotlin one
                 val varargs = args.map { serializer(it) as KSerializer<Any?> }.toTypedArray()
                 (rootClass.kotlin.constructSerializerForGivenTypeArgs(*varargs) as? KSerializer<Any>)
-                        ?: (rootClass.kotlin as KClass<Any>).serializer()
+                    ?: contextualOrReflective(rootClass.kotlin as KClass<Any>)
             }
         }
     }
     is WildcardType -> serializer(type.upperBounds.first())
     else -> throw IllegalArgumentException("typeToken should be an instance of Class<?>, GenericArray, ParametrizedType or WildcardType, but actual type is $type ${type::class}")
+}
+
+private fun SerializersModule.typeSerializer(type: Class<*>): KSerializer<Any> {
+    return if (!type.isArray) {
+        contextualOrReflective(type.kotlin as KClass<Any>)
+    } else {
+        val eType: Class<*> = type.componentType
+        val s = serializer(eType)
+        val arraySerializer = ArraySerializer(eType.kotlin as KClass<Any>, s)
+        arraySerializer as KSerializer<Any>
+    }
+}
+
+private fun SerializersModule.genericArraySerializer(type: GenericArrayType): KSerializer<Any> {
+    val eType = type.genericComponentType.let {
+        when (it) {
+            is WildcardType -> it.upperBounds.first()
+            else -> it
+        }
+    }
+    val serializer = serializer(eType)
+    val kclass = when (eType) {
+        is ParameterizedType -> (eType.rawType as Class<*>).kotlin
+        is KClass<*> -> eType
+        else -> throw IllegalStateException("unsupported type in GenericArray: ${eType::class}")
+    } as KClass<Any>
+    return ArraySerializer(kclass, serializer) as KSerializer<Any>
+}
+
+private fun <T: Any> SerializersModule.contextualOrReflective(kClass: KClass<T>): KSerializer<T> {
+    return getContextual(kClass) ?: kClass.serializer()
 }
 
 @Deprecated("Deprecated during serialization 1.0 API stabilization", ReplaceWith("serializer(type)"), level = DeprecationLevel.ERROR)

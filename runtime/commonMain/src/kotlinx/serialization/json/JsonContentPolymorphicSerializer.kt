@@ -75,7 +75,6 @@ public abstract class JsonContentPolymorphicSerializer<T : Any>(private val base
     override val descriptor: SerialDescriptor =
         buildSerialDescriptor("JsonContentPolymorphicSerializer<${baseClass.simpleName}>", PolymorphicKind.SEALED)
 
-    @OptIn(UnsafeSerializationApi::class)
     final override fun serialize(encoder: Encoder, value: T) {
         val actualSerializer =
             encoder.serializersModule.getPolymorphic(baseClass, value)

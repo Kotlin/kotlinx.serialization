@@ -34,7 +34,6 @@ import kotlin.reflect.*
  * json.stringify(ClassWithDate("foo", Date())
  * ```
  */
-@OptIn(UnsafeSerializationApi::class)
 public class ContextualSerializer<T : Any>(
     private val serializableClass: KClass<T>,
     private val fallbackSerializer: KSerializer<T>?,
