@@ -75,6 +75,13 @@ public interface JsonInput {
 }
 
 @Deprecated(
+    "This method was renamed during serialization 1.0 stabilization",
+    ReplaceWith("this.decodeJsonElement()"),
+    DeprecationLevel.ERROR
+)
+public fun JsonDecoder.decodeJson(): JsonElement = decodeJsonElement()
+
+@Deprecated(
     level = DeprecationLevel.ERROR,
     message = "This interface was renamed to JsonEncoder during serialization 1.0 stabilization",
     replaceWith = ReplaceWith("JsonEncoder")
@@ -82,6 +89,13 @@ public interface JsonInput {
 public interface JsonOutput {
     public fun encodeJson(element: JsonElement)
 }
+
+@Deprecated(
+    "This method was renamed during serialization 1.0 stabilization",
+    ReplaceWith("this.encodeJsonElement(element)"),
+    DeprecationLevel.ERROR
+)
+public fun JsonEncoder.encodeJson(element: JsonElement): Unit = encodeJsonElement(element)
 
 
 @Deprecated(

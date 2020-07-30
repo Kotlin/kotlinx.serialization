@@ -57,7 +57,7 @@ import kotlin.js.*
  * ### Usage example
  * ```
  * // Serialize to ProtoBuf hex string
- * val encoded = ProtoBuf.decodeToHexString(MyMessage(15)) // "080f1000182a"
+ * val encoded = ProtoBuf.decodeFromHexString(MyMessage(15)) // "080f1000182a"
  *
  * // Deserialize from ProtoBuf hex string
  * val decoded = ProtoBuf.decodeFromHexString<MyMessage>(encoded) // MyMessage(first=15, second=0, third=42)

@@ -1612,6 +1612,8 @@ public final class kotlinx/serialization/json/JsonKt {
 public final class kotlinx/serialization/json/JsonMigrationsKt {
 	public static final fun JsonLiteral (Ljava/lang/Object;)Lkotlinx/serialization/json/JsonPrimitive;
 	public static final fun contains (Lkotlinx/serialization/json/JsonElement;Ljava/lang/String;)Z
+	public static final fun decodeJson (Lkotlinx/serialization/json/JsonDecoder;)Lkotlinx/serialization/json/JsonElement;
+	public static final fun encodeJson (Lkotlinx/serialization/json/JsonEncoder;Lkotlinx/serialization/json/JsonElement;)V
 	public static final fun fromJson (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
 	public static final fun fromJson (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
 	public static final fun getArray (Lkotlinx/serialization/json/JsonArray;I)Lkotlinx/serialization/json/JsonArray;
