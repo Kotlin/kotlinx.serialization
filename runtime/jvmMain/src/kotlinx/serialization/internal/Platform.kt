@@ -35,6 +35,7 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
     // Check whether it's serializable object
     findObjectSerializer(jClass)?.let { return it }
     // Search for default serializer if no serializer is defined in companion object.
+    // It is required for named companions
     val default = try {
         jClass.declaredClasses.singleOrNull { it.simpleName == ("\$serializer") }
             ?.getField("INSTANCE")?.get(null) as? KSerializer<T>
@@ -47,21 +48,29 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
     return createEnumSerializer()
 }
 
+@Suppress("UNCHECKED_CAST")
 private fun <T : Any> invokeSerializerOnCompanion(jClass: Class<*>, vararg args: KSerializer<Any?>): KSerializer<T>? {
-    val companion =
-        jClass.declaredFields.singleOrNull { it.name == "Companion" }?.apply { isAccessible = true }?.get(null)
-            ?: return null
+    val companion = jClass.companionOrNull() ?: return null
     try {
-        return companion.javaClass.methods
-            .find { method ->
-                method.name == "serializer" && method.parameterTypes.size == args.size && method.parameterTypes.all { it == KSerializer::class.java }
-            }
-            ?.invoke(companion, *args) as? KSerializer<T>
+        val types = if (args.isEmpty()) emptyArray() else Array(args.size) { KSerializer::class.java }
+        return companion.javaClass.getDeclaredMethod("serializer", *types)
+            .invoke(companion, *args) as? KSerializer<T>
+    } catch (e: NoSuchMethodException) {
+        return null
     } catch (e: InvocationTargetException) {
         val cause = e.cause ?: throw e
         throw InvocationTargetException(cause, cause.message ?: e.message)
     }
 }
+
+private fun Class<*>.companionOrNull() =
+    try {
+        val companion = getDeclaredField("Companion")
+        companion.isAccessible = true
+        companion.get(null)
+    } catch (e: Throwable) {
+        null
+    }
 
 @Suppress("UNCHECKED_CAST")
 private fun <T : Any> KClass<T>.createEnumSerializer(): KSerializer<T>? {
