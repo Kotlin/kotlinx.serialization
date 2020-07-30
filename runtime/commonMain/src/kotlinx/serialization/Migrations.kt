@@ -159,13 +159,6 @@ public fun <T : Any> SerializersModule.getContextualOrDefault(klass: KClass<T>):
 public fun <T : Any> SerializersModule.getContextualOrDefault(value: T): KSerializer<T> =
     getContextual(value::class)?.cast() ?: value::class.serializer().cast()
 
-@Deprecated(
-    level = DeprecationLevel.ERROR,
-    message = "This method is deprecated for removal. Please use reified getContextualOrDefault<T>() instead",
-    replaceWith = ReplaceWith("serializer<T>()")
-)
-public fun <T : Any> SerializersModule.getContextualOrDefault(): KSerializer<T> = noImpl()
-
 @Suppress("UNUSED", "DeprecatedCallableAddReplaceWith")
 @Deprecated(
     message = "Top-level polymorphic descriptor is deprecated, use descriptor from the instance of PolymorphicSerializer or" +
