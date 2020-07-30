@@ -67,7 +67,6 @@ public final class kotlinx/serialization/MigrationsKt {
 	public static final fun encode (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public static final fun encode (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
 	public static final fun getContext (Lkotlinx/serialization/SerialFormat;)Lkotlinx/serialization/modules/SerializersModule;
-	public static final fun getContextualOrDefault (Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/KSerializer;
 	public static final fun getContextualOrDefault (Lkotlinx/serialization/modules/SerializersModule;Ljava/lang/Object;)Lkotlinx/serialization/KSerializer;
 	public static final fun getContextualOrDefault (Lkotlinx/serialization/modules/SerializersModule;Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
 	public static final fun getList (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;

@@ -145,15 +145,15 @@ public inline fun <reified K : Any, reified V : Any> StringFormat.stringify(map:
 
 @Deprecated(
     level = DeprecationLevel.ERROR,
-    message = "This method is deprecated for removal. Please use reified getContextualOrDefault<T>() instead",
-    replaceWith = ReplaceWith("getContextual(klass) ?: klass.serializer()")
+    message = "This method is deprecated for removal. Please use reified serializer<T>() instead",
+    replaceWith = ReplaceWith("serializer<T>()")
 )
 public fun <T : Any> SerializersModule.getContextualOrDefault(klass: KClass<T>): KSerializer<T> =
-    getContextual(klass) ?: klass.serializer()
+    noImpl()
 
 @Deprecated(
     level = DeprecationLevel.ERROR,
-    message = "This method is deprecated for removal. Please use reified getContextualOrDefault<T>() instead",
+    message = "This method is deprecated for removal. Please use reified serializer<T>() instead",
     replaceWith = ReplaceWith("serializer<T>()")
 )
 public fun <T : Any> SerializersModule.getContextualOrDefault(value: T): KSerializer<T> =
