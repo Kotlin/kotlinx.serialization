@@ -441,14 +441,13 @@ internal class CborDecoder(private val input: ByteArrayInput) {
     }
 
     fun skipElement() {
-        check(!isEnd()) { "Unexpected end marker" }
         val lengthStack = mutableListOf<Int>()
 
         do {
             var prune = false
 
             if (isEnd()) {
-                check(lengthStack.lastOrNull() == -1) { "Unexpected end marker" }
+                if (lengthStack.lastOrNull() != -1) throw CborDecodingException("data item", curByte)
                 lengthStack.removeAt(lengthStack.lastIndex)
                 prune = true
             } else {
@@ -473,7 +472,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
                     }
 
                     if (header == HEADER_ARRAY || header == HEADER_MAP) {
-                        check(length > 0) { "Length must be > 0" }
+                        if (length <= 0) throw AssertionError("$length of ${printByte(curByte)} should be > 0")
                         lengthStack.add(length)
                     } else {
                         input.skip(length)
@@ -495,7 +494,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
                 }
             }
 
-            if (readByte() == -1 && lengthStack.isNotEmpty()) error("Unexpected end of bytes")
+            if (readByte() == -1 && lengthStack.isNotEmpty()) error("EOF with length stack $lengthStack")
         } while (lengthStack.isNotEmpty())
     }
 
