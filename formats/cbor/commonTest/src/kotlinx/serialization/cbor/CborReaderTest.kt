@@ -342,7 +342,7 @@ class CborReaderTest {
     /**
      * The following CBOR diagnostic output demonstrates the additional fields (prefixed with `+` in front of each line)
      * present in the encoded CBOR data that does not have associated fields in the Kotlin classes (they will be skipped
-     * over when `ignoreUnknownKeys` is enabled.
+     * over with `ignoreUnknownKeys` is enabled).
      *
      * ```diff
      *   {
