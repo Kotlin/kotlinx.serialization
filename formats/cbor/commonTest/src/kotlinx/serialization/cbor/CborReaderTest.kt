@@ -279,11 +279,6 @@ class CborReaderTest {
     }
 
     @Test
-    fun testSkipOfNestedComplexElements() {
-
-    }
-
-    @Test
     fun testDecodeCborWithUnknownField() {
         assertEquals(
             expected = Simple("123"),
