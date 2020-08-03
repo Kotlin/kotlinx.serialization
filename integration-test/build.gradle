@@ -58,7 +58,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation kotlin('stdlib-common')
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
                 implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:$serialization_version"
                 implementation "org.jetbrains.kotlinx:kotlinx-serialization-cbor:$serialization_version"
             }
