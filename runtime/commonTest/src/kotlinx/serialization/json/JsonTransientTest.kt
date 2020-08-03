@@ -7,6 +7,7 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import kotlinx.serialization.json.internal.*
 import kotlin.test.*
 
 class JsonTransientTest : JsonTestBase() {

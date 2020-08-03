@@ -5,6 +5,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
 
@@ -46,9 +47,11 @@ class SpecialFloatingPointValuesTest : JsonTestBase() {
     }
 
     private fun test(box: Box, expected: String, useStreaming: Boolean) {
-        assertFailsWith<JsonException> { default.encodeToString(Box.serializer(), box, useStreaming) }
+        val e1 = assertFailsWith<JsonException> { default.encodeToString(Box.serializer(), box, useStreaming) }
+        assertTrue { e1.message!!.contains("Unexpected special floating-point value") }
         assertEquals(expected, json.encodeToString(Box.serializer(), box, useStreaming))
         assertEquals(box, json.decodeFromString(Box.serializer(), expected, useStreaming))
-        assertEquals(box, default.decodeFromString(Box.serializer(), expected, useStreaming))
+        val e2 = assertFailsWith<JsonException> { default.decodeFromString(Box.serializer(), expected, useStreaming) }
+        assertTrue { e2.message!!.contains("Unexpected special floating-point value") }
     }
 }

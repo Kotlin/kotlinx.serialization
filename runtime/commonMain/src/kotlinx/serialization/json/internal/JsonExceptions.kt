@@ -4,9 +4,10 @@
 
 @file:Suppress("FunctionName")
 
-package kotlinx.serialization.json
+package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 import kotlinx.serialization.descriptors.*
 
 /**
@@ -28,22 +29,37 @@ internal class JsonEncodingException(message: String) : JsonException(message)
 internal fun JsonDecodingException(offset: Int, message: String, input: String) =
     JsonDecodingException(offset, "$message.\n JSON input: ${input.minify(offset)}")
 
-internal fun InvalidFloatingPoint(value: Number, type: String, output: String) = JsonEncodingException(
-    "'$value' is not a valid '$type' as per JSON specification. " +
-            "You can enable 'serializeSpecialFloatingPointValues' property to serialize such values\n" +
+internal fun InvalidFloatingPointEncoded(value: Number, output: String) = JsonEncodingException(
+    "Unexpected special floating-point value $value. By default, " +
+            "non-finite floating point values are prohibited because they do not conform JSON specification. " +
+            "It is possible to serialize them using 'JsonBuilder.allowSpecialFloatingPointValues = true'\n" +
             "Current output: ${output.minify()}"
 )
 
-internal fun InvalidFloatingPoint(value: Number, key: String, type: String, output: String) = JsonEncodingException(
-    "'$value' with key '$key' is not a valid $type as per JSON specification. " +
-            "You can enable 'serializeSpecialFloatingPointValues' property to serialize such values.\n" +
+internal fun InvalidFloatingPointEncoded(value: Number, key: String, output: String) =
+    JsonEncodingException(unexpectedFpErrorMessage(value, key, output))
+
+internal fun InvalidFloatingPointDecoded(value: Number, key: String, output: String) =
+    JsonDecodingException(-1, unexpectedFpErrorMessage(value, key, output))
+
+// Extension on JSON reader and fail immediately
+internal fun JsonReader.throwInvalidFloatingPointDecoded(result: Number): Nothing {
+    fail("Unexpected special floating-point value $result. By default, " +
+            "non-finite floating point values are prohibited because they do not conform JSON specification. " +
+            "It is possible to deserialize them using 'JsonBuilder.allowSpecialFloatingPointValues = true'")
+}
+
+private fun unexpectedFpErrorMessage(value: Number, key: String, output: String): String {
+    return "Unexpected special floating-point value $value with key $key. By default, " +
+            "non-finite floating point values are prohibited because they do not conform JSON specification. " +
+            "It is possible to deserialize them using 'JsonBuilder.allowSpecialFloatingPointValues = true'\n" +
             "Current output: ${output.minify()}"
-)
+}
 
 internal fun UnknownKeyException(key: String, input: String) = JsonDecodingException(
     -1,
     "JSON encountered unknown key: '$key'. You can enable 'JsonBuilder.ignoreUnknownKeys' property to ignore unknown keys.\n" +
-            " JSON input: ${input.minify()}"
+            " Current input: ${input.minify()}"
 )
 
 internal fun InvalidKeyKindException(keyDescriptor: SerialDescriptor) = JsonEncodingException(
