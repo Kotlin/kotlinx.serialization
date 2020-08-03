@@ -187,15 +187,6 @@ class SerializerByTypeTest {
         return (superType as ParameterizedType).actualTypeArguments.first()!!
     }
 
-    enum class Foo
-
-    @Test
-    fun testNonSerializableEnum() {
-        // Works only on JVM righ tnow
-        val serializer = serializer<Foo>()
-        assertTrue(serializer.descriptor.kind is SerialKind.ENUM)
-    }
-
     object CustomIntSerializer : KSerializer<Int> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("CIS", PrimitiveKind.INT)
 

@@ -16,7 +16,7 @@ import kotlin.reflect.*
 import kotlin.test.*
 
 @Suppress("RemoveExplicitTypeArguments") // This is exactly what's being tested
-class TypeOfSerializerLookupTest : JsonTestBase() {
+class SerializersLookupTest : JsonTestBase() {
 
     @Test
     fun testPrimitive() {

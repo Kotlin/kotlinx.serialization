@@ -18,7 +18,8 @@ internal val EMPTY_SERIALIZER_ARRAY: Array<KSerializer<*>> = arrayOf()
  * Should not be implemented manually or used directly.
  */
 @InternalSerializationApi
-public interface GeneratedSerializer<T> : KSerializer<T> {
+@PublishedApi
+internal interface GeneratedSerializer<T> : KSerializer<T> {
     public fun childSerializers(): Array<KSerializer<*>>
     public fun typeParametersSerializers(): Array<KSerializer<*>> = EMPTY_SERIALIZER_ARRAY
 }
@@ -31,7 +32,6 @@ public interface GeneratedSerializer<T> : KSerializer<T> {
  * Should not be used in any user code. Please use generated `.serializer(kSerializer1, kSerializer2, ...)`
  * method on a companion or top-level `serializer(KType)` function.
  */
-@InternalSerializationApi
 @Deprecated("Inserted into generated code and should not be used directly", level = DeprecationLevel.HIDDEN)
 public interface SerializerFactory {
     public fun serializer(vararg typeParamsSerializers: KSerializer<*>): KSerializer<*>

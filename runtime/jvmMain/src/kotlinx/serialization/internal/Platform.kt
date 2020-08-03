@@ -26,9 +26,21 @@ internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>
 internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E> =
     toArray(java.lang.reflect.Array.newInstance(eClass.java, size) as Array<E>)
 
+private fun <T: Any> Class<T>.isNotAnnotated(): Boolean {
+    /*
+     * For annotated enums search serializer directly (or do not search at all?)
+     */
+    return getDeclaredAnnotation(Serializable::class.java) == null &&
+            getDeclaredAnnotation(Polymorphic::class.java) == null
+}
+
 @Suppress("UNCHECKED_CAST")
 internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
     val jClass = this.java
+    if (jClass.isEnum && jClass.isNotAnnotated()) {
+        return createEnumSerializer()
+    }
+
     // Search for serializer defined on companion object.
    val serializer = invokeSerializerOnCompanion<T>(jClass, *args)
     if (serializer != null) return serializer
@@ -36,27 +48,23 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
     findObjectSerializer(jClass)?.let { return it }
     // Search for default serializer if no serializer is defined in companion object.
     // It is required for named companions
-    val default = try {
+    return try {
         jClass.declaredClasses.singleOrNull { it.simpleName == ("\$serializer") }
             ?.getField("INSTANCE")?.get(null) as? KSerializer<T>
     } catch (e: NoSuchFieldException) {
         null
     }
-
-    if (default != null) return default
-    // Fallback: enum without @Serializable annotation as last resort
-    return createEnumSerializer()
 }
 
 @Suppress("UNCHECKED_CAST")
 private fun <T : Any> invokeSerializerOnCompanion(jClass: Class<*>, vararg args: KSerializer<Any?>): KSerializer<T>? {
     val companion = jClass.companionOrNull() ?: return null
-    try {
+    return try {
         val types = if (args.isEmpty()) emptyArray() else Array(args.size) { KSerializer::class.java }
-        return companion.javaClass.getDeclaredMethod("serializer", *types)
+        companion.javaClass.getDeclaredMethod("serializer", *types)
             .invoke(companion, *args) as? KSerializer<T>
     } catch (e: NoSuchMethodException) {
-        return null
+        null
     } catch (e: InvocationTargetException) {
         val cause = e.cause ?: throw e
         throw InvocationTargetException(cause, cause.message ?: e.message)
