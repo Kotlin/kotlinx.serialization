@@ -18,8 +18,7 @@ internal val EMPTY_SERIALIZER_ARRAY: Array<KSerializer<*>> = arrayOf()
  * Should not be implemented manually or used directly.
  */
 @InternalSerializationApi
-@PublishedApi
-internal interface GeneratedSerializer<T> : KSerializer<T> {
+public interface GeneratedSerializer<T> : KSerializer<T> {
     public fun childSerializers(): Array<KSerializer<*>>
     public fun typeParametersSerializers(): Array<KSerializer<*>> = EMPTY_SERIALIZER_ARRAY
 }

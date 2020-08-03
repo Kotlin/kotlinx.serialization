@@ -97,6 +97,7 @@ public final class kotlinx/serialization/PolymorphicSerializer : kotlinx/seriali
 	public fun <init> (Lkotlin/reflect/KClass;)V
 	public fun getBaseClass ()Lkotlin/reflect/KClass;
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class kotlinx/serialization/PolymorphicSerializerKt {

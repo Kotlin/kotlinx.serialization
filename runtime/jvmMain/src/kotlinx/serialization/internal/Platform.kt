@@ -26,6 +26,33 @@ internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>
 internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E> =
     toArray(java.lang.reflect.Array.newInstance(eClass.java, size) as Array<E>)
 
+@Suppress("UNCHECKED_CAST")
+internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
+    val jClass = this.java
+    if (jClass.isEnum && jClass.isNotAnnotated()) {
+        return jClass.createEnumSerializer()
+    }
+    if (jClass.isInterface) {
+        return interfaceSerializer()
+    }
+    // Search for serializer defined on companion object.
+    val serializer = invokeSerializerOnCompanion<T>(jClass, *args)
+    if (serializer != null) return serializer
+    // Check whether it's serializable object
+    findObjectSerializer(jClass)?.let { return it }
+    // Search for default serializer if no serializer is defined in companion object.
+    // It is required for named companions
+    val fromNamedCompanion = try {
+        jClass.declaredClasses.singleOrNull { it.simpleName == ("\$serializer") }
+            ?.getField("INSTANCE")?.get(null) as? KSerializer<T>
+    } catch (e: NoSuchFieldException) {
+        null
+    }
+    if (fromNamedCompanion != null) return fromNamedCompanion
+    // Check for polymorphic
+    return polymorphicSerializer()
+}
+
 private fun <T: Any> Class<T>.isNotAnnotated(): Boolean {
     /*
      * For annotated enums search serializer directly (or do not search at all?)
@@ -34,26 +61,24 @@ private fun <T: Any> Class<T>.isNotAnnotated(): Boolean {
             getDeclaredAnnotation(Polymorphic::class.java) == null
 }
 
-@Suppress("UNCHECKED_CAST")
-internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
-    val jClass = this.java
-    if (jClass.isEnum && jClass.isNotAnnotated()) {
-        return createEnumSerializer()
+private fun <T: Any> KClass<T>.polymorphicSerializer(): KSerializer<T>? {
+    val jClass = java
+    if (jClass.getDeclaredAnnotation(Polymorphic::class.java) != null)
+        return PolymorphicSerializer(this)
+    val serializable = java.getDeclaredAnnotation(Serializable::class.java)
+    if (serializable != null && serializable.with == PolymorphicSerializer::class) {
+        return PolymorphicSerializer(this)
     }
+    return null
+}
 
-    // Search for serializer defined on companion object.
-   val serializer = invokeSerializerOnCompanion<T>(jClass, *args)
-    if (serializer != null) return serializer
-    // Check whether it's serializable object
-    findObjectSerializer(jClass)?.let { return it }
-    // Search for default serializer if no serializer is defined in companion object.
-    // It is required for named companions
-    return try {
-        jClass.declaredClasses.singleOrNull { it.simpleName == ("\$serializer") }
-            ?.getField("INSTANCE")?.get(null) as? KSerializer<T>
-    } catch (e: NoSuchFieldException) {
-        null
+private fun <T: Any> KClass<T>.interfaceSerializer(): KSerializer<T>? {
+    // Polymorphic is applied explicitly
+    val serializable = java.getDeclaredAnnotation(Serializable::class.java)
+    if (serializable == null || serializable.with == PolymorphicSerializer::class) {
+        return PolymorphicSerializer(this)
     }
+    return null
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -81,11 +106,9 @@ private fun Class<*>.companionOrNull() =
     }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T : Any> KClass<T>.createEnumSerializer(): KSerializer<T>? {
-    if (!Enum::class.java.isAssignableFrom(this.java)) return null
-    val enum = java
-    val constants = enum.enumConstants
-    return EnumSerializer(enum.canonicalName, constants as Array<out Enum<*>>) as? KSerializer<T>
+private fun <T : Any> Class<T>.createEnumSerializer(): KSerializer<T>? {
+    val constants = enumConstants
+    return EnumSerializer(canonicalName, constants as Array<out Enum<*>>) as? KSerializer<T>
 }
 
 private fun <T : Any> findObjectSerializer(jClass: Class<T>): KSerializer<T>? {
