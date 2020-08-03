@@ -46,7 +46,7 @@ internal fun InvalidFloatingPointDecoded(value: Number, key: String, output: Str
 internal fun JsonReader.throwInvalidFloatingPointDecoded(result: Number): Nothing {
     fail("Unexpected special floating-point value $result. By default, " +
             "non-finite floating point values are prohibited because they do not conform JSON specification. " +
-            "It is possible to serialize them using 'JsonBuilder.allowSpecialFloatingPointValues = true'")
+            "It is possible to deserialize them using 'JsonBuilder.allowSpecialFloatingPointValues = true'")
 }
 
 private fun unexpectedFpErrorMessage(value: Number, key: String, output: String): String {
