@@ -202,20 +202,14 @@ internal class StreamingJsonDecoder internal constructor(
         val result = reader.takeString().parse("float") { toFloat() }
         val specialFp = json.configuration.allowSpecialFloatingPointValues
         if (specialFp || result.isFinite()) return result
-        unexpectedFp(result)
+        reader.throwInvalidFloatingPointDecoded(result)
     }
 
     override fun decodeDouble(): Double {
         val result = reader.takeString().parse("double") { toDouble() }
         val specialFp = json.configuration.allowSpecialFloatingPointValues
         if (specialFp || result.isFinite()) return result
-        unexpectedFp(result)
-    }
-
-    private fun unexpectedFp(result: Number): Nothing {
-        reader.fail("Unexpected special floating-point value $result. By default, " +
-                "non-finite floating point values are prohibited because they do not conform JSON specification. " +
-                "It is possible to serialize them using 'JsonBuilder.allowSpecialFloatingPointValues = true'")
+        reader.throwInvalidFloatingPointDecoded(result)
     }
 
     override fun decodeChar(): Char = reader.takeString().parse("char") { single() }

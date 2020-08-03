@@ -53,7 +53,7 @@ private sealed class AbstractJsonTreeEncoder(
         // First encode value, then check, to have a prettier error message
         putElement(tag, JsonPrimitive(value))
         if (!configuration.allowSpecialFloatingPointValues && !value.isFinite()) {
-            throw InvalidFloatingPoint(value, tag, getCurrent().toString())
+            throw InvalidFloatingPointEncoded(value, tag, getCurrent().toString())
         }
     }
 
@@ -71,7 +71,7 @@ private sealed class AbstractJsonTreeEncoder(
         // First encode value, then check, to have a prettier error message
         putElement(tag, JsonPrimitive(value))
         if (!configuration.allowSpecialFloatingPointValues && !value.isFinite()) {
-            throw InvalidFloatingPoint(value, tag, getCurrent().toString())
+            throw InvalidFloatingPointEncoded(value, tag, getCurrent().toString())
         }
     }
 
