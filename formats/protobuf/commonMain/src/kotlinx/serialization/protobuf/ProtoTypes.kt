@@ -15,6 +15,7 @@ import kotlinx.serialization.descriptors.*
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
+@ExperimentalSerializationApi
 public annotation class ProtoNumber(public val number: Int)
 
 /**
@@ -29,6 +30,7 @@ public annotation class ProtoNumber(public val number: Int)
  * @see ProtoType
  */
 @Suppress("NO_EXPLICIT_VISIBILITY_IN_API_MODE_WARNING")
+@ExperimentalSerializationApi
 public enum class ProtoIntegerType(internal val signature: Long) {
     DEFAULT(0L shl 32),
     SIGNED(1L shl 32),
@@ -41,6 +43,7 @@ public enum class ProtoIntegerType(internal val signature: Long) {
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
+@ExperimentalSerializationApi
 public annotation class ProtoType(public val type: ProtoIntegerType)
 
 

@@ -23,6 +23,7 @@ import kotlinx.serialization.modules.*
  * @param serializersModule A [SerializersModule] which should contain registered serializers
  * for [Contextual] and [Polymorphic] serialization, if you have any.
  */
+@ExperimentalSerializationApi
 public sealed class Hocon(
     internal val useConfigNamingConvention: Boolean,
     override val serializersModule: SerializersModule

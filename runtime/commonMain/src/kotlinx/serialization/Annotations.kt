@@ -222,7 +222,8 @@ public annotation class Polymorphic
  *
  * * Writing 3rd-party serialization formats
  * * Writing non-trivial custom serializers
- * * Implementing [SerialDescriptor] interfaces.
+ * * Implementing [SerialDescriptor] interfaces
+ * * Not-yet-stable serialization formats that require additional polishing
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPEALIAS)
 @RequiresOptIn(level = RequiresOptIn.Level.WARNING)

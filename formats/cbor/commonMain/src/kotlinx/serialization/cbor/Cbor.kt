@@ -5,6 +5,7 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.cbor.internal.ByteArrayInput
 import kotlinx.serialization.cbor.internal.ByteArrayOutput
 import kotlinx.serialization.cbor.internal.*
@@ -25,6 +26,7 @@ import kotlinx.serialization.modules.*
  *
  * @param encodeDefaults specifies whether default values of Kotlin properties are encoded.
  */
+@ExperimentalSerializationApi
 public sealed class Cbor(
     internal val encodeDefaults: Boolean,
     override val serializersModule: SerializersModule,

@@ -1,6 +1,6 @@
 package kotlinx.serialization.cbor
 
-import kotlinx.serialization.SerialInfo
+import kotlinx.serialization.*
 
 /**
  * Specifies that a [ByteArray] shall be encoded/decoded as CBOR major type 2: a byte string.
@@ -22,4 +22,5 @@ import kotlinx.serialization.SerialInfo
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
+@ExperimentalSerializationApi
 public annotation class ByteString

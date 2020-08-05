@@ -113,6 +113,7 @@ import kotlin.js.*
  * @param encodeDefaults specifies whether default values are encoded.
  * @param serializersModule application-specific [SerializersModule] to provide custom serializers.
  */
+@ExperimentalSerializationApi
 public sealed class ProtoBuf(
     internal val encodeDefaults: Boolean,
     override val serializersModule: SerializersModule,
