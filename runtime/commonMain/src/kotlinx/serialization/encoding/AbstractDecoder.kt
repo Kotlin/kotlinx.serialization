@@ -14,6 +14,7 @@ import kotlinx.serialization.modules.*
  * Most of the `decode*` methods have default implementation that delegates `decodeValue(value: Any) as TargetType`.
  * See [Decoder] documentation for information about each particular `decode*` method.
  */
+@ExperimentalSerializationApi
 public abstract class AbstractDecoder : Decoder, CompositeDecoder {
     override val serializersModule: SerializersModule
         get() = EmptySerializersModule

@@ -3,7 +3,7 @@
  */
 package sample
 
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.AbstractDecoder
 import kotlinx.serialization.encoding.AbstractEncoder
@@ -120,6 +120,7 @@ class BasicTypesSerializationTest {
 
     // KeyValue Input/Output
 
+    @OptIn(ExperimentalSerializationApi::class)
     class KeyValueOutput(val sb: StringBuilder) : AbstractEncoder() {
         override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
             sb.append('{')

@@ -22,7 +22,7 @@ import kotlin.contracts.*
  * }
  * ```
  */
-public fun buildJsonObject(builderAction: JsonObjectBuilder.() -> Unit): JsonObject {
+public inline fun buildJsonObject(builderAction: JsonObjectBuilder.() -> Unit): JsonObject {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
     val builder = JsonObjectBuilder()
     builder.builderAction()
@@ -45,7 +45,7 @@ public fun buildJsonObject(builderAction: JsonObjectBuilder.() -> Unit): JsonObj
  * }
  * ```
  */
-public fun buildJsonArray(builderAction: JsonArrayBuilder.() -> Unit): JsonArray {
+public inline fun buildJsonArray(builderAction: JsonArrayBuilder.() -> Unit): JsonArray {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
     val builder = JsonArrayBuilder()
     builder.builderAction()
@@ -56,7 +56,7 @@ public fun buildJsonArray(builderAction: JsonArrayBuilder.() -> Unit): JsonArray
  * DSL builder for a [JsonObject]. To create an instance of builder, use [buildJsonObject] build function.
  */
 @JsonDslMarker
-public class JsonObjectBuilder internal constructor() {
+public class JsonObjectBuilder @PublishedApi internal constructor() {
 
     private val content: MutableMap<String, JsonElement> = linkedMapOf()
 
@@ -67,6 +67,7 @@ public class JsonObjectBuilder internal constructor() {
      */
     public fun put(key: String, element: JsonElement): JsonElement? = content.put(key, element)
 
+    @PublishedApi
     internal fun build(): JsonObject = JsonObject(content)
 
     /**
@@ -163,7 +164,7 @@ public fun JsonObjectBuilder.put(key: String, value: String?): JsonElement? = pu
  * DSL builder for a [JsonArray]. To create an instance of builder, use [buildJsonArray] build function.
  */
 @JsonDslMarker
-public class JsonArrayBuilder internal constructor() {
+public class JsonArrayBuilder @PublishedApi internal constructor() {
 
     private val content: MutableList<JsonElement> = mutableListOf()
 
@@ -177,6 +178,7 @@ public class JsonArrayBuilder internal constructor() {
         return true
     }
 
+    @PublishedApi
     internal fun build(): JsonArray = JsonArray(content)
 
     /**

@@ -21,6 +21,7 @@ import kotlin.reflect.*
  * For application-level serialization, it is recommended to use `serializer<T>()` instead as it is aware of
  * Kotlin-specific type information, such as nullability, sealed classes and object.
  */
+@ExperimentalSerializationApi
 public fun serializer(type: Type): KSerializer<Any> = EmptySerializersModule.serializer(type)
 
 /**
@@ -34,6 +35,7 @@ public fun serializer(type: Type): KSerializer<Any> = EmptySerializersModule.ser
  * For application-level serialization, it is recommended to use `serializer<T>()` instead as it is aware of
  * Kotlin-specific type information, such as nullability, sealed classes and object.
  */
+@ExperimentalSerializationApi
 public fun SerializersModule.serializer(type: Type): KSerializer<Any> = when (type) {
     is GenericArrayType -> {
         genericArraySerializer(type)

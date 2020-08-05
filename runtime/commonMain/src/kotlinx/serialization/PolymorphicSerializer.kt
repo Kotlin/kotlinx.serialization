@@ -76,12 +76,14 @@ public class PolymorphicSerializer<T : Any>(override val baseClass: KClass<T>) :
         }.withContext(baseClass)
 }
 
+@InternalSerializationApi
 public fun <T : Any> AbstractPolymorphicSerializer<T>.findPolymorphicSerializer(
     decoder: CompositeDecoder,
     klassName: String?
 ): DeserializationStrategy<out T> =
     findPolymorphicSerializerOrNull(decoder, klassName) ?: throwSubtypeNotRegistered(klassName, baseClass)
 
+@InternalSerializationApi
 public fun <T : Any> AbstractPolymorphicSerializer<T>.findPolymorphicSerializer(
     encoder: Encoder,
     value: T

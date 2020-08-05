@@ -48,6 +48,7 @@ import kotlin.jvm.*
  *  val deserializedToTree: JsonElement = json.parseJsonElement(stringOutput)
  * ```
  */
+@OptIn(ExperimentalSerializationApi::class)
 public sealed class Json(internal val configuration: JsonConf) : StringFormat {
 
     override val serializersModule: SerializersModule
@@ -184,8 +185,8 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
 
     /**
      * Specifies indent string to use with [prettyPrint] mode.
-     * TODO specify whitespaces
      */
+    @ExperimentalSerializationApi
     public var prettyPrintIndent: String = conf.prettyPrintIndent
 
     /**
@@ -238,14 +239,6 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
             coerceInputValues, useArrayPolymorphism,
             classDiscriminator, allowSpecialFloatingPointValues, serializersModule
         )
-    }
-
-    private companion object {
-        @JvmStatic
-        private val defaultIndent = "    "
-
-        @JvmStatic
-        private val defaultDiscriminator = "type"
     }
 
     // Deprecated members below
@@ -386,3 +379,6 @@ public fun Json(context: SerializersModule): Json = error("Deprecated and should
     replaceWith = ReplaceWith("Json")
 )
 public fun Json(): Json = error("Deprecated and should not be called")
+
+private const val defaultIndent = "    "
+private const val defaultDiscriminator = "type"
