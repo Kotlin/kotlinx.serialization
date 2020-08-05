@@ -48,6 +48,13 @@ class SerializersLookupEnumTest : JsonTestBase() {
     @Polymorphic
     enum class EnumPolymorphic
 
+    @Serializable
+    enum class PlainEnum
+
+    @Test
+    fun testPlainEnum() {
+        assertEquals(PlainEnum.serializer(), serializer<PlainEnum>())
+    }
 
     @Test
     fun testEnumExternalObject() {

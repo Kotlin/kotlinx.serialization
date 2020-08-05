@@ -52,5 +52,5 @@ class SerializerJvmSpecificTest {
         assertEquals(holderChildDescriptor(2), serializer<ExplicitAbstract>().descriptor)
     }
 
-    private fun holderChildDescriptor(i: Int) =  (Holder.serializer() as GeneratedSerializer).childSerializers()[i].descriptor
+    private fun holderChildDescriptor(i: Int) = Holder.serializer().descriptor.getElementDescriptor(i)
 }

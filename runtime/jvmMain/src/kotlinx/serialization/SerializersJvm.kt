@@ -29,10 +29,9 @@ public fun serializer(type: Type): KSerializer<Any> = EmptySerializersModule.ser
  *
  * [serializer] is intended to be used as an interoperability layer for libraries like GSON and Retrofit,
  * that operate with reflective Java [Type] and cannot use [typeOf].
- * Serializers is looked up in the contextual serializers of the module and then constructed reflectively.
  *
  * For application-level serialization, it is recommended to use `serializer<T>()` instead as it is aware of
- * Kotlin-specific type information, such as nullability, sealed classes and object.
+ * Kotlin-specific type information, such as nullability, sealed classes and object singletons.
  */
 public fun SerializersModule.serializer(type: Type): KSerializer<Any> = when (type) {
     is GenericArrayType -> {

@@ -100,6 +100,6 @@ private class ContextDescriptor(
     }
 
     override fun toString(): String {
-        return "ContextDescriptor(kClass: $kClass, original: ${original})"
+        return "ContextDescriptor(kClass: $kClass, original: $original)"
     }
 }

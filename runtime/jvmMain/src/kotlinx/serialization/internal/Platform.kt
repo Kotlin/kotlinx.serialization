@@ -62,10 +62,15 @@ private fun <T: Any> Class<T>.isNotAnnotated(): Boolean {
 }
 
 private fun <T: Any> KClass<T>.polymorphicSerializer(): KSerializer<T>? {
+    /*
+     * Last resort: check for @Polymorphic or Serializable(with = PolymorphicSerializer::class)
+     * annotations.
+     */
     val jClass = java
-    if (jClass.getDeclaredAnnotation(Polymorphic::class.java) != null)
+    if (jClass.getDeclaredAnnotation(Polymorphic::class.java) != null) {
         return PolymorphicSerializer(this)
-    val serializable = java.getDeclaredAnnotation(Serializable::class.java)
+    }
+    val serializable = jClass.getDeclaredAnnotation(Serializable::class.java)
     if (serializable != null && serializable.with == PolymorphicSerializer::class) {
         return PolymorphicSerializer(this)
     }
@@ -73,7 +78,11 @@ private fun <T: Any> KClass<T>.polymorphicSerializer(): KSerializer<T>? {
 }
 
 private fun <T: Any> KClass<T>.interfaceSerializer(): KSerializer<T>? {
-    // Polymorphic is applied explicitly
+    /*
+     * Interfaces are @Polymorphic by default.
+     * Check if it has no annotations or `@Serializable(with = PolymorphicSerializer::class)`,
+     * otherwise bailout.
+     */
     val serializable = java.getDeclaredAnnotation(Serializable::class.java)
     if (serializable == null || serializable.with == PolymorphicSerializer::class) {
         return PolymorphicSerializer(this)
