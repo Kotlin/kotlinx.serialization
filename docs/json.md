@@ -11,13 +11,13 @@ In this chapter we'll walk through various [Json] features.
 
 * [Json configuration](#json-configuration)
   * [Pretty printing](#pretty-printing)
-  * [Encoding defaults](#encoding-defaults)
+  * [Lenient parsing](#lenient-parsing)
   * [Ignoring unknown keys](#ignoring-unknown-keys)
-  * [Allowing structured map keys](#allowing-structured-map-keys)
   * [Coercing input values](#coercing-input-values)
+  * [Encoding defaults](#encoding-defaults)
+  * [Allowing structured map keys](#allowing-structured-map-keys)
   * [Allowing special floating-point values](#allowing-special-floating-point-values)
   * [Class discriminator](#class-discriminator)
-  * [Lenient parsing](#lenient-parsing)
 * [Json elements](#json-elements)
   * [Parsing to Json element](#parsing-to-json-element)
   * [Subtypes of Json elements](#subtypes-of-json-elements)
@@ -82,42 +82,46 @@ It gives the following nice result.
 
 <!--- TEST -->
 
-### Encoding defaults 
 
-Default values of properties don't have to be encoded, because they will be reconstructed during encoding anyway.
-It can be configured by the [encodeDefaults][JsonBuilder.encodeDefaults] property.
-This is especially useful for nullable properties with null defaults to avoid writing the corresponding 
-null values.
+### Lenient parsing
+
+By default, [Json] parser enforces various JSON restrictions to be as specification-compliant as possible 
+(see [RFC-4627]). Keys must be quoted, literals shall be unquoted. Those restrictions can be relaxed with
+the [isLenient][JsonBuilder.isLenient] property. With `isLenient = true` we can parse quite freely-formatted data.
 
 ```kotlin
-val format = Json { encodeDefaults = false }
+val format = Json { isLenient = true }
+
+enum class Status { SUPPORTED }                                                     
 
 @Serializable 
-class Project(
-    val name: String, 
-    val language: String = "Kotlin",
-    val website: String? = null
-)           
-
-fun main() {
-    val data = Project("kotlinx.serialization")
-    println(format.encodeToString(data))
+data class Project(val name: String, val status: Status, val votes: Int)
+    
+fun main() {             
+    val data = format.decodeFromString<Project>("""
+        { 
+            name   : kotlinx.serialization,
+            status : SUPPORTED,
+            votes  : "9000"
+        }
+    """)
+    println(data)
 }
 ```                                  
 
 > You can get the full code [here](../guide/example/example-json-02.kt).
 
-Produces the following output which has only the `name` property:
-
+We get the object, even though all keys, string and enum values are unquoted, while an integer was quoted. 
+ 
 ```text
-{"name":"kotlinx.serialization"}
-```                 
+Project(name=kotlinx.serialization, status=SUPPORTED, votes=9000)
+``` 
 
 <!--- TEST -->
 
 ### Ignoring unknown keys
 
-JSON format is often used to read output of 3rd-party services or in otherwise highly-dynamic environment where
+JSON format is often used to read the output of 3rd-party services or in otherwise highly-dynamic environment where
 new properties could be added as a part of API evolution. By default, unknown keys encountered during deserialization produces an error. 
 This behavior can be configured with 
 the [ignoreUnknownKeys][JsonBuilder.ignoreUnknownKeys] property.
@@ -146,38 +150,6 @@ Project(name=kotlinx.serialization)
 
 <!--- TEST -->
 
-### Allowing structured map keys
-
-JSON format does not natively support the concept of a map with structured keys. Keys in JSON objects
-are strings and can be used to represent only primitives or enums by default.
-A non-standard support for structured keys can be enabled with 
-the [allowStructuredMapKeys][JsonBuilder.allowStructuredMapKeys] property.
-
-```kotlin
-val format = Json { allowStructuredMapKeys = true }
-
-@Serializable 
-data class Project(val name: String)
-    
-fun main() {             
-    val map = mapOf(
-        Project("kotlinx.serialization") to "Serialization",
-        Project("kotlinx.coroutines") to "Coroutines"
-    )
-    println(format.encodeToString(map))
-}
-```                                  
-
-> You can get the full code [here](../guide/example/example-json-04.kt).
-
-The map with structured keys gets represented as `[key1, value1, key2, value2,...]` JSON array.
- 
-```text
-[{"name":"kotlinx.serialization"},"Serialization",{"name":"kotlinx.coroutines"},"Coroutines"]
-``` 
-
-<!--- TEST -->
-
 ### Coercing input values
 
 JSON formats that are encountered in the wild can be flexible in terms of types and evolve quickly.
@@ -186,11 +158,11 @@ By default [Json] implementation is strict with respect to input types as was de
 the [Type safety is enforced](basic-serialization.md#type-safety-is-enforced) section. It can be somewhat relaxed using
 the [coerceInputValues][JsonBuilder.coerceInputValues] property. 
 
-This property only effects decoding. It treats a limited subset of invalid input values as if the
+This property only affects decoding. It treats a limited subset of invalid input values as if the
 corresponding property was missing and uses a default value of the corresponding property instead.
 The current list of supported invalid values is:
 
-* `null` inputs for a non-nullable types.
+* `null` inputs for non-nullable types.
 * Unknown values for enums.
 
 > This list may be expanded in the future, so that [Json] instance configured with this property becomes even more
@@ -212,7 +184,7 @@ fun main() {
 }
 ```                                  
 
-> You can get the full code [here](../guide/example/example-json-05.kt).
+> You can get the full code [here](../guide/example/example-json-04.kt).
 
 We see that invalid `null` value for the `language` property was coerced into the default value.
 
@@ -220,13 +192,79 @@ We see that invalid `null` value for the `language` property was coerced into th
 Project(name=kotlinx.serialization, language=Kotlin)
 ```    
 
-<!--- TEST -->                
+<!--- TEST -->
+
+
+### Encoding defaults 
+
+Default values of properties don't have to be encoded, because they will be reconstructed during encoding anyway.
+It can be configured by the [encodeDefaults][JsonBuilder.encodeDefaults] property.
+This is especially useful for nullable properties with null defaults to avoid writing the corresponding 
+null values.
+
+```kotlin
+val format = Json { encodeDefaults = false }
+
+@Serializable 
+class Project(
+    val name: String, 
+    val language: String = "Kotlin",
+    val website: String? = null
+)           
+
+fun main() {
+    val data = Project("kotlinx.serialization")
+    println(format.encodeToString(data))
+}
+```                                  
+
+> You can get the full code [here](../guide/example/example-json-05.kt).
+
+Produces the following output which has only the `name` property:
+
+```text
+{"name":"kotlinx.serialization"}
+```                 
+
+<!--- TEST -->
+
+### Allowing structured map keys
+
+JSON format does not natively support the concept of a map with structured keys. Keys in JSON objects
+are strings and can be used to represent only primitives or enums by default.
+Non-standard support for structured keys can be enabled with 
+the [allowStructuredMapKeys][JsonBuilder.allowStructuredMapKeys] property.
+
+```kotlin
+val format = Json { allowStructuredMapKeys = true }
+
+@Serializable 
+data class Project(val name: String)
+    
+fun main() {             
+    val map = mapOf(
+        Project("kotlinx.serialization") to "Serialization",
+        Project("kotlinx.coroutines") to "Coroutines"
+    )
+    println(format.encodeToString(map))
+}
+```                                  
+
+> You can get the full code [here](../guide/example/example-json-06.kt).
+
+The map with structured keys gets represented as `[key1, value1, key2, value2,...]` JSON array.
+ 
+```text
+[{"name":"kotlinx.serialization"},"Serialization",{"name":"kotlinx.coroutines"},"Coroutines"]
+``` 
+
+<!--- TEST -->           
 
 ### Allowing special floating-point values
 
-As we saw in the [Special floating-point values](builtin-classes.md#special-floating-point-values) section, 
-by default, special floating-point values like [Double.NaN] and infinities are not supported in JSON.
-They can be enabled using the [allowSpecialFloatingPointValues][JsonBuilder.allowSpecialFloatingPointValues]
+By default, special floating-point values like [Double.NaN] and infinities are not supported in JSON, because
+the JSON specification prohibits it.
+But they can be enabled using the [allowSpecialFloatingPointValues][JsonBuilder.allowSpecialFloatingPointValues]
 property.
 
 ```kotlin       
@@ -243,7 +281,7 @@ fun main() {
 }
 ```                                   
 
-> You can get the full code [here](../guide/example/example-json-06.kt).
+> You can get the full code [here](../guide/example/example-json-07.kt).
 
 This example produces the following non-stardard JSON output, yet it is a widely used encoding for
 special values in JVM world.
@@ -277,7 +315,7 @@ fun main() {
 }  
 ```
 
-> You can get the full code [here](../guide/example/example-json-07.kt).
+> You can get the full code [here](../guide/example/example-json-08.kt).
 
 In combination with an explicitly specified [SerialName] of the class it provides full
 control on the resulting JSON object. 
@@ -285,42 +323,6 @@ control on the resulting JSON object.
 ```text 
 {"#class":"owned","name":"kotlinx.coroutines","owner":"kotlin"}
 ```                   
-
-<!--- TEST -->
-
-### Lenient parsing
-
-By default [Json] parser enforces various JSON restrictions to be as specification-compliant as possible 
-(see [RFC-4627]). Keys must be quoted, literals shall be unquoted. Those restrictions can be relaxed with
-the [isLenient][JsonBuilder.isLenient] property. With `isLenient = true` we can parse quite freely-formatted data.
-
-```kotlin
-val format = Json { isLenient = true }
-
-enum class Status { SUPPORTED }                                                     
-
-@Serializable 
-data class Project(val name: String, val status: Status, val votes: Int)
-    
-fun main() {             
-    val data = format.decodeFromString<Project>("""
-        { 
-            name   : kotlinx.serialization,
-            status : SUPPORTED,
-            votes  : "9000"
-        }
-    """)
-    println(data)
-}
-```                                  
-
-> You can get the full code [here](../guide/example/example-json-08.kt).
-
-We get the object, even though all keys, string and enum values are unquoted, while an integer was quoted. 
- 
-```text
-Project(name=kotlinx.serialization, status=SUPPORTED, votes=9000)
-``` 
 
 <!--- TEST -->
 
@@ -486,8 +488,8 @@ represented by the [JsonElement] class using the
 ### Array wrapping
 
 The first example is our own implementation of JSON array wrapping for lists. Consider a REST API that returns a 
-JSON array  of `User` objects, or, if there is only one element in the result, then it is a single object, not wrapped 
-into an array. In our data model we use [`@Serializable`][Serializable] annotation to specify a custom serializer for a
+JSON array of `User` objects, or, if there is only one element in the result, then it is a single object, not wrapped 
+into an array. In our data model, we use [`@Serializable`][Serializable] annotation to specify a custom serializer for a
 `users: List<User>` property.  
 
 <!--- INCLUDE
@@ -546,7 +548,7 @@ Project(name=kotlinx.serialization, users=[User(name=kotlin), User(name=jetbrain
 
 ### Array unwrapping
 
-We can also implement the `transformSerialize` function to unwrap a single-element list into an single JSON object 
+We can also implement the `transformSerialize` function to unwrap a single-element list into a single JSON object 
 during serialization. 
 
 <!--- INCLUDE
@@ -601,7 +603,7 @@ Another kind of useful transformation is omitting specific values from the outpu
 is treated as default when missing or for any other domain-specific reasons.
 
 Suppose that our `Project` data model cannot specify a default value for the `language` property, 
-but it has to omitted from the JSON when it is equal to `Kotlin` (we can all agree that Kotlin should be a default anyway).
+but it has to omitted from the JSON when it is equal to `Kotlin` (we can all agree that Kotlin should be default anyway).
 We'll fix it by writing the special `ProjectSerializer` based on 
 the [Plugin-generated serializer](serializers.md#plugin-generated-serializer) for the `Project` class.
 
@@ -618,7 +620,7 @@ object ProjectSerializer : JsonTransformingSerializer<Project>(Project.serialize
 }                           
 ```
 
-In the example below we are serializing the `Project` class at the top-level, so we explicitly
+In the example below, we are serializing the `Project` class at the top-level, so we explicitly
 pass the above `ProjectSerializer` to [Json.encodeToString] function as was shown in
 the [Passing a serializer manually](serializers.md#passing-a-serializer-manually) section.   
 
@@ -651,7 +653,7 @@ However, sometimes type property may not be present in the input, and it is expe
 shape of JSON, for example by the presence of a specific key.
 
 [JsonContentPolymorphicSerializer] provides a skeleton implementation for such a strategy.
-To use it we override its [selectDeserializer][JsonContentPolymorphicSerializer.selectDeserializer] method.
+To use it, we override its [selectDeserializer][JsonContentPolymorphicSerializer.selectDeserializer] method.
 Let us start with the following class hierarchy. 
 
 > Note, that is does not have to be `sealed` as recommended in the [Sealed classes](polymorphism.md#sealed-classes) section,
@@ -836,13 +838,13 @@ The next chapter covers [Alternative and custom formats (experimental)](formats.
 [Json()]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.json/-json.html
 [JsonBuilder]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.json/-json-builder/index.html
 [JsonBuilder.prettyPrint]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.json/-json-builder/pretty-print.html
-[JsonBuilder.encodeDefaults]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.json/-json-builder/encode-defaults.html
+[JsonBuilder.isLenient]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.json/-json-builder/is-lenient.html
 [JsonBuilder.ignoreUnknownKeys]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.json/-json-builder/ignore-unknown-keys.html
-[JsonBuilder.allowStructuredMapKeys]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.json/-json-builder/allow-structured-map-keys.html
 [JsonBuilder.coerceInputValues]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.json/-json-builder/coerce-input-values.html
+[JsonBuilder.encodeDefaults]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.json/-json-builder/encode-defaults.html
+[JsonBuilder.allowStructuredMapKeys]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.json/-json-builder/allow-structured-map-keys.html
 [JsonBuilder.allowSpecialFloatingPointValues]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.json/-json-builder/allow-special-floating-point-values.html
 [JsonBuilder.classDiscriminator]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.json/-json-builder/class-discriminator.html
-[JsonBuilder.isLenient]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.json/-json-builder/is-lenient.html
 [JsonElement]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.json/-json-element.html
 [Json.parseToJsonElement]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.json/-json/parse-to-json-element.html
 [JsonPrimitive]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.json/-json-primitive/index.html

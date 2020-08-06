@@ -27,7 +27,7 @@ data class Color(val rgb: Int)
 data class Settings(val background: Color, val foreground: Color)
 
 fun main() {
-    val data = Settings(Color(0xfffffff), Color(0))
+    val data = Settings(Color(0xffffff), Color(0))
     val string = Json.encodeToString(data)
     println(string)
     require(Json.decodeFromString<Settings>(string) == data)

@@ -18,7 +18,7 @@ class JsonTest {
     @Test
     fun testExampleJson02() {
         captureOutput("ExampleJson02") { example.exampleJson02.main() }.verifyOutputLines(
-            "{\"name\":\"kotlinx.serialization\"}"
+            "Project(name=kotlinx.serialization, status=SUPPORTED, votes=9000)"
         )
     }
 
@@ -32,35 +32,35 @@ class JsonTest {
     @Test
     fun testExampleJson04() {
         captureOutput("ExampleJson04") { example.exampleJson04.main() }.verifyOutputLines(
-            "[{\"name\":\"kotlinx.serialization\"},\"Serialization\",{\"name\":\"kotlinx.coroutines\"},\"Coroutines\"]"
+            "Project(name=kotlinx.serialization, language=Kotlin)"
         )
     }
 
     @Test
     fun testExampleJson05() {
         captureOutput("ExampleJson05") { example.exampleJson05.main() }.verifyOutputLines(
-            "Project(name=kotlinx.serialization, language=Kotlin)"
+            "{\"name\":\"kotlinx.serialization\"}"
         )
     }
 
     @Test
     fun testExampleJson06() {
         captureOutput("ExampleJson06") { example.exampleJson06.main() }.verifyOutputLines(
-            "{\"value\":NaN}"
+            "[{\"name\":\"kotlinx.serialization\"},\"Serialization\",{\"name\":\"kotlinx.coroutines\"},\"Coroutines\"]"
         )
     }
 
     @Test
     fun testExampleJson07() {
         captureOutput("ExampleJson07") { example.exampleJson07.main() }.verifyOutputLines(
-            "{\"#class\":\"owned\",\"name\":\"kotlinx.coroutines\",\"owner\":\"kotlin\"}"
+            "{\"value\":NaN}"
         )
     }
 
     @Test
     fun testExampleJson08() {
         captureOutput("ExampleJson08") { example.exampleJson08.main() }.verifyOutputLines(
-            "Project(name=kotlinx.serialization, status=SUPPORTED, votes=9000)"
+            "{\"#class\":\"owned\",\"name\":\"kotlinx.coroutines\",\"owner\":\"kotlin\"}"
         )
     }
 

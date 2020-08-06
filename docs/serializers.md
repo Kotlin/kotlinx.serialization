@@ -35,11 +35,11 @@ In this chapter we'll take a look at serializers in more detail and see how cust
 
 ## Introduction to serializers
 
-Format, like JSON, controls _encoding_ of object into specific output bytes, but how the object is decomposed 
+Format, like JSON, controls the _encoding_ of an object into specific output bytes, but how the object is decomposed 
 into its constituent properties is controlled by a _serializer_. So far, we've been using automatically-derived
 serializers using the [`@Serializable`][Serializable] annotation as explained in 
-the [Serializable classes](#serializable-classes) section or builtin serializers that were shown in 
-the [Builtin classes](#builtin-classes) section.
+the [Serializable classes](/docs/basic-serialization.md#serializable-classes) section or builtin serializers that were shown in 
+the [Builtin classes](/docs/builtin-classes.md) section.
 
 As a motivating example, let us take the following `Color` class with an integer value storing its `rgb` bytes.
 
@@ -143,7 +143,7 @@ Box(contents: Color)
 
 ### Builtin primitive serializers
 
-The serializers for the [Primitive builtin classes](builtin-classes.md#primitives) can be retrieved
+The serializers for the [primitive builtin classes](builtin-classes.md#primitives) can be retrieved
 using `.serializer()` extensions. 
 
 <!--- INCLUDE
@@ -255,21 +255,21 @@ Serializer has three required pieces.
   It receives an instance of [Encoder] and a value to serialize.
   It uses `encodeXxx` functions of `Encoder` to represent a value as a sequence of primitives. There is an 
   `encodeXxx` for each primitive type supported by serialization. 
-  In our example [encodeString][Encoder.encodeString] is used.
+  In our example, [encodeString][Encoder.encodeString] is used.
   
 * The [deserialize][DeserializationStrategy.deserialize] function implements [DeserializationStrategy].
   It receives an instance of [Decoder] and returns a 
   deserialized value. It uses `decodeXxx` functions of `Decoder` that mirror the corresponding functions of `Encoder`.
-  In our example [decodeString][Decoder.decodeString] is used.
+  In our example, [decodeString][Decoder.decodeString] is used.
   
 * The [descriptor][KSerializer.descriptor] property must faithfully explain what exactly `encodeXxx` and `decodeXxx` 
-  functions do, so that a format implementation knows in advance what encoding/decoding methods they call. 
-  Some formats might also use it to generate a schema of the serialized data. For primitive serialization 
+  functions do so that a format implementation knows in advance what encoding/decoding methods they call. 
+  Some formats might also use it to generate a schema of the serialized data. For primitive serialization, 
   the [PrimitiveSerialDescriptor][PrimitiveSerialDescriptor()] function must be used with a unique name of the 
   type that is being serialized.
-  [PrimitiveKind] describes the specific `encodeXxx`/`decodeXxx` method that is being used in implementation.
+  [PrimitiveKind] describes the specific `encodeXxx`/`decodeXxx` method that is being used in the implementation.
   
-> When the `descriptor` does not corresponding to the encoding/decoding methods, then the behavior of the resulting code
+> When the `descriptor` does not correspond to the encoding/decoding methods, then the behavior of the resulting code
 > is unspecified and may arbitrary change in futures updates.        
   
 The next step is to bind serializer to a class. This is done with the [`@Serializable`][Serializable]annotation by adding
@@ -359,7 +359,7 @@ data class Color(val rgb: Int)
 data class Settings(val background: Color, val foreground: Color)
 
 fun main() {
-    val data = Settings(Color(0xfffffff), Color(0))
+    val data = Settings(Color(0xffffff), Color(0))
     val string = Json.encodeToString(data)
     println(string)
     require(Json.decodeFromString<Settings>(string) == data)
@@ -371,7 +371,7 @@ fun main() {
 Both `Color` properties are serialized as strings.
 
 ```text 
-{"background":"fffffff","foreground":"000000"}
+{"background":"ffffff","foreground":"000000"}
 ```
 
 <!--- TEST -->
@@ -379,7 +379,7 @@ Both `Color` properties are serialized as strings.
 ### Composite serializer via surrogate
 
 Now our challenge is to get `Color` serialized so that it is represented in JSON as if it is a class 
-with three properties: `r`, `g`, and `b`, so that JSON encodes it as object. 
+with three properties: `r`, `g`, and `b`, so that JSON encodes it as an object. 
 The easiest way to achieve it is to define a _surrogate_ class mimicking the serialized form of the `Color` that
 we are going to use for its serialization. We also set [SerialName] of this surrogate class to `Color`, so
 that if a format uses this name, the surrogate looks like it is a `Color` class.
@@ -402,7 +402,7 @@ private class ColorSurrogate(val r: Int, val g: Int, val b: Int) {
 Now we can use a `ColorSurrogate.serializer()` function to retrieve a plugin-generated serializer for the
 surrogate class.
 
-An implementation of [KSerializer] for our original `Color` class is going to perform conversion between
+An implementation of [KSerializer] for our original `Color` class is going to perform a conversion between
 `Color` and `ColorSurrogate`, but delegate the actual serialization logic to the `ColorSurrogate.serializer()`
 using [encodeSerializableValue][Encoder.encodeSerializableValue] and
 [decodeSerializableValue][Decoder.decodeSerializableValue], fully reusing an automatically
@@ -452,8 +452,8 @@ fun main() {
 
 There are some cases where a surrogate solution does not fit. It can be due to performance reasons
 of avoiding additional allocation or where a configurable/dynamic set of properties of
-the resulting serial representation is required. In this case we need to manually write a class
-serializer that mimics the behavior of a serializer that is generated for a class. 
+the resulting serial representation is required. In this case, we need to manually write a class
+serializer that mimics the behaviour of a serializer that is generated for a class. 
 
 ```kotlin 
 object ColorAsObjectSerializer : KSerializer<Color> {
@@ -491,7 +491,7 @@ in the same order as in the descriptor.
 
 The most complex piece of code is the `deserialize` function. It shall support formats, like JSON, that 
 can decode properties in an arbitrary order. It starts with the call to [decodeStructure] to 
-get access to a [CompositeDecoder]. Inside of it we write a loop that repeatedly calls 
+get access to a [CompositeDecoder]. Inside of it, we write a loop that repeatedly calls 
 [decodeElementIndex][CompositeDecoder.decodeElementIndex] to decode the index of the next element, decode the corresponding
 element using [decodeIntElement][CompositeDecoder.decodeIntElement] in our example, and terminate a loop when
 `CompositeDecoder.DECODE_DONE` is encountered.
@@ -548,7 +548,7 @@ As before, we got the `Color` class represented as a JSON object with three keys
 
 The implementation of the `deserialize` function from the previous section works with any format. However,
 some formats either always store all the complex data in order or do it sometimes (for example, JSON always stores
-collections in order). With these formats the complex protocol of calling `decodeElementIndex` in the loop is 
+collections in order). With these formats, the complex protocol of calling `decodeElementIndex` in the loop is 
 not needed and a faster implementation can be used if the [CompositeDecoder.decodeSequentially] function returns `true`.
 The plugin-generated serializers are actually conceptually similar to the below code.
 
@@ -618,7 +618,7 @@ fun main() {
 
 Sometimes an application has to work with an external type that is not serializable. 
 Let us use [java.util.Date] as an example. As before, we start by writing an implementation for [KSerializer]
-for the class. Our goal is get a `Date` serialized as the long number of millisecond following the 
+for the class. Our goal is to get a `Date` serialized as the long number of milliseconds following the 
 approach from the [Primitive serializer](#primitive-serializer) section.
 
 > In the following sections any kind of `Date` serializer would work. For example, if we want `Date` to be serialized 
@@ -735,13 +735,14 @@ fun main() {
     val data = ProgrammingLanguage("Kotlin", SimpleDateFormat("yyyy-MM-ddX").parse("2016-02-15+00"))
     println(Json.encodeToString(data))
 }
-```    
-
+```   
 > You can get the full code [here](../guide/example/example-serializer-15.kt).
 
-<--- TEST 
+```text
 {"name":"Kotlin","stableReleaseDate":1455494400000}
--->
+```
+
+<!--- TEST --> 
 
 ### Custom serializers for a generic type
 
@@ -812,9 +813,9 @@ This chapter proceeds to a generic approach of tweaking serialization strategy b
 
 All the previous approaches to specifying the custom serialization strategies that we saw were _static_, 
 fully defined at compile-time. The exception was the [Passing a serializer manually](#passing-a-serializer-manually)
-approach, but it worked only on a top-level object that is being serialized. You might need to change serialization
-strategy of objects deep in the serialized object tree at run-time, so that it is selected in a context-dependent way.
-For example, you might want to represent `java.util.Date` in JSON format as an ISO6801 string or as a long integer
+approach, but it worked only on a top-level object that is being serialized. You might need to change the serialization
+strategy of objects deep in the serialized object tree at run-time so that it is selected in a context-dependent way.
+For example, you might want to represent `java.util.Date` in JSON format as an ISO 6801 string or as a long integer
 depending on a version of a protocol you are serializing data for. This is called _contextual_ serialization and
 is supported by a built-in [ContextualSerializer] class. Usually, we don't have to use this serializer class explicitly 
 as there is the [Contextual] annotation providing a shortcut to 
@@ -875,7 +876,7 @@ class ProgrammingLanguage(
 
 ### Serializers module
 
-To provide a context we define a [SerializersModule] instance that describes which serializers shall be used 
+To provide a context, we define a [SerializersModule] instance that describes which serializers shall be used 
 at run-time to serialize which contextually-serializable classes. This is done using the 
 [SerializersModule {}][SerializersModule()] builder function, which provides [SerializersModuleBuilder] DSL to 
 register serializers. In the below example we use [contextual] function with the serializer. The corresponding
@@ -907,10 +908,11 @@ fun main() {
 ```
 
 > You can get the full code [here](../guide/example/example-serializer-18.kt).
-
-<--- TEST 
+```text
 {"name":"Kotlin","stableReleaseDate":1455494400000}
--->
+```
+
+<!--- TEST -->
 
 > Additional details on serialization modules are given in 
 > the [Merging library serializers modules](polymorphism.md#merging-library-serializers-modules) section of

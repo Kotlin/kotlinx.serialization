@@ -4,15 +4,14 @@ package example.exampleJson04
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-val format = Json { allowStructuredMapKeys = true }
+val format = Json { coerceInputValues = true }
 
 @Serializable 
-data class Project(val name: String)
-    
-fun main() {             
-    val map = mapOf(
-        Project("kotlinx.serialization") to "Serialization",
-        Project("kotlinx.coroutines") to "Coroutines"
-    )
-    println(format.encodeToString(map))
+data class Project(val name: String, val language: String = "Kotlin")
+
+fun main() {
+    val data = format.decodeFromString<Project>("""
+        {"name":"kotlinx.serialization","language":null}
+    """)
+    println(data)
 }

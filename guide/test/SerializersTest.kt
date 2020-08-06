@@ -64,7 +64,7 @@ class SerializersTest {
     @Test
     fun testExampleSerializer09() {
         captureOutput("ExampleSerializer09") { example.exampleSerializer09.main() }.verifyOutputLines(
-            "{\"background\":\"fffffff\",\"foreground\":\"000000\"}"
+            "{\"background\":\"ffffff\",\"foreground\":\"000000\"}"
         )
     }
 
@@ -104,6 +104,13 @@ class SerializersTest {
     }
 
     @Test
+    fun testExampleSerializer15() {
+        captureOutput("ExampleSerializer15") { example.exampleSerializer15.main() }.verifyOutputLines(
+            "{\"name\":\"Kotlin\",\"stableReleaseDate\":1455494400000}"
+        )
+    }
+
+    @Test
     fun testExampleSerializer16() {
         captureOutput("ExampleSerializer16") { example.exampleSerializer16.main() }.verifyOutputLines(
             "{\"name\":\"kotlinx.serialization\"}",
@@ -116,6 +123,13 @@ class SerializersTest {
         captureOutput("ExampleSerializer17") { example.exampleSerializer17.main() }.verifyOutputLinesStart(
             "Exception in thread \"main\" kotlinx.serialization.SerializationException: Serializer for class 'Date' is not found.",
             "Mark the class as @Serializable or provide the serializer explicitly."
+        )
+    }
+
+    @Test
+    fun testExampleSerializer18() {
+        captureOutput("ExampleSerializer18") { example.exampleSerializer18.main() }.verifyOutputLines(
+            "{\"name\":\"Kotlin\",\"stableReleaseDate\":1455494400000}"
         )
     }
 

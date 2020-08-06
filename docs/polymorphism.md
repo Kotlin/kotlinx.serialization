@@ -46,7 +46,7 @@ to serialize polymorphic data structures, where the type of data is determined a
 
 To show the static nature of Kotlin serialization let us make the following setup. An `open class Project`
 has just the `name` property, while its derived `class OwnedProject` adds an `owner` property.
-In the below example we serialize `data` variable with a static type of
+In the below example, we serialize `data` variable with a static type of
 `Project` that is initialized with an instance of `OwnedProject` at runtime.
 
 ```kotlin
@@ -216,7 +216,7 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-poly-06.kt).
 
-The properties on the superclass are serialized before the properties of the subclass. 
+The properties of the superclass are serialized before the properties of the subclass. 
 
 ```text 
 {"type":"owned","status":"open","name":"kotlinx.coroutines","owner":"kotlin"}
@@ -271,7 +271,7 @@ must be explicitly registered at runtime.
 ### Registered subclasses
 
 Let us start with the code from the [Designing serializable hierarchy](#designing-serializable-hierarchy) section.
-To make it work with serialization without making `sealed` we need to define a [SerializersModule] using the 
+To make it work with serialization without making it `sealed`, we have to define a [SerializersModule] using the 
 [SerializersModule {}][SerializersModule()] builder function. In the module the base class is specified 
 in the [polymorphic] builder and each subclass is registered with the [subclass] function. Now, 
 a custom JSON configuration can be instantiated with this module and used for serialization.
@@ -453,7 +453,7 @@ the [SerializersModule] of our `format`, we get it working at runtime.
 ### Static parent type lookup for polymorphism
 
 During serialization of a polymorphic class the root type of the polymorphic hierarchy (`Project` in our example)
-is determined statically. Let we take the example with the serializable `abstract class Project`, 
+is determined statically. Let us take the example with the serializable `abstract class Project`, 
 but change the `main` function to declare `data` as having a type of `Any`:
 
 <!--- INCLUDE 
@@ -591,7 +591,7 @@ However, Kotlin serialization does not compile a serializable class with a prope
 If we have a property of `Any` class or other non-serializable class, then we must explicitly provide its serialization 
 strategy via the [`@Serializable`][Serializable] annotation as we saw in 
 the [Specifying serializer on a property](serializers.md#specifying-serializer-on-a-property) section. 
-To specify a polymorphic serialization strategy of a property the special-purpose [`@Polymorphic`][Polymorphic] 
+To specify a polymorphic serialization strategy of a property, the special-purpose [`@Polymorphic`][Polymorphic] 
 annotation is used.
 
 <!--- INCLUDE 
@@ -703,7 +703,7 @@ abstract class Response<out T>
 data class OkResponse<out T>(val data: T) : Response<T>()
 ```
  
-Kotlin serialization does not have a builtin strategy represent the actually provided argument type for the
+Kotlin serialization does not have a builtin strategy to represent the actually provided argument type for the
 type parameter `T` when serializing a property of the polymorphic type `OkResponse<T>`. We have to provide this 
 strategy explicitly when defining the serializers module for the `Response`. In the below example we
 use `OkResponse.serializer(...)` to retrieve 
