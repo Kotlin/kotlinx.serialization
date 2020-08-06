@@ -32,12 +32,12 @@ This chapter shows the basic use of Kotlin Serialization and explains its core c
 
 ## Basics
 
-To convert an object tree to a string or to a sequence of bytes it must come
-through two mutually intertwined processes. In the first step an object is _serialized_ &mdash; 
+To convert an object tree to a string or to a sequence of bytes, it must come
+through two mutually intertwined processes. In the first step, an object is _serialized_ &mdash; 
 it is converted into a serial sequence of its constituting primitive values. This process is common for all 
 data formats and its result depends on the object being serialized. A _serializer_ controls this process. 
 The second step is called _encoding_ &mdash; it is the conversion of the corresponding sequence of primitives into 
-the output format representation. An _encoder_ controls this process. Whenever the distinction is not important
+the output format representation. An _encoder_ controls this process. Whenever the distinction is not important,
 both the terms of encoding and serialization are used interchangeably.
 
 ``` 
@@ -115,7 +115,7 @@ up a _serializer_ for this class. Now the output of the example is the correspon
 
 ### JSON decoding
 
-The reverse process is called _decoding_. To decode a JSON string into an object we'll 
+The reverse process is called _decoding_. To decode a JSON string into an object, we'll 
 use the [Json.decodeFromString][kotlinx.serialization.decodeFromString] extension function. 
 To specify which type we want to get as a result, 
 we provide a type parameter to this function. 
@@ -163,7 +163,7 @@ have a backing field and delegated properties are not serialized, as the followi
 ```kotlin        
 @Serializable 
 class Project(
-    // name is a property with backing fields -- serialized
+    // name is a property with backing field -- serialized
     var name: String
 ) {
     var stars: Int = 0 // property with a backing field -- serialized
@@ -205,7 +205,7 @@ class Project(path: String) {
 
 <!--- CLEAR -->
 
-This class does not compile, because `@Serializable` annotation requires that all parameters to the class primary
+This class does not compile, because `@Serializable` annotation requires that all parameters of the class primary
 constructor are properties. A simple workaround is to define a private primary constructor with class's
 properties and turn the constructor we wanted into the secondary one.
 
@@ -331,7 +331,7 @@ Project(name=kotlinx.serialization, language=Kotlin)
 
 ### Optional property initializer call
 
-When an optional properly is present in the input, the corresponding initializer for this
+When an optional property is present in the input, the corresponding initializer for this
 property is not even called. This is a feature designed for performance, so be careful not
 to rely on side effects in initializers. Consider the example below.
 
@@ -393,7 +393,7 @@ Exception in thread "main" kotlinx.serialization.MissingFieldException: Field 'l
 ### Transient properties
 
 A property can be excluded from serialization by marking it with the [`@Transient`][Transient] annotation 
-(don't confuse it with [kotlin.jvm.Transient]). Transient property must have a default value.
+(don't confuse it with [kotlin.jvm.Transient]). Transient properties must have a default value.
 
 ```kotlin
 @Serializable 
@@ -437,7 +437,7 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-classes-09.kt).
 
-It produces the following output which has `language` property, even though its value is equal to the default one.
+It produces the following output, which has `language` property, even though its value is equal to the default one.
 
 ```text
 {"name":"kotlinx.serialization","language":"Kotlin"}
@@ -570,7 +570,7 @@ We simply get the `owner` value encoded twice.
 
 ### Generic classes
 
-Generic classes in Kotlin provide type-polymorphic behavior and which is enforced by Kotlin serialization at 
+Generic classes in Kotlin provide type-polymorphic behavior, which is enforced by Kotlin serialization at 
 compile-time. For example, consider a generic serializable class `Box<T>`.
 
 ```kotlin
@@ -609,9 +609,11 @@ The actual type that we get in JSON depends on the actual compile-time type para
 
 <!--- TEST -->
 
+If the actual generic type is not serializable, compile-time error will be produced.
+
 ### Serial field names
 
-The names of the properties that are used in encoded representation, JSON in our examples, are the same as 
+The names of the properties used in encoded representation, JSON in our examples, are the same as 
 their names in the source code by default. The name that is used for serialization is called a _serial name_ and
 can be changed using the [`@SerialName`][SerialName] annotation. For example, we can have a `language` property in the source,
 with an abbreviated serial name.

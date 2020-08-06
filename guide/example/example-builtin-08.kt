@@ -8,9 +8,9 @@ import kotlinx.serialization.json.*
 class Project(val name: String)
 
 fun main() {
-    val list = listOf(
+    val set = setOf(
         Project("kotlinx.serialization"),
         Project("kotlinx.coroutines")    
     )
-    println(Json.encodeToString(list))
+    println(Json.encodeToString(set))
 }  

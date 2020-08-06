@@ -4,15 +4,13 @@ package example.exampleBuiltin04
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-import kotlinx.serialization.builtins.*
-
+// @Serializable annotation is not need for a enum classes
+enum class Status { SUPPORTED }
+        
 @Serializable
-class Data(
-    @Serializable(with=LongAsStringSerializer::class)
-    val signature: Long
-)
+class Project(val name: String, val status: Status) 
 
 fun main() {
-    val data = Data(0x1CAFE2FEED0BABE0)
+    val data = Project("kotlinx.serialization", Status.SUPPORTED)
     println(Json.encodeToString(data))
 }

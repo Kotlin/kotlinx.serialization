@@ -14,44 +14,43 @@ class BuiltinClassesTest {
 
     @Test
     fun testExampleBuiltin02() {
-        captureOutput("ExampleBuiltin02") { example.exampleBuiltin02.main() }.verifyOutputLinesStart(
-            "Exception in thread \"main\" kotlinx.serialization.json.JsonEncodingException: 'NaN' is not a valid 'double' as per JSON specification.",
-            "Use 'serializeSpecialFloatingPointValues = true' in 'Json {}' builder to serialize special values."
+        captureOutput("ExampleBuiltin02") { example.exampleBuiltin02.main() }.verifyOutputLines(
+            "{\"signature\":2067120338512882656}"
         )
     }
 
     @Test
     fun testExampleBuiltin03() {
         captureOutput("ExampleBuiltin03") { example.exampleBuiltin03.main() }.verifyOutputLines(
-            "{\"signature\":2067120338512882656}"
+            "{\"signature\":\"2067120338512882656\"}"
         )
     }
 
     @Test
     fun testExampleBuiltin04() {
         captureOutput("ExampleBuiltin04") { example.exampleBuiltin04.main() }.verifyOutputLines(
-            "{\"signature\":\"2067120338512882656\"}"
+            "{\"name\":\"kotlinx.serialization\",\"status\":\"SUPPORTED\"}"
         )
     }
 
     @Test
     fun testExampleBuiltin05() {
         captureOutput("ExampleBuiltin05") { example.exampleBuiltin05.main() }.verifyOutputLines(
-            "{\"name\":\"kotlinx.serialization\",\"status\":\"SUPPORTED\"}"
+            "{\"name\":\"kotlinx.serialization\",\"status\":\"maintained\"}"
         )
     }
 
     @Test
     fun testExampleBuiltin06() {
         captureOutput("ExampleBuiltin06") { example.exampleBuiltin06.main() }.verifyOutputLines(
-            "{\"name\":\"kotlinx.serialization\",\"status\":\"maintained\"}"
+            "{\"first\":1,\"second\":{\"name\":\"kotlinx.serialization\"}}"
         )
     }
 
     @Test
     fun testExampleBuiltin07() {
         captureOutput("ExampleBuiltin07") { example.exampleBuiltin07.main() }.verifyOutputLines(
-            "{\"first\":1,\"second\":{\"name\":\"kotlinx.serialization\"}}"
+            "[{\"name\":\"kotlinx.serialization\"},{\"name\":\"kotlinx.coroutines\"}]"
         )
     }
 
@@ -65,21 +64,22 @@ class BuiltinClassesTest {
     @Test
     fun testExampleBuiltin09() {
         captureOutput("ExampleBuiltin09") { example.exampleBuiltin09.main() }.verifyOutputLines(
-            "[{\"name\":\"kotlinx.serialization\"},{\"name\":\"kotlinx.coroutines\"}]"
+            "Data(a=[42, 42], b=[42])"
         )
     }
 
     @Test
     fun testExampleBuiltin10() {
         captureOutput("ExampleBuiltin10") { example.exampleBuiltin10.main() }.verifyOutputLines(
-            "Data(a=[42, 42], b=[42])"
+            "{\"1\":{\"name\":\"kotlinx.serialization\"},\"2\":{\"name\":\"kotlinx.coroutines\"}}"
         )
     }
 
     @Test
     fun testExampleBuiltin11() {
         captureOutput("ExampleBuiltin11") { example.exampleBuiltin11.main() }.verifyOutputLines(
-            "{\"1\":{\"name\":\"kotlinx.serialization\"},\"2\":{\"name\":\"kotlinx.coroutines\"}}"
+            "{}",
+            "{}"
         )
     }
 }

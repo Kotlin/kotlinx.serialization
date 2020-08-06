@@ -5,12 +5,11 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 @Serializable
-class Project(val name: String)
+object SerializationVersion {
+    val libraryVersion: String = "1.0.0"
+}
 
 fun main() {
-    val map = mapOf(
-        1 to Project("kotlinx.serialization"),
-        2 to Project("kotlinx.coroutines")    
-    )
-    println(Json.encodeToString(map))
+    println(Json.encodeToString(SerializationVersion))
+    println(Json.encodeToString(Unit))
 }  

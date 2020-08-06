@@ -5,17 +5,12 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 @Serializable
-data class Data(
-    val a: List<Int>,
-    val b: Set<Int>
-)
-     
+class Project(val name: String)
+
 fun main() {
-    val data = Json.decodeFromString<Data>("""
-        {
-            "a": [42, 42],
-            "b": [42, 42]
-        }
-    """)
-    println(data)
-}
+    val map = mapOf(
+        1 to Project("kotlinx.serialization"),
+        2 to Project("kotlinx.coroutines")    
+    )
+    println(Json.encodeToString(map))
+}  

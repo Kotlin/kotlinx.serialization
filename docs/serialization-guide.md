@@ -38,7 +38,6 @@ Once the project is set up, we can start serializing some classes.
 <!--- TOC_REF builtin-classes.md -->
 * <a name='primitives'></a>[Primitives](builtin-classes.md#primitives)
   * <a name='numbers'></a>[Numbers](builtin-classes.md#numbers)
-  * <a name='special-floating-point-values'></a>[Special floating-point values](builtin-classes.md#special-floating-point-values)
   * <a name='long-numbers'></a>[Long numbers](builtin-classes.md#long-numbers)
   * <a name='long-numbers-as-strings'></a>[Long numbers as strings](builtin-classes.md#long-numbers-as-strings)
   * <a name='enum-classes'></a>[Enum classes](builtin-classes.md#enum-classes)
@@ -49,6 +48,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='sets-and-other-collections'></a>[Sets and other collections](builtin-classes.md#sets-and-other-collections)
   * <a name='deserializing-collections'></a>[Deserializing collections](builtin-classes.md#deserializing-collections)
   * <a name='maps'></a>[Maps](builtin-classes.md#maps)
+  * <a name='unit-and-singleton-objects'></a>[Unit and singleton objects](builtin-classes.md#unit-and-singleton-objects)
 <!--- END -->
 
 **Chapter 3.** [Serializers](serializers.md)

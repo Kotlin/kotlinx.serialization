@@ -4,13 +4,10 @@ package example.exampleBuiltin06
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-@Serializable // required because of @SerialName
-enum class Status { @SerialName("maintained") SUPPORTED }
-        
 @Serializable
-class Project(val name: String, val status: Status) 
+class Project(val name: String)
 
 fun main() {
-    val data = Project("kotlinx.serialization", Status.SUPPORTED)
-    println(Json.encodeToString(data))
-}
+    val pair = 1 to Project("kotlinx.serialization")
+    println(Json.encodeToString(pair))
+}  

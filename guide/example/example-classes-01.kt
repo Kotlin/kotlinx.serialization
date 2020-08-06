@@ -6,7 +6,7 @@ import kotlinx.serialization.json.*
 
 @Serializable 
 class Project(
-    // name is a property with backing fields -- serialized
+    // name is a property with backing field -- serialized
     var name: String
 ) {
     var stars: Int = 0 // property with a backing field -- serialized

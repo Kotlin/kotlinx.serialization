@@ -9,7 +9,7 @@ Kotlin serialization consists of a compiler plugin, that generates visitor code 
  runtime libraries with core serialization API and JSON format, and support libraries with ProtoBuf, CBOR and properties formats.
 
 * Supports Kotlin classes marked as `@Serializable` and standard collections.
-* Provides JSON (as a part of the core library), [CBOR](formats/README.md#CBOR), and [Protobuf](formats/README.md#ProtoBuf) formats.
+* Provides JSON (as a part of the core library), [Protobuf](formats/README.md#ProtoBuf), [CBOR](formats/README.md#CBOR), [Hocon](formats/README.md#HOCON) and [Properties](formats/README.md#properties) formats.
 * Complete multiplatform support: JVM, JS and Native.
 
 ## Table of contents
@@ -80,7 +80,7 @@ Kotlin DSL:
 
 ```kotlin
 plugins {
-    kotlin("multiplatform") version "1.4.0" // or kotlin("jvm") or any other kotlin plugin
+    kotlin("jvm") version "1.4.0" // or kotlin("multiplatform") or any other kotlin plugin
     kotlin("plugin.serialization") version "1.4.0"
 }
 ```       
@@ -148,7 +148,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib", KotlinCompilerVersion.VERSION)) // or "stdlib-jdk8"
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:1.0.0") // JVM dependency
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0-RC") // JVM dependency
 }
 ```
 
@@ -161,7 +161,7 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version" // or "kotlin-stdlib-jdk8"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:1.0.0" // JVM dependency
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0-RC" // JVM dependency
 }
 ```
 
@@ -228,9 +228,6 @@ sourceSets {
 }
 ```
 
-JavaScript example is located at [`example-js`](examples/example-js) folder.
-Multiplatform example is located at [`example-multiplatform`](examples/example-multiplatform) folder.
-
 ### Maven/JVM
 
 Ensure the proper version of Kotlin and serialization version:
@@ -284,8 +281,7 @@ Add dependency on serialization runtime library:
 ```xml
 <dependency>
     <groupId>org.jetbrains.kotlinx</groupId>
-    <artifactId>kotlinx-serialization-runtime</artifactId>
+    <artifactId>kotlinx-serialization-core</artifactId>
     <version>${serialization.version}</version>
 </dependency>
 ```
-

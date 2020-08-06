@@ -12,7 +12,6 @@ including the standard collections, is built into the Kotlin Serialization. This
 
 * [Primitives](#primitives)
   * [Numbers](#numbers)
-  * [Special floating-point values](#special-floating-point-values)
   * [Long numbers](#long-numbers)
   * [Long numbers as strings](#long-numbers-as-strings)
   * [Enum classes](#enum-classes)
@@ -23,6 +22,7 @@ including the standard collections, is built into the Kotlin Serialization. This
   * [Sets and other collections](#sets-and-other-collections)
   * [Deserializing collections](#deserializing-collections)
   * [Maps](#maps)
+  * [Unit and singleton objects](#unit-and-singleton-objects)
 
 <!--- END -->
 
@@ -70,33 +70,6 @@ Their natural representation in JSON is used.
 
 > Experimental unsigned numbers as well as other experimental inline classes are not supported by Kotlin serialization yet. 
 
-### Special floating-point values
-
-By default, special floating-point values like [Double.NaN] and infinities are not supported in JSON.
-
-```kotlin
-@Serializable
-class Data(val value: Double)                     
-
-fun main() {
-    val data = Data(Double.NaN)
-    println(Json.encodeToString(data))
-}
-```                                   
-
-> You can get the full code [here](../guide/example/example-builtin-02.kt).
-
-The following exception explains why it is so.
-
-```text
-Exception in thread "main" kotlinx.serialization.json.JsonEncodingException: 'NaN' is not a valid 'double' as per JSON specification.
-Use 'serializeSpecialFloatingPointValues = true' in 'Json {}' builder to serialize special values.
-```   
-
-<!--- TEST LINES_START -->
-
-> 'allowSpecialFloatingPointValues' feature is explained in 
-> the [Allowing special floating point values](json.md#allowing-special-floating-point-values) section.
 
 ### Long numbers
 
@@ -112,7 +85,7 @@ fun main() {
 }
 ``` 
 
-> You can get the full code [here](../guide/example/example-builtin-03.kt).
+> You can get the full code [here](../guide/example/example-builtin-02.kt).
 
 By default, they are serialized to JSON as numbers.
 
@@ -125,7 +98,7 @@ By default, they are serialized to JSON as numbers.
 ### Long numbers as strings
 
 The JSON output from the previous example will get decoded normally by Kotlin serialization running on Kotlin/JS.
-However, if we try parse this JSON by native JavaScript methods, we get this truncated result.
+However, if we try to parse this JSON by native JavaScript methods, we get this truncated result.
 
 ```
 JSON.parse("{\"signature\":2067120338512882656}")
@@ -135,7 +108,7 @@ JSON.parse("{\"signature\":2067120338512882656}")
 The full range of Kotlin Long does not fit in the JavaScript number, so its precision gets lost in JavaScript.
 A common workaround is to represent long numbers with full precision using JSON string type.
 This approach is optionally supported by Kotlin serialization with [LongAsStringSerializer] that
-can specified for a given Long property using the [`@Serializable`][Serializable] annotation:
+can be specified for a given Long property using the [`@Serializable`][Serializable] annotation:
 
 <!--- INCLUDE
 import kotlinx.serialization.builtins.*
@@ -154,7 +127,7 @@ fun main() {
 }
 ``` 
 
-> You can get the full code [here](../guide/example/example-builtin-04.kt).
+> You can get the full code [here](../guide/example/example-builtin-03.kt).
 
 This JSON gets parsed natively by JavaScript without loss of precision.
 
@@ -185,7 +158,7 @@ fun main() {
 }
 ```                                        
 
-> You can get the full code [here](../guide/example/example-builtin-05.kt).
+> You can get the full code [here](../guide/example/example-builtin-04.kt).
 
 In JSON enum gets encoded as a string.
 
@@ -199,7 +172,7 @@ In JSON enum gets encoded as a string.
 
 Serial names of enum entries can be customized with [SerialName] annotation just like 
 it was shown for properties in the [Serial field names](basic-serialization.md#serial-field-names) section.
-However, in this case the whole enum class must be marked with the [`@Serializable`][Serializable] annotation.
+However, in this case, the whole enum class must be marked with the [`@Serializable`][Serializable] annotation.
 
 ```kotlin
 @Serializable // required because of @SerialName
@@ -214,7 +187,7 @@ fun main() {
 }
 ```                                        
 
-> You can get the full code [here](../guide/example/example-builtin-06.kt).
+> You can get the full code [here](../guide/example/example-builtin-05.kt).
 
 We see that the specified serial name is now used in the resulting JSON.
 
@@ -242,7 +215,7 @@ fun main() {
 }  
 ```                                
 
-> You can get the full code [here](../guide/example/example-builtin-07.kt).
+> You can get the full code [here](../guide/example/example-builtin-06.kt).
 
 ```text
 {"first":1,"second":{"name":"kotlinx.serialization"}}
@@ -250,7 +223,7 @@ fun main() {
 
 <!--- TEST -->
  
-> Not all classes from the standard library are serializable. In particular ranges and [Regex] class
+> Not all classes from the Kotlin standard library are serializable. In particular, ranges and [Regex] class
 > are not serializable at the moment. Support for their serialization may be added in the future.  
 
 ### Lists 
@@ -270,7 +243,7 @@ fun main() {
 }  
 ```
 
-> You can get the full code [here](../guide/example/example-builtin-08.kt).
+> You can get the full code [here](../guide/example/example-builtin-07.kt).
 
 The result is represented as a list in JSON.
 
@@ -297,7 +270,7 @@ fun main() {
 }  
 ```
 
-> You can get the full code [here](../guide/example/example-builtin-09.kt).
+> You can get the full code [here](../guide/example/example-builtin-08.kt).
 
 The [Set] is also represented as a list in JSON, like all other collections.
 
@@ -309,7 +282,7 @@ The [Set] is also represented as a list in JSON, like all other collections.
 
 ### Deserializing collections
 
-During deserialization the type of the resulting object is determined by the static type that was specified
+During deserialization, the type of the resulting object is determined by the static type that was specified
 in the source code &mdash; either as the type of the property or as the type parameter of the decoding function.
 The following example shows how the same JSON list of integers is deserialized into two properties of
 different Kotlin types.
@@ -332,7 +305,7 @@ fun main() {
 }
 ```    
 
-> You can get the full code [here](../guide/example/example-builtin-10.kt).
+> You can get the full code [here](../guide/example/example-builtin-09.kt).
 
 Because `data.b` property is a [Set], the duplicate values from it had disappeared.
 
@@ -344,7 +317,7 @@ Data(a=[42, 42], b=[42])
 
 ### Maps
 
-A [Map] with a primitive or enum key and an arbitrary serializable value can be serialized.
+A [Map] with a primitive or enum keys and an arbitrary serializable values can be serialized.
 
 ```kotlin
 @Serializable
@@ -359,7 +332,7 @@ fun main() {
 }  
 ```                                
 
-> You can get the full code [here](../guide/example/example-builtin-11.kt).
+> You can get the full code [here](../guide/example/example-builtin-10.kt).
 
 Kotlin maps in JSON are represented as objects. In JSON object keys are always strings, so keys are encoded as strings
 even if they are numbers in Kotlin, as we can see below.
@@ -373,6 +346,42 @@ even if they are numbers in Kotlin, as we can see below.
 > It is a JSON-specific limitation that keys cannot be composite. 
 > It can be lifted as shown in [Allowing structured map keys](json.md#allowing-structured-map-keys) section.
 
+
+### Unit and singleton objects
+
+Kotlin builtin `Unit` type is also serializable. 
+`Unit` is a Kotlin [singleton object](https://kotlinlang.org/docs/tutorials/kotlin-for-py/objects-and-companion-objects.html) 
+and is handled equally with other Kotlin objects.
+
+Conceptually, singleton is a class with the only instance, meaning that state does not define the object, 
+but the object defines its state. In JSON, objects are serialized as empty structures.
+
+```kotlin
+@Serializable
+object SerializationVersion {
+    val libraryVersion: String = "1.0.0"
+}
+
+fun main() {
+    println(Json.encodeToString(SerializationVersion))
+    println(Json.encodeToString(Unit))
+}  
+```                                
+
+> You can get the full code [here](../guide/example/example-builtin-11.kt).
+
+While it may seem useless at the first glance, this comes handy for sealed class serialization,
+which is explained in [Polymorphism. Objects](polymorphism.md#objects) section.
+
+```text
+{}
+{}
+```
+
+<!--- TEST -->
+
+> Serialization of objects is format specific. Other formats may represent objects differently, 
+> e.g. using their fully-qualified names.
 ---
 
 The next chapter covers [Serializers](serializers.md).
