@@ -68,7 +68,7 @@ import kotlin.reflect.*
  * @see Serializer
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-@Retention(AnnotationRetention.BINARY)
+@Retention(AnnotationRetention.RUNTIME)
 public annotation class Serializable(
     val with: KClass<out KSerializer<*>> = KSerializer::class // Default value indicates that auto-generated serializer is used
 )
@@ -202,7 +202,7 @@ public annotation class UseSerializers(vararg val serializerClasses: KClass<out 
  * with special compiler plugin support which would be added later.
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE, AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.BINARY)
+@Retention(AnnotationRetention.RUNTIME)
 public annotation class Polymorphic
 
 /**

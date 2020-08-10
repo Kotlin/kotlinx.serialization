@@ -8,7 +8,6 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
-import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
@@ -35,36 +34,40 @@ public inline fun <reified T> SerializersModule.serializer(): KSerializer<T> {
  * [type] argument can be obtained with experimental [typeOf] method.
  */
 public fun serializer(type: KType): KSerializer<Any?> {
-    val result = EmptySerializersModule.serializerByKTypeImpl(type)
+    val result = EmptySerializersModule.serializerByKTypeImpl(type) ?: type.kclass().serializerNotRegistered()
     return result.nullable(type.isMarkedNullable)
 }
 
 /**
- * Retrieves serializer for the given [type] from the current [SerializersModule] and,
- * if not found, fallbacks to plain [serializer] method.
+ * Attempts to create a serializer for the given [type] and fallbacks to [contextual][SerializersModule.getContextual]
+ * lookup for non-serializable types.
  * [type] argument can be obtained with experimental [typeOf] method.
  */
 public fun SerializersModule.serializer(type: KType): KSerializer<Any?> {
     val kclass = type.kclass()
     val isNullable = type.isMarkedNullable
-    getContextual(kclass)?.nullable(isNullable)?.let { return it.cast() }
-    return serializerByKTypeImpl(type).nullable(isNullable).cast()
+    val builtin = serializerByKTypeImpl(type)
+    if (builtin != null) {
+        return builtin.nullable(isNullable).cast()
+    }
+
+    return getContextual(kclass)?.nullable(isNullable)?.cast() ?: type.kclass().serializerNotRegistered()
 }
 
-private fun SerializersModule.serializerByKTypeImpl(type: KType): KSerializer<Any> {
+private fun SerializersModule.serializerByKTypeImpl(type: KType): KSerializer<Any>? {
     val rootClass = type.kclass()
     val typeArguments = type.arguments
         .map { requireNotNull(it.type) { "Star projections in type arguments are not allowed, but had $type" } }
     return when {
-        typeArguments.isEmpty() -> getContextual(rootClass) ?: rootClass.serializer()
-        else -> builtinSerializer(typeArguments, rootClass)
-    }.cast()
+        typeArguments.isEmpty() -> rootClass.serializerOrNull() ?: getContextual(rootClass)
+        else -> builtinSerializerOrNull(typeArguments, rootClass)
+    }?.cast()
 }
 
-private fun SerializersModule.builtinSerializer(
+private fun SerializersModule.builtinSerializerOrNull(
     typeArguments: List<KType>,
     rootClass: KClass<Any>
-): KSerializer<out Any> {
+): KSerializer<out Any>? {
     val serializers = typeArguments
         .map(::serializer)
     // Array is not supported, see KT-32839
