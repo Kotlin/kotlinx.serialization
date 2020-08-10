@@ -81,7 +81,6 @@ kotlin {
     sourceSets.findAll({ it.name.contains("Test") }).forEach { srcSet ->
         srcSet.languageSettings {
             it.useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
-            it.useExperimentalAnnotation("kotlinx.serialization.UnsafeSerializationApi")
         }
     }
 

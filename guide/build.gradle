@@ -4,7 +4,7 @@ apply plugin: 'kotlinx-serialization'
 dependencies {
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit"
     testImplementation "org.jetbrains.kotlinx:kotlinx-knit-test:$knit_version"
-    testImplementation project(":kotlinx-serialization-runtime")
+    testImplementation project(":kotlinx-serialization-core")
     testImplementation project(":kotlinx-serialization-cbor")
     testImplementation project(":kotlinx-serialization-protobuf")
     testImplementation project(":kotlinx-serialization-properties")

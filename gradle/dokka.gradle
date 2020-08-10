@@ -9,10 +9,10 @@ dokka {
     outputFormat = 'html'
     outputDirectory = "$buildDir/dokka"
 
-    subProjects = ["kotlinx-serialization-runtime",
+    subProjects = ["kotlinx-serialization-core",
                    "kotlinx-serialization-cbor",
                    "kotlinx-serialization-properties",
-//                   "kotlinx-serialization-runtime-configparser",  todo: fix publishing of jvm-only docs
+//                   "kotlinx-serialization-hocon",  todo: fix publishing of jvm-only docs
                    "kotlinx-serialization-protobuf"]
 
     multiplatform {

@@ -16,7 +16,7 @@ import kotlin.reflect.*
 import kotlin.test.*
 
 @Suppress("RemoveExplicitTypeArguments") // This is exactly what's being tested
-class TypeOfSerializerLookupTest : JsonTestBase() {
+class SerializersLookupTest : JsonTestBase() {
 
     @Test
     fun testPrimitive() {
@@ -135,8 +135,9 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
         assertSerializedWithType("{}", SampleObject)
     }
 
+    class IntBox(val i: Int)
 
-    class CustomIntSerializer(isNullable: Boolean) : KSerializer<Int?> {
+    class CustomIntSerializer(isNullable: Boolean) : KSerializer<IntBox?> {
         override val descriptor: SerialDescriptor
 
         init {
@@ -144,36 +145,54 @@ class TypeOfSerializerLookupTest : JsonTestBase() {
             descriptor = if (isNullable) d.nullable else d
         }
 
-        override fun serialize(encoder: Encoder, value: Int?) {
+        override fun serialize(encoder: Encoder, value: IntBox?) {
             if (value == null) encoder.encodeInt(41)
             else encoder.encodeInt(42)
         }
 
-        override fun deserialize(decoder: Decoder): Int? {
+        override fun deserialize(decoder: Decoder): IntBox? {
             TODO()
         }
     }
 
     @Test
     fun testContextualLookup() {
-        val module = SerializersModule { contextual(CustomIntSerializer(false).cast<Int>()) }
+        val module = SerializersModule { contextual(CustomIntSerializer(false).cast<IntBox>()) }
         val json = Json { serializersModule = module }
-        val data = listOf(listOf(1))
+        val data = listOf(listOf(IntBox(1)))
         assertEquals("[[42]]", json.encodeToString(data))
     }
 
     @Test
     fun testContextualLookupNullable() {
-        val module = SerializersModule { contextual(CustomIntSerializer(true).cast<Int>()) }
-        val serializer = module.serializer<List<List<Int?>>>()
-        assertEquals("[[41]]", Json.encodeToString(serializer, listOf(listOf<Int?>(null))))
+        val module = SerializersModule { contextual(CustomIntSerializer(true).cast<IntBox>()) }
+        val serializer = module.serializer<List<List<IntBox?>>>()
+        assertEquals("[[41]]", Json.encodeToString(serializer, listOf(listOf<IntBox?>(null))))
     }
 
     @Test
     fun testContextualLookupNonNullable() {
-        val module = SerializersModule { contextual(CustomIntSerializer(false).cast<Int>()) }
-        val serializer = module.serializer<List<List<Int?>>>()
-        assertEquals("[[null]]", Json.encodeToString(serializer, listOf(listOf<Int?>(null))))
+        val module = SerializersModule { contextual(CustomIntSerializer(false).cast<IntBox>()) }
+        val serializer = module.serializer<List<List<IntBox?>>>()
+        assertEquals("[[null]]", Json.encodeToString(serializer, listOf(listOf<IntBox?>(null))))
+    }
+
+    @Test
+    fun testCompiledWinsOverContextual() {
+        val contextual = object : KSerializer<Int> {
+            override val descriptor: SerialDescriptor = Int.serializer().descriptor
+
+            override fun serialize(encoder: Encoder, value: Int) {
+                fail()
+            }
+
+            override fun deserialize(decoder: Decoder): Int {
+                fail()
+            }
+        }
+        val json = Json { serializersModule = SerializersModule { contextual(contextual) } }
+        assertEquals("[[1]]", json.encodeToString(listOf(listOf<Int>(1))))
+        assertEquals("42", json.encodeToString(42))
     }
 
     // Tests with [constructSerializerForGivenTypeArgs] are unsupported on legacy Kotlin/JS

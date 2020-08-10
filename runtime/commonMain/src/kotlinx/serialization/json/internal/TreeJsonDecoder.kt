@@ -109,8 +109,21 @@ private sealed class AbstractJsonTreeDecoder(
     override fun decodeTaggedShort(tag: String) = getValue(tag).primitive("short") { int.toShort() }
     override fun decodeTaggedInt(tag: String) = getValue(tag).primitive("int") { int }
     override fun decodeTaggedLong(tag: String) = getValue(tag).primitive("long") { long }
-    override fun decodeTaggedFloat(tag: String) = getValue(tag).primitive("float") { float }
-    override fun decodeTaggedDouble(tag: String) = getValue(tag).primitive("double") { double }
+
+    override fun decodeTaggedFloat(tag: String): Float {
+        val result = getValue(tag).primitive("float") { float }
+        val specialFp = json.configuration.allowSpecialFloatingPointValues
+        if (specialFp || result.isFinite()) return result
+        throw InvalidFloatingPointDecoded(result, tag, currentObject().toString())
+    }
+
+    override fun decodeTaggedDouble(tag: String): Double {
+        val result = getValue(tag).primitive("double") { double }
+        val specialFp = json.configuration.allowSpecialFloatingPointValues
+        if (specialFp || result.isFinite()) return result
+        throw InvalidFloatingPointDecoded(result, tag, currentObject().toString())
+    }
+
     override fun decodeTaggedChar(tag: String): Char = getValue(tag).primitive("char") { content.single() }
 
     private inline fun <T: Any> JsonPrimitive.primitive(primitive: String, block: JsonPrimitive.() -> T): T {

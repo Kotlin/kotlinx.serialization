@@ -187,23 +187,16 @@ class SerializerByTypeTest {
         return (superType as ParameterizedType).actualTypeArguments.first()!!
     }
 
-    enum class Foo
+    class IntBox(val i: Int)
 
-    @Test
-    fun testNonSerializableEnum() {
-        // Works only on JVM righ tnow
-        val serializer = serializer<Foo>()
-        assertTrue(serializer.descriptor.kind is SerialKind.ENUM)
-    }
-
-    object CustomIntSerializer : KSerializer<Int> {
+    object CustomIntSerializer : KSerializer<IntBox> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("CIS", PrimitiveKind.INT)
 
-        override fun serialize(encoder: Encoder, value: Int) {
+        override fun serialize(encoder: Encoder, value: IntBox) {
             encoder.encodeInt(42)
         }
 
-        override fun deserialize(decoder: Decoder): Int {
+        override fun deserialize(decoder: Decoder): IntBox {
             TODO()
         }
     }
@@ -211,7 +204,26 @@ class SerializerByTypeTest {
     @Test
     fun testContextualLookup() {
         val module = SerializersModule { contextual(CustomIntSerializer) }
+        val serializer = module.serializer(typeTokenOf<List<List<IntBox>>>())
+        assertEquals("[[42]]", Json.encodeToString(serializer, listOf(listOf(IntBox(1)))))
+    }
+
+    @Test
+    fun testCompiledWinsOverContextual() {
+        val contextual = object : KSerializer<Int> {
+            override val descriptor: SerialDescriptor = Int.serializer().descriptor
+
+            override fun serialize(encoder: Encoder, value: Int) {
+                fail()
+            }
+
+            override fun deserialize(decoder: Decoder): Int {
+                fail()
+            }
+        }
+        val module = SerializersModule { contextual(contextual) }
         val serializer = module.serializer(typeTokenOf<List<List<Int>>>())
-        assertEquals("[[42]]", Json.encodeToString(serializer, listOf(listOf(1))))
+        assertEquals("[[1]]", Json.encodeToString(serializer, listOf(listOf<Int>(1))))
+        assertEquals("42", Json.encodeToString(module.serializer(typeTokenOf<Int>()), 42))
     }
 }

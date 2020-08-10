@@ -79,7 +79,7 @@ class BasicSerializationTest {
     @Test
     fun testExampleClasses08() {
         captureOutput("ExampleClasses08") { example.exampleClasses08.main() }.verifyOutputLinesStart(
-            "Exception in thread \"main\" kotlinx.serialization.json.JsonDecodingException: Unexpected JSON token at offset 60: Encountered an unknown key 'language'.",
+            "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 60: Encountered an unknown key 'language'.",
             "Use 'ignoreUnknownKeys = true' in 'Json {}' builder to ignore unknown keys."
         )
     }
@@ -101,7 +101,7 @@ class BasicSerializationTest {
     @Test
     fun testExampleClasses11() {
         captureOutput("ExampleClasses11") { example.exampleClasses11.main() }.verifyOutputLinesStart(
-            "Exception in thread \"main\" kotlinx.serialization.json.JsonDecodingException: Unexpected JSON token at offset 52: Expected string literal but 'null' literal was found.",
+            "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 52: Expected string literal but 'null' literal was found.",
             "Use 'coerceInputValues = true' in 'Json {}` builder to coerce nulls to default values."
         )
     }

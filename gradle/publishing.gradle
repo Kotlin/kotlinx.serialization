@@ -11,7 +11,7 @@ apply plugin: 'maven-publish'
 
 apply from: project.rootProject.file('gradle/mavenMetadata.gradle')
 
-def isMultiplatform = project.name in ["kotlinx-serialization-runtime", "kotlinx-serialization-protobuf",
+def isMultiplatform = project.name in ["kotlinx-serialization-core", "kotlinx-serialization-protobuf",
                                        "kotlinx-serialization-cbor", "kotlinx-serialization-properties"]
 
 def isKotlin137x = VersionNumber.parse(kotlin_version) <= VersionNumber.parse("1.3.79")

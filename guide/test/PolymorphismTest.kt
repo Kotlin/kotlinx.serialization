@@ -133,7 +133,7 @@ class PolymorphismTest {
     @Test
     fun testExamplePoly18() {
         captureOutput("ExamplePoly18") { example.examplePoly18.main() }.verifyOutputLinesStart(
-            "Exception in thread \"main\" kotlinx.serialization.json.JsonDecodingException: Polymorphic serializer was not found for class discriminator 'unknown'"
+            "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonDecodingException: Polymorphic serializer was not found for class discriminator 'unknown'"
         )
     }
 

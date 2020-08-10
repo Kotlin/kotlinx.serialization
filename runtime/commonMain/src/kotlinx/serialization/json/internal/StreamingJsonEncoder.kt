@@ -158,7 +158,7 @@ internal class StreamingJsonEncoder(
         // First encode value, then check, to have a prettier error message
         if (forceQuoting) encodeString(value.toString()) else composer.print(value)
         if (!configuration.allowSpecialFloatingPointValues && !value.isFinite()) {
-            throw InvalidFloatingPoint(value, "float", composer.sb.toString())
+            throw InvalidFloatingPointEncoded(value, composer.sb.toString())
         }
     }
 
@@ -166,7 +166,7 @@ internal class StreamingJsonEncoder(
         // First encode value, then check, to have a prettier error message
         if (forceQuoting) encodeString(value.toString()) else composer.print(value)
         if (!configuration.allowSpecialFloatingPointValues && !value.isFinite()) {
-            throw InvalidFloatingPoint(value, "double", composer.sb.toString())
+            throw InvalidFloatingPointEncoded(value, composer.sb.toString())
         }
     }
 

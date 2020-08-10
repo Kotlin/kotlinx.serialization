@@ -824,7 +824,7 @@ fun main() {
 We get the following exception.
 
 ```text 
-Exception in thread "main" kotlinx.serialization.json.JsonDecodingException: Polymorphic serializer was not found for class discriminator 'unknown'
+Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Polymorphic serializer was not found for class discriminator 'unknown'
 ```
 
 <!--- TEST LINES_START -->
