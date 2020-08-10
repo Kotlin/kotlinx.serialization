@@ -321,7 +321,10 @@ the [Sealed classes](#sealed-classes) section, but here subclasses can be spread
 ### Serializing interfaces 
 
 We can update the previous example and turn `Project` superclass into an interface. However, we cannot
-mark an interface itself as `@Serializable`. Only classes can be serializable.
+mark an interface itself as `@Serializable`.
+One possible practical default behaviour is to make them polymorphically serializable.
+Thus all interfaces are considered to be implicitly serializable with the [PolymorphicSerializer]
+strategy.
 
 <!--- INCLUDE 
 import kotlinx.serialization.modules.*
@@ -345,7 +348,7 @@ interface Project {
 class OwnedProject(override val name: String, val owner: String) : Project
 ```
 
-It means that if we declare `data` with the type of `Project` we cannot simply call `format.encodeToString` as we did before.
+It means that if we declare `data` with the type of `Project` we can simply call `format.encodeToString` as we did before.
 
 ```kotlin
 fun main() {
@@ -359,55 +362,15 @@ fun main() {
 We get an exception that `Project` is not serializable:
 
 ```text 
-Exception in thread "main" kotlinx.serialization.SerializationException: Serializer for class 'Project' is not found.
-Mark the class as @Serializable or provide the serializer explicitly.
+{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}
 ```
 
 <!--- TEST LINES_START -->
 
-We cannot make an interface serializable, so to fix this exception, we have to provide the serializer explicitly. 
-For polymorphic serialization there is a [PolymorphicSerializer] class. It is constructed with the base class as parameter. 
-If we are serializing interface as the root object, then we can pass it as the first argument to 
-the [encodeToString][Json.encodeToString] function:
-
-<!--- INCLUDE 
-import kotlinx.serialization.modules.*
-
-val module = SerializersModule {
-    polymorphic(Project::class) {
-        subclass(OwnedProject::class)
-    }
-}
-
-val format = Json { serializersModule = module }
-
-interface Project {
-    val name: String
-}
-
-@Serializable
-@SerialName("owned")
-class OwnedProject(override val name: String, val owner: String) : Project
--->
-
-```kotlin
-fun main() {
-    val data: Project = OwnedProject("kotlinx.coroutines", "kotlin")
-    println(format.encodeToString(PolymorphicSerializer(Project::class), data))
-}    
-```
-
-> You can get the full code [here](../guide/example/example-poly-10.kt).
-
-<!--- TEST 
-{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}
--->
-
 ### Property of an interface type
 
 Continuing the previous example, let us see what happens if we use `Project` interface as a property in some
-other serializable class. Interfaces are considered to be implicitly serializable with the [PolymorphicSerializer]
-strategy, so we can just declare a property of an interface type.
+other serializable class. Interfaces are implicitly polymorphic, so we can just declare a property of an interface type.
 
 <!--- INCLUDE 
 import kotlinx.serialization.modules.*
@@ -439,7 +402,7 @@ fun main() {
 }        
 ```
 
-> You can get the full code [here](../guide/example/example-poly-11.kt).
+> You can get the full code [here](../guide/example/example-poly-10.kt).
 
 As long as we've registered the actual subtype of the interface that is being serialized in
 the [SerializersModule] of our `format`, we get it working at runtime.
@@ -484,7 +447,7 @@ fun main() {
 }    
 ```
 
-> You can get the full code [here](../guide/example/example-poly-12.kt).
+> You can get the full code [here](../guide/example/example-poly-11.kt).
  
 We get the exception.
 
@@ -532,7 +495,7 @@ fun main() {
 }    
 ```
 
-> You can get the full code [here](../guide/example/example-poly-13.kt).
+> You can get the full code [here](../guide/example/example-poly-12.kt).
 
 However, the `Any` is a class and it is not serializable:
 
@@ -574,7 +537,7 @@ fun main() {
 }    
 ```
 
-> You can get the full code [here](../guide/example/example-poly-14.kt).
+> You can get the full code [here](../guide/example/example-poly-13.kt).
 
 With the explicit serializer it works as before.
 
@@ -627,7 +590,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-poly-15.kt).
+> You can get the full code [here](../guide/example/example-poly-14.kt).
  
 <!--- TEST 
 {"project":{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}}
@@ -680,7 +643,7 @@ fun main() {
 }        
 -->
 
-> You can get the full code [here](../guide/example/example-poly-16.kt).
+> You can get the full code [here](../guide/example/example-poly-15.kt).
 
 <!--- TEST 
 {"project":{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"},"any":{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}}
@@ -771,7 +734,7 @@ fun main() {
 
 ```
 
-> You can get the full code [here](../guide/example/example-poly-17.kt).
+> You can get the full code [here](../guide/example/example-poly-16.kt).
 
 The JSON that is being produced is deeply polymorphic.
 
@@ -819,7 +782,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-poly-18.kt).
+> You can get the full code [here](../guide/example/example-poly-17.kt).
 
 We get the following exception.
 
@@ -881,7 +844,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-poly-19.kt).
+> You can get the full code [here](../guide/example/example-poly-18.kt).
 
 Notice, how `BasicProject` had also captured the specified type key in its `type` property. 
 
