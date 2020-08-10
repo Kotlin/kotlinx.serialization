@@ -76,6 +76,20 @@ Project(name=kotlinx.serialization, language=Kotlin)
 
 <!--- TEST -->
 
+In CBOR [diagnostic mode](http://cbor.me/), the output is equivalent to the following:
+```
+BF                                      # map(*)
+   64                                   # text(4)
+      6E616D65                          # "name"
+   75                                   # text(21)
+      6B6F746C696E782E73657269616C697A6174696F6E # "kotlinx.serialization"
+   68                                   # text(8)
+      6C616E6775616765                  # "language"
+   66                                   # text(6)
+      4B6F746C696E                      # "Kotlin"
+   FF                                   # primitive(*)
+```
+
 > Note, CBOR as a format, unlike JSON, supports maps with non-trivial keys 
 > (see the [Allowing structured map keys](json.md#allowing-structured-map-keys) section for JSON workarounds),
 > and Kotlin maps are serialized as CBOR maps, but some parsers (like `jackson-dataformat-cbor`) don't support this.
@@ -135,6 +149,24 @@ Data(type2=[1, 2, 3, 4], type4=[5, 6, 7, 8])
 
 <!--- TEST -->
 
+In [CBOR diagnostic mode](http://cbor.me/), the output is equivalent to the following:
+```
+BF               # map(*)
+   65            # text(5)
+      7479706532 # "type2"
+   44            # bytes(4)
+      01020304   # "\x01\x02\x03\x04"
+   65            # text(5)
+      7479706534 # "type4"
+   9F            # array(*)
+      05         # unsigned(5)
+      06         # unsigned(6)
+      07         # unsigned(7)
+      08         # unsigned(8)
+      FF         # primitive(*)
+   FF            # primitive(*)
+```
+
 ## ProtoBuf (experimental)
 
 (Protocol Buffers)[https://developers.google.com/protocol-buffers] is a language-neutral binary format that normally
@@ -180,6 +212,12 @@ Project(name=kotlinx.serialization, language=Kotlin)
 
 <!--- TEST -->
 
+In [ProtoBuf diagnostic mode](https://protogen.marcgravell.com/decode), the output is equivalent to the following:
+```
+Field #1: 0A String Length = 21, Hex = 15, UTF8 = "kotlinx.serialization"
+Field #2: 12 String Length = 6, Hex = 06, UTF8 = "Kotlin"
+```
+
 ### Field numbers
 
 By default, field numbers in the Kotlin serialization [ProtoBuf] implementation are automatically assigned, 
@@ -223,9 +261,15 @@ but it did change for the `language` property.
 ```text 
 {0A}{15}kotlinx.serialization{1A}{06}Kotlin
 Project(name=kotlinx.serialization, language=Kotlin)
-```          
+```    
 
 <!--- TEST -->
+      
+In [ProtoBuf diagnostic mode](https://protogen.marcgravell.com/decode), the output is equivalent to the following:
+```
+Field #1: 0A String Length = 21, Hex = 15, UTF8 = "kotlinx.serialization" (total 21 chars)
+Field #3: 1A String Length = 6, Hex = 06, UTF8 = "Kotlin"
+```
 
 ### Integer types
 
@@ -277,6 +321,13 @@ fun main() {
 
 <!--- TEST -->
 
+In [ProtoBuf diagnostic mode](https://protogen.marcgravell.com/decode), the output is equivalent to the following:
+```
+Field #1: 08 Varint Value = 1, Hex = 01
+Field #2: 10 Varint Value = 3, Hex = 03
+Field #3: 1D Fixed32 Value = 3, Hex = 03-00-00-00
+```
+
 ### Lists as repeated fields
 
 Kotlin lists and other collections are representend as repeated fields. 
@@ -321,6 +372,13 @@ Data(a=[1, 2, 3], b=[])
 
 > Packed repeated fields are not supported.
        
+In [ProtoBuf diagnostic mode](https://protogen.marcgravell.com/decode), the output is equivalent to the following:
+```
+Field #1: 08 Varint Value = 1, Hex = 01
+Field #1: 08 Varint Value = 2, Hex = 02
+Field #1: 08 Varint Value = 3, Hex = 03
+```
+
 ## Properties (experimental)
 
 Kotlin serialization can serialize a class into a flat map with `String` keys via 
