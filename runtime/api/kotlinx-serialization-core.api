@@ -1,0 +1,1856 @@
+public abstract class kotlinx/serialization/AbstractSerialFormat : kotlinx/serialization/SerialFormat {
+	public fun <init> (Lkotlinx/serialization/modules/SerializersModule;)V
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+}
+
+public abstract interface class kotlinx/serialization/BinaryFormat : kotlinx/serialization/SerialFormat {
+	public abstract fun decodeFromByteArray (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
+	public abstract fun encodeToByteArray (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
+}
+
+public abstract interface annotation class kotlinx/serialization/Contextual : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class kotlinx/serialization/ContextualSerialization : java/lang/annotation/Annotation {
+	public abstract fun forClasses ()[Ljava/lang/Class;
+}
+
+public final class kotlinx/serialization/ContextualSerializer : kotlinx/serialization/KSerializer {
+	public fun <init> (Lkotlin/reflect/KClass;)V
+	public fun <init> (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;[Lkotlinx/serialization/KSerializer;)V
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public abstract interface class kotlinx/serialization/DeserializationStrategy {
+	public abstract fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public abstract fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public abstract fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract interface annotation class kotlinx/serialization/ExperimentalSerializationApi : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class kotlinx/serialization/ImplicitReflectionSerializer : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class kotlinx/serialization/InternalSerializationApi : java/lang/annotation/Annotation {
+}
+
+public abstract interface class kotlinx/serialization/KSerializer : kotlinx/serialization/DeserializationStrategy, kotlinx/serialization/SerializationStrategy {
+	public abstract fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public abstract fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/KSerializer$DefaultImpls {
+	public static fun patch (Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/Mapper {
+	public fun <init> ()V
+}
+
+public final class kotlinx/serialization/MigrationsKt {
+	public static final fun PrimitiveDescriptor (Ljava/lang/String;Lkotlinx/serialization/descriptors/PrimitiveKind;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public static final fun SerialDescriptor (Ljava/lang/String;Lkotlinx/serialization/descriptors/SerialKind;[Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public static final fun SerialDescriptor (Ljava/lang/String;[Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public static synthetic fun SerialDescriptor$default (Ljava/lang/String;Lkotlinx/serialization/descriptors/SerialKind;[Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public static synthetic fun SerialDescriptor$default (Ljava/lang/String;[Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public static final fun compiledSerializer (Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
+	public static final fun decode (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public static final fun decode (Lkotlinx/serialization/encoding/Decoder;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public static final fun dump (Lkotlinx/serialization/BinaryFormat;Ljava/lang/Object;)[B
+	public static final fun dump (Lkotlinx/serialization/BinaryFormat;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
+	public static final fun dumps (Lkotlinx/serialization/BinaryFormat;Ljava/lang/Object;)Ljava/lang/String;
+	public static final fun dumps (Lkotlinx/serialization/BinaryFormat;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/lang/String;
+	public static final fun elementDescriptors (Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/List;
+	public static final fun elementNames (Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/List;
+	public static final fun encode (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public static final fun encode (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public static final fun getContext (Lkotlinx/serialization/SerialFormat;)Lkotlinx/serialization/modules/SerializersModule;
+	public static final fun getContextualOrDefault (Lkotlinx/serialization/modules/SerializersModule;Ljava/lang/Object;)Lkotlinx/serialization/KSerializer;
+	public static final fun getContextualOrDefault (Lkotlinx/serialization/modules/SerializersModule;Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
+	public static final fun getList (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public static final fun getMap (Lkotlin/Pair;)Lkotlinx/serialization/KSerializer;
+	public static final fun getNullable (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public static final fun getPolymorphicClassDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public static final fun getSet (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public static final fun load (Lkotlinx/serialization/BinaryFormat;Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
+	public static final fun load (Lkotlinx/serialization/BinaryFormat;[B)Ljava/lang/Object;
+	public static final fun loads (Lkotlinx/serialization/BinaryFormat;Ljava/lang/String;)Ljava/lang/Object;
+	public static final fun loads (Lkotlinx/serialization/BinaryFormat;Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
+	public static final fun noImpl ()Ljava/lang/Void;
+	public static final fun parse (Lkotlinx/serialization/StringFormat;Ljava/lang/String;)Ljava/lang/Object;
+	public static final fun parse (Lkotlinx/serialization/StringFormat;Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
+	public static final fun stringify (Lkotlinx/serialization/StringFormat;Ljava/lang/Object;)Ljava/lang/String;
+	public static final fun stringify (Lkotlinx/serialization/StringFormat;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/lang/String;
+	public static final fun withName (Lkotlinx/serialization/descriptors/SerialDescriptor;Ljava/lang/String;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+}
+
+public final class kotlinx/serialization/MissingFieldException : kotlinx/serialization/SerializationException {
+	public fun <init> (Ljava/lang/String;)V
+}
+
+public abstract interface annotation class kotlinx/serialization/Polymorphic : java/lang/annotation/Annotation {
+}
+
+public final class kotlinx/serialization/PolymorphicSerializer : kotlinx/serialization/internal/AbstractPolymorphicSerializer {
+	public fun <init> (Lkotlin/reflect/KClass;)V
+	public fun getBaseClass ()Lkotlin/reflect/KClass;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class kotlinx/serialization/PolymorphicSerializerKt {
+	public static final fun findPolymorphicSerializer (Lkotlinx/serialization/internal/AbstractPolymorphicSerializer;Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/String;)Lkotlinx/serialization/DeserializationStrategy;
+	public static final fun findPolymorphicSerializer (Lkotlinx/serialization/internal/AbstractPolymorphicSerializer;Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)Lkotlinx/serialization/SerializationStrategy;
+}
+
+public final class kotlinx/serialization/PrimitiveDescriptorWithName : kotlinx/serialization/descriptors/SerialDescriptor {
+	public fun <init> (Ljava/lang/String;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+	public fun getAnnotations ()Ljava/util/List;
+	public fun getElementAnnotations (I)Ljava/util/List;
+	public fun getElementDescriptor (I)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun getElementIndex (Ljava/lang/String;)I
+	public fun getElementName (I)Ljava/lang/String;
+	public fun getElementsCount ()I
+	public fun getKind ()Lkotlinx/serialization/descriptors/SerialKind;
+	public fun getSerialName ()Ljava/lang/String;
+	public fun isElementOptional (I)Z
+	public fun isNullable ()Z
+}
+
+public abstract interface annotation class kotlinx/serialization/Required : java/lang/annotation/Annotation {
+}
+
+public final class kotlinx/serialization/SealedClassSerializer : kotlinx/serialization/internal/AbstractPolymorphicSerializer {
+	public fun <init> (Ljava/lang/String;Lkotlin/reflect/KClass;[Lkotlin/reflect/KClass;[Lkotlinx/serialization/KSerializer;)V
+	public fun findPolymorphicSerializerOrNull (Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/String;)Lkotlinx/serialization/DeserializationStrategy;
+	public fun findPolymorphicSerializerOrNull (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)Lkotlinx/serialization/SerializationStrategy;
+	public fun getBaseClass ()Lkotlin/reflect/KClass;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+}
+
+public abstract interface class kotlinx/serialization/SerialFormat {
+	public abstract fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+}
+
+public final class kotlinx/serialization/SerialFormatKt {
+	public static final fun decodeFromHexString (Lkotlinx/serialization/BinaryFormat;Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
+	public static final fun encodeToHexString (Lkotlinx/serialization/BinaryFormat;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/lang/String;
+}
+
+public abstract interface annotation class kotlinx/serialization/SerialId : java/lang/annotation/Annotation {
+	public abstract fun id ()I
+}
+
+public final class kotlinx/serialization/SerialId$Impl : kotlinx/serialization/SerialId {
+	public fun <init> (I)V
+	public final fun id ()I
+}
+
+public abstract interface annotation class kotlinx/serialization/SerialInfo : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class kotlinx/serialization/SerialName : java/lang/annotation/Annotation {
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public abstract interface annotation class kotlinx/serialization/Serializable : java/lang/annotation/Annotation {
+	public abstract fun with ()Ljava/lang/Class;
+}
+
+public class kotlinx/serialization/SerializationException : java/lang/IllegalArgumentException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun <init> (Ljava/lang/Throwable;)V
+}
+
+public abstract interface class kotlinx/serialization/SerializationStrategy {
+	public abstract fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public abstract fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public abstract interface annotation class kotlinx/serialization/Serializer : java/lang/annotation/Annotation {
+	public abstract fun forClass ()Ljava/lang/Class;
+}
+
+public final class kotlinx/serialization/SerializersKt {
+	public static final fun serializer (Ljava/lang/reflect/Type;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlin/reflect/KType;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlinx/serialization/modules/SerializersModule;Ljava/lang/reflect/Type;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlinx/serialization/modules/SerializersModule;Lkotlin/reflect/KType;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializerByTypeToken (Ljava/lang/reflect/Type;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializerOrNull (Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
+}
+
+public abstract interface class kotlinx/serialization/StringFormat : kotlinx/serialization/SerialFormat {
+	public abstract fun decodeFromString (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
+	public abstract fun encodeToString (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/lang/String;
+}
+
+public abstract interface annotation class kotlinx/serialization/Transient : java/lang/annotation/Annotation {
+}
+
+public final class kotlinx/serialization/UnknownFieldException : kotlinx/serialization/SerializationException {
+	public fun <init> (I)V
+}
+
+public abstract interface annotation class kotlinx/serialization/UnstableDefault : java/lang/annotation/Annotation {
+}
+
+public final class kotlinx/serialization/UpdateMode : java/lang/Enum {
+	public static final field BANNED Lkotlinx/serialization/UpdateMode;
+	public static final field OVERWRITE Lkotlinx/serialization/UpdateMode;
+	public static final field UPDATE Lkotlinx/serialization/UpdateMode;
+	public static fun valueOf (Ljava/lang/String;)Lkotlinx/serialization/UpdateMode;
+	public static fun values ()[Lkotlinx/serialization/UpdateMode;
+}
+
+public abstract interface annotation class kotlinx/serialization/UseContextualSerialization : java/lang/annotation/Annotation {
+	public abstract fun forClasses ()[Ljava/lang/Class;
+}
+
+public abstract interface annotation class kotlinx/serialization/UseSerializers : java/lang/annotation/Annotation {
+	public abstract fun serializerClasses ()[Ljava/lang/Class;
+}
+
+public final class kotlinx/serialization/builtins/BuiltinSerializersKt {
+	public static final fun ArraySerializer (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public static final fun BooleanArraySerializer ()Lkotlinx/serialization/KSerializer;
+	public static final fun ByteArraySerializer ()Lkotlinx/serialization/KSerializer;
+	public static final fun CharArraySerializer ()Lkotlinx/serialization/KSerializer;
+	public static final fun DoubleArraySerializer ()Lkotlinx/serialization/KSerializer;
+	public static final fun FloatArraySerializer ()Lkotlinx/serialization/KSerializer;
+	public static final fun IntArraySerializer ()Lkotlinx/serialization/KSerializer;
+	public static final fun ListSerializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public static final fun LongArraySerializer ()Lkotlinx/serialization/KSerializer;
+	public static final fun MapEntrySerializer (Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public static final fun MapSerializer (Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public static final fun PairSerializer (Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public static final fun SetSerializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public static final fun ShortArraySerializer ()Lkotlinx/serialization/KSerializer;
+	public static final fun TripleSerializer (Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public static final fun getNullable (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlin/Unit;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlin/jvm/internal/BooleanCompanionObject;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlin/jvm/internal/ByteCompanionObject;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlin/jvm/internal/CharCompanionObject;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlin/jvm/internal/DoubleCompanionObject;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlin/jvm/internal/FloatCompanionObject;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlin/jvm/internal/IntCompanionObject;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlin/jvm/internal/LongCompanionObject;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlin/jvm/internal/ShortCompanionObject;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlin/jvm/internal/StringCompanionObject;)Lkotlinx/serialization/KSerializer;
+}
+
+public final class kotlinx/serialization/builtins/BuiltinsMigrationsKt {
+	public static final fun UnitSerializer ()Lkotlinx/serialization/KSerializer;
+	public static final fun getList (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public static final fun getSet (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+}
+
+public final class kotlinx/serialization/builtins/LongAsStringSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/builtins/LongAsStringSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Long;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;J)Ljava/lang/Long;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;J)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public final class kotlinx/serialization/descriptors/ClassSerialDescriptorBuilder {
+	public final fun element (Ljava/lang/String;Lkotlinx/serialization/descriptors/SerialDescriptor;Ljava/util/List;Z)V
+	public static synthetic fun element$default (Lkotlinx/serialization/descriptors/ClassSerialDescriptorBuilder;Ljava/lang/String;Lkotlinx/serialization/descriptors/SerialDescriptor;Ljava/util/List;ZILjava/lang/Object;)V
+	public final fun getAnnotations ()Ljava/util/List;
+	public final fun getSerialName ()Ljava/lang/String;
+	public final fun isNullable ()Z
+	public final fun listDescriptor (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun mapDescriptor (Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun setAnnotations (Ljava/util/List;)V
+	public final fun setDescriptor (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun setNullable (Z)V
+}
+
+public final class kotlinx/serialization/descriptors/ContextAwareKt {
+	public static final fun getCapturedKClass (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlin/reflect/KClass;
+	public static final fun getContextualDescriptor (Lkotlinx/serialization/modules/SerializersModule;Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public static final fun getPolymorphicDescriptors (Lkotlinx/serialization/modules/SerializersModule;Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/List;
+}
+
+public abstract class kotlinx/serialization/descriptors/PolymorphicKind : kotlinx/serialization/descriptors/SerialKind {
+}
+
+public final class kotlinx/serialization/descriptors/PolymorphicKind$OPEN : kotlinx/serialization/descriptors/PolymorphicKind {
+	public static final field INSTANCE Lkotlinx/serialization/descriptors/PolymorphicKind$OPEN;
+}
+
+public final class kotlinx/serialization/descriptors/PolymorphicKind$SEALED : kotlinx/serialization/descriptors/PolymorphicKind {
+	public static final field INSTANCE Lkotlinx/serialization/descriptors/PolymorphicKind$SEALED;
+}
+
+public abstract class kotlinx/serialization/descriptors/PrimitiveKind : kotlinx/serialization/descriptors/SerialKind {
+}
+
+public final class kotlinx/serialization/descriptors/PrimitiveKind$BOOLEAN : kotlinx/serialization/descriptors/PrimitiveKind {
+	public static final field INSTANCE Lkotlinx/serialization/descriptors/PrimitiveKind$BOOLEAN;
+}
+
+public final class kotlinx/serialization/descriptors/PrimitiveKind$BYTE : kotlinx/serialization/descriptors/PrimitiveKind {
+	public static final field INSTANCE Lkotlinx/serialization/descriptors/PrimitiveKind$BYTE;
+}
+
+public final class kotlinx/serialization/descriptors/PrimitiveKind$CHAR : kotlinx/serialization/descriptors/PrimitiveKind {
+	public static final field INSTANCE Lkotlinx/serialization/descriptors/PrimitiveKind$CHAR;
+}
+
+public final class kotlinx/serialization/descriptors/PrimitiveKind$DOUBLE : kotlinx/serialization/descriptors/PrimitiveKind {
+	public static final field INSTANCE Lkotlinx/serialization/descriptors/PrimitiveKind$DOUBLE;
+}
+
+public final class kotlinx/serialization/descriptors/PrimitiveKind$FLOAT : kotlinx/serialization/descriptors/PrimitiveKind {
+	public static final field INSTANCE Lkotlinx/serialization/descriptors/PrimitiveKind$FLOAT;
+}
+
+public final class kotlinx/serialization/descriptors/PrimitiveKind$INT : kotlinx/serialization/descriptors/PrimitiveKind {
+	public static final field INSTANCE Lkotlinx/serialization/descriptors/PrimitiveKind$INT;
+}
+
+public final class kotlinx/serialization/descriptors/PrimitiveKind$LONG : kotlinx/serialization/descriptors/PrimitiveKind {
+	public static final field INSTANCE Lkotlinx/serialization/descriptors/PrimitiveKind$LONG;
+}
+
+public final class kotlinx/serialization/descriptors/PrimitiveKind$SHORT : kotlinx/serialization/descriptors/PrimitiveKind {
+	public static final field INSTANCE Lkotlinx/serialization/descriptors/PrimitiveKind$SHORT;
+}
+
+public final class kotlinx/serialization/descriptors/PrimitiveKind$STRING : kotlinx/serialization/descriptors/PrimitiveKind {
+	public static final field INSTANCE Lkotlinx/serialization/descriptors/PrimitiveKind$STRING;
+}
+
+public abstract interface class kotlinx/serialization/descriptors/SerialDescriptor {
+	public abstract fun getAnnotations ()Ljava/util/List;
+	public abstract fun getElementAnnotations (I)Ljava/util/List;
+	public abstract fun getElementDescriptor (I)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public abstract fun getElementIndex (Ljava/lang/String;)I
+	public abstract fun getElementName (I)Ljava/lang/String;
+	public abstract fun getElementsCount ()I
+	public abstract fun getKind ()Lkotlinx/serialization/descriptors/SerialKind;
+	public abstract fun getSerialName ()Ljava/lang/String;
+	public abstract fun isElementOptional (I)Z
+	public abstract fun isNullable ()Z
+}
+
+public final class kotlinx/serialization/descriptors/SerialDescriptor$DefaultImpls {
+	public static fun getAnnotations (Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/List;
+	public static fun isNullable (Lkotlinx/serialization/descriptors/SerialDescriptor;)Z
+}
+
+public final class kotlinx/serialization/descriptors/SerialDescriptorKt {
+	public static final fun getElementDescriptors (Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/lang/Iterable;
+	public static final fun getElementNames (Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/lang/Iterable;
+}
+
+public final class kotlinx/serialization/descriptors/SerialDescriptorsKt {
+	public static final fun PrimitiveSerialDescriptor (Ljava/lang/String;Lkotlinx/serialization/descriptors/PrimitiveKind;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public static final fun buildClassSerialDescriptor (Ljava/lang/String;[Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public static synthetic fun buildClassSerialDescriptor$default (Ljava/lang/String;[Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public static final fun buildSerialDescriptor (Ljava/lang/String;Lkotlinx/serialization/descriptors/SerialKind;[Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public static synthetic fun buildSerialDescriptor$default (Ljava/lang/String;Lkotlinx/serialization/descriptors/SerialKind;[Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public static final fun getNullable (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public static final fun listSerialDescriptor (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public static final fun mapSerialDescriptor (Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public static final fun serialDescriptor (Lkotlin/reflect/KType;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public static final fun setSerialDescriptor (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+}
+
+public abstract class kotlinx/serialization/descriptors/SerialKind {
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class kotlinx/serialization/descriptors/SerialKind$CONTEXTUAL : kotlinx/serialization/descriptors/SerialKind {
+	public static final field INSTANCE Lkotlinx/serialization/descriptors/SerialKind$CONTEXTUAL;
+}
+
+public final class kotlinx/serialization/descriptors/SerialKind$ENUM : kotlinx/serialization/descriptors/SerialKind {
+	public static final field INSTANCE Lkotlinx/serialization/descriptors/SerialKind$ENUM;
+}
+
+public abstract class kotlinx/serialization/descriptors/StructureKind : kotlinx/serialization/descriptors/SerialKind {
+}
+
+public final class kotlinx/serialization/descriptors/StructureKind$CLASS : kotlinx/serialization/descriptors/StructureKind {
+	public static final field INSTANCE Lkotlinx/serialization/descriptors/StructureKind$CLASS;
+}
+
+public final class kotlinx/serialization/descriptors/StructureKind$LIST : kotlinx/serialization/descriptors/StructureKind {
+	public static final field INSTANCE Lkotlinx/serialization/descriptors/StructureKind$LIST;
+}
+
+public final class kotlinx/serialization/descriptors/StructureKind$MAP : kotlinx/serialization/descriptors/StructureKind {
+	public static final field INSTANCE Lkotlinx/serialization/descriptors/StructureKind$MAP;
+}
+
+public final class kotlinx/serialization/descriptors/StructureKind$OBJECT : kotlinx/serialization/descriptors/StructureKind {
+	public static final field INSTANCE Lkotlinx/serialization/descriptors/StructureKind$OBJECT;
+}
+
+public final class kotlinx/serialization/descriptors/UnionKind {
+	public static final field INSTANCE Lkotlinx/serialization/descriptors/UnionKind;
+	public final fun getCONTEXTUAL ()Lkotlinx/serialization/descriptors/SerialKind;
+	public final fun getENUM_KIND ()Lkotlinx/serialization/descriptors/SerialKind;
+}
+
+public abstract class kotlinx/serialization/encoding/AbstractDecoder : kotlinx/serialization/encoding/CompositeDecoder, kotlinx/serialization/encoding/Decoder {
+	public fun <init> ()V
+	public fun beginStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/CompositeDecoder;
+	public fun beginStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;[Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/encoding/CompositeDecoder;
+	public fun decodeBoolean ()Z
+	public final fun decodeBooleanElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
+	public fun decodeByte ()B
+	public final fun decodeByteElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)B
+	public fun decodeChar ()C
+	public final fun decodeCharElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)C
+	public fun decodeCollectionSize (Lkotlinx/serialization/descriptors/SerialDescriptor;)I
+	public fun decodeDouble ()D
+	public final fun decodeDoubleElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)D
+	public fun decodeEnum (Lkotlinx/serialization/descriptors/SerialDescriptor;)I
+	public fun decodeFloat ()F
+	public final fun decodeFloatElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)F
+	public fun decodeInt ()I
+	public final fun decodeIntElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)I
+	public fun decodeLong ()J
+	public final fun decodeLongElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)J
+	public fun decodeNotNullMark ()Z
+	public fun decodeNull ()Ljava/lang/Void;
+	public fun decodeNullableSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public final fun decodeNullableSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun decodeNullableSerializableValue (Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public fun decodeSequentially ()Z
+	public fun decodeSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public final fun decodeSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun decodeSerializableValue (Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public fun decodeSerializableValue (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public static synthetic fun decodeSerializableValue$default (Lkotlinx/serialization/encoding/AbstractDecoder;Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;ILjava/lang/Object;)Ljava/lang/Object;
+	public fun decodeShort ()S
+	public final fun decodeShortElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)S
+	public fun decodeString ()Ljava/lang/String;
+	public final fun decodeStringElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
+	public fun decodeValue ()Ljava/lang/Object;
+	public fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public fun getUpdateMode ()Lkotlinx/serialization/UpdateMode;
+	public fun updateNullableSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun updateNullableSerializableValue (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun updateSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun updateSerializableValue (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract class kotlinx/serialization/encoding/AbstractEncoder : kotlinx/serialization/encoding/CompositeEncoder, kotlinx/serialization/encoding/Encoder {
+	public fun <init> ()V
+	public fun beginCollection (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public fun beginCollection (Lkotlinx/serialization/descriptors/SerialDescriptor;I[Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public fun beginStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public fun beginStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;[Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public fun encodeBoolean (Z)V
+	public final fun encodeBooleanElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IZ)V
+	public fun encodeByte (B)V
+	public final fun encodeByteElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IB)V
+	public fun encodeChar (C)V
+	public final fun encodeCharElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IC)V
+	public fun encodeDouble (D)V
+	public final fun encodeDoubleElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ID)V
+	public fun encodeElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
+	public fun encodeEnum (Lkotlinx/serialization/descriptors/SerialDescriptor;I)V
+	public fun encodeFloat (F)V
+	public final fun encodeFloatElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IF)V
+	public fun encodeInt (I)V
+	public final fun encodeIntElement (Lkotlinx/serialization/descriptors/SerialDescriptor;II)V
+	public fun encodeLong (J)V
+	public final fun encodeLongElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IJ)V
+	public fun encodeNonSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILjava/lang/Object;)V
+	public fun encodeNotNullMark ()V
+	public fun encodeNull ()V
+	public final fun encodeNullableSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public fun encodeNullableSerializableValue (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public final fun encodeSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public fun encodeSerializableValue (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public fun encodeShort (S)V
+	public final fun encodeShortElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IS)V
+	public fun encodeString (Ljava/lang/String;)V
+	public final fun encodeStringElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILjava/lang/String;)V
+	public fun encodeValue (Ljava/lang/Object;)V
+	public fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public fun shouldEncodeElementDefault (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
+}
+
+public abstract interface class kotlinx/serialization/encoding/CompositeDecoder {
+	public static final field Companion Lkotlinx/serialization/encoding/CompositeDecoder$Companion;
+	public static final field DECODE_DONE I
+	public static final field READ_ALL I
+	public static final field READ_DONE I
+	public static final field UNKNOWN_NAME I
+	public abstract fun decodeBooleanElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
+	public abstract fun decodeByteElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)B
+	public abstract fun decodeCharElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)C
+	public abstract fun decodeCollectionSize (Lkotlinx/serialization/descriptors/SerialDescriptor;)I
+	public abstract fun decodeDoubleElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)D
+	public abstract fun decodeElementIndex (Lkotlinx/serialization/descriptors/SerialDescriptor;)I
+	public abstract fun decodeFloatElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)F
+	public abstract fun decodeIntElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)I
+	public abstract fun decodeLongElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)J
+	public abstract fun decodeNullableSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public abstract fun decodeNullableSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public abstract fun decodeSequentially ()Z
+	public abstract fun decodeSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public abstract fun decodeSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public abstract fun decodeShortElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)S
+	public abstract fun decodeStringElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
+	public abstract fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+	public abstract fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public abstract fun getUpdateMode ()Lkotlinx/serialization/UpdateMode;
+	public abstract fun updateNullableSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public abstract fun updateSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/encoding/CompositeDecoder$Companion {
+	public static final field DECODE_DONE I
+	public static final field READ_ALL I
+	public static final field READ_DONE I
+	public static final field UNKNOWN_NAME I
+}
+
+public final class kotlinx/serialization/encoding/CompositeDecoder$DefaultImpls {
+	public static fun decodeCollectionSize (Lkotlinx/serialization/encoding/CompositeDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)I
+	public static fun decodeNullableSerializableElement (Lkotlinx/serialization/encoding/CompositeDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public static fun decodeNullableSerializableElement (Lkotlinx/serialization/encoding/CompositeDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public static synthetic fun decodeNullableSerializableElement$default (Lkotlinx/serialization/encoding/CompositeDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;ILjava/lang/Object;)Ljava/lang/Object;
+	public static fun decodeSequentially (Lkotlinx/serialization/encoding/CompositeDecoder;)Z
+	public static fun decodeSerializableElement (Lkotlinx/serialization/encoding/CompositeDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public static fun decodeSerializableElement (Lkotlinx/serialization/encoding/CompositeDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public static synthetic fun decodeSerializableElement$default (Lkotlinx/serialization/encoding/CompositeDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;ILjava/lang/Object;)Ljava/lang/Object;
+	public static fun getUpdateMode (Lkotlinx/serialization/encoding/CompositeDecoder;)Lkotlinx/serialization/UpdateMode;
+	public static fun updateNullableSerializableElement (Lkotlinx/serialization/encoding/CompositeDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public static fun updateSerializableElement (Lkotlinx/serialization/encoding/CompositeDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract interface class kotlinx/serialization/encoding/CompositeEncoder {
+	public abstract fun encodeBooleanElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IZ)V
+	public abstract fun encodeByteElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IB)V
+	public abstract fun encodeCharElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IC)V
+	public abstract fun encodeDoubleElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ID)V
+	public abstract fun encodeFloatElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IF)V
+	public abstract fun encodeIntElement (Lkotlinx/serialization/descriptors/SerialDescriptor;II)V
+	public abstract fun encodeLongElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IJ)V
+	public abstract fun encodeNonSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILjava/lang/Object;)V
+	public abstract fun encodeNullableSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public abstract fun encodeSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public abstract fun encodeShortElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IS)V
+	public abstract fun encodeStringElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILjava/lang/String;)V
+	public abstract fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+	public abstract fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public abstract fun shouldEncodeElementDefault (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
+}
+
+public final class kotlinx/serialization/encoding/CompositeEncoder$DefaultImpls {
+	public static fun encodeNonSerializableElement (Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILjava/lang/Object;)V
+	public static fun shouldEncodeElementDefault (Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
+}
+
+public abstract interface class kotlinx/serialization/encoding/Decoder {
+	public abstract fun beginStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/CompositeDecoder;
+	public abstract fun beginStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;[Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/encoding/CompositeDecoder;
+	public abstract fun decodeBoolean ()Z
+	public abstract fun decodeByte ()B
+	public abstract fun decodeChar ()C
+	public abstract fun decodeDouble ()D
+	public abstract fun decodeEnum (Lkotlinx/serialization/descriptors/SerialDescriptor;)I
+	public abstract fun decodeFloat ()F
+	public abstract fun decodeInt ()I
+	public abstract fun decodeLong ()J
+	public abstract fun decodeNotNullMark ()Z
+	public abstract fun decodeNull ()Ljava/lang/Void;
+	public abstract fun decodeNullableSerializableValue (Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public abstract fun decodeSerializableValue (Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public abstract fun decodeShort ()S
+	public abstract fun decodeString ()Ljava/lang/String;
+	public abstract fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public abstract fun getUpdateMode ()Lkotlinx/serialization/UpdateMode;
+	public abstract fun updateNullableSerializableValue (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public abstract fun updateSerializableValue (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/encoding/Decoder$DefaultImpls {
+	public static fun beginStructure (Lkotlinx/serialization/encoding/Decoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/CompositeDecoder;
+	public static fun beginStructure (Lkotlinx/serialization/encoding/Decoder;Lkotlinx/serialization/descriptors/SerialDescriptor;[Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/encoding/CompositeDecoder;
+	public static fun decodeNullableSerializableValue (Lkotlinx/serialization/encoding/Decoder;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public static fun decodeSerializableValue (Lkotlinx/serialization/encoding/Decoder;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public static fun getUpdateMode (Lkotlinx/serialization/encoding/Decoder;)Lkotlinx/serialization/UpdateMode;
+	public static fun updateNullableSerializableValue (Lkotlinx/serialization/encoding/Decoder;Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public static fun updateSerializableValue (Lkotlinx/serialization/encoding/Decoder;Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/encoding/DecodingKt {
+	public static final fun decodeStructure (Lkotlinx/serialization/encoding/Decoder;Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public abstract interface class kotlinx/serialization/encoding/Encoder {
+	public abstract fun beginCollection (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public abstract fun beginCollection (Lkotlinx/serialization/descriptors/SerialDescriptor;I[Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public abstract fun beginStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public abstract fun beginStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;[Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public abstract fun encodeBoolean (Z)V
+	public abstract fun encodeByte (B)V
+	public abstract fun encodeChar (C)V
+	public abstract fun encodeDouble (D)V
+	public abstract fun encodeEnum (Lkotlinx/serialization/descriptors/SerialDescriptor;I)V
+	public abstract fun encodeFloat (F)V
+	public abstract fun encodeInt (I)V
+	public abstract fun encodeLong (J)V
+	public abstract fun encodeNotNullMark ()V
+	public abstract fun encodeNull ()V
+	public abstract fun encodeNullableSerializableValue (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public abstract fun encodeSerializableValue (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public abstract fun encodeShort (S)V
+	public abstract fun encodeString (Ljava/lang/String;)V
+	public abstract fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+}
+
+public final class kotlinx/serialization/encoding/Encoder$DefaultImpls {
+	public static fun beginCollection (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/descriptors/SerialDescriptor;I)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public static fun beginCollection (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/descriptors/SerialDescriptor;I[Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public static fun beginStructure (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public static fun beginStructure (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/descriptors/SerialDescriptor;[Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public static fun encodeNotNullMark (Lkotlinx/serialization/encoding/Encoder;)V
+	public static fun encodeNullableSerializableValue (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public static fun encodeSerializableValue (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+}
+
+public final class kotlinx/serialization/encoding/EncodingKt {
+	public static final fun encodeStructure (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlin/jvm/functions/Function1;)V
+}
+
+public abstract class kotlinx/serialization/internal/AbstractCollectionSerializer : kotlinx/serialization/KSerializer {
+	protected abstract fun builder ()Ljava/lang/Object;
+	protected abstract fun builderSize (Ljava/lang/Object;)I
+	protected abstract fun checkCapacity (Ljava/lang/Object;I)V
+	protected abstract fun collectionIterator (Ljava/lang/Object;)Ljava/util/Iterator;
+	protected abstract fun collectionSize (Ljava/lang/Object;)I
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun merge (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	protected abstract fun readAll (Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/Object;II)V
+	protected abstract fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
+	public static synthetic fun readElement$default (Lkotlinx/serialization/internal/AbstractCollectionSerializer;Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;ZILjava/lang/Object;)V
+	public abstract fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	protected abstract fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	protected abstract fun toResult (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract class kotlinx/serialization/internal/AbstractPolymorphicSerializer : kotlinx/serialization/KSerializer {
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun findPolymorphicSerializerOrNull (Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/String;)Lkotlinx/serialization/DeserializationStrategy;
+	public fun findPolymorphicSerializerOrNull (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)Lkotlinx/serialization/SerializationStrategy;
+	public abstract fun getBaseClass ()Lkotlin/reflect/KClass;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public final class kotlinx/serialization/internal/ArrayListSerializer : kotlinx/serialization/internal/ListLikeSerializer {
+	public fun <init> (Lkotlinx/serialization/KSerializer;)V
+	public synthetic fun builder ()Ljava/lang/Object;
+	public synthetic fun builderSize (Ljava/lang/Object;)I
+	public synthetic fun checkCapacity (Ljava/lang/Object;I)V
+	public synthetic fun collectionIterator (Ljava/lang/Object;)Ljava/util/Iterator;
+	public synthetic fun collectionSize (Ljava/lang/Object;)I
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun insert (Ljava/lang/Object;ILjava/lang/Object;)V
+	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toResult (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/internal/BooleanArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {
+	public synthetic fun build$kotlinx_serialization_core ()Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/internal/BooleanArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/BooleanArraySerializer;
+	public synthetic fun collectionSize (Ljava/lang/Object;)I
+	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;[Z)[Z
+	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
+	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
+	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
+}
+
+public final class kotlinx/serialization/internal/BooleanDescriptor : kotlinx/serialization/internal/Migration {
+	public static final field INSTANCE Lkotlinx/serialization/internal/BooleanDescriptor;
+}
+
+public final class kotlinx/serialization/internal/BooleanSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/BooleanSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Boolean;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;Z)Ljava/lang/Boolean;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Z)V
+}
+
+public final class kotlinx/serialization/internal/ByteArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {
+	public synthetic fun build$kotlinx_serialization_core ()Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/internal/ByteArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/ByteArraySerializer;
+	public synthetic fun collectionSize (Ljava/lang/Object;)I
+	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;[B)[B
+	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
+	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
+	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
+}
+
+public final class kotlinx/serialization/internal/ByteDescriptor : kotlinx/serialization/internal/Migration {
+	public static final field INSTANCE Lkotlinx/serialization/internal/ByteDescriptor;
+}
+
+public final class kotlinx/serialization/internal/ByteSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/ByteSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Byte;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;B)Ljava/lang/Byte;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;B)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public final class kotlinx/serialization/internal/CharArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {
+	public synthetic fun build$kotlinx_serialization_core ()Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/internal/CharArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/CharArraySerializer;
+	public synthetic fun collectionSize (Ljava/lang/Object;)I
+	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;[C)[C
+	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
+	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
+	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
+}
+
+public final class kotlinx/serialization/internal/CharDescriptor : kotlinx/serialization/internal/Migration {
+	public static final field INSTANCE Lkotlinx/serialization/internal/CharDescriptor;
+}
+
+public final class kotlinx/serialization/internal/CharSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/CharSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Character;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;C)Ljava/lang/Character;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;C)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public final class kotlinx/serialization/internal/DoubleArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {
+	public synthetic fun build$kotlinx_serialization_core ()Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/internal/DoubleArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/DoubleArraySerializer;
+	public synthetic fun collectionSize (Ljava/lang/Object;)I
+	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;[D)[D
+	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
+	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
+	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
+}
+
+public final class kotlinx/serialization/internal/DoubleDescriptor : kotlinx/serialization/internal/Migration {
+	public static final field INSTANCE Lkotlinx/serialization/internal/DoubleDescriptor;
+}
+
+public final class kotlinx/serialization/internal/DoubleSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/DoubleSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Double;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;D)Ljava/lang/Double;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;D)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public final class kotlinx/serialization/internal/EnumDescriptor : kotlinx/serialization/internal/PluginGeneratedSerialDescriptor {
+	public fun <init> (Ljava/lang/String;I)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getElementDescriptor (I)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun getKind ()Lkotlinx/serialization/descriptors/SerialKind;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class kotlinx/serialization/internal/EnumSerializer : kotlinx/serialization/KSerializer {
+	public fun <init> (Ljava/lang/String;[Ljava/lang/Enum;)V
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Enum;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Enum;)Ljava/lang/Enum;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Enum;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class kotlinx/serialization/internal/FloatArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {
+	public synthetic fun build$kotlinx_serialization_core ()Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/internal/FloatArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/FloatArraySerializer;
+	public synthetic fun collectionSize (Ljava/lang/Object;)I
+	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;[F)[F
+	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
+	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
+	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
+}
+
+public final class kotlinx/serialization/internal/FloatDescriptor : kotlinx/serialization/internal/Migration {
+	public static final field INSTANCE Lkotlinx/serialization/internal/FloatDescriptor;
+}
+
+public final class kotlinx/serialization/internal/FloatSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/FloatSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Float;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;F)Ljava/lang/Float;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;F)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public abstract interface class kotlinx/serialization/internal/GeneratedSerializer : kotlinx/serialization/KSerializer {
+	public abstract fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public abstract fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class kotlinx/serialization/internal/GeneratedSerializer$DefaultImpls {
+	public static fun patch (Lkotlinx/serialization/internal/GeneratedSerializer;Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public static fun typeParametersSerializers (Lkotlinx/serialization/internal/GeneratedSerializer;)[Lkotlinx/serialization/KSerializer;
+}
+
+public final class kotlinx/serialization/internal/HashMapSerializer : kotlinx/serialization/internal/MapLikeSerializer {
+	public fun <init> (Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;)V
+	public synthetic fun builder ()Ljava/lang/Object;
+	public synthetic fun builderSize (Ljava/lang/Object;)I
+	public synthetic fun checkCapacity (Ljava/lang/Object;I)V
+	public synthetic fun collectionIterator (Ljava/lang/Object;)Ljava/util/Iterator;
+	public synthetic fun collectionSize (Ljava/lang/Object;)I
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun insertKeyValuePair (Ljava/util/Map;ILjava/lang/Object;Ljava/lang/Object;)V
+	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toResult (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/internal/HashSetSerializer : kotlinx/serialization/internal/ListLikeSerializer {
+	public fun <init> (Lkotlinx/serialization/KSerializer;)V
+	public synthetic fun builder ()Ljava/lang/Object;
+	public synthetic fun builderSize (Ljava/lang/Object;)I
+	public synthetic fun checkCapacity (Ljava/lang/Object;I)V
+	public synthetic fun collectionIterator (Ljava/lang/Object;)Ljava/util/Iterator;
+	public synthetic fun collectionSize (Ljava/lang/Object;)I
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun insert (Ljava/lang/Object;ILjava/lang/Object;)V
+	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toResult (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/internal/HexConverter {
+	public static final field INSTANCE Lkotlinx/serialization/internal/HexConverter;
+	public final fun parseHexBinary (Ljava/lang/String;)[B
+	public final fun printHexBinary ([BZ)Ljava/lang/String;
+	public static synthetic fun printHexBinary$default (Lkotlinx/serialization/internal/HexConverter;[BZILjava/lang/Object;)Ljava/lang/String;
+	public final fun toHexString (I)Ljava/lang/String;
+}
+
+public final class kotlinx/serialization/internal/IntArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {
+	public synthetic fun build$kotlinx_serialization_core ()Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/internal/IntArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/IntArraySerializer;
+	public synthetic fun collectionSize (Ljava/lang/Object;)I
+	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;[I)[I
+	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
+	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
+	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
+}
+
+public final class kotlinx/serialization/internal/IntDescriptor : kotlinx/serialization/internal/Migration {
+	public static final field INSTANCE Lkotlinx/serialization/internal/IntDescriptor;
+}
+
+public final class kotlinx/serialization/internal/IntSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/IntSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Integer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;I)Ljava/lang/Integer;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;I)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public abstract class kotlinx/serialization/internal/KeyValueSerializer : kotlinx/serialization/KSerializer {
+	public synthetic fun <init> (Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	protected abstract fun getKey (Ljava/lang/Object;)Ljava/lang/Object;
+	protected final fun getKeySerializer ()Lkotlinx/serialization/KSerializer;
+	protected abstract fun getValue (Ljava/lang/Object;)Ljava/lang/Object;
+	protected final fun getValueSerializer ()Lkotlinx/serialization/KSerializer;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	protected abstract fun toResult (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/internal/LinkedHashMapSerializer : kotlinx/serialization/internal/MapLikeSerializer {
+	public fun <init> (Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;)V
+	public synthetic fun builder ()Ljava/lang/Object;
+	public synthetic fun builderSize (Ljava/lang/Object;)I
+	public synthetic fun checkCapacity (Ljava/lang/Object;I)V
+	public synthetic fun collectionIterator (Ljava/lang/Object;)Ljava/util/Iterator;
+	public synthetic fun collectionSize (Ljava/lang/Object;)I
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun insertKeyValuePair (Ljava/util/Map;ILjava/lang/Object;Ljava/lang/Object;)V
+	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toResult (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/internal/LinkedHashSetSerializer : kotlinx/serialization/internal/ListLikeSerializer {
+	public fun <init> (Lkotlinx/serialization/KSerializer;)V
+	public synthetic fun builder ()Ljava/lang/Object;
+	public synthetic fun builderSize (Ljava/lang/Object;)I
+	public synthetic fun checkCapacity (Ljava/lang/Object;I)V
+	public synthetic fun collectionIterator (Ljava/lang/Object;)Ljava/util/Iterator;
+	public synthetic fun collectionSize (Ljava/lang/Object;)I
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun insert (Ljava/lang/Object;ILjava/lang/Object;)V
+	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toResult (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract class kotlinx/serialization/internal/ListLikeSerializer : kotlinx/serialization/internal/AbstractCollectionSerializer {
+	public synthetic fun <init> (Lkotlinx/serialization/KSerializer;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public abstract fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	protected abstract fun insert (Ljava/lang/Object;ILjava/lang/Object;)V
+	protected final fun readAll (Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/Object;II)V
+	protected fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public final class kotlinx/serialization/internal/LongArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {
+	public synthetic fun build$kotlinx_serialization_core ()Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/internal/LongArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/LongArraySerializer;
+	public synthetic fun collectionSize (Ljava/lang/Object;)I
+	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;[J)[J
+	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
+	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
+	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
+}
+
+public final class kotlinx/serialization/internal/LongDescriptor : kotlinx/serialization/internal/Migration {
+	public static final field INSTANCE Lkotlinx/serialization/internal/LongDescriptor;
+}
+
+public final class kotlinx/serialization/internal/LongSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/LongSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Long;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;J)Ljava/lang/Long;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;J)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public final class kotlinx/serialization/internal/MapEntrySerializer : kotlinx/serialization/internal/KeyValueSerializer {
+	public fun <init> (Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;)V
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun getKey (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun getValue (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toResult (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract class kotlinx/serialization/internal/MapLikeSerializer : kotlinx/serialization/internal/AbstractCollectionSerializer {
+	public synthetic fun <init> (Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public abstract fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun getKeySerializer ()Lkotlinx/serialization/KSerializer;
+	public final fun getValueSerializer ()Lkotlinx/serialization/KSerializer;
+	protected abstract fun insertKeyValuePair (Ljava/util/Map;ILjava/lang/Object;Ljava/lang/Object;)V
+	public synthetic fun readAll (Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/Object;II)V
+	protected final fun readAll (Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/util/Map;II)V
+	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
+	protected final fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/util/Map;Z)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public class kotlinx/serialization/internal/Migration : kotlinx/serialization/descriptors/SerialDescriptor {
+	public fun <init> ()V
+	public fun getAnnotations ()Ljava/util/List;
+	public fun getElementAnnotations (I)Ljava/util/List;
+	public fun getElementDescriptor (I)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun getElementIndex (Ljava/lang/String;)I
+	public fun getElementName (I)Ljava/lang/String;
+	public fun getElementsCount ()I
+	public fun getKind ()Lkotlinx/serialization/descriptors/SerialKind;
+	public fun getSerialName ()Ljava/lang/String;
+	public fun isElementOptional (I)Z
+	public fun isNullable ()Z
+}
+
+public abstract class kotlinx/serialization/internal/NamedValueDecoder : kotlinx/serialization/internal/TaggedDecoder {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	protected fun composeName (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	protected fun elementName (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
+	protected final fun getRootName ()Ljava/lang/String;
+	public synthetic fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/Object;
+	protected final fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
+	protected final fun nested (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public abstract class kotlinx/serialization/internal/NamedValueEncoder : kotlinx/serialization/internal/TaggedEncoder {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	protected fun composeName (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	protected fun elementName (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
+	protected final fun getRootName ()Ljava/lang/String;
+	public synthetic fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/Object;
+	protected final fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
+	protected final fun nested (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class kotlinx/serialization/internal/NullableSerializer : kotlinx/serialization/KSerializer {
+	public fun <init> (Lkotlinx/serialization/KSerializer;)V
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun hashCode ()I
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public final class kotlinx/serialization/internal/ObjectSerializer : kotlinx/serialization/KSerializer {
+	public fun <init> (Ljava/lang/String;Ljava/lang/Object;)V
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public final class kotlinx/serialization/internal/PairSerializer : kotlinx/serialization/internal/KeyValueSerializer {
+	public fun <init> (Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;)V
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun getKey (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun getValue (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toResult (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/internal/Platform_commonKt {
+	public static final fun cast (Lkotlinx/serialization/DeserializationStrategy;)Lkotlinx/serialization/DeserializationStrategy;
+	public static final fun cast (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public static final fun cast (Lkotlinx/serialization/SerializationStrategy;)Lkotlinx/serialization/SerializationStrategy;
+}
+
+public class kotlinx/serialization/internal/PluginGeneratedSerialDescriptor : kotlinx/serialization/descriptors/SerialDescriptor {
+	public fun <init> (Ljava/lang/String;Lkotlinx/serialization/internal/GeneratedSerializer;I)V
+	public synthetic fun <init> (Ljava/lang/String;Lkotlinx/serialization/internal/GeneratedSerializer;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun addElement (Ljava/lang/String;Z)V
+	public static synthetic fun addElement$default (Lkotlinx/serialization/internal/PluginGeneratedSerialDescriptor;Ljava/lang/String;ZILjava/lang/Object;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getAnnotations ()Ljava/util/List;
+	public fun getElementAnnotations (I)Ljava/util/List;
+	public fun getElementDescriptor (I)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun getElementIndex (Ljava/lang/String;)I
+	public fun getElementName (I)Ljava/lang/String;
+	public final fun getElementsCount ()I
+	public fun getKind ()Lkotlinx/serialization/descriptors/SerialKind;
+	public fun getSerialName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun isElementOptional (I)Z
+	public fun isNullable ()Z
+	public final fun pushAnnotation (Ljava/lang/annotation/Annotation;)V
+	public final fun pushClassAnnotation (Ljava/lang/annotation/Annotation;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class kotlinx/serialization/internal/PrimitiveArrayBuilder {
+}
+
+public abstract class kotlinx/serialization/internal/PrimitiveArraySerializer : kotlinx/serialization/internal/ListLikeSerializer {
+	public synthetic fun builder ()Ljava/lang/Object;
+	protected final fun builder ()Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
+	public synthetic fun builderSize (Ljava/lang/Object;)I
+	protected final fun builderSize (Lkotlinx/serialization/internal/PrimitiveArrayBuilder;)I
+	public synthetic fun checkCapacity (Ljava/lang/Object;I)V
+	protected final fun checkCapacity (Lkotlinx/serialization/internal/PrimitiveArrayBuilder;I)V
+	protected final fun collectionIterator (Ljava/lang/Object;)Ljava/util/Iterator;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	protected abstract fun empty ()Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun insert (Ljava/lang/Object;ILjava/lang/Object;)V
+	protected final fun insert (Lkotlinx/serialization/internal/PrimitiveArrayBuilder;ILjava/lang/Object;)V
+	protected abstract fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public synthetic fun toResult (Ljava/lang/Object;)Ljava/lang/Object;
+	protected final fun toResult (Lkotlinx/serialization/internal/PrimitiveArrayBuilder;)Ljava/lang/Object;
+	protected abstract fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
+}
+
+public final class kotlinx/serialization/internal/ReferenceArraySerializer : kotlinx/serialization/internal/ListLikeSerializer {
+	public fun <init> (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
+	public synthetic fun builder ()Ljava/lang/Object;
+	public synthetic fun builderSize (Ljava/lang/Object;)I
+	public synthetic fun checkCapacity (Ljava/lang/Object;I)V
+	public synthetic fun collectionIterator (Ljava/lang/Object;)Ljava/util/Iterator;
+	public synthetic fun collectionSize (Ljava/lang/Object;)I
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun insert (Ljava/lang/Object;ILjava/lang/Object;)V
+	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toResult (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/internal/SerializationConstructorMarker {
+}
+
+public abstract interface class kotlinx/serialization/internal/SerializerFactory {
+	public abstract fun serializer ([Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+}
+
+public final class kotlinx/serialization/internal/ShortArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {
+	public synthetic fun build$kotlinx_serialization_core ()Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/internal/ShortArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/ShortArraySerializer;
+	public synthetic fun collectionSize (Ljava/lang/Object;)I
+	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;[S)[S
+	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
+	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
+	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
+}
+
+public final class kotlinx/serialization/internal/ShortDescriptor : kotlinx/serialization/internal/Migration {
+	public static final field INSTANCE Lkotlinx/serialization/internal/ShortDescriptor;
+}
+
+public final class kotlinx/serialization/internal/ShortSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/ShortSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Short;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;S)Ljava/lang/Short;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;S)V
+}
+
+public final class kotlinx/serialization/internal/StringDescriptor : kotlinx/serialization/internal/Migration {
+	public static final field INSTANCE Lkotlinx/serialization/internal/StringDescriptor;
+}
+
+public final class kotlinx/serialization/internal/StringSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/StringSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/String;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/String;)Ljava/lang/String;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/String;)V
+}
+
+public abstract class kotlinx/serialization/internal/TaggedDecoder : kotlinx/serialization/encoding/CompositeDecoder, kotlinx/serialization/encoding/Decoder {
+	public fun <init> ()V
+	public fun beginStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/CompositeDecoder;
+	public fun beginStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;[Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/encoding/CompositeDecoder;
+	protected final fun copyTagsTo (Lkotlinx/serialization/internal/TaggedDecoder;)V
+	public final fun decodeBoolean ()Z
+	public final fun decodeBooleanElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
+	public final fun decodeByte ()B
+	public final fun decodeByteElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)B
+	public final fun decodeChar ()C
+	public final fun decodeCharElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)C
+	public fun decodeCollectionSize (Lkotlinx/serialization/descriptors/SerialDescriptor;)I
+	public final fun decodeDouble ()D
+	public final fun decodeDoubleElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)D
+	public final fun decodeEnum (Lkotlinx/serialization/descriptors/SerialDescriptor;)I
+	public final fun decodeFloat ()F
+	public final fun decodeFloatElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)F
+	public final fun decodeInt ()I
+	public final fun decodeIntElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)I
+	public final fun decodeLong ()J
+	public final fun decodeLongElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)J
+	public final fun decodeNotNullMark ()Z
+	public final fun decodeNull ()Ljava/lang/Void;
+	public fun decodeNullableSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public final fun decodeNullableSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun decodeNullableSerializableValue (Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public fun decodeSequentially ()Z
+	public fun decodeSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public final fun decodeSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun decodeSerializableValue (Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	protected fun decodeSerializableValue (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun decodeShort ()S
+	public final fun decodeShortElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)S
+	public final fun decodeString ()Ljava/lang/String;
+	public final fun decodeStringElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
+	protected fun decodeTaggedBoolean (Ljava/lang/Object;)Z
+	protected fun decodeTaggedByte (Ljava/lang/Object;)B
+	protected fun decodeTaggedChar (Ljava/lang/Object;)C
+	protected fun decodeTaggedDouble (Ljava/lang/Object;)D
+	protected fun decodeTaggedEnum (Ljava/lang/Object;Lkotlinx/serialization/descriptors/SerialDescriptor;)I
+	protected fun decodeTaggedFloat (Ljava/lang/Object;)F
+	protected fun decodeTaggedInt (Ljava/lang/Object;)I
+	protected fun decodeTaggedLong (Ljava/lang/Object;)J
+	protected fun decodeTaggedNotNullMark (Ljava/lang/Object;)Z
+	protected fun decodeTaggedNull (Ljava/lang/Object;)Ljava/lang/Void;
+	protected fun decodeTaggedShort (Ljava/lang/Object;)S
+	protected fun decodeTaggedString (Ljava/lang/Object;)Ljava/lang/String;
+	protected fun decodeTaggedValue (Ljava/lang/Object;)Ljava/lang/Object;
+	public fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+	protected final fun getCurrentTag ()Ljava/lang/Object;
+	protected final fun getCurrentTagOrNull ()Ljava/lang/Object;
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	protected abstract fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/Object;
+	public fun getUpdateMode ()Lkotlinx/serialization/UpdateMode;
+	protected final fun popTag ()Ljava/lang/Object;
+	protected final fun pushTag (Ljava/lang/Object;)V
+	public fun updateNullableSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun updateNullableSerializableValue (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun updateSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun updateSerializableValue (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract class kotlinx/serialization/internal/TaggedEncoder : kotlinx/serialization/encoding/CompositeEncoder, kotlinx/serialization/encoding/Encoder {
+	public fun <init> ()V
+	public fun beginCollection (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public fun beginCollection (Lkotlinx/serialization/descriptors/SerialDescriptor;I[Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public fun beginStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public fun beginStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;[Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public final fun encodeBoolean (Z)V
+	public final fun encodeBooleanElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IZ)V
+	public final fun encodeByte (B)V
+	public final fun encodeByteElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IB)V
+	public final fun encodeChar (C)V
+	public final fun encodeCharElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IC)V
+	public final fun encodeDouble (D)V
+	public final fun encodeDoubleElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ID)V
+	public final fun encodeEnum (Lkotlinx/serialization/descriptors/SerialDescriptor;I)V
+	public final fun encodeFloat (F)V
+	public final fun encodeFloatElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IF)V
+	public final fun encodeInt (I)V
+	public final fun encodeIntElement (Lkotlinx/serialization/descriptors/SerialDescriptor;II)V
+	public final fun encodeLong (J)V
+	public final fun encodeLongElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IJ)V
+	public fun encodeNonSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILjava/lang/Object;)V
+	public final fun encodeNotNullMark ()V
+	public final fun encodeNull ()V
+	public final fun encodeNullableSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public fun encodeNullableSerializableValue (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public final fun encodeSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public fun encodeSerializableValue (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public final fun encodeShort (S)V
+	public final fun encodeShortElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IS)V
+	public final fun encodeString (Ljava/lang/String;)V
+	public final fun encodeStringElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILjava/lang/String;)V
+	protected fun encodeTaggedBoolean (Ljava/lang/Object;Z)V
+	protected fun encodeTaggedByte (Ljava/lang/Object;B)V
+	protected fun encodeTaggedChar (Ljava/lang/Object;C)V
+	protected fun encodeTaggedDouble (Ljava/lang/Object;D)V
+	protected fun encodeTaggedEnum (Ljava/lang/Object;Lkotlinx/serialization/descriptors/SerialDescriptor;I)V
+	protected fun encodeTaggedFloat (Ljava/lang/Object;F)V
+	protected fun encodeTaggedInt (Ljava/lang/Object;I)V
+	protected fun encodeTaggedLong (Ljava/lang/Object;J)V
+	protected fun encodeTaggedNotNullMark (Ljava/lang/Object;)V
+	protected fun encodeTaggedNull (Ljava/lang/Object;)V
+	protected fun encodeTaggedShort (Ljava/lang/Object;S)V
+	protected fun encodeTaggedString (Ljava/lang/Object;Ljava/lang/String;)V
+	protected fun encodeTaggedValue (Ljava/lang/Object;Ljava/lang/Object;)V
+	protected fun endEncode (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+	public final fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+	protected final fun getCurrentTag ()Ljava/lang/Object;
+	protected final fun getCurrentTagOrNull ()Ljava/lang/Object;
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	protected abstract fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/Object;
+	protected final fun popTag ()Ljava/lang/Object;
+	protected final fun pushTag (Ljava/lang/Object;)V
+	public fun shouldEncodeElementDefault (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
+}
+
+public final class kotlinx/serialization/internal/TripleSerializer : kotlinx/serialization/KSerializer {
+	public fun <init> (Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;)V
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lkotlin/Triple;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;Lkotlin/Triple;)Lkotlin/Triple;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lkotlin/Triple;)V
+}
+
+public final class kotlinx/serialization/internal/UnitDescriptor : kotlinx/serialization/internal/Migration {
+	public static final field INSTANCE Lkotlinx/serialization/internal/UnitDescriptor;
+}
+
+public final class kotlinx/serialization/internal/UnitSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/UnitSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)V
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;Lkotlin/Unit;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lkotlin/Unit;)V
+}
+
+public abstract class kotlinx/serialization/json/Json : kotlinx/serialization/StringFormat {
+	public static final field Default Lkotlinx/serialization/json/Json$Default;
+	public synthetic fun <init> (Lkotlinx/serialization/json/internal/JsonConf;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun decodeFromJsonElement (Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
+	public final fun decodeFromString (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
+	public final fun encodeToJsonElement (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
+	public final fun encodeToString (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/lang/String;
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public final fun parseToJsonElement (Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
+}
+
+public final class kotlinx/serialization/json/Json$Default : kotlinx/serialization/json/Json {
+}
+
+public final class kotlinx/serialization/json/JsonArray : kotlinx/serialization/json/JsonElement, java/util/List, kotlin/jvm/internal/markers/KMappedMarker {
+	public static final field Companion Lkotlinx/serialization/json/JsonArray$Companion;
+	public fun <init> (Ljava/util/List;)V
+	public synthetic fun add (ILjava/lang/Object;)V
+	public fun add (ILkotlinx/serialization/json/JsonElement;)V
+	public synthetic fun add (Ljava/lang/Object;)Z
+	public fun add (Lkotlinx/serialization/json/JsonElement;)Z
+	public fun addAll (ILjava/util/Collection;)Z
+	public fun addAll (Ljava/util/Collection;)Z
+	public fun clear ()V
+	public final fun contains (Ljava/lang/Object;)Z
+	public fun contains (Lkotlinx/serialization/json/JsonElement;)Z
+	public fun containsAll (Ljava/util/Collection;)Z
+	public fun equals (Ljava/lang/Object;)Z
+	public synthetic fun get (I)Ljava/lang/Object;
+	public fun get (I)Lkotlinx/serialization/json/JsonElement;
+	public fun getSize ()I
+	public fun hashCode ()I
+	public final fun indexOf (Ljava/lang/Object;)I
+	public fun indexOf (Lkotlinx/serialization/json/JsonElement;)I
+	public fun isEmpty ()Z
+	public fun iterator ()Ljava/util/Iterator;
+	public final fun lastIndexOf (Ljava/lang/Object;)I
+	public fun lastIndexOf (Lkotlinx/serialization/json/JsonElement;)I
+	public fun listIterator ()Ljava/util/ListIterator;
+	public fun listIterator (I)Ljava/util/ListIterator;
+	public synthetic fun remove (I)Ljava/lang/Object;
+	public fun remove (I)Lkotlinx/serialization/json/JsonElement;
+	public fun remove (Ljava/lang/Object;)Z
+	public fun removeAll (Ljava/util/Collection;)Z
+	public fun replaceAll (Ljava/util/function/UnaryOperator;)V
+	public fun retainAll (Ljava/util/Collection;)Z
+	public synthetic fun set (ILjava/lang/Object;)Ljava/lang/Object;
+	public fun set (ILkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+	public final fun size ()I
+	public fun sort (Ljava/util/Comparator;)V
+	public fun subList (II)Ljava/util/List;
+	public fun toArray ()[Ljava/lang/Object;
+	public fun toArray ([Ljava/lang/Object;)[Ljava/lang/Object;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class kotlinx/serialization/json/JsonArray$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class kotlinx/serialization/json/JsonArrayBuilder {
+	public fun <init> ()V
+	public final fun add (Lkotlinx/serialization/json/JsonElement;)Z
+	public final fun build ()Lkotlinx/serialization/json/JsonArray;
+	public final fun unaryPlus (Ljava/lang/Boolean;)V
+	public final fun unaryPlus (Ljava/lang/Number;)V
+	public final fun unaryPlus (Ljava/lang/String;)V
+	public final fun unaryPlus (Lkotlinx/serialization/json/JsonElement;)V
+}
+
+public final class kotlinx/serialization/json/JsonArraySerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/json/JsonArraySerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lkotlinx/serialization/json/JsonArray;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;Lkotlinx/serialization/json/JsonArray;)Lkotlinx/serialization/json/JsonArray;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/json/JsonArray;)V
+}
+
+public final class kotlinx/serialization/json/JsonBuilder {
+	public final fun buildConfiguration ()Lkotlinx/serialization/json/JsonConfiguration;
+	public final fun buildModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public final fun getAllowSpecialFloatingPointValues ()Z
+	public final fun getAllowStructuredMapKeys ()Z
+	public final fun getClassDiscriminator ()Ljava/lang/String;
+	public final fun getCoerceInputValues ()Z
+	public final fun getEncodeDefaults ()Z
+	public final fun getIgnoreUnknownKeys ()Z
+	public final fun getIndent ()Ljava/lang/String;
+	public final fun getPrettyPrint ()Z
+	public final fun getPrettyPrintIndent ()Ljava/lang/String;
+	public final fun getSerialModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public final fun getSerializeSpecialFloatingPointValues ()Z
+	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public final fun getStrictMode ()Z
+	public final fun getUnquoted ()Z
+	public final fun getUnquotedPrint ()Z
+	public final fun getUseArrayPolymorphism ()Z
+	public final fun isLenient ()Z
+	public final fun setAllowSpecialFloatingPointValues (Z)V
+	public final fun setAllowStructuredMapKeys (Z)V
+	public final fun setClassDiscriminator (Ljava/lang/String;)V
+	public final fun setCoerceInputValues (Z)V
+	public final fun setEncodeDefaults (Z)V
+	public final fun setIgnoreUnknownKeys (Z)V
+	public final fun setIndent (Ljava/lang/String;)V
+	public final fun setLenient (Z)V
+	public final fun setPrettyPrint (Z)V
+	public final fun setPrettyPrintIndent (Ljava/lang/String;)V
+	public final fun setSerialModule (Lkotlinx/serialization/modules/SerializersModule;)V
+	public final fun setSerializeSpecialFloatingPointValues (Z)V
+	public final fun setSerializersModule (Lkotlinx/serialization/modules/SerializersModule;)V
+	public final fun setStrictMode (Z)V
+	public final fun setUnquoted (Z)V
+	public final fun setUnquotedPrint (Z)V
+	public final fun setUseArrayPolymorphism (Z)V
+}
+
+public class kotlinx/serialization/json/JsonConfiguration {
+	public static final field Companion Lkotlinx/serialization/json/JsonConfiguration$Companion;
+	public fun <init> ()V
+	public fun <init> (ZZZZZZZLjava/lang/String;ZZLjava/lang/String;)V
+	public synthetic fun <init> (ZZZZZZZLjava/lang/String;ZZLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun copy (ZZZZZZZLjava/lang/String;ZZLjava/lang/String;)Lkotlinx/serialization/json/JsonConfiguration;
+	public static synthetic fun copy$default (Lkotlinx/serialization/json/JsonConfiguration;ZZZZZZZLjava/lang/String;ZZLjava/lang/String;ILjava/lang/Object;)Lkotlinx/serialization/json/JsonConfiguration;
+	public static final fun getDefault ()Lkotlinx/serialization/json/SubtypeToDetectDefault;
+	public static final fun getStable ()Lkotlinx/serialization/json/SubtypeToDetectStable;
+}
+
+public final class kotlinx/serialization/json/JsonConfiguration$Companion {
+	public final fun getDefault ()Lkotlinx/serialization/json/SubtypeToDetectDefault;
+	public final fun getStable ()Lkotlinx/serialization/json/SubtypeToDetectStable;
+}
+
+public final class kotlinx/serialization/json/JsonConfigurationKt {
+	public static final fun JsonConfiguration (ZZ)V
+	public static synthetic fun JsonConfiguration$default (ZZILjava/lang/Object;)V
+}
+
+public abstract class kotlinx/serialization/json/JsonContentPolymorphicSerializer : kotlinx/serialization/KSerializer {
+	public fun <init> (Lkotlin/reflect/KClass;)V
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	protected abstract fun selectDeserializer (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/DeserializationStrategy;
+	protected final fun selectSerializer (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/KSerializer;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public abstract interface class kotlinx/serialization/json/JsonDecoder : kotlinx/serialization/encoding/CompositeDecoder, kotlinx/serialization/encoding/Decoder {
+	public abstract fun decodeJsonElement ()Lkotlinx/serialization/json/JsonElement;
+	public abstract fun getJson ()Lkotlinx/serialization/json/Json;
+	public abstract synthetic fun getUpdateMode ()Lkotlinx/serialization/UpdateMode;
+}
+
+public final class kotlinx/serialization/json/JsonDecoder$DefaultImpls {
+	public static fun beginStructure (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/CompositeDecoder;
+	public static fun beginStructure (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;[Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/encoding/CompositeDecoder;
+	public static fun decodeCollectionSize (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)I
+	public static fun decodeNullableSerializableElement (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public static fun decodeNullableSerializableElement (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public static fun decodeNullableSerializableValue (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public static fun decodeSequentially (Lkotlinx/serialization/json/JsonDecoder;)Z
+	public static fun decodeSerializableElement (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public static fun decodeSerializableElement (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public static fun decodeSerializableValue (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public static synthetic fun getUpdateMode (Lkotlinx/serialization/json/JsonDecoder;)Lkotlinx/serialization/UpdateMode;
+	public static fun updateNullableSerializableElement (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public static fun updateNullableSerializableValue (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public static fun updateSerializableElement (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public static fun updateSerializableValue (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract class kotlinx/serialization/json/JsonElement {
+	public static final field Companion Lkotlinx/serialization/json/JsonElement$Companion;
+}
+
+public final class kotlinx/serialization/json/JsonElement$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class kotlinx/serialization/json/JsonElementBuildersKt {
+	public static final fun add (Lkotlinx/serialization/json/JsonArrayBuilder;Ljava/lang/Boolean;)Z
+	public static final fun add (Lkotlinx/serialization/json/JsonArrayBuilder;Ljava/lang/Number;)Z
+	public static final fun add (Lkotlinx/serialization/json/JsonArrayBuilder;Ljava/lang/String;)Z
+	public static final fun addJsonArray (Lkotlinx/serialization/json/JsonArrayBuilder;Lkotlin/jvm/functions/Function1;)Z
+	public static final fun addJsonObject (Lkotlinx/serialization/json/JsonArrayBuilder;Lkotlin/jvm/functions/Function1;)Z
+	public static final fun buildJsonArray (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonArray;
+	public static final fun buildJsonObject (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun put (Lkotlinx/serialization/json/JsonObjectBuilder;Ljava/lang/String;Ljava/lang/Boolean;)Lkotlinx/serialization/json/JsonElement;
+	public static final fun put (Lkotlinx/serialization/json/JsonObjectBuilder;Ljava/lang/String;Ljava/lang/Number;)Lkotlinx/serialization/json/JsonElement;
+	public static final fun put (Lkotlinx/serialization/json/JsonObjectBuilder;Ljava/lang/String;Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
+	public static final fun putJsonArray (Lkotlinx/serialization/json/JsonObjectBuilder;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonElement;
+	public static final fun putJsonObject (Lkotlinx/serialization/json/JsonObjectBuilder;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonElement;
+}
+
+public final class kotlinx/serialization/json/JsonElementKt {
+	public static final fun JsonPrimitive (Ljava/lang/Boolean;)Lkotlinx/serialization/json/JsonPrimitive;
+	public static final fun JsonPrimitive (Ljava/lang/Number;)Lkotlinx/serialization/json/JsonPrimitive;
+	public static final fun JsonPrimitive (Ljava/lang/String;)Lkotlinx/serialization/json/JsonPrimitive;
+	public static final fun getBoolean (Lkotlinx/serialization/json/JsonPrimitive;)Z
+	public static final fun getBooleanOrNull (Lkotlinx/serialization/json/JsonPrimitive;)Ljava/lang/Boolean;
+	public static final fun getContentOrNull (Lkotlinx/serialization/json/JsonPrimitive;)Ljava/lang/String;
+	public static final fun getDouble (Lkotlinx/serialization/json/JsonPrimitive;)D
+	public static final fun getDoubleOrNull (Lkotlinx/serialization/json/JsonPrimitive;)Ljava/lang/Double;
+	public static final fun getFloat (Lkotlinx/serialization/json/JsonPrimitive;)F
+	public static final fun getFloatOrNull (Lkotlinx/serialization/json/JsonPrimitive;)Ljava/lang/Float;
+	public static final fun getInt (Lkotlinx/serialization/json/JsonPrimitive;)I
+	public static final fun getIntOrNull (Lkotlinx/serialization/json/JsonPrimitive;)Ljava/lang/Integer;
+	public static final fun getJsonArray (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonArray;
+	public static final fun getJsonNull (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonNull;
+	public static final fun getJsonObject (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun getJsonPrimitive (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonPrimitive;
+	public static final fun getLong (Lkotlinx/serialization/json/JsonPrimitive;)J
+	public static final fun getLongOrNull (Lkotlinx/serialization/json/JsonPrimitive;)Ljava/lang/Long;
+	public static final fun unexpectedJson (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Void;
+}
+
+public final class kotlinx/serialization/json/JsonElementSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/json/JsonElementSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lkotlinx/serialization/json/JsonElement;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/json/JsonElement;)V
+}
+
+public abstract interface class kotlinx/serialization/json/JsonEncoder : kotlinx/serialization/encoding/CompositeEncoder, kotlinx/serialization/encoding/Encoder {
+	public abstract fun encodeJsonElement (Lkotlinx/serialization/json/JsonElement;)V
+	public abstract fun getJson ()Lkotlinx/serialization/json/Json;
+}
+
+public final class kotlinx/serialization/json/JsonEncoder$DefaultImpls {
+	public static fun beginCollection (Lkotlinx/serialization/json/JsonEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;I)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public static fun beginCollection (Lkotlinx/serialization/json/JsonEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;I[Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public static fun beginStructure (Lkotlinx/serialization/json/JsonEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public static fun beginStructure (Lkotlinx/serialization/json/JsonEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;[Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public static fun encodeNonSerializableElement (Lkotlinx/serialization/json/JsonEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILjava/lang/Object;)V
+	public static fun encodeNotNullMark (Lkotlinx/serialization/json/JsonEncoder;)V
+	public static fun encodeNullableSerializableValue (Lkotlinx/serialization/json/JsonEncoder;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public static fun encodeSerializableValue (Lkotlinx/serialization/json/JsonEncoder;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public static fun shouldEncodeElementDefault (Lkotlinx/serialization/json/JsonEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
+}
+
+public abstract interface class kotlinx/serialization/json/JsonInput {
+	public abstract fun decodeJson ()Lkotlinx/serialization/json/JsonElement;
+}
+
+public final class kotlinx/serialization/json/JsonKt {
+	public static final fun Json ()Lkotlinx/serialization/json/Json;
+	public static final fun Json (Lkotlinx/serialization/json/Json;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/Json;
+	public static final fun Json (Lkotlinx/serialization/json/JsonConfiguration;Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/json/Json;
+	public static final fun Json (Lkotlinx/serialization/json/SubtypeToDetectDefault;)Lkotlinx/serialization/json/Json;
+	public static final fun Json (Lkotlinx/serialization/json/SubtypeToDetectDefault;Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/json/Json;
+	public static final fun Json (Lkotlinx/serialization/json/SubtypeToDetectStable;)Lkotlinx/serialization/json/Json;
+	public static final fun Json (Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/json/Json;
+	public static synthetic fun Json$default (Lkotlinx/serialization/json/Json;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/json/Json;
+	public static synthetic fun Json$default (Lkotlinx/serialization/json/JsonConfiguration;Lkotlinx/serialization/modules/SerializersModule;ILjava/lang/Object;)Lkotlinx/serialization/json/Json;
+}
+
+public final class kotlinx/serialization/json/JsonMigrationsKt {
+	public static final fun JsonLiteral (Ljava/lang/Object;)Lkotlinx/serialization/json/JsonPrimitive;
+	public static final fun contains (Lkotlinx/serialization/json/JsonElement;Ljava/lang/String;)Z
+	public static final fun decodeJson (Lkotlinx/serialization/json/JsonDecoder;)Lkotlinx/serialization/json/JsonElement;
+	public static final fun encodeJson (Lkotlinx/serialization/json/JsonEncoder;Lkotlinx/serialization/json/JsonElement;)V
+	public static final fun fromJson (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
+	public static final fun fromJson (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
+	public static final fun getArray (Lkotlinx/serialization/json/JsonArray;I)Lkotlinx/serialization/json/JsonArray;
+	public static final fun getArray (Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lkotlinx/serialization/json/JsonArray;
+	public static final fun getArrayOrNull (Lkotlinx/serialization/json/JsonArray;I)Lkotlinx/serialization/json/JsonArray;
+	public static final fun getArrayOrNull (Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lkotlinx/serialization/json/JsonArray;
+	public static final fun getAs (Lkotlinx/serialization/json/JsonArray;I)Lkotlinx/serialization/json/JsonElement;
+	public static final fun getAs (Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
+	public static final fun getAsOrNull (Lkotlinx/serialization/json/JsonArray;I)Lkotlinx/serialization/json/JsonElement;
+	public static final fun getAsOrNull (Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
+	public static final fun getBoolean (Lkotlinx/serialization/json/JsonElement;)Z
+	public static final fun getBooleanOrNull (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Boolean;
+	public static final fun getContent (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/String;
+	public static final fun getContentOrNull (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/String;
+	public static final fun getDouble (Lkotlinx/serialization/json/JsonElement;)D
+	public static final fun getDoubleOrNull (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Double;
+	public static final fun getFloat (Lkotlinx/serialization/json/JsonElement;)F
+	public static final fun getFloatOrNull (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Float;
+	public static final fun getIndented (Lkotlinx/serialization/json/Json$Default;)Lkotlinx/serialization/json/Json;
+	public static final fun getInt (Lkotlinx/serialization/json/JsonElement;)I
+	public static final fun getIntOrNull (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Integer;
+	public static final fun getLong (Lkotlinx/serialization/json/JsonElement;)J
+	public static final fun getLongOrNull (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Long;
+	public static final fun getNonstrict (Lkotlinx/serialization/json/Json$Default;)Lkotlinx/serialization/json/Json;
+	public static final fun getObject (Lkotlinx/serialization/json/JsonArray;I)Lkotlinx/serialization/json/JsonObject;
+	public static final fun getObject (Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun getObjectOrNull (Lkotlinx/serialization/json/JsonArray;I)Lkotlinx/serialization/json/JsonObject;
+	public static final fun getObjectOrNull (Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun getPlain (Lkotlinx/serialization/json/Json$Default;)Lkotlinx/serialization/json/Json;
+	public static final fun getPrimitive (Lkotlinx/serialization/json/JsonArray;I)Lkotlinx/serialization/json/JsonPrimitive;
+	public static final fun getPrimitive (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonPrimitive;
+	public static final fun getPrimitive (Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lkotlinx/serialization/json/JsonPrimitive;
+	public static final fun getPrimitiveOrNull (Lkotlinx/serialization/json/JsonArray;I)Lkotlinx/serialization/json/JsonPrimitive;
+	public static final fun getPrimitiveOrNull (Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lkotlinx/serialization/json/JsonPrimitive;
+	public static final fun getUnquoted (Lkotlinx/serialization/json/Json$Default;)Lkotlinx/serialization/json/Json;
+	public static final fun isNull (Lkotlinx/serialization/json/JsonElement;)Z
+	public static final fun json (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun jsonArray (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonArray;
+	public static final fun parseJson (Lkotlinx/serialization/json/Json;Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
+	public static final fun toJson (Lkotlinx/serialization/json/Json;Ljava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
+	public static final fun toJson (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
+}
+
+public final class kotlinx/serialization/json/JsonNull : kotlinx/serialization/json/JsonPrimitive {
+	public static final field INSTANCE Lkotlinx/serialization/json/JsonNull;
+	public fun getContent ()Ljava/lang/String;
+	public fun isString ()Z
+}
+
+public final class kotlinx/serialization/json/JsonNullSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/json/JsonNullSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lkotlinx/serialization/json/JsonNull;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;Lkotlinx/serialization/json/JsonNull;)Lkotlinx/serialization/json/JsonNull;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/json/JsonNull;)V
+}
+
+public final class kotlinx/serialization/json/JsonObject : kotlinx/serialization/json/JsonElement, java/util/Map, kotlin/jvm/internal/markers/KMappedMarker {
+	public static final field Companion Lkotlinx/serialization/json/JsonObject$Companion;
+	public fun <init> (Ljava/util/Map;)V
+	public fun clear ()V
+	public synthetic fun compute (Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+	public fun compute (Ljava/lang/String;Ljava/util/function/BiFunction;)Lkotlinx/serialization/json/JsonElement;
+	public synthetic fun computeIfAbsent (Ljava/lang/Object;Ljava/util/function/Function;)Ljava/lang/Object;
+	public fun computeIfAbsent (Ljava/lang/String;Ljava/util/function/Function;)Lkotlinx/serialization/json/JsonElement;
+	public synthetic fun computeIfPresent (Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+	public fun computeIfPresent (Ljava/lang/String;Ljava/util/function/BiFunction;)Lkotlinx/serialization/json/JsonElement;
+	public final fun containsKey (Ljava/lang/Object;)Z
+	public fun containsKey (Ljava/lang/String;)Z
+	public final fun containsValue (Ljava/lang/Object;)Z
+	public fun containsValue (Lkotlinx/serialization/json/JsonElement;)Z
+	public final fun entrySet ()Ljava/util/Set;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun get (Ljava/lang/Object;)Ljava/lang/Object;
+	public fun get (Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
+	public fun getEntries ()Ljava/util/Set;
+	public fun getKeys ()Ljava/util/Set;
+	public fun getSize ()I
+	public fun getValues ()Ljava/util/Collection;
+	public fun hashCode ()I
+	public fun isEmpty ()Z
+	public final fun keySet ()Ljava/util/Set;
+	public synthetic fun merge (Ljava/lang/Object;Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+	public fun merge (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;Ljava/util/function/BiFunction;)Lkotlinx/serialization/json/JsonElement;
+	public synthetic fun put (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun put (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+	public fun putAll (Ljava/util/Map;)V
+	public synthetic fun putIfAbsent (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun putIfAbsent (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+	public fun remove (Ljava/lang/Object;)Ljava/lang/Object;
+	public fun remove (Ljava/lang/Object;Ljava/lang/Object;)Z
+	public synthetic fun replace (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun replace (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Z
+	public fun replace (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+	public fun replace (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;Lkotlinx/serialization/json/JsonElement;)Z
+	public fun replaceAll (Ljava/util/function/BiFunction;)V
+	public final fun size ()I
+	public fun toString ()Ljava/lang/String;
+	public final fun values ()Ljava/util/Collection;
+}
+
+public final class kotlinx/serialization/json/JsonObject$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class kotlinx/serialization/json/JsonObjectBuilder {
+	public fun <init> ()V
+	public final fun build ()Lkotlinx/serialization/json/JsonObject;
+	public final fun put (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+	public final fun to (Ljava/lang/String;Ljava/lang/Boolean;)V
+	public final fun to (Ljava/lang/String;Ljava/lang/Number;)V
+	public final fun to (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun to (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;)V
+}
+
+public final class kotlinx/serialization/json/JsonObjectSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/json/JsonObjectSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lkotlinx/serialization/json/JsonObject;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;Lkotlinx/serialization/json/JsonObject;)Lkotlinx/serialization/json/JsonObject;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/json/JsonObject;)V
+}
+
+public abstract interface class kotlinx/serialization/json/JsonOutput {
+	public abstract fun encodeJson (Lkotlinx/serialization/json/JsonElement;)V
+}
+
+public abstract class kotlinx/serialization/json/JsonPrimitive : kotlinx/serialization/json/JsonElement {
+	public static final field Companion Lkotlinx/serialization/json/JsonPrimitive$Companion;
+	public abstract fun getContent ()Ljava/lang/String;
+	public abstract fun isString ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class kotlinx/serialization/json/JsonPrimitive$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class kotlinx/serialization/json/JsonPrimitiveSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/json/JsonPrimitiveSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lkotlinx/serialization/json/JsonPrimitive;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;Lkotlinx/serialization/json/JsonPrimitive;)Lkotlinx/serialization/json/JsonPrimitive;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/json/JsonPrimitive;)V
+}
+
+public abstract class kotlinx/serialization/json/JsonTransformingSerializer : kotlinx/serialization/KSerializer {
+	public fun <init> (Lkotlinx/serialization/KSerializer;)V
+	public fun <init> (Lkotlinx/serialization/KSerializer;Ljava/lang/String;)V
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
+	protected final fun readTransform (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	protected fun transformDeserialize (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+	protected fun transformSerialize (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+	protected final fun writeTransform (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+}
+
+public final class kotlinx/serialization/json/SubtypeToDetectDefault : kotlinx/serialization/json/JsonConfiguration {
+	public fun <init> ()V
+}
+
+public final class kotlinx/serialization/json/SubtypeToDetectStable : kotlinx/serialization/json/JsonConfiguration {
+	public fun <init> ()V
+}
+
+public final class kotlinx/serialization/modules/ModulesMigrationsKt {
+	public static final fun defaultPolymorphic (Lkotlinx/serialization/modules/SerializersModuleCollector;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public static final fun getContextual (Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/KSerializer;
+	public static final fun getContextual (Lkotlinx/serialization/modules/SerializersModule;Ljava/lang/Object;)Lkotlinx/serialization/KSerializer;
+	public static final fun getEmptyModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public static final fun polymorphic (Lkotlinx/serialization/modules/SerializersModuleBuilder;Lkotlin/reflect/KClass;[Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public static final fun polymorphic (Lkotlinx/serialization/modules/SerializersModuleBuilder;Lkotlinx/serialization/KSerializer;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun polymorphic$default (Lkotlinx/serialization/modules/SerializersModuleBuilder;Lkotlinx/serialization/KSerializer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public static final fun serializersModule (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/modules/SerializersModule;
+	public static final fun serializersModuleOf (Ljava/util/Map;)Lkotlinx/serialization/modules/SerializersModule;
+}
+
+public final class kotlinx/serialization/modules/PolymorphicModuleBuilder {
+	public fun <init> (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
+	public final fun addSubclass (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
+	public final fun buildTo (Lkotlinx/serialization/modules/SerializersModuleBuilder;)V
+	public final fun default (Lkotlin/jvm/functions/Function1;)V
+	public final fun subclass ()V
+	public final fun subclass (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
+	public final fun with (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
+}
+
+public abstract class kotlinx/serialization/modules/SerializersModule {
+	public abstract fun dumpTo (Lkotlinx/serialization/modules/SerializersModuleCollector;)V
+	public abstract fun getContextual (Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
+	public abstract fun getPolymorphic (Lkotlin/reflect/KClass;Ljava/lang/Object;)Lkotlinx/serialization/SerializationStrategy;
+	public abstract fun getPolymorphic (Lkotlin/reflect/KClass;Ljava/lang/String;)Lkotlinx/serialization/DeserializationStrategy;
+}
+
+public final class kotlinx/serialization/modules/SerializersModuleBuilder : kotlinx/serialization/modules/SerializersModuleCollector {
+	public fun <init> ()V
+	public final fun build ()Lkotlinx/serialization/modules/SerializersModule;
+	public fun contextual (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
+	public final fun include (Lkotlinx/serialization/modules/SerializersModule;)V
+	public fun polymorphic (Lkotlin/reflect/KClass;Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
+	public fun polymorphicDefault (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+}
+
+public final class kotlinx/serialization/modules/SerializersModuleBuildersKt {
+	public static final fun SerializersModule (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/modules/SerializersModule;
+	public static final fun polymorphic (Lkotlinx/serialization/modules/SerializersModuleBuilder;Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun polymorphic$default (Lkotlinx/serialization/modules/SerializersModuleBuilder;Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public static final fun serializersModuleOf (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/modules/SerializersModule;
+}
+
+public abstract interface class kotlinx/serialization/modules/SerializersModuleCollector {
+	public abstract fun contextual (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
+	public abstract fun polymorphic (Lkotlin/reflect/KClass;Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
+	public abstract fun polymorphicDefault (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+}
+
+public final class kotlinx/serialization/modules/SerializersModuleKt {
+	public static final fun getEmptySerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public static final fun overwriteWith (Lkotlinx/serialization/modules/SerializersModule;Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/modules/SerializersModule;
+	public static final fun plus (Lkotlinx/serialization/modules/SerializersModule;Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/modules/SerializersModule;
+}
+

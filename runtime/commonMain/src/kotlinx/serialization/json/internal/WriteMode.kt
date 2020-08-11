@@ -8,7 +8,6 @@ package kotlinx.serialization.json.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.InvalidKeyKindException
 import kotlin.jvm.JvmField
 
 internal enum class WriteMode(@JvmField val begin: Char, @JvmField val end: Char) {

@@ -16,7 +16,7 @@ import kotlin.reflect.*
  *
  * To obtain an instance of this builder, use [SerializersModuleBuilder.polymorphic] DSL function.
  */
-public class PolymorphicModuleBuilder<Base : Any> @PublishedApi internal constructor(
+public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal constructor(
     private val baseClass: KClass<Base>,
     private val baseSerializer: KSerializer<Base>? = null
 ) {

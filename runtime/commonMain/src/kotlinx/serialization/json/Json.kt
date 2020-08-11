@@ -144,7 +144,7 @@ public inline fun <reified T> Json.decodeFromJsonElement(json: JsonElement): T =
     decodeFromJsonElement(serializersModule.serializer(), json)
 
 /**
- * Builder of the [Json] instance provided by `Json` factory function.
+ * Builder of the [Json] instance provided by `Json { ... }` factory function.
  */
 @Suppress("unused", "DeprecatedCallableAddReplaceWith")
 public class JsonBuilder internal constructor(conf: JsonConf) {
@@ -165,6 +165,10 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
      * Removes JSON specification restriction (RFC-4627) and makes parser
      * more liberal to the malformed input. In lenient mode quoted boolean literals,
      * and unquoted string literals are allowed.
+     *
+     * Its relaxations can be expanded in the future, so that lenient parser becomes even more
+     * permissive to invalid value in the input, replacing them with defaults.
+     *
      * `false` by default.
      */
     public var isLenient: Boolean = conf.isLenient
@@ -215,7 +219,7 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
 
     /**
      * Removes JSON specification restriction on
-     * special floating-point values such as `NaN` and `Infinity` and enables their serialization.
+     * special floating-point values such as `NaN` and `Infinity` and enables their serialization and deserialization.
      * When enabling it, please ensure that the receiving party will be able to encode and decode these special values.
      * `false` by default.
      */
@@ -232,8 +236,16 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
             "Class discriminator should not be specified when array polymorphism is specified"
         }
 
-        if (!prettyPrint) require(prettyPrintIndent == defaultIndent) {
-            "Indent should not be specified when default printing mode is used"
+        if (!prettyPrint) {
+            require(prettyPrintIndent == defaultIndent) {
+                "Indent should not be specified when default printing mode is used"
+            }
+        } else if (prettyPrintIndent != defaultIndent) {
+            // Values allowed by JSON specification as whitespaces
+            val allWhitespaces = prettyPrintIndent.all { it == ' ' || it == '\t' || it == '\r' || it == '\n' }
+            require(allWhitespaces) {
+                "Only whitespace, tab, newline and carriage return are allowed as pretty print symbols. Had $prettyPrintIndent"
+            }
         }
 
         return JsonConf(

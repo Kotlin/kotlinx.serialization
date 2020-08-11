@@ -75,6 +75,10 @@ public class PolymorphicSerializer<T : Any>(override val baseClass: KClass<T>) :
                 buildSerialDescriptor("kotlinx.serialization.Polymorphic<${baseClass.simpleName}>", SerialKind.CONTEXTUAL)
             )
         }.withContext(baseClass)
+
+    override fun toString(): String {
+        return "kotlinx.serialization.PolymorphicSerializer(baseClass: $baseClass)"
+    }
 }
 
 @InternalSerializationApi

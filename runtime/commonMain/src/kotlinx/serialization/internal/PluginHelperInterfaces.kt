@@ -31,7 +31,6 @@ public interface GeneratedSerializer<T> : KSerializer<T> {
  * Should not be used in any user code. Please use generated `.serializer(kSerializer1, kSerializer2, ...)`
  * method on a companion or top-level `serializer(KType)` function.
  */
-@InternalSerializationApi
 @Deprecated("Inserted into generated code and should not be used directly", level = DeprecationLevel.HIDDEN)
 public interface SerializerFactory {
     public fun serializer(vararg typeParamsSerializers: KSerializer<*>): KSerializer<*>

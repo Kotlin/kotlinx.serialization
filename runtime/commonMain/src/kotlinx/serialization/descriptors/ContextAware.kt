@@ -102,4 +102,8 @@ private class ContextDescriptor(
         result = 31 * result + serialName.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "ContextDescriptor(kClass: $kClass, original: $original)"
+    }
 }
