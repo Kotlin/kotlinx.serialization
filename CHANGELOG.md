@@ -1,21 +1,113 @@
+1.0.0-RC / 2020-08-XX
+==================
+
+### Release notes
+
+This is a release candidate for 1.0.0 version. The goal of this RC is to collect feedback from users
+and provide 1.0.0 release with bugfixes and improvements based on that feedback.
+
+While preparing 1.0.0 version, we carefully examined public API of the library and split it in stable part,
+that we promise to be binary-compatible, and experimental declarations, that may change design in future.
+Experimental API is annotated with `@ExperimentalSerializationApi` annotation which requires opt-in.
+Also, significant part of the public API declarations was renamed to better reflect their purposes.
+
+The id of core artifact with `@Serializable` annotation and `Json` format was changed
+to be more clear and aligned with other kotlinx libraries.
+Please use `kotlinx-serialization-core` instead of `kotlinx-serialization-runtime`.
+If you have further questions, see [migration guide](TODO).
+
+#### Declarations deprecations and renaming
+
+* Rename core functions in StringFormat and BinaryFormat
+    * stringify/parse renamed to `encodeToString`/`decodeToString`
+    * Similarly, `encodeToByteArray/encodeToHexString/decodeFromByteArray/decodeFromHexString` in BinaryFormat should be used
+    
+* JsonConfiguration was deprecated in favor of `Json {}` DSL
+    * `prettyPrintIndent` allows only whitespaces 
+    * `serializeSpecialFloatingPointValues` is renamed to `allowSpecialFloatingPointValues`. It also affects serialization now
+    * `unquoted` JSON flag is deprecated
+    * All default Json implementations are removed, except `companion object Default`
+    
+* JsonElement's DSL is cleaner and aligned with stdlib now
+    * Deprecate infix `to` and unaryPlus in JSON DSL in favor of `put`/`add` functions
+    * Deprecate or move to extensions unnecessary JsonElement API
+    * Deprecate JsonLiteral in favor of JsonPrimitive constructors with nullable argument
+    * Rename `jsonObject {}` and `json {}` builders to `buildJsonObject {}`/`buildJsonArray {}`
+
+* Rework other Json stuff:
+    * Rename JsonInput/Output to JsonEncoder/Decoder
+    * Rename methods in JsonTransformingSerializer to `transformSerialize/transformDeserialize`
+    * Rename JsonParametricSerializer to JsonContentPolymorphicSerializer
+    * `DynamicObjectParser` is now `Json.decodeFromDynamic` extension
+    
+* Protobuf constructor now accepts DSL builder instead of flags
+    * ProtoId renamed to ProtoNumber and ProtoNumberType to ProtoIntegerType to be better aligned with ProtoBuf specification
+
+* Rename ConfigParser to Hocon and deprecate ConfigParserConfiguration. `Hocon {}` DSL builder should be used, similarly to `Json {}`.
+    
+* Split ContextualSerialization into two annotations: `@Contextual` to use on property and `@UseContextualSerialization` to use on file.
+    * Renamed ContextSerializer to ContextualSerializer
+    
+* SerialModule renamed to SerializersModule
+    * All builders renamed consistently (e.g. SerializersModule {} DSL)
+    * Deprecate infix `with` in polymorphic builder in favor of subclass()
+    * Renamed SerialModuleCollector to SerializersModuleCollector
+    
+* Moved SerialDescriptor and SerialKind to kotlinx.serialization.descriptors package
+    * Move ENUM and CONTEXTUAL kinds directly to SerialKind
+    * Replace methods that returned lists (e.g. `elementDescriptors`) with properties that return iterable as optimization
+    * Renamed `PrimitiveDescriptor` to `PrimitiveSerialDescriptor`.
+    * Provide specific `buildClassSerialDescriptor` to use with classes' custom serializers, creating of other kinds is considered experimental for now.
+    
+* Move encoding-related classes (Encoder, Decoder, AbstractEncoder, AbstractDecoder) to kotlinx.serialization.encoding package
+    * Deprecated `typeParameters` argument in beginStructure/beginCollection methods
+    * Deprecated `updateSerializableValue` and similar methods and `UpdateMode` enum
+    * Renamed READ_DONE to DECODE_DONE
+    
+* Removed kotlinx.io mockery (InputStream, ByteArrayInput, etc) completely so it won't confuse people
+* Deprecated @ImplicitReflectionSerializer because all reified functions can benefit from serializer(typeOf<T>()) function now
+* Replaced UnitSerializer with Unit.serializer()
+* Deprecated all exceptions except SerializationException. It is recommended to catch it to detect any serialization-related problems
+
+#### New features
+
+* New property SerialDescriptor.capturedKClass that allows to introspect SerializersModule-based CONTEXTUAL and Polymorphic kinds (#515 and #595)
+* `Json.encodeToDynamic` extension as a counterpart to `Json.decodeFromDynamic` (former `DynamicObjectParser`) (#116)
+* Properties now serialize and deserialize enums as strings (#818)
+* coerceInputValues JSON flag that allows to treat `null` values and unknown enum constants as missing to use default values (#246, #90)
+* Custom serializers for nullable types (#824)
+* Add CBOR major type 2 (byte string) support (#842)
+* Provide polymorphicDefault in SerializersModule builder for cases when type discriminator is not registered or absent (#902)
+* Use context as fallback in serializer by KType/Java's Reflect Type functions (#902, #903)
+
+#### Bug fixes
+
+* Do not write/read size of collection into Properties' map (#743)
+* Optimized Protobuf performance in many ways
+* IllegalStateException when null occurs in JSON input in place of an expected non-null object (#816)
+* java.util.NoSuchElementException when deserializing twice from the same JsonElement (#807)
+* IndexOutOfBoundsException on descriptor.getElementDescriptor(index) if descriptor is List after upgrade to 0.20.0 (#739)
+* List serialization doesn't work with protobuf (#93)
+* Enum serializer is not found by its class (#913)
+
 
 0.20.0 / 2020-03-04
 ==================
 
 ### Release notes
 
-0.20.0 release is focused on giving a library its final and stable API shape. 
+0.20.0 release is focused on giving a library its final and stable API shape.
 
 We have carefully evaluated every `public` declaration and
 decided whether it should be publicly available. As a result, some declarations were deprecated with an intention of removing
-them from public API because they are going to be replaced with others, more valuable and useful for users. 
+them from public API because they are going to be replaced with others, more valuable and useful for users.
 
-Deprecated symbols include: 
+Deprecated symbols include:
  - Pre-defined JSON instances like `nonStrict` — `strictMode` was split to 3 separate, more granular, flags.
-Users are encouraged to create their own configuration; 
+Users are encouraged to create their own configuration;
  - Top-level serializers like `IntSerializer` and `ArrayListSerializer`.
 They were replaced with constructor-like factory functions.
- - `SerialClassDescImpl` creation class replaced with `SerialDescriptor` 
+ - `SerialClassDescImpl` creation class replaced with `SerialDescriptor`
 builder function to ease writing of custom serializers and maintain `SerialDescriptor` contract.
  - Internal utilities, like HexConverter and ByteBuffer, were deprecated as not relevant to serialization public API.
  - Add-on formats like Protobuf, CBOR and Properties (formerly Mapper)
@@ -24,18 +116,18 @@ are now extracted to [separate artifacts](formats/README.md#protobuf) to keep th
 We have spent a lot of effort into the quality,
 documenting most of the core interfaces, establishing their contracts,
 fixing numerous of bugs, and even introducing new features that may be useful for those of you who
-write custom serializers — see [JsonTransformingSerializer](docs/json_transformations.md).  
+write custom serializers — see [JsonTransformingSerializer](docs/json_transformations.md).
 
 Such API changes, of course, may be not backwards-compatible in some places, in particular, between compiler plugin and runtime.
 Given that the library is still is in the experimental phase, we took the liberty to introduce breaking changes in order to give users
 the better, more convenient API. Therefore, this release has number `0.20.0` instead of `0.15.0`;
 Kotlin 1.3.70 is compatible _only_ with this release.
 
-To migrate: 
+To migrate:
 1. Replace `import kotlinx.serialization.internal.*` with `import kotlinx.serialization.builtins.*`.
 This action is sufficient for most of the cases, except primitive serializers — instead of using `IntSerializer`, use `Int.serializer()`.
 For other object-like declarations, you may need to transform it to function call: `ByteArraySerializer` => `ByteArraySerializer()`.
- 
+
 2. Pay attention to the changed `JsonConfiguration` constructor arguments: instead of `strictMode`,
 now three different flags are available: `ignoreUnknownKeys`, `isLenient`, and `serializeSpecialFloatingPointValues`.
 
@@ -46,8 +138,8 @@ because now they're located outside of core module. See [formats list](formats/R
 (use Alt+Enter for quickfix replacing).
 
 ### Full changelog (by commit):
-  
-  * This release is compatible with Kotlin 1.3.70 
+
+  * This release is compatible with Kotlin 1.3.70
   * Rework polymorphic descriptors: polymorphic and sealed descriptor elements are now aligned with an actual serialization process (#731)
   * Hide internal collection and map serializers
   * Introduce factories for ArraySerializers as well, deprecate top-level array serializers
