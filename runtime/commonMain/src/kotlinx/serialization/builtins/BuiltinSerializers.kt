@@ -8,10 +8,12 @@ package kotlinx.serialization.builtins
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlin.reflect.*
+import kotlinx.serialization.descriptors.*
 
 /**
  * Returns a nullable serializer for the given serializer of non-null type.
  */
+@OptIn(ExperimentalSerializationApi::class)
 public val <T : Any> KSerializer<T>.nullable: KSerializer<T?>
     get() {
         @Suppress("UNCHECKED_CAST")

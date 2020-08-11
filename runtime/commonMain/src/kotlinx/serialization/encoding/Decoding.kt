@@ -7,6 +7,7 @@ package kotlinx.serialization.encoding
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.builtins.*
 
 /**
  * Decoder is a core deserialization primitive that encapsulates the knowledge of the underlying
@@ -235,7 +236,7 @@ public interface Decoder {
 
     /**
      * Decodes the value of type [T] by delegating the decoding process to the given [deserializer].
-     * For example, `decodeInt` call us equivalent to delegating integer decoding to [Int.serializer]:
+     * For example, `decodeInt` call us equivalent to delegating integer decoding to [Int.serializer][Int.Companion.serializer]:
      * `decodeSerializableValue(IntSerializer)`
      */
     public fun <T : Any?> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T =
@@ -257,6 +258,7 @@ public interface Decoder {
     }
 
     // Not documented
+    @OptIn(ExperimentalSerializationApi::class)
     @Suppress("DeprecatedCallableAddReplaceWith")
     @Deprecated(updateMethodDeprecated, level = DeprecationLevel.ERROR)
     public fun <T : Any> updateNullableSerializableValue(deserializer: DeserializationStrategy<T?>, old: T?): T? {
@@ -554,6 +556,7 @@ public interface CompositeDecoder {
     @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE", "DeprecatedCallableAddReplaceWith")
     @kotlin.internal.LowPriorityInOverloadResolution
     @Deprecated(decodeMethodDeprecated, level = DeprecationLevel.ERROR)
+    @OptIn(ExperimentalSerializationApi::class)
     public fun <T : Any> decodeNullableSerializableElement(
         descriptor: SerialDescriptor,
         i: Int, // renamed from index to be called even with LowPriority
@@ -579,6 +582,7 @@ public interface CompositeDecoder {
         ReplaceWith("decodeNullableSerializableElement(descriptor, index, deserializer, old)"),
         level = DeprecationLevel.ERROR
     )
+    @OptIn(ExperimentalSerializationApi::class)
     public fun <T : Any> updateNullableSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,

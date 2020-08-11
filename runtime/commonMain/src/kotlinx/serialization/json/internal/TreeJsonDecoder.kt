@@ -3,6 +3,7 @@
  */
 
 @file:Suppress("LeakingThis")
+@file:OptIn(ExperimentalSerializationApi::class)
 
 package kotlinx.serialization.json.internal
 

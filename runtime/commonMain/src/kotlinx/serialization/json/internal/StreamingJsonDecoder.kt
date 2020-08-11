@@ -16,6 +16,7 @@ import kotlin.jvm.*
 /**
  * [JsonDecoder] which reads given JSON from [JsonReader] field by field.
  */
+@OptIn(ExperimentalSerializationApi::class)
 internal class StreamingJsonDecoder internal constructor(
     public override val json: Json,
     private val mode: WriteMode,

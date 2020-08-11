@@ -47,6 +47,7 @@ import kotlin.reflect.*
  * ```
  */
 @Suppress("FunctionName")
+@OptIn(ExperimentalSerializationApi::class)
 public fun buildClassSerialDescriptor(
     serialName: String,
     vararg typeParameters: SerialDescriptor,
@@ -95,6 +96,7 @@ public fun PrimitiveSerialDescriptor(serialName: String, kind: PrimitiveKind): S
  * If you end up using this builder, please file an issue with your use-case in kotlinx.serialization
  */
 @InternalSerializationApi
+@OptIn(ExperimentalSerializationApi::class)
 public fun buildSerialDescriptor(
     serialName: String,
     kind: SerialKind,
@@ -175,6 +177,7 @@ public inline fun <reified T> setSerialDescriptor(): SerialDescriptor {
  * Returns new serial descriptor for the same type with [isNullable][SerialDescriptor.isNullable]
  * property set to `true`.
  */
+@OptIn(ExperimentalSerializationApi::class)
 public val SerialDescriptor.nullable: SerialDescriptor
     get() {
         if (this.isNullable) return this
@@ -306,6 +309,7 @@ public inline fun <reified T> ClassSerialDescriptorBuilder.element(
     element(elementName, descriptor, annotations, isOptional)
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 internal class SerialDescriptorImpl(
     override val serialName: String,
     override val kind: SerialKind,

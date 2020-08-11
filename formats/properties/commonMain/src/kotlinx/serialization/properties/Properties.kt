@@ -142,6 +142,7 @@ public sealed class Properties(
     public companion object Default : Properties(EmptySerializersModule, null)
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 private class PropertiesImpl(serializersModule: SerializersModule) : Properties(serializersModule, null)
 
 /**

@@ -65,6 +65,7 @@ import kotlin.reflect.*
  * @see SerializersModule
  * @see SerializersModuleBuilder.polymorphic
  */
+@OptIn(ExperimentalSerializationApi::class)
 public class PolymorphicSerializer<T : Any>(override val baseClass: KClass<T>) : AbstractPolymorphicSerializer<T>() {
     public override val descriptor: SerialDescriptor =
         buildSerialDescriptor("kotlinx.serialization.Polymorphic", PolymorphicKind.OPEN) {

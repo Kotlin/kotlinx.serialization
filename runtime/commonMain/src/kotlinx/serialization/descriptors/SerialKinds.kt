@@ -264,6 +264,7 @@ public sealed class PolymorphicKind : SerialKind() {
     level = DeprecationLevel.ERROR,
     message = "UnionKind is deprecated during 1.0 API stabilization"
 )
+@OptIn(ExperimentalSerializationApi::class)
 public object UnionKind {
     @Deprecated(
         "Was moved to the top-level serial kind during 1.0 API stabilization", level = DeprecationLevel.ERROR,

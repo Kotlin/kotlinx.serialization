@@ -20,6 +20,7 @@ import kotlin.reflect.*
  * Serial name equals to fully-qualified class name by default and can be changed via @[SerialName] annotation.
  */
 @InternalSerializationApi
+@OptIn(ExperimentalSerializationApi::class)
 public abstract class AbstractPolymorphicSerializer<T : Any> internal constructor() : KSerializer<T> {
 
     /**

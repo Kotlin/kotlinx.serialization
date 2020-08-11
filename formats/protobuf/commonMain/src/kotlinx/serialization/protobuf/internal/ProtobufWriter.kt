@@ -1,11 +1,12 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+@file:OptIn(ExperimentalSerializationApi::class)
 
 package kotlinx.serialization.protobuf.internal
 
+import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
-import kotlin.jvm.*
 
 internal class ProtobufWriter(private val out: ByteArrayOutput) {
     fun writeBytes(bytes: ByteArray, tag: Int) {

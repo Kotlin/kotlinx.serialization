@@ -11,7 +11,7 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
 
-
+@OptIn(ExperimentalSerializationApi::class)
 internal class StreamingJsonEncoder(
     private val composer: Composer,
     override val json: Json,

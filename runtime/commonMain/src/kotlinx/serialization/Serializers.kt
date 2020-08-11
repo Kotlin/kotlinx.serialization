@@ -34,6 +34,7 @@ public inline fun <reified T> SerializersModule.serializer(): KSerializer<T> {
  * Creates a serializer for the given [type].
  * [type] argument can be obtained with experimental [typeOf] method.
  */
+@OptIn(ExperimentalSerializationApi::class)
 public fun serializer(type: KType): KSerializer<Any?> {
     val result = EmptySerializersModule.serializerByKTypeImpl(type)
     return result.nullable(type.isMarkedNullable)
@@ -44,6 +45,7 @@ public fun serializer(type: KType): KSerializer<Any?> {
  * if not found, fallbacks to plain [serializer] method.
  * [type] argument can be obtained with experimental [typeOf] method.
  */
+@OptIn(ExperimentalSerializationApi::class)
 public fun SerializersModule.serializer(type: KType): KSerializer<Any?> {
     val kclass = type.kclass()
     val isNullable = type.isMarkedNullable
@@ -51,6 +53,7 @@ public fun SerializersModule.serializer(type: KType): KSerializer<Any?> {
     return serializerByKTypeImpl(type).nullable(isNullable).cast()
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 private fun SerializersModule.serializerByKTypeImpl(type: KType): KSerializer<Any> {
     val rootClass = type.kclass()
     val typeArguments = type.arguments
@@ -61,6 +64,7 @@ private fun SerializersModule.serializerByKTypeImpl(type: KType): KSerializer<An
     }.cast()
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 private fun SerializersModule.builtinSerializer(
     typeArguments: List<KType>,
     rootClass: KClass<Any>

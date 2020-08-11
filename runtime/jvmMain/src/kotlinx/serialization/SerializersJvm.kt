@@ -69,6 +69,7 @@ public fun SerializersModule.serializer(type: Type): KSerializer<Any> = when (ty
     else -> throw IllegalArgumentException("typeToken should be an instance of Class<?>, GenericArray, ParametrizedType or WildcardType, but actual type is $type ${type::class}")
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 private fun SerializersModule.typeSerializer(type: Class<*>): KSerializer<Any> {
     return if (!type.isArray) {
         contextualOrReflective(type.kotlin as KClass<Any>)
@@ -80,6 +81,7 @@ private fun SerializersModule.typeSerializer(type: Class<*>): KSerializer<Any> {
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 private fun SerializersModule.genericArraySerializer(type: GenericArrayType): KSerializer<Any> {
     val eType = type.genericComponentType.let {
         when (it) {
@@ -96,6 +98,7 @@ private fun SerializersModule.genericArraySerializer(type: GenericArrayType): KS
     return ArraySerializer(kclass, serializer) as KSerializer<Any>
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 private fun <T: Any> SerializersModule.contextualOrReflective(kClass: KClass<T>): KSerializer<T> {
     return getContextual(kClass) ?: kClass.serializer()
 }

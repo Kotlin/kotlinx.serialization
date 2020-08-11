@@ -5,6 +5,7 @@
 package kotlinx.serialization.descriptors
 
 import kotlinx.serialization.*
+import kotlinx.serialization.encoding.*
 
 /**
  * Serial descriptor is an inherent property of [KSerializer] that describes the structure of the serializable type.

@@ -8,7 +8,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.js.*
-import kotlin.jvm.*
 
 /**
  * The main entry point to work with JSON serialization.
@@ -227,6 +226,7 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
      */
     public var serializersModule: SerializersModule = conf.serializersModule
 
+    @OptIn(ExperimentalSerializationApi::class)
     internal fun build(): JsonConf {
         if (useArrayPolymorphism) require(classDiscriminator == defaultDiscriminator) {
             "Class discriminator should not be specified when array polymorphism is specified"
