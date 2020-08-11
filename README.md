@@ -235,7 +235,7 @@ Ensure the proper version of Kotlin and serialization version:
 ```xml
 <properties>
     <kotlin.version>1.4.0</kotlin.version>
-    <serialization.version>1.0.0</serialization.version>
+    <serialization.version>1.0.0-RC</serialization.version>
 </properties>
 ```
 

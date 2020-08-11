@@ -359,8 +359,6 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-poly-09.kt).
 
-We get an exception that `Project` is not serializable:
-
 ```text 
 {"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}
 ```

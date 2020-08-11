@@ -76,7 +76,7 @@ Project(name=kotlinx.serialization, language=Kotlin)
 
 <!--- TEST -->
 
-In CBOR [diagnostic mode](http://cbor.me/), the output is equivalent to the following:
+In CBOR [hex notation](http://cbor.me/), the output is equivalent to the following:
 ```
 BF                                      # map(*)
    64                                   # text(4)
@@ -149,7 +149,7 @@ Data(type2=[1, 2, 3, 4], type4=[5, 6, 7, 8])
 
 <!--- TEST -->
 
-In [CBOR diagnostic mode](http://cbor.me/), the output is equivalent to the following:
+In [CBOR dhex notation](http://cbor.me/), the output is equivalent to the following:
 ```
 BF               # map(*)
    65            # text(5)
@@ -212,7 +212,7 @@ Project(name=kotlinx.serialization, language=Kotlin)
 
 <!--- TEST -->
 
-In [ProtoBuf diagnostic mode](https://protogen.marcgravell.com/decode), the output is equivalent to the following:
+In [ProtoBuf hex notation](https://protogen.marcgravell.com/decode), the output is equivalent to the following:
 ```
 Field #1: 0A String Length = 21, Hex = 15, UTF8 = "kotlinx.serialization"
 Field #2: 12 String Length = 6, Hex = 06, UTF8 = "Kotlin"
@@ -265,7 +265,7 @@ Project(name=kotlinx.serialization, language=Kotlin)
 
 <!--- TEST -->
       
-In [ProtoBuf diagnostic mode](https://protogen.marcgravell.com/decode), the output is equivalent to the following:
+In [ProtoBuf hex notation](https://protogen.marcgravell.com/decode), the output is equivalent to the following:
 ```
 Field #1: 0A String Length = 21, Hex = 15, UTF8 = "kotlinx.serialization" (total 21 chars)
 Field #3: 1A String Length = 6, Hex = 06, UTF8 = "Kotlin"
@@ -321,7 +321,7 @@ fun main() {
 
 <!--- TEST -->
 
-In [ProtoBuf diagnostic mode](https://protogen.marcgravell.com/decode), the output is equivalent to the following:
+In [ProtoBuf hex notation](https://protogen.marcgravell.com/decode), the output is equivalent to the following:
 ```
 Field #1: 08 Varint Value = 1, Hex = 01
 Field #2: 10 Varint Value = 3, Hex = 03
