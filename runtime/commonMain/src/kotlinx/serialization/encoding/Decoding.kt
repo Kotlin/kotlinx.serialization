@@ -96,7 +96,7 @@ import kotlinx.serialization.builtins.*
  *
  *     ...
  *     override fun decodeDouble(): Double = decodeString().toDouble()
- *     override fun decodeInt(): Double = decodeString().toInt()
+ *     override fun decodeInt(): Int = decodeString().toInt()
  *     ...
  * }
  * ```
