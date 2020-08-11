@@ -184,7 +184,10 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
     public var prettyPrint: Boolean = conf.prettyPrint
 
     /**
-     * Specifies indent string to use with [prettyPrint] mode.
+     * Specifies indent string to use with [prettyPrint] mode
+     * 4 spaces by default.
+     * Experimentality note: this API is experimental because
+     * it is not clear whether this option has compelling use-cases.
      */
     @ExperimentalSerializationApi
     public var prettyPrintIndent: String = conf.prettyPrintIndent

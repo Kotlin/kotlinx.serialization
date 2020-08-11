@@ -28,6 +28,7 @@ import kotlin.reflect.*
  *     // intField is deliberately ignored by serializer -- not present in the descriptor as well
  *     element<Long>("_longField") // longField is named as _longField
  *     element("stringField", listDescriptor<String>())
+ *     element("nullableInt", descriptor<Int>().nullable)
  * }
  * ```
  *
@@ -36,11 +37,11 @@ import kotlin.reflect.*
  * @Serializable(CustomSerializer::class)
  * class BoxedList<T>(val list: List<T>)
  *
- * class CustomSerializer<T>(typeParamSerializer: KSerializer<T>): KSerializer<BoxedList<T>> {
- *   // here we use typeParamSerializer.descriptor because it represents T
+ * class CustomSerializer<T>(tSerializer: KSerializer<T>): KSerializer<BoxedList<T>> {
+ *   // here we use tSerializer.descriptor because it represents T
  *   override val descriptor = SerialDescriptor("pkg.BoxedList", CLASS, typeParamSerializer.descriptor) {
- *     // here we need to wrap it with List first, because property has type List<T>
- *     element("list", typeParamSerializer.list.descriptor) // or listDescriptor(typeParamSerializer.descriptor)
+ *     // here we have to wrap it with List first, because property has type List<T>
+ *     element("list", ListSerializer(tSerializer).descriptor) // or listSerialDescriptor(tSerializer.descriptor)
  *   }
  * }
  * ```
@@ -138,6 +139,7 @@ public inline fun <reified T> listSerialDescriptor(): SerialDescriptor {
  * Creates a descriptor for the type `Map<K, V>` where `K` and `V` are types
  * associated with [keyDescriptor] and [valueDescriptor] respectively.
  */
+@ExperimentalSerializationApi
 public fun mapSerialDescriptor(
     keyDescriptor: SerialDescriptor,
     valueDescriptor: SerialDescriptor
@@ -173,7 +175,6 @@ public inline fun <reified T> setSerialDescriptor(): SerialDescriptor {
  * Returns new serial descriptor for the same type with [isNullable][SerialDescriptor.isNullable]
  * property set to `true`.
  */
-@ExperimentalSerializationApi
 public val SerialDescriptor.nullable: SerialDescriptor
     get() {
         if (this.isNullable) return this

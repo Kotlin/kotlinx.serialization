@@ -29,12 +29,14 @@ public sealed class Hocon(
     override val serializersModule: SerializersModule
 ) : SerialFormat {
 
+    @ExperimentalSerializationApi
     public fun <T> decodeFromConfig(deserializer: DeserializationStrategy<T>, config: Config): T =
         ConfigReader(config).decodeSerializableValue(deserializer)
 
     /**
      * The default instance of Hocon parser.
      */
+    @ExperimentalSerializationApi
     public companion object Default : Hocon(false, EmptySerializersModule) {
         private val NAMING_CONVENTION_REGEX by lazy { "[A-Z]".toRegex() }
     }
@@ -110,7 +112,7 @@ public sealed class Hocon(
         }
 
         private fun composeName(parentName: String, childName: String) =
-            if (parentName.isEmpty()) childName else parentName + "." + childName
+            if (parentName.isEmpty()) childName else "$parentName.$childName"
 
         override fun SerialDescriptor.getTag(index: Int): String =
             composeName(currentTagOrNull ?: "", getConventionElementName(index))
@@ -184,7 +186,7 @@ public sealed class Hocon(
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             ind++
-            return if (ind >= indexSize) CompositeDecoder.DECODE_DONE else ind
+            return if (ind >= indexSize) DECODE_DONE else ind
         }
 
         override fun getTaggedConfigValue(tag: Int): ConfigValue {
@@ -212,6 +214,7 @@ public sealed class Hocon(
  * Decodes the given [config] into a value of type [T] using a deserialize retrieved
  * from reified type parameter.
  */
+@ExperimentalSerializationApi
 public inline fun <reified T> Hocon.decodeFromConfig(config: Config): T =
     decodeFromConfig(serializersModule.serializer(), config)
 
@@ -219,6 +222,7 @@ public inline fun <reified T> Hocon.decodeFromConfig(config: Config): T =
  * Creates an instance of [Hocon] configured from the optionally given [Hocon instance][from]
  * and adjusted with [builderAction].
  */
+@ExperimentalSerializationApi
 public fun Hocon(from: Hocon = Hocon, builderAction: HoconBuilder.() -> Unit): Hocon {
     val builder = HoconBuilder(from)
     builder.builderAction()
@@ -228,6 +232,7 @@ public fun Hocon(from: Hocon = Hocon, builderAction: HoconBuilder.() -> Unit): H
 /**
  * Builder of the [Hocon] instance provided by `Hocon` factory function.
  */
+@ExperimentalSerializationApi
 public class HoconBuilder internal constructor(hocon: Hocon) {
     /**
      * Module with contextual and polymorphic serializers to be used in the resulting [Hocon] instance.
@@ -240,6 +245,7 @@ public class HoconBuilder internal constructor(hocon: Hocon) {
     public var useConfigNamingConvention: Boolean = hocon.useConfigNamingConvention
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 private class HoconImpl(
     useConfigNamingConvention: Boolean = false,
     serializersModule: SerializersModule = EmptySerializersModule
