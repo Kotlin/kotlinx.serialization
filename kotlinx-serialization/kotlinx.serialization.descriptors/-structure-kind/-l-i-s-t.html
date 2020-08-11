@@ -11,7 +11,7 @@
 <a name="kotlinx.serialization.descriptors.StructureKind.LIST"></a>
 (common, jvm, native) <code><span class="keyword">object </span><span class="identifier">LIST</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="index.html"><span class="identifier">StructureKind</span></a></code>
 <p>Structure kind for lists and arrays of an arbitrary length.
-Serializers typically encode classes with calls to <a href="#">Encoder.beginCollection</a> and <a href="#">CompositeEncoder.endStructure</a>,
+Serializers typically encode classes with calls to <a href="../../kotlinx.serialization.encoding/-encoder/begin-collection.html#kotlinx.serialization.encoding.Encoder$beginCollection(kotlinx.serialization.descriptors.SerialDescriptor, kotlin.Int)">Encoder.beginCollection</a> and <a href="../../kotlinx.serialization.encoding/-composite-encoder/end-structure.html#kotlinx.serialization.encoding.CompositeEncoder$endStructure(kotlinx.serialization.descriptors.SerialDescriptor)">CompositeEncoder.endStructure</a>,
 writing the elements of the list between these calls.
 Built-in list serializers treat elements as homogeneous, though application-specific serializers may impose
 application-specific restrictions on specific <a href="-l-i-s-t.html#kotlinx.serialization.descriptors.StructureKind.LIST">LIST</a> types.</p>

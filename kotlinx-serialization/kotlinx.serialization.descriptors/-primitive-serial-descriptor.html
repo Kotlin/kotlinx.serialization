@@ -17,7 +17,7 @@ Primitive descriptors should be used when the serialized form of the data has a 
         PrimitiveDescriptor("kotlinx.serialization.LongAsStringSerializer", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: Long) {
-        encoder.encodeString(obj.toString())
+        encoder.encodeString(value.toString())
     }
 
     override fun deserialize(decoder: Decoder): Long {

@@ -12,7 +12,9 @@
 (common, jvm, native) <code><span class="keyword">var </span><span class="identifier">isLenient</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
 <p>Removes JSON specification restriction (RFC-4627) and makes parser
 more liberal to the malformed input. In lenient mode quoted boolean literals,
-and unquoted string literals are allowed.
-<code>false</code> by default.</p>
+and unquoted string literals are allowed.</p>
+<p>Its relaxations can be expanded in the future, so that lenient parser becomes even more
+permissive to invalid value in the input, replacing them with defaults.</p>
+<p><code>false</code> by default.</p>
 </BODY>
 </HTML>

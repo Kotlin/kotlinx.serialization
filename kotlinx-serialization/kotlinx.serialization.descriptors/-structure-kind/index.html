@@ -14,7 +14,7 @@
 We acknowledge following structured kinds:</p>
 <h3>Regular classes</h3>
 <p>The most common case for serialization, that represents an arbitrary structure with fixed count of elements.
-When the regular Kotlin class is marked as <a href="https://docs.oracle.com/javase/6/docs/api/java/io/Serializable.html">Serializable</a>, its descriptor kind will be <a href="-c-l-a-s-s.html#kotlinx.serialization.descriptors.StructureKind.CLASS">CLASS</a>.</p>
+When the regular Kotlin class is marked as <a href="../../kotlinx.serialization/-serializable/index.html#kotlinx.serialization.Serializable">Serializable</a>, its descriptor kind will be <a href="-c-l-a-s-s.html#kotlinx.serialization.descriptors.StructureKind.CLASS">CLASS</a>.</p>
 <h3>Lists</h3>
 <p><a href="-l-i-s-t.html#kotlinx.serialization.descriptors.StructureKind.LIST">LIST</a> represent a structure with potentially unknown in advance number of elements of the same type.
 All standard serializable <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a> implementors and arrays are represented as <a href="-l-i-s-t.html#kotlinx.serialization.descriptors.StructureKind.LIST">LIST</a> kind of the same type.</p>
@@ -33,7 +33,7 @@ serializer as the following call sequence:</p>
 composite.encodeIntElement(descriptor, index = 0, holder.myValue)
 composite.endStructure(descriptor) // Denotes the end of the structure
 </code></pre>
-<p>and its corresponding <a href="#">Decoder</a> counterpart.</p>
+<p>and its corresponding <a href="../../kotlinx.serialization.encoding/-decoder/index.html#kotlinx.serialization.encoding.Decoder">Decoder</a> counterpart.</p>
 <h3>Serial descriptor implementors note</h3>
 <p>These kinds can be used not only for collection and regular classes.
 For example, provided serializer for <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/-entry/index.html">Map.Entry</a> represents it as <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a> type, so it is serialized
@@ -48,7 +48,7 @@ as <code>{"actualKey": "actualValue"}</code> map directly instead of <code>{"key
 </td>
 <td>
 <p>Structure kind for regular classes with an arbitrary, but known statically, structure.
-Serializers typically encode classes with calls to <a href="#">Encoder.beginStructure</a> and <a href="#">CompositeEncoder.endStructure</a>,
+Serializers typically encode classes with calls to <a href="../../kotlinx.serialization.encoding/-encoder/begin-structure.html#kotlinx.serialization.encoding.Encoder$beginStructure(kotlinx.serialization.descriptors.SerialDescriptor)">Encoder.beginStructure</a> and <a href="../../kotlinx.serialization.encoding/-composite-encoder/end-structure.html#kotlinx.serialization.encoding.CompositeEncoder$endStructure(kotlinx.serialization.descriptors.SerialDescriptor)">CompositeEncoder.endStructure</a>,
 writing the elements of the class between these calls.</p>
 <code><span class="keyword">object </span><span class="identifier">CLASS</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">StructureKind</span></a></code></td>
 </tr>
@@ -59,7 +59,7 @@ writing the elements of the class between these calls.</p>
 </td>
 <td>
 <p>Structure kind for lists and arrays of an arbitrary length.
-Serializers typically encode classes with calls to <a href="#">Encoder.beginCollection</a> and <a href="#">CompositeEncoder.endStructure</a>,
+Serializers typically encode classes with calls to <a href="../../kotlinx.serialization.encoding/-encoder/begin-collection.html#kotlinx.serialization.encoding.Encoder$beginCollection(kotlinx.serialization.descriptors.SerialDescriptor, kotlin.Int)">Encoder.beginCollection</a> and <a href="../../kotlinx.serialization.encoding/-composite-encoder/end-structure.html#kotlinx.serialization.encoding.CompositeEncoder$endStructure(kotlinx.serialization.descriptors.SerialDescriptor)">CompositeEncoder.endStructure</a>,
 writing the elements of the list between these calls.
 Built-in list serializers treat elements as homogeneous, though application-specific serializers may impose
 application-specific restrictions on specific <a href="-l-i-s-t.html#kotlinx.serialization.descriptors.StructureKind.LIST">LIST</a> types.</p>
@@ -72,7 +72,7 @@ application-specific restrictions on specific <a href="-l-i-s-t.html#kotlinx.ser
 </td>
 <td>
 <p>Structure kind for maps of an arbitrary length.
-Serializers typically encode classes with calls to <a href="#">Encoder.beginCollection</a> and <a href="#">CompositeEncoder.endStructure</a>,
+Serializers typically encode classes with calls to <a href="../../kotlinx.serialization.encoding/-encoder/begin-collection.html#kotlinx.serialization.encoding.Encoder$beginCollection(kotlinx.serialization.descriptors.SerialDescriptor, kotlin.Int)">Encoder.beginCollection</a> and <a href="../../kotlinx.serialization.encoding/-composite-encoder/end-structure.html#kotlinx.serialization.encoding.CompositeEncoder$endStructure(kotlinx.serialization.descriptors.SerialDescriptor)">CompositeEncoder.endStructure</a>,
 writing the elements of the map between these calls.</p>
 <code><span class="keyword">object </span><span class="identifier">MAP</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">StructureKind</span></a></code></td>
 </tr>
@@ -99,7 +99,7 @@ across serialization within the same process, so you always have the same instan
 </td>
 <td>
 <p>Structure kind for regular classes with an arbitrary, but known statically, structure.
-Serializers typically encode classes with calls to <a href="#">Encoder.beginStructure</a> and <a href="#">CompositeEncoder.endStructure</a>,
+Serializers typically encode classes with calls to <a href="../../kotlinx.serialization.encoding/-encoder/begin-structure.html#kotlinx.serialization.encoding.Encoder$beginStructure(kotlinx.serialization.descriptors.SerialDescriptor)">Encoder.beginStructure</a> and <a href="../../kotlinx.serialization.encoding/-composite-encoder/end-structure.html#kotlinx.serialization.encoding.CompositeEncoder$endStructure(kotlinx.serialization.descriptors.SerialDescriptor)">CompositeEncoder.endStructure</a>,
 writing the elements of the class between these calls.</p>
 <code><span class="keyword">object </span><span class="identifier">CLASS</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">StructureKind</span></a></code></td>
 </tr>
@@ -110,7 +110,7 @@ writing the elements of the class between these calls.</p>
 </td>
 <td>
 <p>Structure kind for lists and arrays of an arbitrary length.
-Serializers typically encode classes with calls to <a href="#">Encoder.beginCollection</a> and <a href="#">CompositeEncoder.endStructure</a>,
+Serializers typically encode classes with calls to <a href="../../kotlinx.serialization.encoding/-encoder/begin-collection.html#kotlinx.serialization.encoding.Encoder$beginCollection(kotlinx.serialization.descriptors.SerialDescriptor, kotlin.Int)">Encoder.beginCollection</a> and <a href="../../kotlinx.serialization.encoding/-composite-encoder/end-structure.html#kotlinx.serialization.encoding.CompositeEncoder$endStructure(kotlinx.serialization.descriptors.SerialDescriptor)">CompositeEncoder.endStructure</a>,
 writing the elements of the list between these calls.
 Built-in list serializers treat elements as homogeneous, though application-specific serializers may impose
 application-specific restrictions on specific <a href="-l-i-s-t.html#kotlinx.serialization.descriptors.StructureKind.LIST">LIST</a> types.</p>
@@ -123,7 +123,7 @@ application-specific restrictions on specific <a href="-l-i-s-t.html#kotlinx.ser
 </td>
 <td>
 <p>Structure kind for maps of an arbitrary length.
-Serializers typically encode classes with calls to <a href="#">Encoder.beginCollection</a> and <a href="#">CompositeEncoder.endStructure</a>,
+Serializers typically encode classes with calls to <a href="../../kotlinx.serialization.encoding/-encoder/begin-collection.html#kotlinx.serialization.encoding.Encoder$beginCollection(kotlinx.serialization.descriptors.SerialDescriptor, kotlin.Int)">Encoder.beginCollection</a> and <a href="../../kotlinx.serialization.encoding/-composite-encoder/end-structure.html#kotlinx.serialization.encoding.CompositeEncoder$endStructure(kotlinx.serialization.descriptors.SerialDescriptor)">CompositeEncoder.endStructure</a>,
 writing the elements of the map between these calls.</p>
 <code><span class="keyword">object </span><span class="identifier">MAP</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">StructureKind</span></a></code></td>
 </tr>

@@ -79,63 +79,12 @@ This serializer is enabled by <a href="../-contextual/index.html#kotlinx.seriali
 <tr>
 <td>
 (common, jvm, native) 
-<h4><a href="../../kotlinx.serialization.json/-json-array-serializer/index.html">JsonArraySerializer</a></h4>
-</td>
-<td>
-<p>External <a href="../-serializer/index.html#kotlinx.serialization.Serializer">Serializer</a> object providing <a href="../-serialization-strategy/index.html#kotlinx.serialization.SerializationStrategy">SerializationStrategy</a> and <a href="../-deserialization-strategy/index.html#kotlinx.serialization.DeserializationStrategy">DeserializationStrategy</a> for <a href="../../kotlinx.serialization.json/-json-array/index.html#kotlinx.serialization.json.JsonArray">JsonArray</a>.
-It can only be used by with <a href="../../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a> format an its input (<a href="../../kotlinx.serialization.json/-json-decoder/index.html#kotlinx.serialization.json.JsonDecoder">JsonDecoder</a> and <a href="../../kotlinx.serialization.json/-json-encoder/index.html#kotlinx.serialization.json.JsonEncoder">JsonEncoder</a>).</p>
-<code><span class="keyword">object </span><span class="identifier">JsonArraySerializer</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><a href="../../kotlinx.serialization.json/-json-array/index.html"><span class="identifier">JsonArray</span></a><span class="symbol">&gt;</span></code></td>
-</tr>
-<tr>
-<td>
-(common, jvm, native) 
 <h4><a href="../../kotlinx.serialization.json/-json-content-polymorphic-serializer/index.html">JsonContentPolymorphicSerializer</a></h4>
 </td>
 <td>
 <p>Base class for custom serializers that allows selecting polymorphic serializer
 without a dedicated class discriminator, on a content basis.</p>
 <code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">JsonContentPolymorphicSerializer</span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
-</tr>
-<tr>
-<td>
-(common, jvm, native) 
-<h4><a href="../../kotlinx.serialization.json/-json-element-serializer/index.html">JsonElementSerializer</a></h4>
-</td>
-<td>
-<p>External <a href="../-serializer/index.html#kotlinx.serialization.Serializer">Serializer</a> object providing <a href="../-serialization-strategy/index.html#kotlinx.serialization.SerializationStrategy">SerializationStrategy</a> and <a href="../-deserialization-strategy/index.html#kotlinx.serialization.DeserializationStrategy">DeserializationStrategy</a> for <a href="../../kotlinx.serialization.json/-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a>.
-It can only be used by with <a href="../../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a> format an its input (<a href="../../kotlinx.serialization.json/-json-decoder/index.html#kotlinx.serialization.json.JsonDecoder">JsonDecoder</a> and <a href="../../kotlinx.serialization.json/-json-encoder/index.html#kotlinx.serialization.json.JsonEncoder">JsonEncoder</a>).
-Currently, this hierarchy has no guarantees on descriptor content.</p>
-<code><span class="keyword">object </span><span class="identifier">JsonElementSerializer</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><a href="../../kotlinx.serialization.json/-json-element.html"><span class="identifier">JsonElement</span></a><span class="symbol">&gt;</span></code></td>
-</tr>
-<tr>
-<td>
-(common, jvm, native) 
-<h4><a href="../../kotlinx.serialization.json/-json-null-serializer/index.html">JsonNullSerializer</a></h4>
-</td>
-<td>
-<p>External <a href="../-serializer/index.html#kotlinx.serialization.Serializer">Serializer</a> object providing <a href="../-serialization-strategy/index.html#kotlinx.serialization.SerializationStrategy">SerializationStrategy</a> and <a href="../-deserialization-strategy/index.html#kotlinx.serialization.DeserializationStrategy">DeserializationStrategy</a> for <a href="../../kotlinx.serialization.json/-json-null/index.html#kotlinx.serialization.json.JsonNull">JsonNull</a>.
-It can only be used by with <a href="../../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a> format an its input (<a href="../../kotlinx.serialization.json/-json-decoder/index.html#kotlinx.serialization.json.JsonDecoder">JsonDecoder</a> and <a href="../../kotlinx.serialization.json/-json-encoder/index.html#kotlinx.serialization.json.JsonEncoder">JsonEncoder</a>).</p>
-<code><span class="keyword">object </span><span class="identifier">JsonNullSerializer</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><a href="../../kotlinx.serialization.json/-json-null/index.html"><span class="identifier">JsonNull</span></a><span class="symbol">&gt;</span></code></td>
-</tr>
-<tr>
-<td>
-(common, jvm, native) 
-<h4><a href="../../kotlinx.serialization.json/-json-object-serializer/index.html">JsonObjectSerializer</a></h4>
-</td>
-<td>
-<p>External <a href="../-serializer/index.html#kotlinx.serialization.Serializer">Serializer</a> object providing <a href="../-serialization-strategy/index.html#kotlinx.serialization.SerializationStrategy">SerializationStrategy</a> and <a href="../-deserialization-strategy/index.html#kotlinx.serialization.DeserializationStrategy">DeserializationStrategy</a> for <a href="../../kotlinx.serialization.json/-json-object/index.html#kotlinx.serialization.json.JsonObject">JsonObject</a>.
-It can only be used by with <a href="../../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a> format an its input (<a href="../../kotlinx.serialization.json/-json-decoder/index.html#kotlinx.serialization.json.JsonDecoder">JsonDecoder</a> and <a href="../../kotlinx.serialization.json/-json-encoder/index.html#kotlinx.serialization.json.JsonEncoder">JsonEncoder</a>).</p>
-<code><span class="keyword">object </span><span class="identifier">JsonObjectSerializer</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><a href="../../kotlinx.serialization.json/-json-object/index.html"><span class="identifier">JsonObject</span></a><span class="symbol">&gt;</span></code></td>
-</tr>
-<tr>
-<td>
-(common, jvm, native) 
-<h4><a href="../../kotlinx.serialization.json/-json-primitive-serializer/index.html">JsonPrimitiveSerializer</a></h4>
-</td>
-<td>
-<p>External <a href="../-serializer/index.html#kotlinx.serialization.Serializer">Serializer</a> object providing <a href="../-serialization-strategy/index.html#kotlinx.serialization.SerializationStrategy">SerializationStrategy</a> and <a href="../-deserialization-strategy/index.html#kotlinx.serialization.DeserializationStrategy">DeserializationStrategy</a> for <a href="../../kotlinx.serialization.json/-json-primitive/index.html#kotlinx.serialization.json.JsonPrimitive">JsonPrimitive</a>.
-It can only be used by with <a href="../../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a> format an its input (<a href="../../kotlinx.serialization.json/-json-decoder/index.html#kotlinx.serialization.json.JsonDecoder">JsonDecoder</a> and <a href="../../kotlinx.serialization.json/-json-encoder/index.html#kotlinx.serialization.json.JsonEncoder">JsonEncoder</a>).</p>
-<code><span class="keyword">object </span><span class="identifier">JsonPrimitiveSerializer</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><a href="../../kotlinx.serialization.json/-json-primitive/index.html"><span class="identifier">JsonPrimitive</span></a><span class="symbol">&gt;</span></code></td>
 </tr>
 <tr>
 <td>

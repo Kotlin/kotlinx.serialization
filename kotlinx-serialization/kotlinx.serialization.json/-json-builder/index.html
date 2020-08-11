@@ -21,7 +21,7 @@
 </td>
 <td>
 <p>Removes JSON specification restriction on
-special floating-point values such as <code>NaN</code> and <code>Infinity</code> and enables their serialization.
+special floating-point values such as <code>NaN</code> and <code>Infinity</code> and enables their serialization and deserialization.
 When enabling it, please ensure that the receiving party will be able to encode and decode these special values.
 <code>false</code> by default.</p>
 <code><span class="keyword">var </span><span class="identifier">allowSpecialFloatingPointValues</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
@@ -85,8 +85,7 @@ should be ignored instead of throwing <a href="../../kotlinx.serialization/-seri
 <td>
 <p>Removes JSON specification restriction (RFC-4627) and makes parser
 more liberal to the malformed input. In lenient mode quoted boolean literals,
-and unquoted string literals are allowed.
-<code>false</code> by default.</p>
+and unquoted string literals are allowed.</p>
 <code><span class="keyword">var </span><span class="identifier">isLenient</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
 </tr>
 <tr>
@@ -105,8 +104,10 @@ and unquoted string literals are allowed.
 <h4><a href="pretty-print-indent.html">prettyPrintIndent</a></h4>
 </td>
 <td>
-<p>Specifies indent string to use with <a href="pretty-print.html#kotlinx.serialization.json.JsonBuilder$prettyPrint">prettyPrint</a> mode.
-TODO specify whitespaces</p>
+<p>Specifies indent string to use with <a href="pretty-print.html#kotlinx.serialization.json.JsonBuilder$prettyPrint">prettyPrint</a> mode
+4 spaces by default.
+Experimentality note: this API is experimental because
+it is not clear whether this option has compelling use-cases.</p>
 <code><span class="keyword">var </span><span class="identifier">prettyPrintIndent</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
 </tr>
 <tr>

@@ -26,17 +26,18 @@ SerialDescriptor("my.package.Data") {
     // intField is deliberately ignored by serializer -- not present in the descriptor as well
     element&lt;Long&gt;("_longField") // longField is named as _longField
     element("stringField", listDescriptor&lt;String&gt;())
+    element("nullableInt", descriptor&lt;Int&gt;().nullable)
 }
 </code></pre>
 <p>Example for generic classes:</p>
 <pre><code>@Serializable(CustomSerializer::class)
 class BoxedList&lt;T&gt;(val list: List&lt;T&gt;)
 
-class CustomSerializer&lt;T&gt;(typeParamSerializer: KSerializer&lt;T&gt;): KSerializer&lt;BoxedList&lt;T&gt;&gt; {
-  // here we use typeParamSerializer.descriptor because it represents T
+class CustomSerializer&lt;T&gt;(tSerializer: KSerializer&lt;T&gt;): KSerializer&lt;BoxedList&lt;T&gt;&gt; {
+  // here we use tSerializer.descriptor because it represents T
   override val descriptor = SerialDescriptor("pkg.BoxedList", CLASS, typeParamSerializer.descriptor) {
-    // here we need to wrap it with List first, because property has type List&lt;T&gt;
-    element("list", typeParamSerializer.list.descriptor) // or listDescriptor(typeParamSerializer.descriptor)
+    // here we have to wrap it with List first, because property has type List&lt;T&gt;
+    element("list", ListSerializer(tSerializer).descriptor) // or listSerialDescriptor(tSerializer.descriptor)
   }
 }
 </code></pre>

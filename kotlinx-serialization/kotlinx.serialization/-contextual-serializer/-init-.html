@@ -26,8 +26,8 @@ To pass it to encoder and decoder, refer to particular <a href="../-serial-forma
 class ClassWithDate(val data: String, @Contextual val timestamp: Date)
 
 val moduleForDate = serializersModule(MyISO8601DateSerializer)
-val json = Json(JsonConfiguration.Default, moduleForDate)
-json.stringify(ClassWithDate("foo", Date())
+val json = Json { serializersModule = moduleForDate }
+json.encodeToString(ClassWithDate("foo", Date())
 </code></pre>
 </BODY>
 </HTML>

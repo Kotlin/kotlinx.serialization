@@ -8,7 +8,7 @@
 <a href="../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="./index.html">kotlinx.serialization.cbor</a><br/>
 <br/>
 <h2>Package kotlinx.serialization.cbor</h2>
-<p>Concise Binary Object Representation (CBOR) format implementation, as per <a href="https://tools.ietf.org/html/rfc7049">RFC7049</a>. Located in separate <code>kotlinx-serialization-cbor</code> artifact.</p>
+<p>Concise Binary Object Representation (CBOR) format implementation, as per <a href="https://tools.ietf.org/html/rfc7049">RFC 7049</a>. Located in separate <code>kotlinx-serialization-cbor</code> artifact.</p>
 <h3>Types</h3>
 <table>
 <tbody>
@@ -32,6 +32,21 @@ if necessary, registered custom serializers (in <a href="../kotlinx.serializatio
 <td>
 <p>Builder of the <a href="-cbor/index.html#kotlinx.serialization.cbor.Cbor">Cbor</a> instance provided by <code>Cbor</code> factory function.</p>
 <code><span class="keyword">class </span><span class="identifier">CborBuilder</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Annotations</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-byte-string/index.html">ByteString</a></h4>
+</td>
+<td>
+<p>Specifies that a <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte-array/index.html">ByteArray</a> shall be encoded/decoded as CBOR major type 2: a byte string.
+For types other than <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte-array/index.html">ByteArray</a>, <a href="-byte-string/index.html#kotlinx.serialization.cbor.ByteString">ByteString</a> will have no effect.</p>
+<code><span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">ByteString</span></code></td>
 </tr>
 </tbody>
 </table>

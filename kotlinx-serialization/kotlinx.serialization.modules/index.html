@@ -86,17 +86,6 @@ To overwrite an already registered serializer, <a href="overwrite-with.html#kotl
 <tr>
 <td>
 (common, jvm, native) 
-<h4><a href="get-contextual-or-default.html">getContextualOrDefault</a></h4>
-</td>
-<td>
-<p>Attempts to retrieve a serializer from the current module and, if not found, fallbacks to <a href="../kotlinx.serialization/serializer.html#kotlinx.serialization$serializer()">serializer</a> method</p>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <a href="-serializers-module/index.html"><span class="identifier">SerializersModule</span></a><span class="symbol">.</span><span class="identifier">getContextualOrDefault</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../kotlinx.serialization/-k-serializer/index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code>
-<p>Attempts to retrieve a serializer from the current module using the given <a href="get-contextual-or-default.html#kotlinx.serialization.modules$getContextualOrDefault(kotlinx.serialization.modules.SerializersModule, kotlin.reflect.KType)/type">type</a> and, if not found, fallbacks to <a href="../kotlinx.serialization/serializer.html#kotlinx.serialization$serializer()">serializer</a> method</p>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <a href="-serializers-module/index.html"><span class="identifier">SerializersModule</span></a><span class="symbol">.</span><span class="identifier">getContextualOrDefault</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.modules$getContextualOrDefault(kotlinx.serialization.modules.SerializersModule, kotlin.reflect.KType)/type">type</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-type/index.html"><span class="identifier">KType</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../kotlinx.serialization/-k-serializer/index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
-</tr>
-<tr>
-<td>
-(common, jvm, native) 
 <h4><a href="overwrite-with.html">overwriteWith</a></h4>
 </td>
 <td>

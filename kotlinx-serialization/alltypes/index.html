@@ -29,6 +29,10 @@ Most of the <code>encode*</code> methods have default implementation that delega
 See <a href="../kotlinx.serialization.encoding/-encoder/index.html#kotlinx.serialization.encoding.Encoder">Encoder</a> documentation for information about each particular <code>encode*</code> method.</p>
 </tr>
 <tr>
+(common, jvm, native)  (extensions in package kotlinx.serialization)
+<h5><a href="../kotlinx.serialization/kotlinx.serialization.internal.-abstract-polymorphic-serializer/index.html">kotlinx.serialization.internal.AbstractPolymorphicSerializer</a></h5>
+</tr>
+<tr>
 (common, jvm, native) 
 <h5><a href="../kotlinx.serialization/-binary-format/index.html">kotlinx.serialization.BinaryFormat</a></h5>
 <p><a href="../kotlinx.serialization/-serial-format/index.html#kotlinx.serialization.SerialFormat">SerialFormat</a> that allows conversions to and from <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte-array/index.html">ByteArray</a> via <a href="../kotlinx.serialization/-binary-format/encode-to-byte-array.html#kotlinx.serialization.BinaryFormat$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.BinaryFormat.encodeToByteArray.T)), kotlinx.serialization.BinaryFormat.encodeToByteArray.T)">encodeToByteArray</a> and <a href="../kotlinx.serialization/-binary-format/decode-from-byte-array.html#kotlinx.serialization.BinaryFormat$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.BinaryFormat.decodeFromByteArray.T)), kotlin.ByteArray)">decodeFromByteArray</a> methods.</p>
@@ -40,6 +44,12 @@ See <a href="../kotlinx.serialization.encoding/-encoder/index.html#kotlinx.seria
 <tr>
 (common, jvm, native)  (extensions in package kotlinx.serialization.builtins)
 <h5><a href="../kotlinx.serialization.builtins/kotlin.-byte/index.html">kotlin.Byte</a></h5>
+</tr>
+<tr>
+(common, jvm, native) 
+<h5><a href="../kotlinx.serialization.cbor/-byte-string/index.html">kotlinx.serialization.cbor.ByteString</a></h5>
+<p>Specifies that a <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte-array/index.html">ByteArray</a> shall be encoded/decoded as CBOR major type 2: a byte string.
+For types other than <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte-array/index.html">ByteArray</a>, <a href="../kotlinx.serialization.cbor/-byte-string/index.html#kotlinx.serialization.cbor.ByteString">ByteString</a> will have no effect.</p>
 </tr>
 <tr>
 (common, jvm, native) 
@@ -119,6 +129,14 @@ primitive elements, also called its serial form, while encoding transforms these
 format representation: JSON string, ProtoBuf ByteArray, in-memory map representation etc.</p>
 </tr>
 <tr>
+(common, jvm, native) 
+<h5><a href="../kotlinx.serialization/-experimental-serialization-api/index.html">kotlinx.serialization.ExperimentalSerializationApi</a></h5>
+<p>Marks declarations that are still <strong>experimental</strong> in kotlinx.serialization, which means that the design of the
+corresponding declarations has open issues which may (or may not) lead to their changes in the future.
+Roughly speaking, there is a chance that those declarations will be deprecated in the near future or
+the semantics of their behavior may change in some way that may break some code.</p>
+</tr>
+<tr>
 (common, jvm, native)  (extensions in package kotlinx.serialization.builtins)
 <h5><a href="../kotlinx.serialization.builtins/kotlin.-float/index.html">kotlin.Float</a></h5>
 </tr>
@@ -156,12 +174,6 @@ For demonstration purposes or trivial usages, Json <a href="../kotlinx.serializa
 </tr>
 <tr>
 (common, jvm, native) 
-<h5><a href="../kotlinx.serialization.json/-json-array-serializer/index.html">kotlinx.serialization.json.JsonArraySerializer</a></h5>
-<p>External <a href="../kotlinx.serialization/-serializer/index.html#kotlinx.serialization.Serializer">Serializer</a> object providing <a href="../kotlinx.serialization/-serialization-strategy/index.html#kotlinx.serialization.SerializationStrategy">SerializationStrategy</a> and <a href="../kotlinx.serialization/-deserialization-strategy/index.html#kotlinx.serialization.DeserializationStrategy">DeserializationStrategy</a> for <a href="../kotlinx.serialization.json/-json-array/index.html#kotlinx.serialization.json.JsonArray">JsonArray</a>.
-It can only be used by with <a href="../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a> format an its input (<a href="../kotlinx.serialization.json/-json-decoder/index.html#kotlinx.serialization.json.JsonDecoder">JsonDecoder</a> and <a href="../kotlinx.serialization.json/-json-encoder/index.html#kotlinx.serialization.json.JsonEncoder">JsonEncoder</a>).</p>
-</tr>
-<tr>
-(common, jvm, native) 
 <h5><a href="../kotlinx.serialization.json/-json-builder/index.html">kotlinx.serialization.json.JsonBuilder</a></h5>
 <p>Builder of the <a href="../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a> instance provided by <code>Json { ... }</code> factory function.</p>
 </tr>
@@ -185,13 +197,6 @@ Can be <a href="../kotlinx.serialization.json/-json-primitive/index.html#kotlinx
 </tr>
 <tr>
 (common, jvm, native) 
-<h5><a href="../kotlinx.serialization.json/-json-element-serializer/index.html">kotlinx.serialization.json.JsonElementSerializer</a></h5>
-<p>External <a href="../kotlinx.serialization/-serializer/index.html#kotlinx.serialization.Serializer">Serializer</a> object providing <a href="../kotlinx.serialization/-serialization-strategy/index.html#kotlinx.serialization.SerializationStrategy">SerializationStrategy</a> and <a href="../kotlinx.serialization/-deserialization-strategy/index.html#kotlinx.serialization.DeserializationStrategy">DeserializationStrategy</a> for <a href="../kotlinx.serialization.json/-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a>.
-It can only be used by with <a href="../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a> format an its input (<a href="../kotlinx.serialization.json/-json-decoder/index.html#kotlinx.serialization.json.JsonDecoder">JsonDecoder</a> and <a href="../kotlinx.serialization.json/-json-encoder/index.html#kotlinx.serialization.json.JsonEncoder">JsonEncoder</a>).
-Currently, this hierarchy has no guarantees on descriptor content.</p>
-</tr>
-<tr>
-(common, jvm, native) 
 <h5><a href="../kotlinx.serialization.json/-json-encoder/index.html">kotlinx.serialization.json.JsonEncoder</a></h5>
 <p>Encoder used by <a href="../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a> during serialization.
 This interface can be used to inject desired behaviour into a serialization process of <a href="../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a>.</p>
@@ -200,12 +205,6 @@ This interface can be used to inject desired behaviour into a serialization proc
 (common, jvm, native) 
 <h5><a href="../kotlinx.serialization.json/-json-null/index.html">kotlinx.serialization.json.JsonNull</a></h5>
 <p>Class representing JSON <code>null</code> value</p>
-</tr>
-<tr>
-(common, jvm, native) 
-<h5><a href="../kotlinx.serialization.json/-json-null-serializer/index.html">kotlinx.serialization.json.JsonNullSerializer</a></h5>
-<p>External <a href="../kotlinx.serialization/-serializer/index.html#kotlinx.serialization.Serializer">Serializer</a> object providing <a href="../kotlinx.serialization/-serialization-strategy/index.html#kotlinx.serialization.SerializationStrategy">SerializationStrategy</a> and <a href="../kotlinx.serialization/-deserialization-strategy/index.html#kotlinx.serialization.DeserializationStrategy">DeserializationStrategy</a> for <a href="../kotlinx.serialization.json/-json-null/index.html#kotlinx.serialization.json.JsonNull">JsonNull</a>.
-It can only be used by with <a href="../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a> format an its input (<a href="../kotlinx.serialization.json/-json-decoder/index.html#kotlinx.serialization.json.JsonDecoder">JsonDecoder</a> and <a href="../kotlinx.serialization.json/-json-encoder/index.html#kotlinx.serialization.json.JsonEncoder">JsonEncoder</a>).</p>
 </tr>
 <tr>
 (common, jvm, native) 
@@ -219,21 +218,9 @@ It can only be used by with <a href="../kotlinx.serialization.json/-json/index.h
 </tr>
 <tr>
 (common, jvm, native) 
-<h5><a href="../kotlinx.serialization.json/-json-object-serializer/index.html">kotlinx.serialization.json.JsonObjectSerializer</a></h5>
-<p>External <a href="../kotlinx.serialization/-serializer/index.html#kotlinx.serialization.Serializer">Serializer</a> object providing <a href="../kotlinx.serialization/-serialization-strategy/index.html#kotlinx.serialization.SerializationStrategy">SerializationStrategy</a> and <a href="../kotlinx.serialization/-deserialization-strategy/index.html#kotlinx.serialization.DeserializationStrategy">DeserializationStrategy</a> for <a href="../kotlinx.serialization.json/-json-object/index.html#kotlinx.serialization.json.JsonObject">JsonObject</a>.
-It can only be used by with <a href="../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a> format an its input (<a href="../kotlinx.serialization.json/-json-decoder/index.html#kotlinx.serialization.json.JsonDecoder">JsonDecoder</a> and <a href="../kotlinx.serialization.json/-json-encoder/index.html#kotlinx.serialization.json.JsonEncoder">JsonEncoder</a>).</p>
-</tr>
-<tr>
-(common, jvm, native) 
 <h5><a href="../kotlinx.serialization.json/-json-primitive/index.html">kotlinx.serialization.json.JsonPrimitive</a></h5>
 <p>Class representing JSON primitive value.
 JSON primitives include numbers, strings, booleans and special null value <a href="../kotlinx.serialization.json/-json-null/index.html#kotlinx.serialization.json.JsonNull">JsonNull</a>.</p>
-</tr>
-<tr>
-(common, jvm, native) 
-<h5><a href="../kotlinx.serialization.json/-json-primitive-serializer/index.html">kotlinx.serialization.json.JsonPrimitiveSerializer</a></h5>
-<p>External <a href="../kotlinx.serialization/-serializer/index.html#kotlinx.serialization.Serializer">Serializer</a> object providing <a href="../kotlinx.serialization/-serialization-strategy/index.html#kotlinx.serialization.SerializationStrategy">SerializationStrategy</a> and <a href="../kotlinx.serialization/-deserialization-strategy/index.html#kotlinx.serialization.DeserializationStrategy">DeserializationStrategy</a> for <a href="../kotlinx.serialization.json/-json-primitive/index.html#kotlinx.serialization.json.JsonPrimitive">JsonPrimitive</a>.
-It can only be used by with <a href="../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a> format an its input (<a href="../kotlinx.serialization.json/-json-decoder/index.html#kotlinx.serialization.json.JsonDecoder">JsonDecoder</a> and <a href="../kotlinx.serialization.json/-json-encoder/index.html#kotlinx.serialization.json.JsonEncoder">JsonEncoder</a>).</p>
 </tr>
 <tr>
 (common, jvm, native) 
@@ -457,14 +444,6 @@ Transient properties should have default values.</p>
 <tr>
 (common, jvm, native)  (extensions in package kotlinx.serialization.builtins)
 <h5><a href="../kotlinx.serialization.builtins/kotlin.-unit/index.html">kotlin.Unit</a></h5>
-</tr>
-<tr>
-(common, jvm, native) 
-<h5><a href="../kotlinx.serialization/-unsafe-serialization-api/index.html">kotlinx.serialization.UnsafeSerializationApi</a></h5>
-<p>Public API marked with this annotation is considered unstable and unsafe for general use.
-Instability implies inconsistent behaviour across platforms, various edge-cases and use-cases that differ from very basic ones.
-Unsafe API should not be generally used as the first-class mechanism and <strong>may</strong> be used as the last-ditch effort when every other
-ways have failed.</p>
 </tr>
 <tr>
 (common, jvm, native) 

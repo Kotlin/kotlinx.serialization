@@ -1,5 +1,7 @@
 $dokka.format:html
 $dokka.linkExtension:html
+$dokka.location:kotlinx.serialization$findPolymorphicSerializer(kotlinx.serialization.internal.AbstractPolymorphicSerializer((kotlinx.serialization.findPolymorphicSerializer.T)), kotlinx.serialization.encoding.CompositeDecoder, kotlin.String)kotlinx.serialization/kotlinx.serialization.internal.-abstract-polymorphic-serializer/find-polymorphic-serializer.html
+$dokka.location:kotlinx.serialization$findPolymorphicSerializer(kotlinx.serialization.internal.AbstractPolymorphicSerializer((kotlinx.serialization.findPolymorphicSerializer.T)), kotlinx.serialization.encoding.Encoder, kotlinx.serialization.findPolymorphicSerializer.T)kotlinx.serialization/kotlinx.serialization.internal.-abstract-polymorphic-serializer/find-polymorphic-serializer.html
 $dokka.location:kotlinx.serialization$serializer(kotlin.reflect.KClass((kotlinx.serialization.serializer.T)))kotlinx.serialization/kotlin.reflect.-k-class/serializer.html
 $dokka.location:kotlinx.serialization$serializerOrNull(kotlin.reflect.KClass((kotlinx.serialization.serializerOrNull.T)))kotlinx.serialization/kotlin.reflect.-k-class/serializer-or-null.html
 $dokka.location:kotlinx.serialization.builtins$serializer(kotlin.Boolean.Companion)kotlinx.serialization.builtins/kotlin.-boolean/serializer.html

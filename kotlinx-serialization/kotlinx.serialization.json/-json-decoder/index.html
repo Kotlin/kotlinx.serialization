@@ -29,14 +29,14 @@ object EitherSerializer : KSerializer&lt;Either&gt; {
         val input = decoder as? JsonDecoder ?: throw SerializationException("This class can be loaded only by Json")
         val tree = input.decodeJson() as? JsonObject ?: throw SerializationException("Expected JsonObject")
         if ("error" in tree) return Either.Left(tree.getPrimitive("error").content)
-        return Either.Right(input.json.decodeJson(tree, Payload.serializer()))
+        return Either.Right(input.json.fromJson(Payload.serializer(), tree))
     }
 
     override fun serialize(encoder: Encoder, value: Either) {
         val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
         val tree = when (value) {
           is Either.Left -&gt; JsonObject(mapOf("error" to JsonLiteral(value.errorMsg)))
-          is Either.Right -&gt; output.json.toJson(value.data, Payload.serializer())
+          is Either.Right -&gt; output.json.toJson(Payload.serializer(), value.data)
         }
         output.encodeJson(tree)
     }
@@ -68,7 +68,7 @@ object EitherSerializer : KSerializer&lt;Either&gt; {
 <p>Decodes the next element in the current input as <a href="../-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a>.
 The type of the decoded element depends on the current state of the input and, when received
 by <a href="../../kotlinx.serialization/-k-serializer/index.html#kotlinx.serialization.KSerializer">serializer</a> in its <a href="../../kotlinx.serialization/-serialization-strategy/serialize.html#kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.encoding.Encoder, kotlinx.serialization.SerializationStrategy.T)">KSerializer.serialize</a> method, the type of the token directly matches
-the <a href="#">kind</a>.</p>
+the <a href="../../kotlinx.serialization.descriptors/-serial-descriptor/kind.html#kotlinx.serialization.descriptors.SerialDescriptor$kind">kind</a>.</p>
 <code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">decodeJsonElement</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../-json-element.html"><span class="identifier">JsonElement</span></a></code></td>
 </tr>
 </tbody>

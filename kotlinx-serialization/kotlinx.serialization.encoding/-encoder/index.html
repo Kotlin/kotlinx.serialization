@@ -79,6 +79,9 @@ For example, a format can support only string types and encode/decode all primit
     ...
 }
 </code></pre>
+<h3>Not stable for inheritance</h3>
+<p><code>Encoder</code> interface is not stable for inheritance in 3rd party libraries, as new methods
+might be added to this interface or contracts of the existing methods can be changed.</p>
 <h3>Properties</h3>
 <table>
 <tbody>
@@ -234,7 +237,7 @@ of nullable type:</p>
 </td>
 <td>
 <p>Encodes the <a href="encode-serializable-value.html#kotlinx.serialization.encoding.Encoder$encodeSerializableValue(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.encoding.Encoder.encodeSerializableValue.T)), kotlinx.serialization.encoding.Encoder.encodeSerializableValue.T)/value">value</a> of type <a href="encode-serializable-value.html#T">T</a> by delegating the encoding process to the given <a href="encode-serializable-value.html#kotlinx.serialization.encoding.Encoder$encodeSerializableValue(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.encoding.Encoder.encodeSerializableValue.T)), kotlinx.serialization.encoding.Encoder.encodeSerializableValue.T)/serializer">serializer</a>.
-For example, <code>encodeInt</code> call us equivalent to delegating integer encoding to <a href="#">Int.serializer</a>:
+For example, <code>encodeInt</code> call us equivalent to delegating integer encoding to <a href="../../kotlinx.serialization.builtins/kotlin.-int/serializer.html">Int.serializer</a>:
 <code>encodeSerializableValue(Int.serializer())</code></p>
 <code><span class="keyword">open</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">encodeSerializableValue</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.encoding.Encoder$encodeSerializableValue(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.encoding.Encoder.encodeSerializableValue.T)), kotlinx.serialization.encoding.Encoder.encodeSerializableValue.T)/serializer">serializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-serialization-strategy/index.html"><span class="identifier">SerializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.encoding.Encoder$encodeSerializableValue(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.encoding.Encoder.encodeSerializableValue.T)), kotlinx.serialization.encoding.Encoder.encodeSerializableValue.T)/value">value</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
 </tr>

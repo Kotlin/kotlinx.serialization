@@ -11,6 +11,10 @@
 <a name="kotlinx.serialization.StringFormat"></a>
 (common, jvm, native) <code><span class="keyword">interface </span><span class="identifier">StringFormat</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../-serial-format/index.html"><span class="identifier">SerialFormat</span></a></code>
 <p><a href="../-serial-format/index.html#kotlinx.serialization.SerialFormat">SerialFormat</a> that allows conversions to and from <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> via <a href="encode-to-string.html#kotlinx.serialization.StringFormat$encodeToString(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.StringFormat.encodeToString.T)), kotlinx.serialization.StringFormat.encodeToString.T)">encodeToString</a> and <a href="decode-from-string.html#kotlinx.serialization.StringFormat$decodeFromString(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.StringFormat.decodeFromString.T)), kotlin.String)">decodeFromString</a> methods.</p>
+<h3>Not stable for inheritance</h3>
+<p><code>StringFormat</code> interface is not stable for inheritance in 3rd party libraries, as new methods
+might be added to this interface or contracts of the existing methods can be changed.</p>
+<p>It is safe to operate with instances of <code>StringFormat</code> and call its methods.</p>
 <h3>Functions</h3>
 <table>
 <tbody>

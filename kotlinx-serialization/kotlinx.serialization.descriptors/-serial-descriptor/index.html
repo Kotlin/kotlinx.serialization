@@ -29,7 +29,7 @@ parameters, are not equal to each other.
 classes, for observability and diagnostics.</li>
 <li><a href="../-serial-kind/index.html#kotlinx.serialization.descriptors.SerialKind">Kind</a> defines what this descriptor represents: primitive, enum, object, collection et cetera.</li>
 <li>Children elements are represented as serial descriptors as well and define the structure of the type's elements.</li>
-<li>Metadata carries additional potentially useful information, such as <a href="../nullable.html#kotlinx.serialization.descriptors$nullable#kotlinx.serialization.descriptors.SerialDescriptor">nullability</a>, <a href="is-element-optional.html#kotlinx.serialization.descriptors.SerialDescriptor$isElementOptional(kotlin.Int)">optionality</a>
+<li>Metadata carries additional potentially useful information, such as <a href="#">nullability</a>, <a href="is-element-optional.html#kotlinx.serialization.descriptors.SerialDescriptor$isElementOptional(kotlin.Int)">optionality</a>
 and <a href="get-element-annotations.html#kotlinx.serialization.descriptors.SerialDescriptor$getElementAnnotations(kotlin.Int)">serial annotations</a>.</li>
 </ul>
 <h3>Usages</h3>
@@ -106,6 +106,11 @@ SerialDescriptor("my.package.Data") {
 }
 </code></pre>
 <p>For a classes that are represented as a single primitive value, <a href="../-primitive-serial-descriptor.html#kotlinx.serialization.descriptors$PrimitiveSerialDescriptor(kotlin.String, kotlinx.serialization.descriptors.PrimitiveKind)">PrimitiveSerialDescriptor</a> builder function can be used instead.</p>
+<h3>Not stable for inheritance</h3>
+<p><code>SerialDescriptor</code> interface is not stable for inheritance in 3rd party libraries, as new methods
+might be added to this interface or contracts of the existing methods can be changed.
+This interface is safe to build using <a href="../build-class-serial-descriptor.html#kotlinx.serialization.descriptors$buildClassSerialDescriptor(kotlin.String, kotlin.Array((kotlinx.serialization.descriptors.SerialDescriptor)), kotlin.Function1((kotlinx.serialization.descriptors.ClassSerialDescriptorBuilder, kotlin.Unit)))">buildClassSerialDescriptor</a> and <a href="../-primitive-serial-descriptor.html#kotlinx.serialization.descriptors$PrimitiveSerialDescriptor(kotlin.String, kotlinx.serialization.descriptors.PrimitiveKind)">PrimitiveSerialDescriptor</a>,
+and is safe to delegate implementation to existing instances.</p>
 <h3>Properties</h3>
 <table>
 <tbody>
@@ -195,9 +200,9 @@ This method can be used to completely introspect the type that the current descr
 <h4><a href="get-element-index.html">getElementIndex</a></h4>
 </td>
 <td>
-<p>Returns an index in the children list of the given element by its name or <a href="#">CompositeDecoder.UNKNOWN_NAME</a>
+<p>Returns an index in the children list of the given element by its name or <a href="../../kotlinx.serialization.encoding/-composite-decoder/-u-n-k-n-o-w-n_-n-a-m-e.html#kotlinx.serialization.encoding.CompositeDecoder.Companion$UNKNOWN_NAME">CompositeDecoder.UNKNOWN_NAME</a>
 if there is no such element.
-The resulting index, if it is not <a href="#">CompositeDecoder.UNKNOWN_NAME</a>, is guaranteed to be usable with <a href="get-element-name.html#kotlinx.serialization.descriptors.SerialDescriptor$getElementName(kotlin.Int)">getElementName</a>.</p>
+The resulting index, if it is not <a href="../../kotlinx.serialization.encoding/-composite-decoder/-u-n-k-n-o-w-n_-n-a-m-e.html#kotlinx.serialization.encoding.CompositeDecoder.Companion$UNKNOWN_NAME">CompositeDecoder.UNKNOWN_NAME</a>, is guaranteed to be usable with <a href="get-element-name.html#kotlinx.serialization.descriptors.SerialDescriptor$getElementName(kotlin.Int)">getElementName</a>.</p>
 <code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">getElementIndex</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.descriptors.SerialDescriptor$getElementIndex(kotlin.String)/name">name</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a></code></td>
 </tr>
 <tr>

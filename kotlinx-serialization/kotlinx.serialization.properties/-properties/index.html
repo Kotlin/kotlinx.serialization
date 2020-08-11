@@ -27,7 +27,7 @@ val map = Properties.store(DataHolder(Data("value1"), "value2"))
 </code></pre>
 <p>If the given class has a <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a> property <code>l</code>, each value from the list
 would be prefixed with <code>l.N.</code>, where N is an index for a particular value.
-<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a> is treated as a <a href="#">key,value,...</a> list.</p>
+<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a> is treated as a <code>[key,value,...]</code> list.</p>
 <h3>Parameters</h3>
 <p><a name="serializersModule"></a>
 <code>serializersModule</code> - A <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> which should contain registered serializers
