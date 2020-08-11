@@ -8,7 +8,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.js.*
-import kotlin.jvm.*
 
 /**
  * The main entry point to work with JSON serialization.
@@ -48,6 +47,7 @@ import kotlin.jvm.*
  *  val deserializedToTree: JsonElement = json.parseJsonElement(stringOutput)
  * ```
  */
+@OptIn(ExperimentalSerializationApi::class)
 public sealed class Json(internal val configuration: JsonConf) : StringFormat {
 
     override val serializersModule: SerializersModule
@@ -187,8 +187,12 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
     public var prettyPrint: Boolean = conf.prettyPrint
 
     /**
-     * Specifies indent string to use with [prettyPrint] mode.
+     * Specifies indent string to use with [prettyPrint] mode
+     * 4 spaces by default.
+     * Experimentality note: this API is experimental because
+     * it is not clear whether this option has compelling use-cases.
      */
+    @ExperimentalSerializationApi
     public var prettyPrintIndent: String = conf.prettyPrintIndent
 
     /**
@@ -226,6 +230,7 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
      */
     public var serializersModule: SerializersModule = conf.serializersModule
 
+    @OptIn(ExperimentalSerializationApi::class)
     internal fun build(): JsonConf {
         if (useArrayPolymorphism) require(classDiscriminator == defaultDiscriminator) {
             "Class discriminator should not be specified when array polymorphism is specified"
@@ -249,14 +254,6 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
             coerceInputValues, useArrayPolymorphism,
             classDiscriminator, allowSpecialFloatingPointValues, serializersModule
         )
-    }
-
-    private companion object {
-        @JvmStatic
-        private val defaultIndent = "    "
-
-        @JvmStatic
-        private val defaultDiscriminator = "type"
     }
 
     // Deprecated members below
@@ -397,3 +394,6 @@ public fun Json(context: SerializersModule): Json = error("Deprecated and should
     replaceWith = ReplaceWith("Json")
 )
 public fun Json(): Json = error("Deprecated and should not be called")
+
+private const val defaultIndent = "    "
+private const val defaultDiscriminator = "type"

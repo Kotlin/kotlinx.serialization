@@ -9,6 +9,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.modules.*
 import kotlin.reflect.*
 
+@OptIn(ExperimentalSerializationApi::class)
 internal class PolymorphismValidator(
     private val useArrayPolymorphism: Boolean,
     private val discriminator: String

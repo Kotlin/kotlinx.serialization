@@ -5,6 +5,7 @@
 package kotlinx.serialization.encoding
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.modules.*
 
@@ -95,6 +96,11 @@ import kotlinx.serialization.modules.*
  *     ...
  * }
  * ```
+ *
+ * ### Not stable for inheritance
+ *
+ * `Encoder` interface is not stable for inheritance in 3rd party libraries, as new methods
+ * might be added to this interface or contracts of the existing methods can be changed.
  */
 public interface Encoder {
     /**
@@ -120,11 +126,13 @@ public interface Encoder {
      * This method has a use in highly-performant binary formats and can
      * be safely ignore by most of the regular formats.
      */
+    @ExperimentalSerializationApi
     public fun encodeNotNullMark() {}
 
     /**
      * Encodes `null` value.
      */
+    @ExperimentalSerializationApi
     public fun encodeNull()
 
     /**
@@ -261,7 +269,7 @@ public interface Encoder {
 
     /**
      * Encodes the [value] of type [T] by delegating the encoding process to the given [serializer].
-     * For example, `encodeInt` call us equivalent to delegating integer encoding to [Int.serializer]:
+     * For example, `encodeInt` call us equivalent to delegating integer encoding to [Int.serializer][Int.Companion.serializer]:
      * `encodeSerializableValue(Int.serializer())`
      */
     public fun <T : Any?> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
@@ -272,6 +280,7 @@ public interface Encoder {
      * Encodes the nullable [value] of type [T] by delegating the encoding process to the given [serializer].
      */
     @Suppress("UNCHECKED_CAST")
+    @ExperimentalSerializationApi
     public fun <T : Any> encodeNullableSerializableValue(serializer: SerializationStrategy<T>, value: T?) {
         val isNullabilitySupported = serializer.descriptor.isNullable
         if (isNullabilitySupported) {
@@ -302,6 +311,11 @@ public interface Encoder {
  *      the one being written.
  *
  * The symmetric interface for the deserialization process is [CompositeDecoder].
+ *
+ * ### Not stable for inheritance
+ *
+ * `CompositeEncoder` interface is not stable for inheritance in 3rd party libraries, as new methods
+ * might be added to this interface or contracts of the existing methods can be changed.
  */
 public interface CompositeEncoder {
     /**
@@ -329,6 +343,7 @@ public interface CompositeEncoder {
      * }
      * ```
      */
+    @ExperimentalSerializationApi
     public fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = true
 
     /**
@@ -401,6 +416,7 @@ public interface CompositeEncoder {
      * Delegates nullable [value] encoding of the type [T] to the given [serializer].
      * [value] is associated with an element at the given [index] in [serial descriptor][descriptor].
      */
+    @ExperimentalSerializationApi
     public fun <T : Any> encodeNullableSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
@@ -419,8 +435,11 @@ public interface CompositeEncoder {
 /**
  * Begins a structure, encodes it using the given [block] and ends it.
  */
-public inline fun Encoder.encodeStructure(descriptor: SerialDescriptor, crossinline block: CompositeEncoder.() -> Unit) {
+public inline fun Encoder.encodeStructure(descriptor: SerialDescriptor, block: CompositeEncoder.() -> Unit) {
     val composite = beginStructure(descriptor)
-    composite.block()
-    composite.endStructure(descriptor)
+    try {
+        composite.block()
+    } finally {
+        composite.endStructure(descriptor)
+    }
 }

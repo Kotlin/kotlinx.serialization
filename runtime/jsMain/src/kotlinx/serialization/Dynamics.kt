@@ -31,10 +31,11 @@ import kotlinx.serialization.json.*
  * data class DataWrapper(val s: String, val d: Data?)
  *
  * val dyn: dynamic = js("""{s:"foo", d:{a:42}}""")
- * val parsed = Json.decodeFromDynamic(dyn, DataWrapper.serializer())
+ * val parsed = Json.decodeFromDynamic(DataWrapper.serializer(), dyn)
  * parsed == DataWrapper("foo", Data(42)) // true
  * ```
  */
+@ExperimentalSerializationApi
 public fun <T> Json.decodeFromDynamic(deserializer: DeserializationStrategy<T>, dynamic: dynamic): T {
     return DynamicObjectParser(serializersModule, configuration).parse(dynamic, deserializer)
 }
@@ -42,6 +43,7 @@ public fun <T> Json.decodeFromDynamic(deserializer: DeserializationStrategy<T>, 
 /**
  * A reified version of [decodeFromDynamic].
  */
+@ExperimentalSerializationApi
 public inline fun <reified T> Json.decodeFromDynamic(dynamic: dynamic): T =
     decodeFromDynamic(serializersModule.serializer(), dynamic)
 
@@ -62,8 +64,8 @@ public inline fun <reified T> Json.decodeFromDynamic(dynamic: dynamic): T =
  *  val wrapper = DataWrapper("foo", "bar")
  *  val plainJS: dynamic = Json.encodeToDynamic(DataWrapper.serializer(), wrapper)
  * ```
- *
  */
+@ExperimentalSerializationApi
 public fun <T> Json.encodeToDynamic(serializer: SerializationStrategy<T>, value: T): dynamic {
     return DynamicObjectSerializer(serializersModule, configuration, false).serialize(serializer, value)
 }
@@ -71,5 +73,6 @@ public fun <T> Json.encodeToDynamic(serializer: SerializationStrategy<T>, value:
 /**
  * A reified version of [encodeToDynamic].
  */
+@ExperimentalSerializationApi
 public inline fun <reified T> Json.encodeToDynamic(value: T): dynamic =
     encodeToDynamic(serializersModule.serializer(), value)

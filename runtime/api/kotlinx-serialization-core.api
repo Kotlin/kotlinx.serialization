@@ -30,6 +30,9 @@ public abstract interface class kotlinx/serialization/DeserializationStrategy {
 	public abstract fun patch (Lkotlinx/serialization/encoding/Decoder;Ljava/lang/Object;)Ljava/lang/Object;
 }
 
+public abstract interface annotation class kotlinx/serialization/ExperimentalSerializationApi : java/lang/annotation/Annotation {
+}
+
 public abstract interface annotation class kotlinx/serialization/ImplicitReflectionSerializer : java/lang/annotation/Annotation {
 }
 
@@ -1410,7 +1413,9 @@ public final class kotlinx/serialization/json/JsonArray$Companion {
 }
 
 public final class kotlinx/serialization/json/JsonArrayBuilder {
+	public fun <init> ()V
 	public final fun add (Lkotlinx/serialization/json/JsonElement;)Z
+	public final fun build ()Lkotlinx/serialization/json/JsonArray;
 	public final fun unaryPlus (Ljava/lang/Boolean;)V
 	public final fun unaryPlus (Ljava/lang/Number;)V
 	public final fun unaryPlus (Ljava/lang/String;)V
@@ -1725,6 +1730,8 @@ public final class kotlinx/serialization/json/JsonObject$Companion {
 }
 
 public final class kotlinx/serialization/json/JsonObjectBuilder {
+	public fun <init> ()V
+	public final fun build ()Lkotlinx/serialization/json/JsonObject;
 	public final fun put (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
 	public final fun to (Ljava/lang/String;Ljava/lang/Boolean;)V
 	public final fun to (Ljava/lang/String;Ljava/lang/Number;)V
@@ -1803,7 +1810,9 @@ public final class kotlinx/serialization/modules/ModulesMigrationsKt {
 }
 
 public final class kotlinx/serialization/modules/PolymorphicModuleBuilder {
+	public fun <init> (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
 	public final fun addSubclass (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
+	public final fun buildTo (Lkotlinx/serialization/modules/SerializersModuleBuilder;)V
 	public final fun default (Lkotlin/jvm/functions/Function1;)V
 	public final fun subclass ()V
 	public final fun subclass (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
@@ -1818,6 +1827,8 @@ public abstract class kotlinx/serialization/modules/SerializersModule {
 }
 
 public final class kotlinx/serialization/modules/SerializersModuleBuilder : kotlinx/serialization/modules/SerializersModuleCollector {
+	public fun <init> ()V
+	public final fun build ()Lkotlinx/serialization/modules/SerializersModule;
 	public fun contextual (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
 	public final fun include (Lkotlinx/serialization/modules/SerializersModule;)V
 	public fun polymorphic (Lkotlin/reflect/KClass;Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V

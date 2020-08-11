@@ -1,6 +1,7 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+@file:OptIn(ExperimentalSerializationApi::class)
 
 package kotlinx.serialization.json
 
@@ -25,7 +26,8 @@ import kotlinx.serialization.json.internal.JsonDecodingException
  * ```
  */
 @Serializer(forClass = JsonElement::class)
-public object JsonElementSerializer : KSerializer<JsonElement> {
+@PublishedApi
+internal object JsonElementSerializer : KSerializer<JsonElement> {
     override val descriptor: SerialDescriptor =
         buildSerialDescriptor("kotlinx.serialization.json.JsonElement", PolymorphicKind.SEALED) {
             // Resolve cyclic dependency in descriptors by late binding
@@ -56,7 +58,8 @@ public object JsonElementSerializer : KSerializer<JsonElement> {
  * It can only be used by with [Json] format an its input ([JsonDecoder] and [JsonEncoder]).
  */
 @Serializer(forClass = JsonPrimitive::class)
-public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
+@PublishedApi
+internal object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
     override val descriptor: SerialDescriptor =
         buildSerialDescriptor("kotlinx.serialization.json.JsonPrimitive", PrimitiveKind.STRING)
 
@@ -81,7 +84,8 @@ public object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
  * It can only be used by with [Json] format an its input ([JsonDecoder] and [JsonEncoder]).
  */
 @Serializer(forClass = JsonNull::class)
-public object JsonNullSerializer : KSerializer<JsonNull> {
+@PublishedApi
+internal object JsonNullSerializer : KSerializer<JsonNull> {
     // technically, JsonNull is an object, but it does not call beginStructure/endStructure at all
     override val descriptor: SerialDescriptor =
         buildSerialDescriptor("kotlinx.serialization.json.JsonNull", SerialKind.ENUM)
@@ -138,7 +142,8 @@ private object JsonLiteralSerializer : KSerializer<JsonLiteral> {
  * It can only be used by with [Json] format an its input ([JsonDecoder] and [JsonEncoder]).
  */
 @Serializer(forClass = JsonObject::class)
-public object JsonObjectSerializer : KSerializer<JsonObject> {
+@PublishedApi
+internal object JsonObjectSerializer : KSerializer<JsonObject> {
     override val descriptor: SerialDescriptor =
         NamedMapClassDescriptor(
             "kotlinx.serialization.json.JsonObject",
@@ -162,7 +167,8 @@ public object JsonObjectSerializer : KSerializer<JsonObject> {
  * It can only be used by with [Json] format an its input ([JsonDecoder] and [JsonEncoder]).
  */
 @Serializer(forClass = JsonArray::class)
-public object JsonArraySerializer : KSerializer<JsonArray> {
+@PublishedApi
+internal object JsonArraySerializer : KSerializer<JsonArray> {
 
     override val descriptor: SerialDescriptor = NamedListClassDescriptor(
         "kotlinx.serialization.json.JsonArray",

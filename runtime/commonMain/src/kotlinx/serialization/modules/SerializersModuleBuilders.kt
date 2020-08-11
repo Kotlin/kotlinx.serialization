@@ -1,9 +1,6 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-
-@file:Suppress("RedundantVisibilityModifier")
-
 package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
@@ -30,7 +27,7 @@ public inline fun <reified T : Any> serializersModuleOf(serializer: KSerializer<
  * it is possible to copy whole another module to this builder with [SerializersModule.dumpTo]
  */
 @Suppress("FunctionName")
-public fun SerializersModule(builderAction: SerializersModuleBuilder.() -> Unit): SerializersModule {
+public inline fun SerializersModule(builderAction: SerializersModuleBuilder.() -> Unit): SerializersModule {
     val builder = SerializersModuleBuilder()
     builder.builderAction()
     return builder.build()
@@ -39,7 +36,8 @@ public fun SerializersModule(builderAction: SerializersModuleBuilder.() -> Unit)
 /**
  * A builder class for [SerializersModule] DSL. To create an instance of builder, use [SerializersModule] factory function.
  */
-public class SerializersModuleBuilder internal constructor() : SerializersModuleCollector {
+@OptIn(ExperimentalSerializationApi::class)
+public class SerializersModuleBuilder @PublishedApi internal constructor() : SerializersModuleCollector {
     private val class2Serializer: MutableMap<KClass<*>, KSerializer<*>> = hashMapOf()
     private val polyBase2Serializers: MutableMap<KClass<*>, MutableMap<KClass<*>, KSerializer<*>>> = hashMapOf()
     private val polyBase2NamedSerializers: MutableMap<KClass<*>, MutableMap<String, KSerializer<*>>> = hashMapOf()
@@ -166,6 +164,7 @@ public class SerializersModuleBuilder internal constructor() : SerializersModule
         names[name] = concreteSerializer
     }
 
+    @PublishedApi
     internal fun build(): SerializersModule =
         SerialModuleImpl(class2Serializer, polyBase2Serializers, polyBase2NamedSerializers, polyBase2DefaultProvider)
 }
@@ -189,7 +188,7 @@ public inline fun <reified T : Any> SerializersModuleBuilder.contextual(serializ
  *
  * @see PolymorphicSerializer
  */
-public fun <Base : Any> SerializersModuleBuilder.polymorphic(
+public inline fun <Base : Any> SerializersModuleBuilder.polymorphic(
     baseClass: KClass<Base>,
     baseSerializer: KSerializer<Base>? = null,
     builderAction: PolymorphicModuleBuilder<Base>.() -> Unit = {}

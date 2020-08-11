@@ -39,6 +39,7 @@ import kotlinx.serialization.modules.*
  * @param serializersModule A [SerializersModule] which should contain registered serializers
  * for [Contextual] and [Polymorphic] serialization, if you have any.
  */
+@ExperimentalSerializationApi
 public sealed class Properties(
     override val serializersModule: SerializersModule,
     ctorMarker: Nothing?
@@ -104,6 +105,7 @@ public sealed class Properties(
      * Encodes properties from the given [value] to a map using the given [serializer].
      * `null` values are omitted from the output.
      */
+    @ExperimentalSerializationApi
     public fun <T> encodeToMap(serializer: SerializationStrategy<T>, value: T): Map<String, Any> {
         val m = OutMapper()
         m.encodeSerializableValue(serializer, value)
@@ -114,6 +116,7 @@ public sealed class Properties(
      * Decodes properties from the given [map] to a value of type [T] using the given [deserializer].
      * [T] may contain properties of nullable types; they will be filled by non-null values from the [map], if present.
      */
+    @ExperimentalSerializationApi
     public fun <T> decodeFromMap(deserializer: DeserializationStrategy<T>, map: Map<String, Any>): T {
         val m = InMapper(map, deserializer.descriptor)
         return m.decodeSerializableValue(deserializer)
@@ -135,20 +138,24 @@ public sealed class Properties(
     /**
      * A [Properties] instance that can be used as default and does not have any [SerializersModule] installed.
      */
+    @ExperimentalSerializationApi
     public companion object Default : Properties(EmptySerializersModule, null)
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 private class PropertiesImpl(serializersModule: SerializersModule) : Properties(serializersModule, null)
 
 /**
  * Creates an instance of [Properties] with a given [module].
  */
+@ExperimentalSerializationApi
 public fun Properties(module: SerializersModule): Properties = PropertiesImpl(module)
 
 /**
  * Encodes properties from given [value] to a map using serializer for reified type [T] and returns this map.
  * `null` values are omitted from the output.
  */
+@ExperimentalSerializationApi
 public inline fun <reified T> Properties.encodeToMap(value: T): Map<String, Any> =
     encodeToMap(serializersModule.serializer(), value)
 
@@ -156,6 +163,7 @@ public inline fun <reified T> Properties.encodeToMap(value: T): Map<String, Any>
  * Decodes properties from given [map], assigns them to an object using serializer for reified type [T] and returns this object.
  * [T] may contain properties of nullable types; they will be filled by non-null values from the [map], if present.
  */
+@ExperimentalSerializationApi
 public inline fun <reified T> Properties.decodeFromMap(map: Map<String, Any>): T =
     decodeFromMap(serializersModule.serializer(), map)
 

@@ -21,6 +21,7 @@ import kotlin.reflect.*
  * For application-level serialization, it is recommended to use `serializer<T>()` instead as it is aware of
  * Kotlin-specific type information, such as nullability, sealed classes and object.
  */
+@ExperimentalSerializationApi
 public fun serializer(type: Type): KSerializer<Any> = EmptySerializersModule.serializer(type)
 
 /**
@@ -33,6 +34,7 @@ public fun serializer(type: Type): KSerializer<Any> = EmptySerializersModule.ser
  * For application-level serialization, it is recommended to use `serializer<T>()` instead as it is aware of
  * Kotlin-specific type information, such as nullability, sealed classes and object singletons.
  */
+@ExperimentalSerializationApi
 public fun SerializersModule.serializer(type: Type): KSerializer<Any> = when (type) {
     is GenericArrayType -> {
         genericArraySerializer(type)
@@ -66,6 +68,7 @@ public fun SerializersModule.serializer(type: Type): KSerializer<Any> = when (ty
     else -> throw IllegalArgumentException("typeToken should be an instance of Class<?>, GenericArray, ParametrizedType or WildcardType, but actual type is $type ${type::class}")
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 private fun SerializersModule.typeSerializer(type: Class<*>): KSerializer<Any> {
     return if (!type.isArray) {
         reflectiveOrContextual(type.kotlin as KClass<Any>)
@@ -77,6 +80,7 @@ private fun SerializersModule.typeSerializer(type: Class<*>): KSerializer<Any> {
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 private fun SerializersModule.genericArraySerializer(type: GenericArrayType): KSerializer<Any> {
     val eType = type.genericComponentType.let {
         when (it) {
@@ -93,6 +97,7 @@ private fun SerializersModule.genericArraySerializer(type: GenericArrayType): KS
     return ArraySerializer(kclass, serializer) as KSerializer<Any>
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 private fun <T: Any> SerializersModule.reflectiveOrContextual(kClass: KClass<T>): KSerializer<T> {
     return kClass.serializerOrNull() ?: getContextual(kClass) ?: kClass.serializerNotRegistered()
 }

@@ -19,6 +19,7 @@ buildscript {
 
     ext.experimentalsInTestEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
                                       "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
+                                      "-Xuse-experimental=kotlinx.serialization.ExperimentalSerializationApi",
                                       "-Xuse-experimental=kotlinx.serialization.InternalSerializationApi",
                                       "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
     ]

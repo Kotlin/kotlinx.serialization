@@ -63,6 +63,7 @@ import kotlin.reflect.*
  * @param T A root class for all classes that could be possibly encountered during serialization and deserialization.
  * @param baseClass A class token for [T].
  */
+@OptIn(ExperimentalSerializationApi::class)
 public abstract class JsonContentPolymorphicSerializer<T : Any>(private val baseClass: KClass<T>) : KSerializer<T> {
     /**
      * A descriptor for this set of content-based serializers.

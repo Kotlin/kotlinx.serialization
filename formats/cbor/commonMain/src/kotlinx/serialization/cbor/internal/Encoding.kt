@@ -1,6 +1,7 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+@file:OptIn(ExperimentalSerializationApi::class)
 
 package kotlinx.serialization.cbor.internal
 
@@ -50,6 +51,7 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
 
     private var encodeByteArrayAsByteString = false
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
         if (encodeByteArrayAsByteString && serializer.descriptor == ByteArraySerializer().descriptor) {
             encoder.encodeByteString(value as ByteArray)
@@ -58,11 +60,13 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
         }
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = cbor.encodeDefaults
 
     protected open fun writeBeginToken() = encoder.startMap()
 
     //todo: Write size of map or array if known
+    @OptIn(ExperimentalSerializationApi::class)
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
         val writer = when (descriptor.kind) {
             StructureKind.LIST, is PolymorphicKind -> CborListWriter(cbor, encoder)
@@ -75,6 +79,7 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
 
     override fun endStructure(descriptor: SerialDescriptor) = encoder.end()
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         encodeByteArrayAsByteString = descriptor.isByteString(index)
         val name = descriptor.getElementName(index)
@@ -212,6 +217,7 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
 
     protected open fun skipBeginToken() = setSize(decoder.startMap())
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         val re = when (descriptor.kind) {
             StructureKind.LIST, is PolymorphicKind -> CborListReader(cbor, decoder)
@@ -235,8 +241,10 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
         return index
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
         return if (decodeByteArrayAsByteString && deserializer.descriptor == ByteArraySerializer().descriptor) {
+            @Suppress("UNCHECKED_CAST")
             decoder.nextByteString() as T
         } else {
             super.decodeSerializableValue(deserializer)
@@ -435,6 +443,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 private fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
     val index = getElementIndex(name)
     if (index == CompositeDecoder.UNKNOWN_NAME)
@@ -454,6 +463,7 @@ private fun Iterable<ByteArray>.flatten(): ByteArray {
     return output
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 private fun SerialDescriptor.isByteString(index: Int): Boolean =
     getElementDescriptor(index) == ByteArraySerializer().descriptor &&
         getElementAnnotations(index).find { it is ByteString } != null

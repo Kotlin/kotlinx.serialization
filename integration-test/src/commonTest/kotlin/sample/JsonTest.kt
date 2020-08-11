@@ -87,6 +87,7 @@ class JsonTest {
     }
 
     @Test
+    @OptIn(ExperimentalSerializationApi::class)
     fun testDescriptor() {
         val desc = Holder.serializer().descriptor
         assertEquals(PolymorphicSerializer(IMessage::class).descriptor, desc.getElementDescriptor(0))
@@ -126,7 +127,7 @@ class JsonTest {
     }
 
     @Suppress("NAME_SHADOWING")
-    private fun checkNotRegisteredMessage(className: String, scopeName: String, exception: SerializationException) {
+    private fun checkNotRegisteredMessage(exception: SerializationException) {
         val expectedText =
             "is not registered for polymorphic serialization in the scope of"
         assertEquals(true, exception.message?.contains(expectedText))
@@ -135,7 +136,6 @@ class JsonTest {
     @Test
     fun failWithoutModulesWithCustomClass() {
         checkNotRegisteredMessage(
-            "sample.IntData", "kotlin.Any",
             assertFailsWith<SerializationException>("not registered") {
                 Json.encodeToString(
                     MyPolyData.serializer(),
@@ -164,7 +164,6 @@ class JsonTest {
     fun failWithModulesNotInAnyScope() {
         val json = Json { serializersModule = BaseAndDerivedModule }
         checkNotRegisteredMessage(
-            "sample.PolyDerived", "kotlin.Any",
             assertFailsWith<SerializationException> {
                 json.encodeToString(
                     MyPolyData.serializer(),
@@ -199,7 +198,6 @@ class JsonTest {
     fun failWithModulesNotInParticularScope() {
         val json = Json { serializersModule = baseAndDerivedModuleAtAny }
         checkNotRegisteredMessage(
-            "sample.PolyDerived", "sample.PolyBase",
             assertFailsWith<SerializationException> {
                 json.encodeToString(
                     MyPolyDataWithPolyBase.serializer(),
@@ -244,7 +242,7 @@ inline fun <reified T : Any> assertStringFormAndRestored(
     expected: String,
     original: T,
     serializer: KSerializer<T>,
-    format: StringFormat = Json,
+    format: Json = Json,
     printResult: Boolean = false
 ) {
     val string = format.encodeToString(serializer, original)

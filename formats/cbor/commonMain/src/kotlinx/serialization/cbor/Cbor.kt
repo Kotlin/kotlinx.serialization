@@ -5,6 +5,7 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.cbor.internal.ByteArrayInput
 import kotlinx.serialization.cbor.internal.ByteArrayOutput
 import kotlinx.serialization.cbor.internal.*
@@ -25,6 +26,7 @@ import kotlinx.serialization.modules.*
  *
  * @param encodeDefaults specifies whether default values of Kotlin properties are encoded.
  */
+@ExperimentalSerializationApi
 public sealed class Cbor(
     internal val encodeDefaults: Boolean,
     override val serializersModule: SerializersModule,
@@ -50,6 +52,7 @@ public sealed class Cbor(
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 private class CborImpl(encodeDefaults: Boolean, serializersModule: SerializersModule) :
     Cbor(encodeDefaults, serializersModule, null)
 
@@ -57,6 +60,7 @@ private class CborImpl(encodeDefaults: Boolean, serializersModule: SerializersMo
  * Creates an instance of [Cbor] configured from the optionally given [Cbor instance][from]
  * and adjusted with [builderAction].
  */
+@ExperimentalSerializationApi
 public fun Cbor(from: Cbor = Cbor, builderAction: CborBuilder.() -> Unit): Cbor {
     val builder = CborBuilder(from)
     builder.builderAction()
@@ -66,6 +70,7 @@ public fun Cbor(from: Cbor = Cbor, builderAction: CborBuilder.() -> Unit): Cbor 
 /**
  * Builder of the [Cbor] instance provided by `Cbor` factory function.
  */
+@ExperimentalSerializationApi
 public class CborBuilder internal constructor(cbor: Cbor) {
 
     /**

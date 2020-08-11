@@ -19,7 +19,15 @@ import kotlinx.serialization.modules.*
  *
  * Typically, formats have their specific [Encoder] and [Decoder] implementations
  * as private classes and do not expose them.
+ *
+ * ### Not stable for inheritance
+ *
+ * `SerialFormat` interface is not stable for inheritance in 3rd party libraries, as new methods
+ * might be added to this interface or contracts of the existing methods can be changed.
+ *
+ * It is safe to operate with instances of `BinaryFormat` and call its methods.
  */
+@ExperimentalSerializationApi
 public interface SerialFormat {
     /**
      * Contains all serializers registered by format user for [Contextual] and [Polymorphic] serialization.
@@ -31,7 +39,15 @@ public interface SerialFormat {
 
 /**
  * [SerialFormat] that allows conversions to and from [ByteArray] via [encodeToByteArray] and [decodeFromByteArray] methods.
+ *
+ * ### Not stable for inheritance
+ *
+ * `BinaryFormat` interface is not stable for inheritance in 3rd party libraries, as new methods
+ * might be added to this interface or contracts of the existing methods can be changed.
+ *
+ * It is safe to operate with instances of `BinaryFormat` and call its methods.
  */
+@ExperimentalSerializationApi
 public interface BinaryFormat : SerialFormat {
 
     /**
@@ -47,7 +63,15 @@ public interface BinaryFormat : SerialFormat {
 
 /**
  * [SerialFormat] that allows conversions to and from [String] via [encodeToString] and [decodeFromString] methods.
+ *
+ * ### Not stable for inheritance
+ *
+ * `StringFormat` interface is not stable for inheritance in 3rd party libraries, as new methods
+ * might be added to this interface or contracts of the existing methods can be changed.
+ *
+ * It is safe to operate with instances of `StringFormat` and call its methods.
  */
+@ExperimentalSerializationApi
 public interface StringFormat : SerialFormat {
 
     /**
@@ -64,6 +88,7 @@ public interface StringFormat : SerialFormat {
 /**
  * Serializes and encodes the given [value] to string using serializer retrieved from the reified type parameter.
  */
+@OptIn(ExperimentalSerializationApi::class)
 public inline fun <reified T> StringFormat.encodeToString(value: T): String =
     encodeToString(serializersModule.serializer(), value)
 
@@ -71,6 +96,7 @@ public inline fun <reified T> StringFormat.encodeToString(value: T): String =
  * Decodes and deserializes the given [string] to to the value of type [T] using deserializer
  * retrieved from the reified type parameter.
  */
+@OptIn(ExperimentalSerializationApi::class)
 public inline fun <reified T> StringFormat.decodeFromString(string: String): T =
     decodeFromString(serializersModule.serializer(), string)
 
@@ -83,6 +109,7 @@ public inline fun <reified T> StringFormat.decodeFromString(string: String): T =
  * only applies transformation to the resulting array. It is recommended to use for debugging and
  * testing purposes.
  */
+@OptIn(ExperimentalSerializationApi::class)
 public fun <T> BinaryFormat.encodeToHexString(serializer: SerializationStrategy<T>, value: T): String =
     InternalHexConverter.printHexBinary(encodeToByteArray(serializer, value), lowerCase = true)
 
@@ -92,6 +119,7 @@ public fun <T> BinaryFormat.encodeToHexString(serializer: SerializationStrategy<
  *
  * This method is a counterpart to [encodeToHexString]
  */
+@OptIn(ExperimentalSerializationApi::class)
 public fun <T> BinaryFormat.decodeFromHexString(deserializer: DeserializationStrategy<T>, hex: String): T =
     decodeFromByteArray(deserializer, InternalHexConverter.parseHexBinary(hex))
 
@@ -103,6 +131,7 @@ public fun <T> BinaryFormat.decodeFromHexString(deserializer: DeserializationStr
  * only applies transformation to the resulting array. It is recommended to use for debugging and
  * testing purposes.
  */
+@OptIn(ExperimentalSerializationApi::class)
 public inline fun <reified T> BinaryFormat.encodeToHexString(value: T): String =
     encodeToHexString(serializersModule.serializer(), value)
 
@@ -112,6 +141,7 @@ public inline fun <reified T> BinaryFormat.encodeToHexString(value: T): String =
  *
  * This method is a counterpart to [encodeToHexString]
  */
+@OptIn(ExperimentalSerializationApi::class)
 public inline fun <reified T> BinaryFormat.decodeFromHexString(hex: String): T =
     decodeFromHexString(serializersModule.serializer(), hex)
 
@@ -119,6 +149,7 @@ public inline fun <reified T> BinaryFormat.decodeFromHexString(hex: String): T =
  * Serializes and encodes the given [value] to byte array using serializer
  * retrieved from the reified type parameter.
  */
+@OptIn(ExperimentalSerializationApi::class)
 public inline fun <reified T> BinaryFormat.encodeToByteArray(value: T): ByteArray =
     encodeToByteArray(serializersModule.serializer(), value)
 
@@ -126,5 +157,6 @@ public inline fun <reified T> BinaryFormat.encodeToByteArray(value: T): ByteArra
  * Decodes and deserializes the given [byte array][bytes] to to the value of type [T] using deserializer
  * retrieved from the reified type parameter.
  */
+@OptIn(ExperimentalSerializationApi::class)
 public inline fun <reified T> BinaryFormat.decodeFromByteArray(bytes: ByteArray): T =
     decodeFromByteArray(serializersModule.serializer(), bytes)

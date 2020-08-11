@@ -4,10 +4,12 @@
 
 package kotlinx.serialization.json.internal
 
+import kotlinx.serialization.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
 
 // Mirror of the deprecated JsonConfiguration. Not for external use.
+@OptIn(ExperimentalSerializationApi::class)
 internal data class JsonConf(
     @JvmField public val encodeDefaults: Boolean = true,
     @JvmField public val ignoreUnknownKeys: Boolean = false,

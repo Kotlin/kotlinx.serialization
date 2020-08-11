@@ -7,6 +7,7 @@ package kotlinx.serialization.encoding
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.builtins.*
 
 /**
  * Decoder is a core deserialization primitive that encapsulates the knowledge of the underlying
@@ -99,6 +100,11 @@ import kotlinx.serialization.modules.*
  *     ...
  * }
  * ```
+ *
+ * ### Not stable for inheritance
+ *
+ * `Decoder` interface is not stable for inheritance in 3rd party libraries, as new methods
+ * might be added to this interface or contracts of the existing methods can be changed.
  */
 public interface Decoder {
     /**
@@ -126,11 +132,13 @@ public interface Decoder {
      * }
      * ```
      */
+    @ExperimentalSerializationApi
     public fun decodeNotNullMark(): Boolean
 
     /**
      * Decodes the `null` value and returns it.
      */
+    @ExperimentalSerializationApi
     public fun decodeNull(): Nothing?
 
     /**
@@ -228,7 +236,7 @@ public interface Decoder {
 
     /**
      * Decodes the value of type [T] by delegating the decoding process to the given [deserializer].
-     * For example, `decodeInt` call us equivalent to delegating integer decoding to [Int.serializer]:
+     * For example, `decodeInt` call us equivalent to delegating integer decoding to [Int.serializer][Int.Companion.serializer]:
      * `decodeSerializableValue(IntSerializer)`
      */
     public fun <T : Any?> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T =
@@ -237,6 +245,7 @@ public interface Decoder {
     /**
      * Decodes the nullable value of type [T] by delegating the decoding process to the given [deserializer].
      */
+    @ExperimentalSerializationApi
     public fun <T : Any> decodeNullableSerializableValue(deserializer: DeserializationStrategy<T?>): T? {
         val isNullabilitySupported = deserializer.descriptor.isNullable
         return if (isNullabilitySupported || decodeNotNullMark()) decodeSerializableValue(deserializer) else decodeNull()
@@ -249,6 +258,7 @@ public interface Decoder {
     }
 
     // Not documented
+    @OptIn(ExperimentalSerializationApi::class)
     @Suppress("DeprecatedCallableAddReplaceWith")
     @Deprecated(updateMethodDeprecated, level = DeprecationLevel.ERROR)
     public fun <T : Any> updateNullableSerializableValue(deserializer: DeserializationStrategy<T?>, old: T?): T? {
@@ -271,6 +281,11 @@ public interface Decoder {
  *      has returned from the last call.
  *
  * The symmetric interface for the serialization process is [CompositeEncoder].
+ *
+ * ### Not stable for inheritance
+ *
+ * `CompositeDecoder` interface is not stable for inheritance in 3rd party libraries, as new methods
+ * might be added to this interface or contracts of the existing methods can be changed.
  */
 public interface CompositeDecoder {
 
@@ -358,6 +373,7 @@ public interface CompositeDecoder {
      * because e.g. in the latter example, the same data can be represented both as
      * `{"i": 1, "d": 1.0}`"` and `{"d": 1.0, "i": 1}` (thus, unordered).
      */
+    @ExperimentalSerializationApi
     public fun decodeSequentially(): Boolean = false
 
     /**
@@ -523,6 +539,7 @@ public interface CompositeDecoder {
      * or apply format-specific aggregating strategies, e.g. appending scattered Protobuf lists to a single one.
      */
     @Suppress("DEPRECATION_ERROR")
+    @ExperimentalSerializationApi
     public fun <T : Any> decodeNullableSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
@@ -533,6 +550,7 @@ public interface CompositeDecoder {
     @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE", "DeprecatedCallableAddReplaceWith")
     @kotlin.internal.LowPriorityInOverloadResolution
     @Deprecated(decodeMethodDeprecated, level = DeprecationLevel.ERROR)
+    @OptIn(ExperimentalSerializationApi::class)
     public fun <T : Any> decodeNullableSerializableElement(
         descriptor: SerialDescriptor,
         i: Int, // renamed from index to be called even with LowPriority
@@ -558,6 +576,7 @@ public interface CompositeDecoder {
         ReplaceWith("decodeNullableSerializableElement(descriptor, index, deserializer, old)"),
         level = DeprecationLevel.ERROR
     )
+    @OptIn(ExperimentalSerializationApi::class)
     public fun <T : Any> updateNullableSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
@@ -571,14 +590,15 @@ public interface CompositeDecoder {
  */
 public inline fun <T> Decoder.decodeStructure(
     descriptor: SerialDescriptor,
-    crossinline block: CompositeDecoder.() -> T
+    block: CompositeDecoder.() -> T
 ): T {
     val composite = beginStructure(descriptor)
-    val result = composite.block()
-    composite.endStructure(descriptor)
-    return result
+    try {
+        return composite.block()
+    } finally {
+        composite.endStructure(descriptor)
+    }
 }
-
 
 internal const val updateModeDeprecated = "Update mode in Decoder is deprecated for removal. " +
         "Update behaviour is now considered an implementation detail of the format that should not concern serializer."

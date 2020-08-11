@@ -1,7 +1,7 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-
+@file:OptIn(ExperimentalSerializationApi::class)
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
@@ -12,7 +12,8 @@ import kotlin.reflect.*
 
 @InternalSerializationApi
 @Deprecated(
-    level = DeprecationLevel.ERROR,  message = "HexConverter slipped into public API surface accidentally and will be removed in the future releases. " +
+    level = DeprecationLevel.ERROR,
+    message = "HexConverter slipped into public API surface accidentally and will be removed in the future releases. " +
             "You can copy-paste it to your project or (better) find a polished implementation that initially was intended for public uses."
 )
 public object HexConverter {

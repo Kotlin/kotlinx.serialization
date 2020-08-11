@@ -5,7 +5,6 @@
 package kotlinx.serialization.protobuf.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.protobuf.*
 import kotlin.jvm.*
 
 /*

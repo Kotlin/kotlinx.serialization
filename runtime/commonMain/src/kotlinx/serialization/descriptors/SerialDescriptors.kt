@@ -28,6 +28,7 @@ import kotlin.reflect.*
  *     // intField is deliberately ignored by serializer -- not present in the descriptor as well
  *     element<Long>("_longField") // longField is named as _longField
  *     element("stringField", listDescriptor<String>())
+ *     element("nullableInt", descriptor<Int>().nullable)
  * }
  * ```
  *
@@ -36,16 +37,17 @@ import kotlin.reflect.*
  * @Serializable(CustomSerializer::class)
  * class BoxedList<T>(val list: List<T>)
  *
- * class CustomSerializer<T>(typeParamSerializer: KSerializer<T>): KSerializer<BoxedList<T>> {
- *   // here we use typeParamSerializer.descriptor because it represents T
+ * class CustomSerializer<T>(tSerializer: KSerializer<T>): KSerializer<BoxedList<T>> {
+ *   // here we use tSerializer.descriptor because it represents T
  *   override val descriptor = SerialDescriptor("pkg.BoxedList", CLASS, typeParamSerializer.descriptor) {
- *     // here we need to wrap it with List first, because property has type List<T>
- *     element("list", typeParamSerializer.list.descriptor) // or listDescriptor(typeParamSerializer.descriptor)
+ *     // here we have to wrap it with List first, because property has type List<T>
+ *     element("list", ListSerializer(tSerializer).descriptor) // or listSerialDescriptor(tSerializer.descriptor)
  *   }
  * }
  * ```
  */
 @Suppress("FunctionName")
+@OptIn(ExperimentalSerializationApi::class)
 public fun buildClassSerialDescriptor(
     serialName: String,
     vararg typeParameters: SerialDescriptor,
@@ -72,7 +74,7 @@ public fun buildClassSerialDescriptor(
  *         PrimitiveDescriptor("kotlinx.serialization.LongAsStringSerializer", PrimitiveKind.STRING)
  *
  *     override fun serialize(encoder: Encoder, value: Long) {
- *         encoder.encodeString(obj.toString())
+ *         encoder.encodeString(value.toString())
  *     }
  *
  *     override fun deserialize(decoder: Decoder): Long {
@@ -94,6 +96,7 @@ public fun PrimitiveSerialDescriptor(serialName: String, kind: PrimitiveKind): S
  * If you end up using this builder, please file an issue with your use-case in kotlinx.serialization
  */
 @InternalSerializationApi
+@OptIn(ExperimentalSerializationApi::class)
 public fun buildSerialDescriptor(
     serialName: String,
     kind: SerialKind,
@@ -121,6 +124,7 @@ public fun serialDescriptor(type: KType): SerialDescriptor = serializer(type).de
 /**
  * Creates a descriptor for the type `List<T>` where `T` is the type associated with [elementDescriptor].
  */
+@ExperimentalSerializationApi
 public fun listSerialDescriptor(elementDescriptor: SerialDescriptor): SerialDescriptor {
     return ArrayListClassDesc(elementDescriptor)
 }
@@ -128,6 +132,7 @@ public fun listSerialDescriptor(elementDescriptor: SerialDescriptor): SerialDesc
 /**
  * Creates a descriptor for the type `List<T>`.
  */
+@ExperimentalSerializationApi
 public inline fun <reified T> listSerialDescriptor(): SerialDescriptor {
     return listSerialDescriptor(serializer<T>().descriptor)
 }
@@ -136,6 +141,7 @@ public inline fun <reified T> listSerialDescriptor(): SerialDescriptor {
  * Creates a descriptor for the type `Map<K, V>` where `K` and `V` are types
  * associated with [keyDescriptor] and [valueDescriptor] respectively.
  */
+@ExperimentalSerializationApi
 public fun mapSerialDescriptor(
     keyDescriptor: SerialDescriptor,
     valueDescriptor: SerialDescriptor
@@ -146,6 +152,7 @@ public fun mapSerialDescriptor(
 /**
  * Creates a descriptor for the type `Map<K, V>`.
  */
+@ExperimentalSerializationApi
 public inline fun <reified K, reified V> mapSerialDescriptor(): SerialDescriptor {
     return mapSerialDescriptor(serializer<K>().descriptor, serializer<V>().descriptor)
 }
@@ -153,6 +160,7 @@ public inline fun <reified K, reified V> mapSerialDescriptor(): SerialDescriptor
 /**
  * Creates a descriptor for the type `Set<T>` where `T` is the type associated with [elementDescriptor].
  */
+@ExperimentalSerializationApi
 public fun setSerialDescriptor(elementDescriptor: SerialDescriptor): SerialDescriptor {
     return HashSetClassDesc(elementDescriptor)
 }
@@ -160,6 +168,7 @@ public fun setSerialDescriptor(elementDescriptor: SerialDescriptor): SerialDescr
 /**
  * Creates a descriptor for the type `Set<T>`.
  */
+@ExperimentalSerializationApi
 public inline fun <reified T> setSerialDescriptor(): SerialDescriptor {
     return setSerialDescriptor(serializer<T>().descriptor)
 }
@@ -168,6 +177,7 @@ public inline fun <reified T> setSerialDescriptor(): SerialDescriptor {
  * Returns new serial descriptor for the same type with [isNullable][SerialDescriptor.isNullable]
  * property set to `true`.
  */
+@OptIn(ExperimentalSerializationApi::class)
 public val SerialDescriptor.nullable: SerialDescriptor
     get() {
         if (this.isNullable) return this
@@ -188,15 +198,18 @@ public class ClassSerialDescriptorBuilder internal constructor(
     public val serialName: String
 ) {
 
-    @Deprecated(
-        "isNullable was deprecated during serialization 1.0 API stabilization. ",
-        level = DeprecationLevel.ERROR
-    )
+    /**
+     * Indicates that serializer associated with the current serial descriptor
+     * support nullable types, meaning that it should declare nullable type
+     * in its [KSerializer] type parameter and handle nulls during encoding and decoding.
+     */
+    @ExperimentalSerializationApi
     public var isNullable: Boolean = false
 
     /**
      * [Serial][SerialInfo] annotations on a target type.
      */
+    @ExperimentalSerializationApi
     public var annotations: List<Annotation> = emptyList()
 
     internal val elementNames: MutableList<String> = ArrayList()
@@ -235,20 +248,6 @@ public class ClassSerialDescriptorBuilder internal constructor(
         elementAnnotations += annotations
         elementOptionality += isOptional
     }
-
-    /**
-     * A reified version of [element] function that
-     * extract descriptor using `serializer<T>().descriptor` call with all the restrictions of `serializer<T>().descriptor`.
-     */
-    public inline fun <reified T> element(
-        elementName: String,
-        annotations: List<Annotation> = emptyList(),
-        isOptional: Boolean = false
-    ) {
-        val descriptor = serializer<T>().descriptor
-        element(elementName, descriptor, annotations, isOptional)
-    }
-
 
     @Deprecated(
         "Renamed to serialDescriptor() during serialization 1.0 API stabilization",
@@ -297,6 +296,20 @@ public class ClassSerialDescriptorBuilder internal constructor(
     public inline fun <reified T> setDescriptor(): SerialDescriptor = setSerialDescriptor(serializer<T>().descriptor)
 }
 
+/**
+ * A reified version of [element] function that
+ * extract descriptor using `serializer<T>().descriptor` call with all the restrictions of `serializer<T>().descriptor`.
+ */
+public inline fun <reified T> ClassSerialDescriptorBuilder.element(
+    elementName: String,
+    annotations: List<Annotation> = emptyList(),
+    isOptional: Boolean = false
+) {
+    val descriptor = serializer<T>().descriptor
+    element(elementName, descriptor, annotations, isOptional)
+}
+
+@OptIn(ExperimentalSerializationApi::class)
 internal class SerialDescriptorImpl(
     override val serialName: String,
     override val kind: SerialKind,

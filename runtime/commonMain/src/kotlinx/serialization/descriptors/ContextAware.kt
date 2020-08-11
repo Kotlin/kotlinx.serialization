@@ -42,6 +42,7 @@ import kotlin.reflect.*
  * @see SerializersModule.getContextualDescriptor
  * @see SerializersModule.getPolymorphicDescriptors
  */
+@ExperimentalSerializationApi
 public val SerialDescriptor.capturedKClass: KClass<*>?
     get() = when (this) {
         is ContextDescriptor -> kClass
@@ -55,6 +56,7 @@ public val SerialDescriptor.capturedKClass: KClass<*>?
  *
  * @see SerializersModuleBuilder.contextual
  */
+@ExperimentalSerializationApi
 public fun SerializersModule.getContextualDescriptor(descriptor: SerialDescriptor): SerialDescriptor? =
     descriptor.capturedKClass?.let { klass -> getContextual(klass)?.descriptor }
 
@@ -66,6 +68,7 @@ public fun SerializersModule.getContextualDescriptor(descriptor: SerialDescripto
  * @see SerializersModule.getPolymorphic
  * @see SerializersModuleBuilder.polymorphic
  */
+@ExperimentalSerializationApi
 public fun SerializersModule.getPolymorphicDescriptors(descriptor: SerialDescriptor): List<SerialDescriptor> {
     val kClass = descriptor.capturedKClass ?: return emptyList()
     // SerializersModule is sealed class with the only implementation
@@ -82,6 +85,7 @@ internal fun SerialDescriptor.withContext(context: KClass<*>): SerialDescriptor 
  * Descriptor that captures [kClass] and allows retrieving additional runtime information,
  * if proper [SerializersModule] is provided.
  */
+@OptIn(ExperimentalSerializationApi::class)
 private class ContextDescriptor(
     private val original: SerialDescriptor,
     @JvmField val kClass: KClass<*>
