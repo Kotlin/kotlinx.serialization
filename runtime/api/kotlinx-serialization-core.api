@@ -484,6 +484,7 @@ public abstract class kotlinx/serialization/encoding/AbstractEncoder : kotlinx/s
 	public fun encodeString (Ljava/lang/String;)V
 	public final fun encodeStringElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILjava/lang/String;)V
 	public fun encodeValue (Ljava/lang/Object;)V
+	public fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
 	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 	public fun shouldEncodeElementDefault (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
 }

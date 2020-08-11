@@ -148,10 +148,7 @@ internal class StreamingJsonDecoder internal constructor(
             }
 
             if (isUnknown && !configuration.ignoreUnknownKeys) {
-                reader.fail(
-                    "Encountered an unknown key '$key'. You can enable 'JsonBuilder.ignoreUnknownKeys' property" +
-                            " to ignore unknown keys"
-                )
+                reader.fail("Encountered an unknown key '$key'.\n$ignoreUnknownKeysHint")
             } else {
                 reader.skipElement()
             }

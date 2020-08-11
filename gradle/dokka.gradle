@@ -41,3 +41,10 @@ dokka {
         'native' {}
     }
 }
+
+dokka.doLast {
+    copy {
+        from 'dokka/style.css'
+        into "$buildDir/dokka"
+    }
+}

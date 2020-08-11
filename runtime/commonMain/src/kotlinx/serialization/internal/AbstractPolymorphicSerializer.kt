@@ -97,13 +97,16 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
 
 @JvmName("throwSubtypeNotRegistered")
 internal fun throwSubtypeNotRegistered(subClassName: String?, baseClass: KClass<*>): Nothing {
-    val prefix =
-        if (subClassName == null) "Class discriminator was missing and no default polymorphic serializers were registered"
-        else "Discriminator '$subClassName' is not registered for polymorphic serialization"
-    throw SerializationException("$prefix in the scope of $baseClass")
+    val scope = "in the scope of '${baseClass.simpleName}'"
+    throw SerializationException(
+        if (subClassName == null)
+            "Class discriminator was missing and no default polymorphic serializers were registered $scope"
+        else
+            "Class '$subClassName' is not registered for polymorphic serialization $scope.\n" +
+            "Mark the base class as 'sealed' or register the serializer explicitly."
+    )
 }
 
 @JvmName("throwSubtypeNotRegistered")
-internal fun throwSubtypeNotRegistered(subClass: KClass<*>, baseClass: KClass<*>): Nothing {
-    throw SerializationException("$subClass is not registered for polymorphic serialization in the scope of $baseClass")
-}
+internal fun throwSubtypeNotRegistered(subClass: KClass<*>, baseClass: KClass<*>): Nothing =
+    throwSubtypeNotRegistered(subClass.simpleName ?: "$subClass", baseClass)

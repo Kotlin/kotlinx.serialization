@@ -7,8 +7,8 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.json.*
 
 /**
  * Generic exception indicating a problem with JSON serialization and deserialization.
@@ -19,7 +19,7 @@ internal open class JsonException(message: String) : SerializationException(mess
  * Thrown when [Json] has failed to parse the given JSON string or deserialize it to a target class.
  */
 internal class JsonDecodingException(offset: Int, message: String) :
-    JsonException("Unexpected JSON token at offset $offset: $message")
+    JsonException(if (offset >= 0) "Unexpected JSON token at offset $offset: $message" else message)
 
 /**
  * Thrown when [Json] has failed to create a JSON string from the given value.
@@ -27,12 +27,12 @@ internal class JsonDecodingException(offset: Int, message: String) :
 internal class JsonEncodingException(message: String) : JsonException(message)
 
 internal fun JsonDecodingException(offset: Int, message: String, input: String) =
-    JsonDecodingException(offset, "$message.\n JSON input: ${input.minify(offset)}")
+    JsonDecodingException(offset, "$message\nJSON input: ${input.minify(offset)}")
 
 internal fun InvalidFloatingPointEncoded(value: Number, output: String) = JsonEncodingException(
     "Unexpected special floating-point value $value. By default, " +
             "non-finite floating point values are prohibited because they do not conform JSON specification. " +
-            "It is possible to serialize them using 'JsonBuilder.allowSpecialFloatingPointValues = true'\n" +
+            "$specialFlowingValuesHint\n" +
             "Current output: ${output.minify()}"
 )
 
@@ -46,26 +46,28 @@ internal fun InvalidFloatingPointDecoded(value: Number, key: String, output: Str
 internal fun JsonReader.throwInvalidFloatingPointDecoded(result: Number): Nothing {
     fail("Unexpected special floating-point value $result. By default, " +
             "non-finite floating point values are prohibited because they do not conform JSON specification. " +
-            "It is possible to deserialize them using 'JsonBuilder.allowSpecialFloatingPointValues = true'")
+            specialFlowingValuesHint
+    )
 }
 
 private fun unexpectedFpErrorMessage(value: Number, key: String, output: String): String {
     return "Unexpected special floating-point value $value with key $key. By default, " +
             "non-finite floating point values are prohibited because they do not conform JSON specification. " +
-            "It is possible to deserialize them using 'JsonBuilder.allowSpecialFloatingPointValues = true'\n" +
+            "$specialFlowingValuesHint\n" +
             "Current output: ${output.minify()}"
 }
 
 internal fun UnknownKeyException(key: String, input: String) = JsonDecodingException(
     -1,
-    "JSON encountered unknown key: '$key'. You can enable 'JsonBuilder.ignoreUnknownKeys' property to ignore unknown keys.\n" +
-            " Current input: ${input.minify()}"
+    "Encountered unknown key '$key'.\n" +
+            "$ignoreUnknownKeysHint\n" +
+            "Current input: ${input.minify()}"
 )
 
 internal fun InvalidKeyKindException(keyDescriptor: SerialDescriptor) = JsonEncodingException(
     "Value of type '${keyDescriptor.serialName}' can't be used in JSON as a key in the map. " +
-            "It should have either primitive or enum kind, but its kind is '${keyDescriptor.kind}.'\n" +
-            "You can convert such maps to arrays [key1, value1, key2, value2,...] using 'JsonBuilder.allowStructuredMapKeys' property"
+            "It should have either primitive or enum kind, but its kind is '${keyDescriptor.kind}'.\n" +
+            allowStructuredMapKeysHint
 )
 
 private fun String.minify(offset: Int = -1): String {

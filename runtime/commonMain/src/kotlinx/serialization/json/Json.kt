@@ -144,7 +144,7 @@ public inline fun <reified T> Json.decodeFromJsonElement(json: JsonElement): T =
     decodeFromJsonElement(serializersModule.serializer(), json)
 
 /**
- * Builder of the [Json] instance provided by `Json` factory function.
+ * Builder of the [Json] instance provided by `Json { ... }` factory function.
  */
 @Suppress("unused", "DeprecatedCallableAddReplaceWith")
 public class JsonBuilder internal constructor(conf: JsonConf) {
@@ -165,6 +165,10 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
      * Removes JSON specification restriction (RFC-4627) and makes parser
      * more liberal to the malformed input. In lenient mode quoted boolean literals,
      * and unquoted string literals are allowed.
+     *
+     * Its relaxations can be expanded in the future, so that lenient parser becomes even more
+     * permissive to invalid value in the input, replacing them with defaults.
+     *
      * `false` by default.
      */
     public var isLenient: Boolean = conf.isLenient
