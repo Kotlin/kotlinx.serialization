@@ -12,7 +12,7 @@ dokka {
     subProjects = ["kotlinx-serialization-core",
                    "kotlinx-serialization-cbor",
                    "kotlinx-serialization-properties",
-//                   "kotlinx-serialization-hocon",  todo: fix publishing of jvm-only docs
+//                   "kotlinx-serialization-hocon",  todo: dokka treats docs as multiplatform while it is jvm-only
                    "kotlinx-serialization-protobuf"]
 
     multiplatform {
@@ -28,11 +28,7 @@ dokka {
             perPackageOption {
                 prefix = "kotlinx.serialization.internal"
                 suppress = true
-            }
-
-            perPackageOption {
-                prefix = "kotlinx.io"
-                suppress = true
+                reportUndocumented = false
             }
         }
         common {}

@@ -17,7 +17,7 @@ if [ "$2" == "push" ] ; then
     echo "--- Doing LIVE site deployment, so do clean build"
     GRADLE_OPT=clean
 else
-    echo "--- Doing dry-run. To commit do 'deploy.sh <version> push'"
+    echo "--- Doing dry-run. To commit do 'update_docs.sh <version> push'"
     PUSH_OPT=--dry-run
 fi
 
