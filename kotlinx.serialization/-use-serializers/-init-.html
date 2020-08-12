@@ -1,0 +1,23 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.UseSerializers.<init> - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization</a>&nbsp;/&nbsp;<a href="index.html">UseSerializers</a>&nbsp;/&nbsp;<a href="./-init-.html">&lt;init&gt;</a><br/>
+<br/>
+<h1>&lt;init&gt;</h1>
+<a name="kotlinx.serialization.UseSerializers$&lt;init&gt;(kotlin.Array((kotlin.reflect.KClass((kotlinx.serialization.KSerializer((kotlin.Any)))))))"></a>
+(common, jvm, native) <code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="kotlinx.serialization.UseSerializers$<init>(kotlin.Array((kotlin.reflect.KClass((kotlinx.serialization.KSerializer((kotlin.Any)))))))/serializerClasses">serializerClasses</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html"><span class="identifier">KClass</span></a><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<a href="../-k-serializer/index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><span class="identifier">*</span><span class="symbol">&gt;</span><span class="symbol">&gt;</span><span class="symbol">)</span></code>
+<p>Adds <a href="serializer-classes.html#kotlinx.serialization.UseSerializers$serializerClasses">serializerClasses</a> to serializers resolving process inside the plugin.
+Each of <a href="serializer-classes.html#kotlinx.serialization.UseSerializers$serializerClasses">serializerClasses</a> must implement <a href="../-k-serializer/index.html#kotlinx.serialization.KSerializer">KSerializer</a>.</p>
+<p>Inside the file with this annotation, for each given property
+of type <code>T</code> in some serializable class, this list would be inspected for the presence of <code>KSerializer&lt;T&gt;</code>.
+If such serializer is present, it would be used instead of default.</p>
+<p>Main use-case for this annotation is not to write @Serializable(with=SomeSerializer::class)
+on each property with custom serializer.</p>
+<p>Serializers from this list have higher priority than default, but lesser priority than
+serializers defined on the property itself, such as <a href="../-serializable/index.html#kotlinx.serialization.Serializable">Serializable</a> (with=...) or <a href="../-contextual/index.html#kotlinx.serialization.Contextual">Contextual</a>.</p>
+</BODY>
+</HTML>

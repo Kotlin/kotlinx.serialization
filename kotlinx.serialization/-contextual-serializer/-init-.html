@@ -1,0 +1,33 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.ContextualSerializer.<init> - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization</a>&nbsp;/&nbsp;<a href="index.html">ContextualSerializer</a>&nbsp;/&nbsp;<a href="./-init-.html">&lt;init&gt;</a><br/>
+<br/>
+<h1>&lt;init&gt;</h1>
+(common, jvm, native) <a name="kotlinx.serialization.ContextualSerializer$&lt;init&gt;(kotlin.reflect.KClass((kotlinx.serialization.ContextualSerializer.T)))"></a>
+<code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.ContextualSerializer$<init>(kotlin.reflect.KClass((kotlinx.serialization.ContextualSerializer.T)))/serializableClass">serializableClass</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html"><span class="identifier">KClass</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">)</span></code>(common, jvm, native) <a name="kotlinx.serialization.ContextualSerializer$&lt;init&gt;(kotlin.reflect.KClass((kotlinx.serialization.ContextualSerializer.T)), kotlinx.serialization.KSerializer((kotlinx.serialization.ContextualSerializer.T)), kotlin.Array((kotlinx.serialization.KSerializer((kotlin.Any)))))"></a>
+<code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.ContextualSerializer$<init>(kotlin.reflect.KClass((kotlinx.serialization.ContextualSerializer.T)), kotlinx.serialization.KSerializer((kotlinx.serialization.ContextualSerializer.T)), kotlin.Array((kotlinx.serialization.KSerializer((kotlin.Any)))))/serializableClass">serializableClass</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html"><span class="identifier">KClass</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.ContextualSerializer$<init>(kotlin.reflect.KClass((kotlinx.serialization.ContextualSerializer.T)), kotlinx.serialization.KSerializer((kotlinx.serialization.ContextualSerializer.T)), kotlin.Array((kotlinx.serialization.KSerializer((kotlin.Any)))))/fallbackSerializer">fallbackSerializer</span><span class="symbol">:</span>&nbsp;<a href="../-k-serializer/index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">?</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.ContextualSerializer$<init>(kotlin.reflect.KClass((kotlinx.serialization.ContextualSerializer.T)), kotlinx.serialization.KSerializer((kotlinx.serialization.ContextualSerializer.T)), kotlin.Array((kotlinx.serialization.KSerializer((kotlin.Any)))))/typeParametersSerializers">typeParametersSerializers</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html"><span class="identifier">Array</span></a><span class="symbol">&lt;</span><a href="../-k-serializer/index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><span class="identifier">*</span><span class="symbol">&gt;</span><span class="symbol">&gt;</span><span class="symbol">)</span></code>
+<p>This class provides support for retrieving a serializer in runtime, instead of using the one precompiled by the serialization plugin.
+This serializer is enabled by <a href="../-contextual/index.html#kotlinx.serialization.Contextual">Contextual</a> or <a href="../-use-contextual-serialization/index.html#kotlinx.serialization.UseContextualSerialization">UseContextualSerialization</a>.</p>
+<p>Typical usage of ContextualSerializer would be a serialization of a class which does not have
+static serializer (e.g. Java class or class from 3rd party library);
+or desire to override serialized class form in one dedicated output format.</p>
+<p>Serializers are being looked for in a <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> from the target <a href="../../kotlinx.serialization.encoding/-encoder/index.html#kotlinx.serialization.encoding.Encoder">Encoder</a> or <a href="../../kotlinx.serialization.encoding/-decoder/index.html#kotlinx.serialization.encoding.Decoder">Decoder</a>, using statically known <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html">KClass</a>.
+To create a serial module, use <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> factory function.
+To pass it to encoder and decoder, refer to particular <a href="../-serial-format/index.html#kotlinx.serialization.SerialFormat">SerialFormat</a>'s documentation.</p>
+<p>Usage of contextual serializer can be demonstrated by the following example:</p>
+<pre><code>import java.util.Date
+
+@Serializable
+class ClassWithDate(val data: String, @Contextual val timestamp: Date)
+
+val moduleForDate = serializersModule(MyISO8601DateSerializer)
+val json = Json { serializersModule = moduleForDate }
+json.encodeToString(ClassWithDate("foo", Date())
+</code></pre>
+</BODY>
+</HTML>

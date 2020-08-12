@@ -1,0 +1,25 @@
+$dokka.format:html
+$dokka.linkExtension:html
+$dokka.location:kotlinx.serialization$findPolymorphicSerializer(kotlinx.serialization.internal.AbstractPolymorphicSerializer((kotlinx.serialization.findPolymorphicSerializer.T)), kotlinx.serialization.encoding.CompositeDecoder, kotlin.String)kotlinx.serialization/kotlinx.serialization.internal.-abstract-polymorphic-serializer/find-polymorphic-serializer.html
+$dokka.location:kotlinx.serialization$findPolymorphicSerializer(kotlinx.serialization.internal.AbstractPolymorphicSerializer((kotlinx.serialization.findPolymorphicSerializer.T)), kotlinx.serialization.encoding.Encoder, kotlinx.serialization.findPolymorphicSerializer.T)kotlinx.serialization/kotlinx.serialization.internal.-abstract-polymorphic-serializer/find-polymorphic-serializer.html
+$dokka.location:kotlinx.serialization$serializer(kotlin.reflect.KClass((kotlinx.serialization.serializer.T)))kotlinx.serialization/kotlin.reflect.-k-class/serializer.html
+$dokka.location:kotlinx.serialization$serializerOrNull(kotlin.reflect.KClass((kotlinx.serialization.serializerOrNull.T)))kotlinx.serialization/kotlin.reflect.-k-class/serializer-or-null.html
+$dokka.location:kotlinx.serialization.builtins$serializer(kotlin.Boolean.Companion)kotlinx.serialization.builtins/kotlin.-boolean/serializer.html
+$dokka.location:kotlinx.serialization.builtins$serializer(kotlin.Byte.Companion)kotlinx.serialization.builtins/kotlin.-byte/serializer.html
+$dokka.location:kotlinx.serialization.builtins$serializer(kotlin.Char.Companion)kotlinx.serialization.builtins/kotlin.-char/serializer.html
+$dokka.location:kotlinx.serialization.builtins$serializer(kotlin.Double.Companion)kotlinx.serialization.builtins/kotlin.-double/serializer.html
+$dokka.location:kotlinx.serialization.builtins$serializer(kotlin.Float.Companion)kotlinx.serialization.builtins/kotlin.-float/serializer.html
+$dokka.location:kotlinx.serialization.builtins$serializer(kotlin.Int.Companion)kotlinx.serialization.builtins/kotlin.-int/serializer.html
+$dokka.location:kotlinx.serialization.builtins$serializer(kotlin.Long.Companion)kotlinx.serialization.builtins/kotlin.-long/serializer.html
+$dokka.location:kotlinx.serialization.builtins$serializer(kotlin.Short.Companion)kotlinx.serialization.builtins/kotlin.-short/serializer.html
+$dokka.location:kotlinx.serialization.builtins$serializer(kotlin.String.Companion)kotlinx.serialization.builtins/kotlin.-string/serializer.html
+$dokka.location:kotlinx.serialization.builtins$serializer(kotlin.Unit)kotlinx.serialization.builtins/kotlin.-unit/serializer.html
+kotlinx.serialization
+kotlinx.serialization.builtins
+kotlinx.serialization.cbor
+kotlinx.serialization.descriptors
+kotlinx.serialization.encoding
+kotlinx.serialization.json
+kotlinx.serialization.modules
+kotlinx.serialization.properties
+kotlinx.serialization.protobuf

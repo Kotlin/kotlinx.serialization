@@ -1,0 +1,71 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.BinaryFormat - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization</a>&nbsp;/&nbsp;<a href="./index.html">BinaryFormat</a><br/>
+<br/>
+<h1>BinaryFormat</h1>
+<a name="kotlinx.serialization.BinaryFormat"></a>
+(common, jvm, native) <code><span class="keyword">interface </span><span class="identifier">BinaryFormat</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../-serial-format/index.html"><span class="identifier">SerialFormat</span></a></code>
+<p><a href="../-serial-format/index.html#kotlinx.serialization.SerialFormat">SerialFormat</a> that allows conversions to and from <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte-array/index.html">ByteArray</a> via <a href="encode-to-byte-array.html#kotlinx.serialization.BinaryFormat$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.BinaryFormat.encodeToByteArray.T)), kotlinx.serialization.BinaryFormat.encodeToByteArray.T)">encodeToByteArray</a> and <a href="decode-from-byte-array.html#kotlinx.serialization.BinaryFormat$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.BinaryFormat.decodeFromByteArray.T)), kotlin.ByteArray)">decodeFromByteArray</a> methods.</p>
+<h3>Not stable for inheritance</h3>
+<p><code>BinaryFormat</code> interface is not stable for inheritance in 3rd party libraries, as new methods
+might be added to this interface or contracts of the existing methods can be changed.</p>
+<p>It is safe to operate with instances of <code>BinaryFormat</code> and call its methods.</p>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-from-byte-array.html">decodeFromByteArray</a></h4>
+</td>
+<td>
+<p>Decodes and deserializes the given <a href="decode-from-byte-array.html#kotlinx.serialization.BinaryFormat$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.BinaryFormat.decodeFromByteArray.T)), kotlin.ByteArray)/bytes">byte array</a> to to the value of type <a href="decode-from-byte-array.html#T">T</a> using the given <a href="decode-from-byte-array.html#kotlinx.serialization.BinaryFormat$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.BinaryFormat.decodeFromByteArray.T)), kotlin.ByteArray)/deserializer">deserializer</a></p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">decodeFromByteArray</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.BinaryFormat$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.BinaryFormat.decodeFromByteArray.T)), kotlin.ByteArray)/deserializer">deserializer</span><span class="symbol">:</span>&nbsp;<a href="../-deserialization-strategy/index.html"><span class="identifier">DeserializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.BinaryFormat$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.BinaryFormat.decodeFromByteArray.T)), kotlin.ByteArray)/bytes">bytes</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte-array/index.html"><span class="identifier">ByteArray</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="encode-to-byte-array.html">encodeToByteArray</a></h4>
+</td>
+<td>
+<p>Serializes and encodes the given <a href="encode-to-byte-array.html#kotlinx.serialization.BinaryFormat$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.BinaryFormat.encodeToByteArray.T)), kotlinx.serialization.BinaryFormat.encodeToByteArray.T)/value">value</a> to byte array using the given <a href="encode-to-byte-array.html#kotlinx.serialization.BinaryFormat$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.BinaryFormat.encodeToByteArray.T)), kotlinx.serialization.BinaryFormat.encodeToByteArray.T)/serializer">serializer</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">encodeToByteArray</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.BinaryFormat$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.BinaryFormat.encodeToByteArray.T)), kotlinx.serialization.BinaryFormat.encodeToByteArray.T)/serializer">serializer</span><span class="symbol">:</span>&nbsp;<a href="../-serialization-strategy/index.html"><span class="identifier">SerializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.BinaryFormat$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.BinaryFormat.encodeToByteArray.T)), kotlinx.serialization.BinaryFormat.encodeToByteArray.T)/value">value</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte-array/index.html"><span class="identifier">ByteArray</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="../../kotlinx.serialization.cbor/-cbor/index.html">Cbor</a></h4>
+</td>
+<td>
+<p>Implements <a href="../../kotlinx.serialization.cbor/-cbor/encode-to-byte-array.html#kotlinx.serialization.cbor.Cbor$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.cbor.Cbor.encodeToByteArray.T)), kotlinx.serialization.cbor.Cbor.encodeToByteArray.T)">encoding</a> and <a href="../../kotlinx.serialization.cbor/-cbor/decode-from-byte-array.html#kotlinx.serialization.cbor.Cbor$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.cbor.Cbor.decodeFromByteArray.T)), kotlin.ByteArray)">decoding</a> classes to/from bytes
+using <a href="https://tools.ietf.org/html/rfc7049">CBOR</a> specification.
+It is typically used by constructing an application-specific instance, with configured behaviour, and,
+if necessary, registered custom serializers (in <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> provided by <a href="../../kotlinx.serialization.cbor/-cbor/serializers-module.html#kotlinx.serialization.cbor.Cbor$serializersModule">serializersModule</a> constructor parameter).</p>
+<code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">Cbor</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">BinaryFormat</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="../../kotlinx.serialization.protobuf/-proto-buf/index.html">ProtoBuf</a></h4>
+</td>
+<td>
+<p>Implements <a href="../../kotlinx.serialization.protobuf/-proto-buf/encode-to-byte-array.html#kotlinx.serialization.protobuf.ProtoBuf$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.protobuf.ProtoBuf.encodeToByteArray.T)), kotlinx.serialization.protobuf.ProtoBuf.encodeToByteArray.T)">encoding</a> and <a href="../../kotlinx.serialization.protobuf/-proto-buf/decode-from-byte-array.html#kotlinx.serialization.protobuf.ProtoBuf$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.protobuf.ProtoBuf.decodeFromByteArray.T)), kotlin.ByteArray)">decoding</a> classes to/from bytes
+using <a href="https://developers.google.com/protocol-buffers/docs/proto">Proto2</a> specification.
+It is typically used by constructing an application-specific instance, with configured specific behaviour
+and, if necessary, registered custom serializers (in <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> provided by <a href="../../kotlinx.serialization.protobuf/-proto-buf/serializers-module.html#kotlinx.serialization.protobuf.ProtoBuf$serializersModule">serializersModule</a> constructor parameter).</p>
+<code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">ProtoBuf</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">BinaryFormat</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

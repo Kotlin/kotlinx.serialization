@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.encoding.CompositeDecoder.decodeSequentially - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.encoding</a>&nbsp;/&nbsp;<a href="index.html">CompositeDecoder</a>&nbsp;/&nbsp;<a href="./decode-sequentially.html">decodeSequentially</a><br/>
+<br/>
+<h1>decodeSequentially</h1>
+<a name="kotlinx.serialization.encoding.CompositeDecoder$decodeSequentially()"></a>
+(common, jvm, native) <code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">decodeSequentially</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>Checks whether the current decoder supports strictly ordered decoding of the data
+without calling to <a href="decode-element-index.html#kotlinx.serialization.encoding.CompositeDecoder$decodeElementIndex(kotlinx.serialization.descriptors.SerialDescriptor)">decodeElementIndex</a>.
+If the method returns <code>true</code>, the caller might skip <a href="decode-element-index.html#kotlinx.serialization.encoding.CompositeDecoder$decodeElementIndex(kotlinx.serialization.descriptors.SerialDescriptor)">decodeElementIndex</a> calls
+and start invoking <code>decode*Element</code> directly, incrementing the index of the element one by one.
+This method can be called by serializers (either generated or user-defined) as a performance optimization,
+but there is no guarantee that the method will be ever called. Practically, it means that implementations
+that may benefit from sequential decoding should also support a regular <a href="decode-element-index.html#kotlinx.serialization.encoding.CompositeDecoder$decodeElementIndex(kotlinx.serialization.descriptors.SerialDescriptor)">decodeElementIndex</a>-based decoding as well.</p>
+<p>Example of usage:</p>
+<pre><code>class MyPair(i: Int, d: Double)
+
+object MyPairSerializer : KSerializer&lt;MyPair&gt; {
+    // ... other methods omitted
+
+   fun deserialize(decoder: Decoder): MyPair {
+       val composite = decoder.beginStructure(descriptor)
+       if (composite.decodeSequentially()) {
+           val i = composite.decodeIntElement(descriptor, index = 0) // Mind the sequential indexing
+           val d = composite.decodeIntElement(descriptor, index = 1)
+           composite.endStructure(descriptor)
+           return MyPair(i, d)
+       } else {
+           // Fallback to `decodeElementIndex` loop, refer to its documentation for details
+       }
+   }
+}
+</code></pre>
+<p>This example is a rough equivalent of what serialization plugin generates for serializable pair class.</p>
+<p>Sequential decoding is a performance optimization for formats with strictly ordered schema,
+usually binary ones. Regular formats such as JSON or ProtoBuf cannot use this optimization,
+because e.g. in the latter example, the same data can be represented both as
+<code>{"i": 1, "d": 1.0}</code>"<code> and </code>{"d": 1.0, "i": 1}` (thus, unordered).</p>
+</BODY>
+</HTML>

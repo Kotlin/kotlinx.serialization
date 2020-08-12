@@ -1,0 +1,19 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.descriptors.StructureKind.MAP - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.descriptors</a>&nbsp;/&nbsp;<a href="index.html">StructureKind</a>&nbsp;/&nbsp;<a href="./-m-a-p.html">MAP</a><br/>
+<br/>
+<h1>MAP</h1>
+<a name="kotlinx.serialization.descriptors.StructureKind.MAP"></a>
+(common, jvm, native) <code><span class="keyword">object </span><span class="identifier">MAP</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="index.html"><span class="identifier">StructureKind</span></a></code>
+<p>Structure kind for maps of an arbitrary length.
+Serializers typically encode classes with calls to <a href="../../kotlinx.serialization.encoding/-encoder/begin-collection.html#kotlinx.serialization.encoding.Encoder$beginCollection(kotlinx.serialization.descriptors.SerialDescriptor, kotlin.Int)">Encoder.beginCollection</a> and <a href="../../kotlinx.serialization.encoding/-composite-encoder/end-structure.html#kotlinx.serialization.encoding.CompositeEncoder$endStructure(kotlinx.serialization.descriptors.SerialDescriptor)">CompositeEncoder.endStructure</a>,
+writing the elements of the map between these calls.</p>
+<p>Built-in map serializers treat elements as homogeneous, though application-specific serializers may impose
+application-specific restrictions on specific <a href="-m-a-p.html#kotlinx.serialization.descriptors.StructureKind.MAP">MAP</a> types.</p>
+</BODY>
+</HTML>

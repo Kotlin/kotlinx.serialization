@@ -1,0 +1,39 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.SerializationException - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization</a>&nbsp;/&nbsp;<a href="./index.html">SerializationException</a><br/>
+<br/>
+<h1>SerializationException</h1>
+<a name="kotlinx.serialization.SerializationException"></a>
+(common, jvm, native) <code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">SerializationException</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-illegal-argument-exception/index.html"><span class="identifier">IllegalArgumentException</span></a></code>
+<p>A generic exception indicating the problem in serialization or deserialization process.
+This is a generic exception type that can be thrown during the problem at any stage of the serialization,
+including encoding, decoding, serialization, deserialization.
+<a href="../-serial-format/index.html#kotlinx.serialization.SerialFormat">SerialFormat</a> implementors should throw subclasses of this exception at any unexpected event,
+whether it is a malformed input or unsupported class layout.</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-init-.html">&lt;init&gt;</a></h4>
+</td>
+<td>
+<p>Creates an instance of <a href="index.html#kotlinx.serialization.SerializationException">SerializationException</a> without any details.</p>
+<code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="symbol">)</span></code>
+<p>Creates an instance of <a href="index.html#kotlinx.serialization.SerializationException">SerializationException</a> with the specified detail <a href="-init-.html#kotlinx.serialization.SerializationException$<init>(kotlin.String)/message">message</a>.</p>
+<code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.SerializationException$<init>(kotlin.String)/message">message</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span><span class="symbol">)</span></code>
+<p>Creates an instance of <a href="index.html#kotlinx.serialization.SerializationException">SerializationException</a> with the specified detail <a href="-init-.html#kotlinx.serialization.SerializationException$<init>(kotlin.String, kotlin.Throwable)/message">message</a>, and the given <a href="-init-.html#kotlinx.serialization.SerializationException$<init>(kotlin.String, kotlin.Throwable)/cause">cause</a>.</p>
+<code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.SerializationException$<init>(kotlin.String, kotlin.Throwable)/message">message</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.SerializationException$<init>(kotlin.String, kotlin.Throwable)/cause">cause</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-throwable/index.html"><span class="identifier">Throwable</span></a><span class="symbol">?</span><span class="symbol">)</span></code>
+<p>Creates an instance of <a href="index.html#kotlinx.serialization.SerializationException">SerializationException</a> with the specified <a href="-init-.html#kotlinx.serialization.SerializationException$<init>(kotlin.Throwable)/cause">cause</a>.</p>
+<code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.SerializationException$<init>(kotlin.Throwable)/cause">cause</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-throwable/index.html"><span class="identifier">Throwable</span></a><span class="symbol">?</span><span class="symbol">)</span></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

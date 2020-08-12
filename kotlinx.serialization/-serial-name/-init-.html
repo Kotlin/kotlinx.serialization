@@ -1,0 +1,34 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.SerialName.<init> - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization</a>&nbsp;/&nbsp;<a href="index.html">SerialName</a>&nbsp;/&nbsp;<a href="./-init-.html">&lt;init&gt;</a><br/>
+<br/>
+<h1>&lt;init&gt;</h1>
+<a name="kotlinx.serialization.SerialName$&lt;init&gt;(kotlin.String)"></a>
+(common, jvm, native) <code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.SerialName$<init>(kotlin.String)/value">value</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span></code>
+<p>Overrides the name of a class or a property in the corresponding <a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html#kotlinx.serialization.descriptors.SerialDescriptor">SerialDescriptor</a>.
+Names and serial names are used by text-based serial formats in order to encode the name of the class or
+the name of the property, e.g. by <a href="../../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a>.</p>
+<p>By default, <a href="../../kotlinx.serialization.descriptors/-serial-descriptor/serial-name.html#kotlinx.serialization.descriptors.SerialDescriptor$serialName">SerialDescriptor.serialName</a> and <a href="../../kotlinx.serialization.descriptors/-serial-descriptor/get-element-name.html#kotlinx.serialization.descriptors.SerialDescriptor$getElementName(kotlin.Int)">SerialDescriptor.getElementName</a>
+are associated with fully-qualified name of the target class and the name of the property respectively.
+Applying this annotation changes the visible name to the given <a href="value.html#kotlinx.serialization.SerialName$value">value</a>:</p>
+<pre><code>package foo
+
+@Serializable // RegularName.serializer().descriptor.serialName is "foo.RegularName"
+class RegularName(val myInt: Int)
+
+@Serializable
+@SerialName("CustomName") // Omit package from name that is used for diagnostic and polymorphism
+class CustomName(@SerialName("int") val myInt: Int)
+
+// Prints "{"myInt":42}"
+println(Json.encodeToString(RegularName(42)))
+// Prints "{"int":42}"
+println(Json.encodeToString(CustomName(42)))
+</code></pre>
+</BODY>
+</HTML>

@@ -1,0 +1,368 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="./index.html">kotlinx.serialization</a><br/>
+<br/>
+<h2>Package kotlinx.serialization</h2>
+<p>Basic core concepts and annotations that set up serialization process.</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-binary-format/index.html">BinaryFormat</a></h4>
+</td>
+<td>
+<p><a href="-serial-format/index.html#kotlinx.serialization.SerialFormat">SerialFormat</a> that allows conversions to and from <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte-array/index.html">ByteArray</a> via <a href="-binary-format/encode-to-byte-array.html#kotlinx.serialization.BinaryFormat$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.BinaryFormat.encodeToByteArray.T)), kotlinx.serialization.BinaryFormat.encodeToByteArray.T)">encodeToByteArray</a> and <a href="-binary-format/decode-from-byte-array.html#kotlinx.serialization.BinaryFormat$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.BinaryFormat.decodeFromByteArray.T)), kotlin.ByteArray)">decodeFromByteArray</a> methods.</p>
+<code><span class="keyword">interface </span><span class="identifier">BinaryFormat</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-serial-format/index.html"><span class="identifier">SerialFormat</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-contextual-serializer/index.html">ContextualSerializer</a></h4>
+</td>
+<td>
+<p>This class provides support for retrieving a serializer in runtime, instead of using the one precompiled by the serialization plugin.
+This serializer is enabled by <a href="-contextual/index.html#kotlinx.serialization.Contextual">Contextual</a> or <a href="-use-contextual-serialization/index.html#kotlinx.serialization.UseContextualSerialization">UseContextualSerialization</a>.</p>
+<code><span class="keyword">class </span><span class="identifier">ContextualSerializer</span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-k-serializer/index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-deserialization-strategy/index.html">DeserializationStrategy</a></h4>
+</td>
+<td>
+<p>Deserialization strategy defines the serial form of a type <a href="-deserialization-strategy/index.html#T">T</a>, including its structural description,
+declared by the <a href="-deserialization-strategy/descriptor.html#kotlinx.serialization.DeserializationStrategy$descriptor">descriptor</a> and the actual deserialization process, defined by the implementation
+of the <a href="-deserialization-strategy/deserialize.html#kotlinx.serialization.DeserializationStrategy$deserialize(kotlinx.serialization.encoding.Decoder)">deserialize</a> method.</p>
+<code><span class="keyword">interface </span><span class="identifier">DeserializationStrategy</span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-k-serializer/index.html">KSerializer</a></h4>
+</td>
+<td>
+<p>KSerializer is responsible for the representation of a serial form of a type <a href="-k-serializer/index.html#T">T</a>
+in terms of <a href="../kotlinx.serialization.encoding/-encoder/index.html#kotlinx.serialization.encoding.Encoder">encoders</a> and <a href="../kotlinx.serialization.encoding/-decoder/index.html#kotlinx.serialization.encoding.Decoder">decoders</a> and for constructing and deconstructing <a href="-k-serializer/index.html#T">T</a>
+from/to a sequence of encoding primitives. For classes marked with <a href="-serializable/index.html#kotlinx.serialization.Serializable">@Serializable</a>, can be
+obtained from generated companion extension <code>.serializer()</code> or from <a href="serializer.html#kotlinx.serialization$serializer()">serializer()</a> function.</p>
+<code><span class="keyword">interface </span><span class="identifier">KSerializer</span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-serialization-strategy/index.html"><span class="identifier">SerializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><a href="-deserialization-strategy/index.html"><span class="identifier">DeserializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-polymorphic-serializer/index.html">PolymorphicSerializer</a></h4>
+</td>
+<td>
+<p>This class provides support for multiplatform polymorphic serialization for interfaces and abstract classes.</p>
+<code><span class="keyword">class </span><span class="identifier">PolymorphicSerializer</span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">AbstractPolymorphicSerializer</span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-serial-format/index.html">SerialFormat</a></h4>
+</td>
+<td>
+<p>Represents an instance of a serialization format
+that can interact with <a href="-k-serializer/index.html#kotlinx.serialization.KSerializer">KSerializer</a> and is a supertype of all entry points for a serialization.
+It does not impose any restrictions on a serialized form or underlying storage, neither it exposes them.</p>
+<code><span class="keyword">interface </span><span class="identifier">SerialFormat</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-serialization-strategy/index.html">SerializationStrategy</a></h4>
+</td>
+<td>
+<p>Serialization strategy defines the serial form of a type <a href="-serialization-strategy/index.html#T">T</a>, including its structural description,
+declared by the <a href="-serialization-strategy/descriptor.html#kotlinx.serialization.SerializationStrategy$descriptor">descriptor</a> and the actual serialization process, defined by the implementation
+of the <a href="-serialization-strategy/serialize.html#kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.encoding.Encoder, kotlinx.serialization.SerializationStrategy.T)">serialize</a> method.</p>
+<code><span class="keyword">interface </span><span class="identifier">SerializationStrategy</span><span class="symbol">&lt;</span><span class="keyword">in</span>&nbsp;<span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-string-format/index.html">StringFormat</a></h4>
+</td>
+<td>
+<p><a href="-serial-format/index.html#kotlinx.serialization.SerialFormat">SerialFormat</a> that allows conversions to and from <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> via <a href="-string-format/encode-to-string.html#kotlinx.serialization.StringFormat$encodeToString(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.StringFormat.encodeToString.T)), kotlinx.serialization.StringFormat.encodeToString.T)">encodeToString</a> and <a href="-string-format/decode-from-string.html#kotlinx.serialization.StringFormat$decodeFromString(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.StringFormat.decodeFromString.T)), kotlin.String)">decodeFromString</a> methods.</p>
+<code><span class="keyword">interface </span><span class="identifier">StringFormat</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-serial-format/index.html"><span class="identifier">SerialFormat</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Annotations</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-contextual/index.html">Contextual</a></h4>
+</td>
+<td>
+<p>Instructs the plugin to use <a href="-contextual-serializer/index.html#kotlinx.serialization.ContextualSerializer">ContextSerializer</a> on a given property or type.
+Context serializer is usually used when serializer for type can only be found in runtime.
+It is also possible to apply <a href="-contextual-serializer/index.html#kotlinx.serialization.ContextualSerializer">ContextSerializer</a> to every property of the given type,
+using file-level <a href="-use-contextual-serialization/index.html#kotlinx.serialization.UseContextualSerialization">UseContextualSerialization</a> annotation.</p>
+<code><span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">Contextual</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-experimental-serialization-api/index.html">ExperimentalSerializationApi</a></h4>
+</td>
+<td>
+<p>Marks declarations that are still <strong>experimental</strong> in kotlinx.serialization, which means that the design of the
+corresponding declarations has open issues which may (or may not) lead to their changes in the future.
+Roughly speaking, there is a chance that those declarations will be deprecated in the near future or
+the semantics of their behavior may change in some way that may break some code.</p>
+<code><span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">ExperimentalSerializationApi</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-internal-serialization-api/index.html">InternalSerializationApi</a></h4>
+</td>
+<td>
+<p>Public API marked with this annotation is effectively <strong>internal</strong>, which means
+it should not be used outside of <code>kotlinx.serialization</code>.
+Signature, semantics, source and binary compatibilities are not guaranteed for this API
+and will be changed without any warnings or migration aids.
+If you cannot avoid using internal API to solve your problem, please report your use-case to serialization's issue tracker.</p>
+<code><span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">InternalSerializationApi</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-polymorphic/index.html">Polymorphic</a></h4>
+</td>
+<td>
+<p>Instructs the serialization plugin to use <a href="-polymorphic-serializer/index.html#kotlinx.serialization.PolymorphicSerializer">PolymorphicSerializer</a> on an annotated property or type usage.
+When used on class, replaces its serializer with <a href="-polymorphic-serializer/index.html#kotlinx.serialization.PolymorphicSerializer">PolymorphicSerializer</a> everywhere.</p>
+<code><span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">Polymorphic</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-required/index.html">Required</a></h4>
+</td>
+<td>
+<p>Indicates that property must be present during deserialization process, despite having a default value.</p>
+<code><span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">Required</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-serial-info/index.html">SerialInfo</a></h4>
+</td>
+<td>
+<p>Meta-annotation that commands the compiler plugin to handle the annotation as serialization-specific.
+Serialization-specific annotations are preserved in the <a href="../kotlinx.serialization.descriptors/-serial-descriptor/index.html#kotlinx.serialization.descriptors.SerialDescriptor">SerialDescriptor</a> and can be retrieved
+during serialization process with <a href="../kotlinx.serialization.descriptors/-serial-descriptor/get-element-annotations.html#kotlinx.serialization.descriptors.SerialDescriptor$getElementAnnotations(kotlin.Int)">SerialDescriptor.getElementAnnotations</a>.</p>
+<code><span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">SerialInfo</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-serializable/index.html">Serializable</a></h4>
+</td>
+<td>
+<p>The main entry point to the serialization process.
+Applying <a href="-serializable/index.html#kotlinx.serialization.Serializable">Serializable</a> to the Kotlin class instructs the serialization plugin to automatically generate implementation of <a href="-k-serializer/index.html#kotlinx.serialization.KSerializer">KSerializer</a>
+for the current class, that can be used to serialize and deserialize the class.
+The generated serializer can be accessed with <code>T.serializer()</code> extension function on the class companion,
+both are generated by the plugin as well.</p>
+<code><span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">Serializable</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-serializer/index.html">Serializer</a></h4>
+</td>
+<td>
+<p>Instructs the serialization plugin to turn this class into serializer for specified class <a href="-serializer/for-class.html#kotlinx.serialization.Serializer$forClass">forClass</a>.
+However, it would not be used automatically. To apply it on particular class or property,
+use <a href="-serializable/index.html#kotlinx.serialization.Serializable">Serializable</a> or <a href="-use-serializers/index.html#kotlinx.serialization.UseSerializers">UseSerializers</a>, or <a href="-contextual/index.html#kotlinx.serialization.Contextual">Contextual</a> with runtime registration.</p>
+<code><span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">Serializer</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-serial-name/index.html">SerialName</a></h4>
+</td>
+<td>
+<p>Overrides the name of a class or a property in the corresponding <a href="../kotlinx.serialization.descriptors/-serial-descriptor/index.html#kotlinx.serialization.descriptors.SerialDescriptor">SerialDescriptor</a>.
+Names and serial names are used by text-based serial formats in order to encode the name of the class or
+the name of the property, e.g. by <a href="../kotlinx.serialization.json/-json/index.html#kotlinx.serialization.json.Json">Json</a>.</p>
+<code><span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">SerialName</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-transient/index.html">Transient</a></h4>
+</td>
+<td>
+<p>Marks this property invisible for the whole serialization process, including <a href="../kotlinx.serialization.descriptors/-serial-descriptor/index.html#kotlinx.serialization.descriptors.SerialDescriptor">serial descriptors</a>.
+Transient properties should have default values.</p>
+<code><span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">Transient</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-use-contextual-serialization/index.html">UseContextualSerialization</a></h4>
+</td>
+<td>
+<p>Instructs the plugin to use <a href="-contextual-serializer/index.html#kotlinx.serialization.ContextualSerializer">ContextSerializer</a> for every type in the current file that is listed in the <a href="-use-contextual-serialization/for-classes.html#kotlinx.serialization.UseContextualSerialization$forClasses">forClasses</a>.</p>
+<code><span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">UseContextualSerialization</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-use-serializers/index.html">UseSerializers</a></h4>
+</td>
+<td>
+<p>Adds <a href="-use-serializers/serializer-classes.html#kotlinx.serialization.UseSerializers$serializerClasses">serializerClasses</a> to serializers resolving process inside the plugin.
+Each of <a href="-use-serializers/serializer-classes.html#kotlinx.serialization.UseSerializers$serializerClasses">serializerClasses</a> must implement <a href="-k-serializer/index.html#kotlinx.serialization.KSerializer">KSerializer</a>.</p>
+<code><span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">UseSerializers</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Exceptions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-serialization-exception/index.html">SerializationException</a></h4>
+</td>
+<td>
+<p>A generic exception indicating the problem in serialization or deserialization process.
+This is a generic exception type that can be thrown during the problem at any stage of the serialization,
+including encoding, decoding, serialization, deserialization.
+<a href="-serial-format/index.html#kotlinx.serialization.SerialFormat">SerialFormat</a> implementors should throw subclasses of this exception at any unexpected event,
+whether it is a malformed input or unsupported class layout.</p>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">SerializationException</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-illegal-argument-exception/index.html"><span class="identifier">IllegalArgumentException</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Extensions for External Classes</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="kotlin.reflect.-k-class/index.html">kotlin.reflect.KClass</a></h4>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="kotlinx.serialization.internal.-abstract-polymorphic-serializer/index.html">kotlinx.serialization.internal.AbstractPolymorphicSerializer</a></h4>
+</td>
+<td>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-from-byte-array.html">decodeFromByteArray</a></h4>
+</td>
+<td>
+<p>Decodes and deserializes the given <a href="decode-from-byte-array.html#kotlinx.serialization$decodeFromByteArray(kotlinx.serialization.BinaryFormat, kotlin.ByteArray)/bytes">byte array</a> to to the value of type <a href="decode-from-byte-array.html#T">T</a> using deserializer
+retrieved from the reified type parameter.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <a href="-binary-format/index.html"><span class="identifier">BinaryFormat</span></a><span class="symbol">.</span><span class="identifier">decodeFromByteArray</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization$decodeFromByteArray(kotlinx.serialization.BinaryFormat, kotlin.ByteArray)/bytes">bytes</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte-array/index.html"><span class="identifier">ByteArray</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-from-hex-string.html">decodeFromHexString</a></h4>
+</td>
+<td>
+<p>Decodes byte array from the given <a href="decode-from-hex-string.html#kotlinx.serialization$decodeFromHexString(kotlinx.serialization.BinaryFormat, kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.decodeFromHexString.T)), kotlin.String)/hex">hex</a> string and the decodes and deserializes it
+to the value of type <a href="decode-from-hex-string.html#T">T</a>, delegating it to the <a href="-binary-format/index.html#kotlinx.serialization.BinaryFormat">BinaryFormat</a>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <a href="-binary-format/index.html"><span class="identifier">BinaryFormat</span></a><span class="symbol">.</span><span class="identifier">decodeFromHexString</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization$decodeFromHexString(kotlinx.serialization.BinaryFormat, kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.decodeFromHexString.T)), kotlin.String)/deserializer">deserializer</span><span class="symbol">:</span>&nbsp;<a href="-deserialization-strategy/index.html"><span class="identifier">DeserializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization$decodeFromHexString(kotlinx.serialization.BinaryFormat, kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.decodeFromHexString.T)), kotlin.String)/hex">hex</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code><br/>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <a href="-binary-format/index.html"><span class="identifier">BinaryFormat</span></a><span class="symbol">.</span><span class="identifier">decodeFromHexString</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization$decodeFromHexString(kotlinx.serialization.BinaryFormat, kotlin.String)/hex">hex</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-from-string.html">decodeFromString</a></h4>
+</td>
+<td>
+<p>Decodes and deserializes the given <a href="decode-from-string.html#kotlinx.serialization$decodeFromString(kotlinx.serialization.StringFormat, kotlin.String)/string">string</a> to to the value of type <a href="decode-from-string.html#T">T</a> using deserializer
+retrieved from the reified type parameter.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <a href="-string-format/index.html"><span class="identifier">StringFormat</span></a><span class="symbol">.</span><span class="identifier">decodeFromString</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization$decodeFromString(kotlinx.serialization.StringFormat, kotlin.String)/string">string</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="encode-to-byte-array.html">encodeToByteArray</a></h4>
+</td>
+<td>
+<p>Serializes and encodes the given <a href="encode-to-byte-array.html#kotlinx.serialization$encodeToByteArray(kotlinx.serialization.BinaryFormat, kotlinx.serialization.encodeToByteArray.T)/value">value</a> to byte array using serializer
+retrieved from the reified type parameter.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <a href="-binary-format/index.html"><span class="identifier">BinaryFormat</span></a><span class="symbol">.</span><span class="identifier">encodeToByteArray</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization$encodeToByteArray(kotlinx.serialization.BinaryFormat, kotlinx.serialization.encodeToByteArray.T)/value">value</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte-array/index.html"><span class="identifier">ByteArray</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="encode-to-hex-string.html">encodeToHexString</a></h4>
+</td>
+<td>
+<p>Serializes and encodes the given <a href="encode-to-hex-string.html#kotlinx.serialization$encodeToHexString(kotlinx.serialization.BinaryFormat, kotlinx.serialization.SerializationStrategy((kotlinx.serialization.encodeToHexString.T)), kotlinx.serialization.encodeToHexString.T)/value">value</a> to byte array, delegating it to the <a href="-binary-format/index.html#kotlinx.serialization.BinaryFormat">BinaryFormat</a>,
+and then encodes resulting bytes to hex string.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <a href="-binary-format/index.html"><span class="identifier">BinaryFormat</span></a><span class="symbol">.</span><span class="identifier">encodeToHexString</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization$encodeToHexString(kotlinx.serialization.BinaryFormat, kotlinx.serialization.SerializationStrategy((kotlinx.serialization.encodeToHexString.T)), kotlinx.serialization.encodeToHexString.T)/serializer">serializer</span><span class="symbol">:</span>&nbsp;<a href="-serialization-strategy/index.html"><span class="identifier">SerializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization$encodeToHexString(kotlinx.serialization.BinaryFormat, kotlinx.serialization.SerializationStrategy((kotlinx.serialization.encodeToHexString.T)), kotlinx.serialization.encodeToHexString.T)/value">value</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code><br/>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <a href="-binary-format/index.html"><span class="identifier">BinaryFormat</span></a><span class="symbol">.</span><span class="identifier">encodeToHexString</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization$encodeToHexString(kotlinx.serialization.BinaryFormat, kotlinx.serialization.encodeToHexString.T)/value">value</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="encode-to-string.html">encodeToString</a></h4>
+</td>
+<td>
+<p>Serializes and encodes the given <a href="encode-to-string.html#kotlinx.serialization$encodeToString(kotlinx.serialization.StringFormat, kotlinx.serialization.encodeToString.T)/value">value</a> to string using serializer retrieved from the reified type parameter.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <a href="-string-format/index.html"><span class="identifier">StringFormat</span></a><span class="symbol">.</span><span class="identifier">encodeToString</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization$encodeToString(kotlinx.serialization.StringFormat, kotlinx.serialization.encodeToString.T)/value">value</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="serializer.html">serializer</a></h4>
+</td>
+<td>
+(jvm) 
+<p>Constructs a serializer for the given reflective Java <a href="serializer.html#kotlinx.serialization$serializer(java.lang.reflect.Type)/type">type</a>.
+<a href="serializer.html#kotlinx.serialization$serializer()">serializer</a> is intended to be used as an interoperability layer for libraries like GSON and Retrofit,
+that operate with reflective Java <a href="https://docs.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html">Type</a> and cannot use <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/type-of.html">typeOf</a>.</p>
+<code><span class="keyword">fun </span><span class="identifier">serializer</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization$serializer(java.lang.reflect.Type)/type">type</span><span class="symbol">:</span>&nbsp;<a href="https://docs.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html"><span class="identifier">Type</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-k-serializer/index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span></code>(jvm) 
+<p>Retrieves serializer for the given reflective Java <a href="serializer.html#kotlinx.serialization$serializer(kotlinx.serialization.modules.SerializersModule, java.lang.reflect.Type)/type">type</a> using
+reflective construction and <a href="../kotlinx.serialization.modules/-serializers-module/get-contextual.html#kotlinx.serialization.modules.SerializersModule$getContextual(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModule.getContextual.T)))">contextual</a> lookup for non-serializable types.</p>
+<code><span class="keyword">fun </span><a href="../kotlinx.serialization.modules/-serializers-module/index.html"><span class="identifier">SerializersModule</span></a><span class="symbol">.</span><span class="identifier">serializer</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization$serializer(kotlinx.serialization.modules.SerializersModule, java.lang.reflect.Type)/type">type</span><span class="symbol">:</span>&nbsp;<a href="https://docs.oracle.com/javase/6/docs/api/java/lang/reflect/Type.html"><span class="identifier">Type</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-k-serializer/index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span></code>(common, jvm, native) 
+<p>Retrieves a serializer for the given type <a href="serializer.html#T">T</a>.
+This method is a reified version of <code>serializer(KType)</code>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">serializer</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="-k-serializer/index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code>(common, jvm, native) 
+<p>Retrieves serializer for the given type <a href="serializer.html#T">T</a> from the current <a href="../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> and,
+if not found, fallbacks to plain <a href="serializer.html#kotlinx.serialization$serializer()">serializer</a> method.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <a href="../kotlinx.serialization.modules/-serializers-module/index.html"><span class="identifier">SerializersModule</span></a><span class="symbol">.</span><span class="identifier">serializer</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="-k-serializer/index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code>(common, jvm, native) 
+<p>Creates a serializer for the given <a href="serializer.html#kotlinx.serialization$serializer(kotlin.reflect.KType)/type">type</a>.
+<a href="serializer.html#kotlinx.serialization$serializer(kotlin.reflect.KType)/type">type</a> argument can be obtained with experimental <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/type-of.html">typeOf</a> method.</p>
+<code><span class="keyword">fun </span><span class="identifier">serializer</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization$serializer(kotlin.reflect.KType)/type">type</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-type/index.html"><span class="identifier">KType</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-k-serializer/index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span><span class="symbol">&gt;</span></code>(common, jvm, native) 
+<p>Attempts to create a serializer for the given <a href="serializer.html#kotlinx.serialization$serializer(kotlinx.serialization.modules.SerializersModule, kotlin.reflect.KType)/type">type</a> and fallbacks to <a href="../kotlinx.serialization.modules/-serializers-module/get-contextual.html#kotlinx.serialization.modules.SerializersModule$getContextual(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModule.getContextual.T)))">contextual</a>
+lookup for non-serializable types.
+<a href="serializer.html#kotlinx.serialization$serializer(kotlinx.serialization.modules.SerializersModule, kotlin.reflect.KType)/type">type</a> argument can be obtained with experimental <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/type-of.html">typeOf</a> method.</p>
+<code><span class="keyword">fun </span><a href="../kotlinx.serialization.modules/-serializers-module/index.html"><span class="identifier">SerializersModule</span></a><span class="symbol">.</span><span class="identifier">serializer</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization$serializer(kotlinx.serialization.modules.SerializersModule, kotlin.reflect.KType)/type">type</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-type/index.html"><span class="identifier">KType</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-k-serializer/index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span><span class="symbol">&gt;</span></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

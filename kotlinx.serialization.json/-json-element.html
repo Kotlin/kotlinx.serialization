@@ -1,0 +1,53 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.json.JsonElement - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="index.html">kotlinx.serialization.json</a>&nbsp;/&nbsp;<a href="./-json-element.html">JsonElement</a><br/>
+<br/>
+<h1>JsonElement</h1>
+<a name="kotlinx.serialization.json.JsonElement"></a>
+(common, jvm, native) <code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">JsonElement</span></code>
+<p>Class representing single JSON element.
+Can be <a href="-json-primitive/index.html#kotlinx.serialization.json.JsonPrimitive">JsonPrimitive</a>, <a href="-json-array/index.html#kotlinx.serialization.json.JsonArray">JsonArray</a> or <a href="-json-object/index.html#kotlinx.serialization.json.JsonObject">JsonObject</a>.</p>
+<p><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/to-string.html">JsonElement.toString</a> properly prints JSON tree as valid JSON, taking into account quoted values and primitives.
+Whole hierarchy is serializable, but only when used with <a href="-json/index.html#kotlinx.serialization.json.Json">Json</a> as <a href="-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> is purely JSON-specific structure
+which has a meaningful schemaless semantics only for JSON.</p>
+<p>The whole hierarchy is <a href="../kotlinx.serialization/-serializable/index.html#kotlinx.serialization.Serializable">serializable</a> only by <a href="-json/index.html#kotlinx.serialization.json.Json">Json</a> format.</p>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-json-array/index.html">JsonArray</a></h4>
+</td>
+<td>
+<p>Class representing JSON array, consisting of indexed values, where value is arbitrary <a href="-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a></p>
+<code><span class="keyword">class </span><span class="identifier">JsonArray</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./-json-element.html"><span class="identifier">JsonElement</span></a><span class="symbol">, </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="./-json-element.html"><span class="identifier">JsonElement</span></a><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-json-object/index.html">JsonObject</a></h4>
+</td>
+<td>
+<p>Class representing JSON object, consisting of name-value pairs, where value is arbitrary <a href="-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a></p>
+<code><span class="keyword">class </span><span class="identifier">JsonObject</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./-json-element.html"><span class="identifier">JsonElement</span></a><span class="symbol">, </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html"><span class="identifier">Map</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">,</span>&nbsp;<a href="./-json-element.html"><span class="identifier">JsonElement</span></a><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-json-primitive/index.html">JsonPrimitive</a></h4>
+</td>
+<td>
+<p>Class representing JSON primitive value.
+JSON primitives include numbers, strings, booleans and special null value <a href="-json-null/index.html#kotlinx.serialization.json.JsonNull">JsonNull</a>.</p>
+<code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">JsonPrimitive</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./-json-element.html"><span class="identifier">JsonElement</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

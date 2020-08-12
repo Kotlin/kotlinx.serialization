@@ -1,0 +1,19 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.json.JsonBuilder.coerceInputValues - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.json</a>&nbsp;/&nbsp;<a href="index.html">JsonBuilder</a>&nbsp;/&nbsp;<a href="./coerce-input-values.html">coerceInputValues</a><br/>
+<br/>
+<h1>coerceInputValues</h1>
+<a name="kotlinx.serialization.json.JsonBuilder$coerceInputValues"></a>
+(common, jvm, native) <code><span class="keyword">var </span><span class="identifier">coerceInputValues</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>Enables coercing incorrect JSON values to the default property value in the following cases:</p>
+<ol><li>JSON value is <code>null</code> but property type is non-nullable.</li>
+<li>Property type is an enum type, but JSON value contains unknown enum member.</li>
+</ol>
+<p><code>false</code> by default.</p>
+</BODY>
+</HTML>

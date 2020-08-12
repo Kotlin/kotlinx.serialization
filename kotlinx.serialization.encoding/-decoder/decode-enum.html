@@ -1,0 +1,20 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.encoding.Decoder.decodeEnum - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.encoding</a>&nbsp;/&nbsp;<a href="index.html">Decoder</a>&nbsp;/&nbsp;<a href="./decode-enum.html">decodeEnum</a><br/>
+<br/>
+<h1>decodeEnum</h1>
+<a name="kotlinx.serialization.encoding.Decoder$decodeEnum(kotlinx.serialization.descriptors.SerialDescriptor)"></a>
+(common, jvm, native) <code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">decodeEnum</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.encoding.Decoder$decodeEnum(kotlinx.serialization.descriptors.SerialDescriptor)/enumDescriptor">enumDescriptor</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a></code>
+<p>Decodes a enum value and returns its index in <a href="decode-enum.html#kotlinx.serialization.encoding.Decoder$decodeEnum(kotlinx.serialization.descriptors.SerialDescriptor)/enumDescriptor">enumDescriptor</a> elements collection.
+Corresponding kind is <a href="../../kotlinx.serialization.descriptors/-serial-kind/-e-n-u-m.html#kotlinx.serialization.descriptors.SerialKind.ENUM">SerialKind.ENUM</a>.</p>
+<p>E.g. for the enum <code>enum class Letters { A, B, C, D }</code> and
+underlying input "C", <a href="decode-enum.html#kotlinx.serialization.encoding.Decoder$decodeEnum(kotlinx.serialization.descriptors.SerialDescriptor)">decodeEnum</a> method should return <code>2</code> as a result.</p>
+<p>This method does not imply any restrictions on the input format,
+the format is free to store the enum by its name, index, ordinal or any other enum representation.</p>
+</BODY>
+</HTML>

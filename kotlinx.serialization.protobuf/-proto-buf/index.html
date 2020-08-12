@@ -1,0 +1,170 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.protobuf.ProtoBuf - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.protobuf</a>&nbsp;/&nbsp;<a href="./index.html">ProtoBuf</a><br/>
+<br/>
+<h1>ProtoBuf</h1>
+<a name="kotlinx.serialization.protobuf.ProtoBuf"></a>
+(common, jvm, native) <code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">ProtoBuf</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-binary-format/index.html"><span class="identifier">BinaryFormat</span></a></code>
+<p>Implements <a href="encode-to-byte-array.html#kotlinx.serialization.protobuf.ProtoBuf$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.protobuf.ProtoBuf.encodeToByteArray.T)), kotlinx.serialization.protobuf.ProtoBuf.encodeToByteArray.T)">encoding</a> and <a href="decode-from-byte-array.html#kotlinx.serialization.protobuf.ProtoBuf$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.protobuf.ProtoBuf.decodeFromByteArray.T)), kotlin.ByteArray)">decoding</a> classes to/from bytes
+using <a href="https://developers.google.com/protocol-buffers/docs/proto">Proto2</a> specification.
+It is typically used by constructing an application-specific instance, with configured specific behaviour
+and, if necessary, registered custom serializers (in <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> provided by <a href="serializers-module.html#kotlinx.serialization.protobuf.ProtoBuf$serializersModule">serializersModule</a> constructor parameter).</p>
+<h3>Correspondence between Protobuf message definitions and Kotlin classes</h3>
+<p>Given a ProtoBuf definition with one required field, one optional field and one optional field with a custom default
+value:</p>
+<pre><code>message MyMessage {
+    required int32 first = 1;
+    optional int32 second = 2;
+    optional int32 third = 3 [default = 42];
+}
+</code></pre>
+<p>The corresponding <a href="../../kotlinx.serialization/-serializable/index.html#kotlinx.serialization.Serializable">Serializable</a> class should match the ProtoBuf definition and should use the same default values:</p>
+<pre><code>@Serializable
+data class MyMessage(val first: Int, val second: Int = 0, val third: Int = 42)
+</code></pre>
+<p>By default, protobuf fields ids are being assigned to Kotlin properties in incremental order, i.e.
+the first property in the class has id 1, the second has id 2, and so forth.
+If you need a more stable order (e.g. to avoid breaking changes when reordering properties),
+provide custom ids using <a href="../-proto-number/index.html#kotlinx.serialization.protobuf.ProtoNumber">ProtoNumber</a> annotation.</p>
+<p>By default, all integer numbers are encoded using <a href="https://developers.google.com/protocol-buffers/docs/encoding#varints">varint</a>
+encoding. This behaviour can be changed via <a href="../-proto-type/index.html#kotlinx.serialization.protobuf.ProtoType">ProtoType</a> annotation.</p>
+<h3>Known caveats and limitations</h3>
+<p>Lists are represented as repeated fields. Because format spec says that if the list is empty,
+there are no elements in the stream with such tag, you must explicitly mark any
+field of list type with default = emptyList(). Same for maps.
+There's no special support for <code>oneof</code> protobuf fields. However, this implementation
+supports standard kotlinx.serialization's polymorphic and sealed serializers,
+using their default form (message of serialName: string and other embedded message with actual content).</p>
+<h3>Proto3 support</h3>
+<p>This implementation does not support repeated packed fields, so you won't be able to deserialize
+Proto3 lists. However, other messages could be decoded. You have to remember that since fields in Proto3
+messages by default are implicitly optional,
+corresponding Kotlin properties have to be nullable with default value <code>null</code>.</p>
+<h3>Usage example</h3>
+<pre><code>// Serialize to ProtoBuf hex string
+val encoded = ProtoBuf.encodeToHexString(MyMessage(15)) // "080f1000182a"
+
+// Deserialize from ProtoBuf hex string
+val decoded = ProtoBuf.decodeFromHexString&lt;MyMessage&gt;(encoded) // MyMessage(first=15, second=0, third=42)
+
+// Serialize to ProtoBuf bytes (omitting default values)
+val encoded2 = ProtoBuf(encodeDefaults = false).encodeToByteArray( MyMessage(15)) // [0x08, 0x0f]
+
+// Deserialize ProtoBuf bytes will use default values of the MyMessage class
+val decoded2 = ProtoBuf.decodeFromByteArray&lt;MyMessage&gt;(encoded2) // MyMessage(first=15, second=0, third=42)
+</code></pre>
+<h3>Check existence of optional fields</h3>
+<p>Null values can be used as the default value for optional fields to implement more complex use-cases that rely on
+checking if a field was set or not. This requires the use of a custom ProtoBuf instance with
+<code>ProtoBuf(encodeDefaults = false)</code>.</p>
+<pre><code>@Serializable
+data class MyMessage(val first: Int, private val _second: Int? = null, private val _third: Int? = null) {
+
+    val second: Int
+        get() = _second ?: 0
+
+    val third: Int
+        get() = _third ?: 42
+
+    fun hasSecond() = _second != null
+
+    fun hasThird() = _third != null
+}
+
+// Serialize to ProtoBuf bytes (encodeDefaults = false is required if null values are used)
+val encoded = ProtoBuf(encodeDefaults = false).encodeToByteArray(MyMessage(15)) // [0x08, 0x0f]
+
+// Deserialize ProtoBuf bytes
+val decoded = ProtoBuf.decodeFromByteArray&lt;MyMessage&gt;(encoded) // MyMessage(first = 15, _second = null, _third = null)
+decoded.hasSecond()     // false
+decoded.second          // 0
+decoded.hasThird()      // false
+decoded.third           // 42
+
+// Serialize to ProtoBuf bytes
+val encoded2 = ProtoBuf(encodeDefaults = false).encodeToByteArray(MyMessage(15, 0, 0)) // [0x08, 0x0f, 0x10, 0x00, 0x18, 0x00]
+
+// Deserialize ProtoBuf bytes
+val decoded2 = ProtoBuf.decodeFromByteArray&lt;MyMessage&gt;(encoded2) // MyMessage(first=15, _second=0, _third=0)
+decoded.hasSecond()     // true
+decoded.second          // 0
+decoded.hasThird()      // true
+decoded.third           // 0
+</code></pre>
+<h3>Parameters</h3>
+<p><a name="encodeDefaults"></a>
+<code>encodeDefaults</code> - specifies whether default values are encoded.</p>
+<p><a name="serializersModule"></a>
+<code>serializersModule</code> - application-specific <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> to provide custom serializers.</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-default.html">Default</a></h4>
+</td>
+<td>
+<p>The default instance of <a href="index.html#kotlinx.serialization.protobuf.ProtoBuf">ProtoBuf</a>.</p>
+<code><span class="keyword">companion</span> <span class="keyword">object </span><span class="identifier">Default</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">ProtoBuf</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="serializers-module.html">serializersModule</a></h4>
+</td>
+<td>
+<p>application-specific <a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a> to provide custom serializers.</p>
+<code><span class="keyword">open</span> <span class="keyword">val </span><span class="identifier">serializersModule</span><span class="symbol">: </span><a href="../../kotlinx.serialization.modules/-serializers-module/index.html"><span class="identifier">SerializersModule</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="decode-from-byte-array.html">decodeFromByteArray</a></h4>
+</td>
+<td>
+<p>Decodes and deserializes the given <a href="../../kotlinx.serialization/-binary-format/decode-from-byte-array.html#kotlinx.serialization.BinaryFormat$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.BinaryFormat.decodeFromByteArray.T)), kotlin.ByteArray)/bytes">byte array</a> to to the value of type <a href="../../kotlinx.serialization/-binary-format/decode-from-byte-array.html#T">T</a> using the given <a href="../../kotlinx.serialization/-binary-format/decode-from-byte-array.html#kotlinx.serialization.BinaryFormat$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.BinaryFormat.decodeFromByteArray.T)), kotlin.ByteArray)/deserializer">deserializer</a></p>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">decodeFromByteArray</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.protobuf.ProtoBuf$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.protobuf.ProtoBuf.decodeFromByteArray.T)), kotlin.ByteArray)/deserializer">deserializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-deserialization-strategy/index.html"><span class="identifier">DeserializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.protobuf.ProtoBuf$decodeFromByteArray(kotlinx.serialization.DeserializationStrategy((kotlinx.serialization.protobuf.ProtoBuf.decodeFromByteArray.T)), kotlin.ByteArray)/bytes">bytes</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte-array/index.html"><span class="identifier">ByteArray</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="encode-to-byte-array.html">encodeToByteArray</a></h4>
+</td>
+<td>
+<p>Serializes and encodes the given <a href="../../kotlinx.serialization/-binary-format/encode-to-byte-array.html#kotlinx.serialization.BinaryFormat$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.BinaryFormat.encodeToByteArray.T)), kotlinx.serialization.BinaryFormat.encodeToByteArray.T)/value">value</a> to byte array using the given <a href="../../kotlinx.serialization/-binary-format/encode-to-byte-array.html#kotlinx.serialization.BinaryFormat$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.BinaryFormat.encodeToByteArray.T)), kotlinx.serialization.BinaryFormat.encodeToByteArray.T)/serializer">serializer</a>.</p>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">encodeToByteArray</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.protobuf.ProtoBuf$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.protobuf.ProtoBuf.encodeToByteArray.T)), kotlinx.serialization.protobuf.ProtoBuf.encodeToByteArray.T)/serializer">serializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-serialization-strategy/index.html"><span class="identifier">SerializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.protobuf.ProtoBuf$encodeToByteArray(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.protobuf.ProtoBuf.encodeToByteArray.T)), kotlinx.serialization.protobuf.ProtoBuf.encodeToByteArray.T)/value">value</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte-array/index.html"><span class="identifier">ByteArray</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-default.html">Default</a></h4>
+</td>
+<td>
+<p>The default instance of <a href="index.html#kotlinx.serialization.protobuf.ProtoBuf">ProtoBuf</a>.</p>
+<code><span class="keyword">companion</span> <span class="keyword">object </span><span class="identifier">Default</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">ProtoBuf</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

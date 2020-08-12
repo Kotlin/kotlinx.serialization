@@ -1,0 +1,113 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.PolymorphicSerializer - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization</a>&nbsp;/&nbsp;<a href="./index.html">PolymorphicSerializer</a><br/>
+<br/>
+<h1>PolymorphicSerializer</h1>
+<a name="kotlinx.serialization.PolymorphicSerializer"></a>
+(common, jvm, native) <code><span class="keyword">class </span><span class="identifier">PolymorphicSerializer</span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">AbstractPolymorphicSerializer</span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code>
+<p>This class provides support for multiplatform polymorphic serialization for interfaces and abstract classes.</p>
+<p>To avoid the most common security pitfalls and reflective lookup (and potential load) of an arbitrary class,
+all serializable implementations of any polymorphic type must be <a href="../../kotlinx.serialization.modules/-serializers-module-builder/polymorphic.html#kotlinx.serialization.modules.SerializersModuleBuilder$polymorphic(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleBuilder.polymorphic.Base)), kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleBuilder.polymorphic.Sub)), kotlinx.serialization.KSerializer((kotlinx.serialization.modules.SerializersModuleBuilder.polymorphic.Sub)))">registered</a>
+in advance in the scope of base polymorphic type, efficiently preventing unbounded polymorphic serialization
+of an arbitrary type.</p>
+<p>Polymorphic serialization is enabled automatically by default for interfaces and <a href="../-serializable/index.html#kotlinx.serialization.Serializable">Serializable</a> abstract classes.
+To enable this feature explicitly on other types, use <code>@SerializableWith(PolymorphicSerializer::class)</code>
+or <a href="../-polymorphic/index.html#kotlinx.serialization.Polymorphic">Polymorphic</a> annotation on the property.</p>
+<p>Usage of the polymorphic serialization can be demonstrated by the following example:</p>
+<pre><code>abstract class BaseRequest()
+@Serializable
+data class RequestA(val id: Int): BaseRequest()
+@Serializable
+data class RequestB(val s: String): BaseRequest()
+
+abstract class BaseResponse()
+@Serializable
+data class ResponseC(val payload: Long): BaseResponse()
+@Serializable
+data class ResponseD(val payload: ByteArray): BaseResponse()
+
+@Serializable
+data class Message(
+    @Polymorphic val request: BaseRequest,
+    @Polymorphic val response: BaseResponse
+)
+</code></pre>
+<p>In this example, both request and response in <code>Message</code> are serializable with <a href="index.html#kotlinx.serialization.PolymorphicSerializer">PolymorphicSerializer</a>.</p>
+<p><code>BaseRequest</code> and <code>BaseResponse</code> are base classes and they are captured during compile time by the plugin.
+Yet <a href="index.html#kotlinx.serialization.PolymorphicSerializer">PolymorphicSerializer</a> for <code>BaseRequest</code> should only allow <code>RequestA</code> and <code>RequestB</code> serializers, and none of the response's serializers.</p>
+<p>This is achieved via special registration function in the module:</p>
+<pre><code>val requestAndResponseModule = SerializersModule {
+    polymorphic(BaseRequest::class) {
+        subclass(RequestA::class)
+        subclass(RequestB::class)
+    }
+    polymorphic(BaseResponse::class) {
+        subclass(ResponseC::class)
+        subclass(ResponseD::class)
+    }
+}
+</code></pre>
+<p><strong>See Also</strong><br/>
+<p><a href="../../kotlinx.serialization.modules/-serializers-module/index.html#kotlinx.serialization.modules.SerializersModule">SerializersModule</a></p>
+<p><a href="../../kotlinx.serialization.modules/-serializers-module-builder/polymorphic.html#kotlinx.serialization.modules.SerializersModuleBuilder$polymorphic(kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleBuilder.polymorphic.Base)), kotlin.reflect.KClass((kotlinx.serialization.modules.SerializersModuleBuilder.polymorphic.Sub)), kotlinx.serialization.KSerializer((kotlinx.serialization.modules.SerializersModuleBuilder.polymorphic.Sub)))">SerializersModuleBuilder.polymorphic</a></p>
+</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-init-.html">&lt;init&gt;</a></h4>
+</td>
+<td>
+<p>This class provides support for multiplatform polymorphic serialization for interfaces and abstract classes.</p>
+<code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.PolymorphicSerializer$<init>(kotlin.reflect.KClass((kotlinx.serialization.PolymorphicSerializer.T)))/baseClass">baseClass</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html"><span class="identifier">KClass</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">)</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="base-class.html">baseClass</a></h4>
+</td>
+<td>
+<p>Base class for all classes that this polymorphic serializer can serialize or deserialize.</p>
+<code><span class="keyword">val </span><span class="identifier">baseClass</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html"><span class="identifier">KClass</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="descriptor.html">descriptor</a></h4>
+</td>
+<td>
+<p>Describes the structure of the serializable representation of <a href="../-k-serializer/index.html#T">T</a>, produced
+by this serializer. Knowing the structure of the descriptor is required to determine
+the shape of the serialized form (e.g. what elements are encoded as lists and what as primitives)
+along with its metadata such as alternative names.</p>
+<code><span class="keyword">val </span><span class="identifier">descriptor</span><span class="symbol">: </span><a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="to-string.html">toString</a></h4>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">toString</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

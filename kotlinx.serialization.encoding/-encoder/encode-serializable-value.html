@@ -1,0 +1,17 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.encoding.Encoder.encodeSerializableValue - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.encoding</a>&nbsp;/&nbsp;<a href="index.html">Encoder</a>&nbsp;/&nbsp;<a href="./encode-serializable-value.html">encodeSerializableValue</a><br/>
+<br/>
+<h1>encodeSerializableValue</h1>
+<a name="kotlinx.serialization.encoding.Encoder$encodeSerializableValue(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.encoding.Encoder.encodeSerializableValue.T)), kotlinx.serialization.encoding.Encoder.encodeSerializableValue.T)"></a>
+(common, jvm, native) <code><span class="keyword">open</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">encodeSerializableValue</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.encoding.Encoder$encodeSerializableValue(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.encoding.Encoder.encodeSerializableValue.T)), kotlinx.serialization.encoding.Encoder.encodeSerializableValue.T)/serializer">serializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-serialization-strategy/index.html"><span class="identifier">SerializationStrategy</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.encoding.Encoder$encodeSerializableValue(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.encoding.Encoder.encodeSerializableValue.T)), kotlinx.serialization.encoding.Encoder.encodeSerializableValue.T)/value">value</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Encodes the <a href="encode-serializable-value.html#kotlinx.serialization.encoding.Encoder$encodeSerializableValue(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.encoding.Encoder.encodeSerializableValue.T)), kotlinx.serialization.encoding.Encoder.encodeSerializableValue.T)/value">value</a> of type <a href="encode-serializable-value.html#T">T</a> by delegating the encoding process to the given <a href="encode-serializable-value.html#kotlinx.serialization.encoding.Encoder$encodeSerializableValue(kotlinx.serialization.SerializationStrategy((kotlinx.serialization.encoding.Encoder.encodeSerializableValue.T)), kotlinx.serialization.encoding.Encoder.encodeSerializableValue.T)/serializer">serializer</a>.
+For example, <code>encodeInt</code> call us equivalent to delegating integer encoding to <a href="../../kotlinx.serialization.builtins/kotlin.-int/serializer.html">Int.serializer</a>:
+<code>encodeSerializableValue(Int.serializer())</code></p>
+</BODY>
+</HTML>

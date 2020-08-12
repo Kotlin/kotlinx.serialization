@@ -1,0 +1,131 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>kotlinx.serialization.json.JsonTransformingSerializer - kotlinx-serialization</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kotlinx-serialization</a>&nbsp;/&nbsp;<a href="../index.html">kotlinx.serialization.json</a>&nbsp;/&nbsp;<a href="./index.html">JsonTransformingSerializer</a><br/>
+<br/>
+<h1>JsonTransformingSerializer</h1>
+<a name="kotlinx.serialization.json.JsonTransformingSerializer"></a>
+(common, jvm, native) <code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">JsonTransformingSerializer</span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-k-serializer/index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code>
+<p>Base class for custom serializers that allows manipulating an abstract JSON
+representation of the class before serialization or deserialization.</p>
+<p><a href="index.html#kotlinx.serialization.json.JsonTransformingSerializer">JsonTransformingSerializer</a> provides capabilities to manipulate <a href="../-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> representation
+directly instead of interacting with <a href="../../kotlinx.serialization.encoding/-encoder/index.html#kotlinx.serialization.encoding.Encoder">Encoder</a> and <a href="../../kotlinx.serialization.encoding/-decoder/index.html#kotlinx.serialization.encoding.Decoder">Decoder</a> in order to apply a custom
+transformation to the JSON.
+Please note that this class expects that <a href="../../kotlinx.serialization.encoding/-encoder/index.html#kotlinx.serialization.encoding.Encoder">Encoder</a> and <a href="../../kotlinx.serialization.encoding/-decoder/index.html#kotlinx.serialization.encoding.Decoder">Decoder</a> are implemented by <a href="../-json-decoder/index.html#kotlinx.serialization.json.JsonDecoder">JsonDecoder</a> and <a href="../-json-encoder/index.html#kotlinx.serialization.json.JsonEncoder">JsonEncoder</a>,
+i.e. serializers derived from this class work only with <a href="../-json/index.html#kotlinx.serialization.json.Json">Json</a> format.</p>
+<p>There are two methods in which JSON transformation can be defined: <a href="transform-serialize.html#kotlinx.serialization.json.JsonTransformingSerializer$transformSerialize(kotlinx.serialization.json.JsonElement)">transformSerialize</a> and <a href="transform-deserialize.html#kotlinx.serialization.json.JsonTransformingSerializer$transformDeserialize(kotlinx.serialization.json.JsonElement)">transformDeserialize</a>.
+You can override one or both of them. Consult their documentation for details.</p>
+<p>Usage example:</p>
+<pre><code>@Serializable
+data class Example(
+    @Serializable(UnwrappingJsonListSerializer::class) val data: String
+)
+// Unwraps a list to a single object
+object UnwrappingJsonListSerializer :
+    JsonTransformingSerializer&lt;String&gt;(String.serializer()) {
+    override fun transformDeserialize(element: JsonElement): JsonElement {
+        if (element !is JsonArray) return element
+        require(element.size == 1) { "Array size must be equal to 1 to unwrap it" }
+        return element.first()
+    }
+}
+// Now these functions both yield correct result:
+Json.parse(Example.serializer(), """{"data":["str1"]}""")
+Json.parse(Example.serializer(), """{"data":"str1"}""")
+</code></pre>
+<h3>Parameters</h3>
+<p><a name="T"></a>
+<code>T</code> - A type for Kotlin property for which this serializer could be applied.
+    <strong>Not</strong> the type that you may encounter in JSON. (e.g. if you unwrap a list
+    to a single value <code>T</code>, use <code>T</code>, not <code>List&lt;T&gt;</code>)</p>
+<p><a name="tSerializer"></a>
+<code>tSerializer</code> - A serializer for type <a href="index.html#T">T</a>. Determines <a href="../-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> which is passed to <a href="transform-serialize.html#kotlinx.serialization.json.JsonTransformingSerializer$transformSerialize(kotlinx.serialization.json.JsonElement)">transformSerialize</a>.
+    Should be able to parse <a href="../-json-element.html#kotlinx.serialization.json.JsonElement">JsonElement</a> from <a href="transform-deserialize.html#kotlinx.serialization.json.JsonTransformingSerializer$transformDeserialize(kotlinx.serialization.json.JsonElement)">transformDeserialize</a> function.
+    Usually, default <a href="../../kotlinx.serialization/serializer.html#kotlinx.serialization$serializer()">serializer</a> is sufficient.</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="-init-.html">&lt;init&gt;</a></h4>
+</td>
+<td>
+<p>Base class for custom serializers that allows manipulating an abstract JSON
+representation of the class before serialization or deserialization.</p>
+<code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.json.JsonTransformingSerializer$<init>(kotlinx.serialization.KSerializer((kotlinx.serialization.json.JsonTransformingSerializer.T)))/tSerializer">tSerializer</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization/-k-serializer/index.html"><span class="identifier">KSerializer</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">)</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="descriptor.html">descriptor</a></h4>
+</td>
+<td>
+<p>A descriptor for this transformation.
+By default, it delegates to <a href="#">tSerializer</a>'s descriptor.</p>
+<code><span class="keyword">open</span> <span class="keyword">val </span><span class="identifier">descriptor</span><span class="symbol">: </span><a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html"><span class="identifier">SerialDescriptor</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="deserialize.html">deserialize</a></h4>
+</td>
+<td>
+<p>Deserializes the value of type <a href="../../kotlinx.serialization/-deserialization-strategy/index.html#T">T</a> using the format that is represented by the given <a href="../../kotlinx.serialization/-deserialization-strategy/deserialize.html#kotlinx.serialization.DeserializationStrategy$deserialize(kotlinx.serialization.encoding.Decoder)/decoder">decoder</a>.
+<a href="../../kotlinx.serialization/-deserialization-strategy/deserialize.html#kotlinx.serialization.DeserializationStrategy$deserialize(kotlinx.serialization.encoding.Decoder)">deserialize</a> method is format-agnostic and operates with a high-level structured <a href="../../kotlinx.serialization.encoding/-decoder/index.html#kotlinx.serialization.encoding.Decoder">Decoder</a> API.
+As long as most of the formats imply an arbitrary order of properties, deserializer should be able
+to decode these properties in an arbitrary order and in a format-agnostic way.
+For that purposes, <a href="../../kotlinx.serialization.encoding/-composite-decoder/decode-element-index.html#kotlinx.serialization.encoding.CompositeDecoder$decodeElementIndex(kotlinx.serialization.descriptors.SerialDescriptor)">CompositeDecoder.decodeElementIndex</a>-based loop is used: decoder firstly
+signals property at which index it is ready to decode and then expects caller to decode
+property with the given index.</p>
+<code><span class="keyword">fun </span><span class="identifier">deserialize</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.json.JsonTransformingSerializer$deserialize(kotlinx.serialization.encoding.Decoder)/decoder">decoder</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization.encoding/-decoder/index.html"><span class="identifier">Decoder</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="serialize.html">serialize</a></h4>
+</td>
+<td>
+<p>Serializes the <a href="../../kotlinx.serialization/-serialization-strategy/serialize.html#kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.encoding.Encoder, kotlinx.serialization.SerializationStrategy.T)/value">value</a> of type <a href="../../kotlinx.serialization/-serialization-strategy/index.html#T">T</a> using the format that is represented by the given <a href="../../kotlinx.serialization/-serialization-strategy/serialize.html#kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.encoding.Encoder, kotlinx.serialization.SerializationStrategy.T)/encoder">encoder</a>.
+<a href="../../kotlinx.serialization/-serialization-strategy/serialize.html#kotlinx.serialization.SerializationStrategy$serialize(kotlinx.serialization.encoding.Encoder, kotlinx.serialization.SerializationStrategy.T)">serialize</a> method is format-agnostic and operates with a high-level structured <a href="../../kotlinx.serialization.encoding/-encoder/index.html#kotlinx.serialization.encoding.Encoder">Encoder</a> API.
+Throws <a href="../../kotlinx.serialization/-serialization-exception/index.html#kotlinx.serialization.SerializationException">SerializationException</a> if value cannot be serialized.</p>
+<code><span class="keyword">fun </span><span class="identifier">serialize</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.json.JsonTransformingSerializer$serialize(kotlinx.serialization.encoding.Encoder, kotlinx.serialization.json.JsonTransformingSerializer.T)/encoder">encoder</span><span class="symbol">:</span>&nbsp;<a href="../../kotlinx.serialization.encoding/-encoder/index.html"><span class="identifier">Encoder</span></a><span class="symbol">, </span><span class="identifier" id="kotlinx.serialization.json.JsonTransformingSerializer$serialize(kotlinx.serialization.encoding.Encoder, kotlinx.serialization.json.JsonTransformingSerializer.T)/value">value</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="transform-deserialize.html">transformDeserialize</a></h4>
+</td>
+<td>
+<p>Transformation that happens during <a href="deserialize.html#kotlinx.serialization.json.JsonTransformingSerializer$deserialize(kotlinx.serialization.encoding.Decoder)">deserialize</a> call.
+Does nothing by default.</p>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">transformDeserialize</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.json.JsonTransformingSerializer$transformDeserialize(kotlinx.serialization.json.JsonElement)/element">element</span><span class="symbol">:</span>&nbsp;<a href="../-json-element.html"><span class="identifier">JsonElement</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-json-element.html"><span class="identifier">JsonElement</span></a></code></td>
+</tr>
+<tr>
+<td>
+(common, jvm, native) 
+<h4><a href="transform-serialize.html">transformSerialize</a></h4>
+</td>
+<td>
+<p>Transformation that happens during <a href="serialize.html#kotlinx.serialization.json.JsonTransformingSerializer$serialize(kotlinx.serialization.encoding.Encoder, kotlinx.serialization.json.JsonTransformingSerializer.T)">serialize</a> call.
+Does nothing by default.</p>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">transformSerialize</span><span class="symbol">(</span><span class="identifier" id="kotlinx.serialization.json.JsonTransformingSerializer$transformSerialize(kotlinx.serialization.json.JsonElement)/element">element</span><span class="symbol">:</span>&nbsp;<a href="../-json-element.html"><span class="identifier">JsonElement</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-json-element.html"><span class="identifier">JsonElement</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>
