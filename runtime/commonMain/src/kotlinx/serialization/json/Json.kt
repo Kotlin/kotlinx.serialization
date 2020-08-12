@@ -8,7 +8,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.js.*
-import kotlin.jvm.*
 
 /**
  * The main entry point to work with JSON serialization.
@@ -48,6 +47,7 @@ import kotlin.jvm.*
  *  val deserializedToTree: JsonElement = json.parseJsonElement(stringOutput)
  * ```
  */
+@OptIn(ExperimentalSerializationApi::class)
 public sealed class Json(internal val configuration: JsonConf) : StringFormat {
 
     override val serializersModule: SerializersModule
@@ -144,7 +144,7 @@ public inline fun <reified T> Json.decodeFromJsonElement(json: JsonElement): T =
     decodeFromJsonElement(serializersModule.serializer(), json)
 
 /**
- * Builder of the [Json] instance provided by `Json` factory function.
+ * Builder of the [Json] instance provided by `Json { ... }` factory function.
  */
 @Suppress("unused", "DeprecatedCallableAddReplaceWith")
 public class JsonBuilder internal constructor(conf: JsonConf) {
@@ -165,6 +165,10 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
      * Removes JSON specification restriction (RFC-4627) and makes parser
      * more liberal to the malformed input. In lenient mode quoted boolean literals,
      * and unquoted string literals are allowed.
+     *
+     * Its relaxations can be expanded in the future, so that lenient parser becomes even more
+     * permissive to invalid value in the input, replacing them with defaults.
+     *
      * `false` by default.
      */
     public var isLenient: Boolean = conf.isLenient
@@ -183,9 +187,12 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
     public var prettyPrint: Boolean = conf.prettyPrint
 
     /**
-     * Specifies indent string to use with [prettyPrint] mode.
-     * TODO specify whitespaces
+     * Specifies indent string to use with [prettyPrint] mode
+     * 4 spaces by default.
+     * Experimentality note: this API is experimental because
+     * it is not clear whether this option has compelling use-cases.
      */
+    @ExperimentalSerializationApi
     public var prettyPrintIndent: String = conf.prettyPrintIndent
 
     /**
@@ -212,7 +219,7 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
 
     /**
      * Removes JSON specification restriction on
-     * special floating-point values such as `NaN` and `Infinity` and enables their serialization.
+     * special floating-point values such as `NaN` and `Infinity` and enables their serialization and deserialization.
      * When enabling it, please ensure that the receiving party will be able to encode and decode these special values.
      * `false` by default.
      */
@@ -223,13 +230,22 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
      */
     public var serializersModule: SerializersModule = conf.serializersModule
 
+    @OptIn(ExperimentalSerializationApi::class)
     internal fun build(): JsonConf {
         if (useArrayPolymorphism) require(classDiscriminator == defaultDiscriminator) {
             "Class discriminator should not be specified when array polymorphism is specified"
         }
 
-        if (!prettyPrint) require(prettyPrintIndent == defaultIndent) {
-            "Indent should not be specified when default printing mode is used"
+        if (!prettyPrint) {
+            require(prettyPrintIndent == defaultIndent) {
+                "Indent should not be specified when default printing mode is used"
+            }
+        } else if (prettyPrintIndent != defaultIndent) {
+            // Values allowed by JSON specification as whitespaces
+            val allWhitespaces = prettyPrintIndent.all { it == ' ' || it == '\t' || it == '\r' || it == '\n' }
+            require(allWhitespaces) {
+                "Only whitespace, tab, newline and carriage return are allowed as pretty print symbols. Had $prettyPrintIndent"
+            }
         }
 
         return JsonConf(
@@ -238,14 +254,6 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
             coerceInputValues, useArrayPolymorphism,
             classDiscriminator, allowSpecialFloatingPointValues, serializersModule
         )
-    }
-
-    private companion object {
-        @JvmStatic
-        private val defaultIndent = "    "
-
-        @JvmStatic
-        private val defaultDiscriminator = "type"
     }
 
     // Deprecated members below
@@ -386,3 +394,6 @@ public fun Json(context: SerializersModule): Json = error("Deprecated and should
     replaceWith = ReplaceWith("Json")
 )
 public fun Json(): Json = error("Deprecated and should not be called")
+
+private const val defaultIndent = "    "
+private const val defaultDiscriminator = "type"

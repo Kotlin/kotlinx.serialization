@@ -4,6 +4,7 @@
 
 package sample
 
+import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlin.test.*
 
@@ -14,6 +15,7 @@ class SampleTestsJVM {
     }
 
     @Test
+    @OptIn(ExperimentalSerializationApi::class)
     fun kindSimpleName() {
         val kind = Int.serializer().descriptor.kind
         val name = kind.toString()

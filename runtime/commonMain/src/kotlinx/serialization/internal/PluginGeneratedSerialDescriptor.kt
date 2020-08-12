@@ -13,6 +13,7 @@ import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
  * Implementation that plugin uses to implement descriptors for auto-generated serializers.
  */
 @PublishedApi
+@OptIn(ExperimentalSerializationApi::class)
 internal open class PluginGeneratedSerialDescriptor(
     override val serialName: String,
     private val generatedSerializer: GeneratedSerializer<*>? = null,

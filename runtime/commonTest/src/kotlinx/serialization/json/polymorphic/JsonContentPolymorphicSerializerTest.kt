@@ -24,8 +24,8 @@ class JsonContentPolymorphicSerializerTest : JsonTestBase() {
     }
 
     object ChoicesParametricSerializer : JsonContentPolymorphicSerializer<Choices>(Choices::class) {
-        override fun selectDeserializer(content: JsonElement): KSerializer<out Choices> {
-            val obj = content.jsonObject
+        override fun selectDeserializer(element: JsonElement): KSerializer<out Choices> {
+            val obj = element.jsonObject
             return when {
                 "a" in obj -> Choices.HasA.serializer()
                 "b" in obj -> Choices.HasB.serializer()
@@ -83,8 +83,8 @@ class JsonContentPolymorphicSerializerTest : JsonTestBase() {
     data class RefundedPayment(override val amount: String, val date: String, val reason: String) : Payment
 
     object PaymentSerializer : JsonContentPolymorphicSerializer<Payment>(Payment::class) {
-        override fun selectDeserializer(content: JsonElement) = when {
-            "reason" in content.jsonObject -> RefundedPayment.serializer()
+        override fun selectDeserializer(element: JsonElement) = when {
+            "reason" in element.jsonObject -> RefundedPayment.serializer()
             else -> SuccessfulPayment.serializer()
         }
     }

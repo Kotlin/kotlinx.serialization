@@ -1,6 +1,7 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+@file:OptIn(ExperimentalSerializationApi::class)
 
 package kotlinx.serialization.protobuf.internal
 
@@ -98,14 +99,14 @@ internal open class ProtobufEncoder(
 
     override fun encodeTaggedEnum(
         tag: ProtoDesc,
-        enumDescription: SerialDescriptor,
+        enumDescriptor: SerialDescriptor,
         ordinal: Int
     ) {
         if (tag == MISSING_TAG) {
-            writer.writeInt(extractProtoId(enumDescription, ordinal, zeroBasedDefault = true))
+            writer.writeInt(extractProtoId(enumDescriptor, ordinal, zeroBasedDefault = true))
         } else {
             writer.writeInt(
-                extractProtoId(enumDescription, ordinal, zeroBasedDefault = true),
+                extractProtoId(enumDescriptor, ordinal, zeroBasedDefault = true),
                 tag.protoId,
                 ProtoIntegerType.DEFAULT
             )

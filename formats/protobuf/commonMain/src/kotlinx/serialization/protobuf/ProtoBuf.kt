@@ -113,6 +113,7 @@ import kotlin.js.*
  * @param encodeDefaults specifies whether default values are encoded.
  * @param serializersModule application-specific [SerializersModule] to provide custom serializers.
  */
+@ExperimentalSerializationApi
 public sealed class ProtoBuf(
     internal val encodeDefaults: Boolean,
     override val serializersModule: SerializersModule,
@@ -142,6 +143,7 @@ public sealed class ProtoBuf(
  * Creates an instance of [ProtoBuf] configured from the optionally given [ProtoBuf instance][from]
  * and adjusted with [builderAction].
  */
+@ExperimentalSerializationApi
 public fun ProtoBuf(from: ProtoBuf = ProtoBuf, builderAction: ProtoBufBuilder.() -> Unit): ProtoBuf {
     val b = ProtoBufBuilder(from)
     b.builderAction()
@@ -151,6 +153,7 @@ public fun ProtoBuf(from: ProtoBuf = ProtoBuf, builderAction: ProtoBufBuilder.()
 /**
  * Builder of the [ProtoBuf] instance provided by `ProtoBuf` factory function.
  */
+@ExperimentalSerializationApi
 public class ProtoBufBuilder internal constructor(proto: ProtoBuf) {
 
     /**

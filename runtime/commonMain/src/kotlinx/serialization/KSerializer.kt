@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.descriptors.elementNames
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.encoding.updateModeDeprecated
 
@@ -31,7 +32,7 @@ import kotlinx.serialization.encoding.updateModeDeprecated
  *
  * Structural description specifies how the [T] is represented in the serial form:
  * its [kind][SerialKind] (e.g. whether it is represented as a primitive, a list or a class),
- * its [elements][SerialDescriptor.elementDescriptors] and their [positional names][SerialDescriptor.getElementName].
+ * its [elements][SerialDescriptor.elementNames] and their [positional names][SerialDescriptor.getElementName].
  *
  * Serialization process is defined as a sequence of calls to an [Encoder], and transforms a type [T]
  * into a stream of format-agnostic primitives that represent [T], such as "here is an int, here is a double

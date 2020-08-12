@@ -5,6 +5,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.json.internal.*
 import kotlin.test.*
 
 class LenientTest : JsonTestBase() {

@@ -3,6 +3,7 @@
  */
 
 @file:Suppress("FunctionName")
+@file:OptIn(ExperimentalSerializationApi::class)
 
 package kotlinx.serialization.internal
 

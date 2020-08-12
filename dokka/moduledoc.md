@@ -28,4 +28,4 @@ Protocol buffers serialization format implementation, mostly complaint to [proto
 
 # Package kotlinx.serialization.cbor
 
-Concise Binary Object Representation (CBOR) format implementation, as per [RFC7049](https://tools.ietf.org/html/rfc7049). Located in separate `kotlinx-serialization-cbor` artifact.
+Concise Binary Object Representation (CBOR) format implementation, as per [RFC 7049](https://tools.ietf.org/html/rfc7049). Located in separate `kotlinx-serialization-cbor` artifact.

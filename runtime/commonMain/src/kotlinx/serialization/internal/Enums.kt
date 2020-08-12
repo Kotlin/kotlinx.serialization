@@ -12,7 +12,9 @@ import kotlinx.serialization.encoding.*
  * Descriptor used for explicitly serializable enums by the plugin.
  * Designed to be consistent with `EnumSerializer.descriptor` and weird plugin usage.
  */
+@Suppress("unused") // Used by the plugin
 @PublishedApi
+@OptIn(ExperimentalSerializationApi::class)
 internal class EnumDescriptor(
     name: String,
     elementsCount: Int

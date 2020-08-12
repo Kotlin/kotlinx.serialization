@@ -1,6 +1,7 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+@file:OptIn(ExperimentalSerializationApi::class)
 
 package kotlinx.serialization.json.internal
 
@@ -53,7 +54,7 @@ private sealed class AbstractJsonTreeEncoder(
         // First encode value, then check, to have a prettier error message
         putElement(tag, JsonPrimitive(value))
         if (!configuration.allowSpecialFloatingPointValues && !value.isFinite()) {
-            throw InvalidFloatingPoint(value, tag, "float", getCurrent().toString())
+            throw InvalidFloatingPointEncoded(value, tag, getCurrent().toString())
         }
     }
 
@@ -71,7 +72,7 @@ private sealed class AbstractJsonTreeEncoder(
         // First encode value, then check, to have a prettier error message
         putElement(tag, JsonPrimitive(value))
         if (!configuration.allowSpecialFloatingPointValues && !value.isFinite()) {
-            throw InvalidFloatingPoint(value, tag, "double", getCurrent().toString())
+            throw InvalidFloatingPointEncoded(value, tag, getCurrent().toString())
         }
     }
 

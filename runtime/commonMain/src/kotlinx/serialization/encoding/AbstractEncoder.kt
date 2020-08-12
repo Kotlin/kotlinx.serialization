@@ -14,6 +14,7 @@ import kotlinx.serialization.modules.*
  * Most of the `encode*` methods have default implementation that delegates `encodeValue(value: Any)`.
  * See [Encoder] documentation for information about each particular `encode*` method.
  */
+@ExperimentalSerializationApi
 public abstract class AbstractEncoder : Encoder, CompositeEncoder {
     override val serializersModule: SerializersModule
         get() = EmptySerializersModule
@@ -30,6 +31,8 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
         descriptor: SerialDescriptor,
         vararg typeSerializers: KSerializer<*>
     ): CompositeEncoder = this
+
+    override fun endStructure(descriptor: SerialDescriptor) {}
 
     /**
      * Invoked before writing an element that is part of the structure to determine whether it should be encoded.

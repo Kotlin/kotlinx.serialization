@@ -27,22 +27,26 @@ public sealed class SerializersModule {
      * Returns a contextual serializer associated with a given [kclass].
      * This method is used in context-sensitive operations on a property marked with [Contextual] by a [ContextualSerializer]
      */
+    @ExperimentalSerializationApi
     public abstract fun <T : Any> getContextual(kclass: KClass<T>): KSerializer<T>?
 
     /**
      * Returns a polymorphic serializer registered for a class of the given [value] in the scope of [baseClass].
      */
+    @ExperimentalSerializationApi
     public abstract fun <T : Any> getPolymorphic(baseClass: KClass<in T>, value: T): SerializationStrategy<T>?
 
     /**
      * Returns a polymorphic deserializer registered for a [serializedClassName] in the scope of [baseClass]
      * or default value constructed from [serializedClassName] if a default serializer provider was registered.
      */
+    @ExperimentalSerializationApi
     public abstract fun <T : Any> getPolymorphic(baseClass: KClass<in T>, serializedClassName: String?): DeserializationStrategy<out T>?
 
     /**
      * Copies contents of this module to the given [collector].
      */
+    @ExperimentalSerializationApi
     public abstract fun dumpTo(collector: SerializersModuleCollector)
 }
 
@@ -50,6 +54,7 @@ public sealed class SerializersModule {
  * A [SerializersModule] which is empty and always returns `null`.
  */
 @SharedImmutable
+@ExperimentalSerializationApi
 public val EmptySerializersModule: SerializersModule = SerialModuleImpl(emptyMap(), emptyMap(), emptyMap(), emptyMap())
 
 /**

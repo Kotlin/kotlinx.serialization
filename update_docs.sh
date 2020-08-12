@@ -6,7 +6,7 @@ set -e
 # Directories
 ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 DIST_DIR="$ROOT_DIR/build/dokka"
-PAGES_DIR="$ROOT_DIR/pages"
+PAGES_DIR="$ROOT_DIR/build/pages"
 
 # Init options
 GRADLE_OPT=
@@ -38,7 +38,10 @@ cd "$PAGES_DIR"
 
 # Fixup all the old documentation files
 # Remove non-.html files
-git rm $(find . -type f -not -name '*.html' -not -name '.git') > /dev/null
+REMOVE_FILES=$(find . -type f -not -name '*.html' -not -name '.git')
+if [ "$REMOVE_FILES" != "" ] ; then
+    git rm $REMOVE_FILES > /dev/null
+fi
 
 # Copy new documentation from dist
 cp -r "$DIST_DIR"/* "$PAGES_DIR"

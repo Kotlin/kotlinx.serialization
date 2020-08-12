@@ -6,9 +6,9 @@ or they contain other JVM runtime dependencies.
 
 For convenience, they have same groupId, versioning and release cycle as main runtime.
 
-## HOCON config parser
+## HOCON 
 
-* Artifact id: `kotlinx-serialization-runtime-configparser`
+* Artifact id: `kotlinx-serialization-hocon`
 * Since version: 0.4.1
 * Platform: JVM only
 

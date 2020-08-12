@@ -6,6 +6,7 @@ package kotlinx.serialization.json.polymorphic
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.test.*
 

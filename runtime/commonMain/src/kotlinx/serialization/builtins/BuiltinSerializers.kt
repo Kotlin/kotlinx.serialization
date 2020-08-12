@@ -8,10 +8,12 @@ package kotlinx.serialization.builtins
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlin.reflect.*
+import kotlinx.serialization.descriptors.*
 
 /**
  * Returns a nullable serializer for the given serializer of non-null type.
  */
+@OptIn(ExperimentalSerializationApi::class)
 public val <T : Any> KSerializer<T>.nullable: KSerializer<T?>
     get() {
         @Suppress("UNCHECKED_CAST")
@@ -153,6 +155,7 @@ public fun String.Companion.serializer(): KSerializer<String> = StringSerializer
  * Each element of the array is serialized with the given [elementSerializer].
  */
 @Suppress("UNCHECKED_CAST")
+@ExperimentalSerializationApi
 public inline fun <reified T : Any, reified E : T?> ArraySerializer(elementSerializer: KSerializer<E>): KSerializer<Array<E>> =
     ArraySerializer<T, E>(T::class, elementSerializer)
 
@@ -160,6 +163,7 @@ public inline fun <reified T : Any, reified E : T?> ArraySerializer(elementSeria
  * Returns serializer for reference [Array] of type [E] with [descriptor][SerialDescriptor] of [StructureKind.LIST] kind.
  * Each element of the array is serialized with the given [elementSerializer].
  */
+@ExperimentalSerializationApi
 public fun <T : Any, E : T?> ArraySerializer(
     kClass: KClass<T>,
     elementSerializer: KSerializer<E>

@@ -6,8 +6,9 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.json.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 import kotlin.reflect.*
 
 /**
@@ -68,7 +69,7 @@ import kotlin.reflect.*
  * @see Serializer
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-@Retention(AnnotationRetention.BINARY)
+@Retention(AnnotationRetention.RUNTIME)
 public annotation class Serializable(
     val with: KClass<out KSerializer<*>> = KSerializer::class // Default value indicates that auto-generated serializer is used
 )
@@ -77,9 +78,14 @@ public annotation class Serializable(
  * Instructs the serialization plugin to turn this class into serializer for specified class [forClass].
  * However, it would not be used automatically. To apply it on particular class or property,
  * use [Serializable] or [UseSerializers], or [Contextual] with runtime registration.
+ *
+ * `@Serializer(forClass)` is experimental and unstable feature that can be changed in future releases.
+ * Changes may include additional constraints on classes and objects marked with this annotation,
+ * behavioural changes and even serialized shape of the class.
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
+@ExperimentalSerializationApi
 public annotation class Serializer(
     val forClass: KClass<*> //  target class to create serializer for
 )
@@ -135,6 +141,7 @@ public annotation class Transient
  */
 @Target(AnnotationTarget.ANNOTATION_CLASS)
 @Retention(AnnotationRetention.BINARY)
+@ExperimentalSerializationApi
 public annotation class SerialInfo
 
 /**
@@ -202,8 +209,25 @@ public annotation class UseSerializers(vararg val serializerClasses: KClass<out 
  * with special compiler plugin support which would be added later.
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE, AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.BINARY)
+@Retention(AnnotationRetention.RUNTIME)
 public annotation class Polymorphic
+
+/**
+ * Marks declarations that are still **experimental** in kotlinx.serialization, which means that the design of the
+ * corresponding declarations has open issues which may (or may not) lead to their changes in the future.
+ * Roughly speaking, there is a chance that those declarations will be deprecated in the near future or
+ * the semantics of their behavior may change in some way that may break some code.
+ *
+ * By default, the following categories of API are experimental:
+ *
+ * * Writing 3rd-party serialization formats
+ * * Writing non-trivial custom serializers
+ * * Implementing [SerialDescriptor] interfaces
+ * * Not-yet-stable serialization formats that require additional polishing
+ */
+@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPEALIAS)
+@RequiresOptIn(level = RequiresOptIn.Level.WARNING)
+public annotation class ExperimentalSerializationApi
 
 /**
  * Public API marked with this annotation is effectively **internal**, which means
@@ -215,5 +239,3 @@ public annotation class Polymorphic
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPEALIAS)
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
 public annotation class InternalSerializationApi
-
-

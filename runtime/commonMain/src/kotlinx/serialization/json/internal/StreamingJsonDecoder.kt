@@ -6,9 +6,9 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlinx.serialization.internal.*
-import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
@@ -16,6 +16,7 @@ import kotlin.jvm.*
 /**
  * [JsonDecoder] which reads given JSON from [JsonReader] field by field.
  */
+@OptIn(ExperimentalSerializationApi::class)
 internal class StreamingJsonDecoder internal constructor(
     public override val json: Json,
     private val mode: WriteMode,
@@ -148,10 +149,7 @@ internal class StreamingJsonDecoder internal constructor(
             }
 
             if (isUnknown && !configuration.ignoreUnknownKeys) {
-                reader.fail(
-                    "Encountered an unknown key '$key'. You can enable 'JsonBuilder.ignoreUnknownKeys' property" +
-                            " to ignore unknown keys"
-                )
+                reader.fail("Encountered an unknown key '$key'.\n$ignoreUnknownKeysHint")
             } else {
                 reader.skipElement()
             }
@@ -197,8 +195,21 @@ internal class StreamingJsonDecoder internal constructor(
     override fun decodeShort(): Short = reader.takeString().parse("short") { toShort() }
     override fun decodeInt(): Int = reader.takeString().parse("int") { toInt() }
     override fun decodeLong(): Long = reader.takeString().parse("long") { toLong() }
-    override fun decodeFloat(): Float = reader.takeString().parse("float") { toFloat() }
-    override fun decodeDouble(): Double = reader.takeString().parse("double") { toDouble() }
+
+    override fun decodeFloat(): Float {
+        val result = reader.takeString().parse("float") { toFloat() }
+        val specialFp = json.configuration.allowSpecialFloatingPointValues
+        if (specialFp || result.isFinite()) return result
+        reader.throwInvalidFloatingPointDecoded(result)
+    }
+
+    override fun decodeDouble(): Double {
+        val result = reader.takeString().parse("double") { toDouble() }
+        val specialFp = json.configuration.allowSpecialFloatingPointValues
+        if (specialFp || result.isFinite()) return result
+        reader.throwInvalidFloatingPointDecoded(result)
+    }
+
     override fun decodeChar(): Char = reader.takeString().parse("char") { single() }
 
     override fun decodeString(): String {

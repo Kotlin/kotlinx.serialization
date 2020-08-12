@@ -30,10 +30,11 @@ import kotlin.reflect.*
  * class ClassWithDate(val data: String, @Contextual val timestamp: Date)
  *
  * val moduleForDate = serializersModule(MyISO8601DateSerializer)
- * val json = Json(JsonConfiguration.Default, moduleForDate)
- * json.stringify(ClassWithDate("foo", Date())
+ * val json = Json { serializersModule = moduleForDate }
+ * json.encodeToString(ClassWithDate("foo", Date())
  * ```
  */
+@ExperimentalSerializationApi
 public class ContextualSerializer<T : Any>(
     private val serializableClass: KClass<T>,
     private val fallbackSerializer: KSerializer<T>?,

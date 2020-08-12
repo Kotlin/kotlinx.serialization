@@ -20,6 +20,7 @@ import kotlin.reflect.*
  * Serial name equals to fully-qualified class name by default and can be changed via @[SerialName] annotation.
  */
 @InternalSerializationApi
+@OptIn(ExperimentalSerializationApi::class)
 public abstract class AbstractPolymorphicSerializer<T : Any> internal constructor() : KSerializer<T> {
 
     /**
@@ -39,7 +40,7 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
         var klassName: String? = null
         var value: Any? = null
         if (decodeSequentially()) {
-            return@decodeStructure decodeSequentially(this)
+            return decodeSequentially(this)
         }
 
         mainLoop@ while (true) {
@@ -69,15 +70,14 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
     private fun decodeSequentially(compositeDecoder: CompositeDecoder): T {
         val klassName = compositeDecoder.decodeStringElement(descriptor, 0)
         val serializer = findPolymorphicSerializer(compositeDecoder, klassName)
-        val value = compositeDecoder.decodeSerializableElement(descriptor, 1, serializer)
-        compositeDecoder.endStructure(descriptor)
-        return value
+        return compositeDecoder.decodeSerializableElement(descriptor, 1, serializer)
     }
 
     /**
      * Lookups an actual serializer for given [klassName] withing the current [base class][baseClass].
      * May use context from the [decoder].
      */
+    @InternalSerializationApi
     public open fun findPolymorphicSerializerOrNull(
         decoder: CompositeDecoder,
         klassName: String?
@@ -88,6 +88,7 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
      * Lookups an actual serializer for given [value] within the current [base class][baseClass].
      * May use context from the [encoder].
      */
+    @InternalSerializationApi
     public open fun findPolymorphicSerializerOrNull(
         encoder: Encoder,
         value: T
@@ -97,13 +98,16 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
 
 @JvmName("throwSubtypeNotRegistered")
 internal fun throwSubtypeNotRegistered(subClassName: String?, baseClass: KClass<*>): Nothing {
-    val prefix =
-        if (subClassName == null) "Class discriminator was missing and no default polymorphic serializers were registered"
-        else "Discriminator '$subClassName' is not registered for polymorphic serialization"
-    throw SerializationException("$prefix in the scope of $baseClass")
+    val scope = "in the scope of '${baseClass.simpleName}'"
+    throw SerializationException(
+        if (subClassName == null)
+            "Class discriminator was missing and no default polymorphic serializers were registered $scope"
+        else
+            "Class '$subClassName' is not registered for polymorphic serialization $scope.\n" +
+            "Mark the base class as 'sealed' or register the serializer explicitly."
+    )
 }
 
 @JvmName("throwSubtypeNotRegistered")
-internal fun throwSubtypeNotRegistered(subClass: KClass<*>, baseClass: KClass<*>): Nothing {
-    throw SerializationException("$subClass is not registered for polymorphic serialization in the scope of $baseClass")
-}
+internal fun throwSubtypeNotRegistered(subClass: KClass<*>, baseClass: KClass<*>): Nothing =
+    throwSubtypeNotRegistered(subClass.simpleName ?: "$subClass", baseClass)

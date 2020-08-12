@@ -1,13 +1,13 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+@file:OptIn(ExperimentalSerializationApi::class)
 
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
-import kotlinx.serialization.json.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.math.*
@@ -113,7 +113,7 @@ private class DynamicObjectEncoder(
     override fun encodeLong(value: Long) {
         val asDouble = value.toDouble()
         val conversionHasLossOfPrecision = abs(asDouble) > MAX_SAFE_INTEGER
-
+        // todo: shall it be driven by isLenient or another configuration key?
         if (!configuration.isLenient && conversionHasLossOfPrecision) {
             throw IllegalArgumentException(
                 "$value can't be serialized to number due to a potential precision loss. " +
@@ -197,6 +197,7 @@ private class DynamicObjectEncoder(
         exitNode()
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     fun selectMode(desc: SerialDescriptor) = when (desc.kind) {
         StructureKind.CLASS, StructureKind.OBJECT, SerialKind.CONTEXTUAL -> WriteMode.OBJ
         StructureKind.LIST, is PolymorphicKind -> WriteMode.LIST
@@ -220,7 +221,7 @@ private class DynamicPrimitiveEncoder(
 
     override fun encodeLong(value: Long) {
         val asDouble = value.toDouble()
-
+        // todo: shall it be driven by isLenient or another configuration key?
         if (!configuration.isLenient && abs(value) > MAX_SAFE_INTEGER) {
             throw IllegalArgumentException(
                 "$value can't be deserialized to number due to a potential precision loss. " +
@@ -238,6 +239,7 @@ private class DynamicPrimitiveEncoder(
         result = value
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
         encodeValue(enumDescriptor.getElementName(index))
     }

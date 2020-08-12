@@ -15,6 +15,7 @@ import kotlinx.serialization.encoding.*
  * By default, a singleton is serialized as an empty structure, e.g. `{}` in JSON.
  */
 @PublishedApi
+@OptIn(ExperimentalSerializationApi::class)
 internal class ObjectSerializer<T : Any>(serialName: String, private val objectInstance: T) : KSerializer<T> {
     override val descriptor: SerialDescriptor = buildSerialDescriptor(serialName, StructureKind.OBJECT)
 

@@ -4,8 +4,8 @@
 
 package kotlinx.serialization.descriptors
 
-import kotlinx.serialization.descriptors.PrimitiveKind.*
-import kotlinx.serialization.descriptors.StructureKind.*
+import kotlinx.serialization.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
 /**
@@ -25,6 +25,7 @@ import kotlinx.serialization.modules.*
  * as a single `Long` value, its descriptor should have [PrimitiveKind.LONG] without nested elements even though the class itself
  * represents a structure with two primitive fields.
  */
+@ExperimentalSerializationApi
 public sealed class SerialKind {
 
     /**
@@ -36,6 +37,7 @@ public sealed class SerialKind {
      *
      * Corresponding encoder and decoder methods are [Encoder.encodeEnum] and [Decoder.decodeEnum].
      */
+    @ExperimentalSerializationApi
     public object ENUM : SerialKind()
 
     /**
@@ -48,6 +50,7 @@ public sealed class SerialKind {
      * However, if possible options are known statically (e.g. for sealed classes), they can be
      * enumerated in child descriptors similarly to [ENUM].
      */
+    @ExperimentalSerializationApi
     public object CONTEXTUAL : SerialKind()
 
     override fun toString(): String {
@@ -184,6 +187,7 @@ public sealed class PrimitiveKind : SerialKind() {
  * For example, provided serializer for [Map.Entry] represents it as [Map] type, so it is serialized
  * as `{"actualKey": "actualValue"}` map directly instead of `{"key": "actualKey", "value": "actualValue"}`
  */
+@ExperimentalSerializationApi
 public sealed class StructureKind : SerialKind() {
 
     /**
@@ -234,6 +238,7 @@ public sealed class StructureKind : SerialKind() {
  * bounded and sealed polymorphism common property: not knowing the actual type statically and requiring
  * formats to additionally encode it.
  */
+@ExperimentalSerializationApi
 public sealed class PolymorphicKind : SerialKind() {
     /**
      * Sealed kind represents Kotlin sealed classes, where all subclasses are known statically at the moment of declaration.
@@ -259,6 +264,7 @@ public sealed class PolymorphicKind : SerialKind() {
     level = DeprecationLevel.ERROR,
     message = "UnionKind is deprecated during 1.0 API stabilization"
 )
+@OptIn(ExperimentalSerializationApi::class)
 public object UnionKind {
     @Deprecated(
         "Was moved to the top-level serial kind during 1.0 API stabilization", level = DeprecationLevel.ERROR,

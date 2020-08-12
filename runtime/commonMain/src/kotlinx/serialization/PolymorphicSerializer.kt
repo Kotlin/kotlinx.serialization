@@ -65,6 +65,7 @@ import kotlin.reflect.*
  * @see SerializersModule
  * @see SerializersModuleBuilder.polymorphic
  */
+@OptIn(ExperimentalSerializationApi::class)
 public class PolymorphicSerializer<T : Any>(override val baseClass: KClass<T>) : AbstractPolymorphicSerializer<T>() {
     public override val descriptor: SerialDescriptor =
         buildSerialDescriptor("kotlinx.serialization.Polymorphic", PolymorphicKind.OPEN) {
@@ -74,14 +75,20 @@ public class PolymorphicSerializer<T : Any>(override val baseClass: KClass<T>) :
                 buildSerialDescriptor("kotlinx.serialization.Polymorphic<${baseClass.simpleName}>", SerialKind.CONTEXTUAL)
             )
         }.withContext(baseClass)
+
+    override fun toString(): String {
+        return "kotlinx.serialization.PolymorphicSerializer(baseClass: $baseClass)"
+    }
 }
 
+@InternalSerializationApi
 public fun <T : Any> AbstractPolymorphicSerializer<T>.findPolymorphicSerializer(
     decoder: CompositeDecoder,
     klassName: String?
 ): DeserializationStrategy<out T> =
     findPolymorphicSerializerOrNull(decoder, klassName) ?: throwSubtypeNotRegistered(klassName, baseClass)
 
+@InternalSerializationApi
 public fun <T : Any> AbstractPolymorphicSerializer<T>.findPolymorphicSerializer(
     encoder: Encoder,
     value: T
