@@ -11,7 +11,7 @@ import kotlin.test.*
 
 class CborReaderTest {
 
-    private val lenient = Cbor { ignoreUnknownKeys = true }
+    private val ignoreUnknownKeys = Cbor { ignoreUnknownKeys = true }
 
     private fun withDecoder(input: String, block: CborDecoder.() -> Unit) {
         val bytes = HexConverter.parseHexBinary(input.toUpperCase())
@@ -115,7 +115,7 @@ class CborReaderTest {
         assertEquals(
             expected = "Field 'a' is required, but it was missing",
             actual = assertFailsWith<SerializationException> {
-                lenient.decodeFromHexString(
+                ignoreUnknownKeys.decodeFromHexString(
                     Simple.serializer(),
                     "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffffff"
                 )
@@ -126,7 +126,7 @@ class CborReaderTest {
         assertEquals(
             expected = "Field 'a' is required, but it was missing",
             actual = assertFailsWith<SerializationException> {
-                lenient.decodeFromHexString(
+                ignoreUnknownKeys.decodeFromHexString(
                     Simple.serializer(),
                     "a7646c6973748261616162686e756c6c61626c65f6636d6170a202f401f56169182a6a696e6e6572734c69737481a16161636b656b637374726d48656c6c6f2c20776f726c642165696e6e6572a16161636c6f6c"
                 )
@@ -282,7 +282,7 @@ class CborReaderTest {
     fun testDecodeCborWithUnknownField() {
         assertEquals(
             expected = Simple("123"),
-            actual = lenient.decodeFromHexString(
+            actual = ignoreUnknownKeys.decodeFromHexString(
                 deserializer = Simple.serializer(),
 
                 /* BF           # map(*)
@@ -305,7 +305,7 @@ class CborReaderTest {
     fun testDecodeCborWithUnknownNestedIndefiniteFields() {
         assertEquals(
             expected = Simple("123"),
-            actual = lenient.decodeFromHexString(
+            actual = ignoreUnknownKeys.decodeFromHexString(
                 deserializer = Simple.serializer(),
 
                 /* BF             # map(*)
@@ -424,7 +424,7 @@ class CborReaderTest {
                     SubSealedB(1)
                 )
             ),
-            actual = lenient.decodeFromHexString(
+            actual = ignoreUnknownKeys.decodeFromHexString(
                 SealedBox.serializer(),
                 "bf6565787472618309080765626f7865649f9f782d6b6f746c696e782e73657269616c697a6174696f6e2e53696d706c655365616c65642e5375625365616c656441bf61736161646e657741bf617801617902ffffff9f782d6b6f746c696e782e73657269616c697a6174696f6e2e53696d706c655365616c65642e5375625365616c656442bf616901ffffffff"
             )
