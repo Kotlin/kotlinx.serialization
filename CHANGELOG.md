@@ -18,32 +18,32 @@ If you have further questions, see [migration guide](TODO).
 
 #### Declarations deprecations and renaming
 
-* Rename core functions in StringFormat and BinaryFormat
+* Renamed core functions in StringFormat and BinaryFormat
     * `stringify`/`parse` are renamed to `encodeToString`/`decodeToString`
     * Similarly, `encodeToByteArray/encodeToHexString/decodeFromByteArray/decodeFromHexString` in BinaryFormat should be used instead of `dump`/`dumps`/`load`/`loads`
     
 * JsonConfiguration was deprecated in favor of `Json {}` DSL
-    * `prettyPrintIndent` allows only whitespaces 
+    * `prettyPrintIndent` allows only whitespaces now
     * `serializeSpecialFloatingPointValues` is renamed to `allowSpecialFloatingPointValues`. It now affects both serialization and deserialization behaviour
     * `unquoted` JSON flag is deprecated
     * All default Json implementations are removed, except `companion object Default`
     
 * JsonElement's DSL is reworked and aligned with stdlib collection builders
-    * Deprecate infix `to` and unaryPlus in JSON DSL in favor of `put`/`add` functions
+    * Deprecated infix `to` and unaryPlus in JSON DSL in favor of `put`/`add` functions
     * Deprecate or move to extensions unnecessary `JsonElement` API
-    * Deprecate `JsonLiteral` in favor of `JsonPrimitive` constructors with nullable parameter
-    * Rename `jsonObject {}` and `json {}` builders to `buildJsonObject {}`/`buildJsonArray {}`
+    * `JsonLiteral` is deprecated in favor of `JsonPrimitive` constructors with nullable parameter
+    * `jsonObject {}` and `json {}` builders are renamed to `buildJsonObject {}`/`buildJsonArray {}`
 
 * Other Json changes:
-    * Rename JsonInput/Output to JsonEncoder/Decoder
-    * Rename methods in JsonTransformingSerializer to `transformSerialize/transformDeserialize`
-    * Rename JsonParametricSerializer to JsonContentPolymorphicSerializer
+    * JsonInput/Output are renamed to JsonEncoder/Decoder
+    * Methods in JsonTransformingSerializer are renamed to `transformSerialize/transformDeserialize`
+    * JsonParametricSerializer is renamed to JsonContentPolymorphicSerializer
     * `DynamicObjectParser` is now `Json.decodeFromDynamic` extension
     
 * Protobuf constructor now accepts DSL builder instead of flags
     * ProtoId renamed to ProtoNumber and ProtoNumberType to ProtoIntegerType to be better aligned with ProtoBuf specification
 
-* Rename ConfigParser to Hocon and deprecate ConfigParserConfiguration. `Hocon {}` DSL builder should be used, similarly to `Json {}`.
+* Renamed ConfigParser to Hocon and deprecated ConfigParserConfiguration. `Hocon {}` DSL builder should be used, similarly to `Json {}`.
     
 * Split ContextualSerialization into two annotations: `@Contextual` to use on properties and `@UseContextualSerialization` to use on file.
     * Renamed ContextSerializer to ContextualSerializer
