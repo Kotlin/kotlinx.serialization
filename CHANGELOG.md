@@ -6,12 +6,12 @@
 This is a release candidate for 1.0.0 version. The goal of this RC is to collect feedback from users
 and provide 1.0.0 release with bugfixes and improvements based on that feedback.
 
-While preparing 1.0.0 version, we carefully examined public API of the library and split it in stable part,
-that we promise to be binary-compatible, and experimental declarations, that may change design in future.
+While preparing 1.0.0 version, we carefully examined public API of the library and split it to stable part,
+that we promise to be binary-compatible, and experimental declarations, that may be changed in future.
 Experimental API is annotated with `@ExperimentalSerializationApi` annotation which requires opt-in.
-Also, significant part of the public API declarations was renamed to better reflect their purposes.
+Also, a significant part of the public API declarations was renamed to better reflect their purposes.
 
-The id of core artifact with `@Serializable` annotation and `Json` format was changed
+The id of the core artifact with `@Serializable` annotation and `Json` format was changed
 to be more clear and aligned with other kotlinx libraries.
 Please use `kotlinx-serialization-core` instead of `kotlinx-serialization-runtime`.
 If you have further questions, see [migration guide](TODO).
@@ -19,22 +19,22 @@ If you have further questions, see [migration guide](TODO).
 #### Declarations deprecations and renaming
 
 * Rename core functions in StringFormat and BinaryFormat
-    * stringify/parse renamed to `encodeToString`/`decodeToString`
-    * Similarly, `encodeToByteArray/encodeToHexString/decodeFromByteArray/decodeFromHexString` in BinaryFormat should be used
+    * `stringify`/`parse` are renamed to `encodeToString`/`decodeToString`
+    * Similarly, `encodeToByteArray/encodeToHexString/decodeFromByteArray/decodeFromHexString` in BinaryFormat should be used instead of `dump`/`dumps`/`load`/`loads`
     
 * JsonConfiguration was deprecated in favor of `Json {}` DSL
     * `prettyPrintIndent` allows only whitespaces 
-    * `serializeSpecialFloatingPointValues` is renamed to `allowSpecialFloatingPointValues`. It also affects serialization now
+    * `serializeSpecialFloatingPointValues` is renamed to `allowSpecialFloatingPointValues`. It now affects both serialization and deserialization behaviour
     * `unquoted` JSON flag is deprecated
     * All default Json implementations are removed, except `companion object Default`
     
-* JsonElement's DSL is cleaner and aligned with stdlib now
+* JsonElement's DSL is reworked and aligned with stdlib collection builders
     * Deprecate infix `to` and unaryPlus in JSON DSL in favor of `put`/`add` functions
-    * Deprecate or move to extensions unnecessary JsonElement API
-    * Deprecate JsonLiteral in favor of JsonPrimitive constructors with nullable argument
+    * Deprecate or move to extensions unnecessary `JsonElement` API
+    * Deprecate `JsonLiteral` in favor of `JsonPrimitive` constructors with nullable parameter
     * Rename `jsonObject {}` and `json {}` builders to `buildJsonObject {}`/`buildJsonArray {}`
 
-* Rework other Json stuff:
+* Other Json changes:
     * Rename JsonInput/Output to JsonEncoder/Decoder
     * Rename methods in JsonTransformingSerializer to `transformSerialize/transformDeserialize`
     * Rename JsonParametricSerializer to JsonContentPolymorphicSerializer
@@ -45,7 +45,7 @@ If you have further questions, see [migration guide](TODO).
 
 * Rename ConfigParser to Hocon and deprecate ConfigParserConfiguration. `Hocon {}` DSL builder should be used, similarly to `Json {}`.
     
-* Split ContextualSerialization into two annotations: `@Contextual` to use on property and `@UseContextualSerialization` to use on file.
+* Split ContextualSerialization into two annotations: `@Contextual` to use on properties and `@UseContextualSerialization` to use on file.
     * Renamed ContextSerializer to ContextualSerializer
     
 * SerialModule renamed to SerializersModule
