@@ -43,8 +43,12 @@ if [ "$REMOVE_FILES" != "" ] ; then
     git rm $REMOVE_FILES > /dev/null
 fi
 
-# Copy new documentation from dist
-cp -r "$DIST_DIR"/* "$PAGES_DIR"
+# Copy manually new documentation and flat out kotlinx-serialization
+find $DIST_DIR -maxdepth 1 -not -iname 'kotlinx-serialization' -exec cp '{}' "$PAGES_DIR/" ';'
+cp -r "$DIST_DIR/kotlinx-serialization/" "$PAGES_DIR/"
+
+# Now fix style.css, workaround for https://github.com/Kotlin/dokka/issues/163
+for file in $(find $PAGES_DIR -name '*.html'); do sed  -i '' 's/\.\.\/style.css/style.css/' $file; done
 
 # Add it all to git
 git add *
