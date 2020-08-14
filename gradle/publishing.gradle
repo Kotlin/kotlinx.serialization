@@ -48,6 +48,7 @@ afterEvaluate {
                     artifactId variantName
                     publication.from components.java
                     publication.artifact mainSourcesJar
+                    artifact stubJavadoc
                     publication.pom.withXml(configureMavenCentralMetadata)
                 }
             }

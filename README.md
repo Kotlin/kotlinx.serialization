@@ -186,47 +186,18 @@ You may also want to keep all custom serializers you've defined.
 
 ### Multiplatform (common, JS, Native)
 
-Typically, you need the following dependencies in your multiplatform project (don't forget to rename [source sets](https://kotlinlang.org/docs/reference/building-mpp-with-gradle.html#configuring-source-sets) according to your setup):
-
+Most of the modules are also available for Kotlin/JS and Kotlin/Native.
+You can add dependency to the required module right to the common source set:
 ```gradle
-sourceSets {
-    commonMain {
-        dependencies {
-            implementation kotlin('stdlib-common')
-            implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
-        }
+commonMain {
+    dependencies {
+        implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
+        implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:$serialization_version"
     }
-    commonTest {
-        dependencies {
-            implementation kotlin('test-common')
-            implementation kotlin('test-annotations-common')
-        }
-    }
-    jvmMain {
-        dependencies {
-            implementation kotlin('stdlib-jdk8')
-        }
-    }
-    jvmTest {
-        dependencies {
-            implementation kotlin('test')
-            implementation kotlin('test-junit')
-        }
-    }
-    jsMain {
-        dependencies {
-            implementation kotlin('stdlib-js')
-        }
-    }
-    jsTest {
-        dependencies {
-            implementation kotlin('test-js')
-        }
-    }
-    nativeMain {}
-    nativeTest {}
 }
 ```
+Additionally, artifacts with `-js` and `-native` suffixes are available to directly depend
+on platform specific artifact.
 
 ### Maven/JVM
 
