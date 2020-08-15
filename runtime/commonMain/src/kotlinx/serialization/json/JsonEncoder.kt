@@ -21,7 +21,7 @@ import kotlinx.serialization.encoding.*
  *
  * // Serializer injects custom behaviour by inspecting object content and writing
  * object EitherSerializer : KSerializer<Either> {
- *     override val descriptor: SerialDescriptor = SerialDescriptor("package.Either", PolymorphicKind.SEALED) {
+ *     override val descriptor: SerialDescriptor = buildSerialDescriptor("package.Either", PolymorphicKind.SEALED) {
  *          // ..
  *      }
  *
