@@ -14,5 +14,5 @@ fun main() {
     println(string) // {"name":"kotlinx.serialization","language":"Kotlin"} 
     // Deserializing back into objects
     val obj = Json.decodeFromString<Project>(string)
-    println(obj) // Project(name=kotlinx.serialization, langauge=Kotlin)
+    println(obj) // Project(name=kotlinx.serialization, language=Kotlin)
 }
