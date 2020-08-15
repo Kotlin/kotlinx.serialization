@@ -105,7 +105,7 @@ public abstract class JsonTransformingSerializer<T : Any>(
     protected open fun transformDeserialize(element: JsonElement): JsonElement = element
 
     @Deprecated(
-        "This method was renamed to writeTransform during serialization 1.0 API stabilization, please override it instead",
+        "This method was renamed to transformSerialize during serialization 1.0 API stabilization, please override it instead",
         level = DeprecationLevel.ERROR
     )
     protected fun writeTransform(element: JsonElement): JsonElement = transformSerialize(element)
