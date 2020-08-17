@@ -21,7 +21,7 @@ To migrate from the previous versions of the library, please refer to the [migra
 #### Json
 
 * Core API changes
-    * `stringify` and `parse` are renamed to `encodeToString` and `decodeToString`
+    * `stringify` and `parse` are renamed to `encodeToString` and `decodeFromString`
     * `parseJson` and `fromJson` are renamed to `parseJsonElement` and `decodeFromJsonElement`
     * Reified versions of methods are extracted to extensions
 
