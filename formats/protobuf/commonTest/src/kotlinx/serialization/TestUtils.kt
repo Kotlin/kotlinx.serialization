@@ -6,14 +6,14 @@ package kotlinx.serialization
 
 import kotlin.test.*
 
-internal inline fun <reified T : Any> assertSerializedToBinaryAndRestored(
+internal inline fun <reified T> assertSerializedToBinaryAndRestored(
     original: T,
     serializer: KSerializer<T>,
     format: BinaryFormat,
     printResult: Boolean = false,
     hexResultToCheck: String? = null
 ) {
-    val bytes = format.dump(serializer, original)
+    val bytes = format.encodeToByteArray(serializer, original)
     val hexString = HexConverter.printHexBinary(bytes, lowerCase = true)
     if (printResult) {
         println("[Serialized form] $hexString")
@@ -25,7 +25,7 @@ internal inline fun <reified T : Any> assertSerializedToBinaryAndRestored(
             "Expected serialized binary to be equal in hex representation"
         )
     }
-    val restored = format.load(serializer, bytes)
+    val restored = format.decodeFromByteArray(serializer, bytes)
     if (printResult) println("[Restored form] $restored")
     assertEquals(original, restored)
 }

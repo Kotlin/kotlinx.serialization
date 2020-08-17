@@ -4,6 +4,8 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.JsonTestBase
 import kotlinx.serialization.test.*
 import kotlin.test.*
@@ -45,9 +47,9 @@ class EnumSerializationTest : JsonTestBase() {
 
     @Serializer(WithCustom::class)
     private class CustomEnumSerializer : KSerializer<WithCustom> {
-        override val descriptor: SerialDescriptor = SerialDescriptor("WithCustom", UnionKind.ENUM_KIND) {
-            element("1", SerialDescriptor("WithCustom.1", StructureKind.OBJECT))
-            element("2", SerialDescriptor("WithCustom.2", StructureKind.OBJECT))
+        override val descriptor: SerialDescriptor = buildSerialDescriptor("WithCustom", SerialKind.ENUM) {
+            element("1", buildSerialDescriptor("WithCustom.1", StructureKind.OBJECT))
+            element("2", buildSerialDescriptor("WithCustom.2", StructureKind.OBJECT))
         }
 
         override fun serialize(encoder: Encoder, value: WithCustom) {
@@ -92,7 +94,7 @@ class EnumSerializationTest : JsonTestBase() {
             regularNullable
         )
         // slightly differs from previous one
-        val regularNullableJoined = RegularNullable.serializer().descriptor.elementDescriptors().joinToString()
+        val regularNullableJoined = RegularNullable.serializer().descriptor.elementDescriptors.joinToString()
         assertEquals("kotlinx.serialization.EnumSerializationTest.RegularEnum(VALUE)?", regularNullableJoined)
 
         val regularEnum = RegularEnum.serializer().descriptor.toString()

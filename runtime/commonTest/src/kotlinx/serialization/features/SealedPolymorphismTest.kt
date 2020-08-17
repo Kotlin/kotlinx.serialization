@@ -6,41 +6,44 @@ package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.test.assertStringFormAndRestored
 import kotlin.test.Test
 
-@Serializable
-data class FooHolder(
-    val someMetadata: Int,
-    val payload: List<@Polymorphic Foo>
-)
-
-@Serializable
-sealed class Foo {
-    @Serializable
-    data class Bar(val bar: Int) : Foo()
-    @Serializable
-    data class Baz(val baz: String) : Foo()
-}
-
 class SealedPolymorphismTest {
+
+    @Serializable
+    data class FooHolder(
+        val someMetadata: Int,
+        val payload: List<@Polymorphic Foo>
+    )
+
+    @Serializable
+    @SerialName("Foo")
+    sealed class Foo {
+        @Serializable
+        @SerialName("Bar")
+        data class Bar(val bar: Int) : Foo()
+        @Serializable
+        @SerialName("Baz")
+        data class Baz(val baz: String) : Foo()
+    }
 
     val sealedModule = SerializersModule {
         polymorphic(Foo::class) {
-            Foo.Bar::class with Foo.Bar.serializer()
-            Foo.Baz::class with Foo.Baz.serializer()
+            subclass(Foo.Bar.serializer())
+            subclass(Foo.Baz.serializer())
         }
     }
 
-    val json = Json(context = sealedModule)
+    val json = Json { serializersModule = sealedModule }
 
     @Test
     fun testSaveSealedClassesList() {
         assertStringFormAndRestored(
             """{"someMetadata":42,"payload":[
-            |{"type":"kotlinx.serialization.features.Foo.Bar","bar":1},
-            |{"type":"kotlinx.serialization.features.Foo.Baz","baz":"2"}]}""".trimMargin().replace("\n", ""),
+            |{"type":"Bar","bar":1},
+            |{"type":"Baz","baz":"2"}]}""".trimMargin().replace("\n", ""),
             FooHolder(42, listOf(Foo.Bar(1), Foo.Baz("2"))),
             FooHolder.serializer(),
             json,
@@ -51,7 +54,7 @@ class SealedPolymorphismTest {
     @Test
     fun testCanSerializeSealedClassPolymorphicallyOnTopLevel() {
         assertStringFormAndRestored(
-            """{"type":"kotlinx.serialization.features.Foo.Bar","bar":1}""",
+            """{"type":"Bar","bar":1}""",
             Foo.Bar(1),
             PolymorphicSerializer(Foo::class),
             json

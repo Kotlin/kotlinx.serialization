@@ -1,0 +1,20 @@
+public abstract class kotlinx/serialization/properties/Properties : kotlinx/serialization/SerialFormat {
+	public static final field Default Lkotlinx/serialization/properties/Properties$Default;
+	public synthetic fun <init> (Lkotlinx/serialization/modules/SerializersModule;Ljava/lang/Void;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun decodeFromMap (Lkotlinx/serialization/DeserializationStrategy;Ljava/util/Map;)Ljava/lang/Object;
+	public final fun encodeToMap (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/util/Map;
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public final fun loadNullable (Lkotlinx/serialization/DeserializationStrategy;Ljava/util/Map;)Ljava/lang/Object;
+	public final fun storeNullable (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/util/Map;
+}
+
+public final class kotlinx/serialization/properties/Properties$Default : kotlinx/serialization/properties/Properties {
+}
+
+public final class kotlinx/serialization/properties/PropertiesKt {
+	public static final fun Properties (Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/properties/Properties;
+	public static final fun load (Lkotlinx/serialization/properties/Properties;Lkotlinx/serialization/DeserializationStrategy;Ljava/util/Map;)Ljava/lang/Object;
+	public static final fun noImpl ()Ljava/lang/Void;
+	public static final fun store (Lkotlinx/serialization/properties/Properties;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/util/Map;
+}
+

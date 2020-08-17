@@ -6,6 +6,8 @@ package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
@@ -16,7 +18,7 @@ class BinaryPayloadExampleTest {
     class BinaryPayload(val req: ByteArray, val res: ByteArray) {
         @Serializer(forClass = BinaryPayload::class)
         companion object : KSerializer<BinaryPayload> {
-            override val descriptor: SerialDescriptor = SerialDescriptor("BinaryPayload") {
+            override val descriptor: SerialDescriptor = buildClassSerialDescriptor("BinaryPayload") {
                 element("req", ByteArraySerializer().descriptor)
                 element("res", ByteArraySerializer().descriptor)
             }
@@ -34,7 +36,7 @@ class BinaryPayloadExampleTest {
                 var res: ByteArray? = null // need to read nullable non-optional properties
                 loop@ while (true) {
                     when (val i = dec.decodeElementIndex(descriptor)) {
-                        CompositeDecoder.READ_DONE -> break@loop
+                        CompositeDecoder.DECODE_DONE -> break@loop
                         0 -> req = InternalHexConverter.parseHexBinary(dec.decodeStringElement(descriptor, i))
                         1 -> res = InternalHexConverter.parseHexBinary(dec.decodeStringElement(descriptor, i))
                         else -> throw SerializationException("Unknown index $i")
@@ -70,8 +72,8 @@ class BinaryPayloadExampleTest {
     @Test
     fun payloadEquivalence() {
         val payload1 = BinaryPayload(byteArrayOf(0, 0, 0), byteArrayOf(127, 127))
-        val s = Json.stringify(BinaryPayload.serializer(), payload1)
-        val payload2 = Json.parse(BinaryPayload.serializer(), s)
+        val s = Json.encodeToString(BinaryPayload.serializer(), payload1)
+        val payload2 = Json.decodeFromString(BinaryPayload.serializer(), s)
         assertEquals(payload1, payload2)
     }
 }

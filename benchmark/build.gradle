@@ -30,7 +30,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.1'
     compile 'com.esotericsoftware:kryo:4.0.0'
 
-    compile project(':kotlinx-serialization-runtime')
+    compile project(':kotlinx-serialization-core')
     compile project(':kotlinx-serialization-protobuf')
 
     // async profiler

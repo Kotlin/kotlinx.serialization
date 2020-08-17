@@ -4,10 +4,16 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.descriptors.elementNames
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.encoding.updateModeDeprecated
+
 /**
  * KSerializer is responsible for the representation of a serial form of a type [T]
  * in terms of [encoders][Encoder] and [decoders][Decoder] and for constructing and deconstructing [T]
- * from/to a sequence of encoding primitives.
+ * from/to a sequence of encoding primitives. For classes marked with [@Serializable][Serializable], can be
+ * obtained from generated companion extension `.serializer()` or from [serializer<T>()][serializer] function.
  *
  * Serialization is decoupled from the encoding process to make it completely format-agnostic.
  * Serialization represents a type as its serial form and is abstracted from the actual
@@ -26,7 +32,7 @@ package kotlinx.serialization
  *
  * Structural description specifies how the [T] is represented in the serial form:
  * its [kind][SerialKind] (e.g. whether it is represented as a primitive, a list or a class),
- * its [elements][SerialDescriptor.elementDescriptors] and their [positional names][SerialDescriptor.getElementName].
+ * its [elements][SerialDescriptor.elementNames] and their [positional names][SerialDescriptor.getElementName].
  *
  * Serialization process is defined as a sequence of calls to an [Encoder], and transforms a type [T]
  * into a stream of format-agnostic primitives that represent [T], such as "here is an int, here is a double
@@ -60,7 +66,8 @@ public interface KSerializer<T> : SerializationStrategy<T>, DeserializationStrat
      */
     override val descriptor: SerialDescriptor
 
-    override fun patch(decoder: Decoder, old: T): T = throw UpdateNotSupportedException(descriptor.serialName)
+    @Deprecated(patchDeprecated, level = DeprecationLevel.ERROR)
+    override fun patch(decoder: Decoder, old: T): T = throw UnsupportedOperationException("Not implemented, should not be called")
 }
 
 /**
@@ -78,7 +85,7 @@ public interface KSerializer<T> : SerializationStrategy<T>, DeserializationStrat
  *
  * For a more detailed explanation of the serialization process, please refer to [KSerializer] documentation.
  */
-interface SerializationStrategy<in T> {
+public interface SerializationStrategy<in T> {
     /**
      * Describes the structure of the serializable representation of [T], produced
      * by this serializer.
@@ -123,7 +130,7 @@ interface SerializationStrategy<in T> {
  *
  * For a more detailed explanation of the serialization process, please refer to [KSerializer] documentation.
  */
-interface DeserializationStrategy<T> {
+public interface DeserializationStrategy<T> {
     /**
      * Describes the structure of the serializable representation of [T], that current
      * deserializer is able to deserialize.
@@ -151,7 +158,7 @@ interface DeserializationStrategy<T> {
      *     var list: List<String>? = null
      *     loop@ while (true) {
      *         when (val index = decodeElementIndex(descriptor)) {
-     *             READ_DONE -> break@loop
+     *             DECODE_DONE -> break@loop
      *             0 -> {
      *                 // Decode 'int' property as Int
      *                 int = decodeIntElement(descriptor, index = 0)
@@ -171,9 +178,19 @@ interface DeserializationStrategy<T> {
      */
     public fun deserialize(decoder: Decoder): T
 
+    @Deprecated(patchDeprecated, level = DeprecationLevel.ERROR)
     public fun patch(decoder: Decoder, old: T): T
 }
 
+// Can't be error yet because it's impossible to add default implementations for `val updateMode` in Decoder:
+// 'Class JsonDecoder must implement updateMode because it inherits it from multiple interfaces'
+// so users will have it in signature until we delete updateMode
+@Deprecated(updateModeDeprecated, level = DeprecationLevel.WARNING)
+@Suppress("NO_EXPLICIT_VISIBILITY_IN_API_MODE_WARNING")
 public enum class UpdateMode {
     BANNED, OVERWRITE, UPDATE
 }
+
+internal const val patchDeprecated =
+    "Patch function is deprecated for removal since this functionality is no longer supported by serializer." +
+            "Some formats may provide implementation-specific patching in their Decoders."

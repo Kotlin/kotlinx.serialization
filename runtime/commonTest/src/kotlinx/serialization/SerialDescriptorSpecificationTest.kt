@@ -4,13 +4,11 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
+import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlinx.serialization.builtins.*
-import kotlinx.serialization.internal.*
-
+import kotlinx.serialization.descriptors.*
 import kotlin.test.*
 
-@ImplicitReflectionSerializer
 class SerialDescriptorSpecificationTest {
 
     @Serializable
@@ -28,7 +26,7 @@ class SerialDescriptorSpecificationTest {
 
     private object StaticHolder {
         val userDefinedHolderDescriptor =
-            SerialDescriptor("kotlinx.serialization.SerialDescriptorSpecificationTest.Holder", StructureKind.CLASS) {
+            buildClassSerialDescriptor("kotlinx.serialization.SerialDescriptorSpecificationTest.Holder") {
                 element<Int?>("a")
                 val annotation = Holder.serializer().descriptor.findAnnotation<Id>(1)
                 element<String>("b", listOf(annotation!!), isOptional = true)
@@ -107,7 +105,7 @@ class SerialDescriptorSpecificationTest {
         }
 
         val d = NamedEnum.serializer().descriptor
-        assertEquals(UnionKind.ENUM_KIND, d.kind)
+        assertEquals(SerialKind.ENUM, d.kind)
         assertEquals("Named", d.serialName)
         assertEquals(2, d.elementsCount)
         assertFalse(d.isNullable)
@@ -135,8 +133,10 @@ class SerialDescriptorSpecificationTest {
         assertFalse(descriptor.isNullable)
         assertEquals(1, descriptor.elementsCount)
         assertSame(Int.serializer().descriptor, descriptor.getElementDescriptor(0))
+        assertSame(Int.serializer().descriptor, descriptor.getElementDescriptor(1))
         assertFalse(descriptor.isElementOptional(0))
-        assertFailsWith<IllegalStateException> { descriptor.isElementOptional(1) }
+        assertFalse(descriptor.isElementOptional(1))
+        assertFailsWith<IllegalArgumentException> { descriptor.isElementOptional(-1) }
     }
 
     @Test
@@ -150,11 +150,15 @@ class SerialDescriptorSpecificationTest {
         assertEquals(2, descriptor.elementsCount)
         assertSame(Int.serializer().descriptor, descriptor.getElementDescriptor(0))
         assertSame(Long.serializer().descriptor, descriptor.getElementDescriptor(1))
+        assertSame(Int.serializer().descriptor, descriptor.getElementDescriptor(2))
+        assertSame(Long.serializer().descriptor, descriptor.getElementDescriptor(3))
         assertTrue(descriptor.getElementAnnotations(0).isEmpty())
         assertTrue(descriptor.getElementAnnotations(1).isEmpty())
         assertFalse(descriptor.isElementOptional(0))
         assertFalse(descriptor.isElementOptional(1))
-        assertFailsWith<IllegalStateException> { descriptor.isElementOptional(3) }
+        assertFalse(descriptor.isElementOptional(2))
+        assertFalse(descriptor.isElementOptional(3))
+        assertFailsWith<IllegalArgumentException> { descriptor.isElementOptional(-1) }
     }
 
     @Serializable
@@ -190,7 +194,7 @@ class SerialDescriptorSpecificationTest {
 
     @Test
     fun testUnitDescriptor() {
-        val descriptor = UnitSerializer().descriptor
+        val descriptor = Unit.serializer().descriptor
         assertEquals(StructureKind.OBJECT, descriptor.kind)
         assertFalse(descriptor.isNullable)
         assertEquals("kotlin.Unit", descriptor.serialName)
@@ -200,9 +204,9 @@ class SerialDescriptorSpecificationTest {
 
     @Test
     fun testCustomPrimitiveDescriptor() {
-        assertFailsWith<IllegalArgumentException> { PrimitiveDescriptor("kotlin.Int", PrimitiveKind.INT) }
-        assertFailsWith<IllegalArgumentException> { PrimitiveDescriptor("Int", PrimitiveKind.INT) }
-        assertFailsWith<IllegalArgumentException> { PrimitiveDescriptor("int", PrimitiveKind.INT) }
+        assertFailsWith<IllegalArgumentException> { PrimitiveSerialDescriptor("kotlin.Int", PrimitiveKind.INT) }
+        assertFailsWith<IllegalArgumentException> { PrimitiveSerialDescriptor("Int", PrimitiveKind.INT) }
+        assertFailsWith<IllegalArgumentException> { PrimitiveSerialDescriptor("int", PrimitiveKind.INT) }
     }
 
     private fun checkPrimitiveDescriptor(type: String, descriptor: SerialDescriptor) {

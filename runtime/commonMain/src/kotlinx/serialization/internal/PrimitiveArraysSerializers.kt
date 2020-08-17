@@ -6,6 +6,7 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.encoding.*
 
 private const val INITIAL_SIZE = 10
 

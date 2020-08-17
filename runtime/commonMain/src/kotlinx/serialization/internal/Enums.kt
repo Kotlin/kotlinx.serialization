@@ -1,25 +1,28 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-@file:Suppress("DEPRECATION_ERROR")
+
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 
 /*
  * Descriptor used for explicitly serializable enums by the plugin.
  * Designed to be consistent with `EnumSerializer.descriptor` and weird plugin usage.
  */
-@InternalSerializationApi
-@Deprecated(level = DeprecationLevel.HIDDEN, message = "For plugin-generated code")
-public class EnumDescriptor(
+@Suppress("unused") // Used by the plugin
+@PublishedApi
+@OptIn(ExperimentalSerializationApi::class)
+internal class EnumDescriptor(
     name: String,
     elementsCount: Int
-) : SerialClassDescImpl(name, elementsCount = elementsCount) {
+) : PluginGeneratedSerialDescriptor(name, elementsCount = elementsCount) {
 
-    override val kind: SerialKind = UnionKind.ENUM_KIND
+    override val kind: SerialKind = SerialKind.ENUM
     private val elementDescriptors by lazy {
-        Array(elementsCount) { SerialDescriptor(name + "." + getElementName(it), StructureKind.OBJECT) }
+        Array(elementsCount) { buildSerialDescriptor(name + "." + getElementName(it), StructureKind.OBJECT) }
     }
 
     override fun getElementDescriptor(index: Int): SerialDescriptor = elementDescriptors.getChecked(index)
@@ -28,36 +31,35 @@ public class EnumDescriptor(
         if (this === other) return true
         if (other == null) return false
         if (other !is SerialDescriptor) return false
-        if (other.kind !== UnionKind.ENUM_KIND) return false
+        if (other.kind !== SerialKind.ENUM) return false
         if (serialName != other.serialName) return false
-        if (elementNames() != other.elementNames()) return false
+        if (cachedSerialNames() != other.cachedSerialNames()) return false
         return true
     }
 
     override fun toString(): String {
-        return elementNames().joinToString(", ", "$serialName(", ")")
+        return elementNames.joinToString(", ", "$serialName(", ")")
     }
 
     override fun hashCode(): Int {
         var result = serialName.hashCode()
-        result = 31 * result + elementNames().hashCode()
+        val elementsHashCode = elementNames.elementsHashCodeBy { it }
+        result = 31 * result + elementsHashCode
         return result
     }
 }
 
-// Used for enums that are not explicitly serializable
-@InternalSerializationApi
-@Deprecated(level = DeprecationLevel.ERROR, message = "For plugin-generated code, " +
-        "should not be used directly. For the custom serializers please report your use-case to project issues, so proper public API could be introduced instead")
-public class EnumSerializer<T : Enum<T>>(
+// Used for enums that are not explicitly serializable by the plugin
+@PublishedApi
+internal class EnumSerializer<T : Enum<T>>(
     serialName: String,
     private val values: Array<T>
 ) : KSerializer<T> {
 
-    override val descriptor: SerialDescriptor = SerialDescriptor(serialName, UnionKind.ENUM_KIND) {
+    override val descriptor: SerialDescriptor = buildSerialDescriptor(serialName, SerialKind.ENUM) {
         values.forEach {
             val fqn = "$serialName.${it.name}"
-            val enumMemberDescriptor = SerialDescriptor(fqn, StructureKind.OBJECT)
+            val enumMemberDescriptor = buildSerialDescriptor(fqn, StructureKind.OBJECT)
             element(it.name, enumMemberDescriptor)
         }
     }
@@ -77,4 +79,6 @@ public class EnumSerializer<T : Enum<T>>(
         }
         return values[index]
     }
+
+    override fun toString(): String = "kotlinx.serialization.internal.EnumSerializer<${descriptor.serialName}>"
 }

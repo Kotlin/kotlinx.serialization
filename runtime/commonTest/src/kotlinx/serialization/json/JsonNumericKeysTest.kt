@@ -39,7 +39,7 @@ class JsonNumericKeysTest : JsonTestBase() {
 
     // Workaround equals on JS and Native
     fun getEntry(): Map.Entry<Int, Int> {
-        val e = default.parse(MapEntrySerializer(Int.serializer(), Int.serializer()), """{"1":2}""")
+        val e = default.decodeFromString(MapEntrySerializer(Int.serializer(), Int.serializer()), """{"1":2}""")
         assertEquals(1, e.key)
         assertEquals(2, e.value)
         return e

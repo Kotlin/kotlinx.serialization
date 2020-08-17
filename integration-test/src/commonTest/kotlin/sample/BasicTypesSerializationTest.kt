@@ -2,11 +2,16 @@
  * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 package sample
+
 import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.*
-import kotlin.test.*
-import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.AbstractDecoder
+import kotlinx.serialization.encoding.AbstractEncoder
+import kotlinx.serialization.encoding.CompositeDecoder
+import kotlinx.serialization.encoding.CompositeEncoder
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotSame
 
 class BasicTypesSerializationTest {
 
@@ -89,21 +94,46 @@ class BasicTypesSerializationTest {
         )
     )
 
+    @Serializable
+    class WithSecondaryConstructor(var someProperty: Int) {
+        var test: String = "Test"
+
+        constructor() : this(42)
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is WithSecondaryConstructor) return false
+
+            if (someProperty != other.someProperty) return false
+            if (test != other.test) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = someProperty
+            result = 31 * result + test.hashCode()
+            return result
+        }
+    }
+
+
     // KeyValue Input/Output
 
-    class KeyValueOutput(val sb: StringBuilder) : ElementValueEncoder() {
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
+    @OptIn(ExperimentalSerializationApi::class)
+    class KeyValueOutput(val sb: StringBuilder) : AbstractEncoder() {
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
             sb.append('{')
             return this
         }
 
-        override fun endStructure(desc: SerialDescriptor) {
+        override fun endStructure(descriptor: SerialDescriptor) {
             sb.append('}')
         }
 
-        override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
+        override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
             if (index > 0) sb.append(", ")
-            sb.append(desc.getElementName(index));
+            sb.append(descriptor.getElementName(index));
             sb.append(':')
             return true
         }
@@ -125,20 +155,20 @@ class BasicTypesSerializationTest {
         override fun encodeChar(value: Char) = encodeString(value.toString())
     }
 
-    class KeyValueInput(val inp: Parser) : ElementValueDecoder() {
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+    class KeyValueInput(val inp: Parser) : AbstractDecoder() {
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             inp.expectAfterWhiteSpace('{')
             return this
         }
 
-        override fun endStructure(desc: SerialDescriptor) = inp.expectAfterWhiteSpace('}')
+        override fun endStructure(descriptor: SerialDescriptor) = inp.expectAfterWhiteSpace('}')
 
-        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             inp.skipWhitespace(',')
             val name = inp.nextUntil(':', '}')
             if (name.isEmpty())
-                return READ_DONE
-            val index = desc.getElementIndexOrThrow(name)
+                return CompositeDecoder.DECODE_DONE
+            val index = descriptor.getElementIndex(name)
             inp.expect(':')
             return index
         }
@@ -167,7 +197,7 @@ class BasicTypesSerializationTest {
         override fun decodeFloat(): Float = readToken().toFloat()
         override fun decodeDouble(): Double = readToken().toDouble()
 
-        override fun decodeEnum(enumDescription: SerialDescriptor): Int {
+        override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
             return readToken().toInt()
         }
 
@@ -228,13 +258,18 @@ class BasicTypesSerializationTest {
         // serialize to string
         val sb = StringBuilder()
         val out = KeyValueOutput(sb)
-        out.encode(TypesUmbrella.serializer(), data)
+        out.encodeSerializableValue(TypesUmbrella.serializer(), data)
         // deserialize from string
         val str = sb.toString()
         val inp = KeyValueInput(Parser(StringReader(str)))
-        val other = inp.decode(TypesUmbrella.serializer())
+        val other = inp.decodeSerializableValue(TypesUmbrella.serializer())
         // assert we've got it back from string
         assertEquals(data, other)
         assertNotSame(data, other)
+    }
+
+    @Test
+    fun someConstructor() {
+        assertStringFormAndRestored("""{"someProperty":42,"test":"Test"}""", WithSecondaryConstructor(), WithSecondaryConstructor.serializer())
     }
 }

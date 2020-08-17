@@ -6,6 +6,8 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlin.test.*
 
 class MapLikeSerializerTest : JsonTestBase() {
@@ -16,7 +18,7 @@ class MapLikeSerializerTest : JsonTestBase() {
     @Serializer(forClass = StringPair::class)
     object StringPairSerializer : KSerializer<StringPair> {
 
-        override val descriptor: SerialDescriptor = SerialDescriptor("package.StringPair", StructureKind.MAP) {
+        override val descriptor: SerialDescriptor = buildSerialDescriptor("package.StringPair", StructureKind.MAP) {
             element<String>("a")
             element<String>("b")
         }
@@ -40,7 +42,7 @@ class MapLikeSerializerTest : JsonTestBase() {
             var value: String? = null
             mainLoop@ while (true) {
                 when (val idx = composite.decodeElementIndex(descriptor)) {
-                    CompositeDecoder.READ_DONE -> {
+                    CompositeDecoder.DECODE_DONE -> {
                         break@mainLoop
                     }
                     0 -> {

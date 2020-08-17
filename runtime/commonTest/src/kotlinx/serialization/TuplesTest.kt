@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.test.assertStringFormAndRestored
 import kotlin.test.*
@@ -21,21 +22,21 @@ class TuplesTest : JsonTestBase() {
 
     @Test
     fun testCustomPair() = assertStringFormAndRestored(
-        "{k:42,v:foo}",
+        """{"k":42,"v":"foo"}""",
         MyPair(42, "foo"),
         MyPair.serializer(
             Int.serializer(),
             String.serializer()
         ),
-        unquotedLenient
+        lenient
     )
 
     @Test
     fun testStandardPair() = assertStringFormAndRestored(
-        "{p:{first:42,second:foo}}",
+        """{"p":{"first":42,"second":"foo"}}""",
         PairWrapper(42 to "foo"),
         PairWrapper.serializer(),
-        unquotedLenient
+        lenient
     )
 
     @Test
@@ -43,17 +44,17 @@ class TuplesTest : JsonTestBase() {
         val desc = PairWrapper.serializer().descriptor.getElementDescriptor(0)
         assertEquals(desc.serialName, "kotlin.Pair")
         assertEquals(
-            desc.elementDescriptors().map(SerialDescriptor::kind),
+            desc.elementDescriptors.map(SerialDescriptor::kind),
             listOf(PrimitiveKind.INT, PrimitiveKind.STRING)
         )
     }
 
     @Test
     fun testStandardTriple() = assertStringFormAndRestored(
-        "{t:{first:42,second:foo,third:false}}",
+        """{"t":{"first":42,"second":"foo","third":false}}""",
         TripleWrapper(Triple(42, "foo", false)),
         TripleWrapper.serializer(),
-        unquotedLenient
+        lenient
     )
 
     @Test
@@ -61,7 +62,7 @@ class TuplesTest : JsonTestBase() {
         val desc = TripleWrapper.serializer().descriptor.getElementDescriptor(0)
         assertEquals(desc.serialName, "kotlin.Triple")
         assertEquals(
-            desc.elementDescriptors().map(SerialDescriptor::kind),
+            desc.elementDescriptors.map(SerialDescriptor::kind),
             listOf(PrimitiveKind.INT, PrimitiveKind.STRING, PrimitiveKind.BOOLEAN)
         )
     }

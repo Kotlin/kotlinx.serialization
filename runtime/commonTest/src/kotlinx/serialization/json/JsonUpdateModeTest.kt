@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json
@@ -7,8 +7,7 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlin.test.*
 
-@Ignore // Update is going to be reworked
-class JsonUpdateModeTest : JsonTestBase() {
+class JsonOverwriteTest : JsonTestBase() {
     @Serializable
     data class Updatable1(val l: List<Int>)
 
@@ -19,9 +18,6 @@ class JsonUpdateModeTest : JsonTestBase() {
     data class Updatable2(val l: List<Data>)
 
     @Serializable
-    data class NotUpdatable(val d: Data)
-
-    @Serializable
     data class NullableInnerIntList(val data: List<Int?>)
 
     @Serializable
@@ -30,47 +26,37 @@ class JsonUpdateModeTest : JsonTestBase() {
     @Test
     fun testCanUpdatePrimitiveList() = parametrizedTest { useStreaming ->
         val parsed =
-            unquotedLenient
-                .parse<Updatable1>(Updatable1.serializer(), """{l:[1,2],f:foo,l:[3,4]}""", useStreaming)
-        assertEquals(Updatable1(listOf(1,2,3,4)), parsed)
+            lenient.decodeFromString<Updatable1>(Updatable1.serializer(), """{"l":[1,2],"f":"foo","l":[3,4]}""", useStreaming)
+        assertEquals(Updatable1(listOf(3, 4)), parsed)
     }
 
     @Test
     fun testCanUpdateObjectList() = parametrizedTest { useStreaming ->
-        val parsed = unquotedLenient.parse<Updatable2>(
+        val parsed = lenient.decodeFromString<Updatable2>(
             Updatable2.serializer(),
-            """{f:bar,l:[{a:42}],l:[{a:43}]}""",
+            """{"f":"bar","l":[{"a":42}],"l":[{"a":43}]}""",
             useStreaming
         )
-        assertEquals(Updatable2(listOf(Data(42), Data(43))), parsed)
-    }
-
-    @Test
-    fun testCantUpdateNotUpdatable() = parametrizedTest { useStreaming ->
-        assertFailsWith<UpdateNotSupportedException> {
-            unquotedLenient.parse<NotUpdatable>(NotUpdatable.serializer(), """{d:{a:42},d:{a:43}}""", useStreaming)
-        }
+        assertEquals(Updatable2(listOf(Data(43))), parsed)
     }
 
     @Test
     fun testCanUpdateNullableValuesInside() = parametrizedTest { useStreaming ->
-        val json = Json(JsonConfiguration.Default)
-        val a1 = json.parse(NullableInnerIntList.serializer(), """{data:[null],data:[1]}""", useStreaming)
-        assertEquals(NullableInnerIntList(listOf(null, 1)), a1)
-        val a2 = json.parse(NullableInnerIntList.serializer(), """{data:[42],data:[null]}""", useStreaming)
-        assertEquals(NullableInnerIntList(listOf(42, null)), a2)
-        val a3 = json.parse(NullableInnerIntList.serializer(), """{data:[31],data:[1]}""", useStreaming)
-        assertEquals(NullableInnerIntList(listOf(31, 1)), a3)
+        val a1 = default.decodeFromString(NullableInnerIntList.serializer(), """{"data":[null],"data":[1]}""", useStreaming)
+        assertEquals(NullableInnerIntList(listOf(1)), a1)
+        val a2 = default.decodeFromString(NullableInnerIntList.serializer(), """{"data":[42],"data":[null]}""", useStreaming)
+        assertEquals(NullableInnerIntList(listOf(null)), a2)
+        val a3 = default.decodeFromString(NullableInnerIntList.serializer(), """{"data":[31],"data":[1]}""", useStreaming)
+        assertEquals(NullableInnerIntList(listOf(1)), a3)
     }
 
     @Test
     fun testCanUpdateNullableValues() = parametrizedTest { useStreaming ->
-        val json = Json(JsonConfiguration.Default)
-        val a1 = json.parse(NullableUpdatable.serializer(), """{data:null,data:[{a:42}]}""", useStreaming)
+        val a1 = lenient.decodeFromString(NullableUpdatable.serializer(), """{"data":null,"data":[{"a":42}]}""", useStreaming)
         assertEquals(NullableUpdatable(listOf(Data(42))), a1)
-        val a2 = json.parse(NullableUpdatable.serializer(), """{data:[{a:42}],data:null}""", useStreaming)
-        assertEquals(NullableUpdatable(listOf(Data(42))), a2)
-        val a3 = json.parse(NullableUpdatable.serializer(), """{data:[{a:42}],data:[{a:43}]}""", useStreaming)
-        assertEquals(NullableUpdatable(listOf(Data(42), Data(43))), a3)
+        val a2 = lenient.decodeFromString(NullableUpdatable.serializer(), """{"data":[{a:42}],"data":null}""", useStreaming)
+        assertEquals(NullableUpdatable(null), a2)
+        val a3 = lenient.decodeFromString(NullableUpdatable.serializer(), """{"data":[{a:42}],"data":[{"a":43}]}""", useStreaming)
+        assertEquals(NullableUpdatable(listOf(Data(43))), a3)
     }
 }

@@ -6,6 +6,7 @@ package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.test.EnumSerializer
 import kotlin.test.*
@@ -17,9 +18,9 @@ class SchemaTest {
         @Serializer(forClass = Data1::class)
         companion object {
             // TODO removal of explicit type crashes the compiler
-            override val descriptor: SerialDescriptor = SerialDescriptor("Data1") {
-                element("l", listDescriptor<Int>(), isOptional = true)
-                element("s", descriptor<String>())
+            override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Data1") {
+                element("l", listSerialDescriptor<Int>(), isOptional = true)
+                element("s", serialDescriptor<String>())
             }
         }
     }
@@ -74,7 +75,7 @@ class SchemaTest {
     @Test
     fun testRichSchema() {
         val d: SerialDescriptor = DataZoo.serializer().descriptor
-        val descs = d.elementDescriptors()
+        val descs = d.elementDescriptors.toList()
         assertEquals(5, descs.size)
         assertEquals(listOf(PrimitiveKind.INT, PrimitiveKind.STRING, StructureKind.LIST),
             descs.take(3).map { it.kind })
@@ -82,7 +83,7 @@ class SchemaTest {
         assertFalse(listListDesc.isNullable)
         assertEquals(listListDesc.kind, StructureKind.LIST)
         assertEquals(1, listListDesc.elementsCount)
-        assertEquals(PrimitiveKind.BOOLEAN, listListDesc.elementDescriptors().first().elementDescriptors().first().kind)
+        assertEquals(PrimitiveKind.BOOLEAN, listListDesc.elementDescriptors.first().elementDescriptors.first().kind)
         val mapDesc = descs[4]
         assertTrue(mapDesc.isNullable)
         assertFalse(d.isElementOptional(4), "Expected value to be marked as optional")
@@ -94,12 +95,13 @@ class SchemaTest {
     fun testEqualDescriptors() {
         val desc1: SerialDescriptor = DataZoo.serializer().descriptor
         val desc2: SerialDescriptor = DataZooIsomorphic.serializer().descriptor
-        assertEquals(desc1.elementDescriptors(), desc2.elementDescriptors())
+        assertEquals(desc1.elementDescriptors.toList(), desc2.elementDescriptors.toList())
+        assertEquals(Int.serializer().descriptor.elementDescriptors.toList(), Int.serializer().descriptor.elementDescriptors.toList())
     }
 
     @Test
     fun testGenericDescriptors() {
-        val boxes = BoxHolder.serializer().descriptor.elementDescriptors()
+        val boxes = BoxHolder.serializer().descriptor.elementDescriptors.toList()
         assertTrue(boxes[0].getElementDescriptor(0).kind is PrimitiveKind.STRING)
         assertTrue(boxes[1].getElementDescriptor(0).kind is PrimitiveKind.INT)
         assertNotEquals(boxes[0], boxes[1])
@@ -121,7 +123,7 @@ class SchemaTest {
     fun testKindNames() {
         val classDesc = BoxHolder.serializer().descriptor
         assertEquals("CLASS", classDesc.kind.toString())
-        val intDesc = classDesc.elementDescriptors()[1].elementDescriptors()[0]
+        val intDesc = classDesc.elementDescriptors.toList()[1].elementDescriptors.toList()[0]
         assertEquals("INT", intDesc.kind.toString())
     }
 

@@ -17,23 +17,21 @@ class SerialNameCollisionInSealedClassesTest {
         data class Child(val type: String, @SerialName("type2") val f: String = "2") : Base()
     }
 
-    private fun Json(discriminator: String, useArrayPolymorphism: Boolean = false) = Json(
-        configuration = JsonConfiguration.Stable.copy(
-            classDiscriminator = discriminator,
-            useArrayPolymorphism = useArrayPolymorphism
-        )
-    )
+    private fun Json(discriminator: String, useArrayPolymorphism: Boolean = false) = Json {
+        classDiscriminator = discriminator
+        this.useArrayPolymorphism = useArrayPolymorphism
+    }
 
     @Test
     fun testCollisionWithDiscriminator() {
-        assertFailsWith<IllegalStateException> { Json("type").stringify(Base.serializer(), Base.Child("a")) }
-        assertFailsWith<IllegalStateException> { Json("type2").stringify(Base.serializer(), Base.Child("a")) }
-        Json("f").stringify(Base.serializer(), Base.Child("a"))
+        assertFailsWith<IllegalStateException> { Json("type").encodeToString(Base.serializer(), Base.Child("a")) }
+        assertFailsWith<IllegalStateException> { Json("type2").encodeToString(Base.serializer(), Base.Child("a")) }
+        Json("f").encodeToString(Base.serializer(), Base.Child("a"))
     }
 
     @Test
     fun testNoCollisionWithArrayPolymorphism() {
-        Json("type", true).stringify(Base.serializer(), Base.Child("a"))
+        Json("type", true).encodeToString(Base.serializer(), Base.Child("a"))
     }
 
     @Serializable

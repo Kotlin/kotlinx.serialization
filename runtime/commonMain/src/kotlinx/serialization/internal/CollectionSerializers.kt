@@ -2,11 +2,12 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:Suppress("DEPRECATION_ERROR")
+@file:OptIn(ExperimentalSerializationApi::class)
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
-import kotlin.jvm.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlin.reflect.*
 
 @InternalSerializationApi
@@ -19,12 +20,11 @@ public sealed class AbstractCollectionSerializer<Element, Collection, Builder> :
     protected abstract fun Collection.toBuilder(): Builder
     protected abstract fun Builder.checkCapacity(size: Int)
 
-    abstract val typeParams: Array<KSerializer<*>>
-
     abstract override fun serialize(encoder: Encoder, value: Collection)
 
-    final override fun patch(decoder: Decoder, old: Collection): Collection {
-        val builder = old.toBuilder()
+    @InternalSerializationApi
+    public fun merge(decoder: Decoder, previous: Collection?): Collection {
+        val builder = previous?.toBuilder() ?: builder()
         val startIndex = builder.builderSize()
         val compositeDecoder = decoder.beginStructure(descriptor)
         if (compositeDecoder.decodeSequentially()) {
@@ -32,7 +32,7 @@ public sealed class AbstractCollectionSerializer<Element, Collection, Builder> :
         } else {
             while (true) {
                 val index = compositeDecoder.decodeElementIndex(descriptor)
-                if (index == READ_DONE) break
+                if (index == CompositeDecoder.DECODE_DONE) break
                 readElement(compositeDecoder, startIndex + index, builder)
             }
         }
@@ -40,10 +40,7 @@ public sealed class AbstractCollectionSerializer<Element, Collection, Builder> :
         return builder.toResult()
     }
 
-    override fun deserialize(decoder: Decoder): Collection {
-        val builder = builder()
-        return patch(decoder, builder.toResult())
-    }
+    override fun deserialize(decoder: Decoder): Collection = merge(decoder, null)
 
     private fun readSize(decoder: CompositeDecoder, builder: Builder): Int {
         val size = decoder.decodeCollectionSize(descriptor)
@@ -62,19 +59,16 @@ public sealed class ListLikeSerializer<Element, Collection, Builder>(
     private val elementSerializer: KSerializer<Element>
 ) : AbstractCollectionSerializer<Element, Collection, Builder>() {
 
-    abstract fun Builder.insert(index: Int, element: Element)
+    protected abstract fun Builder.insert(index: Int, element: Element)
     abstract override val descriptor: SerialDescriptor
-
-    final override val typeParams: Array<KSerializer<*>> = arrayOf(elementSerializer)
 
     override fun serialize(encoder: Encoder, value: Collection) {
         val size = value.collectionSize()
-        @Suppress("NAME_SHADOWING")
-        val encoder = encoder.beginCollection(descriptor, size, *typeParams)
+        val composite = encoder.beginCollection(descriptor, size)
         val iterator = value.collectionIterator()
         for (index in 0 until size)
-            encoder.encodeSerializableElement(descriptor, index, elementSerializer, iterator.next())
-        encoder.endStructure(descriptor)
+            composite.encodeSerializableElement(descriptor, index, elementSerializer, iterator.next())
+        composite.endStructure(descriptor)
     }
 
     protected final override fun readAll(decoder: CompositeDecoder, builder: Builder, startIndex: Int, size: Int) {
@@ -90,14 +84,12 @@ public sealed class ListLikeSerializer<Element, Collection, Builder>(
 
 @InternalSerializationApi // Not intended for public use at all
 public sealed class MapLikeSerializer<Key, Value, Collection, Builder : MutableMap<Key, Value>>(
-    @JvmField val keySerializer: KSerializer<Key>,
-    @JvmField val valueSerializer: KSerializer<Value>
+    public val keySerializer: KSerializer<Key>,
+    public val valueSerializer: KSerializer<Value>
 ) : AbstractCollectionSerializer<Map.Entry<Key, Value>, Collection, Builder>() {
 
-    abstract fun Builder.insertKeyValuePair(index: Int, key: Key, value: Value)
+    protected abstract fun Builder.insertKeyValuePair(index: Int, key: Key, value: Value)
     abstract override val descriptor: SerialDescriptor
-
-    final override val typeParams = arrayOf(keySerializer, valueSerializer)
 
     protected final override fun readAll(decoder: CompositeDecoder, builder: Builder, startIndex: Int, size: Int) {
         require(size >= 0) { "Size must be known in advance when using READ_ALL" }
@@ -115,7 +107,7 @@ public sealed class MapLikeSerializer<Key, Value, Collection, Builder : MutableM
             index + 1
         }
         val value: Value = if (builder.containsKey(key) && valueSerializer.descriptor.kind !is PrimitiveKind) {
-            decoder.updateSerializableElement(descriptor, vIndex, valueSerializer, builder.getValue(key))
+            decoder.decodeSerializableElement(descriptor, vIndex, valueSerializer, builder.getValue(key))
         } else {
             decoder.decodeSerializableElement(descriptor, vIndex, valueSerializer)
         }
@@ -124,7 +116,7 @@ public sealed class MapLikeSerializer<Key, Value, Collection, Builder : MutableM
 
     override fun serialize(encoder: Encoder, value: Collection) {
         val size = value.collectionSize()
-        val composite = encoder.beginCollection(descriptor, size, *typeParams)
+        val composite = encoder.beginCollection(descriptor, size)
         val iterator = value.collectionIterator()
         var index = 0
         iterator.forEach { (k, v) ->
@@ -138,9 +130,9 @@ public sealed class MapLikeSerializer<Key, Value, Collection, Builder : MutableM
 @InternalSerializationApi
 @Deprecated(level = DeprecationLevel.HIDDEN, message = "For internal use")
 public abstract class PrimitiveArrayBuilder<Array> internal constructor() {
-    abstract val position: Int
-    abstract fun ensureCapacity(requiredCapacity: Int = position + 1)
-    abstract fun build(): Array
+    internal abstract val position: Int
+    internal abstract fun ensureCapacity(requiredCapacity: Int = position + 1)
+    internal abstract fun build(): Array
 }
 
 /**
@@ -157,9 +149,9 @@ public abstract class PrimitiveArraySerializer<Element, Array, Builder
 ) : ListLikeSerializer<Element, Array, Builder>(primitiveSerializer) {
     final override val descriptor: SerialDescriptor = PrimitiveArrayDescriptor(primitiveSerializer.descriptor)
 
-    final override fun Builder.builderSize() = position
+    final override fun Builder.builderSize(): Int = position
     final override fun Builder.toResult(): Array = build()
-    final override fun Builder.checkCapacity(size: Int) = ensureCapacity(size)
+    final override fun Builder.checkCapacity(size: Int): Unit = ensureCapacity(size)
 
     final override fun Array.collectionIterator(): Iterator<Element> =
         error("This method lead to boxing and must not be used, use writeContents instead")
@@ -167,7 +159,7 @@ public abstract class PrimitiveArraySerializer<Element, Array, Builder
     final override fun Builder.insert(index: Int, element: Element): Unit =
         error("This method lead to boxing and must not be used, use Builder.append instead")
 
-    final override fun builder(): Builder = error("Use empty().toBuilder() instead")
+    final override fun builder(): Builder = empty().toBuilder()
 
     protected abstract fun empty(): Array
 
@@ -182,18 +174,12 @@ public abstract class PrimitiveArraySerializer<Element, Array, Builder
 
     final override fun serialize(encoder: Encoder, value: Array) {
         val size = value.collectionSize()
-        @Suppress("NAME_SHADOWING")
-        val encoder = encoder.beginCollection(descriptor, size, *typeParams)
-        writeContent(encoder, value, size)
-        encoder.endStructure(descriptor)
+        val composite = encoder.beginCollection(descriptor, size)
+        writeContent(composite, value, size)
+        composite.endStructure(descriptor)
     }
 
-    final override fun deserialize(decoder: Decoder): Array {
-        // here we use empty() instead of builder().toResult() in AbstractCollectionSerializer
-        // because, unlike with ArrayLists, transformation builder(initialSize) > array > builder
-        // requires additional allocations
-        return patch(decoder, empty())
-    }
+    final override fun deserialize(decoder: Decoder): Array = merge(decoder, null)
 }
 
 // todo: can be more efficient when array size is know in advance, this one always uses temporary ArrayList as builder
@@ -218,7 +204,7 @@ public class ReferenceArraySerializer<ElementKlass : Any, Element : ElementKlass
     override fun ArrayList<Element>.toResult(): Array<Element> = toNativeArrayImpl<ElementKlass, Element>(kClass)
 
     override fun Array<Element>.toBuilder(): ArrayList<Element> = ArrayList(this.asList())
-    override fun ArrayList<Element>.checkCapacity(size: Int) = ensureCapacity(size)
+    override fun ArrayList<Element>.checkCapacity(size: Int): Unit = ensureCapacity(size)
     override fun ArrayList<Element>.insert(index: Int, element: Element) {
         add(index, element)
     }
@@ -237,7 +223,7 @@ public class ArrayListSerializer<E>(element: KSerializer<E>) : ListLikeSerialize
     override fun ArrayList<E>.builderSize(): Int = size
     override fun ArrayList<E>.toResult(): List<E> = this
     override fun List<E>.toBuilder(): ArrayList<E> = this as? ArrayList<E> ?: ArrayList(this)
-    override fun ArrayList<E>.checkCapacity(size: Int) = ensureCapacity(size)
+    override fun ArrayList<E>.checkCapacity(size: Int): Unit = ensureCapacity(size)
     override fun ArrayList<E>.insert(index: Int, element: E) { add(index, element) }
 }
 
@@ -298,7 +284,7 @@ public class LinkedHashMapSerializer<K, V>(
     override fun LinkedHashMap<K, V>.toResult(): Map<K, V> = this
     override fun Map<K, V>.toBuilder(): LinkedHashMap<K, V> = this as? LinkedHashMap<K, V> ?: LinkedHashMap(this)
     override fun LinkedHashMap<K, V>.checkCapacity(size: Int) {}
-    override fun LinkedHashMap<K, V>.insertKeyValuePair(index: Int, key: K, value: V) = set(key, value)
+    override fun LinkedHashMap<K, V>.insertKeyValuePair(index: Int, key: K, value: V): Unit = set(key, value)
 }
 
 @InternalSerializationApi
@@ -318,5 +304,5 @@ public class HashMapSerializer<K, V>(
     override fun HashMap<K, V>.toResult(): Map<K, V> = this
     override fun Map<K, V>.toBuilder(): HashMap<K, V> = this as? HashMap<K, V> ?: HashMap(this)
     override fun HashMap<K, V>.checkCapacity(size: Int) {}
-    override fun HashMap<K, V>.insertKeyValuePair(index: Int, key: K, value: V) = set(key, value)
+    override fun HashMap<K, V>.insertKeyValuePair(index: Int, key: K, value: V): Unit = set(key, value)
 }

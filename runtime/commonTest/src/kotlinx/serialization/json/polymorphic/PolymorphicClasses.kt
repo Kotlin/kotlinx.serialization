@@ -51,11 +51,10 @@ internal val polymorphicTestModule = SerializersModule {
 }
 
 internal val polymorphicJson = Json {
-    serialModule = polymorphicTestModule
+    serializersModule = polymorphicTestModule
 }
 
 internal val polymorphicRelaxedJson = Json {
-    unquotedPrint = true
     isLenient = true
-    serialModule = polymorphicTestModule
+    serializersModule = polymorphicTestModule
 }

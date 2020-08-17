@@ -1,0 +1,50 @@
+/*
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+apply plugin: 'kotlin'
+apply plugin: 'org.jetbrains.dokka'
+
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/dokka"
+
+    subProjects = ["kotlinx-serialization-core",
+                   "kotlinx-serialization-cbor",
+                   "kotlinx-serialization-properties",
+//                   "kotlinx-serialization-hocon",  todo: fix publishing of jvm-only docs
+                   "kotlinx-serialization-protobuf"]
+
+    multiplatform {
+        global {
+            includes = ['dokka/moduledoc.md']
+
+            perPackageOption {
+                prefix = "kotlinx.serialization"
+                reportUndocumented = false
+                skipDeprecated = true
+            }
+
+            perPackageOption {
+                prefix = "kotlinx.serialization.internal"
+                suppress = true
+            }
+
+            perPackageOption {
+                prefix = "kotlinx.io"
+                suppress = true
+            }
+        }
+        common {}
+        jvm {}
+        js {}
+        'native' {}
+    }
+}
+
+dokka.doLast {
+    copy {
+        from 'dokka/style.css'
+        into "$buildDir/dokka"
+    }
+}

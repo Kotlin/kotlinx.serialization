@@ -15,8 +15,8 @@ class MapEntryTest {
     @Test
     fun testEntry() {
         val e = Wrapper(mapOf(1 to 1).entries.single())
-        val output = ProtoBuf.dumps(serializer(), e)
+        val output = ProtoBuf.encodeToHexString(Wrapper.serializer(), e)
         assertEquals("0a0408011001", output)
-        assertEquals(e.e.toPair(), ProtoBuf.loads(serializer<Wrapper>(), output).e.toPair())
+        assertEquals(e.e.toPair(), ProtoBuf.decodeFromHexString(Wrapper.serializer(), output).e.toPair())
     }
 }

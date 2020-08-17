@@ -2,10 +2,13 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:Suppress("DEPRECATION_ERROR")
+@file:OptIn(ExperimentalSerializationApi::class)
 
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlin.native.concurrent.*
 
 @SharedImmutable
@@ -20,19 +23,19 @@ public sealed class KeyValueSerializer<K, V, R>(
     protected val valueSerializer: KSerializer<V>
 ) : KSerializer<R> {
 
-    abstract val R.key: K
-    abstract val R.value: V
-    abstract fun toResult(key: K, value: V): R
+    protected abstract val R.key: K
+    protected abstract val R.value: V
+    protected abstract fun toResult(key: K, value: V): R
 
     override fun serialize(encoder: Encoder, value: R) {
-        val structuredEncoder = encoder.beginStructure(descriptor, keySerializer, valueSerializer)
+        val structuredEncoder = encoder.beginStructure(descriptor)
         structuredEncoder.encodeSerializableElement(descriptor, 0, keySerializer, value.key)
         structuredEncoder.encodeSerializableElement(descriptor, 1, valueSerializer, value.value)
         structuredEncoder.endStructure(descriptor)
     }
 
     override fun deserialize(decoder: Decoder): R {
-        val composite = decoder.beginStructure(descriptor, keySerializer, valueSerializer)
+        val composite = decoder.beginStructure(descriptor)
         if (composite.decodeSequentially()) {
             val key = composite.decodeSerializableElement(descriptor, 0, keySerializer)
             val value = composite.decodeSerializableElement(descriptor, 1, valueSerializer)
@@ -43,7 +46,7 @@ public sealed class KeyValueSerializer<K, V, R>(
         var value: Any? = NULL
         mainLoop@ while (true) {
             when (val idx = composite.decodeElementIndex(descriptor)) {
-                CompositeDecoder.READ_DONE -> {
+                CompositeDecoder.DECODE_DONE -> {
                     break@mainLoop
                 }
                 0 -> {
@@ -78,9 +81,9 @@ public class MapEntrySerializer<K, V>(
     private data class MapEntry<K, V>(override val key: K, override val value: V) : Map.Entry<K, V>
 
     /*
-     * Kind 'MAP' because it it represented in a map-like manner with "key: value" serialized directly
+     * Kind 'MAP' because it is represented in a map-like manner with "key: value" serialized directly
      */
-    override val descriptor = SerialDescriptor("kotlin.collections.Map.Entry", StructureKind.MAP) {
+    override val descriptor: SerialDescriptor = buildSerialDescriptor("kotlin.collections.Map.Entry", StructureKind.MAP) {
         element("key", keySerializer.descriptor)
         element("value", valueSerializer.descriptor)
     }
@@ -101,14 +104,14 @@ public class PairSerializer<K, V>(
     keySerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>
 ) : KeyValueSerializer<K, V, Pair<K, V>>(keySerializer, valueSerializer) {
-    override val descriptor: SerialDescriptor = SerialDescriptor("kotlin.Pair") {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("kotlin.Pair") {
         element("first", keySerializer.descriptor)
         element("second", valueSerializer.descriptor)
     }
     override val Pair<K, V>.key: K get() = this.first
     override val Pair<K, V>.value: V get() = this.second
 
-    override fun toResult(key: K, value: V) = key to value
+    override fun toResult(key: K, value: V): Pair<K, V> = key to value
 }
 
 
@@ -127,14 +130,14 @@ public class TripleSerializer<A, B, C>(
     private val cSerializer: KSerializer<C>
 ) : KSerializer<Triple<A, B, C>> {
 
-    override val descriptor: SerialDescriptor = SerialDescriptor("kotlin.Triple") {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("kotlin.Triple") {
         element("first", aSerializer.descriptor)
         element("second", bSerializer.descriptor)
         element("third", cSerializer.descriptor)
     }
 
     override fun serialize(encoder: Encoder, value: Triple<A, B, C>) {
-        val structuredEncoder = encoder.beginStructure(descriptor, aSerializer, bSerializer, cSerializer)
+        val structuredEncoder = encoder.beginStructure(descriptor)
         structuredEncoder.encodeSerializableElement(descriptor, 0, aSerializer, value.first)
         structuredEncoder.encodeSerializableElement(descriptor, 1, bSerializer, value.second)
         structuredEncoder.encodeSerializableElement(descriptor, 2, cSerializer, value.third)
@@ -142,7 +145,7 @@ public class TripleSerializer<A, B, C>(
     }
 
     override fun deserialize(decoder: Decoder): Triple<A, B, C> {
-        val composite = decoder.beginStructure(descriptor, aSerializer, bSerializer, cSerializer)
+        val composite = decoder.beginStructure(descriptor)
         if (composite.decodeSequentially()) {
             return decodeSequentially(composite)
         }
@@ -163,7 +166,7 @@ public class TripleSerializer<A, B, C>(
         var c: Any? = NULL
         mainLoop@ while (true) {
             when (val index = composite.decodeElementIndex(descriptor)) {
-                CompositeDecoder.READ_DONE -> {
+                CompositeDecoder.DECODE_DONE -> {
                     break@mainLoop
                 }
                 0 -> {

@@ -4,8 +4,10 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.modules.serializersModuleOf
-import kotlinx.serialization.json.JsonConfiguration
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 import kotlin.test.*
 
 class DynamicParserTest {
@@ -51,7 +53,7 @@ class DynamicParserTest {
     data class NotDefault(val a: Int)
 
     object NDSerializer : KSerializer<NotDefault> {
-        override val descriptor = SerialDescriptor("notDefault") {
+        override val descriptor = buildClassSerialDescriptor("notDefault") {
             element<Int>("a")
         }
 
@@ -65,7 +67,7 @@ class DynamicParserTest {
     }
 
     @Serializable
-    data class NDWrapper(@ContextualSerialization val data: NotDefault)
+    data class NDWrapper(@Contextual val data: NotDefault)
 
     @Serializable
     sealed class Sealed {
@@ -77,15 +79,15 @@ class DynamicParserTest {
     @Test
     fun dynamicSimpleTest() {
         val dyn = js("{a: 42}")
-        val parsed = DynamicObjectParser().parse(dyn, Data.serializer())
+        val parsed = Json.decodeFromDynamic(Data.serializer(), dyn)
         assertEquals(Data(42), parsed)
 
         val dyn2 = js("{a: 'a'}")
-        val parsed2 = DynamicObjectParser().parse(dyn2, WithChar.serializer())
+        val parsed2 = Json.decodeFromDynamic(WithChar.serializer(), dyn2)
         assertEquals(WithChar('a'), parsed2)
 
         val dyn3 = js("{a: 97}")
-        val parsed3 = DynamicObjectParser().parse(dyn3, WithChar.serializer())
+        val parsed3 = Json.decodeFromDynamic(WithChar.serializer(), dyn3)
         assertEquals(WithChar('a'), parsed3)
     }
 
@@ -94,13 +96,13 @@ class DynamicParserTest {
         val dyn = js("""{ b: 1, s: 2, i: 3, f: 1.0, d: 42.0, c: 'a', B: true, S: "str"}""")
         val kotlinObj = AllTypes(1, 2, 3, 1.0f, 42.0, 'a', true, "str")
 
-        assertEquals(kotlinObj, DynamicObjectParser().parse(dyn))
+        assertEquals(kotlinObj, Json.decodeFromDynamic(AllTypes.serializer(), dyn))
     }
 
     @Test
     fun dynamicNestedTest() {
         val dyn = js("""{s:"foo", d:{a:42}}""")
-        val parsed = DynamicObjectParser().parse<DataWrapper>(dyn)
+        val parsed = Json.decodeFromDynamic(DataWrapper.serializer(), dyn)
         val expected = DataWrapper("foo", Data(42))
         assertEquals(expected, parsed)
         assertEquals(3, parsed.s.length)
@@ -113,9 +115,19 @@ class DynamicParserTest {
         val dyn2 = js("""({s:"foo"})""")
         val dyn3 = js("""({s:"foo", d: undefined})""")
 
-        assertEquals(DataWrapper("foo", null), DynamicObjectParser().parse<DataWrapper>(dyn1))
-        assertFailsWith(MissingFieldException::class) { DynamicObjectParser().parse<DataWrapper>(dyn2) }
-        assertFailsWith(MissingFieldException::class) { DynamicObjectParser().parse<DataWrapper>(dyn3) }
+        assertEquals(DataWrapper("foo", null), Json.decodeFromDynamic(DataWrapper.serializer(), dyn1))
+        assertFailsWith(MissingFieldException::class) {
+            Json.decodeFromDynamic(
+                DataWrapper.serializer(),
+                dyn2
+            )
+        }
+        assertFailsWith(MissingFieldException::class) {
+            Json.decodeFromDynamic(
+                DataWrapper.serializer(),
+                dyn3
+            )
+        }
     }
 
     @Test
@@ -124,9 +136,18 @@ class DynamicParserTest {
         val dyn2 = js("""({s:"foo"})""")
         val dyn3 = js("""({s:"foo", d: undefined})""")
 
-        assertEquals(DataWrapperOptional("foo", null), DynamicObjectParser().parse<DataWrapperOptional>(dyn1))
-        assertEquals(DataWrapperOptional("foo", null), DynamicObjectParser().parse<DataWrapperOptional>(dyn2))
-        assertEquals(DataWrapperOptional("foo", null), DynamicObjectParser().parse<DataWrapperOptional>(dyn3))
+        assertEquals(
+            DataWrapperOptional("foo", null),
+            Json.decodeFromDynamic(DataWrapperOptional.serializer(), dyn1)
+        )
+        assertEquals(
+            DataWrapperOptional("foo", null),
+            Json.decodeFromDynamic(DataWrapperOptional.serializer(), dyn2)
+        )
+        assertEquals(
+            DataWrapperOptional("foo", null),
+            Json.decodeFromDynamic(DataWrapperOptional.serializer(), dyn3)
+        )
     }
 
     @Test
@@ -134,36 +155,41 @@ class DynamicParserTest {
         val dyn1 = js("""({l:[1,2]})""")
         val dyn2 = js("""({l:[[],[{a:42}]]})""")
 
-        assertEquals(IntList(listOf(1, 2)), DynamicObjectParser().parse<IntList>(dyn1))
-        assertEquals(ListOfLists(listOf(listOf(), listOf(Data(42)))), DynamicObjectParser().parse<ListOfLists>(dyn2))
+        assertEquals(IntList(listOf(1, 2)), Json.decodeFromDynamic(IntList.serializer(), dyn1))
+        assertEquals(
+            ListOfLists(listOf(listOf(), listOf(Data(42)))),
+            Json.decodeFromDynamic(ListOfLists.serializer(), dyn2)
+        )
     }
 
     @Test
     fun dynamicMapTest() {
         val dyn = js("({m : {\"a\": 1, \"b\" : 2}})")
         val m = MapWrapper(mapOf("a" to 1, "b" to 2))
-        assertEquals(m, DynamicObjectParser().parse<MapWrapper>(dyn))
+        assertEquals(m, Json.decodeFromDynamic(MapWrapper.serializer(), dyn))
     }
 
     @Test
     fun testFunnyMap() {
         val dyn = js("({m : {\"a\": 'b', \"b\" : 'a'}})")
         val m = NonTrivialMap(mapOf("a" to 'b', "b" to 'a'))
-        assertEquals(m, DynamicObjectParser().parse(dyn))
+        assertEquals(m, Json.decodeFromDynamic(NonTrivialMap.serializer(), dyn))
     }
 
     @Test
     fun dynamicMapComplexTest() {
         val dyn = js("({m : {1: {a: 42}, 2: {a: 43}}})")
         val m = ComplexMapWrapper(mapOf("1" to Data(42), "2" to Data(43)))
-        assertEquals(m, DynamicObjectParser().parse<ComplexMapWrapper>(dyn))
+        assertEquals(m, Json.decodeFromDynamic(ComplexMapWrapper.serializer(), dyn))
     }
 
     @Test
     fun parseWithCustomSerializers() {
-        val deserializer = DynamicObjectParser(context = serializersModuleOf(NotDefault::class, NDSerializer))
+        val deserializer = Json { serializersModule = serializersModuleOf(NotDefault::class, NDSerializer) }
         val dyn1 = js("({data: 42})")
-        assertEquals(NDWrapper(NotDefault(42)), deserializer.parse(dyn1))
+        assertEquals(NDWrapper(NotDefault(42)),
+            deserializer.decodeFromDynamic(NDWrapper.serializer(), dyn1)
+        )
     }
 
     @Test
@@ -175,11 +201,11 @@ class DynamicParserTest {
         val dyn = js("""({type:"one",string:"value"})""")
         val expected = Sealed.One("value")
 
-        val actual1 = DynamicObjectParser().parse(dyn, Sealed.serializer())
+        val actual1 = Json.decodeFromDynamic(Sealed.serializer(), dyn)
         assertEquals(expected, actual1)
 
-        val p = DynamicObjectParser(configuration = JsonConfiguration())
-        val actual2 = p.parse(dyn, Sealed.serializer())
+        val p = Json
+        val actual2 = p.decodeFromDynamic(Sealed.serializer(), dyn)
         assertEquals(expected, actual2)
     }
 
@@ -188,8 +214,8 @@ class DynamicParserTest {
         val dyn = js("""(["one",{"string":"value"}])""")
         val expected = Sealed.One("value")
 
-        val p = DynamicObjectParser(configuration = JsonConfiguration(useArrayPolymorphism = true))
-        val actual = p.parse(dyn, Sealed.serializer())
+        val p = Json { useArrayPolymorphism = true }
+        val actual = p.decodeFromDynamic(Sealed.serializer(), dyn)
         assertEquals(expected, actual)
     }
 }

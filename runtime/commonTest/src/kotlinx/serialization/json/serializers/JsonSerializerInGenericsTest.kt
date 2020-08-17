@@ -27,10 +27,10 @@ class JsonSerializerInGenericsTest : JsonTestBase() {
 
     private fun create(): NonTrivialClass {
         return NonTrivialClass(
-            arrayListOf(JsonPrimitive(42), jsonArray { +json { "key" to "value" } }, null),
+            arrayListOf(JsonPrimitive(42), buildJsonArray { addJsonObject { put("key", "value") } }, null),
             null,
-            mapOf("key1" to mapOf("nested" to json {
-                "first" to "second"
+            mapOf("key1" to mapOf("nested" to buildJsonObject {
+                put("first", "second")
             }, "nullable" to null))
         )
     }

@@ -1,3 +1,5 @@
+import org.gradle.util.VersionNumber
+
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
@@ -6,12 +8,13 @@
 
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.bintray'
 
 apply from: project.rootProject.file('gradle/mavenMetadata.gradle')
 
-def isMultiplatform = project.name in ["kotlinx-serialization-runtime", "kotlinx-serialization-protobuf",
+def isMultiplatform = project.name in ["kotlinx-serialization-core", "kotlinx-serialization-protobuf",
                                        "kotlinx-serialization-cbor", "kotlinx-serialization-properties"]
+
+def isKotlin137x = VersionNumber.parse(kotlin_version) <= VersionNumber.parse("1.3.79")
 
 task stubSources(type: Jar) {
     classifier = 'sources'
@@ -25,7 +28,7 @@ task emptyJar(type: Jar) {
 }
 
 afterEvaluate {
-    task sourcesJar(type: Jar) {
+    task mainSourcesJar(type: Jar) {
         classifier = 'sources'
         if (isMultiplatform) {
             from kotlin.sourceSets.commonMain.kotlin
@@ -44,13 +47,16 @@ afterEvaluate {
                 maven(MavenPublication) { publication ->
                     artifactId variantName
                     publication.from components.java
-                    publication.artifact stubJavadoc
-                    publication.artifact sourcesJar
+                    publication.artifact mainSourcesJar
+                    artifact stubJavadoc
                     publication.pom.withXml(configureMavenCentralMetadata)
                 }
             }
 
-            disableMetadataPublicationKotlinJvm()
+            if (isKotlin137x) {
+                disableMetadataPublicationKotlinJvm()
+            }
+
             return
         }
 
@@ -60,32 +66,55 @@ afterEvaluate {
             logger.info("Configuring $type")
             switch (type) {
                 case 'kotlinMultiplatform':
-                    it.artifactId = "$variantName-native"
-                    it.artifact stubJavadoc
-                    it.artifact sourcesJar
+                    if (isKotlin137x) {
+                        it.artifactId = "$variantName-native"
+                        it.artifact sourcesJar
+                    } else {
+                        // With Kotlin 1.4.0, the root module ID has no suffix, but for compatibility with
+                        // the consumers who can't read Gradle module metadata, we publish the JVM artifacts in it
+                        it.artifactId = variantName
+                        apply from: "$rootDir/gradle/publish-mpp-root-module-in-platform.gradle"
+                        publishPlatformArtifactsInRootModule(publications["jvm"])
+                    }
                     break
 
                 case 'metadata':
-                    it.artifactId = "$variantName-common"
+                    it.artifactId = isKotlin137x ? "$variantName-common" : "$variantName-metadata"
                     break
 
                 case 'jvm':
-                    it.artifactId = "$variantName"
+                    it.artifactId = isKotlin137x ? "$variantName" : "$variantName-jvm"
                     break
 
                 case 'js':
-                case 'native': // native most probably unused but I'll leave it just in case
                     it.artifactId = "$variantName-$type"
                     break
             }
             logger.info("Artifact id = ${it.artifactId}")
 
             pom.withXml(configureMavenCentralMetadata)
+
+            // The 'root' module publishes the JVM module's Javadoc JAR as per publishPlatformArtifactsInRootModule, and
+            // every other module should publish an empty Javadoc JAR. TODO: provide proper documentation artifacts?
+            if (name != "kotlinMultiplatform")
+                artifact stubJavadoc
         }
 
-        disableMetadataPublication()
+        if (isKotlin137x) {
+            disableMetadataPublication()
+        }
     }
 }
+
+
+apply from: project.rootProject.file("gradle/bintray.gradle")
+
+// Compatibility with old TeamCity configurations that perform :kotlinx-coroutines-core:bintrayUpload
+task bintrayUpload(dependsOn: publish)
+
+// This is required for K/N publishing
+bintrayUpload.dependsOn publishToMavenLocal
+
 
 private void disableMetadataPublicationKotlinJvm() {
     publishing.publications.each { pub ->
@@ -101,27 +130,12 @@ private void disableMetadataPublication() {
         def publication = publishing.publications.findByName(target.name)
 
         if (publication != null) {
-            publication.artifact stubJavadoc
-            if (target.platformType.name != 'native') {
+            if (target.platformType.name != 'native' && target.platformType.name != 'js') {
                 publication.moduleDescriptorGenerator = null
                 tasks.matching { it.name == "generateMetadataFileFor${name.capitalize()}Publication" }.all {
                     onlyIf { false }
                 }
             }
         }
-    }
-}
-
-
-apply from: project.rootProject.file("gradle/bintray.gradle")
-
-// This is required for K/N publishing
-bintrayUpload.dependsOn publishToMavenLocal
-
-// This is for easier debugging of bintray uploading problems
-bintrayUpload.doFirst {
-    publications = project.publishing.publications.findAll { !it.name.contains('-test') }.collect {
-        logger.info("Uploading artifact '$it.groupId:$it.artifactId:$it.version' from publication '$it.name'")
-        it
     }
 }

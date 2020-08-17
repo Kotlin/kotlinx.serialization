@@ -4,12 +4,12 @@
 @file:Suppress("DEPRECATION_ERROR")
 package kotlinx.serialization.test
 
-import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.internal.EnumSerializer
 import kotlin.test.*
 
 @Suppress("TestFunctionName")
-inline fun <reified E : Enum<E>> EnumSerializer(serialName: String): EnumSerializer<E> =
+internal inline fun <reified E : Enum<E>> EnumSerializer(serialName: String): EnumSerializer<E> =
     EnumSerializer(serialName, enumValues())
 
 

@@ -5,13 +5,15 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 object MultiplyingIntSerializer : KSerializer<Int> {
     override val descriptor: SerialDescriptor
-        get() = PrimitiveDescriptor("MultiplyingInt", PrimitiveKind.INT)
+        get() = PrimitiveSerialDescriptor("MultiplyingInt", PrimitiveKind.INT)
 
     override fun deserialize(decoder: Decoder): Int {
         return decoder.decodeInt() / 2
@@ -24,7 +26,7 @@ object MultiplyingIntSerializer : KSerializer<Int> {
 
 object DividingIntSerializer : KSerializer<Int> {
     override val descriptor: SerialDescriptor
-        get() = PrimitiveDescriptor("DividedInt", PrimitiveKind.INT)
+        get() = PrimitiveSerialDescriptor("DividedInt", PrimitiveKind.INT)
 
     override fun deserialize(decoder: Decoder): Int {
         return decoder.decodeInt() * 2
@@ -69,7 +71,7 @@ data class Carrier(
 class SerializableWithTest {
     @Test
     fun testOnProperties() {
-        val str = Json.stringify(Carrier.serializer(), Carrier(IntHolder(42), 2))
+        val str = Json.encodeToString(Carrier.serializer(), Carrier(IntHolder(42), 2))
         assertEquals("""{"a":84,"i":4}""", str)
     }
 }

@@ -12,21 +12,21 @@ class AutoAssignIdsTest {
     data class WithoutIds(val a: Int, val b: String)
 
     @Serializable
-    data class WithId(@ProtoId(1) val a: Int, @ProtoId(2) val b: String)
+    data class WithId(@ProtoNumber(1) val a: Int, @ProtoNumber(2) val b: String)
 
     @Test
     fun saveAndRestoreWithoutIds() {
         val w1 = WithoutIds(1, "foo")
-        val bytes = ProtoBuf.dump(WithoutIds.serializer(), w1)
-        val w2 = ProtoBuf.load(WithoutIds.serializer(), bytes)
+        val bytes = ProtoBuf.encodeToByteArray(WithoutIds.serializer(), w1)
+        val w2 = ProtoBuf.decodeFromByteArray(WithoutIds.serializer(), bytes)
         assertEquals(w1, w2)
     }
 
     @Test
     fun incrementalIds() {
         val w1 = WithoutIds(1, "foo")
-        val bytes = ProtoBuf.dump(WithoutIds.serializer(), w1)
-        val w2 = ProtoBuf.load(WithId.serializer(), bytes)
+        val bytes = ProtoBuf.encodeToByteArray(WithoutIds.serializer(), w1)
+        val w2 = ProtoBuf.decodeFromByteArray(WithId.serializer(), bytes)
         assertEquals(w1.a, w2.a)
         assertEquals(w1.b, w2.b)
     }

@@ -7,8 +7,7 @@ package kotlinx.serialization.features
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
-import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.test.assertStringFormAndRestored
 import kotlin.test.Test
 
@@ -25,17 +24,17 @@ class PolymorphismDocumentationSample {
 
     val messageModule = SerializersModule {
         polymorphic(Message::class) {
-            StringMessage::class with StringMessage.serializer()
-            IntMessage::class with IntMessage.serializer()
+            subclass(StringMessage.serializer())
+            subclass(IntMessage.serializer())
         }
     }
 
-    val json = Json(context = messageModule)
+    val json = Json { serializersModule = messageModule }
 
-    val jsonWithArrays = Json(
-        configuration = JsonConfiguration(useArrayPolymorphism = true),
-        context = messageModule
-    )
+    val jsonWithArrays = Json {
+        useArrayPolymorphism = true
+        serializersModule = messageModule
+    }
 
     @Serializable
     data class MessageWrapper(val m: Message)

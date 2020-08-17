@@ -5,6 +5,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.json.internal.*
 import kotlin.test.*
 
 class LenientTest : JsonTestBase() {
@@ -20,49 +21,42 @@ class LenientTest : JsonTestBase() {
     @Test
     fun testQuotedInt() = parametrizedTest {
         val json = """{"i":"1", "l":2, "b":true, "s":"string"}"""
-        assertEquals(value, default.parse(Holder.serializer(), json, it))
-        assertEquals(value, lenient.parse(Holder.serializer(), json, it))
+        assertEquals(value, default.decodeFromString(Holder.serializer(), json, it))
+        assertEquals(value, lenient.decodeFromString(Holder.serializer(), json, it))
     }
 
     @Test
     fun testQuotedLong() = parametrizedTest {
         val json = """{"i":1, "l":"2", "b":true, "s":"string"}"""
-        assertEquals(value, default.parse(Holder.serializer(), json, it))
-        assertEquals(value, lenient.parse(Holder.serializer(), json, it))
+        assertEquals(value, default.decodeFromString(Holder.serializer(), json, it))
+        assertEquals(value, lenient.decodeFromString(Holder.serializer(), json, it))
     }
 
     @Test
     fun testQuotedBoolean() = parametrizedTest {
         val json = """{"i":1, "l":2, "b":"true", "s":"string"}"""
-        assertFailsWith<JsonDecodingException> { default.parse(Holder.serializer(), json, it) }
-        assertEquals(value, lenient.parse(Holder.serializer(), json, it))
+        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), json, it) }
+        assertEquals(value, lenient.decodeFromString(Holder.serializer(), json, it))
     }
 
     @Test
     fun testUnquotedStringValue() = parametrizedTest {
         val json = """{"i":1, "l":2, "b":true, "s":string}"""
-        assertFailsWith<JsonDecodingException> { default.parse(Holder.serializer(), json, it) }
-        assertEquals(value, lenient.parse(Holder.serializer(), json, it))
+        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), json, it) }
+        assertEquals(value, lenient.decodeFromString(Holder.serializer(), json, it))
     }
 
     @Test
     fun testUnquotedKey() = parametrizedTest {
         val json = """{"i":1, "l":2, b:true, "s":"string"}"""
-        assertFailsWith<JsonDecodingException> { default.parse(Holder.serializer(), json, it) }
-        assertEquals(value, lenient.parse(Holder.serializer(), json, it))
+        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), json, it) }
+        assertEquals(value, lenient.decodeFromString(Holder.serializer(), json, it))
     }
 
     @Test
     fun testUnquotedStringInArray() = parametrizedTest {
         val json = """{"l":[1, 2, ss]}"""
-        assertFailsWith<JsonDecodingException> { default.parse(ListHolder.serializer(), json, it) }
-        assertEquals(listValue, lenient.parse(ListHolder.serializer(), json, it))
-    }
-
-    @Test
-    fun testUnquotedStringInArray2() = parametrizedTest {
-        val json = """{"l":[1, 2, "ss"]}"""
-        assertFailsWith<JsonDecodingException> { default.parse(ListHolder.serializer(), json, it) }
-        assertEquals(listValue, lenient.parse(ListHolder.serializer(), json, it))
+        assertFailsWith<JsonDecodingException> { default.decodeFromString(ListHolder.serializer(), json, it) }
+        assertEquals(listValue, lenient.decodeFromString(ListHolder.serializer(), json, it))
     }
 }

@@ -14,7 +14,7 @@ internal val cborJackson = ObjectMapper(CBORFactory()).apply { registerKotlinMod
 internal inline fun <reified T : Any> dumpCborCompare(it: T, alwaysPrint: Boolean = false): Boolean {
     var parsed: T?
     val c = try {
-        val bytes = Cbor.dump(it)
+        val bytes = Cbor.encodeToByteArray(it)
         parsed = cborJackson.readValue<T>(bytes)
         it == parsed
     } catch (e: Exception) {
@@ -30,7 +30,7 @@ internal inline fun <reified T: Any> readCborCompare(it: T, alwaysPrint: Boolean
     var obj: T?
     val c = try {
         val hex = cborJackson.writeValueAsBytes(it)
-        obj = Cbor.load(hex)
+        obj = Cbor.decodeFromByteArray(hex)
         obj == it
     } catch (e: Exception) {
         obj = null

@@ -1,49 +1,32 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+@file:OptIn(ExperimentalSerializationApi::class)
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
-
-@Deprecated(
-    message = "Deprecated in the favor of extension",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("actualSerializer.nullable)")
-)
-@InternalSerializationApi
-public fun <T : Any> makeNullable(actualSerializer: KSerializer<T>): KSerializer<T?> {
-    return NullableSerializer(actualSerializer)
-}
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 
 /**
  * Use [KSerializer.nullable][nullable] instead.
  * @suppress internal API
  */
-@InternalSerializationApi
-public class NullableSerializer<T : Any>(private val serializer: KSerializer<T>) : KSerializer<T?> {
-
+@PublishedApi
+internal class NullableSerializer<T : Any>(private val serializer: KSerializer<T>) : KSerializer<T?> {
     override val descriptor: SerialDescriptor = SerialDescriptorForNullable(serializer.descriptor)
 
     override fun serialize(encoder: Encoder, value: T?) {
         if (value != null) {
             encoder.encodeNotNullMark()
             encoder.encodeSerializableValue(serializer, value)
-        }
-        else {
+        } else {
             encoder.encodeNull()
         }
     }
 
     override fun deserialize(decoder: Decoder): T? {
         return if (decoder.decodeNotNullMark()) decoder.decodeSerializableValue(serializer) else decoder.decodeNull()
-    }
-
-    override fun patch(decoder: Decoder, old: T?): T? {
-        return when {
-            old == null -> deserialize(decoder)
-            decoder.decodeNotNullMark() -> decoder.updateSerializableValue(serializer, old)
-            else -> decoder.decodeNull().let { old }
-        }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -59,7 +42,7 @@ public class NullableSerializer<T : Any>(private val serializer: KSerializer<T>)
     }
 }
 
-internal class SerialDescriptorForNullable(private val original: SerialDescriptor): SerialDescriptor by original {
+internal class SerialDescriptorForNullable(internal val original: SerialDescriptor) : SerialDescriptor by original {
     override val serialName: String = original.serialName + "?"
     override val isNullable: Boolean
         get() = true

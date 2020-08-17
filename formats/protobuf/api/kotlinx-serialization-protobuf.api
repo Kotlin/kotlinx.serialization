@@ -1,0 +1,57 @@
+public abstract class kotlinx/serialization/protobuf/ProtoBuf : kotlinx/serialization/BinaryFormat {
+	public static final field Default Lkotlinx/serialization/protobuf/ProtoBuf$Default;
+	public synthetic fun <init> (ZLkotlinx/serialization/modules/SerializersModule;Ljava/lang/Void;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun decodeFromByteArray (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
+	public fun encodeToByteArray (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+}
+
+public final class kotlinx/serialization/protobuf/ProtoBuf$Default : kotlinx/serialization/protobuf/ProtoBuf {
+}
+
+public final class kotlinx/serialization/protobuf/ProtoBufBuilder {
+	public final fun getEncodeDefaults ()Z
+	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public final fun setEncodeDefaults (Z)V
+	public final fun setSerializersModule (Lkotlinx/serialization/modules/SerializersModule;)V
+}
+
+public final class kotlinx/serialization/protobuf/ProtoBufKt {
+	public static final fun ProtoBuf ()Lkotlinx/serialization/protobuf/ProtoBuf;
+	public static final fun ProtoBuf (Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/protobuf/ProtoBuf;
+	public static final fun ProtoBuf (Lkotlinx/serialization/protobuf/ProtoBuf;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/protobuf/ProtoBuf;
+	public static final fun ProtoBuf (ZLkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/protobuf/ProtoBuf;
+	public static synthetic fun ProtoBuf$default (Lkotlinx/serialization/protobuf/ProtoBuf;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/protobuf/ProtoBuf;
+	public static synthetic fun ProtoBuf$default (ZLkotlinx/serialization/modules/SerializersModule;ILjava/lang/Object;)Lkotlinx/serialization/protobuf/ProtoBuf;
+}
+
+public abstract interface annotation class kotlinx/serialization/protobuf/ProtoId : java/lang/annotation/Annotation {
+	public abstract fun id ()I
+}
+
+public final class kotlinx/serialization/protobuf/ProtoIntegerType : java/lang/Enum {
+	public static final field DEFAULT Lkotlinx/serialization/protobuf/ProtoIntegerType;
+	public static final field FIXED Lkotlinx/serialization/protobuf/ProtoIntegerType;
+	public static final field SIGNED Lkotlinx/serialization/protobuf/ProtoIntegerType;
+	public static fun valueOf (Ljava/lang/String;)Lkotlinx/serialization/protobuf/ProtoIntegerType;
+	public static fun values ()[Lkotlinx/serialization/protobuf/ProtoIntegerType;
+}
+
+public abstract interface annotation class kotlinx/serialization/protobuf/ProtoNumber : java/lang/annotation/Annotation {
+	public abstract fun number ()I
+}
+
+public final class kotlinx/serialization/protobuf/ProtoNumber$Impl : kotlinx/serialization/protobuf/ProtoNumber {
+	public fun <init> (I)V
+	public final fun number ()I
+}
+
+public abstract interface annotation class kotlinx/serialization/protobuf/ProtoType : java/lang/annotation/Annotation {
+	public abstract fun type ()Lkotlinx/serialization/protobuf/ProtoIntegerType;
+}
+
+public final class kotlinx/serialization/protobuf/ProtoType$Impl : kotlinx/serialization/protobuf/ProtoType {
+	public fun <init> (Lkotlinx/serialization/protobuf/ProtoIntegerType;)V
+	public final fun type ()Lkotlinx/serialization/protobuf/ProtoIntegerType;
+}
+

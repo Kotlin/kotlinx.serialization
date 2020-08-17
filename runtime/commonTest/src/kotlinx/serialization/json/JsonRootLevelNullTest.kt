@@ -5,9 +5,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
-import kotlinx.serialization.nullable
 import kotlin.test.*
 
 class JsonRootLevelNullTest : JsonTestBase() {
@@ -16,16 +14,16 @@ class JsonRootLevelNullTest : JsonTestBase() {
     private data class Simple(val a: Int = 42)
 
     @Test
-    fun testNullableStringify() {
+    fun testNullableEncode() {
         // Top-level nulls in tagged encoder is not yet supported, no parametrized test
         val obj: Simple? = null
-        val json = default.stringify(Simple.serializer().nullable, obj)
+        val json = default.encodeToString(Simple.serializer().nullable, obj)
         assertEquals("null", json)
     }
 
     @Test
-    fun testNullableParse() = parametrizedTest { useStreaming ->
-        val result = default.parse(Simple.serializer().nullable, "null", useStreaming)
+    fun testNullableDecode() = parametrizedTest { useStreaming ->
+        val result = default.decodeFromString(Simple.serializer().nullable, "null", useStreaming)
         assertNull(result)
     }
 }

@@ -4,10 +4,15 @@
 
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.json.*
 import kotlinx.serialization.json.internal.EscapeCharMappings.ESCAPE_2_CHAR
 import kotlin.jvm.*
 import kotlin.native.concurrent.*
+
+internal const val lenientHint = "Use 'isLenient = true' in 'Json {}` builder to accept non-compliant JSON."
+internal const val coerceInputValuesHint = "Use 'coerceInputValues = true' in 'Json {}` builder to coerce nulls to default values."
+internal const val specialFlowingValuesHint = "It is possible to deserialize them using 'JsonBuilder.allowSpecialFloatingPointValues = true'"
+internal const val ignoreUnknownKeysHint = "Use 'ignoreUnknownKeys = true' in 'Json {}' builder to ignore unknown keys."
+internal const val allowStructuredMapKeysHint = "Use 'allowStructuredMapKeys = true' in 'Json {}' builder to convert such maps to [key1, value1, key2, value2,...] arrays."
 
 // special strings
 internal const val NULL = "null"
@@ -140,28 +145,41 @@ internal class JsonReader(private val source: String) {
 
     fun takeString(): String {
         if (tokenClass != TC_OTHER && tokenClass != TC_STRING) fail(
-            "Expected string or non-null literal", tokenPosition)
-        return takeStringInternal()
-    }
-
-    fun takeStringQuoted(): String {
-        if (tokenClass != TC_STRING) fail(
-            "Expected string literal with quotes. $lenientHint",
-            tokenPosition
+            "Expected string or non-null literal", tokenPosition
         )
         return takeStringInternal()
     }
 
-    fun takeBooleanStringUnquoted(): String {
-        if (tokenClass != TC_OTHER) fail("Expected start of the unquoted boolean literal. $lenientHint", tokenPosition)
+    fun peekString(isLenient: Boolean): String? {
+        return if (tokenClass != TC_STRING && (!isLenient || tokenClass != TC_OTHER)) null
+        else takeStringInternal(advance = false)
+    }
+
+    fun takeStringQuoted(): String {
+        when (tokenClass) {
+            TC_STRING -> {} // ok
+            TC_NULL -> fail(
+                "Expected string literal but 'null' literal was found.\n$coerceInputValuesHint",
+                tokenPosition
+            )
+            else -> fail(
+                "Expected string literal with quotes.\n$lenientHint",
+                tokenPosition
+            )
+        }
         return takeStringInternal()
     }
 
-    private fun takeStringInternal(): String {
+    fun takeBooleanStringUnquoted(): String {
+        if (tokenClass != TC_OTHER) fail("Expected start of the unquoted boolean literal.\n$lenientHint", tokenPosition)
+        return takeStringInternal()
+    }
+
+    private fun takeStringInternal(advance: Boolean = true): String {
         val prevStr = if (offset < 0)
-            String(buf, 0, length) else
+            buf.concatToString(0, 0 + length) else
             source.substring(offset, offset + length)
-        nextToken()
+        if (advance) nextToken()
         return prevStr
     }
 

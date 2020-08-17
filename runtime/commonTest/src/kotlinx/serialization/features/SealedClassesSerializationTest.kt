@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.features
@@ -7,9 +7,8 @@ package kotlinx.serialization.features
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.SerializersModule
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlinx.serialization.modules.*
+import kotlin.test.*
 
 class SealedClassesSerializationTest : JsonTestBase() {
     @Serializable
@@ -95,7 +94,7 @@ class SealedClassesSerializationTest : JsonTestBase() {
         object EOF : ProtocolWithGenericClass()
     }
 
-    val ManualSerializer = SealedClassSerializer(
+    private val ManualSerializer: KSerializer<SimpleSealed> = SealedClassSerializer(
         "SimpleSealed",
         SimpleSealed::class,
         arrayOf(SimpleSealed.SubSealedA::class, SimpleSealed.SubSealedB::class),
@@ -108,12 +107,12 @@ class SealedClassesSerializationTest : JsonTestBase() {
     @Serializable
     data class SealedBoxHolder(val b: Box<SimpleSealed>)
 
-    private val arrayJson = Json(JsonConfiguration.Default.copy(useArrayPolymorphism = true))
-    private val json = Json(JsonConfiguration.Default.copy(useArrayPolymorphism = false, prettyPrint = false))
+    private val arrayJson = Json { useArrayPolymorphism = true }
+    private val json = Json
 
     @Test
     fun manualSerializer() {
-        val message = json.stringify(
+        val message = json.encodeToString(
             ManualSerializer,
             SimpleSealed.SubSealedB(42)
         )
@@ -122,11 +121,11 @@ class SealedClassesSerializationTest : JsonTestBase() {
 
     @Test
     fun onTopLevel() {
-        val arrayMessage = arrayJson.stringify(
+        val arrayMessage = arrayJson.encodeToString(
             SimpleSealed.serializer(),
             SimpleSealed.SubSealedB(42)
         )
-        val message = json.stringify(
+        val message = json.encodeToString(
             SimpleSealed.serializer(),
             SimpleSealed.SubSealedB(42)
         )
@@ -170,7 +169,7 @@ class SealedClassesSerializationTest : JsonTestBase() {
         )
         val expected =
             """[{"type":"SealedProtocol.StringMessage","description":"string message","message":"foo"},{"type":"SealedProtocol.IntMessage","description":"int message","message":42},{"type":"SealedProtocol.ErrorMessage","error":"requesting termination"},{"type":"EOF"}]"""
-        assertJsonFormAndRestored(SealedProtocol.serializer().list, messages, expected, json)
+        assertJsonFormAndRestored(ListSerializer(SealedProtocol.serializer()), messages, expected, json)
     }
 
     @Test
@@ -182,19 +181,23 @@ class SealedClassesSerializationTest : JsonTestBase() {
             ProtocolWithAbstractClass.EOF
         )
         val abstractContext = SerializersModule {
-            polymorphic(ProtocolWithAbstractClass::class, ProtocolWithAbstractClass.Message::class) {
-                ProtocolWithAbstractClass.Message.IntMessage::class with ProtocolWithAbstractClass.Message.IntMessage.serializer()
-                ProtocolWithAbstractClass.Message.StringMessage::class with ProtocolWithAbstractClass.Message.StringMessage.serializer()
+
+            polymorphic(ProtocolWithAbstractClass::class) {
+                subclass(ProtocolWithAbstractClass.Message.IntMessage.serializer())
+                subclass(ProtocolWithAbstractClass.Message.StringMessage.serializer())
+            }
+
+            polymorphic(ProtocolWithAbstractClass.Message::class) {
+                subclass(ProtocolWithAbstractClass.Message.IntMessage.serializer())
+                subclass(ProtocolWithAbstractClass.Message.StringMessage.serializer())
             }
         }
-        val json =
-            Json(
-                JsonConfiguration.Default.copy(useArrayPolymorphism = false, prettyPrint = false),
-                context = abstractContext
-            )
+        val json = Json {
+            serializersModule = abstractContext
+        }
         val expected =
             """[{"type":"ProtocolWithAbstractClass.Message.StringMessage","description":"string message","message":"foo"},{"type":"ProtocolWithAbstractClass.Message.IntMessage","description":"int message","message":42},{"type":"ProtocolWithAbstractClass.ErrorMessage","error":"requesting termination"},{"type":"EOF"}]"""
-        assertJsonFormAndRestored(ProtocolWithAbstractClass.serializer().list, messages, expected, json)
+        assertJsonFormAndRestored(ListSerializer(ProtocolWithAbstractClass.serializer()), messages, expected, json)
     }
 
     @Test
@@ -207,7 +210,7 @@ class SealedClassesSerializationTest : JsonTestBase() {
         )
         val expected =
             """[{"type":"ProtocolWithSealedClass.Message.StringMessage","description":"string message","message":"foo"},{"type":"ProtocolWithSealedClass.Message.IntMessage","description":"int message","message":42},{"type":"ProtocolWithSealedClass.ErrorMessage","error":"requesting termination"},{"type":"EOF"}]"""
-        assertJsonFormAndRestored(ProtocolWithSealedClass.serializer().list, messages, expected, json)
+        assertJsonFormAndRestored(ListSerializer(ProtocolWithSealedClass.serializer()), messages, expected, json)
     }
 
     @Test
@@ -219,8 +222,8 @@ class SealedClassesSerializationTest : JsonTestBase() {
         val expected =
             """[{"type":"ProtocolWithSealedClass.Message.StringMessage","description":"string message","message":"foo"},{"type":"ProtocolWithSealedClass.Message.IntMessage","description":"int message","message":42}]"""
 
-        assertJsonFormAndRestored(ProtocolWithSealedClass.serializer().list, messages, expected, json)
-        assertJsonFormAndRestored(ProtocolWithSealedClass.Message.serializer().list, messages, expected, json)
+        assertJsonFormAndRestored(ListSerializer(ProtocolWithSealedClass.serializer()), messages, expected, json)
+        assertJsonFormAndRestored(ListSerializer(ProtocolWithSealedClass.Message.serializer()), messages, expected, json)
     }
 
     @Test
@@ -233,7 +236,15 @@ class SealedClassesSerializationTest : JsonTestBase() {
         )
         val expected =
             """[["ProtocolWithGenericClass.Message",{"description":"string message","message":["kotlin.String","foo"]}],["ProtocolWithGenericClass.Message",{"description":"int message","message":["kotlin.Int",42]}],["ProtocolWithGenericClass.ErrorMessage",{"error":"requesting termination"}],["EOF",{}]]"""
-        val json = Json(JsonConfiguration.Default.copy(useArrayPolymorphism = true))
-        assertJsonFormAndRestored(ProtocolWithGenericClass.serializer().list, messages, expected, json)
+        val json = Json {
+            useArrayPolymorphism = true
+            serializersModule = SerializersModule {
+                polymorphic(Any::class) {
+                    subclass(Int::class)
+                    subclass(String::class)
+                }
+            }
+        }
+        assertJsonFormAndRestored(ListSerializer(ProtocolWithGenericClass.serializer()), messages, expected, json)
     }
 }

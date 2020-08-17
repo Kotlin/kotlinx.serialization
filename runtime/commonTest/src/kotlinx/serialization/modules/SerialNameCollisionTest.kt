@@ -30,18 +30,18 @@ class SerialNameCollisionTest {
     @SerialName("$prefix.Derived")
     data class DerivedRenamed(val type: String, val type2: String) : Base()
 
-    private fun Json(discriminator: String, context: SerialModule, useArrayPolymorphism: Boolean = false) = Json(
-        configuration = JsonConfiguration.Stable.copy(
-            classDiscriminator = discriminator,
-            useArrayPolymorphism = useArrayPolymorphism
-        ), context = context
-    )
+    private fun Json(discriminator: String, context: SerializersModule, useArrayPolymorphism: Boolean = false) = Json {
+        classDiscriminator = discriminator
+        this.useArrayPolymorphism = useArrayPolymorphism
+        serializersModule = context
+
+    }
 
     @Test
     fun testCollisionWithDiscriminator() {
         val module = SerializersModule {
             polymorphic(Base::class) {
-                Derived::class with Derived.serializer()
+                subclass(Derived.serializer())
             }
         }
 
@@ -54,7 +54,7 @@ class SerialNameCollisionTest {
     fun testNoCollisionWithArrayPolymorphism() {
         val module = SerializersModule {
             polymorphic(Base::class) {
-                Derived::class with Derived.serializer()
+                subclass(Derived.serializer())
             }
         }
         Json("type", module, true)
@@ -64,7 +64,7 @@ class SerialNameCollisionTest {
     fun testCollisionWithDiscriminatorViaSerialNames() {
         val module = SerializersModule {
             polymorphic(Base::class) {
-                DerivedCustomized::class with DerivedCustomized.serializer()
+                subclass(DerivedCustomized.serializer())
             }
         }
 
@@ -80,8 +80,8 @@ class SerialNameCollisionTest {
         SerializersModule {
             assertFailsWith<IllegalArgumentException> {
                 polymorphic(Base::class) {
-                    Derived::class with Derived.serializer()
-                    DerivedRenamed::class with DerivedRenamed.serializer()
+                    subclass(Derived.serializer())
+                    subclass(DerivedRenamed.serializer())
                 }
             }
         }
@@ -91,12 +91,12 @@ class SerialNameCollisionTest {
     fun testCollisionWithinHierarchyViaConcatenation() {
         val module = SerializersModule {
             polymorphic(Base::class) {
-                Derived::class with Derived.serializer()
+                subclass(Derived.serializer())
             }
         }
         val module2 = SerializersModule {
             polymorphic(Base::class) {
-                DerivedRenamed::class with DerivedRenamed.serializer()
+                subclass(DerivedRenamed.serializer())
             }
         }
 
@@ -107,11 +107,11 @@ class SerialNameCollisionTest {
     fun testNoCollisionWithinHierarchy() {
         val module = SerializersModule {
             polymorphic(Base::class) {
-                Derived::class with Derived.serializer()
+                subclass(Derived.serializer())
             }
 
             polymorphic(IBase::class) {
-                DerivedRenamed::class with DerivedRenamed.serializer()
+                subclass(DerivedRenamed.serializer())
             }
         }
 

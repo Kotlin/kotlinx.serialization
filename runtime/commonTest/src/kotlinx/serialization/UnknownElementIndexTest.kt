@@ -4,8 +4,9 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
-import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -25,7 +26,7 @@ class UnknownElementIndexTest {
     @Test
     fun testCompilerComplainsAboutIncorrectIndex() {
         assertFailsWith(UnknownFieldException::class) {
-            MalformedReader().decode(Holder.serializer())
+            MalformedReader().decodeSerializableValue(Holder.serializer())
         }
     }
 
@@ -33,7 +34,7 @@ class UnknownElementIndexTest {
     fun testErrorMessage() {
         val message = "kotlinx.serialization.UnknownElementIndexTest.Choices does not contain element with name 'D'"
         assertFailsWith(SerializationException::class, message) {
-            Json.parse(Holder.serializer(), """{"c":"D"}""")
+            Json.decodeFromString(Holder.serializer(), """{"c":"D"}""")
         }
     }
 }

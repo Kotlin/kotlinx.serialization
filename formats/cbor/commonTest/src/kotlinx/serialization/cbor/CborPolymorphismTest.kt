@@ -14,7 +14,7 @@ class CborPolymorphismTest {
         data class B(val b: String) : A()
     }
 
-    val cbor = Cbor(context = SimplePolymorphicModule)
+    val cbor = Cbor { serializersModule = SimplePolymorphicModule }
 
     @Test
     fun testSealedWithOneSubclass() {

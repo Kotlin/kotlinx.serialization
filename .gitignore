@@ -1,7 +1,8 @@
 .DS_Store
 
 # IntelliJ files
-.idea/
+**/.idea/*
+!/.idea/vcs.xml
 out/
 *.iml
 

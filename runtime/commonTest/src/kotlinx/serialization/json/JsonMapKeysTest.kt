@@ -5,7 +5,8 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.test.assertStringFormAndRestored
+import kotlinx.serialization.json.internal.*
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class JsonMapKeysTest : JsonTestBase() {
@@ -19,19 +20,19 @@ class JsonMapKeysTest : JsonTestBase() {
     private data class WithComplexKey(val map: Map<IntData, String>)
 
     @Test
-    fun testMapKeysShouldBeStrings() = parametrizedTest(default) { fmt ->
+    fun testMapKeysShouldBeStrings() = parametrizedTest(default) {
         assertStringFormAndRestored(
             """{"map":{"10":10,"20":20}}""",
             WithMap(mapOf(10L to 10L, 20L to 20L)),
             WithMap.serializer(),
-            fmt
+            this
         )
     }
 
     @Test
     fun structuredMapKeysShouldBeBannedByDefault() = parametrizedTest { streaming ->
         val e = assertFailsWith<JsonException> {
-            Json(JsonConfiguration.Default).stringify(
+            Json.encodeToString(
                 WithComplexKey.serializer(),
                 WithComplexKey(mapOf(IntData(42) to "42")),
                 streaming
@@ -45,7 +46,7 @@ class JsonMapKeysTest : JsonTestBase() {
         WithComplexKey.serializer(),
         WithComplexKey(mapOf(IntData(42) to "42")),
         """{"map":[{"intV":42},"42"]}""",
-        Json(JsonConfiguration.Default.copy(allowStructuredMapKeys = true))
+        Json { allowStructuredMapKeys = true }
     )
 
     @Test
@@ -53,6 +54,6 @@ class JsonMapKeysTest : JsonTestBase() {
         WithEnum.serializer(),
         WithEnum(mapOf(SampleEnum.OptionA to 1L, SampleEnum.OptionC to 3L)),
         """{"map":{"OptionA":1,"OptionC":3}}""",
-        Json(JsonConfiguration.Stable)
+        Json
     )
 }

@@ -4,7 +4,8 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import org.junit.Test
 import kotlin.test.*
 
@@ -17,11 +18,11 @@ class SerializationMethodInvocationOrderTest {
     @Test
     fun testRec() {
         val out = Out()
-        out.encode(Container::class.serializer(), Container(Data("s1", 42)))
+        out.encodeSerializableValue(serializer(), Container(Data("s1", 42)))
         out.done()
 
         val inp = Inp()
-        inp.decode(Container::class.serializer())
+        inp.decodeSerializableValue(serializer<Container>())
         inp.done()
     }
 
@@ -41,10 +42,14 @@ class SerializationMethodInvocationOrderTest {
     class Out : AbstractEncoder() {
         var step = 0
 
-        override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
-            when(step) {
-                1 -> { checkContainerDesc(descriptor); step++; return this }
-                4 -> { checkDataDesc(descriptor); step++; return this }
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
+            when (step) {
+                1 -> {
+                    checkContainerDesc(descriptor); step++; return this
+                }
+                4 -> {
+                    checkDataDesc(descriptor); step++; return this
+                }
             }
             fail("@$step: beginStructure($descriptor)")
         }
@@ -107,7 +112,7 @@ class SerializationMethodInvocationOrderTest {
     class Inp : AbstractDecoder() {
         var step = 0
 
-        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             when (step) {
                 1 -> {
                     checkContainerDesc(descriptor); step++; return this

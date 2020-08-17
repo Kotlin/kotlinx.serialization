@@ -4,11 +4,11 @@
 
 package kotlinx.serialization.cbor
 
-import com.upokecenter.cbor.CBORObject
+import com.upokecenter.cbor.*
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class CborCompatibilityTest {
 
@@ -33,7 +33,7 @@ class CborCompatibilityTest {
 
     private inline fun <reified T> compare(obj: T, serializer: KSerializer<T>) {
         val bytes = CBORObject.FromObject(obj).EncodeToBytes()
-        assertEquals(obj, Cbor.load(serializer, bytes))
+        assertEquals(obj, Cbor.decodeFromByteArray(serializer, bytes))
     }
 
     @Test
@@ -43,11 +43,13 @@ class CborCompatibilityTest {
 
     @Test
     fun basicListFromAnotherLibrary() {
-        compare(listOf(
-            SomeClass(1),
-            SomeClass(2),
-            SomeClass(3)
-        ), SomeClass.serializer().list)
+        compare(
+            listOf(
+                SomeClass(1),
+                SomeClass(2),
+                SomeClass(3)
+            ), ListSerializer(SomeClass.serializer())
+        )
     }
 
     @Test
@@ -71,7 +73,7 @@ class CborCompatibilityTest {
             30,
             mapOf("40" to IntData(40), "50" to IntData(50))
         )
-        val serial = SomeComplexClass.serializer(Int.serializer().list)
+        val serial = SomeComplexClass.serializer(ListSerializer(Int.serializer()))
         compare(obj, serial)
     }
 }

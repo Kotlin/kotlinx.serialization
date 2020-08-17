@@ -20,7 +20,7 @@ import kotlin.test.*
 class ProtoBufOptionalTest {
 
     /** ProtoBuf instance that does **not** encode defaults. */
-    private val protoBuf = ProtoBuf(encodeDefaults = false)
+    private val protoBuf = ProtoBuf { encodeDefaults = false }
 
     @Test
     fun readCompareWithDefaults() {
@@ -49,7 +49,7 @@ class ProtoBufOptionalTest {
     @Test
     fun testThatDefaultValuesAreNotEncoded() {
         val data = MessageWithOptionals()
-        val parsed = TestData.MessageWithOptionals.parseFrom(protoBuf.dump(data))
+        val parsed = TestData.MessageWithOptionals.parseFrom(protoBuf.encodeToByteArray(data))
 
         assertFalse(parsed.hasA(), "Expected that default value for optional field `a` is not encoded.")
         assertFalse(parsed.hasB(), "Expected that default value for optional field `b` is not encoded.")
@@ -66,7 +66,7 @@ class ProtoBufOptionalTest {
     @Test
     fun testThatCustomValuesAreEncodedCorrectly() {
         val data = MessageWithOptionals(42, "Test", MessageWithOptionals.Position.SECOND, 24, listOf(1, 2, 3))
-        val parsed = TestData.MessageWithOptionals.parseFrom(protoBuf.dump(data))
+        val parsed = TestData.MessageWithOptionals.parseFrom(protoBuf.encodeToByteArray(data))
 
         assertTrue(parsed.hasA(), "Expected that custom value for optional field `a` is encoded.")
         assertTrue(parsed.hasB(), "Expected that custom value for optional field `b` is encoded.")

@@ -5,6 +5,8 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.reflect.*
@@ -15,6 +17,8 @@ import kotlin.reflect.*
  * In contrary to [PolymorphicSerializer], all known subclasses with serializers must be passed
  * in `subclasses` and `subSerializers` constructor parameters.
  * If a subclass is a sealed class itself, all its subclasses are registered as well.
+ *
+ * If a sealed hierarchy is marked with [@Serializable][Serializable], an instance of this class is provided automatically.
  * In most of the cases, you won't need to perform any manual setup:
  *
  * ```
@@ -28,7 +32,7 @@ import kotlin.reflect.*
  * }
  *
  * // will perform correct polymorphic serialization and deserialization:
- * Json.stringify(SimpleSealed.serializer(), SubSealedA("foo"))
+ * Json.encodeToString(SimpleSealed.serializer(), SubSealedA("foo"))
  * ```
  *
  * However, it is possible to register additional subclasses using regular [SerializersModule].
@@ -56,26 +60,27 @@ import kotlin.reflect.*
  *
  * ```
  * val abstractContext = SerializersModule {
- *     polymorphic(ProtocolWithAbstractClass::class, ProtocolWithAbstractClass.Message::class) {
- *         ProtocolWithAbstractClass.Message.IntMessage::class with ProtocolWithAbstractClass.Message.IntMessage.serializer()
- *         ProtocolWithAbstractClass.Message.StringMessage::class with ProtocolWithAbstractClass.Message.StringMessage.serializer()
+ *     polymorphic(ProtocolWithAbstractClass::class) {
+ *         subclass(ProtocolWithAbstractClass.Message.IntMessage::class)
+ *         subclass(ProtocolWithAbstractClass.Message.StringMessage::class)
  *         // no need to register ProtocolWithAbstractClass.ErrorMessage
  *     }
  * }
  * ```
  */
-@InternalSerializationApi
-public class SealedClassSerializer<T : Any>(
+@PublishedApi
+@OptIn(ExperimentalSerializationApi::class)
+internal class SealedClassSerializer<T : Any>(
     serialName: String,
     override val baseClass: KClass<T>,
     subclasses: Array<KClass<out T>>,
     subclassSerializers: Array<KSerializer<out T>>
 ) : AbstractPolymorphicSerializer<T>() {
 
-    override val descriptor: SerialDescriptor = SerialDescriptor(serialName, PolymorphicKind.SEALED) {
+    override val descriptor: SerialDescriptor = buildSerialDescriptor(serialName, PolymorphicKind.SEALED) {
         element("type", String.serializer().descriptor)
         val elementDescriptor =
-            SerialDescriptor("kotlinx.serialization.Sealed<${baseClass.simpleName}>", UnionKind.CONTEXTUAL) {
+            buildSerialDescriptor("kotlinx.serialization.Sealed<${baseClass.simpleName}>", SerialKind.CONTEXTUAL) {
                 subclassSerializers.forEach {
                     val d = it.descriptor
                     element(d.serialName, d)
@@ -89,11 +94,10 @@ public class SealedClassSerializer<T : Any>(
     private val serialName2Serializer: Map<String, KSerializer<out T>>
 
     init {
-        require(subclasses.size == subclassSerializers.size) {
-            "Arrays of classes and serializers must have the same length," +
-                    " got arrays: ${subclasses.contentToString()}, ${subclassSerializers.contentToString()}\n" +
-                    "Please ensure that @Serializable annotation is present on each sealed subclass"
+        if (subclasses.size != subclassSerializers.size) {
+            throw IllegalArgumentException("All subclasses of sealed class ${baseClass.simpleName} should be marked @Serializable")
         }
+
         class2Serializer = subclasses.zip(subclassSerializers).toMap()
         serialName2Serializer = class2Serializer.entries.groupingBy { it.value.descriptor.serialName }
             .aggregate<Map.Entry<KClass<out T>, KSerializer<out T>>, String, Map.Entry<KClass<*>, KSerializer<out T>>>
@@ -108,11 +112,11 @@ public class SealedClassSerializer<T : Any>(
             }.mapValues { it.value.value }
     }
 
-    override fun findPolymorphicSerializer(decoder: CompositeDecoder, klassName: String): KSerializer<out T> {
-        return serialName2Serializer[klassName] ?: super.findPolymorphicSerializer(decoder, klassName)
+    override fun findPolymorphicSerializerOrNull(decoder: CompositeDecoder, klassName: String?): DeserializationStrategy<out T>? {
+        return serialName2Serializer[klassName] ?: super.findPolymorphicSerializerOrNull(decoder, klassName)
     }
 
-    override fun findPolymorphicSerializer(encoder: Encoder, value: T): KSerializer<out T> {
-        return class2Serializer[value::class] ?: super.findPolymorphicSerializer(encoder, value)
+    override fun findPolymorphicSerializerOrNull(encoder: Encoder, value: T): SerializationStrategy<T>? {
+        return (class2Serializer[value::class] ?: super.findPolymorphicSerializerOrNull(encoder, value))?.cast()
     }
 }

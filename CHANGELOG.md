@@ -1,3 +1,129 @@
+1.0.0-RC / 2020-08-17
+==================
+
+Release candidate for 1.0.0 version. The goal of RC release is to collect feedback from users
+and provide 1.0.0 release with bug fixes and improvements based on that feedback.
+
+While working on 1.0.0 version, we carefully examined every public API declaration of the library and 
+split it to stable API, that we promise to be source and binary-compatible, 
+and experimental API, that may be changed in the future.
+Experimental API is annotated with `@ExperimentalSerializationApi` annotation, which requires opt-in.
+For a more detailed description of the guarantees, please refer to the [compatibility guide](docs/compatibility.md).
+
+The id of the core artifact with `@Serializable` annotation and `Json` format was changed
+from `kotlinx-serialization-runtime` to `kotlinx-serialization-core` to be more clear and aligned with other kotlinx libraries.
+
+A significant part of the public API was renamed or extracted to a separate package.
+To migrate from the previous versions of the library, please refer to the [migration guide](docs/migration.md).
+
+### API changes
+
+#### Json
+
+* Core API changes
+    * `stringify` and `parse` are renamed to `encodeToString` and `decodeToString`
+    * `parseJson` and `fromJson` are renamed to `parseJsonElement` and `decodeFromJsonElement`
+    * Reified versions of methods are extracted to extensions
+
+* `Json` constructor is replaced with `Json {}` builder function, `JsonConfiguration` is deprecated in favor
+of `Json {}` builder
+    * All default `Json` implementations are removed
+   * `Json` companion object extends `Json`
+
+* Json configuration
+    * `prettyPrintIndent` allows only whitespaces
+    * `serializeSpecialFloatingPointValues` is renamed to `allowSpecialFloatingPointValues`. It now affects both serialization and deserialization behaviour
+    * `unquoted` JSON flag is deprecated for removal
+    * New `coerceInputValues` option for null-defaults and unknown enums (#90, #246)
+
+* Simplification of `JsonElement` API
+    * Redundant members of `JsonElement` API are deprecated or extracted to extensions
+    * Potential error-prone API is removed
+    * `JsonLiteral` is deprecated in favor of `JsonPrimitive` constructors with nullable parameter
+    
+* `JsonElement` builders rework to be aligned with stdlib collection builders (#418, #627)
+    * Deprecated infix `to` and unaryPlus in JSON DSL in favor of `put`/`add` functions
+    * `jsonObject {}` and `json {}` builders are renamed to `buildJsonObject {}` and `buildJsonArray {}`
+    * Make all builders `inline` (#703)
+
+* JavaScript support
+    * `DynamicObjectParser` is deprecated in the favor of `Json.decodeFromDynamic` extension functions
+    * `Json.encodeToDynamic` extension is added as a counterpart to `Json.decodeFromDynamic` (former `DynamicObjectParser`) (#116)
+
+* Other API changes:
+    * `JsonInput` and `JsonOutput` are renamed to `JsonEncoder` and `JsonDecoder`
+    * Methods in `JsonTransformingSerializer` are renamed to `transformSerialize` and `transformDeserialize`
+    * `JsonParametricSerializer` is renamed to `JsonContentPolymorphicSerializer`
+    * `JsonEncodingException` and `JsonDecodingException` are made internal
+    
+* Bug fixes
+    * `IllegalStateException` when `null` occurs in JSON input in the place of an expected non-null object (#816)
+    * java.util.NoSuchElementException when deserializing twice from the same JsonElement (#807)
+
+#### Core API for format authoring 
+
+* The new naming scheme for `SerialFormats`
+   *  Core functions in `StringFormat` and `BinaryFormat` are renamed and now follow the same naming scheme
+   * `stringify`/`parse` are renamed to `encodeToString`/`decodeToString`
+   * `encodeToByteArray`/`encodeToHexString`/`decodeFromByteArray`/`decodeFromHexString` in `BinaryFormat` are introduced instead of `dump`/`dumps`/`load`/`loads`
+
+* New format instances building convention
+   * Constructors replaced with builder-function with the same name to have the ability to add new configuration parameters, 
+   while preserving both source and binary compatibility
+   * Format's companion objects now extend format class and can be used interchangeably
+
+* SerialDescriptor-related API
+    * `SerialDescriptor` and `SerialKind` are moved to a separate `kotlinx.serialization.descriptors` package
+    * `ENUM` and `CONTEXTUAL` kinds now extend `SerialKind` directly
+    * `PrimitiveDescriptor` is renamed to `PrimitiveSerialDescriptor`
+    * Provide specific `buildClassSerialDescriptor` to use with classes' custom serializers, creating other kinds is considered experimental for now
+    * Replace extensions that returned lists (e.g. `elementDescriptors`) with properties that return iterable as an optimization
+    * `IndexOutOfBoundsException` in `descriptor.getElementDescriptor(index)` for `List` after upgrade to 0.20.0 is fixed (#739)
+
+* SerializersModule-related API
+    * `SerialModule` is renamed to `SerializersModule`
+    * `SerialModuleCollector` is renamed to `SerializersModuleCollector`
+    * All builders renamed to be aligned with a single naming scheme (e.g. `SerializersModule {}` DSL)
+    * Deprecate infix `with` in polymorphic builder in favor of subclass()
+    * Helper-like API is extracted to extension functions where possible.
+    * `polymorphicDefault` API for cases when type discriminator is not registered or absent (#902)
+
+* Contextual serialization
+    * `@ContextualSerialization` is split into two annotations: `@Contextual` to use on properties and `@UseContextualSerialization` to use on file
+    *  New `SerialDescriptor.capturedKClass` API to introspect SerializersModule-based contextual and polymorphic kinds (#515, #595)
+    
+* Encoding-related API
+    * Encoding-related classes (`Encoder`, `Decoder`, `AbstractEncoder`, `AbstractDecoder`) are moved to a separate `kotlinx.serialization.encoding` package
+    * Deprecated `typeParameters` argument in `beginStructure`/`beginCollectio`n methods
+    * Deprecated `updateSerializableValue` and similar methods and `UpdateMode` enum
+    * Renamed `READ_DONE` to `DECODE_DONE` 
+    * Make extensions `inline` where applicable
+    * `kotlinx.io` mockery (`InputStream`, `ByteArrayInput`, etc) is removed
+   
+* Serializer-related API
+    * `UnitSerializer` is replaced with `Unit.serializer()`
+    * All methods for serializers retrieval are renamed to `serializer`
+    * Context is used as a fallback in `serializer` by KType/Java's Reflect Type functions (#902, #903)
+    * Deprecated all exceptions except `SerializationException`.
+    * `@ImplicitReflectionSerializer` is deprecated
+    * Support of custom serializers for nullable types is added (#824)
+
+#### ProtoBuf
+    
+* `ProtoBuf` constructor is replaced with `ProtoBuf {}` builder function
+* `ProtoBuf` companion object now extends `ProtoBuf`
+* `ProtoId` is renamed to `ProtoNumber`, `ProtoNumberType` to `ProtoIntegerType` to be consistent with ProtoBuf specification
+* ProtoBuf performance is significantly (from 2 to 10 times) improved (#216)
+* Top-level primitives, classes and objects are supported in ProtoBuf as length-prefixed tagless messages (#93)
+* `SerializationException` is thrown instead of `IllegalStateException` on incorrect input (#870)
+* `ProtobufDecodingException` is made internal
+
+#### Other formats
+   * All format constructors are migrated to builder scheme
+   * Properties serialize and deserialize enums as strings (#818)
+   * CBOR major type 2 (byte string) support (#842) 
+   * `ConfigParser` is renamed to `Hocon`, `kotlinx-serialization-runtime-configparser` artifact is renamed to `kotlinx-serialization-hocon`
+   * Do not write/read size of collection into Properties' map (#743)
 
 0.20.0 / 2020-03-04
 ==================

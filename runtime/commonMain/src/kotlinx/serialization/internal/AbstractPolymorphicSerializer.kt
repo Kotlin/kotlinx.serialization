@@ -5,6 +5,8 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.encoding.*
+import kotlin.jvm.*
 import kotlin.reflect.*
 
 /**
@@ -18,6 +20,7 @@ import kotlin.reflect.*
  * Serial name equals to fully-qualified class name by default and can be changed via @[SerialName] annotation.
  */
 @InternalSerializationApi
+@OptIn(ExperimentalSerializationApi::class)
 public abstract class AbstractPolymorphicSerializer<T : Any> internal constructor() : KSerializer<T> {
 
     /**
@@ -37,12 +40,12 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
         var klassName: String? = null
         var value: Any? = null
         if (decodeSequentially()) {
-            return@decodeStructure decodeSequentially(this)
+            return decodeSequentially(this)
         }
 
         mainLoop@ while (true) {
             when (val index = decodeElementIndex(descriptor)) {
-                CompositeDecoder.READ_DONE -> {
+                CompositeDecoder.DECODE_DONE -> {
                     break@mainLoop
                 }
                 0 -> {
@@ -56,7 +59,7 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
                 else -> throw SerializationException(
                     "Invalid index in polymorphic deserialization of " +
                             (klassName ?: "unknown class") +
-                            "\n Expected 0, 1 or READ_DONE(-1), but found $index"
+                            "\n Expected 0, 1 or DECODE_DONE(-1), but found $index"
                 )
             }
         }
@@ -67,37 +70,44 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
     private fun decodeSequentially(compositeDecoder: CompositeDecoder): T {
         val klassName = compositeDecoder.decodeStringElement(descriptor, 0)
         val serializer = findPolymorphicSerializer(compositeDecoder, klassName)
-        val value = compositeDecoder.decodeSerializableElement(descriptor, 1, serializer)
-        compositeDecoder.endStructure(descriptor)
-        return value
+        return compositeDecoder.decodeSerializableElement(descriptor, 1, serializer)
     }
 
     /**
      * Lookups an actual serializer for given [klassName] withing the current [base class][baseClass].
      * May use context from the [decoder].
-     * Throws [SerializationException] if serializer is not found.
      */
-    public open fun findPolymorphicSerializer(
+    @InternalSerializationApi
+    public open fun findPolymorphicSerializerOrNull(
         decoder: CompositeDecoder,
-        klassName: String
-    ): KSerializer<out T> = decoder.context.getPolymorphic(baseClass, klassName)
-            ?: throwSubtypeNotRegistered(klassName, baseClass)
+        klassName: String?
+    ): DeserializationStrategy<out T>? = decoder.serializersModule.getPolymorphic(baseClass, klassName)
 
 
     /**
      * Lookups an actual serializer for given [value] within the current [base class][baseClass].
      * May use context from the [encoder].
-     * Throws [SerializationException] if serializer is not found.
      */
-    public open fun findPolymorphicSerializer(
+    @InternalSerializationApi
+    public open fun findPolymorphicSerializerOrNull(
         encoder: Encoder,
         value: T
-    ): KSerializer<out T> =
-        encoder.context.getPolymorphic(baseClass, value) ?: throwSubtypeNotRegistered(value::class, baseClass)
+    ): SerializationStrategy<T>? =
+        encoder.serializersModule.getPolymorphic(baseClass, value)
 }
 
-private fun throwSubtypeNotRegistered(subClassName: String, baseClass: KClass<*>): Nothing =
-    throw SerializationException("$subClassName is not registered for polymorphic serialization in the scope of $baseClass")
+@JvmName("throwSubtypeNotRegistered")
+internal fun throwSubtypeNotRegistered(subClassName: String?, baseClass: KClass<*>): Nothing {
+    val scope = "in the scope of '${baseClass.simpleName}'"
+    throw SerializationException(
+        if (subClassName == null)
+            "Class discriminator was missing and no default polymorphic serializers were registered $scope"
+        else
+            "Class '$subClassName' is not registered for polymorphic serialization $scope.\n" +
+            "Mark the base class as 'sealed' or register the serializer explicitly."
+    )
+}
 
+@JvmName("throwSubtypeNotRegistered")
 internal fun throwSubtypeNotRegistered(subClass: KClass<*>, baseClass: KClass<*>): Nothing =
-    throwSubtypeNotRegistered(subClass.toString(), baseClass)
+    throwSubtypeNotRegistered(subClass.simpleName ?: "$subClass", baseClass)

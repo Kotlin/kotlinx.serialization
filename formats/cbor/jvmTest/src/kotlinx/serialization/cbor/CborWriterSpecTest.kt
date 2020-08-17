@@ -7,15 +7,15 @@ package kotlinx.serialization.cbor
 import io.kotlintest.matchers.*
 import io.kotlintest.properties.*
 import io.kotlintest.specs.*
-import kotlinx.io.*
 import kotlinx.serialization.*
+import kotlinx.serialization.cbor.internal.*
 
 class CborWriterSpecTest : WordSpec() {
     init {
 
-        fun withEncoder(block: Cbor.CborEncoder.() -> Unit): String {
-            val result = ByteArrayOutputStream()
-            Cbor.CborEncoder(result).block()
+        fun withEncoder(block: CborEncoder.() -> Unit): String {
+            val result = ByteArrayOutput()
+            CborEncoder(result).block()
             return HexConverter.printHexBinary(result.toByteArray()).toLowerCase()
         }
 

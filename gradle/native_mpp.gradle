@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 
@@ -42,16 +42,13 @@ kotlin {
             // Windows
             addTarget(presets.mingwX64)
             addTarget(presets.mingwX86)
-
-            // WASM
-            addTarget(presets.wasm32)
         }
     }
 
     sourceSets {
         nativeMain { dependsOn commonMain }
         // Empty source set is required in order to have native tests task
-        nativeTest {}
+        nativeTest { dependsOn commonTest }
 
         if (!project.ext.singleTargetMode) {
             configure(project.ext.nativeMainSets) {

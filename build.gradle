@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 buildscript {
@@ -19,9 +19,9 @@ buildscript {
 
     ext.experimentalsInTestEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
                                       "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
-                                      "-Xuse-experimental=kotlinx.serialization.ImplicitReflectionSerializer",
-                                      "-Xuse-experimental=kotlinx.serialization.UnstableDefault",
-                                      "-Xuse-experimental=kotlinx.serialization.InternalSerializationApi"
+                                      "-Xuse-experimental=kotlinx.serialization.ExperimentalSerializationApi",
+                                      "-Xuse-experimental=kotlinx.serialization.InternalSerializationApi",
+                                      "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
     ]
 
     /*
@@ -70,7 +70,10 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintray_version"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
+        classpath "org.jetbrains.kotlinx:binary-compatibility-validator:$validator_version"
+        classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
+
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.8'
 
         // Various benchmarking stuff
@@ -82,7 +85,21 @@ buildscript {
 
 // To make it visible for compilerVersion.gradle
 ext.compilerVersion = org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION
+apply plugin: 'binary-compatibility-validator'
 
+apiValidation {
+    ignoredProjects += ["benchmark", "guide", "kotlinx-serialization"]
+}
+
+apply plugin: 'base'
+apply plugin: 'kotlinx-knit'
+
+knit {
+    siteRoot = "https://kotlin.github.io/kotlinx.serialization"
+}
+
+// Build API docs for all modules with dokka before running Knit
+knitPrepare.dependsOn "dokka"
 
 allprojects {
     group 'org.jetbrains.kotlinx'
@@ -139,8 +156,11 @@ subprojects {
 
     apply from: rootProject.file('gradle/teamcity.gradle')
     // Configure publishing for some artifacts
-    if (project.name.contains("benchmark")) return
-    apply from: rootProject.file('gradle/publishing.gradle')
+    if (project.name != "benchmark" && project.name != "guide") {
+        apply from: rootProject.file('gradle/publishing.gradle')
+    }
+
 }
 
 apply from: rootProject.file('gradle/compilerVersion.gradle')
+apply from: rootProject.file("gradle/dokka.gradle")

@@ -5,6 +5,8 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlin.test.*
 
 class JsonTreeAndMapperTest {
@@ -20,34 +22,34 @@ class JsonTreeAndMapperTest {
     }
 
     object EitherSerializer : KSerializer<Either> {
-        override val descriptor: SerialDescriptor = SerialDescriptor("Either", PolymorphicKind.SEALED) {
-            val leftDescriptor =  SerialDescriptor("Either.Left") {
+        override val descriptor: SerialDescriptor = buildSerialDescriptor("Either", PolymorphicKind.SEALED) {
+            val leftDescriptor = buildClassSerialDescriptor("Either.Left") {
                 element<String>("errorMsg")
             }
-            val rightDescriptor =  SerialDescriptor("Either.Right") {
-                element<Payload>("data")
+            val rightDescriptor = buildClassSerialDescriptor("Either.Right") {
+                element("data", Payload.serializer().descriptor)
             }
             element("left", leftDescriptor)
             element("right", rightDescriptor)
         }
 
         override fun deserialize(decoder: Decoder): Either {
-            val input = decoder as? JsonInput ?: throw SerializationException("This class can be loaded only by Json")
-            val tree = input.decodeJson() as? JsonObject
+            val input = decoder as? JsonDecoder ?: throw SerializationException("This class can be loaded only by Json")
+            val tree = input.decodeJsonElement() as? JsonObject
                 ?: throw SerializationException("Expected JsonObject")
-            if ("error" in tree) return Either.Left(tree.getPrimitive("error").content)
+            if ("error" in tree) return Either.Left(tree.getValue("error").jsonPrimitive.content)
 
-            return Either.Right(input.json.fromJson(Payload.serializer(), tree))
+            return Either.Right(input.json.decodeFromJsonElement(Payload.serializer(), tree))
         }
 
         override fun serialize(encoder: Encoder, value: Either) {
-            val output = encoder as? JsonOutput ?: throw SerializationException("This class can be saved only by Json")
+            val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
             val tree = when (value) {
-                is Either.Left -> JsonObject(mapOf("error" to JsonLiteral(value.errorMsg)))
-                is Either.Right -> output.json.toJson(Payload.serializer(), value.data)
+                is Either.Left -> JsonObject(mapOf("error" to JsonPrimitive(value.errorMsg)))
+                is Either.Right -> output.json.encodeToJsonElement(Payload.serializer(), value.data)
             }
 
-            output.encodeJson(tree)
+            output.encodeJsonElement(tree)
         }
     }
 
@@ -60,7 +62,7 @@ class JsonTreeAndMapperTest {
 
     @Test
     fun testParseData() {
-        val ev = Json.parse(Event.serializer(), decoderData)
+        val ev = Json.decodeFromString(Event.serializer(), decoderData)
         with(ev) {
             assertEquals(0, id)
             assertEquals(Either.Right(Payload(42, 43, "Hello world")), payload)
@@ -70,7 +72,7 @@ class JsonTreeAndMapperTest {
 
     @Test
     fun testParseError() {
-        val ev = Json.parse(Event.serializer(), decoderError)
+        val ev = Json.decodeFromString(Event.serializer(), decoderError)
         with(ev) {
             assertEquals(1, id)
             assertEquals(Either.Left("Connection timed out"), payload)
@@ -81,14 +83,14 @@ class JsonTreeAndMapperTest {
     @Test
     fun testWriteData() {
         val encoderData = Event(0, Either.Right(Payload(42, 43, "Hello world")), 1000)
-        val ev = Json.stringify(Event.serializer(), encoderData)
+        val ev = Json.encodeToString(Event.serializer(), encoderData)
         assertEquals(decoderData, ev)
     }
 
     @Test
     fun testWriteError() {
         val encoderError = Event(1, Either.Left("Connection timed out"), 1001)
-        val ev = Json.stringify(Event.serializer(), encoderError)
+        val ev = Json.encodeToString(Event.serializer(), encoderError)
         assertEquals(decoderError, ev)
     }
 }

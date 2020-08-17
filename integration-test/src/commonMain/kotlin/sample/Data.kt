@@ -4,9 +4,14 @@
 
 package sample
 
-import kotlinx.serialization.*
-import kotlinx.serialization.protobuf.*
+import kotlinx.serialization.Polymorphic
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
+import kotlinx.serialization.protobuf.ProtoNumber
 
 @Serializable
 data class IntData(val intV: Int)
@@ -132,7 +137,7 @@ class Derived2(@SerialName("state2") override var state1: String): Base1(state1)
 }
 
 @Serializable
-open class PolyBase(@ProtoId(1) val id: Int) {
+open class PolyBase(@ProtoNumber(1) val id: Int) {
     override fun hashCode(): Int {
         return id
     }
@@ -155,11 +160,11 @@ open class PolyBase(@ProtoId(1) val id: Int) {
 }
 
 @Serializable
-data class PolyDerived(@ProtoId(2) val s: String) : PolyBase(1)
+data class PolyDerived(@ProtoNumber(2) val s: String) : PolyBase(1)
 
 val BaseAndDerivedModule = SerializersModule {
     polymorphic(PolyBase::class, PolyBase.serializer()) {
-        PolyDerived::class with PolyDerived.serializer()
+        subclass(PolyDerived.serializer())
     }
 }
 
@@ -251,9 +256,3 @@ val zoo = Zoo(
         arrayOf(IntData(1), IntData(2))
     )
 )
-
-@Serializable
-abstract class AbstractBase
-
-@Serializable
-class ConcreteClass : AbstractBase()

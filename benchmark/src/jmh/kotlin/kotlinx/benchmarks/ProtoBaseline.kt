@@ -4,7 +4,7 @@
 
 package kotlinx.benchmarks
 
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
 import org.openjdk.jmh.annotations.*
 import java.util.concurrent.*
@@ -21,23 +21,23 @@ open class ProtoBaseline {
     class Holder(val a: Int, val b: Int, val c: Long, val d: Double)
 
     @Serializable
-    class HolderExplicit(@ProtoId(1) val a: Int, @ProtoId(2) val b: Int, @ProtoId(3) val c: Long, @ProtoId(4) val d: Double)
+    class HolderExplicit(@ProtoNumber(1) val a: Int, @ProtoNumber(2) val b: Int, @ProtoNumber(3) val c: Long, @ProtoNumber(4) val d: Double)
 
     private val holder = Holder(1, 2, 3L, 4.0)
-    private val holderBytes = ProtoBuf.dump(Holder.serializer(), holder)
+    private val holderBytes = ProtoBuf.encodeToByteArray(Holder.serializer(), holder)
 
     private val holderExplicit = HolderExplicit(1, 2, 3L, 4.0)
-    private val holderHolderExplicitBytes = ProtoBuf.dump(HolderExplicit.serializer(), holderExplicit)
+    private val holderHolderExplicitBytes = ProtoBuf.encodeToByteArray(HolderExplicit.serializer(), holderExplicit)
 
     @Benchmark
-    fun toBytes() = ProtoBuf.dump(Holder.serializer(), holder)
+    fun toBytes() = ProtoBuf.encodeToByteArray(Holder.serializer(), holder)
 
     @Benchmark
-    fun fromBytes() = ProtoBuf.load(Holder.serializer(), holderBytes)
+    fun fromBytes() = ProtoBuf.decodeFromByteArray(Holder.serializer(), holderBytes)
 
     @Benchmark
-    fun toBytesExplicit() = ProtoBuf.dump(HolderExplicit.serializer(), holderExplicit)
+    fun toBytesExplicit() = ProtoBuf.encodeToByteArray(HolderExplicit.serializer(), holderExplicit)
 
     @Benchmark
-    fun fromBytesExplicit() = ProtoBuf.load(HolderExplicit.serializer(), holderHolderExplicitBytes)
+    fun fromBytesExplicit() = ProtoBuf.decodeFromByteArray(HolderExplicit.serializer(), holderHolderExplicitBytes)
 }

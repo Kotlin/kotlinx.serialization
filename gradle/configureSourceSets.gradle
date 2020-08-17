@@ -12,14 +12,14 @@ kotlin {
                 }
             }
         }
-        fromPreset(presets.js, 'js') {
-            nodejs {}
-            configure([compilations.main, compilations.test]) {
-                kotlinOptions {
-                    sourceMap = true
-                    moduleKind = "umd"
-                    metaInfo = true
-                }
+    }
+    js {
+        nodejs {}
+        configure([compilations.main, compilations.test]) {
+            kotlinOptions {
+                sourceMap = true
+                moduleKind = "umd"
+                metaInfo = true
             }
         }
     }
@@ -80,9 +80,12 @@ kotlin {
 
     sourceSets.findAll({ it.name.contains("Test") }).forEach { srcSet ->
         srcSet.languageSettings {
-            it.useExperimentalAnnotation("kotlinx.serialization.UnstableDefault")
             it.useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
-            it.useExperimentalAnnotation("kotlinx.serialization.ImplicitReflectionSerializer")
+            it.useExperimentalAnnotation("kotlinx.serialization.ExperimentalSerializationApi")
         }
+    }
+
+    sourceSets.matching({ it.name.contains("Main") }).all { srcSet ->
+        project.ext.set("kotlin.mpp.freeCompilerArgsForSourceSet.${srcSet.name}", "-Xexplicit-api=warning")
     }
 }

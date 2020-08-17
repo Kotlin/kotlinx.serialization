@@ -53,14 +53,15 @@ class InternalInheritanceTest : JsonTestBase() {
     }
 
     @Test
-    fun testStringify() {
+    fun testEncodeToString() {
         assertEquals(
-                "{parent:42,rootOptional:rootOptional,parent2:42,derived:derived,bodyDerived:body,parent3:42,lastDerived:optional}",
-                Json { unquotedPrint = true }.stringify(C(42))
+            """{"parent":42,"rootOptional":"rootOptional","parent2":42,"derived":"derived",""" +
+                    """"bodyDerived":"body","parent3":42,"lastDerived":"optional"}""",
+            default.encodeToString(C(42))
         )
         assertEquals(
-                "{parent:13,rootOptional:rootOptional,parent2:13,derived:bbb,bodyDerived:body}",
-                Json { unquotedPrint = true }.stringify(B(13, derived = "bbb"))
+            """{"parent":13,"rootOptional":"rootOptional","parent2":13,"derived":"bbb","bodyDerived":"body"}""",
+            default.encodeToString(B(13, derived = "bbb"))
         )
     }
 
@@ -68,11 +69,15 @@ class InternalInheritanceTest : JsonTestBase() {
     fun testParse() {
         assertEquals(
             C(42),
-            unquotedLenient.parse<C>("{parent:42,rootOptional:rootOptional,parent2:42,derived:derived,bodyDerived:body,parent3:42,lastDerived:optional}")
+            default.decodeFromString<C>(
+                """{"parent":42,"rootOptional":"rootOptional","parent2":42,""" +
+                        """"derived":"derived","bodyDerived":"body","parent3":42,"lastDerived":"optional"}"""
+            )
         )
         assertEquals(
             C(43),
-            unquotedLenient.parse<C>("{parent:43,rootOptional:rootOptional,parent2:43,derived:derived,bodyDerived:body,parent3:43,lastDerived:optional}")
+            default.decodeFromString<C>("""{"parent":43,"rootOptional":"rootOptional","parent2":43,"derived":"derived",""" +
+                    """"bodyDerived":"body","parent3":43,"lastDerived":"optional"}""")
         )
     }
 
@@ -80,41 +85,43 @@ class InternalInheritanceTest : JsonTestBase() {
     fun testParseOptionals() {
         assertEquals(
             B(100, derived = "wowstring"),
-            unquotedLenient.parse<B>("{parent:100,rootOptional:rootOptional,parent2:100,derived:wowstring,bodyDerived:body}")
+            default.decodeFromString<B>("""{"parent":100,"rootOptional":"rootOptional","parent2":100,"derived":"wowstring","bodyDerived":"body"}""")
         )
         assertEquals(
             C(44),
-            unquotedLenient.parse<C>("{parent:44, parent2:44,derived:derived,bodyDerived:body,parent3:44}")
+            default.decodeFromString<C>("""{"parent":44, "parent2":44,"derived":"derived","bodyDerived":"body","parent3":44}""")
         )
         assertEquals(
             B(101, derived = "wowstring"),
-            unquotedLenient.parse<B>("{parent:101,parent2:101,derived:wowstring,bodyDerived:body}")
+            default.decodeFromString<B>("""{"parent":101,"parent2":101,"derived":"wowstring","bodyDerived":"body"}""")
         )
         assertEquals(
             A(77),
-            unquotedLenient.parse<A>("{parent:77,rootOptional:rootOptional}")
+            default.decodeFromString<A>("""{"parent":77,"rootOptional":"rootOptional"}""")
         )
         assertEquals(
             A(78),
-            unquotedLenient.parse<A>("{parent:78}")
+            default.decodeFromString<A>("""{"parent":78}""")
         )
     }
 
     @Test(expected = SerializationException::class)
     fun testThrowTransient() {
-        Json(JsonConfiguration.Stable).parse<B>("""{"parent":100,"rootOptional":"rootOptional","transientDerived":"X","parent2":100,"derived":"wowstring","bodyDerived":"body"}""")
+        Json.decodeFromString<B>("""{"parent":100,"rootOptional":"rootOptional","transientDerived":"X",""" +
+                """"parent2":100,"derived":"wowstring","bodyDerived":"body"}""")
     }
 
     @Test(expected = SerializationException::class)
     fun testThrowMissingField() {
-        unquotedLenient.parse<C>("{parent:42,rootOptional:rootOptional,derived:derived,bodyDerived:body,parent3:42,lastDerived:optional}")
+        default.decodeFromString<C>("""{"parent":42,"rootOptional":"rootOptional","derived":"derived",""" +
+                """"bodyDerived":"body","parent3":42,"lastDerived":"optional"}""")
     }
 
     @Test
     fun testSerializeAsParent() {
         val obj1: A = B(77, derived = "derived")
         val obj2: A = C(77)
-        assertEquals("""{"parent":77,"rootOptional":"rootOptional"}""", default.stringify(obj1))
-        assertEquals("""{"parent":77,"rootOptional":"rootOptional"}""", default.stringify(obj2))
+        assertEquals("""{"parent":77,"rootOptional":"rootOptional"}""", default.encodeToString(obj1))
+        assertEquals("""{"parent":77,"rootOptional":"rootOptional"}""", default.encodeToString(obj2))
     }
 }
