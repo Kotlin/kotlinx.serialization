@@ -1,0 +1,1 @@
+sourceset_dependencies = '{":kotlinx-serialization-core/commonMain": [], ":kotlinx-serialization-core/jsMain": [":kotlinx-serialization-core/commonMain"], ":kotlinx-serialization-core/jvmMain": [":kotlinx-serialization-core/commonMain"], ":kotlinx-serialization-core/nativeMain": [":kotlinx-serialization-core/commonMain"]}'

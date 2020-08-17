@@ -1,0 +1,5 @@
+$dokka.format:html
+$dokka.linkExtension:html
+
+kotlinx.serialization.cbor
+

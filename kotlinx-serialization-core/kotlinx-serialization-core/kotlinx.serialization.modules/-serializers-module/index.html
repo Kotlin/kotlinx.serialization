@@ -1,0 +1,439 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>SerializersModule</title>
+    <link href="../../../styles/style.css" rel="Stylesheet">
+    <script type="text/javascript" src="../../../scripts/navigationLoader.js" async="async"></script>
+    <script type="text/javascript" src="../../../scripts/platformContentHandler.js" async="async"></script>
+    <script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+    <script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+    <link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
+    <script>var pathToRoot = "../../../";</script>
+  </head>
+  <body>
+    <div id="container">
+      <div id="leftColumn">
+        <div id="logo"></div>
+        <div id="sideMenu"></div>
+      </div>
+      <div id="main">
+        <div id="searchBar"></div>
+        <script type="text/javascript" src="../../../scripts/pages.js"></script>
+        <script type="text/javascript" src="../../../scripts/main.js"></script>
+        <div id="content" pageIds="kotlinx.serialization.modules/SerializersModule///PointingToDeclaration/">
+          <div class="breadcrumbs">//<a href="../../index.html">kotlinx-serialization-core</a>/<a href="../index.html">kotlinx.serialization.modules</a>/<a href="index.html">SerializersModule</a></div>
+          <div class="cover ">
+            <div class="filter-section" id="filter-section"><button class="platform-tag platform-selector common-like" data-active="" data-filter=":kotlinx-serialization-core/commonMain">common</button><button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":kotlinx-serialization-core/jvmMain">jvm</button></div>
+            <h1 class="cover"><a data-name="serializersmodule"></a><span>SerializersModule</span></h1>
+            <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core/commonMain"><div class="block"><div class="block"><p class="paragraph"><p class="paragraph"><a href=".html">SerializersModule</a> is a collection of serializers used by <a href="../../kotlinx.serialization/-contextual-serializer/index.html">ContextualSerializer</a> and <a href="../../kotlinx.serialization/-polymorphic-serializer/index.html">PolymorphicSerializer</a> to override or provide serializers at the runtime, whereas at the compile-time they provided by the serialization plugin. It can be considered as a map where serializers can be found using their statically known KClasses.</p><p class="paragraph">To enable runtime serializers resolution, one of the special annotations must be used on target types (<a href="../../kotlinx.serialization/-polymorphic/index.html">Polymorphic</a> or <a href="../../kotlinx.serialization/-contextual/index.html">Contextual</a>), and a serial module with serializers should be used during construction of <a href="../../kotlinx.serialization/-serial-format/index.html">SerialFormat</a>.</p></p></div></div><div class="symbol monospace">sealed class <a href="index.html">SerializersModule</a><span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black"/>
+                       </svg></span><div class="copy-popup-wrapper popup-to-left"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Content copied to clipboard</span></div></span></div></div></div>
+          </div>
+          <div class="tabbedcontent">
+            <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Functions">Functions</button><button class="section-tab" data-togglable="Extensions">Extensions</button><button class="section-tab" data-togglable="See also">See also</button></div>
+            <div class="tabs-section-body">
+              <h2 class=""><a data-name="seealso"></a>See also</h2>
+              <div data-togglable="See also">
+                <div class="platform-hinted WithExtraAttributes" data-platform-hinted="data-platform-hinted" data-togglable="See also"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core/commonMain"><div data-togglable="See also"><div class="table" data-togglable="See also"><a data-name="kotlinx.serialization.modules/SerializersModule///PointingToDeclaration/"></a><div class="table-row" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain"><div class="main-subrow WithExtraAttributes RowTitle"><span><a href="../../kotlinx.serialization/-contextual/index.html">Contextual</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="kotlinx.serialization.modules/SerializersModule///PointingToDeclaration/"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z"/>
+    <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z"/>
+</svg></span><div class="copy-popup-wrapper "><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Link copied to clipboard</span></div></span></span></div><div class="platform-dependent-row keyValue"><div><div data-togglable="See also"><p class="paragraph"></p></div></div><div class="title"></div></div></div><a data-name="kotlinx.serialization.modules/SerializersModule///PointingToDeclaration/"></a><div class="table-row" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain"><div class="main-subrow WithExtraAttributes RowTitle"><span><a href="../../kotlinx.serialization/-polymorphic/index.html">Polymorphic</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="kotlinx.serialization.modules/SerializersModule///PointingToDeclaration/"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z"/>
+    <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z"/>
+</svg></span><div class="copy-popup-wrapper "><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Link copied to clipboard</span></div></span></span></div><div class="platform-dependent-row keyValue"><div><div data-togglable="See also"><p class="paragraph"></p></div></div><div class="title"></div></div></div></div></div></div></div>
+              </div>
+              <h2 class=""><a data-name="functions"></a>Functions</h2>
+              <div class="table" data-togglable="Functions"><a data-name="kotlinx.serialization.modules/SerializersModule/dumpTo/#kotlinx.serialization.modules.SerializersModuleCollector/PointingToDeclaration/"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain">
+                  <div class="main-subrow "><span><a href="dump-to.html">dumpTo</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="kotlinx.serialization.modules/SerializersModule/dumpTo/#kotlinx.serialization.modules.SerializersModuleCollector/PointingToDeclaration/"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z"/>
+    <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z"/>
+</svg></span>
+                        <div class="copy-popup-wrapper "><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Link copied to clipboard</span></div>
+                      </span></span>
+                    <div class="platform-tags">
+                      <div class="platform-tag common-like">common</div>
+                    </div>
+                  </div>
+                  <div class="platform-dependent-row keyValue">
+                    <div></div>
+                    <div class="title"><div class="divergent-group" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain"><div class="brief-with-platform-tags"><div class="inner-brief-with-platform-tags"><div class="brief "><p class="paragraph">Copies contents of this module to the given <a href="">collector</a>.</p></div></div>
+<span class="pull-right"></span></div>
+
+  <div class="main-subrow">
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core/commonMain"><div class="symbol monospace">abstract fun <a href="dump-to.html">dumpTo</a>(collector: <a href="../-serializers-module-collector/index.html">SerializersModuleCollector</a>)<span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black"/>
+                       </svg></span><div class="copy-popup-wrapper popup-to-left"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+</div>
+</div>
+                  </div>
+                </div>
+<a data-name="kotlin/Any/equals/#kotlin.Any?/PointingToDeclaration/"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain">
+                  <div class="main-subrow "><span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/equals.html">equals</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="kotlin/Any/equals/#kotlin.Any?/PointingToDeclaration/"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z"/>
+    <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z"/>
+</svg></span>
+                        <div class="copy-popup-wrapper "><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Link copied to clipboard</span></div>
+                      </span></span>
+                    <div class="platform-tags">
+                      <div class="platform-tag common-like">common</div>
+                    </div>
+                  </div>
+                  <div class="platform-dependent-row keyValue">
+                    <div></div>
+                    <div class="title"><div class="divergent-group" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain"><div class="brief-with-platform-tags"><div class="inner-brief-with-platform-tags"></div>
+<span class="pull-right"></span></div>
+
+  <div class="main-subrow">
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core/commonMain"><div class="symbol monospace">open operator override fun <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/equals.html">equals</a>(other: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a>?): <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black"/>
+                       </svg></span><div class="copy-popup-wrapper popup-to-left"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+</div>
+</div>
+                  </div>
+                </div>
+<a data-name="kotlinx.serialization.modules/SerializersModule/getContextual/#kotlin.reflect.KClass[TypeParam(bounds=[kotlin.Any])]/PointingToDeclaration/"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain">
+                  <div class="main-subrow "><span><a href="get-contextual.html">getContextual</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="kotlinx.serialization.modules/SerializersModule/getContextual/#kotlin.reflect.KClass[TypeParam(bounds=[kotlin.Any])]/PointingToDeclaration/"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z"/>
+    <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z"/>
+</svg></span>
+                        <div class="copy-popup-wrapper "><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Link copied to clipboard</span></div>
+                      </span></span>
+                    <div class="platform-tags">
+                      <div class="platform-tag common-like">common</div>
+                    </div>
+                  </div>
+                  <div class="platform-dependent-row keyValue">
+                    <div></div>
+                    <div class="title"><div class="divergent-group" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain"><div class="brief-with-platform-tags"><div class="inner-brief-with-platform-tags"><div class="brief "><p class="paragraph">Returns a contextual serializer associated with a given <a href="">kclass</a>. This method is used in context-sensitive operations on a property marked with <a href="../../kotlinx.serialization/-contextual/index.html">Contextual</a> by a <a href="../../kotlinx.serialization/-contextual-serializer/index.html">ContextualSerializer</a></p></div></div>
+<span class="pull-right"></span></div>
+
+  <div class="main-subrow">
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core/commonMain"><div class="symbol monospace">abstract fun &lt;<a href="get-contextual.html">T</a> : <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a>&gt; <a href="get-contextual.html">getContextual</a>(kclass: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html">KClass</a>&lt;<a href="get-contextual.html">T</a>&gt;): <a href="../../kotlinx.serialization/-k-serializer/index.html">KSerializer</a>&lt;<a href="get-contextual.html">T</a>&gt;?<span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black"/>
+                       </svg></span><div class="copy-popup-wrapper popup-to-left"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+</div>
+</div>
+                  </div>
+                </div>
+<a data-name="kotlinx.serialization.modules/SerializersModule/getPolymorphic/#kotlin.reflect.KClass[TypeParam(bounds=[kotlin.Any])]#TypeParam(bounds=[kotlin.Any])/PointingToDeclaration/"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain">
+                  <div class="main-subrow "><span><a href="get-polymorphic.html">getPolymorphic</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="kotlinx.serialization.modules/SerializersModule/getPolymorphic/#kotlin.reflect.KClass[TypeParam(bounds=[kotlin.Any])]#TypeParam(bounds=[kotlin.Any])/PointingToDeclaration/"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z"/>
+    <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z"/>
+</svg></span>
+                        <div class="copy-popup-wrapper "><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Link copied to clipboard</span></div>
+                      </span></span>
+                    <div class="platform-tags">
+                      <div class="platform-tag common-like">common</div>
+                    </div>
+                  </div>
+                  <div class="platform-dependent-row keyValue">
+                    <div></div>
+                    <div class="title"><div class="divergent-group" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain"><div class="brief-with-platform-tags"><div class="inner-brief-with-platform-tags"><div class="brief "><p class="paragraph">Returns a polymorphic serializer registered for a class of the given <a href="">value</a> in the scope of <a href="">baseClass</a>.</p></div></div>
+<span class="pull-right"></span></div>
+
+  <div class="main-subrow">
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core/commonMain"><div class="symbol monospace">abstract fun &lt;<a href="get-polymorphic.html">T</a> : <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a>&gt; <a href="get-polymorphic.html">getPolymorphic</a>(baseClass: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html">KClass</a>&lt;In <a href="get-polymorphic.html">T</a>&gt;, value: <a href="get-polymorphic.html">T</a>): <a href="../../kotlinx.serialization/-serialization-strategy/index.html">SerializationStrategy</a>&lt;<a href="get-polymorphic.html">T</a>&gt;?<span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black"/>
+                       </svg></span><div class="copy-popup-wrapper popup-to-left"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+</div>
+<div class="divergent-group" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain"><div class="brief-with-platform-tags"><div class="inner-brief-with-platform-tags"><div class="brief "><p class="paragraph">Returns a polymorphic deserializer registered for a <a href="">serializedClassName</a> in the scope of <a href="">baseClass</a> or default value constructed from <a href="">serializedClassName</a> if a default serializer provider was registered.</p></div></div>
+<span class="pull-right"></span></div>
+
+  <div class="main-subrow">
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core/commonMain"><div class="symbol monospace">abstract fun &lt;<a href="get-polymorphic.html">T</a> : <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a>&gt; <a href="get-polymorphic.html">getPolymorphic</a>(baseClass: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html">KClass</a>&lt;In <a href="get-polymorphic.html">T</a>&gt;, serializedClassName: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>?): <a href="../../kotlinx.serialization/-deserialization-strategy/index.html">DeserializationStrategy</a>&lt;Out <a href="get-polymorphic.html">T</a>&gt;?<span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black"/>
+                       </svg></span><div class="copy-popup-wrapper popup-to-left"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+</div>
+</div>
+                  </div>
+                </div>
+<a data-name="kotlin/Any/hashCode/#/PointingToDeclaration/"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain">
+                  <div class="main-subrow "><span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/hash-code.html">hashCode</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="kotlin/Any/hashCode/#/PointingToDeclaration/"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z"/>
+    <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z"/>
+</svg></span>
+                        <div class="copy-popup-wrapper "><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Link copied to clipboard</span></div>
+                      </span></span>
+                    <div class="platform-tags">
+                      <div class="platform-tag common-like">common</div>
+                    </div>
+                  </div>
+                  <div class="platform-dependent-row keyValue">
+                    <div></div>
+                    <div class="title"><div class="divergent-group" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain"><div class="brief-with-platform-tags"><div class="inner-brief-with-platform-tags"></div>
+<span class="pull-right"></span></div>
+
+  <div class="main-subrow">
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core/commonMain"><div class="symbol monospace">open override fun <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/hash-code.html">hashCode</a>(): <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black"/>
+                       </svg></span><div class="copy-popup-wrapper popup-to-left"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+</div>
+</div>
+                  </div>
+                </div>
+<a data-name="kotlin/Any/toString/#/PointingToDeclaration/"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain">
+                  <div class="main-subrow "><span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/to-string.html">toString</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="kotlin/Any/toString/#/PointingToDeclaration/"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z"/>
+    <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z"/>
+</svg></span>
+                        <div class="copy-popup-wrapper "><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Link copied to clipboard</span></div>
+                      </span></span>
+                    <div class="platform-tags">
+                      <div class="platform-tag common-like">common</div>
+                    </div>
+                  </div>
+                  <div class="platform-dependent-row keyValue">
+                    <div></div>
+                    <div class="title"><div class="divergent-group" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain"><div class="brief-with-platform-tags"><div class="inner-brief-with-platform-tags"></div>
+<span class="pull-right"></span></div>
+
+  <div class="main-subrow">
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core/commonMain"><div class="symbol monospace">open override fun <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/to-string.html">toString</a>(): <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black"/>
+                       </svg></span><div class="copy-popup-wrapper popup-to-left"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+</div>
+</div>
+                  </div>
+                </div>
+              </div>
+              <h2 class="tabbedcontent"><a data-name="extensions"></a>Extensions</h2>
+              <div class="table" data-togglable="Extensions"><a data-name="kotlinx.serialization.descriptors//getContextualDescriptor/kotlinx.serialization.modules.SerializersModule#kotlinx.serialization.descriptors.SerialDescriptor/PointingToDeclaration/"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain">
+                  <div class="main-subrow "><span><a href="../../kotlinx.serialization.descriptors/get-contextual-descriptor.html">getContextualDescriptor</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="kotlinx.serialization.descriptors//getContextualDescriptor/kotlinx.serialization.modules.SerializersModule#kotlinx.serialization.descriptors.SerialDescriptor/PointingToDeclaration/"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z"/>
+    <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z"/>
+</svg></span>
+                        <div class="copy-popup-wrapper "><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Link copied to clipboard</span></div>
+                      </span></span>
+                    <div class="platform-tags">
+                      <div class="platform-tag common-like">common</div>
+                    </div>
+                  </div>
+                  <div class="platform-dependent-row keyValue">
+                    <div></div>
+                    <div class="title"><div class="divergent-group" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain"><div class="brief-with-platform-tags"><div class="inner-brief-with-platform-tags"><div class="brief "><p class="paragraph">Looks up a descriptor of serializer registered for contextual serialization in <a href="">this</a>, using <a href="../../kotlinx.serialization.descriptors/index.html#kotlinx.serialization.descriptors//capturedKClass/kotlinx.serialization.descriptors.SerialDescriptor#/PointingToDeclaration/">SerialDescriptor.capturedKClass</a> as a key.</p></div></div>
+<span class="pull-right"></span></div>
+
+  <div class="main-subrow">
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core/commonMain"><div class="symbol monospace">fun <a href="index.html">SerializersModule</a>.<a href="../../kotlinx.serialization.descriptors/get-contextual-descriptor.html">getContextualDescriptor</a>(descriptor: <a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a>): <a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a>?<span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black"/>
+                       </svg></span><div class="copy-popup-wrapper popup-to-left"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+</div>
+</div>
+                  </div>
+                </div>
+<a data-name="kotlinx.serialization.descriptors//getPolymorphicDescriptors/kotlinx.serialization.modules.SerializersModule#kotlinx.serialization.descriptors.SerialDescriptor/PointingToDeclaration/"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain">
+                  <div class="main-subrow "><span><a href="../../kotlinx.serialization.descriptors/get-polymorphic-descriptors.html">getPolymorphicDescriptors</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="kotlinx.serialization.descriptors//getPolymorphicDescriptors/kotlinx.serialization.modules.SerializersModule#kotlinx.serialization.descriptors.SerialDescriptor/PointingToDeclaration/"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z"/>
+    <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z"/>
+</svg></span>
+                        <div class="copy-popup-wrapper "><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Link copied to clipboard</span></div>
+                      </span></span>
+                    <div class="platform-tags">
+                      <div class="platform-tag common-like">common</div>
+                    </div>
+                  </div>
+                  <div class="platform-dependent-row keyValue">
+                    <div></div>
+                    <div class="title"><div class="divergent-group" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain"><div class="brief-with-platform-tags"><div class="inner-brief-with-platform-tags"><div class="brief "><p class="paragraph">Retrieves a collection of descriptors which serializers are registered for polymorphic serialization in <a href="">this</a> with base class equal to <a href="">descriptor</a>'s <a href="../../kotlinx.serialization.descriptors/index.html#kotlinx.serialization.descriptors//capturedKClass/kotlinx.serialization.descriptors.SerialDescriptor#/PointingToDeclaration/">SerialDescriptor.capturedKClass</a>. This method does not retrieve serializers registered with <a href="../-polymorphic-module-builder/default.html">PolymorphicModuleBuilder.default</a>.</p></div></div>
+<span class="pull-right"></span></div>
+
+  <div class="main-subrow">
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core/commonMain"><div class="symbol monospace">fun <a href="index.html">SerializersModule</a>.<a href="../../kotlinx.serialization.descriptors/get-polymorphic-descriptors.html">getPolymorphicDescriptors</a>(descriptor: <a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a>): <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a>&lt;<a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a>&gt;<span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black"/>
+                       </svg></span><div class="copy-popup-wrapper popup-to-left"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+</div>
+</div>
+                  </div>
+                </div>
+<a data-name="kotlinx.serialization.modules//overwriteWith/kotlinx.serialization.modules.SerializersModule#kotlinx.serialization.modules.SerializersModule/PointingToDeclaration/"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain">
+                  <div class="main-subrow "><span><a href="../overwrite-with.html">overwriteWith</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="kotlinx.serialization.modules//overwriteWith/kotlinx.serialization.modules.SerializersModule#kotlinx.serialization.modules.SerializersModule/PointingToDeclaration/"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z"/>
+    <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z"/>
+</svg></span>
+                        <div class="copy-popup-wrapper "><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Link copied to clipboard</span></div>
+                      </span></span>
+                    <div class="platform-tags">
+                      <div class="platform-tag common-like">common</div>
+                    </div>
+                  </div>
+                  <div class="platform-dependent-row keyValue">
+                    <div></div>
+                    <div class="title"><div class="divergent-group" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain"><div class="brief-with-platform-tags"><div class="inner-brief-with-platform-tags"><div class="brief "><p class="paragraph"><p class="paragraph">Returns a combination of two serial modules</p><p class="paragraph">If serializer for some class presents in both modules, result module will contain serializer from <a href="">other</a> module.</p></p></div></div>
+<span class="pull-right"></span></div>
+
+  <div class="main-subrow">
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core/commonMain"><div class="symbol monospace">infix fun <a href="index.html">SerializersModule</a>.<a href="../overwrite-with.html">overwriteWith</a>(other: <a href="index.html">SerializersModule</a>): <a href="index.html">SerializersModule</a><span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black"/>
+                       </svg></span><div class="copy-popup-wrapper popup-to-left"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+</div>
+</div>
+                  </div>
+                </div>
+<a data-name="kotlinx.serialization.modules//plus/kotlinx.serialization.modules.SerializersModule#kotlinx.serialization.modules.SerializersModule/PointingToDeclaration/"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain">
+                  <div class="main-subrow "><span><a href="../plus.html">plus</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="kotlinx.serialization.modules//plus/kotlinx.serialization.modules.SerializersModule#kotlinx.serialization.modules.SerializersModule/PointingToDeclaration/"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z"/>
+    <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z"/>
+</svg></span>
+                        <div class="copy-popup-wrapper "><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Link copied to clipboard</span></div>
+                      </span></span>
+                    <div class="platform-tags">
+                      <div class="platform-tag common-like">common</div>
+                    </div>
+                  </div>
+                  <div class="platform-dependent-row keyValue">
+                    <div></div>
+                    <div class="title"><div class="divergent-group" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain"><div class="brief-with-platform-tags"><div class="inner-brief-with-platform-tags"><div class="brief "><p class="paragraph"><p class="paragraph">Returns a combination of two serial modules</p><p class="paragraph">If serializer for some class presents in both modules, a <a href="">SerializerAlreadyRegisteredException</a> is thrown. To overwrite serializers, use <a href="../overwrite-with.html">SerializersModule.overwriteWith</a> function.</p></p></div></div>
+<span class="pull-right"></span></div>
+
+  <div class="main-subrow">
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core/commonMain"><div class="symbol monospace">operator fun <a href="index.html">SerializersModule</a>.<a href="../plus.html">plus</a>(other: <a href="index.html">SerializersModule</a>): <a href="index.html">SerializersModule</a><span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black"/>
+                       </svg></span><div class="copy-popup-wrapper popup-to-left"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+</div>
+</div>
+                  </div>
+                </div>
+<a data-name="kotlinx.serialization//serializer/kotlinx.serialization.modules.SerializersModule#/PointingToDeclaration/"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core/commonMain :kotlinx-serialization-core/jvmMain" data-filterable-set=":kotlinx-serialization-core/commonMain :kotlinx-serialization-core/jvmMain">
+                  <div class="main-subrow "><span><a href="../../kotlinx.serialization/serializer.html">serializer</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="kotlinx.serialization//serializer/kotlinx.serialization.modules.SerializersModule#/PointingToDeclaration/"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z"/>
+    <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z"/>
+</svg></span>
+                        <div class="copy-popup-wrapper "><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Link copied to clipboard</span></div>
+                      </span></span></div>
+                  <div class="platform-dependent-row keyValue">
+                    <div></div>
+                    <div class="title"><div class="divergent-group" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain"><div class="brief-with-platform-tags"><div class="inner-brief-with-platform-tags"><div class="brief "><p class="paragraph">Retrieves serializer for the given type <a href="">T</a> from the current <a href=".html">SerializersModule</a> and, if not found, fallbacks to plain <a href="../../kotlinx.serialization/serializer.html">serializer</a> method.</p></div></div>
+<span class="pull-right">
+  <div class="platform-tags">
+    <div class="platform-tag common-like">common</div>
+  </div>
+</span></div>
+
+  <div class="main-subrow">
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core/commonMain"><div class="symbol monospace">inline fun &lt;<a href="../../kotlinx.serialization/serializer.html">T</a>&gt; <a href="index.html">SerializersModule</a>.<a href="../../kotlinx.serialization/serializer.html">serializer</a>(): <a href="../../kotlinx.serialization/-k-serializer/index.html">KSerializer</a>&lt;<a href="../../kotlinx.serialization/serializer.html">T</a>&gt;<span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black"/>
+                       </svg></span><div class="copy-popup-wrapper popup-to-left"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+</div>
+<div class="divergent-group" data-filterable-current=":kotlinx-serialization-core/commonMain" data-filterable-set=":kotlinx-serialization-core/commonMain"><div class="brief-with-platform-tags"><div class="inner-brief-with-platform-tags"><div class="brief "><p class="paragraph">Attempts to create a serializer for the given <a href="">type</a> and fallbacks to <a href="get-contextual.html">contextual</a> lookup for non-serializable types. <a href="">type</a> argument can be obtained with experimental <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/index.html">typeOf</a> method.</p></div></div>
+<span class="pull-right">
+  <div class="platform-tags">
+    <div class="platform-tag common-like">common</div>
+  </div>
+</span></div>
+
+  <div class="main-subrow">
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core/commonMain"><div class="symbol monospace">fun <a href="index.html">SerializersModule</a>.<a href="../../kotlinx.serialization/serializer.html">serializer</a>(type: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-type/index.html">KType</a>): <a href="../../kotlinx.serialization/-k-serializer/index.html">KSerializer</a>&lt;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a>?&gt;<span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black"/>
+                       </svg></span><div class="copy-popup-wrapper popup-to-left"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+</div>
+<div class="divergent-group" data-filterable-current=":kotlinx-serialization-core/jvmMain" data-filterable-set=":kotlinx-serialization-core/jvmMain"><div class="brief-with-platform-tags"><div class="inner-brief-with-platform-tags"><div class="brief "><p class="paragraph"><p class="paragraph">Retrieves serializer for the given reflective Java <a href="">type</a> using reflective construction and <a href="get-contextual.html">contextual</a> lookup for non-serializable types.</p><p class="paragraph"><a href="../../kotlinx.serialization/serializer.html">serializer</a> is intended to be used as an interoperability layer for libraries like GSON and Retrofit, that operate with reflective Java <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/reflect/Type.html">Type</a> and cannot use <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/index.html">typeOf</a>.</p><p class="paragraph">For application-level serialization, it is recommended to use <code>serializer&lt;T&gt;()</code> instead as it is aware of Kotlin-specific type information, such as nullability, sealed classes and object singletons.</p></p></div></div>
+<span class="pull-right">
+  <div class="platform-tags">
+    <div class="platform-tag jvm-like">jvm</div>
+  </div>
+</span></div>
+
+  <div class="main-subrow">
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core/jvmMain"><div class="symbol monospace">fun <a href="index.html">SerializersModule</a>.<a href="../../kotlinx.serialization/serializer.html">serializer</a>(type: <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/reflect/Type.html">Type</a>): <a href="../../kotlinx.serialization/-k-serializer/index.html">KSerializer</a>&lt;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a>&gt;<span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black"/>
+                       </svg></span><div class="copy-popup-wrapper popup-to-left"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+</div>
+</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="footer"><span class="go-to-top-icon"><a href="#container"><svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M11.3337 9.66683H0.666992L6.00033 3.66683L11.3337 9.66683Z" fill="black"/>
+    <path d="M0.666992 0.333496H11.3337V1.66683H0.666992V0.333496Z" fill="black"/>
+</svg></a></span><span>© 2020 Copyright</span><span class="pull-right"><span>Sponsored and developed by dokka</span><a href="https://github.com/Kotlin/dokka"><span class="padded-icon"><svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M8 0H2.3949L4.84076 2.44586L0 7.28662L0.713376 8L5.55414 3.15924L8 5.6051V0Z" fill="black"/>
+</svg></span></a></span></div>
+      </div>
+    </div>
+  </body>
+</html>
+

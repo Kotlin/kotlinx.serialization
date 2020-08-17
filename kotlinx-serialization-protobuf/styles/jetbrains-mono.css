@@ -1,0 +1,13 @@
+@font-face{
+    font-family: 'JetBrains Mono';
+    src: url('https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/web/woff2/JetBrainsMono-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face{
+    font-family: 'JetBrains Mono';
+    src: url('https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/web/woff2/JetBrainsMono-Bold.woff2') format('woff2');
+    font-weight: bold;
+    font-style: normal;
+}

@@ -1,0 +1,1 @@
+sourceset_dependencies = '{":kotlinx-serialization-cbor/commonMain": [], ":kotlinx-serialization-cbor/jsMain": [":kotlinx-serialization-cbor/commonMain"], ":kotlinx-serialization-cbor/jvmMain": [":kotlinx-serialization-cbor/commonMain"], ":kotlinx-serialization-cbor/nativeMain": [":kotlinx-serialization-cbor/commonMain"]}'

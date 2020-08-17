@@ -1,0 +1,10 @@
+$dokka.format:html
+$dokka.linkExtension:html
+
+kotlinx.serialization
+kotlinx.serialization.builtins
+kotlinx.serialization.descriptors
+kotlinx.serialization.encoding
+kotlinx.serialization.json
+kotlinx.serialization.modules
+
