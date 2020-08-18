@@ -76,7 +76,7 @@ Project(name=kotlinx.serialization, language=Kotlin)
 
 <!--- TEST -->
 
-In CBOR [hex notation](http://cbor.me/), the output is equivalent to the following:
+In [CBOR hex notation](http://cbor.me/), the output is equivalent to the following:
 ```
 BF                                      # map(*)
    64                                   # text(4)
@@ -149,7 +149,7 @@ Data(type2=[1, 2, 3, 4], type4=[5, 6, 7, 8])
 
 <!--- TEST -->
 
-In [CBOR dhex notation](http://cbor.me/), the output is equivalent to the following:
+In [CBOR hex notation](http://cbor.me/), the output is equivalent to the following:
 ```
 BF               # map(*)
    65            # text(5)
