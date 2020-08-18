@@ -169,7 +169,7 @@ BF               # map(*)
 
 ## ProtoBuf (experimental)
 
-(Protocol Buffers)[https://developers.google.com/protocol-buffers] is a language-neutral binary format that normally
+[Protocol Buffers](https://developers.google.com/protocol-buffers) is a language-neutral binary format that normally
 relies on a separate ".proto" file that defines the protocol schema. It is more compact than CBOR, because it
 assigns integer numbers to fields instead of names.
 
