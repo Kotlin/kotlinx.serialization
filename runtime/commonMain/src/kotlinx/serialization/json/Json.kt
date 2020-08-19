@@ -331,9 +331,9 @@ private class JsonImpl(configuration: JsonConf) : Json(configuration) {
 
 @Deprecated(
     level = DeprecationLevel.ERROR,
-    message = "Deprecated in the favour of Json {} builder function during serialization 1.0 API stabilization.\n" +
+    message = "Deprecated in the favour of Json {} builder function during serialization 1.0 API stabilization. " +
             "In order to migrate, please replace it with Json { } builder function. JsonBuilder receiver has the same " +
-            "properties as 'JsonConfiguration' and 'context' and should be configured there.\n" +
+            "properties as 'JsonConfiguration' and 'context' and should be configured there. " +
             "Json(JsonConfiguration.Default) can be replaced with Json companion instead."
 )
 @Suppress("DEPRECATION_ERROR")
@@ -355,7 +355,7 @@ public fun Json(
  */
 @Deprecated(
     level = DeprecationLevel.ERROR,
-    message = "Deprecated in the favour of Json.Default companion during serialization 1.0 API stabilization.\n",
+    message = "Deprecated in the favour of Json.Default companion during serialization 1.0 API stabilization.",
     replaceWith = ReplaceWith("Json")
 )
 public fun Json(
@@ -364,7 +364,7 @@ public fun Json(
 
 @Deprecated(
     level = DeprecationLevel.ERROR,
-    message = "Deprecated in the favour of Json {} builder function during serialization 1.0 API stabilization.\n",
+    message = "Deprecated in the favour of Json {} builder function during serialization 1.0 API stabilization.",
     replaceWith = ReplaceWith("Json { allowStructuredMapKeys = true }") // stable configuration
 )
 public fun Json(
@@ -373,7 +373,7 @@ public fun Json(
 
 @Deprecated(
     level = DeprecationLevel.ERROR,
-    message = "Deprecated in the favour of Json {} builder function during serialization 1.0 API stabilization.\n",
+    message = "Deprecated in the favour of Json {} builder function during serialization 1.0 API stabilization.",
     replaceWith = ReplaceWith("Json { serializersModule = context }")
 )
 public fun Json(
