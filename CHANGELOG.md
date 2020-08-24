@@ -22,7 +22,7 @@ To migrate from the previous versions of the library, please refer to the [migra
 
 * Core API changes
     * `stringify` and `parse` are renamed to `encodeToString` and `decodeToString`
-    * `parseJson` and `fromJson` are renamed to `parseJsonElement` and `decodeFromJsonElement`
+    * `parseJson` and `fromJson` are renamed to `parseToJsonElement` and `decodeFromJsonElement`
     * Reified versions of methods are extracted to extensions
 
 * `Json` constructor is replaced with `Json {}` builder function, `JsonConfiguration` is deprecated in favor
