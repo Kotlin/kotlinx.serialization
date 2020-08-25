@@ -640,7 +640,7 @@ object DateAsLongSerializer : KSerializer<Date> {
 }
 ```
 
-We cannot bind the `DateAsStringSerializer` serializer to the `Date` class with the [`@Serializable`][Serializable] annotation, 
+We cannot bind the `DateAsLongSerializer` serializer to the `Date` class with the [`@Serializable`][Serializable] annotation, 
 because we don't control the `Date` source code. There are several ways to work around that.
 
 ### Passing a serializer manually
