@@ -241,7 +241,11 @@ internal class JsonReader(private val source: String) {
     private fun nextString(source: String, startPosition: Int) {
         tokenPosition = startPosition
         length = 0 // in buffer
-        var currentPosition = startPosition + 1
+        var currentPosition = startPosition + 1 // skip starting "
+        // except if the input ends
+        if (currentPosition >= source.length) {
+            fail("EOF", currentPosition)
+        }
         var lastPosition = currentPosition
         while (source[currentPosition] != STRING) {
             if (source[currentPosition] == STRING_ESC) {
