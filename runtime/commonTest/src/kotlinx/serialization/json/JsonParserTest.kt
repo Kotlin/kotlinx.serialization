@@ -76,4 +76,15 @@ class JsonParserTest : JsonTestBase() {
         val msg = e.message!!
         assertTrue(msg.contains("Expected end of the object"))
     }
+
+    @Test
+    fun testUnclosedStringLiteral() {
+        assertFailsWith<JsonDecodingException> {
+            parse("\"")
+        }
+
+        assertFailsWith<JsonDecodingException> {
+            parse("""{"id":"""")
+        }
+    }
 }
