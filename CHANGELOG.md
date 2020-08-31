@@ -51,7 +51,7 @@ of `Json {}` builder
     * `Json.encodeToDynamic` extension is added as a counterpart to `Json.decodeFromDynamic` (former `DynamicObjectParser`) (#116)
 
 * Other API changes:
-    * `JsonInput` and `JsonOutput` are renamed to `JsonEncoder` and `JsonDecoder`
+    * `JsonInput` and `JsonOutput` are renamed to `JsonDecoder` and `JsonEncoder`
     * Methods in `JsonTransformingSerializer` are renamed to `transformSerialize` and `transformDeserialize`
     * `JsonParametricSerializer` is renamed to `JsonContentPolymorphicSerializer`
     * `JsonEncodingException` and `JsonDecodingException` are made internal
@@ -64,7 +64,7 @@ of `Json {}` builder
 
 * The new naming scheme for `SerialFormats`
    *  Core functions in `StringFormat` and `BinaryFormat` are renamed and now follow the same naming scheme
-   * `stringify`/`parse` are renamed to `encodeToString`/`decodeToString`
+   * `stringify`/`parse` are renamed to `encodeToString`/`decodeFromString`
    * `encodeToByteArray`/`encodeToHexString`/`decodeFromByteArray`/`decodeFromHexString` in `BinaryFormat` are introduced instead of `dump`/`dumps`/`load`/`loads`
 
 * New format instances building convention
