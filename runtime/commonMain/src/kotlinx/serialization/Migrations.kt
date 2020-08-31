@@ -23,7 +23,7 @@ public class PrimitiveDescriptorWithName
 @Deprecated(
     message = "Deprecated in the favour of PrimitiveDescriptor factory function",
     level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("PrimitiveDescriptor(name, original.kind)")
+    replaceWith = ReplaceWith("PrimitiveDescriptor(serialName, original.kind)")
 )
 constructor(override val serialName: String, private val original: SerialDescriptor) : SerialDescriptor by original
 
@@ -265,7 +265,7 @@ public fun <T : Any?> Encoder.encode(strategy: SerializationStrategy<T>, value: 
 
 @Deprecated(
     "This method was deprecated during serialization 1.0 API stabilization",
-    ReplaceWith("encodeSerializableValue<T>(serializer(), value)"), DeprecationLevel.ERROR
+    ReplaceWith("encodeSerializableValue<T>(serializer(), obj)"), DeprecationLevel.ERROR
 ) // TODO make internal when migrations are removed
 public fun <T : Any> Encoder.encode(obj: T): Unit = noImpl()
 

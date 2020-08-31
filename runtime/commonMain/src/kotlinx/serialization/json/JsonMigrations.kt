@@ -61,7 +61,7 @@ public fun <T> Json.fromJson(deserializer: DeserializationStrategy<T>, json: Jso
 @Deprecated(
     level = DeprecationLevel.ERROR,
     message = "This method was renamed to decodeFromJsonElement during serialization 1.0 stabilization",
-    replaceWith = ReplaceWith("decodeFromJsonElement(value)")
+    replaceWith = ReplaceWith("decodeFromJsonElement(tree)")
 )
 public fun <T : Any> Json.fromJson(tree: JsonElement): T = noImpl()
 

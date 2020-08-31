@@ -21,24 +21,24 @@ import kotlinx.serialization.encoding.*
  *
  * // Serializer injects custom behaviour by inspecting object content and writing
  * object EitherSerializer : KSerializer<Either> {
- *     override val descriptor: SerialDescriptor = SerialDescriptor("package.Either", PolymorphicKind.SEALED) {
+ *     override val descriptor: SerialDescriptor = buildSerialDescriptor("package.Either", PolymorphicKind.SEALED) {
  *          // ..
  *      }
  *
  *     override fun deserialize(decoder: Decoder): Either {
  *         val input = decoder as? JsonDecoder ?: throw SerializationException("This class can be loaded only by Json")
- *         val tree = input.decodeJson() as? JsonObject ?: throw SerializationException("Expected JsonObject")
- *         if ("error" in tree) return Either.Left(tree.getPrimitive("error").content)
- *         return Either.Right(input.json.fromJson(Payload.serializer(), tree))
+ *         val tree = input.decodeJsonElement() as? JsonObject ?: throw SerializationException("Expected JsonObject")
+ *         if ("error" in tree) return Either.Left(tree["error"]!!.jsonPrimitive.content)
+ *         return Either.Right(input.json.decodeFromJsonElement(Payload.serializer(), tree))
  *     }
  *
  *     override fun serialize(encoder: Encoder, value: Either) {
  *         val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
  *         val tree = when (value) {
- *           is Either.Left -> JsonObject(mapOf("error" to JsonLiteral(value.errorMsg)))
- *           is Either.Right -> output.json.toJson(Payload.serializer(), value.data)
+ *           is Either.Left -> JsonObject(mapOf("error" to JsonPrimitve(value.errorMsg)))
+ *           is Either.Right -> output.json.encodeToJsonElement(Payload.serializer(), value.data)
  *         }
- *         output.encodeJson(tree)
+ *         output.encodeJsonElement(tree)
  *     }
  * }
  * ```
@@ -62,7 +62,7 @@ public interface JsonEncoder : Encoder, CompositeEncoder {
      * fun serialize(encoder: Encoder, value: Holder) {
      *     // Completely okay, the whole Holder object is read
      *     val jsonObject = JsonObject(...) // build a JsonObject from Holder
-     *     (encoder as JsonEncoder).encodeJson(jsonObject) // Write it
+     *     (encoder as JsonEncoder).encodeJsonElement(jsonObject) // Write it
      * }
      *
      * // Incorrect Holder serialize method
@@ -71,7 +71,7 @@ public interface JsonEncoder : Encoder, CompositeEncoder {
      *     composite.encodeSerializableElement(descriptor, 0, Int.serializer(), value.value)
      *     val array = JsonArray(value.list)
      *     // Incorrect, encoder is already in an intermediate state after encodeSerializableElement
-     *     (composite as JsonEncoder).encodeJson(array)
+     *     (composite as JsonEncoder).encodeJsonElement(array)
      *     composite.endStructure(descriptor)
      *     // ...
      * }
