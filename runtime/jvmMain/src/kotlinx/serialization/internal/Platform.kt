@@ -53,16 +53,12 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
     return polymorphicSerializer()
 }
 
-@Suppress("UNCHECKED_CAST")
-private fun <A: Annotation, T: Any> Class<T>.getDeclaredAnnotation(annotationClass: KClass<A>) =
-    declaredAnnotations.firstOrNull { it.annotationClass == annotationClass } as? A
-
 private fun <T: Any> Class<T>.isNotAnnotated(): Boolean {
     /*
      * For annotated enums search serializer directly (or do not search at all?)
      */
-    return getDeclaredAnnotation(Serializable::class) == null &&
-            getDeclaredAnnotation(Polymorphic::class) == null
+    return getAnnotation(Serializable::class.java) == null &&
+            getAnnotation(Polymorphic::class.java) == null
 }
 
 private fun <T: Any> KClass<T>.polymorphicSerializer(): KSerializer<T>? {
@@ -71,10 +67,10 @@ private fun <T: Any> KClass<T>.polymorphicSerializer(): KSerializer<T>? {
      * annotations.
      */
     val jClass = java
-    if (jClass.getDeclaredAnnotation(Polymorphic::class) != null) {
+    if (jClass.getAnnotation(Polymorphic::class.java) != null) {
         return PolymorphicSerializer(this)
     }
-    val serializable = jClass.getDeclaredAnnotation(Serializable::class)
+    val serializable = jClass.getAnnotation(Serializable::class.java)
     if (serializable != null && serializable.with == PolymorphicSerializer::class) {
         return PolymorphicSerializer(this)
     }
@@ -87,7 +83,7 @@ private fun <T: Any> KClass<T>.interfaceSerializer(): KSerializer<T>? {
      * Check if it has no annotations or `@Serializable(with = PolymorphicSerializer::class)`,
      * otherwise bailout.
      */
-    val serializable = java.getDeclaredAnnotation(Serializable::class)
+    val serializable = java.getAnnotation(Serializable::class.java)
     if (serializable == null || serializable.with == PolymorphicSerializer::class) {
         return PolymorphicSerializer(this)
     }
