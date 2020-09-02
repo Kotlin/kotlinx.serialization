@@ -321,10 +321,10 @@ the [Sealed classes](#sealed-classes) section, but here subclasses can be spread
 ### Serializing interfaces 
 
 We can update the previous example and turn `Project` superclass into an interface. However, we cannot
-mark an interface itself as `@Serializable`.
-One possible practical default behaviour is to make them polymorphically serializable.
-Thus all interfaces are considered to be implicitly serializable with the [PolymorphicSerializer]
-strategy.
+mark an interface itself as `@Serializable`. No problem. Interfaces cannot have instances by themselves.
+Interfaces can only be represented by instances of their derived classes. Interfaces are used in the Kolin language to enable polymorphism, 
+so all interfaces are considered to be implicitly serializable with the [PolymorphicSerializer]
+strategy. We just need to mark thier implementing classes as `@Serializable` and register them. 
 
 <!--- INCLUDE 
 import kotlinx.serialization.modules.*
@@ -348,7 +348,7 @@ interface Project {
 class OwnedProject(override val name: String, val owner: String) : Project
 ```
 
-It means that if we declare `data` with the type of `Project` we can simply call `format.encodeToString` as we did before.
+Now if we declare `data` with the type of `Project` we can simply call `format.encodeToString` as before.
 
 ```kotlin
 fun main() {
