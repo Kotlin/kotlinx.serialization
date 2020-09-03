@@ -41,6 +41,8 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
      * type and have a precise serializer, so the default serializer has limited capabilities.
      * To have a structural access to the unknown data, it is recommended to use [JsonTransformingSerializer]
      * or [JsonContentPolymorphicSerializer] classes.
+     *
+     * Default serializers provider affects only deserialization process.
      */
     public fun default(defaultSerializerProvider: (className: String?) -> DeserializationStrategy<out Base>?) {
         require(this.defaultSerializerProvider == null) {

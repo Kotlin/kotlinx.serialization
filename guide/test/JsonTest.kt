@@ -130,4 +130,11 @@ class JsonTest {
             "[Ok(data=Project(name=kotlinx.serialization)), Error(message=Not found)]"
         )
     }
+
+    @Test
+    fun testExampleJson18() {
+        captureOutput("ExampleJson18") { example.exampleJson18.main() }.verifyOutputLines(
+            "UnknownProject(name=example, details={\"type\":\"unknown\",\"maintainer\":\"Unknown\",\"license\":\"Apache 2.0\"})"
+        )
+    }
 }
