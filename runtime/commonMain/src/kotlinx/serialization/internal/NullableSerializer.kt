@@ -13,6 +13,7 @@ import kotlinx.serialization.encoding.*
  * @suppress internal API
  */
 @PublishedApi
+@OptIn(ExperimentalSerializationApi::class)
 internal class NullableSerializer<T : Any>(private val serializer: KSerializer<T>) : KSerializer<T?> {
     override val descriptor: SerialDescriptor = SerialDescriptorForNullable(serializer.descriptor)
 
@@ -42,6 +43,7 @@ internal class NullableSerializer<T : Any>(private val serializer: KSerializer<T
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 internal class SerialDescriptorForNullable(internal val original: SerialDescriptor) : SerialDescriptor by original {
     override val serialName: String = original.serialName + "?"
     override val isNullable: Boolean

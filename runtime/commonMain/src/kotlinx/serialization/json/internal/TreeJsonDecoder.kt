@@ -78,6 +78,8 @@ private sealed class AbstractJsonTreeDecoder(
         // Nothing
     }
 
+    override fun decodeNotNullMark(): Boolean = currentObject() !is JsonNull
+
     protected open fun getValue(tag: String): JsonPrimitive {
         val currentElement = currentElement(tag)
         return currentElement as? JsonPrimitive ?: throw JsonDecodingException(

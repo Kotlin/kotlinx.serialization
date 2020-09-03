@@ -21,6 +21,7 @@ internal fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>):
     return result
 }
 
+@ExperimentalSerializationApi
 private sealed class AbstractJsonTreeEncoder(
     final override val json: Json,
     val nodeConsumer: (JsonElement) -> Unit
@@ -186,9 +187,13 @@ private class JsonTreeListEncoder(json: Json, nodeConsumer: (JsonElement) -> Uni
     override fun getCurrent(): JsonElement = JsonArray(array)
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 internal inline fun <reified T : JsonElement> cast(value: JsonElement, descriptor: SerialDescriptor): T {
     if (value !is T) {
-        throw JsonDecodingException(-1, "Expected ${T::class} as the serialized body of ${descriptor.serialName}, but had ${value::class}")
+        throw JsonDecodingException(
+            -1,
+            "Expected ${T::class} as the serialized body of ${descriptor.serialName}, but had ${value::class}"
+        )
     }
     return value
 }
