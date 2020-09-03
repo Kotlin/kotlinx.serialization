@@ -3,7 +3,7 @@
 [![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 [![TeamCity build](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/KotlinTools_KotlinxSerialization_Ko.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=KotlinTools_KotlinxSerialization_Ko&guest=1)
-[![Download](https://api.bintray.com/packages/kotlin/kotlinx/kotlinx.serialization.runtime/images/download.svg?version=0.20.0) ](https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime/0.20.0)
+[![Download](https://api.bintray.com/packages/kotlin/kotlinx/kotlinx.serialization.runtime/images/download.svg?version=1.0.0-RC) ](https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime/1.0.0-RC)
 
 Kotlin serialization consists of a compiler plugin, that generates visitor code for serializable classes,
  runtime libraries with core serialization API and JSON format, and support libraries with ProtoBuf, CBOR and properties formats.
@@ -22,9 +22,9 @@ Kotlin serialization consists of a compiler plugin, that generates visitor code 
     * [Using the `plugins` block](#using-the-plugins-block)
     * [Using `apply plugin` (the old way)](#using-apply-plugin-the-old-way)
     * [Dependency on the runtime library](#dependency-on-the-runtime-library)
-  * [Android/JVM](#android/jvm)
+  * [Android/JVM](#androidjvm)
   * [Multiplatform (common, JS, Native)](#multiplatform-common-js-native)
-  * [Maven/JVM](#maven/jvm)
+  * [Maven/JVM](#mavenjvm)
 
 <!--- END -->
 
@@ -67,7 +67,6 @@ Kotlin serialization plugin is shipped with the Kotlin compiler distribution, an
 
 Using Kotlin Serialization requires Kotlin compiler `1.4.0` or higher.
 Make sure you have the corresponding Kotlin plugin installed in the IDE, no additional plugins for IDE are required.
-Example projects on JVM are available for [Gradle](examples/example-jvm/build.gradle) and [Maven](examples/example-jvm/pom.xml).
 
 ### Gradle
 
@@ -184,7 +183,7 @@ to add this to your `proguard-rules.pro`:
 
 You may also want to keep all custom serializers you've defined.
 
-### Multiplatform (common, JS, Native)
+### Multiplatform (Common, JS, Native)
 
 Most of the modules are also available for Kotlin/JS and Kotlin/Native.
 You can add dependency to the required module right to the common source set:
