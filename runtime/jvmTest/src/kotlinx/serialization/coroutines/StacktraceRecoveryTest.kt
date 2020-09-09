@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.coroutines
 
 import kotlinx.coroutines.*
@@ -27,12 +31,14 @@ class StacktraceRecoveryTest {
     }
 
     @Test
+    @Ignore // fixme after 1.4.20 plugin with support for new exception ctor signatures
     fun testUnknownFieldException() = checkRecovered<UnknownFieldException> {
         val serializer = Data.serializer()
         serializer.deserialize(BadDecoder())
     }
 
     @Test
+    @Ignore // fixme after 1.4.20 plugin with support for new exception ctor signatures
     fun testMissingFieldException() = checkRecovered<MissingFieldException> {
         Json.decodeFromString<Data>("{}")
     }

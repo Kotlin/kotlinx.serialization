@@ -62,24 +62,13 @@ public open class SerializationException : IllegalArgumentException {
  * Thrown when [KSerializer] did not receive property from [Decoder], and this property was not optional.
  */
 @PublishedApi
-internal class MissingFieldException
-    // KLUDGE: This constructor is used by exception recovery
-    internal constructor(message: String?, cause: Throwable?): SerializationException(message, cause)
-{
-    // This constructor is used by the generated serializers
-    constructor(fieldName: String) : this("Field '$fieldName' is required, but it was missing", null)
-}
+internal class MissingFieldException(fieldName: String) : // TODO: add (message, cause) ctor after 1.4.20 for coroutines stacktrace recovery
+    SerializationException("Field '$fieldName' is required, but it was missing")
 
 /**
  * Thrown when [KSerializer] received unknown property index from [CompositeDecoder.decodeElementIndex].
  *
  * This exception means that data schema has changed in backwards-incompatible way.
  */
-@PublishedApi
-internal class UnknownFieldException
-    // KLUDGE: This constructor is used by exception recovery
-    internal constructor(message: String?) : SerializationException(message)
-{
-    // This constructor is used by the generated serializers
-    constructor(index: Int) : this("An unknown field for index $index")
-}
+@PublishedApi // TODO: add (message, cause) ctor after 1.4.20 for coroutines stacktrace recovery
+internal class UnknownFieldException(index: Int) : SerializationException("An unknown field for index $index")
