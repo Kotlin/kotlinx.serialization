@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.cbor
 
 import kotlinx.coroutines.*
@@ -24,7 +28,7 @@ class CborStacktraceRecoveryTest {
         assertEquals(E::class, cause::class)
     }
 
-    // KLUDGE: A separate function with state-machine to ensure coroutine DebugMetadata is generated.
+    // KLUDGE: A separate function with state-machine to ensure coroutine DebugMetadata is generated. See KT-41789
     private suspend fun callBlockWithRecovery(block: () -> Unit) {
         yield()
         // use withContext to perform switch between coroutines and thus trigger exception recovery machinery
