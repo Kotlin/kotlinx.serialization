@@ -10,9 +10,10 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.encoding.updateModeDeprecated
 import kotlinx.serialization.modules.*
+
 /*
  * These classes are intended to be used only within the kotlinx.serialization.
- * They neither do have stable API, not internal invariants and are changed without any warnings.
+ * They neither do have stable API, nor internal invariants and are changed without any warnings.
  */
 @InternalSerializationApi
 public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
@@ -32,7 +33,6 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
 
     protected open fun encodeTaggedNotNullMark(tag: Tag) {}
     protected open fun encodeTaggedNull(tag: Tag): Unit = throw SerializationException("null is not supported")
-
     protected open fun encodeTaggedInt(tag: Tag, value: Int): Unit = encodeTaggedValue(tag, value)
     protected open fun encodeTaggedByte(tag: Tag, value: Byte): Unit = encodeTaggedValue(tag, value)
     protected open fun encodeTaggedShort(tag: Tag, value: Short): Unit = encodeTaggedValue(tag, value)
@@ -167,9 +167,10 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
 }
 
 @InternalSerializationApi
-public abstract class NamedValueEncoder(protected val rootName: String = "") : TaggedEncoder<String>() {
+@OptIn(ExperimentalSerializationApi::class)
+public abstract class NamedValueEncoder : TaggedEncoder<String>() {
     final override fun SerialDescriptor.getTag(index: Int): String = nested(elementName(this, index))
-    protected fun nested(nestedName: String): String = composeName(currentTagOrNull ?: rootName, nestedName)
+    protected fun nested(nestedName: String): String = composeName(currentTagOrNull ?: "", nestedName)
     protected open fun elementName(descriptor: SerialDescriptor, index: Int): String = descriptor.getElementName(index)
     protected open fun composeName(parentName: String, childName: String): String =
         if (parentName.isEmpty()) childName else "$parentName.$childName"
@@ -214,7 +215,13 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder,
 
     // ---- Implementation of low-level API ----
 
-    final override fun decodeNotNullMark(): Boolean = decodeTaggedNotNullMark(currentTag)
+    // TODO this method should be overridden by any sane format that supports top-level nulls
+    override fun decodeNotNullMark(): Boolean {
+        // Tag might be null for top-level deserialization
+        val currentTag = currentTagOrNull ?: return false
+        return decodeTaggedNotNullMark(currentTag)
+    }
+
     final override fun decodeNull(): Nothing? = null
 
     final override fun decodeBoolean(): Boolean = decodeTaggedBoolean(popTag())
@@ -327,10 +334,11 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder,
 }
 
 @InternalSerializationApi
-public abstract class NamedValueDecoder(protected val rootName: String = "") : TaggedDecoder<String>() {
+@OptIn(ExperimentalSerializationApi::class)
+public abstract class NamedValueDecoder : TaggedDecoder<String>() {
     final override fun SerialDescriptor.getTag(index: Int): String = nested(elementName(this, index))
 
-    protected fun nested(nestedName: String): String = composeName(currentTagOrNull ?: rootName, nestedName)
+    protected fun nested(nestedName: String): String = composeName(currentTagOrNull ?: "", nestedName)
     protected open fun elementName(desc: SerialDescriptor, index: Int): String = desc.getElementName(index)
     protected open fun composeName(parentName: String, childName: String): String =
         if (parentName.isEmpty()) childName else "$parentName.$childName"

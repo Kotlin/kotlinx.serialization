@@ -1043,11 +1043,8 @@ public class kotlinx/serialization/internal/Migration : kotlinx/serialization/de
 
 public abstract class kotlinx/serialization/internal/NamedValueDecoder : kotlinx/serialization/internal/TaggedDecoder {
 	public fun <init> ()V
-	public fun <init> (Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	protected fun composeName (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 	protected fun elementName (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
-	protected final fun getRootName ()Ljava/lang/String;
 	public synthetic fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/Object;
 	protected final fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
 	protected final fun nested (Ljava/lang/String;)Ljava/lang/String;
@@ -1055,11 +1052,8 @@ public abstract class kotlinx/serialization/internal/NamedValueDecoder : kotlinx
 
 public abstract class kotlinx/serialization/internal/NamedValueEncoder : kotlinx/serialization/internal/TaggedEncoder {
 	public fun <init> ()V
-	public fun <init> (Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	protected fun composeName (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 	protected fun elementName (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
-	protected final fun getRootName ()Ljava/lang/String;
 	public synthetic fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/Object;
 	protected final fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
 	protected final fun nested (Ljava/lang/String;)Ljava/lang/String;
@@ -1229,7 +1223,7 @@ public abstract class kotlinx/serialization/internal/TaggedDecoder : kotlinx/ser
 	public final fun decodeIntElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)I
 	public final fun decodeLong ()J
 	public final fun decodeLongElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)J
-	public final fun decodeNotNullMark ()Z
+	public fun decodeNotNullMark ()Z
 	public final fun decodeNull ()Ljava/lang/Void;
 	public fun decodeNullableSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
 	public final fun decodeNullableSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
