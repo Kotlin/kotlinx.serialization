@@ -133,7 +133,7 @@ apply plugin: 'kotlin' // or 'kotlin-multiplatform' for multiplatform projects
 apply plugin: 'kotlinx-serialization'
 ```
 
-#### Dependency on the core library
+#### Dependency on the JSON library
 
 After setting up the plugin one way or another, you have to add a dependency on the serialization library. Note that while the plugin has version the same as the compiler one, runtime library has different coordinates, repository and versioning.
 
