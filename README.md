@@ -133,9 +133,9 @@ apply plugin: 'kotlin' // or 'kotlin-multiplatform' for multiplatform projects
 apply plugin: 'kotlinx-serialization'
 ```
 
-#### Dependency on the runtime library
+#### Dependency on the core library
 
-After setting up the plugin one way or another, you have to add a dependency on the serialization runtime library. Note that while the plugin has version the same as the compiler one, runtime library has different coordinates, repository and versioning.
+After setting up the plugin one way or another, you have to add a dependency on the serialization library. Note that while the plugin has version the same as the compiler one, runtime library has different coordinates, repository and versioning.
 
 Kotlin DSL:
 
@@ -147,7 +147,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib", KotlinCompilerVersion.VERSION)) // or "stdlib-jdk8"
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0-RC") // JVM dependency
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0-RC") // JVM dependency
 }
 ```
 
@@ -160,9 +160,11 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version" // or "kotlin-stdlib-jdk8"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0-RC" // JVM dependency
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0-RC" // JVM dependency
 }
 ```
+
+>We also provide kotlinx-serialization-core artifact that contains all serialization API but does not have bundled serialization format with it
 
 ### Android/JVM
 
@@ -190,7 +192,7 @@ You can add dependency to the required module right to the common source set:
 ```gradle
 commonMain {
     dependencies {
-        implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
+        implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$serialization_version"
         implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:$serialization_version"
     }
 }
@@ -250,7 +252,7 @@ Add dependency on serialization runtime library:
 ```xml
 <dependency>
     <groupId>org.jetbrains.kotlinx</groupId>
-    <artifactId>kotlinx-serialization-core</artifactId>
+    <artifactId>kotlinx-serialization-json</artifactId>
     <version>${serialization.version}</version>
 </dependency>
 ```
