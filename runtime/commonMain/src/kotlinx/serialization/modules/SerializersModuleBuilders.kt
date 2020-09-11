@@ -4,7 +4,6 @@
 package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.*
 import kotlin.jvm.*
 import kotlin.reflect.*
 
@@ -68,7 +67,7 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
      * Adds a default serializers provider associated with the given [baseClass] to the resulting module.
      * [defaultSerializerProvider] is invoked when no polymorphic serializers associated with the `className`
      * were found. `className` could be `null` for formats that support nullable class discriminators
-     * (currently only [Json] with [useArrayPolymorphism][JsonBuilder.useArrayPolymorphism] set to `false`)
+     * (currently only `Json` with `useArrayPolymorphism` set to `false`)
      *
      * @see PolymorphicModuleBuilder.default
      */

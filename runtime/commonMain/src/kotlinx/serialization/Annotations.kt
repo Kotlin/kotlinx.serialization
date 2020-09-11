@@ -7,8 +7,6 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.*
 import kotlin.reflect.*
 
 /**
@@ -93,7 +91,7 @@ public annotation class Serializer(
 /**
  * Overrides the name of a class or a property in the corresponding [SerialDescriptor].
  * Names and serial names are used by text-based serial formats in order to encode the name of the class or
- * the name of the property, e.g. by [Json].
+ * the name of the property, e.g. by `Json`.
  *
  * By default, [SerialDescriptor.serialName] and [SerialDescriptor.getElementName]
  * are associated with fully-qualified name of the target class and the name of the property respectively.

@@ -6,7 +6,6 @@ package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
-import kotlinx.serialization.json.*
 import kotlin.reflect.*
 
 /**

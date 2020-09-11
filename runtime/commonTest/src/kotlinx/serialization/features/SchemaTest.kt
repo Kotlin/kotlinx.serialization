@@ -13,6 +13,11 @@ import kotlin.test.*
 
 class SchemaTest {
 
+    enum class SampleEnum { OptionA, OptionB, OptionC }
+
+    @Serializable
+    data class Box<T>(val boxed: T)
+
     @Serializable
     data class Data1(val l: List<Int> = emptyList(), val s: String) {
         @Serializer(forClass = Data1::class)
@@ -113,7 +118,7 @@ class SchemaTest {
     fun testEnumDescriptors() {
         val dataDescriptor = DataWithEnum.serializer().descriptor
         val enumDesc = dataDescriptor.getElementDescriptor(1)
-        val serialName = "kotlinx.serialization.SampleEnum"
+        val serialName = "kotlinx.serialization.features.SchemaTest.SampleEnum"
         val manualSerializer = EnumSerializer<SampleEnum>(serialName)
         assertEquals(enumDesc, manualSerializer.descriptor)
         assertEquals(enumDesc, dataDescriptor.getElementDescriptor(2).getElementDescriptor(0))

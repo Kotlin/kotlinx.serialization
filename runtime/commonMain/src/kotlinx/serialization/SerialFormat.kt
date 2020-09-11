@@ -6,7 +6,6 @@ package kotlinx.serialization
 
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.encoding.*
-import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 
 /**
@@ -15,7 +14,7 @@ import kotlinx.serialization.modules.*
  * It does not impose any restrictions on a serialized form or underlying storage, neither it exposes them.
  *
  * Concrete data types and API for user-interaction are responsibility of a concrete subclass or subinterface,
- * for example [StringFormat], [BinaryFormat] or [Json].
+ * for example [StringFormat], [BinaryFormat] or `Json`.
  *
  * Typically, formats have their specific [Encoder] and [Decoder] implementations
  * as private classes and do not expose them.

@@ -6,6 +6,9 @@ package kotlinx.serialization
 
 import kotlin.native.concurrent.*
 
+@Serializable
+data class IntData(val intV: Int)
+
 enum class Attitude { POSITIVE, NEUTRAL, NEGATIVE }
 
 @Serializable

@@ -6,13 +6,12 @@ package kotlinx.serialization
 
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
-import kotlinx.serialization.json.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
 
 // This is unimplemented functionality that should be
 @Suppress("RemoveExplicitTypeArguments") // This is exactly what's being tested
-class SerializersLookupEnumTest : JsonTestBase() {
+class SerializersLookupEnumTest {
     @Serializable(with = EnumExternalObjectSerializer::class)
     enum class EnumExternalObject
 

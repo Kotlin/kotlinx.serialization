@@ -4,7 +4,6 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 
 @Serializable
@@ -26,10 +25,6 @@ open class PolyBase(val id: Int) {
     }
 
 }
-
-// TODO sandwwraith moving this class to the corresponding tests breaks runtime in unexpected ways
-@Serializable
-data class PolyDefault(val json: JsonElement) : PolyBase(-1)
 
 @Serializable
 data class PolyDerived(val s: String) : PolyBase(1)

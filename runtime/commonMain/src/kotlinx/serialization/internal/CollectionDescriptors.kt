@@ -107,6 +107,7 @@ internal const val HASH_MAP_NAME = "kotlin.collections.HashMap"
  *
  * Can be obtained from corresponding serializers (e.g. [ByteArraySerializer.descriptor])
  */
+@OptIn(ExperimentalSerializationApi::class)
 internal class PrimitiveArrayDescriptor internal constructor(
     primitive: SerialDescriptor
 ) : ListLikeDescriptor(primitive) {
@@ -121,9 +122,6 @@ internal class ArrayListClassDesc(elementDesc: SerialDescriptor) : ListLikeDescr
     override val serialName: String get() = ARRAY_LIST_NAME
 }
 
-internal class NamedListClassDescriptor(override val serialName: String, elementDescriptor: SerialDescriptor) :
-    ListLikeDescriptor(elementDescriptor)
-
 internal class LinkedHashSetClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
     override val serialName: String get() = LINKED_HASH_SET_NAME
 }
@@ -131,9 +129,6 @@ internal class LinkedHashSetClassDesc(elementDesc: SerialDescriptor) : ListLikeD
 internal class HashSetClassDesc(elementDesc: SerialDescriptor) : ListLikeDescriptor(elementDesc) {
     override val serialName: String get() = HASH_SET_NAME
 }
-
-internal class NamedMapClassDescriptor(name: String, keyDescriptor: SerialDescriptor, valueDescriptor: SerialDescriptor) :
-    MapLikeDescriptor(name, keyDescriptor, valueDescriptor)
 
 internal class LinkedHashMapClassDesc(keyDesc: SerialDescriptor, valueDesc: SerialDescriptor) :
     MapLikeDescriptor(LINKED_HASH_MAP_NAME, keyDesc, valueDesc)

@@ -22,9 +22,9 @@ Kotlin serialization consists of a compiler plugin, that generates visitor code 
     * [Using the `plugins` block](#using-the-plugins-block)
     * [Using `apply plugin` (the old way)](#using-apply-plugin-the-old-way)
     * [Dependency on the runtime library](#dependency-on-the-runtime-library)
-  * [Android/JVM](#androidjvm)
-  * [Multiplatform (common, JS, Native)](#multiplatform-common-js-native)
-  * [Maven/JVM](#mavenjvm)
+  * [Android/JVM](#android/jvm)
+  * [Multiplatform (Common, JS, Native)](#multiplatform-common-js-native)
+  * [Maven/JVM](#maven/jvm)
 
 <!--- END -->
 

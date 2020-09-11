@@ -64,7 +64,7 @@ class BasicTypesSerializationTest {
             val name = inp.nextUntil(':', '}')
             if (name.isEmpty())
                 return CompositeDecoder.DECODE_DONE
-            val index = descriptor.getElementIndexOrThrow(name)
+            val index = descriptor.getElementIndex(name)
             inp.expect(':')
             return index
         }

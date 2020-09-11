@@ -68,9 +68,8 @@ import kotlin.reflect.*
  * }
  * ```
  */
-@PublishedApi
-@OptIn(ExperimentalSerializationApi::class)
-internal class SealedClassSerializer<T : Any>(
+@InternalSerializationApi
+public class SealedClassSerializer<T : Any>(
     serialName: String,
     override val baseClass: KClass<T>,
     subclasses: Array<KClass<out T>>,

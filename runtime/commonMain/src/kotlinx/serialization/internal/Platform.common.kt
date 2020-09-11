@@ -70,7 +70,6 @@ internal object InternalHexConverter {
 }
 
 internal fun SerialDescriptor.cachedSerialNames(): Set<String> {
-    @Suppress("DEPRECATION_ERROR")
     if (this is PluginGeneratedSerialDescriptor) return namesSet
     val result = HashSet<String>(elementsCount)
     for (i in 0 until elementsCount) {
@@ -88,28 +87,6 @@ private val EMPTY_DESCRIPTOR_ARRAY: Array<SerialDescriptor> = arrayOf()
  */
 internal fun List<SerialDescriptor>?.compactArray(): Array<SerialDescriptor> =
     takeUnless { it.isNullOrEmpty() }?.toTypedArray() ?: EMPTY_DESCRIPTOR_ARRAY
-
-/**
- * Returns serial descriptor that delegates all the calls to descriptor returned by [deferred] block.
- * Used to resolve cyclic dependencies between recursive serializable structures.
- */
-internal fun defer(deferred: () -> SerialDescriptor): SerialDescriptor = object : SerialDescriptor {
-
-    private val original: SerialDescriptor by lazy(deferred)
-
-    override val serialName: String
-        get() = original.serialName
-    override val kind: SerialKind
-        get() = original.kind
-    override val elementsCount: Int
-        get() = original.elementsCount
-
-    override fun getElementName(index: Int): String = original.getElementName(index)
-    override fun getElementIndex(name: String): Int = original.getElementIndex(name)
-    override fun getElementAnnotations(index: Int): List<Annotation> = original.getElementAnnotations(index)
-    override fun getElementDescriptor(index: Int): SerialDescriptor = original.getElementDescriptor(index)
-    override fun isElementOptional(index: Int): Boolean = original.isElementOptional(index)
-}
 
 @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
 @PublishedApi
@@ -170,17 +147,6 @@ internal expect fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KCl
  * on JVM, it falls back to `java.lang.Class.isInstance`, which causes difference when applied to function types with big arity.
  */
 internal expect fun Any.isInstanceOf(kclass: KClass<*>): Boolean
-
-/**
- * Same as [SerialDescriptor.getElementIndex], but throws [SerializationException] if
- * given [name] is not associated with any element in the descriptor.
- */
-internal fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
-    val index = getElementIndex(name)
-    if (index == CompositeDecoder.UNKNOWN_NAME)
-        throw SerializationException("$serialName does not contain element with name '$name'")
-    return index
-}
 
 internal inline fun <T, K> Iterable<T>.elementsHashCodeBy(selector: (T) -> K): Int {
     return fold(1) { hash, element -> 31 * hash + selector(element).hashCode() }
