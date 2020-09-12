@@ -85,8 +85,7 @@ public interface JsonDecoder : Decoder, CompositeDecoder {
     // Class 'JsonDecoder' must override public open val updateMode: UpdateMode defined in kotlinx.serialization.encoding.Decoder
     // because it inherits multiple interface methods of it
     @Suppress("DEPRECATION")
-    @Deprecated("Update mode in Decoder is deprecated for removal. " +
-            "Update behaviour is now considered an implementation detail of the format that should not concern serializer.", level = DeprecationLevel.HIDDEN)
+    @Deprecated(kotlinx.serialization.json.internal.updateModeDeprecated, level = DeprecationLevel.HIDDEN)
     override val updateMode: UpdateMode
         get() = UpdateMode.OVERWRITE
 }

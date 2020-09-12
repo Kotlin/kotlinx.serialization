@@ -6,6 +6,7 @@ package kotlinx.serialization
 
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlinx.serialization.internal.*
 import kotlin.test.*
 
@@ -65,6 +66,7 @@ class BasicTypesSerializationTest {
             if (name.isEmpty())
                 return CompositeDecoder.DECODE_DONE
             val index = descriptor.getElementIndex(name)
+            check(index != UNKNOWN_NAME)
             inp.expect(':')
             return index
         }

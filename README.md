@@ -6,10 +6,10 @@
 [![Download](https://api.bintray.com/packages/kotlin/kotlinx/kotlinx.serialization.runtime/images/download.svg?version=1.0.0-RC) ](https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime/1.0.0-RC)
 
 Kotlin serialization consists of a compiler plugin, that generates visitor code for serializable classes,
- runtime libraries with core serialization API and JSON format, and support libraries with ProtoBuf, CBOR and properties formats.
+ runtime library with core serialization API and support libraries with various serialization formats.
 
 * Supports Kotlin classes marked as `@Serializable` and standard collections.
-* Provides JSON (as a part of the core library), [Protobuf](formats/README.md#ProtoBuf), [CBOR](formats/README.md#CBOR), [Hocon](formats/README.md#HOCON) and [Properties](formats/README.md#properties) formats.
+* Provides [JSON](formats/README.md#JSON), [Protobuf](formats/README.md#ProtoBuf), [CBOR](formats/README.md#CBOR), [Hocon](formats/README.md#HOCON) and [Properties](formats/README.md#properties) formats.
 * Complete multiplatform support: JVM, JS and Native.
 
 ## Table of contents
@@ -21,10 +21,10 @@ Kotlin serialization consists of a compiler plugin, that generates visitor code 
   * [Gradle](#gradle)
     * [Using the `plugins` block](#using-the-plugins-block)
     * [Using `apply plugin` (the old way)](#using-apply-plugin-the-old-way)
-    * [Dependency on the runtime library](#dependency-on-the-runtime-library)
-  * [Android/JVM](#android/jvm)
+    * [Dependency on the JSON library](#dependency-on-the-json-library)
+  * [Android](#android)
   * [Multiplatform (Common, JS, Native)](#multiplatform-common-js-native)
-  * [Maven/JVM](#maven/jvm)
+  * [Maven](#maven)
 
 <!--- END -->
 
@@ -166,7 +166,7 @@ dependencies {
 
 >We also provide kotlinx-serialization-core artifact that contains all serialization API but does not have bundled serialization format with it
 
-### Android/JVM
+### Android
 
 Library should work on Android "as is". If you're using proguard, you need
 to add this to your `proguard-rules.pro`:
@@ -199,7 +199,7 @@ commonMain {
 ```
 The same artifact coordinates can be used to depend on platform-specific artifact in platform-specific source-set.
 
-### Maven/JVM
+### Maven
 
 Ensure the proper version of Kotlin and serialization version:
 

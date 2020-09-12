@@ -6,6 +6,7 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class JsonParserFailureModesTest : JsonTestBase() {
@@ -26,7 +27,7 @@ class JsonParserFailureModesTest : JsonTestBase() {
         assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"id}""", it) }
         assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"i}""", it) }
         assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"}""", it) }
-        assertFailsWith<SerializationException> { default.decodeFromString(Holder.serializer(), """{}""", it) }
+        assertFailsWithMissingField { default.decodeFromString(Holder.serializer(), """{}""", it) }
         assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{""", it) }
         assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """}""", it) }
         assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{""", it) }

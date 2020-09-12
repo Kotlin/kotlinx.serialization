@@ -69,15 +69,19 @@ internal class DynamicObjectParser(
         }
 
         override fun decodeTaggedValue(tag: String): Any {
-            val o = getByTag(tag) ?: _throwMFE(tag)
+            val o = getByTag(tag) ?: throwMissingTag(tag)
             return o as Any
         }
 
         override fun decodeTaggedNotNullMark(tag: String): Boolean {
             val o = getByTag(tag)
-            if (o === undefined) _throwMFE(tag)
+            if (o === undefined) throwMissingTag(tag)
             @Suppress("SENSELESS_COMPARISON") // null !== undefined !
             return o != null
+        }
+
+        private fun throwMissingTag(tag: String) {
+            throw SerializationException("Value for field $tag is missing")
         }
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {

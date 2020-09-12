@@ -5,6 +5,12 @@ were not included in the core library.
 
 For convenience, they have same `groupId`, versioning and release cycle as core library.
 
+## JSON
+
+* Artifact id: `kotlinx-serialization-json`
+* Platform: all supported platforms
+* Status: stable
+
 ## HOCON 
 
 * Artifact id: `kotlinx-serialization-hocon`

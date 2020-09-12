@@ -930,7 +930,6 @@ public final class kotlinx/serialization/internal/IntSerializer : kotlinx/serial
 
 public final class kotlinx/serialization/internal/JsonInternalDependenciesKt {
 	public static final fun _jsonCachedSerialNames (Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/Set;
-	public static final fun _throwMFE (Ljava/lang/String;)Ljava/lang/Void;
 }
 
 public abstract class kotlinx/serialization/internal/KeyValueSerializer : kotlinx/serialization/KSerializer {

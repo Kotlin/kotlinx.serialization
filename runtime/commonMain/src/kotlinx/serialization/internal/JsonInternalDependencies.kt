@@ -11,6 +11,3 @@ import kotlinx.serialization.descriptors.*
 
 @InternalSerializationApi
 public fun SerialDescriptor._jsonCachedSerialNames(): Set<String> = cachedSerialNames()
-
-@InternalSerializationApi
-public fun _throwMFE(field: String): Nothing = throw MissingFieldException(field)
