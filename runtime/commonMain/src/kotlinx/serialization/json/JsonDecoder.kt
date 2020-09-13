@@ -44,6 +44,13 @@ import kotlinx.serialization.encoding.updateModeDeprecated
  *     }
  * }
  * ```
+ *
+ * ### Not stable for inheritance
+ *
+ * `JsonDecoder` interface is not stable for inheritance in 3rd party libraries, as new methods
+ * might be added to this interface or contracts of the existing methods can be changed.
+ * Accepting this interface in your API methods, casting [Decoder] to [JsonDecoder] and invoking its
+ * methods is considered stable.
  */
 public interface JsonDecoder : Decoder, CompositeDecoder {
     /**
