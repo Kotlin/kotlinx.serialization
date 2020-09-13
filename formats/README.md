@@ -70,3 +70,11 @@ not be available in other formats such as JSON.
 * Platform: JVM only
 
 Allows serialization and deserialization of objects to and from [YAML](http://yaml.org).
+
+### CBOR
+
+* GitHub repo: [L-Briand/obor](https://github.com/L-Briand/obor)
+* Artifact ID: `net.orandja.obor:obor`
+* Platform: JVM, Android
+
+Allow serialization and deserialization of objects to and from [CBOR](https://cbor.io/). This codec can be used to read and write from Java InputStream and OutputStream.
