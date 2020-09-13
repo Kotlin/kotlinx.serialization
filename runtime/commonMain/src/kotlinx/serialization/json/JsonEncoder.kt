@@ -42,6 +42,13 @@ import kotlinx.serialization.encoding.*
  *     }
  * }
  * ```
+ *
+ * ### Not stable for inheritance
+ *
+ * `JsonEncoder` interface is not stable for inheritance in 3rd party libraries, as new methods
+ * might be added to this interface or contracts of the existing methods can be changed.
+ * Accepting this interface in your API methods, casting [Encoder] to [JsonEncoder] and invoking its
+ * methods is considered stable.
  */
 public interface JsonEncoder : Encoder, CompositeEncoder {
     /**
