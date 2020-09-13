@@ -182,7 +182,7 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-classes-01.kt).
 
-We can clearly see that only `owner` and `stars` properties are present in the JSON output.
+We can clearly see that only `name` and `stars` properties are present in the JSON output.
 
 ```text 
 {"name":"kotlinx.serialization","stars":9000}
@@ -409,7 +409,7 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-classes-08.kt).
 
-Attempt to explicitly specify its value in the serial format, even if the specified
+Attempts to explicitly specify its value in the serial format, even if the specified
 value is equal to the default one, produces the following exception.
 
 ```text
