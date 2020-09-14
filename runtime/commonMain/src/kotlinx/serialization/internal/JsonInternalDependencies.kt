@@ -10,4 +10,5 @@ import kotlinx.serialization.descriptors.*
  */
 
 @InternalSerializationApi
-public fun SerialDescriptor._jsonCachedSerialNames(): Set<String> = cachedSerialNames()
+@Deprecated(message = "Should not be used", level = DeprecationLevel.ERROR)
+public fun SerialDescriptor.jsonCachedSerialNames(): Set<String> = cachedSerialNames()
