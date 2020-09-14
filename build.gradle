@@ -85,7 +85,7 @@ buildscript {
     }
 }
 
-// To make it visible for compilerVersion.gradle
+// To make it visible for compiler-version.gradle
 ext.compilerVersion = org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION
 apply plugin: 'binary-compatibility-validator'
 
@@ -166,5 +166,5 @@ subprojects {
 
 }
 
-apply from: rootProject.file('gradle/compilerVersion.gradle')
+apply from: rootProject.file('gradle/compiler-version.gradle')
 apply from: rootProject.file("gradle/dokka.gradle")
