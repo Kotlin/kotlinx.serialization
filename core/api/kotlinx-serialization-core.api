@@ -929,7 +929,7 @@ public final class kotlinx/serialization/internal/IntSerializer : kotlinx/serial
 }
 
 public final class kotlinx/serialization/internal/JsonInternalDependenciesKt {
-	public static final fun _jsonCachedSerialNames (Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/Set;
+	public static final fun jsonCachedSerialNames (Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/Set;
 }
 
 public abstract class kotlinx/serialization/internal/KeyValueSerializer : kotlinx/serialization/KSerializer {
