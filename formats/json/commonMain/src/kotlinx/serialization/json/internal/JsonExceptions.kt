@@ -18,8 +18,10 @@ internal open class JsonException(message: String) : SerializationException(mess
 /**
  * Thrown when [Json] has failed to parse the given JSON string or deserialize it to a target class.
  */
-internal class JsonDecodingException(offset: Int, message: String) :
-    JsonException(if (offset >= 0) "Unexpected JSON token at offset $offset: $message" else message)
+internal class JsonDecodingException(message: String) : JsonException(message)
+
+internal fun JsonDecodingException(offset: Int, message: String) =
+    JsonDecodingException(if (offset >= 0) "Unexpected JSON token at offset $offset: $message" else message)
 
 /**
  * Thrown when [Json] has failed to create a JSON string from the given value.

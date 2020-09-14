@@ -128,7 +128,7 @@ private fun <T : Any> findObjectSerializer(jClass: Class<T>): KSerializer<T>? {
     // Retrieve its instance and call serializer()
     val instance = field.get(null)
     val method =
-        jClass.methods.singleOrNull { it.name == "serializer" && it.parameters.isEmpty() && it.returnType == KSerializer::class.java }
+        jClass.methods.singleOrNull { it.name == "serializer" && it.parameterTypes.isEmpty() && it.returnType == KSerializer::class.java }
             ?: return null
     val result = method.invoke(instance)
     @Suppress("UNCHECKED_CAST")

@@ -6,8 +6,11 @@ package kotlinx.serialization.cbor.internal
 
 import kotlinx.serialization.*
 
-internal class CborDecodingException(expected: String, foundByte: Int) :
-    SerializationException("Expected $expected, but found ${printByte(foundByte)}")
+internal class CborDecodingException(message: String) : SerializationException(message)
+
+@Suppress("FunctionName")
+internal fun CborDecodingException(expected: String, foundByte: Int) =
+    CborDecodingException("Expected $expected, but found ${printByte(foundByte)}")
 
 internal fun printByte(b: Int): String {
     val hexCode = "0123456789ABCDEF"

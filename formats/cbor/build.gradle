@@ -25,6 +25,7 @@ kotlin {
                 implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
                 implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: jackson_version
                 implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-cbor', version: jackson_version
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
             }
         }
     }
