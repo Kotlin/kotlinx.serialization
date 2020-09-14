@@ -4,9 +4,8 @@
 
 apply plugin: 'kotlin-multiplatform'
 apply plugin: 'kotlinx-serialization'
-apply from: rootProject.file("gradle/targets.gradle")
-apply from: rootProject.file("gradle/native_mpp.gradle")
-apply from: rootProject.file("gradle/configureSourceSets.gradle")
+apply from: rootProject.file("gradle/native-targets.gradle")
+apply from: rootProject.file("gradle/configure-source-sets.gradle")
 
 kotlin {
 

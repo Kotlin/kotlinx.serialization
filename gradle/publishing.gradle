@@ -9,7 +9,7 @@ import org.gradle.util.VersionNumber
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
-apply from: project.rootProject.file('gradle/mavenMetadata.gradle')
+apply from: project.rootProject.file('gradle/maven-metadata.gradle')
 
 def isMultiplatform = project.name in ["kotlinx-serialization-core", "kotlinx-serialization-json","kotlinx-serialization-protobuf",
                                        "kotlinx-serialization-cbor", "kotlinx-serialization-properties"]

@@ -2,7 +2,7 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-
+project.ext.ideaActive = System.getProperty('idea.active') == 'true'
 project.ext.deployMode = property('native.deploy') == 'true'
 project.ext.singleTargetMode = project.ext.ideaActive || !project.ext.deployMode
 
@@ -10,6 +10,22 @@ project.ext.nativeMainSets = []
 project.ext.nativeTestSets = []
 
 kotlin {
+    targets {
+        def manager = project.ext.hostManager
+        def linuxEnabled = manager.isEnabled(presets.linuxX64.konanTarget)
+        def macosEnabled = manager.isEnabled(presets.macosX64.konanTarget)
+        def winEnabled = manager.isEnabled(presets.mingwX64.konanTarget)
+
+        project.ext.isLinuxHost = linuxEnabled
+        project.ext.isMacosHost = macosEnabled
+        project.ext.isWinHost = winEnabled
+
+        def ideaPreset = presets.linuxX64
+        if (macosEnabled) ideaPreset = presets.macosX64
+        if (winEnabled) ideaPreset = presets.mingwX64
+        project.ext.ideaPreset = ideaPreset
+    }
+
     targets.metaClass.addTarget = { preset ->
         def target = delegate.fromPreset(preset, preset.name)
         project.ext.nativeMainSets.add(target.compilations['main'].kotlinSourceSets.first())
