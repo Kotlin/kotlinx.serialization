@@ -6,10 +6,10 @@
 [![Download](https://api.bintray.com/packages/kotlin/kotlinx/kotlinx.serialization.runtime/images/download.svg?version=1.0.0-RC) ](https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime/1.0.0-RC)
 
 Kotlin serialization consists of a compiler plugin, that generates visitor code for serializable classes,
- runtime libraries with core serialization API and JSON format, and support libraries with ProtoBuf, CBOR and properties formats.
+ runtime library with core serialization API and support libraries with various serialization formats.
 
 * Supports Kotlin classes marked as `@Serializable` and standard collections.
-* Provides JSON (as a part of the core library), [Protobuf](formats/README.md#ProtoBuf), [CBOR](formats/README.md#CBOR), [Hocon](formats/README.md#HOCON) and [Properties](formats/README.md#properties) formats.
+* Provides [JSON](formats/README.md#JSON), [Protobuf](formats/README.md#ProtoBuf), [CBOR](formats/README.md#CBOR), [Hocon](formats/README.md#HOCON) and [Properties](formats/README.md#properties) formats.
 * Complete multiplatform support: JVM, JS and Native.
 
 ## Table of contents
@@ -21,10 +21,10 @@ Kotlin serialization consists of a compiler plugin, that generates visitor code 
   * [Gradle](#gradle)
     * [Using the `plugins` block](#using-the-plugins-block)
     * [Using `apply plugin` (the old way)](#using-apply-plugin-the-old-way)
-    * [Dependency on the runtime library](#dependency-on-the-runtime-library)
-  * [Android/JVM](#androidjvm)
-  * [Multiplatform (common, JS, Native)](#multiplatform-common-js-native)
-  * [Maven/JVM](#mavenjvm)
+    * [Dependency on the JSON library](#dependency-on-the-json-library)
+  * [Android](#android)
+  * [Multiplatform (Common, JS, Native)](#multiplatform-common-js-native)
+  * [Maven](#maven)
 
 <!--- END -->
 
@@ -133,9 +133,9 @@ apply plugin: 'kotlin' // or 'kotlin-multiplatform' for multiplatform projects
 apply plugin: 'kotlinx-serialization'
 ```
 
-#### Dependency on the runtime library
+#### Dependency on the JSON library
 
-After setting up the plugin one way or another, you have to add a dependency on the serialization runtime library. Note that while the plugin has version the same as the compiler one, runtime library has different coordinates, repository and versioning.
+After setting up the plugin one way or another, you have to add a dependency on the serialization library. Note that while the plugin has version the same as the compiler one, runtime library has different coordinates, repository and versioning.
 
 Kotlin DSL:
 
@@ -147,7 +147,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib", KotlinCompilerVersion.VERSION)) // or "stdlib-jdk8"
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0-RC") // JVM dependency
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0-RC") // JVM dependency
 }
 ```
 
@@ -160,11 +160,13 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version" // or "kotlin-stdlib-jdk8"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0-RC" // JVM dependency
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0-RC" // JVM dependency
 }
 ```
 
-### Android/JVM
+>We also provide kotlinx-serialization-core artifact that contains all serialization API but does not have bundled serialization format with it
+
+### Android
 
 Library should work on Android "as is". If you're using proguard, you need
 to add this to your `proguard-rules.pro`:
@@ -190,14 +192,14 @@ You can add dependency to the required module right to the common source set:
 ```gradle
 commonMain {
     dependencies {
-        implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
+        implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$serialization_version"
         implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:$serialization_version"
     }
 }
 ```
 The same artifact coordinates can be used to depend on platform-specific artifact in platform-specific source-set.
 
-### Maven/JVM
+### Maven
 
 Ensure the proper version of Kotlin and serialization version:
 
@@ -250,7 +252,7 @@ Add dependency on serialization runtime library:
 ```xml
 <dependency>
     <groupId>org.jetbrains.kotlinx</groupId>
-    <artifactId>kotlinx-serialization-core</artifactId>
+    <artifactId>kotlinx-serialization-json</artifactId>
     <version>${serialization.version}</version>
 </dependency>
 ```
