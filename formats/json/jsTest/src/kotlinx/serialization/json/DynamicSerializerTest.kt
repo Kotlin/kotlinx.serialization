@@ -7,10 +7,9 @@ package kotlinx.serialization.json
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
-import kotlinx.serialization.internal.DynamicObjectSerializer
-import kotlinx.serialization.internal.MAX_SAFE_INTEGER
-import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
+import kotlinx.serialization.json.internal.DynamicObjectSerializer
+import kotlinx.serialization.*
 import kotlinx.serialization.modules.*
 import kotlin.test.*
 

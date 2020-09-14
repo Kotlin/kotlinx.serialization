@@ -2,12 +2,12 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization
+package kotlinx.serialization.json
 
 import kotlinx.serialization.builtins.LongAsStringSerializer
-import kotlinx.serialization.internal.DynamicObjectParser
-import kotlinx.serialization.internal.DynamicObjectSerializer
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.internal.DynamicObjectParser
+import kotlinx.serialization.json.internal.DynamicObjectSerializer
+import kotlinx.serialization.*
 
 /**
  * Converts native JavaScript objects into Kotlin ones, verifying their types.
