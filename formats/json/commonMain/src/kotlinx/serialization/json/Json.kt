@@ -314,6 +314,7 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
     public fun buildModule(): SerializersModule = error("Deprecated and should not be called")
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 private class JsonImpl(configuration: JsonConf) : Json(configuration) {
 
     init {

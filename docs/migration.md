@@ -7,8 +7,8 @@ with automatic replacements.
 
 To simplify your migrations path, it is recommended to enable star imports in IDE (so all extensions are imported automatically) first.
 
-1. Update `kotlinx.serialization` to version 1.0.0-RC (this is the last version that has migrations for pre-1.0.0 versions)
-2. Rename dependency from `kotlinx-serialization-runtime` to `kotlinx-serialization-core`
+1. Update `kotlinx.serialization` to version 1.0.0-RC2 (this is the last version that has migrations for pre-1.0.0 versions)
+2. Rename dependency from `kotlinx-serialization-runtime` to `kotlinx-serialization-json`
 3. For multiplatform usages, remove dependencies to platform-specific artifacts (e.g. `kotlinx-serialization-runtime-js`), they are [no longer required](/README.md#multiplatform-common-js-native) by Gradle.
 4. Update Kotlin to 1.4.0
 5. Start applying replacements for the deprecated code

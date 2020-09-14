@@ -1,11 +1,14 @@
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-
+@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE", "EXPERIMENTAL_API_USAGE")
 package kotlinx.serialization
 
 import kotlinx.serialization.json.*
+import kotlinx.serialization.json.internal.DynamicObjectParser
+import kotlinx.serialization.json.internal.DynamicObjectSerializer
 import kotlinx.serialization.modules.*
+import kotlin.internal.*
 
 private const val parserMessage = "DynamicObjectParser and its 'parse' method were unified with Json operations. " +
         "Please use Json's 'decodeFromDynamic' extension."
@@ -20,7 +23,7 @@ public class DynamicObjectParser constructor(
 ) {
     @Deprecated(
         parserMessage,
-        ReplaceWith("Json(configuration, context).decodeFromDynamic(value)", "kotlinx.serialization.json.Json"),
+        ReplaceWith("Json(configuration, context).decodeFromDynamic(value)", imports = ["kotlinx.serialization.json.Json", "kotlinx.serialization.json.decodeFromDynamic"]),
         level = DeprecationLevel.ERROR
     )
     public inline fun <reified T : Any> parse(value: dynamic): T = noImpl()
@@ -29,7 +32,7 @@ public class DynamicObjectParser constructor(
         parserMessage,
         ReplaceWith(
             "Json(configuration, context).decodeFromDynamic(deserializer, obj)",
-            "kotlinx.serialization.json.Json"
+            imports = ["kotlinx.serialization.json.Json", "kotlinx.serialization.json.decodeFromDynamic"]
         ),
         level = DeprecationLevel.ERROR
     )
@@ -43,12 +46,49 @@ private const val serializerMessage =
 @Deprecated(serializerMessage, ReplaceWith("Json", "kotlinx.serialization.json.Json"), level = DeprecationLevel.ERROR)
 public typealias DynamicObjectSerializer = Json
 
-@Deprecated(serializerMessage, ReplaceWith("encodeToDynamic(strategy, obj)"), level = DeprecationLevel.ERROR)
+@Deprecated(serializerMessage, ReplaceWith("encodeToDynamic(strategy, obj)", imports = ["kotlinx.serialization.json.decodeFromDynamic"]), level = DeprecationLevel.ERROR)
 public fun <T> Json.serialize(strategy: SerializationStrategy<T>, obj: T): dynamic = noImpl()
 
-@Deprecated(serializerMessage, ReplaceWith("encodeToDynamic<T>(obj)"), level = DeprecationLevel.ERROR)
+@Deprecated(serializerMessage, ReplaceWith("encodeToDynamic<T>(obj)", imports = ["kotlinx.serialization.json.encodeToDynamic"]), level = DeprecationLevel.ERROR)
 public inline fun <reified T : Any> Json.serialize(obj: T): dynamic = noImpl()
 
 @PublishedApi
 internal fun noImpl(): Nothing = throw UnsupportedOperationException("Not implemented, should not be called")
 
+@Deprecated(
+    "decodeFromDynamic was moved to kotlinx.serialization.json package",
+    ReplaceWith("decodeFromDynamic(deserializer, dynamic)", imports = ["kotlinx.serialization.json.decodeFromDynamic"]),
+    level = DeprecationLevel.ERROR
+)
+@LowPriorityInOverloadResolution
+public fun <T> Json.decodeFromDynamic(deserializer: DeserializationStrategy<T>, dynamic: dynamic): T {
+    return DynamicObjectParser(serializersModule, configuration).parse(dynamic, deserializer)
+}
+
+@Deprecated(
+    "decodeFromDynamic was moved to kotlinx.serialization.json package",
+    ReplaceWith("decodeFromDynamic(dynamic)", imports = ["kotlinx.serialization.json.decodeFromDynamic"]),
+    level = DeprecationLevel.ERROR
+)
+@LowPriorityInOverloadResolution
+public inline fun <reified T> Json.decodeFromDynamic(dynamic: dynamic): T =
+    decodeFromDynamic(serializersModule.serializer(), dynamic)
+
+@Deprecated(
+    "encodeToDynamic was moved to kotlinx.serialization.json package",
+    ReplaceWith("encodeToDynamic(serializer, value)", imports = ["kotlinx.serialization.json.encodeToDynamic"]),
+    level = DeprecationLevel.ERROR
+)
+@LowPriorityInOverloadResolution
+public fun <T> Json.encodeToDynamic(serializer: SerializationStrategy<T>, value: T): dynamic {
+    return DynamicObjectSerializer(serializersModule, configuration, false).serialize(serializer, value)
+}
+
+@Deprecated(
+    "encodeToDynamic was moved to kotlinx.serialization.json package",
+    ReplaceWith("encodeToDynamic(value)", imports = ["kotlinx.serialization.json.encodeToDynamic"]),
+    level = DeprecationLevel.ERROR
+)
+@LowPriorityInOverloadResolution
+public inline fun <reified T> Json.encodeToDynamic(value: T): dynamic =
+    encodeToDynamic(serializersModule.serializer(), value)

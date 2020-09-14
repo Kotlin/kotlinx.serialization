@@ -2,12 +2,12 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization.internal
+package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
-import kotlinx.serialization.json.internal.*
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.math.*
 
@@ -16,6 +16,7 @@ import kotlin.math.*
  */
 internal const val MAX_SAFE_INTEGER: Double = 9007199254740991.toDouble() // 2^53 - 1
 
+@OptIn(ExperimentalSerializationApi::class)
 internal class DynamicObjectParser(
     override val serializersModule: SerializersModule,
     internal val configuration: JsonConf

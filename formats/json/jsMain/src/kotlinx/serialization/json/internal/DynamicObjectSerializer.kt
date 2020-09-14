@@ -3,12 +3,11 @@
  */
 @file:OptIn(ExperimentalSerializationApi::class)
 
-package kotlinx.serialization.internal
+package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
-import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.math.*
 
@@ -30,6 +29,7 @@ import kotlin.math.*
  *  val plainJS: dynamic = DynamicObjectSerializer().serialize(DataWrapper.serializer(), wrapper)
  * ```
  */
+@OptIn(ExperimentalSerializationApi::class)
 internal class DynamicObjectSerializer(
     private val serializersModule: SerializersModule,
     private val configuration: JsonConf,
@@ -71,6 +71,7 @@ private class DynamicObjectEncoder(
         OBJ, MAP, LIST
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         current.index = index
         currentDescriptor = descriptor
@@ -105,6 +106,7 @@ private class DynamicObjectEncoder(
         }
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
         encodeValue(enumDescriptor.getElementName(index))
     }
@@ -159,6 +161,7 @@ private class DynamicObjectEncoder(
         currentElementIsMapKey = false
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun beginStructure(
         descriptor: SerialDescriptor,
         vararg typeSerializers: KSerializer<*>
