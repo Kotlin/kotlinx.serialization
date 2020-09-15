@@ -72,6 +72,7 @@ class JsonTest {
 
     @Test
     fun testPolymorphicForGenericUpperBound() {
+        if (Platform.name == "JS") return // Does not work with JS IR, see #1072
         val generic = GenericMessage<Message, Any>(MessageWithId(42, "body"), "body2")
         val serial = GenericMessage.serializer(Message.serializer(), Int.serializer() as KSerializer<Any>)
         val json = Json {
