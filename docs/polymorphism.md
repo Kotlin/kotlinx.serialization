@@ -317,6 +317,9 @@ the [Sealed classes](#sealed-classes) section, but here subclasses can be spread
 ```                  
 
 <!--- TEST -->
+>Please note that this example works only on JVM because of `serializer` function restrictions.
+>For JS and Native, explicit serializer should be used: `format.encodeToString(PolymorphicSerializer(Project::class), data)`
+>You can keep track of this issue [here](https://github.com/Kotlin/kotlinx.serialization/issues/1077).
 
 ### Serializing interfaces 
 

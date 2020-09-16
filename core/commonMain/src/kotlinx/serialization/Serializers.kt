@@ -35,7 +35,7 @@ public inline fun <reified T> SerializersModule.serializer(): KSerializer<T> {
  */
 @OptIn(ExperimentalSerializationApi::class)
 public fun serializer(type: KType): KSerializer<Any?> {
-    val result = EmptySerializersModule.serializerByKTypeImpl(type) ?: type.kclass().serializerNotRegistered()
+    val result = EmptySerializersModule.serializerByKTypeImpl(type) ?: type.kclass().platformSpecificSerializerNotRegistered()
     return result.nullable(type.isMarkedNullable)
 }
 
@@ -53,7 +53,7 @@ public fun SerializersModule.serializer(type: KType): KSerializer<Any?> {
         return builtin.nullable(isNullable).cast()
     }
 
-    return getContextual(kclass)?.nullable(isNullable)?.cast() ?: type.kclass().serializerNotRegistered()
+    return getContextual(kclass)?.nullable(isNullable)?.cast() ?: type.kclass().platformSpecificSerializerNotRegistered()
 }
 
 @OptIn(ExperimentalSerializationApi::class)
