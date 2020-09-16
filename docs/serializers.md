@@ -884,7 +884,7 @@ class this serializer is defined for is fetched automatically via the `reified` 
 
 ```kotlin
 private val module = SerializersModule { 
-    contextual(DateAsLongSerializer)
+    contextual(Date::class, DateAsLongSerializer)
 }
 ``` 
 
