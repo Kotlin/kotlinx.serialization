@@ -322,7 +322,7 @@ the [Sealed classes](#sealed-classes) section, but here subclasses can be spread
 
 We can update the previous example and turn `Project` superclass into an interface. However, we cannot
 mark an interface itself as `@Serializable`. No problem. Interfaces cannot have instances by themselves.
-Interfaces can only be represented by instances of their derived classes. Interfaces are used in the Kolin language to enable polymorphism, 
+Interfaces can only be represented by instances of their derived classes. Interfaces are used in the Kotlin language to enable polymorphism, 
 so all interfaces are considered to be implicitly serializable with the [PolymorphicSerializer]
 strategy. We just need to mark thier implementing classes as `@Serializable` and register them. 
 
