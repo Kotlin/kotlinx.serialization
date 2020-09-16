@@ -14,7 +14,7 @@ import kotlin.reflect.*
  * This class provides support for retrieving a serializer in runtime, instead of using the one precompiled by the serialization plugin.
  * This serializer is enabled by [Contextual] or [UseContextualSerialization].
  *
- * Typical usage of ContextualSerializer would be a serialization of a class which does not have
+ * Typical usage of `ContextualSerializer` would be a serialization of a class which does not have
  * static serializer (e.g. Java class or class from 3rd party library);
  * or desire to override serialized class form in one dedicated output format.
  *
@@ -33,6 +33,10 @@ import kotlin.reflect.*
  * val json = Json { serializersModule = moduleForDate }
  * json.encodeToString(ClassWithDate("foo", Date())
  * ```
+ *
+ * If type of the property marked with `@Contextual` is `@Serializable` by itself, the plugin-generated serializer is
+ * used as a fallback if no serializers associated with a given type is registered in the module.
+ * The fallback serializer is determined by the static type of the property, not by its actual type.
  */
 @ExperimentalSerializationApi
 public class ContextualSerializer<T : Any>(
