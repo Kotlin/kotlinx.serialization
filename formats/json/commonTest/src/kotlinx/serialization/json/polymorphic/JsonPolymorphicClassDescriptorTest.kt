@@ -1,18 +1,18 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json.polymorphic
 
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonTestBase
-import kotlin.test.Test
+import kotlinx.serialization.json.*
+import kotlin.test.*
 
 class JsonPolymorphicClassDescriptorTest : JsonTestBase() {
 
     private val json = Json {
         classDiscriminator = "class"
         serializersModule = polymorphicTestModule
+        encodeDefaults = true
     }
 
     @Test

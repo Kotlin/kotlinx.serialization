@@ -7,12 +7,10 @@ package kotlinx.serialization.features
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.*
-import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
-import kotlinx.serialization.test.InternalHexConverter
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class ContextAndPolymorphicTest {
@@ -58,6 +56,7 @@ class ContextAndPolymorphicTest {
         val bPolymorphicModule = SerializersModule { polymorphic(Any::class) { subclass(PayloadSerializer) } }
         json = Json {
             useArrayPolymorphism = true
+            encodeDefaults = true
             serializersModule = scope + bPolymorphicModule
         }
     }
@@ -131,7 +130,7 @@ class ContextAndPolymorphicTest {
 
     @Test
     fun testContextualSerializerUsesDefaultIfModuleIsEmpty() {
-        val s = Json { useArrayPolymorphism = true }.encodeToString(EnhancedData.serializer(), value)
+        val s = Json { useArrayPolymorphism = true; encodeDefaults = true }.encodeToString(EnhancedData.serializer(), value)
         assertEquals("""{"data":{"a":100500,"b":42},"stringPayload":{"s":"string"},"binaryPayload":"62696E617279"}""", s)
     }
 }

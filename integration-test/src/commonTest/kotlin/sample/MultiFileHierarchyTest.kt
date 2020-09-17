@@ -30,7 +30,7 @@ class AbstractBaseTest {
 
     @Test
     fun testCrossModuleInheritance() {
-        val json = Json { allowStructuredMapKeys = true }
+        val json = Json { allowStructuredMapKeys = true; encodeDefaults = true }
 
         val car = Car()
         car.maxSpeed = 100
@@ -52,6 +52,7 @@ class AbstractBaseTest {
 
         val json = Json {
             serializersModule = snippetModule
+            encodeDefaults = true
         }
 
         val testSnippet = TestSnippet(emptyList())

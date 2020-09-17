@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("EqualsOrHashCode")
@@ -7,10 +7,9 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
-import kotlin.test.assertTrue
 
 @Serializable
 abstract class AbstractSerializable {
@@ -76,34 +75,36 @@ class Derived2(@SerialName("state2") override var state1: String): Base1(state1)
 }
 
 class InheritanceTest {
+    private val json = Json { encodeDefaults = true }
+
     @Test
     fun canBeSerializedAsDerived() {
         val derived = Derived(42)
-        val msg = Json.encodeToString(Derived.serializer(), derived)
+        val msg = json.encodeToString(Derived.serializer(), derived)
         assertEquals("""{"publicState":"A","privateState":"B","derivedState":42,"rootState":"foo"}""", msg)
-        val d2 = Json.decodeFromString(Derived.serializer(), msg)
+        val d2 = json.decodeFromString(Derived.serializer(), msg)
         assertEquals(derived, d2)
     }
 
     @Test
     fun canBeSerializedAsParent() {
         val derived = Derived(42)
-        val msg = Json.encodeToString(SerializableBase.serializer(), derived)
+        val msg = json.encodeToString(SerializableBase.serializer(), derived)
         assertEquals("""{"publicState":"A","privateState":"B"}""", msg)
-        val d2 = Json.decodeFromString(SerializableBase.serializer(), msg)
+        val d2 = json.decodeFromString(SerializableBase.serializer(), msg)
         assertEquals(SerializableBase(), d2)
         // no derivedState
-        assertFailsWithMissingField { Json.decodeFromString(Derived.serializer(), msg) }
+        assertFailsWithMissingField { json.decodeFromString(Derived.serializer(), msg) }
     }
 
     @Test
     fun testWithOpenProperty() {
         val d = Derived2("foo")
-        val msgFull = Json.encodeToString(Derived2.serializer(), d)
+        val msgFull = json.encodeToString(Derived2.serializer(), d)
         assertEquals("""{"state1":"foo","state2":"foo"}""", msgFull)
-        assertEquals("""{"state1":"foo"}""", Json.encodeToString(Base1.serializer(), d))
-        val restored = Json.decodeFromString(Derived2.serializer(), msgFull)
-        val restored2 = Json.decodeFromString(Derived2.serializer(), """{"state1":"bar","state2":"foo"}""") // state1 is ignored anyway
+        assertEquals("""{"state1":"foo"}""", json.encodeToString(Base1.serializer(), d))
+        val restored = json.decodeFromString(Derived2.serializer(), msgFull)
+        val restored2 = json.decodeFromString(Derived2.serializer(), """{"state1":"bar","state2":"foo"}""") // state1 is ignored anyway
         assertEquals("""Derived2(state1='foo')""", restored.toString())
         assertEquals("""Derived2(state1='foo')""", restored2.toString())
     }

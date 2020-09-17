@@ -6,11 +6,9 @@
 
 package kotlinx.serialization.features
 
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
-import kotlinx.serialization.json.Json
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+import kotlin.test.*
 
 @Serializable
 data class Carrier2(
@@ -25,7 +23,10 @@ data class Carrier2(
 class UseSerializersTest {
     @Test
     fun testOnFile() {
-        val str = Json.encodeToString(Carrier2.serializer(), Carrier2(IntHolder(42), 2, 2, IntHolder(42)))
+        val str = Json { encodeDefaults = true }.encodeToString(
+            Carrier2.serializer(),
+            Carrier2(IntHolder(42), 2, 2, IntHolder(42))
+        )
         assertEquals("""{"a":84,"i":4,"nullable":4,"nullableIntHolder":84,"nullableIntList":[],"nullableIntHolderNullableList":null}""", str)
     }
 }

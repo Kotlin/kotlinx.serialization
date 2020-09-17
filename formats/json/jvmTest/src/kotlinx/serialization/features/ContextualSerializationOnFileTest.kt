@@ -12,7 +12,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.test.*
-import kotlinx.serialization.modules.*
 
 @Serializable
 data class Carrier3(
@@ -29,7 +28,7 @@ class ContextualSerializationOnFileTest {
         contextual(DividingIntSerializer)
         contextual(MultiplyingIntHolderSerializer)
     }
-    val json = Json { serializersModule = module }
+    val json = Json { serializersModule = module; encodeDefaults = true }
 
     @Test
     fun testOnFile() {
