@@ -29,6 +29,7 @@ In this chapter we'll walk through various [Json] features.
   * [Manipulating default values](#manipulating-default-values)
   * [Content-based polymorphic deserialization](#content-based-polymorphic-deserialization)
   * [Under the hood (experimental)](#under-the-hood-experimental)
+  * [Maintaining custom JSON attributes](#maintaining-custom-json-attributes)
 
 <!--- END -->
 
@@ -809,6 +810,68 @@ This gives us fine-grained control on the representation of the `Response` class
 [{"name":"kotlinx.serialization"},{"error":"Not found"}]
 [Ok(data=Project(name=kotlinx.serialization)), Error(message=Not found)]
 ```     
+
+<!--- TEST -->
+
+### Maintaining custom JSON attributes  
+  
+A good example of custom JSON-specific serializer would be a deserializer 
+that packs all unknown JSON properties into a dedicated field of `JsonObject` type.  
+
+Let us add `UnknownProject` &ndash; class with basic `name` property and arbitrary details flattened into the same object:
+
+<!--- INCLUDE
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
+-->
+
+```kotlin
+data class UnknownProject(val name: String, val details: JsonObject)
+```
+
+However, the default plugin-generated serializer requires details 
+to be a separate JSON object and that's not what we want.
+
+To mitigate that, we can write our own serializer that leverages the fact that it can only be used with `Json` format
+
+```kotlin
+object UnknownProjectSerializer : KSerializer<UnknownProject> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("UnknownProject") {
+        element<String>("name")
+        element<JsonElement>("details")
+    }
+
+    override fun deserialize(decoder: Decoder): UnknownProject {
+        // Cast to JSON-specific interface
+        val jsonInput = decoder as? JsonDecoder ?: error("Can be deserialized only by JSON")
+        // Read the whole content as JSON
+        val json = jsonInput.decodeJsonElement().jsonObject
+        // Extract and remove name property
+        val name = json.getValue("name").jsonPrimitive.content
+        val details = json.toMutableMap()
+        details.remove("name")
+        return UnknownProject(name, JsonObject(details))
+    }
+
+    override fun serialize(encoder: Encoder, value: UnknownProject) {
+        error("Serialization is not supported")
+    }
+}
+```
+  
+Now it can be used to read flattened JSON details as `UnknownProject`.
+
+```kotlin
+fun main() {
+    println(Json.decodeFromString(UnknownProjectSerializer, """{"type":"unknown","name":"example","maintainer":"Unknown","license":"Apache 2.0"}"""))
+}
+```  
+
+> You can get the full code [here](../guide/example/example-json-18.kt).
+
+```text
+UnknownProject(name=example, details={"type":"unknown","maintainer":"Unknown","license":"Apache 2.0"})
+```
 
 <!--- TEST -->
 

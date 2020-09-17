@@ -855,6 +855,11 @@ Notice, how `BasicProject` had also captured the specified type key in its `type
 
 <!--- TEST -->
 
+We used a plugin-generated serializer as a default serializer, implying that 
+the structure of the "unknown" data is known in advance. In a real-world API it's rarely the case.
+For that purpose a custom, less-structured serializer is needed. You will see the example of such serializer in the future section
+on [Maintaining custom JSON attributes](json.md#maintaining-custom-json-attributes).
+
 ---
 
 The next chapter covers [JSON features](json.md).
