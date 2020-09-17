@@ -24,6 +24,14 @@ internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KCl
 
 internal actual fun Any.isInstanceOf(kclass: KClass<*>): Boolean = kclass.isInstance(this)
 
+internal actual fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing {
+    throw SerializationException(
+        "Serializer for class '${simpleName}' is not found.\n" +
+                "Mark the class as @Serializable or provide the serializer explicitly.\n" +
+                "On Kotlin/JS explicitly declared serializer should be used for interfaces and enums without @Serializable annotation"
+    )
+}
+
 @Suppress("UNCHECKED_CAST", "DEPRECATION_ERROR")
 @OptIn(ExperimentalAssociatedObjects::class)
 internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {

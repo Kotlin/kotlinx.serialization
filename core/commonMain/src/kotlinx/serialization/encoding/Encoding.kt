@@ -83,6 +83,11 @@ import kotlinx.serialization.modules.*
  * machinery could be completely different.
  * In any case, all these parsing details are encapsulated by an encoder.
  *
+ * ### Exception safety
+ *
+ * In general, catching [SerializationException] from any of `encode*` methods is not allowed and produces unspecified behaviour.
+ * After thrown exception, current encoder is left in an arbitrary state, no longer suitable for further encoding.
+ *
  * ### Encoder implementation.
  *
  * While being strictly typed, an underlying format can transform actual types in the way it wants.

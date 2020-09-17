@@ -35,7 +35,7 @@ public inline fun <reified T> SerializersModule.serializer(): KSerializer<T> {
  */
 @OptIn(ExperimentalSerializationApi::class)
 public fun serializer(type: KType): KSerializer<Any?> {
-    val result = EmptySerializersModule.serializerByKTypeImpl(type) ?: type.kclass().serializerNotRegistered()
+    val result = EmptySerializersModule.serializerByKTypeImpl(type) ?: type.kclass().platformSpecificSerializerNotRegistered()
     return result.nullable(type.isMarkedNullable)
 }
 
@@ -53,7 +53,7 @@ public fun SerializersModule.serializer(type: KType): KSerializer<Any?> {
         return builtin.nullable(isNullable).cast()
     }
 
-    return getContextual(kclass)?.nullable(isNullable)?.cast() ?: type.kclass().serializerNotRegistered()
+    return getContextual(kclass)?.nullable(isNullable)?.cast() ?: type.kclass().platformSpecificSerializerNotRegistered()
 }
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -102,13 +102,24 @@ private fun SerializersModule.builtinSerializerOrNull(
 /**
  * Retrieves a [KSerializer] for the given [KClass].
  * The given class must be annotated with [Serializable] or be one of the built-in types.
- * It is not recommended to use this method for anything, but last-ditch resort, e.g.
+ *
+ * This method uses platform-specific reflection available for the given erased `KClass`
+ * and is not recommended to use this method for anything, but last-ditch resort, e.g.
  * when all type info is lost, your application has crashed and it is the final attempt to log or send some serializable data.
  *
  * The recommended way to retrieve the serializer is inline [serializer] function and [`serializer(KType)`][serializer]
  *
  * This API is not guaranteed to work consistent across different platforms or
- * to work in cases that slightly differ from "plain @Serializable class".
+ * to work in cases that slightly differ from "plain @Serializable class" and have platform and reflection specific limitations.
+ *
+ * ### Constraints
+ * This paragraph explains known (but not all!) constraints of the `serializer()` implementation.
+ * Please note that they are not bugs, but implementation restrictions that we cannot workaround.
+ *
+ * * This method may behave differently on JVM, JS and Native because of runtime reflection differences
+ * * Serializers for classes with generic parameters are ignored by this method
+ * * External serializers generated with `Serializer(forClass = )` are not lookuped consistently
+ * * Serializers for classes with named companion objects  are not lookuped consistently
  *
  * @throws SerializationException if serializer can't be found.
  */
@@ -118,11 +129,21 @@ public fun <T : Any> KClass<T>.serializer(): KSerializer<T> = serializerOrNull()
 /**
  * Retrieves a [KSerializer] for the given [KClass] or returns `null` if none is found.
  * The given class must be annotated with [Serializable] or be one of the built-in types.
- * It is not recommended to use this method for anything, but last-ditch resort, e.g.
+ * This method uses platform-specific reflection available for the given erased `KClass`
+ * and it is not recommended to use this method for anything, but last-ditch resort, e.g.
  * when all type info is lost, your application has crashed and it is the final attempt to log or send some serializable data.
  *
  * This API is not guaranteed to work consistent across different platforms or
  * to work in cases that slightly differ from "plain @Serializable class".
+ *
+ * ### Constraints
+ * This paragraph explains known (but not all!) constraints of the `serializer()` implementation.
+ * Please note that they are not bugs, but implementation restrictions that we cannot workaround.
+ *
+ * * This method may behave differently on JVM, JS and Native because of runtime reflection differences
+ * * Serializers for classes with generic parameters are ignored by this method
+ * * External serializers generated with `Serializer(forClass = )` are not lookuped consistently
+ * * Serializers for classes with named companion objects  are not lookuped consistently
  */
 @InternalSerializationApi
 public fun <T : Any> KClass<T>.serializerOrNull(): KSerializer<T>? =

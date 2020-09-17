@@ -107,6 +107,8 @@ internal fun KClass<*>.serializerNotRegistered(): Nothing {
     )
 }
 
+internal expect fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing
+
 @Suppress("UNCHECKED_CAST")
 internal fun KType.kclass() = when (val t = classifier) {
     is KClass<*> -> t

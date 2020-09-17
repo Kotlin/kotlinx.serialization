@@ -17,6 +17,14 @@ internal actual inline fun BooleanArray.getChecked(index: Int): Boolean {
     return get(index)
 }
 
+internal actual fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing {
+    throw SerializationException(
+        "Serializer for class '${simpleName}' is not found.\n" +
+                "Mark the class as @Serializable or provide the serializer explicitly.\n" +
+                "On Kotlin/Native explicitly declared serializer should be used for interfaces and enums without @Serializable annotation"
+    )
+}
+
 @Suppress(
     "UNCHECKED_CAST",
     "DEPRECATION_ERROR"

@@ -26,6 +26,8 @@ internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>
 internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E> =
     toArray(java.lang.reflect.Array.newInstance(eClass.java, size) as Array<E>)
 
+internal actual fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing = serializerNotRegistered()
+
 @Suppress("UNCHECKED_CAST")
 internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
     val jClass = this.java

@@ -79,6 +79,11 @@ import kotlinx.serialization.builtins.*
  * }
  * ```
  *
+ * ### Exception safety
+ *
+ * In general, catching [SerializationException] from any of `decode*` methods is not allowed and produces unspecified behaviour.
+ * After thrown exception, current decoder is left in an arbitrary state, no longer suitable for further decoding.
+ *
  * This deserializer does not know anything about the underlying data and will work with any properly-implemented decoder.
  * JSON, for example, parses an opening bracket `{` during the `beginStructure` call, checks that the next key
  * after this bracket is `stringValue` (using the descriptor), returns the value after the colon as string value
