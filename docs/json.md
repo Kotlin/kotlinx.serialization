@@ -29,7 +29,7 @@ In this chapter we'll walk through various [Json] features.
   * [Manipulating default values](#manipulating-default-values)
   * [Content-based polymorphic deserialization](#content-based-polymorphic-deserialization)
   * [Under the hood (experimental)](#under-the-hood-experimental)
-  * [Maintaining JSON custom attributes](#maintaining-json-custom-attributes)
+  * [Maintaining custom JSON attributes](#maintaining-custom-json-attributes)
 
 <!--- END -->
 
@@ -813,12 +813,12 @@ This gives us fine-grained control on the representation of the `Response` class
 
 <!--- TEST -->
 
-### Maintaining JSON custom attributes  
+### Maintaining custom JSON attributes  
   
 A good example of custom JSON-specific serializer would be a deserializer 
 that packs all unknown JSON properties into a dedicated field of `JsonObject` type.  
 
-Let us add `UnknownProject` -- class with basic `name` property and arbitrary details flattened into the same object:
+Let us add `UnknownProject` &ndash; class with basic `name` property and arbitrary details flattened into the same object:
 
 <!--- INCLUDE
 import kotlinx.serialization.descriptors.*
@@ -859,7 +859,8 @@ object UnknownProjectSerializer : KSerializer<UnknownProject> {
 }
 ```
   
-Now it can be used to read the flatten JSON details as `UnknownProject`
+Now it can be used to read flattened JSON details as `UnknownProject`.
+
 ```kotlin
 fun main() {
     println(Json.decodeFromString(UnknownProjectSerializer, """{"type":"unknown","name":"example","maintainer":"Unknown","license":"Apache 2.0"}"""))
