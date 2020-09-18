@@ -6,7 +6,7 @@ Note that content of this document is applicable only for JVM platform,
 since Kotlin/Native and Kotlin/JS are experimental themselves and currently do not impose any backward-compatibility guarantees.
 
 - [Core library compatibility](#core-library-compatibility)
-  * [General (Stable) API](#general-stable-api)
+  * [General (Stable) API](#stable-api)
   * [Experimental API](#experimental-api)
   * [Internal API](#internal-api)
 - [Compatibility with Kotlin compiler plugin](#compatibility-with-kotlin-compiler-plugin)
@@ -70,7 +70,7 @@ In such a case, please create an issue on GitHub in order for us to understand a
 
 `kotlinx.serialization` also has the compiler plugin, that generates code depending on the core library.
 Therefore, the compiler plugin should be compatible with the runtime library to work.
-Kotlin & `kotlinx.serialization` plugin 1.4.0 are compatible with 1.0.0 runtime library.
+Kotlin & `kotlinx.serialization` plugin 1.4.0/1.4.10 are compatible with 1.0.0 runtime library.
 
 For further updates, we have the following policy:
 
