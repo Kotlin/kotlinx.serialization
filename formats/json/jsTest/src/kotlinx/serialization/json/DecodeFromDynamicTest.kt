@@ -12,7 +12,7 @@ import kotlinx.serialization.test.*
 import kotlin.test.*
 import kotlin.test.assertFailsWith
 
-class DynamicParserTest {
+class DecodeFromDynamicTest {
     @Serializable
     data class Data(val a: Int)
 
@@ -33,6 +33,9 @@ class DynamicParserTest {
 
     @Serializable
     data class ComplexMapWrapper(val m: Map<String, Data>)
+
+    @Serializable
+    data class IntMapWrapper(val m: Map<Int, Int>)
 
     @Serializable
     data class WithChar(val a: Char)
@@ -173,16 +176,23 @@ class DynamicParserTest {
 
     @Test
     fun testFunnyMap() {
-        val dyn = js("({m : {\"a\": 'b', \"b\" : 'a'}})")
+        val dyn = js("({m: {\"a\": 'b', \"b\" : 'a'}})")
         val m = NonTrivialMap(mapOf("a" to 'b', "b" to 'a'))
         assertEquals(m, Json.decodeFromDynamic(NonTrivialMap.serializer(), dyn))
     }
 
     @Test
     fun dynamicMapComplexTest() {
-        val dyn = js("({m : {1: {a: 42}, 2: {a: 43}}})")
+        val dyn = js("({m: {1: {a: 42}, 2: {a: 43}}})")
         val m = ComplexMapWrapper(mapOf("1" to Data(42), "2" to Data(43)))
         assertEquals(m, Json.decodeFromDynamic(ComplexMapWrapper.serializer(), dyn))
+    }
+
+    @Test
+    fun testIntMapTest() {
+        val dyn = js("({m: {1: 2, 3: 4}})")
+        val m = IntMapWrapper(mapOf(1 to 2, 3 to 4))
+        assertEquals(m, Json.decodeFromDynamic(IntMapWrapper.serializer(), dyn))
     }
 
     @Test

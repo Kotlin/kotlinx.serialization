@@ -5,7 +5,8 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.json.*
-import kotlinx.serialization.json.internal.DynamicObjectParser
+import kotlinx.serialization.json.decodeFromDynamic as dfd
+import kotlinx.serialization.json.encodeToDynamic as etd
 import kotlinx.serialization.json.internal.DynamicObjectSerializer
 import kotlinx.serialization.modules.*
 import kotlin.internal.*
@@ -62,7 +63,7 @@ internal fun noImpl(): Nothing = throw UnsupportedOperationException("Not implem
 )
 @LowPriorityInOverloadResolution
 public fun <T> Json.decodeFromDynamic(deserializer: DeserializationStrategy<T>, dynamic: dynamic): T {
-    return DynamicObjectParser(serializersModule, configuration).parse(dynamic, deserializer)
+    return Json.dfd(deserializer, dynamic)
 }
 
 @Deprecated(
@@ -72,7 +73,7 @@ public fun <T> Json.decodeFromDynamic(deserializer: DeserializationStrategy<T>, 
 )
 @LowPriorityInOverloadResolution
 public inline fun <reified T> Json.decodeFromDynamic(dynamic: dynamic): T =
-    decodeFromDynamic(serializersModule.serializer(), dynamic)
+    dfd(serializersModule.serializer(), dynamic)
 
 @Deprecated(
     "encodeToDynamic was moved to kotlinx.serialization.json package",
@@ -91,4 +92,4 @@ public fun <T> Json.encodeToDynamic(serializer: SerializationStrategy<T>, value:
 )
 @LowPriorityInOverloadResolution
 public inline fun <reified T> Json.encodeToDynamic(value: T): dynamic =
-    encodeToDynamic(serializersModule.serializer(), value)
+    etd(serializersModule.serializer(), value)
