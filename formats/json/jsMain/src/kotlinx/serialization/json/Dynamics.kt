@@ -7,7 +7,6 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.internal.*
-import kotlinx.serialization.json.internal.DynamicObjectSerializer
 
 /**
  * Converts native JavaScript objects into Kotlin ones, verifying their types.
@@ -64,9 +63,7 @@ public inline fun <reified T> Json.decodeFromDynamic(dynamic: dynamic): T =
  * ```
  */
 @ExperimentalSerializationApi
-public fun <T> Json.encodeToDynamic(serializer: SerializationStrategy<T>, value: T): dynamic {
-    return DynamicObjectSerializer(serializersModule, configuration, false).serialize(serializer, value)
-}
+public fun <T> Json.encodeToDynamic(serializer: SerializationStrategy<T>, value: T): dynamic = encodeDynamic(serializer, value)
 
 /**
  * A reified version of [encodeToDynamic].

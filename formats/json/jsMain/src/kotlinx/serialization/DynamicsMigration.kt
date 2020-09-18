@@ -7,7 +7,6 @@ package kotlinx.serialization
 import kotlinx.serialization.json.*
 import kotlinx.serialization.json.decodeFromDynamic as dfd
 import kotlinx.serialization.json.encodeToDynamic as etd
-import kotlinx.serialization.json.internal.DynamicObjectSerializer
 import kotlinx.serialization.modules.*
 import kotlin.internal.*
 
@@ -82,7 +81,7 @@ public inline fun <reified T> Json.decodeFromDynamic(dynamic: dynamic): T =
 )
 @LowPriorityInOverloadResolution
 public fun <T> Json.encodeToDynamic(serializer: SerializationStrategy<T>, value: T): dynamic {
-    return DynamicObjectSerializer(serializersModule, configuration, false).serialize(serializer, value)
+    return etd(serializer, value)
 }
 
 @Deprecated(

@@ -4,13 +4,8 @@
 
 package kotlinx.serialization.json
 
-import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.encoding.*
 import kotlinx.serialization.*
-import kotlinx.serialization.modules.*
-import kotlinx.serialization.test.*
 import kotlin.test.*
-import kotlin.test.assertFailsWith
 
 class DecodeFromDynamicSpecialCasesTest {
 
@@ -57,7 +52,7 @@ class DecodeFromDynamicSpecialCasesTest {
     fun testDoubleMap()  = testMapWithPrimitiveKey(1.0, 2.0)
 
     @Test
-    fun testFloatMap()  = testMapWithPrimitiveKey(1.0f, 2.0f)
+    fun testFloatMap() = testMapWithPrimitiveKey(1.0f, 2.0f)
 
     private inline fun <reified T> testMapWithPrimitiveKey(k1: T, k2: T) {
         val map = mapOf(k1 to 3, k2 to 4)
@@ -66,5 +61,55 @@ class DecodeFromDynamicSpecialCasesTest {
         assertEquals(map, parsed)
     }
 
-    // TODO jsonElement, jsonObject, wrapped json element/object
+    @Test
+    fun testJsonPrimitive() {
+        testJsonElement<JsonPrimitive>(js("42"), JsonPrimitive(42))
+        testJsonElement<JsonElement>(js("42"), JsonPrimitive(42))
+    }
+
+    @Test
+    fun testJsonPrimitiveDouble() {
+        testJsonElement<JsonElement>(js("42.0"), JsonPrimitive(42.0))
+        testJsonElement<JsonPrimitive>(js("42.0"), JsonPrimitive(42.0))
+    }
+
+    @Test
+    fun testJsonStringPrimitive() {
+        testJsonElement<JsonElement>(js(""""42""""), JsonPrimitive("42"))
+        testJsonElement<JsonPrimitive>(js(""""42""""), JsonPrimitive("42"))
+    }
+
+    @Test
+    fun testJsonArray() {
+        testJsonElement<JsonElement>(js("[1,2,3]"), JsonArray((1..3).map(::JsonPrimitive)))
+        testJsonElement<JsonArray>(js("[1,2,3]"), JsonArray((1..3).map(::JsonPrimitive)))
+    }
+
+    @Test
+    fun testJsonObject() {
+        testJsonElement<JsonElement>(
+            js("""{1:2,"3":4}"""),
+            JsonObject(mapOf("1" to JsonPrimitive(2), "3" to JsonPrimitive(4)))
+        )
+        testJsonElement<JsonObject>(
+            js("""{1:2,"3":4}"""),
+            JsonObject(mapOf("1" to JsonPrimitive(2), "3" to JsonPrimitive(4)))
+        )
+    }
+
+    private inline fun <reified T : JsonElement> testJsonElement(js: dynamic, expected: JsonElement) {
+        val parsed = Json.decodeFromDynamic<T>(js)
+        assertEquals(expected, parsed)
+    }
+
+    @Serializable
+    data class Wrapper(val e: JsonElement, val p: JsonPrimitive, val o: JsonObject, val a: JsonArray)
+
+    @Test
+    fun testJsonElementWrapper() {
+        val js = js("""{"e":42,"p":"239", "o":{"k":"v"}, "a":[1, 2, 3]}""")
+        val parsed = Json.decodeFromDynamic<Wrapper>(js)
+        val expected = Wrapper(JsonPrimitive(42), JsonPrimitive("239"), buildJsonObject { put("k", "v") }, JsonArray((1..3).map(::JsonPrimitive)))
+        assertEquals(expected, parsed)
+    }
 }

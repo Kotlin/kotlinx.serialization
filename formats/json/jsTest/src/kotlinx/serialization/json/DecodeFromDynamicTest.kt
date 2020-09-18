@@ -197,10 +197,10 @@ class DecodeFromDynamicTest {
 
     @Test
     fun parseWithCustomSerializers() {
-        val deserializer = Json { serializersModule = serializersModuleOf(NotDefault::class, NDSerializer) }
+        val json = Json { serializersModule = serializersModuleOf(NotDefault::class, NDSerializer) }
         val dyn1 = js("({data: 42})")
         assertEquals(NDWrapper(NotDefault(42)),
-            deserializer.decodeFromDynamic(NDWrapper.serializer(), dyn1)
+            json.decodeFromDynamic(NDWrapper.serializer(), dyn1)
         )
     }
 

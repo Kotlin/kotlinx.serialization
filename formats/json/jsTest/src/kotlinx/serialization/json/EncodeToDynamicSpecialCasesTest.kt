@@ -47,6 +47,46 @@ class EncodeToDynamicSpecialCasesTest {
     @Test
     fun testFloatMap()  = assertDynamicForm(mapOf(1.0f to 2, 3.0f to 4))
 
+    @Test
+    fun testJsonPrimitive() {
+        assertDynamicForm(JsonPrimitive(42))
+        assertDynamicForm<JsonElement>(JsonPrimitive(42))
+    }
 
-    // TODO jsonElement, jsonObject, wrapped json element/object
+    @Test
+    fun testJsonPrimitiveDouble() {
+        assertDynamicForm<JsonElement>(JsonPrimitive(42.0))
+        assertDynamicForm<JsonPrimitive>(JsonPrimitive(42.0))
+    }
+
+    @Test
+    fun testJsonStringPrimitive() {
+        assertDynamicForm<JsonElement>(JsonPrimitive("42"))
+        assertDynamicForm<JsonPrimitive>(JsonPrimitive("42"))
+    }
+
+    @Test
+    fun testJsonArray() {
+        assertDynamicForm<JsonElement>(JsonArray((1..3).map(::JsonPrimitive)))
+        assertDynamicForm<JsonArray>(JsonArray((1..3).map(::JsonPrimitive)))
+    }
+
+    @Test
+    fun testJsonObject() {
+        assertDynamicForm<JsonElement>(
+            JsonObject(mapOf("1" to JsonPrimitive(2), "3" to JsonPrimitive(4)))
+        )
+        assertDynamicForm<JsonObject>(
+            JsonObject(mapOf("1" to JsonPrimitive(2), "3" to JsonPrimitive(4)))
+        )
+    }
+
+
+    @Serializable
+    data class Wrapper(val e: JsonElement, val p: JsonPrimitive, val o: JsonObject, val a: JsonArray)
+
+    @Test
+    fun testJsonElementWrapper() {
+        assertDynamicForm(Wrapper(JsonPrimitive(42), JsonPrimitive("239"), buildJsonObject { put("k", "v") }, JsonArray((1..3).map(::JsonPrimitive))))
+    }
 }
