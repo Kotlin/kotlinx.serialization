@@ -15,12 +15,30 @@ import kotlin.test.*
 
 
 @Suppress("UnsafeCastFromDynamic")
-class DynamicSerializerTest {
+class EncodeToDynamicTest {
     @Serializable
     data class Data(val a: Int)
 
     @Serializable
-    open class DataWrapper(open val s: String, val d: Data? = Data(1))
+    open class DataWrapper(open val s: String, val d: Data? = Data(1)) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class.js != other::class.js) return false
+
+            other as DataWrapper
+
+            if (s != other.s) return false
+            if (d != other.d) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = s.hashCode()
+            result = 31 * result + (d?.hashCode() ?: 0)
+            return result
+        }
+    }
 
     @Serializable
     data class NestedList(val a: String, val list: List<Int>)
@@ -65,7 +83,7 @@ class DynamicSerializerTest {
     class WithJsName(@JsName("b") val a: String)
 
     @Serializable
-    class WithSerialName(@SerialName("b") val a: String)
+    data class WithSerialName(@SerialName("b") val a: String)
 
     @Serializable
     enum class Color {
@@ -77,7 +95,7 @@ class DynamicSerializerTest {
     }
 
     @Serializable
-    class MyFancyClass(val value: String) {
+    data class MyFancyClass(val value: String) {
 
         @Serializer(forClass = MyFancyClass::class)
         companion object : KSerializer<MyFancyClass> {
@@ -91,21 +109,6 @@ class DynamicSerializerTest {
                 return MyFancyClass(decoder.decodeString().removePrefix("fancy "))
             }
         }
-    }
-
-    private inline fun <reified T : Any> assertDynamicForm(
-        data: T,
-        serializer: SerializationStrategy<T>? = null,
-        noinline assertions: ((T, dynamic) -> Unit)? = null
-    ) {
-        val effectiveSerializer = serializer ?: EmptySerializersModule.serializer<T>()
-        val serialized = Json.encodeToDynamic(effectiveSerializer, data)
-        assertions?.invoke(data, serialized)
-        assertEquals(
-            Json.encodeToString(effectiveSerializer, data),
-            JSON.stringify(serialized),
-            "JSON.stringify representation must be the same"
-        )
     }
 
     @Test
@@ -171,7 +174,7 @@ class DynamicSerializerTest {
 
     @Test
     fun arrayTest() {
-        assertDynamicForm(intArrayOf(1, 2, 3, 44), serializer = IntArraySerializer()) { data, serialized ->
+        assertDynamicForm(intArrayOf(1, 2, 3, 44), serializer = IntArraySerializer(), true) { data, serialized ->
             assertNotNull(serialized.length, "length property should exist")
             assertEquals(data.size, serialized.length)
 
@@ -223,7 +226,7 @@ class DynamicSerializerTest {
     @Test
     fun nestedCollections() {
         @Serializable
-        class NestedCollections(val data: Map<String, Map<String, List<Int>>>)
+        data class NestedCollections(val data: Map<String, Map<String, List<Int>>>)
 
         assertDynamicForm(
             NestedCollections(
@@ -368,7 +371,6 @@ class DynamicSerializerTest {
 
     @Test
     fun customSerializerTest() {
-
         assertDynamicForm(MyFancyClass("apple"), MyFancyClass.serializer()) { _, serialized ->
             assertEquals("fancy apple", serialized)
         }
@@ -380,4 +382,24 @@ class DynamicSerializerTest {
             assertNotNull(serialized["fancy apple"], "should contain key 'fancy apple'")
         }
     }
+}
+
+public inline fun <reified T : Any> assertDynamicForm(
+    data: T,
+    serializer: KSerializer<T> = EmptySerializersModule.serializer(),
+    skipEqualsCheck:Boolean = false,
+    noinline assertions: ((T, dynamic) -> Unit)? = null
+) {
+    val effectiveSerializer = serializer ?: EmptySerializersModule.serializer<T>()
+    val serialized = Json.encodeToDynamic(effectiveSerializer, data)
+    assertions?.invoke(data, serialized)
+    val string = Json.encodeToString(effectiveSerializer, data)
+    assertEquals(
+        string,
+        JSON.stringify(serialized),
+        "JSON.stringify representation must be the same"
+    )
+
+    if (skipEqualsCheck) return // arrays etc.
+    assertEquals(data, Json.decodeFromString<T>(effectiveSerializer, string))
 }

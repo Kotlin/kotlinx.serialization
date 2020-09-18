@@ -4,10 +4,10 @@
 
 package kotlinx.serialization.json
 
-import kotlinx.serialization.builtins.LongAsStringSerializer
-import kotlinx.serialization.json.internal.DynamicObjectParser
-import kotlinx.serialization.json.internal.DynamicObjectSerializer
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
+import kotlinx.serialization.json.internal.*
+import kotlinx.serialization.json.internal.DynamicObjectSerializer
 
 /**
  * Converts native JavaScript objects into Kotlin ones, verifying their types.
@@ -36,9 +36,7 @@ import kotlinx.serialization.*
  * ```
  */
 @ExperimentalSerializationApi
-public fun <T> Json.decodeFromDynamic(deserializer: DeserializationStrategy<T>, dynamic: dynamic): T {
-    return DynamicObjectParser(serializersModule, configuration).parse(dynamic, deserializer)
-}
+public fun <T> Json.decodeFromDynamic(deserializer: DeserializationStrategy<T>, dynamic: dynamic): T = decodeDynamic(deserializer, dynamic)
 
 /**
  * A reified version of [decodeFromDynamic].
