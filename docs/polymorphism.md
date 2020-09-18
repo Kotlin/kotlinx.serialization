@@ -209,8 +209,9 @@ sealed class Project {
 class OwnedProject(override val name: String, val owner: String) : Project()
 
 fun main() {
+    val json = Json { encodeDefaults = true } // "status" will be skipped otherwise
     val data: Project = OwnedProject("kotlinx.coroutines", "kotlin")
-    println(Json.encodeToString(data))
+    println(json.encodeToString(data))
 }  
 ```
 
