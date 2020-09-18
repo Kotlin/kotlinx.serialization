@@ -114,14 +114,14 @@ public annotation class Serializer(
  * ```
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.BINARY)
+// @Retention(AnnotationRetention.RUNTIME) still runtime, but KT-41082
 public annotation class SerialName(val value: String)
 
 /**
  * Indicates that property must be present during deserialization process, despite having a default value.
  */
 @Target(AnnotationTarget.PROPERTY)
-@Retention(AnnotationRetention.BINARY)
+// @Retention(AnnotationRetention.RUNTIME) still runtime, but KT-41082
 public annotation class Required
 
 /**
@@ -129,7 +129,7 @@ public annotation class Required
  * Transient properties should have default values.
  */
 @Target(AnnotationTarget.PROPERTY)
-@Retention(AnnotationRetention.BINARY)
+// @Retention(AnnotationRetention.RUNTIME) still runtime, but KT-41082
 public annotation class Transient
 
 /**
@@ -167,6 +167,7 @@ public annotation class ContextualSerialization(vararg val forClasses: KClass<*>
  * @see UseContextualSerialization
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE)
+@Retention(AnnotationRetention.BINARY)
 public annotation class Contextual
 
 /**
@@ -176,6 +177,7 @@ public annotation class Contextual
  * @see ContextSerializer
  */
 @Target(AnnotationTarget.FILE)
+@Retention(AnnotationRetention.BINARY)
 public annotation class UseContextualSerialization(vararg val forClasses: KClass<*>)
 
 /**
