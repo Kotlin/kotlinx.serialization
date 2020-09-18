@@ -8,6 +8,7 @@ package kotlinx.serialization.json.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.math.*
 
@@ -29,38 +30,35 @@ import kotlin.math.*
  *  val plainJS: dynamic = DynamicObjectSerializer().serialize(DataWrapper.serializer(), wrapper)
  * ```
  */
+@JsName("encodeToDynamic")
 @OptIn(ExperimentalSerializationApi::class)
-internal class DynamicObjectSerializer(
-    private val serializersModule: SerializersModule,
-    private val configuration: JsonConf,
-    private val encodeNullAsUndefined: Boolean
-) {
-
-    public fun <T> serialize(strategy: SerializationStrategy<T>, obj: T): dynamic {
-        if (strategy.descriptor.kind is PrimitiveKind || strategy.descriptor.kind is SerialKind.ENUM) {
-            val serializer = DynamicPrimitiveEncoder(serializersModule, configuration)
-            serializer.encodeSerializableValue(strategy, obj)
-            return serializer.result
-        }
-        val serializer = DynamicObjectEncoder(serializersModule, configuration, encodeNullAsUndefined)
-        serializer.encodeSerializableValue(strategy, obj)
-        return serializer.result
+internal fun <T> Json.encodeDynamic(serializer: SerializationStrategy<T>, value: T): dynamic {
+    if (serializer.descriptor.kind is PrimitiveKind || serializer.descriptor.kind is SerialKind.ENUM) {
+        val encoder = DynamicPrimitiveEncoder(this)
+        encoder.encodeSerializableValue(serializer, value)
+        return encoder.result
     }
+    val encoder = DynamicObjectEncoder(this, false)
+    encoder.encodeSerializableValue(serializer, value)
+    return encoder.result
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 private class DynamicObjectEncoder(
-    override val serializersModule: SerializersModule,
-    val configuration: JsonConf,
-    val encodeNullAsUndefined: Boolean
-) :
-    AbstractEncoder() {
-    private object NoOutputMark
+    override val json: Json,
+    private val encodeNullAsUndefined: Boolean
+) : AbstractEncoder(), JsonEncoder {
+
+    override val serializersModule: SerializersModule
+        get() = json.serializersModule
 
     var result: dynamic = NoOutputMark
-    lateinit var current: Node
-    var currentName: String? = null
-    lateinit var currentDescriptor: SerialDescriptor
-    var currentElementIsMapKey = false
+    private lateinit var current: Node
+    private var currentName: String? = null
+    private lateinit var currentDescriptor: SerialDescriptor
+    private var currentElementIsMapKey = false
+
+    private object NoOutputMark
 
     class Node(val writeMode: WriteMode, val jsObject: dynamic) {
         var index: Int = 0
@@ -71,7 +69,6 @@ private class DynamicObjectEncoder(
         OBJ, MAP, LIST
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         current.index = index
         currentDescriptor = descriptor
@@ -87,6 +84,8 @@ private class DynamicObjectEncoder(
     override fun encodeValue(value: Any) {
         if (currentElementIsMapKey) {
             currentName = value.toString()
+        } else if (isNotStructured()) {
+            result = value
         } else {
             current.jsObject[currentName] = value
         }
@@ -106,7 +105,6 @@ private class DynamicObjectEncoder(
         }
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
         encodeValue(enumDescriptor.getElementName(index))
     }
@@ -115,7 +113,7 @@ private class DynamicObjectEncoder(
         val asDouble = value.toDouble()
         val conversionHasLossOfPrecision = abs(asDouble) > MAX_SAFE_INTEGER
         // todo: shall it be driven by isLenient or another configuration key?
-        if (!configuration.isLenient && conversionHasLossOfPrecision) {
+        if (!json.configuration.isLenient && conversionHasLossOfPrecision) {
             throw IllegalArgumentException(
                 "$value can't be serialized to number due to a potential precision loss. " +
                         "Use the JsonConfiguration option isLenient to serialize anyway"
@@ -129,7 +127,6 @@ private class DynamicObjectEncoder(
         }
 
         encodeValue(asDouble)
-
     }
 
     override fun encodeFloat(value: Float) {
@@ -148,20 +145,26 @@ private class DynamicObjectEncoder(
         encodeValue(value)
     }
 
-    override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int) = configuration.encodeDefaults
+    override fun encodeJsonElement(element: JsonElement) {
+        encodeSerializableValue(JsonElementSerializer, element)
+    }
 
-    fun enterNode(jsObject: dynamic, writeMode: WriteMode) {
+    override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int) =
+        json.configuration.encodeDefaults
+
+    private fun enterNode(jsObject: dynamic, writeMode: WriteMode) {
         val child = Node(writeMode, jsObject)
         child.parent = current
         current = child
     }
 
-    fun exitNode() {
+    private fun exitNode() {
         current = current.parent
         currentElementIsMapKey = false
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
+    private fun isNotStructured() = result === NoOutputMark
+
     override fun beginStructure(
         descriptor: SerialDescriptor,
         vararg typeSerializers: KSerializer<*>
@@ -176,7 +179,6 @@ private class DynamicObjectEncoder(
 
         val newMode = selectMode(descriptor)
         if (result === NoOutputMark) {
-
             result = newChild(newMode)
             current = Node(newMode, result)
             current.parent = current
@@ -190,7 +192,7 @@ private class DynamicObjectEncoder(
         return this
     }
 
-    fun newChild(writeMode: WriteMode) = when (writeMode) {
+    private fun newChild(writeMode: WriteMode) = when (writeMode) {
         WriteMode.OBJ, WriteMode.MAP -> js(BEGIN_OBJ.toString() + END_OBJ)
         WriteMode.LIST -> js(BEGIN_LIST.toString() + END_LIST)
     }
@@ -212,9 +214,12 @@ private class DynamicObjectEncoder(
 }
 
 private class DynamicPrimitiveEncoder(
-    override val serializersModule: SerializersModule,
-    private val configuration: JsonConf
-) : AbstractEncoder() {
+    override val json: Json,
+) : AbstractEncoder(), JsonEncoder {
+
+    override val serializersModule: SerializersModule
+        get() = json.serializersModule
+
     var result: dynamic = null
 
     override fun encodeNull() {
@@ -224,7 +229,7 @@ private class DynamicPrimitiveEncoder(
     override fun encodeLong(value: Long) {
         val asDouble = value.toDouble()
         // todo: shall it be driven by isLenient or another configuration key?
-        if (!configuration.isLenient && abs(value) > MAX_SAFE_INTEGER) {
+        if (!json.configuration.isLenient && abs(value) > MAX_SAFE_INTEGER) {
             throw IllegalArgumentException(
                 "$value can't be deserialized to number due to a potential precision loss. " +
                         "Use the JsonConfiguration option isLenient to serialise anyway"
@@ -247,5 +252,9 @@ private class DynamicPrimitiveEncoder(
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
+    }
+
+    override fun encodeJsonElement(element: JsonElement) {
+        encodeSerializableValue(JsonElementSerializer, element)
     }
 }

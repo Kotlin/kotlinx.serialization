@@ -19,21 +19,51 @@ internal const val MAX_SAFE_INTEGER: Double = 9007199254740991.toDouble() // 2^5
 
 @JsName("decodeDynamic")
 internal fun <T> Json.decodeDynamic(deserializer: DeserializationStrategy<T>, dynamic: dynamic): T {
-    val input = when (val type = jsTypeOf(dynamic)) {
-        "boolean", "number", "string" -> PrimitiveDynamicInput(dynamic, serializersModule, configuration)
-        else -> DynamicInput(dynamic, serializersModule, configuration)
+    val input = when (jsTypeOf(dynamic)) {
+        "boolean", "number", "string" -> PrimitiveDynamicInput(dynamic, this)
+        else -> {
+            if (js("Array.isArray(dynamic)")) {
+                DynamicListInput(dynamic, this)
+            } else {
+                DynamicInput(dynamic, this)
+            }
+        }
     }
     return input.decodeSerializableValue(deserializer)
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-internal open class DynamicInput(
+private open class DynamicInput(
     protected val value: dynamic,
-    override val serializersModule: SerializersModule,
-    private val configuration: JsonConf
-) : NamedValueDecoder() {
+    override val json: Json
+) : NamedValueDecoder(), JsonDecoder {
+
+    override val serializersModule: SerializersModule
+        get() = json.serializersModule
 
     private var currentPosition = 0
+
+    @Suppress("DEPRECATION")
+    @Deprecated(updateModeDeprecated, level = DeprecationLevel.HIDDEN)
+    override val updateMode: UpdateMode
+        get() = UpdateMode.OVERWRITE
+
+    override fun decodeJsonElement(): JsonElement {
+        val tag = currentTagOrNull
+        if (tag != null) { // reading a nested value, not the current one
+            return json.decodeFromDynamic(JsonElement.serializer(), value[tag])
+        }
+
+        val keys: dynamic = js("Object").keys(value)
+        val size: Int = keys.length as Int
+        return buildJsonObject {
+            for (i in 0 until size) {
+                val key = keys[i]
+                val value = json.decodeDynamic(JsonElement.serializer(), value[key])
+                put(key.toString(), value)
+            }
+        }
+    }
 
     override fun composeName(parentName: String, childName: String): String = childName
 
@@ -91,28 +121,26 @@ internal open class DynamicInput(
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
-        val curObj = currentTagOrNull?.let { value[it] } ?: value
+        val currentValue = currentTagOrNull?.let { value[it] } ?: value
         val kind = when (descriptor.kind) {
             is PolymorphicKind -> {
-                if (configuration.useArrayPolymorphism) StructureKind.LIST
+                if (json.configuration.useArrayPolymorphism) StructureKind.LIST
                 else StructureKind.MAP
             }
             else -> descriptor.kind
         }
         return when (kind) {
-            StructureKind.LIST -> DynamicListInput(curObj, serializersModule, configuration)
-            StructureKind.MAP -> DynamicMapInput(curObj, serializersModule, configuration)
-            else -> DynamicInput(curObj, serializersModule, configuration)
+            StructureKind.LIST -> DynamicListInput(currentValue, json)
+            StructureKind.MAP -> DynamicMapInput(currentValue, json)
+            else -> DynamicInput(currentValue, json)
         }
     }
 }
 
 private class DynamicMapInput(
     value: dynamic,
-    serializersModule: SerializersModule,
-    configuration: JsonConf
-) : DynamicInput(value, serializersModule, configuration) {
-
+    json: Json,
+) : DynamicInput(value, json) {
     private val keys: dynamic = js("Object").keys(value)
     private val size: Int = (keys.length as Int) * 2
     private var currentPosition = -1
@@ -142,10 +170,9 @@ private class DynamicMapInput(
     override fun decodeTaggedInt(tag: String): Int =
         decodeMapKey(tag, "int", { super.decodeTaggedInt(tag) }, { toIntOrNull() })
 
-    override fun decodeTaggedLong(tag: String): Long = decodeMapKey(tag, "long", { super.decodeTaggedLong(tag) }, {
+    override fun decodeTaggedLong(tag: String): Long = decodeMapKey(tag, "long", { super.decodeTaggedLong(tag) }) {
         toJavascriptLong(toDoubleOrNull() ?: throwIllegalKeyType(tag, this, "long"))
     }
-    )
 
     override fun decodeTaggedFloat(tag: String): Float =
         decodeMapKey(tag, "float", { super.decodeTaggedFloat(tag) }, { toFloatOrNull() })
@@ -183,9 +210,8 @@ private class DynamicMapInput(
 
 private class DynamicListInput(
     value: dynamic,
-    serializersModule: SerializersModule,
-    configuration: JsonConf
-) : DynamicInput(value, serializersModule, configuration) {
+    json: Json,
+) : DynamicInput(value, json) {
     private val size = value.length as Int
     private var currentPosition = -1
 
@@ -198,16 +224,42 @@ private class DynamicListInput(
         }
         return CompositeDecoder.DECODE_DONE
     }
+
+    override fun decodeJsonElement(): JsonElement {
+        val tag = currentTagOrNull
+        if (tag != null) { // reading a nested value, not the current one
+            return json.decodeFromDynamic(JsonElement.serializer(), value[tag])
+        }
+        return buildJsonArray {
+            for (i in 0 until size) {
+                add(json.decodeFromDynamic(JsonElement.serializer(), value[i]))
+            }
+        }
+    }
 }
 
 private class PrimitiveDynamicInput(
     value: dynamic,
-    serializersModule: SerializersModule,
-    configuration: JsonConf
-) : DynamicInput(value, serializersModule, configuration) {
+    json: Json,
+) : DynamicInput(value, json) {
     init {
         pushTag("primitive")
     }
 
     override fun getByTag(tag: String): dynamic = value
+
+    override fun decodeJsonElement(): JsonElement {
+        val str = value.toString()
+        return when (jsTypeOf(value)) {
+            "boolean" -> JsonPrimitive(str.toBoolean())
+            "number" -> {
+                val l = str.toLongOrNull()
+                if (l != null) return JsonPrimitive(l)
+                val d = str.toDoubleOrNull()
+                if (d != null) return JsonPrimitive(d)
+                return JsonPrimitive(str)
+            }
+            else -> JsonPrimitive(str)
+        }
+    }
 }
