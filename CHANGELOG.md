@@ -19,7 +19,7 @@ as the transitive dependency.
 For most use-cases, you should use new `kotlinx-serialization-json` artifact. Use `kotlinx-serialization-core` if you are
 writing a library that depends on kotlinx.serialization in a format-agnostic way of provides its own serial format.
 
-* `Json.encodeDefaults` flag is now set to `false` in the default configuration
+* `encodeDefaults` flag is now set to `false` in the default configuration for JSON, CBOR and Protocol Buffers.
 
 The change is motivated by the fact that in most real-life scenarios, this flag is set to `false` anyway,
 because such configuration reduces visual clutter and saves amount of data being serialized. 
@@ -27,7 +27,7 @@ Other libraries, like GSON and Moshi, also have this behavior by default.
 
 This may change how your serialized data looks like, if you have not set value for `encodeDefaults` flag explicitly.
 We anticipate that most users already had done this, so no migration is required.
-In case you need to return to the old behavior, simply add `encodeDefaults = true` to your configuration while creating `Json` object.
+In case you need to return to the old behavior, simply add `encodeDefaults = true` to your configuration while creating `Json/Cbor/ProtoBuf` object.
 
 * Move `Json.encodeToDynamic/Json.decodeFromDynamic` functions to json package
 
