@@ -334,7 +334,7 @@ unstructured data that it does not readily fit into the typesafe world of Kotlin
 
 ### Parsing to Json element
 
-A string can _parsed_ into an instance of [JsonElement] with the [Json.parseToJsonElement] function.
+A string can be _parsed_ into an instance of [JsonElement] with the [Json.parseToJsonElement] function.
 It is called neither decoding nor deserialization, because none of that happens in the process. 
 Only JSON parser is being used here.  
 
