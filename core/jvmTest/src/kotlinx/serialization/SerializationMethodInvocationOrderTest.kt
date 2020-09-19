@@ -6,6 +6,7 @@ package kotlinx.serialization
 
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.modules.*
 import org.junit.Test
 import kotlin.test.*
 
@@ -41,6 +42,8 @@ class SerializationMethodInvocationOrderTest {
 
     class Out : AbstractEncoder() {
         var step = 0
+
+        override val serializersModule: SerializersModule = EmptySerializersModule
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
             when (step) {
@@ -111,6 +114,8 @@ class SerializationMethodInvocationOrderTest {
 
     class Inp : AbstractDecoder() {
         var step = 0
+
+        override val serializersModule: SerializersModule = EmptySerializersModule
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             when (step) {

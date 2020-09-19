@@ -8,6 +8,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlinx.serialization.internal.*
+import kotlinx.serialization.modules.*
 import kotlin.test.*
 
 /*
@@ -19,6 +20,8 @@ class BasicTypesSerializationTest {
 
     // KeyValue Input/Output
     class KeyValueOutput(private val sb: StringBuilder) : AbstractEncoder() {
+        override val serializersModule: SerializersModule = EmptySerializersModule
+
         override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
             sb.append('{')
             return this
@@ -53,6 +56,8 @@ class BasicTypesSerializationTest {
     }
 
     class KeyValueInput(private val inp: Parser) : AbstractDecoder() {
+        override val serializersModule: SerializersModule = EmptySerializersModule
+
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             inp.expectAfterWhiteSpace('{')
             return this

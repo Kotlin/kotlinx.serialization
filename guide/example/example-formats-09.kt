@@ -4,9 +4,12 @@ package example.exampleFormats09
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.modules.*
 
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
+
+    override val serializersModule: SerializersModule = EmptySerializersModule
 
     override fun encodeValue(value: Any) {
         list.add(value)
@@ -23,6 +26,8 @@ inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value
 
 class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
     private var elementIndex = 0
+
+    override val serializersModule: SerializersModule = EmptySerializersModule
 
     override fun decodeValue(): Any = list.removeFirst()
     
