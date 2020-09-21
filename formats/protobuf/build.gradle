@@ -6,9 +6,8 @@ apply plugin: 'java' // Needed for protobuf plugin only
 apply plugin: 'kotlin-multiplatform'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.google.protobuf'
-apply from: rootProject.file("gradle/targets.gradle")
-apply from: rootProject.file("gradle/native_mpp.gradle")
-apply from: rootProject.file("gradle/configureSourceSets.gradle")
+apply from: rootProject.file("gradle/native-targets.gradle")
+apply from: rootProject.file("gradle/configure-source-sets.gradle")
 
 protobuf {
     protoc {

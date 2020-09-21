@@ -209,8 +209,9 @@ sealed class Project {
 class OwnedProject(override val name: String, val owner: String) : Project()
 
 fun main() {
+    val json = Json { encodeDefaults = true } // "status" will be skipped otherwise
     val data: Project = OwnedProject("kotlinx.coroutines", "kotlin")
-    println(Json.encodeToString(data))
+    println(json.encodeToString(data))
 }  
 ```
 
@@ -317,14 +318,17 @@ the [Sealed classes](#sealed-classes) section, but here subclasses can be spread
 ```                  
 
 <!--- TEST -->
+>Please note that this example works only on JVM because of `serializer` function restrictions.
+>For JS and Native, explicit serializer should be used: `format.encodeToString(PolymorphicSerializer(Project::class), data)`
+>You can keep track of this issue [here](https://github.com/Kotlin/kotlinx.serialization/issues/1077).
 
 ### Serializing interfaces 
 
 We can update the previous example and turn `Project` superclass into an interface. However, we cannot
-mark an interface itself as `@Serializable`.
-One possible practical default behaviour is to make them polymorphically serializable.
-Thus all interfaces are considered to be implicitly serializable with the [PolymorphicSerializer]
-strategy.
+mark an interface itself as `@Serializable`. No problem. Interfaces cannot have instances by themselves.
+Interfaces can only be represented by instances of their derived classes. Interfaces are used in the Kotlin language to enable polymorphism, 
+so all interfaces are considered to be implicitly serializable with the [PolymorphicSerializer]
+strategy. We just need to mark thier implementing classes as `@Serializable` and register them. 
 
 <!--- INCLUDE 
 import kotlinx.serialization.modules.*
@@ -348,7 +352,7 @@ interface Project {
 class OwnedProject(override val name: String, val owner: String) : Project
 ```
 
-It means that if we declare `data` with the type of `Project` we can simply call `format.encodeToString` as we did before.
+Now if we declare `data` with the type of `Project` we can simply call `format.encodeToString` as before.
 
 ```kotlin
 fun main() {
@@ -851,6 +855,11 @@ Notice, how `BasicProject` had also captured the specified type key in its `type
 ```
 
 <!--- TEST -->
+
+We used a plugin-generated serializer as a default serializer, implying that 
+the structure of the "unknown" data is known in advance. In a real-world API it's rarely the case.
+For that purpose a custom, less-structured serializer is needed. You will see the example of such serializer in the future section
+on [Maintaining custom JSON attributes](json.md#maintaining-custom-json-attributes).
 
 ---
 

@@ -12,6 +12,8 @@ import kotlinx.serialization.modules.*
 import kotlin.reflect.*
 import kotlin.test.*
 
+public val jsonWithDefaults = Json { encodeDefaults = true }
+
 class JsonTest {
 
     private val originalData = Data("Hello")
@@ -22,18 +24,18 @@ class JsonTest {
         ignoreUnknownKeys = true
         allowSpecialFloatingPointValues = true
         useArrayPolymorphism = true
-
+        encodeDefaults = true
     }
 
     @Test
     fun testStringForm() {
-        val str = Json.encodeToString(Data.serializer(), originalData)
+        val str = jsonWithDefaults.encodeToString(Data.serializer(), originalData)
         assertEquals(originalString, str)
     }
 
     @Test
     fun testSerializeBack() {
-        val restored = Json.decodeFromString(Data.serializer(), originalString)
+        val restored = jsonWithDefaults.decodeFromString(Data.serializer(), originalString)
         assertEquals(originalData, restored)
     }
 
@@ -59,7 +61,7 @@ class JsonTest {
 
     @Test
     fun testEnablesImplicitlyOnInterfacesAndAbstractClasses() {
-        val json = Json { useArrayPolymorphism = true; prettyPrint = false; serializersModule = testModule }
+        val json = Json(jsonWithDefaults) { useArrayPolymorphism = true; prettyPrint = false; serializersModule = testModule }
         val data = genTestData()
         assertEquals("""{"iMessage":["MessageWithId",{"id":0,"body":"Message #0"}],"iMessageList":[["MessageWithId",{"id":1,"body":"Message #1"}],""" +
                 """["MessageWithId",{"id":2,"body":"Message #2"}]],"message":["MessageWithId",{"id":3,"body":"Message #3"}],"msgSet":[["SimpleMessage",""" +
@@ -96,21 +98,21 @@ class JsonTest {
     @Test
     fun canBeSerializedAsDerived() {
         val derived = Derived(42)
-        val msg = Json.encodeToString(Derived.serializer(), derived)
+        val msg = jsonWithDefaults.encodeToString(Derived.serializer(), derived)
         assertEquals("""{"publicState":"A","privateState":"B","derivedState":42,"rootState":"foo"}""", msg)
-        val d2 = Json.decodeFromString(Derived.serializer(), msg)
+        val d2 = jsonWithDefaults.decodeFromString(Derived.serializer(), msg)
         assertEquals(derived, d2)
     }
 
     @Test
     fun canBeSerializedAsParent() {
         val derived = Derived(42)
-        val msg = Json.encodeToString(SerializableBase.serializer(), derived)
+        val msg = jsonWithDefaults.encodeToString(SerializableBase.serializer(), derived)
         assertEquals("""{"publicState":"A","privateState":"B"}""", msg)
-        val d2 = Json.decodeFromString(SerializableBase.serializer(), msg)
+        val d2 = jsonWithDefaults.decodeFromString(SerializableBase.serializer(), msg)
         assertEquals(SerializableBase(), d2)
         // no derivedState
-        assertFailsWith<SerializationException> { Json.decodeFromString(Derived.serializer(), msg) }
+        assertFailsWith<SerializationException> { jsonWithDefaults.decodeFromString(Derived.serializer(), msg) }
     }
 
     @Test
@@ -242,7 +244,7 @@ inline fun <reified T : Any> assertStringFormAndRestored(
     expected: String,
     original: T,
     serializer: KSerializer<T>,
-    format: Json = Json,
+    format: Json = jsonWithDefaults,
     printResult: Boolean = false
 ) {
     val string = format.encodeToString(serializer, original)

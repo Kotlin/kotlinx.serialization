@@ -76,7 +76,7 @@ Project(name=kotlinx.serialization, language=Kotlin)
 
 <!--- TEST -->
 
-In CBOR [hex notation](http://cbor.me/), the output is equivalent to the following:
+In [CBOR hex notation](http://cbor.me/), the output is equivalent to the following:
 ```
 BF                                      # map(*)
    64                                   # text(4)
@@ -149,7 +149,7 @@ Data(type2=[1, 2, 3, 4], type4=[5, 6, 7, 8])
 
 <!--- TEST -->
 
-In [CBOR dhex notation](http://cbor.me/), the output is equivalent to the following:
+In [CBOR hex notation](http://cbor.me/), the output is equivalent to the following:
 ```
 BF               # map(*)
    65            # text(5)
@@ -218,7 +218,7 @@ BF                                      # map(*)
 
 ## ProtoBuf (experimental)
 
-(Protocol Buffers)[https://developers.google.com/protocol-buffers] is a language-neutral binary format that normally
+[Protocol Buffers](https://developers.google.com/protocol-buffers) is a language-neutral binary format that normally
 relies on a separate ".proto" file that defines the protocol schema. It is more compact than CBOR, because it
 assigns integer numbers to fields instead of names.
 
@@ -487,11 +487,14 @@ overriding `encodeValue` in [AbstractEncoder].
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.modules.*
 -->
 
 ```kotlin
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
+
+    override val serializersModule: SerializersModule = EmptySerializersModule
 
     override fun encodeValue(value: Any) {
         list.add(value)
@@ -553,9 +556,12 @@ in a _serial_ order.
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.modules.*
 
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
+
+    override val serializersModule: SerializersModule = EmptySerializersModule
 
     override fun encodeValue(value: Any) {
         list.add(value)
@@ -579,12 +585,14 @@ A decoder needs to implements more substance.
   in the `elementIndex` variable. See 
   the [Hand-written composite serializer](serializers.md#hand-written-composite-serializer) section 
   on how it ends up being used.
-* [beginStructure][Decoder.beginStructure] &must; returns a new instance of the `ListDecoder`, so that
+* [beginStructure][Decoder.beginStructure] &mdash; returns a new instance of the `ListDecoder`, so that
   each structure that is being recursively decoded keeps track of its own `elementIndex` state separately.  
 
 ```kotlin
 class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
     private var elementIndex = 0
+
+    override val serializersModule: SerializersModule = EmptySerializersModule
 
     override fun decodeValue(): Any = list.removeFirst()
     
@@ -656,9 +664,12 @@ its support by returning `true` from the [CompositeDecoder.decodeSequentially] f
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.modules.*
 
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
+
+    override val serializersModule: SerializersModule = EmptySerializersModule
 
     override fun encodeValue(value: Any) {
         list.add(value)
@@ -677,6 +688,8 @@ inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value
 ```kotlin
 class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
     private var elementIndex = 0
+
+    override val serializersModule: SerializersModule = EmptySerializersModule
 
     override fun decodeValue(): Any = list.removeFirst()
     
@@ -725,9 +738,9 @@ Project(name=kotlinx.serialization, owner=User(name=kotlin), votes=9000)
  
 ### Adding collection support
 
-This basic format, so far, cannot property represent collections. In encodes them, but it does not keep
-track on how many elements are there in the collection or where it ends, so it cannot properly decode them.
-First, let us add propers support for collections to the encoder by implementing the 
+This basic format, so far, cannot properly represent collections. In encodes them, but it does not keep
+track of how many elements are there in the collection or where it ends, so it cannot properly decode them.
+First, let us add proper support for collections to the encoder by implementing the 
 [Encoder.beginCollection] function. The `beginCollection` function takes a collection size as a parameter, 
 so we encode it to add it to the result. 
 Our encoder implementation does not keep any state, so it just returns `this` from the `beginCollection` function.
@@ -736,11 +749,14 @@ Our encoder implementation does not keep any state, so it just returns `this` fr
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.modules.*
 -->
 
 ```kotlin
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
+
+    override val serializersModule: SerializersModule = EmptySerializersModule
 
     override fun encodeValue(value: Any) {
         list.add(value)
@@ -765,13 +781,15 @@ inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value
 -->
 
 The decoder, for our case, needs to only implement the [CompositeDecoder.decodeCollectionSize] function
-in addition the previous code.
+in addition to the previous code.
 
 > The formats that store collection size in advance have to return `true` from `decodeSequentially`.
 
 ```kotlin
 class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
+
+    override val serializersModule: SerializersModule = EmptySerializersModule
 
     override fun decodeValue(): Any = list.removeFirst()
 
@@ -838,9 +856,12 @@ of "null indicator", telling whether the upcoming value is null or is not null.
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.modules.*
 
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
+
+    override val serializersModule: SerializersModule = EmptySerializersModule
 
     override fun encodeValue(value: Any) {
         list.add(value)
@@ -872,6 +893,8 @@ inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value
 
 class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
+    
+    override val serializersModule: SerializersModule = EmptySerializersModule
 
     override fun decodeValue(): Any = list.removeFirst()
 
@@ -947,11 +970,13 @@ import kotlinx.serialization.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.modules.*
 import java.io.*
 -->
 
 ```kotlin            
 class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
+    override val serializersModule: SerializersModule = EmptySerializersModule
     override fun encodeBoolean(value: Boolean) = output.writeByte(if (value) 1 else 0)
     override fun encodeByte(value: Byte) = output.writeByte(value.toInt())
     override fun encodeShort(value: Short) = output.writeShort(value.toInt())
@@ -988,7 +1013,7 @@ The decoder implementation mirrors encoder's implementation overriding all the p
 ```kotlin 
 class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
-
+    override val serializersModule: SerializersModule = EmptySerializersModule
     override fun decodeBoolean(): Boolean = input.readByte().toInt() != 0
     override fun decodeByte(): Byte = input.readByte()
     override fun decodeShort(): Short = input.readShort()
@@ -1084,6 +1109,7 @@ being serialized, so we fetch the builtin [KSerializer] instance for `ByteArray`
 import kotlinx.serialization.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.encoding.*
 import java.io.*
 -->
@@ -1102,6 +1128,7 @@ a size of up to 254 bytes.
 
 <!--- INCLUDE
 class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
+    override val serializersModule: SerializersModule = EmptySerializersModule
     override fun encodeBoolean(value: Boolean) = output.writeByte(if (value) 1 else 0)
     override fun encodeByte(value: Byte) = output.writeByte(value.toInt())
     override fun encodeShort(value: Short) = output.writeShort(value.toInt())
@@ -1157,7 +1184,7 @@ inline fun <reified T> encodeTo(output: DataOutput, value: T) = encodeTo(output,
 
 class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
-
+    override val serializersModule: SerializersModule = EmptySerializersModule
     override fun decodeBoolean(): Boolean = input.readByte().toInt() != 0
     override fun decodeByte(): Byte = input.readByte()
     override fun decodeShort(): Short = input.readShort()

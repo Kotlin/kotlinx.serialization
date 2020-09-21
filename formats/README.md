@@ -1,15 +1,19 @@
 # Serialization formats
 
-This area of repository contains different libraries with various add-on formats which
-were not included in the main runtime library – because they are not so popular, or they're big,
-or they contain other JVM runtime dependencies.
+This area of repository contains different libraries with various add-on formats which 
+were not included in the core library.
 
-For convenience, they have same groupId, versioning and release cycle as main runtime.
+For convenience, they have same `groupId`, versioning and release cycle as core library.
+
+## JSON
+
+* Artifact id: `kotlinx-serialization-json`
+* Platform: all supported platforms
+* Status: stable
 
 ## HOCON 
 
 * Artifact id: `kotlinx-serialization-hocon`
-* Since version: 0.4.1
 * Platform: JVM only
 
 Allows deserialization of `Config` object from popular [lightbend/config](https://github.com/lightbend/config) library 
@@ -19,21 +23,18 @@ You can learn about "Human-Optimized Config Object Notation" or HOCON from libra
 ## ProtoBuf
 
 * Artifact id: `kotlinx-serialization-protobuf`
-* Since version: 0.20.0
 * Platform: all supported platforms
 * Status: experimental
 
 ## CBOR
 
 * Artifact id: `kotlinx-serialization-cbor`
-* Since version: 0.20.0
 * Platform: all supported platforms
 * Status: experimental
 
 ## Properties
 
 * Artifact id: `kotlinx-serialization-properties`
-* Since version: 0.20.0
 * Platform: all supported platforms
 * Status: experimental
 
@@ -75,3 +76,11 @@ not be available in other formats such as JSON.
 * Platform: JVM only
 
 Allows serialization and deserialization of objects to and from [YAML](http://yaml.org).
+
+### CBOR
+
+* GitHub repo: [L-Briand/obor](https://github.com/L-Briand/obor)
+* Artifact ID: `net.orandja.obor:obor`
+* Platform: JVM, Android
+
+Allow serialization and deserialization of objects to and from [CBOR](https://cbor.io/). This codec can be used to read and write from Java InputStream and OutputStream.

@@ -4,9 +4,8 @@
 
 apply plugin: 'kotlin-multiplatform'
 apply plugin: 'kotlinx-serialization'
-apply from: rootProject.file("gradle/targets.gradle")
-apply from: rootProject.file("gradle/native_mpp.gradle")
-apply from: rootProject.file("gradle/configureSourceSets.gradle")
+apply from: rootProject.file("gradle/native-targets.gradle")
+apply from: rootProject.file("gradle/configure-source-sets.gradle")
 
 kotlin {
 
@@ -25,6 +24,7 @@ kotlin {
                 implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
                 implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: jackson_version
                 implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-cbor', version: jackson_version
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
             }
         }
     }

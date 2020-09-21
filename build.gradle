@@ -45,6 +45,8 @@ buildscript {
 
     repositories {
         mavenLocal()
+        // Future replacement for kotlin-dev, with cache redirector
+        maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
         maven {
             url "https://kotlin.bintray.com/kotlin-dev"
             credentials {
@@ -83,7 +85,7 @@ buildscript {
     }
 }
 
-// To make it visible for compilerVersion.gradle
+// To make it visible for compiler-version.gradle
 ext.compilerVersion = org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION
 apply plugin: 'binary-compatibility-validator'
 
@@ -134,6 +136,8 @@ allprojects {
         mavenLocal()
         jcenter()
         maven { url "https://dl.bintray.com/kotlin/kotlinx" }
+        // Future replacement for kotlin-dev, with cache redirector
+        maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
         maven {
             url "https://kotlin.bintray.com/kotlin-dev"
             credentials {
@@ -162,5 +166,5 @@ subprojects {
 
 }
 
-apply from: rootProject.file('gradle/compilerVersion.gradle')
+apply from: rootProject.file('gradle/compiler-version.gradle')
 apply from: rootProject.file("gradle/dokka.gradle")

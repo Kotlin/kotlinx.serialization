@@ -56,23 +56,22 @@ import kotlin.js.*
  *
  * ### Usage example
  * ```
- * // Serialize to ProtoBuf hex string
- * val encoded = ProtoBuf.encodeToHexString(MyMessage(15)) // "080f1000182a"
- *
- * // Deserialize from ProtoBuf hex string
- * val decoded = ProtoBuf.decodeFromHexString<MyMessage>(encoded) // MyMessage(first=15, second=0, third=42)
- *
- * // Serialize to ProtoBuf bytes (omitting default values)
- * val encoded2 = ProtoBuf(encodeDefaults = false).encodeToByteArray( MyMessage(15)) // [0x08, 0x0f]
+ * // Serialize to ProtoBuf bytes. Default values are omitted.
+ * val encoded = ProtoBuf.encodeToByteArray(MyMessage(15)) // [0x08, 0x0f]
  *
  * // Deserialize ProtoBuf bytes will use default values of the MyMessage class
- * val decoded2 = ProtoBuf.decodeFromByteArray<MyMessage>(encoded2) // MyMessage(first=15, second=0, third=42)
+ * val decoded = ProtoBuf.decodeFromByteArray<MyMessage>(encoded) // MyMessage(first=15, second=0, third=42)
+ *
+ * // Serialize to ProtoBuf hex string with all values
+ * val encoded2 = ProtoBuf(encodeDefaults = true).encodeToHexString(MyMessage(15)) // "080f1000182a"
+ *
+ * // Deserialize from ProtoBuf hex string
+ * val decoded2 = ProtoBuf.decodeFromHexString<MyMessage>(encoded2) // MyMessage(first=15, second=0, third=42)
  * ```
  *
  * ### Check existence of optional fields
  * Null values can be used as the default value for optional fields to implement more complex use-cases that rely on
- * checking if a field was set or not. This requires the use of a custom ProtoBuf instance with
- * `ProtoBuf(encodeDefaults = false)`.
+ * checking if a field was set or not.
  *
  * ```
  * @Serializable
@@ -89,8 +88,8 @@ import kotlin.js.*
  *     fun hasThird() = _third != null
  * }
  *
- * // Serialize to ProtoBuf bytes (encodeDefaults = false is required if null values are used)
- * val encoded = ProtoBuf(encodeDefaults = false).encodeToByteArray(MyMessage(15)) // [0x08, 0x0f]
+ * // Serialize to ProtoBuf bytes, removing all default (null) values
+ * val encoded = ProtoBuf.encodeToByteArray(MyMessage(15)) // [0x08, 0x0f]
  *
  * // Deserialize ProtoBuf bytes
  * val decoded = ProtoBuf.decodeFromByteArray<MyMessage>(encoded) // MyMessage(first = 15, _second = null, _third = null)
@@ -100,7 +99,7 @@ import kotlin.js.*
  * decoded.third           // 42
  *
  * // Serialize to ProtoBuf bytes
- * val encoded2 = ProtoBuf(encodeDefaults = false).encodeToByteArray(MyMessage(15, 0, 0)) // [0x08, 0x0f, 0x10, 0x00, 0x18, 0x00]
+ * val encoded2 = ProtoBuf.encodeToByteArray(MyMessage(15, 0, 0)) // [0x08, 0x0f, 0x10, 0x00, 0x18, 0x00]
  *
  * // Deserialize ProtoBuf bytes
  * val decoded2 = ProtoBuf.decodeFromByteArray<MyMessage>(encoded2) // MyMessage(first=15, _second=0, _third=0)
@@ -111,6 +110,7 @@ import kotlin.js.*
  * ```
  *
  * @param encodeDefaults specifies whether default values are encoded.
+ *                       False by default; meaning that properties with values equal to defaults will be elided.
  * @param serializersModule application-specific [SerializersModule] to provide custom serializers.
  */
 @ExperimentalSerializationApi
@@ -123,7 +123,7 @@ public sealed class ProtoBuf(
     /**
      * The default instance of [ProtoBuf].
      */
-    public companion object Default : ProtoBuf(true, EmptySerializersModule, null)
+    public companion object Default : ProtoBuf(false, EmptySerializersModule, null)
 
     override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutput()

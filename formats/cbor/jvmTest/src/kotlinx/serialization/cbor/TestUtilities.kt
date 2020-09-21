@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.cbor
@@ -10,11 +10,12 @@ import com.fasterxml.jackson.module.kotlin.*
 import kotlinx.serialization.*
 
 internal val cborJackson = ObjectMapper(CBORFactory()).apply { registerKotlinModule() }
+internal val defaultCbor = Cbor { encodeDefaults = true }
 
 internal inline fun <reified T : Any> dumpCborCompare(it: T, alwaysPrint: Boolean = false): Boolean {
     var parsed: T?
     val c = try {
-        val bytes = Cbor.encodeToByteArray(it)
+        val bytes = defaultCbor.encodeToByteArray(it)
         parsed = cborJackson.readValue<T>(bytes)
         it == parsed
     } catch (e: Exception) {
@@ -30,7 +31,7 @@ internal inline fun <reified T: Any> readCborCompare(it: T, alwaysPrint: Boolean
     var obj: T?
     val c = try {
         val hex = cborJackson.writeValueAsBytes(it)
-        obj = Cbor.decodeFromByteArray(hex)
+        obj = defaultCbor.decodeFromByteArray(hex)
         obj == it
     } catch (e: Exception) {
         obj = null

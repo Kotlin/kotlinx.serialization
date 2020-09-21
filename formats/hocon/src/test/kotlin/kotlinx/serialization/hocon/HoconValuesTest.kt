@@ -5,6 +5,7 @@
 package kotlinx.serialization.hocon
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import org.junit.*
 import org.junit.Assert.*
 
@@ -77,6 +78,19 @@ class HoconValuesTest {
         val obj = deserializeConfig("i = 10, s = null", WithNullable.serializer())
         assertEquals(10, obj.i)
         assertEquals(null, obj.s)
+    }
+
+    @Test
+    fun `deserialize nullable types with nullable serializer`() {
+        val obj = deserializeConfig("i = 10, s = null", WithNullable.serializer().nullable)!!
+        assertEquals(10, obj.i)
+        assertEquals(null, obj.s)
+    }
+
+    @Test
+    fun testDeserializerTopLevelNullableType() {
+        val value = deserializeConfig("", WithNullable.serializer().nullable)
+        assertNull(value)
     }
 
     @Test

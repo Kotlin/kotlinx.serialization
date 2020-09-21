@@ -131,6 +131,12 @@ public sealed class Hocon(
             return !conf.getIsNull(tag)
         }
 
+        override fun decodeNotNullMark(): Boolean {
+            // Tag might be null for top-level deserialization
+            val currentTag = currentTagOrNull ?: return !conf.isEmpty
+            return decodeTaggedNotNullMark(currentTag)
+        }
+
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
             when {
                 descriptor.kind.listLike -> ListConfigReader(conf.getList(currentTag))

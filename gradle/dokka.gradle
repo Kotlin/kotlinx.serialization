@@ -10,6 +10,7 @@ dokka {
     outputDirectory = "$buildDir/dokka"
 
     subProjects = ["kotlinx-serialization-core",
+                   "kotlinx-serialization-json",
                    "kotlinx-serialization-cbor",
                    "kotlinx-serialization-properties",
 //                   "kotlinx-serialization-hocon",  todo: fix publishing of jvm-only docs

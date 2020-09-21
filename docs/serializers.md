@@ -502,7 +502,7 @@ element using [decodeIntElement][CompositeDecoder.decodeIntElement] in our examp
             var r = -1
             var g = -1
             var b = -1
-            while(true) {
+            while (true) {
                 when (val index = decodeElementIndex(descriptor)) {
                     0 -> r = decodeIntElement(descriptor, 0)
                     1 -> g = decodeIntElement(descriptor, 1)
@@ -580,7 +580,7 @@ object ColorAsObjectSerializer : KSerializer<Color> {
                 r = decodeIntElement(descriptor, 0)           
                 g = decodeIntElement(descriptor, 1)  
                 b = decodeIntElement(descriptor, 2)
-            } else while(true) {
+            } else while (true) {
                 when (val index = decodeElementIndex(descriptor)) {
                     0 -> r = decodeIntElement(descriptor, 0)
                     1 -> g = decodeIntElement(descriptor, 1)
@@ -640,7 +640,7 @@ object DateAsLongSerializer : KSerializer<Date> {
 }
 ```
 
-We cannot bind the `DateAsStringSerializer` serializer to the `Date` class with the [`@Serializable`][Serializable] annotation, 
+We cannot bind the `DateAsLongSerializer` serializer to the `Date` class with the [`@Serializable`][Serializable] annotation, 
 because we don't control the `Date` source code. There are several ways to work around that.
 
 ### Passing a serializer manually

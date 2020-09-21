@@ -87,14 +87,14 @@ class BasicSerializationTest {
     @Test
     fun testExampleClasses09() {
         captureOutput("ExampleClasses09") { example.exampleClasses09.main() }.verifyOutputLines(
-            "{\"name\":\"kotlinx.serialization\",\"language\":\"Kotlin\"}"
+            "{\"name\":\"kotlinx.serialization\"}"
         )
     }
 
     @Test
     fun testExampleClasses10() {
         captureOutput("ExampleClasses10") { example.exampleClasses10.main() }.verifyOutputLines(
-            "{\"name\":\"kotlinx.serialization\",\"renamedTo\":null}"
+            "{\"name\":\"kotlinx.serialization\"}"
         )
     }
 

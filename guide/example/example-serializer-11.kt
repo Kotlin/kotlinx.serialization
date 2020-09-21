@@ -27,7 +27,7 @@ object ColorAsObjectSerializer : KSerializer<Color> {
             var r = -1
             var g = -1
             var b = -1
-            while(true) {
+            while (true) {
                 when (val index = decodeElementIndex(descriptor)) {
                     0 -> r = decodeIntElement(descriptor, 0)
                     1 -> g = decodeIntElement(descriptor, 1)
