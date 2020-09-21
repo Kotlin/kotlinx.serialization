@@ -38,6 +38,9 @@ To migrate, simply add `import kotlinx.serialization.json.*` to your files.
 
 ### Bugfixes and improvements
 
+  * Do not provide default implementation for serializersModule in AbstractEncoder/Decoder (#1089)
+  * Support JsonElement hierarchy in `dynamic` encoding/decoding (#1080)
+  * Support top-level primitives and primitive map keys in `dynamic` encoding/decoding
   * Change core annotations retention (#1083)
   * Fix 'Duplicate class ... found in modules' on Gradle != 6.1.1 (#996)
   * Various documentation clarifications
