@@ -15,7 +15,7 @@ class UnknownElementIndexTest {
     data class Holder(val c: Choices)
 
     class MalformedReader : AbstractDecoder() {
-        override val serializersModule: SerializersModule =EmptySerializersModule
+        override val serializersModule: SerializersModule = EmptySerializersModule
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             return UNKNOWN_NAME
