@@ -39,6 +39,7 @@ To migrate, simply add `import kotlinx.serialization.json.*` to your files.
 ### Bugfixes and improvements
 
   * Change core annotations retention (#1083)
+  * Fix 'Duplicate class ... found in modules' on Gradle != 6.1.1 (#996)
   * Various documentation clarifications
   * Support deserialization of top-level nullable types (#1038)
   * Make most serialization exceptions eligible for coroutines exception recovery (#1054)
