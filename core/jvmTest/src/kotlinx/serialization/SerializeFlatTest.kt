@@ -6,6 +6,7 @@ package kotlinx.serialization
 
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.modules.*
 import org.junit.Test
 import kotlin.test.*
 
@@ -197,6 +198,8 @@ class SerializeFlatTest() {
     class Out(private val name: String) : AbstractEncoder() {
         var step = 0
 
+        override val serializersModule: SerializersModule = EmptySerializersModule
+
         override fun beginStructure(
             descriptor: SerialDescriptor
         ): CompositeEncoder {
@@ -246,6 +249,8 @@ class SerializeFlatTest() {
 
     class Inp(private val name: String) : AbstractDecoder() {
         var step = 0
+
+        override val serializersModule: SerializersModule = EmptySerializersModule
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             checkDesc(name, descriptor)

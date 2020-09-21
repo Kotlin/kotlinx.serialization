@@ -16,8 +16,6 @@ import kotlinx.serialization.modules.*
  */
 @ExperimentalSerializationApi
 public abstract class AbstractEncoder : Encoder, CompositeEncoder {
-    override val serializersModule: SerializersModule
-        get() = EmptySerializersModule
 
     // do not update signature here because new signature is called by the plugin;
     // and clients that have old signature would not be called.

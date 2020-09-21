@@ -9,6 +9,7 @@ import kotlinx.serialization.encoding.AbstractDecoder
 import kotlinx.serialization.encoding.AbstractEncoder
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.CompositeEncoder
+import kotlinx.serialization.modules.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotSame
@@ -122,6 +123,9 @@ class BasicTypesSerializationTest {
 
     @OptIn(ExperimentalSerializationApi::class)
     class KeyValueOutput(val sb: StringBuilder) : AbstractEncoder() {
+
+        override val serializersModule: SerializersModule = EmptySerializersModule
+
         override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
             sb.append('{')
             return this
@@ -156,6 +160,9 @@ class BasicTypesSerializationTest {
     }
 
     class KeyValueInput(val inp: Parser) : AbstractDecoder() {
+
+        override val serializersModule: SerializersModule = EmptySerializersModule
+
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             inp.expectAfterWhiteSpace('{')
             return this

@@ -445,7 +445,6 @@ public abstract class kotlinx/serialization/encoding/AbstractDecoder : kotlinx/s
 	public final fun decodeStringElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
 	public fun decodeValue ()Ljava/lang/Object;
 	public fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
-	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 	public fun getUpdateMode ()Lkotlinx/serialization/UpdateMode;
 	public fun updateNullableSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
 	public fun updateNullableSerializableValue (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
@@ -488,7 +487,6 @@ public abstract class kotlinx/serialization/encoding/AbstractEncoder : kotlinx/s
 	public final fun encodeStringElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILjava/lang/String;)V
 	public fun encodeValue (Ljava/lang/Object;)V
 	public fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
-	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 	public fun shouldEncodeElementDefault (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
 }
 

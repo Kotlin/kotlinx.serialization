@@ -16,8 +16,6 @@ import kotlinx.serialization.modules.*
  */
 @ExperimentalSerializationApi
 public abstract class AbstractDecoder : Decoder, CompositeDecoder {
-    override val serializersModule: SerializersModule
-        get() = EmptySerializersModule
 
     @Suppress("DEPRECATION")
     @Deprecated(updateModeDeprecated, level = DeprecationLevel.ERROR)
