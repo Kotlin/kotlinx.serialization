@@ -9,6 +9,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.json.internal.*
+import kotlinx.serialization.modules.*
 import kotlin.test.*
 
 class StacktraceRecoveryTest {
@@ -16,6 +17,7 @@ class StacktraceRecoveryTest {
     private class Data(val s: String)
 
     private class BadDecoder : AbstractDecoder() {
+        override val serializersModule: SerializersModule = EmptySerializersModule
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int = 42
     }
 
