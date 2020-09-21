@@ -110,7 +110,7 @@ import kotlin.js.*
  * ```
  *
  * @param encodeDefaults specifies whether default values are encoded.
- *                       False by default; meaning that properties with values equal to defaults would be elided.
+ *                       False by default; meaning that properties with values equal to defaults will be elided.
  * @param serializersModule application-specific [SerializersModule] to provide custom serializers.
  */
 @ExperimentalSerializationApi

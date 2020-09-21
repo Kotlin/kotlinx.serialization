@@ -25,7 +25,7 @@ import kotlinx.serialization.modules.*
  * from corresponding Kotlin objects. However, other 3rd-party parsers (e.g. `jackson-dataformat-cbor`) may not accept such maps.
  *
  * @param encodeDefaults specifies whether default values of Kotlin properties are encoded.
- *                       False by default; meaning that properties with values equal to defaults would be elided.
+ *                       False by default; meaning that properties with values equal to defaults will be elided.
  */
 @ExperimentalSerializationApi
 public sealed class Cbor(

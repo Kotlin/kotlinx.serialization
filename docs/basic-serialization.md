@@ -423,7 +423,8 @@ Use 'ignoreUnknownKeys = true' in 'Json {}' builder to ignore unknown keys.
 
 ### Defaults are not encoded
 
-Default values are not encoded by default in JSON.
+Default values are not encoded by default in JSON. This behavior is motivated by the fact that in most real-life scenarios,
+such configuration reduces visual clutter and saves amount of data being serialized. 
 
 ```kotlin
 @Serializable 
