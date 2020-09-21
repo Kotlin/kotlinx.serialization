@@ -24,7 +24,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='optional-property-initializer-call'></a>[Optional property initializer call](basic-serialization.md#optional-property-initializer-call)
   * <a name='required-properties'></a>[Required properties](basic-serialization.md#required-properties)
   * <a name='transient-properties'></a>[Transient properties](basic-serialization.md#transient-properties)
-  * <a name='defaults-are-encoded'></a>[Defaults are encoded](basic-serialization.md#defaults-are-encoded)
+  * <a name='defaults-are-not-encoded'></a>[Defaults are not encoded](basic-serialization.md#defaults-are-not-encoded)
   * <a name='nullable-properties'></a>[Nullable properties](basic-serialization.md#nullable-properties)
   * <a name='type-safety-is-enforced'></a>[Type safety is enforced](basic-serialization.md#type-safety-is-enforced)
   * <a name='referenced-objects'></a>[Referenced objects](basic-serialization.md#referenced-objects)

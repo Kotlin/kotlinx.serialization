@@ -85,7 +85,7 @@ public class SerializerForNullableTypeTest : JsonTestBase() {
 
     @Serializable
     data class NullablePrimitive(
-        @Serializable(with = NullableLongSerializer::class) val value: Long? = null
+        @Serializable(with = NullableLongSerializer::class) val value: Long?
     )
 
     @Test

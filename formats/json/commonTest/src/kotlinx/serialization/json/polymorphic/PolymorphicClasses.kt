@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json.polymorphic
@@ -52,9 +52,11 @@ internal val polymorphicTestModule = SerializersModule {
 
 internal val polymorphicJson = Json {
     serializersModule = polymorphicTestModule
+    encodeDefaults = true
 }
 
 internal val polymorphicRelaxedJson = Json {
     isLenient = true
     serializersModule = polymorphicTestModule
+    encodeDefaults = true
 }

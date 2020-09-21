@@ -15,7 +15,7 @@ import kotlin.jvm.*
             "'Json(MyJsonConfiguration.copy(prettyPrint = true))' can be replaced with 'Json(from = MyApplicationJson) { prettyPrint = true }'"
 )
 public open class JsonConfiguration(
-    internal val encodeDefaults: Boolean = true,
+    internal val encodeDefaults: Boolean = false,
     internal val ignoreUnknownKeys: Boolean = false,
     internal val isLenient: Boolean = false,
     internal val serializeSpecialFloatingPointValues: Boolean = false,

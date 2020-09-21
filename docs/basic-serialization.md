@@ -20,7 +20,7 @@ This chapter shows the basic use of Kotlin Serialization and explains its core c
   * [Optional property initializer call](#optional-property-initializer-call)
   * [Required properties](#required-properties)
   * [Transient properties](#transient-properties)
-  * [Defaults are encoded](#defaults-are-encoded)
+  * [Defaults are not encoded](#defaults-are-not-encoded)
   * [Nullable properties](#nullable-properties)
   * [Type safety is enforced](#type-safety-is-enforced)
   * [Referenced objects](#referenced-objects)
@@ -421,9 +421,10 @@ Use 'ignoreUnknownKeys = true' in 'Json {}' builder to ignore unknown keys.
 
 > 'ignoreUnknownKeys' feature is explained in the [Ignoring Unknown Keys section](json.md#ignoring-unknown-keys) section.
 
-### Defaults are encoded
+### Defaults are not encoded
 
-Default values are still encoded by default.
+Default values are not encoded by default in JSON. This behavior is motivated by the fact that in most real-life scenarios,
+such configuration reduces visual clutter and saves amount of data being serialized. 
 
 ```kotlin
 @Serializable 
@@ -437,10 +438,10 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-classes-09.kt).
 
-It produces the following output, which has `language` property, even though its value is equal to the default one.
+It produces the following output, which does not have `language` property, because its value is equal to the default one.
 
 ```text
-{"name":"kotlinx.serialization","language":"Kotlin"}
+{"name":"kotlinx.serialization"}
 ```                 
 
 > See [Encoding defaults](json.md#encoding-defaults) section on how this behavior can be configured for JSON. 
@@ -463,10 +464,10 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-classes-10.kt).
 
-This example explicitly encodes `null` in JSON because [Defaults are encoded](#defaults-are-encoded).
+This example does not encode `null` in JSON because [Defaults are not encoded](#defaults-are-not-encoded).
 
 ```text
-{"name":"kotlinx.serialization","renamedTo":null}
+{"name":"kotlinx.serialization"}
 ```     
 
 <!--- TEST -->
