@@ -1,3 +1,55 @@
+1.0.0-RC2 / 2020-09-21
+==================
+
+Second release candidate for 1.0.0 version. This RC contains tweaks and changes based on users feedback after 1.0.0-RC.
+
+### Major changes
+
+* JSON format is now located in different artifact (#994)
+
+In 1.0.0-RC, the `kotlinx-serialization-core` artifact contained core serialization entities as well as `Json` serial format.
+We've decided to change that and to make `core` format-agnostic.
+It would make the life easier for those who use other serial formats and also make possible to write your own implementation of JSON
+or another format without unnecessary dependency on the default one.
+
+In 1.0.0-RC2, `Json` class and related entities are located in `kotlinx-serialization-json` artifact.
+To migrate, simply replace `kotlinx-serialization-core` dependency with `-json`. Core library then will be included automatically
+as the transitive dependency.
+
+For most use-cases, you should use new `kotlinx-serialization-json` artifact. Use `kotlinx-serialization-core` if you are
+writing a library that depends on kotlinx.serialization in a format-agnostic way of provides its own serial format.
+
+* `encodeDefaults` flag is now set to `false` in the default configuration for JSON, CBOR and Protocol Buffers.
+
+The change is motivated by the fact that in most real-life scenarios, this flag is set to `false` anyway,
+because such configuration reduces visual clutter and saves amount of data being serialized. 
+Other libraries, like GSON and Moshi, also have this behavior by default.
+
+This may change how your serialized data looks like, if you have not set value for `encodeDefaults` flag explicitly.
+We anticipate that most users already had done this, so no migration is required.
+In case you need to return to the old behavior, simply add `encodeDefaults = true` to your configuration while creating `Json/Cbor/ProtoBuf` object.
+
+* Move `Json.encodeToDynamic/Json.decodeFromDynamic` functions to json package
+
+Since these functions are no longer exposed via `DynamicObjectParser/Serializer` and they are now `Json` class extensions,
+they should be moved to `kotlinx.serialization.json` package.
+To migrate, simply add `import kotlinx.serialization.json.*` to your files.
+
+
+### Bugfixes and improvements
+
+  * Do not provide default implementation for serializersModule in AbstractEncoder/Decoder (#1089)
+  * Support JsonElement hierarchy in `dynamic` encoding/decoding (#1080)
+  * Support top-level primitives and primitive map keys in `dynamic` encoding/decoding
+  * Change core annotations retention (#1083)
+  * Fix 'Duplicate class ... found in modules' on Gradle != 6.1.1 (#996)
+  * Various documentation clarifications
+  * Support deserialization of top-level nullable types (#1038)
+  * Make most serialization exceptions eligible for coroutines exception recovery (#1054)
+  * Get rid of methods that do not present in Android API<24 (#1013, #1040)
+  * Throw JsonDecodingException on empty string literal at the end of the input (#1011)
+  * Remove new lines in deprecation warnings that caused errors in ObjC interop (#990)
+
 1.0.0-RC / 2020-08-17
 ==================
 
