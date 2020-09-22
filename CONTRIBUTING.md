@@ -45,7 +45,8 @@ so do familiarize yourself with the following guidelines.
     to coordinate the work in advance.    
 * If you make any code changes:
   * Follow the [Kotlin Coding Conventions](https://kotlinlang.org/docs/reference/coding-conventions.html). 
-    Use 4 spaces for indentation.
+    * Use 4 spaces for indentation. 
+    * Use imports with '*'.
   * [Build the project](#building) to make sure it all works and passes the tests.
 * If you fix a bug:
   * Write the test the reproduces the bug.
