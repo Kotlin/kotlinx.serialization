@@ -37,7 +37,7 @@ To release new `<version>` of `kotlinx.serialization`:
    * Publish artifacts of the new version.
    * Wait until newly published version becomes the most recent.
 
-6. Update Kotlin and library versions  in [examples](examples/gradle.properties)
+6. Create a new release in [Github releases](https://github.com/Kotlin/kotlinx.serialization/releases). Use created git tag for title and changelog message for body.
 
 1. Switch back to master branch and update it:<br>
    ```
