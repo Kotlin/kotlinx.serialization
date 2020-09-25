@@ -170,7 +170,7 @@ BF               # map(*)
 ### Ignoring unknown keys
 
 CBOR format is often used to communicate with [IoT] devices where new properties could be added as a part of a device's
-API evolution. By default, unknown keys encountered during deserialization produces an error.
+API evolution. By default, unknown keys encountered during deserialization produce an error.
 This behavior can be configured with the [ignoreUnknownKeys][CborBuilder.ignoreUnknownKeys] property.
 
 <!--- INCLUDE
