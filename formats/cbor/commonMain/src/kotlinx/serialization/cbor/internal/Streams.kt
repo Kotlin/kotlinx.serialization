@@ -36,7 +36,6 @@ internal class ByteArrayInput(private var array: ByteArray) {
     }
 
     fun skip(length: Int) {
-        if (length <= 0) throw SerializationException("Cannot skip $length bytes")
         position += length
     }
 }

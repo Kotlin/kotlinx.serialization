@@ -459,29 +459,14 @@ internal class CborDecoder(private val input: ByteArrayInput) {
                 lengthStack.removeAt(lengthStack.lastIndex)
                 prune = true
             } else {
-                val header = curByte and 0b111_00000
-                val isIndefinite = curByte and 0b000_11111 == ADDITIONAL_INFORMATION_INDEFINITE_LENGTH &&
-                    (header == HEADER_ARRAY || header == HEADER_MAP ||
-                        header == HEADER_BYTE_STRING.toInt() || header == HEADER_STRING.toInt())
-
-                if (isIndefinite) {
+                if (isIndefinite()) {
                     lengthStack.add(-1)
                 } else {
-                    val length = when (header) {
-                        HEADER_BYTE_STRING.toInt(), HEADER_STRING.toInt(), HEADER_ARRAY -> readNumber().toInt()
-                        HEADER_MAP -> readNumber().toInt() * 2
-                        else -> when (curByte and 0b000_11111) {
-                            24 -> 1
-                            25 -> 2
-                            26 -> 4
-                            27 -> 8
-                            else -> 0
-                        }
-                    }
+                    val header = curByte and 0b111_00000
+                    val length = elementLength()
 
                     if (header == HEADER_ARRAY || header == HEADER_MAP) {
-                        if (length <= 0) throw CborDecodingException("length ($length) to be > 0", curByte)
-                        lengthStack.add(length)
+                        if (length > 0) lengthStack.add(length)
                     } else {
                         input.skip(length)
                         prune = true
@@ -489,21 +474,55 @@ internal class CborDecoder(private val input: ByteArrayInput) {
                 }
             }
 
-            if (prune) {
-                for (i in lengthStack.lastIndex downTo 0) {
-                    when (lengthStack[i]) {
-                        -1 -> break
-                        1 -> lengthStack.removeAt(i)
-                        else -> {
-                            lengthStack[i] = lengthStack[i] - 1
-                            break
-                        }
-                    }
-                }
-            }
-
+            if (prune) lengthStack.prune()
             if (readByte() == -1 && lengthStack.isNotEmpty()) throw SerializationException("EOF while skipping element")
         } while (lengthStack.isNotEmpty())
+    }
+
+    /**
+     * Determines if [curByte] represents an indefinite length CBOR item.
+     *
+     * Per [RFC 7049: 2.2. Indefinite Lengths for Some Major Types](https://tools.ietf.org/html/rfc7049#section-2.2):
+     * > Four CBOR items (arrays, maps, byte strings, and text strings) can be encoded with an indefinite length
+     */
+    private fun isIndefinite(): Boolean {
+        val majorType = curByte and 0b111_00000
+        val additionalInformation = curByte and 0b000_11111
+
+        return additionalInformation == ADDITIONAL_INFORMATION_INDEFINITE_LENGTH &&
+            (majorType == HEADER_ARRAY || majorType == HEADER_MAP ||
+                majorType == HEADER_BYTE_STRING.toInt() || majorType == HEADER_STRING.toInt())
+    }
+
+    /**
+     * Calculates the length of the major type represented by [curByte]; length has specific meaning based on the type:
+     *
+     * | Major type          | Length represents number of... |
+     * |---------------------|--------------------------------|
+     * | 0. unsigned integer | bytes                          |
+     * | 1. negative integer | bytes                          |
+     * | 2. byte string      | bytes                          |
+     * | 3. string           | bytes                          |
+     * | 4. array            | data items (values)            |
+     * | 5. map              | sub-items (keys + values)      |
+     */
+    private fun elementLength(): Int {
+        val majorType = curByte and 0b111_00000
+        val additionalInformation = curByte and 0b000_11111
+
+        val length = when (majorType) {
+            HEADER_BYTE_STRING.toInt(), HEADER_STRING.toInt(), HEADER_ARRAY -> readNumber().toInt()
+            HEADER_MAP -> readNumber().toInt() * 2
+            else -> when (additionalInformation) {
+                24 -> 1
+                25 -> 2
+                26 -> 4
+                27 -> 8
+                else -> 0
+            }
+        }
+        if (length < 0) throw SerializationException("Length cannot be negative, was $length")
+        return length
     }
 
     /**
@@ -546,3 +565,16 @@ private fun Iterable<ByteArray>.flatten(): ByteArray {
 private fun SerialDescriptor.isByteString(index: Int): Boolean =
     getElementDescriptor(index) == ByteArraySerializer().descriptor &&
         getElementAnnotations(index).find { it is ByteString } != null
+
+private fun MutableList<Int>.prune() {
+    for (i in lastIndex downTo 0) {
+        when (get(i)) {
+            -1 -> break
+            1 -> removeAt(i)
+            else -> {
+                set(i, get(i) - 1)
+                break
+            }
+        }
+    }
+}
