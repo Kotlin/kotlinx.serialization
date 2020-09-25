@@ -4,6 +4,8 @@
 
 package kotlinx.serialization.cbor.internal
 
+import kotlinx.serialization.*
+
 internal class ByteArrayInput(private var array: ByteArray) {
     private var position: Int = 0
     public val availableBytes: Int get() = array.size - position
@@ -34,7 +36,7 @@ internal class ByteArrayInput(private var array: ByteArray) {
     }
 
     fun skip(length: Int) {
-        require(length >= 0) { "Cannot skip $length bytes" }
+        if (length <= 0) throw SerializationException("Cannot skip $length bytes")
         position += length
     }
 }

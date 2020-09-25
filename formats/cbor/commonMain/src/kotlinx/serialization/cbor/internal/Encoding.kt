@@ -480,7 +480,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
                     }
 
                     if (header == HEADER_ARRAY || header == HEADER_MAP) {
-                        if (length <= 0) throw AssertionError("$length of ${printByte(curByte)} should be > 0")
+                        if (length <= 0) throw CborDecodingException("length ($length) to be > 0", curByte)
                         lengthStack.add(length)
                     } else {
                         input.skip(length)
@@ -502,7 +502,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
                 }
             }
 
-            if (readByte() == -1 && lengthStack.isNotEmpty()) error("EOF with length stack $lengthStack")
+            if (readByte() == -1 && lengthStack.isNotEmpty()) throw SerializationException("EOF while skipping element")
         } while (lengthStack.isNotEmpty())
     }
 
