@@ -460,7 +460,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
                 prune = true
             } else {
                 val header = curByte and 0b111_00000
-                val isIndefinite = curByte and 0b000_11111 == 0b000_11111 &&
+                val isIndefinite = curByte and 0b000_11111 == ADDITIONAL_INFORMATION_INDEFINITE_LENGTH &&
                     (header == HEADER_ARRAY || header == HEADER_MAP ||
                         header == HEADER_BYTE_STRING.toInt() || header == HEADER_STRING.toInt())
 
