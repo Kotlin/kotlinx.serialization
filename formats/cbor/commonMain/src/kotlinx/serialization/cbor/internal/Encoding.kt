@@ -455,7 +455,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
             var prune = false
 
             if (isEnd()) {
-                if (lengthStack.lastOrNull() != -1) throw CborDecodingException("data item", curByte)
+                if (lengthStack.lastOrNull() != -1) throw CborDecodingException("next data item", curByte)
                 lengthStack.removeAt(lengthStack.lastIndex)
                 prune = true
             } else {
