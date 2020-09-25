@@ -1,1 +1,1 @@
-sourceset_dependencies = '{":kotlinx-serialization-hocon/main": []}'
+sourceset_dependencies = '{":kotlinx-serialization-hocon:dokkaHtml/main": []}'

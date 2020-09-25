@@ -17,7 +17,22 @@ window.addEventListener('load', () => {
     }
     initTabs()
     handleAnchor()
+    initHidingLeftNavigation()
 })
+
+const initHidingLeftNavigation = () => {
+    document.getElementById("leftToggler").onclick = function(event) {
+        //Events need to be prevented from bubbling since they will trigger next handler
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        document.getElementById("leftColumn").classList.toggle("open");
+    }
+
+    document.getElementById("main").onclick = () => {
+        document.getElementById("leftColumn").classList.remove("open");
+    }
+}
 
 // Hash change is needed in order to allow for linking inside the same page with anchors
 // If this is not present user is forced to refresh the site in order to use an anchor
