@@ -109,8 +109,12 @@ class CborReaderTest {
         }
     }
 
+    /**
+     * CBOR hex data represents serialized versions of [TypesUmbrella] (which does **not** have a root property 'a') so
+     * decoding to [Simple] (which has the field 'a') is expected to fail.
+     */
     @Test
-    fun testIgnoreUnknownKeysFailsWhenKotlinClassIsMissingKeys() {
+    fun testIgnoreUnknownKeysFailsWhenCborDataIsMissingKeysThatArePresentInKotlinClass() {
         // with maps & lists of indefinite length
         assertFailsWithMessage<SerializationException>("Field 'a' is required, but it was missing") {
             ignoreUnknownKeys.decodeFromHexString(
