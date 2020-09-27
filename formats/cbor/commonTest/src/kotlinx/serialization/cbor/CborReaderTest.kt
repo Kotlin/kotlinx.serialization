@@ -186,21 +186,54 @@ class CborReaderTest {
          *       1A 00010000                   # unsigned(65536)
          *    61                               # text(1)
          *       62                            # "b"
-         *    82                               # array(2)
+         *    A2                               # map(2)
+         *       61                            # text(1)
+         *          78                         # "x"
          *       67                            # text(7)
          *          6B6F746C696E78             # "kotlinx"
+         *       61                            # text(1)
+         *          79                         # "y"
          *       6D                            # text(13)
          *          73657269616C697A6174696F6E # "serialization"
          *    61                               # text(1)
          *       63                            # "c"
          *    00                               # unsigned(0)
          */
-        withDecoder("a36161830118ff1a00010000616282676b6f746c696e786d73657269616c697a6174696f6e616300") {
+        withDecoder("a36161830118ff1a000100006162a26178676b6f746c696e7861796d73657269616c697a6174696f6e616300") {
             expectMap(size = 3)
             expect("a")
             skipElement() // [1, 255, 65536]
             expect("b")
-            skipElement() // ["kotlinx", "serialization"]
+            skipElement() // {"x": "kotlinx", "y": "serialization"}
+            expect("c")
+            expect(0)
+        }
+    }
+
+    /**
+     * Tests skipping unknown keys associated with values (empty collections) of the following CBOR types:
+     * - Major type 4: an array of data items
+     * - Major type 5: a map of pairs of data items
+     */
+    @Test
+    fun testSkipEmptyCollections() {
+        /* A3       # map(3)
+         *    61    # text(1)
+         *       61 # "a"
+         *    80    # array(0)
+         *    61    # text(1)
+         *       62 # "b"
+         *    A0    # map(0)
+         *    61    # text(1)
+         *       63 # "c"
+         *    00    # unsigned(0)
+         */
+        withDecoder("a36161806162a0616300") {
+            expectMap(size = 3)
+            expect("a")
+            skipElement() // [1, 255, 65536]
+            expect("b")
+            skipElement() // {"x": "kotlinx", "y": "serialization"}
             expect("c")
             expect(0)
         }
