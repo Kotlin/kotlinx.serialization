@@ -171,6 +171,37 @@ class CborReaderTest {
     }
 
     /**
+     * Tests skipping unknown keys associated with values (that are empty) of the following CBOR types:
+     * - Major type 2: a byte string
+     * - Major type 3: a text string
+     */
+    @Test
+    fun testSkipEmptyPrimitives() {
+        /* A3       # map(3)
+         *    61    # text(1)
+         *       61 # "a"
+         *    40    # bytes(0)
+         *          # ""
+         *    61    # text(1)
+         *       62 # "b"
+         *    60    # text(0)
+         *          # ""
+         *    61    # text(1)
+         *       63 # "c"
+         *    00    # unsigned(0)
+         */
+        withDecoder("a3616140616260616300") {
+            expectMap(size = 3)
+            expect("a")
+            skipElement() // bytes(0)
+            expect("b")
+            skipElement() // text(0)
+            expect("c")
+            expect(0)
+        }
+    }
+
+    /**
      * Tests skipping unknown keys associated with values of the following CBOR types:
      * - Major type 4: an array of data items
      * - Major type 5: a map of pairs of data items
