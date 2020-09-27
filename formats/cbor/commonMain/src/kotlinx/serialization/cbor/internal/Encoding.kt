@@ -458,19 +458,18 @@ internal class CborDecoder(private val input: ByteArrayInput) {
                 if (lengthStack.lastOrNull() != -1) throw CborDecodingException("next data item", curByte)
                 lengthStack.removeAt(lengthStack.lastIndex)
                 prune = true
+            } else if (isIndefinite()) {
+                lengthStack.add(-1)
             } else {
-                if (isIndefinite()) {
-                    lengthStack.add(-1)
-                } else {
-                    val header = curByte and 0b111_00000
-                    val length = elementLength()
+                val header = curByte and 0b111_00000
+                val length = elementLength()
+                if (length < 0) throw SerializationException("Length cannot be negative, was $length")
 
-                    if (header == HEADER_ARRAY || header == HEADER_MAP) {
-                        if (length > 0) lengthStack.add(length)
-                    } else {
-                        input.skip(length)
-                        prune = true
-                    }
+                if (header == HEADER_ARRAY || header == HEADER_MAP) {
+                    if (length > 0) lengthStack.add(length)
+                } else {
+                    input.skip(length)
+                    prune = true
                 }
             }
 
@@ -510,7 +509,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         val majorType = curByte and 0b111_00000
         val additionalInformation = curByte and 0b000_11111
 
-        val length = when (majorType) {
+        return when (majorType) {
             HEADER_BYTE_STRING.toInt(), HEADER_STRING.toInt(), HEADER_ARRAY -> readNumber().toInt()
             HEADER_MAP -> readNumber().toInt() * 2
             else -> when (additionalInformation) {
@@ -521,8 +520,6 @@ internal class CborDecoder(private val input: ByteArrayInput) {
                 else -> 0
             }
         }
-        if (length < 0) throw SerializationException("Length cannot be negative, was $length")
-        return length
     }
 
     /**
@@ -566,6 +563,7 @@ private fun SerialDescriptor.isByteString(index: Int): Boolean =
     getElementDescriptor(index) == ByteArraySerializer().descriptor &&
         getElementAnnotations(index).find { it is ByteString } != null
 
+// todo: KDoc
 private fun MutableList<Int>.prune() {
     for (i in lastIndex downTo 0) {
         when (get(i)) {
