@@ -123,7 +123,7 @@ Project(name=kotlinx.serialization, status=SUPPORTED, votes=9000)
 ### Ignoring unknown keys
 
 JSON format is often used to read the output of 3rd-party services or in otherwise highly-dynamic environment where
-new properties could be added as a part of API evolution. By default, unknown keys encountered during deserialization produces an error. 
+new properties could be added as a part of API evolution. By default, unknown keys encountered during deserialization produce an error.
 This behavior can be configured with 
 the [ignoreUnknownKeys][JsonBuilder.ignoreUnknownKeys] property.
 
