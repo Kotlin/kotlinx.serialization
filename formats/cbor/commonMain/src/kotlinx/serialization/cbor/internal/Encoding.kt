@@ -475,10 +475,8 @@ internal class CborDecoder(private val input: ByteArrayInput) {
                     throw CborDecodingException("next data item", curByte)
                 prune(lengthStack)
             } else {
-                val length = elementLength()
-                if (length < 0) throw SerializationException("Length cannot be negative, was $length")
-
                 val header = curByte and 0b111_00000
+                val length = elementLength()
                 if (header == HEADER_ARRAY || header == HEADER_MAP) {
                     if (length > 0) lengthStack.add(length)
                 } else {
