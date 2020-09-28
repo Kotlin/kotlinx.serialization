@@ -578,7 +578,7 @@ private fun SerialDescriptor.isByteString(index: Int): Boolean =
 
 /**
  * Removes an item from the top of the [lengthStack], cascading the removal if the item represents the last item (i.e. a
- * value of `1`) at that stack depth.
+ * length value of `1`) at its stack depth.
  *
  * For example, pruning a [lengthStack] of `[3, 2, 1, 1]` would result in `[3, 1]`.
  */
