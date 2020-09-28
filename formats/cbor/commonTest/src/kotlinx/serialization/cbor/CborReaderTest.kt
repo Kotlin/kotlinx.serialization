@@ -132,6 +132,88 @@ class CborReaderTest {
         }
     }
 
+    @Test
+    fun testIgnoreUnknownKeysFailsWhenDecodingIncompleteCbor() {
+        /* A3                 # map(3)
+         *    63              # text(3)
+         *       737472       # "str"
+         *    66              # text(6)
+         *       737472696E67 # "string"
+         *    61              # text(1)
+         *       69           # "i"
+         *    00              # unsigned(0)
+         *    66              # text(6)
+         *       69676E6F7265 # "ignore"
+         *    A2
+         * (missing value associated with "ignore" key)
+         */
+        assertFailsWithMessage<SerializationException>("Missing element value") {
+            ignoreUnknownKeys.decodeFromHexString(
+                TypesUmbrella.serializer(),
+                "a36373747266737472696e676169006669676e6f7265"
+            )
+        }
+
+        /* A3                 # map(3)
+         *    63              # text(3)
+         *       737472       # "str"
+         *    66              # text(6)
+         *       737472696E67 # "string"
+         *    61              # text(1)
+         *       69           # "i"
+         *    00              # unsigned(0)
+         *    66              # text(6)
+         *       69676E6F7265 # "ignore"
+         *    A2              # map(2)
+         * (missing map contents associated with "ignore" key)
+         */
+        assertFailsWithMessage<SerializationException>("EOF while skipping element") {
+            ignoreUnknownKeys.decodeFromHexString(
+                TypesUmbrella.serializer(),
+                "a36373747266737472696e676169006669676e6f7265a2"
+            )
+        }
+
+    }
+
+    @Test
+    fun testIgnoreUnknownKeysFailsWhenEncounteringPreemptiveBreak() {
+        /* A3                 # map(3)
+         *    63              # text(3)
+         *       737472       # "str"
+         *    66              # text(6)
+         *       737472696E67 # "string"
+         *    66              # text(6)
+         *       69676E6F7265 # "ignore"
+         *    FF              # primitive(*)
+         */
+        assertFailsWithMessage<SerializationException>("Expected next data item, but found FF") {
+            ignoreUnknownKeys.decodeFromHexString(
+                TypesUmbrella.serializer(),
+                "a36373747266737472696e676669676e6f7265ff"
+            )
+        }
+    }
+
+    @Test
+    fun testIgnoreUnknownKeysFailsWhenEncounteringNegativeLengthElement() {
+        /* A3                 # map(3)
+         *    63              # text(3)
+         *       737472       # "str"
+         *    66              # text(6)
+         *       737472696E67 # "string"
+         *    66              # text(6)
+         *       69676E6F7265 # "ignore"
+         *    FF              # primitive(*)
+         */
+        assertFailsWithMessage<SerializationException>("Expected next data item, but found FF") {
+            ignoreUnknownKeys.decodeFromHexString(
+                TypesUmbrella.serializer(),
+                "a36373747266737472696e676669676e6f7265ff"
+            )
+        }
+    }
+
     /**
      * Tests skipping unknown keys associated with values of the following CBOR types:
      * - Major type 0: an unsigned integer

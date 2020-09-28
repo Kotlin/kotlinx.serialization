@@ -453,7 +453,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
 
     /**
      * Skips the current value element. Bytes are processed to determine the element type (and corresponding length), to
-     * ultimately determine how many bytes to skip.
+     * determine how many bytes to skip.
      *
      * For primitive (finite length) elements (e.g. unsigned integer, text string), their length is read and
      * corresponding number of bytes are skipped.
@@ -464,6 +464,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
      * the "length stack" which is only popped from the "length stack" when a CBOR [break][isEnd] is encountered.
      */
     fun skipElement() {
+        if (curByte == -1) throw SerializationException("Missing element value")
         val lengthStack = mutableListOf<Int>()
 
         do {
