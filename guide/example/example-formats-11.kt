@@ -13,12 +13,7 @@ class ListEncoder : AbstractEncoder() {
 
     override fun encodeValue(value: Any) {
         list.add(value)
-    }                               
-
-    override fun beginCollection(descriptor: SerialDescriptor, collectionSize: Int): CompositeEncoder {
-        encodeInt(collectionSize)
-        return this
-    }                                                
+    }
 }
 
 fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> {
@@ -29,26 +24,23 @@ fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> 
 
 inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
 
-class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : AbstractDecoder() {
+class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
     private var elementIndex = 0
 
     override val serializersModule: SerializersModule = EmptySerializersModule
 
     override fun decodeValue(): Any = list.removeFirst()
-
+    
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-        if (elementIndex == elementsCount) return CompositeDecoder.DECODE_DONE
+        if (elementIndex == descriptor.elementsCount) return CompositeDecoder.DECODE_DONE
         return elementIndex++
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
-        ListDecoder(list, descriptor.elementsCount)
+        ListDecoder(list) 
 
     override fun decodeSequentially(): Boolean = true
-
-    override fun decodeCollectionSize(descriptor: SerialDescriptor): Int =
-        decodeInt().also { elementsCount = it }
-}
+}        
 
 fun <T> decodeFromList(list: List<Any>, deserializer: DeserializationStrategy<T>): T {
     val decoder = ListDecoder(ArrayDeque(list))
@@ -58,13 +50,13 @@ fun <T> decodeFromList(list: List<Any>, deserializer: DeserializationStrategy<T>
 inline fun <reified T> decodeFromList(list: List<Any>): T = decodeFromList(list, serializer())
 
 @Serializable
-data class Project(val name: String, val owners: List<User>, val votes: Int)
+data class Project(val name: String, val owner: User, val votes: Int)
 
 @Serializable
 data class User(val name: String)
 
 fun main() {
-    val data = Project("kotlinx.serialization",  listOf(User("kotlin"), User("jetbrains")), 9000)
+    val data = Project("kotlinx.serialization",  User("kotlin"), 9000)
     val list = encodeToList(data)
     println(list)
     val obj = decodeFromList<Project>(list)

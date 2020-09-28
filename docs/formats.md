@@ -12,6 +12,7 @@ stable, these are currently experimental features of Kotlin serialization.
 
 * [CBOR (experimental)](#cbor-experimental)
   * [Byte arrays and CBOR data types](#byte-arrays-and-cbor-data-types)
+  * [Ignoring unknown keys](#ignoring-unknown-keys)
 * [ProtoBuf (experimental)](#protobuf-experimental)
   * [Field numbers](#field-numbers)
   * [Integer types](#integer-types)
@@ -1322,6 +1323,7 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
 [Cbor.encodeToByteArray]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.cbor/-cbor/encode-to-byte-array.html
 [Cbor.decodeFromByteArray]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.cbor/-cbor/decode-from-byte-array.html
 [ByteString]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.cbor/-byte-string/index.html
+[CborBuilder.ignoreUnknownKeys]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.cbor/-cbor-builder/ignore-unknown-keys.html
 <!--- INDEX kotlinx.serialization.protobuf -->
 [ProtoBuf]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.protobuf/-proto-buf/index.html
 [ProtoBuf.encodeToByteArray]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.protobuf/-proto-buf/encode-to-byte-array.html

@@ -130,6 +130,7 @@ Once the project is set up, we can start serializing some classes.
 <!--- TOC_REF formats.md -->
 * <a name='cbor-experimental'></a>[CBOR (experimental)](formats.md#cbor-experimental)
   * <a name='byte-arrays-and-cbor-data-types'></a>[Byte arrays and CBOR data types](formats.md#byte-arrays-and-cbor-data-types)
+  * <a name='ignoring-unknown-keys'></a>[Ignoring unknown keys](formats.md#ignoring-unknown-keys)
 * <a name='protobuf-experimental'></a>[ProtoBuf (experimental)](formats.md#protobuf-experimental)
   * <a name='field-numbers'></a>[Field numbers](formats.md#field-numbers)
   * <a name='integer-types'></a>[Integer types](formats.md#integer-types)

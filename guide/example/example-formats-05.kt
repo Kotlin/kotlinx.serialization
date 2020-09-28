@@ -10,16 +10,17 @@ fun ByteArray.toAsciiHexString() = joinToString("") {
 }
 
 @Serializable
-class Data(
-    @ProtoType(ProtoIntegerType.DEFAULT)
-    val a: Int,
-    @ProtoType(ProtoIntegerType.SIGNED)
-    val b: Int,
-    @ProtoType(ProtoIntegerType.FIXED)
-    val c: Int
+data class Project(
+    @ProtoNumber(1)
+    val name: String, 
+    @ProtoNumber(3)
+    val language: String
 )
 
 fun main() {
-    val data = Data(1, -2, 3) 
-    println(ProtoBuf.encodeToByteArray(data).toAsciiHexString())
+    val data = Project("kotlinx.serialization", "Kotlin") 
+    val bytes = ProtoBuf.encodeToByteArray(data)   
+    println(bytes.toAsciiHexString())
+    val obj = ProtoBuf.decodeFromByteArray<Project>(bytes)
+    println(obj)
 }

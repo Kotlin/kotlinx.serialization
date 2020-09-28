@@ -10,14 +10,16 @@ fun ByteArray.toAsciiHexString() = joinToString("") {
 }
 
 @Serializable
-data class Data(
-    val a: List<Int> = emptyList(),
-    val b: List<Int> = emptyList()
+class Data(
+    @ProtoType(ProtoIntegerType.DEFAULT)
+    val a: Int,
+    @ProtoType(ProtoIntegerType.SIGNED)
+    val b: Int,
+    @ProtoType(ProtoIntegerType.FIXED)
+    val c: Int
 )
 
 fun main() {
-    val data = Data(listOf(1, 2, 3), listOf())
-    val bytes = ProtoBuf.encodeToByteArray(data)
-    println(bytes.toAsciiHexString())
-    println(ProtoBuf.decodeFromByteArray<Data>(bytes))
+    val data = Data(1, -2, 3) 
+    println(ProtoBuf.encodeToByteArray(data).toAsciiHexString())
 }

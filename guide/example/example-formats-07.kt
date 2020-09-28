@@ -2,17 +2,22 @@
 package example.exampleFormats07
 
 import kotlinx.serialization.*
-import kotlinx.serialization.properties.Properties // todo: remove when no longer needed
-import kotlinx.serialization.properties.*
+import kotlinx.serialization.protobuf.*
+
+fun ByteArray.toAsciiHexString() = joinToString("") {
+    if (it in 32..127) it.toChar().toString() else
+        "{${it.toUByte().toString(16).padStart(2, '0').toUpperCase()}}"
+}
 
 @Serializable
-class Project(val name: String, val owner: User)
-
-@Serializable
-class User(val name: String)
+data class Data(
+    val a: List<Int> = emptyList(),
+    val b: List<Int> = emptyList()
+)
 
 fun main() {
-    val data = Project("kotlinx.serialization",  User("kotlin"))
-    val map = Properties.encodeToMap(data)
-    map.forEach { (k, v) -> println("$k = $v") }
+    val data = Data(listOf(1, 2, 3), listOf())
+    val bytes = ProtoBuf.encodeToByteArray(data)
+    println(bytes.toAsciiHexString())
+    println(ProtoBuf.decodeFromByteArray<Data>(bytes))
 }

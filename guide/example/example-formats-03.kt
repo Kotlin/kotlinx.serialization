@@ -2,20 +2,16 @@
 package example.exampleFormats03
 
 import kotlinx.serialization.*
-import kotlinx.serialization.protobuf.*
+import kotlinx.serialization.cbor.*
 
-fun ByteArray.toAsciiHexString() = joinToString("") {
-    if (it in 32..127) it.toChar().toString() else
-        "{${it.toUByte().toString(16).padStart(2, '0').toUpperCase()}}"
-}
+val format = Cbor { ignoreUnknownKeys = true }
 
 @Serializable
-data class Project(val name: String, val language: String)
+data class Project(val name: String)
 
 fun main() {
-    val data = Project("kotlinx.serialization", "Kotlin") 
-    val bytes = ProtoBuf.encodeToByteArray(data)   
-    println(bytes.toAsciiHexString())
-    val obj = ProtoBuf.decodeFromByteArray<Project>(bytes)
-    println(obj)
+    val data = format.decodeFromHexString<Project>(
+        "bf646e616d65756b6f746c696e782e73657269616c697a6174696f6e686c616e6775616765664b6f746c696eff"
+    )
+    println(data)
 }
