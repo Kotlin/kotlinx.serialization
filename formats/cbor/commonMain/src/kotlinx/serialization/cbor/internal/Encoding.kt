@@ -32,6 +32,9 @@ private const val HEADER_NEGATIVE: Byte = 0b001_00000
 private const val HEADER_ARRAY: Int = 0b100_00000
 private const val HEADER_MAP: Int = 0b101_00000
 
+/** Value to represent an indefinite length CBOR item within a "length stack". */
+private const val LENGTH_STACK_INDEFINITE = -1
+
 // Differs from List only in start byte
 private class CborMapWriter(cbor: Cbor, encoder: CborEncoder) : CborListWriter(cbor, encoder) {
     override fun writeBeginToken() = encoder.startMap()
@@ -452,28 +455,25 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         val lengthStack = mutableListOf<Int>()
 
         do {
-            var prune = false
-
-            if (isEnd()) {
-                if (lengthStack.lastOrNull() != -1) throw CborDecodingException("next data item", curByte)
-                lengthStack.removeAt(lengthStack.lastIndex)
-                prune = true
-            } else if (isIndefinite()) {
-                lengthStack.add(-1)
+            if (isIndefinite()) {
+                lengthStack.add(LENGTH_STACK_INDEFINITE)
+            } else if (isEnd()) {
+                if (lengthStack.removeLastOrNull() != LENGTH_STACK_INDEFINITE)
+                    throw CborDecodingException("next data item", curByte)
+                prune(lengthStack)
             } else {
-                val header = curByte and 0b111_00000
                 val length = elementLength()
                 if (length < 0) throw SerializationException("Length cannot be negative, was $length")
 
+                val header = curByte and 0b111_00000
                 if (header == HEADER_ARRAY || header == HEADER_MAP) {
                     if (length > 0) lengthStack.add(length)
                 } else {
                     input.skip(length)
-                    prune = true
+                    prune(lengthStack)
                 }
             }
 
-            if (prune) lengthStack.prune()
             if (readByte() == -1 && lengthStack.isNotEmpty()) throw SerializationException("EOF while skipping element")
         } while (lengthStack.isNotEmpty())
     }
@@ -486,15 +486,15 @@ internal class CborDecoder(private val input: ByteArrayInput) {
      */
     private fun isIndefinite(): Boolean {
         val majorType = curByte and 0b111_00000
-        val additionalInformation = curByte and 0b000_11111
+        val value = curByte and 0b000_11111
 
-        return additionalInformation == ADDITIONAL_INFORMATION_INDEFINITE_LENGTH &&
+        return value == ADDITIONAL_INFORMATION_INDEFINITE_LENGTH &&
             (majorType == HEADER_ARRAY || majorType == HEADER_MAP ||
                 majorType == HEADER_BYTE_STRING.toInt() || majorType == HEADER_STRING.toInt())
     }
 
     /**
-     * Calculates the length of the major type represented by [curByte]; length has specific meaning based on the type:
+     * Determines the length of the CBOR item represented by [curByte]; length has specific meaning based on the type:
      *
      * | Major type          | Length represents number of... |
      * |---------------------|--------------------------------|
@@ -563,14 +563,19 @@ private fun SerialDescriptor.isByteString(index: Int): Boolean =
     getElementDescriptor(index) == ByteArraySerializer().descriptor &&
         getElementAnnotations(index).find { it is ByteString } != null
 
-// todo: KDoc
-private fun MutableList<Int>.prune() {
-    for (i in lastIndex downTo 0) {
-        when (get(i)) {
-            -1 -> break
-            1 -> removeAt(i)
+/**
+ * Removes an item from the top of the [lengthStack], cascading the removal if the item represents the last item (i.e. a
+ * value of `1`) at that stack depth.
+ *
+ * For example, pruning a [lengthStack] of `[3, 2, 1, 1]` would result in `[3, 1]`.
+ */
+private fun prune(lengthStack: MutableList<Int>) {
+    for (i in lengthStack.lastIndex downTo 0) {
+        when (lengthStack[i]) {
+            LENGTH_STACK_INDEFINITE -> break
+            1 -> lengthStack.removeAt(i)
             else -> {
-                set(i, get(i) - 1)
+                lengthStack[i] = lengthStack[i] - 1
                 break
             }
         }
