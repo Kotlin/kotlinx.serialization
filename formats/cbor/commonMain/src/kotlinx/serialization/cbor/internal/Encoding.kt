@@ -451,6 +451,18 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         return result
     }
 
+    /**
+     * Skips the current value element. Bytes are processed to determine the element type (and corresponding length), to
+     * ultimately determine how many bytes to skip.
+     *
+     * For primitive (finite length) elements (e.g. unsigned integer, text string), their length is read and
+     * corresponding number of bytes are skipped.
+     *
+     * For elements that contain children (e.g. array, map), the child count is read and added to a "length stack"
+     * (which represents the "number of elements" at each depth of the CBOR data structure). When a child element has
+     * been skipped, the "length stack" is [pruned][prune]. For indefinite length elements, a special marker is added to
+     * the "length stack" which is only popped from the "length stack" when a CBOR [break][isEnd] is encountered.
+     */
     fun skipElement() {
         val lengthStack = mutableListOf<Int>()
 
