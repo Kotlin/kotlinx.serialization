@@ -144,7 +144,6 @@ class CborReaderTest {
          *    00              # unsigned(0)
          *    66              # text(6)
          *       69676E6F7265 # "ignore"
-         *    A2
          * (missing value associated with "ignore" key)
          */
         assertFailsWithMessage<SerializationException>("Missing element value") {
