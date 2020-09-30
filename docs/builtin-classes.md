@@ -395,11 +395,12 @@ The next chapter covers [Serializers](serializers.md).
 [Set]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/ 
 [Map]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/ 
 
-<!--- MODULE /kotlinx-serialization -->
-<!--- INDEX kotlinx.serialization -->
-[Serializable]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization/-serializable/index.html
-[SerialName]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization/-serial-name/index.html
-<!--- INDEX kotlinx.serialization.builtins -->
-[LongAsStringSerializer]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.builtins/-long-as-string-serializer/index.html
+<!--- MODULE /kotlinx-serialization-core -->
+<!--- INDEX kotlinx-serialization-core/kotlinx.serialization -->
+[Serializable]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization/-serializable/index.html
+[SerialName]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization/-serial-name/index.html
+<!--- MODULE /kotlinx-serialization-core -->
+<!--- INDEX kotlinx-serialization-core/kotlinx.serialization.builtins -->
+[LongAsStringSerializer]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.builtins/-long-as-string-serializer/index.html
 <!--- END -->
  

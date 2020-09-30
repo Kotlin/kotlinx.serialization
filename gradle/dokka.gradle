@@ -35,3 +35,5 @@ subprojects {
         }
     }
 }
+
+task dokka(dependsOn: dokkaHtmlMultiModule) {}
