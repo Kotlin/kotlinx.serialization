@@ -150,7 +150,7 @@ public inline fun <reified T> Json.decodeFromJsonElement(json: JsonElement): T =
 public class JsonBuilder internal constructor(conf: JsonConf) {
     /**
      * Specifies whether default values of Kotlin properties should be encoded.
-     * `true` by default.
+     * `false` by default.
      */
     public var encodeDefaults: Boolean = conf.encodeDefaults
 
