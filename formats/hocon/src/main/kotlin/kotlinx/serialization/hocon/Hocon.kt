@@ -123,7 +123,9 @@ public sealed class Hocon(
             when {
                 descriptor.kind.listLike -> ListConfigReader(conf.getList(currentTag))
                 descriptor.kind.objLike -> if (ind > -1) ConfigReader(conf.getConfig(currentTag)) else this
-                descriptor.kind == StructureKind.MAP -> MapConfigReader(conf.getObject(currentTag))
+                descriptor.kind == StructureKind.MAP ->
+                    // if current tag is null - map in the root of config
+                    MapConfigReader(if (currentTagOrNull != null) conf.getObject(currentTag) else conf.root())
                 else -> this
             }
     }
