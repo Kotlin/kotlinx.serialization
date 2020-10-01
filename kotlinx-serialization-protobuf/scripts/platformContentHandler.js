@@ -57,15 +57,14 @@ function handleAnchor() {
         if (element) {
             let tab = searchForTab(element)
             if (tab) {
-                let found = document.querySelector('.tabs-section > .section-tab[data-togglable="' + tab.getAttribute("data-togglable") + '"]')
                 toggleSections(tab)
-                const content = element.nextElementSibling
-                if(content){
-                    content.classList.add('anchor-highlight')
-                    highlightedAnchor = content
-                }
-                element.scrollIntoView({behavior: "smooth"})
             }
+            const content = element.nextElementSibling
+            if(content){
+                content.classList.add('anchor-highlight')
+                highlightedAnchor = content
+            }
+            element.scrollIntoView({behavior: "smooth"})
         }
     }
 }

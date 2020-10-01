@@ -1,8 +1,6 @@
 $dokka.format:html-v1
 $dokka.linkExtension:html
-$dokka.location:kotlinx.serialization.config////PointingToDeclaration/kotlinx.serialization.config.html
 $dokka.location:org.jetbrains.kotlinx.serialization.config////PointingToDeclaration/org.jetbrains.kotlinx.serialization.config.html
-kotlinx.serialization.config
 kotlinx.serialization.hocon
 org.jetbrains.kotlinx.serialization.config
 

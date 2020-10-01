@@ -1,6 +1,5 @@
 $dokka.format:html-v1
 $dokka.linkExtension:html
-$dokka.location:kotlinx.serialization////PointingToDeclaration/kotlinx.serialization.html
-kotlinx.serialization
+
 kotlinx.serialization.properties
 
