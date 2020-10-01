@@ -174,11 +174,15 @@ to add this to your `proguard-rules.pro`:
 ```proguard
 -keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.AnnotationsKt # core serialization annotations
--keep,includedescriptorclasses class kotlinx.serialization.json.**$$serializer { *; } # JsonElement serializers
 -keep,includedescriptorclasses class com.yourcompany.yourpackage.**$$serializer { *; } # <-- change package name to your app's
 -keepclassmembers class com.yourcompany.yourpackage.** { # <-- change package name to your app's
     *** Companion;
 }
+
+# kotlinx-serialization-json specific
+-keep,includedescriptorclasses class kotlinx.serialization.json.**$$serializer { *; } # JsonElement-related serializers
+-keep,includedescriptorclasses class kotlinx.serialization.json.**Serializer { *; } # JsonElement-related serializers
+
 -keepclasseswithmembers class com.yourcompany.yourpackage.** { # <-- change package name to your app's
     kotlinx.serialization.KSerializer serializer(...);
 }
