@@ -7,7 +7,7 @@ public final class kotlinx/serialization/cbor/ByteString$Impl : kotlinx/serializ
 
 public abstract class kotlinx/serialization/cbor/Cbor : kotlinx/serialization/BinaryFormat {
 	public static final field Default Lkotlinx/serialization/cbor/Cbor$Default;
-	public synthetic fun <init> (ZZLkotlinx/serialization/modules/SerializersModule;Ljava/lang/Void;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ZZLkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun decodeFromByteArray (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
 	public fun encodeToByteArray (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
 	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
@@ -27,8 +27,6 @@ public final class kotlinx/serialization/cbor/CborBuilder {
 
 public final class kotlinx/serialization/cbor/CborKt {
 	public static final fun Cbor (Lkotlinx/serialization/cbor/Cbor;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/cbor/Cbor;
-	public static final fun Cbor (Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/cbor/Cbor;
-	public static final fun Cbor (ZLkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/cbor/Cbor;
 	public static synthetic fun Cbor$default (Lkotlinx/serialization/cbor/Cbor;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/cbor/Cbor;
 }
 

@@ -6,7 +6,6 @@ package kotlinx.serialization.encoding
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.modules.*
 
 /**
  * A skeleton implementation of both [Decoder] and [CompositeDecoder] that can be used
@@ -16,10 +15,6 @@ import kotlinx.serialization.modules.*
  */
 @ExperimentalSerializationApi
 public abstract class AbstractDecoder : Decoder, CompositeDecoder {
-
-    @Suppress("DEPRECATION")
-    @Deprecated(updateModeDeprecated, level = DeprecationLevel.ERROR)
-    override val updateMode: UpdateMode = UpdateMode.OVERWRITE
 
     /**
      * Invoked to decode a value when specialized `encode*` method was not overridden.
@@ -45,17 +40,7 @@ public abstract class AbstractDecoder : Decoder, CompositeDecoder {
         previousValue: T? = null
     ): T = decodeSerializableValue(deserializer)
 
-    // do not update signature here because new signature is called by the plugin;
-    // and clients that have old signature would not be called.
-    @Suppress("OverridingDeprecatedMember")
-    @Deprecated(
-        "Parameter typeSerializers is deprecated for removal. Please migrate to beginStructure method with one argument.",
-        ReplaceWith("beginStructure(descriptor)"),
-        DeprecationLevel.ERROR
-    )
-    override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
-        return this
-    }
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder = this
 
     override fun endStructure(descriptor: SerialDescriptor) {
     }

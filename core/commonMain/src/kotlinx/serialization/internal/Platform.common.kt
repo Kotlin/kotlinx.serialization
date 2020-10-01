@@ -10,19 +10,6 @@ import kotlinx.serialization.encoding.*
 import kotlin.native.concurrent.*
 import kotlin.reflect.*
 
-@InternalSerializationApi
-@Deprecated(
-    level = DeprecationLevel.ERROR,
-    message = "HexConverter slipped into public API surface accidentally and will be removed in the future releases. " +
-            "You can copy-paste it to your project or (better) find a polished implementation that initially was intended for public uses."
-)
-public object HexConverter {
-    private const val hexCode = "0123456789ABCDEF"
-    public fun parseHexBinary(s: String): ByteArray = InternalHexConverter.parseHexBinary(s)
-    public fun printHexBinary(data: ByteArray, lowerCase: Boolean = false): String = InternalHexConverter.printHexBinary(data, lowerCase)
-    public fun toHexString(n: Int): String = InternalHexConverter.toHexString(n)
-}
-
 internal object InternalHexConverter {
     private const val hexCode = "0123456789ABCDEF"
 

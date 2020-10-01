@@ -165,10 +165,7 @@ private class DynamicObjectEncoder(
 
     private fun isNotStructured() = result === NoOutputMark
 
-    override fun beginStructure(
-        descriptor: SerialDescriptor,
-        vararg typeSerializers: KSerializer<*>
-    ): CompositeEncoder {
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
         // we currently do not structures as map key
         if (currentElementIsMapKey) {
             throw IllegalArgumentException(

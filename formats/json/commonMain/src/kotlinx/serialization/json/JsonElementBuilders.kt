@@ -69,58 +69,6 @@ public class JsonObjectBuilder @PublishedApi internal constructor() {
 
     @PublishedApi
     internal fun build(): JsonObject = JsonObject(content)
-
-    /**
-     * Adds given [value] to the current [JsonObject] with [this] as a key.
-     */
-    @Deprecated(
-        message = infixToDeprecated,
-        replaceWith = ReplaceWith("put(this, value)"),
-        level = DeprecationLevel.ERROR
-    )
-    public infix fun String.to(value: JsonElement) {
-        require(content[this] == null) { "Key $this is already registered in builder" }
-        content[this] = value
-    }
-
-    /**
-     * Adds given [value] as [JsonPrimitive] to the current [JsonObject] with [this] as a key.
-     */
-    @Deprecated(
-        message = infixToDeprecated,
-        replaceWith = ReplaceWith("put(this, value)"),
-        level = DeprecationLevel.ERROR
-    )
-    public infix fun String.to(value: Number?) {
-        require(content[this] == null) { "Key $this is already registered in builder" }
-        content[this] = JsonPrimitive(value)
-    }
-
-    /**
-     * Adds given [value] as [JsonPrimitive] to the current [JsonObject] with [this] as a key.
-     */
-    @Deprecated(
-        message = infixToDeprecated,
-        replaceWith = ReplaceWith("put(this, value)"),
-        level = DeprecationLevel.ERROR
-    )
-    public infix fun String.to(value: Boolean?) {
-        require(content[this] == null) { "Key $this is already registered in builder" }
-        content[this] = JsonPrimitive(value)
-    }
-
-    /**
-     * Adds given [value] as [JsonPrimitive] to the current [JsonObject] with [this] as a key.
-     */
-    @Deprecated(
-        message = infixToDeprecated,
-        replaceWith = ReplaceWith("put(this, value)"),
-        level = DeprecationLevel.ERROR
-    )
-    public infix fun String.to(value: String?) {
-        require(content[this] == null) { "Key $this is already registered in builder" }
-        content[this] = JsonPrimitive(value)
-    }
 }
 
 /**
@@ -180,38 +128,6 @@ public class JsonArrayBuilder @PublishedApi internal constructor() {
 
     @PublishedApi
     internal fun build(): JsonArray = JsonArray(content)
-
-    /**
-     * Adds [this] value to the current [JsonArray] as [JsonPrimitive].
-     */
-    @Deprecated(message = unaryPlusDeprecated, replaceWith = ReplaceWith("add(this)"), level = DeprecationLevel.ERROR)
-    public operator fun String?.unaryPlus() {
-        content.add(JsonPrimitive(this))
-    }
-
-    /**
-     * Adds [this] value to the current [JsonArray] as [JsonPrimitive].
-     */
-    @Deprecated(message = unaryPlusDeprecated, replaceWith = ReplaceWith("add(this)"), level = DeprecationLevel.ERROR)
-    public operator fun Number?.unaryPlus() {
-        content.add(JsonPrimitive(this))
-    }
-
-    /**
-     * Adds [this] value to the current [JsonArray] as [JsonPrimitive].
-     */
-    @Deprecated(message = unaryPlusDeprecated, replaceWith = ReplaceWith("add(this)"), level = DeprecationLevel.ERROR)
-    public operator fun Boolean?.unaryPlus() {
-        content.add(JsonPrimitive(this))
-    }
-
-    /**
-     * Adds [this] value to the current [JsonArray].
-     */
-    @Deprecated(message = unaryPlusDeprecated, replaceWith = ReplaceWith("add(this)"), level = DeprecationLevel.ERROR)
-    public operator fun JsonElement.unaryPlus() {
-        this@JsonArrayBuilder.content.add(this)
-    }
 }
 
 /**

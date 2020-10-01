@@ -16,12 +16,8 @@ private const val INITIAL_SIZE = 10
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-@Deprecated(
-    message = "Deprecated in the favour of ByteArraySerializer() factory",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("ByteArraySerializer()", imports = ["kotlinx.serialization.builtins.ByteArraySerializer"])
-)
-public object ByteArraySerializer : KSerializer<ByteArray>,
+@PublishedApi
+internal object ByteArraySerializer : KSerializer<ByteArray>,
     PrimitiveArraySerializer<Byte, ByteArray, ByteArrayBuilder>(Byte.serializer()) {
 
     override fun ByteArray.collectionSize(): Int = size
@@ -38,9 +34,8 @@ public object ByteArraySerializer : KSerializer<ByteArray>,
     }
 }
 
-@InternalSerializationApi
-@Deprecated(message = "For internal use", level = DeprecationLevel.HIDDEN)
-public class ByteArrayBuilder internal constructor(
+@PublishedApi
+internal class ByteArrayBuilder internal constructor(
     bufferWithData: ByteArray
 ) : PrimitiveArrayBuilder<ByteArray>() {
 
@@ -72,12 +67,8 @@ public class ByteArrayBuilder internal constructor(
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-@Deprecated(
-    message = "Deprecated in the favour of ShortArraySerializer() factory",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("ShortArraySerializer()", imports = ["kotlinx.serialization.builtins.ShortArraySerializer"])
-)
-public object ShortArraySerializer : KSerializer<ShortArray>,
+@PublishedApi
+internal object ShortArraySerializer : KSerializer<ShortArray>,
     PrimitiveArraySerializer<Short, ShortArray, ShortArrayBuilder>(Short.serializer()) {
 
     override fun ShortArray.collectionSize(): Int = size
@@ -94,9 +85,8 @@ public object ShortArraySerializer : KSerializer<ShortArray>,
     }
 }
 
-@InternalSerializationApi
-@Deprecated(message = "For internal use", level = DeprecationLevel.HIDDEN)
-public class ShortArrayBuilder internal constructor(
+@PublishedApi
+internal class ShortArrayBuilder internal constructor(
     bufferWithData: ShortArray
 ) : PrimitiveArrayBuilder<ShortArray>() {
 
@@ -127,12 +117,8 @@ public class ShortArrayBuilder internal constructor(
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-@Deprecated(
-    message = "Deprecated in the favour of IntArraySerializer() factory",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("IntArraySerializer()", imports = ["kotlinx.serialization.builtins.IntArraySerializer"])
-)
-public object IntArraySerializer : KSerializer<IntArray>,
+@PublishedApi
+internal object IntArraySerializer : KSerializer<IntArray>,
     PrimitiveArraySerializer<Int, IntArray, IntArrayBuilder>(Int.serializer()) {
 
     override fun IntArray.collectionSize(): Int = size
@@ -149,9 +135,8 @@ public object IntArraySerializer : KSerializer<IntArray>,
     }
 }
 
-@InternalSerializationApi
-@Deprecated(message = "For internal use", level = DeprecationLevel.HIDDEN)
-public class IntArrayBuilder internal constructor(
+@PublishedApi
+internal class IntArrayBuilder internal constructor(
     bufferWithData: IntArray
 ) : PrimitiveArrayBuilder<IntArray>() {
 
@@ -182,12 +167,8 @@ public class IntArrayBuilder internal constructor(
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-@Deprecated(
-    message = "Deprecated in the favour of LongArraySerializer() factory",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("LongArraySerializer()", imports = ["kotlinx.serialization.builtins.LongArraySerializer"])
-)
-public object LongArraySerializer : KSerializer<LongArray>,
+@PublishedApi
+internal object LongArraySerializer : KSerializer<LongArray>,
     PrimitiveArraySerializer<Long, LongArray, LongArrayBuilder>(Long.serializer()) {
 
     override fun LongArray.collectionSize(): Int = size
@@ -204,9 +185,8 @@ public object LongArraySerializer : KSerializer<LongArray>,
     }
 }
 
-@InternalSerializationApi
-@Deprecated(message = "For internal use", level = DeprecationLevel.HIDDEN)
-public class LongArrayBuilder internal constructor(
+@PublishedApi
+internal class LongArrayBuilder internal constructor(
     bufferWithData: LongArray
 ) : PrimitiveArrayBuilder<LongArray>() {
 
@@ -237,12 +217,8 @@ public class LongArrayBuilder internal constructor(
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-@Deprecated(
-    message = "Deprecated in the favour of FloatArraySerializer() factory",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("FloatArraySerializer()", imports = ["kotlinx.serialization.builtins.FloatArraySerializer"])
-)
-public object FloatArraySerializer : KSerializer<FloatArray>,
+@PublishedApi
+internal object FloatArraySerializer : KSerializer<FloatArray>,
     PrimitiveArraySerializer<Float, FloatArray, FloatArrayBuilder>(Float.serializer()) {
 
     override fun FloatArray.collectionSize(): Int = size
@@ -259,9 +235,8 @@ public object FloatArraySerializer : KSerializer<FloatArray>,
     }
 }
 
-@InternalSerializationApi
-@Deprecated(message = "For internal use", level = DeprecationLevel.HIDDEN)
-public class FloatArrayBuilder internal constructor(
+@PublishedApi
+internal class FloatArrayBuilder internal constructor(
     bufferWithData: FloatArray
 ) : PrimitiveArrayBuilder<FloatArray>() {
 
@@ -292,12 +267,8 @@ public class FloatArrayBuilder internal constructor(
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-@Deprecated(
-    message = "Deprecated in the favour of DoubleArraySerializer() factory",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("DoubleArraySerializer()", imports = ["kotlinx.serialization.builtins.DoubleArraySerializer"])
-)
-public object DoubleArraySerializer : KSerializer<DoubleArray>,
+@PublishedApi
+internal object DoubleArraySerializer : KSerializer<DoubleArray>,
     PrimitiveArraySerializer<Double, DoubleArray, DoubleArrayBuilder>(Double.serializer()) {
 
     override fun DoubleArray.collectionSize(): Int = size
@@ -314,9 +285,8 @@ public object DoubleArraySerializer : KSerializer<DoubleArray>,
     }
 }
 
-@InternalSerializationApi
-@Deprecated(message = "For internal use", level = DeprecationLevel.HIDDEN)
-public class DoubleArrayBuilder internal constructor(
+@PublishedApi
+internal class DoubleArrayBuilder internal constructor(
     bufferWithData: DoubleArray
 ) : PrimitiveArrayBuilder<DoubleArray>() {
 
@@ -347,12 +317,8 @@ public class DoubleArrayBuilder internal constructor(
  * Encode elements one-by-one, as regular list,
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
-@Deprecated(
-    message = "Deprecated in the favour of CharArraySerializer() factory",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("CharArraySerializer()", imports = ["kotlinx.serialization.builtins.CharArraySerializer"])
-)
-public object CharArraySerializer : KSerializer<CharArray>,
+@PublishedApi
+internal object CharArraySerializer : KSerializer<CharArray>,
     PrimitiveArraySerializer<Char, CharArray, CharArrayBuilder>(Char.serializer()) {
 
     override fun CharArray.collectionSize(): Int = size
@@ -369,9 +335,8 @@ public object CharArraySerializer : KSerializer<CharArray>,
     }
 }
 
-@InternalSerializationApi
-@Deprecated(message = "For internal use", level = DeprecationLevel.HIDDEN)
-public class CharArrayBuilder internal constructor(
+@PublishedApi
+internal class CharArrayBuilder internal constructor(
     bufferWithData: CharArray
 ) : PrimitiveArrayBuilder<CharArray>() {
 
@@ -400,12 +365,8 @@ public class CharArrayBuilder internal constructor(
  * Serializer for [BooleanArray].
  * Encode elements one-by-one, as regular list, unless format's Encoder/Decoder have a special support for this serializer.
  */
-@Deprecated(
-    message = "Deprecated in the favour of BooleanArraySerializer() factory",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("BooleanArraySerializer()", imports = ["kotlinx.serialization.builtins.BooleanArraySerializer"])
-)
-public object BooleanArraySerializer : KSerializer<BooleanArray>,
+@PublishedApi
+internal object BooleanArraySerializer : KSerializer<BooleanArray>,
     PrimitiveArraySerializer<Boolean, BooleanArray, BooleanArrayBuilder>(Boolean.serializer()) {
 
     override fun BooleanArray.collectionSize(): Int = size
@@ -422,9 +383,8 @@ public object BooleanArraySerializer : KSerializer<BooleanArray>,
     }
 }
 
-@InternalSerializationApi
-@Deprecated(message = "For internal use", level = DeprecationLevel.HIDDEN)
-public class BooleanArrayBuilder internal constructor(
+@PublishedApi
+internal class BooleanArrayBuilder internal constructor(
     bufferWithData: BooleanArray
 ) : PrimitiveArrayBuilder<BooleanArray>() {
 

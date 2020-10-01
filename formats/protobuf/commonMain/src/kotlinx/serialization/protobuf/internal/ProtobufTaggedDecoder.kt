@@ -10,9 +10,6 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 
 internal abstract class ProtobufTaggedDecoder : ProtobufTaggedBase(), Decoder, CompositeDecoder {
-    override val updateMode: UpdateMode =
-        UpdateMode.UPDATE
-
     protected abstract fun SerialDescriptor.getTag(index: Int): ProtoDesc
 
     protected abstract fun decodeTaggedBoolean(tag: ProtoDesc): Boolean

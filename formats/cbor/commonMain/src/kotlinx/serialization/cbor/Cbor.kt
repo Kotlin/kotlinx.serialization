@@ -39,7 +39,7 @@ public sealed class Cbor(
     /**
      * The default instance of [Cbor]
      */
-    public companion object Default : Cbor(false, false, EmptySerializersModule, null)
+    public companion object Default : Cbor(false, false, EmptySerializersModule)
 
     override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutput()
@@ -57,7 +57,7 @@ public sealed class Cbor(
 
 @OptIn(ExperimentalSerializationApi::class)
 private class CborImpl(encodeDefaults: Boolean, ignoreUnknownKeys: Boolean, serializersModule: SerializersModule) :
-    Cbor(encodeDefaults, ignoreUnknownKeys, serializersModule, null)
+    Cbor(encodeDefaults, ignoreUnknownKeys, serializersModule)
 
 /**
  * Creates an instance of [Cbor] configured from the optionally given [Cbor instance][from]
@@ -93,17 +93,3 @@ public class CborBuilder internal constructor(cbor: Cbor) {
      */
     public var serializersModule: SerializersModule = cbor.serializersModule
 }
-
-@Deprecated(
-    "Cbor constructor was deprecated in the favour of factory function during serialization 1.0 API stabilization",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("Cbor { this.encodeDefaults = encodeDefaults; this.serializersModule = serializersModule }")
-)
-public fun Cbor(encodeDefaults: Boolean, serializersModule: SerializersModule): Cbor = Cbor
-
-@Deprecated(
-    "Cbor constructor was deprecated in the favour of factory function during serialization 1.0 API stabilization",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("Cbor { this.serializersModule = serializersModule }")
-)
-public fun Cbor(serializersModule: SerializersModule): Cbor = Cbor

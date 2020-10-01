@@ -7,7 +7,6 @@ package kotlinx.serialization
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.descriptors.elementNames
 import kotlinx.serialization.encoding.*
-import kotlinx.serialization.encoding.updateModeDeprecated
 
 /**
  * KSerializer is responsible for the representation of a serial form of a type [T]
@@ -65,9 +64,6 @@ public interface KSerializer<T> : SerializationStrategy<T>, DeserializationStrat
      * to introspect the type, infer the schema or to compare against the predefined schema.
      */
     override val descriptor: SerialDescriptor
-
-    @Deprecated(patchDeprecated, level = DeprecationLevel.ERROR)
-    override fun patch(decoder: Decoder, old: T): T = throw UnsupportedOperationException("Not implemented, should not be called")
 }
 
 /**
@@ -177,20 +173,5 @@ public interface DeserializationStrategy<T> {
      * ```
      */
     public fun deserialize(decoder: Decoder): T
-
-    @Deprecated(patchDeprecated, level = DeprecationLevel.ERROR)
-    public fun patch(decoder: Decoder, old: T): T
 }
 
-// Can't be error yet because it's impossible to add default implementations for `val updateMode` in Decoder:
-// 'Class JsonDecoder must implement updateMode because it inherits it from multiple interfaces'
-// so users will have it in signature until we delete updateMode
-@Deprecated(updateModeDeprecated, level = DeprecationLevel.WARNING)
-@Suppress("NO_EXPLICIT_VISIBILITY_IN_API_MODE_WARNING")
-public enum class UpdateMode {
-    BANNED, OVERWRITE, UPDATE
-}
-
-internal const val patchDeprecated =
-    "Patch function is deprecated for removal since this functionality is no longer supported by serializer." +
-            "Some formats may provide implementation-specific patching in their Decoders."

@@ -116,14 +116,13 @@ import kotlin.js.*
 @ExperimentalSerializationApi
 public sealed class ProtoBuf(
     internal val encodeDefaults: Boolean,
-    override val serializersModule: SerializersModule,
-    marker: Nothing? // Marker for deprecated ctor
+    override val serializersModule: SerializersModule
 ) : BinaryFormat {
 
     /**
      * The default instance of [ProtoBuf].
      */
-    public companion object Default : ProtoBuf(false, EmptySerializersModule, null)
+    public companion object Default : ProtoBuf(false, EmptySerializersModule)
 
     override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutput()
@@ -167,32 +166,5 @@ public class ProtoBufBuilder internal constructor(proto: ProtoBuf) {
     public var serializersModule: SerializersModule = proto.serializersModule
 }
 
-@Deprecated(
-    "Constructor was deprecated in the favor of builder function during serialization 1.0 API stabilization",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("ProtoBuf { this.encodeDefaults = encodeDefaults; this.serializersModule = serializersModule }")
-)
-public fun ProtoBuf(
-    encodeDefaults: Boolean,
-    serializersModule: SerializersModule = EmptySerializersModule
-): ProtoBuf = ProtoBufImpl(encodeDefaults, serializersModule)
-
-@Deprecated(
-    "Constructor was deprecated in the favor of builder function during serialization 1.0 API stabilization",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("ProtoBuf { this.serializersModule = serializersModule }")
-)
-public fun ProtoBuf(
-    serializersModule: SerializersModule
-): ProtoBuf = ProtoBufImpl(true, serializersModule)
-
-@Deprecated(
-    "Empty constructor was deprecated in the favor of Default instance during serialization 1.0 API stabilization",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("ProtoBuf")
-)
-@JsName("_ProtoBuf")
-public fun ProtoBuf(): ProtoBuf = ProtoBuf
-
 private class ProtoBufImpl(encodeDefaults: Boolean, serializersModule: SerializersModule) :
-    ProtoBuf(encodeDefaults, serializersModule, null)
+    ProtoBuf(encodeDefaults, serializersModule)

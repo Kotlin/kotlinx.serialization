@@ -88,11 +88,4 @@ public interface JsonDecoder : Decoder, CompositeDecoder {
      * ```
      */
     public fun decodeJsonElement(): JsonElement
-
-    // Class 'JsonDecoder' must override public open val updateMode: UpdateMode defined in kotlinx.serialization.encoding.Decoder
-    // because it inherits multiple interface methods of it
-    @Suppress("DEPRECATION")
-    @Deprecated(kotlinx.serialization.json.internal.updateModeDeprecated, level = DeprecationLevel.HIDDEN)
-    override val updateMode: UpdateMode
-        get() = UpdateMode.OVERWRITE
 }

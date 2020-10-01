@@ -255,63 +255,6 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
             classDiscriminator, allowSpecialFloatingPointValues, serializersModule
         )
     }
-
-    // Deprecated members below
-
-    @Deprecated(
-        level = DeprecationLevel.ERROR,
-        message = "This flag was renamed to 'allowSpecialFloatingPointValues' during serialization 1.0 API stabilization",
-        replaceWith = ReplaceWith("allowSpecialFloatingPointValues")
-    )
-    public var serializeSpecialFloatingPointValues: Boolean = false
-
-    @Deprecated(
-        level = DeprecationLevel.ERROR,
-        message = "This flag was renamed to 'prettyPrintIndent' during serialization 1.0 API stabilization",
-        replaceWith = ReplaceWith("prettyPrintIndent")
-    )
-    public var indent: String = "    "
-
-    @Deprecated(
-        level = DeprecationLevel.ERROR,
-        message = "'strictMode = true' is replaced with 3 new configuration parameters: " +
-                "'ignoreUnknownKeys = false' to fail if an unknown key is encountered, " +
-                "'serializeSpecialFloatingPointValues = false' to fail on 'NaN' and 'Infinity' values, " +
-                "'isLenient = false' to prohibit parsing of any non-compliant or malformed JSON"
-    )
-    public var strictMode: Boolean = true
-
-    @Deprecated(
-        level = DeprecationLevel.ERROR,
-        message = "Unquoted mode was deprecated without replacement",
-    )
-    public var unquoted: Boolean = false
-
-    @Deprecated(
-        level = DeprecationLevel.ERROR,
-        message = "Unquoted mode was deprecated without replacement"
-    )
-    public var unquotedPrint: Boolean = false
-
-    @Deprecated(
-        level = DeprecationLevel.ERROR,
-        message = "'serialModule' was renamed to 'serializersModule' during serialization 1.0 API stabilization",
-        replaceWith = ReplaceWith("serializersModule")
-    )
-    public var serialModule: SerializersModule = EmptySerializersModule
-
-    @Deprecated(
-        level = DeprecationLevel.ERROR,
-        message = "This method was deprecated for removal during serialization 1.0 API stabilization",
-    )
-    @Suppress("DEPRECATION_ERROR")
-    public fun buildConfiguration(): JsonConfiguration = error("Deprecated and should not be called")
-
-    @Deprecated(
-        level = DeprecationLevel.ERROR,
-        message = "This method was deprecated for removal during serialization 1.0 API stabilization",
-    )
-    public fun buildModule(): SerializersModule = error("Deprecated and should not be called")
 }
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -327,74 +270,6 @@ private class JsonImpl(configuration: JsonConf) : Json(configuration) {
         serializersModule.dumpTo(collector)
     }
 }
-
-// Deprecated helpers
-
-@Deprecated(
-    level = DeprecationLevel.ERROR,
-    message = "Deprecated in the favour of Json {} builder function during serialization 1.0 API stabilization. " +
-            "In order to migrate, please replace it with Json { } builder function. JsonBuilder receiver has the same " +
-            "properties as 'JsonConfiguration' and 'context' and should be configured there. " +
-            "Json(JsonConfiguration.Default) can be replaced with Json companion instead."
-)
-@Suppress("DEPRECATION_ERROR")
-public fun Json(
-    configuration: JsonConfiguration, context: SerializersModule = EmptySerializersModule
-): Json = error("Deprecated and should not be called")
-
-
-/*
- * These two declarations are trick for better migration.
- * Most of the usages (according to GitHub search) were the following:
- * ```
- * Json(JsonConfiguration.Default)
- * Json(JsonConfiguration.Stable)
- * Json(JsonConfiguration.X, module)
- * ```
- *
- * To migrate them gracefully, these properties subtype was narrowed down to `SubtypeToDetectDefaults`
- */
-@Deprecated(
-    level = DeprecationLevel.ERROR,
-    message = "Deprecated in the favour of Json.Default companion during serialization 1.0 API stabilization.",
-    replaceWith = ReplaceWith("Json")
-)
-public fun Json(
-    configuration: SubtypeToDetectDefault
-): Json = error("Deprecated and should not be called")
-
-@Deprecated(
-    level = DeprecationLevel.ERROR,
-    message = "Deprecated in the favour of Json {} builder function during serialization 1.0 API stabilization.",
-    replaceWith = ReplaceWith("Json { allowStructuredMapKeys = true }") // stable configuration
-)
-public fun Json(
-    configuration: SubtypeToDetectStable
-): Json = error("Deprecated and should not be called")
-
-@Deprecated(
-    level = DeprecationLevel.ERROR,
-    message = "Deprecated in the favour of Json {} builder function during serialization 1.0 API stabilization.",
-    replaceWith = ReplaceWith("Json { serializersModule = context }")
-)
-public fun Json(
-    configuration: SubtypeToDetectDefault, context: SerializersModule
-): Json = error("Deprecated and should not be called")
-
-@Deprecated(
-    "Deprecated in the favour of Json {} builder function during serialization 1.0 API stabilization",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("Json { serializersModule = context }")
-)
-public fun Json(context: SerializersModule): Json = error("Deprecated and should not be called")
-
-@JsName("_Json")
-@Deprecated(
-    "Empty constructor was deprecated in the favour of Json.Default instance during serialization 1.0 API stabilization",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("Json")
-)
-public fun Json(): Json = error("Deprecated and should not be called")
 
 private const val defaultIndent = "    "
 private const val defaultDiscriminator = "type"

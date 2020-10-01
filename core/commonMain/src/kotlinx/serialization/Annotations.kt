@@ -143,21 +143,6 @@ public annotation class Transient
 public annotation class SerialInfo
 
 /**
- * Commands to use [ContextualSerializer] on an annotated property or type usage.
- * If used on a file, commands using [ContextualSerializer] for all listed KClasses.
- *
- * @param [forClasses] Classes to use ContextualSerializer for in the current file.
- */
-@Deprecated(
-    "This annotation had several meanings and was split in two for readability: use @Contextual on properties and @UseContextualSerialization on files.",
-    ReplaceWith("Contextual"),
-    level = DeprecationLevel.ERROR
-)
-@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FILE, AnnotationTarget.TYPE)
-@Retention(AnnotationRetention.BINARY)
-public annotation class ContextualSerialization(vararg val forClasses: KClass<*>)
-
-/**
  * Instructs the plugin to use [ContextSerializer] on a given property or type.
  * Context serializer is usually used when serializer for type can only be found in runtime.
  * It is also possible to apply [ContextSerializer] to every property of the given type,

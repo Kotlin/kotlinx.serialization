@@ -40,13 +40,6 @@ private sealed class AbstractJsonTreeDecoder(
     override val serializersModule: SerializersModule
         get() = json.serializersModule
 
-    // must override public final val updateMode: UpdateMode defined in kotlinx.serialization.NamedValueDecoder
-    // because it inherits many implementations of it
-    @Suppress("DEPRECATION")
-    @Deprecated(updateModeDeprecated, level = DeprecationLevel.HIDDEN)
-    override val updateMode: UpdateMode
-        get() = UpdateMode.OVERWRITE
-
     @JvmField
     protected val configuration = json.configuration
 

@@ -259,24 +259,3 @@ public sealed class PolymorphicKind : SerialKind() {
      */
     public object OPEN : PolymorphicKind()
 }
-
-@Deprecated(
-    level = DeprecationLevel.ERROR,
-    message = "UnionKind is deprecated during 1.0 API stabilization"
-)
-@OptIn(ExperimentalSerializationApi::class)
-public object UnionKind {
-    @Deprecated(
-        "Was moved to the top-level serial kind during 1.0 API stabilization", level = DeprecationLevel.ERROR,
-        replaceWith = ReplaceWith("SerialKind.ENUM")
-    )
-    public val ENUM_KIND: SerialKind
-        get() = error("Should not be called")
-
-    @Deprecated(
-        "Was moved to the top-level serial kind during 1.0 API stabilization", level = DeprecationLevel.ERROR,
-        replaceWith = ReplaceWith("SerialKind.CONTEXTUAL")
-    )
-    public val CONTEXTUAL: SerialKind
-        get() = error("Should not be called")
-}

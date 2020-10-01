@@ -51,6 +51,7 @@ internal class EnumDescriptor(
 
 // Used for enums that are not explicitly serializable by the plugin
 @PublishedApi
+@OptIn(ExperimentalSerializationApi::class)
 internal class EnumSerializer<T : Enum<T>>(
     serialName: String,
     private val values: Array<T>

@@ -93,14 +93,6 @@ public abstract class JsonContentPolymorphicSerializer<T : Any>(private val base
         return input.json.decodeFromJsonElement(actualSerializer, tree)
     }
 
-    @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated(
-        "This method was renamed to selectDeserializer during serialization 1.0 API stabilization, please override it instead",
-        level = DeprecationLevel.ERROR
-    )
-    protected fun selectSerializer(element: JsonElement): KSerializer<out T> =
-        selectDeserializer(element) as KSerializer<out T>
-
     /**
      * Determines a particular strategy for deserialization by looking on a parsed JSON [element].
      */
@@ -115,10 +107,3 @@ public abstract class JsonContentPolymorphicSerializer<T : Any>(private val base
     }
 
 }
-
-@Deprecated(
-    "This class was renamed during serialization 1.0 API stabilization",
-    ReplaceWith("JsonContentPolymorphicSerializer<T>"),
-    DeprecationLevel.ERROR
-)
-public typealias JsonParametricSerializer<T> = JsonContentPolymorphicSerializer<T>

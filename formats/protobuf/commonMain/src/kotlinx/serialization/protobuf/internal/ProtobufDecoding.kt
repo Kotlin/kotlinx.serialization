@@ -3,6 +3,7 @@
  */
 
 @file:OptIn(ExperimentalSerializationApi::class)
+@file:Suppress("UNCHECKED_CAST", "INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 
 package kotlinx.serialization.protobuf.internal
 
@@ -187,9 +188,10 @@ internal open class ProtobufDecoder(
     @Suppress("UNCHECKED_CAST")
     private fun <T> deserializeMap(deserializer: DeserializationStrategy<T>, previousValue: T?): T {
         val serializer = (deserializer as MapLikeSerializer<Any?, Any?, T, *>)
-        val mapEntrySerial = MapEntrySerializer(serializer.keySerializer, serializer.valueSerializer)
+        // Yeah thanks different resolution algorithms
+        val mapEntrySerial =
+            kotlinx.serialization.builtins.MapEntrySerializer(serializer.keySerializer, serializer.valueSerializer)
         val oldSet = (previousValue as? Map<Any?, Any?>)?.entries
-        @Suppress("DEPRECATION_ERROR") // to use .merge from LinkedHashSetSer
         val setOfEntries = LinkedHashSetSerializer(mapEntrySerial).merge(this, oldSet)
         return setOfEntries.associateBy({ it.key }, { it.value }) as T
     }
