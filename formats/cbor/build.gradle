@@ -19,7 +19,7 @@ kotlin {
         jvmTest {
             dependencies {
                 implementation 'io.kotlintest:kotlintest:2.0.7'
-                implementation group: 'com.upokecenter', name: 'cbor', version: '4.0.0-beta1'
+                implementation group: 'com.upokecenter', name: 'cbor', version: '4.2.0'
                 implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jackson_version
                 implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
                 implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: jackson_version
