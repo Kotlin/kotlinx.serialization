@@ -22,16 +22,40 @@ subprojects {
 
                 perPackageOption {
                     prefix.set("kotlinx.serialization")
-                    reportUndocumented.set(false)
+                    reportUndocumented.set(true)
                     skipDeprecated.set(true)
                 }
 
+                // Internal API
                 perPackageOption {
                     prefix.set("kotlinx.serialization.internal")
                     suppress.set(true)
+                }
+
+                // Workaround for typealias
+                perPackageOption {
+                    prefix.set("kotlinx.serialization.protobuf.internal")
+                    suppress.set(true)
                     reportUndocumented.set(false)
+                }
+
+                // Deprecated migrations
+                perPackageOption {
+                    prefix.set("kotlinx.protobuf")
+                    reportUndocumented.set(true)
+                    skipDeprecated.set(true)
+                }
+
+                // Deprecated migrations
+                perPackageOption {
+                    prefix.set("org.jetbrains.kotlinx.serialization.config")
+                    reportUndocumented.set(false)
+                    skipDeprecated.set(true)
                 }
             }
         }
     }
 }
+
+// Knit relies on Dokka task and it's pretty convenient
+task dokka(dependsOn: dokkaHtmlMultiModule) {}
