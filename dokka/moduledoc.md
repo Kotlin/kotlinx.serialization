@@ -2,8 +2,11 @@
 Core serialization API, serializers for standard library classes, and ready to use JSON
 format implementation.
 
+# Module kotlinx-serialization-json
+Stable and ready to use JSON format implementation, `JsonElement` API to operate with JSON trees and JSON-specific serializers.
+
 # Module kotlinx-serialization-cbor
-Concise Binary Object Representation (CBOR) format implementation, as per [RFC 7049](https://tools.ietf.org/html/rfc7049). Located in separate `kotlinx-serialization-cbor` artifact.
+Concise Binary Object Representation (CBOR) format implementation, as per [RFC 7049](https://tools.ietf.org/html/rfc7049).
 
 # Module kotlinx-serialization-hocon
 Allows deserialization of `Config` object from popular [lightbend/config](https://github.com/lightbend/config) library 
@@ -41,6 +44,7 @@ and JSON-specific serializers.
 
 # Package kotlinx.serialization.protobuf
 Protocol buffers serialization format implementation, mostly complaint to [proto2](https://developers.google.com/protocol-buffers/docs/proto) specification. 
+
 # Package kotlinx.serialization.properties
 Properties serialization format implementation that represents the input data as a plain map of properties.
 

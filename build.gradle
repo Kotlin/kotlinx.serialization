@@ -99,6 +99,7 @@ apply plugin: 'kotlinx-knit'
 
 knit {
     siteRoot = "https://kotlin.github.io/kotlinx.serialization"
+    moduleDocs = "build/dokka/htmlMultiModule"
 }
 
 // Build API docs for all modules with dokka before running Knit
