@@ -308,6 +308,8 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         return curByte
     }
 
+    fun isEof() = curByte == -1
+
     private fun skipByte(expected: Int) {
         if (curByte != expected) throw CborDecodingException("byte ${printByte(expected)}", curByte)
         readByte()
@@ -485,7 +487,8 @@ internal class CborDecoder(private val input: ByteArrayInput) {
                 }
             }
 
-            if (readByte() == -1 && lengthStack.isNotEmpty()) throw SerializationException("EOF while skipping element")
+            readByte()
+            if (isEof() && lengthStack.isNotEmpty()) throw SerializationException("EOF while skipping element")
         } while (lengthStack.isNotEmpty())
     }
 

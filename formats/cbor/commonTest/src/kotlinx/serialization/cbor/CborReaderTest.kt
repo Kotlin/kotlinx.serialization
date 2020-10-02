@@ -186,26 +186,7 @@ class CborReaderTest {
          *       69676E6F7265 # "ignore"
          *    FF              # primitive(*)
          */
-        assertFailsWithMessage<SerializationException>("Expected next data item, but found FF") {
-            ignoreUnknownKeys.decodeFromHexString(
-                TypesUmbrella.serializer(),
-                "a36373747266737472696e676669676e6f7265ff"
-            )
-        }
-    }
-
-    @Test
-    fun testIgnoreUnknownKeysFailsWhenEncounteringNegativeLengthElement() {
-        /* A3                 # map(3)
-         *    63              # text(3)
-         *       737472       # "str"
-         *    66              # text(6)
-         *       737472696E67 # "string"
-         *    66              # text(6)
-         *       69676E6F7265 # "ignore"
-         *    FF              # primitive(*)
-         */
-        assertFailsWithMessage<SerializationException>("Expected next data item, but found FF") {
+        assertFailsWithMessage<CborDecodingException>("Expected next data item, but found FF") {
             ignoreUnknownKeys.decodeFromHexString(
                 TypesUmbrella.serializer(),
                 "a36373747266737472696e676669676e6f7265ff"
@@ -222,7 +203,7 @@ class CborReaderTest {
      */
     @Test
     fun testSkipPrimitives() {
-        /* A5                           # map(5)
+        /* A4                           # map(4)
          *    61                        # text(1)
          *       61                     # "a"
          *    01                        # unsigned(1)
@@ -237,12 +218,9 @@ class CborReaderTest {
          *       64                     # "d"
          *    6B                        # text(11)
          *       48656C6C6F20776F726C64 # "Hello world"
-         *    61                        # text(1)
-         *       65                     # "e"
-         *    02                        # unsigned(2)
          */
-        withDecoder("a5616101616220616342cafe61646b48656c6c6f20776f726c64616502") {
-            expectMap(size = 5)
+        withDecoder("a4616101616220616342cafe61646b48656c6c6f20776f726c64") {
+            expectMap(size = 4)
             expect("a")
             skipElement() // unsigned(1)
             expect("b")
@@ -251,7 +229,7 @@ class CborReaderTest {
             skipElement() // "\xCA\xFE"
             expect("d")
             skipElement() // "Hello world"
-            expect("e")
+            expectEof()
         }
     }
 
@@ -262,7 +240,7 @@ class CborReaderTest {
      */
     @Test
     fun testSkipEmptyPrimitives() {
-        /* A3       # map(3)
+        /* A2       # map(2)
          *    61    # text(1)
          *       61 # "a"
          *    40    # bytes(0)
@@ -271,18 +249,14 @@ class CborReaderTest {
          *       62 # "b"
          *    60    # text(0)
          *          # ""
-         *    61    # text(1)
-         *       63 # "c"
-         *    00    # unsigned(0)
          */
-        withDecoder("a3616140616260616300") {
-            expectMap(size = 3)
+        withDecoder("a2616140616260") {
+            expectMap(size = 2)
             expect("a")
             skipElement() // bytes(0)
             expect("b")
             skipElement() // text(0)
-            expect("c")
-            expect(0)
+            expectEof()
         }
     }
 
@@ -293,7 +267,7 @@ class CborReaderTest {
      */
     @Test
     fun testSkipCollections() {
-        /* A3                                  # map(3)
+        /* A2                                  # map(2)
          *    61                               # text(1)
          *       61                            # "a"
          *    83                               # array(3)
@@ -311,18 +285,14 @@ class CborReaderTest {
          *          79                         # "y"
          *       6D                            # text(13)
          *          73657269616C697A6174696F6E # "serialization"
-         *    61                               # text(1)
-         *       63                            # "c"
-         *    00                               # unsigned(0)
          */
-        withDecoder("a36161830118ff1a000100006162a26178676b6f746c696e7861796d73657269616c697a6174696f6e616300") {
-            expectMap(size = 3)
+        withDecoder("a26161830118ff1a000100006162a26178676b6f746c696e7861796d73657269616c697a6174696f6e") {
+            expectMap(size = 2)
             expect("a")
             skipElement() // [1, 255, 65536]
             expect("b")
             skipElement() // {"x": "kotlinx", "y": "serialization"}
-            expect("c")
-            expect(0)
+            expectEof()
         }
     }
 
@@ -333,25 +303,21 @@ class CborReaderTest {
      */
     @Test
     fun testSkipEmptyCollections() {
-        /* A3       # map(3)
+        /* A2       # map(2)
          *    61    # text(1)
          *       61 # "a"
          *    80    # array(0)
          *    61    # text(1)
          *       62 # "b"
          *    A0    # map(0)
-         *    61    # text(1)
-         *       63 # "c"
-         *    00    # unsigned(0)
          */
-        withDecoder("a36161806162a0616300") {
-            expectMap(size = 3)
+        withDecoder("a26161806162a0") {
+            expectMap(size = 2)
             expect("a")
             skipElement() // [1, 255, 65536]
             expect("b")
             skipElement() // {"x": "kotlinx", "y": "serialization"}
-            expect("c")
-            expect(0)
+            expectEof()
         }
     }
 
@@ -364,7 +330,7 @@ class CborReaderTest {
      */
     @Test
     fun testSkipIndefiniteLength() {
-        /* A5                                  # map(5)
+        /* A4                                  # map(4)
          *    61                               # text(1)
          *       61                            # "a"
          *    5F                               # bytes(*)
@@ -402,12 +368,9 @@ class CborReaderTest {
          *          33                         # "3"
          *       03                            # unsigned(3)
          *       FF                            # primitive(*)
-         *    61                               # text(1)
-         *       65                            # "e"
-         *    00                               # unsigned(0)
          */
-        withDecoder("a561615f42cafe43010203ff61627f6648656c6c6f2065776f726c64ff61639f676b6f746c696e786d73657269616c697a6174696f6eff6164bf613101613202613303ff616500") {
-            expectMap(size = 5)
+        withDecoder("a461615f42cafe43010203ff61627f6648656c6c6f2065776f726c64ff61639f676b6f746c696e786d73657269616c697a6174696f6eff6164bf613101613202613303ff") {
+            expectMap(size = 4)
             expect("a")
             skipElement() // "\xCA\xFE\x01\x02\x03"
             expect("b")
@@ -416,8 +379,7 @@ class CborReaderTest {
             skipElement() // ["kotlinx", "serialization"]
             expect("d")
             skipElement() // {"1": 1, "2": 2, "3": 3}
-            expect("e")
-            expect(0)
+            expectEof()
         }
     }
 
@@ -585,4 +547,8 @@ private fun CborDecoder.expect(expected: Long) {
 
 private fun CborDecoder.expectMap(size: Int) {
     assertEquals(size, actual = startMap(), "map size")
+}
+
+private fun CborDecoder.expectEof() {
+    assertTrue(isEof(), "Expected EOF.")
 }
