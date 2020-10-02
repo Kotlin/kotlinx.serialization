@@ -466,7 +466,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
      * the "length stack" which is only popped from the "length stack" when a CBOR [break][isEnd] is encountered.
      */
     fun skipElement() {
-        if (curByte == -1) throw SerializationException("Missing element value")
+        if (isEof()) throw CborDecodingException("Unexpected EOF while skipping element")
         val lengthStack = mutableListOf<Int>()
 
         do {
