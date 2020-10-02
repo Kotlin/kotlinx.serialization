@@ -534,6 +534,25 @@ internal class CborDecoder(private val input: ByteArrayInput) {
     }
 
     /**
+     * Removes an item from the top of the [lengthStack], cascading the removal if the item represents the last item
+     * (i.e. a length value of `1`) at its stack depth.
+     *
+     * For example, pruning a [lengthStack] of `[3, 2, 1, 1]` would result in `[3, 1]`.
+     */
+    private fun prune(lengthStack: MutableList<Int>) {
+        for (i in lengthStack.lastIndex downTo 0) {
+            when (lengthStack[i]) {
+                LENGTH_STACK_INDEFINITE -> break
+                1 -> lengthStack.removeAt(i)
+                else -> {
+                    lengthStack[i] = lengthStack[i] - 1
+                    break
+                }
+            }
+        }
+    }
+
+    /**
      * Indefinite-length byte sequences contain an unknown number of fixed-length byte sequences (chunks).
      *
      * @return [ByteArray] containing all of the concatenated bytes found in the buffer.
@@ -573,22 +592,3 @@ private fun Iterable<ByteArray>.flatten(): ByteArray {
 private fun SerialDescriptor.isByteString(index: Int): Boolean =
     getElementDescriptor(index) == ByteArraySerializer().descriptor &&
         getElementAnnotations(index).find { it is ByteString } != null
-
-/**
- * Removes an item from the top of the [lengthStack], cascading the removal if the item represents the last item (i.e. a
- * length value of `1`) at its stack depth.
- *
- * For example, pruning a [lengthStack] of `[3, 2, 1, 1]` would result in `[3, 1]`.
- */
-private fun prune(lengthStack: MutableList<Int>) {
-    for (i in lengthStack.lastIndex downTo 0) {
-        when (lengthStack[i]) {
-            LENGTH_STACK_INDEFINITE -> break
-            1 -> lengthStack.removeAt(i)
-            else -> {
-                lengthStack[i] = lengthStack[i] - 1
-                break
-            }
-        }
-    }
-}
