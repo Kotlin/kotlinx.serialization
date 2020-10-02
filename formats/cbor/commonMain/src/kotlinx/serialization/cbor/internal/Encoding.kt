@@ -488,7 +488,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
             }
 
             readByte()
-            if (isEof() && lengthStack.isNotEmpty()) throw SerializationException("EOF while skipping element")
+            if (isEof() && lengthStack.isNotEmpty()) throw CborDecodingException("Unexpected EOF while skipping element")
         } while (lengthStack.isNotEmpty())
     }
 
