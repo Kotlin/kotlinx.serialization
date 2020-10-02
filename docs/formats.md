@@ -11,8 +11,8 @@ stable, these are currently experimental features of Kotlin serialization.
 <!--- TOC -->
 
 * [CBOR (experimental)](#cbor-experimental)
-  * [Byte arrays and CBOR data types](#byte-arrays-and-cbor-data-types)
   * [Ignoring unknown keys](#ignoring-unknown-keys)
+  * [Byte arrays and CBOR data types](#byte-arrays-and-cbor-data-types)
 * [ProtoBuf (experimental)](#protobuf-experimental)
   * [Field numbers](#field-numbers)
   * [Integer types](#integer-types)
@@ -95,6 +95,54 @@ BF                                      # map(*)
 > (see the [Allowing structured map keys](json.md#allowing-structured-map-keys) section for JSON workarounds),
 > and Kotlin maps are serialized as CBOR maps, but some parsers (like `jackson-dataformat-cbor`) don't support this.
 
+### Ignoring unknown keys
+
+CBOR format is often used to communicate with [IoT] devices where new properties could be added as a part of a device's
+API evolution. By default, unknown keys encountered during deserialization produce an error.
+This behavior can be configured with the [ignoreUnknownKeys][CborBuilder.ignoreUnknownKeys] property.
+
+<!--- INCLUDE
+import kotlinx.serialization.*
+import kotlinx.serialization.cbor.*
+-->
+
+```kotlin
+val format = Cbor { ignoreUnknownKeys = true }
+
+@Serializable
+data class Project(val name: String)
+
+fun main() {
+    val data = format.decodeFromHexString<Project>(
+        "bf646e616d65756b6f746c696e782e73657269616c697a6174696f6e686c616e6775616765664b6f746c696eff"
+    )
+    println(data)
+}
+```
+
+> You can get the full code [here](../guide/example/example-formats-02.kt).
+
+It decodes the object, despite the fact that `Project` is missing the `language` property.
+
+```text
+Project(name=kotlinx.serialization)
+```
+
+<!--- TEST -->
+
+In [CBOR hex notation](http://cbor.me/), the input is equivalent to the following:
+```
+BF                                      # map(*)
+   64                                   # text(4)
+      6E616D65                          # "name"
+   75                                   # text(21)
+      6B6F746C696E782E73657269616C697A6174696F6E # "kotlinx.serialization"
+   68                                   # text(8)
+      6C616E6775616765                  # "language"
+   66                                   # text(6)
+      4B6F746C696E                      # "Kotlin"
+   FF                                   # primitive(*)
+```
 
 ### Byte arrays and CBOR data types
 
@@ -139,7 +187,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-02.kt).    
+> You can get the full code [here](../guide/example/example-formats-03.kt).    
 
 As we see, the CBOR byte that precedes the data is different for different type of encoding.
 
@@ -166,55 +214,6 @@ BF               # map(*)
       08         # unsigned(8)
       FF         # primitive(*)
    FF            # primitive(*)
-```
-
-### Ignoring unknown keys
-
-CBOR format is often used to communicate with [IoT] devices where new properties could be added as a part of a device's
-API evolution. By default, unknown keys encountered during deserialization produce an error.
-This behavior can be configured with the [ignoreUnknownKeys][CborBuilder.ignoreUnknownKeys] property.
-
-<!--- INCLUDE
-import kotlinx.serialization.*
-import kotlinx.serialization.cbor.*
--->
-
-```kotlin
-val format = Cbor { ignoreUnknownKeys = true }
-
-@Serializable
-data class Project(val name: String)
-
-fun main() {
-    val data = format.decodeFromHexString<Project>(
-        "bf646e616d65756b6f746c696e782e73657269616c697a6174696f6e686c616e6775616765664b6f746c696eff"
-    )
-    println(data)
-}
-```
-
-> You can get the full code [here](../guide/example/example-formats-03.kt).
-
-It decodes the object, despite the fact that `Project` is missing the `language` property.
-
-```text
-Project(name=kotlinx.serialization)
-```
-
-<!--- TEST -->
-
-In [CBOR hex notation](http://cbor.me/), the input is equivalent to the following:
-```
-BF                                      # map(*)
-   64                                   # text(4)
-      6E616D65                          # "name"
-   75                                   # text(21)
-      6B6F746C696E782E73657269616C697A6174696F6E # "kotlinx.serialization"
-   68                                   # text(8)
-      6C616E6775616765                  # "language"
-   66                                   # text(6)
-      4B6F746C696E                      # "Kotlin"
-   FF                                   # primitive(*)
 ```
 
 ## ProtoBuf (experimental)
@@ -1322,8 +1321,8 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
 [Cbor]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.cbor/-cbor/index.html
 [Cbor.encodeToByteArray]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.cbor/-cbor/encode-to-byte-array.html
 [Cbor.decodeFromByteArray]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.cbor/-cbor/decode-from-byte-array.html
-[ByteString]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.cbor/-byte-string/index.html
 [CborBuilder.ignoreUnknownKeys]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.cbor/-cbor-builder/ignore-unknown-keys.html
+[ByteString]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.cbor/-byte-string/index.html
 <!--- INDEX kotlinx.serialization.protobuf -->
 [ProtoBuf]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.protobuf/-proto-buf/index.html
 [ProtoBuf.encodeToByteArray]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.protobuf/-proto-buf/encode-to-byte-array.html

@@ -4,14 +4,22 @@ package example.exampleFormats03
 import kotlinx.serialization.*
 import kotlinx.serialization.cbor.*
 
-val format = Cbor { ignoreUnknownKeys = true }
+fun ByteArray.toAsciiHexString() = joinToString("") {
+    if (it in 32..127) it.toChar().toString() else
+        "{${it.toUByte().toString(16).padStart(2, '0').toUpperCase()}}"
+}
 
 @Serializable
-data class Project(val name: String)
+data class Data(
+    @ByteString
+    val type2: ByteArray, // CBOR Major type 2
+    val type4: ByteArray  // CBOR Major type 4
+)        
 
 fun main() {
-    val data = format.decodeFromHexString<Project>(
-        "bf646e616d65756b6f746c696e782e73657269616c697a6174696f6e686c616e6775616765664b6f746c696eff"
-    )
-    println(data)
+    val data = Data(byteArrayOf(1, 2, 3, 4), byteArrayOf(5, 6, 7, 8)) 
+    val bytes = Cbor.encodeToByteArray(data)   
+    println(bytes.toAsciiHexString())
+    val obj = Cbor.decodeFromByteArray<Data>(bytes)
+    println(obj)
 }

@@ -16,15 +16,15 @@ class FormatsTest {
     @Test
     fun testExampleFormats02() {
         captureOutput("ExampleFormats02") { example.exampleFormats02.main() }.verifyOutputLines(
-            "{BF}etype2D{01}{02}{03}{04}etype4{9F}{05}{06}{07}{08}{FF}{FF}",
-            "Data(type2=[1, 2, 3, 4], type4=[5, 6, 7, 8])"
+            "Project(name=kotlinx.serialization)"
         )
     }
 
     @Test
     fun testExampleFormats03() {
         captureOutput("ExampleFormats03") { example.exampleFormats03.main() }.verifyOutputLines(
-            "Project(name=kotlinx.serialization)"
+            "{BF}etype2D{01}{02}{03}{04}etype4{9F}{05}{06}{07}{08}{FF}{FF}",
+            "Data(type2=[1, 2, 3, 4], type4=[5, 6, 7, 8])"
         )
     }
 
