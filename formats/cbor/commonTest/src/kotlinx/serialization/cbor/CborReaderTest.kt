@@ -146,7 +146,7 @@ class CborReaderTest {
          *       69676E6F7265 # "ignore"
          * (missing value associated with "ignore" key)
          */
-        assertFailsWithMessage<SerializationException>("Missing element value") {
+        assertFailsWithMessage<CborDecodingException>("Unexpected EOF while skipping element") {
             ignoreUnknownKeys.decodeFromHexString(
                 TypesUmbrella.serializer(),
                 "a36373747266737472696e676169006669676e6f7265"
@@ -166,7 +166,7 @@ class CborReaderTest {
          *    A2              # map(2)
          * (missing map contents associated with "ignore" key)
          */
-        assertFailsWithMessage<SerializationException>("EOF while skipping element") {
+        assertFailsWithMessage<CborDecodingException>("Unexpected EOF while skipping element") {
             ignoreUnknownKeys.decodeFromHexString(
                 TypesUmbrella.serializer(),
                 "a36373747266737472696e676169006669676e6f7265a2"
