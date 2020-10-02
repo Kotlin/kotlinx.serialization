@@ -1,6 +1,5 @@
 $dokka.format:html-v1
 $dokka.linkExtension:html
-$dokka.location:kotlinx.serialization.protobuf.internal////PointingToDeclaration/kotlinx.serialization.protobuf.internal.html
+
 kotlinx.serialization.protobuf
-kotlinx.serialization.protobuf.internal
 
