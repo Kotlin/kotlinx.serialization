@@ -493,6 +493,25 @@ internal class CborDecoder(private val input: ByteArrayInput) {
     }
 
     /**
+     * Removes an item from the top of the [lengthStack], cascading the removal if the item represents the last item
+     * (i.e. a length value of `1`) at its stack depth.
+     *
+     * For example, pruning a [lengthStack] of `[3, 2, 1, 1]` would result in `[3, 1]`.
+     */
+    private fun prune(lengthStack: MutableList<Int>) {
+        for (i in lengthStack.lastIndex downTo 0) {
+            when (lengthStack[i]) {
+                LENGTH_STACK_INDEFINITE -> break
+                1 -> lengthStack.removeAt(i)
+                else -> {
+                    lengthStack[i] = lengthStack[i] - 1
+                    break
+                }
+            }
+        }
+    }
+
+    /**
      * Determines if [curByte] represents an indefinite length CBOR item.
      *
      * Per [RFC 7049: 2.2. Indefinite Lengths for Some Major Types](https://tools.ietf.org/html/rfc7049#section-2.2):
@@ -532,25 +551,6 @@ internal class CborDecoder(private val input: ByteArrayInput) {
                 26 -> 4
                 27 -> 8
                 else -> 0
-            }
-        }
-    }
-
-    /**
-     * Removes an item from the top of the [lengthStack], cascading the removal if the item represents the last item
-     * (i.e. a length value of `1`) at its stack depth.
-     *
-     * For example, pruning a [lengthStack] of `[3, 2, 1, 1]` would result in `[3, 1]`.
-     */
-    private fun prune(lengthStack: MutableList<Int>) {
-        for (i in lengthStack.lastIndex downTo 0) {
-            when (lengthStack[i]) {
-                LENGTH_STACK_INDEFINITE -> break
-                1 -> lengthStack.removeAt(i)
-                else -> {
-                    lengthStack[i] = lengthStack[i] - 1
-                    break
-                }
             }
         }
     }
