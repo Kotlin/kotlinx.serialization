@@ -50,7 +50,7 @@ cp -r "$DIST_DIR"/* "$PAGES_DIR"
 cp $PAGES_DIR/-modules.html $PAGES_DIR/index.html
 
 # Add it all to git
-#git add *
+# git add *
 for file in $(find $PAGES_DIR -type f -name '*'); do git add $file; done
 
 

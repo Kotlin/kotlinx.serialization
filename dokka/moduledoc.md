@@ -1,5 +1,5 @@
 # Module kotlinx-serialization-core
-Core serialization API, serializers for standard library classes, and ready to use JSON
+Core serialization API and serializers for standard library classes, and ready to use JSON
 format implementation.
 
 # Module kotlinx-serialization-json
@@ -30,7 +30,7 @@ Basic concepts of serial description to programmatically describe the serial for
 in an introspectable manner.
 
 # Package kotlinx.serialization.encoding
-Basic concepts of data encoding and decoding of serialized data.
+Basic concepts of encoding and decoding of serialized data.
 
 # Package kotlinx.serialization.modules
 Classes that provides runtime mechanisms for resolving serializers, typically used during polymorphic serialization.
