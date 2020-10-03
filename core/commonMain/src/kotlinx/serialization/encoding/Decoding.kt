@@ -241,14 +241,6 @@ public interface Decoder {
         val isNullabilitySupported = deserializer.descriptor.isNullable
         return if (isNullabilitySupported || decodeNotNullMark()) decodeSerializableValue(deserializer) else decodeNull()
     }
-
-    // Not documented
-    @OptIn(ExperimentalSerializationApi::class)
-    @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated("", level = DeprecationLevel.HIDDEN)
-    public fun <T : Any> updateNullableSerializableValue(deserializer: DeserializationStrategy<T?>, old: T?): T? {
-        return decodeNullableSerializableValue(deserializer)
-    }
 }
 
 /**

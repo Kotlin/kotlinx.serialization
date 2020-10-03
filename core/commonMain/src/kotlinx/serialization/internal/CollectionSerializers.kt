@@ -81,7 +81,7 @@ internal sealed class ListLikeSerializer<Element, Collection, Builder>(
     }
 }
 
-@InternalSerializationApi
+@InternalSerializationApi // TODO tech debt: it's used in ProtoBuf
 public sealed class MapLikeSerializer<Key, Value, Collection, Builder : MutableMap<Key, Value>>(
     public val keySerializer: KSerializer<Key>,
     public val valueSerializer: KSerializer<Value>
