@@ -1288,8 +1288,8 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
 
 <!-- references -->
 [RFC 7049]: https://tools.ietf.org/html/rfc7049
-[RFC 7049 Major Types]: https://tools.ietf.org/html/rfc7049#section-2.1
 [IoT]: https://en.wikipedia.org/wiki/Internet_of_things
+[RFC 7049 Major Types]: https://tools.ietf.org/html/rfc7049#section-2.1
 
 <!-- Java references -->
 [java.io.DataOutput]: https://docs.oracle.com/javase/8/docs/api/java/io/DataOutput.html
