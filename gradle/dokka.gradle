@@ -5,47 +5,57 @@
 apply plugin: 'kotlin'
 apply plugin: 'org.jetbrains.dokka'
 
-dokka {
-    outputFormat = 'html'
-    outputDirectory = "$buildDir/dokka"
+def documentedSubprojects = ["kotlinx-serialization-core",
+                             "kotlinx-serialization-json",
+                             "kotlinx-serialization-cbor",
+                             "kotlinx-serialization-properties",
+                             "kotlinx-serialization-hocon",
+                             "kotlinx-serialization-protobuf"]
+subprojects {
+    if (!(name in documentedSubprojects)) return
+    apply plugin: 'org.jetbrains.dokka'
+    tasks.named('dokkaHtml') {
+        outputDirectory = file("build/dokka")
+        dokkaSourceSets {
+            configureEach {
+                includes.from(rootProject.file('dokka/moduledoc.md').path)
 
-    subProjects = ["kotlinx-serialization-core",
-                   "kotlinx-serialization-json",
-                   "kotlinx-serialization-cbor",
-                   "kotlinx-serialization-properties",
-//                   "kotlinx-serialization-hocon",  todo: fix publishing of jvm-only docs
-                   "kotlinx-serialization-protobuf"]
+                perPackageOption {
+                    prefix.set("kotlinx.serialization")
+                    reportUndocumented.set(true)
+                    skipDeprecated.set(true)
+                }
 
-    multiplatform {
-        global {
-            includes = ['dokka/moduledoc.md']
+                // Internal API
+                perPackageOption {
+                    prefix.set("kotlinx.serialization.internal")
+                    suppress.set(true)
+                }
 
-            perPackageOption {
-                prefix = "kotlinx.serialization"
-                reportUndocumented = false
-                skipDeprecated = true
-            }
+                // Workaround for typealias
+                perPackageOption {
+                    prefix.set("kotlinx.serialization.protobuf.internal")
+                    suppress.set(true)
+                    reportUndocumented.set(false)
+                }
 
-            perPackageOption {
-                prefix = "kotlinx.serialization.internal"
-                suppress = true
-            }
+                // Deprecated migrations
+                perPackageOption {
+                    prefix.set("kotlinx.protobuf")
+                    reportUndocumented.set(true)
+                    skipDeprecated.set(true)
+                }
 
-            perPackageOption {
-                prefix = "kotlinx.io"
-                suppress = true
+                // Deprecated migrations
+                perPackageOption {
+                    prefix.set("org.jetbrains.kotlinx.serialization.config")
+                    reportUndocumented.set(false)
+                    skipDeprecated.set(true)
+                }
             }
         }
-        common {}
-        jvm {}
-        js {}
-        'native' {}
     }
 }
 
-dokka.doLast {
-    copy {
-        from 'dokka/style.css'
-        into "$buildDir/dokka"
-    }
-}
+// Knit relies on Dokka task and it's pretty convenient
+task dokka(dependsOn: dokkaHtmlMultiModule) {}

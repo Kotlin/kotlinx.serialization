@@ -1244,45 +1244,47 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
 <!-- Java references -->
 [java.io.DataOutput]: https://docs.oracle.com/javase/8/docs/api/java/io/DataOutput.html
 
-<!--- MODULE /kotlinx-serialization -->
-<!--- INDEX kotlinx.serialization -->
-[serializer]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization/serializer.html
-[KSerializer]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization/-k-serializer/index.html
-<!--- INDEX kotlinx.serialization.builtins -->
-[kotlinx.serialization.builtins.ByteArraySerializer()]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.builtins/-byte-array-serializer.html
-<!--- INDEX kotlinx.serialization.encoding -->
-[Encoder]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.encoding/-encoder/index.html
-[Decoder]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.encoding/-decoder/index.html
-[AbstractEncoder]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.encoding/-abstract-encoder/index.html
-[AbstractDecoder]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.encoding/-abstract-decoder/index.html
-[AbstractEncoder.encodeValue]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.encoding/-abstract-encoder/encode-value.html
-[AbstractDecoder.decodeValue]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.encoding/-abstract-decoder/decode-value.html
-[CompositeDecoder.decodeElementIndex]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.encoding/-composite-decoder/decode-element-index.html
-[Decoder.beginStructure]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.encoding/-decoder/begin-structure.html
-[CompositeDecoder.decodeSequentially]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.encoding/-composite-decoder/decode-sequentially.html
-[Encoder.beginCollection]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.encoding/-encoder/begin-collection.html
-[CompositeDecoder.decodeCollectionSize]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.encoding/-composite-decoder/decode-collection-size.html
-[Encoder.encodeNull]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.encoding/-encoder/encode-null.html
-[Encoder.encodeNotNullMark]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.encoding/-encoder/encode-not-null-mark.html
-[Decoder.decodeNotNullMark]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.encoding/-decoder/decode-not-null-mark.html
-[Encoder.encodeSerializableValue]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.encoding/-encoder/encode-serializable-value.html
-[Decoder.decodeSerializableValue]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.encoding/-decoder/decode-serializable-value.html
-<!--- INDEX kotlinx.serialization.cbor -->
-[Cbor]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.cbor/-cbor/index.html
-[Cbor.encodeToByteArray]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.cbor/-cbor/encode-to-byte-array.html
-[Cbor.decodeFromByteArray]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.cbor/-cbor/decode-from-byte-array.html
-[ByteString]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.cbor/-byte-string/index.html
-<!--- INDEX kotlinx.serialization.protobuf -->
-[ProtoBuf]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.protobuf/-proto-buf/index.html
-[ProtoBuf.encodeToByteArray]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.protobuf/-proto-buf/encode-to-byte-array.html
-[ProtoBuf.decodeFromByteArray]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.protobuf/-proto-buf/decode-from-byte-array.html
-[ProtoNumber]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.protobuf/-proto-number/index.html
-[ProtoType]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.protobuf/-proto-type/index.html
-[ProtoIntegerType]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.protobuf/-proto-integer-type/index.html
-[ProtoIntegerType.DEFAULT]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.protobuf/-proto-integer-type/-d-e-f-a-u-l-t.html
-[ProtoIntegerType.SIGNED]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.protobuf/-proto-integer-type/-s-i-g-n-e-d.html
-[ProtoIntegerType.FIXED]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.protobuf/-proto-integer-type/-f-i-x-e-d.html
-<!--- INDEX kotlinx.serialization.properties -->
-[kotlinx.serialization.properties.Properties]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization/kotlinx.serialization.properties/-properties/index.html
+<!--- MODULE /kotlinx-serialization-core -->
+<!--- INDEX kotlinx-serialization-core/kotlinx.serialization -->
+[serializer]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization/../../../kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization/index.html#kotlinx.serialization%2F%2Fserializer%2F%23%2FPointingToDeclaration%2F
+[KSerializer]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization/-k-serializer/index.html
+<!--- INDEX kotlinx-serialization-core/kotlinx.serialization.builtins -->
+[kotlinx.serialization.builtins.ByteArraySerializer()]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.builtins/-byte-array-serializer.html
+<!--- INDEX kotlinx-serialization-core/kotlinx.serialization.encoding -->
+[Encoder]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.encoding/-encoder/index.html
+[Decoder]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.encoding/-decoder/index.html
+[AbstractEncoder]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.encoding/-abstract-encoder/index.html
+[AbstractDecoder]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.encoding/-abstract-decoder/index.html
+[AbstractEncoder.encodeValue]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.encoding/-abstract-encoder/encode-value.html
+[AbstractDecoder.decodeValue]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.encoding/-abstract-decoder/decode-value.html
+[CompositeDecoder.decodeElementIndex]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.encoding/-composite-decoder/decode-element-index.html
+[Decoder.beginStructure]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.encoding/-decoder/begin-structure.html
+[CompositeDecoder.decodeSequentially]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.encoding/-composite-decoder/decode-sequentially.html
+[Encoder.beginCollection]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.encoding/-encoder/begin-collection.html
+[CompositeDecoder.decodeCollectionSize]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.encoding/-composite-decoder/decode-collection-size.html
+[Encoder.encodeNull]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.encoding/-encoder/encode-null.html
+[Encoder.encodeNotNullMark]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.encoding/-encoder/encode-not-null-mark.html
+[Decoder.decodeNotNullMark]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.encoding/-decoder/decode-not-null-mark.html
+[Encoder.encodeSerializableValue]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.encoding/-encoder/encode-serializable-value.html
+[Decoder.decodeSerializableValue]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.encoding/-decoder/decode-serializable-value.html
+<!--- MODULE /kotlinx-serialization-properties -->
+<!--- INDEX kotlinx-serialization-properties/kotlinx.serialization.properties -->
+[kotlinx.serialization.properties.Properties]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-properties/kotlinx-serialization-properties/kotlinx.serialization.properties/-properties/index.html
+<!--- MODULE /kotlinx-serialization-protobuf -->
+<!--- INDEX kotlinx-serialization-protobuf/kotlinx.serialization.protobuf -->
+[ProtoBuf]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-buf/index.html
+[ProtoBuf.encodeToByteArray]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-buf/encode-to-byte-array.html
+[ProtoBuf.decodeFromByteArray]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-buf/decode-from-byte-array.html
+[ProtoNumber]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-number/index.html
+[ProtoType]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-type/index.html
+[ProtoIntegerType]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/index.html
+[ProtoIntegerType.DEFAULT]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/-d-e-f-a-u-l-t/index.html
+[ProtoIntegerType.SIGNED]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/-s-i-g-n-e-d/index.html
+[ProtoIntegerType.FIXED]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/-f-i-x-e-d/index.html
+<!--- MODULE /kotlinx-serialization-cbor -->
+<!--- INDEX kotlinx-serialization-cbor/kotlinx.serialization.cbor -->
+[Cbor]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor/index.html
+[Cbor.encodeToByteArray]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor/encode-to-byte-array.html
+[Cbor.decodeFromByteArray]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor/decode-from-byte-array.html
+[ByteString]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-byte-string/index.html
 <!--- END -->
-   
