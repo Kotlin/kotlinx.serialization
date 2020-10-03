@@ -172,7 +172,6 @@ class CborReaderTest {
                 "a36373747266737472696e676169006669676e6f7265a2"
             )
         }
-
     }
 
     @Test
@@ -206,7 +205,7 @@ class CborReaderTest {
         /* A4                           # map(4)
          *    61                        # text(1)
          *       61                     # "a"
-         *    01                        # unsigned(1)
+         *    1B FFFFFFFFFFFFFFFF       # unsigned(18446744073709551615)
          *    61                        # text(1)
          *       62                     # "b"
          *    20                        # negative(0)
@@ -219,10 +218,10 @@ class CborReaderTest {
          *    6B                        # text(11)
          *       48656C6C6F20776F726C64 # "Hello world"
          */
-        withDecoder("a4616101616220616342cafe61646b48656c6c6f20776f726c64") {
+        withDecoder("a461611bffffffffffffffff616220616342cafe61646b48656c6c6f20776f726c64") {
             expectMap(size = 4)
             expect("a")
-            skipElement() // unsigned(1)
+            skipElement() // unsigned(18446744073709551615)
             expect("b")
             skipElement() // negative(0)
             expect("c")
@@ -539,10 +538,6 @@ class CborReaderTest {
 
 private fun CborDecoder.expect(expected: String) {
     assertEquals(expected, actual = nextString(), "string")
-}
-
-private fun CborDecoder.expect(expected: Long) {
-    assertEquals(expected, actual = nextNumber(), "number")
 }
 
 private fun CborDecoder.expectMap(size: Int) {
