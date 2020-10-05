@@ -57,6 +57,7 @@ buildscript {
         maven { url 'https://kotlin.bintray.com/kotlin-eap' }
         maven { url 'https://kotlin.bintray.com/kotlinx' }
         maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
+        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
         jcenter()
         gradlePluginPortal()
     }
@@ -98,6 +99,7 @@ apply plugin: 'kotlinx-knit'
 
 knit {
     siteRoot = "https://kotlin.github.io/kotlinx.serialization"
+    moduleDocs = "build/dokka/htmlMultiModule"
 }
 
 // Build API docs for all modules with dokka before running Knit
@@ -145,6 +147,7 @@ allprojects {
                 password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY') ?: ""
             }
         }
+        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
         maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
     }
 }
