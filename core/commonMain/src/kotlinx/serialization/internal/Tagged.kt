@@ -31,7 +31,6 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
     protected open fun encodeTaggedValue(tag: Tag, value: Any): Unit =
         throw SerializationException("Non-serializable ${value::class} is not supported by ${this::class} encoder")
 
-    protected open fun encodeTaggedNotNullMark(tag: Tag) {}
     protected open fun encodeTaggedNull(tag: Tag): Unit = throw SerializationException("null is not supported")
     protected open fun encodeTaggedInt(tag: Tag, value: Int): Unit = encodeTaggedValue(tag, value)
     protected open fun encodeTaggedByte(tag: Tag, value: Byte): Unit = encodeTaggedValue(tag, value)
@@ -57,8 +56,8 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
         return true
     }
 
-    final override fun encodeNotNullMark(): Unit = encodeTaggedNotNullMark(currentTag)
-    final override fun encodeNull(): Unit = encodeTaggedNull(popTag())
+    final override fun encodeNotNullMark() {} // Does nothing, open because is not really required
+    open override fun encodeNull(): Unit = encodeTaggedNull(popTag())
     final override fun encodeBoolean(value: Boolean): Unit = encodeTaggedBoolean(popTag(), value)
     final override fun encodeByte(value: Byte): Unit = encodeTaggedByte(popTag(), value)
     final override fun encodeShort(value: Short): Unit = encodeTaggedShort(popTag(), value)
@@ -159,7 +158,7 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
         tagStack.add(name)
     }
 
-    protected fun popTag(): Tag =
+    private fun popTag(): Tag =
         if (tagStack.isNotEmpty())
             tagStack.removeAt(tagStack.lastIndex)
         else

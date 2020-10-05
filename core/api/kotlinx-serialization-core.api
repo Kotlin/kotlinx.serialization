@@ -1289,7 +1289,7 @@ public abstract class kotlinx/serialization/internal/TaggedEncoder : kotlinx/ser
 	public final fun encodeLongElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IJ)V
 	public fun encodeNonSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILjava/lang/Object;)V
 	public final fun encodeNotNullMark ()V
-	public final fun encodeNull ()V
+	public fun encodeNull ()V
 	public final fun encodeNullableSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
 	public fun encodeNullableSerializableValue (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
 	public final fun encodeSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
@@ -1306,7 +1306,6 @@ public abstract class kotlinx/serialization/internal/TaggedEncoder : kotlinx/ser
 	protected fun encodeTaggedFloat (Ljava/lang/Object;F)V
 	protected fun encodeTaggedInt (Ljava/lang/Object;I)V
 	protected fun encodeTaggedLong (Ljava/lang/Object;J)V
-	protected fun encodeTaggedNotNullMark (Ljava/lang/Object;)V
 	protected fun encodeTaggedNull (Ljava/lang/Object;)V
 	protected fun encodeTaggedShort (Ljava/lang/Object;S)V
 	protected fun encodeTaggedString (Ljava/lang/Object;Ljava/lang/String;)V
@@ -1317,7 +1316,6 @@ public abstract class kotlinx/serialization/internal/TaggedEncoder : kotlinx/ser
 	protected final fun getCurrentTagOrNull ()Ljava/lang/Object;
 	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 	protected abstract fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/Object;
-	protected final fun popTag ()Ljava/lang/Object;
 	protected final fun pushTag (Ljava/lang/Object;)V
 	public fun shouldEncodeElementDefault (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
 }
