@@ -498,7 +498,7 @@ public interface CompositeDecoder {
 
     @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE", "DeprecatedCallableAddReplaceWith")
     @kotlin.internal.LowPriorityInOverloadResolution
-    @Deprecated(decodeMethodDeprecated, level = DeprecationLevel.ERROR)
+    @Deprecated(decodeMethodDeprecated, level = DeprecationLevel.HIDDEN)
     public fun <T : Any?> decodeSerializableElement(
         descriptor: SerialDescriptor,
         i: Int, // renamed from index to be called even with LowPriority
@@ -507,7 +507,7 @@ public interface CompositeDecoder {
 
     @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE", "DeprecatedCallableAddReplaceWith")
     @kotlin.internal.LowPriorityInOverloadResolution
-    @Deprecated(decodeMethodDeprecated, level = DeprecationLevel.ERROR)
+    @Deprecated(decodeMethodDeprecated, level = DeprecationLevel.HIDDEN)
     @OptIn(ExperimentalSerializationApi::class)
     public fun <T : Any> decodeNullableSerializableElement(
         descriptor: SerialDescriptor,

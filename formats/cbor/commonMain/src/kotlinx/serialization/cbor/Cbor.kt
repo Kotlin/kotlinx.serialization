@@ -32,8 +32,7 @@ import kotlinx.serialization.modules.*
 public sealed class Cbor(
     internal val encodeDefaults: Boolean,
     internal val ignoreUnknownKeys: Boolean,
-    override val serializersModule: SerializersModule,
-    ctorMarker: Nothing? // Marker for the temporary migration
+    override val serializersModule: SerializersModule
 ) : BinaryFormat {
 
     /**
