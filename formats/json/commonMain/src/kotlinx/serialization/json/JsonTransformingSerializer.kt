@@ -56,16 +56,6 @@ public abstract class JsonTransformingSerializer<T : Any>(
     private val tSerializer: KSerializer<T>
 ) : KSerializer<T> {
 
-    @Deprecated(
-        "Transformation name parameter is no longer used in TransformingSerializer. To add custom serial name to transformation, override SerialDescriptor.",
-        ReplaceWith("JsonTransformingSerializer<T>(tSerializer)"),
-        DeprecationLevel.ERROR
-    )
-    public constructor(
-        tSerializer: KSerializer<T>,
-        transformationName: String
-    ) : this(tSerializer)
-
     /**
      * A descriptor for this transformation.
      * By default, it delegates to [tSerializer]'s descriptor.
@@ -88,12 +78,6 @@ public abstract class JsonTransformingSerializer<T : Any>(
         return input.json.decodeFromJsonElement(tSerializer, transformDeserialize(element))
     }
 
-    @Deprecated(
-        "This method was renamed to transformDeserialize during serialization 1.0 API stabilization, please override it instead",
-        level = DeprecationLevel.ERROR
-    )
-    protected fun readTransform(element: JsonElement): JsonElement = transformDeserialize(element)
-
     /**
      * Transformation that happens during [deserialize] call.
      * Does nothing by default.
@@ -103,12 +87,6 @@ public abstract class JsonTransformingSerializer<T : Any>(
      * and then resulting [JsonElement] is deserialized to [T] with [tSerializer].
      */
     protected open fun transformDeserialize(element: JsonElement): JsonElement = element
-
-    @Deprecated(
-        "This method was renamed to transformSerialize during serialization 1.0 API stabilization, please override it instead",
-        level = DeprecationLevel.ERROR
-    )
-    protected fun writeTransform(element: JsonElement): JsonElement = transformSerialize(element)
 
     /**
      * Transformation that happens during [serialize] call.

@@ -8,7 +8,6 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
-import kotlinx.serialization.encoding.updateModeDeprecated
 import kotlinx.serialization.modules.*
 
 /*
@@ -74,20 +73,7 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
         index: Int
     ): Unit = encodeTaggedEnum(popTag(), enumDescriptor, index)
 
-    // do not update signature here because new signature is called by the plugin;
-    // and clients that have old signature would not be called.
-    @Suppress("OverridingDeprecatedMember")
-    @Deprecated(
-        "Parameter typeSerializers is deprecated for removal. Please migrate to beginStructure method with one argument.",
-        ReplaceWith("beginStructure(descriptor)"),
-        DeprecationLevel.ERROR
-    )
-    override fun beginStructure(
-        descriptor: SerialDescriptor,
-        vararg typeSerializers: KSerializer<*>
-    ): CompositeEncoder {
-        return this
-    }
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder = this
 
     final override fun endStructure(descriptor: SerialDescriptor) {
         if (tagStack.isNotEmpty()) {
@@ -177,18 +163,11 @@ public abstract class NamedValueEncoder : TaggedEncoder<String>() {
 }
 
 @InternalSerializationApi
-public abstract class TaggedDecoder<Tag : Any?> : Decoder,
-    CompositeDecoder {
+public abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     override val serializersModule: SerializersModule
         get() = EmptySerializersModule
 
-    @Suppress("DEPRECATION")
-    @Deprecated(updateModeDeprecated, level = DeprecationLevel.ERROR)
-    override val updateMode: UpdateMode =
-        UpdateMode.OVERWRITE
-
     protected abstract fun SerialDescriptor.getTag(index: Int): Tag
-
 
     // ---- API ----
     protected open fun decodeTaggedValue(tag: Tag): Any =
@@ -236,17 +215,7 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder,
 
     final override fun decodeEnum(enumDescriptor: SerialDescriptor): Int = decodeTaggedEnum(popTag(), enumDescriptor)
 
-    // do not update signature here because new signature is called by the plugin;
-    // and clients that have old signature would not be called.
-    @Suppress("OverridingDeprecatedMember")
-    @Deprecated(
-        "Parameter typeSerializers is deprecated for removal. Please migrate to beginStructure method with one argument.",
-        ReplaceWith("beginStructure(descriptor)"),
-        DeprecationLevel.ERROR
-    )
-    override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
-        return this
-    }
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder = this
 
     override fun endStructure(descriptor: SerialDescriptor) {
         // Nothing

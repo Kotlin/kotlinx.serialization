@@ -248,52 +248,6 @@ public class ClassSerialDescriptorBuilder internal constructor(
         elementAnnotations += annotations
         elementOptionality += isOptional
     }
-
-    @Deprecated(
-        "Renamed to serialDescriptor() during serialization 1.0 API stabilization",
-        level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("serialDescriptor<T>()")
-    )
-    public inline fun <reified T> descriptor(): SerialDescriptor = serializer<T>().descriptor
-
-    @Deprecated(
-        "Renamed to listSerialDescriptor() during serialization 1.0 API stabilization",
-        level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("listSerialDescriptor(typeDescriptor)")
-    )
-    public fun listDescriptor(typeDescriptor: SerialDescriptor): SerialDescriptor = listSerialDescriptor(typeDescriptor)
-
-    @Deprecated(
-        "Renamed to listSerialDescriptor() during serialization 1.0 API stabilization",
-        level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("listSerialDescriptor<T>()")
-    )
-    public inline fun <reified T> listDescriptor(): SerialDescriptor = listSerialDescriptor<T>()
-
-    @Deprecated(
-        "Renamed to mapSerialDescriptor() during serialization 1.0 API stabilization",
-        level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("mapSerialDescriptor(keyDescriptor, valueDescriptor)")
-    )
-    public fun mapDescriptor(
-        keyDescriptor: SerialDescriptor,
-        valueDescriptor: SerialDescriptor
-    ): SerialDescriptor = HashMapClassDesc(keyDescriptor, valueDescriptor)
-
-    @Deprecated(
-        "Renamed to mapSerialDescriptor() during serialization 1.0 API stabilization",
-        level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("mapSerialDescriptor<K, V>()")
-    )
-    public inline fun <reified K, reified V> mapDescriptor(): SerialDescriptor =
-        mapSerialDescriptor(serializer<K>().descriptor, serializer<V>().descriptor)
-
-    @Deprecated(
-        "Renamed to setSerialDescriptor() during serialization 1.0 API stabilization",
-        level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("setSerialDescriptor(typeDescriptor)")
-    )
-    public fun setDescriptor(typeDescriptor: SerialDescriptor): SerialDescriptor = HashSetClassDesc(typeDescriptor)
-
-    @Deprecated(
-        "Renamed to setSerialDescriptor() during serialization 1.0 API stabilization",
-        level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("setSerialDescriptor<T>()")
-    )
-    public inline fun <reified T> setDescriptor(): SerialDescriptor = setSerialDescriptor(serializer<T>().descriptor)
 }
 
 /**

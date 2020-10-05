@@ -7,6 +7,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.builtins.MapEntrySerializer
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
@@ -101,9 +102,3 @@ private fun SerializersModule.genericArraySerializer(type: GenericArrayType): KS
 private fun <T: Any> SerializersModule.reflectiveOrContextual(kClass: KClass<T>): KSerializer<T> {
     return kClass.serializerOrNull() ?: getContextual(kClass) ?: kClass.serializerNotRegistered()
 }
-
-@Deprecated("Deprecated during serialization 1.0 API stabilization", ReplaceWith("serializer(type)"), level = DeprecationLevel.ERROR)
-public fun serializerByTypeToken(type: Type): KSerializer<Any> = serializer(type)
-
-@Deprecated("Deprecated during serialization 1.0 API stabilization", ReplaceWith("typeOf()"), level = DeprecationLevel.ERROR)
-public inline fun <reified T> typeTokenOf(): Type = error("Should not be called")

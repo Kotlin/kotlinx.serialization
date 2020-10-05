@@ -45,25 +45,3 @@ public enum class ProtoIntegerType(internal val signature: Long) {
 @Target(AnnotationTarget.PROPERTY)
 @ExperimentalSerializationApi
 public annotation class ProtoType(public val type: ProtoIntegerType)
-
-
-@Deprecated(
-    level = DeprecationLevel.ERROR,
-    message = "This annotation was renamed to ProtoNumber during serialization 1.0 API stabilization",
-    replaceWith = ReplaceWith("ProtoNumber")
-)
-public annotation class ProtoId
-@Deprecated(
-    level = DeprecationLevel.ERROR,
-    message = "This annotation was renamed to ProtoNumber during serialization 1.0 API stabilization.\n" +
-            "ProtoBuf doesn't have notion of 'id', only field numbers in its specification",
-    replaceWith = ReplaceWith("ProtoNumber(id)")
-)
-constructor(public val id: Int)
-
-@Deprecated(
-    level = DeprecationLevel.ERROR,
-    message = "ProtoNumberType was renamed to ProtoIntegerType during serialization 1.0 API stabilization",
-    replaceWith = ReplaceWith("ProtoIntegerType")
-)
-public typealias ProtoNumberType = ProtoIntegerType

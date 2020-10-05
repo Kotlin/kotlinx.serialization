@@ -17,18 +17,7 @@ import kotlinx.serialization.modules.*
 @ExperimentalSerializationApi
 public abstract class AbstractEncoder : Encoder, CompositeEncoder {
 
-    // do not update signature here because new signature is called by the plugin;
-    // and clients that have old signature would not be called.
-    @Suppress("OverridingDeprecatedMember")
-    @Deprecated(
-        "Parameter typeSerializers is deprecated for removal. Please migrate to beginStructure method with one argument.",
-        ReplaceWith("beginStructure(descriptor)"),
-        DeprecationLevel.ERROR
-    )
-    override fun beginStructure(
-        descriptor: SerialDescriptor,
-        vararg typeSerializers: KSerializer<*>
-    ): CompositeEncoder = this
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder = this
 
     override fun endStructure(descriptor: SerialDescriptor) {}
 

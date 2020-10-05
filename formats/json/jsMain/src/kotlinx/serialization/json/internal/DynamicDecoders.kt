@@ -43,11 +43,6 @@ private open class DynamicInput(
 
     private var currentPosition = 0
 
-    @Suppress("DEPRECATION")
-    @Deprecated(updateModeDeprecated, level = DeprecationLevel.HIDDEN)
-    override val updateMode: UpdateMode
-        get() = UpdateMode.OVERWRITE
-
     override fun decodeJsonElement(): JsonElement {
         val tag = currentTagOrNull
         if (tag != null) { // reading a nested value, not the current one

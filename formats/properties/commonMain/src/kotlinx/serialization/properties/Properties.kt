@@ -122,19 +122,6 @@ public sealed class Properties(
         return m.decodeSerializableValue(deserializer)
     }
 
-    @Deprecated(removedMsg, level = DeprecationLevel.ERROR)
-    public fun <T> storeNullable(strategy: SerializationStrategy<T>, value: T): Map<String, Any?> = noImpl()
-
-    @Deprecated(removedMsg, level = DeprecationLevel.ERROR)
-    public fun <T> loadNullable(strategy: DeserializationStrategy<T>, map: Map<String, Any?>): T = noImpl()
-
-    @Deprecated(removedMsg, level = DeprecationLevel.ERROR)
-    public inline fun <reified T : Any> storeNullable(value: T): Map<String, Any?> =
-        noImpl()
-
-    @Deprecated(removedMsg, level = DeprecationLevel.ERROR)
-    public inline fun <reified T : Any> loadNullable(map: Map<String, Any?>): T = noImpl()
-
     /**
      * A [Properties] instance that can be used as default and does not have any [SerializersModule] installed.
      */
@@ -171,21 +158,3 @@ public inline fun <reified T> Properties.decodeFromMap(map: Map<String, Any>): T
 
 @PublishedApi
 internal fun noImpl(): Nothing = throw UnsupportedOperationException("Not implemented, should not be called")
-
-@Deprecated(renamedMsg, ReplaceWith("this.encodeToMap(strategy, value)"), DeprecationLevel.ERROR)
-public fun <T> Properties.store(strategy: SerializationStrategy<T>, value: T): Map<String, Any> = encodeToMap(strategy, value)
-
-@Deprecated(renamedMsg, ReplaceWith("this.decodeFromMap(strategy, map)"), DeprecationLevel.ERROR)
-public fun <T> Properties.load(strategy: DeserializationStrategy<T>, map: Map<String, Any>): T = decodeFromMap(strategy, map)
-
-@Deprecated(renamedMsg, ReplaceWith("this.encodeToMap(value)"), DeprecationLevel.ERROR)
-public inline fun <reified T : Any> Properties.store(value: T): Map<String, Any> = encodeToMap(value)
-
-@Deprecated(renamedMsg, ReplaceWith("this.decodeFromMap(map)"), DeprecationLevel.ERROR)
-public inline fun <reified T : Any> Properties.load(map: Map<String, Any>): T = decodeFromMap(map)
-
-
-internal const val renamedMsg = "This method was renamed during serialization 1.0 API stabilization"
-internal const val removedMsg =
-    "This method was removed without replacement during serialization 1.0 API stabilization due to unclear amount of use-cases. " +
-            "If you have a compelling use-case for it, please report to our issue tracker."

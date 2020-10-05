@@ -16,9 +16,8 @@ private val NULL = Any()
 private const val deprecationMessage =
     "This class is used only by the plugin in generated code and should not be used directly. Use corresponding factory functions instead"
 
-@InternalSerializationApi
-@Deprecated(message = deprecationMessage, level = DeprecationLevel.HIDDEN)
-public sealed class KeyValueSerializer<K, V, R>(
+@PublishedApi
+internal sealed class KeyValueSerializer<K, V, R>(
     protected val keySerializer: KSerializer<K>,
     protected val valueSerializer: KSerializer<V>
 ) : KSerializer<R> {
@@ -66,15 +65,8 @@ public sealed class KeyValueSerializer<K, V, R>(
     }
 }
 
-@InternalSerializationApi
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-@Deprecated(
-    message = deprecationMessage, level = DeprecationLevel.HIDDEN, replaceWith = ReplaceWith(
-        "MapEntrySerializer(keySerializer, valueSerializer, cSerializer)",
-        imports = ["kotlinx.serialization.builtins.MapEntrySerializer"]
-    )
-)
-public class MapEntrySerializer<K, V>(
+@PublishedApi
+internal class MapEntrySerializer<K, V>(
     keySerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>
 ) : KeyValueSerializer<K, V, Map.Entry<K, V>>(keySerializer, valueSerializer) {
@@ -93,14 +85,8 @@ public class MapEntrySerializer<K, V>(
     override fun toResult(key: K, value: V): Map.Entry<K, V> = MapEntry(key, value)
 }
 
-@InternalSerializationApi
-@Deprecated(
-    message = deprecationMessage, level = DeprecationLevel.HIDDEN, replaceWith = ReplaceWith(
-        "PairSerializer(keySerializer, valueSerializer, cSerializer)",
-        imports = ["kotlinx.serialization.builtins.PairSerializer"]
-    )
-)
-public class PairSerializer<K, V>(
+@PublishedApi
+internal class PairSerializer<K, V>(
     keySerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>
 ) : KeyValueSerializer<K, V, Pair<K, V>>(keySerializer, valueSerializer) {
@@ -115,16 +101,8 @@ public class PairSerializer<K, V>(
 }
 
 
-@InternalSerializationApi
-@Deprecated(
-    message = deprecationMessage,
-    level = DeprecationLevel.HIDDEN,
-    replaceWith = ReplaceWith(
-        "TripleSerializer(aSerializer, bSerializer, cSerializer)",
-        imports = ["kotlinx.serialization.builtins.TripleSerializer"]
-    )
-)
-public class TripleSerializer<A, B, C>(
+@PublishedApi
+internal class TripleSerializer<A, B, C>(
     private val aSerializer: KSerializer<A>,
     private val bSerializer: KSerializer<B>,
     private val cSerializer: KSerializer<C>

@@ -2,7 +2,6 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:OptIn(ExperimentalSerializationApi::class)
-
 package kotlinx.serialization.protobuf.internal
 
 import kotlinx.serialization.*
@@ -10,6 +9,7 @@ import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.*
+
 import kotlinx.serialization.protobuf.*
 import kotlin.jvm.*
 
@@ -136,7 +136,7 @@ internal open class ProtobufEncoder(
     private fun <T> serializeMap(serializer: SerializationStrategy<T>, value: T) {
         // encode maps as collection of map entries, not merged collection of key-values
         val casted = (serializer as MapLikeSerializer<Any?, Any?, T, *>)
-        val mapEntrySerial = MapEntrySerializer(casted.keySerializer, casted.valueSerializer)
+        val mapEntrySerial = kotlinx.serialization.builtins.MapEntrySerializer(casted.keySerializer, casted.valueSerializer)
         SetSerializer(mapEntrySerial).serialize(this, (value as Map<*, *>).entries)
     }
 }

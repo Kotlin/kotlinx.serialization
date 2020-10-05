@@ -67,12 +67,6 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
         index: Int
     ): Unit = encodeTaggedEnum(popTagOrDefault(), enumDescriptor, index)
 
-    public override fun beginStructure(
-        descriptor: SerialDescriptor,
-        vararg typeSerializers: KSerializer<*>
-    ): CompositeEncoder {
-        return this
-    }
 
     public final override fun endStructure(descriptor: SerialDescriptor) {
         if (stackSize >= 0) {

@@ -63,6 +63,3 @@ public class ContextualSerializer<T : Any>(
         return decoder.decodeSerializableValue(serializer)
     }
 }
-
-@Deprecated("Renamed", ReplaceWith("ContextualSerializer"), level = DeprecationLevel.ERROR)
-public typealias ContextSerializer<T> = ContextualSerializer<T>

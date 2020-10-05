@@ -239,37 +239,15 @@ public interface Encoder {
      * }
      * ```
      */
-    @Suppress("DEPRECATION_ERROR", "RemoveRedundantSpreadOperator")
-    public fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder =
-        beginStructure(descriptor, *arrayOf<KSerializer<*>>())
-
-    @Deprecated(
-        "Parameter typeSerializers is deprecated for removal. Please migrate to beginStructure method with one argument.",
-        ReplaceWith("beginStructure(descriptor)"),
-        DeprecationLevel.ERROR
-    )
-    public fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder =
-        beginStructure(descriptor)
+    public fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder
 
     /**
      * Encodes the beginning of the collection with size [collectionSize] and the given serializer of its type parameters.
      * This method has to be implemented only if you need to know collection size in advance, otherwise, [beginStructure] can be used.
      */
-    @Suppress("DEPRECATION_ERROR", "RemoveRedundantSpreadOperator")
     public fun beginCollection(
         descriptor: SerialDescriptor,
         collectionSize: Int
-    ): CompositeEncoder = beginCollection(descriptor, collectionSize, *arrayOf<KSerializer<*>>())
-
-    @Deprecated(
-        "Parameter typeSerializers is deprecated for removal. Please migrate to beginCollection method with two arguments.",
-        ReplaceWith("beginCollection(descriptor, collectionSize)"),
-        DeprecationLevel.ERROR
-    )
-    public fun beginCollection(
-        descriptor: SerialDescriptor,
-        collectionSize: Int,
-        vararg typeSerializers: KSerializer<*>
     ): CompositeEncoder = beginStructure(descriptor)
 
     /**
@@ -428,13 +406,6 @@ public interface CompositeEncoder {
         serializer: SerializationStrategy<T>,
         value: T?
     )
-
-    @Deprecated(
-        level = DeprecationLevel.ERROR,
-        message = "This method is deprecated for removal. Please remove it from your implementation and delegate to default method instead"
-    )
-    public fun encodeNonSerializableElement(descriptor: SerialDescriptor, index: Int, value: Any) {
-    }
 }
 
 /**

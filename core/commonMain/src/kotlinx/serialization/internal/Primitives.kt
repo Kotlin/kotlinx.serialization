@@ -74,170 +74,68 @@ private fun checkName(serialName: String) {
 internal fun <T : Any> KClass<T>.builtinSerializerOrNull(): KSerializer<T>? =
     BUILTIN_SERIALIZERS[this] as KSerializer<T>?
 
-@Deprecated(
-    message = "Deprecated in the favour of Unit.serializer() extension",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("Unit.serializer()", imports = ["kotlinx.serialization.builtins.serializer"])
-)
-@Suppress("DEPRECATION_ERROR")
-public object UnitSerializer : KSerializer<Unit> by ObjectSerializer("kotlin.Unit", Unit)
+@PublishedApi
+internal object UnitSerializer : KSerializer<Unit> by ObjectSerializer("kotlin.Unit", Unit)
 
-@Deprecated(
-    message = "Deprecated in the favour of Boolean.serializer() extension",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("Boolean.serializer()", imports = ["kotlinx.serialization.builtins.serializer"])
-)
-public object BooleanSerializer : KSerializer<Boolean> {
+@PublishedApi
+internal object BooleanSerializer : KSerializer<Boolean> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Boolean", PrimitiveKind.BOOLEAN)
     override fun serialize(encoder: Encoder, value: Boolean): Unit = encoder.encodeBoolean(value)
     override fun deserialize(decoder: Decoder): Boolean = decoder.decodeBoolean()
 }
-@Deprecated(
-    message = "Deprecated in the favour of Byte.serializer() extension",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("Byte.serializer()", imports = ["kotlinx.serialization.builtins.serializer"])
-)
-public object ByteSerializer : KSerializer<Byte> {
+
+@PublishedApi
+internal object ByteSerializer : KSerializer<Byte> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Byte", PrimitiveKind.BYTE)
     override fun serialize(encoder: Encoder, value: Byte): Unit = encoder.encodeByte(value)
     override fun deserialize(decoder: Decoder): Byte = decoder.decodeByte()
 }
 
-@Deprecated(
-    message = "Deprecated in the favour of Short.serializer() extension",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("Short.serializer()", imports = ["kotlinx.serialization.builtins.serializer"])
-)
-public object ShortSerializer : KSerializer<Short> {
+@PublishedApi
+internal object ShortSerializer : KSerializer<Short> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Short", PrimitiveKind.SHORT)
     override fun serialize(encoder: Encoder, value: Short): Unit = encoder.encodeShort(value)
     override fun deserialize(decoder: Decoder): Short = decoder.decodeShort()
 }
 
-@Deprecated(
-    message = "Deprecated in the favour of Int.serializer() extension",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("Int.serializer()", imports = ["kotlinx.serialization.builtins.serializer"])
-)
-public object IntSerializer : KSerializer<Int> {
+@PublishedApi
+internal object IntSerializer : KSerializer<Int> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Int", PrimitiveKind.INT)
     override fun serialize(encoder: Encoder, value: Int): Unit = encoder.encodeInt(value)
     override fun deserialize(decoder: Decoder): Int = decoder.decodeInt()
 }
 
-@Deprecated(
-    message = "Deprecated in the favour of Long.serializer() extension",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("Long.serializer()", imports = ["kotlinx.serialization.builtins.serializer"])
-)
-public object LongSerializer : KSerializer<Long> {
+@PublishedApi
+internal object LongSerializer : KSerializer<Long> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Long", PrimitiveKind.LONG)
     override fun serialize(encoder: Encoder, value: Long): Unit = encoder.encodeLong(value)
     override fun deserialize(decoder: Decoder): Long = decoder.decodeLong()
 }
 
-@Deprecated(
-    message = "Deprecated in the favour of Float.serializer() extension",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("Float.serializer()", imports = ["kotlinx.serialization.builtins.serializer"])
-)
-public object FloatSerializer : KSerializer<Float> {
+@PublishedApi
+internal object FloatSerializer : KSerializer<Float> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Float", PrimitiveKind.FLOAT)
     override fun serialize(encoder: Encoder, value: Float): Unit = encoder.encodeFloat(value)
     override fun deserialize(decoder: Decoder): Float = decoder.decodeFloat()
 }
 
-@Deprecated(
-    message = "Deprecated in the favour of Double.serializer() extension",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("Double.serializer()", imports = ["kotlinx.serialization.builtins.serializer"])
-)
-public object DoubleSerializer : KSerializer<Double> {
+@PublishedApi
+internal object DoubleSerializer : KSerializer<Double> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Double", PrimitiveKind.DOUBLE)
     override fun serialize(encoder: Encoder, value: Double): Unit = encoder.encodeDouble(value)
     override fun deserialize(decoder: Decoder): Double = decoder.decodeDouble()
 }
 
-@Deprecated(
-    message = "Deprecated in the favour of Char.serializer() extension",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("Char.serializer()", imports = ["kotlinx.serialization.builtins.serializer"])
-)
-public object CharSerializer : KSerializer<Char> {
+@PublishedApi
+internal object CharSerializer : KSerializer<Char> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Char", PrimitiveKind.CHAR)
     override fun serialize(encoder: Encoder, value: Char): Unit = encoder.encodeChar(value)
     override fun deserialize(decoder: Decoder): Char = decoder.decodeChar()
 }
 
-@Deprecated(
-    message = "Deprecated in the favour of String.serializer() extension",
-    level = DeprecationLevel.ERROR,
-    replaceWith = ReplaceWith("String.serializer()", imports = ["kotlinx.serialization.builtins.serializer"])
-)
-public object StringSerializer : KSerializer<String> {
+@PublishedApi
+internal object StringSerializer : KSerializer<String> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.String", PrimitiveKind.STRING)
     override fun serialize(encoder: Encoder, value: String): Unit = encoder.encodeString(value)
     override fun deserialize(decoder: Decoder): String = decoder.decodeString()
 }
-
-public open class Migration : SerialDescriptor {
-    override val serialName: String
-        get() = error("Class used only for source-level migration")
-    override val kind: SerialKind
-        get() = error("Class used only for source-level migration")
-    override val elementsCount: Int
-        get() = error("Class used only for source-level migration")
-    override fun getElementName(index: Int): String {
-        error("Class used only for source-level migration")
-    }
-
-    override fun getElementIndex(name: String): Int {
-        error("Class used only for source-level migration")
-    }
-
-    override fun getElementAnnotations(index: Int): List<Annotation> {
-        error("Class used only for source-level migration")
-    }
-
-    override fun getElementDescriptor(index: Int): SerialDescriptor {
-        error("Class used only for source-level migration")
-    }
-
-    override fun isElementOptional(index: Int): Boolean {
-        error("Class used only for source-level migration")
-    }
-}
-
-private const val message = "Top level primitive descriptors are unavailable to avoid accidental misuage. " +
-        "Please use kind for comparison and primitive descriptor with a unique name for implementation"
-
-@Deprecated(message = message,
-    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.INT)"))
-public object IntDescriptor : Migration()
-@Deprecated(message = message,
-    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.UNIT)"))
-public object UnitDescriptor : Migration()
-@Deprecated(message = message,
-    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.BOOLEAN)"))
-public object BooleanDescriptor : Migration()
-@Deprecated(message = message,
-    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.BYTE)"))
-public object ByteDescriptor : Migration()
-@Deprecated(message = message,
-    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.SHORT)"))
-public object ShortDescriptor : Migration()
-@Deprecated(message = message,
-    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.LONG)"))
-public object LongDescriptor : Migration()
-@Deprecated(message = message,
-    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.FLOAT)"))
-public object FloatDescriptor : Migration()
-@Deprecated(message = message,
-    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.DOUBLE)"))
-public object DoubleDescriptor : Migration()
-@Deprecated(message = message,
-    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.CHAR)"))
-public object CharDescriptor : Migration()
-@Deprecated(message = message,
-    replaceWith = ReplaceWith("PrimitiveDescriptor(\"yourSerializerUniqueName\", PrimitiveKind.STRING)"))
-public object StringDescriptor : Migration()

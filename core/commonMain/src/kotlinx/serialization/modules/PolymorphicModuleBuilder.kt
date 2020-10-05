@@ -68,46 +68,6 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
             builder.registerDefaultPolymorphicSerializer(baseClass, default, false)
         }
     }
-
-    @Deprecated(
-        message = "Use 'subclass' instead",
-        level = DeprecationLevel.ERROR,
-        replaceWith = ReplaceWith("subclass<T>()")
-    )
-    public inline fun <reified T : Base> addSubclass(): Unit =
-        subclass(T::class, serializer())
-
-    @Deprecated(
-        message = "Use 'subclass(serializer)' instead",
-        level = DeprecationLevel.ERROR,
-        replaceWith = ReplaceWith("subclass(serializer)")
-    )
-    public inline fun <reified T : Base> addSubclass(serializer: KSerializer<T>): Unit =
-        subclass(T::class, serializer)
-
-
-    @Deprecated(
-        message = "Use 'subclass(subclass, serializer)' instead",
-        level = DeprecationLevel.ERROR,
-        replaceWith = ReplaceWith("subclass(subclass, serializer)")
-    )
-    public fun <T: Base> addSubclass(subclass: KClass<T>, serializer: KSerializer<T>): Unit = subclass(subclass, serializer)
-
-    @Deprecated(
-        message = "This method was deprecated during serialization 1.0 API stabilization",
-        level = DeprecationLevel.ERROR,
-        replaceWith = ReplaceWith("subclass(serializer)")
-    )
-    public infix fun <T : Base> KClass<T>.with(serializer: KSerializer<T>): Unit {
-        subclass(this, serializer)
-    }
-
-    @Deprecated(
-        message = "This method was deprecated during serialization 1.0 API stabilization",
-        level = DeprecationLevel.ERROR,
-        replaceWith = ReplaceWith("subclass(serializer<T>())")
-    )
-    public fun <T : Any> subclass(): Unit = TODO()
 }
 
 /**
