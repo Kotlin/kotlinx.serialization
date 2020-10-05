@@ -4,6 +4,8 @@
 
 package kotlinx.serialization.cbor.internal
 
+import kotlinx.serialization.*
+
 internal class ByteArrayInput(private var array: ByteArray) {
     private var position: Int = 0
     public val availableBytes: Int get() = array.size - position
@@ -33,6 +35,9 @@ internal class ByteArrayInput(private var array: ByteArray) {
         return copied
     }
 
+    fun skip(length: Int) {
+        position += length
+    }
 }
 
 internal class ByteArrayOutput {

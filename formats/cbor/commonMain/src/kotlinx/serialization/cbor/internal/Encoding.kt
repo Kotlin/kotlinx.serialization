@@ -32,6 +32,9 @@ private const val HEADER_NEGATIVE: Byte = 0b001_00000
 private const val HEADER_ARRAY: Int = 0b100_00000
 private const val HEADER_MAP: Int = 0b101_00000
 
+/** Value to represent an indefinite length CBOR item within a "length stack". */
+private const val LENGTH_STACK_INDEFINITE = -1
+
 // Differs from List only in start byte
 private class CborMapWriter(cbor: Cbor, encoder: CborEncoder) : CborListWriter(cbor, encoder) {
     override fun writeBeginToken() = encoder.startMap()
@@ -233,10 +236,29 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
     }
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-        if (!finiteMode && decoder.isEnd() || (finiteMode && readProperties >= size)) return CompositeDecoder.DECODE_DONE
-        val elemName = decoder.nextString()
-        readProperties++
-        val index = descriptor.getElementIndexOrThrow(elemName)
+        val index = if (cbor.ignoreUnknownKeys) {
+            val knownIndex: Int
+            while (true) {
+                if (isDone()) return CompositeDecoder.DECODE_DONE
+                val elemName = decoder.nextString()
+                readProperties++
+
+                val index = descriptor.getElementIndex(elemName)
+                if (index == CompositeDecoder.UNKNOWN_NAME) {
+                    decoder.skipElement()
+                } else {
+                    knownIndex = index
+                    break
+                }
+            }
+            knownIndex
+        } else {
+            if (isDone()) return CompositeDecoder.DECODE_DONE
+            val elemName = decoder.nextString()
+            readProperties++
+            descriptor.getElementIndexOrThrow(elemName)
+        }
+
         decodeByteArrayAsByteString = descriptor.isByteString(index)
         return index
     }
@@ -271,6 +293,7 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int =
         enumDescriptor.getElementIndexOrThrow(decoder.nextString())
 
+    private fun isDone(): Boolean = !finiteMode && decoder.isEnd() || (finiteMode && readProperties >= size)
 }
 
 internal class CborDecoder(private val input: ByteArrayInput) {
@@ -284,6 +307,8 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         curByte = input.read()
         return curByte
     }
+
+    fun isEof() = curByte == -1
 
     private fun skipByte(expected: Int) {
         if (curByte != expected) throw CborDecodingException("byte ${printByte(expected)}", curByte)
@@ -429,6 +454,108 @@ internal class CborDecoder(private val input: ByteArrayInput) {
     }
 
     /**
+     * Skips the current value element. Bytes are processed to determine the element type (and corresponding length), to
+     * determine how many bytes to skip.
+     *
+     * For primitive (finite length) elements (e.g. unsigned integer, text string), their length is read and
+     * corresponding number of bytes are skipped.
+     *
+     * For elements that contain children (e.g. array, map), the child count is read and added to a "length stack"
+     * (which represents the "number of elements" at each depth of the CBOR data structure). When a child element has
+     * been skipped, the "length stack" is [pruned][prune]. For indefinite length elements, a special marker is added to
+     * the "length stack" which is only popped from the "length stack" when a CBOR [break][isEnd] is encountered.
+     */
+    fun skipElement() {
+        val lengthStack = mutableListOf<Int>()
+
+        do {
+            if (isEof()) throw CborDecodingException("Unexpected EOF while skipping element")
+
+            if (isIndefinite()) {
+                lengthStack.add(LENGTH_STACK_INDEFINITE)
+            } else if (isEnd()) {
+                if (lengthStack.removeLastOrNull() != LENGTH_STACK_INDEFINITE)
+                    throw CborDecodingException("next data item", curByte)
+                prune(lengthStack)
+            } else {
+                val header = curByte and 0b111_00000
+                val length = elementLength()
+                if (header == HEADER_ARRAY || header == HEADER_MAP) {
+                    if (length > 0) lengthStack.add(length)
+                } else {
+                    input.skip(length)
+                    prune(lengthStack)
+                }
+            }
+
+            readByte()
+        } while (lengthStack.isNotEmpty())
+    }
+
+    /**
+     * Removes an item from the top of the [lengthStack], cascading the removal if the item represents the last item
+     * (i.e. a length value of `1`) at its stack depth.
+     *
+     * For example, pruning a [lengthStack] of `[3, 2, 1, 1]` would result in `[3, 1]`.
+     */
+    private fun prune(lengthStack: MutableList<Int>) {
+        for (i in lengthStack.lastIndex downTo 0) {
+            when (lengthStack[i]) {
+                LENGTH_STACK_INDEFINITE -> break
+                1 -> lengthStack.removeAt(i)
+                else -> {
+                    lengthStack[i] = lengthStack[i] - 1
+                    break
+                }
+            }
+        }
+    }
+
+    /**
+     * Determines if [curByte] represents an indefinite length CBOR item.
+     *
+     * Per [RFC 7049: 2.2. Indefinite Lengths for Some Major Types](https://tools.ietf.org/html/rfc7049#section-2.2):
+     * > Four CBOR items (arrays, maps, byte strings, and text strings) can be encoded with an indefinite length
+     */
+    private fun isIndefinite(): Boolean {
+        val majorType = curByte and 0b111_00000
+        val value = curByte and 0b000_11111
+
+        return value == ADDITIONAL_INFORMATION_INDEFINITE_LENGTH &&
+            (majorType == HEADER_ARRAY || majorType == HEADER_MAP ||
+                majorType == HEADER_BYTE_STRING.toInt() || majorType == HEADER_STRING.toInt())
+    }
+
+    /**
+     * Determines the length of the CBOR item represented by [curByte]; length has specific meaning based on the type:
+     *
+     * | Major type          | Length represents number of... |
+     * |---------------------|--------------------------------|
+     * | 0. unsigned integer | bytes                          |
+     * | 1. negative integer | bytes                          |
+     * | 2. byte string      | bytes                          |
+     * | 3. string           | bytes                          |
+     * | 4. array            | data items (values)            |
+     * | 5. map              | sub-items (keys + values)      |
+     */
+    private fun elementLength(): Int {
+        val majorType = curByte and 0b111_00000
+        val additionalInformation = curByte and 0b000_11111
+
+        return when (majorType) {
+            HEADER_BYTE_STRING.toInt(), HEADER_STRING.toInt(), HEADER_ARRAY -> readNumber().toInt()
+            HEADER_MAP -> readNumber().toInt() * 2
+            else -> when (additionalInformation) {
+                24 -> 1
+                25 -> 2
+                26 -> 4
+                27 -> 8
+                else -> 0
+            }
+        }
+    }
+
+    /**
      * Indefinite-length byte sequences contain an unknown number of fixed-length byte sequences (chunks).
      *
      * @return [ByteArray] containing all of the concatenated bytes found in the buffer.
@@ -447,7 +574,8 @@ internal class CborDecoder(private val input: ByteArrayInput) {
 private fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
     val index = getElementIndex(name)
     if (index == CompositeDecoder.UNKNOWN_NAME)
-        throw SerializationException("$serialName does not contain element with name '$name'")
+        throw SerializationException("$serialName does not contain element with name '$name." +
+            " You can enable 'CborBuilder.ignoreUnknownKeys' property to ignore unknown keys")
     return index
 }
 

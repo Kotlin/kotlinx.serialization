@@ -10,12 +10,7 @@ fun ByteArray.toAsciiHexString() = joinToString("") {
 }
 
 @Serializable
-data class Project(
-    @ProtoNumber(1)
-    val name: String, 
-    @ProtoNumber(3)
-    val language: String
-)
+data class Project(val name: String, val language: String)
 
 fun main() {
     val data = Project("kotlinx.serialization", "Kotlin") 

@@ -37,10 +37,8 @@ class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
-        ListDecoder(list) 
-
-    override fun decodeSequentially(): Boolean = true
-}        
+        ListDecoder(list)
+}
 
 fun <T> decodeFromList(list: List<Any>, deserializer: DeserializationStrategy<T>): T {
     val decoder = ListDecoder(ArrayDeque(list))

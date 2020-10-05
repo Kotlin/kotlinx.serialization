@@ -29,3 +29,8 @@ internal inline fun <reified T : Any> assertSerializedToBinaryAndRestored(
     if (printResult) println("[Restored form] $restored")
     assertEquals(original, restored)
 }
+
+inline fun <reified T : Throwable> assertFailsWithMessage(message: String, block: () -> Unit) {
+    val exception = assertFailsWith(T::class, null, block)
+    assertTrue(exception.message!!.contains(message), "Expected message '${exception.message}' to contain substring '$message'")
+}

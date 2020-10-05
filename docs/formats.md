@@ -11,6 +11,7 @@ stable, these are currently experimental features of Kotlin serialization.
 <!--- TOC -->
 
 * [CBOR (experimental)](#cbor-experimental)
+  * [Ignoring unknown keys](#ignoring-unknown-keys)
   * [Byte arrays and CBOR data types](#byte-arrays-and-cbor-data-types)
 * [ProtoBuf (experimental)](#protobuf-experimental)
   * [Field numbers](#field-numbers)
@@ -94,6 +95,54 @@ BF                                      # map(*)
 > (see the [Allowing structured map keys](json.md#allowing-structured-map-keys) section for JSON workarounds),
 > and Kotlin maps are serialized as CBOR maps, but some parsers (like `jackson-dataformat-cbor`) don't support this.
 
+### Ignoring unknown keys
+
+CBOR format is often used to communicate with [IoT] devices where new properties could be added as a part of a device's
+API evolution. By default, unknown keys encountered during deserialization produce an error.
+This behavior can be configured with the [ignoreUnknownKeys][CborBuilder.ignoreUnknownKeys] property.
+
+<!--- INCLUDE
+import kotlinx.serialization.*
+import kotlinx.serialization.cbor.*
+-->
+
+```kotlin
+val format = Cbor { ignoreUnknownKeys = true }
+
+@Serializable
+data class Project(val name: String)
+
+fun main() {
+    val data = format.decodeFromHexString<Project>(
+        "bf646e616d65756b6f746c696e782e73657269616c697a6174696f6e686c616e6775616765664b6f746c696eff"
+    )
+    println(data)
+}
+```
+
+> You can get the full code [here](../guide/example/example-formats-02.kt).
+
+It decodes the object, despite the fact that `Project` is missing the `language` property.
+
+```text
+Project(name=kotlinx.serialization)
+```
+
+<!--- TEST -->
+
+In [CBOR hex notation](http://cbor.me/), the input is equivalent to the following:
+```
+BF                                      # map(*)
+   64                                   # text(4)
+      6E616D65                          # "name"
+   75                                   # text(21)
+      6B6F746C696E782E73657269616C697A6174696F6E # "kotlinx.serialization"
+   68                                   # text(8)
+      6C616E6775616765                  # "language"
+   66                                   # text(6)
+      4B6F746C696E                      # "Kotlin"
+   FF                                   # primitive(*)
+```
 
 ### Byte arrays and CBOR data types
 
@@ -138,7 +187,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-02.kt).    
+> You can get the full code [here](../guide/example/example-formats-03.kt).    
 
 As we see, the CBOR byte that precedes the data is different for different type of encoding.
 
@@ -203,7 +252,7 @@ fun main() {
 }
 ```                                  
 
-> You can get the full code [here](../guide/example/example-formats-03.kt).     
+> You can get the full code [here](../guide/example/example-formats-04.kt).
 
 ```text 
 {0A}{15}kotlinx.serialization{12}{06}Kotlin
@@ -253,7 +302,7 @@ fun main() {
 }
 ```                                  
 
-> You can get the full code [here](../guide/example/example-formats-04.kt).     
+> You can get the full code [here](../guide/example/example-formats-05.kt).
 
 We see in the output that the number for the first property `name` did not change (as it is numbered from one by default),
 but it did change for the `language` property. 
@@ -304,7 +353,7 @@ fun main() {
 }
 ```                   
 
-> You can get the full code [here](../guide/example/example-formats-05.kt).           
+> You can get the full code [here](../guide/example/example-formats-06.kt).
 
 * The [default][ProtoIntegerType.DEFAULT] is a varint encoding (`intXX`) that is optimized for 
   small non-negative numbers. The value of `1` is encoded in one byte `01`. 
@@ -361,7 +410,7 @@ fun main() {
 }
 ```                   
 
-> You can get the full code [here](../guide/example/example-formats-06.kt).    
+> You can get the full code [here](../guide/example/example-formats-07.kt).
 
 ```text 
 {08}{01}{08}{02}{08}{03}
@@ -407,7 +456,7 @@ fun main() {
 }
 ```      
 
-> You can get the full code [here](../guide/example/example-formats-07.kt).
+> You can get the full code [here](../guide/example/example-formats-08.kt).
 
 The resulting map has dot-separated keys representing keys of the nested objects.
 
@@ -487,7 +536,7 @@ fun main() {
 }
 ```                                    
 
-> You can get the full code [here](../guide/example/example-formats-08.kt).
+> You can get the full code [here](../guide/example/example-formats-09.kt).
 
 As a result, we got all the primitives values in our object graph visited and put into a list
 in a _serial_ order.
@@ -589,7 +638,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-09.kt).
+> You can get the full code [here](../guide/example/example-formats-10.kt).
 
 Now can convert a list of primitives back to an object tree.
 
@@ -680,7 +729,7 @@ fun main() {
 }
 -->
 
-> You can get the full code [here](../guide/example/example-formats-10.kt).
+> You can get the full code [here](../guide/example/example-formats-11.kt).
 
 <!--- TEST 
 [kotlinx.serialization, kotlin, 9000]
@@ -787,7 +836,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-11.kt).
+> You can get the full code [here](../guide/example/example-formats-12.kt).
 
 We see the size of the list added to the result, letting decoder know where to stop. 
 
@@ -899,7 +948,7 @@ fun main() {
 
 ```
 
-> You can get the full code [here](../guide/example/example-formats-12.kt).
+> You can get the full code [here](../guide/example/example-formats-13.kt).
 
 In the output we see how not-null`!!` and `NULL` marks are used.
 
@@ -1027,7 +1076,7 @@ fun main() {
 }
 ```
               
-> You can get the full code [here](../guide/example/example-formats-13.kt).
+> You can get the full code [here](../guide/example/example-formats-14.kt).
 
 As we can see, the result is the dense binary format that only contains the data that is being serialized. 
 It can be easily tweaked for any kind of domain-specific compact encoding.
@@ -1221,7 +1270,7 @@ fun main() {
 }
 ```
               
-> You can get the full code [here](../guide/example/example-formats-14.kt).
+> You can get the full code [here](../guide/example/example-formats-15.kt).
 
 As we can see, our custom byte array format is being used, with compact encoding of its size in one byte. 
 
@@ -1239,6 +1288,7 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
 
 <!-- references -->
 [RFC 7049]: https://tools.ietf.org/html/rfc7049
+[IoT]: https://en.wikipedia.org/wiki/Internet_of_things
 [RFC 7049 Major Types]: https://tools.ietf.org/html/rfc7049#section-2.1
 
 <!-- Java references -->
@@ -1286,5 +1336,6 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
 [Cbor]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor/index.html
 [Cbor.encodeToByteArray]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor/encode-to-byte-array.html
 [Cbor.decodeFromByteArray]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor/decode-from-byte-array.html
+[CborBuilder.ignoreUnknownKeys]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-builder/index.html#kotlinx.serialization.cbor%2FCborBuilder%2FignoreUnknownKeys%2F%23%2FPointingToDeclaration%2F
 [ByteString]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-byte-string/index.html
 <!--- END -->
