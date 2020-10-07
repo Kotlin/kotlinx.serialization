@@ -143,13 +143,13 @@ Kotlin DSL:
 
 ```kotlin
 repositories {
-    // artifacts are published to JCenter
+    // Artifacts are also available on Maven Central
     jcenter()
 }
 
 dependencies {
     implementation(kotlin("stdlib", KotlinCompilerVersion.VERSION)) // or "stdlib-jdk8"
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0") // JVM dependency
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0")
 }
 ```
 
@@ -157,16 +157,17 @@ Groovy DSL:
 
 ```gradle
 repositories {
+    // Artifacts are also available on Maven Central
     jcenter()
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version" // or "kotlin-stdlib-jdk8"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0" // JVM dependency
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0"
 }
 ```
 
->We also provide kotlinx-serialization-core artifact that contains all serialization API but does not have bundled serialization format with it
+>We also provide `kotlinx-serialization-core` artifact that contains all serialization API but does not have bundled serialization format with it
 
 ### Android
 
@@ -194,8 +195,8 @@ You can add dependency to the required module right to the common source set:
 ```gradle
 commonMain {
     dependencies {
+        // Works as common dependency as well as the platform one
         implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$serialization_version"
-        implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:$serialization_version"
     }
 }
 ```
