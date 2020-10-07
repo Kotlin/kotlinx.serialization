@@ -95,7 +95,7 @@ plugins {
 }
 ```
 
-> Kotlin versions before are not supported by the stable release of Kotlin serialization
+> Kotlin versions before 1.4.0 are not supported by the stable release of Kotlin serialization
 
 #### Using `apply plugin` (the old way)
 
