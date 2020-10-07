@@ -1,3 +1,21 @@
+1.0.0 / 2020-10-08
+==================
+
+The first public stable release, yay!
+The definitions of stability and backwards compatibility guarantees are located in the [corresponding document](docs/compatibility.md).
+We now also have a GitHub Pages site with [full API reference](https://kotlin.github.io/kotlinx.serialization/).
+
+It does not differ much from RC2 in terms of features.
+However, all of the previously deprecated declarations were deleted. 
+So if you use RC/RC2 and still use deprecated declarations, please, migrate before updating to 1.0.0.
+In case you still use pre-1.0 versions (e.g. 0.20.0), refer to our [migration guide](docs/migration.md).
+  
+### Bugfixes and improvements
+
+  * Support nullable types at top-level for JsonElement decoding (#1117)
+  * Add CBOR ignoreUnknownKeys option (#947)
+  * Fix incorrect documentation of `encodeDefaults` (#1108)
+  
 1.0.0-RC2 / 2020-09-21
 ==================
 

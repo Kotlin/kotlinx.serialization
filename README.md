@@ -3,7 +3,7 @@
 [![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 [![TeamCity build](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/KotlinTools_KotlinxSerialization_Ko.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=KotlinTools_KotlinxSerialization_Ko&guest=1)
-[![Download](https://api.bintray.com/packages/kotlin/kotlinx/kotlinx.serialization.runtime/images/download.svg?version=1.0.0-RC2) ](https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime/1.0.0-RC2)
+[![Download](https://api.bintray.com/packages/kotlin/kotlinx/kotlinx.serialization.runtime/images/download.svg?version=1.0.0) ](https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime/1.0.0)
 
 Kotlin serialization consists of a compiler plugin, that generates visitor code for serializable classes,
  runtime library with core serialization API and support libraries with various serialization formats.
@@ -60,6 +60,8 @@ Project(name=kotlinx.serialization, language=Kotlin)
 -->
 
 **Read the [Kotlin Serialization Guide](docs/serialization-guide.md) for all details.**
+
+You can find auto-generated documentation website on [GitHub Pages](https://kotlin.github.io/kotlinx.serialization/).
 
 ## Setup
 
@@ -147,7 +149,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib", KotlinCompilerVersion.VERSION)) // or "stdlib-jdk8"
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0-RC2") // JVM dependency
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0") // JVM dependency
 }
 ```
 
@@ -160,7 +162,7 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version" // or "kotlin-stdlib-jdk8"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0-RC2" // JVM dependency
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0" // JVM dependency
 }
 ```
 
@@ -206,7 +208,7 @@ Ensure the proper version of Kotlin and serialization version:
 ```xml
 <properties>
     <kotlin.version>1.4.10</kotlin.version>
-    <serialization.version>1.0.0-RC2</serialization.version>
+    <serialization.version>1.0.0</serialization.version>
 </properties>
 ```
 
