@@ -24,7 +24,7 @@ internal fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>):
 @ExperimentalSerializationApi
 private sealed class AbstractJsonTreeEncoder(
     final override val json: Json,
-    val nodeConsumer: (JsonElement) -> Unit
+    private val nodeConsumer: (JsonElement) -> Unit
 ) : NamedValueEncoder(), JsonEncoder {
 
     final override val serializersModule: SerializersModule
@@ -39,10 +39,18 @@ private sealed class AbstractJsonTreeEncoder(
         encodeSerializableValue(JsonElementSerializer, element)
     }
 
-    override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = configuration.encodeDefaults
+    override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean =
+        configuration.encodeDefaults
+
     override fun composeName(parentName: String, childName: String): String = childName
     abstract fun putElement(key: String, element: JsonElement)
     abstract fun getCurrent(): JsonElement
+
+
+    override fun encodeNull() {
+        val tag = currentTagOrNull ?: return nodeConsumer(JsonNull)
+        encodeTaggedNull(tag)
+    }
 
     override fun encodeTaggedNull(tag: String) = putElement(tag, JsonNull)
 
@@ -120,8 +128,10 @@ private sealed class AbstractJsonTreeEncoder(
 
 internal const val PRIMITIVE_TAG = "primitive" // also used in JsonPrimitiveInput
 
-private class JsonPrimitiveEncoder(json: Json, nodeConsumer: (JsonElement) -> Unit) :
-    AbstractJsonTreeEncoder(json, nodeConsumer) {
+private class JsonPrimitiveEncoder(
+    json: Json,
+    nodeConsumer: (JsonElement) -> Unit
+) : AbstractJsonTreeEncoder(json, nodeConsumer) {
     private var content: JsonElement? = null
 
     init {
