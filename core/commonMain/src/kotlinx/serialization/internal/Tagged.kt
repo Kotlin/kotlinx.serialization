@@ -158,7 +158,7 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
         tagStack.add(name)
     }
 
-    private fun popTag(): Tag =
+    protected fun popTag(): Tag =
         if (tagStack.isNotEmpty())
             tagStack.removeAt(tagStack.lastIndex)
         else

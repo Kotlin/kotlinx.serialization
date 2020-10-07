@@ -1316,6 +1316,7 @@ public abstract class kotlinx/serialization/internal/TaggedEncoder : kotlinx/ser
 	protected final fun getCurrentTagOrNull ()Ljava/lang/Object;
 	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 	protected abstract fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/Object;
+	protected final fun popTag ()Ljava/lang/Object;
 	protected final fun pushTag (Ljava/lang/Object;)V
 	public fun shouldEncodeElementDefault (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
 }
