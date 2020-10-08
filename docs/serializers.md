@@ -192,7 +192,7 @@ kotlin.collections.ArrayList(PrimitiveDescriptor(kotlin.String))
 
 ### Using top-level serializer function
 
-When in doubt, you can always use the top-level generic [`serializer<T>()`][kotlinx.serialization.serializer] 
+When in doubt, you can always use the top-level generic `serializer<T>()`
 function to retrieve a serializer for an arbitrary Kotlin type in your source-code.
 
 <!--- INCLUDE
