@@ -5,10 +5,9 @@ The first public stable release, yay!
 The definitions of stability and backwards compatibility guarantees are located in the [corresponding document](docs/compatibility.md).
 We now also have a GitHub Pages site with [full API reference](https://kotlin.github.io/kotlinx.serialization/).
 
-It does not differ much from RC2 in terms of features.
-However, all of the previously deprecated declarations were deleted. 
-So if you use RC/RC2 and still use deprecated declarations, please, migrate before updating to 1.0.0.
-In case you still use pre-1.0 versions (e.g. 0.20.0), refer to our [migration guide](docs/migration.md).
+Compared to RC2, no new features apart from #947 were added and all previously deprecated declarations and migrations were deleted. 
+If you are using RC/RC2 along with deprecated declarations, please, migrate before updating to 1.0.0.
+In case you are using pre-1.0 versions (e.g. 0.20.0), please refer to our [migration guide](docs/migration.md).
   
 ### Bugfixes and improvements
 
