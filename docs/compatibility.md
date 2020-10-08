@@ -14,36 +14,36 @@ since Kotlin/Native and Kotlin/JS are experimental themselves and currently do n
 ## Core library compatibility
 
 Core library public API comes in three flavours: general (stable), experimental, and internal.
-ll public API except stable is marked with the corresponding annotation.
+All public API except stable is marked with the corresponding annotation.
 To learn how to use declarations that require opt-in, please refer to [corresponding documentation page](https://kotlinlang.org/docs/reference/opt-in-requirements.html#non-propagating-use).
 
 ### Stable API
 
 Stable API is guaranteed to preserve its ABI and documented semantics:
 
-* It cannot change its semantics expressed in its documentation
+* It cannot change its semantics expressed in its documentation.
 * It is binary backwards-compatible: during update of `kotlinx.serialization` version, previously compiled code will continue to work.
     For example, for a library that depends only on `kotlinx.serialization` stable API,
     clients of the library can easily depend on a next `kotlinx.serialization` version and expect everything to work.
 * It is source backwards compatible modulo major deprecation. Most of the API is here to stay forever,
-unless an unfixable security or design flaw is exposed. Minor releases never add source-incompatible changes to stable API
+unless an unfixable security or design flaw is exposed. Minor releases never add source-incompatible changes to the stable API.
 
 #### Deprecation cycle
 
 When API is deprecated, it goes through multiple stages and there is at least one major release between each stages.
 
-Feature is deprecated with compilation warning. Most of the time, proper replacement (and corresponding `replaceWith` declaration) is provided to automatically migrate deprecated usages with a help of IntelliJ IDEA.
-Deprecation level is increased to error or hidden. It is no longer possible to compile new code against deprecated API, though it is still present in the ABI.
-API is completely removed. While we give our best efforts not to do so and have no plans of removing any API, we still are leaving this option in case of unforeseen problems such as security issues. 
+1. Feature is deprecated with compilation warning. Most of the time, proper replacement (and corresponding `replaceWith` declaration) is provided to automatically migrate deprecated usages with a help of IntelliJ IDEA.
+2. Deprecation level is increased to error or hidden. It is no longer possible to compile new code against deprecated API, though it is still present in the ABI.
+3. API is completely removed. While we give our best efforts not to do so and have no plans of removing any API, we still are leaving this option in case of unforeseen problems such as security issues. 
 
 
 ### Experimental API
 
 This API marked as `@ExperimentalSerializationApi`. API is marked experimental when its design has potential open questions which may eventually lead to either semantics changes of the API or its deprecation.
-By default, most of the new API is marked as experimental and becomes stable in one of the next major releases if no new issues arise. Otherwise, either semantics is fixed without changes in ABI or API goes through deprecation cycle.
+By default, most of the new API is marked as experimental and becomes stable in one of the next releases if no new issues arise. Otherwise, either semantics is fixed without changes in ABI or API goes through deprecation cycle.
 
 However, we'll try to provide best-effort compatibility — such declarations won't be deleted or changed instantly,
-they will go through deprecation cycle if this is possible. However, these deprecation cycle may be faster than usual.
+they will go through deprecation cycle if this is possible. However, this deprecation cycle may be faster than usual.
 
 Usage notes:
 

@@ -3,7 +3,7 @@
 [![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 [![TeamCity build](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/KotlinTools_KotlinxSerialization_Ko.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=KotlinTools_KotlinxSerialization_Ko&guest=1)
-[![Download](https://api.bintray.com/packages/kotlin/kotlinx/kotlinx.serialization.runtime/images/download.svg?version=1.0.0-RC2) ](https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime/1.0.0-RC2)
+[![Download](https://api.bintray.com/packages/kotlin/kotlinx/kotlinx.serialization.runtime/images/download.svg?version=1.0.0) ](https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime/1.0.0)
 
 Kotlin serialization consists of a compiler plugin, that generates visitor code for serializable classes,
  runtime library with core serialization API and support libraries with various serialization formats.
@@ -61,6 +61,8 @@ Project(name=kotlinx.serialization, language=Kotlin)
 
 **Read the [Kotlin Serialization Guide](docs/serialization-guide.md) for all details.**
 
+You can find auto-generated documentation website on [GitHub Pages](https://kotlin.github.io/kotlinx.serialization/).
+
 ## Setup
 
 Kotlin serialization plugin is shipped with the Kotlin compiler distribution, and the IDEA plugin is bundled into the Kotlin plugin.
@@ -93,7 +95,7 @@ plugins {
 }
 ```
 
-> Kotlin versions before are not supported by the stable release of Kotlin serialization
+> Kotlin versions before 1.4.0 are not supported by the stable release of Kotlin serialization
 
 #### Using `apply plugin` (the old way)
 
@@ -141,13 +143,13 @@ Kotlin DSL:
 
 ```kotlin
 repositories {
-    // artifacts are published to JCenter
+    // Artifacts are also available on Maven Central
     jcenter()
 }
 
 dependencies {
     implementation(kotlin("stdlib", KotlinCompilerVersion.VERSION)) // or "stdlib-jdk8"
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0-RC2") // JVM dependency
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0")
 }
 ```
 
@@ -155,16 +157,17 @@ Groovy DSL:
 
 ```gradle
 repositories {
+    // Artifacts are also available on Maven Central
     jcenter()
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version" // or "kotlin-stdlib-jdk8"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0-RC2" // JVM dependency
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0"
 }
 ```
 
->We also provide kotlinx-serialization-core artifact that contains all serialization API but does not have bundled serialization format with it
+>We also provide `kotlinx-serialization-core` artifact that contains all serialization API but does not have bundled serialization format with it
 
 ### Android
 
@@ -192,8 +195,8 @@ You can add dependency to the required module right to the common source set:
 ```gradle
 commonMain {
     dependencies {
+        // Works as common dependency as well as the platform one
         implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$serialization_version"
-        implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:$serialization_version"
     }
 }
 ```
@@ -206,7 +209,7 @@ Ensure the proper version of Kotlin and serialization version:
 ```xml
 <properties>
     <kotlin.version>1.4.10</kotlin.version>
-    <serialization.version>1.0.0-RC2</serialization.version>
+    <serialization.version>1.0.0</serialization.version>
 </properties>
 ```
 
