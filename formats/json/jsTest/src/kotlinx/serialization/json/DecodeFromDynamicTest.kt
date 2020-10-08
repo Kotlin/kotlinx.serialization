@@ -74,13 +74,6 @@ class DecodeFromDynamicTest {
     @Serializable
     data class NDWrapper(@Contextual val data: NotDefault)
 
-    @Serializable
-    sealed class Sealed {
-        @Serializable
-        @SerialName("one")
-        data class One(val string: String) : Sealed()
-    }
-
     @Test
     fun dynamicSimpleTest() {
         val dyn = js("{a: 42}")
@@ -204,30 +197,4 @@ class DecodeFromDynamicTest {
         )
     }
 
-    @Test
-    @Ignore
-    fun parsePolymorphicDefault() {
-        // TODO object-based polymorphic deserialization requires additional special handling
-        //  because the discriminator lives inside the same object which is also being decoded.
-
-        val dyn = js("""({type:"one",string:"value"})""")
-        val expected = Sealed.One("value")
-
-        val actual1 = Json.decodeFromDynamic(Sealed.serializer(), dyn)
-        assertEquals(expected, actual1)
-
-        val p = Json
-        val actual2 = p.decodeFromDynamic(Sealed.serializer(), dyn)
-        assertEquals(expected, actual2)
-    }
-
-    @Test
-    fun parsePolymorphicArray() {
-        val dyn = js("""(["one",{"string":"value"}])""")
-        val expected = Sealed.One("value")
-
-        val p = Json { useArrayPolymorphism = true }
-        val actual = p.decodeFromDynamic(Sealed.serializer(), dyn)
-        assertEquals(expected, actual)
-    }
 }

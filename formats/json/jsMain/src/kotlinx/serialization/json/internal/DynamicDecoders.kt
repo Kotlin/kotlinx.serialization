@@ -60,6 +60,10 @@ private open class DynamicInput(
         }
     }
 
+    override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+        return decodeSerializableValuePolymorphic(deserializer)
+    }
+
     override fun composeName(parentName: String, childName: String): String = childName
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {

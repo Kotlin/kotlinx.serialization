@@ -58,6 +58,11 @@ private class DynamicObjectEncoder(
     private lateinit var currentDescriptor: SerialDescriptor
     private var currentElementIsMapKey = false
 
+    /**
+     * Flag of usage polymorphism with discriminator attribute
+     */
+    private var writePolymorphic = false
+
     private object NoOutputMark
 
     class Node(val writeMode: WriteMode, val jsObject: dynamic) {
@@ -73,11 +78,12 @@ private class DynamicObjectEncoder(
         current.index = index
         currentDescriptor = descriptor
 
-        if (current.writeMode == WriteMode.MAP) {
-            currentElementIsMapKey = current.index % 2 == 0
-        } else {
-            currentName = descriptor.getElementName(index)
+        when {
+            current.writeMode == WriteMode.MAP -> currentElementIsMapKey = current.index % 2 == 0
+            current.writeMode == WriteMode.LIST && descriptor.kind is PolymorphicKind -> currentName = index.toString()
+            else -> currentName = descriptor.getElementName(index)
         }
+
         return true
     }
 
@@ -165,6 +171,12 @@ private class DynamicObjectEncoder(
 
     private fun isNotStructured() = result === NoOutputMark
 
+    override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
+        encodePolymorphically(serializer, value) {
+            writePolymorphic = true
+        }
+    }
+
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
         // we currently do not structures as map key
         if (currentElementIsMapKey) {
@@ -183,6 +195,11 @@ private class DynamicObjectEncoder(
             val child = newChild(newMode)
             current.jsObject[currentName] = child
             enterNode(child, newMode)
+        }
+
+        if (writePolymorphic) {
+            writePolymorphic = false
+            current.jsObject[json.configuration.classDiscriminator] = descriptor.serialName
         }
 
         current.index = 0
