@@ -12,8 +12,8 @@ In case you are using pre-1.0 versions (e.g. 0.20.0), please refer to our [migra
 ### Bugfixes and improvements
 
   * Support nullable types at top-level for JsonElement decoding (#1117)
-  * Add CBOR ignoreUnknownKeys option (#947)
-  * Fix incorrect documentation of `encodeDefaults` (#1108)
+  * Add CBOR ignoreUnknownKeys option (#947) (thanks to [Travis Wyatt](https://github.com/twyatt))
+  * Fix incorrect documentation of `encodeDefaults` (#1108) (thanks to [Anders Carling](https://github.com/anderscarling))
   
 1.0.0-RC2 / 2020-09-21
 ==================
