@@ -274,7 +274,7 @@ must be explicitly registered at runtime.
 Let us start with the code from the [Designing serializable hierarchy](#designing-serializable-hierarchy) section.
 To make it work with serialization without making it `sealed`, we have to define a [SerializersModule] using the 
 [SerializersModule {}][SerializersModule()] builder function. In the module the base class is specified 
-in the [polymorphic] builder and each subclass is registered with the [subclass] function. Now, 
+in the [polymorphic][_polymorphic] builder and each subclass is registered with the [subclass] function. Now, 
 a custom JSON configuration can be instantiated with this module and used for serialization.
 
 > Details on custom JSON configurations can be found in 
@@ -875,7 +875,7 @@ The next chapter covers [JSON features](json.md).
 <!--- INDEX kotlinx-serialization-core/kotlinx.serialization.modules -->
 [SerializersModule]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module/index.html
 [SerializersModule()]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module.html
-[polymorphic]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.modules/polymorphic.html
+[_polymorphic]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.modules/polymorphic.html
 [subclass]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.modules/subclass.html
 [plus]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.modules/plus.html
 [SerializersModuleBuilder.include]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module-builder/include.html

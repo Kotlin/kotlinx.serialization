@@ -879,7 +879,7 @@ class ProgrammingLanguage(
 To provide a context, we define a [SerializersModule] instance that describes which serializers shall be used 
 at run-time to serialize which contextually-serializable classes. This is done using the 
 [SerializersModule {}][SerializersModule()] builder function, which provides [SerializersModuleBuilder] DSL to 
-register serializers. In the below example we use [contextual] function with the serializer. The corresponding
+register serializers. In the below example we use [contextual][_contextual] function with the serializer. The corresponding
 class this serializer is defined for is fetched automatically via the `reified` type parameter.  
 
 ```kotlin
@@ -1005,7 +1005,6 @@ The next chapter covers [Polymorphism](polymorphism.md).
 [Serializable]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization/-serializable/index.html
 [KSerializer]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization/-k-serializer/index.html
 [KSerializer.descriptor]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization/-k-serializer/index.html#kotlinx.serialization%2FKSerializer%2Fdescriptor%2F%23%2FPointingToDeclaration%2F
-[kotlinx.serialization.serializer]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization/../../../kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization/index.html#kotlinx.serialization%2F%2Fserializer%2F%23%2FPointingToDeclaration%2F
 [SerializationStrategy.serialize]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization/-serialization-strategy/serialize.html
 [SerializationStrategy]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization/-serialization-strategy/index.html
 [DeserializationStrategy.deserialize]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization/-deserialization-strategy/deserialize.html
@@ -1047,7 +1046,7 @@ The next chapter covers [Polymorphism](polymorphism.md).
 [SerializersModule]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module/index.html
 [SerializersModule()]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module.html
 [SerializersModuleBuilder]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module-builder/index.html
-[contextual]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.modules/contextual.html
+[_contextual]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.modules/contextual.html
 <!--- MODULE /kotlinx-serialization-json -->
 <!--- INDEX kotlinx-serialization-json/kotlinx.serialization.json -->
 [Json]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json/index.html

@@ -372,7 +372,7 @@ A [JsonElement] class has three direct subtypes, closely following JSON grammar.
 * [JsonObject] represents a JSON `{...}` object. It is a Kotlin [Map] from `String` key to `JsonElement` value.
 
 The `JsonElement` class has `jsonXxx` extensions that cast it to its corresponding subtypes
-([jsonPrimitive], [jsonArray], [jsonObject]). The `JsonPrimitive` class, in turn,
+([jsonPrimitive][_jsonPrimitive], [jsonArray][_jsonArray], [jsonObject][_jsonObject]). The `JsonPrimitive` class, in turn,
 has convenient converters to Kotlin primitive types ([int], [intOrNull], [long], [longOrNull], etc)
 that allow fluent code to work with JSON for which you know the structure of.
 
@@ -916,9 +916,9 @@ The next chapter covers [Alternative and custom formats (experimental)](formats.
 [JsonPrimitive()]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-primitive.html
 [JsonArray]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-array/index.html
 [JsonObject]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-object/index.html
-[jsonPrimitive]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-element/index.html#kotlinx.serialization.json%2F%2FjsonPrimitive%2Fkotlinx.serialization.json.JsonElement%23%2FPointingToDeclaration%2F
-[jsonArray]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-element/index.html#kotlinx.serialization.json%2F%2FjsonArray%2Fkotlinx.serialization.json.JsonElement%23%2FPointingToDeclaration%2F
-[jsonObject]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-element/index.html#kotlinx.serialization.json%2F%2FjsonObject%2Fkotlinx.serialization.json.JsonElement%23%2FPointingToDeclaration%2F
+[_jsonPrimitive]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-element/index.html#kotlinx.serialization.json%2F%2FjsonPrimitive%2Fkotlinx.serialization.json.JsonElement%23%2FPointingToDeclaration%2F
+[_jsonArray]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-element/index.html#kotlinx.serialization.json%2F%2FjsonArray%2Fkotlinx.serialization.json.JsonElement%23%2FPointingToDeclaration%2F
+[_jsonObject]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-element/index.html#kotlinx.serialization.json%2F%2FjsonObject%2Fkotlinx.serialization.json.JsonElement%23%2FPointingToDeclaration%2F
 [int]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-primitive/index.html#kotlinx.serialization.json%2F%2Fint%2Fkotlinx.serialization.json.JsonPrimitive%23%2FPointingToDeclaration%2F
 [intOrNull]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-primitive/index.html#kotlinx.serialization.json%2F%2FintOrNull%2Fkotlinx.serialization.json.JsonPrimitive%23%2FPointingToDeclaration%2F
 [long]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-primitive/index.html#kotlinx.serialization.json%2F%2Flong%2Fkotlinx.serialization.json.JsonPrimitive%23%2FPointingToDeclaration%2F
