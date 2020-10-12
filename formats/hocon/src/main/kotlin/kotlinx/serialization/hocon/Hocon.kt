@@ -25,8 +25,10 @@ import kotlinx.serialization.modules.*
  */
 @ExperimentalSerializationApi
 public sealed class Hocon(
-    internal val useConfigNamingConvention: Boolean,
-    override val serializersModule: SerializersModule
+        internal val useConfigNamingConvention: Boolean,
+        internal val useArrayPolymorphism: Boolean,
+        internal val classDiscriminator: String,
+        override val serializersModule: SerializersModule
 ) : SerialFormat {
 
     @ExperimentalSerializationApi
@@ -37,7 +39,7 @@ public sealed class Hocon(
      * The default instance of Hocon parser.
      */
     @ExperimentalSerializationApi
-    public companion object Default : Hocon(false, EmptySerializersModule) {
+    public companion object Default : Hocon(false, false, "type", EmptySerializersModule) {
         private val NAMING_CONVENTION_REGEX by lazy { "[A-Z]".toRegex() }
     }
 
@@ -119,15 +121,44 @@ public sealed class Hocon(
             return decodeTaggedNotNullMark(currentTag)
         }
 
-        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
-            when {
-                descriptor.kind.listLike -> ListConfigReader(conf.getList(currentTag))
-                descriptor.kind.objLike -> if (ind > -1) ConfigReader(conf.getConfig(currentTag)) else this
-                descriptor.kind == StructureKind.MAP ->
+        override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+            if (deserializer !is AbstractPolymorphicSerializer<*> || useArrayPolymorphism) {
+                return deserializer.deserialize(this)
+            }
+
+            val config = if (currentTagOrNull != null) conf.getConfig(currentTag) else conf
+
+            val reader = ConfigReader(config)
+            val type = reader.decodeTaggedString(classDiscriminator)
+            val actualSerializer = deserializer.findPolymorphicSerializerOrNull(reader, type)
+                    ?: throwSerializerNotFound(type)
+
+            @Suppress("UNCHECKED_CAST")
+            return (actualSerializer as DeserializationStrategy<T>).deserialize(reader)
+        }
+
+        private fun throwSerializerNotFound(type: String?): Nothing {
+            val suffix = if (type == null) "missing class discriminator ('null')" else "class discriminator '$type'"
+            throw SerializationException("Polymorphic serializer was not found for $suffix")
+        }
+
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
+            val kind = when (descriptor.kind) {
+                is PolymorphicKind -> {
+                    if (useArrayPolymorphism) StructureKind.LIST else StructureKind.MAP
+                }
+                else -> descriptor.kind
+            }
+
+            return when {
+                kind.listLike -> ListConfigReader(conf.getList(currentTag))
+                kind.objLike -> if (ind > -1) ConfigReader(conf.getConfig(currentTag)) else this
+                kind == StructureKind.MAP ->
                     // if current tag is null - map in the root of config
                     MapConfigReader(if (currentTagOrNull != null) conf.getObject(currentTag) else conf.root())
                 else -> this
             }
+        }
     }
 
     private inner class ListConfigReader(private val list: ConfigList) : ConfigConverter<Int>() {
@@ -216,7 +247,7 @@ public inline fun <reified T> Hocon.decodeFromConfig(config: Config): T =
 public fun Hocon(from: Hocon = Hocon, builderAction: HoconBuilder.() -> Unit): Hocon {
     val builder = HoconBuilder(from)
     builder.builderAction()
-    return HoconImpl(builder.useConfigNamingConvention, builder.serializersModule)
+    return HoconImpl(builder.useConfigNamingConvention, builder.useArrayPolymorphism, builder.classDiscriminator, builder.serializersModule)
 }
 
 /**
@@ -233,10 +264,25 @@ public class HoconBuilder internal constructor(hocon: Hocon) {
      * Switches naming resolution to config naming convention: hyphen separated.
      */
     public var useConfigNamingConvention: Boolean = hocon.useConfigNamingConvention
+
+    /**
+     * Switches polymorphic serialization to the default array format.
+     * This is an option for legacy polymorphism format and should not be generally used.
+     * `false` by default.
+     */
+    public var useArrayPolymorphism: Boolean = hocon.useArrayPolymorphism
+
+    /**
+     * Name of the class descriptor property for polymorphic serialization.
+     * "type" by default.
+     */
+    public var classDiscriminator: String = hocon.classDiscriminator
 }
 
 @OptIn(ExperimentalSerializationApi::class)
 private class HoconImpl(
-    useConfigNamingConvention: Boolean = false,
-    serializersModule: SerializersModule = EmptySerializersModule
-): Hocon(useConfigNamingConvention, serializersModule)
+        useConfigNamingConvention: Boolean,
+        useArrayPolymorphism: Boolean,
+        classDiscriminator: String,
+        serializersModule: SerializersModule
+) : Hocon(useConfigNamingConvention, useArrayPolymorphism, classDiscriminator, serializersModule)
