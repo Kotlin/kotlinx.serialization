@@ -592,6 +592,10 @@ private fun Iterable<ByteArray>.flatten(): ByteArray {
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private fun SerialDescriptor.isByteString(index: Int): Boolean =
-    getElementDescriptor(index) == ByteArraySerializer().descriptor &&
+private fun SerialDescriptor.isByteString(index: Int): Boolean {
+    val elementDescriptor = getElementDescriptor(index)
+    val byteArrayDescriptor = ByteArraySerializer().descriptor
+
+    return (elementDescriptor == byteArrayDescriptor || elementDescriptor == byteArrayDescriptor.nullable) &&
         getElementAnnotations(index).find { it is ByteString } != null
+}
