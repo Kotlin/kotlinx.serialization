@@ -48,4 +48,54 @@ class CbrWriterTest {
             Cbor.encodeToHexString(NumberTypesUmbrella.serializer(), test)
         )
     }
+
+    @Test
+    fun testWriteByteStringWhenNullable() {
+        /* BF                         # map(*)
+         *    6A                      # text(10)
+         *       62797465537472696E67 # "byteString"
+         *    44                      # bytes(4)
+         *       01020304             # "\x01\x02\x03\x04"
+         *    FF                      # primitive(*)
+         */
+        assertEquals(
+            expected = "bf6a62797465537472696e674401020304ff",
+            actual = Cbor.encodeToHexString(
+                serializer = NullableByteString.serializer(),
+                value = NullableByteString(byteString = byteArrayOf(1, 2, 3, 4))
+            )
+        )
+
+        /* BF                         # map(*)
+         *    6A                      # text(10)
+         *       62797465537472696E67 # "byteString"
+         *    40                      # bytes(0)
+         *                            # ""
+         *    FF                      # primitive(*)
+         */
+        assertEquals(
+            expected = "bf6a62797465537472696e6740ff",
+            actual = Cbor.encodeToHexString(
+                serializer = NullableByteString.serializer(),
+                value = NullableByteString(byteString = byteArrayOf())
+            )
+        )
+    }
+
+    @Test
+    fun testWriteNullForNullableByteString() {
+        /* BF                         # map(*)
+         *    6A                      # text(10)
+         *       62797465537472696E67 # "byteString"
+         *    F6                      # primitive(22)
+         *    FF                      # primitive(*)
+         */
+        assertEquals(
+            expected = "bf6a62797465537472696e67f6ff",
+            actual = Cbor.encodeToHexString(
+                serializer = NullableByteString.serializer(),
+                value = NullableByteString(byteString = null)
+            )
+        )
+    }
 }

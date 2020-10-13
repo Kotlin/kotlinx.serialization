@@ -109,6 +109,36 @@ class CborReaderTest {
         }
     }
 
+    @Test
+    fun testReadByteStringWhenNullable() {
+        /* A1                         # map(1)
+         *    6A                      # text(10)
+         *       62797465537472696E67 # "byteString"
+         *    44                      # bytes(4)
+         *       01020304             # "\x01\x02\x03\x04"
+         */
+        assertEquals(
+            expected = NullableByteString(byteArrayOf(1, 2, 3, 4)),
+            actual = Cbor.decodeFromHexString(
+                deserializer = NullableByteString.serializer(),
+                hex = "a16a62797465537472696e674401020304"
+            )
+        )
+
+        /* A1                         # map(1)
+         *    6A                      # text(10)
+         *       62797465537472696E67 # "byteString"
+         *    F6                      # primitive(22)
+         */
+        assertEquals(
+            expected = NullableByteString(byteString = null),
+            actual = Cbor.decodeFromHexString(
+                deserializer = NullableByteString.serializer(),
+                hex = "a16a62797465537472696e67f6"
+            )
+        )
+    }
+
     /**
      * CBOR hex data represents serialized versions of [TypesUmbrella] (which does **not** have a root property 'a') so
      * decoding to [Simple] (which has the field 'a') is expected to fail.
