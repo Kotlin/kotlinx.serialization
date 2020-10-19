@@ -77,6 +77,15 @@ not be available in other formats such as JSON.
 
 Allows serialization and deserialization of objects to and from [YAML](http://yaml.org).
 
+### YAML (Multiplatform)
+
+* GitHub repo: [him188/yamlkt](https://github.com/him188/yamlkt)
+* Artifact ID: `net.mamoe.yamlkt:yamlkt`
+* Platform: all supported platforms
+
+Allows serialization and deserialization of objects to and from [YAML](http://yaml.org). 
+Basic serial operations have been implemented, but some features such as compound keys and polymorphism are still work in progress.
+
 ### CBOR
 
 * GitHub repo: [L-Briand/obor](https://github.com/L-Briand/obor)
