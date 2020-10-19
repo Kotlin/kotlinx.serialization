@@ -84,7 +84,7 @@ Allows serialization and deserialization of objects to and from [YAML](http://ya
 * Platform: all supported platforms
 
 Allows serialization and deserialization of objects to and from [YAML](http://yaml.org). 
-Basic serial operations have been implemented, but some features such as compound keys and polymorpic are still working in progress. 
+Basic serial operations have been implemented, but some features such as compound keys and polymorphism are still work in progress.
 
 ### CBOR
 
