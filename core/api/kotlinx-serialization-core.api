@@ -852,6 +852,11 @@ public final class kotlinx/serialization/internal/Platform_commonKt {
 	public static final fun cast (Lkotlinx/serialization/SerializationStrategy;)Lkotlinx/serialization/SerializationStrategy;
 }
 
+public final class kotlinx/serialization/internal/PluginExceptionsKt {
+	public static final fun throwArrayMissingFieldException ([I[ILkotlinx/serialization/descriptors/SerialDescriptor;)V
+	public static final fun throwMissingFieldException (IILkotlinx/serialization/descriptors/SerialDescriptor;)V
+}
+
 public class kotlinx/serialization/internal/PluginGeneratedSerialDescriptor : kotlinx/serialization/descriptors/SerialDescriptor, kotlinx/serialization/internal/CachedNames {
 	public fun <init> (Ljava/lang/String;Lkotlinx/serialization/internal/GeneratedSerializer;I)V
 	public synthetic fun <init> (Ljava/lang/String;Lkotlinx/serialization/internal/GeneratedSerializer;IILkotlin/jvm/internal/DefaultConstructorMarker;)V

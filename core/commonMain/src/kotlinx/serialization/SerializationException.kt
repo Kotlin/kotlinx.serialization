@@ -67,6 +67,7 @@ internal class MissingFieldException
 internal constructor(message: String?, cause: Throwable?) : SerializationException(message, cause) {
     // This constructor is used by the generated serializers
     constructor(fieldName: String) : this("Field '$fieldName' is required, but it was missing", null)
+    internal constructor(fieldNames: List<String>, serialName: String) : this(if (fieldNames.size == 1) "Field '${fieldNames[0]}' is required for type with serial name '$serialName', but it was missing" else "Fields $fieldNames are required for type with serial name '$serialName', but they were missing", null)
 }
 
 /**
