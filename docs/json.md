@@ -198,13 +198,13 @@ Project(name=kotlinx.serialization, language=Kotlin)
 
 ### Encoding defaults 
 
-Default values of properties don't have to be encoded, because they will be reconstructed during encoding anyway.
-It can be configured by the [encodeDefaults][JsonBuilder.encodeDefaults] property.
-This is especially useful for nullable properties with null defaults to avoid writing the corresponding 
-null values.
+Default values of properties are not encoded by default, because they will be reconstructed during decoding anyway.
+See [Defaults are not encoded](basic-serialization.md#defaults-are-not-encoded) section for details with example.
+This is especially useful for nullable properties with null defaults and avoids writing the corresponding null values. 
+The default behavior can be changed by the [encodeDefaults][JsonBuilder.encodeDefaults] property.
 
 ```kotlin
-val format = Json { encodeDefaults = false }
+val format = Json { encodeDefaults = true }
 
 @Serializable 
 class Project(
@@ -221,10 +221,10 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-json-05.kt).
 
-Produces the following output which has only the `name` property:
+It produces the following output which encodes the values of all the properties:
 
 ```text
-{"name":"kotlinx.serialization"}
+{"name":"kotlinx.serialization","language":"Kotlin","website":null}
 ```                 
 
 <!--- TEST -->

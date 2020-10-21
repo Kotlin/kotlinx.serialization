@@ -39,7 +39,7 @@ class JsonTest {
     @Test
     fun testExampleJson05() {
         captureOutput("ExampleJson05") { example.exampleJson05.main() }.verifyOutputLines(
-            "{\"name\":\"kotlinx.serialization\"}"
+            "{\"name\":\"kotlinx.serialization\",\"language\":\"Kotlin\",\"website\":null}"
         )
     }
 

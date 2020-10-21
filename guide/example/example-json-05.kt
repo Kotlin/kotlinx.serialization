@@ -4,7 +4,7 @@ package example.exampleJson05
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-val format = Json { encodeDefaults = false }
+val format = Json { encodeDefaults = true }
 
 @Serializable 
 class Project(
