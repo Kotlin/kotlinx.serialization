@@ -17,6 +17,7 @@ private const val FALSE = 0xf4
 private const val TRUE = 0xf5
 private const val NULL = 0xf6
 
+private const val NEXT_HALF = 0xf9
 private const val NEXT_FLOAT = 0xfa
 private const val NEXT_DOUBLE = 0xfb
 
@@ -34,6 +35,15 @@ private const val HEADER_MAP: Int = 0b101_00000
 
 /** Value to represent an indefinite length CBOR item within a "length stack". */
 private const val LENGTH_STACK_INDEFINITE = -1
+
+private const val HALF_PRECISION_EXPONENT_BIAS = 15
+private const val HALF_PRECISION_MAX_EXPONENT = 0x1f
+private const val HALF_PRECISION_MAX_MANTISSA = 0x3ff
+
+private const val SINGLE_PRECISION_EXPONENT_BIAS = 127
+private const val SINGLE_PRECISION_MAX_EXPONENT = 0xFF
+
+private const val SINGLE_PRECISION_NORMALIZE_BASE = 0.5f
 
 // Differs from List only in start byte
 private class CborMapWriter(cbor: Cbor, encoder: CborEncoder) : CborListWriter(cbor, encoder) {
@@ -422,15 +432,22 @@ internal class CborDecoder(private val input: ByteArrayInput) {
     }
 
     fun nextFloat(): Float {
-        if (curByte != NEXT_FLOAT) throw CborDecodingException("float header", curByte)
-        val res = Float.fromBits(readInt())
+        val res = when (curByte) {
+            NEXT_FLOAT -> Float.fromBits(readInt())
+            NEXT_HALF -> floatFromHalfBits(readShort())
+            else -> throw CborDecodingException("float header", curByte)
+        }
         readByte()
         return res
     }
 
     fun nextDouble(): Double {
-        if (curByte != NEXT_DOUBLE) throw CborDecodingException("double header", curByte)
-        val res = Double.fromBits(readLong())
+        val res = when (curByte) {
+            NEXT_DOUBLE -> Double.fromBits(readLong())
+            NEXT_FLOAT -> Float.fromBits(readInt()).toDouble()
+            NEXT_HALF -> floatFromHalfBits(readShort()).toDouble()
+            else -> throw CborDecodingException("double header", curByte)
+        }
         readByte()
         return res
     }
@@ -442,6 +459,12 @@ internal class CborDecoder(private val input: ByteArrayInput) {
             result = (result shl 8) or byte.toLong()
         }
         return result
+    }
+
+    private fun readShort(): Short {
+        val highByte = input.read()
+        val lowByte = input.read()
+        return (highByte shl 8 or lowByte).toShort()
     }
 
     private fun readInt(): Int {
@@ -598,4 +621,50 @@ private fun SerialDescriptor.isByteString(index: Int): Boolean {
 
     return (elementDescriptor == byteArrayDescriptor || elementDescriptor == byteArrayDescriptor.nullable) &&
         getElementAnnotations(index).find { it is ByteString } != null
+}
+
+
+private val normalizeBaseBits = SINGLE_PRECISION_NORMALIZE_BASE.toBits()
+
+
+/*
+ * For details about half-precision floating-point numbers see https://tools.ietf.org/html/rfc7049#appendix-D
+ */
+private fun floatFromHalfBits(bits: Short): Float {
+    val intBits = bits.toInt()
+
+    val negative = (intBits and 0x8000) != 0
+    val halfExp = intBits shr 10 and HALF_PRECISION_MAX_EXPONENT
+    val halfMant = intBits and HALF_PRECISION_MAX_MANTISSA
+
+    val exp: Int
+    val mant: Int
+
+    when (halfExp) {
+        HALF_PRECISION_MAX_EXPONENT -> {
+            // if exponent maximal - value is NaN or Infinity
+            exp = SINGLE_PRECISION_MAX_EXPONENT
+            mant = halfMant
+        }
+        0 -> {
+            if (halfMant == 0) {
+                // if exponent and mantissa are zero - value is zero
+                mant = 0
+                exp = 0
+            } else {
+                // if exponent is zero and mantissa non-zero - value denormalized. normalize it
+                var res = Float.fromBits(normalizeBaseBits + halfMant)
+                res -= SINGLE_PRECISION_NORMALIZE_BASE
+                return if (negative) -res else res
+            }
+        }
+        else -> {
+            // normalized value
+            exp = (halfExp + (SINGLE_PRECISION_EXPONENT_BIAS - HALF_PRECISION_EXPONENT_BIAS))
+            mant = halfMant
+        }
+    }
+
+    val res = Float.fromBits((exp shl 23) or (mant shl 13))
+    return if (negative) -res else res
 }

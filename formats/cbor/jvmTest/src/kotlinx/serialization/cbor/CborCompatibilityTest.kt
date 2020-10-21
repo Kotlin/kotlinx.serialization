@@ -19,9 +19,12 @@ class CborCompatibilityTest {
     data class WithMap(val map: Map<Long, Long>)
     @Serializable
     data class IntData(val intV: Int)
-
     @Serializable
     data class StringData(val data: String)
+    @Serializable
+    data class FloatData(val field: Float)
+    @Serializable
+    data class DoubleData(val field: Double)
 
     @Serializable
     data class SomeComplexClass<T>(
@@ -34,6 +37,18 @@ class CborCompatibilityTest {
     private inline fun <reified T> compare(obj: T, serializer: KSerializer<T>) {
         val bytes = CBORObject.FromObject(obj).EncodeToBytes()
         assertEquals(obj, Cbor.decodeFromByteArray(serializer, bytes))
+    }
+
+    private fun compareDouble(value: Double) {
+        val doubleWrapper = DoubleData(value)
+        val bytes = CBORObject.FromObject(doubleWrapper).EncodeToBytes()
+        assertEquals(doubleWrapper, Cbor.decodeFromByteArray(DoubleData.serializer(), bytes))
+    }
+
+    private fun compareFloat(value: Float) {
+        val floatWrapper = FloatData(value)
+        val bytes = CBORObject.FromObject(floatWrapper).EncodeToBytes()
+        assertEquals(floatWrapper, Cbor.decodeFromByteArray(FloatData.serializer(), bytes))
     }
 
     @Test
@@ -75,5 +90,43 @@ class CborCompatibilityTest {
         )
         val serial = SomeComplexClass.serializer(ListSerializer(Int.serializer()))
         compare(obj, serial)
+    }
+
+    @Test
+    fun testFloat() {
+        compareFloat(Float.NaN)
+        compareFloat(Float.POSITIVE_INFINITY)
+        compareFloat(Float.NEGATIVE_INFINITY)
+        compareFloat(Float.MAX_VALUE)
+        compareFloat(Float.MIN_VALUE)
+        compareFloat(0.0f)
+        compareFloat(-0.0f)
+        compareFloat(-1.0f)
+        compareFloat(1.0f)
+        compareFloat(123.56f)
+        compareFloat(123.0f)
+        // minimal denormalized value in half-precision
+        compareFloat(5.9604645E-8f)
+        // maximal denormalized value in half-precision
+        compareFloat(0.000060975552f)
+    }
+
+    @Test
+    fun testDouble() {
+        compareDouble(Double.NaN)
+        compareDouble(Double.POSITIVE_INFINITY)
+        compareDouble(Double.NEGATIVE_INFINITY)
+        compareDouble(Double.MAX_VALUE)
+        compareDouble(Double.MIN_VALUE)
+        compareDouble(0.0)
+        compareDouble(-0.0)
+        compareDouble(-1.0)
+        compareDouble(1.0)
+        compareDouble(123.56)
+        compareDouble(123.0)
+        // minimal denormalized value in half-precision
+        compareDouble(5.9604644775390625E-8)
+        // maximal denormalized value in half-precision
+        compareDouble(0.00006097555160522461)
     }
 }
