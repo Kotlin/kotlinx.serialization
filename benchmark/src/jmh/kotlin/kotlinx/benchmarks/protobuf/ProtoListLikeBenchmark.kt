@@ -1,11 +1,8 @@
-/*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
- */
-
-package kotlinx.benchmarks
+package kotlinx.benchmarks.protobuf
 
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
+import kotlinx.serialization.protobuf.ProtoBuf.Default.encodeToByteArray
 import org.openjdk.jmh.annotations.*
 import java.util.concurrent.*
 
@@ -15,16 +12,16 @@ import java.util.concurrent.*
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @State(Scope.Benchmark)
 @Fork(1)
-open class ProtoListBenchmark {
+open class ProtoListLikeBenchmark {
 
     @Serializable
     class Holder(val a: Int, val b: Int, val c: Long, val d: Double)
 
     @Serializable
-    class HolderList(val list: List<Holder>)
+    class HolderList(val h1: Holder, val h2: Holder, val h3: Holder, val h4: Holder, val h5: Holder)
 
     private val h = Holder(1, 2, 3L, 4.0)
-    private val value = HolderList(listOf(h, h, h, h, h))
+    private val value = HolderList(h, h, h, h, h)
     private val bytes = ProtoBuf.encodeToByteArray(value)
 
     @Benchmark
