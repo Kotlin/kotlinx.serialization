@@ -263,6 +263,7 @@ class EncodeToDynamicTest {
 
     @Test
     fun sealed() {
+        // test of sealed class but not polymorphic serialization
         assertDynamicForm(Sealed.One("one"))
     }
 
