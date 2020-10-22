@@ -34,7 +34,7 @@ internal open class PluginGeneratedSerialDescriptor(
     // don't change lazy mode: KT-32871, KT-32872
     private val indices: Map<String, Int> by lazy { buildIndices() }
     // Cache child serializers, they are not cached by the implementation for nullable types
-    private val childSerializers = generatedSerializer?.childSerializers() ?: emptyArray()
+    private val childSerializers by lazy { generatedSerializer?.childSerializers() ?: emptyArray() }
 
     // Lazy because of JS specific initialization order (#789)
     private val typeParameterDescriptors: Array<SerialDescriptor> by lazy {
