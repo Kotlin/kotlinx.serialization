@@ -7,8 +7,10 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.builtins.MapEntrySerializer
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.builtins.MapEntrySerializer
+import kotlinx.serialization.builtins.PairSerializer
+import kotlinx.serialization.builtins.TripleSerializer
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import java.lang.reflect.*
@@ -55,13 +57,22 @@ public fun SerializersModule.serializer(type: Type): KSerializer<Any> = when (ty
                 serializer(args[0]),
                 serializer(args[1])
             ) as KSerializer<Any>
+            Pair::class.java.isAssignableFrom(rootClass) -> PairSerializer(
+                serializer(args[0]),
+                serializer(args[1])
+            ) as KSerializer<Any>
+            Triple::class.java.isAssignableFrom(rootClass) -> TripleSerializer(
+                serializer(args[0]),
+                serializer(args[1]),
+                serializer(args[2])
+            ) as KSerializer<Any>
 
             else -> {
                 // probably we should deprecate this method because it can't differ nullable vs non-nullable types
                 // since it uses Java TypeToken, not Kotlin one
                 val varargs = args.map { serializer(it) as KSerializer<Any?> }.toTypedArray()
                 (rootClass.kotlin.constructSerializerForGivenTypeArgs(*varargs) as? KSerializer<Any>)
-                    ?: reflectiveOrContextual(rootClass.kotlin as KClass<Any>)
+                        ?: reflectiveOrContextual(rootClass.kotlin as KClass<Any>)
             }
         }
     }
