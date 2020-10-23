@@ -28,11 +28,13 @@ internal open class PluginGeneratedSerialDescriptor(
 
     // Classes rarely have annotations, so we can save up a bit of allocations here
     private var classAnnotations: MutableList<Annotation>? = null
-    private var elementsOptionality = BooleanArray(elementsCount)
+    private val elementsOptionality = BooleanArray(elementsCount)
     internal val namesSet: Set<String> get() = indices.keys
 
     // don't change lazy mode: KT-32871, KT-32872
     private val indices: Map<String, Int> by lazy { buildIndices() }
+    // Cache child serializers, they are not cached by the implementation for nullable types
+    private val childSerializers by lazy { generatedSerializer?.childSerializers() ?: emptyArray() }
 
     // Lazy because of JS specific initialization order (#789)
     private val typeParameterDescriptors: Array<SerialDescriptor> by lazy {
@@ -69,8 +71,7 @@ internal open class PluginGeneratedSerialDescriptor(
     }
 
     override fun getElementDescriptor(index: Int): SerialDescriptor {
-        return generatedSerializer?.childSerializers()?.get(index)?.descriptor
-                ?: throw IndexOutOfBoundsException("$serialName descriptor has only $elementsCount elements, index: $index")
+        return childSerializers.getChecked(index).descriptor
     }
 
     override fun isElementOptional(index: Int): Boolean = elementsOptionality.getChecked(index)
@@ -100,6 +101,7 @@ internal open class PluginGeneratedSerialDescriptor(
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 internal inline fun <reified SD : SerialDescriptor> SD.equalsImpl(
     other: Any?,
     typeParamsAreEqual: (otherDescriptor: SD) -> Boolean
@@ -116,8 +118,8 @@ internal inline fun <reified SD : SerialDescriptor> SD.equalsImpl(
     return true
 }
 
-@Suppress("NOTHING_TO_INLINE")
-internal inline fun SerialDescriptor.hashCodeImpl(typeParams: Array<SerialDescriptor>): Int {
+@OptIn(ExperimentalSerializationApi::class)
+internal fun SerialDescriptor.hashCodeImpl(typeParams: Array<SerialDescriptor>): Int {
     var result = serialName.hashCode()
     result = 31 * result + typeParams.contentHashCode()
     val elementDescriptors = elementDescriptors
