@@ -86,6 +86,18 @@ class SerializersLookupTest : JsonTestBase() {
     }
 
     @Test
+    fun testPair() {
+        val myPair = "42" to 42
+        assertSerializedWithType("""{"first":"42","second":42}""", myPair)
+    }
+
+    @Test
+    fun testTriple() = noLegacyJs { // because of Box
+        val myTriple = Triple("1", 2, Box(42))
+        assertSerializedWithType("""{"first":"1","second":2,"third":{"boxed":42}}""", myTriple)
+    }
+
+    @Test
     fun testCustomGeneric() = noLegacyJs {
         val intBox = Box(42)
         val intBoxSerializer = serializer<Box<Int>>()

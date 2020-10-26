@@ -143,6 +143,23 @@ class SerializerByTypeTest {
     }
 
     @Test
+    fun testPair() {
+        val myPair = "42" to 42
+        val token = typeTokenOf<Pair<String, Int>>()
+        val serial = serializer(token)
+        assertEquals("""{"first":"42","second":42}""", json.encodeToString(serial, myPair))
+    }
+
+    @Test
+    fun testTriple() {
+        val myTriple = Triple("1", 2, Box(42))
+        val token = typeTokenOf<Triple<String, Int, Box<Int>>>()
+        val serial = serializer(token)
+        assertEquals("""{"first":"1","second":2,"third":{"a":42}}""", json.encodeToString(serial, myTriple))
+
+    }
+
+    @Test
     fun testGenericInHolder() {
         val b = Data(listOf("a", "b", "c"), Box(42))
         val serial = serializer(Data::class.java)
