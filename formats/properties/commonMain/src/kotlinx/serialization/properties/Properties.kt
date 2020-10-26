@@ -11,6 +11,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.properties.Properties.Default.toString
 
 /**
  * Transforms a [Serializable] class' properties into a single flat [Map] consisting of
@@ -149,7 +150,7 @@ public sealed class Properties(
 
     /**
      * Encodes properties from the given [value] to a map using the given [serializer].
-     * Converts all values to [String].
+     * Converts all primitive types to [String] using [toString] method.
      * `null` values are omitted from the output.
      */
     @ExperimentalSerializationApi
@@ -171,7 +172,7 @@ public sealed class Properties(
 
     /**
      * Decodes properties from the given [map] to a value of type [T] using the given [deserializer].
-     * All values are expected to be of type [String].
+     * [String] values are converted to respective primitive types using default conversion methods.
      * [T] may contain properties of nullable types; they will be filled by non-null values from the [map], if present.
      */
     @ExperimentalSerializationApi
@@ -206,6 +207,7 @@ public inline fun <reified T> Properties.encodeToMap(value: T): Map<String, Any>
 
 /**
  * Encodes properties from given [value] to a map using serializer for reified type [T] and returns this map.
+ * Converts all primitive types to [String] using [toString] method.
  * `null` values are omitted from the output.
  */
 @ExperimentalSerializationApi
@@ -222,6 +224,7 @@ public inline fun <reified T> Properties.decodeFromMap(map: Map<String, Any>): T
 
 /**
  * Decodes properties from given [map], assigns them to an object using serializer for reified type [T] and returns this object.
+ * [String] values are converted to respective primitive types using default conversion methods.
  * [T] may contain properties of nullable types; they will be filled by non-null values from the [map], if present.
  */
 @ExperimentalSerializationApi
