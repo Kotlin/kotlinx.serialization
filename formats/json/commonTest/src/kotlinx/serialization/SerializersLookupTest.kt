@@ -212,6 +212,29 @@ class SerializersLookupTest : JsonTestBase() {
         assertEquals("42", json.encodeToString(42))
     }
 
+    class NonSerializable
+
+    class NonSerializableBox<T>(val boxed: T)
+
+    @Test
+    fun testLookupFail() {
+        assertNull(serializerOrNull(typeOf<NonSerializable>()))
+        assertNull(serializerOrNull(typeOf<NonSerializableBox<String>>()))
+        assertNull(serializerOrNull(typeOf<Box<NonSerializable>>()))
+
+        assertFailsWithMessage<SerializationException>("for class 'NonSerializable'") {
+            serializer(typeOf<NonSerializable>())
+        }
+
+        assertFailsWithMessage<SerializationException>("for class 'NonSerializableBox'") {
+            serializer(typeOf<NonSerializableBox<String>>())
+        }
+
+        assertFailsWithMessage<SerializationException>("for class 'NonSerializable'") {
+            serializer(typeOf<Box<NonSerializable>>())
+        }
+    }
+
     // Tests with [constructSerializerForGivenTypeArgs] are unsupported on legacy Kotlin/JS
     private inline fun noLegacyJs(test: () -> Unit) {
         if (!isJsLegacy()) test()

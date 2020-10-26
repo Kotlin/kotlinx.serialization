@@ -256,4 +256,27 @@ class SerializerByTypeTest {
         assertEquals("[[1]]", Json.encodeToString(serializer, listOf(listOf<Int>(1))))
         assertEquals("42", Json.encodeToString(module.serializer(typeTokenOf<Int>()), 42))
     }
+
+    class NonSerializable
+
+    class NonSerializableBox<T>(val boxed: T)
+
+    @Test
+    fun testLookupFail() {
+        assertNull(serializerOrNull(typeTokenOf<NonSerializable>()))
+        assertNull(serializerOrNull(typeTokenOf<NonSerializableBox<String>>()))
+        assertNull(serializerOrNull(typeTokenOf<Box<NonSerializable>>()))
+
+        assertFailsWithMessage<SerializationException>("for class 'NonSerializable'") {
+            serializer(typeTokenOf<NonSerializable>())
+        }
+
+        assertFailsWithMessage<SerializationException>("for class 'NonSerializableBox'") {
+            serializer(typeTokenOf<NonSerializableBox<String>>())
+        }
+
+        assertFailsWithMessage<SerializationException>("for class 'NonSerializable'") {
+            serializer(typeTokenOf<kotlinx.serialization.Box<NonSerializable>>())
+        }
+    }
 }
