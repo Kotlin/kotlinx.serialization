@@ -8,7 +8,7 @@ package kotlinx.serialization
 data class IntData(val intV: Int)
 
 @Serializable
-data class StringData(val data: String)
+data class StringData(val data: String = "default")
 
 enum class SampleEnum { OptionA, OptionB, OptionC }
 

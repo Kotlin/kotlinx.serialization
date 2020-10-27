@@ -33,6 +33,12 @@ class SerializersLookupTest : JsonTestBase() {
     }
 
     @Test
+    fun testDataClassWithDefaultValues() {
+        val b = StringData()
+        assertSerializedWithType("""{"data":"default"}""", b)
+    }
+
+    @Test
     fun testListWithT() {
         val source = """[{"intV":42}]"""
         val serial = serializer<List<IntData>>()
