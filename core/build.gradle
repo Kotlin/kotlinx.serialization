@@ -7,6 +7,7 @@ apply plugin: 'kotlinx-serialization'
 
 apply from: rootProject.file("gradle/native-targets.gradle")
 apply from: rootProject.file("gradle/configure-source-sets.gradle")
+apply from: rootProject.file('gradle/publishing.gradle')
 
 kotlin {
     sourceSets {
@@ -34,7 +35,8 @@ kotlin {
  may unexpectedly break old compilers, so it is left out as a safety net. Compiler plugins, starting from 1.4 are instructed
  to reject runtime if runtime's Require-Kotlin-Version is greater then the current compiler.
  */
-tasks.withType(Jar).named(kotlin.jvm().artifactsTaskName) {
+def jvmJarTasks = rootProject.ext.build_snapshot_train ? [tasks.withType(Jar).getByName(kotlin.jvm('jvm').artifactsTaskName), tasks.withType(Jar).getByName(kotlin.jvm('jvmIr').artifactsTaskName)] : [tasks.withType(Jar).getByName(kotlin.jvm('jvm').artifactsTaskName)]
+configure(jvmJarTasks) {
     manifest {
         attributes(
                 "Implementation-Version": version,

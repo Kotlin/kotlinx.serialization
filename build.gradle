@@ -41,6 +41,7 @@ buildscript {
             maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
             maven { url "https://bintray.com/jetbrains/kotlin-native-dependencies" }
         }
+        ext.jvmCompilerTypeAttr = Attribute.of('org.jetbrains.kotlin.jvm.compiler', String)
     }
 
     repositories {
@@ -163,7 +164,7 @@ subprojects {
 
     apply from: rootProject.file('gradle/teamcity.gradle')
     // Configure publishing for some artifacts
-    if (project.name != "benchmark" && project.name != "guide") {
+    if (project.name != "benchmark" && project.name != "guide" && project.name != "kotlinx-serialization-core") {
         apply from: rootProject.file('gradle/publishing.gradle')
     }
 

@@ -21,7 +21,6 @@ clean {
 }
 
 kotlin {
-
     sourceSets {
         commonMain {
             dependencies {
@@ -45,4 +44,17 @@ sourceSets.test.proto {
 
 compileTestKotlinJvm {
     dependsOn 'generateTestProto'
+}
+
+if (rootProject.ext.build_snapshot_train) {
+    // Hack: add compiled for JVM target generated java files to classpath because we can't have two JVM targets with Java
+    kotlin.sourceSets.jvmIrTest {
+        dependencies {
+            implementation files(tasks.getByName('compileTestJava').destinationDirectory.asFile)
+        }
+    }
+
+    compileTestKotlinJvmIr {
+        dependsOn 'compileTestJava'
+    }
 }

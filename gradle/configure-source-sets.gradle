@@ -3,12 +3,24 @@
  */
 
 kotlin {
-    targets {
-        fromPreset(presets.jvm, 'jvm') {
-            withJava()
+    jvm('jvm') {
+        withJava()
+        if (rootProject.ext.build_snapshot_train) {
+            attributes.attribute(rootProject.ext.jvmCompilerTypeAttr, 'jvm')
+        }
+        configure([compilations.main, compilations.test]) {
+            kotlinOptions {
+                jvmTarget = '1.6'
+            }
+        }
+    }
+    if (rootProject.ext.build_snapshot_train) {
+        jvm('jvmIr') {
+            attributes.attribute(rootProject.ext.jvmCompilerTypeAttr, 'jvmIr')
             configure([compilations.main, compilations.test]) {
                 kotlinOptions {
                     jvmTarget = '1.6'
+                    useIR = true
                 }
             }
         }
@@ -37,6 +49,15 @@ kotlin {
     }
 
     sourceSets {
+        if (rootProject.ext.build_snapshot_train) {
+            jvmIrMain {
+                dependsOn jvmMain
+            }
+            jvmIrTest {
+                dependsOn jvmTest
+            }
+        }
+
         commonMain {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-common'
@@ -87,5 +108,14 @@ kotlin {
 
     sourceSets.matching({ it.name.contains("Main") }).all { srcSet ->
         project.ext.set("kotlin.mpp.freeCompilerArgsForSourceSet.${srcSet.name}", "-Xexplicit-api=warning")
+    }
+}
+
+if (rootProject.ext.build_snapshot_train) {
+    configurations {
+        // configure Java plugin configurations
+        configure([compileClasspath, testCompileClasspath, testRuntimeClasspath]) {
+            attributes.attribute(rootProject.ext.jvmCompilerTypeAttr, 'jvm')
+        }
     }
 }
