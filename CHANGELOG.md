@@ -1,3 +1,19 @@
+1.0.1 / 2020-10-28
+==================
+
+This patch release contains several feature improvements as well as bugfixes and performance improvements.
+
+### Features
+  * Add object-based serialization and deserialization of polymorphic types for `dynamic` conversions on JS platform  (#1122)
+  * Add support for object polymorphism in HOCON decoder (#1136)
+  * Add support of decoding map in the root of HOCON config (#1106)
+  
+### Bugfixes
+  * Properly cache generated serializers in PluginGeneratedSerialDescriptor (#1159)
+  * Add Pair and Triple to serializer resolving from Java type token (#1160)
+  * Fix deserialization of half-precision, float and double types in CBOR  (#1112)
+  * Fix ByteString annotation detection when ByteArray is nullable (#1139)
+  
 1.0.0 / 2020-10-08
 ==================
 
