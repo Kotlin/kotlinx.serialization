@@ -29,9 +29,10 @@ To release new `<version>` of `kotlinx.serialization`:
    `git push origin dev && git push origin --tags`
 
 1. On [TeamCity integration server](https://teamcity.jetbrains.com/project.html?projectId=KotlinTools_KotlinxSerialization&tab=projectOverview):
-   * Wait until "Runtime library (Build)" configuration for committed `dev` branch passes tests.
-   * Run "Runtime library (Depoly - Train)" configuration with selected changes from `dev`.
-      * For intermediate releases, you may override version with `reverse.dep.*.system.DeployVersion` build parameter.
+   * Wait until "Runtime library (Build – Aggregated)" configuration for committed `dev` branch passes tests.
+   * Run "Runtime library (Deploy - Train)" configuration:
+     * On 'Changes' tab, select `dev` branch and corresponding commit.
+     * On 'Parameters' tab, find 'Deploy version' and fill in with `<version>`.
 
 4. In [Bintray](https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime) admin interface:
    * Publish artifacts of the new version.
