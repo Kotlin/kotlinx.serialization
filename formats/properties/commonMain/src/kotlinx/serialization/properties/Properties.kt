@@ -11,7 +11,6 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
-import kotlinx.serialization.properties.Properties.Default.toString
 
 /**
  * Transforms a [Serializable] class' properties into a single flat [Map] consisting of
