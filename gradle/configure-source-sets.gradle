@@ -54,6 +54,9 @@ kotlin {
         }
 
         jvmMain {
+            repositories {
+                maven { url "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
+            }
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib'
             }

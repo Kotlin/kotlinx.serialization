@@ -51,6 +51,8 @@ buildscript {
         gradlePluginPortal()
         // For Dokka that depends on kotlinx-html
         maven { url 'https://kotlin.bintray.com/kotlinx' }
+        maven { url "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
+
     }
 
     configurations.classpath {

@@ -23,6 +23,9 @@ if (rootProject.ext.jvm_ir_enabled) {
     }
 }
 
+repositories{
+    maven { url "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
+}
 dependencies {
     compile project(':kotlinx-serialization-core')
     api 'org.jetbrains.kotlin:kotlin-stdlib'
