@@ -6,7 +6,7 @@ apply plugin: 'kotlin-multiplatform'
 apply plugin: 'kotlinx-serialization'
 apply from: rootProject.file("gradle/native-targets.gradle")
 apply from: rootProject.file("gradle/configure-source-sets.gradle")
-
+apply from: rootProject.file('gradle/publishing.gradle')
 
 kotlin {
 

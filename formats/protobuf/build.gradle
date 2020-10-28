@@ -8,6 +8,7 @@ apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.google.protobuf'
 apply from: rootProject.file("gradle/native-targets.gradle")
 apply from: rootProject.file("gradle/configure-source-sets.gradle")
+apply from: rootProject.file('gradle/publishing.gradle')
 
 protobuf {
     protoc {

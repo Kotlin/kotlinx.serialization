@@ -23,6 +23,8 @@ buildscript {
                                       "-Xuse-experimental=kotlinx.serialization.InternalSerializationApi",
                                       "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
     ]
+    ext.multiplatformProjects = ["kotlinx-serialization-core", "kotlinx-serialization-json","kotlinx-serialization-protobuf",
+                                 "kotlinx-serialization-cbor", "kotlinx-serialization-properties", "kotlinx-serialization-hocon"]
 
     /*
     * This property group is used to build kotlinx.serialization against Kotlin compiler snapshot.
@@ -164,7 +166,7 @@ subprojects {
 
     apply from: rootProject.file('gradle/teamcity.gradle')
     // Configure publishing for some artifacts
-    if (project.name != "benchmark" && project.name != "guide" && project.name != "kotlinx-serialization-core") {
+    if (project.name != "benchmark" && project.name != "guide" && !(project.name in multiplatformProjects)) {
         apply from: rootProject.file('gradle/publishing.gradle')
     }
 

@@ -23,6 +23,12 @@ kotlin {
                     useIR = true
                 }
             }
+            // Do not publish JVM IR into repository
+            mavenPublication { targetPublication ->
+                tasks.withType(PublishToMavenRepository)
+                        .matching { it.publication == targetPublication }
+                        .all { onlyIf { false } }
+            }
         }
     }
     js {
