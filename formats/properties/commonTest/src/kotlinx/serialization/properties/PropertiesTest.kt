@@ -58,8 +58,14 @@ class PropertiesTest {
     ) {
         val map = Properties.encodeToMap(serializer, obj)
         assertEquals(expectedMap, map)
-        val unmap = Properties.decodeFromMap<T>(serializer, map)
+        val unmap = Properties.decodeFromMap(serializer, map)
         assertEquals(obj, unmap)
+
+        val stringMap = Properties.encodeToStringMap(serializer, obj)
+        val expectedStringMap = expectedMap.mapValues { it.value.toString() }
+        assertEquals(expectedStringMap, stringMap)
+        val stringUnmap = Properties.decodeFromStringMap(serializer, stringMap)
+        assertEquals(obj, stringUnmap)
     }
 
     private inline fun <reified T : Any> assertMappedNullableAndRestored(
@@ -69,8 +75,14 @@ class PropertiesTest {
     ) {
         val map = Properties.encodeToMap(serializer, obj)
         assertEquals(expectedMap, map)
-        val unmap = Properties.decodeFromMap<T>(serializer, map)
+        val unmap = Properties.decodeFromMap(serializer, map)
         assertEquals(obj, unmap)
+
+        val stringMap = Properties.encodeToStringMap(serializer, obj)
+        val expectedStringMap = expectedMap.mapValues { it.value.toString() }
+        assertEquals(expectedStringMap, stringMap)
+        val stringUnmap = Properties.decodeFromStringMap(serializer, stringMap)
+        assertEquals(obj, stringUnmap)
     }
 
     @Test
