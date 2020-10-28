@@ -148,7 +148,6 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib", KotlinCompilerVersion.VERSION)) // or "stdlib-jdk8"
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0")
 }
 ```
@@ -162,7 +161,6 @@ repositories {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version" // or "kotlin-stdlib-jdk8"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0"
 }
 ```
