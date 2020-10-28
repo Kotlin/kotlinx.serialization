@@ -10,29 +10,33 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 configurations {
-    jvmImplementation {
-        attributes.attribute(rootProject.ext.jvmCompilerTypeAttr, 'jvm')
-    }
-    configure([runtimeClasspath, runtimeElements]) {
-        extendsFrom jvmImplementation
+    create('jvmImplementation') {
+        if (rootProject.ext.build_snapshot_train) {
+            attributes.attribute(rootProject.ext.jvmCompilerTypeAttr, 'jvm')
+        }
     }
 }
 
 sourceSets.all { sourceSet ->
-    sourceSet.compileClasspath += configurations.jvmImplementation
+    sourceSet.runtimeClasspath += configurations.jvmImplementation
 }
 
-jmh.jmhVersion = 1.21
+extensions.configure('jmh') {
+    it.jmhVersion = 1.21
+}
 
 jmhJar {
-    baseName 'benchmarks'
-    classifier = null
-    version = null
+    archiveBaseName.set('benchmarks')
+    archiveClassifier.set(null)
+    archiveVersion.set(null)
+    configurations.add(project.configurations['jvmImplementation'])
 }
 
 dependencies {
-    attributesSchema {
-        attribute(rootProject.ext.jvmCompilerTypeAttr)
+    if (rootProject.ext.build_snapshot_train) {
+        attributesSchema {
+            attribute(rootProject.ext.jvmCompilerTypeAttr)
+        }
     }
 
     annotationProcessor 'com.google.auto.value:auto-value:1.4.1'
@@ -51,7 +55,9 @@ dependencies {
     jvmImplementation project(':kotlinx-serialization-core')
     jvmImplementation project(':kotlinx-serialization-json')
     jvmImplementation project(':kotlinx-serialization-protobuf')
+    jvmImplementation project(':kotlinx-serialization-json')
 
     // async profiler
     implementation group: 'pl.project13.scala', name: 'sbt-jmh-extras', version: '0.3.3'
+    "jmhImplementation" sourceSets.main.runtimeClasspath
 }
