@@ -11,6 +11,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.properties.Properties.Default.toString
 
 /**
  * Transforms a [Serializable] class' properties into a single flat [Map] consisting of
@@ -160,6 +161,21 @@ public sealed class Properties(
     }
 
     /**
+     * Encodes properties from the given [value] to a [String]
+     * in [java.util.Properties] format using the given [serializer].
+     *
+     * [value] is first converted to [Map<String,String>] using
+     * the [encodeToStringMap]. Then each map entry is converted
+     * to a single line with keys and values separated with '='.
+     *
+     * @see encodeToStringMap
+     */
+    @ExperimentalSerializationApi
+    public fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
+        return encodeToStringMap(serializer, value).encodeAsString(escapeUnicode = false)
+    }
+
+    /**
      * Decodes properties from the given [map] to a value of type [T] using the given [deserializer].
      * [T] may contain properties of nullable types; they will be filled by non-null values from the [map], if present.
      */
@@ -178,6 +194,19 @@ public sealed class Properties(
     public fun <T> decodeFromStringMap(deserializer: DeserializationStrategy<T>, map: Map<String, String>): T {
         val m = InStringMapper(map, deserializer.descriptor)
         return m.decodeSerializableValue(deserializer)
+    }
+
+    /**
+     * Decodes properties from the given [input] [String] to a value of type [T] using the given [deserializer].
+     *
+     * The [input] is converted to [Map<String,String>] which is further decoded using [decodeFromStringMap].
+     * The string is expected to be in [java.util.Properties] format.
+     *
+     * @see decodeFromStringMap
+     */
+    @ExperimentalSerializationApi
+    public fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, input: String): T {
+        return decodeFromStringMap(deserializer, input.decodeAsProperties())
     }
 
     /**
@@ -214,6 +243,15 @@ public inline fun <reified T> Properties.encodeToStringMap(value: T): Map<String
     encodeToStringMap(serializersModule.serializer(), value)
 
 /**
+ * Encodes properties from given [value] to [String] in [java.util.Properties] format.
+ *
+ * @see Properties.decodeFromString
+ */
+@ExperimentalSerializationApi
+public inline fun <reified T> Properties.encodeToString(value: T): String =
+    encodeToString(serializersModule.serializer(), value)
+
+/**
  * Decodes properties from given [map], assigns them to an object using serializer for reified type [T] and returns this object.
  * [T] may contain properties of nullable types; they will be filled by non-null values from the [map], if present.
  */
@@ -229,6 +267,16 @@ public inline fun <reified T> Properties.decodeFromMap(map: Map<String, Any>): T
 @ExperimentalSerializationApi
 public inline fun <reified T> Properties.decodeFromStringMap(map: Map<String, String>): T =
     decodeFromStringMap(serializersModule.serializer(), map)
+
+/**
+ * Decodes properties from given [input], in [java.util.Properties] format to an object
+ * using serializer for reified type [T] and returns this object.
+ *
+ * @see Properties.decodeFromString
+ */
+@ExperimentalSerializationApi
+public inline fun <reified T> Properties.decodeFromString(input: String): T =
+    decodeFromString(serializersModule.serializer(), input)
 
 // Migrations below
 
