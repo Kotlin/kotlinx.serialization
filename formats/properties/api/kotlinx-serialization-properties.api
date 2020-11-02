@@ -6,7 +6,7 @@ public abstract class kotlinx/serialization/properties/Properties : kotlinx/seri
 	public final fun decodeFromString (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
 	public final fun encodeToMap (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/util/Map;
 	public final fun encodeToStringMap (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/util/Map;
-	public final fun encodeToString (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/lang/String;
+	public final fun encodeToString (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Lkotlinx/serialization/properties/Properties$Separator;Ljava/lang/Object;Lkotlinx/serialization/properties/Properties$LineSeparator;Z)Ljava/lang/String;
 	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 }
 

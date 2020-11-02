@@ -1,15 +1,22 @@
 package kotlinx.serialization.properties
 
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.properties.Properties.Default
+import kotlinx.serialization.properties.Properties.LineSeparator
+import kotlinx.serialization.properties.Properties.Separator
+
 /**
  * Method encodes map as [String] in [java.util.Properties] format.
  *
  * Every entry is converted to a single line by concatenating
- * key and value with the '=' character in-between.
+ * key and value using specified [Separator].
  * For the key, all space characters are preceded by the `\` character.
  * For the value, leading space characters, but not embedded or trailing
  * space characters, are written with a preceding `\`  character.
  * The key and element characters `#`, `!`, `=`, and `:` are also
  * preceded by the '\' character to avoid misinterpretation by the parser.
+ *
+ * Lines are separated using specified [LineSeparator].
  *
  * Optionally characters less than `\u0020` and characters greater than `\u007E`
  * in keys or values are written as `\u*xxxx*' for their appropriate
@@ -18,9 +25,14 @@ package kotlinx.serialization.properties
  * @receiver map to be converted into [String]
  * @param escapeUnicode whether or not to escape unicode characters
  */
-internal fun Map<String, String>.encodeAsString(escapeUnicode: Boolean = false): String {
-    return entries.joinToString(separator = "\n") {
-        "${it.escapedKey(escapeUnicode)}=${it.escapedValue(escapeUnicode)}"
+@ExperimentalSerializationApi
+internal fun Map<String, String>.encodeAsString(
+    separator: Separator = Default.separator,
+    lineSeparator: LineSeparator = Default.lineSeparator,
+    escapeUnicode: Boolean = Default.escapeUnicode
+): String {
+    return entries.joinToString(separator = lineSeparator.chars) {
+        it.escapedKey(escapeUnicode) + separator.char + it.escapedValue(escapeUnicode)
     }
 }
 

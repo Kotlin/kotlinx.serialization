@@ -166,13 +166,25 @@ public sealed class Properties(
      *
      * [value] is first converted to [Map<String,String>] using
      * the [encodeToStringMap]. Then each map entry is converted
-     * to a single line with keys and values separated with '='.
+     * to a single line with keys and values separated using
+     * specified [Separator].
+     *
+     * Lines will be separated using specified [LineSeparator].
+     *
+     * Optionally escaping Unicode characters can be disabled.
      *
      * @see encodeToStringMap
      */
     @ExperimentalSerializationApi
-    public fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
-        return encodeToStringMap(serializer, value).encodeAsString(escapeUnicode = false)
+    public fun <T> encodeToString(
+        serializer: SerializationStrategy<T>,
+        value: T,
+        separator: Separator = Default.separator,
+        lineSeparator: LineSeparator = Default.lineSeparator,
+        escapeUnicode: Boolean = Default.escapeUnicode
+    ): String {
+        return encodeToStringMap(serializer, value)
+            .encodeAsString(separator, lineSeparator, escapeUnicode)
     }
 
     /**
@@ -213,7 +225,53 @@ public sealed class Properties(
      * A [Properties] instance that can be used as default and does not have any [SerializersModule] installed.
      */
     @ExperimentalSerializationApi
-    public companion object Default : Properties(EmptySerializersModule, null)
+    public companion object Default : Properties(EmptySerializersModule, null) {
+        /**
+         * Default separator to be used when encoding as [String].
+         */
+        @PublishedApi
+        internal val separator: Separator = Separator.EQUALS
+
+        /**
+         * Default line separator to be used when encoding as [String].
+         */
+        @PublishedApi
+        internal val lineSeparator: LineSeparator = LineSeparator.Unix
+
+        /**
+         * Whether to escape Unicode or non-printable characters when encoding as [String].
+         */
+        @PublishedApi
+        internal val escapeUnicode: Boolean = true
+    }
+
+    /**
+     * Enum representing key and value separator used when encoding properties as [String].
+     */
+    @ExperimentalSerializationApi
+    public enum class Separator(internal val char: Char) {
+        EQUALS('='),
+        COLON(':'),
+        SPACE(' '),
+        TAB('\t');
+    }
+
+    /**
+     * Enum representing line ending character sequence used when encoding properties as [String].
+     */
+    @ExperimentalSerializationApi
+    public enum class LineSeparator(internal val chars: String) {
+        LF("\n"),
+        CRLF("\r\n"),
+        CR("\r");
+
+        @ExperimentalSerializationApi
+        public companion object {
+            public val Unix: LineSeparator = LF
+            public val Windows: LineSeparator = CRLF
+            public val Macintosh: LineSeparator = CR
+        }
+    }
 }
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -245,11 +303,16 @@ public inline fun <reified T> Properties.encodeToStringMap(value: T): Map<String
 /**
  * Encodes properties from given [value] to [String] in [java.util.Properties] format.
  *
- * @see Properties.decodeFromString
+ * @see Properties.encodeToString
  */
 @ExperimentalSerializationApi
-public inline fun <reified T> Properties.encodeToString(value: T): String =
-    encodeToString(serializersModule.serializer(), value)
+public inline fun <reified T> Properties.encodeToString(
+    value: T,
+    separator: Properties.Separator = Properties.separator,
+    lineSeparator: Properties.LineSeparator = Properties.lineSeparator,
+    escapeUnicode: Boolean = Properties.escapeUnicode
+): String =
+    encodeToString(serializersModule.serializer(), value, separator, lineSeparator, escapeUnicode)
 
 /**
  * Decodes properties from given [map], assigns them to an object using serializer for reified type [T] and returns this object.

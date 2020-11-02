@@ -4,7 +4,7 @@ import kotlin.test.*
 
 internal class StringEncodeTest {
     private fun test(input: Map<String, String>, expected: String, escapeUnicode: Boolean = false) {
-        val result = input.encodeAsString(escapeUnicode)
+        val result = input.encodeAsString(escapeUnicode = escapeUnicode)
         assertEquals(expected, result, "Map encoded as Properties")
     }
 
