@@ -4,9 +4,7 @@ import kotlin.test.*
 
 internal class StringEncodeTest {
     private fun test(input: Map<String, String>, expected: String, escapeUnicode: Boolean = false) {
-        // trim is only here because each entry is appended with new line character
-        // removing this does not change any semantics
-        val result = input.encodeAsString(escapeUnicode).trimEnd('\n')
+        val result = input.encodeAsString(escapeUnicode)
         assertEquals(expected, result, "Map encoded as Properties")
     }
 

@@ -19,24 +19,26 @@ package kotlinx.serialization.properties
  * @param escapeUnicode whether or not to escape unicode characters
  */
 internal fun Map<String, String>.encodeAsString(escapeUnicode: Boolean = false): String {
-    val builder = StringBuilder()
-    for((k,v) in this) with(builder) {
-        appendConverted(k, escapeSpace = true, escapeUnicode)
-        append("=")
-        appendConverted(v, escapeSpace = false, escapeUnicode)
-        append("\n")
+    return entries.joinToString(separator = "\n") {
+        "${it.escapedKey(escapeUnicode)}=${it.escapedValue(escapeUnicode)}"
     }
-    return builder.toString()
 }
 
+private fun Map.Entry<String, String>.escapedKey(escapeUnicode: Boolean): String =
+    key.escaped(escapeSpace = true, escapeUnicode)
 
-private fun StringBuilder.appendConverted(string: String, escapeSpace: Boolean, escapeUnicode: Boolean) {
-    for (char in string) when {
-        char.needsNoEscaping -> append(char)
-        char == ' ' -> if(escapeSpace) appendEscaped(char) else append(char)
-        char.needsEscaping -> append('\\').append(char.escapedSymbol)
-        else -> if(escapeUnicode) appendEscapedUnicode(char) else append(char)
-    }
+private fun Map.Entry<String, String>.escapedValue(escapeUnicode: Boolean): String =
+    value.escaped(escapeSpace = false, escapeUnicode)
+
+private fun String.escaped(escapeSpace: Boolean, escapeUnicode: Boolean): String {
+    return StringBuilder().apply {
+        for (char in this@escaped) when {
+            char.needsNoEscaping -> append(char)
+            char == ' ' -> if(escapeSpace) appendEscaped(char) else append(char)
+            char.needsEscaping -> append('\\').append(char.escapedSymbol)
+            else -> if(escapeUnicode) appendEscapedUnicode(char) else append(char)
+        }
+    }.toString()
 }
 
 private fun StringBuilder.appendEscaped(c: Char) {

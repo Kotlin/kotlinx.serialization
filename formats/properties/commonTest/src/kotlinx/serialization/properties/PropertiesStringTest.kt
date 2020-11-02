@@ -13,7 +13,7 @@ internal class PropertiesStringTest {
     private inline fun <reified T : Any> testRoundTrip(
         expected: String, obj: T
     ) {
-        val propertyString = Properties.encodeToString(obj).trimEnd('\n')
+        val propertyString = Properties.encodeToString(obj)
         assertEquals(expected, propertyString)
 
         val unmap = Properties.decodeFromString<T>(propertyString)
