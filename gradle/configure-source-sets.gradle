@@ -5,7 +5,7 @@
 kotlin {
     jvm('jvm') {
         withJava()
-        if (rootProject.ext.build_snapshot_train) {
+        if (rootProject.ext.jvm_ir_target_enabled) {
             attributes.attribute(rootProject.ext.jvmCompilerTypeAttr, 'jvm')
         }
         configure([compilations.main, compilations.test]) {
@@ -14,7 +14,7 @@ kotlin {
             }
         }
     }
-    if (rootProject.ext.build_snapshot_train) {
+    if (rootProject.ext.jvm_ir_target_enabled) {
         jvm('jvmIr') {
             attributes.attribute(rootProject.ext.jvmCompilerTypeAttr, 'jvmIr')
             configure([compilations.main, compilations.test]) {
@@ -55,7 +55,7 @@ kotlin {
     }
 
     sourceSets {
-        if (rootProject.ext.build_snapshot_train) {
+        if (rootProject.ext.jvm_ir_target_enabled) {
             jvmIrMain {
                 dependsOn jvmMain
             }
@@ -117,7 +117,7 @@ kotlin {
     }
 }
 
-if (rootProject.ext.build_snapshot_train) {
+if (rootProject.ext.jvm_ir_target_enabled) {
     configurations {
         // configure Java plugin configurations
         configure([compileClasspath, testCompileClasspath, testRuntimeClasspath]) {

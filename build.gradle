@@ -43,6 +43,9 @@ buildscript {
             maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
             maven { url "https://bintray.com/jetbrains/kotlin-native-dependencies" }
         }
+    }
+    ext.jvm_ir_target_enabled = build_snapshot_train && rootProject.properties['disable_jvm_ir'] == null
+    if (jvm_ir_target_enabled) {
         ext.jvmCompilerTypeAttr = Attribute.of('org.jetbrains.kotlin.jvm.compiler', String)
     }
 

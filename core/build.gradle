@@ -35,7 +35,7 @@ kotlin {
  may unexpectedly break old compilers, so it is left out as a safety net. Compiler plugins, starting from 1.4 are instructed
  to reject runtime if runtime's Require-Kotlin-Version is greater then the current compiler.
  */
-def jvmJarTasks = rootProject.ext.build_snapshot_train ? [tasks.withType(Jar).getByName(kotlin.jvm('jvm').artifactsTaskName), tasks.withType(Jar).getByName(kotlin.jvm('jvmIr').artifactsTaskName)] : [tasks.withType(Jar).getByName(kotlin.jvm('jvm').artifactsTaskName)]
+def jvmJarTasks = rootProject.ext.jvm_ir_target_enabled ? [tasks.withType(Jar).getByName(kotlin.jvm('jvm').artifactsTaskName), tasks.withType(Jar).getByName(kotlin.jvm('jvmIr').artifactsTaskName)] : [tasks.withType(Jar).getByName(kotlin.jvm('jvm').artifactsTaskName)]
 configure(jvmJarTasks) {
     manifest {
         attributes(

@@ -47,7 +47,7 @@ compileTestKotlinJvm {
     dependsOn 'generateTestProto'
 }
 
-if (rootProject.ext.build_snapshot_train) {
+if (rootProject.ext.jvm_ir_target_enabled) {
     // Hack: add compiled for JVM target generated java files to classpath because we can't have two JVM targets with Java
     kotlin.sourceSets.jvmIrTest {
         dependencies {
