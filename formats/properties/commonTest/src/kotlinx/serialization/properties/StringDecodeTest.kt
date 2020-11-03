@@ -105,6 +105,16 @@ internal class StringDecodeTest {
         )
     )
 
+    @Test fun only_escaped_CRLF_is_interpreted_as_multi_line() = test(
+        input = "key=multi\\\r\nline\n"+
+                "not1=multi\\\n\nline",
+        expected = mapOf(
+            "key" to "multiline",
+            "not1" to "multi",
+            "line" to ""
+        )
+    )
+
     @Test fun subsequent_separators_become_part_of_the_value() = test(
         input = "something =  = somethingElse",
         expected = mapOf(

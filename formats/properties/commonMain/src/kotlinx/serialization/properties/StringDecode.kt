@@ -72,8 +72,10 @@ private fun String.findNewLine(start: Int): Int {
         if(char.isNewLine) {
             if(!escape) return cursor
             // check if we have '\r' followed by '\n'
-            val nextCursor = cursor + 1
-            if(nextCursor < length && this[nextCursor].isNewLine) continue
+            if(char == '\r') {
+                val nextCursor = cursor + 1
+                if(nextCursor < length && this[nextCursor] == '\n') continue
+            }
         }
         escape = if(char == '\\') !escape else false
     }
