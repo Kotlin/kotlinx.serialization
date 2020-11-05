@@ -49,6 +49,12 @@ class PropertiesTest {
     @Serializable
     data class NullableEnumData(val data0: TestEnum?, val data1: TestEnum?)
 
+    @Serializable
+    data class SharedPrefixNames(
+        val first: String = "100",
+        val firstSecond: String = "100"
+    )
+
     enum class TestEnum { ZERO, ONE }
 
     private inline fun <reified T : Any> assertMappedAndRestored(
@@ -210,5 +216,12 @@ class PropertiesTest {
     @Test
     fun testCanReadSizeProperty() {
         assertMappedAndRestored(mapOf("p" to "a", "size" to "b"), TestWithSize("a", "b"), TestWithSize.serializer())
+    }
+
+    @Test
+    fun testSharedPrefixNames() {
+        val map: Map<String, Any> = mapOf("firstSecond" to "42")
+        val restored = Properties.decodeFromMap(SharedPrefixNames.serializer(), map)
+        assertEquals(SharedPrefixNames("100", "42"), restored)
     }
 }

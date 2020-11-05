@@ -103,7 +103,9 @@ public sealed class Properties(
         final override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             while (currentIndex < size) {
                 val name = descriptor.getTag(currentIndex++)
-                if (map.keys.any { it.startsWith(name) }) return currentIndex - 1
+                if (map.keys.any {
+                        it.startsWith(name) && (it.length == name.length || it[name.length] == '.')
+                    }) return currentIndex - 1
                 if (isCollection) {
                     // if map does not contain key we look for, then indices in collection have ended
                     break
