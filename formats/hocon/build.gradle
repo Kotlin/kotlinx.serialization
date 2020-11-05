@@ -16,8 +16,49 @@
 
 apply plugin: 'kotlin-multiplatform'
 apply plugin: 'kotlinx-serialization'
-apply from: rootProject.file("gradle/configure-source-sets.gradle")
-apply from: rootProject.file('gradle/publishing.gradle')
+
+kotlin {
+    jvm('jvm') {
+        configure([compilations.main, compilations.test]) {
+            kotlinOptions {
+                jvmTarget = '1.6'
+            }
+        }
+    }
+
+    sourceSets {
+        jvmMain {
+            kotlin.srcDirs = ['src/main/kotlin']
+        }
+        jvmTest {
+            kotlin.srcDirs = ['src/test']
+        }
+    }
+
+    if (rootProject.ext.jvm_ir_target_enabled) {
+        jvm('jvm') {
+            attributes.attribute(rootProject.ext.jvmCompilerTypeAttr, 'jvm')
+        }
+        jvm('jvmIr') {
+            attributes.attribute(rootProject.ext.jvmCompilerTypeAttr, 'jvmIr')
+            compilations.all {
+                kotlinOptions {
+                    jvmTarget = '1.6'
+                    useIR = true
+                }
+            }
+        }
+
+        sourceSets {
+            jvmIrMain {
+                dependsOn jvmMain
+            }
+            jvmIrTest {
+                dependsOn jvmTest
+            }
+        }
+    }
+}
 
 dependencies {
     jvmMainImplementation project(':kotlinx-serialization-core')
@@ -28,3 +69,5 @@ dependencies {
     jvmTestImplementation "org.jetbrains.kotlin:kotlin-test"
     jvmTestImplementation group: 'junit', name: 'junit', version: '4.12'
 }
+
+apply from: rootProject.file('gradle/publishing.gradle')
