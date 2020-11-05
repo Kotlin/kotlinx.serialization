@@ -51,11 +51,19 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
         null
     }
     if (fromNamedCompanion != null) return fromNamedCompanion
+    //Check globally registered serializers
+    jvmGlobalSerializer(jClass)?.let { return it }
     // Check for polymorphic
     return polymorphicSerializer()
 }
 
-private fun <T: Any> Class<T>.isNotAnnotated(): Boolean {
+private fun <T> jvmGlobalSerializer(jClass: Class<T>): KSerializer<T>? =
+        when (jClass) {
+            UUID::class.java -> UUIDSerializer as? KSerializer<T>
+            else -> null
+        }
+
+private fun <T : Any> Class<T>.isNotAnnotated(): Boolean {
     /*
      * For annotated enums search serializer directly (or do not search at all?)
      */

@@ -11,9 +11,13 @@ import kotlinx.serialization.builtins.*
 import kotlinx.serialization.builtins.MapEntrySerializer
 import kotlinx.serialization.builtins.PairSerializer
 import kotlinx.serialization.builtins.TripleSerializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import java.lang.reflect.*
+import java.util.*
 import kotlin.reflect.*
 
 /**
@@ -112,4 +116,11 @@ private fun SerializersModule.genericArraySerializer(type: GenericArrayType): KS
 @OptIn(ExperimentalSerializationApi::class)
 private fun <T: Any> SerializersModule.reflectiveOrContextual(kClass: KClass<T>): KSerializer<T> {
     return kClass.serializerOrNull() ?: getContextual(kClass) ?: kClass.serializerNotRegistered()
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+internal object UUIDSerializer: KSerializer<UUID> {
+    override val descriptor = PrimitiveSerialDescriptor("java.util.UUID", PrimitiveKind.STRING)
+    override fun serialize(encoder: Encoder, value: UUID) = encoder.encodeString(value.toString())
+    override fun deserialize(decoder: Decoder): UUID = UUID.fromString(decoder.decodeString())
 }

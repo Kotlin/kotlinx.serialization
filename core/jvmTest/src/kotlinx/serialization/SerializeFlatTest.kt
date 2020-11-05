@@ -8,6 +8,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 import org.junit.Test
+import java.util.UUID
 import kotlin.test.*
 
 // Serializable data class
@@ -296,5 +297,35 @@ class SerializeFlatTest() {
         fun done() {
             if (step != 7) fail("@$step: INP FAIL")
         }
+    }
+
+    class StringEncoder(
+            private val expected: String,
+            override val serializersModule: SerializersModule = EmptySerializersModule
+    ): AbstractEncoder() {
+        override fun encodeString(value: String) {
+            assertEquals(expected, value)
+        }
+    }
+
+    class StringDecoder<T>(
+            private val expected: T,
+            override val serializersModule: SerializersModule = EmptySerializersModule
+    ): AbstractDecoder() {
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+            assertEquals(1, descriptor.elementsCount)
+            return 1
+        }
+        override fun decodeString(): String = expected.toString()
+    }
+
+    @Test
+    fun testUUID() {
+        val value = UUID.randomUUID()
+        val encoder = StringEncoder(value.toString())
+        val decoder = StringDecoder<UUID>(value)
+        serializer<UUID>().serialize(encoder, value)
+        val data = serializer<UUID>().deserialize(decoder)
+        assertEquals(value, data)
     }
 }
