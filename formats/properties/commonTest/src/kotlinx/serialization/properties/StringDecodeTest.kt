@@ -8,17 +8,17 @@ internal class StringDecodeTest {
         assertEquals(expected, result, "Result of parsing Properties string")
     }
 
-    @Test fun empty_string_is_converted_to_empty_list() = test(
+    @Test fun emptyStringIsConvertedToEmptyMap() = test(
         input = "",
         expected = emptyMap()
     )
 
-    @Test fun single_string_is_converted_to_key_with_empty_string_value() = test(
+    @Test fun singleStringIsConvertedToKeyWithEmptyStringValue() = test(
         input = "someData",
         expected = mapOf("someData" to "")
     )
 
-    @Test fun arbitrary_number_of_whitespaces_can_separate_key_value_pairs() = test(
+    @Test fun arbitraryNumberOfWhitespacesCanSeparateKeyValuePairs() = test(
         // values 3 and 4 are separated by \t
         input = """
             ks1 svI
@@ -34,7 +34,7 @@ internal class StringDecodeTest {
         )
     )
 
-    @Test fun equals_sign_with_arbitrary_number_of_whitespaces_can_separate_key_value_pairs() = test(
+    @Test fun equalsSignWithArbitraryNumberOfWhitespacesCanSeparateKeyValuePairs() = test(
         input = """
             ke1=veI
             ke2 =veII
@@ -51,7 +51,7 @@ internal class StringDecodeTest {
         )
     )
 
-    @Test fun colon_with_arbitrary_number_of_whitespaces_can_separate_key_value_pairs() = test(
+    @Test fun colonWithArbitraryNumberOfWhitespacesCanSeparateKeyValuePairs() = test(
         input = """
             kc1:veI
             kc2 :veII
@@ -68,14 +68,14 @@ internal class StringDecodeTest {
         )
     )
 
-    @Test fun escaped_spaces_do_not_separate_keys_from_values() = test(
+    @Test fun escapedSpacesDoNotSeparateKeysFromValues() = test(
         input = """some\ escaped\ key some value""",
         expected = mapOf(
             "some escaped key" to "some value"
         )
     )
 
-    @Test fun escaped_whitespaces_are_correctly_interpreted() = test(
+    @Test fun escapedWhitespacesAreCorrectlyInterpreted() = test(
         input = """a\nquasi\tmulti\ line\fkey some\ value\nwith\twhitespaces\rinside""",
         expected = mapOf(
             "a\nquasi\tmulti line\u000ckey" to "some value\nwith\twhitespaces\rinside"
@@ -83,21 +83,21 @@ internal class StringDecodeTest {
     )
 
     // This is the explicit behaviour of java.util.Properties::load method
-    @Test fun slashes_before_non_escapable_characters_are_dropped() = test(
+    @Test fun slashesBeforeNonEscapableCharactersAreDropped() = test(
         input = """m\y\ \key=\my \value""",
         expected = mapOf(
             "my key" to "my value"
         )
     )
 
-    @Test fun unicode_escaped_characters_are_correctly_converted() = test(
+    @Test fun unicodeEscapedCharactersAreCorrectlyConverted() = test(
         input = """\u0061\u004bey=\u0056A\u004C""",
         expected = mapOf(
             "\u0061\u004bey" to "\u0056A\u004C"
         )
     )
 
-    @Test fun multi_line_values_with_all_line_breaks_sequences_are_supported() = test(
+    @Test fun multiLineValuesWithAllLineBreaksSequencesAreSupported() = test(
         input = "key=multi\\\nline\\\rvalue\\\r\nstring\notherKey=val",
         expected = mapOf(
             "key" to "multilinevaluestring",
@@ -105,7 +105,7 @@ internal class StringDecodeTest {
         )
     )
 
-    @Test fun only_escaped_CRLF_is_interpreted_as_multi_line() = test(
+    @Test fun onlyEscapedCRLFIsInterpretedAsMultiLine() = test(
         input = "key=multi\\\r\nline\n"+
                 "not1=multi\\\n\nline",
         expected = mapOf(
@@ -115,14 +115,14 @@ internal class StringDecodeTest {
         )
     )
 
-    @Test fun subsequent_separators_become_part_of_the_value() = test(
+    @Test fun subsequentSeparatorsBecomePartOfTheValue() = test(
         input = "something =  = somethingElse",
         expected = mapOf(
             "something" to "= somethingElse"
         )
     )
 
-    @Test fun comment_lines_are_ignored() = test(
+    @Test fun commentLinesAreIgnored() = test(
         input = """
             # some comment
             data=value
@@ -136,7 +136,7 @@ internal class StringDecodeTest {
         )
     )
 
-    @Test fun invalid_unicode_format_cause_IllegalArgumentExceptions(){
+    @Test fun invalidUnicodeFormatCauseIllegalArgumentExceptions(){
         assertFailsWith(IllegalArgumentException::class) {
             "\\u12".decodeAsProperties()
         }

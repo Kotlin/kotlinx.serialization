@@ -6,7 +6,7 @@ import kotlin.test.*
 internal class PropertiesStringTest {
 
     @Serializable
-    private data class Data(val someProp: String? = "hello")
+    data class Data(val someProp: String? = "hello")
 
     // due to the problem of iteration order
     // we can only do asserts on single property objects
@@ -20,11 +20,11 @@ internal class PropertiesStringTest {
         assertEquals(obj, unmap)
     }
 
-    @Test fun simple_data_with_default_value() {
+    @Test fun simpleDataWithDefaultValue() {
         testRoundTrip("someProp=hello", Data())
     }
 
-    @Test fun simple_data_with_special_characters() {
+    @Test fun simpleDataWithSpecialCharacters() {
         testRoundTrip("someProp=\\=some\\n", Data("=some\n"))
     }
 }

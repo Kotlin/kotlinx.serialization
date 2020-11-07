@@ -8,28 +8,28 @@ internal class StringEncodeTest {
         assertEquals(expected, result, "Map encoded as Properties")
     }
 
-    @Test fun empty_map_is_encoded_as_empty_string() = test(
+    @Test fun emptyMapIsEncodedAsEmptyString() = test(
         input = emptyMap(),
         expected = ""
     )
 
-    @Test fun key_and_values_are_separated_by_equals() = test(
+    @Test fun keyAndValuesAreSeparatedByEquals() = test(
         input = mapOf("akey" to "avalue"),
         expected = "akey=avalue"
     )
 
-    @Test fun special_characters_are_escaped_in_keys_and_values()  = test(
+    @Test fun specialCharactersAreEscapedInKeysAndValues() = test(
         input = mapOf("my key\t" to """\my:val="""),
         expected = """my\ key\t=\\my\:val\="""
     )
 
-    @Test fun non_printable_characters_are_not_converted_to_unicode_when_escape_is_disabled() = test(
+    @Test fun nonPrintableCharactersAreNotConvertedToUnicodeWhenEscapeIsDisabled() = test(
         input = mapOf("a\u0005" to "\u000fb"),
         expected = "a\u0005=\u000fb",
         escapeUnicode = false
     )
 
-    @Test fun non_printable_characters_are_converted_to_unicode_when_escape_is_enabled() = test(
+    @Test fun nonPrintableCharactersAreConvertedToUnicodeWhenEscapeIsEnabled() = test(
         input = mapOf("a\u0005" to "\u000fb"),
         expected = """a\u0005=\u000fb""",
         escapeUnicode = true
