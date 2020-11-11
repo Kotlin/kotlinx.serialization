@@ -55,7 +55,6 @@ dependencies {
     jvmImplementation project(':kotlinx-serialization-core')
     jvmImplementation project(':kotlinx-serialization-json')
     jvmImplementation project(':kotlinx-serialization-protobuf')
-    jvmImplementation project(':kotlinx-serialization-json')
 
     // async profiler
     implementation group: 'pl.project13.scala', name: 'sbt-jmh-extras', version: '0.3.3'
