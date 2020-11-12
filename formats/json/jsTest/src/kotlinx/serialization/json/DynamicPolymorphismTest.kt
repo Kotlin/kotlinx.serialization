@@ -25,6 +25,11 @@ class DynamicPolymorphismTest {
         @Serializable
         @SerialName("nullable_child")
         data class NullableChild(val nullable: String?): Sealed(3)
+
+        @Serializable
+        @SerialName("list_child")
+        data class ListChild(val list: List<String>): Sealed(4)
+
     }
 
     @Serializable
@@ -136,6 +141,40 @@ class DynamicPolymorphismTest {
             assertEquals("nullable_child", this.type)
             assertEquals(nullChild.nullable, this.nullable)
             assertEquals(nullChild.intField, this.intField)
+            assertEquals(3, fieldsCount(this))
+        }
+    }
+
+    @Test
+    fun testList() {
+        val listChild = Sealed.ListChild(listOf("one", "two"))
+        encodeAndDecode(Sealed.serializer(), listChild, arrayJson) {
+            assertEquals("list_child", this[0])
+            val dynamicValue = this[1]
+            assertEquals(listChild.list, (dynamicValue.list as Array<String>).toList())
+            assertEquals(listChild.intField, dynamicValue.intField)
+            assertEquals(2, fieldsCount(dynamicValue))
+        }
+        encodeAndDecode(Sealed.serializer(), listChild, objectJson) {
+            assertEquals("list_child", this.type)
+            assertEquals(listChild.list, (this.list as Array<String>).toList())
+            assertEquals(listChild.intField, this.intField)
+            assertEquals(3, fieldsCount(this))
+        }
+
+
+        val emptyListChild = Sealed.ListChild(emptyList())
+        encodeAndDecode(Sealed.serializer(), emptyListChild, arrayJson) {
+            assertEquals("list_child", this[0])
+            val dynamicValue = this[1]
+            assertEquals(emptyListChild.list, (dynamicValue.list as Array<String>).toList())
+            assertEquals(emptyListChild.intField, dynamicValue.intField)
+            assertEquals(2, fieldsCount(dynamicValue))
+        }
+        encodeAndDecode(Sealed.serializer(), emptyListChild, objectJson) {
+            assertEquals("list_child", this.type)
+            assertEquals(emptyListChild.list, (this.list as Array<String>).toList())
+            assertEquals(emptyListChild.intField, this.intField)
             assertEquals(3, fieldsCount(this))
         }
     }
