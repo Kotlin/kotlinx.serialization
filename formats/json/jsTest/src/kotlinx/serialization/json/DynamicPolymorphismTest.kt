@@ -21,6 +21,10 @@ class DynamicPolymorphismTest {
         @Serializable
         @SerialName("type_child")
         data class TypeChild(val type: String) : Sealed(2)
+
+        @Serializable
+        @SerialName("nullable_child")
+        data class NullableChild(val nullable: String?): Sealed(3)
     }
 
     @Serializable
@@ -103,6 +107,38 @@ class DynamicPolymorphismTest {
         }
     }
 
+    @Test
+    fun testNullable() {
+        val nonNullChild = Sealed.NullableChild("nonnull")
+        encodeAndDecode(Sealed.serializer(), nonNullChild, arrayJson) {
+            assertEquals("nullable_child", this[0])
+            val dynamicValue = this[1]
+            assertEquals(nonNullChild.nullable, dynamicValue.nullable)
+            assertEquals(nonNullChild.intField, dynamicValue.intField)
+            assertEquals(2, fieldsCount(dynamicValue))
+        }
+        encodeAndDecode(Sealed.serializer(), nonNullChild, objectJson) {
+            assertEquals("nullable_child", this.type)
+            assertEquals(nonNullChild.nullable, this.nullable)
+            assertEquals(nonNullChild.intField, this.intField)
+            assertEquals(3, fieldsCount(this))
+        }
+
+        val nullChild = Sealed.NullableChild(null)
+        encodeAndDecode(Sealed.serializer(), nullChild, arrayJson) {
+            assertEquals("nullable_child", this[0])
+            val dynamicValue = this[1]
+            assertEquals(nullChild.nullable, dynamicValue.nullable)
+            assertEquals(nullChild.intField, dynamicValue.intField)
+            assertEquals(2, fieldsCount(dynamicValue))
+        }
+        encodeAndDecode(Sealed.serializer(), nullChild, objectJson) {
+            assertEquals("nullable_child", this.type)
+            assertEquals(nullChild.nullable, this.nullable)
+            assertEquals(nullChild.intField, this.intField)
+            assertEquals(3, fieldsCount(this))
+        }
+    }
     @Test
     fun testObject() {
         val value = Sealed.ObjectChild
