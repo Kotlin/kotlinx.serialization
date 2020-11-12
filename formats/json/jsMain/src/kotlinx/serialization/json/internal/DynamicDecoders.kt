@@ -49,6 +49,10 @@ private open class DynamicInput(
             return json.decodeFromDynamic(JsonElement.serializer(), value[tag])
         }
 
+        if (value == null) {
+            return JsonNull
+        }
+
         val keys: dynamic = js("Object").keys(value)
         val size: Int = keys.length as Int
         return buildJsonObject {
