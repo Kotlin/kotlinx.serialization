@@ -30,6 +30,9 @@ class DynamicPolymorphismTest {
         @SerialName("list_child")
         data class ListChild(val list: List<String>): Sealed(4)
 
+        @Serializable
+        @SerialName("default_child")
+        data class DefaultChild(val default: String? = "default"): Sealed(5)
     }
 
     @Serializable
@@ -178,6 +181,63 @@ class DynamicPolymorphismTest {
             assertEquals(3, fieldsCount(this))
         }
     }
+
+    @Test
+    fun testDefault() {
+        val objectJsonWithDefaults = Json(objectJson) {
+            encodeDefaults = true
+        }
+
+        val arrayJsonWithDefaults = Json(arrayJson) {
+            encodeDefaults = true
+        }
+
+        val defaultChild = Sealed.DefaultChild()
+        encodeAndDecode(Sealed.serializer(), defaultChild, arrayJson) {
+            assertEquals("default_child", this[0])
+            val dynamicValue = this[1]
+            assertEquals(null, dynamicValue.default, "arrayJson should not encode defaults")
+            assertEquals(defaultChild.intField, dynamicValue.intField)
+            assertEquals(1, fieldsCount(dynamicValue))
+        }
+        encodeAndDecode(Sealed.serializer(), defaultChild, arrayJsonWithDefaults) {
+            assertEquals("default_child", this[0])
+            val dynamicValue = this[1]
+            assertEquals(defaultChild.default, dynamicValue.default, "arrayJsonWithDefaults should encode defaults")
+            assertEquals(defaultChild.intField, dynamicValue.intField)
+            assertEquals(2, fieldsCount(dynamicValue))
+        }
+
+        encodeAndDecode(Sealed.serializer(), defaultChild, objectJson) {
+            assertEquals("default_child", this.type)
+            assertEquals(null, this.default, "objectJson should not encode defaults")
+            assertEquals(defaultChild.intField, this.intField)
+            assertEquals(2, fieldsCount(this))
+        }
+        encodeAndDecode(Sealed.serializer(), defaultChild, objectJsonWithDefaults) {
+            assertEquals("default_child", this.type)
+            assertEquals(defaultChild.default, this.default, "objectJsonWithDefaults should encode defaults")
+            assertEquals(defaultChild.intField, this.intField)
+            assertEquals(3, fieldsCount(this))
+        }
+
+        val nonDefaultChild = Sealed.DefaultChild("non default value")
+        encodeAndDecode(Sealed.serializer(), nonDefaultChild, arrayJson) {
+            assertEquals("default_child", this[0])
+            val dynamicValue = this[1]
+            assertEquals(nonDefaultChild.default, dynamicValue.default)
+            assertEquals(nonDefaultChild.intField, dynamicValue.intField)
+            assertEquals(2, fieldsCount(dynamicValue))
+        }
+
+        encodeAndDecode(Sealed.serializer(), nonDefaultChild, objectJson) {
+            assertEquals("default_child", this.type)
+            assertEquals(nonDefaultChild.default, this.default)
+            assertEquals(nonDefaultChild.intField, this.intField)
+            assertEquals(3, fieldsCount(this))
+        }
+    }
+
     @Test
     fun testObject() {
         val value = Sealed.ObjectChild
