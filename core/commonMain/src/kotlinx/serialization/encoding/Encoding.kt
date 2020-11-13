@@ -413,9 +413,14 @@ public interface CompositeEncoder {
  */
 public inline fun Encoder.encodeStructure(descriptor: SerialDescriptor, block: CompositeEncoder.() -> Unit) {
     val composite = beginStructure(descriptor)
+    var ex: Throwable? = null
     try {
         composite.block()
+    } catch (e: Throwable) {
+        ex = e
+        throw e
     } finally {
-        composite.endStructure(descriptor)
+        // End structure only if there is no exception, otherwise it can be swallowed
+        if (ex == null) composite.endStructure(descriptor)
     }
 }

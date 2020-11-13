@@ -5,9 +5,9 @@
 package kotlinx.serialization.encoding
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.modules.*
-import kotlinx.serialization.builtins.*
 
 /**
  * Decoder is a core deserialization primitive that encapsulates the knowledge of the underlying
@@ -524,10 +524,15 @@ public inline fun <T> Decoder.decodeStructure(
     block: CompositeDecoder.() -> T
 ): T {
     val composite = beginStructure(descriptor)
+    var ex: Throwable? = null
     try {
         return composite.block()
+    } catch (e: Throwable) {
+        ex = e
+        throw e
     } finally {
-        composite.endStructure(descriptor)
+        // End structure only if there is no exception, otherwise it can be swallowed
+        if (ex == null) composite.endStructure(descriptor)
     }
 }
 
