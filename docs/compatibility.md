@@ -2,8 +2,9 @@
 
 This document describes the compatibility policy of kotlinx.serialization library since version 1.0.0 and Kotlin 1.4.0.
 
-Note that content of this document is applicable only for JVM platform,
-since Kotlin/Native and Kotlin/JS are experimental themselves and currently do not impose any backward-compatibility guarantees.
+Note that content of this document is applicable only for **stable** Kotlin platforms (currently Kotlin/JVM and classic Kotlin/JS),
+since other experimental platforms currently do not impose any backward-compatibility guarantees.
+You can check out what platforms are considered to be stable on [this page](https://kotlinlang.org/docs/reference/evolution/components-stability.html).
 
 - [Core library compatibility](#core-library-compatibility)
   * [General (Stable) API](#stable-api)
