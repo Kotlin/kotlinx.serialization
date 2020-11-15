@@ -3,13 +3,12 @@
  */
 
 kotlin {
-    targets {
-        fromPreset(presets.jvm, 'jvm') {
-            withJava()
-            configure([compilations.main, compilations.test]) {
-                kotlinOptions {
-                    jvmTarget = '1.6'
-                }
+    jvm {
+        withJava()
+        configure([compilations.main, compilations.test]) {
+            kotlinOptions {
+                jvmTarget = '1.6'
+                kotlinOptions.useIR = rootProject.ext.jvm_ir_enabled
             }
         }
     }

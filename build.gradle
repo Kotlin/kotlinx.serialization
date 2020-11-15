@@ -42,6 +42,8 @@ buildscript {
             maven { url "https://bintray.com/jetbrains/kotlin-native-dependencies" }
         }
     }
+    // This flag is enabled in train builds for JVM IR compiler testing
+    ext.jvm_ir_enabled = rootProject.properties['enable_jvm_ir'] != null
 
     repositories {
         mavenLocal()
