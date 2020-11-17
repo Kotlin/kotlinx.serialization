@@ -17,6 +17,12 @@
 apply plugin: 'kotlin'
 apply plugin: 'kotlinx-serialization'
 
+if (rootProject.ext.jvm_ir_enabled) {
+    kotlin.target.compilations.all {
+        kotlinOptions.useIR = true
+    }
+}
+
 dependencies {
     compile project(':kotlinx-serialization-core')
     api 'org.jetbrains.kotlin:kotlin-stdlib'

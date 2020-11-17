@@ -10,6 +10,12 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 jmh.jmhVersion = 1.21
 
+if (rootProject.ext.jvm_ir_enabled) {
+    kotlin.target.compilations.all {
+        kotlinOptions.useIR = true
+    }
+}
+
 jmhJar {
     baseName 'benchmarks'
     classifier = null
