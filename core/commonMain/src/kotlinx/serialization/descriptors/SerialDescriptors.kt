@@ -270,9 +270,10 @@ internal class SerialDescriptorImpl(
     override val elementsCount: Int,
     typeParameters: List<SerialDescriptor>,
     builder: ClassSerialDescriptorBuilder
-) : SerialDescriptor {
+) : SerialDescriptor, CachedNames {
 
-    public override val annotations: List<Annotation> = builder.annotations
+    override val annotations: List<Annotation> = builder.annotations
+    override val serialNames: Set<String> = builder.elementNames.toHashSet()
 
     private val elementNames: Array<String> = builder.elementNames.toTypedArray()
     private val elementDescriptors: Array<SerialDescriptor> = builder.elementDescriptors.compactArray()

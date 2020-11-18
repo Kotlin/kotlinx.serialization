@@ -858,7 +858,7 @@ public final class kotlinx/serialization/internal/Platform_commonKt {
 	public static final fun cast (Lkotlinx/serialization/SerializationStrategy;)Lkotlinx/serialization/SerializationStrategy;
 }
 
-public class kotlinx/serialization/internal/PluginGeneratedSerialDescriptor : kotlinx/serialization/descriptors/SerialDescriptor {
+public class kotlinx/serialization/internal/PluginGeneratedSerialDescriptor : kotlinx/serialization/descriptors/SerialDescriptor, kotlinx/serialization/internal/CachedNames {
 	public fun <init> (Ljava/lang/String;Lkotlinx/serialization/internal/GeneratedSerializer;I)V
 	public synthetic fun <init> (Ljava/lang/String;Lkotlinx/serialization/internal/GeneratedSerializer;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun addElement (Ljava/lang/String;Z)V
@@ -872,6 +872,7 @@ public class kotlinx/serialization/internal/PluginGeneratedSerialDescriptor : ko
 	public final fun getElementsCount ()I
 	public fun getKind ()Lkotlinx/serialization/descriptors/SerialKind;
 	public fun getSerialName ()Ljava/lang/String;
+	public fun getSerialNames ()Ljava/util/Set;
 	public fun hashCode ()I
 	public fun isElementOptional (I)Z
 	public fun isNullable ()Z

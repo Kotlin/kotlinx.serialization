@@ -18,7 +18,7 @@ internal open class PluginGeneratedSerialDescriptor(
     override val serialName: String,
     private val generatedSerializer: GeneratedSerializer<*>? = null,
     final override val elementsCount: Int
-) : SerialDescriptor {
+) : SerialDescriptor, CachedNames {
     override val kind: SerialKind get() = StructureKind.CLASS
     override val annotations: List<Annotation> get() = classAnnotations ?: emptyList()
 
@@ -29,7 +29,7 @@ internal open class PluginGeneratedSerialDescriptor(
     // Classes rarely have annotations, so we can save up a bit of allocations here
     private var classAnnotations: MutableList<Annotation>? = null
     private val elementsOptionality = BooleanArray(elementsCount)
-    internal val namesSet: Set<String> get() = indices.keys
+    public override val serialNames: Set<String> get() = indices.keys
 
     // don't change lazy mode: KT-32871, KT-32872
     private val indices: Map<String, Int> by lazy { buildIndices() }
