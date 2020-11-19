@@ -80,6 +80,12 @@ class DecodeFromDynamicSpecialCasesTest {
     }
 
     @Test
+    fun testJsonNull() {
+        testJsonElement<JsonElement>(js("null"), JsonNull)
+        testJsonElement<JsonElement>(js("undefined"), JsonNull)
+    }
+
+    @Test
     fun testJsonArray() {
         testJsonElement<JsonElement>(js("[1,2,3]"), JsonArray((1..3).map(::JsonPrimitive)))
         testJsonElement<JsonArray>(js("[1,2,3]"), JsonArray((1..3).map(::JsonPrimitive)))
@@ -103,13 +109,13 @@ class DecodeFromDynamicSpecialCasesTest {
     }
 
     @Serializable
-    data class Wrapper(val e: JsonElement, val p: JsonPrimitive, val o: JsonObject, val a: JsonArray)
+    data class Wrapper(val e: JsonElement, val p: JsonPrimitive, val o: JsonObject, val a: JsonArray, val n: JsonNull)
 
     @Test
     fun testJsonElementWrapper() {
-        val js = js("""{"e":42,"p":"239", "o":{"k":"v"}, "a":[1, 2, 3]}""")
+        val js = js("""{"e":42,"p":"239", "o":{"k":"v"}, "a":[1, 2, 3], "n": null}""")
         val parsed = Json.decodeFromDynamic<Wrapper>(js)
-        val expected = Wrapper(JsonPrimitive(42), JsonPrimitive("239"), buildJsonObject { put("k", "v") }, JsonArray((1..3).map(::JsonPrimitive)))
+        val expected = Wrapper(JsonPrimitive(42), JsonPrimitive("239"), buildJsonObject { put("k", "v") }, JsonArray((1..3).map(::JsonPrimitive)), JsonNull)
         assertEquals(expected, parsed)
     }
 }
