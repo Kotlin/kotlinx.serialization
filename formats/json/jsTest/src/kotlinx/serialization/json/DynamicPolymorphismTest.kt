@@ -164,8 +164,10 @@ class DynamicPolymorphismTest {
             assertEquals(listChild.intField, this.intField)
             assertEquals(3, fieldsCount(this))
         }
+    }
 
-
+    @Test
+    fun testEmptyList() {
         val emptyListChild = Sealed.ListChild(emptyList())
         encodeAndDecode(Sealed.serializer(), emptyListChild, arrayJson) {
             assertEquals("list_child", this[0])
@@ -183,7 +185,7 @@ class DynamicPolymorphismTest {
     }
 
     @Test
-    fun testDefault() {
+    fun testDefaultValue() {
         val objectJsonWithDefaults = Json(objectJson) {
             encodeDefaults = true
         }
@@ -221,6 +223,10 @@ class DynamicPolymorphismTest {
             assertEquals(3, fieldsCount(this))
         }
 
+    }
+
+    @Test
+    fun testNonDefaultValue() {
         val nonDefaultChild = Sealed.DefaultChild("non default value")
         encodeAndDecode(Sealed.serializer(), nonDefaultChild, arrayJson) {
             assertEquals("default_child", this[0])
