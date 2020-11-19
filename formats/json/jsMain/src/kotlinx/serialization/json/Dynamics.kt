@@ -13,6 +13,7 @@ import kotlinx.serialization.json.internal.*
  *
  * A result of `decodeFromDynamic(nativeObj)` should be the same as
  * `kotlinx.serialization.json.Json.decodeFromString(kotlin.js.JSON.stringify(nativeObj))`.
+ * This class also supports array-based polymorphism if the corresponding flag in [Json.configuration] is set to `true`.
  * Does not support any other [Map] keys than [String].
  * Has limitation on [Long] type: any JS number that is greater than
  * [`abs(2^53-1)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)
@@ -44,7 +45,7 @@ public inline fun <reified T> Json.decodeFromDynamic(dynamic: dynamic): T =
     decodeFromDynamic(serializersModule.serializer(), dynamic)
 
 /**
- * Converts Kotlin data structures to plain Javascript objects
+ * Converts Kotlin data structures to plain Javascript objects, including support for polymorphism
  *
  * Limitations:
  * * Map keys must be of primitive or enum type
