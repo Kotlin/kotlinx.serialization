@@ -4,7 +4,7 @@
 
 This is the sixth chapter of the [Kotlin Serialization Guide](serialization-guide.md).
 It goes beyond JSON, covering alternative and custom formats. Unlike JSON, which is
-stable, these are currently experimental features of Kotlin serialization.
+stable, these are currently experimental features of Kotlin Serialization.
 
 **Table of contents**
 
@@ -225,7 +225,7 @@ assigns integer numbers to fields instead of names.
 > Protocol buffers support is (experimentally) available in a separate 
 > `org.jetbrains.kotlinx:kotlinx-serialization-protobuf:<version>` module.
 
-Kotlin serialization is using proto2 semantics, where all fields are explicitly required or optional.
+Kotlin Serialization is using proto2 semantics, where all fields are explicitly required or optional.
 For a basic example we change our example to use the 
 [ProtoBuf] class with [ProtoBuf.encodeToByteArray] and [ProtoBuf.decodeFromByteArray] functions.
 
@@ -269,9 +269,9 @@ Field #2: 12 String Length = 6, Hex = 06, UTF8 = "Kotlin"
 
 ### Field numbers
 
-By default, field numbers in the Kotlin serialization [ProtoBuf] implementation are automatically assigned, 
+By default, field numbers in the Kotlin Serialization [ProtoBuf] implementation are automatically assigned, 
 which does not provide the ability to define a stable data schema that evolves over time. That is normally achieved by 
-writing a separate ".proto" file. However, with Kotlin serialization we can get this ability without a separate
+writing a separate ".proto" file. However, with Kotlin Serialization we can get this ability without a separate
 schema file, instead using the [ProtoNumber] annotation.
 
 <!--- INCLUDE
@@ -381,7 +381,7 @@ Field #3: 1D Fixed32 Value = 3, Hex = 03-00-00-00
 
 Kotlin lists and other collections are representend as repeated fields. 
 In the protocol buffers when the list is empty there are no elements in the 
-stream with the corresponding number. For Kotlin serialization you must explicitly specify a default of `emptyList()`
+stream with the corresponding number. For Kotlin Serialization you must explicitly specify a default of `emptyList()`
 for any property of a collection or map type. Otherwise you will not be able deserialize an empty
 list, which is indistinguishable in protocol buffers from a missing field.  
 
@@ -430,7 +430,7 @@ Field #1: 08 Varint Value = 3, Hex = 03
 
 ## Properties (experimental)
 
-Kotlin serialization can serialize a class into a flat map with `String` keys via 
+Kotlin Serialization can serialize a class into a flat map with `String` keys via 
 the [Properties][kotlinx.serialization.properties.Properties] format implementation.
 
 > Properties support is (experimentally) available in a separate 
@@ -469,7 +469,7 @@ owner.name = kotlin
 
 ## Custom formats (experimental)
 
-A custom format for Kotlin serialization must provide an implementation for the [Encoder] and [Decoder] interfaces that
+A custom format for Kotlin Serialization must provide an implementation for the [Encoder] and [Decoder] interfaces that
 we saw used in the [Serializers](serializers.md) chapter.  
 These are pretty large interfaces. For convenience 
 the [AbstractEncoder] and [AbstractDecoder] skeleton implementations are provided to simplify the task.
@@ -1091,7 +1091,7 @@ Project(name=kotlinx.serialization, language=Kotlin)
 ### Format-specific types
 
 A format implementation might provide special support for data types that are not among the list of primitive
-types in Kotlin serialization, and do not have a corresponding `encodeXxx`/`decodeXxx` function. 
+types in Kotlin Serialization, and do not have a corresponding `encodeXxx`/`decodeXxx` function. 
 In the encoder this is achieved by overriding the 
 [`encodeSerializableValue(serializer, value)`][Encoder.encodeSerializableValue] function. 
 
