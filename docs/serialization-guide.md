@@ -5,7 +5,7 @@ trees of objects to strings, byte arrays, or other _serial_ representations and 
 Kotlin Serialization fully supports and enforces the Kotlin type system, making sure only valid 
 objects can be deserialized. 
  
-Kotlin Serialization is not just a library. It's a compiler plugin that is bundled with the Kotlin
+Kotlin Serialization is not just a library. It is a compiler plugin that is bundled with the Kotlin
 compiler distribution itself. Build configuration is explained in [README.md](../README.md#setup). 
 Once the project is set up, we can start serializing some classes.  
 
