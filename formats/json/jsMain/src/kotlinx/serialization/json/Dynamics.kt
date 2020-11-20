@@ -45,7 +45,7 @@ public inline fun <reified T> Json.decodeFromDynamic(dynamic: dynamic): T =
     decodeFromDynamic(serializersModule.serializer(), dynamic)
 
 /**
- * Converts Kotlin data structures to plain Javascript objects, including support for polymorphism
+ * Converts Kotlin data structures to plain Javascript objects
  *
  * Limitations:
  * * Map keys must be of primitive or enum type
