@@ -119,7 +119,7 @@ use the [Json.decodeFromString][kotlinx.serialization.decodeFromString] extensio
 To specify which type we want to get as a result, we provide a type parameter to this function. 
 
 As we'll see later, serialization works with different kinds of classes. 
-Here we are marking our `Project` class as a `data class`, not because it's required, but because
+Here we are marking our `Project` class as a `data class`, not because it is required, but because
 we want to print its contents to verify how it decodes.
 
 ```kotlin
@@ -655,4 +655,3 @@ The next chapter covers [Builtin classes](builtin-classes.md).
 <!--- MODULE /kotlinx-serialization-json -->
 <!--- INDEX kotlinx-serialization-json/kotlinx.serialization.json -->
 <!--- END -->
-
