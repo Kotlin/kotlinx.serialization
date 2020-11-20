@@ -523,7 +523,7 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-classes-12.kt).
 
-When we encoded to JSON it results in a nested JSON object.
+When encoded to JSON it results in a nested JSON object.
 
 ```text
 {"name":"kotlinx.serialization","owner":{"name":"kotlin"}}
