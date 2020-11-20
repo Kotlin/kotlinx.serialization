@@ -6,7 +6,6 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.encoding.*
 import kotlin.native.concurrent.*
 import kotlin.reflect.*
 
@@ -56,8 +55,9 @@ internal object InternalHexConverter {
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.cachedSerialNames(): Set<String> {
-    if (this is PluginGeneratedSerialDescriptor) return namesSet
+    if (this is CachedNames) return serialNames
     val result = HashSet<String>(elementsCount)
     for (i in 0 until elementsCount) {
         result += getElementName(i)
