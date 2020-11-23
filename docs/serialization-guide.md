@@ -1,8 +1,8 @@
 # Kotlin Serialization Guide
 
-Kotlin Serialization is cross-platform and multi-format framework for data serialization &mdash;
-converting trees of objects to strings, byte arrays, or other _serial_ representations and back.
-Kotlin Serialization fully supports and enforces Kotlin type system, making sure only valid 
+Kotlin Serialization is a cross-platform and multi-format framework for data serialization&mdash;converting 
+trees of objects to strings, byte arrays, or other _serial_ representations and back.
+Kotlin Serialization fully supports and enforces the Kotlin type system, making sure only valid 
 objects can be deserialized. 
  
 Kotlin Serialization is not just a library. It is a compiler plugin that is bundled with the Kotlin
