@@ -21,6 +21,18 @@ class DynamicPolymorphismTest {
         @Serializable
         @SerialName("type_child")
         data class TypeChild(val type: String) : Sealed(2)
+
+        @Serializable
+        @SerialName("nullable_child")
+        data class NullableChild(val nullable: String?): Sealed(3)
+
+        @Serializable
+        @SerialName("list_child")
+        data class ListChild(val list: List<String>): Sealed(4)
+
+        @Serializable
+        @SerialName("default_child")
+        data class DefaultChild(val default: String? = "default"): Sealed(5)
     }
 
     @Serializable
@@ -100,6 +112,135 @@ class DynamicPolymorphismTest {
             assertEquals(value.name, dynamicValue.name)
             assertEquals(value.intField, dynamicValue.intField)
             assertEquals(2, fieldsCount(dynamicValue))
+        }
+    }
+
+    @Test
+    fun testNullable() {
+        val nonNullChild = Sealed.NullableChild("nonnull")
+        encodeAndDecode(Sealed.serializer(), nonNullChild, arrayJson) {
+            assertEquals("nullable_child", this[0])
+            val dynamicValue = this[1]
+            assertEquals(nonNullChild.nullable, dynamicValue.nullable)
+            assertEquals(nonNullChild.intField, dynamicValue.intField)
+            assertEquals(2, fieldsCount(dynamicValue))
+        }
+        encodeAndDecode(Sealed.serializer(), nonNullChild, objectJson) {
+            assertEquals("nullable_child", this.type)
+            assertEquals(nonNullChild.nullable, this.nullable)
+            assertEquals(nonNullChild.intField, this.intField)
+            assertEquals(3, fieldsCount(this))
+        }
+
+        val nullChild = Sealed.NullableChild(null)
+        encodeAndDecode(Sealed.serializer(), nullChild, arrayJson) {
+            assertEquals("nullable_child", this[0])
+            val dynamicValue = this[1]
+            assertEquals(nullChild.nullable, dynamicValue.nullable)
+            assertEquals(nullChild.intField, dynamicValue.intField)
+            assertEquals(2, fieldsCount(dynamicValue))
+        }
+        encodeAndDecode(Sealed.serializer(), nullChild, objectJson) {
+            assertEquals("nullable_child", this.type)
+            assertEquals(nullChild.nullable, this.nullable)
+            assertEquals(nullChild.intField, this.intField)
+            assertEquals(3, fieldsCount(this))
+        }
+    }
+
+    @Test
+    fun testList() {
+        val listChild = Sealed.ListChild(listOf("one", "two"))
+        encodeAndDecode(Sealed.serializer(), listChild, arrayJson) {
+            assertEquals("list_child", this[0])
+            val dynamicValue = this[1]
+            assertEquals(listChild.list, (dynamicValue.list as Array<String>).toList())
+            assertEquals(listChild.intField, dynamicValue.intField)
+            assertEquals(2, fieldsCount(dynamicValue))
+        }
+        encodeAndDecode(Sealed.serializer(), listChild, objectJson) {
+            assertEquals("list_child", this.type)
+            assertEquals(listChild.list, (this.list as Array<String>).toList())
+            assertEquals(listChild.intField, this.intField)
+            assertEquals(3, fieldsCount(this))
+        }
+    }
+
+    @Test
+    fun testEmptyList() {
+        val emptyListChild = Sealed.ListChild(emptyList())
+        encodeAndDecode(Sealed.serializer(), emptyListChild, arrayJson) {
+            assertEquals("list_child", this[0])
+            val dynamicValue = this[1]
+            assertEquals(emptyListChild.list, (dynamicValue.list as Array<String>).toList())
+            assertEquals(emptyListChild.intField, dynamicValue.intField)
+            assertEquals(2, fieldsCount(dynamicValue))
+        }
+        encodeAndDecode(Sealed.serializer(), emptyListChild, objectJson) {
+            assertEquals("list_child", this.type)
+            assertEquals(emptyListChild.list, (this.list as Array<String>).toList())
+            assertEquals(emptyListChild.intField, this.intField)
+            assertEquals(3, fieldsCount(this))
+        }
+    }
+
+    @Test
+    fun testDefaultValue() {
+        val objectJsonWithDefaults = Json(objectJson) {
+            encodeDefaults = true
+        }
+
+        val arrayJsonWithDefaults = Json(arrayJson) {
+            encodeDefaults = true
+        }
+
+        val defaultChild = Sealed.DefaultChild()
+        encodeAndDecode(Sealed.serializer(), defaultChild, arrayJson) {
+            assertEquals("default_child", this[0])
+            val dynamicValue = this[1]
+            assertEquals(null, dynamicValue.default, "arrayJson should not encode defaults")
+            assertEquals(defaultChild.intField, dynamicValue.intField)
+            assertEquals(1, fieldsCount(dynamicValue))
+        }
+        encodeAndDecode(Sealed.serializer(), defaultChild, arrayJsonWithDefaults) {
+            assertEquals("default_child", this[0])
+            val dynamicValue = this[1]
+            assertEquals(defaultChild.default, dynamicValue.default, "arrayJsonWithDefaults should encode defaults")
+            assertEquals(defaultChild.intField, dynamicValue.intField)
+            assertEquals(2, fieldsCount(dynamicValue))
+        }
+
+        encodeAndDecode(Sealed.serializer(), defaultChild, objectJson) {
+            assertEquals("default_child", this.type)
+            assertEquals(null, this.default, "objectJson should not encode defaults")
+            assertEquals(defaultChild.intField, this.intField)
+            assertEquals(2, fieldsCount(this))
+        }
+        encodeAndDecode(Sealed.serializer(), defaultChild, objectJsonWithDefaults) {
+            assertEquals("default_child", this.type)
+            assertEquals(defaultChild.default, this.default, "objectJsonWithDefaults should encode defaults")
+            assertEquals(defaultChild.intField, this.intField)
+            assertEquals(3, fieldsCount(this))
+        }
+
+    }
+
+    @Test
+    fun testNonDefaultValue() {
+        val nonDefaultChild = Sealed.DefaultChild("non default value")
+        encodeAndDecode(Sealed.serializer(), nonDefaultChild, arrayJson) {
+            assertEquals("default_child", this[0])
+            val dynamicValue = this[1]
+            assertEquals(nonDefaultChild.default, dynamicValue.default)
+            assertEquals(nonDefaultChild.intField, dynamicValue.intField)
+            assertEquals(2, fieldsCount(dynamicValue))
+        }
+
+        encodeAndDecode(Sealed.serializer(), nonDefaultChild, objectJson) {
+            assertEquals("default_child", this.type)
+            assertEquals(nonDefaultChild.default, this.default)
+            assertEquals(nonDefaultChild.intField, this.intField)
+            assertEquals(3, fieldsCount(this))
         }
     }
 
