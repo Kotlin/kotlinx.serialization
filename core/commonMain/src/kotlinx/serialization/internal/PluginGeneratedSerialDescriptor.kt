@@ -37,12 +37,12 @@ internal open class PluginGeneratedSerialDescriptor(
     private val childSerializers by lazy { generatedSerializer?.childSerializers() ?: emptyArray() }
 
     // Lazy because of JS specific initialization order (#789)
-    private val typeParameterDescriptors: Array<SerialDescriptor> by lazy {
+    protected val typeParameterDescriptors: Array<SerialDescriptor> by lazy {
         generatedSerializer?.typeParametersSerializers()?.map { it.descriptor }.compactArray()
     }
 
     // Can be without synchronization but Native will likely break due to freezing
-    private val _hashCode: Int by lazy { hashCodeImpl(typeParameterDescriptors) }
+    protected val _hashCode: Int by lazy { hashCodeImpl(typeParameterDescriptors) }
 
     public fun addElement(name: String, isOptional: Boolean = false) {
         names[++added] = name
@@ -108,9 +108,6 @@ internal inline fun <reified SD : SerialDescriptor> SD.equalsImpl(
 ): Boolean {
     if (this === other) return true
     if (other !is SD) return false
-    // todo: think
-//    if (other !is SerialDescriptor) return false
-//    if (kind !== other.kind) return false
     if (serialName != other.serialName) return false
     if (!typeParamsAreEqual(other)) return false
     if (this.elementsCount != other.elementsCount) return false

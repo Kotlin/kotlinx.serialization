@@ -91,4 +91,12 @@ internal abstract class ProtobufTaggedDecoder : ProtobufTaggedBase(), Decoder, C
             decodeNull()
         }
     }
+
+    override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder {
+        TODO("decodeInline")
+    }
+
+    override fun decodeInlineElement(desc: SerialDescriptor, index: Int, inlineDescriptor: SerialDescriptor): Decoder {
+        TODO("decodeInlineElement")
+    }
 }

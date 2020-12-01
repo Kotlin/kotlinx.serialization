@@ -123,4 +123,12 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
         pushTag(descriptor.getTag(index))
         encodeNullableSerializableValue(serializer, value)
     }
+
+    override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder? {
+        TODO("encodeInline")
+    }
+
+    override fun encodeInlineElement(desc: SerialDescriptor, index: Int, inlineDescriptor: SerialDescriptor): Encoder? {
+        TODO("encodeInlineElement")
+    }
 }

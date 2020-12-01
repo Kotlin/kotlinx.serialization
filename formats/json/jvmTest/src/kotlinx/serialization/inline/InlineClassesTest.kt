@@ -1,18 +1,19 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:Suppress("PLUGIN_ERROR")
-@file:UseExperimental(ExperimentalUnsignedTypes::class)
+@file:Suppress("INLINE_CLASSES_NOT_SUPPORTED", "SERIALIZER_NOT_FOUND")
+@file:OptIn(ExperimentalUnsignedTypes::class)
 
 /*
  * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization
+package kotlinx.serialization.inline
 
-import kotlinx.serialization.internal.UIntDescriptor
-import kotlinx.serialization.internal.UIntSerializer
+import kotlinx.serialization.*
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.test.assertStringFormAndRestored
 import org.junit.Test
 
@@ -24,7 +25,7 @@ inline class MyUInt(val m: Int)
 
 @Serializer(forClass = MyUInt::class)
 object MyUIntSerializer {
-    override val descriptor = UIntDescriptor
+    override val descriptor = UInt.serializer().descriptor
     override fun serialize(encoder: Encoder, obj: MyUInt) {
         encoder.encodeInline(descriptor)?.encodeInt(obj.m)
     }
@@ -83,7 +84,7 @@ class InlineClassesTest {
     fun testSimpleContainerForList() = assertStringFormAndRestored(
         """{"i":[2147483657]}""",
         ContainerForList(MyList(listOf(precedent))),
-        ContainerForList.serializer(UIntSerializer),
+        ContainerForList.serializer(UInt.serializer()),
         printResult = true
     )
 

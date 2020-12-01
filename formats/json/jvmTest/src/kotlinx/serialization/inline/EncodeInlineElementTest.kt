@@ -1,10 +1,13 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization
+package kotlinx.serialization.inline
 
+import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.test.assertStringFormAndRestored
 import kotlin.test.Test
 
@@ -15,7 +18,7 @@ data class WithUnsigned(val u: UInt)
 object WithUnsignedSerializer : KSerializer<WithUnsigned> {
     override fun serialize(encoder: Encoder, obj: WithUnsigned) {
         val ce = encoder.beginStructure(descriptor)
-        ce.encodeInlineElement(descriptor, 0, UIntSerializer.descriptor)?.encodeInt(obj.u.toInt())
+        ce.encodeInlineElement(descriptor, 0, UInt.serializer().descriptor)?.encodeInt(obj.u.toInt())
         ce.endStructure(descriptor)
     }
 
@@ -24,7 +27,7 @@ object WithUnsignedSerializer : KSerializer<WithUnsigned> {
         var u: UInt = 0.toUInt()
         loop@ while (true) {
             u = when (val i = cd.decodeElementIndex(descriptor)) {
-                0 -> cd.decodeInlineElement(descriptor, i, UIntDescriptor)?.decodeInt().toUInt()
+                0 -> cd.decodeInlineElement(descriptor, i, UInt.serializer().descriptor)?.decodeInt().toUInt()
                 else -> break@loop
             }
         }
@@ -32,13 +35,12 @@ object WithUnsignedSerializer : KSerializer<WithUnsigned> {
         return WithUnsigned(u)
     }
 
-    override val descriptor: SerialDescriptor = SerialClassDescImpl("WithUnsigned").apply {
-        addElement("u")
-        pushDescriptor(UIntDescriptor)
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("WithUnsigned") {
+        element("u", UInt.serializer().descriptor)
     }
 }
 
-class UnsignedTypesTest {
+class EncodeInlineElementTest {
     @Test
     fun wrapper() {
         val w = WithUnsigned(Int.MAX_VALUE.toUInt() + 1.toUInt())
