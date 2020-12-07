@@ -1,14 +1,15 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:Suppress("INLINE_CLASSES_NOT_SUPPORTED", "SERIALIZER_NOT_FOUND")
 @file:OptIn(ExperimentalUnsignedTypes::class)
 
-package kotlinx.serialization.inline
+package kotlinx.serialization.features.inline
 
 import kotlinx.serialization.*
-import kotlinx.serialization.test.assertSerializedAndRestored
-import org.junit.Test
+import kotlinx.serialization.Box
+import kotlinx.serialization.test.*
+import kotlin.test.*
 
 @Serializable
 inline class MyInt(val i: Int)
@@ -60,7 +61,7 @@ data class WithGenerics(
 // todo: add stirng representations
 class InlineClassesCompleteTest {
     @Test
-    fun testAllVariantsWithoutNull() {
+    fun testAllVariantsWithoutNull() = noLegacyJs {
         val withAll = WithAll(
             MyInt(1),
             MyInt(2),
@@ -79,7 +80,7 @@ class InlineClassesCompleteTest {
     }
 
     @Test
-    fun testAllVariantsWithNull() {
+    fun testAllVariantsWithNull() = noLegacyJs {
         assertSerializedAndRestored(
             WithAll(
                 MyInt(1),
@@ -104,7 +105,7 @@ class InlineClassesCompleteTest {
     }
 
     @Test
-    fun testAllGenericVariantsWithoutNull() {
+    fun testAllGenericVariantsWithoutNull() = noLegacyJs {
         assertSerializedAndRestored(
             WithGenerics(
                 Box(MyInt(1)),
@@ -121,7 +122,7 @@ class InlineClassesCompleteTest {
     }
 
     @Test
-    fun testAllGenericVariantsWithNull() {
+    fun testAllGenericVariantsWithNull() = noLegacyJs {
         assertSerializedAndRestored(
             WithGenerics(
                 Box(MyInt(1)),

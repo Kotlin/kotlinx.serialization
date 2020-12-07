@@ -29,10 +29,13 @@ kotlin {
         resources.srcDirs = ["$it.name/resources"]
         languageSettings {
             progressiveMode = true
+
             useExperimentalAnnotation("kotlin.Experimental")
             useExperimentalAnnotation("kotlin.ExperimentalMultiplatform")
             useExperimentalAnnotation("kotlin.ExperimentalStdlibApi")
             useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
+
+            enableLanguageFeature("InlineClasses")
         }
     }
 

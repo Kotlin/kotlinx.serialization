@@ -9,13 +9,13 @@
  * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization.inline
+package kotlinx.serialization.features.inline
 
 import kotlinx.serialization.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.*
-import kotlinx.serialization.test.assertStringFormAndRestored
-import org.junit.Test
+import kotlinx.serialization.test.*
+import kotlin.test.*
 
 @Serializable
 data class SimpleContainerForUInt(val i: UInt)
@@ -63,7 +63,7 @@ class InlineClassesTest {
     private val precedent: UInt = Int.MAX_VALUE.toUInt() + 10.toUInt()
 
     @Test
-    fun testSimpleContainer() {
+    fun testSimpleContainer() = noLegacyJs {
         assertStringFormAndRestored(
             """{"i":2147483657}""",
             SimpleContainerForUInt(precedent),
@@ -81,12 +81,14 @@ class InlineClassesTest {
     )
 
     @Test
-    fun testSimpleContainerForList() = assertStringFormAndRestored(
-        """{"i":[2147483657]}""",
-        ContainerForList(MyList(listOf(precedent))),
-        ContainerForList.serializer(UInt.serializer()),
-        printResult = true
-    )
+    fun testSimpleContainerForList() = noLegacyJs {
+        assertStringFormAndRestored(
+            """{"i":[2147483657]}""",
+            ContainerForList(MyList(listOf(precedent))),
+            ContainerForList.serializer(UInt.serializer()),
+            printResult = true
+        )
+    }
 
     @Test
     fun testUnsignedInBoxedPosition() = assertStringFormAndRestored(

@@ -2,13 +2,13 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization.inline
+package kotlinx.serialization.features.inline
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.test.assertStringFormAndRestored
+import kotlinx.serialization.test.*
 import kotlin.test.Test
 
 // todo: fix such things in JSON (when descriptor = UIntDescriptor but inside there's List<Int>)
@@ -42,7 +42,7 @@ object WithUnsignedSerializer : KSerializer<WithUnsigned> {
 
 class EncodeInlineElementTest {
     @Test
-    fun wrapper() {
+    fun wrapper() = noLegacyJs {
         val w = WithUnsigned(Int.MAX_VALUE.toUInt() + 1.toUInt())
         assertStringFormAndRestored("""{"u":2147483648}""", w, WithUnsignedSerializer, printResult = true)
     }
