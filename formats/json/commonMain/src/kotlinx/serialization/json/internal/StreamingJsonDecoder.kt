@@ -16,7 +16,7 @@ import kotlin.jvm.*
 /**
  * [JsonDecoder] which reads given JSON from [JsonReader] field by field.
  */
-@OptIn(ExperimentalSerializationApi::class)
+@OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
 internal open class StreamingJsonDecoder internal constructor(
     public override val json: Json,
     private val mode: WriteMode,
@@ -232,6 +232,7 @@ internal open class StreamingJsonDecoder internal constructor(
     }
 }
 
+@ExperimentalUnsignedTypes
 internal class StreamingJsonInputForUnsigned(json: Json, mode: WriteMode, reader: JsonReader) :
     StreamingJsonDecoder(json, mode, reader) {
     override fun decodeInt(): Int {

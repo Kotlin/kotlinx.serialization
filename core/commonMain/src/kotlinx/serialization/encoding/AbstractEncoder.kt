@@ -64,11 +64,11 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
     final override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) { if (encodeElement(descriptor, index)) encodeString(value) }
 
     final override fun encodeInlineElement(
-        desc: SerialDescriptor,
+        descriptor: SerialDescriptor,
         index: Int,
         inlineDescriptor: SerialDescriptor
     ): Encoder? {
-        return if (encodeElement(desc, index)) encodeInline(inlineDescriptor) else null
+        return if (encodeElement(descriptor, index)) encodeInline(inlineDescriptor) else null
     }
 
     final override fun <T : Any?> encodeSerializableElement(

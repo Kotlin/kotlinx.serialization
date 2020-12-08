@@ -207,7 +207,28 @@ public interface Decoder {
      */
     public fun decodeEnum(enumDescriptor: SerialDescriptor): Int
 
-    fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder
+    /**
+     * Returns [Decoder] for decoding an underlying type of inline class type.
+     * [inlineDescriptor] should describe a serializable inline class.
+     *
+     * Namely, for the `@Serializable inline class MyInt(val my: Int)`,
+     * the following sequence should be used:
+     * ```
+     * thisDecoder.decodeInline(MyInt.serializer().descriptor).decodeInt()
+     * ```
+     *
+     * Current decoder may return any other instance of [Decoder] class,
+     * depending on provided [inlineDescriptor].
+     * For example, when this function is called on Json decoder with
+     * `UInt.serializer().descriptor`, the returned decoder is able
+     * to decode unsigned integers.
+     *
+     * Note that this function returns [Decoder] instead of the [CompositeDecoder]
+     * because inline classes always have one property.
+     * Calling [Decoder.beginStructure] on returned instance is an undefined behavior.
+     */
+    @ExperimentalSerializationApi
+    public fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder
 
     /**
      * Decodes the beginning of the nested structure in a serialized form
@@ -461,7 +482,40 @@ public interface CompositeDecoder {
      */
     public fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String
 
-    fun decodeInlineElement(desc: SerialDescriptor, index: Int, inlineDescriptor: SerialDescriptor): Decoder
+    /**
+     * Returns [Decoder] for decoding an underlying type of inline class type.
+     * [inlineDescriptor] should describe a serializable inline class.
+     *
+     * Namely, for the `@Serializable inline class MyInt(val my: Int)`,
+     * and `@Serializable class MyData(val myInt: MyInt)`
+     * the following sequence can be used:
+     * ```
+     * thisDecoder.decodeInlineElement(MyData.serializer.descriptor, 0, MyInt.serializer().descriptor).decodeInt()
+     * ```
+     *
+     * This method is an optimization and its invocation should have the exact same result as
+     * ```
+     * thisDecoder.decodeSerializableElement(MyData.serializer.descriptor, 0, MyInt.serializer())
+     * ```
+     *
+     * Current decoder may return any other instance of [Decoder] class,
+     * depending on provided [inlineDescriptor].
+     * For example, when this function is called on Json decoder with
+     * `UInt.serializer().descriptor`, the returned decoder is able
+     * to decode unsigned integers.
+     *
+     * Note that this function returns [Decoder] instead of the [CompositeDecoder]
+     * because inline classes always have one property.
+     * Calling [Decoder.beginStructure] on returned instance is an undefined behavior.
+     *
+     * @see Decoder.decodeInline
+     */
+    @ExperimentalSerializationApi
+    public fun decodeInlineElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        inlineDescriptor: SerialDescriptor
+    ): Decoder
 
 
     /**

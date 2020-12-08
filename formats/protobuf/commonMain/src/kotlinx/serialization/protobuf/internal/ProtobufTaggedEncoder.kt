@@ -24,6 +24,9 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
     protected abstract fun encodeTaggedChar(tag: ProtoDesc, value: Char)
     protected abstract fun encodeTaggedString(tag: ProtoDesc, value: String)
     protected abstract fun encodeTaggedEnum(tag: ProtoDesc, enumDescriptor: SerialDescriptor, ordinal: Int)
+
+    protected open fun encodeTaggedInline(tag: ProtoDesc, inlineDescriptor: SerialDescriptor): Encoder? = this
+
     public final override fun encodeNull(): Unit = encodeTaggedNull()
 
     public final override fun encodeBoolean(value: Boolean) {
@@ -125,10 +128,10 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
     }
 
     override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder? {
-        TODO("encodeInline")
+        return encodeTaggedInline(popTag(), inlineDescriptor)
     }
 
-    override fun encodeInlineElement(desc: SerialDescriptor, index: Int, inlineDescriptor: SerialDescriptor): Encoder? {
-        TODO("encodeInlineElement")
+    override fun encodeInlineElement(descriptor: SerialDescriptor, index: Int, inlineDescriptor: SerialDescriptor): Encoder? {
+        return encodeTaggedInline(descriptor.getTag(index), inlineDescriptor)
     }
 }

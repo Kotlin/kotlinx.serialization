@@ -47,7 +47,7 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
         ordinal: Int
     ): Unit = encodeTaggedValue(tag, ordinal)
 
-    open fun encodeTaggedInline(tag: Tag, inlineDescriptor: SerialDescriptor): Encoder? = this
+    protected open fun encodeTaggedInline(tag: Tag, inlineDescriptor: SerialDescriptor): Encoder? = this
 
     final override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder? =
         encodeTaggedInline(popTag(), inlineDescriptor)
@@ -119,11 +119,11 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
         encodeTaggedString(descriptor.getTag(index), value)
 
     final override fun encodeInlineElement(
-        desc: SerialDescriptor,
+        descriptor: SerialDescriptor,
         index: Int,
         inlineDescriptor: SerialDescriptor
     ): Encoder? {
-        return encodeTaggedInline(desc.getTag(index), inlineDescriptor)
+        return encodeTaggedInline(descriptor.getTag(index), inlineDescriptor)
     }
 
     final override fun <T : Any?> encodeSerializableElement(
@@ -200,7 +200,7 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     protected open fun decodeTaggedEnum(tag: Tag, enumDescriptor: SerialDescriptor): Int =
         decodeTaggedValue(tag) as Int
 
-    open fun decodeTaggedInline(tag: Tag, inlineDescriptor: SerialDescriptor): Decoder = this
+    protected open fun decodeTaggedInline(tag: Tag, inlineDescriptor: SerialDescriptor): Decoder = this
 
     protected open fun <T : Any?> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T =
         decodeSerializableValue(deserializer)
@@ -266,10 +266,10 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
         decodeTaggedString(descriptor.getTag(index))
 
     final override fun decodeInlineElement(
-        desc: SerialDescriptor,
+        descriptor: SerialDescriptor,
         index: Int,
         inlineDescriptor: SerialDescriptor
-    ): Decoder = decodeTaggedInline(desc.getTag(index), inlineDescriptor)
+    ): Decoder = decodeTaggedInline(descriptor.getTag(index), inlineDescriptor)
 
     final override fun <T : Any?> decodeSerializableElement(
         descriptor: SerialDescriptor,

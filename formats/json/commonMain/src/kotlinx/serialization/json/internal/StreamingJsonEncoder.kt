@@ -11,12 +11,13 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
 
+@ExperimentalSerializationApi
 internal val SerialDescriptor.isInlineNumber: Boolean
     get() {
         return this.isInline && this.serialName == "kotlin.UInt" // todo: others
     }
 
-@OptIn(ExperimentalSerializationApi::class)
+@OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
 internal class StreamingJsonEncoder(
     private val composer: Composer,
     override val json: Json,
@@ -135,7 +136,6 @@ internal class StreamingJsonEncoder(
         return true
     }
 
-    @UseExperimental(ExperimentalUnsignedTypes::class)
     override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder {
         return if (inlineDescriptor.isInlineNumber) StreamingJsonEncoder(
             ComposerForUnsignedNumbers(
