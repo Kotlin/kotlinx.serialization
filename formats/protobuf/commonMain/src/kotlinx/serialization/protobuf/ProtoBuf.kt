@@ -63,7 +63,7 @@ import kotlin.js.*
  * val decoded = ProtoBuf.decodeFromByteArray<MyMessage>(encoded) // MyMessage(first=15, second=0, third=42)
  *
  * // Serialize to ProtoBuf hex string with all values
- * val encoded2 = ProtoBuf(encodeDefaults = true).encodeToHexString(MyMessage(15)) // "080f1000182a"
+ * val encoded2 = ProtoBuf { encodeDefaults = true }.encodeToHexString(MyMessage(15)) // "080f1000182a"
  *
  * // Deserialize from ProtoBuf hex string
  * val decoded2 = ProtoBuf.decodeFromHexString<MyMessage>(encoded2) // MyMessage(first=15, second=0, third=42)
