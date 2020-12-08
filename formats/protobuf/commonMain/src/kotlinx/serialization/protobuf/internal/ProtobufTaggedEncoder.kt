@@ -25,7 +25,7 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
     protected abstract fun encodeTaggedString(tag: ProtoDesc, value: String)
     protected abstract fun encodeTaggedEnum(tag: ProtoDesc, enumDescriptor: SerialDescriptor, ordinal: Int)
 
-    protected open fun encodeTaggedInline(tag: ProtoDesc, inlineDescriptor: SerialDescriptor): Encoder? = this
+    protected open fun encodeTaggedInline(tag: ProtoDesc, inlineDescriptor: SerialDescriptor): Encoder? = this.apply { pushTag(tag) }
 
     public final override fun encodeNull(): Unit = encodeTaggedNull()
 

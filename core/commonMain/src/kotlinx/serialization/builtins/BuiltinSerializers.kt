@@ -190,3 +190,30 @@ public fun <K, V> MapSerializer(
     valueSerializer: KSerializer<V>
 ): KSerializer<Map<K, V>> = LinkedHashMapSerializer(keySerializer, valueSerializer)
 
+/**
+ * Returns serializer for [UInt].
+ */
+@ExperimentalSerializationApi
+@ExperimentalUnsignedTypes
+public fun UInt.Companion.serializer(): KSerializer<UInt> = UIntSerializer
+
+/**
+ * Returns serializer for [ULong].
+ */
+@ExperimentalSerializationApi
+@ExperimentalUnsignedTypes
+public fun ULong.Companion.serializer(): KSerializer<ULong> = ULongSerializer
+
+/**
+ * Returns serializer for [UByte].
+ */
+@ExperimentalSerializationApi
+@ExperimentalUnsignedTypes
+public fun UByte.Companion.serializer(): KSerializer<UByte> = UByteSerializer
+
+/**
+ * Returns serializer for [UShort].
+ */
+@ExperimentalSerializationApi
+@ExperimentalUnsignedTypes
+public fun UShort.Companion.serializer(): KSerializer<UShort> = UShortSerializer

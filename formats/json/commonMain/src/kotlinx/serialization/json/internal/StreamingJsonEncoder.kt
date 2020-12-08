@@ -5,17 +5,27 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
+import kotlin.native.concurrent.*
 
 @ExperimentalSerializationApi
-internal val SerialDescriptor.isInlineNumber: Boolean
-    get() {
-        return this.isInline && this.serialName == "kotlin.UInt" // todo: others
-    }
+@OptIn(ExperimentalUnsignedTypes::class)
+@SharedImmutable
+private val unsignedNumberDescriptors = setOf(
+    UInt.serializer().descriptor,
+    ULong.serializer().descriptor,
+    UByte.serializer().descriptor,
+    UShort.serializer().descriptor
+)
+
+@ExperimentalSerializationApi
+internal val SerialDescriptor.isUnsignedNumber: Boolean
+    get() = this.isInline && this in unsignedNumberDescriptors
 
 @OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
 internal class StreamingJsonEncoder(
@@ -137,7 +147,7 @@ internal class StreamingJsonEncoder(
     }
 
     override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder {
-        return if (inlineDescriptor.isInlineNumber) StreamingJsonEncoder(
+        return if (inlineDescriptor.isUnsignedNumber) StreamingJsonEncoder(
             ComposerForUnsignedNumbers(
                 composer.sb,
                 composer.json
@@ -242,6 +252,14 @@ internal class StreamingJsonEncoder(
 
         override fun print(v: Long): StringBuilder {
             return super.print(v.toULong().toString())
+        }
+
+        override fun print(v: Byte): StringBuilder {
+            return super.print(v.toUByte().toString())
+        }
+
+        override fun print(v: Short): StringBuilder {
+            return super.print(v.toUShort().toString())
         }
     }
 }

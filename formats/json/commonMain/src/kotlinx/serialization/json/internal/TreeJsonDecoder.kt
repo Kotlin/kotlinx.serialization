@@ -155,6 +155,11 @@ private sealed class AbstractJsonTreeDecoder(
         }
         return value.content
     }
+
+    @OptIn(ExperimentalUnsignedTypes::class)
+    override fun decodeTaggedInline(tag: String, inlineDescriptor: SerialDescriptor): Decoder {
+        return JsonDecoderForUnsignedTypes(JsonReader(getValue(tag).content), json)
+    }
 }
 
 private class JsonPrimitiveDecoder(json: Json, override val value: JsonPrimitive) : AbstractJsonTreeDecoder(json, value) {

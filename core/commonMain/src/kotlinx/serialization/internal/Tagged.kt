@@ -47,7 +47,8 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
         ordinal: Int
     ): Unit = encodeTaggedValue(tag, ordinal)
 
-    protected open fun encodeTaggedInline(tag: Tag, inlineDescriptor: SerialDescriptor): Encoder? = this
+    protected open fun encodeTaggedInline(tag: Tag, inlineDescriptor: SerialDescriptor): Encoder? =
+        this.apply { pushTag(tag) }
 
     final override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder? =
         encodeTaggedInline(popTag(), inlineDescriptor)
@@ -200,7 +201,7 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     protected open fun decodeTaggedEnum(tag: Tag, enumDescriptor: SerialDescriptor): Int =
         decodeTaggedValue(tag) as Int
 
-    protected open fun decodeTaggedInline(tag: Tag, inlineDescriptor: SerialDescriptor): Decoder = this
+    protected open fun decodeTaggedInline(tag: Tag, inlineDescriptor: SerialDescriptor): Decoder = this.apply { pushTag(tag) }
 
     protected open fun <T : Any?> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T =
         decodeSerializableValue(deserializer)

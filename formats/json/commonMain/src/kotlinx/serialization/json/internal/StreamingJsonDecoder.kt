@@ -8,7 +8,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
-import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
@@ -216,7 +215,7 @@ internal open class StreamingJsonDecoder internal constructor(
     }
 
     override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder {
-        return if (inlineDescriptor.isInlineNumber) StreamingJsonInputForUnsigned(json, mode, reader) else this
+        return if (inlineDescriptor.isUnsignedNumber) JsonDecoderForUnsignedTypes(reader, json) else this
     }
 
     private inline fun <T> String.parse(type: String, block: String.() -> T): T {
@@ -232,10 +231,15 @@ internal open class StreamingJsonDecoder internal constructor(
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 @ExperimentalUnsignedTypes
-internal class StreamingJsonInputForUnsigned(json: Json, mode: WriteMode, reader: JsonReader) :
-    StreamingJsonDecoder(json, mode, reader) {
-    override fun decodeInt(): Int {
-        return reader.takeString().toUInt().toInt()
-    }
+internal class JsonDecoderForUnsignedTypes(private val reader: JsonReader, json: Json) :
+    AbstractDecoder() {
+    override val serializersModule: SerializersModule = json.serializersModule
+    override fun decodeElementIndex(descriptor: SerialDescriptor): Int = error("unsupported")
+
+    override fun decodeInt(): Int = reader.takeString().toUInt().toInt()
+    override fun decodeLong(): Long = reader.takeString().toULong().toLong()
+    override fun decodeByte(): Byte = reader.takeString().toUByte().toByte()
+    override fun decodeShort(): Short = reader.takeString().toUShort().toShort()
 }

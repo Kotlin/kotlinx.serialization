@@ -2,7 +2,6 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:Suppress("INLINE_CLASSES_NOT_SUPPORTED", "SERIALIZER_NOT_FOUND")
-@file:OptIn(ExperimentalUnsignedTypes::class)
 
 package kotlinx.serialization.features.inline
 
@@ -58,7 +57,6 @@ data class WithGenerics(
     val boxInBox: Box<WithT<Int>>
 )
 
-// todo: add stirng representations
 class InlineClassesCompleteTest {
     @Test
     fun testAllVariantsWithoutNull() = noLegacyJs {
@@ -97,11 +95,6 @@ class InlineClassesCompleteTest {
                 WithTNullable<Int?>(Box(null))
             ), WithAll.serializer()
         )
-        // sounds good, doesnt work
-        // todo: decide about nulls
-        /*assertSerializedAndRestored(WithAllSmall(
-                MyInt(1), null, NullableMyInt(null), NullableMyInt(null), OverSerializable(IntData(5)),  null, OverSerializableNullable(null), OverSerializableNullable(null)
-        ), WithAllSmall.serializer())*/
     }
 
     @Test

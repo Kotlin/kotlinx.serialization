@@ -1,7 +1,3 @@
-/*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
- */
-
 @file:Suppress("INLINE_CLASSES_NOT_SUPPORTED", "SERIALIZER_NOT_FOUND")
 @file:OptIn(ExperimentalUnsignedTypes::class)
 
@@ -12,8 +8,8 @@
 package kotlinx.serialization.features.inline
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.encoding.*
-import kotlinx.serialization.internal.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
 
@@ -26,8 +22,8 @@ inline class MyUInt(val m: Int)
 @Serializer(forClass = MyUInt::class)
 object MyUIntSerializer {
     override val descriptor = UInt.serializer().descriptor
-    override fun serialize(encoder: Encoder, obj: MyUInt) {
-        encoder.encodeInline(descriptor)?.encodeInt(obj.m)
+    override fun serialize(encoder: Encoder, value: MyUInt) {
+        encoder.encodeInline(descriptor)?.encodeInt(value.m)
     }
 
     override fun deserialize(decoder: Decoder): MyUInt {
@@ -67,8 +63,7 @@ class InlineClassesTest {
         assertStringFormAndRestored(
             """{"i":2147483657}""",
             SimpleContainerForUInt(precedent),
-            SimpleContainerForUInt.serializer(),
-            printResult = true
+            SimpleContainerForUInt.serializer()
         )
     }
 
@@ -77,7 +72,6 @@ class InlineClassesTest {
         """{"i":2147483657}""",
         SimpleContainerForMyType(MyUInt(precedent.toInt())),
         SimpleContainerForMyType.serializer(),
-        printResult = true
     )
 
     @Test
@@ -86,7 +80,6 @@ class InlineClassesTest {
             """{"i":[2147483657]}""",
             ContainerForList(MyList(listOf(precedent))),
             ContainerForList.serializer(UInt.serializer()),
-            printResult = true
         )
     }
 
@@ -95,7 +88,6 @@ class InlineClassesTest {
         """{"i":[2147483657]}""",
         UnsignedInBoxedPosition(listOf(precedent)),
         UnsignedInBoxedPosition.serializer(),
-        printResult = true
     )
 
     @Test
@@ -114,7 +106,6 @@ class InlineClassesTest {
             """{"int":-2147483639,"intNullable":-2147483639,"uint":2147483657,"uintNullable":2147483657,"boxedInt":[-2147483639],"boxedUInt":[2147483657],"boxedNullableInt":[null,-2147483639,null],"boxedNullableUInt":[null,2147483657,null]}""",
             o,
             MixedPositions.serializer(),
-            printResult = true
         )
     }
 }
