@@ -116,7 +116,7 @@ private object JsonLiteralSerializer : KSerializer<JsonLiteral> {
 
         value.longOrNull?.let { return encoder.encodeLong(it) }
 
-        // most unsigned values fit to .longOrNull, bit not ULong
+        // most unsigned values fit to .longOrNull, but not ULong
         value.content.toULongOrNull()?.let {
             encoder.encodeInline(ULong.serializer().descriptor)?.encodeLong(it.toLong())
             return

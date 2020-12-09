@@ -263,7 +263,11 @@ public interface SerialDescriptor {
     @ExperimentalSerializationApi
     public fun isElementOptional(index: Int): Boolean
 
-    val isInline: Boolean
+    /**
+     * Returns `true` if this descriptor is for a serializable inline class.
+     */
+    @ExperimentalSerializationApi
+    public val isInline: Boolean
         get() = false
 }
 

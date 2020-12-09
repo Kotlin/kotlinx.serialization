@@ -36,7 +36,7 @@ private val BUILTIN_SERIALIZERS = mapOf(
     Unit::class to Unit.serializer()
 )
 
-internal open class PrimitiveSerialDescriptor(
+internal class PrimitiveSerialDescriptor(
     override val serialName: String,
     override val kind: PrimitiveKind
 ) : SerialDescriptor {

@@ -14,15 +14,13 @@ buildscript {
     }
     ext.experimentalsEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
                                 "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
-                                "-Xuse-experimental=kotlinx.serialization.InternalSerializationApi",
-                                "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
+                                "-Xuse-experimental=kotlinx.serialization.InternalSerializationApi"
     ]
 
     ext.experimentalsInTestEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
                                       "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
                                       "-Xuse-experimental=kotlinx.serialization.ExperimentalSerializationApi",
                                       "-Xuse-experimental=kotlinx.serialization.InternalSerializationApi",
-                                      "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes",
                                       "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
     ]
 
@@ -164,15 +162,6 @@ subprojects {
             task.kotlinOptions.freeCompilerArgs += experimentalsInTestEnabled
         } else {
             task.kotlinOptions.freeCompilerArgs += experimentalsEnabled
-        }
-        task.kotlinOptions.freeCompilerArgs += ["-Xinline-classes"]
-    }
-
-    configurations.all {
-        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-            if (details.requested.group == 'org.jetbrains.kotlin') {
-                details.useVersion kotlin_version
-            }
         }
     }
 

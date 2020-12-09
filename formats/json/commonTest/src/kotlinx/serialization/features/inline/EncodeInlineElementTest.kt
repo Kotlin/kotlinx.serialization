@@ -12,7 +12,6 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.test.*
 import kotlin.test.Test
 
-// todo: fix such things in JSON (when descriptor = UIntDescriptor but inside there's List<Int>)
 @Serializable(WithUnsignedSerializer::class)
 data class WithUnsigned(val u: UInt)
 
