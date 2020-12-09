@@ -32,7 +32,7 @@ internal class StreamingJsonEncoder(
     private val composer: Composer,
     override val json: Json,
     private val mode: WriteMode,
-    private val modeReuseCache: Array<JsonEncoder?>
+    private val modeReuseCache: Array<JsonEncoder?>?
 ) : JsonEncoder, AbstractEncoder() {
 
     internal constructor(
@@ -49,8 +49,10 @@ internal class StreamingJsonEncoder(
 
     init {
         val i = mode.ordinal
-        if (modeReuseCache[i] == null)
-            modeReuseCache[i] = this
+        if (modeReuseCache != null) {
+            if (modeReuseCache[i] !== null || modeReuseCache[i] !== this)
+                modeReuseCache[i] = this
+        }
     }
 
     override fun encodeJsonElement(element: JsonElement) {
@@ -91,7 +93,7 @@ internal class StreamingJsonEncoder(
             return this
         }
 
-        return modeReuseCache[newMode.ordinal] ?: StreamingJsonEncoder(composer, json, newMode, modeReuseCache)
+        return modeReuseCache?.get(newMode.ordinal) ?: StreamingJsonEncoder(composer, json, newMode, modeReuseCache)
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
@@ -151,7 +153,7 @@ internal class StreamingJsonEncoder(
             ComposerForUnsignedNumbers(
                 composer.sb,
                 composer.json
-            ), json, mode, modeReuseCache
+            ), json, mode, null
         )
         else this
     }
