@@ -8,12 +8,19 @@ package kotlinx.serialization.features.inline
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class UnsignedIntegersTest : JsonTestBase() {
     @Serializable
-    data class AllUnsigned(val uInt: UInt, val uLong: ULong, val uByte: UByte, val uShort: UShort)
+    data class AllUnsigned(
+        val uInt: UInt,
+        val uLong: ULong,
+        val uByte: UByte,
+        val uShort: UShort,
+        val signedInt: Int,
+        val signedLong: Long,
+        val double: Double
+    )
 
     @Serializable
     data class UnsignedWithoutLong(val uInt: UInt, val uByte: UByte, val uShort: UShort)
@@ -25,12 +32,14 @@ class UnsignedIntegersTest : JsonTestBase() {
             Long.MAX_VALUE.toULong() + 10.toULong(),
             239.toUByte(),
             65000.toUShort(),
+            -42,
+            Long.MIN_VALUE,
+            1.1
         )
-        // todo: fix unsigned longs in JsonLiteralSerializer
-        assertStringFormAndRestored(
-            """{"uInt":2147483657,"uLong":9223372036854775817,"uByte":239,"uShort":65000}""",
-            data,
+        assertJsonFormAndRestored(
             AllUnsigned.serializer(),
+            data,
+            """{"uInt":2147483657,"uLong":9223372036854775817,"uByte":239,"uShort":65000,"signedInt":-42,"signedLong":-9223372036854775808,"double":1.1}""",
         )
     }
 

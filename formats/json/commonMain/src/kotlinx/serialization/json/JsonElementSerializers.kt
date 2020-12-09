@@ -107,26 +107,24 @@ private object JsonLiteralSerializer : KSerializer<JsonLiteral> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("kotlinx.serialization.json.JsonLiteral", PrimitiveKind.STRING)
 
+    @OptIn(ExperimentalUnsignedTypes::class, ExperimentalSerializationApi::class)
     override fun serialize(encoder: Encoder, value: JsonLiteral) {
         verify(encoder)
         if (value.isString) {
             return encoder.encodeString(value.content)
         }
 
-        val long = value.longOrNull
-        if (long != null) {
-            return encoder.encodeLong(long)
+        value.longOrNull?.let { return encoder.encodeLong(it) }
+
+        // most unsigned values fit to .longOrNull, bit not ULong
+        value.content.toULongOrNull()?.let {
+            encoder.encodeInline(ULong.serializer().descriptor)?.encodeLong(it.toLong())
+            return
         }
 
-        val double = value.doubleOrNull
-        if (double != null) {
-            return encoder.encodeDouble(double)
-        }
+        value.doubleOrNull?.let { return encoder.encodeDouble(it) }
+        value.booleanOrNull?.let { return encoder.encodeBoolean(it) }
 
-        val boolean = value.booleanOrNull
-        if (boolean != null) {
-            return encoder.encodeBoolean(boolean)
-        }
         encoder.encodeString(value.content)
     }
 
