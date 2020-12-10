@@ -121,7 +121,13 @@ public class JsonObject(private val content: Map<String, JsonElement>) : JsonEle
             separator = ",",
             prefix = "{",
             postfix = "}",
-            transform = {(k, v) -> """"$k":$v"""}
+            transform = { (k, v) ->
+                buildString {
+                    printQuoted(k)
+                    append(':')
+                    append(v)
+                }
+            }
         )
     }
 }
