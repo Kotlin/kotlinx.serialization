@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+package kotlinx.serialization.protobuf.schema.generator;
+
+// serial name 'OverriddenClassName'
+message OverriddenClassName {
+  required int32 original = 1;
+  required OverriddenEnumName OverriddenFieldName = 2;
+}
+
+// serial name 'OverriddenEnumName'
+enum OverriddenEnumName {
+  FIRST = 0;
+  OverriddenElementName = 1;
+}

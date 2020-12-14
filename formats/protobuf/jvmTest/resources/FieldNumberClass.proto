@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+package kotlinx.serialization.protobuf.schema.generator;
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.FieldNumberClass'
+message FieldNumberClass {
+  required int32 a = 1;
+  required int32 b = 5;
+  required int32 c = 3;
+}

@@ -1,0 +1,59 @@
+syntax = "proto2";
+
+package kotlinx.serialization.protobuf.schema.generator;
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.LegacyMapHolder'
+message LegacyMapHolder {
+  repeated LegacyMapHolder_keyAsMessage keyAsMessage = 1;
+  repeated LegacyMapHolder_keyAsEnum keyAsEnum = 2;
+  repeated LegacyMapHolder_keyAsBytes keyAsBytes = 3;
+  repeated LegacyMapHolder_keyAsList keyAsList = 4;
+  repeated LegacyMapHolder_keyAsDeepList keyAsDeepList = 5;
+}
+
+// serial name 'LegacyMapHolder_keyAsMessage'
+message LegacyMapHolder_keyAsMessage {
+  required OptionsClass key = 1;
+  required int32 value = 2;
+}
+
+// serial name 'LegacyMapHolder_keyAsEnum'
+message LegacyMapHolder_keyAsEnum {
+  required OverriddenEnumName key = 1;
+  required OptionsClass value = 2;
+}
+
+// serial name 'LegacyMapHolder_keyAsBytes'
+message LegacyMapHolder_keyAsBytes {
+  required bytes key = 1;
+  required bytes value = 2;
+}
+
+// serial name 'LegacyMapHolder_keyAsList'
+message LegacyMapHolder_keyAsList {
+  repeated int32 key = 1;
+  required bytes value = 2;
+}
+
+// serial name 'LegacyMapHolder_keyAsDeepList'
+message LegacyMapHolder_keyAsDeepList {
+  repeated LegacyMapHolder_keyAsDeepList_key key = 1;
+  required bytes value = 2;
+}
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.OptionsClass'
+message OptionsClass {
+  required int32 i = 1;
+}
+
+// serial name 'OverriddenEnumName'
+enum OverriddenEnumName {
+  FIRST = 0;
+  OverriddenElementName = 1;
+}
+
+
+// serial name 'LegacyMapHolder_keyAsDeepList_key'
+message LegacyMapHolder_keyAsDeepList_key {
+  repeated int32 value = 1;
+}

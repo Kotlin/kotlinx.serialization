@@ -1,0 +1,46 @@
+syntax = "proto2";
+
+package kotlinx.serialization.protobuf.schema.generator;
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.NullableNestedCollections'
+message NullableNestedCollections {
+  // WARNING: null value is not supported for nested collections
+  repeated NullableNestedCollections_nullableIntList nullableIntList = 1;
+  // WARNING: null value is not supported for nested collections
+  map<string, NullableNestedCollections_nullableIntMap> nullableIntMap = 2;
+  map<string, NullableNestedCollections_intMap> intMap = 3;
+  repeated NullableNestedCollections_intList intList = 4;
+  repeated NullableNestedCollections_legacyMap legacyMap = 5;
+}
+
+// serial name 'NullableNestedCollections_nullableIntList'
+message NullableNestedCollections_nullableIntList {
+  // WARNING: This field is marked as nullable but it does not support null values
+  repeated int32 value = 1;
+}
+
+// serial name 'NullableNestedCollections_nullableIntMap'
+message NullableNestedCollections_nullableIntMap {
+  // WARNING: This field is marked as nullable but it does not support null values
+  repeated int32 value = 1;
+}
+
+// serial name 'NullableNestedCollections_intMap'
+message NullableNestedCollections_intMap {
+  // WARNING: null value is not supported for list elements
+  repeated int32 value = 1;
+}
+
+// serial name 'NullableNestedCollections_intList'
+message NullableNestedCollections_intList {
+  // WARNING: null value is not supported for list elements
+  repeated int32 value = 1;
+}
+
+// serial name 'NullableNestedCollections_legacyMap'
+message NullableNestedCollections_legacyMap {
+  // WARNING: This field is marked as nullable but it does not support null values
+  repeated int32 key = 1;
+  // WARNING: This field is marked as nullable but it does not support null values
+  repeated int32 value = 2;
+}

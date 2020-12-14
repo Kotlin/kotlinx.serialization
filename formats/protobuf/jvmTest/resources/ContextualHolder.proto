@@ -1,0 +1,8 @@
+syntax = "proto2";
+
+package kotlinx.serialization.protobuf.schema.generator;
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.ContextualHolder'
+message ContextualHolder {
+  required bytes value = 1;
+}

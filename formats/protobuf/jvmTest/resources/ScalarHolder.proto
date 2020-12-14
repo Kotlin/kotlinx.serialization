@@ -1,0 +1,21 @@
+syntax = "proto2";
+
+package kotlinx.serialization.protobuf.schema.generator;
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.ScalarHolder'
+message ScalarHolder {
+  required int32 int = 1;
+  required sint32 intSigned = 2;
+  required fixed32 intFixed = 3;
+  required int32 intDefault = 4;
+  required int64 long = 5;
+  required sint64 longSigned = 6;
+  required fixed64 longFixed = 7;
+  required int32 longDefault = 8;
+  required bool flag = 9;
+  required bytes byteArray = 10;
+  required bytes boxedByteArray = 11;
+  required string text = 12;
+  required float float = 13;
+  required double double = 14;
+}

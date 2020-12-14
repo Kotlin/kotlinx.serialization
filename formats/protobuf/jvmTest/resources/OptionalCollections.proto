@@ -1,0 +1,25 @@
+syntax = "proto2";
+
+package kotlinx.serialization.protobuf.schema.generator;
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.OptionalCollections'
+message OptionalCollections {
+  repeated int32 requiredList = 1;
+  // WARNING: This field does not support empty list
+  //  An absence value is decoded as a default value that is not present in the schema
+  repeated int32 optionalList = 2;
+  // WARNING: This field is marked as nullable but it does not support null values
+  repeated int32 nullableList = 3;
+  // WARNING: This field is marked as nullable and has a default value but it does not support null values and empty list
+  //  An absence value is decoded as a default value that is not present in the schema
+  repeated int32 nullableOptionalList = 4;
+  map<int32, int32> requiredMap = 5;
+  // WARNING: This field does not support empty map
+  //  An absence value is decoded as a default value that is not present in the schema
+  map<int32, int32> optionalMap = 6;
+  // WARNING: This field is marked as nullable but it does not support null values
+  map<int32, int32> nullableMap = 7;
+  // WARNING: This field is marked as nullable and has a default value but it does not support null values and empty map
+  //  An absence value is decoded as a default value that is not present in the schema
+  map<int32, int32> nullableOptionalMap = 8;
+}
