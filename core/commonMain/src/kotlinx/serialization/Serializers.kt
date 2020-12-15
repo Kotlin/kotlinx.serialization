@@ -79,7 +79,7 @@ private fun SerializersModule.builtinSerializerOrNull(
         .map(::serializer)
     // Array is not supported, see KT-32839
     return when (rootClass) {
-        List::class, MutableList::class, ArrayList::class -> ArrayListSerializer(serializers[0])
+        Collection::class, List::class, MutableList::class, ArrayList::class -> ArrayListSerializer(serializers[0])
         HashSet::class -> HashSetSerializer(serializers[0])
         Set::class, MutableSet::class, LinkedHashSet::class -> LinkedHashSetSerializer(serializers[0])
         HashMap::class -> HashMapSerializer(serializers[0], serializers[1])
