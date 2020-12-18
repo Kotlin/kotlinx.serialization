@@ -8,6 +8,9 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.builtins.TripleSerializer
+import kotlinx.serialization.builtins.PairSerializer
+import kotlinx.serialization.builtins.MapEntrySerializer
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
