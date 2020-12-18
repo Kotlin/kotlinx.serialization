@@ -47,8 +47,8 @@ public fun SerializersModule.serializer(type: Type): KSerializer<Any> = when (ty
         val rootClass = (type.rawType as Class<*>)
         val args = (type.actualTypeArguments)
         when {
-            List::class.java.isAssignableFrom(rootClass) -> ListSerializer(serializer(args[0])) as KSerializer<Any>
             Set::class.java.isAssignableFrom(rootClass) -> SetSerializer(serializer(args[0])) as KSerializer<Any>
+            List::class.java.isAssignableFrom(rootClass) || Collection::class.java.isAssignableFrom(rootClass) -> ListSerializer(serializer(args[0])) as KSerializer<Any>
             Map::class.java.isAssignableFrom(rootClass) -> MapSerializer(
                 serializer(args[0]),
                 serializer(args[1])
