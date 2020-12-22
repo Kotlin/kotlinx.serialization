@@ -78,6 +78,19 @@ class SerializerByTypeTest {
         assertEquals("""["a","b","c"]""", s)
     }
 
+    @Test
+    fun testListAsCollection() {
+        val myArr: Collection<String> = listOf("a", "b", "c")
+        val token = object : ParameterizedType {
+            override fun getRawType(): Type = Collection::class.java
+            override fun getOwnerType(): Type? = null
+            override fun getActualTypeArguments(): Array<Type> = arrayOf(String::class.java)
+        }
+        val serial = serializer(token)
+        val s = json.encodeToString(serial, myArr)
+        assertEquals("""["a","b","c"]""", s)
+    }
+
 
     @Test
     fun testReifiedArrayResolving() {

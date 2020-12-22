@@ -6,9 +6,7 @@ package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.*
-import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlinx.serialization.test.*
@@ -44,6 +42,13 @@ class SerializersLookupTest : JsonTestBase() {
         val myArr = listOf("a", "b", "c")
         assertSerializedWithType("""["a","b","c"]""", myArr)
     }
+
+    @Test
+    fun testListAsCollection() {
+        val myArr: Collection<String> = listOf("a", "b", "c")
+        assertSerializedWithType("""["a","b","c"]""", myArr)
+    }
+
 
     @Test
     fun testPrimitiveSet() {
