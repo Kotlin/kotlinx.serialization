@@ -247,6 +247,8 @@ class SerializersLookupTest : JsonTestBase() {
     ) {
         val serial = serializer<T>()
         assertEquals(expected, json.encodeToString(serial, value))
+        val serial2 = requireNotNull(serializerOrNull(typeOf<T>())) { "Expected serializer to be found" }
+        assertEquals(expected, json.encodeToString(serial2, value))
     }
 
     inline fun <T> KSerializer<*>.cast(): KSerializer<T> = this as KSerializer<T>
