@@ -144,6 +144,7 @@ class CborReaderTest {
      * decoding to [Simple] (which has the field 'a') is expected to fail.
      */
     @Test
+    @Ignore // fixme: legacyJs will work in 1.4.30-RC
     fun testIgnoreUnknownKeysFailsWhenCborDataIsMissingKeysThatArePresentInKotlinClass() {
         // with maps & lists of indefinite length
         assertFailsWithMessage<SerializationException>("Field 'a' is required, but it was missing") {

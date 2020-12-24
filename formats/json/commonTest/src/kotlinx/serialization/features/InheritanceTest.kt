@@ -87,7 +87,7 @@ class InheritanceTest {
     }
 
     @Test
-    fun canBeSerializedAsParent() {
+    fun canBeSerializedAsParent() = noLegacyJs { // fixme: legacyJs will work in 1.4.30-RC
         val derived = Derived(42)
         val msg = json.encodeToString(SerializableBase.serializer(), derived)
         assertEquals("""{"publicState":"A","privateState":"B"}""", msg)

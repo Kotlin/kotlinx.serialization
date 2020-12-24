@@ -17,19 +17,51 @@ class JsonParserFailureModesTest : JsonTestBase() {
     )
 
     @Test
-    fun testFailureModes() = parametrizedTest {
-        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"id": "}""", it) }
-        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"id": ""}""", it) }
-        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"id":a}""", it) }
-        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"id":2.0}""", it) }
-        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"id2":2}""", it) }
-        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"id"}""", it) }
-        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"id}""", it) }
-        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"i}""", it) }
-        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"}""", it) }
-        assertFailsWithMissingField { default.decodeFromString(Holder.serializer(), """{}""", it) }
-        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{""", it) }
-        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """}""", it) }
-        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{""", it) }
+    fun testFailureModes() = noLegacyJs { // fixme: legacyJs will work in 1.4.30-RC
+        parametrizedTest {
+            assertFailsWith<JsonDecodingException> {
+                default.decodeFromString(
+                    Holder.serializer(),
+                    """{"id": "}""",
+                    it
+                )
+            }
+            assertFailsWith<JsonDecodingException> {
+                default.decodeFromString(
+                    Holder.serializer(),
+                    """{"id": ""}""",
+                    it
+                )
+            }
+            assertFailsWith<JsonDecodingException> {
+                default.decodeFromString(
+                    Holder.serializer(),
+                    """{"id":a}""",
+                    it
+                )
+            }
+            assertFailsWith<JsonDecodingException> {
+                default.decodeFromString(
+                    Holder.serializer(),
+                    """{"id":2.0}""",
+                    it
+                )
+            }
+            assertFailsWith<JsonDecodingException> {
+                default.decodeFromString(
+                    Holder.serializer(),
+                    """{"id2":2}""",
+                    it
+                )
+            }
+            assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"id"}""", it) }
+            assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"id}""", it) }
+            assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"i}""", it) }
+            assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"}""", it) }
+            assertFailsWithMissingField { default.decodeFromString(Holder.serializer(), """{}""", it) }
+            assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{""", it) }
+            assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """}""", it) }
+            assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{""", it) }
+        }
     }
 }

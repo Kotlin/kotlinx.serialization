@@ -108,7 +108,7 @@ class DecodeFromDynamicTest {
     }
 
     @Test
-    fun dynamicNullableTest() {
+    fun dynamicNullableTest() = noLegacyJs { // fixme: legacyJs will work in 1.4.30-RC
         val dyn1 = js("""({s:"foo", d: null})""")
         val dyn2 = js("""({s:"foo"})""")
         val dyn3 = js("""({s:"foo", d: undefined})""")
