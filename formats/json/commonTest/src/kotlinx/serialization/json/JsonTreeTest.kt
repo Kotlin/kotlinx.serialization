@@ -74,7 +74,7 @@ class JsonTreeTest : JsonTestBase() {
     }
 
     @Test
-    fun testReadTreeNullable() {
+    fun testReadTreeNullable() = noLegacyJs { // fixme: legacyJs will work in 1.4.30-RC
         val tree1 = prepare("""{s:"foo", d: null}""")
         val tree2 = prepare("""{s:"foo"}""")
 

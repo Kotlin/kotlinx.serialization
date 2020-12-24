@@ -113,10 +113,8 @@ public abstract interface class kotlinx/serialization/json/JsonDecoder : kotlinx
 
 public final class kotlinx/serialization/json/JsonDecoder$DefaultImpls {
 	public static fun decodeCollectionSize (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)I
-	public static synthetic fun decodeNullableSerializableElement (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
 	public static fun decodeNullableSerializableValue (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
 	public static fun decodeSequentially (Lkotlinx/serialization/json/JsonDecoder;)Z
-	public static synthetic fun decodeSerializableElement (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
 	public static fun decodeSerializableValue (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
 }
 
