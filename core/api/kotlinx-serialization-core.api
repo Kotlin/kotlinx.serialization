@@ -1105,37 +1105,37 @@ public final class kotlinx/serialization/internal/TripleSerializer : kotlinx/ser
 public final class kotlinx/serialization/internal/UByteSerializer : kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/internal/UByteSerializer;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun deserialize-w2LRezQ (Lkotlinx/serialization/encoding/Decoder;)B
+	public fun deserialize-Wa3L5BU (Lkotlinx/serialization/encoding/Decoder;)B
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun serialize-gatcVwo (Lkotlinx/serialization/encoding/Encoder;B)V
+	public fun serialize-EK-6454 (Lkotlinx/serialization/encoding/Encoder;B)V
 }
 
 public final class kotlinx/serialization/internal/UIntSerializer : kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/internal/UIntSerializer;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun deserialize-pVg5ArA (Lkotlinx/serialization/encoding/Decoder;)I
+	public fun deserialize-OGnWXxg (Lkotlinx/serialization/encoding/Decoder;)I
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun serialize-8Zurfog (Lkotlinx/serialization/encoding/Encoder;I)V
+	public fun serialize-Qn1smSk (Lkotlinx/serialization/encoding/Encoder;I)V
 }
 
 public final class kotlinx/serialization/internal/ULongSerializer : kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/internal/ULongSerializer;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun deserialize-s-VKNKU (Lkotlinx/serialization/encoding/Decoder;)J
+	public fun deserialize-I7RO_PI (Lkotlinx/serialization/encoding/Decoder;)J
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun serialize-5zp7Ths (Lkotlinx/serialization/encoding/Encoder;J)V
+	public fun serialize-2TYgG_w (Lkotlinx/serialization/encoding/Encoder;J)V
 }
 
 public final class kotlinx/serialization/internal/UShortSerializer : kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/internal/UShortSerializer;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun deserialize-Mh2AYeg (Lkotlinx/serialization/encoding/Decoder;)S
+	public fun deserialize-BwKQO78 (Lkotlinx/serialization/encoding/Decoder;)S
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun serialize-xk1WQFo (Lkotlinx/serialization/encoding/Encoder;S)V
+	public fun serialize-i8woANY (Lkotlinx/serialization/encoding/Encoder;S)V
 }
 
 public final class kotlinx/serialization/internal/UnitSerializer : kotlinx/serialization/KSerializer {
