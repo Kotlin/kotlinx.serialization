@@ -4,7 +4,7 @@
 
 This is the sixth chapter of the [Kotlin Serialization Guide](serialization-guide.md).
 It goes beyond JSON, covering alternative and custom formats. Unlike JSON, which is
-stable, these are currently experimental features of Kotlin serialization.
+stable, these are currently experimental features of Kotlin Serialization.
 
 **Table of contents**
 
@@ -67,8 +67,8 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-formats-01.kt).
 
-We print filtered ASCII representation of the output, writing non-ASCII data in hex, so we see how 
-all the original strings are directly represented in CBOR, but the format delimiters itself are binary.
+We print a filtered ASCII representation of the output, writing non-ASCII data in hex, so we see how 
+all the original strings are directly represented in CBOR, but the format delimiters themselves are binary.
 
 ```text 
 {BF}dnameukotlinx.serializationhlanguagefKotlin{FF}
@@ -189,7 +189,7 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-formats-03.kt).    
 
-As we see, the CBOR byte that precedes the data is different for different type of encoding.
+As we see, the CBOR byte that precedes the data is different for different types of encoding.
 
 ```text
 {BF}etype2D{01}{02}{03}{04}etype4{9F}{05}{06}{07}{08}{FF}{FF}
@@ -225,8 +225,8 @@ assigns integer numbers to fields instead of names.
 > Protocol buffers support is (experimentally) available in a separate 
 > `org.jetbrains.kotlinx:kotlinx-serialization-protobuf:<version>` module.
 
-Kotlin serialization is using proto2 semantics, where all fields are explicitly required or optional.
-For a basic example we change our example to use 
+Kotlin Serialization is using proto2 semantics, where all fields are explicitly required or optional.
+For a basic example we change our example to use the 
 [ProtoBuf] class with [ProtoBuf.encodeToByteArray] and [ProtoBuf.decodeFromByteArray] functions.
 
 <!--- INCLUDE
@@ -269,10 +269,10 @@ Field #2: 12 String Length = 6, Hex = 06, UTF8 = "Kotlin"
 
 ### Field numbers
 
-By default, field numbers in the Kotlin serialization [ProtoBuf] implementation are automatically assigned, 
-which does not provide ability to define a stable data schema that evolves over time, which is normally achieved by 
-writing a separate ".proto" file. However, with Kotlin serialization we can get this stability without a separate
-schema file, using [ProtoNumber] annotation.
+By default, field numbers in the Kotlin Serialization [ProtoBuf] implementation are automatically assigned, 
+which does not provide the ability to define a stable data schema that evolves over time. That is normally achieved by 
+writing a separate ".proto" file. However, with Kotlin Serialization we can get this ability without a separate
+schema file, instead using the [ProtoNumber] annotation.
 
 <!--- INCLUDE
 import kotlinx.serialization.*
@@ -322,7 +322,7 @@ Field #3: 1A String Length = 6, Hex = 06, UTF8 = "Kotlin"
 
 ### Integer types
 
-Protocol buffers support various integer encodings, that are optimized for different ranges of integers.
+Protocol buffers support various integer encodings optimized for different ranges of integers.
 They are specified using the [ProtoType] annotation and the [ProtoIntegerType] enum. 
 The following example shows all three supported options.
 
@@ -359,7 +359,7 @@ fun main() {
   small non-negative numbers. The value of `1` is encoded in one byte `01`. 
 * The [signed][ProtoIntegerType.SIGNED] is a signed ZigZag encoding (`sintXX`) that is optimized for 
   small signed integers. The value of `-2` is encoded in one byte `03`. 
-* The [fixed][ProtoIntegerType.FIXED] encoding (`fixedXX`) always uses the fixed number of bytes.
+* The [fixed][ProtoIntegerType.FIXED] encoding (`fixedXX`) always uses a fixed number of bytes.
   The value of `3` is encoded as four bytes `03 00 00 00`.
   
 > `uintXX` and `sfixedXX` protocol buffer types are not supported.    
@@ -370,7 +370,7 @@ fun main() {
 
 <!--- TEST -->
 
-In [ProtoBuf hex notation](https://protogen.marcgravell.com/decode), the output is equivalent to the following:
+In [ProtoBuf hex notation](https://protogen.marcgravell.com/decode) the output is equivalent to the following:
 ```
 Field #1: 08 Varint Value = 1, Hex = 01
 Field #2: 10 Varint Value = 3, Hex = 03
@@ -381,9 +381,9 @@ Field #3: 1D Fixed32 Value = 3, Hex = 03-00-00-00
 
 Kotlin lists and other collections are representend as repeated fields. 
 In the protocol buffers when the list is empty there are no elements in the 
-stream with the corresponding number. For Kotlin serialization you must explicitly specify a default of `emptyList()`
-for any property of a collection or a map type. Otherwise, you will not be able deserialize an empty
-list, which is indistinguishable in protocol buffers from the missing field.  
+stream with the corresponding number. For Kotlin Serialization you must explicitly specify a default of `emptyList()`
+for any property of a collection or map type. Otherwise you will not be able deserialize an empty
+list, which is indistinguishable in protocol buffers from a missing field.  
 
 <!--- INCLUDE
 import kotlinx.serialization.*
@@ -421,7 +421,7 @@ Data(a=[1, 2, 3], b=[])
 
 > Packed repeated fields are not supported.
        
-In [ProtoBuf diagnostic mode](https://protogen.marcgravell.com/decode), the output is equivalent to the following:
+In [ProtoBuf diagnostic mode](https://protogen.marcgravell.com/decode) the output is equivalent to the following:
 ```
 Field #1: 08 Varint Value = 1, Hex = 01
 Field #1: 08 Varint Value = 2, Hex = 02
@@ -430,7 +430,7 @@ Field #1: 08 Varint Value = 3, Hex = 03
 
 ## Properties (experimental)
 
-Kotlin serialization can serialize a class into a flat map with `String` keys via 
+Kotlin Serialization can serialize a class into a flat map with `String` keys via 
 the [Properties][kotlinx.serialization.properties.Properties] format implementation.
 
 > Properties support is (experimentally) available in a separate 
@@ -469,17 +469,17 @@ owner.name = kotlin
 
 ## Custom formats (experimental)
 
-A custom format for Kotlin serialization must provide implementation for [Encoder] and [Decoder] interfaces that
+A custom format for Kotlin Serialization must provide an implementation for the [Encoder] and [Decoder] interfaces that
 we saw used in the [Serializers](serializers.md) chapter.  
-These are pretty large interfaces. For convenience, 
+These are pretty large interfaces. For convenience 
 the [AbstractEncoder] and [AbstractDecoder] skeleton implementations are provided to simplify the task.
-In [AbstractEncoder] most of the `encodeXxx` methods have default implementation that 
+In [AbstractEncoder] most of the `encodeXxx` methods have a default implementation that 
 delegates to [`encodeValue(value: Any)`][AbstractEncoder.encodeValue] &mdash; the only method that must be
 implemented to get a basic working format.
 
 ### Basic encoder
 
-Let us starts with a trivial format implementation that encodes the data into a single list of primitive
+Let us start with a trivial format implementation that encodes the data into a single list of primitive
 constituent objects in the order they were written in the source code. To start, we implement a simple [Encoder] by
 overriding `encodeValue` in [AbstractEncoder].
 
@@ -502,7 +502,7 @@ class ListEncoder : AbstractEncoder() {
 }
 ```              
 
-Now we write a convenience top-level function that creates encoder that encodes an object
+Now we write a convenience top-level function that creates an encoder that encodes an object
 and returns a list.
 
 ```kotlin
@@ -513,9 +513,9 @@ fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> 
 }
 ```                     
 
-For even more convenience, to avoid the need to explicitly pass serializer, we write an `inline` overload of
-`encodeToList` function with `reified` type parameter using the [serializer] function to retrieve
-the appropriate [KSerializer] instance for the actually used type.
+For even more convenience, to avoid the need to explicitly pass a serializer, we write an `inline` overload of
+the `encodeToList` function with a `reified` type parameter using the [serializer] function to retrieve
+the appropriate [KSerializer] instance for the actual type.
 
 ```kotlin 
 inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
@@ -538,8 +538,8 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-formats-09.kt).
 
-As a result, we got all the primitives values in our object graph visited and put into a list
-in a _serial_ order.
+As a result, we got all the primitive values in our object graph visited and put into a list
+in _serial_ order.
 
 ```text
 [kotlinx.serialization, kotlin, 9000]
@@ -577,7 +577,7 @@ fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> 
 inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
 -->
 
-A decoder needs to implements more substance.
+A decoder needs to implement more substance.
 
 * [decodeValue][AbstractDecoder.decodeValue] &mdash; returns the next value from the list.
 * [decodeElementIndex][CompositeDecoder.decodeElementIndex] &mdash; returns the next index of a deserialized value.
@@ -640,7 +640,7 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-formats-10.kt).
 
-Now can convert a list of primitives back to an object tree.
+Now we can convert a list of primitives back to an object tree.
 
 ```text
 [kotlinx.serialization, kotlin, 9000]
@@ -655,9 +655,9 @@ The decoder we have implemented keeps track of the `elementIndex` in its state a
 `decodeElementIndex`. This means that it is going to work with an arbitrary serializer, even the
 simple one we wrote in 
 the [Hand-written composite serializer](serializers.md#hand-written-composite-serializer) section.
-However, this format always stores element in the order, so this book-keeping is not needed and
-undermines decoding performance. All auto-generated serializers on JVM support 
-the [Sequential decoding protocol (experimental)](serializers.md#sequential-decoding-protocol-experimental) and the decoder can indicate
+However, this format always stores elements in order, so this bookkeeping is not needed and
+undermines decoding performance. All auto-generated serializers on the JVM support 
+the [Sequential decoding protocol (experimental)](serializers.md#sequential-decoding-protocol-experimental), and the decoder can indicate
 its support by returning `true` from the [CompositeDecoder.decodeSequentially] function.
 
 <!--- INCLUDE
@@ -739,7 +739,7 @@ Project(name=kotlinx.serialization, owner=User(name=kotlin), votes=9000)
 ### Adding collection support
 
 This basic format, so far, cannot properly represent collections. In encodes them, but it does not keep
-track of how many elements are there in the collection or where it ends, so it cannot properly decode them.
+track of how many elements there are in the collection or where it ends, so it cannot properly decode them.
 First, let us add proper support for collections to the encoder by implementing the 
 [Encoder.beginCollection] function. The `beginCollection` function takes a collection size as a parameter, 
 so we encode it to add it to the result. 
@@ -838,7 +838,7 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-formats-12.kt).
 
-We see the size of the list added to the result, letting decoder know where to stop. 
+We see the size of the list added to the result, letting the decoder know where to stop. 
 
 ```text
 [kotlinx.serialization, 2, kotlin, jetbrains, 9000]
@@ -850,7 +850,7 @@ Project(name=kotlinx.serialization, owners=[User(name=kotlin), User(name=jetbrai
 ### Adding null support
 
 Our trivial format does not support `null` values so far. For nullable types we need to add some kind
-of "null indicator", telling whether the upcoming value is null or is not null.
+of "null indicator", telling whether the upcoming value is null or not.
 
 <!--- INCLUDE 
 import kotlinx.serialization.*
@@ -1057,7 +1057,7 @@ fun ByteArray.toAsciiHexString() = joinToString("") {
 }
 -->
 
-We can now serialize and serialize arbitrary data. For example, the same classes as were
+We can now serialize and deserialize arbitrary data. For example, the same classes as were
 used in the [CBOR (experimental)](#cbor-experimental) and [ProtoBuf (experimental)](#protobuf-experimental) sections.   
 
 ```kotlin    
@@ -1078,7 +1078,7 @@ fun main() {
               
 > You can get the full code [here](../guide/example/example-formats-14.kt).
 
-As we can see, the result is the dense binary format that only contains the data that is being serialized. 
+As we can see, the result is a dense binary format that only contains the data that is being serialized. 
 It can be easily tweaked for any kind of domain-specific compact encoding.
 
 ```text
@@ -1091,11 +1091,11 @@ Project(name=kotlinx.serialization, language=Kotlin)
 ### Format-specific types
 
 A format implementation might provide special support for data types that are not among the list of primitive
-types in Kotlin serialization and do not have a corresponding `encodeXxx`/`decodeXxx` function. 
+types in Kotlin Serialization, and do not have a corresponding `encodeXxx`/`decodeXxx` function. 
 In the encoder this is achieved by overriding the 
 [`encodeSerializableValue(serializer, value)`][Encoder.encodeSerializableValue] function. 
 
-In our `DataOutput` format example we might want to provide a specialized efficient data path for serializing array
+In our `DataOutput` format example we might want to provide a specialized efficient data path for serializing an array
 of bytes since [DataOutput][java.io.DataOutput] has a special method for this purpose.
 
 Detection of the type is performed by looking at the `serializer`, not by checking the type of the `value`
@@ -1252,7 +1252,7 @@ fun ByteArray.toAsciiHexString() = joinToString("") {
 }
 -->
 
-Now everything is ready to check serialization of some byte arrays.
+Now everything is ready to perform serialization of some byte arrays.
 
 ```kotlin    
 @Serializable
@@ -1272,7 +1272,7 @@ fun main() {
               
 > You can get the full code [here](../guide/example/example-formats-15.kt).
 
-As we can see, our custom byte array format is being used, with compact encoding of its size in one byte. 
+As we can see, our custom byte array format is being used, with the compact encoding of its size in one byte. 
 
 ```text
 {00}{15}kotlinx.serialization{04}{0A}{0B}{0C}{0D}

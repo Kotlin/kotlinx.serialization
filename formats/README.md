@@ -58,6 +58,23 @@ This library allows serialization and deserialization of objects to and from [Av
 
 Allows serialization and deserialization of objects to and from [BSON](https://docs.mongodb.com/manual/reference/bson-types/).
 
+### MsgPack (Multiplatform)
+
+* GitHub repo: [esensar/kotlinx-serialization-msgpack](https://github.com/esensar/kotlinx-serialization-msgpack)
+* Artifact ID: `com.ensarsarajcic.kotlinx:serialization-msgpack`
+* Platform: all supported platforms
+
+Allows serialization and deserialization of objects to and from [MsgPack](https://msgpack.org/).
+
+### SharedPreferences
+
+* GitHub repo: [EdwarDDay/serialization.kprefs](https://github.com/EdwarDDay/serialization.kprefs)
+* Artifact ID: `net.edwardday.serialization:kprefs`
+* Platform: Android only
+
+This library allows serialization and deserialization of objects into and from Android
+[SharedPreferences](https://developer.android.com/reference/android/content/SharedPreferences).
+
 ### XML
 * GitHub repo: [pdvrieze/xmlutil](https://github.com/pdvrieze/xmlutil)
 * Artifact ID: `net.devrieze:xmlutil-serialization`
