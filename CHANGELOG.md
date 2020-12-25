@@ -1,3 +1,32 @@
+
+1.1.0-M1 / 2020-12-29
+==================
+
+This is a first milestone release of 1.1.0 version. Note that final 1.1.0 version may include more features and bugfixes, 
+which would be listed in the corresponding changelog.
+
+Due to changes in calling conventions between compiler plugin and serialization core runtime, this release requires 
+Kotlin version at least 1.4.30-M1. However, this changes should not affect your code,
+because only deprecated functions were removed from public API.
+See [corresponding PR](https://github.com/Kotlin/kotlinx.serialization/pull/1260) for the details.
+
+### Features
+
+  * Add serializerOrNull function for KType and Type arguments (#1164)
+  * Allow shared prefix names in Properties (#1183) (thanks to [TorRanfelt](https://github.com/TorRanfelt))
+  * Add support for encoding/decoding Properties values as Strings (#1158) (thanks to [daniel-jasinski](https://github.com/daniel-jasinski))
+  
+### Bugfixes and performance improvements
+
+  * Fix serializing property with custom accessors and backing field (#1197)
+  * Optimize check for missing fields in deserialization and improve MissingFieldException message (#1153)
+  * Improved support of nullable serializer in @UseSerializers annotation  (#1195)
+  * Correctly escape keys in JsonObject.toString() (#1246) (thanks to [Karlatemp](https://github.com/Karlatemp))
+  * Treat Collection as ArrayList in serializer by type lookups (#1257)
+  * Do not try to end structure in encode/decode structure extensions if an exception has been thrown, so the original exception will be propagated (#1201)
+  * Properly cache serial names in order to improve performance of JSON parser with strict mode (#1209)
+  * Fix dynamic serialization for nullable values (#1199) (thanks to [ankushg](https://github.com/ankushg))
+
 1.0.1 / 2020-10-28
 ==================
 
