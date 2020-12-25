@@ -101,7 +101,11 @@ public final class kotlinx/serialization/SerializersKt {
 	public static final fun serializer (Lkotlin/reflect/KType;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Lkotlinx/serialization/modules/SerializersModule;Ljava/lang/reflect/Type;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Lkotlinx/serialization/modules/SerializersModule;Lkotlin/reflect/KType;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializerOrNull (Ljava/lang/reflect/Type;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializerOrNull (Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializerOrNull (Lkotlin/reflect/KType;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializerOrNull (Lkotlinx/serialization/modules/SerializersModule;Ljava/lang/reflect/Type;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializerOrNull (Lkotlinx/serialization/modules/SerializersModule;Lkotlin/reflect/KType;)Lkotlinx/serialization/KSerializer;
 }
 
 public abstract interface class kotlinx/serialization/StringFormat : kotlinx/serialization/SerialFormat {
