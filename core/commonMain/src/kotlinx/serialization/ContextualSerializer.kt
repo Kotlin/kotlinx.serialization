@@ -45,6 +45,9 @@ public class ContextualSerializer<T : Any>(
     private val typeParametersSerializers: Array<KSerializer<*>>
 ) : KSerializer<T> {
 
+    private fun serializer(serializersModule: SerializersModule): KSerializer<T> =
+        serializersModule.getContextual(serializableClass) ?: fallbackSerializer ?: serializableClass.serializerNotRegistered()
+
     // Used from auto-generated code
     public constructor(serializableClass: KClass<T>) : this(serializableClass, null, EMPTY_SERIALIZER_ARRAY)
 
@@ -52,14 +55,10 @@ public class ContextualSerializer<T : Any>(
         buildSerialDescriptor("kotlinx.serialization.ContextualSerializer", SerialKind.CONTEXTUAL).withContext(serializableClass)
 
     public override fun serialize(encoder: Encoder, value: T) {
-        val clz = value::class
-        val serializer = encoder.serializersModule.getContextual(clz) ?: fallbackSerializer ?: serializableClass.serializerNotRegistered()
-        @Suppress("UNCHECKED_CAST")
-        encoder.encodeSerializableValue(serializer as SerializationStrategy<T>, value)
+        encoder.encodeSerializableValue(serializer(encoder.serializersModule), value)
     }
 
     public override fun deserialize(decoder: Decoder): T {
-        val serializer = decoder.serializersModule.getContextual(serializableClass) ?: fallbackSerializer ?: serializableClass.serializerNotRegistered()
-        return decoder.decodeSerializableValue(serializer)
+        return decoder.decodeSerializableValue(serializer(decoder.serializersModule))
     }
 }
