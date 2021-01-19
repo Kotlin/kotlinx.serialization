@@ -25,7 +25,7 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
     protected abstract fun encodeTaggedString(tag: ProtoDesc, value: String)
     protected abstract fun encodeTaggedEnum(tag: ProtoDesc, enumDescriptor: SerialDescriptor, ordinal: Int)
 
-    protected open fun encodeTaggedInline(tag: ProtoDesc, inlineDescriptor: SerialDescriptor): Encoder? = this.apply { pushTag(tag) }
+    protected open fun encodeTaggedInline(tag: ProtoDesc, inlineDescriptor: SerialDescriptor): Encoder = this.apply { pushTag(tag) }
 
     public final override fun encodeNull(): Unit = encodeTaggedNull()
 
@@ -127,11 +127,11 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
         encodeNullableSerializableValue(serializer, value)
     }
 
-    override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder? {
+    override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder {
         return encodeTaggedInline(popTag(), inlineDescriptor)
     }
 
-    override fun encodeInlineElement(descriptor: SerialDescriptor, index: Int, inlineDescriptor: SerialDescriptor): Encoder? {
+    override fun encodeInlineElement(descriptor: SerialDescriptor, index: Int, inlineDescriptor: SerialDescriptor): Encoder {
         return encodeTaggedInline(descriptor.getTag(index), inlineDescriptor)
     }
 }

@@ -7,6 +7,7 @@ package kotlinx.serialization.encoding
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.internal.*
 
 /**
  * A skeleton implementation of both [Encoder] and [CompositeEncoder] that can be used
@@ -50,7 +51,7 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
     override fun encodeString(value: String): Unit = encodeValue(value)
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int): Unit = encodeValue(index)
 
-    override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder? = this
+    override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder = this
 
     // Delegating implementation of CompositeEncoder
     final override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) { if (encodeElement(descriptor, index)) encodeBoolean(value) }
@@ -67,8 +68,8 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
         descriptor: SerialDescriptor,
         index: Int,
         inlineDescriptor: SerialDescriptor
-    ): Encoder? {
-        return if (encodeElement(descriptor, index)) encodeInline(inlineDescriptor) else null
+    ): Encoder {
+        return if (encodeElement(descriptor, index)) encodeInline(inlineDescriptor) else EmptyEncoder
     }
 
     final override fun <T : Any?> encodeSerializableElement(

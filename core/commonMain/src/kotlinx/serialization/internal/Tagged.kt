@@ -47,10 +47,10 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
         ordinal: Int
     ): Unit = encodeTaggedValue(tag, ordinal)
 
-    protected open fun encodeTaggedInline(tag: Tag, inlineDescriptor: SerialDescriptor): Encoder? =
+    protected open fun encodeTaggedInline(tag: Tag, inlineDescriptor: SerialDescriptor): Encoder =
         this.apply { pushTag(tag) }
 
-    final override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder? =
+    final override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder =
         encodeTaggedInline(popTag(), inlineDescriptor)
 
     // ---- Implementation of low-level API ----
@@ -123,7 +123,7 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
         descriptor: SerialDescriptor,
         index: Int,
         inlineDescriptor: SerialDescriptor
-    ): Encoder? {
+    ): Encoder {
         return encodeTaggedInline(descriptor.getTag(index), inlineDescriptor)
     }
 

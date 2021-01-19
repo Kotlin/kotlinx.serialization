@@ -209,7 +209,6 @@ public interface Encoder {
     /**
      * Returns [Encoder] for encoding an underlying type of an inline class.
      * [inlineDescriptor] describes a serializable inline class.
-     * The resulting value may be null if an element should be omitted from the output.
      *
      * Namely, for the `@Serializable inline class MyInt(val my: Int)`,
      * the following sequence is used:
@@ -228,7 +227,7 @@ public interface Encoder {
      * Calling [Encoder.beginStructure] on returned instance leads to an undefined behavior.
      */
     @ExperimentalSerializationApi
-    public fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder?
+    public fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder
 
     /**
      * Encodes the beginning of the nested structure in a serialized form
@@ -412,8 +411,6 @@ public interface CompositeEncoder {
     /**
      * Returns [Encoder] for decoding an underlying type of an inline class.
      * [inlineDescriptor] describes a serializable inline class.
-     * The resulting value may be null if element should be omitted from output
-     * (encoder wants to simply ignore this value).
      *
      * Namely, for the `@Serializable inline class MyInt(val my: Int)`,
      * and `@Serializable class MyData(val myInt: MyInt)`
@@ -444,7 +441,7 @@ public interface CompositeEncoder {
         descriptor: SerialDescriptor,
         index: Int,
         inlineDescriptor: SerialDescriptor
-    ): Encoder?
+    ): Encoder
 
     /**
      * Delegates [value] encoding of the type [T] to the given [serializer].
