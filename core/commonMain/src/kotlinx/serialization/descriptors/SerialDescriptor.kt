@@ -162,6 +162,12 @@ public interface SerialDescriptor {
     public val isNullable: Boolean get() = false
 
     /**
+     * Returns `true` if this descriptor describes a serializable inline class.
+     */
+    @ExperimentalSerializationApi
+    public val isInline: Boolean get() = false
+
+    /**
      * The number of elements this descriptor describes, besides from the class itself.
      * [elementsCount] describes the number of **semantic** elements, not the number
      * of actual fields/properties in the serialized form, even though they frequently match.
@@ -262,13 +268,6 @@ public interface SerialDescriptor {
      */
     @ExperimentalSerializationApi
     public fun isElementOptional(index: Int): Boolean
-
-    /**
-     * Returns `true` if this descriptor is for a serializable inline class.
-     */
-    @ExperimentalSerializationApi
-    public val isInline: Boolean
-        get() = false
 }
 
 /**

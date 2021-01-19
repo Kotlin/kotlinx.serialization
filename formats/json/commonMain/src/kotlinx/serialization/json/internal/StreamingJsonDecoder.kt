@@ -185,26 +185,26 @@ internal open class StreamingJsonDecoder internal constructor(
      * The rest of the primitives are allowed to be quoted and unqouted
      * to simplify integrations with third-party API.
      */
-    override fun decodeByte(): Byte = reader.takeString().parse("byte") { toByte() }
-    override fun decodeShort(): Short = reader.takeString().parse("short") { toShort() }
-    override fun decodeInt(): Int = reader.takeString().parse("int") { toInt() }
-    override fun decodeLong(): Long = reader.takeString().parse("long") { toLong() }
+    override fun decodeByte(): Byte = reader.parseString("byte") { toByte() }
+    override fun decodeShort(): Short = reader.parseString("short") { toShort() }
+    override fun decodeInt(): Int = reader.parseString("int") { toInt() }
+    override fun decodeLong(): Long = reader.parseString("long") { toLong() }
 
     override fun decodeFloat(): Float {
-        val result = reader.takeString().parse("float") { toFloat() }
+        val result = reader.parseString("float") { toFloat() }
         val specialFp = json.configuration.allowSpecialFloatingPointValues
         if (specialFp || result.isFinite()) return result
         reader.throwInvalidFloatingPointDecoded(result)
     }
 
     override fun decodeDouble(): Double {
-        val result = reader.takeString().parse("double") { toDouble() }
+        val result = reader.parseString("double") { toDouble() }
         val specialFp = json.configuration.allowSpecialFloatingPointValues
         if (specialFp || result.isFinite()) return result
         reader.throwInvalidFloatingPointDecoded(result)
     }
 
-    override fun decodeChar(): Char = reader.takeString().parse("char") { single() }
+    override fun decodeChar(): Char = reader.parseString("char") { single() }
 
     override fun decodeString(): String {
         return if (configuration.isLenient) {
@@ -218,14 +218,6 @@ internal open class StreamingJsonDecoder internal constructor(
         return if (inlineDescriptor.isUnsignedNumber) JsonDecoderForUnsignedTypes(reader, json) else this
     }
 
-    private inline fun <T> String.parse(type: String, block: String.() -> T): T {
-        try {
-            return block()
-        } catch (e: IllegalArgumentException) {
-            reader.fail("Failed to parse type '$type' for input '$this'")
-        }
-    }
-
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
         return enumDescriptor.getElementIndexOrThrow(decodeString())
     }
@@ -233,13 +225,24 @@ internal open class StreamingJsonDecoder internal constructor(
 
 @OptIn(ExperimentalSerializationApi::class)
 @ExperimentalUnsignedTypes
-internal class JsonDecoderForUnsignedTypes(private val reader: JsonReader, json: Json) :
-    AbstractDecoder() {
+internal class JsonDecoderForUnsignedTypes(
+    private val reader: JsonReader,
+    json: Json
+) : AbstractDecoder() {
     override val serializersModule: SerializersModule = json.serializersModule
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int = error("unsupported")
 
-    override fun decodeInt(): Int = reader.takeString().toUInt().toInt()
-    override fun decodeLong(): Long = reader.takeString().toULong().toLong()
-    override fun decodeByte(): Byte = reader.takeString().toUByte().toByte()
-    override fun decodeShort(): Short = reader.takeString().toUShort().toShort()
+    override fun decodeInt(): Int = reader.parseString("UInt") { toUInt().toInt() }
+    override fun decodeLong(): Long = reader.parseString("ULong") { toULong().toLong() }
+    override fun decodeByte(): Byte = reader.parseString("UByte") { toUByte().toByte() }
+    override fun decodeShort(): Short = reader.parseString("UShort") { toUShort().toShort() }
+}
+
+private inline fun <T> JsonReader.parseString(expectedType: String, block: String.() -> T): T {
+    val input = takeString()
+    try {
+        return input.block()
+    } catch (e: IllegalArgumentException) {
+        fail("Failed to parse type '$expectedType' for input '$input'")
+    }
 }

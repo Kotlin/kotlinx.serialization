@@ -42,7 +42,7 @@ internal open class PluginGeneratedSerialDescriptor(
     }
 
     // Can be without synchronization but Native will likely break due to freezing
-    internal val _hashCode: Int by lazy { hashCodeImpl(typeParameterDescriptors) }
+    private val _hashCode: Int by lazy { hashCodeImpl(typeParameterDescriptors) }
 
     public fun addElement(name: String, isOptional: Boolean = false) {
         names[++added] = name

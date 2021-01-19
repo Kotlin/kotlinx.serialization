@@ -12,13 +12,13 @@ import kotlinx.serialization.encoding.*
 @PublishedApi
 @OptIn(ExperimentalSerializationApi::class)
 internal class InlineClassDescriptor(
-    name: String, generatedSerializer:
-    GeneratedSerializer<*>
+    name: String,
+    generatedSerializer: GeneratedSerializer<*>
 ) : PluginGeneratedSerialDescriptor(name, generatedSerializer, 1) {
 
     override val isInline: Boolean = true
 
-    override fun hashCode(): Int = _hashCode * 31
+    override fun hashCode(): Int = super.hashCode() * 31
 
     override fun equals(other: Any?): Boolean = equalsImpl(other) { otherDescriptor ->
         otherDescriptor.isInline &&
