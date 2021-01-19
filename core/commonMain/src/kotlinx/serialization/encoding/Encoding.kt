@@ -207,26 +207,25 @@ public interface Encoder {
     public fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int)
 
     /**
-     * Returns [Encoder] for encoding an underlying type of inline class type.
-     * [inlineDescriptor] should describe a serializable inline class.
-     * Returned value may be null if element should be omitted from output
-     * (encoder wants to simply ignore this value).
+     * Returns [Encoder] for encoding an underlying type of an inline class.
+     * [inlineDescriptor] describes a serializable inline class.
+     * The resulting value may be null if an element should be omitted from the output.
      *
      * Namely, for the `@Serializable inline class MyInt(val my: Int)`,
-     * the following sequence should be used:
+     * the following sequence is used:
      * ```
      * thisEncoder.encodeInline(MyInt.serializer().descriptor).encodeInt(my)
      * ```
      *
      * Current encoder may return any other instance of [Encoder] class,
-     * depending on provided [inlineDescriptor].
+     * depending on the provided [inlineDescriptor].
      * For example, when this function is called on Json encoder with
      * `UInt.serializer().descriptor`, the returned encoder is able
      * to encode unsigned integers.
      *
      * Note that this function returns [Encoder] instead of [CompositeEncoder]
      * because inline classes always have one property.
-     * Calling [Encoder.beginStructure] on returned instance is an undefined behavior.
+     * Calling [Encoder.beginStructure] on returned instance leads to an undefined behavior.
      */
     @ExperimentalSerializationApi
     public fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder?
@@ -411,14 +410,14 @@ public interface CompositeEncoder {
     public fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String)
 
     /**
-     * Returns [Encoder] for decoding an underlying type of inline class type.
-     * [inlineDescriptor] should describe a serializable inline class.
-     * Returned value may be null if element should be omitted from output
+     * Returns [Encoder] for decoding an underlying type of an inline class.
+     * [inlineDescriptor] describes a serializable inline class.
+     * The resulting value may be null if element should be omitted from output
      * (encoder wants to simply ignore this value).
      *
      * Namely, for the `@Serializable inline class MyInt(val my: Int)`,
      * and `@Serializable class MyData(val myInt: MyInt)`
-     * the following sequence can be used:
+     * the following sequence is used:
      * ```
      * thisEncoder.encodeInlineElement(MyData.serializer.descriptor, 0, MyInt.serializer().descriptor).encodeInt(my)
      * ```
@@ -436,7 +435,7 @@ public interface CompositeEncoder {
      *
      * Note that this function returns [Encoder] instead of [CompositeEncoder]
      * because inline classes always have one property.
-     * Calling [Encoder.beginStructure] on returned instance is an undefined behavior.
+     * Calling [Encoder.beginStructure] on returned instance leads to an undefined behavior.
      *
      * @see Encoder.encodeInline
      */
