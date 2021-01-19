@@ -23,6 +23,20 @@ kotlin {
             }
         }
     }
+
+    jvm {
+        // Exclude folder with inline classes tests when legacy JVM compiler is used
+        configure([compilations.test]) {
+            allKotlinSourceSets.forEach {
+                def canSupportInlineClasses = rootProject.ext.jvm_ir_enabled || project.ext.ideaActive
+                if (!canSupportInlineClasses) {
+                    it.kotlin {
+                        exclude '**/kotlinx/serialization/features/inline/**'
+                    }
+                }
+            }
+        }
+    }
 }
 
 // TODO: these tests are failing on JVM IR
