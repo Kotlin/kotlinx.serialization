@@ -23,7 +23,7 @@ inline class MyUInt(val m: Int)
 object MyUIntSerializer {
     override val descriptor = UInt.serializer().descriptor
     override fun serialize(encoder: Encoder, value: MyUInt) {
-        encoder.encodeInline(descriptor)?.encodeInt(value.m)
+        encoder.encodeInline(descriptor).encodeInt(value.m)
     }
 
     override fun deserialize(decoder: Decoder): MyUInt {

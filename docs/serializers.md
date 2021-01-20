@@ -984,9 +984,9 @@ fun main() {
 ```             
 
 > You can get the full code [here](../guide/example/example-serializer-20.kt).
-  
-The output is shown below.  
-  
+
+The output is shown below.
+
 ```text
 {"name":"kotlinx.serialization","stars":9000}
 ```     

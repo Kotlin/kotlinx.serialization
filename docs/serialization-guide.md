@@ -145,3 +145,11 @@ Once the project is set up, we can start serializing some classes.
   * <a name='efficient-binary-format'></a>[Efficient binary format](formats.md#efficient-binary-format)
   * <a name='format-specific-types'></a>[Format-specific types](formats.md#format-specific-types)
 <!--- END -->
+
+**Appendix A.** [Serialization and inline classes (experimental, IR-specific)](inline-classes.md)
+
+<!--- TOC_REF inline-classes.md -->
+* <a name='serializable-inline-classes'></a>[Serializable inline classes](inline-classes.md#serializable-inline-classes)
+* <a name='unsigned-types-support-json-only'></a>[Unsigned types support (JSON only)](inline-classes.md#unsigned-types-support-json-only)
+* <a name='using-inline-classes-in-your-custom-serializers'></a>[Using inline classes in your custom serializers](inline-classes.md#using-inline-classes-in-your-custom-serializers)
+<!--- END -->
