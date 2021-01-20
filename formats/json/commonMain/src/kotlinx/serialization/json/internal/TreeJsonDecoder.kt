@@ -97,7 +97,9 @@ private sealed class AbstractJsonTreeDecoder(
                 -1, "Boolean literal for key '$tag' should be unquoted.\n$lenientHint", currentObject().toString()
             )
         }
-        return value.boolean
+        return value.primitive("boolean") {
+            booleanOrNull ?: throw IllegalArgumentException() /* Will be handled by 'primitive' */
+        }
     }
 
     override fun decodeTaggedByte(tag: String) = getValue(tag).primitive("byte") { int.toByte() }
@@ -124,7 +126,7 @@ private sealed class AbstractJsonTreeDecoder(
     private inline fun <T: Any> JsonPrimitive.primitive(primitive: String, block: JsonPrimitive.() -> T): T {
         try {
             return block()
-        } catch (e: Throwable) {
+        } catch (e: IllegalArgumentException) {
             throw JsonDecodingException(-1, "Failed to parse '$primitive'", currentObject().toString())
         }
     }

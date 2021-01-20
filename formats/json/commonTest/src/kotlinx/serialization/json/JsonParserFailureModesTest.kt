@@ -64,4 +64,13 @@ class JsonParserFailureModesTest : JsonTestBase() {
             assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{""", it) }
         }
     }
+
+    @Serializable
+    class BooleanHolder(val b: Boolean)
+
+    @Test
+    fun testBoolean() = parametrizedTest {
+        assertFailsWith<JsonDecodingException> { default.decodeFromString(BooleanHolder.serializer(), """{"b": fals}""", it) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString(BooleanHolder.serializer(), """{"b": 123}""", it) }
+    }
 }
