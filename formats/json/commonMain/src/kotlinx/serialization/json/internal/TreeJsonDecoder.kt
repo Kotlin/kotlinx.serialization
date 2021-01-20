@@ -102,8 +102,18 @@ private sealed class AbstractJsonTreeDecoder(
         }
     }
 
-    override fun decodeTaggedByte(tag: String) = getValue(tag).primitive("byte") { int.toByte() }
-    override fun decodeTaggedShort(tag: String) = getValue(tag).primitive("short") { int.toShort() }
+    override fun decodeTaggedByte(tag: String) = getValue(tag).primitive("byte") {
+        val result = int
+        if (result in Byte.MIN_VALUE..Byte.MAX_VALUE) result.toByte()
+        else null
+    }
+
+    override fun decodeTaggedShort(tag: String) = getValue(tag).primitive("short") {
+        val result = int
+        if (result in Short.MIN_VALUE..Short.MAX_VALUE) result.toShort()
+        else null
+    }
+
     override fun decodeTaggedInt(tag: String) = getValue(tag).primitive("int") { int }
     override fun decodeTaggedLong(tag: String) = getValue(tag).primitive("long") { long }
 
@@ -123,12 +133,16 @@ private sealed class AbstractJsonTreeDecoder(
 
     override fun decodeTaggedChar(tag: String): Char = getValue(tag).primitive("char") { content.single() }
 
-    private inline fun <T: Any> JsonPrimitive.primitive(primitive: String, block: JsonPrimitive.() -> T): T {
+    private inline fun <T: Any> JsonPrimitive.primitive(primitive: String, block: JsonPrimitive.() -> T?): T {
         try {
-            return block()
+            return block() ?: unparsedPrimitive(primitive)
         } catch (e: IllegalArgumentException) {
-            throw JsonDecodingException(-1, "Failed to parse '$primitive'", currentObject().toString())
+            unparsedPrimitive(primitive)
         }
+    }
+
+    private fun unparsedPrimitive(primitive: String): Nothing {
+        throw JsonDecodingException(-1, "Failed to parse '$primitive'", currentObject().toString())
     }
 
     override fun decodeTaggedString(tag: String): String {
