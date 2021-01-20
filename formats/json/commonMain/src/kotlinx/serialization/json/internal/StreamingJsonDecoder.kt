@@ -173,11 +173,13 @@ internal class StreamingJsonDecoder internal constructor(
          * We prohibit non true/false boolean literals at all as it is considered way too error-prone,
          * but allow quoted literal in relaxed mode for booleans.
          */
-        return if (configuration.isLenient) {
-            reader.takeString().toBooleanStrict()
+        val string = if (configuration.isLenient) {
+            reader.takeString()
         } else {
-            reader.takeBooleanStringUnquoted().toBooleanStrict()
+            reader.takeBooleanStringUnquoted()
         }
+        string.toBooleanStrictOrNull()?.let { return it }
+        reader.fail("Failed to parse type 'boolean' for input '$string'")
     }
 
     /*
@@ -216,8 +218,8 @@ internal class StreamingJsonDecoder internal constructor(
     private inline fun <T> String.parse(type: String, block: String.() -> T): T {
         try {
             return block()
-        } catch (e: Throwable) {
-            reader.fail("Failed to parse '$type'")
+        } catch (e: IllegalArgumentException) {
+            reader.fail("Failed to parse type '$type' for input '$this'")
         }
     }
 

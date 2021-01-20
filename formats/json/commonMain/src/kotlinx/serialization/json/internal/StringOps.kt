@@ -54,25 +54,10 @@ internal fun StringBuilder.printQuoted(value: String) {
 
 /**
  * Returns `true` if the contents of this string is equal to the word "true", ignoring case, `false` if content equals "false",
- * and throws [IllegalStateException] otherwise.
- */
-internal fun String.toBooleanStrict(): Boolean = toBooleanStrictOrNull() ?: throw IllegalStateException("$this does not represent a Boolean")
-
-/**
- * Returns `true` if the contents of this string is equal to the word "true", ignoring case, `false` if content equals "false",
  * and returns `null` otherwise.
  */
 internal fun String.toBooleanStrictOrNull(): Boolean? = when {
     this.equals("true", ignoreCase = true) -> true
     this.equals("false", ignoreCase = true) -> false
     else -> null
-}
-
-internal fun shouldBeQuoted(str: String): Boolean {
-    if (str == NULL) return true
-    for (ch in str) {
-        if (charToTokenClass(ch) != TC_OTHER) return true
-    }
-
-    return false
 }

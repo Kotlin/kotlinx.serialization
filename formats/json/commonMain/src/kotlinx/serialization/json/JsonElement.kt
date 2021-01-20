@@ -221,7 +221,7 @@ public val JsonPrimitive.floatOrNull: Float? get() = content.toFloatOrNull()
  * Returns content of current element as boolean
  * @throws IllegalStateException if current element doesn't represent boolean
  */
-public val JsonPrimitive.boolean: Boolean get() = content.toBooleanStrict()
+public val JsonPrimitive.boolean: Boolean get() = content.toBooleanStrictOrNull() ?: throw IllegalStateException("$this does not represent a Boolean")
 
 /**
  * Returns content of current element as boolean or `null` if current element is not a valid representation of boolean
