@@ -12,6 +12,7 @@ kotlin {
             }
         }
     }
+
     js {
         nodejs {}
         configure([compilations.main, compilations.test]) {
@@ -86,5 +87,20 @@ kotlin {
 
     sourceSets.matching({ it.name.contains("Main") }).all { srcSet ->
         project.ext.set("kotlin.mpp.freeCompilerArgsForSourceSet.${srcSet.name}", "-Xexplicit-api=warning")
+    }
+
+    def targetsWithoutTestRunners = ["linuxArm32Hfp", "linuxArm64", "mingwX86"]
+    configure(targets) {
+        // Configure additional binaries to run tests in the background
+        if (["macos", "linux", "mingw"].any { name.startsWith(it) && !targetsWithoutTestRunners.contains(name) }) {
+            binaries {
+                test("background", [nativeDebugBuild]) {
+                    freeCompilerArgs += ["-trw"]
+                }
+            }
+            testRuns {
+                background { setExecutionSourceFrom(binaries.backgroundDebugTest) }
+            }
+        }
     }
 }

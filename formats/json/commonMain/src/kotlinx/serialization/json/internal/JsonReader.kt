@@ -54,10 +54,10 @@ private const val ESC2C_MAX = 0x75
 // object instead of @SharedImmutable because there is mutual initialization in [initC2ESC] and [initC2TC]
 internal object CharMappings {
     @JvmField
-    public val ESCAPE_2_CHAR = CharArray(ESC2C_MAX)
+    val ESCAPE_2_CHAR = CharArray(ESC2C_MAX)
 
     @JvmField
-    public val C2TC = ByteArray(CTC_MAX)
+    val C2TC = ByteArray(CTC_MAX)
 
     init {
         initEscape()

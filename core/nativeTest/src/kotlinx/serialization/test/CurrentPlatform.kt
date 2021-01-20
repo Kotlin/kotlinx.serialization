@@ -5,5 +5,7 @@
 package kotlinx.serialization.test
 
 import kotlinx.serialization.test.Platform
+import kotlin.native.concurrent.SharedImmutable
 
+@SharedImmutable
 public actual val currentPlatform: Platform = Platform.NATIVE
