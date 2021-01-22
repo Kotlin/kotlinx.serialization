@@ -8,7 +8,7 @@ import kotlinx.serialization.*
 
 internal class ByteArrayInput(private var array: ByteArray, private val endIndex: Int = array.size) {
     private var position: Int = 0
-    public val availableBytes: Int get() = endIndex - position
+    private val availableBytes: Int get() = endIndex - position
 
     fun slice(size: Int): ByteArrayInput {
         ensureEnoughBytes(size)
@@ -124,6 +124,17 @@ internal class ByteArrayInput(private var array: ByteArray, private val endIndex
 }
 
 internal class ByteArrayOutput {
+
+    private companion object {
+        /*
+         * Map number of leading zeroes -> varint size
+         * See the explanation in this blogpost: https://richardstartin.github.io/posts/dont-use-protobuf-for-telemetry
+         */
+        private val VAR_INT_LENGTHS = IntArray(65) {
+            (63 - it) / 7
+        }
+    }
+
     private var array: ByteArray = ByteArray(32)
     private var position: Int = 0
 
@@ -136,11 +147,11 @@ internal class ByteArrayOutput {
         array = newArray
     }
 
-    public fun size(): Int {
+    fun size(): Int {
         return position
     }
 
-    public fun toByteArray(): ByteArray {
+    fun toByteArray(): ByteArray {
         val newArray = ByteArray(position)
         array.copyInto(newArray, startIndex = 0, endIndex = this.position)
         return newArray
@@ -189,42 +200,33 @@ internal class ByteArrayOutput {
     }
 
     fun encodeVarint32(value: Int) {
-        ensureCapacity(5)
         // Fast-path: unrolled loop for single byte
+        ensureCapacity(5)
         if (value and 0x7F.inv() == 0) {
             array[position++] = value.toByte()
             return
         }
-        // Fast-path: unrolled loop for two bytes
-        var current = value
-        array[position++] = (current or 0x80).toByte()
-        current = current ushr 7
-        if (value and 0x7F.inv() == 0) {
-            array[position++] = value.toByte()
-            return
-        }
-        encodeVarint32SlowPath(current)
-    }
-
-    private fun encodeVarint32SlowPath(value: Int) {
-        var current = value
-        while (current and 0x7F.inv() != 0) {
-            array[position++] = ((current and 0x7F) or 0x80).toByte()
-            current = current ushr 7
-        }
-        array[position++] = (current and 0x7F).toByte()
+        val length = varIntLength(value.toLong())
+        encodeVarint(value.toLong(), length)
     }
 
     fun encodeVarint64(value: Long) {
-        ensureCapacity(10)
-        var currentValue = value
-        while (true) {
-            if (currentValue and 0x7F.inv() == 0L) {
-                array[position++] = currentValue.toByte()
-                return
-            }
-            array[position++] = (currentValue.toInt() and 0x7F or 0x80).toByte()
-            currentValue = currentValue ushr 7
+        val length = varIntLength(value)
+        ensureCapacity(length + 1)
+        encodeVarint(value, length)
+    }
+
+    private inline fun encodeVarint(value: Long, length: Int) {
+        var current = value
+        for (i in 0 until length) {
+            array[position + i] = ((current and 0x7F) or 0x80).toByte()
+            current = current ushr 7
         }
+        array[position + length] = current.toByte()
+        position += length + 1
+    }
+
+    private fun varIntLength(value: Long): Int {
+        return VAR_INT_LENGTHS[value.countLeadingZeroBits()]
     }
 }
