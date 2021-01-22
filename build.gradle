@@ -91,6 +91,7 @@ buildscript {
 
 // To make it visible for compiler-version.gradle
 ext.compilerVersion = org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION
+ext.nativeDebugBuild = org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType.DEBUG
 apply plugin: 'binary-compatibility-validator'
 
 apiValidation {

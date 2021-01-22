@@ -6,6 +6,7 @@ package kotlinx.serialization
 
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
+import kotlin.native.concurrent.*
 
 @Serializable
 open class PolyBase(val id: Int) {
@@ -34,6 +35,7 @@ data class PolyDefault(val json: JsonElement) : PolyBase(-1)
 @Serializable
 data class PolyDerived(val s: String) : PolyBase(1)
 
+@SharedImmutable
 val BaseAndDerivedModule = SerializersModule {
     polymorphic(PolyBase::class, PolyBase.serializer()) {
         subclass(PolyDerived.serializer())

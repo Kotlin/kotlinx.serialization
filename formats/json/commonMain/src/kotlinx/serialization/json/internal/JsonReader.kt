@@ -4,9 +4,9 @@
 
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.json.internal.EscapeCharMappings.ESCAPE_2_CHAR
+import kotlinx.serialization.json.internal.CharMappings.C2TC
+import kotlinx.serialization.json.internal.CharMappings.ESCAPE_2_CHAR
 import kotlin.jvm.*
-import kotlin.native.concurrent.*
 
 internal const val lenientHint = "Use 'isLenient = true' in 'Json {}` builder to accept non-compliant JSON."
 internal const val coerceInputValuesHint = "Use 'coerceInputValues = true' in 'Json {}` builder to coerce nulls to default values."
@@ -51,32 +51,20 @@ private const val CTC_MAX = 0x7e
 // mapping from escape chars real chars
 private const val ESC2C_MAX = 0x75
 
-@SharedImmutable
-internal val C2TC = ByteArray(CTC_MAX).apply {
-    for (i in 0..0x20) {
-        initC2TC(i, TC_INVALID)
-    }
-
-    initC2TC(0x09, TC_WS)
-    initC2TC(0x0a, TC_WS)
-    initC2TC(0x0d, TC_WS)
-    initC2TC(0x20, TC_WS)
-    initC2TC(COMMA, TC_COMMA)
-    initC2TC(COLON, TC_COLON)
-    initC2TC(BEGIN_OBJ, TC_BEGIN_OBJ)
-    initC2TC(END_OBJ, TC_END_OBJ)
-    initC2TC(BEGIN_LIST, TC_BEGIN_LIST)
-    initC2TC(END_LIST, TC_END_LIST)
-    initC2TC(STRING, TC_STRING)
-    initC2TC(STRING_ESC, TC_STRING_ESC)
-}
-
-// object instead of @SharedImmutable because there is mutual initialization in [initC2ESC]
-internal object EscapeCharMappings {
+// object instead of @SharedImmutable because there is mutual initialization in [initC2ESC] and [initC2TC]
+internal object CharMappings {
     @JvmField
-    public val ESCAPE_2_CHAR = CharArray(ESC2C_MAX)
+    val ESCAPE_2_CHAR = CharArray(ESC2C_MAX)
+
+    @JvmField
+    val C2TC = ByteArray(CTC_MAX)
 
     init {
+        initEscape()
+        initCharToToken()
+    }
+
+    private fun initEscape() {
         for (i in 0x00..0x1f) {
             initC2ESC(i, UNICODE_ESC)
         }
@@ -91,19 +79,36 @@ internal object EscapeCharMappings {
         initC2ESC(STRING_ESC, STRING_ESC)
     }
 
+    private fun initCharToToken() {
+        for (i in 0..0x20) {
+            initC2TC(i, TC_INVALID)
+        }
+
+        initC2TC(0x09, TC_WS)
+        initC2TC(0x0a, TC_WS)
+        initC2TC(0x0d, TC_WS)
+        initC2TC(0x20, TC_WS)
+        initC2TC(COMMA, TC_COMMA)
+        initC2TC(COLON, TC_COLON)
+        initC2TC(BEGIN_OBJ, TC_BEGIN_OBJ)
+        initC2TC(END_OBJ, TC_END_OBJ)
+        initC2TC(BEGIN_LIST, TC_BEGIN_LIST)
+        initC2TC(END_LIST, TC_END_LIST)
+        initC2TC(STRING, TC_STRING)
+        initC2TC(STRING_ESC, TC_STRING_ESC)
+    }
+
     private fun initC2ESC(c: Int, esc: Char) {
         if (esc != UNICODE_ESC) ESCAPE_2_CHAR[esc.toInt()] = c.toChar()
     }
 
     private fun initC2ESC(c: Char, esc: Char) = initC2ESC(c.toInt(), esc)
-}
 
-private fun ByteArray.initC2TC(c: Int, cl: Byte) {
-    this[c] = cl
-}
+    private fun initC2TC(c: Int, cl: Byte) {
+        C2TC[c] = cl
+    }
 
-private fun ByteArray.initC2TC(c: Char, cl: Byte) {
-    initC2TC(c.toInt(), cl)
+    private fun initC2TC(c: Char, cl: Byte) = initC2TC(c.toInt(), cl)
 }
 
 internal fun charToTokenClass(c: Char) = if (c.toInt() < CTC_MAX) C2TC[c.toInt()] else TC_OTHER

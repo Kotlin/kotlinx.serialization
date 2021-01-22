@@ -88,7 +88,6 @@ kotlin {
 
     targets {
         if (project.ext.nativeState == NativeState.DISABLED) return
-
         if (project.ext.singleTargetMode) {
             fromPreset(project.ext.ideaPreset, 'native')
         } else {

@@ -7,6 +7,7 @@ package kotlinx.serialization.json.polymorphic
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
+import kotlin.native.concurrent.*
 
 @Serializable
 internal open class InnerBase
@@ -37,7 +38,7 @@ internal data class OuterBox(@Polymorphic val outerBase: OuterBase, @Polymorphic
 @Serializable
 internal data class OuterNullableBox(@Polymorphic val outerBase: OuterBase?, @Polymorphic val innerBase: InnerBase?)
 
-
+@SharedImmutable
 internal val polymorphicTestModule = SerializersModule {
     polymorphic(InnerBase::class) {
         subclass(InnerImpl.serializer())
@@ -50,11 +51,13 @@ internal val polymorphicTestModule = SerializersModule {
     }
 }
 
+@SharedImmutable
 internal val polymorphicJson = Json {
     serializersModule = polymorphicTestModule
     encodeDefaults = true
 }
 
+@SharedImmutable
 internal val polymorphicRelaxedJson = Json {
     isLenient = true
     serializersModule = polymorphicTestModule
