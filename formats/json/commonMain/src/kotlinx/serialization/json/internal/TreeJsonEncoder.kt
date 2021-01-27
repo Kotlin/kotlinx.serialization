@@ -102,8 +102,8 @@ private sealed class AbstractJsonTreeEncoder(
     override fun encodeTaggedInline(tag: String, inlineDescriptor: SerialDescriptor): Encoder {
         return object : AbstractEncoder() {
             override val serializersModule: SerializersModule = json.serializersModule
+            
             fun putUnquotedString(s: String) = putElement(tag, JsonLiteral(s, isString = false))
-
             override fun encodeInt(value: Int) = putUnquotedString(value.toUInt().toString())
             override fun encodeLong(value: Long) = putUnquotedString(value.toULong().toString())
             override fun encodeByte(value: Byte) = putUnquotedString(value.toUByte().toString())
