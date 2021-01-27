@@ -410,13 +410,14 @@ public interface CompositeEncoder {
 
     /**
      * Returns [Encoder] for decoding an underlying type of an inline class.
-     * [inlineDescriptor] describes a serializable inline class.
+     * Serializable inline class is described by the [child descriptor][SerialDescriptor.getElementDescriptor]
+     * of given [descriptor] at [index].
      *
      * Namely, for the `@Serializable inline class MyInt(val my: Int)`,
      * and `@Serializable class MyData(val myInt: MyInt)`
      * the following sequence is used:
      * ```
-     * thisEncoder.encodeInlineElement(MyData.serializer.descriptor, 0, MyInt.serializer().descriptor).encodeInt(my)
+     * thisEncoder.encodeInlineElement(MyData.serializer.descriptor, 0).encodeInt(my)
      * ```
      *
      * This method is an optimization and its invocation should have the exact same result as
@@ -424,10 +425,10 @@ public interface CompositeEncoder {
      * thisEncoder.encodeSerializableElement(MyData.serializer.descriptor, 0, MyInt.serializer(), myInt)
      * ```
      *
-     * Current decoder may return any other instance of [Encoder] class,
-     * depending on provided [inlineDescriptor].
-     * For example, when this function is called on Json encoder with
-     * `UInt.serializer().descriptor`, the returned encoder is able
+     * Current encoder may return any other instance of [Encoder] class,
+     * depending on provided descriptor.
+     * For example, when this function is called on Json encoder with descriptor that has
+     * `UInt.serializer().descriptor` at the given [index], the returned encoder is able
      * to encode unsigned integers.
      *
      * Note that this function returns [Encoder] instead of [CompositeEncoder]
@@ -435,12 +436,12 @@ public interface CompositeEncoder {
      * Calling [Encoder.beginStructure] on returned instance leads to an undefined behavior.
      *
      * @see Encoder.encodeInline
+     * @see SerialDescriptor.getElementDescriptor
      */
     @ExperimentalSerializationApi
     public fun encodeInlineElement(
         descriptor: SerialDescriptor,
-        index: Int,
-        inlineDescriptor: SerialDescriptor
+        index: Int
     ): Encoder
 
     /**

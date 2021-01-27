@@ -108,14 +108,14 @@ override fun serialize(encoder: Encoder, value: NamedColor) {
 
 However, since `Color` is used as a type argument in [encodeSerializableElement][CompositeEncoder.encodeSerializableElement] function, `value.color` will be boxed
 to `Color` wrapper before passing it to the function, preventing the inline class optimization. To avoid this, we can use
-special [encodeInlineElement][CompositeEncoder.encodeInlineElement] function instead. It uses [serial descriptor][SerialDescriptor] instead of [KSerializer],
+special [encodeInlineElement][CompositeEncoder.encodeInlineElement] function instead. It uses [serial descriptor][SerialDescriptor] of `Color` ([retrieved][SerialDescriptor.getElementDescriptor] from serial descriptor of `NamedColor`) instead of [KSerializer],
 does not have type parameters and does not accept any values. Instead, it returns [Encoder]. Using it, we can encode
 unboxed value:
 
 ```kotlin
 override fun serialize(encoder: Encoder, value: NamedColor) {
   encoder.beginStructure(descriptor) {
-    encodeInlineElement(descriptor, 0, Color.serializer().descriptor).encodeInt(value.color)
+    encodeInlineElement(descriptor, 0).encodeInt(value.color)
     encodeStringElement(descriptor, 1, value.name)
   }
 }
@@ -190,6 +190,7 @@ override fun deserialize(decoder: Decoder): UID {
 [Encoder.encodeInt]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.encoding/-encoder/encode-int.html
 <!--- INDEX kotlinx-serialization-core/kotlinx.serialization.descriptors -->
 [SerialDescriptor]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.descriptors/-serial-descriptor/index.html
+[SerialDescriptor.getElementDescriptor]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.descriptors/-serial-descriptor/get-element-descriptor.html
 <!--- MODULE /kotlinx-serialization-json -->
 <!--- INDEX kotlinx-serialization-json/kotlinx.serialization.json -->
 [Json]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json/index.html

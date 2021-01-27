@@ -484,13 +484,14 @@ public interface CompositeDecoder {
 
     /**
      * Returns [Decoder] for decoding an underlying type of an inline class.
-     * [inlineDescriptor] describes a target inline class.
+     * Serializable inline class is described by the [child descriptor][SerialDescriptor.getElementDescriptor]
+     * of given [descriptor] at [index].
      *
      * Namely, for the `@Serializable inline class MyInt(val my: Int)`,
      * and `@Serializable class MyData(val myInt: MyInt)`
      * the following sequence is used:
      * ```
-     * thisDecoder.decodeInlineElement(MyData.serializer().descriptor, 0, MyInt.serializer().descriptor).decodeInt()
+     * thisDecoder.decodeInlineElement(MyData.serializer().descriptor, 0).decodeInt()
      * ```
      *
      * This method provides an opportunity for the optimization and its invocation should be identical to
@@ -498,9 +499,9 @@ public interface CompositeDecoder {
      * thisDecoder.decodeSerializableElement(MyData.serializer.descriptor, 0, MyInt.serializer())
      * ```
      *
-     * Current decoder may return any other instance of [Decoder] class, depending on the provided [inlineDescriptor].
-     * For example, when this function is called on Json decoder with
-     * `UInt.serializer().descriptor`, the returned decoder is able
+     * Current decoder may return any other instance of [Decoder] class, depending on the provided descriptor.
+     * For example, when this function is called on Json decoder with descriptor that has
+     * `UInt.serializer().descriptor` at the given [index], the returned decoder is able
      * to decode unsigned integers.
      *
      * Note that this function returns [Decoder] instead of the [CompositeDecoder]
@@ -508,12 +509,12 @@ public interface CompositeDecoder {
      * Calling [Decoder.beginStructure] on returned instance leads to an undefined behavior.
      *
      * @see Decoder.decodeInline
+     * @see SerialDescriptor.getElementDescriptor
      */
     @ExperimentalSerializationApi
     public fun decodeInlineElement(
         descriptor: SerialDescriptor,
-        index: Int,
-        inlineDescriptor: SerialDescriptor
+        index: Int
     ): Decoder
 
     /**

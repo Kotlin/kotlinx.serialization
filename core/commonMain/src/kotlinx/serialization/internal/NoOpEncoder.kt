@@ -12,8 +12,8 @@ import kotlinx.serialization.modules.*
 /**
  * Encoder that does not do any operations. Its main purpose is to ignore data instead of writing it.
  */
-@ExperimentalSerializationApi
-internal object EmptyEncoder : AbstractEncoder() {
+@OptIn(ExperimentalSerializationApi::class)
+internal object NoOpEncoder : AbstractEncoder() {
     override val serializersModule: SerializersModule = EmptySerializersModule
 
     public override fun encodeValue(value: Any): Unit = Unit

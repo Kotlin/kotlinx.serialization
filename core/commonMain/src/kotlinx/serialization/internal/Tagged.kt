@@ -121,10 +121,9 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
 
     final override fun encodeInlineElement(
         descriptor: SerialDescriptor,
-        index: Int,
-        inlineDescriptor: SerialDescriptor
+        index: Int
     ): Encoder {
-        return encodeTaggedInline(descriptor.getTag(index), inlineDescriptor)
+        return encodeTaggedInline(descriptor.getTag(index), descriptor.getElementDescriptor(index))
     }
 
     final override fun <T : Any?> encodeSerializableElement(
@@ -268,9 +267,8 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
 
     final override fun decodeInlineElement(
         descriptor: SerialDescriptor,
-        index: Int,
-        inlineDescriptor: SerialDescriptor
-    ): Decoder = decodeTaggedInline(descriptor.getTag(index), inlineDescriptor)
+        index: Int
+    ): Decoder = decodeTaggedInline(descriptor.getTag(index), descriptor.getElementDescriptor(index))
 
     final override fun <T : Any?> decodeSerializableElement(
         descriptor: SerialDescriptor,

@@ -131,7 +131,7 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
         return encodeTaggedInline(popTag(), inlineDescriptor)
     }
 
-    override fun encodeInlineElement(descriptor: SerialDescriptor, index: Int, inlineDescriptor: SerialDescriptor): Encoder {
-        return encodeTaggedInline(descriptor.getTag(index), inlineDescriptor)
+    override fun encodeInlineElement(descriptor: SerialDescriptor, index: Int): Encoder {
+        return encodeTaggedInline(descriptor.getTag(index), descriptor.getElementDescriptor(index))
     }
 }

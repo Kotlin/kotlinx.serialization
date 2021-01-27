@@ -18,7 +18,7 @@ data class WithUnsigned(val u: UInt)
 object WithUnsignedSerializer : KSerializer<WithUnsigned> {
     override fun serialize(encoder: Encoder, obj: WithUnsigned) {
         val ce = encoder.beginStructure(descriptor)
-        ce.encodeInlineElement(descriptor, 0, UInt.serializer().descriptor)?.encodeInt(obj.u.toInt())
+        ce.encodeInlineElement(descriptor, 0).encodeInt(obj.u.toInt())
         ce.endStructure(descriptor)
     }
 
@@ -27,7 +27,7 @@ object WithUnsignedSerializer : KSerializer<WithUnsigned> {
         var u: UInt = 0.toUInt()
         loop@ while (true) {
             u = when (val i = cd.decodeElementIndex(descriptor)) {
-                0 -> cd.decodeInlineElement(descriptor, i, UInt.serializer().descriptor)?.decodeInt().toUInt()
+                0 -> cd.decodeInlineElement(descriptor, i).decodeInt().toUInt()
                 else -> break@loop
             }
         }

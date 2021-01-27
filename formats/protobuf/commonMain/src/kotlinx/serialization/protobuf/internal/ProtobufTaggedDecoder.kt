@@ -100,9 +100,8 @@ internal abstract class ProtobufTaggedDecoder : ProtobufTaggedBase(), Decoder, C
 
     override fun decodeInlineElement(
         descriptor: SerialDescriptor,
-        index: Int,
-        inlineDescriptor: SerialDescriptor
+        index: Int
     ): Decoder {
-        return decodeTaggedInline(descriptor.getTag(index), inlineDescriptor)
+        return decodeTaggedInline(descriptor.getTag(index), descriptor.getElementDescriptor(index))
     }
 }

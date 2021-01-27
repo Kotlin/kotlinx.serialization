@@ -59,9 +59,8 @@ public abstract class AbstractDecoder : Decoder, CompositeDecoder {
 
     final override fun decodeInlineElement(
         descriptor: SerialDescriptor,
-        index: Int,
-        inlineDescriptor: SerialDescriptor
-    ): Decoder = decodeInline(inlineDescriptor)
+        index: Int
+    ): Decoder = decodeInline(descriptor.getElementDescriptor(index))
 
     final override fun <T> decodeSerializableElement(
         descriptor: SerialDescriptor,
