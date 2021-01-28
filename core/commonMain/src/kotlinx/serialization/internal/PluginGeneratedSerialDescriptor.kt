@@ -37,7 +37,7 @@ internal open class PluginGeneratedSerialDescriptor(
     private val childSerializers by lazy { generatedSerializer?.childSerializers() ?: emptyArray() }
 
     // Lazy because of JS specific initialization order (#789)
-    private val typeParameterDescriptors: Array<SerialDescriptor> by lazy {
+    internal val typeParameterDescriptors: Array<SerialDescriptor> by lazy {
         generatedSerializer?.typeParametersSerializers()?.map { it.descriptor }.compactArray()
     }
 

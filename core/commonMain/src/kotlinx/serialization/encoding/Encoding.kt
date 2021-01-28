@@ -207,6 +207,29 @@ public interface Encoder {
     public fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int)
 
     /**
+     * Returns [Encoder] for encoding an underlying type of an inline class.
+     * [inlineDescriptor] describes a serializable inline class.
+     *
+     * Namely, for the `@Serializable inline class MyInt(val my: Int)`,
+     * the following sequence is used:
+     * ```
+     * thisEncoder.encodeInline(MyInt.serializer().descriptor).encodeInt(my)
+     * ```
+     *
+     * Current encoder may return any other instance of [Encoder] class,
+     * depending on the provided [inlineDescriptor].
+     * For example, when this function is called on Json encoder with
+     * `UInt.serializer().descriptor`, the returned encoder is able
+     * to encode unsigned integers.
+     *
+     * Note that this function returns [Encoder] instead of [CompositeEncoder]
+     * because inline classes always have one property.
+     * Calling [Encoder.beginStructure] on returned instance leads to an undefined behavior.
+     */
+    @ExperimentalSerializationApi
+    public fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder
+
+    /**
      * Encodes the beginning of the nested structure in a serialized form
      * and returns [CompositeDecoder] responsible for encoding this very structure.
      * E.g the hierarchy:
@@ -378,11 +401,48 @@ public interface CompositeEncoder {
      * The element at the given [index] should have [PrimitiveKind.DOUBLE] kind.
      */
     public fun encodeDoubleElement(descriptor: SerialDescriptor, index: Int, value: Double)
+
     /**
      * Encodes a string [value] associated with an element at the given [index] in [serial descriptor][descriptor].
      * The element at the given [index] should have [PrimitiveKind.STRING] kind.
      */
     public fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String)
+
+    /**
+     * Returns [Encoder] for decoding an underlying type of an inline class.
+     * Serializable inline class is described by the [child descriptor][SerialDescriptor.getElementDescriptor]
+     * of given [descriptor] at [index].
+     *
+     * Namely, for the `@Serializable inline class MyInt(val my: Int)`,
+     * and `@Serializable class MyData(val myInt: MyInt)`
+     * the following sequence is used:
+     * ```
+     * thisEncoder.encodeInlineElement(MyData.serializer.descriptor, 0).encodeInt(my)
+     * ```
+     *
+     * This method is an optimization and its invocation should have the exact same result as
+     * ```
+     * thisEncoder.encodeSerializableElement(MyData.serializer.descriptor, 0, MyInt.serializer(), myInt)
+     * ```
+     *
+     * Current encoder may return any other instance of [Encoder] class,
+     * depending on provided descriptor.
+     * For example, when this function is called on Json encoder with descriptor that has
+     * `UInt.serializer().descriptor` at the given [index], the returned encoder is able
+     * to encode unsigned integers.
+     *
+     * Note that this function returns [Encoder] instead of [CompositeEncoder]
+     * because inline classes always have one property.
+     * Calling [Encoder.beginStructure] on returned instance leads to an undefined behavior.
+     *
+     * @see Encoder.encodeInline
+     * @see SerialDescriptor.getElementDescriptor
+     */
+    @ExperimentalSerializationApi
+    public fun encodeInlineElement(
+        descriptor: SerialDescriptor,
+        index: Int
+    ): Encoder
 
     /**
      * Delegates [value] encoding of the type [T] to the given [serializer].

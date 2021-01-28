@@ -24,6 +24,8 @@ internal abstract class ProtobufTaggedDecoder : ProtobufTaggedBase(), Decoder, C
     protected abstract fun decodeTaggedEnum(tag: ProtoDesc, enumDescription: SerialDescriptor): Int
     protected abstract fun <T : Any?> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T
 
+    protected open fun decodeTaggedInline(tag: ProtoDesc, inlineDescriptor: SerialDescriptor): Decoder = this.apply { pushTag(tag) }
+
     final override fun decodeNotNullMark(): Boolean = true
     final override fun decodeNull(): Nothing? = null
     final override fun decodeBoolean(): Boolean = decodeTaggedBoolean(popTagOrDefault())
@@ -90,5 +92,16 @@ internal abstract class ProtobufTaggedDecoder : ProtobufTaggedBase(), Decoder, C
         } else {
             decodeNull()
         }
+    }
+
+    override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder {
+        return decodeTaggedInline(popTag(), inlineDescriptor)
+    }
+
+    override fun decodeInlineElement(
+        descriptor: SerialDescriptor,
+        index: Int
+    ): Decoder {
+        return decodeTaggedInline(descriptor.getTag(index), descriptor.getElementDescriptor(index))
     }
 }

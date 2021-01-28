@@ -5,18 +5,34 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
+import kotlin.native.concurrent.*
 
-@OptIn(ExperimentalSerializationApi::class)
+@ExperimentalSerializationApi
+@OptIn(ExperimentalUnsignedTypes::class)
+@SharedImmutable
+private val unsignedNumberDescriptors = setOf(
+    UInt.serializer().descriptor,
+    ULong.serializer().descriptor,
+    UByte.serializer().descriptor,
+    UShort.serializer().descriptor
+)
+
+@ExperimentalSerializationApi
+internal val SerialDescriptor.isUnsignedNumber: Boolean
+    get() = this.isInline && this in unsignedNumberDescriptors
+
+@OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
 internal class StreamingJsonEncoder(
     private val composer: Composer,
     override val json: Json,
     private val mode: WriteMode,
-    private val modeReuseCache: Array<JsonEncoder?>
+    private val modeReuseCache: Array<JsonEncoder?>?
 ) : JsonEncoder, AbstractEncoder() {
 
     internal constructor(
@@ -33,8 +49,10 @@ internal class StreamingJsonEncoder(
 
     init {
         val i = mode.ordinal
-        if (modeReuseCache[i] !== null || modeReuseCache[i] !== this)
-            modeReuseCache[i] = this
+        if (modeReuseCache != null) {
+            if (modeReuseCache[i] !== null || modeReuseCache[i] !== this)
+                modeReuseCache[i] = this
+        }
     }
 
     override fun encodeJsonElement(element: JsonElement) {
@@ -75,7 +93,7 @@ internal class StreamingJsonEncoder(
             return this
         }
 
-        return modeReuseCache[newMode.ordinal] ?: StreamingJsonEncoder(composer, json, newMode, modeReuseCache)
+        return modeReuseCache?.get(newMode.ordinal) ?: StreamingJsonEncoder(composer, json, newMode, modeReuseCache)
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
@@ -130,6 +148,16 @@ internal class StreamingJsonEncoder(
         return true
     }
 
+    override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder {
+        return if (inlineDescriptor.isUnsignedNumber) StreamingJsonEncoder(
+            ComposerForUnsignedNumbers(
+                composer.sb,
+                composer.json
+            ), json, mode, null
+        )
+        else this
+    }
+
     override fun encodeNull() {
         composer.print(NULL)
     }
@@ -180,7 +208,7 @@ internal class StreamingJsonEncoder(
         encodeString(enumDescriptor.getElementName(index))
     }
 
-    internal class Composer(@JvmField internal val sb: StringBuilder, private val json: Json) {
+    internal open class Composer(@JvmField internal val sb: StringBuilder, @JvmField internal val json: Json) {
         private var level = 0
         var writingFirst = true
             private set
@@ -206,15 +234,34 @@ internal class StreamingJsonEncoder(
                 print(' ')
         }
 
-        fun print(v: Char) = sb.append(v)
-        fun print(v: String) = sb.append(v)
-        fun print(v: Float) = sb.append(v)
-        fun print(v: Double) = sb.append(v)
-        fun print(v: Byte) = sb.append(v)
-        fun print(v: Short) = sb.append(v)
-        fun print(v: Int) = sb.append(v)
-        fun print(v: Long) = sb.append(v)
-        fun print(v: Boolean) = sb.append(v)
-        fun printQuoted(value: String): Unit = sb.printQuoted(value)
+        open fun print(v: Char) = sb.append(v)
+        open fun print(v: String) = sb.append(v)
+        open fun print(v: Float) = sb.append(v)
+        open fun print(v: Double) = sb.append(v)
+        open fun print(v: Byte) = sb.append(v)
+        open fun print(v: Short) = sb.append(v)
+        open fun print(v: Int) = sb.append(v)
+        open fun print(v: Long) = sb.append(v)
+        open fun print(v: Boolean) = sb.append(v)
+        open fun printQuoted(value: String): Unit = sb.printQuoted(value)
+    }
+
+    @ExperimentalUnsignedTypes
+    internal class ComposerForUnsignedNumbers(sb: StringBuilder, json: Json) : Composer(sb, json) {
+        override fun print(v: Int): StringBuilder {
+            return super.print(v.toUInt().toString())
+        }
+
+        override fun print(v: Long): StringBuilder {
+            return super.print(v.toULong().toString())
+        }
+
+        override fun print(v: Byte): StringBuilder {
+            return super.print(v.toUByte().toString())
+        }
+
+        override fun print(v: Short): StringBuilder {
+            return super.print(v.toUShort().toString())
+        }
     }
 }

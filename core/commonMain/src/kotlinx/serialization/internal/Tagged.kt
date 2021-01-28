@@ -47,6 +47,12 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
         ordinal: Int
     ): Unit = encodeTaggedValue(tag, ordinal)
 
+    protected open fun encodeTaggedInline(tag: Tag, inlineDescriptor: SerialDescriptor): Encoder =
+        this.apply { pushTag(tag) }
+
+    final override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder =
+        encodeTaggedInline(popTag(), inlineDescriptor)
+
     // ---- Implementation of low-level API ----
 
     private fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
@@ -112,6 +118,13 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
 
     final override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String): Unit =
         encodeTaggedString(descriptor.getTag(index), value)
+
+    final override fun encodeInlineElement(
+        descriptor: SerialDescriptor,
+        index: Int
+    ): Encoder {
+        return encodeTaggedInline(descriptor.getTag(index), descriptor.getElementDescriptor(index))
+    }
 
     final override fun <T : Any?> encodeSerializableElement(
         descriptor: SerialDescriptor,
@@ -187,11 +200,16 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     protected open fun decodeTaggedEnum(tag: Tag, enumDescriptor: SerialDescriptor): Int =
         decodeTaggedValue(tag) as Int
 
+    protected open fun decodeTaggedInline(tag: Tag, inlineDescriptor: SerialDescriptor): Decoder = this.apply { pushTag(tag) }
+
     protected open fun <T : Any?> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T =
         decodeSerializableValue(deserializer)
 
 
     // ---- Implementation of low-level API ----
+
+    final override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder =
+        decodeTaggedInline(popTag(), inlineDescriptor)
 
     // TODO this method should be overridden by any sane format that supports top-level nulls
     override fun decodeNotNullMark(): Boolean {
@@ -246,6 +264,11 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
 
     final override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String =
         decodeTaggedString(descriptor.getTag(index))
+
+    final override fun decodeInlineElement(
+        descriptor: SerialDescriptor,
+        index: Int
+    ): Decoder = decodeTaggedInline(descriptor.getTag(index), descriptor.getElementDescriptor(index))
 
     final override fun <T : Any?> decodeSerializableElement(
         descriptor: SerialDescriptor,
