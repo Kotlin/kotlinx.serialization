@@ -933,7 +933,7 @@ object ProjectSerializer
 ```
 
 You must bind this serializer to a class using one of the approaches explained in this chapter. We'll
-follow the [Passing a serializer manually](#passing-a-serializer-manually) appraoch for this example.
+follow the [Passing a serializer manually](#passing-a-serializer-manually) approach for this example.
 
 ```kotlin 
 fun main() {
