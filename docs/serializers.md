@@ -815,7 +815,7 @@ All the previous approaches to specifying custom serialization strategies were _
 fully defined at compile-time. The exception was the [Passing a serializer manually](#passing-a-serializer-manually)
 approach, but it worked only on a top-level object. You might need to change the serialization
 strategy for objects deep in the serialized object tree at run-time, with the strategy being selected in a context-dependent way.
-For example, you might want to represent `java.util.Date` in JSON format as an ISO 6801 string or as a long integer
+For example, you might want to represent `java.util.Date` in JSON format as an ISO 8601 string or as a long integer
 depending on a version of a protocol you are serializing data for. This is called _contextual_ serialization, and it
 is supported by a built-in [ContextualSerializer] class. Usually we don't have to use this serializer class explicitly&mdash;there 
 is the [Contextual] annotation providing a shortcut to 
@@ -933,7 +933,7 @@ object ProjectSerializer
 ```
 
 You must bind this serializer to a class using one of the approaches explained in this chapter. We'll
-follow the [Passing a serializer manually](#passing-a-serializer-manually) appraoch for this example.
+follow the [Passing a serializer manually](#passing-a-serializer-manually) approach for this example.
 
 ```kotlin 
 fun main() {
