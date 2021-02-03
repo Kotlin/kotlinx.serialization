@@ -117,7 +117,7 @@ afterEvaluate {
 }
 
 publishing {
-    repositories { // this: closure
+    repositories {
         if (bintrayUploadFlag) {
             PublishingKt.configureBintrayPublication(delegate, project)
         } else {

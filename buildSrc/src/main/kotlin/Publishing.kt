@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2016-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("UnstableApiUsage")
@@ -19,7 +19,7 @@ infix fun <T> Property<T>.by(value: T) {
 
 fun MavenPom.configureMavenCentralMetadata(project: Project) {
     name by project.name
-    description by "Serialization utilities"
+    description by "Kotlin multiplatform serialization runtime library"
     url by "https://github.com/Kotlin/kotlinx.serialization"
 
     licenses {
