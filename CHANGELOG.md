@@ -1,3 +1,47 @@
+1.1.0-RC / 2021-02-03
+==================
+
+This is a release candidate of 1.1.0 version. Note that final 1.1.0 version may include more features and bugfixes, 
+which would be listed in the corresponding changelog.
+
+### Kotlin version requirement updated
+
+Due to changes in calling conventions between compiler plugin and serialization core runtime, this release requires 
+Kotlin version at least 1.4.30-M1. However, this changes should not affect your code,
+because only deprecated functions were removed from public API.
+See [corresponding PR](https://github.com/Kotlin/kotlinx.serialization/pull/1260) for the details.
+
+### Experimental support for inline classes (IR only)
+
+Using 1.1.0-RC, you can mark inline classes as `@Serializable` and use them in other serializable classes. 
+Unsigned integer types (`UByte`, `UShort`, `UInt` and `ULong`) are serializable as well and have special support in JSON.
+This feature requires Kotlin compiler 1.4.30-RC and enabling new IR compilers for [JS](https://kotlinlang.org/docs/reference/js-ir-compiler.html) and [JVM](https://kotlinlang.org/docs/reference/whatsnew14.html#new-jvm-ir-backend).
+
+You can learn more in the [documentation](docs/inline-classes.md)
+and corresponding [pull request](https://github.com/Kotlin/kotlinx.serialization/pull/1244).
+
+### Other features
+
+  * Add `serializerOrNull` function for `KType` and `Type` arguments (#1164)
+  * Allow shared prefix names in `Properties` (#1183) (thanks to [TorRanfelt](https://github.com/TorRanfelt))
+  * Add support for encoding/decoding `Properties` values as Strings (#1158) (thanks to [daniel-jasinski](https://github.com/daniel-jasinski))
+  
+### Bugfixes and performance improvements
+
+  * Support contextual serialization for derived classes (#1277) (thanks to [Martin Raison](https://github.com/martinraison))
+  * Ensure serialization is usable from K/N background thread (#1282)
+  * Fail on primitive type overflow during `JsonElement` deserialization (#1300)
+  * Throw `SerializationException` instead of ISE when encountering an invalid boolean in JSON (#1299)
+  * Optimize the loop for writing large varints in `ProtoBuf` (#1294)
+  * Fix serializing property with custom accessors and backing field (#1197)
+  * Optimize check for missing fields in deserialization and improve `MissingFieldException` message (#1153)
+  * Improved support of nullable serializer in `@UseSerializers` annotation  (#1195)
+  * Correctly escape keys in `JsonObject.toString()` (#1246) (thanks to [Karlatemp](https://github.com/Karlatemp))
+  * Treat `Collection` as `ArrayList` in serializer by type lookups (#1257)
+  * Do not try to end structure in encode/decode structure extensions if an exception has been thrown, so the original exception will be propagated (#1201)
+  * Properly cache serial names in order to improve performance of JSON parser with strict mode (#1209)
+  * Fix dynamic serialization for nullable values (#1199) (thanks to [ankushg](https://github.com/ankushg))
+
 1.0.1 / 2020-10-28
 ==================
 
