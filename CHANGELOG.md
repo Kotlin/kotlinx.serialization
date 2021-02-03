@@ -15,7 +15,7 @@ See [corresponding PR](https://github.com/Kotlin/kotlinx.serialization/pull/1260
 
 Using 1.1.0-RC, you can mark inline classes as `@Serializable` and use them in other serializable classes. 
 Unsigned integer types (`UByte`, `UShort`, `UInt` and `ULong`) are serializable as well and have special support in JSON.
-This feature requires Kotlin compiler 1.4.30-RC and enabling new IR compilers for for [JS](https://kotlinlang.org/docs/reference/js-ir-compiler.html) and [JVM](https://kotlinlang.org/docs/reference/whatsnew14.html#new-jvm-ir-backend).
+This feature requires Kotlin compiler 1.4.30-RC and enabling new IR compilers for [JS](https://kotlinlang.org/docs/reference/js-ir-compiler.html) and [JVM](https://kotlinlang.org/docs/reference/whatsnew14.html#new-jvm-ir-backend).
 
 You can learn more in the [documentation](docs/inline-classes.md)
 and corresponding [pull request](https://github.com/Kotlin/kotlinx.serialization/pull/1244).
