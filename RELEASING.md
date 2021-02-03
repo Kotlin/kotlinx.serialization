@@ -34,9 +34,9 @@ To release new `<version>` of `kotlinx.serialization`:
      * On 'Changes' tab, select `dev` branch and corresponding commit.
      * On 'Parameters' tab, find 'Deploy version' and fill in with `<version>`.
 
-4. In [Bintray](https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime) admin interface:
-   * Publish artifacts of the new version.
-   * Wait until newly published version becomes the most recent.
+4. In [Sonatype](oss.sonatype.org/#stagingRepositories) admin interface:
+   * Close the repository and wait for it to verify.
+   * Release it.
    
 5. Update documentation website:<br>
     `./update_docs.sh <version> push`

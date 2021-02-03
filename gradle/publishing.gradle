@@ -1,13 +1,14 @@
 import org.gradle.util.VersionNumber
 
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 // Configures publishing of Maven artifacts to Bintray
 
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
+apply plugin: 'signing'
 
 apply from: project.rootProject.file('gradle/maven-metadata.gradle')
 
@@ -17,15 +18,17 @@ def isMultiplatform = project.name in ["kotlinx-serialization-core", "kotlinx-se
 def isKotlin137x = VersionNumber.parse(kotlin_version) <= VersionNumber.parse("1.3.79")
 
 task stubSources(type: Jar) {
-    classifier = 'sources'
+    archiveClassifier = 'sources'
 }
 
 task stubJavadoc(type: Jar) {
-    classifier = 'javadoc'
+    archiveClassifier = 'javadoc'
 }
 
 task emptyJar(type: Jar) {
 }
+
+def bintrayUploadFlag = System.getenv("libs.bintray.upload") != null
 
 afterEvaluate {
     task mainSourcesJar(type: Jar) {
@@ -49,7 +52,11 @@ afterEvaluate {
                     publication.from components.java
                     publication.artifact mainSourcesJar
                     artifact stubJavadoc
-                    publication.pom.withXml(configureMavenCentralMetadata)
+
+                    PublishingKt.configureMavenCentralMetadata(publication.pom, project)
+                    if (!bintrayUploadFlag) {
+                        PublishingKt.signPublicationIfKeyPresent(project, publication)
+                    }
                 }
             }
 
@@ -92,7 +99,10 @@ afterEvaluate {
             }
             logger.info("Artifact id = ${it.artifactId}")
 
-            pom.withXml(configureMavenCentralMetadata)
+            PublishingKt.configureMavenCentralMetadata(pom, project)
+            if (!bintrayUploadFlag) {
+                PublishingKt.signPublicationIfKeyPresent(project, it)
+            }
 
             // The 'root' module publishes the JVM module's Javadoc JAR as per publishPlatformArtifactsInRootModule, and
             // every other module should publish an empty Javadoc JAR. TODO: provide proper documentation artifacts?
@@ -106,8 +116,15 @@ afterEvaluate {
     }
 }
 
-
-apply from: project.rootProject.file("gradle/bintray.gradle")
+publishing {
+    repositories {
+        if (bintrayUploadFlag) {
+            PublishingKt.configureBintrayPublication(delegate, project)
+        } else {
+            PublishingKt.configureMavenPublication(delegate, project)
+        }
+    }
+}
 
 // Compatibility with old TeamCity configurations that perform :kotlinx-coroutines-core:bintrayUpload
 task bintrayUpload(dependsOn: publish)
