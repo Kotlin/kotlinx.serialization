@@ -22,22 +22,22 @@ and corresponding [pull request](https://github.com/Kotlin/kotlinx.serialization
 
 ### Other features
 
-  * Add serializerOrNull function for KType and Type arguments (#1164)
-  * Allow shared prefix names in Properties (#1183) (thanks to [TorRanfelt](https://github.com/TorRanfelt))
-  * Add support for encoding/decoding Properties values as Strings (#1158) (thanks to [daniel-jasinski](https://github.com/daniel-jasinski))
+  * Add `serializerOrNull` function for `KType` and `Type` arguments (#1164)
+  * Allow shared prefix names in `Properties` (#1183) (thanks to [TorRanfelt](https://github.com/TorRanfelt))
+  * Add support for encoding/decoding `Properties` values as Strings (#1158) (thanks to [daniel-jasinski](https://github.com/daniel-jasinski))
   
 ### Bugfixes and performance improvements
 
   * Support contextual serialization for derived classes (#1277) (thanks to [Martin Raison](https://github.com/martinraison))
   * Ensure serialization is usable from K/N background thread (#1282)
-  * Fail on primitive type overflow during JsonElement deserialization (#1300)
-  * Throw SerializationException instead of ISE when encountering an invalid boolean in JSON (#1299)
-  * Optimize the loop for writing large varints in ProtoBuf (#1294)
+  * Fail on primitive type overflow during `JsonElement` deserialization (#1300)
+  * Throw `SerializationException` instead of ISE when encountering an invalid boolean in JSON (#1299)
+  * Optimize the loop for writing large varints in `ProtoBuf` (#1294)
   * Fix serializing property with custom accessors and backing field (#1197)
-  * Optimize check for missing fields in deserialization and improve MissingFieldException message (#1153)
-  * Improved support of nullable serializer in @UseSerializers annotation  (#1195)
-  * Correctly escape keys in JsonObject.toString() (#1246) (thanks to [Karlatemp](https://github.com/Karlatemp))
-  * Treat Collection as ArrayList in serializer by type lookups (#1257)
+  * Optimize check for missing fields in deserialization and improve `MissingFieldException` message (#1153)
+  * Improved support of nullable serializer in `@UseSerializers` annotation  (#1195)
+  * Correctly escape keys in `JsonObject.toString()` (#1246) (thanks to [Karlatemp](https://github.com/Karlatemp))
+  * Treat `Collection` as `ArrayList` in serializer by type lookups (#1257)
   * Do not try to end structure in encode/decode structure extensions if an exception has been thrown, so the original exception will be propagated (#1201)
   * Properly cache serial names in order to improve performance of JSON parser with strict mode (#1209)
   * Fix dynamic serialization for nullable values (#1199) (thanks to [ankushg](https://github.com/ankushg))
