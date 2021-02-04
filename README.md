@@ -3,7 +3,7 @@
 [![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 [![TeamCity build](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/KotlinTools_KotlinxSerialization_Ko.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=KotlinTools_KotlinxSerialization_Ko&guest=1)
-[![Download](https://api.bintray.com/packages/kotlin/kotlinx/kotlinx.serialization.runtime/images/download.svg?version=1.0.1) ](https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime/1.0.1)
+[![Maven Central](https://img.shields.io/maven-central/v/org.jetbrains.kotlinx/kotlinx-serialization-core/1.1.0-RC)](https://search.maven.org/artifact/org.jetbrains.kotlinx/kotlinx-serialization-core/1.1.0-RC/pom)
 
 Kotlin serialization consists of a compiler plugin, that generates visitor code for serializable classes,
  runtime library with core serialization API and support libraries with various serialization formats.
@@ -105,7 +105,7 @@ Kotlin DSL:
 
 ```kotlin
 buildscript {
-    repositories { jcenter() }
+    repositories { mavenCentral() }
 
     dependencies {
         val kotlinVersion = "1.4.10"
@@ -120,7 +120,7 @@ Groovy DSL:
 ```gradle
 buildscript {
     ext.kotlin_version = '1.4.10'
-    repositories { jcenter() }
+    repositories { mavenCentral() }
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
@@ -137,14 +137,14 @@ apply plugin: 'kotlinx-serialization'
 
 #### Dependency on the JSON library
 
-After setting up the plugin one way or another, you have to add a dependency on the serialization library. Note that while the plugin has version the same as the compiler one, runtime library has different coordinates, repository and versioning.
+After setting up the plugin one way or another, you have to add a dependency on the serialization library.
+Note that while the plugin has version the same as the compiler one, runtime library has different coordinates, repository and versioning.
 
 Kotlin DSL:
 
 ```kotlin
 repositories {
-    // Artifacts are also available on Maven Central
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -156,8 +156,7 @@ Groovy DSL:
 
 ```gradle
 repositories {
-    // Artifacts are also available on Maven Central
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -220,8 +219,6 @@ Ensure the proper version of Kotlin and serialization version:
     <serialization.version>1.0.1</serialization.version>
 </properties>
 ```
-
-You can also use JCenter or `https://kotlin.bintray.com/kotlinx` Bintray repository.
 
 Add serialization plugin to Kotlin compiler plugin:
 
