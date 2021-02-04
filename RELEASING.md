@@ -34,7 +34,7 @@ To release new `<version>` of `kotlinx.serialization`:
      * On 'Changes' tab, select `dev` branch and corresponding commit.
      * On 'Parameters' tab, find 'Deploy version' and fill in with `<version>`.
 
-4. In [Sonatype](oss.sonatype.org/#stagingRepositories) admin interface:
+4. In [Sonatype](https://oss.sonatype.org/#stagingRepositories) admin interface:
    * Close the repository and wait for it to verify.
    * Release it.
    
