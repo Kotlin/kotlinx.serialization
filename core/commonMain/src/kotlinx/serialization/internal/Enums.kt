@@ -67,16 +67,22 @@ internal class EnumSerializer<T : Enum<T>>(
 
     override fun serialize(encoder: Encoder, value: T) {
         val index = values.indexOf(value)
-        check(index != -1) {
-            "$value is not a valid enum ${descriptor.serialName}, must be one of ${values.contentToString()}"
+        if (index == -1) {
+            throw SerializationException(
+                "$value is not a valid enum ${descriptor.serialName}, " +
+                        "must be one of ${values.contentToString()}"
+            )
         }
         encoder.encodeEnum(descriptor, index)
     }
 
     override fun deserialize(decoder: Decoder): T {
         val index = decoder.decodeEnum(descriptor)
-        check(index in values.indices) {
-            "$index is not among valid $${descriptor.serialName} enum values, values size is ${values.size}"
+        if (index !in values.indices) {
+            throw SerializationException(
+                "$index is not among valid ${descriptor.serialName} enum values, " +
+                        "values size is ${values.size}"
+            )
         }
         return values[index]
     }
