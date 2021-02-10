@@ -3,6 +3,7 @@ package example.test
 
 import org.junit.Test
 import kotlinx.knit.test.*
+import org.junit.Ignore
 
 class SerializersTest {
     @Test
@@ -141,6 +142,7 @@ class SerializersTest {
     }
 
     @Test
+    @Ignore
     fun testExampleSerializer20() {
         captureOutput("ExampleSerializer20") { example.exampleSerializer20.main() }.verifyOutputLines(
             "{\"name\":\"kotlinx.serialization\",\"stars\":9000}"
