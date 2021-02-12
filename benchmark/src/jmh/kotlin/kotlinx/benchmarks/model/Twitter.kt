@@ -1,11 +1,11 @@
-package kotlinx.benchmarks.twitter
+package kotlinx.benchmarks.model
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 fun main() {
-    val s = Twitter::class.java.getResource("/twitter.json").readBytes().decodeToString()
-    println(Json.decodeFromString<Twitter>(s))
+    val s = MacroTwitterFeed::class.java.getResource("/twitter.json").readBytes().decodeToString()
+    println(Json.decodeFromString<MacroTwitterFeed>(s))
 }
 
 /*
