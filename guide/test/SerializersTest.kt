@@ -140,10 +140,10 @@ class SerializersTest {
         )
     }
 
-    @Test
-    fun testExampleSerializer20() {
-        captureOutput("ExampleSerializer20") { example.exampleSerializer20.main() }.verifyOutputLines(
-            "{\"name\":\"kotlinx.serialization\",\"stars\":9000}"
-        )
-    }
+//    @Test
+//    fun testExampleSerializer20() {
+//        captureOutput("ExampleSerializer20") { example.exampleSerializer20.main() }.verifyOutputLines(
+//            "{\"name\":\"kotlinx.serialization\",\"stars\":9000}"
+//        )
+//    }
 }
