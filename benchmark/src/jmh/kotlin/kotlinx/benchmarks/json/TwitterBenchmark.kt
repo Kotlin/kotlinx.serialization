@@ -23,5 +23,5 @@ open class TwitterBenchmark {
 
     // Order of magnitude: 4-7 op/ms
     @Benchmark
-    fun parseTwitter() = Json.decodeFromString(MacroTwitterFeed.serializer(), input)
+    fun parseTwitter() = Json.decodeFromString(Twitter.serializer(), input)
 }
