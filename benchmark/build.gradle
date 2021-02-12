@@ -26,7 +26,8 @@ jmhJar {
 dependencies {
     compile "org.openjdk.jmh:jmh-core:1.22"
     implementation 'com.google.guava:guava:24.1.1-jre'
-
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.12.1'
+    compile 'com.fasterxml.jackson.module:jackson-module-kotlin:2.12.1'
     compile project(':kotlinx-serialization-core')
     compile project(':kotlinx-serialization-json')
     compile project(':kotlinx-serialization-protobuf')
