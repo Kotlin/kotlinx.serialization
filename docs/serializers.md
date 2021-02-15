@@ -964,21 +964,16 @@ The following example shows this.
 // NOT @Serializable, will use external serializer
 class Project(
     // val in a primary constructor -- serialized
-    val name: String
+    val name: String,
+    var stars: Int
 ) {
-    var stars: Int = 0 // property with getter & setter -- serialized
- 
-    val path: String // getter only -- not serialized
-        get() = "kotlin/$name"                                         
-
-    private var locked: Boolean = false // private, not accessible -- not serialized 
 }              
 
 @Serializer(forClass = Project::class)
 object ProjectSerializer
 
 fun main() {
-    val data = Project("kotlinx.serialization").apply { stars = 9000 }
+    val data = Project("kotlinx.serialization", 9000)
     println(Json.encodeToString(ProjectSerializer, data))
 }
 ```             
