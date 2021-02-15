@@ -189,8 +189,8 @@ private class DynamicObjectEncoder(
     }
 
     fun newChild(writeMode: WriteMode) = when (writeMode) {
-        WriteMode.OBJ, WriteMode.MAP -> js(BEGIN_OBJ.toString() + END_OBJ)
-        WriteMode.LIST -> js(BEGIN_LIST.toString() + END_LIST)
+        WriteMode.OBJ, WriteMode.MAP -> js("{}")
+        WriteMode.LIST -> js("[]")
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
