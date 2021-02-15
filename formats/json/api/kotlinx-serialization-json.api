@@ -221,7 +221,8 @@ public final class kotlinx/serialization/json/JsonObject : kotlinx/serialization
 	public fun containsValue (Lkotlinx/serialization/json/JsonElement;)Z
 	public final fun entrySet ()Ljava/util/Set;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun get (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun get (Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun get (Ljava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
 	public fun get (Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
 	public fun getEntries ()Ljava/util/Set;
 	public fun getKeys ()Ljava/util/Set;
@@ -237,7 +238,8 @@ public final class kotlinx/serialization/json/JsonObject : kotlinx/serialization
 	public fun putAll (Ljava/util/Map;)V
 	public synthetic fun putIfAbsent (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 	public fun putIfAbsent (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
-	public fun remove (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun remove (Ljava/lang/Object;)Ljava/lang/Object;
+	public fun remove (Ljava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
 	public fun remove (Ljava/lang/Object;Ljava/lang/Object;)Z
 	public synthetic fun replace (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 	public synthetic fun replace (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Z
