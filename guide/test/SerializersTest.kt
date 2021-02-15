@@ -3,7 +3,6 @@ package example.test
 
 import org.junit.Test
 import kotlinx.knit.test.*
-import org.junit.Ignore
 
 class SerializersTest {
     @Test
