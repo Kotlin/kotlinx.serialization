@@ -22,6 +22,9 @@ To release new `<version>` of `kotlinx.serialization`:
 
     [git changelog](https://github.com/tj/git-extras/blob/master/Commands.md#git-changelog) from git-extras may help you with that.
 
+6. If necessary, commit your changes to a new branch called `<version>-release` and send it for review, then merge it to `dev` branch.<br>
+If review is not required, commit directly to `dev`.
+
 6. Tag version:<br>
     `git tag v<version>`
 
