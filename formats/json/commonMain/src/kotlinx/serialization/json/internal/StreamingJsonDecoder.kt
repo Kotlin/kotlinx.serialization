@@ -174,14 +174,11 @@ internal open class StreamingJsonDecoder(
          * We prohibit non true/false boolean literals at all as it is considered way too error-prone,
          * but allow quoted literal in relaxed mode for booleans.
          */
-        val string = if (configuration.isLenient) {
-            reader.consumeStringLenient()
+        return if (configuration.isLenient) {
+            reader.consumeBooleanLenient()
         } else {
-            // TODO _SHOULD_ be ONLY unquoted
-            reader.consumeStringLenient()
+            return reader.consumeBoolean()
         }
-        string.toBooleanStrictOrNull()?.let { return it }
-        reader.fail("Failed to parse type 'boolean' for input '$string'")
     }
 
     /*

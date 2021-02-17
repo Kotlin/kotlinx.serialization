@@ -52,10 +52,6 @@ private const val CTC_MAX = 0x7e
 // mapping from escape chars real chars
 private const val ESC2C_MAX = 0x75
 
-/*
- * In ASCII representation, upper and lower case letters are different
- * in 6-th bit and we leverage this fact
- */
 private const val asciiCaseMask = 1 shl 5
 
 // object instead of @SharedImmutable because there is mutual initialization in [initC2ESC] and [initC2TC]
@@ -466,53 +462,66 @@ internal class JsonReader(private val source: String) {
         }
     }
 
-    //    fun consumeBoolean(allowQuotation: Boolean): Boolean {
-//        skipWhitespaces()
-//        var current = currentPosition
-////        var hasQuote = false
-////        if (allowQuotation && source[current] == STRING) {
-////            hasQuote = true
-////            ++current
-////        }
-//
-//        // TODO handle EOF
-//        val result = when (source[current++].toInt() or asciiCaseMask) {
-//            't'.toInt() -> {
-//                if (source.length - current < 3) fail("")
-//                val r = source[current + 0].toInt() or asciiCaseMask == 'r'.toInt()
-//                val u = source[current + 1].toInt() or asciiCaseMask == 'u'.toInt()
-//                val e = source[current + 2].toInt() or asciiCaseMask == 'e'.toInt()
-//                if (!(r and u and e)) fail("")
-//
-////                for ((i, c) in "rue".withIndex()) {
-////                    if (c.toInt() != source[current + i].toInt() or asciiCaseMask) {
-////                        fail("")
-////                    }
-////                }
-//                currentPosition += 4
-//                true
-//            }
-//            'f'.toInt() -> {
-//                if (source.length - current < 4) fail("")
-//                val a = source[current + 0].toInt() or asciiCaseMask == 'a'.toInt()
-//                val l = source[current + 1].toInt() or asciiCaseMask == 'l'.toInt()
-//                val s = source[current + 2].toInt() or asciiCaseMask == 's'.toInt()
-//                val e = source[current + 3].toInt() or asciiCaseMask == 'e'.toInt()
-//                if (!(a and l and s and e)) fail("")
-////                for ((i, c) in "alse".withIndex()) {
-////                    if (c.toInt() != source[current + i].toInt() or asciiCaseMask) {
-////                        fail("")
-////                    }
-////                }
-//                currentPosition += 5
-//                false
-//            }
-//            else -> TODO()
-//        }
-//
-////        if (hasQuote) {
-////
-////        }
-//        return result
-//    }
+    fun consumeBoolean(): Boolean {
+        return consumeBoolean(skipWhitespaces())
+    }
+
+    fun consumeBooleanLenient(): Boolean {
+        var current = skipWhitespaces()
+        if (current == source.length) fail("EOF")
+        val hasQuotation = if (source[current] == STRING) {
+            ++current
+            true
+        } else {
+            false
+        }
+        val result = consumeBoolean(current)
+        if (hasQuotation) {
+            if (currentPosition == source.length) fail("EOF")
+            if (source[currentPosition] != STRING)
+                fail("Expected closing quotation mark")
+            ++currentPosition
+        }
+        return result
+    }
+
+    private fun consumeBoolean(start: Int): Boolean {
+        /*
+         * In ASCII representation, upper and lower case letters are different
+         * in 6-th bit and we leverage this fact, our implementation consumes boolean literals
+         * in a case-insensitive manner.
+         */
+        var current = start
+        if (current == source.length) fail("EOF")
+        return when (source[current++].toInt() or asciiCaseMask) {
+            't'.toInt() -> {
+                consumeBooleanLiteral("rue", current)
+                true
+            }
+            'f'.toInt() -> {
+                consumeBooleanLiteral("alse", current)
+                false
+            }
+            else -> {
+                fail("Expected valid boolean literal prefix, but had ${source[current - 1]}")
+            }
+        }
+    }
+
+
+    private fun consumeBooleanLiteral(literalSuffix: String, current: Int) {
+        if (source.length - current < literalSuffix.length) {
+            fail("Unexpected end of boolean literal")
+        }
+
+        for (i in literalSuffix.indices) {
+            val expected = literalSuffix[i]
+            val actual = source[current + i]
+            if (expected.toInt() != actual.toInt() or asciiCaseMask) {
+                fail("Expected valid boolean literal prefix, but had ${source.substring(current - 1, current - 1 + i)}")
+            }
+        }
+
+        currentPosition = current + literalSuffix.length
+    }
 }
