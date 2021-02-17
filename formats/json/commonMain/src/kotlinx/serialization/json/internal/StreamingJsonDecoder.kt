@@ -182,13 +182,33 @@ internal open class StreamingJsonDecoder(
     }
 
     /*
-     * The rest of the primitives are allowed to be quoted and unqouted
+     * The rest of the primitives are allowed to be quoted and unquoted
      * to simplify integrations with third-party API.
      */
-    override fun decodeByte(): Byte = reader.parseString("byte") { toByte() }
-    override fun decodeShort(): Short = reader.parseString("short") { toShort() }
-    override fun decodeInt(): Int = reader.parseString("int") { toInt() }
-    override fun decodeLong(): Long = reader.parseString("long") { toLong() }
+    override fun decodeByte(): Byte {
+        val value = reader.consumeNumericLiteral()
+        // Check for overflow
+        if (value != value.toByte().toLong()) reader.fail("Failed to parse byte for input '$value'")
+        return value.toByte()
+    }
+
+    override fun decodeShort(): Short {
+        val value = reader.consumeNumericLiteral()
+        // Check for overflow
+        if (value != value.toShort().toLong()) reader.fail("Failed to parse byte for input '$value'")
+        return value.toShort()
+    }
+
+    override fun decodeInt(): Int {
+        val value = reader.consumeNumericLiteral()
+        // Check for overflow
+        if (value != value.toInt().toLong()) reader.fail("Failed to parse byte for input '$value'")
+        return value.toInt()
+    }
+
+    override fun decodeLong(): Long {
+        return reader.consumeNumericLiteral()
+    }
 
     override fun decodeFloat(): Float {
         val result = reader.parseString("float") { toFloat() }
@@ -204,7 +224,11 @@ internal open class StreamingJsonDecoder(
         reader.throwInvalidFloatingPointDecoded(result)
     }
 
-    override fun decodeChar(): Char = reader.parseString("char") { single() }
+    override fun decodeChar(): Char {
+        val string= reader.consumeStringLenient()
+        if (string.length != 1) reader.fail("Expected single char, but got '$string'")
+        return string[0]
+    }
 
     private fun decodeStringKey(): String {
         return if (configuration.isLenient) {

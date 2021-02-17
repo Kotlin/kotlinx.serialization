@@ -124,7 +124,6 @@ internal class JsonReader(private val source: String) {
     @JvmField
     var currentPosition: Int = 0 // position in source
 
-    // TODO this one should be built-in assert
     public val isDone: Boolean get() = consumeNextToken() == TC_EOF
 
     fun tryConsumeComma(): Boolean {
@@ -145,12 +144,18 @@ internal class JsonReader(private val source: String) {
                 ++current
                 continue
             }
-            val tc = charToTokenClass(c)
             currentPosition = current
-            return tc == TC_STRING || tc == TC_OTHER || tc == TC_BEGIN_LIST || tc == TC_BEGIN_OBJ
+            return isValidValueStart(c)
         }
         currentPosition = current
         return false
+    }
+
+    private fun isValidValueStart(c: Char): Boolean {
+        return when (c) {
+            '}', ']', ':', ',' -> false
+            else -> true
+        }
     }
 
     /*
@@ -182,7 +187,7 @@ internal class JsonReader(private val source: String) {
             TC_END_LIST -> "end of the array ']'"
             else -> "valid token" // should never happen
         }
-
+        // TODO off-by-one?
         fail("Expected $expected, but had '${source[currentPosition - 1]}' instead", currentPosition)
     }
 
@@ -462,6 +467,50 @@ internal class JsonReader(private val source: String) {
         }
     }
 
+    fun consumeNumericLiteral(): Long {
+        var current = skipWhitespaces()
+        val hasQuotation = if (source[current] == STRING) {
+            ++current
+            true
+        } else {
+            false
+        }
+        if (current == source.length) fail("EOF")
+        var accumulator = 0L
+        var isNegative = false
+        val start = current
+        var hasChars = true
+        while (hasChars) {
+            val ch: Char = source[current]
+            if (ch == '-') {
+                if (current != start) fail("Unexpected symbol '-' in numeric literal")
+                isNegative = true
+                ++current
+                continue
+            }
+            val token = charToTokenClass(ch)
+            if (token != TC_OTHER) break
+            ++current
+            hasChars = current != source.length
+            val digit = ch - '0'
+            if (digit !in 0..9)
+                fail("Unexpected symbol '$ch' in numeric literal")
+            accumulator = accumulator * 10 - digit
+            if (accumulator > 0) fail("Numeric value overflow")
+        }
+        if (start == current) {
+            fail("Expected numeric literal")
+        }
+        if (hasQuotation) {
+            if (!hasChars) fail("EOF")
+            if (source[current] != STRING) fail("Expected closing quotation mark")
+            ++current
+        }
+        currentPosition = current
+        return if (isNegative) accumulator else -accumulator
+    }
+
+
     fun consumeBoolean(): Boolean {
         return consumeBoolean(skipWhitespaces())
     }
@@ -507,7 +556,6 @@ internal class JsonReader(private val source: String) {
             }
         }
     }
-
 
     private fun consumeBooleanLiteral(literalSuffix: String, current: Int) {
         if (source.length - current < literalSuffix.length) {
