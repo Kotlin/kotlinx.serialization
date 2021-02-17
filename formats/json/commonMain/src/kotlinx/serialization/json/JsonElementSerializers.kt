@@ -96,6 +96,9 @@ internal object JsonNullSerializer : KSerializer<JsonNull> {
 
     override fun deserialize(decoder: Decoder): JsonNull {
         verify(decoder)
+        if (decoder.decodeNotNullMark()) {
+
+        }
         decoder.decodeNull()
         return JsonNull
     }

@@ -98,5 +98,4 @@ class JsonUseDefaultOnNullAndUnknownTest : JsonTestBase() {
             assertEquals(expected, json.decodeFromString(MultipleValues.serializer(), input), "Failed on input: $input")
         }
     }
-
 }

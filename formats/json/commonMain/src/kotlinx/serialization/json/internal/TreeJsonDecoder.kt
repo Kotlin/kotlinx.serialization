@@ -279,9 +279,6 @@ private class JsonTreeListDecoder(json: Json, override val value: JsonArray) : A
     }
 }
 
-internal const val updateModeDeprecated = "Update mode in Decoder is deprecated for removal. " +
-        "Update behaviour is now considered an implementation detail of the format that should not concern serializer."
-
 /**
  * Same as [SerialDescriptor.getElementIndex], but throws [SerializationException] if
  * given [name] is not associated with any element in the descriptor.

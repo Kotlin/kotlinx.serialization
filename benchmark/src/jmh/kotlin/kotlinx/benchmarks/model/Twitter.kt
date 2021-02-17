@@ -4,7 +4,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 fun main() {
-    val s = MacroTwitterFeed::class.java.getResource("/twitter.json").readBytes().decodeToString()
+    val s = MacroTwitterFeed::class.java.getResource("/twitter_macro.json").readBytes().decodeToString()
     println(Json.decodeFromString<MacroTwitterFeed>(s))
 }
 

@@ -60,3 +60,10 @@ open class PrimitiveValuesBenchmark {
     fun encodeLong(): LongHolder = Json.decodeFromString(LongHolder.serializer(), longValue)
 }
 
+
+private val booleanHolder = PrimitiveValuesBenchmark.BooleanHolder(true, false, true, false, true, true, false, false)
+private val booleanValue = Json.encodeToString(booleanHolder)
+
+fun main() {
+    println(Json.decodeFromString(PrimitiveValuesBenchmark.BooleanHolder.serializer(), booleanValue))
+}
