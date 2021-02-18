@@ -294,10 +294,15 @@ internal class JsonReader(private val source: String) {
         if (consumeNextToken() != TC_STRING) {
             failBeginningOfTheString()
         }
-        var currentPosition = currentPosition
+        val currentPosition = currentPosition
         if (currentPosition >= source.length) {
             fail("EOF", currentPosition)
         }
+        return consumeString(currentPosition)
+    }
+
+    private fun consumeString(position: Int): String {
+        var currentPosition = position
         val startPosition = currentPosition - 1
         var lastPosition = currentPosition
         var char = source[currentPosition] // Avoid two double checks visible in the profiler
@@ -342,13 +347,12 @@ internal class JsonReader(private val source: String) {
         consumeNextToken(STRING)
         val current = currentPosition
         val closingQuote = source.indexOf('"', current)
-        if (closingQuote == -1) fail(TC_STRING) // Better error message?
-        // TODO explain
+        if (closingQuote == -1) fail(TC_STRING)
         for (i in current until closingQuote) {
-            // Encountered escape sequence, should fallback to "slow" path
-            if (source[i] == '\\') {
-                TODO()
-                break
+            // Encountered escape sequence, should fallback to "slow" path,
+            // don't even try to reuse the known part of the string, this situation should almost never happen
+            if (source[i] == STRING_ESC) {
+                return consumeString(currentPosition)
             }
         }
         this.currentPosition = closingQuote + 1
