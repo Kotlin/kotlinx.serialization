@@ -305,13 +305,12 @@ internal class JsonReader(private val source: String) {
         var currentPosition = position
         val startPosition = currentPosition - 1
         var lastPosition = currentPosition
+        val source = source
         var char = source[currentPosition] // Avoid two double checks visible in the profiler
         while (char != STRING) {
             if (char == STRING_ESC) {
-                appendRange(source, lastPosition, currentPosition)
-                val newPosition = appendEsc(source, currentPosition + 1)
-                currentPosition = newPosition
-                lastPosition = newPosition
+                currentPosition = appendEscape(lastPosition, currentPosition)
+                lastPosition = currentPosition
             } else if (++currentPosition >= source.length) {
                 fail("EOF", currentPosition)
             }
@@ -323,14 +322,25 @@ internal class JsonReader(private val source: String) {
             source.substring(lastPosition, currentPosition)
         } else {
             // some escaped chars were there
-            appendRange(source, lastPosition, currentPosition)
-            val l = length
-            length = 0
-            buf.concatToString(0, l)
+            decodedString(lastPosition, currentPosition)
 
         }
         this.currentPosition = currentPosition + 1
         return string
+    }
+
+    private fun appendEscape(lastPosition: Int, current: Int): Int {
+        var currentPosition1 = current
+        appendRange(lastPosition, currentPosition1)
+        currentPosition1 = appendEsc(currentPosition1 + 1)
+        return currentPosition1
+    }
+
+    private fun decodedString(lastPosition: Int, currentPosition: Int): String {
+        appendRange(lastPosition, currentPosition)
+        val l = length
+        length = 0
+        return buf.concatToString(0, l)
     }
 
     private fun takePeeked(): String {
@@ -389,7 +399,7 @@ internal class JsonReader(private val source: String) {
     }
 
     // initializes buf usage upon the first encountered escaped char
-    private fun appendRange(source: String, fromIndex: Int, toIndex: Int) {
+    private fun appendRange(fromIndex: Int, toIndex: Int) {
         val addLength = toIndex - fromIndex
         val oldLength = length
         val newLength = oldLength + addLength
@@ -398,7 +408,7 @@ internal class JsonReader(private val source: String) {
         length += addLength
     }
 
-    private fun appendEsc(source: String, startPosition: Int): Int {
+    private fun appendEsc(startPosition: Int): Int {
         var currentPosition = startPosition
         require(currentPosition < source.length, currentPosition) { "Unexpected EOF after escape character" }
         val currentChar = source[currentPosition++]
