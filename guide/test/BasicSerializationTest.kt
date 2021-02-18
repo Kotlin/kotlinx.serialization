@@ -101,8 +101,7 @@ class BasicSerializationTest {
     @Test
     fun testExampleClasses11() {
         captureOutput("ExampleClasses11") { example.exampleClasses11.main() }.verifyOutputLinesStart(
-            "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 52: Expected string literal but 'null' literal was found.",
-            "Use 'coerceInputValues = true' in 'Json {}` builder to coerce nulls to default values."
+            "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 52: Expected quotation mark '\"', but had 'n' instead"
         )
     }
 

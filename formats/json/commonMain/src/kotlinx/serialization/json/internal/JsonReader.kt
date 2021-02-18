@@ -123,8 +123,7 @@ internal class JsonReader(private val source: String) {
 
     @JvmField
     var currentPosition: Int = 0 // position in source
-
-    public val isDone: Boolean get() = consumeNextToken() == TC_EOF
+    val isDone: Boolean get() = consumeNextToken() == TC_EOF
 
     fun tryConsumeComma(): Boolean {
         val current = skipWhitespaces()
@@ -163,8 +162,7 @@ internal class JsonReader(private val source: String) {
      * If the value was picked, 'consumeString' will take it without scanning the source.
      */
     private var peekedString: String? = null
-    private var length = 0 // length of string
-    private var buf = CharArray(16) // only used for strings with escapes
+    private var escapedString = StringBuilder()
 
     // TODO consider replacing usages of this method in JsonParser with char overload
     fun consumeNextToken(expected: Byte): Byte {
@@ -199,8 +197,8 @@ internal class JsonReader(private val source: String) {
             TC_END_LIST -> "end of the array ']'"
             else -> "valid token" // should never happen
         }
-        // TODO off-by-one?
-        fail("Expected $expected, but had '${source[currentPosition - 1]}' instead", currentPosition)
+        val s = if (currentPosition == source.length) "EOF" else source[currentPosition - 1].toString()
+        fail("Expected $expected, but had '$s' instead", currentPosition - 1)
     }
 
     fun peekNextToken(): Byte {
@@ -275,15 +273,29 @@ internal class JsonReader(private val source: String) {
         return string
     }
 
-    private fun failBeginningOfTheString() {
-        // Try to guess if it's null for better error message
-        --currentPosition
-        if (!tryConsumeNotNull()) {
-            fail("Expected string literal but 'null' literal was found.\n$coerceInputValuesHint", currentPosition - 4)
-        } else {
-            val symbol = if (++currentPosition == source.length) "EOF" else source[currentPosition]
-            fail("Expected string literal but had $symbol instead")
+    /*
+     * This method is a copy of consumeString, but used for key of json objects, so there
+     * is no need to lookup peeked string.
+     */
+    fun consumeKeyString(): String {
+        /*
+         * For strings we assume that escaped symbols are rather an exception, so firstly
+         * we optimistically scan for closing quote via intrinsified and blazing-fast 'indexOf',
+         * than do our pessimistic check for backslash and fallback to slow-path if necessary.
+         */
+        consumeNextToken(STRING)
+        val current = currentPosition
+        val closingQuote = source.indexOf('"', current)
+        if (closingQuote == -1) fail(TC_STRING)
+        // Now we _optimistically_ know where the string ends (it might have been an escaped quote)
+        for (i in current until closingQuote) {
+            // Encountered escape sequence, should fallback to "slow" path and symmbolic scanning
+            if (source[i] == STRING_ESC) {
+                return consumeString(currentPosition, i)
+            }
         }
+        this.currentPosition = closingQuote + 1
+        return source.substring(current, closingQuote)
     }
 
     fun consumeString(): String {
@@ -291,22 +303,14 @@ internal class JsonReader(private val source: String) {
             return takePeeked()
         }
 
-        if (consumeNextToken() != TC_STRING) {
-            failBeginningOfTheString()
-        }
-        val currentPosition = currentPosition
-        if (currentPosition >= source.length) {
-            fail("EOF", currentPosition)
-        }
-        return consumeString(currentPosition)
+        return consumeKeyString()
     }
 
-    private fun consumeString(position: Int): String {
-        var currentPosition = position
-        val startPosition = currentPosition - 1
-        var lastPosition = currentPosition
+    private fun consumeString(startPosition: Int, current: Int): String {
+        var currentPosition = current
+        var lastPosition = startPosition
         val source = source
-        var char = source[currentPosition] // Avoid two double checks visible in the profiler
+        var char = source[currentPosition] // Avoid two range checks visible in the profiler
         while (char != STRING) {
             if (char == STRING_ESC) {
                 currentPosition = appendEscape(lastPosition, currentPosition)
@@ -317,56 +321,31 @@ internal class JsonReader(private val source: String) {
             char = source[currentPosition]
         }
 
-        val string = if (lastPosition == startPosition + 1) {
+        val string = if (lastPosition == startPosition) {
             // there was no escaped chars
             source.substring(lastPosition, currentPosition)
         } else {
             // some escaped chars were there
             decodedString(lastPosition, currentPosition)
-
         }
         this.currentPosition = currentPosition + 1
         return string
     }
 
     private fun appendEscape(lastPosition: Int, current: Int): Int {
-        var currentPosition1 = current
-        appendRange(lastPosition, currentPosition1)
-        currentPosition1 = appendEsc(currentPosition1 + 1)
-        return currentPosition1
+        escapedString.append(source, lastPosition, current)
+        return appendEsc(current + 1)
     }
 
     private fun decodedString(lastPosition: Int, currentPosition: Int): String {
         appendRange(lastPosition, currentPosition)
-        val l = length
-        length = 0
-        return buf.concatToString(0, l)
+        val result = escapedString.toString()
+        escapedString.setLength(0)
+        return result
     }
 
     private fun takePeeked(): String {
         return peekedString!!.also { peekedString = null }
-    }
-
-    /*
-     * This method is a copy of consumeString, but used for key of json objects.
-     * For them we know that escape symbols are _very_ unlikely and can optimistically do
-     * quotation lookup via `indexOf` (which is a vectorized intrinsic), then substring and
-     * `indexOf` for escape symbol. It works almost 20% faster for both large and small JSON strings.
-     */
-    fun consumeKeyString(): String {
-        consumeNextToken(STRING)
-        val current = currentPosition
-        val closingQuote = source.indexOf('"', current)
-        if (closingQuote == -1) fail(TC_STRING)
-        for (i in current until closingQuote) {
-            // Encountered escape sequence, should fallback to "slow" path,
-            // don't even try to reuse the known part of the string, this situation should almost never happen
-            if (source[i] == STRING_ESC) {
-                return consumeString(currentPosition)
-            }
-        }
-        this.currentPosition = closingQuote + 1
-        return source.substring(current, closingQuote)
     }
 
     // Allows to consume unquoted string
@@ -393,44 +372,42 @@ internal class JsonReader(private val source: String) {
         return result
     }
 
-    private fun append(ch: Char) {
-        if (length >= buf.size) buf = buf.copyOf(2 * buf.size)
-        buf[length++] = ch
-    }
-
     // initializes buf usage upon the first encountered escaped char
     private fun appendRange(fromIndex: Int, toIndex: Int) {
-        val addLength = toIndex - fromIndex
-        val oldLength = length
-        val newLength = oldLength + addLength
-        if (newLength > buf.size) buf = buf.copyOf(newLength.coerceAtLeast(2 * buf.size))
-        for (i in 0 until addLength) buf[oldLength + i] = source[fromIndex + i]
-        length += addLength
+        escapedString.append(source, fromIndex, toIndex)
     }
 
     private fun appendEsc(startPosition: Int): Int {
         var currentPosition = startPosition
-        require(currentPosition < source.length, currentPosition) { "Unexpected EOF after escape character" }
         val currentChar = source[currentPosition++]
         if (currentChar == UNICODE_ESC) {
             return appendHex(source, currentPosition)
         }
 
         val c = escapeToChar(currentChar.toInt())
-        require(c != INVALID, currentPosition) { "Invalid escaped char '$currentChar'" }
-        append(c)
+        if (c == INVALID) fail("Invalid escaped char '$currentChar'")
+        escapedString.append(c)
         return currentPosition
     }
 
     private fun appendHex(source: String, startPos: Int): Int {
-        var curPos = startPos
-        append(
-            ((fromHexChar(source, curPos++) shl 12) +
-                    (fromHexChar(source, curPos++) shl 8) +
-                    (fromHexChar(source, curPos++) shl 4) +
-                    fromHexChar(source, curPos++)).toChar()
+        if (startPos + 4 >= source.length) fail("Unexpected EOF during unicode escape")
+        escapedString.append(
+            ((fromHexChar(source, startPos) shl 12) +
+                    (fromHexChar(source, startPos + 1) shl 8) +
+                    (fromHexChar(source, startPos + 2) shl 4) +
+                    fromHexChar(source, startPos + 3)).toChar()
         )
-        return curPos
+        return startPos + 4
+    }
+
+    private fun fromHexChar(source: String, currentPosition: Int): Int {
+        return when (val character = source[currentPosition]) {
+            in '0'..'9' -> character.toInt() - '0'.toInt()
+            in 'a'..'f' -> character.toInt() - 'a'.toInt() + 10
+            in 'A'..'F' -> character.toInt() - 'A'.toInt() + 10
+            else -> fail("Invalid toHexChar char '$character' in unicode escape")
+        }
     }
 
     fun skipElement() {
@@ -486,16 +463,6 @@ internal class JsonReader(private val source: String) {
 
     internal inline fun require(condition: Boolean, position: Int = currentPosition, message: () -> String) {
         if (!condition) fail(message(), position)
-    }
-
-    private fun fromHexChar(source: String, currentPosition: Int): Int {
-        require(currentPosition < source.length, currentPosition) { "Unexpected EOF during unicode escape" }
-        return when (val curChar = source[currentPosition]) {
-            in '0'..'9' -> curChar.toInt() - '0'.toInt()
-            in 'a'..'f' -> curChar.toInt() - 'a'.toInt() + 10
-            in 'A'..'F' -> curChar.toInt() - 'A'.toInt() + 10
-            else -> fail("Invalid toHexChar char '$curChar' in unicode escape")
-        }
     }
 
     fun consumeNumericLiteral(): Long {

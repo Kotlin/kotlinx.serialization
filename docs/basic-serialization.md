@@ -493,8 +493,7 @@ Even though the `language` property has a default value, it is still an error to
 the `null` value to it.
 
 ```text
-Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 52: Expected string literal but 'null' literal was found.
-Use 'coerceInputValues = true' in 'Json {}` builder to coerce nulls to default values.
+Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 52: Expected quotation mark '"', but had 'n' instead
 ```                    
 
 <!--- TEST LINES_START -->
