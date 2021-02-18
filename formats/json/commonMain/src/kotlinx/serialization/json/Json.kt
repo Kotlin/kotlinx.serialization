@@ -48,6 +48,7 @@ import kotlin.js.*
  * ```
  */
 @OptIn(ExperimentalSerializationApi::class)
+@Suppress("EXPOSED_PARAMETER_TYPE")
 public sealed class Json(internal val configuration: JsonConf) : StringFormat {
 
     override val serializersModule: SerializersModule
