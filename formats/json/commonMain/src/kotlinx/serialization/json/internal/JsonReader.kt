@@ -166,12 +166,24 @@ internal class JsonReader(private val source: String) {
     private var length = 0 // length of string
     private var buf = CharArray(16) // only used for strings with escapes
 
+    // TODO consider replacing usages of this method in JsonParser with char overload
     fun consumeNextToken(expected: Byte): Byte {
         val token = consumeNextToken()
         if (token != expected) {
             fail(expected)
         }
         return token
+    }
+
+    fun consumeNextToken(expected: Char) {
+        val source = source
+        while (currentPosition < source.length) {
+            val c = source[currentPosition++]
+            if (c == ' ' || c == '\n' || c == '\r' || c == '\t') continue
+            if (c == expected) return
+            fail(charToTokenClass(expected))
+        }
+        fail(charToTokenClass(expected)) // EOF
     }
 
     private fun fail(expectedToken: Byte) {
@@ -288,7 +300,6 @@ internal class JsonReader(private val source: String) {
         }
         val startPosition = currentPosition - 1
         var lastPosition = currentPosition
-        length = 0
         var char = source[currentPosition] // Avoid two double checks visible in the profiler
         while (char != STRING) {
             if (char == STRING_ESC) {
@@ -308,7 +319,10 @@ internal class JsonReader(private val source: String) {
         } else {
             // some escaped chars were there
             appendRange(source, lastPosition, currentPosition)
-            buf.concatToString(0, length)
+            val l = length
+            length = 0
+            buf.concatToString(0, l)
+
         }
         this.currentPosition = currentPosition + 1
         return string
@@ -325,14 +339,17 @@ internal class JsonReader(private val source: String) {
      * `indexOf` for escape symbol. It works almost 20% faster for both large and small JSON strings.
      */
     fun consumeKeyString(): String {
-        consumeNextToken(TC_STRING)
+        consumeNextToken(STRING)
         val current = currentPosition
         val closingQuote = source.indexOf('"', current)
         if (closingQuote == -1) fail(TC_STRING) // Better error message?
         // TODO explain
         for (i in current until closingQuote) {
             // Encountered escape sequence, should fallback to "slow" path
-            if (source[i] == '\\') TODO()
+            if (source[i] == '\\') {
+                TODO()
+                break
+            }
         }
         this.currentPosition = closingQuote + 1
         return source.substring(current, closingQuote)
@@ -493,8 +510,7 @@ internal class JsonReader(private val source: String) {
             ++current
             hasChars = current != source.length
             val digit = ch - '0'
-            if (digit !in 0..9)
-                fail("Unexpected symbol '$ch' in numeric literal")
+            if (digit !in 0..9) fail("Unexpected symbol '$ch' in numeric literal")
             accumulator = accumulator * 10 - digit
             if (accumulator > 0) fail("Numeric value overflow")
         }

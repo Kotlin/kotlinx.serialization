@@ -38,7 +38,7 @@ internal class JsonParser(
     }
 
     private fun readArray(): JsonElement {
-        var lastToken = reader.consumeNextToken(TC_BEGIN_LIST)
+        var lastToken = reader.consumeNextToken()
         // Prohibit leading comma
         if (reader.peekNextToken() == TC_COMMA) reader.fail("Unexpected leading comma")
         val result = arrayListOf<JsonElement>()

@@ -34,7 +34,7 @@ internal open class StreamingJsonDecoder(
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         val newMode = json.switchMode(descriptor)
-        reader.consumeNextToken(newMode.beginTc)
+        reader.consumeNextToken(newMode.begin)
         checkLeadingComma()
         return when (newMode) {
             // In fact resets current index that these modes rely on
@@ -52,7 +52,7 @@ internal open class StreamingJsonDecoder(
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
-        reader.consumeNextToken(mode.endTc)
+        reader.consumeNextToken(mode.end)
     }
 
     override fun decodeNotNullMark(): Boolean {
@@ -86,7 +86,7 @@ internal open class StreamingJsonDecoder(
                 hasComma = reader.tryConsumeComma()
             }
         } else {
-            reader.consumeNextToken(TC_COLON)
+            reader.consumeNextToken(COLON)
         }
 
         return if (reader.canConsumeValue()) {
@@ -126,7 +126,7 @@ internal open class StreamingJsonDecoder(
         while (reader.canConsumeValue()) { // TODO: consider merging comma consumption and this check
             hasComma = false
             val key = decodeStringKey()
-            reader.consumeNextToken(TC_COLON)
+            reader.consumeNextToken(COLON)
             val index = descriptor.getElementIndex(key)
             val isUnknown = if (index != UNKNOWN_NAME) {
                 if (configuration.coerceInputValues && coerceInputValue(descriptor, index)) {
