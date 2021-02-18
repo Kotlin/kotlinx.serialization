@@ -51,6 +51,7 @@ import kotlin.native.concurrent.*
  * that rely on [JsonDecoder] and [JsonEncoder] for customizable behaviour.
  */
 @OptIn(ExperimentalSerializationApi::class)
+@Suppress("EXPOSED_PARAMETER_TYPE")
 public sealed class Json(
     @ExperimentalSerializationApi public val configuration: JsonConfiguration,
     override val serializersModule: SerializersModule
