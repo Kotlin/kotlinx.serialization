@@ -31,4 +31,5 @@ dependencies {
     compile project(':kotlinx-serialization-core')
     compile project(':kotlinx-serialization-json')
     compile project(':kotlinx-serialization-protobuf')
+    implementation("com.squareup.moshi:moshi:1.11.0")
 }

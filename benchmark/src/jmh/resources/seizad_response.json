@@ -1,0 +1,427 @@
+{
+  "status": 0,
+  "callId": "922be44aeb8d.891",
+  "element": {
+    "id": "f0fdd565-c237-4230-b861-a4878c63e3db",
+    "type": "MOVIE",
+    "name": "Заложник",
+    "originalName": "Seized",
+    "basicCovers": {
+      "items": [{
+        "url": "https://pre-static.okko.tv/images/v2/11707461",
+        "imageType": "COVER",
+        "primaryColor": "000000"
+      }, {
+        "url": "https://pre-static.okko.tv/images/v2/11707496",
+        "imageType": "BACKGROUND",
+        "primaryColor": "ffffff"
+      }, {
+        "url": "https://pre-static.okko.tv/images/v2/11707495",
+        "imageType": "TITLE",
+        "primaryColor": null
+      }, {
+        "url": "https://pre-static.okko.tv/images/v2/11707494",
+        "imageType": "PORTRAIT",
+        "primaryColor": "ffffff"
+      }]
+    },
+    "description": "Бывший агент спецназа оказывается втянут в борьбу преступных синдикатов, против которых он много лет вел войну. Одна из группировок хочет использовать спецагента как оружие и похищает его сына. Теперь, чтобы спасти своего ребенка, он должен уничтожить три опаснейших мафиозных клана.",
+    "worldReleaseDate": 1602536400000,
+    "ageAccessType": "18",
+    "duration": 4860000,
+    "trailers": {
+      "items": [{
+        "url": "http://pre-cdp.playfamily.ru/data/storage25/trl/80eab741-2048-4ab6-b8ad-5d2e088d5131.mp4",
+        "media": {
+          "quality": "Q_HD",
+          "aspectRatio": 1.8461538461538463,
+          "mimeType": "mp4/ts",
+          "drmType": null
+        },
+        "language": "rus"
+      }, {
+        "url": "http://pre-cdp.playfamily.ru/data/storage25/trl/520e55bd-fc31-41da-a277-ad0bc09cc294.mp4",
+        "media": {
+          "quality": "Q_SD",
+          "aspectRatio": 1.8461538461538463,
+          "mimeType": "mp4/ts",
+          "drmType": null
+        },
+        "language": "rus"
+      }]
+    },
+    "alias": "seized",
+    "seqNo": -2147483648,
+    "has3d": false,
+    "hasHd": true,
+    "hasFullHd": true,
+    "hasUltraHd": false,
+    "hasHdr": false,
+    "hasDolby": true,
+    "hasDolbyAtmos": false,
+    "hasSound51": true,
+    "hasMultiAudio": true,
+    "hasSubtitles": true,
+    "audioLanguages": ["rus"],
+    "subtitlesLanguages": ["rus"],
+    "inSubscription": false,
+    "inNovelty": true,
+    "releaseSaleDate": null,
+    "releaseType": "RELEASE",
+    "reserve": null,
+    "playbackStartDate": null,
+    "playbackTimeMark": null,
+    "products": {
+      "items": [{
+        "id": "PURCHASE_DTO_148",
+        "type": "PURCHASE",
+        "consumptionMode": "DTO",
+        "fromConsumptionMode": null,
+        "qualities": ["Q_HD", "Q_FULL_HD"],
+        "fromQuality": null,
+        "price": {
+          "value": 399.00,
+          "currencyCode": "RUB"
+        },
+        "priceCategory": "148",
+        "startDate": 1585256400000,
+        "endDate": 1609448399999,
+        "description": null,
+        "duration": 0,
+        "subscription": null,
+        "offer": null,
+        "audioTracks": null,
+        "originalPrice": null,
+        "useForDefaultPurchase": false,
+        "bonusPrice": null,
+        "bonusAmount": null,
+        "subscriptionPeriod": 0,
+        "wholesale": null,
+        "noSalePrice": null
+      }, {
+        "id": "PURCHASE_DTO_200",
+        "type": "PURCHASE",
+        "consumptionMode": "DTO",
+        "fromConsumptionMode": null,
+        "qualities": ["Q_SD"],
+        "fromQuality": null,
+        "price": {
+          "value": 299.00,
+          "currencyCode": "RUB"
+        },
+        "priceCategory": "200",
+        "startDate": 1585256400000,
+        "endDate": 1609448399999,
+        "description": null,
+        "duration": 0,
+        "subscription": null,
+        "offer": null,
+        "audioTracks": null,
+        "originalPrice": null,
+        "useForDefaultPurchase": false,
+        "bonusPrice": null,
+        "bonusAmount": null,
+        "subscriptionPeriod": 0,
+        "wholesale": null,
+        "noSalePrice": null
+      }],
+      "emptyReason": null
+    },
+    "licenses": {
+      "items": []
+    },
+    "children": null,
+    "actors": {
+      "items": [{
+        "element": {
+          "id": "9449f46c-723c-40df-a7c1-a660a4a7f451",
+          "type": "PERSON",
+          "name": "Скотт Эдкинс",
+          "basicCovers": {
+            "items": []
+          },
+          "alias": "scott-adkins"
+        }
+      }, {
+        "element": {
+          "id": "34b93d58-08ff-4527-b085-a46ce320acd7",
+          "type": "PERSON",
+          "name": "Марио Ван Пиблз",
+          "basicCovers": {
+            "items": []
+          },
+          "alias": "mario-van-peebles"
+        }
+      }, {
+        "element": {
+          "id": "9f5ced60-75f1-44f6-b10d-53ac41a0ef03",
+          "type": "PERSON",
+          "name": "Кэрли Перес",
+          "basicCovers": {
+            "items": []
+          },
+          "alias": "karlee-perez"
+        }
+      }, {
+        "element": {
+          "id": "a55dd2b8-ba0b-4b07-a064-8c462f4fe6c2",
+          "type": "PERSON",
+          "name": "Стивен Элдер",
+          "basicCovers": {
+            "items": []
+          },
+          "alias": "steven-elder"
+        }
+      }, {
+        "element": {
+          "id": "f01a950c-8b1a-4434-9630-85d51c8b3bc9",
+          "type": "PERSON",
+          "name": "Джеймс П. Беннетт",
+          "basicCovers": {
+            "items": []
+          },
+          "alias": "james-p-bennett"
+        }
+      }, {
+        "element": {
+          "id": "9171aa88-522f-4f9a-8f6a-d3f518ea4409",
+          "type": "PERSON",
+          "name": "Маурисио Мендоса",
+          "basicCovers": {
+            "items": []
+          },
+          "alias": "mauricio-mendoza"
+        }
+      }, {
+        "element": {
+          "id": "6e16bdac-c094-4774-8043-edb99ac6eadc",
+          "type": "PERSON",
+          "name": "Луис Гатика",
+          "basicCovers": {
+            "items": []
+          },
+          "alias": "luis-gatica"
+        }
+      }]
+    },
+    "directors": {
+      "items": [{
+        "element": {
+          "id": "c7e0dc9c-5c93-4dc0-b519-fce99b083dfa",
+          "type": "PERSON",
+          "name": "Айзек Флорентайн",
+          "basicCovers": {
+            "items": []
+          },
+          "alias": "isaac-florentine"
+        }
+      }]
+    },
+    "producers": {
+      "items": []
+    },
+    "collections": {
+      "items": [{
+        "element": {
+          "id": "e15222bd-976f-4e6d-99ef-21dc0f174a12",
+          "type": "COLLECTION",
+          "name": "На языке оригинала",
+          "basicCovers": {
+            "items": [{
+              "url": "https://pre-static.okko.tv/images/v2/6614773",
+              "imageType": "BACKGROUND",
+              "primaryColor": "000000"
+            }, {
+              "url": "https://pre-static.okko.tv/images/v2/8494903",
+              "imageType": "TITLE",
+              "primaryColor": null
+            }, {
+              "url": "https://pre-static.okko.tv/images/v2/8494904",
+              "imageType": "COVER",
+              "primaryColor": "000000"
+            }]
+          },
+          "alias": "subs"
+        }
+      }, {
+        "element": {
+          "id": "1d91b748-809c-4e17-bc66-8ecc5917cbc2",
+          "type": "COLLECTION",
+          "name": "Мафия",
+          "basicCovers": {
+            "items": [{
+              "url": "https://pre-static.okko.tv/images/v2/8486531",
+              "imageType": "COVER",
+              "primaryColor": "000000"
+            }, {
+              "url": "https://pre-static.okko.tv/images/v2/8549896",
+              "imageType": "TITLE",
+              "primaryColor": null
+            }]
+          },
+          "alias": "mafia_collection"
+        }
+      }, {
+        "element": {
+          "id": "bad5a2bc-b10a-409c-abbe-50129bc7cde0",
+          "type": "COLLECTION",
+          "name": "Брутальное кино",
+          "basicCovers": {
+            "items": [{
+              "url": "https://pre-static.okko.tv/images/v2/8492346",
+              "imageType": "COVER",
+              "primaryColor": "ffffff"
+            }, {
+              "url": "https://pre-static.okko.tv/images/v2/8592061",
+              "imageType": "TITLE",
+              "primaryColor": null
+            }]
+          },
+          "alias": "promo_euro2016"
+        }
+      }, {
+        "element": {
+          "id": "d2effe36-4cf4-474f-907e-b0cf0165b0c1",
+          "type": "COLLECTION",
+          "name": "Новинки",
+          "basicCovers": {
+            "items": [{
+              "url": "https://pre-static.okko.tv/images/v2/8494905",
+              "imageType": "COVER",
+              "primaryColor": "000000"
+            }, {
+              "url": "https://pre-static.okko.tv/images/v2/8494906",
+              "imageType": "TITLE",
+              "primaryColor": null
+            }]
+          },
+          "alias": "Novelty"
+        }
+      }]
+    },
+    "genres": {
+      "items": [{
+        "element": {
+          "id": "Action",
+          "type": "GENRE",
+          "name": "Боевики",
+          "basicCovers": {
+            "items": [{
+              "url": "https://pre-static.okko.tv/images/v2/11636608",
+              "imageType": "TITLE",
+              "primaryColor": null
+            }, {
+              "url": "https://pre-static.okko.tv/images/v2/11636609",
+              "imageType": "COVER",
+              "primaryColor": "000000"
+            }]
+          },
+          "title": null,
+          "alias": "action"
+        }
+      }, {
+        "element": {
+          "id": "Thriller",
+          "type": "GENRE",
+          "name": "Триллеры",
+          "basicCovers": {
+            "items": [{
+              "url": "https://pre-static.okko.tv/images/v2/11636770",
+              "imageType": "TITLE",
+              "primaryColor": null
+            }, {
+              "url": "https://pre-static.okko.tv/images/v2/11636776",
+              "imageType": "COVER",
+              "primaryColor": "000000"
+            }]
+          },
+          "title": null,
+          "alias": "thriller"
+        }
+      }],
+      "totalSize": 2
+    },
+    "countries": {
+      "items": [{
+        "element": {
+          "id": "58fbd956-e518-4360-91f0-41aa9e886957",
+          "name": "США"
+        }
+      }]
+    },
+    "similar": {
+      "items": [{
+        "element": {
+          "id": "0ae92a58-c257-4a52-aa4d-32ed4707b949",
+          "type": "MOVIE",
+          "name": "Заложница",
+          "basicCovers": {
+            "items": [{
+              "url": "https://pre-static.okko.tv/images/v2/7896555",
+              "imageType": "COVER",
+              "primaryColor": "000000"
+            }, {
+              "url": "https://pre-static.okko.tv/images/v2/7192457",
+              "imageType": "PORTRAIT",
+              "primaryColor": "000000"
+            }]
+          },
+          "inSubscription": false,
+          "releaseType": "RELEASE",
+          "availableForFreePlayback": false
+        }
+      }, {
+        "element": {
+          "id": "d4a322a1-139e-4c2e-b0f3-0d1795741e39",
+          "type": "MOVIE",
+          "name": "Гнев",
+          "basicCovers": {
+            "items": [{
+              "url": "https://pre-static.okko.tv/images/v2/6243523",
+              "imageType": "COVER",
+              "primaryColor": "000000"
+            }]
+          },
+          "inSubscription": true,
+          "releaseType": "RELEASE",
+          "availableForFreePlayback": false
+        }
+      }, {
+        "element": {
+          "id": "d83855f9-7120-4125-91e6-d663e729ae53",
+          "type": "MOVIE",
+          "name": "Законопослушный гражданин",
+          "basicCovers": {
+            "items": [{
+              "url": "https://pre-static.okko.tv/images/v2/7942177",
+              "imageType": "COVER",
+              "primaryColor": "000000"
+            }]
+          },
+          "inSubscription": true,
+          "releaseType": "RELEASE",
+          "availableForFreePlayback": false
+        }
+      }]
+    },
+    "subscriptions": null,
+    "promoText": "Ради спасения сына он пойдёт на войну с мафиозными кланами",
+    "freeAvailabilityStartDate": null,
+    "freeAvailabilityEndDate": null,
+    "availableForFreeChild": null,
+    "availableForFreePlayback": false,
+    "freePreviewPeriod": 600000,
+    "freePreviewAvailable": null,
+    "freePreviewTimeForPurchase": null,
+    "freeContent": false,
+    "stickerText": null,
+    "bookmarkDate": null,
+    "consumeDate": null,
+    "watchDate": null,
+    "startingDate": null,
+    "lastStartingDate": null,
+    "lastWatchedChildId": null,
+    "expireDate": null,
+    "purchaseDate": null
+  }
+}
