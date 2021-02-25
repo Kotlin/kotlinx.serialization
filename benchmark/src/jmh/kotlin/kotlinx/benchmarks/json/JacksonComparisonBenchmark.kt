@@ -33,7 +33,7 @@ open class JacksonComparisonBenchmark {
 
     private val objectMapper: ObjectMapper = jacksonObjectMapper()
 
-    private val data =  DefaultPixelEvent(
+    private val data = DefaultPixelEvent(
         version = 1,
         dateTime2 = System.currentTimeMillis().toString(),
         serverName = "some-endpoint-qwer",
@@ -48,14 +48,24 @@ open class JacksonComparisonBenchmark {
         cookies = "_ga=GA1.2.971852807.1546968515"
     )
 
-    private val stringData =  Json.encodeToString(DefaultPixelEvent.serializer(), data)
+    private val stringData = Json.encodeToString(DefaultPixelEvent.serializer(), data)
 
+    @Serializable
+    private class SmallDataClass(val id: Int, val name: String)
+
+    private val smallData = SmallDataClass(42, "Vincent")
 
     @Benchmark
     fun jacksonToString(): String = objectMapper.writeValueAsString(data)
 
     @Benchmark
+    fun jacksonSmallToString(): String = objectMapper.writeValueAsString(smallData)
+
+    @Benchmark
     fun kotlinToString(): String = Json.encodeToString(DefaultPixelEvent.serializer(), data)
+
+    @Benchmark
+    fun kotlinSmallToString(): String = Json.encodeToString(SmallDataClass.serializer(), smallData)
 
     @Benchmark
     fun jacksonFromString(): DefaultPixelEvent = objectMapper.readValue(stringData, DefaultPixelEvent::class.java)
