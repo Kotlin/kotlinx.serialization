@@ -123,7 +123,12 @@ internal class JsonReader(private val source: String) {
 
     @JvmField
     var currentPosition: Int = 0 // position in source
-    val isDone: Boolean get() = consumeNextToken() == TC_EOF
+
+    fun expectEof() {
+        val nextToken = consumeNextToken()
+        if (nextToken != TC_EOF)
+            fail("Expected EOF, but had ${source[currentPosition - 1]} instead")
+    }
 
     fun tryConsumeComma(): Boolean {
         val current = skipWhitespaces()
@@ -139,6 +144,7 @@ internal class JsonReader(private val source: String) {
         var current = currentPosition
         while (current < source.length) {
             val c = source[current]
+            // Inlined skipWhitespaces without field spill and nested loop. Also faster then char2TokenClass
             if (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
                 ++current
                 continue
@@ -179,9 +185,17 @@ internal class JsonReader(private val source: String) {
             val c = source[currentPosition++]
             if (c == ' ' || c == '\n' || c == '\r' || c == '\t') continue
             if (c == expected) return
-            fail(charToTokenClass(expected))
+            unexpectedToken(expected)
         }
-        fail(charToTokenClass(expected)) // EOF
+        unexpectedToken(expected) // EOF
+    }
+
+    private fun unexpectedToken(expected: Char) {
+        --currentPosition // To properly handle null
+        if (expected == STRING && consumeStringLenient() == NULL) {
+            fail("Expected string literal but 'null' literal was found.\n$coerceInputValuesHint", currentPosition - 4)
+        }
+        fail(charToTokenClass(expected))
     }
 
     private fun fail(expectedToken: Byte) {
@@ -197,7 +211,7 @@ internal class JsonReader(private val source: String) {
             TC_END_LIST -> "end of the array ']'"
             else -> "valid token" // should never happen
         }
-        val s = if (currentPosition == source.length) "EOF" else source[currentPosition - 1].toString()
+        val s = if (currentPosition == source.length || currentPosition == 0) "EOF" else source[currentPosition - 1].toString()
         fail("Expected $expected, but had '$s' instead", currentPosition - 1)
     }
 
@@ -205,13 +219,11 @@ internal class JsonReader(private val source: String) {
         val source = source
         while (currentPosition < source.length) {
             val ch = source[currentPosition]
-            return when (val tc = charToTokenClass(ch)) {
-                TC_WHITESPACE -> {
-                    ++currentPosition
-                    continue
-                }
-                else -> tc
+            if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t') {
+                ++currentPosition
+                continue
             }
+            return charToTokenClass(ch)
         }
         return TC_EOF
     }
@@ -466,14 +478,19 @@ internal class JsonReader(private val source: String) {
     }
 
     fun consumeNumericLiteral(): Long {
+        /*
+         * This is an optimized (~40% for numbers) version of consumeString().toLong()
+         * that doesn't allocate and also doesn't support any radix but 10
+         */
         var current = skipWhitespaces()
+        if (current == source.length) fail("EOF")
         val hasQuotation = if (source[current] == STRING) {
-            ++current
+            // Check it again
+            if (++current == source.length) fail("EOF")
             true
         } else {
             false
         }
-        if (current == source.length) fail("EOF")
         var accumulator = 0L
         var isNegative = false
         val start = current
@@ -495,7 +512,7 @@ internal class JsonReader(private val source: String) {
             accumulator = accumulator * 10 - digit
             if (accumulator > 0) fail("Numeric value overflow")
         }
-        if (start == current) {
+        if (start == current || (isNegative && start == current - 1)) {
             fail("Expected numeric literal")
         }
         if (hasQuotation) {
@@ -549,7 +566,7 @@ internal class JsonReader(private val source: String) {
                 false
             }
             else -> {
-                fail("Expected valid boolean literal prefix, but had ${source[current - 1]}")
+                fail("Expected valid boolean literal prefix, but had '${consumeStringLenient()}'")
             }
         }
     }
@@ -563,7 +580,7 @@ internal class JsonReader(private val source: String) {
             val expected = literalSuffix[i]
             val actual = source[current + i]
             if (expected.toInt() != actual.toInt() or asciiCaseMask) {
-                fail("Expected valid boolean literal prefix, but had ${source.substring(current - 1, current - 1 + i)}")
+                fail("Expected valid boolean literal prefix, but had '${consumeStringLenient()}'")
             }
         }
 

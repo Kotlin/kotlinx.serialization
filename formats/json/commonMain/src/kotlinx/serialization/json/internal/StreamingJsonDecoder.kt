@@ -177,7 +177,7 @@ internal open class StreamingJsonDecoder(
         return if (configuration.isLenient) {
             reader.consumeBooleanLenient()
         } else {
-            return reader.consumeBoolean()
+            reader.consumeBoolean()
         }
     }
 
@@ -225,7 +225,7 @@ internal open class StreamingJsonDecoder(
     }
 
     override fun decodeChar(): Char {
-        val string= reader.consumeStringLenient()
+        val string = reader.consumeStringLenient()
         if (string.length != 1) reader.fail("Expected single char, but got '$string'")
         return string[0]
     }

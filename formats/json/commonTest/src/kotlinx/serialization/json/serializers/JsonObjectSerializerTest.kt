@@ -66,7 +66,7 @@ class JsonObjectSerializerTest : JsonTestBase() {
     fun testInvalidObject() = parametrizedTest { useStreaming ->
         assertFailsWith<JsonDecodingException> { default.decodeFromString(JsonObjectSerializer, "{\"a\":\"b\"]", false) }
         assertFailsWith<JsonDecodingException> { default.decodeFromString(JsonObjectSerializer, "{", useStreaming) }
-        assertFailsWith<IllegalStateException> { default.decodeFromString(JsonObjectSerializer, "{}}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString(JsonObjectSerializer, "{}}", useStreaming) }
         assertFailsWith<JsonDecodingException> { default.decodeFromString(JsonObjectSerializer, "{]", useStreaming) }
     }
 

@@ -83,7 +83,7 @@ public sealed class Json(internal val configuration: JsonConf) : StringFormat {
         val reader = JsonReader(string)
         val input = StreamingJsonDecoder(this, WriteMode.OBJ, reader)
         val result = input.decodeSerializableValue(deserializer)
-        if (!reader.isDone) { error("Reader has not consumed the whole input: $reader") }
+        reader.expectEof()
         return result
     }
     /**
