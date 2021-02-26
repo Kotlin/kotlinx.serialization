@@ -94,7 +94,3 @@ open class JacksonComparisonBenchmark {
     @Benchmark
     fun kotlinFromString(): DefaultPixelEvent = Json.decodeFromString(DefaultPixelEvent.serializer(), stringData)
 }
-
-fun main() {
-    println(JacksonComparisonBenchmark().kotlinToString())
-}
