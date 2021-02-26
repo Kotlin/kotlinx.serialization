@@ -4,7 +4,7 @@ package kotlinx.serialization.json.internal
  * Optimized version of StringBuilder that is specific to JSON-encoding
  */
 internal actual class JsonStringBuilder {
-    private var array = CharArray(32)
+    private var array = CharArrayPool.take()
     private var size = 0
 
     actual fun append(value: Long) {
@@ -71,7 +71,7 @@ internal actual class JsonStringBuilder {
     }
 
     actual override fun toString(): String {
-        return String(array, 0, size).also { size = 0 }
+        return String(array, 0, size)
     }
 
     private fun ensureAdditionalCapacity(expected: Int) {
@@ -82,5 +82,9 @@ internal actual class JsonStringBuilder {
         if (array.size <= newSize) {
             array = array.copyOf(newSize.coerceAtLeast(size * 2))
         }
+    }
+
+    actual fun release() {
+        CharArrayPool.release(array)
     }
 }

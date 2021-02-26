@@ -22,4 +22,7 @@ internal actual class JsonStringBuilder actual constructor() {
     actual override fun toString(): String {
         return sb.toString()
     }
+
+    actual fun release() {
+    }
 }

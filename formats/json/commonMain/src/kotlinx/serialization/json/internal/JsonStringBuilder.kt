@@ -6,4 +6,5 @@ internal expect class JsonStringBuilder constructor() {
     fun append(string: String)
     fun appendQuoted(string: String)
     override fun toString(): String
+    fun release()
 }
