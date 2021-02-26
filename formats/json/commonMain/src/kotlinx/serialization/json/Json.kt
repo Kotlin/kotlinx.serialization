@@ -63,8 +63,10 @@ public sealed class Json(internal val configuration: JsonConf) : StringFormat {
      *
      * @throws [SerializationException] if the given value cannot be serialized to JSON.
      */
+    private val result = JsonStringBuilder()
+
     public final override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
-        val result = StringBuilder()
+        val result = result
         val encoder = StreamingJsonEncoder(
             result, this,
             WriteMode.OBJ,
