@@ -34,7 +34,7 @@ internal actual class JsonStringBuilder {
         for (i in sz until sz + length) {
             val ch = arr[i].toInt()
             // Do we have unescaped symbols?
-            if (ch < ESCAPE_MARKERS.size && ESCAPE_MARKERS[ch] != ZERO_CHAR) {
+            if (ch < ESCAPE_MARKERS.size && ESCAPE_MARKERS[ch] != 0.toByte()) {
                 // Go to slow path
                 return appendStringSlowPath(i - sz, i, string)
             }
@@ -58,12 +58,12 @@ internal actual class JsonStringBuilder {
                 * or ones (unicode escape)
                 */
                 when (val marker = ESCAPE_MARKERS[ch]) {
-                    ZERO_CHAR -> {
+                    0.toByte() -> {
                         array[sz] = '\\'
-                        array[sz + 1] = marker
+                        array[sz + 1] = marker.toChar()
                         sz += 2
                     }
-                    1.toChar() -> {
+                    1.toByte() -> {
                         val escapedString = ESCAPE_STRINGS[ch]!!
                         ensureTotalCapacity(sz + escapedString.length)
                         escapedString.toCharArray(array, sz, 0, escapedString.length)
