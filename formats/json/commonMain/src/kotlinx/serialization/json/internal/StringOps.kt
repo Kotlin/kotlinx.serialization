@@ -33,7 +33,7 @@ internal val ESCAPE_STRINGS: Array<String?> = arrayOfNulls<String>(93).apply {
 @SharedImmutable
 internal val ESCAPE_MARKERS: CharArray = CharArray(93).apply {
     for (c in 0..0x1f) {
-        this[c] = 0.toChar()
+        this[c] = 1.toChar()
     }
     this['"'.toInt()] = '"'
     this['\\'.toInt()] = '\\'
