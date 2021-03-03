@@ -59,9 +59,7 @@ internal actual class JsonStringBuilder {
                 */
                 when (val marker = ESCAPE_MARKERS[ch]) {
                     0.toByte() -> {
-                        array[sz] = '\\'
-                        array[sz + 1] = marker.toChar()
-                        sz += 2
+                        array[sz++] = ch.toChar()
                     }
                     1.toByte() -> {
                         val escapedString = ESCAPE_STRINGS[ch]!!
@@ -70,13 +68,18 @@ internal actual class JsonStringBuilder {
                         sz += escapedString.length
                     }
                     else -> {
-                        array[sz++] = ch.toChar()
+                        array[sz] = '\\'
+                        array[sz + 1] = marker.toChar()
+                        sz += 2
+
 //                        val escapedString = ESCAPE_STRINGS[ch]!!
 //                        ensureTotalCapacity(sz + escapedString.length)
 //                        escapedString.toCharArray(array, sz, 0, escapedString.length)
 //                        sz += escapedString.length
                     }
                 }
+            } else {
+                array[sz++] = ch.toChar()
             }
         }
         array[sz++] = '"'
