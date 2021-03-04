@@ -60,7 +60,7 @@ internal open class StreamingJsonDecoder(
     }
 
     override fun decodeNull(): Nothing? {
-        // Do nothing, null was consumed
+        // Do nothing, null was consumed by `decodeNotNullMark`
         return null
     }
 

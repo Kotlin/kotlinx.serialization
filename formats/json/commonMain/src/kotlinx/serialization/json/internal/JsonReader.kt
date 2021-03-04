@@ -211,7 +211,7 @@ internal class JsonReader(private val source: String) {
             TC_END_LIST -> "end of the array ']'"
             else -> "valid token" // should never happen
         }
-        val s = if (currentPosition == source.length || currentPosition == 0) "EOF" else source[currentPosition - 1].toString()
+        val s = if (currentPosition == source.length || currentPosition <= 0) "EOF" else source[currentPosition - 1].toString()
         fail("Expected $expected, but had '$s' instead", currentPosition - 1)
     }
 
