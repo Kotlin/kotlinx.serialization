@@ -7,7 +7,6 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
-import kotlin.js.*
 
 /**
  * The main entry point to work with JSON serialization.

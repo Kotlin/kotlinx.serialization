@@ -31,17 +31,17 @@ internal val ESCAPE_STRINGS: Array<String?> = arrayOfNulls<String>(93).apply {
 }
 
 @SharedImmutable
-internal val ESCAPE_MARKERS: CharArray = CharArray(93).apply {
+internal val ESCAPE_MARKERS: ByteArray = ByteArray(93).apply {
     for (c in 0..0x1f) {
-        this[c] = 0.toChar()
+        this[c] = 1.toByte()
     }
-    this['"'.toInt()] = '"'
-    this['\\'.toInt()] = '\\'
-    this['\t'.toInt()] = 't'
-    this['\b'.toInt()] = 'b'
-    this['\n'.toInt()] = 'n'
-    this['\r'.toInt()] = 'r'
-    this[0x0c] = 'f'
+    this['"'.toInt()] = '"'.toByte()
+    this['\\'.toInt()] = '\\'.toByte()
+    this['\t'.toInt()] = 't'.toByte()
+    this['\b'.toInt()] = 'b'.toByte()
+    this['\n'.toInt()] = 'n'.toByte()
+    this['\r'.toInt()] = 'r'.toByte()
+    this[0x0c] = 'f'.toByte()
 }
 
 internal fun StringBuilder.printQuoted(value: String) {
