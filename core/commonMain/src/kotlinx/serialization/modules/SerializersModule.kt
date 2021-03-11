@@ -74,6 +74,7 @@ public operator fun SerializersModule.plus(other: SerializersModule): Serializer
  * If serializer for some class presents in both modules, result module
  * will contain serializer from [other] module.
  */
+@ExperimentalSerializationApi
 public infix fun SerializersModule.overwriteWith(other: SerializersModule): SerializersModule = SerializersModule {
     include(this@overwriteWith)
     other.dumpTo(object : SerializersModuleCollector {
@@ -128,6 +129,7 @@ internal class SerialModuleImpl(
     override fun <T : Any> getContextual(kclass: KClass<T>): KSerializer<T>? =
         class2Serializer[kclass] as? KSerializer<T>
 
+    @ExperimentalSerializationApi
     override fun dumpTo(collector: SerializersModuleCollector) {
         class2Serializer.forEach { (kclass, serial) ->
             collector.contextual(

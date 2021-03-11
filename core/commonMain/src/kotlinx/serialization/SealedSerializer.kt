@@ -68,6 +68,7 @@ import kotlin.reflect.*
  * }
  * ```
  */
+@ExperimentalSerializationApi
 @InternalSerializationApi
 public class SealedClassSerializer<T : Any>(
     serialName: String,
@@ -76,6 +77,7 @@ public class SealedClassSerializer<T : Any>(
     subclassSerializers: Array<KSerializer<out T>>
 ) : AbstractPolymorphicSerializer<T>() {
 
+    @ExperimentalSerializationApi
     override val descriptor: SerialDescriptor = buildSerialDescriptor(serialName, PolymorphicKind.SEALED) {
         element("type", String.serializer().descriptor)
         val elementDescriptor =
