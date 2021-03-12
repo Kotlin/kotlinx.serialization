@@ -55,7 +55,6 @@ open class CoerceInputValuesBenchmark {
     @Benchmark
     fun testNullableRegular() = json.decodeFromString(NullableHolder.serializer(), str)
 
-
     @Benchmark
     fun testNonNullableCoercing() = coercingJson.decodeFromString(Holder.serializer(), str)
 

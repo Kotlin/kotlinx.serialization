@@ -51,11 +51,11 @@ open class PrimitiveValuesBenchmark {
     private fun step(step: Long) = Long.MAX_VALUE / 8 * step
 
     @Benchmark
-    fun encodeBoolean(): BooleanHolder = Json.decodeFromString(BooleanHolder.serializer(), booleanValue)
+    fun decodeBoolean(): BooleanHolder = Json.decodeFromString(BooleanHolder.serializer(), booleanValue)
 
     @Benchmark
-    fun encodeInt(): IntHolder = Json.decodeFromString(IntHolder.serializer(), intValue)
+    fun decodeInt(): IntHolder = Json.decodeFromString(IntHolder.serializer(), intValue)
 
     @Benchmark
-    fun encodeLong(): LongHolder = Json.decodeFromString(LongHolder.serializer(), longValue)
+    fun decodeLong(): LongHolder = Json.decodeFromString(LongHolder.serializer(), longValue)
 }
