@@ -119,7 +119,7 @@ internal fun charToTokenClass(c: Char) = if (c.toInt() < CTC_MAX) CHAR_TO_TOKEN[
 internal fun escapeToChar(c: Int): Char = if (c < ESC2C_MAX) ESCAPE_2_CHAR[c] else INVALID
 
 // Streaming JSON reader
-internal class JsonReader(private val source: String) {
+internal class JsonLexer(private val source: String) {
 
     @JvmField
     var currentPosition: Int = 0 // position in source

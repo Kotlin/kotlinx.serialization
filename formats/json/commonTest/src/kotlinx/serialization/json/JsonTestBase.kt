@@ -37,10 +37,10 @@ abstract class JsonTestBase {
         return if (useStreaming) {
             decodeFromString(deserializer, source)
         } else {
-            val reader = JsonReader(source)
-            val input = StreamingJsonDecoder(this, WriteMode.OBJ, reader)
+            val lexer = JsonLexer(source)
+            val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer)
             val tree = input.decodeJsonElement()
-            reader.expectEof()
+            lexer.expectEof()
             readJson(tree, deserializer)
         }
     }

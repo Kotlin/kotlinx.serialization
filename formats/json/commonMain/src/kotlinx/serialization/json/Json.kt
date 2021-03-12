@@ -7,7 +7,6 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
-import kotlin.js.*
 
 /**
  * The main entry point to work with JSON serialization.
@@ -80,10 +79,10 @@ public sealed class Json(internal val configuration: JsonConf) : StringFormat {
      * @throws [SerializationException] if the given JSON string cannot be deserialized to the value of type [T].
      */
     public final override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
-        val reader = JsonReader(string)
-        val input = StreamingJsonDecoder(this, WriteMode.OBJ, reader)
+        val lexer = JsonLexer(string)
+        val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer)
         val result = input.decodeSerializableValue(deserializer)
-        reader.expectEof()
+        lexer.expectEof()
         return result
     }
     /**
