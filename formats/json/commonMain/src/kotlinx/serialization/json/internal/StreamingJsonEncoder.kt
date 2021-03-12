@@ -10,7 +10,6 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
-import kotlin.jvm.*
 import kotlin.native.concurrent.*
 
 @ExperimentalSerializationApi
@@ -36,11 +35,11 @@ internal class StreamingJsonEncoder(
 ) : JsonEncoder, AbstractEncoder() {
 
     internal constructor(
-        output: StringBuilder, json: Json, mode: WriteMode,
+        output: JsonStringBuilder, json: Json, mode: WriteMode,
         modeReuseCache: Array<JsonEncoder?>
     ) : this(Composer(output, json), json, mode, modeReuseCache)
 
-    public override val serializersModule: SerializersModule = json.serializersModule
+    override val serializersModule: SerializersModule = json.serializersModule
     private val configuration = json.configuration
 
     // Forces serializer to wrap all values into quotes
@@ -152,7 +151,7 @@ internal class StreamingJsonEncoder(
         return if (inlineDescriptor.isUnsignedNumber) StreamingJsonEncoder(
             ComposerForUnsignedNumbers(
                 composer.sb,
-                composer.json
+                json
             ), json, mode, null
         )
         else this
@@ -206,62 +205,5 @@ internal class StreamingJsonEncoder(
 
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
         encodeString(enumDescriptor.getElementName(index))
-    }
-
-    internal open class Composer(@JvmField internal val sb: StringBuilder, @JvmField internal val json: Json) {
-        private var level = 0
-        var writingFirst = true
-            private set
-
-        fun indent() {
-            writingFirst = true; level++
-        }
-
-        fun unIndent() {
-            level--
-        }
-
-        fun nextItem() {
-            writingFirst = false
-            if (json.configuration.prettyPrint) {
-                print("\n")
-                repeat(level) { print(json.configuration.prettyPrintIndent) }
-            }
-        }
-
-        fun space() {
-            if (json.configuration.prettyPrint)
-                print(' ')
-        }
-
-        open fun print(v: Char) = sb.append(v)
-        open fun print(v: String) = sb.append(v)
-        open fun print(v: Float) = sb.append(v)
-        open fun print(v: Double) = sb.append(v)
-        open fun print(v: Byte) = sb.append(v)
-        open fun print(v: Short) = sb.append(v)
-        open fun print(v: Int) = sb.append(v)
-        open fun print(v: Long) = sb.append(v)
-        open fun print(v: Boolean) = sb.append(v)
-        open fun printQuoted(value: String): Unit = sb.printQuoted(value)
-    }
-
-    @ExperimentalUnsignedTypes
-    internal class ComposerForUnsignedNumbers(sb: StringBuilder, json: Json) : Composer(sb, json) {
-        override fun print(v: Int): StringBuilder {
-            return super.print(v.toUInt().toString())
-        }
-
-        override fun print(v: Long): StringBuilder {
-            return super.print(v.toULong().toString())
-        }
-
-        override fun print(v: Byte): StringBuilder {
-            return super.print(v.toUByte().toString())
-        }
-
-        override fun print(v: Short): StringBuilder {
-            return super.print(v.toUShort().toString())
-        }
     }
 }

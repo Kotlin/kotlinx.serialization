@@ -7,7 +7,6 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
-import kotlin.js.*
 
 /**
  * The main entry point to work with JSON serialization.
@@ -64,14 +63,18 @@ public sealed class Json(internal val configuration: JsonConf) : StringFormat {
      * @throws [SerializationException] if the given value cannot be serialized to JSON.
      */
     public final override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
-        val result = StringBuilder()
-        val encoder = StreamingJsonEncoder(
-            result, this,
-            WriteMode.OBJ,
-            arrayOfNulls(WriteMode.values().size)
-        )
-        encoder.encodeSerializableValue(serializer, value)
-        return result.toString()
+        val result = JsonStringBuilder()
+        try {
+            val encoder = StreamingJsonEncoder(
+                result, this,
+                WriteMode.OBJ,
+                arrayOfNulls(WriteMode.values().size)
+            )
+            encoder.encodeSerializableValue(serializer, value)
+            return result.toString()
+        } finally {
+            result.release()
+        }
     }
 
     /**
