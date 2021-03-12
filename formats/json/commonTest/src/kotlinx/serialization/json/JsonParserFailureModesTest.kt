@@ -122,5 +122,19 @@ class JsonParserFailureModesTest : JsonTestBase() {
         default.decodeFromString<PrimitiveHolder>("""{"s": ${Short.MIN_VALUE}}""", it)
         default.decodeFromString<PrimitiveHolder>("""{"i": ${Int.MAX_VALUE}}""", it)
         default.decodeFromString<PrimitiveHolder>("""{"i": ${Int.MIN_VALUE}}""", it)
+        default.decodeFromString<Holder>("""{"id": ${Long.MIN_VALUE}}""", it)
+        default.decodeFromString<Holder>("""{"id": ${Long.MAX_VALUE}}""", it)
+    }
+
+    @Test
+    fun testInvalidNumber() = parametrizedTest {
+        assertFailsWith<JsonDecodingException> { default.decodeFromString<Holder>("""{"id":-}""", it) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString<Holder>("""{"id":+}""", it) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString<Holder>("""{"id":--}""", it) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString<Holder>("""{"id":1-1}""", it) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString<Holder>("""{"id":0-1}""", it) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString<Holder>("""{"id":0-}""", it) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString<Holder>("""{"id":a}""", it) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString<Holder>("""{"id":-a}""", it) }
     }
 }

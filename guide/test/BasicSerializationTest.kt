@@ -79,7 +79,7 @@ class BasicSerializationTest {
     @Test
     fun testExampleClasses08() {
         captureOutput("ExampleClasses08") { example.exampleClasses08.main() }.verifyOutputLinesStart(
-            "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 60: Encountered an unknown key 'language'.",
+            "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 42: Encountered an unknown key 'language'.",
             "Use 'ignoreUnknownKeys = true' in 'Json {}' builder to ignore unknown keys."
         )
     }

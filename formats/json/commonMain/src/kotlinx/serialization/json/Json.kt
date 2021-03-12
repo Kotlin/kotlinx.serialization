@@ -83,10 +83,10 @@ public sealed class Json(internal val configuration: JsonConf) : StringFormat {
      * @throws [SerializationException] if the given JSON string cannot be deserialized to the value of type [T].
      */
     public final override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
-        val reader = JsonReader(string)
-        val input = StreamingJsonDecoder(this, WriteMode.OBJ, reader)
+        val lexer = JsonLexer(string)
+        val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer)
         val result = input.decodeSerializableValue(deserializer)
-        if (!reader.isDone) { error("Reader has not consumed the whole input: $reader") }
+        lexer.expectEof()
         return result
     }
     /**

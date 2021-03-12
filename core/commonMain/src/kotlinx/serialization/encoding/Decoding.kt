@@ -137,6 +137,9 @@ public interface Decoder {
 
     /**
      * Decodes the `null` value and returns it.
+     *
+     * It is expected that `decodeNotNullMark` was called
+     * prior to `decodeNull` invocation and the case when it returned `true` was handled.
      */
     @ExperimentalSerializationApi
     public fun decodeNull(): Nothing?

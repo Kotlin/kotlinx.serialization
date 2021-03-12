@@ -13,20 +13,20 @@ import kotlinx.serialization.modules.*
 import kotlin.jvm.*
 
 /**
- * [JsonDecoder] which reads given JSON from [JsonReader] field by field.
+ * [JsonDecoder] which reads given JSON from [JsonLexer] field by field.
  */
 @OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
-internal open class StreamingJsonDecoder internal constructor(
-    public override val json: Json,
+internal open class StreamingJsonDecoder(
+    final override val json: Json,
     private val mode: WriteMode,
-    @JvmField internal val reader: JsonReader
+    @JvmField internal val lexer: JsonLexer
 ) : JsonDecoder, AbstractDecoder() {
 
-    public override val serializersModule: SerializersModule = json.serializersModule
+    override val serializersModule: SerializersModule = json.serializersModule
     private var currentIndex = -1
     private val configuration = json.configuration
 
-    public override fun decodeJsonElement(): JsonElement = JsonParser(json.configuration, reader).read()
+    override fun decodeJsonElement(): JsonElement = JsonTreeReader(json.configuration, lexer).read()
 
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
         return decodeSerializableValuePolymorphic(deserializer)
@@ -34,73 +34,70 @@ internal open class StreamingJsonDecoder internal constructor(
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         val newMode = json.switchMode(descriptor)
-        if (newMode.begin != INVALID) {
-            reader.requireTokenClass(newMode.beginTc) { "Expected '${newMode.begin}, kind: ${descriptor.kind}'" }
-            reader.nextToken()
-        }
+        lexer.consumeNextToken(newMode.begin)
+        checkLeadingComma()
         return when (newMode) {
+            // In fact resets current index that these modes rely on
             WriteMode.LIST, WriteMode.MAP, WriteMode.POLY_OBJ -> StreamingJsonDecoder(
                 json,
                 newMode,
-                reader
-            ) // need fresh cur index
-            else -> if (mode == newMode) this else
-                StreamingJsonDecoder(json, newMode, reader) // todo: reuse instance per mode
+                lexer
+            )
+            else -> if (mode == newMode) {
+                this
+            } else {
+                StreamingJsonDecoder(json, newMode, lexer)
+            }
         }
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
-        if (mode.end != INVALID) {
-            reader.requireTokenClass(mode.endTc) { "Expected '${mode.end}'" }
-            reader.nextToken()
-        }
+        lexer.consumeNextToken(mode.end)
     }
 
     override fun decodeNotNullMark(): Boolean {
-        return reader.tokenClass != TC_NULL
+        return lexer.tryConsumeNotNull()
     }
 
     override fun decodeNull(): Nothing? {
-        reader.requireTokenClass(TC_NULL) { "Expected 'null' literal" }
-        reader.nextToken()
+        // Do nothing, null was consumed by `decodeNotNullMark`
         return null
     }
 
-    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-        val tokenClass = reader.tokenClass
-        if (tokenClass == TC_COMMA) {
-            reader.require(currentIndex != -1, reader.currentPosition) { "Unexpected leading comma" }
-            reader.nextToken()
-        }
-        return when (mode) {
-            WriteMode.LIST -> decodeListIndex(tokenClass)
-            WriteMode.MAP -> decodeMapIndex(tokenClass)
-            WriteMode.POLY_OBJ -> {
-                when (++currentIndex) {
-                    0 -> 0
-                    1 -> 1
-                    else -> {
-                        CompositeDecoder.DECODE_DONE
-                    }
-                }
-            }
-            else -> decodeObjectIndex(tokenClass, descriptor)
+    private fun checkLeadingComma() {
+        if (lexer.peekNextToken() == TC_COMMA) {
+            lexer.fail("Unexpected leading comma")
         }
     }
 
-    private fun decodeMapIndex(tokenClass: Byte): Int {
-        if (tokenClass != TC_COMMA && currentIndex % 2 == 1) {
-            reader.requireTokenClass(TC_END_OBJ) { "Expected end of the object or comma" }
+    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+        return when (mode) {
+            WriteMode.OBJ -> decodeObjectIndex(descriptor)
+            WriteMode.MAP -> decodeMapIndex()
+            else -> decodeListIndex() // Both for LIST and default polymorphic
         }
-        if (currentIndex % 2 == 0) {
-            reader.requireTokenClass(TC_COLON) { "Expected ':' after the key" }
-            reader.nextToken()
-        }
-        return if (!reader.canBeginValue) {
-            reader.require(tokenClass != TC_COMMA) { "Unexpected trailing comma" }
-            CompositeDecoder.DECODE_DONE
+    }
+
+    private fun decodeMapIndex(): Int {
+        var hasComma = false
+        val decodingKey = currentIndex % 2 != 0
+        if (decodingKey) {
+            if (currentIndex != -1) {
+                hasComma = lexer.tryConsumeComma()
+            }
         } else {
+            lexer.consumeNextToken(COLON)
+        }
+
+        return if (lexer.canConsumeValue()) {
+            if (decodingKey) {
+                if (currentIndex == -1) lexer.require(!hasComma) { "Unexpected trailing comma" }
+                else lexer.require(hasComma) { "Expected comma after the key-value pair" }
+            }
             ++currentIndex
+        } else {
+            if (hasComma) lexer.fail("Expected '}', but had ',' instead")
+            CompositeDecoder.DECODE_DONE
         }
     }
 
@@ -109,113 +106,148 @@ internal open class StreamingJsonDecoder internal constructor(
      */
     private fun coerceInputValue(descriptor: SerialDescriptor, index: Int): Boolean {
         val elementDescriptor = descriptor.getElementDescriptor(index)
-        if (reader.tokenClass == TC_NULL && !elementDescriptor.isNullable) return true // null for non-nullable
+        if (!elementDescriptor.isNullable && !lexer.tryConsumeNotNull()) return true
         if (elementDescriptor.kind == SerialKind.ENUM) {
-            val enumValue = reader.peekString(configuration.isLenient)
-                    ?: return false // if value is not a string, decodeEnum() will throw correct exception
+            val enumValue = lexer.peekString(configuration.isLenient)
+                ?: return false // if value is not a string, decodeEnum() will throw correct exception
             val enumIndex = elementDescriptor.getElementIndex(enumValue)
-            if (enumIndex == UNKNOWN_NAME) return true
+            if (enumIndex == UNKNOWN_NAME) {
+                // Encountered unknown enum value, have to skip it
+                lexer.consumeString()
+                return true
+            }
         }
         return false
     }
 
-    private fun decodeObjectIndex(tokenClass: Byte, descriptor: SerialDescriptor): Int {
-        if (tokenClass == TC_COMMA && !reader.canBeginValue) {
-            reader.fail("Unexpected trailing comma")
-        }
-
-        while (reader.canBeginValue) {
-            ++currentIndex
-            val key = decodeString()
-            reader.requireTokenClass(TC_COLON) { "Expected ':'" }
-            reader.nextToken()
+    private fun decodeObjectIndex(descriptor: SerialDescriptor): Int {
+        // hasComma checks are required to properly react on trailing commas
+        var hasComma = lexer.tryConsumeComma()
+        while (lexer.canConsumeValue()) { // TODO: consider merging comma consumption and this check
+            hasComma = false
+            val key = decodeStringKey()
+            lexer.consumeNextToken(COLON)
             val index = descriptor.getElementIndex(key)
             val isUnknown = if (index != UNKNOWN_NAME) {
                 if (configuration.coerceInputValues && coerceInputValue(descriptor, index)) {
-                    false // skip known element
+                    hasComma = lexer.tryConsumeComma()
+                    false // Known element, but coerced
                 } else {
-                    return index // read known element
+                    return index // Known element without coercing, return it
                 }
             } else {
                 true // unknown element
             }
 
-            if (isUnknown && !configuration.ignoreUnknownKeys) {
-                reader.fail("Encountered an unknown key '$key'.\n$ignoreUnknownKeysHint")
-            } else {
-                reader.skipElement()
-            }
-
-            if (reader.tokenClass == TC_COMMA) {
-                reader.nextToken()
-                reader.require(reader.canBeginValue, reader.currentPosition) { "Unexpected trailing comma" }
+            if (isUnknown) { // slow-path for unknown keys handling
+                hasComma = handleUnknown(key)
             }
         }
+        if (hasComma) lexer.fail("Unexpected trailing comma")
         return CompositeDecoder.DECODE_DONE
     }
 
-    private fun decodeListIndex(tokenClass: Byte): Int {
-        // Prohibit leading comma
-        if (tokenClass != TC_COMMA && currentIndex != -1) {
-            reader.requireTokenClass(TC_END_LIST) { "Expected end of the array or comma" }
-        }
-        return if (!reader.canBeginValue) {
-            reader.require(tokenClass != TC_COMMA) { "Unexpected trailing comma" }
-            CompositeDecoder.DECODE_DONE
+    private fun handleUnknown(key: String): Boolean {
+        if (configuration.ignoreUnknownKeys) {
+            lexer.skipElement()
         } else {
+            lexer.failOnUnknownKey(key)
+        }
+        return lexer.tryConsumeComma()
+    }
+
+    private fun decodeListIndex(): Int {
+        // Prohibit leading comma
+        val hasComma = lexer.tryConsumeComma()
+        return if (lexer.canConsumeValue()) {
+            if (currentIndex != -1 && !hasComma) lexer.fail("Expected end of the array or comma")
             ++currentIndex
+        } else {
+            if (hasComma) lexer.fail("Unexpected trailing comma")
+            CompositeDecoder.DECODE_DONE
         }
     }
+
 
     override fun decodeBoolean(): Boolean {
         /*
          * We prohibit non true/false boolean literals at all as it is considered way too error-prone,
          * but allow quoted literal in relaxed mode for booleans.
          */
-        val string = if (configuration.isLenient) {
-            reader.takeString()
+        return if (configuration.isLenient) {
+            lexer.consumeBooleanLenient()
         } else {
-            reader.takeBooleanStringUnquoted()
+            lexer.consumeBoolean()
         }
-        string.toBooleanStrictOrNull()?.let { return it }
-        reader.fail("Failed to parse type 'boolean' for input '$string'")
     }
 
     /*
-     * The rest of the primitives are allowed to be quoted and unqouted
+     * The rest of the primitives are allowed to be quoted and unquoted
      * to simplify integrations with third-party API.
      */
-    override fun decodeByte(): Byte = reader.parseString("byte") { toByte() }
-    override fun decodeShort(): Short = reader.parseString("short") { toShort() }
-    override fun decodeInt(): Int = reader.parseString("int") { toInt() }
-    override fun decodeLong(): Long = reader.parseString("long") { toLong() }
+    override fun decodeByte(): Byte {
+        val value = lexer.consumeNumericLiteral()
+        // Check for overflow
+        if (value != value.toByte().toLong()) lexer.fail("Failed to parse byte for input '$value'")
+        return value.toByte()
+    }
+
+    override fun decodeShort(): Short {
+        val value = lexer.consumeNumericLiteral()
+        // Check for overflow
+        if (value != value.toShort().toLong()) lexer.fail("Failed to parse short for input '$value'")
+        return value.toShort()
+    }
+
+    override fun decodeInt(): Int {
+        val value = lexer.consumeNumericLiteral()
+        // Check for overflow
+        if (value != value.toInt().toLong()) lexer.fail("Failed to parse int for input '$value'")
+        return value.toInt()
+    }
+
+    override fun decodeLong(): Long {
+        return lexer.consumeNumericLiteral()
+    }
 
     override fun decodeFloat(): Float {
-        val result = reader.parseString("float") { toFloat() }
+        val result = lexer.parseString("float") { toFloat() }
         val specialFp = json.configuration.allowSpecialFloatingPointValues
         if (specialFp || result.isFinite()) return result
-        reader.throwInvalidFloatingPointDecoded(result)
+        lexer.throwInvalidFloatingPointDecoded(result)
     }
 
     override fun decodeDouble(): Double {
-        val result = reader.parseString("double") { toDouble() }
+        val result = lexer.parseString("double") { toDouble() }
         val specialFp = json.configuration.allowSpecialFloatingPointValues
         if (specialFp || result.isFinite()) return result
-        reader.throwInvalidFloatingPointDecoded(result)
+        lexer.throwInvalidFloatingPointDecoded(result)
     }
 
-    override fun decodeChar(): Char = reader.parseString("char") { single() }
+    override fun decodeChar(): Char {
+        val string = lexer.consumeStringLenient()
+        if (string.length != 1) lexer.fail("Expected single char, but got '$string'")
+        return string[0]
+    }
+
+    private fun decodeStringKey(): String {
+        return if (configuration.isLenient) {
+            lexer.consumeStringLenient()
+        } else {
+            lexer.consumeKeyString()
+        }
+    }
 
     override fun decodeString(): String {
         return if (configuration.isLenient) {
-            reader.takeString()
+            lexer.consumeStringLenient()
         } else {
-            reader.takeStringQuoted()
+            lexer.consumeString()
         }
     }
 
     override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder {
-        return if (inlineDescriptor.isUnsignedNumber) JsonDecoderForUnsignedTypes(reader, json) else this
+        return if (inlineDescriptor.isUnsignedNumber) JsonDecoderForUnsignedTypes(lexer, json) else this
     }
 
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
@@ -226,20 +258,20 @@ internal open class StreamingJsonDecoder internal constructor(
 @OptIn(ExperimentalSerializationApi::class)
 @ExperimentalUnsignedTypes
 internal class JsonDecoderForUnsignedTypes(
-    private val reader: JsonReader,
+    private val lexer: JsonLexer,
     json: Json
 ) : AbstractDecoder() {
     override val serializersModule: SerializersModule = json.serializersModule
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int = error("unsupported")
 
-    override fun decodeInt(): Int = reader.parseString("UInt") { toUInt().toInt() }
-    override fun decodeLong(): Long = reader.parseString("ULong") { toULong().toLong() }
-    override fun decodeByte(): Byte = reader.parseString("UByte") { toUByte().toByte() }
-    override fun decodeShort(): Short = reader.parseString("UShort") { toUShort().toShort() }
+    override fun decodeInt(): Int = lexer.parseString("UInt") { toUInt().toInt() }
+    override fun decodeLong(): Long = lexer.parseString("ULong") { toULong().toLong() }
+    override fun decodeByte(): Byte = lexer.parseString("UByte") { toUByte().toByte() }
+    override fun decodeShort(): Short = lexer.parseString("UShort") { toUShort().toShort() }
 }
 
-private inline fun <T> JsonReader.parseString(expectedType: String, block: String.() -> T): T {
-    val input = takeString()
+private inline fun <T> JsonLexer.parseString(expectedType: String, block: String.() -> T): T {
+    val input = consumeStringLenient()
     try {
         return input.block()
     } catch (e: IllegalArgumentException) {

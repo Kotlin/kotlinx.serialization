@@ -31,10 +31,9 @@ internal open class PluginGeneratedSerialDescriptor(
     private val elementsOptionality = BooleanArray(elementsCount)
     public override val serialNames: Set<String> get() = indices.keys
 
-    // don't change lazy mode: KT-32871, KT-32872
-    private val indices: Map<String, Int> by lazy { buildIndices() }
+    private var indices: Map<String, Int> = emptyMap()
     // Cache child serializers, they are not cached by the implementation for nullable types
-    private val childSerializers by lazy { generatedSerializer?.childSerializers() ?: emptyArray() }
+    private val childSerializers: Array<KSerializer<*>> by lazy { generatedSerializer?.childSerializers() ?: emptyArray() }
 
     // Lazy because of JS specific initialization order (#789)
     internal val typeParameterDescriptors: Array<SerialDescriptor> by lazy {
@@ -48,6 +47,9 @@ internal open class PluginGeneratedSerialDescriptor(
         names[++added] = name
         elementsOptionality[added] = isOptional
         propertiesAnnotations[added] = null
+        if (added == elementsCount - 1) {
+            indices = buildIndices()
+        }
     }
 
     public fun pushAnnotation(annotation: Annotation) {

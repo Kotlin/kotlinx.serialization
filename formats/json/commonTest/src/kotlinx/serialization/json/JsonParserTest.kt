@@ -82,11 +82,10 @@ class JsonParserTest : JsonTestBase() {
         testTrailingComma("{\"id\":0  , ,}")
     }
 
-
     private fun testTrailingComma(content: String) {
         val e = assertFailsWith<JsonDecodingException> {  Json.parseToJsonElement(content) }
         val msg = e.message!!
-        assertTrue(msg.contains("Expected end of the object"))
+        assertTrue(msg.contains("Unexpected trailing"))
     }
 
     @Test

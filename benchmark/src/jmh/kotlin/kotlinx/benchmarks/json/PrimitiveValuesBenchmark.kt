@@ -59,4 +59,3 @@ open class PrimitiveValuesBenchmark {
     @Benchmark
     fun encodeLong(): LongHolder = Json.decodeFromString(LongHolder.serializer(), longValue)
 }
-

@@ -15,11 +15,6 @@ internal enum class WriteMode(@JvmField val begin: Char, @JvmField val end: Char
     LIST(BEGIN_LIST, END_LIST),
     MAP(BEGIN_OBJ, END_OBJ),
     POLY_OBJ(BEGIN_LIST, END_LIST);
-
-    @JvmField
-    val beginTc: Byte = charToTokenClass(begin)
-    @JvmField
-    val endTc: Byte = charToTokenClass(end)
 }
 
 @OptIn(ExperimentalSerializationApi::class)
