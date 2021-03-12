@@ -62,6 +62,14 @@ class JsonParserFailureModesTest : JsonTestBase() {
                     it
                 )
             }
+            // -9223372036854775808 is Long.MIN_VALUE
+            assertFailsWith<JsonDecodingException> {
+                default.decodeFromString(
+                    Holder.serializer(),
+                    """{"id":9223372036854775808}""",
+                    it
+                )
+            }
             assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"id"}""", it) }
             assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"id}""", it) }
             assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"i}""", it) }

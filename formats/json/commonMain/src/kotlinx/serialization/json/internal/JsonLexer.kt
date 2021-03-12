@@ -521,7 +521,11 @@ internal class JsonLexer(private val source: String) {
             ++current
         }
         currentPosition = current
-        return if (isNegative) accumulator else -accumulator
+        return when {
+            isNegative -> accumulator
+            accumulator != Long.MIN_VALUE -> -accumulator
+            else -> fail("Numeric value overflow")
+        }
     }
 
 
