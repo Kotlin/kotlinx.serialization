@@ -235,7 +235,12 @@ private open class JsonTreeDecoder(
         if (configuration.ignoreUnknownKeys || descriptor.kind is PolymorphicKind) return
         // Validate keys
         @Suppress("DEPRECATION_ERROR")
-        val names = descriptor.jsonCachedSerialNames()
+        val names: Set<String> =
+            if (!configuration.useAlternativeNames)
+                descriptor.jsonCachedSerialNames()
+            else
+                descriptor.jsonCachedSerialNames() + json.schemaCache[descriptor, JsonAlternativeNamesKey]?.keys.orEmpty()
+
         for (key in value.keys) {
             if (key !in names && key != polyDiscriminator) {
                 throw UnknownKeyException(key, value.toString())

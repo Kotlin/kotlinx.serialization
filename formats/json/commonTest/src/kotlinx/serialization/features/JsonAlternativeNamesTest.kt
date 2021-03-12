@@ -26,9 +26,8 @@ data class CollisionWithAlternate(
 class JsonAlternativeNamesTest : JsonTestBase() {
     private val inputString1 = """{"foo":"foo"}"""
     private val inputString2 = """{"_foo":"foo"}"""
-    private val json = Json { ignoreUnknownKeys = true; useAlternativeNames = true }
+    private val json = Json { useAlternativeNames = true }
 
-    // todo: this test requires ignoreUnknownKeys = true because of validation in TreeJsonDecoder.endStructure
     @Test
     fun parsesAllAlternativeNames() {
         for (input in listOf(inputString1, inputString2)) {
