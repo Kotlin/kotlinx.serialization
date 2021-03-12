@@ -1,3 +1,14 @@
+
+1.1.0 / 2021-02-17
+==================
+
+This release contains all features and bugfixes from 1.1.0-RC plus an additional fix for incorrect exception type
+(#1325 — Throw `SerializationException` instead of `IllegalStateException` in `EnumSerializer`) and uses release version of Kotlin 1.4.30.
+
+In the light of [JCenter shutdown](https://jfrog.com/blog/into-the-sunset-bintray-jcenter-gocenter-and-chartcenter/), starting from 1.1.0-RC and now on,
+all new releases of kotlinx.serialization are published directly to Maven Central and therefore are not available in `https://kotlin.bintray.com/kotlinx/` repository.
+We suggest you to remove `jcenter()` and other kotlin bintray repositories from your buildscripts and to use `mavenCentral()` repository instead.
+
 1.1.0-RC / 2021-02-03
 ==================
 

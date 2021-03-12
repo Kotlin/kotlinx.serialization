@@ -8,6 +8,9 @@ enableFeaturePreview('GRADLE_METADATA')
 include ':kotlinx-serialization-core'
 project(':kotlinx-serialization-core').projectDir = file('./core')
 
+include ':kotlinx-serialization-bom'
+project(':kotlinx-serialization-bom').projectDir = file('./bom')
+
 include ':kotlinx-serialization-json'
 project(':kotlinx-serialization-json').projectDir = file('./formats/json')
 

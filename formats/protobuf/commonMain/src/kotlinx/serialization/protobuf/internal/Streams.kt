@@ -97,7 +97,7 @@ internal class ByteArrayInput(private var array: ByteArray, private val endIndex
     private fun readVarint64SlowPath(): Long {
         var result = 0L
         var shift = 0
-        while (shift != 64) {
+        while (shift < 64) {
             val byte = read()
             result = result or ((byte and 0x7F).toLong() shl shift)
             if (byte and 0x80 == 0) {
@@ -105,13 +105,13 @@ internal class ByteArrayInput(private var array: ByteArray, private val endIndex
             }
             shift += 7
         }
-        throw SerializationException("Varint too long: exceeded 64 bits")
+        throw SerializationException("Input stream is malformed: Varint too long (exceeded 64 bits)")
     }
 
     private fun readVarint32SlowPath(): Int {
         var result = 0
         var shift = 0
-        while (shift != 32) {
+        while (shift < 32) {
             val byte = read()
             result = result or ((byte and 0x7F) shl shift)
             if (byte and 0x80 == 0) {
@@ -119,7 +119,7 @@ internal class ByteArrayInput(private var array: ByteArray, private val endIndex
             }
             shift += 7
         }
-        throw SerializationException("Varint too long: exceeded 32 bits")
+        throw SerializationException("Input stream is malformed: Varint too long (exceeded 32 bits)")
     }
 }
 

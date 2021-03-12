@@ -3,7 +3,7 @@
 [![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 [![TeamCity build](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/KotlinTools_KotlinxSerialization_Ko.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=KotlinTools_KotlinxSerialization_Ko&guest=1)
-[![Maven Central](https://img.shields.io/maven-central/v/org.jetbrains.kotlinx/kotlinx-serialization-core/1.1.0-RC)](https://search.maven.org/artifact/org.jetbrains.kotlinx/kotlinx-serialization-core/1.1.0-RC/pom)
+[![Maven Central](https://img.shields.io/maven-central/v/org.jetbrains.kotlinx/kotlinx-serialization-core/1.1.0)](https://search.maven.org/artifact/org.jetbrains.kotlinx/kotlinx-serialization-core/1.1.0/pom)
 
 Kotlin serialization consists of a compiler plugin, that generates visitor code for serializable classes,
  runtime library with core serialization API and support libraries with various serialization formats.
@@ -81,8 +81,8 @@ Kotlin DSL:
 
 ```kotlin
 plugins {
-    kotlin("jvm") version "1.4.10" // or kotlin("multiplatform") or any other kotlin plugin
-    kotlin("plugin.serialization") version "1.4.10"
+    kotlin("jvm") version "1.4.30" // or kotlin("multiplatform") or any other kotlin plugin
+    kotlin("plugin.serialization") version "1.4.30"
 }
 ```       
 
@@ -90,8 +90,8 @@ Groovy DSL:
 
 ```gradle
 plugins {
-    id 'org.jetbrains.kotlin.multiplatform' version '1.4.10'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.10'
+    id 'org.jetbrains.kotlin.multiplatform' version '1.4.30'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.30'
 }
 ```
 
@@ -108,7 +108,7 @@ buildscript {
     repositories { mavenCentral() }
 
     dependencies {
-        val kotlinVersion = "1.4.10"
+        val kotlinVersion = "1.4.30"
         classpath(kotlin("gradle-plugin", version = kotlinVersion))
         classpath(kotlin("serialization", version = kotlinVersion))
     }
@@ -119,7 +119,7 @@ Groovy DSL:
 
 ```gradle
 buildscript {
-    ext.kotlin_version = '1.4.10'
+    ext.kotlin_version = '1.4.30'
     repositories { mavenCentral() }
 
     dependencies {
@@ -148,7 +148,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
 }
 ```
 
@@ -160,7 +160,7 @@ repositories {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0"
 }
 ```
 
@@ -215,8 +215,8 @@ Ensure the proper version of Kotlin and serialization version:
 
 ```xml
 <properties>
-    <kotlin.version>1.4.10</kotlin.version>
-    <serialization.version>1.0.1</serialization.version>
+    <kotlin.version>1.4.30</kotlin.version>
+    <serialization.version>1.1.0</serialization.version>
 </properties>
 ```
 

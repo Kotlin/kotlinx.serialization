@@ -5,6 +5,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
@@ -41,7 +42,6 @@ class JsonParserTest : JsonTestBase() {
         }
     }
 
-
     @Test
     fun testParseEscapedSymbols() {
         assertEquals(
@@ -58,9 +58,21 @@ class JsonParserTest : JsonTestBase() {
         assertStringFormAndRestored(
             """{"data":"Русские Буквы 🤔"}""",
             StringData("Русские Буквы \uD83E\uDD14"),
-            StringData.serializer(),
-            printResult = false
+            StringData.serializer()
         )
+    }
+
+    @Test
+    fun testUnicodeEscapes() {
+        val data = buildString {
+            append(1.toChar())
+            append(".")
+            append(0x20.toChar())
+            append(".")
+            append("\n")
+        }
+
+        assertJsonFormAndRestored(String.serializer(), data, "\"\\u0001. .\\n\"")
     }
 
     @Test
