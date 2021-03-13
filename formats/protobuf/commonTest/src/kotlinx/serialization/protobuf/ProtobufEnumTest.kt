@@ -9,7 +9,12 @@ import kotlin.test.*
 
 class ProtobufEnumTest {
 
-    enum class SomeEnum { ALPHA, BETA, GAMMA }
+    @Serializable
+    enum class SomeEnum {
+        @ProtoNumber(1) ALPHA,
+        @ProtoNumber(2) BETA,
+        @ProtoNumber(4) GAMMA
+    }
 
     @Serializable
     data class EnumWithUnion(@ProtoNumber(5) val s: String,
