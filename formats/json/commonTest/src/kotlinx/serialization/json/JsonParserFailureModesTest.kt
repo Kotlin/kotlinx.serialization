@@ -17,68 +17,66 @@ class JsonParserFailureModesTest : JsonTestBase() {
     )
 
     @Test
-    fun testFailureModes() = noLegacyJs { // fixme: legacyJs will work in 1.4.30-RC
-        parametrizedTest {
-            assertFailsWith<JsonDecodingException> {
-                default.decodeFromString(
-                    Holder.serializer(),
-                    """{"id": "}""",
-                    it
-                )
-            }
-            assertFailsWith<JsonDecodingException> {
-                default.decodeFromString(
-                    Holder.serializer(),
-                    """{"id": ""}""",
-                    it
-                )
-            }
-            assertFailsWith<JsonDecodingException> {
-                default.decodeFromString(
-                    Holder.serializer(),
-                    """{"id":a}""",
-                    it
-                )
-            }
-            assertFailsWith<JsonDecodingException> {
-                default.decodeFromString(
-                    Holder.serializer(),
-                    """{"id":2.0}""",
-                    it
-                )
-            }
-            assertFailsWith<JsonDecodingException> {
-                default.decodeFromString(
-                    Holder.serializer(),
-                    """{"id2":2}""",
-                    it
-                )
-            }
-            // 9223372036854775807 is Long.MAX_VALUE
-            assertFailsWith<JsonDecodingException> {
-                default.decodeFromString(
-                    Holder.serializer(),
-                    """{"id":${Long.MAX_VALUE}""" + "00" + "}",
-                    it
-                )
-            }
-            // -9223372036854775808 is Long.MIN_VALUE
-            assertFailsWith<JsonDecodingException> {
-                default.decodeFromString(
-                    Holder.serializer(),
-                    """{"id":9223372036854775808}""",
-                    it
-                )
-            }
-            assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"id"}""", it) }
-            assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"id}""", it) }
-            assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"i}""", it) }
-            assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"}""", it) }
-            assertFailsWithMissingField { default.decodeFromString(Holder.serializer(), """{}""", it) }
-            assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{""", it) }
-            assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """}""", it) }
-            assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{""", it) }
+    fun testFailureModes() = parametrizedTest {
+        assertFailsWith<JsonDecodingException> {
+            default.decodeFromString(
+                Holder.serializer(),
+                """{"id": "}""",
+                it
+            )
         }
+        assertFailsWith<JsonDecodingException> {
+            default.decodeFromString(
+                Holder.serializer(),
+                """{"id": ""}""",
+                it
+            )
+        }
+        assertFailsWith<JsonDecodingException> {
+            default.decodeFromString(
+                Holder.serializer(),
+                """{"id":a}""",
+                it
+            )
+        }
+        assertFailsWith<JsonDecodingException> {
+            default.decodeFromString(
+                Holder.serializer(),
+                """{"id":2.0}""",
+                it
+            )
+        }
+        assertFailsWith<JsonDecodingException> {
+            default.decodeFromString(
+                Holder.serializer(),
+                """{"id2":2}""",
+                it
+            )
+        }
+        // 9223372036854775807 is Long.MAX_VALUE
+        assertFailsWith<JsonDecodingException> {
+            default.decodeFromString(
+                Holder.serializer(),
+                """{"id":${Long.MAX_VALUE}""" + "00" + "}",
+                it
+            )
+        }
+        // -9223372036854775808 is Long.MIN_VALUE
+        assertFailsWith<JsonDecodingException> {
+            default.decodeFromString(
+                Holder.serializer(),
+                """{"id":9223372036854775808}""",
+                it
+            )
+        }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"id"}""", it) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"id}""", it) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"i}""", it) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{"}""", it) }
+        assertFailsWithMissingField { default.decodeFromString(Holder.serializer(), """{}""", it) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{""", it) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """}""", it) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString(Holder.serializer(), """{""", it) }
     }
 
     @Serializable
