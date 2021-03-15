@@ -45,11 +45,9 @@ class JsonOptionalTests : JsonTestBase() {
     }
 
     @Test
-    fun testThrowMissingField() =  noLegacyJs { // fixme: legacyJs will work in 1.4.30-RC
-        parametrizedTest { useStreaming ->
-            assertFailsWithMissingField {
-                lenient.decodeFromString(Data.serializer(), "{b:0}", useStreaming)
-            }
+    fun testThrowMissingField() = parametrizedTest { useStreaming ->
+        assertFailsWithMissingField {
+            lenient.decodeFromString(Data.serializer(), "{b:0}", useStreaming)
         }
     }
 }
