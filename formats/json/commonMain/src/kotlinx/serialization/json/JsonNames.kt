@@ -8,6 +8,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.json.internal.DescriptorSchemaCache
+import kotlin.native.concurrent.*
 
 /**
  * Specifies an array of names those can be treated as alternative possible names
@@ -23,6 +24,7 @@ import kotlinx.serialization.json.internal.DescriptorSchemaCache
 @ExperimentalSerializationApi
 public annotation class JsonNames(val names: Array<String>)
 
+@SharedImmutable
 internal val JsonAlternativeNamesKey = DescriptorSchemaCache.Key<Map<String, Int>>()
 
 @OptIn(ExperimentalSerializationApi::class)
