@@ -34,6 +34,23 @@ class ProtobufEnumTest {
         assertFailsWith<SerializationException> { ProtoBuf.decodeFromByteArray<EnumHolder>(bytes) }
         bytes[1] = -1
         assertFailsWith<SerializationException> { ProtoBuf.decodeFromByteArray<EnumHolder>(bytes) }
+    }
 
+    @Serializable
+    enum class AnnotatedEnum {
+        @ProtoNumber(1) E1,
+        @ProtoNumber(4) E2
+    }
+
+    @Serializable
+    class Holder(val e: AnnotatedEnum)
+
+    @Test
+    fun testUnknownValueForAnnotatedEnum() {
+        val bytes = ProtoBuf.encodeToByteArray(Holder(AnnotatedEnum.E1))
+        bytes[1] = 3
+        assertFailsWith<SerializationException> { ProtoBuf.decodeFromByteArray<Holder>(bytes) }
+        bytes[1] = -1
+        assertFailsWith<SerializationException> { ProtoBuf.decodeFromByteArray<Holder>(bytes) }
     }
 }

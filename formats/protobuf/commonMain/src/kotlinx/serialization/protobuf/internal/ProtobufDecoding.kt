@@ -90,7 +90,9 @@ internal open class ProtobufDecoder(
             if (protoId == protoTag) return i
         }
 
-        return -1
+        throw ProtobufDecodingException(
+            "$protoTag is not among valid ${descriptor.serialName} enum proto numbers"
+        )
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
