@@ -91,8 +91,7 @@ internal open class ProtobufDecoder(
         }
 
         throw ProtobufDecodingException(
-            "$protoTag is not among valid ${descriptor.serialName} enum indicies, " +
-                    "values size is ${desc.elementNames}"
+            "$protoTag is not among valid ${descriptor.serialName} enum proto numbers"
         )
     }
 
