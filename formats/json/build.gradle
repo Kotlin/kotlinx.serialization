@@ -28,7 +28,7 @@ kotlin {
         // Exclude folder with inline classes tests when legacy JVM compiler is used
         configure([compilations.test]) {
             compileKotlinTaskProvider.configure {
-                def canSupportInlineClasses = rootProject.ext.jvm_ir_enabled || project.ext.ideaActive
+                def canSupportInlineClasses = rootProject.ext.jvm_ir_enabled
                 if (!canSupportInlineClasses) {
                     exclude '**/kotlinx/serialization/features/inline/**'
                 }
