@@ -37,9 +37,7 @@ buildscript {
             throw new IllegalArgumentException("'kotlin_snapshot_version' should be defined when building with snapshot compiler")
         }
         repositories {
-            mavenLocal()
             maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-            maven { url "https://bintray.com/jetbrains/kotlin-native-dependencies" }
         }
     }
     // These two flags are enabled in train builds for JVM IR compiler testing
@@ -48,21 +46,11 @@ buildscript {
 
     repositories {
         mavenLocal()
-        // Future replacement for kotlin-dev, with cache redirector
-        maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
-        maven {
-            url "https://kotlin.bintray.com/kotlin-dev"
-            credentials {
-                username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER') ?: ""
-                password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY') ?: ""
-            }
-        }
-        maven { url 'https://kotlin.bintray.com/kotlin-eap' }
-        maven { url 'https://kotlin.bintray.com/kotlinx' }
-        maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
         maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
         mavenCentral()
         gradlePluginPortal()
+        // For Dokka that depends on kotlinx-html
+        maven { url 'https://kotlin.bintray.com/kotlinx' }
     }
 
     configurations.classpath {
@@ -139,21 +127,14 @@ allprojects {
     }
 
     repositories {
-        mavenLocal()
         mavenCentral()
-        maven { url "https://dl.bintray.com/kotlin/kotlinx" }
-        // Future replacement for kotlin-dev, with cache redirector
-        maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
-        maven {
-            url "https://kotlin.bintray.com/kotlin-dev"
-            credentials {
-                username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER') ?: ""
-                password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY') ?: ""
-            }
-        }
         maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
-        maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
-        jcenter() // blocker: https://github.com/valich/intellij-markdown/issues/64
+        // kotlin-dev with space redirector
+        maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
+        // For Dokka that depends on kotlinx-html
+        maven { url 'https://kotlin.bintray.com/kotlinx' }
+        // For local development
+        mavenLocal()
     }
 }
 

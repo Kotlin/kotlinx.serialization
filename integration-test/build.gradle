@@ -5,8 +5,8 @@ buildscript {
     ext.serialization_version = mainLibVersion
 
     repositories {
+        mavenLocal()
         mavenCentral()
-        maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
     }
 }
 
@@ -20,10 +20,6 @@ plugins {
 repositories {
     mavenLocal()
     mavenCentral()
-    maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
-    maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
-    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
-    maven { url "https://kotlin.bintray.com/kotlinx" }
 }
 
 group 'com.example'

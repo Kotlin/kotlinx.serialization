@@ -4,7 +4,7 @@ import org.gradle.util.VersionNumber
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-// Configures publishing of Maven artifacts to Bintray
+// Configures publishing of Maven artifacts to MavenCentral
 
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
@@ -28,8 +28,6 @@ if (!isBom) {
 
 task emptyJar(type: Jar) {
 }
-
-def bintrayUploadFlag = System.getenv("libs.bintray.upload") != null
 
 afterEvaluate {
     task mainSourcesJar(type: Jar) {
@@ -55,9 +53,7 @@ afterEvaluate {
                     artifact stubJavadoc
 
                     PublishingKt.configureMavenCentralMetadata(publication.pom, project)
-                    if (!bintrayUploadFlag) {
-                        PublishingKt.signPublicationIfKeyPresent(project, publication)
-                    }
+                    PublishingKt.signPublicationIfKeyPresent(project, publication)
                 }
             }
 
@@ -85,9 +81,7 @@ afterEvaluate {
             logger.info("Artifact id = ${it.artifactId}")
 
             PublishingKt.configureMavenCentralMetadata(pom, project)
-            if (!bintrayUploadFlag) {
-                PublishingKt.signPublicationIfKeyPresent(project, it)
-            }
+            PublishingKt.signPublicationIfKeyPresent(project, it)
 
             // The 'root' module publishes the JVM module's Javadoc JAR as per publishPlatformArtifactsInRootModule, and
             // every other module should publish an empty Javadoc JAR. TODO: provide proper documentation artifacts?
@@ -100,11 +94,7 @@ afterEvaluate {
 
 publishing {
     repositories {
-        if (bintrayUploadFlag) {
-            PublishingKt.configureBintrayPublication(delegate, project)
-        } else {
-            PublishingKt.configureMavenPublication(delegate, project)
-        }
+        PublishingKt.configureMavenPublication(delegate, project)
     }
 }
 
