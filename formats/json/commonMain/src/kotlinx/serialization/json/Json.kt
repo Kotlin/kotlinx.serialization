@@ -233,6 +233,12 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
      */
     public var serializersModule: SerializersModule = conf.serializersModule
 
+    /**
+     * Encode values if it's `null`
+     * `true` by default.
+     */
+    public var encodeNulls: Boolean = conf.encodeNulls
+
     @OptIn(ExperimentalSerializationApi::class)
     internal fun build(): JsonConf {
         if (useArrayPolymorphism) require(classDiscriminator == defaultDiscriminator) {
@@ -255,7 +261,8 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
             encodeDefaults, ignoreUnknownKeys, isLenient,
             allowStructuredMapKeys, prettyPrint, prettyPrintIndent,
             coerceInputValues, useArrayPolymorphism,
-            classDiscriminator, allowSpecialFloatingPointValues, serializersModule
+            classDiscriminator, allowSpecialFloatingPointValues, serializersModule,
+            encodeNulls
         )
     }
 }

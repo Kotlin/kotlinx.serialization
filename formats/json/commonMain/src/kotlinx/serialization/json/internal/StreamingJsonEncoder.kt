@@ -158,7 +158,9 @@ internal class StreamingJsonEncoder(
     }
 
     override fun encodeNull() {
-        composer.print(NULL)
+        if(configuration.encodeNulls) {
+            composer.print(NULL)
+        }
     }
 
     override fun encodeBoolean(value: Boolean) {

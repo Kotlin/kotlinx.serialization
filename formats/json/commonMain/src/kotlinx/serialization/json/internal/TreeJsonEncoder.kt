@@ -52,7 +52,11 @@ private sealed class AbstractJsonTreeEncoder(
         encodeTaggedNull(tag)
     }
 
-    override fun encodeTaggedNull(tag: String) = putElement(tag, JsonNull)
+    override fun encodeTaggedNull(tag: String){
+        if(configuration.encodeNulls) {
+            putElement(tag, JsonNull)
+        }
+    }
 
     override fun encodeTaggedInt(tag: String, value: Int) = putElement(tag, JsonPrimitive(value))
     override fun encodeTaggedByte(tag: String, value: Byte) = putElement(tag, JsonPrimitive(value))

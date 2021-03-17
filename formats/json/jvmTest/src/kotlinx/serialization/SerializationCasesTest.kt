@@ -16,9 +16,10 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.json.*
-import org.junit.*
-import org.junit.Assert.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonTestBase
+import org.junit.Assert.assertEquals
+import org.junit.Test
 
 class SerializationCasesTest : JsonTestBase() {
 
@@ -48,7 +49,7 @@ class SerializationCasesTest : JsonTestBase() {
         override fun equals(other: Any?) = other is Data2 && other.a == a && other.b == b
     }
 
-    @Serializer(forClass=Data2::class)
+    @Serializer(forClass = Data2::class)
     object ExtDataSerializer2
 
     @Test
@@ -71,9 +72,9 @@ class SerializationCasesTest : JsonTestBase() {
 
     @Serializable
     data class Data3(
-        val a: String,
-        val b: List<Int>,
-        val c: Map<String, TintEnum>
+            val a: String,
+            val b: List<Int>,
+            val c: Map<String, TintEnum>
     )
 
     // Serialize with external serializer for Data class
@@ -89,5 +90,24 @@ class SerializationCasesTest : JsonTestBase() {
         assertEquals(data, Json.decodeFromString<Data3>(expected))
         assertEquals(expected, default.encodeToString(ExtDataSerializer3, data))
         assertEquals(data, Json.decodeFromString(ExtDataSerializer3, expected))
+    }
+
+    @Serializable
+    data class Data4(
+            val a: String,
+            val b: String? = null
+    )
+
+    // Serialize with external serializer for Data class
+    @Serializer(forClass = Data4::class)
+    object ExtDataSerializer4
+
+    @Test
+    fun testExcludeNullableValues() {
+        val data = Data4("Str", null)
+        // Serialize with internal serializer for Data class
+        val expected = """{"a":"Str"}"""
+        assertEquals(expected, dontEncodeNulls.encodeToString(data))
+        assertEquals(expected, dontEncodeNulls.encodeToString(ExtDataSerializer4, data))
     }
 }

@@ -13,6 +13,7 @@ import kotlin.test.*
 abstract class JsonTestBase {
     protected val default = Json { encodeDefaults = true }
     protected val lenient = Json { isLenient = true; ignoreUnknownKeys = true; allowSpecialFloatingPointValues = true }
+    protected val dontEncodeNulls = Json { encodeNulls = false }
 
     internal inline fun <reified T : Any> Json.encodeToString(value: T, useStreaming: Boolean): String {
         val serializer = serializersModule.serializer<T>()
