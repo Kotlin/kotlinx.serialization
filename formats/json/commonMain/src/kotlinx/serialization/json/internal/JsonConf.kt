@@ -11,15 +11,15 @@ import kotlin.jvm.*
 // Mirror of the deprecated JsonConfiguration. Not for external use.
 @OptIn(ExperimentalSerializationApi::class)
 internal data class JsonConf(
-    @JvmField public val encodeDefaults: Boolean = false,
-    @JvmField public val ignoreUnknownKeys: Boolean = false,
-    @JvmField public val isLenient: Boolean = false,
-    @JvmField public val allowStructuredMapKeys: Boolean = false,
-    @JvmField public val prettyPrint: Boolean = false,
-    @JvmField public val prettyPrintIndent: String = "    ",
-    @JvmField public val coerceInputValues: Boolean = false,
-    @JvmField public val useArrayPolymorphism: Boolean = false,
-    @JvmField public val classDiscriminator: String = "type",
-    @JvmField public val allowSpecialFloatingPointValues: Boolean = false,
-    @JvmField public val serializersModule: SerializersModule = EmptySerializersModule
+    @JvmField val encodeDefaults: Boolean = false,
+    @JvmField val ignoreUnknownKeys: Boolean = false,
+    @JvmField val isLenient: Boolean = false,
+    @JvmField val allowStructuredMapKeys: Boolean = false,
+    @JvmField val prettyPrint: Boolean = false,
+    @JvmField val prettyPrintIndent: String = "    ",
+    @JvmField val coerceInputValues: Boolean = false,
+    @JvmField val useArrayPolymorphism: Boolean = false,
+    @JvmField val classDiscriminator: String = "type",
+    @JvmField val allowSpecialFloatingPointValues: Boolean = false,
+    @JvmField val serializersModule: SerializersModule = EmptySerializersModule
 )
