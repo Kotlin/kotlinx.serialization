@@ -49,6 +49,8 @@ buildscript {
         maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
         mavenCentral()
         gradlePluginPortal()
+        // For Dokka that depends on kotlinx-html
+        maven { url 'https://kotlin.bintray.com/kotlinx' }
     }
 
     configurations.classpath {
@@ -127,6 +129,8 @@ allprojects {
     repositories {
         mavenCentral()
         maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
+        // For Dokka that depends on kotlinx-html
+        maven { url 'https://kotlin.bintray.com/kotlinx' }
     }
 }
 
