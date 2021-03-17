@@ -47,7 +47,7 @@ import kotlinx.serialization.modules.*
  * ```
  */
 @OptIn(ExperimentalSerializationApi::class)
-public sealed class Json(internal val configuration: JsonConf) : StringFormat {
+public sealed class Json(internal val configuration: JsonConfiguration) : StringFormat {
 
     override val serializersModule: SerializersModule
         get() = configuration.serializersModule
@@ -55,7 +55,7 @@ public sealed class Json(internal val configuration: JsonConf) : StringFormat {
     /**
      * The default instance of [Json] with default configuration.
      */
-    public companion object Default : Json(JsonConf())
+    public companion object Default : Json(JsonConfiguration())
 
     /**
      * Serializes the [value] into an equivalent JSON using the given [serializer].
@@ -150,19 +150,19 @@ public inline fun <reified T> Json.decodeFromJsonElement(json: JsonElement): T =
  * Builder of the [Json] instance provided by `Json { ... }` factory function.
  */
 @Suppress("unused", "DeprecatedCallableAddReplaceWith")
-public class JsonBuilder internal constructor(conf: JsonConf) {
+public class JsonBuilder internal constructor(configuration: JsonConfiguration) {
     /**
      * Specifies whether default values of Kotlin properties should be encoded.
      * `false` by default.
      */
-    public var encodeDefaults: Boolean = conf.encodeDefaults
+    public var encodeDefaults: Boolean = configuration.encodeDefaults
 
     /**
      * Specifies whether encounters of unknown properties in the input JSON
      * should be ignored instead of throwing [SerializationException].
      * `false` by default.
      */
-    public var ignoreUnknownKeys: Boolean = conf.ignoreUnknownKeys
+    public var ignoreUnknownKeys: Boolean = configuration.ignoreUnknownKeys
 
     /**
      * Removes JSON specification restriction (RFC-4627) and makes parser
@@ -174,20 +174,20 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
      *
      * `false` by default.
      */
-    public var isLenient: Boolean = conf.isLenient
+    public var isLenient: Boolean = configuration.isLenient
 
     /**
      * Enables structured objects to be serialized as map keys by
      * changing serialized form of the map from JSON object (key-value pairs) to flat array like `[k1, v1, k2, v2]`.
      * `false` by default.
      */
-    public var allowStructuredMapKeys: Boolean = conf.allowStructuredMapKeys
+    public var allowStructuredMapKeys: Boolean = configuration.allowStructuredMapKeys
 
     /**
      * Specifies whether resulting JSON should be pretty-printed.
      *  `false` by default.
      */
-    public var prettyPrint: Boolean = conf.prettyPrint
+    public var prettyPrint: Boolean = configuration.prettyPrint
 
     /**
      * Specifies indent string to use with [prettyPrint] mode
@@ -196,7 +196,7 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
      * it is not clear whether this option has compelling use-cases.
      */
     @ExperimentalSerializationApi
-    public var prettyPrintIndent: String = conf.prettyPrintIndent
+    public var prettyPrintIndent: String = configuration.prettyPrintIndent
 
     /**
      * Enables coercing incorrect JSON values to the default property value in the following cases:
@@ -205,20 +205,20 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
      *
      * `false` by default.
      */
-    public var coerceInputValues: Boolean = conf.coerceInputValues
+    public var coerceInputValues: Boolean = configuration.coerceInputValues
 
     /**
      * Switches polymorphic serialization to the default array format.
      * This is an option for legacy JSON format and should not be generally used.
      * `false` by default.
      */
-    public var useArrayPolymorphism: Boolean = conf.useArrayPolymorphism
+    public var useArrayPolymorphism: Boolean = configuration.useArrayPolymorphism
 
     /**
      * Name of the class descriptor property for polymorphic serialization.
      * "type" by default.
      */
-    public var classDiscriminator: String = conf.classDiscriminator
+    public var classDiscriminator: String = configuration.classDiscriminator
 
     /**
      * Removes JSON specification restriction on
@@ -226,15 +226,15 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
      * When enabling it, please ensure that the receiving party will be able to encode and decode these special values.
      * `false` by default.
      */
-    public var allowSpecialFloatingPointValues: Boolean = conf.allowSpecialFloatingPointValues
+    public var allowSpecialFloatingPointValues: Boolean = configuration.allowSpecialFloatingPointValues
 
     /**
      * Module with contextual and polymorphic serializers to be used in the resulting [Json] instance.
      */
-    public var serializersModule: SerializersModule = conf.serializersModule
+    public var serializersModule: SerializersModule = configuration.serializersModule
 
     @OptIn(ExperimentalSerializationApi::class)
-    internal fun build(): JsonConf {
+    internal fun build(): JsonConfiguration {
         if (useArrayPolymorphism) require(classDiscriminator == defaultDiscriminator) {
             "Class discriminator should not be specified when array polymorphism is specified"
         }
@@ -251,7 +251,7 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
             }
         }
 
-        return JsonConf(
+        return JsonConfiguration(
             encodeDefaults, ignoreUnknownKeys, isLenient,
             allowStructuredMapKeys, prettyPrint, prettyPrintIndent,
             coerceInputValues, useArrayPolymorphism,
@@ -261,7 +261,7 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private class JsonImpl(configuration: JsonConf) : Json(configuration) {
+private class JsonImpl(configuration: JsonConfiguration) : Json(configuration) {
 
     init {
         validateConfiguration()

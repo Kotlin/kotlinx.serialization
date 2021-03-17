@@ -10,7 +10,7 @@ import kotlin.jvm.*
 
 // Mirror of the deprecated JsonConfiguration. Not for external use.
 @OptIn(ExperimentalSerializationApi::class)
-internal data class JsonConf(
+internal data class JsonConfiguration(
     @JvmField public val encodeDefaults: Boolean = false,
     @JvmField public val ignoreUnknownKeys: Boolean = false,
     @JvmField public val isLenient: Boolean = false,
