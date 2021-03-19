@@ -14,6 +14,7 @@ pluginManagement {
     }
 
     repositories {
+        maven( "file://" + rootProject.getProperties()["checkoutDir"] + "/../compiler/maven" )
         mavenLocal()
         mavenCentral()
         maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }

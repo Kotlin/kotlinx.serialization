@@ -18,6 +18,7 @@ plugins {
 }
 
 repositories {
+    maven( "file://" + rootProject.getProperties()["checkoutDir"] + "/../compiler/maven" )
     mavenLocal()
     mavenCentral()
     maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }

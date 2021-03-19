@@ -47,6 +47,7 @@ buildscript {
     ext.jvm_ir_api_check_enabled = rootProject.properties['enable_jvm_ir_api_check'] != null
 
     repositories {
+        maven( "file://" + rootProject.getProperties()["checkoutDir"] + "/../compiler/maven" )
         mavenLocal()
         // Future replacement for kotlin-dev, with cache redirector
         maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
@@ -139,6 +140,7 @@ allprojects {
     }
 
     repositories {
+        maven( "file://" + rootProject.getProperties()["checkoutDir"] + "/../compiler/maven" )
         mavenLocal()
         mavenCentral()
         maven { url "https://dl.bintray.com/kotlin/kotlinx" }
