@@ -102,9 +102,13 @@ internal open class StreamingJsonDecoder(
     }
 
     private fun SerialDescriptor.getJsonElementIndex(key: String): Int {
-        if (!json.configuration.useAlternativeNames) return this.getElementIndex(key)
-        // it is possible also to return result of .getElementIndex right away for optimization purposes,
-        // if it is not an UNKNOWN_NAME. However, it blocks ability to detect collisions between the primary name and alternate.
+        val index = this.getElementIndex(key)
+        if (!json.configuration.useAlternativeNames) return index
+        // Fast path, do not go through ConcurrentHashMap.get
+        // Note, it blocks ability to detect collisions between the primary name and alternate,
+        // but it eliminates a significant performance penalty (about -15% without this optimization)
+        if (index != UNKNOWN_NAME) return index
+        // slow path
         val alternativeNamesMap =
             json.schemaCache.getOrPut(this, JsonAlternativeNamesKey, this::buildAlternativeNamesMap)
         return alternativeNamesMap[key] ?: UNKNOWN_NAME
