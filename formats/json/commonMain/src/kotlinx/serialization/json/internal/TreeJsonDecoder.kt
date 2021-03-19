@@ -212,8 +212,11 @@ private open class JsonTreeDecoder(
     override fun elementName(desc: SerialDescriptor, index: Int): String {
         val mainName = desc.getElementName(index)
         if (!configuration.useAlternativeNames) return mainName
-        // it is possible also to return mainName right away for optimization purposes, if it is contained in obj.keys.
-        // However, it blocks ability to detect collisions between the primary name and alternate.
+        // Fast path, do not go through ConcurrentHashMap.get
+        // Note, it blocks ability to detect collisions between the primary name and alternate,
+        // but speed ups to XX %
+        if (mainName in value.keys) return mainName
+        // Slow path
         val alternativeNamesMap =
             json.schemaCache.getOrPut(desc, JsonAlternativeNamesKey, desc::buildAlternativeNamesMap)
         val nameInObject = value.keys.find { it == mainName || alternativeNamesMap[it] == index }
