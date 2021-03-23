@@ -3,6 +3,7 @@ public abstract class kotlinx/serialization/protobuf/ProtoBuf : kotlinx/serializ
 	public synthetic fun <init> (ZLkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun decodeFromByteArray (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
 	public fun encodeToByteArray (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
+	public final fun getEncodeDefaults$kotlinx_serialization_protobuf ()Z
 	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 }
 
@@ -10,6 +11,7 @@ public final class kotlinx/serialization/protobuf/ProtoBuf$Default : kotlinx/ser
 }
 
 public final class kotlinx/serialization/protobuf/ProtoBufBuilder {
+	public fun <init> (Lkotlinx/serialization/protobuf/ProtoBuf;)V
 	public final fun getEncodeDefaults ()Z
 	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 	public final fun setEncodeDefaults (Z)V
@@ -25,6 +27,7 @@ public final class kotlinx/serialization/protobuf/ProtoIntegerType : java/lang/E
 	public static final field DEFAULT Lkotlinx/serialization/protobuf/ProtoIntegerType;
 	public static final field FIXED Lkotlinx/serialization/protobuf/ProtoIntegerType;
 	public static final field SIGNED Lkotlinx/serialization/protobuf/ProtoIntegerType;
+	public final fun getSignature$kotlinx_serialization_protobuf ()J
 	public static fun valueOf (Ljava/lang/String;)Lkotlinx/serialization/protobuf/ProtoIntegerType;
 	public static fun values ()[Lkotlinx/serialization/protobuf/ProtoIntegerType;
 }
@@ -45,5 +48,251 @@ public abstract interface annotation class kotlinx/serialization/protobuf/ProtoT
 public final class kotlinx/serialization/protobuf/ProtoType$Impl : kotlinx/serialization/protobuf/ProtoType {
 	public fun <init> (Lkotlinx/serialization/protobuf/ProtoIntegerType;)V
 	public final synthetic fun type ()Lkotlinx/serialization/protobuf/ProtoIntegerType;
+}
+
+public final class kotlinx/serialization/protobuf/internal/ByteArrayInput {
+	public fun <init> ([BI)V
+	public synthetic fun <init> ([BIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun read ()I
+	public final fun readExactNBytes (I)[B
+	public final fun readString (I)Ljava/lang/String;
+	public final fun readVarint32 ()I
+	public final fun readVarint64 (Z)J
+	public final fun slice (I)Lkotlinx/serialization/protobuf/internal/ByteArrayInput;
+}
+
+public final class kotlinx/serialization/protobuf/internal/ByteArrayOutput {
+	public fun <init> ()V
+	public final fun encodeVarint32 (I)V
+	public final fun encodeVarint64 (J)V
+	public final fun size ()I
+	public final fun toByteArray ()[B
+	public final fun write (Lkotlinx/serialization/protobuf/internal/ByteArrayOutput;)V
+	public final fun write ([B)V
+	public final fun writeInt (I)V
+	public final fun writeLong (J)V
+}
+
+public final class kotlinx/serialization/protobuf/internal/BytesKt {
+	public static final fun reverseBytes (I)I
+	public static final fun reverseBytes (J)J
+}
+
+public final class kotlinx/serialization/protobuf/internal/HelpersKt {
+	public static final field SIZE_DELIMITED I
+	public static final field VARINT I
+	public static final field i32 I
+	public static final field i64 I
+	public static final fun ProtoDesc (ILkotlinx/serialization/protobuf/ProtoIntegerType;)J
+	public static final fun extractParameters (Lkotlinx/serialization/descriptors/SerialDescriptor;I)J
+	public static final fun extractProtoId (Lkotlinx/serialization/descriptors/SerialDescriptor;IZ)I
+	public static final fun getIntegerType (J)Lkotlinx/serialization/protobuf/ProtoIntegerType;
+	public static final fun getProtoId (J)I
+}
+
+public class kotlinx/serialization/protobuf/internal/ProtobufDecoder : kotlinx/serialization/protobuf/internal/ProtobufTaggedDecoder {
+	protected final field descriptor Lkotlinx/serialization/descriptors/SerialDescriptor;
+	protected final field proto Lkotlinx/serialization/protobuf/ProtoBuf;
+	protected final field reader Lkotlinx/serialization/protobuf/internal/ProtobufReader;
+	public fun <init> (Lkotlinx/serialization/protobuf/ProtoBuf;Lkotlinx/serialization/protobuf/internal/ProtobufReader;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+	public fun beginStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/CompositeDecoder;
+	public fun decodeElementIndex (Lkotlinx/serialization/descriptors/SerialDescriptor;)I
+	public fun decodeSerializableValue (Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	protected fun decodeSerializableValue (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	protected fun decodeTaggedBoolean (J)Z
+	protected fun decodeTaggedByte (J)B
+	protected fun decodeTaggedChar (J)C
+	protected fun decodeTaggedDouble (J)D
+	protected fun decodeTaggedEnum (JLkotlinx/serialization/descriptors/SerialDescriptor;)I
+	protected fun decodeTaggedFloat (J)F
+	protected fun decodeTaggedInt (J)I
+	protected fun decodeTaggedLong (J)J
+	protected fun decodeTaggedShort (J)S
+	protected fun decodeTaggedString (J)Ljava/lang/String;
+	public fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	protected fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)J
+	public final fun populateCache (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+}
+
+public final class kotlinx/serialization/protobuf/internal/ProtobufDecodingException : kotlinx/serialization/SerializationException {
+	public fun <init> (Ljava/lang/String;)V
+}
+
+public final class kotlinx/serialization/protobuf/internal/ProtobufDecodingKt {
+}
+
+public class kotlinx/serialization/protobuf/internal/ProtobufEncoder : kotlinx/serialization/protobuf/internal/ProtobufTaggedEncoder {
+	protected final field descriptor Lkotlinx/serialization/descriptors/SerialDescriptor;
+	protected final field proto Lkotlinx/serialization/protobuf/ProtoBuf;
+	public fun <init> (Lkotlinx/serialization/protobuf/ProtoBuf;Lkotlinx/serialization/protobuf/internal/ProtobufWriter;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+	public fun beginCollection (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public fun beginStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public fun encodeSerializableValue (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	protected fun encodeTaggedBoolean (JZ)V
+	protected fun encodeTaggedByte (JB)V
+	protected fun encodeTaggedChar (JC)V
+	protected fun encodeTaggedDouble (JD)V
+	protected fun encodeTaggedEnum (JLkotlinx/serialization/descriptors/SerialDescriptor;I)V
+	protected fun encodeTaggedFloat (JF)V
+	protected fun encodeTaggedInt (JI)V
+	protected fun encodeTaggedLong (JJ)V
+	protected fun encodeTaggedShort (JS)V
+	protected fun encodeTaggedString (JLjava/lang/String;)V
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	protected fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)J
+	public fun shouldEncodeElementDefault (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
+}
+
+public final class kotlinx/serialization/protobuf/internal/ProtobufReader {
+	public field currentId I
+	public field currentType I
+	public fun <init> (Lkotlinx/serialization/protobuf/internal/ByteArrayInput;)V
+	public final fun objectInput ()Lkotlinx/serialization/protobuf/internal/ByteArrayInput;
+	public final fun objectTaglessInput ()Lkotlinx/serialization/protobuf/internal/ByteArrayInput;
+	public final fun pushBackTag ()V
+	public final fun readByteArray ()[B
+	public final fun readByteArrayNoTag ()[B
+	public final fun readDouble ()D
+	public final fun readDoubleNoTag ()D
+	public final fun readFloat ()F
+	public final fun readFloatNoTag ()F
+	public final fun readInt (Lkotlinx/serialization/protobuf/ProtoIntegerType;)I
+	public final fun readInt32NoTag ()I
+	public final fun readLong (Lkotlinx/serialization/protobuf/ProtoIntegerType;)J
+	public final fun readLongNoTag ()J
+	public final fun readString ()Ljava/lang/String;
+	public final fun readStringNoTag ()Ljava/lang/String;
+	public final fun readTag ()I
+	public final fun skipElement ()V
+}
+
+public abstract class kotlinx/serialization/protobuf/internal/ProtobufTaggedBase {
+	protected field stackSize I
+	public fun <init> ()V
+	protected final fun getCurrentTag ()J
+	protected final fun getCurrentTagOrDefault ()J
+	protected final fun popTag ()J
+	protected final fun popTagOrDefault ()J
+	protected final fun pushTag (J)V
+	protected final fun tagBlock (JLkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/protobuf/internal/ProtobufTaggedBaseKt {
+	public static final field MISSING_TAG J
+}
+
+public abstract class kotlinx/serialization/protobuf/internal/ProtobufTaggedDecoder : kotlinx/serialization/protobuf/internal/ProtobufTaggedBase, kotlinx/serialization/encoding/CompositeDecoder, kotlinx/serialization/encoding/Decoder {
+	public fun <init> ()V
+	public fun beginStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/CompositeDecoder;
+	public final fun decodeBoolean ()Z
+	public final fun decodeBooleanElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
+	public final fun decodeByte ()B
+	public final fun decodeByteElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)B
+	public final fun decodeChar ()C
+	public final fun decodeCharElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)C
+	public fun decodeCollectionSize (Lkotlinx/serialization/descriptors/SerialDescriptor;)I
+	public final fun decodeDouble ()D
+	public final fun decodeDoubleElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)D
+	public final fun decodeEnum (Lkotlinx/serialization/descriptors/SerialDescriptor;)I
+	public final fun decodeFloat ()F
+	public final fun decodeFloatElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)F
+	public fun decodeInline (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/Decoder;
+	public fun decodeInlineElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Lkotlinx/serialization/encoding/Decoder;
+	public final fun decodeInt ()I
+	public final fun decodeIntElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)I
+	public final fun decodeLong ()J
+	public final fun decodeLongElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)J
+	public final fun decodeNotNullMark ()Z
+	public final fun decodeNull ()Ljava/lang/Void;
+	public final fun decodeNullableSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun decodeNullableSerializableValue (Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public fun decodeSequentially ()Z
+	public final fun decodeSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun decodeSerializableValue (Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	protected abstract fun decodeSerializableValue (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun decodeShort ()S
+	public final fun decodeShortElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)S
+	public final fun decodeString ()Ljava/lang/String;
+	public final fun decodeStringElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
+	protected abstract fun decodeTaggedBoolean (J)Z
+	protected abstract fun decodeTaggedByte (J)B
+	protected abstract fun decodeTaggedChar (J)C
+	protected abstract fun decodeTaggedDouble (J)D
+	protected abstract fun decodeTaggedEnum (JLkotlinx/serialization/descriptors/SerialDescriptor;)I
+	protected abstract fun decodeTaggedFloat (J)F
+	protected fun decodeTaggedInline (JLkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/Decoder;
+	protected abstract fun decodeTaggedInt (J)I
+	protected abstract fun decodeTaggedLong (J)J
+	protected abstract fun decodeTaggedShort (J)S
+	protected abstract fun decodeTaggedString (J)Ljava/lang/String;
+	public fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+	protected abstract fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)J
+}
+
+public abstract class kotlinx/serialization/protobuf/internal/ProtobufTaggedEncoder : kotlinx/serialization/protobuf/internal/ProtobufTaggedBase, kotlinx/serialization/encoding/CompositeEncoder, kotlinx/serialization/encoding/Encoder {
+	public fun <init> ()V
+	public fun beginCollection (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public final fun encodeBoolean (Z)V
+	public final fun encodeBooleanElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IZ)V
+	public final fun encodeByte (B)V
+	public final fun encodeByteElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IB)V
+	public final fun encodeChar (C)V
+	public final fun encodeCharElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IC)V
+	public final fun encodeDouble (D)V
+	public final fun encodeDoubleElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ID)V
+	public final fun encodeEnum (Lkotlinx/serialization/descriptors/SerialDescriptor;I)V
+	public final fun encodeFloat (F)V
+	public final fun encodeFloatElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IF)V
+	public fun encodeInline (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/Encoder;
+	public fun encodeInlineElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Lkotlinx/serialization/encoding/Encoder;
+	public final fun encodeInt (I)V
+	public final fun encodeIntElement (Lkotlinx/serialization/descriptors/SerialDescriptor;II)V
+	public final fun encodeLong (J)V
+	public final fun encodeLongElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IJ)V
+	public fun encodeNotNullMark ()V
+	public final fun encodeNull ()V
+	public final fun encodeNullableSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public fun encodeNullableSerializableValue (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public final fun encodeSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public fun encodeSerializableValue (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public final fun encodeShort (S)V
+	public final fun encodeShortElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IS)V
+	public final fun encodeString (Ljava/lang/String;)V
+	public final fun encodeStringElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILjava/lang/String;)V
+	protected abstract fun encodeTaggedBoolean (JZ)V
+	protected abstract fun encodeTaggedByte (JB)V
+	protected abstract fun encodeTaggedChar (JC)V
+	protected abstract fun encodeTaggedDouble (JD)V
+	protected abstract fun encodeTaggedEnum (JLkotlinx/serialization/descriptors/SerialDescriptor;I)V
+	protected abstract fun encodeTaggedFloat (JF)V
+	protected fun encodeTaggedInline (JLkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/Encoder;
+	protected abstract fun encodeTaggedInt (JI)V
+	protected abstract fun encodeTaggedLong (JJ)V
+	protected final fun encodeTaggedNull ()V
+	protected abstract fun encodeTaggedShort (JS)V
+	protected abstract fun encodeTaggedString (JLjava/lang/String;)V
+	protected fun endEncode (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+	public final fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+	protected abstract fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)J
+	public fun shouldEncodeElementDefault (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
+}
+
+public final class kotlinx/serialization/protobuf/internal/ProtobufWriter {
+	public fun <init> (Lkotlinx/serialization/protobuf/internal/ByteArrayOutput;)V
+	public final fun writeBytes ([B)V
+	public final fun writeBytes ([BI)V
+	public final fun writeDouble (D)V
+	public final fun writeDouble (DI)V
+	public final fun writeFloat (F)V
+	public final fun writeFloat (FI)V
+	public final fun writeInt (I)V
+	public final fun writeInt (IILkotlinx/serialization/protobuf/ProtoIntegerType;)V
+	public final fun writeLong (J)V
+	public final fun writeLong (JILkotlinx/serialization/protobuf/ProtoIntegerType;)V
+	public final fun writeOutput (Lkotlinx/serialization/protobuf/internal/ByteArrayOutput;)V
+	public final fun writeOutput (Lkotlinx/serialization/protobuf/internal/ByteArrayOutput;I)V
+	public final fun writeString (Ljava/lang/String;)V
+	public final fun writeString (Ljava/lang/String;I)V
 }
 

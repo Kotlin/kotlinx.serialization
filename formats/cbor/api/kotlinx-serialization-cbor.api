@@ -10,6 +10,8 @@ public abstract class kotlinx/serialization/cbor/Cbor : kotlinx/serialization/Bi
 	public synthetic fun <init> (ZZLkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun decodeFromByteArray (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
 	public fun encodeToByteArray (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
+	public final fun getEncodeDefaults$kotlinx_serialization_cbor ()Z
+	public final fun getIgnoreUnknownKeys$kotlinx_serialization_cbor ()Z
 	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 }
 
@@ -17,6 +19,7 @@ public final class kotlinx/serialization/cbor/Cbor$Default : kotlinx/serializati
 }
 
 public final class kotlinx/serialization/cbor/CborBuilder {
+	public fun <init> (Lkotlinx/serialization/cbor/Cbor;)V
 	public final fun getEncodeDefaults ()Z
 	public final fun getIgnoreUnknownKeys ()Z
 	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
@@ -28,5 +31,114 @@ public final class kotlinx/serialization/cbor/CborBuilder {
 public final class kotlinx/serialization/cbor/CborKt {
 	public static final fun Cbor (Lkotlinx/serialization/cbor/Cbor;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/cbor/Cbor;
 	public static synthetic fun Cbor$default (Lkotlinx/serialization/cbor/Cbor;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/cbor/Cbor;
+}
+
+public final class kotlinx/serialization/cbor/internal/ByteArrayInput {
+	public fun <init> ([B)V
+	public final fun getAvailableBytes ()I
+	public final fun read ()I
+	public final fun read ([BII)I
+	public final fun skip (I)V
+}
+
+public final class kotlinx/serialization/cbor/internal/ByteArrayOutput {
+	public fun <init> ()V
+	public final fun toByteArray ()[B
+	public final fun write (I)V
+	public final fun write ([BII)V
+	public static synthetic fun write$default (Lkotlinx/serialization/cbor/internal/ByteArrayOutput;[BIIILjava/lang/Object;)V
+}
+
+public final class kotlinx/serialization/cbor/internal/CborDecoder {
+	public fun <init> (Lkotlinx/serialization/cbor/internal/ByteArrayInput;)V
+	public final fun end ()V
+	public final fun isEnd ()Z
+	public final fun isEof ()Z
+	public final fun isNull ()Z
+	public final fun nextBoolean ()Z
+	public final fun nextByteString ()[B
+	public final fun nextDouble ()D
+	public final fun nextFloat ()F
+	public final fun nextNull ()Ljava/lang/Void;
+	public final fun nextNumber ()J
+	public final fun nextString ()Ljava/lang/String;
+	public final fun skipElement ()V
+	public final fun startArray ()I
+	public final fun startMap ()I
+}
+
+public final class kotlinx/serialization/cbor/internal/CborDecodingException : kotlinx/serialization/SerializationException {
+	public fun <init> (Ljava/lang/String;)V
+}
+
+public final class kotlinx/serialization/cbor/internal/CborDecodingExceptionKt {
+	public static final fun CborDecodingException (Ljava/lang/String;I)Lkotlinx/serialization/cbor/internal/CborDecodingException;
+	public static final fun printByte (I)Ljava/lang/String;
+}
+
+public final class kotlinx/serialization/cbor/internal/CborEncoder {
+	public fun <init> (Lkotlinx/serialization/cbor/internal/ByteArrayOutput;)V
+	public final fun encodeBoolean (Z)V
+	public final fun encodeByteString ([B)V
+	public final fun encodeDouble (D)V
+	public final fun encodeFloat (F)V
+	public final fun encodeNull ()V
+	public final fun encodeNumber (J)V
+	public final fun encodeString (Ljava/lang/String;)V
+	public final fun end ()V
+	public final fun startArray ()V
+	public final fun startMap ()V
+}
+
+public class kotlinx/serialization/cbor/internal/CborReader : kotlinx/serialization/encoding/AbstractDecoder {
+	public fun <init> (Lkotlinx/serialization/cbor/Cbor;Lkotlinx/serialization/cbor/internal/CborDecoder;)V
+	public fun beginStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/CompositeDecoder;
+	public fun decodeBoolean ()Z
+	public fun decodeByte ()B
+	public fun decodeChar ()C
+	public fun decodeDouble ()D
+	public fun decodeElementIndex (Lkotlinx/serialization/descriptors/SerialDescriptor;)I
+	public fun decodeEnum (Lkotlinx/serialization/descriptors/SerialDescriptor;)I
+	public fun decodeFloat ()F
+	public fun decodeInt ()I
+	public fun decodeLong ()J
+	public fun decodeNotNullMark ()Z
+	public fun decodeNull ()Ljava/lang/Void;
+	public fun decodeSerializableValue (Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public fun decodeShort ()S
+	public fun decodeString ()Ljava/lang/String;
+	public fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+	protected final fun getDecoder ()Lkotlinx/serialization/cbor/internal/CborDecoder;
+	protected final fun getFiniteMode ()Z
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	protected final fun getSize ()I
+	protected final fun setSize (I)V
+	protected fun skipBeginToken ()V
+}
+
+public class kotlinx/serialization/cbor/internal/CborWriter : kotlinx/serialization/encoding/AbstractEncoder {
+	public fun <init> (Lkotlinx/serialization/cbor/Cbor;Lkotlinx/serialization/cbor/internal/CborEncoder;)V
+	public fun beginStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public fun encodeBoolean (Z)V
+	public fun encodeByte (B)V
+	public fun encodeChar (C)V
+	public fun encodeDouble (D)V
+	public fun encodeElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
+	public fun encodeEnum (Lkotlinx/serialization/descriptors/SerialDescriptor;I)V
+	public fun encodeFloat (F)V
+	public fun encodeInt (I)V
+	public fun encodeLong (J)V
+	public fun encodeNull ()V
+	public fun encodeSerializableValue (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public fun encodeShort (S)V
+	public fun encodeString (Ljava/lang/String;)V
+	public fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+	protected final fun getEncoder ()Lkotlinx/serialization/cbor/internal/CborEncoder;
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public fun shouldEncodeElementDefault (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
+	protected fun writeBeginToken ()V
+}
+
+public final class kotlinx/serialization/cbor/internal/EncodingKt {
 }
 
