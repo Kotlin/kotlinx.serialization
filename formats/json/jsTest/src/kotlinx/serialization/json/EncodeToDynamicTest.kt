@@ -220,11 +220,11 @@ class EncodeToDynamicTest {
         }
     }
 
+    @Serializable
+    data class NestedCollections(val data: Map<String, Map<String, List<Int>>>)
+
     @Test
     fun nestedCollections() {
-        @Serializable
-        data class NestedCollections(val data: Map<String, Map<String, List<Int>>>)
-
         assertDynamicForm(
             NestedCollections(
                 mapOf(
