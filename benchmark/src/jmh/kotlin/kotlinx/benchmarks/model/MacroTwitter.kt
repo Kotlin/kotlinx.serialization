@@ -10,6 +10,22 @@ data class MacroTwitterFeed(
 )
 
 @Serializable
+data class MicroTwitterFeed(
+    val statuses: List<TwitterReducedStatus>
+)
+
+@Serializable
+data class TwitterReducedStatus(
+    val metadata: Metadata,
+    val created_at: String,
+    val id: Long,
+    val id_str: String,
+    val text: String,
+    val source: String,
+    val truncated: Boolean,
+)
+
+@Serializable
 data class TwitterStatus(
     val metadata: Metadata,
     val created_at: String,
