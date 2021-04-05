@@ -128,8 +128,8 @@ class JsonParserFailureModesTest : JsonTestBase() {
         default.decodeFromString<PrimitiveHolder>("""{"s": ${Short.MIN_VALUE}}""", it)
         default.decodeFromString<PrimitiveHolder>("""{"i": ${Int.MAX_VALUE}}""", it)
         default.decodeFromString<PrimitiveHolder>("""{"i": ${Int.MIN_VALUE}}""", it)
-        default.decodeFromString<Holder>("""{"id": ${Long.MIN_VALUE}}""", it)
-        default.decodeFromString<Holder>("""{"id": ${Long.MAX_VALUE}}""", it)
+        default.decodeFromString<Holder>("""{"id": ${Long.MIN_VALUE.toString()}}""", it)
+        default.decodeFromString<Holder>("""{"id": ${Long.MAX_VALUE.toString()}}""", it)
     }
 
     @Test
