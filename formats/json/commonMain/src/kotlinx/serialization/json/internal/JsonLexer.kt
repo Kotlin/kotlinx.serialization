@@ -422,7 +422,7 @@ internal class JsonLexer(private val source: String) {
         }
     }
 
-    fun skipElement() {
+    fun skipElement(allowLenientStrings: Boolean) {
         val tokenStack = mutableListOf<Byte>()
         var lastToken = peekNextToken()
         if (lastToken != TC_BEGIN_LIST && lastToken != TC_BEGIN_OBJ) {
@@ -430,7 +430,11 @@ internal class JsonLexer(private val source: String) {
             return
         }
         while (true) {
-            lastToken = consumeNextToken()
+            lastToken = peekNextToken()
+            if (lastToken == TC_STRING) {
+                if (allowLenientStrings) consumeStringLenient() else consumeKeyString()
+                continue
+            }
             when (lastToken) {
                 TC_BEGIN_LIST, TC_BEGIN_OBJ -> {
                     tokenStack.add(lastToken)
@@ -442,7 +446,6 @@ internal class JsonLexer(private val source: String) {
                         source
                     )
                     tokenStack.removeAt(tokenStack.size - 1)
-                    if (tokenStack.size == 0) return
                 }
                 TC_END_OBJ -> {
                     if (tokenStack.last() != TC_BEGIN_OBJ) throw JsonDecodingException(
@@ -451,9 +454,10 @@ internal class JsonLexer(private val source: String) {
                         source
                     )
                     tokenStack.removeAt(tokenStack.size - 1)
-                    if (tokenStack.size == 0) return
                 }
             }
+            consumeNextToken()
+            if (tokenStack.size == 0) return
         }
     }
 

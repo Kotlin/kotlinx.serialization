@@ -162,7 +162,7 @@ internal open class StreamingJsonDecoder(
 
     private fun handleUnknown(key: String): Boolean {
         if (configuration.ignoreUnknownKeys) {
-            lexer.skipElement()
+            lexer.skipElement(configuration.isLenient)
         } else {
             lexer.failOnUnknownKey(key)
         }
