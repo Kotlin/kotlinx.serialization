@@ -7,7 +7,7 @@ package kotlinx.serialization.json.internal
 import kotlinx.serialization.json.*
 
 internal class JsonTreeReader(
-    configuration: JsonConf,
+    configuration: JsonConfiguration,
     private val lexer: JsonLexer
 ) {
     private val isLenient = configuration.isLenient
