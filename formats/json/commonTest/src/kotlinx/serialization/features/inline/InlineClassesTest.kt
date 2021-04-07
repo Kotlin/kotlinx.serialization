@@ -92,7 +92,7 @@ class InlineClassesTest : JsonTestBase() {
     }
 
     @Test
-    fun testInlineClassesWithStrings() {
+    fun testInlineClassesWithStrings() = noLegacyJs {
         assertJsonFormAndRestored(
             ResourceIdentifier.serializer(),
             ResourceIdentifier(ResourceId("resId"), ResourceType("resType")),
