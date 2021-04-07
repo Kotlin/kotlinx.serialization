@@ -246,9 +246,9 @@ internal open class StreamingJsonDecoder(
         }
     }
 
-    override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder {
-        return if (inlineDescriptor.isUnsignedNumber) JsonDecoderForUnsignedTypes(lexer, json) else this
-    }
+    override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder =
+        if (inlineDescriptor.isUnsignedNumber) JsonDecoderForUnsignedTypes(lexer, json)
+        else super.decodeInline(inlineDescriptor)
 
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
         return enumDescriptor.getElementIndexOrThrow(decodeString())

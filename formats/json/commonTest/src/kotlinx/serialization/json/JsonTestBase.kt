@@ -91,9 +91,9 @@ abstract class JsonTestBase {
     ) {
         parametrizedTest { useStreaming ->
             val serialized = json.encodeToString(serializer, data, useStreaming)
-            assertEquals(expected, serialized)
+            assertEquals(expected, serialized, "Failed with streaming = $useStreaming")
             val deserialized: T = json.decodeFromString(serializer, serialized, useStreaming)
-            assertEquals(data, deserialized)
+            assertEquals(data, deserialized, "Failed with streaming = $useStreaming")
         }
     }
 }
