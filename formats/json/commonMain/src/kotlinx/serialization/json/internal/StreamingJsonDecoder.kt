@@ -6,6 +6,7 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlinx.serialization.json.*
@@ -101,13 +102,26 @@ internal open class StreamingJsonDecoder(
         }
     }
 
+    private object AlternativeNames: SerialDescriptorLocal<Map<String, Int>> {
+        override fun compute(descriptor: SerialDescriptor): Map<String, Int> {
+            return descriptor.buildAlternativeNamesMap()
+        }
+    }
+
+
     private fun SerialDescriptor.getJsonElementIndex(key: String): Int {
         val index = this.getElementIndex(key)
+        if (index != UNKNOWN_NAME) return index
         if (!json.configuration.useAlternativeNames) return index
         // Fast path, do not go through ConcurrentHashMap.get
         // Note, it blocks ability to detect collisions between the primary name and alternate,
         // but it eliminates a significant performance penalty (about -15% without this optimization)
-        if (index != UNKNOWN_NAME) return index
+        @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+        if (this is SerialDescriptorLocalSupport) {
+            val names = this.computeIfAbsent(AlternativeNames)
+            return names[key] ?: UNKNOWN_NAME
+        }
+
         // slow path
         val alternativeNamesMap =
             json.schemaCache.getOrPut(this, JsonAlternativeNamesKey, this::buildAlternativeNamesMap)

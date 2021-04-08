@@ -18,7 +18,7 @@ internal open class PluginGeneratedSerialDescriptor(
     override val serialName: String,
     private val generatedSerializer: GeneratedSerializer<*>? = null,
     final override val elementsCount: Int
-) : SerialDescriptor, CachedNames {
+) : SerialDescriptor, CachedNames, AbstractSerialDescriptorLocalSupport() {
     override val kind: SerialKind get() = StructureKind.CLASS
     override val annotations: List<Annotation> get() = classAnnotations ?: emptyList()
 

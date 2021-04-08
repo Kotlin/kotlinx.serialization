@@ -44,5 +44,6 @@ internal fun SerialDescriptor.buildAlternativeNamesMap(): Map<String, Int> {
             builder.putOrThrow(name, i)
         }
     }
-    return builder
+
+    return if (builder.isEmpty()) emptyMap() else builder
 }

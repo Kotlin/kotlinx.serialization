@@ -39,8 +39,10 @@ private fun validateIfSealed(
     classDiscriminator: String
 ) {
     if (serializer !is SealedClassSerializer<*>) return
-    @Suppress("DEPRECATION_ERROR")
-    if (classDiscriminator in actualSerializer.descriptor.jsonCachedSerialNames()) {
+//    @Suppress("DEPRECATION_ERROR")
+    val names = (actualSerializer.descriptor as SerialDescriptorLocalSupport)
+        .computeIfAbsent(SerialNamesSet)
+    if (classDiscriminator in names) {
         val baseName = serializer.descriptor.serialName
         val actualName = actualSerializer.descriptor.serialName
         error(
