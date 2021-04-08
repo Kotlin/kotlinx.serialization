@@ -23,28 +23,14 @@ kotlin {
             }
         }
     }
-
-    jvm {
-        // Exclude folder with inline classes tests when legacy JVM compiler is used
-        configure([compilations.test]) {
-            compileKotlinTaskProvider.configure {
-                def canSupportInlineClasses = rootProject.ext.jvm_ir_enabled
-                if (!canSupportInlineClasses) {
-                    exclude '**/kotlinx/serialization/features/inline/**'
-                }
-            }
-        }
-    }
 }
 
-// TODO: these tests are failing on JVM IR
-if (rootProject.ext.jvm_ir_enabled) {
-    jvmTest {
-        filter {
-            excludeTest('kotlinx.serialization.json.JsonGenericTest', 'testRecursiveArrays')
-            excludeTest('kotlinx.serialization.features.InheritanceTest', 'canBeSerializedAsDerived')
-            excludeTest('kotlinx.serialization.features.InternalInheritanceTest', 'testEncodeToString')
-            excludeTest('kotlinx.serialization.SerializerForNullableJavaTypeTest', 'testMixedList')
-        }
+// TODO: these tests are failing on JVM IR and will be fixed in 1.5.20
+jvmTest {
+    filter {
+        excludeTest('kotlinx.serialization.json.JsonGenericTest', 'testRecursiveArrays')
+        excludeTest('kotlinx.serialization.features.InheritanceTest', 'canBeSerializedAsDerived')
+        excludeTest('kotlinx.serialization.features.InternalInheritanceTest', 'testEncodeToString')
+        excludeTest('kotlinx.serialization.SerializerForNullableJavaTypeTest', 'testMixedList')
     }
 }

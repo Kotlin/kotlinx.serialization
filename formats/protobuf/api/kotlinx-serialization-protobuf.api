@@ -35,7 +35,7 @@ public abstract interface annotation class kotlinx/serialization/protobuf/ProtoN
 
 public final class kotlinx/serialization/protobuf/ProtoNumber$Impl : kotlinx/serialization/protobuf/ProtoNumber {
 	public fun <init> (I)V
-	public final fun number ()I
+	public final synthetic fun number ()I
 }
 
 public abstract interface annotation class kotlinx/serialization/protobuf/ProtoType : java/lang/annotation/Annotation {
@@ -44,6 +44,6 @@ public abstract interface annotation class kotlinx/serialization/protobuf/ProtoT
 
 public final class kotlinx/serialization/protobuf/ProtoType$Impl : kotlinx/serialization/protobuf/ProtoType {
 	public fun <init> (Lkotlinx/serialization/protobuf/ProtoIntegerType;)V
-	public final fun type ()Lkotlinx/serialization/protobuf/ProtoIntegerType;
+	public final synthetic fun type ()Lkotlinx/serialization/protobuf/ProtoIntegerType;
 }
 

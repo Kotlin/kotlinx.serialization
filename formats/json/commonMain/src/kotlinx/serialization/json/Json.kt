@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json
@@ -233,10 +233,11 @@ public class JsonBuilder internal constructor(configuration: JsonConfiguration) 
     public var allowSpecialFloatingPointValues: Boolean = configuration.allowSpecialFloatingPointValues
 
     /**
-     * Switches whether Json instance make use of [JsonNames] annotation; enabled by default.
+     * Specifies whether Json instance makes use of [JsonNames] annotation.
      *
-     * Disabling this flag when one do not use [JsonNames] at all may sometimes result in better performance,
+     * Disabling this flag when one does not use [JsonNames] at all may sometimes result in better performance,
      * particularly when a large count of fields is skipped with [ignoreUnknownKeys].
+     * `true` by default.
      */
     public var useAlternativeNames: Boolean = configuration.useAlternativeNames
 
