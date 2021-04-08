@@ -10,6 +10,7 @@ package kotlinx.serialization.features.inline
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.json.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
 
@@ -55,39 +56,55 @@ data class MixedPositions(
     val boxedNullableUInt: List<UInt?>
 )
 
-class InlineClassesTest {
+@Serializable
+inline class ResourceId(val id: String)
+@Serializable
+inline class ResourceType(val type: String)
+@Serializable
+data class ResourceIdentifier(val id: ResourceId, val type: ResourceType)
+
+class InlineClassesTest : JsonTestBase() {
     private val precedent: UInt = Int.MAX_VALUE.toUInt() + 10.toUInt()
 
     @Test
     fun testSimpleContainer() = noLegacyJs {
-        assertStringFormAndRestored(
-            """{"i":2147483657}""",
+        assertJsonFormAndRestored(
+            SimpleContainerForUInt.serializer(),
             SimpleContainerForUInt(precedent),
-            SimpleContainerForUInt.serializer()
+            """{"i":2147483657}""",
         )
     }
 
     @Test
-    fun testSimpleContainerForMyTypeWithCustomSerializer() = assertStringFormAndRestored(
-        """{"i":2147483657}""",
-        SimpleContainerForMyType(MyUInt(precedent.toInt())),
+    fun testSimpleContainerForMyTypeWithCustomSerializer() = assertJsonFormAndRestored(
         SimpleContainerForMyType.serializer(),
+        SimpleContainerForMyType(MyUInt(precedent.toInt())),
+        """{"i":2147483657}""",
     )
 
     @Test
     fun testSimpleContainerForList() = noLegacyJs {
-        assertStringFormAndRestored(
-            """{"i":[2147483657]}""",
-            ContainerForList(MyList(listOf(precedent))),
+        assertJsonFormAndRestored(
             ContainerForList.serializer(UInt.serializer()),
+            ContainerForList(MyList(listOf(precedent))),
+            """{"i":[2147483657]}""",
         )
     }
 
     @Test
-    fun testUnsignedInBoxedPosition() = assertStringFormAndRestored(
-        """{"i":[2147483657]}""",
-        UnsignedInBoxedPosition(listOf(precedent)),
+    fun testInlineClassesWithStrings() = noLegacyJs {
+        assertJsonFormAndRestored(
+            ResourceIdentifier.serializer(),
+            ResourceIdentifier(ResourceId("resId"), ResourceType("resType")),
+            """{"id":"resId","type":"resType"}"""
+        )
+    }
+
+    @Test
+    fun testUnsignedInBoxedPosition() = assertJsonFormAndRestored(
         UnsignedInBoxedPosition.serializer(),
+        UnsignedInBoxedPosition(listOf(precedent)),
+        """{"i":[2147483657]}""",
     )
 
     @Test
@@ -102,10 +119,10 @@ class InlineClassesTest {
             boxedNullableInt = listOf(null, precedent.toInt(), null),
             boxedNullableUInt = listOf(null, precedent, null)
         )
-        assertStringFormAndRestored(
-            """{"int":-2147483639,"intNullable":-2147483639,"uint":2147483657,"uintNullable":2147483657,"boxedInt":[-2147483639],"boxedUInt":[2147483657],"boxedNullableInt":[null,-2147483639,null],"boxedNullableUInt":[null,2147483657,null]}""",
-            o,
+        assertJsonFormAndRestored(
             MixedPositions.serializer(),
+            o,
+            """{"int":-2147483639,"intNullable":-2147483639,"uint":2147483657,"uintNullable":2147483657,"boxedInt":[-2147483639],"boxedUInt":[2147483657],"boxedNullableInt":[null,-2147483639,null],"boxedNullableUInt":[null,2147483657,null]}""",
         )
     }
 }
