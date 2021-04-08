@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("LeakingThis")
@@ -219,7 +219,7 @@ private open class JsonTreeDecoder(
         // Slow path
         val alternativeNamesMap =
             json.schemaCache.getOrPut(desc, JsonAlternativeNamesKey, desc::buildAlternativeNamesMap)
-        val nameInObject = value.keys.find { it == mainName || alternativeNamesMap[it] == index }
+        val nameInObject = value.keys.find { alternativeNamesMap[it] == index }
         return nameInObject ?: mainName
     }
 

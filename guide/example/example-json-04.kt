@@ -5,7 +5,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 @Serializable
-data class Project(@JsonNames(["title"]) val name: String)
+data class Project(@JsonNames("title") val name: String)
 
 fun main() {
   val project = Json.decodeFromString<Project>("""{"name":"kotlinx.serialization"}""")

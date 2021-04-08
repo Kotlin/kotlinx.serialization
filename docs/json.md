@@ -154,14 +154,14 @@ Project(name=kotlinx.serialization)
 
 ### Alternative Json names
 
-It's not a rare case when JSON fields got renamed due to a schema version change or something else.
+It's not a rare case when JSON fields got renamed due to a schema version change.
 Renaming JSON fields is available with [`@SerialName` annotation](basic-serialization.md#serial-field-names), but 
-such a renaming blocks ability to decode data with old name. 
+such a renaming blocks ability to decode data with an old name. 
 For the case when we want to support multiple JSON names for the one Kotlin property, there is a [JsonNames] annotation:
 
 ```kotlin
 @Serializable
-data class Project(@JsonNames(["title"]) val name: String)
+data class Project(@JsonNames("title") val name: String)
 
 fun main() {
   val project = Json.decodeFromString<Project>("""{"name":"kotlinx.serialization"}""")

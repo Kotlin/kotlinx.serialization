@@ -14,12 +14,12 @@ import kotlin.test.*
 class JsonAlternativeNamesTest : JsonTestBase() {
 
     @Serializable
-    data class WithNames(@JsonNames(arrayOf("foo", "_foo")) val data: String)
+    data class WithNames(@JsonNames("foo", "_foo") val data: String)
 
     @Serializable
     data class CollisionWithAlternate(
-        @JsonNames(arrayOf("_foo")) val data: String,
-        @JsonNames(arrayOf("_foo")) val foo: String
+        @JsonNames("_foo") val data: String,
+        @JsonNames("_foo") val foo: String
     )
 
     private val inputString1 = """{"foo":"foo"}"""
@@ -27,7 +27,7 @@ class JsonAlternativeNamesTest : JsonTestBase() {
     private val json = Json { useAlternativeNames = true }
 
     @Test
-    fun testParsesAllAlternativeNames() {
+    fun testParsesAllAlternativeNames() = noLegacyJs {
         for (input in listOf(inputString1, inputString2)) {
             for (streaming in listOf(true, false)) {
                 val data = json.decodeFromString(WithNames.serializer(), input, useStreaming = streaming)
@@ -36,24 +36,19 @@ class JsonAlternativeNamesTest : JsonTestBase() {
         }
     }
 
-    private fun <T> doThrowTest(
-        expectedErrorMessage: String,
-        serializer: KSerializer<T>,
-        input: String
-    ) =
+    @Test
+    fun testThrowsAnErrorOnDuplicateNames2() = noLegacyJs {
+        val serializer = CollisionWithAlternate.serializer()
         parametrizedTest { streaming ->
             assertFailsWithMessage<SerializationException>(
-                expectedErrorMessage,
+                """The suggested name '_foo' for property foo is already one of the names for property data""",
                 "Class ${serializer.descriptor.serialName} did not fail with streaming=$streaming"
             ) {
-                json.decodeFromString(serializer, input, useStreaming = streaming)
+                json.decodeFromString(
+                    serializer, inputString2,
+                    useStreaming = streaming
+                )
             }
         }
-
-    @Test
-    fun testThrowsAnErrorOnDuplicateNames2() = doThrowTest(
-        """The suggested name '_foo' for property foo is already one of the names for property data""",
-        CollisionWithAlternate.serializer(),
-        inputString2
-    )
+    }
 }

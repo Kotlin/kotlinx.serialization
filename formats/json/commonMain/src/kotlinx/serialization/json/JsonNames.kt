@@ -10,18 +10,32 @@ import kotlinx.serialization.json.internal.*
 import kotlin.native.concurrent.*
 
 /**
- * Specifies an array of names those can be treated as alternative possible names
- * for the property during JSON decoding. Unlike [SerialName], does not affect JSON
- * encoding in any way.
+ * An annotation that indicates the field can be represented in JSON
+ * with multiple possible alternative names.
+ * [Json] format recognizes this annotation and is able to decode
+ * the data using any of the alternative names.
  *
- * This annotation has lesser priority than [SerialName], even if there is a collision between them.
+ * Unlike [SerialName] annotation, does not affect JSON encoding in any way.
+ *
+ * Example of usage:
+ * ```
+ * @Serializable
+ * data class Project(@JsonNames("title") val name: String)
+ *
+ * val project = Json.decodeFromString<Project>("""{"name":"kotlinx.serialization"}""")
+ * println(project)
+ * val oldProject = Json.decodeFromString<Project>("""{"title":"kotlinx.coroutines"}""")
+ * println(oldProject)
+ * ```
+ *
+ * This annotation has lesser priority than [SerialName].
  *
  * @see JsonBuilder.useAlternativeNames
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
 @ExperimentalSerializationApi
-public annotation class JsonNames(val names: Array<String>)
+public annotation class JsonNames(vararg val names: String)
 
 @SharedImmutable
 internal val JsonAlternativeNamesKey = DescriptorSchemaCache.Key<Map<String, Int>>()
