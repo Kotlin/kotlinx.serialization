@@ -46,9 +46,12 @@ import kotlin.native.concurrent.*
  *  // Deserialize from string to JSON tree, JSON-specific
  *  val deserializedToTree: JsonElement = json.parseJsonElement(stringOutput)
  * ```
+ *
+ * Json instance also exposes its [configuration] that can be used in custom serializers
+ * that rely on [JsonDecoder] and [JsonEncoder] for customizeable behaviour.
  */
 @OptIn(ExperimentalSerializationApi::class)
-public sealed class Json(internal val configuration: JsonConfiguration) : StringFormat {
+public sealed class Json(@ExperimentalSerializationApi public val configuration: JsonConfiguration) : StringFormat {
 
     override val serializersModule: SerializersModule
         get() = configuration.serializersModule
