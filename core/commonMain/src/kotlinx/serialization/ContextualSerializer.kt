@@ -42,11 +42,11 @@ import kotlin.reflect.*
 public class ContextualSerializer<T : Any>(
     private val serializableClass: KClass<T>,
     private val fallbackSerializer: KSerializer<T>?,
-    private val typeParametersSerializers: Array<KSerializer<*>>
+    private val typeArgumentsSerializers: Array<KSerializer<*>>
 ) : KSerializer<T> {
 
     private fun serializer(serializersModule: SerializersModule): KSerializer<T> =
-        serializersModule.getContextual(serializableClass) ?: fallbackSerializer ?: serializableClass.serializerNotRegistered()
+        serializersModule.getContextual(serializableClass, typeArgumentsSerializers) ?: fallbackSerializer ?: serializableClass.serializerNotRegistered()
 
     // Used from auto-generated code
     public constructor(serializableClass: KClass<T>) : this(serializableClass, null, EMPTY_SERIALIZER_ARRAY)

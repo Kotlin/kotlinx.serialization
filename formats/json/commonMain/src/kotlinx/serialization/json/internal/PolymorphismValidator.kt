@@ -15,7 +15,10 @@ internal class PolymorphismValidator(
     private val discriminator: String
 ) : SerializersModuleCollector {
 
-    override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>) {
+    override fun <T : Any> contextual(
+        kClass: KClass<T>,
+        provider: (typeArgumentsSerializers: Array<KSerializer<*>>) -> KSerializer<*>
+    ) {
         // Nothing here
     }
 
