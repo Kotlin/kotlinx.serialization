@@ -154,11 +154,6 @@ private fun SerializersModule.genericArraySerializer(
     return ArraySerializer(kclass, serializer) as KSerializer<Any>
 }
 
-@OptIn(ExperimentalSerializationApi::class)
-private fun <T : Any> SerializersModule.reflectiveOrContextual(kClass: KClass<T>): KSerializer<T>? {
-    return kClass.serializerOrNull() ?: getContextual(kClass)
-}
-
 private fun Type.kclass(): KClass<*> = when (val it = this) {
     is KClass<*> -> it
     is Class<*> -> it.kotlin

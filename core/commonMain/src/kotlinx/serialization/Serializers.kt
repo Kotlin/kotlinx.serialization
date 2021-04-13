@@ -115,9 +115,16 @@ private fun SerializersModule.builtinSerializer(
                 return ArraySerializer<Any, Any?>(typeArguments[0].classifier as KClass<Any>, serializers[0]).cast()
             }
             rootClass.constructSerializerForGivenTypeArgs(*serializers.toTypedArray())
+                ?: reflectiveOrContextual(rootClass)
         }
     }
 }
+
+@OptIn(ExperimentalSerializationApi::class)
+internal fun <T : Any> SerializersModule.reflectiveOrContextual(kClass: KClass<T>): KSerializer<T>? {
+    return kClass.serializerOrNull() ?: getContextual(kClass)
+}
+
 
 /**
  * Retrieves a [KSerializer] for the given [KClass].
