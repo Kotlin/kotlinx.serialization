@@ -53,7 +53,7 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
 
     public override fun <T : Any> contextual(
         kClass: KClass<T>,
-        provider: (typeArgumentsSerializers: Array<KSerializer<*>>) -> KSerializer<*>
+        provider: (typeArgumentsSerializers: List<KSerializer<*>>) -> KSerializer<*>
     ): Unit = registerSerializer(kClass, ContextualProvider.WithTypeArguments(provider))
 
     /**

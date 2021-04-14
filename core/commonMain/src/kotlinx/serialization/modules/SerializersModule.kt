@@ -37,12 +37,12 @@ public sealed class SerializersModule {
     )
     @LowPriorityInOverloadResolution
     public fun <T : Any> getContextual(kclass: KClass<T>): KSerializer<T>? =
-        getContextual(kclass, EMPTY_SERIALIZER_ARRAY)
+        getContextual(kclass, emptyList())
 
     @ExperimentalSerializationApi
     public abstract fun <T : Any> getContextual(
         kClass: KClass<T>,
-        typeArgumentsSerializers: Array<KSerializer<*>> = EMPTY_SERIALIZER_ARRAY
+        typeArgumentsSerializers: List<KSerializer<*>> = emptyList()
     ): KSerializer<T>?
 
     /**
@@ -99,7 +99,7 @@ public infix fun SerializersModule.overwriteWith(other: SerializersModule): Seri
 
         override fun <T : Any> contextual(
             kClass: KClass<T>,
-            provider: (serializers: Array<KSerializer<*>>) -> KSerializer<*>
+            provider: (serializers: List<KSerializer<*>>) -> KSerializer<*>
         ) {
             registerSerializer(kClass, ContextualProvider.WithTypeArguments(provider), allowOverwrite = true)
         }
@@ -149,7 +149,7 @@ internal class SerialModuleImpl(
         return (polyBase2DefaultProvider[baseClass] as? PolymorphicProvider<T>)?.invoke(serializedClassName)
     }
 
-    override fun <T : Any> getContextual(kClass: KClass<T>, typeArgumentsSerializers: Array<KSerializer<*>>): KSerializer<T>? {
+    override fun <T : Any> getContextual(kClass: KClass<T>, typeArgumentsSerializers: List<KSerializer<*>>): KSerializer<T>? {
         return (class2ContextualFactory[kClass]?.invoke(typeArgumentsSerializers)) as? KSerializer<T>?
     }
 
@@ -191,19 +191,19 @@ internal typealias PolymorphicProvider<Base> = (className: String?) -> Deseriali
  * ```
  */
 internal sealed class ContextualProvider {
-    abstract operator fun invoke(typeArgumentsSerializers: Array<KSerializer<*>>): KSerializer<*>
+    abstract operator fun invoke(typeArgumentsSerializers: List<KSerializer<*>>): KSerializer<*>
 
     class Argless(val serializer: KSerializer<*>) : ContextualProvider() {
-        override fun invoke(typeArgumentsSerializers: Array<KSerializer<*>>): KSerializer<*> = serializer
+        override fun invoke(typeArgumentsSerializers: List<KSerializer<*>>): KSerializer<*> = serializer
 
         override fun equals(other: Any?): Boolean = other is Argless && other.serializer == this.serializer
 
         override fun hashCode(): Int = serializer.hashCode()
     }
 
-    class WithTypeArguments(val provider: (typeArgumentsSerializers: Array<KSerializer<*>>) -> KSerializer<*>) :
+    class WithTypeArguments(val provider: (typeArgumentsSerializers: List<KSerializer<*>>) -> KSerializer<*>) :
         ContextualProvider() {
-        override fun invoke(typeArgumentsSerializers: Array<KSerializer<*>>): KSerializer<*> =
+        override fun invoke(typeArgumentsSerializers: List<KSerializer<*>>): KSerializer<*> =
             provider(typeArgumentsSerializers)
     }
 

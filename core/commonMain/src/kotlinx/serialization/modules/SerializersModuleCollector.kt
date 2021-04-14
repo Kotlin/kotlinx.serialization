@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("RedundantVisibilityModifier")
@@ -30,7 +30,7 @@ public interface SerializersModuleCollector {
 
     public fun <T : Any> contextual(
         kClass: KClass<T>,
-        provider: (typeArgumentsSerializers: Array<KSerializer<*>>) -> KSerializer<*>
+        provider: (typeArgumentsSerializers: List<KSerializer<*>>) -> KSerializer<*>
     )
 
     /**

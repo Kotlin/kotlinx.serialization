@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -46,7 +46,7 @@ public class ContextualSerializer<T : Any>(
 ) : KSerializer<T> {
 
     private fun serializer(serializersModule: SerializersModule): KSerializer<T> =
-        serializersModule.getContextual(serializableClass, typeArgumentsSerializers) ?: fallbackSerializer ?: serializableClass.serializerNotRegistered()
+        serializersModule.getContextual(serializableClass, typeArgumentsSerializers.asList()) ?: fallbackSerializer ?: serializableClass.serializerNotRegistered()
 
     // Used from auto-generated code
     public constructor(serializableClass: KClass<T>) : this(serializableClass, null, EMPTY_SERIALIZER_ARRAY)

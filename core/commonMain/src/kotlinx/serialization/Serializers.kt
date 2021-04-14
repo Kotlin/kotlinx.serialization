@@ -116,14 +116,14 @@ private fun SerializersModule.builtinSerializer(
             }
             val args = serializers.toTypedArray()
             rootClass.constructSerializerForGivenTypeArgs(*args)
-                ?: reflectiveOrContextual(rootClass, args)
+                ?: reflectiveOrContextual(rootClass, serializers)
         }
     }
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-internal fun <T : Any> SerializersModule.reflectiveOrContextual(kClass: KClass<T>, typeParameterSerializers: Array<KSerializer<Any?>>): KSerializer<T>? {
-    return kClass.serializerOrNull() ?: getContextual(kClass, typeParameterSerializers as Array<KSerializer<*>>)
+internal fun <T : Any> SerializersModule.reflectiveOrContextual(kClass: KClass<T>, typeParameterSerializers: List<KSerializer<Any?>>): KSerializer<T>? {
+    return kClass.serializerOrNull() ?: getContextual(kClass, typeParameterSerializers)
 }
 
 

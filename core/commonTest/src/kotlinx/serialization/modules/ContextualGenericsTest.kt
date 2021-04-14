@@ -65,7 +65,7 @@ open class ContextualGenericsTest {
     @Test
     fun testModuleProvidesMultipleGenericSerializers() {
         fun checkFor(serial: KSerializer<*>) {
-            val serializer = serializersModuleWithProvider.getContextual(ThirdPartyBox::class, arrayOf(serial))?.descriptor
+            val serializer = serializersModuleWithProvider.getContextual(ThirdPartyBox::class, listOf(serial))?.descriptor
             assertEquals(serial.descriptor, serializer?.getElementDescriptor(0))
         }
         checkFor(Item.serializer())
