@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.modules
@@ -94,14 +94,14 @@ public infix fun SerializersModule.overwriteWith(other: SerializersModule): Seri
     include(this@overwriteWith)
     other.dumpTo(object : SerializersModuleCollector {
         override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>) {
-            registerSerializer(kClass, ContextualProvider.ArglessProvider(serializer), allowOverwrite = true)
+            registerSerializer(kClass, ContextualProvider.Argless(serializer), allowOverwrite = true)
         }
 
         override fun <T : Any> contextual(
             kClass: KClass<T>,
             provider: (serializers: Array<KSerializer<*>>) -> KSerializer<*>
         ) {
-            registerSerializer(kClass, ContextualProvider.WithTypeArgumentsProvider(provider), allowOverwrite = true)
+            registerSerializer(kClass, ContextualProvider.WithTypeArguments(provider), allowOverwrite = true)
         }
 
         override fun <Base : Any, Sub : Base> polymorphic(
@@ -156,11 +156,11 @@ internal class SerialModuleImpl(
     override fun dumpTo(collector: SerializersModuleCollector) {
         class2ContextualFactory.forEach { (kclass, serial) ->
             when (serial) {
-                is ContextualProvider.ArglessProvider -> collector.contextual(
+                is ContextualProvider.Argless -> collector.contextual(
                     kclass as KClass<Any>,
                     serial.serializer as KSerializer<Any>
                 )
-                is ContextualProvider.WithTypeArgumentsProvider -> collector.contextual(kclass, serial.provider)
+                is ContextualProvider.WithTypeArguments -> collector.contextual(kclass, serial.provider)
             }
         }
 
@@ -193,15 +193,15 @@ internal typealias PolymorphicProvider<Base> = (className: String?) -> Deseriali
 internal sealed class ContextualProvider {
     abstract operator fun invoke(typeArgumentsSerializers: Array<KSerializer<*>>): KSerializer<*>
 
-    class ArglessProvider(val serializer: KSerializer<*>) : ContextualProvider() {
+    class Argless(val serializer: KSerializer<*>) : ContextualProvider() {
         override fun invoke(typeArgumentsSerializers: Array<KSerializer<*>>): KSerializer<*> = serializer
 
-        override fun equals(other: Any?): Boolean = other is ArglessProvider && other.serializer == this.serializer
+        override fun equals(other: Any?): Boolean = other is Argless && other.serializer == this.serializer
 
         override fun hashCode(): Int = serializer.hashCode()
     }
 
-    class WithTypeArgumentsProvider(val provider: (typeArgumentsSerializers: Array<KSerializer<*>>) -> KSerializer<*>) :
+    class WithTypeArguments(val provider: (typeArgumentsSerializers: Array<KSerializer<*>>) -> KSerializer<*>) :
         ContextualProvider() {
         override fun invoke(typeArgumentsSerializers: Array<KSerializer<*>>): KSerializer<*> =
             provider(typeArgumentsSerializers)

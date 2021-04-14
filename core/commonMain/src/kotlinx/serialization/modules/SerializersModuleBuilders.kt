@@ -1,11 +1,10 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
-import kotlinx.serialization.internal.EMPTY_SERIALIZER_ARRAY
 import kotlin.jvm.*
 import kotlin.reflect.*
 
@@ -50,12 +49,12 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
      * To overwrite an already registered serializer, [SerializersModule.overwriteWith] can be used.
      */
     public override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>): Unit =
-        registerSerializer(kClass, ContextualProvider.ArglessProvider(serializer))
+        registerSerializer(kClass, ContextualProvider.Argless(serializer))
 
     public override fun <T : Any> contextual(
         kClass: KClass<T>,
         provider: (typeArgumentsSerializers: Array<KSerializer<*>>) -> KSerializer<*>
-    ): Unit = registerSerializer(kClass, ContextualProvider.WithTypeArgumentsProvider(provider))
+    ): Unit = registerSerializer(kClass, ContextualProvider.WithTypeArguments(provider))
 
     /**
      * Adds [serializer][actualSerializer] associated with given [actualClass] in the scope of [baseClass] for polymorphic serialization.
