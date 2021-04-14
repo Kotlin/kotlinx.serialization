@@ -26,11 +26,11 @@ public class JsonConfiguration internal constructor(
     public val useArrayPolymorphism: Boolean = false,
     public val classDiscriminator: String = "type",
     public val allowSpecialFloatingPointValues: Boolean = false,
-    public val serializersModule: SerializersModule = EmptySerializersModule
+    public val useAlternativeNames: Boolean = true
 ) {
 
     /** @suppress Dokka **/
     override fun toString(): String {
-        return "JsonConfiguration(encodeDefaults=$encodeDefaults, ignoreUnknownKeys=$ignoreUnknownKeys, isLenient=$isLenient, allowStructuredMapKeys=$allowStructuredMapKeys, prettyPrint=$prettyPrint, prettyPrintIndent='$prettyPrintIndent', coerceInputValues=$coerceInputValues, useArrayPolymorphism=$useArrayPolymorphism, classDiscriminator='$classDiscriminator', allowSpecialFloatingPointValues=$allowSpecialFloatingPointValues, serializersModule=$serializersModule)"
+        return "JsonConfiguration(encodeDefaults=$encodeDefaults, ignoreUnknownKeys=$ignoreUnknownKeys, isLenient=$isLenient, allowStructuredMapKeys=$allowStructuredMapKeys, prettyPrint=$prettyPrint, prettyPrintIndent='$prettyPrintIndent', coerceInputValues=$coerceInputValues, useArrayPolymorphism=$useArrayPolymorphism, classDiscriminator='$classDiscriminator', allowSpecialFloatingPointValues=$allowSpecialFloatingPointValues)"
     }
 }
