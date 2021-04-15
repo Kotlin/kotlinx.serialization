@@ -12,6 +12,8 @@ import kotlinx.serialization.modules.*
  *
  * Standalone configuration object is meaningless and can nor be used outside of the
  * [Json], neither new [Json] instance can be created from it.
+ *
+ * Detailed description of each property is available in [JsonBuilder] class.
  */
 @ExperimentalSerializationApi
 public class JsonConfiguration internal constructor(
