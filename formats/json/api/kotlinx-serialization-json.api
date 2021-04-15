@@ -1,10 +1,11 @@
 public abstract class kotlinx/serialization/json/Json : kotlinx/serialization/StringFormat {
 	public static final field Default Lkotlinx/serialization/json/Json$Default;
-	public synthetic fun <init> (Lkotlinx/serialization/json/internal/JsonConfiguration;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lkotlinx/serialization/json/JsonConfiguration;Lkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun decodeFromJsonElement (Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
 	public final fun decodeFromString (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
 	public final fun encodeToJsonElement (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
 	public final fun encodeToString (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/lang/String;
+	public final fun getConfiguration ()Lkotlinx/serialization/json/JsonConfiguration;
 	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 	public final fun parseToJsonElement (Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
 }
@@ -98,6 +99,22 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun setSerializersModule (Lkotlinx/serialization/modules/SerializersModule;)V
 	public final fun setUseAlternativeNames (Z)V
 	public final fun setUseArrayPolymorphism (Z)V
+}
+
+public final class kotlinx/serialization/json/JsonConfiguration {
+	public fun <init> ()V
+	public final fun getAllowSpecialFloatingPointValues ()Z
+	public final fun getAllowStructuredMapKeys ()Z
+	public final fun getClassDiscriminator ()Ljava/lang/String;
+	public final fun getCoerceInputValues ()Z
+	public final fun getEncodeDefaults ()Z
+	public final fun getIgnoreUnknownKeys ()Z
+	public final fun getPrettyPrint ()Z
+	public final fun getPrettyPrintIndent ()Ljava/lang/String;
+	public final fun getUseAlternativeNames ()Z
+	public final fun getUseArrayPolymorphism ()Z
+	public final fun isLenient ()Z
+	public fun toString ()Ljava/lang/String;
 }
 
 public abstract class kotlinx/serialization/json/JsonContentPolymorphicSerializer : kotlinx/serialization/KSerializer {
