@@ -122,8 +122,8 @@ private fun SerializersModule.builtinSerializer(
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-internal fun <T : Any> SerializersModule.reflectiveOrContextual(kClass: KClass<T>, typeParameterSerializers: List<KSerializer<Any?>>): KSerializer<T>? {
-    return kClass.serializerOrNull() ?: getContextual(kClass, typeParameterSerializers)
+internal fun <T : Any> SerializersModule.reflectiveOrContextual(kClass: KClass<T>, typeArgumentsSerializers: List<KSerializer<Any?>>): KSerializer<T>? {
+    return kClass.serializerOrNull() ?: getContextual(kClass, typeArgumentsSerializers)
 }
 
 
