@@ -1156,7 +1156,7 @@ public final class kotlinx/serialization/modules/PolymorphicModuleBuilder {
 
 public abstract class kotlinx/serialization/modules/SerializersModule {
 	public abstract fun dumpTo (Lkotlinx/serialization/modules/SerializersModuleCollector;)V
-	public final fun getContextual (Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
+	public final synthetic fun getContextual (Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
 	public abstract fun getContextual (Lkotlin/reflect/KClass;Ljava/util/List;)Lkotlinx/serialization/KSerializer;
 	public static synthetic fun getContextual$default (Lkotlinx/serialization/modules/SerializersModule;Lkotlin/reflect/KClass;Ljava/util/List;ILjava/lang/Object;)Lkotlinx/serialization/KSerializer;
 	public abstract fun getPolymorphic (Lkotlin/reflect/KClass;Ljava/lang/Object;)Lkotlinx/serialization/SerializationStrategy;

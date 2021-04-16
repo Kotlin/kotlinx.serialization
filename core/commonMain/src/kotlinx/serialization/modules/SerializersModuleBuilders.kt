@@ -45,12 +45,32 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
 
     /**
      * Adds [serializer] associated with given [kClass] for contextual serialization.
-     * Throws [SerializationException] if a module already has serializer associated with a [kClass].
+     * If [kClass] has generic type parameters, consider registering provider instead.
+     *
+     * Throws [SerializationException] if a module already has serializer or provider associated with a [kClass].
      * To overwrite an already registered serializer, [SerializersModule.overwriteWith] can be used.
      */
     public override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>): Unit =
         registerSerializer(kClass, ContextualProvider.Argless(serializer))
 
+    /**
+     * Registers [provider] associated with given generic [kClass] for contextual serialization.
+     * When a serializer is requested from a module, provider is being called with type arguments serializers
+     * of the particular [kClass] usage.
+     *
+     * Example:
+     * ```
+     * class Holder(@Contextual val boxI: Box<Int>, @Contextual val boxS: Box<String>)
+     *
+     * val module = SerializersModule {
+     *   // args[0] contains Int.serializer() or String.serializer(), depending on the property
+     *   contextual(Box::class) { args -> BoxSerializer(args[0]) }
+     * }
+     * ```
+     *
+     * Throws [SerializationException] if a module already has provider or serializer associated with a [kClass].
+     * To overwrite an already registered serializer, [SerializersModule.overwriteWith] can be used.
+     */
     public override fun <T : Any> contextual(
         kClass: KClass<T>,
         provider: (typeArgumentsSerializers: List<KSerializer<*>>) -> KSerializer<*>

@@ -25,9 +25,12 @@ public interface SerializersModuleCollector {
      * Accept a serializer, associated with [kClass] for contextual serialization.
      */
     public fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>): Unit =
-        contextual(kClass) { _ -> serializer }
+        contextual(kClass) { serializer }
 
 
+    /**
+     * Accept a provider, associated with generic [kClass] for contextual serialization.
+     */
     public fun <T : Any> contextual(
         kClass: KClass<T>,
         provider: (typeArgumentsSerializers: List<KSerializer<*>>) -> KSerializer<*>

@@ -42,13 +42,16 @@ import kotlin.reflect.*
 public class ContextualSerializer<T : Any>(
     private val serializableClass: KClass<T>,
     private val fallbackSerializer: KSerializer<T>?,
-    private val typeArgumentsSerializers: Array<KSerializer<*>>
+    typeArgumentsSerializers: Array<KSerializer<*>>
 ) : KSerializer<T> {
 
-    private fun serializer(serializersModule: SerializersModule): KSerializer<T> =
-        serializersModule.getContextual(serializableClass, typeArgumentsSerializers.asList()) ?: fallbackSerializer ?: serializableClass.serializerNotRegistered()
+    private val typeArgumentsSerializers: List<KSerializer<*>> = typeArgumentsSerializers.asList()
 
-    // Used from auto-generated code
+    private fun serializer(serializersModule: SerializersModule): KSerializer<T> =
+        serializersModule.getContextual(serializableClass, typeArgumentsSerializers) ?: fallbackSerializer ?: serializableClass.serializerNotRegistered()
+
+    // Used from the old plugins
+    @Suppress("unused")
     public constructor(serializableClass: KClass<T>) : this(serializableClass, null, EMPTY_SERIALIZER_ARRAY)
 
     public override val descriptor: SerialDescriptor =

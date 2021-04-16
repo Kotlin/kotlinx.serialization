@@ -6,7 +6,6 @@ package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
-import kotlin.internal.*
 import kotlin.jvm.*
 import kotlin.native.concurrent.*
 import kotlin.reflect.*
@@ -24,21 +23,23 @@ import kotlin.reflect.*
  */
 public sealed class SerializersModule {
 
-    /**
-     * Returns a contextual serializer associated with a given [kclass].
-     * This method is used in context-sensitive operations on a property marked with [Contextual] by a [ContextualSerializer]
-     */
     @ExperimentalSerializationApi
-    @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
     @Deprecated(
         "Deprecated in favor of overload with default parameter",
         ReplaceWith("getContextual(kclass)"),
-        DeprecationLevel.ERROR
+        DeprecationLevel.HIDDEN
     )
-    @LowPriorityInOverloadResolution
     public fun <T : Any> getContextual(kclass: KClass<T>): KSerializer<T>? =
         getContextual(kclass, emptyList())
 
+    /**
+     * Returns a contextual serializer associated with a given [kClass].
+     * If given class has generic parameters and module has provider for [kClass],
+     * [typeArgumentsSerializers] are used to create serializer.
+     * This method is used in context-sensitive operations on a property marked with [Contextual] by a [ContextualSerializer].
+     *
+     * @see SerializersModuleBuilder.contextual
+     */
     @ExperimentalSerializationApi
     public abstract fun <T : Any> getContextual(
         kClass: KClass<T>,
