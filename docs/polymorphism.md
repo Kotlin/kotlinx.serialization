@@ -151,11 +151,14 @@ fun main() {
 > You can get the full code [here](../guide/example/example-poly-04.kt).
 
 Now we can see a default way to represent polymorphism in JSON. 
-A `type` key is added to the resulting JSON object as a _discriminator_.  
+A `type` key is added to the resulting JSON object as a _discriminator_.
 
 ```text 
 {"type":"example.examplePoly04.OwnedProject","name":"kotlinx.coroutines","owner":"kotlin"}
 ```                  
+
+Note that `type` key appears only for the base class (`val data: Project`), as if it were its attribute.
+If you try to encode a subclass instance (`val data = OwnedProject`), there will be no `type` key.
 
 <!--- TEST -->
 
