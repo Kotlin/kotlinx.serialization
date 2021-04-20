@@ -28,7 +28,7 @@ public sealed class SerializersModule {
         "Deprecated in favor of overload with default parameter",
         ReplaceWith("getContextual(kclass)"),
         DeprecationLevel.HIDDEN
-    )
+    ) // Was stable since 1.0.0, HIDDEN in 1.2.0 in a backwards-compatible manner
     public fun <T : Any> getContextual(kclass: KClass<T>): KSerializer<T>? =
         getContextual(kclass, emptyList())
 
