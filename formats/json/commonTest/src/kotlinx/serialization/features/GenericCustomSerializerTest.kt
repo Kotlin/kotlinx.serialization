@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.features
@@ -9,7 +9,8 @@ import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.test.InternalHexConverter
+import kotlinx.serialization.modules.*
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class CheckedData<T : Any>(val data: T, val checkSum: ByteArray) {
@@ -70,6 +71,9 @@ data class DataWithString(@Serializable(with = CheckedDataSerializer::class) val
 @Serializable
 data class DataWithInt(@Serializable(with = CheckedDataSerializer::class) val data: CheckedData<Int>)
 
+@Serializable
+data class DataWithStringContext(@Contextual val data: CheckedData<String>)
+
 
 class GenericCustomSerializerTest {
     @Test
@@ -88,5 +92,19 @@ class GenericCustomSerializerTest {
         assertEquals("""{"data":{"data":42,"checkSum":"2A"}}""", s)
         val restored = Json.decodeFromString(DataWithInt.serializer(), s)
         assertEquals(original, restored)
+    }
+
+
+    @Test
+    fun testContextualGeneric() {
+        val module = SerializersModule {
+            contextual(CheckedData::class) { args -> CheckedDataSerializer(args[0] as KSerializer<Any>)}
+        }
+        assertStringFormAndRestored(
+            """{"data":{"data":"my data","checkSum":"2A20"}}""",
+            DataWithStringContext(CheckedData("my data", byteArrayOf(42, 32))),
+            DataWithStringContext.serializer(),
+            Json { serializersModule = module }
+        )
     }
 }

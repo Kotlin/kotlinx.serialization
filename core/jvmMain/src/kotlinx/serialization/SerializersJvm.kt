@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:JvmMultifileClass
 @file:JvmName("SerializersKt")
@@ -112,9 +112,9 @@ private fun SerializersModule.serializerByJavaTypeImpl(type: Type, failOnMissing
                 else -> {
                     // probably we should deprecate this method because it can't differ nullable vs non-nullable types
                     // since it uses Java TypeToken, not Kotlin one
-                    val varargs = argsSerializers.map { it as KSerializer<Any?> }.toTypedArray()
-                    (rootClass.kotlin.constructSerializerForGivenTypeArgs(*varargs) as? KSerializer<Any>)
-                            ?: reflectiveOrContextual(rootClass.kotlin as KClass<Any>)
+                    val varargs = argsSerializers.map { it as KSerializer<Any?> }
+                    (rootClass.kotlin.constructSerializerForGivenTypeArgs(*(varargs.toTypedArray())) as? KSerializer<Any>)
+                            ?: reflectiveOrContextual(rootClass.kotlin as KClass<Any>, varargs)
                 }
             }
         }
@@ -125,7 +125,7 @@ private fun SerializersModule.serializerByJavaTypeImpl(type: Type, failOnMissing
 @OptIn(ExperimentalSerializationApi::class)
 private fun SerializersModule.typeSerializer(type: Class<*>, failOnMissingTypeArgSerializer: Boolean): KSerializer<Any>? {
     return if (!type.isArray) {
-        reflectiveOrContextual(type.kotlin as KClass<Any>)
+        reflectiveOrContextual(type.kotlin as KClass<Any>, emptyList())
     } else {
         val eType: Class<*> = type.componentType
         val s = if (failOnMissingTypeArgSerializer) serializer(eType) else (serializerOrNull(eType) ?: return null)

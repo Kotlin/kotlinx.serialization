@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:Suppress("DEPRECATION_ERROR", "UNCHECKED_CAST")
 @file:JvmMultifileClass
@@ -114,15 +114,16 @@ private fun SerializersModule.builtinSerializer(
             if (isReferenceArray(rootClass)) {
                 return ArraySerializer<Any, Any?>(typeArguments[0].classifier as KClass<Any>, serializers[0]).cast()
             }
-            rootClass.constructSerializerForGivenTypeArgs(*serializers.toTypedArray())
-                ?: reflectiveOrContextual(rootClass)
+            val args = serializers.toTypedArray()
+            rootClass.constructSerializerForGivenTypeArgs(*args)
+                ?: reflectiveOrContextual(rootClass, serializers)
         }
     }
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-internal fun <T : Any> SerializersModule.reflectiveOrContextual(kClass: KClass<T>): KSerializer<T>? {
-    return kClass.serializerOrNull() ?: getContextual(kClass)
+internal fun <T : Any> SerializersModule.reflectiveOrContextual(kClass: KClass<T>, typeArgumentsSerializers: List<KSerializer<Any?>>): KSerializer<T>? {
+    return kClass.serializerOrNull() ?: getContextual(kClass, typeArgumentsSerializers)
 }
 
 

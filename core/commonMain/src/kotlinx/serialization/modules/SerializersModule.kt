@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.modules
@@ -23,12 +23,28 @@ import kotlin.reflect.*
  */
 public sealed class SerializersModule {
 
+    @ExperimentalSerializationApi
+    @Deprecated(
+        "Deprecated in favor of overload with default parameter",
+        ReplaceWith("getContextual(kclass)"),
+        DeprecationLevel.HIDDEN
+    ) // Was stable since 1.0.0, HIDDEN in 1.2.0 in a backwards-compatible manner
+    public fun <T : Any> getContextual(kclass: KClass<T>): KSerializer<T>? =
+        getContextual(kclass, emptyList())
+
     /**
-     * Returns a contextual serializer associated with a given [kclass].
-     * This method is used in context-sensitive operations on a property marked with [Contextual] by a [ContextualSerializer]
+     * Returns a contextual serializer associated with a given [kClass].
+     * If given class has generic parameters and module has provider for [kClass],
+     * [typeArgumentsSerializers] are used to create serializer.
+     * This method is used in context-sensitive operations on a property marked with [Contextual] by a [ContextualSerializer].
+     *
+     * @see SerializersModuleBuilder.contextual
      */
     @ExperimentalSerializationApi
-    public abstract fun <T : Any> getContextual(kclass: KClass<T>): KSerializer<T>?
+    public abstract fun <T : Any> getContextual(
+        kClass: KClass<T>,
+        typeArgumentsSerializers: List<KSerializer<*>> = emptyList()
+    ): KSerializer<T>?
 
     /**
      * Returns a polymorphic serializer registered for a class of the given [value] in the scope of [baseClass].
@@ -74,11 +90,19 @@ public operator fun SerializersModule.plus(other: SerializersModule): Serializer
  * If serializer for some class presents in both modules, result module
  * will contain serializer from [other] module.
  */
+@OptIn(ExperimentalSerializationApi::class)
 public infix fun SerializersModule.overwriteWith(other: SerializersModule): SerializersModule = SerializersModule {
     include(this@overwriteWith)
     other.dumpTo(object : SerializersModuleCollector {
         override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>) {
-            registerSerializer(kClass, serializer, allowOverwrite = true)
+            registerSerializer(kClass, ContextualProvider.Argless(serializer), allowOverwrite = true)
+        }
+
+        override fun <T : Any> contextual(
+            kClass: KClass<T>,
+            provider: (serializers: List<KSerializer<*>>) -> KSerializer<*>
+        ) {
+            registerSerializer(kClass, ContextualProvider.WithTypeArguments(provider), allowOverwrite = true)
         }
 
         override fun <Base : Any, Sub : Base> polymorphic(
@@ -105,8 +129,9 @@ public infix fun SerializersModule.overwriteWith(other: SerializersModule): Seri
  * which uses hash maps to store serializers associated with KClasses.
  */
 @Suppress("UNCHECKED_CAST")
+@OptIn(ExperimentalSerializationApi::class)
 internal class SerialModuleImpl(
-    private val class2Serializer: Map<KClass<*>, KSerializer<*>>,
+    private val class2ContextualFactory: Map<KClass<*>, ContextualProvider>,
     @JvmField val polyBase2Serializers: Map<KClass<*>, Map<KClass<*>, KSerializer<*>>>,
     private val polyBase2NamedSerializers: Map<KClass<*>, Map<String, KSerializer<*>>>,
     private val polyBase2DefaultProvider: Map<KClass<*>, PolymorphicProvider<*>>
@@ -125,15 +150,19 @@ internal class SerialModuleImpl(
         return (polyBase2DefaultProvider[baseClass] as? PolymorphicProvider<T>)?.invoke(serializedClassName)
     }
 
-    override fun <T : Any> getContextual(kclass: KClass<T>): KSerializer<T>? =
-        class2Serializer[kclass] as? KSerializer<T>
+    override fun <T : Any> getContextual(kClass: KClass<T>, typeArgumentsSerializers: List<KSerializer<*>>): KSerializer<T>? {
+        return (class2ContextualFactory[kClass]?.invoke(typeArgumentsSerializers)) as? KSerializer<T>?
+    }
 
     override fun dumpTo(collector: SerializersModuleCollector) {
-        class2Serializer.forEach { (kclass, serial) ->
-            collector.contextual(
-                kclass as KClass<Any>,
-                serial.cast()
-            )
+        class2ContextualFactory.forEach { (kclass, serial) ->
+            when (serial) {
+                is ContextualProvider.Argless -> collector.contextual(
+                    kclass as KClass<Any>,
+                    serial.serializer as KSerializer<Any>
+                )
+                is ContextualProvider.WithTypeArguments -> collector.contextual(kclass, serial.provider)
+            }
         }
 
         polyBase2Serializers.forEach { (baseClass, classMap) ->
@@ -153,3 +182,30 @@ internal class SerialModuleImpl(
 }
 
 internal typealias PolymorphicProvider<Base> = (className: String?) -> DeserializationStrategy<out Base>?
+
+/** This class is needed to support re-registering the same static (argless) serializers:
+ *
+ * ```
+ * val m1 = serializersModuleOf(A::class, A.serializer())
+ * val m2 = serializersModuleOf(A::class, A.serializer())
+ * val aggregate = m1 + m2 // should not throw
+ * ```
+ */
+internal sealed class ContextualProvider {
+    abstract operator fun invoke(typeArgumentsSerializers: List<KSerializer<*>>): KSerializer<*>
+
+    class Argless(val serializer: KSerializer<*>) : ContextualProvider() {
+        override fun invoke(typeArgumentsSerializers: List<KSerializer<*>>): KSerializer<*> = serializer
+
+        override fun equals(other: Any?): Boolean = other is Argless && other.serializer == this.serializer
+
+        override fun hashCode(): Int = serializer.hashCode()
+    }
+
+    class WithTypeArguments(val provider: (typeArgumentsSerializers: List<KSerializer<*>>) -> KSerializer<*>) :
+        ContextualProvider() {
+        override fun invoke(typeArgumentsSerializers: List<KSerializer<*>>): KSerializer<*> =
+            provider(typeArgumentsSerializers)
+    }
+
+}

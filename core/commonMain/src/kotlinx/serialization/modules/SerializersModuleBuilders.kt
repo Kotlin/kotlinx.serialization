@@ -1,9 +1,10 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
+import kotlinx.serialization.internal.*
 import kotlin.jvm.*
 import kotlin.reflect.*
 
@@ -37,18 +38,43 @@ public inline fun SerializersModule(builderAction: SerializersModuleBuilder.() -
  */
 @OptIn(ExperimentalSerializationApi::class)
 public class SerializersModuleBuilder @PublishedApi internal constructor() : SerializersModuleCollector {
-    private val class2Serializer: MutableMap<KClass<*>, KSerializer<*>> = hashMapOf()
+    private val class2ContextualProvider: MutableMap<KClass<*>, ContextualProvider> = hashMapOf()
     private val polyBase2Serializers: MutableMap<KClass<*>, MutableMap<KClass<*>, KSerializer<*>>> = hashMapOf()
     private val polyBase2NamedSerializers: MutableMap<KClass<*>, MutableMap<String, KSerializer<*>>> = hashMapOf()
     private val polyBase2DefaultProvider: MutableMap<KClass<*>, PolymorphicProvider<*>> = hashMapOf()
 
     /**
      * Adds [serializer] associated with given [kClass] for contextual serialization.
-     * Throws [SerializationException] if a module already has serializer associated with a [kClass].
+     * If [kClass] has generic type parameters, consider registering provider instead.
+     *
+     * Throws [SerializationException] if a module already has serializer or provider associated with a [kClass].
      * To overwrite an already registered serializer, [SerializersModule.overwriteWith] can be used.
      */
     public override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>): Unit =
-        registerSerializer(kClass, serializer)
+        registerSerializer(kClass, ContextualProvider.Argless(serializer))
+
+    /**
+     * Registers [provider] associated with given generic [kClass] for contextual serialization.
+     * When a serializer is requested from a module, provider is being called with type arguments serializers
+     * of the particular [kClass] usage.
+     *
+     * Example:
+     * ```
+     * class Holder(@Contextual val boxI: Box<Int>, @Contextual val boxS: Box<String>)
+     *
+     * val module = SerializersModule {
+     *   // args[0] contains Int.serializer() or String.serializer(), depending on the property
+     *   contextual(Box::class) { args -> BoxSerializer(args[0]) }
+     * }
+     * ```
+     *
+     * Throws [SerializationException] if a module already has provider or serializer associated with a [kClass].
+     * To overwrite an already registered serializer, [SerializersModule.overwriteWith] can be used.
+     */
+    public override fun <T : Any> contextual(
+        kClass: KClass<T>,
+        provider: (typeArgumentsSerializers: List<KSerializer<*>>) -> KSerializer<*>
+    ): Unit = registerSerializer(kClass, ContextualProvider.WithTypeArguments(provider))
 
     /**
      * Adds [serializer][actualSerializer] associated with given [actualClass] in the scope of [baseClass] for polymorphic serialization.
@@ -88,22 +114,19 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
     @JvmName("registerSerializer") // Don't mangle method name for prettier stack traces
     internal fun <T : Any> registerSerializer(
         forClass: KClass<T>,
-        serializer: KSerializer<T>,
+        provider: ContextualProvider,
         allowOverwrite: Boolean = false
     ) {
         if (!allowOverwrite) {
-            val previous = class2Serializer[forClass]
-            if (previous != null && previous != serializer) {
-                // TODO when working on SD rework, provide a way to properly stringify serializer as its FQN
-                val currentName = serializer.descriptor.serialName
-                val previousName = previous.descriptor.serialName
+            val previous = class2ContextualProvider[forClass]
+            if (previous != null && previous != provider) {
+                // How can we provide meaningful name for WithTypeArgumentsProvider ?
                 throw SerializerAlreadyRegisteredException(
-                    "Serializer for $forClass already registered in this module: $previous ($previousName), " +
-                            "attempted to register $serializer ($currentName)"
+                    "Contextual serializer or serializer provider for $forClass already registered in this module"
                 )
             }
         }
-        class2Serializer[forClass] = serializer
+        class2ContextualProvider[forClass] = provider
     }
 
     @JvmName("registerDefaultPolymorphicSerializer") // Don't mangle method name for prettier stack traces
@@ -165,7 +188,7 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
 
     @PublishedApi
     internal fun build(): SerializersModule =
-        SerialModuleImpl(class2Serializer, polyBase2Serializers, polyBase2NamedSerializers, polyBase2DefaultProvider)
+        SerialModuleImpl(class2ContextualProvider, polyBase2Serializers, polyBase2NamedSerializers, polyBase2DefaultProvider)
 }
 
 /**
