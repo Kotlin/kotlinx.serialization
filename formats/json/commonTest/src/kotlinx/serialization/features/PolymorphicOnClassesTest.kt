@@ -1,13 +1,15 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.test.*
 import kotlin.reflect.*
 import kotlin.test.*
 
@@ -128,5 +130,22 @@ class PolymorphicOnClassesTest {
         val polyDesc = Holder.serializer().descriptor.elementDescriptors.first() // iMessage: IMessage
         assertEquals(setOf("id", "body", "body2"), allDistinctNames(polyDesc, testModule))
         assertEquals(setOf("id", "body"), allDistinctNames(MessageWithId.serializer().descriptor, testModule))
+    }
+
+    @Test
+    fun testSerializerLookupForInterface() {
+        // On JVM and JS IR it can be supported via reflection/runtime hacks
+        // on Native, unfortunately, only with intrinsics.
+        if (currentPlatform == Platform.NATIVE || currentPlatform == Platform.JS_LEGACY) return
+        val msgSer = serializer<IMessage>()
+        assertEquals(IMessage::class, (msgSer as AbstractPolymorphicSerializer).baseClass)
+    }
+
+    @Test
+    fun testSerializerLookupForAbstractClass() {
+        // This would be fixed in plugin in 1.5.20
+        if (currentPlatform != Platform.JVM) return
+        val absSer = serializer<Message>()
+        assertEquals(Message::class, (absSer as AbstractPolymorphicSerializer).baseClass)
     }
 }
