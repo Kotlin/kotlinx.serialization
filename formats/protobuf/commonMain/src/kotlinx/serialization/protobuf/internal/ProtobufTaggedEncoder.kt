@@ -10,10 +10,10 @@ import kotlinx.serialization.encoding.*
 
 @OptIn(ExperimentalSerializationApi::class)
 internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, CompositeEncoder {
+    private var nullIsAcceptable: Boolean = false
 
     protected abstract fun SerialDescriptor.getTag(index: Int): ProtoDesc
 
-    protected fun encodeTaggedNull(): Unit = throw SerializationException("'null' is not supported in ProtoBuf") // TODO investigate null support separately
     protected abstract fun encodeTaggedInt(tag: ProtoDesc, value: Int)
     protected abstract fun encodeTaggedByte(tag: ProtoDesc, value: Byte)
     protected abstract fun encodeTaggedShort(tag: ProtoDesc, value: Short)
@@ -27,7 +27,11 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
 
     protected open fun encodeTaggedInline(tag: ProtoDesc, inlineDescriptor: SerialDescriptor): Encoder = this.apply { pushTag(tag) }
 
-    public final override fun encodeNull(): Unit = encodeTaggedNull()
+    public final override fun encodeNull() {
+        if (!nullIsAcceptable) {
+            throw SerializationException("'null' is not supported in ProtoBuf")
+        }
+    }
 
     public final override fun encodeBoolean(value: Boolean) {
         encodeTaggedBoolean(popTagOrDefault(), value)
@@ -113,6 +117,8 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
         serializer: SerializationStrategy<T>,
         value: T
     ) {
+        nullIsAcceptable = false
+
         pushTag(descriptor.getTag(index))
         encodeSerializableValue(serializer, value)
     }
@@ -123,6 +129,10 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
         serializer: SerializationStrategy<T>,
         value: T?
     ) {
+        val elementKind = descriptor.getElementDescriptor(index).kind
+        nullIsAcceptable =
+            !descriptor.isElementOptional(index) && elementKind != StructureKind.MAP && elementKind != StructureKind.LIST
+
         pushTag(descriptor.getTag(index))
         encodeNullableSerializableValue(serializer, value)
     }

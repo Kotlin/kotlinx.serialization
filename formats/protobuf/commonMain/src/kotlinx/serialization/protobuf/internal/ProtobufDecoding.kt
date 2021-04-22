@@ -16,6 +16,10 @@ import kotlinx.serialization.modules.*
 import kotlinx.serialization.protobuf.*
 import kotlin.jvm.*
 
+private const val FILLED_OR_DEFAULT: Byte = 0
+private const val ABSENCE_IS_NULL: Byte = 1
+private const val ABSENCE_IS_EMPTY_COLLECTION: Byte = 2
+
 internal open class ProtobufDecoder(
     @JvmField protected val proto: ProtoBuf,
     @JvmField protected val reader: ProtobufReader,
@@ -28,8 +32,34 @@ internal open class ProtobufDecoder(
     private var indexCache: IntArray? = null
     private var sparseIndexCache: MutableMap<Int, Int>? = null
 
+    private var absentsCache: ByteArray = createAbsenceCache(descriptor) //TODO or better to have two boolean arrays?
+    private var currentAbsenceMode: Byte = FILLED_OR_DEFAULT
+
     init {
         populateCache(descriptor)
+    }
+
+    private fun createAbsenceCache(descriptor: SerialDescriptor): ByteArray {
+        val elements = descriptor.elementsCount
+        val cache = ByteArray(elements)
+        if (elements < 32) {
+            for (i in 0 until elements) {
+                val elementDescriptor = descriptor.getElementDescriptor(i)
+                cache[i] = if (descriptor.isElementOptional(i)) {
+                    // optional field, plugin substitutes the default value if the read value is absent
+                    FILLED_OR_DEFAULT
+                } else if (elementDescriptor.kind == StructureKind.MAP || elementDescriptor.kind == StructureKind.LIST) {
+                    ABSENCE_IS_EMPTY_COLLECTION
+                } else if (elementDescriptor.isNullable) {
+                    ABSENCE_IS_NULL
+                } else {
+                    // required field, always filled in valid case
+                    FILLED_OR_DEFAULT
+                }
+            }
+        }
+
+        return cache
     }
 
     public fun populateCache(descriptor: SerialDescriptor) {
@@ -97,7 +127,18 @@ internal open class ProtobufDecoder(
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         return when (descriptor.kind) {
-            StructureKind.LIST -> RepeatedDecoder(proto, reader, currentTagOrDefault, descriptor)
+            StructureKind.LIST -> {
+                val tag = currentTagOrDefault
+                return if (tag != MISSING_TAG && this.descriptor != descriptor && this.descriptor.kind == StructureKind.LIST) {
+                    val reader = makeDelimited(reader, tag)
+                    // repeated decoder expects the first tag to be read already
+                    reader.readTag()
+                    // all elements are always has id = 1
+                    RepeatedDecoder(proto, reader, ProtoDesc(1, ProtoIntegerType.DEFAULT), descriptor)
+                } else {
+                    RepeatedDecoder(proto, reader, tag, descriptor)
+                }
+            }
             StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> {
                 val tag = currentTagOrDefault
                 // Do not create redundant copy
@@ -204,15 +245,27 @@ internal open class ProtobufDecoder(
         while (true) {
             val protoId = reader.readTag()
             if (protoId == -1) { // EOF
+                for (i in 0 until descriptor.elementsCount) {
+                    currentAbsenceMode = absentsCache[i]
+                    if (currentAbsenceMode != FILLED_OR_DEFAULT) {
+                        absentsCache[i] = FILLED_OR_DEFAULT
+                        return i
+                    }
+                }
                 return CompositeDecoder.DECODE_DONE
             }
             val index = getIndexByTag(protoId)
             if (index == -1) { // not found
                 reader.skipElement()
             } else {
+                absentsCache[index] = FILLED_OR_DEFAULT
                 return index
             }
         }
+    }
+
+    override fun decodeNotNullMark(): Boolean {
+        return currentAbsenceMode != ABSENCE_IS_NULL
     }
 }
 
