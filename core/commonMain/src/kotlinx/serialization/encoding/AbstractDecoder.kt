@@ -17,7 +17,7 @@ import kotlinx.serialization.descriptors.*
 public abstract class AbstractDecoder : Decoder, CompositeDecoder {
 
     /**
-     * Invoked to decode a value when specialized `encode*` method was not overridden.
+     * Invoked to decode a value when specialized `decode*` method was not overridden.
      */
     public open fun decodeValue(): Any = throw SerializationException("${this::class} can't retrieve untyped values")
 
