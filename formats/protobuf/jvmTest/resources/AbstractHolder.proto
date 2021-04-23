@@ -7,7 +7,7 @@ message AbstractHolder {
   required KotlinxSerializationPolymorphic abs = 1;
 }
 
-// serial name 'KotlinxSerializationPolymorphic'
+// This message was generated to support polymorphic types and does not present in Kotlin.
 message KotlinxSerializationPolymorphic {
   required string type = 1;
   required bytes value = 2;

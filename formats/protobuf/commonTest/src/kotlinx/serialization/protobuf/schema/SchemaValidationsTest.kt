@@ -42,63 +42,74 @@ class SchemaValidationsTest {
     @Test
     fun testInvalidEnumElementSerialName() {
         val descriptors = listOf(InvalidEnumElementName.serializer().descriptor)
-        assertFailsWith(IllegalArgumentException::class) { generateProto2Schema(descriptors) }
+        assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors) }
     }
 
     @Test
     fun testInvalidClassSerialName() {
         val descriptors = listOf(InvalidClassName.serializer().descriptor)
-        assertFailsWith(IllegalArgumentException::class) { generateProto2Schema(descriptors) }
+        assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors) }
     }
 
     @Test
     fun testInvalidClassFieldSerialName() {
         val descriptors = listOf(InvalidClassFieldName.serializer().descriptor)
-        assertFailsWith(IllegalArgumentException::class) { generateProto2Schema(descriptors) }
+        assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors) }
     }
 
     @Test
     fun testDuplicateSerialNames() {
         val descriptors = listOf(InvalidClassFieldName.serializer().descriptor)
-        assertFailsWith(IllegalArgumentException::class) { generateProto2Schema(descriptors) }
+        assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors) }
     }
 
     @Test
     fun testInvalidEnumSerialName() {
         val descriptors = listOf(InvalidEnumName.serializer().descriptor)
-        assertFailsWith(IllegalArgumentException::class) { generateProto2Schema(descriptors) }
+        assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors) }
     }
 
     @Test
     fun testDuplicationSerialName() {
         val descriptors = listOf(ValidClass.serializer().descriptor, DuplicateClass.serializer().descriptor)
-        assertFailsWith(IllegalArgumentException::class) { generateProto2Schema(descriptors) }
+        assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors) }
+    }
+
+    @Test
+    fun testInvalidOptionName() {
+        val descriptors = listOf(ValidClass.serializer().descriptor)
+        assertFailsWith(IllegalArgumentException::class) {
+            ProtoBufSchemaGenerator.generateSchemaText(
+                descriptors,
+                options = mapOf("broken name" to "value")
+            )
+        }
     }
 
     @Test
     fun testIllegalPackageNames() {
         val descriptors = listOf(ValidClass.serializer().descriptor)
-        assertFailsWith(IllegalArgumentException::class) { generateProto2Schema(descriptors, "") }
-        assertFailsWith(IllegalArgumentException::class) { generateProto2Schema(descriptors, ".") }
-        assertFailsWith(IllegalArgumentException::class) { generateProto2Schema(descriptors, ".first.dot") }
-        assertFailsWith(IllegalArgumentException::class) { generateProto2Schema(descriptors, "ended.with.dot.") }
-        assertFailsWith(IllegalArgumentException::class) { generateProto2Schema(descriptors, "first._underscore") }
-        assertFailsWith(IllegalArgumentException::class) { generateProto2Schema(descriptors, "first.1digit") }
-        assertFailsWith(IllegalArgumentException::class) { generateProto2Schema(descriptors, "illegal.sym+bol") }
+        assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors, "") }
+        assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors, ".") }
+        assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors, ".first.dot") }
+        assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors, "ended.with.dot.") }
+        assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors, "first._underscore") }
+        assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors, "first.1digit") }
+        assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors, "illegal.sym+bol") }
     }
 
     @Test
     fun testValidPackageNames() {
         val descriptors = listOf(ValidClass.serializer().descriptor)
-        generateProto2Schema(descriptors, "singleIdent")
-        generateProto2Schema(descriptors, "double.ident")
-        generateProto2Schema(descriptors, "with.digits0123")
-        generateProto2Schema(descriptors, "with.underscore_")
+        ProtoBufSchemaGenerator.generateSchemaText(descriptors, "singleIdent")
+        ProtoBufSchemaGenerator.generateSchemaText(descriptors, "double.ident")
+        ProtoBufSchemaGenerator.generateSchemaText(descriptors, "with.digits0123")
+        ProtoBufSchemaGenerator.generateSchemaText(descriptors, "with.underscore_")
     }
 
     @Test
     fun testFieldNumberDuplicates() {
-        assertFailsWith(IllegalArgumentException::class) { generateProto2Schema(listOf(FieldNumberDuplicates.serializer().descriptor)) }
-        assertFailsWith(IllegalArgumentException::class) { generateProto2Schema(listOf(FieldNumberImplicitlyDuplicates.serializer().descriptor)) }
+        assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(listOf(FieldNumberDuplicates.serializer().descriptor)) }
+        assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(listOf(FieldNumberImplicitlyDuplicates.serializer().descriptor)) }
     }
 }

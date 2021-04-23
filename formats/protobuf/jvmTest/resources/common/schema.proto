@@ -27,7 +27,6 @@ message FieldNumberClass {
   required int32 c = 3;
 }
 
-// serial name 'OverriddenClassName'
 message OverriddenClassName {
   required int32 original = 1;
   required OverriddenEnumName OverriddenFieldName = 2;
@@ -37,7 +36,7 @@ message OverriddenClassName {
 message ListClass {
   repeated int32 intList = 1;
   repeated int32 intArray = 2;
-  // WARNING: null value is not supported for list elements
+  // WARNING: nullable elements of collections can not be represented in protobuf
   repeated int32 boxedIntArray = 3;
   repeated OptionsClass messageList = 4;
   repeated OverriddenEnumName enumList = 5;
@@ -54,11 +53,10 @@ message MapClass {
 // serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.OptionalClass'
 message OptionalClass {
   required int32 requiredInt = 1;
-  // WARNING: an absence value is decoded as a default value that is not present in the schema
+  // WARNING: a default value decoded when value is missing
   optional int32 optionalInt = 2;
   optional int32 nullableInt = 3;
-  // WARNING: this field is nullable and has default value, it's impossible to unambiguously interpret an absence value.
-  //   For this field null value does not support and absence value denotes as default value. Default value is not present in the schema.
+  // WARNING: a default value decoded when value is missing
   optional int32 nullableOptionalInt = 4;
 }
 
@@ -92,13 +90,13 @@ message LegacyMapHolder {
   repeated LegacyMapHolder_keyAsBytes keyAsBytes = 3;
   repeated LegacyMapHolder_keyAsList keyAsList = 4;
   repeated LegacyMapHolder_keyAsDeepList keyAsDeepList = 5;
+  repeated LegacyMapHolder_nullableKeyAndValue nullableKeyAndValue = 6;
 }
 
 // serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.NullableNestedCollections'
 message NullableNestedCollections {
-  // WARNING: null value is not supported for nested collections
   repeated NullableNestedCollections_nullableIntList nullableIntList = 1;
-  // WARNING: null value is not supported for nested collections
+  // WARNING: nullable map values can not be represented in protobuf
   map<string, NullableNestedCollections_nullableIntMap> nullableIntMap = 2;
   map<string, NullableNestedCollections_intMap> intMap = 3;
   repeated NullableNestedCollections_intList intList = 4;
@@ -108,26 +106,21 @@ message NullableNestedCollections {
 // serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.OptionalCollections'
 message OptionalCollections {
   repeated int32 requiredList = 1;
-  // WARNING: This field does not support empty list
-  //  An absence value is decoded as a default value that is not present in the schema
+  // WARNING: a default value decoded when value is missing
   repeated int32 optionalList = 2;
-  // WARNING: This field is marked as nullable but it does not support null values
+  // WARNING: an empty collection decoded when a value is missing
   repeated int32 nullableList = 3;
-  // WARNING: This field is marked as nullable and has a default value but it does not support null values and empty list
-  //  An absence value is decoded as a default value that is not present in the schema
+  // WARNING: a default value decoded when value is missing
   repeated int32 nullableOptionalList = 4;
   map<int32, int32> requiredMap = 5;
-  // WARNING: This field does not support empty map
-  //  An absence value is decoded as a default value that is not present in the schema
+  // WARNING: a default value decoded when value is missing
   map<int32, int32> optionalMap = 6;
-  // WARNING: This field is marked as nullable but it does not support null values
+  // WARNING: an empty collection decoded when a value is missing
   map<int32, int32> nullableMap = 7;
-  // WARNING: This field is marked as nullable and has a default value but it does not support null values and empty map
-  //  An absence value is decoded as a default value that is not present in the schema
+  // WARNING: a default value decoded when value is missing
   map<int32, int32> nullableOptionalMap = 8;
 }
 
-// serial name 'OverriddenEnumName'
 enum OverriddenEnumName {
   FIRST = 0;
   OverriddenElementName = 1;
@@ -138,10 +131,7 @@ message OptionsClass {
   required int32 i = 1;
 }
 
-
-
-
-// serial name 'KotlinxSerializationPolymorphic'
+// This message was generated to support polymorphic types and does not present in Kotlin.
 message KotlinxSerializationPolymorphic {
   required string type = 1;
   required bytes value = 2;
@@ -156,85 +146,102 @@ message SealedClass {
   required bytes value = 2;
 }
 
-// serial name 'NestedCollections_intList'
+// This message was generated to support nested collection in list and does not present in Kotlin.
+// Containing message 'NestedCollections', field 'intList'
 message NestedCollections_intList {
   repeated int32 value = 1;
 }
 
-// serial name 'NestedCollections_messageList'
+// This message was generated to support nested collection in list and does not present in Kotlin.
+// Containing message 'NestedCollections', field 'messageList'
 message NestedCollections_messageList {
   repeated OptionsClass value = 1;
 }
 
-// serial name 'NestedCollections_mapInList'
+// This message was generated to support nested collection in list and does not present in Kotlin.
+// Containing message 'NestedCollections', field 'mapInList'
 message NestedCollections_mapInList {
   map<string, OptionsClass> value = 1;
 }
 
-// serial name 'NestedCollections_listInMap'
+// This message was generated to support nested collection in map value and does not present in Kotlin.
+// Containing message 'NestedCollections', field 'listInMap'
 message NestedCollections_listInMap {
   repeated int32 value = 1;
 }
 
-// serial name 'LegacyMapHolder_keyAsMessage'
+// This message was generated to support legacy map and does not present in Kotlin.
+// Containing message 'LegacyMapHolder', field 'keyAsMessage'
 message LegacyMapHolder_keyAsMessage {
   required OptionsClass key = 1;
   required int32 value = 2;
 }
 
-// serial name 'LegacyMapHolder_keyAsEnum'
+// This message was generated to support legacy map and does not present in Kotlin.
+// Containing message 'LegacyMapHolder', field 'keyAsEnum'
 message LegacyMapHolder_keyAsEnum {
   required OverriddenEnumName key = 1;
   required OptionsClass value = 2;
 }
 
-// serial name 'LegacyMapHolder_keyAsBytes'
+// This message was generated to support legacy map and does not present in Kotlin.
+// Containing message 'LegacyMapHolder', field 'keyAsBytes'
 message LegacyMapHolder_keyAsBytes {
   required bytes key = 1;
   required bytes value = 2;
 }
 
-// serial name 'LegacyMapHolder_keyAsList'
+// This message was generated to support legacy map and does not present in Kotlin.
+// Containing message 'LegacyMapHolder', field 'keyAsList'
 message LegacyMapHolder_keyAsList {
   repeated int32 key = 1;
   required bytes value = 2;
 }
 
-// serial name 'LegacyMapHolder_keyAsDeepList'
+// This message was generated to support legacy map and does not present in Kotlin.
+// Containing message 'LegacyMapHolder', field 'keyAsDeepList'
 message LegacyMapHolder_keyAsDeepList {
   repeated LegacyMapHolder_keyAsDeepList_key key = 1;
   required bytes value = 2;
 }
 
-// serial name 'NullableNestedCollections_nullableIntList'
+// This message was generated to support legacy map and does not present in Kotlin.
+// Containing message 'LegacyMapHolder', field 'nullableKeyAndValue'
+message LegacyMapHolder_nullableKeyAndValue {
+  required OptionsClass key = 1;
+  required OptionsClass value = 2;
+}
+
+// This message was generated to support nested collection in list and does not present in Kotlin.
+// Containing message 'NullableNestedCollections', field 'nullableIntList'
 message NullableNestedCollections_nullableIntList {
-  // WARNING: This field is marked as nullable but it does not support null values
   repeated int32 value = 1;
 }
 
-// serial name 'NullableNestedCollections_nullableIntMap'
+// This message was generated to support nested collection in map value and does not present in Kotlin.
+// Containing message 'NullableNestedCollections', field 'nullableIntMap'
 message NullableNestedCollections_nullableIntMap {
-  // WARNING: This field is marked as nullable but it does not support null values
   repeated int32 value = 1;
 }
 
-// serial name 'NullableNestedCollections_intMap'
+// This message was generated to support nested collection in map value and does not present in Kotlin.
+// Containing message 'NullableNestedCollections', field 'intMap'
 message NullableNestedCollections_intMap {
-  // WARNING: null value is not supported for list elements
+  // WARNING: nullable elements of collections can not be represented in protobuf
   repeated int32 value = 1;
 }
 
-// serial name 'NullableNestedCollections_intList'
+// This message was generated to support nested collection in list and does not present in Kotlin.
+// Containing message 'NullableNestedCollections', field 'intList'
 message NullableNestedCollections_intList {
-  // WARNING: null value is not supported for list elements
+  // WARNING: nullable elements of collections can not be represented in protobuf
   repeated int32 value = 1;
 }
 
-// serial name 'NullableNestedCollections_legacyMap'
+// This message was generated to support legacy map and does not present in Kotlin.
+// Containing message 'NullableNestedCollections', field 'legacyMap'
 message NullableNestedCollections_legacyMap {
-  // WARNING: This field is marked as nullable but it does not support null values
   repeated int32 key = 1;
-  // WARNING: This field is marked as nullable but it does not support null values
   repeated int32 value = 2;
 }
 
@@ -248,12 +255,8 @@ message Impl2 {
   required int64 long = 1;
 }
 
-
-
-
-
-
-// serial name 'LegacyMapHolder_keyAsDeepList_key'
+// This message was generated to support nested collection in list and does not present in Kotlin.
+// Containing message 'LegacyMapHolder', field 'keyAsDeepList'
 message LegacyMapHolder_keyAsDeepList_key {
   repeated int32 value = 1;
 }

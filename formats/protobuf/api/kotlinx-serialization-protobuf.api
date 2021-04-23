@@ -47,8 +47,9 @@ public final class kotlinx/serialization/protobuf/ProtoType$Impl : kotlinx/seria
 	public final synthetic fun type ()Lkotlinx/serialization/protobuf/ProtoIntegerType;
 }
 
-public final class kotlinx/serialization/protobuf/schema/GenerationKt {
-	public static final fun generateProto2Schema (Ljava/util/List;Ljava/lang/String;Ljava/util/Map;)Ljava/lang/String;
-	public static synthetic fun generateProto2Schema$default (Ljava/util/List;Ljava/lang/String;Ljava/util/Map;ILjava/lang/Object;)Ljava/lang/String;
+public final class kotlinx/serialization/protobuf/schema/ProtoBufSchemaGenerator {
+	public static final field INSTANCE Lkotlinx/serialization/protobuf/schema/ProtoBufSchemaGenerator;
+	public final fun generateSchemaText (Ljava/util/List;Ljava/lang/String;Ljava/util/Map;)Ljava/lang/String;
+	public static synthetic fun generateSchemaText$default (Lkotlinx/serialization/protobuf/schema/ProtoBufSchemaGenerator;Ljava/util/List;Ljava/lang/String;Ljava/util/Map;ILjava/lang/Object;)Ljava/lang/String;
 }
 

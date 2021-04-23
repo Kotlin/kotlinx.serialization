@@ -158,7 +158,8 @@ class GenerationTest {
         val keyAsEnum: Map<SerialNameEnum, OptionsClass>,
         val keyAsBytes: Map<List<Byte>, List<Byte>>,
         val keyAsList: Map<List<Int>, List<Byte>>,
-        val keyAsDeepList: Map<List<List<Int>>, List<Byte>>
+        val keyAsDeepList: Map<List<List<Int>>, List<Byte>>,
+        val nullableKeyAndValue: Map<OptionsClass?, OptionsClass?>
     )
 
     @Serializable
@@ -198,6 +199,6 @@ class GenerationTest {
         val schema = this::class.java.getResourceAsStream("/$fileName")
             .readBytes().toString(Charsets.UTF_8)
             .replace("\r\n", "\n") // fixme when compiled on windows, the file contains line \r\n breaks
-        assertEquals(schema, generateProto2Schema(descriptors, TARGET_PACKAGE, options))
+        assertEquals(schema, ProtoBufSchemaGenerator.generateSchemaText(descriptors, TARGET_PACKAGE, options))
     }
 }

@@ -40,6 +40,6 @@ private fun generateSchemaFile(
 ) {
     val filePath = "$RESOURCES_ROOT_PATH/$fileName"
     val file = File(filePath)
-    val schema = generateProto2Schema(descriptors, TARGET_PACKAGE, options)
+    val schema = ProtoBufSchemaGenerator.generateSchemaText(descriptors, TARGET_PACKAGE, options)
     file.writeText(schema, StandardCharsets.UTF_8)
 }

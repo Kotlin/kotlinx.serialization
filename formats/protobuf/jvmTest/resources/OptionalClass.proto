@@ -5,10 +5,9 @@ package kotlinx.serialization.protobuf.schema.generator;
 // serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.OptionalClass'
 message OptionalClass {
   required int32 requiredInt = 1;
-  // WARNING: an absence value is decoded as a default value that is not present in the schema
+  // WARNING: a default value decoded when value is missing
   optional int32 optionalInt = 2;
   optional int32 nullableInt = 3;
-  // WARNING: this field is nullable and has default value, it's impossible to unambiguously interpret an absence value.
-  //   For this field null value does not support and absence value denotes as default value. Default value is not present in the schema.
+  // WARNING: a default value decoded when value is missing
   optional int32 nullableOptionalInt = 4;
 }

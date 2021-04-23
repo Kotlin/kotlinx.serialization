@@ -9,23 +9,54 @@ import kotlinx.serialization.protobuf.ProtoNumber
 import kotlinx.serialization.protobuf.ProtoType
 import kotlin.native.concurrent.SharedImmutable
 
-/**
- * Generate protocol buffers version 2 schema text for given serializable descriptors.
- * All descriptors will be placed in one schema which can be saved in one `.proto` file.
- * @param descriptors descriptors of serializable classes for which the scheme will be generated
- * @param packageName protobuf common package for schema
- * @param options protobuf options to include in schema
- */
 @ExperimentalSerializationApi
-public fun generateProto2Schema(
-    descriptors: List<SerialDescriptor>,
-    packageName: String? = null,
-    options: Map<String, String> = emptyMap()
-): String {
-    packageName?.let { if (!it.isProtobufFullIdent) throw IllegalArgumentException("Incorrect protobuf package name '$it'") }
-    checkDoubles(descriptors)
-    return generateProto2SchemaString(descriptors, packageName, options)
+public object ProtoBufSchemaGenerator {
+    /**
+     * Generate text of protocol buffers schema version 2 for given serializable [descriptors].
+     * Name of messages and enums are extracted from [SerialDescriptor.serialName] in [SerialDescriptor] as
+     * substring after the last dot character, the `'?'` character is also removed if it is present at the end of the string.
+     * This name may contain `'a'`..`'z'` letters in upper and lower case, decimal digits, `'_'` chars and started only from a letter.
+     *
+     * If type names extracted from [descriptors] are repeated then [IllegalArgumentException] will be thrown.
+     *
+     * For two or more fields that have the same extracted type name, they are considered to be of the same type and
+     * message (or enum) for this type created in schema only once.
+     *
+     * Synthetic wrappers are created to support nested collections. They are created for the case of an array, `List`, `Map` nested in array, List or `Map` value.
+     *
+     * if the field is a `Map` with a key other than [Int], [Long], [Boolean], [String] then in the schema it represented as `repeated` from the wrapper.
+     * This wrapper has two required fields for storing map key and map value.
+     *
+     * Fields marked by [kotlinx.serialization.Polymorphic] annotation has special `KotlinxSerializationPolymorphic` type in generated schema.
+     * Marked by [kotlinx.serialization.Contextual] annotation has target type `bytes` in schema.
+     *
+     * Encoding and decoding of `null` is only allowed for nullable properties with no default that store a class, object, or enum (not a list or map).
+     * For collections, the `null` value is not available because it has no special `null` value or mark, and an empty collection cannot be distinguished from null.
+     *
+     * **Warning! If a default value is declared for a field with collection type you can decode empty collection only if it's a default value.**
+     * Absence value will always decode as default value but empty collection and default value both will be encoded as an absence.
+     *
+     * [packageName] define common protobuf package for all messages and enum in the schema, it may contain `'a'`..`'z'`
+     * letters in upper and lower case, decimal digits, `'.'` or `'_'` chars, but started only from a letter and
+     * not finished by dot.
+     *
+     * [options] define values for protobuf options. Option value (map value) is an any string, option name (map key)
+     * should be the same format as [packageName].
+     */
+    @ExperimentalSerializationApi
+    public fun generateSchemaText(
+        descriptors: List<SerialDescriptor>,
+        packageName: String? = null,
+        options: Map<String, String> = emptyMap()
+    ): String {
+        packageName?.let { p -> p.checkIsValidFullIdentifier { "Incorrect protobuf package name '$it'" } }
+        checkDoubles(descriptors)
+        val builder = StringBuilder()
+        builder.generateProto2SchemaText(descriptors, packageName, options)
+        return builder.toString()
+    }
 }
+
 
 private fun checkDoubles(descriptors: List<SerialDescriptor>) {
     val rootTypesNames = mutableSetOf<String>()
@@ -37,94 +68,91 @@ private fun checkDoubles(descriptors: List<SerialDescriptor>) {
         }
     }
     if (duplicates.isNotEmpty()) {
-        throw IllegalArgumentException("Serial names of types are duplicated $duplicates")
+        throw IllegalArgumentException("Serial names of the following types are duplicated: $duplicates")
     }
 }
 
-private fun generateProto2SchemaString(
+private fun StringBuilder.generateProto2SchemaText(
     descriptors: List<SerialDescriptor>,
     packageName: String?,
     options: Map<String, String>
-): String {
-    val builder = StringBuilder()
-    builder.appendLine("""syntax = "proto2";""")
-        .appendLine()
+) {
+    appendLine("""syntax = "proto2";""").appendLine()
 
-    packageName?.let {
-        builder.append("package ").append(it).appendLine(';')
-    }
+    packageName?.let { append("package ").append(it).appendLine(';') }
+
     for ((optionName, optionValue) in options) {
-        builder.append("option ").append(optionName).append(" = \"").append(optionValue).appendLine("\";")
+        val safeOptionName = removeLineBreaks(optionName)
+        val safeOptionValue = removeLineBreaks(optionValue)
+        safeOptionName.checkIsValidFullIdentifier { "Invalid option name '$it'" }
+        append("option ").append(safeOptionName).append(" = \"").append(safeOptionValue).appendLine("\";")
     }
 
     val generatedTypes = mutableSetOf<String>()
-    val queue = ArrayDeque<SerialDescriptor>()
-    queue.addAll(descriptors)
+    val queue = ArrayDeque<TypeDefinition>()
+    descriptors.map { TypeDefinition(it) }.forEach { queue.add(it) }
 
     while (queue.isNotEmpty()) {
-        builder.appendLine()
-        val descriptor = queue.removeFirst()
+        val type = queue.removeFirst()
+        val descriptor = type.descriptor
         val name = descriptor.messageOrEnumName
-        if (generatedTypes.contains(name)) {
+        if (!generatedTypes.add(name)) {
             continue
         }
-        queue.addAll(generateType(descriptor, builder))
-        generatedTypes += name
-    }
 
-    return builder.toString()
-}
-
-
-internal val SyntheticPolymorphicDescriptor: SerialDescriptor =
-    buildClassSerialDescriptor("KotlinxSerializationPolymorphic") {
-        element("type", PrimitiveSerialDescriptor("typeDescriptor", PrimitiveKind.STRING))
-        element("value", buildSerialDescriptor("valueDescriptor", StructureKind.LIST) {
-            element<Byte>("0")
-        })
-    }
-
-private fun generateType(descriptor: SerialDescriptor, builder: StringBuilder): List<SerialDescriptor> {
-    return when {
-        descriptor.isProtobufMessage -> generateMessage(descriptor, builder)
-        descriptor.isProtobufEnum -> {
-            generateEnum(descriptor, builder)
-            emptyList()
+        appendLine()
+        when {
+            descriptor.isProtobufMessage -> queue.addAll(generateMessage(type))
+            descriptor.isProtobufEnum -> generateEnum(type)
+            else -> throw IllegalStateException(
+                "Unrecognized custom type with serial name "
+                        + "'${descriptor.serialName}' and kind '${descriptor.kind}'"
+            )
         }
-        else -> throw IllegalStateException(
-            "Unrecognized custom type with serial name "
-                    + "'${descriptor.serialName}' and kind '${descriptor.kind}'"
-        )
     }
 }
 
-private fun generateMessage(
-    messageDescriptor: SerialDescriptor,
-    builder: StringBuilder
-): List<SerialDescriptor> {
-    builder.append("// serial name '").append(removeLineBreaks(messageDescriptor.serialName)).appendLine('\'')
+private fun StringBuilder.generateMessage(messageType: TypeDefinition): List<TypeDefinition> {
+    val messageDescriptor = messageType.descriptor
+    val messageName: String
+    if (messageType.isSynthetic) {
+        append("// This message was generated to support ").append(messageType.ability)
+            .appendLine(" and does not present in Kotlin.")
 
-    val messageName = messageDescriptor.messageOrEnumName
-    if (!messageName.isProtobufIdent) {
-        throw IllegalArgumentException("Invalid name for the message in protobuf scheme '$messageName'. Serial name of the class '${messageDescriptor.serialName}'")
+        messageName = messageDescriptor.serialName
+        if (messageType.containingMessageName != null) {
+            append("// Containing message '").append(messageType.containingMessageName).append("', field '")
+                .append(messageType.fieldName).appendLine('\'')
+        }
+    } else {
+        messageName = messageDescriptor.messageOrEnumName
+        messageName.checkIsValidIdentifier {
+            "Invalid name for the message in protobuf schema '$messageName'. " +
+                    "Serial name of the class '${messageDescriptor.serialName}'"
+        }
+        val safeSerialName = removeLineBreaks(messageDescriptor.serialName)
+        if (safeSerialName != messageName) {
+            append("// serial name '").append(safeSerialName).appendLine('\'')
+        }
     }
 
-    builder.append("message ").append(messageName).appendLine(" {")
+    append("message ").append(messageName).appendLine(" {")
 
     val usedNumbers: MutableSet<Int> = mutableSetOf()
-    val nestedTypes = mutableListOf<SerialDescriptor>()
+    val nestedTypes = mutableListOf<TypeDefinition>()
     for (index in 0 until messageDescriptor.elementsCount) {
         val fieldName = messageDescriptor.getElementName(index)
-        if (!fieldName.isProtobufIdent) {
-            throw IllegalArgumentException("Invalid name of the field in protobuf scheme '$messageName' for class with serial name '${messageDescriptor.serialName}'")
+        fieldName.checkIsValidIdentifier {
+            "Invalid name of the field '$fieldName' in message '$messageName' for class with serial " +
+                    "name '${messageDescriptor.serialName}'"
         }
 
         val fieldDescriptor = messageDescriptor.getElementDescriptor(index)
 
         nestedTypes += when {
-            fieldDescriptor.isProtobufNamedType -> generateNamedType(messageDescriptor, index, builder)
-            fieldDescriptor.isProtobufRepeated -> generateListType(messageDescriptor, index, builder)
-            fieldDescriptor.isProtobufMap -> generateMapType(messageDescriptor, index, builder)
+            fieldDescriptor.isProtobufNamedType -> generateNamedType(messageType, index)
+            fieldDescriptor.isProtobufRepeated -> generateListType(messageType, index)
+            fieldDescriptor.isProtobufMap -> generateMapType(messageType, index)
             else -> throw IllegalStateException(
                 "Unprocessed message field type with serial name " +
                         "'${fieldDescriptor.serialName}' and kind '${fieldDescriptor.kind}'"
@@ -138,31 +166,25 @@ private fun generateMessage(
             throw IllegalArgumentException("Field number $number is repeated in the class with serial name ${messageDescriptor.serialName}")
         }
 
-        builder.append(' ')
-        builder.append(fieldName)
-        builder.append(" = ")
-        builder.append(number)
-        builder.appendLine(';')
+        append(' ').append(fieldName).append(" = ").append(number).appendLine(';')
     }
-    builder.appendLine('}')
+    appendLine('}')
 
     return nestedTypes
 }
 
-private fun generateNamedType(
-    messageDescriptor: SerialDescriptor,
-    index: Int,
-    builder: StringBuilder
-): List<SerialDescriptor> {
+private fun StringBuilder.generateNamedType(messageType: TypeDefinition, index: Int): List<TypeDefinition> {
+    val messageDescriptor = messageType.descriptor
+
     val fieldDescriptor = messageDescriptor.getElementDescriptor(index)
-    val nestedTypes: List<SerialDescriptor>
+    val nestedTypes: List<TypeDefinition>
     val typeName: String = when {
         messageDescriptor.isSealedPolymorphic && index == 1 -> {
-            builder.appendLine("  // decoded as message with one of these types:")
-            nestedTypes = fieldDescriptor.elementDescriptors.toList()
-            nestedTypes.forEachIndexed { _, childDescriptor ->
-                builder.append("  //   message ").append(childDescriptor.messageOrEnumName)
-                    .append(", serial name '").append(removeLineBreaks(childDescriptor.serialName)).appendLine('\'')
+            appendLine("  // decoded as message with one of these types:")
+            nestedTypes = fieldDescriptor.elementDescriptors.map { TypeDefinition(it) }.toList()
+            nestedTypes.forEachIndexed { _, childType ->
+                append("  //   message ").append(childType.descriptor.messageOrEnumName).append(", serial name '")
+                    .append(removeLineBreaks(childType.descriptor.serialName)).appendLine('\'')
             }
             fieldDescriptor.scalarTypeName()
         }
@@ -171,151 +193,107 @@ private fun generateNamedType(
             fieldDescriptor.scalarTypeName(messageDescriptor.getElementAnnotations(index))
         }
         fieldDescriptor.isOpenPolymorphic -> {
-            nestedTypes = listOf(SyntheticPolymorphicDescriptor)
-            SyntheticPolymorphicDescriptor.serialName
+            nestedTypes = listOf(SyntheticPolymorphicType)
+            SyntheticPolymorphicType.descriptor.serialName
         }
         else -> {
             // enum or regular message
-            nestedTypes = listOf(fieldDescriptor)
+            nestedTypes = listOf(TypeDefinition(fieldDescriptor))
             fieldDescriptor.messageOrEnumName
         }
     }
 
-    if (fieldDescriptor.isNullable && messageDescriptor.isElementOptional(index)) {
-        builder.appendLine("  // WARNING: this field is nullable and has default value, it's impossible to unambiguously interpret an absence value.")
-        builder.appendLine("  //   For this field null value does not support and absence value denotes as default value. Default value is not present in the schema.")
-    }
-    if (!fieldDescriptor.isNullable && messageDescriptor.isElementOptional(index)) {
-        builder.appendLine("  // WARNING: an absence value is decoded as a default value that is not present in the schema")
+    if (messageDescriptor.isElementOptional(index)) {
+        appendLine("  // WARNING: a default value decoded when value is missing")
     }
     val optional = fieldDescriptor.isNullable || messageDescriptor.isElementOptional(index)
 
-    builder.append("  ")
-        .append(if (optional) "optional " else "required ")
-        .append(typeName)
+    append("  ").append(if (optional) "optional " else "required ").append(typeName)
 
     return nestedTypes
 }
 
-private fun generateMapType(
-    messageDescriptor: SerialDescriptor,
-    index: Int,
-    builder: StringBuilder
-): List<SerialDescriptor> {
+private fun StringBuilder.generateMapType(messageType: TypeDefinition, index: Int): List<TypeDefinition> {
+    val messageDescriptor = messageType.descriptor
     val mapDescriptor = messageDescriptor.getElementDescriptor(index)
-    val fieldName = messageDescriptor.getElementName(index)
-    val valueDescriptor = mapDescriptor.getElementDescriptor(1).let {
-        if (it.isProtobufCollection) {
-            if (it.isNullable) {
-                builder.appendLine("  // WARNING: null value is not supported for nested collections")
-            }
-            val wrapperName = "${messageDescriptor.messageOrEnumName}_${fieldName}"
-            buildClassSerialDescriptor(wrapperName) {
-                element("value", it)
-            }
-        } else {
-            if (it.isNullable) {
-                builder.appendLine("  // WARNING: null value is not supported for map value")
-            }
-            it
-        }
+    val originalMapValueDescriptor = mapDescriptor.getElementDescriptor(1)
+    val valueType = if (originalMapValueDescriptor.isProtobufCollection) {
+        createNestedCollectionType(messageType, index, originalMapValueDescriptor, "nested collection in map value")
+    } else {
+        TypeDefinition(originalMapValueDescriptor)
     }
+    val valueDescriptor = valueType.descriptor
 
-    if (!mapDescriptor.isNullable && messageDescriptor.isElementOptional(index)) {
-        builder.appendLine("  // WARNING: This field does not support empty map")
-        builder.appendLine("  //  An absence value is decoded as a default value that is not present in the schema")
-    } else if (mapDescriptor.isNullable && !messageDescriptor.isElementOptional(index)) {
-        builder.appendLine("  // WARNING: This field is marked as nullable but it does not support null values")
-    } else if (mapDescriptor.isNullable && messageDescriptor.isElementOptional(index)) {
-        builder.appendLine("  // WARNING: This field is marked as nullable and has a default value but it does not support null values and empty map")
-        builder.appendLine("  //  An absence value is decoded as a default value that is not present in the schema")
+    if (originalMapValueDescriptor.isNullable) {
+        appendLine("  // WARNING: nullable map values can not be represented in protobuf")
     }
+    generateCollectionAbsenceComment(messageDescriptor, mapDescriptor, index)
 
-    builder.append("  map<")
-    builder.append(mapDescriptor.getElementDescriptor(0).scalarTypeName(mapDescriptor.getElementAnnotations(0)))
-    builder.append(", ")
-    builder.append(valueDescriptor.protobufTypeName(mapDescriptor.getElementAnnotations(1)))
-    builder.append(">")
+    val keyTypeName = mapDescriptor.getElementDescriptor(0).scalarTypeName(mapDescriptor.getElementAnnotations(0))
+    val valueTypeName = valueDescriptor.protobufTypeName(mapDescriptor.getElementAnnotations(1))
+    append("  map<").append(keyTypeName).append(", ").append(valueTypeName).append(">")
 
     return if (valueDescriptor.isProtobufMessageOrEnum) {
-        listOf(valueDescriptor)
+        listOf(valueType)
     } else {
         emptyList()
     }
 }
 
-private fun generateListType(
-    messageDescriptor: SerialDescriptor,
-    index: Int,
-    builder: StringBuilder
-): List<SerialDescriptor> {
+private fun StringBuilder.generateListType(messageType: TypeDefinition, index: Int): List<TypeDefinition> {
+    val messageDescriptor = messageType.descriptor
     val collectionDescriptor = messageDescriptor.getElementDescriptor(index)
-    val fieldName = messageDescriptor.getElementName(index)
-
-    val elementDescriptor = if (collectionDescriptor.kind == StructureKind.LIST) {
-        collectionDescriptor.getElementDescriptor(0).let {
-            if (it.isProtobufCollection) {
-                if (it.isNullable) {
-                    builder.appendLine("  // WARNING: null value is not supported for nested collections")
-                }
-                val wrapperName = "${messageDescriptor.messageOrEnumName}_${fieldName}"
-                buildClassSerialDescriptor(wrapperName) {
-                    element("value", it)
-                }
-            } else {
-                if (it.isNullable) {
-                    builder.appendLine("  // WARNING: null value is not supported for list elements")
-                }
-                it
-            }
+    val originalElementDescriptor = collectionDescriptor.getElementDescriptor(0)
+    val elementType = if (collectionDescriptor.kind == StructureKind.LIST) {
+        if (originalElementDescriptor.isProtobufCollection) {
+            createNestedCollectionType(messageType, index, originalElementDescriptor, "nested collection in list")
+        } else {
+            TypeDefinition(originalElementDescriptor)
         }
     } else {
-        val wrapperName = "${messageDescriptor.messageOrEnumName}_${fieldName}"
-        buildClassSerialDescriptor(wrapperName) {
-            element("key", collectionDescriptor.getElementDescriptor(0))
-            element("value", collectionDescriptor.getElementDescriptor(1))
-        }
+        createLegacyMapType(messageType, index, "legacy map")
     }
 
-    if (!collectionDescriptor.isNullable && messageDescriptor.isElementOptional(index)) {
-        builder.appendLine("  // WARNING: This field does not support empty list")
-        builder.appendLine("  //  An absence value is decoded as a default value that is not present in the schema")
-    } else if (collectionDescriptor.isNullable && !messageDescriptor.isElementOptional(index)) {
-        builder.appendLine("  // WARNING: This field is marked as nullable but it does not support null values")
-    } else if (collectionDescriptor.isNullable && messageDescriptor.isElementOptional(index)) {
-        builder.appendLine("  // WARNING: This field is marked as nullable and has a default value but it does not support null values and empty list")
-        builder.appendLine("  //  An absence value is decoded as a default value that is not present in the schema")
+    val elementDescriptor = elementType.descriptor
+
+    if (elementDescriptor.isNullable) {
+        appendLine("  // WARNING: nullable elements of collections can not be represented in protobuf")
     }
+    generateCollectionAbsenceComment(messageDescriptor, collectionDescriptor, index)
 
     val typeName = elementDescriptor.protobufTypeName(messageDescriptor.getElementAnnotations(index))
-    builder.append("  repeated ").append(typeName)
+    append("  repeated ").append(typeName)
 
     return if (elementDescriptor.isProtobufMessageOrEnum) {
-        listOf(elementDescriptor)
+        listOf(elementType)
     } else {
         emptyList()
     }
 }
 
-private fun generateEnum(
-    enum: SerialDescriptor,
-    builder: StringBuilder
-) {
-    val enumName = enum.messageOrEnumName
-    if (!enumName.isProtobufIdent) {
-        throw IllegalArgumentException("Invalid name for the message in protobuf scheme '$enumName'. Serial name of the class '${enum.serialName}'")
+private fun StringBuilder.generateEnum(enumType: TypeDefinition) {
+    val enumDescriptor = enumType.descriptor
+    val enumName = enumDescriptor.messageOrEnumName
+    enumName.checkIsValidIdentifier {
+        "Invalid name for the enum in protobuf schema '$enumName'. Serial name of the enum " +
+                "class '${enumDescriptor.serialName}'"
     }
-    builder.append("// serial name '").append(enum.serialName).appendLine('\'')
-    builder.append("enum ").append(enumName).appendLine(" {")
+    val safeSerialName = removeLineBreaks(enumDescriptor.serialName)
+    if (safeSerialName != enumName) {
+        append("// serial name '").append(enumName).appendLine('\'')
+    }
 
-    enum.elementDescriptors.forEachIndexed { number, element ->
+    append("enum ").append(enumName).appendLine(" {")
+
+    enumDescriptor.elementDescriptors.forEachIndexed { number, element ->
         val elementName = element.protobufEnumElementName
-        if (!elementName.isProtobufIdent) {
-            throw IllegalArgumentException("The element name '$elementName' is invalid in the protobuf schema")
+        elementName.checkIsValidIdentifier {
+            "The enum element name '$elementName' is invalid in the " +
+                    "protobuf schema. Serial name of the enum class '${enumDescriptor.serialName}'"
         }
-        builder.append("  ").append(elementName).append(" = ").append(number).appendLine(';')
+        append("  ").append(elementName).append(" = ").append(number).appendLine(';')
     }
-    builder.appendLine('}')
+    appendLine('}')
 }
 
 private val SerialDescriptor.isOpenPolymorphic: Boolean
@@ -356,7 +334,7 @@ private val SerialDescriptor.isValidMapKey: Boolean
 
 
 private val SerialDescriptor.messageOrEnumName: String
-    get() = serialName.substringAfterLast('.', serialName)
+    get() = (serialName.substringAfterLast('.', serialName)).removeSuffix("?")
 
 private fun SerialDescriptor.protobufTypeName(annotations: List<Annotation> = emptyList()): String {
     return if (isProtobufScalar) {
@@ -400,14 +378,109 @@ private fun SerialDescriptor.scalarTypeName(annotations: List<Annotation> = empt
     }
 }
 
+private data class TypeDefinition(
+    val descriptor: SerialDescriptor,
+    val isSynthetic: Boolean = false,
+    val ability: String? = null,
+    val containingMessageName: String? = null,
+    val fieldName: String? = null
+)
+
+private val SyntheticPolymorphicType = TypeDefinition(
+    buildClassSerialDescriptor("KotlinxSerializationPolymorphic") {
+        element("type", PrimitiveSerialDescriptor("typeDescriptor", PrimitiveKind.STRING))
+        element("value", buildSerialDescriptor("valueDescriptor", StructureKind.LIST) {
+            element<Byte>("0")
+        })
+    },
+    true,
+    "polymorphic types"
+)
+
+private class NotNullSerialDescriptor(val original: SerialDescriptor) : SerialDescriptor by original {
+    override val isNullable = false
+}
+
+private val SerialDescriptor.notNull get() = NotNullSerialDescriptor(this)
+
+private fun StringBuilder.generateCollectionAbsenceComment(
+    messageDescriptor: SerialDescriptor,
+    collectionDescriptor: SerialDescriptor,
+    index: Int
+) {
+    if (!collectionDescriptor.isNullable && messageDescriptor.isElementOptional(index)) {
+        appendLine("  // WARNING: a default value decoded when value is missing")
+    } else if (collectionDescriptor.isNullable && !messageDescriptor.isElementOptional(index)) {
+        appendLine("  // WARNING: an empty collection decoded when a value is missing")
+    } else if (collectionDescriptor.isNullable && messageDescriptor.isElementOptional(index)) {
+        appendLine("  // WARNING: a default value decoded when value is missing")
+    }
+}
+
+private fun createLegacyMapType(
+    messageType: TypeDefinition,
+    index: Int,
+    description: String
+): TypeDefinition {
+    val messageDescriptor = messageType.descriptor
+    val fieldDescriptor = messageDescriptor.getElementDescriptor(index)
+    val fieldName = messageDescriptor.getElementName(index)
+    val messageName = messageDescriptor.messageOrEnumName
+
+    val wrapperName = "${messageName}_${fieldName}"
+    val wrapperDescriptor = buildClassSerialDescriptor(wrapperName) {
+        element("key", fieldDescriptor.getElementDescriptor(0).notNull)
+        element("value", fieldDescriptor.getElementDescriptor(1).notNull)
+    }
+
+    return TypeDefinition(
+        wrapperDescriptor,
+        true,
+        description,
+        messageType.containingMessageName ?: messageName,
+        messageType.fieldName ?: fieldName
+    )
+}
+
+private fun createNestedCollectionType(
+    messageType: TypeDefinition,
+    index: Int,
+    elementDescriptor: SerialDescriptor,
+    description: String
+): TypeDefinition {
+    val messageDescriptor = messageType.descriptor
+    val fieldName = messageDescriptor.getElementName(index)
+    val messageName = messageDescriptor.messageOrEnumName
+
+    val wrapperName = "${messageName}_${fieldName}"
+    val wrapperDescriptor = buildClassSerialDescriptor(wrapperName) {
+        element("value", elementDescriptor.notNull)
+    }
+
+    return TypeDefinition(
+        wrapperDescriptor,
+        true,
+        description,
+        messageType.containingMessageName ?: messageName,
+        messageType.fieldName ?: fieldName
+    )
+}
+
 private fun removeLineBreaks(text: String): String {
     return text.replace('\n', ' ').replace('\r', ' ')
 }
 
 @SharedImmutable
-private val IDENT_REGEX = Regex("[A-Za-z][A-Za-z0-9_]*")
+private val IDENTIFIER_REGEX = Regex("[A-Za-z][A-Za-z0-9_]*")
 
-private val String.isProtobufFullIdent: Boolean
-    get() = split('.').all { it.isProtobufIdent }
+private fun String.checkIsValidFullIdentifier(messageSupplier: (String) -> String) {
+    if (split('.').any { !it.matches(IDENTIFIER_REGEX) }) {
+        throw IllegalArgumentException(messageSupplier.invoke(this))
+    }
+}
 
-private val String.isProtobufIdent: Boolean get() = matches(IDENT_REGEX)
+private fun String.checkIsValidIdentifier(messageSupplier: () -> String) {
+    if (!matches(IDENTIFIER_REGEX)) {
+        throw IllegalArgumentException(messageSupplier.invoke())
+    }
+}

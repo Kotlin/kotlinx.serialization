@@ -15,7 +15,6 @@ message OptionsClass {
   required int32 i = 1;
 }
 
-// serial name 'OverriddenEnumName'
 enum OverriddenEnumName {
   FIRST = 0;
   OverriddenElementName = 1;
