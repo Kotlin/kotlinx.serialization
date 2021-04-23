@@ -1,13 +1,15 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class SealedClassesSerializationTest : JsonTestBase() {
@@ -246,5 +248,13 @@ class SealedClassesSerializationTest : JsonTestBase() {
             }
         }
         assertJsonFormAndRestored(ListSerializer(ProtocolWithGenericClass.serializer()), messages, expected, json)
+    }
+
+    @Test
+    fun testSerializerLookupForSealedClass() {
+        // This would be fixed in plugin in 1.5.20
+        if (currentPlatform != Platform.JVM) return
+        val resSer = serializer<SealedProtocol>()
+        assertEquals(SealedProtocol::class, (resSer as AbstractPolymorphicSerializer).baseClass)
     }
 }
