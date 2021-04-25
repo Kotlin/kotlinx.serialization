@@ -14,13 +14,13 @@ import kotlinx.serialization.protobuf.*
  * An arbitrary Kotlin class represent much wider object domain than the ProtoBuf specification, thus schema generator
  * has the following list of restrictions:
  *
- *  * Serial name of the class and all its field should be a valid Proto [identifier](https://developers.google.com/protocol-buffers/docs/reference/proto2-spec)
+ *  * Serial name of the class and all its fields should be a valid Proto [identifier](https://developers.google.com/protocol-buffers/docs/reference/proto2-spec)
  *  * Nullable values are allowed only for Kotlin [nullable][SerialDescriptor.isNullable] types
  *  * [SerialName] of the type uniquely identifies the proto message type and two or more fields with the same serial name
  *    are considered to have the same type.
  *  * Nested collections, e.g. `List<List<Int>>` are represented using the artificial wrapper message in order to distinguish
  *    repeated fields boundaries.
- *  * Default Kotlin values are nto representable in proto schema. A special commentary is generated for properties with default values.
+ *  * Default Kotlin values are not representable in proto schema. A special commentary is generated for properties with default values.
  *  * Empty nullable collections are not supported by the generated schema and will be prohibited in [ProtoBuf] as well
  *    due to their ambiguous nature.
  *
@@ -42,8 +42,8 @@ public object ProtoBufSchemaGenerator {
      * The resulting schema will contain all types referred by [rootDescriptor].
      *
      * [packageName] define common protobuf package for all messages and enum in the schema, it may contain `'a'`..`'z'`
-     * letters in upper and lower case, decimal digits, `'.'` or `'_'` chars, but started only from a letter and
-     * not finished by dot.
+     * letters in upper and lower case, decimal digits, `'.'` or `'_'` chars, but must be started only by a letter and
+     * not finished by a dot.
      *
      * [options] define values for protobuf options. Option value (map value) is an any string, option name (map key)
      * should be the same format as [packageName].
