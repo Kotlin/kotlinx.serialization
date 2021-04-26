@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+package kotlinx.serialization.protobuf.schema.generator;
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.AbstractHolder'
+message AbstractHolder {
+  required KotlinxSerializationPolymorphic abs = 1;
+}
+
+// This message was generated to support polymorphic types and does not present in Kotlin.
+message KotlinxSerializationPolymorphic {
+  required string type = 1;
+  required bytes value = 2;
+}

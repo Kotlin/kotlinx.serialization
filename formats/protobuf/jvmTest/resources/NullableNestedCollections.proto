@@ -1,0 +1,46 @@
+syntax = "proto2";
+
+package kotlinx.serialization.protobuf.schema.generator;
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.NullableNestedCollections'
+message NullableNestedCollections {
+  repeated NullableNestedCollections_nullableIntList nullableIntList = 1;
+  // WARNING: nullable map values can not be represented in protobuf
+  map<string, NullableNestedCollections_nullableIntMap> nullableIntMap = 2;
+  map<string, NullableNestedCollections_intMap> intMap = 3;
+  repeated NullableNestedCollections_intList intList = 4;
+  repeated NullableNestedCollections_legacyMap legacyMap = 5;
+}
+
+// This message was generated to support nested collection in list and does not present in Kotlin.
+// Containing message 'NullableNestedCollections', field 'nullableIntList'
+message NullableNestedCollections_nullableIntList {
+  repeated int32 value = 1;
+}
+
+// This message was generated to support nested collection in map value and does not present in Kotlin.
+// Containing message 'NullableNestedCollections', field 'nullableIntMap'
+message NullableNestedCollections_nullableIntMap {
+  repeated int32 value = 1;
+}
+
+// This message was generated to support nested collection in map value and does not present in Kotlin.
+// Containing message 'NullableNestedCollections', field 'intMap'
+message NullableNestedCollections_intMap {
+  // WARNING: nullable elements of collections can not be represented in protobuf
+  repeated int32 value = 1;
+}
+
+// This message was generated to support nested collection in list and does not present in Kotlin.
+// Containing message 'NullableNestedCollections', field 'intList'
+message NullableNestedCollections_intList {
+  // WARNING: nullable elements of collections can not be represented in protobuf
+  repeated int32 value = 1;
+}
+
+// This message was generated to support legacy map and does not present in Kotlin.
+// Containing message 'NullableNestedCollections', field 'legacyMap'
+message NullableNestedCollections_legacyMap {
+  repeated int32 key = 1;
+  repeated int32 value = 2;
+}
