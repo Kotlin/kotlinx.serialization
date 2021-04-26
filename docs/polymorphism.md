@@ -155,7 +155,10 @@ A `type` key is added to the resulting JSON object as a _discriminator_.
 
 ```text 
 {"type":"example.examplePoly04.OwnedProject","name":"kotlinx.coroutines","owner":"kotlin"}
-```                  
+```
+
+Note that `type` key appears only if static type of variable is a Project (`val data: Project`),
+as explained in [Static types](#static-types) section.
 
 <!--- TEST -->
 
