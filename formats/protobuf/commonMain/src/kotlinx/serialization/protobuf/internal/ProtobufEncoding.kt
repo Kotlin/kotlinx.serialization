@@ -32,7 +32,7 @@ internal open class ProtobufEncoder(
             if (tag == MISSING_TAG) {
                 writer.writeInt(collectionSize)
             }
-            if (tag != MISSING_TAG && this.descriptor != descriptor && (this.descriptor.kind == StructureKind.LIST)) {
+            if (this.descriptor.kind == StructureKind.LIST && tag != MISSING_TAG && this.descriptor != descriptor) {
                 NestedRepeatedEncoder(proto, writer, tag, descriptor)
             } else {
                 RepeatedEncoder(proto, writer, tag, descriptor)
@@ -189,7 +189,7 @@ private class NestedRepeatedEncoder(
     descriptor: SerialDescriptor,
     @JvmField val stream: ByteArrayOutput = ByteArrayOutput()
 ) : ProtobufEncoder(proto, ProtobufWriter(stream), descriptor) {
-    // all elements are always has id = 1
+    // all elements always have id = 1
     override fun SerialDescriptor.getTag(index: Int) = ProtoDesc(1, ProtoIntegerType.DEFAULT)
 
     override fun endEncode(descriptor: SerialDescriptor) {

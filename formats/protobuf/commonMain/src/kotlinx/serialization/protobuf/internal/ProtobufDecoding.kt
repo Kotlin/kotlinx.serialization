@@ -16,10 +16,6 @@ import kotlinx.serialization.modules.*
 import kotlinx.serialization.protobuf.*
 import kotlin.jvm.*
 
-private const val FILLED_OR_DEFAULT: Byte = 0
-private const val ABSENCE_IS_NULL: Byte = 1
-private const val ABSENCE_IS_EMPTY_COLLECTION: Byte = 2
-
 internal open class ProtobufDecoder(
     @JvmField protected val proto: ProtoBuf,
     @JvmField protected val reader: ProtobufReader,
@@ -32,34 +28,44 @@ internal open class ProtobufDecoder(
     private var indexCache: IntArray? = null
     private var sparseIndexCache: MutableMap<Int, Int>? = null
 
-    private var absentsCache: ByteArray = createAbsenceCache(descriptor) //TODO or better to have two boolean arrays?
-    private var currentAbsenceMode: Byte = FILLED_OR_DEFAULT
+    /*
+    Element decoding marks from given bytes.
+    The element number is the same as the bit position.
+    Marks for the lowest 64 elements always stores in single Long value, higher elements stores in long array.
+     */
+    private var lowerReadMark: Long = 0
+    private val highReadMarks: LongArray?
+
+    private var valueIsNull: Boolean = false
 
     init {
+        highReadMarks = prepareReadMarks(descriptor)
         populateCache(descriptor)
     }
 
-    private fun createAbsenceCache(descriptor: SerialDescriptor): ByteArray {
-        val elements = descriptor.elementsCount
-        val cache = ByteArray(elements)
-        if (elements < 32) {
-            for (i in 0 until elements) {
-                val elementDescriptor = descriptor.getElementDescriptor(i)
-                cache[i] = if (descriptor.isElementOptional(i)) {
-                    // optional field, plugin substitutes the default value if the read value is absent
-                    FILLED_OR_DEFAULT
-                } else if (elementDescriptor.kind == StructureKind.MAP || elementDescriptor.kind == StructureKind.LIST) {
-                    ABSENCE_IS_EMPTY_COLLECTION
-                } else if (elementDescriptor.isNullable) {
-                    ABSENCE_IS_NULL
-                } else {
-                    // required field, always filled in valid case
-                    FILLED_OR_DEFAULT
-                }
+    private fun prepareReadMarks(descriptor: SerialDescriptor): LongArray? {
+        val elementsCount = descriptor.elementsCount
+        return if (elementsCount <= Long.SIZE_BITS) {
+            lowerReadMark = if (elementsCount == Long.SIZE_BITS) {
+                // number og bits in the mark is equal to the number of fields
+                0
+            } else {
+                // (1 - elementsCount) bits are always 1 since there are no fields for them
+                -1L shl elementsCount
             }
+            null
+        } else {
+            // (elementsCount - 1) because only one Long value is needed to store 64 fields etc
+            val slotsCount = (elementsCount - 1) / Long.SIZE_BITS
+            val elementsInLastSlot = elementsCount % Long.SIZE_BITS
+            val highReadMarks = LongArray(slotsCount)
+            // (elementsCount % Long.SIZE_BITS) == 0 this means that the fields occupy all bits in mark
+            if (elementsInLastSlot != 0) {
+                // all marks except the higher are always 0
+                highReadMarks[highReadMarks.lastIndex] = -1L shl elementsCount
+            }
+            highReadMarks
         }
-
-        return cache
     }
 
     public fun populateCache(descriptor: SerialDescriptor) {
@@ -129,11 +135,11 @@ internal open class ProtobufDecoder(
         return when (descriptor.kind) {
             StructureKind.LIST -> {
                 val tag = currentTagOrDefault
-                return if (tag != MISSING_TAG && this.descriptor != descriptor && this.descriptor.kind == StructureKind.LIST) {
+                return if (this.descriptor.kind == StructureKind.LIST && tag != MISSING_TAG && this.descriptor != descriptor) {
                     val reader = makeDelimited(reader, tag)
                     // repeated decoder expects the first tag to be read already
                     reader.readTag()
-                    // all elements are always has id = 1
+                    // all elements always have id = 1
                     RepeatedDecoder(proto, reader, ProtoDesc(1, ProtoIntegerType.DEFAULT), descriptor)
                 } else {
                     RepeatedDecoder(proto, reader, tag, descriptor)
@@ -241,31 +247,97 @@ internal open class ProtobufDecoder(
 
     override fun SerialDescriptor.getTag(index: Int) = extractParameters(index)
 
+    private fun findUnreadElementIndex(): Int {
+        val elementsCount = descriptor.elementsCount
+        while (lowerReadMark != -1L) {
+            val index = lowerReadMark.inv().countTrailingZeroBits()
+            lowerReadMark = lowerReadMark or (1L shl index)
+
+            if (!descriptor.isElementOptional(index)) {
+                val elementDescriptor = descriptor.getElementDescriptor(index)
+                val kind = elementDescriptor.kind
+                if (kind == StructureKind.MAP || kind == StructureKind.LIST) {
+                    return index
+                } else if (elementDescriptor.isNullable) {
+                    valueIsNull = true
+                    return index
+                }
+            }
+        }
+
+        if (elementsCount > Long.SIZE_BITS) {
+            val higherMarks = highReadMarks!!
+
+            for (slot in higherMarks.indices) {
+                // (slot + 1) because first element in high marks has index 64
+                val slotOffset = (slot + 1) * Long.SIZE_BITS
+                // store in a variable so as not to frequently use the array
+                var mark = higherMarks[slot]
+
+                while (mark != -1L) {
+                    val indexInSlot = mark.inv().countTrailingZeroBits()
+                    mark = mark or (1L shl indexInSlot)
+
+                    val index = slotOffset + indexInSlot
+                    if (!descriptor.isElementOptional(index)) {
+                        val elementDescriptor = descriptor.getElementDescriptor(index)
+                        val kind = elementDescriptor.kind
+                        if (kind == StructureKind.MAP || kind == StructureKind.LIST) {
+                            higherMarks[slot] = mark
+                            return index
+                        } else if (elementDescriptor.isNullable) {
+                            higherMarks[slot] = mark
+                            valueIsNull = true
+                            return index
+                        }
+                    }
+                }
+
+                higherMarks[slot] = mark
+            }
+            return -1
+        }
+        return -1
+    }
+
+    private fun markElementAsRead(index: Int) {
+        if (index < Long.SIZE_BITS) {
+            lowerReadMark = lowerReadMark or (1L shl index)
+        } else {
+            val slot = (index / Long.SIZE_BITS) - 1
+            val offsetInSlot = index % Long.SIZE_BITS
+            highReadMarks!![slot] = highReadMarks[slot] or (1L shl offsetInSlot)
+        }
+    }
+
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         while (true) {
             val protoId = reader.readTag()
             if (protoId == -1) { // EOF
-                for (i in 0 until descriptor.elementsCount) {
-                    currentAbsenceMode = absentsCache[i]
-                    if (currentAbsenceMode != FILLED_OR_DEFAULT) {
-                        absentsCache[i] = FILLED_OR_DEFAULT
-                        return i
-                    }
+                val absenceIndex = findUnreadElementIndex()
+                return if (absenceIndex == -1) {
+                    CompositeDecoder.DECODE_DONE
+                } else {
+                    absenceIndex
                 }
-                return CompositeDecoder.DECODE_DONE
             }
             val index = getIndexByTag(protoId)
             if (index == -1) { // not found
                 reader.skipElement()
             } else {
-                absentsCache[index] = FILLED_OR_DEFAULT
+                markElementAsRead(index)
                 return index
             }
         }
     }
 
     override fun decodeNotNullMark(): Boolean {
-        return currentAbsenceMode != ABSENCE_IS_NULL
+        return if (valueIsNull) {
+            valueIsNull = false
+            false
+        } else {
+            true
+        }
     }
 }
 

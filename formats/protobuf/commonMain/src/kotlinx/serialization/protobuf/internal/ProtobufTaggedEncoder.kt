@@ -10,7 +10,13 @@ import kotlinx.serialization.encoding.*
 
 @OptIn(ExperimentalSerializationApi::class)
 internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, CompositeEncoder {
-    private var nullIsAcceptable: Boolean = false
+    private enum class NullableMode {
+        ACCEPTABLE,
+        OPTIONAL,
+        COLLECTION,
+        NOT_NULL
+    }
+    private var nullableMode: NullableMode = NullableMode.NOT_NULL
 
     protected abstract fun SerialDescriptor.getTag(index: Int): ProtoDesc
 
@@ -28,8 +34,14 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
     protected open fun encodeTaggedInline(tag: ProtoDesc, inlineDescriptor: SerialDescriptor): Encoder = this.apply { pushTag(tag) }
 
     public final override fun encodeNull() {
-        if (!nullIsAcceptable) {
-            throw SerializationException("'null' is not supported in ProtoBuf")
+        if (nullableMode != NullableMode.ACCEPTABLE) {
+            val message = when (nullableMode) {
+                NullableMode.OPTIONAL -> "'null' is not supported for optional properties in ProtoBuf"
+                NullableMode.COLLECTION -> "'null' is not supported for collection types in ProtoBuf"
+                NullableMode.NOT_NULL -> "'null' is not allowed for not-null properties"
+                else -> "'null' is not supported in ProtoBuf";
+            }
+            throw SerializationException(message)
         }
     }
 
@@ -117,7 +129,7 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
         serializer: SerializationStrategy<T>,
         value: T
     ) {
-        nullIsAcceptable = false
+        nullableMode = NullableMode.NOT_NULL
 
         pushTag(descriptor.getTag(index))
         encodeSerializableValue(serializer, value)
@@ -130,8 +142,13 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
         value: T?
     ) {
         val elementKind = descriptor.getElementDescriptor(index).kind
-        nullIsAcceptable =
-            !descriptor.isElementOptional(index) && elementKind != StructureKind.MAP && elementKind != StructureKind.LIST
+        nullableMode = if (descriptor.isElementOptional(index)) {
+            NullableMode.OPTIONAL
+        } else if (elementKind == StructureKind.MAP || elementKind == StructureKind.LIST) {
+            NullableMode.COLLECTION
+        } else {
+            NullableMode.ACCEPTABLE
+        }
 
         pushTag(descriptor.getTag(index))
         encodeNullableSerializableValue(serializer, value)
