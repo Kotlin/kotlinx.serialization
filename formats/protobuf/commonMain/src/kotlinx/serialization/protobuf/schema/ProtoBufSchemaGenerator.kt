@@ -15,16 +15,18 @@ import kotlinx.serialization.protobuf.*
  * has the following list of restrictions:
  *
  *  * Serial name of the class and all its fields should be a valid Proto [identifier](https://developers.google.com/protocol-buffers/docs/reference/proto2-spec)
- *  * Nullable values are allowed only for Kotlin [nullable][SerialDescriptor.isNullable] types
- *  * [SerialName] of the type uniquely identifies the proto message type and two or more fields with the same serial name
- *    are considered to have the same type.
+ *  * Nullable values are allowed only for Kotlin [nullable][SerialDescriptor.isNullable] types, but not [optional][SerialDescriptor.isElementOptional]
+ *    in order to properly distinguish "default" and "absent" values.
+ *  * The name of the type without the package directive uniquely identifies the proto message type and two or more fields with the same serial name
+ *    are considered to have the same type. Schema generator allows to specify a separate package directive for the pack of classes in order
+ *    to mitigate this limitation.
  *  * Nested collections, e.g. `List<List<Int>>` are represented using the artificial wrapper message in order to distinguish
  *    repeated fields boundaries.
  *  * Default Kotlin values are not representable in proto schema. A special commentary is generated for properties with default values.
  *  * Empty nullable collections are not supported by the generated schema and will be prohibited in [ProtoBuf] as well
  *    due to their ambiguous nature.
  *
- * Temporary limitation:
+ * Temporary restrictions:
  *  * [Contextual] data is represented as as `bytes` type
  *  * [Polymorphic] data is represented as a artificial `KotlinxSerializationPolymorphic` message.
  *
