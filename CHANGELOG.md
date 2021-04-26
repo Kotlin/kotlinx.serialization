@@ -8,9 +8,9 @@ Kotlin 1.5.0 is used as a default compiler and language version.
 
 JSON encoder and decoder were revisited and significantly rewritten,
 which lead us to up to 2-3x times speedup in certain cases.
-Additional details can be found in the corresponding issues: [[1]](https://github.com/Kotlin/kotlinx.serialization/pull/1343), [[2]](https://github.com/Kotlin/kotlinx.serialization/pull/1354)
+Additional details can be found in the corresponding issues: [[1]](https://github.com/Kotlin/kotlinx.serialization/pull/1343), [[2]](https://github.com/Kotlin/kotlinx.serialization/pull/1354).
 
-### Ability to specify alternative names during JSON decoding.
+### Ability to specify alternative names during JSON decoding
 
 [The one of the most voted issues](https://github.com/Kotlin/kotlinx.serialization/issues/203) is fixed now — it is possible to specify multiple names for one property
 using new `@JsonNames` annotation.
@@ -33,7 +33,7 @@ classes as a source of truth and use traditional protoc compilers for other lang
 To learn more, check out the documentation for the new `ProtoBufSchemaGenerator` class or
 visit the [corresponding PR](https://github.com/Kotlin/kotlinx.serialization/pull/1255).
 
->Note: this generator is on its experimental stage and any feedback is very welcomed
+>Note: this generator is on its experimental stage and any feedback is very welcomed.
 
 ### Contextual serialization of generic classes
 
@@ -44,16 +44,16 @@ out of its type arguments serializers. See the details in the [documentation](ht
 
 ### Other features
 
-  * Support for watchosX64 target (#1366)
-  * Introduce kotlinx-serialization-bom (#1356)
-  * Support serializer<T> on JS IR when T is an interface (#1431)
+  * Support for watchosX64 target (#1366).
+  * Introduce kotlinx-serialization-bom (#1356).
+  * Support serializer<T> on JS IR when T is an interface (#1431).
 
 ### Bugfixes
 
-  * Fix serializer lookup by KType for third party classes (#1397) (thanks to [mvdbos](https://github.com/mvdbos))
-  * Fix inability to encode/decode inline class with string to JsonElement (#1408)
-  * Throw SerializationException instead of AIOB in ProtoBuf (#1373)
-  * Fix numeric overflow in JsonLexer (#1367) (thanks to [EdwarDDay](https://github.com/EdwarDDay))
+  * Fix serializer lookup by KType for third party classes (#1397) (thanks to [mvdbos](https://github.com/mvdbos)).
+  * Fix inability to encode/decode inline class with string to JsonElement (#1408).
+  * Throw SerializationException instead of AIOB in ProtoBuf (#1373).
+  * Fix numeric overflow in JsonLexer (#1367) (thanks to [EdwarDDay](https://github.com/EdwarDDay)).
 
 
 1.1.0 / 2021-02-17
