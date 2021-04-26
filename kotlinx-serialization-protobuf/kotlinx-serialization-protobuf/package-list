@@ -2,4 +2,5 @@ $dokka.format:html-v1
 $dokka.linkExtension:html
 
 kotlinx.serialization.protobuf
+kotlinx.serialization.protobuf.schema
 
