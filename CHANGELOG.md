@@ -2,25 +2,24 @@
 ==================
 
 This release contains a lot of new features and important improvements listed below;
-it also uses Kotlin 1.5.0 as a default.
+Kotlin 1.5.0 is used as a default compiler and language version.
 
 ### JSON performance improvements
 
-In this release, JSON encoder and decoder were revisited and significantly rewritten,
+JSON encoder and decoder were revisited and significantly rewritten,
 which lead us to up to 2-3x times speedup in certain cases.
-This feature, of course, does not need documentation, but you can visit PRs
-([1](https://github.com/Kotlin/kotlinx.serialization/pull/1343), [2](https://github.com/Kotlin/kotlinx.serialization/pull/1354)) if you are interested.
+Additional details can be found in the corresponding issues: [[1]](https://github.com/Kotlin/kotlinx.serialization/pull/1343), [[2]](https://github.com/Kotlin/kotlinx.serialization/pull/1354)
 
-### Ability to specify alternative names during JSON decoding
+### Ability to specify alternative names during JSON decoding.
 
-[The one of the most voted issues](https://github.com/Kotlin/kotlinx.serialization/issues/203) is fixed now — you can specify multiple names for one property
+[The one of the most voted issues](https://github.com/Kotlin/kotlinx.serialization/issues/203) is fixed now — it is possible to specify multiple names for one property
 using new `@JsonNames` annotation.
 Unlike `@SerialName`, it only affects JSON decoding, so it is useful when dealing with different versions of the API.
 We've prepared a [documentation](https://github.com/Kotlin/kotlinx.serialization/blob/dev/docs/json.md#alternative-json-names) for you about it.
 
-### JsonConfiguration is public now
+### JsonConfiguration in public API
 
-And exposed as a property of Json instance. You can use it to adjust behavior in
+`JsonConfiguration` is exposed as a property of `Json` instance. You can use it to adjust behavior in
 your [custom serializers](https://github.com/Kotlin/kotlinx.serialization/blob/dev/docs/json.md#maintaining-custom-json-attributes).
 Check out more in the corresponding [issue](https://github.com/Kotlin/kotlinx.serialization/issues/1361) and the [PR](https://github.com/Kotlin/kotlinx.serialization/pull/1409).
 
@@ -28,20 +27,22 @@ Check out more in the corresponding [issue](https://github.com/Kotlin/kotlinx.se
 
 Our implementation of Protocol Buffers format uses `@Serializable` Kotlin classes as a source of schema.
 This is very convenient for Kotlin-to-Kotlin communication, but makes interoperability between languages complicated.
-To solve this [issue](https://github.com/Kotlin/kotlinx.serialization/issues/34), we now have a
+To resolve this [issue](https://github.com/Kotlin/kotlinx.serialization/issues/34), we now have a
 schema generator that can produce .proto files out of Kotlin classes. Using it, you can keep Kotlin
 classes as a source of truth and use traditional protoc compilers for other languages at the same time.
 To learn more, check out the documentation for the new `ProtoBufSchemaGenerator` class or
 visit the [corresponding PR](https://github.com/Kotlin/kotlinx.serialization/pull/1255).
 
+>Note: this generator is on its experimental stage and any feedback is very welcomed
+
 ### Contextual serialization of generic classes
 
 Before 1.2.0, it was [impossible](https://github.com/Kotlin/kotlinx.serialization/issues/1407) to register context serializer for generic class,
 because `contextual` function accepted a single serializer.
-Now you may register a provider — lambda that allows to construct a serializer for generic class
+Now it is possible to register a provider — lambda that allows to construct a serializer for generic class
 out of its type arguments serializers. See the details in the [documentation](https://github.com/Kotlin/kotlinx.serialization/blob/dev/docs/serializers.md#contextual-serialization-and-generic-classes).
 
-### Other features, that aren't less important
+### Other features
 
   * Support for watchosX64 target (#1366)
   * Introduce kotlinx-serialization-bom (#1356)
