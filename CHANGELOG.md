@@ -1,3 +1,60 @@
+1.2.0 / 2021-04-27
+==================
+
+This release contains a lot of new features and important improvements listed below;
+Kotlin 1.5.0 is used as a default compiler and language version.
+
+### JSON performance improvements
+
+JSON encoder and decoder were revisited and significantly rewritten,
+which lead us to up to 2-3x times speedup in certain cases.
+Additional details can be found in the corresponding issues: [[1]](https://github.com/Kotlin/kotlinx.serialization/pull/1343), [[2]](https://github.com/Kotlin/kotlinx.serialization/pull/1354).
+
+### Ability to specify alternative names during JSON decoding
+
+[The one of the most voted issues](https://github.com/Kotlin/kotlinx.serialization/issues/203) is fixed now — it is possible to specify multiple names for one property
+using new `@JsonNames` annotation.
+Unlike `@SerialName`, it only affects JSON decoding, so it is useful when dealing with different versions of the API.
+We've prepared a [documentation](https://github.com/Kotlin/kotlinx.serialization/blob/dev/docs/json.md#alternative-json-names) for you about it.
+
+### JsonConfiguration in public API
+
+`JsonConfiguration` is exposed as a property of `Json` instance. You can use it to adjust behavior in
+your [custom serializers](https://github.com/Kotlin/kotlinx.serialization/blob/dev/docs/json.md#maintaining-custom-json-attributes).
+Check out more in the corresponding [issue](https://github.com/Kotlin/kotlinx.serialization/issues/1361) and the [PR](https://github.com/Kotlin/kotlinx.serialization/pull/1409).
+
+### Generator for .proto files based on serializable Kotlin classes
+
+Our implementation of Protocol Buffers format uses `@Serializable` Kotlin classes as a source of schema.
+This is very convenient for Kotlin-to-Kotlin communication, but makes interoperability between languages complicated.
+To resolve this [issue](https://github.com/Kotlin/kotlinx.serialization/issues/34), we now have a
+schema generator that can produce .proto files out of Kotlin classes. Using it, you can keep Kotlin
+classes as a source of truth and use traditional protoc compilers for other languages at the same time.
+To learn more, check out the documentation for the new `ProtoBufSchemaGenerator` class or
+visit the [corresponding PR](https://github.com/Kotlin/kotlinx.serialization/pull/1255).
+
+>Note: this generator is on its experimental stage and any feedback is very welcomed.
+
+### Contextual serialization of generic classes
+
+Before 1.2.0, it was [impossible](https://github.com/Kotlin/kotlinx.serialization/issues/1407) to register context serializer for generic class,
+because `contextual` function accepted a single serializer.
+Now it is possible to register a provider — lambda that allows to construct a serializer for generic class
+out of its type arguments serializers. See the details in the [documentation](https://github.com/Kotlin/kotlinx.serialization/blob/dev/docs/serializers.md#contextual-serialization-and-generic-classes).
+
+### Other features
+
+  * Support for watchosX64 target (#1366).
+  * Introduce kotlinx-serialization-bom (#1356).
+  * Support serializer<T> on JS IR when T is an interface (#1431).
+
+### Bugfixes
+
+  * Fix serializer lookup by KType for third party classes (#1397) (thanks to [mvdbos](https://github.com/mvdbos)).
+  * Fix inability to encode/decode inline class with string to JsonElement (#1408).
+  * Throw SerializationException instead of AIOB in ProtoBuf (#1373).
+  * Fix numeric overflow in JsonLexer (#1367) (thanks to [EdwarDDay](https://github.com/EdwarDDay)).
+
 
 1.1.0 / 2021-02-17
 ==================
@@ -12,19 +69,19 @@ We suggest you to remove `jcenter()` and other kotlin bintray repositories from 
 1.1.0-RC / 2021-02-03
 ==================
 
-This is a release candidate of 1.1.0 version. Note that final 1.1.0 version may include more features and bugfixes, 
+This is a release candidate of 1.1.0 version. Note that final 1.1.0 version may include more features and bugfixes,
 which would be listed in the corresponding changelog.
 
 ### Kotlin version requirement updated
 
-Due to changes in calling conventions between compiler plugin and serialization core runtime, this release requires 
+Due to changes in calling conventions between compiler plugin and serialization core runtime, this release requires
 Kotlin version at least 1.4.30-M1. However, this changes should not affect your code,
 because only deprecated functions were removed from public API.
 See [corresponding PR](https://github.com/Kotlin/kotlinx.serialization/pull/1260) for the details.
 
 ### Experimental support for inline classes (IR only)
 
-Using 1.1.0-RC, you can mark inline classes as `@Serializable` and use them in other serializable classes. 
+Using 1.1.0-RC, you can mark inline classes as `@Serializable` and use them in other serializable classes.
 Unsigned integer types (`UByte`, `UShort`, `UInt` and `ULong`) are serializable as well and have special support in JSON.
 This feature requires Kotlin compiler 1.4.30-RC and enabling new IR compilers for [JS](https://kotlinlang.org/docs/reference/js-ir-compiler.html) and [JVM](https://kotlinlang.org/docs/reference/whatsnew14.html#new-jvm-ir-backend).
 
@@ -36,7 +93,7 @@ and corresponding [pull request](https://github.com/Kotlin/kotlinx.serialization
   * Add `serializerOrNull` function for `KType` and `Type` arguments (#1164)
   * Allow shared prefix names in `Properties` (#1183) (thanks to [TorRanfelt](https://github.com/TorRanfelt))
   * Add support for encoding/decoding `Properties` values as Strings (#1158) (thanks to [daniel-jasinski](https://github.com/daniel-jasinski))
-  
+
 ### Bugfixes and performance improvements
 
   * Support contextual serialization for derived classes (#1277) (thanks to [Martin Raison](https://github.com/martinraison))
@@ -62,13 +119,13 @@ This patch release contains several feature improvements as well as bugfixes and
   * Add object-based serialization and deserialization of polymorphic types for `dynamic` conversions on JS platform  (#1122)
   * Add support for object polymorphism in HOCON decoder (#1136)
   * Add support of decoding map in the root of HOCON config (#1106)
-  
+
 ### Bugfixes
   * Properly cache generated serializers in PluginGeneratedSerialDescriptor (#1159)
   * Add Pair and Triple to serializer resolving from Java type token (#1160)
   * Fix deserialization of half-precision, float and double types in CBOR  (#1112)
   * Fix ByteString annotation detection when ByteArray is nullable (#1139)
-  
+
 1.0.0 / 2020-10-08
 ==================
 
@@ -76,16 +133,16 @@ The first public stable release, yay!
 The definitions of stability and backwards compatibility guarantees are located in the [corresponding document](docs/compatibility.md).
 We now also have a GitHub Pages site with [full API reference](https://kotlin.github.io/kotlinx.serialization/).
 
-Compared to RC2, no new features apart from #947 were added and all previously deprecated declarations and migrations were deleted. 
+Compared to RC2, no new features apart from #947 were added and all previously deprecated declarations and migrations were deleted.
 If you are using RC/RC2 along with deprecated declarations, please, migrate before updating to 1.0.0.
 In case you are using pre-1.0 versions (e.g. 0.20.0), please refer to our [migration guide](docs/migration.md).
-  
+
 ### Bugfixes and improvements
 
   * Support nullable types at top-level for JsonElement decoding (#1117)
   * Add CBOR ignoreUnknownKeys option (#947) (thanks to [Travis Wyatt](https://github.com/twyatt))
   * Fix incorrect documentation of `encodeDefaults` (#1108) (thanks to [Anders Carling](https://github.com/anderscarling))
-  
+
 1.0.0-RC2 / 2020-09-21
 ==================
 
@@ -110,7 +167,7 @@ writing a library that depends on kotlinx.serialization in a format-agnostic way
 * `encodeDefaults` flag is now set to `false` in the default configuration for JSON, CBOR and Protocol Buffers.
 
 The change is motivated by the fact that in most real-life scenarios, this flag is set to `false` anyway,
-because such configuration reduces visual clutter and saves amount of data being serialized. 
+because such configuration reduces visual clutter and saves amount of data being serialized.
 Other libraries, like GSON and Moshi, also have this behavior by default.
 
 This may change how your serialized data looks like, if you have not set value for `encodeDefaults` flag explicitly.
@@ -144,8 +201,8 @@ To migrate, simply add `import kotlinx.serialization.json.*` to your files.
 Release candidate for 1.0.0 version. The goal of RC release is to collect feedback from users
 and provide 1.0.0 release with bug fixes and improvements based on that feedback.
 
-While working on 1.0.0 version, we carefully examined every public API declaration of the library and 
-split it to stable API, that we promise to be source and binary-compatible, 
+While working on 1.0.0 version, we carefully examined every public API declaration of the library and
+split it to stable API, that we promise to be source and binary-compatible,
 and experimental API, that may be changed in the future.
 Experimental API is annotated with `@ExperimentalSerializationApi` annotation, which requires opt-in.
 For a more detailed description of the guarantees, please refer to the [compatibility guide](docs/compatibility.md).
@@ -180,7 +237,7 @@ of `Json {}` builder
     * Redundant members of `JsonElement` API are deprecated or extracted to extensions
     * Potential error-prone API is removed
     * `JsonLiteral` is deprecated in favor of `JsonPrimitive` constructors with nullable parameter
-    
+
 * `JsonElement` builders rework to be aligned with stdlib collection builders (#418, #627)
     * Deprecated infix `to` and unaryPlus in JSON DSL in favor of `put`/`add` functions
     * `jsonObject {}` and `json {}` builders are renamed to `buildJsonObject {}` and `buildJsonArray {}`
@@ -195,12 +252,12 @@ of `Json {}` builder
     * Methods in `JsonTransformingSerializer` are renamed to `transformSerialize` and `transformDeserialize`
     * `JsonParametricSerializer` is renamed to `JsonContentPolymorphicSerializer`
     * `JsonEncodingException` and `JsonDecodingException` are made internal
-    
+
 * Bug fixes
     * `IllegalStateException` when `null` occurs in JSON input in the place of an expected non-null object (#816)
     * java.util.NoSuchElementException when deserializing twice from the same JsonElement (#807)
 
-#### Core API for format authoring 
+#### Core API for format authoring
 
 * The new naming scheme for `SerialFormats`
    *  Core functions in `StringFormat` and `BinaryFormat` are renamed and now follow the same naming scheme
@@ -208,7 +265,7 @@ of `Json {}` builder
    * `encodeToByteArray`/`encodeToHexString`/`decodeFromByteArray`/`decodeFromHexString` in `BinaryFormat` are introduced instead of `dump`/`dumps`/`load`/`loads`
 
 * New format instances building convention
-   * Constructors replaced with builder-function with the same name to have the ability to add new configuration parameters, 
+   * Constructors replaced with builder-function with the same name to have the ability to add new configuration parameters,
    while preserving both source and binary compatibility
    * Format's companion objects now extend format class and can be used interchangeably
 
@@ -231,15 +288,15 @@ of `Json {}` builder
 * Contextual serialization
     * `@ContextualSerialization` is split into two annotations: `@Contextual` to use on properties and `@UseContextualSerialization` to use on file
     *  New `SerialDescriptor.capturedKClass` API to introspect SerializersModule-based contextual and polymorphic kinds (#515, #595)
-    
+
 * Encoding-related API
     * Encoding-related classes (`Encoder`, `Decoder`, `AbstractEncoder`, `AbstractDecoder`) are moved to a separate `kotlinx.serialization.encoding` package
     * Deprecated `typeParameters` argument in `beginStructure`/`beginCollectio`n methods
     * Deprecated `updateSerializableValue` and similar methods and `UpdateMode` enum
-    * Renamed `READ_DONE` to `DECODE_DONE` 
+    * Renamed `READ_DONE` to `DECODE_DONE`
     * Make extensions `inline` where applicable
     * `kotlinx.io` mockery (`InputStream`, `ByteArrayInput`, etc) is removed
-   
+
 * Serializer-related API
     * `UnitSerializer` is replaced with `Unit.serializer()`
     * All methods for serializers retrieval are renamed to `serializer`
@@ -249,7 +306,7 @@ of `Json {}` builder
     * Support of custom serializers for nullable types is added (#824)
 
 #### ProtoBuf
-    
+
 * `ProtoBuf` constructor is replaced with `ProtoBuf {}` builder function
 * `ProtoBuf` companion object now extends `ProtoBuf`
 * `ProtoId` is renamed to `ProtoNumber`, `ProtoNumberType` to `ProtoIntegerType` to be consistent with ProtoBuf specification
@@ -261,7 +318,7 @@ of `Json {}` builder
 #### Other formats
    * All format constructors are migrated to builder scheme
    * Properties serialize and deserialize enums as strings (#818)
-   * CBOR major type 2 (byte string) support (#842) 
+   * CBOR major type 2 (byte string) support (#842)
    * `ConfigParser` is renamed to `Hocon`, `kotlinx-serialization-runtime-configparser` artifact is renamed to `kotlinx-serialization-hocon`
    * Do not write/read size of collection into Properties' map (#743)
 
@@ -270,18 +327,18 @@ of `Json {}` builder
 
 ### Release notes
 
-0.20.0 release is focused on giving a library its final and stable API shape. 
+0.20.0 release is focused on giving a library its final and stable API shape.
 
 We have carefully evaluated every `public` declaration and
 decided whether it should be publicly available. As a result, some declarations were deprecated with an intention of removing
-them from public API because they are going to be replaced with others, more valuable and useful for users. 
+them from public API because they are going to be replaced with others, more valuable and useful for users.
 
-Deprecated symbols include: 
+Deprecated symbols include:
  - Pre-defined JSON instances like `nonStrict` — `strictMode` was split to 3 separate, more granular, flags.
-Users are encouraged to create their own configuration; 
+Users are encouraged to create their own configuration;
  - Top-level serializers like `IntSerializer` and `ArrayListSerializer`.
 They were replaced with constructor-like factory functions.
- - `SerialClassDescImpl` creation class replaced with `SerialDescriptor` 
+ - `SerialClassDescImpl` creation class replaced with `SerialDescriptor`
 builder function to ease writing of custom serializers and maintain `SerialDescriptor` contract.
  - Internal utilities, like HexConverter and ByteBuffer, were deprecated as not relevant to serialization public API.
  - Add-on formats like Protobuf, CBOR and Properties (formerly Mapper)
@@ -290,18 +347,18 @@ are now extracted to [separate artifacts](formats/README.md#protobuf) to keep th
 We have spent a lot of effort into the quality,
 documenting most of the core interfaces, establishing their contracts,
 fixing numerous of bugs, and even introducing new features that may be useful for those of you who
-write custom serializers — see [JsonTransformingSerializer](docs/json_transformations.md).  
+write custom serializers — see [JsonTransformingSerializer](docs/json_transformations.md).
 
 Such API changes, of course, may be not backwards-compatible in some places, in particular, between compiler plugin and runtime.
 Given that the library is still is in the experimental phase, we took the liberty to introduce breaking changes in order to give users
 the better, more convenient API. Therefore, this release has number `0.20.0` instead of `0.15.0`;
 Kotlin 1.3.70 is compatible _only_ with this release.
 
-To migrate: 
+To migrate:
 1. Replace `import kotlinx.serialization.internal.*` with `import kotlinx.serialization.builtins.*`.
 This action is sufficient for most of the cases, except primitive serializers — instead of using `IntSerializer`, use `Int.serializer()`.
 For other object-like declarations, you may need to transform it to function call: `ByteArraySerializer` => `ByteArraySerializer()`.
- 
+
 2. Pay attention to the changed `JsonConfiguration` constructor arguments: instead of `strictMode`,
 now three different flags are available: `ignoreUnknownKeys`, `isLenient`, and `serializeSpecialFloatingPointValues`.
 
@@ -312,8 +369,8 @@ because now they're located outside of core module. See [formats list](formats/R
 (use Alt+Enter for quickfix replacing).
 
 ### Full changelog (by commit):
-  
-  * This release is compatible with Kotlin 1.3.70 
+
+  * This release is compatible with Kotlin 1.3.70
   * Rework polymorphic descriptors: polymorphic and sealed descriptor elements are now aligned with an actual serialization process (#731)
   * Hide internal collection and map serializers
   * Introduce factories for ArraySerializers as well, deprecate top-level array serializers
