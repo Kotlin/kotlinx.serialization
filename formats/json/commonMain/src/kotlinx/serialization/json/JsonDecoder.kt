@@ -88,4 +88,9 @@ public interface JsonDecoder : Decoder, CompositeDecoder {
      * ```
      */
     public fun decodeJsonElement(): JsonElement
+
+    /**
+     * Returns the [String] name of the current element [JsonElement].
+     */
+    public fun currentElementName(): String
 }

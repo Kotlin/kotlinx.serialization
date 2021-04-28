@@ -5,7 +5,11 @@
 package kotlinx.serialization.json.polymorphic
 
 import kotlinx.serialization.*
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
+import kotlinx.serialization.json.internal.JsonLexer
+import kotlinx.serialization.json.internal.JsonTreeReader
 import kotlin.test.*
 
 class JsonContentPolymorphicSerializerTest : JsonTestBase() {
@@ -24,7 +28,7 @@ class JsonContentPolymorphicSerializerTest : JsonTestBase() {
     }
 
     object ChoicesParametricSerializer : JsonContentPolymorphicSerializer<Choices>(Choices::class) {
-        override fun selectDeserializer(element: JsonElement): KSerializer<out Choices> {
+        override fun selectDeserializer(element: JsonElement, elementName: String): KSerializer<out Choices> {
             val obj = element.jsonObject
             return when {
                 "a" in obj -> Choices.HasA.serializer()
@@ -83,7 +87,7 @@ class JsonContentPolymorphicSerializerTest : JsonTestBase() {
     data class RefundedPayment(override val amount: String, val date: String, val reason: String) : Payment
 
     object PaymentSerializer : JsonContentPolymorphicSerializer<Payment>(Payment::class) {
-        override fun selectDeserializer(element: JsonElement) = when {
+        override fun selectDeserializer(element: JsonElement, elementName: String) = when {
             "reason" in element.jsonObject -> RefundedPayment.serializer()
             else -> SuccessfulPayment.serializer()
         }
@@ -98,6 +102,76 @@ class JsonContentPolymorphicSerializerTest : JsonTestBase() {
         assertEquals(
             RefundedPayment("2.0", "03.02.2020", "complaint"),
             json.decodeFromString(PaymentSerializer, """{"amount":"2.0","date":"03.02.2020","reason":"complaint"}""", streaming)
+        )
+    }
+
+    @Serializable
+    data class Person(
+        val name: String,
+        @JsonNames("deceasedBoolean","deceasedDate")
+        val deceased: MultiType
+    )
+
+    @Serializable(with = MultiTypeSerializer::class)
+    abstract class MultiType()
+
+    @Serializable(with = DateTypeSerializer::class)
+    data class DateType(val value: String) : MultiType()
+
+    @Serializable(with = BooleanTypeSerializer::class)
+    data class BooleanType(val value: Boolean) : MultiType()
+
+    @Serializer(forClass = DateType::class)
+    object DateTypeSerializer {
+        override fun deserialize(decoder: Decoder): DateType {
+            val value = decoder.decodeString()
+            return DateType(value)
+        }
+
+        override fun serialize(encoder: Encoder, value: DateType) {
+            encoder.encodeString(value.value)
+        }
+    }
+
+    @Serializer(forClass = BooleanType::class)
+    object BooleanTypeSerializer {
+        override fun deserialize(decoder: Decoder): BooleanType {
+            val value = decoder.decodeBoolean()
+            return BooleanType(value)
+        }
+
+        override fun serialize(encoder: Encoder, value: BooleanType) {
+            encoder.encodeBoolean(value.value)
+        }
+    }
+
+    @Serializer(forClass = MultiType::class)
+    object MultiTypeSerializer : JsonContentPolymorphicSerializer<MultiType>(MultiType::class) {
+        override fun selectDeserializer(element: JsonElement, elementName: String) =
+            when (elementName) {
+                "deceasedBoolean" -> BooleanTypeSerializer
+                "deceasedDate" -> DateTypeSerializer
+                else -> throw NotImplementedError("Serializer for property '$elementName' has not been implemented.")
+            }
+    }
+
+    @Test
+    fun testPersonSample() = parametrizedTest { streaming ->
+        assertEquals(
+            Person("MyName1", BooleanType(true)),
+            json.decodeFromString(
+                Person.serializer(),
+                """{"name":"MyName1","deceasedBoolean":true}""",
+                streaming
+            )
+        )
+        assertEquals(
+            Person("MyName2", DateType("1990-10-23")),
+            json.decodeFromString(
+                Person.serializer(),
+                """{"name":"MyName2","deceasedDate":"1990-10-23"}""",
+                streaming
+            )
         )
     }
 }

@@ -34,7 +34,7 @@ import kotlin.reflect.*
  * For convenience, [serialize] method can lookup default serializer, but it is recommended to follow
  * standard procedure with [registering][SerializersModuleBuilder.polymorphic].
  *
- * Usage example:
+ * Usage example #1:
  * ```
  * interface Payment {
  *     val amount: String
@@ -47,7 +47,7 @@ import kotlin.reflect.*
  * data class RefundedPayment(override val amount: String, val date: String, val reason: String) : Payment
  *
  * object PaymentSerializer : JsonContentPolymorphicSerializer<Payment>(Payment::class) {
- *     override fun selectDeserializer(content: JsonElement) = when {
+ *     override fun selectDeserializer(content: JsonElement, elementName: String) = when {
  *         "reason" in content.jsonObject -> RefundedPayment.serializer()
  *         else -> SuccessfulPayment.serializer()
  *     }
@@ -59,6 +59,36 @@ import kotlin.reflect.*
  * Json.parse(PaymentSerializer, """{"amount":"2.0","date":"03.02.2020","reason":"complaint"}""")
  * ```
  *
+ * Usage example #2:
+ * When combined with the @JsonNames() annotation, the argument elementName [String] can be used to determine which serializer should be used.
+ *
+ * ```
+ * @Serializable
+ * data class Person(
+ * val name: String,
+ * @JsonNames("deceasedBoolean","deceasedDate")
+ * val deceased: MultiType
+ * )
+ *
+ * @Serializable(with = MultiTypeSerializer::class)
+ * abstract class MultiType()
+ *
+ * @Serializable(with = DateTypeSerializer::class)
+ * data class DateType(val value: String) : MultiType()
+ *
+ * @Serializable(with = BooleanTypeSerializer::class)
+ * data class BooleanType(val value: Boolean) : MultiType()
+ *
+ * @Serializer(forClass = MultiType::class)
+ * object MultiTypeSerializer : JsonContentPolymorphicSerializer<MultiType>(MultiType::class) {
+ *     override fun selectDeserializer(element: JsonElement, elementName: String) =
+ *         when (elementName) {
+ *             "deceasedBoolean" -> BooleanTypeSerializer
+ *             "deceasedDate" -> DateTypeSerializer
+ *             else -> throw NotImplementedError("Serializer for property '$elementName' has not been implemented.")
+ *         }
+ *     }
+ *```
  * @param T A root class for all classes that could be possibly encountered during serialization and deserialization.
  * @param baseClass A class token for [T].
  */
@@ -87,16 +117,17 @@ public abstract class JsonContentPolymorphicSerializer<T : Any>(private val base
     final override fun deserialize(decoder: Decoder): T {
         val input = decoder.asJsonDecoder()
         val tree = input.decodeJsonElement()
+        val elementName = input.currentElementName()
 
         @Suppress("UNCHECKED_CAST")
-        val actualSerializer = selectDeserializer(tree) as KSerializer<T>
+        val actualSerializer = selectDeserializer(tree, elementName) as KSerializer<T>
         return input.json.decodeFromJsonElement(actualSerializer, tree)
     }
 
     /**
-     * Determines a particular strategy for deserialization by looking on a parsed JSON [element].
+     * Determines a particular strategy for deserialization by looking on a parsed JSON [element] or the [elementName].
      */
-    protected abstract fun selectDeserializer(element: JsonElement): DeserializationStrategy<out T>
+    protected abstract fun selectDeserializer(element: JsonElement, elementName: String): DeserializationStrategy<out T>
 
     private fun throwSubtypeNotRegistered(subClass: KClass<*>, baseClass: KClass<*>): Nothing {
         val subClassName = subClass.simpleName ?: "$subClass"

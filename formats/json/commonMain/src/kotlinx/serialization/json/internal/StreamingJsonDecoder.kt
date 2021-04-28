@@ -24,9 +24,12 @@ internal open class StreamingJsonDecoder(
 
     override val serializersModule: SerializersModule = json.serializersModule
     private var currentIndex = -1
+    private var currentStringKey = "" // element name of current position
     private val configuration = json.configuration
 
     override fun decodeJsonElement(): JsonElement = JsonTreeReader(json.configuration, lexer).read()
+
+    override fun currentElementName(): String = currentStringKey
 
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
         return decodeSerializableValuePolymorphic(deserializer)
@@ -181,7 +184,6 @@ internal open class StreamingJsonDecoder(
         }
     }
 
-
     override fun decodeBoolean(): Boolean {
         /*
          * We prohibit non true/false boolean literals at all as it is considered way too error-prone,
@@ -208,7 +210,9 @@ internal open class StreamingJsonDecoder(
     override fun decodeShort(): Short {
         val value = lexer.consumeNumericLiteral()
         // Check for overflow
-        if (value != value.toShort().toLong()) lexer.fail("Failed to parse short for input '$value'")
+        if (value != value.toShort()
+                .toLong()
+        ) lexer.fail("Failed to parse short for input '$value'")
         return value.toShort()
     }
 
@@ -244,11 +248,12 @@ internal open class StreamingJsonDecoder(
     }
 
     private fun decodeStringKey(): String {
-        return if (configuration.isLenient) {
+        currentStringKey = if (configuration.isLenient) {
             lexer.consumeStringLenient()
         } else {
             lexer.consumeKeyString()
         }
+        return currentStringKey
     }
 
     override fun decodeString(): String {

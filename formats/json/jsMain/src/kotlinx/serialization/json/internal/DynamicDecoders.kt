@@ -64,6 +64,8 @@ private open class DynamicInput(
         }
     }
 
+    override fun currentElementName(): String = currentTagOrNull?: ""
+
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
         return decodeSerializableValuePolymorphic(deserializer)
     }

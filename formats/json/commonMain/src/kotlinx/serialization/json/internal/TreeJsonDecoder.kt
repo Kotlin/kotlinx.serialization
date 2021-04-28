@@ -47,6 +47,8 @@ private sealed class AbstractJsonTreeDecoder(
 
     override fun decodeJsonElement(): JsonElement = currentObject()
 
+    override fun currentElementName(): String = currentTagOrNull?: ""
+
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
         return decodeSerializableValuePolymorphic(deserializer)
     }
