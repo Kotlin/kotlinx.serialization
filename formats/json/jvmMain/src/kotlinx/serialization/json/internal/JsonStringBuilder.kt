@@ -90,15 +90,18 @@ internal actual class JsonStringBuilder {
                         sz += escapedString.length
                     }
                     else -> {
+                        ensureTotalCapacity(sz + 2)
                         array[sz] = '\\'
                         array[sz + 1] = marker.toChar()
                         sz += 2
                     }
                 }
             } else {
+                ensureTotalCapacity(sz + 1)
                 array[sz++] = ch.toChar()
             }
         }
+        ensureTotalCapacity(sz + 1)
         array[sz++] = '"'
         size = sz
     }
