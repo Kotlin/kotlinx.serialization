@@ -32,7 +32,7 @@ internal inline fun <T, R1 : T, R2 : T> Json.selectMapMode(
     ifMap: () -> R1,
     ifList: () -> R2
 ): T {
-    val keyDescriptor = mapDescriptor.getElementDescriptor(0)
+    val keyDescriptor = mapDescriptor.getElementDescriptor(0).carrierDescriptor
     val keyKind = keyDescriptor.kind
     return if (keyKind is PrimitiveKind || keyKind == SerialKind.ENUM) {
         ifMap()
@@ -42,3 +42,6 @@ internal inline fun <T, R1 : T, R2 : T> Json.selectMapMode(
         throw InvalidKeyKindException(keyDescriptor)
     }
 }
+
+internal val SerialDescriptor.carrierDescriptor: SerialDescriptor
+    get() = if (isInline) getElementDescriptor(0) else this
