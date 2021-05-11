@@ -54,7 +54,7 @@ internal actual class JsonStringBuilder {
         val length = string.length
         string.toCharArray(arr, sz, 0, length)
         for (i in sz until sz + length) {
-            val ch = arr[i].toInt()
+            val ch = arr[i].code
             // Do we have unescaped symbols?
             if (ch < ESCAPE_MARKERS.size && ESCAPE_MARKERS[ch] != 0.toByte()) {
                 // Go to slow path
@@ -62,6 +62,7 @@ internal actual class JsonStringBuilder {
             }
         }
         // Update the state
+        // Capacity is not ensured because we didn't hit the slow path and thus guessed it properly in the beginning
         sz += length
         arr[sz++] = '"'
         size = sz
@@ -70,7 +71,12 @@ internal actual class JsonStringBuilder {
     private fun appendStringSlowPath(firstEscapedChar: Int, currentSize: Int, string: String) {
         var sz = currentSize
         for (i in firstEscapedChar until string.length) {
-            val ch = string[i].toInt()
+            /*
+             * We ar already on slow path and haven't guessed the capacity properly.
+             * Reserve +2 for backslash-escaped symbols on each iteration
+             */
+            ensureTotalCapacity(sz + 2)
+            val ch = string[i].code
             // Do we have unescaped symbols?
             if (ch < ESCAPE_MARKERS.size) {
                 /*
@@ -85,13 +91,12 @@ internal actual class JsonStringBuilder {
                     }
                     1.toByte() -> {
                         val escapedString = ESCAPE_STRINGS[ch]!!
-                        ensureTotalCapacity(sz + escapedString.length)
                         escapedString.toCharArray(array, sz, 0, escapedString.length)
                         sz += escapedString.length
                     }
                     else -> {
                         array[sz] = '\\'
-                        array[sz + 1] = marker.toChar()
+                        array[sz + 1] = marker.toInt().toChar()
                         sz += 2
                     }
                 }
@@ -99,6 +104,7 @@ internal actual class JsonStringBuilder {
                 array[sz++] = ch.toChar()
             }
         }
+        ensureTotalCapacity(sz + 1)
         array[sz++] = '"'
         size = sz
     }

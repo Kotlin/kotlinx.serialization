@@ -8,8 +8,8 @@ import kotlin.native.concurrent.*
 
 private fun toHexChar(i: Int) : Char {
     val d = i and 0xf
-    return if (d < 10) (d + '0'.toInt()).toChar()
-    else (d - 10 + 'a'.toInt()).toChar()
+    return if (d < 10) (d + '0'.code).toChar()
+    else (d - 10 + 'a'.code).toChar()
 }
 
 @SharedImmutable
@@ -21,12 +21,12 @@ internal val ESCAPE_STRINGS: Array<String?> = arrayOfNulls<String>(93).apply {
         val c4 = toHexChar(c)
         this[c] = "\\u$c1$c2$c3$c4"
     }
-    this['"'.toInt()] = "\\\""
-    this['\\'.toInt()] = "\\\\"
-    this['\t'.toInt()] = "\\t"
-    this['\b'.toInt()] = "\\b"
-    this['\n'.toInt()] = "\\n"
-    this['\r'.toInt()] = "\\r"
+    this['"'.code] = "\\\""
+    this['\\'.code] = "\\\\"
+    this['\t'.code] = "\\t"
+    this['\b'.code] = "\\b"
+    this['\n'.code] = "\\n"
+    this['\r'.code] = "\\r"
     this[0x0c] = "\\f"
 }
 
@@ -35,20 +35,20 @@ internal val ESCAPE_MARKERS: ByteArray = ByteArray(93).apply {
     for (c in 0..0x1f) {
         this[c] = 1.toByte()
     }
-    this['"'.toInt()] = '"'.toByte()
-    this['\\'.toInt()] = '\\'.toByte()
-    this['\t'.toInt()] = 't'.toByte()
-    this['\b'.toInt()] = 'b'.toByte()
-    this['\n'.toInt()] = 'n'.toByte()
-    this['\r'.toInt()] = 'r'.toByte()
-    this[0x0c] = 'f'.toByte()
+    this['"'.code] = '"'.code.toByte()
+    this['\\'.code] = '\\'.code.toByte()
+    this['\t'.code] = 't'.code.toByte()
+    this['\b'.code] = 'b'.code.toByte()
+    this['\n'.code] = 'n'.code.toByte()
+    this['\r'.code] = 'r'.code.toByte()
+    this[0x0c] = 'f'.code.toByte()
 }
 
 internal fun StringBuilder.printQuoted(value: String) {
     append(STRING)
     var lastPos = 0
     for (i in value.indices) {
-        val c = value[i].toInt()
+        val c = value[i].code
         if (c < ESCAPE_STRINGS.size && ESCAPE_STRINGS[c] != null) {
             append(value, lastPos, i) // flush prev
             append(ESCAPE_STRINGS[c])
