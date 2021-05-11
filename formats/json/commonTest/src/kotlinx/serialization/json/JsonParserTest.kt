@@ -98,4 +98,21 @@ class JsonParserTest : JsonTestBase() {
             parse("""{"id":"""")
         }
     }
+
+    @Test
+    fun testNullValue() {
+        val obj = Json.parseToJsonElement("""{"k":null}""").jsonObject
+        val value = obj["k"]!!
+        assertTrue { value is JsonNull }
+        assertFalse { value.jsonPrimitive.isString }
+    }
+
+    @Test
+    fun testNullStringValue() {
+        val obj = Json.parseToJsonElement("""{"k":"null"}""").jsonObject
+        val value = obj["k"]!!
+        assertFalse { value is JsonNull }
+        assertTrue { value.jsonPrimitive.isString }
+        assertEquals("null", obj["k"]!!.jsonPrimitive.content)
+    }
 }

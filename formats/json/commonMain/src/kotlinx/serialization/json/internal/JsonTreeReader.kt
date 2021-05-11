@@ -4,8 +4,10 @@
 
 package kotlinx.serialization.json.internal
 
+import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
+@OptIn(ExperimentalSerializationApi::class)
 internal class JsonTreeReader(
     configuration: JsonConfiguration,
     private val lexer: JsonLexer
@@ -65,7 +67,7 @@ internal class JsonTreeReader(
         } else {
             lexer.consumeString()
         }
-        if (string == NULL) return JsonNull
+        if (!isString && string == NULL) return JsonNull
         return JsonLiteral(string, isString)
     }
 
