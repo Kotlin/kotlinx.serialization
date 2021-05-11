@@ -83,7 +83,7 @@ private sealed class AbstractJsonTreeDecoder(
     protected abstract fun currentElement(tag: String): JsonElement
 
     override fun decodeTaggedEnum(tag: String, enumDescriptor: SerialDescriptor): Int =
-        enumDescriptor.getElementIndexOrThrow(getValue(tag).content)
+        enumDescriptor.getJsonNameIndexOrThrow(json, getValue(tag).content)
 
     override fun decodeTaggedNull(tag: String): Nothing? = null
 
@@ -193,7 +193,7 @@ private open class JsonTreeDecoder(
         if (elementDescriptor.kind == SerialKind.ENUM) {
             val enumValue = (currentElement(tag) as? JsonPrimitive)?.contentOrNull
                     ?: return false // if value is not a string, decodeEnum() will throw correct exception
-            val enumIndex = elementDescriptor.getElementIndex(enumValue)
+            val enumIndex = elementDescriptor.getJsonNameIndex(json, enumValue)
             if (enumIndex == CompositeDecoder.UNKNOWN_NAME) return true
         }
         return false
@@ -296,15 +296,4 @@ private class JsonTreeListDecoder(json: Json, override val value: JsonArray) : A
         }
         return CompositeDecoder.DECODE_DONE
     }
-}
-
-/**
- * Same as [SerialDescriptor.getElementIndex], but throws [SerializationException] if
- * given [name] is not associated with any element in the descriptor.
- */
-internal fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
-    val index = getElementIndex(name)
-    if (index == CompositeDecoder.UNKNOWN_NAME)
-        throw SerializationException("$serialName does not contain element with name '$name'")
-    return index
 }

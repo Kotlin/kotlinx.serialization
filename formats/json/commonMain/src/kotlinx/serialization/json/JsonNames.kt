@@ -6,6 +6,7 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.internal.*
 import kotlin.native.concurrent.*
 
@@ -60,4 +61,33 @@ internal fun SerialDescriptor.buildAlternativeNamesMap(): Map<String, Int> {
         }
     }
     return builder ?: emptyMap()
+}
+
+/**
+ * Serves same purpose as [SerialDescriptor.getElementIndex] but respects
+ * [JsonNames] annotation and [JsonConfiguration.useAlternativeNames] state.
+ */
+@OptIn(ExperimentalSerializationApi::class)
+internal fun SerialDescriptor.getJsonNameIndex(json: Json, name: String): Int {
+    val index = getElementIndex(name)
+    // Fast path, do not go through ConcurrentHashMap.get
+    // Note, it blocks ability to detect collisions between the primary name and alternate,
+    // but it eliminates a significant performance penalty (about -15% without this optimization)
+    if (index != CompositeDecoder.UNKNOWN_NAME) return index
+    if (!json.configuration.useAlternativeNames) return index
+    // Slow path
+    val alternativeNamesMap =
+        json.schemaCache.getOrPut(this, JsonAlternativeNamesKey, this::buildAlternativeNamesMap)
+    return alternativeNamesMap[name] ?: CompositeDecoder.UNKNOWN_NAME
+}
+
+/**
+ * Throws on [CompositeDecoder.UNKNOWN_NAME]
+ */
+@OptIn(ExperimentalSerializationApi::class)
+internal fun SerialDescriptor.getJsonNameIndexOrThrow(json: Json, name: String): Int {
+    val index = getJsonNameIndex(json, name)
+    if (index == CompositeDecoder.UNKNOWN_NAME)
+        throw SerializationException("$serialName does not contain element with name '$name'")
+    return index
 }

@@ -17,6 +17,19 @@ class JsonAlternativeNamesTest : JsonTestBase() {
     data class WithNames(@JsonNames("foo", "_foo") val data: String)
 
     @Serializable
+    enum class AlternateEnumNames {
+        @JsonNames("someValue", "some_value")
+        VALUE_A,
+        VALUE_B
+    }
+
+    @Serializable
+    data class WithEnumNames(
+        val enumList: List<AlternateEnumNames>,
+        val checkCoercion: AlternateEnumNames = AlternateEnumNames.VALUE_B
+    )
+
+    @Serializable
     data class CollisionWithAlternate(
         @JsonNames("_foo") val data: String,
         @JsonNames("_foo") val foo: String
@@ -27,9 +40,32 @@ class JsonAlternativeNamesTest : JsonTestBase() {
     private val json = Json { useAlternativeNames = true }
 
     @Test
+    fun testEnumSupportsAlternativeNames() = noLegacyJs {
+        val input = """{"enumList":["VALUE_A", "someValue", "some_value", "VALUE_B"], "checkCoercion":"someValue"}"""
+        val expected = WithEnumNames(
+            listOf(
+                AlternateEnumNames.VALUE_A,
+                AlternateEnumNames.VALUE_A,
+                AlternateEnumNames.VALUE_A,
+                AlternateEnumNames.VALUE_B
+            ), AlternateEnumNames.VALUE_A
+        )
+        for (coercing in listOf(true, false)) {
+            val json = Json { coerceInputValues = coercing }
+            parametrizedTest { streaming ->
+                assertEquals(
+                    expected,
+                    json.decodeFromString(input, streaming),
+                    "Failed test with coercing=$coercing and streaming=$streaming"
+                )
+            }
+        }
+    }
+
+    @Test
     fun testParsesAllAlternativeNames() = noLegacyJs {
         for (input in listOf(inputString1, inputString2)) {
-            for (streaming in listOf(true, false)) {
+            parametrizedTest { streaming ->
                 val data = json.decodeFromString(WithNames.serializer(), input, useStreaming = streaming)
                 assertEquals("foo", data.data, "Failed to parse input '$input' with streaming=$streaming")
             }
