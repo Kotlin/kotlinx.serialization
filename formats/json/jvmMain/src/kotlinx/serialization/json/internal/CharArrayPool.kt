@@ -19,7 +19,7 @@ internal object CharArrayPool {
          * and the pool will be populated in the 'release'
          */
         val candidate = synchronized(this) {
-            arrays.lastOrNull()?.also { charsTotal -= it.size }
+            arrays.removeLastOrNull()?.also { charsTotal -= it.size }
         }
         return candidate ?: CharArray(128)
     }
