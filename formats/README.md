@@ -58,6 +58,15 @@ This library allows serialization and deserialization of objects to and from [Av
 
 Allows serialization and deserialization of objects to and from [BSON](https://docs.mongodb.com/manual/reference/bson-types/).
 
+### Minecraft NBT (Multiplatform)
+
+* GitHub repo: [BenWoodworth/knbt](https://github.com/BenWoodworth/knbt)
+* Artifact ID: `net.benwoodworth.knbt:knbt`
+* Platform: all supported platforms
+
+Implements the [NBT format](https://minecraft.fandom.com/wiki/NBT_format) for kotlinx.serialization, and
+provides a type-safe DSL for constructing NBT tags.
+
 ### MsgPack (Multiplatform)
 
 * GitHub repo: [esensar/kotlinx-serialization-msgpack](https://github.com/esensar/kotlinx-serialization-msgpack)
