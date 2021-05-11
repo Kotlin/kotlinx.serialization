@@ -38,10 +38,10 @@ inline fun <reified T : Any> StringFormat.assertStringFormAndRestored(
     assertEquals(original, restored)
 }
 
-inline fun <reified T : Any> assertSerializedAndRestored(
+fun <T : Any> assertSerializedAndRestored(
     original: T,
     serializer: KSerializer<T>,
-    format: StringFormat = Json { prettyPrint = true },
+    format: StringFormat = Json,
     printResult: Boolean = false
 ) {
     if (printResult) println("[Input] $original")
