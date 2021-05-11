@@ -52,7 +52,7 @@ class JsonUnicodeTest : JsonTestBase() {
     }
 
     @Test
-    fun testRandomEscapeSequences() {
+    fun testRandomEscapeSequences() = noJs { // Too slow on JS
         repeat(10_000) {
             val s = generateRandomString()
             try {
