@@ -45,9 +45,11 @@ class JsonMapKeysTest : JsonTestBase() {
     }
 
     @Test
-    fun structuredMapKeysShouldBeProhibitedByDefault() = parametrizedTest { streaming ->
-        verifyProhibition(WithComplexKey(mapOf(IntData(42) to "42")), streaming)
-        verifyProhibition(WithComplexValueKey(mapOf(ComplexCarrier(IntData(42)) to "42")), streaming)
+    fun testStructuredMapKeysShouldBeProhibitedByDefault() = parametrizedTest { streaming ->
+        noLegacyJs {
+            verifyProhibition(WithComplexKey(mapOf(IntData(42) to "42")), streaming)
+            verifyProhibition(WithComplexValueKey(mapOf(ComplexCarrier(IntData(42)) to "42")), streaming)
+        }
     }
 
     private inline fun <reified T: Any> verifyProhibition(value: T, streaming: Boolean) {
@@ -66,12 +68,14 @@ class JsonMapKeysTest : JsonTestBase() {
     )
 
     @Test
-    fun testStructuredValueMapKeysAllowedWithFlag() = assertJsonFormAndRestored(
-        WithComplexValueKey.serializer(),
-        WithComplexValueKey(mapOf(ComplexCarrier(IntData(42)) to "42")),
-        """{"map":[{"intV":42},"42"]}""",
-        Json { allowStructuredMapKeys = true }
-    )
+    fun testStructuredValueMapKeysAllowedWithFlag() =  noLegacyJs {
+        assertJsonFormAndRestored(
+            WithComplexValueKey.serializer(),
+            WithComplexValueKey(mapOf(ComplexCarrier(IntData(42)) to "42")),
+            """{"map":[{"intV":42},"42"]}""",
+            Json { allowStructuredMapKeys = true }
+        )
+    }
 
     @Test
     fun testEnumsAreAllowedAsMapKeys() = assertJsonFormAndRestored(
@@ -82,10 +86,12 @@ class JsonMapKeysTest : JsonTestBase() {
     )
 
     @Test
-    fun testPrimitivesAreAllowedAsValueMapKeys() = assertJsonFormAndRestored(
-        WithValueKeyMap.serializer(),
-        WithValueKeyMap(mapOf(PrimitiveCarrier("fooKey") to 1)),
-        """{"map":{"fooKey":1}}""",
-        Json
-    )
+    fun testPrimitivesAreAllowedAsValueMapKeys() =  noLegacyJs {
+        assertJsonFormAndRestored(
+            WithValueKeyMap.serializer(),
+            WithValueKeyMap(mapOf(PrimitiveCarrier("fooKey") to 1)),
+            """{"map":{"fooKey":1}}""",
+            Json
+        )
+    }
 }
