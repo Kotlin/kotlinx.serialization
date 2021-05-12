@@ -31,7 +31,7 @@ internal open class ProtobufDecoder(
     /*
     Element decoding marks from given bytes.
     The element number is the same as the bit position.
-    Marks for the lowest 64 elements always stores in single Long value, higher elements stores in long array.
+    Marks for the lowest 64 elements are always stored in a single Long value, higher elements stores in long array.
      */
     private var lowerReadMark: Long = 0
     private val highReadMarks: LongArray?
