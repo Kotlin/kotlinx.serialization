@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json.internal
@@ -366,6 +366,7 @@ internal class JsonLexer(private val source: String) {
             return takePeeked()
         }
         var current = skipWhitespaces()
+        if (current >= source.length) fail("EOF", current)
         // Skip leading quotation mark
         val token = charToTokenClass(source[current])
         if (token == TC_STRING) {
@@ -445,7 +446,7 @@ internal class JsonLexer(private val source: String) {
                         "found ] instead of }",
                         source
                     )
-                    tokenStack.removeAt(tokenStack.size - 1)
+                    tokenStack.removeLast()
                 }
                 TC_END_OBJ -> {
                     if (tokenStack.last() != TC_BEGIN_OBJ) throw JsonDecodingException(
@@ -453,8 +454,9 @@ internal class JsonLexer(private val source: String) {
                         "found } instead of ]",
                         source
                     )
-                    tokenStack.removeAt(tokenStack.size - 1)
+                    tokenStack.removeLast()
                 }
+                TC_EOF -> fail("Unexpected end of input due to malformed JSON during ignoring unknown keys")
             }
             consumeNextToken()
             if (tokenStack.size == 0) return

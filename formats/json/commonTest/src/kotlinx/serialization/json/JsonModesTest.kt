@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json
@@ -75,6 +75,20 @@ class JsonModesTest : JsonTestBase() {
         doTest("""{"a": 0, "strangeField": {"key": "imma string with ] bracket"}}""")
         doTest("""{"a": 0, "strangeField": ["imma string with ] bracket"]}""")
         doTest("""{"a": 0, "strangeField": ["imma string with } bracket"]}""")
+    }
+
+    @Serializable
+    class Empty
+
+    @Test
+    fun lenientThrowOnMalformedString() {
+        fun doTest(input: String) {
+            assertFailsWith<SerializationException> { lenient.decodeFromString(Empty.serializer(), input) }
+        }
+        doTest("""{"a":[{"b":[{"c":{}d",""e"":"}]}""")
+        doTest("""{"a":[}""")
+        doTest("""{"a":""")
+        lenient.decodeFromString(Empty.serializer(), """{"a":[]}""") // should not throw
     }
 
     @Test
