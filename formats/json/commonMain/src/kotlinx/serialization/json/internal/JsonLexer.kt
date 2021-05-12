@@ -456,7 +456,7 @@ internal class JsonLexer(private val source: String) {
                     )
                     tokenStack.removeLast()
                 }
-                TC_EOF -> fail("Unexpected end of input, possibly due to malformed JSON")
+                TC_EOF -> fail("Unexpected end of input due to malformed JSON during ignoring unknown keys")
             }
             consumeNextToken()
             if (tokenStack.size == 0) return
