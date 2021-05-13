@@ -5,10 +5,9 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.internal.*
 import kotlin.test.*
 
-class DynamicCoercingTest {
+class JsonCoerceInputValuesDynamicTest {
     val json = Json {
         coerceInputValues = true
         isLenient = true
@@ -27,8 +26,8 @@ class DynamicCoercingTest {
             js("""{"b":null}"""),
             js("""{}"""),
         ),
-        JsonUseDefaultOnNullAndUnknownTest.WithBoolean(),
-        JsonUseDefaultOnNullAndUnknownTest.WithBoolean.serializer()
+        JsonCoerceInputValuesTest.WithBoolean(),
+        JsonCoerceInputValuesTest.WithBoolean.serializer()
     )
 
     @Test
@@ -39,12 +38,12 @@ class DynamicCoercingTest {
                 js("""{"e":null}"""),
                 js("""{}"""),
             ),
-            JsonUseDefaultOnNullAndUnknownTest.WithEnum(),
-            JsonUseDefaultOnNullAndUnknownTest.WithEnum.serializer()
+            JsonCoerceInputValuesTest.WithEnum(),
+            JsonCoerceInputValuesTest.WithEnum.serializer()
         )
         assertFailsWith<SerializationException> {
             json.decodeFromDynamic(
-                JsonUseDefaultOnNullAndUnknownTest.WithEnum.serializer(),
+                JsonCoerceInputValuesTest.WithEnum.serializer(),
                 js("""{"e":{"x":"definitely not a valid enum value"}}""")
             )
         }
@@ -52,17 +51,17 @@ class DynamicCoercingTest {
 
     @Test
     fun testUseDefaultInMultipleCases() {
-        val testData = mapOf<dynamic, JsonUseDefaultOnNullAndUnknownTest.MultipleValues>(
+        val testData = mapOf<dynamic, JsonCoerceInputValuesTest.MultipleValues>(
             Pair(
                 js("""{"data":{"data":"foo"},"data2":null,"i":null,"e":null,"foo":"bar"}"""),
-                JsonUseDefaultOnNullAndUnknownTest.MultipleValues(
+                JsonCoerceInputValuesTest.MultipleValues(
                     StringData("foo"),
                     foo = "bar"
                 )
             ),
             Pair(
                 js("""{"data":{"data":"foo"},"data2":{"intV":42},"i":null,"e":null,"foo":"bar"}"""),
-                JsonUseDefaultOnNullAndUnknownTest.MultipleValues(
+                JsonCoerceInputValuesTest.MultipleValues(
                     StringData(
                         "foo"
                     ), IntData(42), foo = "bar"
@@ -70,7 +69,7 @@ class DynamicCoercingTest {
             ),
             Pair(
                 js("""{"data":{"data":"foo"},"data2":{"intV":42},"i":0,"e":"NoOption","foo":"bar"}"""),
-                JsonUseDefaultOnNullAndUnknownTest.MultipleValues(
+                JsonCoerceInputValuesTest.MultipleValues(
                     StringData("foo"),
                     IntData(42),
                     i = 0,
@@ -79,7 +78,7 @@ class DynamicCoercingTest {
             ),
             Pair(
                 js("""{"data":{"data":"foo"},"data2":{"intV":42},"i":0,"e":"OptionC","foo":"bar"}"""),
-                JsonUseDefaultOnNullAndUnknownTest.MultipleValues(
+                JsonCoerceInputValuesTest.MultipleValues(
                     StringData("foo"),
                     IntData(42),
                     i = 0,
@@ -91,7 +90,7 @@ class DynamicCoercingTest {
         for ((input, expected) in testData) {
             assertEquals(
                 expected,
-                json.decodeFromDynamic(JsonUseDefaultOnNullAndUnknownTest.MultipleValues.serializer(), input),
+                json.decodeFromDynamic(JsonCoerceInputValuesTest.MultipleValues.serializer(), input),
                 "Failed on input: $input"
             )
         }
