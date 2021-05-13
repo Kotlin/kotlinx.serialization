@@ -20,6 +20,8 @@ This release mainly contains bugfixes for various issues, including important [b
 1.2.0 / 2021-04-27
 ==================
 
+**This release has some known critical bugs, so we advise to use 1.2.1 instead.**
+
 This release contains a lot of new features and important improvements listed below;
 Kotlin 1.5.0 is used as a default compiler and language version.
 
