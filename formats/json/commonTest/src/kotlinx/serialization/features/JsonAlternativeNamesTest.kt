@@ -17,6 +17,19 @@ class JsonAlternativeNamesTest : JsonTestBase() {
     data class WithNames(@JsonNames("foo", "_foo") val data: String)
 
     @Serializable
+    enum class AlternateEnumNames {
+        @JsonNames("someValue", "some_value")
+        VALUE_A,
+        VALUE_B
+    }
+
+    @Serializable
+    data class WithEnumNames(
+        val enumList: List<AlternateEnumNames>,
+        val checkCoercion: AlternateEnumNames = AlternateEnumNames.VALUE_B
+    )
+
+    @Serializable
     data class CollisionWithAlternate(
         @JsonNames("_foo") val data: String,
         @JsonNames("_foo") val foo: String
@@ -24,12 +37,49 @@ class JsonAlternativeNamesTest : JsonTestBase() {
 
     private val inputString1 = """{"foo":"foo"}"""
     private val inputString2 = """{"_foo":"foo"}"""
-    private val json = Json { useAlternativeNames = true }
+
+    private fun parameterizedCoercingTest(test: (json: Json, streaming: Boolean, msg: String) -> Unit) {
+        for (coercing in listOf(true, false)) {
+            val json = Json {
+                coerceInputValues = coercing
+                useAlternativeNames = true
+            }
+            parametrizedTest { streaming ->
+                test(
+                    json, streaming,
+                    "Failed test with coercing=$coercing and streaming=$streaming"
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testEnumSupportsAlternativeNames() = noLegacyJs {
+        val input = """{"enumList":["VALUE_A", "someValue", "some_value", "VALUE_B"], "checkCoercion":"someValue"}"""
+        val expected = WithEnumNames(
+            listOf(
+                AlternateEnumNames.VALUE_A,
+                AlternateEnumNames.VALUE_A,
+                AlternateEnumNames.VALUE_A,
+                AlternateEnumNames.VALUE_B
+            ), AlternateEnumNames.VALUE_A
+        )
+        parameterizedCoercingTest { json, streaming, msg ->
+            assertEquals(expected, json.decodeFromString(input, streaming), msg)
+        }
+    }
+
+    @Test
+    fun topLevelEnumSupportAlternativeNames() = noLegacyJs {
+        parameterizedCoercingTest { json, streaming, msg ->
+            assertEquals(AlternateEnumNames.VALUE_A, json.decodeFromString("\"someValue\"", streaming), msg)
+        }
+    }
 
     @Test
     fun testParsesAllAlternativeNames() = noLegacyJs {
         for (input in listOf(inputString1, inputString2)) {
-            for (streaming in listOf(true, false)) {
+            parameterizedCoercingTest { json, streaming, _ ->
                 val data = json.decodeFromString(WithNames.serializer(), input, useStreaming = streaming)
                 assertEquals("foo", data.data, "Failed to parse input '$input' with streaming=$streaming")
             }
@@ -39,7 +89,7 @@ class JsonAlternativeNamesTest : JsonTestBase() {
     @Test
     fun testThrowsAnErrorOnDuplicateNames2() = noLegacyJs {
         val serializer = CollisionWithAlternate.serializer()
-        parametrizedTest { streaming ->
+        parameterizedCoercingTest { json, streaming, _ ->
             assertFailsWithMessage<SerializationException>(
                 """The suggested name '_foo' for property foo is already one of the names for property data""",
                 "Class ${serializer.descriptor.serialName} did not fail with streaming=$streaming"

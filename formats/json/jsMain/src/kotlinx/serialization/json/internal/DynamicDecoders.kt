@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json.internal
@@ -79,7 +79,7 @@ private open class DynamicInput(
     }
 
     override fun decodeTaggedEnum(tag: String, enumDescriptor: SerialDescriptor): Int =
-        enumDescriptor.getElementIndexOrThrow(getByTag(tag) as String)
+        enumDescriptor.getJsonNameIndexOrThrow(json, getByTag(tag) as String)
 
     protected open fun getByTag(tag: String): dynamic = value[tag]
 

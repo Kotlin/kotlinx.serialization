@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json.internal
@@ -101,19 +101,6 @@ internal open class StreamingJsonDecoder(
         }
     }
 
-    private fun SerialDescriptor.getJsonElementIndex(key: String): Int {
-        val index = this.getElementIndex(key)
-        // Fast path, do not go through ConcurrentHashMap.get
-        // Note, it blocks ability to detect collisions between the primary name and alternate,
-        // but it eliminates a significant performance penalty (about -15% without this optimization)
-        if (index != UNKNOWN_NAME) return index
-        if (!json.configuration.useAlternativeNames) return index
-        // Slow path
-        val alternativeNamesMap =
-            json.schemaCache.getOrPut(this, JsonAlternativeNamesKey, this::buildAlternativeNamesMap)
-        return alternativeNamesMap[key] ?: UNKNOWN_NAME
-    }
-
     /*
      * Checks whether JSON has `null` value for non-null property or unknown enum value for enum property
      */
@@ -122,8 +109,8 @@ internal open class StreamingJsonDecoder(
         if (!elementDescriptor.isNullable && !lexer.tryConsumeNotNull()) return true
         if (elementDescriptor.kind == SerialKind.ENUM) {
             val enumValue = lexer.peekString(configuration.isLenient)
-                ?: return false // if value is not a string, decodeEnum() will throw correct exception
-            val enumIndex = elementDescriptor.getElementIndex(enumValue)
+                    ?: return false // if value is not a string, decodeEnum() will throw correct exception
+            val enumIndex = elementDescriptor.getJsonNameIndex(json, enumValue)
             if (enumIndex == UNKNOWN_NAME) {
                 // Encountered unknown enum value, have to skip it
                 lexer.consumeString()
@@ -140,7 +127,7 @@ internal open class StreamingJsonDecoder(
             hasComma = false
             val key = decodeStringKey()
             lexer.consumeNextToken(COLON)
-            val index = descriptor.getJsonElementIndex(key)
+            val index = descriptor.getJsonNameIndex(json, key)
             val isUnknown = if (index != UNKNOWN_NAME) {
                 if (configuration.coerceInputValues && coerceInputValue(descriptor, index)) {
                     hasComma = lexer.tryConsumeComma()
@@ -264,7 +251,7 @@ internal open class StreamingJsonDecoder(
         else super.decodeInline(inlineDescriptor)
 
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
-        return enumDescriptor.getElementIndexOrThrow(decodeString())
+        return enumDescriptor.getJsonNameIndexOrThrow(json, decodeString())
     }
 }
 

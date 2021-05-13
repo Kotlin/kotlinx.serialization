@@ -6,6 +6,7 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.internal.*
 import kotlin.native.concurrent.*
 
@@ -36,28 +37,3 @@ import kotlin.native.concurrent.*
 @Target(AnnotationTarget.PROPERTY)
 @ExperimentalSerializationApi
 public annotation class JsonNames(vararg val names: String)
-
-@SharedImmutable
-internal val JsonAlternativeNamesKey = DescriptorSchemaCache.Key<Map<String, Int>>()
-
-@OptIn(ExperimentalSerializationApi::class)
-internal fun SerialDescriptor.buildAlternativeNamesMap(): Map<String, Int> {
-    fun MutableMap<String, Int>.putOrThrow(name: String, index: Int) {
-        if (name in this) {
-            throw JsonException(
-                "The suggested name '$name' for property ${getElementName(index)} is already one of the names for property " +
-                        "${getElementName(getValue(name))} in ${this@buildAlternativeNamesMap}"
-            )
-        }
-        this[name] = index
-    }
-
-    var builder: MutableMap<String, Int>? = null
-    for (i in 0 until elementsCount) {
-        getElementAnnotations(i).filterIsInstance<JsonNames>().singleOrNull()?.names?.forEach { name ->
-            if (builder == null) builder = createMapForCache(elementsCount)
-            builder!!.putOrThrow(name, i)
-        }
-    }
-    return builder ?: emptyMap()
-}
