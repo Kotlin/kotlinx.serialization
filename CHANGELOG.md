@@ -1,3 +1,22 @@
+
+1.2.1 / 2021-05-14
+==================
+
+This release mainly contains bugfixes for various issues, including important [broken thread-safety](https://github.com/Kotlin/kotlinx.serialization/issues/1455) and [improper encoding](https://github.com/Kotlin/kotlinx.serialization/issues/1441).
+
+### Features
+
+  * Added support for nullable values, nested and empty collections in protobuf (#1430)
+
+### Bugfixes
+
+  * Support @JsonNames for enum values (#1473)
+  * Handle EOF in skipElement correctly (#1475)
+  * Allow using value classes with primitive carriers as map keys (#1470)
+  * Read JsonNull only for non-string literals in JsonTreeReader (#1466)
+  * Properly reuse JsonStringBuilders in CharArrayPool (#1455)
+  * Properly ensure capacity of the string builder on the append slow-path (#1441)
+
 1.2.0 / 2021-04-27
 ==================
 
