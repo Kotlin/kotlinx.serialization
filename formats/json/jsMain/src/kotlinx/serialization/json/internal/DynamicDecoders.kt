@@ -68,18 +68,29 @@ private open class DynamicInput(
         return decodeSerializableValuePolymorphic(deserializer)
     }
 
+    private fun coerceInputValue(descriptor: SerialDescriptor, index: Int, tag: String): Boolean =
+        json.shouldCoerceValue(
+            descriptor.getElementDescriptor(index),
+            { getByTag(tag) == null },
+            { getByTag(tag) as? String }
+        )
+
     override fun composeName(parentName: String, childName: String): String = childName
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         while (currentPosition < descriptor.elementsCount) {
             val name = descriptor.getTag(currentPosition++)
-            if (value[name] !== undefined) return currentPosition - 1
+            if (value[name] !== undefined && (!json.configuration.coerceInputValues || !coerceInputValue(descriptor, currentPosition - 1, name)))
+                return currentPosition - 1
         }
         return CompositeDecoder.DECODE_DONE
     }
 
-    override fun decodeTaggedEnum(tag: String, enumDescriptor: SerialDescriptor): Int =
-        enumDescriptor.getJsonNameIndexOrThrow(json, getByTag(tag) as String)
+    override fun decodeTaggedEnum(tag: String, enumDescriptor: SerialDescriptor): Int {
+        val byTag = getByTag(tag)
+        val enumValue = byTag as? String ?: throw SerializationException("Enum value must be a string, got '$byTag'")
+        return enumDescriptor.getJsonNameIndexOrThrow(json, enumValue)
+    }
 
     protected open fun getByTag(tag: String): dynamic = value[tag]
 
