@@ -91,6 +91,7 @@ internal actual class JsonStringBuilder {
                     }
                     1.toByte() -> {
                         val escapedString = ESCAPE_STRINGS[ch]!!
+                        ensureTotalCapacity(sz + escapedString.length)
                         escapedString.toCharArray(array, sz, 0, escapedString.length)
                         sz += escapedString.length
                     }
