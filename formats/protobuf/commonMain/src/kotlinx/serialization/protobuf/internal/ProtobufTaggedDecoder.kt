@@ -26,7 +26,7 @@ internal abstract class ProtobufTaggedDecoder : ProtobufTaggedBase(), Decoder, C
 
     protected open fun decodeTaggedInline(tag: ProtoDesc, inlineDescriptor: SerialDescriptor): Decoder = this.apply { pushTag(tag) }
 
-    final override fun decodeNotNullMark(): Boolean = true
+    override fun decodeNotNullMark(): Boolean = true
     final override fun decodeNull(): Nothing? = null
     final override fun decodeBoolean(): Boolean = decodeTaggedBoolean(popTagOrDefault())
     final override fun decodeByte(): Byte = decodeTaggedByte(popTagOrDefault())

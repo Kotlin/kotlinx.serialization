@@ -10,10 +10,16 @@ import kotlinx.serialization.encoding.*
 
 @OptIn(ExperimentalSerializationApi::class)
 internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, CompositeEncoder {
+    private enum class NullableMode {
+        ACCEPTABLE,
+        OPTIONAL,
+        COLLECTION,
+        NOT_NULL
+    }
+    private var nullableMode: NullableMode = NullableMode.NOT_NULL
 
     protected abstract fun SerialDescriptor.getTag(index: Int): ProtoDesc
 
-    protected fun encodeTaggedNull(): Unit = throw SerializationException("'null' is not supported in ProtoBuf") // TODO investigate null support separately
     protected abstract fun encodeTaggedInt(tag: ProtoDesc, value: Int)
     protected abstract fun encodeTaggedByte(tag: ProtoDesc, value: Byte)
     protected abstract fun encodeTaggedShort(tag: ProtoDesc, value: Short)
@@ -27,7 +33,17 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
 
     protected open fun encodeTaggedInline(tag: ProtoDesc, inlineDescriptor: SerialDescriptor): Encoder = this.apply { pushTag(tag) }
 
-    public final override fun encodeNull(): Unit = encodeTaggedNull()
+    public final override fun encodeNull() {
+        if (nullableMode != NullableMode.ACCEPTABLE) {
+            val message = when (nullableMode) {
+                NullableMode.OPTIONAL -> "'null' is not supported for optional properties in ProtoBuf"
+                NullableMode.COLLECTION -> "'null' is not supported for collection types in ProtoBuf"
+                NullableMode.NOT_NULL -> "'null' is not allowed for not-null properties"
+                else -> "'null' is not supported in ProtoBuf";
+            }
+            throw SerializationException(message)
+        }
+    }
 
     public final override fun encodeBoolean(value: Boolean) {
         encodeTaggedBoolean(popTagOrDefault(), value)
@@ -113,6 +129,8 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
         serializer: SerializationStrategy<T>,
         value: T
     ) {
+        nullableMode = NullableMode.NOT_NULL
+
         pushTag(descriptor.getTag(index))
         encodeSerializableValue(serializer, value)
     }
@@ -123,6 +141,15 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
         serializer: SerializationStrategy<T>,
         value: T?
     ) {
+        val elementKind = descriptor.getElementDescriptor(index).kind
+        nullableMode = if (descriptor.isElementOptional(index)) {
+            NullableMode.OPTIONAL
+        } else if (elementKind == StructureKind.MAP || elementKind == StructureKind.LIST) {
+            NullableMode.COLLECTION
+        } else {
+            NullableMode.ACCEPTABLE
+        }
+
         pushTag(descriptor.getTag(index))
         encodeNullableSerializableValue(serializer, value)
     }
