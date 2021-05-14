@@ -56,7 +56,7 @@ public sealed class Json(
     override val serializersModule: SerializersModule
 ) : StringFormat {
 
-    internal val schemaCache: DescriptorSchemaCache = DescriptorSchemaCache()
+    internal val _schemaCache: DescriptorSchemaCache = DescriptorSchemaCache()
 
     /**
      * The default instance of [Json] with default configuration.
@@ -290,6 +290,11 @@ private class JsonImpl(configuration: JsonConfiguration, module: SerializersModu
         serializersModule.dumpTo(collector)
     }
 }
+
+/**
+ * Emulate thread-locality of cache on Native
+ */
+internal expect val Json.schemaCache: DescriptorSchemaCache
 
 private const val defaultIndent = "    "
 private const val defaultDiscriminator = "type"
