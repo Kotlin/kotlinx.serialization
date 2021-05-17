@@ -22,10 +22,7 @@ interface Project {
 @SerialName("owned")
 class OwnedProject(override val name: String, val owner: String) : Project
 
-@Serializable
-class Data(val project: Project) // Project is an interface
-
 fun main() {
-    val data = Data(OwnedProject("kotlinx.coroutines", "kotlin"))
+    val data: Project = OwnedProject("kotlinx.coroutines", "kotlin")
     println(format.encodeToString(data))
-}        
+}    
