@@ -294,7 +294,7 @@ fun main() {
 An object serializes as an empty class, also using its fully-qualified class name as type by default:
 
 ```text 
-[{"type":"example.examplePoly07.EmptyResponse"},{"type":"example.examplePoly07.TextResponse","text":"OK"}]
+[{"type":"example.examplePoly08.EmptyResponse"},{"type":"example.examplePoly08.TextResponse","text":"OK"}]
 ```                            
 
 <!--- TEST -->

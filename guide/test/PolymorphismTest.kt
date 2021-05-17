@@ -59,7 +59,7 @@ class PolymorphismTest {
     @Test
     fun testExamplePoly08() {
         captureOutput("ExamplePoly08") { example.examplePoly08.main() }.verifyOutputLines(
-            "[{\"type\":\"example.examplePoly07.EmptyResponse\"},{\"type\":\"example.examplePoly07.TextResponse\",\"text\":\"OK\"}]"
+            "[{\"type\":\"example.examplePoly08.EmptyResponse\"},{\"type\":\"example.examplePoly08.TextResponse\",\"text\":\"OK\"}]"
         )
     }
 
