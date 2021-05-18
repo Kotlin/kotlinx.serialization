@@ -56,6 +56,11 @@ public sealed class Json(
     override val serializersModule: SerializersModule
 ) : StringFormat {
 
+    @Deprecated(
+        "Should not be accessed directly, use Json.schemaCache accessor instead",
+        ReplaceWith("schemaCache"),
+        DeprecationLevel.ERROR
+    )
     internal val _schemaCache: DescriptorSchemaCache = DescriptorSchemaCache()
 
     /**
@@ -292,7 +297,7 @@ private class JsonImpl(configuration: JsonConfiguration, module: SerializersModu
 }
 
 /**
- * Emulate thread-locality of cache on Native
+ * This accessor should be used to workaround for freezing problems in Native, see Native source set
  */
 internal expect val Json.schemaCache: DescriptorSchemaCache
 

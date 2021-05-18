@@ -8,11 +8,22 @@ import kotlinx.serialization.json.internal.*
 import kotlin.native.ref.*
 import kotlin.random.*
 
+/**
+ * This maps emulate thread-locality of DescriptorSchemaCache for Native.
+ *
+ * Custom JSON instances are considered thread-safety (in JVM) and can be frozen and transferred to different workers (in Native).
+ * Therefore, DescriptorSchemaCache should be either a concurrent freeze-aware map or thread local.
+ * Each JSON instance have it's own schemaCache, and it's impossible to use @ThreadLocal on non-global vals.
+ * Thus we make @ThreadLocal this special map: it provides schemaCache for a particular Json instance
+ * and should be used instead of a member `_schemaCache` on Native.
+ *
+ * To avoid memory leaks (when Json instance is no longer in use), WeakReference is used with periodical self-cleaning.
+ */
 @ThreadLocal
 private val jsonToCache: MutableMap<WeakJson, DescriptorSchemaCache> = mutableMapOf()
 
 /**
- * Because WeakReference itself does not have equals/hashCode
+ * Because WeakReference itself does not have proper equals/hashCode
  */
 private class WeakJson(json: Json) {
     private val ref = WeakReference(json)
@@ -28,7 +39,6 @@ private class WeakJson(json: Json) {
     }
 
     override fun hashCode(): Int = initialHashCode
-
 }
 
 /**
@@ -47,7 +57,7 @@ private fun cleanUpWeakMap() {
 }
 
 /**
- * Emulate thread locality of cache on Native
+ * Accessor for DescriptorSchemaCache
  */
 internal actual val Json.schemaCache: DescriptorSchemaCache
     get() = jsonToCache.getOrPut(WeakJson(this)) { DescriptorSchemaCache() }.also { cleanUpWeakMap() }
