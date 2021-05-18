@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:Suppress("DEPRECATION_ERROR")
 @file:OptIn(ExperimentalSerializationApi::class)
@@ -66,6 +66,7 @@ internal sealed class KeyValueSerializer<K, V, R>(
 }
 
 @PublishedApi
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 internal class MapEntrySerializer<K, V>(
     keySerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>

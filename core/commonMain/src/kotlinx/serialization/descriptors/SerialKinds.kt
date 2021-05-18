@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.descriptors
@@ -85,6 +85,7 @@ public sealed class SerialKind {
  * For the `Color` example, represented as single [Int], its descriptor should have [INT] kind, zero elements and serial name **not equals**
  * to `kotlin.Int`: `PrimitiveDescriptor("my.package.ColorAsInt", PrimitiveKind.INT)`
  */
+@OptIn(ExperimentalSerializationApi::class) // May be @Experimental, but break clients + makes impossible to use stable PrimitiveSerialDescriptor
 public sealed class PrimitiveKind : SerialKind() {
     /**
      * Primitive kind that represents a boolean `true`/`false` value.

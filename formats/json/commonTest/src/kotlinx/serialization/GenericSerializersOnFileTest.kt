@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 @file:UseSerializers(GenericSerializersOnFileTest.MySerializer::class)
 
 package kotlinx.serialization
@@ -24,6 +28,7 @@ class GenericSerializersOnFileTest {
             encoder.encodeString(value.t as String)
         }
 
+        @Suppress("UNCHECKED_CAST")
         override fun deserialize(decoder: Decoder): GenericClass<E> {
             return GenericClass(decoder.decodeString() as E)
         }

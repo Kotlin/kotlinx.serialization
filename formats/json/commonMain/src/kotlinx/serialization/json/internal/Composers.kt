@@ -1,8 +1,14 @@
+/*
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.json.internal
 
+import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import kotlin.jvm.*
 
+@OptIn(ExperimentalSerializationApi::class)
 internal open class Composer(@JvmField internal val sb: JsonStringBuilder, @JvmField internal val json: Json) {
     private var level = 0
     var writingFirst = true

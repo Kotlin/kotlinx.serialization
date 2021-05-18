@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:OptIn(ExperimentalSerializationApi::class)
 package kotlinx.serialization.protobuf.internal
@@ -18,6 +18,7 @@ internal open class ProtobufEncoder(
     private val writer: ProtobufWriter,
     @JvmField protected val descriptor: SerialDescriptor
 ) : ProtobufTaggedEncoder() {
+    @ExperimentalSerializationApi // KT-46731
     public override val serializersModule
         get() = proto.serializersModule
 
@@ -50,7 +51,7 @@ internal open class ProtobufEncoder(
         StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> {
             val tag = currentTagOrDefault
             if (tag == MISSING_TAG && descriptor == this.descriptor) this
-            else ObjectEncoder(proto, currentTagOrDefault, writer, descriptor =  descriptor)
+            else ObjectEncoder(proto, currentTagOrDefault, writer, descriptor = descriptor)
         }
         StructureKind.MAP -> MapRepeatedEncoder(proto, currentTagOrDefault, writer, descriptor)
         else -> throw SerializationException("This serial kind is not supported as structure: $descriptor")
@@ -67,7 +68,7 @@ internal open class ProtobufEncoder(
     override fun encodeTaggedByte(tag: ProtoDesc, value: Byte) = encodeTaggedInt(tag, value.toInt())
     override fun encodeTaggedShort(tag: ProtoDesc, value: Short) = encodeTaggedInt(tag, value.toInt())
     override fun encodeTaggedBoolean(tag: ProtoDesc, value: Boolean) = encodeTaggedInt(tag, if (value) 1 else 0)
-    override fun encodeTaggedChar(tag: ProtoDesc, value: Char) = encodeTaggedInt(tag, value.toInt())
+    override fun encodeTaggedChar(tag: ProtoDesc, value: Char) = encodeTaggedInt(tag, value.code)
 
     override fun encodeTaggedLong(tag: ProtoDesc, value: Long) {
         if (tag == MISSING_TAG) {
@@ -190,6 +191,7 @@ private class NestedRepeatedEncoder(
     @JvmField val stream: ByteArrayOutput = ByteArrayOutput()
 ) : ProtobufEncoder(proto, ProtobufWriter(stream), descriptor) {
     // all elements always have id = 1
+    @ExperimentalSerializationApi // KT-46731
     override fun SerialDescriptor.getTag(index: Int) = ProtoDesc(1, ProtoIntegerType.DEFAULT)
 
     override fun endEncode(descriptor: SerialDescriptor) {

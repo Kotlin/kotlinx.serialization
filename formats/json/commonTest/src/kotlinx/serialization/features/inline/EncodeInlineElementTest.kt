@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 @file:OptIn(ExperimentalUnsignedTypes::class)
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
@@ -16,9 +20,9 @@ import kotlin.test.Test
 data class WithUnsigned(val u: UInt)
 
 object WithUnsignedSerializer : KSerializer<WithUnsigned> {
-    override fun serialize(encoder: Encoder, obj: WithUnsigned) {
+    override fun serialize(encoder: Encoder, value: WithUnsigned) {
         val ce = encoder.beginStructure(descriptor)
-        ce.encodeInlineElement(descriptor, 0).encodeInt(obj.u.toInt())
+        ce.encodeInlineElement(descriptor, 0).encodeInt(value.u.toInt())
         ce.endStructure(descriptor)
     }
 

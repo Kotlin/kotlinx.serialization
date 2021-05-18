@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:OptIn(ExperimentalSerializationApi::class)
 
@@ -73,7 +73,6 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
         }
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = cbor.encodeDefaults
 
     protected open fun writeBeginToken() = encoder.startMap()
@@ -92,7 +91,6 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
 
     override fun endStructure(descriptor: SerialDescriptor) = encoder.end()
 
-    @OptIn(ExperimentalSerializationApi::class)
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         encodeByteArrayAsByteString = descriptor.isByteString(index)
         val name = descriptor.getElementName(index)
@@ -105,7 +103,7 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
     override fun encodeFloat(value: Float) = encoder.encodeFloat(value)
     override fun encodeDouble(value: Double) = encoder.encodeDouble(value)
 
-    override fun encodeChar(value: Char) = encoder.encodeNumber(value.toLong())
+    override fun encodeChar(value: Char) = encoder.encodeNumber(value.code.toLong())
     override fun encodeByte(value: Byte) = encoder.encodeNumber(value.toLong())
     override fun encodeShort(value: Short) = encoder.encodeNumber(value.toLong())
     override fun encodeInt(value: Int) = encoder.encodeNumber(value.toLong())
@@ -115,6 +113,7 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
 
     override fun encodeNull() = encoder.encodeNull()
 
+    @ExperimentalSerializationApi // KT-46731
     override fun encodeEnum(
         enumDescriptor: SerialDescriptor,
         index: Int
@@ -294,7 +293,7 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
 
     override fun decodeByte() = decoder.nextNumber().toByte()
     override fun decodeShort() = decoder.nextNumber().toShort()
-    override fun decodeChar() = decoder.nextNumber().toChar()
+    override fun decodeChar() = decoder.nextNumber().toInt().toChar()
     override fun decodeInt() = decoder.nextNumber().toInt()
     override fun decodeLong() = decoder.nextNumber()
 
@@ -603,8 +602,7 @@ private fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
 }
 
 private fun Iterable<ByteArray>.flatten(): ByteArray {
-    val output = ByteArray(sumBy { it.size })
-
+    val output = ByteArray(sumOf { it.size })
     var position = 0
     for (chunk in this) {
         chunk.copyInto(output, position)

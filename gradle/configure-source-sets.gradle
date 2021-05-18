@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 kotlin {
@@ -8,7 +8,7 @@ kotlin {
         configure([compilations.main, compilations.test]) {
             kotlinOptions {
                 jvmTarget = '1.6'
-                kotlinOptions.useIR = rootProject.ext.jvm_ir_enabled
+                freeCompilerArgs += "-Xsuppress-deprecated-jvm-target-warning"
             }
         }
     }
@@ -34,8 +34,6 @@ kotlin {
             useExperimentalAnnotation("kotlin.ExperimentalMultiplatform")
             useExperimentalAnnotation("kotlin.ExperimentalStdlibApi")
             useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
-
-            enableLanguageFeature("InlineClasses")
         }
     }
 
@@ -89,7 +87,15 @@ kotlin {
     }
 
     sourceSets.matching({ it.name.contains("Main") }).all { srcSet ->
-        project.ext.set("kotlin.mpp.freeCompilerArgsForSourceSet.${srcSet.name}", "-Xexplicit-api=warning")
+        project.ext.set("kotlin.mpp.freeCompilerArgsForSourceSet.${srcSet.name}", ["-Xexplicit-api=strict"])
+    }
+
+    targets.all {
+        compilations.main {
+            kotlinOptions {
+                allWarningsAsErrors = true
+            }
+        }
     }
 
     def targetsWithoutTestRunners = ["linuxArm32Hfp", "linuxArm64", "mingwX86"]

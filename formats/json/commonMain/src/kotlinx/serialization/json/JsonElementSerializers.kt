@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:OptIn(ExperimentalSerializationApi::class)
 
@@ -120,7 +120,7 @@ private object JsonLiteralSerializer : KSerializer<JsonLiteral> {
 
         // most unsigned values fit to .longOrNull, but not ULong
         value.content.toULongOrNull()?.let {
-            encoder.encodeInline(ULong.serializer().descriptor)?.encodeLong(it.toLong())
+            encoder.encodeInline(ULong.serializer().descriptor).encodeLong(it.toLong())
             return
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("FunctionName", "DeprecatedCallableAddReplaceWith")
@@ -40,6 +40,7 @@ import kotlinx.serialization.modules.*
  * for [Contextual] and [Polymorphic] serialization, if you have any.
  */
 @ExperimentalSerializationApi
+@Suppress("UNUSED_PARAMETER")
 public sealed class Properties(
     override val serializersModule: SerializersModule,
     ctorMarker: Nothing?

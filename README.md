@@ -28,8 +28,6 @@ Kotlin serialization consists of a compiler plugin, that generates visitor code 
   * [Android](#android)
   * [Multiplatform (Common, JS, Native)](#multiplatform-common-js-native)
   * [Maven](#maven)
-* [Kotlin Serialization Guide](docs/serialization-guide.md)
-* [Full API reference](https://kotlin.github.io/kotlinx.serialization/)
 
 <!--- END -->
 

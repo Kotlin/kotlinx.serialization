@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -181,15 +181,15 @@ class SerialDescriptorSpecificationTest {
 
     @Test
     fun testPrimitiveDescriptors() {
-        checkPrimitiveDescriptor("int", Int.serializer().descriptor)
-        checkPrimitiveDescriptor("boolean", Boolean.serializer().descriptor)
-        checkPrimitiveDescriptor("byte", Byte.serializer().descriptor)
-        checkPrimitiveDescriptor("short", Short.serializer().descriptor)
-        checkPrimitiveDescriptor("long", Long.serializer().descriptor)
-        checkPrimitiveDescriptor("float", Float.serializer().descriptor)
-        checkPrimitiveDescriptor("double", Double.serializer().descriptor)
-        checkPrimitiveDescriptor("char", Char.serializer().descriptor)
-        checkPrimitiveDescriptor("string", String.serializer().descriptor)
+        checkPrimitiveDescriptor("Int", Int.serializer().descriptor)
+        checkPrimitiveDescriptor("Boolean", Boolean.serializer().descriptor)
+        checkPrimitiveDescriptor("Byte", Byte.serializer().descriptor)
+        checkPrimitiveDescriptor("Short", Short.serializer().descriptor)
+        checkPrimitiveDescriptor("Long", Long.serializer().descriptor)
+        checkPrimitiveDescriptor("Float", Float.serializer().descriptor)
+        checkPrimitiveDescriptor("Double", Double.serializer().descriptor)
+        checkPrimitiveDescriptor("Char", Char.serializer().descriptor)
+        checkPrimitiveDescriptor("String", String.serializer().descriptor)
     }
 
     @Test
@@ -211,9 +211,9 @@ class SerialDescriptorSpecificationTest {
 
     private fun checkPrimitiveDescriptor(type: String, descriptor: SerialDescriptor) {
         assertEquals(0, descriptor.elementsCount)
-        val kind = descriptor.kind.toString().toLowerCase()
-        assertEquals(type, kind)
-        assertEquals("kotlin.${type.capitalize()}", descriptor.serialName)
+        val kind = descriptor.kind.toString()
+        assertEquals(type.uppercase(), kind)
+        assertEquals("kotlin.${type}", descriptor.serialName)
         assertEquals(0, descriptor.annotations.size)
         assertFalse(descriptor.isNullable)
         assertFailsWith<IllegalStateException> { descriptor.getElementName(0) }

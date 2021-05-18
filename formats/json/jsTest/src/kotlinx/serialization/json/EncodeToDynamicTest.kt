@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json
@@ -388,10 +388,9 @@ public inline fun <reified T : Any> assertDynamicForm(
     skipEqualsCheck:Boolean = false,
     noinline assertions: ((T, dynamic) -> Unit)? = null
 ) {
-    val effectiveSerializer = serializer ?: EmptySerializersModule.serializer<T>()
-    val serialized = Json.encodeToDynamic(effectiveSerializer, data)
+    val serialized = Json.encodeToDynamic(serializer, data)
     assertions?.invoke(data, serialized)
-    val string = Json.encodeToString(effectiveSerializer, data)
+    val string = Json.encodeToString(serializer, data)
     assertEquals(
         string,
         JSON.stringify(serialized),
@@ -399,5 +398,5 @@ public inline fun <reified T : Any> assertDynamicForm(
     )
 
     if (skipEqualsCheck) return // arrays etc.
-    assertEquals(data, Json.decodeFromString<T>(effectiveSerializer, string))
+    assertEquals(data, Json.decodeFromString(serializer, string))
 }

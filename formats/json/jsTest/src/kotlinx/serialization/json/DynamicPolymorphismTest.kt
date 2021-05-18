@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
@@ -288,6 +292,7 @@ class DynamicPolymorphismTest {
         }
     }
 
+    @Suppress("NOTHING_TO_INLINE")
     private inline fun fieldsCount(dynamic: dynamic): Int {
         return js("Object").keys(dynamic).length as Int
     }

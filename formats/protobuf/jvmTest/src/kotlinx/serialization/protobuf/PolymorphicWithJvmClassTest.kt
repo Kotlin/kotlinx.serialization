@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.protobuf
@@ -15,7 +15,7 @@ import kotlin.test.*
 
 class PolymorphicWithJvmClassTest {
     @Serializable
-    data class DateWrapper(@ProtoNumber(1) @Serializable(with = PolymorphicSerializer::class) val date: Date)
+    data class DateWrapper(@ProtoNumber(1) @Polymorphic val date: Date)
 
     @Serializer(forClass = Date::class)
     object DateSerializer : KSerializer<Date> {

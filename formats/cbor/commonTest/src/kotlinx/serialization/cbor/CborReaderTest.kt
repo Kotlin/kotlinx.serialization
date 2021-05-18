@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.cbor
@@ -14,7 +14,7 @@ class CborReaderTest {
     private val ignoreUnknownKeys = Cbor { ignoreUnknownKeys = true }
 
     private fun withDecoder(input: String, block: CborDecoder.() -> Unit) {
-        val bytes = HexConverter.parseHexBinary(input.toUpperCase())
+        val bytes = HexConverter.parseHexBinary(input.uppercase())
         CborDecoder(ByteArrayInput(bytes)).block()
     }
 
