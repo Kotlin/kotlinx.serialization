@@ -223,6 +223,11 @@ public class JsonBuilder internal constructor(json: Json) {
     public var useArrayPolymorphism: Boolean = json.configuration.useArrayPolymorphism
 
     /**
+     * Enable or disable write class discriminator while encoding to json
+     */
+    public var writeClassDiscriminator: Boolean = json.configuration.writeClassDiscriminator
+
+    /**
      * Name of the class descriptor property for polymorphic serialization.
      * "type" by default.
      */
@@ -252,7 +257,7 @@ public class JsonBuilder internal constructor(json: Json) {
 
     @OptIn(ExperimentalSerializationApi::class)
     internal fun build(): JsonConfiguration {
-        if (useArrayPolymorphism) require(classDiscriminator == defaultDiscriminator) {
+        if (useArrayPolymorphism) require(classDiscriminator == defaultDiscriminatorKey) {
             "Class discriminator should not be specified when array polymorphism is specified"
         }
 
@@ -272,7 +277,8 @@ public class JsonBuilder internal constructor(json: Json) {
             encodeDefaults, ignoreUnknownKeys, isLenient,
             allowStructuredMapKeys, prettyPrint, prettyPrintIndent,
             coerceInputValues, useArrayPolymorphism,
-            classDiscriminator, allowSpecialFloatingPointValues, useAlternativeNames
+            writeClassDiscriminator, classDiscriminator,
+            allowSpecialFloatingPointValues, useAlternativeNames
         )
     }
 }
@@ -292,4 +298,4 @@ private class JsonImpl(configuration: JsonConfiguration, module: SerializersModu
 }
 
 private const val defaultIndent = "    "
-private const val defaultDiscriminator = "type"
+private const val defaultDiscriminatorKey = "type"

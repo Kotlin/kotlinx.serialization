@@ -64,7 +64,7 @@ internal class StreamingJsonEncoder(
 
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
         encodePolymorphically(serializer, value) {
-            writePolymorphic = true
+            writePolymorphic = configuration.writeClassDiscriminator
         }
     }
 
