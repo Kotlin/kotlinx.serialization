@@ -257,7 +257,7 @@ public class JsonBuilder internal constructor(json: Json) {
 
     @OptIn(ExperimentalSerializationApi::class)
     internal fun build(): JsonConfiguration {
-        if (useArrayPolymorphism) require(classDiscriminator == defaultDiscriminatorKey) {
+        if (useArrayPolymorphism) require(classDiscriminator == defaultDiscriminator) {
             "Class discriminator should not be specified when array polymorphism is specified"
         }
 
@@ -298,4 +298,4 @@ private class JsonImpl(configuration: JsonConfiguration, module: SerializersModu
 }
 
 private const val defaultIndent = "    "
-private const val defaultDiscriminatorKey = "type"
+private const val defaultDiscriminator = "type"
