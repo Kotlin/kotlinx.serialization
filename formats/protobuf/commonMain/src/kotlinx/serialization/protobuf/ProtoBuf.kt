@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.protobuf
@@ -166,5 +166,6 @@ public class ProtoBufBuilder internal constructor(proto: ProtoBuf) {
     public var serializersModule: SerializersModule = proto.serializersModule
 }
 
+@ExperimentalSerializationApi
 private class ProtoBufImpl(encodeDefaults: Boolean, serializersModule: SerializersModule) :
     ProtoBuf(encodeDefaults, serializersModule)

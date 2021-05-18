@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 @file:Suppress("INLINE_CLASSES_NOT_SUPPORTED", "SERIALIZER_NOT_FOUND")
 @file:OptIn(ExperimentalUnsignedTypes::class)
 
@@ -12,13 +16,15 @@ import kotlinx.serialization.builtins.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.test.*
+import kotlin.jvm.*
 import kotlin.test.*
 
 @Serializable
 data class SimpleContainerForUInt(val i: UInt)
 
 @Serializable(MyUIntSerializer::class)
-inline class MyUInt(val m: Int)
+@JvmInline
+value class MyUInt(val m: Int)
 
 @Serializer(forClass = MyUInt::class)
 object MyUIntSerializer {
@@ -36,7 +42,8 @@ object MyUIntSerializer {
 data class SimpleContainerForMyType(val i: MyUInt)
 
 @Serializable
-inline class MyList<T>(val list: List<T>)
+@JvmInline
+value class MyList<T>(val list: List<T>)
 
 @Serializable
 data class ContainerForList<T>(val i: MyList<T>)
@@ -57,9 +64,13 @@ data class MixedPositions(
 )
 
 @Serializable
-inline class ResourceId(val id: String)
+@JvmInline
+value class ResourceId(val id: String)
+
 @Serializable
-inline class ResourceType(val type: String)
+@JvmInline
+value class ResourceType(val type: String)
+
 @Serializable
 data class ResourceIdentifier(val id: ResourceId, val type: ResourceType)
 

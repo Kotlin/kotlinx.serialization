@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.protobuf
@@ -18,7 +18,7 @@ class CustomSerializersProtobufTest {
     fun writeCustom() {
         val a = A(B(2))
         val j = protoBufWithB()
-        val s = j.encodeToHexString(a).toUpperCase()
+        val s = j.encodeToHexString(a).uppercase()
         assertEquals("0802", s)
     }
 
@@ -34,7 +34,7 @@ class CustomSerializersProtobufTest {
     fun writeCustomList() {
         val obj = BList(listOf(B(1), B(2), B(3)))
         val j = protoBufWithB()
-        val s = j.encodeToHexString(obj).toUpperCase()
+        val s = j.encodeToHexString(obj).uppercase()
         assertEquals("080108020803", s)
     }
 
@@ -49,7 +49,7 @@ class CustomSerializersProtobufTest {
     @Test
     fun writeCustomInvertedOrder() {
         val obj = C(1, 2)
-        val s = ProtoBuf.encodeToHexString(CSerializer, obj).toUpperCase()
+        val s = ProtoBuf.encodeToHexString(CSerializer, obj).uppercase()
         assertEquals("10020801", s)
     }
 
@@ -63,7 +63,7 @@ class CustomSerializersProtobufTest {
     @Test
     fun writeCustomOmitDefault() {
         val obj = C(b = 2)
-        val s = ProtoBuf.encodeToHexString(CSerializer, obj).toUpperCase()
+        val s = ProtoBuf.encodeToHexString(CSerializer, obj).uppercase()
         assertEquals("1002", s)
     }
 
@@ -77,7 +77,7 @@ class CustomSerializersProtobufTest {
     @Test
     fun writeOptionalList1() {
         val obj = CList1(listOf(C(a = 1), C(b = 2), C(3, 4)))
-        val s = ProtoBuf.encodeToHexString(CList1Serializer, obj).toUpperCase()
+        val s = ProtoBuf.encodeToHexString(CList1Serializer, obj).uppercase()
         assertEquals("0A04102A08010A0210020A0410040803", s)
     }
 
@@ -91,7 +91,7 @@ class CustomSerializersProtobufTest {
     @Test
     fun writeOptionalList2a() {
         val obj = CList2(7, listOf(C(a = 5), C(b = 6), C(7, 8)))
-        val s = ProtoBuf.encodeToHexString(CList2Serializer, obj).toUpperCase()
+        val s = ProtoBuf.encodeToHexString(CList2Serializer, obj).uppercase()
         assertEquals("1204102A0805120210061204100808070807", s)
     }
 
@@ -105,7 +105,7 @@ class CustomSerializersProtobufTest {
     @Test
     fun writeOptionalList2b() {
         val obj = CList2(c = listOf(C(a = 5), C(b = 6), C(7, 8)))
-        val s = ProtoBuf.encodeToHexString(CList2Serializer, obj).toUpperCase()
+        val s = ProtoBuf.encodeToHexString(CList2Serializer, obj).uppercase()
         assertEquals("1204102A080512021006120410080807", s)
     }
 
@@ -119,7 +119,7 @@ class CustomSerializersProtobufTest {
     @Test
     fun writeOptionalList3a() {
         val obj = CList3(listOf(C(a = 1), C(b = 2), C(3, 4)), 99)
-        val s = ProtoBuf.encodeToHexString(CList3Serializer, obj).toUpperCase()
+        val s = ProtoBuf.encodeToHexString(CList3Serializer, obj).uppercase()
         assertEquals("0A04102A08010A0210020A04100408031063", s)
     }
 
@@ -133,7 +133,7 @@ class CustomSerializersProtobufTest {
     @Test
     fun writeOptionalList3b() {
         val obj = CList3(f = 99)
-        val s = ProtoBuf.encodeToHexString(CList3Serializer, obj).toUpperCase()
+        val s = ProtoBuf.encodeToHexString(CList3Serializer, obj).uppercase()
         assertEquals("1063", s)
     }
 
@@ -147,7 +147,7 @@ class CustomSerializersProtobufTest {
     @Test
     fun writeOptionalList4a() {
         val obj = CList4(listOf(C(a = 1), C(b = 2), C(3, 4)), 54)
-        val s = ProtoBuf.encodeToHexString(CList4Serializer, obj).toUpperCase()
+        val s = ProtoBuf.encodeToHexString(CList4Serializer, obj).uppercase()
         assertEquals("10360A04102A08010A0210020A0410040803", s)
     }
 
@@ -162,7 +162,7 @@ class CustomSerializersProtobufTest {
     fun writeOptionalList4b() {
         val obj = CList4(h = 97)
         val j = "1061"
-        val s = ProtoBuf.encodeToHexString(CList4Serializer, obj).toUpperCase()
+        val s = ProtoBuf.encodeToHexString(CList4Serializer, obj).uppercase()
         assertEquals(j, s)
     }
 
@@ -176,7 +176,7 @@ class CustomSerializersProtobufTest {
     @Test
     fun writeOptionalList5a() {
         val obj = CList5(listOf(9, 8, 7, 6, 5), 5)
-        val s = ProtoBuf.encodeToHexString(CList5Serializer, obj).toUpperCase()
+        val s = ProtoBuf.encodeToHexString(CList5Serializer, obj).uppercase()
         assertEquals("100508090808080708060805", s)
     }
 
@@ -190,7 +190,7 @@ class CustomSerializersProtobufTest {
     @Test
     fun writeOptionalList5b() {
         val obj = CList5(h = 999)
-        val s = ProtoBuf.encodeToHexString(CList5Serializer, obj).toUpperCase()
+        val s = ProtoBuf.encodeToHexString(CList5Serializer, obj).uppercase()
         assertEquals("10E707", s)
     }
 

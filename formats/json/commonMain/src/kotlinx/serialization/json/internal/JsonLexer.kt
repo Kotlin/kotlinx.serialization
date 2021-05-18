@@ -102,19 +102,19 @@ internal object CharMappings {
     }
 
     private fun initC2ESC(c: Int, esc: Char) {
-        if (esc != UNICODE_ESC) ESCAPE_2_CHAR[esc.toInt()] = c.toChar()
+        if (esc != UNICODE_ESC) ESCAPE_2_CHAR[esc.code] = c.toChar()
     }
 
-    private fun initC2ESC(c: Char, esc: Char) = initC2ESC(c.toInt(), esc)
+    private fun initC2ESC(c: Char, esc: Char) = initC2ESC(c.code, esc)
 
     private fun initC2TC(c: Int, cl: Byte) {
         CHAR_TO_TOKEN[c] = cl
     }
 
-    private fun initC2TC(c: Char, cl: Byte) = initC2TC(c.toInt(), cl)
+    private fun initC2TC(c: Char, cl: Byte) = initC2TC(c.code, cl)
 }
 
-internal fun charToTokenClass(c: Char) = if (c.toInt() < CTC_MAX) CHAR_TO_TOKEN[c.toInt()] else TC_OTHER
+internal fun charToTokenClass(c: Char) = if (c.code < CTC_MAX) CHAR_TO_TOKEN[c.code] else TC_OTHER
 
 internal fun escapeToChar(c: Int): Char = if (c < ESC2C_MAX) ESCAPE_2_CHAR[c] else INVALID
 
@@ -397,7 +397,7 @@ internal class JsonLexer(private val source: String) {
             return appendHex(source, currentPosition)
         }
 
-        val c = escapeToChar(currentChar.toInt())
+        val c = escapeToChar(currentChar.code)
         if (c == INVALID) fail("Invalid escaped char '$currentChar'")
         escapedString.append(c)
         return currentPosition
@@ -416,9 +416,9 @@ internal class JsonLexer(private val source: String) {
 
     private fun fromHexChar(source: String, currentPosition: Int): Int {
         return when (val character = source[currentPosition]) {
-            in '0'..'9' -> character.toInt() - '0'.toInt()
-            in 'a'..'f' -> character.toInt() - 'a'.toInt() + 10
-            in 'A'..'F' -> character.toInt() - 'A'.toInt() + 10
+            in '0'..'9' -> character.code - '0'.code
+            in 'a'..'f' -> character.code - 'a'.code + 10
+            in 'A'..'F' -> character.code - 'A'.code + 10
             else -> fail("Invalid toHexChar char '$character' in unicode escape")
         }
     }
@@ -566,12 +566,12 @@ internal class JsonLexer(private val source: String) {
          */
         var current = start
         if (current == source.length) fail("EOF")
-        return when (source[current++].toInt() or asciiCaseMask) {
-            't'.toInt() -> {
+        return when (source[current++].code or asciiCaseMask) {
+            't'.code -> {
                 consumeBooleanLiteral("rue", current)
                 true
             }
-            'f'.toInt() -> {
+            'f'.code -> {
                 consumeBooleanLiteral("alse", current)
                 false
             }
@@ -589,7 +589,7 @@ internal class JsonLexer(private val source: String) {
         for (i in literalSuffix.indices) {
             val expected = literalSuffix[i]
             val actual = source[current + i]
-            if (expected.toInt() != actual.toInt() or asciiCaseMask) {
+            if (expected.code != actual.code or asciiCaseMask) {
                 fail("Expected valid boolean literal prefix, but had '${consumeStringLenient()}'")
             }
         }

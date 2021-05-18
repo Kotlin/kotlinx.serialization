@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.protobuf.internal
@@ -216,7 +216,7 @@ internal class ByteArrayOutput {
         encodeVarint(value, length)
     }
 
-    private inline fun encodeVarint(value: Long, length: Int) {
+    private fun encodeVarint(value: Long, length: Int) {
         var current = value
         for (i in 0 until length) {
             array[position + i] = ((current and 0x7F) or 0x80).toByte()

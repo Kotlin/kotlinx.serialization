@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.test
 
 object InternalHexConverter {
@@ -34,7 +38,7 @@ object InternalHexConverter {
             r.append(hexCode[b.toInt() shr 4 and 0xF])
             r.append(hexCode[b.toInt() and 0xF])
         }
-        return if (lowerCase) r.toString().toLowerCase() else r.toString()
+        return if (lowerCase) r.toString().lowercase() else r.toString()
     }
 
     fun toHexString(n: Int): String {

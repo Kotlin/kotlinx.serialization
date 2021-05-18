@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -83,7 +83,7 @@ class BasicTypesSerializationTest {
 
         override fun decodeNotNullMark(): Boolean {
             inp.skipWhitespace()
-            if (inp.cur != 'n'.toInt()) return true
+            if (inp.cur != 'n'.code) return true
             return false
         }
 
@@ -128,7 +128,7 @@ class BasicTypesSerializationTest {
         }
 
         fun expect(c: Char) {
-            check(cur == c.toInt()) { "Expected '$c'" }
+            check(cur == c.code) { "Expected '$c'" }
             next()
         }
 
@@ -152,7 +152,7 @@ class BasicTypesSerializationTest {
         private var position: Int = 0
         fun read(): Int = when (position) {
             str.length -> -1
-            else -> str[position++].toInt()
+            else -> str[position++].code
         }
     }
 

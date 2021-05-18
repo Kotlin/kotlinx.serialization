@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("FunctionName")
@@ -66,6 +66,7 @@ internal fun UnknownKeyException(key: String, input: String) = JsonDecodingExcep
             "Current input: ${input.minify()}"
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 internal fun InvalidKeyKindException(keyDescriptor: SerialDescriptor) = JsonEncodingException(
     "Value of type '${keyDescriptor.serialName}' can't be used in JSON as a key in the map. " +
             "It should have either primitive or enum kind, but its kind is '${keyDescriptor.kind}'.\n" +

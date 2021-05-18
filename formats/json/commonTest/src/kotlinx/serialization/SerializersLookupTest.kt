@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -246,6 +246,7 @@ class SerializersLookupTest : JsonTestBase() {
         assertEquals(expected, json.encodeToString(serial2, value))
     }
 
+    @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
     inline fun <T> KSerializer<*>.cast(): KSerializer<T> = this as KSerializer<T>
 
 }

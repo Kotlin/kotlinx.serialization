@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.hocon
@@ -104,7 +104,7 @@ public sealed class Hocon(
         private fun SerialDescriptor.getConventionElementName(index: Int): String {
             val originalName = getElementName(index)
             return if (!useConfigNamingConvention) originalName
-            else originalName.replace(NAMING_CONVENTION_REGEX) { "-${it.value.toLowerCase()}" }
+            else originalName.replace(NAMING_CONVENTION_REGEX) { "-${it.value.lowercase()}" }
         }
 
         override fun getTaggedConfigValue(tag: String): ConfigValue {

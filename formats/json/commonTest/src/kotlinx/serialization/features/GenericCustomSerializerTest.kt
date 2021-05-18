@@ -98,6 +98,7 @@ class GenericCustomSerializerTest {
     @Test
     fun testContextualGeneric() {
         val module = SerializersModule {
+            @Suppress("UNCHECKED_CAST")
             contextual(CheckedData::class) { args -> CheckedDataSerializer(args[0] as KSerializer<Any>)}
         }
         assertStringFormAndRestored(

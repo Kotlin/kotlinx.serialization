@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("FunctionName")
@@ -69,6 +69,8 @@ private fun checkName(serialName: String) {
         }
     }
 }
+
+private fun String.capitalize() = replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
 
 @Suppress("UNCHECKED_CAST")
 internal fun <T : Any> KClass<T>.builtinSerializerOrNull(): KSerializer<T>? =

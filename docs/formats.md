@@ -47,8 +47,8 @@ import kotlinx.serialization.*
 import kotlinx.serialization.cbor.*
 
 fun ByteArray.toAsciiHexString() = joinToString("") {
-    if (it in 32..127) it.toChar().toString() else
-        "{${it.toUByte().toString(16).padStart(2, '0').toUpperCase()}}"
+    if (it in 32..127) it.toInt().toChar().toString() else
+        "{${it.toUByte().toString(16).padStart(2, '0').uppercase()}}"
 }
 -->
 
@@ -165,8 +165,8 @@ import kotlinx.serialization.*
 import kotlinx.serialization.cbor.*
 
 fun ByteArray.toAsciiHexString() = joinToString("") {
-    if (it in 32..127) it.toChar().toString() else
-        "{${it.toUByte().toString(16).padStart(2, '0').toUpperCase()}}"
+    if (it in 32..127) it.toInt().toChar().toString() else
+        "{${it.toUByte().toString(16).padStart(2, '0').uppercase()}}"
 }
 -->
 
@@ -234,8 +234,8 @@ import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
 
 fun ByteArray.toAsciiHexString() = joinToString("") {
-    if (it in 32..127) it.toChar().toString() else
-        "{${it.toUByte().toString(16).padStart(2, '0').toUpperCase()}}"
+    if (it in 32..127) it.toInt().toChar().toString() else
+        "{${it.toUByte().toString(16).padStart(2, '0').uppercase()}}"
 }
 -->
 
@@ -279,8 +279,8 @@ import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
 
 fun ByteArray.toAsciiHexString() = joinToString("") {
-    if (it in 32..127) it.toChar().toString() else
-        "{${it.toUByte().toString(16).padStart(2, '0').toUpperCase()}}"
+    if (it in 32..127) it.toInt().toChar().toString() else
+        "{${it.toUByte().toString(16).padStart(2, '0').uppercase()}}"
 }
 -->
 
@@ -331,8 +331,8 @@ import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
 
 fun ByteArray.toAsciiHexString() = joinToString("") {
-    if (it in 32..127) it.toChar().toString() else
-        "{${it.toUByte().toString(16).padStart(2, '0').toUpperCase()}}"
+    if (it in 32..127) it.toInt().toChar().toString() else
+        "{${it.toUByte().toString(16).padStart(2, '0').uppercase()}}"
 }
 -->
 
@@ -390,8 +390,8 @@ import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
 
 fun ByteArray.toAsciiHexString() = joinToString("") {
-    if (it in 32..127) it.toChar().toString() else
-        "{${it.toUByte().toString(16).padStart(2, '0').toUpperCase()}}"
+    if (it in 32..127) it.toInt().toChar().toString() else
+        "{${it.toUByte().toString(16).padStart(2, '0').uppercase()}}"
 }
 -->
 
@@ -984,7 +984,7 @@ class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
     override fun encodeLong(value: Long) = output.writeLong(value)
     override fun encodeFloat(value: Float) = output.writeFloat(value)
     override fun encodeDouble(value: Double) = output.writeDouble(value)
-    override fun encodeChar(value: Char) = output.writeChar(value.toInt())
+    override fun encodeChar(value: Char) = output.writeChar(value.code)
     override fun encodeString(value: String) = output.writeUTF(value)
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) = output.writeInt(index)
 
@@ -1052,8 +1052,8 @@ fun <T> decodeFrom(input: DataInput, deserializer: DeserializationStrategy<T>): 
 inline fun <reified T> decodeFrom(input: DataInput): T = decodeFrom(input, serializer())
 
 fun ByteArray.toAsciiHexString() = joinToString("") {
-    if (it in 32..127) it.toChar().toString() else
-        "{${it.toUByte().toString(16).padStart(2, '0').toUpperCase()}}"
+    if (it in 32..127) it.toInt().toChar().toString() else
+        "{${it.toUByte().toString(16).padStart(2, '0').uppercase()}}"
 }
 -->
 
@@ -1136,7 +1136,7 @@ class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
     override fun encodeLong(value: Long) = output.writeLong(value)
     override fun encodeFloat(value: Float) = output.writeFloat(value)
     override fun encodeDouble(value: Double) = output.writeDouble(value)
-    override fun encodeChar(value: Char) = output.writeChar(value.toInt())
+    override fun encodeChar(value: Char) = output.writeChar(value.code)
     override fun encodeString(value: String) = output.writeUTF(value)
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) = output.writeInt(index)
 
@@ -1247,8 +1247,8 @@ fun <T> decodeFrom(input: DataInput, deserializer: DeserializationStrategy<T>): 
 inline fun <reified T> decodeFrom(input: DataInput): T = decodeFrom(input, serializer())
 
 fun ByteArray.toAsciiHexString() = joinToString("") {
-    if (it in 32..127) it.toChar().toString() else
-        "{${it.toUByte().toString(16).padStart(2, '0').toUpperCase()}}"
+    if (it in 32..127) it.toInt().toChar().toString() else
+        "{${it.toUByte().toString(16).padStart(2, '0').uppercase()}}"
 }
 -->
 

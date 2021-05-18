@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:Suppress("INLINE_CLASSES_NOT_SUPPORTED", "SERIALIZER_NOT_FOUND")
 
@@ -8,25 +8,27 @@ package kotlinx.serialization.features.inline
 import kotlinx.serialization.*
 import kotlinx.serialization.Box
 import kotlinx.serialization.test.*
+import kotlin.jvm.*
 import kotlin.test.*
 
 @Serializable
-inline class MyInt(val i: Int)
+@JvmInline
+value class MyInt(val i: Int)
 
 @Serializable
-inline class NullableMyInt(val i: Int?)
+@JvmInline value class NullableMyInt(val i: Int?)
 
 @Serializable
-inline class OverSerializable(val s: IntData)
+@JvmInline value class OverSerializable(val s: IntData)
 
 @Serializable
-inline class OverSerializableNullable(val s: IntData?)
+@JvmInline value class OverSerializableNullable(val s: IntData?)
 
 @Serializable
-inline class WithT<T>(val t: Box<T>)
+@JvmInline value class WithT<T>(val t: Box<T>)
 
 @Serializable
-inline class WithTNullable<T>(val t: Box<T>?)
+@JvmInline value class WithTNullable<T>(val t: Box<T>?)
 
 @Serializable
 data class WithAll(
