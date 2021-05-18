@@ -70,7 +70,7 @@ private open class DynamicInput(
     }
 
     private fun coerceInputValue(descriptor: SerialDescriptor, index: Int, tag: String): Boolean =
-        json.shouldCoerceValue(
+        json.tryCoerceValue(
             descriptor.getElementDescriptor(index),
             { getByTag(tag) == null },
             { getByTag(tag) as? String }
@@ -92,7 +92,7 @@ private open class DynamicInput(
     override fun elementName(desc: SerialDescriptor, index: Int): String {
         val mainName = desc.getElementName(index)
         if (!json.configuration.useAlternativeNames) return mainName
-        // Fast path, do not go through ConcurrentHashMap.get
+        // Fast path, do not go through Map.get
         // Note, it blocks ability to detect collisions between the primary name and alternate,
         // but it eliminates a significant performance penalty (about -15% without this optimization)
         if (hasName(mainName)) return mainName

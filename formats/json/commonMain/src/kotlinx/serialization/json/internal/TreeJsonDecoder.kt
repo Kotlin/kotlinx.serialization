@@ -188,7 +188,7 @@ private open class JsonTreeDecoder(
      * Checks whether JSON has `null` value for non-null property or unknown enum value for enum property
      */
     private fun coerceInputValue(descriptor: SerialDescriptor, index: Int, tag: String): Boolean =
-        json.shouldCoerceValue(
+        json.tryCoerceValue(
             descriptor.getElementDescriptor(index),
             { currentElement(tag) is JsonNull },
             { (currentElement(tag) as? JsonPrimitive)?.contentOrNull }

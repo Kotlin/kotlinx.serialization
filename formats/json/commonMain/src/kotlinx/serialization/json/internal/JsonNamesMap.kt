@@ -65,7 +65,7 @@ internal fun SerialDescriptor.getJsonNameIndexOrThrow(json: Json, name: String):
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-internal inline fun Json.shouldCoerceValue(
+internal inline fun Json.tryCoerceValue(
     elementDescriptor: SerialDescriptor,
     peekNull: () -> Boolean,
     peekString: () -> String?,

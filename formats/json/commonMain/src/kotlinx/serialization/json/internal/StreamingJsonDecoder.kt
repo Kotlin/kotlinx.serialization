@@ -104,7 +104,7 @@ internal open class StreamingJsonDecoder(
     /*
      * Checks whether JSON has `null` value for non-null property or unknown enum value for enum property
      */
-    private fun coerceInputValue(descriptor: SerialDescriptor, index: Int): Boolean = json.shouldCoerceValue(
+    private fun coerceInputValue(descriptor: SerialDescriptor, index: Int): Boolean = json.tryCoerceValue(
         descriptor.getElementDescriptor(index),
         { !lexer.tryConsumeNotNull() },
         { lexer.peekString(configuration.isLenient) },
