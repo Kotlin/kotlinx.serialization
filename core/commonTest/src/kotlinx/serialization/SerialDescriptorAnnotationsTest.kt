@@ -5,8 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.descriptors.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class SerialDescriptorAnnotationsTest {
 
@@ -17,7 +16,33 @@ class SerialDescriptorAnnotationsTest {
     @Serializable
     @SerialName("MyClass")
     @CustomAnnotation("onClass")
-    data class WithNames(val a: Int, @CustomAnnotation("onProperty") val veryLongName: String)
+    data class WithNames(
+        val a: Int,
+        @CustomAnnotationWithDefault @CustomAnnotation("onProperty") val veryLongName: String
+    )
+
+    @SerialInfo
+    @Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
+    annotation class CustomAnnotationWithDefault(val value: String = "foo")
+
+    @SerialInfo
+    @Target(AnnotationTarget.PROPERTY)
+    public annotation class JShort(val order: SByteOrder = SByteOrder.BE, val mod: SByteMod = SByteMod.Add)
+
+    public enum class SByteOrder {
+        BE, LE
+    }
+
+    public enum class SByteMod {
+        None, Add
+    }
+
+    @Serializable
+    public class Foo(
+        @JShort(SByteOrder.LE, SByteMod.None) public val bar: Short,
+        @JShort public val baz: Short
+    )
+
 
     @Test
     fun testSerialNameOnClass() {
@@ -38,6 +63,21 @@ class SerialDescriptorAnnotationsTest {
         val desc: SerialDescriptor = WithNames.serializer().descriptor
         val name = desc.annotations.getCustom()
         assertEquals("onClass", name)
+    }
+
+    @Test
+    fun testCustomAnnotationWithDefaultValue() {
+        val value =
+            WithNames.serializer().descriptor
+                .getElementAnnotations(1).filterIsInstance<CustomAnnotationWithDefault>().single()
+        assertEquals("foo", value.value)
+    }
+
+    @Test
+    fun testAnnotationWithMultipleArgs() {
+        fun SerialDescriptor.getValues(i: Int) = getElementAnnotations(i).filterIsInstance<JShort>().single().run { order to mod }
+        assertEquals(SByteOrder.LE to SByteMod.None, Foo.serializer().descriptor.getValues(0))
+        assertEquals(SByteOrder.BE to SByteMod.Add, Foo.serializer().descriptor.getValues(1))
     }
 
     private fun List<Annotation>.getCustom() = filterIsInstance<CustomAnnotation>().single().value
