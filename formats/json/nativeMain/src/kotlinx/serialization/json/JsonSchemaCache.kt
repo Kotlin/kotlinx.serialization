@@ -11,7 +11,7 @@ import kotlin.random.*
 /**
  * This maps emulate thread-locality of DescriptorSchemaCache for Native.
  *
- * Custom JSON instances are considered thread-safety (in JVM) and can be frozen and transferred to different workers (in Native).
+ * Custom JSON instances are considered thread-safe (in JVM) and can be frozen and transferred to different workers (in Native).
  * Therefore, DescriptorSchemaCache should be either a concurrent freeze-aware map or thread local.
  * Each JSON instance have it's own schemaCache, and it's impossible to use @ThreadLocal on non-global vals.
  * Thus we make @ThreadLocal this special map: it provides schemaCache for a particular Json instance
