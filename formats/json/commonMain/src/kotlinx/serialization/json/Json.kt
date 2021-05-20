@@ -56,7 +56,12 @@ public sealed class Json(
     override val serializersModule: SerializersModule
 ) : StringFormat {
 
-    internal val schemaCache: DescriptorSchemaCache = DescriptorSchemaCache()
+    @Deprecated(
+        "Should not be accessed directly, use Json.schemaCache accessor instead",
+        ReplaceWith("schemaCache"),
+        DeprecationLevel.ERROR
+    )
+    internal val _schemaCache: DescriptorSchemaCache = DescriptorSchemaCache()
 
     /**
      * The default instance of [Json] with default configuration.
@@ -290,6 +295,11 @@ private class JsonImpl(configuration: JsonConfiguration, module: SerializersModu
         serializersModule.dumpTo(collector)
     }
 }
+
+/**
+ * This accessor should be used to workaround for freezing problems in Native, see Native source set
+ */
+internal expect val Json.schemaCache: DescriptorSchemaCache
 
 private const val defaultIndent = "    "
 private const val defaultDiscriminator = "type"
