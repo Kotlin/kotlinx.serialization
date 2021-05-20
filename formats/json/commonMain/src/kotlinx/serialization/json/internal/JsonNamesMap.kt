@@ -63,3 +63,23 @@ internal fun SerialDescriptor.getJsonNameIndexOrThrow(json: Json, name: String):
         throw SerializationException("$serialName does not contain element with name '$name'")
     return index
 }
+
+@OptIn(ExperimentalSerializationApi::class)
+internal inline fun Json.tryCoerceValue(
+    elementDescriptor: SerialDescriptor,
+    peekNull: () -> Boolean,
+    peekString: () -> String?,
+    onEnumCoercing: () -> Unit = {}
+): Boolean {
+    if (!elementDescriptor.isNullable && peekNull()) return true
+    if (elementDescriptor.kind == SerialKind.ENUM) {
+        val enumValue = peekString()
+                ?: return false // if value is not a string, decodeEnum() will throw correct exception
+        val enumIndex = elementDescriptor.getJsonNameIndex(this, enumValue)
+        if (enumIndex == CompositeDecoder.UNKNOWN_NAME) {
+            onEnumCoercing()
+            return true
+        }
+    }
+    return false
+}

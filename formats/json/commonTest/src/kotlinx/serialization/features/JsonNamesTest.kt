@@ -11,7 +11,7 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
 
-class JsonAlternativeNamesTest : JsonTestBase() {
+class JsonNamesTest : JsonTestBase() {
 
     @Serializable
     data class WithNames(@JsonNames("foo", "_foo") val data: String)
@@ -87,7 +87,7 @@ class JsonAlternativeNamesTest : JsonTestBase() {
     }
 
     @Test
-    fun testThrowsAnErrorOnDuplicateNames2() = noLegacyJs {
+    fun testThrowsAnErrorOnDuplicateNames() = noLegacyJs {
         val serializer = CollisionWithAlternate.serializer()
         parameterizedCoercingTest { json, streaming, _ ->
             assertFailsWithMessage<SerializationException>(

@@ -104,21 +104,12 @@ internal open class StreamingJsonDecoder(
     /*
      * Checks whether JSON has `null` value for non-null property or unknown enum value for enum property
      */
-    private fun coerceInputValue(descriptor: SerialDescriptor, index: Int): Boolean {
-        val elementDescriptor = descriptor.getElementDescriptor(index)
-        if (!elementDescriptor.isNullable && !lexer.tryConsumeNotNull()) return true
-        if (elementDescriptor.kind == SerialKind.ENUM) {
-            val enumValue = lexer.peekString(configuration.isLenient)
-                    ?: return false // if value is not a string, decodeEnum() will throw correct exception
-            val enumIndex = elementDescriptor.getJsonNameIndex(json, enumValue)
-            if (enumIndex == UNKNOWN_NAME) {
-                // Encountered unknown enum value, have to skip it
-                lexer.consumeString()
-                return true
-            }
-        }
-        return false
-    }
+    private fun coerceInputValue(descriptor: SerialDescriptor, index: Int): Boolean = json.tryCoerceValue(
+        descriptor.getElementDescriptor(index),
+        { !lexer.tryConsumeNotNull() },
+        { lexer.peekString(configuration.isLenient) },
+        { lexer.consumeString() /* skip unknown enum string*/ }
+    )
 
     private fun decodeObjectIndex(descriptor: SerialDescriptor): Int {
         // hasComma checks are required to properly react on trailing commas

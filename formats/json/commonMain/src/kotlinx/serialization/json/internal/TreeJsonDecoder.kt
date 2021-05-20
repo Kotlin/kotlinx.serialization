@@ -187,17 +187,12 @@ private open class JsonTreeDecoder(
     /*
      * Checks whether JSON has `null` value for non-null property or unknown enum value for enum property
      */
-    private fun coerceInputValue(descriptor: SerialDescriptor, index: Int, tag: String): Boolean {
-        val elementDescriptor = descriptor.getElementDescriptor(index)
-        if (currentElement(tag) is JsonNull && !elementDescriptor.isNullable) return true // null for non-nullable
-        if (elementDescriptor.kind == SerialKind.ENUM) {
-            val enumValue = (currentElement(tag) as? JsonPrimitive)?.contentOrNull
-                    ?: return false // if value is not a string, decodeEnum() will throw correct exception
-            val enumIndex = elementDescriptor.getJsonNameIndex(json, enumValue)
-            if (enumIndex == CompositeDecoder.UNKNOWN_NAME) return true
-        }
-        return false
-    }
+    private fun coerceInputValue(descriptor: SerialDescriptor, index: Int, tag: String): Boolean =
+        json.tryCoerceValue(
+            descriptor.getElementDescriptor(index),
+            { currentElement(tag) is JsonNull },
+            { (currentElement(tag) as? JsonPrimitive)?.contentOrNull }
+        )
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         while (position < descriptor.elementsCount) {

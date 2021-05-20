@@ -38,6 +38,9 @@ private open class DynamicInput(
     override val json: Json
 ) : NamedValueDecoder(), JsonDecoder {
 
+    protected val keys: dynamic = js("Object").keys(value ?: js("{}"))
+    protected open val size: Int = keys.length as Int
+
     override val serializersModule: SerializersModule
         get() = json.serializersModule
 
@@ -53,8 +56,6 @@ private open class DynamicInput(
             return JsonNull
         }
 
-        val keys: dynamic = js("Object").keys(value)
-        val size: Int = keys.length as Int
         return buildJsonObject {
             for (i in 0 until size) {
                 val key = keys[i]
@@ -68,18 +69,45 @@ private open class DynamicInput(
         return decodeSerializableValuePolymorphic(deserializer)
     }
 
+    private fun coerceInputValue(descriptor: SerialDescriptor, index: Int, tag: String): Boolean =
+        json.tryCoerceValue(
+            descriptor.getElementDescriptor(index),
+            { getByTag(tag) == null },
+            { getByTag(tag) as? String }
+        )
+
     override fun composeName(parentName: String, childName: String): String = childName
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         while (currentPosition < descriptor.elementsCount) {
             val name = descriptor.getTag(currentPosition++)
-            if (value[name] !== undefined) return currentPosition - 1
+            if (hasName(name) && (!json.configuration.coerceInputValues || !coerceInputValue(descriptor, currentPosition - 1, name)))
+                return currentPosition - 1
         }
         return CompositeDecoder.DECODE_DONE
     }
 
-    override fun decodeTaggedEnum(tag: String, enumDescriptor: SerialDescriptor): Int =
-        enumDescriptor.getJsonNameIndexOrThrow(json, getByTag(tag) as String)
+    private fun hasName(name: String) = value[name] !== undefined
+
+    override fun elementName(desc: SerialDescriptor, index: Int): String {
+        val mainName = desc.getElementName(index)
+        if (!json.configuration.useAlternativeNames) return mainName
+        // Fast path, do not go through Map.get
+        // Note, it blocks ability to detect collisions between the primary name and alternate,
+        // but it eliminates a significant performance penalty (about -15% without this optimization)
+        if (hasName(mainName)) return mainName
+        // Slow path
+        val alternativeNamesMap =
+            json.schemaCache.getOrPut(desc, JsonAlternativeNamesKey, desc::buildAlternativeNamesMap)
+        val nameInObject = (keys as Array<String>).find { alternativeNamesMap[it] == index }
+        return nameInObject ?: mainName
+    }
+
+    override fun decodeTaggedEnum(tag: String, enumDescriptor: SerialDescriptor): Int {
+        val byTag = getByTag(tag)
+        val enumValue = byTag as? String ?: throw SerializationException("Enum value must be a string, got '$byTag'")
+        return enumDescriptor.getJsonNameIndexOrThrow(json, enumValue)
+    }
 
     protected open fun getByTag(tag: String): dynamic = value[tag]
 
@@ -144,8 +172,7 @@ private class DynamicMapInput(
     value: dynamic,
     json: Json,
 ) : DynamicInput(value, json) {
-    private val keys: dynamic = js("Object").keys(value)
-    private val size: Int = (keys.length as Int) * 2
+    override val size: Int = (keys.length as Int) * 2
     private var currentPosition = -1
     private val isKey: Boolean get() = currentPosition % 2 == 0
 
@@ -215,7 +242,7 @@ private class DynamicListInput(
     value: dynamic,
     json: Json,
 ) : DynamicInput(value, json) {
-    private val size = value.length as Int
+    override val size = value.length as Int
     private var currentPosition = -1
 
     override fun elementName(desc: SerialDescriptor, index: Int): String = (index).toString()
