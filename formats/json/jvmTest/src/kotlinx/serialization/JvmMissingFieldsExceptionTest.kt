@@ -10,7 +10,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-@Ignore("Test of future compiler optimization, remove annotation in release 1.1!")
 class JvmMissingFieldsExceptionTest {
     @Serializable
     data class Generic<out T1, out T2, out T3>(val f1: T1, val f2: T2, val f3: T3)
