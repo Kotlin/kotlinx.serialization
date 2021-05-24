@@ -81,4 +81,40 @@ class SerialDescriptorAnnotationsTest {
     }
 
     private fun List<Annotation>.getCustom() = filterIsInstance<CustomAnnotation>().single().value
+
+    @Serializable
+    @CustomAnnotation("sealed")
+    sealed class Result {
+        @Serializable class OK(val s: String): Result()
+    }
+
+    @Serializable
+    @CustomAnnotation("abstract")
+    abstract class AbstractResult {
+        var result: String = ""
+    }
+
+    @Serializable
+    @CustomAnnotation("object")
+    object ObjectResult {}
+
+    @Serializable
+    class Holder(val r: Result, val a: AbstractResult, val o: ObjectResult, @Contextual val names: WithNames)
+
+    private fun doTest(position: Int, expected: String) {
+        val desc = Holder.serializer().descriptor.getElementDescriptor(position)
+        assertEquals(expected, desc.annotations.getCustom())
+    }
+
+    @Test
+    fun testCustomAnnotationOnSealedClass() = doTest(0, "sealed")
+
+    @Test
+    fun testCustomAnnotationOnPolymorphicClass() = doTest(1, "abstract")
+
+    @Test
+    fun testCustomAnnotationOnObject() = doTest(2, "object")
+
+    @Test
+    fun testCustomAnnotationTransparentForContextual() = doTest(3, "onClass")
 }

@@ -77,6 +77,17 @@ public class SealedClassSerializer<T : Any>(
     subclassSerializers: Array<KSerializer<out T>>
 ) : AbstractPolymorphicSerializer<T>() {
 
+    @PublishedApi
+    internal constructor(
+        serialName: String,
+        baseClass: KClass<T>,
+        subclasses: Array<KClass<out T>>,
+        subclassSerializers: Array<KSerializer<out T>>,
+        classAnnotations: Array<Annotation>
+    ) : this(serialName, baseClass, subclasses, subclassSerializers) {
+        (this.descriptor as SerialDescriptorImpl).annotations = classAnnotations.asList()
+    }
+
     override val descriptor: SerialDescriptor = buildSerialDescriptor(serialName, PolymorphicKind.SEALED) {
         element("type", String.serializer().descriptor)
         val elementDescriptor =
@@ -87,7 +98,6 @@ public class SealedClassSerializer<T : Any>(
                 }
             }
         element("value", elementDescriptor)
-
     }
 
     private val class2Serializer: Map<KClass<out T>, KSerializer<out T>>
