@@ -57,6 +57,40 @@ private open class CborListWriter(cbor: Cbor, encoder: CborEncoder) : CborWriter
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean = true
 }
 
+private class CborByteStringWriter(private val cbor: Cbor, private val encoder: CborEncoder, size: Int) : CompositeEncoder {
+    override val serializersModule: SerializersModule
+        get() = cbor.serializersModule
+
+    private val buffer = ByteArray(size)
+    
+    override fun encodeByteElement(descriptor: SerialDescriptor, index: Int, value: Byte) {
+        buffer[index] = value
+    }
+
+    override fun endStructure(descriptor: SerialDescriptor) {
+        encoder.encodeByteString(buffer)
+    }
+    
+    private fun throwWrongTypeError(): Nothing = throw SerializationException("Only bytes can be encoded to a byte string")
+
+    override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) = throwWrongTypeError()
+    override fun encodeShortElement(descriptor: SerialDescriptor, index: Int, value: Short) = throwWrongTypeError()
+    override fun encodeCharElement(descriptor: SerialDescriptor, index: Int, value: Char) = throwWrongTypeError()
+    override fun encodeIntElement(descriptor: SerialDescriptor, index: Int, value: Int) = throwWrongTypeError()
+    override fun encodeLongElement(descriptor: SerialDescriptor, index: Int, value: Long) = throwWrongTypeError()
+    override fun encodeFloatElement(descriptor: SerialDescriptor, index: Int, value: Float) = throwWrongTypeError()
+    override fun encodeDoubleElement(descriptor: SerialDescriptor, index: Int, value: Double) = throwWrongTypeError()
+    override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) = throwWrongTypeError()
+
+    @ExperimentalSerializationApi
+    override fun encodeInlineElement(descriptor: SerialDescriptor, index: Int): Encoder = throwWrongTypeError()
+
+    override fun <T> encodeSerializableElement(descriptor: SerialDescriptor, index: Int, serializer: SerializationStrategy<T>, value: T) = throwWrongTypeError()
+    
+    @ExperimentalSerializationApi
+    override fun <T : Any> encodeNullableSerializableElement(descriptor: SerialDescriptor, index: Int, serializer: SerializationStrategy<T>, value: T?) = throwWrongTypeError()
+}
+
 // Writes class as map [fieldName, fieldValue]
 internal open class CborWriter(private val cbor: Cbor, protected val encoder: CborEncoder) : AbstractEncoder() {
     override val serializersModule: SerializersModule
@@ -66,8 +100,8 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
-        if (encodeByteArrayAsByteString && serializer.descriptor == ByteArraySerializer().descriptor) {
-            encoder.encodeByteString(value as ByteArray)
+        if (encodeByteArrayAsByteString && serializer == ByteArraySerializer() && value is ByteArray) {
+            encoder.encodeByteString(value)
         } else {
             super.encodeSerializableValue(serializer, value)
         }
@@ -77,6 +111,14 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
 
     protected open fun writeBeginToken() = encoder.startMap()
 
+    override fun beginCollection(descriptor: SerialDescriptor, collectionSize: Int): CompositeEncoder {
+        return if (encodeByteArrayAsByteString && descriptor == ByteArraySerializer().descriptor) {
+            CborByteStringWriter(cbor, encoder, collectionSize)
+        } else {
+            beginStructure(descriptor)
+        }
+    }
+    
     //todo: Write size of map or array if known
     @OptIn(ExperimentalSerializationApi::class)
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
@@ -85,6 +127,7 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
             StructureKind.MAP -> CborMapWriter(cbor, encoder)
             else -> CborWriter(cbor, encoder)
         }
+
         writer.writeBeginToken()
         return writer
     }
@@ -207,6 +250,40 @@ private open class CborListReader(cbor: Cbor, decoder: CborDecoder) : CborReader
     override fun decodeElementIndex(descriptor: SerialDescriptor) = if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size)) CompositeDecoder.DECODE_DONE else ind++
 }
 
+private class CborByteStringReader(private val cbor: Cbor, private val buffer: ByteArray) : CompositeDecoder {
+    override val serializersModule: SerializersModule
+        get() = cbor.serializersModule
+    
+    private var position = 0
+
+    override fun decodeSequentially() = true
+    override fun decodeCollectionSize(descriptor: SerialDescriptor) = buffer.size
+    
+    override fun decodeElementIndex(descriptor: SerialDescriptor) = if (position >= buffer.size) CompositeDecoder.DECODE_DONE else position++
+    override fun decodeByteElement(descriptor: SerialDescriptor, index: Int) = buffer[index]
+
+    override fun endStructure(descriptor: SerialDescriptor) {}
+
+    private fun throwWrongTypeError(): Nothing = throw SerializationException("Only bytes can be decoded from a byte string")
+
+    override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean = throwWrongTypeError()
+    override fun decodeCharElement(descriptor: SerialDescriptor, index: Int): Char = throwWrongTypeError()
+    override fun decodeShortElement(descriptor: SerialDescriptor, index: Int): Short = throwWrongTypeError()
+    override fun decodeIntElement(descriptor: SerialDescriptor, index: Int): Int = throwWrongTypeError()
+    override fun decodeLongElement(descriptor: SerialDescriptor, index: Int): Long = throwWrongTypeError()
+    override fun decodeFloatElement(descriptor: SerialDescriptor, index: Int): Float = throwWrongTypeError()
+    override fun decodeDoubleElement(descriptor: SerialDescriptor, index: Int): Double = throwWrongTypeError()
+    override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String = throwWrongTypeError()
+
+    @ExperimentalSerializationApi
+    override fun decodeInlineElement(descriptor: SerialDescriptor, index: Int): Decoder = throwWrongTypeError()
+
+    override fun <T> decodeSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T>, previousValue: T?): T = throwWrongTypeError()
+
+    @ExperimentalSerializationApi
+    override fun <T : Any> decodeNullableSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T?>, previousValue: T?): T = throwWrongTypeError()
+}
+
 internal open class CborReader(private val cbor: Cbor, protected val decoder: CborDecoder) : AbstractDecoder() {
 
     protected var size = -1
@@ -231,13 +308,18 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
-        val re = when (descriptor.kind) {
-            StructureKind.LIST, is PolymorphicKind -> CborListReader(cbor, decoder)
-            StructureKind.MAP -> CborMapReader(cbor, decoder)
-            else -> CborReader(cbor, decoder)
+        return if (decodeByteArrayAsByteString && descriptor == ByteArraySerializer().descriptor) {
+            CborByteStringReader(cbor, decoder.nextByteString())
+        } else {
+            val reader = when (descriptor.kind) {
+                StructureKind.LIST, is PolymorphicKind -> CborListReader(cbor, decoder)
+                StructureKind.MAP -> CborMapReader(cbor, decoder)
+                else -> CborReader(cbor, decoder)
+            }
+            
+            reader.skipBeginToken()
+            reader
         }
-        re.skipBeginToken()
-        return re
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
@@ -274,7 +356,7 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-        return if (decodeByteArrayAsByteString && deserializer.descriptor == ByteArraySerializer().descriptor) {
+        return if (decodeByteArrayAsByteString && deserializer == ByteArraySerializer()) {
             @Suppress("UNCHECKED_CAST")
             decoder.nextByteString() as T
         } else {

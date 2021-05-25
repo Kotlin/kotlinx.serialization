@@ -5,6 +5,10 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.ByteArraySerializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 @Serializable
 data class Simple(val a: String)
@@ -86,3 +90,26 @@ data class NullableByteString(
         return byteString?.contentHashCode() ?: 0
     }
 }
+
+@Serializable(with = CustomByteStringSerializer::class)
+data class CustomByteString(val a: Byte, val b: Byte, val c: Byte)
+
+class CustomByteStringSerializer : KSerializer<CustomByteString> {
+    override val descriptor: SerialDescriptor = ByteArraySerializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: CustomByteString) {
+        ByteArraySerializer().serialize(encoder, byteArrayOf(value.a, value.b, value.c))
+    }
+
+    override fun deserialize(decoder: Decoder): CustomByteString {
+        val array = ByteArraySerializer().deserialize(decoder)
+        
+        return CustomByteString(array[0], array[1], array[2])
+    }
+}
+
+@Serializable
+data class TypeWithCustomByteString(@ByteString val x: CustomByteString)
+
+@Serializable
+data class TypeWithNullableCustomByteString(@ByteString val x: CustomByteString?)

@@ -564,6 +564,36 @@ class CborReaderTest {
             )
         )
     }
+    
+    @Test
+    fun testReadCustomByteString() {
+        val value = TypeWithCustomByteString(CustomByteString(0x11, 0x22, 0x33))
+
+        assertEquals(
+                expected = value,
+                actual = Cbor.decodeFromHexString("bf617843112233ff")
+        )
+    }
+
+    @Test
+    fun testReadNullableCustomByteString() {
+        val value = TypeWithNullableCustomByteString(CustomByteString(0x11, 0x22, 0x33))
+
+        assertEquals(
+                expected = value,
+                actual = Cbor.decodeFromHexString("bf617843112233ff")
+        )
+    }
+
+    @Test
+    fun testReadNullCustomByteString() {
+        val value = TypeWithNullableCustomByteString(null)
+
+        assertEquals(
+                expected = value,
+                actual = Cbor.decodeFromHexString("bf6178f6ff")
+        )
+    }
 }
 
 private fun CborDecoder.expect(expected: String) {
