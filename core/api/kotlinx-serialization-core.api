@@ -33,6 +33,9 @@ public final class kotlinx/serialization/EncodeDefault$Mode : java/lang/Enum {
 public abstract interface annotation class kotlinx/serialization/ExperimentalSerializationApi : java/lang/annotation/Annotation {
 }
 
+public abstract interface annotation class kotlinx/serialization/InheritableSerialInfo : java/lang/annotation/Annotation {
+}
+
 public abstract interface annotation class kotlinx/serialization/InternalSerializationApi : java/lang/annotation/Annotation {
 }
 
@@ -49,6 +52,7 @@ public abstract interface annotation class kotlinx/serialization/Polymorphic : j
 
 public final class kotlinx/serialization/PolymorphicSerializer : kotlinx/serialization/internal/AbstractPolymorphicSerializer {
 	public fun <init> (Lkotlin/reflect/KClass;)V
+	public fun <init> (Lkotlin/reflect/KClass;[Ljava/lang/annotation/Annotation;)V
 	public fun getBaseClass ()Lkotlin/reflect/KClass;
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public fun toString ()Ljava/lang/String;
@@ -64,6 +68,7 @@ public abstract interface annotation class kotlinx/serialization/Required : java
 
 public final class kotlinx/serialization/SealedClassSerializer : kotlinx/serialization/internal/AbstractPolymorphicSerializer {
 	public fun <init> (Ljava/lang/String;Lkotlin/reflect/KClass;[Lkotlin/reflect/KClass;[Lkotlinx/serialization/KSerializer;)V
+	public fun <init> (Ljava/lang/String;Lkotlin/reflect/KClass;[Lkotlin/reflect/KClass;[Lkotlinx/serialization/KSerializer;[Ljava/lang/annotation/Annotation;)V
 	public fun findPolymorphicSerializerOrNull (Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/String;)Lkotlinx/serialization/DeserializationStrategy;
 	public fun findPolymorphicSerializerOrNull (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)Lkotlinx/serialization/SerializationStrategy;
 	public fun getBaseClass ()Lkotlin/reflect/KClass;
@@ -876,6 +881,7 @@ public final class kotlinx/serialization/internal/NullableSerializer : kotlinx/s
 
 public final class kotlinx/serialization/internal/ObjectSerializer : kotlinx/serialization/KSerializer {
 	public fun <init> (Ljava/lang/String;Ljava/lang/Object;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/annotation/Annotation;)V
 	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
