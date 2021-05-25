@@ -40,6 +40,14 @@ class DynamicPolymorphismTest {
     }
 
     @Serializable
+    @JsonClassDiscriminator("sealed_custom")
+    sealed class SealedCustom {
+        @Serializable
+        @SerialName("data_class")
+        data class DataClassChild(val name: String) : SealedCustom()
+    }
+
+    @Serializable
     data class CompositeClass(val mark: String, val nested: Sealed)
 
     @Serializable
@@ -72,6 +80,16 @@ class DynamicPolymorphismTest {
             assertEquals(value.type, this.type)
             assertEquals(value.intField, this.intField)
             assertEquals(3, fieldsCount(this))
+        }
+    }
+
+    @Test
+    fun testCustomClassDiscriminator() {
+        val value = SealedCustom.DataClassChild("custom-discriminator-test")
+        encodeAndDecode(SealedCustom.serializer(), value, objectJson) {
+            assertEquals("data_class", this["sealed_custom"])
+            assertEquals(undefined, this.type)
+            assertEquals(2, fieldsCount(this))
         }
     }
 
