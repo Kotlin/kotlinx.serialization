@@ -103,6 +103,15 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun setUseArrayPolymorphism (Z)V
 }
 
+public abstract interface annotation class kotlinx/serialization/json/JsonClassDiscriminator : java/lang/annotation/Annotation {
+	public abstract fun discriminator ()Ljava/lang/String;
+}
+
+public final class kotlinx/serialization/json/JsonClassDiscriminator$Impl : kotlinx/serialization/json/JsonClassDiscriminator {
+	public fun <init> (Ljava/lang/String;)V
+	public final synthetic fun discriminator ()Ljava/lang/String;
+}
+
 public final class kotlinx/serialization/json/JsonConfiguration {
 	public fun <init> ()V
 	public final fun getAllowSpecialFloatingPointValues ()Z

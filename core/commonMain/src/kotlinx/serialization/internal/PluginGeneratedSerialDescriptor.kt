@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:Suppress("OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE", "UNUSED")
 
@@ -33,15 +33,15 @@ internal open class PluginGeneratedSerialDescriptor(
 
     private var indices: Map<String, Int> = emptyMap()
     // Cache child serializers, they are not cached by the implementation for nullable types
-    private val childSerializers: Array<KSerializer<*>> by lazy { generatedSerializer?.childSerializers() ?: emptyArray() }
+    private val childSerializers: Array<KSerializer<*>> by lazy(LazyThreadSafetyMode.PUBLICATION) { generatedSerializer?.childSerializers() ?: EMPTY_SERIALIZER_ARRAY }
 
     // Lazy because of JS specific initialization order (#789)
-    internal val typeParameterDescriptors: Array<SerialDescriptor> by lazy {
+    internal val typeParameterDescriptors: Array<SerialDescriptor> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         generatedSerializer?.typeParametersSerializers()?.map { it.descriptor }.compactArray()
     }
 
     // Can be without synchronization but Native will likely break due to freezing
-    private val _hashCode: Int by lazy { hashCodeImpl(typeParameterDescriptors) }
+    private val _hashCode: Int by lazy(LazyThreadSafetyMode.PUBLICATION) { hashCodeImpl(typeParameterDescriptors) }
 
     public fun addElement(name: String, isOptional: Boolean = false) {
         names[++added] = name

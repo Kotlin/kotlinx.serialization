@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.test.isJsLegacy
 import kotlin.test.*
 
 class SerialDescriptorAnnotationsTest {
@@ -23,7 +24,7 @@ class SerialDescriptorAnnotationsTest {
 
     @SerialInfo
     @Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
-    annotation class CustomAnnotationWithDefault(val value: String = "foo")
+    annotation class CustomAnnotationWithDefault(val value: String = "default_annotation_value")
 
     @SerialInfo
     @Target(AnnotationTarget.PROPERTY)
@@ -70,7 +71,7 @@ class SerialDescriptorAnnotationsTest {
         val value =
             WithNames.serializer().descriptor
                 .getElementAnnotations(1).filterIsInstance<CustomAnnotationWithDefault>().single()
-        assertEquals("foo", value.value)
+        assertEquals("default_annotation_value", value.value)
     }
 
     @Test
@@ -102,6 +103,7 @@ class SerialDescriptorAnnotationsTest {
     class Holder(val r: Result, val a: AbstractResult, val o: ObjectResult, @Contextual val names: WithNames)
 
     private fun doTest(position: Int, expected: String) {
+        if (isJsLegacy()) return // Unsupported
         val desc = Holder.serializer().descriptor.getElementDescriptor(position)
         assertEquals(expected, desc.annotations.getCustom())
     }

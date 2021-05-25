@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.internal
@@ -17,16 +17,23 @@ import kotlinx.serialization.encoding.*
 @PublishedApi
 @OptIn(ExperimentalSerializationApi::class)
 internal class ObjectSerializer<T : Any>(serialName: String, private val objectInstance: T) : KSerializer<T> {
-    @PublishedApi
+
+    @PublishedApi // See comment in SealedClassSerializer
     internal constructor(
         serialName: String,
         objectInstance: T,
         classAnnotations: Array<Annotation>
     ) : this(serialName, objectInstance) {
-        (this.descriptor as SerialDescriptorImpl).annotations = classAnnotations.asList()
+        _annotations = classAnnotations.asList()
     }
 
-    override val descriptor: SerialDescriptor = buildSerialDescriptor(serialName, StructureKind.OBJECT)
+    private var _annotations: List<Annotation> = emptyList()
+
+    override val descriptor: SerialDescriptor by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        buildSerialDescriptor(serialName, StructureKind.OBJECT) {
+            annotations = _annotations
+        }
+    }
 
     override fun serialize(encoder: Encoder, value: T) {
         encoder.beginStructure(descriptor).endStructure(descriptor)

@@ -77,6 +77,16 @@ public class SealedClassSerializer<T : Any>(
     subclassSerializers: Array<KSerializer<out T>>
 ) : AbstractPolymorphicSerializer<T>() {
 
+    /**
+     * This constructor is needed to store serial info annotations defined on the sealed class.
+     * Support for such annotations was added in Kotlin 1.5.30; previous plugins used primary constructor of this class
+     * directly, therefore this constructor is secondary.
+     *
+     * This constructor can (and should) became primary when Require-Kotlin-Version is raised to at least 1.5.30
+     * to remove necessity to store annotations separately and calculate descriptor via `lazy {}`.
+     *
+     * When doing this change, also migrate secondary constructors from [PolymorphicSerializer] and [ObjectSerializer].
+     */
     @PublishedApi
     internal constructor(
         serialName: String,
@@ -85,19 +95,24 @@ public class SealedClassSerializer<T : Any>(
         subclassSerializers: Array<KSerializer<out T>>,
         classAnnotations: Array<Annotation>
     ) : this(serialName, baseClass, subclasses, subclassSerializers) {
-        (this.descriptor as SerialDescriptorImpl).annotations = classAnnotations.asList()
+        this._annotations = classAnnotations.asList()
     }
 
-    override val descriptor: SerialDescriptor = buildSerialDescriptor(serialName, PolymorphicKind.SEALED) {
-        element("type", String.serializer().descriptor)
-        val elementDescriptor =
-            buildSerialDescriptor("kotlinx.serialization.Sealed<${baseClass.simpleName}>", SerialKind.CONTEXTUAL) {
-                subclassSerializers.forEach {
-                    val d = it.descriptor
-                    element(d.serialName, d)
+    private var _annotations: List<Annotation> = emptyList()
+
+    override val descriptor: SerialDescriptor by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        buildSerialDescriptor(serialName, PolymorphicKind.SEALED) {
+            element("type", String.serializer().descriptor)
+            val elementDescriptor =
+                buildSerialDescriptor("kotlinx.serialization.Sealed<${baseClass.simpleName}>", SerialKind.CONTEXTUAL) {
+                    subclassSerializers.forEach {
+                        val d = it.descriptor
+                        element(d.serialName, d)
+                    }
                 }
-            }
-        element("value", elementDescriptor)
+            element("value", elementDescriptor)
+            annotations = _annotations
+        }
     }
 
     private val class2Serializer: Map<KClass<out T>, KSerializer<out T>>

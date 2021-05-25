@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.modules
@@ -49,6 +49,6 @@ class SerialNameCollisionInSealedClassesTest {
         BaseCollision.Child()
         BaseCollision.ChildCollided()
         BaseCollision.ChildCollided.serializer().descriptor // Doesn't fail
-        assertFailsWith<IllegalArgumentException> { BaseCollision.serializer().descriptor }
+        assertFailsWith<IllegalStateException> { BaseCollision.serializer().descriptor }
     }
 }

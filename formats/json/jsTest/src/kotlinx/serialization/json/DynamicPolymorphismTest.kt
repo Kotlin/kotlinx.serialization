@@ -8,6 +8,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
+import kotlinx.serialization.test.noLegacyJs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -37,6 +38,14 @@ class DynamicPolymorphismTest {
         @Serializable
         @SerialName("default_child")
         data class DefaultChild(val default: String? = "default"): Sealed(5)
+    }
+
+    @Serializable
+    @JsonClassDiscriminator("sealed_custom")
+    sealed class SealedCustom {
+        @Serializable
+        @SerialName("data_class")
+        data class DataClassChild(val name: String) : SealedCustom()
     }
 
     @Serializable
@@ -72,6 +81,16 @@ class DynamicPolymorphismTest {
             assertEquals(value.type, this.type)
             assertEquals(value.intField, this.intField)
             assertEquals(3, fieldsCount(this))
+        }
+    }
+
+    @Test
+    fun testCustomClassDiscriminator() = noLegacyJs {
+        val value = SealedCustom.DataClassChild("custom-discriminator-test")
+        encodeAndDecode(SealedCustom.serializer(), value, objectJson) {
+            assertEquals("data_class", this["sealed_custom"])
+            assertEquals(undefined, this.type)
+            assertEquals(2, fieldsCount(this))
         }
     }
 
