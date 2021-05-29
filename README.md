@@ -49,7 +49,7 @@ data class Project(val name: String, val language: String)
 fun main() {
     // Serializing objects
     val data = Project("kotlinx.serialization", "Kotlin")
-    val string = Json.encodeToString(data)  
+    val string = Json.encodeToString(Project.serializer(), data)  
     println(string) // {"name":"kotlinx.serialization","language":"Kotlin"} 
     // Deserializing back into objects
     val obj = Json.decodeFromString<Project>(string)
