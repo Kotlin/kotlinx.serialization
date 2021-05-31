@@ -348,6 +348,8 @@ public interface CompositeEncoder {
      *    encoder.encodeIntElement(serialDesc, 0, value.int);
      * }
      * ```
+     *
+     * This method is never invoked for properties annotated with [EncodeDefault].
      */
     @ExperimentalSerializationApi
     public fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = true

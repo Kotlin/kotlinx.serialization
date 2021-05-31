@@ -19,6 +19,17 @@ public abstract interface class kotlinx/serialization/DeserializationStrategy {
 	public abstract fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 }
 
+public abstract interface annotation class kotlinx/serialization/EncodeDefault : java/lang/annotation/Annotation {
+	public abstract fun mode ()Lkotlinx/serialization/EncodeDefault$Mode;
+}
+
+public final class kotlinx/serialization/EncodeDefault$Mode : java/lang/Enum {
+	public static final field ALWAYS Lkotlinx/serialization/EncodeDefault$Mode;
+	public static final field NEVER Lkotlinx/serialization/EncodeDefault$Mode;
+	public static fun valueOf (Ljava/lang/String;)Lkotlinx/serialization/EncodeDefault$Mode;
+	public static fun values ()[Lkotlinx/serialization/EncodeDefault$Mode;
+}
+
 public abstract interface annotation class kotlinx/serialization/ExperimentalSerializationApi : java/lang/annotation/Annotation {
 }
 
