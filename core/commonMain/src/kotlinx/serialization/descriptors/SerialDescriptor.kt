@@ -220,8 +220,8 @@ public interface SerialDescriptor {
      * @Serializable
      * class Outer(@AnotherSerialAnnotation val nested: Nested)
      *
-     * outerDescriptor.getElementAnnotations(0) // Returns [@SomeSerialAnnotation]
-     * outerDescriptor.getElementDescriptor(0).annotations // Returns [@AnotherSerialAnnotation]
+     * outerDescriptor.getElementAnnotations(0) // Returns [@AnotherSerialAnnotation]
+     * outerDescriptor.getElementDescriptor(0).annotations // Returns [@SomeSerialAnnotation]
      * ```
      * Only annotations marked with [SerialInfo] are added to the resulting list.
      *
