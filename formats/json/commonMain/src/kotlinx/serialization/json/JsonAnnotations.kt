@@ -50,17 +50,17 @@ public annotation class JsonNames(vararg val names: String)
  * Example:
  * ```
  * @Serializable
- * @JsonTypeDiscriminator("class")
+ * @JsonClassDiscriminator("class")
  * abstract class Base
  *
  * @Serializable
- * @JsonTypeDiscriminator("error_class")
+ * @JsonClassDiscriminator("error_class")
  * abstract class ErrorClass: Base()
  *
  * @Serializable
- * class Message(val object: Base, val error: ErrorClass?)
+ * class Message(val message: Base, val error: ErrorClass?)
  *
- * val message = Json.decodeFromString<Message>("""{"object": {"class":"my.app.BaseMessage", "message": "not found"}, "error": {"error_class":"my.app.GenericError", "error_code": 404}}""")
+ * val message = Json.decodeFromString<Message>("""{"message": {"class":"my.app.BaseMessage", "message": "not found"}, "error": {"error_class":"my.app.GenericError", "error_code": 404}}""")
  * ```
  *
  * @see JsonBuilder.classDiscriminator

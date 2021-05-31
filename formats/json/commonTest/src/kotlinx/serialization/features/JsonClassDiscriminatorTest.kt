@@ -25,15 +25,16 @@ class JsonClassDiscriminatorTest : JsonTestBase() {
 
     @Serializable
     @JsonClassDiscriminator("abstractType")
-    abstract class Message {
+    abstract class AbstractMessage {
         @Serializable
         @SerialName("Message.StringMessage")
-        data class StringMessage(val description: String, val message: String) : Message()
+        data class StringMessage(val description: String, val message: String) : AbstractMessage()
 
         @Serializable
         @SerialName("Message.IntMessage")
-        data class IntMessage(val description: String, val message: Int) : Message()
+        data class IntMessage(val description: String, val message: Int) : AbstractMessage()
     }
+
 
     @Test
     fun testSealedClassesHaveCustomDiscriminator() {
@@ -53,18 +54,57 @@ class JsonClassDiscriminatorTest : JsonTestBase() {
     @Test
     fun testAbstractClassesHaveCustomDiscriminator() {
         val messages = listOf(
-            Message.StringMessage("string message", "foo"),
-            Message.IntMessage("int message", 42),
+            AbstractMessage.StringMessage("string message", "foo"),
+            AbstractMessage.IntMessage("int message", 42),
         )
         val module = SerializersModule {
-            polymorphic(Message::class) {
-                subclass(Message.StringMessage.serializer())
-                subclass(Message.IntMessage.serializer())
+            polymorphic(AbstractMessage::class) {
+                subclass(AbstractMessage.StringMessage.serializer())
+                subclass(AbstractMessage.IntMessage.serializer())
             }
         }
         val json = Json { serializersModule = module }
         val expected =
             """[{"abstractType":"Message.StringMessage","description":"string message","message":"foo"},{"abstractType":"Message.IntMessage","description":"int message","message":42}]"""
-        assertJsonFormAndRestored(ListSerializer(Message.serializer()), messages, expected, json)
+        assertJsonFormAndRestored(ListSerializer(AbstractMessage.serializer()), messages, expected, json)
+    }
+
+    @Serializable
+    @JsonClassDiscriminator("class")
+    abstract class Base
+
+    @Serializable
+    @JsonClassDiscriminator("error_class")
+    abstract class ErrorClass : Base()
+
+    @Serializable
+    data class Message(val message: Base, val error: ErrorClass?)
+
+    @Serializable
+    @SerialName("my.app.BaseMessage")
+    data class BaseMessage(val message: String) : Base()
+
+    @Serializable
+    @SerialName("my.app.GenericError")
+    data class GenericError(@SerialName("error_code") val errorCode: Int) : ErrorClass()
+
+
+    @Test
+    fun testDocumentationSample() {
+        val module = SerializersModule {
+            polymorphic(Base::class) {
+                subclass(BaseMessage.serializer())
+            }
+            polymorphic(ErrorClass::class) {
+                subclass(GenericError.serializer())
+            }
+        }
+        val json = Json { serializersModule = module }
+        assertJsonFormAndRestored(
+            Message.serializer(),
+            Message(BaseMessage("not found"), GenericError(404)),
+            """{"message":{"class":"my.app.BaseMessage","message":"not found"},"error":{"error_class":"my.app.GenericError","error_code":404}}""",
+            json
+        )
     }
 }
