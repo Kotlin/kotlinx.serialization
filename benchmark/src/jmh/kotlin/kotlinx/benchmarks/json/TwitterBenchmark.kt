@@ -1,10 +1,7 @@
 package kotlinx.benchmarks.json
 
 import kotlinx.benchmarks.model.*
-import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.json.Json.Default.decodeFromString
-import kotlinx.serialization.json.Json.Default.encodeToString
 import org.openjdk.jmh.annotations.*
 import java.util.concurrent.*
 
@@ -25,6 +22,8 @@ open class TwitterBenchmark {
     private val input = TwitterBenchmark::class.java.getResource("/twitter.json").readBytes().decodeToString()
     private val twitter = Json.decodeFromString(Twitter.serializer(), input)
 
+    private val jsonImplicitNulls = Json { explicitNulls = false }
+
     @Setup
     fun init() {
         require(twitter == Json.decodeFromString(Twitter.serializer(), Json.encodeToString(Twitter.serializer(), twitter)))
@@ -33,6 +32,9 @@ open class TwitterBenchmark {
     // Order of magnitude: 4-7 op/ms
     @Benchmark
     fun decodeTwitter() = Json.decodeFromString(Twitter.serializer(), input)
+
+    @Benchmark
+    fun decodeTwitterImplicitNulls() = jsonImplicitNulls.decodeFromString(Twitter.serializer(), input)
 
     @Benchmark
     fun encodeTwitter() = Json.encodeToString(Twitter.serializer(), twitter)

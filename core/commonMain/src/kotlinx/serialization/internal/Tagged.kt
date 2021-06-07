@@ -126,7 +126,7 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
         return encodeTaggedInline(descriptor.getTag(index), descriptor.getElementDescriptor(index))
     }
 
-    final override fun <T : Any?> encodeSerializableElement(
+    override fun <T : Any?> encodeSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
         serializer: SerializationStrategy<T>,
@@ -137,7 +137,7 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    final override fun <T : Any> encodeNullableSerializableElement(
+    override fun <T : Any> encodeNullableSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
         serializer: SerializationStrategy<T>,

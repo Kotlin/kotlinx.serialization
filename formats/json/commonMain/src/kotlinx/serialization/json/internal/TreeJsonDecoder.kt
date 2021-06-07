@@ -188,7 +188,7 @@ private open class JsonTreeDecoder(
     private val polyDescriptor: SerialDescriptor? = null
 ) : AbstractJsonTreeDecoder(json, value) {
     private var position = 0
-
+    private var forceNull: Boolean = false
     /*
      * Checks whether JSON has `null` value for non-null property or unknown enum value for enum property
      */
@@ -199,14 +199,29 @@ private open class JsonTreeDecoder(
             { (currentElement(tag) as? JsonPrimitive)?.contentOrNull }
         )
 
+    @Suppress("INVISIBLE_MEMBER")
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         while (position < descriptor.elementsCount) {
             val name = descriptor.getTag(position++)
-            if (name in value && (!configuration.coerceInputValues || !coerceInputValue(descriptor, position - 1, name))) {
-                return position - 1
+            val index = position - 1
+            forceNull = false
+            if ((name in value || absenceIsNull(descriptor, index))
+                && (!configuration.coerceInputValues || !coerceInputValue(descriptor, index, name))
+            ) {
+                return index
             }
         }
         return CompositeDecoder.DECODE_DONE
+    }
+
+    private fun absenceIsNull(descriptor: SerialDescriptor, index: Int): Boolean {
+        forceNull = !json.configuration.explicitNulls
+                && !descriptor.isElementOptional(index) && descriptor.getElementDescriptor(index).isNullable
+        return forceNull
+    }
+
+    override fun decodeNotNullMark(): Boolean {
+        return !forceNull && super.decodeNotNullMark()
     }
 
     override fun elementName(desc: SerialDescriptor, index: Int): String {

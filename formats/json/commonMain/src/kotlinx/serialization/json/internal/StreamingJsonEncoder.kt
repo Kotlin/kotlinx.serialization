@@ -147,6 +147,17 @@ internal class StreamingJsonEncoder(
         return true
     }
 
+    override fun <T : Any> encodeNullableSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        serializer: SerializationStrategy<T>,
+        value: T?
+    ) {
+        if (value != null || configuration.explicitNulls) {
+            super.encodeNullableSerializableElement(descriptor, index, serializer, value)
+        }
+    }
+
     override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder =
         if (inlineDescriptor.isUnsignedNumber) StreamingJsonEncoder(
             ComposerForUnsignedNumbers(
