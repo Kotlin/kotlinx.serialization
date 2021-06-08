@@ -157,7 +157,7 @@ subprojects {
 
 subprojects {
     // Can't be applied to BOM
-    if (project.name == "kotlinx-serialization-bom") return
+    if (project.name == "kotlinx-serialization-bom" || project.name == "benchmark") return
     apply plugin: 'ru.vyarus.animalsniffer'
 
     afterEvaluate { // Can be applied only when the project is evaluated
