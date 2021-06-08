@@ -55,6 +55,7 @@ class PropertiesTest {
         val firstSecond: String = "100"
     )
 
+    @Serializable
     enum class TestEnum { ZERO, ONE }
 
     private inline fun <reified T : Any> assertMappedAndRestored(
@@ -223,5 +224,17 @@ class PropertiesTest {
         val map: Map<String, Any> = mapOf("firstSecond" to "42")
         val restored = Properties.decodeFromMap(SharedPrefixNames.serializer(), map)
         assertEquals(SharedPrefixNames("100", "42"), restored)
+    }
+
+    @Test
+    fun testEnumElementNotFound() {
+        val wrongElementName = "wrong"
+        val expectedMessage =
+            "Enum '${TestEnum.serializer().descriptor.serialName}' does not contain element with name '${wrongElementName}'"
+
+        val exception = assertFailsWith(SerializationException::class) {
+            Properties.decodeFromStringMap(EnumData.serializer(), mapOf("data" to wrongElementName))
+        }
+        assertEquals(expectedMessage, exception.message)
     }
 }

@@ -97,6 +97,7 @@ public sealed class Properties(
             return when (val taggedValue = map.getValue(tag)) {
                 is Int -> taggedValue
                 is String -> enumDescriptor.getElementIndex(taggedValue)
+                    .also { if (it == CompositeDecoder.UNKNOWN_NAME) throw SerializationException("Enum '${enumDescriptor.serialName}' does not contain element with name '$taggedValue'") }
                 else -> throw SerializationException("Value of enum entry '$tag' is neither an Int nor a String")
             }
         }
