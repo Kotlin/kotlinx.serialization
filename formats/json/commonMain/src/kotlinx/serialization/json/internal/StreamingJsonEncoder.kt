@@ -149,10 +149,7 @@ internal class StreamingJsonEncoder(
 
     override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder =
         if (inlineDescriptor.isUnsignedNumber) StreamingJsonEncoder(
-            ComposerForUnsignedNumbers(
-                composer.sb,
-                json
-            ), json, mode, null
+            ComposerForUnsignedNumbers(composer.sb), json, mode, null
         )
         else super.encodeInline(inlineDescriptor)
 
@@ -184,7 +181,7 @@ internal class StreamingJsonEncoder(
         // First encode value, then check, to have a prettier error message
         if (forceQuoting) encodeString(value.toString()) else composer.print(value)
         if (!configuration.allowSpecialFloatingPointValues && !value.isFinite()) {
-            throw InvalidFloatingPointEncoded(value, composer.sb.toString())
+            throw InvalidFloatingPointEncoded(value, ""/*todo composer.sb.toString()*/)
         }
     }
 
@@ -192,7 +189,7 @@ internal class StreamingJsonEncoder(
         // First encode value, then check, to have a prettier error message
         if (forceQuoting) encodeString(value.toString()) else composer.print(value)
         if (!configuration.allowSpecialFloatingPointValues && !value.isFinite()) {
-            throw InvalidFloatingPointEncoded(value, composer.sb.toString())
+            throw InvalidFloatingPointEncoded(value, ""/*todo composer.sb.toString()*/)
         }
     }
 

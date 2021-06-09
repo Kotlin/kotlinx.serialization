@@ -38,7 +38,7 @@ class JsonNamesTest : JsonTestBase() {
     private val inputString1 = """{"foo":"foo"}"""
     private val inputString2 = """{"_foo":"foo"}"""
 
-    private fun parameterizedCoercingTest(test: (json: Json, streaming: Boolean, msg: String) -> Unit) {
+    private fun parameterizedCoercingTest(test: (json: Json, streaming: JsonTestingMode, msg: String) -> Unit) {
         for (coercing in listOf(true, false)) {
             val json = Json {
                 coerceInputValues = coercing

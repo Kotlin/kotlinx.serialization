@@ -88,7 +88,7 @@ class JsonArraySerializerTest : JsonTestBase() {
         testFails("[,\n,]", leading, useStreaming)
     }
 
-    private fun testFails(input: String, errorMessage: String, useStreaming: Boolean) {
+    private fun testFails(input: String, errorMessage: String, useStreaming: JsonTestingMode) {
         assertFailsWithMessage<JsonDecodingException>(errorMessage) {
             lenient.decodeFromString(
                 JsonArraySerializer,

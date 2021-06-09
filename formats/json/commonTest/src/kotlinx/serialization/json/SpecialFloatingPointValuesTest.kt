@@ -46,7 +46,7 @@ class SpecialFloatingPointValuesTest : JsonTestBase() {
         test(Box(Double.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY), """{"d":Infinity,"f":-Infinity}""", it)
     }
 
-    private fun test(box: Box, expected: String, useStreaming: Boolean) {
+    private fun test(box: Box, expected: String, useStreaming: JsonTestingMode) {
         val e1 = assertFailsWith<JsonException> { default.encodeToString(Box.serializer(), box, useStreaming) }
         assertTrue { e1.message!!.contains("Unexpected special floating-point value") }
         assertEquals(expected, json.encodeToString(Box.serializer(), box, useStreaming))

@@ -18,7 +18,7 @@ class JsonNullSerializerTest : JsonTestBase() {
 
     @Test
     fun testJsonNullFailure() = parametrizedTest(default) {
-        val t = assertFailsWith<JsonException> { default.decodeFromString(JsonNullWrapper.serializer(), "{\"element\":\"foo\"}", true) }
+        val t = assertFailsWith<JsonException> { default.decodeFromString(JsonNullWrapper.serializer(), "{\"element\":\"foo\"}", JsonTestingMode.STREAMING) }
         assertTrue { t.message!!.contains("'null' literal") }
     }
 
