@@ -21,7 +21,7 @@ class JsonSealedSubclassTest : JsonTestBase() {
         val v1 = Var("a")
         val s1 = default.encodeToString(Var.serializer(), v1, useStreaming)// {"id":"a"}
         assertEquals("""{"id":"a"}""", s1)
-        val v2: Var = default.decodeFromString(Var.serializer(), s1, useStreaming = true) // should not throw IllegalAccessError
+        val v2: Var = default.decodeFromString(Var.serializer(), s1, JsonTestingMode.STREAMING) // should not throw IllegalAccessError
         assertEquals(v1, v2)
     }
 }
