@@ -6,16 +6,17 @@ package kotlinx.serialization.json.internal
 
 import java.io.*
 import java.nio.charset.*
+import java.util.ArrayDeque
 
-private typealias ReaderLike = Reader
+private typealias ReaderLike = SequenceReader
 
 internal actual fun JsonLexer(s: String): JsonLexer = JsonLexerJvm(s)
 
 /**
  * From Apache commons-io
  */
-internal class SequenceReader(val readers: Iterator<Reader>) : Reader() {
-    constructor(vararg readers: Reader) : this(readers.asIterable().iterator())
+internal class SequenceReader(val readers: ArrayDeque<Reader>) : Reader() {
+    constructor(vararg readers: Reader) : this(ArrayDeque(readers.asList()))
 
     private var reader: Reader? = null
 
@@ -30,7 +31,12 @@ internal class SequenceReader(val readers: Iterator<Reader>) : Reader() {
     }
 
     private fun nextReader(): Reader? {
-        return if (readers.hasNext()) readers.next() else null
+        return readers.pollFirst()
+    }
+
+    fun prepend(r: Reader) {
+        if (reader != null) readers.addFirst(reader!!)
+        reader = r
     }
 
     override fun read(): Int {
@@ -73,7 +79,7 @@ internal class SequenceReader(val readers: Iterator<Reader>) : Reader() {
 }
 
 // do not forget to call lastRead = source.read() after!
-internal fun ReaderLike.prepend(s: String): ReaderLike = SequenceReader(StringReader(s), this)
+internal fun ReaderLike.prepend(s: String): ReaderLike = apply { prepend(StringReader(s)) }
 
 internal fun ReaderLike.readExactChars(n: Int): String {
     val c = CharArray(n)
@@ -89,8 +95,8 @@ internal fun ReaderLike.readExactChars(n: Int): String {
 // Streaming JSON reader
 internal class JsonLexerJvm(private var source: ReaderLike): JsonLexer {
 
-    constructor(s: String) : this(StringReader(s))
-    constructor(i: InputStream, charset: Charset = Charsets.UTF_8) : this(i.bufferedReader(charset))
+    constructor(s: String) : this(SequenceReader(StringReader(s).buffered()))
+    constructor(i: InputStream, charset: Charset = Charsets.UTF_8) : this(SequenceReader(i.bufferedReader(charset)))
 
     private fun advance() {
         lastRead = source.read()
@@ -284,12 +290,16 @@ internal class JsonLexerJvm(private var source: ReaderLike): JsonLexer {
 //      No indexOf here, so no fast path
         var char = lastRead
         while (char != STRING.code) {
-            if (char == STRING_ESC.code) {
-                appendEscape()
-            } else if (char == -1) {
-                fail("EOF" /*currentPosition*/)
-            } else {
-                escapedString.append(char.toChar())
+            when (char) {
+                STRING_ESC.code -> {
+                    appendEscape()
+                }
+                -1 -> {
+                    fail("EOF" /*currentPosition*/)
+                }
+                else -> {
+                    escapedString.append(char.toChar())
+                }
             }
             char = source.read()
         }
