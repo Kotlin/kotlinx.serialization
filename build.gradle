@@ -66,6 +66,7 @@ buildscript {
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
         classpath "org.jetbrains.kotlinx:binary-compatibility-validator:$validator_version"
         classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
+        classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.5.3' // Android API check
 
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.8'
 
@@ -79,14 +80,14 @@ buildscript {
 // To make it visible for compiler-version.gradle
 ext.compilerVersion = org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION
 ext.nativeDebugBuild = org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType.DEBUG
+
 apply plugin: 'binary-compatibility-validator'
+apply plugin: 'base'
+apply plugin: 'kotlinx-knit'
 
 apiValidation {
     ignoredProjects += ["benchmark", "guide", "kotlinx-serialization"]
 }
-
-apply plugin: 'base'
-apply plugin: 'kotlinx-knit'
 
 knit {
     siteRoot = "https://kotlin.github.io/kotlinx.serialization"
@@ -152,6 +153,22 @@ subprojects {
         apply from: rootProject.file('gradle/publishing.gradle')
     }
 
+}
+
+subprojects {
+    // Can't be applied to BOM
+    if (project.name == "kotlinx-serialization-bom" || project.name == "benchmark") return
+    apply plugin: 'ru.vyarus.animalsniffer'
+
+    afterEvaluate { // Can be applied only when the project is evaluated
+        animalsniffer {
+            sourceSets = [sourceSets.main]
+        }
+        dependencies {
+            signature 'net.sf.androidscents.signature:android-api-level-14:4.0_r4@signature'
+            signature 'org.codehaus.mojo.signature:java18:1.0@signature'
+        }
+    }
 }
 
 apply from: rootProject.file('gradle/compiler-version.gradle')
