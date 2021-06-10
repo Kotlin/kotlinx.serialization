@@ -18,16 +18,15 @@ internal actual fun JsonLexer(s: String): JsonLexer = JsonLexerJvm(s)
 internal class SequenceReader(val readers: ArrayDeque<Reader>) : Reader() {
     constructor(vararg readers: Reader) : this(ArrayDeque(readers.asList()))
 
-    private var reader: Reader? = null
+    private var reader: Reader
 
     init {
-        reader = nextReader()
+        reader = nextReader()!!
     }
 
     override fun close() {
         readers.forEach { it.close() }
-        reader?.close()
-        reader = null
+        reader.close()
     }
 
     private fun nextReader(): Reader? {
@@ -35,18 +34,15 @@ internal class SequenceReader(val readers: ArrayDeque<Reader>) : Reader() {
     }
 
     fun prepend(r: Reader) {
-        if (reader != null) readers.addFirst(reader!!)
+        readers.addFirst(reader)
         reader = r
     }
 
     override fun read(): Int {
-        var c: Int = -1
-        while (reader != null) {
-            c = reader!!.read()
-            if (c != -1) {
-                break
-            }
-            reader = nextReader()
+        var c: Int = reader.read()
+        while (c == -1) {
+            reader = nextReader() ?: break
+            c = reader.read()
         }
         return c
     }
@@ -59,10 +55,10 @@ internal class SequenceReader(val readers: ArrayDeque<Reader>) : Reader() {
             throw IndexOutOfBoundsException("Array Size=" + cbuf.size + ", offset=" + off + ", length=" + len)
         }
         var count = 0
-        while (reader != null) {
-            val readLen = reader!!.read(cbuf, off, len)
+        while (true) {
+            val readLen = reader.read(cbuf, off, len)
             if (readLen == -1) {
-                reader = nextReader()
+                reader = nextReader() ?: break
             } else {
                 count += readLen
                 off += readLen
