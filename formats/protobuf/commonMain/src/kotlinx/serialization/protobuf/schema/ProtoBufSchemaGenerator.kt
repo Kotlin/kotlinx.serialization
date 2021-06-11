@@ -3,6 +3,7 @@
 package kotlinx.serialization.protobuf.schema
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.protobuf.*
 
@@ -415,7 +416,7 @@ public object ProtoBufSchemaGenerator {
         buildClassSerialDescriptor("KotlinxSerializationPolymorphic") {
             element("type", PrimitiveSerialDescriptor("typeDescriptor", PrimitiveKind.STRING))
             element("value", buildSerialDescriptor("valueDescriptor", StructureKind.LIST) {
-                element<Byte>("0")
+                element("0", Byte.serializer().descriptor)
             })
         },
         true,

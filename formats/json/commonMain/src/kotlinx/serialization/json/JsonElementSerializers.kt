@@ -145,7 +145,7 @@ private object JsonLiteralSerializer : KSerializer<JsonLiteral> {
 @PublishedApi
 internal object JsonObjectSerializer : KSerializer<JsonObject> {
 
-    private object JsonObjectDescriptor : SerialDescriptor by serialDescriptor<HashMap<String, JsonElement>>() {
+    private object JsonObjectDescriptor : SerialDescriptor by MapSerializer(String.serializer(), JsonElementSerializer).descriptor {
         @ExperimentalSerializationApi
         override val serialName: String = "kotlinx.serialization.json.JsonObject"
     }
@@ -171,7 +171,7 @@ internal object JsonObjectSerializer : KSerializer<JsonObject> {
 @PublishedApi
 internal object JsonArraySerializer : KSerializer<JsonArray> {
 
-    private object JsonArrayDescriptor : SerialDescriptor by serialDescriptor<List<JsonElement>>() {
+    private object JsonArrayDescriptor : SerialDescriptor by ListSerializer(JsonElementSerializer).descriptor {
         @ExperimentalSerializationApi
         override val serialName: String = "kotlinx.serialization.json.JsonArray"
     }
