@@ -8,9 +8,9 @@ import java.io.*
 import java.nio.charset.*
 import java.util.ArrayDeque
 
-private typealias ReaderLike = SequenceReader
+internal typealias ReaderLike = SequenceReader
 
-internal actual fun JsonLexer(s: String): JsonLexer = JsonLexerJvm(s)
+internal actual fun JsonLexer(s: String): JsonLexer = JsonLexerJvm2(s)
 
 /**
  * From Apache commons-io

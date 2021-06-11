@@ -1,12 +1,15 @@
 package kotlinx.benchmarks.json
 
-import kotlinx.benchmarks.model.*
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-import kotlinx.serialization.json.Json.Default.decodeFromString
-import kotlinx.serialization.json.Json.Default.encodeToString
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import kotlinx.benchmarks.model.MacroTwitterFeed
+import kotlinx.benchmarks.model.MicroTwitterFeed
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
 import org.openjdk.jmh.annotations.*
-import java.util.concurrent.*
+import java.io.ByteArrayInputStream
+import java.util.concurrent.TimeUnit
 
 @Warmup(iterations = 7, time = 1)
 @Measurement(iterations = 7, time = 1)
@@ -48,20 +51,38 @@ open class TwitterFeedBenchmark {
     fun decodeMicroTwitter() = jsonIgnoreUnknwn.decodeFromString(MicroTwitterFeed.serializer(), input)
 
     @Benchmark
-    fun decodeMicroTwitterText(): MicroTwitterFeed {
+    fun decodeMicroTwitterReadText(): MicroTwitterFeed {
         return resource.openStream().use {
             jsonIgnoreUnknwn.decodeFromString(MicroTwitterFeed.serializer(), it.bufferedReader().readText())
         }
     }
 
+    val byteInput = input.encodeToByteArray()
+
+    @Benchmark
+    fun decodeMicroTwitterStringReader(): MicroTwitterFeed {
+
+        return jsonIgnoreUnknwn.decodeFromStream(MicroTwitterFeed.serializer(), ByteArrayInputStream(byteInput))
+    }
+
     @Benchmark
     fun decodeMicroTwitterStream(): MicroTwitterFeed {
         return resource.openStream().use {
-            jsonIgnoreUnknwn.decodeFromStream(MicroTwitterFeed.serializer(), it)
+            jsonIgnoreUnknwnNoAltNames.decodeFromStream(MicroTwitterFeed.serializer(), it.buffered())
         }
     }
 
     @Benchmark
-    fun decodeMicroTwitterNoAltNames() = jsonIgnoreUnknwnNoAltNames.decodeFromString(MicroTwitterFeed.serializer(), input)
+    fun decodeMicroTwitterJacksonStream(): MicroTwitterFeed {
+        return resource.openStream().use {
+            objectMapper.readValue(it, MicroTwitterFeed::class.java)
+        }
+    }
+
+    private val objectMapper: ObjectMapper =
+        jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+//    @Benchmark
+//    fun decodeMicroTwitterNoAltNames() = jsonIgnoreUnknwnNoAltNames.decodeFromString(MicroTwitterFeed.serializer(), input)
 
 }
