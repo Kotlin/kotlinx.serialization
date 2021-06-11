@@ -153,6 +153,7 @@ private sealed class AbstractJsonTreeDecoder(
                 -1, "String literal for key '$tag' should be quoted.\n$lenientHint", currentObject().toString()
             )
         }
+        if (value is JsonNull) throw JsonDecodingException(-1, "Unexpected 'null' value instead of string literal", currentObject().toString())
         return value.content
     }
 

@@ -4,9 +4,12 @@
 
 package kotlinx.serialization.json
 
-import kotlinx.serialization.*
-import kotlinx.serialization.json.internal.*
-import kotlin.test.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.internal.JsonDecodingException
+import kotlinx.serialization.json.internal.JsonException
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class LenientTest : JsonTestBase() {
 
@@ -16,7 +19,7 @@ class LenientTest : JsonTestBase() {
 
     @Serializable
     data class ListHolder(val l: List<String>)
-    val listValue = ListHolder(listOf("1", "2", "ss"))
+    private val listValue = ListHolder(listOf("1", "2", "ss"))
 
     @Test
     fun testQuotedInt() = parametrizedTest {
@@ -58,5 +61,25 @@ class LenientTest : JsonTestBase() {
         val json = """{"l":[1, 2, ss]}"""
         assertFailsWith<JsonDecodingException> { default.decodeFromString(ListHolder.serializer(), json, it) }
         assertEquals(listValue, lenient.decodeFromString(ListHolder.serializer(), json, it))
+    }
+
+    @Serializable
+    data class StringWrapper(val s: String)
+
+    @Test
+    fun testNullsProhibited() = parametrizedTest {
+        assertEquals(StringWrapper("nul"), lenient.decodeFromString("""{"s":nul}""", it))
+        assertEquals(StringWrapper("null1"), lenient.decodeFromString("""{"s":null1}""", it))
+        assertFailsWith<JsonException> { lenient.decodeFromString<StringWrapper>("""{"s":null}""", it) }
+    }
+
+    @Serializable
+    data class NullableString(val s: String?)
+
+    @Test
+    fun testNullsAllowed() = parametrizedTest {
+        assertEquals(NullableString("nul"), lenient.decodeFromString("""{"s":nul}""", it))
+        assertEquals(NullableString("null1"), lenient.decodeFromString("""{"s":null1}""", it))
+        assertEquals(NullableString(null), lenient.decodeFromString("""{"s":null}""", it))
     }
 }
