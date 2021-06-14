@@ -32,8 +32,19 @@ internal inline fun <T, R1 : T, R2 : T> Json.selectMapMode(
     ifMap: () -> R1,
     ifList: () -> R2
 ): T {
-    val keyDescriptor = mapDescriptor.getElementDescriptor(0).carrierDescriptor
-    val keyKind = keyDescriptor.kind
+    var keyDescriptor = mapDescriptor.getElementDescriptor(0).carrierDescriptor
+    var keyKind = keyDescriptor.kind
+
+    if (keyKind == SerialKind.CONTEXTUAL) {
+        keyDescriptor = serializersModule.getContextualDescriptor(keyDescriptor)
+            ?: throw InvalidKeyKindException(keyDescriptor)
+        keyKind = if (keyDescriptor.isInline) {
+            keyDescriptor.getElementDescriptor(0).kind
+        } else {
+            keyDescriptor.kind
+        }
+    }
+
     return if (keyKind is PrimitiveKind || keyKind == SerialKind.ENUM) {
         ifMap()
     } else if (configuration.allowStructuredMapKeys) {
