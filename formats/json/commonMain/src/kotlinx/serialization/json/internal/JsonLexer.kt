@@ -248,10 +248,16 @@ internal class JsonLexer(private val source: String) {
     fun tryConsumeNotNull(): Boolean {
         val current = skipWhitespaces()
         // Cannot consume null due to EOF, maybe something else
-        if (source.length - current < 4) return true
+        val len = source.length - current
+        if (len < 4) return true
         for (i in 0..3) {
             if (NULL[i] != source[current + i]) return true
         }
+        /*
+         * If we're in lenient mode, this might be the string with 'null' prefix,
+         * distinguish it from 'null'
+         */
+        if (len > 4 && charToTokenClass(source[current + 4]) == TC_OTHER) return true
         currentPosition = current + 4
         return false
     }
@@ -358,6 +364,14 @@ internal class JsonLexer(private val source: String) {
 
     private fun takePeeked(): String {
         return peekedString!!.also { peekedString = null }
+    }
+
+    fun consumeStringLenientNotNull(): String {
+        val result = consumeStringLenient()
+        if (result == NULL) { // Check if lenient value is 'null' and fail for non-nullable read if so
+            fail("Unexpected 'null' value instead of string literal")
+        }
+        return result
     }
 
     // Allows to consume unquoted string

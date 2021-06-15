@@ -223,7 +223,7 @@ internal open class StreamingJsonDecoder(
 
     private fun decodeStringKey(): String {
         return if (configuration.isLenient) {
-            lexer.consumeStringLenient()
+            lexer.consumeStringLenientNotNull()
         } else {
             lexer.consumeKeyString()
         }
@@ -231,7 +231,7 @@ internal open class StreamingJsonDecoder(
 
     override fun decodeString(): String {
         return if (configuration.isLenient) {
-            lexer.consumeStringLenient()
+            lexer.consumeStringLenientNotNull()
         } else {
             lexer.consumeString()
         }
