@@ -115,7 +115,8 @@ public fun PrimitiveSerialDescriptor(serialName: String, kind: PrimitiveKind): S
 @ExperimentalSerializationApi
 public fun SerialDescriptor(serialName: String, original: SerialDescriptor): SerialDescriptor {
     require(serialName.isNotBlank()) { "Blank serial names are prohibited" }
-    require(serialName != original.serialName) { "The name of the wrapped descriptor cannot be the same as the name of the original descriptor" }
+    require(original.kind !is PrimitiveKind) { "For primitive descriptors please use 'PrimitiveSerialDescriptor' instead" }
+    require(serialName != original.serialName) { "The name of the wrapped descriptor ($serialName) cannot be the same as the name of the original descriptor (${original.serialName})" }
     
     return WrappedSerialDescriptor(serialName, original)
 }

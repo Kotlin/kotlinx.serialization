@@ -28,11 +28,6 @@ class WrappedSerialDescriptorTest {
     }
 
     @Test
-    fun testWrappedPrimitive() {
-        checkWrapped(Int.serializer().descriptor, "WrappedInt")
-    }
-
-    @Test
     fun testWrappedList() {
         checkWrapped(ListSerializer(Int.serializer()).descriptor, "WrappedList")
     }
