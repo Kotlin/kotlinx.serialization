@@ -143,4 +143,19 @@ class JsonParserFailureModesTest : JsonTestBase() {
         assertFailsWith<JsonDecodingException> { default.decodeFromString<Holder>("""{"id":a}""", it) }
         assertFailsWith<JsonDecodingException> { default.decodeFromString<Holder>("""{"id":-a}""", it) }
     }
+
+
+    @Serializable
+    data class BooleanWrapper(val b: Boolean)
+
+    @Serializable
+    data class StringWrapper(val s: String)
+
+    @Test
+    fun testUnexpectedNull() = parametrizedTest {
+        assertFailsWith<JsonDecodingException> { default.decodeFromString<BooleanWrapper>("""{"b":{"b":"b"}}""", it) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString<BooleanWrapper>("""{"b":null}""", it) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString<StringWrapper>("""{"s":{"s":"s"}}""", it) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString<StringWrapper>("""{"s":null}""", it) }
+    }
 }
