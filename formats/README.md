@@ -119,3 +119,11 @@ Basic serial operations have been implemented, but some features such as compoun
 * Platform: JVM, Android
 
 Allow serialization and deserialization of objects to and from [CBOR](https://cbor.io/). This codec can be used to read and write from Java InputStream and OutputStream.
+
+### Amazon Ion (binary only)
+
+* GitHub repo: [dimitark/kotlinx-serialization-ion](https://github.com/dimitark/kotlinx-serialization-ion)
+* Artifact ID: `com.github.dimitark:kotlinx-serialization-ion`
+* Platform: JVM
+
+Allow serialization and deserialization of objects to and from [Amazon Ion](https://amzn.github.io/ion-docs/). It stores the data in a flat binary format. Upon destialization, it retains the references between the objects. 
