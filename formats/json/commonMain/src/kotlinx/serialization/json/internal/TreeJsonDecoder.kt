@@ -72,7 +72,7 @@ private sealed class AbstractJsonTreeDecoder(
 
     override fun decodeNotNullMark(): Boolean = currentObject() !is JsonNull
 
-    protected open fun getValue(tag: String): JsonPrimitive {
+    protected fun getPrimitiveValue(tag: String): JsonPrimitive {
         val currentElement = currentElement(tag)
         return currentElement as? JsonPrimitive ?: throw JsonDecodingException(
             -1,
@@ -83,16 +83,16 @@ private sealed class AbstractJsonTreeDecoder(
     protected abstract fun currentElement(tag: String): JsonElement
 
     override fun decodeTaggedEnum(tag: String, enumDescriptor: SerialDescriptor): Int =
-        enumDescriptor.getJsonNameIndexOrThrow(json, getValue(tag).content)
+        enumDescriptor.getJsonNameIndexOrThrow(json, getPrimitiveValue(tag).content)
 
     override fun decodeTaggedNull(tag: String): Nothing? = null
 
     override fun decodeTaggedNotNullMark(tag: String): Boolean = currentElement(tag) !== JsonNull
 
     override fun decodeTaggedBoolean(tag: String): Boolean {
-        val value = getValue(tag)
+        val value = getPrimitiveValue(tag)
         if (!json.configuration.isLenient) {
-            val literal = value as JsonLiteral
+            val literal = value.asLiteral("boolean")
             if (literal.isString) throw JsonDecodingException(
                 -1, "Boolean literal for key '$tag' should be unquoted.\n$lenientHint", currentObject().toString()
             )
@@ -102,36 +102,36 @@ private sealed class AbstractJsonTreeDecoder(
         }
     }
 
-    override fun decodeTaggedByte(tag: String) = getValue(tag).primitive("byte") {
+    override fun decodeTaggedByte(tag: String) = getPrimitiveValue(tag).primitive("byte") {
         val result = int
         if (result in Byte.MIN_VALUE..Byte.MAX_VALUE) result.toByte()
         else null
     }
 
-    override fun decodeTaggedShort(tag: String) = getValue(tag).primitive("short") {
+    override fun decodeTaggedShort(tag: String) = getPrimitiveValue(tag).primitive("short") {
         val result = int
         if (result in Short.MIN_VALUE..Short.MAX_VALUE) result.toShort()
         else null
     }
 
-    override fun decodeTaggedInt(tag: String) = getValue(tag).primitive("int") { int }
-    override fun decodeTaggedLong(tag: String) = getValue(tag).primitive("long") { long }
+    override fun decodeTaggedInt(tag: String) = getPrimitiveValue(tag).primitive("int") { int }
+    override fun decodeTaggedLong(tag: String) = getPrimitiveValue(tag).primitive("long") { long }
 
     override fun decodeTaggedFloat(tag: String): Float {
-        val result = getValue(tag).primitive("float") { float }
+        val result = getPrimitiveValue(tag).primitive("float") { float }
         val specialFp = json.configuration.allowSpecialFloatingPointValues
         if (specialFp || result.isFinite()) return result
         throw InvalidFloatingPointDecoded(result, tag, currentObject().toString())
     }
 
     override fun decodeTaggedDouble(tag: String): Double {
-        val result = getValue(tag).primitive("double") { double }
+        val result = getPrimitiveValue(tag).primitive("double") { double }
         val specialFp = json.configuration.allowSpecialFloatingPointValues
         if (specialFp || result.isFinite()) return result
         throw InvalidFloatingPointDecoded(result, tag, currentObject().toString())
     }
 
-    override fun decodeTaggedChar(tag: String): Char = getValue(tag).primitive("char") { content.single() }
+    override fun decodeTaggedChar(tag: String): Char = getPrimitiveValue(tag).primitive("char") { content.single() }
 
     private inline fun <T: Any> JsonPrimitive.primitive(primitive: String, block: JsonPrimitive.() -> T?): T {
         try {
@@ -146,9 +146,9 @@ private sealed class AbstractJsonTreeDecoder(
     }
 
     override fun decodeTaggedString(tag: String): String {
-        val value = getValue(tag)
+        val value = getPrimitiveValue(tag)
         if (!json.configuration.isLenient) {
-            val literal = value as JsonLiteral
+            val literal = value.asLiteral("string")
             if (!literal.isString) throw JsonDecodingException(
                 -1, "String literal for key '$tag' should be quoted.\n$lenientHint", currentObject().toString()
             )
@@ -157,9 +157,13 @@ private sealed class AbstractJsonTreeDecoder(
         return value.content
     }
 
+    private fun JsonPrimitive.asLiteral(type: String): JsonLiteral {
+        return this as? JsonLiteral ?: throw JsonDecodingException(-1, "Unexpected 'null' when $type was expected")
+    }
+
     @OptIn(ExperimentalUnsignedTypes::class)
     override fun decodeTaggedInline(tag: String, inlineDescriptor: SerialDescriptor): Decoder =
-        if (inlineDescriptor.isUnsignedNumber) JsonDecoderForUnsignedTypes(JsonLexer(getValue(tag).content), json)
+        if (inlineDescriptor.isUnsignedNumber) JsonDecoderForUnsignedTypes(JsonLexer(getPrimitiveValue(tag).content), json)
         else super.decodeTaggedInline(tag, inlineDescriptor)
 }
 
