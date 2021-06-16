@@ -5,11 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import kotlinx.benchmarks.model.MacroTwitterFeed
 import kotlinx.benchmarks.model.MicroTwitterFeed
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
+import kotlinx.serialization.json.*
 import org.openjdk.jmh.annotations.*
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.nio.file.Files
+import java.nio.file.Path
 import java.util.concurrent.TimeUnit
+import kotlin.io.path.deleteIfExists
+import kotlin.io.path.outputStream
 
 @Warmup(iterations = 7, time = 1)
 @Measurement(iterations = 7, time = 1)
@@ -32,9 +36,17 @@ open class TwitterFeedBenchmark {
     private val jsonIgnoreUnknwn = Json { ignoreUnknownKeys = true }
     private val jsonIgnoreUnknwnNoAltNames = Json { ignoreUnknownKeys = true; useAlternativeNames = false}
 
+    private var file: Path? = null
+
     @Setup
     fun init() {
         require(twitter == Json.decodeFromString(MacroTwitterFeed.serializer(), Json.encodeToString(MacroTwitterFeed.serializer(), twitter)))
+        file = Files.createTempFile("json_benchmark", "tmp")
+    }
+
+    @TearDown
+    fun tearDown() {
+        file?.deleteIfExists()
     }
 
     // Order of magnitude: ~400 op/s
@@ -46,6 +58,32 @@ open class TwitterFeedBenchmark {
 
     @Benchmark
     fun encodeTwitter() = Json.encodeToString(MacroTwitterFeed.serializer(), twitter)
+
+    @Benchmark
+    fun encodeTwitterWriteText() {
+        file?.outputStream()?.use {
+            it.bufferedWriter().write(Json.encodeToString(MacroTwitterFeed.serializer(), twitter))
+        }
+    }
+
+    @Benchmark
+    fun encodeTwitterByteArrayStream(): String {
+        return ByteArrayOutputStream().also { Json.encodeToStream(MacroTwitterFeed.serializer(), twitter, it) }.toString()
+    }
+
+    @Benchmark
+    fun encodeTwitterWriteStream() {
+        file?.outputStream()?.use {
+            Json.encodeToStream(MacroTwitterFeed.serializer(), twitter, it)
+        }
+    }
+
+    @Benchmark
+    fun encodeTwitterJacksonStream() {
+        file?.outputStream()?.use {
+            objectMapper.writeValue(it, twitter)
+        }
+    }
 
     @Benchmark
     fun decodeMicroTwitter() = jsonIgnoreUnknwn.decodeFromString(MicroTwitterFeed.serializer(), input)
@@ -60,8 +98,7 @@ open class TwitterFeedBenchmark {
     val byteInput = input.encodeToByteArray()
 
     @Benchmark
-    fun decodeMicroTwitterStringReader(): MicroTwitterFeed {
-
+    fun decodeMicroTwitterByteArrayStream(): MicroTwitterFeed {
         return jsonIgnoreUnknwn.decodeFromStream(MicroTwitterFeed.serializer(), ByteArrayInputStream(byteInput))
     }
 
