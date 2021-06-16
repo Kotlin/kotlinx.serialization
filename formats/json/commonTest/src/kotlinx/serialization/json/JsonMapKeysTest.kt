@@ -139,7 +139,7 @@ class JsonMapKeysTest : JsonTestBase() {
     }
 
     @Test
-    fun testContextualPrimitivesAreAllowedAsValueMapKeys() =  noLegacyJs {
+    fun testContextualPrimitivesAreAllowedAsValueMapKeys() {
         assertJsonFormAndRestored(
             WithContextualKey.serializer(),
             WithContextualKey(mapOf(ContextualValue("fooKey") to 1)),
