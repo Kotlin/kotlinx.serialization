@@ -34,7 +34,7 @@ class KeyValueSerializersTest : JsonTestBase() {
         pairInstance: Pair<K, V>,
         kSerializer: KSerializer<K>,
         vSerializer: KSerializer<V>,
-        useStreaming: Boolean,
+        useStreaming: JsonTestingMode,
         expectedJson: String
     ) {
         val serializer = PairSerializer(kSerializer, vSerializer)
@@ -79,7 +79,7 @@ class KeyValueSerializersTest : JsonTestBase() {
         aSerializer: KSerializer<A>,
         bSerializer: KSerializer<B>,
         cSerializer: KSerializer<C>,
-        useStreaming: Boolean,
+        useStreaming: JsonTestingMode,
         expectedJson: String
     ) {
         val serializer = TripleSerializer(aSerializer, bSerializer, cSerializer)
@@ -130,7 +130,7 @@ class KeyValueSerializersTest : JsonTestBase() {
         entryInstance: Map.Entry<K, V>,
         kSerializer: KSerializer<K>,
         vSerializer: KSerializer<V>,
-        useStreaming: Boolean,
+        useStreaming: JsonTestingMode,
         expectedJson: String
     ) {
         val serializer = MapEntrySerializer(kSerializer, vSerializer)

@@ -15,12 +15,6 @@ import kotlin.test.*
 
 class JsonCustomSerializersTest : JsonTestBase() {
 
-    protected override fun parametrizedTest(test: (Boolean) -> Unit) {
-        val streamingResult = runCatching { test(true) }
-        val treeResult = runCatching { test(false) }
-        processResults(streamingResult, treeResult)
-    }
-
     @Serializable
     data class A(@Id(1) val b: B)
 

@@ -36,8 +36,8 @@ class BasicTypesSerializationTest : JsonTestBase() {
         testPrimitive("string", "\"string\"", useStreaming)
     }
 
-    private inline fun <reified T : Any> testPrimitive(primitive: T, expectedJson: String, useStreaming: Boolean) {
-        val json = default.encodeToString(primitive, false)
+    private inline fun <reified T : Any> testPrimitive(primitive: T, expectedJson: String, useStreaming: JsonTestingMode) {
+        val json = default.encodeToString(primitive, JsonTestingMode.TREE)
         assertEquals(expectedJson, json)
         val instance = default.decodeFromString<T>(json, useStreaming)
         assertEquals(primitive, instance)
