@@ -40,8 +40,6 @@ data class ContextualValue(val c: String) {
     }
 }
 
-
-
 class JsonMapKeysTest : JsonTestBase() {
     @Serializable
     private data class WithMap(val map: Map<Long, Long>)
