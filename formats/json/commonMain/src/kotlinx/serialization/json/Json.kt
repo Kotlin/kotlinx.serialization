@@ -52,7 +52,7 @@ import kotlin.native.concurrent.*
  */
 @OptIn(ExperimentalSerializationApi::class)
 public sealed class Json(
-    @ExperimentalSerializationApi public val configuration: JsonConfiguration,
+    @OptIn(ExperimentalSerializationApi::class) public val configuration: JsonConfiguration,
     override val serializersModule: SerializersModule
 ) : StringFormat {
 
