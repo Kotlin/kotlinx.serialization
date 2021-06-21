@@ -15,7 +15,7 @@ import kotlinx.serialization.modules.*
  *
  * Detailed description of each property is available in [JsonBuilder] class.
  */
-@ExperimentalSerializationApi
+@OptIn(ExperimentalSerializationApi::class)
 public class JsonConfiguration internal constructor(
     public val encodeDefaults: Boolean = false,
     public val ignoreUnknownKeys: Boolean = false,
