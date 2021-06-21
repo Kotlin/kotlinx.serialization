@@ -14,16 +14,16 @@ import kotlinx.serialization.*
  *
  * Detailed description of each property is available in [JsonBuilder] class.
  */
-@ExperimentalSerializationApi
+@OptIn(ExperimentalSerializationApi::class)
 public class JsonConfiguration internal constructor(
     public val encodeDefaults: Boolean = false,
     public val ignoreUnknownKeys: Boolean = false,
     public val isLenient: Boolean = false,
     public val allowStructuredMapKeys: Boolean = false,
     public val prettyPrint: Boolean = false,
-    @ExperimentalSerializationApi
+    @OptIn(ExperimentalSerializationApi::class)
     public val explicitNulls: Boolean = true,
-    @ExperimentalSerializationApi
+    @OptIn(ExperimentalSerializationApi::class)
     public val prettyPrintIndent: String = "    ",
     public val coerceInputValues: Boolean = false,
     public val useArrayPolymorphism: Boolean = false,
