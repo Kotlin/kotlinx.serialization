@@ -27,4 +27,3 @@ internal actual class JsonStringBuilder actual constructor() {
     }
 }
 
-internal actual fun JsonLexer(s: String): JsonLexer = JsonStringLexer(s)
