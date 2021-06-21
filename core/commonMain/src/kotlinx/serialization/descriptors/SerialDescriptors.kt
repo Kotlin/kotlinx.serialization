@@ -89,6 +89,42 @@ public fun PrimitiveSerialDescriptor(serialName: String, kind: PrimitiveKind): S
 }
 
 /**
+ * Factory to create a new descriptor that is identical to [original] except that the name is equal to [serialName].
+ * Should be used when you want to serialize a type as another non-primitive type.
+ * Don't use this if you want to serialize a type as a primitive value, use [PrimitiveSerialDescriptor] instead.
+ * 
+ * Example:
+ * ```
+ * @Serializable(CustomSerializer::class)
+ * class CustomType(val a: Int, val b: Int, val c: Int)
+ *
+ * class CustomSerializer: KSerializer<CustomType> {
+ *     override val descriptor = SerialDescriptor("CustomType", IntArraySerializer().descriptor)
+ *
+ *     override fun serialize(encoder: Encoder, value: CustomType) {
+ *         encoder.encodeSerializableValue(IntArraySerializer(), intArrayOf(value.a, value.b, value.c))
+ *     }
+ *
+ *     override fun deserialize(decoder: Decoder): CustomType {
+ *         val array = decoder.decodeSerializableValue(IntArraySerializer())
+ *         return CustomType(array[0], array[1], array[2])
+ *     }
+ * }
+ * ```
+ */
+@ExperimentalSerializationApi
+public fun SerialDescriptor(serialName: String, original: SerialDescriptor): SerialDescriptor {
+    require(serialName.isNotBlank()) { "Blank serial names are prohibited" }
+    require(original.kind !is PrimitiveKind) { "For primitive descriptors please use 'PrimitiveSerialDescriptor' instead" }
+    require(serialName != original.serialName) { "The name of the wrapped descriptor ($serialName) cannot be the same as the name of the original descriptor (${original.serialName})" }
+    
+    return WrappedSerialDescriptor(serialName, original)
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+internal class WrappedSerialDescriptor(override val serialName: String, original: SerialDescriptor) : SerialDescriptor by original
+
+/**
  * An unsafe alternative to [buildClassSerialDescriptor] that supports an arbitrary [SerialKind].
  * This function is left public only for migration of pre-release users and is not intended to be used
  * as generally-safe and stable mechanism. Beware that it can produce inconsistent or non spec-compliant instances.

@@ -98,4 +98,28 @@ class CbrWriterTest {
             )
         )
     }
+
+    @Test
+    fun testWriteCustomByteString() {
+        assertEquals(
+                expected = "bf617843112233ff",
+                actual = Cbor.encodeToHexString(TypeWithCustomByteString(CustomByteString(0x11, 0x22, 0x33)))
+        )
+    }
+
+    @Test
+    fun testWriteNullableCustomByteString() {
+        assertEquals(
+                expected = "bf617843112233ff",
+                actual = Cbor.encodeToHexString(TypeWithNullableCustomByteString(CustomByteString(0x11, 0x22, 0x33)))
+        )
+    }
+
+    @Test
+    fun testWriteNullCustomByteString() {
+        assertEquals(
+                expected = "bf6178f6ff",
+                actual = Cbor.encodeToHexString(TypeWithNullableCustomByteString(null))
+        )
+    }
 }

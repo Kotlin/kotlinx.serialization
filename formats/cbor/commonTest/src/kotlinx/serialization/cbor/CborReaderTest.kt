@@ -564,6 +564,30 @@ class CborReaderTest {
             )
         )
     }
+
+    @Test
+    fun testReadCustomByteString() {
+        assertEquals(
+                expected = TypeWithCustomByteString(CustomByteString(0x11, 0x22, 0x33)),
+                actual = Cbor.decodeFromHexString("bf617843112233ff")
+        )
+    }
+
+    @Test
+    fun testReadNullableCustomByteString() {
+        assertEquals(
+                expected = TypeWithNullableCustomByteString(CustomByteString(0x11, 0x22, 0x33)),
+                actual = Cbor.decodeFromHexString("bf617843112233ff")
+        )
+    }
+
+    @Test
+    fun testReadNullCustomByteString() {
+        assertEquals(
+                expected = TypeWithNullableCustomByteString(null),
+                actual = Cbor.decodeFromHexString("bf6178f6ff")
+        )
+    }
 }
 
 private fun CborDecoder.expect(expected: String) {
