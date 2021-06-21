@@ -263,6 +263,7 @@ public final class kotlinx/serialization/descriptors/SerialDescriptorKt {
 
 public final class kotlinx/serialization/descriptors/SerialDescriptorsKt {
 	public static final fun PrimitiveSerialDescriptor (Ljava/lang/String;Lkotlinx/serialization/descriptors/PrimitiveKind;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public static final fun SerialDescriptor (Ljava/lang/String;Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public static final fun buildClassSerialDescriptor (Ljava/lang/String;[Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public static synthetic fun buildClassSerialDescriptor$default (Ljava/lang/String;[Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public static final fun buildSerialDescriptor (Ljava/lang/String;Lkotlinx/serialization/descriptors/SerialKind;[Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/descriptors/SerialDescriptor;
