@@ -4,8 +4,8 @@ import java.io.*
 import java.nio.CharBuffer
 import java.nio.charset.Charset
 
-internal const val BATCH_SIZE = 64 * DEFAULT_BUFFER_SIZE
-private const val DEFAULT_THRESHOLD = 1024
+internal const val BATCH_SIZE = DEFAULT_BUFFER_SIZE
+private const val DEFAULT_THRESHOLD = 128
 
 
 /**
@@ -53,6 +53,14 @@ internal class JsonReaderLexer(
             read += actual
         }
         currentPosition = 0
+    }
+
+    override fun definitelyNotEof(position: Int): Int {
+        if (position < source.length) return position
+        currentPosition = position
+        ensureHaveChars()
+        if (currentPosition != 0) return -1 // if something was loaded, then it would be zero.
+        return 0
     }
 
     override fun ensureHaveChars() {
