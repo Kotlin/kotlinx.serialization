@@ -8,6 +8,7 @@ package kotlinx.serialization.json.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
 import kotlin.jvm.JvmField
 
 internal enum class WriteMode(@JvmField val begin: Char, @JvmField val end: Char) {
@@ -32,8 +33,9 @@ internal inline fun <T, R1 : T, R2 : T> Json.selectMapMode(
     ifMap: () -> R1,
     ifList: () -> R2
 ): T {
-    val keyDescriptor = mapDescriptor.getElementDescriptor(0).carrierDescriptor
+    val keyDescriptor = mapDescriptor.getElementDescriptor(0).carrierDescriptor(serializersModule)
     val keyKind = keyDescriptor.kind
+
     return if (keyKind is PrimitiveKind || keyKind == SerialKind.ENUM) {
         ifMap()
     } else if (configuration.allowStructuredMapKeys) {
@@ -43,5 +45,8 @@ internal inline fun <T, R1 : T, R2 : T> Json.selectMapMode(
     }
 }
 
-internal val SerialDescriptor.carrierDescriptor: SerialDescriptor
-    get() = if (isInline) getElementDescriptor(0) else this
+internal fun SerialDescriptor.carrierDescriptor(module: SerializersModule): SerialDescriptor = when {
+    kind == SerialKind.CONTEXTUAL -> module.getContextualDescriptor(this)?.carrierDescriptor(module) ?: this
+    isInline -> getElementDescriptor(0)
+    else     -> this
+}
