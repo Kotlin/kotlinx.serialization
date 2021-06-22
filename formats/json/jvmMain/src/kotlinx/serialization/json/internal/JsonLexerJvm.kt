@@ -4,7 +4,7 @@ import java.io.*
 import java.nio.CharBuffer
 import java.nio.charset.Charset
 
-private const val BATCH_SIZE = 2 * DEFAULT_BUFFER_SIZE
+internal const val BATCH_SIZE = 64 * DEFAULT_BUFFER_SIZE
 private const val DEFAULT_THRESHOLD = 1024
 
 

@@ -7,7 +7,7 @@ import java.nio.charset.Charset
 
 internal class JsonToWriterStringBuilder(private val writer: Writer) : JsonStringBuilder(
     // maybe this can also be taken from the pool, but currently initial char array size there is 128, which is too low.
-    CharArray(8 * DEFAULT_BUFFER_SIZE)
+    CharArray(BATCH_SIZE)
 ) {
     constructor(os: OutputStream, charset: Charset): this(os.bufferedWriter(charset))
 
