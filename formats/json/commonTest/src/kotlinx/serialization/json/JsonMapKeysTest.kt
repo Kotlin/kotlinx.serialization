@@ -5,7 +5,14 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.internal.*
+import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.test.*
 import kotlin.jvm.*
 import kotlin.test.*
@@ -17,6 +24,21 @@ value class ComplexCarrier(val c: IntData)
 @JvmInline
 @Serializable
 value class PrimitiveCarrier(val c: String)
+
+data class ContextualValue(val c: String) {
+    @Serializer(forClass = ContextualValue::class)
+    companion object: KSerializer<ContextualValue> {
+        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("ContextualValue", PrimitiveKind.STRING)
+
+        override fun serialize(encoder: Encoder, value: ContextualValue) {
+            encoder.encodeString(value.c)
+        }
+
+        override fun deserialize(decoder: Decoder): ContextualValue {
+            return ContextualValue(decoder.decodeString())
+        }
+    }
+}
 
 class JsonMapKeysTest : JsonTestBase() {
     @Serializable
@@ -33,6 +55,12 @@ class JsonMapKeysTest : JsonTestBase() {
 
     @Serializable
     private data class WithComplexValueKey(val map: Map<ComplexCarrier, String>)
+
+    @Serializable
+    private data class WithContextualValueKey(val map: Map<@Contextual PrimitiveCarrier, Long>)
+
+    @Serializable
+    private data class WithContextualKey(val map: Map<@Contextual ContextualValue, Long>)
 
     @Test
     fun testMapKeysShouldBeStrings() = parametrizedTest(default) {
@@ -92,6 +120,31 @@ class JsonMapKeysTest : JsonTestBase() {
             WithValueKeyMap(mapOf(PrimitiveCarrier("fooKey") to 1)),
             """{"map":{"fooKey":1}}""",
             Json
+        )
+    }
+
+    @Test
+    fun testContextualValuePrimitivesAreAllowedAsValueMapKeys() =  noLegacyJs {
+        assertJsonFormAndRestored(
+            WithContextualValueKey.serializer(),
+            WithContextualValueKey(mapOf(PrimitiveCarrier("fooKey") to 1)),
+            """{"map":{"fooKey":1}}""",
+            Json {
+                serializersModule =
+                    SerializersModule { contextual(PrimitiveCarrier::class, PrimitiveCarrier.serializer()) }
+            }
+        )
+    }
+
+    @Test
+    fun testContextualPrimitivesAreAllowedAsValueMapKeys() {
+        assertJsonFormAndRestored(
+            WithContextualKey.serializer(),
+            WithContextualKey(mapOf(ContextualValue("fooKey") to 1)),
+            """{"map":{"fooKey":1}}""",
+            Json {
+                serializersModule = SerializersModule { contextual(ContextualValue::class, ContextualValue.Companion) }
+            }
         )
     }
 }
