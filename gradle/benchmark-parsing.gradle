@@ -13,7 +13,7 @@ class PrintBenchmarksTask extends DefaultTask {
         parsedJson.each { v ->
             def name = (v.benchmark - "kotlinx.benchmarks.")
             def score = v.primaryMetric.score
-            println("##teamcity[buildStatisticValue key=" + name + " value=" + score + "]")
+            println("##teamcity[buildStatisticValue key='" + name + "' value='" + score + "']")
         }
     }
 }
