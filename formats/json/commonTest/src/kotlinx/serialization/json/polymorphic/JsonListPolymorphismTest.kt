@@ -38,9 +38,9 @@ class JsonListPolymorphismTest : JsonTestBase() {
 
     @Test
     fun testPolymorphicNullableValuesWithNonNullSerializerFails() =
-        parametrizedTest { useStreaming ->
+        parametrizedTest { jsonTestingMode ->
             val wrapper = ListNullableWrapper(listOf(InnerImpl(1), null))
-            val serialized = polymorphicRelaxedJson.encodeToString(ListNullableWrapper.serializer(), wrapper, useStreaming)
-            assertFails { polymorphicRelaxedJson.decodeFromString(ListWrapper.serializer(), serialized, useStreaming) }
+            val serialized = polymorphicRelaxedJson.encodeToString(ListNullableWrapper.serializer(), wrapper, jsonTestingMode)
+            assertFails { polymorphicRelaxedJson.decodeFromString(ListWrapper.serializer(), serialized, jsonTestingMode) }
         }
 }

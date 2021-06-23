@@ -13,9 +13,10 @@ internal const val READER_BUF_SIZE = 16 * BATCH_SIZE
 
 
 /**
- * For some reason this hand-rolled implementation is faster than java.nio.CharBuffer.wrap(CharArray)
+ * For some reason this hand-rolled implementation is faster than
+ * fun ArrayAsSequence(s: CharArray): CharSequence = java.nio.CharBuffer.wrap(s, 0, length)
  */
-internal class ArrayAsSequence(private val source: CharArray) : CharSequence {
+private class ArrayAsSequence(private val source: CharArray) : CharSequence {
     override val length: Int = source.size
 
     override fun get(index: Int): Char = source[index]
@@ -24,8 +25,6 @@ internal class ArrayAsSequence(private val source: CharArray) : CharSequence {
         return String(source, startIndex, endIndex - startIndex)
     }
 }
-
-//internal fun ArrayAsSequence(s: CharArray, length: Int = s.size): CharSequence = CharBuffer.wrap(s, 0, length)
 
 internal class JsonReaderLexer(
     private val reader: Reader,

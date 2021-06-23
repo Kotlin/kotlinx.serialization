@@ -26,4 +26,3 @@ internal actual class JsonStringBuilder actual constructor() {
     actual fun release() {
     }
 }
-

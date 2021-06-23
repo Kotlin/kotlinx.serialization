@@ -25,7 +25,7 @@ package kotlinx.serialization.json.internal
  * 3) We pool char arrays in order to save excess resizes, allocations
  *    and nulls-out of arrays.
  */
-internal actual open class JsonStringBuilder(protected var array: CharArray) {
+internal actual open class JsonStringBuilder(@JvmField protected var array: CharArray) {
     actual constructor(): this(CharArrayPool.take())
 
     protected var size = 0
@@ -76,7 +76,7 @@ internal actual open class JsonStringBuilder(protected var array: CharArray) {
              * We ar already on slow path and haven't guessed the capacity properly.
              * Reserve +2 for backslash-escaped symbols on each iteration
              */
-            sz = ensureTotalCapacity(sz , 2)
+            sz = ensureTotalCapacity(sz, 2)
             val ch = string[i].code
             // Do we have unescaped symbols?
             if (ch < ESCAPE_MARKERS.size) {

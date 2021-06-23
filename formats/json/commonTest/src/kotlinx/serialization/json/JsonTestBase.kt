@@ -25,17 +25,17 @@ abstract class JsonTestBase {
     protected val default = Json { encodeDefaults = true }
     protected val lenient = Json { isLenient = true; ignoreUnknownKeys = true; allowSpecialFloatingPointValues = true }
 
-    internal inline fun <reified T : Any> Json.encodeToString(value: T, useStreaming: JsonTestingMode): String {
+    internal inline fun <reified T : Any> Json.encodeToString(value: T, jsonTestingMode: JsonTestingMode): String {
         val serializer = serializersModule.serializer<T>()
-        return encodeToString(serializer, value, useStreaming)
+        return encodeToString(serializer, value, jsonTestingMode)
     }
 
     internal fun <T> Json.encodeToString(
         serializer: SerializationStrategy<T>,
         value: T,
-        useStreaming: JsonTestingMode
+        jsonTestingMode: JsonTestingMode
     ): String =
-        when (useStreaming) {
+        when (jsonTestingMode) {
             JsonTestingMode.STREAMING -> {
                 encodeToString(serializer, value)
             }
@@ -48,17 +48,17 @@ abstract class JsonTestBase {
             }
         }
 
-    internal inline fun <reified T : Any> Json.decodeFromString(source: String, useStreaming: JsonTestingMode): T {
+    internal inline fun <reified T : Any> Json.decodeFromString(source: String, jsonTestingMode: JsonTestingMode): T {
         val deserializer = serializersModule.serializer<T>()
-        return decodeFromString(deserializer, source, useStreaming)
+        return decodeFromString(deserializer, source, jsonTestingMode)
     }
 
     internal fun <T> Json.decodeFromString(
         deserializer: DeserializationStrategy<T>,
         source: String,
-        useStreaming: JsonTestingMode
+        jsonTestingMode: JsonTestingMode
     ): T =
-        when (useStreaming) {
+        when (jsonTestingMode) {
             JsonTestingMode.STREAMING -> {
                 decodeFromString(deserializer, source)
             }
@@ -86,15 +86,15 @@ abstract class JsonTestBase {
 
     private inner class SwitchableJson(
         val json: Json,
-        val useStreaming: JsonTestingMode,
+        val jsonTestingMode: JsonTestingMode,
         override val serializersModule: SerializersModule = EmptySerializersModule
     ) : StringFormat {
         override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
-            return json.encodeToString(serializer, value, useStreaming)
+            return json.encodeToString(serializer, value, jsonTestingMode)
         }
 
         override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
-            return json.decodeFromString(deserializer, string, useStreaming)
+            return json.decodeFromString(deserializer, string, jsonTestingMode)
         }
     }
 
@@ -133,11 +133,11 @@ abstract class JsonTestBase {
         expected: String,
         json: Json = default
     ) {
-        parametrizedTest { useStreaming ->
-            val serialized = json.encodeToString(serializer, data, useStreaming)
-            assertEquals(expected, serialized, "Failed with streaming = $useStreaming")
-            val deserialized: T = json.decodeFromString(serializer, serialized, useStreaming)
-            assertEquals(data, deserialized, "Failed with streaming = $useStreaming")
+        parametrizedTest { jsonTestingMode ->
+            val serialized = json.encodeToString(serializer, data, jsonTestingMode)
+            assertEquals(expected, serialized, "Failed with streaming = $jsonTestingMode")
+            val deserialized: T = json.decodeFromString(serializer, serialized, jsonTestingMode)
+            assertEquals(data, deserialized, "Failed with streaming = $jsonTestingMode")
         }
     }
 }

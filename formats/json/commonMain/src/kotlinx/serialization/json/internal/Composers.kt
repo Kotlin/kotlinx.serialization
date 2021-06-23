@@ -60,7 +60,7 @@ internal class ComposerForUnsignedNumbers(sb: JsonStringBuilder) : Composer(sb) 
     }
 }
 
-internal open class ComposerWithPrettyPrint(
+internal class ComposerWithPrettyPrint(
     sb: JsonStringBuilder,
     private val json: Json
 ) : Composer(sb) {

@@ -25,27 +25,27 @@ class JsonModesTest : JsonTestBase() {
     }
 
     @Test
-    fun nonStrictJsonCanSkipValues() = parametrizedTest { useStreaming ->
+    fun nonStrictJsonCanSkipValues() = parametrizedTest { jsonTestingMode ->
         val data = JsonOptionalTests.Data()
         assertEquals(
-            lenient.decodeFromString(JsonOptionalTests.Data.serializer(), "{strangeField: 100500, a:0}", useStreaming),
+            lenient.decodeFromString(JsonOptionalTests.Data.serializer(), "{strangeField: 100500, a:0}", jsonTestingMode),
             data
         )
         assertEquals(
-            lenient.decodeFromString(JsonOptionalTests.Data.serializer(), "{a:0, strangeField: 100500}", useStreaming),
+            lenient.decodeFromString(JsonOptionalTests.Data.serializer(), "{a:0, strangeField: 100500}", jsonTestingMode),
             data
         )
     }
 
     @Test
-    fun nonStrictJsonCanSkipComplexValues() = parametrizedTest { useStreaming ->
+    fun nonStrictJsonCanSkipComplexValues() = parametrizedTest { jsonTestingMode ->
         val data = JsonOptionalTests.Data()
 
         assertEquals(
             lenient.decodeFromString(
                 JsonOptionalTests.Data.serializer(),
                 "{a: 0, strangeField: {a: b, c: {d: e}, f: [g,h,j] }}",
-                useStreaming
+                jsonTestingMode
             ),
             data
         )
@@ -53,7 +53,7 @@ class JsonModesTest : JsonTestBase() {
             lenient.decodeFromString(
                 JsonOptionalTests.Data.serializer(),
                 "{strangeField: {a: b, c: {d: e}, f: [g,h,j] }, a: 0}",
-                useStreaming
+                jsonTestingMode
             ),
             data
         )
@@ -92,19 +92,19 @@ class JsonModesTest : JsonTestBase() {
     }
 
     @Test
-    fun testSerializeQuotedJson() = parametrizedTest { useStreaming ->
+    fun testSerializeQuotedJson() = parametrizedTest { jsonTestingMode ->
         assertEquals(
             """{"a":10,"e":false,"c":"Hello"}""", default.encodeToString(
                 JsonTransientTest.Data.serializer(),
-                JsonTransientTest.Data(10, 100), useStreaming
+                JsonTransientTest.Data(10, 100), jsonTestingMode
             )
         )
     }
 
     @Test
-    fun testStrictJsonCanNotSkipValues() = parametrizedTest { useStreaming ->
+    fun testStrictJsonCanNotSkipValues() = parametrizedTest { jsonTestingMode ->
         assertFailsWith(SerializationException::class) {
-            default.decodeFromString(JsonOptionalTests.Data.serializer(), "{strangeField: 100500, a:0}", useStreaming)
+            default.decodeFromString(JsonOptionalTests.Data.serializer(), "{strangeField: 100500, a:0}", jsonTestingMode)
         }
     }
 

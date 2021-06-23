@@ -17,6 +17,4 @@ actual fun <T> Json.encodeViaStream(
 actual fun <T> Json.decodeViaStream(
     serializer: DeserializationStrategy<T>,
     input: String
-): T {
-    return decodeFromStream(serializer, input.byteInputStream())
-}
+): T = decodeFromStream(serializer, input.byteInputStream())

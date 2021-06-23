@@ -31,8 +31,8 @@ class JsonEncoderDecoderRecursiveTest : JsonTestBase() {
     }
 
     @Test
-    fun testParseErrorString() = parametrizedTest { useStreaming ->
-        val ev = default.decodeFromString(Event.serializer(), inputErrorString, useStreaming)
+    fun testParseErrorString() = parametrizedTest { jsonTestingMode ->
+        val ev = default.decodeFromString(Event.serializer(), inputErrorString, jsonTestingMode)
         with(ev) {
             assertEquals(1, id)
             assertEquals(Either.Left("Connection timed out"), payload)
@@ -41,16 +41,16 @@ class JsonEncoderDecoderRecursiveTest : JsonTestBase() {
     }
 
     @Test
-    fun testWriteDataString() = parametrizedTest { useStreaming ->
+    fun testWriteDataString() = parametrizedTest { jsonTestingMode ->
         val outputData = Event(0, Either.Right(Payload(42, 43, "Hello world")), 1000)
-        val ev = default.encodeToString(Event.serializer(), outputData, useStreaming)
+        val ev = default.encodeToString(Event.serializer(), outputData, jsonTestingMode)
         assertEquals(inputDataString, ev)
     }
 
     @Test
-    fun testWriteDataStringIndented() = parametrizedTest { useStreaming ->
+    fun testWriteDataStringIndented() = parametrizedTest { jsonTestingMode ->
         val outputData = Event(0, Either.Right(Payload(42, 43, "Hello world")), 1000)
-        val ev = Json { prettyPrint = true }.encodeToString(Event.serializer(), outputData, useStreaming)
+        val ev = Json { prettyPrint = true }.encodeToString(Event.serializer(), outputData, jsonTestingMode)
         assertEquals("""{
             |    "id": 0,
             |    "payload": {
@@ -63,9 +63,9 @@ class JsonEncoderDecoderRecursiveTest : JsonTestBase() {
     }
 
     @Test
-    fun testWriteErrorString() = parametrizedTest { useStreaming ->
+    fun testWriteErrorString() = parametrizedTest { jsonTestingMode ->
         val outputError = Event(1, Either.Left("Connection timed out"), 1001)
-        val ev = default.encodeToString(Event.serializer(), outputError, useStreaming)
+        val ev = default.encodeToString(Event.serializer(), outputError, jsonTestingMode)
         assertEquals(inputErrorString, ev)
     }
 
@@ -104,14 +104,14 @@ class JsonEncoderDecoderRecursiveTest : JsonTestBase() {
     }
 
     @Test
-    fun testParseRecursive() = parametrizedTest { useStreaming ->
-        val ev = default.decodeFromString(RecursiveSerializer, inputRecursive, useStreaming)
+    fun testParseRecursive() = parametrizedTest { jsonTestingMode ->
+        val ev = default.decodeFromString(RecursiveSerializer, inputRecursive, jsonTestingMode)
         assertEquals(outputRecursive, ev)
     }
 
     @Test
-    fun testWriteRecursive() = parametrizedTest { useStreaming ->
-        val ev = default.encodeToString(RecursiveSerializer, outputRecursive, useStreaming)
+    fun testWriteRecursive() = parametrizedTest { jsonTestingMode ->
+        val ev = default.encodeToString(RecursiveSerializer, outputRecursive, jsonTestingMode)
         assertEquals(inputRecursive, ev)
     }
 

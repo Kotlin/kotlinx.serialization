@@ -17,9 +17,9 @@ class JsonSealedSubclassTest : JsonTestBase() {
 
     // inspired by kotlinx.serialization/#112
     @Test
-    fun testCallSuperSealedConstructorProperly() = parametrizedTest { useStreaming ->
+    fun testCallSuperSealedConstructorProperly() = parametrizedTest { jsonTestingMode ->
         val v1 = Var("a")
-        val s1 = default.encodeToString(Var.serializer(), v1, useStreaming)// {"id":"a"}
+        val s1 = default.encodeToString(Var.serializer(), v1, jsonTestingMode)// {"id":"a"}
         assertEquals("""{"id":"a"}""", s1)
         val v2: Var = default.decodeFromString(Var.serializer(), s1, JsonTestingMode.STREAMING) // should not throw IllegalAccessError
         assertEquals(v1, v2)
