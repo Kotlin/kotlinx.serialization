@@ -40,7 +40,6 @@ open class TwitterFeedBenchmark {
 
     @Setup
     fun init() {
-        require(twitter == Json.decodeFromString(MacroTwitterFeed.serializer(), Json.encodeToString(MacroTwitterFeed.serializer(), twitter)))
         file = Files.createTempFile("json_benchmark", "tmp")
     }
 
