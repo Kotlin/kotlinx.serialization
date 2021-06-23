@@ -173,3 +173,4 @@ subprojects {
 
 apply from: rootProject.file('gradle/compiler-version.gradle')
 apply from: rootProject.file("gradle/dokka.gradle")
+apply from: rootProject.file("gradle/benchmark-parsing.gradle")
