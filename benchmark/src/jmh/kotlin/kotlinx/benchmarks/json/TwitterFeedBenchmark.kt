@@ -104,7 +104,7 @@ open class TwitterFeedBenchmark {
     @Benchmark
     fun decodeMicroTwitterStream(): MicroTwitterFeed {
         return resource.openStream().use {
-            jsonIgnoreUnknwnNoAltNames.decodeFromStream(MicroTwitterFeed.serializer(), it.buffered())
+            jsonIgnoreUnknwnNoAltNames.decodeFromStream(MicroTwitterFeed.serializer(), it)
         }
     }
 
@@ -118,7 +118,7 @@ open class TwitterFeedBenchmark {
     private val objectMapper: ObjectMapper =
         jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-//    @Benchmark
-//    fun decodeMicroTwitterNoAltNames() = jsonIgnoreUnknwnNoAltNames.decodeFromString(MicroTwitterFeed.serializer(), input)
+    @Benchmark
+    fun decodeMicroTwitterNoAltNames() = jsonIgnoreUnknwnNoAltNames.decodeFromString(MicroTwitterFeed.serializer(), input)
 
 }
