@@ -31,23 +31,23 @@ class JsonOptionalTests : JsonTestBase() {
     }
 
     @Test
-    fun testAll() = parametrizedTest { useStreaming ->
+    fun testAll() = parametrizedTest { jsonTestingMode ->
         assertEquals("""{"a":0,"b":42,"c":"Hello"}""",
-            default.encodeToString(Data.serializer(), Data(), useStreaming))
-        assertEquals(lenient.decodeFromString(Data.serializer(), "{a:0,b:43,c:Hello}", useStreaming), Data(b = 43))
-        assertEquals(lenient.decodeFromString(Data.serializer(), "{a:0,b:42,c:Hello}", useStreaming), Data())
+            default.encodeToString(Data.serializer(), Data(), jsonTestingMode))
+        assertEquals(lenient.decodeFromString(Data.serializer(), "{a:0,b:43,c:Hello}", jsonTestingMode), Data(b = 43))
+        assertEquals(lenient.decodeFromString(Data.serializer(), "{a:0,b:42,c:Hello}", jsonTestingMode), Data())
     }
 
     @Test
-    fun testMissingOptionals() = parametrizedTest { useStreaming ->
-        assertEquals(default.decodeFromString(Data.serializer(), """{"a":0,"c":"Hello"}""", useStreaming), Data())
-        assertEquals(default.decodeFromString(Data.serializer(), """{"a":0}""", useStreaming), Data())
+    fun testMissingOptionals() = parametrizedTest { jsonTestingMode ->
+        assertEquals(default.decodeFromString(Data.serializer(), """{"a":0,"c":"Hello"}""", jsonTestingMode), Data())
+        assertEquals(default.decodeFromString(Data.serializer(), """{"a":0}""", jsonTestingMode), Data())
     }
 
     @Test
-    fun testThrowMissingField() = parametrizedTest { useStreaming ->
+    fun testThrowMissingField() = parametrizedTest { jsonTestingMode ->
         assertFailsWithMissingField {
-            lenient.decodeFromString(Data.serializer(), "{b:0}", useStreaming)
+            lenient.decodeFromString(Data.serializer(), "{b:0}", jsonTestingMode)
         }
     }
 }

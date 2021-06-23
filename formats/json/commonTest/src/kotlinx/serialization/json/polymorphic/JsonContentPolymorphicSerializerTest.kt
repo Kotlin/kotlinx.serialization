@@ -56,7 +56,7 @@ class JsonContentPolymorphicSerializerTest : JsonTestBase() {
             assertEquals(
                 testDataOutput[i],
                 json.decodeFromString(WithChoices.serializer(), testDataInput[i], streaming),
-                "failed test on ${testDataInput[i]}, useStreaming = $streaming"
+                "failed test on ${testDataInput[i]}, jsonTestingMode = $streaming"
             )
         }
     }
@@ -67,7 +67,7 @@ class JsonContentPolymorphicSerializerTest : JsonTestBase() {
             assertEquals(
                 testDataInput[i],
                 json.encodeToString(WithChoices.serializer(), testDataOutput[i], streaming),
-                "failed test on ${testDataOutput[i]}, useStreaming = $streaming"
+                "failed test on ${testDataOutput[i]}, jsonTestingMode = $streaming"
             )
         }
     }

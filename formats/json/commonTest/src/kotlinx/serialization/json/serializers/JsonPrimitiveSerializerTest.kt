@@ -11,54 +11,54 @@ import kotlin.test.*
 class JsonPrimitiveSerializerTest : JsonTestBase() {
 
     @Test
-    fun testJsonPrimitiveDouble() = parametrizedTest { useStreaming ->
+    fun testJsonPrimitiveDouble() = parametrizedTest { jsonTestingMode ->
         if (isJs()) return@parametrizedTest // JS toString numbers
 
 
         val wrapper = JsonPrimitiveWrapper(JsonPrimitive(1.0))
-        val string = default.encodeToString(JsonPrimitiveWrapper.serializer(), wrapper, useStreaming)
+        val string = default.encodeToString(JsonPrimitiveWrapper.serializer(), wrapper, jsonTestingMode)
         assertEquals("{\"primitive\":1.0}", string)
-        assertEquals(JsonPrimitiveWrapper(JsonPrimitive(1.0)), default.decodeFromString(JsonPrimitiveWrapper.serializer(), string, useStreaming))
+        assertEquals(JsonPrimitiveWrapper(JsonPrimitive(1.0)), default.decodeFromString(JsonPrimitiveWrapper.serializer(), string, jsonTestingMode))
     }
 
     @Test
-    fun testJsonPrimitiveInt() = parametrizedTest { useStreaming ->
+    fun testJsonPrimitiveInt() = parametrizedTest { jsonTestingMode ->
         val wrapper = JsonPrimitiveWrapper(JsonPrimitive(1))
-        val string = default.encodeToString(JsonPrimitiveWrapper.serializer(), wrapper, useStreaming)
+        val string = default.encodeToString(JsonPrimitiveWrapper.serializer(), wrapper, jsonTestingMode)
         assertEquals("{\"primitive\":1}", string)
-        assertEquals(JsonPrimitiveWrapper(JsonPrimitive(1)), default.decodeFromString(JsonPrimitiveWrapper.serializer(), string, useStreaming))
+        assertEquals(JsonPrimitiveWrapper(JsonPrimitive(1)), default.decodeFromString(JsonPrimitiveWrapper.serializer(), string, jsonTestingMode))
     }
 
 
     @Test
-    fun testJsonPrimitiveString() = parametrizedTest { useStreaming ->
+    fun testJsonPrimitiveString() = parametrizedTest { jsonTestingMode ->
         val wrapper = JsonPrimitiveWrapper(JsonPrimitive("foo"))
-        val string = default.encodeToString(JsonPrimitiveWrapper.serializer(), wrapper, useStreaming)
+        val string = default.encodeToString(JsonPrimitiveWrapper.serializer(), wrapper, jsonTestingMode)
         assertEquals("{\"primitive\":\"foo\"}", string)
-        assertEquals(JsonPrimitiveWrapper(JsonPrimitive("foo")), default.decodeFromString(JsonPrimitiveWrapper.serializer(), string, useStreaming))
+        assertEquals(JsonPrimitiveWrapper(JsonPrimitive("foo")), default.decodeFromString(JsonPrimitiveWrapper.serializer(), string, jsonTestingMode))
     }
 
     @Test
-    fun testJsonPrimitiveStringNumber() = parametrizedTest { useStreaming ->
+    fun testJsonPrimitiveStringNumber() = parametrizedTest { jsonTestingMode ->
         val wrapper = JsonPrimitiveWrapper(JsonPrimitive("239"))
-        val string = default.encodeToString(JsonPrimitiveWrapper.serializer(), wrapper, useStreaming)
+        val string = default.encodeToString(JsonPrimitiveWrapper.serializer(), wrapper, jsonTestingMode)
         assertEquals("{\"primitive\":\"239\"}", string)
-        assertEquals(JsonPrimitiveWrapper(JsonPrimitive("239")), default.decodeFromString(JsonPrimitiveWrapper.serializer(), string, useStreaming))
+        assertEquals(JsonPrimitiveWrapper(JsonPrimitive("239")), default.decodeFromString(JsonPrimitiveWrapper.serializer(), string, jsonTestingMode))
     }
 
     @Test
-    fun testTopLevelPrimitive() = parametrizedTest { useStreaming ->
-        val string = default.encodeToString(JsonPrimitiveSerializer, JsonPrimitive(42), useStreaming)
+    fun testTopLevelPrimitive() = parametrizedTest { jsonTestingMode ->
+        val string = default.encodeToString(JsonPrimitiveSerializer, JsonPrimitive(42), jsonTestingMode)
         assertEquals("42", string)
         assertEquals(JsonPrimitive(42), default.decodeFromString(JsonPrimitiveSerializer, string))
     }
 
     @Test
-    fun testTopLevelPrimitiveAsElement() = parametrizedTest { useStreaming ->
+    fun testTopLevelPrimitiveAsElement() = parametrizedTest { jsonTestingMode ->
         if (isJs()) return@parametrizedTest // JS toString numbers
-        val string = default.encodeToString(JsonElementSerializer, JsonPrimitive(1.3), useStreaming)
+        val string = default.encodeToString(JsonElementSerializer, JsonPrimitive(1.3), jsonTestingMode)
         assertEquals("1.3", string)
-        assertEquals(JsonPrimitive(1.3), default.decodeFromString(JsonElementSerializer, string, useStreaming))
+        assertEquals(JsonPrimitive(1.3), default.decodeFromString(JsonElementSerializer, string, jsonTestingMode))
     }
 
     @Test

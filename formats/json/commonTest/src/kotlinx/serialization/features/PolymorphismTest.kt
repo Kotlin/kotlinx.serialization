@@ -28,12 +28,12 @@ class PolymorphismTest : JsonTestBase() {
     private val json = Json { useArrayPolymorphism = true; serializersModule = module }
 
     @Test
-    fun testInheritanceJson() = parametrizedTest { useStreaming ->
+    fun testInheritanceJson() = parametrizedTest { jsonTestingMode ->
         val obj = Wrapper(
             PolyBase(2),
             PolyDerived("b")
         )
-        val bytes = json.encodeToString(Wrapper.serializer(), obj, useStreaming)
+        val bytes = json.encodeToString(Wrapper.serializer(), obj, jsonTestingMode)
         assertEquals(
             """{"polyBase1":["kotlinx.serialization.PolyBase",{"id":2}],""" +
                     """"polyBase2":["kotlinx.serialization.PolyDerived",{"id":1,"s":"b"}]}""", bytes
@@ -41,9 +41,9 @@ class PolymorphismTest : JsonTestBase() {
     }
 
     @Test
-    fun testSerializeWithExplicitPolymorphicSerializer() = parametrizedTest { useStreaming ->
+    fun testSerializeWithExplicitPolymorphicSerializer() = parametrizedTest { jsonTestingMode ->
         val obj = PolyDerived("b")
-        val s = json.encodeToString(PolymorphicSerializer(PolyDerived::class), obj, useStreaming)
+        val s = json.encodeToString(PolymorphicSerializer(PolyDerived::class), obj, jsonTestingMode)
         assertEquals("""["kotlinx.serialization.PolyDerived",{"id":1,"s":"b"}]""", s)
     }
 
@@ -55,7 +55,7 @@ class PolymorphismTest : JsonTestBase() {
     }
 
     @Test
-    fun testDefaultSerializer() = parametrizedTest { useStreaming ->
+    fun testDefaultSerializer() = parametrizedTest { jsonTestingMode ->
         val withDefault = module + SerializersModule {
             polymorphicDefault(PolyBase::class) { name ->
                 if (name == "foo") {
@@ -70,15 +70,15 @@ class PolymorphismTest : JsonTestBase() {
         val string = """
             {"polyBase1":{"type":"kotlinx.serialization.PolyBase","id":239},
             "polyBase2":{"type":"foo","key":42}}""".trimIndent()
-        val result = adjustedJson.decodeFromString(Wrapper.serializer(), string, useStreaming)
+        val result = adjustedJson.decodeFromString(Wrapper.serializer(), string, jsonTestingMode)
         assertEquals(Wrapper(PolyBase(239), PolyDefault(JsonObject(mapOf("key" to JsonPrimitive(42))))), result)
 
         val replaced = string.replace("foo", "bar")
-        assertFailsWithMessage<SerializationException>("not found") { adjustedJson.decodeFromString(Wrapper.serializer(), replaced, useStreaming) }
+        assertFailsWithMessage<SerializationException>("not found") { adjustedJson.decodeFromString(Wrapper.serializer(), replaced, jsonTestingMode) }
     }
 
     @Test
-    fun testDefaultSerializerForMissingDiscriminator() = parametrizedTest { useStreaming ->
+    fun testDefaultSerializerForMissingDiscriminator() = parametrizedTest { jsonTestingMode ->
         val json = Json {
             serializersModule = module + SerializersModule {
                 polymorphicDefault(PolyBase::class) { name ->
@@ -93,7 +93,7 @@ class PolymorphismTest : JsonTestBase() {
         val string = """
             {"polyBase1":{"type":"kotlinx.serialization.PolyBase","id":239},
             "polyBase2":{"key":42}}""".trimIndent()
-        val result = json.decodeFromString(Wrapper.serializer(), string, useStreaming)
+        val result = json.decodeFromString(Wrapper.serializer(), string, jsonTestingMode)
         assertEquals(Wrapper(PolyBase(239), PolyDefault(JsonObject(mapOf("key" to JsonPrimitive(42))))), result)
     }
 }
