@@ -11,7 +11,7 @@ internal class JsonToWriterStringBuilder(private val writer: Writer) : JsonStrin
 ) {
     // This size of buffered writer is very important here, because utf-8 works is slow.
     // Jackson and Moshi are faster because they have specialized UTF-8 parser/encoder over Input/OutputStream
-    constructor(os: OutputStream, charset: Charset): this(os.writer(charset).buffered(2 * (BATCH_SIZE)))
+    constructor(os: OutputStream, charset: Charset): this(os.writer(charset).buffered(READER_BUF_SIZE))
 
     override fun ensureTotalCapacity(oldSize: Int, additional: Int): Int {
         val requiredSize = oldSize + additional

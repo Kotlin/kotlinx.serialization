@@ -4,8 +4,9 @@ import java.io.*
 import java.nio.CharBuffer
 import java.nio.charset.Charset
 
-internal const val BATCH_SIZE = 8 * DEFAULT_BUFFER_SIZE
+internal const val BATCH_SIZE = 2 * DEFAULT_BUFFER_SIZE
 private const val DEFAULT_THRESHOLD = 128
+internal const val READER_BUF_SIZE = 8 * BATCH_SIZE
 
 
 /**
@@ -32,7 +33,7 @@ internal class JsonReaderLexer(
     // This size of buffered reader is very important here, because utf-8 decoding is slow.
     // Jackson and Moshi are faster because they have specialized UTF-8 parser over InputStream
     constructor(i: InputStream, charset: Charset) : this(i.reader(charset).buffered(
-        2 * (BATCH_SIZE + DEFAULT_THRESHOLD)))
+        READER_BUF_SIZE))
 
     init {
         preload(0)
