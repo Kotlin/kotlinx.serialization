@@ -159,7 +159,7 @@ A `type` key is added to the resulting JSON object as a _discriminator_.
 
 <!--- TEST -->
 
-Pay attention to the small, but very important detail in the above example that is related to [Static types][#static-types]:
+Pay attention to the small, but very important detail in the above example that is related to [Static types](#static-types):
 the `val data` property has a compile-time type of `Project`, even though its run-time type is `OwnedProject`. 
 When serializing polymorphic class hierarchies you must ensure that the compile-time type of the serialized object 
 is a polymorphic one, not a concrete one. 
