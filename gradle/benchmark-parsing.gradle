@@ -1,6 +1,11 @@
 import groovy.json.JsonSlurper
 import org.gradle.api.*
 
+/**
+ * Utility for printing benchmark results.
+ * Results can be obtained with JMH flags
+ * -rf json -rff serialization-benchmark-results.json
+ */
 class PrintBenchmarksTask extends DefaultTask {
     private String fileName = "serialization-benchmark-results.json"
 
