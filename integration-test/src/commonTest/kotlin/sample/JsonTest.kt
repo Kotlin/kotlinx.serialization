@@ -97,7 +97,6 @@ class JsonTest {
     }
 
     @Test
-    @Ignore // fixed in 1.5.20
     fun canBeSerializedAsDerived() {
         val derived = Derived(42)
         val msg = jsonWithDefaults.encodeToString(Derived.serializer(), derived)

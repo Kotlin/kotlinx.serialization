@@ -143,8 +143,6 @@ class PolymorphicOnClassesTest {
 
     @Test
     fun testSerializerLookupForAbstractClass() {
-        // This would be fixed in plugin in 1.5.20
-        if (currentPlatform != Platform.JVM) return
         val absSer = serializer<Message>()
         assertEquals(Message::class, (absSer as AbstractPolymorphicSerializer).baseClass)
     }

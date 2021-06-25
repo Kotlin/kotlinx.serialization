@@ -24,13 +24,3 @@ kotlin {
         }
     }
 }
-
-// TODO: these tests are failing on JVM IR and will be fixed in 1.5.20
-jvmTest {
-    filter {
-        excludeTest('kotlinx.serialization.json.JsonGenericTest', 'testRecursiveArrays')
-        excludeTest('kotlinx.serialization.features.InheritanceTest', 'canBeSerializedAsDerived')
-        excludeTest('kotlinx.serialization.features.InternalInheritanceTest', 'testEncodeToString')
-        excludeTest('kotlinx.serialization.SerializerForNullableJavaTypeTest', 'testMixedList')
-    }
-}

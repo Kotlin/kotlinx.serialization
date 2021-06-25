@@ -254,8 +254,6 @@ class SealedClassesSerializationTest : JsonTestBase() {
 
     @Test
     fun testSerializerLookupForSealedClass() {
-        // This would be fixed in plugin in 1.5.20
-        if (currentPlatform != Platform.JVM) return
         val resSer = serializer<SealedProtocol>()
         assertEquals(SealedProtocol::class, (resSer as AbstractPolymorphicSerializer).baseClass)
     }
