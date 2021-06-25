@@ -6,6 +6,8 @@ package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.features.sealed.SealedChild
+import kotlinx.serialization.features.sealed.SealedParent
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
@@ -256,5 +258,10 @@ class SealedClassesSerializationTest : JsonTestBase() {
         if (currentPlatform != Platform.JVM) return
         val resSer = serializer<SealedProtocol>()
         assertEquals(SealedProtocol::class, (resSer as AbstractPolymorphicSerializer).baseClass)
+    }
+
+    @Test
+    fun testClassesFromDifferentFiles() {
+        assertJsonFormAndRestored(SealedParent.serializer(), SealedChild(5), """{"type":"first child","i":1,"j":5}""")
     }
 }

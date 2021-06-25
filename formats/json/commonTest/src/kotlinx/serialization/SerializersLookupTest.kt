@@ -7,6 +7,8 @@ package kotlinx.serialization
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.features.sealed.SealedChild
+import kotlinx.serialization.features.sealed.SealedParent
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlinx.serialization.test.*
@@ -215,6 +217,17 @@ class SerializersLookupTest : JsonTestBase() {
     class NonSerializable
 
     class NonSerializableBox<T>(val boxed: T)
+
+    @Test
+    fun testSealedFromOtherFileLookup() {
+        if (isJvm() || isJsLegacy()) {
+            assertNotNull(serializerOrNull(typeOf<SealedParent>()))
+        } else {
+            // lookup would be fixed for native and JS/IR in plugin in 1.5.20 - remove condition and else branch in this case
+            assertNull(serializerOrNull(typeOf<SealedParent>()))
+        }
+        assertNotNull(serializerOrNull(typeOf<SealedChild>()))
+    }
 
     @Test
     fun testLookupFail() {
