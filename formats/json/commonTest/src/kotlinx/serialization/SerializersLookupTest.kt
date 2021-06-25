@@ -220,12 +220,7 @@ class SerializersLookupTest : JsonTestBase() {
 
     @Test
     fun testSealedFromOtherFileLookup() {
-        if (isJvm() || isJsLegacy()) {
-            assertNotNull(serializerOrNull(typeOf<SealedParent>()))
-        } else {
-            // lookup would be fixed for native and JS/IR in plugin in 1.5.20 - remove condition and else branch in this case
-            assertNull(serializerOrNull(typeOf<SealedParent>()))
-        }
+        assertNotNull(serializerOrNull(typeOf<SealedParent>()))
         assertNotNull(serializerOrNull(typeOf<SealedChild>()))
     }
 
