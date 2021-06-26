@@ -34,6 +34,10 @@ inline fun noJs(test: () -> Unit) {
     if (!isJs()) test()
 }
 
+inline fun noJsLegacy(test: () -> Unit) {
+    if (!isJsLegacy()) test()
+}
+
 inline fun jvmOnly(test: () -> Unit) {
     if (isJvm()) test()
 }
