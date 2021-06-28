@@ -25,6 +25,10 @@ kotlin {
     }
 }
 
+compileTestKotlinJsLegacy {
+    exclude '**/PropertyInitializerTest.kt'
+}
+
 // TODO: these tests are failing on JVM IR and will be fixed in 1.5.20
 jvmTest {
     filter {
