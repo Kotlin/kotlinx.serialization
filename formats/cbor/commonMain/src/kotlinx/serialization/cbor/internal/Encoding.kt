@@ -166,30 +166,29 @@ internal class CborEncoder(private val output: ByteArrayOutput) {
     }
 
     private fun composeNumber(value: Long): ByteArray =
-        if (value >= 0) composePositive(value) else composeNegative(value)
+        if (value >= 0) composePositive(value.toULong()) else composeNegative(value)
 
-    private fun composePositive(value: Long): ByteArray = when (value) {
-        in 0..23 -> byteArrayOf(value.toByte())
-        in 24..Byte.MAX_VALUE -> byteArrayOf(24, value.toByte())
-        in Byte.MAX_VALUE + 1..Short.MAX_VALUE -> encodeToByteArray(value, 2, 25)
-        in Short.MAX_VALUE + 1..Int.MAX_VALUE -> encodeToByteArray(value, 4, 26)
-        in (Int.MAX_VALUE.toLong() + 1..Long.MAX_VALUE) -> encodeToByteArray(value, 8, 27)
-        else -> throw AssertionError("$value should be positive")
+    private fun composePositive(value: ULong): ByteArray = when (value) {
+        in 0u..23u -> byteArrayOf(value.toByte())
+        in 24u..UByte.MAX_VALUE.toUInt() -> byteArrayOf(24, value.toByte())
+        in (UByte.MAX_VALUE.toUInt() + 1u)..UShort.MAX_VALUE.toUInt() -> encodeToByteArray(value, 2, 25)
+        in (UShort.MAX_VALUE.toUInt() + 1u)..UInt.MAX_VALUE -> encodeToByteArray(value, 4, 26)
+        else -> encodeToByteArray(value, 8, 27)
     }
 
-    private fun encodeToByteArray(value: Long, bytes: Int, tag: Byte): ByteArray {
+    private fun encodeToByteArray(value: ULong, bytes: Int, tag: Byte): ByteArray {
         val result = ByteArray(bytes + 1)
         val limit = bytes * 8 - 8
         result[0] = tag
         for (i in 0 until bytes) {
-            result[i + 1] = ((value shr (limit - 8 * i)) and 0xFF).toByte()
+            result[i + 1] = ((value shr (limit - 8 * i)) and 0xFFu).toByte()
         }
         return result
     }
 
     private fun composeNegative(value: Long): ByteArray {
         val aVal = if (value == Long.MIN_VALUE) Long.MAX_VALUE else -1 - value
-        val data = composePositive(aVal)
+        val data = composePositive(aVal.toULong())
         data[0] = data[0] or HEADER_NEGATIVE
         return data
     }
