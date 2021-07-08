@@ -1,3 +1,4 @@
+@file:UseSerializers(DateAsLongSerializer::class)
 // This file was automatically generated from serializers.md by Knit tool. Do not edit.
 package example.exampleSerializer16
 
@@ -6,21 +7,19 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
 
-@Serializable(with = BoxSerializer::class)
-data class Box<T>(val contents: T) 
-
-class BoxSerializer<T>(private val dataSerializer: KSerializer<T>) : KSerializer<Box<T>> {
-    override val descriptor: SerialDescriptor = dataSerializer.descriptor
-    override fun serialize(encoder: Encoder, value: Box<T>) = dataSerializer.serialize(encoder, value.contents)
-    override fun deserialize(decoder: Decoder) = Box(dataSerializer.deserialize(decoder))
+import java.util.Date
+import java.text.SimpleDateFormat
+  
+object DateAsLongSerializer : KSerializer<Date> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
+    override fun serialize(encoder: Encoder, value: Date) = encoder.encodeLong(value.time)
+    override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
 }
 
-@Serializable
-data class Project(val name: String)
+@Serializable          
+class ProgrammingLanguage(val name: String, val stableReleaseDate: Date)
 
 fun main() {
-    val box = Box(Project("kotlinx.serialization"))
-    val string = Json.encodeToString(box)
-    println(string)
-    println(Json.decodeFromString<Box<Project>>(string))
+    val data = ProgrammingLanguage("Kotlin", SimpleDateFormat("yyyy-MM-ddX").parse("2016-02-15+00"))
+    println(Json.encodeToString(data))
 }
