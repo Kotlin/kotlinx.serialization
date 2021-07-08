@@ -7,19 +7,19 @@ It also uses Kotlin 1.5.20 as default.
 
 ### Features
 
-  * Support for `@JsonNames` and `coerceInputValues` in Json.decodeFromDynamic (#1479)
+  * Support for `@JsonNames` and `coerceInputValues` in `Json.decodeFromDynamic` (#1479)
   * Add factory function to wrap a serial descriptor with a custom name for custom delegating serializers (#1547) (thanks to [Fadenfire](https://github.com/Fadenfire))
   * Allow contextually serialized types to be used as map keys in Json (#1552) (thanks to [pdvrieze](https://github.com/pdvrieze))
 
 ### Bugfixes and performance improvements
 
-  * Update size in JsonStringBuilder slow-path to avoid excessive array-copies for large strings with escape symbols (#1491)
-  * Optimize CBOR Integer encoding length (#1570) (thanks to [davertay](https://github.com/davertay))
-  * Throw JsonDecodingException instead of ClassCastException during unexpected null in TreeJsonDecoder (#1550)
+  * Update size in `JsonStringBuilder` slow-path to avoid excessive array-copies for large strings with escape symbols (#1491)
+  * Optimize integer encoding length in CBOR (#1570) (thanks to [davertay](https://github.com/davertay))
+  * Throw `JsonDecodingException` instead of `ClassCastException` during unexpected null in `TreeJsonDecoder` (#1550)
   * Prohibit 'null' strings in lenient mode in order to get rid of 'null' and "null" ambiguity (#1549)
-  * Avoid usage of reflective-like serialDescriptor<KType> in production sources (#1540)
+  * Avoid usage of reflective-like `serialDescriptor<KType>` in production sources (#1540)
   * Added correct error message when deserializing missing enum member for Properties format (#1539)
-  * Make DescriptorSchemaCache in Json thread-local on Native (#1484)
+  * Make `DescriptorSchemaCache` in Json thread-local on Native (#1484)
 
 1.2.1 / 2021-05-14
 ==================
