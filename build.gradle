@@ -49,7 +49,7 @@ buildscript {
         mavenCentral()
         gradlePluginPortal()
         // For Dokka that depends on kotlinx-html
-        maven { url 'https://kotlin.bintray.com/kotlinx' }
+        maven { url "https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven" }
     }
 
     configurations.classpath {
@@ -132,9 +132,10 @@ allprojects {
         // kotlin-dev with space redirector
         maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
         // For Dokka that depends on kotlinx-html
-        maven { url 'https://kotlin.bintray.com/kotlinx' }
+        maven { url "https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven" }
         // For local development
         mavenLocal()
+
     }
 }
 
