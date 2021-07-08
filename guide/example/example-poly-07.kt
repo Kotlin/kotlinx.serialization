@@ -5,15 +5,17 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 @Serializable
-sealed class Response
-                      
-@Serializable
-object EmptyResponse : Response()
-
+sealed class Project {
+    abstract val name: String   
+    var status = "open"
+}
+            
 @Serializable   
-class TextResponse(val text: String) : Response()   
+@SerialName("owned")
+class OwnedProject(override val name: String, val owner: String) : Project()
 
 fun main() {
-    val list = listOf(EmptyResponse, TextResponse("OK"))
-    println(Json.encodeToString(list))
+    val json = Json { encodeDefaults = true } // "status" will be skipped otherwise
+    val data: Project = OwnedProject("kotlinx.coroutines", "kotlin")
+    println(json.encodeToString(data))
 }  
