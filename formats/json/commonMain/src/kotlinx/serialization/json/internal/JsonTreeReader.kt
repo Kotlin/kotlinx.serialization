@@ -13,8 +13,16 @@ internal class JsonTreeReader(
     private val lexer: JsonLexer
 ) {
     private val isLenient = configuration.isLenient
+    private var stackDepth = 0
 
-    private fun readObject(): JsonElement {
+    private fun readObject(): JsonElement = readObjectImpl {
+        read()
+    }
+
+    private suspend fun DeepRecursiveScope<Unit, JsonElement>.readObject(): JsonElement =
+        readObjectImpl { callRecursive(Unit) }
+
+    private inline fun readObjectImpl(reader: () -> JsonElement): JsonObject {
         var lastToken = lexer.consumeNextToken(TC_BEGIN_OBJ)
         if (lexer.peekNextToken() == TC_COMMA) lexer.fail("Unexpected leading comma")
         val result = linkedMapOf<String, JsonElement>()
@@ -22,7 +30,7 @@ internal class JsonTreeReader(
             // Read key and value
             val key = if (isLenient) lexer.consumeStringLenient() else lexer.consumeString()
             lexer.consumeNextToken(TC_COLON)
-            val element = read()
+            val element = reader()
             result[key] = element
             // Verify the next token
             lastToken = lexer.consumeNextToken()
@@ -75,9 +83,28 @@ internal class JsonTreeReader(
         return when (lexer.peekNextToken()) {
             TC_STRING -> readValue(isString = true)
             TC_OTHER -> readValue(isString = false)
-            TC_BEGIN_OBJ -> readObject()
+            TC_BEGIN_OBJ -> {
+                // 500 is an arbitrary constant
+                val result = if (++stackDepth > 500) {
+                    readDeepRecursive()
+                } else {
+                    readObject()
+                }
+                --stackDepth
+                result
+            }
             TC_BEGIN_LIST -> readArray()
             else -> lexer.fail("Can't begin reading element, unexpected token")
         }
     }
+
+    private fun readDeepRecursive(): JsonElement = DeepRecursiveFunction<Unit, JsonElement> {
+        when (lexer.peekNextToken()) {
+            TC_STRING -> readValue(isString = true)
+            TC_OTHER -> readValue(isString = false)
+            TC_BEGIN_OBJ -> readObject()
+            TC_BEGIN_LIST -> readArray()
+            else -> lexer.fail("Can't begin reading element, unexpected token")
+        }
+    }.invoke(Unit)
 }
