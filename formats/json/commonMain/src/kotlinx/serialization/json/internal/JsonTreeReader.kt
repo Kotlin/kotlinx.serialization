@@ -72,12 +72,12 @@ internal class JsonTreeReader(
     }
 
     fun read(): JsonElement {
-        return when (lexer.peekNextToken()) {
+        return when (val token = lexer.peekNextToken()) {
             TC_STRING -> readValue(isString = true)
             TC_OTHER -> readValue(isString = false)
             TC_BEGIN_OBJ -> readObject()
             TC_BEGIN_LIST -> readArray()
-            else -> lexer.fail("Can't begin reading element, unexpected token")
+            else -> lexer.fail("Cannot begin reading element, unexpected token: $token")
         }
     }
 }
