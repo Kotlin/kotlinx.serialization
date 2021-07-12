@@ -25,14 +25,14 @@ import kotlinx.serialization.encoding.*
  *      }
  *
  *     override fun deserialize(decoder: Decoder): Either {
- *         val input = decoder as? JsonDecoder ?: throw SerializationException("This class can be loaded only by Json")
+ *         val input = decoder as? JsonDecoder ?: throw SerializationException("This class can be decoded only by Json format")
  *         val tree = input.decodeJsonElement() as? JsonObject ?: throw SerializationException("Expected JsonObject")
  *         if ("error" in tree) return Either.Left(tree["error"]!!.jsonPrimitive.content)
  *         return Either.Right(input.json.decodeFromJsonElement(Payload.serializer(), tree))
  *     }
  *
  *     override fun serialize(encoder: Encoder, value: Either) {
- *         val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
+ *         val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be encoded only by Json format")
  *         val tree = when (value) {
  *           is Either.Left -> JsonObject(mapOf("error" to JsonPrimitve(value.errorMsg)))
  *           is Either.Right -> output.json.encodeToJsonElement(Payload.serializer(), value.data)

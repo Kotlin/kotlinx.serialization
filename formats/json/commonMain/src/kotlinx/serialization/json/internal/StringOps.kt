@@ -4,20 +4,16 @@
 
 package kotlinx.serialization.json.internal
 
-import kotlin.native.concurrent.SharedImmutable
+import kotlin.native.concurrent.*
 
 private fun toHexChar(i: Int) : Char {
     val d = i and 0xf
-    return if (d < 10) (d + '0'.toInt()).toChar()
-    else (d - 10 + 'a'.toInt()).toChar()
+    return if (d < 10) (d + '0'.code).toChar()
+    else (d - 10 + 'a'.code).toChar()
 }
 
-/*
- * Even though the actual size of this array is 92, it has to be the power of two, otherwise
- * JVM cannot perform advanced range-check elimination and vectorization in printQuoted
- */
 @SharedImmutable
-private val ESCAPE_CHARS: Array<String?> = arrayOfNulls<String>(128).apply {
+internal val ESCAPE_STRINGS: Array<String?> = arrayOfNulls<String>(93).apply {
     for (c in 0..0x1f) {
         val c1 = toHexChar(c shr 12)
         val c2 = toHexChar(c shr 8)
@@ -25,38 +21,45 @@ private val ESCAPE_CHARS: Array<String?> = arrayOfNulls<String>(128).apply {
         val c4 = toHexChar(c)
         this[c] = "\\u$c1$c2$c3$c4"
     }
-    this['"'.toInt()] = "\\\""
-    this['\\'.toInt()] = "\\\\"
-    this['\t'.toInt()] = "\\t"
-    this['\b'.toInt()] = "\\b"
-    this['\n'.toInt()] = "\\n"
-    this['\r'.toInt()] = "\\r"
+    this['"'.code] = "\\\""
+    this['\\'.code] = "\\\\"
+    this['\t'.code] = "\\t"
+    this['\b'.code] = "\\b"
+    this['\n'.code] = "\\n"
+    this['\r'.code] = "\\r"
     this[0x0c] = "\\f"
+}
+
+@SharedImmutable
+internal val ESCAPE_MARKERS: ByteArray = ByteArray(93).apply {
+    for (c in 0..0x1f) {
+        this[c] = 1.toByte()
+    }
+    this['"'.code] = '"'.code.toByte()
+    this['\\'.code] = '\\'.code.toByte()
+    this['\t'.code] = 't'.code.toByte()
+    this['\b'.code] = 'b'.code.toByte()
+    this['\n'.code] = 'n'.code.toByte()
+    this['\r'.code] = 'r'.code.toByte()
+    this[0x0c] = 'f'.code.toByte()
 }
 
 internal fun StringBuilder.printQuoted(value: String) {
     append(STRING)
     var lastPos = 0
-    val length = value.length
-    for (i in 0 until length) {
-        val c = value[i].toInt()
-        // Do not replace this constant with C2ESC_MAX (which is smaller than ESCAPE_CHARS size),
-        // otherwise JIT won't eliminate range check and won't vectorize this loop
-        if (c >= ESCAPE_CHARS.size) continue // no need to escape
-        val esc = ESCAPE_CHARS[c] ?: continue
-        append(value, lastPos, i) // flush prev
-        append(esc)
-        lastPos = i + 1
+    for (i in value.indices) {
+        val c = value[i].code
+        if (c < ESCAPE_STRINGS.size && ESCAPE_STRINGS[c] != null) {
+            append(value, lastPos, i) // flush prev
+            append(ESCAPE_STRINGS[c])
+            lastPos = i + 1
+        }
     }
-    append(value, lastPos, length)
+
+    if (lastPos != 0) append(value, lastPos, value.length)
+    else append(value)
     append(STRING)
 }
-
-/**
- * Returns `true` if the contents of this string is equal to the word "true", ignoring case, `false` if content equals "false",
- * and throws [IllegalStateException] otherwise.
- */
-internal fun String.toBooleanStrict(): Boolean = toBooleanStrictOrNull() ?: throw IllegalStateException("$this does not represent a Boolean")
 
 /**
  * Returns `true` if the contents of this string is equal to the word "true", ignoring case, `false` if content equals "false",
@@ -66,13 +69,4 @@ internal fun String.toBooleanStrictOrNull(): Boolean? = when {
     this.equals("true", ignoreCase = true) -> true
     this.equals("false", ignoreCase = true) -> false
     else -> null
-}
-
-internal fun shouldBeQuoted(str: String): Boolean {
-    if (str == NULL) return true
-    for (ch in str) {
-        if (charToTokenClass(ch) != TC_OTHER) return true
-    }
-
-    return false
 }

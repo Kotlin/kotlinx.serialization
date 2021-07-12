@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.protobuf
@@ -23,7 +23,7 @@ class ProtobufTopLevelPrimitivesCompatibilityTest {
     @Test
     fun testPrimitivesCompatibility() {
         testCompatibility(true, Boolean.serializer(), "01") { writeBoolNoTag(it) }
-        testCompatibility('c', Char.serializer(), "63") { writeInt32NoTag(it.toInt()) }
+        testCompatibility('c', Char.serializer(), "63") { writeInt32NoTag(it.code) }
         testCompatibility(1, Byte.serializer(), "01") { writeInt32NoTag(it.toInt()) }
         testCompatibility(1, Short.serializer(), "01") { writeInt32NoTag(it.toInt()) }
         testCompatibility(1, Int.serializer(), "01") { writeInt32NoTag(it) }

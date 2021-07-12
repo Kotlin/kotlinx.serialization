@@ -18,7 +18,7 @@ internal open class PluginGeneratedSerialDescriptor(
     override val serialName: String,
     private val generatedSerializer: GeneratedSerializer<*>? = null,
     final override val elementsCount: Int
-) : SerialDescriptor {
+) : SerialDescriptor, CachedNames {
     override val kind: SerialKind get() = StructureKind.CLASS
     override val annotations: List<Annotation> get() = classAnnotations ?: emptyList()
 
@@ -29,15 +29,14 @@ internal open class PluginGeneratedSerialDescriptor(
     // Classes rarely have annotations, so we can save up a bit of allocations here
     private var classAnnotations: MutableList<Annotation>? = null
     private val elementsOptionality = BooleanArray(elementsCount)
-    internal val namesSet: Set<String> get() = indices.keys
+    public override val serialNames: Set<String> get() = indices.keys
 
-    // don't change lazy mode: KT-32871, KT-32872
-    private val indices: Map<String, Int> by lazy { buildIndices() }
+    private var indices: Map<String, Int> = emptyMap()
     // Cache child serializers, they are not cached by the implementation for nullable types
-    private val childSerializers by lazy { generatedSerializer?.childSerializers() ?: emptyArray() }
+    private val childSerializers: Array<KSerializer<*>> by lazy { generatedSerializer?.childSerializers() ?: emptyArray() }
 
     // Lazy because of JS specific initialization order (#789)
-    private val typeParameterDescriptors: Array<SerialDescriptor> by lazy {
+    internal val typeParameterDescriptors: Array<SerialDescriptor> by lazy {
         generatedSerializer?.typeParametersSerializers()?.map { it.descriptor }.compactArray()
     }
 
@@ -48,6 +47,9 @@ internal open class PluginGeneratedSerialDescriptor(
         names[++added] = name
         elementsOptionality[added] = isOptional
         propertiesAnnotations[added] = null
+        if (added == elementsCount - 1) {
+            indices = buildIndices()
+        }
     }
 
     public fun pushAnnotation(annotation: Annotation) {
@@ -95,8 +97,8 @@ internal open class PluginGeneratedSerialDescriptor(
     override fun hashCode(): Int = _hashCode
 
     override fun toString(): String {
-        return indices.entries.joinToString(", ", "$serialName(", ")") {
-            it.key + ": " + getElementDescriptor(it.value).serialName
+        return (0 until elementsCount).joinToString(", ", "$serialName(", ")") { i ->
+            getElementName(i) + ": " + getElementDescriptor(i).serialName
         }
     }
 }

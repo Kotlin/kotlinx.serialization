@@ -1,12 +1,11 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json
 
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.test.assertStringFormAndRestored
+import kotlinx.serialization.*
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class JsonModesTest : JsonTestBase() {
@@ -48,14 +47,48 @@ class JsonModesTest : JsonTestBase() {
                 "{a: 0, strangeField: {a: b, c: {d: e}, f: [g,h,j] }}",
                 useStreaming
             ),
-            data)
+            data
+        )
         assertEquals(
             lenient.decodeFromString(
                 JsonOptionalTests.Data.serializer(),
                 "{strangeField: {a: b, c: {d: e}, f: [g,h,j] }, a: 0}",
                 useStreaming
             ),
-            data)
+            data
+        )
+    }
+
+    @Test
+    fun ignoreKeysCanIgnoreWeirdStringValues() {
+        val data = JsonOptionalTests.Data()
+        fun doTest(input: String) {
+            assertEquals(data, lenient.decodeFromString(input))
+        }
+        doTest("{a: 0, strangeField: [\"imma string with } bracket\", \"sss\"]}")
+        doTest("{a: 0, strangeField: [\"imma string with ] bracket\", \"sss\"]}")
+        doTest("{a: 0, strangeField: \"imma string with } bracket\"}")
+        doTest("{a: 0, strangeField: \"imma string with ] bracket\"}")
+        doTest("{a: 0, strangeField: {key: \"imma string with ] bracket\"}}")
+        doTest("{a: 0, strangeField: {key: \"imma string with } bracket\"}}")
+        doTest("""{"a": 0, "strangeField": {"key": "imma string with } bracket"}}""")
+        doTest("""{"a": 0, "strangeField": {"key": "imma string with ] bracket"}}""")
+        doTest("""{"a": 0, "strangeField": ["imma string with ] bracket"]}""")
+        doTest("""{"a": 0, "strangeField": ["imma string with } bracket"]}""")
+    }
+
+    @Serializable
+    class Empty
+
+    @Test
+    fun lenientThrowOnMalformedString() {
+        fun doTest(input: String) {
+            assertFailsWith<SerializationException> { lenient.decodeFromString(Empty.serializer(), input) }
+        }
+        doTest("""{"a":[{"b":[{"c":{}d",""e"":"}]}""")
+        doTest("""{"a":[}""")
+        doTest("""{"a":""")
+        lenient.decodeFromString(Empty.serializer(), """{"a":[]}""") // should not throw
     }
 
     @Test
@@ -63,7 +96,9 @@ class JsonModesTest : JsonTestBase() {
         assertEquals(
             """{"a":10,"e":false,"c":"Hello"}""", default.encodeToString(
                 JsonTransientTest.Data.serializer(),
-                JsonTransientTest.Data(10, 100), useStreaming))
+                JsonTransientTest.Data(10, 100), useStreaming
+            )
+        )
     }
 
     @Test

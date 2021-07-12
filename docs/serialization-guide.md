@@ -73,6 +73,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='format-specific-serializers'></a>[Format-specific serializers](serializers.md#format-specific-serializers)
 * <a name='contextual-serialization'></a>[Contextual serialization](serializers.md#contextual-serialization)
   * <a name='serializers-module'></a>[Serializers module](serializers.md#serializers-module)
+  * <a name='contextual-serialization-and-generic-classes'></a>[Contextual serialization and generic classes](serializers.md#contextual-serialization-and-generic-classes)
 * <a name='deriving-external-serializer-for-another-kotlin-class-experimental'></a>[Deriving external serializer for another Kotlin class (experimental)](serializers.md#deriving-external-serializer-for-another-kotlin-class-experimental)
   * <a name='external-serialization-uses-properties'></a>[External serialization uses properties](serializers.md#external-serialization-uses-properties)
 <!--- END -->
@@ -106,6 +107,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='pretty-printing'></a>[Pretty printing](json.md#pretty-printing)
   * <a name='lenient-parsing'></a>[Lenient parsing](json.md#lenient-parsing)
   * <a name='ignoring-unknown-keys'></a>[Ignoring unknown keys](json.md#ignoring-unknown-keys)
+  * <a name='alternative-json-names'></a>[Alternative Json names](json.md#alternative-json-names)
   * <a name='coercing-input-values'></a>[Coercing input values](json.md#coercing-input-values)
   * <a name='encoding-defaults'></a>[Encoding defaults](json.md#encoding-defaults)
   * <a name='allowing-structured-map-keys'></a>[Allowing structured map keys](json.md#allowing-structured-map-keys)
@@ -144,4 +146,12 @@ Once the project is set up, we can start serializing some classes.
   * <a name='adding-null-support'></a>[Adding null support](formats.md#adding-null-support)
   * <a name='efficient-binary-format'></a>[Efficient binary format](formats.md#efficient-binary-format)
   * <a name='format-specific-types'></a>[Format-specific types](formats.md#format-specific-types)
+<!--- END -->
+
+**Appendix A.** [Serialization and inline classes (experimental, IR-specific)](inline-classes.md)
+
+<!--- TOC_REF inline-classes.md -->
+* <a name='serializable-inline-classes'></a>[Serializable inline classes](inline-classes.md#serializable-inline-classes)
+* <a name='unsigned-types-support-json-only'></a>[Unsigned types support (JSON only)](inline-classes.md#unsigned-types-support-json-only)
+* <a name='using-inline-classes-in-your-custom-serializers'></a>[Using inline classes in your custom serializers](inline-classes.md#using-inline-classes-in-your-custom-serializers)
 <!--- END -->

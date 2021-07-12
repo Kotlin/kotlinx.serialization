@@ -1,14 +1,14 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.*
-import kotlinx.serialization.internal.*
+import kotlinx.serialization.features.sealed.SealedChild
+import kotlinx.serialization.features.sealed.SealedParent
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlinx.serialization.test.*
@@ -44,6 +44,13 @@ class SerializersLookupTest : JsonTestBase() {
         val myArr = listOf("a", "b", "c")
         assertSerializedWithType("""["a","b","c"]""", myArr)
     }
+
+    @Test
+    fun testListAsCollection() {
+        val myArr: Collection<String> = listOf("a", "b", "c")
+        assertSerializedWithType("""["a","b","c"]""", myArr)
+    }
+
 
     @Test
     fun testPrimitiveSet() {
@@ -207,9 +214,33 @@ class SerializersLookupTest : JsonTestBase() {
         assertEquals("42", json.encodeToString(42))
     }
 
-    // Tests with [constructSerializerForGivenTypeArgs] are unsupported on legacy Kotlin/JS
-    private inline fun noLegacyJs(test: () -> Unit) {
-        if (!isJsLegacy()) test()
+    class NonSerializable
+
+    class NonSerializableBox<T>(val boxed: T)
+
+    @Test
+    fun testSealedFromOtherFileLookup() {
+        assertNotNull(serializerOrNull(typeOf<SealedParent>()))
+        assertNotNull(serializerOrNull(typeOf<SealedChild>()))
+    }
+
+    @Test
+    fun testLookupFail() {
+        assertNull(serializerOrNull(typeOf<NonSerializable>()))
+        assertNull(serializerOrNull(typeOf<NonSerializableBox<String>>()))
+        assertNull(serializerOrNull(typeOf<Box<NonSerializable>>()))
+
+        assertFailsWithMessage<SerializationException>("for class 'NonSerializable'") {
+            serializer(typeOf<NonSerializable>())
+        }
+
+        assertFailsWithMessage<SerializationException>("for class 'NonSerializableBox'") {
+            serializer(typeOf<NonSerializableBox<String>>())
+        }
+
+        assertFailsWithMessage<SerializationException>("for class 'NonSerializable'") {
+            serializer(typeOf<Box<NonSerializable>>())
+        }
     }
 
     private inline fun <reified T> assertSerializedWithType(
@@ -219,8 +250,11 @@ class SerializersLookupTest : JsonTestBase() {
     ) {
         val serial = serializer<T>()
         assertEquals(expected, json.encodeToString(serial, value))
+        val serial2 = requireNotNull(serializerOrNull(typeOf<T>())) { "Expected serializer to be found" }
+        assertEquals(expected, json.encodeToString(serial2, value))
     }
 
+    @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
     inline fun <T> KSerializer<*>.cast(): KSerializer<T> = this as KSerializer<T>
 
 }

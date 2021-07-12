@@ -162,6 +162,12 @@ public interface SerialDescriptor {
     public val isNullable: Boolean get() = false
 
     /**
+     * Returns `true` if this descriptor describes a serializable inline class.
+     */
+    @ExperimentalSerializationApi
+    public val isInline: Boolean get() = false
+
+    /**
      * The number of elements this descriptor describes, besides from the class itself.
      * [elementsCount] describes the number of **semantic** elements, not the number
      * of actual fields/properties in the serialized form, even though they frequently match.
@@ -214,8 +220,8 @@ public interface SerialDescriptor {
      * @Serializable
      * class Outer(@AnotherSerialAnnotation val nested: Nested)
      *
-     * outerDescriptor.getElementAnnotations(0) // Returns [@SomeSerialAnnotation]
-     * outerDescriptor.getElementDescriptor(0).annotations // Returns [@AnotherSerialAnnotation]
+     * outerDescriptor.getElementAnnotations(0) // Returns [@AnotherSerialAnnotation]
+     * outerDescriptor.getElementDescriptor(0).annotations // Returns [@SomeSerialAnnotation]
      * ```
      * Only annotations marked with [SerialInfo] are added to the resulting list.
      *

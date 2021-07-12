@@ -5,6 +5,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
@@ -41,7 +42,6 @@ class JsonParserTest : JsonTestBase() {
         }
     }
 
-
     @Test
     fun testParseEscapedSymbols() {
         assertEquals(
@@ -58,9 +58,21 @@ class JsonParserTest : JsonTestBase() {
         assertStringFormAndRestored(
             """{"data":"Русские Буквы 🤔"}""",
             StringData("Русские Буквы \uD83E\uDD14"),
-            StringData.serializer(),
-            printResult = false
+            StringData.serializer()
         )
+    }
+
+    @Test
+    fun testUnicodeEscapes() {
+        val data = buildString {
+            append(1.toChar())
+            append(".")
+            append(0x20.toChar())
+            append(".")
+            append("\n")
+        }
+
+        assertJsonFormAndRestored(String.serializer(), data, "\"\\u0001. .\\n\"")
     }
 
     @Test
@@ -70,11 +82,10 @@ class JsonParserTest : JsonTestBase() {
         testTrailingComma("{\"id\":0  , ,}")
     }
 
-
     private fun testTrailingComma(content: String) {
         val e = assertFailsWith<JsonDecodingException> {  Json.parseToJsonElement(content) }
         val msg = e.message!!
-        assertTrue(msg.contains("Expected end of the object"))
+        assertTrue(msg.contains("Unexpected trailing"))
     }
 
     @Test
@@ -86,5 +97,22 @@ class JsonParserTest : JsonTestBase() {
         assertFailsWith<JsonDecodingException> {
             parse("""{"id":"""")
         }
+    }
+
+    @Test
+    fun testNullValue() {
+        val obj = Json.parseToJsonElement("""{"k":null}""").jsonObject
+        val value = obj["k"]!!
+        assertTrue { value is JsonNull }
+        assertFalse { value.jsonPrimitive.isString }
+    }
+
+    @Test
+    fun testNullStringValue() {
+        val obj = Json.parseToJsonElement("""{"k":"null"}""").jsonObject
+        val value = obj["k"]!!
+        assertFalse { value is JsonNull }
+        assertTrue { value.jsonPrimitive.isString }
+        assertEquals("null", obj["k"]!!.jsonPrimitive.content)
     }
 }

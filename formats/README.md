@@ -64,8 +64,16 @@ Allows serialization and deserialization of objects to and from [BSON](https://d
 * Platforms: multiplatform, all Kotlin supported platforms
 
 Fully Native and Multiplatform Kotlin serialization library for serialization/deserialization of TOML format.
-This library contains no Java code and no Java dependencies. We believe that TOML is actually the most readable
-and user-friendly configuration file format, so we decided to support this format with the kotlinx serialization library.
+This library contains no Java code and no Java dependencies and it implements multiplatform parser, decoder and encoder of TOML.
+
+### Minecraft NBT (Multiplatform)
+
+* GitHub repo: [BenWoodworth/knbt](https://github.com/BenWoodworth/knbt)
+* Artifact ID: `net.benwoodworth.knbt:knbt`
+* Platform: all supported platforms
+
+Implements the [NBT format](https://minecraft.fandom.com/wiki/NBT_format) for kotlinx.serialization, and
+provides a type-safe DSL for constructing NBT tags.
 
 ### MsgPack (Multiplatform)
 
@@ -119,3 +127,11 @@ Basic serial operations have been implemented, but some features such as compoun
 * Platform: JVM, Android
 
 Allow serialization and deserialization of objects to and from [CBOR](https://cbor.io/). This codec can be used to read and write from Java InputStream and OutputStream.
+
+### Amazon Ion (binary only)
+
+* GitHub repo: [dimitark/kotlinx-serialization-ion](https://github.com/dimitark/kotlinx-serialization-ion)
+* Artifact ID: `com.github.dimitark:kotlinx-serialization-ion`
+* Platform: JVM
+
+Allow serialization and deserialization of objects to and from [Amazon Ion](https://amzn.github.io/ion-docs/). It stores the data in a flat binary format. Upon destialization, it retains the references between the objects. 

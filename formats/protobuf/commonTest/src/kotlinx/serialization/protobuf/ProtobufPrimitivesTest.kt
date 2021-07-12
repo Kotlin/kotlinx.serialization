@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 package kotlinx.serialization.protobuf
 
@@ -10,7 +10,7 @@ import kotlin.test.*
 class ProtobufPrimitivesTest {
 
     private fun <T> testConversion(data: T, serializer: KSerializer<T>, expectedHexString: String) {
-        val string = ProtoBuf.encodeToHexString(serializer, data).toUpperCase()
+        val string = ProtoBuf.encodeToHexString(serializer, data).uppercase()
         assertEquals(expectedHexString, string)
         assertEquals(data, ProtoBuf.decodeFromHexString(serializer, string))
     }

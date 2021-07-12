@@ -40,7 +40,7 @@ kotlin {
 }
 
 sourceSets.test.proto {
-    srcDirs = ['testProto']
+    srcDirs = ['testProto', 'jvmTest/resources/common']
 }
 
 compileTestKotlinJvm {

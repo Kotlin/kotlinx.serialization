@@ -32,7 +32,6 @@ class StacktraceRecoveryTest {
     }
 
     @Test
-    @Ignore // fixme after 1.4.20 plugin with support for new exception ctor signatures
     // checks simple name because UFE is internal class
     fun testUnknownFieldException() = checkRecovered("UnknownFieldException") {
         val serializer = Data.serializer()
@@ -40,7 +39,6 @@ class StacktraceRecoveryTest {
     }
 
     @Test
-    @Ignore // fixme after 1.4.20 plugin with support for new exception ctor signatures
     // checks simple name because MFE is internal class
     fun testMissingFieldException() = checkRecovered("MissingFieldException") {
         Json.decodeFromString<Data>("{}")

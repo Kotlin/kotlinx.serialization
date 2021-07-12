@@ -22,6 +22,9 @@ To release new `<version>` of `kotlinx.serialization`:
 
     [git changelog](https://github.com/tj/git-extras/blob/master/Commands.md#git-changelog) from git-extras may help you with that.
 
+6. If necessary, commit your changes to a new branch called `<version>-release` and send it for review, then merge it to `dev` branch.<br>
+If review is not required, commit directly to `dev`.
+
 6. Tag version:<br>
     `git tag v<version>`
 
@@ -34,9 +37,9 @@ To release new `<version>` of `kotlinx.serialization`:
      * On 'Changes' tab, select `dev` branch and corresponding commit.
      * On 'Parameters' tab, find 'Deploy version' and fill in with `<version>`.
 
-4. In [Bintray](https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime) admin interface:
-   * Publish artifacts of the new version.
-   * Wait until newly published version becomes the most recent.
+4. In [Sonatype](https://oss.sonatype.org/#stagingRepositories) admin interface:
+   * Close the repository and wait for it to verify.
+   * Release it.
    
 5. Update documentation website:<br>
     `./update_docs.sh <version> push`

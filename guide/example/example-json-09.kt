@@ -4,9 +4,18 @@ package example.exampleJson09
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-fun main() {
-    val element = Json.parseToJsonElement("""
-        {"name":"kotlinx.serialization","language":"Kotlin"}
-    """)
-    println(element)
+val format = Json { classDiscriminator = "#class" }
+
+@Serializable
+sealed class Project {
+    abstract val name: String
 }
+            
+@Serializable         
+@SerialName("owned")
+class OwnedProject(override val name: String, val owner: String) : Project()
+
+fun main() {
+    val data: Project = OwnedProject("kotlinx.coroutines", "kotlin")
+    println(format.encodeToString(data))
+}  

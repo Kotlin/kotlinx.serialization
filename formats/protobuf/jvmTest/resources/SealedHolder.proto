@@ -1,0 +1,27 @@
+syntax = "proto2";
+
+package kotlinx.serialization.protobuf.schema.generator;
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.SealedHolder'
+message SealedHolder {
+  required SealedClass sealed = 1;
+}
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.SealedClass'
+message SealedClass {
+  required string type = 1;
+  // decoded as message with one of these types:
+  //   message Impl1, serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.SealedClass.Impl1'
+  //   message Impl2, serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.SealedClass.Impl2'
+  required bytes value = 2;
+}
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.SealedClass.Impl1'
+message Impl1 {
+  required int32 int = 1;
+}
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.SealedClass.Impl2'
+message Impl2 {
+  required int64 long = 1;
+}

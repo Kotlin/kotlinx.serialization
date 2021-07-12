@@ -5,6 +5,7 @@
 package kotlinx.serialization.json.serializers
 
 import kotlinx.serialization.json.*
+import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.test.assertStringFormAndRestored
 import kotlin.test.*
 
@@ -13,6 +14,12 @@ class JsonNullSerializerTest : JsonTestBase() {
     @Test
     fun testJsonNull() = parametrizedTest(default) {
         assertStringFormAndRestored("{\"element\":null}", JsonNullWrapper(JsonNull), JsonNullWrapper.serializer())
+    }
+
+    @Test
+    fun testJsonNullFailure() = parametrizedTest(default) {
+        val t = assertFailsWith<JsonException> { default.decodeFromString(JsonNullWrapper.serializer(), "{\"element\":\"foo\"}", true) }
+        assertTrue { t.message!!.contains("'null' literal") }
     }
 
     @Test

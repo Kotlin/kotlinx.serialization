@@ -16,8 +16,6 @@ import java.util.concurrent.*
 @Fork(2)
 open class CoerceInputValuesBenchmark {
 
-    // Specific benchmark to isolate effect on #1156. Remove after release of 1.0.1
-
     @Serializable
     class Holder(
         val i1: Int,
@@ -56,7 +54,6 @@ open class CoerceInputValuesBenchmark {
 
     @Benchmark
     fun testNullableRegular() = json.decodeFromString(NullableHolder.serializer(), str)
-
 
     @Benchmark
     fun testNonNullableCoercing() = coercingJson.decodeFromString(Holder.serializer(), str)

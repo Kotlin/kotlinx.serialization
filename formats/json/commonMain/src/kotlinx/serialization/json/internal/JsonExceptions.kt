@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("FunctionName")
@@ -45,7 +45,7 @@ internal fun InvalidFloatingPointDecoded(value: Number, key: String, output: Str
     JsonDecodingException(-1, unexpectedFpErrorMessage(value, key, output))
 
 // Extension on JSON reader and fail immediately
-internal fun JsonReader.throwInvalidFloatingPointDecoded(result: Number): Nothing {
+internal fun JsonLexer.throwInvalidFloatingPointDecoded(result: Number): Nothing {
     fail("Unexpected special floating-point value $result. By default, " +
             "non-finite floating point values are prohibited because they do not conform JSON specification. " +
             specialFlowingValuesHint
@@ -66,6 +66,7 @@ internal fun UnknownKeyException(key: String, input: String) = JsonDecodingExcep
             "Current input: ${input.minify()}"
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 internal fun InvalidKeyKindException(keyDescriptor: SerialDescriptor) = JsonEncodingException(
     "Value of type '${keyDescriptor.serialName}' can't be used in JSON as a key in the map. " +
             "It should have either primitive or enum kind, but its kind is '${keyDescriptor.kind}'.\n" +

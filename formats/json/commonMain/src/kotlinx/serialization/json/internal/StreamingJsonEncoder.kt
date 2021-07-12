@@ -5,26 +5,41 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
-import kotlin.jvm.*
+import kotlin.native.concurrent.*
 
-@OptIn(ExperimentalSerializationApi::class)
+@ExperimentalSerializationApi
+@OptIn(ExperimentalUnsignedTypes::class)
+@SharedImmutable
+private val unsignedNumberDescriptors = setOf(
+    UInt.serializer().descriptor,
+    ULong.serializer().descriptor,
+    UByte.serializer().descriptor,
+    UShort.serializer().descriptor
+)
+
+@ExperimentalSerializationApi
+internal val SerialDescriptor.isUnsignedNumber: Boolean
+    get() = this.isInline && this in unsignedNumberDescriptors
+
+@OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
 internal class StreamingJsonEncoder(
     private val composer: Composer,
     override val json: Json,
     private val mode: WriteMode,
-    private val modeReuseCache: Array<JsonEncoder?>
+    private val modeReuseCache: Array<JsonEncoder?>?
 ) : JsonEncoder, AbstractEncoder() {
 
     internal constructor(
-        output: StringBuilder, json: Json, mode: WriteMode,
+        output: JsonStringBuilder, json: Json, mode: WriteMode,
         modeReuseCache: Array<JsonEncoder?>
     ) : this(Composer(output, json), json, mode, modeReuseCache)
 
-    public override val serializersModule: SerializersModule = json.serializersModule
+    override val serializersModule: SerializersModule = json.serializersModule
     private val configuration = json.configuration
 
     // Forces serializer to wrap all values into quotes
@@ -33,8 +48,10 @@ internal class StreamingJsonEncoder(
 
     init {
         val i = mode.ordinal
-        if (modeReuseCache[i] !== null || modeReuseCache[i] !== this)
-            modeReuseCache[i] = this
+        if (modeReuseCache != null) {
+            if (modeReuseCache[i] !== null || modeReuseCache[i] !== this)
+                modeReuseCache[i] = this
+        }
     }
 
     override fun encodeJsonElement(element: JsonElement) {
@@ -75,7 +92,7 @@ internal class StreamingJsonEncoder(
             return this
         }
 
-        return modeReuseCache[newMode.ordinal] ?: StreamingJsonEncoder(composer, json, newMode, modeReuseCache)
+        return modeReuseCache?.get(newMode.ordinal) ?: StreamingJsonEncoder(composer, json, newMode, modeReuseCache)
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
@@ -130,6 +147,15 @@ internal class StreamingJsonEncoder(
         return true
     }
 
+    override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder =
+        if (inlineDescriptor.isUnsignedNumber) StreamingJsonEncoder(
+            ComposerForUnsignedNumbers(
+                composer.sb,
+                json
+            ), json, mode, null
+        )
+        else super.encodeInline(inlineDescriptor)
+
     override fun encodeNull() {
         composer.print(NULL)
     }
@@ -178,43 +204,5 @@ internal class StreamingJsonEncoder(
 
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
         encodeString(enumDescriptor.getElementName(index))
-    }
-
-    internal class Composer(@JvmField internal val sb: StringBuilder, private val json: Json) {
-        private var level = 0
-        var writingFirst = true
-            private set
-
-        fun indent() {
-            writingFirst = true; level++
-        }
-
-        fun unIndent() {
-            level--
-        }
-
-        fun nextItem() {
-            writingFirst = false
-            if (json.configuration.prettyPrint) {
-                print("\n")
-                repeat(level) { print(json.configuration.prettyPrintIndent) }
-            }
-        }
-
-        fun space() {
-            if (json.configuration.prettyPrint)
-                print(' ')
-        }
-
-        fun print(v: Char) = sb.append(v)
-        fun print(v: String) = sb.append(v)
-        fun print(v: Float) = sb.append(v)
-        fun print(v: Double) = sb.append(v)
-        fun print(v: Byte) = sb.append(v)
-        fun print(v: Short) = sb.append(v)
-        fun print(v: Int) = sb.append(v)
-        fun print(v: Long) = sb.append(v)
-        fun print(v: Boolean) = sb.append(v)
-        fun printQuoted(value: String): Unit = sb.printQuoted(value)
     }
 }

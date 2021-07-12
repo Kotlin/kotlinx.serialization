@@ -24,3 +24,7 @@ kotlin {
         }
     }
 }
+
+compileTestKotlinJsLegacy {
+    exclude '**/PropertyInitializerTest.kt'
+}

@@ -28,6 +28,7 @@ In this chapter we'll take a look at serializers in more detail, and we'll see h
   * [Format-specific serializers](#format-specific-serializers)
 * [Contextual serialization](#contextual-serialization)
   * [Serializers module](#serializers-module)
+  * [Contextual serialization and generic classes](#contextual-serialization-and-generic-classes)
 * [Deriving external serializer for another Kotlin class (experimental)](#deriving-external-serializer-for-another-kotlin-class-experimental)
   * [External serialization uses properties](#external-serialization-uses-properties)
 
@@ -815,7 +816,7 @@ All the previous approaches to specifying custom serialization strategies were _
 fully defined at compile-time. The exception was the [Passing a serializer manually](#passing-a-serializer-manually)
 approach, but it worked only on a top-level object. You might need to change the serialization
 strategy for objects deep in the serialized object tree at run-time, with the strategy being selected in a context-dependent way.
-For example, you might want to represent `java.util.Date` in JSON format as an ISO 6801 string or as a long integer
+For example, you might want to represent `java.util.Date` in JSON format as an ISO 8601 string or as a long integer
 depending on a version of a protocol you are serializing data for. This is called _contextual_ serialization, and it
 is supported by a built-in [ContextualSerializer] class. Usually we don't have to use this serializer class explicitly&mdash;there 
 is the [Contextual] annotation providing a shortcut to 
@@ -886,7 +887,7 @@ class this serializer is defined for is fetched automatically via the `reified` 
 private val module = SerializersModule { 
     contextual(DateAsLongSerializer)
 }
-``` 
+```
 
 Next we create an instance of the [Json] format with this module using the 
 [Json {}][Json()] builder function and the [serializersModule][JsonBuilder.serializersModule] property. 
@@ -914,6 +915,30 @@ fun main() {
 
 <!--- TEST -->
 
+### Contextual serialization and generic classes
+
+In the previous section we saw that we can register serializer instance in the module for a class we want to serialize contextually. 
+We also know that [serializers for generic classes have constructor parameters](#custom-serializers-for-a-generic-type) — type arguments serializers. 
+It means that we can't use one serializer instance for a class if this class is generic:
+
+```kotlin
+val incorrectModule = SerializersModule {
+    // Can serialize only Box<Int>, but not Box<String> or others
+    contextual(BoxSerializer(Int.serializer()))
+}
+```
+
+For cases when one want to serialize contextually a generic class, it is possible to register provider in the module:
+
+```kotlin
+val correctModule = SerializersModule {
+    // args[0] contains Int.serializer() or String.serializer(), depending on the usage
+    contextual(Box::class) { args -> BoxSerializer(args[0]) } 
+}
+```
+
+<!--- CLEAR -->
+
 > Additional details on serialization modules are given in 
 > the [Merging library serializers modules](polymorphism.md#merging-library-serializers-modules) section of
 > the [Polymorphism](polymorphism.md) chapter.
@@ -933,7 +958,7 @@ object ProjectSerializer
 ```
 
 You must bind this serializer to a class using one of the approaches explained in this chapter. We'll
-follow the [Passing a serializer manually](#passing-a-serializer-manually) appraoch for this example.
+follow the [Passing a serializer manually](#passing-a-serializer-manually) approach for this example.
 
 ```kotlin 
 fun main() {
@@ -984,9 +1009,9 @@ fun main() {
 ```             
 
 > You can get the full code [here](../guide/example/example-serializer-20.kt).
-  
-The output is shown below.  
-  
+
+The output is shown below.
+
 ```text
 {"name":"kotlinx.serialization","stars":9000}
 ```     

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:OptIn(ExperimentalSerializationApi::class)
 
@@ -73,7 +73,6 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
         }
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = cbor.encodeDefaults
 
     protected open fun writeBeginToken() = encoder.startMap()
@@ -92,7 +91,6 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
 
     override fun endStructure(descriptor: SerialDescriptor) = encoder.end()
 
-    @OptIn(ExperimentalSerializationApi::class)
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         encodeByteArrayAsByteString = descriptor.isByteString(index)
         val name = descriptor.getElementName(index)
@@ -105,7 +103,7 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
     override fun encodeFloat(value: Float) = encoder.encodeFloat(value)
     override fun encodeDouble(value: Double) = encoder.encodeDouble(value)
 
-    override fun encodeChar(value: Char) = encoder.encodeNumber(value.toLong())
+    override fun encodeChar(value: Char) = encoder.encodeNumber(value.code.toLong())
     override fun encodeByte(value: Byte) = encoder.encodeNumber(value.toLong())
     override fun encodeShort(value: Short) = encoder.encodeNumber(value.toLong())
     override fun encodeInt(value: Int) = encoder.encodeNumber(value.toLong())
@@ -115,6 +113,7 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
 
     override fun encodeNull() = encoder.encodeNull()
 
+    @ExperimentalSerializationApi // KT-46731
     override fun encodeEnum(
         enumDescriptor: SerialDescriptor,
         index: Int
@@ -167,30 +166,29 @@ internal class CborEncoder(private val output: ByteArrayOutput) {
     }
 
     private fun composeNumber(value: Long): ByteArray =
-        if (value >= 0) composePositive(value) else composeNegative(value)
+        if (value >= 0) composePositive(value.toULong()) else composeNegative(value)
 
-    private fun composePositive(value: Long): ByteArray = when (value) {
-        in 0..23 -> byteArrayOf(value.toByte())
-        in 24..Byte.MAX_VALUE -> byteArrayOf(24, value.toByte())
-        in Byte.MAX_VALUE + 1..Short.MAX_VALUE -> encodeToByteArray(value, 2, 25)
-        in Short.MAX_VALUE + 1..Int.MAX_VALUE -> encodeToByteArray(value, 4, 26)
-        in (Int.MAX_VALUE.toLong() + 1..Long.MAX_VALUE) -> encodeToByteArray(value, 8, 27)
-        else -> throw AssertionError("$value should be positive")
+    private fun composePositive(value: ULong): ByteArray = when (value) {
+        in 0u..23u -> byteArrayOf(value.toByte())
+        in 24u..UByte.MAX_VALUE.toUInt() -> byteArrayOf(24, value.toByte())
+        in (UByte.MAX_VALUE.toUInt() + 1u)..UShort.MAX_VALUE.toUInt() -> encodeToByteArray(value, 2, 25)
+        in (UShort.MAX_VALUE.toUInt() + 1u)..UInt.MAX_VALUE -> encodeToByteArray(value, 4, 26)
+        else -> encodeToByteArray(value, 8, 27)
     }
 
-    private fun encodeToByteArray(value: Long, bytes: Int, tag: Byte): ByteArray {
+    private fun encodeToByteArray(value: ULong, bytes: Int, tag: Byte): ByteArray {
         val result = ByteArray(bytes + 1)
         val limit = bytes * 8 - 8
         result[0] = tag
         for (i in 0 until bytes) {
-            result[i + 1] = ((value shr (limit - 8 * i)) and 0xFF).toByte()
+            result[i + 1] = ((value shr (limit - 8 * i)) and 0xFFu).toByte()
         }
         return result
     }
 
     private fun composeNegative(value: Long): ByteArray {
         val aVal = if (value == Long.MIN_VALUE) Long.MAX_VALUE else -1 - value
-        val data = composePositive(aVal)
+        val data = composePositive(aVal.toULong())
         data[0] = data[0] or HEADER_NEGATIVE
         return data
     }
@@ -294,7 +292,7 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
 
     override fun decodeByte() = decoder.nextNumber().toByte()
     override fun decodeShort() = decoder.nextNumber().toShort()
-    override fun decodeChar() = decoder.nextNumber().toChar()
+    override fun decodeChar() = decoder.nextNumber().toInt().toChar()
     override fun decodeInt() = decoder.nextNumber().toInt()
     override fun decodeLong() = decoder.nextNumber()
 
@@ -603,8 +601,7 @@ private fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
 }
 
 private fun Iterable<ByteArray>.flatten(): ByteArray {
-    val output = ByteArray(sumBy { it.size })
-
+    val output = ByteArray(sumOf { it.size })
     var position = 0
     for (chunk in this) {
         chunk.copyInto(output, position)
@@ -616,11 +613,7 @@ private fun Iterable<ByteArray>.flatten(): ByteArray {
 
 @OptIn(ExperimentalSerializationApi::class)
 private fun SerialDescriptor.isByteString(index: Int): Boolean {
-    val elementDescriptor = getElementDescriptor(index)
-    val byteArrayDescriptor = ByteArraySerializer().descriptor
-
-    return (elementDescriptor == byteArrayDescriptor || elementDescriptor == byteArrayDescriptor.nullable) &&
-        getElementAnnotations(index).find { it is ByteString } != null
+    return getElementAnnotations(index).find { it is ByteString } != null
 }
 
 

@@ -88,7 +88,6 @@ kotlin {
 
     targets {
         if (project.ext.nativeState == NativeState.DISABLED) return
-
         if (project.ext.singleTargetMode) {
             fromPreset(project.ext.ideaPreset, 'native')
         } else {
@@ -105,6 +104,7 @@ kotlin {
             addTarget(presets.iosX64)
 
             addTarget(presets.watchosX86)
+            addTarget(presets.watchosX64)
             addTarget(presets.watchosArm32)
             addTarget(presets.watchosArm64)
 

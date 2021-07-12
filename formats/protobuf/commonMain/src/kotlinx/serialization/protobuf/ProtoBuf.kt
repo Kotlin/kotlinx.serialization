@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.protobuf
@@ -63,7 +63,7 @@ import kotlin.js.*
  * val decoded = ProtoBuf.decodeFromByteArray<MyMessage>(encoded) // MyMessage(first=15, second=0, third=42)
  *
  * // Serialize to ProtoBuf hex string with all values
- * val encoded2 = ProtoBuf(encodeDefaults = true).encodeToHexString(MyMessage(15)) // "080f1000182a"
+ * val encoded2 = ProtoBuf { encodeDefaults = true }.encodeToHexString(MyMessage(15)) // "080f1000182a"
  *
  * // Deserialize from ProtoBuf hex string
  * val decoded2 = ProtoBuf.decodeFromHexString<MyMessage>(encoded2) // MyMessage(first=15, second=0, third=42)
@@ -166,5 +166,6 @@ public class ProtoBufBuilder internal constructor(proto: ProtoBuf) {
     public var serializersModule: SerializersModule = proto.serializersModule
 }
 
+@ExperimentalSerializationApi
 private class ProtoBufImpl(encodeDefaults: Boolean, serializersModule: SerializersModule) :
     ProtoBuf(encodeDefaults, serializersModule)

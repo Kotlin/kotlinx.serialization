@@ -17,7 +17,7 @@ import kotlinx.serialization.descriptors.*
 public abstract class AbstractDecoder : Decoder, CompositeDecoder {
 
     /**
-     * Invoked to decode a value when specialized `encode*` method was not overridden.
+     * Invoked to decode a value when specialized `decode*` method was not overridden.
      */
     public open fun decodeValue(): Any = throw SerializationException("${this::class} can't retrieve untyped values")
 
@@ -33,6 +33,8 @@ public abstract class AbstractDecoder : Decoder, CompositeDecoder {
     override fun decodeChar(): Char = decodeValue() as Char
     override fun decodeString(): String = decodeValue() as String
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int = decodeValue() as Int
+
+    override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder = this
 
     // overwrite by default
     public open fun <T : Any?> decodeSerializableValue(
@@ -54,6 +56,11 @@ public abstract class AbstractDecoder : Decoder, CompositeDecoder {
     final override fun decodeDoubleElement(descriptor: SerialDescriptor, index: Int): Double = decodeDouble()
     final override fun decodeCharElement(descriptor: SerialDescriptor, index: Int): Char = decodeChar()
     final override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String = decodeString()
+
+    final override fun decodeInlineElement(
+        descriptor: SerialDescriptor,
+        index: Int
+    ): Decoder = decodeInline(descriptor.getElementDescriptor(index))
 
     final override fun <T> decodeSerializableElement(
         descriptor: SerialDescriptor,

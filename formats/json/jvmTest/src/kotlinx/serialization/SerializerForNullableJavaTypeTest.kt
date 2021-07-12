@@ -20,7 +20,7 @@ class SerializerForNullableJavaTypeTest {
 
         override fun deserialize(decoder: Decoder): Date? = when (val seconds = decoder.decodeLong()) {
             -1L -> null
-            else -> Date(seconds.toLong())
+            else -> Date(seconds)
         }
 
         override fun serialize(encoder: Encoder, value: Date?) {

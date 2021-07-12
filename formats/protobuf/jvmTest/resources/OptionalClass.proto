@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+package kotlinx.serialization.protobuf.schema.generator;
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.OptionalClass'
+message OptionalClass {
+  required int32 requiredInt = 1;
+  // WARNING: a default value decoded when value is missing
+  optional int32 optionalInt = 2;
+  optional int32 nullableInt = 3;
+  // WARNING: a default value decoded when value is missing
+  optional int32 nullableOptionalInt = 4;
+}

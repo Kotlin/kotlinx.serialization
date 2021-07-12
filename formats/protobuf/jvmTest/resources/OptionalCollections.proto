@@ -1,0 +1,21 @@
+syntax = "proto2";
+
+package kotlinx.serialization.protobuf.schema.generator;
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.OptionalCollections'
+message OptionalCollections {
+  repeated int32 requiredList = 1;
+  // WARNING: a default value decoded when value is missing
+  repeated int32 optionalList = 2;
+  // WARNING: an empty collection decoded when a value is missing
+  repeated int32 nullableList = 3;
+  // WARNING: a default value decoded when value is missing
+  repeated int32 nullableOptionalList = 4;
+  map<int32, int32> requiredMap = 5;
+  // WARNING: a default value decoded when value is missing
+  map<int32, int32> optionalMap = 6;
+  // WARNING: an empty collection decoded when a value is missing
+  map<int32, int32> nullableMap = 7;
+  // WARNING: a default value decoded when value is missing
+  map<int32, int32> nullableOptionalMap = 8;
+}

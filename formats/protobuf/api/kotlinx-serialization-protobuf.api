@@ -35,7 +35,7 @@ public abstract interface annotation class kotlinx/serialization/protobuf/ProtoN
 
 public final class kotlinx/serialization/protobuf/ProtoNumber$Impl : kotlinx/serialization/protobuf/ProtoNumber {
 	public fun <init> (I)V
-	public final fun number ()I
+	public final synthetic fun number ()I
 }
 
 public abstract interface annotation class kotlinx/serialization/protobuf/ProtoType : java/lang/annotation/Annotation {
@@ -44,6 +44,14 @@ public abstract interface annotation class kotlinx/serialization/protobuf/ProtoT
 
 public final class kotlinx/serialization/protobuf/ProtoType$Impl : kotlinx/serialization/protobuf/ProtoType {
 	public fun <init> (Lkotlinx/serialization/protobuf/ProtoIntegerType;)V
-	public final fun type ()Lkotlinx/serialization/protobuf/ProtoIntegerType;
+	public final synthetic fun type ()Lkotlinx/serialization/protobuf/ProtoIntegerType;
+}
+
+public final class kotlinx/serialization/protobuf/schema/ProtoBufSchemaGenerator {
+	public static final field INSTANCE Lkotlinx/serialization/protobuf/schema/ProtoBufSchemaGenerator;
+	public final fun generateSchemaText (Ljava/util/List;Ljava/lang/String;Ljava/util/Map;)Ljava/lang/String;
+	public final fun generateSchemaText (Lkotlinx/serialization/descriptors/SerialDescriptor;Ljava/lang/String;Ljava/util/Map;)Ljava/lang/String;
+	public static synthetic fun generateSchemaText$default (Lkotlinx/serialization/protobuf/schema/ProtoBufSchemaGenerator;Ljava/util/List;Ljava/lang/String;Ljava/util/Map;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun generateSchemaText$default (Lkotlinx/serialization/protobuf/schema/ProtoBufSchemaGenerator;Lkotlinx/serialization/descriptors/SerialDescriptor;Ljava/lang/String;Ljava/util/Map;ILjava/lang/Object;)Ljava/lang/String;
 }
 

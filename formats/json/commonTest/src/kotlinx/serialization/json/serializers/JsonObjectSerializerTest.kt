@@ -12,8 +12,8 @@ import kotlin.test.*
 
 class JsonObjectSerializerTest : JsonTestBase() {
 
-    private val expected = """{"element":{"literal":1,"nullKey":null,"nested":{"another literal":"some value"}}}"""
-    private val expectedTopLevel = """{"literal":1,"nullKey":null,"nested":{"another literal":"some value"}}"""
+    private val expected = """{"element":{"literal":1,"nullKey":null,"nested":{"another literal":"some value"},"\\. escaped":"\\. escaped","\n new line":"\n new line"}}"""
+    private val expectedTopLevel = """{"literal":1,"nullKey":null,"nested":{"another literal":"some value"},"\\. escaped":"\\. escaped","\n new line":"\n new line"}"""
 
     @Test
     fun testJsonObject() = parametrizedTest(default) {
@@ -66,7 +66,7 @@ class JsonObjectSerializerTest : JsonTestBase() {
     fun testInvalidObject() = parametrizedTest { useStreaming ->
         assertFailsWith<JsonDecodingException> { default.decodeFromString(JsonObjectSerializer, "{\"a\":\"b\"]", false) }
         assertFailsWith<JsonDecodingException> { default.decodeFromString(JsonObjectSerializer, "{", useStreaming) }
-        assertFailsWith<IllegalStateException> { default.decodeFromString(JsonObjectSerializer, "{}}", useStreaming) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString(JsonObjectSerializer, "{}}", useStreaming) }
         assertFailsWith<JsonDecodingException> { default.decodeFromString(JsonObjectSerializer, "{]", useStreaming) }
     }
 
@@ -117,6 +117,8 @@ class JsonObjectSerializerTest : JsonTestBase() {
             putJsonObject("nested") {
                 put("another literal", "some value")
             }
+            put("\\. escaped", "\\. escaped")
+            put("\n new line", "\n new line")
         }
     }
 }

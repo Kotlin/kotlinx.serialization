@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json
@@ -7,7 +7,7 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
-import kotlin.js.*
+import kotlin.native.concurrent.*
 
 /**
  * The main entry point to work with JSON serialization.
@@ -46,17 +46,28 @@ import kotlin.js.*
  *  // Deserialize from string to JSON tree, JSON-specific
  *  val deserializedToTree: JsonElement = json.parseJsonElement(stringOutput)
  * ```
+ *
+ * Json instance also exposes its [configuration] that can be used in custom serializers
+ * that rely on [JsonDecoder] and [JsonEncoder] for customizable behaviour.
  */
 @OptIn(ExperimentalSerializationApi::class)
-public sealed class Json(internal val configuration: JsonConf) : StringFormat {
-
+public sealed class Json(
+    @ExperimentalSerializationApi public val configuration: JsonConfiguration,
     override val serializersModule: SerializersModule
-        get() = configuration.serializersModule
+) : StringFormat {
+
+    @Deprecated(
+        "Should not be accessed directly, use Json.schemaCache accessor instead",
+        ReplaceWith("schemaCache"),
+        DeprecationLevel.ERROR
+    )
+    internal val _schemaCache: DescriptorSchemaCache = DescriptorSchemaCache()
 
     /**
      * The default instance of [Json] with default configuration.
      */
-    public companion object Default : Json(JsonConf())
+    @ThreadLocal // to support caching
+    public companion object Default : Json(JsonConfiguration(), EmptySerializersModule)
 
     /**
      * Serializes the [value] into an equivalent JSON using the given [serializer].
@@ -64,14 +75,18 @@ public sealed class Json(internal val configuration: JsonConf) : StringFormat {
      * @throws [SerializationException] if the given value cannot be serialized to JSON.
      */
     public final override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
-        val result = StringBuilder()
-        val encoder = StreamingJsonEncoder(
-            result, this,
-            WriteMode.OBJ,
-            arrayOfNulls(WriteMode.values().size)
-        )
-        encoder.encodeSerializableValue(serializer, value)
-        return result.toString()
+        val result = JsonStringBuilder()
+        try {
+            val encoder = StreamingJsonEncoder(
+                result, this,
+                WriteMode.OBJ,
+                arrayOfNulls(WriteMode.values().size)
+            )
+            encoder.encodeSerializableValue(serializer, value)
+            return result.toString()
+        } finally {
+            result.release()
+        }
     }
 
     /**
@@ -80,10 +95,10 @@ public sealed class Json(internal val configuration: JsonConf) : StringFormat {
      * @throws [SerializationException] if the given JSON string cannot be deserialized to the value of type [T].
      */
     public final override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
-        val reader = JsonReader(string)
-        val input = StreamingJsonDecoder(this, WriteMode.OBJ, reader)
+        val lexer = JsonLexer(string)
+        val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer)
         val result = input.decodeSerializableValue(deserializer)
-        if (!reader.isDone) { error("Reader has not consumed the whole input: $reader") }
+        lexer.expectEof()
         return result
     }
     /**
@@ -118,10 +133,10 @@ public sealed class Json(internal val configuration: JsonConf) : StringFormat {
  * Creates an instance of [Json] configured from the optionally given [Json instance][from] and adjusted with [builderAction].
  */
 public fun Json(from: Json = Json.Default, builderAction: JsonBuilder.() -> Unit): Json {
-    val builder = JsonBuilder(from.configuration)
+    val builder = JsonBuilder(from)
     builder.builderAction()
     val conf = builder.build()
-    return JsonImpl(conf)
+    return JsonImpl(conf, builder.serializersModule)
 }
 
 /**
@@ -147,19 +162,20 @@ public inline fun <reified T> Json.decodeFromJsonElement(json: JsonElement): T =
  * Builder of the [Json] instance provided by `Json { ... }` factory function.
  */
 @Suppress("unused", "DeprecatedCallableAddReplaceWith")
-public class JsonBuilder internal constructor(conf: JsonConf) {
+@OptIn(ExperimentalSerializationApi::class)
+public class JsonBuilder internal constructor(json: Json) {
     /**
      * Specifies whether default values of Kotlin properties should be encoded.
      * `false` by default.
      */
-    public var encodeDefaults: Boolean = conf.encodeDefaults
+    public var encodeDefaults: Boolean = json.configuration.encodeDefaults
 
     /**
      * Specifies whether encounters of unknown properties in the input JSON
      * should be ignored instead of throwing [SerializationException].
      * `false` by default.
      */
-    public var ignoreUnknownKeys: Boolean = conf.ignoreUnknownKeys
+    public var ignoreUnknownKeys: Boolean = json.configuration.ignoreUnknownKeys
 
     /**
      * Removes JSON specification restriction (RFC-4627) and makes parser
@@ -171,20 +187,20 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
      *
      * `false` by default.
      */
-    public var isLenient: Boolean = conf.isLenient
+    public var isLenient: Boolean = json.configuration.isLenient
 
     /**
      * Enables structured objects to be serialized as map keys by
      * changing serialized form of the map from JSON object (key-value pairs) to flat array like `[k1, v1, k2, v2]`.
      * `false` by default.
      */
-    public var allowStructuredMapKeys: Boolean = conf.allowStructuredMapKeys
+    public var allowStructuredMapKeys: Boolean = json.configuration.allowStructuredMapKeys
 
     /**
      * Specifies whether resulting JSON should be pretty-printed.
      *  `false` by default.
      */
-    public var prettyPrint: Boolean = conf.prettyPrint
+    public var prettyPrint: Boolean = json.configuration.prettyPrint
 
     /**
      * Specifies indent string to use with [prettyPrint] mode
@@ -193,7 +209,7 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
      * it is not clear whether this option has compelling use-cases.
      */
     @ExperimentalSerializationApi
-    public var prettyPrintIndent: String = conf.prettyPrintIndent
+    public var prettyPrintIndent: String = json.configuration.prettyPrintIndent
 
     /**
      * Enables coercing incorrect JSON values to the default property value in the following cases:
@@ -202,20 +218,20 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
      *
      * `false` by default.
      */
-    public var coerceInputValues: Boolean = conf.coerceInputValues
+    public var coerceInputValues: Boolean = json.configuration.coerceInputValues
 
     /**
      * Switches polymorphic serialization to the default array format.
      * This is an option for legacy JSON format and should not be generally used.
      * `false` by default.
      */
-    public var useArrayPolymorphism: Boolean = conf.useArrayPolymorphism
+    public var useArrayPolymorphism: Boolean = json.configuration.useArrayPolymorphism
 
     /**
      * Name of the class descriptor property for polymorphic serialization.
      * "type" by default.
      */
-    public var classDiscriminator: String = conf.classDiscriminator
+    public var classDiscriminator: String = json.configuration.classDiscriminator
 
     /**
      * Removes JSON specification restriction on
@@ -223,15 +239,24 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
      * When enabling it, please ensure that the receiving party will be able to encode and decode these special values.
      * `false` by default.
      */
-    public var allowSpecialFloatingPointValues: Boolean = conf.allowSpecialFloatingPointValues
+    public var allowSpecialFloatingPointValues: Boolean = json.configuration.allowSpecialFloatingPointValues
+
+    /**
+     * Specifies whether Json instance makes use of [JsonNames] annotation.
+     *
+     * Disabling this flag when one does not use [JsonNames] at all may sometimes result in better performance,
+     * particularly when a large count of fields is skipped with [ignoreUnknownKeys].
+     * `true` by default.
+     */
+    public var useAlternativeNames: Boolean = json.configuration.useAlternativeNames
 
     /**
      * Module with contextual and polymorphic serializers to be used in the resulting [Json] instance.
      */
-    public var serializersModule: SerializersModule = conf.serializersModule
+    public var serializersModule: SerializersModule = json.serializersModule
 
     @OptIn(ExperimentalSerializationApi::class)
-    internal fun build(): JsonConf {
+    internal fun build(): JsonConfiguration {
         if (useArrayPolymorphism) require(classDiscriminator == defaultDiscriminator) {
             "Class discriminator should not be specified when array polymorphism is specified"
         }
@@ -248,17 +273,17 @@ public class JsonBuilder internal constructor(conf: JsonConf) {
             }
         }
 
-        return JsonConf(
+        return JsonConfiguration(
             encodeDefaults, ignoreUnknownKeys, isLenient,
             allowStructuredMapKeys, prettyPrint, prettyPrintIndent,
             coerceInputValues, useArrayPolymorphism,
-            classDiscriminator, allowSpecialFloatingPointValues, serializersModule
+            classDiscriminator, allowSpecialFloatingPointValues, useAlternativeNames
         )
     }
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private class JsonImpl(configuration: JsonConf) : Json(configuration) {
+private class JsonImpl(configuration: JsonConfiguration, module: SerializersModule) : Json(configuration, module) {
 
     init {
         validateConfiguration()
@@ -270,6 +295,11 @@ private class JsonImpl(configuration: JsonConf) : Json(configuration) {
         serializersModule.dumpTo(collector)
     }
 }
+
+/**
+ * This accessor should be used to workaround for freezing problems in Native, see Native source set
+ */
+internal expect val Json.schemaCache: DescriptorSchemaCache
 
 private const val defaultIndent = "    "
 private const val defaultDiscriminator = "type"

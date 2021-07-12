@@ -1,0 +1,71 @@
+syntax = "proto2";
+
+package kotlinx.serialization.protobuf.schema.generator;
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.LegacyMapHolder'
+message LegacyMapHolder {
+  repeated LegacyMapHolder_keyAsMessage keyAsMessage = 1;
+  repeated LegacyMapHolder_keyAsEnum keyAsEnum = 2;
+  repeated LegacyMapHolder_keyAsBytes keyAsBytes = 3;
+  repeated LegacyMapHolder_keyAsList keyAsList = 4;
+  repeated LegacyMapHolder_keyAsDeepList keyAsDeepList = 5;
+  repeated LegacyMapHolder_nullableKeyAndValue nullableKeyAndValue = 6;
+}
+
+// This message was generated to support legacy map and does not present in Kotlin.
+// Containing message 'LegacyMapHolder', field 'keyAsMessage'
+message LegacyMapHolder_keyAsMessage {
+  required OptionsClass key = 1;
+  required int32 value = 2;
+}
+
+// This message was generated to support legacy map and does not present in Kotlin.
+// Containing message 'LegacyMapHolder', field 'keyAsEnum'
+message LegacyMapHolder_keyAsEnum {
+  required OverriddenEnumName key = 1;
+  required OptionsClass value = 2;
+}
+
+// This message was generated to support legacy map and does not present in Kotlin.
+// Containing message 'LegacyMapHolder', field 'keyAsBytes'
+message LegacyMapHolder_keyAsBytes {
+  required bytes key = 1;
+  required bytes value = 2;
+}
+
+// This message was generated to support legacy map and does not present in Kotlin.
+// Containing message 'LegacyMapHolder', field 'keyAsList'
+message LegacyMapHolder_keyAsList {
+  repeated int32 key = 1;
+  required bytes value = 2;
+}
+
+// This message was generated to support legacy map and does not present in Kotlin.
+// Containing message 'LegacyMapHolder', field 'keyAsDeepList'
+message LegacyMapHolder_keyAsDeepList {
+  repeated LegacyMapHolder_keyAsDeepList_key key = 1;
+  required bytes value = 2;
+}
+
+// This message was generated to support legacy map and does not present in Kotlin.
+// Containing message 'LegacyMapHolder', field 'nullableKeyAndValue'
+message LegacyMapHolder_nullableKeyAndValue {
+  required OptionsClass key = 1;
+  required OptionsClass value = 2;
+}
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.OptionsClass'
+message OptionsClass {
+  required int32 i = 1;
+}
+
+enum OverriddenEnumName {
+  FIRST = 0;
+  OverriddenElementName = 1;
+}
+
+// This message was generated to support nested collection in list and does not present in Kotlin.
+// Containing message 'LegacyMapHolder', field 'keyAsDeepList'
+message LegacyMapHolder_keyAsDeepList_key {
+  repeated int32 value = 1;
+}

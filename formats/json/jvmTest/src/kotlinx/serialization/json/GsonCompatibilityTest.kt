@@ -2,7 +2,6 @@ package kotlinx.serialization.json
 
 import com.google.gson.*
 import kotlinx.serialization.*
-import kotlinx.serialization.json.*
 import org.junit.Test
 import kotlin.test.*
 

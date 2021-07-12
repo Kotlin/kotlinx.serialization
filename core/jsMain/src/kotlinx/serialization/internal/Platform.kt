@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.internal
@@ -34,16 +34,25 @@ internal actual fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing
 
 @Suppress("UNCHECKED_CAST", "DEPRECATION_ERROR")
 @OptIn(ExperimentalAssociatedObjects::class)
-internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
-    return try {
-        when (val assocObject = findAssociatedObject<SerializableWith>()) {
-            is KSerializer<*> -> assocObject as KSerializer<T>
-            is SerializerFactory -> assocObject.serializer(*args) as KSerializer<T>
+internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? =
+    try {
+        val assocObject = findAssociatedObject<SerializableWith>()
+        when {
+            assocObject is KSerializer<*> -> assocObject as KSerializer<T>
+            assocObject is SerializerFactory -> assocObject.serializer(*args) as KSerializer<T>
+            this.isInterface -> PolymorphicSerializer(this)
             else -> null
         }
     } catch (e: dynamic) {
         null
     }
-}
 
 internal actual fun isReferenceArray(rootClass: KClass<Any>): Boolean = rootClass == Array::class
+
+/**
+ * WARNING: may be broken in arbitrary time in the future without notice
+ *
+ * Should be eventually replaced with compiler intrinsics
+ */
+private val KClass<*>.isInterface
+    get(): Boolean = js.asDynamic().`$metadata$`?.kind == "interface"

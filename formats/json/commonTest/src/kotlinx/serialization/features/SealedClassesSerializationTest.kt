@@ -1,13 +1,17 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.features.sealed.SealedChild
+import kotlinx.serialization.features.sealed.SealedParent
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class SealedClassesSerializationTest : JsonTestBase() {
@@ -246,5 +250,16 @@ class SealedClassesSerializationTest : JsonTestBase() {
             }
         }
         assertJsonFormAndRestored(ListSerializer(ProtocolWithGenericClass.serializer()), messages, expected, json)
+    }
+
+    @Test
+    fun testSerializerLookupForSealedClass() {
+        val resSer = serializer<SealedProtocol>()
+        assertEquals(SealedProtocol::class, (resSer as AbstractPolymorphicSerializer).baseClass)
+    }
+
+    @Test
+    fun testClassesFromDifferentFiles() {
+        assertJsonFormAndRestored(SealedParent.serializer(), SealedChild(5), """{"type":"first child","i":1,"j":5}""")
     }
 }

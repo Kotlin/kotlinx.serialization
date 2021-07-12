@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:OptIn(ExperimentalSerializationApi::class)
 
@@ -26,7 +26,7 @@ private fun JsonEncoder.findActualSerializer(
     value: Any
 ): SerializationStrategy<Any> {
     val casted = serializer as AbstractPolymorphicSerializer<Any>
-    val actualSerializer = casted.findPolymorphicSerializer(this, value as Any)
+    val actualSerializer = casted.findPolymorphicSerializer(this, value)
     validateIfSealed(casted, actualSerializer, json.configuration.classDiscriminator)
     val kind = actualSerializer.descriptor.kind
     checkKind(kind)

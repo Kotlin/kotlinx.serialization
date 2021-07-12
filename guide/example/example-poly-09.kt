@@ -14,13 +14,14 @@ val module = SerializersModule {
 
 val format = Json { serializersModule = module }
 
-interface Project {
-    val name: String
+@Serializable
+abstract class Project {
+    abstract val name: String
 }
-
+            
 @Serializable
 @SerialName("owned")
-class OwnedProject(override val name: String, val owner: String) : Project
+class OwnedProject(override val name: String, val owner: String) : Project()
 
 fun main() {
     val data: Project = OwnedProject("kotlinx.coroutines", "kotlin")

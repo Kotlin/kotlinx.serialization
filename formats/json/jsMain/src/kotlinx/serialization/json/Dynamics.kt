@@ -49,7 +49,6 @@ public inline fun <reified T> Json.decodeFromDynamic(dynamic: dynamic): T =
  *
  * Limitations:
  * * Map keys must be of primitive or enum type
- * * Currently does not support polymorphism
  * * All [Long] values must be less than [`abs(2^53-1)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER).
  * Otherwise, they're encoded as doubles with precision loss and require `isLenient` flag of [Json.configuration] set to true.
  *

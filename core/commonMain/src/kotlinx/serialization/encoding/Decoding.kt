@@ -5,9 +5,9 @@
 package kotlinx.serialization.encoding
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.modules.*
-import kotlinx.serialization.builtins.*
 
 /**
  * Decoder is a core deserialization primitive that encapsulates the knowledge of the underlying
@@ -137,6 +137,9 @@ public interface Decoder {
 
     /**
      * Decodes the `null` value and returns it.
+     *
+     * It is expected that `decodeNotNullMark` was called
+     * prior to `decodeNull` invocation and the case when it returned `true` was handled.
      */
     @ExperimentalSerializationApi
     public fun decodeNull(): Nothing?
@@ -206,6 +209,29 @@ public interface Decoder {
      * the format is free to store the enum by its name, index, ordinal or any other enum representation.
      */
     public fun decodeEnum(enumDescriptor: SerialDescriptor): Int
+
+    /**
+     * Returns [Decoder] for decoding an underlying type of an inline class.
+     * [inlineDescriptor] describes a target inline class.
+     *
+     * Namely, for the `@Serializable inline class MyInt(val my: Int)`,
+     * the following sequence is used:
+     * ```
+     * thisDecoder.decodeInline(MyInt.serializer().descriptor).decodeInt()
+     * ```
+     *
+     * Current decoder may return any other instance of [Decoder] class,
+     * depending on the provided [inlineDescriptor].
+     * For example, when this function is called on Json decoder with
+     * `UInt.serializer().descriptor`, the returned decoder is able
+     * to decode unsigned integers.
+     *
+     * Note that this function returns [Decoder] instead of the [CompositeDecoder]
+     * because inline classes always have the single property.
+     * Calling [Decoder.beginStructure] on returned instance leads to an undefined behavior.
+     */
+    @ExperimentalSerializationApi
+    public fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder
 
     /**
      * Decodes the beginning of the nested structure in a serialized form
@@ -459,6 +485,40 @@ public interface CompositeDecoder {
      */
     public fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String
 
+    /**
+     * Returns [Decoder] for decoding an underlying type of an inline class.
+     * Serializable inline class is described by the [child descriptor][SerialDescriptor.getElementDescriptor]
+     * of given [descriptor] at [index].
+     *
+     * Namely, for the `@Serializable inline class MyInt(val my: Int)`,
+     * and `@Serializable class MyData(val myInt: MyInt)`
+     * the following sequence is used:
+     * ```
+     * thisDecoder.decodeInlineElement(MyData.serializer().descriptor, 0).decodeInt()
+     * ```
+     *
+     * This method provides an opportunity for the optimization and its invocation should be identical to
+     * ```
+     * thisDecoder.decodeSerializableElement(MyData.serializer.descriptor, 0, MyInt.serializer())
+     * ```
+     *
+     * Current decoder may return any other instance of [Decoder] class, depending on the provided descriptor.
+     * For example, when this function is called on Json decoder with descriptor that has
+     * `UInt.serializer().descriptor` at the given [index], the returned decoder is able
+     * to decode unsigned integers.
+     *
+     * Note that this function returns [Decoder] instead of the [CompositeDecoder]
+     * because inline classes always have the single property.
+     * Calling [Decoder.beginStructure] on returned instance leads to an undefined behavior.
+     *
+     * @see Decoder.decodeInline
+     * @see SerialDescriptor.getElementDescriptor
+     */
+    @ExperimentalSerializationApi
+    public fun decodeInlineElement(
+        descriptor: SerialDescriptor,
+        index: Int
+    ): Decoder
 
     /**
      * Decodes value of the type [T] with the given [deserializer].
@@ -495,25 +555,6 @@ public interface CompositeDecoder {
         deserializer: DeserializationStrategy<T?>,
         previousValue: T? = null
     ): T?
-
-    @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE", "DeprecatedCallableAddReplaceWith")
-    @kotlin.internal.LowPriorityInOverloadResolution
-    @Deprecated(decodeMethodDeprecated, level = DeprecationLevel.HIDDEN)
-    public fun <T : Any?> decodeSerializableElement(
-        descriptor: SerialDescriptor,
-        i: Int, // renamed from index to be called even with LowPriority
-        deserializer: DeserializationStrategy<T>
-    ): T = decodeSerializableElement(descriptor, i, deserializer, null)
-
-    @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE", "DeprecatedCallableAddReplaceWith")
-    @kotlin.internal.LowPriorityInOverloadResolution
-    @Deprecated(decodeMethodDeprecated, level = DeprecationLevel.HIDDEN)
-    @OptIn(ExperimentalSerializationApi::class)
-    public fun <T : Any> decodeNullableSerializableElement(
-        descriptor: SerialDescriptor,
-        i: Int, // renamed from index to be called even with LowPriority
-        deserializer: DeserializationStrategy<T?>
-    ): T? = decodeNullableSerializableElement(descriptor, i, deserializer, null)
 }
 
 /**
@@ -524,10 +565,15 @@ public inline fun <T> Decoder.decodeStructure(
     block: CompositeDecoder.() -> T
 ): T {
     val composite = beginStructure(descriptor)
+    var ex: Throwable? = null
     try {
         return composite.block()
+    } catch (e: Throwable) {
+        ex = e
+        throw e
     } finally {
-        composite.endStructure(descriptor)
+        // End structure only if there is no exception, otherwise it can be swallowed
+        if (ex == null) composite.endStructure(descriptor)
     }
 }
 

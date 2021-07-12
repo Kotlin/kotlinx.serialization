@@ -37,10 +37,10 @@ abstract class JsonTestBase {
         return if (useStreaming) {
             decodeFromString(deserializer, source)
         } else {
-            val parser = JsonReader(source)
-            val input = StreamingJsonDecoder(this, WriteMode.OBJ, parser)
+            val lexer = JsonLexer(source)
+            val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer)
             val tree = input.decodeJsonElement()
-            if (!input.reader.isDone) { error("Reader has not consumed the whole input: ${input.reader}") }
+            lexer.expectEof()
             readJson(tree, deserializer)
         }
     }
@@ -91,14 +91,9 @@ abstract class JsonTestBase {
     ) {
         parametrizedTest { useStreaming ->
             val serialized = json.encodeToString(serializer, data, useStreaming)
-            assertEquals(expected, serialized)
+            assertEquals(expected, serialized, "Failed with streaming = $useStreaming")
             val deserialized: T = json.decodeFromString(serializer, serialized, useStreaming)
-            assertEquals(data, deserialized)
+            assertEquals(data, deserialized, "Failed with streaming = $useStreaming")
         }
-    }
-
-    inline fun <reified T : Throwable> assertFailsWithMessage(message: String, block: () -> Unit) {
-        val exception = assertFailsWith(T::class, null, block)
-        assertTrue(exception.message!!.contains(message), "Expected message '${exception.message}' to contain substring '$message'")
     }
 }
