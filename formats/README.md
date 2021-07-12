@@ -58,6 +58,15 @@ This library allows serialization and deserialization of objects to and from [Av
 
 Allows serialization and deserialization of objects to and from [BSON](https://docs.mongodb.com/manual/reference/bson-types/).
 
+### Ktoml 
+* GitHub repo: [akuleshov7/ktoml](https://github.com/akuleshov7/ktoml)
+* Artifact ID: `com.akuleshov7:ktoml-core`
+* Platforms: multiplatform, all Kotlin supported platforms
+
+Fully Native and Multiplatform Kotlin serialization library for serialization/deserialization of TOML format.
+This library contains no Java code and no Java dependencies. We believe that TOML is actually the most readable
+and user-friendly configuration file format, so we decided to support this format with the kotlinx serialization library.
+
 ### MsgPack (Multiplatform)
 
 * GitHub repo: [esensar/kotlinx-serialization-msgpack](https://github.com/esensar/kotlinx-serialization-msgpack)
