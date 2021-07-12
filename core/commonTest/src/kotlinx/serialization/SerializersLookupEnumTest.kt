@@ -56,11 +56,13 @@ class SerializersLookupEnumTest {
     }
 
     @Test
+    @Ignore
     fun testEnumExternalObject() {
         assertFailsWith<SerializationException> { (serializer<EnumExternalObject>()) }
     }
 
     @Test
+    @Ignore
     fun testEnumExternalClass() {
         assertFailsWith<SerializationException> { serializer<EnumExternalClass>() }
     }
