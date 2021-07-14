@@ -1,7 +1,6 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.modules.*
 
 /**
  * Configuration of the current [Json] instance available through [Json.configuration]
@@ -26,6 +25,8 @@ public class JsonConfiguration internal constructor(
     public val prettyPrintIndent: String = "    ",
     public val coerceInputValues: Boolean = false,
     public val useArrayPolymorphism: Boolean = false,
+    @ExperimentalSerializationApi
+    public val writeClassDiscriminator: Boolean = true,
     public val classDiscriminator: String = "type",
     public val allowSpecialFloatingPointValues: Boolean = false,
     public val useAlternativeNames: Boolean = true

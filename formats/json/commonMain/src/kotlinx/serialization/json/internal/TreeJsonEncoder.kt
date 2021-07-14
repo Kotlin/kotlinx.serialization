@@ -70,7 +70,9 @@ private sealed class AbstractJsonTreeEncoder(
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
         // Writing non-structured data (i.e. primitives) on top-level (e.g. without any tag) requires special output
         if (currentTagOrNull != null || serializer.descriptor.kind !is PrimitiveKind && serializer.descriptor.kind !== SerialKind.ENUM) {
-            encodePolymorphically(serializer, value) { writePolymorphic = true }
+            encodePolymorphically(serializer, value) {
+                writePolymorphic = configuration.writeClassDiscriminator
+            }
         } else JsonPrimitiveEncoder(json, nodeConsumer).apply {
             encodeSerializableValue(serializer, value)
             endEncode(serializer.descriptor)

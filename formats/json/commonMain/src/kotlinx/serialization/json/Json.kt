@@ -228,6 +228,11 @@ public class JsonBuilder internal constructor(json: Json) {
     public var useArrayPolymorphism: Boolean = json.configuration.useArrayPolymorphism
 
     /**
+     * Enable or disable write class discriminator while encoding to json
+     */
+    public var writeClassDiscriminator: Boolean = json.configuration.writeClassDiscriminator
+
+    /**
      * Name of the class descriptor property for polymorphic serialization.
      * "type" by default.
      */
@@ -277,7 +282,8 @@ public class JsonBuilder internal constructor(json: Json) {
             encodeDefaults, ignoreUnknownKeys, isLenient,
             allowStructuredMapKeys, prettyPrint, prettyPrintIndent,
             coerceInputValues, useArrayPolymorphism,
-            classDiscriminator, allowSpecialFloatingPointValues, useAlternativeNames
+            writeClassDiscriminator, classDiscriminator,
+            allowSpecialFloatingPointValues, useAlternativeNames
         )
     }
 }

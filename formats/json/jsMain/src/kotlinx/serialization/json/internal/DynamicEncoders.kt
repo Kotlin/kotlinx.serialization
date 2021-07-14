@@ -173,7 +173,7 @@ private class DynamicObjectEncoder(
 
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
         encodePolymorphically(serializer, value) {
-            writePolymorphic = true
+            writePolymorphic = json.configuration.writeClassDiscriminator
         }
     }
 
