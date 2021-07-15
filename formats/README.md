@@ -58,6 +58,14 @@ This library allows serialization and deserialization of objects to and from [Av
 
 Allows serialization and deserialization of objects to and from [BSON](https://docs.mongodb.com/manual/reference/bson-types/).
 
+### Ktoml 
+* GitHub repo: [akuleshov7/ktoml](https://github.com/akuleshov7/ktoml)
+* Artifact ID: `com.akuleshov7:ktoml-core`
+* Platforms: multiplatform, all Kotlin supported platforms
+
+Fully Native and Multiplatform Kotlin serialization library for serialization/deserialization of TOML format.
+This library contains no Java code and no Java dependencies and it implements multiplatform parser, decoder and encoder of TOML.
+
 ### Minecraft NBT (Multiplatform)
 
 * GitHub repo: [BenWoodworth/knbt](https://github.com/BenWoodworth/knbt)
