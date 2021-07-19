@@ -224,3 +224,23 @@ public annotation class ExperimentalSerializationApi
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPEALIAS)
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
 public annotation class InternalSerializationApi
+
+public enum class EncodeDefaultMode {
+    /**
+     * Serializers will call [kotlinx.serialization.encoding.CompositeEncoder.shouldEncodeElementDefault] to detect whether default values should be encoded.
+     */
+    DEFAULT,
+
+    /**
+     * Serializers will always encode values even if they are equal to the default values.
+     */
+    ALWAYS,
+
+    /**
+     *Serializers will always omit values if they are equal to the default values.
+     */
+    NEVER
+}
+
+@Target(AnnotationTarget.PROPERTY)
+public annotation class EncodeDefault(public val mode: EncodeDefaultMode)
