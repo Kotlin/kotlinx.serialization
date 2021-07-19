@@ -18,10 +18,10 @@ class JsonUnionEnumTest : JsonTestBase() {
                           val i: Int = 42)
 
     @Test
-    fun testEnum() = parametrizedTest { useStreaming ->
+    fun testEnum() = parametrizedTest { jsonTestingMode ->
         val data = WithUnions("foo", SomeEnum.BETA)
-        val json = default.encodeToString(WithUnions.serializer(), data, useStreaming)
-        val restored = default.decodeFromString(WithUnions.serializer(), json, useStreaming)
+        val json = default.encodeToString(WithUnions.serializer(), data, jsonTestingMode)
+        val restored = default.decodeFromString(WithUnions.serializer(), json, jsonTestingMode)
         assertEquals(data, restored)
     }
 }

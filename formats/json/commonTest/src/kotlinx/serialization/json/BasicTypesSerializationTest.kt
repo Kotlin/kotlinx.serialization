@@ -14,32 +14,32 @@ class BasicTypesSerializationTest : JsonTestBase() {
     """.trimIndent()
 
     @Test
-    fun testSerialization() = parametrizedTest { useStreaming ->
+    fun testSerialization() = parametrizedTest { jsonTestingMode ->
         val json = default.encodeToString(TypesUmbrella.serializer(), umbrellaInstance)
         assertEquals(goldenValue, json)
-        val instance = default.decodeFromString(TypesUmbrella.serializer(), json, useStreaming)
+        val instance = default.decodeFromString(TypesUmbrella.serializer(), json, jsonTestingMode)
         assertEquals(umbrellaInstance, instance)
         assertNotSame(umbrellaInstance, instance)
     }
 
     @Test
-    fun testTopLevelPrimitive() = parametrizedTest { useStreaming ->
-        testPrimitive(Unit, "{}", useStreaming)
-        testPrimitive(false, "false", useStreaming)
-        testPrimitive(1.toByte(), "1", useStreaming)
-        testPrimitive(2.toShort(), "2", useStreaming)
-        testPrimitive(3, "3", useStreaming)
-        testPrimitive(4L, "4", useStreaming)
-        testPrimitive(5.1f, "5.1", useStreaming)
-        testPrimitive(6.1, "6.1", useStreaming)
-        testPrimitive('c', "\"c\"", useStreaming)
-        testPrimitive("string", "\"string\"", useStreaming)
+    fun testTopLevelPrimitive() = parametrizedTest { jsonTestingMode ->
+        testPrimitive(Unit, "{}", jsonTestingMode)
+        testPrimitive(false, "false", jsonTestingMode)
+        testPrimitive(1.toByte(), "1", jsonTestingMode)
+        testPrimitive(2.toShort(), "2", jsonTestingMode)
+        testPrimitive(3, "3", jsonTestingMode)
+        testPrimitive(4L, "4", jsonTestingMode)
+        testPrimitive(5.1f, "5.1", jsonTestingMode)
+        testPrimitive(6.1, "6.1", jsonTestingMode)
+        testPrimitive('c', "\"c\"", jsonTestingMode)
+        testPrimitive("string", "\"string\"", jsonTestingMode)
     }
 
-    private inline fun <reified T : Any> testPrimitive(primitive: T, expectedJson: String, useStreaming: Boolean) {
-        val json = default.encodeToString(primitive, false)
+    private inline fun <reified T : Any> testPrimitive(primitive: T, expectedJson: String, jsonTestingMode: JsonTestingMode) {
+        val json = default.encodeToString(primitive, jsonTestingMode)
         assertEquals(expectedJson, json)
-        val instance = default.decodeFromString<T>(json, useStreaming)
+        val instance = default.decodeFromString<T>(json, jsonTestingMode)
         assertEquals(primitive, instance)
     }
 }

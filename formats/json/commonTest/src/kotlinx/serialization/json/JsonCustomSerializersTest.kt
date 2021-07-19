@@ -15,12 +15,6 @@ import kotlin.test.*
 
 class JsonCustomSerializersTest : JsonTestBase() {
 
-    protected override fun parametrizedTest(test: (Boolean) -> Unit) {
-        val streamingResult = runCatching { test(true) }
-        val treeResult = runCatching { test(false) }
-        processResults(streamingResult, treeResult)
-    }
-
     @Serializable
     data class A(@Id(1) val b: B)
 
@@ -119,242 +113,242 @@ class JsonCustomSerializersTest : JsonTestBase() {
     private val jsonNoAltNames = Json { useAlternativeNames = false }
 
     @Test
-    fun testWriteCustom() = parametrizedTest { useStreaming ->
+    fun testWriteCustom() = parametrizedTest { jsonTestingMode ->
         val a = A(B(2))
         val j = createJsonWithB()
-        val s = j.encodeToString(a, useStreaming)
+        val s = j.encodeToString(a, jsonTestingMode)
         assertEquals("""{"b":2}""", s)
     }
 
     @Test
-    fun testReadCustom() = parametrizedTest { useStreaming ->
+    fun testReadCustom() = parametrizedTest { jsonTestingMode ->
         val a = A(B(2))
         val j = createJsonWithB()
-        val s = j.decodeFromString<A>("{b:2}", useStreaming)
+        val s = j.decodeFromString<A>("{b:2}", jsonTestingMode)
         assertEquals(a, s)
     }
 
     @Test
-    fun testWriteCustomList() = parametrizedTest { useStreaming ->
+    fun testWriteCustomList() = parametrizedTest { jsonTestingMode ->
         val obj = BList(listOf(B(1), B(2), B(3)))
         val j = createJsonWithB()
-        val s = j.encodeToString(obj, useStreaming)
+        val s = j.encodeToString(obj, jsonTestingMode)
         assertEquals("""{"bs":[1,2,3]}""", s)
     }
 
     @Test
-    fun testReadCustomList() = parametrizedTest { useStreaming ->
+    fun testReadCustomList() = parametrizedTest { jsonTestingMode ->
         val obj = BList(listOf(B(1), B(2), B(3)))
         val j = createJsonWithB()
-        val bs = j.decodeFromString<BList>("{bs:[1,2,3]}", useStreaming)
+        val bs = j.decodeFromString<BList>("{bs:[1,2,3]}", jsonTestingMode)
         assertEquals(obj, bs)
     }
 
     @Test
-    fun testWriteCustomListRootLevel() = parametrizedTest { useStreaming ->
+    fun testWriteCustomListRootLevel() = parametrizedTest { jsonTestingMode ->
         val obj = listOf(B(1), B(2), B(3))
         val j = createJsonWithB()
-        val s = j.encodeToString(ListSerializer(BSerializer), obj, useStreaming)
+        val s = j.encodeToString(ListSerializer(BSerializer), obj, jsonTestingMode)
         assertEquals("[1,2,3]", s)
     }
 
     @Test
-    fun testReadCustomListRootLevel() = parametrizedTest { useStreaming ->
+    fun testReadCustomListRootLevel() = parametrizedTest { jsonTestingMode ->
         val obj = listOf(B(1), B(2), B(3))
         val j = createJsonWithB()
-        val bs = j.decodeFromString(ListSerializer(BSerializer), "[1,2,3]", useStreaming)
+        val bs = j.decodeFromString(ListSerializer(BSerializer), "[1,2,3]", jsonTestingMode)
         assertEquals(obj, bs)
     }
 
     @Test
-    fun testWriteCustomInvertedOrder() = parametrizedTest { useStreaming ->
+    fun testWriteCustomInvertedOrder() = parametrizedTest { jsonTestingMode ->
         val obj = C(1, 2)
-        val s = jsonNoAltNames.encodeToString(obj, useStreaming)
+        val s = jsonNoAltNames.encodeToString(obj, jsonTestingMode)
         assertEquals("""{"b":2,"a":1}""", s)
     }
 
     @Test
-    fun testWriteCustomOmitDefault() = parametrizedTest { useStreaming ->
+    fun testWriteCustomOmitDefault() = parametrizedTest { jsonTestingMode ->
         val obj = C(b = 2)
-        val s = jsonNoAltNames.encodeToString(obj, useStreaming)
+        val s = jsonNoAltNames.encodeToString(obj, jsonTestingMode)
         assertEquals("""{"b":2}""", s)
     }
 
     @Test
-    fun testReadCustomInvertedOrder() = parametrizedTest { useStreaming ->
+    fun testReadCustomInvertedOrder() = parametrizedTest { jsonTestingMode ->
         val obj = C(1, 2)
-        val s = jsonNoAltNames.decodeFromString<C>("""{"b":2,"a":1}""", useStreaming)
+        val s = jsonNoAltNames.decodeFromString<C>("""{"b":2,"a":1}""", jsonTestingMode)
         assertEquals(obj, s)
     }
 
     @Test
-    fun testReadCustomOmitDefault() = parametrizedTest { useStreaming ->
+    fun testReadCustomOmitDefault() = parametrizedTest { jsonTestingMode ->
         val obj = C(b = 2)
-        val s = jsonNoAltNames.decodeFromString<C>("""{"b":2}""", useStreaming)
+        val s = jsonNoAltNames.decodeFromString<C>("""{"b":2}""", jsonTestingMode)
         assertEquals(obj, s)
     }
 
     @Test
-    fun testWriteListOfOptional() = parametrizedTest { useStreaming ->
+    fun testWriteListOfOptional() = parametrizedTest { jsonTestingMode ->
         val obj = listOf(C(a = 1), C(b = 2), C(3, 4))
-        val s = jsonNoAltNames.encodeToString(ListSerializer(C), obj, useStreaming)
+        val s = jsonNoAltNames.encodeToString(ListSerializer(C), obj, jsonTestingMode)
         assertEquals("""[{"b":42,"a":1},{"b":2},{"b":4,"a":3}]""", s)
     }
 
     @Test
-    fun testReadListOfOptional() = parametrizedTest { useStreaming ->
+    fun testReadListOfOptional() = parametrizedTest { jsonTestingMode ->
         val obj = listOf(C(a = 1), C(b = 2), C(3, 4))
         val j = """[{"b":42,"a":1},{"b":2},{"b":4,"a":3}]"""
-        val s = jsonNoAltNames.decodeFromString(ListSerializer<kotlinx.serialization.json.JsonCustomSerializersTest.C>(C), j, useStreaming)
+        val s = jsonNoAltNames.decodeFromString(ListSerializer<kotlinx.serialization.json.JsonCustomSerializersTest.C>(C), j, jsonTestingMode)
         assertEquals(obj, s)
     }
 
     @Test
-    fun testWriteOptionalList1() = parametrizedTest { useStreaming ->
+    fun testWriteOptionalList1() = parametrizedTest { jsonTestingMode ->
         val obj = CList1(listOf(C(a = 1), C(b = 2), C(3, 4)))
-        val s = jsonNoAltNames.encodeToString(obj, useStreaming)
+        val s = jsonNoAltNames.encodeToString(obj, jsonTestingMode)
         assertEquals("""{"c":[{"b":42,"a":1},{"b":2},{"b":4,"a":3}]}""", s)
     }
 
     @Test
-    fun testWriteOptionalList1Quoted() = parametrizedTest { useStreaming ->
+    fun testWriteOptionalList1Quoted() = parametrizedTest { jsonTestingMode ->
         val obj = CList1(listOf(C(a = 1), C(b = 2), C(3, 4)))
-        val s = jsonNoAltNames.encodeToString(obj, useStreaming)
+        val s = jsonNoAltNames.encodeToString(obj, jsonTestingMode)
         assertEquals("""{"c":[{"b":42,"a":1},{"b":2},{"b":4,"a":3}]}""", s)
     }
 
     @Test
-    fun testReadOptionalList1() = parametrizedTest { useStreaming ->
+    fun testReadOptionalList1() = parametrizedTest { jsonTestingMode ->
         val obj = CList1(listOf(C(a = 1), C(b = 2), C(3, 4)))
         val j = """{"c":[{"b":42,"a":1},{"b":2},{"b":4,"a":3}]}"""
-        assertEquals(obj, jsonNoAltNames.decodeFromString(j, useStreaming))
+        assertEquals(obj, jsonNoAltNames.decodeFromString(j, jsonTestingMode))
     }
 
     @Test
-    fun testWriteOptionalList2a() = parametrizedTest { useStreaming ->
+    fun testWriteOptionalList2a() = parametrizedTest { jsonTestingMode ->
         val obj = CList2(7, listOf(C(a = 5), C(b = 6), C(7, 8)))
-        val s = jsonNoAltNames.encodeToString(obj, useStreaming)
+        val s = jsonNoAltNames.encodeToString(obj, jsonTestingMode)
         assertEquals("""{"c":[{"b":42,"a":5},{"b":6},{"b":8,"a":7}],"d":7}""", s)
     }
 
     @Test
-    fun testReadOptionalList2a() = parametrizedTest { useStreaming ->
+    fun testReadOptionalList2a() = parametrizedTest { jsonTestingMode ->
         val obj = CList2(7, listOf(C(a = 5), C(b = 6), C(7, 8)))
         val j = """{"c":[{"b":42,"a":5},{"b":6},{"b":8,"a":7}],"d":7}"""
-        assertEquals(obj, jsonNoAltNames.decodeFromString(j, useStreaming))
+        assertEquals(obj, jsonNoAltNames.decodeFromString(j, jsonTestingMode))
     }
 
     @Test
-    fun testWriteOptionalList2b() = parametrizedTest { useStreaming ->
+    fun testWriteOptionalList2b() = parametrizedTest { jsonTestingMode ->
         val obj = CList2(c = listOf(C(a = 5), C(b = 6), C(7, 8)))
-        val s = jsonNoAltNames.encodeToString(obj, useStreaming)
+        val s = jsonNoAltNames.encodeToString(obj, jsonTestingMode)
         assertEquals("""{"c":[{"b":42,"a":5},{"b":6},{"b":8,"a":7}]}""", s)
     }
 
     @Test
-    fun testReadOptionalList2b() = parametrizedTest { useStreaming ->
+    fun testReadOptionalList2b() = parametrizedTest { jsonTestingMode ->
         val obj = CList2(c = listOf(C(a = 5), C(b = 6), C(7, 8)))
         val j = """{"c":[{"b":42,"a":5},{"b":6},{"b":8,"a":7}]}"""
-        assertEquals(obj, jsonNoAltNames.decodeFromString(j, useStreaming))
+        assertEquals(obj, jsonNoAltNames.decodeFromString(j, jsonTestingMode))
     }
 
     @Test
-    fun testWriteOptionalList3a() = parametrizedTest { useStreaming ->
+    fun testWriteOptionalList3a() = parametrizedTest { jsonTestingMode ->
         val obj = CList3(listOf(C(a = 1), C(b = 2), C(3, 4)), 99)
-        val s = jsonNoAltNames.encodeToString(obj, useStreaming)
+        val s = jsonNoAltNames.encodeToString(obj, jsonTestingMode)
         assertEquals("""{"e":[{"b":42,"a":1},{"b":2},{"b":4,"a":3}],"f":99}""", s)
     }
 
     @Test
-    fun testReadOptionalList3a() = parametrizedTest { useStreaming ->
+    fun testReadOptionalList3a() = parametrizedTest { jsonTestingMode ->
         val obj = CList3(listOf(C(a = 1), C(b = 2), C(3, 4)), 99)
         val j = """{"e":[{"b":42,"a":1},{"b":2},{"b":4,"a":3}],"f":99}"""
-        assertEquals(obj, jsonNoAltNames.decodeFromString(j, useStreaming))
+        assertEquals(obj, jsonNoAltNames.decodeFromString(j, jsonTestingMode))
     }
 
     @Test
-    fun testWriteOptionalList3b() = parametrizedTest { useStreaming ->
+    fun testWriteOptionalList3b() = parametrizedTest { jsonTestingMode ->
         val obj = CList3(f = 99)
-        val s = jsonNoAltNames.encodeToString(obj, useStreaming)
+        val s = jsonNoAltNames.encodeToString(obj, jsonTestingMode)
         assertEquals("""{"f":99}""", s)
     }
 
     @Test
-    fun testReadOptionalList3b() = parametrizedTest { useStreaming ->
+    fun testReadOptionalList3b() = parametrizedTest { jsonTestingMode ->
         val obj = CList3(f = 99)
         val j = """{"f":99}"""
-        assertEquals(obj, jsonNoAltNames.decodeFromString(j, useStreaming))
+        assertEquals(obj, jsonNoAltNames.decodeFromString(j, jsonTestingMode))
     }
 
     @Test
-    fun testWriteOptionalList4a() = parametrizedTest { useStreaming ->
+    fun testWriteOptionalList4a() = parametrizedTest { jsonTestingMode ->
         val obj = CList4(listOf(C(a = 1), C(b = 2), C(3, 4)), 54)
-        val s = jsonNoAltNames.encodeToString(obj, useStreaming)
+        val s = jsonNoAltNames.encodeToString(obj, jsonTestingMode)
         assertEquals("""{"h":54,"g":[{"b":42,"a":1},{"b":2},{"b":4,"a":3}]}""", s)
     }
 
     @Test
-    fun testReadOptionalList4a() = parametrizedTest { useStreaming ->
+    fun testReadOptionalList4a() = parametrizedTest { jsonTestingMode ->
         val obj = CList4(listOf(C(a = 1), C(b = 2), C(3, 4)), 54)
         val j = """{"h":54,"g":[{"b":42,"a":1},{"b":2},{"b":4,"a":3}]}"""
-        assertEquals(obj, jsonNoAltNames.decodeFromString(j, useStreaming))
+        assertEquals(obj, jsonNoAltNames.decodeFromString(j, jsonTestingMode))
     }
 
     @Test
-    fun testWriteOptionalList4b() = parametrizedTest { useStreaming ->
+    fun testWriteOptionalList4b() = parametrizedTest { jsonTestingMode ->
         val obj = CList4(h = 97)
         val j = """{"h":97}"""
-        val s = jsonNoAltNames.encodeToString(obj, useStreaming)
+        val s = jsonNoAltNames.encodeToString(obj, jsonTestingMode)
         assertEquals(j, s)
     }
 
     @Test
-    fun testReadOptionalList4b() = parametrizedTest { useStreaming ->
+    fun testReadOptionalList4b() = parametrizedTest { jsonTestingMode ->
         val obj = CList4(h = 97)
         val j = """{"h":97}"""
-        assertEquals(obj, jsonNoAltNames.decodeFromString(j, useStreaming))
+        assertEquals(obj, jsonNoAltNames.decodeFromString(j, jsonTestingMode))
     }
 
     @Test
-    fun testWriteOptionalList5a() = parametrizedTest { useStreaming ->
+    fun testWriteOptionalList5a() = parametrizedTest { jsonTestingMode ->
         val obj = CList5(listOf(9, 8, 7, 6, 5), 5)
-        val s = jsonNoAltNames.encodeToString(obj, useStreaming)
+        val s = jsonNoAltNames.encodeToString(obj, jsonTestingMode)
         assertEquals("""{"h":5,"g":[9,8,7,6,5]}""", s)
     }
 
     @Test
-    fun testReadOptionalList5a() = parametrizedTest { useStreaming ->
+    fun testReadOptionalList5a() = parametrizedTest { jsonTestingMode ->
         val obj = CList5(listOf(9, 8, 7, 6, 5), 5)
         val j = """{"h":5,"g":[9,8,7,6,5]}"""
-        assertEquals(obj, jsonNoAltNames.decodeFromString(j, useStreaming))
+        assertEquals(obj, jsonNoAltNames.decodeFromString(j, jsonTestingMode))
     }
 
     @Test
-    fun testWriteOptionalList5b() = parametrizedTest { useStreaming ->
+    fun testWriteOptionalList5b() = parametrizedTest { jsonTestingMode ->
         val obj = CList5(h = 999)
-        val s = jsonNoAltNames.encodeToString(obj, useStreaming)
+        val s = jsonNoAltNames.encodeToString(obj, jsonTestingMode)
         assertEquals("""{"h":999}""", s)
     }
 
     @Test
-    fun testReadOptionalList5b() = parametrizedTest { useStreaming ->
+    fun testReadOptionalList5b() = parametrizedTest { jsonTestingMode ->
         val obj = CList5(h = 999)
         val j = """{"h":999}"""
-        assertEquals(obj, jsonNoAltNames.decodeFromString(j, useStreaming))
+        assertEquals(obj, jsonNoAltNames.decodeFromString(j, jsonTestingMode))
     }
 
     @Test
-    fun testMapBuiltinsTest() = parametrizedTest { useStreaming ->
+    fun testMapBuiltinsTest() = parametrizedTest { jsonTestingMode ->
         val map = mapOf(1 to "1", 2 to "2")
         val serial = MapSerializer(Int.serializer(), String.serializer())
-        val s = jsonNoAltNames.encodeToString(serial, map, useStreaming)
+        val s = jsonNoAltNames.encodeToString(serial, map, jsonTestingMode)
         assertEquals("""{"1":"1","2":"2"}""", s)
     }
 
     @Test
-    fun testResolveAtRootLevel() = parametrizedTest { useStreaming ->
+    fun testResolveAtRootLevel() = parametrizedTest { jsonTestingMode ->
         val j = createJsonWithB()
-        val bs = j.decodeFromString<B>("1", useStreaming)
+        val bs = j.decodeFromString<B>("1", jsonTestingMode)
         assertEquals(B(1), bs)
     }
 }

@@ -12,20 +12,20 @@ import kotlin.test.*
 class KeyValueSerializersTest : JsonTestBase() {
 
     @Test
-    fun testPair() = parametrizedTest { useStreaming ->
-        testPair(Pair(42, 42), Int.serializer(), Int.serializer(), useStreaming, """{"first":42,"second":42}""")
+    fun testPair() = parametrizedTest { jsonTestingMode ->
+        testPair(Pair(42, 42), Int.serializer(), Int.serializer(), jsonTestingMode, """{"first":42,"second":42}""")
         testPair(
             Pair(42, Pair("a", "b")),
             Int.serializer(),
             serializer(),
-            useStreaming,
+            jsonTestingMode,
             """{"first":42,"second":{"first":"a","second":"b"}}"""
         )
         testPair(
             Pair(42, null),
             Int.serializer(),
             Int.serializer().nullable,
-            useStreaming,
+            jsonTestingMode,
             """{"first":42,"second":null}"""
         )
     }
@@ -34,24 +34,24 @@ class KeyValueSerializersTest : JsonTestBase() {
         pairInstance: Pair<K, V>,
         kSerializer: KSerializer<K>,
         vSerializer: KSerializer<V>,
-        useStreaming: Boolean,
+        jsonTestingMode: JsonTestingMode,
         expectedJson: String
     ) {
         val serializer = PairSerializer(kSerializer, vSerializer)
-        val json = default.encodeToString(serializer, pairInstance, useStreaming)
+        val json = default.encodeToString(serializer, pairInstance, jsonTestingMode)
         assertEquals(expectedJson, json)
-        val pair = default.decodeFromString(serializer, json, useStreaming)
+        val pair = default.decodeFromString(serializer, json, jsonTestingMode)
         assertEquals(pairInstance, pair)
     }
 
     @Test
-    fun testTriple() = parametrizedTest { useStreaming ->
+    fun testTriple() = parametrizedTest { jsonTestingMode ->
         testTriple(
             Triple(42, 42, "42"),
             Int.serializer(),
             Int.serializer(),
             String.serializer(),
-            useStreaming,
+            jsonTestingMode,
             """{"first":42,"second":42,"third":"42"}"""
         )
 
@@ -60,7 +60,7 @@ class KeyValueSerializersTest : JsonTestBase() {
             Int.serializer(),
             serializer(),
             String.serializer(),
-            useStreaming,
+            jsonTestingMode,
             """{"first":42,"second":{"first":42,"second":"f","third":"c"},"third":"42"}"""
         )
 
@@ -69,7 +69,7 @@ class KeyValueSerializersTest : JsonTestBase() {
             Int.serializer(),
             Int.serializer().nullable,
             String.serializer().nullable,
-            useStreaming,
+            jsonTestingMode,
             """{"first":42,"second":null,"third":null}"""
         )
     }
@@ -79,13 +79,13 @@ class KeyValueSerializersTest : JsonTestBase() {
         aSerializer: KSerializer<A>,
         bSerializer: KSerializer<B>,
         cSerializer: KSerializer<C>,
-        useStreaming: Boolean,
+        jsonTestingMode: JsonTestingMode,
         expectedJson: String
     ) {
         val serializer = TripleSerializer(aSerializer, bSerializer, cSerializer)
-        val json = default.encodeToString(serializer, tripleInstance, useStreaming)
+        val json = default.encodeToString(serializer, tripleInstance, jsonTestingMode)
         assertEquals(expectedJson, json)
-        val triple = default.decodeFromString(serializer, json, useStreaming)
+        val triple = default.decodeFromString(serializer, json, jsonTestingMode)
         assertEquals(tripleInstance, triple)
     }
 
@@ -106,21 +106,21 @@ class KeyValueSerializersTest : JsonTestBase() {
     }
 
     @Test
-    fun testKeyValuePair() = parametrizedTest { useStreaming ->
+    fun testKeyValuePair() = parametrizedTest { jsonTestingMode ->
         jvmOnly {
-            testEntry(Entry(42, 42), Int.serializer(), Int.serializer(), useStreaming, """{"42":42}""")
+            testEntry(Entry(42, 42), Int.serializer(), Int.serializer(), jsonTestingMode, """{"42":42}""")
             testEntry(
                 Entry(42, Entry("a", "b")),
                 Int.serializer(),
                 serializer<Map.Entry<String, String>>(),
-                useStreaming,
+                jsonTestingMode,
                 """{"42":{"a":"b"}}"""
             )
             testEntry(
                 Entry(42, null),
                 Int.serializer(),
                 Int.serializer().nullable,
-                useStreaming,
+                jsonTestingMode,
                 """{"42":null}"""
             )
         }
@@ -130,13 +130,13 @@ class KeyValueSerializersTest : JsonTestBase() {
         entryInstance: Map.Entry<K, V>,
         kSerializer: KSerializer<K>,
         vSerializer: KSerializer<V>,
-        useStreaming: Boolean,
+        jsonTestingMode: JsonTestingMode,
         expectedJson: String
     ) {
         val serializer = MapEntrySerializer(kSerializer, vSerializer)
-        val json = default.encodeToString(serializer, entryInstance, useStreaming)
+        val json = default.encodeToString(serializer, entryInstance, jsonTestingMode)
         assertEquals(expectedJson, json)
-        val entry = default.decodeFromString(serializer, json, useStreaming)
+        val entry = default.decodeFromString(serializer, json, jsonTestingMode)
         assertEquals(entryInstance, entry)
     }
 }

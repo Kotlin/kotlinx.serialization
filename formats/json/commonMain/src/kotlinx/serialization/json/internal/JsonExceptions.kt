@@ -28,7 +28,7 @@ internal fun JsonDecodingException(offset: Int, message: String) =
  */
 internal class JsonEncodingException(message: String) : JsonException(message)
 
-internal fun JsonDecodingException(offset: Int, message: String, input: String) =
+internal fun JsonDecodingException(offset: Int, message: String, input: CharSequence) =
     JsonDecodingException(offset, "$message\nJSON input: ${input.minify(offset)}")
 
 internal fun InvalidFloatingPointEncoded(value: Number, output: String) = JsonEncodingException(
@@ -73,7 +73,7 @@ internal fun InvalidKeyKindException(keyDescriptor: SerialDescriptor) = JsonEnco
             allowStructuredMapKeysHint
 )
 
-private fun String.minify(offset: Int = -1): String {
+private fun CharSequence.minify(offset: Int = -1): CharSequence {
     if (length < 200) return this
     if (offset == -1) {
         val start = this.length - 60

@@ -38,9 +38,9 @@ class JsonArraySerializerTest : JsonTestBase() {
     }
 
     @Test
-    fun testMixedLiterals() = parametrizedTest { useStreaming ->
+    fun testMixedLiterals() = parametrizedTest { jsonTestingMode ->
         val json = """[1, "2", 3, "4"]"""
-        val array = default.decodeFromString(JsonArraySerializer, json, useStreaming)
+        val array = default.decodeFromString(JsonArraySerializer, json, jsonTestingMode)
         array.forEachIndexed { index, element ->
             require(element is JsonLiteral)
             assertEquals(index % 2 == 1, element.isString)
@@ -48,52 +48,52 @@ class JsonArraySerializerTest : JsonTestBase() {
     }
 
     @Test
-    fun testMissingCommas() = parametrizedTest { useStreaming ->
+    fun testMissingCommas() = parametrizedTest { jsonTestingMode ->
         val message = "Expected end of the array or comma"
-        testFails("[a b c]", message, useStreaming)
-        testFails("[ 1 2 3 ]", message, useStreaming)
-        testFails("[null 1 null]", message, useStreaming)
-        testFails("[1 \n 2]", message, useStreaming)
+        testFails("[a b c]", message, jsonTestingMode)
+        testFails("[ 1 2 3 ]", message, jsonTestingMode)
+        testFails("[null 1 null]", message, jsonTestingMode)
+        testFails("[1 \n 2]", message, jsonTestingMode)
     }
 
     @Test
-    fun testEmptyArray() = parametrizedTest { useStreaming ->
-        assertEquals(JsonArray(emptyList()), lenient.decodeFromString(JsonArraySerializer, "[]", useStreaming))
-        assertEquals(JsonArray(emptyList()), lenient.decodeFromString(JsonArraySerializer, "[    ]", useStreaming))
-        assertEquals(JsonArray(emptyList()), lenient.decodeFromString(JsonArraySerializer, "[\n\n]", useStreaming))
-        assertEquals(JsonArray(emptyList()), lenient.decodeFromString(JsonArraySerializer, "[     \t]", useStreaming))
+    fun testEmptyArray() = parametrizedTest { jsonTestingMode ->
+        assertEquals(JsonArray(emptyList()), lenient.decodeFromString(JsonArraySerializer, "[]", jsonTestingMode))
+        assertEquals(JsonArray(emptyList()), lenient.decodeFromString(JsonArraySerializer, "[    ]", jsonTestingMode))
+        assertEquals(JsonArray(emptyList()), lenient.decodeFromString(JsonArraySerializer, "[\n\n]", jsonTestingMode))
+        assertEquals(JsonArray(emptyList()), lenient.decodeFromString(JsonArraySerializer, "[     \t]", jsonTestingMode))
     }
 
     @Test
-    fun testWhitespaces() = parametrizedTest { useStreaming ->
+    fun testWhitespaces() = parametrizedTest { jsonTestingMode ->
         assertEquals(
             JsonArray(listOf(1, 2, 3, 4, 5).map(::JsonPrimitive)),
-            lenient.decodeFromString(JsonArraySerializer, "[1, 2,   3, \n 4, 5]", useStreaming)
+            lenient.decodeFromString(JsonArraySerializer, "[1, 2,   3, \n 4, 5]", jsonTestingMode)
         )
     }
 
     @Test
-    fun testExcessiveCommas() = parametrizedTest { useStreaming ->
+    fun testExcessiveCommas() = parametrizedTest { jsonTestingMode ->
         val trailing = "Unexpected trailing comma"
         val leading = "Unexpected leading comma"
-        testFails("[a,]", trailing, useStreaming)
-        testFails("[,1]", leading, useStreaming)
-        testFails("[,1,]", leading, useStreaming)
-        testFails("[,]", leading, useStreaming)
-        testFails("[,,]", leading, useStreaming)
-        testFails("[,,1]", leading, useStreaming)
-        testFails("[1,,]", trailing, useStreaming)
-        testFails("[1,,2]", trailing, useStreaming)
-        testFails("[,   ,]", leading, useStreaming)
-        testFails("[,\n,]", leading, useStreaming)
+        testFails("[a,]", trailing, jsonTestingMode)
+        testFails("[,1]", leading, jsonTestingMode)
+        testFails("[,1,]", leading, jsonTestingMode)
+        testFails("[,]", leading, jsonTestingMode)
+        testFails("[,,]", leading, jsonTestingMode)
+        testFails("[,,1]", leading, jsonTestingMode)
+        testFails("[1,,]", trailing, jsonTestingMode)
+        testFails("[1,,2]", trailing, jsonTestingMode)
+        testFails("[,   ,]", leading, jsonTestingMode)
+        testFails("[,\n,]", leading, jsonTestingMode)
     }
 
-    private fun testFails(input: String, errorMessage: String, useStreaming: Boolean) {
+    private fun testFails(input: String, errorMessage: String, jsonTestingMode: JsonTestingMode) {
         assertFailsWithMessage<JsonDecodingException>(errorMessage) {
             lenient.decodeFromString(
                 JsonArraySerializer,
                 input,
-                useStreaming
+                jsonTestingMode
             )
         }
     }

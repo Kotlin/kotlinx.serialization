@@ -80,7 +80,7 @@ class JsonMapKeysTest : JsonTestBase() {
         }
     }
 
-    private inline fun <reified T: Any> verifyProhibition(value: T, streaming: Boolean) {
+    private inline fun <reified T: Any> verifyProhibition(value: T, streaming: JsonTestingMode) {
         val e = assertFailsWith<JsonException> {
             Json.encodeToString(value, streaming)
         }

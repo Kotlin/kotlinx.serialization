@@ -22,8 +22,8 @@ class JsonRootLevelNullTest : JsonTestBase() {
     }
 
     @Test
-    fun testNullableDecode() = parametrizedTest { useStreaming ->
-        val result = default.decodeFromString(Simple.serializer().nullable, "null", useStreaming)
+    fun testNullableDecode() = parametrizedTest { jsonTestingMode ->
+        val result = default.decodeFromString(Simple.serializer().nullable, "null", jsonTestingMode)
         assertNull(result)
     }
 }

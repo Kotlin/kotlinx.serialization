@@ -327,3 +327,10 @@ public abstract class kotlinx/serialization/json/JsonTransformingSerializer : ko
 	protected fun transformSerialize (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
 }
 
+public final class kotlinx/serialization/json/JvmStreamsKt {
+	public static final fun decodeFromStream (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/DeserializationStrategy;Ljava/io/InputStream;Ljava/nio/charset/Charset;)Ljava/lang/Object;
+	public static synthetic fun decodeFromStream$default (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/DeserializationStrategy;Ljava/io/InputStream;Ljava/nio/charset/Charset;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun encodeToStream (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/io/OutputStream;Ljava/nio/charset/Charset;)V
+	public static synthetic fun encodeToStream$default (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/io/OutputStream;Ljava/nio/charset/Charset;ILjava/lang/Object;)V
+}
+

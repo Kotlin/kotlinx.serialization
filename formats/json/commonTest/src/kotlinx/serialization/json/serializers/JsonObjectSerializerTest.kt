@@ -50,64 +50,65 @@ class JsonObjectSerializerTest : JsonTestBase() {
     }
 
     @Test
-    fun testMissingCommas() = parametrizedTest { useStreaming ->
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{ \"1\": \"2\" \"3\":\"4\"}", useStreaming) }
+    fun testMissingCommas() = parametrizedTest { jsonTestingMode ->
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{ \"1\": \"2\" \"3\":\"4\"}", jsonTestingMode) }
     }
 
     @Test
-    fun testEmptyObject() = parametrizedTest { useStreaming ->
-        assertEquals(JsonObject(emptyMap()), lenient.decodeFromString(JsonObjectSerializer, "{}", useStreaming))
-        assertEquals(JsonObject(emptyMap()), lenient.decodeFromString(JsonObjectSerializer, "{}", useStreaming))
-        assertEquals(JsonObject(emptyMap()), lenient.decodeFromString(JsonObjectSerializer, "{\n\n}", useStreaming))
-        assertEquals(JsonObject(emptyMap()), lenient.decodeFromString(JsonObjectSerializer, "{     \t}", useStreaming))
+    fun testEmptyObject() = parametrizedTest { jsonTestingMode ->
+        assertEquals(JsonObject(emptyMap()), lenient.decodeFromString(JsonObjectSerializer, "{}", jsonTestingMode))
+        assertEquals(JsonObject(emptyMap()), lenient.decodeFromString(JsonObjectSerializer, "{}", jsonTestingMode))
+        assertEquals(JsonObject(emptyMap()), lenient.decodeFromString(JsonObjectSerializer, "{\n\n}", jsonTestingMode))
+        assertEquals(JsonObject(emptyMap()), lenient.decodeFromString(JsonObjectSerializer, "{     \t}", jsonTestingMode))
     }
 
     @Test
-    fun testInvalidObject() = parametrizedTest { useStreaming ->
-        assertFailsWith<JsonDecodingException> { default.decodeFromString(JsonObjectSerializer, "{\"a\":\"b\"]", false) }
-        assertFailsWith<JsonDecodingException> { default.decodeFromString(JsonObjectSerializer, "{", useStreaming) }
-        assertFailsWith<JsonDecodingException> { default.decodeFromString(JsonObjectSerializer, "{}}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { default.decodeFromString(JsonObjectSerializer, "{]", useStreaming) }
+    fun testInvalidObject() = parametrizedTest { jsonTestingMode ->
+        assertFailsWith<JsonDecodingException> { default.decodeFromString(JsonObjectSerializer, "{\"a\":\"b\"]", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString(JsonObjectSerializer, "{", jsonTestingMode) }
+        if (jsonTestingMode != JsonTestingMode.JAVA_STREAMS) // Streams support dangling characters
+            assertFailsWith<JsonDecodingException> { default.decodeFromString(JsonObjectSerializer, "{}}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { default.decodeFromString(JsonObjectSerializer, "{]", jsonTestingMode) }
     }
 
     @Test
-    fun testWhitespaces() = parametrizedTest { useStreaming ->
+    fun testWhitespaces() = parametrizedTest { jsonTestingMode ->
         assertEquals(
             JsonObject(mapOf("1" to JsonPrimitive(2), "3" to JsonPrimitive(4), "5" to JsonPrimitive(6))),
-            lenient.decodeFromString(JsonObjectSerializer, "{1: 2,   3: \n 4, 5:6}", useStreaming)
+            lenient.decodeFromString(JsonObjectSerializer, "{1: 2,   3: \n 4, 5:6}", jsonTestingMode)
         )
     }
 
     @Test
-    fun testExcessiveCommas() = parametrizedTest { useStreaming ->
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{\"a\":\"b\",}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{\"a\",}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{,\"1\":\"2\"}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{,\"1\":\"2\",}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{,}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{,,}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{,,\"1\":\"2\"}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{\"1\":\"2\",,}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{\"1\":\"2\",,\"2\":\"2\"}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{,   ,}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{,\n,}", useStreaming) }
+    fun testExcessiveCommas() = parametrizedTest { jsonTestingMode ->
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{\"a\":\"b\",}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{\"a\",}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{,\"1\":\"2\"}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{,\"1\":\"2\",}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{,}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{,,}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{,,\"1\":\"2\"}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{\"1\":\"2\",,}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{\"1\":\"2\",,\"2\":\"2\"}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{,   ,}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(JsonObjectSerializer, "{,\n,}", jsonTestingMode) }
     }
 
     @Serializable
     data class Holder(val a: String)
 
     @Test
-    fun testExcessiveCommasInObject() = parametrizedTest { useStreaming ->
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{\"a\":\"b\",}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{\"a\",}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{,\"a\":\"b\"}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{,\"a\":\"b\",}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{,}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{,,}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{,,\"a\":\"b\"}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{\"a\":\"b\",,}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{,   ,}", useStreaming) }
-        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{,\n,}", useStreaming) }
+    fun testExcessiveCommasInObject() = parametrizedTest { jsonTestingMode ->
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{\"a\":\"b\",}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{\"a\",}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{,\"a\":\"b\"}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{,\"a\":\"b\",}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{,}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{,,}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{,,\"a\":\"b\"}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{\"a\":\"b\",,}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{,   ,}", jsonTestingMode) }
+        assertFailsWith<JsonDecodingException> { lenient.decodeFromString(Holder.serializer(), "{,\n,}", jsonTestingMode) }
     }
 
     private fun prebuiltJson(): JsonObject {

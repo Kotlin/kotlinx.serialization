@@ -53,7 +53,7 @@ class JsonTransformingSerializerTest : JsonTestBase() {
             assertEquals(
                 goldenVal,
                 json.decodeFromString(Example.serializer(), testDataInput[i], streaming),
-                "failed test on ${testDataInput[i]}, useStreaming = $streaming"
+                "failed test on ${testDataInput[i]}, jsonTestingMode = $streaming"
             )
         }
     }
@@ -73,7 +73,7 @@ class JsonTransformingSerializerTest : JsonTestBase() {
             assertEquals(
                 goldenVals[i],
                 json.encodeToString(DroppingNameSerializer, testDataInput[i], streaming),
-                "failed test on ${testDataInput[i]}, useStreaming = $streaming"
+                "failed test on ${testDataInput[i]}, jsonTestingMode = $streaming"
             )
         }
     }
