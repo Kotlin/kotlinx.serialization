@@ -31,7 +31,7 @@ class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
     override fun encodeNotNullMark() = encodeBoolean(true)
 
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
-        if (serializer === byteArraySerializer)
+        if (serializer.descriptor == byteArraySerializer.descriptor)
             encodeByteArray(value as ByteArray)
         else
             super.encodeSerializableValue(serializer, value)
@@ -90,7 +90,7 @@ class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : Abstr
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T =
-        if (deserializer === byteArraySerializer)
+        if (deserializer.descriptor == byteArraySerializer.descriptor)
             decodeByteArray() as T
         else
             super.decodeSerializableValue(deserializer, previousValue)

@@ -71,7 +71,7 @@ class SerializersTest {
     @Test
     fun testExampleSerializer10() {
         captureOutput("ExampleSerializer10") { example.exampleSerializer10.main() }.verifyOutputLines(
-            "{\"r\":0,\"g\":255,\"b\":0}"
+            "[0,255,0]"
         )
     }
 
@@ -92,14 +92,14 @@ class SerializersTest {
     @Test
     fun testExampleSerializer13() {
         captureOutput("ExampleSerializer13") { example.exampleSerializer13.main() }.verifyOutputLines(
-            "1455494400000"
+            "{\"r\":0,\"g\":255,\"b\":0}"
         )
     }
 
     @Test
     fun testExampleSerializer14() {
         captureOutput("ExampleSerializer14") { example.exampleSerializer14.main() }.verifyOutputLines(
-            "{\"name\":\"Kotlin\",\"stableReleaseDate\":1455494400000}"
+            "1455494400000"
         )
     }
 
@@ -113,36 +113,43 @@ class SerializersTest {
     @Test
     fun testExampleSerializer16() {
         captureOutput("ExampleSerializer16") { example.exampleSerializer16.main() }.verifyOutputLines(
+            "{\"name\":\"Kotlin\",\"stableReleaseDate\":1455494400000}"
+        )
+    }
+
+    @Test
+    fun testExampleSerializer17() {
+        captureOutput("ExampleSerializer17") { example.exampleSerializer17.main() }.verifyOutputLines(
             "{\"name\":\"kotlinx.serialization\"}",
             "Box(contents=Project(name=kotlinx.serialization))"
         )
     }
 
     @Test
-    fun testExampleSerializer17() {
-        captureOutput("ExampleSerializer17") { example.exampleSerializer17.main() }.verifyOutputLinesStart(
+    fun testExampleSerializer18() {
+        captureOutput("ExampleSerializer18") { example.exampleSerializer18.main() }.verifyOutputLinesStart(
             "Exception in thread \"main\" kotlinx.serialization.SerializationException: Serializer for class 'Date' is not found.",
             "Mark the class as @Serializable or provide the serializer explicitly."
         )
     }
 
     @Test
-    fun testExampleSerializer18() {
-        captureOutput("ExampleSerializer18") { example.exampleSerializer18.main() }.verifyOutputLines(
-            "{\"name\":\"Kotlin\",\"stableReleaseDate\":1455494400000}"
-        )
-    }
-
-    @Test
     fun testExampleSerializer19() {
         captureOutput("ExampleSerializer19") { example.exampleSerializer19.main() }.verifyOutputLines(
-            "{\"name\":\"kotlinx.serialization\",\"language\":\"Kotlin\"}"
+            "{\"name\":\"Kotlin\",\"stableReleaseDate\":1455494400000}"
         )
     }
 
     @Test
     fun testExampleSerializer20() {
         captureOutput("ExampleSerializer20") { example.exampleSerializer20.main() }.verifyOutputLines(
+            "{\"name\":\"kotlinx.serialization\",\"language\":\"Kotlin\"}"
+        )
+    }
+
+    @Test
+    fun testExampleSerializer21() {
+        captureOutput("ExampleSerializer21") { example.exampleSerializer21.main() }.verifyOutputLines(
             "{\"name\":\"kotlinx.serialization\",\"stars\":9000}"
         )
     }
