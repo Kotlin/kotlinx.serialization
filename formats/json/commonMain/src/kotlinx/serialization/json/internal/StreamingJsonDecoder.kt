@@ -19,12 +19,15 @@ import kotlin.jvm.*
 internal open class StreamingJsonDecoder(
     final override val json: Json,
     private val mode: WriteMode,
-    @JvmField internal val lexer: JsonLexer
+    @JvmField internal val lexer: JsonLexer,
+    descriptor: SerialDescriptor
 ) : JsonDecoder, AbstractDecoder() {
 
     override val serializersModule: SerializersModule = json.serializersModule
     private var currentIndex = -1
     private val configuration = json.configuration
+
+    private val elementMarker: JsonElementMarker? = if (configuration.explicitNulls) null else JsonElementMarker(descriptor)
 
     override fun decodeJsonElement(): JsonElement = JsonTreeReader(json.configuration, lexer).read()
 
@@ -41,12 +44,13 @@ internal open class StreamingJsonDecoder(
             WriteMode.LIST, WriteMode.MAP, WriteMode.POLY_OBJ -> StreamingJsonDecoder(
                 json,
                 newMode,
-                lexer
+                lexer,
+                descriptor
             )
-            else -> if (mode == newMode) {
+            else -> if (mode == newMode && json.configuration.explicitNulls) {
                 this
             } else {
-                StreamingJsonDecoder(json, newMode, lexer)
+                StreamingJsonDecoder(json, newMode, lexer, descriptor)
             }
         }
     }
@@ -56,7 +60,7 @@ internal open class StreamingJsonDecoder(
     }
 
     override fun decodeNotNullMark(): Boolean {
-        return lexer.tryConsumeNotNull()
+        return !(elementMarker?.isUnmarkedNull ?: false) && lexer.tryConsumeNotNull()
     }
 
     override fun decodeNull(): Nothing? {
@@ -111,6 +115,7 @@ internal open class StreamingJsonDecoder(
         { lexer.consumeString() /* skip unknown enum string*/ }
     )
 
+    @Suppress("INVISIBLE_MEMBER")
     private fun decodeObjectIndex(descriptor: SerialDescriptor): Int {
         // hasComma checks are required to properly react on trailing commas
         var hasComma = lexer.tryConsumeComma()
@@ -124,6 +129,7 @@ internal open class StreamingJsonDecoder(
                     hasComma = lexer.tryConsumeComma()
                     false // Known element, but coerced
                 } else {
+                    elementMarker?.mark(index)
                     return index // Known element without coercing, return it
                 }
             } else {
@@ -135,7 +141,8 @@ internal open class StreamingJsonDecoder(
             }
         }
         if (hasComma) lexer.fail("Unexpected trailing comma")
-        return CompositeDecoder.DECODE_DONE
+
+        return elementMarker?.nextUnmarkedIndex() ?: CompositeDecoder.DECODE_DONE
     }
 
     private fun handleUnknown(key: String): Boolean {

@@ -136,27 +136,6 @@ class EncodeToDynamicTest {
         }
     }
 
-    // todo: this is a test for internal class. Rewrite it after implementing 'omitNulls' JSON flag.
-    @Test
-    @Ignore
-    fun nullsTest() {
-//        val data = DataWrapper("a string", null)
-//
-//        val serialized = DynamicObjectSerializer(
-//            Json,
-//            encodeNullAsUndefined = true
-//        ).serialize(DataWrapper.serializer(), data)
-//        assertNull(serialized.d)
-//        assertFalse(js("""Object.keys(serialized).includes("d")"""), "should omit null properties")
-//
-//        val serializedWithNull = DynamicObjectSerializer(
-//            Json,
-//            encodeNullAsUndefined = false
-//        ).serialize(DataWrapper.serializer(), data)
-//        assertNull(serializedWithNull.d)
-//        assertTrue(js("""Object.keys(serializedWithNull).includes("d")"""), "should contain null properties")
-    }
-
     @Test
     fun listTest() {
         assertDynamicForm(listOf(1, 2, 3, 44), serializer = ListSerializer(Int.serializer())) { data, serialized ->

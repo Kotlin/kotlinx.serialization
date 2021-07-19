@@ -151,6 +151,17 @@ private class DynamicObjectEncoder(
         encodeValue(value)
     }
 
+    override fun <T : Any> encodeNullableSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        serializer: SerializationStrategy<T>,
+        value: T?
+    ) {
+        if (value != null || json.configuration.explicitNulls) {
+            super.encodeNullableSerializableElement(descriptor, index, serializer, value)
+        }
+    }
+
     override fun encodeJsonElement(element: JsonElement) {
         encodeSerializableValue(JsonElementSerializer, element)
     }

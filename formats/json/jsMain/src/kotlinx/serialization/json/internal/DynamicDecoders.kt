@@ -41,6 +41,8 @@ private open class DynamicInput(
     protected val keys: dynamic = js("Object").keys(value ?: js("{}"))
     protected open val size: Int = keys.length as Int
 
+    private var forceNull: Boolean = false
+
     override val serializersModule: SerializersModule
         get() = json.serializersModule
 
@@ -81,13 +83,22 @@ private open class DynamicInput(
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         while (currentPosition < descriptor.elementsCount) {
             val name = descriptor.getTag(currentPosition++)
-            if (hasName(name) && (!json.configuration.coerceInputValues || !coerceInputValue(descriptor, currentPosition - 1, name)))
-                return currentPosition - 1
+            val index = currentPosition - 1
+            forceNull = false
+            if ((hasName(name) || absenceIsNull(descriptor, index)) && (!json.configuration.coerceInputValues || !coerceInputValue(descriptor, index, name))) {
+                return index
+            }
         }
         return CompositeDecoder.DECODE_DONE
     }
 
     private fun hasName(name: String) = value[name] !== undefined
+
+    private fun absenceIsNull(descriptor: SerialDescriptor, index: Int): Boolean {
+        forceNull = !json.configuration.explicitNulls
+                && !descriptor.isElementOptional(index) && descriptor.getElementDescriptor(index).isNullable
+        return forceNull
+    }
 
     override fun elementName(desc: SerialDescriptor, index: Int): String {
         val mainName = desc.getElementName(index)
@@ -141,6 +152,10 @@ private open class DynamicInput(
     }
 
     override fun decodeTaggedNotNullMark(tag: String): Boolean {
+        if (forceNull) {
+            return false
+        }
+
         val o = getByTag(tag)
         if (o === undefined) throwMissingTag(tag)
         @Suppress("SENSELESS_COMPARISON") // null !== undefined !

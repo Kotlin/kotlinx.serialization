@@ -70,7 +70,7 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
     ): Encoder =
         if (encodeElement(descriptor, index)) encodeInline(descriptor.getElementDescriptor(index)) else NoOpEncoder
 
-    final override fun <T : Any?> encodeSerializableElement(
+    override fun <T : Any?> encodeSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
         serializer: SerializationStrategy<T>,
@@ -80,7 +80,7 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
             encodeSerializableValue(serializer, value)
     }
 
-    final override fun <T : Any> encodeNullableSerializableElement(
+    override fun <T : Any> encodeNullableSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
         serializer: SerializationStrategy<T>,

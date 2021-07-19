@@ -96,7 +96,7 @@ public sealed class Json(
      */
     public final override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
         val lexer = JsonLexer(string)
-        val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer)
+        val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor)
         val result = input.decodeSerializableValue(deserializer)
         lexer.expectEof()
         return result
@@ -169,6 +169,17 @@ public class JsonBuilder internal constructor(json: Json) {
      * `false` by default.
      */
     public var encodeDefaults: Boolean = json.configuration.encodeDefaults
+
+    /**
+     * Specifies whether `null` values should be encoded for nullable properties and must be present in JSON object
+     * during decoding.
+     *
+     * When this flag is disabled properties with `null` values without default are not encoded;
+     * during decoding, the absence of a field value is treated as `null` for nullable properties without a default value.
+     *
+     * `true` by default.
+     */
+    public var explicitNulls: Boolean = json.configuration.explicitNulls
 
     /**
      * Specifies whether encounters of unknown properties in the input JSON
@@ -275,7 +286,7 @@ public class JsonBuilder internal constructor(json: Json) {
 
         return JsonConfiguration(
             encodeDefaults, ignoreUnknownKeys, isLenient,
-            allowStructuredMapKeys, prettyPrint, prettyPrintIndent,
+            allowStructuredMapKeys, prettyPrint, explicitNulls, prettyPrintIndent,
             coerceInputValues, useArrayPolymorphism,
             classDiscriminator, allowSpecialFloatingPointValues, useAlternativeNames
         )

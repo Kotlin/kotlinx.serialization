@@ -171,6 +171,17 @@ private open class JsonTreeEncoder(
         content[key] = element
     }
 
+    override fun <T : Any> encodeNullableSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        serializer: SerializationStrategy<T>,
+        value: T?
+    ) {
+        if (value != null || configuration.explicitNulls) {
+            super.encodeNullableSerializableElement(descriptor, index, serializer, value)
+        }
+    }
+
     override fun getCurrent(): JsonElement = JsonObject(content)
 }
 

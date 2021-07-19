@@ -80,6 +80,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun getClassDiscriminator ()Ljava/lang/String;
 	public final fun getCoerceInputValues ()Z
 	public final fun getEncodeDefaults ()Z
+	public final fun getExplicitNulls ()Z
 	public final fun getIgnoreUnknownKeys ()Z
 	public final fun getPrettyPrint ()Z
 	public final fun getPrettyPrintIndent ()Ljava/lang/String;
@@ -92,6 +93,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun setClassDiscriminator (Ljava/lang/String;)V
 	public final fun setCoerceInputValues (Z)V
 	public final fun setEncodeDefaults (Z)V
+	public final fun setExplicitNulls (Z)V
 	public final fun setIgnoreUnknownKeys (Z)V
 	public final fun setLenient (Z)V
 	public final fun setPrettyPrint (Z)V
@@ -108,6 +110,7 @@ public final class kotlinx/serialization/json/JsonConfiguration {
 	public final fun getClassDiscriminator ()Ljava/lang/String;
 	public final fun getCoerceInputValues ()Z
 	public final fun getEncodeDefaults ()Z
+	public final fun getExplicitNulls ()Z
 	public final fun getIgnoreUnknownKeys ()Z
 	public final fun getPrettyPrint ()Z
 	public final fun getPrettyPrintIndent ()Ljava/lang/String;
