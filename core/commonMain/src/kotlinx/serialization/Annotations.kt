@@ -7,6 +7,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlin.reflect.*
 
 /**
@@ -133,6 +134,51 @@ public annotation class Required
 public annotation class Transient
 
 /**
+ * Controls whether the target property is serialized when its value is equal to a default value,
+ * regardless of the format settings.
+ * Does not affect decoding and deserialization process.
+ *
+ * Example of usage:
+ * ```
+ * @Serializable
+ * data class Foo(
+ *     @EncodeDefault(ALWAYS) val a: Int = 42,
+ *     @EncodeDefault(NEVER) val b: Int = 43,
+ *     val c: Int = 44
+ * )
+ *
+ * Json { encodeDefaults = false }.encodeToString((Foo()) // {"a": 42}
+ * Json { encodeDefaults = true }.encodeToString((Foo())  // {"a": 42, "c":44}
+ * ```
+ *
+ * @see EncodeDefault.Mode.ALWAYS
+ * @see EncodeDefault.Mode.NEVER
+ */
+@Target(AnnotationTarget.PROPERTY)
+@ExperimentalSerializationApi
+public annotation class EncodeDefault(val mode: Mode = Mode.ALWAYS) {
+    /**
+     * Strategy for the [EncodeDefault] annotation.
+     */
+    @ExperimentalSerializationApi
+    public enum class Mode {
+        /**
+         * Configures serializer to always encode the property, even if its value is equal to its default.
+         * For annotated properties, format settings are not taken into account and
+         * [CompositeEncoder.shouldEncodeElementDefault] is not invoked.
+         */
+        ALWAYS,
+
+        /**
+         * Configures serializer not to encode the property if its value is equal to its default.
+         * For annotated properties, format settings are not taken into account and
+         * [CompositeEncoder.shouldEncodeElementDefault] is not invoked.
+         */
+        NEVER
+    }
+}
+
+/**
  * Meta-annotation that commands the compiler plugin to handle the annotation as serialization-specific.
  * Serialization-specific annotations are preserved in the [SerialDescriptor] and can be retrieved
  * during serialization process with [SerialDescriptor.getElementAnnotations].
@@ -143,12 +189,12 @@ public annotation class Transient
 public annotation class SerialInfo
 
 /**
- * Instructs the plugin to use [ContextSerializer] on a given property or type.
+ * Instructs the plugin to use [ContextualSerializer] on a given property or type.
  * Context serializer is usually used when serializer for type can only be found in runtime.
- * It is also possible to apply [ContextSerializer] to every property of the given type,
+ * It is also possible to apply [ContextualSerializer] to every property of the given type,
  * using file-level [UseContextualSerialization] annotation.
  *
- * @see ContextSerializer
+ * @see ContextualSerializer
  * @see UseContextualSerialization
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE)
@@ -156,10 +202,10 @@ public annotation class SerialInfo
 public annotation class Contextual
 
 /**
- * Instructs the plugin to use [ContextSerializer] for every type in the current file that is listed in the [forClasses].
+ * Instructs the plugin to use [ContextualSerializer] for every type in the current file that is listed in the [forClasses].
  *
  * @see Contextual
- * @see ContextSerializer
+ * @see ContextualSerializer
  */
 @Target(AnnotationTarget.FILE)
 @Retention(AnnotationRetention.BINARY)

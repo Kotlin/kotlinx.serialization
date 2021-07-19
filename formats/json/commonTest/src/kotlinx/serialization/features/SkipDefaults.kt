@@ -5,17 +5,27 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
+import kotlinx.serialization.EncodeDefault.Mode.*
 import kotlinx.serialization.json.*
 import kotlin.test.*
 
 class SkipDefaultsTest {
-    private val json = Json { encodeDefaults = false }
+    private val jsonDropDefaults = Json { encodeDefaults = false }
+    private val jsonEncodeDefaults = Json { encodeDefaults = true }
 
     @Serializable
     data class Data(val bar: String, val foo: Int = 42) {
         var list: List<Int> = emptyList()
         val listWithSomething: List<Int> = listOf(1, 2, 3)
     }
+
+    @Serializable
+    data class DifferentModes(
+        val a: String = "a",
+        @EncodeDefault val b: String = "b",
+        @EncodeDefault(ALWAYS) val c: String = "c",
+        @EncodeDefault(NEVER) val d: String = "d"
+    )
 
     @Test
     fun serializeCorrectlyDefaults() {
@@ -30,19 +40,29 @@ class SkipDefaultsTest {
     @Test
     fun serializeCorrectly() {
         val d = Data("bar", 100).apply { list = listOf(1, 2, 3) }
-        assertEquals("""{"bar":"bar","foo":100,"list":[1,2,3]}""", json.encodeToString(Data.serializer(), d))
+        assertEquals(
+            """{"bar":"bar","foo":100,"list":[1,2,3]}""",
+            jsonDropDefaults.encodeToString(Data.serializer(), d)
+        )
     }
 
     @Test
     fun serializeCorrectlyAndDropBody() {
         val d = Data("bar", 43)
-        assertEquals("""{"bar":"bar","foo":43}""", json.encodeToString(Data.serializer(), d))
+        assertEquals("""{"bar":"bar","foo":43}""", jsonDropDefaults.encodeToString(Data.serializer(), d))
     }
 
     @Test
     fun serializeCorrectlyAndDropAll() {
         val d = Data("bar")
-        assertEquals("""{"bar":"bar"}""", json.encodeToString(Data.serializer(), d))
+        assertEquals("""{"bar":"bar"}""", jsonDropDefaults.encodeToString(Data.serializer(), d))
+    }
+
+    @Test
+    fun encodeDefaultsAnnotationWithFlag() {
+        val data = DifferentModes()
+        assertEquals("""{"a":"a","b":"b","c":"c"}""", jsonEncodeDefaults.encodeToString(data))
+        assertEquals("""{"b":"b","c":"c"}""", jsonDropDefaults.encodeToString(data))
     }
 
 }
