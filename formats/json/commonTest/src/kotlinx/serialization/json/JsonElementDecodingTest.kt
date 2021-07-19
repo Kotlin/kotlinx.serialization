@@ -40,4 +40,15 @@ class JsonElementDecodingTest : JsonTestBase() {
         assertEquals(expectedString, element.toString())
         assertEquals(value, Json.decodeFromJsonElement(element))
     }
+
+    @Test
+    fun testDeepRecursion() {
+        // Reported as https://github.com/Kotlin/kotlinx.serialization/issues/1594
+        var json = """{ "a": %}"""
+        for (i in 0..12) {
+            json = json.replace("%", json)
+        }
+        json = json.replace("%", "0")
+        Json.parseToJsonElement(json)
+    }
 }
