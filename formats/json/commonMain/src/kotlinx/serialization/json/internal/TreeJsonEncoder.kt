@@ -33,7 +33,7 @@ private sealed class AbstractJsonTreeEncoder(
     @JvmField
     protected val configuration = json.configuration
 
-    private var writePolymorphic = false
+    private var polymorphicDiscriminator: String? = null
 
     override fun encodeJsonElement(element: JsonElement) {
         encodeSerializableValue(JsonElementSerializer, element)
@@ -70,7 +70,7 @@ private sealed class AbstractJsonTreeEncoder(
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
         // Writing non-structured data (i.e. primitives) on top-level (e.g. without any tag) requires special output
         if (currentTagOrNull != null || serializer.descriptor.kind !is PrimitiveKind && serializer.descriptor.kind !== SerialKind.ENUM) {
-            encodePolymorphically(serializer, value) { writePolymorphic = true }
+            encodePolymorphically(serializer, value) { polymorphicDiscriminator = it }
         } else JsonPrimitiveEncoder(json, nodeConsumer).apply {
             encodeSerializableValue(serializer, value)
             endEncode(serializer.descriptor)
@@ -126,9 +126,9 @@ private sealed class AbstractJsonTreeEncoder(
             else -> JsonTreeEncoder(json, consumer)
         }
 
-        if (writePolymorphic) {
-            writePolymorphic = false
-            encoder.putElement(configuration.classDiscriminator, JsonPrimitive(descriptor.serialName))
+        if (polymorphicDiscriminator != null) {
+            encoder.putElement(polymorphicDiscriminator!!, JsonPrimitive(descriptor.serialName))
+            polymorphicDiscriminator = null
         }
 
         return encoder

@@ -67,14 +67,28 @@ import kotlin.reflect.*
  */
 @OptIn(ExperimentalSerializationApi::class)
 public class PolymorphicSerializer<T : Any>(override val baseClass: KClass<T>) : AbstractPolymorphicSerializer<T>() {
-    public override val descriptor: SerialDescriptor =
+
+    @PublishedApi // should we allow user access to this constructor?
+    internal constructor(
+        baseClass: KClass<T>,
+        classAnnotations: Array<Annotation>
+    ) : this(baseClass) {
+        _descriptor.annotations = classAnnotations.asList()
+    }
+
+    private val _descriptor: SerialDescriptorImpl =
         buildSerialDescriptor("kotlinx.serialization.Polymorphic", PolymorphicKind.OPEN) {
             element("type", String.serializer().descriptor)
             element(
                 "value",
-                buildSerialDescriptor("kotlinx.serialization.Polymorphic<${baseClass.simpleName}>", SerialKind.CONTEXTUAL)
+                buildSerialDescriptor(
+                    "kotlinx.serialization.Polymorphic<${baseClass.simpleName}>",
+                    SerialKind.CONTEXTUAL
+                )
             )
-        }.withContext(baseClass)
+        } as SerialDescriptorImpl
+
+    public override val descriptor: SerialDescriptor = _descriptor.withContext(baseClass)
 
     override fun toString(): String {
         return "kotlinx.serialization.PolymorphicSerializer(baseClass: $baseClass)"

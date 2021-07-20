@@ -18,7 +18,7 @@ internal open class ProtobufEncoder(
     private val writer: ProtobufWriter,
     @JvmField protected val descriptor: SerialDescriptor
 ) : ProtobufTaggedEncoder() {
-    @ExperimentalSerializationApi // KT-46731
+    @OptIn(ExperimentalSerializationApi::class) // KT-46731
     public override val serializersModule
         get() = proto.serializersModule
 
@@ -191,7 +191,7 @@ private class NestedRepeatedEncoder(
     @JvmField val stream: ByteArrayOutput = ByteArrayOutput()
 ) : ProtobufEncoder(proto, ProtobufWriter(stream), descriptor) {
     // all elements always have id = 1
-    @ExperimentalSerializationApi // KT-46731
+    @OptIn(ExperimentalSerializationApi::class) // KT-46731
     override fun SerialDescriptor.getTag(index: Int) = ProtoDesc(1, ProtoIntegerType.DEFAULT)
 
     override fun endEncode(descriptor: SerialDescriptor) {

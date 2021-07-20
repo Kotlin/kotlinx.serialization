@@ -308,7 +308,8 @@ internal class SerialDescriptorImpl(
     builder: ClassSerialDescriptorBuilder
 ) : SerialDescriptor, CachedNames {
 
-    override val annotations: List<Annotation> = builder.annotations
+    override var annotations: List<Annotation> = builder.annotations
+        internal set
     override val serialNames: Set<String> = builder.elementNames.toHashSet()
 
     private val elementNames: Array<String> = builder.elementNames.toTypedArray()

@@ -55,7 +55,9 @@ public class ContextualSerializer<T : Any>(
     public constructor(serializableClass: KClass<T>) : this(serializableClass, null, EMPTY_SERIALIZER_ARRAY)
 
     public override val descriptor: SerialDescriptor =
-        buildSerialDescriptor("kotlinx.serialization.ContextualSerializer", SerialKind.CONTEXTUAL).withContext(serializableClass)
+        buildSerialDescriptor("kotlinx.serialization.ContextualSerializer", SerialKind.CONTEXTUAL) {
+            annotations = fallbackSerializer?.descriptor?.annotations.orEmpty()
+        }.withContext(serializableClass)
 
     public override fun serialize(encoder: Encoder, value: T) {
         encoder.encodeSerializableValue(serializer(encoder.serializersModule), value)

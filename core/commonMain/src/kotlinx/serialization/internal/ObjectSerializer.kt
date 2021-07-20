@@ -17,6 +17,15 @@ import kotlinx.serialization.encoding.*
 @PublishedApi
 @OptIn(ExperimentalSerializationApi::class)
 internal class ObjectSerializer<T : Any>(serialName: String, private val objectInstance: T) : KSerializer<T> {
+    @PublishedApi
+    internal constructor(
+        serialName: String,
+        objectInstance: T,
+        classAnnotations: Array<Annotation>
+    ) : this(serialName, objectInstance) {
+        (this.descriptor as SerialDescriptorImpl).annotations = classAnnotations.asList()
+    }
+
     override val descriptor: SerialDescriptor = buildSerialDescriptor(serialName, StructureKind.OBJECT)
 
     override fun serialize(encoder: Encoder, value: T) {
