@@ -15,6 +15,7 @@ For convenience, they have same `groupId`, versioning and release cycle as core 
 
 * Artifact id: `kotlinx-serialization-hocon`
 * Platform: JVM only
+* Status: experimental
 
 Allows deserialization of `Config` object from popular [lightbend/config](https://github.com/lightbend/config) library 
 into Kotlin objects.
