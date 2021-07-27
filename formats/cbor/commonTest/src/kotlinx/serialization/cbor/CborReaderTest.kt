@@ -588,6 +588,96 @@ class CborReaderTest {
                 actual = Cbor.decodeFromHexString("bf6178f6ff")
         )
     }
+
+    @Test
+    fun testIgnoresTagsOnStrings() {
+        /*
+         * 84                                # array(4)
+         * 68                             # text(8)
+         *    756E746167676564            # "untagged"
+         * C0                             # tag(0)
+         *    68                          # text(8)
+         *       7461676765642D30         # "tagged-0"
+         * D8 F5                          # tag(245)
+         *    6A                          # text(10)
+         *       7461676765642D323435     # "tagged-244"
+         * D9 3039                        # tag(12345)
+         *    6C                          # text(12)
+         *       7461676765642D3132333435 # "tagged-12345"
+         *
+         */
+        withDecoder("8468756E746167676564C0687461676765642D30D8F56A7461676765642D323435D930396C7461676765642D3132333435") {
+            assertEquals(4, startArray())
+            assertEquals("untagged", nextString())
+            assertEquals("tagged-0", nextString())
+            assertEquals("tagged-245", nextString())
+            assertEquals("tagged-12345", nextString())
+        }
+    }
+
+    @Test
+    fun testIgnoresTagsOnNumbers() {
+        /*
+         * 86                     # array(6)
+         * 18 7B                  # unsigned(123)
+         * C0                     # tag(0)
+         *    1A 0001E240         # unsigned(123456)
+         * D8 F5                  # tag(245)
+         *    1A 000F423F         # unsigned(999999)
+         * D9 3039                # tag(12345)
+         *    38 31               # negative(49)
+         * D8 22                  # tag(34)
+         *    FB 3FE161F9F01B866E # primitive(4603068020252444270)
+         * D9 0237                # tag(567)
+         *    FB 401999999999999A # primitive(4618891777831180698)
+         */
+        withDecoder("86187BC01A0001E240D8F51A000F423FD930393831D822FB3FE161F9F01B866ED90237FB401999999999999A") {
+            assertEquals(6, startArray())
+            assertEquals(123, nextNumber())
+            assertEquals(123456, nextNumber())
+            assertEquals(999999, nextNumber())
+            assertEquals(-50, nextNumber())
+            assertEquals(0.54321, nextDouble(), 0.00001)
+            assertEquals(6.4, nextDouble(), 0.00001)
+        }
+    }
+
+    @Test
+    fun testIgnoresTagsOnArraysAndMaps() {
+        /*
+         * A2                                  # map(2)
+         * 63                                  # text(3)
+         *    6D6170                           # "map"
+         * D8 7B                               # tag(123)
+         *    A1                               # map(1)
+         *       68                            # text(8)
+         *          74686973206D6170           # "this map"
+         *       6D                            # text(13)
+         *          69732074616767656420313233 # "is tagged 123"
+         * 65                                  # text(5)
+         *    6172726179                       # "array"
+         * DA 0012D687                         # tag(1234567)
+         *    83                               # array(3)
+         *       6A                            # text(10)
+         *          74686973206172726179       # "this array"
+         *       69                            # text(9)
+         *          697320746167676564         # "is tagged"
+         *       67                            # text(7)
+         *          31323334353637             # "1234567"
+         */
+        withDecoder("A2636D6170D87BA16874686973206D61706D69732074616767656420313233656172726179DA0012D687836A74686973206172726179696973207461676765646731323334353637") {
+            assertEquals(2, startMap())
+            assertEquals("map", nextString())
+            assertEquals(1, startMap())
+            assertEquals("this map", nextString())
+            assertEquals("is tagged 123", nextString())
+            assertEquals("array", nextString())
+            assertEquals(3, startArray())
+            assertEquals("this array", nextString())
+            assertEquals("is tagged", nextString())
+            assertEquals("1234567", nextString())
+        }
+    }
 }
 
 private fun CborDecoder.expect(expected: String) {
