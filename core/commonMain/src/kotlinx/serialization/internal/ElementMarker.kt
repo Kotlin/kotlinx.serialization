@@ -7,17 +7,18 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
-import kotlin.jvm.JvmStatic
 
 @OptIn(ExperimentalSerializationApi::class)
 @PublishedApi
 internal class ElementMarker(
     private val descriptor: SerialDescriptor,
+    // Instead of inheritance and virtual function in order to keep cross-module internal modifier via suppresses
+    // Can be reworked via public + internal api if necessary
     private val readIfAbsent: (SerialDescriptor, Int) -> Boolean
 ) {
     /*
      * Element decoding marks from given bytes.
-     * The element number is the same as the bit position.
+     * The element index is the same as the set bit position.
      * Marks for the lowest 64 elements are always stored in a single Long value, higher elements stores in long array.
      */
     private var lowerMarks: Long
