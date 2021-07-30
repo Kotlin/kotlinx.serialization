@@ -38,7 +38,7 @@ abstract class JsonTestBase {
             decodeFromString(deserializer, source)
         } else {
             val lexer = JsonLexer(source)
-            val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer)
+            val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor)
             val tree = input.decodeJsonElement()
             lexer.expectEof()
             readJson(tree, deserializer)
