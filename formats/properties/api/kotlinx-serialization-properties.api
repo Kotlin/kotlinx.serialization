@@ -13,6 +13,10 @@ public final class kotlinx/serialization/properties/Properties$Default : kotlinx
 
 public final class kotlinx/serialization/properties/PropertiesKt {
 	public static final fun Properties (Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/properties/Properties;
+	public static final synthetic fun decodeFromMap (Lkotlinx/serialization/properties/Properties;Ljava/util/Map;)Ljava/lang/Object;
+	public static final synthetic fun decodeFromStringMap (Lkotlinx/serialization/properties/Properties;Ljava/util/Map;)Ljava/lang/Object;
+	public static final synthetic fun encodeToMap (Lkotlinx/serialization/properties/Properties;Ljava/lang/Object;)Ljava/util/Map;
+	public static final synthetic fun encodeToStringMap (Lkotlinx/serialization/properties/Properties;Ljava/lang/Object;)Ljava/util/Map;
 	public static final fun noImpl ()Ljava/lang/Void;
 }
 
