@@ -144,7 +144,7 @@ public interface DeserializationStrategy<T> {
      *
      * Throws [SerializationException] if value cannot be deserialized.
      *
-     * Example of serialize method:
+     * Example of deserialize method:
      * ```
      * class MyData(int: Int, stringList: List<String>, alwaysZero: Long)
      *
