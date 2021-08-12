@@ -113,7 +113,7 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
 
     override fun encodeNull() = encoder.encodeNull()
 
-    @ExperimentalSerializationApi // KT-46731
+    @OptIn(ExperimentalSerializationApi::class) // KT-46731
     override fun encodeEnum(
         enumDescriptor: SerialDescriptor,
         index: Int

@@ -225,6 +225,7 @@ public final class kotlinx/serialization/json/JsonNull : kotlinx/serialization/j
 	public static final field INSTANCE Lkotlinx/serialization/json/JsonNull;
 	public fun getContent ()Ljava/lang/String;
 	public fun isString ()Z
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class kotlinx/serialization/json/JsonNullSerializer : kotlinx/serialization/KSerializer {
