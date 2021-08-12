@@ -393,19 +393,20 @@ using [encodeSerializableValue][Encoder.encodeSerializableValue] and
 import kotlinx.serialization.builtins.IntArraySerializer
 
 class ColorIntArraySerializer : KSerializer<Color> {
-    override val descriptor = SerialDescriptor("Color", IntArraySerializer().descriptor)
+    private val delegateSerializer = IntArraySerializer()
+    override val descriptor = SerialDescriptor("Color", delegateSerializer.descriptor)
 
     override fun serialize(encoder: Encoder, value: Color) {
-      val data = intArrayOf(
-        (value.rgb shr 16) and 0xFF,
-        (value.rgb shr 8) and 0xFF,
-        value.rgb and 0xFF
-      )
-      encoder.encodeSerializableValue(IntArraySerializer(), data)
+        val data = intArrayOf(
+            (value.rgb shr 16) and 0xFF,
+            (value.rgb shr 8) and 0xFF,
+            value.rgb and 0xFF
+        )
+        encoder.encodeSerializableValue(delegateSerializer, data)
     }
 
     override fun deserialize(decoder: Decoder): Color {
-        val array = decoder.decodeSerializableValue(IntArraySerializer())
+        val array = decoder.decodeSerializableValue(delegateSerializer)
         return Color((array[0] shl 16) or (array[1] shl 8) or array[2])
     }
 }
