@@ -380,9 +380,9 @@ Both `Color` properties are serialized as strings.
 
 ### Delegating serializers
 
-In the previous example, we represented the `Color` class as string.
+In the previous example, we represented the `Color` class as a string.
 String is considered to be a primitive type, therefore we used `PrimitiveClassDescriptor` and specialized `encodeString` method. 
-Now let's see what our actions would be if we have to serialize `Color` as other non-primitive type, let's say `IntArray`.
+Now let's see what our actions would be if we have to serialize `Color` as another non-primitive type, let's say `IntArray`.
 
 An implementation of [KSerializer] for our original `Color` class is going to perform a conversion between
 `Color` and `IntArray`, but delegate the actual serialization logic to the `IntArraySerializer`
@@ -412,7 +412,7 @@ class ColorIntArraySerializer : KSerializer<Color> {
 ```
 
 Note that we can't use default `Color.serializer().descriptor` here, because formats that rely
-on schema may think that we would call `encodeInt` instead of `encodeSerializableValue`.
+on the schema may think that we would call `encodeInt` instead of `encodeSerializableValue`.
 Neither we can use `IntArraySerializer().descriptor` directly — otherwise, formats that handle int arrays specially
 can't tell if `value` is really a `IntArray` or a `Color`. Don't worry, this optimization would still kick in
 when serializing actual underlying int array.
@@ -432,7 +432,7 @@ fun main() {
 ```    
 
 As you can see, such array representation is not very useful in JSON,
-but may save your space when used with a `ByteArray` and a binary format.
+but may save some space when used with a `ByteArray` and a binary format.
 
 > You can get the full code [here](../guide/example/example-serializer-10.kt).
 
