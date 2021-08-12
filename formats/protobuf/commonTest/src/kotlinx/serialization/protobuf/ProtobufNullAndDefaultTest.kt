@@ -5,6 +5,7 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
+import kotlinx.serialization.test.isJsLegacy
 import kotlin.test.*
 
 class ProtobufNullAndDefaultTest {
@@ -21,6 +22,7 @@ class ProtobufNullAndDefaultTest {
     fun testProtobufDropDefaults() {
         val proto = ProtoBuf { encodeDefaults = false }
         assertEquals(0, proto.encodeToByteArray(ProtoWithNullDefault()).size)
+        if (isJsLegacy()) return // because of @EncodeDefault
         assertFailsWith<SerializationException> { proto.encodeToByteArray(ProtoWithNullDefaultAlways()) }
         assertEquals(0, proto.encodeToByteArray(ProtoWithNullDefaultNever()).size)
     }
@@ -29,6 +31,7 @@ class ProtobufNullAndDefaultTest {
     fun testProtobufEncodeDefaults() {
         val proto = ProtoBuf { encodeDefaults = true }
         assertFailsWith<SerializationException> { proto.encodeToByteArray(ProtoWithNullDefault()) }
+        if (isJsLegacy()) return // because of @EncodeDefault
         assertFailsWith<SerializationException> { proto.encodeToByteArray(ProtoWithNullDefaultAlways()) }
         assertEquals(0, proto.encodeToByteArray(ProtoWithNullDefaultNever()).size)
     }
