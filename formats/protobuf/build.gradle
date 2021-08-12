@@ -12,7 +12,7 @@ apply from: rootProject.file("gradle/configure-source-sets.gradle")
 protobuf {
     protoc {
         // Download from repositories
-        artifact = 'com.google.protobuf:protoc:3.0.0'
+        artifact = 'com.google.protobuf:protoc:3.17.3'
     }
 }
 
@@ -32,7 +32,7 @@ kotlin {
         jvmTest {
             kotlin.srcDirs += file("${protobuf.generatedFilesBaseDir}/test/java")
             dependencies {
-                implementation 'com.google.protobuf:protobuf-java:3.0.0'
+                implementation 'com.google.protobuf:protobuf-java:3.17.3'
                 implementation 'io.kotlintest:kotlintest:2.0.7'
             }
         }
