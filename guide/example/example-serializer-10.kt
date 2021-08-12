@@ -6,31 +6,31 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
 
-@Serializable
-@SerialName("Color")
-private class ColorSurrogate(val r: Int, val g: Int, val b: Int) {
-    init {     
-        require(r in 0..255 && g in 0..255 && b in 0..255)
-    }
-}
+import kotlinx.serialization.builtins.IntArraySerializer
 
-object ColorSerializer : KSerializer<Color> {
-    override val descriptor: SerialDescriptor = ColorSurrogate.serializer().descriptor
+class ColorIntArraySerializer : KSerializer<Color> {
+    private val delegateSerializer = IntArraySerializer()
+    override val descriptor = SerialDescriptor("Color", delegateSerializer.descriptor)
 
     override fun serialize(encoder: Encoder, value: Color) {
-        val surrogate = ColorSurrogate((value.rgb shr 16) and 0xff, (value.rgb shr 8) and 0xff, value.rgb and 0xff)
-        encoder.encodeSerializableValue(ColorSurrogate.serializer(), surrogate)
+        val data = intArrayOf(
+            (value.rgb shr 16) and 0xFF,
+            (value.rgb shr 8) and 0xFF,
+            value.rgb and 0xFF
+        )
+        encoder.encodeSerializableValue(delegateSerializer, data)
     }
 
     override fun deserialize(decoder: Decoder): Color {
-        val surrogate = decoder.decodeSerializableValue(ColorSurrogate.serializer())
-        return Color((surrogate.r shl 16) or (surrogate.g shl 8) or surrogate.b)
+        val array = decoder.decodeSerializableValue(delegateSerializer)
+        return Color((array[0] shl 16) or (array[1] shl 8) or array[2])
     }
 }
 
-@Serializable(with = ColorSerializer::class)
+@Serializable(with = ColorIntArraySerializer::class)
 class Color(val rgb: Int)
+
 fun main() {
     val green = Color(0x00ff00)
     println(Json.encodeToString(green))
-}
+}  

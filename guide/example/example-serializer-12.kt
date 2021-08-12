@@ -26,12 +26,8 @@ object ColorAsObjectSerializer : KSerializer<Color> {
         decoder.decodeStructure(descriptor) {
             var r = -1
             var g = -1
-            var b = -1     
-            if (decodeSequentially()) { // sequential decoding protocol
-                r = decodeIntElement(descriptor, 0)           
-                g = decodeIntElement(descriptor, 1)  
-                b = decodeIntElement(descriptor, 2)
-            } else while (true) {
+            var b = -1
+            while (true) {
                 when (val index = decodeElementIndex(descriptor)) {
                     0 -> r = decodeIntElement(descriptor, 0)
                     1 -> g = decodeIntElement(descriptor, 1)
@@ -43,7 +39,7 @@ object ColorAsObjectSerializer : KSerializer<Color> {
             require(r in 0..255 && g in 0..255 && b in 0..255)
             Color((r shl 16) or (g shl 8) or b)
         }
-}        
+}
 
 @Serializable(with = ColorAsObjectSerializer::class)
 data class Color(val rgb: Int)

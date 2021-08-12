@@ -17,6 +17,7 @@ In this chapter we'll take a look at serializers in more detail, and we'll see h
   * [Using top-level serializer function](#using-top-level-serializer-function)
 * [Custom serializers](#custom-serializers)
   * [Primitive serializer](#primitive-serializer)
+  * [Delegating serializers](#delegating-serializers)
   * [Composite serializer via surrogate](#composite-serializer-via-surrogate)
   * [Hand-written composite serializer](#hand-written-composite-serializer)
   * [Sequential decoding protocol (experimental)](#sequential-decoding-protocol-experimental)
@@ -377,6 +378,72 @@ Both `Color` properties are serialized as strings.
 
 <!--- TEST -->
 
+### Delegating serializers
+
+In the previous example, we represented the `Color` class as a string.
+String is considered to be a primitive type, therefore we used `PrimitiveClassDescriptor` and specialized `encodeString` method. 
+Now let's see what our actions would be if we have to serialize `Color` as another non-primitive type, let's say `IntArray`.
+
+An implementation of [KSerializer] for our original `Color` class is going to perform a conversion between
+`Color` and `IntArray`, but delegate the actual serialization logic to the `IntArraySerializer`
+using [encodeSerializableValue][Encoder.encodeSerializableValue] and
+[decodeSerializableValue][Decoder.decodeSerializableValue].
+
+```kotlin
+import kotlinx.serialization.builtins.IntArraySerializer
+
+class ColorIntArraySerializer : KSerializer<Color> {
+    private val delegateSerializer = IntArraySerializer()
+    override val descriptor = SerialDescriptor("Color", delegateSerializer.descriptor)
+
+    override fun serialize(encoder: Encoder, value: Color) {
+        val data = intArrayOf(
+            (value.rgb shr 16) and 0xFF,
+            (value.rgb shr 8) and 0xFF,
+            value.rgb and 0xFF
+        )
+        encoder.encodeSerializableValue(delegateSerializer, data)
+    }
+
+    override fun deserialize(decoder: Decoder): Color {
+        val array = decoder.decodeSerializableValue(delegateSerializer)
+        return Color((array[0] shl 16) or (array[1] shl 8) or array[2])
+    }
+}
+```
+
+Note that we can't use default `Color.serializer().descriptor` here because formats that rely
+on the schema may think that we would call `encodeInt` instead of `encodeSerializableValue`.
+Neither we can use `IntArraySerializer().descriptor` directly — otherwise, formats that handle int arrays specially
+can't tell if `value` is really a `IntArray` or a `Color`. Don't worry, this optimization would still kick in
+when serializing actual underlying int array.
+
+> Example of how format can treat arrays specially is shown in the [formats guide](formats.md#format-specific-types).
+
+Now we can use the serializer:
+
+```kotlin
+@Serializable(with = ColorIntArraySerializer::class)
+class Color(val rgb: Int)
+
+fun main() {
+    val green = Color(0x00ff00)
+    println(Json.encodeToString(green))
+}  
+```    
+
+As you can see, such array representation is not very useful in JSON,
+but may save some space when used with a `ByteArray` and a binary format.
+
+> You can get the full code [here](../guide/example/example-serializer-10.kt).
+
+```text
+[0,255,0]
+```
+
+<!--- TEST -->
+
+
 ### Composite serializer via surrogate
 
 Now our challenge is to get `Color` serialized so that it is represented in JSON as if it is a class 
@@ -403,11 +470,9 @@ private class ColorSurrogate(val r: Int, val g: Int, val b: Int) {
 Now we can use the `ColorSurrogate.serializer()` function to retrieve a plugin-generated serializer for the
 surrogate class.
 
-An implementation of [KSerializer] for our original `Color` class is going to perform a conversion between
-`Color` and `ColorSurrogate`, but delegate the actual serialization logic to the `ColorSurrogate.serializer()`
-using [encodeSerializableValue][Encoder.encodeSerializableValue] and
-[decodeSerializableValue][Decoder.decodeSerializableValue], fully reusing an automatically
-generated [SerialDescriptor] for the surrogate.
+We can use the same approach as in [delegating serializer](#delegating-serializers), but this time,
+we are fully reusing an automatically
+generated [SerialDescriptor] for the surrogate because it should be indistinguishable from the original.
 
 ```kotlin
 object ColorSerializer : KSerializer<Color> {
@@ -441,7 +506,7 @@ fun main() {
 }
 -->
 
-> You can get the full code [here](../guide/example/example-serializer-10.kt).
+> You can get the full code [here](../guide/example/example-serializer-11.kt).
 
 ```text
 {"r":0,"g":255,"b":0}
@@ -535,7 +600,7 @@ fun main() {
 }  
 ```              
 
-> You can get the full code [here](../guide/example/example-serializer-11.kt).
+> You can get the full code [here](../guide/example/example-serializer-12.kt).
 
 As before, we got the `Color` class represented as a JSON object with three keys:
 
@@ -609,7 +674,7 @@ fun main() {
 }  
 -->
 
-> You can get the full code [here](../guide/example/example-serializer-12.kt).
+> You can get the full code [here](../guide/example/example-serializer-13.kt).
 
 <!--- TEST
 {"r":0,"g":255,"b":0}
@@ -656,7 +721,7 @@ fun main() {
 }
 ``` 
 
-> You can get the full code [here](../guide/example/example-serializer-13.kt).
+> You can get the full code [here](../guide/example/example-serializer-14.kt).
 
 ```text
 1455494400000
@@ -694,7 +759,7 @@ fun main() {
 }
 ``` 
 
-> You can get the full code [here](../guide/example/example-serializer-14.kt).
+> You can get the full code [here](../guide/example/example-serializer-15.kt).
 
 The `stableReleaseDate` property is serialized with the serialization strategy that we specified for it:
 
@@ -737,7 +802,7 @@ fun main() {
     println(Json.encodeToString(data))
 }
 ```   
-> You can get the full code [here](../guide/example/example-serializer-15.kt).
+> You can get the full code [here](../guide/example/example-serializer-16.kt).
 
 ```text
 {"name":"Kotlin","stableReleaseDate":1455494400000}
@@ -785,7 +850,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-serializer-16.kt).
+> You can get the full code [here](../guide/example/example-serializer-17.kt).
 
 The resulting JSON looks like the `Project` class was serialized directly.
 
@@ -849,7 +914,7 @@ fun main() {
 To actually serialize this class we must provide the corresponding context when calling the `encodeToXxx`/`decodeFromXxx`
 functions. Without it we'll get a "Serializer for class 'Date' is not found" exception.
 
-> See [here](../guide/example/example-serializer-17.kt) for an example that produces that exception.
+> See [here](../guide/example/example-serializer-18.kt) for an example that produces that exception.
  
 <!--- TEST LINES_START 
 Exception in thread "main" kotlinx.serialization.SerializationException: Serializer for class 'Date' is not found.
@@ -908,7 +973,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-serializer-18.kt).
+> You can get the full code [here](../guide/example/example-serializer-19.kt).
 ```text
 {"name":"Kotlin","stableReleaseDate":1455494400000}
 ```
@@ -967,7 +1032,7 @@ fun main() {
 }
 ```          
 
-> You can get the full code [here](../guide/example/example-serializer-19.kt).
+> You can get the full code [here](../guide/example/example-serializer-20.kt).
 
 This gets all the `Project` properties serialized:
 
@@ -1008,7 +1073,7 @@ fun main() {
 }
 ```             
 
-> You can get the full code [here](../guide/example/example-serializer-20.kt).
+> You can get the full code [here](../guide/example/example-serializer-21.kt).
 
 The output is shown below.
 

@@ -1098,7 +1098,7 @@ In the encoder this is achieved by overriding the
 In our `DataOutput` format example we might want to provide a specialized efficient data path for serializing an array
 of bytes since [DataOutput][java.io.DataOutput] has a special method for this purpose.
 
-Detection of the type is performed by looking at the `serializer`, not by checking the type of the `value`
+Detection of the type is performed by looking at the `serializer.descriptor`, not by checking the type of the `value`
 being serialized, so we fetch the builtin [KSerializer] instance for `ByteArray` type.
 
 > This an important difference. This way our format implementation properly supports 
@@ -1151,7 +1151,7 @@ class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
 
 ```kotlin
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
-        if (serializer === byteArraySerializer)
+        if (serializer.descriptor == byteArraySerializer.descriptor)
             encodeByteArray(value as ByteArray)
         else
             super.encodeSerializableValue(serializer, value)
@@ -1218,7 +1218,7 @@ the [decodeSerializableValue][Decoder.decodeSerializableValue] function.
 ```kotlin 
     @Suppress("UNCHECKED_CAST")
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T =
-        if (deserializer === byteArraySerializer)
+        if (deserializer.descriptor == byteArraySerializer.descriptor)
             decodeByteArray() as T
         else
             super.decodeSerializableValue(deserializer, previousValue)
