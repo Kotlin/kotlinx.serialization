@@ -132,6 +132,7 @@ public sealed class Json(
 /**
  * Creates an instance of [Json] configured from the optionally given [Json instance][from] and adjusted with [builderAction].
  */
+@OptIn(ExperimentalSerializationApi::class)
 public fun Json(from: Json = Json.Default, builderAction: JsonBuilder.() -> Unit): Json {
     val builder = JsonBuilder(from)
     builder.builderAction()

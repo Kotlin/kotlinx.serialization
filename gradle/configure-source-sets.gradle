@@ -30,10 +30,10 @@ kotlin {
         languageSettings {
             progressiveMode = true
 
-            useExperimentalAnnotation("kotlin.Experimental")
-            useExperimentalAnnotation("kotlin.ExperimentalMultiplatform")
-            useExperimentalAnnotation("kotlin.ExperimentalStdlibApi")
-            useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
+            optIn("kotlin.Experimental")
+            optIn("kotlin.ExperimentalMultiplatform")
+            optIn("kotlin.ExperimentalStdlibApi")
+            optIn("kotlinx.serialization.InternalSerializationApi")
         }
     }
 
@@ -81,8 +81,8 @@ kotlin {
 
     sourceSets.findAll({ it.name.contains("Test") }).forEach { srcSet ->
         srcSet.languageSettings {
-            it.useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
-            it.useExperimentalAnnotation("kotlinx.serialization.ExperimentalSerializationApi")
+            it.optIn("kotlinx.serialization.InternalSerializationApi")
+            it.optIn("kotlinx.serialization.ExperimentalSerializationApi")
         }
     }
 

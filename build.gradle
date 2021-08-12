@@ -12,16 +12,16 @@ buildscript {
     if (project.hasProperty("library.version")) {
         ext.overriden_version = property('library.version')
     }
-    ext.experimentalsEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
-                                "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
-                                "-Xuse-experimental=kotlinx.serialization.InternalSerializationApi"
+    ext.experimentalsEnabled = ["-progressive", "-Xopt-in=kotlin.Experimental",
+                                "-Xopt-in=kotlin.ExperimentalMultiplatform",
+                                "-Xopt-in=kotlinx.serialization.InternalSerializationApi"
     ]
 
-    ext.experimentalsInTestEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
-                                      "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
-                                      "-Xuse-experimental=kotlinx.serialization.ExperimentalSerializationApi",
-                                      "-Xuse-experimental=kotlinx.serialization.InternalSerializationApi",
-                                      "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
+    ext.experimentalsInTestEnabled = ["-progressive", "-Xopt-in=kotlin.Experimental",
+                                      "-Xopt-in=kotlin.ExperimentalMultiplatform",
+                                      "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi",
+                                      "-Xopt-in=kotlinx.serialization.InternalSerializationApi",
+                                      "-Xopt-in=kotlin.ExperimentalUnsignedTypes"
     ]
 
     /*
