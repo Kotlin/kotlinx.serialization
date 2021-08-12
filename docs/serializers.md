@@ -412,13 +412,13 @@ class ColorIntArraySerializer : KSerializer<Color> {
 }
 ```
 
-Note that we can't use default `Color.serializer().descriptor` here, because formats that rely
+Note that we can't use default `Color.serializer().descriptor` here because formats that rely
 on the schema may think that we would call `encodeInt` instead of `encodeSerializableValue`.
 Neither we can use `IntArraySerializer().descriptor` directly — otherwise, formats that handle int arrays specially
 can't tell if `value` is really a `IntArray` or a `Color`. Don't worry, this optimization would still kick in
 when serializing actual underlying int array.
 
-> Example of how format can treat byte arrays specially is shown in the [formats guide](formats.md#format-specific-types).
+> Example of how format can treat arrays specially is shown in the [formats guide](formats.md#format-specific-types).
 
 Now we can use the serializer:
 
