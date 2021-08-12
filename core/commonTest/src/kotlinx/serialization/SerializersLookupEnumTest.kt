@@ -31,15 +31,15 @@ class SerializersLookupEnumTest {
     @Serializable(with = EnumExternalClassSerializer::class)
     enum class EnumExternalClass
 
-    @Serializer(forClass = EnumExternalObject::class)
+    @Serializer(forClass = EnumExternalClass::class)
     class EnumExternalClassSerializer {
         override val descriptor: SerialDescriptor = buildSerialDescriptor("tmp", SerialKind.ENUM)
 
-        override fun serialize(encoder: Encoder, value: EnumExternalObject) {
+        override fun serialize(encoder: Encoder, value: EnumExternalClass) {
             TODO()
         }
 
-        override fun deserialize(decoder: Decoder): EnumExternalObject {
+        override fun deserialize(decoder: Decoder): EnumExternalClass {
             TODO()
         }
     }
@@ -56,24 +56,33 @@ class SerializersLookupEnumTest {
     }
 
     @Test
-    @Ignore
     fun testEnumExternalObject() {
-        assertFailsWith<SerializationException> { (serializer<EnumExternalObject>()) }
+        assertSame(EnumExternalObjectSerializer, EnumExternalObject.serializer())
+        assertSame(EnumExternalObjectSerializer, serializer<EnumExternalObject>())
     }
 
     @Test
-    @Ignore
     fun testEnumExternalClass() {
-        assertFailsWith<SerializationException> { serializer<EnumExternalClass>() }
+        assertIs<EnumExternalClassSerializer>(EnumExternalClass.serializer())
+
+        if (isJvm()) {
+            assertIs<EnumExternalClassSerializer>(serializer<EnumExternalClass>())
+        } else if (isJsIr() || isNative()) {
+            // FIXME serializer<EnumWithClassSerializer> is broken for K/JS and K/Native. Remove `assertFails` after fix
+            assertFails { serializer<EnumExternalClass>() }
+        }
     }
 
     @Test
     fun testEnumPolymorphic() {
-        jvmOnly {
+        if (isJvm()) {
             assertEquals(
                 PolymorphicSerializer(EnumPolymorphic::class).descriptor,
                 serializer<EnumPolymorphic>().descriptor
             )
+        } else {
+            // FIXME serializer<PolymorphicEnum> is broken for K/JS and K/Native. Remove `assertFails` after fix
+            assertFails { serializer<EnumPolymorphic>() }
         }
     }
 }
