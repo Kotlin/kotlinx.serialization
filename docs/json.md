@@ -16,6 +16,7 @@ In this chapter we'll walk through various [Json] features.
   * [Alternative Json names](#alternative-json-names)
   * [Coercing input values](#coercing-input-values)
   * [Encoding defaults](#encoding-defaults)
+  * [Explicit nulls](#explicit-nulls)
   * [Allowing structured map keys](#allowing-structured-map-keys)
   * [Allowing special floating-point values](#allowing-special-floating-point-values)
   * [Class discriminator](#class-discriminator)
@@ -261,6 +262,49 @@ It produces the following output which encodes the values of all the properties:
 ```text
 {"name":"kotlinx.serialization","language":"Kotlin","website":null}
 ```                 
+
+<!--- TEST -->
+
+### Explicit nulls
+
+By default, all `null` values encoded into JSON string but in some cases they should be skipped .
+The encoding of the `null` value can be controlled with the [explicitNulls][JsonBuilder.explicitNulls] property.
+
+When this property is `false` then fields with `null` value are not encoded into a JSON, even if the property has a 
+default value `null`.
+Also, during decoding, the absence of a field value is treated as `null` for nullable properties without a default value.
+
+
+```kotlin       
+val format = Json { explicitNulls = false }
+
+@Serializable
+data class Project(
+    val name: String,
+    val language: String,
+    val version: String? = "1.2.2",
+    val website: String?,
+    val description: String? = null
+)
+
+fun main() {
+    val data = Project("kotlinx.serialization", "Kotlin", null, null, null)
+    val json = format.encodeToString(data)
+    println(json)
+    println(format.decodeFromString<Project>(json))
+}
+```
+
+> You can get the full code [here](../guide/example/example-json-20.kt).
+
+As you can see, `version`, `website` and `description` fields are not present in output JSON on the first line.
+Also, during decoding, the missing nullable property received a `null` value and optional nullable properties filled by 
+default values.
+
+```text
+{"name":"kotlinx.serialization","language":"Kotlin"}
+Project(name=kotlinx.serialization, language=Kotlin, version=1.2.2, website=null, description=null)
+```   
 
 <!--- TEST -->
 

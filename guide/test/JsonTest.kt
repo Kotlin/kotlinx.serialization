@@ -145,4 +145,12 @@ class JsonTest {
             "UnknownProject(name=example, details={\"type\":\"unknown\",\"maintainer\":\"Unknown\",\"license\":\"Apache 2.0\"})"
         )
     }
+
+    @Test
+    fun testExampleJson20() {
+        captureOutput("ExampleJson20") { example.exampleJson20.main() }.verifyOutputLines(
+            "{\"name\":\"kotlinx.serialization\",\"language\":\"Kotlin\"}",
+            "Project(name=kotlinx.serialization, language=Kotlin, version=1.2.2, website=null, description=null)"
+        )
+    }
 }
