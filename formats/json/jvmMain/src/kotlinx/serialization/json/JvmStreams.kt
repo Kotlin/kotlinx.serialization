@@ -57,7 +57,7 @@ public fun <T> Json.decodeFromStream(
     stream: InputStream,
     charset: Charset = Charsets.UTF_8
 ): T {
-    val lexer = JsonReaderLexer(stream, charset)
+    val lexer = ReaderJsonLexer(stream, charset)
     val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer)
     return input.decodeSerializableValue(deserializer)
 }

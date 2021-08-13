@@ -29,17 +29,17 @@ class JsonStreamFlowTest {
     val inputString = """{"data":"a"}{"data":"b"}{"data":"c"}"""
     val inputList = listOf(StringData("a"), StringData("b"), StringData("c"))
 
-    @Test
-    fun testEncodeSeveralItems() {
-        val items = inputList
-        val os = ByteArrayOutputStream()
-        runBlocking {
-            val f = flow<StringData> { items.forEach { emit(it) } }
-            f.writeToStream(os)
-        }
-
-        assertEquals(inputString, os.toString(Charsets.UTF_8))
-    }
+//    @Test
+//    fun testEncodeSeveralItems() {
+//        val items = inputList
+//        val os = ByteArrayOutputStream()
+//        runBlocking {
+//            val f = flow<StringData> { items.forEach { emit(it) } }
+//            f.writeToStream(os)
+//        }
+//
+//        assertEquals(inputString, os.toString(Charsets.UTF_8))
+//    }
 
     @Test
     @Ignore // todo: InputStream is consumed fully to buffer, looks like mechanism for multiple reading should be embedded in the framework itself

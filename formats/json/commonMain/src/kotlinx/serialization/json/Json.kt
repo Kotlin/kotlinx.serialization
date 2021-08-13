@@ -95,7 +95,7 @@ public sealed class Json(
      * @throws [SerializationException] if the given JSON string cannot be deserialized to the value of type [T].
      */
     public final override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
-        val lexer = JsonLexer(string)
+        val lexer = StringJsonLexer(string)
         val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer)
         val result = input.decodeSerializableValue(deserializer)
         lexer.expectEof()

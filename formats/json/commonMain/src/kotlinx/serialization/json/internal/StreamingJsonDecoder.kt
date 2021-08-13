@@ -13,13 +13,13 @@ import kotlinx.serialization.modules.*
 import kotlin.jvm.*
 
 /**
- * [JsonDecoder] which reads given JSON from [JsonLexer] field by field.
+ * [JsonDecoder] which reads given JSON from [AbstractJsonLexer] field by field.
  */
 @OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
 internal open class StreamingJsonDecoder(
     final override val json: Json,
     private val mode: WriteMode,
-    @JvmField internal val lexer: JsonLexer
+    @JvmField internal val lexer: AbstractJsonLexer
 ) : JsonDecoder, AbstractDecoder() {
 
     override val serializersModule: SerializersModule = json.serializersModule
@@ -249,7 +249,7 @@ internal open class StreamingJsonDecoder(
 @OptIn(ExperimentalSerializationApi::class)
 @ExperimentalUnsignedTypes
 internal class JsonDecoderForUnsignedTypes(
-    private val lexer: JsonLexer,
+    private val lexer: AbstractJsonLexer,
     json: Json
 ) : AbstractDecoder() {
     override val serializersModule: SerializersModule = json.serializersModule
@@ -261,7 +261,7 @@ internal class JsonDecoderForUnsignedTypes(
     override fun decodeShort(): Short = lexer.parseString("UShort") { toUShort().toShort() }
 }
 
-private inline fun <T> JsonLexer.parseString(expectedType: String, block: String.() -> T): T {
+private inline fun <T> AbstractJsonLexer.parseString(expectedType: String, block: String.() -> T): T {
     val input = consumeStringLenient()
     try {
         return input.block()

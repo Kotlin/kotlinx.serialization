@@ -4,9 +4,11 @@
 
 package kotlinx.serialization.json.internal
 
+import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.json.internal.CharMappings.CHAR_TO_TOKEN
 import kotlinx.serialization.json.internal.CharMappings.ESCAPE_2_CHAR
-import kotlin.jvm.JvmField
+import kotlin.js.*
+import kotlin.jvm.*
 
 internal const val lenientHint = "Use 'isLenient = true' in 'Json {}` builder to accept non-compliant JSON."
 internal const val coerceInputValuesHint = "Use 'coerceInputValues = true' in 'Json {}` builder to coerce nulls to default values."
@@ -118,58 +120,45 @@ internal fun charToTokenClass(c: Char) = if (c.code < CTC_MAX) CHAR_TO_TOKEN[c.c
 
 internal fun escapeToChar(c: Int): Char = if (c < ESC2C_MAX) ESCAPE_2_CHAR[c] else INVALID
 
-// Streaming JSON reader
-internal open class JsonLexer(@JvmField protected var source: CharSequence) {
+/**
+ * The base class that reads the JSON from the given char sequence source.
+ * It has two implementations: one over the raw [String] instance, [StringJsonLexer],
+ * and one over an arbitrary stream of data, [ReaderJsonLexer] (JVM-only).
+ *
+ * [AbstractJsonLexer] contains base implementation for cold or not performance-sensitive
+ * methods on top of [CharSequence], but [StringJsonLexer] overrides some
+ * of them for the performance reasons (devirtualization of [CharSequence] and avoid
+ * of additional spills).
+ */
+internal abstract class AbstractJsonLexer {
+
+    protected abstract val source: CharSequence
 
     @JvmField
     protected var currentPosition: Int = 0 // position in source
 
     open fun ensureHaveChars() {}
 
-    fun expectEof() {
-        val nextToken = consumeNextToken()
-        if (nextToken != TC_EOF)
-            fail("Expected EOF, but had ${source[currentPosition - 1]} instead")
-    }
+    // Used as bound check in loops
+    abstract fun definitelyNotEof(position: Int): Int
 
-    // should be used inside loops instead of range checks
-    protected open fun definitelyNotEof(position: Int): Int = if (position < source.length) position else -1
+    abstract fun tryConsumeComma(): Boolean
 
+    abstract fun canConsumeValue(): Boolean
 
-    fun tryConsumeComma(): Boolean {
-        val current = skipWhitespaces()
-        if (current >= source.length || current == -1) return false
-        if (source[current] == ',') {
-            ++currentPosition
-            return true
-        }
-        return false
-    }
+    abstract fun consumeNextToken(): Byte
 
-    fun canConsumeValue(): Boolean {
-        ensureHaveChars()
-        var current = currentPosition
-        while (true) {
-            current = definitelyNotEof(current)
-            if (current == -1) break // could be inline function but KT-1436
-            val c = source[current]
-            // Inlined skipWhitespaces without field spill and nested loop. Also faster then char2TokenClass
-            if (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
-                ++current
-                continue
-            }
-            currentPosition = current
-            return isValidValueStart(c)
-        }
-        currentPosition = current
-        return false
-    }
-
-    private fun isValidValueStart(c: Char): Boolean {
+    protected fun isValidValueStart(c: Char): Boolean {
         return when (c) {
             '}', ']', ':', ',' -> false
             else -> true
         }
+    }
+
+    fun expectEof() {
+        val nextToken = consumeNextToken()
+        if (nextToken != TC_EOF)
+            fail("Expected EOF, but had ${source[currentPosition - 1]} instead")
     }
 
     /*
@@ -188,7 +177,7 @@ internal open class JsonLexer(@JvmField protected var source: CharSequence) {
         return token
     }
 
-    fun consumeNextToken(expected: Char) {
+    open fun consumeNextToken(expected: Char) {
         ensureHaveChars()
         val source = source
         var cpos = currentPosition
@@ -205,7 +194,7 @@ internal open class JsonLexer(@JvmField protected var source: CharSequence) {
         unexpectedToken(expected) // EOF
     }
 
-    private fun unexpectedToken(expected: Char) {
+    protected fun unexpectedToken(expected: Char) {
         --currentPosition // To properly handle null
         if (expected == STRING && consumeStringLenient() == NULL) {
             fail("Expected string literal but 'null' literal was found.\n$coerceInputValuesHint", currentPosition - 4)
@@ -213,7 +202,7 @@ internal open class JsonLexer(@JvmField protected var source: CharSequence) {
         fail(charToTokenClass(expected))
     }
 
-    private fun fail(expectedToken: Byte) {
+    protected fun fail(expectedToken: Byte) {
         // We know that the token was consumed prior to this call
         // Slow path, never called in normal code, can avoid optimizing it
         val expected = when (expectedToken) {
@@ -248,26 +237,6 @@ internal open class JsonLexer(@JvmField protected var source: CharSequence) {
         return TC_EOF
     }
 
-    fun consumeNextToken(): Byte {
-        ensureHaveChars()
-        val source = source
-        var cpos = currentPosition
-        while (true) {
-            cpos = definitelyNotEof(cpos)
-            if (cpos == -1) break
-            val ch = source[cpos++]
-            return when (val tc = charToTokenClass(ch)) {
-                TC_WHITESPACE -> continue
-                else -> {
-                    currentPosition = cpos
-                    tc
-                }
-            }
-        }
-        currentPosition = cpos
-        return TC_EOF
-    }
-
     /**
      * Tries to consume `null` token from input.
      * Returns `true` if the next 4 chars in input are not `null`,
@@ -291,7 +260,7 @@ internal open class JsonLexer(@JvmField protected var source: CharSequence) {
         return false
     }
 
-    private fun skipWhitespaces(): Int {
+    open fun skipWhitespaces(): Int {
         var current = currentPosition
         // Skip whitespaces
         while (true) {
@@ -329,33 +298,7 @@ internal open class JsonLexer(@JvmField protected var source: CharSequence) {
      * This method is a copy of consumeString, but used for key of json objects, so there
      * is no need to lookup peeked string.
      */
-    fun consumeKeyString(): String {
-        /*
-         * For strings we assume that escaped symbols are rather an exception, so firstly
-         * we optimistically scan for closing quote via intrinsified and blazing-fast 'indexOf',
-         * than do our pessimistic check for backslash and fallback to slow-path if necessary.
-         */
-        consumeNextToken(STRING)
-        var current = currentPosition
-        val closingQuote = indexOf('"', current)
-        if (closingQuote == -1) {
-            current = definitelyNotEof(current)
-            if (current == -1) fail(TC_STRING)
-            // it's also possible just to resize buffer,
-            // instead of falling back to slow path,
-            // not sure what is better
-            else return consumeString(currentPosition, current)
-        }
-        // Now we _optimistically_ know where the string ends (it might have been an escaped quote)
-        for (i in current until closingQuote) {
-            // Encountered escape sequence, should fallback to "slow" path and symmbolic scanning
-            if (source[i] == STRING_ESC) {
-                return consumeString(currentPosition, i)
-            }
-        }
-        this.currentPosition = closingQuote + 1
-        return substring(current, closingQuote)
-    }
+    abstract fun consumeKeyString(): String
 
     fun consumeString(): String {
         if (peekedString != null) {
@@ -365,10 +308,10 @@ internal open class JsonLexer(@JvmField protected var source: CharSequence) {
         return consumeKeyString()
     }
 
-    private fun consumeString(startPosition: Int, current: Int): String {
+    @JsName("consumeString2") // WA for JS issue
+    protected fun consumeString(source: CharSequence, startPosition: Int, current: Int): String {
         var currentPosition = current
         var lastPosition = startPosition
-        var source = source
         var char = source[currentPosition] // Avoid two range checks visible in the profiler
         var usedAppend = false
         while (char != STRING) {
@@ -383,7 +326,6 @@ internal open class JsonLexer(@JvmField protected var source: CharSequence) {
                 currentPosition = definitelyNotEof(currentPosition)
                 if (currentPosition == -1)
                     fail("EOF", currentPosition)
-                source = this.source
                 lastPosition = currentPosition
             }
             char = source[currentPosition]
@@ -424,7 +366,7 @@ internal open class JsonLexer(@JvmField protected var source: CharSequence) {
         return result
     }
 
-    // Allows to consume unquoted string
+    // Allows consuming unquoted string
     fun consumeStringLenient(): String {
         if (peekedString != null) {
             return takePeeked()
@@ -445,11 +387,13 @@ internal open class JsonLexer(@JvmField protected var source: CharSequence) {
             if (current >= source.length) {
                 usedAppend = true
                 appendRange(currentPosition, current)
-                current = definitelyNotEof(current)
-                if (current == -1) {
+                val eof = definitelyNotEof(current)
+                if (eof == -1) {
                     // to handle plain lenient strings, such as top-level
                     currentPosition = current
                     return decodedString(0, 0)
+                } else {
+                    current = eof
                 }
             }
         }
@@ -639,6 +583,7 @@ internal open class JsonLexer(@JvmField protected var source: CharSequence) {
         return result
     }
 
+    @JsName("consumeBoolean2") // WA for JS issue
     private fun consumeBoolean(start: Int): Boolean {
         /*
          * In ASCII representation, upper and lower case letters are different

@@ -163,7 +163,7 @@ private sealed class AbstractJsonTreeDecoder(
 
     @OptIn(ExperimentalUnsignedTypes::class)
     override fun decodeTaggedInline(tag: String, inlineDescriptor: SerialDescriptor): Decoder =
-        if (inlineDescriptor.isUnsignedNumber) JsonDecoderForUnsignedTypes(JsonLexer(getPrimitiveValue(tag).content), json)
+        if (inlineDescriptor.isUnsignedNumber) JsonDecoderForUnsignedTypes(StringJsonLexer(getPrimitiveValue(tag).content), json)
         else super.decodeTaggedInline(tag, inlineDescriptor)
 }
 
