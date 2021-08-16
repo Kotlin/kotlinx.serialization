@@ -4,12 +4,10 @@
 
 package kotlinx.serialization.json
 
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.internal.JsonDecodingException
-import kotlinx.serialization.json.internal.JsonException
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
+import kotlinx.serialization.json.internal.*
+import kotlin.test.*
 
 class LenientTest : JsonTestBase() {
 
@@ -81,5 +79,17 @@ class LenientTest : JsonTestBase() {
         assertEquals(NullableString("nul"), lenient.decodeFromString("""{"s":nul}""", it))
         assertEquals(NullableString("null1"), lenient.decodeFromString("""{"s":null1}""", it))
         assertEquals(NullableString(null), lenient.decodeFromString("""{"s":null}""", it))
+        assertEquals(NullableString("null"), lenient.decodeFromString("""{"s":"null"}""", it))
+        assertEquals(NullableString("null"), lenient.decodeFromString("""{"s":"null"     }""", it))
+        assertEquals(NullableString("null  "), lenient.decodeFromString("""{"s":"null  "     }""", it))
+    }
+
+    @Test
+    fun testTopLevelNulls() = parametrizedTest {
+        assertEquals("nul", lenient.decodeFromString("""nul""", it))
+        assertEquals("null1", lenient.decodeFromString("""null1""", it))
+        assertEquals(null, lenient.decodeFromString(String.serializer().nullable, """null""", it))
+        assertEquals("null", lenient.decodeFromString(""""null"""", it))
+        assertEquals("null   ", lenient.decodeFromString(""""null   """", it))
     }
 }
