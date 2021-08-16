@@ -151,7 +151,7 @@ public inline fun <reified T> Json.encodeToJsonElement(value: T): JsonElement {
 }
 
 /**
- * Deserializes the given [json] element into a value of type [T] using a deserialize retrieved
+ * Deserializes the given [json] element into a value of type [T] using a deserializer retrieved
  * from reified type parameter.
  *
  * @throws [SerializationException] if the given JSON string is malformed or cannot be deserialized to the value of type [T].
