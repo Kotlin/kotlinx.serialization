@@ -38,7 +38,7 @@ class JsonStreamFlowTest {
             f.writeToStream(os)
         }
 
-        assertEquals(inputString, os.toString(Charsets.UTF_8))
+        assertEquals(inputString, os.toString(Charsets.UTF_8.name()))
     }
 
     @Test

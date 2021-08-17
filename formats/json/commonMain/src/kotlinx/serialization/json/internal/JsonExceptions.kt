@@ -45,7 +45,7 @@ internal fun InvalidFloatingPointDecoded(value: Number, key: String, output: Str
     JsonDecodingException(-1, unexpectedFpErrorMessage(value, key, output))
 
 // Extension on JSON reader and fail immediately
-internal fun JsonLexer.throwInvalidFloatingPointDecoded(result: Number): Nothing {
+internal fun AbstractJsonLexer.throwInvalidFloatingPointDecoded(result: Number): Nothing {
     fail("Unexpected special floating-point value $result. By default, " +
             "non-finite floating point values are prohibited because they do not conform JSON specification. " +
             specialFlowingValuesHint
