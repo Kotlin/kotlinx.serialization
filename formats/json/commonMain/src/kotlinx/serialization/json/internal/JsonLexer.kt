@@ -368,13 +368,21 @@ internal class JsonLexer(private val source: String) {
 
     fun consumeStringLenientNotNull(): String {
         val result = consumeStringLenient()
-        if (result == NULL) { // Check if lenient value is 'null' and fail for non-nullable read if so
+        /*
+         * Check if lenient value is 'null' _without_ quotation marks and fail for non-nullable read if so.
+         */
+        if (result == NULL && wasUnquotedString()) {
             fail("Unexpected 'null' value instead of string literal")
         }
         return result
     }
 
-    // Allows to consume unquoted string
+    private fun wasUnquotedString(): Boolean {
+        // Is invoked _only_ when the 'null' string was read, thus 'cP - 1' is always within bounds
+        return source[currentPosition - 1] != STRING
+    }
+
+    // Allows consuming unquoted string
     fun consumeStringLenient(): String {
         if (peekedString != null) {
             return takePeeked()
