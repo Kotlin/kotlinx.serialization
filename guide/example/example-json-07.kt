@@ -4,15 +4,20 @@ package example.exampleJson07
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-val format = Json { allowStructuredMapKeys = true }
+val format = Json { explicitNulls = false }
 
-@Serializable 
-data class Project(val name: String)
-    
-fun main() {             
-    val map = mapOf(
-        Project("kotlinx.serialization") to "Serialization",
-        Project("kotlinx.coroutines") to "Coroutines"
-    )
-    println(format.encodeToString(map))
+@Serializable
+data class Project(
+    val name: String,
+    val language: String,
+    val version: String? = "1.2.2",
+    val website: String?,
+    val description: String? = null
+)
+
+fun main() {
+    val data = Project("kotlinx.serialization", "Kotlin", null, null, null)
+    val json = format.encodeToString(data)
+    println(json)
+    println(format.decodeFromString<Project>(json))
 }

@@ -111,6 +111,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='alternative-json-names'></a>[Alternative Json names](json.md#alternative-json-names)
   * <a name='coercing-input-values'></a>[Coercing input values](json.md#coercing-input-values)
   * <a name='encoding-defaults'></a>[Encoding defaults](json.md#encoding-defaults)
+  * <a name='explicit-nulls'></a>[Explicit nulls](json.md#explicit-nulls)
   * <a name='allowing-structured-map-keys'></a>[Allowing structured map keys](json.md#allowing-structured-map-keys)
   * <a name='allowing-special-floating-point-values'></a>[Allowing special floating-point values](json.md#allowing-special-floating-point-values)
   * <a name='class-discriminator'></a>[Class discriminator](json.md#class-discriminator)
