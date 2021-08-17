@@ -10,11 +10,18 @@ class GsonCompatibilityTest {
     @Serializable
     data class Box(val d: Double, val f: Float)
 
+    @Serializable
+    data class Wr(val l: List<LE?>)
+
+    @Serializable
+    data class LE(val m: Map<String, Box>)
+
     @Test
     fun testNaN() {
-        checkCompatibility(Box(Double.NaN, 1.0f))
-        checkCompatibility(Box(1.0, Float.NaN))
-        checkCompatibility(Box(Double.NaN, Float.NaN))
+        val wr = Wr(listOf(null, LE(mapOf()), LE(mapOf("k1" to Box(1.0, 1.0f), "k2" to Box(2.0, 2.0f)))))
+        val s = """{"l":[null,{"m":{}},{"m":{"k1":{"d":1.0,"f":1.0},"k2":{"d":2.0,"f":2s}}}]}"""
+        val e = assertFailsWith<SerializationException> {  Json.decodeFromString<Wr>(s) }
+        assertTrue { e.message!!.contains("\$l[2].m.k1.f") }
     }
 
     @Test

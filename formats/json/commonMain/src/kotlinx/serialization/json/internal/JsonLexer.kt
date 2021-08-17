@@ -124,6 +124,9 @@ internal class JsonLexer(private val source: String) {
     @JvmField
     var currentPosition: Int = 0 // position in source
 
+    @JvmField
+    val path = JsonPath()
+
     fun expectEof() {
         val nextToken = consumeNextToken()
         if (nextToken != TC_EOF)
@@ -490,7 +493,7 @@ internal class JsonLexer(private val source: String) {
     }
 
     fun fail(message: String, position: Int = currentPosition): Nothing {
-        throw JsonDecodingException(position, message, source)
+        throw JsonDecodingException(position, message + "\n" + path.currentPath(), source)
     }
 
     internal inline fun require(condition: Boolean, position: Int = currentPosition, message: () -> String) {

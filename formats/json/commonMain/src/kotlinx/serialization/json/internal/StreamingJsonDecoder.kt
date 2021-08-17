@@ -37,6 +37,7 @@ internal open class StreamingJsonDecoder(
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         val newMode = json.switchMode(descriptor)
+        lexer.path.pushObject(descriptor)
         lexer.consumeNextToken(newMode.begin)
         checkLeadingComma()
         return when (newMode) {
@@ -56,6 +57,7 @@ internal open class StreamingJsonDecoder(
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
+        lexer.path.pop()
         lexer.consumeNextToken(mode.end)
     }
 
@@ -74,12 +76,30 @@ internal open class StreamingJsonDecoder(
         }
     }
 
+    override fun <T> decodeSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        deserializer: DeserializationStrategy<T>,
+        previousValue: T?
+    ): T {
+        // TODO kludge for Map
+        val value = super.decodeSerializableElement(descriptor, index, deserializer, previousValue)
+        if (mode == WriteMode.MAP && index == 0) {
+            lexer.path.updateCurrentMapKey(value)
+        }
+        return value
+    }
+
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-        return when (mode) {
+        val index = when (mode) {
             WriteMode.OBJ -> decodeObjectIndex(descriptor)
             WriteMode.MAP -> decodeMapIndex()
             else -> decodeListIndex() // Both for LIST and default polymorphic
         }
+        if (mode != WriteMode.MAP) {
+            lexer.path.updateCurrentIndex(index)
+        }
+        return index
     }
 
     private fun decodeMapIndex(): Int {
