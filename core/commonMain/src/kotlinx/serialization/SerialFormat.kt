@@ -55,7 +55,7 @@ public interface BinaryFormat : SerialFormat {
     public fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray
 
     /**
-     * Decodes and deserializes the given [byte array][bytes] to to the value of type [T] using the given [deserializer]
+     * Decodes and deserializes the given [byte array][bytes] to the value of type [T] using the given [deserializer]
      */
     public fun <T> decodeFromByteArray(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T
 }
@@ -79,7 +79,7 @@ public interface StringFormat : SerialFormat {
     public fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String
 
     /**
-     * Decodes and deserializes the given [string] to to the value of type [T] using the given [deserializer]
+     * Decodes and deserializes the given [string] to the value of type [T] using the given [deserializer]
      */
     public fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T
 }
@@ -92,7 +92,7 @@ public inline fun <reified T> StringFormat.encodeToString(value: T): String =
     encodeToString(serializersModule.serializer(), value)
 
 /**
- * Decodes and deserializes the given [string] to to the value of type [T] using deserializer
+ * Decodes and deserializes the given [string] to the value of type [T] using deserializer
  * retrieved from the reified type parameter.
  */
 @OptIn(ExperimentalSerializationApi::class)
@@ -153,7 +153,7 @@ public inline fun <reified T> BinaryFormat.encodeToByteArray(value: T): ByteArra
     encodeToByteArray(serializersModule.serializer(), value)
 
 /**
- * Decodes and deserializes the given [byte array][bytes] to to the value of type [T] using deserializer
+ * Decodes and deserializes the given [byte array][bytes] to the value of type [T] using deserializer
  * retrieved from the reified type parameter.
  */
 @OptIn(ExperimentalSerializationApi::class)

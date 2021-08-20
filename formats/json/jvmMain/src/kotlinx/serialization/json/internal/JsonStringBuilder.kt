@@ -8,7 +8,7 @@ package kotlinx.serialization.json.internal
  * In order to encode a single string, it should be processed symbol-per-symbol,
  * in order to detect and escape unicode symbols.
  *
- * Doing naively, it drastically slows down strings processing due to to factors:
+ * Doing naively, it drastically slows down strings processing due to factors:
  * * Byte-by-byte copying that does not leverage optimized array copying
  * * A lot of range and flags checks due to Java's compact strings
  *
