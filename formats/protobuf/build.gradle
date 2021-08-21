@@ -46,3 +46,5 @@ sourceSets.test.proto {
 compileTestKotlinJvm {
     dependsOn 'generateTestProto'
 }
+
+Java9Modularity.configureJava9ModuleInfo(project)

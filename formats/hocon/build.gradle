@@ -18,3 +18,5 @@ dependencies {
     testCompile "org.jetbrains.kotlin:kotlin-test"
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
+
+Java9Modularity.configureJava9ModuleInfo(project)

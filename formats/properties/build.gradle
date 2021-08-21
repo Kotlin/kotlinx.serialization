@@ -29,3 +29,5 @@ kotlin {
         }
     }
 }
+
+Java9Modularity.configureJava9ModuleInfo(project)

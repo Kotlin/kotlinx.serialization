@@ -1,5 +1,10 @@
 # Building Kotlin Serialization from the source
 
+## JDK version
+
+To build Kotlin Serialization JDK version 9 or higher is required.
+This is needed to compile the `module-info` file included for JPMS support.
+
 ## Runtime library
 
 Kotlin Serialization runtime library itself is a [multiplatform](http://kotlinlang.org/docs/reference/multiplatform.html) project.
