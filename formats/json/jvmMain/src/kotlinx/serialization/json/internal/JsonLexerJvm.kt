@@ -32,7 +32,7 @@ internal class ReaderJsonLexer(
 ) : AbstractJsonLexer() {
     private var threshold: Int = DEFAULT_THRESHOLD // chars
 
-    constructor(i: InputStream, charset: Charset) : this(i.reader(charset).buffered(READER_BUF_SIZE))
+    constructor(i: InputStream, charset: Charset = Charsets.UTF_8) : this(i.reader(charset).buffered(READER_BUF_SIZE))
 
     override var source: CharSequence = ArrayAsSequence(_source)
 

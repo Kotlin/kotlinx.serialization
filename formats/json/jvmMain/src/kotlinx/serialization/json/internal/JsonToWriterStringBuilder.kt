@@ -9,7 +9,7 @@ internal class JsonToWriterStringBuilder(private val writer: Writer) : JsonStrin
     // maybe this can also be taken from the pool, but currently initial char array size there is 128, which is too low.
     CharArray(BATCH_SIZE)
 ) {
-    constructor(os: OutputStream, charset: Charset): this(os.writer(charset).buffered(READER_BUF_SIZE))
+    constructor(os: OutputStream, charset: Charset = Charsets.UTF_8): this(os.writer(charset).buffered(READER_BUF_SIZE))
 
     override fun ensureTotalCapacity(oldSize: Int, additional: Int): Int {
         val requiredSize = oldSize + additional
