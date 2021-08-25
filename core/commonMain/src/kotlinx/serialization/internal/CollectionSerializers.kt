@@ -202,12 +202,17 @@ internal class ReferenceArraySerializer<ElementKlass : Any, Element : ElementKla
     }
 }
 
+@PublishedApi
+internal abstract class CollectionSerializer<E, C: Collection<E>, B>(element: KSerializer<E>) : ListLikeSerializer<E, C, B>(element) {
+    override fun C.collectionSize(): Int = size
+    override fun C.collectionIterator(): Iterator<E> = iterator()
+}
+
 @InternalSerializationApi
 @PublishedApi
-internal class ArrayListSerializer<E>(element: KSerializer<E>) : ListLikeSerializer<E, List<E>, ArrayList<E>>(element) {
+internal class ArrayListSerializer<E>(element: KSerializer<E>) : CollectionSerializer<E, List<E>, ArrayList<E>>(element) {
     override val descriptor: SerialDescriptor = ArrayListClassDesc(element.descriptor)
-    override fun List<E>.collectionSize(): Int = size
-    override fun List<E>.collectionIterator(): Iterator<E> = iterator()
+
     override fun builder(): ArrayList<E> = arrayListOf()
     override fun ArrayList<E>.builderSize(): Int = size
     override fun ArrayList<E>.toResult(): List<E> = this
@@ -219,11 +224,9 @@ internal class ArrayListSerializer<E>(element: KSerializer<E>) : ListLikeSeriali
 @PublishedApi
 internal class LinkedHashSetSerializer<E>(
     eSerializer: KSerializer<E>
-) : ListLikeSerializer<E, Set<E>, LinkedHashSet<E>>(eSerializer) {
-
+) : CollectionSerializer<E, Set<E>, LinkedHashSet<E>>(eSerializer) {
     override val descriptor: SerialDescriptor = LinkedHashSetClassDesc(eSerializer.descriptor)
-    override fun Set<E>.collectionSize(): Int = size
-    override fun Set<E>.collectionIterator(): Iterator<E> = iterator()
+
     override fun builder(): LinkedHashSet<E> = linkedSetOf()
     override fun LinkedHashSet<E>.builderSize(): Int = size
     override fun LinkedHashSet<E>.toResult(): Set<E> = this
@@ -235,11 +238,9 @@ internal class LinkedHashSetSerializer<E>(
 @PublishedApi
 internal class HashSetSerializer<E>(
     eSerializer: KSerializer<E>
-) : ListLikeSerializer<E, Set<E>, HashSet<E>>(eSerializer) {
-
+) : CollectionSerializer<E, Set<E>, HashSet<E>>(eSerializer) {
     override val descriptor: SerialDescriptor = HashSetClassDesc(eSerializer.descriptor)
-    override fun Set<E>.collectionSize(): Int = size
-    override fun Set<E>.collectionIterator(): Iterator<E> = iterator()
+
     override fun builder(): HashSet<E> = HashSet()
     override fun HashSet<E>.builderSize(): Int = size
     override fun HashSet<E>.toResult(): Set<E> = this
