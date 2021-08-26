@@ -97,7 +97,7 @@ object Java9Modularity {
                 val actualOutput = outputCaptureStream.toString(Charsets.UTF_8).trim()
 
                 if (actualOutput != expectedOutput) {
-                    throw IllegalStateException("Module-info does not match!\n$actualOutput")
+                    throw IllegalStateException("Module-info requirements section does not match!\n$actualOutput")
                 }
             }
         }
