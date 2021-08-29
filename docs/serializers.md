@@ -1044,7 +1044,7 @@ This gets all the `Project` properties serialized:
 
 ### External serialization uses properties 
 
-As we saw earlier, the regular `@Serializer` annotation creates a serializer so that 
+As we saw earlier, the regular `@Serializable` annotation creates a serializer so that 
 [Backing fields are serialized](basic-serialization.md#backing-fields-are-serialized). _External_ serialization using 
 `Serializer(forClass = ...)` has no access to backing fields and works differently. 
 It serializes only _accessible_ properties that have setters or are part of the primary constructor. 
