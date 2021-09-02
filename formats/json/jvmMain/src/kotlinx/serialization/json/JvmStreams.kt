@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
@@ -45,6 +49,9 @@ public inline fun <reified T> Json.encodeToStream(
 /**
  * Deserializes JSON from [stream] using UTF-8 encoding to a value of type [T] using [deserializer].
  *
+ * Note that this functions expects that exactly one object would be present in the stream
+ * and throws an exception if there are any dangling bytes after an object.
+ *
  * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
  * @throws [IOException] If an I/O error occurs and stream can't be read from.
  */
@@ -55,7 +62,9 @@ public fun <T> Json.decodeFromStream(
 ): T {
     val lexer = ReaderJsonLexer(stream)
     val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor)
-    return input.decodeSerializableValue(deserializer)
+    val result = input.decodeSerializableValue(deserializer)
+    lexer.expectEof()
+    return result
 }
 
 /**

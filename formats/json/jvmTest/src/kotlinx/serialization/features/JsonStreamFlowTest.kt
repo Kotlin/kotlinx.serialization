@@ -1,9 +1,15 @@
+/*
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.features
 
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.StringData
 import kotlinx.serialization.json.*
+import kotlinx.serialization.test.assertFailsWithMessage
 import org.junit.Ignore
 import org.junit.Test
 import java.io.*
@@ -15,14 +21,6 @@ class JsonStreamFlowTest {
     suspend inline fun <reified T> Flow<T>.writeToStream(os: OutputStream) {
         collect {
             json.encodeToStream(it, os)
-        }
-    }
-
-    suspend inline fun <reified T> InputStream.readToFlow(): Flow<T> {
-        return flow<T> {
-            while(available() != 0) {
-                emit(json.decodeFromStream(this@readToFlow))
-            }
         }
     }
 
@@ -42,14 +40,11 @@ class JsonStreamFlowTest {
     }
 
     @Test
-    @Ignore // todo: InputStream is consumed fully to buffer, looks like mechanism for multiple reading should be embedded in the framework itself
     fun testDecodeSeveralItems() {
         val ins = ByteArrayInputStream(inputString.encodeToByteArray())
-        val ml = mutableListOf<StringData>()
-        runBlocking {
-            ins.readToFlow<StringData>().toCollection(ml)
+        assertFailsWithMessage<SerializationException>("EOF") {
+            json.decodeFromStream<StringData>(ins)
         }
-        assertEquals(inputList, ml)
     }
 
 

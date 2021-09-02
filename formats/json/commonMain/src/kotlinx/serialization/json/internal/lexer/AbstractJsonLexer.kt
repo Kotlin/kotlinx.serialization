@@ -158,7 +158,7 @@ internal abstract class AbstractJsonLexer {
     fun expectEof() {
         val nextToken = consumeNextToken()
         if (nextToken != TC_EOF)
-            fail("Expected EOF, but had ${source[currentPosition - 1]} instead")
+            fail("Expected EOF after parsing an object, but had ${source[currentPosition - 1]} instead")
     }
 
     /*
