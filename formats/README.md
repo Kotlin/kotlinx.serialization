@@ -15,6 +15,7 @@ For convenience, they have same `groupId`, versioning and release cycle as core 
 
 * Artifact id: `kotlinx-serialization-hocon`
 * Platform: JVM only
+* Status: experimental
 
 Allows deserialization of `Config` object from popular [lightbend/config](https://github.com/lightbend/config) library 
 into Kotlin objects.
@@ -57,6 +58,14 @@ This library allows serialization and deserialization of objects to and from [Av
 * Platform: JVM only
 
 Allows serialization and deserialization of objects to and from [BSON](https://docs.mongodb.com/manual/reference/bson-types/).
+
+### Ktoml 
+* GitHub repo: [akuleshov7/ktoml](https://github.com/akuleshov7/ktoml)
+* Artifact ID: `com.akuleshov7:ktoml-core`
+* Platforms: multiplatform, all Kotlin supported platforms
+
+Fully Native and Multiplatform Kotlin serialization library for serialization/deserialization of TOML format.
+This library contains no Java code and no Java dependencies and it implements multiplatform parser, decoder and encoder of TOML.
 
 ### Minecraft NBT (Multiplatform)
 
