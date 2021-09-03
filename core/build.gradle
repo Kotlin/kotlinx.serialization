@@ -42,3 +42,5 @@ tasks.withType(Jar).named(kotlin.jvm().artifactsTaskName) {
         )
     }
 }
+
+Java9Modularity.configureJava9ModuleInfo(project)
