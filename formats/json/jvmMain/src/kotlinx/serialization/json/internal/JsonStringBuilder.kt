@@ -25,9 +25,10 @@ package kotlinx.serialization.json.internal
  * 3) We pool char arrays in order to save excess resizes, allocations
  *    and nulls-out of arrays.
  */
-internal actual class JsonStringBuilder {
-    private var array = CharArrayPool.take()
-    private var size = 0
+internal actual open class JsonStringBuilder(@JvmField protected var array: CharArray) {
+    actual constructor(): this(CharArrayPool.take())
+
+    protected var size = 0
 
     actual fun append(value: Long) {
         // Can be hand-rolled, but requires a lot of code and corner-cases handling
@@ -75,7 +76,7 @@ internal actual class JsonStringBuilder {
              * We ar already on slow path and haven't guessed the capacity properly.
              * Reserve +2 for backslash-escaped symbols on each iteration
              */
-            ensureTotalCapacity(sz + 2)
+            sz = ensureTotalCapacity(sz, 2)
             val ch = string[i].code
             // Do we have unescaped symbols?
             if (ch < ESCAPE_MARKERS.size) {
@@ -91,7 +92,7 @@ internal actual class JsonStringBuilder {
                     }
                     1.toByte() -> {
                         val escapedString = ESCAPE_STRINGS[ch]!!
-                        ensureTotalCapacity(sz + escapedString.length)
+                        sz = ensureTotalCapacity(sz, escapedString.length)
                         escapedString.toCharArray(array, sz, 0, escapedString.length)
                         sz += escapedString.length
                         size = sz // Update size so the next resize will take it into account
@@ -107,7 +108,7 @@ internal actual class JsonStringBuilder {
                 array[sz++] = ch.toChar()
             }
         }
-        ensureTotalCapacity(sz + 1)
+        sz = ensureTotalCapacity(sz, 1)
         array[sz++] = '"'
         size = sz
     }
@@ -117,16 +118,19 @@ internal actual class JsonStringBuilder {
     }
 
     private fun ensureAdditionalCapacity(expected: Int) {
-        ensureTotalCapacity(size + expected)
+        ensureTotalCapacity(size, expected)
     }
 
-    private fun ensureTotalCapacity(newSize: Int) {
+    // Old size is passed and returned separately to avoid excessive [size] field read
+    protected open fun ensureTotalCapacity(oldSize: Int, additional: Int): Int {
+        val newSize = oldSize + additional
         if (array.size <= newSize) {
-            array = array.copyOf(newSize.coerceAtLeast(size * 2))
+            array = array.copyOf(newSize.coerceAtLeast(oldSize * 2))
         }
+        return oldSize
     }
 
-    actual fun release() {
+    actual open fun release() {
         CharArrayPool.release(array)
     }
 }

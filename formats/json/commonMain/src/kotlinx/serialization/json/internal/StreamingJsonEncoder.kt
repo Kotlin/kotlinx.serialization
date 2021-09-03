@@ -160,10 +160,7 @@ internal class StreamingJsonEncoder(
 
     override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder =
         if (inlineDescriptor.isUnsignedNumber) StreamingJsonEncoder(
-            ComposerForUnsignedNumbers(
-                composer.sb,
-                json
-            ), json, mode, null
+            ComposerForUnsignedNumbers(composer.sb), json, mode, null
         )
         else super.encodeInline(inlineDescriptor)
 

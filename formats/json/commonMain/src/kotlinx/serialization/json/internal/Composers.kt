@@ -2,39 +2,32 @@
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:OptIn(ExperimentalSerializationApi::class)
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-import kotlin.jvm.*
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
+import kotlin.jvm.JvmField
+
+internal fun Composer(sb: JsonStringBuilder, json: Json): Composer =
+    if (json.configuration.prettyPrint) ComposerWithPrettyPrint(sb, json) else Composer(sb)
 
 @OptIn(ExperimentalSerializationApi::class)
-internal open class Composer(@JvmField internal val sb: JsonStringBuilder, @JvmField internal val json: Json) {
-    private var level = 0
+internal open class Composer(@JvmField internal val sb: JsonStringBuilder) {
     var writingFirst = true
-        private set
+        protected set
 
-    fun indent() {
+    open fun indent() {
         writingFirst = true
-        level++
     }
 
-    fun unIndent() {
-        level--
-    }
+    open fun unIndent() = Unit
 
-    fun nextItem() {
+    open fun nextItem() {
         writingFirst = false
-        if (json.configuration.prettyPrint) {
-            print("\n")
-            repeat(level) { print(json.configuration.prettyPrintIndent) }
-        }
     }
 
-    fun space() {
-        if (json.configuration.prettyPrint)
-            print(' ')
-    }
+    open fun space() = Unit
 
     fun print(v: Char) = sb.append(v)
     fun print(v: String) = sb.append(v)
@@ -49,7 +42,7 @@ internal open class Composer(@JvmField internal val sb: JsonStringBuilder, @JvmF
 }
 
 @ExperimentalUnsignedTypes
-internal class ComposerForUnsignedNumbers(sb: JsonStringBuilder, json: Json) : Composer(sb, json) {
+internal class ComposerForUnsignedNumbers(sb: JsonStringBuilder) : Composer(sb) {
     override fun print(v: Int) {
         return super.print(v.toUInt().toString())
     }
@@ -64,5 +57,31 @@ internal class ComposerForUnsignedNumbers(sb: JsonStringBuilder, json: Json) : C
 
     override fun print(v: Short) {
         return super.print(v.toUShort().toString())
+    }
+}
+
+internal class ComposerWithPrettyPrint(
+    sb: JsonStringBuilder,
+    private val json: Json
+) : Composer(sb) {
+    private var level = 0
+
+    override fun indent() {
+        writingFirst = true
+        level++
+    }
+
+    override fun unIndent() {
+        level--
+    }
+
+    override fun nextItem() {
+        writingFirst = false
+        print("\n")
+        repeat(level) { print(json.configuration.prettyPrintIndent) }
+    }
+
+    override fun space() {
+        print(' ')
     }
 }

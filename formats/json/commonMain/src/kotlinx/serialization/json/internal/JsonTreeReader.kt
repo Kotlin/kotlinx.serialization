@@ -10,7 +10,7 @@ import kotlinx.serialization.json.*
 @OptIn(ExperimentalSerializationApi::class)
 internal class JsonTreeReader(
     configuration: JsonConfiguration,
-    private val lexer: JsonLexer
+    private val lexer: AbstractJsonLexer
 ) {
     private val isLenient = configuration.isLenient
     private var stackDepth = 0

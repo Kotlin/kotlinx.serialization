@@ -46,12 +46,12 @@ class SpecialFloatingPointValuesTest : JsonTestBase() {
         test(Box(Double.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY), """{"d":Infinity,"f":-Infinity}""", it)
     }
 
-    private fun test(box: Box, expected: String, useStreaming: Boolean) {
-        val e1 = assertFailsWith<JsonException> { default.encodeToString(Box.serializer(), box, useStreaming) }
+    private fun test(box: Box, expected: String, jsonTestingMode: JsonTestingMode) {
+        val e1 = assertFailsWith<JsonException> { default.encodeToString(Box.serializer(), box, jsonTestingMode) }
         assertTrue { e1.message!!.contains("Unexpected special floating-point value") }
-        assertEquals(expected, json.encodeToString(Box.serializer(), box, useStreaming))
-        assertEquals(box, json.decodeFromString(Box.serializer(), expected, useStreaming))
-        val e2 = assertFailsWith<JsonException> { default.decodeFromString(Box.serializer(), expected, useStreaming) }
+        assertEquals(expected, json.encodeToString(Box.serializer(), box, jsonTestingMode))
+        assertEquals(box, json.decodeFromString(Box.serializer(), expected, jsonTestingMode))
+        val e2 = assertFailsWith<JsonException> { default.decodeFromString(Box.serializer(), expected, jsonTestingMode) }
         assertTrue { e2.message!!.contains("Unexpected special floating-point value") }
     }
 }

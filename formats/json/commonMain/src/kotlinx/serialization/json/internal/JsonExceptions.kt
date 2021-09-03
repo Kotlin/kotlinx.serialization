@@ -28,7 +28,7 @@ internal fun JsonDecodingException(offset: Int, message: String) =
  */
 internal class JsonEncodingException(message: String) : JsonException(message)
 
-internal fun JsonDecodingException(offset: Int, message: String, input: String) =
+internal fun JsonDecodingException(offset: Int, message: String, input: CharSequence) =
     JsonDecodingException(offset, "$message\nJSON input: ${input.minify(offset)}")
 
 internal fun InvalidFloatingPointEncoded(value: Number, output: String) = JsonEncodingException(
@@ -45,7 +45,7 @@ internal fun InvalidFloatingPointDecoded(value: Number, key: String, output: Str
     JsonDecodingException(-1, unexpectedFpErrorMessage(value, key, output))
 
 // Extension on JSON reader and fail immediately
-internal fun JsonLexer.throwInvalidFloatingPointDecoded(result: Number): Nothing {
+internal fun AbstractJsonLexer.throwInvalidFloatingPointDecoded(result: Number): Nothing {
     fail("Unexpected special floating-point value $result. By default, " +
             "non-finite floating point values are prohibited because they do not conform JSON specification. " +
             specialFlowingValuesHint
@@ -73,7 +73,7 @@ internal fun InvalidKeyKindException(keyDescriptor: SerialDescriptor) = JsonEnco
             allowStructuredMapKeysHint
 )
 
-private fun String.minify(offset: Int = -1): String {
+private fun CharSequence.minify(offset: Int = -1): CharSequence {
     if (length < 200) return this
     if (offset == -1) {
         val start = this.length - 60

@@ -38,7 +38,7 @@ class JsonNamesTest : JsonTestBase() {
     private val inputString1 = """{"foo":"foo"}"""
     private val inputString2 = """{"_foo":"foo"}"""
 
-    private fun parameterizedCoercingTest(test: (json: Json, streaming: Boolean, msg: String) -> Unit) {
+    private fun parameterizedCoercingTest(test: (json: Json, streaming: JsonTestingMode, msg: String) -> Unit) {
         for (coercing in listOf(true, false)) {
             val json = Json {
                 coerceInputValues = coercing
@@ -80,7 +80,7 @@ class JsonNamesTest : JsonTestBase() {
     fun testParsesAllAlternativeNames() = noLegacyJs {
         for (input in listOf(inputString1, inputString2)) {
             parameterizedCoercingTest { json, streaming, _ ->
-                val data = json.decodeFromString(WithNames.serializer(), input, useStreaming = streaming)
+                val data = json.decodeFromString(WithNames.serializer(), input, jsonTestingMode = streaming)
                 assertEquals("foo", data.data, "Failed to parse input '$input' with streaming=$streaming")
             }
         }
@@ -96,7 +96,7 @@ class JsonNamesTest : JsonTestBase() {
             ) {
                 json.decodeFromString(
                     serializer, inputString2,
-                    useStreaming = streaming
+                    jsonTestingMode = streaming
                 )
             }
         }
