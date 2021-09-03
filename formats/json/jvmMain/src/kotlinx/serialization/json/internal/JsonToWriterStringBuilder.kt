@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.json.internal
 
 import java.io.OutputStream
@@ -15,7 +19,7 @@ internal class JsonToWriterStringBuilder(private val writer: Writer) : JsonStrin
         val requiredSize = oldSize + additional
         val currentSize = array.size
         if (currentSize <= requiredSize) {
-            dumpAndReset(oldSize)
+            flush(oldSize)
             if (additional > currentSize) {
                 // Handle strings that are longer than buffer:
                 // Ideally, we should make `ensureAdditionalCapacity` return boolean and fall back
@@ -28,13 +32,13 @@ internal class JsonToWriterStringBuilder(private val writer: Writer) : JsonStrin
         return oldSize
     }
 
-    private fun dumpAndReset(sz: Int = size) {
+    private fun flush(sz: Int = size) {
         writer.write(array, 0, sz)
         size = 0
     }
 
     override fun release() {
-        dumpAndReset()
+        flush()
         writer.flush()
     }
 }
