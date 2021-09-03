@@ -1,5 +1,5 @@
-import org.jetbrains.kotlin.gradle.plugin.*
 import java.util.*
+import java.io.FileInputStream
 
 plugins {
     `kotlin-dsl`
@@ -9,8 +9,14 @@ repositories {
     mavenCentral()
 }
 
+val kotlinVersion = FileInputStream(file("../gradle.properties")).use { propFile ->
+    val ver = Properties().apply { load(propFile) }["kotlin.version"]
+    require(ver is String) { "kotlin.version must be string in ../gradle.properties, got $ver instead" }
+    ver
+}
+
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30-RC")
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
 }
 
 kotlinDslPluginOptions {
