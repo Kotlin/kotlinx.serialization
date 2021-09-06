@@ -6,8 +6,25 @@ apply plugin: 'kotlin'
 apply plugin: 'kotlinx-serialization'
 
 compileKotlin {
-    kotlinOptions.allWarningsAsErrors = true
+    kotlinOptions {
+        allWarningsAsErrors = true
+        jvmTarget = '1.8'
+    }
 }
+
+configurations {
+    apiElements {
+        attributes {
+            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 8)
+        }
+    }
+    runtimeElements {
+        attributes {
+            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 8)
+        }
+    }
+}
+
 
 dependencies {
     compile project(':kotlinx-serialization-core')
