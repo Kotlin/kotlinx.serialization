@@ -1,6 +1,6 @@
 <html><head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
-    <title>UseContextualSerialization</title>
+    <title>InheritableSerialInfo</title>
     <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
     <link href="../../../styles/style.css" rel="Stylesheet">
     <script type="text/javascript" src="../../../scripts/navigationLoader.js" async></script>
@@ -22,38 +22,24 @@
         <div id="searchBar"></div>
         <script type="text/javascript" src="../../../scripts/pages.js"></script>
         <script type="text/javascript" src="../../../scripts/main.js"></script>
-        <div id="content" pageids="kotlinx-serialization-core::kotlinx.serialization/UseContextualSerialization///PointingToDeclaration/">
-          <div class="breadcrumbs"><a href="../../index.html">kotlinx-serialization-core</a>/<a href="../index.html">kotlinx.serialization</a>/<a href="index.html">UseContextualSerialization</a></div>
+        <div id="content" pageids="kotlinx-serialization-core::kotlinx.serialization/InheritableSerialInfo///PointingToDeclaration/">
+          <div class="breadcrumbs"><a href="../../index.html">kotlinx-serialization-core</a>/<a href="../index.html">kotlinx.serialization</a>/<a href="index.html">InheritableSerialInfo</a></div>
           <div class="cover ">
             <div class="filter-section" id="filter-section"><button class="platform-tag platform-selector common-like" data-active="" data-filter=":kotlinx-serialization-core:dokkaHtml/commonMain">common</button></div>
-            <h1 class="cover"><a data-name="usecontextualserialization"></a><span>Use</span><wbr><span>Contextual</span><wbr><span>Serialization</span></h1>
-            <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtml/commonMain"><p class="paragraph">Instructs the plugin to use <a href="../-contextual-serializer/index.html">ContextualSerializer</a> for every type in the current file that is listed in the <a href="index.html#kotlinx.serialization%2FUseContextualSerialization%2FforClasses%2F%23%2FPointingToDeclaration%2F">forClasses</a>.</p><div class="symbol monospace"><div class="block"><div class="block">@<span data-unresolved-link="kotlin.annotation/Target///PointingToDeclaration/">Target</span>(<span>allowedTargets = [<span><span data-unresolved-link="kotlin.annotation/AnnotationTarget.FILE///PointingToDeclaration/">AnnotationTarget.FILE</span></span><wbr>]</span><wbr>)</div></div>annotation class <a href="index.html">UseContextualSerialization</a>(forClasses: <span data-unresolved-link="kotlin/Array///PointingToDeclaration/">Array</span>&lt;out <span data-unresolved-link="kotlin.reflect/KClass///PointingToDeclaration/">KClass</span>&lt;*&gt;&gt;)<span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <h1 class="cover"><a data-name="inheritableserialinfo"></a><span>Inheritable</span><wbr><span>Serial</span><wbr><span>Info</span></h1>
+            <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtml/commonMain"><p class="paragraph"></p><p class="paragraph">Meta-annotation that commands the compiler plugin to handle the annotation as serialization-specific. Serialization-specific annotations are preserved in the <a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a> and can be retrieved during serialization process with <a href="../../kotlinx.serialization.descriptors/-serial-descriptor/get-element-annotations.html">SerialDescriptor.getElementAnnotations</a>.</p><p class="paragraph">In contrary to regular <a href="../-serial-info/index.html">SerialInfo</a>, this one makes annotations inheritable: If class X marked as <a href="../-serializable/index.html">Serializable</a> has any of its supertypes annotated with annotation A that has <code>@InheritableSerialInfo</code> on it, A appears in X's <a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a> even if X itself is not annotated. It is possible to use A multiple times on different supertypes. Resulting X's <a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html#kotlinx.serialization.descriptors%2FSerialDescriptor%2Fannotations%2F%23%2FPointingToDeclaration%2F">SerialDescriptor.annotations</a> would still contain only one instance of A. Note that if A has any arguments, their values should be the same across all hierarchy. Otherwise, a compilation error would be reported by the plugin.</p><p class="paragraph">Example:</p><div class="sample-container"><code class="" theme="idea"><pre>@InheritableSerialInfo<br>annotation class A(val value: Int)<br><br>@A(1) // Annotation can also be inherited from interfaces<br>interface I<br><br>@Serializable<br>@A(1) // Argument value is the same as in I, no compiler error<br>abstract class Base: I<br><br>@Serializable<br>class Derived: Base()<br><br>// This function returns 1.<br>fun foo(): Int = Derived.serializer().descriptor.annotations.filterIsInstance&lt;A&gt;().single().value</pre></code></div><p></p><div class="symbol monospace"><div class="block"><div class="block">@<span data-unresolved-link="kotlin.annotation/Target///PointingToDeclaration/">Target</span>(<span>allowedTargets = [<span><span data-unresolved-link="kotlin.annotation/AnnotationTarget.ANNOTATION_CLASS///PointingToDeclaration/">AnnotationTarget.ANNOTATION_CLASS</span></span><wbr>]</span><wbr>)</div></div>annotation class <a href="index.html">InheritableSerialInfo</a><span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black" />
                        </svg></span><div class="copy-popup-wrapper popup-to-left"><svg width="18" height="18" viewbox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F" />
 </svg><span>Content copied to clipboard</span></div></span></div></div></div>
           </div>
           <div class="tabbedcontent">
-            <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Constructors">Constructors</button><button class="section-tab" data-togglable="Functions">Functions</button><button class="section-tab" data-togglable="Properties">Properties</button><button class="section-tab" data-togglable="See also">See also</button></div>
+            <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Constructors">Constructors</button><button class="section-tab" data-togglable="Functions">Functions</button></div>
             <div class="tabs-section-body">
-              <h2 class=""><a data-name="seealso"></a>See also</h2>
-              <div data-togglable="See also">
-                <div class="platform-hinted WithExtraAttributes" data-platform-hinted="data-platform-hinted" data-togglable="See also"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtml/commonMain"><div data-togglable="See also"><div class="table" data-togglable="See also"><a data-name="kotlinx.serialization%2FUseContextualSerialization%2F%2F%2FPointingToDeclaration%2F"></a><div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtml/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtml/commonMain"><div class="main-subrow WithExtraAttributes RowTitle"><span><a href="../-contextual/index.html">Contextual</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="kotlinx.serialization%2FUseContextualSerialization%2F%2F%2FPointingToDeclaration%2F"><svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z" />
-    <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z" />
-</svg></span><div class="copy-popup-wrapper "><svg width="18" height="18" viewbox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F" />
-</svg><span>Link copied to clipboard</span></div></span></span></div><div class="platform-dependent-row keyValue"><div><div data-togglable="See also"><p class="paragraph"></p></div></div><div class="title"></div></div></div><a data-name="kotlinx.serialization%2FUseContextualSerialization%2F%2F%2FPointingToDeclaration%2F"></a><div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtml/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtml/commonMain"><div class="main-subrow WithExtraAttributes RowTitle"><span><a href="../-contextual-serializer/index.html">ContextualSerializer</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="kotlinx.serialization%2FUseContextualSerialization%2F%2F%2FPointingToDeclaration%2F"><svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z" />
-    <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z" />
-</svg></span><div class="copy-popup-wrapper "><svg width="18" height="18" viewbox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F" />
-</svg><span>Link copied to clipboard</span></div></span></span></div><div class="platform-dependent-row keyValue"><div><div data-togglable="See also"><p class="paragraph"></p></div></div><div class="title"></div></div></div></div></div></div></div>
-              </div>
               <h2 class="tabbedcontent"><a data-name="constructors"></a>Constructors</h2>
-              <div class="table" data-togglable="Constructors"><a data-name="kotlinx.serialization%2FUseContextualSerialization%2FUseContextualSerialization%2F%23kotlin.Array%5Bkotlin.reflect.KClass%5B*%5D%5D%2FPointingToDeclaration%2F"></a>
+              <div class="table" data-togglable="Constructors"><a data-name="kotlinx.serialization%2FInheritableSerialInfo%2FInheritableSerialInfo%2F%23%2FPointingToDeclaration%2F"></a>
                 <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtml/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtml/commonMain">
-                  <div class="main-subrow TabbedContent"><span><a href="-use-contextual-serialization.html">UseContextualSerialization</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="kotlinx.serialization%2FUseContextualSerialization%2FUseContextualSerialization%2F%23kotlin.Array%5Bkotlin.reflect.KClass%5B*%5D%5D%2FPointingToDeclaration%2F"><svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <div class="main-subrow TabbedContent"><span><a href="-inheritable-serial-info.html">InheritableSerialInfo</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="kotlinx.serialization%2FInheritableSerialInfo%2FInheritableSerialInfo%2F%23%2FPointingToDeclaration%2F"><svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z" />
     <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z" />
 </svg></span>
@@ -68,7 +54,7 @@
                   <div class="platform-dependent-row keyValue">
                     <div></div>
                     <div class="title">
-                      <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Constructors"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtml/commonMain"><div class="symbol monospace">fun <a href="-use-contextual-serialization.html">UseContextualSerialization</a>(vararg forClasses: <span data-unresolved-link="kotlin/Array///PointingToDeclaration/">Array</span>&lt;out <span data-unresolved-link="kotlin.reflect/KClass///PointingToDeclaration/">KClass</span>&lt;*&gt;&gt;)<span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Constructors"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtml/commonMain"><div class="symbol monospace">fun <a href="-inheritable-serial-info.html">InheritableSerialInfo</a>()<span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black" />
                        </svg></span><div class="copy-popup-wrapper popup-to-left"><svg width="18" height="18" viewbox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F" />
@@ -166,33 +152,6 @@
   </div>
 </div>
 </div>
-                  </div>
-                </div>
-              </div>
-              <h2 class=""><a data-name="properties"></a>Properties</h2>
-              <div class="table" data-togglable="Properties"><a data-name="kotlinx.serialization%2FUseContextualSerialization%2FforClasses%2F%23%2FPointingToDeclaration%2F"></a>
-                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtml/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtml/commonMain">
-                  <div class="main-subrow "><span><a href="index.html#kotlinx.serialization%2FUseContextualSerialization%2FforClasses%2F%23%2FPointingToDeclaration%2F">forClasses</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="kotlinx.serialization%2FUseContextualSerialization%2FforClasses%2F%23%2FPointingToDeclaration%2F"><svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z" />
-    <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z" />
-</svg></span>
-                        <div class="copy-popup-wrapper "><svg width="18" height="18" viewbox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F" />
-</svg><span>Link copied to clipboard</span></div>
-                      </span></span>
-                    <div class="platform-tags">
-                      <div class="platform-tag common-like">common</div>
-                    </div>
-                  </div>
-                  <div class="platform-dependent-row keyValue">
-                    <div></div>
-                    <div class="title">
-                      <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtml/commonMain"><div class="symbol monospace">val <a href="index.html#kotlinx.serialization%2FUseContextualSerialization%2FforClasses%2F%23%2FPointingToDeclaration%2F">forClasses</a>: <span data-unresolved-link="kotlin/Array///PointingToDeclaration/">Array</span>&lt;out <span data-unresolved-link="kotlin.reflect/KClass///PointingToDeclaration/">KClass</span>&lt;*&gt;&gt;<span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black" />
-                       </svg></span><div class="copy-popup-wrapper popup-to-left"><svg width="18" height="18" viewbox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F" />
-</svg><span>Content copied to clipboard</span></div></span></div></div></div>
-                    </div>
                   </div>
                 </div>
               </div>
