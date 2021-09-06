@@ -1,3 +1,78 @@
+1.3.0-RC / 2021-09-06
+==================
+
+This is a release candidate for the next version. It contains a lot of interesting features and improvements,
+so we ask you to evaluate it and share your feedback.
+Kotlin 1.5.30 is used by default.
+
+### Java IO stream-based JSON serialization
+
+Finally, in `kotlinx.serialization` 1.3.0 we’re presenting the first experimental version of the serialization API for IO streams:
+`Json.encodeToStream` and `Json.decodeFromStream` extension functions.
+With this API, you can decode objects directly from files, network connections, and other data sources without reading the data to strings beforehand.
+The opposite operation is also available: you can send encoded objects directly to files and other streams in a single API call.
+IO stream serialization is available only on the JVM platform and for the JSON format for now.
+
+Check out more in the [PR](https://github.com/Kotlin/kotlinx.serialization/pull/1569).
+
+### Property-level control over defaults values encoding
+
+Previous versions of the library allowed to specify whether to encode or drop default properties values with
+format configuration flags such as `Json { encodeDefaults = false }`.
+In 1.3.0 we’re extending this feature by adding a new way to fine-tune the serialization of default values:
+you can now control it on the property level using the new `@EncodeDefaults` annotation.
+
+`@EncodeDefaults` annotation has a higher priority over the `encodeDefaults` property and takes one of two possible values:
+- `ALWAYS` (default value) encodes a property value even if it equals to default.
+- `NEVER` doesn’t encode the default value regardless of the format configuration.
+
+Encoding of the annotated properties is not affected by `encodeDefault` format flag
+and works as described for all serialization formats, not only JSON.
+
+To learn more, check corresponding [PR](https://github.com/Kotlin/kotlinx.serialization/pull/1528).
+
+### Excluding null values from JSON serialization
+
+In 1.3.0, we’re introducing one more way to reduce the size of the generated JSON strings: omitting null values.
+A new JSON configuration property `explicitNulls` defines whether `null` property values should be included in the serialized JSON string.
+The difference from `encodeDefaults` is that `explicitNulls = false` flag drops null values even if the property does not have a default value.
+Upon deserializing such a missing property, a `null` or default value (if it exists) will be used.
+
+To maintain backwards compatibility, this flag is set to `true` by default.
+You can learn more in the [documentation](docs/json.md#explicit-nulls) or the [PR](https://github.com/Kotlin/kotlinx.serialization/pull/1535).
+
+### Per-hierarchy polymorphic class discriminators
+
+In previous versions, you could change the discriminator name using the
+[classDiscriminator](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/json.md#class-discriminator) property of the `Json` instance.
+In 1.3.0, we’re adding a way to set a custom discriminator name for each class hierarchy to enable more flexible serialization.
+You can do it by annotating a class with `@JsonClassDiscriminator` with the discriminator name as its argument.
+A custom discriminator is applied to the annotated class and its subclasses.
+Only one custom discriminator can be used in each class hierarchy, thanks to the new `@InheritableSerialInfo` annotation.
+
+Check out corresponding [PR](https://github.com/Kotlin/kotlinx.serialization/pull/1608) for details.
+
+### Support for Java module system
+
+Now all kotlinx.serialization runtime libraries are shipped as a multi-release JAR with `module-info.class` file for Java versions 9 and higher.
+This enables possibilities to use kotlinx.serialization with modern tools such as `jlink` and various technologies such as `TorandoFX`.
+
+Many thanks to our contributor [Gerard de Leeuw](https://github.com/lion7) and his [PR](https://github.com/Kotlin/kotlinx.serialization/pull/1624) for making this possible.
+
+### Native targets for Apple Silicon
+
+This release includes klibs for new targets, introduced in Kotlin/Native 1.5.30 —
+`macosArm64`, `iosSimulatorArm64`, `watchosSimulatorArm64`, and `tvosSimulatorArm64`.
+
+### Bugfixes and improvements
+
+  * Properly handle quoted 'null' literals in lenient mode (#1637)
+  * Switch on deep recursive function when nested level of JSON is too deep (#1596)
+  * Support for local serializable classes in IR compiler
+  * Support default values for `@SerialInfo` annotations in IR compiler
+  * Improve error message for JsonTreeReader (#1597)
+  * Add guide for delegating serializers and wrapping serial descriptor (#1591)
+  * Set target JVM version to 8 for Hocon module in Gradle metadata (#1661)
 
 1.2.2 / 2021-07-08
 ==================
