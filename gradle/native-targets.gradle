@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 /**
@@ -110,6 +110,12 @@ kotlin {
 
             addTarget(presets.tvosArm64)
             addTarget(presets.tvosX64)
+
+            // Apple Silicon
+            addTarget(presets.iosSimulatorArm64)
+            addTarget(presets.watchosSimulatorArm64)
+            addTarget(presets.tvosSimulatorArm64)
+            addTarget(presets.macosArm64)
 
             // Windows
             addTarget(presets.mingwX64)
