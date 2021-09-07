@@ -16,7 +16,7 @@ val kotlinVersion = FileInputStream(file("../gradle.properties")).use { propFile
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+    implementation(kotlin("gradle-plugin", kotlinVersion))
 }
 
 kotlinDslPluginOptions {
