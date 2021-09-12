@@ -394,8 +394,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
 
     private fun skipOverTags() {
         while ((curByte and 0b111_00000) == HEADER_TAG) {
-            val tagNumber = readNumber()
-            print(tagNumber)
+            readNumber() // This is the tag number
             readByte()
         }
     }
