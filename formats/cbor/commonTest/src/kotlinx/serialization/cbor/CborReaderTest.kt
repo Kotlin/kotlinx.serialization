@@ -412,6 +412,50 @@ class CborReaderTest {
         }
     }
 
+    /**
+     * Tests that skipping unknown keys also skips over associated tags.
+     *
+     * Includes tags on the key, tags on the value, and tags on both key and value.
+     */
+    @Test
+    fun testSkipTags() {
+        /*
+         * A4                                 # map(4)
+         * 61                              # text(1)
+         *    61                           # "a"
+         * CC                              # tag(12)
+         *    1B FFFFFFFFFFFFFFFF          # unsigned(18446744073709551615)
+         * D8 22                           # tag(34)
+         *    61                           # text(1)
+         *       62                        # "b"
+         * 20                              # negative(0)
+         * D8 38                           # tag(56)
+         *    61                           # text(1)
+         *       63                        # "c"
+         * D8 4E                           # tag(78)
+         *    42                           # bytes(2)
+         *       CAFE                      # "\xCA\xFE"
+         * 61                              # text(1)
+         *    64                           # "d"
+         * D8 5A                           # tag(90)
+         *    CC                           # tag(12)
+         *       6B                        # text(11)
+         *          48656C6C6F20776F726C64 # "Hello world"
+         */
+        withDecoder("A46161CC1BFFFFFFFFFFFFFFFFD822616220D8386163D84E42CAFE6164D85ACC6B48656C6C6F20776F726C64") {
+            expectMap(size = 4)
+            expect("a")
+            skipElement() // unsigned(18446744073709551615)
+            expect("b")
+            skipElement() // negative(0)
+            expect("c")
+            skipElement() // "\xCA\xFE"
+            expect("d")
+            skipElement() // "Hello world"
+            expectEof()
+        }
+    }
+
     @Test
     fun testDecodeCborWithUnknownField() {
         assertEquals(
