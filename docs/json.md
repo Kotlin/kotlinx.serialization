@@ -423,7 +423,7 @@ The main concept in this part of the library is [JsonElement]. Read on to learn 
 
 A string can be _parsed_ into an instance of [JsonElement] with the [Json.parseToJsonElement] function.
 It is called neither decoding nor deserialization because none of that happens in the process. 
-It just parses a string and forms an object representing it:
+It just parses a JSON and forms an object representing it:
 
 ```kotlin
 fun main() {
