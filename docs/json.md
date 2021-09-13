@@ -816,7 +816,7 @@ Here are some useful things about custom serializers with [Json]:
 * [Encoder] can be cast to [JsonEncoder], and [Decoder] to [JsonDecoder], if the current format is [Json].
 * `JsonDecoder` has the [decodeJsonElement][JsonDecoder.decodeJsonElement] method and `JsonEncoder` 
   has the [encodeJsonElement][JsonEncoder.encodeJsonElement] method,
-  which basically retrieve and insert an element from/to a current position in the stream.
+  which basically retrieve an element from and insert an element to a current position in the stream.
 * Both [`JsonDecoder`][JsonDecoder.json] and [`JsonEncoder`][JsonEncoder.json] have the `json` property, 
   which returns [Json] instance with all settings that are currently in use.
 * [Json] has the [encodeToJsonElement][Json.encodeToJsonElement] and [decodeFromJsonElement][Json.decodeFromJsonElement] methods.
