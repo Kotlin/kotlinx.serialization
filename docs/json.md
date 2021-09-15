@@ -32,6 +32,7 @@ In this chapter we'll walk through various [Json] features.
   * [Content-based polymorphic deserialization](#content-based-polymorphic-deserialization)
   * [Under the hood (experimental)](#under-the-hood-experimental)
   * [Maintaining custom JSON attributes](#maintaining-custom-json-attributes)
+  * [ByteArray serialization](#bytearray-serialization)
 
 <!--- END -->
 
@@ -955,6 +956,25 @@ UnknownProject(name=example, details={"type":"unknown","maintainer":"Unknown","l
 
 <!--- TEST -->
 
+### ByteArray serialization
+
+By default, kotlinx.serialization treats a `ByteArray` as a list-like structure and serialize it to a list of numbers. 
+In spite of that it's generally correct, in JSON it usually takes much more space
+than we probably desired. The typical solution for storing byte arrays in text formats is 
+using [BASE64] encodings. 
+
+In kotlinx.serialization it could be achieved by applying [ByteArrayAsBase64StringSerializer] to a byte array property
+and [UByteArrayAsBase64StringSerializer] for experimental `UByteArray` type.
+
+```kotlin
+class Attachment(
+    val title: String,
+    
+    @Serializable(with = ByteArrayAsBase64StringSerializer::class)
+    val body: ByteArray
+)
+```
+
 ---
 
 The next chapter covers [Alternative and custom formats (experimental)](formats.md).
@@ -962,6 +982,7 @@ The next chapter covers [Alternative and custom formats (experimental)](formats.
 
 <!-- references -->
 [RFC-4627]: https://www.ietf.org/rfc/rfc4627.txt
+[BASE64]: https://en.wikipedia.org/wiki/Base64
 
 <!-- stdlib references -->
 [Double.NaN]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double/-na-n.html
@@ -1019,4 +1040,8 @@ The next chapter covers [Alternative and custom formats (experimental)](formats.
 [JsonDecoder.json]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-decoder/index.html#kotlinx.serialization.json%2FJsonDecoder%2Fjson%2F%23%2FPointingToDeclaration%2F
 [JsonEncoder.json]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-encoder/index.html#kotlinx.serialization.json%2FJsonEncoder%2Fjson%2F%23%2FPointingToDeclaration%2F
 [Json.encodeToJsonElement]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json/encode-to-json-element.html
+<!--- MODULE /kotlinx-serialization-base64 -->
+<!--- INDEX kotlinx-serialization-base64/kotlinx.serialization.base64 -->
+[ByteArrayAsBase64StringSerializer]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-base64/kotlinx-serialization-base64/kotlinx.serialization.base64/-byte-array-as-base64-string-serializer/index.html
+[UByteArrayAsBase64StringSerializer]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-base64/kotlinx-serialization-base64/kotlinx.serialization.base64/-u-byte-array-as-base64-string-serializer/index.html
 <!--- END -->

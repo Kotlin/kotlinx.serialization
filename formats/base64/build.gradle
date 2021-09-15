@@ -1,0 +1,27 @@
+/*
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+apply plugin: 'kotlin-multiplatform'
+apply plugin: 'kotlinx-serialization'
+apply from: rootProject.file("gradle/native-targets.gradle")
+apply from: rootProject.file("gradle/configure-source-sets.gradle")
+
+kotlin {
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api project(":kotlinx-serialization-core")
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation project(":kotlinx-serialization-json")
+            }
+        }
+    }
+}
+
+Java9Modularity.configureJava9ModuleInfo(project)

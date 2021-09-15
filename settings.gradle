@@ -26,6 +26,9 @@ project(':kotlinx-serialization-hocon').projectDir = file('./formats/hocon')
 include ':kotlinx-serialization-properties'
 project(':kotlinx-serialization-properties').projectDir = file('./formats/properties')
 
+include ':kotlinx-serialization-base64'
+project(':kotlinx-serialization-base64').projectDir = file('./formats/base64')
+
 include ':benchmark'
 project(':benchmark').projectDir = file('./benchmark')
 

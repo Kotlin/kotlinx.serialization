@@ -10,7 +10,8 @@ def documentedSubprojects = ["kotlinx-serialization-core",
                              "kotlinx-serialization-cbor",
                              "kotlinx-serialization-properties",
                              "kotlinx-serialization-hocon",
-                             "kotlinx-serialization-protobuf"]
+                             "kotlinx-serialization-protobuf",
+                             "kotlinx-serialization-base64"]
 subprojects {
     if (!(name in documentedSubprojects)) return
     apply plugin: 'org.jetbrains.dokka'
