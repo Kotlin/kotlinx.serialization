@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.json.internal
 
 import java.io.*
@@ -93,7 +97,7 @@ internal class ReaderJsonLexer(
         if (position < source.length) return position
         currentPosition = position
         ensureHaveChars()
-        if (currentPosition != 0) return -1 // if something was loaded, then it would be zero.
+        if (currentPosition != 0 || source.isEmpty()) return -1 // if something was loaded, then it would be zero.
         return 0
     }
 
