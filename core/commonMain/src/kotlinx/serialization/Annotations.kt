@@ -74,6 +74,67 @@ public annotation class Serializable(
 )
 
 /**
+ * The meta-annotation for adding behaviour of [Serializable] to custom annotations.
+ * Applying [MetaSerializable] to the annotation class instructs the serialization plugin to treat this annotation
+ * as [Serializable].
+ *
+ * ```
+ * @MetaSerializable
+ * @Target(AnnotationTarget.CLASS)
+ * annotation class MySerializable
+ *
+ * @MySerializable
+ * class MyData(val myData: AnotherData, val intProperty: Int, ...)
+ *
+ * // Produces JSON string using the generated serializer
+ * val jsonString = Json.encodeToJson(MyData.serializer(), instance)
+ * ```
+ *
+ * All annotations marked with [MetaSerializable] are saved in the generated [SerialDescriptor]
+ * as if they are annotated [SerialInfo].
+ *
+ * ```
+ * @MetaSerializable
+ * @Target(AnnotationTarget.CLASS)
+ * annotation class MySerializable(val data: String)
+ *
+ * @MySerializable("some_data")
+ * class MyData(val myData: AnotherData, val intProperty: Int, ...)
+ *
+ * val serializer = MyData.serializer()
+ * serializer.descriptor.annotations.filterIsInstance<MySerializable>().first().data // <- returns "some_data"
+ * ```
+ *
+ * Additionally, the user-defined serializer can be specified using parameter
+ * annotated with [MetaSerializable.Serializer]:
+ * ```
+ * @MetaSerializable
+ * @Target(AnnotationTarget.CLASS)
+ * annotation class MySerializable(
+ *   @MetaSerializable.Serializer val serializer: KClass<out KSerializer<*>>,
+ *   val data: String
+ * )
+ *
+ * @MetaSerializable(serializer = MyDataCustomSerializer::class, data = "some_data")
+ * class MyData(...)
+ *
+ * MyData.serializer() // <- returns MyDataCustomSerializer
+ * ```
+ *
+ * @see Serializable
+ * @see SerialInfo
+ * @see UseSerializers
+ * @see Serializer
+ */
+@Target(AnnotationTarget.ANNOTATION_CLASS)
+//@Retention(AnnotationRetention.RUNTIME) // Runtime is the default retention, also see KT-41082
+@ExperimentalSerializationApi
+public annotation class MetaSerializable {
+    @Target(AnnotationTarget.PROPERTY)
+    public annotation class Serializer
+}
+
+/**
  * Instructs the serialization plugin to turn this class into serializer for specified class [forClass].
  * However, it would not be used automatically. To apply it on particular class or property,
  * use [Serializable] or [UseSerializers], or [Contextual] with runtime registration.
