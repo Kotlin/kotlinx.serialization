@@ -18,4 +18,4 @@ class OwnedProject(override val name: String, val owner: String) : Project()
 fun main() {
     val data: Project = OwnedProject("kotlinx.coroutines", "kotlin")
     println(format.encodeToString(data))
-}  
+}
