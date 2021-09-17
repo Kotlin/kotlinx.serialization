@@ -32,6 +32,7 @@ private const val HEADER_STRING: Byte = 0b011_00000
 private const val HEADER_NEGATIVE: Byte = 0b001_00000
 private const val HEADER_ARRAY: Int = 0b100_00000
 private const val HEADER_MAP: Int = 0b101_00000
+private const val HEADER_TAG: Int = 0b110_00000
 
 /** Value to represent an indefinite length CBOR item within a "length stack". */
 private const val LENGTH_STACK_INDEFINITE = -1
@@ -326,11 +327,13 @@ internal class CborDecoder(private val input: ByteArrayInput) {
     fun isNull() = curByte == NULL
 
     fun nextNull(): Nothing? {
+        skipOverTags()
         skipByte(NULL)
         return null
     }
 
     fun nextBoolean(): Boolean {
+        skipOverTags()
         val ans = when (curByte) {
             TRUE -> true
             FALSE -> false
@@ -345,6 +348,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
     fun startMap() = startSized(BEGIN_MAP, HEADER_MAP, "map")
 
     private fun startSized(unboundedHeader: Int, boundedHeaderMask: Int, collectionType: String): Int {
+        skipOverTags()
         if (curByte == unboundedHeader) {
             skipByte(unboundedHeader)
             return -1
@@ -361,6 +365,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
     fun end() = skipByte(BREAK)
 
     fun nextByteString(): ByteArray {
+        skipOverTags()
         if ((curByte and 0b111_00000) != HEADER_BYTE_STRING.toInt())
             throw CborDecodingException("start of byte string", curByte)
         val arr = readBytes()
@@ -369,6 +374,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
     }
 
     fun nextString(): String {
+        skipOverTags()
         if ((curByte and 0b111_00000) != HEADER_STRING.toInt())
             throw CborDecodingException("start of string", curByte)
         val arr = readBytes()
@@ -386,7 +392,15 @@ internal class CborDecoder(private val input: ByteArrayInput) {
             input.readExactNBytes(strLen)
         }
 
+    private fun skipOverTags() {
+        while ((curByte and 0b111_00000) == HEADER_TAG) {
+            readNumber() // This is the tag number
+            readByte()
+        }
+    }
+
     fun nextNumber(): Long {
+        skipOverTags()
         val res = readNumber()
         readByte()
         return res
@@ -430,6 +444,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
     }
 
     fun nextFloat(): Float {
+        skipOverTags()
         val res = when (curByte) {
             NEXT_FLOAT -> Float.fromBits(readInt())
             NEXT_HALF -> floatFromHalfBits(readShort())
@@ -440,6 +455,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
     }
 
     fun nextDouble(): Double {
+        skipOverTags()
         val res = when (curByte) {
             NEXT_DOUBLE -> Double.fromBits(readLong())
             NEXT_FLOAT -> Float.fromBits(readInt()).toDouble()
@@ -489,6 +505,8 @@ internal class CborDecoder(private val input: ByteArrayInput) {
     fun skipElement() {
         val lengthStack = mutableListOf<Int>()
 
+        skipOverTags()
+
         do {
             if (isEof()) throw CborDecodingException("Unexpected EOF while skipping element")
 
@@ -503,6 +521,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
                 val length = elementLength()
                 if (header == HEADER_ARRAY || header == HEADER_MAP) {
                     if (length > 0) lengthStack.add(length)
+                    skipOverTags()
                 } else {
                     input.skip(length)
                     prune(lengthStack)
@@ -558,6 +577,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
      * | 3. string           | bytes                          |
      * | 4. array            | data items (values)            |
      * | 5. map              | sub-items (keys + values)      |
+     * | 6. tag              | bytes                          |
      */
     private fun elementLength(): Int {
         val majorType = curByte and 0b111_00000
