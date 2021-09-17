@@ -3,7 +3,7 @@
 # JSON features
 
 This is the fifth chapter of the [Kotlin Serialization Guide](serialization-guide.md).
-In this chapter we'll walk through various [Json] features.
+In this chapter, we'll walk through features of [JSON](https://www.json.org/json-en.html) serialization available in the [Json] class.
 
 **Table of contents**
 
@@ -22,9 +22,9 @@ In this chapter we'll walk through various [Json] features.
   * [Class discriminator](#class-discriminator)
 * [Json elements](#json-elements)
   * [Parsing to Json element](#parsing-to-json-element)
-  * [Subtypes of Json elements](#subtypes-of-json-elements)
+  * [Types of Json elements](#types-of-json-elements)
   * [Json element builders](#json-element-builders)
-  * [Decoding Json element](#decoding-json-element)
+  * [Decoding Json elements](#decoding-json-elements)
 * [Json transformations](#json-transformations)
   * [Array wrapping](#array-wrapping)
   * [Array unwrapping](#array-unwrapping)
@@ -37,19 +37,19 @@ In this chapter we'll walk through various [Json] features.
 
 ## Json configuration
 
-By default, [Json] implementation is quite strict with respect to invalid inputs, enforces Kotlin type safety, and
+The default [Json] implementation is quite strict with respect to invalid inputs. It enforces Kotlin type safety and
 restricts Kotlin values that can be serialized so that the resulting JSON representations are standard.
 Many non-standard JSON features are supported by creating a custom instance of a JSON _format_.    
 
-JSON format configuration can be specified by creating your own [Json] class instance using an existing 
-instance, such as a default `Json` object, and a [Json()] builder function. Additional parameters
-are specified in a block via [JsonBuilder] DSL. The resulting `Json` format instance is immutable and thread-safe; 
+To use a custom JSON format configuration, create your own [Json] class instance from an existing 
+instance, such as a default `Json` object, using the [Json()] builder function. Specify parameter values
+in the parentheses via the [JsonBuilder] DSL. The resulting `Json` format instance is immutable and thread-safe; 
 it can be simply stored in a top-level property. 
 
-> It is recommended to store and reuse custom instances of formats for performance reasons as format implementations
+> We recommend that you store and reuse custom instances of formats for performance reasons because format implementations
 > may cache format-specific additional information about the classes they serialize. 
 
-This chapter shows various configuration features that [Json] supports.
+This chapter shows configuration features that [Json] supports.
 
 <!--- INCLUDE .*-json-.*
 import kotlinx.serialization.*
@@ -58,7 +58,8 @@ import kotlinx.serialization.json.*
 
 ### Pretty printing
 
-JSON can be configured to pretty print the output by setting the [prettyPrint][JsonBuilder.prettyPrint] property.
+By default, the [Json] output is a single line. You can configure it to pretty print the output (that is, add indentations
+and line breaks for better readability) by setting the [prettyPrint][JsonBuilder.prettyPrint] property to `true`:
 
 ```kotlin
 val format = Json { prettyPrint = true }
@@ -74,23 +75,22 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-json-01.kt).
 
-It gives the following nice result.
+It gives the following nice result:
 
-```text 
+```text
 {
     "name": "kotlinx.serialization",
     "language": "Kotlin"
 }
-``` 
+```
 
 <!--- TEST -->
-
 
 ### Lenient parsing
 
 By default, [Json] parser enforces various JSON restrictions to be as specification-compliant as possible 
-(see [RFC-4627]). Keys must be quoted, literals shall be unquoted. Those restrictions can be relaxed with
-the [isLenient][JsonBuilder.isLenient] property. With `isLenient = true` we can parse quite freely-formatted data.
+(see [RFC-4627]). Particularly, keys must be quoted, while literals must be unquoted. Those restrictions can be relaxed with
+the [isLenient][JsonBuilder.isLenient] property. With `isLenient = true`, you can parse quite freely-formatted data:
 
 ```kotlin
 val format = Json { isLenient = true }
@@ -110,24 +110,25 @@ fun main() {
     """)
     println(data)
 }
-```                                  
+```
 
 > You can get the full code [here](../guide/example/example-json-02.kt).
 
-We get the object, even though all keys, string and enum values are unquoted, while an integer was quoted. 
- 
+You get the object, even though all keys of the source JSON, string, and enum values are unquoted, while an
+integer is quoted: 
+
 ```text
 Project(name=kotlinx.serialization, status=SUPPORTED, votes=9000)
-``` 
+```
 
 <!--- TEST -->
 
 ### Ignoring unknown keys
 
-JSON format is often used to read the output of 3rd-party services or in otherwise highly-dynamic environment where
-new properties could be added as a part of API evolution. By default, unknown keys encountered during deserialization produce an error.
-This behavior can be configured with 
-the [ignoreUnknownKeys][JsonBuilder.ignoreUnknownKeys] property.
+JSON format is often used to read the output of third-party services or in other dynamic environments where
+new properties can be added during the API evolution. By default, unknown keys encountered during deserialization produce an error.
+You can avoid this and just ignore such keys by setting the [ignoreUnknownKeys][JsonBuilder.ignoreUnknownKeys] property
+to `true`:
 
 ```kotlin
 val format = Json { ignoreUnknownKeys = true }
@@ -141,11 +142,11 @@ fun main() {
     """)
     println(data)
 }
-```                                  
+```
 
 > You can get the full code [here](../guide/example/example-json-03.kt).
 
-It decodes the object, despite the fact that it is missing the `language` property.
+It decodes the object despite the fact that the `Project` class doesn't have the `language` property:
  
 ```text
 Project(name=kotlinx.serialization)
@@ -155,10 +156,10 @@ Project(name=kotlinx.serialization)
 
 ### Alternative Json names
 
-It's not a rare case when JSON fields got renamed due to a schema version change.
-Renaming JSON fields is available with [`@SerialName` annotation](basic-serialization.md#serial-field-names), but 
-such a renaming blocks ability to decode data with an old name. 
-For the case when we want to support multiple JSON names for the one Kotlin property, there is a [JsonNames] annotation:
+It's not a rare case when JSON fields are renamed due to a schema version change.
+You can use the [`@SerialName` annotation](basic-serialization.md#serial-field-names) to change the name of a JSON field,
+but such renaming blocks the ability to decode data with the old name. 
+To support multiple JSON names for the one Kotlin property, there is the [JsonNames] annotation:
 
 ```kotlin
 @Serializable
@@ -181,7 +182,7 @@ Project(name=kotlinx.serialization)
 Project(name=kotlinx.coroutines)
 ```
 
-Support for [JsonNames] annotation is controlled via [JsonBuilder.useAlternativeNames] flag. 
+Support for [JsonNames] annotation is controlled by the [JsonBuilder.useAlternativeNames] flag. 
 Unlike most of the configuration flags, this one is enabled by default and does not need attention 
 unless you want to do some fine-tuning.
 
@@ -189,23 +190,23 @@ unless you want to do some fine-tuning.
 
 ### Coercing input values
 
-JSON formats that are encountered in the wild can be flexible in terms of types and evolve quickly.
+JSON formats that from third parties can evolve, sometimes changing the field types.
 This can lead to exceptions during decoding when the actual values do not match the expected values. 
-By default [Json] implementation is strict with respect to input types as was demonstrated in
-the [Type safety is enforced](basic-serialization.md#type-safety-is-enforced) section. It can be somewhat relaxed using
-the [coerceInputValues][JsonBuilder.coerceInputValues] property. 
+The default [Json] implementation is strict with respect to input types as was demonstrated in
+the [Type safety is enforced](basic-serialization.md#type-safety-is-enforced) section. You can relax this restriction 
+using the [coerceInputValues][JsonBuilder.coerceInputValues] property. 
 
 This property only affects decoding. It treats a limited subset of invalid input values as if the
-corresponding property was missing and uses a default value of the corresponding property instead.
+corresponding property was missing and uses the default value of the corresponding property instead.
 The current list of supported invalid values is:
 
-* `null` inputs for non-nullable types.
-* Unknown values for enums.
+* `null` inputs for non-nullable types
+* unknown values for enums
 
 > This list may be expanded in the future, so that [Json] instance configured with this property becomes even more
 > permissive to invalid value in the input, replacing them with defaults.    
 
-Let us take the example from the [Type safety is enforced](basic-serialization.md#type-safety-is-enforced) section.
+See the example from the [Type safety is enforced](basic-serialization.md#type-safety-is-enforced) section:
 
 ```kotlin
 val format = Json { coerceInputValues = true }
@@ -219,25 +220,25 @@ fun main() {
     """)
     println(data)
 }
-```                                  
+```
 
 > You can get the full code [here](../guide/example/example-json-05.kt).
 
-We see that invalid `null` value for the `language` property was coerced into the default value.
+The invalid `null` value for the `language` property was coerced into the default value:
 
 ```text
 Project(name=kotlinx.serialization, language=Kotlin)
-```    
+```
 
 <!--- TEST -->
 
 
 ### Encoding defaults 
 
-Default values of properties are not encoded by default, because they will be reconstructed during decoding anyway.
-See [Defaults are not encoded](basic-serialization.md#defaults-are-not-encoded) section for details with example.
+Default values of properties are not encoded by default because they will be assigned to missing fields during decoding anyway.
+See the [Defaults are not encoded](basic-serialization.md#defaults-are-not-encoded) section for details and an example.
 This is especially useful for nullable properties with null defaults and avoids writing the corresponding null values. 
-The default behavior can be changed by the [encodeDefaults][JsonBuilder.encodeDefaults] property.
+The default behavior can be changed by setting the [encodeDefaults][JsonBuilder.encodeDefaults] property to `true`:
 
 ```kotlin
 val format = Json { encodeDefaults = true }
@@ -253,28 +254,28 @@ fun main() {
     val data = Project("kotlinx.serialization")
     println(format.encodeToString(data))
 }
-```                                  
+```
 
 > You can get the full code [here](../guide/example/example-json-06.kt).
 
-It produces the following output which encodes the values of all the properties:
+It produces the following output which encodes all the property values including the default ones:
 
 ```text
 {"name":"kotlinx.serialization","language":"Kotlin","website":null}
-```                 
+```
 
 <!--- TEST -->
 
 ### Explicit nulls
 
-By default, all `null` values are encoded into JSON string but in some cases one may want them to be omitted.
-The encoding of the `null` value can be controlled with the [explicitNulls][JsonBuilder.explicitNulls] property.
+By default, all `null` values are encoded into JSON strings, but in some cases you may want to omit them.
+The encoding of `null` values can be controlled with the [explicitNulls][JsonBuilder.explicitNulls] property.
 
-When this property is `false`, fields with `null` values are not encoded into JSON, even if the property does not have a default `null` value.
-Also, during decoding, the absence of such a value is treated as `null` for nullable properties without a default value.
+If you set property to `false`, fields with `null` values are not encoded into JSON even if the property does not have a
+default `null` value. When decoding such JSON, the absence of a property value is treated as `null` for nullable properties
+without a default value.
 
-
-```kotlin       
+```kotlin
 val format = Json { explicitNulls = false }
 
 @Serializable
@@ -297,15 +298,15 @@ fun main() {
 > You can get the full code [here](../guide/example/example-json-07.kt).
 
 As you can see, `version`, `website` and `description` fields are not present in output JSON on the first line.
-Also, during decoding, the missing nullable property has received a `null` value
-and optional nullable properties are filled with default values.
+After decoding, the missing nullable property `website` without a default values has received a `null` value, 
+while nullable properties `version` and `description` are filled with their default values:
 
 ```text
 {"name":"kotlinx.serialization","language":"Kotlin"}
 Project(name=kotlinx.serialization, language=Kotlin, version=1.2.2, website=null, description=null)
 ```
 
-This flag is set to `true` by default as it is the default behavior across different versions of the library.
+`explicitNulls` is `true` by default as it is the default behavior across different versions of the library.
 
 <!--- TEST -->
 
@@ -313,8 +314,10 @@ This flag is set to `true` by default as it is the default behavior across diffe
 
 JSON format does not natively support the concept of a map with structured keys. Keys in JSON objects
 are strings and can be used to represent only primitives or enums by default.
-Non-standard support for structured keys can be enabled with 
+You can enable non-standard support for structured keys with 
 the [allowStructuredMapKeys][JsonBuilder.allowStructuredMapKeys] property.
+
+This is how you can serialize a map with keys of a user-defined class:
 
 ```kotlin
 val format = Json { allowStructuredMapKeys = true }
@@ -329,11 +332,11 @@ fun main() {
     )
     println(format.encodeToString(map))
 }
-```                                  
+``` 
 
 > You can get the full code [here](../guide/example/example-json-08.kt).
 
-The map with structured keys gets represented as `[key1, value1, key2, value2,...]` JSON array.
+The map with structured keys gets represented as JSON array with the following items: `[key1, value1, key2, value2,...]`.
  
 ```text
 [{"name":"kotlinx.serialization"},"Serialization",{"name":"kotlinx.coroutines"},"Coroutines"]
@@ -343,12 +346,12 @@ The map with structured keys gets represented as `[key1, value1, key2, value2,..
 
 ### Allowing special floating-point values
 
-By default, special floating-point values like [Double.NaN] and infinities are not supported in JSON, because
+By default, special floating-point values like [Double.NaN] and infinities are not supported in JSON because
 the JSON specification prohibits it.
-But they can be enabled using the [allowSpecialFloatingPointValues][JsonBuilder.allowSpecialFloatingPointValues]
-property.
+You can enable their encoding using the [allowSpecialFloatingPointValues][JsonBuilder.allowSpecialFloatingPointValues]
+property:
 
-```kotlin       
+```kotlin
 val format = Json { allowSpecialFloatingPointValues = true }
 
 @Serializable
@@ -360,25 +363,25 @@ fun main() {
     val data = Data(Double.NaN)
     println(format.encodeToString(data))
 }
-```                                   
+```
 
 > You can get the full code [here](../guide/example/example-json-09.kt).
 
 This example produces the following non-stardard JSON output, yet it is a widely used encoding for
-special values in JVM world.
+special values in JVM world:
 
 ```text
 {"value":NaN}
-```   
+```
 
 <!--- TEST -->
 
 ### Class discriminator
 
 A key name that specifies a type when you have a polymorphic data can be specified 
-with the [classDiscriminator][JsonBuilder.classDiscriminator] property. 
+in the [classDiscriminator][JsonBuilder.classDiscriminator] property:
 
-```kotlin        
+```kotlin
 val format = Json { classDiscriminator = "#class" }
 
 @Serializable
@@ -393,31 +396,34 @@ class OwnedProject(override val name: String, val owner: String) : Project()
 fun main() {
     val data: Project = OwnedProject("kotlinx.coroutines", "kotlin")
     println(format.encodeToString(data))
-}  
+}
 ```
 
 > You can get the full code [here](../guide/example/example-json-10.kt).
 
 In combination with an explicitly specified [SerialName] of the class it provides full
-control on the resulting JSON object. 
+control over the resulting JSON object:
 
-```text 
+```text
 {"#class":"owned","name":"kotlinx.coroutines","owner":"kotlin"}
-```                   
+```
 
 <!--- TEST -->
 
 ## Json elements
 
-So far, we've been working with JSON format by converting objects to strings and back. However, JSON is often so 
-flexible in practice that you might need to tweak the data before it can parse or otherwise work with such an 
-unstructured data that it does not readily fit into the typesafe world of Kotlin serialization.
+Aside from direct conversions between strings and JSON objects, Kotlin serialization offers APIs that allow
+other ways of working with JSON in the code. For example, you might need to tweak the data before it can parse
+or otherwise work with such an unstructured data that it does not readily fit into the typesafe world of Kotlin
+serialization.
+
+The main concept in this part of the library is [JsonElement]. Read on to learn what you can do with it.
 
 ### Parsing to Json element
 
 A string can be _parsed_ into an instance of [JsonElement] with the [Json.parseToJsonElement] function.
-It is called neither decoding nor deserialization, because none of that happens in the process. 
-Only JSON parser is being used here.  
+It is called neither decoding nor deserialization because none of that happens in the process. 
+It just parses a JSON and forms an object representing it:
 
 ```kotlin
 fun main() {
@@ -430,31 +436,31 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-json-11.kt).
 
-A `JsonElement` prints itself as a valid JSON.
+A `JsonElement` prints itself as a valid JSON:
 
-```text 
+```text
 {"name":"kotlinx.serialization","language":"Kotlin"}
 ```
-    
+
 <!--- TEST -->
-    
-### Subtypes of Json elements
 
-A [JsonElement] class has three direct subtypes, closely following JSON grammar.
+### Types of Json elements
 
-* [JsonPrimitive] represents all primitive JSON elements, such as string, number, boolean, and null.
+A [JsonElement] class has three direct subtypes, closely following JSON grammar:
+
+* [JsonPrimitive] represents primitive JSON elements, such as string, number, boolean, and null.
   Each primitive has a simple string [content][JsonPrimitive.content]. There is also a 
   [JsonPrimitive()] constructor function overloaded to accept various primitive Kotlin types and
   to convert them to `JsonPrimitive`.
   
-* [JsonArray] represents a JSON `[...]` array. It is a Kotlin [List] of `JsonElement`.
+* [JsonArray] represents a JSON `[...]` array. It is a Kotlin [List] of `JsonElement` items.
   
-* [JsonObject] represents a JSON `{...}` object. It is a Kotlin [Map] from `String` key to `JsonElement` value.
+* [JsonObject] represents a JSON `{...}` object. It is a Kotlin [Map] from `String` keys to `JsonElement` values.
 
-The `JsonElement` class has `jsonXxx` extensions that cast it to its corresponding subtypes
-([jsonPrimitive][_jsonPrimitive], [jsonArray][_jsonArray], [jsonObject][_jsonObject]). The `JsonPrimitive` class, in turn,
-has convenient converters to Kotlin primitive types ([int], [intOrNull], [long], [longOrNull], etc)
-that allow fluent code to work with JSON for which you know the structure of.
+The `JsonElement` class has extensions that cast it to its corresponding subtypes:
+[jsonPrimitive][_jsonPrimitive], [jsonArray][_jsonArray], [jsonObject][_jsonObject]. The `JsonPrimitive` class,
+in turn, provides converters to Kotlin primitive types: [int], [intOrNull], [long], [longOrNull],
+and similar ones for other types. This is how you can use them for processing JSON whose structure you know:
 
 ```kotlin
 fun main() {
@@ -473,22 +479,23 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-json-12.kt).
 
-The above example sums `votes` in all objects in the `forks` array, ignoring the objects that have no `votes`, but 
-failing if the structure of the data is otherwise different.
+The above example sums `votes` in all objects in the `forks` array, ignoring the objects that have no `votes`:
 
 ```text 
 9042
-```                 
+```
 
 <!--- TEST -->
 
+Note that the execution will fail if the structure of the data is otherwise different.
+
 ### Json element builders
 
-We can construct instances of specific [JsonElement] subtypes using the respective builder functions
-[buildJsonArray] and [buildJsonObject]. They provide a DSL to define the resulting structure that
-is similar to Kotlin standard library collection builders, but with some added JSON-specific convenience
+You can construct instances of specific [JsonElement] subtypes using the respective builder functions
+[buildJsonArray] and [buildJsonObject]. They provide a DSL to define the resulting JSON structure. It is
+is similar to Kotlin standard library collection builders, but with a JSON-specific convenience
 of more type-specific overloads and inner builder functions. The following example shows
-all the key features.  
+all the key features:
 
 ```kotlin
 fun main() {
@@ -512,18 +519,18 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-json-13.kt).
 
-At the end, we get a proper JSON string.
+As a result, you get a proper JSON string:
  
-```text 
+```text
 {"name":"kotlinx.serialization","owner":{"name":"kotlin"},"forks":[{"votes":42},{"votes":9000}]}
-```    
+```
 
 <!--- TEST -->
 
-### Decoding Json element
+### Decoding Json elements
 
 An instance of the [JsonElement] class can be decoded into a serializable object using 
-the [Json.decodeFromJsonElement] function.
+the [Json.decodeFromJsonElement] function:
 
 ```kotlin
 @Serializable 
@@ -541,7 +548,7 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-json-14.kt).
 
-The result is exactly what we would expect.
+The result is exactly what you would expect:
 
 ```text 
 Project(name=kotlinx.serialization, language=Kotlin)
@@ -552,32 +559,34 @@ Project(name=kotlinx.serialization, language=Kotlin)
 ## Json transformations
 
 To affect the shape and contents of JSON output after serialization, or adapt input to deserialization,
-it is possible to write a [custom serializer](serializers.md). However, it may not be convenient to
+it is possible to write a [custom serializer](serializers.md). However, it may be inconvenient to
 carefully follow [Encoder] and [Decoder] calling conventions, especially for relatively small and easy tasks.
 For that purpose, Kotlin serialization provides an API that can reduce the burden of implementing a custom 
 serializer to a problem of manipulating a Json elements tree.
 
-You are still strongly advised to become familiar with the [Serializers](serializers.md) chapter, as
-it explains, among other things, how custom serializers are bound to classes.
+We recommend that you get familiar with the [Serializers](serializers.md) chapter: among other things, it 
+explains how custom serializers are bound to classes.
 
 Transformation capabilities are provided by the abstract [JsonTransformingSerializer] class which implements [KSerializer]. 
 Instead of direct interaction with `Encoder` or `Decoder`, this class asks you to supply transformations for JSON tree 
-represented by the [JsonElement] class using the 
-`transformSerialize` and 
-`transformDeserialize` methods. Let us take a look at the examples.
+represented by the [JsonElement] class using the`transformSerialize` and 
+`transformDeserialize` methods. Let's take a look at the examples.
 
 ### Array wrapping
 
-The first example is our own implementation of JSON array wrapping for lists. Consider a REST API that returns a 
-JSON array of `User` objects, or, if there is only one element in the result, then it is a single object, not wrapped 
-into an array. In our data model, we use [`@Serializable`][Serializable] annotation to specify a custom serializer for a
-`users: List<User>` property.  
+The first example is an implementation of JSON array wrapping for lists.
+
+Consider a REST API that returns a JSON array of `User` objects, or a single object (not wrapped into an array) if there
+is only one element in the result.
+
+In the data model, use the [`@Serializable`][Serializable] annotation to specify a custom serializer for a
+`users: List<User>` property.
 
 <!--- INCLUDE
 import kotlinx.serialization.builtins.*
 -->
 
-```kotlin 
+```kotlin
 @Serializable 
 data class Project(
     val name: String,
@@ -589,11 +598,9 @@ data class Project(
 data class User(val name: String)
 ```
 
-For now, we are only concerned with deserialization, so we implement `UserListSerializer` and override only the 
+Since this example covers only the deserialization case, you can implement `UserListSerializer` and override only the 
 `transformDeserialize` function. The `JsonTransformingSerializer` constructor takes an original serializer 
-as parameter and here we use the approach from 
-the [Constructing collection serializers](serializers.md#constructing-collection-serializers) section 
-to create one.  
+as parameter (this approach is shown in the section [Constructing collection serializers](serializers.md#constructing-collection-serializers)):
 
 ```kotlin
 object UserListSerializer : JsonTransformingSerializer<List<User>>(ListSerializer(User.serializer())) {
@@ -603,9 +610,9 @@ object UserListSerializer : JsonTransformingSerializer<List<User>>(ListSerialize
 }
 ```
 
-Now we can test our code with a JSON array or a single JSON object as inputs.
+Now you can test the code with a JSON array or a single JSON object as inputs.
 
-```kotlin 
+```kotlin
 fun main() {     
     println(Json.decodeFromString<Project>("""
         {"name":"kotlinx.serialization","users":{"name":"kotlin"}}
@@ -620,17 +627,17 @@ fun main() {
 
 The output shows that both cases are correctly deserialized into a Kotlin [List].
 
-```text 
+```text
 Project(name=kotlinx.serialization, users=[User(name=kotlin)])
 Project(name=kotlinx.serialization, users=[User(name=kotlin), User(name=jetbrains)])
-```  
+```
 
 <!--- TEST -->
 
 ### Array unwrapping
 
-We can also implement the `transformSerialize` function to unwrap a single-element list into a single JSON object 
-during serialization. 
+You can also implement the `transformSerialize` function to unwrap a single-element list into a single JSON object 
+during serialization:
 
 <!--- INCLUDE
 import kotlinx.serialization.builtins.*
@@ -650,7 +657,7 @@ object UserListSerializer : JsonTransformingSerializer<List<User>>(ListSerialize
 
 ```kotlin
     override fun transformSerialize(element: JsonElement): JsonElement {
-        require(element is JsonArray) // we are using this serializer with lists only
+        require(element is JsonArray) // this serializer is used only with lists
         return element.singleOrNull() ?: element
     }
 ```
@@ -659,9 +666,9 @@ object UserListSerializer : JsonTransformingSerializer<List<User>>(ListSerialize
 }
 -->
 
-Now, when we start with a single-element list of objects in Kotlin.
+Now, if you serialize a single-element list of objects from Kotlin:
 
-```kotlin 
+```kotlin
 fun main() {     
     val data = Project("kotlinx.serialization", listOf(User("kotlin")))
     println(Json.encodeToString(data))
@@ -670,25 +677,25 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-json-16.kt).
 
-We end up with a single JSON object. 
+You end up with a single JSON object, not an array with one element: 
 
-```text 
+```text
 {"name":"kotlinx.serialization","users":{"name":"kotlin"}}
-```  
+```
 
 <!--- TEST -->
 
 ### Manipulating default values
 
-Another kind of useful transformation is omitting specific values from the output JSON, e.g. because it 
-is treated as default when missing or for any other domain-specific reasons.
+Another kind of useful transformation is omitting specific values from the output JSON, for example, if it 
+is used as default when missing or for other reasons.
 
-Suppose that our `Project` data model cannot specify a default value for the `language` property, 
-but it has to omitted from the JSON when it is equal to `Kotlin` (we can all agree that Kotlin should be default anyway).
-We'll fix it by writing the special `ProjectSerializer` based on 
+Imagine that you cannot specify a default value for the `language` property in the `Project` data model for some reason,
+but you need it omitted from the JSON when it is equal to `Kotlin` (we can all agree that Kotlin should be default anyway).
+You can fix it by writing the special `ProjectSerializer` based on 
 the [Plugin-generated serializer](serializers.md#plugin-generated-serializer) for the `Project` class.
 
-```kotlin         
+```kotlin
 @Serializable
 class Project(val name: String, val language: String)
 
@@ -698,12 +705,12 @@ object ProjectSerializer : JsonTransformingSerializer<Project>(Project.serialize
         JsonObject(element.jsonObject.filterNot {
             (k, v) -> k == "language" && v.jsonPrimitive.content == "Kotlin"
         })
-}                           
+}
 ```
 
 In the example below, we are serializing the `Project` class at the top-level, so we explicitly
 pass the above `ProjectSerializer` to [Json.encodeToString] function as was shown in
-the [Passing a serializer manually](serializers.md#passing-a-serializer-manually) section.   
+the [Passing a serializer manually](serializers.md#passing-a-serializer-manually) section:
 
 ```kotlin
 fun main() {
@@ -715,9 +722,9 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-json-17.kt).
 
-We can clearly see the effect of the custom serializer.
+See the effect of the custom serializer:
 
-```text 
+```text
 {"name":"kotlinx.serialization","language":"Kotlin"}
 {"name":"kotlinx.serialization"}
 ```
@@ -727,17 +734,17 @@ We can clearly see the effect of the custom serializer.
 ### Content-based polymorphic deserialization
 
 Typically, [polymorphic serialization](polymorphism.md) requires a dedicated `"type"` key 
-(also known as class discriminator) in the incoming JSON object to determine the actual serializer
+(also known as _class discriminator_) in the incoming JSON object to determine the actual serializer
 which should be used to deserialize Kotlin class.
 
-However, sometimes type property may not be present in the input, and it is expected to guess the actual type by the 
-shape of JSON, for example by the presence of a specific key.
+However, sometimes the `type` property may not be present in the input. In this case, you need to guess
+the actual type by the shape of JSON, for example by the presence of a specific key.
 
 [JsonContentPolymorphicSerializer] provides a skeleton implementation for such a strategy.
-To use it, we override its `selectDeserializer` method.
-Let us start with the following class hierarchy. 
+To use it, override its `selectDeserializer` method.
+Let's start with the following class hierarchy. 
 
-> Note, that is does not have to be `sealed` as recommended in the [Sealed classes](polymorphism.md#sealed-classes) section,
+> Note that is does not have to be `sealed` as recommended in the [Sealed classes](polymorphism.md#sealed-classes) section,
 > because we are not going to take advantage of the plugin-generated code that automatically selects the 
 > appropriate subclass, but are going to implement this code manually.
 
@@ -759,7 +766,7 @@ data class BasicProject(override val name: String): Project()
 data class OwnedProject(override val name: String, val owner: String) : Project()
 ```
 
-We want to distinguish between the `BasicProject` and `OwnedProject` subclasses by the presence of 
+You can distinguish the `BasicProject` and `OwnedProject` subclasses by the presence of 
 the `owner` key in the JSON object.
 
 ```kotlin
@@ -771,10 +778,10 @@ object ProjectSerializer : JsonContentPolymorphicSerializer<Project>(Project::cl
 }
 ```
 
-We can serialize data with such serializer. In that case, either [registered](polymorphism.md#registered-subclasses) or
-the default serializer is selected for the actual type at runtime. 
+When you use this serializer to serialize data, either [registered](polymorphism.md#registered-subclasses) or
+the default serializer is selected for the actual type at runtime:
 
-```kotlin 
+```kotlin
 fun main() {
     val data = listOf(
         OwnedProject("kotlinx.serialization", "kotlin"),
@@ -788,7 +795,7 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-json-18.kt).
 
-No class discriminator is added in the JSON output.
+No class discriminator is added in the JSON output:
 
 ```text
 [{"name":"kotlinx.serialization","owner":"kotlin"},{"name":"example"}]
@@ -804,27 +811,27 @@ manually, using only the [KSerializer] class.
 If tweaking the abstract methods `transformSerialize`/`transformDeserialize`/`selectDeserializer` is not enough, 
 then altering `serialize`/`deserialize` is a way to go.
 
-There are several tidbits on custom serializers with [Json].
+Here are some useful things about custom serializers with [Json]:
 
 * [Encoder] can be cast to [JsonEncoder], and [Decoder] to [JsonDecoder], if the current format is [Json].
 * `JsonDecoder` has the [decodeJsonElement][JsonDecoder.decodeJsonElement] method and `JsonEncoder` 
-  has the [encodeJsonElement][JsonEncoder.encodeJsonElement] method.
-  which basically retrieve/insert an element from/to a current position in the stream.
-* Both [`JsonDecoder`][JsonDecoder.json] and [`JsonEncoder`][JsonEncoder.json] have the `json` property 
+  has the [encodeJsonElement][JsonEncoder.encodeJsonElement] method,
+  which basically retrieve an element from and insert an element to a current position in the stream.
+* Both [`JsonDecoder`][JsonDecoder.json] and [`JsonEncoder`][JsonEncoder.json] have the `json` property, 
   which returns [Json] instance with all settings that are currently in use.
 * [Json] has the [encodeToJsonElement][Json.encodeToJsonElement] and [decodeFromJsonElement][Json.decodeFromJsonElement] methods.
 
 Given all that, it is possible to implement two-stage conversion `Decoder -> JsonElement -> value` or  
 `value -> JsonElement -> Encoder`.
-For example, we can implement a fully custom serializer for the following `Response` class so that its 
-`Ok` subclass is represented directly, but `Error` subclass by an object with the error message.
+For example, you can implement a fully custom serializer for the following `Response` class so that its 
+`Ok` subclass is represented directly, but the `Error` subclass is represented by an object with the error message:
 
 <!--- INCLUDE
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 -->
 
-```kotlin     
+```kotlin
 @Serializable(with = ResponseSerializer::class)
 sealed class Response<out T> {
     data class Ok<out T>(val data: T) : Response<T>()
@@ -864,10 +871,10 @@ class ResponseSerializer<T>(private val dataSerializer: KSerializer<T>) : KSeria
 }
 ```
 
-Armed with this serializable `Response` implementation we can take any serializable payload for its data 
-and serialize/deserialize the corresponding responses.
+Having this serializable `Response` implementation, you can take any serializable payload for its data 
+and serialize or deserialize the corresponding responses:
 
-```kotlin 
+```kotlin
 @Serializable
 data class Project(val name: String)
 
@@ -884,12 +891,12 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-json-19.kt).
 
-This gives us fine-grained control on the representation of the `Response` class in our JSON output.
+This gives you fine-grained control on the representation of the `Response` class in the JSON output:
 
-```text       
+```text
 [{"name":"kotlinx.serialization"},{"error":"Not found"}]
 [Ok(data=Project(name=kotlinx.serialization)), Error(message=Not found)]
-```     
+```
 
 <!--- TEST -->
 
@@ -898,7 +905,7 @@ This gives us fine-grained control on the representation of the `Response` class
 A good example of custom JSON-specific serializer would be a deserializer 
 that packs all unknown JSON properties into a dedicated field of `JsonObject` type.  
 
-Let us add `UnknownProject` &ndash; class with basic `name` property and arbitrary details flattened into the same object:
+Let's add `UnknownProject` &ndash; a class with the `name` property and arbitrary details flattened into the same object:
 
 <!--- INCLUDE
 import kotlinx.serialization.descriptors.*
@@ -912,7 +919,7 @@ data class UnknownProject(val name: String, val details: JsonObject)
 However, the default plugin-generated serializer requires details 
 to be a separate JSON object and that's not what we want.
 
-To mitigate that, we can write our own serializer that leverages the fact that it can only be used with `Json` format
+To mitigate that, write an own serializer that uses the fact that it works only with the `Json` format:
 
 ```kotlin
 object UnknownProjectSerializer : KSerializer<UnknownProject> {
@@ -939,7 +946,7 @@ object UnknownProjectSerializer : KSerializer<UnknownProject> {
 }
 ```
   
-Now it can be used to read flattened JSON details as `UnknownProject`.
+Now it can be used to read flattened JSON details as `UnknownProject`:
 
 ```kotlin
 fun main() {

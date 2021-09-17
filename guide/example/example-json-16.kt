@@ -19,7 +19,7 @@ data class User(val name: String)
 object UserListSerializer : JsonTransformingSerializer<List<User>>(ListSerializer(User.serializer())) {
 
     override fun transformSerialize(element: JsonElement): JsonElement {
-        require(element is JsonArray) // we are using this serializer with lists only
+        require(element is JsonArray) // this serializer is used only with lists
         return element.singleOrNull() ?: element
     }
 }

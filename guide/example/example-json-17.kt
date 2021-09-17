@@ -13,7 +13,7 @@ object ProjectSerializer : JsonTransformingSerializer<Project>(Project.serialize
         JsonObject(element.jsonObject.filterNot {
             (k, v) -> k == "language" && v.jsonPrimitive.content == "Kotlin"
         })
-}                           
+}
 
 fun main() {
     val data = Project("kotlinx.serialization", "Kotlin")
