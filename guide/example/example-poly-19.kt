@@ -21,7 +21,7 @@ data class OwnedProject(override val name: String, val owner: String) : Project(
 val module = SerializersModule {
     polymorphic(Project::class) {
         subclass(OwnedProject::class)
-        default { BasicProject.serializer() }
+        defaultDeserializer { BasicProject.serializer() }
     }
 }
 

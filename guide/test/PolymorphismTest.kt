@@ -142,4 +142,11 @@ class PolymorphismTest {
             "[BasicProject(name=example, type=unknown), OwnedProject(name=kotlinx.serialization, owner=kotlin)]"
         )
     }
+
+    @Test
+    fun testExamplePoly20() {
+        captureOutput("ExamplePoly20") { example.examplePoly20.main() }.verifyOutputLines(
+            "{\"type\":\"Cat\",\"catType\":\"Tabby\"}"
+        )
+    }
 }
