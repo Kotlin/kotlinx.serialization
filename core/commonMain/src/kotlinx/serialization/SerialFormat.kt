@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization
@@ -26,7 +26,6 @@ import kotlinx.serialization.modules.*
  *
  * It is safe to operate with instances of `SerialFormat` and call its methods.
  */
-@ExperimentalSerializationApi
 public interface SerialFormat {
     /**
      * Contains all serializers registered by format user for [Contextual] and [Polymorphic] serialization.
@@ -46,7 +45,6 @@ public interface SerialFormat {
  *
  * It is safe to operate with instances of `BinaryFormat` and call its methods.
  */
-@ExperimentalSerializationApi
 public interface BinaryFormat : SerialFormat {
 
     /**
@@ -70,7 +68,6 @@ public interface BinaryFormat : SerialFormat {
  *
  * It is safe to operate with instances of `StringFormat` and call its methods.
  */
-@ExperimentalSerializationApi
 public interface StringFormat : SerialFormat {
 
     /**
