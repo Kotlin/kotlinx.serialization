@@ -342,6 +342,16 @@ public abstract class kotlinx/serialization/json/JsonTransformingSerializer : ko
 
 public final class kotlinx/serialization/json/JvmStreamsKt {
 	public static final fun decodeFromStream (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/DeserializationStrategy;Ljava/io/InputStream;)Ljava/lang/Object;
+	public static final fun decodeToSequence (Lkotlinx/serialization/json/Json;Ljava/io/InputStream;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/LazyStreamingFormat;)Lkotlin/sequences/Sequence;
+	public static synthetic fun decodeToSequence$default (Lkotlinx/serialization/json/Json;Ljava/io/InputStream;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/LazyStreamingFormat;ILjava/lang/Object;)Lkotlin/sequences/Sequence;
 	public static final fun encodeToStream (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/io/OutputStream;)V
+}
+
+public final class kotlinx/serialization/json/LazyStreamingFormat : java/lang/Enum {
+	public static final field ARRAY_WRAPPED Lkotlinx/serialization/json/LazyStreamingFormat;
+	public static final field AUTO_DETECT Lkotlinx/serialization/json/LazyStreamingFormat;
+	public static final field WHITESPACE_SEPARATED Lkotlinx/serialization/json/LazyStreamingFormat;
+	public static fun valueOf (Ljava/lang/String;)Lkotlinx/serialization/json/LazyStreamingFormat;
+	public static fun values ()[Lkotlinx/serialization/json/LazyStreamingFormat;
 }
 
