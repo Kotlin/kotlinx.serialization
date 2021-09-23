@@ -180,6 +180,7 @@ public class JsonBuilder internal constructor(json: Json) {
      *
      * `true` by default.
      */
+    @ExperimentalSerializationApi
     public var explicitNulls: Boolean = json.configuration.explicitNulls
 
     /**
