@@ -1,4 +1,3 @@
-
 1.3.0 / 2021-09-23
 ==================
 
@@ -9,6 +8,7 @@ It uses Kotlin 1.5.31 by default.
 
   * Promote JsonConfiguration and its usages to stable (#1690)
   * Remove opt-in annotations from SerialFormat, StringFormat, BinaryFormat (#1688)
+  * Correctly throw SerializationException instead of IOOBE for some cases with EOF in streams (#1677)
   * CBOR: ignore tags when reading (#1614) (thanks to [David Robertson](https://github.com/DavidJRobertson))
 
 1.3.0-RC / 2021-09-06
