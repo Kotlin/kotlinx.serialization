@@ -1,3 +1,16 @@
+
+1.3.0 / 2021-09-23
+==================
+
+This release contains all of the cool new features from 1.3.0-RC (see below) as well as minor improvements.
+It uses Kotlin 1.5.31 by default.
+
+### Bugfixes and improvements
+
+  * Promote JsonConfiguration and its usages to stable (#1690)
+  * Remove opt-in annotations from SerialFormat, StringFormat, BinaryFormat (#1688)
+  * CBOR: ignore tags when reading (#1614) (thanks to [David Robertson](https://github.com/DavidJRobertson))
+
 1.3.0-RC / 2021-09-06
 ==================
 

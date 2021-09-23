@@ -28,49 +28,49 @@ class AbstractBaseTest {
         val parsed: EmptyClassB = Json.decodeFromString(EmptyClassB.serializer(), serialized)
     }
 
-    @Test
-    fun testCrossModuleInheritance() {
-        val json = Json { allowStructuredMapKeys = true; encodeDefaults = true }
-
-        val car = Car()
-        car.maxSpeed = 100
-        car.name = "ford"
-        val s = json.encodeToString(Car.serializer(), car)
-        assertEquals("""{"name":"ford","color":null,"maxSpeed":100}""", s)
-        val restoredCar = json.decodeFromString(Car.serializer(), s)
-        assertEquals(car, restoredCar)
-    }
-
-    @Test
-    fun testCrossModuleAbstractInheritance() {
-        val snippetModule = SerializersModule {
-            polymorphic(Snippet::class) {
-                subclass(ScreenSnippet.serializer())
-                subclass(TestSnippet.serializer())
-            }
-        }
-
-        val json = Json {
-            serializersModule = snippetModule
-            encodeDefaults = true
-        }
-
-        val testSnippet = TestSnippet(emptyList())
-        val screenSnippet = ScreenSnippet("one", "two", "three")
-        val s = json.encodeToString(TestSnippet.serializer(), testSnippet)
-        assertEquals(testSnippet, json.decodeFromString(TestSnippet.serializer(), s))
-        assertEquals("""{"objectFieldName":"test","aaa":"aaa","experiments":[]}""",
-            json.encodeToString(TestSnippet.serializer(), testSnippet)
-        )
-        assertStringFormAndRestored("""{"objectFieldName":"screen","aaa":"aaa","name":"one","uuid":"two","source":"three"}""",
-            screenSnippet,
-            ScreenSnippet.serializer(),
-            json
-        )
-    }
-
-    @Test
-    fun testPropertiesNotInConstructor() {
-        assertStringFormAndRestored("""{"b":"val b","a":"val a","c":"val c"}""", NotInConstructorTest(), NotInConstructorTest.serializer())
-    }
+//    @Test
+//    fun testCrossModuleInheritance() {
+//        val json = Json { allowStructuredMapKeys = true; encodeDefaults = true }
+//
+//        val car = Car()
+//        car.maxSpeed = 100
+//        car.name = "ford"
+//        val s = json.encodeToString(Car.serializer(), car)
+//        assertEquals("""{"name":"ford","color":null,"maxSpeed":100}""", s)
+//        val restoredCar = json.decodeFromString(Car.serializer(), s)
+//        assertEquals(car, restoredCar)
+//    }
+//
+//    @Test
+//    fun testCrossModuleAbstractInheritance() {
+//        val snippetModule = SerializersModule {
+//            polymorphic(Snippet::class) {
+//                subclass(ScreenSnippet.serializer())
+//                subclass(TestSnippet.serializer())
+//            }
+//        }
+//
+//        val json = Json {
+//            serializersModule = snippetModule
+//            encodeDefaults = true
+//        }
+//
+//        val testSnippet = TestSnippet(emptyList())
+//        val screenSnippet = ScreenSnippet("one", "two", "three")
+//        val s = json.encodeToString(TestSnippet.serializer(), testSnippet)
+//        assertEquals(testSnippet, json.decodeFromString(TestSnippet.serializer(), s))
+//        assertEquals("""{"objectFieldName":"test","aaa":"aaa","experiments":[]}""",
+//            json.encodeToString(TestSnippet.serializer(), testSnippet)
+//        )
+//        assertStringFormAndRestored("""{"objectFieldName":"screen","aaa":"aaa","name":"one","uuid":"two","source":"three"}""",
+//            screenSnippet,
+//            ScreenSnippet.serializer(),
+//            json
+//        )
+//    }
+//
+//    @Test
+//    fun testPropertiesNotInConstructor() {
+//        assertStringFormAndRestored("""{"b":"val b","a":"val a","c":"val c"}""", NotInConstructorTest(), NotInConstructorTest.serializer())
+//    }
 }
