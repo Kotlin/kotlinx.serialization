@@ -3,8 +3,8 @@
 [![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 [![TeamCity build](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/KotlinTools_KotlinxSerialization_Ko.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=KotlinTools_KotlinxSerialization_Ko&guest=1)
-[![Kotlin](https://img.shields.io/badge/kotlin-1.5.30-blue.svg?logo=kotlin)](http://kotlinlang.org)
-[![Maven Central](https://img.shields.io/maven-central/v/org.jetbrains.kotlinx/kotlinx-serialization-core/1.2.2)](https://search.maven.org/artifact/org.jetbrains.kotlinx/kotlinx-serialization-core/1.2.2/pom)
+[![Kotlin](https://img.shields.io/badge/kotlin-1.5.31-blue.svg?logo=kotlin)](http://kotlinlang.org)
+[![Maven Central](https://img.shields.io/maven-central/v/org.jetbrains.kotlinx/kotlinx-serialization-core/1.3.0)](https://search.maven.org/artifact/org.jetbrains.kotlinx/kotlinx-serialization-core/1.3.0/pom)
 [![KDoc link](https://img.shields.io/badge/API_reference-KDoc-blue)](https://kotlin.github.io/kotlinx.serialization/)
 [![Slack channel](https://img.shields.io/badge/chat-slack-blue.svg?logo=slack)](https://kotlinlang.slack.com/messages/serialization/)
 
@@ -88,8 +88,8 @@ Kotlin DSL:
 
 ```kotlin
 plugins {
-    kotlin("jvm") version "1.5.30" // or kotlin("multiplatform") or any other kotlin plugin
-    kotlin("plugin.serialization") version "1.5.30"
+    kotlin("jvm") version "1.5.31" // or kotlin("multiplatform") or any other kotlin plugin
+    kotlin("plugin.serialization") version "1.5.31"
 }
 ```       
 
@@ -97,8 +97,8 @@ Groovy DSL:
 
 ```gradle
 plugins {
-    id 'org.jetbrains.kotlin.multiplatform' version '1.5.30'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.5.30'
+    id 'org.jetbrains.kotlin.multiplatform' version '1.5.31'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.5.31'
 }
 ```
 
@@ -115,7 +115,7 @@ buildscript {
     repositories { mavenCentral() }
 
     dependencies {
-        val kotlinVersion = "1.5.30"
+        val kotlinVersion = "1.5.31"
         classpath(kotlin("gradle-plugin", version = kotlinVersion))
         classpath(kotlin("serialization", version = kotlinVersion))
     }
@@ -126,7 +126,7 @@ Groovy DSL:
 
 ```gradle
 buildscript {
-    ext.kotlin_version = '1.5.30'
+    ext.kotlin_version = '1.5.31'
     repositories { mavenCentral() }
 
     dependencies {
@@ -155,7 +155,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
 }
 ```
 
@@ -167,7 +167,7 @@ repositories {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0"
 }
 ```
 
@@ -222,8 +222,8 @@ Ensure the proper version of Kotlin and serialization version:
 
 ```xml
 <properties>
-    <kotlin.version>1.5.30</kotlin.version>
-    <serialization.version>1.2.2</serialization.version>
+    <kotlin.version>1.5.31</kotlin.version>
+    <serialization.version>1.3.0</serialization.version>
 </properties>
 ```
 
