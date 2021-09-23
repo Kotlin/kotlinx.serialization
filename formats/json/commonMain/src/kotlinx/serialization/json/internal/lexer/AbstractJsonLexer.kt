@@ -196,7 +196,7 @@ internal abstract class AbstractJsonLexer {
 
     protected fun unexpectedToken(expected: Char) {
         --currentPosition // To properly handle null
-        if (expected == STRING && consumeStringLenient() == NULL) {
+        if (currentPosition >= 0 && expected == STRING && consumeStringLenient() == NULL) {
             fail("Expected string literal but 'null' literal was found.\n$coerceInputValuesHint", currentPosition - 4)
         }
         fail(charToTokenClass(expected))
