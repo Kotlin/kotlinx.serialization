@@ -318,6 +318,9 @@ internal abstract class AbstractJsonLexer {
             if (char == STRING_ESC) {
                 usedAppend = true
                 currentPosition = appendEscape(lastPosition, currentPosition)
+                currentPosition = definitelyNotEof(currentPosition)
+                if (currentPosition == -1)
+                    fail("EOF", currentPosition)
                 lastPosition = currentPosition
             } else if (++currentPosition >= source.length) {
                 usedAppend = true
@@ -435,7 +438,13 @@ internal abstract class AbstractJsonLexer {
     }
 
     private fun appendHex(source: CharSequence, startPos: Int): Int {
-        if (startPos + 4 >= source.length) fail("Unexpected EOF during unicode escape")
+        if (startPos + 4 >= source.length) {
+            currentPosition = startPos
+            ensureHaveChars()
+            if (currentPosition + 4 >= source.length)
+                fail("Unexpected EOF during unicode escape")
+            return appendHex(source, currentPosition)
+        }
         escapedString.append(
             ((fromHexChar(source, startPos) shl 12) +
                     (fromHexChar(source, startPos + 1) shl 8) +
