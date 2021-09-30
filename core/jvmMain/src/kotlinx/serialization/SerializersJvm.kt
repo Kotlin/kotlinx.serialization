@@ -124,13 +124,13 @@ private fun SerializersModule.serializerByJavaTypeImpl(type: Type, failOnMissing
 
 @OptIn(ExperimentalSerializationApi::class)
 private fun SerializersModule.typeSerializer(type: Class<*>, failOnMissingTypeArgSerializer: Boolean): KSerializer<Any>? {
-    return if (!type.isArray) {
-        reflectiveOrContextual(type.kotlin as KClass<Any>, emptyList())
-    } else {
+    return if (type.isArray && !type.componentType.isPrimitive) {
         val eType: Class<*> = type.componentType
         val s = if (failOnMissingTypeArgSerializer) serializer(eType) else (serializerOrNull(eType) ?: return null)
         val arraySerializer = ArraySerializer(eType.kotlin as KClass<Any>, s)
         arraySerializer as KSerializer<Any>
+    } else {
+        reflectiveOrContextual(type.kotlin as KClass<Any>, emptyList())
     }
 }
 

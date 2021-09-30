@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.features
@@ -91,6 +91,15 @@ class SerializerByTypeTest {
         val myArr = arrayOf("a", "b", "c")
         val token = typeTokenOf<Array<String>>()
         assertSerializedWithType(token, """["a","b","c"]""", myArr)
+    }
+
+    @Test
+    fun testPrimitiveArrayResolving() {
+        val myArr = intArrayOf(1, 2, 3)
+        val token = IntArray::class.java
+        val name = serializer(token).descriptor.serialName
+        assertTrue(name.contains("IntArray"))
+        assertSerializedWithType(token, """[1,2,3]""", myArr)
     }
 
     @Test
