@@ -207,7 +207,7 @@ to add this to your `proguard-rules.pro`:
 }
 
 # Serialization supports named companions but for such classes it is necessary to add an additional rule.
-# This rule keep serializer and serializable class from obfuscation. Therefore, it is recommended not to use wildcards in it, but to write rules for each such class.
+# This rule keeps serializer and serializable class from obfuscation. Therefore, it is recommended not to use wildcards in it, but to write rules for each such class.
 -keep class com.yourcompany.yourpackage.SerializableClassWithNamedCompanion$$serializer {
     *** INSTANCE;
 }
