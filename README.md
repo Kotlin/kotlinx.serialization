@@ -190,13 +190,26 @@ to add this to your `proguard-rules.pro`:
     kotlinx.serialization.KSerializer serializer(...);
 }
 
+# Application rules
+
 # Change here com.yourcompany.yourpackage
--keep,includedescriptorclasses class com.yourcompany.yourpackage.**$$serializer { *; } # <-- change package name to your app's
--keepclassmembers class com.yourcompany.yourpackage.** { # <-- change package name to your app's
+-keepclassmembers @kotlinx.serialization.Serializable class com.yourcompany.yourpackage.** {
+    # lookup for plugin generated serializable classes
     *** Companion;
-}
--keepclasseswithmembers class com.yourcompany.yourpackage.** { # <-- change package name to your app's
+    # lookup for serializable objects
+    *** INSTANCE;
     kotlinx.serialization.KSerializer serializer(...);
+}
+# lookup for plugin generated serializable classes
+-if @kotlinx.serialization.Serializable class com.yourcompany.yourpackage.**
+-keepclassmembers class com.yourcompany.yourpackage.<1>$Companion {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+
+# Serialization supports named companions but for such classes it is necessary to add an additional rule.
+# This rule keeps serializer and serializable class from obfuscation. Therefore, it is recommended not to use wildcards in it, but to write rules for each such class.
+-keep class com.yourcompany.yourpackage.SerializableClassWithNamedCompanion$$serializer {
+    *** INSTANCE;
 }
 ```
 
