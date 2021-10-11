@@ -175,45 +175,48 @@ dependencies {
 
 ### Android
 
-Library should work on Android "as is". If you're using proguard, you need
-to add this to your `proguard-rules.pro`:
+The library works on Android, but, if you're using ProGuard, you need
+to add the following rules to your `proguard-rules.pro` configuration.
+Uncomment and modify the relevant section in case you're serializing classes with named companion objects.
 
 ```proguard
--keepattributes *Annotation*, InnerClasses
--dontnote kotlinx.serialization.AnnotationsKt # core serialization annotations
-
-# kotlinx-serialization-json specific. Add this if you have java.lang.NoClassDefFoundError kotlinx.serialization.json.JsonObjectSerializer
--keepclassmembers class kotlinx.serialization.json.** {
-    *** Companion;
+# Keep `Companion` object fields of serializable classes.
+# This avoids serializer lookup through `getDeclaredClasses` as done for named companion objects.
+-if @kotlinx.serialization.Serializable class **
+-keepclassmembers class <1> {
+    public static <1>$Companion Companion;
 }
--keepclasseswithmembers class kotlinx.serialization.json.** {
+
+# Serializer for classes with named companion objects are retrieved using `getDeclaredClasses`.
+# If you have any, uncomment and replace classes with those containing named companion objects.
+#-keepattributes InnerClasses # Needed for `getDeclaredClasses`.
+#-if @kotlinx.serialization.Serializable class
+#com.example.myapplication.HasNamedCompanion, # <-- List serializable classes with named companions.
+#com.example.myapplication.HasNamedCompanion2
+#{
+#    public static **$* *;
+#}
+#-keepnames class <1>$$serializer {
+#    public static <1>$$serializer INSTANCE;
+#}
+
+# Keep `serializer()` on companion objects of serializable classes.
+-if @kotlinx.serialization.Serializable class ** {
+    public static **$* *;
+}
+-keepclassmembers class <1>$<3> {
     kotlinx.serialization.KSerializer serializer(...);
 }
 
-# Application rules
-
-# Change here com.yourcompany.yourpackage
--keepclassmembers @kotlinx.serialization.Serializable class com.yourcompany.yourpackage.** {
-    # lookup for plugin generated serializable classes
-    *** Companion;
-    # lookup for serializable objects
-    *** INSTANCE;
-    kotlinx.serialization.KSerializer serializer(...);
+# Keep `INSTANCE.serializer()` of serializable objects.
+-if @kotlinx.serialization.Serializable class ** {
+    public static ** INSTANCE;
 }
-# lookup for plugin generated serializable classes
--if @kotlinx.serialization.Serializable class com.yourcompany.yourpackage.**
--keepclassmembers class com.yourcompany.yourpackage.<1>$Companion {
+-keepclassmembers class <1> {
+    public static <1> INSTANCE;
     kotlinx.serialization.KSerializer serializer(...);
-}
-
-# Serialization supports named companions but for such classes it is necessary to add an additional rule.
-# This rule keeps serializer and serializable class from obfuscation. Therefore, it is recommended not to use wildcards in it, but to write rules for each such class.
--keep class com.yourcompany.yourpackage.SerializableClassWithNamedCompanion$$serializer {
-    *** INSTANCE;
 }
 ```
-
-You may also want to keep all custom serializers you've defined.
 
 ### Multiplatform (Common, JS, Native)
 
