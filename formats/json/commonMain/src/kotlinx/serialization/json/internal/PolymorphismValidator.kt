@@ -74,14 +74,14 @@ internal class PolymorphismValidator(
         }
     }
 
-    override fun <Base : Any> polymorphicSerializerDefault(
+    override fun <Base : Any> polymorphicDefaultSerializer(
         baseClass: KClass<Base>,
         defaultSerializerProvider: (value: Base) -> SerializationStrategy<Base>?
     ) {
         // Nothing here
     }
 
-    override fun <Base : Any> polymorphicDeserializerDefault(
+    override fun <Base : Any> polymorphicDefaultDeserializer(
         baseClass: KClass<Base>,
         defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
     ) {

@@ -904,7 +904,7 @@ on [Maintaining custom JSON attributes](json.md#maintaining-custom-json-attribut
 ### Default polymorphic type handler for serialization
 
 Sometimes you need to dynamically choose which serializer to use for a polymorphic type based on the instance, for example if you
-don't have access to the full type hierarchy, or if it changes a lot. For this situation, you can use serializer defaults.
+don't have access to the full type hierarchy, or if it changes a lot. For this situation, you can register a default serializer.
 
 <!--- INCLUDE
 import kotlinx.serialization.descriptors.*

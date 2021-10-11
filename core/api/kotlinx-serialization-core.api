@@ -1197,8 +1197,8 @@ public final class kotlinx/serialization/modules/SerializersModuleBuilder : kotl
 	public final fun include (Lkotlinx/serialization/modules/SerializersModule;)V
 	public fun polymorphic (Lkotlin/reflect/KClass;Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
 	public fun polymorphicDefault (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
-	public fun polymorphicDeserializerDefault (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
-	public fun polymorphicSerializerDefault (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public fun polymorphicDefaultDeserializer (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public fun polymorphicDefaultSerializer (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
 }
 
 public final class kotlinx/serialization/modules/SerializersModuleBuildersKt {
@@ -1213,8 +1213,8 @@ public abstract interface class kotlinx/serialization/modules/SerializersModuleC
 	public abstract fun contextual (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
 	public abstract fun polymorphic (Lkotlin/reflect/KClass;Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
 	public abstract fun polymorphicDefault (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
-	public abstract fun polymorphicDeserializerDefault (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
-	public abstract fun polymorphicSerializerDefault (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public abstract fun polymorphicDefaultDeserializer (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public abstract fun polymorphicDefaultSerializer (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
 }
 
 public final class kotlinx/serialization/modules/SerializersModuleCollector$DefaultImpls {

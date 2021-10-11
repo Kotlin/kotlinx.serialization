@@ -38,12 +38,13 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
      *
      * Default serializers provider affects only serialization process.
      */
+    @ExperimentalSerializationApi
     @Suppress("UNCHECKED_CAST")
-    public fun <T : Base> defaultSerializer(defaultSerializerProvider: (value: T) -> SerializationStrategy<T>?) {
+    public fun defaultSerializer(defaultSerializerProvider: (value: @UnsafeVariance Base) -> SerializationStrategy<@UnsafeVariance Base>?) {
         require(this.defaultSerializerProvider == null) {
             "Default serializer provider is already registered for class $baseClass: ${this.defaultSerializerProvider}"
         }
-        this.defaultSerializerProvider = defaultSerializerProvider as ((Base) -> SerializationStrategy<Base>?)
+        this.defaultSerializerProvider = defaultSerializerProvider
     }
 
     /**
@@ -61,6 +62,7 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
      *
      * Default deserializers provider affects only deserialization process.
      */
+    @ExperimentalSerializationApi
     public fun defaultDeserializer(defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<out Base>?) {
         require(this.defaultDeserializerProvider == null) {
             "Default deserializer provider is already registered for class $baseClass: ${this.defaultDeserializerProvider}"
@@ -85,9 +87,8 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
      *
      * @see defaultDeserializer
      */
-    @Deprecated("Specify whether it's a default serializer/deserializer",
-        ReplaceWith("defaultDeserializer(defaultSerializerProvider)")
-    )
+    @OptIn(ExperimentalSerializationApi::class)
+    // TODO: deprecate in 1.4
     public fun default(defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<out Base>?) {
         defaultDeserializer(defaultDeserializerProvider)
     }

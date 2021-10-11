@@ -94,9 +94,12 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
      * Adds a default serializers provider associated with the given [baseClass] to the resulting module.
      * [defaultSerializerProvider] is invoked when no polymorphic serializers for `value` were found.
      *
+     * This will not affect deserialization.
+     *
      * @see PolymorphicModuleBuilder.defaultSerializer
      */
-    public override fun <Base : Any> polymorphicSerializerDefault(
+    @ExperimentalSerializationApi
+    public override fun <Base : Any> polymorphicDefaultSerializer(
         baseClass: KClass<Base>,
         defaultSerializerProvider: (value: Base) -> SerializationStrategy<Base>?
     ) {
@@ -107,11 +110,14 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
      * Adds a default deserializers provider associated with the given [baseClass] to the resulting module.
      * [defaultDeserializerProvider] is invoked when no polymorphic serializers associated with the `className`
      * were found. `className` could be `null` for formats that support nullable class discriminators
-     * (currently only `Json` with `useArrayPolymorphism` set to `false`)
+     * (currently only `Json` with `useArrayPolymorphism` set to `false`).
+     *
+     * This will not affect serialization.
      *
      * @see PolymorphicModuleBuilder.defaultDeserializer
      */
-    public override fun <Base : Any> polymorphicDeserializerDefault(
+    @ExperimentalSerializationApi
+    public override fun <Base : Any> polymorphicDefaultDeserializer(
         baseClass: KClass<Base>,
         defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
     ) {

@@ -113,14 +113,14 @@ public infix fun SerializersModule.overwriteWith(other: SerializersModule): Seri
             registerPolymorphicSerializer(baseClass, actualClass, actualSerializer, allowOverwrite = true)
         }
 
-        override fun <Base : Any> polymorphicSerializerDefault(
+        override fun <Base : Any> polymorphicDefaultSerializer(
             baseClass: KClass<Base>,
             defaultSerializerProvider: (value: Base) -> SerializationStrategy<Base>?
         ) {
             registerDefaultPolymorphicSerializer(baseClass, defaultSerializerProvider, allowOverwrite = true)
         }
 
-        override fun <Base : Any> polymorphicDeserializerDefault(
+        override fun <Base : Any> polymorphicDefaultDeserializer(
             baseClass: KClass<Base>,
             defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
         ) {
@@ -188,11 +188,11 @@ internal class SerialModuleImpl(
         }
 
         polyBase2DefaultSerializerProvider.forEach { (baseClass, provider) ->
-            collector.polymorphicSerializerDefault(baseClass as KClass<Any>, provider as (PolymorphicSerializerProvider<Any>))
+            collector.polymorphicDefaultSerializer(baseClass as KClass<Any>, provider as (PolymorphicSerializerProvider<Any>))
         }
 
         polyBase2DefaultDeserializerProvider.forEach { (baseClass, provider) ->
-            collector.polymorphicDeserializerDefault(baseClass as KClass<Any>, provider as (PolymorphicDeserializerProvider<out Any>))
+            collector.polymorphicDefaultDeserializer(baseClass as KClass<Any>, provider as (PolymorphicDeserializerProvider<out Any>))
         }
     }
 }

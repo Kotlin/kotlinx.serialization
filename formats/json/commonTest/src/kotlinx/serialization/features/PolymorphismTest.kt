@@ -83,7 +83,7 @@ class PolymorphismTest : JsonTestBase() {
     @Test
     fun testDefaultDeserializer() = parametrizedTest { jsonTestingMode ->
         val withDefault = module + SerializersModule {
-            polymorphicDeserializerDefault(PolyBase::class) { name ->
+            polymorphicDefaultDeserializer(PolyBase::class) { name ->
                 if (name == "foo") {
                     PolyDefaultDeserializer
                 } else {
@@ -107,7 +107,7 @@ class PolymorphismTest : JsonTestBase() {
     fun testDefaultDeserializerForMissingDiscriminator() = parametrizedTest { jsonTestingMode ->
         val json = Json {
             serializersModule = module + SerializersModule {
-                polymorphicDeserializerDefault(PolyBase::class) { name ->
+                polymorphicDefaultDeserializer(PolyBase::class) { name ->
                     if (name == null) {
                         PolyDefaultDeserializer
                     } else {
@@ -127,7 +127,7 @@ class PolymorphismTest : JsonTestBase() {
     fun testDefaultSerializer() = parametrizedTest { jsonTestingMode ->
         val json = Json {
             serializersModule = module + SerializersModule {
-                polymorphicSerializerDefault(PolyBase::class) { value ->
+                polymorphicDefaultSerializer(PolyBase::class) { value ->
                     if (value.id % 2 == 0) {
                         EvenDefaultSerializer
                     } else {
