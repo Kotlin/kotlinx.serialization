@@ -1,24 +1,17 @@
 /*
- * Copyright 2019 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package sample
 
-import kotlinx.serialization.*
+import kotlinx.serialization.Polymorphic
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.modules.SerializersModule
-
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
+import kotlinx.serialization.protobuf.ProtoNumber
 
 @Serializable
 data class IntData(val intV: Int)
@@ -144,7 +137,7 @@ class Derived2(@SerialName("state2") override var state1: String): Base1(state1)
 }
 
 @Serializable
-open class PolyBase(@SerialId(1) val id: Int) {
+open class PolyBase(@ProtoNumber(1) val id: Int) {
     override fun hashCode(): Int {
         return id
     }
@@ -167,11 +160,11 @@ open class PolyBase(@SerialId(1) val id: Int) {
 }
 
 @Serializable
-data class PolyDerived(@SerialId(2) val s: String) : PolyBase(1)
+data class PolyDerived(@ProtoNumber(2) val s: String) : PolyBase(1)
 
 val BaseAndDerivedModule = SerializersModule {
     polymorphic(PolyBase::class, PolyBase.serializer()) {
-        PolyDerived::class with PolyDerived.serializer()
+        subclass(PolyDerived.serializer())
     }
 }
 
@@ -263,9 +256,3 @@ val zoo = Zoo(
         arrayOf(IntData(1), IntData(2))
     )
 )
-
-@Serializable
-abstract class AbstractBase
-
-@Serializable
-class ConcreteClass : AbstractBase()

@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 apply plugin: 'java'
 apply plugin: 'kotlin'
 apply plugin: 'kotlinx-serialization'
@@ -8,33 +12,21 @@ apply plugin: "me.champeau.gradle.jmh"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-jmh.jmhVersion = 1.21
+jmh.jmhVersion = 1.22
 
 jmhJar {
     baseName 'benchmarks'
     classifier = null
     version = null
+    destinationDir = file("$rootDir")
 }
 
 dependencies {
-    annotationProcessor 'com.google.auto.value:auto-value:1.4.1'
-    annotationProcessor 'com.ryanharter.auto.value:auto-value-gson:0.4.6'
-    annotationProcessor 'com.ryanharter.auto.value:auto-value-moshi:0.4.3'
-
-    compileOnly 'com.google.auto.value:auto-value:1.4.1'
-    compileOnly 'com.ryanharter.auto.value:auto-value-gson:0.4.6'
-    compileOnly 'com.ryanharter.auto.value:auto-value-moshi:0.4.3'
-
-    compile "org.openjdk.jmh:jmh-core:1.21"
+    compile "org.openjdk.jmh:jmh-core:1.22"
     implementation 'com.google.guava:guava:24.1.1-jre'
-
-    compile 'com.squareup.okio:okio:1.13.0'
-    compile 'com.squareup.moshi:moshi:1.5.0'
-    compile 'com.google.code.gson:gson:2.8.1'
-    compile 'com.esotericsoftware:kryo:4.0.0'
-
-    compile project(':kotlinx-serialization-runtime')
-
-    // async profiler
-    compile group: 'pl.project13.scala', name: 'sbt-jmh-extras', version: '0.3.3'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.12.1'
+    compile 'com.fasterxml.jackson.module:jackson-module-kotlin:2.12.1'
+    compile project(':kotlinx-serialization-core')
+    compile project(':kotlinx-serialization-json')
+    compile project(':kotlinx-serialization-protobuf')
 }

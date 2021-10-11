@@ -4,13 +4,9 @@
 
 package sample
 
-import kotlinx.serialization.internal.IntSerializer
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
+import kotlinx.serialization.builtins.*
+import kotlin.test.*
 
 class SampleTestsJVM {
     @Test
@@ -19,17 +15,10 @@ class SampleTestsJVM {
     }
 
     @Test
+    @OptIn(ExperimentalSerializationApi::class)
     fun kindSimpleName() {
-        val kind = IntSerializer.descriptor.kind
+        val kind = Int.serializer().descriptor.kind
         val name = kind.toString()
         assertEquals("INT", name)
-    }
-
-    @Test
-    fun kotlinReflectNotInClasspath() {
-        val klass = Json::class
-        assertFailsWith<KotlinReflectionNotSupportedError> {
-            println(klass.qualifiedName)
-        }
     }
 }

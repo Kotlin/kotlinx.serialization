@@ -1,0 +1,115 @@
+/*
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+kotlin {
+    jvm {
+        withJava()
+        configure([compilations.main, compilations.test]) {
+            kotlinOptions {
+                jvmTarget = '1.6'
+                freeCompilerArgs += "-Xsuppress-deprecated-jvm-target-warning"
+            }
+        }
+    }
+
+    js {
+        nodejs {}
+        configure([compilations.main, compilations.test]) {
+            kotlinOptions {
+                sourceMap = true
+                moduleKind = "umd"
+                metaInfo = true
+            }
+        }
+    }
+
+    sourceSets.all {
+        kotlin.srcDirs = ["$it.name/src"]
+        resources.srcDirs = ["$it.name/resources"]
+        languageSettings {
+            progressiveMode = true
+
+            optIn("kotlin.Experimental")
+            optIn("kotlin.ExperimentalMultiplatform")
+            optIn("kotlin.ExperimentalStdlibApi")
+            optIn("kotlinx.serialization.InternalSerializationApi")
+        }
+    }
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-stdlib-common'
+            }
+        }
+
+        commonTest {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-test-common'
+                api 'org.jetbrains.kotlin:kotlin-test-annotations-common'
+            }
+        }
+
+        jvmMain {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-stdlib'
+            }
+        }
+
+        jvmTest {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-test-junit'
+            }
+        }
+
+        jsMain {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-stdlib-js'
+            }
+        }
+
+        jsTest {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-test-js'
+            }
+        }
+
+        nativeMain.dependencies {
+        }
+    }
+
+    sourceSets.findAll({ it.name.contains("Test") }).forEach { srcSet ->
+        srcSet.languageSettings {
+            it.optIn("kotlinx.serialization.InternalSerializationApi")
+            it.optIn("kotlinx.serialization.ExperimentalSerializationApi")
+        }
+    }
+
+    sourceSets.matching({ it.name.contains("Main") }).all { srcSet ->
+        project.ext.set("kotlin.mpp.freeCompilerArgsForSourceSet.${srcSet.name}", ["-Xexplicit-api=strict"])
+    }
+
+    targets.all {
+        compilations.main {
+            kotlinOptions {
+                allWarningsAsErrors = true
+            }
+        }
+    }
+
+    def targetsWithoutTestRunners = ["linuxArm32Hfp", "linuxArm64", "mingwX86"]
+    configure(targets) {
+        // Configure additional binaries to run tests in the background
+        if (["macos", "linux", "mingw"].any { name.startsWith(it) && !targetsWithoutTestRunners.contains(name) }) {
+            binaries {
+                test("background", [nativeDebugBuild]) {
+                    freeCompilerArgs += ["-trw"]
+                }
+            }
+            testRuns {
+                background { setExecutionSourceFrom(binaries.backgroundDebugTest) }
+            }
+        }
+    }
+}

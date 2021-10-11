@@ -1,5 +1,10 @@
 # Building Kotlin Serialization from the source
 
+## JDK version
+
+To build Kotlin Serialization JDK version 9 or higher is required.
+This is needed to compile the `module-info` file included for JPMS support.
+
 ## Runtime library
 
 Kotlin Serialization runtime library itself is a [multiplatform](http://kotlinlang.org/docs/reference/multiplatform.html) project.
@@ -10,12 +15,11 @@ After that, you can include this library in arbitrary projects like usual gradle
 
 ```gradle
 repositories {
-    jcenter()
     mavenLocal()
 }
 
 dependencies {
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
 }
 ```
 
@@ -32,4 +36,4 @@ To use snapshot version of compiler (if you have built it from sources), use fla
 
 Compiler plugin for Gradle/Maven and IntelliJ plugin, starting from Kotlin 1.3, are embedded into the Kotlin compiler. 
 
-Sources and steps to build it are located [here](https://github.com/JetBrains/kotlin/blob/master/plugins/kotlin-serialization/kotlin-serialization-compiler/). In general, you'll just need to run `./gradlew dist install` to get `1.3-SNAPSHOT` versions of Kotlin compiler, stdlib and serialization plugins in the Maven local repository.
+Sources and steps to build it are located [here](https://github.com/JetBrains/kotlin/blob/master/plugins/kotlin-serialization/kotlin-serialization-compiler/). In general, you'll just need to run `./gradlew dist install` to get `1.x.255` versions of Kotlin compiler, stdlib and serialization plugins in the Maven local repository.

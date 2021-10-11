@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 buildscript {
@@ -12,16 +12,16 @@ buildscript {
     if (project.hasProperty("library.version")) {
         ext.overriden_version = property('library.version')
     }
-    ext.experimentalsEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
-                                "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
-                                "-Xuse-experimental=kotlinx.serialization.InternalSerializationApi"
+    ext.experimentalsEnabled = ["-progressive", "-Xopt-in=kotlin.Experimental",
+                                "-Xopt-in=kotlin.ExperimentalMultiplatform",
+                                "-Xopt-in=kotlinx.serialization.InternalSerializationApi"
     ]
 
-    ext.experimentalsInTestEnabled = ["-progressive", "-Xuse-experimental=kotlin.Experimental",
-                                      "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
-                                      "-Xuse-experimental=kotlinx.serialization.ImplicitReflectionSerializer",
-                                      "-Xuse-experimental=kotlinx.serialization.UnstableDefault",
-                                      "-Xuse-experimental=kotlinx.serialization.InternalSerializationApi"
+    ext.experimentalsInTestEnabled = ["-progressive", "-Xopt-in=kotlin.Experimental",
+                                      "-Xopt-in=kotlin.ExperimentalMultiplatform",
+                                      "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi",
+                                      "-Xopt-in=kotlinx.serialization.InternalSerializationApi",
+                                      "-Xopt-in=kotlin.ExperimentalUnsignedTypes"
     ]
 
     /*
@@ -37,20 +37,19 @@ buildscript {
             throw new IllegalArgumentException("'kotlin_snapshot_version' should be defined when building with snapshot compiler")
         }
         repositories {
-            mavenLocal()
             maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-            maven { url "https://bintray.com/jetbrains/kotlin-native-dependencies" }
         }
     }
 
     repositories {
-        mavenLocal()
-        maven { url 'https://kotlin.bintray.com/kotlin-dev' }
-        maven { url 'https://kotlin.bintray.com/kotlin-eap' }
-        maven { url 'https://kotlin.bintray.com/kotlinx' }
-        maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
-        jcenter()
+        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
+        // kotlin-dev with space redirector
+        maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
+        mavenCentral()
         gradlePluginPortal()
+        // For Dokka that depends on kotlinx-html
+        maven { url "https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven" }
+        mavenLocal()
     }
 
     configurations.classpath {
@@ -64,28 +63,45 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintray_version"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
+        classpath "org.jetbrains.kotlinx:binary-compatibility-validator:$validator_version"
+        classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
+        classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.5.3' // Android API check
 
-        // Protobuf is udes in JVM tests
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.8'
 
         // Various benchmarking stuff
         classpath "com.github.jengelman.gradle.plugins:shadow:4.0.2"
-        classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.8"
+        classpath "me.champeau.gradle:jmh-gradle-plugin:0.5.3"
         classpath "net.ltgt.gradle:gradle-apt-plugin:0.21"
     }
 }
 
-// To make it visible for compilerVersion.gradle
+// To make it visible for compiler-version.gradle
 ext.compilerVersion = org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION
+ext.nativeDebugBuild = org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType.DEBUG
 
+apply plugin: 'binary-compatibility-validator'
+apply plugin: 'base'
+apply plugin: 'kotlinx-knit'
+
+apiValidation {
+    ignoredProjects += ["benchmark", "guide", "kotlinx-serialization"]
+}
+
+knit {
+    siteRoot = "https://kotlin.github.io/kotlinx.serialization"
+    moduleDocs = "build/dokka/htmlMultiModule"
+}
+
+// Build API docs for all modules with dokka before running Knit
+knitPrepare.dependsOn "dokka"
 
 allprojects {
     group 'org.jetbrains.kotlinx'
 
-    if (ext.has('overriden_version')) {
-        version = overriden_version
-    }
+    def deployVersion = properties['DeployVersion']
+    if (deployVersion != null) version = deployVersion
 
     if (project.hasProperty("bootstrap")) {
         version = version + '-SNAPSHOT'
@@ -96,8 +112,6 @@ allprojects {
 
     if (build_snapshot_train) {
         // Snapshot-specific
-        def deployVersion = properties['DeployVersion']
-        if (deployVersion != null) version = deployVersion
         repositories {
             mavenLocal()
             maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
@@ -113,11 +127,15 @@ allprojects {
     }
 
     repositories {
+        mavenCentral()
+        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
+        // kotlin-dev with space redirector
+        maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
+        // For Dokka that depends on kotlinx-html
+        maven { url "https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven" }
+        // For local development
         mavenLocal()
-        jcenter()
-        maven { url "https://dl.bintray.com/kotlin/kotlinx" }
-        maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
-        maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
+
     }
 }
 
@@ -132,8 +150,28 @@ subprojects {
 
     apply from: rootProject.file('gradle/teamcity.gradle')
     // Configure publishing for some artifacts
-    if (project.name.contains("benchmark")) return
-    apply from: rootProject.file('gradle/publishing.gradle')
+    if (project.name != "benchmark" && project.name != "guide") {
+        apply from: rootProject.file('gradle/publishing.gradle')
+    }
+
 }
 
-apply from: rootProject.file('gradle/compilerVersion.gradle')
+subprojects {
+    // Can't be applied to BOM
+    if (project.name == "kotlinx-serialization-bom" || project.name == "benchmark") return
+    apply plugin: 'ru.vyarus.animalsniffer'
+
+    afterEvaluate { // Can be applied only when the project is evaluated
+        animalsniffer {
+            sourceSets = [sourceSets.main]
+        }
+        dependencies {
+            signature 'net.sf.androidscents.signature:android-api-level-14:4.0_r4@signature'
+            signature 'org.codehaus.mojo.signature:java18:1.0@signature'
+        }
+    }
+}
+
+apply from: rootProject.file('gradle/compiler-version.gradle')
+apply from: rootProject.file("gradle/dokka.gradle")
+apply from: rootProject.file("gradle/benchmark-parsing.gradle")

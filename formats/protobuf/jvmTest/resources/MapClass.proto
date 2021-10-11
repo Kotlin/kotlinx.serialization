@@ -1,0 +1,21 @@
+syntax = "proto2";
+
+package kotlinx.serialization.protobuf.schema.generator;
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.MapClass'
+message MapClass {
+  map<int32, float> scalarMap = 1;
+  map<int32, bytes> bytesMap = 2;
+  map<string, OptionsClass> messageMap = 3;
+  map<bool, OverriddenEnumName> enumMap = 4;
+}
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.OptionsClass'
+message OptionsClass {
+  required int32 i = 1;
+}
+
+enum OverriddenEnumName {
+  FIRST = 0;
+  OverriddenElementName = 1;
+}

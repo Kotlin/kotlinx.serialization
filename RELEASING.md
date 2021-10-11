@@ -22,6 +22,9 @@ To release new `<version>` of `kotlinx.serialization`:
 
     [git changelog](https://github.com/tj/git-extras/blob/master/Commands.md#git-changelog) from git-extras may help you with that.
 
+6. If necessary, commit your changes to a new branch called `<version>-release` and send it for review, then merge it to `dev` branch.<br>
+If review is not required, commit directly to `dev`.
+
 6. Tag version:<br>
     `git tag v<version>`
 
@@ -29,14 +32,19 @@ To release new `<version>` of `kotlinx.serialization`:
    `git push origin dev && git push origin --tags`
 
 1. On [TeamCity integration server](https://teamcity.jetbrains.com/project.html?projectId=KotlinTools_KotlinxSerialization&tab=projectOverview):
-   * Wait until "Runtime library (Build)" configuration for committed `dev` branch passes tests.
-   * Run "Runtime library (Depoly - Train)" configuration with selected changes from `dev`.
+   * Wait until "Runtime library (Build – Aggregated)" configuration for committed `dev` branch passes tests.
+   * Run "Runtime library (Deploy - Train)" configuration:
+     * On 'Changes' tab, select `dev` branch and corresponding commit.
+     * On 'Parameters' tab, find 'Deploy version' and fill in with `<version>`.
 
-4. In [Bintray](https://bintray.com/kotlin/kotlinx/kotlinx.serialization.runtime) admin interface:
-   * Publish artifacts of the new version.
-   * Wait until newly published version becomes the most recent.
+4. In [Sonatype](https://oss.sonatype.org/#stagingRepositories) admin interface:
+   * Close the repository and wait for it to verify.
+   * Release it.
+   
+5. Update documentation website:<br>
+    `./update_docs.sh <version> push`
 
-6. Update Kotlin and library versions  in [examples](examples/gradle.properties)
+6. Create a new release in [Github releases](https://github.com/Kotlin/kotlinx.serialization/releases). Use created git tag for title and changelog message for body.
 
 1. Switch back to master branch and update it:<br>
    ```
@@ -45,4 +53,4 @@ To release new `<version>` of `kotlinx.serialization`:
    git push origin master
    ```
 
-5. Announce new release in [Slack](https://kotlinlang.slack.com)
+5. Announce new release in [Slack](https://kotlinlang.slack.com).

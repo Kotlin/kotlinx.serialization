@@ -1,0 +1,40 @@
+syntax = "proto2";
+
+package kotlinx.serialization.protobuf.schema.generator;
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.NestedCollections'
+message NestedCollections {
+  repeated NestedCollections_intList intList = 1;
+  repeated NestedCollections_messageList messageList = 2;
+  repeated NestedCollections_mapInList mapInList = 3;
+  map<string, NestedCollections_listInMap> listInMap = 4;
+}
+
+// This message was generated to support nested collection in list and does not present in Kotlin.
+// Containing message 'NestedCollections', field 'intList'
+message NestedCollections_intList {
+  repeated int32 value = 1;
+}
+
+// This message was generated to support nested collection in list and does not present in Kotlin.
+// Containing message 'NestedCollections', field 'messageList'
+message NestedCollections_messageList {
+  repeated OptionsClass value = 1;
+}
+
+// This message was generated to support nested collection in list and does not present in Kotlin.
+// Containing message 'NestedCollections', field 'mapInList'
+message NestedCollections_mapInList {
+  map<string, OptionsClass> value = 1;
+}
+
+// This message was generated to support nested collection in map value and does not present in Kotlin.
+// Containing message 'NestedCollections', field 'listInMap'
+message NestedCollections_listInMap {
+  repeated int32 value = 1;
+}
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.OptionsClass'
+message OptionsClass {
+  required int32 i = 1;
+}

@@ -1,0 +1,91 @@
+syntax = "proto2";
+option java_package = "kotlinx.serialization.protobuf";
+
+message TestInt32 {
+    required int32 a = 1;
+}
+
+message TestSignedInt {
+    required sint32 a = 1;
+}
+
+message TestSignedLong {
+    required sint64 a = 1;
+}
+
+message TestFixedInt {
+    required fixed32 a = 1;
+}
+
+message TestDouble {
+    required double a = 1;
+}
+
+message TestBoolean {
+    required bool a = 1;
+}
+
+message TestAllTypes {
+    required int32 i32 = 1;
+    required sint32 si32 = 2;
+    required fixed32 f32 = 3;
+    required int64 i64 = 10;
+    required sint64 si64 = 11;
+    required fixed64 f64 = 12;
+    required float f = 21;
+    required double d = 22;
+    required bool b = 41;
+    required string s = 51;
+}
+
+message TestOuterMessage {
+    required int32 a = 1;
+    required double b = 2;
+    required TestAllTypes inner = 10;
+    required string s = 20;
+}
+
+message TestRepeatedIntMessage {
+    required int32 s = 1;
+    repeated int32 b = 10;
+}
+
+message TestRepeatedObjectMessage {
+    repeated TestAllTypes inner = 1;
+}
+
+message TestEnum {
+    enum Coffee {
+        Americano = 0;
+        Latte = 1;
+        Capuccino = 2;
+    }
+    required Coffee a = 1;
+}
+
+enum TestEnumWithIds {
+    First = 10;
+    Second = 20;
+}
+
+message EnumHolder {
+    required TestEnumWithIds a = 5;
+}
+
+message TestMap {
+    map<string, string> stringMap = 1;
+    map<int32, TestAllTypes> intObjectMap = 2;
+}
+
+message MessageWithOptionals {
+    optional int32 a = 1;
+    optional string b = 2;
+    optional Position c = 3;
+    optional int32 d = 4 [default = 99];
+    repeated int32 e = 5;
+
+    enum Position {
+        FIRST = 0;
+        SECOND = 1;
+    }
+}
