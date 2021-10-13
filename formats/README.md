@@ -135,4 +135,12 @@ Allow serialization and deserialization of objects to and from [CBOR](https://cb
 * Artifact ID: `com.github.dimitark:kotlinx-serialization-ion`
 * Platform: JVM
 
-Allow serialization and deserialization of objects to and from [Amazon Ion](https://amzn.github.io/ion-docs/). It stores the data in a flat binary format. Upon destialization, it retains the references between the objects. 
+Allow serialization and deserialization of objects to and from [Amazon Ion](https://amzn.github.io/ion-docs/). It stores the data in a flat binary format. Upon destialization, it retains the references between the objects.
+
+### android.os.Bundle
+
+* GitHub repo: [AhmedMourad0/bundlizer](https://github.com/AhmedMourad0/bundlizer)
+* Artifact ID: `dev.ahmedmourad.bundlizer:bundlizer-core`
+* Platform: Android
+
+Allow serialization and deserialization of objects to and from [android.os.Bundle](https://developer.android.com/reference/android/os/Bundle).  
