@@ -7,6 +7,7 @@ package kotlinx.serialization.json.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.encoding.CompositeDecoder.Companion.DECODE_DONE
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
@@ -56,7 +57,19 @@ internal open class StreamingJsonDecoder(
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
+        // If we're ignoring unknown keys, we have to skip all undecoded elements,
+        // e.g. for object serialization. It can be the case when the descriptor does
+        // not have any elements and decodeElementIndex is not invoked at all
+        if (json.configuration.ignoreUnknownKeys && descriptor.elementsCount == 0) {
+            skipLeftoverElements(descriptor)
+        }
         lexer.consumeNextToken(mode.end)
+    }
+
+    private fun skipLeftoverElements(descriptor: SerialDescriptor) {
+        while (decodeElementIndex(descriptor) != DECODE_DONE) {
+            // Skip elements
+        }
     }
 
     override fun decodeNotNullMark(): Boolean {

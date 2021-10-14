@@ -110,4 +110,21 @@ class JsonModesTest : JsonTestBase() {
 
     @Serializable
     data class Box(val double: Double, val float: Float)
+
+
+    @Serializable
+    object Object
+
+    @Serializable
+    data class Holder(val o: Object)
+
+    @Test
+    fun testIgnoreUnknownKeysObject() = parametrizedTest { jsonTestingMode ->
+        noLegacyJs {
+            assertEquals(Holder(Object), lenient.decodeFromString("""{"o":{}}""", jsonTestingMode))
+            assertEquals(Holder(Object), lenient.decodeFromString("""{"o":{"unknown":{"b":"c"}}}""", jsonTestingMode))
+            assertEquals(Object, lenient.decodeFromString("""{}""", jsonTestingMode))
+            assertEquals(Object, lenient.decodeFromString("""{"o":{"unknown":{"b":"c"}}}""", jsonTestingMode))
+        }
+    }
 }
