@@ -257,7 +257,7 @@ internal class LinkedHashMapSerializer<K, V>(
     override fun Map<K, V>.collectionSize(): Int = size
     override fun Map<K, V>.collectionIterator(): Iterator<Map.Entry<K, V>> = iterator()
     override fun builder(): LinkedHashMap<K, V> = LinkedHashMap()
-    override fun LinkedHashMap<K, V>.builderSize(): Int = size
+    override fun LinkedHashMap<K, V>.builderSize(): Int = size * 2
     override fun LinkedHashMap<K, V>.toResult(): Map<K, V> = this
     override fun Map<K, V>.toBuilder(): LinkedHashMap<K, V> = this as? LinkedHashMap<K, V> ?: LinkedHashMap(this)
     override fun LinkedHashMap<K, V>.checkCapacity(size: Int) {}
@@ -273,7 +273,7 @@ internal class HashMapSerializer<K, V>(
     override fun Map<K, V>.collectionSize(): Int = size
     override fun Map<K, V>.collectionIterator(): Iterator<Map.Entry<K, V>> = iterator()
     override fun builder(): HashMap<K, V> = HashMap()
-    override fun HashMap<K, V>.builderSize(): Int = size
+    override fun HashMap<K, V>.builderSize(): Int = size * 2
     override fun HashMap<K, V>.toResult(): Map<K, V> = this
     override fun Map<K, V>.toBuilder(): HashMap<K, V> = this as? HashMap<K, V> ?: HashMap(this)
     override fun HashMap<K, V>.checkCapacity(size: Int) {}
