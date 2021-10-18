@@ -36,4 +36,6 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
+apply from: rootProject.file("gradle/kover.gradle")
+
 Java9Modularity.configureJava9ModuleInfo(project)
