@@ -21,8 +21,6 @@ kotlin {
     }
 }
 
-apply from: rootProject.file("gradle/kover.gradle")
-
 /*
  These manifest values help kotlinx.serialization compiler plugin determine if it is compatible with a given runtime library.
  Plugin reads them during compilation.

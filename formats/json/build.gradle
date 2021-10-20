@@ -29,7 +29,4 @@ compileTestKotlinJsLegacy {
     exclude '**/PropertyInitializerTest.kt'
 }
 
-
-apply from: rootProject.file("gradle/kover.gradle")
-
 Java9Modularity.configureJava9ModuleInfo(project)

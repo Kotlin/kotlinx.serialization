@@ -47,6 +47,4 @@ compileTestKotlinJvm {
     dependsOn 'generateTestProto'
 }
 
-apply from: rootProject.file("gradle/kover.gradle")
-
 Java9Modularity.configureJava9ModuleInfo(project)

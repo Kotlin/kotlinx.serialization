@@ -161,7 +161,9 @@ subprojects {
 
 subprojects {
     // Can't be applied to BOM
-    if (project.name == "kotlinx-serialization-bom" || project.name == "benchmark") return
+    if (project.name == "kotlinx-serialization-bom" || project.name == "benchmark" || project.name == "guide") return
+
+    // Animalsniffer setup
     apply plugin: 'ru.vyarus.animalsniffer'
 
     afterEvaluate { // Can be applied only when the project is evaluated
@@ -173,6 +175,9 @@ subprojects {
             signature 'org.codehaus.mojo.signature:java18:1.0@signature'
         }
     }
+
+    // Kover setup
+    apply from: rootProject.file("gradle/kover.gradle")
 }
 
 apply from: rootProject.file('gradle/compiler-version.gradle')
