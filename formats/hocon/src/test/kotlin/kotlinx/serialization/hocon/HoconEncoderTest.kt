@@ -18,6 +18,12 @@ class HoconEncoderTest {
         val n: String?,
     )
 
+    @Serializable
+    data class ConfigWithEnum(val e: RegularEnum)
+
+    @Serializable
+    enum class RegularEnum { VALUE }
+
     @Test
     fun `encode simple config`() {
         // Given
@@ -28,6 +34,18 @@ class HoconEncoderTest {
 
         // Then
         assertConfigEquals("b = true, i = 42, d = 32.2, c = x, s = string, n = null", config)
+    }
+
+    @Test
+    fun `encode config with enum`() {
+        // Given
+        val obj = ConfigWithEnum(RegularEnum.VALUE)
+
+        // When
+        val config = Hocon.encodeToConfig(obj)
+
+        // Then
+        assertConfigEquals("e = VALUE", config)
     }
 
     private fun assertConfigEquals(expected: String, actual: Config) {
