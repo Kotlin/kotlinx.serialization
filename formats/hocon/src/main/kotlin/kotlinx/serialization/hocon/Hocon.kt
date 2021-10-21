@@ -35,6 +35,13 @@ public sealed class Hocon(
     public fun <T> decodeFromConfig(deserializer: DeserializationStrategy<T>, config: Config): T =
         ConfigReader(config).decodeSerializableValue(deserializer)
 
+    @ExperimentalSerializationApi
+    public fun <T> encodeToConfig(serializer: SerializationStrategy<T>, value: T): Config {
+        val encoder = HoconConfigEncoder(this)
+        encoder.encodeSerializableValue(serializer, value)
+        return encoder.conf
+    }
+
     /**
      * The default instance of Hocon parser.
      */
@@ -251,6 +258,10 @@ public sealed class Hocon(
 @ExperimentalSerializationApi
 public inline fun <reified T> Hocon.decodeFromConfig(config: Config): T =
     decodeFromConfig(serializersModule.serializer(), config)
+
+@ExperimentalSerializationApi
+public inline fun <reified T> Hocon.encodeToConfig(value: T): Config =
+    encodeToConfig(serializersModule.serializer(), value)
 
 /**
  * Creates an instance of [Hocon] configured from the optionally given [Hocon instance][from]
