@@ -9,6 +9,9 @@ import org.junit.Test
 class HoconEncoderTest {
 
     @Serializable
+    data class SimpleConfig(val value: Int)
+
+    @Serializable
     data class PrimitivesConfig(
         val b: Boolean,
         val i: Int,
@@ -76,6 +79,27 @@ class HoconEncoderTest {
             """.trimIndent(),
             config,
         )
+    }
+
+    @Serializable
+    data class ConfigWithNested(
+        val nested: SimpleConfig,
+        val nestedList: List<SimpleConfig>,
+    )
+
+    @Test
+    fun `test nested config encoding`() {
+        // Given
+        val obj = ConfigWithNested(
+            nested = SimpleConfig(1),
+            nestedList = listOf(SimpleConfig(2)),
+        )
+
+        // When
+        val config = Hocon.encodeToConfig(obj)
+
+        // Then
+        assertConfigEquals("nested { value = 1 }, nestedList = [{ value: 2 }]", config)
     }
 
     private fun assertConfigEquals(expected: String, actual: Config) {
