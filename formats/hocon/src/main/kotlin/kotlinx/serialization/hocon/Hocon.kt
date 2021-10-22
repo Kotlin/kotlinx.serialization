@@ -249,10 +249,15 @@ public sealed class Hocon(
             throw SerializationException("$serialName does not contain element with name '$name'")
         return index
     }
-
-    private val SerialKind.listLike get() = this == StructureKind.LIST || this is PolymorphicKind
-    private val SerialKind.objLike get() = this == StructureKind.CLASS || this == StructureKind.OBJECT
 }
+
+@OptIn(ExperimentalSerializationApi::class)
+internal val SerialKind.listLike
+    get() = this == StructureKind.LIST || this is PolymorphicKind
+
+@OptIn(ExperimentalSerializationApi::class)
+internal val SerialKind.objLike
+    get() = this == StructureKind.CLASS || this == StructureKind.OBJECT
 
 /**
  * Decodes the given [config] into a value of type [T] using a deserialize retrieved
