@@ -4,9 +4,11 @@ package kotlinx.serialization.hocon
 
 import com.typesafe.config.ConfigValue
 import com.typesafe.config.ConfigValueFactory
+import com.typesafe.config.ConfigValueType
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.internal.NamedValueEncoder
 import kotlinx.serialization.modules.SerializersModule
@@ -41,6 +43,7 @@ abstract class AbstractHoconEncoder(
         return when {
             descriptor.kind.listLike -> HoconConfigListEncoder(hocon, consumer)
             descriptor.kind.objLike -> HoconConfigEncoder(hocon, consumer)
+            descriptor.kind == StructureKind.MAP -> HoconConfigMapEncoder(hocon, consumer)
             else -> this
         }
     }
@@ -78,4 +81,30 @@ class HoconConfigListEncoder(hocon: Hocon, configConsumer: (ConfigValue) -> Unit
     }
 
     override fun getCurrent(): ConfigValue = ConfigValueFactory.fromIterable(values)
+}
+
+@InternalSerializationApi
+class HoconConfigMapEncoder(hocon: Hocon, configConsumer: (ConfigValue) -> Unit) :
+    AbstractHoconEncoder(hocon, configConsumer) {
+
+    private val configMap = mutableMapOf<String, ConfigValue>()
+
+    private lateinit var key: String
+    private var isKey: Boolean = true
+
+    override fun encodeTaggedConfigValue(tag: String, value: ConfigValue) {
+        if (isKey) {
+            key = when (value.valueType()) {
+                ConfigValueType.OBJECT -> TODO("Throw reasonable exception")
+                ConfigValueType.LIST -> TODO("Throw reasonable exception")
+                else -> value.unwrapped().toString()
+            }
+            isKey = false
+        } else {
+            configMap[key] = value
+            isKey = true
+        }
+    }
+
+    override fun getCurrent(): ConfigValue = ConfigValueFactory.fromMap(configMap)
 }

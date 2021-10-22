@@ -102,6 +102,21 @@ class HoconEncoderTest {
         assertConfigEquals("nested { value = 1 }, nestedList = [{ value: 2 }]", config)
     }
 
+    @Test
+    fun `test map encoding`() {
+        // Given
+        val objMap = mapOf(
+            "one" to SimpleConfig(1),
+            "two" to SimpleConfig(2),
+        )
+
+        // When
+        val config = Hocon.encodeToConfig(objMap)
+
+        // Then
+        assertConfigEquals("one { value = 1 }, two { value = 2 }", config)
+    }
+
     private fun assertConfigEquals(expected: String, actual: Config) {
         assertEquals(ConfigFactory.parseString(expected), actual)
     }
