@@ -24,6 +24,13 @@ class HoconEncoderTest {
     @Serializable
     enum class RegularEnum { VALUE }
 
+    @Serializable
+    class ConfigWithIterables(
+        val array: BooleanArray,
+        val set: Set<Int>,
+        val list: List<String>,
+    )
+
     @Test
     fun `encode simple config`() {
         // Given
@@ -46,6 +53,29 @@ class HoconEncoderTest {
 
         // Then
         assertConfigEquals("e = VALUE", config)
+    }
+
+    @Test
+    fun `encode config with iterables`() {
+        // Given
+        val obj = ConfigWithIterables(
+            array = booleanArrayOf(true, false),
+            set = setOf(3, 1, 4),
+            list = listOf("A", "B"),
+        )
+
+        // When
+        val config = Hocon.encodeToConfig(obj)
+
+        // Then
+        assertConfigEquals(
+            """
+                array = [true, false]
+                set = [3, 1, 4]
+                list = [A, B]
+            """.trimIndent(),
+            config,
+        )
     }
 
     private fun assertConfigEquals(expected: String, actual: Config) {

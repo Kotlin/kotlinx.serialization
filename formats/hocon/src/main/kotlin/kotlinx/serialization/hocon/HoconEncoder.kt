@@ -7,6 +7,7 @@ import com.typesafe.config.ConfigValueFactory
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.internal.NamedValueEncoder
 import kotlinx.serialization.modules.SerializersModule
 
@@ -32,6 +33,17 @@ abstract class AbstractHoconEncoder(
         encodeTaggedString(tag, enumDescriptor.getElementName(ordinal))
     }
 
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
+        val consumer =
+            if (currentTagOrNull == null) valueConsumer
+            else { value -> encodeTaggedConfigValue(currentTag, value) }
+
+        return when {
+            descriptor.kind.listLike -> HoconConfigListEncoder(hocon, consumer)
+            else -> this
+        }
+    }
+
     override fun endEncode(descriptor: SerialDescriptor) {
         valueConsumer(getCurrent())
     }
@@ -50,4 +62,19 @@ class HoconConfigEncoder(hocon: Hocon, configConsumer: (ConfigValue) -> Unit) :
     }
 
     override fun getCurrent(): ConfigValue = ConfigValueFactory.fromMap(configMap)
+}
+
+@InternalSerializationApi
+class HoconConfigListEncoder(hocon: Hocon, configConsumer: (ConfigValue) -> Unit) :
+    AbstractHoconEncoder(hocon, configConsumer) {
+
+    private val values = mutableListOf<ConfigValue>()
+
+    override fun elementName(descriptor: SerialDescriptor, index: Int): String = index.toString()
+
+    override fun encodeTaggedConfigValue(tag: String, value: ConfigValue) {
+        values.add(tag.toInt(), value)
+    }
+
+    override fun getCurrent(): ConfigValue = ConfigValueFactory.fromIterable(values)
 }
