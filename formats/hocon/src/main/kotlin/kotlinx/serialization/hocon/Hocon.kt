@@ -37,9 +37,12 @@ public sealed class Hocon(
 
     @ExperimentalSerializationApi
     public fun <T> encodeToConfig(serializer: SerializationStrategy<T>, value: T): Config {
-        val encoder = HoconConfigEncoder(this)
+        lateinit var configValue: ConfigValue
+        val encoder = HoconConfigEncoder(this) { configValue = it }
         encoder.encodeSerializableValue(serializer, value)
-        return encoder.conf
+
+        check(configValue is ConfigObject) { TODO("Write reasonable error here") }
+        return (configValue as ConfigObject).toConfig()
     }
 
     /**
