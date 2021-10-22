@@ -40,6 +40,7 @@ abstract class AbstractHoconEncoder(
 
         return when {
             descriptor.kind.listLike -> HoconConfigListEncoder(hocon, consumer)
+            descriptor.kind.objLike -> HoconConfigEncoder(hocon, consumer)
             else -> this
         }
     }
