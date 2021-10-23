@@ -25,10 +25,11 @@ import kotlinx.serialization.modules.*
  */
 @ExperimentalSerializationApi
 public sealed class Hocon(
-        internal val useConfigNamingConvention: Boolean,
-        internal val useArrayPolymorphism: Boolean,
-        internal val classDiscriminator: String,
-        override val serializersModule: SerializersModule
+    internal val encodeDefaults: Boolean,
+    internal val useConfigNamingConvention: Boolean,
+    internal val useArrayPolymorphism: Boolean,
+    internal val classDiscriminator: String,
+    override val serializersModule: SerializersModule,
 ) : SerialFormat {
 
     @ExperimentalSerializationApi
@@ -49,7 +50,7 @@ public sealed class Hocon(
      * The default instance of Hocon parser.
      */
     @ExperimentalSerializationApi
-    public companion object Default : Hocon(false, false, "type", EmptySerializersModule) {
+    public companion object Default : Hocon(false, false, false, "type", EmptySerializersModule) {
         internal val NAMING_CONVENTION_REGEX by lazy { "[A-Z]".toRegex() }
     }
 
@@ -281,9 +282,7 @@ public inline fun <reified T> Hocon.encodeToConfig(value: T): Config =
  */
 @ExperimentalSerializationApi
 public fun Hocon(from: Hocon = Hocon, builderAction: HoconBuilder.() -> Unit): Hocon {
-    val builder = HoconBuilder(from)
-    builder.builderAction()
-    return HoconImpl(builder.useConfigNamingConvention, builder.useArrayPolymorphism, builder.classDiscriminator, builder.serializersModule)
+    return HoconImpl(HoconBuilder(from).apply(builderAction))
 }
 
 /**
@@ -295,6 +294,12 @@ public class HoconBuilder internal constructor(hocon: Hocon) {
      * Module with contextual and polymorphic serializers to be used in the resulting [Hocon] instance.
      */
     public var serializersModule: SerializersModule = hocon.serializersModule
+
+    /**
+     * Specifies whether default values of Kotlin properties should be encoded.
+     * `false` by default.
+     */
+    public var encodeDefaults: Boolean = hocon.encodeDefaults
 
     /**
      * Switches naming resolution to config naming convention: hyphen separated.
@@ -316,9 +321,10 @@ public class HoconBuilder internal constructor(hocon: Hocon) {
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private class HoconImpl(
-        useConfigNamingConvention: Boolean,
-        useArrayPolymorphism: Boolean,
-        classDiscriminator: String,
-        serializersModule: SerializersModule
-) : Hocon(useConfigNamingConvention, useArrayPolymorphism, classDiscriminator, serializersModule)
+private class HoconImpl(hoconBuilder: HoconBuilder) : Hocon(
+    encodeDefaults = hoconBuilder.encodeDefaults,
+    useConfigNamingConvention = hoconBuilder.useConfigNamingConvention,
+    useArrayPolymorphism = hoconBuilder.useArrayPolymorphism,
+    classDiscriminator = hoconBuilder.classDiscriminator,
+    serializersModule = hoconBuilder.serializersModule
+)
