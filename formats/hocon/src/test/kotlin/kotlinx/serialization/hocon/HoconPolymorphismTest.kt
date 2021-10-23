@@ -39,7 +39,7 @@ class HoconPolymorphismTest {
 
 
     @Test
-    fun testArrayDataClass() {
+    fun testArrayDataClassDecode() {
         val config = ConfigFactory.parseString(
                 """{
                 sealed: [
@@ -58,7 +58,7 @@ class HoconPolymorphismTest {
     }
 
     @Test
-    fun testArrayObject() {
+    fun testArrayObjectDecode() {
         val config = ConfigFactory.parseString(
                 """{
                 sealed: [
@@ -73,7 +73,7 @@ class HoconPolymorphismTest {
     }
 
     @Test
-    fun testObject() {
+    fun testObjectDecode() {
         val config = ConfigFactory.parseString("""{type="object"}""")
         val sealed = objectHocon.decodeFromConfig(Sealed.serializer(), config)
 
@@ -81,7 +81,7 @@ class HoconPolymorphismTest {
     }
 
     @Test
-    fun testNestedDataClass() {
+    fun testNestedDataClassDecode() {
         val config = ConfigFactory.parseString(
                 """{
                 sealed: {
@@ -100,7 +100,7 @@ class HoconPolymorphismTest {
     }
 
     @Test
-    fun testDataClass() {
+    fun testDataClassDecode() {
         val config = ConfigFactory.parseString(
                 """{
                   type="data_class"
@@ -116,7 +116,7 @@ class HoconPolymorphismTest {
     }
 
     @Test
-    fun testChangeDiscriminator() {
+    fun testDecodeChangedDiscriminator() {
         val hocon = Hocon(objectHocon) {
             classDiscriminator = "key"
         }
@@ -136,7 +136,7 @@ class HoconPolymorphismTest {
     }
 
     @Test
-    fun testChangeTypePropertyName() {
+    fun testDecodeChangedTypePropertyName() {
         val config = ConfigFactory.parseString(
                 """{
                   my_type="override"
