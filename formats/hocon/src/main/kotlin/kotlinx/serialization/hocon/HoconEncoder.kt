@@ -27,6 +27,10 @@ abstract class AbstractHoconEncoder(
 
     private var writeDiscriminator: Boolean = false
 
+    override fun elementName(descriptor: SerialDescriptor, index: Int): String {
+        return descriptor.getConventionElementName(index, hocon.useConfigNamingConvention)
+    }
+
     override fun composeName(parentName: String, childName: String): String = childName
 
     protected abstract fun encodeTaggedConfigValue(tag: String, value: ConfigValue)

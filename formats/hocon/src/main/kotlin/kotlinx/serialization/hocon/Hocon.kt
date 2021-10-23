@@ -50,7 +50,7 @@ public sealed class Hocon(
      */
     @ExperimentalSerializationApi
     public companion object Default : Hocon(false, false, "type", EmptySerializersModule) {
-        private val NAMING_CONVENTION_REGEX by lazy { "[A-Z]".toRegex() }
+        internal val NAMING_CONVENTION_REGEX by lazy { "[A-Z]".toRegex() }
     }
 
     private abstract inner class ConfigConverter<T> : TaggedDecoder<T>() {
@@ -119,13 +119,7 @@ public sealed class Hocon(
             if (parentName.isEmpty()) childName else "$parentName.$childName"
 
         override fun SerialDescriptor.getTag(index: Int): String =
-            composeName(currentTagOrNull ?: "", getConventionElementName(index))
-
-        private fun SerialDescriptor.getConventionElementName(index: Int): String {
-            val originalName = getElementName(index)
-            return if (!useConfigNamingConvention) originalName
-            else originalName.replace(NAMING_CONVENTION_REGEX) { "-${it.value.lowercase()}" }
-        }
+            composeName(currentTagOrNull.orEmpty(), getConventionElementName(index, useConfigNamingConvention))
 
         override fun decodeNotNullMark(): Boolean {
             // Tag might be null for top-level deserialization
@@ -244,6 +238,13 @@ public sealed class Hocon(
             throw SerializationException("$serialName does not contain element with name '$name'")
         return index
     }
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+internal fun SerialDescriptor.getConventionElementName(index: Int, useConfigNamingConvention: Boolean): String {
+    val originalName = getElementName(index)
+    return if (!useConfigNamingConvention) originalName
+    else originalName.replace(Hocon.NAMING_CONVENTION_REGEX) { "-${it.value.lowercase()}" }
 }
 
 @OptIn(ExperimentalSerializationApi::class)
