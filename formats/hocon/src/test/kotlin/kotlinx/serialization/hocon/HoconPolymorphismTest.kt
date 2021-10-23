@@ -166,4 +166,40 @@ class HoconPolymorphismTest {
 
         assertConfigEquals("sealed = [ data_class, { name = testDataClass, intField = 1 } ]", config)
     }
+
+    @Test
+    fun testObjectEncode() {
+        val obj = Sealed.ObjectChild
+        val config = objectHocon.encodeToConfig(Sealed.serializer(), obj)
+
+        assertConfigEquals("type = object", config)
+    }
+
+    @Test
+    fun testDataClassEncode() {
+        val obj = Sealed.DataClassChild("testDataClass")
+        val config = objectHocon.encodeToConfig(Sealed.serializer(), obj)
+
+        assertConfigEquals("type = data_class, name = testDataClass, intField = 1", config)
+    }
+
+    @Test
+    fun testEncodeChangedDiscriminator() {
+        val hocon = Hocon(objectHocon) {
+            classDiscriminator = "key"
+        }
+
+        val obj = Sealed.TypeChild(type = "override")
+        val config = hocon.encodeToConfig(Sealed.serializer(), obj)
+
+        assertConfigEquals("type = override, key = type_child, intField = 2", config)
+    }
+
+    @Test
+    fun testEncodeChangedTypePropertyName() {
+        val obj = Sealed.AnnotatedTypeChild(type = "override")
+        val config = objectHocon.encodeToConfig(Sealed.serializer(), obj)
+
+        assertConfigEquals("type = annotated_type_child, my_type = override, intField = 3", config)
+    }
 }
