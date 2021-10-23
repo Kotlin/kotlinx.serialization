@@ -44,6 +44,8 @@ abstract class AbstractHoconEncoder(
         encodeTaggedString(tag, enumDescriptor.getElementName(ordinal))
     }
 
+    override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = hocon.encodeDefaults
+
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
         if (serializer !is AbstractPolymorphicSerializer<*> || hocon.useArrayPolymorphism) {
             serializer.serialize(this, value)

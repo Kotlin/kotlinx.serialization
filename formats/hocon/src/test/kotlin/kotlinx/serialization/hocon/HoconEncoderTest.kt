@@ -116,6 +116,37 @@ class HoconEncoderTest {
         // Then
         assertConfigEquals("one { value = 1 }, two { value = 2 }", config)
     }
+
+    @Serializable
+    data class ConfigWithDefaults(
+        val defInt: Int = 0,
+        val defString: String = "",
+    )
+
+    @Test
+    fun `test defaults shouldn't be encoded by default`() {
+        // Given
+        val obj = ConfigWithDefaults(defInt = 42)
+
+        // When
+        val config = Hocon.encodeToConfig(obj)
+
+        // Then
+        assertConfigEquals("defInt = 42", config)
+    }
+
+    @Test
+    fun `test defaults should be encoded if enabled`() {
+        // Given
+        val hocon = Hocon { encodeDefaults = true }
+        val obj = ConfigWithDefaults(defInt = 42)
+
+        // When
+        val config = hocon.encodeToConfig(obj)
+
+        // Then
+        assertConfigEquals("defInt = 42, defString = \"\"", config)
+    }
 }
 
 internal fun assertConfigEquals(expected: String, actual: Config) {
