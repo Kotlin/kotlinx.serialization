@@ -150,4 +150,20 @@ class HoconPolymorphismTest {
         assertEquals("override", sealed.type)
         assertEquals(12, sealed.intField)
     }
+
+    @Test
+    fun testArrayObjectEncode() {
+        val obj = CompositeClass(Sealed.ObjectChild)
+        val config = arrayHocon.encodeToConfig(obj)
+
+        assertConfigEquals("sealed = [ object, {} ]", config)
+    }
+
+    @Test
+    fun testArrayDataClassEncode() {
+        val obj = CompositeClass(Sealed.DataClassChild("testDataClass"))
+        val config = arrayHocon.encodeToConfig(obj)
+
+        assertConfigEquals("sealed = [ data_class, { name = testDataClass, intField = 1 } ]", config)
+    }
 }

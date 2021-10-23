@@ -116,8 +116,8 @@ class HoconEncoderTest {
         // Then
         assertConfigEquals("one { value = 1 }, two { value = 2 }", config)
     }
+}
 
-    private fun assertConfigEquals(expected: String, actual: Config) {
-        assertEquals(ConfigFactory.parseString(expected), actual)
-    }
+internal fun assertConfigEquals(expected: String, actual: Config) {
+    assertEquals(ConfigFactory.parseString(expected), actual)
 }
