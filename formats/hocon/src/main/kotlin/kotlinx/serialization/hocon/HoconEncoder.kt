@@ -7,9 +7,12 @@ import com.typesafe.config.ConfigValueFactory
 import com.typesafe.config.ConfigValueType
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.encoding.CompositeEncoder
+import kotlinx.serialization.findPolymorphicSerializer
+import kotlinx.serialization.internal.AbstractPolymorphicSerializer
 import kotlinx.serialization.internal.NamedValueEncoder
 import kotlinx.serialization.modules.SerializersModule
 
@@ -21,6 +24,8 @@ abstract class AbstractHoconEncoder(
 
     override val serializersModule: SerializersModule
         get() = hocon.serializersModule
+
+    private var writeDiscriminator: Boolean = false
 
     override fun composeName(parentName: String, childName: String): String = childName
 
@@ -35,16 +40,36 @@ abstract class AbstractHoconEncoder(
         encodeTaggedString(tag, enumDescriptor.getElementName(ordinal))
     }
 
+    override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
+        if (serializer !is AbstractPolymorphicSerializer<*> || hocon.useArrayPolymorphism) {
+            serializer.serialize(this, value)
+            return
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        val casted = serializer as AbstractPolymorphicSerializer<Any>
+        val actualSerializer = casted.findPolymorphicSerializer(this, value as Any)
+        writeDiscriminator = true
+
+        actualSerializer.serialize(this, value)
+    }
+
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
         val consumer =
             if (currentTagOrNull == null) valueConsumer
             else { value -> encodeTaggedConfigValue(currentTag, value) }
+        val kind = descriptor.hoconKind(hocon.useArrayPolymorphism)
 
         return when {
-            descriptor.kind.listLike -> HoconConfigListEncoder(hocon, consumer)
-            descriptor.kind.objLike -> HoconConfigEncoder(hocon, consumer)
-            descriptor.kind == StructureKind.MAP -> HoconConfigMapEncoder(hocon, consumer)
+            kind.listLike -> HoconConfigListEncoder(hocon, consumer)
+            kind.objLike -> HoconConfigEncoder(hocon, consumer)
+            kind == StructureKind.MAP -> HoconConfigMapEncoder(hocon, consumer)
             else -> this
+        }.also { encoder ->
+            if (writeDiscriminator) {
+                encoder.encodeTaggedString(hocon.classDiscriminator, descriptor.serialName)
+                writeDiscriminator = false
+            }
         }
     }
 

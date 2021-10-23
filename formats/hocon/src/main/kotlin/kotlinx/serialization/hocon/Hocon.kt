@@ -153,12 +153,7 @@ public sealed class Hocon(
         }
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
-            val kind = when (descriptor.kind) {
-                is PolymorphicKind -> {
-                    if (useArrayPolymorphism) StructureKind.LIST else StructureKind.MAP
-                }
-                else -> descriptor.kind
-            }
+            val kind = descriptor.hoconKind(useArrayPolymorphism)
 
             return when {
                 kind.listLike -> ListConfigReader(conf.getList(currentTag))
@@ -236,6 +231,14 @@ public sealed class Hocon(
             throw SerializationException("$serialName does not contain element with name '$name'")
         return index
     }
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+internal fun SerialDescriptor.hoconKind(useArrayPolymorphism: Boolean): SerialKind = when (kind) {
+    is PolymorphicKind -> {
+        if (useArrayPolymorphism) StructureKind.LIST else StructureKind.MAP
+    }
+    else -> kind
 }
 
 @OptIn(ExperimentalSerializationApi::class)
