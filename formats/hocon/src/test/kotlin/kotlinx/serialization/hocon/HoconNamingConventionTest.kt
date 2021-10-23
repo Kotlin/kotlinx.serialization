@@ -19,6 +19,10 @@ class HoconNamingConventionTest {
     @Serializable
     data class CaseWithInnerConfig(val caseConfig: CaseConfig, val serialNameConfig: SerialNameConfig)
 
+    private val hocon = Hocon {
+        useConfigNamingConvention = true
+    }
+
     @Test
     fun `deserialize using naming convention`() {
         val obj = deserializeConfig("a-char-value = t, a-string-value = test", CaseConfig.serializer(), true)
@@ -27,9 +31,25 @@ class HoconNamingConventionTest {
     }
 
     @Test
-    fun `use serial name instead of naming convention if provided`() {
+    fun `serialize using naming convention`() {
+        val obj = CaseConfig(aCharValue = 't', aStringValue = "test")
+        val config = hocon.encodeToConfig(obj)
+
+        assertConfigEquals("a-char-value = t, a-string-value = test", config)
+    }
+
+    @Test
+    fun `deserialize using serial name instead of naming convention`() {
         val obj = deserializeConfig("an-id-value = 42", SerialNameConfig.serializer(), true)
         assertEquals(42, obj.anIDValue)
+    }
+
+    @Test
+    fun `serialize using serial name instead of naming convention`() {
+        val obj = SerialNameConfig(anIDValue = 42)
+        val config = hocon.encodeToConfig(obj)
+
+        assertConfigEquals("an-id-value = 42", config)
     }
 
     @Test
@@ -41,5 +61,22 @@ class HoconNamingConventionTest {
             assertEquals("bar", aStringValue)
         }
         assertEquals(21, obj.serialNameConfig.anIDValue)
+    }
+
+    @Test
+    fun `serialize inner values using naming convention`() {
+        val obj = CaseWithInnerConfig(
+            caseConfig = CaseConfig(aCharValue = 't', aStringValue = "test"),
+            serialNameConfig = SerialNameConfig(anIDValue = 42)
+        )
+        val config = hocon.encodeToConfig(obj)
+
+        assertConfigEquals(
+            """
+                case-config { a-char-value = t, a-string-value = test }
+                serial-name-config { an-id-value = 42 }
+            """,
+            config,
+        )
     }
 }
