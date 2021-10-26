@@ -179,23 +179,18 @@ The library works on Android, but, if you're using ProGuard,
 you need to add rules to your `proguard-rules.pro` configuration to cover all classes that are serialized at runtime.
 
 The following configuration keeps serializers for _all_ serializable classes that are retained after shrinking.
-You may want to modify the following:
-
-- Uncomment and modify the last section in case you're serializing classes with named companion objects.
-- Replace the indicated wildcards with a narrower [class specification](https://www.guardsquare.com/manual/configuration/usage)
-in case you want to exclude serializable classes that are used, but are never serialized at runtime.
-For example, include `kotlinx.serialization.json.**` in case you want to serialize `JsonElement`.
+Uncomment and modify the last section in case you're serializing classes with named companion objects.
 
 ```proguard
 # Keep `Companion` object fields of serializable classes.
 # This avoids serializer lookup through `getDeclaredClasses` as done for named companion objects.
--if @kotlinx.serialization.Serializable class ** # <-- Optionally replace wildcard.
+-if @kotlinx.serialization.Serializable class **
 -keepclassmembers class <1> {
     static <1>$Companion Companion;
 }
 
 # Keep `serializer()` on companion objects (both default and named) of serializable classes.
--if @kotlinx.serialization.Serializable class ** { # <-- Optionally replace wildcard.
+-if @kotlinx.serialization.Serializable class ** {
     static **$* *;
 }
 -keepclassmembers class <1>$<3> {
@@ -203,7 +198,7 @@ For example, include `kotlinx.serialization.json.**` in case you want to seriali
 }
 
 # Keep `INSTANCE.serializer()` of serializable objects.
--if @kotlinx.serialization.Serializable class ** { # <-- Optionally replace wildcard.
+-if @kotlinx.serialization.Serializable class ** {
     public static ** INSTANCE;
 }
 -keepclassmembers class <1> {
@@ -227,6 +222,47 @@ For example, include `kotlinx.serialization.json.**` in case you want to seriali
 #    static <1>$$serializer INSTANCE;
 #}
 ```
+
+In case you want to exclude serializable classes that are used, but never serialized at runtime,
+you will need to write custom rules with narrower [class specifications](https://www.guardsquare.com/manual/configuration/usage).
+
+<details>
+<summary>Example of custom rules</summary>
+```
+-keepattributes RuntimeVisibleAnnotations,AnnotationDefault
+
+# kotlinx-serialization-json specific. Add this if you have java.lang.NoClassDefFoundError kotlinx.serialization.json.JsonObjectSerializer
+-keepclassmembers class kotlinx.serialization.json.** {
+    *** Companion;
+}
+-keepclasseswithmembers class kotlinx.serialization.json.** {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+
+# Application rules
+
+# Change here com.yourcompany.yourpackage
+-keepclassmembers @kotlinx.serialization.Serializable class com.yourcompany.yourpackage.** {
+    # lookup for plugin generated serializable classes
+    *** Companion;
+    # lookup for serializable objects
+    *** INSTANCE;
+    kotlinx.serialization.KSerializer serializer(...);
+}
+# lookup for plugin generated serializable classes
+-if @kotlinx.serialization.Serializable class com.yourcompany.yourpackage.**
+-keepclassmembers class com.yourcompany.yourpackage.<1>$Companion {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+
+# Serialization supports named companions but for such classes it is necessary to add an additional rule.
+# This rule keeps serializer and serializable class from obfuscation. Therefore, it is recommended not to use wildcards in it, but to write rules for each such class.
+-keepattributes InnerClasses # Needed for `getDeclaredClasses`.
+-keep class com.yourcompany.yourpackage.SerializableClassWithNamedCompanion$$serializer {
+    *** INSTANCE;
+}
+```
+</details>
 
 ### Multiplatform (Common, JS, Native)
 
