@@ -175,17 +175,44 @@ dependencies {
 
 ### Android
 
-The library works on Android, but, if you're using ProGuard, you need
-to add the following rules to your `proguard-rules.pro` configuration.
-Uncomment and modify the relevant section in case you're serializing classes with named companion objects.
+The library works on Android, but, if you're using ProGuard,
+you need to add rules to your `proguard-rules.pro` configuration to cover all classes that are serialized at runtime.
+
+The following configuration keeps serializers for _all_ serializable classes that are retained after shrinking.
+You may want to modify the following:
+
+- Uncomment and modify the last section in case you're serializing classes with named companion objects.
+- Replace the indicated wildcards with a narrower [class specification](https://www.guardsquare.com/manual/configuration/usage)
+in case you want to exclude serializable classes that are used, but are never serialized at runtime.
+For example, include `kotlinx.serialization.json.**` in case you want to serialize `JsonElement`.
 
 ```proguard
 # Keep `Companion` object fields of serializable classes.
 # This avoids serializer lookup through `getDeclaredClasses` as done for named companion objects.
--if @kotlinx.serialization.Serializable class **
+-if @kotlinx.serialization.Serializable class ** # <-- Optionally replace wildcard.
 -keepclassmembers class <1> {
-    public static <1>$Companion Companion;
+    static <1>$Companion Companion;
 }
+
+# Keep `serializer()` on companion objects (both default and named) of serializable classes.
+-if @kotlinx.serialization.Serializable class ** { # <-- Optionally replace wildcard.
+    static **$* *;
+}
+-keepclassmembers class <1>$<3> {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+
+# Keep `INSTANCE.serializer()` of serializable objects.
+-if @kotlinx.serialization.Serializable class ** { # <-- Optionally replace wildcard.
+    public static ** INSTANCE;
+}
+-keepclassmembers class <1> {
+    public static <1> INSTANCE;
+    kotlinx.serialization.KSerializer serializer(...);
+}
+
+# @Serializable and @Polymorphic are used at runtime for polymorphic serialization.
+-keepattributes RuntimeVisibleAnnotations,AnnotationDefault
 
 # Serializer for classes with named companion objects are retrieved using `getDeclaredClasses`.
 # If you have any, uncomment and replace classes with those containing named companion objects.
@@ -194,28 +221,11 @@ Uncomment and modify the relevant section in case you're serializing classes wit
 #com.example.myapplication.HasNamedCompanion, # <-- List serializable classes with named companions.
 #com.example.myapplication.HasNamedCompanion2
 #{
-#    public static **$* *;
+#    static **$* *;
 #}
-#-keepnames class <1>$$serializer {
-#    public static <1>$$serializer INSTANCE;
+#-keepnames class <1>$$serializer { # -keepnames suffices; class is kept when serializer() is kept.
+#    static <1>$$serializer INSTANCE;
 #}
-
-# Keep `serializer()` on companion objects of serializable classes.
--if @kotlinx.serialization.Serializable class ** {
-    public static **$* *;
-}
--keepclassmembers class <1>$<3> {
-    kotlinx.serialization.KSerializer serializer(...);
-}
-
-# Keep `INSTANCE.serializer()` of serializable objects.
--if @kotlinx.serialization.Serializable class ** {
-    public static ** INSTANCE;
-}
--keepclassmembers class <1> {
-    public static <1> INSTANCE;
-    kotlinx.serialization.KSerializer serializer(...);
-}
 ```
 
 ### Multiplatform (Common, JS, Native)
