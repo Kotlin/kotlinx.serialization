@@ -228,7 +228,8 @@ you will need to write custom rules with narrower [class specifications](https:/
 
 <details>
 <summary>Example of custom rules</summary>
-```
+ 
+```proguard
 -keepattributes RuntimeVisibleAnnotations,AnnotationDefault
 
 # kotlinx-serialization-json specific. Add this if you have java.lang.NoClassDefFoundError kotlinx.serialization.json.JsonObjectSerializer
