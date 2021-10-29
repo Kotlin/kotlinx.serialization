@@ -1,0 +1,21 @@
+/*
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+apply plugin: 'kover'
+
+tasks.withType(Test) { task ->
+    // Core is mainly uncovered because a lot of serializers are tested with JSON
+    def minPercentage = (project.name.contains("core") || project.name.contains("properties")) ? 50 : 80
+    kover {
+        enabled = rootProject.ext.koverEnabled
+        generateXml = false
+        generateHtml = true
+        htmlReportDir.set(file("${rootProject.buildDir}/kover/${project.name}/html"))
+        verificationRule {
+            name = "Minimal line coverage rate in percents"
+            minValue = minPercentage
+            // valueType is 'COVERED_LINES_PERCENTAGE' by default
+        }
+    }
+}
