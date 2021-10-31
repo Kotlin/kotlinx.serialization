@@ -48,7 +48,10 @@ public sealed class Hocon(
         val encoder = HoconConfigEncoder(this) { configValue = it }
         encoder.encodeSerializableValue(serializer, value)
 
-        check(configValue is ConfigObject) { TODO("Write reasonable error here") }
+        check(configValue is ConfigObject) {
+            "Value of type '${configValue.valueType()}' can't be used at the root of HOCON Config." +
+                    "It should be either object or map."
+        }
         return (configValue as ConfigObject).toConfig()
     }
 
@@ -76,8 +79,7 @@ public sealed class Hocon(
                 }
             } catch (e: ConfigException) {
                 val configOrigin = e.origin()
-                val requiredType = E::class.simpleName
-                throw SerializationException("${configOrigin.description()} required to be of type $requiredType")
+                throw ConfigValueTypeCastException<E>(configOrigin)
             }
         }
 
@@ -144,15 +146,10 @@ public sealed class Hocon(
             val reader = ConfigReader(config)
             val type = reader.decodeTaggedString(classDiscriminator)
             val actualSerializer = deserializer.findPolymorphicSerializerOrNull(reader, type)
-                    ?: throwSerializerNotFound(type)
+                ?: throw SerializerNotFoundException(type)
 
             @Suppress("UNCHECKED_CAST")
             return (actualSerializer as DeserializationStrategy<T>).deserialize(reader)
-        }
-
-        private fun throwSerializerNotFound(type: String?): Nothing {
-            val suffix = if (type == null) "missing class discriminator ('null')" else "class discriminator '$type'"
-            throw SerializationException("Polymorphic serializer was not found for $suffix")
         }
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {

@@ -127,8 +127,7 @@ internal class HoconConfigMapEncoder(hocon: Hocon, configConsumer: (ConfigValue)
     override fun encodeTaggedConfigValue(tag: String, value: ConfigValue) {
         if (isKey) {
             key = when (value.valueType()) {
-                ConfigValueType.OBJECT -> TODO("Throw reasonable exception")
-                ConfigValueType.LIST -> TODO("Throw reasonable exception")
+                ConfigValueType.OBJECT, ConfigValueType.LIST -> throw InvalidKeyKindException(value)
                 else -> value.unwrapped().toString()
             }
             isKey = false
