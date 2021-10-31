@@ -22,7 +22,7 @@ class HoconEncoderTest {
     )
 
     @Test
-    fun `encode simple config`() {
+    fun encodeSimpleConfig() {
         val obj = PrimitivesConfig(b = true, i = 42, d = 32.2, c = 'x', s = "string", n = null)
         val config = Hocon.encodeToConfig(obj)
 
@@ -36,7 +36,7 @@ class HoconEncoderTest {
     enum class RegularEnum { VALUE }
 
     @Test
-    fun `encode config with enum`() {
+    fun encodeConfigWithEnum() {
         val obj = ConfigWithEnum(RegularEnum.VALUE)
         val config = Hocon.encodeToConfig(obj)
 
@@ -51,7 +51,7 @@ class HoconEncoderTest {
     )
 
     @Test
-    fun `encode config with iterables`() {
+    fun encodeConfigWithIterables() {
         val obj = ConfigWithIterables(
             array = booleanArrayOf(true, false),
             set = setOf(3, 1, 4),
@@ -76,7 +76,7 @@ class HoconEncoderTest {
     )
 
     @Test
-    fun `test nested config encoding`() {
+    fun testNestedConfigEncoding() {
         val obj = ConfigWithNested(
             nested = SimpleConfig(1),
             nestedList = listOf(SimpleConfig(2)),
@@ -87,7 +87,7 @@ class HoconEncoderTest {
     }
 
     @Test
-    fun `test map encoding`() {
+    fun testMapEncoding() {
         val objMap = mapOf(
             "one" to SimpleConfig(1),
             "two" to SimpleConfig(2),
@@ -104,7 +104,7 @@ class HoconEncoderTest {
     )
 
     @Test
-    fun `test defaults shouldn't be encoded by default`() {
+    fun testDefaultsNotEncodedByDefault() {
         val obj = ConfigWithDefaults(defInt = 42)
         val config = Hocon.encodeToConfig(obj)
 
@@ -112,7 +112,7 @@ class HoconEncoderTest {
     }
 
     @Test
-    fun `test defaults should be encoded if enabled`() {
+    fun testDefaultsEncodedIfEnabled() {
         val hocon = Hocon { encodeDefaults = true }
         val obj = ConfigWithDefaults(defInt = 42)
         val config = hocon.encodeToConfig(obj)
