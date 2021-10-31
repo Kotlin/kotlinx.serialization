@@ -1,7 +1,8 @@
 public abstract class kotlinx/serialization/hocon/Hocon : kotlinx/serialization/SerialFormat {
 	public static final field Default Lkotlinx/serialization/hocon/Hocon$Default;
-	public synthetic fun <init> (ZZLjava/lang/String;Lkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ZZZLjava/lang/String;Lkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun decodeFromConfig (Lkotlinx/serialization/DeserializationStrategy;Lcom/typesafe/config/Config;)Ljava/lang/Object;
+	public final fun encodeToConfig (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Lcom/typesafe/config/Config;
 	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 }
 
@@ -10,10 +11,12 @@ public final class kotlinx/serialization/hocon/Hocon$Default : kotlinx/serializa
 
 public final class kotlinx/serialization/hocon/HoconBuilder {
 	public final fun getClassDiscriminator ()Ljava/lang/String;
+	public final fun getEncodeDefaults ()Z
 	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 	public final fun getUseArrayPolymorphism ()Z
 	public final fun getUseConfigNamingConvention ()Z
 	public final fun setClassDiscriminator (Ljava/lang/String;)V
+	public final fun setEncodeDefaults (Z)V
 	public final fun setSerializersModule (Lkotlinx/serialization/modules/SerializersModule;)V
 	public final fun setUseArrayPolymorphism (Z)V
 	public final fun setUseConfigNamingConvention (Z)V
