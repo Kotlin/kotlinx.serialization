@@ -32,10 +32,16 @@ public sealed class Hocon(
     override val serializersModule: SerializersModule,
 ) : SerialFormat {
 
+    /**
+     * Decodes the given [config] into a value of type [T] using the given serializer.
+     */
     @ExperimentalSerializationApi
     public fun <T> decodeFromConfig(deserializer: DeserializationStrategy<T>, config: Config): T =
         ConfigReader(config).decodeSerializableValue(deserializer)
 
+    /**
+     * Encodes the given [value] into a [Config] using the given [serializer].
+     */
     @ExperimentalSerializationApi
     public fun <T> encodeToConfig(serializer: SerializationStrategy<T>, value: T): Config {
         lateinit var configValue: ConfigValue
@@ -252,13 +258,17 @@ internal val SerialKind.objLike
     get() = this == StructureKind.CLASS || this == StructureKind.OBJECT
 
 /**
- * Decodes the given [config] into a value of type [T] using a deserialize retrieved
- * from reified type parameter.
+ * Decodes the given [config] into a value of type [T] using a deserializer retrieved
+ * from the reified type parameter.
  */
 @ExperimentalSerializationApi
 public inline fun <reified T> Hocon.decodeFromConfig(config: Config): T =
     decodeFromConfig(serializersModule.serializer(), config)
 
+/**
+ * Encodes the given [value] of type [T] into a [Config] using a serializer retrieved
+ * from the reified type parameter.
+ */
 @ExperimentalSerializationApi
 public inline fun <reified T> Hocon.encodeToConfig(value: T): Config =
     encodeToConfig(serializersModule.serializer(), value)
