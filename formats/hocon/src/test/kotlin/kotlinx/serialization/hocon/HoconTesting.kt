@@ -1,8 +1,7 @@
 package kotlinx.serialization.hocon
 
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
-import kotlinx.serialization.KSerializer
+import com.typesafe.config.*
+import kotlinx.serialization.*
 import org.junit.Assert.assertEquals
 
 internal inline fun <reified T : Any> Hocon.assertStringFormAndRestored(

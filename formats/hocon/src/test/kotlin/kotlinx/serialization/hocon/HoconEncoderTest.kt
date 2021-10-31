@@ -1,7 +1,7 @@
 package kotlinx.serialization.hocon
 
-import kotlinx.serialization.Serializable
-import org.junit.Test
+import kotlinx.serialization.*
+import org.junit.*
 
 class HoconEncoderTest {
 
