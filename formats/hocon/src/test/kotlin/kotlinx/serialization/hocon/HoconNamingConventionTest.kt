@@ -35,7 +35,7 @@ class HoconNamingConventionTest {
         val obj = CaseConfig(aCharValue = 't', aStringValue = "test")
         val config = hocon.encodeToConfig(obj)
 
-        assertConfigEquals("a-char-value = t, a-string-value = test", config)
+        config.assertContains("a-char-value = t, a-string-value = test")
     }
 
     @Test
@@ -49,7 +49,7 @@ class HoconNamingConventionTest {
         val obj = SerialNameConfig(anIDValue = 42)
         val config = hocon.encodeToConfig(obj)
 
-        assertConfigEquals("an-id-value = 42", config)
+        config.assertContains("an-id-value = 42")
     }
 
     @Test
@@ -71,12 +71,11 @@ class HoconNamingConventionTest {
         )
         val config = hocon.encodeToConfig(obj)
 
-        assertConfigEquals(
+        config.assertContains(
             """
                 case-config { a-char-value = t, a-string-value = test }
                 serial-name-config { an-id-value = 42 }
-            """,
-            config,
+            """
         )
     }
 }

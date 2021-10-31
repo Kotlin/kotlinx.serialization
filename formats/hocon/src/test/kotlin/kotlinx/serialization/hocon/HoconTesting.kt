@@ -20,6 +20,6 @@ internal inline fun <reified T : Any> Hocon.assertStringFormAndRestored(
     assertEquals(original, restored)
 }
 
-internal fun assertConfigEquals(expected: String, actual: Config) {
-    assertEquals(ConfigFactory.parseString(expected), actual)
+internal fun Config.assertContains(expected: String) {
+    assertEquals(ConfigFactory.parseString(expected), this)
 }
