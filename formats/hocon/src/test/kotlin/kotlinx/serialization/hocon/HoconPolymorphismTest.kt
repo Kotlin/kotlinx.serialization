@@ -1,7 +1,7 @@
 package kotlinx.serialization.hocon
 
 import kotlinx.serialization.*
-import org.junit.Test
+import org.junit.*
 
 class HoconPolymorphismTest {
     @Serializable
