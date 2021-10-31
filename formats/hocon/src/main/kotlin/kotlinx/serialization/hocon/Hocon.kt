@@ -241,14 +241,14 @@ public sealed class Hocon(
     }
 }
 
-@OptIn(ExperimentalSerializationApi::class)
+@ExperimentalSerializationApi
 internal fun SerialDescriptor.getConventionElementName(index: Int, useConfigNamingConvention: Boolean): String {
     val originalName = getElementName(index)
     return if (!useConfigNamingConvention) originalName
     else originalName.replace(Hocon.NAMING_CONVENTION_REGEX) { "-${it.value.lowercase()}" }
 }
 
-@OptIn(ExperimentalSerializationApi::class)
+@ExperimentalSerializationApi
 internal fun SerialDescriptor.hoconKind(useArrayPolymorphism: Boolean): SerialKind = when (kind) {
     is PolymorphicKind -> {
         if (useArrayPolymorphism) StructureKind.LIST else StructureKind.MAP
@@ -256,11 +256,11 @@ internal fun SerialDescriptor.hoconKind(useArrayPolymorphism: Boolean): SerialKi
     else -> kind
 }
 
-@OptIn(ExperimentalSerializationApi::class)
+@ExperimentalSerializationApi
 internal val SerialKind.listLike
     get() = this == StructureKind.LIST || this is PolymorphicKind
 
-@OptIn(ExperimentalSerializationApi::class)
+@ExperimentalSerializationApi
 internal val SerialKind.objLike
     get() = this == StructureKind.CLASS || this == StructureKind.OBJECT
 

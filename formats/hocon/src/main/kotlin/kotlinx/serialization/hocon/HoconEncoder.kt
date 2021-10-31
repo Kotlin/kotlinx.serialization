@@ -1,4 +1,6 @@
-@file:OptIn(ExperimentalSerializationApi::class)
+/*
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 
 package kotlinx.serialization.hocon
 
@@ -6,7 +8,6 @@ import com.typesafe.config.ConfigValue
 import com.typesafe.config.ConfigValueFactory
 import com.typesafe.config.ConfigValueType
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.StructureKind
@@ -16,9 +17,9 @@ import kotlinx.serialization.internal.AbstractPolymorphicSerializer
 import kotlinx.serialization.internal.NamedValueEncoder
 import kotlinx.serialization.modules.SerializersModule
 
-@InternalSerializationApi
-abstract class AbstractHoconEncoder(
-    protected val hocon: Hocon,
+@ExperimentalSerializationApi
+internal abstract class AbstractHoconEncoder(
+    private val hocon: Hocon,
     private val valueConsumer: (ConfigValue) -> Unit,
 ) : NamedValueEncoder() {
 
@@ -86,8 +87,8 @@ abstract class AbstractHoconEncoder(
     private fun configValueOf(value: Any?) = ConfigValueFactory.fromAnyRef(value)
 }
 
-@InternalSerializationApi
-class HoconConfigEncoder(hocon: Hocon, configConsumer: (ConfigValue) -> Unit) :
+@ExperimentalSerializationApi
+internal class HoconConfigEncoder(hocon: Hocon, configConsumer: (ConfigValue) -> Unit) :
     AbstractHoconEncoder(hocon, configConsumer) {
 
     private val configMap = mutableMapOf<String, ConfigValue>()
@@ -99,8 +100,8 @@ class HoconConfigEncoder(hocon: Hocon, configConsumer: (ConfigValue) -> Unit) :
     override fun getCurrent(): ConfigValue = ConfigValueFactory.fromMap(configMap)
 }
 
-@InternalSerializationApi
-class HoconConfigListEncoder(hocon: Hocon, configConsumer: (ConfigValue) -> Unit) :
+@ExperimentalSerializationApi
+internal class HoconConfigListEncoder(hocon: Hocon, configConsumer: (ConfigValue) -> Unit) :
     AbstractHoconEncoder(hocon, configConsumer) {
 
     private val values = mutableListOf<ConfigValue>()
@@ -114,8 +115,8 @@ class HoconConfigListEncoder(hocon: Hocon, configConsumer: (ConfigValue) -> Unit
     override fun getCurrent(): ConfigValue = ConfigValueFactory.fromIterable(values)
 }
 
-@InternalSerializationApi
-class HoconConfigMapEncoder(hocon: Hocon, configConsumer: (ConfigValue) -> Unit) :
+@ExperimentalSerializationApi
+internal class HoconConfigMapEncoder(hocon: Hocon, configConsumer: (ConfigValue) -> Unit) :
     AbstractHoconEncoder(hocon, configConsumer) {
 
     private val configMap = mutableMapOf<String, ConfigValue>()
