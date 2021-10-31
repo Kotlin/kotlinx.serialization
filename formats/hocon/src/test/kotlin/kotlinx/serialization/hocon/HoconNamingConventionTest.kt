@@ -24,14 +24,14 @@ class HoconNamingConventionTest {
     }
 
     @Test
-    fun `deserialize using naming convention`() {
+    fun testDeserializeUsingNamingConvention() {
         val obj = deserializeConfig("a-char-value = t, a-string-value = test", CaseConfig.serializer(), true)
         assertEquals('t', obj.aCharValue)
         assertEquals("test", obj.aStringValue)
     }
 
     @Test
-    fun `serialize using naming convention`() {
+    fun testSerializeUsingNamingConvention() {
         val obj = CaseConfig(aCharValue = 't', aStringValue = "test")
         val config = hocon.encodeToConfig(obj)
 
@@ -39,13 +39,13 @@ class HoconNamingConventionTest {
     }
 
     @Test
-    fun `deserialize using serial name instead of naming convention`() {
+    fun testDeserializeUsingSerialNameInsteadOfNamingConvention() {
         val obj = deserializeConfig("an-id-value = 42", SerialNameConfig.serializer(), true)
         assertEquals(42, obj.anIDValue)
     }
 
     @Test
-    fun `serialize using serial name instead of naming convention`() {
+    fun testSerializeUsingSerialNameInsteadOfNamingConvention() {
         val obj = SerialNameConfig(anIDValue = 42)
         val config = hocon.encodeToConfig(obj)
 
@@ -53,7 +53,7 @@ class HoconNamingConventionTest {
     }
 
     @Test
-    fun `deserialize inner values using naming convention`() {
+    fun testDeserializeInnerValuesUsingNamingConvention() {
         val configString = "case-config {a-char-value = b, a-string-value = bar}, serial-name-config {an-id-value = 21}"
         val obj = deserializeConfig(configString, CaseWithInnerConfig.serializer(), true)
         with(obj.caseConfig) {
@@ -64,7 +64,7 @@ class HoconNamingConventionTest {
     }
 
     @Test
-    fun `serialize inner values using naming convention`() {
+    fun testSerializeInnerValuesUsingNamingConvention() {
         val obj = CaseWithInnerConfig(
             caseConfig = CaseConfig(aCharValue = 't', aStringValue = "test"),
             serialNameConfig = SerialNameConfig(anIDValue = 42)
