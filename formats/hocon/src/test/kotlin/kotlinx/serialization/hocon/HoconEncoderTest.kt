@@ -23,7 +23,7 @@ class HoconEncoderTest {
         val obj = PrimitivesConfig(b = true, i = 42, d = 32.2, c = 'x', s = "string", n = null)
         val config = Hocon.encodeToConfig(obj)
 
-        assertConfigEquals("b = true, i = 42, d = 32.2, c = x, s = string, n = null", config)
+        config.assertContains("b = true, i = 42, d = 32.2, c = x, s = string, n = null")
     }
 
     @Serializable
@@ -37,7 +37,7 @@ class HoconEncoderTest {
         val obj = ConfigWithEnum(RegularEnum.VALUE)
         val config = Hocon.encodeToConfig(obj)
 
-        assertConfigEquals("e = VALUE", config)
+        config.assertContains("e = VALUE")
     }
 
     @Serializable
@@ -56,13 +56,12 @@ class HoconEncoderTest {
         )
         val config = Hocon.encodeToConfig(obj)
 
-        assertConfigEquals(
+        config.assertContains(
             """
                 array = [true, false]
                 set = [3, 1, 4]
                 list = [A, B]
-            """.trimIndent(),
-            config,
+            """
         )
     }
 
@@ -80,7 +79,7 @@ class HoconEncoderTest {
         )
         val config = Hocon.encodeToConfig(obj)
 
-        assertConfigEquals("nested { value = 1 }, nestedList = [{ value: 2 }]", config)
+        config.assertContains("nested { value = 1 }, nestedList = [{ value: 2 }]")
     }
 
     @Test
@@ -91,7 +90,7 @@ class HoconEncoderTest {
         )
         val config = Hocon.encodeToConfig(objMap)
 
-        assertConfigEquals("one { value = 1 }, two { value = 2 }", config)
+        config.assertContains("one { value = 1 }, two { value = 2 }")
     }
 
     @Serializable
@@ -105,7 +104,7 @@ class HoconEncoderTest {
         val obj = ConfigWithDefaults(defInt = 42)
         val config = Hocon.encodeToConfig(obj)
 
-        assertConfigEquals("defInt = 42", config)
+        config.assertContains("defInt = 42")
     }
 
     @Test
@@ -114,6 +113,6 @@ class HoconEncoderTest {
         val obj = ConfigWithDefaults(defInt = 42)
         val config = hocon.encodeToConfig(obj)
 
-        assertConfigEquals("defInt = 42, defString = \"\"", config)
+        config.assertContains("defInt = 42, defString = \"\"")
     }
 }
