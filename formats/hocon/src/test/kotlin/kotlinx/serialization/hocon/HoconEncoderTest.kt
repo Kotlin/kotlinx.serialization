@@ -1,9 +1,6 @@
 package kotlinx.serialization.hocon
 
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
 import kotlinx.serialization.Serializable
-import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class HoconEncoderTest {
@@ -119,8 +116,4 @@ class HoconEncoderTest {
 
         assertConfigEquals("defInt = 42, defString = \"\"", config)
     }
-}
-
-internal fun assertConfigEquals(expected: String, actual: Config) {
-    assertEquals(ConfigFactory.parseString(expected), actual)
 }
