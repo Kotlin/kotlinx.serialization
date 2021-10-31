@@ -23,13 +23,9 @@ class HoconEncoderTest {
 
     @Test
     fun `encode simple config`() {
-        // Given
         val obj = PrimitivesConfig(b = true, i = 42, d = 32.2, c = 'x', s = "string", n = null)
-
-        // When
         val config = Hocon.encodeToConfig(obj)
 
-        // Then
         assertConfigEquals("b = true, i = 42, d = 32.2, c = x, s = string, n = null", config)
     }
 
@@ -41,13 +37,9 @@ class HoconEncoderTest {
 
     @Test
     fun `encode config with enum`() {
-        // Given
         val obj = ConfigWithEnum(RegularEnum.VALUE)
-
-        // When
         val config = Hocon.encodeToConfig(obj)
 
-        // Then
         assertConfigEquals("e = VALUE", config)
     }
 
@@ -60,17 +52,13 @@ class HoconEncoderTest {
 
     @Test
     fun `encode config with iterables`() {
-        // Given
         val obj = ConfigWithIterables(
             array = booleanArrayOf(true, false),
             set = setOf(3, 1, 4),
             list = listOf("A", "B"),
         )
-
-        // When
         val config = Hocon.encodeToConfig(obj)
 
-        // Then
         assertConfigEquals(
             """
                 array = [true, false]
@@ -89,31 +77,23 @@ class HoconEncoderTest {
 
     @Test
     fun `test nested config encoding`() {
-        // Given
         val obj = ConfigWithNested(
             nested = SimpleConfig(1),
             nestedList = listOf(SimpleConfig(2)),
         )
-
-        // When
         val config = Hocon.encodeToConfig(obj)
 
-        // Then
         assertConfigEquals("nested { value = 1 }, nestedList = [{ value: 2 }]", config)
     }
 
     @Test
     fun `test map encoding`() {
-        // Given
         val objMap = mapOf(
             "one" to SimpleConfig(1),
             "two" to SimpleConfig(2),
         )
-
-        // When
         val config = Hocon.encodeToConfig(objMap)
 
-        // Then
         assertConfigEquals("one { value = 1 }, two { value = 2 }", config)
     }
 
@@ -125,26 +105,18 @@ class HoconEncoderTest {
 
     @Test
     fun `test defaults shouldn't be encoded by default`() {
-        // Given
         val obj = ConfigWithDefaults(defInt = 42)
-
-        // When
         val config = Hocon.encodeToConfig(obj)
 
-        // Then
         assertConfigEquals("defInt = 42", config)
     }
 
     @Test
     fun `test defaults should be encoded if enabled`() {
-        // Given
         val hocon = Hocon { encodeDefaults = true }
         val obj = ConfigWithDefaults(defInt = 42)
-
-        // When
         val config = hocon.encodeToConfig(obj)
 
-        // Then
         assertConfigEquals("defInt = 42, defString = \"\"", config)
     }
 }
