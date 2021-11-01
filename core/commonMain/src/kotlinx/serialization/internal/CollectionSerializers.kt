@@ -63,11 +63,11 @@ internal sealed class ListLikeSerializer<Element, Collection, Builder>(
 
     override fun serialize(encoder: Encoder, value: Collection) {
         val size = value.collectionSize()
-        val composite = encoder.beginCollection(descriptor, size)
-        val iterator = value.collectionIterator()
-        for (index in 0 until size)
-            composite.encodeSerializableElement(descriptor, index, elementSerializer, iterator.next())
-        composite.endStructure(descriptor)
+        encoder.encodeCollection(descriptor, size) {
+            val iterator = value.collectionIterator()
+            for (index in 0 until size)
+                encodeSerializableElement(descriptor, index, elementSerializer, iterator.next())
+        }
     }
 
     protected final override fun readAll(decoder: CompositeDecoder, builder: Builder, startIndex: Int, size: Int) {
@@ -115,14 +115,14 @@ public sealed class MapLikeSerializer<Key, Value, Collection, Builder : MutableM
 
     override fun serialize(encoder: Encoder, value: Collection) {
         val size = value.collectionSize()
-        val composite = encoder.beginCollection(descriptor, size)
-        val iterator = value.collectionIterator()
-        var index = 0
-        iterator.forEach { (k, v) ->
-            composite.encodeSerializableElement(descriptor, index++, keySerializer, k)
-            composite.encodeSerializableElement(descriptor, index++, valueSerializer, v)
+        encoder.encodeCollection(descriptor, size) {
+            val iterator = value.collectionIterator()
+            var index = 0
+            iterator.forEach { (k, v) ->
+                encodeSerializableElement(descriptor, index++, keySerializer, k)
+                encodeSerializableElement(descriptor, index++, valueSerializer, v)
+            }
         }
-        composite.endStructure(descriptor)
     }
 }
 
@@ -171,9 +171,9 @@ internal abstract class PrimitiveArraySerializer<Element, Array, Builder
 
     final override fun serialize(encoder: Encoder, value: Array) {
         val size = value.collectionSize()
-        val composite = encoder.beginCollection(descriptor, size)
-        writeContent(composite, value, size)
-        composite.endStructure(descriptor)
+        encoder.encodeCollection(descriptor, size) {
+            writeContent(this, value, size)
+        }
     }
 
     final override fun deserialize(decoder: Decoder): Array = merge(decoder, null)

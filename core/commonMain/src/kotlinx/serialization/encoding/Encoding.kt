@@ -486,3 +486,24 @@ public inline fun Encoder.encodeStructure(descriptor: SerialDescriptor, block: C
         if (ex == null) composite.endStructure(descriptor)
     }
 }
+
+/**
+ * Begins a collection, encodes it using the given [block] and ends it.
+ */
+public inline fun Encoder.encodeCollection(
+    descriptor: SerialDescriptor,
+    collectionSize: Int,
+    block: CompositeEncoder.() -> Unit
+) {
+    val composite = beginCollection(descriptor, collectionSize)
+    var ex: Throwable? = null
+    try {
+        composite.block()
+    } catch (e: Throwable) {
+        ex = e
+        throw e
+    } finally {
+        // End structure only if there is no exception, otherwise it can be swallowed
+        if (ex == null) composite.endStructure(descriptor)
+    }
+}
