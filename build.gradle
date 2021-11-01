@@ -12,16 +12,16 @@ buildscript {
     if (project.hasProperty("library.version")) {
         ext.overriden_version = property('library.version')
     }
-    ext.experimentalsEnabled = ["-progressive", "-Xopt-in=kotlin.Experimental",
-                                "-Xopt-in=kotlin.ExperimentalMultiplatform",
-                                "-Xopt-in=kotlinx.serialization.InternalSerializationApi"
+    ext.experimentalsEnabled = ["-progressive", "-opt-in=kotlin.Experimental",
+                                "-opt-in=kotlin.ExperimentalMultiplatform",
+                                "-opt-in=kotlinx.serialization.InternalSerializationApi"
     ]
 
-    ext.experimentalsInTestEnabled = ["-progressive", "-Xopt-in=kotlin.Experimental",
-                                      "-Xopt-in=kotlin.ExperimentalMultiplatform",
-                                      "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi",
-                                      "-Xopt-in=kotlinx.serialization.InternalSerializationApi",
-                                      "-Xopt-in=kotlin.ExperimentalUnsignedTypes"
+    ext.experimentalsInTestEnabled = ["-progressive", "-opt-in=kotlin.Experimental",
+                                      "-opt-in=kotlin.ExperimentalMultiplatform",
+                                      "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
+                                      "-opt-in=kotlinx.serialization.InternalSerializationApi",
+                                      "-opt-in=kotlin.ExperimentalUnsignedTypes"
     ]
     ext.koverEnabled = property('kover.enabled') ?: true
 
