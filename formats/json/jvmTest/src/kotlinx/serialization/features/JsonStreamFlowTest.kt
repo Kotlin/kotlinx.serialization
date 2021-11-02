@@ -17,9 +17,9 @@ import java.io.*
 import kotlin.test.*
 
 class JsonStreamFlowTest {
-    val json = Json {}
+    val json = Json
 
-    suspend inline fun <reified T> Flow<T>.writeToStream(os: OutputStream) {
+    private suspend inline fun <reified T> Flow<T>.writeToStream(os: OutputStream) {
         collect {
             json.encodeToStream(it, os)
         }
@@ -33,9 +33,9 @@ class JsonStreamFlowTest {
         }
     }.flowOn(Dispatchers.IO)
 
-    val inputStringWsSeparated = """{"data":"a"}{"data":"b"}{"data":"c"}"""
-    val inputStringWrapped = """[{"data":"a"},{"data":"b"},{"data":"c"}]"""
-    val inputList = listOf(StringData("a"), StringData("b"), StringData("c"))
+    private val inputStringWsSeparated = """{"data":"a"}{"data":"b"}{"data":"c"}"""
+    private val inputStringWrapped = """[{"data":"a"},{"data":"b"},{"data":"c"}]"""
+    private val inputList = listOf(StringData("a"), StringData("b"), StringData("c"))
 
     @Test
     fun testEncodeSeveralItems() {
@@ -142,6 +142,20 @@ class JsonStreamFlowTest {
         assertFailsWith<JsonDecodingException> {
             json.decodeToSequence<StringData>(inputStringWsSeparated.asInputStream(), LazyStreamingFormat.ARRAY_WRAPPED)
         }
+    }
+
+    @Test
+    fun testPaddedWs() {
+        val paddedWs = "  $inputStringWsSeparated  "
+        assertEquals(inputList, json.decodeToSequence(paddedWs.asInputStream(), StringData.serializer()).toList())
+        assertEquals(inputList, json.decodeToSequence(paddedWs.asInputStream(), StringData.serializer(), LazyStreamingFormat.WHITESPACE_SEPARATED).toList())
+    }
+
+    @Test
+    fun testPaddedArray() {
+        val paddedWs = "  $inputStringWrapped  "
+        assertEquals(inputList, json.decodeToSequence(paddedWs.asInputStream(), StringData.serializer()).toList())
+        assertEquals(inputList, json.decodeToSequence(paddedWs.asInputStream(), StringData.serializer(), LazyStreamingFormat.ARRAY_WRAPPED).toList())
     }
 
 }

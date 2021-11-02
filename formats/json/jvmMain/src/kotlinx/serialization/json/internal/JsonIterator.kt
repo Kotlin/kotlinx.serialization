@@ -93,7 +93,6 @@ private class JsonIteratorArrayWrapped<T>(
             }
             return false
         }
-        // We may allow unclosed bracket on .isLenient, but it's usually not what this flag do
         if (!lexer.isNotEof()) lexer.fail(TC_END_LIST)
         return true
     }

@@ -92,7 +92,7 @@ public inline fun <reified T> Json.decodeFromStream(stream: InputStream): T =
 @ExperimentalSerializationApi
 public enum class LazyStreamingFormat {
     /**
-     * Declares that objects in the input stream are not separated by meaningful characters.
+     * Declares that objects in the input stream are separated by whitespace characters.
      *
      * Stream must start with a first object and there are some (maybe none) whitespace chars between objects.
      * Whitespace character is either ' ', '\n', '\r' or '\t'.
@@ -124,7 +124,7 @@ public enum class LazyStreamingFormat {
 }
 
 /**
- * Deserializes the contents of given [stream] using UTF-8 encoding and [deserializer].
+ * Transforms the given [stream] into lazily deserialized sequence of elements of type [T] using UTF-8 encoding and [deserializer].
  * Unlike [decodeFromStream], [stream] is allowed to have more than one element, separated as [format] declares.
  *
  * Elements must all be of type [T].
@@ -150,7 +150,7 @@ public fun <T> Json.decodeToSequence(
 }
 
 /**
- * Deserializes the contents of given [stream] using UTF-8 encoding and deserializer retrieved from the reified type parameter.
+ * Transforms the given [stream] into lazily deserialized sequence of elements of type [T] using UTF-8 encoding and deserializer retrieved from the reified type parameter.
  * Unlike [decodeFromStream], [stream] is allowed to have more than one element, separated as [format] declares.
  *
  * Elements must all be of type [T].
