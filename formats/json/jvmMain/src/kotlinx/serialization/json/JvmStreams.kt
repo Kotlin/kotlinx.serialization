@@ -84,10 +84,10 @@ public inline fun <reified T> Json.decodeFromStream(stream: InputStream): T =
 /**
  * Description of [decodeToSequence]'s JSON input shape.
  *
- * Sequence represents a stream of objects parsed one-by-one;
+ * The sequence represents a stream of objects parsed one by one;
  * [LazyStreamingFormat] defines a separator between these objects.
  * Normally, these objects are not separated by meaningful characters ([WHITESPACE_SEPARATED])
- * or the whole stream is a large array and therefore objects are separated with commas ([ARRAY_WRAPPED]).
+ * or the whole stream is a large array of objects separated with commas ([ARRAY_WRAPPED]).
  */
 @ExperimentalSerializationApi
 public enum class LazyStreamingFormat {
@@ -100,8 +100,8 @@ public enum class LazyStreamingFormat {
     WHITESPACE_SEPARATED,
 
     /**
-     * Declares that objects in the input stream are wrapped in the array. Elements of the array are still parsed lazily,
-     * so there shouldn't be problems if array total size is larger than application memory.
+     * Declares that objects in the input stream are wrapped in the JSON array. Elements of the array are still parsed lazily,
+     * so there shouldn't be problems if the array total size is larger than available memory.
      *
      * Stream must start with json array start character and objects in it must be separated with commas and optional whitespaces.
      * Stream must end with array end character, otherwise, [JsonDecodingException] would be thrown.
@@ -113,7 +113,7 @@ public enum class LazyStreamingFormat {
      * Declares that parser itself should select between [WHITESPACE_SEPARATED] and [ARRAY_WRAPPED] modes.
      * Selection is performed by looking on the first meaningful character of the stream.
      *
-     * In most of the cases, auto detection is sufficient to correctly parse input.
+     * In most cases, auto-detection is sufficient to correctly parse an input.
      * However, in the input is _whitespace-separated stream of the arrays_, parser would select incorrect mode.
      * For such cases, [LazyStreamingFormat] must be specified explicitly.
      *
