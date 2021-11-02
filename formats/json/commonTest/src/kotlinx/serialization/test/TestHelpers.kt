@@ -49,7 +49,7 @@ fun generateRandomUnicodeString(size: Int): String {
         repeat(size) {
             val pickEscape = Random.nextBoolean()
             if (pickEscape) {
-                // Definitely escape symbol
+                // Definitely an escape symbol
                 append(ESCAPE_STRINGS.random().takeIf { it != null } ?: 'N')
             } else {
                 // Any symbol, including escaping one

@@ -140,7 +140,7 @@ internal abstract class AbstractJsonLexer {
     open fun ensureHaveChars() {}
 
     // Used as bound check in loops
-    abstract fun definitelyNotEof(position: Int): Int
+    abstract fun prefetchOrEof(position: Int): Int
 
     abstract fun tryConsumeComma(): Boolean
 
@@ -182,7 +182,7 @@ internal abstract class AbstractJsonLexer {
         val source = source
         var cpos = currentPosition
         while (true) {
-            cpos = definitelyNotEof(cpos)
+            cpos = prefetchOrEof(cpos)
             if (cpos == -1) break // could be inline function but KT-1436
             val c = source[cpos++]
             if (c == ' ' || c == '\n' || c == '\r' || c == '\t') continue
@@ -223,7 +223,7 @@ internal abstract class AbstractJsonLexer {
         val source = source
         var cpos = currentPosition
         while (true) {
-            cpos = definitelyNotEof(cpos)
+            cpos = prefetchOrEof(cpos)
             if (cpos == -1) break
             val ch = source[cpos]
             if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t') {
@@ -244,7 +244,7 @@ internal abstract class AbstractJsonLexer {
      */
     fun tryConsumeNotNull(): Boolean {
         var current = skipWhitespaces()
-        current = definitelyNotEof(current)
+        current = prefetchOrEof(current)
         // Cannot consume null due to EOF, maybe something else
         val len = source.length - current
         if (len < 4 || current == -1) return true
@@ -264,7 +264,7 @@ internal abstract class AbstractJsonLexer {
         var current = currentPosition
         // Skip whitespaces
         while (true) {
-            current = definitelyNotEof(current)
+            current = prefetchOrEof(current)
             if (current == -1) break
             val c = source[current]
             // Faster than char2TokenClass actually
@@ -317,8 +317,7 @@ internal abstract class AbstractJsonLexer {
         while (char != STRING) {
             if (char == STRING_ESC) {
                 usedAppend = true
-                currentPosition = appendEscape(lastPosition, currentPosition)
-                currentPosition = definitelyNotEof(currentPosition)
+                currentPosition = prefetchOrEof(appendEscape(lastPosition, currentPosition))
                 if (currentPosition == -1)
                     fail("EOF", currentPosition)
                 lastPosition = currentPosition
@@ -326,7 +325,7 @@ internal abstract class AbstractJsonLexer {
                 usedAppend = true
                 // end of chunk
                 appendRange(lastPosition, currentPosition)
-                currentPosition = definitelyNotEof(currentPosition)
+                currentPosition = prefetchOrEof(currentPosition)
                 if (currentPosition == -1)
                     fail("EOF", currentPosition)
                 lastPosition = currentPosition
@@ -398,7 +397,7 @@ internal abstract class AbstractJsonLexer {
             if (current >= source.length) {
                 usedAppend = true
                 appendRange(currentPosition, current)
-                val eof = definitelyNotEof(current)
+                val eof = prefetchOrEof(current)
                 if (eof == -1) {
                     // to handle plain lenient strings, such as top-level
                     currentPosition = current
@@ -424,7 +423,7 @@ internal abstract class AbstractJsonLexer {
 
     private fun appendEsc(startPosition: Int): Int {
         var currentPosition = startPosition
-        currentPosition = definitelyNotEof(currentPosition)
+        currentPosition = prefetchOrEof(currentPosition)
         if (currentPosition == -1) fail("Expected escape sequence to continue, got EOF")
         val currentChar = source[currentPosition++]
         if (currentChar == UNICODE_ESC) {
@@ -529,7 +528,7 @@ internal abstract class AbstractJsonLexer {
          * that doesn't allocate and also doesn't support any radix but 10
          */
         var current = skipWhitespaces()
-        current = definitelyNotEof(current)
+        current = prefetchOrEof(current)
         if (current >= source.length || current == -1) fail("EOF")
         val hasQuotation = if (source[current] == STRING) {
             // Check it again
@@ -607,7 +606,7 @@ internal abstract class AbstractJsonLexer {
          * in 6-th bit and we leverage this fact, our implementation consumes boolean literals
          * in a case-insensitive manner.
          */
-        var current = definitelyNotEof(start)
+        var current = prefetchOrEof(start)
         if (current >= source.length || current == -1) fail("EOF")
         return when (source[current++].code or asciiCaseMask) {
             't'.code -> {

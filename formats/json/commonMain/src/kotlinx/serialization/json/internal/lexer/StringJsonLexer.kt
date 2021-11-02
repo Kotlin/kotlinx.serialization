@@ -1,8 +1,12 @@
+/*
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.json.internal
 
 internal class StringJsonLexer(override val source: String) : AbstractJsonLexer() {
 
-    override fun definitelyNotEof(position: Int): Int = if (position < source.length) position else -1
+    override fun prefetchOrEof(position: Int): Int = if (position < source.length) position else -1
 
     override fun consumeNextToken(): Byte {
         val source = source

@@ -70,7 +70,7 @@ class JsonJvmStreamsTest {
 
     @Test
     fun testRandomEscapeSequences()  {
-        repeat(10_000) {
+        repeat(1000) {
             val s = generateRandomUnicodeString(strLen)
             try {
                 val serializer = String.serializer()

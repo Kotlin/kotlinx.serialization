@@ -58,7 +58,7 @@ internal class ReaderJsonLexer(
         ensureHaveChars()
         var current = currentPosition
         while (true) {
-            current = definitelyNotEof(current)
+            current = prefetchOrEof(current)
             if (current == -1) break // could be inline function but KT-1436
             val c = source[current]
             // Inlined skipWhitespaces without field spill and nested loop. Also faster then char2TokenClass
@@ -93,7 +93,7 @@ internal class ReaderJsonLexer(
         currentPosition = 0
     }
 
-    override fun definitelyNotEof(position: Int): Int {
+    override fun prefetchOrEof(position: Int): Int {
         if (position < source.length) return position
         currentPosition = position
         ensureHaveChars()
@@ -106,7 +106,7 @@ internal class ReaderJsonLexer(
         val source = source
         var cpos = currentPosition
         while (true) {
-            cpos = definitelyNotEof(cpos)
+            cpos = prefetchOrEof(cpos)
             if (cpos == -1) break
             val ch = source[cpos++]
             return when (val tc = charToTokenClass(ch)) {
@@ -141,7 +141,7 @@ internal class ReaderJsonLexer(
         var current = currentPosition
         val closingQuote = indexOf('"', current)
         if (closingQuote == -1) {
-            current = definitelyNotEof(current)
+            current = prefetchOrEof(current)
             if (current == -1) fail(TC_STRING)
             // it's also possible just to resize buffer,
             // instead of falling back to slow path,
