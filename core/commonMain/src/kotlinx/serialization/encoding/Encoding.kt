@@ -507,3 +507,18 @@ public inline fun Encoder.encodeCollection(
         if (ex == null) composite.endStructure(descriptor)
     }
 }
+
+/**
+ * Begins a collection, calls [block] with each item and ends the collections.
+ */
+public inline fun <E> Encoder.encodeCollection(
+    descriptor: SerialDescriptor,
+    collection: Collection<E>,
+    crossinline block: CompositeEncoder.(E) -> Unit
+) {
+    encodeCollection(descriptor, collection.size) {
+        for (e in collection) {
+            block(e)
+        }
+    }
+}
