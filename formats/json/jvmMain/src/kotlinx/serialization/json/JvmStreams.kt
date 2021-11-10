@@ -94,30 +94,42 @@ public enum class LazyStreamingFormat {
     /**
      * Declares that objects in the input stream are separated by whitespace characters.
      *
-     * Stream must start with a first object and there are some (maybe none) whitespace chars between objects.
+     * The stream is read as multiple JSON objects separated by any number of whitespace characters between objects.
+     * Each individual object is parsed lazily, when it is requested from the resulting sequence.
+     *
      * Whitespace character is either ' ', '\n', '\r' or '\t'.
+     *
+     * Example of `WHITESPACE_SEPARATED` stream content:
+     * ```
+     * """{"key": "value"}{"key": "value2"}   {"key2": "value2"}"""
+     * ```
      */
     WHITESPACE_SEPARATED,
 
     /**
-     * Declares that objects in the input stream are wrapped in the JSON array. Elements of the array are still parsed lazily,
-     * so there shouldn't be problems if the array total size is larger than available memory.
+     * Declares that objects in the input stream are wrapped in the JSON array.
+     * Each individual object in the array is parsed lazily when it is requested from the resulting sequence.
      *
-     * Stream must start with json array start character and objects in it must be separated with commas and optional whitespaces.
-     * Stream must end with array end character, otherwise, [JsonDecodingException] would be thrown.
-     * Dangling chars after array end are not permitted.
+     * The stream is read as multiple JSON objects wrapped into a JSON array.
+     * The stream must start with an array start character `[` and end with an   array end character `]`,
+     * otherwise, [JsonDecodingException] is thrown.
+     *
+     * Example of `ARRAY_WRAPPED` stream content:
+     * ```
+     * """[{"key": "value"}, {"key": "value2"},{"key2": "value2"}]"""
+     * ```
      */
     ARRAY_WRAPPED,
 
     /**
      * Declares that parser itself should select between [WHITESPACE_SEPARATED] and [ARRAY_WRAPPED] modes.
-     * Selection is performed by looking on the first meaningful character of the stream.
+     * The selection is performed by looking on the first meaningful character of the stream.
      *
      * In most cases, auto-detection is sufficient to correctly parse an input.
-     * However, in the input is _whitespace-separated stream of the arrays_, parser would select incorrect mode.
-     * For such cases, [LazyStreamingFormat] must be specified explicitly.
+     * If the input is _whitespace-separated stream of the arrays_, parser could select an incorrect mode,
+     * for that [LazyStreamingFormat] must be specified explicitly.
      *
-     * Example of exceptional case:
+     * Example of an exceptional case:
      * `[1, 2, 3]   [4, 5, 6]\n[7, 8, 9]`
      */
     AUTO_DETECT;
@@ -129,11 +141,11 @@ public enum class LazyStreamingFormat {
  *
  * Elements must all be of type [T].
  * Elements are parsed lazily when resulting [Sequence] is evaluated.
- * Resulting sequence is tied to the stream and constrained to be evaluated only once.
+ * Resulting sequence is tied to the stream and can be evaluated only once.
  *
- * **Resource caution:** this method does not close [stream] when the parsing is finished neither provides method to close it manually.
+ * **Resource caution:** this method neither closes the [stream] when the parsing is finished nor provides a method to close it manually.
  * It is a caller responsibility to hold a reference to a stream and close it. Moreover, because stream is parsed lazily,
- * closing it before returned sequence is evaluated fully would result in [IOException] from decoder.
+ * closing it before returned sequence is evaluated completely will result in [IOException] from decoder.
  *
  * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
  * @throws [IOException] If an I/O error occurs and stream can't be read from.
