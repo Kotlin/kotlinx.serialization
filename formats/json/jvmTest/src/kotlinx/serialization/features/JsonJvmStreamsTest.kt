@@ -4,13 +4,15 @@
 
 package kotlinx.serialization.features
 
-import kotlinx.serialization.*
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.StringData
 import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 import kotlinx.serialization.json.internal.BATCH_SIZE
-import kotlinx.serialization.test.decodeViaStream
-import kotlinx.serialization.test.encodeViaStream
+import kotlinx.serialization.test.*
 import org.junit.Test
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
@@ -65,4 +67,22 @@ class JsonJvmStreamsTest {
             Json.decodeViaStream(String.serializer(), "\"")
         }
     }
+
+    @Test
+    fun testRandomEscapeSequences()  {
+        repeat(1000) {
+            val s = generateRandomUnicodeString(strLen)
+            try {
+                val serializer = String.serializer()
+                val b = ByteArrayOutputStream()
+                Json.encodeToStream(serializer, s, b)
+                val restored = Json.decodeFromStream(serializer, ByteArrayInputStream(b.toByteArray()))
+                assertEquals(s, restored)
+            } catch (e: Throwable) {
+                // Not assertion error to preserve cause
+                throw IllegalStateException("Unexpectedly failed test, cause string: $s", e)
+            }
+        }
+    }
+
 }

@@ -1,8 +1,11 @@
+/*
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
-import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.test.*
 import kotlin.random.*
 import kotlin.test.*
@@ -59,29 +62,12 @@ class JsonUnicodeTest : JsonTestBase() {
     @Test
     fun testRandomEscapeSequences() = noJs { // Too slow on JS
         repeat(10_000) {
-            val s = generateRandomString()
+            val s = generateRandomUnicodeString(Random.nextInt(1, 2047))
             try {
                 assertSerializedAndRestored(s, String.serializer())
             } catch (e: Throwable) {
                 // Not assertion error to preserve cause
                 throw IllegalStateException("Unexpectedly failed test, cause string: $s", e)
-            }
-        }
-    }
-
-    private fun generateRandomString(): String {
-        val size = Random.nextInt(1, 2047)
-        return buildString(size) {
-            repeat(size) {
-                val pickEscape = Random.nextBoolean()
-                if (pickEscape) {
-                    // Definitely escape symbol
-                    // null can be appended as well, completely okay
-                    append(ESCAPE_STRINGS.random())
-                } else {
-                    // Any symbol, including escaping one
-                    append(Char(Random.nextInt(Char.MIN_VALUE.code..Char.MAX_VALUE.code)))
-                }
             }
         }
     }
