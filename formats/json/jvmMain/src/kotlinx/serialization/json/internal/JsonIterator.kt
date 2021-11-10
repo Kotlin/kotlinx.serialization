@@ -12,34 +12,34 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.*
 
 internal fun <T> JsonIterator(
-    mode: LazyStreamingFormat,
+    mode: DecodeSequenceMode,
     json: Json,
     lexer: ReaderJsonLexer,
     deserializer: DeserializationStrategy<T>
 ): Iterator<T> = when (lexer.determineFormat(mode)) {
-    LazyStreamingFormat.WHITESPACE_SEPARATED -> JsonIteratorWsSeparated(
+    DecodeSequenceMode.WHITESPACE_SEPARATED -> JsonIteratorWsSeparated(
         json,
         lexer,
         deserializer
     ) // Can be many WS-separated independent arrays
-    LazyStreamingFormat.ARRAY_WRAPPED -> JsonIteratorArrayWrapped(
+    DecodeSequenceMode.ARRAY_WRAPPED -> JsonIteratorArrayWrapped(
         json,
         lexer,
         deserializer
     )
-    LazyStreamingFormat.AUTO_DETECT -> error("AbstractJsonLexer.determineFormat must be called beforehand.")
+    DecodeSequenceMode.AUTO_DETECT -> error("AbstractJsonLexer.determineFormat must be called beforehand.")
 }
 
 
-private fun AbstractJsonLexer.determineFormat(suggested: LazyStreamingFormat): LazyStreamingFormat = when (suggested) {
-    LazyStreamingFormat.WHITESPACE_SEPARATED ->
-        LazyStreamingFormat.WHITESPACE_SEPARATED // do not call consumeStartArray here so we don't confuse parser with stream of lists
-    LazyStreamingFormat.ARRAY_WRAPPED ->
-        if (tryConsumeStartArray()) LazyStreamingFormat.ARRAY_WRAPPED
+private fun AbstractJsonLexer.determineFormat(suggested: DecodeSequenceMode): DecodeSequenceMode = when (suggested) {
+    DecodeSequenceMode.WHITESPACE_SEPARATED ->
+        DecodeSequenceMode.WHITESPACE_SEPARATED // do not call consumeStartArray here so we don't confuse parser with stream of lists
+    DecodeSequenceMode.ARRAY_WRAPPED ->
+        if (tryConsumeStartArray()) DecodeSequenceMode.ARRAY_WRAPPED
         else fail(TC_BEGIN_LIST)
-    LazyStreamingFormat.AUTO_DETECT ->
-        if (tryConsumeStartArray()) LazyStreamingFormat.ARRAY_WRAPPED
-        else LazyStreamingFormat.WHITESPACE_SEPARATED
+    DecodeSequenceMode.AUTO_DETECT ->
+        if (tryConsumeStartArray()) DecodeSequenceMode.ARRAY_WRAPPED
+        else DecodeSequenceMode.WHITESPACE_SEPARATED
 }
 
 private fun AbstractJsonLexer.tryConsumeStartArray(): Boolean {
@@ -87,8 +87,8 @@ private class JsonIteratorArrayWrapped<T>(
             lexer.consumeNextToken(TC_END_LIST)
             if (lexer.isNotEof()) {
                 if (lexer.peekNextToken() == TC_BEGIN_LIST) lexer.fail("There is a start of the new array after the one parsed to sequence. " +
-                        "${LazyStreamingFormat.ARRAY_WRAPPED.name} mode doesn't merge consecutive arrays.\n" +
-                        "If you need to parse a stream of arrays, please use ${LazyStreamingFormat.WHITESPACE_SEPARATED.name} mode instead.")
+                        "${DecodeSequenceMode.ARRAY_WRAPPED.name} mode doesn't merge consecutive arrays.\n" +
+                        "If you need to parse a stream of arrays, please use ${DecodeSequenceMode.WHITESPACE_SEPARATED.name} mode instead.")
                 lexer.expectEof()
             }
             return false

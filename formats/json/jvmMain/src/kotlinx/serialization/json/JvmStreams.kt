@@ -85,12 +85,12 @@ public inline fun <reified T> Json.decodeFromStream(stream: InputStream): T =
  * Description of [decodeToSequence]'s JSON input shape.
  *
  * The sequence represents a stream of objects parsed one by one;
- * [LazyStreamingFormat] defines a separator between these objects.
+ * [DecodeSequenceMode] defines a separator between these objects.
  * Typically, these objects are not separated by meaningful characters ([WHITESPACE_SEPARATED]),
  * or the whole stream is a large array of objects separated with commas ([ARRAY_WRAPPED]).
  */
 @ExperimentalSerializationApi
-public enum class LazyStreamingFormat {
+public enum class DecodeSequenceMode {
     /**
      * Declares that objects in the input stream are separated by whitespace characters.
      *
@@ -127,7 +127,7 @@ public enum class LazyStreamingFormat {
      *
      * In most cases, auto-detection is sufficient to correctly parse an input.
      * If the input is _whitespace-separated stream of the arrays_, parser could select an incorrect mode,
-     * for that [LazyStreamingFormat] must be specified explicitly.
+     * for that [DecodeSequenceMode] must be specified explicitly.
      *
      * Example of an exceptional case:
      * `[1, 2, 3]   [4, 5, 6]\n[7, 8, 9]`
@@ -154,7 +154,7 @@ public enum class LazyStreamingFormat {
 public fun <T> Json.decodeToSequence(
     stream: InputStream,
     deserializer: DeserializationStrategy<T>,
-    format: LazyStreamingFormat = LazyStreamingFormat.AUTO_DETECT
+    format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
 ): Sequence<T> {
     val lexer = ReaderJsonLexer(stream)
     val iter = JsonIterator(format, this, lexer, deserializer)
@@ -179,6 +179,6 @@ public fun <T> Json.decodeToSequence(
 @ExperimentalSerializationApi
 public inline fun <reified T> Json.decodeToSequence(
     stream: InputStream,
-    format: LazyStreamingFormat = LazyStreamingFormat.AUTO_DETECT
+    format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
 ): Sequence<T> = decodeToSequence(stream, serializersModule.serializer(), format)
 
