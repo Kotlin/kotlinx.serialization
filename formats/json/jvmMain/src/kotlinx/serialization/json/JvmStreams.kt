@@ -86,7 +86,7 @@ public inline fun <reified T> Json.decodeFromStream(stream: InputStream): T =
  *
  * The sequence represents a stream of objects parsed one by one;
  * [LazyStreamingFormat] defines a separator between these objects.
- * Normally, these objects are not separated by meaningful characters ([WHITESPACE_SEPARATED])
+ * Typically, these objects are not separated by meaningful characters ([WHITESPACE_SEPARATED]),
  * or the whole stream is a large array of objects separated with commas ([ARRAY_WRAPPED]).
  */
 @ExperimentalSerializationApi
