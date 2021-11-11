@@ -111,7 +111,7 @@ public enum class DecodeSequenceMode {
      * Each individual object in the array is parsed lazily when it is requested from the resulting sequence.
      *
      * The stream is read as multiple JSON objects wrapped into a JSON array.
-     * The stream must start with an array start character `[` and end with an   array end character `]`,
+     * The stream must start with an array start character `[` and end with an array end character `]`,
      * otherwise, [JsonDecodingException] is thrown.
      *
      * Example of `ARRAY_WRAPPED` stream content:
