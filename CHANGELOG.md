@@ -1,3 +1,21 @@
+
+1.3.1 / 2021-11-11
+==================
+
+This release mainly contains bugfixes for 1.3.0 and provides new experimental `Json.decodeToSequence` function.
+
+### Improvements
+
+  * Provide decodeToSequence to read multiple objects from stream lazily (#1691)
+
+### Bugfixes
+
+  * Correctly handle buffer boundaries while decoding escape sequences from json stream (#1706)
+  * Properly skip unknown keys for objects and structures with zero properties (#1720)
+  * Fix merging for maplikeSerializer when the map is not empty (by using the actual size * 2). (#1712) (thanks to [pdvrieze](https://github.com/pdvrieze))
+  * Fix lookup of primitive array serializers by Java type token (#1708)
+
+
 1.3.0 / 2021-09-23
 ==================
 
