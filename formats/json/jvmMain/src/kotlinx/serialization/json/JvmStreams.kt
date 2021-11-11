@@ -94,7 +94,7 @@ public enum class DecodeSequenceMode {
     /**
      * Declares that objects in the input stream are separated by whitespace characters.
      *
-     * The stream is read as multiple JSON objects separated by any number of whitespace characters between objects.
+     * The stream is read as multiple JSON objects separated by any number of whitespace characters between objects. Starting and trailing whitespace characters are also permitted.
      * Each individual object is parsed lazily, when it is requested from the resulting sequence.
      *
      * Whitespace character is either ' ', '\n', '\r' or '\t'.
