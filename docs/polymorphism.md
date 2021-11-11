@@ -938,21 +938,19 @@ object AnimalProvider {
 }
 ```
 
-We register a default serializer handler using the [`defaultSerializer`][PolymorphicModuleBuilder.defaultSerializer] function in
-the [`polymorphic { ... }`][PolymorphicModuleBuilder] DSL that defines a strategy which takes an instance of the base class and
+We register a default serializer handler using the [`polymorphicDefaultSerializer`][SerializersModuleBuilder.polymorphicDefaultSerializer] function in
+the [`SerializersModule { ... }`][SerializersModuleBuilder] DSL that defines a strategy which takes an instance of the base class and
 provides a [serialization strategy][SerializationStrategy]. In the below example we use a `when` block to check the type of the
 instance, without ever having to refer to the private implementation classes.
 
 ```kotlin
 val module = SerializersModule {
-    polymorphic(Animal::class) {
+    polymorphicDefaultSerializer(Animal::class) { instance ->
         @Suppress("UNCHECKED_CAST")
-        defaultSerializer { instance: Animal ->
-            when (instance) {
-                is Cat -> CatSerializer as SerializationStrategy<Animal>
-                is Dog -> DogSerializer as SerializationStrategy<Animal>
-                else -> null
-            }
+        when (instance) {
+            is Cat -> CatSerializer as SerializationStrategy<Animal>
+            is Dog -> DogSerializer as SerializationStrategy<Animal>
+            else -> null
         }
     }
 }
@@ -1022,7 +1020,8 @@ The next chapter covers [JSON features](json.md).
 [SerializersModuleBuilder.include]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module-builder/include.html
 [PolymorphicModuleBuilder.defaultDeserializer]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/default-deserializer.html
 [PolymorphicModuleBuilder]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/index.html
-[PolymorphicModuleBuilder.defaultSerializer]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/default-serializer.html
+[SerializersModuleBuilder.polymorphicDefaultSerializer]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module-builder/polymorphic-default-serializer.html
+[SerializersModuleBuilder]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-core/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module-builder/index.html
 <!--- MODULE /kotlinx-serialization-json -->
 <!--- INDEX kotlinx-serialization-json/kotlinx.serialization.json -->
 [Json.encodeToString]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json/encode-to-string.html

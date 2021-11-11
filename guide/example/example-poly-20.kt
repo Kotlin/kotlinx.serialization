@@ -33,14 +33,12 @@ object AnimalProvider {
 }
 
 val module = SerializersModule {
-    polymorphic(Animal::class) {
+    polymorphicDefaultSerializer(Animal::class) { instance ->
         @Suppress("UNCHECKED_CAST")
-        defaultSerializer { instance: Animal ->
-            when (instance) {
-                is Cat -> CatSerializer as SerializationStrategy<Animal>
-                is Dog -> DogSerializer as SerializationStrategy<Animal>
-                else -> null
-            }
+        when (instance) {
+            is Cat -> CatSerializer as SerializationStrategy<Animal>
+            is Dog -> DogSerializer as SerializationStrategy<Animal>
+            else -> null
         }
     }
 }
