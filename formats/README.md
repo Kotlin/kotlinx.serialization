@@ -95,13 +95,13 @@ This library allows serialization and deserialization of objects into and from A
 
 ### XML
 * GitHub repo: [pdvrieze/xmlutil](https://github.com/pdvrieze/xmlutil)
-* Artifact ID: `net.devrieze:xmlutil-serialization`
+* Artifact ID: `io.github.pdvrieze.xmlutil:serialization`
 * Platform: JVM, Android, JavaScript
 
 This library allows for reading and writing of XML documents with the serialization library.
 It is multiplatform, but as the xmlutil library (which handles the multiplatform xml bit) 
 delegates to platform specific parsers each platform needs to  be implemented for each platform 
-specifically. The library is designed to handle existing formats that use features that would 
+specifically. The library is designed to handle existing xml formats that use features that would 
 not be available in other formats such as JSON.
 
 ### YAML
@@ -135,4 +135,12 @@ Allow serialization and deserialization of objects to and from [CBOR](https://cb
 * Artifact ID: `com.github.dimitark:kotlinx-serialization-ion`
 * Platform: JVM
 
-Allow serialization and deserialization of objects to and from [Amazon Ion](https://amzn.github.io/ion-docs/). It stores the data in a flat binary format. Upon destialization, it retains the references between the objects. 
+Allow serialization and deserialization of objects to and from [Amazon Ion](https://amzn.github.io/ion-docs/). It stores the data in a flat binary format. Upon destialization, it retains the references between the objects.
+
+### android.os.Bundle
+
+* GitHub repo: [AhmedMourad0/bundlizer](https://github.com/AhmedMourad0/bundlizer)
+* Artifact ID: `dev.ahmedmourad.bundlizer:bundlizer-core`
+* Platform: Android
+
+Allow serialization and deserialization of objects to and from [android.os.Bundle](https://developer.android.com/reference/android/os/Bundle).  
