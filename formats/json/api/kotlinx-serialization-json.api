@@ -1,3 +1,11 @@
+public final class kotlinx/serialization/json/DecodeSequenceMode : java/lang/Enum {
+	public static final field ARRAY_WRAPPED Lkotlinx/serialization/json/DecodeSequenceMode;
+	public static final field AUTO_DETECT Lkotlinx/serialization/json/DecodeSequenceMode;
+	public static final field WHITESPACE_SEPARATED Lkotlinx/serialization/json/DecodeSequenceMode;
+	public static fun valueOf (Ljava/lang/String;)Lkotlinx/serialization/json/DecodeSequenceMode;
+	public static fun values ()[Lkotlinx/serialization/json/DecodeSequenceMode;
+}
+
 public abstract class kotlinx/serialization/json/Json : kotlinx/serialization/StringFormat {
 	public static final field Default Lkotlinx/serialization/json/Json$Default;
 	public synthetic fun <init> (Lkotlinx/serialization/json/JsonConfiguration;Lkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -342,6 +350,8 @@ public abstract class kotlinx/serialization/json/JsonTransformingSerializer : ko
 
 public final class kotlinx/serialization/json/JvmStreamsKt {
 	public static final fun decodeFromStream (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/DeserializationStrategy;Ljava/io/InputStream;)Ljava/lang/Object;
+	public static final fun decodeToSequence (Lkotlinx/serialization/json/Json;Ljava/io/InputStream;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/DecodeSequenceMode;)Lkotlin/sequences/Sequence;
+	public static synthetic fun decodeToSequence$default (Lkotlinx/serialization/json/Json;Ljava/io/InputStream;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/DecodeSequenceMode;ILjava/lang/Object;)Lkotlin/sequences/Sequence;
 	public static final fun encodeToStream (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/io/OutputStream;)V
 }
 

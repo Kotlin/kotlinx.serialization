@@ -4,28 +4,38 @@
 
 package kotlinx.serialization.features
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.StringData
+import kotlinx.serialization.*
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.*
+import kotlinx.serialization.json.internal.JsonDecodingException
 import kotlinx.serialization.test.assertFailsWithMessage
-import org.junit.Ignore
 import org.junit.Test
 import java.io.*
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class JsonStreamFlowTest {
-    val json = Json {}
+    val json = Json
 
-    suspend inline fun <reified T> Flow<T>.writeToStream(os: OutputStream) {
+    private suspend inline fun <reified T> Flow<T>.writeToStream(os: OutputStream) {
         collect {
             json.encodeToStream(it, os)
         }
     }
 
-    val inputString = """{"data":"a"}{"data":"b"}{"data":"c"}"""
-    val inputList = listOf(StringData("a"), StringData("b"), StringData("c"))
+    private suspend inline fun <reified T> Json.readFromStream(iss: InputStream): Flow<T> = flow {
+        val serial = serializer<T>()
+        val iter = iterateOverStream(iss, serial)
+        while (iter.hasNext()) {
+            emit(iter.next())
+        }
+    }.flowOn(Dispatchers.IO)
+
+    private val inputStringWsSeparated = """{"data":"a"}{"data":"b"}{"data":"c"}"""
+    private val inputStringWrapped = """[{"data":"a"},{"data":"b"},{"data":"c"}]"""
+    private val inputList = listOf(StringData("a"), StringData("b"), StringData("c"))
 
     @Test
     fun testEncodeSeveralItems() {
@@ -36,16 +46,116 @@ class JsonStreamFlowTest {
             f.writeToStream(os)
         }
 
-        assertEquals(inputString, os.toString(Charsets.UTF_8.name()))
+        assertEquals(inputStringWsSeparated, os.toString(Charsets.UTF_8.name()))
     }
 
     @Test
     fun testDecodeSeveralItems() {
-        val ins = ByteArrayInputStream(inputString.encodeToByteArray())
+        val ins = ByteArrayInputStream(inputStringWsSeparated.encodeToByteArray())
         assertFailsWithMessage<SerializationException>("EOF") {
             json.decodeFromStream<StringData>(ins)
         }
     }
 
+    private inline fun <reified T> Iterator<T>.assertNext(expected: T) {
+        assertTrue(hasNext())
+        assertEquals(expected, next())
+    }
+
+    private fun <T> Json.iterateOverStream(stream: InputStream, deserializer: DeserializationStrategy<T>): Iterator<T> =
+        decodeToSequence(stream, deserializer).iterator()
+
+    private fun withInputs(vararg inputs: String = arrayOf(inputStringWsSeparated, inputStringWrapped), block: (InputStream) -> Unit) {
+        for (input in inputs) {
+            val res = runCatching { block(input.asInputStream()) }
+            if (res.isFailure) throw AssertionError("Failed test with input $input", res.exceptionOrNull())
+        }
+    }
+
+    private fun String.asInputStream() = ByteArrayInputStream(this.encodeToByteArray())
+
+    @Test
+    fun testIterateSeveralItems() = withInputs { ins ->
+        val iter = json.iterateOverStream(ins, StringData.serializer())
+        iter.assertNext(StringData("a"))
+        iter.assertNext(StringData("b"))
+        iter.assertNext(StringData("c"))
+        assertFalse(iter.hasNext())
+        assertFailsWithMessage<SerializationException>("EOF") {
+            iter.next()
+        }
+    }
+
+    @Test
+    fun testDecodeToSequence() = withInputs { ins ->
+        val sequence = json.decodeToSequence(ins, StringData.serializer())
+        assertEquals(inputList, sequence.toList(), "For input $inputStringWsSeparated")
+        assertFailsWith<IllegalStateException> { sequence.toList() } // assert constrained once
+    }
+
+    @Test
+    fun testDecodeAsFlow() = withInputs { ins ->
+        val list = runBlocking {
+            buildList { json.readFromStream<StringData>(ins).toCollection(this) }
+        }
+        assertEquals(inputList, list)
+    }
+
+    @Test
+    fun testItemsSeparatedByWs() {
+        val input = "{\"data\":\"a\"}   {\"data\":\"b\"}\n\t{\"data\":\"c\"}"
+        val ins = ByteArrayInputStream(input.encodeToByteArray())
+        assertEquals(inputList, json.decodeToSequence(ins, StringData.serializer()).toList())
+    }
+
+    @Test
+    fun testMalformedArray() {
+        val input1 = """[1, 2, 3"""
+        val input2 = """[1, 2, 3]qwert"""
+        val input3 = """[1,2 3]"""
+        withInputs(input1, input2, input3) {
+            assertFailsWith<JsonDecodingException> {
+                json.decodeToSequence(it, Int.serializer()).toList()
+            }
+        }
+    }
+
+    @Test
+    fun testMultilineArrays() {
+        val input = "[1,2,3]\n[4,5,6]\n[7,8,9]"
+        assertFailsWith<JsonDecodingException> {
+            json.decodeToSequence<List<Int>>(input.asInputStream(), DecodeSequenceMode.AUTO_DETECT).toList()
+        }
+        assertFailsWith<JsonDecodingException> {
+            json.decodeToSequence<Int>(input.asInputStream(), DecodeSequenceMode.AUTO_DETECT).toList()
+        }
+        assertFailsWith<JsonDecodingException> { // we do not merge lists
+            json.decodeToSequence<Int>(input.asInputStream(), DecodeSequenceMode.ARRAY_WRAPPED).toList()
+        }
+        val parsed = json.decodeToSequence<List<Int>>(input.asInputStream(), DecodeSequenceMode.WHITESPACE_SEPARATED).toList()
+        val expected = listOf(listOf(1,2,3), listOf(4,5,6), listOf(7,8,9))
+        assertEquals(expected, parsed)
+    }
+
+    @Test
+    fun testStrictArrayCheck() {
+        assertFailsWith<JsonDecodingException> {
+            json.decodeToSequence<StringData>(inputStringWsSeparated.asInputStream(), DecodeSequenceMode.ARRAY_WRAPPED)
+        }
+    }
+
+    @Test
+    fun testPaddedWs() {
+        val paddedWs = "  $inputStringWsSeparated  "
+        assertEquals(inputList, json.decodeToSequence(paddedWs.asInputStream(), StringData.serializer()).toList())
+        assertEquals(inputList, json.decodeToSequence(paddedWs.asInputStream(), StringData.serializer(), DecodeSequenceMode.WHITESPACE_SEPARATED).toList())
+    }
+
+    @Test
+    fun testPaddedArray() {
+        val paddedWs = "  $inputStringWrapped  "
+        assertEquals(inputList, json.decodeToSequence(paddedWs.asInputStream(), StringData.serializer()).toList())
+        assertEquals(inputList, json.decodeToSequence(paddedWs.asInputStream(), StringData.serializer(), DecodeSequenceMode.ARRAY_WRAPPED).toList())
+    }
 
 }

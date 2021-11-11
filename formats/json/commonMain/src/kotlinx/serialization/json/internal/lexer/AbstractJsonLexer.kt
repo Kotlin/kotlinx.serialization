@@ -139,6 +139,8 @@ internal abstract class AbstractJsonLexer {
 
     open fun ensureHaveChars() {}
 
+    fun isNotEof(): Boolean = peekNextToken() != TC_EOF
+
     // Used as bound check in loops
     abstract fun prefetchOrEof(position: Int): Int
 
@@ -158,7 +160,7 @@ internal abstract class AbstractJsonLexer {
     fun expectEof() {
         val nextToken = consumeNextToken()
         if (nextToken != TC_EOF)
-            fail("Expected EOF after parsing an object, but had ${source[currentPosition - 1]} instead")
+            fail("Expected EOF after parsing, but had ${source[currentPosition - 1]} instead")
     }
 
     /*
@@ -202,7 +204,7 @@ internal abstract class AbstractJsonLexer {
         fail(charToTokenClass(expected))
     }
 
-    protected fun fail(expectedToken: Byte) {
+    internal fun fail(expectedToken: Byte): Nothing {
         // We know that the token was consumed prior to this call
         // Slow path, never called in normal code, can avoid optimizing it
         val expected = when (expectedToken) {
