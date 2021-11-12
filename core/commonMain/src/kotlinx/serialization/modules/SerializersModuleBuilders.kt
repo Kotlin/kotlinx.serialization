@@ -95,8 +95,6 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
      * [defaultSerializerProvider] is invoked when no polymorphic serializers for `value` were found.
      *
      * This will not affect deserialization.
-     *
-     * @see PolymorphicModuleBuilder.defaultSerializer
      */
     @ExperimentalSerializationApi
     public override fun <Base : Any> polymorphicDefaultSerializer(

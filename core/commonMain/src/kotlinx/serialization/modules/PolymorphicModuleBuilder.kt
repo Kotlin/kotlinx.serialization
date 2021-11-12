@@ -55,25 +55,28 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
 
     /**
      * Adds a default deserializers provider associated with the given [baseClass] to the resulting module.
-     * [defaultDeserializerProvider] is invoked when no polymorphic serializers associated with the `className`
+     * [defaultSerializerProvider] is invoked when no polymorphic serializers associated with the `className`
      * were found. `className` could be `null` for formats that support nullable class discriminators
      * (currently only [Json] with [useArrayPolymorphism][JsonBuilder.useArrayPolymorphism] set to `false`)
      *
-     * [defaultDeserializerProvider] can be stateful and lookup a serializer for the missing type dynamically.
+     * [defaultSerializerProvider] can be stateful and lookup a serializer for the missing type dynamically.
+     *
+     * [defaultSerializerProvider] is named as such for backwards compatibility reasons; it provides deserializers.
      *
      * Typically, if the class is not registered in advance, it is not possible to know the structure of the unknown
      * type and have a precise serializer, so the default serializer has limited capabilities.
      * To have a structural access to the unknown data, it is recommended to use [JsonTransformingSerializer]
      * or [JsonContentPolymorphicSerializer] classes.
      *
-     * Default deserializers provider affects only deserialization process.
+     * Default deserializers provider affects only deserialization process. To affect serialization process, use
+     * [SerializersModuleBuilder.polymorphicDefaultSerializer].
      *
      * @see defaultDeserializer
      */
     @OptIn(ExperimentalSerializationApi::class)
     // TODO: deprecate in 1.4
-    public fun default(defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<out Base>?) {
-        defaultDeserializer(defaultDeserializerProvider)
+    public fun default(defaultSerializerProvider: (className: String?) -> DeserializationStrategy<out Base>?) {
+        defaultDeserializer(defaultSerializerProvider)
     }
 
     @Suppress("UNCHECKED_CAST")
