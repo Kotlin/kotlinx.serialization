@@ -503,11 +503,11 @@ public inline fun Encoder.encodeCollection(
 public inline fun <E> Encoder.encodeCollection(
     descriptor: SerialDescriptor,
     collection: Collection<E>,
-    crossinline block: CompositeEncoder.(E) -> Unit
+    crossinline block: CompositeEncoder.(index: Int, E) -> Unit
 ) {
     encodeCollection(descriptor, collection.size) {
-        for (e in collection) {
-            block(e)
+        collection.forEachIndexed { index, e ->
+            block(index, e)
         }
     }
 }
