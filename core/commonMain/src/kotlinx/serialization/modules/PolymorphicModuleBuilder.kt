@@ -20,7 +20,8 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
     private val baseSerializer: KSerializer<Base>? = null
 ) {
     private val subclasses: MutableList<Pair<KClass<out Base>, KSerializer<out Base>>> = mutableListOf()
-    private var defaultSerializerProvider: ((String?) -> DeserializationStrategy<out Base>?)? = null
+    private var defaultSerializerProvider: ((Base) -> SerializationStrategy<Base>?)? = null
+    private var defaultDeserializerProvider: ((String?) -> DeserializationStrategy<out Base>?)? = null
 
     /**
      * Registers a [subclass] [serializer] in the resulting module under the [base class][Base].
@@ -31,24 +32,51 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
 
     /**
      * Adds a default serializers provider associated with the given [baseClass] to the resulting module.
-     * [defaultSerializerProvider] is invoked when no polymorphic serializers associated with the `className`
+     * [defaultDeserializerProvider] is invoked when no polymorphic serializers associated with the `className`
      * were found. `className` could be `null` for formats that support nullable class discriminators
      * (currently only [Json] with [useArrayPolymorphism][JsonBuilder.useArrayPolymorphism] set to `false`)
      *
-     * [defaultSerializerProvider] can be stateful and lookup a serializer for the missing type dynamically.
+     * [defaultDeserializerProvider] can be stateful and lookup a serializer for the missing type dynamically.
      *
      * Typically, if the class is not registered in advance, it is not possible to know the structure of the unknown
      * type and have a precise serializer, so the default serializer has limited capabilities.
      * To have a structural access to the unknown data, it is recommended to use [JsonTransformingSerializer]
      * or [JsonContentPolymorphicSerializer] classes.
      *
-     * Default serializers provider affects only deserialization process.
+     * Default deserializers provider affects only deserialization process.
      */
-    public fun default(defaultSerializerProvider: (className: String?) -> DeserializationStrategy<out Base>?) {
-        require(this.defaultSerializerProvider == null) {
-            "Default serializer provider is already registered for class $baseClass: ${this.defaultSerializerProvider}"
+    @ExperimentalSerializationApi
+    public fun defaultDeserializer(defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<out Base>?) {
+        require(this.defaultDeserializerProvider == null) {
+            "Default deserializer provider is already registered for class $baseClass: ${this.defaultDeserializerProvider}"
         }
-        this.defaultSerializerProvider = defaultSerializerProvider
+        this.defaultDeserializerProvider = defaultDeserializerProvider
+    }
+
+    /**
+     * Adds a default deserializers provider associated with the given [baseClass] to the resulting module.
+     * [defaultSerializerProvider] is invoked when no polymorphic serializers associated with the `className`
+     * were found. `className` could be `null` for formats that support nullable class discriminators
+     * (currently only [Json] with [useArrayPolymorphism][JsonBuilder.useArrayPolymorphism] set to `false`)
+     *
+     * [defaultSerializerProvider] can be stateful and lookup a serializer for the missing type dynamically.
+     *
+     * [defaultSerializerProvider] is named as such for backwards compatibility reasons; it provides deserializers.
+     *
+     * Typically, if the class is not registered in advance, it is not possible to know the structure of the unknown
+     * type and have a precise serializer, so the default serializer has limited capabilities.
+     * To have a structural access to the unknown data, it is recommended to use [JsonTransformingSerializer]
+     * or [JsonContentPolymorphicSerializer] classes.
+     *
+     * Default deserializers provider affects only deserialization process. To affect serialization process, use
+     * [SerializersModuleBuilder.polymorphicDefaultSerializer].
+     *
+     * @see defaultDeserializer
+     */
+    @OptIn(ExperimentalSerializationApi::class)
+    // TODO: deprecate in 1.4
+    public fun default(defaultSerializerProvider: (className: String?) -> DeserializationStrategy<out Base>?) {
+        defaultDeserializer(defaultSerializerProvider)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -63,9 +91,14 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
             )
         }
 
-        val default = defaultSerializerProvider
-        if (default != null) {
-            builder.registerDefaultPolymorphicSerializer(baseClass, default, false)
+        val defaultSerializer = defaultSerializerProvider
+        if (defaultSerializer != null) {
+            builder.registerDefaultPolymorphicSerializer(baseClass, defaultSerializer, false)
+        }
+
+        val defaultDeserializer = defaultDeserializerProvider
+        if (defaultDeserializer != null) {
+            builder.registerDefaultPolymorphicDeserializer(baseClass, defaultDeserializer, false)
         }
     }
 }

@@ -279,13 +279,13 @@ class ModuleBuildersTest {
     fun testPolymorphicCollision() {
         val m1 = SerializersModule {
             polymorphic<Any>(Any::class) {
-                default { _ -> Unit.serializer() }
+                defaultDeserializer { _ -> Unit.serializer() }
             }
         }
 
         val m2 = SerializersModule {
             polymorphic<Any>(Any::class) {
-                default { _ -> Unit.serializer() }
+                defaultDeserializer { _ -> Unit.serializer() }
             }
         }
 
@@ -297,7 +297,7 @@ class ModuleBuildersTest {
         val defaultSerializerProvider = { _: String? -> Unit.serializer() }
         val m1 = SerializersModule {
             polymorphic(Any::class) {
-                default(defaultSerializerProvider)
+                defaultDeserializer(defaultSerializerProvider)
             }
         }
 

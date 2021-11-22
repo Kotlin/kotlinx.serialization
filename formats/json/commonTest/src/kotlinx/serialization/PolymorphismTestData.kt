@@ -32,6 +32,8 @@ open class PolyBase(val id: Int) {
 @Serializable
 data class PolyDefault(val json: JsonElement) : PolyBase(-1)
 
+class PolyDefaultWithId(id: Int) : PolyBase(id)
+
 @Serializable
 data class PolyDerived(val s: String) : PolyBase(1)
 

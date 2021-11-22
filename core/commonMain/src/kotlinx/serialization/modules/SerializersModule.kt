@@ -71,7 +71,7 @@ public sealed class SerializersModule {
  */
 @SharedImmutable
 @ExperimentalSerializationApi
-public val EmptySerializersModule: SerializersModule = SerialModuleImpl(emptyMap(), emptyMap(), emptyMap(), emptyMap())
+public val EmptySerializersModule: SerializersModule = SerialModuleImpl(emptyMap(), emptyMap(), emptyMap(), emptyMap(), emptyMap())
 
 /**
  * Returns a combination of two serial modules
@@ -113,11 +113,18 @@ public infix fun SerializersModule.overwriteWith(other: SerializersModule): Seri
             registerPolymorphicSerializer(baseClass, actualClass, actualSerializer, allowOverwrite = true)
         }
 
-        override fun <Base : Any> polymorphicDefault(
+        override fun <Base : Any> polymorphicDefaultSerializer(
             baseClass: KClass<Base>,
-            defaultSerializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
+            defaultSerializerProvider: (value: Base) -> SerializationStrategy<Base>?
         ) {
             registerDefaultPolymorphicSerializer(baseClass, defaultSerializerProvider, allowOverwrite = true)
+        }
+
+        override fun <Base : Any> polymorphicDefaultDeserializer(
+            baseClass: KClass<Base>,
+            defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
+        ) {
+            registerDefaultPolymorphicDeserializer(baseClass, defaultDeserializerProvider, allowOverwrite = true)
         }
     })
 }
@@ -133,13 +140,18 @@ public infix fun SerializersModule.overwriteWith(other: SerializersModule): Seri
 internal class SerialModuleImpl(
     private val class2ContextualFactory: Map<KClass<*>, ContextualProvider>,
     @JvmField val polyBase2Serializers: Map<KClass<*>, Map<KClass<*>, KSerializer<*>>>,
+    private val polyBase2DefaultSerializerProvider: Map<KClass<*>, PolymorphicSerializerProvider<*>>,
     private val polyBase2NamedSerializers: Map<KClass<*>, Map<String, KSerializer<*>>>,
-    private val polyBase2DefaultProvider: Map<KClass<*>, PolymorphicProvider<*>>
+    private val polyBase2DefaultDeserializerProvider: Map<KClass<*>, PolymorphicDeserializerProvider<*>>
 ) : SerializersModule() {
 
     override fun <T : Any> getPolymorphic(baseClass: KClass<in T>, value: T): SerializationStrategy<T>? {
         if (!value.isInstanceOf(baseClass)) return null
-        return polyBase2Serializers[baseClass]?.get(value::class) as? SerializationStrategy<T>
+        // Registered
+        val registered = polyBase2Serializers[baseClass]?.get(value::class) as? SerializationStrategy<T>
+        if (registered != null) return registered
+        // Default
+        return (polyBase2DefaultSerializerProvider[baseClass] as? PolymorphicSerializerProvider<T>)?.invoke(value)
     }
 
     override fun <T : Any> getPolymorphic(baseClass: KClass<in T>, serializedClassName: String?): DeserializationStrategy<out T>? {
@@ -147,7 +159,7 @@ internal class SerialModuleImpl(
         val registered = polyBase2NamedSerializers[baseClass]?.get(serializedClassName) as? KSerializer<out T>
         if (registered != null) return registered
         // Default
-        return (polyBase2DefaultProvider[baseClass] as? PolymorphicProvider<T>)?.invoke(serializedClassName)
+        return (polyBase2DefaultDeserializerProvider[baseClass] as? PolymorphicDeserializerProvider<T>)?.invoke(serializedClassName)
     }
 
     override fun <T : Any> getContextual(kClass: KClass<T>, typeArgumentsSerializers: List<KSerializer<*>>): KSerializer<T>? {
@@ -175,13 +187,18 @@ internal class SerialModuleImpl(
             }
         }
 
-        polyBase2DefaultProvider.forEach { (baseClass, provider) ->
-            collector.polymorphicDefault(baseClass as KClass<Any>, provider as (PolymorphicProvider<out Any>))
+        polyBase2DefaultSerializerProvider.forEach { (baseClass, provider) ->
+            collector.polymorphicDefaultSerializer(baseClass as KClass<Any>, provider as (PolymorphicSerializerProvider<Any>))
+        }
+
+        polyBase2DefaultDeserializerProvider.forEach { (baseClass, provider) ->
+            collector.polymorphicDefaultDeserializer(baseClass as KClass<Any>, provider as (PolymorphicDeserializerProvider<out Any>))
         }
     }
 }
 
-internal typealias PolymorphicProvider<Base> = (className: String?) -> DeserializationStrategy<out Base>?
+internal typealias PolymorphicDeserializerProvider<Base> = (className: String?) -> DeserializationStrategy<out Base>?
+internal typealias PolymorphicSerializerProvider<Base> = (value: Base) -> SerializationStrategy<Base>?
 
 /** This class is needed to support re-registering the same static (argless) serializers:
  *

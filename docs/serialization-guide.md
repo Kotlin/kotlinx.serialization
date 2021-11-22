@@ -99,6 +99,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='polymorphism-and-generic-classes'></a>[Polymorphism and generic classes](polymorphism.md#polymorphism-and-generic-classes)
   * <a name='merging-library-serializers-modules'></a>[Merging library serializers modules](polymorphism.md#merging-library-serializers-modules)
   * <a name='default-polymorphic-type-handler-for-deserialization'></a>[Default polymorphic type handler for deserialization](polymorphism.md#default-polymorphic-type-handler-for-deserialization)
+  * <a name='default-polymorphic-type-handler-for-serialization'></a>[Default polymorphic type handler for serialization](polymorphism.md#default-polymorphic-type-handler-for-serialization)
 <!--- END -->
 
 **Chapter 5.** [JSON Features](json.md)

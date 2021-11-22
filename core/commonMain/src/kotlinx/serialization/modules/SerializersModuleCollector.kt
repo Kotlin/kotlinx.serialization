@@ -48,11 +48,44 @@ public interface SerializersModuleCollector {
     /**
      * Accept a default serializer provider, associated with the [baseClass] for polymorphic serialization.
      *
-     * @see SerializersModuleBuilder.polymorphicDefault
-     * @see PolymorphicModuleBuilder.default
+     * This will not affect deserialization.
+     *
+     * @see SerializersModuleBuilder.polymorphicDefaultSerializer
+     * @see PolymorphicModuleBuilder.defaultSerializer
      */
+    @ExperimentalSerializationApi
+    public fun <Base : Any> polymorphicDefaultSerializer(
+        baseClass: KClass<Base>,
+        defaultSerializerProvider: (value: Base) -> SerializationStrategy<Base>?
+    )
+
+    /**
+     * Accept a default deserializer provider, associated with the [baseClass] for polymorphic deserialization.
+     *
+     * This will not affect serialization.
+     *
+     * @see SerializersModuleBuilder.polymorphicDefaultDeserializer
+     * @see PolymorphicModuleBuilder.defaultDeserializer
+     */
+    @ExperimentalSerializationApi
+    public fun <Base : Any> polymorphicDefaultDeserializer(
+        baseClass: KClass<Base>,
+        defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
+    )
+
+    /**
+     * Accept a default deserializer provider, associated with the [baseClass] for polymorphic deserialization.
+     *
+     * This will not affect serialization.
+     *
+     * @see SerializersModuleBuilder.polymorphicDefaultDeserializer
+     * @see PolymorphicModuleBuilder.defaultDeserializer
+     */
+    // TODO: deprecate in 1.4
     public fun <Base : Any> polymorphicDefault(
         baseClass: KClass<Base>,
-        defaultSerializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
-    )
+        defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
+    ) {
+        polymorphicDefaultDeserializer(baseClass, defaultDeserializerProvider)
+    }
 }

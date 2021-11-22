@@ -5,6 +5,8 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlinx.serialization.test.*
@@ -47,19 +49,43 @@ class PolymorphismTest : JsonTestBase() {
         assertEquals("""["kotlinx.serialization.PolyDerived",{"id":1,"s":"b"}]""", s)
     }
 
-    object PolyDefaultSerializer : JsonTransformingSerializer<PolyDefault>(PolyDefault.serializer()) {
+    object PolyDefaultDeserializer : JsonTransformingSerializer<PolyDefault>(PolyDefault.serializer()) {
         override fun transformDeserialize(element: JsonElement): JsonElement = buildJsonObject {
             put("json", JsonObject(element.jsonObject.filterKeys { it != "type" }))
             put("id", 42)
         }
     }
 
+    object EvenDefaultSerializer : SerializationStrategy<PolyBase> {
+        override val descriptor = buildClassSerialDescriptor("even") {
+            element<String>("parity")
+        }
+
+        override fun serialize(encoder: Encoder, value: PolyBase) {
+            encoder.encodeStructure(descriptor) {
+                encodeStringElement(descriptor, 0, "even")
+            }
+        }
+    }
+
+    object OddDefaultSerializer : SerializationStrategy<PolyBase> {
+        override val descriptor = buildClassSerialDescriptor("odd") {
+            element<String>("parity")
+        }
+
+        override fun serialize(encoder: Encoder, value: PolyBase) {
+            encoder.encodeStructure(descriptor) {
+                encodeStringElement(descriptor, 0, "odd")
+            }
+        }
+    }
+
     @Test
-    fun testDefaultSerializer() = parametrizedTest { jsonTestingMode ->
+    fun testDefaultDeserializer() = parametrizedTest { jsonTestingMode ->
         val withDefault = module + SerializersModule {
-            polymorphicDefault(PolyBase::class) { name ->
+            polymorphicDefaultDeserializer(PolyBase::class) { name ->
                 if (name == "foo") {
-                    PolyDefaultSerializer
+                    PolyDefaultDeserializer
                 } else {
                     null
                 }
@@ -78,12 +104,12 @@ class PolymorphismTest : JsonTestBase() {
     }
 
     @Test
-    fun testDefaultSerializerForMissingDiscriminator() = parametrizedTest { jsonTestingMode ->
+    fun testDefaultDeserializerForMissingDiscriminator() = parametrizedTest { jsonTestingMode ->
         val json = Json {
             serializersModule = module + SerializersModule {
-                polymorphicDefault(PolyBase::class) { name ->
+                polymorphicDefaultDeserializer(PolyBase::class) { name ->
                     if (name == null) {
-                        PolyDefaultSerializer
+                        PolyDefaultDeserializer
                     } else {
                         null
                     }
@@ -95,5 +121,26 @@ class PolymorphismTest : JsonTestBase() {
             "polyBase2":{"key":42}}""".trimIndent()
         val result = json.decodeFromString(Wrapper.serializer(), string, jsonTestingMode)
         assertEquals(Wrapper(PolyBase(239), PolyDefault(JsonObject(mapOf("key" to JsonPrimitive(42))))), result)
+    }
+
+    @Test
+    fun testDefaultSerializer() = parametrizedTest { jsonTestingMode ->
+        val json = Json {
+            serializersModule = module + SerializersModule {
+                polymorphicDefaultSerializer(PolyBase::class) { value ->
+                    if (value.id % 2 == 0) {
+                        EvenDefaultSerializer
+                    } else {
+                        OddDefaultSerializer
+                    }
+                }
+            }
+        }
+        val obj = Wrapper(
+            PolyDefaultWithId(0),
+            PolyDefaultWithId(1)
+        )
+        val s = json.encodeToString(Wrapper.serializer(), obj, jsonTestingMode)
+        assertEquals("""{"polyBase1":{"type":"even","parity":"even"},"polyBase2":{"type":"odd","parity":"odd"}}""", s)
     }
 }
