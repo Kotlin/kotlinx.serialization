@@ -5,15 +5,17 @@
 apply plugin: 'kover'
 
 tasks.withType(Test) { task ->
-    // Core is mainly uncovered because a lot of serializers are tested with JSON
-    def minPercentage = (project.name.contains("core") || project.name.contains("properties")) ? 50 : 80
     kover {
         enabled = rootProject.ext.koverEnabled
-        generateXml = false
-        generateHtml = true
-        htmlReportDir.set(file("${rootProject.buildDir}/kover/${project.name}/html"))
-        verificationRule {
-            name = "Minimal line coverage rate in percents"
+
+    }
+}
+tasks.koverVerify {
+    // Core is mainly uncovered because a lot of serializers are tested with JSON
+    def minPercentage = (project.name.contains("core") || project.name.contains("properties")) ? 50 : 80
+    rule {
+        name = "Minimal line coverage rate in percents"
+        bound {
             minValue = minPercentage
             // valueType is 'COVERED_LINES_PERCENTAGE' by default
         }
