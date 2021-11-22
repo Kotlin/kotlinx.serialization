@@ -45,6 +45,7 @@ class HoconEncoderTest {
         val array: BooleanArray,
         val set: Set<Int>,
         val list: List<String>,
+        val listNullable: List<Set<SimpleConfig?>?>,
     )
 
     @Test
@@ -53,6 +54,7 @@ class HoconEncoderTest {
             array = booleanArrayOf(true, false),
             set = setOf(3, 1, 4),
             list = listOf("A", "B"),
+            listNullable = listOf(null, setOf(SimpleConfig(42), null)),
         )
         val config = Hocon.encodeToConfig(obj)
 
@@ -61,6 +63,7 @@ class HoconEncoderTest {
                 array = [true, false]
                 set = [3, 1, 4]
                 list = [A, B]
+                listNullable = [null, [{ value: 42 }, null]]
             """
         )
     }
@@ -87,10 +90,19 @@ class HoconEncoderTest {
         val objMap = mapOf(
             "one" to SimpleConfig(1),
             "two" to SimpleConfig(2),
+            "three" to null,
+            null to SimpleConfig(0),
         )
         val config = Hocon.encodeToConfig(objMap)
 
-        config.assertContains("one { value = 1 }, two { value = 2 }")
+        config.assertContains(
+            """
+                one { value = 1 }
+                two { value = 2 }
+                three: null
+                null { value = 0 }
+            """
+        )
     }
 
     @Serializable

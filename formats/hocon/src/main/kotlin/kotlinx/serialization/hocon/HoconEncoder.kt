@@ -122,7 +122,7 @@ internal class HoconConfigMapEncoder(hocon: Hocon, configConsumer: (ConfigValue)
         if (isKey) {
             key = when (value.valueType()) {
                 ConfigValueType.OBJECT, ConfigValueType.LIST -> throw InvalidKeyKindException(value)
-                else -> value.unwrapped().toString()
+                else -> value.unwrappedNullable().toString()
             }
             isKey = false
         } else {
@@ -132,4 +132,9 @@ internal class HoconConfigMapEncoder(hocon: Hocon, configConsumer: (ConfigValue)
     }
 
     override fun getCurrent(): ConfigValue = ConfigValueFactory.fromMap(configMap)
+
+    // Without cast to `Any?` Kotlin will assume unwrapped value as non-nullable by default
+    // and will call `Any.toString()` instead of extension-function `Any?.toString()`.
+    // We can't cast value in place using `(value.unwrapped() as Any?).toString()` because of warning "No cast needed".
+    private fun ConfigValue.unwrappedNullable(): Any? = unwrapped()
 }
