@@ -59,9 +59,7 @@ public sealed class Hocon(
      * The default instance of Hocon parser.
      */
     @ExperimentalSerializationApi
-    public companion object Default : Hocon(false, false, false, "type", EmptySerializersModule) {
-        internal val NAMING_CONVENTION_REGEX by lazy { "[A-Z]".toRegex() }
-    }
+    public companion object Default : Hocon(false, false, false, "type", EmptySerializersModule)
 
     private abstract inner class ConfigConverter<T> : TaggedDecoder<T>() {
         override val serializersModule: SerializersModule
@@ -231,29 +229,6 @@ public sealed class Hocon(
         return index
     }
 }
-
-@ExperimentalSerializationApi
-internal fun SerialDescriptor.getConventionElementName(index: Int, useConfigNamingConvention: Boolean): String {
-    val originalName = getElementName(index)
-    return if (!useConfigNamingConvention) originalName
-    else originalName.replace(Hocon.NAMING_CONVENTION_REGEX) { "-${it.value.lowercase()}" }
-}
-
-@ExperimentalSerializationApi
-internal fun SerialDescriptor.hoconKind(useArrayPolymorphism: Boolean): SerialKind = when (kind) {
-    is PolymorphicKind -> {
-        if (useArrayPolymorphism) StructureKind.LIST else StructureKind.MAP
-    }
-    else -> kind
-}
-
-@ExperimentalSerializationApi
-internal val SerialKind.listLike
-    get() = this == StructureKind.LIST || this is PolymorphicKind
-
-@ExperimentalSerializationApi
-internal val SerialKind.objLike
-    get() = this == StructureKind.CLASS || this == StructureKind.OBJECT
 
 /**
  * Decodes the given [config] into a value of type [T] using a deserializer retrieved
