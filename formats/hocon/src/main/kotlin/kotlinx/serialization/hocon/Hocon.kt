@@ -41,6 +41,7 @@ public sealed class Hocon(
 
     /**
      * Encodes the given [value] into a [Config] using the given [serializer].
+     * @throws SerializationException If list or primitive type passed as a [value].
      */
     @ExperimentalSerializationApi
     public fun <T> encodeToConfig(serializer: SerializationStrategy<T>, value: T): Config {
@@ -48,9 +49,11 @@ public sealed class Hocon(
         val encoder = HoconConfigEncoder(this) { configValue = it }
         encoder.encodeSerializableValue(serializer, value)
 
-        check(configValue is ConfigObject) {
-            "Value of type '${configValue.valueType()}' can't be used at the root of HOCON Config." +
-                    "It should be either object or map."
+        if (configValue !is ConfigObject) {
+            throw SerializationException(
+                "Value of type '${configValue.valueType()}' can't be used at the root of HOCON Config." +
+                        "It should be either object or map."
+            )
         }
         return (configValue as ConfigObject).toConfig()
     }

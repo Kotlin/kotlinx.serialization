@@ -4,10 +4,9 @@
 
 package kotlinx.serialization.hocon
 
-import com.typesafe.config.ConfigFactory
-import kotlinx.serialization.Serializable
-import org.junit.Ignore
-import org.junit.Test
+import com.typesafe.config.*
+import kotlinx.serialization.*
+import org.junit.*
 import kotlin.test.*
 
 class HoconRootMapTest {
