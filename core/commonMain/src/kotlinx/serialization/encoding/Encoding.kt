@@ -486,3 +486,32 @@ public inline fun Encoder.encodeStructure(descriptor: SerialDescriptor, block: C
         if (ex == null) composite.endStructure(descriptor)
     }
 }
+
+/**
+ * Begins a collection, encodes it using the given [block] and ends it.
+ */
+public inline fun Encoder.encodeCollection(
+    descriptor: SerialDescriptor,
+    collectionSize: Int,
+    crossinline block: CompositeEncoder.() -> Unit
+) {
+    with(beginCollection(descriptor, collectionSize)) {
+        block()
+        endStructure(descriptor)
+    }
+}
+
+/**
+ * Begins a collection, calls [block] with each item and ends the collections.
+ */
+public inline fun <E> Encoder.encodeCollection(
+    descriptor: SerialDescriptor,
+    collection: Collection<E>,
+    crossinline block: CompositeEncoder.(index: Int, E) -> Unit
+) {
+    encodeCollection(descriptor, collection.size) {
+        collection.forEachIndexed { index, e ->
+            block(index, e)
+        }
+    }
+}

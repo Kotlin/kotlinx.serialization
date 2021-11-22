@@ -513,6 +513,8 @@ public final class kotlinx/serialization/encoding/Encoder$DefaultImpls {
 }
 
 public final class kotlinx/serialization/encoding/EncodingKt {
+	public static final fun encodeCollection (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlin/jvm/functions/Function1;)V
+	public static final fun encodeCollection (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/descriptors/SerialDescriptor;Ljava/util/Collection;Lkotlin/jvm/functions/Function3;)V
 	public static final fun encodeStructure (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlin/jvm/functions/Function1;)V
 }
 
