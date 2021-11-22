@@ -19,7 +19,7 @@ class HoconEncoderTest {
     )
 
     @Test
-    fun encodeSimpleConfig() {
+    fun testEncodeSimpleConfig() {
         val obj = PrimitivesConfig(b = true, i = 42, d = 32.2, c = 'x', s = "string", n = null)
         val config = Hocon.encodeToConfig(obj)
 
@@ -33,7 +33,7 @@ class HoconEncoderTest {
     enum class RegularEnum { VALUE }
 
     @Test
-    fun encodeConfigWithEnum() {
+    fun testEncodeConfigWithEnum() {
         val obj = ConfigWithEnum(RegularEnum.VALUE)
         val config = Hocon.encodeToConfig(obj)
 
@@ -48,7 +48,7 @@ class HoconEncoderTest {
     )
 
     @Test
-    fun encodeConfigWithIterables() {
+    fun testEncodeConfigWithIterables() {
         val obj = ConfigWithIterables(
             array = booleanArrayOf(true, false),
             set = setOf(3, 1, 4),
