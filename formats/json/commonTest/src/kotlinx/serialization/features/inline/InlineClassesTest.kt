@@ -72,10 +72,45 @@ value class ResourceId(val id: String)
 value class ResourceType(val type: String)
 
 @Serializable
-data class ResourceIdentifier(val id: ResourceId, val type: ResourceType)
+@JvmInline
+value class ResourceKind(val kind: SampleEnum)
+
+@Serializable
+data class ResourceIdentifier(val id: ResourceId, val type: ResourceType, val type2: ValueWrapper)
+
+@Serializable @JvmInline
+value class ValueWrapper(val wrapped: ResourceType)
 
 class InlineClassesTest : JsonTestBase() {
     private val precedent: UInt = Int.MAX_VALUE.toUInt() + 10.toUInt()
+
+    @Test
+    fun testTopLevel() = noLegacyJs {
+        assertJsonFormAndRestored(
+            ResourceType.serializer(),
+            ResourceType("foo"),
+            """"foo"""",
+        )
+    }
+
+    @Test
+    fun testTopLevelOverEnum() = noLegacyJs {
+        assertJsonFormAndRestored(
+            ResourceKind.serializer(),
+            ResourceKind(SampleEnum.OptionC),
+            """"OptionC"""",
+        )
+    }
+
+    @Test
+    fun testTopLevelWrapper() = noLegacyJs {
+        assertJsonFormAndRestored(
+            ValueWrapper.serializer(),
+            ValueWrapper(ResourceType("foo")),
+            """"foo"""",
+        )
+    }
+
 
     @Test
     fun testSimpleContainer() = noLegacyJs {
@@ -106,8 +141,8 @@ class InlineClassesTest : JsonTestBase() {
     fun testInlineClassesWithStrings() = noLegacyJs {
         assertJsonFormAndRestored(
             ResourceIdentifier.serializer(),
-            ResourceIdentifier(ResourceId("resId"), ResourceType("resType")),
-            """{"id":"resId","type":"resType"}"""
+            ResourceIdentifier(ResourceId("resId"), ResourceType("resType"), ValueWrapper(ResourceType("wrappedType"))),
+            """{"id":"resId","type":"resType","type2":"wrappedType"}"""
         )
     }
 

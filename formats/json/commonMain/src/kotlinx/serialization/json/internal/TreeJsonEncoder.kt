@@ -1,18 +1,19 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:OptIn(ExperimentalSerializationApi::class)
 
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.*
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
-import kotlinx.serialization.internal.*
+import kotlinx.serialization.internal.NamedValueEncoder
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.*
+import kotlinx.serialization.modules.SerializersModule
 import kotlin.collections.set
-import kotlin.jvm.*
+import kotlin.jvm.JvmField
 
 internal fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
     lateinit var result: JsonElement
@@ -69,7 +70,7 @@ private sealed class AbstractJsonTreeEncoder(
 
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
         // Writing non-structured data (i.e. primitives) on top-level (e.g. without any tag) requires special output
-        if (currentTagOrNull != null || serializer.descriptor.kind !is PrimitiveKind && serializer.descriptor.kind !== SerialKind.ENUM) {
+        if (currentTagOrNull != null || !serializer.descriptor.needTopLevelTag) {
             encodePolymorphically(serializer, value) { polymorphicDiscriminator = it }
         } else JsonPrimitiveEncoder(json, nodeConsumer).apply {
             encodeSerializableValue(serializer, value)
@@ -138,6 +139,13 @@ private sealed class AbstractJsonTreeEncoder(
         nodeConsumer(getCurrent())
     }
 }
+
+private val SerialDescriptor.needTopLevelTag: Boolean
+    get() {
+        if (kind is PrimitiveKind || kind === SerialKind.ENUM) return true
+        if (isInline) return getElementDescriptor(0).needTopLevelTag
+        return false
+    }
 
 internal const val PRIMITIVE_TAG = "primitive" // also used in JsonPrimitiveInput
 
