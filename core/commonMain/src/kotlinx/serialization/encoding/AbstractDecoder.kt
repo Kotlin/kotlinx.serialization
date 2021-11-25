@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.encoding
@@ -69,13 +69,14 @@ public abstract class AbstractDecoder : Decoder, CompositeDecoder {
         previousValue: T?
     ): T = decodeSerializableValue(deserializer, previousValue)
 
+    @Suppress("UNCHECKED_CAST")
     final override fun <T : Any> decodeNullableSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
-        deserializer: DeserializationStrategy<T?>,
+        deserializer: DeserializationStrategy<out T?>,
         previousValue: T?
     ): T? {
-        val isNullabilitySupported = deserializer.descriptor.isNullable
-        return if (isNullabilitySupported || decodeNotNullMark()) decodeSerializableValue(deserializer, previousValue) else decodeNull()
+        return if (deserializer.descriptor.isNullable) decodeSerializableValue(deserializer as DeserializationStrategy<T?>, previousValue)
+        else if (decodeNotNullMark()) decodeSerializableValue(deserializer as DeserializationStrategy<T>, previousValue) else decodeNull()
     }
 }
