@@ -8,7 +8,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.*
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.features.sealed.SealedChild
 import kotlinx.serialization.features.sealed.SealedParent
@@ -120,9 +119,12 @@ class JsonStreamFlowTest {
             JsonPrimitive("abacaba"),
             buildJsonObject { put("foo", "qux") }
         )
-        val input = """${list[0]} ${list[1]} ${list[2]}    ${list[3]}    ${list[4]}"""
-        val decoded = json.decodeToSequence<JsonElement>(input.asInputStream()).toList()
-        assertEquals(list, decoded)
+        val inputWs = """${list[0]} ${list[1]} ${list[2]}    ${list[3]}    ${list[4]}"""
+        val decodedWs = json.decodeToSequence<JsonElement>(inputWs.asInputStream()).toList()
+        assertEquals(list, decodedWs, "Failed whitespace-separated test")
+        val inputArray = """[${list[0]}, ${list[1]},${list[2]}  ,  ${list[3]}    ,${list[4]}]"""
+        val decodedArrayWrap = json.decodeToSequence<JsonElement>(inputArray.asInputStream()).toList()
+        assertEquals(list, decodedArrayWrap, "Failed array-wrapped test")
     }
 
 
