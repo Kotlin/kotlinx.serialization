@@ -15,6 +15,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.test.*
 import kotlin.jvm.*
 import kotlin.test.*
@@ -108,6 +109,20 @@ class InlineClassesTest : JsonTestBase() {
             ValueWrapper.serializer(),
             ValueWrapper(ResourceType("foo")),
             """"foo"""",
+        )
+    }
+
+    @Test
+    fun testTopLevelContextual() = noLegacyJs {
+        val module = SerializersModule {
+            contextual<ResourceType>(ResourceType.serializer())
+        }
+        val json = Json(default) { serializersModule = module }
+        assertJsonFormAndRestored(
+            ContextualSerializer(ResourceType::class),
+            ResourceType("foo"),
+            """"foo"""",
+            json
         )
     }
 

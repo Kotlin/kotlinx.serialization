@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:OptIn(ExperimentalSerializationApi::class)
 
@@ -7,9 +7,9 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
-import kotlin.jvm.JvmField
+import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
+import kotlin.jvm.*
 
 internal enum class WriteMode(@JvmField val begin: Char, @JvmField val end: Char) {
     OBJ(BEGIN_OBJ, END_OBJ),
@@ -47,6 +47,6 @@ internal inline fun <T, R1 : T, R2 : T> Json.selectMapMode(
 
 internal fun SerialDescriptor.carrierDescriptor(module: SerializersModule): SerialDescriptor = when {
     kind == SerialKind.CONTEXTUAL -> module.getContextualDescriptor(this)?.carrierDescriptor(module) ?: this
-    isInline -> getElementDescriptor(0)
+    isInline -> getElementDescriptor(0).carrierDescriptor(module)
     else     -> this
 }

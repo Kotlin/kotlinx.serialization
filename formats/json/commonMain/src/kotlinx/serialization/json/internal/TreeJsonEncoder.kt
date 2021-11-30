@@ -5,15 +5,14 @@
 
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
-import kotlinx.serialization.internal.NamedValueEncoder
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.*
 import kotlin.collections.set
-import kotlin.jvm.JvmField
+import kotlin.jvm.*
 
 internal fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
     lateinit var result: JsonElement
@@ -70,7 +69,7 @@ private sealed class AbstractJsonTreeEncoder(
 
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
         // Writing non-structured data (i.e. primitives) on top-level (e.g. without any tag) requires special output
-        if (currentTagOrNull != null || !serializer.descriptor.needTopLevelTag) {
+        if (currentTagOrNull != null || !serializer.descriptor.carrierDescriptor(serializersModule).requiresTopLevelTag) {
             encodePolymorphically(serializer, value) { polymorphicDiscriminator = it }
         } else JsonPrimitiveEncoder(json, nodeConsumer).apply {
             encodeSerializableValue(serializer, value)
@@ -140,12 +139,8 @@ private sealed class AbstractJsonTreeEncoder(
     }
 }
 
-private val SerialDescriptor.needTopLevelTag: Boolean
-    get() {
-        if (kind is PrimitiveKind || kind === SerialKind.ENUM) return true
-        if (isInline) return getElementDescriptor(0).needTopLevelTag
-        return false
-    }
+private val SerialDescriptor.requiresTopLevelTag: Boolean
+    get() = kind is PrimitiveKind || kind === SerialKind.ENUM
 
 internal const val PRIMITIVE_TAG = "primitive" // also used in JsonPrimitiveInput
 
