@@ -1,10 +1,10 @@
 /*
- * Copyright 2017-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.*
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.*
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -34,8 +34,10 @@ internal class JsonTreeReader(
             result[key] = element
             // Verify the next token
             lastToken = lexer.consumeNextToken()
-            if (lastToken != TC_COMMA && lastToken != TC_END_OBJ) {
-                lexer.fail("Expected end of the object or comma")
+            when (lastToken) {
+                TC_COMMA -> Unit // no-op, can continue with `canConsumeValue` that verifies the token after comma
+                TC_END_OBJ -> break // `canConsumeValue` can return incorrect result, since it checks token _after_ TC_END_OBJ
+                else -> lexer.fail("Expected end of the object or comma")
             }
         }
         // Check for the correct ending

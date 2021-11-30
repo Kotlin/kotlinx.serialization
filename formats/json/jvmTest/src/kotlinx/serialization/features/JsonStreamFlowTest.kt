@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.features.sealed.SealedChild
+import kotlinx.serialization.features.sealed.SealedParent
 import kotlinx.serialization.json.*
 import kotlinx.serialization.json.internal.JsonDecodingException
 import kotlinx.serialization.test.assertFailsWithMessage
@@ -106,6 +108,32 @@ class JsonStreamFlowTest {
         val input = "{\"data\":\"a\"}   {\"data\":\"b\"}\n\t{\"data\":\"c\"}"
         val ins = ByteArrayInputStream(input.encodeToByteArray())
         assertEquals(inputList, json.decodeToSequence(ins, StringData.serializer()).toList())
+    }
+
+    @Test
+    fun testJsonElement() {
+        val list = listOf<JsonElement>(
+            buildJsonObject { put("foo", "bar") },
+            buildJsonObject { put("foo", "baz") },
+            JsonPrimitive(10),
+            JsonPrimitive("abacaba"),
+            buildJsonObject { put("foo", "qux") }
+        )
+        val inputWs = """${list[0]} ${list[1]} ${list[2]}    ${list[3]}    ${list[4]}"""
+        val decodedWs = json.decodeToSequence<JsonElement>(inputWs.asInputStream()).toList()
+        assertEquals(list, decodedWs, "Failed whitespace-separated test")
+        val inputArray = """[${list[0]}, ${list[1]},${list[2]}  ,  ${list[3]}    ,${list[4]}]"""
+        val decodedArrayWrap = json.decodeToSequence<JsonElement>(inputArray.asInputStream()).toList()
+        assertEquals(list, decodedArrayWrap, "Failed array-wrapped test")
+    }
+
+
+    @Test
+    fun testSealedClasses() {
+        val input = """{"type":"first child","i":1,"j":10} {"type":"first child","i":1,"j":11}"""
+        val iter = json.iterateOverStream(input.asInputStream(), SealedParent.serializer())
+        iter.assertNext(SealedChild(10))
+        iter.assertNext(SealedChild(11))
     }
 
     @Test
