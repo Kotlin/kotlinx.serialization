@@ -17,7 +17,8 @@ repositories {
 }
 
 val kotlinVersion = FileInputStream(file("../gradle.properties")).use { propFile ->
-    val ver = Properties().apply { load(propFile) }["kotlin.version"]
+    val ver = project.findProperty("kotlin.version")?.toString()
+        ?: Properties().apply { load(propFile) }["kotlin.version"]
     require(ver is String) { "kotlin.version must be string in ../gradle.properties, got $ver instead" }
     ver
 }
