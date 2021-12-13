@@ -44,7 +44,7 @@ import kotlin.native.concurrent.*
  * val deserializedFromTree: DataHolder = json.decodeFromJsonElement<DataHolder>(jsonTree)
  *
  *  // Deserialize from string to JSON tree, JSON-specific
- *  val deserializedToTree: JsonElement = json.parseJsonElement(stringOutput)
+ *  val deserializedToTree: JsonElement = json.parseToJsonElement(stringOutput)
  * ```
  *
  * Json instance also exposes its [configuration] that can be used in custom serializers
