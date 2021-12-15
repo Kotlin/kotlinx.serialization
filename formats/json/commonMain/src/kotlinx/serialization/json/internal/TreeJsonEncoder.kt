@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:OptIn(ExperimentalSerializationApi::class)
 
@@ -69,7 +69,7 @@ private sealed class AbstractJsonTreeEncoder(
 
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
         // Writing non-structured data (i.e. primitives) on top-level (e.g. without any tag) requires special output
-        if (currentTagOrNull != null || serializer.descriptor.kind !is PrimitiveKind && serializer.descriptor.kind !== SerialKind.ENUM) {
+        if (currentTagOrNull != null || !serializer.descriptor.carrierDescriptor(serializersModule).requiresTopLevelTag) {
             encodePolymorphically(serializer, value) { polymorphicDiscriminator = it }
         } else JsonPrimitiveEncoder(json, nodeConsumer).apply {
             encodeSerializableValue(serializer, value)
@@ -138,6 +138,9 @@ private sealed class AbstractJsonTreeEncoder(
         nodeConsumer(getCurrent())
     }
 }
+
+private val SerialDescriptor.requiresTopLevelTag: Boolean
+    get() = kind is PrimitiveKind || kind === SerialKind.ENUM
 
 internal const val PRIMITIVE_TAG = "primitive" // also used in JsonPrimitiveInput
 

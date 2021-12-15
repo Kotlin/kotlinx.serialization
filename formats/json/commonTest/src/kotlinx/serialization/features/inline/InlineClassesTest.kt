@@ -15,6 +15,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.test.*
 import kotlin.jvm.*
 import kotlin.test.*
@@ -72,10 +73,59 @@ value class ResourceId(val id: String)
 value class ResourceType(val type: String)
 
 @Serializable
-data class ResourceIdentifier(val id: ResourceId, val type: ResourceType)
+@JvmInline
+value class ResourceKind(val kind: SampleEnum)
+
+@Serializable
+data class ResourceIdentifier(val id: ResourceId, val type: ResourceType, val type2: ValueWrapper)
+
+@Serializable @JvmInline
+value class ValueWrapper(val wrapped: ResourceType)
 
 class InlineClassesTest : JsonTestBase() {
     private val precedent: UInt = Int.MAX_VALUE.toUInt() + 10.toUInt()
+
+    @Test
+    fun testTopLevel() = noLegacyJs {
+        assertJsonFormAndRestored(
+            ResourceType.serializer(),
+            ResourceType("foo"),
+            """"foo"""",
+        )
+    }
+
+    @Test
+    fun testTopLevelOverEnum() = noLegacyJs {
+        assertJsonFormAndRestored(
+            ResourceKind.serializer(),
+            ResourceKind(SampleEnum.OptionC),
+            """"OptionC"""",
+        )
+    }
+
+    @Test
+    fun testTopLevelWrapper() = noLegacyJs {
+        assertJsonFormAndRestored(
+            ValueWrapper.serializer(),
+            ValueWrapper(ResourceType("foo")),
+            """"foo"""",
+        )
+    }
+
+    @Test
+    fun testTopLevelContextual() = noLegacyJs {
+        val module = SerializersModule {
+            contextual<ResourceType>(ResourceType.serializer())
+        }
+        val json = Json(default) { serializersModule = module }
+        assertJsonFormAndRestored(
+            ContextualSerializer(ResourceType::class),
+            ResourceType("foo"),
+            """"foo"""",
+            json
+        )
+    }
+
 
     @Test
     fun testSimpleContainer() = noLegacyJs {
@@ -106,8 +156,8 @@ class InlineClassesTest : JsonTestBase() {
     fun testInlineClassesWithStrings() = noLegacyJs {
         assertJsonFormAndRestored(
             ResourceIdentifier.serializer(),
-            ResourceIdentifier(ResourceId("resId"), ResourceType("resType")),
-            """{"id":"resId","type":"resType"}"""
+            ResourceIdentifier(ResourceId("resId"), ResourceType("resType"), ValueWrapper(ResourceType("wrappedType"))),
+            """{"id":"resId","type":"resType","type2":"wrappedType"}"""
         )
     }
 
