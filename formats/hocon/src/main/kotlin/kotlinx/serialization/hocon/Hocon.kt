@@ -250,7 +250,7 @@ public sealed class Hocon(
  */
 @ExperimentalSerializationApi
 public inline fun <reified T> Hocon.decodeFromConfig(config: Config): T =
-        decodeFromConfig(serializersModule.serializer(), config)
+    decodeFromConfig(serializersModule.serializer(), config)
 
 /**
  * Creates an instance of [Hocon] configured from the optionally given [Hocon instance][from]
