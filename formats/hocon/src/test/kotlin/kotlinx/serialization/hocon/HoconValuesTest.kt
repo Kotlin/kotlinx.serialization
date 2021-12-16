@@ -4,6 +4,7 @@
 
 package kotlinx.serialization.hocon
 
+import kotlin.test.*
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import org.junit.*
@@ -80,6 +81,13 @@ class HoconValuesTest {
     }
 
     @Test
+    fun `unparseable data fails with exception`() {
+        val e = assertFailsWith<SerializationException> {
+            deserializeConfig("e = A, b=not-a-boolean", OtherConfig.serializer())
+        }
+    }
+
+    @Test
     fun `deserialize other types from strings`() {
         val obj = deserializeConfig("""e = "A", b="true" """, OtherConfig.serializer())
         assertEquals(Choice.A, obj.e)
@@ -135,9 +143,7 @@ class HoconValuesTest {
     fun `deserialize list of integer string values`() {
         val configString = """i1 = [ "1","3" ]"""
         val obj = deserializeConfig(configString, WithList.serializer())
-        with(obj) {
-            assertEquals(listOf(1, 3), i1)
-        }
+        assertEquals(listOf(1, 3), obj.i1)
     }
 
     @Test
