@@ -150,17 +150,13 @@ class HoconValuesTest {
     fun `deserialize map with integers`() {
         val configString = """m = { 2: 1, 4: 3 }"""
         val obj = deserializeConfig(configString, WithMap.serializer())
-        with(obj) {
-            assertEquals(mapOf(2 to 1, 4 to 3), m)
-        }
+        assertEquals(mapOf(2 to 1, 4 to 3), obj.m)
     }
 
     @Test
     fun `deserialize map with integers as strings`() {
         val configString = """m = { "2": "1", "4":"3" }"""
         val obj = deserializeConfig(configString, WithMap.serializer())
-        with(obj) {
-            assertEquals(mapOf(2 to 1, 4 to 3), m)
-        }
+        assertEquals(mapOf(2 to 1, 4 to 3), obj.m)
     }
 }
