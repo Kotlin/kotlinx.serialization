@@ -1,8 +1,5 @@
 package kotlinx.serialization
 
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import kotlin.reflect.KClass
 import kotlin.test.Test
 
@@ -11,47 +8,49 @@ import kotlin.test.Test
 class MetaSerializableTest {
 
     @MetaSerializable
-    @Target(AnnotationTarget.CLASS)
-    annotation class MySerializableWithCustomSerializer(@MetaSerializable.Serializer val with: KClass<out KSerializer<*>> = KSerializer::class)
+    @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
+    annotation class MySerializable
 
     @MetaSerializable
-    @Target(AnnotationTarget.CLASS)
-    annotation class MySerializableWithInfo(val value: Int, val klass: KClass<*>)
+    @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
+    annotation class MySerializableWithInfo(
+        val value: Int,
+        val kclass: KClass<*>
+    )
 
-    @MySerializableWithCustomSerializer(MySerializer::class)
+    @MySerializable
     class Project1(val name: String, val language: String)
 
-    @MySerializableWithCustomSerializer
+    @MySerializableWithInfo(123, String::class)
     class Project2(val name: String, val language: String)
 
-    @MySerializableWithInfo(value = 123, String::class)
+    @MySerializableWithInfo(123, String::class)
+    @Serializable
     class Project3(val name: String, val language: String)
 
-    object MySerializer : KSerializer<Project1> {
-        override val descriptor: SerialDescriptor
-            get() = throw NotImplementedError()
-
-        override fun serialize(encoder: Encoder, value: Project1) = throw NotImplementedError()
-        override fun deserialize(decoder: Decoder): Project1 = throw NotImplementedError()
-    }
+    @Serializable
+    class Wrapper(
+        @MySerializableWithInfo(234, Int::class) val project: Project3
+    )
 
     @Test
-    fun testCustomSerializer() {
+    fun testMetaSerializable() {
 //        val serializer = serializer<Project1>()
-//        assertEquals(serializer, MySerializer)
-    }
-
-    @Test
-    fun testDefaultSerializer() {
-//        val serializer = serializer<Project2>()
 //        assertNotNull(serializer)
     }
 
     @Test
-    fun testDefaultSerialInfo() {
-//        val descriptor = serializer<Project3>().descriptor
-//        val annotation = descriptor.annotations.filterIsInstance<MySerializableWithInfo>().first()
-//        assertEquals(123, annotation.value)
-//        assertEquals(String::class, annotation.klass)
+    fun testMetaSerializableWithInfo() {
+//        val info = serializer<Project2>().descriptor.annotations.filterIsInstance<MySerializableWithInfo>().first()
+//        assertEquals(123, info.value)
+//        assertEquals(String::class, info.kclass)
+    }
+
+    @Test
+    fun testMetaSerializableOnProperty() {
+//        val info = serializer<Wrapper>().descriptor
+//            .getElementAnnotations(0).filterIsInstance<MySerializableWithInfo>().first()
+//        assertEquals(234, info.value)
+//        assertEquals(Int::class, info.kclass)
     }
 }

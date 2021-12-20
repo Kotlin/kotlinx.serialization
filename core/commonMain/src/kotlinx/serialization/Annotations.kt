@@ -105,22 +105,6 @@ public annotation class Serializable(
  * serializer.descriptor.annotations.filterIsInstance<MySerializable>().first().data // <- returns "some_data"
  * ```
  *
- * Additionally, the user-defined serializer can be specified using parameter
- * annotated with [MetaSerializable.Serializer]:
- * ```
- * @MetaSerializable
- * @Target(AnnotationTarget.CLASS)
- * annotation class MySerializable(
- *   @MetaSerializable.Serializer val serializer: KClass<out KSerializer<*>>,
- *   val data: String
- * )
- *
- * @MetaSerializable(serializer = MyDataCustomSerializer::class, data = "some_data")
- * class MyData(...)
- *
- * MyData.serializer() // <- returns MyDataCustomSerializer
- * ```
- *
  * @see Serializable
  * @see SerialInfo
  * @see UseSerializers
@@ -129,10 +113,7 @@ public annotation class Serializable(
 @Target(AnnotationTarget.ANNOTATION_CLASS)
 //@Retention(AnnotationRetention.RUNTIME) // Runtime is the default retention, also see KT-41082
 @ExperimentalSerializationApi
-public annotation class MetaSerializable {
-    @Target(AnnotationTarget.PROPERTY)
-    public annotation class Serializer
-}
+public annotation class MetaSerializable
 
 /**
  * Instructs the serialization plugin to turn this class into serializer for specified class [forClass].
