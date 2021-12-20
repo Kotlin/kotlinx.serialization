@@ -4,6 +4,7 @@
 
 package kotlinx.serialization.hocon
 
+import kotlin.test.*
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import org.junit.*
@@ -31,9 +32,29 @@ class HoconValuesTest {
     @Serializable
     data class WithNullableList(val i1: List<Int?>, val i2: List<String>?, val i3: List<WithNullable?>?)
 
+    @Serializable
+    data class WithList(val i1: List<Int>)
+
+    @Serializable
+    data class WithMap(val m: Map<Int, Int>)
+
     @Test
     fun `deserialize numbers`() {
         val conf = "b=42, s=1337, i=100500, l = 4294967294, f=0.0, d=-0.123"
+        val nums = deserializeConfig(conf, NumbersConfig.serializer())
+        with(nums) {
+            assertEquals(42.toByte(), b)
+            assertEquals(1337.toShort(), s)
+            assertEquals(100500, i)
+            assertEquals(4294967294L, l)
+            assertEquals(0.0f, f)
+            assertEquals(-0.123, d, 1e-9)
+        }
+    }
+
+    @Test
+    fun `deserialize numbers from strings`() {
+        val conf = """b="42", s="1337", i="100500", l = "4294967294", f="0.0", d="-0.123" """
         val nums = deserializeConfig(conf, NumbersConfig.serializer())
         with(nums) {
             assertEquals(42.toByte(), b)
@@ -55,6 +76,20 @@ class HoconValuesTest {
     @Test
     fun `deserialize other types`() {
         val obj = deserializeConfig("e = A, b=true", OtherConfig.serializer())
+        assertEquals(Choice.A, obj.e)
+        assertEquals(true, obj.b)
+    }
+
+    @Test
+    fun `unparseable data fails with exception`() {
+        val e = assertFailsWith<SerializationException> {
+            deserializeConfig("e = A, b=not-a-boolean", OtherConfig.serializer())
+        }
+    }
+
+    @Test
+    fun `deserialize other types from strings`() {
+        val obj = deserializeConfig("""e = "A", b="true" """, OtherConfig.serializer())
         assertEquals(Choice.A, obj.e)
         assertEquals(true, obj.b)
     }
@@ -102,5 +137,26 @@ class HoconValuesTest {
             assertEquals(null, i2)
             assertEquals(listOf(null, WithNullable(10, "bar")), i3)
         }
+    }
+
+    @Test
+    fun `deserialize list of integer string values`() {
+        val configString = """i1 = [ "1","3" ]"""
+        val obj = deserializeConfig(configString, WithList.serializer())
+        assertEquals(listOf(1, 3), obj.i1)
+    }
+
+    @Test
+    fun `deserialize map with integers`() {
+        val configString = """m = { 2: 1, 4: 3 }"""
+        val obj = deserializeConfig(configString, WithMap.serializer())
+        assertEquals(mapOf(2 to 1, 4 to 3), obj.m)
+    }
+
+    @Test
+    fun `deserialize map with integers as strings`() {
+        val configString = """m = { "2": "1", "4":"3" }"""
+        val obj = deserializeConfig(configString, WithMap.serializer())
+        assertEquals(mapOf(2 to 1, 4 to 3), obj.m)
     }
 }

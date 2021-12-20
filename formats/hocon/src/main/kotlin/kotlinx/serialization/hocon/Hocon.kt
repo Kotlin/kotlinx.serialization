@@ -47,18 +47,28 @@ public sealed class Hocon(
         override val serializersModule: SerializersModule
             get() = this@Hocon.serializersModule
 
-        abstract fun getTaggedConfigValue(tag: T): ConfigValue
+        abstract fun <E> getValueFromTaggedConfig(tag: T, valueResolver: (Config, String) -> E): E
 
-        private inline fun <reified E : Any> validateAndCast(tag: T, wrappedType: ConfigValueType): E {
-            val cfValue = getTaggedConfigValue(tag)
-            if (cfValue.valueType() != wrappedType) throw SerializationException("${cfValue.origin().description()} required to be a $wrappedType")
-            return cfValue.unwrapped() as E
+        private inline fun <reified E : Any> validateAndCast(tag: T): E {
+            return try {
+                when (E::class) {
+                    Number::class -> getValueFromTaggedConfig(tag) { config, path -> config.getNumber(path) } as E
+                    Boolean::class -> getValueFromTaggedConfig(tag) { config, path -> config.getBoolean(path) } as E
+                    String::class -> getValueFromTaggedConfig(tag) { config, path -> config.getString(path) } as E
+                    else -> getValueFromTaggedConfig(tag) { config, path -> config.getAnyRef(path) } as E
+                }
+            } catch (e: ConfigException) {
+                val configOrigin = e.origin()
+                val requiredType = E::class.simpleName
+                throw SerializationException("${configOrigin.description()} required to be of type $requiredType")
+            }
         }
 
-        private fun getTaggedNumber(tag: T) = validateAndCast<Number>(tag, ConfigValueType.NUMBER)
+        private fun getTaggedNumber(tag: T) = validateAndCast<Number>(tag)
 
-        override fun decodeTaggedString(tag: T) = validateAndCast<String>(tag, ConfigValueType.STRING)
+        override fun decodeTaggedString(tag: T) = validateAndCast<String>(tag)
 
+        override fun decodeTaggedBoolean(tag: T) = validateAndCast<Boolean>(tag)
         override fun decodeTaggedByte(tag: T): Byte = getTaggedNumber(tag).toByte()
         override fun decodeTaggedShort(tag: T): Short = getTaggedNumber(tag).toShort()
         override fun decodeTaggedInt(tag: T): Int = getTaggedNumber(tag).toInt()
@@ -67,17 +77,17 @@ public sealed class Hocon(
         override fun decodeTaggedDouble(tag: T): Double = getTaggedNumber(tag).toDouble()
 
         override fun decodeTaggedChar(tag: T): Char {
-            val s = validateAndCast<String>(tag, ConfigValueType.STRING)
+            val s = validateAndCast<String>(tag)
             if (s.length != 1) throw SerializationException("String \"$s\" is not convertible to Char")
             return s[0]
         }
 
-        override fun decodeTaggedValue(tag: T): Any = getTaggedConfigValue(tag).unwrapped()
+        override fun decodeTaggedValue(tag: T): Any = getValueFromTaggedConfig(tag) { c, s -> c.getAnyRef(s) }
 
-        override fun decodeTaggedNotNullMark(tag: T) = getTaggedConfigValue(tag).valueType() != ConfigValueType.NULL
+        override fun decodeTaggedNotNullMark(tag: T) = getValueFromTaggedConfig(tag) { c, s -> !c.getIsNull(s) }
 
         override fun decodeTaggedEnum(tag: T, enumDescriptor: SerialDescriptor): Int {
-            val s = validateAndCast<String>(tag, ConfigValueType.STRING)
+            val s = validateAndCast<String>(tag)
             return enumDescriptor.getElementIndexOrThrow(s)
         }
     }
@@ -105,14 +115,6 @@ public sealed class Hocon(
             val originalName = getElementName(index)
             return if (!useConfigNamingConvention) originalName
             else originalName.replace(NAMING_CONVENTION_REGEX) { "-${it.value.lowercase()}" }
-        }
-
-        override fun getTaggedConfigValue(tag: String): ConfigValue {
-            return conf.getValue(tag)
-        }
-
-        override fun decodeTaggedNotNullMark(tag: String): Boolean {
-            return !conf.getIsNull(tag)
         }
 
         override fun decodeNotNullMark(): Boolean {
@@ -159,6 +161,10 @@ public sealed class Hocon(
                 else -> this
             }
         }
+
+        override fun <E> getValueFromTaggedConfig(tag: String, valueResolver: (Config, String) -> E): E {
+            return valueResolver(conf, tag)
+        }
     }
 
     private inner class ListConfigReader(private val list: ConfigList) : ConfigConverter<Int>() {
@@ -179,7 +185,11 @@ public sealed class Hocon(
             return if (ind > list.size - 1) DECODE_DONE else ind
         }
 
-        override fun getTaggedConfigValue(tag: Int): ConfigValue = list[tag]
+        override fun <E> getValueFromTaggedConfig(tag: Int, valueResolver: (Config, String) -> E): E {
+            val tagString = tag.toString()
+            val configValue = valueResolver(list[tag].atKey(tagString), tagString)
+            return configValue
+        }
     }
 
     private inner class MapConfigReader(map: ConfigObject) : ConfigConverter<Int>() {
@@ -210,13 +220,16 @@ public sealed class Hocon(
             return if (ind >= indexSize) DECODE_DONE else ind
         }
 
-        override fun getTaggedConfigValue(tag: Int): ConfigValue {
+        override fun <E> getValueFromTaggedConfig(tag: Int, valueResolver: (Config, String) -> E): E {
             val idx = tag / 2
-            return if (tag % 2 == 0) { // entry as string
-                ConfigValueFactory.fromAnyRef(keys[idx])
+            val tagString = tag.toString()
+            val configValue = if (tag % 2 == 0) { // entry as string
+                ConfigValueFactory.fromAnyRef(keys[idx]).atKey(tagString)
             } else {
-                values[idx]
+                val configValue = values[idx]
+                configValue.atKey(tagString)
             }
+            return valueResolver(configValue, tagString)
         }
     }
 
