@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class EmptyClassB : EmptyBase()
-// TODO: Uncomment when https://github.com/Kotlin/kotlinx.serialization/issues/1698 is resolved
+// TODO: Uncomment when https://youtrack.jetbrains.com/issue/KT-49865 is resolved
 //
 //@Serializable
 //open class Car : Vehicle() {
