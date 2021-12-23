@@ -1,3 +1,37 @@
+1.3.2 / 2021-12-23
+==================
+
+This release contains several features and bugfixes for core API as well as for HOCON format.
+It uses Kotlin 1.6.10 by default.
+
+### Serializing objects to HOCON
+
+It's now possible to encode Kotlin objects to `Config` values with new `Hocon.encodeToConfig` function.
+This feature may help edit existing configs inside Kotlin program or generate new ones.
+
+Big thanks to [Osip Fatkullin](https://github.com/osipxd) for [implementing](https://github.com/Kotlin/kotlinx.serialization/pull/1740) this.
+
+### Polymorphic default serializers
+
+As of now, `polymorphicDefault` clause inside `SerializersModule { }` builder specifies a
+fallback serializer to be used only during deserialization process. A new function has been introduced to allow setting
+fallback serializer for serialization: `polymorphicDefaultSerializer`.
+This function should ease serializing vast hierarchies of third-party or Java classes.
+
+Note that there are two new experimental functions, `polymorphicDefaultSerializer` and `polymorphicDefaultDeserializer`.
+To avoid naming confusion, we are going to deprecate `polymorphicDefault` in favor of `polymorphicDefaultDeserializer` in the next minor release (1.4.0).
+
+Credit for [the PR](https://github.com/Kotlin/kotlinx.serialization/pull/1686) goes to our contributor [Joseph Burton](https://github.com/Earthcomputer).
+
+### Other improvements
+
+  * HOCON: parse strings into integers and booleans if possible (#1795) (thanks to [tobiaslieber](https://github.com/tobiaslieber))
+  * Add an encodeCollection extensions (#1749) (thanks to [Nicklas Ansman Giertz](https://github.com/ansman))
+
+### Bugfixes
+
+  * Properly handle top-level value classes in encodeToJsonElement (#1777)
+  * Fix incorrect handling of object end when JsonTreeReader (JsonElement) is used with decodeToSequence (#1782)
 
 1.3.1 / 2021-11-11
 ==================
