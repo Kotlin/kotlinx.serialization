@@ -1,9 +1,7 @@
 package kotlinx.serialization.hocon
 
-import com.typesafe.config.ConfigFactory
 import kotlinx.serialization.*
-import org.junit.Assert.*
-import org.junit.Test
+import org.junit.*
 
 class HoconPolymorphismTest {
     @Serializable
@@ -40,114 +38,68 @@ class HoconPolymorphismTest {
 
     @Test
     fun testArrayDataClass() {
-        val config = ConfigFactory.parseString(
-                """{
-                sealed: [
-                  "data_class"
-                  {name="testArrayDataClass"
-                   intField=10}
-                ]
-                }""")
-        val root = arrayHocon.decodeFromConfig(CompositeClass.serializer(), config)
-        val sealed = root.sealed
-
-        assertTrue(sealed is Sealed.DataClassChild)
-        sealed as Sealed.DataClassChild
-        assertEquals("testArrayDataClass", sealed.name)
-        assertEquals(10, sealed.intField)
+        arrayHocon.assertStringFormAndRestored(
+            expected = "sealed: [ data_class, { name = testDataClass, intField = 1 } ]",
+            original = CompositeClass(Sealed.DataClassChild("testDataClass")),
+            serializer = CompositeClass.serializer(),
+        )
     }
 
     @Test
     fun testArrayObject() {
-        val config = ConfigFactory.parseString(
-                """{
-                sealed: [
-                  "object"
-                  {}
-                ]
-                }""")
-        val root = arrayHocon.decodeFromConfig(CompositeClass.serializer(), config)
-        val sealed = root.sealed
-
-        assertSame(Sealed.ObjectChild, sealed)
+        arrayHocon.assertStringFormAndRestored(
+            expected = "sealed: [ object, {} ]",
+            original = CompositeClass(Sealed.ObjectChild),
+            serializer = CompositeClass.serializer(),
+        )
     }
 
     @Test
     fun testObject() {
-        val config = ConfigFactory.parseString("""{type="object"}""")
-        val sealed = objectHocon.decodeFromConfig(Sealed.serializer(), config)
-
-        assertSame(Sealed.ObjectChild, sealed)
+        objectHocon.assertStringFormAndRestored(
+            expected = "type = object",
+            original = Sealed.ObjectChild,
+            serializer = Sealed.serializer(),
+        )
     }
 
     @Test
     fun testNestedDataClass() {
-        val config = ConfigFactory.parseString(
-                """{
-                sealed: {
-                  type="data_class"
-                  name="test name"
-                  intField=10
-                }
-                }""")
-        val root = objectHocon.decodeFromConfig(CompositeClass.serializer(), config)
-        val sealed = root.sealed
-
-        assertTrue(sealed is Sealed.DataClassChild)
-        sealed as Sealed.DataClassChild
-        assertEquals("test name", sealed.name)
-        assertEquals(10, sealed.intField)
+        objectHocon.assertStringFormAndRestored(
+            expected = "sealed { type = data_class, name = testDataClass, intField = 1 }",
+            original = CompositeClass(Sealed.DataClassChild("testDataClass")),
+            serializer = CompositeClass.serializer(),
+        )
     }
 
     @Test
-    fun testDataClass() {
-        val config = ConfigFactory.parseString(
-                """{
-                  type="data_class"
-                  name="testDataClass"
-                  intField=10
-                }""")
-        val sealed = objectHocon.decodeFromConfig(Sealed.serializer(), config)
-
-        assertTrue(sealed is Sealed.DataClassChild)
-        sealed as Sealed.DataClassChild
-        assertEquals("testDataClass", sealed.name)
-        assertEquals(10, sealed.intField)
+    fun testDataClassDecode() {
+        objectHocon.assertStringFormAndRestored(
+            expected = "type = data_class, name = testDataClass, intField = 1",
+            original = Sealed.DataClassChild("testDataClass"),
+            serializer = Sealed.serializer(),
+        )
     }
 
     @Test
-    fun testChangeDiscriminator() {
+    fun testChangedDiscriminator() {
         val hocon = Hocon(objectHocon) {
             classDiscriminator = "key"
         }
 
-        val config = ConfigFactory.parseString(
-                """{
-                  type="override"
-                  key="type_child"
-                  intField=11
-                }""")
-        val sealed = hocon.decodeFromConfig(Sealed.serializer(), config)
-
-        assertTrue(sealed is Sealed.TypeChild)
-        sealed as Sealed.TypeChild
-        assertEquals("override", sealed.type)
-        assertEquals(11, sealed.intField)
+        hocon.assertStringFormAndRestored(
+            expected = "type = override, key = type_child, intField = 2",
+            original = Sealed.TypeChild(type = "override"),
+            serializer = Sealed.serializer(),
+        )
     }
 
     @Test
-    fun testChangeTypePropertyName() {
-        val config = ConfigFactory.parseString(
-                """{
-                  my_type="override"
-                  type="annotated_type_child"
-                  intField=12
-                }""")
-        val sealed = objectHocon.decodeFromConfig(Sealed.serializer(), config)
-
-        assertTrue(sealed is Sealed.AnnotatedTypeChild)
-        sealed as Sealed.AnnotatedTypeChild
-        assertEquals("override", sealed.type)
-        assertEquals(12, sealed.intField)
+    fun testChangedTypePropertyName() {
+        objectHocon.assertStringFormAndRestored(
+            expected = "type = annotated_type_child, my_type = override, intField = 3",
+            original = Sealed.AnnotatedTypeChild(type = "override"),
+            serializer = Sealed.serializer(),
+        )
     }
 }
