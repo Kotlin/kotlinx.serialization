@@ -2,6 +2,7 @@ package kotlinx.serialization.hocon
 
 import kotlinx.serialization.*
 import org.junit.*
+import kotlin.test.*
 
 class HoconEncoderTest {
 
@@ -126,5 +127,46 @@ class HoconEncoderTest {
         val config = hocon.encodeToConfig(obj)
 
         config.assertContains("defInt = 42, defString = \"\"")
+    }
+
+    @Serializable
+    data class PrimitiveKeysMaps(
+        val number: Map<Int, String>,
+        val boolean: Map<Boolean, String>,
+        val nullable: Map<String?, String>,
+        val enum: Map<RegularEnum, String>,
+    )
+
+    @Test
+    fun testPrimitiveMapKeysEncoding() {
+        val obj = PrimitiveKeysMaps(
+            number = mapOf(42 to "these"),
+            boolean = mapOf(true to "keys"),
+            nullable = mapOf(null to "are"),
+            enum = mapOf(RegularEnum.VALUE to "strings"),
+        )
+        val config = Hocon.encodeToConfig(obj)
+
+        config.assertContains(
+            """
+                number { "42" = these }
+                boolean { "true" = keys }
+                nullable { "null" = are }
+                enum { "VALUE" = strings }
+            """
+        )
+    }
+
+    @Test
+    fun testEncodeMapWithUnsupportedKeys() {
+        assertWrongMapKey("LIST", listOf(1, 1, 2, 3, 5))
+        assertWrongMapKey("OBJECT", mapOf(1 to "one", 2 to "two"))
+    }
+
+    private fun assertWrongMapKey(type: String, key: Any?) {
+        val message = "Value of type '$type' can't be used in HOCON as a key in the map. " +
+                "It should have either primitive or enum kind."
+        val obj = mapOf(key to "value")
+        assertFailsWith<SerializationException>(message) { Hocon.encodeToConfig(obj) }
     }
 }
