@@ -32,8 +32,8 @@ class HoconRootMapTest {
 
     @Serializable
     data class CompositeValue(
-            val a: String,
-            val b: Int
+        val a: String,
+        val b: Int
     )
 
     @Test
@@ -58,6 +58,21 @@ class HoconRootMapTest {
 
         // root-level list in config not supported but nullable list can be decoded from empty object
         assertNull(Hocon.decodeFromConfig<List<String>?>(config))
+    }
+
+    @Test
+    fun testUnsupportedRootObjectsEncode() {
+        assertWrongRootValue("LIST", listOf(1, 1, 2, 3, 5))
+        assertWrongRootValue("NUMBER", 42)
+        assertWrongRootValue("BOOLEAN", false)
+        assertWrongRootValue("NULL", null)
+        assertWrongRootValue("STRING", "string")
+    }
+
+    private fun assertWrongRootValue(type: String, rootValue: Any?) {
+        val message = "Value of type '$type' can't be used at the root of HOCON Config. " +
+                "It should be either object or map."
+        assertFailsWith<SerializationException>(message) { Hocon.encodeToConfig(rootValue) }
     }
 
     @Ignore

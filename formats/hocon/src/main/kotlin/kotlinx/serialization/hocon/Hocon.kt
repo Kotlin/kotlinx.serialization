@@ -51,7 +51,7 @@ public sealed class Hocon(
 
         if (configValue !is ConfigObject) {
             throw SerializationException(
-                "Value of type '${configValue.valueType()}' can't be used at the root of HOCON Config." +
+                "Value of type '${configValue.valueType()}' can't be used at the root of HOCON Config. " +
                         "It should be either object or map."
             )
         }
