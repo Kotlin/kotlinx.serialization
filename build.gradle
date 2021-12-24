@@ -99,6 +99,11 @@ knit {
 // Build API docs for all modules with dokka before running Knit
 knitPrepare.dependsOn "dokka"
 
+apply plugin: 'org.jetbrains.dokka'
+dependencies {
+    dokkaPlugin("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version")
+}
+
 allprojects {
     group 'org.jetbrains.kotlinx'
 
