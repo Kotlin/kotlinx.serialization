@@ -146,7 +146,7 @@ All enum classes are serializable out of the box without having to mark them `@S
 as the following example shows.
 
 ```kotlin          
-// @Serializable annotation is not need for a enum classes
+// The @Serializable annotation is not needed for enum classes
 enum class Status { SUPPORTED }
         
 @Serializable
