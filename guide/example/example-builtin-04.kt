@@ -4,7 +4,7 @@ package example.exampleBuiltin04
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-// @Serializable annotation is not need for a enum classes
+// The @Serializable annotation is not needed for enum classes
 enum class Status { SUPPORTED }
         
 @Serializable
