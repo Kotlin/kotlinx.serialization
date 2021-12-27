@@ -14,41 +14,45 @@ def documentedSubprojects = ["kotlinx-serialization-core",
 subprojects {
     if (!(name in documentedSubprojects)) return
     apply plugin: 'org.jetbrains.dokka'
-    tasks.named('dokkaHtml') {
+    dependencies {
+        dokkaPlugin("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version")
+    }
+
+    tasks.named('dokkaHtmlPartial') {
         outputDirectory = file("build/dokka")
         dokkaSourceSets {
             configureEach {
                 includes.from(rootProject.file('dokka/moduledoc.md').path)
 
                 perPackageOption {
-                    prefix.set("kotlinx.serialization")
+                    matchingRegex.set("kotlinx\\.serialization(\$|\\.).*")
                     reportUndocumented.set(true)
                     skipDeprecated.set(true)
                 }
 
                 // Internal API
                 perPackageOption {
-                    prefix.set("kotlinx.serialization.internal")
+                    matchingRegex.set("kotlinx\\.serialization.internal(\$|\\.).*")
                     suppress.set(true)
                 }
 
                 // Workaround for typealias
                 perPackageOption {
-                    prefix.set("kotlinx.serialization.protobuf.internal")
+                    matchingRegex.set("kotlinx\\.serialization.protobuf.internal(\$|\\.).*")
                     suppress.set(true)
                     reportUndocumented.set(false)
                 }
 
                 // Deprecated migrations
                 perPackageOption {
-                    prefix.set("kotlinx.protobuf")
+                    matchingRegex.set("kotlinx\\.protobuf(\$|\\.).*")
                     reportUndocumented.set(true)
                     skipDeprecated.set(true)
                 }
 
                 // Deprecated migrations
                 perPackageOption {
-                    prefix.set("org.jetbrains.kotlinx.serialization.config")
+                    matchingRegex.set("org\\.jetbrains\\.kotlinx\\.serialization\\.config(\$|\\.).*")
                     reportUndocumented.set(false)
                     skipDeprecated.set(true)
                 }
