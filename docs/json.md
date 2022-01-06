@@ -408,6 +408,16 @@ control over the resulting JSON object:
 {"#class":"owned","name":"kotlinx.coroutines","owner":"kotlin"}
 ```
 
+Alternatively, the [@JsonClassDiscriminator](https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-json/kotlinx-serialization-json/kotlinx.serialization.json/-json-class-discriminator/index.html) annotation may be used:
+
+```
+@Serializable
+@JsonClassDiscriminator("#class")
+sealed class Project {
+    abstract val name: String
+}
+```
+
 <!--- TEST -->
 
 ## Json elements
