@@ -93,7 +93,7 @@ Allows serialization and deserialization of objects to and from [MsgPack](https:
 This library allows serialization and deserialization of objects into and from Android
 [SharedPreferences](https://developer.android.com/reference/android/content/SharedPreferences).
 
-### Toml (Multiplatform)
+### TOML (Multiplatform)
 
 * GitHub repo: [Peanuuutz/tomlkt](https://github.com/Peanuuutz/tomlkt)
 * Artifact ID: `net.peanuuutz:tomlkt`
