@@ -93,6 +93,16 @@ Allows serialization and deserialization of objects to and from [MsgPack](https:
 This library allows serialization and deserialization of objects into and from Android
 [SharedPreferences](https://developer.android.com/reference/android/content/SharedPreferences).
 
+### Toml (Multiplatform)
+
+* GitHub repo: [Peanuuutz/tomlkt](https://github.com/Peanuuutz/tomlkt)
+* Artifact ID: `net.peanuuutz:tomlkt`
+* Platform: all supported platforms
+
+This library allows serialization and deserialization of map-like entries to and from [TOML](https://toml.io/).
+Due to no support for Date Time in Kotlin Multiplatform without [additional library](https://github.com/Kotlin/kotlinx-datetime),
+currently these types are not available.
+
 ### XML
 * GitHub repo: [pdvrieze/xmlutil](https://github.com/pdvrieze/xmlutil)
 * Artifact ID: `io.github.pdvrieze.xmlutil:serialization`
