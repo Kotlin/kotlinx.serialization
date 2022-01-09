@@ -54,7 +54,7 @@ public sealed class AbstractCollectionSerializer<Element, Collection, Builder> :
 }
 
 @PublishedApi
-internal sealed class ListLikeSerializer<Element, Collection, Builder>(
+internal sealed class CollectionLikeSerializer<Element, Collection, Builder>(
     private val elementSerializer: KSerializer<Element>
 ) : AbstractCollectionSerializer<Element, Collection, Builder>() {
 
@@ -143,7 +143,7 @@ internal abstract class PrimitiveArrayBuilder<Array> internal constructor() {
 internal abstract class PrimitiveArraySerializer<Element, Array, Builder
 : PrimitiveArrayBuilder<Array>> internal constructor(
     primitiveSerializer: KSerializer<Element>
-) : ListLikeSerializer<Element, Array, Builder>(primitiveSerializer) {
+) : CollectionLikeSerializer<Element, Array, Builder>(primitiveSerializer) {
     final override val descriptor: SerialDescriptor = PrimitiveArrayDescriptor(primitiveSerializer.descriptor)
 
     final override fun Builder.builderSize(): Int = position
@@ -184,7 +184,7 @@ internal abstract class PrimitiveArraySerializer<Element, Array, Builder
 internal class ReferenceArraySerializer<ElementKlass : Any, Element : ElementKlass?>(
     private val kClass: KClass<ElementKlass>,
     eSerializer: KSerializer<Element>
-) : ListLikeSerializer<Element, Array<Element>, ArrayList<Element>>(eSerializer) {
+) : CollectionLikeSerializer<Element, Array<Element>, ArrayList<Element>>(eSerializer) {
     override val descriptor: SerialDescriptor = ArrayClassDesc(eSerializer.descriptor)
 
     override fun Array<Element>.collectionSize(): Int = size
@@ -203,7 +203,7 @@ internal class ReferenceArraySerializer<ElementKlass : Any, Element : ElementKla
 }
 
 @PublishedApi
-internal abstract class CollectionSerializer<E, C: Collection<E>, B>(element: KSerializer<E>) : ListLikeSerializer<E, C, B>(element) {
+internal abstract class CollectionSerializer<E, C: Collection<E>, B>(element: KSerializer<E>) : CollectionLikeSerializer<E, C, B>(element) {
     override fun C.collectionSize(): Int = size
     override fun C.collectionIterator(): Iterator<E> = iterator()
 }
