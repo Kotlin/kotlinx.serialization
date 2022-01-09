@@ -4,7 +4,6 @@
 
 // Configures publishing of Maven artifacts to MavenCentral
 
-apply plugin: 'maven'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 

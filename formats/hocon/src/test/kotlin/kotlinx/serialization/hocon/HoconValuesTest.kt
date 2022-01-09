@@ -7,8 +7,8 @@ package kotlinx.serialization.hocon
 import kotlin.test.*
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
-import org.junit.*
 import org.junit.Assert.*
+import org.junit.Test
 
 class HoconValuesTest {
 
