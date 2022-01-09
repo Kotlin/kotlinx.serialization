@@ -24,7 +24,7 @@ dependencies {
 
     api 'com.typesafe:config:1.4.1'
 
-    testCompile "org.jetbrains.kotlin:kotlin-test"
+    testCompile 'org.jetbrains.kotlin:kotlin-test'
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
