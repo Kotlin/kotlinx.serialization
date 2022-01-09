@@ -70,13 +70,13 @@ internal sealed class ListLikeSerializer<Element, Collection, Builder>(
         }
     }
 
-    protected final override fun readAll(decoder: CompositeDecoder, builder: Builder, startIndex: Int, size: Int) {
+    final override fun readAll(decoder: CompositeDecoder, builder: Builder, startIndex: Int, size: Int) {
         require(size >= 0) { "Size must be known in advance when using READ_ALL" }
         for (index in 0 until size)
             readElement(decoder, startIndex + index, builder, checkIndex = false)
     }
 
-    protected override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
         builder.insert(index, decoder.decodeSerializableElement(descriptor, index, elementSerializer))
     }
 }
@@ -160,7 +160,7 @@ internal abstract class PrimitiveArraySerializer<Element, Array, Builder
 
     protected abstract fun empty(): Array
 
-    protected abstract override fun readElement(
+    abstract override fun readElement(
         decoder: CompositeDecoder,
         index: Int,
         builder: Builder,
