@@ -84,7 +84,7 @@ Make sure you have the corresponding Kotlin plugin installed in the IDE, no addi
 You can set up the serialization plugin with the Kotlin plugin using 
 [Gradle plugins DSL](https://docs.gradle.org/current/userguide/plugins.html#sec:plugins_block):
 
-Kotlin DSL:
+##### Kotlin DSL:
 
 ```kotlin
 plugins {
@@ -93,7 +93,27 @@ plugins {
 }
 ```       
 
-Groovy DSL:
+##### Kotlin DSL with Gradle version catalog:
+
+When using the Gradle 7.0 [version catalog feature](https://docs.gradle.org/current/userguide/platforms.html), inside your `libs.versions.toml` file define the serialization plugin as follows:
+
+```
+[versions]
+kotlin = "1.6.10"
+
+[plugins]
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+```
+
+Then you can reference it in your module's `build.gradle.kts` using `alias()`:
+
+```kotlin
+plugins {
+    alias(libs.plugins.kotlinx.serialization)
+}
+```
+
+##### Groovy DSL:
 
 ```gradle
 plugins {
