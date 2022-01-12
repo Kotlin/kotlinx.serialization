@@ -59,13 +59,12 @@ This library allows serialization and deserialization of objects to and from [Av
 
 Allows serialization and deserialization of objects to and from [BSON](https://docs.mongodb.com/manual/reference/bson-types/).
 
-### Ktoml 
+### TOML (Multiplatform) 
 * GitHub repo: [akuleshov7/ktoml](https://github.com/akuleshov7/ktoml)
 * Artifact ID: `com.akuleshov7:ktoml-core`
-* Platforms: multiplatform, all Kotlin supported platforms
+* Platforms: all supported platforms
 
-Fully Native and Multiplatform Kotlin serialization library for serialization/deserialization of TOML format.
-This library contains no Java code and no Java dependencies and it implements multiplatform parser, decoder and encoder of TOML.
+Allows serialization and deserialization of config entries to and from [TOML](https://toml.io/) formatted strings or direct files.
 
 ### Minecraft NBT (Multiplatform)
 
@@ -92,16 +91,6 @@ Allows serialization and deserialization of objects to and from [MsgPack](https:
 
 This library allows serialization and deserialization of objects into and from Android
 [SharedPreferences](https://developer.android.com/reference/android/content/SharedPreferences).
-
-### TOML (Multiplatform)
-
-* GitHub repo: [Peanuuutz/tomlkt](https://github.com/Peanuuutz/tomlkt)
-* Artifact ID: `net.peanuuutz:tomlkt`
-* Platform: all supported platforms
-
-This library allows serialization and deserialization of map-like entries to and from [TOML](https://toml.io/).
-Due to no support for Date Time in Kotlin Multiplatform without [additional library](https://github.com/Kotlin/kotlinx-datetime),
-currently these types are not available.
 
 ### XML
 * GitHub repo: [pdvrieze/xmlutil](https://github.com/pdvrieze/xmlutil)
