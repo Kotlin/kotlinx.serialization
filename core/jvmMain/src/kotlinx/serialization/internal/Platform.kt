@@ -33,7 +33,7 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T: Any> Class<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
+internal fun <T: Any> Class<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
     if (isEnum && isNotAnnotated()) {
         return createEnumSerializer()
     }

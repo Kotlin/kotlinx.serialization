@@ -18,7 +18,7 @@ import kotlin.test.*
 
 class SerializerByTypeTest {
 
-    val json = Json { }
+    private val json = Json
 
     @Serializable
     data class Box<out T>(val a: T)
@@ -61,6 +61,7 @@ class SerializerByTypeTest {
         val myArr = arrayOf("a", "b", "c")
         val token = myArr::class.java
         assertSerializedWithType(token, """["a","b","c"]""", myArr)
+        myArr::class.assertKClassSerializer()
     }
 
     @Test
@@ -156,7 +157,6 @@ class SerializerByTypeTest {
         val myTriple = Triple("1", 2, Box(42))
         val token = typeTokenOf<Triple<String, Int, Box<Int>>>()
         assertSerializedWithType(token, """{"first":"1","second":2,"third":{"a":42}}""", myTriple)
-
     }
 
     @Test
@@ -175,6 +175,7 @@ class SerializerByTypeTest {
     fun testNamedCompanion() {
         val namedCompanion = WithNamedCompanion(1)
         assertSerializedWithType(WithNamedCompanion::class.java, """{"a":1}""", namedCompanion)
+        WithNamedCompanion::class.assertKClassSerializer()
     }
 
     @Test
@@ -182,6 +183,7 @@ class SerializerByTypeTest {
         val token = typeTokenOf<Int>()
         val serial = serializer(token)
         assertSame(Int.serializer() as KSerializer<*>, serial)
+        Int::class.assertKClassSerializer()
     }
 
     @Test
@@ -189,6 +191,7 @@ class SerializerByTypeTest {
         val token = typeTokenOf<SerializableObject>()
         val serial = serializer(token)
         assertEquals(SerializableObject.serializer().descriptor, serial.descriptor)
+        SerializableObject::class.assertKClassSerializer()
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -273,5 +276,9 @@ class SerializerByTypeTest {
         assertFailsWithMessage<SerializationException>("for class 'NonSerializable'") {
             serializer(typeTokenOf<kotlinx.serialization.Box<NonSerializable>>())
         }
+    }
+
+    private fun <T: Any> KClass<T>.assertKClassSerializer() {
+        assertEquals(serializerOrNull(), java.serializerOrNull())
     }
 }

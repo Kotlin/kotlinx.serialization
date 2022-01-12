@@ -74,6 +74,19 @@ public fun SerializersModule.serializer(type: Type): KSerializer<Any> =
 public fun SerializersModule.serializerOrNull(type: Type): KSerializer<Any>? =
     serializerByJavaTypeImpl(type, failOnMissingTypeArgSerializer = false)
 
+/**
+ * Retrieves a [KSerializer] for the given [java.lang.Class] instance of the Kotlin type or returns `null` if none is found.
+ * The given class must be annotated with [Serializable] or be one of the built-in types.
+ *
+ * The API avoids instantiation of the correspnding [KClass][Class.kotlin] on the best-effort basis.
+ *
+ * This is a [Class] counterpart of [KClass.serializerOrNull] with all the restrictions the original function implies,
+ * including the general recommendation to avoid uses of this API.
+ */
+@InternalSerializationApi
+public fun <T : Any> Class<T>.serializerOrNull(): KSerializer<T>? =
+    constructSerializerForGivenTypeArgs() ?: kotlin.builtinSerializerOrNull()
+
 @OptIn(ExperimentalSerializationApi::class)
 private fun SerializersModule.serializerByJavaTypeImpl(type: Type, failOnMissingTypeArgSerializer: Boolean = true): KSerializer<Any>? =
     when (type) {
