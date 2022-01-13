@@ -78,7 +78,7 @@ public fun SerializersModule.serializerOrNull(type: Type): KSerializer<Any>? =
  * Retrieves a [KSerializer] for the given [java.lang.Class] instance of the Kotlin type or returns `null` if none is found.
  * The given class must be annotated with [Serializable] or be one of the built-in types.
  *
- * The API avoids instantiation of the correspnding [KClass][Class.kotlin] on the best-effort basis.
+ * The API avoids instantiation of the corresponding [KClass][Class.kotlin] on the best-effort basis.
  *
  * This is a [Class] counterpart of [KClass.serializerOrNull] with all the restrictions the original function implies,
  * including the general recommendation to avoid uses of this API.
