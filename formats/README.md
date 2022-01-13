@@ -96,12 +96,11 @@ This library allows serialization and deserialization of objects into and from A
 ### XML
 * GitHub repo: [pdvrieze/xmlutil](https://github.com/pdvrieze/xmlutil)
 * Artifact ID: `io.github.pdvrieze.xmlutil:serialization`
-* Platform: JVM, Android, JavaScript
+* Platform: all supported platforms
 
 This library allows for reading and writing of XML documents with the serialization library.
-It is multiplatform, but as the xmlutil library (which handles the multiplatform xml bit) 
-delegates to platform specific parsers each platform needs to  be implemented for each platform 
-specifically. The library is designed to handle existing xml formats that use features that would 
+It is multiplatform, providing both a shared parser/writer for xml as well as platform-specific
+parsers where available. The library is designed to handle existing xml formats that use features that would 
 not be available in other formats such as JSON.
 
 ### YAML
