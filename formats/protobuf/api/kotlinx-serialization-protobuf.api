@@ -38,6 +38,13 @@ public final class kotlinx/serialization/protobuf/ProtoNumber$Impl : kotlinx/ser
 	public final synthetic fun number ()I
 }
 
+public abstract interface annotation class kotlinx/serialization/protobuf/ProtoPacked : java/lang/annotation/Annotation {
+}
+
+public final class kotlinx/serialization/protobuf/ProtoPacked$Impl : kotlinx/serialization/protobuf/ProtoPacked {
+	public fun <init> ()V
+}
+
 public abstract interface annotation class kotlinx/serialization/protobuf/ProtoType : java/lang/annotation/Annotation {
 	public abstract fun type ()Lkotlinx/serialization/protobuf/ProtoIntegerType;
 }

@@ -45,3 +45,12 @@ public enum class ProtoIntegerType(internal val signature: Long) {
 @Target(AnnotationTarget.PROPERTY)
 @ExperimentalSerializationApi
 public annotation class ProtoType(public val type: ProtoIntegerType)
+
+
+/**
+ * Instructs that a particular collection should be written as packed array
+ */
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY)
+@ExperimentalSerializationApi
+public annotation class ProtoPacked
