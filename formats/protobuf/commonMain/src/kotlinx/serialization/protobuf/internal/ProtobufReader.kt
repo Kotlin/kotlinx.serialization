@@ -16,6 +16,9 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
     public var currentType = -1
     private var pushBack = false
 
+    public val eof
+        get() = !pushBack && input.availableBytes == 0
+
     public fun readTag(): Int {
         if (pushBack) {
             pushBack = false

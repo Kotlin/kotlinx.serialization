@@ -8,7 +8,7 @@ import kotlinx.serialization.*
 
 internal class ByteArrayInput(private var array: ByteArray, private val endIndex: Int = array.size) {
     private var position: Int = 0
-    private val availableBytes: Int get() = endIndex - position
+    val availableBytes: Int get() = endIndex - position
 
     fun slice(size: Int): ByteArrayInput {
         ensureEnoughBytes(size)

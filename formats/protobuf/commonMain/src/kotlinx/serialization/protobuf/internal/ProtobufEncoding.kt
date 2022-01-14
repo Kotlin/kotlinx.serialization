@@ -125,6 +125,13 @@ internal open class ProtobufEncoder(
             serializeMap(serializer as SerializationStrategy<T>, value)
         }
         serializer.descriptor == ByteArraySerializer().descriptor -> serializeByteArray(value as ByteArray)
+
+        serializer is AbstractCollectionSerializer<*, *, *> && currentTagOrDefault.isPacked -> {
+            val output = ByteArrayOutput()
+            @OptIn(ExperimentalSerializationApi::class)
+            serializer.serialize(PackedArrayEncoder(proto, ProtobufWriter(output), serializer.descriptor), value)
+            serializeByteArray(output.toByteArray())
+        }
         else -> serializer.serialize(this, value)
     }
 
@@ -170,8 +177,8 @@ private class MapRepeatedEncoder(
     descriptor: SerialDescriptor
 ) : ObjectEncoder(proto, parentTag, parentWriter, descriptor = descriptor) {
     override fun SerialDescriptor.getTag(index: Int): ProtoDesc =
-        if (index % 2 == 0) ProtoDesc(1, (parentTag.integerType))
-        else ProtoDesc(2, (parentTag.integerType))
+        if (index % 2 == 0) ProtoDesc(1, (parentTag.integerType), parentTag.isPacked)
+        else ProtoDesc(2, (parentTag.integerType), parentTag.isPacked)
 }
 
 private class RepeatedEncoder(
@@ -192,7 +199,7 @@ private class NestedRepeatedEncoder(
 ) : ProtobufEncoder(proto, ProtobufWriter(stream), descriptor) {
     // all elements always have id = 1
     @OptIn(ExperimentalSerializationApi::class) // KT-46731
-    override fun SerialDescriptor.getTag(index: Int) = ProtoDesc(1, ProtoIntegerType.DEFAULT)
+    override fun SerialDescriptor.getTag(index: Int) = ProtoDesc(1, ProtoIntegerType.DEFAULT, curTag.isPacked)
 
     override fun endEncode(descriptor: SerialDescriptor) {
         writer.writeOutput(stream, curTag.protoId)

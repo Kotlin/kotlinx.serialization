@@ -32,9 +32,9 @@ public annotation class ProtoNumber(public val number: Int)
 @Suppress("NO_EXPLICIT_VISIBILITY_IN_API_MODE_WARNING")
 @ExperimentalSerializationApi
 public enum class ProtoIntegerType(internal val signature: Long) {
-    DEFAULT(0L shl 32),
-    SIGNED(1L shl 32),
-    FIXED(2L shl 32);
+    DEFAULT(0L shl 33),
+    SIGNED(1L shl 33),
+    FIXED(2L shl 33);
 }
 
 /**

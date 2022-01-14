@@ -107,7 +107,7 @@ internal open class ProtobufDecoder(
                     // repeated decoder expects the first tag to be read already
                     reader.readTag()
                     // all elements always have id = 1
-                    RepeatedDecoder(proto, reader, ProtoDesc(1, ProtoIntegerType.DEFAULT), descriptor)
+                    RepeatedDecoder(proto, reader, ProtoDesc(1, ProtoIntegerType.DEFAULT, tag.isPacked), descriptor)
                 } else {
                     RepeatedDecoder(proto, reader, tag, descriptor)
                 }
@@ -187,7 +187,15 @@ internal open class ProtobufDecoder(
         }
         deserializer.descriptor == ByteArraySerializer().descriptor -> deserializeByteArray(previousValue as ByteArray?) as T
         deserializer is AbstractCollectionSerializer<*, *, *> ->
-            (deserializer as AbstractCollectionSerializer<*, T, *>).merge(this, previousValue)
+            if (currentTagOrDefault.isPacked) {
+                // Use a reader that provides access only to the delimited space.
+                val sliceReader = ProtobufReader(reader.objectInput())
+
+                (deserializer as AbstractCollectionSerializer<*, T, *>)
+                    .merge(PackedArrayDecoder(proto, sliceReader, deserializer.descriptor), previousValue)
+            } else {
+                (deserializer as AbstractCollectionSerializer<*, T, *>).merge(this, previousValue)
+            }
         else -> deserializer.deserialize(this)
     }
 
@@ -321,8 +329,8 @@ private class MapEntryReader(
     descriptor: SerialDescriptor
 ) : ProtobufDecoder(proto, decoder, descriptor) {
     override fun SerialDescriptor.getTag(index: Int): ProtoDesc =
-        if (index % 2 == 0) ProtoDesc(1, (parentTag.integerType))
-        else ProtoDesc(2, (parentTag.integerType))
+        if (index % 2 == 0) ProtoDesc(1, (parentTag.integerType), parentTag.isPacked)
+        else ProtoDesc(2, (parentTag.integerType), parentTag.isPacked)
 }
 
 private fun makeDelimited(decoder: ProtobufReader, parentTag: ProtoDesc): ProtobufReader {
