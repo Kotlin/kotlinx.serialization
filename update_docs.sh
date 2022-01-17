@@ -46,9 +46,6 @@ fi
 # Copy manually new documentation and flat out kotlinx-serialization
 cp -r "$DIST_DIR"/* "$PAGES_DIR"
 
-# Hack for the GH pages
-cp $PAGES_DIR/-modules.html $PAGES_DIR/index.html
-
 # Add it all to git
 # git add *
 for file in $(find $PAGES_DIR -type f -name '*'); do git add $file; done
