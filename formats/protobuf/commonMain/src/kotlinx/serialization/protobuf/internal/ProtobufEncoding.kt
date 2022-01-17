@@ -198,7 +198,7 @@ private class RepeatedEncoder(
     override fun SerialDescriptor.getTag(index: Int) = curTag
 }
 
-private class NestedRepeatedEncoder(
+internal open class NestedRepeatedEncoder(
     proto: ProtoBuf,
     @JvmField val writer: ProtobufWriter,
     @JvmField val curTag: ProtoDesc,
