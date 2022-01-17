@@ -26,6 +26,11 @@ internal inline fun ProtoDesc(protoId: Int, type: ProtoIntegerType, packed: Bool
     return signature or protoId.toLong()
 }
 
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun ProtoDesc(protoId: Int, type: ProtoIntegerType): ProtoDesc {
+    return type.signature or protoId.toLong()
+}
+
 internal inline val ProtoDesc.protoId: Int get() = (this and Int.MAX_VALUE.toLong()).toInt()
 
 internal val ProtoDesc.integerType: ProtoIntegerType
@@ -34,6 +39,14 @@ internal val ProtoDesc.integerType: ProtoIntegerType
     ProtoIntegerType.SIGNED.signature -> ProtoIntegerType.SIGNED
     else -> ProtoIntegerType.FIXED
 }
+
+internal val SerialDescriptor.isPackable: Boolean
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    get() = when (kind) {
+        PrimitiveKind.STRING,
+        !is PrimitiveKind -> false
+        else -> true
+    }
 
 internal val ProtoDesc.isPacked: Boolean
     get() = (this and PACKEDMASK) != 0L

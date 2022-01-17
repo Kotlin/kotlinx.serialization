@@ -1,6 +1,7 @@
 package kotlinx.serialization.protobuf.internal
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.descriptors.StructureKind
@@ -22,11 +23,16 @@ internal class PackedArrayDecoder(
         // If we didn't parse a child yet we stay in this object. Only nexted lists would be handled
         // in the way they would be.
         if (nextIndex==0) return this
-        return super.beginStructure(descriptor)
+
+        throw SerializationException("Packing only supports primitive number types")
     }
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         if (reader.eof) return CompositeDecoder.DECODE_DONE
         return nextIndex++
+    }
+
+    override fun decodeTaggedString(tag: ProtoDesc): String {
+        throw SerializationException("Packing only supports primitive number types")
     }
 }

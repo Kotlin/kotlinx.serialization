@@ -120,15 +120,17 @@ internal open class ProtobufEncoder(
 
     override fun SerialDescriptor.getTag(index: Int) = extractParameters(index)
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) = when {
         serializer is MapLikeSerializer<*, *, *, *> -> {
             serializeMap(serializer as SerializationStrategy<T>, value)
         }
         serializer.descriptor == ByteArraySerializer().descriptor -> serializeByteArray(value as ByteArray)
 
-        serializer is AbstractCollectionSerializer<*, *, *> && currentTagOrDefault.isPacked -> {
+        serializer is AbstractCollectionSerializer<*, *, *> &&
+            serializer.descriptor.getElementDescriptor(0).isPackable &&
+                currentTagOrDefault.isPacked -> {
             val output = ByteArrayOutput()
-            @OptIn(ExperimentalSerializationApi::class)
             serializer.serialize(PackedArrayEncoder(proto, ProtobufWriter(output), serializer.descriptor), value)
             serializeByteArray(output.toByteArray())
         }

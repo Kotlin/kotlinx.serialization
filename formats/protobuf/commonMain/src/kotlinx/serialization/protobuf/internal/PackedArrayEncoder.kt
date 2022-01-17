@@ -1,6 +1,7 @@
 package kotlinx.serialization.protobuf.internal
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.protobuf.ProtoBuf
@@ -19,7 +20,15 @@ internal class PackedArrayEncoder constructor(proto: ProtoBuf, writer: ProtobufW
             outerStructEncoded = true
             return this
         } else {
-            return super.beginCollection(descriptor, collectionSize)
+            throw SerializationException("Packing only supports primitive number types")
         }
+    }
+
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
+        throw SerializationException("Packing only supports primitive number types")
+    }
+
+    override fun encodeTaggedString(tag: ProtoDesc, value: String) {
+        throw SerializationException("Packing only supports primitive number types")
     }
 }

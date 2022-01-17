@@ -107,7 +107,7 @@ internal open class ProtobufDecoder(
                     // repeated decoder expects the first tag to be read already
                     reader.readTag()
                     // all elements always have id = 1
-                    RepeatedDecoder(proto, reader, ProtoDesc(1, ProtoIntegerType.DEFAULT, tag.isPacked), descriptor)
+                    RepeatedDecoder(proto, reader, ProtoDesc(1, ProtoIntegerType.DEFAULT), descriptor)
                 } else {
                     RepeatedDecoder(proto, reader, tag, descriptor)
                 }
@@ -186,8 +186,9 @@ internal open class ProtobufDecoder(
             deserializeMap(deserializer as DeserializationStrategy<T>, previousValue)
         }
         deserializer.descriptor == ByteArraySerializer().descriptor -> deserializeByteArray(previousValue as ByteArray?) as T
-        deserializer is AbstractCollectionSerializer<*, *, *> ->
-            if (currentTagOrDefault.isPacked) {
+        deserializer is AbstractCollectionSerializer<*, *, *> -> {
+//            reader.readTag(); reader.pushBackTag()
+            if (reader.currentType == 2 && deserializer.descriptor.getElementDescriptor(0).isPackable) {
                 // Use a reader that provides access only to the delimited space.
                 val sliceReader = ProtobufReader(reader.objectInput())
 
@@ -196,6 +197,7 @@ internal open class ProtobufDecoder(
             } else {
                 (deserializer as AbstractCollectionSerializer<*, T, *>).merge(this, previousValue)
             }
+        }
         else -> deserializer.deserialize(this)
     }
 
@@ -329,8 +331,8 @@ private class MapEntryReader(
     descriptor: SerialDescriptor
 ) : ProtobufDecoder(proto, decoder, descriptor) {
     override fun SerialDescriptor.getTag(index: Int): ProtoDesc =
-        if (index % 2 == 0) ProtoDesc(1, (parentTag.integerType), parentTag.isPacked)
-        else ProtoDesc(2, (parentTag.integerType), parentTag.isPacked)
+        if (index % 2 == 0) ProtoDesc(1, (parentTag.integerType))
+        else ProtoDesc(2, (parentTag.integerType))
 }
 
 private fun makeDelimited(decoder: ProtobufReader, parentTag: ProtoDesc): ProtobufReader {

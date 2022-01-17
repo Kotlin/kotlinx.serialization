@@ -379,7 +379,7 @@ Field #3: 1D Fixed32 Value = 3, Hex = 03-00-00-00
 
 ### Lists as repeated fields
 
-Kotlin lists and other collections are representend as repeated fields. 
+By default, kotlin lists and other collections are representend as repeated fields. 
 In the protocol buffers when the list is empty there are no elements in the 
 stream with the corresponding number. For Kotlin Serialization you must explicitly specify a default of `emptyList()`
 for any property of a collection or map type. Otherwise you will not be able deserialize an empty
@@ -418,8 +418,6 @@ Data(a=[1, 2, 3], b=[])
 ```
 
 <!--- TEST -->
-
-> Packed repeated fields are not supported.
        
 In [ProtoBuf diagnostic mode](https://protogen.marcgravell.com/decode) the output is equivalent to the following:
 ```
@@ -427,6 +425,10 @@ Field #1: 08 Varint Value = 1, Hex = 01
 Field #1: 08 Varint Value = 2, Hex = 02
 Field #1: 08 Varint Value = 3, Hex = 03
 ```
+
+### Packed fields
+Collection types (not maps) can be written as packed fields when annotated with the `@ProtoPacked` annotation. Per the
+standard packed fields can only be used on primitive numeric types. 
 
 ## Properties (experimental)
 
