@@ -7,14 +7,22 @@
 
 package kotlinx.serialization.protobuf.internal
 
-import kotlinx.serialization.*
-import kotlinx.serialization.builtins.*
-import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.encoding.*
-import kotlinx.serialization.internal.*
-import kotlinx.serialization.modules.*
-import kotlinx.serialization.protobuf.*
-import kotlin.jvm.*
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.builtins.ByteArraySerializer
+import kotlinx.serialization.descriptors.PolymorphicKind
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.StructureKind
+import kotlinx.serialization.encoding.CompositeDecoder
+import kotlinx.serialization.internal.AbstractCollectionSerializer
+import kotlinx.serialization.internal.ElementMarker
+import kotlinx.serialization.internal.LinkedHashSetSerializer
+import kotlinx.serialization.internal.MapLikeSerializer
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.protobuf.ProtoBuf
+import kotlinx.serialization.protobuf.ProtoIntegerType
+import kotlin.jvm.JvmField
 
 internal open class ProtobufDecoder(
     @JvmField protected val proto: ProtoBuf,
@@ -109,7 +117,12 @@ internal open class ProtobufDecoder(
                     // all elements always have id = 1
                     RepeatedDecoder(proto, reader, ProtoDesc(1, ProtoIntegerType.DEFAULT), descriptor)
                 } else {
-                    RepeatedDecoder(proto, reader, tag, descriptor)
+                    if (reader.currentType == SIZE_DELIMITED && descriptor.getElementDescriptor(0).isPackable) {
+                        val sliceReader = ProtobufReader(reader.objectInput())
+                        PackedArrayDecoder(proto, sliceReader, descriptor)
+                    } else {
+                        RepeatedDecoder(proto, reader, tag, descriptor)
+                    }
                 }
             }
             StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> {
@@ -186,18 +199,8 @@ internal open class ProtobufDecoder(
             deserializeMap(deserializer as DeserializationStrategy<T>, previousValue)
         }
         deserializer.descriptor == ByteArraySerializer().descriptor -> deserializeByteArray(previousValue as ByteArray?) as T
-        deserializer is AbstractCollectionSerializer<*, *, *> -> {
-//            reader.readTag(); reader.pushBackTag()
-            if (reader.currentType == 2 && deserializer.descriptor.getElementDescriptor(0).isPackable) {
-                // Use a reader that provides access only to the delimited space.
-                val sliceReader = ProtobufReader(reader.objectInput())
-
-                (deserializer as AbstractCollectionSerializer<*, T, *>)
-                    .merge(PackedArrayDecoder(proto, sliceReader, deserializer.descriptor), previousValue)
-            } else {
-                (deserializer as AbstractCollectionSerializer<*, T, *>).merge(this, previousValue)
-            }
-        }
+        deserializer is AbstractCollectionSerializer<*, *, *> ->
+            (deserializer as AbstractCollectionSerializer<*, T, *>).merge(this, previousValue)
         else -> deserializer.deserialize(this)
     }
 

@@ -4,14 +4,19 @@
 @file:OptIn(ExperimentalSerializationApi::class)
 package kotlinx.serialization.protobuf.internal
 
-import kotlinx.serialization.*
-import kotlinx.serialization.builtins.*
-import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.encoding.*
-import kotlinx.serialization.internal.*
-
-import kotlinx.serialization.protobuf.*
-import kotlin.jvm.*
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.builtins.ByteArraySerializer
+import kotlinx.serialization.builtins.SetSerializer
+import kotlinx.serialization.descriptors.PolymorphicKind
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.StructureKind
+import kotlinx.serialization.encoding.CompositeEncoder
+import kotlinx.serialization.internal.MapLikeSerializer
+import kotlinx.serialization.protobuf.ProtoBuf
+import kotlinx.serialization.protobuf.ProtoIntegerType
+import kotlin.jvm.JvmField
 
 internal open class ProtobufEncoder(
     @JvmField protected val proto: ProtoBuf,
@@ -30,13 +35,17 @@ internal open class ProtobufEncoder(
     ): CompositeEncoder = when (descriptor.kind) {
         StructureKind.LIST -> {
             val tag = currentTagOrDefault
-            if (tag == MISSING_TAG) {
-                writer.writeInt(collectionSize)
-            }
-            if (this.descriptor.kind == StructureKind.LIST && tag != MISSING_TAG && this.descriptor != descriptor) {
-                NestedRepeatedEncoder(proto, writer, tag, descriptor)
+            if (tag.isPacked && descriptor.getElementDescriptor(0).isPackable) {
+                PackedArrayEncoder(proto, writer, currentTagOrDefault, descriptor)
             } else {
-                RepeatedEncoder(proto, writer, tag, descriptor)
+                if (tag == MISSING_TAG) {
+                    writer.writeInt(collectionSize)
+                }
+                if (this.descriptor.kind == StructureKind.LIST && tag != MISSING_TAG && this.descriptor != descriptor) {
+                    NestedRepeatedEncoder(proto, writer, tag, descriptor)
+                } else {
+                    RepeatedEncoder(proto, writer, tag, descriptor)
+                }
             }
         }
         StructureKind.MAP -> {
@@ -47,7 +56,13 @@ internal open class ProtobufEncoder(
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder = when (descriptor.kind) {
-        StructureKind.LIST -> RepeatedEncoder(proto, writer, currentTagOrDefault, descriptor)
+        StructureKind.LIST -> {
+            if (descriptor.getElementDescriptor(0).isPackable && currentTagOrDefault.isPacked) {
+                PackedArrayEncoder(proto, writer, currentTagOrDefault, descriptor)
+            } else {
+                RepeatedEncoder(proto, writer, currentTagOrDefault, descriptor)
+            }
+        }
         StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> {
             val tag = currentTagOrDefault
             if (tag == MISSING_TAG && descriptor == this.descriptor) this
@@ -120,20 +135,11 @@ internal open class ProtobufEncoder(
 
     override fun SerialDescriptor.getTag(index: Int) = extractParameters(index)
 
-    @OptIn(ExperimentalSerializationApi::class)
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) = when {
         serializer is MapLikeSerializer<*, *, *, *> -> {
             serializeMap(serializer as SerializationStrategy<T>, value)
         }
         serializer.descriptor == ByteArraySerializer().descriptor -> serializeByteArray(value as ByteArray)
-
-        serializer is AbstractCollectionSerializer<*, *, *> &&
-            serializer.descriptor.getElementDescriptor(0).isPackable &&
-                currentTagOrDefault.isPacked -> {
-            val output = ByteArrayOutput()
-            serializer.serialize(PackedArrayEncoder(proto, ProtobufWriter(output), serializer.descriptor), value)
-            serializeByteArray(output.toByteArray())
-        }
         else -> serializer.serialize(this, value)
     }
 
@@ -179,8 +185,8 @@ private class MapRepeatedEncoder(
     descriptor: SerialDescriptor
 ) : ObjectEncoder(proto, parentTag, parentWriter, descriptor = descriptor) {
     override fun SerialDescriptor.getTag(index: Int): ProtoDesc =
-        if (index % 2 == 0) ProtoDesc(1, (parentTag.integerType), parentTag.isPacked)
-        else ProtoDesc(2, (parentTag.integerType), parentTag.isPacked)
+        if (index % 2 == 0) ProtoDesc(1, (parentTag.integerType))
+        else ProtoDesc(2, (parentTag.integerType))
 }
 
 private class RepeatedEncoder(
@@ -201,7 +207,7 @@ private class NestedRepeatedEncoder(
 ) : ProtobufEncoder(proto, ProtobufWriter(stream), descriptor) {
     // all elements always have id = 1
     @OptIn(ExperimentalSerializationApi::class) // KT-46731
-    override fun SerialDescriptor.getTag(index: Int) = ProtoDesc(1, ProtoIntegerType.DEFAULT, curTag.isPacked)
+    override fun SerialDescriptor.getTag(index: Int) = ProtoDesc(1, ProtoIntegerType.DEFAULT)
 
     override fun endEncode(descriptor: SerialDescriptor) {
         writer.writeOutput(stream, curTag.protoId)

@@ -7,21 +7,24 @@ import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.protobuf.ProtoBuf
 
 @OptIn(ExperimentalSerializationApi::class)
-internal class PackedArrayEncoder constructor(proto: ProtoBuf, writer: ProtobufWriter, descriptor: SerialDescriptor) :
-    ProtobufEncoder(proto, writer, descriptor) {
+internal class PackedArrayEncoder(
+    proto: ProtoBuf,
+    writer: ProtobufWriter,
+    private val innerOutput: ByteArrayOutput,
+    val tag: ProtoDesc,
+    descriptor: SerialDescriptor
+) : ProtobufEncoder(proto, ProtobufWriter(innerOutput), descriptor) {
 
-    private var outerStructEncoded = false
+    constructor(proto: ProtoBuf, writer: ProtobufWriter, tag: ProtoDesc, descriptor: SerialDescriptor) :
+            this(proto, writer, ByteArrayOutput(), tag, descriptor)
+
+    private val outerWriter: ProtobufWriter = writer
 
     // Triggers not writing header
     override fun SerialDescriptor.getTag(index: Int): ProtoDesc = MISSING_TAG
 
     override fun beginCollection(descriptor: SerialDescriptor, collectionSize: Int): CompositeEncoder {
-        if (! outerStructEncoded) {
-            outerStructEncoded = true
-            return this
-        } else {
-            throw SerializationException("Packing only supports primitive number types")
-        }
+        throw SerializationException("Packing only supports primitive number types")
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
@@ -30,5 +33,9 @@ internal class PackedArrayEncoder constructor(proto: ProtoBuf, writer: ProtobufW
 
     override fun encodeTaggedString(tag: ProtoDesc, value: String) {
         throw SerializationException("Packing only supports primitive number types")
+    }
+
+    override fun endEncode(descriptor: SerialDescriptor) {
+        outerWriter.writeOutput(innerOutput, tag.protoId)
     }
 }

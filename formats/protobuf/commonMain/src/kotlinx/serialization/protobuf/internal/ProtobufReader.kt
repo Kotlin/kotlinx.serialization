@@ -5,9 +5,9 @@
 
 package kotlinx.serialization.protobuf.internal
 
-import kotlinx.serialization.*
-import kotlinx.serialization.protobuf.*
-import kotlin.jvm.*
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.protobuf.ProtoIntegerType
+import kotlin.jvm.JvmField
 
 internal class ProtobufReader(private val input: ByteArrayInput) {
     @JvmField
@@ -41,7 +41,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
             currentType = -1
             -1
         } else {
-            currentId = header shr 3 // has to be signed as currentId can be negative
+            currentId = header ushr 3
             currentType = header and 0b111
             currentId
         }
