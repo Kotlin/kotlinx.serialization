@@ -1,0 +1,335 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>CompositeDecoder</title>
+</head><body><link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script>
+    <script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script><link href="../../../styles/style.css" rel="Stylesheet"><link href="../../../styles/jetbrains-mono.css" rel="Stylesheet"><link href="../../../styles/main.css" rel="Stylesheet"><link href="../../../styles/prism.css" rel="Stylesheet"><link href="../../../styles/logo-styles.css" rel="Stylesheet"><script type="text/javascript" src="../../../scripts/clipboard.js" async></script><script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script><script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script><script type="text/javascript" src="../../../scripts/main.js" async></script><script type="text/javascript" src="../../../scripts/prism.js" async></script><script>const storage = localStorage.getItem("dokka-dark-mode")
+const savedDarkMode = storage ? JSON.parse(storage) : false
+if(savedDarkMode === true){
+    document.getElementsByTagName("html")[0].classList.add("theme-dark")
+}</script>
+
+  
+    <div class="navigation-wrapper" id="navigation-wrapper">
+      <div id="leftToggler"><span class="icon-toggler"></span></div>
+      <div class="library-name"><a href="../../../index.html"><span>kotlinx-serialization</span></a></div>
+      <div>1.3.2</div>
+      <div class="pull-right d-flex">
+        <div class="filter-section" id="filter-section"><button class="platform-tag platform-selector common-like" data-active="" data-filter=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+      </div>
+    </div>
+    <div id="container">
+      <div id="leftColumn">
+        <div id="sideMenu"></div>
+      </div>
+      <div id="main"><script type="text/javascript" src="../../../scripts/main.js"></script>
+        <div class="main-content" id="content" pageids="kotlinx-serialization-core::kotlinx.serialization.encoding/CompositeDecoder///PointingToDeclaration//1625214593">
+          <div class="breadcrumbs"><a href="../../index.html">kotlinx-serialization-core</a>/<a href="../index.html">kotlinx.serialization.encoding</a>/<a href="index.html">CompositeDecoder</a></div>
+          <div class="cover ">
+            <h1 class="cover"><span>Composite</span><wbr><span><span>Decoder</span></span></h1>
+            <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+              <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-active="" data-toggle=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">interface </span><a href="index.html">CompositeDecoder</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph"><a href="index.html">CompositeDecoder</a> is a part of decoding process that is bound to a particular structured part of the serialized form, described by the serial descriptor passed to <a href="../-decoder/begin-structure.html">Decoder.beginStructure</a>.</p><p class="paragraph">Typically, for unordered data, <a href="index.html">CompositeDecoder</a> is used by a serializer withing a <a href="decode-element-index.html">decodeElementIndex</a>-based loop that decodes all the required data one-by-one in any order and then terminates by calling <a href="end-structure.html">endStructure</a>. Please refer to <a href="decode-element-index.html">decodeElementIndex</a> for example of such loop.</p><p class="paragraph">All <code class="lang-kotlin">decode*</code> methods have <code class="lang-kotlin">index</code> and <code class="lang-kotlin">serialDescriptor</code> parameters with a strict semantics and constraints:</p><ul><li><p class="paragraph"><code class="lang-kotlin">descriptor</code> argument is always the same as one used in <a href="../-decoder/begin-structure.html">Decoder.beginStructure</a>.</p></li><li><p class="paragraph"><code class="lang-kotlin">index</code> of the element being decoded. For <a href="decode-sequentially.html">sequential</a> decoding, it is always a monotonic     sequence from <code class="lang-kotlin">0</code> to <code class="lang-kotlin">descriptor.elementsCount</code> and for indexing-loop it is always an index that <a href="decode-element-index.html">decodeElementIndex</a>     has returned from the last call.</p></li></ul><p class="paragraph">The symmetric interface for the serialization process is <a href="../-composite-encoder/index.html">CompositeEncoder</a>.</p><h3 class=""> Not stable for inheritance</h3><p class="paragraph"><code class="lang-kotlin">CompositeDecoder</code> interface is not stable for inheritance in 3rd party libraries, as new methods might be added to this interface or contracts of the existing methods can be changed.</p></div>            </div>
+          </div>
+          <div class="tabbedcontent">
+            <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Types">Types</button><button class="section-tab" data-togglable="Functions">Functions</button><button class="section-tab" data-togglable="Properties">Properties</button><button class="section-tab" data-togglable="Inheritors">Inheritors</button></div>
+            <div class="tabs-section-body">
+              <h2 class="">Types</h2>
+              <div class="table" data-togglable="Types"><a data-name="485589423%2FClasslikes%2F1625214593" anchor-label="Companion" id="485589423%2FClasslikes%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="-companion/index.html"><span><span>Companion</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="485589423%2FClasslikes%2F1625214593"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-active="" data-toggle=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">object </span><a href="-companion/index.html">Companion</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Results of <a href="decode-element-index.html">decodeElementIndex</a> used for decoding control flow.</p></div></div>                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <h2 class="">Functions</h2>
+              <div class="table" data-togglable="Functions"><a data-name="1241385423%2FFunctions%2F1625214593" anchor-label="decodeBooleanElement" id="1241385423%2FFunctions%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="decode-boolean-element.html"><span>decode</span><wbr><span>Boolean</span><wbr><span><span>Element</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1241385423%2FFunctions%2F1625214593"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-active="" data-toggle=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="decode-boolean-element.html"><span class="token function">decodeBooleanElement</span></a><span class="token punctuation">(</span>descriptor<span class="token operator">: </span><a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a><span class="token punctuation">, </span>index<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Decodes a boolean value from the underlying input. The resulting value is associated with the <a href="decode-boolean-element.html">descriptor</a> element at the given <a href="decode-boolean-element.html">index</a>. The element at the given index should have <a href="../../kotlinx.serialization.descriptors/-primitive-kind/-b-o-o-l-e-a-n/index.html">PrimitiveKind.BOOLEAN</a> kind.</p></div></div>                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="-2116877795%2FFunctions%2F1625214593" anchor-label="decodeByteElement" id="-2116877795%2FFunctions%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="decode-byte-element.html"><span>decode</span><wbr><span>Byte</span><wbr><span><span>Element</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2116877795%2FFunctions%2F1625214593"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-active="" data-toggle=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="decode-byte-element.html"><span class="token function">decodeByteElement</span></a><span class="token punctuation">(</span>descriptor<span class="token operator">: </span><a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a><span class="token punctuation">, </span>index<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte/index.html">Byte</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Decodes a single byte value from the underlying input. The resulting value is associated with the <a href="decode-byte-element.html">descriptor</a> element at the given <a href="decode-byte-element.html">index</a>. The element at the given index should have <a href="../../kotlinx.serialization.descriptors/-primitive-kind/-b-y-t-e/index.html">PrimitiveKind.BYTE</a> kind.</p></div></div>                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="1484245647%2FFunctions%2F1625214593" anchor-label="decodeCharElement" id="1484245647%2FFunctions%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="decode-char-element.html"><span>decode</span><wbr><span>Char</span><wbr><span><span>Element</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1484245647%2FFunctions%2F1625214593"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-active="" data-toggle=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="decode-char-element.html"><span class="token function">decodeCharElement</span></a><span class="token punctuation">(</span>descriptor<span class="token operator">: </span><a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a><span class="token punctuation">, </span>index<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-char/index.html">Char</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Decodes a 16-bit unicode character value from the underlying input. The resulting value is associated with the <a href="decode-char-element.html">descriptor</a> element at the given <a href="decode-char-element.html">index</a>. The element at the given index should have <a href="../../kotlinx.serialization.descriptors/-primitive-kind/-c-h-a-r/index.html">PrimitiveKind.CHAR</a> kind.</p></div></div>                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="-1090755613%2FFunctions%2F1625214593" anchor-label="decodeCollectionSize" id="-1090755613%2FFunctions%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="decode-collection-size.html"><span>decode</span><wbr><span>Collection</span><wbr><span><span>Size</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1090755613%2FFunctions%2F1625214593"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-active="" data-toggle=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="decode-collection-size.html"><span class="token function">decodeCollectionSize</span></a><span class="token punctuation">(</span>descriptor<span class="token operator">: </span><a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Method to decode collection size that may be called before the collection decoding. Collection type includes <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-collection/index.html">Collection</a>, <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a> and <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html">Array</a> (including primitive arrays). Method can return <code class="lang-kotlin">-1</code> if the size is not known in advance, though for <a href="decode-sequentially.html">sequential decoding</a> knowing precise size is a mandatory requirement.</p></div></div>                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="568578612%2FFunctions%2F1625214593" anchor-label="decodeDoubleElement" id="568578612%2FFunctions%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="decode-double-element.html"><span>decode</span><wbr><span>Double</span><wbr><span><span>Element</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="568578612%2FFunctions%2F1625214593"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-active="" data-toggle=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="decode-double-element.html"><span class="token function">decodeDoubleElement</span></a><span class="token punctuation">(</span>descriptor<span class="token operator">: </span><a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a><span class="token punctuation">, </span>index<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double/index.html">Double</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Decodes a 64-bit IEEE 754 floating point value from the underlying input. The resulting value is associated with the <a href="decode-double-element.html">descriptor</a> element at the given <a href="decode-double-element.html">index</a>. The element at the given index should have <a href="../../kotlinx.serialization.descriptors/-primitive-kind/-d-o-u-b-l-e/index.html">PrimitiveKind.DOUBLE</a> kind.</p></div></div>                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="374281676%2FFunctions%2F1625214593" anchor-label="decodeElementIndex" id="374281676%2FFunctions%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="decode-element-index.html"><span>decode</span><wbr><span>Element</span><wbr><span><span>Index</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="374281676%2FFunctions%2F1625214593"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-active="" data-toggle=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="decode-element-index.html"><span class="token function">decodeElementIndex</span></a><span class="token punctuation">(</span>descriptor<span class="token operator">: </span><a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Decodes the index of the next element to be decoded. Index represents a position of the current element in the serial descriptor element that can be found with <a href="../../kotlinx.serialization.descriptors/-serial-descriptor/get-element-index.html">SerialDescriptor.getElementIndex</a>.</p></div></div>                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="1995860571%2FFunctions%2F1625214593" anchor-label="decodeFloatElement" id="1995860571%2FFunctions%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="decode-float-element.html"><span>decode</span><wbr><span>Float</span><wbr><span><span>Element</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1995860571%2FFunctions%2F1625214593"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-active="" data-toggle=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="decode-float-element.html"><span class="token function">decodeFloatElement</span></a><span class="token punctuation">(</span>descriptor<span class="token operator">: </span><a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a><span class="token punctuation">, </span>index<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Decodes a 32-bit IEEE 754 floating point value from the underlying input. The resulting value is associated with the <a href="decode-float-element.html">descriptor</a> element at the given <a href="decode-float-element.html">index</a>. The element at the given index should have <a href="../../kotlinx.serialization.descriptors/-primitive-kind/-f-l-o-a-t/index.html">PrimitiveKind.FLOAT</a> kind.</p></div></div>                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="-1157644180%2FFunctions%2F1625214593" anchor-label="decodeInlineElement" id="-1157644180%2FFunctions%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="decode-inline-element.html"><span>decode</span><wbr><span>Inline</span><wbr><span><span>Element</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1157644180%2FFunctions%2F1625214593"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-active="" data-toggle=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="decode-inline-element.html"><span class="token function">decodeInlineElement</span></a><span class="token punctuation">(</span>descriptor<span class="token operator">: </span><a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a><span class="token punctuation">, </span>index<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-decoder/index.html">Decoder</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Returns <a href="../-decoder/index.html">Decoder</a> for decoding an underlying type of an inline class. Serializable inline class is described by the <a href="../../kotlinx.serialization.descriptors/-serial-descriptor/get-element-descriptor.html">child descriptor</a> of given <a href="decode-inline-element.html">descriptor</a> at <a href="decode-inline-element.html">index</a>.</p></div></div>                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="175842280%2FFunctions%2F1625214593" anchor-label="decodeIntElement" id="175842280%2FFunctions%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="decode-int-element.html"><span>decode</span><wbr><span>Int</span><wbr><span><span>Element</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="175842280%2FFunctions%2F1625214593"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-active="" data-toggle=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="decode-int-element.html"><span class="token function">decodeIntElement</span></a><span class="token punctuation">(</span>descriptor<span class="token operator">: </span><a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a><span class="token punctuation">, </span>index<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Decodes a 32-bit integer value from the underlying input. The resulting value is associated with the <a href="decode-int-element.html">descriptor</a> element at the given <a href="decode-int-element.html">index</a>. The element at the given index should have <a href="../../kotlinx.serialization.descriptors/-primitive-kind/-i-n-t/index.html">PrimitiveKind.INT</a> kind.</p></div></div>                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="1204035881%2FFunctions%2F1625214593" anchor-label="decodeLongElement" id="1204035881%2FFunctions%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="decode-long-element.html"><span>decode</span><wbr><span>Long</span><wbr><span><span>Element</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1204035881%2FFunctions%2F1625214593"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-active="" data-toggle=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="decode-long-element.html"><span class="token function">decodeLongElement</span></a><span class="token punctuation">(</span>descriptor<span class="token operator">: </span><a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a><span class="token punctuation">, </span>index<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html">Long</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Decodes a 64-bit integer value from the underlying input. The resulting value is associated with the <a href="decode-long-element.html">descriptor</a> element at the given <a href="decode-long-element.html">index</a>. The element at the given index should have <a href="../../kotlinx.serialization.descriptors/-primitive-kind/-l-o-n-g/index.html">PrimitiveKind.LONG</a> kind.</p></div></div>                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="-1619168686%2FFunctions%2F1625214593" anchor-label="decodeNullableSerializableElement" id="-1619168686%2FFunctions%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="decode-nullable-serializable-element.html"><span>decode</span><wbr><span>Nullable</span><wbr><span>Serializable</span><wbr><span><span>Element</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1619168686%2FFunctions%2F1625214593"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-active="" data-toggle=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="decode-nullable-serializable-element.html">T</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt; </span><a href="decode-nullable-serializable-element.html"><span class="token function">decodeNullableSerializableElement</span></a><span class="token punctuation">(</span>descriptor<span class="token operator">: </span><a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a><span class="token punctuation">, </span>index<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span>deserializer<span class="token operator">: </span><a href="../../kotlinx.serialization/-deserialization-strategy/index.html">DeserializationStrategy</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="decode-nullable-serializable-element.html">T</a><span class="token operator">?</span><span class="token operator">&gt;</span><span class="token punctuation">, </span>previousValue<span class="token operator">: </span><a href="decode-nullable-serializable-element.html">T</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">)</span><span class="token operator">: </span><a href="decode-nullable-serializable-element.html">T</a><span class="token operator">?</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Decodes nullable value of the type <a href="decode-nullable-serializable-element.html">T</a> with the given <a href="decode-nullable-serializable-element.html">deserializer</a>.</p></div></div>                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="-1029032744%2FFunctions%2F1625214593" anchor-label="decodeSequentially" id="-1029032744%2FFunctions%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="decode-sequentially.html"><span>decode</span><wbr><span><span>Sequentially</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1029032744%2FFunctions%2F1625214593"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-active="" data-toggle=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="decode-sequentially.html"><span class="token function">decodeSequentially</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Checks whether the current decoder supports strictly ordered decoding of the data without calling to <a href="decode-element-index.html">decodeElementIndex</a>. If the method returns <code class="lang-kotlin">true</code>, the caller might skip <a href="decode-element-index.html">decodeElementIndex</a> calls and start invoking <code class="lang-kotlin">decode*Element</code> directly, incrementing the index of the element one by one. This method can be called by serializers (either generated or user-defined) as a performance optimization, but there is no guarantee that the method will be ever called. Practically, it means that implementations that may benefit from sequential decoding should also support a regular <a href="decode-element-index.html">decodeElementIndex</a>-based decoding as well.</p></div></div>                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="2125644082%2FFunctions%2F1625214593" anchor-label="decodeSerializableElement" id="2125644082%2FFunctions%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="decode-serializable-element.html"><span>decode</span><wbr><span>Serializable</span><wbr><span><span>Element</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2125644082%2FFunctions%2F1625214593"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-active="" data-toggle=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="decode-serializable-element.html">T</a><span class="token operator">&gt; </span><a href="decode-serializable-element.html"><span class="token function">decodeSerializableElement</span></a><span class="token punctuation">(</span>descriptor<span class="token operator">: </span><a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a><span class="token punctuation">, </span>index<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span>deserializer<span class="token operator">: </span><a href="../../kotlinx.serialization/-deserialization-strategy/index.html">DeserializationStrategy</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="decode-serializable-element.html">T</a><span class="token operator">&gt;</span><span class="token punctuation">, </span>previousValue<span class="token operator">: </span><a href="decode-serializable-element.html">T</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">)</span><span class="token operator">: </span><a href="decode-serializable-element.html">T</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Decodes value of the type <a href="decode-serializable-element.html">T</a> with the given <a href="decode-serializable-element.html">deserializer</a>.</p></div></div>                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="-2111128517%2FFunctions%2F1625214593" anchor-label="decodeShortElement" id="-2111128517%2FFunctions%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="decode-short-element.html"><span>decode</span><wbr><span>Short</span><wbr><span><span>Element</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2111128517%2FFunctions%2F1625214593"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-active="" data-toggle=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="decode-short-element.html"><span class="token function">decodeShortElement</span></a><span class="token punctuation">(</span>descriptor<span class="token operator">: </span><a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a><span class="token punctuation">, </span>index<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-short/index.html">Short</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Decodes a 16-bit short value from the underlying input. The resulting value is associated with the <a href="decode-short-element.html">descriptor</a> element at the given <a href="decode-short-element.html">index</a>. The element at the given index should have <a href="../../kotlinx.serialization.descriptors/-primitive-kind/-s-h-o-r-t/index.html">PrimitiveKind.SHORT</a> kind.</p></div></div>                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="1462588916%2FFunctions%2F1625214593" anchor-label="decodeStringElement" id="1462588916%2FFunctions%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="decode-string-element.html"><span>decode</span><wbr><span>String</span><wbr><span><span>Element</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1462588916%2FFunctions%2F1625214593"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-active="" data-toggle=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="decode-string-element.html"><span class="token function">decodeStringElement</span></a><span class="token punctuation">(</span>descriptor<span class="token operator">: </span><a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a><span class="token punctuation">, </span>index<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Decodes a string value from the underlying input. The resulting value is associated with the <a href="decode-string-element.html">descriptor</a> element at the given <a href="decode-string-element.html">index</a>. The element at the given index should have <a href="../../kotlinx.serialization.descriptors/-primitive-kind/-s-t-r-i-n-g/index.html">PrimitiveKind.STRING</a> kind.</p></div></div>                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="874171000%2FFunctions%2F1625214593" anchor-label="endStructure" id="874171000%2FFunctions%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="end-structure.html"><span>end</span><wbr><span><span>Structure</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="874171000%2FFunctions%2F1625214593"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-active="" data-toggle=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="end-structure.html"><span class="token function">endStructure</span></a><span class="token punctuation">(</span>descriptor<span class="token operator">: </span><a href="../../kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Denotes the end of the structure associated with current decoder. For example, composite decoder of JSON format will expect (and parse) a closing bracket in the underlying input.</p></div></div>                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <h2 class="">Properties</h2>
+              <div class="table" data-togglable="Properties"><a data-name="-756197605%2FProperties%2F1625214593" anchor-label="serializersModule" id="-756197605%2FProperties%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="serializers-module.html">serializersModule</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-756197605%2FProperties%2F1625214593"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted" data-togglable="Properties">
+                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-active="" data-toggle=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"><a data-name="-756197605%2FProperties%2F1625214593" anchor-label="serializersModule" id="-756197605%2FProperties%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">val </span><a href="serializers-module.html">serializersModule</a><span class="token operator">: </span><a href="../../kotlinx.serialization.modules/-serializers-module/index.html">SerializersModule</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><a data-name="-756197605%2FProperties%2F1625214593" anchor-label="serializersModule" id="-756197605%2FProperties%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a><p class="paragraph">Context of the current decoding process, including contextual and polymorphic serialization and, potentially, a format-specific configuration.</p></div></div>                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <h2 class="">Inheritors</h2>
+              <div class="table" data-togglable="Inheritors"><a data-name="1365314358%2FInheritors%2F1625214593" anchor-label="AbstractDecoder" id="1365314358%2FInheritors%2F1625214593" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain"></a>
+                <div class="table-row" data-filterable-current=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain" data-filterable-set=":kotlinx-serialization-core:dokkaHtmlPartial/commonMain">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="../-abstract-decoder/index.html">AbstractDecoder</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1365314358%2FInheritors%2F1625214593"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="footer"><span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2022 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span></div>
+      </div>
+    </div>
+  
+</body></html>
+
+

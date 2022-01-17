@@ -1,6 +1,0 @@
-$dokka.format:html-v1
-$dokka.linkExtension:html
-$dokka.location:kotlinx.serialization.json.internal////PointingToDeclaration/kotlinx.serialization.json.internal.html
-kotlinx.serialization.json
-kotlinx.serialization.json.internal
-
