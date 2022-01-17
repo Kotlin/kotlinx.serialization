@@ -6,9 +6,14 @@
 
 package kotlinx.serialization.protobuf.internal
 
-import kotlinx.serialization.*
-import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.protobuf.*
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.protobuf.ProtoIntegerType
+import kotlinx.serialization.protobuf.ProtoNumber
+import kotlinx.serialization.protobuf.ProtoPacked
+import kotlinx.serialization.protobuf.ProtoType
 
 internal typealias ProtoDesc = Long
 internal const val VARINT = 0
@@ -55,7 +60,8 @@ internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
     val annotations = getElementAnnotations(index)
     var protoId: Int = index + 1
     var format: ProtoIntegerType = ProtoIntegerType.DEFAULT
-    var protoPacked: Boolean = false
+    var protoPacked = false
+
     for (i in annotations.indices) { // Allocation-friendly loop
         val annotation = annotations[i]
         if (annotation is ProtoNumber) {

@@ -116,13 +116,13 @@ internal open class ProtobufDecoder(
                     reader.readTag()
                     // all elements always have id = 1
                     RepeatedDecoder(proto, reader, ProtoDesc(1, ProtoIntegerType.DEFAULT), descriptor)
+
+                } else if (reader.currentType == SIZE_DELIMITED && descriptor.getElementDescriptor(0).isPackable) {
+                    val sliceReader = ProtobufReader(reader.objectInput())
+                    PackedArrayDecoder(proto, sliceReader, descriptor)
+
                 } else {
-                    if (reader.currentType == SIZE_DELIMITED && descriptor.getElementDescriptor(0).isPackable) {
-                        val sliceReader = ProtobufReader(reader.objectInput())
-                        PackedArrayDecoder(proto, sliceReader, descriptor)
-                    } else {
-                        RepeatedDecoder(proto, reader, tag, descriptor)
-                    }
+                    RepeatedDecoder(proto, reader, tag, descriptor)
                 }
             }
             StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> {
