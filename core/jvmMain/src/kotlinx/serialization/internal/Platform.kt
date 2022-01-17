@@ -28,6 +28,13 @@ internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KCl
 
 internal actual fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing = serializerNotRegistered()
 
+internal fun Class<*>.serializerNotRegistered(): Nothing {
+    throw SerializationException(
+        "Serializer for class '${simpleName}' is not found.\n" +
+                "Mark the class as @Serializable or provide the serializer explicitly."
+    )
+}
+
 internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
     return java.constructSerializerForGivenTypeArgs(*args)
 }

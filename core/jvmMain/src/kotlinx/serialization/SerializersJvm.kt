@@ -56,7 +56,7 @@ public fun serializerOrNull(type: Type): KSerializer<Any>? = EmptySerializersMod
  */
 @ExperimentalSerializationApi
 public fun SerializersModule.serializer(type: Type): KSerializer<Any> =
-    serializerByJavaTypeImpl(type, failOnMissingTypeArgSerializer = true) ?: type.kclass().serializerNotRegistered()
+    serializerByJavaTypeImpl(type, failOnMissingTypeArgSerializer = true) ?: type.prettyClass().serializerNotRegistered()
 
 /**
  * Retrieves serializer for the given reflective Java [type] using
@@ -73,19 +73,6 @@ public fun SerializersModule.serializer(type: Type): KSerializer<Any> =
 @ExperimentalSerializationApi
 public fun SerializersModule.serializerOrNull(type: Type): KSerializer<Any>? =
     serializerByJavaTypeImpl(type, failOnMissingTypeArgSerializer = false)
-
-/**
- * Retrieves a [KSerializer] for the given [java.lang.Class] instance of the Kotlin type or returns `null` if none is found.
- * The given class must be annotated with [Serializable] or be one of the built-in types.
- *
- * The API avoids instantiation of the corresponding [KClass][Class.kotlin] on the best-effort basis.
- *
- * This is a [Class] counterpart of [KClass.serializerOrNull] with all the restrictions the original function implies,
- * including the general recommendation to avoid uses of this API.
- */
-@InternalSerializationApi
-public fun <T : Any> Class<T>.serializerOrNull(): KSerializer<T>? =
-    constructSerializerForGivenTypeArgs() ?: kotlin.builtinSerializerOrNull()
 
 @OptIn(ExperimentalSerializationApi::class)
 private fun SerializersModule.serializerByJavaTypeImpl(type: Type, failOnMissingTypeArgSerializer: Boolean = true): KSerializer<Any>? =
@@ -126,8 +113,7 @@ private fun SerializersModule.serializerByJavaTypeImpl(type: Type, failOnMissing
                     // probably we should deprecate this method because it can't differ nullable vs non-nullable types
                     // since it uses Java TypeToken, not Kotlin one
                     val varargs = argsSerializers.map { it as KSerializer<Any?> }
-                    (rootClass.kotlin.constructSerializerForGivenTypeArgs(*(varargs.toTypedArray())) as? KSerializer<Any>)
-                            ?: reflectiveOrContextual(rootClass.kotlin as KClass<Any>, varargs)
+                    reflectiveOrContextual(rootClass as Class<Any>, varargs)
                 }
             }
         }
@@ -143,8 +129,15 @@ private fun SerializersModule.typeSerializer(type: Class<*>, failOnMissingTypeAr
         val arraySerializer = ArraySerializer(eType.kotlin as KClass<Any>, s)
         arraySerializer as KSerializer<Any>
     } else {
-        reflectiveOrContextual(type.kotlin as KClass<Any>, emptyList())
+        reflectiveOrContextual(type as Class<Any>, emptyList())
     }
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+private fun <T : Any> SerializersModule.reflectiveOrContextual(jClass: Class<T>, typeArgumentsSerializers: List<KSerializer<Any?>>): KSerializer<T>? {
+    jClass.constructSerializerForGivenTypeArgs(*typeArgumentsSerializers.toTypedArray())?.let { return it }
+    val kClass = jClass.kotlin
+    return kClass.builtinSerializerOrNull() ?: getContextual(kClass, typeArgumentsSerializers)
 }
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -167,11 +160,10 @@ private fun SerializersModule.genericArraySerializer(
     return ArraySerializer(kclass, serializer) as KSerializer<Any>
 }
 
-private fun Type.kclass(): KClass<*> = when (val it = this) {
-    is KClass<*> -> it
-    is Class<*> -> it.kotlin
-    is ParameterizedType -> it.rawType.kclass()
-    is WildcardType -> it.upperBounds.first().kclass()
-    is GenericArrayType -> it.genericComponentType.kclass()
+private fun Type.prettyClass(): Class<*> = when (val it = this) {
+    is Class<*> -> it
+    is ParameterizedType -> it.rawType.prettyClass()
+    is WildcardType -> it.upperBounds.first().prettyClass()
+    is GenericArrayType -> it.genericComponentType.prettyClass()
     else -> throw IllegalArgumentException("typeToken should be an instance of Class<?>, GenericArray, ParametrizedType or WildcardType, but actual type is $it ${it::class}")
 }

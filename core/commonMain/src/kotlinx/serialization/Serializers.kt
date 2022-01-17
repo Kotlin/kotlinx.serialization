@@ -126,7 +126,6 @@ internal fun <T : Any> SerializersModule.reflectiveOrContextual(kClass: KClass<T
     return kClass.serializerOrNull() ?: getContextual(kClass, typeArgumentsSerializers)
 }
 
-
 /**
  * Retrieves a [KSerializer] for the given [KClass].
  * The given class must be annotated with [Serializable] or be one of the built-in types.
