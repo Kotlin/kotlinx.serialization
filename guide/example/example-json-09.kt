@@ -9,7 +9,7 @@ val format = Json { allowSpecialFloatingPointValues = true }
 @Serializable
 class Data(
     val value: Double
-)                     
+)
 
 fun main() {
     val data = Data(Double.NaN)

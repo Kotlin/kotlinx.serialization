@@ -4,7 +4,7 @@ package example.exampleBasic02
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-@Serializable 
+@Serializable
 class Project(val name: String, val language: String)
 
 fun main() {

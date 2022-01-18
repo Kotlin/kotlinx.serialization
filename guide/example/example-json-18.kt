@@ -4,33 +4,19 @@ package example.exampleJson18
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-import kotlinx.serialization.builtins.*
-
 @Serializable
-abstract class Project {
-    abstract val name: String
-}                   
+class Project(val name: String, val language: String)
 
-@Serializable 
-data class BasicProject(override val name: String): Project() 
-
-            
-@Serializable
-data class OwnedProject(override val name: String, val owner: String) : Project()
-
-object ProjectSerializer : JsonContentPolymorphicSerializer<Project>(Project::class) {
-    override fun selectDeserializer(element: JsonElement) = when {
-        "owner" in element.jsonObject -> OwnedProject.serializer()
-        else -> BasicProject.serializer()
-    }
+object ProjectSerializer : JsonTransformingSerializer<Project>(Project.serializer()) {
+    override fun transformSerialize(element: JsonElement): JsonElement =
+        // Filter out top-level key value pair with the key "language" and the value "Kotlin"
+        JsonObject(element.jsonObject.filterNot {
+            (k, v) -> k == "language" && v.jsonPrimitive.content == "Kotlin"
+        })
 }
 
 fun main() {
-    val data = listOf(
-        OwnedProject("kotlinx.serialization", "kotlin"),
-        BasicProject("example")
-    )
-    val string = Json.encodeToString(ListSerializer(ProjectSerializer), data)
-    println(string)
-    println(Json.decodeFromString(ListSerializer(ProjectSerializer), string))
+    val data = Project("kotlinx.serialization", "Kotlin")
+    println(Json.encodeToString(data)) // using plugin-generated serializer
+    println(Json.encodeToString(ProjectSerializer, data)) // using custom serializer
 }

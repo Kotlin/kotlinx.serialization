@@ -94,42 +94,50 @@ class BasicSerializationTest {
     @Test
     fun testExampleClasses10() {
         captureOutput("ExampleClasses10") { example.exampleClasses10.main() }.verifyOutputLines(
-            "{\"name\":\"kotlinx.serialization\"}"
+            "{\"name\":\"Alice\",\"projects\":[{\"name\":\"kotlinx.serialization\",\"language\":\"Kotlin\"}]}",
+            "{\"name\":\"Bob\"}"
         )
     }
 
     @Test
     fun testExampleClasses11() {
-        captureOutput("ExampleClasses11") { example.exampleClasses11.main() }.verifyOutputLinesStart(
+        captureOutput("ExampleClasses11") { example.exampleClasses11.main() }.verifyOutputLines(
+            "{\"name\":\"kotlinx.serialization\"}"
+        )
+    }
+
+    @Test
+    fun testExampleClasses12() {
+        captureOutput("ExampleClasses12") { example.exampleClasses12.main() }.verifyOutputLinesStart(
             "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 52: Expected string literal but 'null' literal was found.",
             "Use 'coerceInputValues = true' in 'Json {}` builder to coerce nulls to default values."
         )
     }
 
     @Test
-    fun testExampleClasses12() {
-        captureOutput("ExampleClasses12") { example.exampleClasses12.main() }.verifyOutputLines(
-            "{\"name\":\"kotlinx.serialization\",\"owner\":{\"name\":\"kotlin\"}}"
-        )
-    }
-
-    @Test
     fun testExampleClasses13() {
         captureOutput("ExampleClasses13") { example.exampleClasses13.main() }.verifyOutputLines(
-            "{\"name\":\"kotlinx.serialization\",\"owner\":{\"name\":\"kotlin\"},\"maintainer\":{\"name\":\"kotlin\"}}"
+            "{\"name\":\"kotlinx.serialization\",\"owner\":{\"name\":\"kotlin\"}}"
         )
     }
 
     @Test
     fun testExampleClasses14() {
         captureOutput("ExampleClasses14") { example.exampleClasses14.main() }.verifyOutputLines(
-            "{\"a\":{\"contents\":42},\"b\":{\"contents\":{\"name\":\"kotlinx.serialization\",\"language\":\"Kotlin\"}}}"
+            "{\"name\":\"kotlinx.serialization\",\"owner\":{\"name\":\"kotlin\"},\"maintainer\":{\"name\":\"kotlin\"}}"
         )
     }
 
     @Test
     fun testExampleClasses15() {
         captureOutput("ExampleClasses15") { example.exampleClasses15.main() }.verifyOutputLines(
+            "{\"a\":{\"contents\":42},\"b\":{\"contents\":{\"name\":\"kotlinx.serialization\",\"language\":\"Kotlin\"}}}"
+        )
+    }
+
+    @Test
+    fun testExampleClasses16() {
+        captureOutput("ExampleClasses16") { example.exampleClasses16.main() }.verifyOutputLines(
             "{\"name\":\"kotlinx.serialization\",\"lang\":\"Kotlin\"}"
         )
     }

@@ -83,73 +83,80 @@ class JsonTest {
     @Test
     fun testExampleJson11() {
         captureOutput("ExampleJson11") { example.exampleJson11.main() }.verifyOutputLines(
-            "{\"name\":\"kotlinx.serialization\",\"language\":\"Kotlin\"}"
+            "{\"message\":{\"message_type\":\"my.app.BaseMessage\",\"message\":\"not found\"},\"error\":{\"message_type\":\"my.app.GenericError\",\"error_code\":404}}"
         )
     }
 
     @Test
     fun testExampleJson12() {
         captureOutput("ExampleJson12") { example.exampleJson12.main() }.verifyOutputLines(
-            "9042"
+            "{\"name\":\"kotlinx.serialization\",\"language\":\"Kotlin\"}"
         )
     }
 
     @Test
     fun testExampleJson13() {
         captureOutput("ExampleJson13") { example.exampleJson13.main() }.verifyOutputLines(
-            "{\"name\":\"kotlinx.serialization\",\"owner\":{\"name\":\"kotlin\"},\"forks\":[{\"votes\":42},{\"votes\":9000}]}"
+            "9042"
         )
     }
 
     @Test
     fun testExampleJson14() {
         captureOutput("ExampleJson14") { example.exampleJson14.main() }.verifyOutputLines(
-            "Project(name=kotlinx.serialization, language=Kotlin)"
+            "{\"name\":\"kotlinx.serialization\",\"owner\":{\"name\":\"kotlin\"},\"forks\":[{\"votes\":42},{\"votes\":9000}]}"
         )
     }
 
     @Test
     fun testExampleJson15() {
         captureOutput("ExampleJson15") { example.exampleJson15.main() }.verifyOutputLines(
-            "Project(name=kotlinx.serialization, users=[User(name=kotlin)])",
-            "Project(name=kotlinx.serialization, users=[User(name=kotlin), User(name=jetbrains)])"
+            "Project(name=kotlinx.serialization, language=Kotlin)"
         )
     }
 
     @Test
     fun testExampleJson16() {
         captureOutput("ExampleJson16") { example.exampleJson16.main() }.verifyOutputLines(
-            "{\"name\":\"kotlinx.serialization\",\"users\":{\"name\":\"kotlin\"}}"
+            "Project(name=kotlinx.serialization, users=[User(name=kotlin)])",
+            "Project(name=kotlinx.serialization, users=[User(name=kotlin), User(name=jetbrains)])"
         )
     }
 
     @Test
     fun testExampleJson17() {
         captureOutput("ExampleJson17") { example.exampleJson17.main() }.verifyOutputLines(
-            "{\"name\":\"kotlinx.serialization\",\"language\":\"Kotlin\"}",
-            "{\"name\":\"kotlinx.serialization\"}"
+            "{\"name\":\"kotlinx.serialization\",\"users\":{\"name\":\"kotlin\"}}"
         )
     }
 
     @Test
     fun testExampleJson18() {
         captureOutput("ExampleJson18") { example.exampleJson18.main() }.verifyOutputLines(
-            "[{\"name\":\"kotlinx.serialization\",\"owner\":\"kotlin\"},{\"name\":\"example\"}]",
-            "[OwnedProject(name=kotlinx.serialization, owner=kotlin), BasicProject(name=example)]"
+            "{\"name\":\"kotlinx.serialization\",\"language\":\"Kotlin\"}",
+            "{\"name\":\"kotlinx.serialization\"}"
         )
     }
 
     @Test
     fun testExampleJson19() {
         captureOutput("ExampleJson19") { example.exampleJson19.main() }.verifyOutputLines(
-            "[{\"name\":\"kotlinx.serialization\"},{\"error\":\"Not found\"}]",
-            "[Ok(data=Project(name=kotlinx.serialization)), Error(message=Not found)]"
+            "[{\"name\":\"kotlinx.serialization\",\"owner\":\"kotlin\"},{\"name\":\"example\"}]",
+            "[OwnedProject(name=kotlinx.serialization, owner=kotlin), BasicProject(name=example)]"
         )
     }
 
     @Test
     fun testExampleJson20() {
         captureOutput("ExampleJson20") { example.exampleJson20.main() }.verifyOutputLines(
+            "[{\"name\":\"kotlinx.serialization\"},{\"error\":\"Not found\"}]",
+            "[Ok(data=Project(name=kotlinx.serialization)), Error(message=Not found)]"
+        )
+    }
+
+    @Test
+    fun testExampleJson21() {
+        captureOutput("ExampleJson21") { example.exampleJson21.main() }.verifyOutputLines(
             "UnknownProject(name=example, details={\"type\":\"unknown\",\"maintainer\":\"Unknown\",\"license\":\"Apache 2.0\"})"
         )
     }

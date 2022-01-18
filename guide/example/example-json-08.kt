@@ -6,10 +6,10 @@ import kotlinx.serialization.json.*
 
 val format = Json { allowStructuredMapKeys = true }
 
-@Serializable 
+@Serializable
 data class Project(val name: String)
-    
-fun main() {             
+
+fun main() {
     val map = mapOf(
         Project("kotlinx.serialization") to "Serialization",
         Project("kotlinx.coroutines") to "Coroutines"

@@ -4,7 +4,7 @@ package example.exampleClasses07
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-@Serializable 
+@Serializable
 data class Project(val name: String, @Required val language: String = "Kotlin")
 
 fun main() {

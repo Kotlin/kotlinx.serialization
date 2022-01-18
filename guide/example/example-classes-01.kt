@@ -4,15 +4,15 @@ package example.exampleClasses01
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-@Serializable 
+@Serializable
 class Project(
     // name is a property with backing field -- serialized
     var name: String
 ) {
     var stars: Int = 0 // property with a backing field -- serialized
- 
+
     val path: String // getter only, no backing field -- not serialized
-        get() = "kotlin/$name"                                         
+        get() = "kotlin/$name"
 
     var id by ::name // delegated property -- not serialized
 }

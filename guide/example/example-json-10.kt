@@ -10,8 +10,8 @@ val format = Json { classDiscriminator = "#class" }
 sealed class Project {
     abstract val name: String
 }
-            
-@Serializable         
+
+@Serializable
 @SerialName("owned")
 class OwnedProject(override val name: String, val owner: String) : Project()
 

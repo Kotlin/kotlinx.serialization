@@ -6,7 +6,7 @@ import kotlinx.serialization.json.*
 
 val format = Json { coerceInputValues = true }
 
-@Serializable 
+@Serializable
 data class Project(val name: String, val language: String = "Kotlin")
 
 fun main() {

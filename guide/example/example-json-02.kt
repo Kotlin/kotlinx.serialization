@@ -6,14 +6,14 @@ import kotlinx.serialization.json.*
 
 val format = Json { isLenient = true }
 
-enum class Status { SUPPORTED }                                                     
+enum class Status { SUPPORTED }
 
-@Serializable 
+@Serializable
 data class Project(val name: String, val status: Status, val votes: Int)
-    
-fun main() {             
+
+fun main() {
     val data = format.decodeFromString<Project>("""
-        { 
+        {
             name   : kotlinx.serialization,
             status : SUPPORTED,
             votes  : "9000"
