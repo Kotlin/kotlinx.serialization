@@ -28,24 +28,34 @@ internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KCl
 
 internal actual fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing = serializerNotRegistered()
 
-@Suppress("UNCHECKED_CAST")
+internal fun Class<*>.serializerNotRegistered(): Nothing {
+    throw SerializationException(
+        "Serializer for class '${simpleName}' is not found.\n" +
+                "Mark the class as @Serializable or provide the serializer explicitly."
+    )
+}
+
 internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
-    val jClass = this.java
-    if (jClass.isEnum && jClass.isNotAnnotated()) {
-        return jClass.createEnumSerializer()
+    return java.constructSerializerForGivenTypeArgs(*args)
+}
+
+@Suppress("UNCHECKED_CAST")
+internal fun <T: Any> Class<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
+    if (isEnum && isNotAnnotated()) {
+        return createEnumSerializer()
     }
-    if (jClass.isInterface) {
+    if (isInterface) {
         return interfaceSerializer()
     }
     // Search for serializer defined on companion object.
-    val serializer = invokeSerializerOnCompanion<T>(jClass, *args)
+    val serializer = invokeSerializerOnCompanion<T>(this, *args)
     if (serializer != null) return serializer
     // Check whether it's serializable object
-    findObjectSerializer(jClass)?.let { return it }
+    findObjectSerializer()?.let { return it }
     // Search for default serializer if no serializer is defined in companion object.
     // It is required for named companions
     val fromNamedCompanion = try {
-        jClass.declaredClasses.singleOrNull { it.simpleName == ("\$serializer") }
+        declaredClasses.singleOrNull { it.simpleName == ("\$serializer") }
             ?.getField("INSTANCE")?.get(null) as? KSerializer<T>
     } catch (e: NoSuchFieldException) {
         null
@@ -63,31 +73,30 @@ private fun <T: Any> Class<T>.isNotAnnotated(): Boolean {
             getAnnotation(Polymorphic::class.java) == null
 }
 
-private fun <T: Any> KClass<T>.polymorphicSerializer(): KSerializer<T>? {
+private fun <T: Any> Class<T>.polymorphicSerializer(): KSerializer<T>? {
     /*
      * Last resort: check for @Polymorphic or Serializable(with = PolymorphicSerializer::class)
      * annotations.
      */
-    val jClass = java
-    if (jClass.getAnnotation(Polymorphic::class.java) != null) {
-        return PolymorphicSerializer(this)
+    if (getAnnotation(Polymorphic::class.java) != null) {
+        return PolymorphicSerializer(this.kotlin)
     }
-    val serializable = jClass.getAnnotation(Serializable::class.java)
+    val serializable = getAnnotation(Serializable::class.java)
     if (serializable != null && serializable.with == PolymorphicSerializer::class) {
-        return PolymorphicSerializer(this)
+        return PolymorphicSerializer(this.kotlin)
     }
     return null
 }
 
-private fun <T: Any> KClass<T>.interfaceSerializer(): KSerializer<T>? {
+private fun <T: Any> Class<T>.interfaceSerializer(): KSerializer<T>? {
     /*
      * Interfaces are @Polymorphic by default.
      * Check if it has no annotations or `@Serializable(with = PolymorphicSerializer::class)`,
      * otherwise bailout.
      */
-    val serializable = java.getAnnotation(Serializable::class.java)
+    val serializable = getAnnotation(Serializable::class.java)
     if (serializable == null || serializable.with == PolymorphicSerializer::class) {
-        return PolymorphicSerializer(this)
+        return PolymorphicSerializer(this.kotlin)
     }
     return null
 }
@@ -122,15 +131,15 @@ private fun <T : Any> Class<T>.createEnumSerializer(): KSerializer<T>? {
     return EnumSerializer(canonicalName, constants as Array<out Enum<*>>) as? KSerializer<T>
 }
 
-private fun <T : Any> findObjectSerializer(jClass: Class<T>): KSerializer<T>? {
+private fun <T : Any> Class<T>.findObjectSerializer(): KSerializer<T>? {
     // Check it is an object without using kotlin-reflect
     val field =
-        jClass.declaredFields.singleOrNull { it.name == "INSTANCE" && it.type == jClass && Modifier.isStatic(it.modifiers) }
+        declaredFields.singleOrNull { it.name == "INSTANCE" && it.type == this && Modifier.isStatic(it.modifiers) }
             ?: return null
     // Retrieve its instance and call serializer()
     val instance = field.get(null)
     val method =
-        jClass.methods.singleOrNull { it.name == "serializer" && it.parameterTypes.isEmpty() && it.returnType == KSerializer::class.java }
+        methods.singleOrNull { it.name == "serializer" && it.parameterTypes.isEmpty() && it.returnType == KSerializer::class.java }
             ?: return null
     val result = method.invoke(instance)
     @Suppress("UNCHECKED_CAST")

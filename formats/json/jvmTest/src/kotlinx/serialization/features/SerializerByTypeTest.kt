@@ -18,7 +18,7 @@ import kotlin.test.*
 
 class SerializerByTypeTest {
 
-    val json = Json { }
+    private val json = Json
 
     @Serializable
     data class Box<out T>(val a: T)
@@ -54,6 +54,12 @@ class SerializerByTypeTest {
     fun testGenericParameter() {
         val b = Box(42)
         assertSerializedWithType(IntBoxToken, """{"a":42}""", b)
+    }
+
+    @Test
+    fun testNestedGenericParameter() {
+        val b = Box(Box(239))
+        assertSerializedWithType(typeTokenOf<Box<Box<Int>>>(), """{"a":{"a":239}}""", b)
     }
 
     @Test
@@ -156,7 +162,6 @@ class SerializerByTypeTest {
         val myTriple = Triple("1", 2, Box(42))
         val token = typeTokenOf<Triple<String, Int, Box<Int>>>()
         assertSerializedWithType(token, """{"first":"1","second":2,"third":{"a":42}}""", myTriple)
-
     }
 
     @Test
@@ -272,6 +277,10 @@ class SerializerByTypeTest {
 
         assertFailsWithMessage<SerializationException>("for class 'NonSerializable'") {
             serializer(typeTokenOf<kotlinx.serialization.Box<NonSerializable>>())
+        }
+
+        assertFailsWithMessage<SerializationException>("for class 'NonSerializable'") {
+            serializer(typeTokenOf<Array<NonSerializable>>())
         }
     }
 }
