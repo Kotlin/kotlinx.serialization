@@ -427,9 +427,9 @@ sealed class ErrorClass: Base()
 
 > To learn more about inheritable serial annotations, see documentation for [InheritableSerialInfo].
 
-Note that it is not possible to explicitly specify different class discriminators in subclasses of `Base`. Only hierarchies with empty intersection can have different discriminators.
+Note that it is not possible to explicitly specify different class discriminators in subclasses of `Base`. Only hierarchies with empty intersections can have different discriminators.
 
-Discriminator specified in the annotation have priority over discriminator in Json configuration:
+Discriminator specified in the annotation has priority over discriminator in Json configuration:
 
 <!--- INCLUDE
 

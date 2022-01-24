@@ -456,7 +456,7 @@ data class Project(
 )
 ```
 
-This annotation instructs framework to always serialize property, regardless of its value or format settings.
+This annotation instructs the framework to always serialize property, regardless of its value or format settings.
 It's also possible to tweak it into the opposite behavior using [EncodeDefault.Mode] parameter:
 
 ```kotlin
