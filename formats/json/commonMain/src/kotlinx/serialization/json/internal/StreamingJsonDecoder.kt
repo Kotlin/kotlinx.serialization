@@ -38,6 +38,7 @@ internal open class StreamingJsonDecoder(
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         val newMode = json.switchMode(descriptor)
+        lexer.path.pushDescriptor(descriptor)
         lexer.consumeNextToken(newMode.begin)
         checkLeadingComma()
         return when (newMode) {
@@ -63,7 +64,10 @@ internal open class StreamingJsonDecoder(
         if (json.configuration.ignoreUnknownKeys && descriptor.elementsCount == 0) {
             skipLeftoverElements(descriptor)
         }
+        // First consume the object so we know it's correct
         lexer.consumeNextToken(mode.end)
+        // Then cleanup the path
+        lexer.path.popDescriptor()
     }
 
     private fun skipLeftoverElements(descriptor: SerialDescriptor) {
@@ -87,12 +91,37 @@ internal open class StreamingJsonDecoder(
         }
     }
 
+    override fun <T> decodeSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        deserializer: DeserializationStrategy<T>,
+        previousValue: T?
+    ): T {
+        val isMapKey = mode == WriteMode.MAP && index and 1 == 0
+        // Reset previous key
+        if (isMapKey) {
+            lexer.path.resetCurrentMapKey()
+        }
+        // Deserialize the key
+        val value = super.decodeSerializableElement(descriptor, index, deserializer, previousValue)
+        // Put the key to the path
+        if (isMapKey) {
+            lexer.path.updateCurrentMapKey(value)
+        }
+        return value
+    }
+
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-        return when (mode) {
+        val index = when (mode) {
             WriteMode.OBJ -> decodeObjectIndex(descriptor)
             WriteMode.MAP -> decodeMapIndex()
             else -> decodeListIndex() // Both for LIST and default polymorphic
         }
+        // The element of the next index that will be decoded
+        if (mode != WriteMode.MAP) {
+            lexer.path.updateDescriptorIndex(index)
+        }
+        return index
     }
 
     private fun decodeMapIndex(): Int {
@@ -262,7 +291,7 @@ internal open class StreamingJsonDecoder(
         else super.decodeInline(inlineDescriptor)
 
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
-        return enumDescriptor.getJsonNameIndexOrThrow(json, decodeString())
+        return enumDescriptor.getJsonNameIndexOrThrow(json, decodeString(), " at path " + lexer.path.getPath())
     }
 }
 

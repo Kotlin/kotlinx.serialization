@@ -38,19 +38,28 @@ internal fun InvalidFloatingPointEncoded(value: Number, output: String) = JsonEn
             "Current output: ${output.minify()}"
 )
 
+
+// Extension on JSON reader and fail immediately
+internal fun AbstractJsonLexer.throwInvalidFloatingPointDecoded(result: Number): Nothing {
+    fail("Unexpected special floating-point value $result. By default, " +
+            "non-finite floating point values are prohibited because they do not conform JSON specification",
+        hint = specialFlowingValuesHint)
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+internal fun InvalidKeyKindException(keyDescriptor: SerialDescriptor) = JsonEncodingException(
+    "Value of type '${keyDescriptor.serialName}' can't be used in JSON as a key in the map. " +
+            "It should have either primitive or enum kind, but its kind is '${keyDescriptor.kind}'.\n" +
+            allowStructuredMapKeysHint
+)
+
+// Exceptions for tree-based decoder
+
 internal fun InvalidFloatingPointEncoded(value: Number, key: String, output: String) =
     JsonEncodingException(unexpectedFpErrorMessage(value, key, output))
 
 internal fun InvalidFloatingPointDecoded(value: Number, key: String, output: String) =
     JsonDecodingException(-1, unexpectedFpErrorMessage(value, key, output))
-
-// Extension on JSON reader and fail immediately
-internal fun AbstractJsonLexer.throwInvalidFloatingPointDecoded(result: Number): Nothing {
-    fail("Unexpected special floating-point value $result. By default, " +
-            "non-finite floating point values are prohibited because they do not conform JSON specification. " +
-            specialFlowingValuesHint
-    )
-}
 
 private fun unexpectedFpErrorMessage(value: Number, key: String, output: String): String {
     return "Unexpected special floating-point value $value with key $key. By default, " +
@@ -64,13 +73,6 @@ internal fun UnknownKeyException(key: String, input: String) = JsonDecodingExcep
     "Encountered unknown key '$key'.\n" +
             "$ignoreUnknownKeysHint\n" +
             "Current input: ${input.minify()}"
-)
-
-@OptIn(ExperimentalSerializationApi::class)
-internal fun InvalidKeyKindException(keyDescriptor: SerialDescriptor) = JsonEncodingException(
-    "Value of type '${keyDescriptor.serialName}' can't be used in JSON as a key in the map. " +
-            "It should have either primitive or enum kind, but its kind is '${keyDescriptor.kind}'.\n" +
-            allowStructuredMapKeysHint
 )
 
 private fun CharSequence.minify(offset: Int = -1): CharSequence {

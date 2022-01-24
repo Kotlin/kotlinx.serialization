@@ -57,10 +57,10 @@ internal fun SerialDescriptor.getJsonNameIndex(json: Json, name: String): Int {
  * Throws on [CompositeDecoder.UNKNOWN_NAME]
  */
 @OptIn(ExperimentalSerializationApi::class)
-internal fun SerialDescriptor.getJsonNameIndexOrThrow(json: Json, name: String): Int {
+internal fun SerialDescriptor.getJsonNameIndexOrThrow(json: Json, name: String, suffix: String = ""): Int {
     val index = getJsonNameIndex(json, name)
     if (index == CompositeDecoder.UNKNOWN_NAME)
-        throw SerializationException("$serialName does not contain element with name '$name'")
+        throw SerializationException("$serialName does not contain element with name '$name'$suffix")
     return index
 }
 

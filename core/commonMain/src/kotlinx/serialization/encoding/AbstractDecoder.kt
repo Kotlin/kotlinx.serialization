@@ -57,12 +57,12 @@ public abstract class AbstractDecoder : Decoder, CompositeDecoder {
     final override fun decodeCharElement(descriptor: SerialDescriptor, index: Int): Char = decodeChar()
     final override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String = decodeString()
 
-    final override fun decodeInlineElement(
+    override fun decodeInlineElement(
         descriptor: SerialDescriptor,
         index: Int
     ): Decoder = decodeInline(descriptor.getElementDescriptor(index))
 
-    final override fun <T> decodeSerializableElement(
+    override fun <T> decodeSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
         deserializer: DeserializationStrategy<T>,
