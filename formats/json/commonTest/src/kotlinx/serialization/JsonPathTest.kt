@@ -28,6 +28,11 @@ class JsonPathTest : JsonTestBase() {
     }
 
     @Test
+    fun testMissingKey() {
+        expectPath("$.i.d[1]") { Json.decodeFromString<Outer>("""{"a":42, "i":{"d":{1:{}}""") }
+    }
+
+    @Test
     fun testMalformedRootObject() {
         expectPath("$") { Json.decodeFromString<Outer>("""{{""") }
     }

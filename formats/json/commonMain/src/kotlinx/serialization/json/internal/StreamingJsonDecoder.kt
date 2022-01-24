@@ -32,8 +32,13 @@ internal open class StreamingJsonDecoder(
 
     override fun decodeJsonElement(): JsonElement = JsonTreeReader(json.configuration, lexer).read()
 
+    @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-        return decodeSerializableValuePolymorphic(deserializer)
+        try {
+            return decodeSerializableValuePolymorphic(deserializer)
+        } catch (e: MissingFieldException) {
+            throw MissingFieldException(e.message + " at path: " + lexer.path.getPath(), e)
+        }
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
