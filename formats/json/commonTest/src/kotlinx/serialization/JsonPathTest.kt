@@ -33,6 +33,13 @@ class JsonPathTest : JsonTestBase() {
     }
 
     @Test
+    fun testUnknownKeyIsProperlyReported() {
+        expectPath("$.i") { Json.decodeFromString<Outer>("""{"a":42, "i":{"foo":42}""") }
+        expectPath("$") { Json.decodeFromString<Outer>("""{"x":{}, "a": 42}""") }
+//        Json.decodeFromString<Outer>("""{"a":42, "x":{}}""")
+    }
+
+    @Test
     fun testMalformedRootObject() {
         expectPath("$") { Json.decodeFromString<Outer>("""{{""") }
     }
@@ -58,6 +65,7 @@ class JsonPathTest : JsonTestBase() {
         expectPath("$.i.d\n") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "d": {"foo": {}}""") }
         expectPath("$.i.d\n") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "d": {42: {"s":"s"}, 42.0:{}}""") }
         expectPath("$\n") { Json.decodeFromString<Map<Int, String>>("""{"foo":"bar"}""") }
+        expectPath("$\n") { Json.decodeFromString<Map<Int, String>>("""{42:"bar", "foo":"bar"}""") }
     }
 
     @Test

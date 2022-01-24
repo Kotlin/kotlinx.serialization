@@ -51,7 +51,7 @@ class BasicSerializationTest {
     @Test
     fun testExampleClasses04() {
         captureOutput("ExampleClasses04") { example.exampleClasses04.main() }.verifyOutputLinesStart(
-            "Exception in thread \"main\" kotlinx.serialization.MissingFieldException: Field 'language' is required for type with serial name 'example.exampleClasses04.Project', but it was missing"
+            "Exception in thread \"main\" kotlinx.serialization.MissingFieldException: Field 'language' is required for type with serial name 'example.exampleClasses04.Project', but it was missing at path: $"
         )
     }
 
@@ -72,14 +72,14 @@ class BasicSerializationTest {
     @Test
     fun testExampleClasses07() {
         captureOutput("ExampleClasses07") { example.exampleClasses07.main() }.verifyOutputLinesStart(
-            "Exception in thread \"main\" kotlinx.serialization.MissingFieldException: Field 'language' is required for type with serial name 'example.exampleClasses07.Project', but it was missing"
+            "Exception in thread \"main\" kotlinx.serialization.MissingFieldException: Field 'language' is required for type with serial name 'example.exampleClasses07.Project', but it was missing at path: $"
         )
     }
 
     @Test
     fun testExampleClasses08() {
         captureOutput("ExampleClasses08") { example.exampleClasses08.main() }.verifyOutputLinesStart(
-            "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 42: Encountered an unknown key 'language'.",
+            "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 42: Encountered an unknown key 'language' at path: $.name",
             "Use 'ignoreUnknownKeys = true' in 'Json {}' builder to ignore unknown keys."
         )
     }
@@ -101,7 +101,7 @@ class BasicSerializationTest {
     @Test
     fun testExampleClasses11() {
         captureOutput("ExampleClasses11") { example.exampleClasses11.main() }.verifyOutputLinesStart(
-            "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 52: Expected string literal but 'null' literal was found.",
+            "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 52: Expected string literal but 'null' literal was found at path: $.language",
             "Use 'coerceInputValues = true' in 'Json {}` builder to coerce nulls to default values."
         )
     }

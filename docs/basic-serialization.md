@@ -297,7 +297,7 @@ fun main() {
 It produces the exception:
 
 ```text
-Exception in thread "main" kotlinx.serialization.MissingFieldException: Field 'language' is required for type with serial name 'example.exampleClasses04.Project', but it was missing
+Exception in thread "main" kotlinx.serialization.MissingFieldException: Field 'language' is required for type with serial name 'example.exampleClasses04.Project', but it was missing at path: $
 ```   
 
 <!--- TEST LINES_START -->
@@ -383,7 +383,7 @@ fun main() {
 We get the following exception.
 
 ```text
-Exception in thread "main" kotlinx.serialization.MissingFieldException: Field 'language' is required for type with serial name 'example.exampleClasses07.Project', but it was missing
+Exception in thread "main" kotlinx.serialization.MissingFieldException: Field 'language' is required for type with serial name 'example.exampleClasses07.Project', but it was missing at path: $
 ```   
 
 <!--- TEST LINES_START -->
@@ -411,7 +411,7 @@ Attempts to explicitly specify its value in the serial format, even if the speci
 value is equal to the default one, produces the following exception.
 
 ```text
-Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 42: Encountered an unknown key 'language'.
+Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 42: Encountered an unknown key 'language' at path: $.name
 Use 'ignoreUnknownKeys = true' in 'Json {}' builder to ignore unknown keys.
 ```   
 
@@ -493,7 +493,7 @@ Even though the `language` property has a default value, it is still an error to
 the `null` value to it.
 
 ```text
-Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 52: Expected string literal but 'null' literal was found.
+Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 52: Expected string literal but 'null' literal was found at path: $.language
 Use 'coerceInputValues = true' in 'Json {}` builder to coerce nulls to default values.
 ```                    
 

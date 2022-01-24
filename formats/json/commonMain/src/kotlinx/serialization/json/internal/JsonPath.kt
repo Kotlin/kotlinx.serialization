@@ -90,7 +90,6 @@ internal class JsonPath {
 
     @OptIn(ExperimentalSerializationApi::class)
     fun getPath(): String {
-        if (currentDepth == -1) return ""
         return buildString {
             append("$")
             repeat(currentDepth + 1) {
