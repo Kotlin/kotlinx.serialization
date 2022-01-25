@@ -75,6 +75,49 @@ data class DataWithInt(@Serializable(with = CheckedDataSerializer::class) val da
 data class DataWithStringContext(@Contextual val data: CheckedData<String>)
 
 
+@Serializable
+data class OptionalHolder(val optionalInt: Optional<Int>)
+
+@Serializable(OptionalSerializer::class)
+sealed class Optional<out T : Any?> {
+    object NotPresent : Optional<Nothing>()
+    data class Value<T : Any?>(val value: T?) : Optional<T>()
+
+    fun get(): T? {
+        return when (this) {
+            NotPresent -> null
+            is Value -> this.value
+        }
+    }
+}
+
+class OptionalSerializer<T>(
+    private val valueSerializer: KSerializer<T>
+) : KSerializer<Optional<T>> {
+    override val descriptor: SerialDescriptor = valueSerializer.descriptor
+
+    override fun deserialize(decoder: Decoder): Optional<T> {
+        return try {
+            Optional.Value(valueSerializer.deserialize(decoder))
+        } catch (exception: Exception) {
+            Optional.NotPresent
+        }
+    }
+
+    override fun serialize(encoder: Encoder, value: Optional<T>) {
+        val msg = "Tried to serialize an optional property that had no value present. Is encodeDefaults false?"
+        when (value) {
+            Optional.NotPresent -> throw SerializationException(msg)
+            is Optional.Value ->
+                when (val optional = value.value) {
+                    null -> encoder.encodeNull()
+                    else -> valueSerializer.serialize(encoder, optional)
+                }
+        }
+    }
+}
+
+
 class GenericCustomSerializerTest {
     @Test
     fun testStringData() {
@@ -107,5 +150,19 @@ class GenericCustomSerializerTest {
             DataWithStringContext.serializer(),
             Json { serializersModule = module }
         )
+    }
+
+    @Test
+    fun testOnSealedClass() {
+        /*
+        Test on custom serializer for sealed class with generic parameter.
+        Related issues:
+             https://github.com/Kotlin/kotlinx.serialization/issues/1705
+             https://youtrack.jetbrains.com/issue/KT-50764
+             https://youtrack.jetbrains.com/issue/KT-50718
+             https://github.com/Kotlin/kotlinx.serialization/issues/1843
+         */
+        val encoded = Json.encodeToString(OptionalHolder(Optional.Value(42)))
+        assertEquals("""{"optionalInt":42}""", encoded)
     }
 }
