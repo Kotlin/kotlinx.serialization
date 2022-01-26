@@ -155,7 +155,7 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
     ) {
         val previous = polyBase2DefaultSerializerProvider[baseClass]
         if (previous != null && previous != defaultSerializerProvider && !allowOverwrite) {
-            throw IllegalArgumentException("Default serializers provider for class $baseClass is already registered: $previous")
+            throw IllegalArgumentException("Default serializers provider for $baseClass is already registered: $previous")
         }
         polyBase2DefaultSerializerProvider[baseClass] = defaultSerializerProvider
     }
@@ -168,7 +168,7 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
     ) {
         val previous = polyBase2DefaultDeserializerProvider[baseClass]
         if (previous != null && previous != defaultDeserializerProvider && !allowOverwrite) {
-            throw IllegalArgumentException("Default deserializers provider for class $baseClass is already registered: $previous")
+            throw IllegalArgumentException("Default deserializers provider for $baseClass is already registered: $previous")
         }
         polyBase2DefaultDeserializerProvider[baseClass] = defaultDeserializerProvider
     }
