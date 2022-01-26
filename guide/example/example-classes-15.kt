@@ -5,9 +5,18 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 @Serializable
-class Project(val name: String, @SerialName("lang") val language: String)
+class Box<T>(val contents: T)
+
+@Serializable
+data class Project(val name: String, val language: String)
+
+@Serializable
+class Data(
+    val a: Box<Int>,
+    val b: Box<Project>
+)
 
 fun main() {
-    val data = Project("kotlinx.serialization", "Kotlin")
+    val data = Data(Box(42), Box(Project("kotlinx.serialization", "Kotlin")))
     println(Json.encodeToString(data))
 }

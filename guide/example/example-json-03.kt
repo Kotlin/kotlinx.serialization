@@ -6,10 +6,10 @@ import kotlinx.serialization.json.*
 
 val format = Json { ignoreUnknownKeys = true }
 
-@Serializable 
+@Serializable
 data class Project(val name: String)
-    
-fun main() {             
+
+fun main() {
     val data = format.decodeFromString<Project>("""
         {"name":"kotlinx.serialization","language":"Kotlin"}
     """)

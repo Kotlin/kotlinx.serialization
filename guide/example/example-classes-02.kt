@@ -4,15 +4,15 @@ package example.exampleClasses02
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-@Serializable 
+@Serializable
 class Project private constructor(val owner: String, val name: String) {
     constructor(path: String) : this(
-        owner = path.substringBefore('/'),    
+        owner = path.substringBefore('/'),
         name = path.substringAfter('/')
-    )                        
+    )
 
     val path: String
-        get() = "$owner/$name"  
+        get() = "$owner/$name"
 }
 
 fun main() {
