@@ -19,7 +19,7 @@ dependencies {
                 // It shouldn't be a problem as usually consumers need to use generic *-native artifact
                 // Gradle will choose correct variant by using metadata attributes
                 if (it.artifacts.any { it.extension == 'klib' }) return
-                api(group: it.groupId, name: it.artifactId, version: it.version)
+                api("${it.groupId}:${it.artifactId}:${it.version}")
             }
         }
     }

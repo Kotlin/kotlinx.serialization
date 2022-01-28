@@ -6,9 +6,9 @@ apply plugin: 'java'
 apply plugin: 'kotlin'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'idea'
-apply plugin: "net.ltgt.apt"
-apply plugin: "com.github.johnrengelman.shadow"
-apply plugin: "me.champeau.gradle.jmh"
+apply plugin: 'net.ltgt.apt'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'me.champeau.gradle.jmh'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -22,11 +22,11 @@ jmhJar {
 }
 
 dependencies {
-    compile "org.openjdk.jmh:jmh-core:1.22"
+    implementation 'org.openjdk.jmh:jmh-core:1.22'
     implementation 'com.google.guava:guava:24.1.1-jre'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.12.1'
-    compile 'com.fasterxml.jackson.module:jackson-module-kotlin:2.12.1'
-    compile project(':kotlinx-serialization-core')
-    compile project(':kotlinx-serialization-json')
-    compile project(':kotlinx-serialization-protobuf')
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.1'
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.12.1'
+    implementation project(':kotlinx-serialization-core')
+    implementation project(':kotlinx-serialization-json')
+    implementation project(':kotlinx-serialization-protobuf')
 }

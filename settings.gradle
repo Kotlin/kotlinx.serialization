@@ -3,7 +3,6 @@
  */
 
 rootProject.name = 'kotlinx-serialization'
-enableFeaturePreview('GRADLE_METADATA')
 
 include ':kotlinx-serialization-core'
 project(':kotlinx-serialization-core').projectDir = file('./core')

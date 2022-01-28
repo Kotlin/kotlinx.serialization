@@ -19,11 +19,11 @@ kotlin {
         jvmTest {
             dependencies {
                 implementation 'io.kotlintest:kotlintest:2.0.7'
-                implementation group: 'com.upokecenter', name: 'cbor', version: '4.2.0'
-                implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jackson_version
-                implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
-                implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: jackson_version
-                implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-cbor', version: jackson_version
+                implementation 'com.upokecenter:cbor:4.2.0'
+                implementation "com.fasterxml.jackson.core:jackson-core:$jackson_version"
+                implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
+                implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
+                implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:$jackson_version"
                 implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
             }
         }

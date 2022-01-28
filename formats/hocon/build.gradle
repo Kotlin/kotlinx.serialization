@@ -19,13 +19,13 @@ java {
 
 
 dependencies {
-    compile project(':kotlinx-serialization-core')
+    implementation project(':kotlinx-serialization-core')
     api 'org.jetbrains.kotlin:kotlin-stdlib'
 
     api 'com.typesafe:config:1.4.1'
 
-    testCompile "org.jetbrains.kotlin:kotlin-test"
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    testImplementation 'junit:junit:4.12'
 }
 
 Java9Modularity.configureJava9ModuleInfo(project)

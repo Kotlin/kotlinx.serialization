@@ -70,7 +70,7 @@ buildscript {
         classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
         classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.5.3' // Android API check
 
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.8'
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.18'
 
         // Various benchmarking stuff
         classpath "com.github.jengelman.gradle.plugins:shadow:4.0.2"
