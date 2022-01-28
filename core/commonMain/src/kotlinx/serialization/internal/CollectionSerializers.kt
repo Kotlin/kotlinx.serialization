@@ -54,7 +54,7 @@ public sealed class AbstractCollectionSerializer<Element, Collection, Builder> :
 }
 
 @PublishedApi
-internal sealed class ListLikeSerializer<Element, Collection, Builder>(
+internal sealed class CollectionLikeSerializer<Element, Collection, Builder>(
     private val elementSerializer: KSerializer<Element>
 ) : AbstractCollectionSerializer<Element, Collection, Builder>() {
 
@@ -70,13 +70,13 @@ internal sealed class ListLikeSerializer<Element, Collection, Builder>(
         }
     }
 
-    protected final override fun readAll(decoder: CompositeDecoder, builder: Builder, startIndex: Int, size: Int) {
+    final override fun readAll(decoder: CompositeDecoder, builder: Builder, startIndex: Int, size: Int) {
         require(size >= 0) { "Size must be known in advance when using READ_ALL" }
         for (index in 0 until size)
             readElement(decoder, startIndex + index, builder, checkIndex = false)
     }
 
-    protected override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
         builder.insert(index, decoder.decodeSerializableElement(descriptor, index, elementSerializer))
     }
 }
@@ -143,7 +143,7 @@ internal abstract class PrimitiveArrayBuilder<Array> internal constructor() {
 internal abstract class PrimitiveArraySerializer<Element, Array, Builder
 : PrimitiveArrayBuilder<Array>> internal constructor(
     primitiveSerializer: KSerializer<Element>
-) : ListLikeSerializer<Element, Array, Builder>(primitiveSerializer) {
+) : CollectionLikeSerializer<Element, Array, Builder>(primitiveSerializer) {
     final override val descriptor: SerialDescriptor = PrimitiveArrayDescriptor(primitiveSerializer.descriptor)
 
     final override fun Builder.builderSize(): Int = position
@@ -160,7 +160,7 @@ internal abstract class PrimitiveArraySerializer<Element, Array, Builder
 
     protected abstract fun empty(): Array
 
-    protected abstract override fun readElement(
+    abstract override fun readElement(
         decoder: CompositeDecoder,
         index: Int,
         builder: Builder,
@@ -184,7 +184,7 @@ internal abstract class PrimitiveArraySerializer<Element, Array, Builder
 internal class ReferenceArraySerializer<ElementKlass : Any, Element : ElementKlass?>(
     private val kClass: KClass<ElementKlass>,
     eSerializer: KSerializer<Element>
-) : ListLikeSerializer<Element, Array<Element>, ArrayList<Element>>(eSerializer) {
+) : CollectionLikeSerializer<Element, Array<Element>, ArrayList<Element>>(eSerializer) {
     override val descriptor: SerialDescriptor = ArrayClassDesc(eSerializer.descriptor)
 
     override fun Array<Element>.collectionSize(): Int = size
@@ -202,12 +202,17 @@ internal class ReferenceArraySerializer<ElementKlass : Any, Element : ElementKla
     }
 }
 
+@PublishedApi
+internal abstract class CollectionSerializer<E, C: Collection<E>, B>(element: KSerializer<E>) : CollectionLikeSerializer<E, C, B>(element) {
+    override fun C.collectionSize(): Int = size
+    override fun C.collectionIterator(): Iterator<E> = iterator()
+}
+
 @InternalSerializationApi
 @PublishedApi
-internal class ArrayListSerializer<E>(element: KSerializer<E>) : ListLikeSerializer<E, List<E>, ArrayList<E>>(element) {
+internal class ArrayListSerializer<E>(element: KSerializer<E>) : CollectionSerializer<E, List<E>, ArrayList<E>>(element) {
     override val descriptor: SerialDescriptor = ArrayListClassDesc(element.descriptor)
-    override fun List<E>.collectionSize(): Int = size
-    override fun List<E>.collectionIterator(): Iterator<E> = iterator()
+
     override fun builder(): ArrayList<E> = arrayListOf()
     override fun ArrayList<E>.builderSize(): Int = size
     override fun ArrayList<E>.toResult(): List<E> = this
@@ -219,11 +224,9 @@ internal class ArrayListSerializer<E>(element: KSerializer<E>) : ListLikeSeriali
 @PublishedApi
 internal class LinkedHashSetSerializer<E>(
     eSerializer: KSerializer<E>
-) : ListLikeSerializer<E, Set<E>, LinkedHashSet<E>>(eSerializer) {
-
+) : CollectionSerializer<E, Set<E>, LinkedHashSet<E>>(eSerializer) {
     override val descriptor: SerialDescriptor = LinkedHashSetClassDesc(eSerializer.descriptor)
-    override fun Set<E>.collectionSize(): Int = size
-    override fun Set<E>.collectionIterator(): Iterator<E> = iterator()
+
     override fun builder(): LinkedHashSet<E> = linkedSetOf()
     override fun LinkedHashSet<E>.builderSize(): Int = size
     override fun LinkedHashSet<E>.toResult(): Set<E> = this
@@ -235,11 +238,9 @@ internal class LinkedHashSetSerializer<E>(
 @PublishedApi
 internal class HashSetSerializer<E>(
     eSerializer: KSerializer<E>
-) : ListLikeSerializer<E, Set<E>, HashSet<E>>(eSerializer) {
-
+) : CollectionSerializer<E, Set<E>, HashSet<E>>(eSerializer) {
     override val descriptor: SerialDescriptor = HashSetClassDesc(eSerializer.descriptor)
-    override fun Set<E>.collectionSize(): Int = size
-    override fun Set<E>.collectionIterator(): Iterator<E> = iterator()
+
     override fun builder(): HashSet<E> = HashSet()
     override fun HashSet<E>.builderSize(): Int = size
     override fun HashSet<E>.toResult(): Set<E> = this

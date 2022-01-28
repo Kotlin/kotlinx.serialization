@@ -31,13 +31,13 @@ class SealedGenericClassesTest {
     // Test that compilation and retrieval is successful
     @Test
     fun testQuery() {
-        val serial1 = Query.SimpleQuery.serializer(String.serializer())
-        val serial2 = Query.serializer(UnitSerializer)
+        Query.SimpleQuery.serializer(String.serializer())
+        Query.serializer(UnitSerializer)
     }
 
     @Test
     fun testFetcher() {
-        val serial1 = Fetcher.SomethingFetcher.serializer()
-        val serial2 = Fetcher.serializer(Something.serializer())
+        Fetcher.SomethingFetcher.serializer()
+        Fetcher.serializer(Something.serializer())
     }
 }
