@@ -22,9 +22,34 @@ class CachedSerializersTest {
     @Serializable
     abstract class Abstract
 
+    @Serializable
+    enum class SerializableEnum {A, B}
+
+    @SerialInfo
+    annotation class MyAnnotation(val x: Int)
+
+    @Serializable
+    enum class SerializableMarkedEnum {
+        @SerialName("first")
+        @MyAnnotation(1)
+        C,
+        @MyAnnotation(2)
+        D
+    }
+
     @Test
     fun testObjectSerializersAreSame() = noJsLegacy {
         assertSame(Object.serializer(), Object.serializer())
+    }
+
+    @Test
+    fun testSerializableEnumSerializersAreSame() = noJsLegacy {
+        assertSame(SerializableEnum.serializer(), SerializableEnum.serializer())
+    }
+
+    @Test
+    fun testSerializableMarkedEnumSerializersAreSame() = noJsLegacy {
+        assertSame(SerializableMarkedEnum.serializer(), SerializableMarkedEnum.serializer())
     }
 
     @Test
