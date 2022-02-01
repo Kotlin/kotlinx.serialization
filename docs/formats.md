@@ -427,8 +427,8 @@ Field #1: 08 Varint Value = 3, Hex = 03
 ```
 
 ### Packed fields
-Collection types (not maps) can be **written** as packed fields when annotated with the `@ProtoPacked` annotation. Per the
-standard packed fields can only be used on primitive numeric types.
+Collection types (not maps) can be **written** as packed fields when annotated with the `@ProtoPacked` annotation.
+Per the standard packed fields can only be used on primitive numeric types. The annotation is ignored on other types.
 
 Per the [format description](https://developers.google.com/protocol-buffers/docs/encoding#packed) the parser ignores
 the annotation, but rather reads list in either packed or repeated format.
