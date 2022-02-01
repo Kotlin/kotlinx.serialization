@@ -6,14 +6,9 @@
 
 package kotlinx.serialization.protobuf.internal
 
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.protobuf.ProtoIntegerType
-import kotlinx.serialization.protobuf.ProtoNumber
-import kotlinx.serialization.protobuf.ProtoPacked
-import kotlinx.serialization.protobuf.ProtoType
+import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.protobuf.*
 
 internal typealias ProtoDesc = Long
 internal const val VARINT = 0

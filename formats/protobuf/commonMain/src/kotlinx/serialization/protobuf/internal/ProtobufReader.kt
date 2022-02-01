@@ -5,9 +5,9 @@
 
 package kotlinx.serialization.protobuf.internal
 
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.protobuf.ProtoIntegerType
-import kotlin.jvm.JvmField
+import kotlinx.serialization.*
+import kotlinx.serialization.protobuf.*
+import kotlin.jvm.*
 
 internal class ProtobufReader(private val input: ByteArrayInput) {
     @JvmField

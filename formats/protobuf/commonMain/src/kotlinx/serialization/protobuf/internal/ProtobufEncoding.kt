@@ -4,19 +4,14 @@
 @file:OptIn(ExperimentalSerializationApi::class)
 package kotlinx.serialization.protobuf.internal
 
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.SerializationStrategy
-import kotlinx.serialization.builtins.ByteArraySerializer
-import kotlinx.serialization.builtins.SetSerializer
-import kotlinx.serialization.descriptors.PolymorphicKind
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.StructureKind
-import kotlinx.serialization.encoding.CompositeEncoder
-import kotlinx.serialization.internal.MapLikeSerializer
-import kotlinx.serialization.protobuf.ProtoBuf
-import kotlinx.serialization.protobuf.ProtoIntegerType
-import kotlin.jvm.JvmField
+import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.internal.*
+
+import kotlinx.serialization.protobuf.*
+import kotlin.jvm.*
 
 internal open class ProtobufEncoder(
     @JvmField protected val proto: ProtoBuf,
