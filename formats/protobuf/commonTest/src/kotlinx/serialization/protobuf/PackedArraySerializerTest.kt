@@ -45,6 +45,13 @@ class PackedArraySerializerTest {
         @ProtoNumber(3) override val vector: FloatArray
     ) : BaseFloatArrayCarrier()
 
+    @Serializable
+    data class PackedStringCarrier(
+        @ProtoNumber(0)
+        @ProtoPacked
+        val s: List<String>
+    )
+
     /**
      * Test that when packing is specified the array is encoded as packed
      */
@@ -96,4 +103,34 @@ class PackedArraySerializerTest {
         val decodedNonPacked = ProtoBuf.decodeFromHexString(NonPackedFloatArrayCarrier.serializer(), s)
         assertEquals(obj, decodedNonPacked)
     }
+
+    /**
+     * Test that serializing a list of strings is never packed, and deserialization ignores the packing annotation.
+     */
+    @Test
+    fun testEncodeAnnotatedStringList() {
+        val obj = PackedStringCarrier(listOf("aaa", "bbb", "ccc"))
+        val expectedHex = "020361616102036262620203636363"
+        val encodedHex = ProtoBuf.encodeToHexString(obj)
+        assertEquals(expectedHex, encodedHex)
+        assertEquals(obj, ProtoBuf.decodeFromHexString<PackedStringCarrier>(expectedHex))
+
+        val invalidPackedHex = "020C036161610362626203636363"
+        val decoded = ProtoBuf.decodeFromHexString<PackedStringCarrier>(invalidPackedHex)
+        val invalidString = "\u0003aaa\u0003bbb\u0003ccc"
+        assertEquals(PackedStringCarrier(listOf(invalidString)), decoded)
+    }
+
+    /**
+     * Test that toplevel "packed" lists with only byte length also work.
+     */
+    @Test
+    fun testDecodeToplevelPackedList() {
+        val input = "0feffdb6f507e6cc9933ba0180feff03"
+        val listData = listOf(0x7eadbeef, 0x6666666, 0xba, 0x7fff00)
+        val decoded = ProtoBuf.decodeFromHexString<List<Int>>(input)
+
+        assertEquals(listData, decoded)
+    }
+
 }
