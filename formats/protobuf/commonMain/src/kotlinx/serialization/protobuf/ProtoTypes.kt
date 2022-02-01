@@ -48,7 +48,7 @@ public annotation class ProtoType(public val type: ProtoIntegerType)
 
 
 /**
- * Instructs that a particular collection should be written as packed array
+ * Instructs that a particular collection should be written as [packed array](https://developers.google.com/protocol-buffers/docs/encoding#packed)
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
