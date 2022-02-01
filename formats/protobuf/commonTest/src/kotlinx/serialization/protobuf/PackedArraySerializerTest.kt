@@ -69,9 +69,9 @@ class PackedArraySerializerTest {
      */
     @Test
     fun testEncodeNonPackedFloatArrayProtobuf() {
-        val obj = PackedFloatArrayCarrier(1234567890L.toULong(), floatArrayOf(1f, 2f, 3f))
-        val s = ProtoBuf.encodeToHexString(PackedFloatArrayCarrier.serializer(), obj).uppercase()
-        assertEquals("""10D285D8CC041A0C0000803F0000004000004040""", s)
+        val obj = NonPackedFloatArrayCarrier(1234567890L.toULong(), floatArrayOf(1f, 2f, 3f))
+        val s = ProtoBuf.encodeToHexString(NonPackedFloatArrayCarrier.serializer(), obj).uppercase()
+        assertEquals("""10D285D8CC041D0000803F1D000000401D00004040""", s)
     }
 
     /**
@@ -82,7 +82,7 @@ class PackedArraySerializerTest {
     @Test
     fun testDecodePackedFloatArrayProtobuf() {
         val obj: BaseFloatArrayCarrier = PackedFloatArrayCarrier(1234567890L.toULong(), floatArrayOf(1f, 2f, 3f))
-        val s = """10D285D8CC041D0000803F1D000000401D00004040"""
+        val s = """10D285D8CC041A0C0000803F0000004000004040"""
         val decodedPacked = ProtoBuf.decodeFromHexString(PackedFloatArrayCarrier.serializer(), s)
         assertEquals(obj, decodedPacked)
         val decodedNonPacked = ProtoBuf.decodeFromHexString(NonPackedFloatArrayCarrier.serializer(), s)
