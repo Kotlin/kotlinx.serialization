@@ -17,7 +17,7 @@ internal class PackedArrayDecoder(
     override fun SerialDescriptor.getTag(index: Int): ProtoDesc = MISSING_TAG
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
-        throw SerializationException("Packing only supports primitive number types")
+        throw SerializationException("Packing only supports primitive number types. The input type however was a struct: $descriptor")
     }
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
@@ -27,6 +27,6 @@ internal class PackedArrayDecoder(
     }
 
     override fun decodeTaggedString(tag: ProtoDesc): String {
-        throw SerializationException("Packing only supports primitive number types")
+        throw SerializationException("Packing only supports primitive number types. The actual reading is for string.")
     }
 }
