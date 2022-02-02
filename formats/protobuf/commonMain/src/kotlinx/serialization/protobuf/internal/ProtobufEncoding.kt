@@ -30,13 +30,17 @@ internal open class ProtobufEncoder(
     ): CompositeEncoder = when (descriptor.kind) {
         StructureKind.LIST -> {
             val tag = currentTagOrDefault
-            if (tag == MISSING_TAG) {
-                writer.writeInt(collectionSize)
-            }
-            if (this.descriptor.kind == StructureKind.LIST && tag != MISSING_TAG && this.descriptor != descriptor) {
-                NestedRepeatedEncoder(proto, writer, tag, descriptor)
+            if (tag.isPacked && descriptor.getElementDescriptor(0).isPackable) {
+                PackedArrayEncoder(proto, writer, currentTagOrDefault, descriptor)
             } else {
-                RepeatedEncoder(proto, writer, tag, descriptor)
+                if (tag == MISSING_TAG) {
+                    writer.writeInt(collectionSize)
+                }
+                if (this.descriptor.kind == StructureKind.LIST && tag != MISSING_TAG && this.descriptor != descriptor) {
+                    NestedRepeatedEncoder(proto, writer, tag, descriptor)
+                } else {
+                    RepeatedEncoder(proto, writer, tag, descriptor)
+                }
             }
         }
         StructureKind.MAP -> {
@@ -47,7 +51,13 @@ internal open class ProtobufEncoder(
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder = when (descriptor.kind) {
-        StructureKind.LIST -> RepeatedEncoder(proto, writer, currentTagOrDefault, descriptor)
+        StructureKind.LIST -> {
+            if (descriptor.getElementDescriptor(0).isPackable && currentTagOrDefault.isPacked) {
+                PackedArrayEncoder(proto, writer, currentTagOrDefault, descriptor)
+            } else {
+                RepeatedEncoder(proto, writer, currentTagOrDefault, descriptor)
+            }
+        }
         StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> {
             val tag = currentTagOrDefault
             if (tag == MISSING_TAG && descriptor == this.descriptor) this
@@ -183,7 +193,7 @@ private class RepeatedEncoder(
     override fun SerialDescriptor.getTag(index: Int) = curTag
 }
 
-private class NestedRepeatedEncoder(
+internal open class NestedRepeatedEncoder(
     proto: ProtoBuf,
     @JvmField val writer: ProtobufWriter,
     @JvmField val curTag: ProtoDesc,

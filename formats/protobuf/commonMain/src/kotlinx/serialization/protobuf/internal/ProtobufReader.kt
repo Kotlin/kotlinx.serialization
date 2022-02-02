@@ -15,14 +15,27 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
     @JvmField
     public var currentType = -1
     private var pushBack = false
+    private var pushBackHeader = 0
+
+    public val eof
+        get() = !pushBack && input.availableBytes == 0
 
     public fun readTag(): Int {
         if (pushBack) {
             pushBack = false
-            return currentId
+            val previousHeader = (currentId shl 3) or currentType
+            return updateIdAndType(pushBackHeader).also {
+                pushBackHeader = previousHeader
+            }
         }
+        // Header to use when pushed back is the old id/type
+        pushBackHeader = (currentId shl 3) or currentType
 
         val header = input.readVarint64(true).toInt()
+        return updateIdAndType(header)
+    }
+
+    private fun updateIdAndType(header: Int): Int {
         return if (header == -1) {
             currentId = -1
             currentType = -1
@@ -36,6 +49,10 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
 
     public fun pushBackTag() {
         pushBack = true
+
+        val nextHeader = (currentId shl 3) or currentType
+        updateIdAndType(pushBackHeader)
+        pushBackHeader = nextHeader
     }
 
     fun skipElement() {

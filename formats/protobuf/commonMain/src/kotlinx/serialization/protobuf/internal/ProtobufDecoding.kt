@@ -108,6 +108,11 @@ internal open class ProtobufDecoder(
                     reader.readTag()
                     // all elements always have id = 1
                     RepeatedDecoder(proto, reader, ProtoDesc(1, ProtoIntegerType.DEFAULT), descriptor)
+
+                } else if (reader.currentType == SIZE_DELIMITED && descriptor.getElementDescriptor(0).isPackable) {
+                    val sliceReader = ProtobufReader(reader.objectInput())
+                    PackedArrayDecoder(proto, sliceReader, descriptor)
+
                 } else {
                     RepeatedDecoder(proto, reader, tag, descriptor)
                 }
@@ -287,7 +292,8 @@ private class RepeatedDecoder(
     private fun decodeListIndexNoTag(): Int {
         val size = -tagOrSize
         val idx = ++index
-        if (idx.toLong() == size) return CompositeDecoder.DECODE_DONE
+        // Check for eof is here for the case that it is an out-of-spec packed array where size is bytesize not list length.
+        if (idx.toLong() == size || reader.eof) return CompositeDecoder.DECODE_DONE
         return idx
     }
 
