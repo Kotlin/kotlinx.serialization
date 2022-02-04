@@ -3,8 +3,7 @@ package kotlinx.serialization.protobuf.schema
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.protobuf.ProtoIntegerType
-import kotlinx.serialization.protobuf.ProtoNumber
-import kotlinx.serialization.protobuf.ProtoType
+import kotlinx.serialization.protobuf.*
 import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -16,6 +15,7 @@ internal val commonClasses = listOf(
     GenerationTest.FieldNumberClass::class,
     GenerationTest.SerialNameClass::class,
     GenerationTest.ListClass::class,
+    GenerationTest.PackedListClass::class,
     GenerationTest.MapClass::class,
     GenerationTest.OptionalClass::class,
     GenerationTest.ContextualHolder::class,
@@ -88,6 +88,15 @@ class GenerationTest {
         val intList: List<Int>,
         val intArray: IntArray,
         val boxedIntArray: Array<Int?>,
+        val messageList: List<OptionsClass>,
+        val enumList: List<SerialNameEnum>
+    )
+
+    @Serializable
+    class PackedListClass(
+        @ProtoPacked val intList: List<Int>,
+        @ProtoPacked val intArray: IntArray,
+        @ProtoPacked val boxedIntArray: Array<Int?>,
         val messageList: List<OptionsClass>,
         val enumList: List<SerialNameEnum>
     )

@@ -1,8 +1,9 @@
 package kotlinx.serialization.protobuf.schema
 
 import kotlinx.serialization.*
-import kotlinx.serialization.protobuf.ProtoNumber
+import kotlinx.serialization.protobuf.*
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertFailsWith
 
 class SchemaValidationsTest {
@@ -37,6 +38,12 @@ class SchemaValidationsTest {
         @SerialName("invalid serial name")
         SECOND
     }
+
+    @Serializable
+    class NonListPackedField(@ProtoPacked val i: Int)
+
+    @Serializable
+    class ListOfNonNumberPackedField(@ProtoPacked val s: List<String>)
 
 
     @Test
@@ -73,6 +80,20 @@ class SchemaValidationsTest {
     fun testDuplicationSerialName() {
         val descriptors = listOf(ValidClass.serializer().descriptor, DuplicateClass.serializer().descriptor)
         assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors) }
+    }
+
+    @Test
+    fun testNonListPackedField() {
+        val descriptor = NonListPackedField.serializer().descriptor
+        val e = assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptor) }
+        assertContains(e.message ?: "", "only valid on repeated fields (lists)")
+    }
+
+    @Test
+    fun testNonNumberPackedField() {
+        val descriptor = ListOfNonNumberPackedField.serializer().descriptor
+        val e = assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptor) }
+        assertContains(e.message ?: "", "packed can only be applied to primitive numeric types")
     }
 
     @Test
