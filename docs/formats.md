@@ -428,6 +428,47 @@ Field #1: 08 Varint Value = 2, Hex = 02
 Field #1: 08 Varint Value = 3, Hex = 03
 ```
 
+### ProtoBuf schema generator (experimental)
+
+As mentioned above, when working with protocol buffers you usually use a ".proto" file and use a code generator for your 
+language includes the code to your message to an output stream and deserialize it from an input stream.  When using 
+Kotlin Serialization this step is not necessary because your `@Serializable` Kotlin data types are used as the source 
+for the schema. 
+
+This is very convenient for Kotlin-to-Kotlin communication, but makes interoperability between languages complicated. Fortunately you can use  to output the ".proto" representation of your messages. You can keep your Kotlin classes as a 
+source of truth and use traditional protoc compilers for other languages at the same time.
+
+As an example, we can display the following data class's ".proto" schema as follows.
+
+```kotlin
+@Serializable
+data class SampleData(
+    val amount: Long,
+    val description: String?,
+    val department: String = "QA"
+)
+
+val descriptors = listOf(SampleData.serializer().descriptor)
+val schemas = ProtoBufSchemaGenerator.generateSchemaText(descriptors)
+println(schemas)
+```
+
+Which would output as follows.
+
+```text
+// serial name 'kotlinx.serialization.SampleData'
+message SampleData {
+  required int64 amount = 1;
+  optional string description = 2;
+  // WARNING: a default value decoded when value is missing
+  optional string department = 3;
+}
+```
+
+Note that since default values are not represented in ".proto" files, a warning is generated when one appears in the schema.
+
+See the documentation for [ProtoBufSchemaGenerator] for more information.
+
 ## Properties (experimental)
 
 Kotlin Serialization can serialize a class into a flat map with `String` keys via 
@@ -1340,6 +1381,10 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
 [ProtoIntegerType.DEFAULT]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/-d-e-f-a-u-l-t/index.html
 [ProtoIntegerType.SIGNED]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/-s-i-g-n-e-d/index.html
 [ProtoIntegerType.FIXED]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/-f-i-x-e-d/index.html
+
+<!--- INDEX kotlinx-serialization-protobuf/kotlinx.serialization.protobuf.schema -->
+
+[ProtoBufSchemaGenerator]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf.schema/index.html
 
 <!--- MODULE /kotlinx-serialization-cbor -->
 <!--- INDEX kotlinx-serialization-cbor/kotlinx.serialization.cbor -->
