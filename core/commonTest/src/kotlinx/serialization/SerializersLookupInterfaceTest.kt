@@ -38,11 +38,13 @@ class SerializersLookupInterfaceTest {
 
 
     @Test
+    @Ignore // Awaiting compiler plugin fix.
     fun testInterfaceExternalObject() = noJsLegacy {
         assertSame(InterfaceExternalObjectSerializer, serializer())
     }
 
     @Test
+    @Ignore // Awaiting compiler plugin fix.
     fun testInterfaceExternalClass() = noJsLegacy {
         assertIs<InterfaceExternalClassSerializer>(serializer<InterfaceExternalClass>())
     }
