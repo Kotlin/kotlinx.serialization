@@ -1,0 +1,23 @@
+syntax = "proto2";
+
+package kotlinx.serialization.protobuf.schema.generator;
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.PackedListClass'
+message PackedListClass {
+  repeated int32 intList = 1 [packed=true];
+  repeated int32 intArray = 2 [packed=true];
+  // WARNING: nullable elements of collections can not be represented in protobuf
+  repeated int32 boxedIntArray = 3 [packed=true];
+  repeated OptionsClass messageList = 4;
+  repeated OverriddenEnumName enumList = 5;
+}
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.OptionsClass'
+message OptionsClass {
+  required int32 i = 1;
+}
+
+enum OverriddenEnumName {
+  FIRST = 0;
+  OverriddenElementName = 1;
+}
