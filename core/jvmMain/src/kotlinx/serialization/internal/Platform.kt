@@ -35,7 +35,11 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
         return jClass.createEnumSerializer()
     }
     if (jClass.isInterface) {
-        return interfaceSerializer()
+        // Interfaces are @Polymorphic by default, unless specified otherwise.
+        val serializable = java.getAnnotation(Serializable::class.java)
+        if (serializable == null || serializable.with == PolymorphicSerializer::class) {
+            return PolymorphicSerializer(this)
+        }
     }
     // Search for serializer defined on companion object.
     val serializer = invokeSerializerOnCompanion<T>(jClass, *args)
@@ -74,19 +78,6 @@ private fun <T: Any> KClass<T>.polymorphicSerializer(): KSerializer<T>? {
     }
     val serializable = jClass.getAnnotation(Serializable::class.java)
     if (serializable != null && serializable.with == PolymorphicSerializer::class) {
-        return PolymorphicSerializer(this)
-    }
-    return null
-}
-
-private fun <T: Any> KClass<T>.interfaceSerializer(): KSerializer<T>? {
-    /*
-     * Interfaces are @Polymorphic by default.
-     * Check if it has no annotations or `@Serializable(with = PolymorphicSerializer::class)`,
-     * otherwise bailout.
-     */
-    val serializable = java.getAnnotation(Serializable::class.java)
-    if (serializable == null || serializable.with == PolymorphicSerializer::class) {
         return PolymorphicSerializer(this)
     }
     return null
