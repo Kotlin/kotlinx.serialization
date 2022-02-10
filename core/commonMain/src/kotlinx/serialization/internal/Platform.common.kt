@@ -99,6 +99,11 @@ internal expect fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing
 @Suppress("UNCHECKED_CAST")
 internal fun KType.kclass() = when (val t = classifier) {
     is KClass<*> -> t
+    is KTypeParameter -> {
+        error("Captured type paramerer $t from generic non-reified function. " +
+                "Such functionality cannot be supported as $t is erased, either specify serializer explicitly or make " +
+                "calling function inline with reified $t")
+    }
     else -> error("Only KClass supported as classifier, got $t")
 } as KClass<Any>
 
