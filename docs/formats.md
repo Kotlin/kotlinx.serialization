@@ -430,13 +430,14 @@ Field #1: 08 Varint Value = 3, Hex = 03
 
 ### ProtoBuf schema generator (experimental)
 
-As mentioned above, when working with protocol buffers you usually use a ".proto" file and use a code generator for your 
-language includes the code to your message to an output stream and deserialize it from an input stream.  When using 
-Kotlin Serialization this step is not necessary because your `@Serializable` Kotlin data types are used as the source 
-for the schema. 
+As mentioned above, when working with protocol buffers you usually use a ".proto" file and a code generator for your
+language.  This includes the code to serialize your message to an output stream and deserialize it from an input stream.
+When using Kotlin Serialization this step is not necessary because your `@Serializable` Kotlin data types are used as the
+source for the schema.
 
-This is very convenient for Kotlin-to-Kotlin communication, but makes interoperability between languages complicated. Fortunately you can use  to output the ".proto" representation of your messages. You can keep your Kotlin classes as a 
-source of truth and use traditional protoc compilers for other languages at the same time.
+This is very convenient for Kotlin-to-Kotlin communication, but makes interoperability between languages complicated.
+Fortunately, you can use the ProtoBuf schema generator to output the ".proto" representation of your messages. You can
+keep your Kotlin classes as a source of truth and use traditional protoc compilers for other languages at the same time.
 
 As an example, we can display the following data class's ".proto" schema as follows.
 
@@ -452,6 +453,7 @@ val descriptors = listOf(SampleData.serializer().descriptor)
 val schemas = ProtoBufSchemaGenerator.generateSchemaText(descriptors)
 println(schemas)
 ```
+> You can get the full code [here](../guide/example/example-formats-07.kt).
 
 Which would output as follows.
 
@@ -464,6 +466,8 @@ message SampleData {
   optional string department = 3;
 }
 ```
+
+<!--- TEST -->
 
 Note that since default values are not represented in ".proto" files, a warning is generated when one appears in the schema.
 
