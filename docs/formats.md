@@ -436,7 +436,7 @@ When using Kotlin Serialization this step is not necessary because your `@Serial
 source for the schema.
 
 This is very convenient for Kotlin-to-Kotlin communication, but makes interoperability between languages complicated.
-Fortunately, you can use the ProtoBuf schema generator to output the ".proto" representation of your messages. You can
+Fortunately, you can use the ProtoBuf schema generator to output the ".proto" representation of your messages.  You can
 keep your Kotlin classes as a source of truth and use traditional protoc compilers for other languages at the same time.
 
 As an example, we can display the following data class's ".proto" schema as follows.
