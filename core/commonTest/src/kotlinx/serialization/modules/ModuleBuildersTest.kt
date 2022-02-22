@@ -9,6 +9,7 @@ package kotlinx.serialization.modules
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlin.reflect.*
 import kotlin.test.*
 
@@ -303,6 +304,21 @@ class ModuleBuildersTest {
 
         val m2 = m1 + m1
         assertEquals<Any?>(Unit.serializer(), m2.getPolymorphic(Any::class, serializedClassName = "foo"))
+    }
+
+    @Test
+    fun testBothPolymorphicDefaults() {
+        val anySerializer = object : KSerializer<Any> {
+            override val descriptor: SerialDescriptor get() = error("descriptor")
+            override fun serialize(encoder: Encoder, value: Any): Unit = error("serialize")
+            override fun deserialize(decoder: Decoder): Any = error("deserialize")
+        }
+        val module = SerializersModule {
+            polymorphicDefaultDeserializer(Any::class) { _ -> anySerializer }
+            polymorphicDefaultSerializer(Any::class) { _ -> anySerializer }
+        }
+        assertEquals(anySerializer, module.getPolymorphic(Any::class, 42))
+        assertEquals(anySerializer, module.getPolymorphic(Any::class, serializedClassName = "42"))
     }
 
     @Test
