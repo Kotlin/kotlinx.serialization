@@ -17,6 +17,7 @@ stable, these are currently experimental features of Kotlin Serialization.
   * [Field numbers](#field-numbers)
   * [Integer types](#integer-types)
   * [Lists as repeated fields](#lists-as-repeated-fields)
+  * [ProtoBuf schema generator (experimental)](#protobuf-schema-generator-experimental)
 * [Properties (experimental)](#properties-experimental)
 * [Custom formats (experimental)](#custom-formats-experimental)
   * [Basic encoder](#basic-encoder)
@@ -453,7 +454,7 @@ val descriptors = listOf(SampleData.serializer().descriptor)
 val schemas = ProtoBufSchemaGenerator.generateSchemaText(descriptors)
 println(schemas)
 ```
-> You can get the full code [here](../guide/example/example-formats-07.kt).
+> You can get the full code [here](../guide/example/example-formats-08.kt).
 
 Which would output as follows.
 
@@ -501,7 +502,7 @@ fun main() {
 }
 ```      
 
-> You can get the full code [here](../guide/example/example-formats-08.kt).
+> You can get the full code [here](../guide/example/example-formats-09.kt).
 
 The resulting map has dot-separated keys representing keys of the nested objects.
 
@@ -581,7 +582,7 @@ fun main() {
 }
 ```                                    
 
-> You can get the full code [here](../guide/example/example-formats-09.kt).
+> You can get the full code [here](../guide/example/example-formats-10.kt).
 
 As a result, we got all the primitive values in our object graph visited and put into a list
 in _serial_ order.
@@ -683,7 +684,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-10.kt).
+> You can get the full code [here](../guide/example/example-formats-11.kt).
 
 Now we can convert a list of primitives back to an object tree.
 
@@ -774,7 +775,7 @@ fun main() {
 }
 -->
 
-> You can get the full code [here](../guide/example/example-formats-11.kt).
+> You can get the full code [here](../guide/example/example-formats-12.kt).
 
 <!--- TEST 
 [kotlinx.serialization, kotlin, 9000]
@@ -881,7 +882,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-12.kt).
+> You can get the full code [here](../guide/example/example-formats-13.kt).
 
 We see the size of the list added to the result, letting the decoder know where to stop. 
 
@@ -993,7 +994,7 @@ fun main() {
 
 ```
 
-> You can get the full code [here](../guide/example/example-formats-13.kt).
+> You can get the full code [here](../guide/example/example-formats-14.kt).
 
 In the output we see how not-null`!!` and `NULL` marks are used.
 
@@ -1121,7 +1122,7 @@ fun main() {
 }
 ```
               
-> You can get the full code [here](../guide/example/example-formats-14.kt).
+> You can get the full code [here](../guide/example/example-formats-15.kt).
 
 As we can see, the result is a dense binary format that only contains the data that is being serialized. 
 It can be easily tweaked for any kind of domain-specific compact encoding.
@@ -1315,7 +1316,7 @@ fun main() {
 }
 ```
               
-> You can get the full code [here](../guide/example/example-formats-15.kt).
+> You can get the full code [here](../guide/example/example-formats-16.kt).
 
 As we can see, our custom byte array format is being used, with the compact encoding of its size in one byte. 
 
@@ -1388,7 +1389,7 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
 
 <!--- INDEX kotlinx-serialization-protobuf/kotlinx.serialization.protobuf.schema -->
 
-[ProtoBufSchemaGenerator]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf.schema/index.html
+[ProtoBufSchemaGenerator]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf.schema/-proto-buf-schema-generator/index.html
 
 <!--- MODULE /kotlinx-serialization-cbor -->
 <!--- INDEX kotlinx-serialization-cbor/kotlinx.serialization.cbor -->

@@ -1,18 +1,13 @@
 // This file was automatically generated from formats.md by Knit tool. Do not edit.
 package example.exampleFormats08
 
-import kotlinx.serialization.*
-import kotlinx.serialization.properties.Properties // todo: remove when no longer needed
-import kotlinx.serialization.properties.*
-
 @Serializable
-class Project(val name: String, val owner: User)
+data class SampleData(
+    val amount: Long,
+    val description: String?,
+    val department: String = "QA"
+)
 
-@Serializable
-class User(val name: String)
-
-fun main() {
-    val data = Project("kotlinx.serialization",  User("kotlin"))
-    val map = Properties.encodeToMap(data)
-    map.forEach { (k, v) -> println("$k = $v") }
-}
+val descriptors = listOf(SampleData.serializer().descriptor)
+val schemas = ProtoBufSchemaGenerator.generateSchemaText(descriptors)
+println(schemas)
