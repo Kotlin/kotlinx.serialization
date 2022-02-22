@@ -442,6 +442,12 @@ keep your Kotlin classes as a source of truth and use traditional protoc compile
 
 As an example, we can display the following data class's ".proto" schema as follows.
 
+<!--- INCLUDE
+import kotlinx.serialization.*
+import kotlinx.serialization.protobuf.*
+import kotlinx.serialization.protobuf.schema.ProtoBufSchemaGenerator
+-->
+
 ```kotlin
 @Serializable
 data class SampleData(
@@ -449,23 +455,28 @@ data class SampleData(
     val description: String?,
     val department: String = "QA"
 )
-
-val descriptors = listOf(SampleData.serializer().descriptor)
-val schemas = ProtoBufSchemaGenerator.generateSchemaText(descriptors)
-println(schemas)
+fun main() {
+  val descriptors = listOf(SampleData.serializer().descriptor)
+  val schemas = ProtoBufSchemaGenerator.generateSchemaText(descriptors)
+  println(schemas)
+}
 ```
 > You can get the full code [here](../guide/example/example-formats-08.kt).
 
 Which would output as follows.
 
 ```text
-// serial name 'kotlinx.serialization.SampleData'
+syntax = "proto2";
+
+
+// serial name 'example.exampleFormats08.SampleData'
 message SampleData {
   required int64 amount = 1;
   optional string description = 2;
   // WARNING: a default value decoded when value is missing
   optional string department = 3;
 }
+
 ```
 
 <!--- TEST -->

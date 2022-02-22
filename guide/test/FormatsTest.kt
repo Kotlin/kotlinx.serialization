@@ -62,13 +62,17 @@ class FormatsTest {
     @Test
     fun testExampleFormats08() {
         captureOutput("ExampleFormats08") { example.exampleFormats08.main() }.verifyOutputLines(
-            "// serial name 'kotlinx.serialization.SampleData'",
+            "syntax = \"proto2\";",
+            "",
+            "",
+            "// serial name 'example.exampleFormats08.SampleData'",
             "message SampleData {",
             "  required int64 amount = 1;",
             "  optional string description = 2;",
             "  // WARNING: a default value decoded when value is missing",
             "  optional string department = 3;",
-            "}"
+            "}",
+            ""
         )
     }
 
