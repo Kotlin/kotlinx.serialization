@@ -140,6 +140,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='field-numbers'></a>[Field numbers](formats.md#field-numbers)
   * <a name='integer-types'></a>[Integer types](formats.md#integer-types)
   * <a name='lists-as-repeated-fields'></a>[Lists as repeated fields](formats.md#lists-as-repeated-fields)
+  * <a name='protobuf-schema-generator-experimental'></a>[ProtoBuf schema generator (experimental)](formats.md#protobuf-schema-generator-experimental)
 * <a name='properties-experimental'></a>[Properties (experimental)](formats.md#properties-experimental)
 * <a name='custom-formats-experimental'></a>[Custom formats (experimental)](formats.md#custom-formats-experimental)
   * <a name='basic-encoder'></a>[Basic encoder](formats.md#basic-encoder)
