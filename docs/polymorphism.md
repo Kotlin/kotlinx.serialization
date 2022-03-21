@@ -231,7 +231,7 @@ This way we can have a stable _serial name_ that is not affected by the class's 
 <!--- TEST -->
 
 > In addition to that, JSON can be configured to use a different key name for the class discriminator. 
-> You can find an example in the [Class discriminator](json.md#class-discriminator) section.
+> You can find an example in the [Class discriminator for polymorphism](json.md#class-discriminator-for-polymorphism) section.
 
 ### Concrete properties in a base class
 
