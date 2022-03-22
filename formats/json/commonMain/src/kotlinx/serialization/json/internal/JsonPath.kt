@@ -2,6 +2,7 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.internal.*
 
 /**
  * Internal representation of the current JSON path.
@@ -20,6 +21,9 @@ import kotlinx.serialization.descriptors.*
  * ```
  */
 internal class JsonPath {
+
+    // Tombstone indicates that we are within a map, but the map key is currently being decoded.
+    // It is also used to overwrite a previous map key to avoid memory leaks and misattribution.
     object Tombstone
 
     /*
@@ -68,6 +72,7 @@ internal class JsonPath {
         indicies[currentDepth] = -2
     }
 
+    /** Used to indicate that we are in the process of decoding the key itself and can't specify it in path */
     fun resetCurrentMapKey() {
         if (indicies[currentDepth] == -2) {
             currentObjectPath[currentDepth] = Tombstone
@@ -111,8 +116,11 @@ internal class JsonPath {
                     }
                 } else if (element !== Tombstone) {
                     append("[")
-                    // Else -- structured key
+                    // All non-indicies should be properly quoted by JsonPath convention
+                    append("'")
+                    // Else -- map key
                     append(element)
+                    append("'")
                     append("]")
                 }
             }

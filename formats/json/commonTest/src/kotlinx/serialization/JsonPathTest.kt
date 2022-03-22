@@ -29,7 +29,7 @@ class JsonPathTest : JsonTestBase() {
 
     @Test
     fun testMissingKey() {
-        expectPath("$.i.d[1]") { Json.decodeFromString<Outer>("""{"a":42, "i":{"d":{1:{}}""") }
+        expectPath("$.i.d['1']") { Json.decodeFromString<Outer>("""{"a":42, "i":{"d":{1:{}}""") }
     }
 
     @Test
@@ -66,6 +66,7 @@ class JsonPathTest : JsonTestBase() {
         expectPath("$.i.d\n") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "d": {42: {"s":"s"}, 42.0:{}}""") }
         expectPath("$\n") { Json.decodeFromString<Map<Int, String>>("""{"foo":"bar"}""") }
         expectPath("$\n") { Json.decodeFromString<Map<Int, String>>("""{42:"bar", "foo":"bar"}""") }
+        expectPath("$['42']['foo']") { Json.decodeFromString<Map<Int, Map<String, Int>>>("""{42: {"foo":"bar"}""") }
     }
 
     @Test
@@ -76,9 +77,9 @@ class JsonPathTest : JsonTestBase() {
 
     @Test
     fun testMapValue() {
-        expectPath("$.i.d[42]\n") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "d": {42: {"xx":"bar"}}""") }
-        expectPath("$.i.d[43]\n") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "d": {42: {"s":"s"}, 43: {"xx":"bar"}}}""") }
-        expectPath("$[239]") { Json.decodeFromString<Map<Int, String>>("""{239:bar}""") }
+        expectPath("$.i.d['42']\n") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "d": {42: {"xx":"bar"}}""") }
+        expectPath("$.i.d['43']\n") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "d": {42: {"s":"s"}, 43: {"xx":"bar"}}}""") }
+        expectPath("$['239']") { Json.decodeFromString<Map<Int, String>>("""{239:bar}""") }
     }
 
     @Serializable
@@ -117,7 +118,7 @@ class JsonPathTest : JsonTestBase() {
 
     // TODO use non-array polymorphism when https://github.com/Kotlin/kotlinx.serialization/issues/1839 is fixed
     @Test
-    fun testHugeNestingToCheckResize() = noJs {
+    fun testHugeNestingToCheckResize() = jvmOnly {
         val json = Json { useArrayPolymorphism = true }
         var outer = Sealed.Nesting(Sealed.Box("value"))
         repeat(100) {
@@ -133,7 +134,7 @@ class JsonPathTest : JsonTestBase() {
     }
 
     @Test
-    fun testDoubleNesting() = noJs {
+    fun testDoubleNesting() = jvmOnly {
         val json = Json { useArrayPolymorphism = true }
         var outer1 = Sealed.Nesting(Sealed.Box("correct"))
         repeat(64) {
