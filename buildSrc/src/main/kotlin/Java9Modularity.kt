@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.*
 import org.jetbrains.kotlin.gradle.targets.jvm.*
 import java.io.*
+import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompileTool
 
 object Java9Modularity {
 
@@ -28,7 +29,7 @@ object Java9Modularity {
             }
 
             target.compilations.forEach { compilation ->
-                val compileKotlinTask = compilation.compileKotlinTask as AbstractCompile
+                val compileKotlinTask = compilation.compileKotlinTask as AbstractKotlinCompileTool<*>
                 val defaultSourceSet = compilation.defaultSourceSet
 
                 // derive the names of the source set and compile module task
@@ -64,12 +65,12 @@ object Java9Modularity {
         }
     }
 
-    private fun Project.registerCompileModuleTask(taskName: String, compileTask: AbstractCompile, sourceFile: File, targetFile: File) =
+    private fun Project.registerCompileModuleTask(taskName: String, compileTask: AbstractKotlinCompileTool<*>, sourceFile: File, targetFile: File) =
         tasks.register(taskName, JavaCompile::class) {
             // Also add the module-info.java source file to the Kotlin compile task;
             // the Kotlin compiler will parse and check module dependencies,
             // but it currently won't compile to a module-info.class file.
-            compileTask.source(sourceFile)
+            compileTask.setSource(sourceFile)
 
 
             // Configure the module compile task.
@@ -86,7 +87,7 @@ object Java9Modularity {
                 // The module path should be the same as the classpath of the compiler.
                 options.compilerArgs = listOf(
                     "--release", "9",
-                    "--module-path", compileTask.classpath.asPath,
+                    "--module-path", compileTask.libraries.asPath,
                     "-Xlint:-requires-transitive-automatic"
                 )
             }
