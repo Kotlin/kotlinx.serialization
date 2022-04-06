@@ -83,7 +83,7 @@ internal class PolymorphismValidator(
 
     override fun <Base : Any> polymorphicDefaultDeserializer(
         baseClass: KClass<Base>,
-        defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
+        defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?
     ) {
         // Nothing here
     }

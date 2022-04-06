@@ -21,7 +21,7 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
 ) {
     private val subclasses: MutableList<Pair<KClass<out Base>, KSerializer<out Base>>> = mutableListOf()
     private var defaultSerializerProvider: ((Base) -> SerializationStrategy<Base>?)? = null
-    private var defaultDeserializerProvider: ((String?) -> DeserializationStrategy<out Base>?)? = null
+    private var defaultDeserializerProvider: ((String?) -> DeserializationStrategy<Base>?)? = null
 
     /**
      * Registers a [subclass] [serializer] in the resulting module under the [base class][Base].
@@ -46,7 +46,7 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
      * Default deserializers provider affects only deserialization process.
      */
     @ExperimentalSerializationApi
-    public fun defaultDeserializer(defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<out Base>?) {
+    public fun defaultDeserializer(defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?) {
         require(this.defaultDeserializerProvider == null) {
             "Default deserializer provider is already registered for class $baseClass: ${this.defaultDeserializerProvider}"
         }
@@ -75,7 +75,7 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
      */
     @OptIn(ExperimentalSerializationApi::class)
     // TODO: deprecate in 1.4
-    public fun default(defaultSerializerProvider: (className: String?) -> DeserializationStrategy<out Base>?) {
+    public fun default(defaultSerializerProvider: (className: String?) -> DeserializationStrategy<Base>?) {
         defaultDeserializer(defaultSerializerProvider)
     }
 

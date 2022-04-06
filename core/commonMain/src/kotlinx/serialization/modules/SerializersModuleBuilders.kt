@@ -122,7 +122,7 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
     @ExperimentalSerializationApi
     public override fun <Base : Any> polymorphicDefaultDeserializer(
         baseClass: KClass<Base>,
-        defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
+        defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?
     ) {
         registerDefaultPolymorphicDeserializer(baseClass, defaultDeserializerProvider, false)
     }
@@ -168,7 +168,7 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
     @JvmName("registerDefaultPolymorphicDeserializer") // Don't mangle method name for prettier stack traces
     internal fun <Base : Any> registerDefaultPolymorphicDeserializer(
         baseClass: KClass<Base>,
-        defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<out Base>?,
+        defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?,
         allowOverwrite: Boolean
     ) {
         val previous = polyBase2DefaultDeserializerProvider[baseClass]
