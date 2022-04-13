@@ -72,16 +72,11 @@ class JsonJvmStreamsTest {
     fun testRandomEscapeSequences()  {
         repeat(1000) {
             val s = generateRandomUnicodeString(strLen)
-            try {
                 val serializer = String.serializer()
                 val b = ByteArrayOutputStream()
                 Json.encodeToStream(serializer, s, b)
                 val restored = Json.decodeFromStream(serializer, ByteArrayInputStream(b.toByteArray()))
                 assertEquals(s, restored)
-            } catch (e: Throwable) {
-                // Not assertion error to preserve cause
-                throw IllegalStateException("Unexpectedly failed test, cause string: $s", e)
-            }
         }
     }
 

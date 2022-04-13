@@ -13,6 +13,9 @@ project(':kotlinx-serialization-bom').projectDir = file('./bom')
 include ':kotlinx-serialization-json'
 project(':kotlinx-serialization-json').projectDir = file('./formats/json')
 
+include ':kotlinx-serialization-json-okio'
+project(':kotlinx-serialization-json-okio').projectDir = file('./formats/json-okio')
+
 include ':kotlinx-serialization-protobuf'
 project(':kotlinx-serialization-protobuf').projectDir = file('./formats/protobuf')
 

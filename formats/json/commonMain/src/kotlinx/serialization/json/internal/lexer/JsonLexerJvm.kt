@@ -4,9 +4,6 @@
 
 package kotlinx.serialization.json.internal
 
-import java.io.*
-import java.nio.charset.Charset
-
 internal const val BATCH_SIZE = 16 * 1024
 private const val DEFAULT_THRESHOLD = 128
 
@@ -26,17 +23,15 @@ private class ArrayAsSequence(private val source: CharArray) : CharSequence {
     override fun get(index: Int): Char = source[index]
 
     override fun subSequence(startIndex: Int, endIndex: Int): CharSequence {
-        return String(source, startIndex, endIndex - startIndex)
+        return source.concatToString(startIndex, endIndex)
     }
 }
 
 internal class ReaderJsonLexer(
-    private val reader: Reader,
+    private val reader: SerialReader,
     private var _source: CharArray = CharArray(BATCH_SIZE)
 ) : AbstractJsonLexer() {
     private var threshold: Int = DEFAULT_THRESHOLD // chars
-
-    constructor(i: InputStream, charset: Charset = Charsets.UTF_8) : this(i.reader(charset).buffered(READER_BUF_SIZE))
 
     override var source: CharSequence = ArrayAsSequence(_source)
 
@@ -75,7 +70,7 @@ internal class ReaderJsonLexer(
 
     private fun preload(spaceLeft: Int) {
         val buffer = _source
-        System.arraycopy(buffer, currentPosition, buffer, 0, spaceLeft)
+        buffer.copyInto(buffer, 0, currentPosition, currentPosition + spaceLeft)
         var read = spaceLeft
         val sizeTotal = _source.size
         while (read != sizeTotal) {
@@ -168,7 +163,7 @@ internal class ReaderJsonLexer(
     }
 
     override fun substring(startPos: Int, endPos: Int): String {
-        return String(_source, startPos, endPos - startPos)
+        return _source.concatToString(startPos, endPos)
     }
 
     override fun appendRange(fromIndex: Int, toIndex: Int) {

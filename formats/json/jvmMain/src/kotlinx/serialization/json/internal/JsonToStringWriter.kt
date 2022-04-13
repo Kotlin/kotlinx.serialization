@@ -25,41 +25,41 @@ package kotlinx.serialization.json.internal
  * 3) We pool char arrays in order to save excess resizes, allocations
  *    and nulls-out of arrays.
  */
-internal actual open class JsonStringBuilder(@JvmField protected var array: CharArray) {
-    actual constructor(): this(CharArrayPool.take())
+internal actual class JsonToStringWriter : JsonWriter {
+    private var array: CharArray = CharArrayPool.take()
+    private var size = 0
 
-    protected var size = 0
-
-    actual fun append(value: Long) {
+    actual override fun writeLong(value: Long) {
         // Can be hand-rolled, but requires a lot of code and corner-cases handling
-        append(value.toString())
+        write(value.toString())
     }
 
-    actual fun append(ch: Char) {
+    actual override fun writeChar(char: Char) {
         ensureAdditionalCapacity(1)
-        array[size++] = ch
+        array[size++] = char
     }
 
-    actual fun append(string: String) {
-        val length = string.length
+    actual override fun write(text: String) {
+        val length = text.length
+        if (length == 0) return
         ensureAdditionalCapacity(length)
-        string.toCharArray(array, size, 0, string.length)
+        text.toCharArray(array, size, 0, text.length)
         size += length
     }
 
-    actual fun appendQuoted(string: String) {
-        ensureAdditionalCapacity(string.length + 2)
+    actual override fun writeQuoted(text: String) {
+        ensureAdditionalCapacity(text.length + 2)
         val arr = array
         var sz = size
         arr[sz++] = '"'
-        val length = string.length
-        string.toCharArray(arr, sz, 0, length)
+        val length = text.length
+        text.toCharArray(arr, sz, 0, length)
         for (i in sz until sz + length) {
             val ch = arr[i].code
             // Do we have unescaped symbols?
             if (ch < ESCAPE_MARKERS.size && ESCAPE_MARKERS[ch] != 0.toByte()) {
                 // Go to slow path
-                return appendStringSlowPath(i - sz, i, string)
+                return appendStringSlowPath(i - sz, i, text)
             }
         }
         // Update the state
@@ -113,6 +113,10 @@ internal actual open class JsonStringBuilder(@JvmField protected var array: Char
         size = sz
     }
 
+    actual override fun release() {
+        CharArrayPool.release(array)
+    }
+
     actual override fun toString(): String {
         return String(array, 0, size)
     }
@@ -122,15 +126,11 @@ internal actual open class JsonStringBuilder(@JvmField protected var array: Char
     }
 
     // Old size is passed and returned separately to avoid excessive [size] field read
-    protected open fun ensureTotalCapacity(oldSize: Int, additional: Int): Int {
+    private fun ensureTotalCapacity(oldSize: Int, additional: Int): Int {
         val newSize = oldSize + additional
         if (array.size <= newSize) {
             array = array.copyOf(newSize.coerceAtLeast(oldSize * 2))
         }
         return oldSize
-    }
-
-    actual open fun release() {
-        CharArrayPool.release(array)
     }
 }

@@ -435,62 +435,6 @@ Per the standard packed fields can only be used on primitive numeric types. The 
 Per the [format description](https://developers.google.com/protocol-buffers/docs/encoding#packed) the parser ignores
 the annotation, but rather reads list in either packed or repeated format.
 
-### ProtoBuf schema generator (experimental)
-
-As mentioned above, when working with protocol buffers you usually use a ".proto" file and a code generator for your
-language.  This includes the code to serialize your message to an output stream and deserialize it from an input stream.
-When using Kotlin Serialization this step is not necessary because your `@Serializable` Kotlin data types are used as the
-source for the schema.
-
-This is very convenient for Kotlin-to-Kotlin communication, but makes interoperability between languages complicated.
-Fortunately, you can use the ProtoBuf schema generator to output the ".proto" representation of your messages.  You can
-keep your Kotlin classes as a source of truth and use traditional protoc compilers for other languages at the same time.
-
-As an example, we can display the following data class's ".proto" schema as follows.
-
-<!--- INCLUDE
-import kotlinx.serialization.*
-import kotlinx.serialization.protobuf.*
-import kotlinx.serialization.protobuf.schema.ProtoBufSchemaGenerator
--->
-
-```kotlin
-@Serializable
-data class SampleData(
-    val amount: Long,
-    val description: String?,
-    val department: String = "QA"
-)
-fun main() {
-  val descriptors = listOf(SampleData.serializer().descriptor)
-  val schemas = ProtoBufSchemaGenerator.generateSchemaText(descriptors)
-  println(schemas)
-}
-```
-> You can get the full code [here](../guide/example/example-formats-08.kt).
-
-Which would output as follows.
-
-```text
-syntax = "proto2";
-
-
-// serial name 'example.exampleFormats08.SampleData'
-message SampleData {
-  required int64 amount = 1;
-  optional string description = 2;
-  // WARNING: a default value decoded when value is missing
-  optional string department = 3;
-}
-
-```
-
-<!--- TEST -->
-
-Note that since default values are not represented in ".proto" files, a warning is generated when one appears in the schema.
-
-See the documentation for [ProtoBufSchemaGenerator] for more information.
-
 ## Properties (experimental)
 
 Kotlin Serialization can serialize a class into a flat map with `String` keys via 
@@ -519,7 +463,7 @@ fun main() {
 }
 ```      
 
-> You can get the full code [here](../guide/example/example-formats-09.kt).
+> You can get the full code [here](../guide/example/example-formats-08.kt).
 
 The resulting map has dot-separated keys representing keys of the nested objects.
 
@@ -599,7 +543,7 @@ fun main() {
 }
 ```                                    
 
-> You can get the full code [here](../guide/example/example-formats-10.kt).
+> You can get the full code [here](../guide/example/example-formats-09.kt).
 
 As a result, we got all the primitive values in our object graph visited and put into a list
 in _serial_ order.
@@ -701,7 +645,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-11.kt).
+> You can get the full code [here](../guide/example/example-formats-10.kt).
 
 Now we can convert a list of primitives back to an object tree.
 
@@ -792,7 +736,7 @@ fun main() {
 }
 -->
 
-> You can get the full code [here](../guide/example/example-formats-12.kt).
+> You can get the full code [here](../guide/example/example-formats-11.kt).
 
 <!--- TEST 
 [kotlinx.serialization, kotlin, 9000]
@@ -899,7 +843,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-13.kt).
+> You can get the full code [here](../guide/example/example-formats-12.kt).
 
 We see the size of the list added to the result, letting the decoder know where to stop. 
 
@@ -1011,7 +955,7 @@ fun main() {
 
 ```
 
-> You can get the full code [here](../guide/example/example-formats-14.kt).
+> You can get the full code [here](../guide/example/example-formats-13.kt).
 
 In the output we see how not-null`!!` and `NULL` marks are used.
 
@@ -1139,7 +1083,7 @@ fun main() {
 }
 ```
               
-> You can get the full code [here](../guide/example/example-formats-15.kt).
+> You can get the full code [here](../guide/example/example-formats-14.kt).
 
 As we can see, the result is a dense binary format that only contains the data that is being serialized. 
 It can be easily tweaked for any kind of domain-specific compact encoding.
@@ -1333,7 +1277,7 @@ fun main() {
 }
 ```
               
-> You can get the full code [here](../guide/example/example-formats-16.kt).
+> You can get the full code [here](../guide/example/example-formats-15.kt).
 
 As we can see, our custom byte array format is being used, with the compact encoding of its size in one byte. 
 
@@ -1403,10 +1347,6 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
 [ProtoIntegerType.DEFAULT]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/-d-e-f-a-u-l-t/index.html
 [ProtoIntegerType.SIGNED]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/-s-i-g-n-e-d/index.html
 [ProtoIntegerType.FIXED]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/-f-i-x-e-d/index.html
-
-<!--- INDEX kotlinx-serialization-protobuf/kotlinx.serialization.protobuf.schema -->
-
-[ProtoBufSchemaGenerator]: https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf.schema/-proto-buf-schema-generator/index.html
 
 <!--- MODULE /kotlinx-serialization-cbor -->
 <!--- INDEX kotlinx-serialization-cbor/kotlinx.serialization.cbor -->
