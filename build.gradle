@@ -43,6 +43,8 @@ buildscript {
     }
 
     repositories {
+        maven { url "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap" }
+        //maven { url "F:\\JetBrains\\kotlin\\build\\repo" }
         maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
         // kotlin-dev with space redirector
         maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
@@ -134,6 +136,8 @@ allprojects {
     }
 
     repositories {
+        maven { url "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap" }
+        //maven { url "F:\\JetBrains\\kotlin\\build\\repo" }
         mavenCentral()
         maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
         // kotlin-dev with space redirector
@@ -155,12 +159,17 @@ subprojects {
         }
     }
 
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+        kotlinOptions {
+            freeCompilerArgs += "-Xuse-fir"
+        }
+    }
+
     apply from: rootProject.file('gradle/teamcity.gradle')
     // Configure publishing for some artifacts
     if (project.name != "benchmark" && project.name != "guide") {
         apply from: rootProject.file('gradle/publishing.gradle')
     }
-
 }
 
 subprojects {

@@ -6,6 +6,8 @@ plugins {
 }
 
 repositories {
+    maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap")
+    //maven("F:\\JetBrains\\kotlin\\build\\repo")
     mavenCentral()
     // kotlin-dev with space redirector
     maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
