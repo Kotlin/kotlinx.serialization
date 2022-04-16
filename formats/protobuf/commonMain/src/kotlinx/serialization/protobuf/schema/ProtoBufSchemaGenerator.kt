@@ -200,9 +200,10 @@ public object ProtoBufSchemaGenerator {
             val isPackRequested = annotations.filterIsInstance<ProtoPacked>().singleOrNull() != null
 
             when {
-                !isPackRequested -> appendLine(';')
-                !isList -> throw IllegalArgumentException("ProtoPacked annotation provided for ${messageDescriptor.getElementName(index)}: $fieldDescriptor, but packing is only valid on repeated fields (lists)")
-                !fieldDescriptor.getElementDescriptor(0).isPackable -> throw IllegalArgumentException("ProtoPacked annotation provided for ${messageDescriptor.getElementName(index)}: $fieldDescriptor, but packed can only be applied to primitive numeric types")
+                !isPackRequested ||
+                !isList || // ignore as packed only meaningful on repeated types
+                !fieldDescriptor.getElementDescriptor(0).isPackable // Ignore if the type is not allowed to be packed
+                     -> appendLine(';')
                 else -> appendLine(" [packed=true];")
             }
         }
