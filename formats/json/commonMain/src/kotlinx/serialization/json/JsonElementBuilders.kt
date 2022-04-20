@@ -72,7 +72,7 @@ public class JsonObjectBuilder @PublishedApi internal constructor() {
 }
 
 /**
- * Add the [JSON][JsonObject] produced by the [builderAction] function to a resulting json object using the given [key].
+ * Add the [JSON object][JsonObject] produced by the [builderAction] function to a resulting JSON object using the given [key].
  *
  * Returns the previous value associated with [key], or `null` if the key was not present.
  */
@@ -80,7 +80,7 @@ public fun JsonObjectBuilder.putJsonObject(key: String, builderAction: JsonObjec
     put(key, buildJsonObject(builderAction))
 
 /**
- * Add the [JSON array][JsonArray] produced by the [builderAction] function to a resulting json object using the given [key].
+ * Add the [JSON array][JsonArray] produced by the [builderAction] function to a resulting JSON object using the given [key].
  *
  * Returns the previous value associated with [key], or `null` if the key was not present.
  */
@@ -125,7 +125,7 @@ public class JsonArrayBuilder @PublishedApi internal constructor() {
     private val content: MutableList<JsonElement> = mutableListOf()
 
     /**
-     * Adds the given JSON [element] to a resulting array.
+     * Adds the given JSON [element] to a resulting JSON array.
      *
      * Always returns `true` similarly to [ArrayList] specification.
      */
@@ -139,28 +139,28 @@ public class JsonArrayBuilder @PublishedApi internal constructor() {
 }
 
 /**
- * Adds the given boolean [value] to a resulting array.
+ * Adds the given boolean [value] to a resulting JSON array.
  *
  * Always returns `true` similarly to [ArrayList] specification.
  */
 public fun JsonArrayBuilder.add(value: Boolean?): Boolean = add(JsonPrimitive(value))
 
 /**
- * Adds the given numeric [value] to a resulting array.
+ * Adds the given numeric [value] to a resulting JSON array.
  *
  * Always returns `true` similarly to [ArrayList] specification.
  */
 public fun JsonArrayBuilder.add(value: Number?): Boolean = add(JsonPrimitive(value))
 
 /**
- * Adds the given string [value] to a resulting array.
+ * Adds the given string [value] to a resulting JSON array.
  *
  * Always returns `true` similarly to [ArrayList] specification.
  */
 public fun JsonArrayBuilder.add(value: String?): Boolean = add(JsonPrimitive(value))
 
 /**
- * Adds `null` to a resulting array.
+ * Adds `null` to a resulting JSON array.
  *
  * Always returns `true` similarly to [ArrayList] specification.
  */
@@ -168,7 +168,7 @@ public fun JsonArrayBuilder.add(value: String?): Boolean = add(JsonPrimitive(val
 public fun JsonArrayBuilder.add(value: Nothing?): Boolean = add(JsonNull)
 
 /**
- * Adds the [JSON][JsonObject] produced by the [builderAction] function to a resulting array.
+ * Adds the [JSON object][JsonObject] produced by the [builderAction] function to a resulting JSON array.
  *
  * Always returns `true` similarly to [ArrayList] specification.
  */
@@ -176,7 +176,7 @@ public fun JsonArrayBuilder.addJsonObject(builderAction: JsonObjectBuilder.() ->
     add(buildJsonObject(builderAction))
 
 /**
- * Adds the [JSON][JsonArray] produced by the [builderAction] function to a resulting array.
+ * Adds the [JSON array][JsonArray] produced by the [builderAction] function to a resulting JSON array.
  *
  * Always returns `true` similarly to [ArrayList] specification.
  */
