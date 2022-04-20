@@ -183,8 +183,6 @@ public fun JsonArrayBuilder.addJsonObject(builderAction: JsonObjectBuilder.() ->
 public fun JsonArrayBuilder.addJsonArray(builderAction: JsonArrayBuilder.() -> Unit): Boolean =
     add(buildJsonArray(builderAction))
 
-private const val infixToDeprecated = "Infix 'to' operator is deprecated for removal for the favour of 'add'"
-private const val unaryPlusDeprecated = "Unary plus is deprecated for removal for the favour of 'add'"
 
 @DslMarker
 internal annotation class JsonDslMarker
