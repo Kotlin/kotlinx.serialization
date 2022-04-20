@@ -109,6 +109,14 @@ public fun JsonObjectBuilder.put(key: String, value: Number?): JsonElement? = pu
 public fun JsonObjectBuilder.put(key: String, value: String?): JsonElement? = put(key, JsonPrimitive(value))
 
 /**
+ * Add `null` to a resulting JSON object using the given [key].
+ *
+ * Returns the previous value associated with [key], or `null` if the key was not present.
+ */
+@Suppress("UNUSED_PARAMETER")
+public fun JsonObjectBuilder.put(key: String, value: Nothing?): JsonElement? = put(key, JsonNull)
+
+/**
  * DSL builder for a [JsonArray]. To create an instance of builder, use [buildJsonArray] build function.
  */
 @JsonDslMarker
@@ -150,6 +158,14 @@ public fun JsonArrayBuilder.add(value: Number?): Boolean = add(JsonPrimitive(val
  * Always returns `true` similarly to [ArrayList] specification.
  */
 public fun JsonArrayBuilder.add(value: String?): Boolean = add(JsonPrimitive(value))
+
+/**
+ * Adds `null` to a resulting array.
+ *
+ * Always returns `true` similarly to [ArrayList] specification.
+ */
+@Suppress("UNUSED_PARAMETER")
+public fun JsonArrayBuilder.add(value: Nothing?): Boolean = add(JsonNull)
 
 /**
  * Adds the [JSON][JsonObject] produced by the [builderAction] function to a resulting array.

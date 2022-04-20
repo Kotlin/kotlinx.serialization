@@ -69,6 +69,10 @@ public fun JsonPrimitive(value: String?): JsonPrimitive {
     return JsonLiteral(value, isString = true)
 }
 
+/** Returns [JsonNull]. */
+@Suppress("FunctionName", "UNUSED_PARAMETER")
+public fun JsonPrimitive(value: Nothing?): JsonNull = JsonNull
+
 // JsonLiteral is deprecated for public use and no longer available. Please use JsonPrimitive instead
 internal class JsonLiteral internal constructor(
     body: Any,
