@@ -76,16 +76,16 @@ public fun JsonPrimitive(value: Nothing?): JsonNull = JsonNull
 // JsonLiteral is deprecated for public use and no longer available. Please use JsonPrimitive instead
 internal class JsonLiteral internal constructor(
     body: Any,
-    public override val isString: Boolean
+    override val isString: Boolean
 ) : JsonPrimitive() {
-    public override val content: String = body.toString()
+    override val content: String = body.toString()
 
-    public override fun toString(): String =
+    override fun toString(): String =
         if (isString) buildString { printQuoted(content) }
         else content
 
     // Compare by `content` and `isString`, because body can be kotlin.Long=42 or kotlin.String="42"
-    public override fun equals(other: Any?): Boolean {
+    override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
         other as JsonLiteral
@@ -94,7 +94,7 @@ internal class JsonLiteral internal constructor(
         return true
     }
 
-    public override fun hashCode(): Int {
+    override fun hashCode(): Int {
         var result = isString.hashCode()
         result = 31 * result + content.hashCode()
         return result
