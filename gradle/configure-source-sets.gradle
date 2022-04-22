@@ -7,8 +7,7 @@ kotlin {
         withJava()
         configure([compilations.main, compilations.test]) {
             kotlinOptions {
-                jvmTarget = '1.6'
-                freeCompilerArgs += "-Xsuppress-deprecated-jvm-target-warning"
+                jvmTarget = '1.8'
             }
         }
     }
