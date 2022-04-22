@@ -188,7 +188,7 @@ subprojects {
             annotation = annotationValue
         }
         dependencies {
-            signature 'net.sf.androidscents.signature:android-api-level-14:4.0_r4@signature'
+            signature 'net.sf.androidscents.signature:android-api-level-26:8.0.0_r2@signature'
             signature 'org.codehaus.mojo.signature:java18:1.0@signature'
         }
 
