@@ -36,7 +36,8 @@ class JsonPathTest : JsonTestBase() {
     fun testUnknownKeyIsProperlyReported() {
         expectPath("$.i") { Json.decodeFromString<Outer>("""{"a":42, "i":{"foo":42}""") }
         expectPath("$") { Json.decodeFromString<Outer>("""{"x":{}, "a": 42}""") }
-//        Json.decodeFromString<Outer>("""{"a":42, "x":{}}""")
+        // The only place we have misattribution in
+        // Json.decodeFromString<Outer>("""{"a":42, "x":{}}""")
     }
 
     @Test
