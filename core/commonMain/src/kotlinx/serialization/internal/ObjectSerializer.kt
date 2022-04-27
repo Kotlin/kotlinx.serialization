@@ -40,7 +40,14 @@ internal class ObjectSerializer<T : Any>(serialName: String, private val objectI
     }
 
     override fun deserialize(decoder: Decoder): T {
-        decoder.beginStructure(descriptor).endStructure(descriptor)
+        decoder.decodeStructure(descriptor) {
+            when (val index = decodeElementIndex(descriptor)) {
+                CompositeDecoder.DECODE_DONE -> {
+                    return@decodeStructure
+                }
+                else -> throw SerializationException("Unexpected index $index")
+            }
+        }
         return objectInstance
     }
 }

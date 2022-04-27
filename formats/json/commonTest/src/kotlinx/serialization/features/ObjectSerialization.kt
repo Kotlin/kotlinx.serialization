@@ -5,10 +5,10 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonTestBase
+import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
-import kotlin.test.Test
+import kotlinx.serialization.test.*
+import kotlin.test.*
 
 class ObjectSerializationTest : JsonTestBase() {
 
@@ -45,5 +45,18 @@ class ObjectSerializationTest : JsonTestBase() {
             """{"response":{"type":"ApiResponse","message":"OK"}}""",
             json
         )
+    }
+
+    @Test
+    fun testUnknownKeys() {
+        val string = """{"metadata":"foo"}"""
+        assertFailsWithMessage<SerializationException>("ignoreUnknownKeys") {
+            Json.decodeFromString(
+                ApiResponse.Error.serializer(),
+                string
+            )
+        }
+        val json = Json { ignoreUnknownKeys = true }
+        assertEquals(ApiResponse.Error, json.decodeFromString(ApiResponse.Error.serializer(), string))
     }
 }
