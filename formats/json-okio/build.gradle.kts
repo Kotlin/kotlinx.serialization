@@ -12,6 +12,8 @@ apply(from = rootProject.file("gradle/native-targets.gradle"))
 apply(from = rootProject.file("gradle/configure-source-sets.gradle"))
 
 kotlin {
+    targets.removeIf { it.name == "mingwX86" }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
