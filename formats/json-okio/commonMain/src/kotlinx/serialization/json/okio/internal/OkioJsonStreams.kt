@@ -1,5 +1,12 @@
-package kotlinx.serialization.json.internal
+/*
+ * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 
+package kotlinx.serialization.json.okio.internal
+
+import kotlinx.serialization.json.internal.ESCAPE_STRINGS
+import kotlinx.serialization.json.internal.JsonWriter
+import kotlinx.serialization.json.internal.SerialReader
 import okio.*
 
 internal class JsonToOkioStreamWriter(private val target: BufferedSink) : JsonWriter {
