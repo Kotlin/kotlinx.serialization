@@ -93,14 +93,18 @@ kotlin {
         } else {
             // Linux
             addTarget(presets.linuxX64)
-            addTarget(presets.linuxArm32Hfp)
-            addTarget(presets.linuxArm64)
+            if (!project.name.contains("json-okio")) {
+                addTarget(presets.linuxArm32Hfp)
+                addTarget(presets.linuxArm64)
+            }
 
             // Mac & iOS
             addTarget(presets.macosX64)
 
             addTarget(presets.iosArm64)
-            addTarget(presets.iosArm32)
+            if (!project.name.contains("json-okio")) {
+                addTarget(presets.iosArm32)
+            }
             addTarget(presets.iosX64)
 
             addTarget(presets.watchosX86)
@@ -119,7 +123,9 @@ kotlin {
 
             // Windows
             addTarget(presets.mingwX64)
-            addTarget(presets.mingwX86)
+            if (!project.name.contains("json-okio")) {
+                addTarget(presets.mingwX86)
+            }
         }
 
         if (project.ext.nativeState == NativeState.HOST) {

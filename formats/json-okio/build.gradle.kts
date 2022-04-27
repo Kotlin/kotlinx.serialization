@@ -12,14 +12,12 @@ apply(from = rootProject.file("gradle/native-targets.gradle"))
 apply(from = rootProject.file("gradle/configure-source-sets.gradle"))
 
 kotlin {
-    targets.removeIf { it.name == "mingwX86" || it.name == "linuxArm64" || it.name == "linuxArm32Hfp" || it.name == "iosArm32" }
-
     sourceSets {
         val commonMain by getting {
             dependencies {
                 api(project(":kotlinx-serialization-core"))
                 api(project(":kotlinx-serialization-json"))
-                compileOnly("com.squareup.okio:okio:3.1.0")
+                implementation("com.squareup.okio:okio:3.1.0")
             }
         }
         val commonTest by getting {
