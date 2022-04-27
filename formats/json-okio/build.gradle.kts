@@ -12,7 +12,7 @@ apply(from = rootProject.file("gradle/native-targets.gradle"))
 apply(from = rootProject.file("gradle/configure-source-sets.gradle"))
 
 kotlin {
-    targets.removeIf { it.name == "mingwX86" }
+    targets.removeIf { it.name == "mingwX86" || it.name == "linuxArm64" }
 
     sourceSets {
         val commonMain by getting {
