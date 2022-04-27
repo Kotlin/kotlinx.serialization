@@ -473,18 +473,13 @@ public interface CompositeEncoder {
 /**
  * Begins a structure, encodes it using the given [block] and ends it.
  */
-public inline fun Encoder.encodeStructure(descriptor: SerialDescriptor, block: CompositeEncoder.() -> Unit) {
+public inline fun Encoder.encodeStructure(
+    descriptor: SerialDescriptor,
+    crossinline block: CompositeEncoder.() -> Unit
+) {
     val composite = beginStructure(descriptor)
-    var ex: Throwable? = null
-    try {
-        composite.block()
-    } catch (e: Throwable) {
-        ex = e
-        throw e
-    } finally {
-        // End structure only if there is no exception, otherwise it can be swallowed
-        if (ex == null) composite.endStructure(descriptor)
-    }
+    composite.block()
+    composite.endStructure(descriptor)
 }
 
 /**
@@ -495,10 +490,9 @@ public inline fun Encoder.encodeCollection(
     collectionSize: Int,
     crossinline block: CompositeEncoder.() -> Unit
 ) {
-    with(beginCollection(descriptor, collectionSize)) {
-        block()
-        endStructure(descriptor)
-    }
+    val composite = beginCollection(descriptor, collectionSize)
+    composite.block()
+    composite.endStructure(descriptor)
 }
 
 /**
