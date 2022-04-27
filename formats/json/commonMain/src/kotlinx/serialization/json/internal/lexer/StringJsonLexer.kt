@@ -78,10 +78,10 @@ internal class StringJsonLexer(override val source: String) : AbstractJsonLexer(
 
     override fun consumeKeyString(): String {
         /*
-       * For strings we assume that escaped symbols are rather an exception, so firstly
-       * we optimistically scan for closing quote via intrinsified and blazing-fast 'indexOf',
-       * than do our pessimistic check for backslash and fallback to slow-path if necessary.
-       */
+         * For strings we assume that escaped symbols are rather an exception, so firstly
+         * we optimistically scan for closing quote via intrinsified and blazing-fast 'indexOf',
+         * than do our pessimistic check for backslash and fallback to slow-path if necessary.
+         */
         consumeNextToken(STRING)
         val current = currentPosition
         val closingQuote = source.indexOf('"', current)

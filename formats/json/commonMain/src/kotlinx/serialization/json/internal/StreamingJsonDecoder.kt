@@ -9,6 +9,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.DECODE_DONE
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
@@ -35,7 +36,38 @@ internal open class StreamingJsonDecoder(
     @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
         try {
-            return decodeSerializableValuePolymorphic(deserializer)
+            /*
+         * This is an optimized path over decodeSerializableValuePolymorphic(deserializer):
+         * dSVP reads the very next JSON tree into a memory as JsonElement and then runs TreeJsonDecoder over it
+         * in order to deal with an arbitrary order of keys, but with the price of additional memory pressure
+         * and CPU consumption.
+         * We would like to provide best possible performance for data produced by kotlinx.serialization
+         * itself, for that we do the following optimistic optimization:
+         *
+         * 0) Remember current position in the string
+         * 1) Read the very next key of JSON structure
+         * 2) If it matches*  the descriminator key, read the value, remember current position
+         * 3) Return the value, recover an initial position
+         * 4) Right after starting the structure beginning, immediately skip over discriminator
+         *    using position from '2'.
+         * In such scenario we neither process the same input twice nor create aux data structures.
+         *
+         * (*) -- if it doesn't match, fallback to dSVP method.
+         */
+            if (deserializer !is AbstractPolymorphicSerializer<*> || json.configuration.useArrayPolymorphism) {
+                return deserializer.deserialize(this)
+            }
+
+            val discriminator = deserializer.descriptor.classDiscriminator(json)
+            val type = lexer.consumeLeadingMatchingValue(discriminator, configuration.isLenient)
+            val actualSerializer = deserializer.findPolymorphicSerializerOrNull(this, type)
+            // TODO ask, seems to be inference bug?
+            if (actualSerializer == null) {
+                return decodeSerializableValuePolymorphic<T>(deserializer as DeserializationStrategy<T>)
+            }
+            @Suppress("UNCHECKED_CAST")
+            return actualSerializer.deserialize(this) as T
+
         } catch (e: MissingFieldException) {
             throw MissingFieldException(e.message + " at path: " + lexer.path.getPath(), e)
         }
@@ -54,10 +86,13 @@ internal open class StreamingJsonDecoder(
                 lexer,
                 descriptor
             )
-            else -> if (mode == newMode && json.configuration.explicitNulls) {
-                this
-            } else {
-                StreamingJsonDecoder(json, newMode, lexer, descriptor)
+            else -> {
+                lexer.skipReadPrefix()
+                if (mode == newMode && json.configuration.explicitNulls) {
+                    this
+                } else {
+                    StreamingJsonDecoder(json, newMode, lexer, descriptor)
+                }
             }
         }
     }
