@@ -19,12 +19,12 @@ kotlin {
             dependencies {
                 api(project(":kotlinx-serialization-core"))
                 api(project(":kotlinx-serialization-json"))
-                compileOnly("com.squareup.okio:okio-multiplatform:3.0.0-alpha.9")
+                compileOnly("com.squareup.okio:okio:3.1.0")
             }
         }
         val commonTest by getting {
             dependencies {
-                implementation("com.squareup.okio:okio-multiplatform:3.0.0-alpha.9")
+                implementation("com.squareup.okio:okio:3.1.0")
             }
         }
     }
