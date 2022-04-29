@@ -70,7 +70,6 @@ public sealed class SerializersModule {
  * A [SerializersModule] which is empty and always returns `null`.
  */
 @SharedImmutable
-@ExperimentalSerializationApi
 public val EmptySerializersModule: SerializersModule = SerialModuleImpl(emptyMap(), emptyMap(), emptyMap(), emptyMap(), emptyMap())
 
 /**
