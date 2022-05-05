@@ -17,6 +17,7 @@ stable, these are currently experimental features of Kotlin Serialization.
   * [Field numbers](#field-numbers)
   * [Integer types](#integer-types)
   * [Lists as repeated fields](#lists-as-repeated-fields)
+  * [Packed fields](#packed-fields)
 * [Properties (experimental)](#properties-experimental)
 * [Custom formats (experimental)](#custom-formats-experimental)
   * [Basic encoder](#basic-encoder)
