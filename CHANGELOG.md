@@ -343,7 +343,7 @@ This patch release contains several feature improvements as well as bugfixes and
 
 The first public stable release, yay!
 The definitions of stability and backwards compatibility guarantees are located in the [corresponding document](docs/compatibility.md).
-We now also have a GitHub Pages site with [full API reference](https://kotlin.github.io/kotlinx.serialization/).
+We now also have a GitHub Pages site with [full API reference](https://kotlinlang.org/api/kotlinx.serialization/).
 
 Compared to RC2, no new features apart from #947 were added and all previously deprecated declarations and migrations were deleted.
 If you are using RC/RC2 along with deprecated declarations, please, migrate before updating to 1.0.0.
