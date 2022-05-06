@@ -142,4 +142,20 @@ Allow serialization and deserialization of objects to and from [Amazon Ion](http
 * Artifact ID: `dev.ahmedmourad.bundlizer:bundlizer-core`
 * Platform: Android
 
-Allow serialization and deserialization of objects to and from [android.os.Bundle](https://developer.android.com/reference/android/os/Bundle).  
+Allow serialization and deserialization of objects to and from [android.os.Bundle](https://developer.android.com/reference/android/os/Bundle).
+
+### CSV
+* GitHub repo: [hfhbd/kotlinx-serialization-csv](https://github.com/hfhbd/kotlinx-serialization-csv)
+* Artifact ID: `app.softwork:kotlinx-serialization-csv`
+* Platform: all supported platforms
+
+Allows serialization and deserialization of CSV files.
+There are still some limitations (ordered properties).
+
+### Fixed Length Format
+* GitHub repo: [hfhbd/kotlinx-serialization-csv](https://github.com/hfhbd/kotlinx-serialization-csv)
+* Artifact ID: `app.softwork:kotlinx-serialization-flf`
+* Platform: all supported platforms
+
+Allows serialization and deserialization of [Fixed Length Format files](https://www.ibm.com/docs/en/psfa/7.2.1?topic=format-fixed-length-files).
+Each property must be annotated with `@FixedLength` and there are still some limitations due to missing delimiters.
