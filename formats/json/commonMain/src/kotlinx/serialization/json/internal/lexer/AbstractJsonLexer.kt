@@ -137,6 +137,9 @@ internal abstract class AbstractJsonLexer {
     @JvmField
     protected var currentPosition: Int = 0 // position in source
 
+    @JvmField
+    val path = JsonPath()
+
     open fun ensureHaveChars() {}
 
     fun isNotEof(): Boolean = peekNextToken() != TC_EOF
@@ -199,7 +202,7 @@ internal abstract class AbstractJsonLexer {
     protected fun unexpectedToken(expected: Char) {
         --currentPosition // To properly handle null
         if (currentPosition >= 0 && expected == STRING && consumeStringLenient() == NULL) {
-            fail("Expected string literal but 'null' literal was found.\n$coerceInputValuesHint", currentPosition - 4)
+            fail("Expected string literal but 'null' literal was found", currentPosition - 4, coerceInputValuesHint)
         }
         fail(charToTokenClass(expected))
     }
@@ -488,7 +491,7 @@ internal abstract class AbstractJsonLexer {
                 TC_END_LIST -> {
                     if (tokenStack.last() != TC_BEGIN_LIST) throw JsonDecodingException(
                         currentPosition,
-                        "found ] instead of }",
+                        "found ] instead of } at path: $path",
                         source
                     )
                     tokenStack.removeLast()
@@ -496,7 +499,7 @@ internal abstract class AbstractJsonLexer {
                 TC_END_OBJ -> {
                     if (tokenStack.last() != TC_BEGIN_OBJ) throw JsonDecodingException(
                         currentPosition,
-                        "found } instead of ]",
+                        "found } instead of ] at path: $path",
                         source
                     )
                     tokenStack.removeLast()
@@ -517,11 +520,12 @@ internal abstract class AbstractJsonLexer {
         // but still would like an error to point to the beginning of the key, so we are backtracking it
         val processed = substring(0, currentPosition)
         val lastIndexOf = processed.lastIndexOf(key)
-        fail("Encountered an unknown key '$key'.\n$ignoreUnknownKeysHint", lastIndexOf)
+        fail("Encountered an unknown key '$key'", lastIndexOf, ignoreUnknownKeysHint)
     }
 
-    fun fail(message: String, position: Int = currentPosition): Nothing {
-        throw JsonDecodingException(position, message, source)
+    fun fail(message: String, position: Int = currentPosition, hint: String = ""): Nothing {
+        val hintMessage = if (hint.isEmpty()) "" else "\n$hint"
+        throw JsonDecodingException(position, message + " at path: " + path.getPath() + hintMessage, source)
     }
 
     fun consumeNumericLiteral(): Long {

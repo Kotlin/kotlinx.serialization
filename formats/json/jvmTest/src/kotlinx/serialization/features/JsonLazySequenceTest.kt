@@ -18,7 +18,7 @@ import org.junit.Test
 import java.io.*
 import kotlin.test.*
 
-class JsonStreamFlowTest {
+class JsonLazySequenceTest {
     val json = Json
 
     private suspend inline fun <reified T> Flow<T>.writeToStream(os: OutputStream) {
