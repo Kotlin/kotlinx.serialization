@@ -1,3 +1,32 @@
+1.3.3 / 2022-05-11
+==================
+
+This release contains support for Protocol Buffers packed fields, as well as several bugfixes.
+It uses Kotlin 1.6.21 by default.
+
+### Protobuf packed fields
+
+It is now possible to encode and decode Kotlin classes to/from Protobuf messages with [packed repeated fields](https://developers.google.com/protocol-buffers/docs/encoding#packed).
+To mark the field as packed, use `@ProtoPacked` annotation on it.
+Note it affects only `List` and primitive collection such as `IntArray` types.
+With this feature, it is now possible to decode Proto3 messages, where all repeated fields are packed by default.
+[Protobuf schema generator](https://kotlin.github.io/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf.schema/-proto-buf-schema-generator/index.html) also supports new `@ProtoPacked` annotation.
+
+Many thanks to [Paul de Vrieze](https://github.com/pdvrieze) for his valuable contribution!
+
+### Other improvements & small features
+
+  * Incorporate JsonPath into exception messages (#1841)
+  * Mark block in corresponding encodeStructure/decodeStructure extensions as crossinline to reduce amount of bytecode (#1917)
+  * Support serialization of compile-time `Collection<E>` properties that are not lists at the runtime (#1821)
+  * Best-effort kotlin reflect avoidance in serializer(Type) (#1819)
+
+### Bugfixes
+
+  * Iterate over element indices in ObjectSerializer in order to let the format skip unknown keys (#1916)
+  * Correctly support registering both default polymorphic serializer & deserializer (#1849)
+  * Make error message for captured generic type parameters much more straightforward (#1863)
+  
 1.3.2 / 2021-12-23
 ==================
 

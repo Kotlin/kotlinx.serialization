@@ -270,7 +270,7 @@ public final class kotlinx/serialization/json/JsonObject : kotlinx/serialization
 	public fun containsValue (Lkotlinx/serialization/json/JsonElement;)Z
 	public final fun entrySet ()Ljava/util/Set;
 	public fun equals (Ljava/lang/Object;)Z
-	public synthetic fun get (Ljava/lang/Object;)Ljava/lang/Object;
+	public final synthetic fun get (Ljava/lang/Object;)Ljava/lang/Object;
 	public final fun get (Ljava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
 	public fun get (Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
 	public fun getEntries ()Ljava/util/Set;
