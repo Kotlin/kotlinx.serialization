@@ -9,9 +9,9 @@ fun computeLanguage(): String {
     return "Kotlin"
 }
 
-@Serializable 
+@Serializable
 data class Project(val name: String, val language: String = computeLanguage())
- 
+
 fun main() {
     val data = Json.decodeFromString<Project>("""
         {"name":"kotlinx.serialization","language":"Kotlin"}

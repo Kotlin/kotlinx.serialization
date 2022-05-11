@@ -39,7 +39,7 @@ import kotlin.reflect.*
  *
  * class CustomSerializer<T>(tSerializer: KSerializer<T>): KSerializer<BoxedList<T>> {
  *   // here we use tSerializer.descriptor because it represents T
- *   override val descriptor = SerialDescriptor("pkg.BoxedList", CLASS, typeParamSerializer.descriptor) {
+ *   override val descriptor = SerialDescriptor("pkg.BoxedList", CLASS, tSerializer.descriptor) {
  *     // here we have to wrap it with List first, because property has type List<T>
  *     element("list", ListSerializer(tSerializer).descriptor) // or listSerialDescriptor(tSerializer.descriptor)
  *   }

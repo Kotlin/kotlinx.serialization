@@ -4,29 +4,14 @@ package example.exampleJson15
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-import kotlinx.serialization.builtins.*
-
-@Serializable 
-data class Project(
-    val name: String,
-    @Serializable(with = UserListSerializer::class)      
-    val users: List<User>
-)
-
 @Serializable
-data class User(val name: String)
+data class Project(val name: String, val language: String)
 
-object UserListSerializer : JsonTransformingSerializer<List<User>>(ListSerializer(User.serializer())) {
-    // If response is not an array, then it is a single object that should be wrapped into the array
-    override fun transformDeserialize(element: JsonElement): JsonElement =
-        if (element !is JsonArray) JsonArray(listOf(element)) else element
-}
-
-fun main() {     
-    println(Json.decodeFromString<Project>("""
-        {"name":"kotlinx.serialization","users":{"name":"kotlin"}}
-    """))
-    println(Json.decodeFromString<Project>("""
-        {"name":"kotlinx.serialization","users":[{"name":"kotlin"},{"name":"jetbrains"}]}
-    """))
+fun main() {
+    val element = buildJsonObject {
+        put("name", "kotlinx.serialization")
+        put("language", "Kotlin")
+    }
+    val data = Json.decodeFromJsonElement<Project>(element)
+    println(data)
 }

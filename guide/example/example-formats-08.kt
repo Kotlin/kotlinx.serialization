@@ -2,17 +2,17 @@
 package example.exampleFormats08
 
 import kotlinx.serialization.*
-import kotlinx.serialization.properties.Properties // todo: remove when no longer needed
-import kotlinx.serialization.properties.*
+import kotlinx.serialization.protobuf.*
+import kotlinx.serialization.protobuf.schema.ProtoBufSchemaGenerator
 
 @Serializable
-class Project(val name: String, val owner: User)
-
-@Serializable
-class User(val name: String)
-
+data class SampleData(
+    val amount: Long,
+    val description: String?,
+    val department: String = "QA"
+)
 fun main() {
-    val data = Project("kotlinx.serialization",  User("kotlin"))
-    val map = Properties.encodeToMap(data)
-    map.forEach { (k, v) -> println("$k = $v") }
+  val descriptors = listOf(SampleData.serializer().descriptor)
+  val schemas = ProtoBufSchemaGenerator.generateSchemaText(descriptors)
+  println(schemas)
 }

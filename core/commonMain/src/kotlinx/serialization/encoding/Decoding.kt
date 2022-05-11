@@ -411,6 +411,8 @@ public interface CompositeDecoder {
      *     return descriptor.getElementIndex(nextKey) // getElementIndex can return UNKNOWN_NAME
      * }
      * ```
+     *
+     * If [decodeSequentially] returns `true`, the caller might skip calling this method.
      */
     public fun decodeElementIndex(descriptor: SerialDescriptor): Int
 

@@ -6,12 +6,12 @@ import kotlinx.serialization.json.*
 
 val format = Json { encodeDefaults = true }
 
-@Serializable 
+@Serializable
 class Project(
-    val name: String, 
+    val name: String,
     val language: String = "Kotlin",
     val website: String? = null
-)           
+)
 
 fun main() {
     val data = Project("kotlinx.serialization")

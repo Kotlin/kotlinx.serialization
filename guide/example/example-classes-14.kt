@@ -5,18 +5,13 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 @Serializable
-class Box<T>(val contents: T)
+class Project(val name: String, val owner: User, val maintainer: User)
 
 @Serializable
-data class Project(val name: String, val language: String)
-
-@Serializable
-class Data(
-    val a: Box<Int>,
-    val b: Box<Project>
-)
+class User(val name: String)
 
 fun main() {
-    val data = Data(Box(42), Box(Project("kotlinx.serialization", "Kotlin")))
+    val owner = User("kotlin")
+    val data = Project("kotlinx.serialization", owner, owner)
     println(Json.encodeToString(data))
 }

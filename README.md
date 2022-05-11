@@ -193,7 +193,7 @@ Uncomment and modify the last section in case you're serializing classes with na
 -if @kotlinx.serialization.Serializable class ** {
     static **$* *;
 }
--keepclassmembers class <1>$<3> {
+-keepclassmembers class <2>$<3> {
     kotlinx.serialization.KSerializer serializer(...);
 }
 
