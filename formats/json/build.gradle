@@ -15,18 +15,7 @@ kotlin {
                 api project(":kotlinx-serialization-core")
             }
         }
-
-        jvmTest {
-            dependencies {
-                implementation 'com.google.code.gson:gson:2.8.5'
-                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
-            }
-        }
     }
-}
-
-compileTestKotlinJsLegacy {
-    exclude '**/PropertyInitializerTest.kt'
 }
 
 Java9Modularity.configureJava9ModuleInfo(project)

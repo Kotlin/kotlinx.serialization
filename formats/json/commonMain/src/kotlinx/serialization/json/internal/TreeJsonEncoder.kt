@@ -14,7 +14,8 @@ import kotlinx.serialization.modules.*
 import kotlin.collections.set
 import kotlin.jvm.*
 
-internal fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
+@InternalSerializationApi
+public fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
     lateinit var result: JsonElement
     val encoder = JsonTreeEncoder(this) { result = it }
     encoder.encodeSerializableValue(serializer, value)

@@ -98,28 +98,6 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
         return oldSize
     }
 
-//    override fun writeQuoted(text: String) {
-//        val escapeStrings = ESCAPE_STRINGS
-//        val length = text.length
-//
-//        writeUtf8CodePoint(DOUBLE_QUOTES_CODE)
-//        var lastPos = 0
-//        for (i in 0 until length) {
-//            val c = text[i].code
-//            if (c < escapeStrings.size) {
-//                escapeStrings[c]?.let {
-//                    writeUtf8(text, lastPos, i) // flush prev
-//                    writeUtf8(it)
-//                    lastPos = i + 1
-//                }
-//            }
-//        }
-//
-//        if (lastPos != 0) writeUtf8(text, lastPos, length)
-//        else writeUtf8(text)
-//        writeUtf8CodePoint(DOUBLE_QUOTES_CODE)
-//    }
-
     override fun release() {
         flush()
         CharArrayPool.release(array)
