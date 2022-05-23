@@ -67,7 +67,7 @@ public sealed class Json(
      * The default instance of [Json] with default configuration.
      */
     @ThreadLocal // to support caching
-    public companion object Default : Json(JsonConfiguration(), EmptySerializersModule)
+    public companion object Default : Json(JsonConfiguration(), EmptySerializersModule())
 
     /**
      * Serializes the [value] into an equivalent JSON using the given [serializer].
@@ -303,7 +303,7 @@ private class JsonImpl(configuration: JsonConfiguration, module: SerializersModu
     }
 
     private fun validateConfiguration() {
-        if (serializersModule == EmptySerializersModule) return // Fast-path for in-place JSON allocations
+        if (serializersModule == EmptySerializersModule()) return // Fast-path for in-place JSON allocations
         val collector = PolymorphismValidator(configuration.useArrayPolymorphism, configuration.classDiscriminator)
         serializersModule.dumpTo(collector)
     }

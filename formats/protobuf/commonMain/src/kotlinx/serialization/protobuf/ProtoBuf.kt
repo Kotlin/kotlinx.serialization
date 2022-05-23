@@ -122,7 +122,7 @@ public sealed class ProtoBuf(
     /**
      * The default instance of [ProtoBuf].
      */
-    public companion object Default : ProtoBuf(false, EmptySerializersModule)
+    public companion object Default : ProtoBuf(false, EmptySerializersModule())
 
     override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutput()

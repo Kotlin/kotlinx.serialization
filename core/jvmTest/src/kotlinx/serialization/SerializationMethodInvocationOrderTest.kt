@@ -43,7 +43,7 @@ class SerializationMethodInvocationOrderTest {
     class Out : AbstractEncoder() {
         var step = 0
 
-        override val serializersModule: SerializersModule = EmptySerializersModule
+        override val serializersModule: SerializersModule = EmptySerializersModule()
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
             when (step) {
@@ -80,29 +80,39 @@ class SerializationMethodInvocationOrderTest {
 
         override fun <T : Any?> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
             when (step) {
-                0, 3 -> { step++; serializer.serialize(this, value); return }
+                0, 3 -> {
+                    step++; serializer.serialize(this, value); return
+                }
             }
             fail("@$step: encodeSerializableValue($value)")
         }
 
         override fun encodeString(value: String) {
             when (step) {
-                6 -> if (value == "s1") { step++; return }
+                6 -> if (value == "s1") {
+                    step++; return
+                }
             }
             fail("@$step: encodeString($value)")
         }
 
         override fun encodeInt(value: Int) {
             when (step) {
-                8 -> if (value == 42) { step++; return }
+                8 -> if (value == 42) {
+                    step++; return
+                }
             }
             fail("@$step: decodeInt($value)")
         }
 
         override fun endStructure(descriptor: SerialDescriptor) {
-            when(step) {
-                9 -> { checkDataDesc(descriptor); step++; return }
-                10 -> { checkContainerDesc(descriptor); step++; return }
+            when (step) {
+                9 -> {
+                    checkDataDesc(descriptor); step++; return
+                }
+                10 -> {
+                    checkContainerDesc(descriptor); step++; return
+                }
             }
             fail("@$step: endStructure($descriptor)")
         }
@@ -115,7 +125,7 @@ class SerializationMethodInvocationOrderTest {
     class Inp : AbstractDecoder() {
         var step = 0
 
-        override val serializersModule: SerializersModule = EmptySerializersModule
+        override val serializersModule: SerializersModule = EmptySerializersModule()
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             when (step) {
@@ -152,29 +162,39 @@ class SerializationMethodInvocationOrderTest {
 
         override fun <T : Any?> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
             when (step) {
-                0, 3 -> { step++; return deserializer.deserialize(this) }
+                0, 3 -> {
+                    step++; return deserializer.deserialize(this)
+                }
             }
             fail("@$step: decodeSerializableValue()")
         }
 
         override fun decodeString(): String {
             when (step) {
-                6 -> { step++; return "s1" }
+                6 -> {
+                    step++; return "s1"
+                }
             }
             fail("@$step: decodeString()")
         }
 
         override fun decodeInt(): Int {
             when (step) {
-                8 -> { step++; return 42 }
+                8 -> {
+                    step++; return 42
+                }
             }
             fail("@$step: decodeInt()")
         }
 
         override fun endStructure(descriptor: SerialDescriptor) {
-            when(step) {
-                10 -> { checkDataDesc(descriptor); step++; return }
-                12 -> { checkContainerDesc(descriptor); step++; return }
+            when (step) {
+                10 -> {
+                    checkDataDesc(descriptor); step++; return
+                }
+                12 -> {
+                    checkContainerDesc(descriptor); step++; return
+                }
             }
             fail("@$step: endStructure($descriptor)")
         }

@@ -34,6 +34,11 @@ public inline fun SerializersModule(builderAction: SerializersModuleBuilder.() -
 }
 
 /**
+ * A [SerializersModule] which is empty and returns `null` from each method.
+ */
+public fun EmptySerializersModule(): SerializersModule = @Suppress("DEPRECATION") EmptySerializersModule
+
+/**
  * A builder class for [SerializersModule] DSL. To create an instance of builder, use [SerializersModule] factory function.
  */
 @OptIn(ExperimentalSerializationApi::class)

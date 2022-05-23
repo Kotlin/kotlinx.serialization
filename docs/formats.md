@@ -557,7 +557,7 @@ import kotlinx.serialization.modules.*
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
-    override val serializersModule: SerializersModule = EmptySerializersModule
+    override val serializersModule: SerializersModule = EmptySerializersModule()
 
     override fun encodeValue(value: Any) {
         list.add(value)
@@ -624,7 +624,7 @@ import kotlinx.serialization.modules.*
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
-    override val serializersModule: SerializersModule = EmptySerializersModule
+    override val serializersModule: SerializersModule = EmptySerializersModule()
 
     override fun encodeValue(value: Any) {
         list.add(value)
@@ -655,7 +655,7 @@ A decoder needs to implement more substance.
 class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
     private var elementIndex = 0
 
-    override val serializersModule: SerializersModule = EmptySerializersModule
+    override val serializersModule: SerializersModule = EmptySerializersModule()
 
     override fun decodeValue(): Any = list.removeFirst()
     
@@ -732,7 +732,7 @@ import kotlinx.serialization.modules.*
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
-    override val serializersModule: SerializersModule = EmptySerializersModule
+    override val serializersModule: SerializersModule = EmptySerializersModule()
 
     override fun encodeValue(value: Any) {
         list.add(value)
@@ -752,7 +752,7 @@ inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value
 class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
     private var elementIndex = 0
 
-    override val serializersModule: SerializersModule = EmptySerializersModule
+    override val serializersModule: SerializersModule = EmptySerializersModule()
 
     override fun decodeValue(): Any = list.removeFirst()
     
@@ -819,7 +819,7 @@ import kotlinx.serialization.modules.*
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
-    override val serializersModule: SerializersModule = EmptySerializersModule
+    override val serializersModule: SerializersModule = EmptySerializersModule()
 
     override fun encodeValue(value: Any) {
         list.add(value)
@@ -852,7 +852,7 @@ in addition to the previous code.
 class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
 
-    override val serializersModule: SerializersModule = EmptySerializersModule
+    override val serializersModule: SerializersModule = EmptySerializersModule()
 
     override fun decodeValue(): Any = list.removeFirst()
 
@@ -924,7 +924,7 @@ import kotlinx.serialization.modules.*
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
-    override val serializersModule: SerializersModule = EmptySerializersModule
+    override val serializersModule: SerializersModule = EmptySerializersModule()
 
     override fun encodeValue(value: Any) {
         list.add(value)
@@ -957,7 +957,7 @@ inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value
 class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
     
-    override val serializersModule: SerializersModule = EmptySerializersModule
+    override val serializersModule: SerializersModule = EmptySerializersModule()
 
     override fun decodeValue(): Any = list.removeFirst()
 
@@ -1039,7 +1039,7 @@ import java.io.*
 
 ```kotlin            
 class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
-    override val serializersModule: SerializersModule = EmptySerializersModule
+    override val serializersModule: SerializersModule = EmptySerializersModule()
     override fun encodeBoolean(value: Boolean) = output.writeByte(if (value) 1 else 0)
     override fun encodeByte(value: Byte) = output.writeByte(value.toInt())
     override fun encodeShort(value: Short) = output.writeShort(value.toInt())
@@ -1076,7 +1076,7 @@ The decoder implementation mirrors encoder's implementation overriding all the p
 ```kotlin 
 class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
-    override val serializersModule: SerializersModule = EmptySerializersModule
+    override val serializersModule: SerializersModule = EmptySerializersModule()
     override fun decodeBoolean(): Boolean = input.readByte().toInt() != 0
     override fun decodeByte(): Byte = input.readByte()
     override fun decodeShort(): Short = input.readShort()
@@ -1191,7 +1191,7 @@ a size of up to 254 bytes.
 
 <!--- INCLUDE
 class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
-    override val serializersModule: SerializersModule = EmptySerializersModule
+    override val serializersModule: SerializersModule = EmptySerializersModule()
     override fun encodeBoolean(value: Boolean) = output.writeByte(if (value) 1 else 0)
     override fun encodeByte(value: Byte) = output.writeByte(value.toInt())
     override fun encodeShort(value: Short) = output.writeShort(value.toInt())
@@ -1247,7 +1247,7 @@ inline fun <reified T> encodeTo(output: DataOutput, value: T) = encodeTo(output,
 
 class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
-    override val serializersModule: SerializersModule = EmptySerializersModule
+    override val serializersModule: SerializersModule = EmptySerializersModule()
     override fun decodeBoolean(): Boolean = input.readByte().toInt() != 0
     override fun decodeByte(): Byte = input.readByte()
     override fun decodeShort(): Short = input.readShort()

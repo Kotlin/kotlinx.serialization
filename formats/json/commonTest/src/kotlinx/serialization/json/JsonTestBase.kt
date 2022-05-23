@@ -87,7 +87,7 @@ abstract class JsonTestBase {
     private inner class SwitchableJson(
         val json: Json,
         val jsonTestingMode: JsonTestingMode,
-        override val serializersModule: SerializersModule = EmptySerializersModule
+        override val serializersModule: SerializersModule = EmptySerializersModule()
     ) : StringFormat {
         override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
             return json.encodeToString(serializer, value, jsonTestingMode)

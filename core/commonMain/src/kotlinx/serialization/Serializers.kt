@@ -38,7 +38,7 @@ public inline fun <reified T> SerializersModule.serializer(): KSerializer<T> {
  *  @throws SerializationException if serializer cannot be created (provided [type] or its type argument is not serializable).
  */
 @OptIn(ExperimentalSerializationApi::class)
-public fun serializer(type: KType): KSerializer<Any?> = EmptySerializersModule.serializer(type)
+public fun serializer(type: KType): KSerializer<Any?> = EmptySerializersModule().serializer(type)
 
 /**
  * Creates a serializer for the given [type].
@@ -46,7 +46,7 @@ public fun serializer(type: KType): KSerializer<Any?> = EmptySerializersModule.s
  * Returns `null` if serializer cannot be created (provided [type] or its type argument is not serializable).
  */
 @OptIn(ExperimentalSerializationApi::class)
-public fun serializerOrNull(type: KType): KSerializer<Any?>? = EmptySerializersModule.serializerOrNull(type)
+public fun serializerOrNull(type: KType): KSerializer<Any?>? = EmptySerializersModule().serializerOrNull(type)
 
 /**
  * Attempts to create a serializer for the given [type] and fallbacks to [contextual][SerializersModule.getContextual]
@@ -122,7 +122,10 @@ private fun SerializersModule.builtinSerializer(
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-internal fun <T : Any> SerializersModule.reflectiveOrContextual(kClass: KClass<T>, typeArgumentsSerializers: List<KSerializer<Any?>>): KSerializer<T>? {
+internal fun <T : Any> SerializersModule.reflectiveOrContextual(
+    kClass: KClass<T>,
+    typeArgumentsSerializers: List<KSerializer<Any?>>
+): KSerializer<T>? {
     return kClass.serializerOrNull() ?: getContextual(kClass, typeArgumentsSerializers)
 }
 

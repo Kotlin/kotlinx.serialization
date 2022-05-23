@@ -1205,6 +1205,7 @@ public final class kotlinx/serialization/modules/SerializersModuleBuilder : kotl
 }
 
 public final class kotlinx/serialization/modules/SerializersModuleBuildersKt {
+	public static final fun EmptySerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 	public static final fun SerializersModule (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/modules/SerializersModule;
 	public static final fun polymorphic (Lkotlinx/serialization/modules/SerializersModuleBuilder;Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun polymorphic$default (Lkotlinx/serialization/modules/SerializersModuleBuilder;Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V

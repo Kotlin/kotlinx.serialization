@@ -38,7 +38,7 @@ public sealed class Cbor(
     /**
      * The default instance of [Cbor]
      */
-    public companion object Default : Cbor(false, false, EmptySerializersModule)
+    public companion object Default : Cbor(false, false, EmptySerializersModule())
 
     override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutput()

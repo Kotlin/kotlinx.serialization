@@ -188,7 +188,7 @@ public sealed class Properties(
      * A [Properties] instance that can be used as default and does not have any [SerializersModule] installed.
      */
     @ExperimentalSerializationApi
-    public companion object Default : Properties(EmptySerializersModule, null)
+    public companion object Default : Properties(EmptySerializersModule(), null)
 }
 
 @OptIn(ExperimentalSerializationApi::class)
