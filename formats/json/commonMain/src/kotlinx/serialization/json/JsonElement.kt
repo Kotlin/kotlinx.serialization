@@ -70,7 +70,8 @@ public fun JsonPrimitive(value: String?): JsonPrimitive {
 }
 
 /** Returns [JsonNull]. */
-@Suppress("FunctionName", "UNUSED_PARAMETER")
+@ExperimentalSerializationApi
+@Suppress("FunctionName", "UNUSED_PARAMETER") // allow `JsonPrimitive(null)`
 public fun JsonPrimitive(value: Nothing?): JsonNull = JsonNull
 
 // JsonLiteral is deprecated for public use and no longer available. Please use JsonPrimitive instead

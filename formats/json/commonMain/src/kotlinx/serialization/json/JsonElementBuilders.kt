@@ -5,6 +5,7 @@
 
 package kotlinx.serialization.json
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlin.contracts.*
 
 /**
@@ -113,7 +114,8 @@ public fun JsonObjectBuilder.put(key: String, value: String?): JsonElement? = pu
  *
  * Returns the previous value associated with [key], or `null` if the key was not present.
  */
-@Suppress("UNUSED_PARAMETER")
+@ExperimentalSerializationApi
+@Suppress("UNUSED_PARAMETER") // allow `put("key", null)`
 public fun JsonObjectBuilder.put(key: String, value: Nothing?): JsonElement? = put(key, JsonNull)
 
 /**
@@ -164,7 +166,8 @@ public fun JsonArrayBuilder.add(value: String?): Boolean = add(JsonPrimitive(val
  *
  * Always returns `true` similarly to [ArrayList] specification.
  */
-@Suppress("UNUSED_PARAMETER")
+@ExperimentalSerializationApi
+@Suppress("UNUSED_PARAMETER") // allow `add(null)`
 public fun JsonArrayBuilder.add(value: Nothing?): Boolean = add(JsonNull)
 
 /**
