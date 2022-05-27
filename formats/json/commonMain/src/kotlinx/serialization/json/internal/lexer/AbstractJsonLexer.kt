@@ -140,19 +140,6 @@ internal abstract class AbstractJsonLexer {
     @JvmField
     val path = JsonPath()
 
-    /*
-     * Position on the string right after polymorphic descriptor
-     * that was successfully looked up by 'consumeLeadingMatchingValue'
-     */
-    private var snapshotPosition: Int = -1
-
-    fun skipReadPrefix() {
-        if (snapshotPosition != -1) {
-            currentPosition = snapshotPosition
-            snapshotPosition = -1
-        }
-    }
-
     open fun ensureHaveChars() {}
 
     fun isNotEof(): Boolean = peekNextToken() != TC_EOF
@@ -305,7 +292,6 @@ internal abstract class AbstractJsonLexer {
             if (firstKey == keyToMatch) {
                 if (consumeNextToken() != TC_COLON) return null
                 val result = if (isLenient) consumeString() else consumeStringLenientNotNull()
-                snapshotPosition = currentPosition
                 return result
             }
             return null
