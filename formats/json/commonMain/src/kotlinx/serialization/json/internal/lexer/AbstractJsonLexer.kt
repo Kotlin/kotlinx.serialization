@@ -283,23 +283,7 @@ internal abstract class AbstractJsonLexer {
         return current
     }
 
-    fun consumeLeadingMatchingValue(keyToMatch: String, isLenient: Boolean): String? {
-        val positionSnapshot = currentPosition
-        try {
-            // Malformed JSON, bailout
-            if (consumeNextToken() != TC_BEGIN_OBJ) return null
-            val firstKey = if (isLenient) consumeKeyString() else consumeStringLenientNotNull()
-            if (firstKey == keyToMatch) {
-                if (consumeNextToken() != TC_COLON) return null
-                val result = if (isLenient) consumeString() else consumeStringLenientNotNull()
-                return result
-            }
-            return null
-        } finally {
-            // Restore the position
-            currentPosition = positionSnapshot
-        }
-    }
+    abstract fun consumeLeadingMatchingValue(keyToMatch: String, isLenient: Boolean): String?
 
     fun peekString(isLenient: Boolean): String? {
         val token = peekNextToken()

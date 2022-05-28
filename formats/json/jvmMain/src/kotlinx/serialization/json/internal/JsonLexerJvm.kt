@@ -174,4 +174,7 @@ internal class ReaderJsonLexer(
     override fun appendRange(fromIndex: Int, toIndex: Int) {
         escapedString.append(_source, fromIndex, toIndex - fromIndex)
     }
+
+    // Can be carefully implemented but postponed for now
+    override fun consumeLeadingMatchingValue(keyToMatch: String, isLenient: Boolean): String? = null
 }
