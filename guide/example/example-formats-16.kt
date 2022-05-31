@@ -10,7 +10,7 @@ import java.io.*
 
 private val byteArraySerializer = serializer<ByteArray>()
 class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
-    override val serializersModule: SerializersModule = EmptySerializersModule
+    override val serializersModule: SerializersModule = EmptySerializersModule()
     override fun encodeBoolean(value: Boolean) = output.writeByte(if (value) 1 else 0)
     override fun encodeByte(value: Byte) = output.writeByte(value.toInt())
     override fun encodeShort(value: Short) = output.writeShort(value.toInt())
@@ -61,7 +61,7 @@ inline fun <reified T> encodeTo(output: DataOutput, value: T) = encodeTo(output,
 
 class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
-    override val serializersModule: SerializersModule = EmptySerializersModule
+    override val serializersModule: SerializersModule = EmptySerializersModule()
     override fun decodeBoolean(): Boolean = input.readByte().toInt() != 0
     override fun decodeByte(): Byte = input.readByte()
     override fun decodeShort(): Short = input.readShort()

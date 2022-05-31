@@ -363,8 +363,8 @@ class EncodeToDynamicTest {
 
 public inline fun <reified T : Any> assertDynamicForm(
     data: T,
-    serializer: KSerializer<T> = EmptySerializersModule.serializer(),
-    skipEqualsCheck:Boolean = false,
+    serializer: KSerializer<T> = EmptySerializersModule().serializer(),
+    skipEqualsCheck: Boolean = false,
     noinline assertions: ((T, dynamic) -> Unit)? = null
 ) {
     val serialized = Json.encodeToDynamic(serializer, data)

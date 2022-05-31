@@ -17,7 +17,7 @@ class StacktraceRecoveryTest {
     private class Data(val s: String)
 
     private class BadDecoder : AbstractDecoder() {
-        override val serializersModule: SerializersModule = EmptySerializersModule
+        override val serializersModule: SerializersModule = EmptySerializersModule()
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int = 42
     }
 

@@ -62,7 +62,7 @@ public sealed class Hocon(
      * The default instance of Hocon parser.
      */
     @ExperimentalSerializationApi
-    public companion object Default : Hocon(false, false, false, "type", EmptySerializersModule)
+    public companion object Default : Hocon(false, false, false, "type", EmptySerializersModule())
 
     private abstract inner class ConfigConverter<T> : TaggedDecoder<T>() {
         override val serializersModule: SerializersModule

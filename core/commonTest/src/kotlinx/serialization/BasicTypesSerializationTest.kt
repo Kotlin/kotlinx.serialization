@@ -20,7 +20,7 @@ class BasicTypesSerializationTest {
 
     // KeyValue Input/Output
     class KeyValueOutput(private val sb: StringBuilder) : AbstractEncoder() {
-        override val serializersModule: SerializersModule = EmptySerializersModule
+        override val serializersModule: SerializersModule = EmptySerializersModule()
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
             sb.append('{')
@@ -56,7 +56,7 @@ class BasicTypesSerializationTest {
     }
 
     class KeyValueInput(private val inp: Parser) : AbstractDecoder() {
-        override val serializersModule: SerializersModule = EmptySerializersModule
+        override val serializersModule: SerializersModule = EmptySerializersModule()
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             inp.expectAfterWhiteSpace('{')

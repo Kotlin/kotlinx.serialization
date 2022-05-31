@@ -198,7 +198,7 @@ class SerializeFlatTest() {
     class Out(private val name: String) : AbstractEncoder() {
         var step = 0
 
-        override val serializersModule: SerializersModule = EmptySerializersModule
+        override val serializersModule: SerializersModule = EmptySerializersModule()
 
         override fun beginStructure(
             descriptor: SerialDescriptor
@@ -212,10 +212,12 @@ class SerializeFlatTest() {
             checkDesc(name, descriptor)
             when (step) {
                 1 -> if (index == 0) {
-                    step++; return true
+                    step++
+                    return true
                 }
                 3 -> if (index == 1) {
-                    step++; return true
+                    step++
+                    return true
                 }
             }
             fail("@$step: encodeElement($descriptor, $index)")
@@ -224,7 +226,8 @@ class SerializeFlatTest() {
         override fun encodeString(value: String) {
             when (step) {
                 2 -> if (value == "s1") {
-                    step++; return
+                    step++
+                    return
                 }
             }
             fail("@$step: encodeString($value)")
@@ -232,7 +235,10 @@ class SerializeFlatTest() {
 
         override fun encodeInt(value: Int) {
             when (step) {
-                4 -> if (value == 42) { step++; return }
+                4 -> if (value == 42) {
+                    step++
+                    return
+                }
             }
             fail("@$step: decodeInt($value)")
         }
@@ -250,7 +256,7 @@ class SerializeFlatTest() {
     class Inp(private val name: String) : AbstractDecoder() {
         var step = 0
 
-        override val serializersModule: SerializersModule = EmptySerializersModule
+        override val serializersModule: SerializersModule = EmptySerializersModule()
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             checkDesc(name, descriptor)
@@ -262,13 +268,16 @@ class SerializeFlatTest() {
             checkDesc(name, descriptor)
             when (step) {
                 1 -> {
-                    step++; return 0
+                    step++
+                    return 0
                 }
                 3 -> {
-                    step++; return 1
+                    step++
+                    return 1
                 }
                 5 -> {
-                    step++; return -1
+                    step++
+                    return -1
                 }
             }
             fail("@$step: decodeElementIndex($descriptor)")
@@ -276,14 +285,20 @@ class SerializeFlatTest() {
 
         override fun decodeString(): String {
             when (step) {
-                2 -> { step++; return "s1" }
+                2 -> {
+                    step++
+                    return "s1"
+                }
             }
             fail("@$step: decodeString()")
         }
 
         override fun decodeInt(): Int {
             when (step) {
-                4 -> { step++; return 42 }
+                4 -> {
+                    step++
+                    return 42
+                }
             }
             fail("@$step: decodeInt()")
         }
