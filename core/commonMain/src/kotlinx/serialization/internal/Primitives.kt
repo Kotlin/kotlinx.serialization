@@ -13,6 +13,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlin.native.concurrent.*
 import kotlin.reflect.*
+import kotlin.time.Duration
 
 @SharedImmutable
 private val BUILTIN_SERIALIZERS = mapOf(
@@ -33,7 +34,8 @@ private val BUILTIN_SERIALIZERS = mapOf(
     ByteArray::class to ByteArraySerializer(),
     Boolean::class to Boolean.serializer(),
     BooleanArray::class to BooleanArraySerializer(),
-    Unit::class to Unit.serializer()
+    Unit::class to Unit.serializer(),
+    Duration::class to Duration.serializer()
 )
 
 internal class PrimitiveSerialDescriptor(

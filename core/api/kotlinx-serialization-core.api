@@ -175,6 +175,7 @@ public final class kotlinx/serialization/builtins/BuiltinSerializersKt {
 	public static final fun serializer (Lkotlin/jvm/internal/LongCompanionObject;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Lkotlin/jvm/internal/ShortCompanionObject;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Lkotlin/jvm/internal/StringCompanionObject;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlin/time/Duration$Companion;)Lkotlinx/serialization/KSerializer;
 }
 
 public final class kotlinx/serialization/builtins/LongAsStringSerializer : kotlinx/serialization/KSerializer {
@@ -660,6 +661,15 @@ public final class kotlinx/serialization/internal/DoubleSerializer : kotlinx/ser
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public fun serialize (Lkotlinx/serialization/encoding/Encoder;D)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public final class kotlinx/serialization/internal/DurationSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/DurationSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize-5sfh64U (Lkotlinx/serialization/encoding/Decoder;)J
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize-HG0u8IE (Lkotlinx/serialization/encoding/Encoder;J)V
 }
 
 public final class kotlinx/serialization/internal/ElementMarker {

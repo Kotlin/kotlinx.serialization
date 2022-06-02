@@ -14,6 +14,7 @@ import kotlinx.serialization.modules.*
 import kotlinx.serialization.test.*
 import kotlin.reflect.*
 import kotlin.test.*
+import kotlin.time.Duration
 
 @Suppress("RemoveExplicitTypeArguments") // This is exactly what's being tested
 class SerializersLookupTest : JsonTestBase() {
@@ -242,6 +243,12 @@ class SerializersLookupTest : JsonTestBase() {
             serializer(typeOf<Box<NonSerializable>>())
         }
     }
+
+// TODO uncomment when Kotlin 1.7.20 is released
+//    @Test
+//    fun testLookupDuration() = noLegacyJs {
+//        assertNotNull(serializerOrNull(typeOf<Duration>()))
+//    }
 
     private inline fun <reified T> assertSerializedWithType(
         expected: String,
