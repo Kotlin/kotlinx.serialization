@@ -23,7 +23,8 @@ We can mark inline class as serializable:
 
 ```kotlin
 @Serializable
-inline class Color(val rgb: Int)
+@JvmInline // For JVM backends
+value class Color(val rgb: Int)
 ```
 
 Inline class in Kotlin is stored as its underlying type when possible (i.e. no boxing is required). 
