@@ -13,11 +13,9 @@ import kotlin.time.toDuration
 
 
 class DurationTest : JsonTestBase() {
-
-    @Serializable
-    data class DurationHolder(val duration: Duration)
-
 // TODO uncomment when Kotlin 1.7.20 is released
+//    @Serializable
+//    data class DurationHolder(val duration: Duration)
 //    @Test
 //    fun testDuration() {
 //        assertJsonFormAndRestored(

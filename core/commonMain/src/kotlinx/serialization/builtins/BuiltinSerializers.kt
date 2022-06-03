@@ -221,6 +221,6 @@ public fun UShort.Companion.serializer(): KSerializer<UShort> = UShortSerializer
 
 /**
  * Returns serializer for [Duration].
+ * By default, it is serialized as a string that represents a duration in ISO-8601 format.
  */
-@ExperimentalSerializationApi
 public fun Duration.Companion.serializer(): KSerializer<Duration> = DurationSerializer
