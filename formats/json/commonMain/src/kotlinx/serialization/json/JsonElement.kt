@@ -69,7 +69,9 @@ public fun JsonPrimitive(value: String?): JsonPrimitive {
     return JsonLiteral(value, isString = true)
 }
 
-/** Returns [JsonNull]. */
+/**
+ * Creates [JsonNull].
+ */
 @ExperimentalSerializationApi
 @Suppress("FunctionName", "UNUSED_PARAMETER") // allows to call `JsonPrimitive(null)`
 public fun JsonPrimitive(value: Nothing?): JsonNull = JsonNull
