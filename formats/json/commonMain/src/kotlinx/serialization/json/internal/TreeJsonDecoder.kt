@@ -161,7 +161,6 @@ private sealed class AbstractJsonTreeDecoder(
         return this as? JsonLiteral ?: throw JsonDecodingException(-1, "Unexpected 'null' when $type was expected")
     }
 
-    @OptIn(ExperimentalUnsignedTypes::class)
     override fun decodeTaggedInline(tag: String, inlineDescriptor: SerialDescriptor): Decoder =
         if (inlineDescriptor.isUnsignedNumber) JsonDecoderForUnsignedTypes(StringJsonLexer(getPrimitiveValue(tag).content), json)
         else super.decodeTaggedInline(tag, inlineDescriptor)

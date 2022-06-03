@@ -13,7 +13,6 @@ import kotlinx.serialization.modules.*
 import kotlin.native.concurrent.*
 
 @ExperimentalSerializationApi
-@OptIn(ExperimentalUnsignedTypes::class)
 @SharedImmutable
 private val unsignedNumberDescriptors = setOf(
     UInt.serializer().descriptor,

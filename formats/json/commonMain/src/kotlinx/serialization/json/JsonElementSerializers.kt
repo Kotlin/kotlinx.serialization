@@ -109,7 +109,7 @@ private object JsonLiteralSerializer : KSerializer<JsonLiteral> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("kotlinx.serialization.json.JsonLiteral", PrimitiveKind.STRING)
 
-    @OptIn(ExperimentalUnsignedTypes::class, ExperimentalSerializationApi::class)
+    @OptIn(ExperimentalSerializationApi::class)
     override fun serialize(encoder: Encoder, value: JsonLiteral) {
         verify(encoder)
         if (value.isString) {

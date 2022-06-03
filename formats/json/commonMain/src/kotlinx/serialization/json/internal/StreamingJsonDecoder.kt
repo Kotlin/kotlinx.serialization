@@ -16,7 +16,7 @@ import kotlin.jvm.*
 /**
  * [JsonDecoder] which reads given JSON from [AbstractJsonLexer] field by field.
  */
-@OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
+@OptIn(ExperimentalSerializationApi::class)
 internal open class StreamingJsonDecoder(
     final override val json: Json,
     private val mode: WriteMode,
@@ -303,7 +303,6 @@ internal open class StreamingJsonDecoder(
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-@ExperimentalUnsignedTypes
 internal class JsonDecoderForUnsignedTypes(
     private val lexer: AbstractJsonLexer,
     json: Json
