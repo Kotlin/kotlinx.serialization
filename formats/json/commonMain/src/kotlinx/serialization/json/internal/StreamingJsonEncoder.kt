@@ -12,7 +12,6 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.native.concurrent.*
 
-@ExperimentalSerializationApi
 @OptIn(ExperimentalUnsignedTypes::class)
 @SharedImmutable
 private val unsignedNumberDescriptors = setOf(
@@ -22,7 +21,6 @@ private val unsignedNumberDescriptors = setOf(
     UShort.serializer().descriptor
 )
 
-@ExperimentalSerializationApi
 internal val SerialDescriptor.isUnsignedNumber: Boolean
     get() = this.isInline && this in unsignedNumberDescriptors
 
