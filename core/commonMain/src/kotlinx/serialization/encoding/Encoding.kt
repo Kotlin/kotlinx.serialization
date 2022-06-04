@@ -207,27 +207,24 @@ public interface Encoder {
     public fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int)
 
     /**
-     * Returns [Encoder] for encoding an underlying type of an inline class.
-     * [inlineDescriptor] describes a serializable inline class.
+     * Returns [Encoder] for encoding an underlying type of a value class in an inline manner.
+     * [descriptor] describes a serializable value class.
      *
-     * Namely, for the `@Serializable inline class MyInt(val my: Int)`,
+     * Namely, for the `@Serializable @JvmInline value class MyInt(val my: Int)`,
      * the following sequence is used:
      * ```
      * thisEncoder.encodeInline(MyInt.serializer().descriptor).encodeInt(my)
      * ```
      *
-     * Current encoder may return any other instance of [Encoder] class,
-     * depending on the provided [inlineDescriptor].
-     * For example, when this function is called on Json encoder with
-     * `UInt.serializer().descriptor`, the returned encoder is able
+     * Current encoder may return any other instance of [Encoder] class, depending on the provided [descriptor].
+     * For example, when this function is called on Json encoder with `UInt.serializer().descriptor`, the returned encoder is able
      * to encode unsigned integers.
      *
-     * Note that this function returns [Encoder] instead of [CompositeEncoder]
-     * because inline classes always have one property.
-     * Calling [Encoder.beginStructure] on returned instance leads to an undefined behavior.
+     * Note that this function returns [Encoder] instead of the [CompositeEncoder]
+     * because value classes always have the single property.
+     * Calling [Encoder.beginStructure] on returned instance leads to an unspecified behavior and, in general, is prohibited.
      */
-    @ExperimentalSerializationApi
-    public fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder
+    public fun encodeInline(descriptor: SerialDescriptor): Encoder
 
     /**
      * Encodes the beginning of the nested structure in a serialized form
@@ -411,36 +408,34 @@ public interface CompositeEncoder {
     public fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String)
 
     /**
-     * Returns [Encoder] for decoding an underlying type of an inline class.
-     * Serializable inline class is described by the [child descriptor][SerialDescriptor.getElementDescriptor]
+     * Returns [Encoder] for decoding an underlying type of a value class in an inline manner.
+     * Serializable value class is described by the [child descriptor][SerialDescriptor.getElementDescriptor]
      * of given [descriptor] at [index].
      *
-     * Namely, for the `@Serializable inline class MyInt(val my: Int)`,
-     * and `@Serializable class MyData(val myInt: MyInt)`
-     * the following sequence is used:
+     * Namely, for the `@Serializable @JvmInline value class MyInt(val my: Int)`,
+     * and `@Serializable class MyData(val myInt: MyInt)` the following sequence is used:
      * ```
      * thisEncoder.encodeInlineElement(MyData.serializer.descriptor, 0).encodeInt(my)
      * ```
      *
-     * This method is an optimization and its invocation should have the exact same result as
+     * This method provides an opportunity for the optimization to avoid boxing of a carried value
+     * and its invocation should be equivalent to the following:
      * ```
      * thisEncoder.encodeSerializableElement(MyData.serializer.descriptor, 0, MyInt.serializer(), myInt)
      * ```
      *
-     * Current encoder may return any other instance of [Encoder] class,
-     * depending on provided descriptor.
+     * Current encoder may return any other instance of [Encoder] class, depending on provided descriptor.
      * For example, when this function is called on Json encoder with descriptor that has
      * `UInt.serializer().descriptor` at the given [index], the returned encoder is able
      * to encode unsigned integers.
      *
-     * Note that this function returns [Encoder] instead of [CompositeEncoder]
-     * because inline classes always have one property.
-     * Calling [Encoder.beginStructure] on returned instance leads to an undefined behavior.
+     * Note that this function returns [Encoder] instead of the [CompositeEncoder]
+     * because value classes always have the single property.
+     * Calling [Encoder.beginStructure] on returned instance leads to an unspecified behavior and, in general, is prohibited.
      *
      * @see Encoder.encodeInline
      * @see SerialDescriptor.getElementDescriptor
      */
-    @ExperimentalSerializationApi
     public fun encodeInlineElement(
         descriptor: SerialDescriptor,
         index: Int

@@ -10,7 +10,6 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 
 @PublishedApi
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 internal object UIntSerializer : KSerializer<UInt> {
     override val descriptor: SerialDescriptor = InlinePrimitiveDescriptor("kotlin.UInt", Int.serializer())
@@ -25,7 +24,6 @@ internal object UIntSerializer : KSerializer<UInt> {
 }
 
 @PublishedApi
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 internal object ULongSerializer : KSerializer<ULong> {
     override val descriptor: SerialDescriptor = InlinePrimitiveDescriptor("kotlin.ULong", Long.serializer())
@@ -40,7 +38,6 @@ internal object ULongSerializer : KSerializer<ULong> {
 }
 
 @PublishedApi
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 internal object UByteSerializer : KSerializer<UByte> {
     override val descriptor: SerialDescriptor = InlinePrimitiveDescriptor("kotlin.UByte", Byte.serializer())
@@ -55,7 +52,6 @@ internal object UByteSerializer : KSerializer<UByte> {
 }
 
 @PublishedApi
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 internal object UShortSerializer : KSerializer<UShort> {
     override val descriptor: SerialDescriptor = InlinePrimitiveDescriptor("kotlin.UShort", Short.serializer())
