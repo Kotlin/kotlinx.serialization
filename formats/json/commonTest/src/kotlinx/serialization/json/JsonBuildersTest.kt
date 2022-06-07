@@ -24,8 +24,9 @@ class JsonBuildersTest {
             put("primitive", JsonPrimitive(42))
             put("boolean", true)
             put("literal", "foo")
+            put("null2", null)
         }
-        assertEquals("""{"object":{"k":"v"},"array":[{"nestedLiteral":true}],"null":null,"primitive":42,"boolean":true,"literal":"foo"}""", json.toString())
+        assertEquals("""{"object":{"k":"v"},"array":[{"nestedLiteral":true}],"null":null,"primitive":42,"boolean":true,"literal":"foo","null2":null}""", json.toString())
     }
 
     @Test
@@ -35,10 +36,11 @@ class JsonBuildersTest {
             addJsonArray {
                 for (i in 1..10) add(i)
             }
+            add(null)
             addJsonObject {
                 put("stringKey", "stringValue")
             }
         }
-        assertEquals("""[true,[1,2,3,4,5,6,7,8,9,10],{"stringKey":"stringValue"}]""", json.toString())
+        assertEquals("""[true,[1,2,3,4,5,6,7,8,9,10],null,{"stringKey":"stringValue"}]""", json.toString())
     }
 }
