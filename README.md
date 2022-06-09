@@ -89,7 +89,7 @@ Kotlin DSL:
 
 ```kotlin
 plugins {
-    kotlin("jvm") version "1.6.21" // or kotlin("multiplatform") or any other kotlin plugin
+    kotlin("jvm") version "1.7.0" // or kotlin("multiplatform") or any other kotlin plugin
     kotlin("plugin.serialization") version "1.6.21"
 }
 ```       
@@ -98,7 +98,7 @@ Groovy DSL:
 
 ```gradle
 plugins {
-    id 'org.jetbrains.kotlin.multiplatform' version '1.6.21'
+    id 'org.jetbrains.kotlin.multiplatform' version '1.7.0'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.6.21'
 }
 ```
@@ -286,7 +286,7 @@ Ensure the proper version of Kotlin and serialization version:
 
 ```xml
 <properties>
-    <kotlin.version>1.6.21</kotlin.version>
+    <kotlin.version>1.7.0</kotlin.version>
     <serialization.version>1.3.3</serialization.version>
 </properties>
 ```
