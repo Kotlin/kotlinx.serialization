@@ -1,5 +1,6 @@
 package kotlinx.serialization
 
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class SerializersLookupInterfaceTest {
@@ -17,7 +18,7 @@ class SerializersLookupInterfaceTest {
     @SerialName("S")
     sealed interface S
 
-    // TODO: not working because (see #1207, plugin does not produce comanion object for interfaces)
+    // TODO: not working because (see #1207, plugin does not produce companion object for interfaces)
     // We even have #1853 with tests for that
     // @Serializable(ExternalSerializer::class)
     // interface External
@@ -32,6 +33,9 @@ class SerializersLookupInterfaceTest {
 
     @Test
     fun testInterfaceLookup() {
+        // Native does not have KClass.isInterface
+        if (currentPlatform == Platform.NATIVE || currentPlatform == Platform.JS_LEGACY) return
+
         val serializer1 = serializer<I>()
         assertTrue(serializer1 is PolymorphicSerializer)
         assertEquals("kotlinx.serialization.Polymorphic<I>", serializer1.descriptor.serialName)
