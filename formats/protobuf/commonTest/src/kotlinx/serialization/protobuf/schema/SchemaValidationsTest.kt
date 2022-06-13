@@ -3,7 +3,7 @@ package kotlinx.serialization.protobuf.schema
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
 import kotlin.test.Test
-import kotlin.test.assertContains
+import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class SchemaValidationsTest {
@@ -37,6 +37,33 @@ class SchemaValidationsTest {
 
         @SerialName("invalid serial name")
         SECOND
+    }
+
+    @Serializable
+    enum class EnumWithProtoNumber {
+        @ProtoNumber(1)
+        ONE,
+        @ProtoNumber(5)
+        FIVE,
+    }
+
+    @Test
+    fun testEnumWithProtoNumber() {
+        val descriptors = listOf(EnumWithProtoNumber.serializer().descriptor)
+        assertEquals(
+            """
+                syntax = "proto2";
+
+
+                // serial name 'EnumWithProtoNumber'
+                enum EnumWithProtoNumber {
+                  ONE = 1;
+                  FIVE = 5;
+                }
+
+            """.trimIndent(),
+            ProtoBufSchemaGenerator.generateSchemaText(descriptors),
+        )
     }
 
     @Test
