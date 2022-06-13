@@ -26,6 +26,7 @@ class SerializersLookupInterfaceTest {
 
     @Test
     fun testSealedInterfaceLookup() {
+        if (currentPlatform == Platform.JS_LEGACY) return
         val serializer = serializer<S>()
         assertTrue(serializer is SealedClassSerializer)
         assertEquals("S", serializer.descriptor.serialName)
