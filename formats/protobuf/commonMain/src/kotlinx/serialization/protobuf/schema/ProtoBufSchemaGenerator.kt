@@ -190,7 +190,7 @@ public object ProtoBufSchemaGenerator {
 
 
             val annotations = messageDescriptor.getElementAnnotations(index)
-            val number = annotations.filterIsInstance<ProtoNumber>().singleOrNull()?.number ?: index + 1
+            val number = annotations.filterIsInstance<ProtoNumber>().singleOrNull()?.number ?: (index + 1)
             if (!usedNumbers.add(number)) {
                 throw IllegalArgumentException("Field number $number is repeated in the class with serial name ${messageDescriptor.serialName}")
             }
@@ -319,12 +319,13 @@ public object ProtoBufSchemaGenerator {
         }
         val safeSerialName = removeLineBreaks(enumDescriptor.serialName)
         if (safeSerialName != enumName) {
-            append("// serial name '").append(enumName).appendLine('\'')
+            append("// serial name '").append(safeSerialName).appendLine('\'')
         }
 
         append("enum ").append(enumName).appendLine(" {")
 
         val usedNumbers: MutableSet<Int> = mutableSetOf()
+        val duplicatedNumbers: MutableSet<Int> = mutableSetOf()
         enumDescriptor.elementDescriptors.forEachIndexed { index, element ->
             val elementName = element.protobufEnumElementName
             elementName.checkIsValidIdentifier {
@@ -335,11 +336,18 @@ public object ProtoBufSchemaGenerator {
             val annotations = enumDescriptor.getElementAnnotations(index)
             val number = annotations.filterIsInstance<ProtoNumber>().singleOrNull()?.number ?: index
             if (!usedNumbers.add(number)) {
-                throw IllegalArgumentException("The enum element number $number is repeated in the class with serial name ${enumDescriptor.serialName}")
+                duplicatedNumbers.add(number)
             }
 
             append("  ").append(elementName).append(" = ").append(number).appendLine(';')
         }
+        if (duplicatedNumbers.size > 0) {
+            throw IllegalArgumentException(
+                "The class with serial name ${enumDescriptor.serialName} has duplicate " +
+                    "element number {${duplicatedNumbers.joinToString { it.toString() }}}"
+            )
+        }
+
         appendLine('}')
     }
 
