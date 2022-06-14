@@ -248,6 +248,7 @@ class SerializersLookupTest : JsonTestBase() {
 //    @Test
 //    fun testLookupDuration() = noLegacyJs {
 //        assertNotNull(serializerOrNull(typeOf<Duration>()))
+//        assertSame(Duration.serializer(), serializer<Duration>())
 //    }
 
     private inline fun <reified T> assertSerializedWithType(
