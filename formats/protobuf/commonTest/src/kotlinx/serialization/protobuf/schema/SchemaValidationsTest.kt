@@ -3,7 +3,6 @@ package kotlinx.serialization.protobuf.schema
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class SchemaValidationsTest {
@@ -40,30 +39,30 @@ class SchemaValidationsTest {
     }
 
     @Serializable
-    enum class EnumWithProtoNumber {
-        @ProtoNumber(1)
-        ONE,
-        @ProtoNumber(5)
-        FIVE,
+    enum class EnumWithExplicitProtoNumberDuplicate {
+        @ProtoNumber(2)
+        FIRST,
+        @ProtoNumber(2)
+        SECOND,
+    }
+
+    @Serializable
+    enum class EnumWithImplicitProtoNumberDuplicate {
+        FIRST,
+        @ProtoNumber(0)
+        SECOND,
     }
 
     @Test
-    fun testEnumWithProtoNumber() {
-        val descriptors = listOf(EnumWithProtoNumber.serializer().descriptor)
-        assertEquals(
-            """
-                syntax = "proto2";
+    fun testExplicitDuplicateEnumElementProtoNumber() {
+        val descriptors = listOf(EnumWithExplicitProtoNumberDuplicate.serializer().descriptor)
+        assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors) }
+    }
 
-
-                // serial name 'EnumWithProtoNumber'
-                enum EnumWithProtoNumber {
-                  ONE = 1;
-                  FIVE = 5;
-                }
-
-            """.trimIndent(),
-            ProtoBufSchemaGenerator.generateSchemaText(descriptors),
-        )
+    @Test
+    fun testImplicitDuplicateEnumElementProtoNumber() {
+        val descriptors = listOf(EnumWithImplicitProtoNumberDuplicate.serializer().descriptor)
+        assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors) }
     }
 
     @Test
