@@ -105,7 +105,7 @@ public class SealedClassSerializer<T : Any>(
             element("type", String.serializer().descriptor)
             val elementDescriptor =
                 buildSerialDescriptor("kotlinx.serialization.Sealed<${baseClass.simpleName}>", SerialKind.CONTEXTUAL) {
-                    subclassSerializers.forEach {
+                    subclassSerializers.distinct().forEach {
                         val d = it.descriptor
                         element(d.serialName, d)
                     }
