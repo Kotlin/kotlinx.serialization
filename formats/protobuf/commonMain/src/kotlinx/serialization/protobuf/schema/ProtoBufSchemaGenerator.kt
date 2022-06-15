@@ -344,7 +344,7 @@ public object ProtoBufSchemaGenerator {
         if (duplicatedNumbers.isNotEmpty()) {
             throw IllegalArgumentException(
                 "The class with serial name ${enumDescriptor.serialName} has duplicate " +
-                    "element number {${duplicatedNumbers.joinToString { it.toString() }}}"
+                    "element number {${duplicatedNumbers.joinToString()}}"
             )
         }
 
