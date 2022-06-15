@@ -44,6 +44,7 @@ internal fun <T: Any> Class<T>.constructSerializerForGivenTypeArgs(vararg args: 
     if (isEnum && isNotAnnotated()) {
         return createEnumSerializer()
     }
+    // Fall-through if the serializer is not found -- lookup on companions (for sealed interfaces) or fallback to polymorphic if applicable
     if (isInterface) interfaceSerializer()?.let { return it }
     // Search for serializer defined on companion object.
     val serializer = invokeSerializerOnCompanion<T>(this, *args)
