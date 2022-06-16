@@ -1,20 +1,17 @@
 /*
- * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:OptIn(ExperimentalUnsignedTypes::class)
-/*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
- */
 
 package kotlinx.serialization.features.inline
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
-import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.test.*
-import kotlin.test.Test
+import kotlin.test.*
 
 @Serializable(WithUnsignedSerializer::class)
 data class WithUnsigned(val u: UInt)

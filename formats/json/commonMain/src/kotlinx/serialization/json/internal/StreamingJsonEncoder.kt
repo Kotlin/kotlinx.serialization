@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json.internal
@@ -160,8 +160,8 @@ internal class StreamingJsonEncoder(
 
     override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder =
         if (inlineDescriptor.isUnsignedNumber) StreamingJsonEncoder(
-            ComposerForUnsignedNumbers(composer.sb), json, mode, null
-        )
+            ComposerForUnsignedNumbers(composer.sb, forceQuoting), json, mode, null
+        ).also { it.forceQuoting = forceQuoting } // for delegating via encodeSerializableValue
         else super.encodeInline(inlineDescriptor)
 
     override fun encodeNull() {
