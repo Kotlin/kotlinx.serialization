@@ -160,9 +160,17 @@ internal class StreamingJsonEncoder(
 
     override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder =
         if (inlineDescriptor.isUnsignedNumber) StreamingJsonEncoder(
-            ComposerForUnsignedNumbers(composer.sb, forceQuoting), json, mode, null
-        ).also { it.forceQuoting = forceQuoting } // for delegating via encodeSerializableValue
+            composerForUnsignedNumbers(), json, mode, null
+        )
         else super.encodeInline(inlineDescriptor)
+
+    private fun composerForUnsignedNumbers(): Composer {
+        // If we're inside encodeInline().encodeSerializableValue, we should preserve the forceQuoting state
+        // inside the composer, but not in the encoder (otherwise we'll get into `if (forceQuoting) encodeString(value.toString())` part
+        // and unsigned numbers would be encoded incorrectly)
+        return if (composer is ComposerForUnsignedNumbers) composer
+        else ComposerForUnsignedNumbers(composer.sb, forceQuoting)
+    }
 
     override fun encodeNull() {
         composer.print(NULL)

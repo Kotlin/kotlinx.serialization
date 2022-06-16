@@ -9,6 +9,7 @@ import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.test.*
 import kotlin.jvm.*
 import kotlin.test.*
 
@@ -47,18 +48,19 @@ class InlineMapQuotedTest : JsonTestBase() {
     )
 
     @Test
-    fun testInlineClassAsMapKey() {
+    fun testInlineClassAsMapKey() = noLegacyJs {
+        println(Long.MAX_VALUE.toULong() + 2UL)
         val c = Carrier(
             mapOf(1L to 1L),
-            mapOf(2UL to 2L),
+            mapOf(Long.MAX_VALUE.toULong() + 2UL to 2L),
             mapOf(WrappedLong(3L) to 3L),
-            mapOf(WrappedULong(4UL) to 4L),
-            mapOf(CustomULong(5UL) to 5L)
+            mapOf(WrappedULong(Long.MAX_VALUE.toULong() + 4UL) to 4L),
+            mapOf(CustomULong(Long.MAX_VALUE.toULong() + 5UL) to 5L)
         )
         assertJsonFormAndRestored(
             serializer(),
             c,
-            """{"mapLong":{"1":1},"mapULong":{"2":2},"wrappedLong":{"3":3},"mapWrappedU":{"4":4},"mapCustom":{"5":5}}"""
+            """{"mapLong":{"1":1},"mapULong":{"9223372036854775809":2},"wrappedLong":{"3":3},"mapWrappedU":{"9223372036854775811":4},"mapCustom":{"9223372036854775812":5}}"""
         )
     }
 }
