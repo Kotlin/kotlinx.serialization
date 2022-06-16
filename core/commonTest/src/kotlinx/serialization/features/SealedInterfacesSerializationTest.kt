@@ -10,6 +10,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.test.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -91,7 +92,7 @@ class SealedInterfacesSerializationTest {
     }
 
     @Test
-    fun testResolved() {
+    fun testResolved() = noJsLegacy {
         serializer<C>().descriptor.haveSealedSubclasses()
     }
 
