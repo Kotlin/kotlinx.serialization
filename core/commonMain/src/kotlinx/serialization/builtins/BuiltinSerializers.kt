@@ -9,6 +9,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
 import kotlin.reflect.*
 import kotlinx.serialization.descriptors.*
+import kotlin.time.Duration
 
 /**
  * Returns a nullable serializer for the given serializer of non-null type.
@@ -217,3 +218,11 @@ public fun UByte.Companion.serializer(): KSerializer<UByte> = UByteSerializer
 @ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 public fun UShort.Companion.serializer(): KSerializer<UShort> = UShortSerializer
+
+/**
+ * Returns serializer for [Duration].
+ * It is serialized as a string that represents a duration in the ISO-8601 format.
+ *
+ * The result of serialization is similar to calling [Duration.toIsoString], for deserialization is [Duration.parseIsoString].
+ */
+public fun Duration.Companion.serializer(): KSerializer<Duration> = DurationSerializer
