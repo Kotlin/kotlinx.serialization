@@ -11,6 +11,12 @@ plugins {
 apply(from = rootProject.file("gradle/native-targets.gradle"))
 apply(from = rootProject.file("gradle/configure-source-sets.gradle"))
 
+tasks.withType<SourceTask> {
+    if (this.name == "compileTestKotlinJsLegacy") {
+        this.exclude("**/PropertyInitializerTest.kt")
+    }
+}
+
 // disable kover tasks because there are no non-test classes in the project
 tasks.koverHtmlReport {
     enabled = false
@@ -38,12 +44,6 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${property("coroutines_version")}")
             }
         }
-    }
-}
-
-tasks.withType<SourceTask> {
-    if (this.name == "compileTestKotlinJsLegacy") {
-        this.exclude("**/PropertyInitializerTest.kt")
     }
 }
 
