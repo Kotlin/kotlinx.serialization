@@ -17,17 +17,6 @@ tasks.withType<SourceTask> {
     }
 }
 
-// disable kover tasks because there are no non-test classes in the project
-tasks.koverHtmlReport {
-    enabled = false
-}
-tasks.koverXmlReport {
-    enabled = false
-}
-tasks.koverVerify {
-    enabled = false
-}
-
 kotlin {
     sourceSets {
         val commonTest by getting {
