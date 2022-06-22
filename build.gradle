@@ -144,6 +144,8 @@ allprojects {
     }
 }
 
+def unpublishedProjects = ["benchmark", "guide", "kotlinx-serialization-json-tests"] as Set
+
 subprojects {
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile).all { task ->
         if (task.name.contains("Test") || task.name.contains("Jmh")) {
@@ -155,7 +157,7 @@ subprojects {
 
     apply from: rootProject.file('gradle/teamcity.gradle')
     // Configure publishing for some artifacts
-    if (project.name != "benchmark" && project.name != "guide") {
+    if (!unpublishedProjects.contains(project.name)) {
         apply from: rootProject.file('gradle/publishing.gradle')
     }
 
@@ -163,7 +165,7 @@ subprojects {
 
 subprojects {
     // Can't be applied to BOM
-    if (project.name == "kotlinx-serialization-bom" || project.name == "benchmark" || project.name == "guide") return
+    if (project.name == "kotlinx-serialization-bom" || unpublishedProjects.contains(project.name)) return
 
     // Animalsniffer setup
     apply plugin: 'ru.vyarus.animalsniffer'
