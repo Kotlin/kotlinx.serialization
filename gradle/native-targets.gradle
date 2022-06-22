@@ -67,6 +67,10 @@ def getHostName() {
     return 'unknown'
 }
 
+static def doesNotDependOnOkio(project) {
+    return !project.name.contains("json-okio") && !project.name.contains("json-tests")
+}
+
 kotlin {
     targets {
         def manager = project.ext.hostManager
@@ -93,7 +97,7 @@ kotlin {
         } else {
             // Linux
             addTarget(presets.linuxX64)
-            if (!project.name.contains("json-okio")) {
+            if (doesNotDependOnOkio(project)) {
                 addTarget(presets.linuxArm32Hfp)
                 addTarget(presets.linuxArm64)
             }
@@ -102,7 +106,7 @@ kotlin {
             addTarget(presets.macosX64)
 
             addTarget(presets.iosArm64)
-            if (!project.name.contains("json-okio")) {
+            if (doesNotDependOnOkio(project)) {
                 addTarget(presets.iosArm32)
             }
             addTarget(presets.iosX64)
@@ -123,7 +127,7 @@ kotlin {
 
             // Windows
             addTarget(presets.mingwX64)
-            if (!project.name.contains("json-okio")) {
+            if (doesNotDependOnOkio(project)) {
                 addTarget(presets.mingwX86)
             }
         }
