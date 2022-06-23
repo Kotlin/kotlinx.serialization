@@ -68,8 +68,7 @@ class SerializersLookupEnumTest {
         if (isJvm()) {
             assertIs<EnumExternalClassSerializer>(serializer<EnumExternalClass>())
         } else if (isJsIr() || isNative()) {
-            // FIXME serializer<EnumWithClassSerializer> is broken for K/JS and K/Native. Remove `assertFails` after fix
-            assertFails { serializer<EnumExternalClass>() }
+            assertIs<EnumExternalClassSerializer>(serializer<EnumExternalClass>())
         }
     }
 
