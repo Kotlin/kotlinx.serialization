@@ -9,6 +9,7 @@ import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.*
+import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.*
 import org.jetbrains.kotlin.gradle.targets.jvm.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.*
