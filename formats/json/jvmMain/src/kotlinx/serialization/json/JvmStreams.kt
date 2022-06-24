@@ -61,7 +61,7 @@ public fun <T> Json.decodeFromStream(
     stream: InputStream
 ): T {
     val lexer = ReaderJsonLexer(stream)
-    val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor)
+    val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor, null)
     val result = input.decodeSerializableValue(deserializer)
     lexer.expectEof()
     return result

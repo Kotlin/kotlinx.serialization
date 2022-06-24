@@ -283,6 +283,8 @@ internal abstract class AbstractJsonLexer {
         return current
     }
 
+    abstract fun consumeLeadingMatchingValue(keyToMatch: String, isLenient: Boolean): String?
+
     fun peekString(isLenient: Boolean): String? {
         val token = peekNextToken()
         val string = if (isLenient) {

@@ -24,7 +24,7 @@ internal class JsonPath {
 
     // Tombstone indicates that we are within a map, but the map key is currently being decoded.
     // It is also used to overwrite a previous map key to avoid memory leaks and misattribution.
-    object Tombstone
+    private object Tombstone
 
     /*
      * Serial descriptor, map key or the tombstone for map key

@@ -4,11 +4,11 @@
 
 package kotlinx.serialization.features
 
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.StringData
+import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.*
 import kotlinx.serialization.json.internal.BATCH_SIZE
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.test.*
 import org.junit.Test
 import java.io.ByteArrayInputStream
@@ -85,4 +85,45 @@ class JsonJvmStreamsTest {
         }
     }
 
+    interface Poly
+
+    @Serializable
+    @SerialName("Impl")
+    data class Impl(val str: String) : Poly
+
+    @Test
+    fun testPolymorphismWhenCrossingBatchSizeNonLeadingKey() {
+        val json = Json { 
+            serializersModule = SerializersModule { 
+                polymorphic(Poly::class) {
+                    subclass(Impl::class, Impl.serializer())
+                }
+            }
+        }
+
+        val longString = "a".repeat(BATCH_SIZE - 5)
+        val string = """{"str":"$longString", "type":"Impl"}"""
+        val golden = Impl(longString)
+
+        val deserialized = json.decodeViaStream(serializer<Poly>(), string)
+        assertEquals(golden, deserialized as Impl)
+    }
+
+    @Test
+    fun testPolymorphismWhenCrossingBatchSize() {
+        val json = Json {
+            serializersModule = SerializersModule {
+                polymorphic(Poly::class) {
+                    subclass(Impl::class, Impl.serializer())
+                }
+            }
+        }
+
+        val aLotOfWhiteSpaces = " ".repeat(BATCH_SIZE - 5)
+        val string = """{$aLotOfWhiteSpaces"type":"Impl", "str":"value"}"""
+        val golden = Impl("value")
+
+        val deserialized = json.decodeViaStream(serializer<Poly>(), string)
+        assertEquals(golden, deserialized as Impl)
+    }
 }
