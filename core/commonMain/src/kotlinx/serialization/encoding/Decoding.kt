@@ -108,7 +108,7 @@ import kotlinx.serialization.modules.*
  *
  * ### Not stable for inheritance
  *
- * `Decoder` interface is not stable for inheritance in 3rd party libraries, as new methods
+ * `Decoder` interface is not stable for inheritance in 3rd-party libraries, as new methods
  * might be added to this interface or contracts of the existing methods can be changed.
  */
 public interface Decoder {
@@ -211,27 +211,24 @@ public interface Decoder {
     public fun decodeEnum(enumDescriptor: SerialDescriptor): Int
 
     /**
-     * Returns [Decoder] for decoding an underlying type of an inline class.
-     * [inlineDescriptor] describes a target inline class.
+     * Returns [Decoder] for decoding an underlying type of a value class in an inline manner.
+     * [descriptor] describes a target value class.
      *
-     * Namely, for the `@Serializable inline class MyInt(val my: Int)`,
-     * the following sequence is used:
+     * Namely, for the `@Serializable @JvmInline value class MyInt(val my: Int)`, the following sequence is used:
      * ```
      * thisDecoder.decodeInline(MyInt.serializer().descriptor).decodeInt()
      * ```
      *
-     * Current decoder may return any other instance of [Decoder] class,
-     * depending on the provided [inlineDescriptor].
-     * For example, when this function is called on Json decoder with
-     * `UInt.serializer().descriptor`, the returned decoder is able
-     * to decode unsigned integers.
+     * Current decoder may return any other instance of [Decoder] class, depending on the provided [descriptor].
+     * For example, when this function is called on `Json` decoder with
+     * `UInt.serializer().descriptor`, the returned decoder is able to decode unsigned integers.
      *
      * Note that this function returns [Decoder] instead of the [CompositeDecoder]
-     * because inline classes always have the single property.
-     * Calling [Decoder.beginStructure] on returned instance leads to an undefined behavior.
+     * because value classes always have the single property.
+     *
+     * Calling [Decoder.beginStructure] on returned instance leads to an unspecified behavior and, in general, is prohibited.
      */
-    @ExperimentalSerializationApi
-    public fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder
+    public fun decodeInline(descriptor: SerialDescriptor): Decoder
 
     /**
      * Decodes the beginning of the nested structure in a serialized form
@@ -488,35 +485,34 @@ public interface CompositeDecoder {
     public fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String
 
     /**
-     * Returns [Decoder] for decoding an underlying type of an inline class.
-     * Serializable inline class is described by the [child descriptor][SerialDescriptor.getElementDescriptor]
+     * Returns [Decoder] for decoding an underlying type of a value class in an inline manner.
+     * Serializable value class is described by the [child descriptor][SerialDescriptor.getElementDescriptor]
      * of given [descriptor] at [index].
      *
-     * Namely, for the `@Serializable inline class MyInt(val my: Int)`,
-     * and `@Serializable class MyData(val myInt: MyInt)`
-     * the following sequence is used:
+     * Namely, for the `@Serializable @JvmInline value class MyInt(val my: Int)`,
+     * and `@Serializable class MyData(val myInt: MyInt)` the following sequence is used:
      * ```
      * thisDecoder.decodeInlineElement(MyData.serializer().descriptor, 0).decodeInt()
      * ```
      *
-     * This method provides an opportunity for the optimization and its invocation should be identical to
+     * This method provides an opportunity for the optimization to avoid boxing of a carried value
+     * and its invocation should be equivalent to the following:
      * ```
      * thisDecoder.decodeSerializableElement(MyData.serializer.descriptor, 0, MyInt.serializer())
      * ```
      *
      * Current decoder may return any other instance of [Decoder] class, depending on the provided descriptor.
-     * For example, when this function is called on Json decoder with descriptor that has
+     * For example, when this function is called on `Json` decoder with descriptor that has
      * `UInt.serializer().descriptor` at the given [index], the returned decoder is able
      * to decode unsigned integers.
      *
      * Note that this function returns [Decoder] instead of the [CompositeDecoder]
-     * because inline classes always have the single property.
-     * Calling [Decoder.beginStructure] on returned instance leads to an undefined behavior.
+     * because value classes always have the single property.
+     * Calling [Decoder.beginStructure] on returned instance leads to an unspecified behavior and, in general, is prohibited.
      *
      * @see Decoder.decodeInline
      * @see SerialDescriptor.getElementDescriptor
      */
-    @ExperimentalSerializationApi
     public fun decodeInlineElement(
         descriptor: SerialDescriptor,
         index: Int
@@ -571,6 +567,3 @@ public inline fun <T> Decoder.decodeStructure(
     composite.endStructure(descriptor)
     return result
 }
-
-private const val decodeMethodDeprecated = "Please migrate to decodeElement method which accepts old value." +
-        "Feel free to ignore it if your format does not support updates."

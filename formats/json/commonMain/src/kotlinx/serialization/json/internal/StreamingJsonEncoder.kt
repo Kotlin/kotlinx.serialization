@@ -12,7 +12,6 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.native.concurrent.*
 
-@ExperimentalSerializationApi
 @OptIn(ExperimentalUnsignedTypes::class)
 @SharedImmutable
 private val unsignedNumberDescriptors = setOf(
@@ -22,7 +21,6 @@ private val unsignedNumberDescriptors = setOf(
     UShort.serializer().descriptor
 )
 
-@ExperimentalSerializationApi
 internal val SerialDescriptor.isUnsignedNumber: Boolean
     get() = this.isInline && this in unsignedNumberDescriptors
 
@@ -158,11 +156,11 @@ internal class StreamingJsonEncoder(
         }
     }
 
-    override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder =
-        if (inlineDescriptor.isUnsignedNumber) StreamingJsonEncoder(
+    override fun encodeInline(descriptor: SerialDescriptor): Encoder =
+        if (descriptor.isUnsignedNumber) StreamingJsonEncoder(
             composerForUnsignedNumbers(), json, mode, null
         )
-        else super.encodeInline(inlineDescriptor)
+        else super.encodeInline(descriptor)
 
     private fun composerForUnsignedNumbers(): Composer {
         // If we're inside encodeInline().encodeSerializableValue, we should preserve the forceQuoting state

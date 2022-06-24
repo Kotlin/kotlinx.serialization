@@ -34,7 +34,7 @@ public abstract class AbstractDecoder : Decoder, CompositeDecoder {
     override fun decodeString(): String = decodeValue() as String
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int = decodeValue() as Int
 
-    override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder = this
+    override fun decodeInline(descriptor: SerialDescriptor): Decoder = this
 
     // overwrite by default
     public open fun <T : Any?> decodeSerializableValue(
