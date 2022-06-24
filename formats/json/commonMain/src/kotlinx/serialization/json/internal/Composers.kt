@@ -41,7 +41,6 @@ internal open class Composer(@JvmField internal val sb: JsonStringBuilder) {
     fun printQuoted(value: String): Unit = sb.appendQuoted(value)
 }
 
-@ExperimentalUnsignedTypes
 internal class ComposerForUnsignedNumbers(sb: JsonStringBuilder, private val forceQuoting: Boolean) : Composer(sb) {
     override fun print(v: Int) {
         if (forceQuoting) printQuoted(v.toUInt().toString()) else print(v.toUInt().toString())

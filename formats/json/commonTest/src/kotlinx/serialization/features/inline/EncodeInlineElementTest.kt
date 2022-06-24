@@ -2,8 +2,6 @@
  * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:OptIn(ExperimentalUnsignedTypes::class)
-
 package kotlinx.serialization.features.inline
 
 import kotlinx.serialization.*

@@ -101,7 +101,6 @@ private sealed class AbstractJsonTreeEncoder(
         putElement(tag, JsonPrimitive(value.toString()))
     }
 
-    @OptIn(ExperimentalUnsignedTypes::class)
     override fun encodeTaggedInline(tag: String, inlineDescriptor: SerialDescriptor): Encoder =
         if (inlineDescriptor.isUnsignedNumber) object : AbstractEncoder() {
             override val serializersModule: SerializersModule = json.serializersModule

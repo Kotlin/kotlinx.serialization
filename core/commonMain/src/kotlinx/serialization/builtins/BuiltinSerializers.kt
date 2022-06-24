@@ -194,25 +194,21 @@ public fun <K, V> MapSerializer(
 /**
  * Returns serializer for [UInt].
  */
-@ExperimentalUnsignedTypes
 public fun UInt.Companion.serializer(): KSerializer<UInt> = UIntSerializer
 
 /**
  * Returns serializer for [ULong].
  */
-@ExperimentalUnsignedTypes
 public fun ULong.Companion.serializer(): KSerializer<ULong> = ULongSerializer
 
 /**
  * Returns serializer for [UByte].
  */
-@ExperimentalUnsignedTypes
 public fun UByte.Companion.serializer(): KSerializer<UByte> = UByteSerializer
 
 /**
  * Returns serializer for [UShort].
  */
-@ExperimentalUnsignedTypes
 public fun UShort.Companion.serializer(): KSerializer<UShort> = UShortSerializer
 
 /**

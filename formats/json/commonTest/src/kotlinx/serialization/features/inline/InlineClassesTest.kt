@@ -3,11 +3,6 @@
  */
 
 @file:Suppress("INLINE_CLASSES_NOT_SUPPORTED", "SERIALIZER_NOT_FOUND")
-@file:OptIn(ExperimentalUnsignedTypes::class)
-
-/*
- * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
- */
 
 package kotlinx.serialization.features.inline
 

@@ -12,7 +12,6 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.native.concurrent.*
 
-@OptIn(ExperimentalUnsignedTypes::class)
 @SharedImmutable
 private val unsignedNumberDescriptors = setOf(
     UInt.serializer().descriptor,
@@ -24,7 +23,7 @@ private val unsignedNumberDescriptors = setOf(
 internal val SerialDescriptor.isUnsignedNumber: Boolean
     get() = this.isInline && this in unsignedNumberDescriptors
 
-@OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
+@OptIn(ExperimentalSerializationApi::class)
 internal class StreamingJsonEncoder(
     private val composer: Composer,
     override val json: Json,
