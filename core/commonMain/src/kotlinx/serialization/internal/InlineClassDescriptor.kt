@@ -10,7 +10,6 @@ import kotlinx.serialization.encoding.*
 
 @Suppress("Unused")
 @PublishedApi
-@OptIn(ExperimentalSerializationApi::class)
 internal class InlineClassDescriptor(
     name: String,
     generatedSerializer: GeneratedSerializer<*>

@@ -6,10 +6,10 @@ package kotlinx.serialization.features.inline
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
-import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.test.*
-import kotlin.test.Test
+import kotlin.test.*
 
 @Serializable(WithUnsignedSerializer::class)
 data class WithUnsigned(val u: UInt)

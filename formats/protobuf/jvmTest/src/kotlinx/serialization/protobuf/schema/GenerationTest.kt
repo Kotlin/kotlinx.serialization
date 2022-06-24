@@ -25,6 +25,7 @@ internal val commonClasses = listOf(
     GenerationTest.LegacyMapHolder::class,
     GenerationTest.NullableNestedCollections::class,
     GenerationTest.OptionalCollections::class,
+    GenerationTest.EnumWithProtoNumber::class,
 )
 
 class GenerationTest {
@@ -179,6 +180,16 @@ class GenerationTest {
         val intList: List<List<Int?>>,
         val legacyMap: Map<List<Int>?, List<Int>?>
     )
+
+    @Serializable
+    enum class EnumWithProtoNumber {
+        ZERO,
+        @ProtoNumber(3)
+        THREE,
+        TWO,
+        @ProtoNumber(5)
+        FIVE,
+    }
 
     @Test
     fun testIndividuals() {

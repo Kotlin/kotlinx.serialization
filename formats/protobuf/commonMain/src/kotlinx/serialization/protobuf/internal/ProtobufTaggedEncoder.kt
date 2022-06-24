@@ -154,8 +154,8 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
         encodeNullableSerializableValue(serializer, value)
     }
 
-    override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder {
-        return encodeTaggedInline(popTag(), inlineDescriptor)
+    override fun encodeInline(descriptor: SerialDescriptor): Encoder {
+        return encodeTaggedInline(popTag(), descriptor)
     }
 
     override fun encodeInlineElement(descriptor: SerialDescriptor, index: Int): Encoder {

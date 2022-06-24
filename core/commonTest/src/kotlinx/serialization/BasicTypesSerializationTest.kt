@@ -4,12 +4,13 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
-import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.test.*
+import kotlin.time.Duration
 
 /*
  * Test ensures that type that aggregate all basic (primitive/collection/maps/arrays)
@@ -170,4 +171,24 @@ class BasicTypesSerializationTest {
         assertEquals(umbrellaInstance, other)
         assertNotSame(umbrellaInstance, other)
     }
+
+    @Test
+    fun testEncodeDuration() {
+        val sb = StringBuilder()
+        val out = KeyValueOutput(sb)
+
+        val duration = Duration.parseIsoString("P4DT12H30M5S")
+        out.encodeSerializableValue(Duration.serializer(), duration)
+
+        assertEquals("\"${duration.toIsoString()}\"", sb.toString())
+    }
+
+    @Test
+    fun testDecodeDuration() {
+        val durationString = "P4DT12H30M5S"
+        val inp = KeyValueInput(Parser(StringReader("\"$durationString\"")))
+        val other = inp.decodeSerializableValue(Duration.serializer())
+        assertEquals(Duration.parseIsoString(durationString), other)
+    }
+
 }

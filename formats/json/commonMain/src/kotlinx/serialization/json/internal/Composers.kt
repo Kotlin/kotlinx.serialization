@@ -1,13 +1,13 @@
 /*
- * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:OptIn(ExperimentalSerializationApi::class)
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.Json
-import kotlin.jvm.JvmField
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+import kotlin.jvm.*
 
 internal fun Composer(sb: JsonStringBuilder, json: Json): Composer =
     if (json.configuration.prettyPrint) ComposerWithPrettyPrint(sb, json) else Composer(sb)
@@ -41,21 +41,21 @@ internal open class Composer(@JvmField internal val sb: JsonStringBuilder) {
     fun printQuoted(value: String): Unit = sb.appendQuoted(value)
 }
 
-internal class ComposerForUnsignedNumbers(sb: JsonStringBuilder) : Composer(sb) {
+internal class ComposerForUnsignedNumbers(sb: JsonStringBuilder, private val forceQuoting: Boolean) : Composer(sb) {
     override fun print(v: Int) {
-        return super.print(v.toUInt().toString())
+        if (forceQuoting) printQuoted(v.toUInt().toString()) else print(v.toUInt().toString())
     }
 
     override fun print(v: Long) {
-        return super.print(v.toULong().toString())
+        if (forceQuoting) printQuoted(v.toULong().toString()) else print(v.toULong().toString())
     }
 
     override fun print(v: Byte) {
-        return super.print(v.toUByte().toString())
+        if (forceQuoting) printQuoted(v.toUByte().toString()) else print(v.toUByte().toString())
     }
 
     override fun print(v: Short) {
-        return super.print(v.toUShort().toString())
+        if (forceQuoting) printQuoted(v.toUShort().toString()) else print(v.toUShort().toString())
     }
 }
 

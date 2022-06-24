@@ -51,7 +51,7 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
     override fun encodeString(value: String): Unit = encodeValue(value)
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int): Unit = encodeValue(index)
 
-    override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder = this
+    override fun encodeInline(descriptor: SerialDescriptor): Encoder = this
 
     // Delegating implementation of CompositeEncoder
     final override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) { if (encodeElement(descriptor, index)) encodeBoolean(value) }

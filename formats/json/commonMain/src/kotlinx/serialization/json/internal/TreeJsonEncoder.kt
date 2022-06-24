@@ -46,7 +46,10 @@ private sealed class AbstractJsonTreeEncoder(
     abstract fun putElement(key: String, element: JsonElement)
     abstract fun getCurrent(): JsonElement
 
+    // has no tag when encoding a nullable element at root level
+    override fun encodeNotNullMark() {}
 
+    // has no tag when encoding a nullable element at root level
     override fun encodeNull() {
         val tag = currentTagOrNull ?: return nodeConsumer(JsonNull)
         encodeTaggedNull(tag)

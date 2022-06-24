@@ -9,6 +9,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
+import kotlin.jvm.*
 
 @Suppress("UNCHECKED_CAST")
 internal inline fun <T> JsonEncoder.encodePolymorphically(
@@ -55,12 +56,13 @@ internal fun checkKind(kind: SerialKind) {
 }
 
 internal fun <T> JsonDecoder.decodeSerializableValuePolymorphic(deserializer: DeserializationStrategy<T>): T {
+    // NB: changes in this method should be reflected in StreamingJsonDecoder#decodeSerializableValue
     if (deserializer !is AbstractPolymorphicSerializer<*> || json.configuration.useArrayPolymorphism) {
         return deserializer.deserialize(this)
     }
+    val discriminator = deserializer.descriptor.classDiscriminator(json)
 
     val jsonTree = cast<JsonObject>(decodeJsonElement(), deserializer.descriptor)
-    val discriminator = deserializer.descriptor.classDiscriminator(json)
     val type = jsonTree[discriminator]?.jsonPrimitive?.content
     val actualSerializer = deserializer.findPolymorphicSerializerOrNull(this, type)
         ?: throwSerializerNotFound(type, jsonTree)
@@ -69,7 +71,8 @@ internal fun <T> JsonDecoder.decodeSerializableValuePolymorphic(deserializer: De
     return json.readPolymorphicJson(discriminator, jsonTree, actualSerializer as DeserializationStrategy<T>)
 }
 
-private fun throwSerializerNotFound(type: String?, jsonTree: JsonObject): Nothing {
+@JvmName("throwSerializerNotFound")
+internal fun throwSerializerNotFound(type: String?, jsonTree: JsonObject): Nothing {
     val suffix =
         if (type == null) "missing class discriminator ('null')"
         else "class discriminator '$type'"

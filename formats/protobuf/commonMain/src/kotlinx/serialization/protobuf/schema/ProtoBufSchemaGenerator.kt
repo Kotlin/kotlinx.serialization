@@ -190,7 +190,7 @@ public object ProtoBufSchemaGenerator {
 
 
             val annotations = messageDescriptor.getElementAnnotations(index)
-            val number = annotations.filterIsInstance<ProtoNumber>().singleOrNull()?.number ?: index + 1
+            val number = annotations.filterIsInstance<ProtoNumber>().singleOrNull()?.number ?: (index + 1)
             if (!usedNumbers.add(number)) {
                 throw IllegalArgumentException("Field number $number is repeated in the class with serial name ${messageDescriptor.serialName}")
             }
@@ -319,19 +319,35 @@ public object ProtoBufSchemaGenerator {
         }
         val safeSerialName = removeLineBreaks(enumDescriptor.serialName)
         if (safeSerialName != enumName) {
-            append("// serial name '").append(enumName).appendLine('\'')
+            append("// serial name '").append(safeSerialName).appendLine('\'')
         }
 
         append("enum ").append(enumName).appendLine(" {")
 
-        enumDescriptor.elementDescriptors.forEachIndexed { number, element ->
+        val usedNumbers: MutableSet<Int> = mutableSetOf()
+        val duplicatedNumbers: MutableSet<Int> = mutableSetOf()
+        enumDescriptor.elementDescriptors.forEachIndexed { index, element ->
             val elementName = element.protobufEnumElementName
             elementName.checkIsValidIdentifier {
                 "The enum element name '$elementName' is invalid in the " +
                         "protobuf schema. Serial name of the enum class '${enumDescriptor.serialName}'"
             }
+
+            val annotations = enumDescriptor.getElementAnnotations(index)
+            val number = annotations.filterIsInstance<ProtoNumber>().singleOrNull()?.number ?: index
+            if (!usedNumbers.add(number)) {
+                duplicatedNumbers.add(number)
+            }
+
             append("  ").append(elementName).append(" = ").append(number).appendLine(';')
         }
+        if (duplicatedNumbers.isNotEmpty()) {
+            throw IllegalArgumentException(
+                "The class with serial name ${enumDescriptor.serialName} has duplicate " +
+                    "elements with numbers $duplicatedNumbers"
+            )
+        }
+
         appendLine('}')
     }
 
