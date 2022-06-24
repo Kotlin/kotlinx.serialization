@@ -44,9 +44,10 @@ open class PolymorphismOverheadBenchmark {
     @Benchmark
     fun base() = json.decodeFromString(Impl.serializer(), implString)
 
+    // As of 1.3.x
     // Baseline -- 1500
     // v1, no skip -- 2000
-    // v2, with skip -- 3000
+    // v2, with skip -- 3000 [withdrawn]
     @Benchmark
     fun poly() = json.decodeFromString(serializer, polyString)
 

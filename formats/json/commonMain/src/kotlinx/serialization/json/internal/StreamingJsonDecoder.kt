@@ -28,14 +28,15 @@ internal open class StreamingJsonDecoder(
 
     // A mutable reference to the discriminator that have to be skipped when in optimistic phase
     // of polymorphic serialization, see `decodeSerializableValue`
-    internal class DiscriminatorHolder(private var discriminatorToSkip: String?) {
-        fun trySkip(unknownKey: String): Boolean {
-            if (discriminatorToSkip == unknownKey) {
-                discriminatorToSkip = null
-                return true
-            }
-            return false
+    internal class DiscriminatorHolder(@JvmField var discriminatorToSkip: String?)
+
+    private fun DiscriminatorHolder?.trySkip(unknownKey: String): Boolean {
+        if (this == null) return false
+        if (discriminatorToSkip == unknownKey) {
+            discriminatorToSkip = null
+            return true
         }
+        return false
     }
 
 
@@ -243,7 +244,7 @@ internal open class StreamingJsonDecoder(
     }
 
     private fun handleUnknown(key: String): Boolean {
-        if (configuration.ignoreUnknownKeys || (discriminatorHolder?.trySkip(key) ?: false)) {
+        if (configuration.ignoreUnknownKeys || discriminatorHolder.trySkip(key)) {
             lexer.skipElement(configuration.isLenient)
         } else {
             // Here we cannot properly update json path indicies
