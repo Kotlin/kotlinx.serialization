@@ -131,6 +131,14 @@ message OptionalCollections {
   map<int32, int32> nullableOptionalMap = 8;
 }
 
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.EnumWithProtoNumber'
+enum EnumWithProtoNumber {
+  ZERO = 0;
+  THREE = 3;
+  TWO = 2;
+  FIVE = 5;
+}
+
 enum OverriddenEnumName {
   FIRST = 0;
   OverriddenElementName = 1;

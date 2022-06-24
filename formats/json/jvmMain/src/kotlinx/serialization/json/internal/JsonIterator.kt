@@ -56,7 +56,7 @@ private class JsonIteratorWsSeparated<T>(
     private val deserializer: DeserializationStrategy<T>
 ) : Iterator<T> {
     override fun next(): T =
-        StreamingJsonDecoder(json, WriteMode.OBJ, lexer, deserializer.descriptor)
+        StreamingJsonDecoder(json, WriteMode.OBJ, lexer, deserializer.descriptor, null)
             .decodeSerializableValue(deserializer)
 
     override fun hasNext(): Boolean = lexer.isNotEof()
@@ -75,7 +75,7 @@ private class JsonIteratorArrayWrapped<T>(
         } else {
             lexer.consumeNextToken(COMMA)
         }
-        val input = StreamingJsonDecoder(json, WriteMode.OBJ, lexer, deserializer.descriptor)
+        val input = StreamingJsonDecoder(json, WriteMode.OBJ, lexer, deserializer.descriptor, null)
         return input.decodeSerializableValue(deserializer)
     }
 
