@@ -28,7 +28,8 @@ class DefaultPolymorphicSerializerTest : JsonTestBase() {
 
     @Test
     fun test() = parametrizedTest {
-        assertEquals(DefaultProject("example", "unknown"),
+        assertEquals(
+            DefaultProject("example", "unknown"),
             json.decodeFromString<Project>(""" {"type":"unknown","name":"example"}""", it))
     }
 

@@ -29,7 +29,7 @@ public open class StreamingJsonDecoder(
 
     // A mutable reference to the discriminator that have to be skipped when in optimistic phase
     // of polymorphic serialization, see `decodeSerializableValue`
-    internal class DiscriminatorHolder(@JvmField var discriminatorToSkip: String?)
+    public class DiscriminatorHolder(@JvmField public var discriminatorToSkip: String?)
 
     private fun DiscriminatorHolder?.trySkip(unknownKey: String): Boolean {
         if (this == null) return false
