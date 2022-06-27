@@ -42,7 +42,8 @@ If review is not required, commit directly to `dev`.
    * Release it.
    
 5. Update documentation website:<br>
-    `./update_docs.sh <version> push`
+    * Set new value for [`kotlinx.serialization.release.tag`](https://buildserver.labs.intellij.net/admin/editProject.html?projectId=Kotlin_KotlinSites_Builds_KotlinlangOrg_LibrariesAPIs&tab=projectParams)
+    * And run deploy [configuration](https://buildserver.labs.intellij.net/buildConfiguration/Kotlin_KotlinSites_Builds_KotlinlangOrg_KotlinSerializationApi?branch=%3Cdefault%3E&mode=builds)
 
 6. Create a new release in [Github releases](https://github.com/Kotlin/kotlinx.serialization/releases). Use created git tag for title and changelog message for body.
 
