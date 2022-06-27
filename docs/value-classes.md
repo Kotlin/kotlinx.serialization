@@ -1,33 +1,31 @@
-# Serialization and inline classes (experimental, IR-specific)
+# Serialization and value classes (IR-specific)
 
-This appendix describes how inline classes are handled by kotlinx.serialization.
+This appendix describes how value classes are handled by kotlinx.serialization.
 
-> Features described in this document are currently [experimental](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/compatibility.md#experimental-api)
-> and are available only with IR compilers. Native targets use IR compiler by default;
-> see documentation for [JS](https://kotlinlang.org/docs/reference/js-ir-compiler.html) and [JVM](https://kotlinlang.org/docs/reference/whatsnew14.html#new-jvm-ir-backend) to learn how to enable IR compilers.
-> Inline classes themselves are an [Alpha](https://kotlinlang.org/docs/reference/inline-classes.html#alpha-status-of-inline-classes) Kotlin feature.
+> Features described are available on JVM/IR (enabled by default), JS/IR and Native backends.  
 
 **Table of contents**
 
 <!--- TOC -->
 
-* [Serializable inline classes](#serializable-inline-classes)
+* [Serializable value classes](#serializable-value-classes)
 * [Unsigned types support (JSON only)](#unsigned-types-support-json-only)
-* [Using inline classes in your custom serializers](#using-inline-classes-in-your-custom-serializers)
+* [Using value classes in your custom serializers](#using-value-classes-in-your-custom-serializers)
 
 <!--- END -->
 
-## Serializable inline classes
+## Serializable value classes
 
-We can mark inline class as serializable:
+We can mark value class as serializable:
 
 ```kotlin
 @Serializable
-inline class Color(val rgb: Int)
+@JvmInline
+value class Color(val rgb: Int)
 ```
 
-Inline class in Kotlin is stored as its underlying type when possible (i.e. no boxing is required). 
-Serialization framework makes does not impose any additional restriction and uses the underlying type where possible as well.
+Value class in Kotlin is stored as its underlying type when possible (i.e. no boxing is required). 
+Serialization framework does not impose any additional restrictions and uses the underlying type where possible as well.
 
 ```kotlin
 @Serializable
@@ -46,7 +44,7 @@ output:
 {"color": 0, "name": "black"}
 ```
 
-As we see, `Color` class is not included during the encoding, only its underlying data. This invariant holds even if the actual inline class
+As we see, `Color` class is not included during the encoding, only its underlying data. This invariant holds even if the actual value class
 is [allocated](https://kotlinlang.org/docs/reference/inline-classes.html#representation) — for example, when inline
 class is used as a generic type argument:
 
@@ -67,7 +65,7 @@ The snippet produces the following output:
 
 ## Unsigned types support (JSON only)
 
-Kotlin standard library provides ready-to-use unsigned arithmetics, leveraging inline classes
+Kotlin standard library provides ready-to-use unsigned arithmetics, leveraging value classes
 to represent unsigned types: `UByte`, `UShort`, `UInt` and `ULong`.
 [Json] format has built-in support for them: these types are serialized as theirs string
 representations in unsigned form.
@@ -89,9 +87,10 @@ The output is following:
 {"counted":239,"description":"tries"}
 ```
 
-> Unsigned types are currently unsupported in Protobuf and CBOR, but we plan to add them later.
+> Unsigned types are currently supported only in JSON format. Other formats such as ProtoBuf and CBOR
+> use built-in serializerы that use an underlying signed representation for unsigned types.
 
-## Using inline classes in your custom serializers
+## Using value classes in your custom serializers
 
 Let's return to our `NamedColor` example and try to write a custom serializer for it. Normally, as shown
 in [Hand-written composite serializer](serializers.md#hand-written-composite-serializer), we would write the following code
@@ -107,7 +106,7 @@ override fun serialize(encoder: Encoder, value: NamedColor) {
 ```
 
 However, since `Color` is used as a type argument in [encodeSerializableElement][CompositeEncoder.encodeSerializableElement] function, `value.color` will be boxed
-to `Color` wrapper before passing it to the function, preventing the inline class optimization. To avoid this, we can use
+to `Color` wrapper before passing it to the function, preventing the value class optimization. To avoid this, we can use
 special [encodeInlineElement][CompositeEncoder.encodeInlineElement] function instead. It uses [serial descriptor][SerialDescriptor] of `Color` ([retrieved][SerialDescriptor.getElementDescriptor] from serial descriptor of `NamedColor`) instead of [KSerializer],
 does not have type parameters and does not accept any values. Instead, it returns [Encoder]. Using it, we can encode
 unboxed value:
@@ -166,12 +165,12 @@ override fun deserialize(decoder: Decoder): UID {
 }
 ```
 
-> Disclaimer: You can also write such a serializer for inline class itself (imagine UID being the inline class — there's no need to change anything in the serializer).
-> However, do not use anything in custom serializers for inline classes besides `encodeInline`. As we discussed, calls to inline class serializer may be
+> Disclaimer: You can also write such a serializer for value class itself (imagine UID being the value class — there's no need to change anything in the serializer).
+> However, do not use anything in custom serializers for value classes besides `encodeInline`. As we discussed, calls to value class serializer may be
 > optimized and replaced with a `encodeInlineElement` calls.
 > `encodeInline` and `encodeInlineElement` calls with the same descriptor are considered equivalent and can be replaced with each other — formats should return the same `Encoder`.
-> If you embed custom logic in custom inline class serializer, you may get different results depending on whether this serializer was called at all
-> (and this, in turn, depends on whether inline class was boxed or not).
+> If you embed custom logic in custom value class serializer, you may get different results depending on whether this serializer was called at all
+> (and this, in turn, depends on whether value class was boxed or not).
 
 ---
 
