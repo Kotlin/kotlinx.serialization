@@ -34,7 +34,7 @@ public fun <T> Json.encodeToOkio(
 }
 
 /**
- * Serializes given [value] to [target] using UTF-8 encoding and serializer retrieved from the reified type parameter.
+ * Serializes given [value] to a [target] using UTF-8 encoding and serializer retrieved from the reified type parameter.
  *
  * @throws [SerializationException] if the given value cannot be serialized to JSON.
  */
