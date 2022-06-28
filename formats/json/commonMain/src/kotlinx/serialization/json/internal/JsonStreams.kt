@@ -47,7 +47,7 @@ public fun <T> Json.decodeByReader(
 
 @InternalSerializationApi
 @ExperimentalSerializationApi
-public fun <T> Json.decodeToSequence(
+public fun <T> Json.decodeToSequenceByReader(
     reader: SerialReader,
     deserializer: DeserializationStrategy<T>,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
@@ -59,7 +59,7 @@ public fun <T> Json.decodeToSequence(
 
 @InternalSerializationApi
 @ExperimentalSerializationApi
-public inline fun <reified T> Json.decodeToSequence(
+public inline fun <reified T> Json.decodeToSequenceByReader(
     reader: SerialReader,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
-): Sequence<T> = decodeToSequence(reader, serializersModule.serializer(), format)
+): Sequence<T> = decodeToSequenceByReader(reader, serializersModule.serializer(), format)

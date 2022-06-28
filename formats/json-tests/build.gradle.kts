@@ -7,7 +7,7 @@ plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
 }
-//
+
 apply(from = rootProject.file("gradle/native-targets.gradle"))
 apply(from = rootProject.file("gradle/configure-source-sets.gradle"))
 
@@ -17,13 +17,24 @@ tasks.withType<SourceTask> {
     }
 }
 
+// disable kover tasks because there are no non-test classes in the project
+tasks.koverHtmlReport {
+    enabled = false
+}
+tasks.koverXmlReport {
+    enabled = false
+}
+tasks.koverVerify {
+    enabled = false
+}
+
 kotlin {
     sourceSets {
         val commonTest by getting {
             dependencies {
                 api(project(":kotlinx-serialization-json"))
                 api(project(":kotlinx-serialization-json-okio"))
-                implementation("com.squareup.okio:okio:3.1.0")
+                implementation("com.squareup.okio:okio:${property("okio_version")}")
             }
         }
 

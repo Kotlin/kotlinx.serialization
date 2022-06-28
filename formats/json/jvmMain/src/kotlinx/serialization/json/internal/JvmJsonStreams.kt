@@ -6,8 +6,8 @@ import java.nio.charset.Charset
 
 internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWriter {
     private val buffer = ByteArrayPool.take()
-    private var array = CharArrayPool.take()
-    private var index: Int = 0
+    private var charArray = CharArrayPool.take()
+    private var indexInBuffer: Int = 0
 
     override fun writeLong(value: Long) {
         write(value.toString())
@@ -20,13 +20,13 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
     override fun write(text: String) {
         val length = text.length
         ensureTotalCapacity(0, length)
-        text.toCharArray(array, 0, 0, length)
-        writeUtf8(array, 0, length)
+        text.toCharArray(charArray, 0, 0, length)
+        writeUtf8(charArray, length)
     }
 
     override fun writeQuoted(text: String) {
         ensureTotalCapacity(0, text.length + 2)
-        val arr = array
+        val arr = charArray
         arr[0] = '"'
         val length = text.length
         text.toCharArray(arr, 1, 0, length)
@@ -43,7 +43,7 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
 
         arr[length + 1] = '"'
 
-        writeUtf8(arr, 0, length + 2)
+        writeUtf8(arr, length + 2)
         flush()
     }
 
@@ -66,47 +66,47 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
                 */
                 when (val marker = ESCAPE_MARKERS[ch]) {
                     0.toByte() -> {
-                        array[sz++] = ch.toChar()
+                        charArray[sz++] = ch.toChar()
                     }
                     1.toByte() -> {
                         val escapedString = ESCAPE_STRINGS[ch]!!
                         sz = ensureTotalCapacity(sz, escapedString.length)
-                        escapedString.toCharArray(array, sz, 0, escapedString.length)
+                        escapedString.toCharArray(charArray, sz, 0, escapedString.length)
                         sz += escapedString.length
                     }
                     else -> {
-                        array[sz] = '\\'
-                        array[sz + 1] = marker.toInt().toChar()
+                        charArray[sz] = '\\'
+                        charArray[sz + 1] = marker.toInt().toChar()
                         sz += 2
                     }
                 }
             } else {
-                array[sz++] = ch.toChar()
+                charArray[sz++] = ch.toChar()
             }
         }
         ensureTotalCapacity(sz, 1)
-        array[sz++] = '"'
-        writeUtf8(array, 0, sz)
+        charArray[sz++] = '"'
+        writeUtf8(charArray, sz)
         flush()
     }
 
     private fun ensureTotalCapacity(oldSize: Int, additional: Int): Int {
         val newSize = oldSize + additional
-        if (array.size <= newSize) {
-            array = array.copyOf(newSize.coerceAtLeast(oldSize * 2))
+        if (charArray.size <= newSize) {
+            charArray = charArray.copyOf(newSize.coerceAtLeast(oldSize * 2))
         }
         return oldSize
     }
 
     override fun release() {
         flush()
-        CharArrayPool.release(array)
+        CharArrayPool.release(charArray)
         ByteArrayPool.release(buffer)
     }
 
     private fun flush() {
-        stream.write(buffer, 0, index)
-        index = 0
+        stream.write(buffer, 0, indexInBuffer)
+        indexInBuffer = 0
     }
 
 
@@ -121,22 +121,24 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
     @Suppress("NOTHING_TO_INLINE")
     // ! you should never ask for more than the buffer size
     private inline fun write(byte: Int) {
-        buffer[index++] = byte.toByte()
+        buffer[indexInBuffer++] = byte.toByte()
     }
 
     @Suppress("NOTHING_TO_INLINE")
     private inline fun rest(): Int {
-        return buffer.size - index
+        return buffer.size - indexInBuffer
     }
 
-    private fun writeUtf8(string: CharArray, beginIndex: Int, endIndex: Int) {
-        require(beginIndex >= 0) { "beginIndex < 0: $beginIndex" }
-        require(endIndex >= beginIndex) { "endIndex < beginIndex: $endIndex < $beginIndex" }
-        require(endIndex <= string.size) { "endIndex > string.length: $endIndex > ${string.size}" }
+    /*
+    Sources taken from okio library with minor changes, see https://github.com/square/okio
+     */
+    private fun writeUtf8(string: CharArray, count: Int) {
+        require(count >= 0) { "count < 0" }
+        require(count <= string.size) { "count > string.length: $count > ${string.size}" }
 
         // Transcode a UTF-16 Java String to UTF-8 bytes.
-        var i = beginIndex
-        while (i < endIndex) {
+        var i = 0
+        while (i < count) {
             var c = string[i].code
 
             when {
@@ -145,7 +147,7 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
                     ensure(1)
                     write(c) // 0xxxxxxx
                     i++
-                    val runLimit = minOf(endIndex, i + rest())
+                    val runLimit = minOf(count, i + rest())
 
                     // Fast-path contiguous runs of ASCII characters. This is ugly, but yields a ~4x performance
                     // improvement over independent calls to writeByte().
@@ -160,21 +162,17 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
                 c < 0x800 -> {
                     // Emit a 11-bit character with 2 bytes.
                     ensure(2)
-                    /* ktlint-disable no-multi-spaces */
                     write(c shr 6 or 0xc0) // 110xxxxx
                     write(c and 0x3f or 0x80) // 10xxxxxx
-                    /* ktlint-enable no-multi-spaces */
                     i++
                 }
 
                 c < 0xd800 || c > 0xdfff -> {
                     // Emit a 16-bit character with 3 bytes.
                     ensure(3)
-                    /* ktlint-disable no-multi-spaces */
                     write(c shr 12 or 0xe0) // 1110xxxx
                     write(c shr 6 and 0x3f or 0x80) // 10xxxxxx
                     write(c and 0x3f or 0x80) // 10xxxxxx
-                    /* ktlint-enable no-multi-spaces */
                     i++
                 }
 
@@ -182,7 +180,7 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
                     // c is a surrogate. Make sure it is a high surrogate & that its successor is a low
                     // surrogate. If not, the UTF-16 is invalid, in which case we emit a replacement
                     // character.
-                    val low = (if (i + 1 < endIndex) string[i + 1].code else 0)
+                    val low = (if (i + 1 < count) string[i + 1].code else 0)
                     if (c > 0xdbff || low !in 0xdc00..0xdfff) {
                         ensure(1)
                         write('?'.code)
@@ -195,12 +193,10 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
 
                         // Emit a 21-bit character with 4 bytes.
                         ensure(4)
-                        /* ktlint-disable no-multi-spaces */
                         write(codePoint shr 18 or 0xf0) // 11110xxx
                         write(codePoint shr 12 and 0x3f or 0x80) // 10xxxxxx
                         write(codePoint shr 6 and 0x3f or 0x80) // 10xxyyyy
                         write(codePoint and 0x3f or 0x80) // 10yyyyyy
-                        /* ktlint-enable no-multi-spaces */
                         i += 2
                     }
                 }
@@ -208,6 +204,9 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
         }
     }
 
+    /*
+    Sources taken from okio library with minor changes, see https://github.com/square/okio
+    */
     private fun writeUtf8CodePoint(codePoint: Int) {
         when {
             codePoint < 0x80 -> {
@@ -218,10 +217,8 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
             codePoint < 0x800 -> {
                 // Emit a 11-bit code point with 2 bytes.
                 ensure(2)
-                /* ktlint-disable no-multi-spaces */
                 write(codePoint shr 6 or 0xc0) // 110xxxxx
                 write(codePoint and 0x3f or 0x80) // 10xxxxxx
-                /* ktlint-enable no-multi-spaces */
             }
             codePoint in 0xd800..0xdfff -> {
                 // Emit a replacement character for a partial surrogate.
@@ -231,24 +228,20 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
             codePoint < 0x10000 -> {
                 // Emit a 16-bit code point with 3 bytes.
                 ensure(3)
-                /* ktlint-disable no-multi-spaces */
                 write(codePoint shr 12 or 0xe0) // 1110xxxx
                 write(codePoint shr 6 and 0x3f or 0x80) // 10xxxxxx
                 write(codePoint and 0x3f or 0x80) // 10xxxxxx
-                /* ktlint-enable no-multi-spaces */
             }
             codePoint <= 0x10ffff -> {
                 // Emit a 21-bit code point with 4 bytes.
                 ensure(4)
-                /* ktlint-disable no-multi-spaces */
                 write(codePoint shr 18 or 0xf0) // 11110xxx
                 write(codePoint shr 12 and 0x3f or 0x80) // 10xxxxxx
                 write(codePoint shr 6 and 0x3f or 0x80) // 10xxyyyy
                 write(codePoint and 0x3f or 0x80) // 10yyyyyy
-                /* ktlint-enable no-multi-spaces */
             }
             else -> {
-                throw IllegalArgumentException("Unexpected code point: $codePoint")
+                throw JsonEncodingException("Unexpected code point: $codePoint")
             }
         }
     }

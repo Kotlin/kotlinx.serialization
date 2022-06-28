@@ -165,7 +165,7 @@ subprojects {
 
 subprojects {
     // Can't be applied to BOM
-    if (project.name == "kotlinx-serialization-bom" || unpublishedProjects.contains(project.name)) return
+    if (project.name == "kotlinx-serialization-bom" || project.name == "benchmark" || project.name == "guide") return
 
     // Animalsniffer setup
     apply plugin: 'ru.vyarus.animalsniffer'

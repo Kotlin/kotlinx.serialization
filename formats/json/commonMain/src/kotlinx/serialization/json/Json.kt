@@ -125,7 +125,7 @@ public sealed class Json(
 }
 
 /**
- * Description of [decodeToSequence]'s JSON input shape.
+ * Description of JSON input shape used for decoding to sequence.
  *
  * The sequence represents a stream of objects parsed one by one;
  * [DecodeSequenceMode] defines a separator between these objects.

@@ -15,8 +15,7 @@ import kotlin.math.*
 /**
  * [https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER]
  */
-@InternalSerializationApi
-public const val MAX_SAFE_INTEGER: Double = 9007199254740991.toDouble() // 2^53 - 1
+internal const val MAX_SAFE_INTEGER: Double = 9007199254740991.toDouble() // 2^53 - 1
 
 @JsName("decodeDynamic")
 internal fun <T> Json.decodeDynamic(deserializer: DeserializationStrategy<T>, dynamic: dynamic): T {

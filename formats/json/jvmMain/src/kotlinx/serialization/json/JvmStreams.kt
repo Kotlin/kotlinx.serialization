@@ -94,7 +94,7 @@ public fun <T> Json.decodeToSequence(
     deserializer: DeserializationStrategy<T>,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
 ): Sequence<T> {
-    return decodeToSequence(JavaStreamSerialReader(stream), deserializer, format)
+    return decodeToSequenceByReader(JavaStreamSerialReader(stream), deserializer, format)
 }
 
 /**

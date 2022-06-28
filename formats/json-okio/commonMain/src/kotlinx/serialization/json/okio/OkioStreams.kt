@@ -9,18 +9,18 @@ import kotlinx.serialization.json.DecodeSequenceMode
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.json.okio.internal.JsonToOkioStreamWriter
-import kotlinx.serialization.json.internal.decodeToSequence
+import kotlinx.serialization.json.internal.decodeToSequenceByReader
 import kotlinx.serialization.json.okio.internal.OkioSerialReader
 import okio.BufferedSink
 import okio.BufferedSource
 
 /**
-* Serializes the [value] with [serializer] into a [target] using JSON format and UTF-8 encoding.
-*
-* @throws [SerializationException] if the given value cannot be serialized to JSON.
-*/
+ * Serializes the [value] with [serializer] into a [target] using JSON format and UTF-8 encoding.
+ *
+ * @throws [SerializationException] or [okio.IOException] if the given value cannot be serialized to JSON.
+ */
 @ExperimentalSerializationApi
-public fun <T> Json.encodeToOkio(
+public fun <T> Json.encodeToBufferedSink(
     serializer: SerializationStrategy<T>,
     value: T,
     target: BufferedSink
@@ -36,15 +36,13 @@ public fun <T> Json.encodeToOkio(
 /**
  * Serializes given [value] to a [target] using UTF-8 encoding and serializer retrieved from the reified type parameter.
  *
- * @throws [SerializationException] if the given value cannot be serialized to JSON.
+ * @throws [SerializationException] or [okio.IOException] if the given value cannot be serialized to JSON.
  */
 @ExperimentalSerializationApi
-public inline fun <reified T> Json.encodeToOkio(
+public inline fun <reified T> Json.encodeToBufferedSink(
     value: T,
     target: BufferedSink
-): Unit =
-    encodeToOkio(serializersModule.serializer(), value, target)
-
+): Unit = encodeToBufferedSink(serializersModule.serializer(), value, target)
 
 
 /**
@@ -53,10 +51,10 @@ public inline fun <reified T> Json.encodeToOkio(
  * Note that this functions expects that exactly one object would be present in the source
  * and throws an exception if there are any dangling bytes after an object.
  *
- * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
+ * @throws [SerializationException] or [okio.IOException] if the given JSON input cannot be deserialized to the value of type [T].
  */
 @ExperimentalSerializationApi
-public fun <T> Json.decodeFromOkio(
+public fun <T> Json.decodeFromBufferedSource(
     deserializer: DeserializationStrategy<T>,
     source: BufferedSource
 ): T {
@@ -70,16 +68,16 @@ public fun <T> Json.decodeFromOkio(
  * Note that this functions expects that exactly one object would be present in the stream
  * and throws an exception if there are any dangling bytes after an object.
  *
- * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
+ * @throws [SerializationException] or [okio.IOException] if the given JSON input cannot be deserialized to the value of type [T].
  */
 @ExperimentalSerializationApi
-public inline fun <reified T> Json.decodeFromOkio(source: BufferedSource): T =
-    decodeFromOkio(serializersModule.serializer(), source)
+public inline fun <reified T> Json.decodeFromBufferedSource(source: BufferedSource): T =
+    decodeFromBufferedSource(serializersModule.serializer(), source)
 
 
 /**
  * Transforms the given [source] into lazily deserialized sequence of elements of type [T] using UTF-8 encoding and [deserializer].
- * Unlike [decodeFromOkio], [source] is allowed to have more than one element, separated as [format] declares.
+ * Unlike [decodeFromBufferedSource], [source] is allowed to have more than one element, separated as [format] declares.
  *
  * Elements must all be of type [T].
  * Elements are parsed lazily when resulting [Sequence] is evaluated.
@@ -89,20 +87,20 @@ public inline fun <reified T> Json.decodeFromOkio(source: BufferedSource): T =
  * It is a caller responsibility to hold a reference to a stream and close it. Moreover, because stream is parsed lazily,
  * closing it before returned sequence is evaluated completely will result in [Exception] from decoder.
  *
- * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
+ * @throws [SerializationException] or [okio.IOException] if the given JSON input cannot be deserialized to the value of type [T].
  */
 @ExperimentalSerializationApi
-public fun <T> Json.decodeOkioToSequence(
+public fun <T> Json.decodeBufferedSourceToSequence(
     source: BufferedSource,
     deserializer: DeserializationStrategy<T>,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
 ): Sequence<T> {
-    return decodeToSequence(OkioSerialReader(source), deserializer, format)
+    return decodeToSequenceByReader(OkioSerialReader(source), deserializer, format)
 }
 
 /**
  * Transforms the given [source] into lazily deserialized sequence of elements of type [T] using UTF-8 encoding and deserializer retrieved from the reified type parameter.
- * Unlike [decodeFromOkio], [source] is allowed to have more than one element, separated as [format] declares.
+ * Unlike [decodeFromBufferedSource], [source] is allowed to have more than one element, separated as [format] declares.
  *
  * Elements must all be of type [T].
  * Elements are parsed lazily when resulting [Sequence] is evaluated.
@@ -112,10 +110,10 @@ public fun <T> Json.decodeOkioToSequence(
  * It is a caller responsibility to hold a reference to a stream and close it. Moreover, because stream is parsed lazily,
  * closing it before returned sequence is evaluated fully would result in [Exception] from decoder.
  *
- * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
+ * @throws [SerializationException] or [okio.IOException] if the given JSON input cannot be deserialized to the value of type [T].
  */
 @ExperimentalSerializationApi
-public inline fun <reified T> Json.decodeOkioToSequence(
+public inline fun <reified T> Json.decodeBufferedSourceToSequence(
     source: BufferedSource,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
-): Sequence<T> = decodeOkioToSequence(source, serializersModule.serializer(), format)
+): Sequence<T> = decodeBufferedSourceToSequence(source, serializersModule.serializer(), format)

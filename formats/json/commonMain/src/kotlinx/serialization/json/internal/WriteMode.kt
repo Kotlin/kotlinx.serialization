@@ -11,8 +11,7 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
 
-@InternalSerializationApi
-public enum class WriteMode(@JvmField internal val begin: Char, @JvmField internal val end: Char) {
+internal enum class WriteMode(@JvmField val begin: Char, @JvmField val end: Char) {
     OBJ(BEGIN_OBJ, END_OBJ),
     LIST(BEGIN_LIST, END_LIST),
     MAP(BEGIN_OBJ, END_OBJ),

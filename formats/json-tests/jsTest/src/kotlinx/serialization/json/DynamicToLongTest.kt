@@ -4,9 +4,13 @@
 
 package kotlinx.serialization.json
 
-import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.*
 import kotlin.test.*
+
+/**
+ * [https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER]
+ */
+internal const val MAX_SAFE_INTEGER: Double = 9007199254740991.toDouble() // 2^53 - 1
 
 class DynamicToLongTest {
 

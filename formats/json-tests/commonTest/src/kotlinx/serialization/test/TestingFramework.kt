@@ -74,7 +74,7 @@ inline fun assertFailsWithSerialMessage(
     assertEquals(
         exceptionName,
         exception::class.simpleName,
-        "Expected message '${exception.message}' to contain substring '$message'"
+        "Expected exception type '$exceptionName' but actual is '${exception::class.simpleName}'"
     )
     assertTrue(
         exception.message!!.contains(message),

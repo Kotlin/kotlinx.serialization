@@ -18,8 +18,7 @@ import kotlin.jvm.*
  * [JsonDecoder] which reads given JSON from [AbstractJsonLexer] field by field.
  */
 @OptIn(ExperimentalSerializationApi::class)
-@InternalSerializationApi
-public open class StreamingJsonDecoder(
+internal open class StreamingJsonDecoder(
     final override val json: Json,
     private val mode: WriteMode,
     @JvmField internal val lexer: AbstractJsonLexer,
@@ -352,6 +351,18 @@ public open class StreamingJsonDecoder(
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
         return enumDescriptor.getJsonNameIndexOrThrow(json, decodeString(), " at path " + lexer.path.getPath())
     }
+}
+
+@InternalSerializationApi
+public fun <T> Json.decodeStringToJsonTree(
+    deserializer: DeserializationStrategy<T>,
+    source: String
+): JsonElement {
+    val lexer = StringJsonLexer(source)
+    val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor, null)
+    val tree = input.decodeJsonElement()
+    lexer.expectEof()
+    return tree
 }
 
 @OptIn(ExperimentalSerializationApi::class)

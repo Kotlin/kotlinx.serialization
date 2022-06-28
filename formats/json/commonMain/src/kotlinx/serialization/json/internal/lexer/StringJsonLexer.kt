@@ -4,10 +4,7 @@
 
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.InternalSerializationApi
-
-@InternalSerializationApi
-public class StringJsonLexer(override val source: String) : AbstractJsonLexer() {
+internal class StringJsonLexer(override val source: String) : AbstractJsonLexer() {
 
     override fun prefetchOrEof(position: Int): Int = if (position < source.length) position else -1
 

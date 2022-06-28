@@ -4,6 +4,7 @@
 
 package kotlinx.serialization.json.internal
 
+import kotlinx.serialization.InternalSerializationApi
 import kotlin.native.concurrent.*
 
 private fun toHexChar(i: Int) : Char {
@@ -13,6 +14,7 @@ private fun toHexChar(i: Int) : Char {
 }
 
 @SharedImmutable
+@InternalSerializationApi
 public val ESCAPE_STRINGS: Array<String?> = arrayOfNulls<String>(93).apply {
     for (c in 0..0x1f) {
         val c1 = toHexChar(c shr 12)

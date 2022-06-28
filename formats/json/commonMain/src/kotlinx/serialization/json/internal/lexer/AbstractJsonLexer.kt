@@ -4,7 +4,7 @@
 
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.json.internal.CharMappings.CHAR_TO_TOKEN
 import kotlinx.serialization.json.internal.CharMappings.ESCAPE_2_CHAR
 import kotlin.js.*
@@ -130,8 +130,7 @@ internal fun escapeToChar(c: Int): Char = if (c < ESC2C_MAX) ESCAPE_2_CHAR[c] el
  * of them for the performance reasons (devirtualization of [CharSequence] and avoid
  * of additional spills).
  */
-@InternalSerializationApi
-public abstract class AbstractJsonLexer {
+internal abstract class AbstractJsonLexer {
 
     protected abstract val source: CharSequence
 
@@ -139,20 +138,20 @@ public abstract class AbstractJsonLexer {
     protected var currentPosition: Int = 0 // position in source
 
     @JvmField
-    internal val path = JsonPath()
+    val path = JsonPath()
 
-    internal open fun ensureHaveChars() {}
+    open fun ensureHaveChars() {}
 
-    internal fun isNotEof(): Boolean = peekNextToken() != TC_EOF
+    fun isNotEof(): Boolean = peekNextToken() != TC_EOF
 
     // Used as bound check in loops
-    internal abstract fun prefetchOrEof(position: Int): Int
+    abstract fun prefetchOrEof(position: Int): Int
 
-    internal abstract fun tryConsumeComma(): Boolean
+    abstract fun tryConsumeComma(): Boolean
 
-    internal abstract fun canConsumeValue(): Boolean
+    abstract fun canConsumeValue(): Boolean
 
-    internal abstract fun consumeNextToken(): Byte
+    abstract fun consumeNextToken(): Byte
 
     protected fun isValidValueStart(c: Char): Boolean {
         return when (c) {
@@ -161,7 +160,7 @@ public abstract class AbstractJsonLexer {
         }
     }
 
-    public fun expectEof() {
+    fun expectEof() {
         val nextToken = consumeNextToken()
         if (nextToken != TC_EOF)
             fail("Expected EOF after parsing, but had ${source[currentPosition - 1]} instead")
@@ -172,10 +171,10 @@ public abstract class AbstractJsonLexer {
      * If the value was picked, 'consumeString' will take it without scanning the source.
      */
     private var peekedString: String? = null
-    protected var escapedString: StringBuilder = StringBuilder()
+    protected var escapedString = StringBuilder()
 
     // TODO consider replacing usages of this method in JsonParser with char overload
-    internal fun consumeNextToken(expected: Byte): Byte {
+    fun consumeNextToken(expected: Byte): Byte {
         val token = consumeNextToken()
         if (token != expected) {
             fail(expected)
@@ -183,7 +182,7 @@ public abstract class AbstractJsonLexer {
         return token
     }
 
-    internal open fun consumeNextToken(expected: Char) {
+    open fun consumeNextToken(expected: Char) {
         ensureHaveChars()
         val source = source
         var cpos = currentPosition
@@ -225,7 +224,7 @@ public abstract class AbstractJsonLexer {
         fail("Expected $expected, but had '$s' instead", currentPosition - 1)
     }
 
-    internal fun peekNextToken(): Byte {
+    fun peekNextToken(): Byte {
         val source = source
         var cpos = currentPosition
         while (true) {
@@ -248,7 +247,7 @@ public abstract class AbstractJsonLexer {
      * Returns `true` if the next 4 chars in input are not `null`,
      * `false` otherwise and consumes it.
      */
-    internal fun tryConsumeNotNull(): Boolean {
+    fun tryConsumeNotNull(): Boolean {
         var current = skipWhitespaces()
         current = prefetchOrEof(current)
         // Cannot consume null due to EOF, maybe something else
@@ -266,7 +265,7 @@ public abstract class AbstractJsonLexer {
         return false
     }
 
-    internal open fun skipWhitespaces(): Int {
+    open fun skipWhitespaces(): Int {
         var current = currentPosition
         // Skip whitespaces
         while (true) {
@@ -284,9 +283,9 @@ public abstract class AbstractJsonLexer {
         return current
     }
 
-    internal abstract fun consumeLeadingMatchingValue(keyToMatch: String, isLenient: Boolean): String?
+    abstract fun consumeLeadingMatchingValue(keyToMatch: String, isLenient: Boolean): String?
 
-    internal fun peekString(isLenient: Boolean): String? {
+    fun peekString(isLenient: Boolean): String? {
         val token = peekNextToken()
         val string = if (isLenient) {
             if (token != TC_STRING && token != TC_OTHER) return null
@@ -299,16 +298,16 @@ public abstract class AbstractJsonLexer {
         return string
     }
 
-    internal open fun indexOf(char: Char, startPos: Int) = source.indexOf(char, startPos)
-    internal open fun substring(startPos: Int, endPos: Int) =  source.substring(startPos, endPos)
+    open fun indexOf(char: Char, startPos: Int) = source.indexOf(char, startPos)
+    open fun substring(startPos: Int, endPos: Int) =  source.substring(startPos, endPos)
 
     /*
      * This method is a copy of consumeString, but used for key of json objects, so there
      * is no need to lookup peeked string.
      */
-    internal abstract fun consumeKeyString(): String
+    abstract fun consumeKeyString(): String
 
-    internal fun consumeString(): String {
+    fun consumeString(): String {
         if (peekedString != null) {
             return takePeeked()
         }
@@ -368,7 +367,7 @@ public abstract class AbstractJsonLexer {
         return peekedString!!.also { peekedString = null }
     }
 
-    internal fun consumeStringLenientNotNull(): String {
+    fun consumeStringLenientNotNull(): String {
         val result = consumeStringLenient()
         /*
          * Check if lenient value is 'null' _without_ quotation marks and fail for non-nullable read if so.
@@ -385,7 +384,7 @@ public abstract class AbstractJsonLexer {
     }
 
     // Allows consuming unquoted string
-    internal fun consumeStringLenient(): String {
+    fun consumeStringLenient(): String {
         if (peekedString != null) {
             return takePeeked()
         }
@@ -474,7 +473,7 @@ public abstract class AbstractJsonLexer {
         }
     }
 
-    internal fun skipElement(allowLenientStrings: Boolean) {
+    fun skipElement(allowLenientStrings: Boolean) {
         val tokenStack = mutableListOf<Byte>()
         var lastToken = peekNextToken()
         if (lastToken != TC_BEGIN_LIST && lastToken != TC_BEGIN_OBJ) {
@@ -518,7 +517,7 @@ public abstract class AbstractJsonLexer {
         return "JsonReader(source='$source', currentPosition=$currentPosition)"
     }
 
-    internal fun failOnUnknownKey(key: String) {
+    fun failOnUnknownKey(key: String) {
         // At this moment we already have both key and semicolon (and whitespaces! consumed),
         // but still would like an error to point to the beginning of the key, so we are backtracking it
         val processed = substring(0, currentPosition)
@@ -526,12 +525,12 @@ public abstract class AbstractJsonLexer {
         fail("Encountered an unknown key '$key'", lastIndexOf, ignoreUnknownKeysHint)
     }
 
-    internal fun fail(message: String, position: Int = currentPosition, hint: String = ""): Nothing {
+    fun fail(message: String, position: Int = currentPosition, hint: String = ""): Nothing {
         val hintMessage = if (hint.isEmpty()) "" else "\n$hint"
         throw JsonDecodingException(position, message + " at path: " + path.getPath() + hintMessage, source)
     }
 
-    internal fun consumeNumericLiteral(): Long {
+    fun consumeNumericLiteral(): Long {
         /*
          * This is an optimized (~40% for numbers) version of consumeString().toLong()
          * that doesn't allocate and also doesn't support any radix but 10
@@ -585,11 +584,11 @@ public abstract class AbstractJsonLexer {
     }
 
 
-    internal fun consumeBoolean(): Boolean {
+    fun consumeBoolean(): Boolean {
         return consumeBoolean(skipWhitespaces())
     }
 
-    internal fun consumeBooleanLenient(): Boolean {
+    fun consumeBooleanLenient(): Boolean {
         var current = skipWhitespaces()
         if (current == source.length) fail("EOF")
         val hasQuotation = if (source[current] == STRING) {
