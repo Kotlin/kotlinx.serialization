@@ -88,7 +88,7 @@ The output is following:
 ```
 
 > Unsigned types are currently supported only in JSON format. Other formats such as ProtoBuf and CBOR
-> use built-in serializerы that use an underlying signed representation for unsigned types.
+> use built-in serializers that use an underlying signed representation for unsigned types.
 
 ## Using value classes in your custom serializers
 
