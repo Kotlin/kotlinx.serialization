@@ -3,9 +3,8 @@
 This appendix describes how inline classes are handled by kotlinx.serialization.
 
 > Features described in this document are currently [experimental](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/compatibility.md#experimental-api)
-> and are available only with IR compilers. Native targets use IR compiler by default;
-> see documentation for [JS](https://kotlinlang.org/docs/reference/js-ir-compiler.html) and [JVM](https://kotlinlang.org/docs/reference/whatsnew14.html#new-jvm-ir-backend) to learn how to enable IR compilers.
-> Inline classes themselves are an [Alpha](https://kotlinlang.org/docs/reference/inline-classes.html#alpha-status-of-inline-classes) Kotlin feature.
+> and are available only with IR compilers. JVM and native targets use IR compiler by default;
+> see documentation for [JS](https://kotlinlang.org/docs/reference/js-ir-compiler.html) to learn how to enable IR compiler.
 
 **Table of contents**
 
