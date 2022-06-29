@@ -7,6 +7,17 @@ apply plugin: 'kotlinx-serialization'
 apply from: rootProject.file("gradle/native-targets.gradle")
 apply from: rootProject.file("gradle/configure-source-sets.gradle")
 
+// disable kover tasks because there are no tests in the project
+tasks.named("koverHtmlReport") {
+    enabled = false
+}
+tasks.named("koverXmlReport") {
+    enabled = false
+}
+tasks.named("koverVerify") {
+    enabled = false
+}
+
 kotlin {
 
     sourceSets {

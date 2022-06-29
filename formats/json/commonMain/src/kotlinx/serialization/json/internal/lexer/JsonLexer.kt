@@ -2,12 +2,12 @@
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
+
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.InternalSerializationApi
-
-@InternalSerializationApi
-public const val BATCH_SIZE: Int = 16 * 1024
+@PublishedApi
+internal const val BATCH_SIZE: Int = 16 * 1024
 private const val DEFAULT_THRESHOLD = 128
 
 /**
