@@ -41,7 +41,7 @@ class JsonArraySerializerTest : JsonTestBase() {
         val json = """[1, "2", 3, "4"]"""
         val array = default.decodeFromString(JsonArray.serializer(), json, jsonTestingMode)
         array.forEachIndexed { index, element ->
-            require(element is JsonLiteral)
+            require(element is JsonPrimitive)
             assertEquals(index % 2 == 1, element.isString)
         }
     }

@@ -232,14 +232,6 @@ public final class kotlinx/serialization/json/JsonKt {
 	public static synthetic fun Json$default (Lkotlinx/serialization/json/Json;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/json/Json;
 }
 
-public final class kotlinx/serialization/json/JsonLiteral : kotlinx/serialization/json/JsonPrimitive {
-	public fun equals (Ljava/lang/Object;)Z
-	public fun getContent ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun isString ()Z
-	public fun toString ()Ljava/lang/String;
-}
-
 public abstract interface annotation class kotlinx/serialization/json/JsonNames : java/lang/annotation/Annotation {
 	public abstract fun names ()[Ljava/lang/String;
 }

@@ -16,7 +16,7 @@ class JsonParserTest : JsonTestBase() {
     fun testQuotedBrace() {
         val tree = parse("""{"x": "{"}""")
         assertTrue("x" in tree)
-        assertEquals("{", (tree.getValue("x") as JsonLiteral).content)
+        assertEquals("{", (tree.getValue("x") as JsonPrimitive).content)
     }
 
     private fun parse(input: String) = default.parseToJsonElement(input).jsonObject
@@ -25,7 +25,7 @@ class JsonParserTest : JsonTestBase() {
     fun testEmptyKey() {
         val tree = parse("""{"":"","":""}""")
         assertTrue("" in tree)
-        assertEquals("", (tree.getValue("") as JsonLiteral).content)
+        assertEquals("", (tree.getValue("") as JsonPrimitive).content)
     }
 
     @Test
