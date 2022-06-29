@@ -11,21 +11,23 @@ import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.json.okio.internal.JsonToOkioStreamWriter
 import kotlinx.serialization.json.internal.decodeToSequenceByReader
 import kotlinx.serialization.json.okio.internal.OkioSerialReader
-import okio.BufferedSink
-import okio.BufferedSource
+import okio.*
 
 /**
  * Serializes the [value] with [serializer] into a [target] using JSON format and UTF-8 encoding.
  *
+ * If [target] is not a [BufferedSink] then called [Sink.buffer] for it to create buffered wrapper.
+ *
  * @throws [SerializationException] or [okio.IOException] if the given value cannot be serialized to JSON.
  */
 @ExperimentalSerializationApi
-public fun <T> Json.encodeToBufferedSink(
+public fun <T> Json.encodeToSink(
     serializer: SerializationStrategy<T>,
     value: T,
-    target: BufferedSink
+    target: Sink
 ) {
-    val writer = JsonToOkioStreamWriter(target)
+    val buffered = if (target is BufferedSink) target else target.buffer()
+    val writer = JsonToOkioStreamWriter(buffered)
     try {
         encodeByWriter(writer, serializer, value)
     } finally {
@@ -36,17 +38,21 @@ public fun <T> Json.encodeToBufferedSink(
 /**
  * Serializes given [value] to a [target] using UTF-8 encoding and serializer retrieved from the reified type parameter.
  *
+ * If [target] is not a [BufferedSink] then called [Sink.buffer] for it to create buffered wrapper.
+ *
  * @throws [SerializationException] or [okio.IOException] if the given value cannot be serialized to JSON.
  */
 @ExperimentalSerializationApi
-public inline fun <reified T> Json.encodeToBufferedSink(
+public inline fun <reified T> Json.encodeToSink(
     value: T,
-    target: BufferedSink
-): Unit = encodeToBufferedSink(serializersModule.serializer(), value, target)
+    target: Sink
+): Unit = encodeToSink(serializersModule.serializer(), value, target)
 
 
 /**
  * Deserializes JSON from [source] using UTF-8 encoding to a value of type [T] using [deserializer].
+ *
+ * If [source] is not a [BufferedSource] then called [Source.buffer] for it to create buffered wrapper.
  *
  * Note that this functions expects that exactly one object would be present in the source
  * and throws an exception if there are any dangling bytes after an object.
@@ -54,16 +60,19 @@ public inline fun <reified T> Json.encodeToBufferedSink(
  * @throws [SerializationException] or [okio.IOException] if the given JSON input cannot be deserialized to the value of type [T].
  */
 @ExperimentalSerializationApi
-public fun <T> Json.decodeFromBufferedSource(
+public fun <T> Json.decodeFromSource(
     deserializer: DeserializationStrategy<T>,
-    source: BufferedSource
+    source: Source
 ): T {
-    return decodeByReader(deserializer, OkioSerialReader(source))
+    val buffered = if (source is BufferedSource) source else source.buffer()
+    return decodeByReader(deserializer, OkioSerialReader(buffered))
 }
 
 /**
  * Deserializes the contents of given [source] to the value of type [T] using UTF-8 encoding and
  * deserializer retrieved from the reified type parameter.
+ *
+ * If [source] is not a [BufferedSource] then called [Source.buffer] for it to create buffered wrapper.
  *
  * Note that this functions expects that exactly one object would be present in the stream
  * and throws an exception if there are any dangling bytes after an object.
@@ -71,13 +80,15 @@ public fun <T> Json.decodeFromBufferedSource(
  * @throws [SerializationException] or [okio.IOException] if the given JSON input cannot be deserialized to the value of type [T].
  */
 @ExperimentalSerializationApi
-public inline fun <reified T> Json.decodeFromBufferedSource(source: BufferedSource): T =
-    decodeFromBufferedSource(serializersModule.serializer(), source)
+public inline fun <reified T> Json.decodeFromSource(source: Source): T =
+    decodeFromSource(serializersModule.serializer(), source)
 
 
 /**
  * Transforms the given [source] into lazily deserialized sequence of elements of type [T] using UTF-8 encoding and [deserializer].
- * Unlike [decodeFromBufferedSource], [source] is allowed to have more than one element, separated as [format] declares.
+ * Unlike [decodeFromSource], [source] is allowed to have more than one element, separated as [format] declares.
+ *
+ * If [source] is not a [BufferedSource] then called [Source.buffer] for it to create buffered wrapper.
  *
  * Elements must all be of type [T].
  * Elements are parsed lazily when resulting [Sequence] is evaluated.
@@ -90,17 +101,20 @@ public inline fun <reified T> Json.decodeFromBufferedSource(source: BufferedSour
  * @throws [SerializationException] or [okio.IOException] if the given JSON input cannot be deserialized to the value of type [T].
  */
 @ExperimentalSerializationApi
-public fun <T> Json.decodeBufferedSourceToSequence(
-    source: BufferedSource,
+public fun <T> Json.decodeSourceToSequence(
+    source: Source,
     deserializer: DeserializationStrategy<T>,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
 ): Sequence<T> {
-    return decodeToSequenceByReader(OkioSerialReader(source), deserializer, format)
+    val buffered = if (source is BufferedSource) source else source.buffer()
+    return decodeToSequenceByReader(OkioSerialReader(buffered), deserializer, format)
 }
 
 /**
  * Transforms the given [source] into lazily deserialized sequence of elements of type [T] using UTF-8 encoding and deserializer retrieved from the reified type parameter.
- * Unlike [decodeFromBufferedSource], [source] is allowed to have more than one element, separated as [format] declares.
+ * Unlike [decodeFromSource], [source] is allowed to have more than one element, separated as [format] declares.
+ *
+ * If [source] is not a [BufferedSource] then called [Source.buffer] for it to create buffered wrapper.
  *
  * Elements must all be of type [T].
  * Elements are parsed lazily when resulting [Sequence] is evaluated.
@@ -113,7 +127,7 @@ public fun <T> Json.decodeBufferedSourceToSequence(
  * @throws [SerializationException] or [okio.IOException] if the given JSON input cannot be deserialized to the value of type [T].
  */
 @ExperimentalSerializationApi
-public inline fun <reified T> Json.decodeBufferedSourceToSequence(
-    source: BufferedSource,
+public inline fun <reified T> Json.decodeSourceToSequence(
+    source: Source,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
-): Sequence<T> = decodeBufferedSourceToSequence(source, serializersModule.serializer(), format)
+): Sequence<T> = decodeSourceToSequence(source, serializersModule.serializer(), format)
