@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("unused")
@@ -97,6 +97,7 @@ internal class JsonLiteral internal constructor(
         return true
     }
 
+    @SuppressAnimalSniffer // Boolean.hashCode(boolean)
     public override fun hashCode(): Int {
         var result = isString.hashCode()
         result = 31 * result + content.hashCode()

@@ -1188,6 +1188,7 @@ public final class kotlinx/serialization/internal/UnitSerializer : kotlinx/seria
 
 public final class kotlinx/serialization/modules/PolymorphicModuleBuilder {
 	public fun <init> (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
+	public synthetic fun <init> (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun buildTo (Lkotlinx/serialization/modules/SerializersModuleBuilder;)V
 	public final fun default (Lkotlin/jvm/functions/Function1;)V
 	public final fun defaultDeserializer (Lkotlin/jvm/functions/Function1;)V

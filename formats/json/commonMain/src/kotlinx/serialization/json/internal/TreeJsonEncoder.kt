@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:OptIn(ExperimentalSerializationApi::class)
 
@@ -102,6 +102,7 @@ private sealed class AbstractJsonTreeEncoder(
         putElement(tag, JsonPrimitive(value.toString()))
     }
 
+    @SuppressAnimalSniffer // Long(Integer).toUnsignedString(long)
     override fun encodeTaggedInline(tag: String, inlineDescriptor: SerialDescriptor): Encoder =
         if (inlineDescriptor.isUnsignedNumber) object : AbstractEncoder() {
             override val serializersModule: SerializersModule = json.serializersModule
