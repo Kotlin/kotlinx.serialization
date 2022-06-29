@@ -18,13 +18,13 @@ tasks.withType<SourceTask> {
 }
 
 // disable kover tasks because there are no non-test classes in the project
-tasks.koverHtmlReport {
+tasks.named("koverHtmlReport") {
     enabled = false
 }
-tasks.koverXmlReport {
+tasks.named("koverXmlReport") {
     enabled = false
 }
-tasks.koverVerify {
+tasks.named("koverVerify") {
     enabled = false
 }
 
