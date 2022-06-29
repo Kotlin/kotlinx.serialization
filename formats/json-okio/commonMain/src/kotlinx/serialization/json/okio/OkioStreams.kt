@@ -18,7 +18,8 @@ import okio.*
  *
  * If [target] is not a [BufferedSink] then called [Sink.buffer] for it to create buffered wrapper.
  *
- * @throws [SerializationException] or [okio.IOException] if the given value cannot be serialized to JSON.
+ * @throws [SerializationException] if the given value cannot be serialized to JSON.
+ * @throws [okio.IOException] If an I/O error occurs and sink can't be written to.
  */
 @ExperimentalSerializationApi
 public fun <T> Json.encodeToSink(
@@ -40,7 +41,8 @@ public fun <T> Json.encodeToSink(
  *
  * If [target] is not a [BufferedSink] then called [Sink.buffer] for it to create buffered wrapper.
  *
- * @throws [SerializationException] or [okio.IOException] if the given value cannot be serialized to JSON.
+ * @throws [SerializationException] if the given value cannot be serialized to JSON.
+ * @throws [okio.IOException] If an I/O error occurs and sink can't be written to.
  */
 @ExperimentalSerializationApi
 public inline fun <reified T> Json.encodeToSink(
@@ -57,7 +59,8 @@ public inline fun <reified T> Json.encodeToSink(
  * Note that this functions expects that exactly one object would be present in the source
  * and throws an exception if there are any dangling bytes after an object.
  *
- * @throws [SerializationException] or [okio.IOException] if the given JSON input cannot be deserialized to the value of type [T].
+ * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
+ * @throws [okio.IOException] If an I/O error occurs and source can't be read from.
  */
 @ExperimentalSerializationApi
 public fun <T> Json.decodeFromSource(
@@ -77,7 +80,8 @@ public fun <T> Json.decodeFromSource(
  * Note that this functions expects that exactly one object would be present in the stream
  * and throws an exception if there are any dangling bytes after an object.
  *
- * @throws [SerializationException] or [okio.IOException] if the given JSON input cannot be deserialized to the value of type [T].
+ * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
+ * @throws [okio.IOException] If an I/O error occurs and source can't be read from.
  */
 @ExperimentalSerializationApi
 public inline fun <reified T> Json.decodeFromSource(source: Source): T =
@@ -98,7 +102,8 @@ public inline fun <reified T> Json.decodeFromSource(source: Source): T =
  * It is a caller responsibility to hold a reference to a stream and close it. Moreover, because stream is parsed lazily,
  * closing it before returned sequence is evaluated completely will result in [Exception] from decoder.
  *
- * @throws [SerializationException] or [okio.IOException] if the given JSON input cannot be deserialized to the value of type [T].
+ * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
+ * @throws [okio.IOException] If an I/O error occurs and source can't be read from.
  */
 @ExperimentalSerializationApi
 public fun <T> Json.decodeSourceToSequence(
@@ -124,7 +129,8 @@ public fun <T> Json.decodeSourceToSequence(
  * It is a caller responsibility to hold a reference to a stream and close it. Moreover, because stream is parsed lazily,
  * closing it before returned sequence is evaluated fully would result in [Exception] from decoder.
  *
- * @throws [SerializationException] or [okio.IOException] if the given JSON input cannot be deserialized to the value of type [T].
+ * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
+ * @throws [okio.IOException] If an I/O error occurs and source can't be read from.
  */
 @ExperimentalSerializationApi
 public inline fun <reified T> Json.decodeSourceToSequence(

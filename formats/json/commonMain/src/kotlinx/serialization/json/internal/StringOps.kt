@@ -2,9 +2,10 @@
  * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
+
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.InternalSerializationApi
 import kotlin.native.concurrent.*
 
 private fun toHexChar(i: Int) : Char {
@@ -13,9 +14,9 @@ private fun toHexChar(i: Int) : Char {
     else (d - 10 + 'a'.code).toChar()
 }
 
+@PublishedApi
 @SharedImmutable
-@InternalSerializationApi
-public val ESCAPE_STRINGS: Array<String?> = arrayOfNulls<String>(93).apply {
+internal val ESCAPE_STRINGS: Array<String?> = arrayOfNulls<String>(93).apply {
     for (c in 0..0x1f) {
         val c1 = toHexChar(c shr 12)
         val c2 = toHexChar(c shr 8)
@@ -33,7 +34,7 @@ public val ESCAPE_STRINGS: Array<String?> = arrayOfNulls<String>(93).apply {
 }
 
 @SharedImmutable
-public val ESCAPE_MARKERS: ByteArray = ByteArray(93).apply {
+internal val ESCAPE_MARKERS: ByteArray = ByteArray(93).apply {
     for (c in 0..0x1f) {
         this[c] = 1.toByte()
     }
