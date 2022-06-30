@@ -15,7 +15,8 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
 
-internal fun <T> Json.readJson(element: JsonElement, deserializer: DeserializationStrategy<T>): T {
+@InternalSerializationApi
+public fun <T> Json.readJson(element: JsonElement, deserializer: DeserializationStrategy<T>): T {
     val input = when (element) {
         is JsonObject -> JsonTreeDecoder(this, element)
         is JsonArray -> JsonTreeListDecoder(this, element)

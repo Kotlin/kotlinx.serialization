@@ -358,3 +358,34 @@ public final class kotlinx/serialization/json/JvmStreamsKt {
 	public static final fun encodeToStream (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/io/OutputStream;)V
 }
 
+public final class kotlinx/serialization/json/internal/JsonStreamsKt {
+	public static final fun decodeByReader (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/internal/SerialReader;)Ljava/lang/Object;
+	public static final fun decodeToSequenceByReader (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/json/internal/SerialReader;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/DecodeSequenceMode;)Lkotlin/sequences/Sequence;
+	public static synthetic fun decodeToSequenceByReader$default (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/json/internal/SerialReader;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/DecodeSequenceMode;ILjava/lang/Object;)Lkotlin/sequences/Sequence;
+	public static final fun encodeByWriter (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/json/internal/JsonWriter;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+}
+
+public abstract interface class kotlinx/serialization/json/internal/JsonWriter {
+	public abstract fun release ()V
+	public abstract fun write (Ljava/lang/String;)V
+	public abstract fun writeChar (C)V
+	public abstract fun writeLong (J)V
+	public abstract fun writeQuoted (Ljava/lang/String;)V
+}
+
+public abstract interface class kotlinx/serialization/json/internal/SerialReader {
+	public abstract fun read ([CII)I
+}
+
+public final class kotlinx/serialization/json/internal/StreamingJsonDecoderKt {
+	public static final fun decodeStringToJsonTree (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
+}
+
+public final class kotlinx/serialization/json/internal/TreeJsonDecoderKt {
+	public static final fun readJson (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/json/JsonElement;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/json/internal/TreeJsonEncoderKt {
+	public static final fun writeJson (Lkotlinx/serialization/json/Json;Ljava/lang/Object;Lkotlinx/serialization/SerializationStrategy;)Lkotlinx/serialization/json/JsonElement;
+}
+

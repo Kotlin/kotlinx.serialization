@@ -75,14 +75,9 @@ public sealed class Json(
      * @throws [SerializationException] if the given value cannot be serialized to JSON.
      */
     public final override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
-        val result = JsonStringBuilder()
+        val result = JsonToStringWriter()
         try {
-            val encoder = StreamingJsonEncoder(
-                result, this,
-                WriteMode.OBJ,
-                arrayOfNulls(WriteMode.values().size)
-            )
-            encoder.encodeSerializableValue(serializer, value)
+            encodeByWriter(result, serializer, value)
             return result.toString()
         } finally {
             result.release()
@@ -127,6 +122,60 @@ public sealed class Json(
     public fun parseToJsonElement(string: String): JsonElement {
         return decodeFromString(JsonElementSerializer, string)
     }
+}
+
+/**
+ * Description of JSON input shape used for decoding to sequence.
+ *
+ * The sequence represents a stream of objects parsed one by one;
+ * [DecodeSequenceMode] defines a separator between these objects.
+ * Typically, these objects are not separated by meaningful characters ([WHITESPACE_SEPARATED]),
+ * or the whole stream is a large array of objects separated with commas ([ARRAY_WRAPPED]).
+ */
+@ExperimentalSerializationApi
+public enum class DecodeSequenceMode {
+    /**
+     * Declares that objects in the input stream are separated by whitespace characters.
+     *
+     * The stream is read as multiple JSON objects separated by any number of whitespace characters between objects. Starting and trailing whitespace characters are also permitted.
+     * Each individual object is parsed lazily, when it is requested from the resulting sequence.
+     *
+     * Whitespace character is either ' ', '\n', '\r' or '\t'.
+     *
+     * Example of `WHITESPACE_SEPARATED` stream content:
+     * ```
+     * """{"key": "value"}{"key": "value2"}   {"key2": "value2"}"""
+     * ```
+     */
+    WHITESPACE_SEPARATED,
+
+    /**
+     * Declares that objects in the input stream are wrapped in the JSON array.
+     * Each individual object in the array is parsed lazily when it is requested from the resulting sequence.
+     *
+     * The stream is read as multiple JSON objects wrapped into a JSON array.
+     * The stream must start with an array start character `[` and end with an array end character `]`,
+     * otherwise, [JsonDecodingException] is thrown.
+     *
+     * Example of `ARRAY_WRAPPED` stream content:
+     * ```
+     * """[{"key": "value"}, {"key": "value2"},{"key2": "value2"}]"""
+     * ```
+     */
+    ARRAY_WRAPPED,
+
+    /**
+     * Declares that parser itself should select between [WHITESPACE_SEPARATED] and [ARRAY_WRAPPED] modes.
+     * The selection is performed by looking on the first meaningful character of the stream.
+     *
+     * In most cases, auto-detection is sufficient to correctly parse an input.
+     * If the input is _whitespace-separated stream of the arrays_, parser could select an incorrect mode,
+     * for that [DecodeSequenceMode] must be specified explicitly.
+     *
+     * Example of an exceptional case:
+     * `[1, 2, 3]   [4, 5, 6]\n[7, 8, 9]`
+     */
+    AUTO_DETECT;
 }
 
 /**
