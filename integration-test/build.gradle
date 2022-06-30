@@ -101,11 +101,6 @@ kotlin {
             kotlin.srcDirs = ["src/macosTest/kotlin"]
         }
     }
-    sourceSets.all {
-//        languageSettings {
-//            useExperimentalAnnotation('kotlin.Experimental') // annotation FQ-name
-//        }
-    }
 }
 
 dependencies {
