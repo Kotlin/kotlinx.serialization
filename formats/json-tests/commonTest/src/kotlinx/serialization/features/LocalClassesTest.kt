@@ -63,6 +63,7 @@ class LocalClassesTest {
         }
     }
 
+    @Suppress("SERIALIZER_TYPE_INCOMPATIBLE")
     @Test
     fun testObjectCustomSerializer() {
         @Serializable(with = ObjectCustomSerializer::class)
@@ -76,6 +77,7 @@ class LocalClassesTest {
         }
     }
 
+    @Suppress("SERIALIZER_TYPE_INCOMPATIBLE")
     @Test
     fun testClassCustomSerializer() {
         @Serializable(with = ClassCustomSerializer::class)
