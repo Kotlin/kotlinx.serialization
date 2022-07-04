@@ -90,7 +90,11 @@ internal class ReaderJsonLexer(
             }
             read += actual
         }
-        currentPosition = 0
+        currentPosition = if (spaceLeft == 0 && buffer[0] == '\ufeff') {
+            1
+        } else {
+            0
+        }
     }
 
     override fun prefetchOrEof(position: Int): Int {
