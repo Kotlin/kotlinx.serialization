@@ -52,7 +52,7 @@ import kotlinx.serialization.encoding.*
  *
  * Deserialization process is symmetric and uses [Decoder].
  *
- * ### Exception types for KSerializer implementation
+ * ### Exception types for `KSerializer` implementation
  *
  * Implementations of [serialize] and [deserialize] methods are allowed to throw
  * any subtype of [IllegalArgumentException] in order to indicate serialization
