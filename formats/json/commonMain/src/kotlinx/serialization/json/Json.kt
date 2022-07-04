@@ -50,7 +50,6 @@ import kotlin.native.concurrent.*
  * Json instance also exposes its [configuration] that can be used in custom serializers
  * that rely on [JsonDecoder] and [JsonEncoder] for customizable behaviour.
  */
-@OptIn(ExperimentalSerializationApi::class)
 public sealed class Json(
     public val configuration: JsonConfiguration,
     override val serializersModule: SerializersModule
