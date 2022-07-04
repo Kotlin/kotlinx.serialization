@@ -6,36 +6,34 @@ package kotlinx.serialization
 
 /**
  * A generic exception indicating the problem in serialization or deserialization process.
- * This is a generic exception type that can be thrown during the problem at any stage of the serialization,
- * including encoding, decoding, serialization, deserialization.
+ *
+ * This is a generic exception type that can be thrown during problems at any stage of the serialization,
+ * including encoding, decoding, serialization, deserialization, and validation.
  * [SerialFormat] implementors should throw subclasses of this exception at any unexpected event,
  * whether it is a malformed input or unsupported class layout.
+ *
+ * [SerializationException] is a subclass of [IllegalArgumentException] for the sake of consistency and user-defined validation:
+ * Any serialization exception is triggered by the illegal input, whether
+ * it is a serializer that does not support specific structure or an invalid input.
+ *
+ * It is also an established pattern to validate input in user's classes in the following manner:
+ * ```
+ * @Serializable
+ * class Foo(...) {
+ *     init {
+ *         required(age > 0) { ... }
+ *         require(name.isNotBlank()) { ... }
+ *     }
+ * }
+ * ```
+ * While clearly being serialization error (when compromised data was deserialized),
+ * Kotlin way is to throw `IllegalArgumentException` here instead of using library-specific `SerializationException`.
+ *
+ * For general "catch-all" patterns around deserialization of potentially
+ * untrusted/invalid/corrupted data it is recommended to catch `IllegalArgumentException` type
+ * to avoid catching irrelevant to serializaton errors such as `OutOfMemoryError` or domain-specific ones.
  */
 public open class SerializationException : IllegalArgumentException {
-    /*
-     * Rationale behind making it IllegalArgumentException:
-     * Any serialization exception is triggered by the illegal argument, whether
-     * it is a serializer that does not support specific structure or an invalid input.
-     * Making it IAE just aligns the implementation with this fact.
-     *
-     * Another point is input validation. The simplest way to validate
-     * deserialized data is `require` in `init` block:
-     * ```
-     * @Serializable class Foo(...) {
-     *     init {
-     *         required(age > 0) { ... }
-     *         require(name.isNotBlank()) { ... }
-     *     }
-     * }
-     * ```
-     * While clearly being serialization error (when compromised data was deserialized),
-     * Kotlin way is to throw IAE here instead of using library-specific SerializationException.
-     *
-     * Also, any production-grade system has a general try-catch around deserialization of potentially
-     * untrusted/invalid/corrupted data with the corresponding logging, error reporting and diagnostic.
-     * Such handling should catch some subtype of exception (e.g. it's unlikely that catching OOM is desirable).
-     * Taking it into account, it becomes clear that SE should be subtype of IAE.
-     */
 
     /**
      * Creates an instance of [SerializationException] without any details.
