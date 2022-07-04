@@ -75,22 +75,9 @@ public annotation class Serializable(
 
 /**
  * The meta-annotation for adding [Serializable] behaviour to user-defined annotations.
+ *
  * Applying [MetaSerializable] to the annotation class `A` instructs the serialization plugin to treat annotation A
- * as [Serializable].
- *
- * ```
- * @MetaSerializable
- * @Target(AnnotationTarget.CLASS)
- * annotation class MySerializable
- *
- * @MySerializable
- * class MyData(val myData: AnotherData, val intProperty: Int, ...)
- *
- * // Produces JSON string using the generated serializer
- * val jsonString = Json.encodeToJson(MyData.serializer(), instance)
- * ```
- *
- * All annotations marked with [MetaSerializable] are saved in the generated [SerialDescriptor]
+ * as [Serializable]. In addition, all annotations marked with [MetaSerializable] are saved in the generated [SerialDescriptor]
  * as if they are annotated with [SerialInfo].
  *
  * ```
