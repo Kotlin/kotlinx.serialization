@@ -86,7 +86,8 @@ public sealed class Json(
     /**
      * Deserializes the given JSON [string] into a value of type [T] using the given [deserializer].
      *
-     * @throws [SerializationException] if the given JSON string cannot be deserialized to the value of type [T].
+     * @throws [SerializationException] if the given JSON string is not a valid JSON input for the type [T]
+     * @throws [IllegalArgumentException] if the decoded input cannot be represented as a valid instance of type [T]
      */
     public final override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
         val lexer = StringJsonLexer(string)
@@ -98,7 +99,7 @@ public sealed class Json(
     /**
      * Serializes the given [value] into an equivalent [JsonElement] using the given [serializer]
      *
-     * @throws [SerializationException] if the given value cannot be serialized.
+     * @throws [SerializationException] if the given value cannot be serialized to JSON
      */
     public fun <T> encodeToJsonElement(serializer: SerializationStrategy<T>, value: T): JsonElement {
         return writeJson(value, serializer)
@@ -107,7 +108,8 @@ public sealed class Json(
     /**
      * Deserializes the given [element] into a value of type [T] using the given [deserializer].
      *
-     * @throws [SerializationException] if the given JSON string cannot be deserialized to the value of type [T].
+     * @throws [SerializationException] if the given JSON element is not a valid JSON input for the type [T]
+     * @throws [IllegalArgumentException] if the decoded input cannot be represented as a valid instance of type [T]
      */
     public fun <T> decodeFromJsonElement(deserializer: DeserializationStrategy<T>, element: JsonElement): T {
         return readJson(element, deserializer)
@@ -116,7 +118,7 @@ public sealed class Json(
     /**
      * Deserializes the given JSON [string] into a corresponding [JsonElement] representation.
      *
-     * @throws [SerializationException] if the given JSON string is malformed and cannot be deserialized
+     * @throws [SerializationException] if the given string is not a valid JSON
      */
     public fun parseToJsonElement(string: String): JsonElement {
         return decodeFromString(JsonElementSerializer, string)
@@ -180,7 +182,6 @@ public enum class DecodeSequenceMode {
 /**
  * Creates an instance of [Json] configured from the optionally given [Json instance][from] and adjusted with [builderAction].
  */
-@OptIn(ExperimentalSerializationApi::class)
 public fun Json(from: Json = Json.Default, builderAction: JsonBuilder.() -> Unit): Json {
     val builder = JsonBuilder(from)
     builder.builderAction()
