@@ -68,5 +68,7 @@ internal fun StringBuilder.printQuoted(value: String) {
 internal fun String.toBooleanStrictOrNull(): Boolean? = when {
     this.equals("true", ignoreCase = true) -> true
     this.equals("false", ignoreCase = true) -> false
+    this.equals("1", ignoreCase = true) -> true
+    this.equals("0", ignoreCase = true) -> false
     else -> null
 }
