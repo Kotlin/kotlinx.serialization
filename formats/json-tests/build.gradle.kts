@@ -2,6 +2,7 @@
  * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 import Java9Modularity.configureJava9ModuleInfo
+import org.jetbrains.kotlin.gradle.tasks.*
 
 plugins {
     kotlin("multiplatform")
@@ -11,7 +12,7 @@ plugins {
 apply(from = rootProject.file("gradle/native-targets.gradle"))
 apply(from = rootProject.file("gradle/configure-source-sets.gradle"))
 
-tasks.withType<SourceTask> {
+tasks.withType<Kotlin2JsCompile> {
     if (this.name == "compileTestKotlinJsLegacy") {
         this.exclude("**/PropertyInitializerTest.kt")
     }
