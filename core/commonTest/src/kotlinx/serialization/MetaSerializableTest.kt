@@ -1,10 +1,9 @@
 package kotlinx.serialization
 
+import kotlinx.serialization.test.*
 import kotlin.reflect.KClass
-import kotlin.test.Test
+import kotlin.test.*
 
-// TODO: for this test to work, kotlin dependency should be updated
-// to serialization plugin with @MetaSerializable support
 class MetaSerializableTest {
 
     @MetaSerializable
@@ -34,23 +33,23 @@ class MetaSerializableTest {
     )
 
     @Test
-    fun testMetaSerializable() {
-//        val serializer = serializer<Project1>()
-//        assertNotNull(serializer)
+    fun testMetaSerializable() = noJsLegacy {
+        val serializer = serializer<Project1>()
+        assertNotNull(serializer)
     }
 
     @Test
-    fun testMetaSerializableWithInfo() {
-//        val info = serializer<Project2>().descriptor.annotations.filterIsInstance<MySerializableWithInfo>().first()
-//        assertEquals(123, info.value)
-//        assertEquals(String::class, info.kclass)
+    fun testMetaSerializableWithInfo() = noJsLegacy {
+        val info = serializer<Project2>().descriptor.annotations.filterIsInstance<MySerializableWithInfo>().first()
+        assertEquals(123, info.value)
+        assertEquals(String::class, info.kclass)
     }
 
     @Test
-    fun testMetaSerializableOnProperty() {
-//        val info = serializer<Wrapper>().descriptor
-//            .getElementAnnotations(0).filterIsInstance<MySerializableWithInfo>().first()
-//        assertEquals(234, info.value)
-//        assertEquals(Int::class, info.kclass)
+    fun testMetaSerializableOnProperty() = noJsLegacy {
+        val info = serializer<Wrapper>().descriptor
+            .getElementAnnotations(0).filterIsInstance<MySerializableWithInfo>().first()
+        assertEquals(234, info.value)
+        assertEquals(Int::class, info.kclass)
     }
 }

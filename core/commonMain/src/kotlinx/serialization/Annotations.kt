@@ -75,7 +75,7 @@ public annotation class Serializable(
 
 /**
  * The meta-annotation for adding behaviour of [Serializable] to custom annotations.
- * Applying [MetaSerializable] to the annotation class instructs the serialization plugin to treat this annotation
+ * Applying [MetaSerializable] to the annotation class A instructs the serialization plugin to treat annotation A
  * as [Serializable].
  *
  * ```
@@ -91,7 +91,7 @@ public annotation class Serializable(
  * ```
  *
  * All annotations marked with [MetaSerializable] are saved in the generated [SerialDescriptor]
- * as if they are annotated [SerialInfo].
+ * as if they are annotated with [SerialInfo].
  *
  * ```
  * @MetaSerializable
