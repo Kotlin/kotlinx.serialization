@@ -623,6 +623,14 @@ internal abstract class AbstractJsonLexer {
                 consumeBooleanLiteral("alse", current)
                 false
             }
+            '1'.code -> {
+                currentPosition = current
+                true
+            }
+            '0'.code -> {
+                currentPosition = current
+                false
+            }
             else -> {
                 fail("Expected valid boolean literal prefix, but had '${consumeStringLenient()}'")
             }
