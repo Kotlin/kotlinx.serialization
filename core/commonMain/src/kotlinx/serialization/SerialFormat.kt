@@ -130,6 +130,9 @@ public inline fun <reified T> StringFormat.decodeFromString(string: String): T =
  * Hex representation does not interfere with serialization and encoding process of the format and
  * only applies transformation to the resulting array. It is recommended to use for debugging and
  * testing purposes.
+ *
+ * @throws SerializationException in case of any encoding-specific error
+ * @throws IllegalArgumentException if the encoded input does not comply format's specification
  */
 public fun <T> BinaryFormat.encodeToHexString(serializer: SerializationStrategy<T>, value: T): String =
     InternalHexConverter.printHexBinary(encodeToByteArray(serializer, value), lowerCase = true)
@@ -138,7 +141,10 @@ public fun <T> BinaryFormat.encodeToHexString(serializer: SerializationStrategy<
  * Decodes byte array from the given [hex] string and the decodes and deserializes it
  * to the value of type [T], delegating it to the [BinaryFormat].
  *
- * This method is a counterpart to [encodeToHexString]
+ * This method is a counterpart to [encodeToHexString].
+ *
+ * @throws SerializationException in case of any decoding-specific error
+ * @throws IllegalArgumentException if the decoded input is not a valid instance of [T]
  */
 public fun <T> BinaryFormat.decodeFromHexString(deserializer: DeserializationStrategy<T>, hex: String): T =
     decodeFromByteArray(deserializer, InternalHexConverter.parseHexBinary(hex))
@@ -150,6 +156,9 @@ public fun <T> BinaryFormat.decodeFromHexString(deserializer: DeserializationStr
  * Hex representation does not interfere with serialization and encoding process of the format and
  * only applies transformation to the resulting array. It is recommended to use for debugging and
  * testing purposes.
+ *
+ * @throws SerializationException in case of any encoding-specific error
+ * @throws IllegalArgumentException if the encoded input does not comply format's specification
  */
 public inline fun <reified T> BinaryFormat.encodeToHexString(value: T): String =
     encodeToHexString(serializersModule.serializer(), value)
@@ -158,7 +167,10 @@ public inline fun <reified T> BinaryFormat.encodeToHexString(value: T): String =
  * Decodes byte array from the given [hex] string and the decodes and deserializes it
  * to the value of type [T], delegating it to the [BinaryFormat].
  *
- * This method is a counterpart to [encodeToHexString]
+ * This method is a counterpart to [encodeToHexString].
+ *
+ * @throws SerializationException in case of any decoding-specific error
+ * @throws IllegalArgumentException if the decoded input is not a valid instance of [T]
  */
 public inline fun <reified T> BinaryFormat.decodeFromHexString(hex: String): T =
     decodeFromHexString(serializersModule.serializer(), hex)
@@ -166,6 +178,9 @@ public inline fun <reified T> BinaryFormat.decodeFromHexString(hex: String): T =
 /**
  * Serializes and encodes the given [value] to byte array using serializer
  * retrieved from the reified type parameter.
+ *
+ * @throws SerializationException in case of any encoding-specific error
+ * @throws IllegalArgumentException if the encoded input does not comply format's specification
  */
 public inline fun <reified T> BinaryFormat.encodeToByteArray(value: T): ByteArray =
     encodeToByteArray(serializersModule.serializer(), value)
@@ -173,6 +188,9 @@ public inline fun <reified T> BinaryFormat.encodeToByteArray(value: T): ByteArra
 /**
  * Decodes and deserializes the given [byte array][bytes] to the value of type [T] using deserializer
  * retrieved from the reified type parameter.
+ *
+ * @throws SerializationException in case of any decoding-specific error
+ * @throws IllegalArgumentException if the decoded input is not a valid instance of [T]
  */
 public inline fun <reified T> BinaryFormat.decodeFromByteArray(bytes: ByteArray): T =
     decodeFromByteArray(serializersModule.serializer(), bytes)

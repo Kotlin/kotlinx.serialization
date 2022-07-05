@@ -203,7 +203,8 @@ public inline fun <reified T> Json.encodeToJsonElement(value: T): JsonElement {
  * Deserializes the given [json] element into a value of type [T] using a deserializer retrieved
  * from reified type parameter.
  *
- * @throws [SerializationException] if the given JSON string is malformed or cannot be deserialized to the value of type [T].
+ * @throws [SerializationException] if the given JSON element is not a valid JSON input for the type [T]
+ * @throws [IllegalArgumentException] if the decoded input cannot be represented as a valid instance of type [T]
  */
 public inline fun <reified T> Json.decodeFromJsonElement(json: JsonElement): T =
     decodeFromJsonElement(serializersModule.serializer(), json)

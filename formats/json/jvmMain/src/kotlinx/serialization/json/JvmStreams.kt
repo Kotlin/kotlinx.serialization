@@ -12,7 +12,7 @@ import java.io.*
  * Serializes the [value] with [serializer] into a [stream] using JSON format and UTF-8 encoding.
  *
  * @throws [SerializationException] if the given value cannot be serialized to JSON.
- * @throws [IOException] If an I/O error occurs and stream can't be written to.
+ * @throws [IOException] If an I/O error occurs and stream cannot be written to.
  */
 @ExperimentalSerializationApi
 public fun <T> Json.encodeToStream(
@@ -32,7 +32,7 @@ public fun <T> Json.encodeToStream(
  * Serializes given [value] to [stream] using UTF-8 encoding and serializer retrieved from the reified type parameter.
  *
  * @throws [SerializationException] if the given value cannot be serialized to JSON.
- * @throws [IOException] If an I/O error occurs and stream can't be written to.
+ * @throws [IOException] If an I/O error occurs and stream cannot be written to.
  */
 @ExperimentalSerializationApi
 public inline fun <reified T> Json.encodeToStream(
@@ -48,7 +48,8 @@ public inline fun <reified T> Json.encodeToStream(
  * and throws an exception if there are any dangling bytes after an object.
  *
  * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
- * @throws [IOException] If an I/O error occurs and stream can't be read from.
+ * @throws [IllegalArgumentException] if the decoded input cannot be represented as a valid instance of type [T]
+ * @throws [IOException] If an I/O error occurs and stream cannot be read from.
  */
 @ExperimentalSerializationApi
 public fun <T> Json.decodeFromStream(
@@ -66,7 +67,8 @@ public fun <T> Json.decodeFromStream(
  * and throws an exception if there are any dangling bytes after an object.
  *
  * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
- * @throws [IOException] If an I/O error occurs and stream can't be read from.
+ * @throws [IllegalArgumentException] if the decoded input cannot be represented as a valid instance of type [T]
+ * @throws [IOException] If an I/O error occurs and stream cannot be read from.
  */
 @ExperimentalSerializationApi
 public inline fun <reified T> Json.decodeFromStream(stream: InputStream): T =
@@ -86,7 +88,8 @@ public inline fun <reified T> Json.decodeFromStream(stream: InputStream): T =
  * closing it before returned sequence is evaluated completely will result in [IOException] from decoder.
  *
  * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
- * @throws [IOException] If an I/O error occurs and stream can't be read from.
+ * @throws [IllegalArgumentException] if the decoded input cannot be represented as a valid instance of type [T]
+ * @throws [IOException] If an I/O error occurs and stream cannot be read from.
  */
 @ExperimentalSerializationApi
 public fun <T> Json.decodeToSequence(
@@ -110,7 +113,8 @@ public fun <T> Json.decodeToSequence(
  * closing it before returned sequence is evaluated fully would result in [IOException] from decoder.
  *
  * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
- * @throws [IOException] If an I/O error occurs and stream can't be read from.
+ * @throws [IllegalArgumentException] if the decoded input cannot be represented as a valid instance of type [T]
+ * @throws [IOException] If an I/O error occurs and stream cannot be read from.
  */
 @ExperimentalSerializationApi
 public inline fun <reified T> Json.decodeToSequence(
