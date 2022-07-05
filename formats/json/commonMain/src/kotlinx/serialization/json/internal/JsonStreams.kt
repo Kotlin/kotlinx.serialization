@@ -4,25 +4,23 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.DecodeSequenceMode
 import kotlinx.serialization.json.Json
 
-
-
+/** @suppress */
 @InternalSerializationApi
 public interface JsonWriter {
     public fun writeLong(value: Long)
     public fun writeChar(char: Char)
-
     public fun write(text: String)
-
     public fun writeQuoted(text: String)
-
     public fun release()
 }
 
+/** @suppress */
 @InternalSerializationApi
 public interface SerialReader {
     public fun read(buffer: CharArray, bufferOffset: Int, count: Int): Int
 }
 
+/** @suppress */
 @InternalSerializationApi
 public fun <T> Json.encodeByWriter(writer: JsonWriter, serializer: SerializationStrategy<T>, value: T) {
     val encoder = StreamingJsonEncoder(
@@ -33,6 +31,7 @@ public fun <T> Json.encodeByWriter(writer: JsonWriter, serializer: Serialization
     encoder.encodeSerializableValue(serializer, value)
 }
 
+/** @suppress */
 @InternalSerializationApi
 public fun <T> Json.decodeByReader(
     deserializer: DeserializationStrategy<T>,
@@ -45,6 +44,7 @@ public fun <T> Json.decodeByReader(
     return result
 }
 
+/** @suppress */
 @InternalSerializationApi
 @ExperimentalSerializationApi
 public fun <T> Json.decodeToSequenceByReader(
@@ -57,6 +57,7 @@ public fun <T> Json.decodeToSequenceByReader(
     return Sequence { iter }.constrainOnce()
 }
 
+/** @suppress */
 @InternalSerializationApi
 @ExperimentalSerializationApi
 public inline fun <reified T> Json.decodeToSequenceByReader(
