@@ -42,7 +42,7 @@ internal class JsonToOkioStreamWriter(private val target: BufferedSink) : JsonWr
     }
 
     override fun release() {
-        target.flush()
+        target.emitCompleteSegments()
     }
 }
 

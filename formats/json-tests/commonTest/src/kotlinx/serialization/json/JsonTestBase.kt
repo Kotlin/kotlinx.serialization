@@ -6,8 +6,8 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
-import kotlinx.serialization.json.okio.decodeFromSource
-import kotlinx.serialization.json.okio.encodeToSink
+import kotlinx.serialization.json.okio.decodeFromBufferedSource
+import kotlinx.serialization.json.okio.encodeToBufferedSink
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.test.*
@@ -53,7 +53,7 @@ abstract class JsonTestBase {
             }
             JsonTestingMode.OKIO_STREAMS -> {
                 val buffer = Buffer()
-                encodeToSink(serializer, value, buffer)
+                encodeToBufferedSink(serializer, value, buffer)
                 buffer.readUtf8()
             }
         }
@@ -82,7 +82,7 @@ abstract class JsonTestBase {
             JsonTestingMode.OKIO_STREAMS -> {
                 val buffer = Buffer()
                 buffer.writeUtf8(source)
-                decodeFromSource(deserializer, buffer)
+                decodeFromBufferedSource(deserializer, buffer)
             }
         }
 

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.module.kotlin.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.json.okio.encodeToSink
+import kotlinx.serialization.json.okio.encodeToBufferedSink
 import okio.blackholeSink
 import okio.buffer
 import org.openjdk.jmh.annotations.*
@@ -97,7 +97,7 @@ open class JacksonComparisonBenchmark {
     fun kotlinToStream() = Json.encodeToStream(DefaultPixelEvent.serializer(), data, devNullStream)
 
     @Benchmark
-    fun kotlinToOkio() = Json.encodeToSink(DefaultPixelEvent.serializer(), data, devNullSink)
+    fun kotlinToOkio() = Json.encodeToBufferedSink(DefaultPixelEvent.serializer(), data, devNullSink)
 
     @Benchmark
     fun kotlinToStringWithEscapes(): String = Json.encodeToString(DefaultPixelEvent.serializer(), dataWithEscapes)
@@ -109,7 +109,7 @@ open class JacksonComparisonBenchmark {
     fun kotlinSmallToStream() = Json.encodeToStream(SmallDataClass.serializer(), smallData, devNullStream)
 
     @Benchmark
-    fun kotlinSmallToOkio() = Json.encodeToSink(SmallDataClass.serializer(), smallData, devNullSink)
+    fun kotlinSmallToOkio() = Json.encodeToBufferedSink(SmallDataClass.serializer(), smallData, devNullSink)
 
     @Benchmark
     fun jacksonFromString(): DefaultPixelEvent = objectMapper.readValue(stringData, DefaultPixelEvent::class.java)

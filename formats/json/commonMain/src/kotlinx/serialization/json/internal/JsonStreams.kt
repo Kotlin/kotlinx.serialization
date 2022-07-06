@@ -21,8 +21,8 @@ public interface SerialReader {
 }
 
 /** @suppress */
-@InternalSerializationApi
-public fun <T> Json.encodeByWriter(writer: JsonWriter, serializer: SerializationStrategy<T>, value: T) {
+@PublishedApi
+internal fun <T> Json.encodeByWriter(writer: JsonWriter, serializer: SerializationStrategy<T>, value: T) {
     val encoder = StreamingJsonEncoder(
         writer, this,
         WriteMode.OBJ,
@@ -32,8 +32,8 @@ public fun <T> Json.encodeByWriter(writer: JsonWriter, serializer: Serialization
 }
 
 /** @suppress */
-@InternalSerializationApi
-public fun <T> Json.decodeByReader(
+@PublishedApi
+internal fun <T> Json.decodeByReader(
     deserializer: DeserializationStrategy<T>,
     reader: SerialReader
 ): T {
@@ -45,9 +45,9 @@ public fun <T> Json.decodeByReader(
 }
 
 /** @suppress */
-@InternalSerializationApi
+@PublishedApi
 @ExperimentalSerializationApi
-public fun <T> Json.decodeToSequenceByReader(
+internal fun <T> Json.decodeToSequenceByReader(
     reader: SerialReader,
     deserializer: DeserializationStrategy<T>,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
@@ -58,9 +58,9 @@ public fun <T> Json.decodeToSequenceByReader(
 }
 
 /** @suppress */
-@InternalSerializationApi
+@PublishedApi
 @ExperimentalSerializationApi
-public inline fun <reified T> Json.decodeToSequenceByReader(
+internal inline fun <reified T> Json.decodeToSequenceByReader(
     reader: SerialReader,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
 ): Sequence<T> = decodeToSequenceByReader(reader, serializersModule.serializer(), format)
