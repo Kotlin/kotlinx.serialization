@@ -52,6 +52,9 @@ class StacktraceRecoveryTest {
         val e = result.exceptionOrNull()!!
         assertEquals(exceptionClassSimpleName, e::class.simpleName!!)
         val cause = e.cause
+        if (cause is MissingFieldException && e is MissingFieldException) {
+            assertEquals(cause.missingFields, e.missingFields)
+        }
         assertNotNull(cause, "Exception should have cause: $e")
         assertEquals(e.message, cause.message)
         assertEquals(exceptionClassSimpleName, e::class.simpleName!!)

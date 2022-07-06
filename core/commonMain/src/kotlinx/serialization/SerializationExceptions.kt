@@ -4,6 +4,8 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.encoding.*
+
 /**
  * A generic exception indicating the problem in serialization or deserialization process.
  *
@@ -57,15 +59,73 @@ public open class SerializationException : IllegalArgumentException {
 }
 
 /**
- * Thrown when [KSerializer] did not receive property from [Decoder], and this property was not optional.
+ * Thrown when [KSerializer] did not receive a non-optonal property from [CompositeDecoder] and [CompositeDecoder.decodeElementIndex]
+ * had already returned [CompositeDecoder.DECODE_DONE].
+ *
+ * [MissingFieldException] is thrown on missing field from all [auto-generated][Serializable] serializers and it
+ * is recommended to throw this exception from user-defined serializers.
+ *
+ * @see SerializationException
+ * @see KSerializer
  */
-@PublishedApi
-internal class MissingFieldException
-// This constructor is used by coroutines exception recovery
-internal constructor(message: String?, cause: Throwable?) : SerializationException(message, cause) {
-    // This constructor is used by the generated serializers
-    constructor(fieldName: String) : this("Field '$fieldName' is required, but it was missing", null)
-    internal constructor(fieldNames: List<String>, serialName: String) : this(if (fieldNames.size == 1) "Field '${fieldNames[0]}' is required for type with serial name '$serialName', but it was missing" else "Fields $fieldNames are required for type with serial name '$serialName', but they were missing", null)
+@ExperimentalSerializationApi
+public class MissingFieldException
+private constructor(
+    missingFields: List<String>, message: String?, cause: Throwable?
+) : SerializationException(message, cause) {
+
+    /**
+     * List of fields that were required but not found during deserialization.
+     * Contains at least one element.
+     */
+    public val missingFields: List<String> = missingFields
+
+    /**
+     * Creates an instance of [MissingFieldException] for the given [missingFields] and [serialName] of
+     * the corresponding serializer.
+     */
+    public constructor(
+        missingFields: List<String>,
+        serialName: String
+    ) : this(
+        missingFields,
+        if (missingFields.size == 1) "Field '${missingFields[0]}' is required for type with serial name '$serialName', but it was missing"
+        else "Fields $missingFields are required for type with serial name '$serialName', but they were missing",
+        null
+    )
+
+    /**
+     * Creates an instance of [MissingFieldException] for the given [missingField] and [serialName] of
+     * the corresponding serializer.
+     */
+    public constructor(
+        missingField: String,
+        serialName: String
+    ) : this(
+        listOf(missingField),
+        "Field '$missingField' is required for type with serial name '$serialName', but it was missing",
+        null
+    )
+
+    @PublishedApi // Constructor for stacktrace recovery
+    internal constructor(message: String?, cause: Throwable?) : this(
+        // Kludge for stacktrace recovery
+        kotlin.run {
+            val msg = message ?: return@run emptyList()
+            val prefix = "Field '"
+            val suffix = "' is required"
+            val pIdx = msg.indexOf(prefix)
+            val sIdx = msg.indexOf(suffix)
+            if (pIdx != -1 && sIdx != -1) listOf(msg.substring(pIdx + prefix.length, sIdx))
+            else emptyList()
+        }, message, cause)
+
+    @PublishedApi // Constructor used by the generated serializers
+    internal constructor(missingField: String) : this(
+        listOf(missingField),
+        "Field '$missingField' is required, but it was missing",
+        null
+    )
 }
 
 /**
