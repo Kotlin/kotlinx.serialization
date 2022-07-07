@@ -42,7 +42,7 @@ internal class JsonToOkioStreamWriter(private val target: BufferedSink) : JsonWr
     }
 
     override fun release() {
-        target.emitCompleteSegments()
+        // no-op, see https://github.com/Kotlin/kotlinx.serialization/pull/1982#discussion_r915043700
     }
 }
 
