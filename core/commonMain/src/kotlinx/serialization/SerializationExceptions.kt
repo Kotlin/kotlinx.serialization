@@ -69,8 +69,7 @@ public open class SerializationException : IllegalArgumentException {
  * @see KSerializer
  */
 @ExperimentalSerializationApi
-public class MissingFieldException
-private constructor(
+public class MissingFieldException(
     missingFields: List<String>, message: String?, cause: Throwable?
 ) : SerializationException(message, cause) {
 
@@ -106,19 +105,6 @@ private constructor(
         "Field '$missingField' is required for type with serial name '$serialName', but it was missing",
         null
     )
-
-    @PublishedApi // Constructor for stacktrace recovery
-    internal constructor(message: String?, cause: Throwable?) : this(
-        // Kludge for stacktrace recovery
-        kotlin.run {
-            val msg = message ?: return@run emptyList()
-            val prefix = "Field '"
-            val suffix = "' is required"
-            val pIdx = msg.indexOf(prefix)
-            val sIdx = msg.indexOf(suffix)
-            if (pIdx != -1 && sIdx != -1) listOf(msg.substring(pIdx + prefix.length, sIdx))
-            else emptyList()
-        }, message, cause)
 
     @PublishedApi // Constructor used by the generated serializers
     internal constructor(missingField: String) : this(

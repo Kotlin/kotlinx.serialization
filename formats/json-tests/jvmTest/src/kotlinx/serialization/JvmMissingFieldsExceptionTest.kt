@@ -81,7 +81,7 @@ class JvmMissingFieldsExceptionTest {
 
     @Test
     fun testBigPlaneClass() {
-        val missedFields = MutableList(35) { "f$it" }
+        val missedFields = MutableList(36) { "f$it" }
         val definedInJsonFields = arrayOf("f1", "f15", "f34")
         val optionalFields = arrayOf("f3", "f5", "f7")
         missedFields.removeAll(definedInJsonFields)
@@ -102,7 +102,6 @@ class JvmMissingFieldsExceptionTest {
         assertFailsWithMessages(listOf("p2", "c3")) {
             Json {
                 serializersModule = module
-                useArrayPolymorphism = false
             }.decodeFromString<PolymorphicWrapper>("""{"nested": {"type": "a", "p1": 1, "c1": 11}}""")
         }
     }
@@ -111,16 +110,14 @@ class JvmMissingFieldsExceptionTest {
     @Test
     fun testSealed() {
         assertFailsWithMessages(listOf("p3", "c2")) {
-            Json { useArrayPolymorphism = false }
-                    .decodeFromString<Parent>("""{"type": "child", "p1":1, "c1": 11}""")
+            Json.decodeFromString<Parent>("""{"type": "child", "p1":1, "c1": 11}""")
         }
     }
 
     @Test
     fun testTransient() {
         assertFailsWithMessages(listOf("f3", "f4")) {
-            Json { useArrayPolymorphism = false }
-                    .decodeFromString<WithTransient>("""{"f1":1}""")
+            Json.decodeFromString<WithTransient>("""{"f1":1}""")
         }
     }
 
@@ -132,10 +129,10 @@ class JvmMissingFieldsExceptionTest {
     }
 
 
-    private inline fun assertFailsWithMessages(messages: List<String>, block: () -> Unit) {
-        val exception = assertFailsWith(SerializationException::class, null, block)
-        assertEquals("kotlinx.serialization.MissingFieldException", exception::class.qualifiedName)
-        val missedMessages = messages.filter { !exception.message!!.contains(it) }
+    private inline fun assertFailsWithMessages(fields: List<String>, block: () -> Unit) {
+        val exception = assertFailsWith(MissingFieldException::class, null, block)
+        val missedMessages = fields.filter { !exception.message!!.contains(it) }
+        assertEquals(exception.missingFields.sorted(), fields.sorted())
         assertTrue(missedMessages.isEmpty(), "Expected message '${exception.message}' to contain substrings $missedMessages")
     }
 }
