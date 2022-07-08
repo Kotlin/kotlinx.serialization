@@ -5,19 +5,19 @@ import kotlinx.serialization.json.DecodeSequenceMode
 import kotlinx.serialization.json.Json
 
 /** @suppress */
-@InternalSerializationApi
-public interface JsonWriter {
-    public fun writeLong(value: Long)
-    public fun writeChar(char: Char)
-    public fun write(text: String)
-    public fun writeQuoted(text: String)
-    public fun release()
+@PublishedApi
+internal interface JsonWriter {
+    fun writeLong(value: Long)
+    fun writeChar(char: Char)
+    fun write(text: String)
+    fun writeQuoted(text: String)
+    fun release()
 }
 
 /** @suppress */
-@InternalSerializationApi
-public interface SerialReader {
-    public fun read(buffer: CharArray, bufferOffset: Int, count: Int): Int
+@PublishedApi
+internal interface SerialReader {
+    fun read(buffer: CharArray, bufferOffset: Int, count: Int): Int
 }
 
 /** @suppress */
