@@ -53,9 +53,6 @@ public inline fun <reified T> Json.encodeToBufferedSink(
 /**
  * Deserializes JSON from [source] using UTF-8 encoding to a value of type [T] using [deserializer].
  *
- * Note that this functions expects that exactly one object would be present in the source
- * and throws an exception if there are any dangling bytes after an object.
- *
  * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
  * @throws [okio.IOException] If an I/O error occurs and source can't be read from.
  */
@@ -70,9 +67,6 @@ public fun <T> Json.decodeFromBufferedSource(
 /**
  * Deserializes the contents of given [source] to the value of type [T] using UTF-8 encoding and
  * deserializer retrieved from the reified type parameter.
- *
- * Note that this functions expects that exactly one object would be present in the stream
- * and throws an exception if there are any dangling bytes after an object.
  *
  * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
  * @throws [okio.IOException] If an I/O error occurs and source can't be read from.
@@ -91,7 +85,7 @@ public inline fun <reified T> Json.decodeFromBufferedSource(source: BufferedSour
  * Resulting sequence is tied to the stream and can be evaluated only once.
  *
  * **Resource caution:** this method neither closes the [source] when the parsing is finished nor provides a method to close it manually.
- * It is a caller responsibility to hold a reference to a stream and close it. Moreover, because stream is parsed lazily,
+ * It is a caller responsibility to hold a reference to a source and close it. Moreover, because source is parsed lazily,
  * closing it before returned sequence is evaluated completely will result in [Exception] from decoder.
  *
  * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
@@ -115,7 +109,7 @@ public fun <T> Json.decodeBufferedSourceToSequence(
  * Resulting sequence is tied to the stream and constrained to be evaluated only once.
  *
  * **Resource caution:** this method does not close [source] when the parsing is finished neither provides method to close it manually.
- * It is a caller responsibility to hold a reference to a stream and close it. Moreover, because stream is parsed lazily,
+ * It is a caller responsibility to hold a reference to a source and close it. Moreover, because source is parsed lazily,
  * closing it before returned sequence is evaluated fully would result in [Exception] from decoder.
  *
  * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
