@@ -133,6 +133,6 @@ class JvmMissingFieldsExceptionTest {
         val exception = assertFailsWith(MissingFieldException::class, null, block)
         val missedMessages = fields.filter { !exception.message!!.contains(it) }
         assertEquals(exception.missingFields.sorted(), fields.sorted())
-        assertTrue(missedMessages.isEmpty(), "Expected message '${exception.message}' to contain substrings $missedMessages")
+        assertTrue(missedMessages.isEmpty(), "Expected message '${exception.message}' to contain substrings $fields")
     }
 }
