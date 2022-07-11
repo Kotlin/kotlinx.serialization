@@ -87,7 +87,7 @@ internal open class StreamingJsonDecoder(
             return result
 
         } catch (e: MissingFieldException) {
-            throw MissingFieldException(e.message + " at path: " + lexer.path.getPath(), e)
+            throw MissingFieldException(e.missingFields, e.message + " at path: " + lexer.path.getPath(), e)
         }
     }
 
@@ -213,7 +213,6 @@ internal open class StreamingJsonDecoder(
         { lexer.consumeString() /* skip unknown enum string*/ }
     )
 
-    @Suppress("INVISIBLE_MEMBER")
     private fun decodeObjectIndex(descriptor: SerialDescriptor): Int {
         // hasComma checks are required to properly react on trailing commas
         var hasComma = lexer.tryConsumeComma()

@@ -38,12 +38,6 @@ class StacktraceRecoveryTest {
         serializer.deserialize(BadDecoder())
     }
 
-    @Test
-    // checks simple name because MFE is internal class
-    fun testMissingFieldException() = checkRecovered("MissingFieldException") {
-        Json.decodeFromString<Data>("{}")
-    }
-
     private fun checkRecovered(exceptionClassSimpleName: String, block: () -> Unit) = runBlocking {
         val result = runCatching {
             callBlockWithRecovery(block)

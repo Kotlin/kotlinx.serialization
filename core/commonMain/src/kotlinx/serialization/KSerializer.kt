@@ -61,7 +61,6 @@ import kotlinx.serialization.encoding.*
  * For serializer implementations, it is recommended to throw subclasses of [SerializationException] for
  * any serialization-specific errors related to invalid or unsupported format of the data
  * and [IllegalStateException] for errors during validation of the data.
- *
  */
 public interface KSerializer<T> : SerializationStrategy<T>, DeserializationStrategy<T> {
     /**
@@ -187,6 +186,7 @@ public interface DeserializationStrategy<T> {
      * }
      * ```
      *
+     * @throws MissingFieldException if non-optional fields were not found during deserialization
      * @throws SerializationException in case of any deserialization-specific error
      * @throws IllegalArgumentException if the decoded input is not a valid instance of [T]
      * @see KSerializer for additional information about general contracts and exception specifics

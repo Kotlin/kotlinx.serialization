@@ -48,6 +48,10 @@ public abstract interface annotation class kotlinx/serialization/MetaSerializabl
 
 public final class kotlinx/serialization/MissingFieldException : kotlinx/serialization/SerializationException {
 	public fun <init> (Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public fun <init> (Ljava/util/List;Ljava/lang/String;)V
+	public fun <init> (Ljava/util/List;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public final fun getMissingFields ()Ljava/util/List;
 }
 
 public abstract interface annotation class kotlinx/serialization/Polymorphic : java/lang/annotation/Annotation {
