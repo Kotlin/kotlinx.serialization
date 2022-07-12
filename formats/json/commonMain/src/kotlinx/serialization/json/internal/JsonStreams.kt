@@ -4,25 +4,22 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.DecodeSequenceMode
 import kotlinx.serialization.json.Json
 
-/** @suppress */
-@InternalSerializationApi
-public interface JsonWriter {
-    public fun writeLong(value: Long)
-    public fun writeChar(char: Char)
-    public fun write(text: String)
-    public fun writeQuoted(text: String)
-    public fun release()
+@PublishedApi
+internal interface JsonWriter {
+    fun writeLong(value: Long)
+    fun writeChar(char: Char)
+    fun write(text: String)
+    fun writeQuoted(text: String)
+    fun release()
 }
 
-/** @suppress */
-@InternalSerializationApi
-public interface SerialReader {
-    public fun read(buffer: CharArray, bufferOffset: Int, count: Int): Int
+@PublishedApi
+internal interface SerialReader {
+    fun read(buffer: CharArray, bufferOffset: Int, count: Int): Int
 }
 
-/** @suppress */
-@InternalSerializationApi
-public fun <T> Json.encodeByWriter(writer: JsonWriter, serializer: SerializationStrategy<T>, value: T) {
+@PublishedApi
+internal fun <T> Json.encodeByWriter(writer: JsonWriter, serializer: SerializationStrategy<T>, value: T) {
     val encoder = StreamingJsonEncoder(
         writer, this,
         WriteMode.OBJ,
@@ -31,9 +28,8 @@ public fun <T> Json.encodeByWriter(writer: JsonWriter, serializer: Serialization
     encoder.encodeSerializableValue(serializer, value)
 }
 
-/** @suppress */
-@InternalSerializationApi
-public fun <T> Json.decodeByReader(
+@PublishedApi
+internal fun <T> Json.decodeByReader(
     deserializer: DeserializationStrategy<T>,
     reader: SerialReader
 ): T {
@@ -44,10 +40,9 @@ public fun <T> Json.decodeByReader(
     return result
 }
 
-/** @suppress */
-@InternalSerializationApi
+@PublishedApi
 @ExperimentalSerializationApi
-public fun <T> Json.decodeToSequenceByReader(
+internal fun <T> Json.decodeToSequenceByReader(
     reader: SerialReader,
     deserializer: DeserializationStrategy<T>,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
@@ -57,10 +52,9 @@ public fun <T> Json.decodeToSequenceByReader(
     return Sequence { iter }.constrainOnce()
 }
 
-/** @suppress */
-@InternalSerializationApi
+@PublishedApi
 @ExperimentalSerializationApi
-public inline fun <reified T> Json.decodeToSequenceByReader(
+internal inline fun <reified T> Json.decodeToSequenceByReader(
     reader: SerialReader,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
 ): Sequence<T> = decodeToSequenceByReader(reader, serializersModule.serializer(), format)
