@@ -53,6 +53,9 @@ public inline fun <reified T> Json.encodeToBufferedSink(
 /**
  * Deserializes JSON from [source] using UTF-8 encoding to a value of type [T] using [deserializer].
  *
+ * Note that this functions expects that exactly one object would be present in the source
+ * and throws an exception if there are any dangling bytes after an object.
+ *
  * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
  * @throws [okio.IOException] If an I/O error occurs and source can't be read from.
  */
@@ -67,6 +70,9 @@ public fun <T> Json.decodeFromBufferedSource(
 /**
  * Deserializes the contents of given [source] to the value of type [T] using UTF-8 encoding and
  * deserializer retrieved from the reified type parameter.
+ *
+ * Note that this functions expects that exactly one object would be present in the stream
+ * and throws an exception if there are any dangling bytes after an object.
  *
  * @throws [SerializationException] if the given JSON input cannot be deserialized to the value of type [T].
  * @throws [okio.IOException] If an I/O error occurs and source can't be read from.
