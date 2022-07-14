@@ -44,6 +44,7 @@ private val BUILTIN_SERIALIZERS = mapOf(
     Boolean::class to Boolean.serializer(),
     BooleanArray::class to BooleanArraySerializer(),
     Unit::class to Unit.serializer(),
+    Nothing::class to NothingSerializer(),
     Duration::class to Duration.serializer()
 )
 

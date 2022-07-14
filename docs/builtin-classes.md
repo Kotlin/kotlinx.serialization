@@ -24,6 +24,7 @@ including the standard collections, is built into Kotlin Serialization. This cha
   * [Maps](#maps)
   * [Unit and singleton objects](#unit-and-singleton-objects)
   * [Duration](#duration)
+* [Nothing](#nothing)
 
 <!--- END -->
 
@@ -405,6 +406,33 @@ Duration is serialized as a string in the ISO-8601-2 format.
 
 <!--- TEST -->
 
+
+## Nothing
+
+By default, [Nothing] is a serializable class. However, since there are no instances of this class, it is impossible to encode or decode its values - any attempt will cause an exception.
+
+This serializer is used when syntactically is needed some type, but it is not actually used in serialization. For example, when using parameterized classes:
+```kotlin
+@Serializable
+sealed class ParametrizedParent<out R> {
+  @Serializable
+  data class ChildWithoutParameter(val value: Int) : ParametrizedParent<Nothing>()
+}
+
+fun main() {
+    println(Json.encodeToString(ParametrizedParent.ChildWithoutParameter(42)))
+}  
+``` 
+> You can get the full code [here](../guide/example/example-builtin-13.kt).
+
+When encoding, the serializer for the `Nothing` was not used
+
+```text
+{"value":42}
+```
+
+<!--- TEST -->
+
 ---
 
 The next chapter covers [Serializers](serializers.md).
@@ -418,6 +446,7 @@ The next chapter covers [Serializers](serializers.md).
 [Set]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/ 
 [Map]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/ 
 [Duration]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.time/-duration/
+[Nothing]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-nothing.html
 
 <!--- MODULE /kotlinx-serialization-core -->
 <!--- INDEX kotlinx-serialization-core/kotlinx.serialization -->
