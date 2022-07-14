@@ -15,6 +15,7 @@ import kotlin.native.concurrent.*
 import kotlin.reflect.*
 import kotlin.time.Duration
 
+@Suppress("OPT_IN_USAGE")
 @SharedImmutable
 private val BUILTIN_SERIALIZERS = mapOf(
     String::class to String.serializer(),
@@ -26,12 +27,20 @@ private val BUILTIN_SERIALIZERS = mapOf(
     FloatArray::class to FloatArraySerializer(),
     Long::class to Long.serializer(),
     LongArray::class to LongArraySerializer(),
+    ULong::class to ULong.serializer(),
+    ULongArray::class to ULongArraySerializer(),
     Int::class to Int.serializer(),
     IntArray::class to IntArraySerializer(),
+    UInt::class to UInt.serializer(),
+    UIntArray::class to UIntArraySerializer(),
     Short::class to Short.serializer(),
     ShortArray::class to ShortArraySerializer(),
+    UShort::class to UShort.serializer(),
+    UShortArray::class to UShortArraySerializer(),
     Byte::class to Byte.serializer(),
     ByteArray::class to ByteArraySerializer(),
+    UByte::class to UByte.serializer(),
+    UByteArray::class to UByteArraySerializer(),
     Boolean::class to Boolean.serializer(),
     BooleanArray::class to BooleanArraySerializer(),
     Unit::class to Unit.serializer(),

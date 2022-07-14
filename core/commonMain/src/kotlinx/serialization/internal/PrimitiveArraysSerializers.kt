@@ -408,3 +408,223 @@ internal class BooleanArrayBuilder internal constructor(
 
     override fun build() = buffer.copyOf(position)
 }
+
+
+// Unsigned arrays
+
+/**
+ * Serializer for [UByteArray].
+ *
+ * Encode elements one-by-one, as regular list,
+ * unless format's Encoder/Decoder have special handling for this serializer.
+ */
+@PublishedApi
+@ExperimentalSerializationApi
+@ExperimentalUnsignedTypes
+internal object UByteArraySerializer : KSerializer<UByteArray>,
+    PrimitiveArraySerializer<UByte, UByteArray, UByteArrayBuilder>(UByte.serializer()) {
+
+    override fun UByteArray.collectionSize(): Int = size
+    override fun UByteArray.toBuilder(): UByteArrayBuilder = UByteArrayBuilder(this)
+    override fun empty(): UByteArray = UByteArray(0)
+
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: UByteArrayBuilder, checkIndex: Boolean) {
+        builder.append(decoder.decodeInlineElement(descriptor, index).decodeByte().toUByte())
+    }
+
+    override fun writeContent(encoder: CompositeEncoder, content: UByteArray, size: Int) {
+        for (i in 0 until size)
+            encoder.encodeInlineElement(descriptor, i).encodeByte(content[i].toByte())
+    }
+}
+
+@PublishedApi
+@ExperimentalSerializationApi
+@ExperimentalUnsignedTypes
+internal class UByteArrayBuilder internal constructor(
+    bufferWithData: UByteArray
+) : PrimitiveArrayBuilder<UByteArray>() {
+
+    private var buffer: UByteArray = bufferWithData
+    override var position: Int = bufferWithData.size
+        private set
+
+    init {
+        ensureCapacity(INITIAL_SIZE)
+    }
+
+    override fun ensureCapacity(requiredCapacity: Int) {
+        if (buffer.size < requiredCapacity)
+            buffer = buffer.copyOf(requiredCapacity.coerceAtLeast(buffer.size * 2))
+    }
+
+    internal fun append(c: UByte) {
+        ensureCapacity()
+        buffer[position++] = c
+    }
+
+    override fun build() = buffer.copyOf(position)
+}
+
+/**
+ * Serializer for [UShortArray].
+ *
+ * Encode elements one-by-one, as regular list,
+ * unless format's Encoder/Decoder have special handling for this serializer.
+ */
+@PublishedApi
+@ExperimentalSerializationApi
+@ExperimentalUnsignedTypes
+internal object UShortArraySerializer : KSerializer<UShortArray>,
+    PrimitiveArraySerializer<UShort, UShortArray, UShortArrayBuilder>(UShort.serializer()) {
+
+    override fun UShortArray.collectionSize(): Int = size
+    override fun UShortArray.toBuilder(): UShortArrayBuilder = UShortArrayBuilder(this)
+    override fun empty(): UShortArray = UShortArray(0)
+
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: UShortArrayBuilder, checkIndex: Boolean) {
+        builder.append(decoder.decodeInlineElement(descriptor, index).decodeShort().toUShort())
+    }
+
+    override fun writeContent(encoder: CompositeEncoder, content: UShortArray, size: Int) {
+        for (i in 0 until size)
+            encoder.encodeInlineElement(descriptor, i).encodeShort(content[i].toShort())
+    }
+}
+
+@PublishedApi
+@ExperimentalSerializationApi
+@ExperimentalUnsignedTypes
+internal class UShortArrayBuilder internal constructor(
+    bufferWithData: UShortArray
+) : PrimitiveArrayBuilder<UShortArray>() {
+
+    private var buffer: UShortArray = bufferWithData
+    override var position: Int = bufferWithData.size
+        private set
+
+    init {
+        ensureCapacity(INITIAL_SIZE)
+    }
+
+    override fun ensureCapacity(requiredCapacity: Int) {
+        if (buffer.size < requiredCapacity)
+            buffer = buffer.copyOf(requiredCapacity.coerceAtLeast(buffer.size * 2))
+    }
+
+    internal fun append(c: UShort) {
+        ensureCapacity()
+        buffer[position++] = c
+    }
+
+    override fun build() = buffer.copyOf(position)
+}
+
+/**
+ * Serializer for [UIntArray].
+ *
+ * Encode elements one-by-one, as regular list,
+ * unless format's Encoder/Decoder have special handling for this serializer.
+ */
+@PublishedApi
+@ExperimentalSerializationApi
+@ExperimentalUnsignedTypes
+internal object UIntArraySerializer : KSerializer<UIntArray>,
+    PrimitiveArraySerializer<UInt, UIntArray, UIntArrayBuilder>(UInt.serializer()) {
+
+    override fun UIntArray.collectionSize(): Int = size
+    override fun UIntArray.toBuilder(): UIntArrayBuilder = UIntArrayBuilder(this)
+    override fun empty(): UIntArray = UIntArray(0)
+
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: UIntArrayBuilder, checkIndex: Boolean) {
+        builder.append(decoder.decodeInlineElement(descriptor, index).decodeInt().toUInt())
+    }
+
+    override fun writeContent(encoder: CompositeEncoder, content: UIntArray, size: Int) {
+        for (i in 0 until size)
+            encoder.encodeInlineElement(descriptor, i).encodeInt(content[i].toInt())
+    }
+}
+
+@PublishedApi
+@ExperimentalSerializationApi
+@ExperimentalUnsignedTypes
+internal class UIntArrayBuilder internal constructor(
+    bufferWithData: UIntArray
+) : PrimitiveArrayBuilder<UIntArray>() {
+
+    private var buffer: UIntArray = bufferWithData
+    override var position: Int = bufferWithData.size
+        private set
+
+    init {
+        ensureCapacity(INITIAL_SIZE)
+    }
+
+    override fun ensureCapacity(requiredCapacity: Int) {
+        if (buffer.size < requiredCapacity)
+            buffer = buffer.copyOf(requiredCapacity.coerceAtLeast(buffer.size * 2))
+    }
+
+    internal fun append(c: UInt) {
+        ensureCapacity()
+        buffer[position++] = c
+    }
+
+    override fun build() = buffer.copyOf(position)
+}
+
+/**
+ * Serializer for [ULongArray].
+ *
+ * Encode elements one-by-one, as regular list,
+ * unless format's Encoder/Decoder have special handling for this serializer.
+ */
+@PublishedApi
+@ExperimentalSerializationApi
+@ExperimentalUnsignedTypes
+internal object ULongArraySerializer : KSerializer<ULongArray>,
+    PrimitiveArraySerializer<ULong, ULongArray, ULongArrayBuilder>(ULong.serializer()) {
+
+    override fun ULongArray.collectionSize(): Int = size
+    override fun ULongArray.toBuilder(): ULongArrayBuilder = ULongArrayBuilder(this)
+    override fun empty(): ULongArray = ULongArray(0)
+
+    override fun readElement(decoder: CompositeDecoder, index: Int, builder: ULongArrayBuilder, checkIndex: Boolean) {
+        builder.append(decoder.decodeInlineElement(descriptor, index).decodeLong().toULong())
+    }
+
+    override fun writeContent(encoder: CompositeEncoder, content: ULongArray, size: Int) {
+        for (i in 0 until size)
+            encoder.encodeInlineElement(descriptor, i).encodeLong(content[i].toLong())
+    }
+}
+
+@PublishedApi
+@ExperimentalSerializationApi
+@ExperimentalUnsignedTypes
+internal class ULongArrayBuilder internal constructor(
+    bufferWithData: ULongArray
+) : PrimitiveArrayBuilder<ULongArray>() {
+
+    private var buffer: ULongArray = bufferWithData
+    override var position: Int = bufferWithData.size
+        private set
+
+    init {
+        ensureCapacity(INITIAL_SIZE)
+    }
+
+    override fun ensureCapacity(requiredCapacity: Int) {
+        if (buffer.size < requiredCapacity)
+            buffer = buffer.copyOf(requiredCapacity.coerceAtLeast(buffer.size * 2))
+    }
+
+    internal fun append(c: ULong) {
+        ensureCapacity()
+        buffer[position++] = c
+    }
+
+    override fun build() = buffer.copyOf(position)
+}
+
