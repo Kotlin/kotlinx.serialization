@@ -46,7 +46,7 @@ For example, `KSerializer.deserialize` is documented to throw `IllegalStateExcep
 This release introduces a new `@MetaSerializable` annotation that adds `@Serializable` behavior to user-defined annotations — i.e., those annotations would also instruct the compiler plugin to generate a serializer for class. In addition, all annotations marked with `@MetaSerializable` are saved in the generated `@SerialDescriptor`
 as if they are annotated with `@SerialInfo`.
 
-This annotation will be particularly useful for various format authors who require adding some metadata to the serializable class — that is now can be done using a single annotation instead of two and without the risk of forgetting `@Serializable`. Check out details & examples in the KDoc and corresponding [PR](https://github.com/Kotlin/kotlinx.serialization/pull/1979).
+This annotation will be particularly useful for various format authors who require adding some metadata to the serializable class — this can now be done using a single annotation instead of two, and without the risk of forgetting `@Serializable`. Check out details & examples in the KDoc and corresponding [PR](https://github.com/Kotlin/kotlinx.serialization/pull/1979).
 
 > Note: Kotlin 1.7.0 or higher is required for this feature to work.
 
