@@ -38,8 +38,8 @@ and then use its `fields` property to communicate the message better.
 See the details in the corresponding [PR](https://github.com/Kotlin/kotlinx.serialization/pull/1983).
 
 In future releases, we'll continue work in this direction, and we aim to provide more useful public exception types & properties.
-In the meantime, we've [revamped KDoc](https://github.com/Kotlin/kotlinx.serialization/pull/1980) for some methods regarding the exceptions — most methods are now officially allowed to throw `IllegalStateException`
-to indicate problems unrelated to serialization, such as data validation in constructors.
+In the meantime, we've [revamped KDoc](https://github.com/Kotlin/kotlinx.serialization/pull/1980) for some methods regarding the exceptions — all of them now properly declare which exception types are allowed to be thrown.
+For example, `KSerializer.deserialize` is documented to throw `IllegalStateException` to indicate problems unrelated to serialization, such as data validation in classes' constructors.
 
 ### @MetaSerializable annotation
 
@@ -60,7 +60,7 @@ Note that this move does not affect guides written in Markdown in the `docs` fol
 
   * Allow Kotlin's null literal in JSON DSL (#1907) (thanks to [Lukellmann](https://github.com/Lukellmann))
   * Stabilize EmptySerializersModule (#1921)
-  * Do not use tree-based decoding for fast-path polymorphism (#1919)
+  * Boost performance of polymorphic deserialization in optimistic scenario (#1919)
   * Added serializer for the `kotlin.time.Duration` class (plugin support comes in Kotlin 1.7.20) (#1960)
   * Support tagged not null marks in TaggedEncoder/Decoder (#1954) (thanks to [EdwarDDay](https://github.com/EdwarDDay))
 
