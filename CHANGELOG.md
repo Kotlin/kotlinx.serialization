@@ -4,14 +4,14 @@
 This is a candidate for the next big release with many new exciting features to try.
 It uses Kotlin 1.7.10 by default.
 
-### Integration with okio's BufferedSource and BufferedSink
+### Integration with Okio's BufferedSource and BufferedSink
 
-[Okio library by Square](https://square.github.io/okio/) is a popular solution for fast and efficient Android & Multiplatform IO in Kotlin.
-In this version, we have added functions that parse/write JSON directly to okio's input/output classes, saving you the overhead of copying data to `String` beforehand.
+[Okio library by Square](https://square.github.io/okio/) is a popular solution for fast and efficient IO operations on JVM, K/N and K/JS.
+In this version, we have added functions that parse/write JSON directly to Okio's input/output classes, saving you the overhead of copying data to `String` beforehand.
 These functions are called `Json.decodeFromBufferedSource` and `Json.encodeToBufferedSink`, respectively.
 There's also `decodeBufferedSourceToSequence` that behaves similarly to `decodeToSequence` from Java streams integration, so you can lazily decode multiple objects the same way as before.
 
-Note that these functions are located in a separate new artifact, so users who don't need them wouldn't find themselves dependent on okio.
+Note that these functions are located in a separate new artifact, so users who don't need them wouldn't find themselves dependent on Okio.
 To include this artifact in your project, use the same group id `org.jetbrains.kotlinx` and artifact id `kotlinx-serialization-json-okio`.
 To find out more about this integration, check new functions' documentation and corresponding pull requests:
 [#1901](https://github.com/Kotlin/kotlinx.serialization/pull/1901) and [#1982](https://github.com/Kotlin/kotlinx.serialization/pull/1982).
