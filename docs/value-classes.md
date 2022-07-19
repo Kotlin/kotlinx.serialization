@@ -45,7 +45,7 @@ output:
 ```
 
 As we see, `Color` class is not included during the encoding, only its underlying data. This invariant holds even if the actual value class
-is [allocated](https://kotlinlang.org/docs/reference/inline-classes.html#representation) — for example, when inline
+is [allocated](https://kotlinlang.org/docs/reference/inline-classes.html#representation) — for example, when value
 class is used as a generic type argument:
 
 ```kotlin

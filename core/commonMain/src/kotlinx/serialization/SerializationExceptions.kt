@@ -59,7 +59,7 @@ public open class SerializationException : IllegalArgumentException {
 }
 
 /**
- * Thrown when [KSerializer] did not receive a non-optonal property from [CompositeDecoder] and [CompositeDecoder.decodeElementIndex]
+ * Thrown when [KSerializer] did not receive a non-optional property from [CompositeDecoder] and [CompositeDecoder.decodeElementIndex]
  * had already returned [CompositeDecoder.DECODE_DONE].
  *
  * [MissingFieldException] is thrown on missing field from all [auto-generated][Serializable] serializers and it
