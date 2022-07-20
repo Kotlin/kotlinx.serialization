@@ -38,8 +38,6 @@ public fun <T> Json.encodeToBufferedSink(
 /**
  * Serializes given [value] to a [target] using UTF-8 encoding and serializer retrieved from the reified type parameter.
  *
- * If [target] is not a [BufferedSink] then called [Sink.buffer] for it to create buffered wrapper.
- *
  * @throws [SerializationException] if the given value cannot be serialized to JSON.
  * @throws [okio.IOException] If an I/O error occurs and sink can't be written to.
  */
