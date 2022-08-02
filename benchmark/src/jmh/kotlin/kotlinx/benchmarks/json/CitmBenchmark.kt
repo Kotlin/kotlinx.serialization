@@ -8,28 +8,23 @@ import kotlinx.serialization.json.Json.Default.encodeToString
 import org.openjdk.jmh.annotations.*
 import java.util.concurrent.*
 
-@Warmup(iterations = 7, time = 1)
-@Measurement(iterations = 7, time = 1)
+@Warmup(iterations = 5, time = 1)
+@Measurement(iterations = 5, time = 1)
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
 @State(Scope.Benchmark)
 @Fork(2)
 open class CitmBenchmark {
-    /*
-     * For some reason Citm is kind of de-facto standard cross-language benchmark.
-     * Order of magnitude: 200 ops/sec
-     */
-    private val input = CitmBenchmark::class.java.getResource("/citm_catalog.json").readBytes().decodeToString()
-    private val citm = Json.decodeFromString(CitmCatalog.serializer(), input)
 
-    @Setup
-    fun init() {
-        require(citm == Json.decodeFromString(CitmCatalog.serializer(), Json.encodeToString(citm)))
-    }
+    @Serializable
+    data class Foo(val a: Int)
+
+    @Serializable
+    object Object
 
     @Benchmark
-    fun decodeCitm(): CitmCatalog = Json.decodeFromString(CitmCatalog.serializer(), input)
+    fun objectS() = serializer<Object>()
 
     @Benchmark
-    fun encodeCitm(): String = Json.encodeToString(CitmCatalog.serializer(), citm)
+    fun dataS() = serializer<Foo>()
 }

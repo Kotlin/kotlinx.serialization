@@ -6,6 +6,10 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 import java.lang.reflect.*
+import java.util.WeakHashMap
+import java.util.concurrent.locks.ReadWriteLock
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.*
 import kotlin.reflect.*
 
 @Suppress("NOTHING_TO_INLINE")
@@ -39,8 +43,27 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
     return java.constructSerializerForGivenTypeArgs(*args)
 }
 
+private val adhocCache = WeakHashMap<Class<*>, KSerializer<Any?>>()
+private val rwLock = ReentrantReadWriteLock()
+
 @Suppress("UNCHECKED_CAST")
-internal fun <T: Any> Class<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
+internal fun <T : Any> Class<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
+    if (args.isNotEmpty()) return constructSerializer(args)
+
+    rwLock.read {
+        var serializer = adhocCache[this]
+        if (serializer != null) return serializer.cast()
+        // TODO avoid var, properly cache 'null', properly handle nonempty args
+        serializer = constructSerializer(args)?.cast()
+        rwLock.write {
+            adhocCache[this] = serializer
+        }
+        return serializer?.cast()
+    }
+}
+
+@Suppress("UNCHECKED_CAST")
+private fun <T : Any> Class<T>.constructSerializer(args: Array<out KSerializer<Any?>>): KSerializer<T>? {
     if (isEnum && isNotAnnotated()) {
         return createEnumSerializer()
     }
@@ -64,7 +87,7 @@ internal fun <T: Any> Class<T>.constructSerializerForGivenTypeArgs(vararg args: 
     return polymorphicSerializer()
 }
 
-private fun <T: Any> Class<T>.isNotAnnotated(): Boolean {
+private fun <T : Any> Class<T>.isNotAnnotated(): Boolean {
     /*
      * For annotated enums search serializer directly (or do not search at all?)
      */
@@ -72,7 +95,7 @@ private fun <T: Any> Class<T>.isNotAnnotated(): Boolean {
             getAnnotation(Polymorphic::class.java) == null
 }
 
-private fun <T: Any> Class<T>.polymorphicSerializer(): KSerializer<T>? {
+private fun <T : Any> Class<T>.polymorphicSerializer(): KSerializer<T>? {
     /*
      * Last resort: check for @Polymorphic or Serializable(with = PolymorphicSerializer::class)
      * annotations.
@@ -87,7 +110,7 @@ private fun <T: Any> Class<T>.polymorphicSerializer(): KSerializer<T>? {
     return null
 }
 
-private fun <T: Any> Class<T>.interfaceSerializer(): KSerializer<T>? {
+private fun <T : Any> Class<T>.interfaceSerializer(): KSerializer<T>? {
     /*
      * Interfaces are @Polymorphic by default.
      * Check if it has no annotations or `@Serializable(with = PolymorphicSerializer::class)`,

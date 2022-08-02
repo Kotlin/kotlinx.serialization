@@ -77,13 +77,19 @@ private fun SerializersModule.serializerByKTypeImpl(
 ): KSerializer<Any?>? {
     val rootClass = type.kclass()
     val isNullable = type.isMarkedNullable
-    val typeArguments = type.arguments
-        .map { requireNotNull(it.type) { "Star projections in type arguments are not allowed, but had $type" } }
+    val typeArguments = mapTypeArguments(type)
     val result: KSerializer<Any>? = when {
         typeArguments.isEmpty() -> rootClass.serializerOrNull() ?: getContextual(rootClass)
         else -> builtinSerializer(typeArguments, rootClass, failOnMissingTypeArgSerializer)
     }?.cast()
     return result?.nullable(isNullable)
+}
+
+private fun mapTypeArguments(type: KType): List<KType> {
+    val args = type.arguments
+    if (args.isEmpty()) return emptyList()
+    return args
+        .map { requireNotNull(it.type) { "Star projections in type arguments are not allowed, but had $type" } }
 }
 
 @OptIn(ExperimentalSerializationApi::class)
