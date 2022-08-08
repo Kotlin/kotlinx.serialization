@@ -6,6 +6,7 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.test.noLegacyJs
 import kotlin.test.Test
 
 
@@ -26,7 +27,7 @@ class JsonHugeDataSerializationTest : JsonTestBase() {
     }
 
     @Test
-    fun test() {
+    fun test() = noLegacyJs {
         // create some huge instance
         val rootNode = Node(createNodes(1000, 10))
 
