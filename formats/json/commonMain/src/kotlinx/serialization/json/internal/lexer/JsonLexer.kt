@@ -67,7 +67,9 @@ internal class ReaderJsonLexer(
 
     private fun preload(spaceLeft: Int) {
         val buffer = _source
-        buffer.copyInto(buffer, 0, currentPosition, currentPosition + spaceLeft)
+        if (spaceLeft != 0) {
+            buffer.copyInto(buffer, 0, currentPosition, currentPosition + spaceLeft)
+        }
         var read = spaceLeft
         val sizeTotal = _source.size
         while (read != sizeTotal) {
