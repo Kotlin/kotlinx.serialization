@@ -6,6 +6,7 @@ package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.*
+import kotlin.js.*
 import kotlin.jvm.*
 import kotlin.native.concurrent.*
 import kotlin.reflect.*
@@ -18,6 +19,9 @@ import kotlin.reflect.*
  * To enable runtime serializers resolution, one of the special annotations must be used on target types
  * ([Polymorphic] or [Contextual]), and a serial module with serializers should be used during construction of [SerialFormat].
  *
+ * Serializers module can be built with `SerializersModule {}` builder function.
+ * Empty module can be obtained with `EmptySerializersModule()` factory function.
+ *
  * @see Contextual
  * @see Polymorphic
  */
@@ -28,7 +32,7 @@ public sealed class SerializersModule {
         "Deprecated in favor of overload with default parameter",
         ReplaceWith("getContextual(kclass)"),
         DeprecationLevel.HIDDEN
-    ) // Was stable since 1.0.0, HIDDEN in 1.2.0 in a backwards-compatible manner
+    ) // Was experimental since 1.0.0, HIDDEN in 1.2.0 in a backwards-compatible manner
     public fun <T : Any> getContextual(kclass: KClass<T>): KSerializer<T>? =
         getContextual(kclass, emptyList())
 
@@ -70,7 +74,10 @@ public sealed class SerializersModule {
  * A [SerializersModule] which is empty and always returns `null`.
  */
 @SharedImmutable
-@ExperimentalSerializationApi
+@Deprecated("Deprecated in the favour of 'EmptySerializersModule()'",
+    level = DeprecationLevel.WARNING,
+    replaceWith = ReplaceWith("EmptySerializersModule()"))
+@JsName("EmptySerializersModuleLegacyJs") // Compatibility with JS
 public val EmptySerializersModule: SerializersModule = SerialModuleImpl(emptyMap(), emptyMap(), emptyMap(), emptyMap(), emptyMap())
 
 /**

@@ -15,7 +15,8 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
 
-internal fun <T> Json.readJson(element: JsonElement, deserializer: DeserializationStrategy<T>): T {
+@InternalSerializationApi
+public fun <T> Json.readJson(element: JsonElement, deserializer: DeserializationStrategy<T>): T {
     val input = when (element) {
         is JsonObject -> JsonTreeDecoder(this, element)
         is JsonArray -> JsonTreeListDecoder(this, element)
@@ -161,7 +162,6 @@ private sealed class AbstractJsonTreeDecoder(
         return this as? JsonLiteral ?: throw JsonDecodingException(-1, "Unexpected 'null' when $type was expected")
     }
 
-    @OptIn(ExperimentalUnsignedTypes::class)
     override fun decodeTaggedInline(tag: String, inlineDescriptor: SerialDescriptor): Decoder =
         if (inlineDescriptor.isUnsignedNumber) JsonDecoderForUnsignedTypes(StringJsonLexer(getPrimitiveValue(tag).content), json)
         else super.decodeTaggedInline(tag, inlineDescriptor)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:OptIn(ExperimentalSerializationApi::class)
 
@@ -14,7 +14,8 @@ import kotlinx.serialization.modules.*
 import kotlin.collections.set
 import kotlin.jvm.*
 
-internal fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
+@InternalSerializationApi
+public fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
     lateinit var result: JsonElement
     val encoder = JsonTreeEncoder(this) { result = it }
     encoder.encodeSerializableValue(serializer, value)
@@ -46,7 +47,10 @@ private sealed class AbstractJsonTreeEncoder(
     abstract fun putElement(key: String, element: JsonElement)
     abstract fun getCurrent(): JsonElement
 
+    // has no tag when encoding a nullable element at root level
+    override fun encodeNotNullMark() {}
 
+    // has no tag when encoding a nullable element at root level
     override fun encodeNull() {
         val tag = currentTagOrNull ?: return nodeConsumer(JsonNull)
         encodeTaggedNull(tag)
@@ -98,7 +102,7 @@ private sealed class AbstractJsonTreeEncoder(
         putElement(tag, JsonPrimitive(value.toString()))
     }
 
-    @OptIn(ExperimentalUnsignedTypes::class)
+    @SuppressAnimalSniffer // Long(Integer).toUnsignedString(long)
     override fun encodeTaggedInline(tag: String, inlineDescriptor: SerialDescriptor): Encoder =
         if (inlineDescriptor.isUnsignedNumber) object : AbstractEncoder() {
             override val serializersModule: SerializersModule = json.serializersModule

@@ -12,6 +12,7 @@ private fun toHexChar(i: Int) : Char {
     else (d - 10 + 'a'.code).toChar()
 }
 
+@PublishedApi
 @SharedImmutable
 internal val ESCAPE_STRINGS: Array<String?> = arrayOfNulls<String>(93).apply {
     for (c in 0..0x1f) {

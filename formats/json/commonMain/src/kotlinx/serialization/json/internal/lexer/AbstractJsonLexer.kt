@@ -213,7 +213,7 @@ internal abstract class AbstractJsonLexer {
         val expected = when (expectedToken) {
             TC_STRING -> "quotation mark '\"'"
             TC_COMMA -> "comma ','"
-            TC_COLON -> "semicolon ':'"
+            TC_COLON -> "colon ':'"
             TC_BEGIN_OBJ -> "start of the object '{'"
             TC_END_OBJ -> "end of the object '}'"
             TC_BEGIN_LIST -> "start of the array '['"
@@ -282,6 +282,8 @@ internal abstract class AbstractJsonLexer {
         currentPosition = current
         return current
     }
+
+    abstract fun consumeLeadingMatchingValue(keyToMatch: String, isLenient: Boolean): String?
 
     fun peekString(isLenient: Boolean): String? {
         val token = peekNextToken()

@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+package kotlinx.serialization.protobuf.schema.generator;
+
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.EnumWithProtoNumber'
+enum EnumWithProtoNumber {
+  ZERO = 0;
+  THREE = 3;
+  TWO = 2;
+  FIVE = 5;
+}

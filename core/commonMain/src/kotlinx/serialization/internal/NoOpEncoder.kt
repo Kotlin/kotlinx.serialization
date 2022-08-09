@@ -14,7 +14,7 @@ import kotlinx.serialization.modules.*
  */
 @OptIn(ExperimentalSerializationApi::class)
 internal object NoOpEncoder : AbstractEncoder() {
-    override val serializersModule: SerializersModule = EmptySerializersModule
+    override val serializersModule: SerializersModule = EmptySerializersModule()
 
     public override fun encodeValue(value: Any): Unit = Unit
 

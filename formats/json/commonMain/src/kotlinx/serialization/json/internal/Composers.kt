@@ -1,19 +1,19 @@
 /*
- * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:OptIn(ExperimentalSerializationApi::class)
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.Json
-import kotlin.jvm.JvmField
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+import kotlin.jvm.*
 
-internal fun Composer(sb: JsonStringBuilder, json: Json): Composer =
+internal fun Composer(sb: JsonWriter, json: Json): Composer =
     if (json.configuration.prettyPrint) ComposerWithPrettyPrint(sb, json) else Composer(sb)
 
 @OptIn(ExperimentalSerializationApi::class)
-internal open class Composer(@JvmField internal val sb: JsonStringBuilder) {
+internal open class Composer(@JvmField internal val writer: JsonWriter) {
     var writingFirst = true
         protected set
 
@@ -29,41 +29,41 @@ internal open class Composer(@JvmField internal val sb: JsonStringBuilder) {
 
     open fun space() = Unit
 
-    fun print(v: Char) = sb.append(v)
-    fun print(v: String) = sb.append(v)
-    open fun print(v: Float) = sb.append(v.toString())
-    open fun print(v: Double) = sb.append(v.toString())
-    open fun print(v: Byte) = sb.append(v.toLong())
-    open fun print(v: Short) = sb.append(v.toLong())
-    open fun print(v: Int) = sb.append(v.toLong())
-    open fun print(v: Long) = sb.append(v)
-    open fun print(v: Boolean) = sb.append(v.toString())
-    fun printQuoted(value: String): Unit = sb.appendQuoted(value)
+    fun print(v: Char) = writer.writeChar(v)
+    fun print(v: String) = writer.write(v)
+    open fun print(v: Float) = writer.write(v.toString())
+    open fun print(v: Double) = writer.write(v.toString())
+    open fun print(v: Byte) = writer.writeLong(v.toLong())
+    open fun print(v: Short) = writer.writeLong(v.toLong())
+    open fun print(v: Int) = writer.writeLong(v.toLong())
+    open fun print(v: Long) = writer.writeLong(v)
+    open fun print(v: Boolean) = writer.write(v.toString())
+    fun printQuoted(value: String) = writer.writeQuoted(value)
 }
 
-@ExperimentalUnsignedTypes
-internal class ComposerForUnsignedNumbers(sb: JsonStringBuilder) : Composer(sb) {
+@SuppressAnimalSniffer // Long(Integer).toUnsignedString(long)
+internal class ComposerForUnsignedNumbers(writer: JsonWriter, private val forceQuoting: Boolean) : Composer(writer) {
     override fun print(v: Int) {
-        return super.print(v.toUInt().toString())
+        if (forceQuoting) printQuoted(v.toUInt().toString()) else print(v.toUInt().toString())
     }
 
     override fun print(v: Long) {
-        return super.print(v.toULong().toString())
+        if (forceQuoting) printQuoted(v.toULong().toString()) else print(v.toULong().toString())
     }
 
     override fun print(v: Byte) {
-        return super.print(v.toUByte().toString())
+        if (forceQuoting) printQuoted(v.toUByte().toString()) else print(v.toUByte().toString())
     }
 
     override fun print(v: Short) {
-        return super.print(v.toUShort().toString())
+        if (forceQuoting) printQuoted(v.toUShort().toString()) else print(v.toUShort().toString())
     }
 }
 
 internal class ComposerWithPrettyPrint(
-    sb: JsonStringBuilder,
+    writer: JsonWriter,
     private val json: Json
-) : Composer(sb) {
+) : Composer(writer) {
     private var level = 0
 
     override fun indent() {

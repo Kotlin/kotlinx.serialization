@@ -3,6 +3,7 @@ package kotlinx.benchmarks.json
 import kotlinx.benchmarks.model.*
 import kotlinx.serialization.json.*
 import org.openjdk.jmh.annotations.*
+import java.io.OutputStream
 import java.util.concurrent.*
 
 @Warmup(iterations = 7, time = 1)
@@ -24,6 +25,12 @@ open class TwitterBenchmark {
 
     private val jsonImplicitNulls = Json { explicitNulls = false }
 
+    private val devNullStream = object : OutputStream() {
+        override fun write(b: Int) {}
+        override fun write(b: ByteArray) {}
+        override fun write(b: ByteArray, off: Int, len: Int) {}
+    }
+
     @Setup
     fun init() {
         require(twitter == Json.decodeFromString(Twitter.serializer(), Json.encodeToString(Twitter.serializer(), twitter)))
@@ -38,4 +45,7 @@ open class TwitterBenchmark {
 
     @Benchmark
     fun encodeTwitter() = Json.encodeToString(Twitter.serializer(), twitter)
+
+    @Benchmark
+    fun encodeTwitterStream() = Json.encodeToStream(Twitter.serializer(), twitter, devNullStream)
 }

@@ -153,10 +153,10 @@ Once the project is set up, we can start serializing some classes.
   * <a name='format-specific-types'></a>[Format-specific types](formats.md#format-specific-types)
 <!--- END -->
 
-**Appendix A.** [Serialization and inline classes (experimental, IR-specific)](inline-classes.md)
+**Appendix A.** [Serialization and value classes (IR-only)](value-classes.md)
 
-<!--- TOC_REF inline-classes.md -->
-* <a name='serializable-inline-classes'></a>[Serializable inline classes](inline-classes.md#serializable-inline-classes)
-* <a name='unsigned-types-support-json-only'></a>[Unsigned types support (JSON only)](inline-classes.md#unsigned-types-support-json-only)
-* <a name='using-inline-classes-in-your-custom-serializers'></a>[Using inline classes in your custom serializers](inline-classes.md#using-inline-classes-in-your-custom-serializers)
+<!--- TOC_REF value-classes.md -->
+* <a name='serializable-value-classes'></a>[Serializable value classes](value-classes.md#serializable-value-classes)
+* <a name='unsigned-types-support-json-only'></a>[Unsigned types support (JSON only)](value-classes.md#unsigned-types-support-json-only)
+* <a name='using-value-classes-in-your-custom-serializers'></a>[Using value classes in your custom serializers](value-classes.md#using-value-classes-in-your-custom-serializers)
 <!--- END -->

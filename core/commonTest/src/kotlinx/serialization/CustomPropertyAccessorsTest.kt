@@ -108,9 +108,8 @@ class CustomPropertyAccessorsTest {
      */
 
 
-
     private class CommonStringDecoder(private val elementCount: Int) : AbstractDecoder() {
-        override val serializersModule: SerializersModule = EmptySerializersModule
+        override val serializersModule: SerializersModule = EmptySerializersModule()
         private var elementIndex = 0
 
         override fun decodeString(): String {

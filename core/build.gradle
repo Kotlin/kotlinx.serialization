@@ -25,7 +25,7 @@ kotlin {
  These manifest values help kotlinx.serialization compiler plugin determine if it is compatible with a given runtime library.
  Plugin reads them during compilation.
 
- Implementation-Version is used to determine whether runtime library supports a given plugin feature (e.g. inline classes serialization
+ Implementation-Version is used to determine whether runtime library supports a given plugin feature (e.g. value classes serialization
  in Kotlin 1.x may require runtime library version 1.y to work).
  Compiler plugin may enable or disable features by looking on Implementation-Version.
 

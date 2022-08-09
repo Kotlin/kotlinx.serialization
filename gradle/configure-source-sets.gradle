@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 kotlin {
@@ -7,8 +7,7 @@ kotlin {
         withJava()
         configure([compilations.main, compilations.test]) {
             kotlinOptions {
-                jvmTarget = '1.6'
-                freeCompilerArgs += "-Xsuppress-deprecated-jvm-target-warning"
+                jvmTarget = '1.8'
             }
         }
     }

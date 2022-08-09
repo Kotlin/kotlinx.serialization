@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("unused")
@@ -69,6 +69,13 @@ public fun JsonPrimitive(value: String?): JsonPrimitive {
     return JsonLiteral(value, isString = true)
 }
 
+/**
+ * Creates [JsonNull].
+ */
+@ExperimentalSerializationApi
+@Suppress("FunctionName", "UNUSED_PARAMETER") // allows to call `JsonPrimitive(null)`
+public fun JsonPrimitive(value: Nothing?): JsonNull = JsonNull
+
 // JsonLiteral is deprecated for public use and no longer available. Please use JsonPrimitive instead
 internal class JsonLiteral internal constructor(
     body: Any,
@@ -90,6 +97,7 @@ internal class JsonLiteral internal constructor(
         return true
     }
 
+    @SuppressAnimalSniffer // Boolean.hashCode(boolean)
     public override fun hashCode(): Int {
         var result = isString.hashCode()
         result = 31 * result + content.hashCode()

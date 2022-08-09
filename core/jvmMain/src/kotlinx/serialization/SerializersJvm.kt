@@ -27,7 +27,7 @@ import kotlin.reflect.*
  * @throws SerializationException if serializer cannot be created (provided [type] or its type argument is not serializable).
  */
 @ExperimentalSerializationApi
-public fun serializer(type: Type): KSerializer<Any> = EmptySerializersModule.serializer(type)
+public fun serializer(type: Type): KSerializer<Any> = EmptySerializersModule().serializer(type)
 
 /**
  * Reflectively constructs a serializer for the given reflective Java [type].
@@ -40,7 +40,7 @@ public fun serializer(type: Type): KSerializer<Any> = EmptySerializersModule.ser
  * Returns `null` if serializer cannot be created (provided [type] or its type argument is not serializable).
  */
 @ExperimentalSerializationApi
-public fun serializerOrNull(type: Type): KSerializer<Any>? = EmptySerializersModule.serializerOrNull(type)
+public fun serializerOrNull(type: Type): KSerializer<Any>? = EmptySerializersModule().serializerOrNull(type)
 
 /**
  * Retrieves serializer for the given reflective Java [type] using
@@ -56,7 +56,8 @@ public fun serializerOrNull(type: Type): KSerializer<Any>? = EmptySerializersMod
  */
 @ExperimentalSerializationApi
 public fun SerializersModule.serializer(type: Type): KSerializer<Any> =
-    serializerByJavaTypeImpl(type, failOnMissingTypeArgSerializer = true) ?: type.prettyClass().serializerNotRegistered()
+    serializerByJavaTypeImpl(type, failOnMissingTypeArgSerializer = true) ?: type.prettyClass()
+        .serializerNotRegistered()
 
 /**
  * Retrieves serializer for the given reflective Java [type] using
@@ -75,7 +76,10 @@ public fun SerializersModule.serializerOrNull(type: Type): KSerializer<Any>? =
     serializerByJavaTypeImpl(type, failOnMissingTypeArgSerializer = false)
 
 @OptIn(ExperimentalSerializationApi::class)
-private fun SerializersModule.serializerByJavaTypeImpl(type: Type, failOnMissingTypeArgSerializer: Boolean = true): KSerializer<Any>? =
+private fun SerializersModule.serializerByJavaTypeImpl(
+    type: Type,
+    failOnMissingTypeArgSerializer: Boolean = true
+): KSerializer<Any>? =
     when (type) {
         is GenericArrayType -> {
             genericArraySerializer(type, failOnMissingTypeArgSerializer)
@@ -85,7 +89,9 @@ private fun SerializersModule.serializerByJavaTypeImpl(type: Type, failOnMissing
             val rootClass = (type.rawType as Class<*>)
             val args = (type.actualTypeArguments)
             val argsSerializers =
-                if (failOnMissingTypeArgSerializer) args.map { serializer(it) } else args.map { serializerOrNull(it) ?: return null }
+                if (failOnMissingTypeArgSerializer) args.map { serializer(it) } else args.map {
+                    serializerOrNull(it) ?: return null
+                }
             when {
                 Set::class.java.isAssignableFrom(rootClass) -> SetSerializer(argsSerializers[0]) as KSerializer<Any>
                 List::class.java.isAssignableFrom(rootClass) || Collection::class.java.isAssignableFrom(rootClass) -> ListSerializer(
@@ -122,7 +128,10 @@ private fun SerializersModule.serializerByJavaTypeImpl(type: Type, failOnMissing
     }
 
 @OptIn(ExperimentalSerializationApi::class)
-private fun SerializersModule.typeSerializer(type: Class<*>, failOnMissingTypeArgSerializer: Boolean): KSerializer<Any>? {
+private fun SerializersModule.typeSerializer(
+    type: Class<*>,
+    failOnMissingTypeArgSerializer: Boolean
+): KSerializer<Any>? {
     return if (type.isArray && !type.componentType.isPrimitive) {
         val eType: Class<*> = type.componentType
         val s = if (failOnMissingTypeArgSerializer) serializer(eType) else (serializerOrNull(eType) ?: return null)
@@ -134,7 +143,10 @@ private fun SerializersModule.typeSerializer(type: Class<*>, failOnMissingTypeAr
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private fun <T : Any> SerializersModule.reflectiveOrContextual(jClass: Class<T>, typeArgumentsSerializers: List<KSerializer<Any?>>): KSerializer<T>? {
+private fun <T : Any> SerializersModule.reflectiveOrContextual(
+    jClass: Class<T>,
+    typeArgumentsSerializers: List<KSerializer<Any?>>
+): KSerializer<T>? {
     jClass.constructSerializerForGivenTypeArgs(*typeArgumentsSerializers.toTypedArray())?.let { return it }
     val kClass = jClass.kotlin
     return kClass.builtinSerializerOrNull() ?: getContextual(kClass, typeArgumentsSerializers)

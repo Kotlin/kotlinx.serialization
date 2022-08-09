@@ -3,7 +3,6 @@ package kotlinx.serialization.protobuf.schema
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
 import kotlin.test.Test
-import kotlin.test.assertContains
 import kotlin.test.assertFailsWith
 
 class SchemaValidationsTest {
@@ -37,6 +36,33 @@ class SchemaValidationsTest {
 
         @SerialName("invalid serial name")
         SECOND
+    }
+
+    @Serializable
+    enum class EnumWithExplicitProtoNumberDuplicate {
+        @ProtoNumber(2)
+        FIRST,
+        @ProtoNumber(2)
+        SECOND,
+    }
+
+    @Serializable
+    enum class EnumWithImplicitProtoNumberDuplicate {
+        FIRST,
+        @ProtoNumber(0)
+        SECOND,
+    }
+
+    @Test
+    fun testExplicitDuplicateEnumElementProtoNumber() {
+        val descriptors = listOf(EnumWithExplicitProtoNumberDuplicate.serializer().descriptor)
+        assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors) }
+    }
+
+    @Test
+    fun testImplicitDuplicateEnumElementProtoNumber() {
+        val descriptors = listOf(EnumWithImplicitProtoNumberDuplicate.serializer().descriptor)
+        assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors) }
     }
 
     @Test

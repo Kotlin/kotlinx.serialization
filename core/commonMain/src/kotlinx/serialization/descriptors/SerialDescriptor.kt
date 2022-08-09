@@ -162,9 +162,9 @@ public interface SerialDescriptor {
     public val isNullable: Boolean get() = false
 
     /**
-     * Returns `true` if this descriptor describes a serializable inline class.
+     * Returns `true` if this descriptor describes a serializable value class which underlying value
+     * is serialized directly.
      */
-    @ExperimentalSerializationApi
     public val isInline: Boolean get() = false
 
     /**

@@ -78,10 +78,10 @@ internal class StringJsonLexer(override val source: String) : AbstractJsonLexer(
 
     override fun consumeKeyString(): String {
         /*
-       * For strings we assume that escaped symbols are rather an exception, so firstly
-       * we optimistically scan for closing quote via intrinsified and blazing-fast 'indexOf',
-       * than do our pessimistic check for backslash and fallback to slow-path if necessary.
-       */
+         * For strings we assume that escaped symbols are rather an exception, so firstly
+         * we optimistically scan for closing quote via intrinsified and blazing-fast 'indexOf',
+         * than do our pessimistic check for backslash and fallback to slow-path if necessary.
+         */
         consumeNextToken(STRING)
         val current = currentPosition
         val closingQuote = source.indexOf('"', current)
@@ -95,5 +95,23 @@ internal class StringJsonLexer(override val source: String) : AbstractJsonLexer(
         }
         this.currentPosition = closingQuote + 1
         return source.substring(current, closingQuote)
+    }
+
+    override fun consumeLeadingMatchingValue(keyToMatch: String, isLenient: Boolean): String? {
+        val positionSnapshot = currentPosition
+        try {
+            // Malformed JSON, bailout
+            if (consumeNextToken() != TC_BEGIN_OBJ) return null
+            val firstKey = if (isLenient) consumeKeyString() else consumeStringLenientNotNull()
+            if (firstKey == keyToMatch) {
+                if (consumeNextToken() != TC_COLON) return null
+                val result = if (isLenient) consumeString() else consumeStringLenientNotNull()
+                return result
+            }
+            return null
+        } finally {
+            // Restore the position
+            currentPosition = positionSnapshot
+        }
     }
 }

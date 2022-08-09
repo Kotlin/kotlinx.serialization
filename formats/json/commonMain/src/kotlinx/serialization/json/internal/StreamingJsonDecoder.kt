@@ -9,6 +9,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.DECODE_DONE
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
@@ -16,16 +17,32 @@ import kotlin.jvm.*
 /**
  * [JsonDecoder] which reads given JSON from [AbstractJsonLexer] field by field.
  */
-@OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
+@OptIn(ExperimentalSerializationApi::class)
 internal open class StreamingJsonDecoder(
     final override val json: Json,
     private val mode: WriteMode,
     @JvmField internal val lexer: AbstractJsonLexer,
-    descriptor: SerialDescriptor
+    descriptor: SerialDescriptor,
+    discriminatorHolder: DiscriminatorHolder?
 ) : JsonDecoder, AbstractDecoder() {
+
+    // A mutable reference to the discriminator that have to be skipped when in optimistic phase
+    // of polymorphic serialization, see `decodeSerializableValue`
+    internal class DiscriminatorHolder(@JvmField var discriminatorToSkip: String?)
+
+    private fun DiscriminatorHolder?.trySkip(unknownKey: String): Boolean {
+        if (this == null) return false
+        if (discriminatorToSkip == unknownKey) {
+            discriminatorToSkip = null
+            return true
+        }
+        return false
+    }
+
 
     override val serializersModule: SerializersModule = json.serializersModule
     private var currentIndex = -1
+    private var discriminatorHolder: DiscriminatorHolder? = discriminatorHolder
     private val configuration = json.configuration
 
     private val elementMarker: JsonElementMarker? = if (configuration.explicitNulls) null else JsonElementMarker(descriptor)
@@ -35,9 +52,42 @@ internal open class StreamingJsonDecoder(
     @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
         try {
-            return decodeSerializableValuePolymorphic(deserializer)
+            /*
+             * This is an optimized path over decodeSerializableValuePolymorphic(deserializer):
+             * dSVP reads the very next JSON tree into a memory as JsonElement and then runs TreeJsonDecoder over it
+             * in order to deal with an arbitrary order of keys, but with the price of additional memory pressure
+             * and CPU consumption.
+             * We would like to provide best possible performance for data produced by kotlinx.serialization
+             * itself, for that we do the following optimistic optimization:
+             *
+             * 0) Remember current position in the string
+             * 1) Read the very next key of JSON structure
+             * 2) If it matches*  the descriminator key, read the value, remember current position
+             * 3) Return the value, recover an initial position
+             * (*) -- if it doesn't match, fallback to dSVP method.
+             */
+            if (deserializer !is AbstractPolymorphicSerializer<*> || json.configuration.useArrayPolymorphism) {
+                return deserializer.deserialize(this)
+            }
+
+            val discriminator = deserializer.descriptor.classDiscriminator(json)
+            val type = lexer.consumeLeadingMatchingValue(discriminator, configuration.isLenient)
+            var actualSerializer: DeserializationStrategy<out Any>? = null
+            if (type != null) {
+                actualSerializer = deserializer.findPolymorphicSerializerOrNull(this, type)
+            }
+            if (actualSerializer == null) {
+                // Fallback if we haven't found discriminator or serializer
+                return decodeSerializableValuePolymorphic<T>(deserializer as DeserializationStrategy<T>)
+            }
+
+            discriminatorHolder = DiscriminatorHolder(discriminator)
+            @Suppress("UNCHECKED_CAST")
+            val result = actualSerializer.deserialize(this) as T
+            return result
+
         } catch (e: MissingFieldException) {
-            throw MissingFieldException(e.message + " at path: " + lexer.path.getPath(), e)
+            throw MissingFieldException(e.missingFields, e.message + " at path: " + lexer.path.getPath(), e)
         }
     }
 
@@ -52,12 +102,13 @@ internal open class StreamingJsonDecoder(
                 json,
                 newMode,
                 lexer,
-                descriptor
+                descriptor,
+                discriminatorHolder
             )
             else -> if (mode == newMode && json.configuration.explicitNulls) {
                 this
             } else {
-                StreamingJsonDecoder(json, newMode, lexer, descriptor)
+                StreamingJsonDecoder(json, newMode, lexer, descriptor, discriminatorHolder)
             }
         }
     }
@@ -162,7 +213,6 @@ internal open class StreamingJsonDecoder(
         { lexer.consumeString() /* skip unknown enum string*/ }
     )
 
-    @Suppress("INVISIBLE_MEMBER")
     private fun decodeObjectIndex(descriptor: SerialDescriptor): Int {
         // hasComma checks are required to properly react on trailing commas
         var hasComma = lexer.tryConsumeComma()
@@ -193,7 +243,7 @@ internal open class StreamingJsonDecoder(
     }
 
     private fun handleUnknown(key: String): Boolean {
-        if (configuration.ignoreUnknownKeys) {
+        if (configuration.ignoreUnknownKeys || discriminatorHolder.trySkip(key)) {
             lexer.skipElement(configuration.isLenient)
         } else {
             // Here we cannot properly update json path indicies
@@ -293,17 +343,28 @@ internal open class StreamingJsonDecoder(
         }
     }
 
-    override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder =
-        if (inlineDescriptor.isUnsignedNumber) JsonDecoderForUnsignedTypes(lexer, json)
-        else super.decodeInline(inlineDescriptor)
+    override fun decodeInline(descriptor: SerialDescriptor): Decoder =
+        if (descriptor.isUnsignedNumber) JsonDecoderForUnsignedTypes(lexer, json)
+        else super.decodeInline(descriptor)
 
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
         return enumDescriptor.getJsonNameIndexOrThrow(json, decodeString(), " at path " + lexer.path.getPath())
     }
 }
 
+@InternalSerializationApi
+public fun <T> Json.decodeStringToJsonTree(
+    deserializer: DeserializationStrategy<T>,
+    source: String
+): JsonElement {
+    val lexer = StringJsonLexer(source)
+    val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor, null)
+    val tree = input.decodeJsonElement()
+    lexer.expectEof()
+    return tree
+}
+
 @OptIn(ExperimentalSerializationApi::class)
-@ExperimentalUnsignedTypes
 internal class JsonDecoderForUnsignedTypes(
     private val lexer: AbstractJsonLexer,
     json: Json

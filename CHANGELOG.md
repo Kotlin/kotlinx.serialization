@@ -1,3 +1,77 @@
+1.4.0-RC / 2022-07-20
+==================
+
+This is a candidate for the next big release with many new exciting features to try.
+It uses Kotlin 1.7.10 by default.
+
+### Integration with Okio's BufferedSource and BufferedSink
+
+[Okio library by Square](https://square.github.io/okio/) is a popular solution for fast and efficient IO operations on JVM, K/N and K/JS.
+In this version, we have added functions that parse/write JSON directly to Okio's input/output classes, saving you the overhead of copying data to `String` beforehand.
+These functions are called `Json.decodeFromBufferedSource` and `Json.encodeToBufferedSink`, respectively.
+There's also `decodeBufferedSourceToSequence` that behaves similarly to `decodeToSequence` from Java streams integration, so you can lazily decode multiple objects the same way as before.
+
+Note that these functions are located in a separate new artifact, so users who don't need them wouldn't find themselves dependent on Okio.
+To include this artifact in your project, use the same group id `org.jetbrains.kotlinx` and artifact id `kotlinx-serialization-json-okio`.
+To find out more about this integration, check new functions' documentation and corresponding pull requests:
+[#1901](https://github.com/Kotlin/kotlinx.serialization/pull/1901) and [#1982](https://github.com/Kotlin/kotlinx.serialization/pull/1982).
+
+### Inline classes and unsigned numbers do not require experimental annotations anymore
+
+Inline classes and unsigned number types have been promoted to a Stable feature in Kotlin 1.5,
+and now we are promoting support for them in kotlinx.serialization to Stable status, too.
+To be precise, [we've removed all](https://github.com/Kotlin/kotlinx.serialization/pull/1963) `@ExperimentalSerializationApi` annotations from functions related to inline classes encoding and decoding,
+namely `SerialDescriptor.isInline`, `Encoder.encodeInline`, and some others. We've also updated related [documentation article](docs/value-classes.md).
+
+Additionally, all `@ExperimentalUnsignedTypes` annotations [were removed](https://github.com/Kotlin/kotlinx.serialization/pull/1962) completely,
+so you can freely use types such as `UInt` and their respective serializers as a stable feature
+without opt-in requirement.
+
+### Part of SerializationException's hierarchy is public now
+
+When kotlinx.serialization 1.0 was released, all subclasses of `SerializationException` were made internal,
+since they didn't provide helpful information besides the standard message.
+Since then, we've received a lot of feature requests with compelling use-cases for exposing some of these internal types to the public.
+In this release, we are starting to fulfilling these requests by making `MissingFieldException` public.
+One can use it in the `catch` clause to better understand the reasons of failure — for example, to return 400 instead of 500 from an HTTP server —
+and then use its `fields` property to communicate the message better.
+See the details in the corresponding [PR](https://github.com/Kotlin/kotlinx.serialization/pull/1983).
+
+In future releases, we'll continue work in this direction, and we aim to provide more useful public exception types & properties.
+In the meantime, we've [revamped KDoc](https://github.com/Kotlin/kotlinx.serialization/pull/1980) for some methods regarding the exceptions — all of them now properly declare which exception types are allowed to be thrown.
+For example, `KSerializer.deserialize` is documented to throw `IllegalStateException` to indicate problems unrelated to serialization, such as data validation in classes' constructors.
+
+### @MetaSerializable annotation
+
+This release introduces a new `@MetaSerializable` annotation that adds `@Serializable` behavior to user-defined annotations — i.e., those annotations would also instruct the compiler plugin to generate a serializer for class. In addition, all annotations marked with `@MetaSerializable` are saved in the generated `@SerialDescriptor`
+as if they are annotated with `@SerialInfo`.
+
+This annotation will be particularly useful for various format authors who require adding some metadata to the serializable class — this can now be done using a single annotation instead of two, and without the risk of forgetting `@Serializable`. Check out details & examples in the KDoc and corresponding [PR](https://github.com/Kotlin/kotlinx.serialization/pull/1979).
+
+> Note: Kotlin 1.7.0 or higher is required for this feature to work.
+
+### Moving documentation from GitHub pages to kotlinlang.org
+
+As a part of a coordinated effort to unify kotlinx libraries users' experience, Dokka-generated documentation pages (KDoc) were moved from https://kotlin.github.io/kotlinx.serialization/ to https://kotlinlang.org/api/kotlinx.serialization/. No action from you is required — there are proper redirects at the former address, so there is no need to worry about links in your blogpost getting obsolete or broken.
+
+Note that this move does not affect guides written in Markdown in the `docs` folder. We aim to move them later, enriching text with runnable examples as in the Kotlin language guides.
+
+### Other improvements
+
+  * Allow Kotlin's null literal in JSON DSL (#1907) (thanks to [Lukellmann](https://github.com/Lukellmann))
+  * Stabilize EmptySerializersModule (#1921)
+  * Boost performance of polymorphic deserialization in optimistic scenario (#1919)
+  * Added serializer for the `kotlin.time.Duration` class (plugin support comes in Kotlin 1.7.20) (#1960)
+  * Support tagged not null marks in TaggedEncoder/Decoder (#1954) (thanks to [EdwarDDay](https://github.com/EdwarDDay))
+
+### Bugfixes
+
+  * Support quoting unsigned integers when used as map keys (#1969)
+  * Fix protocol buffer enum schema generation (#1967) (thanks to [mogud](https://github.com/mogud))
+  * Support diamond inheritance of sealed interfaces in SealedClassSerializer (#1958)
+  * Support retrieving serializer for sealed interface  (#1968)
+  * Fix misleading token description in JSON errors (#1941) (thanks to [TheMrMilchmann](https://github.com/TheMrMilchmann))
+
 1.3.3 / 2022-05-11
 ==================
 
@@ -26,7 +100,7 @@ Many thanks to [Paul de Vrieze](https://github.com/pdvrieze) for his valuable co
   * Iterate over element indices in ObjectSerializer in order to let the format skip unknown keys (#1916)
   * Correctly support registering both default polymorphic serializer & deserializer (#1849)
   * Make error message for captured generic type parameters much more straightforward (#1863)
-  
+
 1.3.2 / 2021-12-23
 ==================
 
@@ -297,7 +371,7 @@ Using 1.1.0-RC, you can mark inline classes as `@Serializable` and use them in o
 Unsigned integer types (`UByte`, `UShort`, `UInt` and `ULong`) are serializable as well and have special support in JSON.
 This feature requires Kotlin compiler 1.4.30-RC and enabling new IR compilers for [JS](https://kotlinlang.org/docs/reference/js-ir-compiler.html) and [JVM](https://kotlinlang.org/docs/reference/whatsnew14.html#new-jvm-ir-backend).
 
-You can learn more in the [documentation](docs/inline-classes.md)
+You can learn more in the [documentation](docs/value-classes.md)
 and corresponding [pull request](https://github.com/Kotlin/kotlinx.serialization/pull/1244).
 
 ### Other features

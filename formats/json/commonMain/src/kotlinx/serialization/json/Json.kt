@@ -50,7 +50,6 @@ import kotlin.native.concurrent.*
  * Json instance also exposes its [configuration] that can be used in custom serializers
  * that rely on [JsonDecoder] and [JsonEncoder] for customizable behaviour.
  */
-@OptIn(ExperimentalSerializationApi::class)
 public sealed class Json(
     public val configuration: JsonConfiguration,
     override val serializersModule: SerializersModule
@@ -67,7 +66,7 @@ public sealed class Json(
      * The default instance of [Json] with default configuration.
      */
     @ThreadLocal // to support caching
-    public companion object Default : Json(JsonConfiguration(), EmptySerializersModule)
+    public companion object Default : Json(JsonConfiguration(), EmptySerializersModule())
 
     /**
      * Serializes the [value] into an equivalent JSON using the given [serializer].
@@ -75,14 +74,9 @@ public sealed class Json(
      * @throws [SerializationException] if the given value cannot be serialized to JSON.
      */
     public final override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
-        val result = JsonStringBuilder()
+        val result = JsonToStringWriter()
         try {
-            val encoder = StreamingJsonEncoder(
-                result, this,
-                WriteMode.OBJ,
-                arrayOfNulls(WriteMode.values().size)
-            )
-            encoder.encodeSerializableValue(serializer, value)
+            encodeByWriter(result, serializer, value)
             return result.toString()
         } finally {
             result.release()
@@ -92,11 +86,12 @@ public sealed class Json(
     /**
      * Deserializes the given JSON [string] into a value of type [T] using the given [deserializer].
      *
-     * @throws [SerializationException] if the given JSON string cannot be deserialized to the value of type [T].
+     * @throws [SerializationException] if the given JSON string is not a valid JSON input for the type [T]
+     * @throws [IllegalArgumentException] if the decoded input cannot be represented as a valid instance of type [T]
      */
     public final override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
         val lexer = StringJsonLexer(string)
-        val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor)
+        val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor, null)
         val result = input.decodeSerializableValue(deserializer)
         lexer.expectEof()
         return result
@@ -104,7 +99,7 @@ public sealed class Json(
     /**
      * Serializes the given [value] into an equivalent [JsonElement] using the given [serializer]
      *
-     * @throws [SerializationException] if the given value cannot be serialized.
+     * @throws [SerializationException] if the given value cannot be serialized to JSON
      */
     public fun <T> encodeToJsonElement(serializer: SerializationStrategy<T>, value: T): JsonElement {
         return writeJson(value, serializer)
@@ -113,7 +108,8 @@ public sealed class Json(
     /**
      * Deserializes the given [element] into a value of type [T] using the given [deserializer].
      *
-     * @throws [SerializationException] if the given JSON string cannot be deserialized to the value of type [T].
+     * @throws [SerializationException] if the given JSON element is not a valid JSON input for the type [T]
+     * @throws [IllegalArgumentException] if the decoded input cannot be represented as a valid instance of type [T]
      */
     public fun <T> decodeFromJsonElement(deserializer: DeserializationStrategy<T>, element: JsonElement): T {
         return readJson(element, deserializer)
@@ -122,7 +118,7 @@ public sealed class Json(
     /**
      * Deserializes the given JSON [string] into a corresponding [JsonElement] representation.
      *
-     * @throws [SerializationException] if the given JSON string is malformed and cannot be deserialized
+     * @throws [SerializationException] if the given string is not a valid JSON
      */
     public fun parseToJsonElement(string: String): JsonElement {
         return decodeFromString(JsonElementSerializer, string)
@@ -130,9 +126,62 @@ public sealed class Json(
 }
 
 /**
+ * Description of JSON input shape used for decoding to sequence.
+ *
+ * The sequence represents a stream of objects parsed one by one;
+ * [DecodeSequenceMode] defines a separator between these objects.
+ * Typically, these objects are not separated by meaningful characters ([WHITESPACE_SEPARATED]),
+ * or the whole stream is a large array of objects separated with commas ([ARRAY_WRAPPED]).
+ */
+@ExperimentalSerializationApi
+public enum class DecodeSequenceMode {
+    /**
+     * Declares that objects in the input stream are separated by whitespace characters.
+     *
+     * The stream is read as multiple JSON objects separated by any number of whitespace characters between objects. Starting and trailing whitespace characters are also permitted.
+     * Each individual object is parsed lazily, when it is requested from the resulting sequence.
+     *
+     * Whitespace character is either ' ', '\n', '\r' or '\t'.
+     *
+     * Example of `WHITESPACE_SEPARATED` stream content:
+     * ```
+     * """{"key": "value"}{"key": "value2"}   {"key2": "value2"}"""
+     * ```
+     */
+    WHITESPACE_SEPARATED,
+
+    /**
+     * Declares that objects in the input stream are wrapped in the JSON array.
+     * Each individual object in the array is parsed lazily when it is requested from the resulting sequence.
+     *
+     * The stream is read as multiple JSON objects wrapped into a JSON array.
+     * The stream must start with an array start character `[` and end with an array end character `]`,
+     * otherwise, [JsonDecodingException] is thrown.
+     *
+     * Example of `ARRAY_WRAPPED` stream content:
+     * ```
+     * """[{"key": "value"}, {"key": "value2"},{"key2": "value2"}]"""
+     * ```
+     */
+    ARRAY_WRAPPED,
+
+    /**
+     * Declares that parser itself should select between [WHITESPACE_SEPARATED] and [ARRAY_WRAPPED] modes.
+     * The selection is performed by looking on the first meaningful character of the stream.
+     *
+     * In most cases, auto-detection is sufficient to correctly parse an input.
+     * If the input is _whitespace-separated stream of the arrays_, parser could select an incorrect mode,
+     * for that [DecodeSequenceMode] must be specified explicitly.
+     *
+     * Example of an exceptional case:
+     * `[1, 2, 3]   [4, 5, 6]\n[7, 8, 9]`
+     */
+    AUTO_DETECT;
+}
+
+/**
  * Creates an instance of [Json] configured from the optionally given [Json instance][from] and adjusted with [builderAction].
  */
-@OptIn(ExperimentalSerializationApi::class)
 public fun Json(from: Json = Json.Default, builderAction: JsonBuilder.() -> Unit): Json {
     val builder = JsonBuilder(from)
     builder.builderAction()
@@ -154,7 +203,8 @@ public inline fun <reified T> Json.encodeToJsonElement(value: T): JsonElement {
  * Deserializes the given [json] element into a value of type [T] using a deserializer retrieved
  * from reified type parameter.
  *
- * @throws [SerializationException] if the given JSON string is malformed or cannot be deserialized to the value of type [T].
+ * @throws [SerializationException] if the given JSON element is not a valid JSON input for the type [T]
+ * @throws [IllegalArgumentException] if the decoded input cannot be represented as a valid instance of type [T]
  */
 public inline fun <reified T> Json.decodeFromJsonElement(json: JsonElement): T =
     decodeFromJsonElement(serializersModule.serializer(), json)
@@ -303,7 +353,7 @@ private class JsonImpl(configuration: JsonConfiguration, module: SerializersModu
     }
 
     private fun validateConfiguration() {
-        if (serializersModule == EmptySerializersModule) return // Fast-path for in-place JSON allocations
+        if (serializersModule == EmptySerializersModule()) return // Fast-path for in-place JSON allocations
         val collector = PolymorphismValidator(configuration.useArrayPolymorphism, configuration.classDiscriminator)
         serializersModule.dumpTo(collector)
     }

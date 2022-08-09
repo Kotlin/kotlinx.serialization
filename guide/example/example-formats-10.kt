@@ -9,7 +9,7 @@ import kotlinx.serialization.modules.*
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
-    override val serializersModule: SerializersModule = EmptySerializersModule
+    override val serializersModule: SerializersModule = EmptySerializersModule()
 
     override fun encodeValue(value: Any) {
         list.add(value)

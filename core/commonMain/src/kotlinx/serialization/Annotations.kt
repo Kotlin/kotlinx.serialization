@@ -74,6 +74,35 @@ public annotation class Serializable(
 )
 
 /**
+ * The meta-annotation for adding [Serializable] behaviour to user-defined annotations.
+ *
+ * Applying [MetaSerializable] to the annotation class `A` instructs the serialization plugin to treat annotation A
+ * as [Serializable]. In addition, all annotations marked with [MetaSerializable] are saved in the generated [SerialDescriptor]
+ * as if they are annotated with [SerialInfo].
+ *
+ * ```
+ * @MetaSerializable
+ * @Target(AnnotationTarget.CLASS)
+ * annotation class MySerializable(val data: String)
+ *
+ * @MySerializable("some_data")
+ * class MyData(val myData: AnotherData, val intProperty: Int, ...)
+ *
+ * val serializer = MyData.serializer()
+ * serializer.descriptor.annotations.filterIsInstance<MySerializable>().first().data // <- returns "some_data"
+ * ```
+ *
+ * @see Serializable
+ * @see SerialInfo
+ * @see UseSerializers
+ * @see Serializer
+ */
+@Target(AnnotationTarget.ANNOTATION_CLASS)
+//@Retention(AnnotationRetention.RUNTIME) // Runtime is the default retention, also see KT-41082
+@ExperimentalSerializationApi
+public annotation class MetaSerializable
+
+/**
  * Instructs the serialization plugin to turn this class into serializer for specified class [forClass].
  * However, it would not be used automatically. To apply it on particular class or property,
  * use [Serializable] or [UseSerializers], or [Contextual] with runtime registration.

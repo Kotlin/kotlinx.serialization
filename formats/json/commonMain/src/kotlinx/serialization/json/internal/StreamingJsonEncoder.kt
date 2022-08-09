@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package kotlinx.serialization.json.internal
@@ -12,8 +12,6 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.native.concurrent.*
 
-@ExperimentalSerializationApi
-@OptIn(ExperimentalUnsignedTypes::class)
 @SharedImmutable
 private val unsignedNumberDescriptors = setOf(
     UInt.serializer().descriptor,
@@ -22,11 +20,10 @@ private val unsignedNumberDescriptors = setOf(
     UShort.serializer().descriptor
 )
 
-@ExperimentalSerializationApi
 internal val SerialDescriptor.isUnsignedNumber: Boolean
     get() = this.isInline && this in unsignedNumberDescriptors
 
-@OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
+@OptIn(ExperimentalSerializationApi::class)
 internal class StreamingJsonEncoder(
     private val composer: Composer,
     override val json: Json,
@@ -35,7 +32,7 @@ internal class StreamingJsonEncoder(
 ) : JsonEncoder, AbstractEncoder() {
 
     internal constructor(
-        output: JsonStringBuilder, json: Json, mode: WriteMode,
+        output: JsonWriter, json: Json, mode: WriteMode,
         modeReuseCache: Array<JsonEncoder?>
     ) : this(Composer(output, json), json, mode, modeReuseCache)
 
@@ -158,11 +155,19 @@ internal class StreamingJsonEncoder(
         }
     }
 
-    override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder =
-        if (inlineDescriptor.isUnsignedNumber) StreamingJsonEncoder(
-            ComposerForUnsignedNumbers(composer.sb), json, mode, null
+    override fun encodeInline(descriptor: SerialDescriptor): Encoder =
+        if (descriptor.isUnsignedNumber) StreamingJsonEncoder(
+            composerForUnsignedNumbers(), json, mode, null
         )
-        else super.encodeInline(inlineDescriptor)
+        else super.encodeInline(descriptor)
+
+    private fun composerForUnsignedNumbers(): Composer {
+        // If we're inside encodeInline().encodeSerializableValue, we should preserve the forceQuoting state
+        // inside the composer, but not in the encoder (otherwise we'll get into `if (forceQuoting) encodeString(value.toString())` part
+        // and unsigned numbers would be encoded incorrectly)
+        return if (composer is ComposerForUnsignedNumbers) composer
+        else ComposerForUnsignedNumbers(composer.writer, forceQuoting)
+    }
 
     override fun encodeNull() {
         composer.print(NULL)
@@ -192,7 +197,7 @@ internal class StreamingJsonEncoder(
         // First encode value, then check, to have a prettier error message
         if (forceQuoting) encodeString(value.toString()) else composer.print(value)
         if (!configuration.allowSpecialFloatingPointValues && !value.isFinite()) {
-            throw InvalidFloatingPointEncoded(value, composer.sb.toString())
+            throw InvalidFloatingPointEncoded(value, composer.writer.toString())
         }
     }
 
@@ -200,7 +205,7 @@ internal class StreamingJsonEncoder(
         // First encode value, then check, to have a prettier error message
         if (forceQuoting) encodeString(value.toString()) else composer.print(value)
         if (!configuration.allowSpecialFloatingPointValues && !value.isFinite()) {
-            throw InvalidFloatingPointEncoded(value, composer.sb.toString())
+            throw InvalidFloatingPointEncoded(value, composer.writer.toString())
         }
     }
 

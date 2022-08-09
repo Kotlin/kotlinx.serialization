@@ -1,0 +1,7 @@
+public final class kotlinx/serialization/json/okio/OkioStreamsKt {
+	public static final fun decodeBufferedSourceToSequence (Lkotlinx/serialization/json/Json;Lokio/BufferedSource;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/DecodeSequenceMode;)Lkotlin/sequences/Sequence;
+	public static synthetic fun decodeBufferedSourceToSequence$default (Lkotlinx/serialization/json/Json;Lokio/BufferedSource;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/DecodeSequenceMode;ILjava/lang/Object;)Lkotlin/sequences/Sequence;
+	public static final fun decodeFromBufferedSource (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/DeserializationStrategy;Lokio/BufferedSource;)Ljava/lang/Object;
+	public static final fun encodeToBufferedSink (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Lokio/BufferedSink;)V
+}
+

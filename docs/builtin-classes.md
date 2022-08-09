@@ -68,8 +68,6 @@ Their natural representation in JSON is used.
 
 <!--- TEST -->
 
-> Experimental unsigned numbers as well as other experimental inline classes are not supported by Kotlin Serialization yet. 
-
 
 ### Long numbers
 

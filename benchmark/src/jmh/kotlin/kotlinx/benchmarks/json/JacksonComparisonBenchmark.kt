@@ -4,7 +4,11 @@ import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.module.kotlin.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.json.okio.encodeToBufferedSink
+import okio.blackholeSink
+import okio.buffer
 import org.openjdk.jmh.annotations.*
+import java.io.OutputStream
 import java.util.concurrent.*
 
 @Warmup(iterations = 7, time = 1)
@@ -63,6 +67,13 @@ open class JacksonComparisonBenchmark {
         cookies = "_ga=GA1.2.971852807.1546968515"
     )
 
+    private val devNullSink = blackholeSink().buffer()
+    private val devNullStream = object : OutputStream() {
+        override fun write(b: Int) {}
+        override fun write(b: ByteArray) {}
+        override fun write(b: ByteArray, off: Int, len: Int) {}
+    }
+
     private val stringData = Json.encodeToString(DefaultPixelEvent.serializer(), data)
 
     @Serializable
@@ -83,10 +94,22 @@ open class JacksonComparisonBenchmark {
     fun kotlinToString(): String = Json.encodeToString(DefaultPixelEvent.serializer(), data)
 
     @Benchmark
+    fun kotlinToStream() = Json.encodeToStream(DefaultPixelEvent.serializer(), data, devNullStream)
+
+    @Benchmark
+    fun kotlinToOkio() = Json.encodeToBufferedSink(DefaultPixelEvent.serializer(), data, devNullSink)
+
+    @Benchmark
     fun kotlinToStringWithEscapes(): String = Json.encodeToString(DefaultPixelEvent.serializer(), dataWithEscapes)
 
     @Benchmark
     fun kotlinSmallToString(): String = Json.encodeToString(SmallDataClass.serializer(), smallData)
+
+    @Benchmark
+    fun kotlinSmallToStream() = Json.encodeToStream(SmallDataClass.serializer(), smallData, devNullStream)
+
+    @Benchmark
+    fun kotlinSmallToOkio() = Json.encodeToBufferedSink(SmallDataClass.serializer(), smallData, devNullSink)
 
     @Benchmark
     fun jacksonFromString(): DefaultPixelEvent = objectMapper.readValue(stringData, DefaultPixelEvent::class.java)

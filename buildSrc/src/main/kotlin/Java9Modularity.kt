@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.gradle.api.*
 import org.gradle.api.tasks.bundling.*
 import org.gradle.api.tasks.compile.*
@@ -6,6 +10,7 @@ import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.*
 import org.jetbrains.kotlin.gradle.targets.jvm.*
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.*
 
 object Java9Modularity {
@@ -28,7 +33,7 @@ object Java9Modularity {
             }
 
             target.compilations.forEach { compilation ->
-                val compileKotlinTask = compilation.compileKotlinTask as AbstractCompile
+                val compileKotlinTask = compilation.compileKotlinTask as KotlinCompile
                 val defaultSourceSet = compilation.defaultSourceSet
 
                 // derive the names of the source set and compile module task
@@ -64,7 +69,7 @@ object Java9Modularity {
         }
     }
 
-    private fun Project.registerCompileModuleTask(taskName: String, compileTask: AbstractCompile, sourceFile: File, targetFile: File) =
+    private fun Project.registerCompileModuleTask(taskName: String, compileTask: KotlinCompile, sourceFile: File, targetFile: File) =
         tasks.register(taskName, JavaCompile::class) {
             // Also add the module-info.java source file to the Kotlin compile task;
             // the Kotlin compiler will parse and check module dependencies,
@@ -86,7 +91,7 @@ object Java9Modularity {
                 // The module path should be the same as the classpath of the compiler.
                 options.compilerArgs = listOf(
                     "--release", "9",
-                    "--module-path", compileTask.classpath.asPath,
+                    "--module-path", compileTask.libraries.asPath,
                     "-Xlint:-requires-transitive-automatic"
                 )
             }
