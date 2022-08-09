@@ -20,6 +20,8 @@ subprojects {
 
     tasks.named('dokkaHtmlPartial') {
         outputDirectory = file("build/dokka")
+        pluginsMapConfiguration.set(["org.jetbrains.dokka.base.DokkaBase": """{ "templatesDir": "${rootProject.projectDir.toString().replace('\\', '/')}/dokka-templates" }"""])
+
         dokkaSourceSets {
             configureEach {
                 includes.from(rootProject.file('dokka/moduledoc.md').path)
