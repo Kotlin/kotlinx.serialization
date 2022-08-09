@@ -14,23 +14,32 @@ private const val DEFAULT_THRESHOLD = 128
  * For some reason this hand-rolled implementation is faster than
  * fun ArrayAsSequence(s: CharArray): CharSequence = java.nio.CharBuffer.wrap(s, 0, length)
  */
-private class ArrayAsSequence(private val source: CharArray) : CharSequence {
-    override val length: Int = source.size
+private class ArrayAsSequence(val buffer: CharArray) : CharSequence {
+    override var length: Int = buffer.size
 
-    override fun get(index: Int): Char = source[index]
+    override fun get(index: Int): Char = buffer[index]
 
     override fun subSequence(startIndex: Int, endIndex: Int): CharSequence {
-        return source.concatToString(startIndex, endIndex)
+        return buffer.concatToString(startIndex, minOf(endIndex, length))
+    }
+
+    fun substring(startIndex: Int, endIndex: Int): String {
+        return buffer.concatToString(startIndex, minOf(endIndex, length))
+    }
+
+    fun trim(newSize: Int) {
+        length = minOf(buffer.size, newSize)
     }
 }
 
 internal class ReaderJsonLexer(
     private val reader: SerialReader,
-    private var _source: CharArray = CharArray(BATCH_SIZE)
+    charsBuffer: CharArray = CharArray(BATCH_SIZE)
 ) : AbstractJsonLexer() {
     private var threshold: Int = DEFAULT_THRESHOLD // chars
+    private val sourceIntern: ArrayAsSequence = ArrayAsSequence(charsBuffer)
 
-    override var source: CharSequence = ArrayAsSequence(_source)
+    override val source: CharSequence = sourceIntern
 
     init {
         preload(0)
@@ -38,8 +47,8 @@ internal class ReaderJsonLexer(
 
     override fun tryConsumeComma(): Boolean {
         val current = skipWhitespaces()
-        if (current >= source.length || current == -1) return false
-        if (source[current] == ',') {
+        if (current >= sourceIntern.length || current == -1) return false
+        if (sourceIntern[current] == ',') {
             ++currentPosition
             return true
         }
@@ -52,7 +61,7 @@ internal class ReaderJsonLexer(
         while (true) {
             current = prefetchOrEof(current)
             if (current == -1) break // could be inline function but KT-1436
-            val c = source[current]
+            val c = sourceIntern[current]
             // Inlined skipWhitespaces without field spill and nested loop. Also faster then char2TokenClass
             if (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
                 ++current
@@ -65,39 +74,37 @@ internal class ReaderJsonLexer(
         return false
     }
 
-    private fun preload(spaceLeft: Int) {
-        val buffer = _source
-        if (spaceLeft != 0) {
-            buffer.copyInto(buffer, 0, currentPosition, currentPosition + spaceLeft)
+    private fun preload(unprocessedCount: Int) {
+        val buffer = sourceIntern.buffer
+        if (unprocessedCount != 0) {
+            buffer.copyInto(buffer, 0, currentPosition, currentPosition + unprocessedCount)
         }
-        var read = spaceLeft
-        val sizeTotal = _source.size
-        while (read != sizeTotal) {
-            val actual = reader.read(buffer, read, sizeTotal - read)
+        var filledCount = unprocessedCount
+        val sizeTotal = sourceIntern.length
+        while (filledCount != sizeTotal) {
+            val actual = reader.read(buffer, filledCount, sizeTotal - filledCount)
             if (actual == -1) {
                 // EOF, resizing the array so it matches input size
-                // Can also be done by extracting source.length to a separate var
-                _source = _source.copyOf(read)
-                source = ArrayAsSequence(_source)
+                sourceIntern.trim(filledCount)
                 threshold = -1
                 break
             }
-            read += actual
+            filledCount += actual
         }
         currentPosition = 0
     }
 
     override fun prefetchOrEof(position: Int): Int {
-        if (position < source.length) return position
+        if (position < sourceIntern.length) return position
         currentPosition = position
         ensureHaveChars()
-        if (currentPosition != 0 || source.isEmpty()) return -1 // if something was loaded, then it would be zero.
+        if (currentPosition != 0 || sourceIntern.isEmpty()) return -1 // if something was loaded, then it would be zero.
         return 0
     }
 
     override fun consumeNextToken(): Byte {
         ensureHaveChars()
-        val source = source
+        val source = sourceIntern
         var cpos = currentPosition
         while (true) {
             cpos = prefetchOrEof(cpos)
@@ -117,7 +124,7 @@ internal class ReaderJsonLexer(
 
     override fun ensureHaveChars() {
         val cur = currentPosition
-        val oldSize = _source.size
+        val oldSize = sourceIntern.length
         val spaceLeft = oldSize - cur
         if (spaceLeft > threshold) return
         // warning: current position is not updated during string consumption
@@ -140,13 +147,13 @@ internal class ReaderJsonLexer(
             // it's also possible just to resize buffer,
             // instead of falling back to slow path,
             // not sure what is better
-            else return consumeString(source, currentPosition, current)
+            else return consumeString(sourceIntern, currentPosition, current)
         }
         // Now we _optimistically_ know where the string ends (it might have been an escaped quote)
         for (i in current until closingQuote) {
             // Encountered escape sequence, should fallback to "slow" path and symmbolic scanning
-            if (source[i] == STRING_ESC) {
-                return consumeString(source, currentPosition, i)
+            if (sourceIntern[i] == STRING_ESC) {
+                return consumeString(sourceIntern, currentPosition, i)
             }
         }
         this.currentPosition = closingQuote + 1
@@ -154,19 +161,19 @@ internal class ReaderJsonLexer(
     }
 
     override fun indexOf(char: Char, startPos: Int): Int {
-        val src = _source
-        for (i in startPos until src.size) {
+        val src = sourceIntern
+        for (i in startPos until src.length) {
             if (src[i] == char) return i
         }
         return -1
     }
 
     override fun substring(startPos: Int, endPos: Int): String {
-        return _source.concatToString(startPos, endPos)
+        return sourceIntern.substring(startPos, endPos)
     }
 
     override fun appendRange(fromIndex: Int, toIndex: Int) {
-        escapedString.appendRange(_source, fromIndex, toIndex)
+        escapedString.appendRange(sourceIntern.buffer, fromIndex, toIndex)
     }
 
     // Can be carefully implemented but postponed for now

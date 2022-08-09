@@ -184,6 +184,7 @@ internal abstract class AbstractJsonLexer {
 
     open fun consumeNextToken(expected: Char) {
         ensureHaveChars()
+        val source = source
         var cpos = currentPosition
         while (true) {
             cpos = prefetchOrEof(cpos)
