@@ -5,16 +5,14 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlin.test.Test
 
-
-@Serializable
-private data class Node(
-    val children: List<Node>?
-)
-
 class JsonHugeDataSerializationTest : JsonTestBase() {
+
+    @Serializable
+    private data class Node(
+        val children: List<Node>
+    )
 
     private fun createNodes(count: Int, depth: Int): List<Node> {
         val ret = mutableListOf<Node>()
@@ -30,7 +28,7 @@ class JsonHugeDataSerializationTest : JsonTestBase() {
         // create some huge instance
         val rootNode = Node(createNodes(1000, 10))
 
-        val expectedJson = Json.encodeToString(rootNode)
+        val expectedJson = Json.encodeToString(Node.serializer(), rootNode)
 
         /*
           The assertJsonFormAndRestored function, when checking the encoding, will call Json.encodeToString(...) for `JsonTestingMode.STREAMING`
