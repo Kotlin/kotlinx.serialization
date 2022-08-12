@@ -27,8 +27,8 @@ import kotlin.reflect.*
  * SerialDescriptor("my.package.Data") {
  *     // intField is deliberately ignored by serializer -- not present in the descriptor as well
  *     element<Long>("_longField") // longField is named as _longField
- *     element("stringField", listDescriptor<String>())
- *     element("nullableInt", descriptor<Int>().nullable)
+ *     element("stringField", listSerialDescriptor<String>())
+ *     element("nullableInt", serialDescriptor<Int>().nullable)
  * }
  * ```
  *
