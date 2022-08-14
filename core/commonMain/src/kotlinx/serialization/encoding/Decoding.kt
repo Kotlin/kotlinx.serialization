@@ -199,6 +199,14 @@ public interface Decoder {
     public fun decodeString(): String
 
     /**
+     * Decodes a string value by chunks (16k by default), outputs string them to consumer.
+     * Corresponding kind is [PrimitiveKind.STRING].
+     */
+    public fun decodeStringChunked(consumeChunk:(chunk:String) -> Unit) {
+        consumeChunk(decodeString()) // Actual only for stream decoders, default implementation writes entire string
+    }
+
+    /**
      * Decodes a enum value and returns its index in [enumDescriptor] elements collection.
      * Corresponding kind is [SerialKind.ENUM].
      *

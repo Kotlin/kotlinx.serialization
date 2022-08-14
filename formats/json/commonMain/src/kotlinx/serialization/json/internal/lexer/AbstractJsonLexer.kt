@@ -4,7 +4,6 @@
 
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.json.internal.CharMappings.CHAR_TO_TOKEN
 import kotlinx.serialization.json.internal.CharMappings.ESCAPE_2_CHAR
 import kotlin.js.*
@@ -306,6 +305,10 @@ internal abstract class AbstractJsonLexer {
      * is no need to lookup peeked string.
      */
     abstract fun consumeKeyString(): String
+
+    open fun consumeStringChunked(consumeChunk: (stringChunk: String) -> Unit) {
+        consumeChunk(consumeString())
+    }
 
     fun consumeString(): String {
         if (peekedString != null) {

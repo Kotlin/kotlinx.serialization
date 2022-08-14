@@ -343,6 +343,10 @@ internal open class StreamingJsonDecoder(
         }
     }
 
+    override fun decodeStringChunked(consumeChunk: (chunk: String) -> Unit) {
+        lexer.consumeStringChunked(consumeChunk)
+    }
+
     override fun decodeInline(descriptor: SerialDescriptor): Decoder =
         if (descriptor.isUnsignedNumber) JsonDecoderForUnsignedTypes(lexer, json)
         else super.decodeInline(descriptor)

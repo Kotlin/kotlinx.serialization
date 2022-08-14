@@ -131,6 +131,32 @@ internal class ReaderJsonLexer(
         preload(spaceLeft)
     }
 
+    override fun consumeStringChunked(consumeChunk: (stringChunk: String) -> Unit) {
+        consumeNextToken(STRING)
+        var currentPosition = this.currentPosition
+        var lastPosition = currentPosition
+        var char = source[currentPosition] // Avoid two range checks visible in the profiler
+        while (char != STRING) {
+            if (++currentPosition >= source.length) {
+                // end of chunk
+                writeRange(lastPosition, currentPosition, consumeChunk)
+                currentPosition = prefetchOrEof(currentPosition)
+                if (currentPosition == -1)
+                    fail("EOF", currentPosition)
+                lastPosition = currentPosition
+            }
+            char = source[currentPosition]
+        }
+        writeRange(lastPosition, currentPosition, consumeChunk)
+        this.currentPosition = currentPosition + 1 // Consume closing '"' (STRING)
+    }
+
+    private fun writeRange(fromIndex: Int, toIndex: Int, consumeChunk: (stringChunk: String) -> Unit) {
+        val tmp = StringBuilder()
+        tmp.appendRange(_source, fromIndex, toIndex)
+        consumeChunk(tmp.toString())
+    }
+
     override fun consumeKeyString(): String {
         /*
          * For strings we assume that escaped symbols are rather an exception, so firstly
