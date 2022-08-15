@@ -116,7 +116,7 @@ import kotlinx.serialization.encoding.*
  * SerialDescriptor("my.package.Data") {
  *     // intField is deliberately ignored by serializer -- not present in the descriptor as well
  *     element<Long>("_longField") // longField is named as _longField
- *     element("stringField", listDescriptor<String>())
+ *     element("stringField", listSerialDescriptor<String>())
  * }
  * ```
  *
