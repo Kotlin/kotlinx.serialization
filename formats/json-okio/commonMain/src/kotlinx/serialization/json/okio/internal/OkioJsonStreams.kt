@@ -50,7 +50,7 @@ internal class OkioSerialReader(private val source: BufferedSource): SerialReade
     override fun read(buffer: CharArray, bufferOffset: Int, count: Int): Int {
         var i = 0
         while (i < count && !source.exhausted()) {
-            buffer[i] = source.readUtf8CodePoint().toChar()
+            buffer[bufferOffset + i] = source.readUtf8CodePoint().toChar()
             i++
         }
         return if (i > 0) i else -1

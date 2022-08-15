@@ -14,23 +14,31 @@ private const val DEFAULT_THRESHOLD = 128
  * For some reason this hand-rolled implementation is faster than
  * fun ArrayAsSequence(s: CharArray): CharSequence = java.nio.CharBuffer.wrap(s, 0, length)
  */
-private class ArrayAsSequence(private val source: CharArray) : CharSequence {
-    override val length: Int = source.size
+internal class ArrayAsSequence(val buffer: CharArray) : CharSequence {
+    override var length: Int = buffer.size
 
-    override fun get(index: Int): Char = source[index]
+    override fun get(index: Int): Char = buffer[index]
 
     override fun subSequence(startIndex: Int, endIndex: Int): CharSequence {
-        return source.concatToString(startIndex, endIndex)
+        return buffer.concatToString(startIndex, minOf(endIndex, length))
+    }
+
+    fun substring(startIndex: Int, endIndex: Int): String {
+        return buffer.concatToString(startIndex, minOf(endIndex, length))
+    }
+
+    fun trim(newSize: Int) {
+        length = minOf(buffer.size, newSize)
     }
 }
 
 internal class ReaderJsonLexer(
     private val reader: SerialReader,
-    private var _source: CharArray = CharArray(BATCH_SIZE)
+    charsBuffer: CharArray = CharArray(BATCH_SIZE)
 ) : AbstractJsonLexer() {
     private var threshold: Int = DEFAULT_THRESHOLD // chars
 
-    override var source: CharSequence = ArrayAsSequence(_source)
+    override val source: ArrayAsSequence = ArrayAsSequence(charsBuffer)
 
     init {
         preload(0)
@@ -65,22 +73,22 @@ internal class ReaderJsonLexer(
         return false
     }
 
-    private fun preload(spaceLeft: Int) {
-        val buffer = _source
-        buffer.copyInto(buffer, 0, currentPosition, currentPosition + spaceLeft)
-        var read = spaceLeft
-        val sizeTotal = _source.size
-        while (read != sizeTotal) {
-            val actual = reader.read(buffer, read, sizeTotal - read)
+    private fun preload(unprocessedCount: Int) {
+        val buffer = source.buffer
+        if (unprocessedCount != 0) {
+            buffer.copyInto(buffer, 0, currentPosition, currentPosition + unprocessedCount)
+        }
+        var filledCount = unprocessedCount
+        val sizeTotal = source.length
+        while (filledCount != sizeTotal) {
+            val actual = reader.read(buffer, filledCount, sizeTotal - filledCount)
             if (actual == -1) {
                 // EOF, resizing the array so it matches input size
-                // Can also be done by extracting source.length to a separate var
-                _source = _source.copyOf(read)
-                source = ArrayAsSequence(_source)
+                source.trim(filledCount)
                 threshold = -1
                 break
             }
-            read += actual
+            filledCount += actual
         }
         currentPosition = 0
     }
@@ -115,7 +123,7 @@ internal class ReaderJsonLexer(
 
     override fun ensureHaveChars() {
         val cur = currentPosition
-        val oldSize = _source.size
+        val oldSize = source.length
         val spaceLeft = oldSize - cur
         if (spaceLeft > threshold) return
         // warning: current position is not updated during string consumption
@@ -152,19 +160,19 @@ internal class ReaderJsonLexer(
     }
 
     override fun indexOf(char: Char, startPos: Int): Int {
-        val src = _source
-        for (i in startPos until src.size) {
+        val src = source
+        for (i in startPos until src.length) {
             if (src[i] == char) return i
         }
         return -1
     }
 
     override fun substring(startPos: Int, endPos: Int): String {
-        return _source.concatToString(startPos, endPos)
+        return source.substring(startPos, endPos)
     }
 
     override fun appendRange(fromIndex: Int, toIndex: Int) {
-        escapedString.appendRange(_source, fromIndex, toIndex)
+        escapedString.appendRange(source.buffer, fromIndex, toIndex)
     }
 
     // Can be carefully implemented but postponed for now
