@@ -59,7 +59,7 @@ import kotlinx.serialization.json.*
 ### JSON encoding
 
 The whole process of converting data into a specific format is called _encoding_. For JSON we encode data
-using the [Json.encodeToString][kotlinx.serialization.encodeToString] extension function. It serializes
+using the [Json.encodeToString][kotlinx.serialization.encodeToString] extension function. If you don't see the extension function, you might need to add `import kotlinx.serialization.encodeToString`. It serializes
 the object that is passed as its parameter under the hood and encodes it to a JSON string.
 
 Let's start with a class describing a project and try to get its JSON representation.
@@ -115,7 +115,7 @@ up a _serializer_ for this class. Now the output of the example is the correspon
 ### JSON decoding
 
 The reverse process is called _decoding_. To decode a JSON string into an object, we'll
-use the [Json.decodeFromString][kotlinx.serialization.decodeFromString] extension function.
+use the [Json.decodeFromString][kotlinx.serialization.decodeFromString] extension function. If you don't see the extension function, you might need to add `import kotlinx.serialization.decodeFromString`.
 To specify which type we want to get as a result, we provide a type parameter to this function.
 
 As we'll see later, serialization works with different kinds of classes.
