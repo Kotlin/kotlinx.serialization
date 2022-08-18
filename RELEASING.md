@@ -41,9 +41,10 @@ If review is not required, commit directly to `dev`.
    * Close the repository and wait for it to verify.
    * Release it.
    
-5. Update documentation website:<br>
-    * Set new value for [`kotlinx.serialization.release.tag`](https://buildserver.labs.intellij.net/admin/editProject.html?projectId=Kotlin_KotlinSites_Builds_KotlinlangOrg_LibrariesAPIs&tab=projectParams)
-    * And run deploy [configuration](https://buildserver.labs.intellij.net/buildConfiguration/Kotlin_KotlinSites_Builds_KotlinlangOrg_KotlinSerializationApi?branch=%3Cdefault%3E&mode=builds)
+5. Propose the website documentation update:<br>
+    * Set a new value for [`KOTLINX_SERIALIZATION_RELEASE_TAG`](https://github.com/JetBrains/kotlin-web-site/blob/master/.teamcity/BuildParams.kt), creating a pull request in the website's repository.
+    * The website team will be notified about the pull request, review your changes, and merge it to master after all checks pass.
+    * Once the pull request is merged to the main branch, it automatically will trigger the website's update, which will be done within an hour.   
 
 6. Create a new release in [Github releases](https://github.com/Kotlin/kotlinx.serialization/releases). Use created git tag for title and changelog message for body.
 
