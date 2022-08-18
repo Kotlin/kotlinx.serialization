@@ -188,3 +188,7 @@ subprojects {
 apply from: rootProject.file('gradle/compiler-version.gradle')
 apply from: rootProject.file("gradle/dokka.gradle")
 apply from: rootProject.file("gradle/benchmark-parsing.gradle")
+
+tasks.named("dokkaHtmlMultiModule") {
+    pluginsMapConfiguration.set(["org.jetbrains.dokka.base.DokkaBase": """{ "templatesDir": "${projectDir.toString().replace('\\', '/')}/dokka-templates" }"""])
+}
