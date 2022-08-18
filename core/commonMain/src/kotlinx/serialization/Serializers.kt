@@ -17,6 +17,11 @@ import kotlin.jvm.*
 import kotlin.reflect.*
 
 /**
+ * A wrapper for a factory of serializers of non-parameterized types that can cache them.
+ */
+private val CACHED_SERIALIZER_FACTORY = createCachedFactoryWrapper { it.serializerOrNull()?.cast() }
+
+/**
  * Retrieves a serializer for the given type [T].
  * This method is a reified version of `serializer(KType)`.
  */
@@ -79,26 +84,44 @@ private fun SerializersModule.serializerByKTypeImpl(
     val isNullable = type.isMarkedNullable
     val typeArguments = type.arguments
         .map { requireNotNull(it.type) { "Star projections in type arguments are not allowed, but had $type" } }
-    val result: KSerializer<Any>? = when {
-        typeArguments.isEmpty() -> rootClass.serializerOrNull() ?: getContextual(rootClass)
-        else -> builtinSerializer(typeArguments, rootClass, failOnMissingTypeArgSerializer)
-    }?.cast()
-    return result?.nullable(isNullable)
+
+    val serializer: KSerializer<out Any>? = if (typeArguments.isEmpty()) {
+        // if serializer cached - return it immediately because nullable already processed
+        CACHED_SERIALIZER_FACTORY.get(rootClass, isNullable)?.let { return it }
+        getContextual(rootClass)
+    } else {
+        val serializers = if (failOnMissingTypeArgSerializer)
+            typeArguments.map(::serializer)
+        else {
+            typeArguments.map { serializerOrNull(it) ?: return null }
+        }
+        rootClass.parametrizedSerializerOrNull(typeArguments, serializers) ?: getContextual(rootClass, serializers)
+    }
+
+    return serializer?.cast<Any>()?.nullable(isNullable)
+}
+
+private fun KClass<Any>.parametrizedSerializerOrNull(types: List<KType>, serializers: List<KSerializer<Any?>>): KSerializer<out Any>? =
+    // builtin first because some standard parametrized interfaces (e.g. Map) must use builtin serializer but not polymorphic
+    builtinParametrizedSerializer(types, serializers) ?: compiledParametrizedSerializerImpl(serializers)
+
+
+private fun KClass<Any>.compiledParametrizedSerializerImpl(serializers: List<KSerializer<Any?>>): KSerializer<out Any>? {
+    // TODO remove after review!
+    // useless because same constructSerializerForGivenTypeArgs actually wil be called below?
+    // rootClass.compiledSerializerImpl() ?:
+    // useless because BUILTIN_SERIALIZERS types are non-paramtrized
+    // rootClass.builtinSerializerOrNull()
+    return constructSerializerForGivenTypeArgs(*serializers.toTypedArray())
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private fun SerializersModule.builtinSerializer(
+private fun KClass<Any>.builtinParametrizedSerializer(
     typeArguments: List<KType>,
-    rootClass: KClass<Any>,
-    failOnMissingTypeArgSerializer: Boolean
+    serializers: List<KSerializer<Any?>>,
 ): KSerializer<out Any>? {
-    val serializers = if (failOnMissingTypeArgSerializer)
-        typeArguments.map(::serializer)
-    else {
-        typeArguments.map { serializerOrNull(it) ?: return null }
-    }
     // Array is not supported, see KT-32839
-    return when (rootClass) {
+    return when (this) {
         Collection::class, List::class, MutableList::class, ArrayList::class -> ArrayListSerializer(serializers[0])
         HashSet::class -> HashSetSerializer(serializers[0])
         Set::class, MutableSet::class, LinkedHashSet::class -> LinkedHashSetSerializer(serializers[0])
@@ -111,22 +134,13 @@ private fun SerializersModule.builtinSerializer(
         Pair::class -> PairSerializer(serializers[0], serializers[1])
         Triple::class -> TripleSerializer(serializers[0], serializers[1], serializers[2])
         else -> {
-            if (isReferenceArray(rootClass)) {
-                return ArraySerializer<Any, Any?>(typeArguments[0].classifier as KClass<Any>, serializers[0]).cast()
+            if (isReferenceArray(this)) {
+                return ArraySerializer(typeArguments[0].classifier as KClass<Any>, serializers[0]).cast()
+            } else {
+                return null
             }
-            val args = serializers.toTypedArray()
-            rootClass.constructSerializerForGivenTypeArgs(*args)
-                ?: reflectiveOrContextual(rootClass, serializers)
         }
     }
-}
-
-@OptIn(ExperimentalSerializationApi::class)
-internal fun <T : Any> SerializersModule.reflectiveOrContextual(
-    kClass: KClass<T>,
-    typeArgumentsSerializers: List<KSerializer<Any?>>
-): KSerializer<T>? {
-    return kClass.serializerOrNull() ?: getContextual(kClass, typeArgumentsSerializers)
 }
 
 /**
@@ -179,7 +193,7 @@ public fun <T : Any> KClass<T>.serializer(): KSerializer<T> = serializerOrNull()
 public fun <T : Any> KClass<T>.serializerOrNull(): KSerializer<T>? =
     compiledSerializerImpl() ?: builtinSerializerOrNull()
 
-private fun <T : Any> KSerializer<T>.nullable(shouldBeNullable: Boolean): KSerializer<T?> {
+internal fun <T : Any> KSerializer<T>.nullable(shouldBeNullable: Boolean): KSerializer<T?> {
     if (shouldBeNullable) return nullable
     return this as KSerializer<T?>
 }

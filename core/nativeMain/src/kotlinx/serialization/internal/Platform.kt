@@ -45,6 +45,12 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
 internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
     this.constructSerializerForGivenTypeArgs()
 
+internal actual fun createCachedFactoryWrapper(factory: (KClass<*>) -> KSerializer<Any>?): CachedSerializerFactory {
+    return object : CachedSerializerFactory {
+        override fun get(key: KClass<*>, isNullable: Boolean): KSerializer<Any?>? = factory(key)?.nullable(isNullable)
+    }
+}
+
 internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E> {
     val result = arrayOfAnyNulls<E>(size)
     var index = 0

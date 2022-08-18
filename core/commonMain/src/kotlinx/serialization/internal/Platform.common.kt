@@ -130,6 +130,12 @@ internal expect fun BooleanArray.getChecked(index: Int): Boolean
 
 internal expect fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>?
 
+/**
+ * Create caching wrapping over non-parametrized serializer factory.
+ * The activity and type of cache is determined for a specific platform and a specific environment.
+ */
+internal expect fun createCachedFactoryWrapper(factory: (KClass<*>) -> KSerializer<Any>?): CachedSerializerFactory
+
 internal expect fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E>
 
 /**
@@ -144,4 +150,11 @@ internal expect fun Any.isInstanceOf(kclass: KClass<*>): Boolean
 
 internal inline fun <T, K> Iterable<T>.elementsHashCodeBy(selector: (T) -> K): Int {
     return fold(1) { hash, element -> 31 * hash + selector(element).hashCode() }
+}
+
+/**
+ * Wrapper over non-parametrized serializer factory.
+ */
+internal interface CachedSerializerFactory {
+    fun get(key: KClass<*>, isNullable: Boolean): KSerializer<Any?>?
 }
