@@ -14,11 +14,13 @@ import kotlinx.serialization.builtins.TripleSerializer
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
+import kotlin.native.concurrent.SharedImmutable
 import kotlin.reflect.*
 
 /**
  * A wrapper for a factory of serializers of non-parameterized types that can cache them.
  */
+@SharedImmutable
 private val CACHED_SERIALIZER_FACTORY = createCachedFactoryWrapper { it.serializerOrNull()?.cast() }
 
 /**
