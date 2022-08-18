@@ -1,3 +1,13 @@
+1.4.0 / 2022-08-18
+==================
+
+This release contains all features and bugfixes from 1.4.0-RC plus some bugfixes on its own (see below).
+Kotlin 1.7.10 is used as a default.
+
+### Bugfixes
+  * Fixed decoding of huge JSON data for okio streams (#2006)
+
+
 1.4.0-RC / 2022-07-20
 ==================
 
