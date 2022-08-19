@@ -38,6 +38,13 @@ subprojects {
                     suppress.set(true)
                 }
 
+                // Internal JSON API
+                perPackageOption {
+                    matchingRegex.set("kotlinx\\.serialization.json.internal(\$|\\.).*")
+                    suppress.set(true)
+                    reportUndocumented.set(false)
+                }
+
                 // Workaround for typealias
                 perPackageOption {
                     matchingRegex.set("kotlinx\\.serialization.protobuf.internal(\$|\\.).*")
