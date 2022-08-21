@@ -306,9 +306,7 @@ internal abstract class AbstractJsonLexer {
      */
     abstract fun consumeKeyString(): String
 
-    open fun consumeStringChunked(consumeChunk: (stringChunk: String) -> Unit) {
-        consumeChunk(consumeString())
-    }
+    abstract fun consumeStringChunked(consumeChunk: (stringChunk: String) -> Unit)
 
     fun consumeString(): String {
         if (peekedString != null) {

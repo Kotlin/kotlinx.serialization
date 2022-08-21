@@ -4,15 +4,23 @@
 
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.*
-import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.encoding.*
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.MissingFieldException
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.AbstractDecoder
+import kotlinx.serialization.encoding.ChunkedDecoder
+import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.DECODE_DONE
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
-import kotlinx.serialization.internal.*
-import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.*
-import kotlin.jvm.*
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.internal.AbstractPolymorphicSerializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.modules.SerializersModule
+import kotlin.jvm.JvmField
 
 /**
  * [JsonDecoder] which reads given JSON from [AbstractJsonLexer] field by field.
@@ -24,7 +32,7 @@ internal open class StreamingJsonDecoder(
     @JvmField internal val lexer: AbstractJsonLexer,
     descriptor: SerialDescriptor,
     discriminatorHolder: DiscriminatorHolder?
-) : JsonDecoder, AbstractDecoder() {
+) : JsonDecoder, ChunkedDecoder, AbstractDecoder() {
 
     // A mutable reference to the discriminator that have to be skipped when in optimistic phase
     // of polymorphic serialization, see `decodeSerializableValue`
