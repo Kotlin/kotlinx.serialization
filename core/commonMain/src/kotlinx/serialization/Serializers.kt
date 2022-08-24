@@ -209,7 +209,6 @@ private fun KClass<Any>.compiledParametrizedSerializer(serializers: List<KSerial
     return constructSerializerForGivenTypeArgs(*serializers.toTypedArray())
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 private fun KClass<Any>.builtinParametrizedSerializer(
     typeArguments: List<KType>,
     serializers: List<KSerializer<Any?>>,
