@@ -20,9 +20,19 @@ internal actual fun BooleanArray.getChecked(index: Int): Boolean {
 internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
     this.constructSerializerForGivenTypeArgs() ?: this.js.asDynamic().Companion?.serializer() as? KSerializer<T>
 
-internal actual fun createCachedFactoryWrapper(factory: (KClass<*>) -> KSerializer<Any>?): CachedSerializerFactory {
-    return object : CachedSerializerFactory {
-        override fun get(key: KClass<*>, isNullable: Boolean): KSerializer<Any?>? = factory(key)?.nullable(isNullable)
+internal actual fun createCache(factory: (KClass<*>) -> KSerializer<Any>?): SerializerCache {
+    return object: SerializerCache {
+        override fun get(key: KClass<Any>, isNullable: Boolean): KSerializer<Any?>? {
+            return factory(key)?.nullable(isNullable)
+        }
+    }
+}
+
+internal actual fun createParametrizedCache(factory: (KClass<Any>, List<KType>) -> KSerializer<Any>?): ParametrizedSerializerCache {
+    return object: ParametrizedSerializerCache {
+        override fun get(key: KClass<Any>, isNullable: Boolean, types: List<KType>): Result<KSerializer<Any?>?> {
+            return kotlin.runCatching { factory(key, types)?.nullable(isNullable) }
+        }
     }
 }
 

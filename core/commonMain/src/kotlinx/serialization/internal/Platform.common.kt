@@ -131,10 +131,16 @@ internal expect fun BooleanArray.getChecked(index: Int): Boolean
 internal expect fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>?
 
 /**
- * Create caching wrapping over non-parametrized serializer factory.
+ * Create serializers cache for non-parametrized and non-contextual serializers.
  * The activity and type of cache is determined for a specific platform and a specific environment.
  */
-internal expect fun createCachedFactoryWrapper(factory: (KClass<*>) -> KSerializer<Any>?): CachedSerializerFactory
+internal expect fun createCache(factory: (KClass<*>) -> KSerializer<Any>?): SerializerCache
+
+/**
+ * Create serializers cache for parametrized and non-contextual serializers. Parameters also non-contextual.
+ * The activity and type of cache is determined for a specific platform and a specific environment.
+ */
+internal expect fun createParametrizedCache(factory: (KClass<Any>, List<KType>) -> KSerializer<Any>?): ParametrizedSerializerCache
 
 internal expect fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E>
 
@@ -153,8 +159,22 @@ internal inline fun <T, K> Iterable<T>.elementsHashCodeBy(selector: (T) -> K): I
 }
 
 /**
- * Wrapper over non-parametrized serializer factory.
+ * Cache class for non-parametrized and non-contextual serializers.
  */
-internal interface CachedSerializerFactory {
-    fun get(key: KClass<*>, isNullable: Boolean): KSerializer<Any?>?
+internal interface SerializerCache {
+    /**
+     * Returns cached serializer or `null` if serializer not found.
+     */
+    fun get(key: KClass<Any>, isNullable: Boolean): KSerializer<Any?>?
+}
+
+/**
+ * Cache class for parametrized and non-contextual serializers.
+ */
+internal interface ParametrizedSerializerCache {
+    /**
+     * Returns successful result with cached serializer or `null` if root serializer not found.
+     * If no serializer was found for the parameters, then result contains an exception.
+     */
+    fun get(key: KClass<Any>, isNullable: Boolean, types: List<KType> = emptyList()): Result<KSerializer<Any?>?>
 }
