@@ -28,7 +28,7 @@ private val SERIALIZERS_CACHE = createCache { it.serializerOrNull()?.cast() }
  */
 @SharedImmutable
 private val PARAMETRIZED_SERIALIZERS_CACHE = createParametrizedCache { clazz, types ->
-    val serializers = null.serializersForParameters(types, true)!!
+    val serializers = EmptySerializersModule().serializersForParameters(types, true)!!
     clazz.parametrizedSerializerOrNull(types, serializers)?.cast()
 }
 
@@ -71,7 +71,9 @@ public fun serializerOrNull(type: KType): KSerializer<Any?>? = EmptySerializersM
  * @throws SerializationException if serializer cannot be created (provided [type] or its type argument is not serializable and is not registered in [this] module).
  */
 @OptIn(ExperimentalSerializationApi::class)
-public fun SerializersModule.serializer(type: KType): KSerializer<Any?> = serializerCommon(type)
+public fun SerializersModule.serializer(type: KType): KSerializer<Any?> =
+    serializerByKTypeImpl(type, failOnMissingTypeArgSerializer = true) ?: type.kclass()
+        .platformSpecificSerializerNotRegistered()
 
 /**
  * Attempts to create a serializer for the given [type] and fallbacks to [contextual][SerializersModule.getContextual]
@@ -80,20 +82,12 @@ public fun SerializersModule.serializer(type: KType): KSerializer<Any?> = serial
  * Returns `null` if serializer cannot be created (provided [type] or its type argument is not serializable and is not registered in [this] module).
  */
 @OptIn(ExperimentalSerializationApi::class)
-public fun SerializersModule.serializerOrNull(type: KType): KSerializer<Any?>? = serializerOrNullCommon(type)
-
-
-private fun SerializersModule?.serializerCommon(type: KType): KSerializer<Any?> =
-    serializerByKTypeImpl(type, failOnMissingTypeArgSerializer = true) ?: type.kclass()
-        .platformSpecificSerializerNotRegistered()
-
-private fun SerializersModule?.serializerOrNullCommon(type: KType): KSerializer<Any?>? {
-    return serializerByKTypeImpl(type, failOnMissingTypeArgSerializer = false)
-}
+public fun SerializersModule.serializerOrNull(type: KType): KSerializer<Any?>? =
+    serializerByKTypeImpl(type, failOnMissingTypeArgSerializer = false)
 
 // the `this` is empty if there is no need to search for a contextual serializer
 @OptIn(ExperimentalSerializationApi::class)
-private fun SerializersModule?.serializerByKTypeImpl(
+private fun SerializersModule.serializerByKTypeImpl(
     type: KType,
     failOnMissingTypeArgSerializer: Boolean
 ): KSerializer<Any?>? {
@@ -116,11 +110,11 @@ private fun SerializersModule?.serializerByKTypeImpl(
 
     // slow path to find contextual serializers in serializers module
     val contextualSerializer: KSerializer<out Any?>? = if (typeArguments.isEmpty()) {
-        this?.getContextual(rootClass)
+        getContextual(rootClass)
     } else {
         val serializers = serializersForParameters(typeArguments, failOnMissingTypeArgSerializer) ?: return null
         // first, we look among the built-in serializers, because the parameter could be contextual
-        rootClass.parametrizedSerializerOrNull(typeArguments, serializers) ?: this?.getContextual(
+        rootClass.parametrizedSerializerOrNull(typeArguments, serializers) ?: getContextual(
             rootClass,
             serializers
         )
@@ -131,20 +125,17 @@ private fun SerializersModule?.serializerByKTypeImpl(
 /**
  * Returns null only if `failOnMissingTypeArgSerializer == false` and at least one parameter serializer not found.
  */
-private fun SerializersModule?.serializersForParameters(
+private fun SerializersModule.serializersForParameters(
     typeArguments: List<KType>,
     failOnMissingTypeArgSerializer: Boolean
 ): List<KSerializer<Any?>>? {
     val serializers = if (failOnMissingTypeArgSerializer) {
-        typeArguments.map { this.serializerCommon(it) }
+        typeArguments.map { serializer(it) }
     } else {
-        typeArguments.map { this.serializerOrNullCommon(it) ?: return null }
+        typeArguments.map { serializerOrNull(it) ?: return null }
     }
     return serializers
 }
-
-
-
 
 /**
  * Retrieves a [KSerializer] for the given [KClass].
