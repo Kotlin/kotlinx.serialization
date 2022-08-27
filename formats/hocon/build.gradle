@@ -19,7 +19,7 @@ java {
 
 
 dependencies {
-    implementation project(':kotlinx-serialization-core')
+    api project(':kotlinx-serialization-core')
     api 'org.jetbrains.kotlin:kotlin-stdlib'
 
     api 'com.typesafe:config:1.4.1'
