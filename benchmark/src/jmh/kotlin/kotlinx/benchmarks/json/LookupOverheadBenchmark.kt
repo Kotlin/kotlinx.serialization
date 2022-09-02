@@ -24,7 +24,15 @@ open class LookupOverheadBenchmark {
     @Serializable
     class Generic<T>(val a: T)
 
+    @Serializable
+    class DoubleGeneric<T1, T2>(val a: T1, val b: T2)
+
+    @Serializable
+    class PentaGeneric<T1, T2, T3, T4, T5>(val a: T1, val b: T2, val c: T3, val d: T4, val e: T5)
+
     private val data = """{"a":""}"""
+    private val doubleData = """{"a":"","b":0}"""
+    private val pentaData = """{"a":"","b":0,"c":1,"d":true,"e":" "}"""
 
     @Serializable
     object Object
@@ -40,6 +48,18 @@ open class LookupOverheadBenchmark {
 
     @Benchmark
     fun genericPlain() = Json.decodeFromString(Generic.serializer(String.serializer()), data)
+
+    @Benchmark
+    fun doubleGenericReified() = Json.decodeFromString<DoubleGeneric<String, Int>>(doubleData)
+
+    @Benchmark
+    fun doubleGenericPlain() = Json.decodeFromString(DoubleGeneric.serializer(String.serializer(), Int.serializer()), doubleData)
+
+    @Benchmark
+    fun pentaGenericReified() = Json.decodeFromString<PentaGeneric<String, Int, Long, Boolean, Char>>(pentaData)
+
+    @Benchmark
+    fun pentaGenericPlain() = Json.decodeFromString(PentaGeneric.serializer(String.serializer(), Int.serializer(), Long.serializer(), Boolean.serializer(), Char.serializer()), pentaData)
 
     @Benchmark
     fun objectReified() = Json.decodeFromString<Object>("{}")

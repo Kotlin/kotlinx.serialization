@@ -5,7 +5,6 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.builtins.nullable
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -25,7 +24,7 @@ private val useClassValue = runCatching {
  *
  * `null` values are not supported, though there aren't any technical limitations.
  */
-internal actual fun createCache(factory: (KClass<*>) -> KSerializer<Any>?): SerializerCache {
+internal actual fun <T> createCache(factory: (KClass<*>) -> KSerializer<T>?): SerializerCache<T> {
     return if (useClassValue) ClassValueCache(factory) else ConcurrentHashMapCache(factory)
 }
 
@@ -35,39 +34,43 @@ internal actual fun createCache(factory: (KClass<*>) -> KSerializer<Any>?): Seri
  *
  * `null` values are not supported, though there aren't any technical limitations.
  */
-internal actual fun createParametrizedCache(factory: (KClass<Any>, List<KType>) -> KSerializer<Any>?): ParametrizedSerializerCache {
+internal actual fun <T> createParametrizedCache(factory: (KClass<Any>, List<KType>) -> KSerializer<T>?): ParametrizedSerializerCache<T> {
     return if (useClassValue) ClassValueParametrizedCache(factory) else ConcurrentHashMapParametrizedCache(factory)
 }
 
 @SuppressAnimalSniffer
-private class ClassValueCache(private val compute: (KClass<*>) -> KSerializer<Any>?) : SerializerCache {
+private class ClassValueCache<T>(private val compute: (KClass<*>) -> KSerializer<T>?) : SerializerCache<T> {
     private val classValue = initClassValue()
 
-    private fun initClassValue() = object : ClassValue<CacheEntry>() {
-        override fun computeValue(type: Class<*>): CacheEntry {
-            val pair = SerializerPair.from(compute(type.kotlin))
-            return CacheEntry(pair)
+    private fun initClassValue() = object : ClassValue<CacheEntry<T>>() {
+        /*
+         * Since during the computing of the value for the `ClassValue` entry, we do not know whether a nullable
+         *  serializer is needed, so we may need to differentiate nullable/non-null  caches by a level higher
+         */
+        override fun computeValue(type: Class<*>): CacheEntry<T> {
+            return CacheEntry(compute(type.kotlin))
         }
     }
 
-    override fun get(key: KClass<Any>, isNullable: Boolean): KSerializer<Any?>? =
-        classValue[key.java].serializers?.get(isNullable)
+    override fun get(key: KClass<Any>): KSerializer<T>? = classValue[key.java].serializer
 }
 
 @SuppressAnimalSniffer
-private class ClassValueParametrizedCache(private val compute: (KClass<Any>, List<KType>) -> KSerializer<Any>?) : ParametrizedSerializerCache {
+private class ClassValueParametrizedCache<T>(private val compute: (KClass<Any>, List<KType>) -> KSerializer<T>?) : ParametrizedSerializerCache<T> {
     private val classValue = initClassValue()
 
-    private fun initClassValue() = object : ClassValue<ParametrizedCacheEntry>() {
-        override fun computeValue(type: Class<*>): ParametrizedCacheEntry {
+    private fun initClassValue() = object : ClassValue<ParametrizedCacheEntry<T>>() {
+        /*
+        * Since during the computing of the value for the `ClassValue` entry, we do not know whether a nullable
+        *  serializer is needed, so we may need to differentiate nullable/non-null  caches by a level higher
+        */
+        override fun computeValue(type: Class<*>): ParametrizedCacheEntry<T> {
             return ParametrizedCacheEntry()
         }
     }
 
-    override fun get(key: KClass<Any>, isNullable: Boolean, types: List<KType>): Result<KSerializer<Any?>?> =
-        classValue[key.java]
-            .computeIfAbsent(types) { compute(key, types) }
-            .map { it?.get(isNullable) }
+    override fun get(key: KClass<Any>, types: List<KType>): Result<KSerializer<T>?> =
+        classValue[key.java].computeIfAbsent(types) { compute(key, types) }
 }
 
 /**
@@ -75,49 +78,34 @@ private class ClassValueParametrizedCache(private val compute: (KClass<Any>, Lis
  * are no classloader leaks issue, thus we can safely use strong references and do not bother
  * with WeakReference wrapping.
  */
-private class ConcurrentHashMapCache(private val compute: (KClass<*>) -> KSerializer<Any>?) : SerializerCache {
-    private val cache = ConcurrentHashMap<Class<*>, CacheEntry>()
+private class ConcurrentHashMapCache<T>(private val compute: (KClass<*>) -> KSerializer<T>?) : SerializerCache<T> {
+    private val cache = ConcurrentHashMap<Class<*>, CacheEntry<T>>()
 
-    override fun get(key: KClass<Any>, isNullable: Boolean): KSerializer<Any?>? {
+    override fun get(key: KClass<Any>): KSerializer<T>? {
         return cache.getOrPut(key.java) {
-            CacheEntry(SerializerPair.from(compute(key)))
-        }.serializers?.get(isNullable)
+            CacheEntry(compute(key))
+        }.serializer
     }
 }
 
 
 
-private class ConcurrentHashMapParametrizedCache(private val compute: (KClass<Any>, List<KType>) -> KSerializer<Any>?) : ParametrizedSerializerCache {
-    private val cache = ConcurrentHashMap<Class<*>, ParametrizedCacheEntry>()
+private class ConcurrentHashMapParametrizedCache<T>(private val compute: (KClass<Any>, List<KType>) -> KSerializer<T>?) : ParametrizedSerializerCache<T> {
+    private val cache = ConcurrentHashMap<Class<*>, ParametrizedCacheEntry<T>>()
 
-    override fun get(key: KClass<Any>, isNullable: Boolean, types: List<KType>): Result<KSerializer<Any?>?> {
+    override fun get(key: KClass<Any>, types: List<KType>): Result<KSerializer<T>?> {
         return cache.getOrPut(key.java) { ParametrizedCacheEntry() }
             .computeIfAbsent(types) { compute(key, types) }
-            .map { it?.get(isNullable) }
     }
 }
 
+private class CacheEntry<T>(@JvmField val serializer: KSerializer<T>?)
 
-
-private class SerializerPair(private val nonNull: KSerializer<out Any>, private val nullable: KSerializer<out Any?>) {
-    fun get(isNullable: Boolean): KSerializer<Any?> {
-        return (if (isNullable) nullable else nonNull).cast()
-    }
-
-    companion object {
-        fun from(serializer: KSerializer<out Any>?): SerializerPair? {
-            return serializer?.let { SerializerPair(it, it.nullable) }
-        }
-    }
-}
-
-private class CacheEntry(@JvmField val serializers: SerializerPair?)
-
-private class ParametrizedCacheEntry {
-    private val serializers: ConcurrentHashMap<List<KType>, Result<SerializerPair?>> = ConcurrentHashMap()
-    inline fun computeIfAbsent(types: List<KType>, producer: () -> KSerializer<out Any>?): Result<SerializerPair?> {
+private class ParametrizedCacheEntry<T> {
+    private val serializers: ConcurrentHashMap<List<KType>, Result<KSerializer<T>?>> = ConcurrentHashMap()
+    inline fun computeIfAbsent(types: List<KType>, producer: () -> KSerializer<T>?): Result<KSerializer<T>?> {
         return serializers.getOrPut(types) {
-            kotlin.runCatching { SerializerPair.from(producer()) }
+            kotlin.runCatching { producer() }
         }
     }
 }

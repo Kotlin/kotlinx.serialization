@@ -14,23 +14,7 @@ import kotlinx.serialization.builtins.TripleSerializer
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
-import kotlin.native.concurrent.SharedImmutable
 import kotlin.reflect.*
-
-/**
- * Cache class for non-parametrized and non-contextual serializers.
- */
-@SharedImmutable
-private val SERIALIZERS_CACHE = createCache { it.serializerOrNull()?.cast() }
-
-/**
- * Cache class for parametrized and non-contextual serializers.
- */
-@SharedImmutable
-private val PARAMETRIZED_SERIALIZERS_CACHE = createParametrizedCache { clazz, types ->
-    val serializers = EmptySerializersModule().serializersForParameters(types, true)!!
-    clazz.parametrizedSerializerOrNull(types, serializers)?.cast()
-}
 
 /**
  * Retrieves a serializer for the given type [T].
@@ -85,7 +69,6 @@ public fun SerializersModule.serializer(type: KType): KSerializer<Any?> =
 public fun SerializersModule.serializerOrNull(type: KType): KSerializer<Any?>? =
     serializerByKTypeImpl(type, failOnMissingTypeArgSerializer = false)
 
-// the `this` is empty if there is no need to search for a contextual serializer
 @OptIn(ExperimentalSerializationApi::class)
 private fun SerializersModule.serializerByKTypeImpl(
     type: KType,
@@ -97,13 +80,14 @@ private fun SerializersModule.serializerByKTypeImpl(
         .map { requireNotNull(it.type) { "Star projections in type arguments are not allowed, but had $type" } }
 
     val cachedSerializer = if (typeArguments.isEmpty()) {
-        SERIALIZERS_CACHE.get(rootClass, isNullable)
+        findCachedSerializer(rootClass, isNullable)
     } else {
+        val cachedResult = findParametrizedCachedSerializer(rootClass, typeArguments, isNullable)
         if (failOnMissingTypeArgSerializer) {
-            PARAMETRIZED_SERIALIZERS_CACHE.get(rootClass, isNullable, typeArguments).getOrNull()
+            cachedResult.getOrNull()
         } else {
             // return null if error occurred - serializer for parameter(s) was not found
-            PARAMETRIZED_SERIALIZERS_CACHE.get(rootClass, isNullable, typeArguments).getOrElse { return null }
+            cachedResult.getOrElse { return null }
         }
     }
     cachedSerializer?.let { return it }
@@ -125,7 +109,7 @@ private fun SerializersModule.serializerByKTypeImpl(
 /**
  * Returns null only if `failOnMissingTypeArgSerializer == false` and at least one parameter serializer not found.
  */
-private fun SerializersModule.serializersForParameters(
+internal fun SerializersModule.serializersForParameters(
     typeArguments: List<KType>,
     failOnMissingTypeArgSerializer: Boolean
 ): List<KSerializer<Any?>>? {
@@ -187,7 +171,7 @@ public fun <T : Any> KClass<T>.serializer(): KSerializer<T> = serializerOrNull()
 public fun <T : Any> KClass<T>.serializerOrNull(): KSerializer<T>? =
     compiledSerializerImpl() ?: builtinSerializerOrNull()
 
-private fun KClass<Any>.parametrizedSerializerOrNull(
+internal fun KClass<Any>.parametrizedSerializerOrNull(
     types: List<KType>,
     serializers: List<KSerializer<Any?>>
 ): KSerializer<out Any>? {
@@ -220,15 +204,15 @@ private fun KClass<Any>.builtinParametrizedSerializer(
         Triple::class -> TripleSerializer(serializers[0], serializers[1], serializers[2])
         else -> {
             if (isReferenceArray(this)) {
-                return ArraySerializer(typeArguments[0].classifier as KClass<Any>, serializers[0])
+                ArraySerializer(typeArguments[0].classifier as KClass<Any>, serializers[0])
             } else {
-                return null
+                null
             }
         }
     }
 }
 
-internal fun <T : Any> KSerializer<T>.nullable(shouldBeNullable: Boolean): KSerializer<T?> {
+private fun <T : Any> KSerializer<T>.nullable(shouldBeNullable: Boolean): KSerializer<T?> {
     if (shouldBeNullable) return nullable
     return this as KSerializer<T?>
 }

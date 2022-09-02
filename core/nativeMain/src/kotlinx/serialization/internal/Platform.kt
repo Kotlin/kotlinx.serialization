@@ -46,18 +46,18 @@ internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>
     this.constructSerializerForGivenTypeArgs()
 
 
-internal actual fun createCache(factory: (KClass<*>) -> KSerializer<Any>?): SerializerCache {
-    return object: SerializerCache {
-        override fun get(key: KClass<Any>, isNullable: Boolean): KSerializer<Any?>? {
-            return factory(key)?.nullable(isNullable)
+internal actual fun <T> createCache(factory: (KClass<*>) -> KSerializer<T>?): SerializerCache<T> {
+    return object: SerializerCache<T> {
+        override fun get(key: KClass<Any>): KSerializer<T>? {
+            return factory(key)
         }
     }
 }
 
-internal actual fun createParametrizedCache(factory: (KClass<Any>, List<KType>) -> KSerializer<Any>?): ParametrizedSerializerCache {
-    return object: ParametrizedSerializerCache {
-        override fun get(key: KClass<Any>, isNullable: Boolean, types: List<KType>): Result<KSerializer<Any?>?> {
-            return kotlin.runCatching { factory(key, types)?.nullable(isNullable) }
+internal actual fun <T> createParametrizedCache(factory: (KClass<Any>, List<KType>) -> KSerializer<T>?): ParametrizedSerializerCache<T> {
+    return object: ParametrizedSerializerCache<T> {
+        override fun get(key: KClass<Any>, types: List<KType>): Result<KSerializer<T>?> {
+            return kotlin.runCatching { factory(key, types) }
         }
     }
 }
