@@ -80,7 +80,7 @@ private fun SerializersModule.serializerByKTypeImpl(
     val typeArguments = type.arguments
         .map { requireNotNull(it.type) { "Star projections in type arguments are not allowed, but had $type" } }
     val result: KSerializer<Any>? = when {
-        typeArguments.isEmpty() -> rootClass.serializerOrNull() ?: getContextual(rootClass)
+        typeArguments.isEmpty() -> getContextual(rootClass) ?: rootClass.serializerOrNull()
         else -> builtinSerializer(typeArguments, rootClass, failOnMissingTypeArgSerializer)
     }?.cast()
     return result?.nullable(isNullable)

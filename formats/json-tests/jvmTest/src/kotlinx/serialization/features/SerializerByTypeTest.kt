@@ -238,25 +238,6 @@ class SerializerByTypeTest {
         assertEquals("[[42]]", Json.encodeToString(serializer, listOf(listOf(IntBox(1)))))
     }
 
-    @Test
-    fun testCompiledWinsOverContextual() {
-        val contextual = object : KSerializer<Int> {
-            override val descriptor: SerialDescriptor = Int.serializer().descriptor
-
-            override fun serialize(encoder: Encoder, value: Int) {
-                fail()
-            }
-
-            override fun deserialize(decoder: Decoder): Int {
-                fail()
-            }
-        }
-        val module = SerializersModule { contextual(contextual) }
-        val serializer = module.serializer(typeTokenOf<List<List<Int>>>())
-        assertEquals("[[1]]", Json.encodeToString(serializer, listOf(listOf<Int>(1))))
-        assertEquals("42", Json.encodeToString(module.serializer(typeTokenOf<Int>()), 42))
-    }
-
     class NonSerializable
 
     class NonSerializableBox<T>(val boxed: T)
