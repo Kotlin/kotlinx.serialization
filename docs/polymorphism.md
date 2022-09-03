@@ -41,11 +41,11 @@ Let us start with basic introduction to polymorphism.
 
 ### Static types
 
-Kotlin serialization is fully static with respect to types by default. The structure of encoded objects is determined 
+Kotlin Serialization is fully static with respect to types by default. The structure of encoded objects is determined 
 by *compile-time* types of objects. Let's examine this aspect in more detail and learn how
 to serialize polymorphic data structures, where the type of data is determined at runtime.
 
-To show the static nature of Kotlin serialization let us make the following setup. An `open class Project`
+To show the static nature of Kotlin Serialization let us make the following setup. An `open class Project`
 has just the `name` property, while its derived `class OwnedProject` adds an `owner` property.
 In the below example, we serialize `data` variable with a static type of
 `Project` that is initialized with an instance of `OwnedProject` at runtime.
@@ -194,7 +194,7 @@ discriminator property is not emitted into the resulting JSON.
 
 <!--- TEST -->
 
-In general, Kotlin serialization is designed to work correctly only when the compile-time type used during serialization 
+In general, Kotlin Serialization is designed to work correctly only when the compile-time type used during serialization 
 is the same one as the compile-time type used during deserialization. You can always specify the type explicitly 
 when calling serialization functions. The previous example can be corrected to use `Project` type for serialization
 by calling `Json.encodeToString<Project>(data)`.
@@ -592,7 +592,7 @@ With the explicit serializer it works as before.
 ### Explicitly marking polymorphic class properties
 
 The property of an interface type is implicitly considered polymorphic, since interfaces are all about runtime polymorphism. 
-However, Kotlin serialization does not compile a serializable class with a property of a non-serializable class type. 
+However, Kotlin Serialization does not compile a serializable class with a property of a non-serializable class type. 
 If we have a property of `Any` class or other non-serializable class, then we must explicitly provide its serialization 
 strategy via the [`@Serializable`][Serializable] annotation as we saw in 
 the [Specifying serializer on a property](serializers.md#specifying-serializer-on-a-property) section. 
@@ -708,7 +708,7 @@ abstract class Response<out T>
 data class OkResponse<out T>(val data: T) : Response<T>()
 ```
  
-Kotlin serialization does not have a builtin strategy to represent the actually provided argument type for the
+Kotlin Serialization does not have a builtin strategy to represent the actually provided argument type for the
 type parameter `T` when serializing a property of the polymorphic type `OkResponse<T>`. We have to provide this 
 strategy explicitly when defining the serializers module for the `Response`. In the below example we
 use `OkResponse.serializer(...)` to retrieve 
