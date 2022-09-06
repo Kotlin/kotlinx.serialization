@@ -75,7 +75,8 @@ class SerializersLookupObjectTest {
     }
 
     @Test
-    fun testEnumPolymorphic() {
+    @Ignore // @Polymorphic object doesn't make sense and is not supported in intrinsics
+    fun testObjectPolymorphic() {
         if (isJvm()) {
             assertEquals(
                 PolymorphicSerializer(ObjectPolymorphic::class).descriptor,

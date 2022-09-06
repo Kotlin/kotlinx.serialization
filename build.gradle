@@ -14,13 +14,15 @@ buildscript {
     }
     ext.experimentalsEnabled = ["-progressive", "-opt-in=kotlin.Experimental",
                                 "-opt-in=kotlin.ExperimentalMultiplatform",
-                                "-opt-in=kotlinx.serialization.InternalSerializationApi"
+                                "-opt-in=kotlinx.serialization.InternalSerializationApi",
+                                "-P", "plugin:org.jetbrains.kotlinx.serialization:disableIntrinsic=false"
     ]
 
     ext.experimentalsInTestEnabled = ["-progressive", "-opt-in=kotlin.Experimental",
                                       "-opt-in=kotlin.ExperimentalMultiplatform",
                                       "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
-                                      "-opt-in=kotlinx.serialization.InternalSerializationApi"
+                                      "-opt-in=kotlinx.serialization.InternalSerializationApi",
+                                      "-P", "plugin:org.jetbrains.kotlinx.serialization:disableIntrinsic=false"
     ]
     ext.koverEnabled = property('kover.enabled') ?: true
 

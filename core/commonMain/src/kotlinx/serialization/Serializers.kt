@@ -216,3 +216,35 @@ private fun <T : Any> KSerializer<T>.nullable(shouldBeNullable: Boolean): KSeria
     if (shouldBeNullable) return nullable
     return this as KSerializer<T?>
 }
+
+
+/**
+ * Overloads of [noCompiledSerializer] should never be called directly.
+ * Instead, compiler inserts calls to them when intrinsifying [serializer] function.
+ *
+ * If no serializer has been found in compile time, call to [noCompiledSerializer] inserted instead.
+ */
+@Suppress("unused")
+@PublishedApi
+internal fun noCompiledSerializer(forClass: String): KSerializer<*> {
+    throw SerializationException(
+        "Cannot find serializer for class $forClass.\n" +
+                "Make sure that this class marked with @Serializable annotation," +
+                "or provide serializer explicitly, or use proper SerializersModule"
+    )
+}
+
+// Used when compiler intrinsic is inserted
+@OptIn(ExperimentalSerializationApi::class)
+@Suppress("unused")
+@PublishedApi
+internal fun noCompiledSerializer(module: SerializersModule, kClass: KClass<*>): KSerializer<*> {
+    return module.getContextual(kClass) ?: kClass.serializerNotRegistered()
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+@Suppress("unused")
+@PublishedApi
+internal fun noCompiledSerializer(module: SerializersModule, kClass: KClass<*>, argSerializers: Array<KSerializer<*>>): KSerializer<*> {
+    return module.getContextual(kClass, argSerializers.asList()) ?: kClass.serializerNotRegistered()
+}

@@ -74,6 +74,7 @@ class SerializersLookupEnumTest {
     }
 
     @Test
+    @Ignore // @Polymorphic enum doesn't make sense and is not supported in intrinsics
     fun testEnumPolymorphic() {
         if (isJvm()) {
             assertEquals(

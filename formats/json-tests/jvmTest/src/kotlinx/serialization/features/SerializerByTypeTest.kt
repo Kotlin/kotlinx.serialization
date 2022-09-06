@@ -15,6 +15,7 @@ import org.junit.Test
 import java.lang.reflect.*
 import kotlin.reflect.*
 import kotlin.test.*
+import kotlin.time.*
 
 class SerializerByTypeTest {
 
@@ -282,5 +283,20 @@ class SerializerByTypeTest {
         assertFailsWithMessage<SerializationException>("for class 'NonSerializable'") {
             serializer(typeTokenOf<Array<NonSerializable>>())
         }
+    }
+
+    @OptIn(ExperimentalTime::class)
+    @Test
+    @Ignore // TODO: Unignore after 1.8.0 update
+    fun testSerializersAreIntrinsified() {
+        val direct = measureTime {
+            Json.encodeToString(IntData.serializer(), IntData(10))
+        }
+        val directMs = direct.inWholeMicroseconds
+        val indirect = measureTime {
+            Json.encodeToString(IntData(10))
+        }
+        val indirectMs = indirect.inWholeMicroseconds
+        if (indirectMs > directMs + (directMs / 4)) error("Direct ($directMs) and indirect ($indirectMs) times are too far apart")
     }
 }

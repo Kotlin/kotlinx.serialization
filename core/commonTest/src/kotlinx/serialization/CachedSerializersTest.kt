@@ -4,8 +4,10 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.test.noJsLegacy
 import kotlin.test.*
+import kotlin.time.*
 
 class CachedSerializersTest {
     @Serializable
@@ -34,4 +36,22 @@ class CachedSerializersTest {
     fun testAbstractSerializersAreSame() = noJsLegacy {
         assertSame(Abstract.serializer(), Abstract.serializer())
     }
+
+
+    @OptIn(ExperimentalTime::class)
+    @Test
+    @Ignore // TODO: Unignore after 1.8.0 update
+    fun testSerializersAreIntrinsified() {
+        val m = SerializersModule {  }
+        val direct = measureTime {
+            Object.serializer()
+        }
+        val directMs = direct.inWholeMicroseconds
+        val indirect = measureTime {
+            m.serializer<Object>()
+        }
+        val indirectMs = indirect.inWholeMicroseconds
+        if (indirectMs > directMs + (directMs / 4)) error("Direct ($directMs) and indirect ($indirectMs) times are too far apart")
+    }
 }
+
