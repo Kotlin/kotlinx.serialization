@@ -61,7 +61,11 @@ internal fun <T: Any> Class<T>.constructSerializerForGivenTypeArgs(vararg args: 
     }
     if (fromNamedCompanion != null) return fromNamedCompanion
     // Check for polymorphic
-    return polymorphicSerializer()
+    return if (isPolymorphicSerializer()) {
+        PolymorphicSerializer(this.kotlin)
+    } else {
+        null
+    }
 }
 
 private fun <T: Any> Class<T>.isNotAnnotated(): Boolean {
@@ -72,19 +76,19 @@ private fun <T: Any> Class<T>.isNotAnnotated(): Boolean {
             getAnnotation(Polymorphic::class.java) == null
 }
 
-private fun <T: Any> Class<T>.polymorphicSerializer(): KSerializer<T>? {
+private fun <T: Any> Class<T>.isPolymorphicSerializer(): Boolean {
     /*
      * Last resort: check for @Polymorphic or Serializable(with = PolymorphicSerializer::class)
      * annotations.
      */
     if (getAnnotation(Polymorphic::class.java) != null) {
-        return PolymorphicSerializer(this.kotlin)
+        return true
     }
     val serializable = getAnnotation(Serializable::class.java)
     if (serializable != null && serializable.with == PolymorphicSerializer::class) {
-        return PolymorphicSerializer(this.kotlin)
+        return true
     }
-    return null
+    return false
 }
 
 private fun <T: Any> Class<T>.interfaceSerializer(): KSerializer<T>? {
@@ -125,9 +129,9 @@ private fun Class<*>.companionOrNull() =
     }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T : Any> Class<T>.createEnumSerializer(): KSerializer<T>? {
+private fun <T : Any> Class<T>.createEnumSerializer(): KSerializer<T> {
     val constants = enumConstants
-    return EnumSerializer(canonicalName, constants as Array<out Enum<*>>) as? KSerializer<T>
+    return EnumSerializer(canonicalName, constants as Array<out Enum<*>>) as KSerializer<T>
 }
 
 private fun <T : Any> Class<T>.findObjectSerializer(): KSerializer<T>? {

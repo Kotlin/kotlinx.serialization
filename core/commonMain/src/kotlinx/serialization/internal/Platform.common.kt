@@ -130,6 +130,18 @@ internal expect fun BooleanArray.getChecked(index: Int): Boolean
 
 internal expect fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>?
 
+/**
+ * Create serializers cache for non-parametrized and non-contextual serializers.
+ * The activity and type of cache is determined for a specific platform and a specific environment.
+ */
+internal expect fun <T> createCache(factory: (KClass<*>) -> KSerializer<T>?): SerializerCache<T>
+
+/**
+ * Create serializers cache for parametrized and non-contextual serializers. Parameters also non-contextual.
+ * The activity and type of cache is determined for a specific platform and a specific environment.
+ */
+internal expect fun <T> createParametrizedCache(factory: (KClass<Any>, List<KType>) -> KSerializer<T>?): ParametrizedSerializerCache<T>
+
 internal expect fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E>
 
 /**
@@ -144,4 +156,25 @@ internal expect fun Any.isInstanceOf(kclass: KClass<*>): Boolean
 
 internal inline fun <T, K> Iterable<T>.elementsHashCodeBy(selector: (T) -> K): Int {
     return fold(1) { hash, element -> 31 * hash + selector(element).hashCode() }
+}
+
+/**
+ * Cache class for non-parametrized and non-contextual serializers.
+ */
+internal interface SerializerCache<T> {
+    /**
+     * Returns cached serializer or `null` if serializer not found.
+     */
+    fun get(key: KClass<Any>): KSerializer<T>?
+}
+
+/**
+ * Cache class for parametrized and non-contextual serializers.
+ */
+internal interface ParametrizedSerializerCache<T> {
+    /**
+     * Returns successful result with cached serializer or `null` if root serializer not found.
+     * If no serializer was found for the parameters, then result contains an exception.
+     */
+    fun get(key: KClass<Any>, types: List<KType> = emptyList()): Result<KSerializer<T>?>
 }

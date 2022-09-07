@@ -66,9 +66,8 @@ public fun SerializersModule.serializer(type: KType): KSerializer<Any?> =
  * Returns `null` if serializer cannot be created (provided [type] or its type argument is not serializable and is not registered in [this] module).
  */
 @OptIn(ExperimentalSerializationApi::class)
-public fun SerializersModule.serializerOrNull(type: KType): KSerializer<Any?>? {
-    return serializerByKTypeImpl(type, failOnMissingTypeArgSerializer = false)
-}
+public fun SerializersModule.serializerOrNull(type: KType): KSerializer<Any?>? =
+    serializerByKTypeImpl(type, failOnMissingTypeArgSerializer = false)
 
 @OptIn(ExperimentalSerializationApi::class)
 private fun SerializersModule.serializerByKTypeImpl(
@@ -79,54 +78,47 @@ private fun SerializersModule.serializerByKTypeImpl(
     val isNullable = type.isMarkedNullable
     val typeArguments = type.arguments
         .map { requireNotNull(it.type) { "Star projections in type arguments are not allowed, but had $type" } }
-    val result: KSerializer<Any>? = when {
-        typeArguments.isEmpty() -> rootClass.serializerOrNull() ?: getContextual(rootClass)
-        else -> builtinSerializer(typeArguments, rootClass, failOnMissingTypeArgSerializer)
-    }?.cast()
-    return result?.nullable(isNullable)
-}
 
-@OptIn(ExperimentalSerializationApi::class)
-private fun SerializersModule.builtinSerializer(
-    typeArguments: List<KType>,
-    rootClass: KClass<Any>,
-    failOnMissingTypeArgSerializer: Boolean
-): KSerializer<out Any>? {
-    val serializers = if (failOnMissingTypeArgSerializer)
-        typeArguments.map(::serializer)
-    else {
-        typeArguments.map { serializerOrNull(it) ?: return null }
-    }
-    // Array is not supported, see KT-32839
-    return when (rootClass) {
-        Collection::class, List::class, MutableList::class, ArrayList::class -> ArrayListSerializer(serializers[0])
-        HashSet::class -> HashSetSerializer(serializers[0])
-        Set::class, MutableSet::class, LinkedHashSet::class -> LinkedHashSetSerializer(serializers[0])
-        HashMap::class -> HashMapSerializer(serializers[0], serializers[1])
-        Map::class, MutableMap::class, LinkedHashMap::class -> LinkedHashMapSerializer(
-            serializers[0],
-            serializers[1]
-        )
-        Map.Entry::class -> MapEntrySerializer(serializers[0], serializers[1])
-        Pair::class -> PairSerializer(serializers[0], serializers[1])
-        Triple::class -> TripleSerializer(serializers[0], serializers[1], serializers[2])
-        else -> {
-            if (isReferenceArray(rootClass)) {
-                return ArraySerializer<Any, Any?>(typeArguments[0].classifier as KClass<Any>, serializers[0]).cast()
-            }
-            val args = serializers.toTypedArray()
-            rootClass.constructSerializerForGivenTypeArgs(*args)
-                ?: reflectiveOrContextual(rootClass, serializers)
+    val cachedSerializer = if (typeArguments.isEmpty()) {
+        findCachedSerializer(rootClass, isNullable)
+    } else {
+        val cachedResult = findParametrizedCachedSerializer(rootClass, typeArguments, isNullable)
+        if (failOnMissingTypeArgSerializer) {
+            cachedResult.getOrNull()
+        } else {
+            // return null if error occurred - serializer for parameter(s) was not found
+            cachedResult.getOrElse { return null }
         }
     }
+    cachedSerializer?.let { return it }
+
+    // slow path to find contextual serializers in serializers module
+    val contextualSerializer: KSerializer<out Any?>? = if (typeArguments.isEmpty()) {
+        getContextual(rootClass)
+    } else {
+        val serializers = serializersForParameters(typeArguments, failOnMissingTypeArgSerializer) ?: return null
+        // first, we look among the built-in serializers, because the parameter could be contextual
+        rootClass.parametrizedSerializerOrNull(typeArguments, serializers) ?: getContextual(
+            rootClass,
+            serializers
+        )
+    }
+    return contextualSerializer?.cast<Any>()?.nullable(isNullable)
 }
 
-@OptIn(ExperimentalSerializationApi::class)
-internal fun <T : Any> SerializersModule.reflectiveOrContextual(
-    kClass: KClass<T>,
-    typeArgumentsSerializers: List<KSerializer<Any?>>
-): KSerializer<T>? {
-    return kClass.serializerOrNull() ?: getContextual(kClass, typeArgumentsSerializers)
+/**
+ * Returns null only if `failOnMissingTypeArgSerializer == false` and at least one parameter serializer not found.
+ */
+internal fun SerializersModule.serializersForParameters(
+    typeArguments: List<KType>,
+    failOnMissingTypeArgSerializer: Boolean
+): List<KSerializer<Any?>>? {
+    val serializers = if (failOnMissingTypeArgSerializer) {
+        typeArguments.map { serializer(it) }
+    } else {
+        typeArguments.map { serializerOrNull(it) ?: return null }
+    }
+    return serializers
 }
 
 /**
@@ -178,6 +170,47 @@ public fun <T : Any> KClass<T>.serializer(): KSerializer<T> = serializerOrNull()
 @InternalSerializationApi
 public fun <T : Any> KClass<T>.serializerOrNull(): KSerializer<T>? =
     compiledSerializerImpl() ?: builtinSerializerOrNull()
+
+internal fun KClass<Any>.parametrizedSerializerOrNull(
+    types: List<KType>,
+    serializers: List<KSerializer<Any?>>
+): KSerializer<out Any>? {
+    // builtin first because some standard parametrized interfaces (e.g. Map) must use builtin serializer but not polymorphic
+    return builtinParametrizedSerializer(types, serializers) ?: compiledParametrizedSerializer(serializers)
+}
+
+
+private fun KClass<Any>.compiledParametrizedSerializer(serializers: List<KSerializer<Any?>>): KSerializer<out Any>? {
+    return constructSerializerForGivenTypeArgs(*serializers.toTypedArray())
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+private fun KClass<Any>.builtinParametrizedSerializer(
+    typeArguments: List<KType>,
+    serializers: List<KSerializer<Any?>>,
+): KSerializer<out Any>? {
+    // Array is not supported, see KT-32839
+    return when (this) {
+        Collection::class, List::class, MutableList::class, ArrayList::class -> ArrayListSerializer(serializers[0])
+        HashSet::class -> HashSetSerializer(serializers[0])
+        Set::class, MutableSet::class, LinkedHashSet::class -> LinkedHashSetSerializer(serializers[0])
+        HashMap::class -> HashMapSerializer(serializers[0], serializers[1])
+        Map::class, MutableMap::class, LinkedHashMap::class -> LinkedHashMapSerializer(
+            serializers[0],
+            serializers[1]
+        )
+        Map.Entry::class -> MapEntrySerializer(serializers[0], serializers[1])
+        Pair::class -> PairSerializer(serializers[0], serializers[1])
+        Triple::class -> TripleSerializer(serializers[0], serializers[1], serializers[2])
+        else -> {
+            if (isReferenceArray(this)) {
+                ArraySerializer(typeArguments[0].classifier as KClass<Any>, serializers[0])
+            } else {
+                null
+            }
+        }
+    }
+}
 
 private fun <T : Any> KSerializer<T>.nullable(shouldBeNullable: Boolean): KSerializer<T?> {
     if (shouldBeNullable) return nullable
