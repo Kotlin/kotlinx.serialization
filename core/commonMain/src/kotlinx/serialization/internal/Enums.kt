@@ -76,14 +76,12 @@ internal fun <T : Enum<T>> createMarkedEnumSerializer(
     return EnumSerializer(serialName, values, descriptor)
 }
 
-// TODO we can create another class for factories, it may be a copy-paste of this class or a subclass for some `AbstractEnumSerializer` with common `serialize`, `deserialize` and `toString` functions
 @PublishedApi
 @OptIn(ExperimentalSerializationApi::class)
 internal class EnumSerializer<T : Enum<T>>(
     serialName: String,
     private val values: Array<T>
 ) : KSerializer<T> {
-    @Volatile
     private var overriddenDescriptor: SerialDescriptor? = null
 
     internal constructor(serialName: String, values: Array<T>, descriptor: SerialDescriptor) : this(serialName, values) {
