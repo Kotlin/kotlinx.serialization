@@ -257,4 +257,5 @@ public fun Duration.Companion.serializer(): KSerializer<Duration> = DurationSeri
  *
  * It is used as a dummy in case it is necessary to pass a type to a parameterized class. At the same time, it is expected that this generic type will not participate in serialization.
  */
+@ExperimentalSerializationApi
 public fun NothingSerializer(): KSerializer<Nothing> = NothingSerializer
