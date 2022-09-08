@@ -16,7 +16,7 @@ class EmojiTest : JsonTestBase() {
         assertJsonFormAndRestored(
             String.serializer(),
             "\uD83C\uDF34",
-            "\"🌴\""
+            "\"\uD83C\uDF34\""
         )
     }
 }
