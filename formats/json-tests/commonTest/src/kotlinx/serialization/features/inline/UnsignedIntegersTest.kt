@@ -95,7 +95,7 @@ class UnsignedIntegersTest : JsonTestBase() {
         assertJsonFormAndRestored(ULong.serializer(), 9223372036854775817U, "9223372036854775817")
     }
 
-    @Suppress("OPT_IN_USAGE")
+    @OptIn(ExperimentalUnsignedTypes::class)
     @Test
     fun testRootArrays() = parametrizedTest {
         assertJsonFormAndRestoredCustom(
@@ -124,7 +124,7 @@ class UnsignedIntegersTest : JsonTestBase() {
     }
 
 //    TODO uncomment when Kotlin 1.8.0 is released
-//    @Suppress("OPT_IN_USAGE")
+//    @OptIn(ExperimentalUnsignedTypes::class)
 //    fun testArrays() {
 //        val data = UnsignedArrays(
 //            ubyteArrayOf(1U, 220U),

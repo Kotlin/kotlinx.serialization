@@ -15,7 +15,7 @@ import kotlin.native.concurrent.*
 import kotlin.reflect.*
 import kotlin.time.Duration
 
-@Suppress("OPT_IN_USAGE")
+@OptIn(ExperimentalUnsignedTypes::class)
 @SharedImmutable
 private val BUILTIN_SERIALIZERS = mapOf(
     String::class to String.serializer(),
