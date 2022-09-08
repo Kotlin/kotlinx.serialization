@@ -8,7 +8,7 @@ import kotlinx.serialization.encoding.*
 
 /**
  * Encoder used by [Json] during serialization.
- * This interface can be used to inject desired behaviour into a serialization process of [Json].
+ * This interface can be used to inject desired behavior into a serialization process of [Json].
  *
  * Typical example of the usage:
  * ```
@@ -18,7 +18,7 @@ import kotlinx.serialization.encoding.*
  *     data class Right(val data: Payload) : Either()
  * }
  *
- * // Serializer injects custom behaviour by inspecting object content and writing
+ * // Serializer injects custom behavior by inspecting object content and writing
  * object EitherSerializer : KSerializer<Either> {
  *     override val descriptor: SerialDescriptor = buildSerialDescriptor("package.Either", PolymorphicKind.SEALED) {
  *          // ..
@@ -58,7 +58,7 @@ public interface JsonEncoder : Encoder, CompositeEncoder {
     /**
      * Appends the given JSON [element] to the current output.
      * This method is allowed to invoke only as the part of the whole serialization process of the class,
-     * calling this method after invoking [beginStructure] or any `encode*` method will lead to unspecified behaviour
+     * calling this method after invoking [beginStructure] or any `encode*` method will lead to unspecified behavior
      * and may produce an invalid JSON result.
      * For example:
      * ```

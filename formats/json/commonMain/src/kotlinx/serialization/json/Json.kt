@@ -11,7 +11,7 @@ import kotlin.native.concurrent.*
 
 /**
  * The main entry point to work with JSON serialization.
- * It is typically used by constructing an application-specific instance, with configured JSON-specific behaviour
+ * It is typically used by constructing an application-specific instance, with configured JSON-specific behavior
  * and, if necessary, registered in [SerializersModule] custom serializers.
  * `Json` instance can be configured in its `Json {}` factory function using [JsonBuilder].
  * For demonstration purposes or trivial usages, Json [companion][Json.Default] can be used instead.
@@ -48,7 +48,7 @@ import kotlin.native.concurrent.*
  * ```
  *
  * Json instance also exposes its [configuration] that can be used in custom serializers
- * that rely on [JsonDecoder] and [JsonEncoder] for customizable behaviour.
+ * that rely on [JsonDecoder] and [JsonEncoder] for customizable behavior.
  */
 public sealed class Json(
     public val configuration: JsonConfiguration,

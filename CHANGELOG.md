@@ -525,7 +525,7 @@ of `Json {}` builder
 
 * Json configuration
     * `prettyPrintIndent` allows only whitespaces
-    * `serializeSpecialFloatingPointValues` is renamed to `allowSpecialFloatingPointValues`. It now affects both serialization and deserialization behaviour
+    * `serializeSpecialFloatingPointValues` is renamed to `allowSpecialFloatingPointValues`. It now affects both serialization and deserialization behavior
     * `unquoted` JSON flag is deprecated for removal
     * New `coerceInputValues` option for null-defaults and unknown enums (#90, #246)
 

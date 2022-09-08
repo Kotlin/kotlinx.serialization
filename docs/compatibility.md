@@ -35,7 +35,7 @@ When API is deprecated, it goes through multiple stages and there is at least on
 
 1. Feature is deprecated with compilation warning. Most of the time, proper replacement (and corresponding `replaceWith` declaration) is provided to automatically migrate deprecated usages with a help of IntelliJ IDEA.
 2. Deprecation level is increased to error or hidden. It is no longer possible to compile new code against deprecated API, though it is still present in the ABI.
-3. API is completely removed. While we give our best efforts not to do so and have no plans of removing any API, we still are leaving this option in case of unforeseen problems such as security issues. 
+3. API is completely removed. While we give our best efforts not to do so and have no plans of removing any API, we still are leaving this option in case of unforeseen problems such as security issues.
 
 
 ### Experimental API
@@ -48,14 +48,14 @@ they will go through deprecation cycle if this is possible. However, this deprec
 
 Usage notes:
 
-* Experimental API can be used in your applications if maintenance cost is clear: 
+* Experimental API can be used in your applications if maintenance cost is clear:
 additional migrations may have to be performed during `kotlinx.serialization` update.
 
 * Experimental API can be used in other **experimental** API (for example, a custom serialization format).
 In such cases, clients of the API have to be aware about experimentality.
 
 * It's not recommended to use it as a dependency in your **stable** API, even as an implementation detail.
-Due to the lack of binary backward compatibility, your clients may experience behavioural changes
+Due to the lack of binary backward compatibility, your clients may experience behavioral changes
 or runtime exceptions when an unexpected version of `kotlinx.serialization` gets included in the runtime classpath.
 
 ### Internal API
@@ -63,7 +63,7 @@ or runtime exceptions when an unexpected version of `kotlinx.serialization` gets
 This API is marked with `@InternalSerializationApi` or located in `kotlinx.serialization.internal` package.
 It does not have any binary or source compatibility guarantees and can be deprecated or deleted without replacement at any time.
 
-It is not recommended to use it. 
+It is not recommended to use it.
 However, if you have a rare use-case that can be solved only with internal API, it is possible to use it.
 In such a case, please create an issue on GitHub in order for us to understand a use-case and to provide stable alternative.
 

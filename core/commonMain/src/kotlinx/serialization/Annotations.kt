@@ -74,7 +74,7 @@ public annotation class Serializable(
 )
 
 /**
- * The meta-annotation for adding [Serializable] behaviour to user-defined annotations.
+ * The meta-annotation for adding [Serializable] behavior to user-defined annotations.
  *
  * Applying [MetaSerializable] to the annotation class `A` instructs the serialization plugin to treat annotation A
  * as [Serializable]. In addition, all annotations marked with [MetaSerializable] are saved in the generated [SerialDescriptor]
@@ -109,7 +109,7 @@ public annotation class MetaSerializable
  *
  * `@Serializer(forClass)` is experimental and unstable feature that can be changed in future releases.
  * Changes may include additional constraints on classes and objects marked with this annotation,
- * behavioural changes and even serialized shape of the class.
+ * behavioral changes and even serialized shape of the class.
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)

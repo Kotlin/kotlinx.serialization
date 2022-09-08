@@ -85,7 +85,7 @@ import kotlinx.serialization.modules.*
  *
  * ### Exception safety
  *
- * In general, catching [SerializationException] from any of `encode*` methods is not allowed and produces unspecified behaviour.
+ * In general, catching [SerializationException] from any of `encode*` methods is not allowed and produces unspecified behavior.
  * After thrown exception, current encoder is left in an arbitrary state, no longer suitable for further encoding.
  *
  * ### Encoder implementation.

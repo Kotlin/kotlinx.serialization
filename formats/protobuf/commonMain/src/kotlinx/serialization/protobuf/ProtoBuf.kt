@@ -12,7 +12,7 @@ import kotlin.js.*
 /**
  * Implements [encoding][encodeToByteArray] and [decoding][decodeFromByteArray] classes to/from bytes
  * using [Proto2][https://developers.google.com/protocol-buffers/docs/proto] specification.
- * It is typically used by constructing an application-specific instance, with configured specific behaviour
+ * It is typically used by constructing an application-specific instance, with configured specific behavior
  * and, if necessary, registered custom serializers (in [SerializersModule] provided by [serializersModule] constructor parameter).
  *
  * ### Correspondence between Protobuf message definitions and Kotlin classes
@@ -38,7 +38,7 @@ import kotlin.js.*
  * provide custom ids using [ProtoNumber] annotation.
  *
  * By default, all integer numbers are encoded using [varint][https://developers.google.com/protocol-buffers/docs/encoding#varints]
- * encoding. This behaviour can be changed via [ProtoType] annotation.
+ * encoding. This behavior can be changed via [ProtoType] annotation.
  *
  * ### Known caveats and limitations
  * Lists are represented as repeated fields. Because format spec says that if the list is empty,

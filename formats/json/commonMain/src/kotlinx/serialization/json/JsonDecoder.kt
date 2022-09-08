@@ -10,7 +10,7 @@ import kotlinx.serialization.descriptors.*
 
 /**
  * Decoder used by [Json] during deserialization.
- * This interface can be used to inject desired behaviour into a serialization process of [Json].
+ * This interface can be used to inject desired behavior into a serialization process of [Json].
  *
  * Typical example of the usage:
  * ```
@@ -20,7 +20,7 @@ import kotlinx.serialization.descriptors.*
  *     data class Right(val data: Payload) : Either()
  * }
  *
- * // Serializer injects custom behaviour by inspecting object content and writing
+ * // Serializer injects custom behavior by inspecting object content and writing
  * object EitherSerializer : KSerializer<Either> {
  *     override val descriptor: SerialDescriptor = buildSerialDescriptor("package.Either", PolymorphicKind.SEALED) {
  *          // ..
@@ -64,7 +64,7 @@ public interface JsonDecoder : Decoder, CompositeDecoder {
      * the [kind][SerialDescriptor.kind].
      *
      * This method is allowed to invoke only as the part of the whole deserialization process of the class,
-     * calling this method after invoking [beginStructure] or any `decode*` method will lead to unspecified behaviour.
+     * calling this method after invoking [beginStructure] or any `decode*` method will lead to unspecified behavior.
      * For example:
      * ```
      * class Holder(val value: Int, val list: List<Int>())
