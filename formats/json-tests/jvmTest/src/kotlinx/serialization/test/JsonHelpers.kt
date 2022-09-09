@@ -11,7 +11,7 @@ actual fun <T> Json.encodeViaStream(
 ): String {
     val output = ByteArrayOutputStream()
     encodeToStream(serializer, value, output)
-    return output.toString()
+    return output.toString(Charsets.UTF_8.name())
 }
 
 actual fun <T> Json.decodeViaStream(
