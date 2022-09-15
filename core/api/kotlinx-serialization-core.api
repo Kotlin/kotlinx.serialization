@@ -119,6 +119,9 @@ public abstract interface annotation class kotlinx/serialization/Serializer : ja
 }
 
 public final class kotlinx/serialization/SerializersKt {
+	public static final fun noCompiledSerializer (Ljava/lang/String;)Lkotlinx/serialization/KSerializer;
+	public static final fun noCompiledSerializer (Lkotlinx/serialization/modules/SerializersModule;Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
+	public static final fun noCompiledSerializer (Lkotlinx/serialization/modules/SerializersModule;Lkotlin/reflect/KClass;[Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Ljava/lang/reflect/Type;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Lkotlin/reflect/KType;)Lkotlinx/serialization/KSerializer;

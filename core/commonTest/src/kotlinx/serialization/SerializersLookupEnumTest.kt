@@ -44,9 +44,6 @@ class SerializersLookupEnumTest {
         }
     }
 
-    @Polymorphic
-    enum class EnumPolymorphic
-
     @Serializable
     enum class PlainEnum
 
@@ -70,19 +67,6 @@ class SerializersLookupEnumTest {
         } else if (isJsIr() || isNative()) {
             // FIXME serializer<EnumWithClassSerializer> is broken for K/JS and K/Native. Remove `assertFails` after fix
             assertFails { serializer<EnumExternalClass>() }
-        }
-    }
-
-    @Test
-    fun testEnumPolymorphic() {
-        if (isJvm()) {
-            assertEquals(
-                PolymorphicSerializer(EnumPolymorphic::class).descriptor,
-                serializer<EnumPolymorphic>().descriptor
-            )
-        } else {
-            // FIXME serializer<PolymorphicEnum> is broken for K/JS and K/Native. Remove `assertFails` after fix
-            assertFails { serializer<EnumPolymorphic>() }
         }
     }
 }
