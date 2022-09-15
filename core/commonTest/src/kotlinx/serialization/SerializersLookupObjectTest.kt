@@ -43,9 +43,6 @@ class SerializersLookupObjectTest {
         }
     }
 
-    @Polymorphic
-    object ObjectPolymorphic
-
     @Serializable
     object PlainObject
 
@@ -72,20 +69,5 @@ class SerializersLookupObjectTest {
         if (!isJsLegacy()) {
             assertIs<ObjectExternalClassSerializer>(serializer<ObjectExternalClass>())
         }
-    }
-
-    @Test
-    @Ignore // @Polymorphic object doesn't make sense and is not supported in intrinsics
-    fun testObjectPolymorphic() {
-        if (isJvm()) {
-            assertEquals(
-                PolymorphicSerializer(ObjectPolymorphic::class).descriptor,
-                serializer<ObjectPolymorphic>().descriptor
-            )
-        } else {
-            // FIXME serializer<PolymorphicObject> is broken for K/JS and K/Native. Remove `assertFails` after fix
-            assertFails { serializer<ObjectPolymorphic>() }
-        }
-
     }
 }
