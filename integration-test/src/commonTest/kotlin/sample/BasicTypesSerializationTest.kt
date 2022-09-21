@@ -124,7 +124,7 @@ class BasicTypesSerializationTest {
     @OptIn(ExperimentalSerializationApi::class)
     class KeyValueOutput(val sb: StringBuilder) : AbstractEncoder() {
 
-        override val serializersModule: SerializersModule = EmptySerializersModule
+        override val serializersModule: SerializersModule = EmptySerializersModule()
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
             sb.append('{')
@@ -137,7 +137,7 @@ class BasicTypesSerializationTest {
 
         override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
             if (index > 0) sb.append(", ")
-            sb.append(descriptor.getElementName(index));
+            sb.append(descriptor.getElementName(index))
             sb.append(':')
             return true
         }
@@ -161,7 +161,7 @@ class BasicTypesSerializationTest {
 
     class KeyValueInput(val inp: Parser) : AbstractDecoder() {
 
-        override val serializersModule: SerializersModule = EmptySerializersModule
+        override val serializersModule: SerializersModule = EmptySerializersModule()
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             inp.expectAfterWhiteSpace('{')
@@ -187,7 +187,7 @@ class BasicTypesSerializationTest {
 
         override fun decodeNotNullMark(): Boolean {
             inp.skipWhitespace()
-            if (inp.cur != 'n'.toInt()) return true
+            if (inp.cur != 'n'.code) return true
             return false
         }
 
@@ -232,7 +232,7 @@ class BasicTypesSerializationTest {
         }
 
         fun expect(c: Char) {
-            check(cur == c.toInt()) { "Expected '$c'" }
+            check(cur == c.code) { "Expected '$c'" }
             next()
         }
 
@@ -256,7 +256,7 @@ class BasicTypesSerializationTest {
         private var position: Int = 0
         fun read(): Int = when (position) {
             str.length -> -1
-            else -> str[position++].toInt()
+            else -> str[position++].code
         }
     }
 
