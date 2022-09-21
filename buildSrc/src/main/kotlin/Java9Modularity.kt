@@ -23,7 +23,7 @@ object Java9Modularity {
         val ideaActive = System.getProperty("idea.active") == "true"
         if (disableJPMS || ideaActive) return
         val kotlin = extensions.findByType<KotlinProjectExtension>() ?: return
-        val jvmTargets = kotlin.targets.filter { it is KotlinJvmTarget || it is KotlinWithJavaTarget<*> }
+        val jvmTargets = kotlin.targets.filter { it is KotlinJvmTarget || it is KotlinWithJavaTarget<*,*> }
         if (jvmTargets.isEmpty()) {
             logger.warn("No Kotlin JVM targets found, can't configure compilation of module-info!")
         }
