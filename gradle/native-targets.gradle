@@ -12,11 +12,13 @@
  *
  * For HOST mode, all targets are still listed in .module file, so HOST mode is useful for release process.
  */
-enum NativeState { ALL, HOST, SINGLE, DISABLED }
+enum NativeState {
+    ALL, HOST, SINGLE, DISABLED
+}
 
 def getNativeState(String description) {
     if (description == null) return NativeState.SINGLE
-    switch(description.toLowerCase()) {
+    switch (description.toLowerCase()) {
         case 'all':
         case 'true':
             return NativeState.ALL
@@ -24,7 +26,7 @@ def getNativeState(String description) {
             return NativeState.HOST
         case 'disabled':
             return NativeState.DISABLED
-        // 'single', 'false', etc
+            // 'single', 'false', etc
         default:
             return NativeState.SINGLE
     }
@@ -84,10 +86,12 @@ kotlin {
         project.ext.ideaPreset = ideaPreset
     }
 
-    targets.metaClass.addTarget = { preset ->
-        def target = delegate.fromPreset(preset, preset.name)
-        project.ext.nativeMainSets.add(target.compilations['main'].kotlinSourceSets.first())
-        project.ext.nativeTestSets.add(target.compilations['test'].kotlinSourceSets.first())
+    targets {
+        delegate.metaClass.addTarget = { preset ->
+            def target = delegate.fromPreset(preset, preset.name)
+            project.ext.nativeMainSets.add(target.compilations['main'].kotlinSourceSets.first())
+            project.ext.nativeTestSets.add(target.compilations['test'].kotlinSourceSets.first())
+        }
     }
 
     targets {

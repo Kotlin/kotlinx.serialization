@@ -51,6 +51,12 @@ kotlin {
     macosX64("macos")
     linuxX64("linux")
     sourceSets {
+        all {
+            languageSettings {
+                optIn('kotlinx.serialization.ExperimentalSerializationApi')
+            }
+        }
+
         commonMain {
             dependencies {
                 implementation kotlin('stdlib-common')
