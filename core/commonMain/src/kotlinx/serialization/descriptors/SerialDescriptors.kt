@@ -240,6 +240,7 @@ public class ClassSerialDescriptorBuilder internal constructor(
      * in its [KSerializer] type parameter and handle nulls during encoding and decoding.
      */
     @ExperimentalSerializationApi
+    @Deprecated("isNullable inside buildSerialDescriptor is deprecated. Please use SerialDescriptor.nullable extension on a builder result.", level = DeprecationLevel.ERROR)
     public var isNullable: Boolean = false
 
     /**
