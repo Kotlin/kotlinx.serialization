@@ -100,17 +100,4 @@ class SerializersLookupEnumTest {
         assertIs<EnumExternalClassSerializer>(EnumExternalClass.serializer())
         assertIs<EnumExternalClassSerializer>(serializer<EnumExternalClass>())
     }
-
-    @Test
-    fun testEnumPolymorphic() {
-        if (isJvm()) {
-            assertEquals(
-                PolymorphicSerializer(EnumPolymorphic::class).descriptor,
-                serializer<EnumPolymorphic>().descriptor
-            )
-        } else {
-            // FIXME serializer<PolymorphicEnum> is broken for K/JS and K/Native. Remove `assertFails` after fix
-            assertFails { serializer<EnumPolymorphic>() }
-        }
-    }
 }
