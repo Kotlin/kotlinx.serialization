@@ -52,6 +52,21 @@ class SerializersLookupTest : JsonTestBase() {
         assertSerializedWithType("""["a","b","c"]""", myArr)
     }
 
+    @Test
+    fun testUnsigned() = noLegacyJs {
+        assertSame(UByte.serializer(), serializer<UByte>())
+        assertSame(UShort.serializer(), serializer<UShort>())
+        assertSame(UInt.serializer(), serializer<UInt>())
+        assertSame(ULong.serializer(), serializer<ULong>())
+    }
+    @Test
+    @OptIn(ExperimentalUnsignedTypes::class)
+    fun testUnsignedArrays() {
+        assertSame(UByteArraySerializer(), serializer<UByteArray>())
+        assertSame(UShortArraySerializer(), serializer<UShortArray>())
+        assertSame(UIntArraySerializer(), serializer<UIntArray>())
+        assertSame(ULongArraySerializer(), serializer<ULongArray>())
+    }
 
     @Test
     fun testPrimitiveSet() {

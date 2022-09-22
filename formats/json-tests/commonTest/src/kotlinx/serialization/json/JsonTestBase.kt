@@ -13,6 +13,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.test.*
 import kotlin.test.assertEquals
 import okio.*
+import kotlin.test.assertTrue
 
 
 enum class JsonTestingMode {
@@ -153,6 +154,23 @@ abstract class JsonTestBase {
             assertEquals(expected, serialized, "Failed with streaming = $jsonTestingMode")
             val deserialized: T = json.decodeFromString(serializer, serialized, jsonTestingMode)
             assertEquals(data, deserialized, "Failed with streaming = $jsonTestingMode")
+        }
+    }
+    /**
+     * Same as [assertStringFormAndRestored], but tests both json converters (streaming and tree)
+     * via [parametrizedTest]. Use custom checker for deserialized value.
+     */
+    internal fun <T> assertJsonFormAndRestoredCustom(
+        serializer: KSerializer<T>,
+        data: T,
+        expected: String,
+        check: (T, T) -> Boolean
+    ) {
+        parametrizedTest { jsonTestingMode ->
+            val serialized = Json.encodeToString(serializer, data, jsonTestingMode)
+            assertEquals(expected, serialized, "Failed with streaming = $jsonTestingMode")
+            val deserialized: T = Json.decodeFromString(serializer, serialized, jsonTestingMode)
+            assertTrue("Failed with streaming = $jsonTestingMode\n\tsource value =$data\n\tdeserialized value=$deserialized") { check(data, deserialized) }
         }
     }
 }

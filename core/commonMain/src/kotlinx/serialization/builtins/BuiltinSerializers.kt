@@ -75,6 +75,14 @@ public fun Byte.Companion.serializer(): KSerializer<Byte> = ByteSerializer
 public fun ByteArraySerializer(): KSerializer<ByteArray> = ByteArraySerializer
 
 /**
+ * Returns serializer for [UByteArray] with [descriptor][SerialDescriptor] of [StructureKind.LIST] kind.
+ * Each element of the array is serialized one by one with [UByte.Companion.serializer].
+ */
+@ExperimentalSerializationApi
+@ExperimentalUnsignedTypes
+public fun UByteArraySerializer(): KSerializer<UByteArray> = UByteArraySerializer
+
+/**
  * Returns serializer for [Short] with [descriptor][SerialDescriptor] of [PrimitiveKind.SHORT] kind.
  */
 public fun Short.Companion.serializer(): KSerializer<Short> = ShortSerializer
@@ -84,6 +92,14 @@ public fun Short.Companion.serializer(): KSerializer<Short> = ShortSerializer
  * Each element of the array is serialized one by one with [Short.Companion.serializer].
  */
 public fun ShortArraySerializer(): KSerializer<ShortArray> = ShortArraySerializer
+
+/**
+ * Returns serializer for [UShortArray] with [descriptor][SerialDescriptor] of [StructureKind.LIST] kind.
+ * Each element of the array is serialized one by one with [UShort.Companion.serializer].
+ */
+@ExperimentalSerializationApi
+@ExperimentalUnsignedTypes
+public fun UShortArraySerializer(): KSerializer<UShortArray> = UShortArraySerializer
 
 /**
  * Returns serializer for [Int] with [descriptor][SerialDescriptor] of [PrimitiveKind.INT] kind.
@@ -97,6 +113,14 @@ public fun Int.Companion.serializer(): KSerializer<Int> = IntSerializer
 public fun IntArraySerializer(): KSerializer<IntArray> = IntArraySerializer
 
 /**
+ * Returns serializer for [UIntArray] with [descriptor][SerialDescriptor] of [StructureKind.LIST] kind.
+ * Each element of the array is serialized one by one with [UInt.Companion.serializer].
+ */
+@ExperimentalSerializationApi
+@ExperimentalUnsignedTypes
+public fun UIntArraySerializer(): KSerializer<UIntArray> = UIntArraySerializer
+
+/**
  * Returns serializer for [Long] with [descriptor][SerialDescriptor] of [PrimitiveKind.LONG] kind.
  */
 public fun Long.Companion.serializer(): KSerializer<Long> = LongSerializer
@@ -106,6 +130,14 @@ public fun Long.Companion.serializer(): KSerializer<Long> = LongSerializer
  * Each element of the array is serialized one by one with [Long.Companion.serializer].
  */
 public fun LongArraySerializer(): KSerializer<LongArray> = LongArraySerializer
+
+/**
+ * Returns serializer for [ULongArray] with [descriptor][SerialDescriptor] of [StructureKind.LIST] kind.
+ * Each element of the array is serialized one by one with [ULong.Companion.serializer].
+ */
+@ExperimentalSerializationApi
+@ExperimentalUnsignedTypes
+public fun ULongArraySerializer(): KSerializer<ULongArray> = ULongArraySerializer
 
 /**
  * Returns serializer for [Float] with [descriptor][SerialDescriptor] of [PrimitiveKind.FLOAT] kind.
