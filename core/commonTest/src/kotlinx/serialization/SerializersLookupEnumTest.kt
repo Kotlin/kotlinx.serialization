@@ -6,6 +6,7 @@ package kotlinx.serialization
 
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.internal.EnumSerializer
 import kotlinx.serialization.test.*
 import kotlin.test.*
 
@@ -47,9 +48,45 @@ class SerializersLookupEnumTest {
     @Serializable
     enum class PlainEnum
 
+    @Serializable
+    enum class SerializableEnum { C, D }
+
+    @Serializable
+    enum class SerializableMarkedEnum { C, @SerialName("NotD") D }
+
     @Test
     fun testPlainEnum() {
-        assertEquals(PlainEnum.serializer(), serializer<PlainEnum>())
+        if (isJsLegacy()) {
+            assertSame(PlainEnum.serializer()::class, serializer<PlainEnum>()::class)
+        } else {
+            assertSame(PlainEnum.serializer(), serializer<PlainEnum>())
+        }
+
+        if (!isJs()) {
+            assertIs<EnumSerializer<PlainEnum>>(serializer<PlainEnum>())
+        }
+    }
+
+    @Test
+    fun testSerializableEnumSerializer() {
+        assertIs<EnumSerializer<SerializableEnum>>(SerializableEnum.serializer())
+
+        if (isJsLegacy()) {
+            assertSame(SerializableEnum.serializer()::class, serializer<SerializableEnum>()::class)
+        } else {
+            assertSame(SerializableEnum.serializer(), serializer<SerializableEnum>())
+        }
+    }
+
+    @Test
+    fun testSerializableMarkedEnumSerializer() {
+        assertIs<EnumSerializer<SerializableMarkedEnum>>(SerializableMarkedEnum.serializer())
+
+        if (isJsLegacy()) {
+            assertSame(SerializableMarkedEnum.serializer()::class, serializer<SerializableMarkedEnum>()::class)
+        } else {
+            assertSame(SerializableMarkedEnum.serializer(), serializer<SerializableMarkedEnum>())
+        }
     }
 
     @Test

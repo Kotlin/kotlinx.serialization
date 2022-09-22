@@ -127,7 +127,7 @@ class EnumSerializationTest : JsonTestBase() {
     fun testStructurallyEqualDescriptors() {
         val libraryGenerated = Wrapper.serializer().descriptor.getElementDescriptor(0)
         val codeGenerated = MyEnum2.serializer().descriptor
-        assertNotEquals(libraryGenerated::class, codeGenerated::class)
+        assertEquals(libraryGenerated::class, codeGenerated::class)
         libraryGenerated.assertDescriptorEqualsTo(codeGenerated)
     }
 }
