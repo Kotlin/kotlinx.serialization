@@ -87,4 +87,11 @@ class SerialDescriptorBuilderTest {
         assertFailsWith<IllegalArgumentException> { PrimitiveSerialDescriptor(" ", PrimitiveKind.STRING) }
         assertFailsWith<IllegalArgumentException> { PrimitiveSerialDescriptor("\t", PrimitiveKind.STRING) }
     }
+
+    @Test
+    fun testNullableBuild() {
+        val descriptor = buildClassSerialDescriptor("my.Simple") {}.nullable
+        assertTrue(descriptor.isNullable)
+        assertEquals("my.Simple?", descriptor.serialName)
+    }
 }
