@@ -49,6 +49,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='deserializing-collections'></a>[Deserializing collections](builtin-classes.md#deserializing-collections)
   * <a name='maps'></a>[Maps](builtin-classes.md#maps)
   * <a name='unit-and-singleton-objects'></a>[Unit and singleton objects](builtin-classes.md#unit-and-singleton-objects)
+  * <a name='duration'></a>[Duration](builtin-classes.md#duration)
 <!--- END -->
 
 **Chapter 3.** [Serializers](serializers.md)

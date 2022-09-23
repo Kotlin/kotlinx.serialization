@@ -23,6 +23,7 @@ including the standard collections, is built into Kotlin Serialization. This cha
   * [Deserializing collections](#deserializing-collections)
   * [Maps](#maps)
   * [Unit and singleton objects](#unit-and-singleton-objects)
+  * [Duration](#duration)
 
 <!--- END -->
 
@@ -380,6 +381,30 @@ which is explained in the [Polymorphism. Objects](polymorphism.md#objects) secti
 
 > Serialization of objects is format specific. Other formats may represent objects differently, 
 > e.g. using their fully-qualified names.
+
+### Duration
+
+Since Kotlin `1.7.20` the [Duration] class has become serializable.
+
+<!--- INCLUDE 
+import kotlin.time.*
+-->
+
+```kotlin
+fun main() {
+    val duration = 1000.toDuration(DurationUnit.SECONDS)
+    println(Json.encodeToString(duration))
+}
+```
+> You can get the full code [here](../guide/example/example-builtin-12.kt).
+
+Duration is serialized as a string in the ISO-8601-2 format.
+```text
+"PT16M40S"
+```
+
+<!--- TEST -->
+
 ---
 
 The next chapter covers [Serializers](serializers.md).
@@ -392,6 +417,7 @@ The next chapter covers [Serializers](serializers.md).
 [List]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/ 
 [Set]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/ 
 [Map]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/ 
+[Duration]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.time/-duration/
 
 <!--- MODULE /kotlinx-serialization-core -->
 <!--- INDEX kotlinx-serialization-core/kotlinx.serialization -->
@@ -405,4 +431,3 @@ The next chapter covers [Serializers](serializers.md).
 [LongAsStringSerializer]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.builtins/-long-as-string-serializer/
 
 <!--- END -->
- 
