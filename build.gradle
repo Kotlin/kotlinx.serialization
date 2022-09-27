@@ -92,7 +92,7 @@ apiValidation {
 }
 
 knit {
-    siteRoot = "https://kotlinlang.org/api/kotlinx.serialization/"
+    siteRoot = "https://kotlinlang.org/api/kotlinx.serialization"
     moduleDocs = "build/dokka/htmlMultiModule"
 }
 

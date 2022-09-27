@@ -1361,7 +1361,7 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
 <!--- INDEX kotlinx-serialization-core/kotlinx.serialization -->
 
 [serializer]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/serializer.html
-[KSerializer]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-k-serializer/
+[KSerializer]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-k-serializer/index.html
 
 <!--- INDEX kotlinx-serialization-core/kotlinx.serialization.builtins -->
 
@@ -1369,10 +1369,10 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
 
 <!--- INDEX kotlinx-serialization-core/kotlinx.serialization.encoding -->
 
-[Encoder]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-encoder/
-[Decoder]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-decoder/
-[AbstractEncoder]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-abstract-encoder/
-[AbstractDecoder]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-abstract-decoder/
+[Encoder]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-encoder/index.html
+[Decoder]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-decoder/index.html
+[AbstractEncoder]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-abstract-encoder/index.html
+[AbstractDecoder]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-abstract-decoder/index.html
 [AbstractEncoder.encodeValue]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-abstract-encoder/encode-value.html
 [AbstractDecoder.decodeValue]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-abstract-decoder/decode-value.html
 [CompositeDecoder.decodeElementIndex]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-composite-decoder/decode-element-index.html
@@ -1389,32 +1389,32 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
 <!--- MODULE /kotlinx-serialization-properties -->
 <!--- INDEX kotlinx-serialization-properties/kotlinx.serialization.properties -->
 
-[kotlinx.serialization.properties.Properties]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-properties/kotlinx.serialization.properties/-properties/
+[kotlinx.serialization.properties.Properties]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-properties/kotlinx.serialization.properties/-properties/index.html
 
 <!--- MODULE /kotlinx-serialization-protobuf -->
 <!--- INDEX kotlinx-serialization-protobuf/kotlinx.serialization.protobuf -->
 
-[ProtoBuf]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-buf/
+[ProtoBuf]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-buf/index.html
 [ProtoBuf.encodeToByteArray]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-buf/encode-to-byte-array.html
 [ProtoBuf.decodeFromByteArray]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-buf/decode-from-byte-array.html
-[ProtoNumber]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-number/
-[ProtoType]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-type/
-[ProtoIntegerType]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/
-[ProtoIntegerType.DEFAULT]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/-d-e-f-a-u-l-t/
-[ProtoIntegerType.SIGNED]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/-s-i-g-n-e-d/
-[ProtoIntegerType.FIXED]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/-f-i-x-e-d/
+[ProtoNumber]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-number/index.html
+[ProtoType]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-type/index.html
+[ProtoIntegerType]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/index.html
+[ProtoIntegerType.DEFAULT]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/-d-e-f-a-u-l-t/index.html
+[ProtoIntegerType.SIGNED]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/-s-i-g-n-e-d/index.html
+[ProtoIntegerType.FIXED]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/-f-i-x-e-d/index.html
 
 <!--- INDEX kotlinx-serialization-protobuf/kotlinx.serialization.protobuf.schema -->
 
-[ProtoBufSchemaGenerator]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf.schema/-proto-buf-schema-generator/
+[ProtoBufSchemaGenerator]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf.schema/-proto-buf-schema-generator/index.html
 
 <!--- MODULE /kotlinx-serialization-cbor -->
 <!--- INDEX kotlinx-serialization-cbor/kotlinx.serialization.cbor -->
 
-[Cbor]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor/
+[Cbor]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor/index.html
 [Cbor.encodeToByteArray]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor/encode-to-byte-array.html
 [Cbor.decodeFromByteArray]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor/decode-from-byte-array.html
 [CborBuilder.ignoreUnknownKeys]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-builder/ignore-unknown-keys.html
-[ByteString]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-byte-string/
+[ByteString]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-byte-string/index.html
 
 <!--- END -->
