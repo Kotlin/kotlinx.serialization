@@ -6,21 +6,31 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
 
-@Serializable(with = BoxSerializer::class)
-data class Box<T>(val contents: T) 
-
-class BoxSerializer<T>(private val dataSerializer: KSerializer<T>) : KSerializer<Box<T>> {
-    override val descriptor: SerialDescriptor = dataSerializer.descriptor
-    override fun serialize(encoder: Encoder, value: Box<T>) = dataSerializer.serialize(encoder, value.contents)
-    override fun deserialize(decoder: Decoder) = Box(dataSerializer.deserialize(decoder))
+import java.util.Date
+import java.text.SimpleDateFormat
+  
+object DateAsLongSerializer : KSerializer<Date> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("DateAsLong", PrimitiveKind.LONG)
+    override fun serialize(encoder: Encoder, value: Date) = encoder.encodeLong(value.time)
+    override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
 }
 
-@Serializable
-data class Project(val name: String)
+object DateAsSimpleTextSerializer: KSerializer<Date> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("DateAsSimpleText", PrimitiveKind.LONG)
+    private val format = SimpleDateFormat("yyyy-MM-dd")
+    override fun serialize(encoder: Encoder, value: Date) = encoder.encodeString(format.format(value))
+    override fun deserialize(decoder: Decoder): Date = format.parse(decoder.decodeString())
+}
+
+typealias DateAsLong = @Serializable(DateAsLongSerializer::class) Date
+
+typealias DateAsText = @Serializable(DateAsSimpleTextSerializer::class) Date
+
+@Serializable          
+class ProgrammingLanguage(val stableReleaseDate: DateAsText, val lastReleaseTimestamp: DateAsLong)
 
 fun main() {
-    val box = Box(Project("kotlinx.serialization"))
-    val string = Json.encodeToString(box)
-    println(string)
-    println(Json.decodeFromString<Box<Project>>(string))
+    val format = SimpleDateFormat("yyyy-MM-ddX")
+    val data = ProgrammingLanguage(format.parse("2016-02-15+00"), format.parse("2022-07-07+00"))
+    println(Json.encodeToString(data))
 }

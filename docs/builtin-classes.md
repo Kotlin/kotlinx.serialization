@@ -428,6 +428,6 @@ The next chapter covers [Serializers](serializers.md).
 <!--- MODULE /kotlinx-serialization-core -->
 <!--- INDEX kotlinx-serialization-core/kotlinx.serialization.builtins -->
 
-[LongAsStringSerializer]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.builtins/-long-as-string-serializer/
+[LongAsStringSerializer]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.builtins/-long-as-string-serializer/index.html
 
 <!--- END -->
