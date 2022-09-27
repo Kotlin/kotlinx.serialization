@@ -29,7 +29,6 @@ kotlin {
         languageSettings {
             progressiveMode = true
 
-            optIn("kotlin.Experimental")
             optIn("kotlin.ExperimentalMultiplatform")
             optIn("kotlin.ExperimentalStdlibApi")
             optIn("kotlinx.serialization.InternalSerializationApi")
