@@ -89,6 +89,22 @@ public sealed class Properties(
             return structure(descriptor).also { copyTagsTo(it) }
         }
 
+        final override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+            val type = map["type"]?.toString()
+            var actualSerializer: DeserializationStrategy<out Any>? = null
+
+            if (type != null && deserializer is AbstractPolymorphicSerializer<*>) {
+                actualSerializer = deserializer.findPolymorphicSerializerOrNull(this, type)
+            }
+
+            if (actualSerializer == null) {
+                throw RuntimeException()
+            }
+
+            @Suppress("UNCHECKED_CAST")
+            return actualSerializer.deserialize(this) as T
+        }
+
         final override fun decodeTaggedValue(tag: String): Value {
             return map.getValue(tag)
         }
