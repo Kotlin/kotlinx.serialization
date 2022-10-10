@@ -8,6 +8,7 @@ import kotlinx.serialization.json.okio.encodeToBufferedSink
 import okio.blackholeSink
 import okio.buffer
 import org.openjdk.jmh.annotations.*
+import java.io.ByteArrayInputStream
 import java.io.OutputStream
 import java.util.concurrent.*
 
@@ -75,6 +76,7 @@ open class JacksonComparisonBenchmark {
     }
 
     private val stringData = Json.encodeToString(DefaultPixelEvent.serializer(), data)
+    private val utf8BytesData = stringData.toByteArray()
 
     @Serializable
     private class SmallDataClass(val id: Int, val name: String)
@@ -95,6 +97,12 @@ open class JacksonComparisonBenchmark {
 
     @Benchmark
     fun kotlinToStream() = Json.encodeToStream(DefaultPixelEvent.serializer(), data, devNullStream)
+
+    @Benchmark
+    fun kotlinFromStream() {
+        val stream = ByteArrayInputStream(utf8BytesData)
+        Json.decodeFromStream(DefaultPixelEvent.serializer(), stream)
+    }
 
     @Benchmark
     fun kotlinToOkio() = Json.encodeToBufferedSink(DefaultPixelEvent.serializer(), data, devNullSink)

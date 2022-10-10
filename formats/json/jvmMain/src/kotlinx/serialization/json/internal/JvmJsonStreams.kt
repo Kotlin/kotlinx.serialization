@@ -2,7 +2,6 @@ package kotlinx.serialization.json.internal
 
 import java.io.InputStream
 import java.io.OutputStream
-import java.nio.charset.Charset
 
 internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWriter {
     private val buffer = ByteArrayPool.take()
@@ -247,13 +246,30 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
     }
 }
 
-internal class JavaStreamSerialReader(
-    stream: InputStream,
-    charset: Charset = Charsets.UTF_8
-) : SerialReader {
-    private val reader = stream.reader(charset)
+internal class JavaStreamSerialReader(private val stream: InputStream) : SerialReader {
+    /*
+    A sequence of code points is read from UTF-8, some of it can take 2 characters.
+    In case the last code point requires 2 characters, and the array is already full, we buffer the second character
+     */
+    private var bufferedChar: Char? = null
 
     override fun read(buffer: CharArray, bufferOffset: Int, count: Int): Int {
-        return reader.read(buffer, bufferOffset, count)
+        var i = 0
+
+        if (bufferedChar != null) {
+            buffer[bufferOffset] = bufferedChar!!
+            i++
+            bufferedChar = null
+        }
+
+        stream.processUtf16Chars(count - i) {
+            if (i < count) {
+                buffer[bufferOffset + i] = it
+                i++
+            } else {
+                bufferedChar = it
+            }
+        }
+        return if (i > 0) i else -1
     }
 }

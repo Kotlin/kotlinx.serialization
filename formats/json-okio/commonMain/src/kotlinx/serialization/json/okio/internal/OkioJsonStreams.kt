@@ -65,37 +65,44 @@ internal class OkioSerialReader(private val source: BufferedSource): SerialReade
         var i = 0
 
         if (bufferedChar != null) {
-            buffer[bufferOffset + i] = bufferedChar!!
+            buffer[bufferOffset] = bufferedChar!!
             i++
             bufferedChar = null
         }
 
-        while (i < count && !source.exhausted()) {
-            val codePoint = source.readUtf8CodePoint()
-            if (codePoint <= SINGLE_CHAR_MAX_CODEPOINT) {
-                buffer[bufferOffset + i] = codePoint.toChar()
+        source.processUtf16Chars(count - i) {
+            if (i < count) {
+                buffer[bufferOffset + i] = it
                 i++
             } else {
-                // an example of working with surrogates is taken from okio library with minor changes, see https://github.com/square/okio
-                // UTF-16 high surrogate: 110110xxxxxxxxxx (10 bits)
-                // UTF-16 low surrogate:  110111yyyyyyyyyy (10 bits)
-                // Unicode code point:    00010000000000000000 + xxxxxxxxxxyyyyyyyyyy (21 bits)
-                val upChar = ((codePoint ushr 10) + HIGH_SURROGATE_HEADER).toChar()
-                val lowChar = ((codePoint and 0x03ff) + LOW_SURROGATE_HEADER).toChar()
-
-                buffer[bufferOffset + i] = upChar
-                i++
-
-                if (i < count) {
-                    buffer[bufferOffset + i] = lowChar
-                    i++
-                } else {
-                        // if char array is full - buffer lower surrogate
-                    bufferedChar = lowChar
-                }
+                bufferedChar = it
             }
         }
         return if (i > 0) i else -1
     }
 }
 
+// an example of working with surrogates is taken from okio library with minor changes, see https://github.com/square/okio
+private inline fun BufferedSource.processUtf16Chars(
+    maxCharsCount: Int,
+    yield: (Char) -> Unit
+) {
+    var count = 0
+    while (count < maxCharsCount && !exhausted()) {
+        val codePoint = readUtf8CodePoint()
+        if (codePoint <= SINGLE_CHAR_MAX_CODEPOINT) {
+            yield(codePoint.toChar())
+            count++
+        } else {
+            // UTF-16 high surrogate: 110110xxxxxxxxxx (10 bits)
+            // UTF-16 low surrogate:  110111yyyyyyyyyy (10 bits)
+            // Unicode code point:    00010000000000000000 + xxxxxxxxxxyyyyyyyyyy (21 bits)
+            val upChar = ((codePoint ushr 10) + HIGH_SURROGATE_HEADER).toChar()
+            val lowChar = ((codePoint and 0x03ff) + LOW_SURROGATE_HEADER).toChar()
+
+            yield(upChar)
+            yield(lowChar)
+            count += 2
+        }
+    }
+}

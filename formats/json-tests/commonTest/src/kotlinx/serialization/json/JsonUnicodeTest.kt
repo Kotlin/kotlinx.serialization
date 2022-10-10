@@ -2,15 +2,20 @@
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
+
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.json.internal.BATCH_SIZE
 import kotlinx.serialization.test.*
 import kotlin.random.*
 import kotlin.test.*
 
 class JsonUnicodeTest : JsonTestBase() {
+
+    private val strLen = BATCH_SIZE * 2 + 42
 
     @Serializable
     data class UnicodeKeys(
@@ -61,14 +66,10 @@ class JsonUnicodeTest : JsonTestBase() {
 
     @Test
     fun testRandomEscapeSequences() = noJs { // Too slow on JS
-        repeat(10_000) {
-            val s = generateRandomUnicodeString(Random.nextInt(1, 2047))
-            try {
-                assertSerializedAndRestored(s, String.serializer())
-            } catch (e: Throwable) {
-                // Not assertion error to preserve cause
-                throw IllegalStateException("Unexpectedly failed test, cause string: $s", e)
-            }
+        val serializer = String.serializer()
+        repeat(1_000) {
+            val s = generateRandomUnicodeString(strLen)
+            assertJsonRestored(serializer, s)
         }
     }
 }
