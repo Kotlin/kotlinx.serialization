@@ -91,18 +91,22 @@ public sealed class Properties(
 
         final override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
             val type = map["type"]?.toString()
-            var actualSerializer: DeserializationStrategy<out Any>? = null
+            if (deserializer is AbstractPolymorphicSerializer<*>) {
+                var actualSerializer: DeserializationStrategy<out Any>? = null
 
-            if (type != null && deserializer is AbstractPolymorphicSerializer<*>) {
-                actualSerializer = deserializer.findPolymorphicSerializerOrNull(this, type)
+                if (type != null) {
+                    actualSerializer = deserializer.findPolymorphicSerializerOrNull(this, type)
+                }
+
+                if (actualSerializer == null) {
+                    actualSerializer = deserializer.findPolymorphicSerializer(this, type)
+                }
+
+                @Suppress("UNCHECKED_CAST")
+                return actualSerializer.deserialize(this) as T
             }
 
-            if (actualSerializer == null) {
-                throw RuntimeException()
-            }
-
-            @Suppress("UNCHECKED_CAST")
-            return actualSerializer.deserialize(this) as T
+            return deserializer.deserialize(this)
         }
 
         final override fun decodeTaggedValue(tag: String): Value {
