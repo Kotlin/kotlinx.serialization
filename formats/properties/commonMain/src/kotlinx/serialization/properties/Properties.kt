@@ -53,6 +53,21 @@ public sealed class Properties(
 
         protected abstract fun encode(value: Any): Value
 
+        fun <T : Any> encodeNonNullableSerializableValue(serializer: SerializationStrategy<T>, value: T) {
+            if (serializer is AbstractPolymorphicSerializer<T>) {
+                var actualSerializer: SerializationStrategy<T>? = serializer.findPolymorphicSerializerOrNull(this, value)
+
+                if (actualSerializer == null) {
+                    actualSerializer = serializer.findPolymorphicSerializer(this, value)
+                }
+
+                @Suppress("UNCHECKED_CAST")
+                return actualSerializer.serialize(this, value)
+            }
+
+            return serializer.serialize(this, value)
+        }
+
         override fun encodeTaggedValue(tag: String, value: Any) {
             map[tag] = encode(value)
         }
@@ -165,9 +180,9 @@ public sealed class Properties(
      * `null` values are omitted from the output.
      */
     @ExperimentalSerializationApi
-    public fun <T> encodeToMap(serializer: SerializationStrategy<T>, value: T): Map<String, Any> {
+    public fun <T : Any> encodeToMap(serializer: SerializationStrategy<T>, value: T): Map<String, Any> {
         val m = OutAnyMapper()
-        m.encodeSerializableValue(serializer, value)
+        m.encodeNonNullableSerializableValue(serializer, value)
         return m.map
     }
 
@@ -225,7 +240,7 @@ public fun Properties(module: SerializersModule): Properties = PropertiesImpl(mo
  * `null` values are omitted from the output.
  */
 @ExperimentalSerializationApi
-public inline fun <reified T> Properties.encodeToMap(value: T): Map<String, Any> =
+public inline fun <reified T : Any> Properties.encodeToMap(value: T): Map<String, Any> =
     encodeToMap(serializersModule.serializer(), value)
 
 /**

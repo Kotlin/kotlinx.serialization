@@ -22,7 +22,7 @@ class SealedClassSerializationFromPropertiesTest {
     data class SecondChild(override val firstProperty: Long, override val secondProperty: String) : BaseClass()
 
     @Test
-    fun testPropertiesSerialization() {
+    fun testPropertiesDeserialization() {
         val props = mapOf(
             "type" to "FIRSTCHILD",
             "firstProperty" to 1L,
@@ -34,5 +34,17 @@ class SealedClassSerializationFromPropertiesTest {
         assertIs<FirstChild>(instance)
         assertEquals(instance.firstProperty, 1)
         assertEquals(instance.secondProperty, "one")
+    }
+
+    @Test
+    fun testPropertiesSerialization() {
+        val instance: BaseClass = FirstChild(
+            firstProperty = 1L, secondProperty = "one"
+        )
+
+        val instanceProperties = Properties.encodeToMap(instance)
+
+        assertEquals(1L, instanceProperties["firstProperty"])
+        assertEquals("one", instanceProperties["secondProperty"])
     }
 }
