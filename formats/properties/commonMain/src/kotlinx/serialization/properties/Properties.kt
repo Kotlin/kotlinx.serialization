@@ -177,7 +177,7 @@ public sealed class Properties(
      * `null` values are omitted from the output.
      */
     @ExperimentalSerializationApi
-    public fun <T : Any> encodeToMap(serializer: SerializationStrategy<T>, value: T): Map<String, Any> {
+    public fun <T> encodeToMap(serializer: SerializationStrategy<T>, value: T): Map<String, Any> {
         val m = OutAnyMapper()
         m.encodeSerializableValue(serializer, value)
         return m.map
@@ -237,7 +237,7 @@ public fun Properties(module: SerializersModule): Properties = PropertiesImpl(mo
  * `null` values are omitted from the output.
  */
 @ExperimentalSerializationApi
-public inline fun <reified T : Any> Properties.encodeToMap(value: T): Map<String, Any> =
+public inline fun <reified T> Properties.encodeToMap(value: T): Map<String, Any> =
     encodeToMap(serializersModule.serializer(), value)
 
 /**
