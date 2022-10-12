@@ -67,6 +67,7 @@ import kotlin.reflect.*
  * @see UseSerializers
  * @see Serializer
  */
+@MustBeDocumented
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS, AnnotationTarget.TYPE)
 //@Retention(AnnotationRetention.RUNTIME) // Runtime is the default retention, also see KT-41082
 public annotation class Serializable(
@@ -97,6 +98,7 @@ public annotation class Serializable(
  * @see UseSerializers
  * @see Serializer
  */
+@MustBeDocumented
 @Target(AnnotationTarget.ANNOTATION_CLASS)
 //@Retention(AnnotationRetention.RUNTIME) // Runtime is the default retention, also see KT-41082
 @ExperimentalSerializationApi
@@ -111,6 +113,7 @@ public annotation class MetaSerializable
  * Changes may include additional constraints on classes and objects marked with this annotation,
  * behavioural changes and even serialized shape of the class.
  */
+@MustBeDocumented
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
 @ExperimentalSerializationApi
@@ -217,6 +220,7 @@ public annotation class EncodeDefault(val mode: Mode = Mode.ALWAYS) {
  * Keep in mind that Kotlin compiler prioritizes [function parameter target][AnnotationTarget.VALUE_PARAMETER] over [property target][AnnotationTarget.PROPERTY],
  * so serial info annotations used on constructor-parameters-as-properties without explicit declaration-site or use-site target are not preserved.
  */
+@MustBeDocumented
 @Target(AnnotationTarget.ANNOTATION_CLASS)
 @Retention(AnnotationRetention.BINARY)
 @ExperimentalSerializationApi
@@ -254,6 +258,7 @@ public annotation class SerialInfo
  * fun foo(): Int = Derived.serializer().descriptor.annotations.filterIsInstance<A>().single().value
  * ```
  */
+@MustBeDocumented
 @Target(AnnotationTarget.ANNOTATION_CLASS)
 @Retention(AnnotationRetention.BINARY)
 @ExperimentalSerializationApi
