@@ -53,15 +53,12 @@ public sealed class Properties(
 
         protected abstract fun encode(value: Any): Value
 
-        fun <T : Any> encodeNonNullableSerializableValue(serializer: SerializationStrategy<T>, value: T) {
-            if (serializer is AbstractPolymorphicSerializer<T>) {
-                var actualSerializer: SerializationStrategy<T>? = serializer.findPolymorphicSerializerOrNull(this, value)
+        @Suppress("UNCHECKED_CAST")
+        final override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
+            if (serializer is AbstractPolymorphicSerializer<*>) {
+                val casted = serializer as AbstractPolymorphicSerializer<Any>
+                val actualSerializer = casted.findPolymorphicSerializer(this, value as Any)
 
-                if (actualSerializer == null) {
-                    actualSerializer = serializer.findPolymorphicSerializer(this, value)
-                }
-
-                @Suppress("UNCHECKED_CAST")
                 return actualSerializer.serialize(this, value)
             }
 
@@ -182,7 +179,7 @@ public sealed class Properties(
     @ExperimentalSerializationApi
     public fun <T : Any> encodeToMap(serializer: SerializationStrategy<T>, value: T): Map<String, Any> {
         val m = OutAnyMapper()
-        m.encodeNonNullableSerializableValue(serializer, value)
+        m.encodeSerializableValue(serializer, value)
         return m.map
     }
 
