@@ -33,7 +33,7 @@ import kotlinx.serialization.encoding.*
  *
  * For general "catch-all" patterns around deserialization of potentially
  * untrusted/invalid/corrupted data it is recommended to catch `IllegalArgumentException` type
- * to avoid catching irrelevant to serializaton errors such as `OutOfMemoryError` or domain-specific ones.
+ * to avoid catching irrelevant to serialization errors such as `OutOfMemoryError` or domain-specific ones.
  */
 public open class SerializationException : IllegalArgumentException {
 

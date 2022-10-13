@@ -57,12 +57,12 @@ internal open class StreamingJsonDecoder(
              * dSVP reads the very next JSON tree into a memory as JsonElement and then runs TreeJsonDecoder over it
              * in order to deal with an arbitrary order of keys, but with the price of additional memory pressure
              * and CPU consumption.
-             * We would like to provide best possible performance for data produced by kotlinx.serialization
+             * We would like to provide the best possible performance for data produced by kotlinx.serialization
              * itself, for that we do the following optimistic optimization:
              *
              * 0) Remember current position in the string
              * 1) Read the very next key of JSON structure
-             * 2) If it matches*  the descriminator key, read the value, remember current position
+             * 2) If it matches*  the discriminator key, read the value, remember current position
              * 3) Return the value, recover an initial position
              * (*) -- if it doesn't match, fallback to dSVP method.
              */
@@ -114,7 +114,7 @@ internal open class StreamingJsonDecoder(
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
-        // If we're ignoring unknown keys, we have to skip all undecoded elements,
+        // If we're ignoring unknown keys, we have to skip all un-decoded elements,
         // e.g. for object serialization. It can be the case when the descriptor does
         // not have any elements and decodeElementIndex is not invoked at all
         if (json.configuration.ignoreUnknownKeys && descriptor.elementsCount == 0) {
@@ -246,8 +246,8 @@ internal open class StreamingJsonDecoder(
         if (configuration.ignoreUnknownKeys || discriminatorHolder.trySkip(key)) {
             lexer.skipElement(configuration.isLenient)
         } else {
-            // Here we cannot properly update json path indicies
-            // as we do not have a proper SerialDecriptor in our hands
+            // Here we cannot properly update json path indices
+            // as we do not have a proper SerialDescriptor in our hands
             lexer.failOnUnknownKey(key)
         }
         return lexer.tryConsumeComma()
@@ -268,8 +268,8 @@ internal open class StreamingJsonDecoder(
 
     override fun decodeBoolean(): Boolean {
         /*
-         * We prohibit non true/false boolean literals at all as it is considered way too error-prone,
-         * but allow quoted literal in relaxed mode for booleans.
+         * We prohibit any boolean literal that is not strictly 'true' or 'false' as it is considered way too
+         * error-prone, but allow quoted literal in relaxed mode for booleans.
          */
         return if (configuration.isLenient) {
             lexer.consumeBooleanLenient()
