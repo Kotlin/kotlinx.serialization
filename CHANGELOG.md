@@ -1,3 +1,25 @@
+1.4.1 / 2022-10-14
+==================
+
+This is patch release contains several bugfixes and improvements. 
+Kotlin 1.7.20 is used by default.
+
+### Improvements
+
+  * Unsigned primitives and unsigned arrays serializers can be retrieved as built-ins (#1992)
+  * Serializers are now cached inside reflective lookup, leading to faster serializer retrieval (#2015)
+  * Compiler plugin can create enum serializers using static factories for better speed (#1851) (Kotlin 1.7.20 required)
+  * Provide foundation for compiler plugin intrinsics available in Kotlin 1.8.0 (#2031)
+
+### Bugfixes
+
+  * Support polymorphism in Properties format (#2052) (thanks to [Rodrigo Vedovato](https://github.com/rodrigovedovato))
+  * Add @MustBeDocumented to certain annotations (#2059)
+  * Deprecate .isNullable in SerialDescriptor builder (#2040)
+  * Added support of UTF-16 surrogate pairs to okio streams (#2033)
+  * Fix dependency on core module from hocon module (#2020) (thanks to [Osip Fatkullin](https://github.com/osipxd))
+
+
 1.4.0 / 2022-08-18
 ==================
 
