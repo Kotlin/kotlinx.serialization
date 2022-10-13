@@ -246,8 +246,8 @@ internal open class StreamingJsonDecoder(
         if (configuration.ignoreUnknownKeys || discriminatorHolder.trySkip(key)) {
             lexer.skipElement(configuration.isLenient)
         } else {
-            // Here we cannot properly update json path indicies
-            // as we do not have a proper SerialDecriptor in our hands
+            // Here we cannot properly update json path indices
+            // as we do not have a proper SerialDescriptor in our hands
             lexer.failOnUnknownKey(key)
         }
         return lexer.tryConsumeComma()
