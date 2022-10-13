@@ -19,6 +19,9 @@ open class PolymorphismOverheadBenchmark {
     data class PolymorphicWrapper(val i: @Polymorphic Poly, val i2: Impl) // amortize the cost a bit
 
     @Serializable
+    data class SimpleWrapper(val poly: @Polymorphic Poly)
+
+    @Serializable
     data class BaseWrapper(val i: Impl, val i2: Impl)
 
     @JsonClassDiscriminator("poly")
@@ -40,6 +43,11 @@ open class PolymorphismOverheadBenchmark {
     private val polyString = json.encodeToString<Poly>(impl)
     private val serializer = serializer<Poly>()
 
+    private val wrapper = SimpleWrapper(Impl(1, "abc"))
+    private val wrapperString = json.encodeToString(wrapper)
+    private val wrapperSerializer = serializer<SimpleWrapper>()
+
+
     // 5000
     @Benchmark
     fun base() = json.decodeFromString(Impl.serializer(), implString)
@@ -50,5 +58,13 @@ open class PolymorphismOverheadBenchmark {
     // v2, with skip -- 3000 [withdrawn]
     @Benchmark
     fun poly() = json.decodeFromString(serializer, polyString)
+
+    // test for child polymorphic serializer in decoding
+    @Benchmark
+    fun polyChildDecode() = json.decodeFromString(wrapperSerializer, wrapperString)
+
+    // test for child polymorphic serializer in encoding
+    @Benchmark
+    fun polyChildEncode() = json.encodeToString(wrapperSerializer, wrapper)
 
 }
