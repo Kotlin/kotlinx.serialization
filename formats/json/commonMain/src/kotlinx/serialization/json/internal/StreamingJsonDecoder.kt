@@ -268,8 +268,8 @@ internal open class StreamingJsonDecoder(
 
     override fun decodeBoolean(): Boolean {
         /*
-         * We prohibit non-true/false boolean literals at all as it is considered way too error-prone,
-         * but allow quoted literal in relaxed mode for booleans.
+         * We prohibit any boolean literal that is not strictly 'true' or 'false' as it is considered way too
+         * error-prone, but allow quoted literal in relaxed mode for booleans.
          */
         return if (configuration.isLenient) {
             lexer.consumeBooleanLenient()
