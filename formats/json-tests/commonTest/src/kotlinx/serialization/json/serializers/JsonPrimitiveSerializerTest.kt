@@ -47,6 +47,28 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
     }
 
     @Test
+    fun testJsonRawElementNumbers() = parametrizedTest { jsonTestingMode ->
+        listOf(
+            "99999999999999999999999999999999999999999999999999999999999999999999999999",
+            "99999999999999999999999999999999999999.999999999999999999999999999999999999",
+            "-99999999999999999999999999999999999999999999999999999999999999999999999999",
+            "-99999999999999999999999999999999999999.999999999999999999999999999999999999",
+            "2.99792458e8",
+            "-2.99792458e8",
+        ).forEach { literalNum ->
+            val literalNumJson = JsonRawElement(literalNum)
+            val wrapper = JsonPrimitiveWrapper(literalNumJson)
+            val string = default.encodeToString(JsonPrimitiveWrapper.serializer(), wrapper, jsonTestingMode)
+            assertEquals("{\"primitive\":$literalNum}", string, "mode:$jsonTestingMode")
+            assertEquals(
+                JsonPrimitiveWrapper(literalNumJson),
+                default.decodeFromString(JsonPrimitiveWrapper.serializer(), string, jsonTestingMode),
+                "mode:$jsonTestingMode",
+            )
+        }
+    }
+
+    @Test
     fun testTopLevelPrimitive() = parametrizedTest { jsonTestingMode ->
         val string = default.encodeToString(JsonPrimitive.serializer(), JsonPrimitive(42), jsonTestingMode)
         assertEquals("42", string)

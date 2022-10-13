@@ -7,7 +7,11 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.internal.InlinePrimitiveDescriptor
 import kotlinx.serialization.json.internal.*
+import kotlin.native.concurrent.SharedImmutable
 
 /**
  * Class representing single JSON element.
@@ -76,12 +80,41 @@ public fun JsonPrimitive(value: String?): JsonPrimitive {
 @Suppress("FunctionName", "UNUSED_PARAMETER") // allows to call `JsonPrimitive(null)`
 public fun JsonPrimitive(value: Nothing?): JsonNull = JsonNull
 
+/**
+ * Create a [JsonPrimitive] from the given string. The value will be encoded as-is (with one exception, see below),
+ * without additional processing.
+ *
+ * This allows for encoding atypical values, such as numbers larger than [Double], or complex JSON objects.
+ *
+ * TODO Document why `value == "null"` forbidden
+ */
+@ExperimentalSerializationApi
+@Suppress("FunctionName")
+public fun JsonRawElement(value: String?): JsonPrimitive {
+    return when (value) {
+        null -> JsonNull
+        JsonNull.content -> throw JsonEncodingException("It is impossible to create a literal unquoted value of 'null'. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive")
+        else -> JsonLiteral(value, isString = false, coerceToInlineType = jsonRawElementDescriptor)
+    }
+}
+
+/** Used as a marker to indicate during encoding that the [JsonEncoder] should use `encodeInline()` */
+@SharedImmutable
+internal val jsonRawElementDescriptor: SerialDescriptor =
+    InlinePrimitiveDescriptor("kotlinx.serialization.json.JsonRawElement", String.serializer())
+
+
 // JsonLiteral is deprecated for public use and no longer available. Please use JsonPrimitive instead
 internal class JsonLiteral internal constructor(
     body: Any,
-    public override val isString: Boolean
+    public override val isString: Boolean,
+    internal val coerceToInlineType: SerialDescriptor? = null,
 ) : JsonPrimitive() {
     public override val content: String = body.toString()
+
+    init {
+        if (coerceToInlineType != null) require(coerceToInlineType.isInline)
+    }
 
     public override fun toString(): String =
         if (isString) buildString { printQuoted(content) }

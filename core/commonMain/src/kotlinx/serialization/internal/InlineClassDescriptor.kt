@@ -25,7 +25,8 @@ internal class InlineClassDescriptor(
     }
 }
 
-internal fun <T> InlinePrimitiveDescriptor(name: String, primitiveSerializer: KSerializer<T>): SerialDescriptor =
+@InternalSerializationApi
+public fun <T> InlinePrimitiveDescriptor(name: String, primitiveSerializer: KSerializer<T>): SerialDescriptor =
     InlineClassDescriptor(name, object : GeneratedSerializer<T> {
         // object needed only to pass childSerializers()
         override fun childSerializers(): Array<KSerializer<*>> = arrayOf(primitiveSerializer)

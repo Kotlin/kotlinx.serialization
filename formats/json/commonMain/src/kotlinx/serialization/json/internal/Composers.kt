@@ -38,7 +38,7 @@ internal open class Composer(@JvmField internal val writer: JsonWriter) {
     open fun print(v: Int) = writer.writeLong(v.toLong())
     open fun print(v: Long) = writer.writeLong(v)
     open fun print(v: Boolean) = writer.write(v.toString())
-    fun printQuoted(value: String) = writer.writeQuoted(value)
+    open fun printQuoted(value: String) = writer.writeQuoted(value)
 }
 
 @SuppressAnimalSniffer // Long(Integer).toUnsignedString(long)
@@ -57,6 +57,13 @@ internal class ComposerForUnsignedNumbers(writer: JsonWriter, private val forceQ
 
     override fun print(v: Short) {
         if (forceQuoting) printQuoted(v.toUShort().toString()) else print(v.toUShort().toString())
+    }
+}
+
+@SuppressAnimalSniffer
+internal class ComposerForRawJsonElements(writer: JsonWriter, private val forceQuoting: Boolean) : Composer(writer) {
+    override fun printQuoted(value: String) {
+        if (forceQuoting) super.printQuoted(value) else super.print(value)
     }
 }
 
