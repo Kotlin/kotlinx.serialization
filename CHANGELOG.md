@@ -17,7 +17,7 @@ Kotlin 1.7.20 is used by default.
   * Add @MustBeDocumented to certain annotations (#2059)
   * Deprecate .isNullable in SerialDescriptor builder (#2040)
   * Added support of UTF-16 surrogate pairs to okio streams (#2033)
-  * Fix dependency on core module from hocon module (#2020) (thanks to [Osip Fatkullin](https://github.com/osipxd))
+  * Fix dependency on core module from HOCON module (#2020) (thanks to [Osip Fatkullin](https://github.com/osipxd))
 
 
 1.4.0 / 2022-08-18
