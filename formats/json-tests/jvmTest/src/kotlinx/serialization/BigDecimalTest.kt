@@ -185,7 +185,7 @@ private object BigDecimalNumericSerializer : KSerializer<BigDecimal> {
         val bdString = value.toPlainString()
 
         if (encoder is JsonEncoder) {
-            encoder.encodeJsonElement(JsonRawElement(bdString))
+            encoder.encodeJsonElement(JsonUnquotedLiteral(bdString))
         } else {
             encoder.encodeString(bdString)
         }

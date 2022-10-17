@@ -24,7 +24,7 @@ internal val SerialDescriptor.isUnsignedNumber: Boolean
     get() = this.isInline && this in unsignedNumberDescriptors
 
 internal val SerialDescriptor.isRawJsonElement: Boolean
-    get() = this.isInline && this == jsonRawElementDescriptor
+    get() = this.isInline && this == jsonUnquotedLiteralDescriptor
 
 @OptIn(ExperimentalSerializationApi::class)
 internal class StreamingJsonEncoder(

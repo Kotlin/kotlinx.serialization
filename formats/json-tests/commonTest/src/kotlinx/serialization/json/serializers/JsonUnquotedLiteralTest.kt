@@ -6,10 +6,10 @@ import kotlinx.serialization.test.assertFailsWithSerialMessage
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class JsonRawElementTest : JsonTestBase() {
+class JsonUnquotedLiteralTest : JsonTestBase() {
 
     private fun assertRawJsonValueEncoded(inputValue: String) = parametrizedTest { mode ->
-        val rawElement = JsonRawElement(inputValue)
+        val rawElement = JsonUnquotedLiteral(inputValue)
 
         assertEquals(inputValue, rawElement.toString(), "expect JsonElement.toString() returns the raw input value")
         assertEquals(inputValue, default.encodeToString(JsonElement.serializer(), rawElement, mode))
@@ -82,7 +82,7 @@ class JsonRawElementTest : JsonTestBase() {
 
     @Test
     fun testRawJsonNull() {
-        assertEquals(JsonNull, JsonRawElement(null))
+        assertEquals(JsonNull, JsonUnquotedLiteral(null))
     }
 
     @Test
@@ -95,8 +95,8 @@ class JsonRawElementTest : JsonTestBase() {
             )
         }
 
-        test { JsonRawElement("null") }
-        test { JsonRawElement(JsonNull.content) }
+        test { JsonUnquotedLiteral("null") }
+        test { JsonUnquotedLiteral(JsonNull.content) }
     }
 
     @Test
@@ -107,7 +107,7 @@ class JsonRawElementTest : JsonTestBase() {
         )
 
         fun test(expected: String, input: String) = parametrizedTest { mode ->
-            val data = mapOf(JsonRawElement(input) to JsonPrimitive("invalid key"))
+            val data = mapOf(JsonUnquotedLiteral(input) to JsonPrimitive("invalid key"))
 
             assertEquals(
                 """ {"$expected":"invalid key"} """.trim(),

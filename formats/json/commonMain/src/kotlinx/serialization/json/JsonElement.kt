@@ -90,17 +90,17 @@ public fun JsonPrimitive(value: Nothing?): JsonNull = JsonNull
  */
 @ExperimentalSerializationApi
 @Suppress("FunctionName")
-public fun JsonRawElement(value: String?): JsonPrimitive {
+public fun JsonUnquotedLiteral(value: String?): JsonPrimitive {
     return when (value) {
         null -> JsonNull
         JsonNull.content -> throw JsonEncodingException("It is impossible to create a literal unquoted value of 'null'. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive")
-        else -> JsonLiteral(value, isString = false, coerceToInlineType = jsonRawElementDescriptor)
+        else -> JsonLiteral(value, isString = false, coerceToInlineType = jsonUnquotedLiteralDescriptor)
     }
 }
 
 /** Used as a marker to indicate during encoding that the [JsonEncoder] should use `encodeInline()` */
 @SharedImmutable
-internal val jsonRawElementDescriptor: SerialDescriptor =
+internal val jsonUnquotedLiteralDescriptor: SerialDescriptor =
     InlinePrimitiveDescriptor("kotlinx.serialization.json.JsonRawElement", String.serializer())
 
 

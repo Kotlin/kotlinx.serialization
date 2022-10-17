@@ -187,7 +187,7 @@ public final class kotlinx/serialization/json/JsonElementKt {
 	public static final fun JsonPrimitive (Ljava/lang/Number;)Lkotlinx/serialization/json/JsonPrimitive;
 	public static final fun JsonPrimitive (Ljava/lang/String;)Lkotlinx/serialization/json/JsonPrimitive;
 	public static final fun JsonPrimitive (Ljava/lang/Void;)Lkotlinx/serialization/json/JsonNull;
-	public static final fun JsonRawElement (Ljava/lang/String;)Lkotlinx/serialization/json/JsonPrimitive;
+	public static final fun JsonUnquotedLiteral (Ljava/lang/String;)Lkotlinx/serialization/json/JsonPrimitive;
 	public static final fun getBoolean (Lkotlinx/serialization/json/JsonPrimitive;)Z
 	public static final fun getBooleanOrNull (Lkotlinx/serialization/json/JsonPrimitive;)Ljava/lang/Boolean;
 	public static final fun getContentOrNull (Lkotlinx/serialization/json/JsonPrimitive;)Ljava/lang/String;
