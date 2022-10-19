@@ -149,16 +149,6 @@ internal expect fun <T> createParametrizedCache(factory: (KClass<Any>, List<KTyp
 
 internal expect fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E>
 
-/**
- * Checks whether the receiver is an instance of a given kclass.
- *
- * This check is a replacement for [KClass.isInstance] because on JVM it requires kotlin-reflect.jar in classpath (see KT-14720).
- *
- * On JS and Native, this function delegates to aforementioned [KClass.isInstance] since it is supported there out-of-the-box;
- * on JVM, it falls back to `java.lang.Class.isInstance`, which causes difference when applied to function types with big arity.
- */
-internal expect fun Any.isInstanceOf(kclass: KClass<*>): Boolean
-
 internal inline fun <T, K> Iterable<T>.elementsHashCodeBy(selector: (T) -> K): Int {
     return fold(1) { hash, element -> 31 * hash + selector(element).hashCode() }
 }

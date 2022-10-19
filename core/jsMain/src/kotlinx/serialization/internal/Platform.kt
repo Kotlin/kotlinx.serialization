@@ -38,8 +38,6 @@ internal actual fun <T> createParametrizedCache(factory: (KClass<Any>, List<KTyp
 
 internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E> = toTypedArray()
 
-internal actual fun Any.isInstanceOf(kclass: KClass<*>): Boolean = kclass.isInstance(this)
-
 internal actual fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing {
     throw SerializationException(
         "${notRegisteredMessage()}\n" +

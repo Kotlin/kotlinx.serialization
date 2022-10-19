@@ -68,6 +68,4 @@ internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KCl
 @Suppress("UNCHECKED_CAST")
 private fun <T> arrayOfAnyNulls(size: Int): Array<T> = arrayOfNulls<Any>(size) as Array<T>
 
-internal actual fun Any.isInstanceOf(kclass: KClass<*>): Boolean = kclass.isInstance(this)
-
 internal actual fun isReferenceArray(rootClass: KClass<Any>): Boolean = rootClass == Array::class

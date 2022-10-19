@@ -153,7 +153,7 @@ internal class SerialModuleImpl(
 ) : SerializersModule() {
 
     override fun <T : Any> getPolymorphic(baseClass: KClass<in T>, value: T): SerializationStrategy<T>? {
-        if (!value.isInstanceOf(baseClass)) return null
+        if (!baseClass.isInstance(value)) return null
         // Registered
         val registered = polyBase2Serializers[baseClass]?.get(value::class) as? SerializationStrategy<T>
         if (registered != null) return registered
