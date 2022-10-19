@@ -19,15 +19,15 @@ import kotlin.reflect.*
 /**
  * Reflectively retrieves a serializer for the given [type].
  *
- * This overload is intended to be used as an interoperability layer for libraries like Retrofit,
+ * This overload is intended to be used as an interoperability layer for JVM-centric libraries,
  * that operate with Java's type tokens and cannot use Kotlin's [KType] or [typeOf].
  * For application-level serialization, it is recommended to use `serializer<T>()` or `serializer(KType)` instead as it is aware of
  * Kotlin-specific type information, such as nullability, sealed classes and object singletons.
  *
  * Note that because [Type] does not contain any information about nullability, all created serializers
- * work only with not-null data.
+ * work only with non-nullable data.
  *
- * Custom [Type] implementations are not supported.
+ * Not all [Type] implementations are supported.
  * [type] must be an instance of [Class], [GenericArrayType], [ParameterizedType] or [WildcardType].
  *
  * @throws SerializationException if serializer cannot be created (provided [type] or its type argument is not serializable).
@@ -38,15 +38,15 @@ public fun serializer(type: Type): KSerializer<Any> = EmptySerializersModule().s
 /**
  * Reflectively retrieves a serializer for the given [type].
  *
- * This overload is intended to be used as an interoperability layer for libraries like Retrofit,
+ * This overload is intended to be used as an interoperability layer for JVM-centric libraries,
  * that operate with Java's type tokens and cannot use Kotlin's [KType] or [typeOf].
  * For application-level serialization, it is recommended to use `serializer<T>()` or `serializer(KType)` instead as it is aware of
  * Kotlin-specific type information, such as nullability, sealed classes and object singletons.
  *
  * Note that because [Type] does not contain any information about nullability, all created serializers
- * work only with not-null data.
+ * work only with non-nullable data.
  *
- * Custom [Type] implementations are not supported.
+ * Not all [Type] implementations are supported.
  * [type] must be an instance of [Class], [GenericArrayType], [ParameterizedType] or [WildcardType].
  *
  * @return [KSerializer] for given [type] or `null` if serializer cannot be created (given [type] or its type argument is not serializable).
@@ -58,15 +58,15 @@ public fun serializerOrNull(type: Type): KSerializer<Any>? = EmptySerializersMod
  * Retrieves a serializer for the given [type] using
  * reflective construction and [contextual][SerializersModule.getContextual] lookup as a fallback for non-serializable types.
  *
- * This overload is intended to be used as an interoperability layer for libraries like Retrofit,
+ * This overload is intended to be used as an interoperability layer for JVM-centric libraries,
  * that operate with Java's type tokens and cannot use Kotlin's [KType] or [typeOf].
  * For application-level serialization, it is recommended to use `serializer<T>()` or `serializer(KType)` instead as it is aware of
  * Kotlin-specific type information, such as nullability, sealed classes and object singletons.
  *
  * Note that because [Type] does not contain any information about nullability, all created serializers
- * work only with not-null data.
+ * work only with non-nullable data.
  *
- * Custom [Type] implementations are not supported.
+ * Not all [Type] implementations are supported.
  * [type] must be an instance of [Class], [GenericArrayType], [ParameterizedType] or [WildcardType].
  *
  * @throws SerializationException if serializer cannot be created (provided [type] or its type argument is not serializable).
@@ -80,15 +80,15 @@ public fun SerializersModule.serializer(type: Type): KSerializer<Any> =
  * Retrieves a serializer for the given [type] using
  * reflective construction and [contextual][SerializersModule.getContextual] lookup as a fallback for non-serializable types.
  *
- * This overload is intended to be used as an interoperability layer for libraries like Retrofit,
+ * This overload is intended to be used as an interoperability layer for JVM-centric libraries,
  * that operate with Java's type tokens and cannot use Kotlin's [KType] or [typeOf].
  * For application-level serialization, it is recommended to use `serializer<T>()` or `serializer(KType)` instead as it is aware of
  * Kotlin-specific type information, such as nullability, sealed classes and object singletons.
  *
  * Note that because [Type] does not contain any information about nullability, all created serializers
- * work only with not-null data.
+ * work only with non-nullable data.
  *
- * Custom [Type] implementations are not supported.
+ * Not all [Type] implementations are supported.
  * [type] must be an instance of [Class], [GenericArrayType], [ParameterizedType] or [WildcardType].
  *
  * @return [KSerializer] for given [type] or `null` if serializer cannot be created (given [type] or its type argument is not serializable).
