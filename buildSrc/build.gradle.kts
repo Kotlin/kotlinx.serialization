@@ -32,6 +32,3 @@ dependencies {
     implementation(kotlin("gradle-plugin", kotlinVersion))
 }
 
-kotlinDslPluginOptions {
-    experimentalWarning.set(false)
-}

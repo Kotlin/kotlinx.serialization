@@ -11,7 +11,7 @@ apply plugin: 'me.champeau.jmh'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-jmh.jmhVersion = "1.22"
+jmh.jmhVersion = "1.35"
 
 processJmhResources {
     doFirst {
@@ -26,7 +26,7 @@ jmhJar {
 }
 
 dependencies {
-    implementation 'org.openjdk.jmh:jmh-core:1.22'
+    implementation 'org.openjdk.jmh:jmh-core:1.35'
     implementation 'com.google.guava:guava:31.1-jre'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3'
