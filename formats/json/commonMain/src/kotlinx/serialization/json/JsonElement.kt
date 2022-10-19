@@ -83,29 +83,27 @@ public fun JsonPrimitive(value: Nothing?): JsonNull = JsonNull
 /**
  * Create a [JsonPrimitive] from the given string, without surrounding it in quotes.
  *
- * The value will be encoded without surrounding it in quotes. This allows for encoding raw JSON values that cannot be
- * encoded using the [JsonPrimitive] functions. For example,
+ * **Note:** Creating a literal unquoted value of `null` (as in, `value == "null"`) is forbidden. If you want to create
+ * JSON null literal, use [JsonNull] object, otherwise, use [JsonPrimitive].
+ *
+ * This function is provided for encoding raw JSON values that cannot be encoded using the [JsonPrimitive] functions.
+ * For example,
  *
  * * precise numeric values (avoiding floating-point precision errors associated with [Double] and [Float]),
  * * large numbers,
  * * or complex JSON objects.
  *
- * ### Warnings
- *
- * Unlike the [JsonPrimitive] functions, it is possible to produce invalid JSON using this function!
- *
- * Encoding a string with a value of `"null"` is forbidden because...
- *
- * TODO Document why `value == "null"` forbidden
+ * Be aware that it is possible to create invalid JSON using this function!
  *
  * @see JsonPrimitive This is the preferred method for encoding JSON primitives.
+ * @throws JsonEncodingException If `value == "null"`
  */
 @ExperimentalSerializationApi
 @Suppress("FunctionName")
 public fun JsonUnquotedLiteral(value: String?): JsonPrimitive {
     return when (value) {
         null -> JsonNull
-        JsonNull.content -> throw JsonEncodingException("It is impossible to create a literal unquoted value of 'null'. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive")
+        JsonNull.content -> throw JsonEncodingException("Creating an literal unquoted value of 'null' is forbidden. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive")
         else -> JsonLiteral(value, isString = false, coerceToInlineType = jsonUnquotedLiteralDescriptor)
     }
 }

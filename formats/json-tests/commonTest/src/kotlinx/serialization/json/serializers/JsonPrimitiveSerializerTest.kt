@@ -98,7 +98,7 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
     }
 
     @Test
-    fun testJsonLiterals()  {
+    fun testJsonLiterals() {
         testLiteral(0L, "0")
         testLiteral(0, "0")
         testLiteral(0.0, "0.0")
