@@ -1238,5 +1238,6 @@ The next chapter covers [Alternative and custom formats (experimental)](formats.
 [JsonDecoder.json]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-decoder/json.html
 [JsonEncoder.json]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-encoder/json.html
 [Json.encodeToJsonElement]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/encode-to-json-element.html
+[BigDecimal]: https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html
 
 <!--- END -->
