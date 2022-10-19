@@ -81,12 +81,24 @@ public fun JsonPrimitive(value: String?): JsonPrimitive {
 public fun JsonPrimitive(value: Nothing?): JsonNull = JsonNull
 
 /**
- * Create a [JsonPrimitive] from the given string. The value will be encoded as-is (with one exception, see below),
- * without additional processing.
+ * Create a [JsonPrimitive] from the given string, without surrounding it in quotes.
  *
- * This allows for encoding atypical values, such as numbers larger than [Double], or complex JSON objects.
+ * The value will be encoded without surrounding it in quotes. This allows for encoding raw JSON values that cannot be
+ * encoded using the [JsonPrimitive] functions. For example,
+ *
+ * * precise numeric values (avoiding floating-point precision errors associated with [Double] and [Float]),
+ * * large numbers,
+ * * or complex JSON objects.
+ *
+ * ### Warnings
+ *
+ * Unlike the [JsonPrimitive] functions, it is possible to produce invalid JSON using this function!
+ *
+ * Encoding a string with a value of `"null"` is forbidden because...
  *
  * TODO Document why `value == "null"` forbidden
+ *
+ * @see JsonPrimitive This is the preferred method for encoding JSON primitives.
  */
 @ExperimentalSerializationApi
 @Suppress("FunctionName")
@@ -154,7 +166,9 @@ public object JsonNull : JsonPrimitive() {
  * traditional methods like [Map.get] or [Map.getValue] to obtain Json elements.
  */
 @Serializable(JsonObjectSerializer::class)
-public class JsonObject(private val content: Map<String, JsonElement>) : JsonElement(), Map<String, JsonElement> by content {
+public class JsonObject(
+    private val content: Map<String, JsonElement>
+) : JsonElement(), Map<String, JsonElement> by content {
     public override fun equals(other: Any?): Boolean = content == other
     public override fun hashCode(): Int = content.hashCode()
     public override fun toString(): String {
@@ -262,7 +276,8 @@ public val JsonPrimitive.floatOrNull: Float? get() = content.toFloatOrNull()
  * Returns content of current element as boolean
  * @throws IllegalStateException if current element doesn't represent boolean
  */
-public val JsonPrimitive.boolean: Boolean get() = content.toBooleanStrictOrNull() ?: throw IllegalStateException("$this does not represent a Boolean")
+public val JsonPrimitive.boolean: Boolean
+    get() = content.toBooleanStrictOrNull() ?: throw IllegalStateException("$this does not represent a Boolean")
 
 /**
  * Returns content of current element as boolean or `null` if current element is not a valid representation of boolean
