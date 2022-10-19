@@ -105,7 +105,7 @@ private sealed class AbstractJsonTreeEncoder(
     override fun encodeTaggedInline(tag: String, inlineDescriptor: SerialDescriptor): Encoder =
         when {
             inlineDescriptor.isUnsignedNumber -> inlineUnsignedNumberEncoder(tag)
-            inlineDescriptor.isRawJsonElement -> inlineRawJsonElementEncoder(tag, inlineDescriptor)
+            inlineDescriptor.isUnquotedLiteral -> inlineUnquotedLiteralEncoder(tag, inlineDescriptor)
             else -> super.encodeTaggedInline(tag, inlineDescriptor)
         }
 
@@ -120,7 +120,7 @@ private sealed class AbstractJsonTreeEncoder(
             override fun encodeShort(value: Short) = putUnquotedString(value.toUShort().toString())
         }
 
-    private fun inlineRawJsonElementEncoder(tag: String, inlineDescriptor: SerialDescriptor) = object : AbstractEncoder() {
+    private fun inlineUnquotedLiteralEncoder(tag: String, inlineDescriptor: SerialDescriptor) = object : AbstractEncoder() {
         override val serializersModule: SerializersModule get() = json.serializersModule
 
         override fun encodeString(value: String)  = putElement(tag, JsonLiteral(value, isString = false, coerceToInlineType = inlineDescriptor))

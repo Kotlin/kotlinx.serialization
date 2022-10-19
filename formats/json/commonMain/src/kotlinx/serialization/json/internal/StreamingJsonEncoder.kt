@@ -23,7 +23,7 @@ private val unsignedNumberDescriptors = setOf(
 internal val SerialDescriptor.isUnsignedNumber: Boolean
     get() = this.isInline && this in unsignedNumberDescriptors
 
-internal val SerialDescriptor.isRawJsonElement: Boolean
+internal val SerialDescriptor.isUnquotedLiteral: Boolean
     get() = this.isInline && this == jsonUnquotedLiteralDescriptor
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -161,7 +161,7 @@ internal class StreamingJsonEncoder(
     override fun encodeInline(descriptor: SerialDescriptor): Encoder =
         when {
             descriptor.isUnsignedNumber -> StreamingJsonEncoder(composerAs(::ComposerForUnsignedNumbers), json, mode, null)
-            descriptor.isRawJsonElement -> StreamingJsonEncoder(composerAs(::ComposerForRawJsonElements), json, mode, null)
+            descriptor.isUnquotedLiteral -> StreamingJsonEncoder(composerAs(::ComposerForUnquotedLiterals), json, mode, null)
             else                        -> super.encodeInline(descriptor)
         }
 

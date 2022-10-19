@@ -8,53 +8,57 @@ import kotlin.test.assertEquals
 
 class JsonUnquotedLiteralTest : JsonTestBase() {
 
-    private fun assertRawJsonValueEncoded(inputValue: String) = parametrizedTest { mode ->
-        val rawElement = JsonUnquotedLiteral(inputValue)
+    private fun assertUnquotedLiteralEncoded(inputValue: String) = parametrizedTest { mode ->
+        val unquotedElement = JsonUnquotedLiteral(inputValue)
 
-        assertEquals(inputValue, rawElement.toString(), "expect JsonElement.toString() returns the raw input value")
-        assertEquals(inputValue, default.encodeToString(JsonElement.serializer(), rawElement, mode))
+        assertEquals(
+            inputValue,
+            unquotedElement.toString(),
+            "expect JsonElement.toString() returns the unquoted input value"
+        )
+        assertEquals(inputValue, default.encodeToString(JsonElement.serializer(), unquotedElement, mode))
     }
 
     @Test
-    fun testRawJsonNumbers() {
-        assertRawJsonValueEncoded("1")
-        assertRawJsonValueEncoded("-1")
-        assertRawJsonValueEncoded("100.0")
-        assertRawJsonValueEncoded("-100.0")
+    fun testUnquotedJsonNumbers() {
+        assertUnquotedLiteralEncoded("1")
+        assertUnquotedLiteralEncoded("-1")
+        assertUnquotedLiteralEncoded("100.0")
+        assertUnquotedLiteralEncoded("-100.0")
 
-        assertRawJsonValueEncoded("9999999999999999999999999999999999999999999999999999999.9999999999999999999999999999999999999999999999999999999")
-        assertRawJsonValueEncoded("-9999999999999999999999999999999999999999999999999999999.9999999999999999999999999999999999999999999999999999999")
+        assertUnquotedLiteralEncoded("9999999999999999999999999999999999999999999999999999999.9999999999999999999999999999999999999999999999999999999")
+        assertUnquotedLiteralEncoded("-9999999999999999999999999999999999999999999999999999999.9999999999999999999999999999999999999999999999999999999")
 
-        assertRawJsonValueEncoded("99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999")
-        assertRawJsonValueEncoded("-99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999")
+        assertUnquotedLiteralEncoded("99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999")
+        assertUnquotedLiteralEncoded("-99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999")
 
-        assertRawJsonValueEncoded("2.99792458e8")
-        assertRawJsonValueEncoded("-2.99792458e8")
+        assertUnquotedLiteralEncoded("2.99792458e8")
+        assertUnquotedLiteralEncoded("-2.99792458e8")
 
-        assertRawJsonValueEncoded("2.99792458E8")
-        assertRawJsonValueEncoded("-2.99792458E8")
+        assertUnquotedLiteralEncoded("2.99792458E8")
+        assertUnquotedLiteralEncoded("-2.99792458E8")
 
-        assertRawJsonValueEncoded("11.399999999999")
-        assertRawJsonValueEncoded("0.30000000000000004")
-        assertRawJsonValueEncoded("0.1000000000000000055511151231257827021181583404541015625")
+        assertUnquotedLiteralEncoded("11.399999999999")
+        assertUnquotedLiteralEncoded("0.30000000000000004")
+        assertUnquotedLiteralEncoded("0.1000000000000000055511151231257827021181583404541015625")
     }
 
     @Test
-    fun testRawJsonWhitespaceStrings() {
-        assertRawJsonValueEncoded("")
-        assertRawJsonValueEncoded("         ")
-        assertRawJsonValueEncoded("\t")
-        assertRawJsonValueEncoded("\t\t\t")
-        assertRawJsonValueEncoded("\r\n")
-        assertRawJsonValueEncoded("\n")
-        assertRawJsonValueEncoded("\n\n\n")
+    fun testUnquotedJsonWhitespaceStrings() {
+        assertUnquotedLiteralEncoded("")
+        assertUnquotedLiteralEncoded("         ")
+        assertUnquotedLiteralEncoded("\t")
+        assertUnquotedLiteralEncoded("\t\t\t")
+        assertUnquotedLiteralEncoded("\r\n")
+        assertUnquotedLiteralEncoded("\n")
+        assertUnquotedLiteralEncoded("\n\n\n")
     }
 
     @Test
-    fun testRawJsonStrings() {
-        assertRawJsonValueEncoded("lorem")
-        assertRawJsonValueEncoded(""""lorem"""")
-        assertRawJsonValueEncoded(
+    fun testUnquotedJsonStrings() {
+        assertUnquotedLiteralEncoded("lorem")
+        assertUnquotedLiteralEncoded(""""lorem"""")
+        assertUnquotedLiteralEncoded(
             """
                 Well, my name is Freddy Kreuger
                 I've got the Elm Street blues
@@ -65,28 +69,28 @@ class JsonUnquotedLiteralTest : JsonTestBase() {
     }
 
     @Test
-    fun testRawJsonObjects() {
-        assertRawJsonValueEncoded("""{"some":"json"}""")
-        assertRawJsonValueEncoded("""{"some":"json","object":true,"count":1,"array":[1,2.0,-333,"4",boolean]}""")
+    fun testUnquotedJsonObjects() {
+        assertUnquotedLiteralEncoded("""{"some":"json"}""")
+        assertUnquotedLiteralEncoded("""{"some":"json","object":true,"count":1,"array":[1,2.0,-333,"4",boolean]}""")
     }
 
     @Test
-    fun testRawJsonArrays() {
-        assertRawJsonValueEncoded("""[1,2,3]""")
-        assertRawJsonValueEncoded("""["a","b","c"]""")
-        assertRawJsonValueEncoded("""[true,false]""")
-        assertRawJsonValueEncoded("""[1,2.0,-333,"4",boolean]""")
-        assertRawJsonValueEncoded("""[{"some":"json","object":true,"count":1,"array":[1,2.0,-333,"4",boolean]}]""")
-        assertRawJsonValueEncoded("""[{"some":"json","object":true,"count":1,"array":[1,2.0,-333,"4",boolean]},{"some":"json","object":true,"count":1,"array":[1,2.0,-333,"4",boolean]}]""")
+    fun testUnquotedJsonArrays() {
+        assertUnquotedLiteralEncoded("""[1,2,3]""")
+        assertUnquotedLiteralEncoded("""["a","b","c"]""")
+        assertUnquotedLiteralEncoded("""[true,false]""")
+        assertUnquotedLiteralEncoded("""[1,2.0,-333,"4",boolean]""")
+        assertUnquotedLiteralEncoded("""[{"some":"json","object":true,"count":1,"array":[1,2.0,-333,"4",boolean]}]""")
+        assertUnquotedLiteralEncoded("""[{"some":"json","object":true,"count":1,"array":[1,2.0,-333,"4",boolean]},{"some":"json","object":true,"count":1,"array":[1,2.0,-333,"4",boolean]}]""")
     }
 
     @Test
-    fun testRawJsonNull() {
+    fun testUnquotedJsonNull() {
         assertEquals(JsonNull, JsonUnquotedLiteral(null))
     }
 
     @Test
-    fun testRawJsonNullString() {
+    fun testUnquotedJsonNullString() {
         fun test(block: () -> Unit) {
             assertFailsWithSerialMessage(
                 "JsonEncodingException",
@@ -100,7 +104,7 @@ class JsonUnquotedLiteralTest : JsonTestBase() {
     }
 
     @Test
-    fun testRawJsonInvalidMapKeyIsEscaped() {
+    fun testUnquotedJsonInvalidMapKeyIsEscaped() {
         val mapSerializer = MapSerializer(
             JsonPrimitive.serializer(),
             JsonPrimitive.serializer(),

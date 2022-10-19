@@ -61,7 +61,7 @@ internal class ComposerForUnsignedNumbers(writer: JsonWriter, private val forceQ
 }
 
 @SuppressAnimalSniffer
-internal class ComposerForRawJsonElements(writer: JsonWriter, private val forceQuoting: Boolean) : Composer(writer) {
+internal class ComposerForUnquotedLiterals(writer: JsonWriter, private val forceQuoting: Boolean) : Composer(writer) {
     override fun printQuoted(value: String) {
         if (forceQuoting) super.printQuoted(value) else super.print(value)
     }
