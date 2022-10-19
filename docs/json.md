@@ -615,12 +615,12 @@ Project(name=kotlinx.serialization, language=Kotlin)
 
 <!--- TEST -->
 
-### Encoding raw, literal Json content (experimental)
+### Encoding literal Json content (experimental)
 
 > This functionality is experimental and requires opting-in to [the experimental Kotlinx Serialization API](compatibility.md#experimental-api).
 
-In exceptional cases it might be necessary to encode a value as-is, without any alteration. This can be achieved with
-[JsonUnquotedLiteral].
+In exceptional cases it might be necessary to encode a raw, literal value. 
+This can be achieved with [JsonUnquotedLiteral].
 
 #### Serializing large decimal numbers
 
