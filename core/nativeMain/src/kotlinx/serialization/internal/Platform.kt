@@ -19,8 +19,7 @@ internal actual inline fun BooleanArray.getChecked(index: Int): Boolean {
 
 internal actual fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing {
     throw SerializationException(
-        "Serializer for class '${simpleName}' is not found.\n" +
-                "Mark the class as @Serializable or provide the serializer explicitly.\n" +
+        "${notRegisteredMessage()}\n" +
                 "On Kotlin/Native explicitly declared serializer should be used for interfaces and enums without @Serializable annotation"
     )
 }
@@ -37,11 +36,7 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
         else -> null
     }
 
-@Suppress(
-    "UNCHECKED_CAST",
-    "DEPRECATION_ERROR"
-)
-@OptIn(ExperimentalAssociatedObjects::class)
+@Suppress("DEPRECATION_ERROR")
 internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
     this.constructSerializerForGivenTypeArgs()
 
@@ -66,7 +61,7 @@ internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KCl
     val result = arrayOfAnyNulls<E>(size)
     var index = 0
     for (element in this) result[index++] = element
-    @Suppress("UNCHECKED_CAST", "USELESS_CAST")
+    @Suppress("USELESS_CAST")
     return result as Array<E>
 }
 

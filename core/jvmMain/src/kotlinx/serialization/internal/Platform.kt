@@ -18,7 +18,6 @@ internal actual inline fun BooleanArray.getChecked(index: Int): Boolean {
     return get(index)
 }
 
-@Suppress("UNCHECKED_CAST")
 internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
     this.constructSerializerForGivenTypeArgs()
 
@@ -29,10 +28,7 @@ internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KCl
 internal actual fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing = serializerNotRegistered()
 
 internal fun Class<*>.serializerNotRegistered(): Nothing {
-    throw SerializationException(
-        "Serializer for class '${simpleName}' is not found.\n" +
-                "Mark the class as @Serializable or provide the serializer explicitly."
-    )
+    throw SerializationException(this::class.notRegisteredMessage())
 }
 
 internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {

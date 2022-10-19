@@ -21,7 +21,7 @@ internal object InternalHexConverter {
         while (i < len) {
             val h = hexToInt(s[i])
             val l = hexToInt(s[i + 1])
-            require(!(h == -1 || l == -1)) { "Invalid hex chars: ${s[i]}${s[i+1]}" }
+            require(!(h == -1 || l == -1)) { "Invalid hex chars: ${s[i]}${s[i + 1]}" }
 
             bytes[i / 2] = ((h shl 4) + l).toByte()
             i += 2
@@ -85,14 +85,16 @@ internal inline fun <T> SerializationStrategy<*>.cast(): SerializationStrategy<T
 
 @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
 @PublishedApi
-internal inline fun <T> DeserializationStrategy<*>.cast(): DeserializationStrategy<T> = this as DeserializationStrategy<T>
+internal inline fun <T> DeserializationStrategy<*>.cast(): DeserializationStrategy<T> =
+    this as DeserializationStrategy<T>
 
 internal fun KClass<*>.serializerNotRegistered(): Nothing {
-    throw SerializationException(
-        "Serializer for class '${simpleName}' is not found.\n" +
-            "Mark the class as @Serializable or provide the serializer explicitly."
-    )
+    throw SerializationException(notRegisteredMessage())
 }
+
+internal fun KClass<*>.notRegisteredMessage(): String = "Serializer for class '${simpleName}' is not found.\n" +
+        "Please ensure that class is marked as '@Serializable' and that serialization plugin is applied.\n" +
+        "It is also possible to specify serializer explicitly with '${simpleName}.serializer(typeArgs)'"
 
 internal expect fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing
 
@@ -100,10 +102,13 @@ internal expect fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing
 internal fun KType.kclass() = when (val t = classifier) {
     is KClass<*> -> t
     is KTypeParameter -> {
-        error("Captured type paramerer $t from generic non-reified function. " +
-                "Such functionality cannot be supported as $t is erased, either specify serializer explicitly or make " +
-                "calling function inline with reified $t")
+        error(
+            "Captured type paramerer $t from generic non-reified function. " +
+                    "Such functionality cannot be supported as $t is erased, either specify serializer explicitly or make " +
+                    "calling function inline with reified $t"
+        )
     }
+
     else -> error("Only KClass supported as classifier, got $t")
 } as KClass<Any>
 

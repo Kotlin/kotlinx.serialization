@@ -56,8 +56,8 @@ public fun serializerOrNull(type: Type): KSerializer<Any>? = EmptySerializersMod
  */
 @ExperimentalSerializationApi
 public fun SerializersModule.serializer(type: Type): KSerializer<Any> =
-    serializerByJavaTypeImpl(type, failOnMissingTypeArgSerializer = true) ?: type.prettyClass()
-        .serializerNotRegistered()
+    serializerByJavaTypeImpl(type, failOnMissingTypeArgSerializer = true)
+        ?: type.prettyClass().serializerNotRegistered()
 
 /**
  * Retrieves serializer for the given reflective Java [type] using
