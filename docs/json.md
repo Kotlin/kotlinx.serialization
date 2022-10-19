@@ -625,8 +625,9 @@ In exceptional cases it might be necessary to encode a value as-is, without any 
 The JSON specification does not restrict the size or precision of numbers, however it is not possible to serialize 
 numbers of arbitrary size or precision using [JsonPrimitive()].
 
-If [Double] is used, then this is limited in precision, and so large numbers are truncated. When using Kotlin/JVM 
-[BigDecimal] can be used instead, but [JsonPrimitive()] will encode this as a string, not a number.
+If [Double] is used, then the numbers are limited in precision, meaning that large numbers are truncated. 
+When using Kotlin/JVM [BigDecimal] can be used instead, but [JsonPrimitive()] will encode the value as a string, not a 
+number.
 
 ```kotlin
 import java.math.BigDecimal
@@ -662,9 +663,7 @@ The [Double] value is truncated to 15 decimal places, and the String is wrapped 
 
 <!--- TEST -->
 
-
-To avoid the loss of precision, a string value can be encoded using [JsonUnquotedLiteral].
-
+To avoid the loss of precision, the string value of `pi` can be encoded using [JsonUnquotedLiteral].
 
 ```kotlin
 import java.math.BigDecimal
@@ -704,6 +703,37 @@ fun main() {
 
 <!--- TEST -->
 
+To decode `pi` back to a [BigDecimal], the string content of the [JsonPrimitive] can be used.
+
+```kotlin
+import java.math.BigDecimal
+
+fun main() {
+    val piObjectJson = """
+          {
+              "pi_literal": 3.141592653589793238462643383279
+          }
+      """.trimIndent()
+    
+    val piObject: JsonObject = Json.decodeFromString(piObjectJson)
+    
+    val piJsonLiteral = piObject["pi_literal"]!!.jsonPrimitive.content
+    
+    val pi = BigDecimal(piJsonLiteral)
+    
+    println(pi)
+}
+```
+
+> You can get the full code [here](../guide/example/example-json-18.kt).
+
+The exact value of `pi` is decoded, with all 30 decimal places of precision that were in the source JSON.
+
+```text
+3.141592653589793238462643383279
+```
+
+<!--- TEST -->
 
 #### Using `JsonUnquotedLiteral` to encode `"null"` is forbidden
 
@@ -717,7 +747,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-18.kt).
+> You can get the full code [here](../guide/example/example-json-19.kt).
 
 ```text
 Exception in thread "main" kotlinx.serialization.json.internal.JsonEncodingException: Creating an literal unquoted value of 'null' is forbidden. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive
@@ -793,7 +823,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-19.kt).
+> You can get the full code [here](../guide/example/example-json-20.kt).
 
 The output shows that both cases are correctly deserialized into a Kotlin [List].
 
@@ -845,7 +875,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-20.kt).
+> You can get the full code [here](../guide/example/example-json-21.kt).
 
 You end up with a single JSON object, not an array with one element:
 
@@ -890,7 +920,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-21.kt).
+> You can get the full code [here](../guide/example/example-json-22.kt).
 
 See the effect of the custom serializer:
 
@@ -963,7 +993,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-22.kt).
+> You can get the full code [here](../guide/example/example-json-23.kt).
 
 No class discriminator is added in the JSON output:
 
@@ -1059,7 +1089,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-23.kt).
+> You can get the full code [here](../guide/example/example-json-24.kt).
 
 This gives you fine-grained control on the representation of the `Response` class in the JSON output:
 
@@ -1124,7 +1154,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-24.kt).
+> You can get the full code [here](../guide/example/example-json-25.kt).
 
 ```text
 UnknownProject(name=example, details={"type":"unknown","maintainer":"Unknown","license":"Apache 2.0"})
