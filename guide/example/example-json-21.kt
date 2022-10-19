@@ -4,34 +4,19 @@ package example.exampleJson21
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.encoding.*
+@Serializable
+class Project(val name: String, val language: String)
 
-data class UnknownProject(val name: String, val details: JsonObject)
-
-object UnknownProjectSerializer : KSerializer<UnknownProject> {
-    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("UnknownProject") {
-        element<String>("name")
-        element<JsonElement>("details")
-    }
-
-    override fun deserialize(decoder: Decoder): UnknownProject {
-        // Cast to JSON-specific interface
-        val jsonInput = decoder as? JsonDecoder ?: error("Can be deserialized only by JSON")
-        // Read the whole content as JSON
-        val json = jsonInput.decodeJsonElement().jsonObject
-        // Extract and remove name property
-        val name = json.getValue("name").jsonPrimitive.content
-        val details = json.toMutableMap()
-        details.remove("name")
-        return UnknownProject(name, JsonObject(details))
-    }
-
-    override fun serialize(encoder: Encoder, value: UnknownProject) {
-        error("Serialization is not supported")
-    }
+object ProjectSerializer : JsonTransformingSerializer<Project>(Project.serializer()) {
+    override fun transformSerialize(element: JsonElement): JsonElement =
+        // Filter out top-level key value pair with the key "language" and the value "Kotlin"
+        JsonObject(element.jsonObject.filterNot {
+            (k, v) -> k == "language" && v.jsonPrimitive.content == "Kotlin"
+        })
 }
 
 fun main() {
-    println(Json.decodeFromString(UnknownProjectSerializer, """{"type":"unknown","name":"example","maintainer":"Unknown","license":"Apache 2.0"}"""))
+    val data = Project("kotlinx.serialization", "Kotlin")
+    println(Json.encodeToString(data)) // using plugin-generated serializer
+    println(Json.encodeToString(ProjectSerializer, data)) // using custom serializer
 }

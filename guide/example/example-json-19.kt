@@ -7,30 +7,26 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.builtins.*
 
 @Serializable
-abstract class Project {
-    abstract val name: String
-}
+data class Project(
+    val name: String,
+    @Serializable(with = UserListSerializer::class)
+    val users: List<User>
+)
 
 @Serializable
-data class BasicProject(override val name: String): Project()
+data class User(val name: String)
 
-
-@Serializable
-data class OwnedProject(override val name: String, val owner: String) : Project()
-
-object ProjectSerializer : JsonContentPolymorphicSerializer<Project>(Project::class) {
-    override fun selectDeserializer(element: JsonElement) = when {
-        "owner" in element.jsonObject -> OwnedProject.serializer()
-        else -> BasicProject.serializer()
-    }
+object UserListSerializer : JsonTransformingSerializer<List<User>>(ListSerializer(User.serializer())) {
+    // If response is not an array, then it is a single object that should be wrapped into the array
+    override fun transformDeserialize(element: JsonElement): JsonElement =
+        if (element !is JsonArray) JsonArray(listOf(element)) else element
 }
 
 fun main() {
-    val data = listOf(
-        OwnedProject("kotlinx.serialization", "kotlin"),
-        BasicProject("example")
-    )
-    val string = Json.encodeToString(ListSerializer(ProjectSerializer), data)
-    println(string)
-    println(Json.decodeFromString(ListSerializer(ProjectSerializer), string))
+    println(Json.decodeFromString<Project>("""
+        {"name":"kotlinx.serialization","users":{"name":"kotlin"}}
+    """))
+    println(Json.decodeFromString<Project>("""
+        {"name":"kotlinx.serialization","users":[{"name":"kotlin"},{"name":"jetbrains"}]}
+    """))
 }

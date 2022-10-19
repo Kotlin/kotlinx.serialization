@@ -4,27 +4,24 @@ package example.exampleJson17
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-import kotlinx.serialization.builtins.*
+import java.math.BigDecimal
 
-@Serializable
-data class Project(
-    val name: String,
-    @Serializable(with = UserListSerializer::class)
-    val users: List<User>
-)
-
-@Serializable
-data class User(val name: String)
-
-object UserListSerializer : JsonTransformingSerializer<List<User>>(ListSerializer(User.serializer())) {
-
-    override fun transformSerialize(element: JsonElement): JsonElement {
-        require(element is JsonArray) // this serializer is used only with lists
-        return element.singleOrNull() ?: element
-    }
-}
+val format = Json { prettyPrint = true }
 
 fun main() {
-    val data = Project("kotlinx.serialization", listOf(User("kotlin")))
-    println(Json.encodeToString(data))
+    val pi = BigDecimal("3.141592653589793238462643383279")
+
+    // use JsonUnquotedLiteral to encode raw JSON content
+    val piJsonLiteral = JsonUnquotedLiteral(pi.toString())
+
+    val piJsonDouble = JsonPrimitive(pi.toDouble())
+    val piJsonString = JsonPrimitive(pi.toString())
+  
+    val piObject = buildJsonObject {
+        put("pi_literal", piJsonLiteral)
+        put("pi_double", piJsonDouble)
+        put("pi_string", piJsonString)
+    }
+
+    println(format.encodeToString(piObject))
 }
