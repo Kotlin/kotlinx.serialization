@@ -28,7 +28,7 @@ internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KCl
 internal actual fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing = serializerNotRegistered()
 
 internal fun Class<*>.serializerNotRegistered(): Nothing {
-    throw SerializationException(this::class.notRegisteredMessage())
+    throw SerializationException(this.kotlin.notRegisteredMessage())
 }
 
 internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
