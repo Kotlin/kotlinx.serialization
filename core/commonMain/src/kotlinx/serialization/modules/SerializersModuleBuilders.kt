@@ -36,6 +36,7 @@ public inline fun SerializersModule(builderAction: SerializersModuleBuilder.() -
 /**
  * A [SerializersModule] which is empty and returns `null` from each method.
  */
+@Suppress("FunctionName")
 public fun EmptySerializersModule(): SerializersModule = @Suppress("DEPRECATION") EmptySerializersModule
 
 /**
