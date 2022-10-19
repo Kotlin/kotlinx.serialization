@@ -4,9 +4,7 @@ package example.exampleJson18
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-import java.math.BigDecimal
-
 fun main() {
-    // creating a 
+    // caution: creating null with JsonUnquotedLiteral will cause an exception! 
     JsonUnquotedLiteral("null")
 }

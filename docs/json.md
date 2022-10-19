@@ -26,7 +26,7 @@ In this chapter, we'll walk through features of [JSON](https://www.json.org/json
   * [Json element builders](#json-element-builders)
   * [Decoding Json elements](#decoding-json-elements)
   * [Encoding raw, literal Json content (experimental)](#encoding-raw-literal-json-content-experimental)
-    * [Example: Serializing large decimal numbers](#example:-serializing-large-decimal-numbers)
+    * [Serializing large decimal numbers](#serializing-large-decimal-numbers)
     * [Using `JsonUnquotedLiteral` to encode `"null"` is forbidden](#using-jsonunquotedliteral-to-encode-"null"-is-forbidden)
 * [Json transformations](#json-transformations)
   * [Array wrapping](#array-wrapping)
@@ -620,13 +620,13 @@ Project(name=kotlinx.serialization, language=Kotlin)
 In exceptional cases it might be necessary to encode a value as-is, without any alteration. This can be achieved with
 [JsonUnquotedLiteral].
 
-#### Example: Serializing large decimal numbers
+#### Serializing large decimal numbers
 
 The JSON specification does not restrict the size or precision of numbers, however it is not possible to serialize 
 numbers of arbitrary size or precision using [JsonPrimitive()].
 
 If [Double] is used, then this is limited in precision, and so large numbers are truncated. When using Kotlin/JVM 
-[BigDecimal] can be used instead, but [JsonPrimitive()] will wrap the string content in quotes.
+[BigDecimal] can be used instead, but [JsonPrimitive()] will encode this as a string, not a number.
 
 ```kotlin
 import java.math.BigDecimal
@@ -650,8 +650,8 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-json-16.kt).
 
-Even though `pi` was defined as a number, with 30 decimal places, the resulting JSON does not reflect this. 
-The [Double] value is truncated to XX decimal places, and the String is wrapped in quotes - which is not a JSON number.
+Even though `pi` was defined as a number with 30 decimal places, the resulting JSON does not reflect this. 
+The [Double] value is truncated to 15 decimal places, and the String is wrapped in quotes - which is not a JSON number.
 
 ```text
 {
@@ -663,7 +663,7 @@ The [Double] value is truncated to XX decimal places, and the String is wrapped 
 <!--- TEST -->
 
 
-To avoid the loss of precision, the raw value can be encoded using [JsonUnquotedLiteral].
+To avoid the loss of precision, a string value can be encoded using [JsonUnquotedLiteral].
 
 
 ```kotlin
@@ -711,17 +711,13 @@ To avoid creating an inconsistent state, encoding a String equal to `"null"` is 
 Use [JsonNull] or [JsonPrimitive] instead.
 
 ```kotlin
-import java.math.BigDecimal
-
 fun main() {
-    // creating a 
+    // caution: creating null with JsonUnquotedLiteral will cause an exception! 
     JsonUnquotedLiteral("null")
 }
 ```
 
 > You can get the full code [here](../guide/example/example-json-18.kt).
-
-
 
 ```text
 Exception in thread "main" kotlinx.serialization.json.internal.JsonEncodingException: Creating an literal unquoted value of 'null' is forbidden. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive

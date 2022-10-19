@@ -124,7 +124,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='json-element-builders'></a>[Json element builders](json.md#json-element-builders)
   * <a name='decoding-json-elements'></a>[Decoding Json elements](json.md#decoding-json-elements)
   * <a name='encoding-raw-literal-json-content-experimental'></a>[Encoding raw, literal Json content (experimental)](json.md#encoding-raw-literal-json-content-experimental)
-    * <a name='example:-serializing-large-decimal-numbers'></a>[Example: Serializing large decimal numbers](json.md#example:-serializing-large-decimal-numbers)
+    * <a name='serializing-large-decimal-numbers'></a>[Serializing large decimal numbers](json.md#serializing-large-decimal-numbers)
     * <a name='using-jsonunquotedliteral-to-encode-"null"-is-forbidden'></a>[Using `JsonUnquotedLiteral` to encode `"null"` is forbidden](json.md#using-jsonunquotedliteral-to-encode-"null"-is-forbidden)
 * <a name='json-transformations'></a>[Json transformations](json.md#json-transformations)
   * <a name='array-wrapping'></a>[Array wrapping](json.md#array-wrapping)
