@@ -83,9 +83,6 @@ public fun JsonPrimitive(value: Nothing?): JsonNull = JsonNull
 /**
  * Creates a [JsonPrimitive] from the given string, without surrounding it in quotes.
  *
- * **Note:** Creating a literal unquoted value of `null` (as in, `value == "null"`) is forbidden. If you want to create
- * JSON null literal, use [JsonNull] object, otherwise, use [JsonPrimitive].
- *
  * This function is provided for encoding raw JSON values that cannot be encoded using the [JsonPrimitive] functions.
  * For example,
  *
@@ -94,6 +91,9 @@ public fun JsonPrimitive(value: Nothing?): JsonNull = JsonNull
  * * or complex JSON objects.
  *
  * Be aware that it is possible to create invalid JSON using this function.
+ *
+ * Creating a literal unquoted value of `null` (as in, `value == "null"`) is forbidden. If you want to create
+ * JSON null literal, use [JsonNull] object, otherwise, use [JsonPrimitive].
  *
  * @see JsonPrimitive is the preferred method for encoding JSON primitives.
  * @throws JsonEncodingException if `value == "null"`
