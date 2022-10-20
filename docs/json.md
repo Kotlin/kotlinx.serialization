@@ -665,7 +665,7 @@ The [Double] value is truncated to 15 decimal places, and the String is wrapped 
 
 <!--- TEST -->
 
-To avoid the loss of precision, the string value of `pi` can be encoded using [JsonUnquotedLiteral].
+To avoid precision loss, the string value of `pi` can be encoded using [JsonUnquotedLiteral].
 
 ```kotlin
 import java.math.BigDecimal
