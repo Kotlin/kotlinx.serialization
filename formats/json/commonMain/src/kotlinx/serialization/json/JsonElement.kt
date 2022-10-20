@@ -93,7 +93,7 @@ public fun JsonPrimitive(value: Nothing?): JsonNull = JsonNull
  * * large numbers,
  * * or complex JSON objects.
  *
- * Be aware that it is possible to create invalid JSON using this function!
+ * Be aware that it is possible to create invalid JSON using this function.
  *
  * @see JsonPrimitive This is the preferred method for encoding JSON primitives.
  * @throws JsonEncodingException If `value == "null"`
