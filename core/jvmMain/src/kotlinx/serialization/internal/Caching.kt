@@ -7,7 +7,9 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.KSerializer
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
+import kotlin.reflect.KClassifier
 import kotlin.reflect.KType
+import kotlin.reflect.KTypeProjection
 
 /*
  * By default, we use ClassValue-based caches to avoid classloader leaks,
@@ -101,10 +103,37 @@ private class ConcurrentHashMapParametrizedCache<T>(private val compute: (KClass
 
 private class CacheEntry<T>(@JvmField val serializer: KSerializer<T>?)
 
+private class KTypeWrapper(val origin: KType): KType {
+    override val annotations: List<Annotation> = origin.annotations
+    override val arguments: List<KTypeProjection> = origin.arguments
+    override val classifier: KClassifier? = origin.classifier
+    override val isMarkedNullable: Boolean = origin.isMarkedNullable
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null) return false
+        if (origin != other) return false
+
+        if (classifier is KClass<*>) {
+            val otherClassifier = (other as? KType)?.classifier
+            if (otherClassifier == null || otherClassifier !is KClass<*>) {
+                return false
+            }
+            return classifier.java == otherClassifier.java
+        } else {
+            return false
+        }
+    }
+
+    override fun hashCode(): Int {
+        return origin.hashCode()
+    }
+}
+
 private class ParametrizedCacheEntry<T> {
-    private val serializers: ConcurrentHashMap<List<KType>, Result<KSerializer<T>?>> = ConcurrentHashMap()
+    private val serializers: ConcurrentHashMap<List<KTypeWrapper>, Result<KSerializer<T>?>> = ConcurrentHashMap()
     inline fun computeIfAbsent(types: List<KType>, producer: () -> KSerializer<T>?): Result<KSerializer<T>?> {
-        return serializers.getOrPut(types) {
+        val wrappedTypes = types.map { KTypeWrapper(it) }
+        return serializers.getOrPut(wrappedTypes) {
             kotlin.runCatching { producer() }
         }
     }
