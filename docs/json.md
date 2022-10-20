@@ -619,7 +619,7 @@ Project(name=kotlinx.serialization, language=Kotlin)
 
 > This functionality is experimental and requires opting-in to [the experimental Kotlinx Serialization API](compatibility.md#experimental-api).
 
-In some cases, it might be necessary to encode an arbitrary unquoted value. 
+In some cases it might be necessary to encode an arbitrary unquoted value. 
 This can be achieved with [JsonUnquotedLiteral].
 
 #### Serializing large decimal numbers
