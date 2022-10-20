@@ -95,7 +95,7 @@ public fun JsonPrimitive(value: Nothing?): JsonNull = JsonNull
  *
  * Be aware that it is possible to create invalid JSON using this function.
  *
- * @see JsonPrimitive This is the preferred method for encoding JSON primitives.
+ * @see JsonPrimitive is the preferred method for encoding JSON primitives.
  * @throws JsonEncodingException If `value == "null"`
  */
 @ExperimentalSerializationApi
