@@ -239,7 +239,7 @@ Project(name=kotlinx.serialization, language=Kotlin)
 ### Encoding defaults
 
 Default values of properties are not encoded by default because they will be assigned to missing fields during decoding anyway.
-See the [Defaults are not encoded](basic-serialization.md#defaults-are-not-encoded) section for details and an example.
+See the [Defaults are not encoded](basic-serialization.md#defaults-are-not-encoded-by-default) section for details and an example.
 This is especially useful for nullable properties with null defaults and avoids writing the corresponding null values.
 The default behavior can be changed by setting the [encodeDefaults][JsonBuilder.encodeDefaults] property to `true`:
 
