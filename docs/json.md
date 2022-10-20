@@ -25,7 +25,7 @@ In this chapter, we'll walk through features of [JSON](https://www.json.org/json
   * [Types of Json elements](#types-of-json-elements)
   * [Json element builders](#json-element-builders)
   * [Decoding Json elements](#decoding-json-elements)
-  * [Encoding raw, literal Json content (experimental)](#encoding-raw-literal-json-content-experimental)
+  * [Encoding literal Json content (experimental)](#encoding-literal-json-content-experimental)
     * [Serializing large decimal numbers](#serializing-large-decimal-numbers)
     * [Using `JsonUnquotedLiteral` to encode `"null"` is forbidden](#using-jsonunquotedliteral-to-encode-"null"-is-forbidden)
 * [Json transformations](#json-transformations)
@@ -1171,6 +1171,7 @@ The next chapter covers [Alternative and custom formats (experimental)](formats.
 
 <!-- references -->
 [RFC-4627]: https://www.ietf.org/rfc/rfc4627.txt
+[BigDecimal]: https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html
 
 <!-- stdlib references -->
 [Double]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double/
@@ -1238,6 +1239,5 @@ The next chapter covers [Alternative and custom formats (experimental)](formats.
 [JsonDecoder.json]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-decoder/json.html
 [JsonEncoder.json]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-encoder/json.html
 [Json.encodeToJsonElement]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/encode-to-json-element.html
-[BigDecimal]: https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html
 
 <!--- END -->
