@@ -97,7 +97,7 @@ class JsonUnquotedLiteralTest : JsonTestBase() {
         fun test(block: () -> Unit) {
             assertFailsWithSerialMessage(
                 exceptionName = "JsonEncodingException",
-                message = "Creating an literal unquoted value of 'null' is forbidden. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive",
+                message = "Creating a literal unquoted value of 'null' is forbidden. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive",
                 block = block,
             )
         }

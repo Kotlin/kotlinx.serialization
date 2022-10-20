@@ -27,7 +27,7 @@ In this chapter, we'll walk through features of [JSON](https://www.json.org/json
   * [Decoding Json elements](#decoding-json-elements)
   * [Encoding literal Json content (experimental)](#encoding-literal-json-content-experimental)
     * [Serializing large decimal numbers](#serializing-large-decimal-numbers)
-    * [Using `JsonUnquotedLiteral` to encode `"null"` is forbidden](#using-jsonunquotedliteral-to-encode-null-is-forbidden)
+    * [Using `JsonUnquotedLiteral` to create a literal unquoted value of 'null' is forbidden](#using-jsonunquotedliteral-to-create-a-literal-unquoted-value-of-'null'-is-forbidden)
 * [Json transformations](#json-transformations)
   * [Array wrapping](#array-wrapping)
   * [Array unwrapping](#array-unwrapping)
@@ -741,7 +741,7 @@ The exact value of `pi` is decoded, with all 30 decimal places of precision that
 
 <!--- TEST -->
 
-#### Using `JsonUnquotedLiteral` to encode `"null"` is forbidden
+#### Using `JsonUnquotedLiteral` to create a literal unquoted value of 'null' is forbidden
 
 To avoid creating an inconsistent state, encoding a String equal to `"null"` is forbidden. 
 Use [JsonNull] or [JsonPrimitive] instead.
@@ -756,7 +756,7 @@ fun main() {
 > You can get the full code [here](../guide/example/example-json-19.kt).
 
 ```text
-Exception in thread "main" kotlinx.serialization.json.internal.JsonEncodingException: Creating an literal unquoted value of 'null' is forbidden. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive
+Exception in thread "main" kotlinx.serialization.json.internal.JsonEncodingException: Creating a literal unquoted value of 'null' is forbidden. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive
 ```
 
 <!--- TEST LINES_START -->
