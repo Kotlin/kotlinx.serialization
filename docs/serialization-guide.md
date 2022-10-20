@@ -125,7 +125,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='decoding-json-elements'></a>[Decoding Json elements](json.md#decoding-json-elements)
   * <a name='encoding-literal-json-content-experimental'></a>[Encoding literal Json content (experimental)](json.md#encoding-literal-json-content-experimental)
     * <a name='serializing-large-decimal-numbers'></a>[Serializing large decimal numbers](json.md#serializing-large-decimal-numbers)
-    * <a name='using-jsonunquotedliteral-to-create-a-literal-unquoted-value-of-'null'-is-forbidden'></a>[Using `JsonUnquotedLiteral` to create a literal unquoted value of 'null' is forbidden](json.md#using-jsonunquotedliteral-to-create-a-literal-unquoted-value-of-'null'-is-forbidden)
+    * <a name='using-jsonunquotedliteral-to-create-a-literal-unquoted-value-of-null-is-forbidden'></a>[Using `JsonUnquotedLiteral` to create a literal unquoted value of `null` is forbidden](json.md#using-jsonunquotedliteral-to-create-a-literal-unquoted-value-of-null-is-forbidden)
 * <a name='json-transformations'></a>[Json transformations](json.md#json-transformations)
   * <a name='array-wrapping'></a>[Array wrapping](json.md#array-wrapping)
   * <a name='array-unwrapping'></a>[Array unwrapping](json.md#array-unwrapping)

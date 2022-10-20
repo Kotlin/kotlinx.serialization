@@ -27,7 +27,7 @@ In this chapter, we'll walk through features of [JSON](https://www.json.org/json
   * [Decoding Json elements](#decoding-json-elements)
   * [Encoding literal Json content (experimental)](#encoding-literal-json-content-experimental)
     * [Serializing large decimal numbers](#serializing-large-decimal-numbers)
-    * [Using `JsonUnquotedLiteral` to create a literal unquoted value of 'null' is forbidden](#using-jsonunquotedliteral-to-create-a-literal-unquoted-value-of-'null'-is-forbidden)
+    * [Using `JsonUnquotedLiteral` to create a literal unquoted value of `null` is forbidden](#using-jsonunquotedliteral-to-create-a-literal-unquoted-value-of-null-is-forbidden)
 * [Json transformations](#json-transformations)
   * [Array wrapping](#array-wrapping)
   * [Array unwrapping](#array-unwrapping)
@@ -741,7 +741,7 @@ The exact value of `pi` is decoded, with all 30 decimal places of precision that
 
 <!--- TEST -->
 
-#### Using `JsonUnquotedLiteral` to create a literal unquoted value of 'null' is forbidden
+#### Using `JsonUnquotedLiteral` to create a literal unquoted value of `null` is forbidden
 
 To avoid creating an inconsistent state, encoding a String equal to `"null"` is forbidden. 
 Use [JsonNull] or [JsonPrimitive] instead.
