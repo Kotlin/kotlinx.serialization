@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 
 class JsonUnquotedLiteralTest : JsonTestBase() {
 
-    private fun assertUnquotedLiteralEncoded(inputValue: String) = parametrizedTest { mode ->
+    private fun assertUnquotedLiteralEncoded(inputValue: String) {
         val unquotedElement = JsonUnquotedLiteral(inputValue)
 
         assertEquals(
@@ -16,7 +16,10 @@ class JsonUnquotedLiteralTest : JsonTestBase() {
             unquotedElement.toString(),
             "expect JsonElement.toString() returns the unquoted input value"
         )
-        assertEquals(inputValue, default.encodeToString(JsonElement.serializer(), unquotedElement, mode))
+
+        parametrizedTest { mode ->
+            assertEquals(inputValue, default.encodeToString(JsonElement.serializer(), unquotedElement, mode))
+        }
     }
 
     @Test
