@@ -27,7 +27,7 @@ In this chapter, we'll walk through features of [JSON](https://www.json.org/json
   * [Decoding Json elements](#decoding-json-elements)
   * [Encoding literal Json content (experimental)](#encoding-literal-json-content-experimental)
     * [Serializing large decimal numbers](#serializing-large-decimal-numbers)
-    * [Using `JsonUnquotedLiteral` to encode `"null"` is forbidden](#using-jsonunquotedliteral-to-encode-"null"-is-forbidden)
+    * [Using `JsonUnquotedLiteral` to encode `"null"` is forbidden](#using-jsonunquotedliteral-to-encode-null-is-forbidden)
 * [Json transformations](#json-transformations)
   * [Array wrapping](#array-wrapping)
   * [Array unwrapping](#array-unwrapping)
