@@ -707,6 +707,10 @@ fun main() {
 
 To decode `pi` back to a [BigDecimal], the string content of the [JsonPrimitive] can be used.
 
+(This demonstration uses a [JsonPrimitive] for simplicity. For a more re-usable method of handling serialization, see 
+[Json Transformations](#json-transformations) below.) 
+
+
 ```kotlin
 import java.math.BigDecimal
 
