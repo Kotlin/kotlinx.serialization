@@ -23,6 +23,9 @@ private val unsignedNumberDescriptors = setOf(
 internal val SerialDescriptor.isUnsignedNumber: Boolean
     get() = this.isInline && this in unsignedNumberDescriptors
 
+internal val SerialDescriptor.isUnquotedLiteral: Boolean
+    get() = this.isInline && this == jsonUnquotedLiteralDescriptor
+
 @OptIn(ExperimentalSerializationApi::class)
 internal class StreamingJsonEncoder(
     private val composer: Composer,
@@ -156,17 +159,18 @@ internal class StreamingJsonEncoder(
     }
 
     override fun encodeInline(descriptor: SerialDescriptor): Encoder =
-        if (descriptor.isUnsignedNumber) StreamingJsonEncoder(
-            composerForUnsignedNumbers(), json, mode, null
-        )
-        else super.encodeInline(descriptor)
+        when {
+            descriptor.isUnsignedNumber -> StreamingJsonEncoder(composerAs(::ComposerForUnsignedNumbers), json, mode, null)
+            descriptor.isUnquotedLiteral -> StreamingJsonEncoder(composerAs(::ComposerForUnquotedLiterals), json, mode, null)
+            else                        -> super.encodeInline(descriptor)
+        }
 
-    private fun composerForUnsignedNumbers(): Composer {
+    private inline fun <reified T: Composer> composerAs(composerCreator: (writer: JsonWriter, forceQuoting: Boolean) -> T): T {
         // If we're inside encodeInline().encodeSerializableValue, we should preserve the forceQuoting state
         // inside the composer, but not in the encoder (otherwise we'll get into `if (forceQuoting) encodeString(value.toString())` part
         // and unsigned numbers would be encoded incorrectly)
-        return if (composer is ComposerForUnsignedNumbers) composer
-        else ComposerForUnsignedNumbers(composer.writer, forceQuoting)
+        return if (composer is T) composer
+        else composerCreator(composer.writer, forceQuoting)
     }
 
     override fun encodeNull() {

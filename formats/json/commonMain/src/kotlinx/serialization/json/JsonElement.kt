@@ -7,7 +7,11 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.internal.InlinePrimitiveDescriptor
 import kotlinx.serialization.json.internal.*
+import kotlin.native.concurrent.SharedImmutable
 
 /**
  * Class representing single JSON element.
@@ -76,12 +80,51 @@ public fun JsonPrimitive(value: String?): JsonPrimitive {
 @Suppress("FunctionName", "UNUSED_PARAMETER") // allows to call `JsonPrimitive(null)`
 public fun JsonPrimitive(value: Nothing?): JsonNull = JsonNull
 
+/**
+ * Creates a [JsonPrimitive] from the given string, without surrounding it in quotes.
+ *
+ * This function is provided for encoding raw JSON values that cannot be encoded using the [JsonPrimitive] functions.
+ * For example,
+ *
+ * * precise numeric values (avoiding floating-point precision errors associated with [Double] and [Float]),
+ * * large numbers,
+ * * or complex JSON objects.
+ *
+ * Be aware that it is possible to create invalid JSON using this function.
+ *
+ * Creating a literal unquoted value of `null` (as in, `value == "null"`) is forbidden. If you want to create
+ * JSON null literal, use [JsonNull] object, otherwise, use [JsonPrimitive].
+ *
+ * @see JsonPrimitive is the preferred method for encoding JSON primitives.
+ * @throws JsonEncodingException if `value == "null"`
+ */
+@ExperimentalSerializationApi
+@Suppress("FunctionName")
+public fun JsonUnquotedLiteral(value: String?): JsonPrimitive {
+    return when (value) {
+        null -> JsonNull
+        JsonNull.content -> throw JsonEncodingException("Creating a literal unquoted value of 'null' is forbidden. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive")
+        else -> JsonLiteral(value, isString = false, coerceToInlineType = jsonUnquotedLiteralDescriptor)
+    }
+}
+
+/** Used as a marker to indicate during encoding that the [JsonEncoder] should use `encodeInline()` */
+@SharedImmutable
+internal val jsonUnquotedLiteralDescriptor: SerialDescriptor =
+    InlinePrimitiveDescriptor("kotlinx.serialization.json.JsonUnquotedLiteral", String.serializer())
+
+
 // JsonLiteral is deprecated for public use and no longer available. Please use JsonPrimitive instead
 internal class JsonLiteral internal constructor(
     body: Any,
-    public override val isString: Boolean
+    public override val isString: Boolean,
+    internal val coerceToInlineType: SerialDescriptor? = null,
 ) : JsonPrimitive() {
     public override val content: String = body.toString()
+
+    init {
+        if (coerceToInlineType != null) require(coerceToInlineType.isInline)
+    }
 
     public override fun toString(): String =
         if (isString) buildString { printQuoted(content) }
@@ -121,7 +164,9 @@ public object JsonNull : JsonPrimitive() {
  * traditional methods like [Map.get] or [Map.getValue] to obtain Json elements.
  */
 @Serializable(JsonObjectSerializer::class)
-public class JsonObject(private val content: Map<String, JsonElement>) : JsonElement(), Map<String, JsonElement> by content {
+public class JsonObject(
+    private val content: Map<String, JsonElement>
+) : JsonElement(), Map<String, JsonElement> by content {
     public override fun equals(other: Any?): Boolean = content == other
     public override fun hashCode(): Int = content.hashCode()
     public override fun toString(): String {
@@ -229,7 +274,8 @@ public val JsonPrimitive.floatOrNull: Float? get() = content.toFloatOrNull()
  * Returns content of current element as boolean
  * @throws IllegalStateException if current element doesn't represent boolean
  */
-public val JsonPrimitive.boolean: Boolean get() = content.toBooleanStrictOrNull() ?: throw IllegalStateException("$this does not represent a Boolean")
+public val JsonPrimitive.boolean: Boolean
+    get() = content.toBooleanStrictOrNull() ?: throw IllegalStateException("$this does not represent a Boolean")
 
 /**
  * Returns content of current element as boolean or `null` if current element is not a valid representation of boolean

@@ -25,6 +25,9 @@ In this chapter, we'll walk through features of [JSON](https://www.json.org/json
   * [Types of Json elements](#types-of-json-elements)
   * [Json element builders](#json-element-builders)
   * [Decoding Json elements](#decoding-json-elements)
+  * [Encoding literal Json content (experimental)](#encoding-literal-json-content-experimental)
+    * [Serializing large decimal numbers](#serializing-large-decimal-numbers)
+    * [Using `JsonUnquotedLiteral` to create a literal unquoted value of `null` is forbidden](#using-jsonunquotedliteral-to-create-a-literal-unquoted-value-of-null-is-forbidden)
 * [Json transformations](#json-transformations)
   * [Array wrapping](#array-wrapping)
   * [Array unwrapping](#array-unwrapping)
@@ -236,7 +239,7 @@ Project(name=kotlinx.serialization, language=Kotlin)
 ### Encoding defaults
 
 Default values of properties are not encoded by default because they will be assigned to missing fields during decoding anyway.
-See the [Defaults are not encoded](basic-serialization.md#defaults-are-not-encoded) section for details and an example.
+See the [Defaults are not encoded](basic-serialization.md#defaults-are-not-encoded-by-default) section for details and an example.
 This is especially useful for nullable properties with null defaults and avoids writing the corresponding null values.
 The default behavior can be changed by setting the [encodeDefaults][JsonBuilder.encodeDefaults] property to `true`:
 
@@ -612,6 +615,153 @@ Project(name=kotlinx.serialization, language=Kotlin)
 
 <!--- TEST -->
 
+### Encoding literal Json content (experimental)
+
+> This functionality is experimental and requires opting-in to [the experimental Kotlinx Serialization API](compatibility.md#experimental-api).
+
+In some cases it might be necessary to encode an arbitrary unquoted value. 
+This can be achieved with [JsonUnquotedLiteral].
+
+#### Serializing large decimal numbers
+
+The JSON specification does not restrict the size or precision of numbers, however it is not possible to serialize 
+numbers of arbitrary size or precision using [JsonPrimitive()].
+
+If [Double] is used, then the numbers are limited in precision, meaning that large numbers are truncated. 
+When using Kotlin/JVM [BigDecimal] can be used instead, but [JsonPrimitive()] will encode the value as a string, not a 
+number.
+
+```kotlin
+import java.math.BigDecimal
+
+val format = Json { prettyPrint = true }
+
+fun main() {
+    val pi = BigDecimal("3.141592653589793238462643383279")
+    
+    val piJsonDouble = JsonPrimitive(pi.toDouble())
+    val piJsonString = JsonPrimitive(pi.toString())
+  
+    val piObject = buildJsonObject {
+        put("pi_double", piJsonDouble)
+        put("pi_string", piJsonString)
+    }
+
+    println(format.encodeToString(piObject))
+}
+```
+
+> You can get the full code [here](../guide/example/example-json-16.kt).
+
+Even though `pi` was defined as a number with 30 decimal places, the resulting JSON does not reflect this. 
+The [Double] value is truncated to 15 decimal places, and the String is wrapped in quotes - which is not a JSON number.
+
+```text
+{
+    "pi_double": 3.141592653589793,
+    "pi_string": "3.141592653589793238462643383279"
+}
+```
+
+<!--- TEST -->
+
+To avoid precision loss, the string value of `pi` can be encoded using [JsonUnquotedLiteral].
+
+```kotlin
+import java.math.BigDecimal
+
+val format = Json { prettyPrint = true }
+
+fun main() {
+    val pi = BigDecimal("3.141592653589793238462643383279")
+
+    // use JsonUnquotedLiteral to encode raw JSON content
+    val piJsonLiteral = JsonUnquotedLiteral(pi.toString())
+
+    val piJsonDouble = JsonPrimitive(pi.toDouble())
+    val piJsonString = JsonPrimitive(pi.toString())
+  
+    val piObject = buildJsonObject {
+        put("pi_literal", piJsonLiteral)
+        put("pi_double", piJsonDouble)
+        put("pi_string", piJsonString)
+    }
+
+    println(format.encodeToString(piObject))
+}
+```
+
+> You can get the full code [here](../guide/example/example-json-17.kt).
+
+`pi_literal` now accurately matches the value defined.
+
+```text
+{
+    "pi_literal": 3.141592653589793238462643383279,
+    "pi_double": 3.141592653589793,
+    "pi_string": "3.141592653589793238462643383279"
+}
+```
+
+<!--- TEST -->
+
+To decode `pi` back to a [BigDecimal], the string content of the [JsonPrimitive] can be used.
+
+(This demonstration uses a [JsonPrimitive] for simplicity. For a more re-usable method of handling serialization, see 
+[Json Transformations](#json-transformations) below.) 
+
+
+```kotlin
+import java.math.BigDecimal
+
+fun main() {
+    val piObjectJson = """
+          {
+              "pi_literal": 3.141592653589793238462643383279
+          }
+      """.trimIndent()
+    
+    val piObject: JsonObject = Json.decodeFromString(piObjectJson)
+    
+    val piJsonLiteral = piObject["pi_literal"]!!.jsonPrimitive.content
+    
+    val pi = BigDecimal(piJsonLiteral)
+    
+    println(pi)
+}
+```
+
+> You can get the full code [here](../guide/example/example-json-18.kt).
+
+The exact value of `pi` is decoded, with all 30 decimal places of precision that were in the source JSON.
+
+```text
+3.141592653589793238462643383279
+```
+
+<!--- TEST -->
+
+#### Using `JsonUnquotedLiteral` to create a literal unquoted value of `null` is forbidden
+
+To avoid creating an inconsistent state, encoding a String equal to `"null"` is forbidden. 
+Use [JsonNull] or [JsonPrimitive] instead.
+
+```kotlin
+fun main() {
+    // caution: creating null with JsonUnquotedLiteral will cause an exception! 
+    JsonUnquotedLiteral("null")
+}
+```
+
+> You can get the full code [here](../guide/example/example-json-19.kt).
+
+```text
+Exception in thread "main" kotlinx.serialization.json.internal.JsonEncodingException: Creating a literal unquoted value of 'null' is forbidden. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive
+```
+
+<!--- TEST LINES_START -->
+
+
 ## Json transformations
 
 To affect the shape and contents of JSON output after serialization, or adapt input to deserialization,
@@ -679,7 +829,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-16.kt).
+> You can get the full code [here](../guide/example/example-json-20.kt).
 
 The output shows that both cases are correctly deserialized into a Kotlin [List].
 
@@ -731,7 +881,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-17.kt).
+> You can get the full code [here](../guide/example/example-json-21.kt).
 
 You end up with a single JSON object, not an array with one element:
 
@@ -776,7 +926,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-18.kt).
+> You can get the full code [here](../guide/example/example-json-22.kt).
 
 See the effect of the custom serializer:
 
@@ -849,7 +999,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-19.kt).
+> You can get the full code [here](../guide/example/example-json-23.kt).
 
 No class discriminator is added in the JSON output:
 
@@ -945,7 +1095,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-20.kt).
+> You can get the full code [here](../guide/example/example-json-24.kt).
 
 This gives you fine-grained control on the representation of the `Response` class in the JSON output:
 
@@ -1010,7 +1160,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-21.kt).
+> You can get the full code [here](../guide/example/example-json-25.kt).
 
 ```text
 UnknownProject(name=example, details={"type":"unknown","maintainer":"Unknown","license":"Apache 2.0"})
@@ -1025,8 +1175,10 @@ The next chapter covers [Alternative and custom formats (experimental)](formats.
 
 <!-- references -->
 [RFC-4627]: https://www.ietf.org/rfc/rfc4627.txt
+[BigDecimal]: https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html
 
 <!-- stdlib references -->
+[Double]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double/
 [Double.NaN]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double/-na-n.html
 [List]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/
 [Map]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/
@@ -1079,6 +1231,8 @@ The next chapter covers [Alternative and custom formats (experimental)](formats.
 [buildJsonArray]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/build-json-array.html
 [buildJsonObject]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/build-json-object.html
 [Json.decodeFromJsonElement]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/decode-from-json-element.html
+[JsonUnquotedLiteral]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-unquoted-literal.html
+[JsonNull]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-null/index.html
 [JsonTransformingSerializer]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/index.html
 [Json.encodeToString]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/encode-to-string.html
 [JsonContentPolymorphicSerializer]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-content-polymorphic-serializer/index.html

@@ -4,19 +4,20 @@ package example.exampleJson18
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-@Serializable
-class Project(val name: String, val language: String)
-
-object ProjectSerializer : JsonTransformingSerializer<Project>(Project.serializer()) {
-    override fun transformSerialize(element: JsonElement): JsonElement =
-        // Filter out top-level key value pair with the key "language" and the value "Kotlin"
-        JsonObject(element.jsonObject.filterNot {
-            (k, v) -> k == "language" && v.jsonPrimitive.content == "Kotlin"
-        })
-}
+import java.math.BigDecimal
 
 fun main() {
-    val data = Project("kotlinx.serialization", "Kotlin")
-    println(Json.encodeToString(data)) // using plugin-generated serializer
-    println(Json.encodeToString(ProjectSerializer, data)) // using custom serializer
+    val piObjectJson = """
+          {
+              "pi_literal": 3.141592653589793238462643383279
+          }
+      """.trimIndent()
+    
+    val piObject: JsonObject = Json.decodeFromString(piObjectJson)
+    
+    val piJsonLiteral = piObject["pi_literal"]!!.jsonPrimitive.content
+    
+    val pi = BigDecimal(piJsonLiteral)
+    
+    println(pi)
 }

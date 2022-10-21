@@ -774,6 +774,10 @@ public final class kotlinx/serialization/internal/InlineClassDescriptor : kotlin
 	public fun isInline ()Z
 }
 
+public final class kotlinx/serialization/internal/InlineClassDescriptorKt {
+	public static final fun InlinePrimitiveDescriptor (Ljava/lang/String;Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+}
+
 public final class kotlinx/serialization/internal/IntArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {
 	public synthetic fun build$kotlinx_serialization_core ()Ljava/lang/Object;
 }

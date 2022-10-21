@@ -4,34 +4,27 @@ package example.exampleJson21
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.encoding.*
+import kotlinx.serialization.builtins.*
 
-data class UnknownProject(val name: String, val details: JsonObject)
+@Serializable
+data class Project(
+    val name: String,
+    @Serializable(with = UserListSerializer::class)
+    val users: List<User>
+)
 
-object UnknownProjectSerializer : KSerializer<UnknownProject> {
-    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("UnknownProject") {
-        element<String>("name")
-        element<JsonElement>("details")
-    }
+@Serializable
+data class User(val name: String)
 
-    override fun deserialize(decoder: Decoder): UnknownProject {
-        // Cast to JSON-specific interface
-        val jsonInput = decoder as? JsonDecoder ?: error("Can be deserialized only by JSON")
-        // Read the whole content as JSON
-        val json = jsonInput.decodeJsonElement().jsonObject
-        // Extract and remove name property
-        val name = json.getValue("name").jsonPrimitive.content
-        val details = json.toMutableMap()
-        details.remove("name")
-        return UnknownProject(name, JsonObject(details))
-    }
+object UserListSerializer : JsonTransformingSerializer<List<User>>(ListSerializer(User.serializer())) {
 
-    override fun serialize(encoder: Encoder, value: UnknownProject) {
-        error("Serialization is not supported")
+    override fun transformSerialize(element: JsonElement): JsonElement {
+        require(element is JsonArray) // this serializer is used only with lists
+        return element.singleOrNull() ?: element
     }
 }
 
 fun main() {
-    println(Json.decodeFromString(UnknownProjectSerializer, """{"type":"unknown","name":"example","maintainer":"Unknown","license":"Apache 2.0"}"""))
+    val data = Project("kotlinx.serialization", listOf(User("kotlin")))
+    println(Json.encodeToString(data))
 }

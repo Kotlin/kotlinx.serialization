@@ -118,45 +118,80 @@ class JsonTest {
     @Test
     fun testExampleJson16() {
         captureOutput("ExampleJson16") { example.exampleJson16.main() }.verifyOutputLines(
-            "Project(name=kotlinx.serialization, users=[User(name=kotlin)])",
-            "Project(name=kotlinx.serialization, users=[User(name=kotlin), User(name=jetbrains)])"
+            "{",
+            "    \"pi_double\": 3.141592653589793,",
+            "    \"pi_string\": \"3.141592653589793238462643383279\"",
+            "}"
         )
     }
 
     @Test
     fun testExampleJson17() {
         captureOutput("ExampleJson17") { example.exampleJson17.main() }.verifyOutputLines(
-            "{\"name\":\"kotlinx.serialization\",\"users\":{\"name\":\"kotlin\"}}"
+            "{",
+            "    \"pi_literal\": 3.141592653589793238462643383279,",
+            "    \"pi_double\": 3.141592653589793,",
+            "    \"pi_string\": \"3.141592653589793238462643383279\"",
+            "}"
         )
     }
 
     @Test
     fun testExampleJson18() {
         captureOutput("ExampleJson18") { example.exampleJson18.main() }.verifyOutputLines(
-            "{\"name\":\"kotlinx.serialization\",\"language\":\"Kotlin\"}",
-            "{\"name\":\"kotlinx.serialization\"}"
+            "3.141592653589793238462643383279"
         )
     }
 
     @Test
     fun testExampleJson19() {
-        captureOutput("ExampleJson19") { example.exampleJson19.main() }.verifyOutputLines(
-            "[{\"name\":\"kotlinx.serialization\",\"owner\":\"kotlin\"},{\"name\":\"example\"}]",
-            "[OwnedProject(name=kotlinx.serialization, owner=kotlin), BasicProject(name=example)]"
+        captureOutput("ExampleJson19") { example.exampleJson19.main() }.verifyOutputLinesStart(
+            "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonEncodingException: Creating a literal unquoted value of 'null' is forbidden. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive"
         )
     }
 
     @Test
     fun testExampleJson20() {
         captureOutput("ExampleJson20") { example.exampleJson20.main() }.verifyOutputLines(
-            "[{\"name\":\"kotlinx.serialization\"},{\"error\":\"Not found\"}]",
-            "[Ok(data=Project(name=kotlinx.serialization)), Error(message=Not found)]"
+            "Project(name=kotlinx.serialization, users=[User(name=kotlin)])",
+            "Project(name=kotlinx.serialization, users=[User(name=kotlin), User(name=jetbrains)])"
         )
     }
 
     @Test
     fun testExampleJson21() {
         captureOutput("ExampleJson21") { example.exampleJson21.main() }.verifyOutputLines(
+            "{\"name\":\"kotlinx.serialization\",\"users\":{\"name\":\"kotlin\"}}"
+        )
+    }
+
+    @Test
+    fun testExampleJson22() {
+        captureOutput("ExampleJson22") { example.exampleJson22.main() }.verifyOutputLines(
+            "{\"name\":\"kotlinx.serialization\",\"language\":\"Kotlin\"}",
+            "{\"name\":\"kotlinx.serialization\"}"
+        )
+    }
+
+    @Test
+    fun testExampleJson23() {
+        captureOutput("ExampleJson23") { example.exampleJson23.main() }.verifyOutputLines(
+            "[{\"name\":\"kotlinx.serialization\",\"owner\":\"kotlin\"},{\"name\":\"example\"}]",
+            "[OwnedProject(name=kotlinx.serialization, owner=kotlin), BasicProject(name=example)]"
+        )
+    }
+
+    @Test
+    fun testExampleJson24() {
+        captureOutput("ExampleJson24") { example.exampleJson24.main() }.verifyOutputLines(
+            "[{\"name\":\"kotlinx.serialization\"},{\"error\":\"Not found\"}]",
+            "[Ok(data=Project(name=kotlinx.serialization)), Error(message=Not found)]"
+        )
+    }
+
+    @Test
+    fun testExampleJson25() {
+        captureOutput("ExampleJson25") { example.exampleJson25.main() }.verifyOutputLines(
             "UnknownProject(name=example, details={\"type\":\"unknown\",\"maintainer\":\"Unknown\",\"license\":\"Apache 2.0\"})"
         )
     }
