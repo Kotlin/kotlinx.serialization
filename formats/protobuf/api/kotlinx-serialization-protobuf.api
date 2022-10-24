@@ -1,3 +1,12 @@
+public final class kotlinx/serialization/protobuf/JvmStreamsKt {
+	public static final field DEFAULT_MESSAGE_MAX_SIZE I
+	public static final fun decodeDelimitedMessages (Lkotlinx/serialization/protobuf/ProtoBuf;Lkotlinx/serialization/DeserializationStrategy;Ljava/io/InputStream;I)Ljava/util/List;
+	public static synthetic fun decodeDelimitedMessages$default (Lkotlinx/serialization/protobuf/ProtoBuf;Lkotlinx/serialization/DeserializationStrategy;Ljava/io/InputStream;IILjava/lang/Object;)Ljava/util/List;
+	public static final fun decodeFromStream (Lkotlinx/serialization/protobuf/ProtoBuf;Lkotlinx/serialization/DeserializationStrategy;Ljava/io/InputStream;)Ljava/lang/Object;
+	public static final fun encodeDelimitedToStream (Lkotlinx/serialization/protobuf/ProtoBuf;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/io/OutputStream;)V
+	public static final fun encodeToStream (Lkotlinx/serialization/protobuf/ProtoBuf;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/io/OutputStream;)V
+}
+
 public abstract class kotlinx/serialization/protobuf/ProtoBuf : kotlinx/serialization/BinaryFormat {
 	public static final field Default Lkotlinx/serialization/protobuf/ProtoBuf$Default;
 	public synthetic fun <init> (ZLkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
