@@ -175,7 +175,16 @@ subprojects {
     afterEvaluate { // Can be applied only when the project is evaluated
         animalsniffer {
             sourceSets = [sourceSets.main]
-            annotation = (name == "kotlinx-serialization-core")? "kotlinx.serialization.internal.SuppressAnimalSniffer" : "kotlinx.serialization.json.internal.SuppressAnimalSniffer"
+            def annotationValue = "kotlinx.serialization.json.internal.SuppressAnimalSniffer"
+            switch (name) {
+                case "kotlinx-serialization-core":
+                    annotationValue = "kotlinx.serialization.internal.SuppressAnimalSniffer"
+                    break
+                case "kotlinx-serialization-hocon":
+                    annotationValue = "kotlinx.serialization.hocon.internal.SuppressAnimalSniffer"
+                    break
+            }
+            annotation = annotationValue
         }
         dependencies {
             signature 'net.sf.androidscents.signature:android-api-level-14:4.0_r4@signature'
