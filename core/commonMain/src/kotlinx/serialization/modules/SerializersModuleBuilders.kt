@@ -97,11 +97,13 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
 
     /**
      * Adds a default serializers provider associated with the given [baseClass] to the resulting module.
-     * [defaultSerializerProvider] is invoked when no polymorphic serializers for `value` were found.
+     * [defaultSerializerProvider] is invoked when no polymorphic serializers for `value` in the scope of [baseClass] were found.
      *
-     * This will not affect deserialization.
+     * Default serializers provider affects only serialization process. To affect deserialization process, use
+     * [SerializersModuleBuilder.polymorphicDefaultDeserializer].
+     *
+     * [defaultSerializerProvider] can be stateful and lookup a serializer for the missing type dynamically.
      */
-    @ExperimentalSerializationApi
     public override fun <Base : Any> polymorphicDefaultSerializer(
         baseClass: KClass<Base>,
         defaultSerializerProvider: (value: Base) -> SerializationStrategy<Base>?
@@ -112,14 +114,16 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
     /**
      * Adds a default deserializers provider associated with the given [baseClass] to the resulting module.
      * [defaultDeserializerProvider] is invoked when no polymorphic serializers associated with the `className`
-     * were found. `className` could be `null` for formats that support nullable class discriminators
+     * in the scope of [baseClass] were found. `className` could be `null` for formats that support nullable class discriminators
      * (currently only `Json` with `useArrayPolymorphism` set to `false`).
      *
-     * This will not affect serialization.
+     * Default deserializers provider affects only deserialization process. To affect serialization process, use
+     * [SerializersModuleBuilder.polymorphicDefaultSerializer].
+     *
+     * [defaultDeserializerProvider] can be stateful and lookup a serializer for the missing type dynamically.
      *
      * @see PolymorphicModuleBuilder.defaultDeserializer
      */
-    @ExperimentalSerializationApi
     public override fun <Base : Any> polymorphicDefaultDeserializer(
         baseClass: KClass<Base>,
         defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?
