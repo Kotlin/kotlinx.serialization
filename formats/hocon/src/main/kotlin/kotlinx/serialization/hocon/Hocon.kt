@@ -22,9 +22,9 @@ import kotlinx.serialization.modules.*
  * [Config] object represents "Human-Optimized Config Object Notation" —
  * [HOCON][https://github.com/lightbend/config#using-hocon-the-json-superset].
  *
- * [Duration] objects decodes using "HOCON duration format" -
+ * [Duration] objects are decoded using "HOCON duration format" -
  * [Duration format][https://github.com/lightbend/config/blob/main/HOCON.md#duration-format]
- * [Duration] objects encodes does not currently support duration HOCON format and encodes to ISO-8601-2.
+ * [Duration] objects encoding does not currently support duration HOCON format and uses standard Duration serializer which produces ISO-8601-2 string. 
  *
  * @param [useConfigNamingConvention] switches naming resolution to config naming convention (hyphen separated).
  * @param serializersModule A [SerializersModule] which should contain registered serializers
