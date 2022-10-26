@@ -5,7 +5,6 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.descriptors.elementNames
 import kotlinx.serialization.encoding.*
 
 /**
@@ -140,7 +139,7 @@ public interface SerializationStrategy<in T> {
  *
  * For a more detailed explanation of the serialization process, please refer to [KSerializer] documentation.
  */
-public interface DeserializationStrategy<T> {
+public interface DeserializationStrategy<out T> {
     /**
      * Describes the structure of the serializable representation of [T], that current
      * deserializer is able to deserialize.
@@ -193,4 +192,3 @@ public interface DeserializationStrategy<T> {
      */
     public fun deserialize(decoder: Decoder): T
 }
-

@@ -81,7 +81,7 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
     public open fun findPolymorphicSerializerOrNull(
         decoder: CompositeDecoder,
         klassName: String?
-    ): DeserializationStrategy<out T>? = decoder.serializersModule.getPolymorphic(baseClass, klassName)
+    ): DeserializationStrategy<T>? = decoder.serializersModule.getPolymorphic(baseClass, klassName)
 
 
     /**

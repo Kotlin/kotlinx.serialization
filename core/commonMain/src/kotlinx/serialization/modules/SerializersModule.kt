@@ -61,7 +61,7 @@ public sealed class SerializersModule {
      * or default value constructed from [serializedClassName] if a default serializer provider was registered.
      */
     @ExperimentalSerializationApi
-    public abstract fun <T : Any> getPolymorphic(baseClass: KClass<in T>, serializedClassName: String?): DeserializationStrategy<out T>?
+    public abstract fun <T : Any> getPolymorphic(baseClass: KClass<in T>, serializedClassName: String?): DeserializationStrategy<T>?
 
     /**
      * Copies contents of this module to the given [collector].
@@ -129,7 +129,7 @@ public infix fun SerializersModule.overwriteWith(other: SerializersModule): Seri
 
         override fun <Base : Any> polymorphicDefaultDeserializer(
             baseClass: KClass<Base>,
-            defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
+            defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?
         ) {
             registerDefaultPolymorphicDeserializer(baseClass, defaultDeserializerProvider, allowOverwrite = true)
         }
@@ -161,7 +161,7 @@ internal class SerialModuleImpl(
         return (polyBase2DefaultSerializerProvider[baseClass] as? PolymorphicSerializerProvider<T>)?.invoke(value)
     }
 
-    override fun <T : Any> getPolymorphic(baseClass: KClass<in T>, serializedClassName: String?): DeserializationStrategy<out T>? {
+    override fun <T : Any> getPolymorphic(baseClass: KClass<in T>, serializedClassName: String?): DeserializationStrategy<T>? {
         // Registered
         val registered = polyBase2NamedSerializers[baseClass]?.get(serializedClassName) as? KSerializer<out T>
         if (registered != null) return registered
@@ -204,7 +204,7 @@ internal class SerialModuleImpl(
     }
 }
 
-internal typealias PolymorphicDeserializerProvider<Base> = (className: String?) -> DeserializationStrategy<out Base>?
+internal typealias PolymorphicDeserializerProvider<Base> = (className: String?) -> DeserializationStrategy<Base>?
 internal typealias PolymorphicSerializerProvider<Base> = (value: Base) -> SerializationStrategy<Base>?
 
 /** This class is needed to support re-registering the same static (argless) serializers:

@@ -70,7 +70,7 @@ public interface SerializersModuleCollector {
     @ExperimentalSerializationApi
     public fun <Base : Any> polymorphicDefaultDeserializer(
         baseClass: KClass<Base>,
-        defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
+        defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?
     )
 
     /**
@@ -84,7 +84,7 @@ public interface SerializersModuleCollector {
     // TODO: deprecate in 1.4
     public fun <Base : Any> polymorphicDefault(
         baseClass: KClass<Base>,
-        defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
+        defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?
     ) {
         polymorphicDefaultDeserializer(baseClass, defaultDeserializerProvider)
     }
