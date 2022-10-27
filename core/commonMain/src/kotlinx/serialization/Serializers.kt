@@ -18,15 +18,37 @@ import kotlin.reflect.*
 
 /**
  * Retrieves a serializer for the given type [T].
- * This method is a reified version of `serializer(KType)`.
+ * This overload is a reified version of `serializer(KType)`.
+ *
+ * This overload works with full type information, including type arguments and nullability,
+ * and is a recommended way to retrieve a serializer.
+ * For example, `serializer<List<String?>>()` returns [KSerializer] that is able
+ * to serialize and deserialize list of nullable strings — i.e. `ListSerializer(String.serializer().nullable)`.
+ *
+ * Variance of [T]'s type arguments is not used by the serialization and is not taken into account.
+ * Star projections in [T]'s type arguments are prohibited.
+ *
+ * @throws SerializationException if serializer cannot be created (provided [T] or its type argument is not serializable).
+ * @throws IllegalArgumentException if any of [T]'s type arguments contains star projection
  */
 public inline fun <reified T> serializer(): KSerializer<T> {
     return serializer(typeOf<T>()).cast()
 }
 
 /**
- * Retrieves serializer for the given type [T] from the current [SerializersModule] and,
- * if not found, fallbacks to plain [serializer] method.
+ * Retrieves default serializer for the given type [T] and,
+ * if [T] is not serializable, fallbacks to [contextual][SerializersModule.getContextual] lookup.
+ *
+ * This overload works with full type information, including type arguments and nullability,
+ * and is a recommended way to retrieve a serializer.
+ * For example, `serializer<List<String?>>()` returns [KSerializer] that is able
+ * to serialize and deserialize list of nullable strings — i.e. `ListSerializer(String.serializer().nullable)`.
+ *
+ * Variance of [T]'s type arguments is not used by the serialization and is not taken into account.
+ * Star projections in [T]'s type arguments are prohibited.
+ *
+ * @throws SerializationException if serializer cannot be created (provided [T] or its type argument is not serializable).
+ * @throws IllegalArgumentException if any of [T]'s type arguments contains star projection
  */
 public inline fun <reified T> SerializersModule.serializer(): KSerializer<T> {
     return serializer(typeOf<T>()).cast()
@@ -34,38 +56,74 @@ public inline fun <reified T> SerializersModule.serializer(): KSerializer<T> {
 
 /**
  * Creates a serializer for the given [type].
- * [type] argument can be obtained with experimental [typeOf] method.
- *  @throws SerializationException if serializer cannot be created (provided [type] or its type argument is not serializable).
+ * [type] argument is usually obtained with [typeOf] method.
+ *
+ * This overload works with full type information, including type arguments and nullability,
+ * and is a recommended way to retrieve a serializer.
+ * For example, `serializer<typeOf<List<String?>>>()` returns [KSerializer] that is able
+ * to serialize and deserialize list of nullable strings — i.e. `ListSerializer(String.serializer().nullable)`.
+ *
+ * Variance of [type]'s type arguments is not used by the serialization and is not taken into account.
+ * Star projections in [type]'s arguments are prohibited.
+ *
+ * @throws SerializationException if serializer cannot be created (provided [type] or its type argument is not serializable).
+ * @throws IllegalArgumentException if any of [type]'s arguments contains star projection
  */
-@OptIn(ExperimentalSerializationApi::class)
 public fun serializer(type: KType): KSerializer<Any?> = EmptySerializersModule().serializer(type)
 
 /**
- * Creates a serializer for the given [type].
- * [type] argument can be obtained with experimental [typeOf] method.
- * Returns `null` if serializer cannot be created (provided [type] or its type argument is not serializable).
+ * Creates a serializer for the given [type] if possible.
+ * [type] argument is usually obtained with [typeOf] method.
+ *
+ * This overload works with full type information, including type arguments and nullability,
+ * and is a recommended way to retrieve a serializer.
+ * For example, `serializerOrNull<typeOf<List<String?>>>()` returns [KSerializer] that is able
+ * to serialize and deserialize list of nullable strings — i.e. `ListSerializer(String.serializer().nullable)`.
+ *
+ * Variance of [type]'s arguments is not used by the serialization and is not taken into account.
+ * Star projections in [type]'s arguments are prohibited.
+ *
+ * @returns [KSerializer] for the given [type] or `null` if serializer cannot be created (given [type] or its type argument is not serializable).
+ * @throws IllegalArgumentException if any of [type]'s arguments contains star projection
  */
-@OptIn(ExperimentalSerializationApi::class)
 public fun serializerOrNull(type: KType): KSerializer<Any?>? = EmptySerializersModule().serializerOrNull(type)
 
 /**
- * Attempts to create a serializer for the given [type] and fallbacks to [contextual][SerializersModule.getContextual]
- * lookup for non-serializable types.
- * [type] argument can be obtained with experimental [typeOf] method.
+ * Retrieves default serializer for the given [type] and,
+ * if [type] is not serializable, fallbacks to [contextual][SerializersModule.getContextual] lookup.
+ * [type] argument is usually obtained with [typeOf] method.
+ *
+ * This overload works with full type information, including type arguments and nullability,
+ * and is a recommended way to retrieve a serializer.
+ * For example, `serializer<typeOf<List<String?>>>()` returns [KSerializer] that is able
+ * to serialize and deserialize list of nullable strings — i.e. `ListSerializer(String.serializer().nullable)`.
+ *
+ * Variance of [type]'s arguments is not used by the serialization and is not taken into account.
+ * Star projections in [type]'s arguments are prohibited.
+ *
  * @throws SerializationException if serializer cannot be created (provided [type] or its type argument is not serializable and is not registered in [this] module).
+ * @throws IllegalArgumentException if any of [type]'s arguments contains star projection
  */
-@OptIn(ExperimentalSerializationApi::class)
 public fun SerializersModule.serializer(type: KType): KSerializer<Any?> =
     serializerByKTypeImpl(type, failOnMissingTypeArgSerializer = true) ?: type.kclass()
         .platformSpecificSerializerNotRegistered()
 
 /**
- * Attempts to create a serializer for the given [type] and fallbacks to [contextual][SerializersModule.getContextual]
- * lookup for non-serializable types.
- * [type] argument can be obtained with experimental [typeOf] method.
- * Returns `null` if serializer cannot be created (provided [type] or its type argument is not serializable and is not registered in [this] module).
+ * Retrieves default serializer for the given [type] and,
+ * if [type] is not serializable, fallbacks to [contextual][SerializersModule.getContextual] lookup.
+ * [type] argument is usually obtained with [typeOf] method.
+ *
+ * This overload works with full type information, including type arguments and nullability,
+ * and is a recommended way to retrieve a serializer.
+ * For example, `serializerOrNull<typeOf<List<String?>>>()` returns [KSerializer] that is able
+ * to serialize and deserialize list of nullable strings — i.e. `ListSerializer(String.serializer().nullable)`.
+ *
+ * Variance of [type]'s arguments is not used by the serialization and is not taken into account.
+ * Star projections in [type]'s arguments are prohibited.
+ *
+ * @returns [KSerializer] for the given [type] or `null` if serializer cannot be created (given [type] or its type argument is not serializable and is not registered in [this] module).
+ * @throws IllegalArgumentException if any of [type]'s arguments contains star projection
  */
-@OptIn(ExperimentalSerializationApi::class)
 public fun SerializersModule.serializerOrNull(type: KType): KSerializer<Any?>? =
     serializerByKTypeImpl(type, failOnMissingTypeArgSerializer = false)
 
@@ -189,7 +247,6 @@ private fun KClass<Any>.builtinParametrizedSerializer(
     typeArguments: List<KType>,
     serializers: List<KSerializer<Any?>>,
 ): KSerializer<out Any>? {
-    // Array is not supported, see KT-32839
     return when (this) {
         Collection::class, List::class, MutableList::class, ArrayList::class -> ArrayListSerializer(serializers[0])
         HashSet::class -> HashSetSerializer(serializers[0])

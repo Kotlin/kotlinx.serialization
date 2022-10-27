@@ -102,6 +102,20 @@ class SerializersLookupTest : JsonTestBase() {
     }
 
     @Test
+    fun testStarProjectionsAreProhibited() {
+        val expectedMessage = "Star projections in type arguments are not allowed"
+        assertFailsWithMessage<IllegalArgumentException>(expectedMessage) {
+            serializer<Box<*>>()
+        }
+        assertFailsWithMessage<IllegalArgumentException>(expectedMessage) {
+            serializer(typeOf<Box<*>>())
+        }
+        assertFailsWithMessage<IllegalArgumentException>(expectedMessage) {
+            serializerOrNull(typeOf<Box<*>>())
+        }
+    }
+
+    @Test
     fun testNullableTypes() {
         val myList: List<Int?> = listOf(1, null, 3)
         assertSerializedWithType("[1,null,3]", myList)
@@ -118,6 +132,12 @@ class SerializersLookupTest : JsonTestBase() {
     fun testTriple() = noLegacyJs { // because of Box
         val myTriple = Triple("1", 2, Box(42))
         assertSerializedWithType("""{"first":"1","second":2,"third":{"boxed":42}}""", myTriple)
+    }
+
+    @Test
+    fun testLookupDuration() = noLegacyJs {
+        assertNotNull(serializerOrNull(typeOf<Duration>()))
+        assertSame(Duration.serializer(), serializer<Duration>())
     }
 
     @Test
@@ -258,13 +278,6 @@ class SerializersLookupTest : JsonTestBase() {
             serializer(typeOf<Box<NonSerializable>>())
         }
     }
-
-// TODO uncomment when Kotlin 1.7.20 is released
-//    @Test
-//    fun testLookupDuration() = noLegacyJs {
-//        assertNotNull(serializerOrNull(typeOf<Duration>()))
-//        assertSame(Duration.serializer(), serializer<Duration>())
-//    }
 
     private inline fun <reified T> assertSerializedWithType(
         expected: String,
