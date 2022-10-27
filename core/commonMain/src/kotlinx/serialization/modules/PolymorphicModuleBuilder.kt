@@ -34,18 +34,19 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
      * Adds a default serializers provider associated with the given [baseClass] to the resulting module.
      * [defaultDeserializerProvider] is invoked when no polymorphic serializers associated with the `className`
      * were found. `className` could be `null` for formats that support nullable class discriminators
-     * (currently only [Json] with [useArrayPolymorphism][JsonBuilder.useArrayPolymorphism] set to `false`)
+     * (currently only `Json` with `JsonBuilder.useArrayPolymorphism` set to `false`)
+     *
+     * Default deserializers provider affects only deserialization process. To affect serialization process, use
+     * [SerializersModuleBuilder.polymorphicDefaultSerializer].
      *
      * [defaultDeserializerProvider] can be stateful and lookup a serializer for the missing type dynamically.
      *
      * Typically, if the class is not registered in advance, it is not possible to know the structure of the unknown
      * type and have a precise serializer, so the default serializer has limited capabilities.
-     * To have a structural access to the unknown data, it is recommended to use [JsonTransformingSerializer]
-     * or [JsonContentPolymorphicSerializer] classes.
+     * If you're using `Json` format, you can get a structural access to the unknown data using `JsonContentPolymorphicSerializer`.
      *
-     * Default deserializers provider affects only deserialization process.
+     * @see SerializersModuleBuilder.polymorphicDefaultSerializer
      */
-    @ExperimentalSerializationApi
     public fun defaultDeserializer(defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?) {
         require(this.defaultDeserializerProvider == null) {
             "Default deserializer provider is already registered for class $baseClass: ${this.defaultDeserializerProvider}"
@@ -55,26 +56,27 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
 
     /**
      * Adds a default deserializers provider associated with the given [baseClass] to the resulting module.
+     * This function affect only deserialization process. To avoid confusion, it was deprecated and replaced with [defaultDeserializer].
+     * To affect serialization process, use [SerializersModuleBuilder.polymorphicDefaultSerializer].
+     *
      * [defaultSerializerProvider] is invoked when no polymorphic serializers associated with the `className`
      * were found. `className` could be `null` for formats that support nullable class discriminators
-     * (currently only [Json] with [useArrayPolymorphism][JsonBuilder.useArrayPolymorphism] set to `false`)
+     * (currently only `Json` with `JsonBuilder.useArrayPolymorphism` set to `false`)
      *
      * [defaultSerializerProvider] can be stateful and lookup a serializer for the missing type dynamically.
      *
-     * [defaultSerializerProvider] is named as such for backwards compatibility reasons; it provides deserializers.
-     *
      * Typically, if the class is not registered in advance, it is not possible to know the structure of the unknown
      * type and have a precise serializer, so the default serializer has limited capabilities.
-     * To have a structural access to the unknown data, it is recommended to use [JsonTransformingSerializer]
-     * or [JsonContentPolymorphicSerializer] classes.
-     *
-     * Default deserializers provider affects only deserialization process. To affect serialization process, use
-     * [SerializersModuleBuilder.polymorphicDefaultSerializer].
+     * If you're using `Json` format, you can get a structural access to the unknown data using `JsonContentPolymorphicSerializer`.
      *
      * @see defaultDeserializer
+     * @see SerializersModuleBuilder.polymorphicDefaultSerializer
      */
-    @OptIn(ExperimentalSerializationApi::class)
-    // TODO: deprecate in 1.4
+    @Deprecated(
+        "Deprecated in favor of function with more precise name: defaultDeserializer",
+        ReplaceWith("defaultDeserializer(defaultSerializerProvider)"),
+        DeprecationLevel.WARNING // Since 1.5.0. Raise to ERROR in 1.6.0, hide in 1.7.0
+    )
     public fun default(defaultSerializerProvider: (className: String?) -> DeserializationStrategy<Base>?) {
         defaultDeserializer(defaultSerializerProvider)
     }

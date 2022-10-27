@@ -47,13 +47,13 @@ public interface SerializersModuleCollector {
 
     /**
      * Accept a default serializer provider, associated with the [baseClass] for polymorphic serialization.
+     * [defaultSerializerProvider] is invoked when no polymorphic serializers for `value` in the scope of [baseClass] were found.
      *
-     * This will not affect deserialization.
+     * Default serializers provider affects only serialization process. Deserializers are accepted in the
+     * [SerializersModuleCollector.polymorphicDefaultDeserializer] method.
      *
-     * @see SerializersModuleBuilder.polymorphicDefaultSerializer
-     * @see PolymorphicModuleBuilder.defaultSerializer
+     * [defaultSerializerProvider] can be stateful and lookup a serializer for the missing type dynamically.
      */
-    @ExperimentalSerializationApi
     public fun <Base : Any> polymorphicDefaultSerializer(
         baseClass: KClass<Base>,
         defaultSerializerProvider: (value: Base) -> SerializationStrategy<Base>?
@@ -61,13 +61,15 @@ public interface SerializersModuleCollector {
 
     /**
      * Accept a default deserializer provider, associated with the [baseClass] for polymorphic deserialization.
+     * [defaultDeserializerProvider] is invoked when no polymorphic serializers associated with the `className`
+     * in the scope of [baseClass] were found. `className` could be `null` for formats that support nullable class discriminators
+     * (currently only `Json` with `useArrayPolymorphism` set to `false`).
      *
-     * This will not affect serialization.
+     * Default deserializers provider affects only deserialization process. Serializers are accepted in the
+     * [SerializersModuleCollector.polymorphicDefaultSerializer] method.
      *
-     * @see SerializersModuleBuilder.polymorphicDefaultDeserializer
-     * @see PolymorphicModuleBuilder.defaultDeserializer
+     * [defaultDeserializerProvider] can be stateful and lookup a serializer for the missing type dynamically.
      */
-    @ExperimentalSerializationApi
     public fun <Base : Any> polymorphicDefaultDeserializer(
         baseClass: KClass<Base>,
         defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?
@@ -76,12 +78,23 @@ public interface SerializersModuleCollector {
     /**
      * Accept a default deserializer provider, associated with the [baseClass] for polymorphic deserialization.
      *
-     * This will not affect serialization.
+     * This function affect only deserialization process. To avoid confusion, it was deprecated and replaced with [polymorphicDefaultDeserializer].
+     * To affect serialization process, use [SerializersModuleCollector.polymorphicDefaultSerializer].
      *
-     * @see SerializersModuleBuilder.polymorphicDefaultDeserializer
-     * @see PolymorphicModuleBuilder.defaultDeserializer
+     * [defaultDeserializerProvider] is invoked when no polymorphic serializers associated with the `className`
+     * in the scope of [baseClass] were found. `className` could be `null` for formats that support nullable class discriminators
+     * (currently only `Json` with `useArrayPolymorphism` set to `false`).
+     *
+     * [defaultDeserializerProvider] can be stateful and lookup a serializer for the missing type dynamically.
+     *
+     * @see SerializersModuleCollector.polymorphicDefaultDeserializer
+     * @see SerializersModuleCollector.polymorphicDefaultSerializer
      */
-    // TODO: deprecate in 1.4
+    @Deprecated(
+        "Deprecated in favor of function with more precise name: polymorphicDefaultDeserializer",
+        ReplaceWith("polymorphicDefaultDeserializer(baseClass, defaultDeserializerProvider)"),
+        DeprecationLevel.WARNING // Since 1.5.0. Raise to ERROR in 1.6.0, hide in 1.7.0
+    )
     public fun <Base : Any> polymorphicDefault(
         baseClass: KClass<Base>,
         defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?
