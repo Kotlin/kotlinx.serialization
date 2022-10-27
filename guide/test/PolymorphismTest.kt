@@ -16,7 +16,7 @@ class PolymorphismTest {
     fun testExamplePoly02() {
         captureOutput("ExamplePoly02") { example.examplePoly02.main() }.verifyOutputLinesStart(
             "Exception in thread \"main\" kotlinx.serialization.SerializationException: Serializer for class 'OwnedProject' is not found.",
-            "Mark the class as @Serializable or provide the serializer explicitly."
+            "Please ensure that class is marked as '@Serializable' and that serialization plugin is applied."
         )
     }
 
@@ -88,7 +88,7 @@ class PolymorphismTest {
     fun testExamplePoly12() {
         captureOutput("ExamplePoly12") { example.examplePoly12.main() }.verifyOutputLinesStart(
             "Exception in thread \"main\" kotlinx.serialization.SerializationException: Serializer for class 'Any' is not found.",
-            "Mark the class as @Serializable or provide the serializer explicitly."
+            "Please ensure that class is marked as '@Serializable' and that serialization plugin is applied."
         )
     }
 
@@ -96,7 +96,7 @@ class PolymorphismTest {
     fun testExamplePoly13() {
         captureOutput("ExamplePoly13") { example.examplePoly13.main() }.verifyOutputLinesStart(
             "Exception in thread \"main\" kotlinx.serialization.SerializationException: Serializer for class 'Any' is not found.",
-            "Mark the class as @Serializable or provide the serializer explicitly."
+            "Please ensure that class is marked as '@Serializable' and that serialization plugin is applied."
         )
     }
 

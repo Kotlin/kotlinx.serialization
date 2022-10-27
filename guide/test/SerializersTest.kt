@@ -136,7 +136,7 @@ class SerializersTest {
     fun testExampleSerializer19() {
         captureOutput("ExampleSerializer19") { example.exampleSerializer19.main() }.verifyOutputLinesStart(
             "Exception in thread \"main\" kotlinx.serialization.SerializationException: Serializer for class 'Date' is not found.",
-            "Mark the class as @Serializable or provide the serializer explicitly."
+            "Please ensure that class is marked as '@Serializable' and that serialization plugin is applied."
         )
     }
 
