@@ -31,7 +31,7 @@ import kotlin.reflect.*
  * [type] must be an instance of [Class], [GenericArrayType], [ParameterizedType] or [WildcardType].
  *
  * @throws SerializationException if serializer cannot be created (provided [type] or its type argument is not serializable).
- * @throws IllegalArgumentException if unsupported subclass of [Type] is provided.
+ * @throws IllegalArgumentException if an unsupported subclass of [Type] is provided.
  */
 public fun serializer(type: Type): KSerializer<Any> = EmptySerializersModule().serializer(type)
 
@@ -50,7 +50,7 @@ public fun serializer(type: Type): KSerializer<Any> = EmptySerializersModule().s
  * [type] must be an instance of [Class], [GenericArrayType], [ParameterizedType] or [WildcardType].
  *
  * @return [KSerializer] for given [type] or `null` if serializer cannot be created (given [type] or its type argument is not serializable).
- * @throws IllegalArgumentException if unsupported subclass of [Type] is provided.
+ * @throws IllegalArgumentException if an unsupported subclass of [Type] is provided.
  */
 public fun serializerOrNull(type: Type): KSerializer<Any>? = EmptySerializersModule().serializerOrNull(type)
 
@@ -70,7 +70,7 @@ public fun serializerOrNull(type: Type): KSerializer<Any>? = EmptySerializersMod
  * [type] must be an instance of [Class], [GenericArrayType], [ParameterizedType] or [WildcardType].
  *
  * @throws SerializationException if serializer cannot be created (provided [type] or its type argument is not serializable).
- * @throws IllegalArgumentException if unsupported subclass of [Type] is provided.
+ * @throws IllegalArgumentException if an unsupported subclass of [Type] is provided.
  */
 public fun SerializersModule.serializer(type: Type): KSerializer<Any> =
     serializerByJavaTypeImpl(type, failOnMissingTypeArgSerializer = true) ?: type.prettyClass()
@@ -92,7 +92,7 @@ public fun SerializersModule.serializer(type: Type): KSerializer<Any> =
  * [type] must be an instance of [Class], [GenericArrayType], [ParameterizedType] or [WildcardType].
  *
  * @return [KSerializer] for given [type] or `null` if serializer cannot be created (given [type] or its type argument is not serializable).
- * @throws IllegalArgumentException if unsupported subclass of [Type] is provided.
+ * @throws IllegalArgumentException if an unsupported subclass of [Type] is provided.
  */
 public fun SerializersModule.serializerOrNull(type: Type): KSerializer<Any>? =
     serializerByJavaTypeImpl(type, failOnMissingTypeArgSerializer = false)
