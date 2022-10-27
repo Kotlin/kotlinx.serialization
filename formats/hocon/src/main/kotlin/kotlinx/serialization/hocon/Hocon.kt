@@ -5,10 +5,13 @@
 package kotlinx.serialization.hocon
 
 import com.typesafe.config.*
+import kotlin.time.*
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.DECODE_DONE
+import kotlinx.serialization.hocon.internal.SuppressAnimalSniffer
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 
@@ -18,6 +21,10 @@ import kotlinx.serialization.modules.*
  *
  * [Config] object represents "Human-Optimized Config Object Notation" —
  * [HOCON][https://github.com/lightbend/config#using-hocon-the-json-superset].
+ *
+ * [Duration] objects are decoded using "HOCON duration format" -
+ * [Duration format][https://github.com/lightbend/config/blob/main/HOCON.md#duration-format]
+ * [Duration] objects encoding does not currently support duration HOCON format and uses standard Duration serializer which produces ISO-8601-2 string. 
  *
  * @param [useConfigNamingConvention] switches naming resolution to config naming convention (hyphen separated).
  * @param serializersModule A [SerializersModule] which should contain registered serializers
@@ -86,6 +93,18 @@ public sealed class Hocon(
 
         private fun getTaggedNumber(tag: T) = validateAndCast<Number>(tag)
 
+        @SuppressAnimalSniffer
+        protected fun <E> decodeDurationInHoconFormat(tag: T): E {
+            @Suppress("UNCHECKED_CAST")
+            return getValueFromTaggedConfig(tag) { conf, path ->
+                try {
+                    conf.getDuration(path).toKotlinDuration()
+                } catch (e: ConfigException) {
+                    throw SerializationException("Value at $path cannot be read as kotlin.Duration because it is not a valid HOCON duration value", e)
+                }
+            } as E
+        }
+
         override fun decodeTaggedString(tag: T) = validateAndCast<String>(tag)
 
         override fun decodeTaggedBoolean(tag: T) = validateAndCast<Boolean>(tag)
@@ -138,19 +157,21 @@ public sealed class Hocon(
         }
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-            if (deserializer !is AbstractPolymorphicSerializer<*> || useArrayPolymorphism) {
-                return deserializer.deserialize(this)
+            return when {
+                deserializer.descriptor == Duration.serializer().descriptor -> decodeDurationInHoconFormat(currentTag)
+                deserializer !is AbstractPolymorphicSerializer<*> || useArrayPolymorphism -> deserializer.deserialize(this)
+                else -> {
+                    val config = if (currentTagOrNull != null) conf.getConfig(currentTag) else conf
+
+                    val reader = ConfigReader(config)
+                    val type = reader.decodeTaggedString(classDiscriminator)
+                    val actualSerializer = deserializer.findPolymorphicSerializerOrNull(reader, type)
+                        ?: throw SerializerNotFoundException(type)
+
+                    @Suppress("UNCHECKED_CAST")
+                    (actualSerializer as DeserializationStrategy<T>).deserialize(reader)
+                }
             }
-
-            val config = if (currentTagOrNull != null) conf.getConfig(currentTag) else conf
-
-            val reader = ConfigReader(config)
-            val type = reader.decodeTaggedString(classDiscriminator)
-            val actualSerializer = deserializer.findPolymorphicSerializerOrNull(reader, type)
-                ?: throw SerializerNotFoundException(type)
-
-            @Suppress("UNCHECKED_CAST")
-            return (actualSerializer as DeserializationStrategy<T>).deserialize(reader)
         }
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
@@ -173,6 +194,11 @@ public sealed class Hocon(
 
     private inner class ListConfigReader(private val list: ConfigList) : ConfigConverter<Int>() {
         private var ind = -1
+
+        override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T = when (deserializer.descriptor) {
+            Duration.serializer().descriptor -> decodeDurationInHoconFormat(ind)
+            else -> super.decodeSerializableValue(deserializer)
+        }
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
             when {
@@ -208,6 +234,11 @@ public sealed class Hocon(
         }
 
         private val indexSize = values.size * 2
+
+        override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T = when (deserializer.descriptor) {
+            Duration.serializer().descriptor -> decodeDurationInHoconFormat(ind)
+            else -> super.decodeSerializableValue(deserializer)
+        }
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
             when {
