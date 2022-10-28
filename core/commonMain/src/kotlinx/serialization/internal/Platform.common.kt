@@ -100,7 +100,7 @@ internal expect fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing
 internal fun KType.kclass() = when (val t = classifier) {
     is KClass<*> -> t
     is KTypeParameter -> {
-        error("Captured type paramerer $t from generic non-reified function. " +
+        error("Captured type parameter $t from generic non-reified function. " +
                 "Such functionality cannot be supported as $t is erased, either specify serializer explicitly or make " +
                 "calling function inline with reified $t")
     }
