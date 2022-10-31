@@ -103,6 +103,9 @@ private class ConcurrentHashMapParametrizedCache<T>(private val compute: (KClass
 
 private class CacheEntry<T>(@JvmField val serializer: KSerializer<T>?)
 
+/**
+ * Workaround of https://youtrack.jetbrains.com/issue/KT-54611 and https://github.com/Kotlin/kotlinx.serialization/issues/2065
+ */
 private class KTypeWrapper(val origin: KType): KType {
     override val annotations: List<Annotation> = origin.annotations
     override val arguments: List<KTypeProjection> = origin.arguments
@@ -126,6 +129,10 @@ private class KTypeWrapper(val origin: KType): KType {
 
     override fun hashCode(): Int {
         return origin.hashCode()
+    }
+
+    override fun toString(): String {
+        return "KTypeWrapper: $origin"
     }
 }
 
