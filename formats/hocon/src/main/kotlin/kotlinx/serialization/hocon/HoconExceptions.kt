@@ -20,3 +20,6 @@ internal fun InvalidKeyKindException(value: ConfigValue) = SerializationExceptio
     "Value of type '${value.valueType()}' can't be used in HOCON as a key in the map. " +
             "It should have either primitive or enum kind."
 )
+
+internal fun throwUnsupportedFormatException(serializerName: String): Nothing =
+    throw SerializationException("$serializerName is supported only in Hocon format.")

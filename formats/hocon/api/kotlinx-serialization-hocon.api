@@ -22,8 +22,34 @@ public final class kotlinx/serialization/hocon/HoconBuilder {
 	public final fun setUseConfigNamingConvention (Z)V
 }
 
+public abstract interface class kotlinx/serialization/hocon/HoconDecoder {
+	public abstract fun decodeConfigValue (Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+}
+
+public abstract interface class kotlinx/serialization/hocon/HoconEncoder {
+	public abstract fun encodeConfigValue (Lcom/typesafe/config/ConfigValue;)V
+}
+
 public final class kotlinx/serialization/hocon/HoconKt {
 	public static final fun Hocon (Lkotlinx/serialization/hocon/Hocon;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/hocon/Hocon;
 	public static synthetic fun Hocon$default (Lkotlinx/serialization/hocon/Hocon;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/hocon/Hocon;
+}
+
+public final class kotlinx/serialization/hocon/serializers/ConfigMemorySizeSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/hocon/serializers/ConfigMemorySizeSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/typesafe/config/ConfigMemorySize;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/typesafe/config/ConfigMemorySize;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public final class kotlinx/serialization/hocon/serializers/JavaDurationSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/hocon/serializers/JavaDurationSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/time/Duration;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/time/Duration;)V
 }
 
