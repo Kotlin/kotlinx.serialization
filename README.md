@@ -29,6 +29,7 @@ Kotlin serialization consists of a compiler plugin, that generates visitor code 
   * [Android](#android)
   * [Multiplatform (Common, JS, Native)](#multiplatform-common-js-native)
   * [Maven](#maven)
+  * [Bazel](#bazel)
 
 <!--- END -->
 
@@ -335,3 +336,9 @@ Add dependency on serialization runtime library:
     <version>${serialization.version}</version>
 </dependency>
 ```
+
+### Bazel
+
+To setup the Kotlin compiler plugin for Bazel, follow [the
+example](https://github.com/bazelbuild/rules_kotlin/tree/master/examples/plugin/src/serialization)
+from the `rules_kotlin` repository.
