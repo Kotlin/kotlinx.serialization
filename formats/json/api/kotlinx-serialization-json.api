@@ -73,7 +73,7 @@ public final class kotlinx/serialization/json/JsonArrayBuilder {
 	public final fun build ()Lkotlinx/serialization/json/JsonArray;
 }
 
-public final class kotlinx/serialization/json/JsonArraySerializer : kotlinx/serialization/KSerializer {
+public final synthetic class kotlinx/serialization/json/JsonArraySerializer : kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/json/JsonArraySerializer;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lkotlinx/serialization/json/JsonArray;
@@ -115,7 +115,7 @@ public abstract interface annotation class kotlinx/serialization/json/JsonClassD
 	public abstract fun discriminator ()Ljava/lang/String;
 }
 
-public final class kotlinx/serialization/json/JsonClassDiscriminator$Impl : kotlinx/serialization/json/JsonClassDiscriminator {
+public synthetic class kotlinx/serialization/json/JsonClassDiscriminator$Impl : kotlinx/serialization/json/JsonClassDiscriminator {
 	public fun <init> (Ljava/lang/String;)V
 	public final synthetic fun discriminator ()Ljava/lang/String;
 }
@@ -206,7 +206,7 @@ public final class kotlinx/serialization/json/JsonElementKt {
 	public static final fun unexpectedJson (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Void;
 }
 
-public final class kotlinx/serialization/json/JsonElementSerializer : kotlinx/serialization/KSerializer {
+public final synthetic class kotlinx/serialization/json/JsonElementSerializer : kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/json/JsonElementSerializer;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lkotlinx/serialization/json/JsonElement;
@@ -237,7 +237,7 @@ public abstract interface annotation class kotlinx/serialization/json/JsonNames 
 	public abstract fun names ()[Ljava/lang/String;
 }
 
-public final class kotlinx/serialization/json/JsonNames$Impl : kotlinx/serialization/json/JsonNames {
+public synthetic class kotlinx/serialization/json/JsonNames$Impl : kotlinx/serialization/json/JsonNames {
 	public fun <init> ([Ljava/lang/String;)V
 	public final synthetic fun names ()[Ljava/lang/String;
 }
@@ -249,7 +249,7 @@ public final class kotlinx/serialization/json/JsonNull : kotlinx/serialization/j
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class kotlinx/serialization/json/JsonNullSerializer : kotlinx/serialization/KSerializer {
+public final synthetic class kotlinx/serialization/json/JsonNullSerializer : kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/json/JsonNullSerializer;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lkotlinx/serialization/json/JsonNull;
@@ -314,7 +314,7 @@ public final class kotlinx/serialization/json/JsonObjectBuilder {
 	public final fun put (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
 }
 
-public final class kotlinx/serialization/json/JsonObjectSerializer : kotlinx/serialization/KSerializer {
+public final synthetic class kotlinx/serialization/json/JsonObjectSerializer : kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/json/JsonObjectSerializer;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lkotlinx/serialization/json/JsonObject;
@@ -334,7 +334,7 @@ public final class kotlinx/serialization/json/JsonPrimitive$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class kotlinx/serialization/json/JsonPrimitiveSerializer : kotlinx/serialization/KSerializer {
+public final synthetic class kotlinx/serialization/json/JsonPrimitiveSerializer : kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/json/JsonPrimitiveSerializer;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lkotlinx/serialization/json/JsonPrimitive;
