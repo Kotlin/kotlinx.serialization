@@ -147,6 +147,8 @@ allprojects {
 }
 
 def unpublishedProjects = ["benchmark", "guide", "kotlinx-serialization-json-tests"] as Set
+def excludedFromBomProjects = unpublishedProjects + "kotlinx-serialization-bom" as Set
+def uncoveredProjects = ["kotlinx-serialization-bom", "benchmark", "guide"] as Set
 
 subprojects {
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile).all { task ->
@@ -162,12 +164,11 @@ subprojects {
     if (!unpublishedProjects.contains(project.name)) {
         apply from: rootProject.file('gradle/publishing.gradle')
     }
-
 }
 
 subprojects {
     // Can't be applied to BOM
-    if (project.name == "kotlinx-serialization-bom" || project.name == "benchmark" || project.name == "guide") return
+    if (excludedFromBomProjects.contains(project.name)) return
 
     // Animalsniffer setup
     apply plugin: 'ru.vyarus.animalsniffer'
@@ -190,9 +191,16 @@ subprojects {
             signature 'net.sf.androidscents.signature:android-api-level-14:4.0_r4@signature'
             signature 'org.codehaus.mojo.signature:java18:1.0@signature'
         }
-    }
 
-    // Kover setup
+        // Add dependency to the BOM artifact
+        BomKt.addBomApiDependency(project, ":kotlinx-serialization-bom")
+    }
+}
+
+// Kover setup
+subprojects {
+    if (uncoveredProjects.contains(project.name)) return
+
     apply from: rootProject.file("gradle/kover.gradle")
 }
 
