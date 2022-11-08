@@ -35,6 +35,22 @@ kotlin {
  to reject runtime if runtime's Require-Kotlin-Version is greater then the current compiler.
  */
 tasks.withType(Jar).named(kotlin.jvm().artifactsTaskName) {
+
+    // adding the ProGuard rules to the jar
+    from(rootProject.file("proguard-rules.pro")) {
+        rename { "kotlinx-serialization.pro" }
+        into("META-INF/proguard")
+    }
+    from(rootProject.file("proguard-rules.pro")) {
+        rename { "kotlinx-serialization.pro" }
+        into("META-INF/com.android.tools/proguard")
+    }
+    from(rootProject.file("proguard-rules.pro")) {
+        rename { "kotlinx-serialization.pro" }
+        into("META-INF/com.android.tools/r8")
+    }
+
+
     manifest {
         attributes(
                 "Implementation-Version": version,
