@@ -177,7 +177,7 @@ dependencies {
 ### Android
 
 By default, proguard rules are supplied with the library.
-[This rules](proguard-rules.pro) keeps serializers for _all_ serializable classes that are retained after shrinking.
+[These rules](proguard-rules.pro) keep serializers for _all_ serializable classes that are retained after shrinking.
 
 **These rules do not affect serializable classes with named companion objects.**
 
