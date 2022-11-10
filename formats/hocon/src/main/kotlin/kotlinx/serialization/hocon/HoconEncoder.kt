@@ -5,7 +5,9 @@
 package kotlinx.serialization.hocon
 
 import com.typesafe.config.*
+import kotlin.time.*
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.*
@@ -42,17 +44,18 @@ internal abstract class AbstractHoconEncoder(
     override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = hocon.encodeDefaults
 
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
-        if (serializer !is AbstractPolymorphicSerializer<*> || hocon.useArrayPolymorphism) {
-            serializer.serialize(this, value)
-            return
+        when {
+            serializer.descriptor == Duration.serializer().descriptor -> encodeDuration(value as Duration)
+            serializer !is AbstractPolymorphicSerializer<*> || hocon.useArrayPolymorphism -> serializer.serialize(this, value)
+            else -> {
+                @Suppress("UNCHECKED_CAST")
+                val casted = serializer as AbstractPolymorphicSerializer<Any>
+                val actualSerializer = casted.findPolymorphicSerializer(this, value as Any)
+                writeDiscriminator = true
+
+                actualSerializer.serialize(this, value)
+            }
         }
-
-        @Suppress("UNCHECKED_CAST")
-        val casted = serializer as AbstractPolymorphicSerializer<Any>
-        val actualSerializer = casted.findPolymorphicSerializer(this, value as Any)
-        writeDiscriminator = true
-
-        actualSerializer.serialize(this, value)
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
@@ -79,6 +82,32 @@ internal abstract class AbstractHoconEncoder(
     }
 
     private fun configValueOf(value: Any?) = ConfigValueFactory.fromAnyRef(value)
+
+    private fun encodeDuration(value: Duration) {
+        val result = value.toComponents { seconds, nanoseconds ->
+            when {
+                nanoseconds == 0 -> {
+                    if (seconds % 60 == 0L) { // minutes
+                        if (seconds % 3600 == 0L) { // hours
+                            if (seconds % 86400 == 0L) { // days
+                                "${seconds / 86400} d"
+                            } else {
+                                "${seconds / 3600} h"
+                            }
+                        } else {
+                            "${seconds / 60} m"
+                        }
+                    } else {
+                        "$seconds s"
+                    }
+                }
+                nanoseconds % 1_000_000 == 0 -> "${seconds * 1_000 + nanoseconds / 1_000_000} ms"
+                nanoseconds % 1_000 == 0 -> "${seconds * 1_000_000 + nanoseconds / 1_000} us"
+                else -> "${value.inWholeNanoseconds} ns"
+            }
+        }
+        encodeString(result)
+    }
 }
 
 @ExperimentalSerializationApi
