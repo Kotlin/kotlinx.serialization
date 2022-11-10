@@ -159,3 +159,11 @@ There are still some limitations (ordered properties).
 
 Allows serialization and deserialization of [Fixed Length Format files](https://www.ibm.com/docs/en/psfa/7.2.1?topic=format-fixed-length-files).
 Each property must be annotated with `@FixedLength` and there are still some limitations due to missing delimiters.
+
+### JSON5
+
+* GitHub repo: [xn32/json5k](https://github.com/xn32/json5k)
+* Artifact ID: `io.github.xn32:json5k`
+* Platform: JVM only
+
+Library for the serialization to and deserialization from [JSON5](https://json5.org) text.
