@@ -50,8 +50,17 @@ message TestRepeatedIntMessage {
     repeated int32 b = 10;
 }
 
+message TestRepeatedIntMessageWithRandomTags {
+    required int32 s = 5;
+    repeated int32 b = 20;
+}
+
 message TestRepeatedObjectMessage {
     repeated TestAllTypes inner = 1;
+}
+
+message TestRepeatedObjectMessageWithRandomTags {
+    repeated TestAllTypes inner = 20;
 }
 
 message TestEnum {
@@ -88,4 +97,13 @@ message MessageWithOptionals {
         FIRST = 0;
         SECOND = 1;
     }
+}
+
+message MessageWithPackedFields {
+    repeated int32 a = 1 [packed = true];
+}
+
+message MessageWithPackedFieldsAndRandomTags {
+    repeated int32 a = 5 [packed = true];
+    repeated int32 b = 20 [packed = true];
 }

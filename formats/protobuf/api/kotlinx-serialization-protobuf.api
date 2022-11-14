@@ -21,6 +21,10 @@ public final class kotlinx/serialization/protobuf/ProtoBufKt {
 	public static synthetic fun ProtoBuf$default (Lkotlinx/serialization/protobuf/ProtoBuf;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/protobuf/ProtoBuf;
 }
 
+public final class kotlinx/serialization/protobuf/ProtoBufSerializedSizeCalculatorKt {
+	public static final fun getOrComputeSerializedSize (Lkotlinx/serialization/protobuf/ProtoBuf;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)I
+}
+
 public final class kotlinx/serialization/protobuf/ProtoIntegerType : java/lang/Enum {
 	public static final field DEFAULT Lkotlinx/serialization/protobuf/ProtoIntegerType;
 	public static final field FIXED Lkotlinx/serialization/protobuf/ProtoIntegerType;
