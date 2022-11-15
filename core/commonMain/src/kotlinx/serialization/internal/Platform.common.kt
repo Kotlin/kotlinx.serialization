@@ -21,7 +21,7 @@ internal object InternalHexConverter {
         while (i < len) {
             val h = hexToInt(s[i])
             val l = hexToInt(s[i + 1])
-            require(!(h == -1 || l == -1)) { "Invalid hex chars: ${s[i]}${s[i+1]}" }
+            require(!(h == -1 || l == -1)) { "Invalid hex chars: ${s[i]}${s[i + 1]}" }
 
             bytes[i / 2] = ((h shl 4) + l).toByte()
             i += 2
@@ -85,14 +85,15 @@ internal inline fun <T> SerializationStrategy<*>.cast(): SerializationStrategy<T
 
 @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
 @PublishedApi
-internal inline fun <T> DeserializationStrategy<*>.cast(): DeserializationStrategy<T> = this as DeserializationStrategy<T>
+internal inline fun <T> DeserializationStrategy<*>.cast(): DeserializationStrategy<T> =
+    this as DeserializationStrategy<T>
 
 internal fun KClass<*>.serializerNotRegistered(): Nothing {
-    throw SerializationException(
-        "Serializer for class '${simpleName}' is not found.\n" +
-            "Mark the class as @Serializable or provide the serializer explicitly."
-    )
+    throw SerializationException(notRegisteredMessage())
 }
+
+internal fun KClass<*>.notRegisteredMessage(): String = "Serializer for class '${simpleName}' is not found.\n" +
+        "Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied."
 
 internal expect fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing
 
@@ -100,10 +101,13 @@ internal expect fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing
 internal fun KType.kclass() = when (val t = classifier) {
     is KClass<*> -> t
     is KTypeParameter -> {
-        error("Captured type paramerer $t from generic non-reified function. " +
-                "Such functionality cannot be supported as $t is erased, either specify serializer explicitly or make " +
-                "calling function inline with reified $t")
+        error(
+            "Captured type parameter $t from generic non-reified function. " +
+                    "Such functionality cannot be supported as $t is erased, either specify serializer explicitly or make " +
+                    "calling function inline with reified $t"
+        )
     }
+
     else -> error("Only KClass supported as classifier, got $t")
 } as KClass<Any>
 
@@ -143,16 +147,6 @@ internal expect fun <T> createCache(factory: (KClass<*>) -> KSerializer<T>?): Se
 internal expect fun <T> createParametrizedCache(factory: (KClass<Any>, List<KType>) -> KSerializer<T>?): ParametrizedSerializerCache<T>
 
 internal expect fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E>
-
-/**
- * Checks whether the receiver is an instance of a given kclass.
- *
- * This check is a replacement for [KClass.isInstance] because on JVM it requires kotlin-reflect.jar in classpath (see KT-14720).
- *
- * On JS and Native, this function delegates to aforementioned [KClass.isInstance] since it is supported there out-of-the-box;
- * on JVM, it falls back to `java.lang.Class.isInstance`, which causes difference when applied to function types with big arity.
- */
-internal expect fun Any.isInstanceOf(kclass: KClass<*>): Boolean
 
 internal inline fun <T, K> Iterable<T>.elementsHashCodeBy(selector: (T) -> K): Int {
     return fold(1) { hash, element -> 31 * hash + selector(element).hashCode() }

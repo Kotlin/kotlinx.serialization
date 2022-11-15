@@ -92,7 +92,7 @@ We get an error, because the `OwnedProject` class is not serializable.
  
 ```text
 Exception in thread "main" kotlinx.serialization.SerializationException: Serializer for class 'OwnedProject' is not found.
-Mark the class as @Serializable or provide the serializer explicitly.
+Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied.
 ```                                                                       
 
 <!--- TEST LINES_START -->
@@ -495,7 +495,7 @@ We get the exception.
 
 ```text
 Exception in thread "main" kotlinx.serialization.SerializationException: Serializer for class 'Any' is not found.
-Mark the class as @Serializable or provide the serializer explicitly.
+Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied.
 ```
 
 <!--- TEST LINES_START -->
@@ -543,7 +543,7 @@ However, the `Any` is a class and it is not serializable:
 
 ```text 
 Exception in thread "main" kotlinx.serialization.SerializationException: Serializer for class 'Any' is not found.
-Mark the class as @Serializable or provide the serializer explicitly.
+Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied.
 ```
 
 <!--- TEST LINES_START -->

@@ -18,7 +18,6 @@ internal actual inline fun BooleanArray.getChecked(index: Int): Boolean {
     return get(index)
 }
 
-@Suppress("UNCHECKED_CAST")
 internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
     this.constructSerializerForGivenTypeArgs()
 
@@ -29,10 +28,7 @@ internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KCl
 internal actual fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing = serializerNotRegistered()
 
 internal fun Class<*>.serializerNotRegistered(): Nothing {
-    throw SerializationException(
-        "Serializer for class '${simpleName}' is not found.\n" +
-                "Mark the class as @Serializable or provide the serializer explicitly."
-    )
+    throw SerializationException(this.kotlin.notRegisteredMessage())
 }
 
 internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
@@ -148,19 +144,5 @@ private fun <T : Any> Class<T>.findObjectSerializer(): KSerializer<T>? {
     @Suppress("UNCHECKED_CAST")
     return result as? KSerializer<T>
 }
-
-/**
- * Checks if an [this@isInstanceOf] is an instance of a given [kclass].
- *
- * This check is a replacement for [KClass.isInstance] because
- * on JVM it requires kotlin-reflect.jar in classpath
- * (see https://youtrack.jetbrains.com/issue/KT-14720).
- *
- * On JS and Native, this function delegates to aforementioned
- * [KClass.isInstance] since it is supported there out-of-the box;
- * on JVM, it falls back to java.lang.Class.isInstance, which causes
- * difference when applied to function types with big arity.
- */
-internal actual fun Any.isInstanceOf(kclass: KClass<*>): Boolean = kclass.javaObjectType.isInstance(this)
 
 internal actual fun isReferenceArray(rootClass: KClass<Any>): Boolean = rootClass.java.isArray

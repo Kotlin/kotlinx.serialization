@@ -73,8 +73,8 @@ public fun serializerOrNull(type: Type): KSerializer<Any>? = EmptySerializersMod
  * @throws IllegalArgumentException if an unsupported subclass of [Type] is provided.
  */
 public fun SerializersModule.serializer(type: Type): KSerializer<Any> =
-    serializerByJavaTypeImpl(type, failOnMissingTypeArgSerializer = true) ?: type.prettyClass()
-        .serializerNotRegistered()
+    serializerByJavaTypeImpl(type, failOnMissingTypeArgSerializer = true)
+        ?: type.prettyClass().serializerNotRegistered()
 
 /**
  * Retrieves a serializer for the given [type] using

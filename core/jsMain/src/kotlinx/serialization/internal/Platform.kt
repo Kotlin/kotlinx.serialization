@@ -38,12 +38,9 @@ internal actual fun <T> createParametrizedCache(factory: (KClass<Any>, List<KTyp
 
 internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E> = toTypedArray()
 
-internal actual fun Any.isInstanceOf(kclass: KClass<*>): Boolean = kclass.isInstance(this)
-
 internal actual fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing {
     throw SerializationException(
-        "Serializer for class '${simpleName}' is not found.\n" +
-                "Mark the class as @Serializable or provide the serializer explicitly.\n" +
+        "${notRegisteredMessage()}\n" +
                 "On Kotlin/JS explicitly declared serializer should be used for interfaces and enums without @Serializable annotation"
     )
 }
