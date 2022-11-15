@@ -33,6 +33,7 @@ dependencies {
     implementation("com.squareup.okio:okio:${property("okio_version")}")
 
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    testImplementation 'org.jetbrains.kotlin:kotlin-reflect'
     testImplementation 'junit:junit:4.12'
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${property("coroutines_version")}")
     testImplementation("com.google.code.gson:gson:2.8.5")
