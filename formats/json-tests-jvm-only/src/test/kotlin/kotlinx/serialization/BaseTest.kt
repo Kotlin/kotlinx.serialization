@@ -1,7 +1,7 @@
 package kotlinx.serialization
 
 import junit.framework.TestCase.*
-//import kotlinx.serialization.json.*
+import kotlinx.serialization.json.*
 import org.junit.*
 
 @Serializable
@@ -11,6 +11,6 @@ class BaseTest {
     @Test
     fun baseTest() {
         println(Data.serializer().descriptor)
-//        assertEquals("""{"i":42}""", Json.encodeToString(Data(42)))
+        assertEquals("""{"i":42}""", Json.encodeToString(Data(42)))
     }
 }
