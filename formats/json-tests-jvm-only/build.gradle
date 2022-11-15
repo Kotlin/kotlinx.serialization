@@ -29,6 +29,7 @@ dependencies {
     api project(':kotlinx-serialization-core')
     api project(':kotlinx-serialization-json')
     api project(':kotlinx-serialization-json-okio')
+    api project(':kotlinx-serialization-protobuf')
     api 'org.jetbrains.kotlin:kotlin-stdlib'
     implementation("com.squareup.okio:okio:${property("okio_version")}")
 
