@@ -8,6 +8,7 @@ package kotlinx.serialization.test
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.internal.ESCAPE_STRINGS
 import kotlin.random.Random
 import kotlin.random.nextInt
@@ -60,4 +61,12 @@ fun generateRandomUnicodeString(size: Int): String {
             }
         }
     }
+}
+
+//@Suppress("TestFunctionName")
+//internal inline fun <reified E : Enum<E>> EnumSerializer(serialName: String): EnumSerializer<E> =
+//    EnumSerializer(serialName, enumValues<E>())
+
+inline fun noJsLegacy(test: () -> Unit) {
+    if (!isJsLegacy()) test()
 }
