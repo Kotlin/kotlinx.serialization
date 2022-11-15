@@ -973,7 +973,7 @@ functions. Without it we'll get a "Serializer for class 'Date' is not found" exc
  
 <!--- TEST LINES_START 
 Exception in thread "main" kotlinx.serialization.SerializationException: Serializer for class 'Date' is not found.
-Please ensure that class is marked as '@Serializable' and that serialization plugin is applied.
+Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied.
 -->
 
 <!--- INCLUDE

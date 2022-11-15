@@ -79,7 +79,7 @@ When we run this code we get the exception.
 
 ```text
 Exception in thread "main" kotlinx.serialization.SerializationException: Serializer for class 'Project' is not found.
-Please ensure that class is marked as '@Serializable' and that serialization plugin is applied.
+Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied.
 ```
 
 <!--- TEST LINES_START -->

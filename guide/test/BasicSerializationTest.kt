@@ -9,7 +9,7 @@ class BasicSerializationTest {
     fun testExampleBasic01() {
         captureOutput("ExampleBasic01") { example.exampleBasic01.main() }.verifyOutputLinesStart(
             "Exception in thread \"main\" kotlinx.serialization.SerializationException: Serializer for class 'Project' is not found.",
-            "Please ensure that class is marked as '@Serializable' and that serialization plugin is applied."
+            "Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied."
         )
     }
 
