@@ -93,7 +93,7 @@ internal fun KClass<*>.serializerNotRegistered(): Nothing {
 }
 
 internal fun KClass<*>.notRegisteredMessage(): String = "Serializer for class '${simpleName}' is not found.\n" +
-        "Please ensure that class is marked as '@Serializable' and that serialization plugin is applied."
+        "Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied."
 
 internal expect fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing
 
