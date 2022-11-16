@@ -1,4 +1,4 @@
-@file:UseSerializers(BigDecimalNumericSerializer::class)
+//@file:UseSerializers(BigDecimalNumericSerializer::class)
 
 package kotlinx.serialization
 

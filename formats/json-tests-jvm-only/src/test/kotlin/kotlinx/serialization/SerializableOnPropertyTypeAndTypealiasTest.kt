@@ -82,7 +82,7 @@ class SerializableOnPropertyTypeAndTypealiasTest : JsonTestBase() {
     }
 
     @Test
-    @Ignore // TODO: Unignore in 1.8.20 (#1895)
+//    @Ignore // TODO: Unignore in 1.8.20 (#1895)
     fun testWithoutDefault() {
         val t = TesterWithoutDefault(WithoutDefault("a"), WithoutDefault("b"), WithoutDefault("c"), WithoutDefault("d"))
         assertJsonFormAndRestored(
