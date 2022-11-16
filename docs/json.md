@@ -548,7 +548,7 @@ Note that the execution will fail if the structure of the data is otherwise diff
 ### Json element builders
 
 You can construct instances of specific [JsonElement] subtypes using the respective builder functions
-[buildJsonArray] and [buildJsonObject]. They provide a DSL to define the resulting JSON structure. It is
+[buildJsonArray] and [buildJsonObject]. They provide a DSL to define the resulting JSON structure. It 
 is similar to Kotlin standard library collection builders, but with a JSON-specific convenience
 of more type-specific overloads and inner builder functions. The following example shows
 all the key features:
