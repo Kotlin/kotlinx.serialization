@@ -101,19 +101,19 @@ class SerializersLookupTest : JsonTestBase() {
         assertSerializedWithType<ArrayList<in Int>>("[1,2,3]", myList)
     }
 
-    @Test
-    fun testStarProjectionsAreProhibited() {
-        val expectedMessage = "Star projections in type arguments are not allowed"
-        assertFailsWithMessage<IllegalArgumentException>(expectedMessage) {
-            serializer<Box<*>>()
-        }
-        assertFailsWithMessage<IllegalArgumentException>(expectedMessage) {
-            serializer(typeOf<Box<*>>())
-        }
-        assertFailsWithMessage<IllegalArgumentException>(expectedMessage) {
-            serializerOrNull(typeOf<Box<*>>())
-        }
-    }
+//    @Test
+//    fun testStarProjectionsAreProhibited() {
+//        val expectedMessage = "Star projections in type arguments are not allowed"
+//        assertFailsWithMessage<IllegalArgumentException>(expectedMessage) {
+//            serializer<Box<*>>()
+//        }
+//        assertFailsWithMessage<IllegalArgumentException>(expectedMessage) {
+//            serializer(typeOf<Box<*>>())
+//        }
+//        assertFailsWithMessage<IllegalArgumentException>(expectedMessage) {
+//            serializerOrNull(typeOf<Box<*>>())
+//        }
+//    }
 
     @Test
     fun testNullableTypes() {
