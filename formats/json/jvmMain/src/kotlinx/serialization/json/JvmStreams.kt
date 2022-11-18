@@ -56,7 +56,12 @@ public fun <T> Json.decodeFromStream(
     deserializer: DeserializationStrategy<T>,
     stream: InputStream
 ): T {
-    return decodeByReader(deserializer, JavaStreamSerialReader(stream))
+    val reader = JavaStreamSerialReader(stream)
+    try {
+        return decodeByReader(deserializer, reader)
+    } finally {
+        reader.release()
+    }
 }
 
 /**

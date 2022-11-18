@@ -254,10 +254,14 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
 }
 
 internal class JavaStreamSerialReader(stream: InputStream) : SerialReader {
-    // NB: not closed on purpose, it is responsibility of the caller
+    // NB: not closed on purpose, it is the responsibility of the caller
     private val reader = CharsetReader(stream, Charsets.UTF_8)
 
     override fun read(buffer: CharArray, bufferOffset: Int, count: Int): Int {
         return reader.read(buffer, bufferOffset, count)
+    }
+
+    fun release() {
+        reader.release()
     }
 }

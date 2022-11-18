@@ -19,7 +19,7 @@ internal class CharsetReader(
         decoder = charset.newDecoder()
             .onMalformedInput(CodingErrorAction.REPLACE)
             .onUnmappableCharacter(CodingErrorAction.REPLACE)
-        byteBuffer = ByteBuffer.allocate(32)
+        byteBuffer = ByteBuffer.wrap(ByteArrayPool8k.take())
         byteBuffer.flip() // Make empty
     }
 
@@ -116,5 +116,9 @@ internal class CharsetReader(
             }
             else -> error("Unreachable state: $bytesRead")
         }
+    }
+
+    public fun release() {
+        ByteArrayPool8k.release(byteBuffer.array())
     }
 }
