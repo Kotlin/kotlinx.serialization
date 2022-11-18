@@ -34,10 +34,14 @@ internal fun <T> Json.decodeByReader(
     reader: SerialReader
 ): T {
     val lexer = ReaderJsonLexer(reader)
-    val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor, null)
-    val result = input.decodeSerializableValue(deserializer)
-    lexer.expectEof()
-    return result
+    try {
+        val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor, null)
+        val result = input.decodeSerializableValue(deserializer)
+        lexer.expectEof()
+        return result
+    } finally {
+        lexer.release()
+    }
 }
 
 @PublishedApi
@@ -47,6 +51,7 @@ internal fun <T> Json.decodeToSequenceByReader(
     deserializer: DeserializationStrategy<T>,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
 ): Sequence<T> {
+    // Note: no explicit release, as the sequence are lazy and thrown away in an arbitrary manner
     val lexer = ReaderJsonLexer(reader)
     val iter = JsonIterator(format, this, lexer, deserializer)
     return Sequence { iter }.constrainOnce()
