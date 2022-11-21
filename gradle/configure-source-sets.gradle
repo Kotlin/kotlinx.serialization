@@ -13,7 +13,13 @@ kotlin {
     }
 
     js {
-        nodejs {}
+        nodejs {
+            testTask {
+                useMocha {
+		    timeout = "10s"
+                }
+            }
+        }
         configure([compilations.main, compilations.test]) {
             kotlinOptions {
                 sourceMap = true
