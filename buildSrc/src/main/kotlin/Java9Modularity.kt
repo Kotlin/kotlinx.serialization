@@ -19,6 +19,8 @@ object Java9Modularity {
     @JvmStatic
     @JvmOverloads
     fun Project.configureJava9ModuleInfo(multiRelease: Boolean = true) {
+        val disableJPMS = this.rootProject.extra.has("disableJPMS")
+        if (disableJPMS) return
         val kotlin = extensions.findByType<KotlinProjectExtension>() ?: return
         val jvmTargets = kotlin.targets.filter { it is KotlinJvmTarget || it is KotlinWithJavaTarget<*> }
         if (jvmTargets.isEmpty()) {
