@@ -192,7 +192,7 @@ subprojects {
             signature 'org.codehaus.mojo.signature:java18:1.0@signature'
         }
 
-        // Add dependency to the BOM artifact
+        // Add dependency on kotlinx-serialization-bom inside other kotlinx-serialization modules themselves, so they have same versions
         BomKt.addBomApiDependency(project, ":kotlinx-serialization-bom")
     }
 }
