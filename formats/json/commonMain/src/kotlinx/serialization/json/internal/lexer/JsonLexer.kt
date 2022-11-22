@@ -34,11 +34,11 @@ internal class ArrayAsSequence(private val buffer: CharArray) : CharSequence {
 
 internal class ReaderJsonLexer(
     private val reader: SerialReader,
+    private val buffer: CharArray = CharArrayPoolBatchSize.take()
 ) : AbstractJsonLexer() {
     private var threshold: Int = DEFAULT_THRESHOLD // chars
 
-    private val pooledArray = CharArrayPoolBatchSize.take()
-    override val source: ArrayAsSequence = ArrayAsSequence(pooledArray)
+    override val source: ArrayAsSequence = ArrayAsSequence(buffer)
 
     init {
         preload(0)
@@ -179,6 +179,6 @@ internal class ReaderJsonLexer(
     override fun consumeLeadingMatchingValue(keyToMatch: String, isLenient: Boolean): String? = null
 
     fun release() {
-        CharArrayPoolBatchSize.release(pooledArray)
+        CharArrayPoolBatchSize.release(buffer)
     }
 }

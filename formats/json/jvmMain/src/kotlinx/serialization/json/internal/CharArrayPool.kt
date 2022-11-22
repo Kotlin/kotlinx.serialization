@@ -38,6 +38,7 @@ internal open class CharArrayPoolBase {
 internal object CharArrayPool : CharArrayPoolBase() {
     fun take(): CharArray = super.take(128)
 
+    // Can release array of an arbitrary size
     fun release(array: CharArray) = releaseImpl(array)
 }
 

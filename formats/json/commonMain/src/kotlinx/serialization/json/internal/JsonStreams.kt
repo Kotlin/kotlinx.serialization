@@ -51,8 +51,7 @@ internal fun <T> Json.decodeToSequenceByReader(
     deserializer: DeserializationStrategy<T>,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
 ): Sequence<T> {
-    // Note: no explicit release, as the sequence are lazy and thrown away in an arbitrary manner
-    val lexer = ReaderJsonLexer(reader)
+    val lexer = ReaderJsonLexer(reader, CharArray(BATCH_SIZE)) // Unpooled buffer due to lazy nature of sequence
     val iter = JsonIterator(format, this, lexer, deserializer)
     return Sequence { iter }.constrainOnce()
 }
