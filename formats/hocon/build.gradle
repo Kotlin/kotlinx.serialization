@@ -21,6 +21,7 @@ java {
 dependencies {
     api project(':kotlinx-serialization-core')
     api 'org.jetbrains.kotlin:kotlin-stdlib'
+    api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
     api 'com.typesafe:config:1.4.1'
 
