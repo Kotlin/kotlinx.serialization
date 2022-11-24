@@ -14,33 +14,33 @@ class JsonConcurrentStressTest : JsonTestBase() {
     private val charset = "ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz0123456789"
 
     @Test
-    fun testDecodeInParallelSimpleList() = doTest(100) {
+    fun testDecodeInParallelSimpleList() = doTest(100) { mode ->
         val value = (1..10000).map { Random.nextDouble() }
-        val string = Json.encodeToString(ListSerializer(Double.serializer()), value, it)
-        assertEquals(value, Json.decodeFromString(ListSerializer(Double.serializer()), string, it))
+        val string = Json.encodeToString(ListSerializer(Double.serializer()), value, mode)
+        assertEquals(value, Json.decodeFromString(ListSerializer(Double.serializer()), string, mode))
     }
 
     @Serializable
     data class Foo(val s: String, val f: Foo?)
 
     @Test
-    fun testDecodeInParallelListOfPojo() = doTest(1_000) {
+    fun testDecodeInParallelListOfPojo() = doTest(1_000) { mode ->
         val value = (1..100).map {
             val randomString = getRandomString()
             val nestedFoo = Foo("null抢\u000E鋽윝䑜厼\uF70A紲ᢨ䣠null⛾䉻嘖緝ᯧnull쎶\u0005null" + randomString, null)
             Foo(getRandomString(), nestedFoo)
         }
-        val string = Json.encodeToString(ListSerializer(Foo.serializer()), value, it)
-        assertEquals(value, Json.decodeFromString(ListSerializer(Foo.serializer()), string, it))
+        val string = Json.encodeToString(ListSerializer(Foo.serializer()), value, mode)
+        assertEquals(value, Json.decodeFromString(ListSerializer(Foo.serializer()), string, mode))
     }
 
     @Test
-    fun testDecodeInParallelPojo() = doTest(100_000) {
+    fun testDecodeInParallelPojo() = doTest(100_000) { mode ->
         val randomString = getRandomString()
         val nestedFoo = Foo("null抢\u000E鋽윝䑜厼\uF70A紲ᢨ䣠null⛾䉻嘖緝ᯧnull쎶\u0005null" + randomString, null)
         val randomFoo = Foo(getRandomString(), nestedFoo)
-        val string = Json.encodeToString(Foo.serializer(), randomFoo, it)
-        assertEquals(randomFoo, Json.decodeFromString(Foo.serializer(), string, it))
+        val string = Json.encodeToString(Foo.serializer(), randomFoo, mode)
+        assertEquals(randomFoo, Json.decodeFromString(Foo.serializer(), string, mode))
     }
 
     @Test
