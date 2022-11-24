@@ -9,7 +9,7 @@ package kotlinx.serialization.json.internal
  */
 private val MAX_CHARS_IN_POOL = runCatching {
     System.getProperty("kotlinx.serialization.json.pool.size").toIntOrNull()
-}.getOrNull() ?: 1024 * 1024
+}.getOrNull() ?: 2 * 1024 * 1024
 
 internal open class CharArrayPoolBase {
     private val arrays = ArrayDeque<CharArray>()
@@ -83,7 +83,7 @@ internal object ByteArrayPool8k : ByteArrayPoolBase() {
 
 
 internal object ByteArrayPool : ByteArrayPoolBase() {
-    fun take(): ByteArray = super.take(128)
+    fun take(): ByteArray = super.take(512)
 
     fun release(array: ByteArray) = releaseImpl(array)
 }
