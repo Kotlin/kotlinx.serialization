@@ -153,7 +153,7 @@ internal class ReaderJsonLexer(
 
     private fun writeRange(fromIndex: Int, toIndex: Int, consumeChunk: (stringChunk: String) -> Unit) {
         val tmp = StringBuilder()
-        tmp.appendRange(_source, fromIndex, toIndex)
+        tmp.appendRange(source, fromIndex, toIndex)
         consumeChunk(tmp.toString())
     }
 
