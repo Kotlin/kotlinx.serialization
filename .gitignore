@@ -15,3 +15,6 @@ target
 
 # Modules for JS projects build
 node_modules
+
+# benchmarks.jar
+/benchmarks.jar
