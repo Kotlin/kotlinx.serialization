@@ -14,7 +14,7 @@ private const val DEFAULT_THRESHOLD = 128
  * For some reason this hand-rolled implementation is faster than
  * fun ArrayAsSequence(s: CharArray): CharSequence = java.nio.CharBuffer.wrap(s, 0, length)
  */
-internal class ArrayAsSequence(val buffer: CharArray) : CharSequence {
+internal class ArrayAsSequence(private val buffer: CharArray) : CharSequence {
     override var length: Int = buffer.size
 
     override fun get(index: Int): Char = buffer[index]
@@ -34,11 +34,11 @@ internal class ArrayAsSequence(val buffer: CharArray) : CharSequence {
 
 internal class ReaderJsonLexer(
     private val reader: SerialReader,
-    charsBuffer: CharArray = CharArray(BATCH_SIZE)
+    private val buffer: CharArray = CharArrayPoolBatchSize.take()
 ) : AbstractJsonLexer() {
     private var threshold: Int = DEFAULT_THRESHOLD // chars
 
-    override val source: ArrayAsSequence = ArrayAsSequence(charsBuffer)
+    override val source: ArrayAsSequence = ArrayAsSequence(buffer)
 
     init {
         preload(0)
@@ -177,4 +177,8 @@ internal class ReaderJsonLexer(
 
     // Can be carefully implemented but postponed for now
     override fun consumeLeadingMatchingValue(keyToMatch: String, isLenient: Boolean): String? = null
+
+    fun release() {
+        CharArrayPoolBatchSize.release(buffer)
+    }
 }

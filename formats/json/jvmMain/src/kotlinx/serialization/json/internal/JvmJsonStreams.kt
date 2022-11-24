@@ -68,12 +68,14 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
                     0.toByte() -> {
                         charArray[sz++] = ch.toChar()
                     }
+
                     1.toByte() -> {
                         val escapedString = ESCAPE_STRINGS[ch]!!
                         sz = ensureTotalCapacity(sz, escapedString.length)
                         escapedString.toCharArray(charArray, sz, 0, escapedString.length)
                         sz += escapedString.length
                     }
+
                     else -> {
                         charArray[sz] = '\\'
                         charArray[sz + 1] = marker.toInt().toChar()
@@ -204,9 +206,9 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
         }
     }
 
-    /*
-    Sources taken from okio library with minor changes, see https://github.com/square/okio
-    */
+    /**
+     * Sources taken from okio library with minor changes, see https://github.com/square/okio
+     */
     private fun writeUtf8CodePoint(codePoint: Int) {
         when {
             codePoint < 0x80 -> {
@@ -214,17 +216,20 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
                 ensure(1)
                 write(codePoint)
             }
+
             codePoint < 0x800 -> {
                 // Emit a 11-bit code point with 2 bytes.
                 ensure(2)
                 write(codePoint shr 6 or 0xc0) // 110xxxxx
                 write(codePoint and 0x3f or 0x80) // 10xxxxxx
             }
+
             codePoint in 0xd800..0xdfff -> {
                 // Emit a replacement character for a partial surrogate.
                 ensure(1)
                 write('?'.code)
             }
+
             codePoint < 0x10000 -> {
                 // Emit a 16-bit code point with 3 bytes.
                 ensure(3)
@@ -232,6 +237,7 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
                 write(codePoint shr 6 and 0x3f or 0x80) // 10xxxxxx
                 write(codePoint and 0x3f or 0x80) // 10xxxxxx
             }
+
             codePoint <= 0x10ffff -> {
                 // Emit a 21-bit code point with 4 bytes.
                 ensure(4)
@@ -240,6 +246,7 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
                 write(codePoint shr 6 and 0x3f or 0x80) // 10xxyyyy
                 write(codePoint and 0x3f or 0x80) // 10yyyyyy
             }
+
             else -> {
                 throw JsonEncodingException("Unexpected code point: $codePoint")
             }
@@ -247,11 +254,8 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
     }
 }
 
-internal class JavaStreamSerialReader(
-    stream: InputStream,
-    charset: Charset = Charsets.UTF_8
-) : SerialReader {
-    private val reader = stream.reader(charset)
+internal class JavaStreamSerialReader(stream: InputStream) : SerialReader {
+    private val reader = stream.reader(Charsets.UTF_8)
 
     override fun read(buffer: CharArray, bufferOffset: Int, count: Int): Int {
         return reader.read(buffer, bufferOffset, count)
