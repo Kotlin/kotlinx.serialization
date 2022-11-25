@@ -1,20 +1,15 @@
 package kotlinx.serialization.json
 
-import kotlinx.serialization.KSerializer
+import kotlinx.serialization.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.encoding.ChunkedDecoder
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import org.junit.Test
-import java.io.ByteArrayOutputStream
+import java.io.*
 import java.util.*
 import kotlin.random.Random
-import kotlin.test.assertEquals
-import kotlin.test.assertFails
+import kotlin.test.*
+
 
 @Serializable(with = LargeStringSerializer::class)
 data class LargeBinaryData(val binaryData: ByteArray) {
