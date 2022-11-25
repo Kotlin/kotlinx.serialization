@@ -117,7 +117,7 @@ public abstract interface annotation class kotlinx/serialization/json/JsonClassD
 	public abstract fun discriminator ()Ljava/lang/String;
 }
 
-public final class kotlinx/serialization/json/JsonClassDiscriminator$Impl : kotlinx/serialization/json/JsonClassDiscriminator {
+public synthetic class kotlinx/serialization/json/JsonClassDiscriminator$Impl : kotlinx/serialization/json/JsonClassDiscriminator {
 	public fun <init> (Ljava/lang/String;)V
 	public final synthetic fun discriminator ()Ljava/lang/String;
 }
@@ -244,7 +244,7 @@ public abstract interface annotation class kotlinx/serialization/json/JsonNames 
 	public abstract fun names ()[Ljava/lang/String;
 }
 
-public final class kotlinx/serialization/json/JsonNames$Impl : kotlinx/serialization/json/JsonNames {
+public synthetic class kotlinx/serialization/json/JsonNames$Impl : kotlinx/serialization/json/JsonNames {
 	public fun <init> ([Ljava/lang/String;)V
 	public final synthetic fun names ()[Ljava/lang/String;
 }
