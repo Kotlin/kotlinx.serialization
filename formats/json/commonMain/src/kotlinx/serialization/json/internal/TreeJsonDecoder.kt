@@ -134,7 +134,7 @@ private sealed class AbstractJsonTreeDecoder(
 
     override fun decodeTaggedChar(tag: String): Char = getPrimitiveValue(tag).primitive("char") { content.single() }
 
-    private inline fun <T: Any> JsonPrimitive.primitive(primitive: String, block: JsonPrimitive.() -> T?): T {
+    private inline fun <T : Any> JsonPrimitive.primitive(primitive: String, block: JsonPrimitive.() -> T?): T {
         try {
             return block() ?: unparsedPrimitive(primitive)
         } catch (e: IllegalArgumentException) {
@@ -224,18 +224,28 @@ private open class JsonTreeDecoder(
         return !forceNull && super.decodeNotNullMark()
     }
 
-    override fun elementName(desc: SerialDescriptor, index: Int): String {
-        val mainName = desc.getElementName(index)
-        if (!configuration.useAlternativeNames) return mainName
-        // Fast path, do not go through ConcurrentHashMap.get
-        // Note, it blocks ability to detect collisions between the primary name and alternate,
-        // but it eliminates a significant performance penalty (about -15% without this optimization)
-        if (mainName in value.keys) return mainName
+    override fun elementName(descriptor: SerialDescriptor, index: Int): String {
+        val strategy = descriptor.namingStrategy(json)
+        val baseName = descriptor.getElementName(index)
+        if (strategy == null) {
+            if (!configuration.useAlternativeNames) return baseName
+            // Fast path, do not go through ConcurrentHashMap.get
+            // Note, it blocks ability to detect collisions between the primary name and alternate,
+            // but it eliminates a significant performance penalty (about -15% without this optimization)
+            if (baseName in value.keys) return baseName
+        }
         // Slow path
-        val alternativeNamesMap =
-            json.schemaCache.getOrPut(desc, JsonAlternativeNamesKey, desc::buildAlternativeNamesMap)
-        val nameInObject = value.keys.find { alternativeNamesMap[it] == index }
-        return nameInObject ?: mainName
+        val deserializationNamesMap = json.deserializationNamesMap(descriptor)
+        value.keys.find { deserializationNamesMap[it] == index }?.let {
+            return it
+        }
+
+        val fallbackName = strategy?.serialNameForJson(
+            descriptor,
+            index,
+            baseName
+        ) // Key not found exception should be thrown with transformed name, not original
+        return fallbackName ?: baseName
     }
 
     override fun currentElement(tag: String): JsonElement = value.getValue(tag)
@@ -252,12 +262,14 @@ private open class JsonTreeDecoder(
     override fun endStructure(descriptor: SerialDescriptor) {
         if (configuration.ignoreUnknownKeys || descriptor.kind is PolymorphicKind) return
         // Validate keys
+        val strategy = descriptor.namingStrategy(json)
+
         @Suppress("DEPRECATION_ERROR")
-        val names: Set<String> =
-            if (!configuration.useAlternativeNames)
-                descriptor.jsonCachedSerialNames()
-            else
-                descriptor.jsonCachedSerialNames() + json.schemaCache[descriptor, JsonAlternativeNamesKey]?.keys.orEmpty()
+        val names: Set<String> = when {
+            strategy == null && !configuration.useAlternativeNames -> descriptor.jsonCachedSerialNames()
+            strategy != null -> json.deserializationNamesMap(descriptor).keys
+            else -> descriptor.jsonCachedSerialNames() + json.schemaCache[descriptor, JsonDeserializationNamesKey]?.keys.orEmpty()
+        }
 
         for (key in value.keys) {
             if (key !in names && key != polyDiscriminator) {
@@ -272,7 +284,7 @@ private class JsonTreeMapDecoder(json: Json, override val value: JsonObject) : J
     private val size: Int = keys.size * 2
     private var position = -1
 
-    override fun elementName(desc: SerialDescriptor, index: Int): String {
+    override fun elementName(descriptor: SerialDescriptor, index: Int): String {
         val i = index / 2
         return keys[i]
     }
@@ -298,7 +310,7 @@ private class JsonTreeListDecoder(json: Json, override val value: JsonArray) : A
     private val size = value.size
     private var currentIndex = -1
 
-    override fun elementName(desc: SerialDescriptor, index: Int): String = (index).toString()
+    override fun elementName(descriptor: SerialDescriptor, index: Int): String = index.toString()
 
     override fun currentElement(tag: String): JsonElement {
         return value[tag.toInt()]

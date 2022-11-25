@@ -139,7 +139,7 @@ internal class StreamingJsonEncoder(
                 if (!composer.writingFirst)
                     composer.print(COMMA)
                 composer.nextItem()
-                encodeString(descriptor.getElementName(index))
+                encodeString(descriptor.getJsonElementName(json, index))
                 composer.print(COLON)
                 composer.space()
             }

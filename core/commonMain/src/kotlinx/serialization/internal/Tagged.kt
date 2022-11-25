@@ -331,7 +331,7 @@ public abstract class NamedValueDecoder : TaggedDecoder<String>() {
     final override fun SerialDescriptor.getTag(index: Int): String = nested(elementName(this, index))
 
     protected fun nested(nestedName: String): String = composeName(currentTagOrNull ?: "", nestedName)
-    protected open fun elementName(desc: SerialDescriptor, index: Int): String = desc.getElementName(index)
+    protected open fun elementName(descriptor: SerialDescriptor, index: Int): String = descriptor.getElementName(index)
     protected open fun composeName(parentName: String, childName: String): String =
         if (parentName.isEmpty()) childName else "$parentName.$childName"
 }

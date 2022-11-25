@@ -100,18 +100,27 @@ private open class DynamicInput(
         return forceNull
     }
 
-    override fun elementName(desc: SerialDescriptor, index: Int): String {
-        val mainName = desc.getElementName(index)
-        if (!json.configuration.useAlternativeNames) return mainName
-        // Fast path, do not go through Map.get
-        // Note, it blocks ability to detect collisions between the primary name and alternate,
-        // but it eliminates a significant performance penalty (about -15% without this optimization)
-        if (hasName(mainName)) return mainName
+    override fun elementName(descriptor: SerialDescriptor, index: Int): String {
+        val strategy = descriptor.namingStrategy(json)
+        val mainName = descriptor.getElementName(index)
+        if (strategy == null) {
+            if (!json.configuration.useAlternativeNames) return mainName
+            // Fast path, do not go through Map.get
+            // Note, it blocks ability to detect collisions between the primary name and alternate,
+            // but it eliminates a significant performance penalty (about -15% without this optimization)
+            if (hasName(mainName)) return mainName
+        }
         // Slow path
-        val alternativeNamesMap =
-            json.schemaCache.getOrPut(desc, JsonAlternativeNamesKey, desc::buildAlternativeNamesMap)
-        val nameInObject = (keys as Array<String>).find { alternativeNamesMap[it] == index }
-        return nameInObject ?: mainName
+        val deserializationNamesMap = json.deserializationNamesMap(descriptor)
+        (keys as Array<String>).find { deserializationNamesMap[it] == index }?.let {
+            return it
+        }
+        val fallbackName = strategy?.serialNameForJson(
+            descriptor,
+            index,
+            mainName
+        ) // Key not found exception should be thrown with transformed name, not original
+        return fallbackName ?: mainName
     }
 
     override fun decodeTaggedEnum(tag: String, enumDescriptor: SerialDescriptor): Int {
@@ -191,7 +200,7 @@ private class DynamicMapInput(
     private var currentPosition = -1
     private val isKey: Boolean get() = currentPosition % 2 == 0
 
-    override fun elementName(desc: SerialDescriptor, index: Int): String {
+    override fun elementName(descriptor: SerialDescriptor, index: Int): String {
         val i = index / 2
         return keys[i] as String
     }
@@ -261,7 +270,7 @@ private class DynamicListInput(
     override val size = value.length as Int
     private var currentPosition = -1
 
-    override fun elementName(desc: SerialDescriptor, index: Int): String = (index).toString()
+    override fun elementName(descriptor: SerialDescriptor, index: Int): String = (index).toString()
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         while (currentPosition < size - 1) {

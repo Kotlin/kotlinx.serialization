@@ -81,7 +81,7 @@ private class DynamicObjectEncoder(
         when {
             current.writeMode == WriteMode.MAP -> currentElementIsMapKey = current.index % 2 == 0
             current.writeMode == WriteMode.LIST && descriptor.kind is PolymorphicKind -> currentName = index.toString()
-            else -> currentName = descriptor.getElementName(index)
+            else -> currentName = descriptor.getJsonElementName(json, index)
         }
 
         return true
