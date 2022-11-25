@@ -371,7 +371,6 @@ public abstract class kotlinx/serialization/encoding/AbstractDecoder : kotlinx/s
 	public fun decodeShort ()S
 	public final fun decodeShortElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)S
 	public fun decodeString ()Ljava/lang/String;
-	public fun decodeStringChunked (Lkotlin/jvm/functions/Function1;)V
 	public final fun decodeStringElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
 	public fun decodeValue ()Ljava/lang/Object;
 	public fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
@@ -412,6 +411,10 @@ public abstract class kotlinx/serialization/encoding/AbstractEncoder : kotlinx/s
 	public fun encodeValue (Ljava/lang/Object;)V
 	public fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
 	public fun shouldEncodeElementDefault (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
+}
+
+public abstract interface class kotlinx/serialization/encoding/ChunkedDecoder {
+	public abstract fun decodeStringChunked (Lkotlin/jvm/functions/Function1;)V
 }
 
 public abstract interface class kotlinx/serialization/encoding/CompositeDecoder {
@@ -488,14 +491,12 @@ public abstract interface class kotlinx/serialization/encoding/Decoder {
 	public abstract fun decodeSerializableValue (Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
 	public abstract fun decodeShort ()S
 	public abstract fun decodeString ()Ljava/lang/String;
-	public abstract fun decodeStringChunked (Lkotlin/jvm/functions/Function1;)V
 	public abstract fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 }
 
 public final class kotlinx/serialization/encoding/Decoder$DefaultImpls {
 	public static fun decodeNullableSerializableValue (Lkotlinx/serialization/encoding/Decoder;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
 	public static fun decodeSerializableValue (Lkotlinx/serialization/encoding/Decoder;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
-	public static fun decodeStringChunked (Lkotlinx/serialization/encoding/Decoder;Lkotlin/jvm/functions/Function1;)V
 }
 
 public final class kotlinx/serialization/encoding/DecodingKt {
@@ -1073,7 +1074,6 @@ public abstract class kotlinx/serialization/internal/TaggedDecoder : kotlinx/ser
 	public final fun decodeShort ()S
 	public final fun decodeShortElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)S
 	public final fun decodeString ()Ljava/lang/String;
-	public fun decodeStringChunked (Lkotlin/jvm/functions/Function1;)V
 	public final fun decodeStringElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
 	protected fun decodeTaggedBoolean (Ljava/lang/Object;)Z
 	protected fun decodeTaggedByte (Ljava/lang/Object;)B
