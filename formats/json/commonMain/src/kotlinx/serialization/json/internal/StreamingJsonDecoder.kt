@@ -4,23 +4,16 @@
 
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.InternalSerializationApi
-import kotlinx.serialization.MissingFieldException
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.AbstractDecoder
-import kotlinx.serialization.encoding.ChunkedDecoder
-import kotlinx.serialization.encoding.CompositeDecoder
+import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.DECODE_DONE
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.internal.AbstractPolymorphicSerializer
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonDecoder
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.modules.SerializersModule
-import kotlin.jvm.JvmField
+import kotlinx.serialization.internal.*
+import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
+import kotlin.jvm.*
+
 
 /**
  * [JsonDecoder] which reads given JSON from [AbstractJsonLexer] field by field.
