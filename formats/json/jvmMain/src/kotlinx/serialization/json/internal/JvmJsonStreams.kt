@@ -2,7 +2,6 @@ package kotlinx.serialization.json.internal
 
 import java.io.InputStream
 import java.io.OutputStream
-import java.nio.charset.Charset
 
 internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWriter {
     private val buffer = ByteArrayPool.take()
@@ -255,9 +254,14 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
 }
 
 internal class JavaStreamSerialReader(stream: InputStream) : SerialReader {
-    private val reader = stream.reader(Charsets.UTF_8)
+    // NB: not closed on purpose, it is the responsibility of the caller
+    private val reader = CharsetReader(stream, Charsets.UTF_8)
 
     override fun read(buffer: CharArray, bufferOffset: Int, count: Int): Int {
         return reader.read(buffer, bufferOffset, count)
+    }
+
+    fun release() {
+        reader.release()
     }
 }

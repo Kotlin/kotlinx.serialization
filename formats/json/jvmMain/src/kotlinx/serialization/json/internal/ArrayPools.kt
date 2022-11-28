@@ -3,19 +3,17 @@
  */
 package kotlinx.serialization.json.internal
 
-import java.util.concurrent.*
+/*
+ * Not really documented kill switch as a workaround for potential
+ * (unlikely) problems with memory consumptions.
+ */
+private val MAX_CHARS_IN_POOL = runCatching {
+    System.getProperty("kotlinx.serialization.json.pool.size").toIntOrNull()
+}.getOrNull() ?: 2 * 1024 * 1024
 
 internal open class CharArrayPoolBase {
     private val arrays = ArrayDeque<CharArray>()
     private var charsTotal = 0
-
-    /*
-     * Not really documented kill switch as a workaround for potential
-     * (unlikely) problems with memory consumptions.
-     */
-    private val MAX_CHARS_IN_POOL = runCatching {
-        System.getProperty("kotlinx.serialization.json.pool.size").toIntOrNull()
-    }.getOrNull() ?: 1024 * 1024 // 2 MB seems to be a reasonable constraint, (1M of chars)
 
     protected fun take(size: Int): CharArray {
         /*
@@ -51,4 +49,41 @@ internal actual object CharArrayPoolBatchSize : CharArrayPoolBase() {
         require(array.size == BATCH_SIZE) { "Inconsistent internal invariant: unexpected array size ${array.size}" }
         releaseImpl(array)
     }
+}
+
+// Byte array pool
+
+internal open class ByteArrayPoolBase {
+    private val arrays = ArrayDeque<kotlin.ByteArray>()
+    private var bytesTotal = 0
+
+    protected fun take(size: Int): ByteArray {
+        /*
+         * Initially the pool is empty, so an instance will be allocated
+         * and the pool will be populated in the 'release'
+         */
+        val candidate = synchronized(this) {
+            arrays.removeLastOrNull()?.also { bytesTotal -= it.size / 2 }
+        }
+        return candidate ?: ByteArray(size)
+    }
+
+    protected fun releaseImpl(array: ByteArray): Unit = synchronized(this) {
+        if (bytesTotal + array.size >= MAX_CHARS_IN_POOL) return@synchronized
+        bytesTotal += array.size / 2
+        arrays.addLast(array)
+    }
+}
+
+internal object ByteArrayPool8k : ByteArrayPoolBase() {
+    fun take(): ByteArray = super.take(8196)
+
+    fun release(array: ByteArray) = releaseImpl(array)
+}
+
+
+internal object ByteArrayPool : ByteArrayPoolBase() {
+    fun take(): ByteArray = super.take(512)
+
+    fun release(array: ByteArray) = releaseImpl(array)
 }
