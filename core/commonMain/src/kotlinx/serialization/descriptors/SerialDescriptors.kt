@@ -279,7 +279,7 @@ public class ClassSerialDescriptorBuilder internal constructor(
         annotations: List<Annotation> = emptyList(),
         isOptional: Boolean = false
     ) {
-        require(uniqueNames.add(elementName)) { "Element with name '$elementName' is already registered" }
+        require(uniqueNames.add(elementName)) { "Element with name '$elementName' is already registered in $serialName" }
         elementNames += elementName
         elementDescriptors += descriptor
         elementAnnotations += annotations

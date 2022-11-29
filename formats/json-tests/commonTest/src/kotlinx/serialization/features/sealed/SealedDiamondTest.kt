@@ -22,10 +22,10 @@ class SealedDiamondTest : JsonTestBase() {
 
     @Serializable
     @SerialName("Y")
-    object Y: B, C
+    object Y : B, C
 
     @SerialName("E")
-    enum class E: B, C {
+    enum class E : B, C {
         Q, W
     }
 
