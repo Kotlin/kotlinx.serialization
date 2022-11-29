@@ -20,10 +20,19 @@ class SealedDiamondTest : JsonTestBase() {
     @SerialName("X")
     data class X(val i: Int) : B, C
 
+    @Serializable
+    @SerialName("Y")
+    object Y: B, C
+
+    @SerialName("E")
+    enum class E: B, C {
+        Q, W
+    }
+
     @Test
     fun testMultipleSuperSealedInterfacesDescriptor() {
         val subclasses = A.serializer().descriptor.getElementDescriptor(1).elementDescriptors.map { it.serialName }
-        assertEquals(listOf("X"), subclasses)
+        assertEquals(listOf("E", "X", "Y"), subclasses)
     }
 
     @Test
@@ -32,8 +41,8 @@ class SealedDiamondTest : JsonTestBase() {
         data class Carrier(val a: A, val b: B, val c: C)
         assertJsonFormAndRestored(
             Carrier.serializer(),
-            Carrier(X(1), X(2), X(3)),
-            """{"a":{"type":"X","i":1},"b":{"type":"X","i":2},"c":{"type":"X","i":3}}"""
+            Carrier(X(1), X(2), Y),
+            """{"a":{"type":"X","i":1},"b":{"type":"X","i":2},"c":{"type":"Y"}}"""
         )
     }
 

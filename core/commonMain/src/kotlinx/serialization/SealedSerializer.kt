@@ -105,9 +105,9 @@ public class SealedClassSerializer<T : Any>(
             element("type", String.serializer().descriptor)
             val elementDescriptor =
                 buildSerialDescriptor("kotlinx.serialization.Sealed<${baseClass.simpleName}>", SerialKind.CONTEXTUAL) {
-                    subclassSerializers.distinct().forEach {
-                        val d = it.descriptor
-                        element(d.serialName, d)
+                    // serialName2Serializer is guaranteed to have no duplicates — checked in `init`.
+                    serialName2Serializer.forEach { (name, serializer) ->
+                        element(name, serializer.descriptor)
                     }
                 }
             element("value", elementDescriptor)
@@ -123,6 +123,9 @@ public class SealedClassSerializer<T : Any>(
             throw IllegalArgumentException("All subclasses of sealed class ${baseClass.simpleName} should be marked @Serializable")
         }
 
+        // Note: we do not check whether different serializers are provided if the same KClass duplicated in the `subclasses`.
+        // Plugin should produce identical serializers, although they are not always strictly equal (e.g. new ObjectSerializer
+        // may be created every time)
         class2Serializer = subclasses.zip(subclassSerializers).toMap()
         serialName2Serializer = class2Serializer.entries.groupingBy { it.value.descriptor.serialName }
             .aggregate<Map.Entry<KClass<out T>, KSerializer<out T>>, String, Map.Entry<KClass<*>, KSerializer<out T>>>
@@ -137,7 +140,10 @@ public class SealedClassSerializer<T : Any>(
             }.mapValues { it.value.value }
     }
 
-    override fun findPolymorphicSerializerOrNull(decoder: CompositeDecoder, klassName: String?): DeserializationStrategy<T>? {
+    override fun findPolymorphicSerializerOrNull(
+        decoder: CompositeDecoder,
+        klassName: String?
+    ): DeserializationStrategy<T>? {
         return serialName2Serializer[klassName] ?: super.findPolymorphicSerializerOrNull(decoder, klassName)
     }
 
