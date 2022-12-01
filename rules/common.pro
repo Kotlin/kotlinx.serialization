@@ -28,3 +28,6 @@
 # Don't print notes about potential mistakes or omissions in the configuration for kotlinx-serialization classes
 # See also https://github.com/Kotlin/kotlinx.serialization/issues/1900
 -dontnote kotlinx.serialization.**
+
+# Serialization core uses `Class.forName("java.lang.ClassValue")` for caching in JVM-only, so it is an expected situation that this class is not in Android
+-dontwarn java.lang.ClassValue

@@ -37,16 +37,20 @@ kotlin {
 tasks.withType(Jar).named(kotlin.jvm().artifactsTaskName) {
 
     // adding the ProGuard rules to the jar
-    from(rootProject.file("proguard-rules.pro")) {
-        rename { "kotlinx-serialization.pro" }
+    from(rootProject.file("rules/common.pro")) {
+        rename { "kotlinx-serialization-common.pro" }
         into("META-INF/proguard")
     }
-    from(rootProject.file("proguard-rules.pro")) {
-        rename { "kotlinx-serialization.pro" }
+    from(rootProject.file("rules/common.pro")) {
+        rename { "kotlinx-serialization-common.pro" }
         into("META-INF/com.android.tools/proguard")
     }
-    from(rootProject.file("proguard-rules.pro")) {
-        rename { "kotlinx-serialization.pro" }
+    from(rootProject.file("rules/common.pro")) {
+        rename { "kotlinx-serialization-common.pro" }
+        into("META-INF/com.android.tools/r8")
+    }
+    from(rootProject.file("rules/r8.pro")) {
+        rename { "kotlinx-serialization-r8.pro" }
         into("META-INF/com.android.tools/r8")
     }
 

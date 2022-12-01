@@ -177,27 +177,62 @@ dependencies {
 ### Android
 
 By default, proguard rules are supplied with the library.
-[These rules](proguard-rules.pro) keep serializers for _all_ serializable classes that are retained after shrinking.
+[These rules](rules/common.pro) keep serializers for _all_ serializable classes that are retained after shrinking.
 
 **These rules do not affect serializable classes with named companion objects.**
 
 If you want to serialize classes with named companion objects, you need to add and edit rule below to your `proguard-rules.pro` configuration. 
 
+Note that the rules for R8 differ depending on the [compatibility mode](https://r8.googlesource.com/r8/+/refs/heads/master/compatibility-faq.md) used.
+
+<details>
+<summary>Example of named companion rules for ProGuard and R8 compatibility mode</summary>
 
 ```proguard
 # Serializer for classes with named companion objects are retrieved using `getDeclaredClasses`.
-# If you have any, uncomment and replace classes with those containing named companion objects.
-#-keepattributes InnerClasses # Needed for `getDeclaredClasses`.
-#-if @kotlinx.serialization.Serializable class
-#com.example.myapplication.HasNamedCompanion, # <-- List serializable classes with named companions.
-#com.example.myapplication.HasNamedCompanion2
-#{
-#    static **$* *;
-#}
-#-keepnames class <1>$$serializer { # -keepnames suffices; class is kept when serializer() is kept.
-#    static <1>$$serializer INSTANCE;
-#}
+# If you have any, replace classes with those containing named companion objects.
+-keepattributes InnerClasses # Needed for `getDeclaredClasses`.
+
+-if @kotlinx.serialization.Serializable class
+com.example.myapplication.HasNamedCompanion, # <-- List serializable classes with named companions.
+com.example.myapplication.HasNamedCompanion2
+{
+    static **$* *;
+}
+-keepnames class <1>$$serializer { # -keepnames suffices; class is kept when serializer() is kept.
+    static <1>$$serializer INSTANCE;
+}
 ```
+</details>
+
+
+<details>
+<summary>Example of named companion rules for R8 full mode</summary>
+
+```proguard
+# Serializer for classes with named companion objects are retrieved using `getDeclaredClasses`.
+# If you have any, replace classes with those containing named companion objects.
+-keepattributes InnerClasses # Needed for `getDeclaredClasses`.
+
+-if @kotlinx.serialization.Serializable class
+com.example.myapplication.HasNamedCompanion, # <-- List serializable classes with named companions.
+com.example.myapplication.HasNamedCompanion2
+{
+    static **$* *;
+}
+-keepnames class <1>$$serializer { # -keepnames suffices; class is kept when serializer() is kept.
+    static <1>$$serializer INSTANCE;
+}
+
+# Keep both serializer and serializable classes to save the attribute InnerClasses
+-keepclasseswithmembers, allowshrinking, allowobfuscation, allowaccessmodification class
+com.example.myapplication.HasNamedCompanion, # <-- List serializable classes with named companions.
+com.example.myapplication.HasNamedCompanion2
+{
+    *;
+}
+```
+</details>
 
 In case you want to exclude serializable classes that are used, but never serialized at runtime,
 you will need to write custom rules with narrower [class specifications](https://www.guardsquare.com/manual/configuration/usage).
