@@ -177,11 +177,12 @@ dependencies {
 ### Android
 
 By default, proguard rules are supplied with the library.
-[These rules](rules/common.pro) keep serializers for _all_ serializable classes that are retained after shrinking.
+[These rules](rules/common.pro) keep serializers for _all_ serializable classes that are retained after shrinking,
+so you don't need additional setup.
 
-**These rules do not affect serializable classes with named companion objects.**
+**However, these rules do not affect serializable classes if they have named companion objects.**
 
-If you want to serialize classes with named companion objects, you need to add and edit rule below to your `proguard-rules.pro` configuration. 
+If you want to serialize classes with named companion objects, you need to add and edit rules below to your `proguard-rules.pro` configuration. 
 
 Note that the rules for R8 differ depending on the [compatibility mode](https://r8.googlesource.com/r8/+/refs/heads/master/compatibility-faq.md) used.
 
