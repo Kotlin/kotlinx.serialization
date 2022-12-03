@@ -17,20 +17,23 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
     }
 
     override fun write(text: String) {
-        text.forEach(::writeChar)
+        text.codePoints().forEachOrdered{
+            writeUtf8CodePoint(it)
+        }
     }
 
     override fun writeQuoted(text: String) {
         writeUtf8CodePoint('"'.code)
-        text.forEach {
-            val ch = it.code
+        text.codePoints().forEachOrdered { ch ->
             if (ch < ESCAPE_MARKERS.size) {
                 when (val marker = ESCAPE_MARKERS[ch]) {
                     0.toByte() -> {
                         writeUtf8CodePoint(ch)
                     }
                     1.toByte() -> {
-                        ESCAPE_STRINGS[ch]?.forEach(::writeChar)
+                        ESCAPE_STRINGS[ch]?.let{
+                            write(it)
+                        }
                     }
                     else -> {
                         writeUtf8CodePoint('\\'.code)
