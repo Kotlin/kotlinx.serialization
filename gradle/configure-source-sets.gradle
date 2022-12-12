@@ -97,7 +97,7 @@ kotlin {
     targets.all {
         compilations.main {
             kotlinOptions {
-                allWarningsAsErrors = true
+                allWarningsAsErrors = false
             }
         }
     }
@@ -114,6 +114,14 @@ kotlin {
             testRuns {
                 background { setExecutionSourceFrom(binaries.backgroundDebugTest) }
             }
+        }
+    }
+}
+
+kotlin {
+    targets.jvm.compilations.all {
+        kotlinOptions {
+            freeCompilerArgs += "-Xuse-k2"
         }
     }
 }

@@ -27,7 +27,7 @@ class SerializerByTypeTest {
     @Serializable
     data class Data(val l: List<String>, val b: Box<Int>)
 
-    @Serializable
+    @Serializable(WithCustomDefault.Companion::class)
     data class WithCustomDefault(val n: Int) {
         @Serializer(forClass = WithCustomDefault::class)
         companion object {

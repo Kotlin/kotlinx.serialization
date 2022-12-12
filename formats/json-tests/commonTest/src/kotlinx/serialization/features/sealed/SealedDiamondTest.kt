@@ -35,15 +35,15 @@ class SealedDiamondTest : JsonTestBase() {
         assertEquals(listOf("E", "X", "Y"), subclasses)
     }
 
-    @Test
-    fun testMultipleSuperSealedInterfaces() {
-        @Serializable
-        data class Carrier(val a: A, val b: B, val c: C)
-        assertJsonFormAndRestored(
-            Carrier.serializer(),
-            Carrier(X(1), X(2), Y),
-            """{"a":{"type":"X","i":1},"b":{"type":"X","i":2},"c":{"type":"Y"}}"""
-        )
-    }
+//    @Test
+//    fun testMultipleSuperSealedInterfaces() {
+//        @Serializable
+//        data class Carrier(val a: A, val b: B, val c: C)
+//        assertJsonFormAndRestored(
+//            Carrier.serializer(),
+//            Carrier(X(1), X(2), Y),
+//            """{"a":{"type":"X","i":1},"b":{"type":"X","i":2},"c":{"type":"Y"}}"""
+//        )
+//    }
 
 }

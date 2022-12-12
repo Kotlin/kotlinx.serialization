@@ -18,7 +18,7 @@ class SchemaTest {
     @Serializable
     data class Box<T>(val boxed: T)
 
-    @Serializable
+    @Serializable(Data1.Companion::class)
     data class Data1(val l: List<Int> = emptyList(), val s: String) {
         @Serializer(forClass = Data1::class)
         companion object {

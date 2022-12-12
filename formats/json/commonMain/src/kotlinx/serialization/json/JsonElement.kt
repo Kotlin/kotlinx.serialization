@@ -8,7 +8,8 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.InlinePrimitiveDescriptor
 import kotlinx.serialization.json.internal.*
 import kotlin.native.concurrent.SharedImmutable

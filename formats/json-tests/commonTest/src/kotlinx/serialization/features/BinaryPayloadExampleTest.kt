@@ -10,11 +10,10 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.test.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class BinaryPayloadExampleTest {
-    @Serializable
+    @Serializable(BinaryPayload.Companion::class)
     class BinaryPayload(val req: ByteArray, val res: ByteArray) {
         @Serializer(forClass = BinaryPayload::class)
         companion object : KSerializer<BinaryPayload> {
