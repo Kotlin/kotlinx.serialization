@@ -29,5 +29,8 @@
 # See also https://github.com/Kotlin/kotlinx.serialization/issues/1900
 -dontnote kotlinx.serialization.**
 
-# Serialization core uses `Class.forName("java.lang.ClassValue")` for caching in JVM-only, so it is an expected situation that this class is not in Android
--dontwarn java.lang.ClassValue
+# Serialization core uses `java.lang.ClassValue` for caching inside these specified classes.
+# If there is no `java.lang.ClassValue` (for example, in Android), then R8/ProGuard will print a warning.
+# However, since in this case they will not be used, we can disable these warnings
+-dontwarn kotlinx.serialization.internal.ClassValueWrapper
+-dontwarn kotlinx.serialization.internal.ParametrizedClassValueWrapper
