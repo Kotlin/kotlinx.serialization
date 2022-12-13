@@ -7,7 +7,6 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
-import kotlin.jvm.Volatile
 
 /*
  * Descriptor used for explicitly serializable enums by the plugin.
@@ -56,6 +55,9 @@ internal fun <T : Enum<T>> createSimpleEnumSerializer(serialName: String, values
     return EnumSerializer(serialName, values)
 }
 
+/**
+ * The function is preserved for backward compatibility with previously compiled enum classes.
+ */
 @OptIn(ExperimentalSerializationApi::class)
 @InternalSerializationApi
 internal fun <T : Enum<T>> createMarkedEnumSerializer(
@@ -69,6 +71,30 @@ internal fun <T : Enum<T>> createMarkedEnumSerializer(
         val elementName = names.getOrNull(i) ?: v.name
         descriptor.addElement(elementName)
         annotations.getOrNull(i)?.forEach {
+            descriptor.pushAnnotation(it)
+        }
+    }
+
+    return EnumSerializer(serialName, values, descriptor)
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+@InternalSerializationApi
+internal fun <T : Enum<T>> createAnnotatedEnumSerializer(
+    serialName: String,
+    values: Array<T>,
+    names: Array<String?>,
+    entryAnnotations: Array<Array<Annotation>?>,
+    classAnnotations: Array<Annotation>?
+): KSerializer<T> {
+    val descriptor = EnumDescriptor(serialName, values.size)
+    classAnnotations?.forEach {
+        descriptor.pushClassAnnotation(it)
+    }
+    values.forEachIndexed { i, v ->
+        val elementName = names.getOrNull(i) ?: v.name
+        descriptor.addElement(elementName)
+        entryAnnotations.getOrNull(i)?.forEach {
             descriptor.pushAnnotation(it)
         }
     }
