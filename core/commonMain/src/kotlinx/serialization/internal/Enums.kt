@@ -56,7 +56,7 @@ internal fun <T : Enum<T>> createSimpleEnumSerializer(serialName: String, values
 }
 
 /**
- * The function is preserved for backward compatibility with previously compiled enum classes.
+ * The function has a bug (#2121) and should not be used by new (1.8.20+) plugins. It is preserved for backward compatibility with previously compiled enum classes.
  */
 @OptIn(ExperimentalSerializationApi::class)
 @InternalSerializationApi
