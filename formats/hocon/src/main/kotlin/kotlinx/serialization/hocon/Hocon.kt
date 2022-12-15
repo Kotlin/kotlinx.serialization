@@ -44,6 +44,9 @@ import kotlinx.serialization.modules.*
  * [Hocon] support decode java objects in Java Bean notation.
  * @see kotlinx.serialization.hocon.serializers.JBeanSerializer
  *
+ * [Hocon] support encode/decode: [java.time.Period].
+ * @see kotlinx.serialization.hocon.serializers.JPeriodSerializer
+ *
  * @param [useConfigNamingConvention] switches naming resolution to config naming convention (hyphen separated).
  * @param serializersModule A [SerializersModule] which should contain registered serializers
  * for [Contextual] and [Polymorphic] serialization, if you have any.
