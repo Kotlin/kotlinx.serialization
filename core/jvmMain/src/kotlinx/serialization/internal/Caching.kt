@@ -40,39 +40,39 @@ internal actual fun <T> createParametrizedCache(factory: (KClass<Any>, List<KTyp
     return if (useClassValue) ClassValueParametrizedCache(factory) else ConcurrentHashMapParametrizedCache(factory)
 }
 
-@SuppressAnimalSniffer
-private class ClassValueCache<T>(private val compute: (KClass<*>) -> KSerializer<T>?) : SerializerCache<T> {
-    private val classValue = initClassValue()
-
-    private fun initClassValue() = object : ClassValue<CacheEntry<T>>() {
-        /*
-         * Since during the computing of the value for the `ClassValue` entry, we do not know whether a nullable
-         *  serializer is needed, so we may need to differentiate nullable/non-null  caches by a level higher
-         */
-        override fun computeValue(type: Class<*>): CacheEntry<T> {
-            return CacheEntry(compute(type.kotlin))
-        }
-    }
+private class ClassValueCache<T>(compute: (KClass<*>) -> KSerializer<T>?) : SerializerCache<T> {
+    private val classValue = ClassValueWrapper(compute)
 
     override fun get(key: KClass<Any>): KSerializer<T>? = classValue[key.java].serializer
 }
 
 @SuppressAnimalSniffer
-private class ClassValueParametrizedCache<T>(private val compute: (KClass<Any>, List<KType>) -> KSerializer<T>?) : ParametrizedSerializerCache<T> {
-    private val classValue = initClassValue()
-
-    private fun initClassValue() = object : ClassValue<ParametrizedCacheEntry<T>>() {
-        /*
-        * Since during the computing of the value for the `ClassValue` entry, we do not know whether a nullable
-        *  serializer is needed, so we may need to differentiate nullable/non-null  caches by a level higher
-        */
-        override fun computeValue(type: Class<*>): ParametrizedCacheEntry<T> {
-            return ParametrizedCacheEntry()
-        }
+private class ClassValueWrapper<T>(private val compute: (KClass<*>) -> KSerializer<T>?): ClassValue<CacheEntry<T>>() {
+    /*
+     * Since during the computing of the value for the `ClassValue` entry, we do not know whether a nullable
+     *  serializer is needed, so we may need to differentiate nullable/non-null  caches by a level higher
+     */
+    override fun computeValue(type: Class<*>): CacheEntry<T> {
+        return CacheEntry(compute(type.kotlin))
     }
+}
+
+private class ClassValueParametrizedCache<T>(private val compute: (KClass<Any>, List<KType>) -> KSerializer<T>?) : ParametrizedSerializerCache<T> {
+    private val classValue = ParametrizedClassValueWrapper<T>()
 
     override fun get(key: KClass<Any>, types: List<KType>): Result<KSerializer<T>?> =
         classValue[key.java].computeIfAbsent(types) { compute(key, types) }
+}
+
+@SuppressAnimalSniffer
+private class ParametrizedClassValueWrapper<T> : ClassValue<ParametrizedCacheEntry<T>>() {
+    /*
+    * Since during the computing of the value for the `ClassValue` entry, we do not know whether a nullable
+    *  serializer is needed, so we may need to differentiate nullable/non-null  caches by a level higher
+    */
+    override fun computeValue(type: Class<*>): ParametrizedCacheEntry<T> {
+        return ParametrizedCacheEntry()
+    }
 }
 
 /**
