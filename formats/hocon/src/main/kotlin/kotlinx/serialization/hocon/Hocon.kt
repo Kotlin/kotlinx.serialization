@@ -47,6 +47,9 @@ import kotlinx.serialization.modules.*
  * [Hocon] support encode/decode: [java.time.Period].
  * @see kotlinx.serialization.hocon.serializers.JPeriodSerializer
  *
+ * [Hocon] support encode/decode: [java.time.temporal.TemporalAmount].
+ * @see kotlinx.serialization.hocon.serializers.JTemporalAmountSerializer
+ *
  * @param [useConfigNamingConvention] switches naming resolution to config naming convention (hyphen separated).
  * @param serializersModule A [SerializersModule] which should contain registered serializers
  * for [Contextual] and [Polymorphic] serialization, if you have any.
