@@ -189,6 +189,7 @@ public final class kotlinx/serialization/builtins/BuiltinSerializersKt {
 	public static final fun serializer (Lkotlin/jvm/internal/LongCompanionObject;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Lkotlin/jvm/internal/ShortCompanionObject;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Lkotlin/jvm/internal/StringCompanionObject;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlin/text/Regex$Companion;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Lkotlin/time/Duration$Companion;)Lkotlinx/serialization/KSerializer;
 }
 
@@ -996,6 +997,15 @@ public final class kotlinx/serialization/internal/ReferenceArraySerializer : kot
 	public synthetic fun insert (Ljava/lang/Object;ILjava/lang/Object;)V
 	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
 	public synthetic fun toResult (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class kotlinx/serialization/internal/RegexSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/RegexSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lkotlin/text/Regex;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lkotlin/text/Regex;)V
 }
 
 public final class kotlinx/serialization/internal/SerializationConstructorMarker {

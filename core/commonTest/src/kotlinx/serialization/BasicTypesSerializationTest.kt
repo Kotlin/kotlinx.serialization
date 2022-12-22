@@ -191,4 +191,20 @@ class BasicTypesSerializationTest {
         assertEquals(Duration.parseIsoString(durationString), other)
     }
 
+    @Test
+    fun testEncodeRegex() {
+        val sb = StringBuilder()
+        val out = KeyValueOutput(sb)
+        val regex = "^(.+)@(\\\\S+)\$".toRegex()
+        out.encodeSerializableValue(Regex.serializer(), regex)
+        assertEquals("\"${regex.pattern}\"", sb.toString())
+    }
+
+    @Test
+    fun testDecodeRegex() {
+        val pattern = "^(.+)@(\\\\S+)\$"
+        val inp = KeyValueInput(Parser(StringReader("\"$pattern\"")))
+        val other = inp.decodeSerializableValue(Regex.serializer())
+        assertEquals(pattern, other.pattern)
+    }
 }

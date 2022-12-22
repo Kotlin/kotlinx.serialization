@@ -141,6 +141,12 @@ class SerializersLookupTest : JsonTestBase() {
     }
 
     @Test
+    fun testLookupRegex() = noLegacyJs {
+        assertNotNull(serializerOrNull(typeOf<Regex>()))
+        assertSame(Regex.serializer(), serializer<Regex>())
+    }
+
+    @Test
     fun testCustomGeneric() = noLegacyJs {
         val intBox = Box(42)
         val intBoxSerializer = serializer<Box<Int>>()

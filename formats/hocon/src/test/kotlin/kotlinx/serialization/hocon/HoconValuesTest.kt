@@ -159,4 +159,16 @@ class HoconValuesTest {
         val obj = deserializeConfig(configString, WithMap.serializer())
         assertEquals(mapOf(2 to 1, 4 to 3), obj.m)
     }
+
+// TODO uncomment when compiler plugin is released
+// PR: https://github.com/JetBrains/kotlin/pull/5060
+//    @Serializable
+//    data class RegexConfig(val regex: Regex)
+//
+//    @Test
+//    fun testDeserializeRegex() {
+//        val pattern = "rege(x(es)?|xps?)"
+//        val obj = Hocon.decodeFromConfig(RegexConfig.serializer(), ConfigFactory.parseString("""regex:"$pattern""""))
+//        assertEquals(pattern, obj.regex.pattern)
+//    }
 }

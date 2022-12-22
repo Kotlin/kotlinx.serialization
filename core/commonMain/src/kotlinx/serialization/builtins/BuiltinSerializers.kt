@@ -250,3 +250,8 @@ public fun UShort.Companion.serializer(): KSerializer<UShort> = UShortSerializer
  * The result of serialization is similar to calling [Duration.toIsoString], for deserialization is [Duration.parseIsoString].
  */
 public fun Duration.Companion.serializer(): KSerializer<Duration> = DurationSerializer
+
+/**
+ * Returns serializer for [Regex].
+ */
+public fun Regex.Companion.serializer(): KSerializer<Regex> = RegexSerializer
