@@ -58,6 +58,13 @@ internal class PrimitiveSerialDescriptor(
     override fun getElementDescriptor(index: Int): SerialDescriptor = error()
     override fun getElementAnnotations(index: Int): List<Annotation> = error()
     override fun toString(): String = "PrimitiveDescriptor($serialName)"
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PrimitiveSerialDescriptor) return false
+        if (serialName == other.serialName && kind == other.kind) return true
+        return false
+    }
+    override fun hashCode() = serialName.hashCode() + 31 * kind.hashCode()
     private fun error(): Nothing = throw IllegalStateException("Primitive descriptor does not have elements")
 }
 
