@@ -44,6 +44,9 @@ import kotlinx.serialization.modules.*
  * [Hocon] support decode java objects in Java Bean notation.
  * @see kotlinx.serialization.hocon.serializers.JBeanSerializer
  *
+ * [Hocon] support encode/decode nested [Config].
+ * @see kotlinx.serialization.hocon.serializers.NestedConfigSerializer
+ *
  * @param [useConfigNamingConvention] switches naming resolution to config naming convention (hyphen separated).
  * @param serializersModule A [SerializersModule] which should contain registered serializers
  * for [Contextual] and [Polymorphic] serialization, if you have any.

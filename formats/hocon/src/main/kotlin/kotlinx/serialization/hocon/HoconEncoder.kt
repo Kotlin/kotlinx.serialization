@@ -82,6 +82,8 @@ internal abstract class AbstractHoconEncoder(
     }
 
     private fun configValueOf(value: Any?) = ConfigValueFactory.fromAnyRef(value)
+
+    fun encodeCurrentTagConfigValue(value: ConfigValue): Unit = encodeTaggedConfigValue(currentTag, value)
 }
 
 @ExperimentalSerializationApi

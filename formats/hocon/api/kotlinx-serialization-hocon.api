@@ -56,3 +56,12 @@ public final class kotlinx/serialization/hocon/serializers/JDurationSerializer :
 	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/time/Duration;)V
 }
 
+public final class kotlinx/serialization/hocon/serializers/NestedConfigSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/hocon/serializers/NestedConfigSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/typesafe/config/Config;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/typesafe/config/Config;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
