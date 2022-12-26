@@ -36,6 +36,15 @@ public final class kotlinx/serialization/hocon/serializers/ConfigMemorySizeSeria
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 }
 
+public final class kotlinx/serialization/hocon/serializers/ConfigValueSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/hocon/serializers/ConfigValueSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/typesafe/config/ConfigValue;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/typesafe/config/ConfigValue;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
 public final class kotlinx/serialization/hocon/serializers/JBeanSerializer : kotlinx/serialization/KSerializer {
 	public static final field Companion Lkotlinx/serialization/hocon/serializers/JBeanSerializer$Companion;
 	public fun <init> (Ljava/lang/Class;)V
