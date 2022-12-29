@@ -1,6 +1,7 @@
-package kotlinx.serialization.internal
+package kotlinx.serialization
 
 import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.internal.PrimitiveSerialDescriptor
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotSame
