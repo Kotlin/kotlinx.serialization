@@ -306,7 +306,53 @@ internal abstract class AbstractJsonLexer {
      */
     abstract fun consumeKeyString(): String
 
-    abstract fun consumeStringChunked(consumeChunk: (stringChunk: String) -> Unit)
+    private fun insideString(isLenient:Boolean, char:Char):Boolean = if (isLenient) { charToTokenClass(char) == TC_OTHER } else { char != STRING }
+
+    open fun consumeStringChunked(isLenient: Boolean, consumeChunk: (stringChunk: String) -> Unit) { // open to allow simpler implementations (i.e. StringJsonLexer)
+        val nextToken = peekNextToken()
+        if (isLenient && nextToken != TC_OTHER) return // noting to consume
+
+        if (!isLenient) {
+            consumeNextToken(STRING)
+        }
+        var currentPosition = this.currentPosition
+        var lastPosition = currentPosition
+        var char = source[currentPosition] // Avoid two range checks visible in the profiler
+        var usedAppend = false
+        while (insideString(isLenient, char)) {
+            if (!isLenient && char == STRING_ESC) { // handle escaping only in lenient mode
+                usedAppend = true
+                currentPosition = prefetchOrEof(appendEscape(lastPosition, currentPosition))
+                lastPosition = currentPosition
+            } else {
+                currentPosition++
+            }
+            if (currentPosition >= source.length) {
+                // end of chunk
+                writeRange(lastPosition, currentPosition, usedAppend, consumeChunk)
+                usedAppend = false
+                currentPosition = prefetchOrEof(currentPosition)
+                if (currentPosition == -1)
+                    fail("EOF", currentPosition)
+                lastPosition = currentPosition
+            }
+            char = source[currentPosition]
+        }
+        writeRange(lastPosition, currentPosition, usedAppend, consumeChunk)
+        this.currentPosition = currentPosition
+        if (!isLenient) {
+            consumeNextToken(STRING)
+        }
+    }
+
+    private fun writeRange(fromIndex: Int, toIndex: Int, currentChunkHasEscape: Boolean, consumeChunk: (stringChunk: String) -> Unit) {
+        if (currentChunkHasEscape) {
+            consumeChunk(decodedString(fromIndex, toIndex))
+        } else {
+            consumeChunk(substring(fromIndex, toIndex))
+        }
+    }
+
 
     fun consumeString(): String {
         if (peekedString != null) {

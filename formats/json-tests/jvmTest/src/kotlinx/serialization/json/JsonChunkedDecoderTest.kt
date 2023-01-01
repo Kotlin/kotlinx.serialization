@@ -4,6 +4,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.test.assertFailsWithMessage
 import org.junit.Test
 import java.io.*
 import java.util.*
@@ -11,7 +12,7 @@ import kotlin.random.Random
 import kotlin.test.*
 
 
-@Serializable(with = LargeStringSerializer::class)
+@Serializable(with = LargeBase64StringSerializer::class)
 data class LargeBinaryData(val binaryData: ByteArray) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -32,7 +33,7 @@ data class LargeBinaryData(val binaryData: ByteArray) {
 @Serializable
 data class ClassWithBinaryDataField(val binaryField: LargeBinaryData)
 
-object LargeStringSerializer : KSerializer<LargeBinaryData> {
+object LargeBase64StringSerializer : KSerializer<LargeBinaryData> {
     private val b64Decoder: Base64.Decoder = Base64.getDecoder()
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("LargeStringContent", PrimitiveKind.STRING)
 
@@ -60,17 +61,44 @@ object LargeStringSerializer : KSerializer<LargeBinaryData> {
     }
 }
 
+@Serializable(with = LargeStringSerializer::class)
+data class LargeStringData(val largeString: String)
+
+@Serializable
+data class ClassWithLargeStringDataField(val largeStringField: LargeStringData)
+
+
+object LargeStringSerializer : KSerializer<LargeStringData> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("LargeStringContent", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): LargeStringData {
+        require(decoder is ChunkedDecoder) { "Only chunked decoder supported" }
+
+        val outStringBuilder = StringBuilder()
+
+        decoder.decodeStringChunked { chunk ->
+            outStringBuilder.append(chunk)
+        }
+        return LargeStringData(outStringBuilder.toString())
+    }
+
+    override fun serialize(encoder: Encoder, value: LargeStringData) {
+        encoder.encodeString(value.largeString)
+    }
+}
+
+
 
 class JsonChunkedDecoderTest:JsonTestBase() {
 
     @Test
     fun decodeBase64String() {
-        val sourceObject = ClassWithBinaryDataField(LargeBinaryData(Random.nextBytes(16 * 1024))) // After encoding will be more than BATCH_SIZE (16k)
+        val sourceObject = ClassWithBinaryDataField(LargeBinaryData(Random.nextBytes(16 * 1024))) // After encoding to Base64 will be larger than 16k (JsonLexer#BATCH_SIZE)
         val serializedObject = Json.encodeToString(sourceObject)
 
         JsonTestingMode.values().forEach { mode ->
             if (mode == JsonTestingMode.TREE) {
-                assertFails("Only chunked decoder supported") {
+                assertFailsWithMessage<IllegalArgumentException>( "Only chunked decoder supported", "Shouldn't decode JSON in TREE mode") {
                     Json.decodeFromString<ClassWithBinaryDataField>(serializedObject, mode)
                 }
             } else {
@@ -79,4 +107,40 @@ class JsonChunkedDecoderTest:JsonTestBase() {
             }
         }
     }
+
+    @Test
+    fun decodePlainLenientString() {
+        val sourceObject = ClassWithLargeStringDataField(LargeStringData("abcdef"))
+        val serializedObject = "{\"largeStringField\": abcdef }"
+        val lenientJson = Json {
+            isLenient = true
+        }
+        JsonTestingMode.values().forEach { mode ->
+            if (mode == JsonTestingMode.TREE) {
+                assertFailsWithMessage<IllegalArgumentException>( "Only chunked decoder supported", "Shouldn't decode JSON in TREE mode") {
+                    Json.decodeFromString<ClassWithLargeStringDataField>(serializedObject, mode)
+                }
+            } else {
+                val deserializedObject = lenientJson.decodeFromString<ClassWithLargeStringDataField>(serializedObject, mode)
+                assertEquals(sourceObject.largeStringField, deserializedObject.largeStringField)
+            }
+        }
+    }
+
+    @Test
+    fun decodePlainString() {
+        val sourceObject = ClassWithLargeStringDataField(LargeStringData("abc\"def")) // After encoding to Base64 will be larger than 16k (JsonLexer#BATCH_SIZE)
+        val serializedObject = Json.encodeToString(sourceObject)
+        JsonTestingMode.values().forEach { mode ->
+            if (mode == JsonTestingMode.TREE) {
+                assertFailsWithMessage<IllegalArgumentException>( "Only chunked decoder supported", "Shouldn't decode JSON in TREE mode") {
+                    Json.decodeFromString<ClassWithLargeStringDataField>(serializedObject, mode)
+                }
+            } else {
+                val deserializedObject = Json.decodeFromString<ClassWithLargeStringDataField>(serializedObject, mode)
+                assertEquals(sourceObject.largeStringField, deserializedObject.largeStringField)
+            }
+        }
+    }
+
 }

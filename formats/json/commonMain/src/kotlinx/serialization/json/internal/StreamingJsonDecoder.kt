@@ -14,7 +14,6 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
 
-
 /**
  * [JsonDecoder] which reads given JSON from [AbstractJsonLexer] field by field.
  */
@@ -345,7 +344,7 @@ internal open class StreamingJsonDecoder(
     }
 
     override fun decodeStringChunked(consumeChunk: (chunk: String) -> Unit) {
-        lexer.consumeStringChunked(consumeChunk)
+        lexer.consumeStringChunked(configuration.isLenient, consumeChunk)
     }
 
     override fun decodeInline(descriptor: SerialDescriptor): Decoder =
