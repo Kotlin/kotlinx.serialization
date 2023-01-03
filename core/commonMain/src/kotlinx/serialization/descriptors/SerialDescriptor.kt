@@ -5,11 +5,12 @@
 package kotlinx.serialization.descriptors
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.encoding.*
 
 /**
  * Serial descriptor is an inherent property of [KSerializer] that describes the structure of the serializable type.
- * The structure of the serializable type is not only the property of the type, but also of the serializer as well,
+ * The structure of the serializable type is not only the property of the type itself, but also of the serializer as well,
  * meaning that one type can have multiple descriptors that have completely different structure.
  *
  * For example, the class `class Color(val rgb: Int)` can have multiple serializable representations,
@@ -25,19 +26,19 @@ import kotlinx.serialization.encoding.*
  *   For generic types, the actual type substitution is omitted from the string representation and the name
  *   identifies the family of the serializers without type substitutions. However, type substitution is accounted
  *   in [equals] and [hashCode] operations, meaning that descriptors of generic classes with the same name, but different type
- *   parameters, are not equal to each other.
+ *   arguments, are not equal to each other.
  *   [serialName] is typically used to specify the type of the target class during serialization of polymorphic and sealed
  *   classes, for observability and diagnostics.
- * * [Kind][SerialKind] defines what this descriptor represents: primitive, enum, object, collection et cetera.
+ * * [Kind][SerialKind] defines what this descriptor represents: primitive, enum, object, collection etc.
  * * Children elements are represented as serial descriptors as well and define the structure of the type's elements.
- * * Metadata carries additional potentially useful information, such as [nullability][nullable], [optionality][isElementOptional]
+ * * Metadata carries additional information, such as [nullability][nullable], [optionality][isElementOptional]
  *   and [serial annotations][getElementAnnotations].
  *
  * ### Usages
  * There are two general usages of the descriptors: THE serialization process and serialization introspection.
  *
  * #### Serialization
- * Serial descriptor is used as bridge between decoders/encoders and serializers.
+ * Serial descriptor is used as a bridge between decoders/encoders and serializers.
  * When asking for a next element, the serializer provides an expected descriptor to the decoder, and,
  * based on the descriptor content, decoder decides how to parse its input.
  * In JSON, for example, when the encoder is asked to encode the next element and this element
@@ -59,15 +60,15 @@ import kotlinx.serialization.encoding.*
  * the range from zero to [elementsCount] and represent and index of the property in this class.
  * Consequently, primitives do not have children and their element count is zero.
  *
- * For collections and maps, though, indices does not have fixed bound. Regular collections descriptors usually
+ * For collections and maps indices don't have fixed bound. Regular collections descriptors usually
  * have one element (`T`, maps have two, one for keys and one for values), but potentially unlimited
  * number of actual children values. Valid indices range is not known statically
- * and implementations of descriptor should provide consistent and unbounded names and indices.
+ * and implementations of such descriptor should provide consistent and unbounded names and indices.
  *
  * In practice, for regular classes it is allowed to invoke `getElement*(index)` methods
- * with an index within `0 until elementsCount` range and element at the particular index corresponds to the
+ * with an index from `0` to [elementsCount] range and element at the particular index corresponds to the
  * serializable property at the given position.
- * For collections and maps, index parameter for `getElement*(index)` methods is effectively bound
+ * For collections and maps, index parameter for `getElement*(index)` methods is effectively bounded
  * by the maximal number of collection/map elements.
  *
  * ### Thread-safety and mutability
@@ -76,7 +77,6 @@ import kotlinx.serialization.encoding.*
  * ### Equality and caching
  * Serial descriptor can be used as a unique identifier for format-specific data or schemas and
  * this implies the following restrictions on its `equals` and `hashCode`:
- *   *
  *
  * An [equals] implementation should use both [serialName] and elements structure.
  * Comparing [elementDescriptors] directly is discouraged,
@@ -100,8 +100,8 @@ import kotlinx.serialization.encoding.*
  * [hashCode] implementation should use the same properties for computing the result.
  *
  * ### User-defined serial descriptors
- * The best way to define a custom descriptor is to use [SerialDescriptor] builder function, where
- * for each serializable property corresponding element is declared.
+ * The best way to define a custom descriptor is to use [buildClassSerialDescriptor] builder function, where
+ * for each serializable property the corresponding element is declared.
  *
  * Example:
  * ```
@@ -113,14 +113,28 @@ import kotlinx.serialization.encoding.*
  * )
  *
  * // Descriptor for such class:
- * SerialDescriptor("my.package.Data") {
+ * buildClassSerialDescriptor("my.package.Data") {
  *     // intField is deliberately ignored by serializer -- not present in the descriptor as well
  *     element<Long>("_longField") // longField is named as _longField
  *     element("stringField", listSerialDescriptor<String>())
  * }
+ *
+ * // Example of 'serialize' function for such descriptor
+ * override fun serialize(encoder: Encoder, value: Data) {
+ *     encoder.encodeStructure(descriptor) {
+ *         encodeLongElement(descriptor, 0, value.longField) // Will be written as "_longField" because descriptor's child at index 0 says so
+ *         encodeSerializableElement(descriptor, 1, ListSerializer(String.serializer()), value.stringList)
+ *     }
+ * }
  * ```
  *
  * For a classes that are represented as a single primitive value, [PrimitiveSerialDescriptor] builder function can be used instead.
+ *
+ * ### Consistency violations
+ * An implementation of [SerialDescriptor] should be consistent with the implementation of the corresponding [KSerializer].
+ * Yet it is not type-checked statically, thus making it possible to declare a non-consistent implementations of descriptor and serializer.
+ * In such cases, the behaviour of an underlying format is unspecified and may lead to both runtime errors and encoding of
+ * corrupted data that is impossible to decode back.
  *
  * ### Not stable for inheritance
  *
