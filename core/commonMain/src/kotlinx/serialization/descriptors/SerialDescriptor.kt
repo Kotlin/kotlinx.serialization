@@ -10,7 +10,7 @@ import kotlinx.serialization.encoding.*
 
 /**
  * Serial descriptor is an inherent property of [KSerializer] that describes the structure of the serializable type.
- * The structure of the serializable type is not only the property of the type itself, but also of the serializer as well,
+ * The structure of the serializable type is not only the characteristic of the type itself, but also of the serializer as well,
  * meaning that one type can have multiple descriptors that have completely different structure.
  *
  * For example, the class `class Color(val rgb: Int)` can have multiple serializable representations,
