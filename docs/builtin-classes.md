@@ -415,13 +415,13 @@ This serializer is used when syntactically some type is needed, but it is not ac
 ```kotlin
 @Serializable
 sealed class ParametrizedParent<out R> {
-  @Serializable
-  data class ChildWithoutParameter(val value: Int) : ParametrizedParent<Nothing>()
+    @Serializable
+    data class ChildWithoutParameter(val value: Int) : ParametrizedParent<Nothing>()
 }
 
 fun main() {
     println(Json.encodeToString(ParametrizedParent.ChildWithoutParameter(42)))
-}  
+}
 ``` 
 > You can get the full code [here](../guide/example/example-builtin-13.kt).
 
