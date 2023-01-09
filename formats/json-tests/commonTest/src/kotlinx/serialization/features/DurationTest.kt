@@ -11,17 +11,15 @@ import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-
 class DurationTest : JsonTestBase() {
-// TODO uncomment when Kotlin 1.7.20 is released
-//    @Serializable
-//    data class DurationHolder(val duration: Duration)
-//    @Test
-//    fun testDuration() {
-//        assertJsonFormAndRestored(
-//            DurationHolder.serializer(),
-//            DurationHolder(1000.toDuration(DurationUnit.SECONDS)),
-//            """{"duration":"PT16M40S"}"""
-//        )
-//    }
+    @Serializable
+    data class DurationHolder(val duration: Duration)
+    @Test
+    fun testDuration() {
+        assertJsonFormAndRestored(
+            DurationHolder.serializer(),
+            DurationHolder(1000.toDuration(DurationUnit.SECONDS)),
+            """{"duration":"PT16M40S"}"""
+        )
+    }
 }

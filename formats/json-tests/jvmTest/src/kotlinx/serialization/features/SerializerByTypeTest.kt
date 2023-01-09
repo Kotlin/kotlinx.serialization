@@ -287,7 +287,6 @@ class SerializerByTypeTest {
 
     @OptIn(ExperimentalTime::class)
     @Test
-    @Ignore // TODO: Unignore after 1.8.0 update
     fun testSerializersAreIntrinsified() {
         val direct = measureTime {
             Json.encodeToString(IntData.serializer(), IntData(10))
