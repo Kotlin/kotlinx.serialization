@@ -3,6 +3,7 @@ package kotlinx.serialization
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.test.runSince
 import kotlin.test.*
 
 @Serializable
@@ -82,8 +83,7 @@ class SerializableOnPropertyTypeAndTypealiasTest : JsonTestBase() {
     }
 
     @Test
-    @Ignore // TODO: Unignore in 1.8.20 (#1895)
-    fun testWithoutDefault() {
+    fun testWithoutDefault() = runSince("1.8.20") { // Ignored by #1895
         val t = TesterWithoutDefault(WithoutDefault("a"), WithoutDefault("b"), WithoutDefault("c"), WithoutDefault("d"))
         assertJsonFormAndRestored(
             TesterWithoutDefault.serializer(),
