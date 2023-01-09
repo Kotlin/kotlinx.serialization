@@ -21,36 +21,36 @@ class UnsignedIntegersTest : JsonTestBase() {
         val double: Double
     )
 
-//    TODO uncomment when Kotlin 1.8.0 is released
-//    @Serializable
-//    data class UnsignedArrays(
-//        val uByte: UByteArray,
-//        val uShort: UShortArray,
-//        val uInt: UIntArray,
-//        val uLong: ULongArray
-//    ) {
-//        override fun equals(other: Any?): Boolean {
-//            if (this === other) return true
-//            if (other == null || this::class != other::class) return false
-//
-//            other as UnsignedArrays
-//
-//            if (!uByte.contentEquals(other.uByte)) return false
-//            if (!uShort.contentEquals(other.uShort)) return false
-//            if (!uInt.contentEquals(other.uInt)) return false
-//            if (!uLong.contentEquals(other.uLong)) return false
-//
-//            return true
-//        }
-//
-//        override fun hashCode(): Int {
-//            var result = uByte.contentHashCode()
-//            result = 31 * result + uShort.contentHashCode()
-//            result = 31 * result + uInt.contentHashCode()
-//            result = 31 * result + uLong.contentHashCode()
-//            return result
-//        }
-//    }
+    @ExperimentalUnsignedTypes
+    @Serializable
+    data class UnsignedArrays(
+        val uByte: UByteArray,
+        val uShort: UShortArray,
+        val uInt: UIntArray,
+        val uLong: ULongArray
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as UnsignedArrays
+
+            if (!uByte.contentEquals(other.uByte)) return false
+            if (!uShort.contentEquals(other.uShort)) return false
+            if (!uInt.contentEquals(other.uInt)) return false
+            if (!uLong.contentEquals(other.uLong)) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = uByte.contentHashCode()
+            result = 31 * result + uShort.contentHashCode()
+            result = 31 * result + uInt.contentHashCode()
+            result = 31 * result + uLong.contentHashCode()
+            return result
+        }
+    }
 
     @Serializable
     data class UnsignedWithoutLong(val uInt: UInt, val uByte: UByte, val uShort: UShort)
@@ -123,18 +123,18 @@ class UnsignedIntegersTest : JsonTestBase() {
         ) { l, r -> l.contentEquals(r) }
     }
 
-//    TODO uncomment when Kotlin 1.8.0 is released
-//    @OptIn(ExperimentalUnsignedTypes::class)
-//    fun testArrays() {
-//        val data = UnsignedArrays(
-//            ubyteArrayOf(1U, 220U),
-//            ushortArrayOf(1U, 65000U),
-//            uintArrayOf(1U, 2147483657U),
-//            ulongArrayOf(1U, 9223372036854775817U)
-//        )
-//        val json = """{"uByte":[1,220],uShort:[1,65000],uInt:[1,2147483657],uLong:[1,9223372036854775817]}"""
-//
-//        assertJsonFormAndRestored(UnsignedArrays.serializer(), data, json)
-//    }
+    @OptIn(ExperimentalUnsignedTypes::class)
+    @Test
+    fun testArrays() {
+        val data = UnsignedArrays(
+            ubyteArrayOf(1U, 220U),
+            ushortArrayOf(1U, 65000U),
+            uintArrayOf(1U, 2147483657U),
+            ulongArrayOf(1U, 9223372036854775817U)
+        )
+        val json = """{"uByte":[1,220],"uShort":[1,65000],"uInt":[1,2147483657],"uLong":[1,9223372036854775817]}"""
+
+        assertJsonFormAndRestored(UnsignedArrays.serializer(), data, json)
+    }
 
 }

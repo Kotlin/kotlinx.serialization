@@ -5,7 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.modules.*
-import kotlinx.serialization.test.noJsLegacy
+import kotlinx.serialization.test.*
 import kotlin.test.*
 import kotlin.time.*
 
@@ -65,8 +65,7 @@ class CachedSerializersTest {
 
     @OptIn(ExperimentalTime::class)
     @Test
-    @Ignore // TODO: Unignore after 1.8.0 update
-    fun testSerializersAreIntrinsified() {
+    fun testSerializersAreIntrinsified() = jvmOnly {
         val m = SerializersModule {  }
         val direct = measureTime {
             Object.serializer()
