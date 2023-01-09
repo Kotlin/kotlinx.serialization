@@ -166,6 +166,7 @@ public final class kotlinx/serialization/builtins/BuiltinSerializersKt {
 	public static final fun LongArraySerializer ()Lkotlinx/serialization/KSerializer;
 	public static final fun MapEntrySerializer (Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
 	public static final fun MapSerializer (Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public static final fun NothingSerializer ()Lkotlinx/serialization/KSerializer;
 	public static final fun PairSerializer (Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
 	public static final fun SetSerializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
 	public static final fun ShortArraySerializer ()Lkotlinx/serialization/KSerializer;
@@ -900,6 +901,15 @@ public abstract class kotlinx/serialization/internal/NamedValueEncoder : kotlinx
 	public synthetic fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/Object;
 	protected final fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
 	protected final fun nested (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class kotlinx/serialization/internal/NothingSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lkotlinx/serialization/internal/NothingSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Void;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Void;)V
 }
 
 public final class kotlinx/serialization/internal/NullableSerializer : kotlinx/serialization/KSerializer {

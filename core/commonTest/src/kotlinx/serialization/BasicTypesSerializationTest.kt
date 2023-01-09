@@ -4,6 +4,7 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.builtins.NothingSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
@@ -189,6 +190,22 @@ class BasicTypesSerializationTest {
         val inp = KeyValueInput(Parser(StringReader("\"$durationString\"")))
         val other = inp.decodeSerializableValue(Duration.serializer())
         assertEquals(Duration.parseIsoString(durationString), other)
+    }
+
+    @Test
+    fun testNothingSerialization() {
+        // impossible to deserialize Nothing
+        assertFailsWith(SerializationException::class, "'kotlin.Nothing' does not have instances") {
+            val inp = KeyValueInput(Parser(StringReader("42")))
+            @Suppress("IMPLICIT_NOTHING_TYPE_ARGUMENT_IN_RETURN_POSITION")
+            inp.decodeSerializableValue(NothingSerializer())
+        }
+
+        // it is possible to serialize only `null` for `Nothing?`
+        val sb = StringBuilder()
+        val out = KeyValueOutput(sb)
+        out.encodeNullableSerializableValue(NothingSerializer(), null)
+        assertEquals("null", sb.toString())
     }
 
 }

@@ -4,6 +4,7 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -21,5 +22,18 @@ internal object DurationSerializer : KSerializer<Duration> {
 
     override fun deserialize(decoder: Decoder): Duration {
         return Duration.parseIsoString(decoder.decodeString())
+    }
+}
+
+@PublishedApi
+internal object NothingSerializer : KSerializer<Nothing> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Nothing", PrimitiveKind.INT)
+
+    override fun serialize(encoder: Encoder, value: Nothing) {
+        throw SerializationException("'kotlin.Nothing' cannot be serialized")
+    }
+
+    override fun deserialize(decoder: Decoder): Nothing {
+        throw SerializationException("'kotlin.Nothing' does not have instances")
     }
 }

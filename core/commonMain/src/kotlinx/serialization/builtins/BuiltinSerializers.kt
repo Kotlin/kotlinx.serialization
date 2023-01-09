@@ -250,3 +250,12 @@ public fun UShort.Companion.serializer(): KSerializer<UShort> = UShortSerializer
  * The result of serialization is similar to calling [Duration.toIsoString], for deserialization is [Duration.parseIsoString].
  */
 public fun Duration.Companion.serializer(): KSerializer<Duration> = DurationSerializer
+
+/**
+ * Returns serializer for [Nothing].
+ * Throws an exception when trying to encode or decode.
+ *
+ * It is used as a dummy in case it is necessary to pass a type to a parameterized class. At the same time, it is expected that this generic type will not participate in serialization.
+ */
+@ExperimentalSerializationApi
+public fun NothingSerializer(): KSerializer<Nothing> = NothingSerializer
