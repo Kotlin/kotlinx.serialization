@@ -283,6 +283,7 @@ public sealed class Hocon(
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
             when {
+                descriptor.kind is PolymorphicKind -> PolymorphConfigReader((values[currentTag / 2] as ConfigObject).toConfig())
                 descriptor.kind.listLike -> ListConfigReader(values[currentTag / 2] as ConfigList)
                 descriptor.kind.objLike -> ConfigReader((values[currentTag / 2] as ConfigObject).toConfig())
                 descriptor.kind == StructureKind.MAP -> MapConfigReader(values[currentTag / 2] as ConfigObject)
