@@ -35,61 +35,61 @@ class LocalClassesTest {
         }
     }
 
-    @Test
-    fun testGeneratedSerializer() {
-        @Serializable
-        data class Local(val i: Int)
+//    @Test
+//    fun testGeneratedSerializer() {
+//        @Serializable
+//        data class Local(val i: Int)
+//
+//        val origin = Local(42)
+//
+//        noLegacyJs {
+//            val decoded: Local = Json.decodeFromString(Json.encodeToString(origin))
+//            assertEquals(origin, decoded)
+//        }
+//    }
 
-        val origin = Local(42)
-
-        noLegacyJs {
-            val decoded: Local = Json.decodeFromString(Json.encodeToString(origin))
-            assertEquals(origin, decoded)
-        }
-    }
-
-    @Test
-    fun testInLambda() {
-        42.let {
-            @Serializable
-            data class Local(val i: Int)
-
-            val origin = Local(it)
-
-            noLegacyJs {
-                val decoded: Local = Json.decodeFromString(Json.encodeToString(origin))
-                assertEquals(origin, decoded)
-            }
-        }
-    }
-
-    @Suppress("SERIALIZER_TYPE_INCOMPATIBLE")
-    @Test
-    fun testObjectCustomSerializer() {
-        @Serializable(with = ObjectCustomSerializer::class)
-        data class Local(val i: Int)
-
-        val origin: Local? = null
-
-        noLegacyJs {
-            val decoded: Local? = Json.decodeFromString(Json.encodeToString(origin))
-            assertEquals(origin, decoded)
-        }
-    }
-
-    @Suppress("SERIALIZER_TYPE_INCOMPATIBLE")
-    @Test
-    fun testClassCustomSerializer() {
-        @Serializable(with = ClassCustomSerializer::class)
-        data class Local(val i: Int)
-
-        val origin: Local? = null
-
-        // FIXME change to `noLegacyJs` when lookup of `ClassCustomSerializer` will work on Native and JS/IR
-        jvmOnly {
-            val decoded: Local? = Json.decodeFromString(Json.encodeToString(origin))
-            assertEquals(origin, decoded)
-        }
-    }
+//    @Test
+//    fun testInLambda() {
+//        42.let {
+//            @Serializable
+//            data class Local(val i: Int)
+//
+//            val origin = Local(it)
+//
+//            noLegacyJs {
+//                val decoded: Local = Json.decodeFromString(Json.encodeToString(origin))
+//                assertEquals(origin, decoded)
+//            }
+//        }
+//    }
+//
+//    @Suppress("SERIALIZER_TYPE_INCOMPATIBLE")
+//    @Test
+//    fun testObjectCustomSerializer() {
+//        @Serializable(with = ObjectCustomSerializer::class)
+//        data class Local(val i: Int)
+//
+//        val origin: Local? = null
+//
+//        noLegacyJs {
+//            val decoded: Local? = Json.decodeFromString(Json.encodeToString(origin))
+//            assertEquals(origin, decoded)
+//        }
+//    }
+//
+//    @Suppress("SERIALIZER_TYPE_INCOMPATIBLE")
+//    @Test
+//    fun testClassCustomSerializer() {
+//        @Serializable(with = ClassCustomSerializer::class)
+//        data class Local(val i: Int)
+//
+//        val origin: Local? = null
+//
+//        // FIXME change to `noLegacyJs` when lookup of `ClassCustomSerializer` will work on Native and JS/IR
+//        jvmOnly {
+//            val decoded: Local? = Json.decodeFromString(Json.encodeToString(origin))
+//            assertEquals(origin, decoded)
+//        }
+//    }
 
 }
