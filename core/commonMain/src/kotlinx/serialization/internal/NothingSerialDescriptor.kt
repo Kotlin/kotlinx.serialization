@@ -12,7 +12,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.descriptors.StructureKind
 
-public object NothingSerialDescriptor : SerialDescriptor {
+internal object NothingSerialDescriptor : SerialDescriptor {
     public override val kind: SerialKind = StructureKind.OBJECT
 
     public override val serialName: String = "kotlin.Nothing"

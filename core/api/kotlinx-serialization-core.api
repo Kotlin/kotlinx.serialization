@@ -903,24 +903,6 @@ public abstract class kotlinx/serialization/internal/NamedValueEncoder : kotlinx
 	protected final fun nested (Ljava/lang/String;)Ljava/lang/String;
 }
 
-public final class kotlinx/serialization/internal/NothingSerialDescriptor : kotlinx/serialization/descriptors/SerialDescriptor {
-	public static final field INSTANCE Lkotlinx/serialization/internal/NothingSerialDescriptor;
-	public fun equals (Ljava/lang/Object;)Z
-	public fun getAnnotations ()Ljava/util/List;
-	public fun getElementAnnotations (I)Ljava/util/List;
-	public fun getElementDescriptor (I)Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public fun getElementIndex (Ljava/lang/String;)I
-	public fun getElementName (I)Ljava/lang/String;
-	public fun getElementsCount ()I
-	public fun getKind ()Lkotlinx/serialization/descriptors/SerialKind;
-	public fun getSerialName ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun isElementOptional (I)Z
-	public fun isInline ()Z
-	public fun isNullable ()Z
-	public fun toString ()Ljava/lang/String;
-}
-
 public final class kotlinx/serialization/internal/NothingSerializer : kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/internal/NothingSerializer;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
