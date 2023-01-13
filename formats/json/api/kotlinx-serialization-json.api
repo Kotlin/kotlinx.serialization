@@ -90,8 +90,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun getEncodeDefaults ()Z
 	public final fun getExplicitNulls ()Z
 	public final fun getIgnoreUnknownKeys ()Z
-	public final fun getNamingStrategyForEnums ()Lkotlinx/serialization/json/JsonNamingStrategy;
-	public final fun getNamingStrategyForProperties ()Lkotlinx/serialization/json/JsonNamingStrategy;
+	public final fun getNamingStrategy ()Lkotlinx/serialization/json/JsonNamingStrategy;
 	public final fun getPrettyPrint ()Z
 	public final fun getPrettyPrintIndent ()Ljava/lang/String;
 	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
@@ -106,8 +105,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun setExplicitNulls (Z)V
 	public final fun setIgnoreUnknownKeys (Z)V
 	public final fun setLenient (Z)V
-	public final fun setNamingStrategyForEnums (Lkotlinx/serialization/json/JsonNamingStrategy;)V
-	public final fun setNamingStrategyForProperties (Lkotlinx/serialization/json/JsonNamingStrategy;)V
+	public final fun setNamingStrategy (Lkotlinx/serialization/json/JsonNamingStrategy;)V
 	public final fun setPrettyPrint (Z)V
 	public final fun setPrettyPrintIndent (Ljava/lang/String;)V
 	public final fun setSerializersModule (Lkotlinx/serialization/modules/SerializersModule;)V
@@ -133,8 +131,7 @@ public final class kotlinx/serialization/json/JsonConfiguration {
 	public final fun getEncodeDefaults ()Z
 	public final fun getExplicitNulls ()Z
 	public final fun getIgnoreUnknownKeys ()Z
-	public final fun getNamingStrategyForEnums ()Lkotlinx/serialization/json/JsonNamingStrategy;
-	public final fun getNamingStrategyForProperties ()Lkotlinx/serialization/json/JsonNamingStrategy;
+	public final fun getNamingStrategy ()Lkotlinx/serialization/json/JsonNamingStrategy;
 	public final fun getPrettyPrint ()Z
 	public final fun getPrettyPrintIndent ()Ljava/lang/String;
 	public final fun getUseAlternativeNames ()Z
@@ -254,7 +251,6 @@ public abstract interface class kotlinx/serialization/json/JsonNamingStrategy {
 }
 
 public final class kotlinx/serialization/json/JsonNamingStrategy$Builtins {
-	public final fun getAllLowercase ()Lkotlinx/serialization/json/JsonNamingStrategy;
 	public final fun getSnakeCase ()Lkotlinx/serialization/json/JsonNamingStrategy;
 }
 
