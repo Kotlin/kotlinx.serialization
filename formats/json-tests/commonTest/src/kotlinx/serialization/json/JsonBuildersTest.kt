@@ -157,4 +157,18 @@ class JsonBuildersTest {
             }.toString()
         )
     }
+
+    @Test
+    fun testBuildJsonArrayAddAllNotModified() {
+        assertEquals(
+            """[]""",
+            buildJsonArray {
+                assertFalse { addAll(listOf()) }
+                assertFalse { addAll(listOf<Int>()) }
+                assertFalse { addAll(listOf<String>()) }
+                assertFalse { addAll(listOf<Boolean>()) }
+                assertFalse { addAll(listOf<JsonNull>()) }
+            }.toString()
+        )
+    }
 }
