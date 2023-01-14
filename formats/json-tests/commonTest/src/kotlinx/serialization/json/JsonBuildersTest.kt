@@ -46,43 +46,103 @@ class JsonBuildersTest {
 
     @Test
     fun testBuildJsonArrayAddAll() {
-        val jsonNumbers = buildJsonArray {
-            addAll(1)
-            addAll(2, 3, 4, 5, null)
-            addAll(listOf(1, 2, 3, 4, 5, null))
-        }
-        assertEquals("""[1,2,3,4,5,null,1,2,3,4,5,null]""", jsonNumbers.toString())
+        assertEquals(
+            """[1,2,3,4,5,null,1,2,3,4,5,null]""",
+            buildJsonArray {
+                assertTrue { addAll(1) }
+                assertTrue { addAll(2, 3, 4, 5, null) }
+                assertTrue { addAll(listOf(1, 2, 3, 4, 5, null)) }
+            }.toString()
+        )
 
-        val jsonStrings = buildJsonArray {
-            addAll("a")
-            addAll("b", "c", null)
-            addAll(listOf("a", "b", "c", null))
-        }
-        assertEquals("""["a","b","c",null,"a","b","c",null]""", jsonStrings.toString())
+        assertEquals(
+            """["a","b","c",null,"a","b","c",null]""",
+            buildJsonArray {
+                assertTrue { addAll("a") }
+                assertTrue { addAll("b", "c", null) }
+                assertTrue { addAll(listOf("a", "b", "c", null)) }
+            }.toString()
+        )
 
-        val jsonBooleans = buildJsonArray {
-            addAll(true)
-            addAll(true, true, null)
-            addAll(listOf(false, false, false, null))
-        }
-        assertEquals("""[true,true,true,null,false,false,false,null]""", jsonBooleans.toString())
+        assertEquals(
+            """[true,true,true,null,false,false,false,null]""",
+            buildJsonArray {
+                assertTrue { addAll(true) }
+                assertTrue { addAll(true, true, null) }
+                assertTrue { addAll(listOf(false, false, false, null)) }
+            }.toString()
+        )
 
-        val jsonPrimitiveElements = buildJsonArray {
-            addAll(JsonPrimitive(1), JsonPrimitive("a"), JsonPrimitive(false), JsonNull)
-            addAll(listOf(JsonPrimitive(2), JsonPrimitive("b"), JsonPrimitive(true), JsonNull))
-        }
-        assertEquals("""[1,"a",false,null,2,"b",true,null]""", jsonPrimitiveElements.toString())
+        assertEquals(
+            """[1,"a",false,null,2,"b",true,null]""",
+            buildJsonArray {
+                assertTrue {
+                    addAll(
+                        JsonPrimitive(1),
+                        JsonPrimitive("a"),
+                        JsonPrimitive(false),
+                        JsonNull,
+                    )
+                }
+                assertTrue {
+                    addAll(
+                        listOf(
+                            JsonPrimitive(2),
+                            JsonPrimitive("b"),
+                            JsonPrimitive(true),
+                            JsonNull
+                        )
+                    )
+                }
+            }.toString()
+        )
 
-        val jsonObjectElements = buildJsonArray {
-            addAll(JsonObject(emptyMap()), JsonObject(emptyMap()), JsonObject(emptyMap()), JsonNull)
-            addAll(listOf(JsonObject(emptyMap()), JsonObject(emptyMap()), JsonObject(emptyMap()), JsonNull))
-        }
-        assertEquals("""[{},{},{},null,{},{},{},null]""", jsonObjectElements.toString())
+        assertEquals(
+            """[{},{},{},null,{},{},{},null]""",
+            buildJsonArray {
+                assertTrue {
+                    addAll(
+                        JsonObject(emptyMap()),
+                        JsonObject(emptyMap()),
+                        JsonObject(emptyMap()),
+                        JsonNull,
+                    )
+                }
+                assertTrue {
+                    addAll(
+                        listOf(
+                            JsonObject(emptyMap()),
+                            JsonObject(emptyMap()),
+                            JsonObject(emptyMap()),
+                            JsonNull
+                        )
+                    )
+                }
+            }.toString()
+        )
 
-        val jsonArrayElements = buildJsonArray {
-            addAll(JsonArray(emptyList()), JsonArray(emptyList()), JsonArray(emptyList()), JsonNull)
-            addAll(listOf(JsonArray(emptyList()), JsonArray(emptyList()), JsonArray(emptyList()), JsonNull))
-        }
-        assertEquals("""[[],[],[],null,[],[],[],null]""", jsonArrayElements.toString())
+        assertEquals(
+            """[[],[],[],null,[],[],[],null]""",
+            buildJsonArray {
+                assertTrue {
+                    addAll(
+                        JsonArray(emptyList()),
+                        JsonArray(emptyList()),
+                        JsonArray(emptyList()),
+                        JsonNull,
+                    )
+                }
+                assertTrue {
+                    addAll(
+                        listOf(
+                            JsonArray(emptyList()),
+                            JsonArray(emptyList()),
+                            JsonArray(emptyList()),
+                            JsonNull
+                        )
+                    )
+                }
+            }.toString()
+        )
     }
 }
