@@ -163,11 +163,22 @@ class JsonBuildersTest {
         assertEquals(
             """[]""",
             buildJsonArray {
-                assertFalse { addAll(listOf()) }
-                assertFalse { addAll(listOf<Int>()) }
+                // varargs
+                assertFalse { addAll(*arrayOf<String>()) }
+                assertFalse { addAll(*arrayOf<Boolean>()) }
+                assertFalse { addAll(*arrayOf<Number>()) }
+
+                // add collections
+                assertFalse { addAll(listOf<Number>()) }
                 assertFalse { addAll(listOf<String>()) }
                 assertFalse { addAll(listOf<Boolean>()) }
+
+                // add json elements
+                assertFalse { addAll(listOf()) }
                 assertFalse { addAll(listOf<JsonNull>()) }
+                assertFalse { addAll(listOf<JsonObject>()) }
+                assertFalse { addAll(listOf<JsonArray>()) }
+                assertFalse { addAll(listOf<JsonPrimitive>()) }
             }.toString()
         )
     }
