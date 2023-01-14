@@ -142,9 +142,8 @@ public class JsonArrayBuilder @PublishedApi internal constructor() {
      *
      * @return `true` if the list was changed as the result of the operation.
      */
-    public fun addAll(elements: Collection<JsonElement>): Boolean {
-        return content.addAll(elements)
-    }
+    public fun addAll(elements: Collection<JsonElement>): Boolean =
+        content.addAll(elements)
 
     @PublishedApi
     internal fun build(): JsonArray = JsonArray(content)
