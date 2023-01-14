@@ -7,6 +7,7 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlin.contracts.*
+import kotlin.jvm.JvmName
 
 /**
  * Builds [JsonObject] with the given [builderAction] builder.
@@ -136,6 +137,15 @@ public class JsonArrayBuilder @PublishedApi internal constructor() {
         return true
     }
 
+    /**
+     * Adds the given JSON [elements] to a resulting JSON array.
+     *
+     * @return `true` if the list was changed as the result of the operation.
+     */
+    public fun addAll(elements: Collection<JsonElement>): Boolean {
+        return content.addAll(elements)
+    }
+
     @PublishedApi
     internal fun build(): JsonArray = JsonArray(content)
 }
@@ -186,6 +196,41 @@ public fun JsonArrayBuilder.addJsonObject(builderAction: JsonObjectBuilder.() ->
 public fun JsonArrayBuilder.addJsonArray(builderAction: JsonArrayBuilder.() -> Unit): Boolean =
     add(buildJsonArray(builderAction))
 
+/**
+ * Adds the given JSON [element] and [elements] to a resulting JSON array.
+ *
+ * @return `true` if the list was changed as the result of the operation.
+ */
+public fun JsonArrayBuilder.addAll(element: JsonElement, vararg elements: JsonElement): Boolean {
+    return addAll(listOf(element) + elements)
+}
+
+/** Adds the given string [values] to a resulting JSON array. */
+@JvmName("addAllStrings")
+public fun JsonArrayBuilder.addAll(values: Collection<String?>): Boolean =
+    addAll(values.map(::JsonPrimitive))
+
+/** Adds the given boolean [values] to a resulting JSON array. */
+@JvmName("addAllBooleans")
+public fun JsonArrayBuilder.addAll(values: Collection<Boolean?>): Boolean =
+    addAll(values.map(::JsonPrimitive))
+
+/** Adds the given numeric [values] to a resulting JSON array. */
+@JvmName("addAllNumbers")
+public fun JsonArrayBuilder.addAll(values: Collection<Number?>): Boolean =
+    addAll(values.map(::JsonPrimitive))
+
+/** Adds the given string [values] to a resulting JSON array. */
+public fun JsonArrayBuilder.addAll(vararg values: String?): Boolean =
+    addAll(values.toList())
+
+/** Adds the given boolean [values] to a resulting JSON array. */
+public fun JsonArrayBuilder.addAll(vararg values: Boolean?): Boolean =
+    addAll(values.toList())
+
+/** Adds the given numeric [values] to a resulting JSON array. */
+public fun JsonArrayBuilder.addAll(vararg values: Number?): Boolean =
+    addAll(values.toList())
 
 @DslMarker
 internal annotation class JsonDslMarker
