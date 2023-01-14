@@ -144,5 +144,17 @@ class JsonBuildersTest {
                 }
             }.toString()
         )
+
+        assertEquals(
+            """[null,null,null,null]""",
+            buildJsonArray {
+                assertTrue {
+                    addAll(JsonNull, JsonNull)
+                }
+                assertTrue {
+                    addAll(listOf(JsonNull, JsonNull))
+                }
+            }.toString()
+        )
     }
 }
