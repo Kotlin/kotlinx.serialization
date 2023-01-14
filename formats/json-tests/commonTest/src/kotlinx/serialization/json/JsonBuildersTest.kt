@@ -4,8 +4,7 @@
 
 package kotlinx.serialization.json
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class JsonBuildersTest {
 
@@ -27,10 +26,7 @@ class JsonBuildersTest {
             put("literal", "foo")
             put("null2", null)
         }
-        assertEquals(
-            """{"object":{"k":"v"},"array":[{"nestedLiteral":true}],"null":null,"primitive":42,"boolean":true,"literal":"foo","null2":null}""",
-            json.toString()
-        )
+        assertEquals("""{"object":{"k":"v"},"array":[{"nestedLiteral":true}],"null":null,"primitive":42,"boolean":true,"literal":"foo","null2":null}""", json.toString())
     }
 
     @Test
