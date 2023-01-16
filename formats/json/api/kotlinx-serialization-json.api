@@ -70,6 +70,7 @@ public final class kotlinx/serialization/json/JsonArray$Companion {
 public final class kotlinx/serialization/json/JsonArrayBuilder {
 	public fun <init> ()V
 	public final fun add (Lkotlinx/serialization/json/JsonElement;)Z
+	public final fun addAll (Ljava/util/Collection;)Z
 	public final fun build ()Lkotlinx/serialization/json/JsonArray;
 }
 
@@ -173,6 +174,13 @@ public final class kotlinx/serialization/json/JsonElementBuildersKt {
 	public static final fun add (Lkotlinx/serialization/json/JsonArrayBuilder;Ljava/lang/Number;)Z
 	public static final fun add (Lkotlinx/serialization/json/JsonArrayBuilder;Ljava/lang/String;)Z
 	public static final fun add (Lkotlinx/serialization/json/JsonArrayBuilder;Ljava/lang/Void;)Z
+	public static final fun addAll (Lkotlinx/serialization/json/JsonArrayBuilder;Lkotlinx/serialization/json/JsonElement;[Lkotlinx/serialization/json/JsonElement;)Z
+	public static final fun addAll (Lkotlinx/serialization/json/JsonArrayBuilder;[Ljava/lang/Boolean;)Z
+	public static final fun addAll (Lkotlinx/serialization/json/JsonArrayBuilder;[Ljava/lang/Number;)Z
+	public static final fun addAll (Lkotlinx/serialization/json/JsonArrayBuilder;[Ljava/lang/String;)Z
+	public static final fun addAllBooleans (Lkotlinx/serialization/json/JsonArrayBuilder;Ljava/util/Collection;)Z
+	public static final fun addAllNumbers (Lkotlinx/serialization/json/JsonArrayBuilder;Ljava/util/Collection;)Z
+	public static final fun addAllStrings (Lkotlinx/serialization/json/JsonArrayBuilder;Ljava/util/Collection;)Z
 	public static final fun addJsonArray (Lkotlinx/serialization/json/JsonArrayBuilder;Lkotlin/jvm/functions/Function1;)Z
 	public static final fun addJsonObject (Lkotlinx/serialization/json/JsonArrayBuilder;Lkotlin/jvm/functions/Function1;)Z
 	public static final fun buildJsonArray (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonArray;
