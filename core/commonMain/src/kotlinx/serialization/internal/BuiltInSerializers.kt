@@ -27,7 +27,7 @@ internal object DurationSerializer : KSerializer<Duration> {
 
 @PublishedApi
 internal object NothingSerializer : KSerializer<Nothing> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.Nothing", PrimitiveKind.INT)
+    override val descriptor: SerialDescriptor = NothingSerialDescriptor
 
     override fun serialize(encoder: Encoder, value: Nothing) {
         throw SerializationException("'kotlin.Nothing' cannot be serialized")
