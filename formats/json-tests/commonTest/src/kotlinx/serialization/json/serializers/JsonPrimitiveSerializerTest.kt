@@ -121,4 +121,54 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
             assertEquals(string, jvmExpectedString)
         }
     }
+
+    @Test
+    fun testEncodeJsonPrimitiveUnsignedNumbers() {
+
+        val expectedActualUBytes: List<Pair<String, UByte>> = listOf(
+            "0" to 0u,
+            "1" to 1u,
+            "255" to UByte.MAX_VALUE,
+        )
+
+        expectedActualUBytes.forEach { (expected, actual) ->
+            assertEquals(expected, JsonPrimitive(actual).toString(), "expect UByte $actual is converted to $expected")
+        }
+
+        val expectedActualUShorts: List<Pair<String, UShort>> = listOf(
+            "0" to 0u,
+            "1" to 1u,
+            "255" to UByte.MAX_VALUE.toUShort(),
+            "65535" to UShort.MAX_VALUE,
+        )
+
+        expectedActualUShorts.forEach { (expected, actual) ->
+            assertEquals(expected, JsonPrimitive(actual).toString(), "expect UShort $actual is converted to $expected")
+        }
+
+        val expectedActualUInts: List<Pair<String, UInt>> = listOf(
+            "0" to 0u,
+            "1" to 1u,
+            "255" to UByte.MAX_VALUE.toUInt(),
+            "65535" to UShort.MAX_VALUE.toUInt(),
+            "4294967295" to UInt.MAX_VALUE,
+        )
+
+        expectedActualUInts.forEach { (expected, actual) ->
+            assertEquals(expected, JsonPrimitive(actual).toString(), "expect UInt $actual is converted to $expected")
+        }
+
+        val expectedActualULongs: List<Pair<String, ULong>> = listOf(
+            "0" to 0u,
+            "1" to 1u,
+            "255" to UByte.MAX_VALUE.toULong(),
+            "65535" to UShort.MAX_VALUE.toULong(),
+            "4294967295" to UInt.MAX_VALUE.toULong(),
+            "18446744073709551615" to ULong.MAX_VALUE,
+        )
+
+        expectedActualULongs.forEach { (expected, actual) ->
+            assertEquals(expected, JsonPrimitive(actual).toString(), "expect ULong $actual is converted to $expected")
+        }
+    }
 }

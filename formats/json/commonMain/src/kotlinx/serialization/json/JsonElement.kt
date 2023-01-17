@@ -49,33 +49,57 @@ public sealed class JsonPrimitive : JsonElement() {
     public override fun toString(): String = content
 }
 
-/**
- * Creates [JsonPrimitive] from the given boolean.
- */
+/** Creates a [JsonPrimitive] from the given boolean. */
 public fun JsonPrimitive(value: Boolean?): JsonPrimitive {
     if (value == null) return JsonNull
     return JsonLiteral(value, isString = false)
 }
 
-/**
- * Creates [JsonPrimitive] from the given number.
- */
+/** Creates a [JsonPrimitive] from the given number. */
 public fun JsonPrimitive(value: Number?): JsonPrimitive {
     if (value == null) return JsonNull
     return JsonLiteral(value, isString = false)
 }
 
 /**
- * Creates [JsonPrimitive] from the given string.
+ * Creates a numeric [JsonPrimitive] from the given [UByte].
+ *
+ * The value will be encoded as a JSON number.
  */
+@ExperimentalSerializationApi
+public fun JsonPrimitive(value: UByte): JsonPrimitive = JsonPrimitive(value.toULong())
+
+/**
+ * Creates a numeric [JsonPrimitive] from the given [UShort].
+ *
+ * The value will be encoded as a JSON number.
+ */
+@ExperimentalSerializationApi
+public fun JsonPrimitive(value: UShort): JsonPrimitive = JsonPrimitive(value.toULong())
+
+/**
+ * Creates a numeric [JsonPrimitive] from the given [UInt].
+ *
+ * The value will be encoded as a JSON number.
+ */
+@ExperimentalSerializationApi
+public fun JsonPrimitive(value: UInt): JsonPrimitive = JsonPrimitive(value.toULong())
+
+/**
+ * Creates a numeric [JsonPrimitive] from the given [ULong].
+ *
+ * The value will be encoded as a JSON number.
+ */
+@ExperimentalSerializationApi
+public fun JsonPrimitive(value: ULong): JsonPrimitive = JsonUnquotedLiteral(value.toString())
+
+/** Creates a [JsonPrimitive] from the given string. */
 public fun JsonPrimitive(value: String?): JsonPrimitive {
     if (value == null) return JsonNull
     return JsonLiteral(value, isString = true)
 }
 
-/**
- * Creates [JsonNull].
- */
+/** Creates [JsonNull]. */
 @ExperimentalSerializationApi
 @Suppress("FunctionName", "UNUSED_PARAMETER") // allows to call `JsonPrimitive(null)`
 public fun JsonPrimitive(value: Nothing?): JsonNull = JsonNull
