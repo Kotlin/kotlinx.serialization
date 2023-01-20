@@ -72,13 +72,22 @@ public fun interface JsonNamingStrategy {
          * A strategy that transforms serial names from camel case to snake case — lowercase characters with words separated by underscores.
          * The descriptor parameter is not used.
          *
-         * It applies to every character following transformation rules:
+         * **Transformation rules**
          *
-         * 1. If character `C` is in upper case, and the previous character exists, was not uppercase, and was not underscore, character `C` is transformed into underscore + c.lowercaseChar(): `_c`.
-         * 2. If character `C` is in upper case but does not match other conditions from 1., it is transformed into lowercase: `c`. Thus, upper case acronyms like URL are transformed correctly.
-         * 3. Otherwise, the character remains intact.
+         * Words bounds are defined by uppercase characters. If there is a single uppercase char, it is transformed into lowercase one with underscore in front:
+         * `twoWords` -> `two_words`. No underscore is added if it was a beginning of the name: `MyProperty` -> `my_property`. Also, no underscore is added if it was already there:
+         * `camel_Case_Underscores` -> `camel_case_underscores`.
          *
-         * **Note on cases:** Whether a character is in upper case is determined by the result of [Char.isUpperCase] function.
+         * **Acronyms**
+         *
+         * Since acronym rules are quite complex, it is recommended to lowercase all acronyms in source code.
+         * If there is an uppercase acronym — a sequence of uppercase chars — they are considered as a whole word from the start to second-to-last character of the sequence:
+         * `URLMapping` -> `url_mapping`, `myHTTPAuth` -> `my_http_auth`. Non-letter characters allow the word to continue:
+         * `myHTTP2APIKey` -> `my_http2_api_key`,  `myHTTP2fastApiKey` -> `my_http2fast_api_key`.
+         *
+         * **Note on cases**
+         *
+         * Whether a character is in upper case is determined by the result of [Char.isUpperCase] function.
          * Lowercase transformation is performed by [Char.lowercaseChar], not by [Char.lowercase],
          * and therefore does not support one-to-many and many-to-one character mappings.
          * See the documentation of these functions for details.
@@ -87,17 +96,33 @@ public fun interface JsonNamingStrategy {
         public val SnakeCase: JsonNamingStrategy = object : JsonNamingStrategy {
             override fun serialNameForJson(descriptor: SerialDescriptor, elementIndex: Int, serialName: String): String =
                 buildString(serialName.length * 2) {
-                    var previousWasUppercase = false
+                    var bufferedChar: Char? = null
+                    var previousUpperCharsCount = 0
+
                     serialName.forEach { c ->
                         if (c.isUpperCase()) {
-                            if (!previousWasUppercase && isNotEmpty() && last() != '_')
+                            if (previousUpperCharsCount == 0 && isNotEmpty() && last() != '_')
                                 append('_')
-                            previousWasUppercase = true
-                            append(c.lowercaseChar())
+
+                            bufferedChar?.let(::append)
+
+                            previousUpperCharsCount++
+                            bufferedChar = c.lowercaseChar()
                         } else {
-                            previousWasUppercase = false
+                            if (bufferedChar != null) {
+                                if (previousUpperCharsCount > 1 && c.isLetter()) {
+                                    append('_')
+                                }
+                                append(bufferedChar)
+                                previousUpperCharsCount = 0
+                                bufferedChar = null
+                            }
                             append(c)
                         }
+                    }
+
+                    if(bufferedChar != null) {
+                        append(bufferedChar)
                     }
                 }
 
