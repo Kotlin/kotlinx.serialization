@@ -17,7 +17,7 @@ internal val JsonDeserializationNamesKey = DescriptorSchemaCache.Key<Map<String,
 @SharedImmutable
 internal val JsonSerializationNamesKey = DescriptorSchemaCache.Key<Array<String>>()
 
-internal fun SerialDescriptor.buildDeserializationNamesMap(json: Json): Map<String, Int> {
+private fun SerialDescriptor.buildDeserializationNamesMap(json: Json): Map<String, Int> {
     fun MutableMap<String, Int>.putOrThrow(name: String, index: Int) {
         if (name in this) {
             throw JsonException(
@@ -40,19 +40,24 @@ internal fun SerialDescriptor.buildDeserializationNamesMap(json: Json): Map<Stri
     return builder.ifEmpty { emptyMap() }
 }
 
+/**
+ * Contains strategy-mapped names and @JsonNames,
+ * so original names are not stored when strategy is `null`.
+ */
 internal fun Json.deserializationNamesMap(descriptor: SerialDescriptor): Map<String, Int> =
     schemaCache.getOrPut(descriptor, JsonDeserializationNamesKey) { descriptor.buildDeserializationNamesMap(this) }
 
-internal fun SerialDescriptor.serializationNamesMap(json: Json, strategy: JsonNamingStrategy): Array<String> = json.schemaCache.getOrPut(this, JsonSerializationNamesKey) {
-    Array(elementsCount) { i ->
-        val baseName = getElementName(i)
-        strategy.serialNameForJson(this, i, baseName)
+internal fun SerialDescriptor.serializationNamesIndices(json: Json, strategy: JsonNamingStrategy): Array<String> =
+    json.schemaCache.getOrPut(this, JsonSerializationNamesKey) {
+        Array(elementsCount) { i ->
+            val baseName = getElementName(i)
+            strategy.serialNameForJson(this, i, baseName)
+        }
     }
-}
 
 internal fun SerialDescriptor.getJsonElementName(json: Json, index: Int): String {
     val strategy = namingStrategy(json)
-    return if (strategy == null) getElementName(index) else serializationNamesMap(json, strategy)[index]
+    return if (strategy == null) getElementName(index) else serializationNamesIndices(json, strategy)[index]
 }
 
 internal fun SerialDescriptor.namingStrategy(json: Json) =
