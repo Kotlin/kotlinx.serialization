@@ -320,7 +320,7 @@ internal abstract class AbstractJsonLexer {
         var char = source[currentPosition] // Avoid two range checks visible in the profiler
         var usedAppend = false
         while (insideString(isLenient, char)) {
-            if (!isLenient && char == STRING_ESC) { // handle escaping only in lenient mode
+            if (!isLenient && char == STRING_ESC) { // handle escaping only in non-lenient mode
                 usedAppend = true
                 currentPosition = prefetchOrEof(appendEscape(lastPosition, currentPosition))
                 lastPosition = currentPosition
