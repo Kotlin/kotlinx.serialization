@@ -39,7 +39,7 @@ public interface ChunkedDecoder {
      * ```
      *
      * In this sample, we need to be able to handle huge string comes from json. Instead of storing it in memory,
-     * we're offload it into file and return file name instead
+     * we offload it into a file and return the file name instead
      */
     @ExperimentalSerializationApi
     public fun decodeStringChunked(consumeChunk: (chunk: String) -> Unit)
