@@ -6,7 +6,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 public interface ChunkedDecoder {
     /**
      * Method allows decoding a string value by fixed-size chunks.
-     * Usable for handling very large strings.
+     * Usable for handling very large strings that may not fit in memory.
      * Chunk size defined in the JsonLexer#BATCH_SIZE constant.
      * Feeds string chunks to the provided consumer.
      *
