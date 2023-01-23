@@ -15,7 +15,7 @@ import kotlinx.serialization.descriptors.*
  * Original serial names are never used after transformation, so they are ignored in a Json input.
  * If the original serial name is present in the Json input but transformed is not,
  * [MissingFieldException] still would be thrown. If one wants to preserve the original serial name for deserialization,
- * one should use the [JsonNames] annotation.
+ * one should use the [JsonNames] annotation, as its values are not transformed.
  *
  * ### Common pitfalls in conjunction with other Json features
  *
