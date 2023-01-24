@@ -24,12 +24,16 @@ import kotlin.native.concurrent.*
  * data class Project(@JsonNames("title") val name: String)
  *
  * val project = Json.decodeFromString<Project>("""{"name":"kotlinx.serialization"}""")
- * println(project)
+ * println(project) // OK
  * val oldProject = Json.decodeFromString<Project>("""{"title":"kotlinx.coroutines"}""")
- * println(oldProject)
+ * println(oldProject) // Also OK
  * ```
  *
  * This annotation has lesser priority than [SerialName].
+ * In practice, this means that if property A has `@SerialName("foo")` annotation, and property B has `@JsonNames("foo")` annotation,
+ * Json key `foo` will be deserialized into property A.
+ *
+ * Using the same alternative name for different properties across one class is prohibited and leads to a deserialization exception.
  *
  * @see JsonBuilder.useAlternativeNames
  */

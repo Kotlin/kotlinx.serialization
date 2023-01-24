@@ -7,6 +7,7 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.descriptors.*
 import kotlin.native.concurrent.*
 
 /**
@@ -314,7 +315,21 @@ public class JsonBuilder internal constructor(json: Json) {
     public var useAlternativeNames: Boolean = json.configuration.useAlternativeNames
 
     /**
+     * Specifies [JsonNamingStrategy] that should be used for all properties in classes for serialization and deserialization.
+     *
+     * `null` by default.
+     *
+     * This strategy is applied for all entities that have [StructureKind.CLASS].
+     */
+    @ExperimentalSerializationApi
+    public var namingStrategy: JsonNamingStrategy? = json.configuration.namingStrategy
+
+    /**
      * Module with contextual and polymorphic serializers to be used in the resulting [Json] instance.
+     *
+     * @see SerializersModule
+     * @see Contextual
+     * @see Polymorphic
      */
     public var serializersModule: SerializersModule = json.serializersModule
 
@@ -340,7 +355,8 @@ public class JsonBuilder internal constructor(json: Json) {
             encodeDefaults, ignoreUnknownKeys, isLenient,
             allowStructuredMapKeys, prettyPrint, explicitNulls, prettyPrintIndent,
             coerceInputValues, useArrayPolymorphism,
-            classDiscriminator, allowSpecialFloatingPointValues, useAlternativeNames
+            classDiscriminator, allowSpecialFloatingPointValues, useAlternativeNames,
+            namingStrategy
         )
     }
 }

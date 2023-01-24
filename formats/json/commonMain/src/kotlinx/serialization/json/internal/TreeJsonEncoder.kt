@@ -36,6 +36,9 @@ private sealed class AbstractJsonTreeEncoder(
 
     private var polymorphicDiscriminator: String? = null
 
+    override fun elementName(descriptor: SerialDescriptor, index: Int): String =
+        descriptor.getJsonElementName(json, index)
+
     override fun encodeJsonElement(element: JsonElement) {
         encodeSerializableValue(JsonElementSerializer, element)
     }

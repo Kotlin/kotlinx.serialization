@@ -70,7 +70,7 @@ private fun unexpectedFpErrorMessage(value: Number, key: String, output: String)
 
 internal fun UnknownKeyException(key: String, input: String) = JsonDecodingException(
     -1,
-    "Encountered unknown key '$key'.\n" +
+    "Encountered an unknown key '$key'.\n" +
             "$ignoreUnknownKeysHint\n" +
             "Current input: ${input.minify()}"
 )

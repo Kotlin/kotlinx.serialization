@@ -145,6 +145,9 @@ public annotation class Serializer(
  * // Prints "{"int":42}"
  * println(Json.encodeToString(CustomName(42)))
  * ```
+ *
+ * If a name of class or property is overridden with this annotation, original source code name is not available for the library.
+ * Tools like `JsonNamingStrategy` and `ProtoBufSchemaGenerator` would see and transform [value] from [SerialName] annotation.
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
 // @Retention(AnnotationRetention.RUNTIME) still runtime, but KT-41082

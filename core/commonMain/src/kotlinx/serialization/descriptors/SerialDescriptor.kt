@@ -259,7 +259,7 @@ public interface SerialDescriptor {
     public fun getElementDescriptor(index: Int): SerialDescriptor
 
     /**
-     * Whether the element at the given [index] is optional (can be absent is serialized form).
+     * Whether the element at the given [index] is optional (can be absent in serialized form).
      * For generated descriptors, all elements that have a corresponding default parameter value are
      * marked as optional. Custom serializers can treat optional values in a serialization-specific manner
      * without default parameters constraint.
