@@ -1,7 +1,77 @@
+
+1.5.0-RC / 2023-01-25
+==================
+
+This is a release candidate for the next version with many new features to try.
+It uses Kotlin 1.8.0 by default.
+
+### Json naming strategies
+
+A long-awaited feature (#33) is available in this release.
+A new interface, `JsonNamingStrategy` and Json configuration property `namingStrategy` allow
+defining a transformation that is applied to all properties' names serialized by a Json instance.
+There's also a predefined implementation for the most common use case: `Json { namingStrategy = JsonNamingStrategy.SnakeCase }`.
+Check out the [PR](https://github.com/Kotlin/kotlinx.serialization/pull/2111) for more details and documentation.
+
+### Json unquoted literals
+
+kotlinx-serialization-json has an API for manipulating raw Json values: functions and classes `JsonObject`, `JsonPrimitive`, etc.
+In this release, there is a new addition to this API: `JsonUnquotedLiteral` constructor function.
+It allows to produce a string that is not quoted in the Json output. This function has a lot of valuable
+applications: from writing unsigned or large numbers to embedding whole Json documents without the need for re-parsing.
+This huge feature was contributed to us by [aSemy](https://github.com/aSemy): [#2041](https://github.com/Kotlin/kotlinx.serialization/pull/2041).
+
+### Stabilization of serializer(java.lang.Type) function family
+
+Functions `serializer`, `serializerOrNull` and extensions `SerializersModule.serializer`, `SerializersModule.serializerOrNull`
+have JVM-only overloads that accept `java.lang.Type`. These overloads are crucial for interoperability: with them, third-party Java frameworks
+like Spring, which usually rely on Java's reflection and type tokens, can retrieve `KSerializer` instance and use kotlinx.serialization properly.
+We've removed `@ExperimentalSerializationApi` from these functions, and starting from 1.5.0-RC they're considered stable with all backward compatibility guarantees.
+This change should improve third-party support for kotlinx.serialization in various frameworks.
+See the [PR](https://github.com/Kotlin/kotlinx.serialization/issues/2069) for details.
+
+### Deprecations in module builders for polymorphism
+
+Some time ago, in 1.3.2, new functions `SerializersModuleBuilder.polymorphicDefaultSerializer/polymorphicDefaultDeserializer` and `PolymorphicModuleBuilder.defaultDeserializer` were introduced
+— better names allow an easier understanding of which serializers affect what part of the process.
+In 1.5.0-RC, we finish the migration path: these functions are no longer experimental.
+And old functions, namely `SerializersModuleCollector.polymorphicDefault` and `PolymorphicModuleBuilder.default`, are now deprecated.
+See the [PR](https://github.com/Kotlin/kotlinx.serialization/issues/2076) for details.
+
+### Bundled Proguard rules
+
+The `kotlinx-serialization-core-jvm` JAR file now includes consumer Proguard rules,
+so manual Proguard configuration is no longer necessary for most of the setups.
+See updated [Android setup section](https://github.com/Kotlin/kotlinx.serialization/blob/169a14558ca13cfd731283a854d825d1f19ef195/README.md#android)
+and corresponding PRs: [#2092](https://github.com/Kotlin/kotlinx.serialization/issues/2092), [#2123](https://github.com/Kotlin/kotlinx.serialization/issues/2123).
+
+### Support for kotlin.Duration in HOCON format
+
+HOCON specifies its own formatting for duration values. Starting with this release,
+kotlinx-serialization-hocon is able to serialize and deserialize `kotlin.Duration`
+using proper representation instead of the default one. Big thanks to [Alexander Mikhailov](https://github.com/alexmihailov)
+and his PRs: [#2080](https://github.com/Kotlin/kotlinx.serialization/issues/2080), [#2073](https://github.com/Kotlin/kotlinx.serialization/issues/2073).
+
+### Functional and performance improvements
+
+  * Make DeserializationStrategy covariant at declaration-site (#1897) (thanks to [Lukellmann](https://github.com/Lukellmann))
+  * Added support for the `kotlin.Nothing` class as built-in (#1991, #2150)
+  * Further improve stream decoding performance (#2101)
+  * Introduce CharArray pooling for InputStream decoding (#2100)
+  * Consolidate exception messages and improve them (#2068)
+
+### Bugfixes
+
+  * Add stable hashCode()/equals() calculation to PrimitiveSerialDescriptor (#2136) (thanks to [Vasily Vasilkov](https://github.com/vgv))
+  * Added a factory that creates an enum serializer with annotations on the class (#2125)
+  * Correctly handle situation where different serializers can be provided for the same KClass in SealedClassSerializer (#2113)
+  * Fixed serializers caching for parametrized types from different class loaders (#2070)
+
+
 1.4.1 / 2022-10-14
 ==================
 
-This is patch release contains several bugfixes and improvements. 
+This is patch release contains several bugfixes and improvements.
 Kotlin 1.7.20 is used by default.
 
 ### Improvements
