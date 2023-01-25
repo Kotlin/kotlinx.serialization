@@ -7,10 +7,11 @@ import kotlinx.serialization.descriptors.*
 /**
  * Represents naming strategy — a transformer for serial names in a [Json] format.
  * Transformed serial names are used for both serialization and deserialization.
- * Actual transformation happens in the [serialNameForJson] function.
  * A naming strategy is always applied globally in the Json configuration builder
  * (see [JsonBuilder.namingStrategy]).
- * However, it is possible to apply additional filtering inside the transformer using the `descriptor` parameter in [serialNameForJson].
+ *
+ * Actual transformation happens in the [serialNameForJson] function.
+ * It is possible to apply additional filtering inside the transformer using the `descriptor` parameter in [serialNameForJson].
  *
  * Original serial names are never used after transformation, so they are ignored in a Json input.
  * If the original serial name is present in the Json input but transformed is not,
@@ -21,7 +22,7 @@ import kotlinx.serialization.descriptors.*
  *
  * * Due to the nature of kotlinx.serialization framework, naming strategy transformation is applied to all properties regardless
  * of whether their serial name was taken from the property name or provided by @[SerialName] annotation.
- * Effectively it means one cannot avoid transformation by explicitly specifying the serial name.
+ * Effectively, it means one cannot avoid transformation by explicitly specifying the serial name.
  *
  * * Collision of the transformed name with any other (transformed) properties serial names or any alternative names
  * specified with [JsonNames] will lead to a deserialization exception.
@@ -40,7 +41,7 @@ import kotlinx.serialization.descriptors.*
  * changing one without the other may introduce bugs in many unexpected ways.
  * The lack of a single place of definition, the inability to use automated tools, and more error-prone code lead
  * to greater maintenance efforts for code with global naming strategies.
- * However, there are cases where usage of naming strategies is inevitable, such as interop with existing API or migrating a large codebase.
+ * However, there are cases where usage of naming strategies is inevitable, such as interop with an existing API or migrating a large codebase.
  * Therefore, one should carefully weigh the pros and cons before considering adding global naming strategies to an application.
  */
 @ExperimentalSerializationApi
@@ -56,7 +57,7 @@ public fun interface JsonNamingStrategy {
      * annotations (see [SerialDescriptor.getElementAnnotations]) or element optionality (see [SerialDescriptor.isElementOptional]).
      *
      * Note that invocations of this function are cached for performance reasons.
-     * Caching strategy is an implementation detail and shouldn't be assumed as a part of the public API contract, as it may be changed in future releases.
+     * Caching strategy is an implementation detail and should not be assumed as a part of the public API contract, as it may be changed in future releases.
      * Therefore, it is essential for this function to be pure: it should not have any side effects, and it should
      * return the same String for a given [descriptor], [elementIndex], and [serialName], regardless of the number of invocations.
      */
@@ -74,7 +75,7 @@ public fun interface JsonNamingStrategy {
          *
          * **Transformation rules**
          *
-         * Words bounds are defined by uppercase characters. If there is a single uppercase char, it is transformed into lowercase one with underscore in front:
+         * Words' bounds are defined by uppercase characters. If there is a single uppercase char, it is transformed into lowercase one with underscore in front:
          * `twoWords` -> `two_words`. No underscore is added if it was a beginning of the name: `MyProperty` -> `my_property`. Also, no underscore is added if it was already there:
          * `camel_Case_Underscores` -> `camel_case_underscores`.
          *

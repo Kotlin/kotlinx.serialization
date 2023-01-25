@@ -78,7 +78,7 @@ inline fun assertFailsWithSerialMessage(
     )
     assertTrue(
         exception.message!!.contains(message),
-        "expected:<${exception.message}> but was:<$message>"
+        "expected:<$message> but was:<${exception.message}>"
     )
 }
 inline fun <reified T : Throwable> assertFailsWithMessage(
@@ -89,6 +89,6 @@ inline fun <reified T : Throwable> assertFailsWithMessage(
     val exception = assertFailsWith(T::class, assertionMessage, block)
     assertTrue(
         exception.message!!.contains(message),
-        "expected:<${exception.message}> but was:<$message>"
+        "expected:<$message> but was:<${exception.message}>"
     )
 }

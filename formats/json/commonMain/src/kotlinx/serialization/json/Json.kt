@@ -288,7 +288,7 @@ public class JsonBuilder internal constructor(json: Json) {
 
     /**
      * Enables coercing incorrect JSON values to the default property value in the following cases:
-     *   1. JSON value is `null` but property type is non-nullable.
+     *   1. JSON value is `null` but the property type is non-nullable.
      *   2. Property type is an enum type, but JSON value contains unknown enum member.
      *
      * `false` by default.
@@ -336,6 +336,35 @@ public class JsonBuilder internal constructor(json: Json) {
     public var namingStrategy: JsonNamingStrategy? = json.configuration.namingStrategy
 
     /**
+     * Enables decoding enum values in a case-insensitive manner.
+     * Encoding is not affected.
+     *
+     * This affects both enum serial names and alternative names (specified with the [JsonNames] annotation).
+     * In the following example, string `[VALUE_A, VALUE_B]` will be printed:
+     * ```
+     * enum class E { VALUE_A, @JsonNames("ALTERNATIVE") VALUE_B }
+     *
+     * @Serializable
+     * data class Outer(val enums: List<E>)
+     *
+     * val j = Json { decodeEnumsCaseInsensitive = true }
+     * println(j.decodeFromString<Outer>("""{"enums":["value_A", "alternative"]}""").enums)
+     * ```
+     *
+     * If this feature is enabled,
+     * it is no longer possible to decode enum values that have the same name in a lowercase form.
+     * The following code will throw a serialization exception:
+     *
+     * ```
+     * enum class BadEnum { Bad, BAD }
+     * val j = Json { decodeEnumsCaseInsensitive = true }
+     * j.decodeFromString<Box<BadEnum>>("""{"boxed":"bad"}""")
+     * ```
+     */
+    @ExperimentalSerializationApi
+    public var decodeEnumsCaseInsensitive: Boolean = json.configuration.decodeEnumsCaseInsensitive
+
+    /**
      * Module with contextual and polymorphic serializers to be used in the resulting [Json] instance.
      *
      * @see SerializersModule
@@ -367,7 +396,7 @@ public class JsonBuilder internal constructor(json: Json) {
             allowStructuredMapKeys, prettyPrint, explicitNulls, prettyPrintIndent,
             coerceInputValues, useArrayPolymorphism,
             classDiscriminator, allowSpecialFloatingPointValues, useAlternativeNames,
-            namingStrategy
+            namingStrategy, decodeEnumsCaseInsensitive
         )
     }
 }
