@@ -67,6 +67,7 @@ public sealed class Json(
      * The default instance of [Json] with default configuration.
      */
     @ThreadLocal // to support caching
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
     public companion object Default : Json(JsonConfiguration(), EmptySerializersModule())
 
     /**
