@@ -162,7 +162,7 @@ public annotation class Required
 
 /**
  * Marks this property invisible for the whole serialization process, including [serial descriptors][SerialDescriptor].
- * Transient properties should have default values.
+ * Transient properties must have default values.
  */
 @Target(AnnotationTarget.PROPERTY)
 // @Retention(AnnotationRetention.RUNTIME) still runtime, but KT-41082
