@@ -19,6 +19,7 @@ kotlinx-serialization-json has an API for manipulating raw Json values: function
 In this release, there is a new addition to this API: `JsonUnquotedLiteral` constructor function.
 It allows to produce a string that is not quoted in the Json output. This function has a lot of valuable
 applications: from writing unsigned or large numbers to embedding whole Json documents without the need for re-parsing.
+For an example, read the [Encoding literal Json content docs](https://github.com/Kotlin/kotlinx.serialization/blob/v1.5.0-RC/docs/json.md#encoding-literal-json-content-experimental).
 This huge feature was contributed to us by [aSemy](https://github.com/aSemy): [#2041](https://github.com/Kotlin/kotlinx.serialization/pull/2041).
 
 ### Stabilization of serializer(java.lang.Type) function family
