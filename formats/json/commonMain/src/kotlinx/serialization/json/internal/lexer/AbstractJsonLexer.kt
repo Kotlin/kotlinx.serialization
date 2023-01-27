@@ -246,8 +246,11 @@ internal abstract class AbstractJsonLexer {
      * Tries to consume `null` token from input.
      * Returns `true` if the next 4 chars in input are not `null`,
      * `false` otherwise and consumes it.
+     *
+     * If [moveForward] is true and if the next 4 chars in input are `null` then
+     * current position in lexer move forward on these 4 chars.
      */
-    fun tryConsumeNotNull(): Boolean {
+    fun tryConsumeNotNull(moveForward: Boolean = true): Boolean {
         var current = skipWhitespaces()
         current = prefetchOrEof(current)
         // Cannot consume null due to EOF, maybe something else
@@ -261,7 +264,10 @@ internal abstract class AbstractJsonLexer {
          * distinguish it from 'null'
          */
         if (len > 4 && charToTokenClass(source[current + 4]) == TC_OTHER) return true
-        currentPosition = current + 4
+
+        if (moveForward) {
+            currentPosition = current + 4
+        }
         return false
     }
 

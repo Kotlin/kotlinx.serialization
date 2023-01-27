@@ -5,7 +5,6 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.test.assertFailsWithSerial
 import kotlin.test.*
 
@@ -23,6 +22,11 @@ class JsonCoerceInputValuesTest : JsonTestBase() {
         val i: Int = 42,
         val e: SampleEnum = SampleEnum.OptionA,
         val foo: String
+    )
+
+    @Serializable
+    data class NullableEnumHolder(
+        val enum: SampleEnum?
     )
 
     val json = Json {
@@ -98,5 +102,14 @@ class JsonCoerceInputValuesTest : JsonTestBase() {
         for ((input, expected) in testData) {
             assertEquals(expected, json.decodeFromString(MultipleValues.serializer(), input), "Failed on input: $input")
         }
+    }
+
+    @Test
+    fun testNullSupportForEnums() = parametrizedTest(json) {
+        var decoded = decodeFromString<NullableEnumHolder>("""{"enum": null}""")
+        assertNull(decoded.enum)
+
+        decoded = decodeFromString<NullableEnumHolder>("""{"enum": OptionA}""")
+        assertEquals(SampleEnum.OptionA, decoded.enum)
     }
 }

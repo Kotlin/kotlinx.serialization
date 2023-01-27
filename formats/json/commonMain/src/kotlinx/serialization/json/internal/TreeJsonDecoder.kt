@@ -196,6 +196,7 @@ private open class JsonTreeDecoder(
         json.tryCoerceValue(
             descriptor.getElementDescriptor(index),
             { currentElement(tag) is JsonNull },
+            { currentElement(tag) is JsonNull },
             { (currentElement(tag) as? JsonPrimitive)?.contentOrNull }
         )
 

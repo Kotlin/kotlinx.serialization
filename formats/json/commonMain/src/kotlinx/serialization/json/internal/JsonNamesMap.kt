@@ -99,11 +99,16 @@ internal fun SerialDescriptor.getJsonNameIndexOrThrow(json: Json, name: String, 
 internal inline fun Json.tryCoerceValue(
     elementDescriptor: SerialDescriptor,
     peekNull: () -> Boolean,
+    tryPeekNull: () -> Boolean,
     peekString: () -> String?,
     onEnumCoercing: () -> Unit = {}
 ): Boolean {
     if (!elementDescriptor.isNullable && peekNull()) return true
     if (elementDescriptor.kind == SerialKind.ENUM) {
+        if (elementDescriptor.isNullable && tryPeekNull()) {
+            return false
+        }
+
         val enumValue = peekString()
             ?: return false // if value is not a string, decodeEnum() will throw correct exception
         val enumIndex = elementDescriptor.getJsonNameIndex(this, enumValue)
