@@ -7,6 +7,7 @@ package sample
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.Json
+import kotlin.reflect.typeOf
 import kotlin.test.*
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
@@ -25,18 +26,25 @@ class SampleTestsJVM {
         assertEquals("INT", name)
     }
 
-    @OptIn(ExperimentalTime::class)
-    @Test
-    fun testSerializersAreIntrinsified() {
-        val direct = measureTime {
-            Json.encodeToString(IntData.serializer(), IntData(10))
+    @Serializable
+    sealed interface MyInterface {
+        companion object NamedCompanionObject {
+            const val Example = "testing"
         }
-        val directMs = direct.inWholeMicroseconds
-        val indirect = measureTime {
-            Json.encodeToString(IntData(10))
-        }
-        val indirectMs = indirect.inWholeMicroseconds
-        if (indirectMs > directMs + (directMs / 4)) error("Direct ($directMs) and indirect ($indirectMs) times are too far apart")
     }
 
+    @Serializable
+    @SerialName("FooBar")
+    data class FooBar(val value: String): MyInterface
+
+    @Test
+    fun testSerializersAreIntrinsified() {
+        val instance = FooBar("foobar")
+        // regular reflection can't get serializer for sealed interface with named companion
+        assertFailsWith<SerializationException> {
+            Json.encodeToString(serializer(typeOf<MyInterface>()), instance)
+        }
+        // But intrinsic should be able to
+        assertEquals("""{"type":"FooBar","value":"foobar"}""", Json.encodeToString<MyInterface>(instance))
+    }
 }
