@@ -6,7 +6,10 @@ package sample
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.json.Json
 import kotlin.test.*
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTime
 
 class SampleTestsJVM {
     @Test
@@ -21,4 +24,19 @@ class SampleTestsJVM {
         val name = kind.toString()
         assertEquals("INT", name)
     }
+
+    @OptIn(ExperimentalTime::class)
+    @Test
+    fun testSerializersAreIntrinsified() {
+        val direct = measureTime {
+            Json.encodeToString(IntData.serializer(), IntData(10))
+        }
+        val directMs = direct.inWholeMicroseconds
+        val indirect = measureTime {
+            Json.encodeToString(IntData(10))
+        }
+        val indirectMs = indirect.inWholeMicroseconds
+        if (indirectMs > directMs + (directMs / 4)) error("Direct ($directMs) and indirect ($indirectMs) times are too far apart")
+    }
+
 }
