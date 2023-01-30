@@ -24,7 +24,8 @@ class PolymorphismTest {
     fun testExamplePoly03() {
         captureOutput("ExamplePoly03") { example.examplePoly03.main() }.verifyOutputLinesStart(
             "Exception in thread \"main\" kotlinx.serialization.SerializationException: Class 'OwnedProject' is not registered for polymorphic serialization in the scope of 'Project'.",
-            "Mark the base class as 'sealed' or register the serializer explicitly."
+            "To be registered automatically, class 'OwnedProject' has to be '@Serializable', and the base class 'Project' has to be sealed and '@Serializable'.",
+            "Alternatively, register the serializer for 'OwnedProject' explicitly in a corresponding SerializersModule."
         )
     }
 
