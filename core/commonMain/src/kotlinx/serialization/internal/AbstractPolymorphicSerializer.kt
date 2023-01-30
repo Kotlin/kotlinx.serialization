@@ -104,7 +104,8 @@ internal fun throwSubtypeNotRegistered(subClassName: String?, baseClass: KClass<
             "Class discriminator was missing and no default polymorphic serializers were registered $scope"
         else
             "Class '$subClassName' is not registered for polymorphic serialization $scope.\n" +
-            "Mark the base class as 'sealed' or register the serializer explicitly."
+            "To be registered automatically, class '$subClassName' has to be '@Serializable', and the base class '${baseClass.simpleName}' has to be sealed and '@Serializable'.\n" +
+            "Alternatively, register the serializer for '$subClassName' explicitly in a corresponding SerializersModule."
     )
 }
 
