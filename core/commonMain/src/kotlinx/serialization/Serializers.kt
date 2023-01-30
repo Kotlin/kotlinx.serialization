@@ -283,13 +283,8 @@ private fun <T : Any> KSerializer<T>.nullable(shouldBeNullable: Boolean): KSeria
  */
 @Suppress("unused")
 @PublishedApi
-internal fun noCompiledSerializer(forClass: String): KSerializer<*> {
-    throw SerializationException(
-        "Cannot find serializer for class $forClass.\n" +
-                "Make sure that this class marked with @Serializable annotation," +
-                "or provide serializer explicitly, or use proper SerializersModule"
-    )
-}
+internal fun noCompiledSerializer(forClass: String): KSerializer<*> =
+    throw SerializationException(notRegisteredMessage(forClass))
 
 // Used when compiler intrinsic is inserted
 @OptIn(ExperimentalSerializationApi::class)
