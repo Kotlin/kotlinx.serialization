@@ -92,8 +92,10 @@ internal fun KClass<*>.serializerNotRegistered(): Nothing {
     throw SerializationException(notRegisteredMessage())
 }
 
-internal fun KClass<*>.notRegisteredMessage(): String = "Serializer for class '${simpleName}' is not found.\n" +
-        "Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied."
+internal fun KClass<*>.notRegisteredMessage(): String = notRegisteredMessage(simpleName ?: "<local class name not available>")
+
+internal fun notRegisteredMessage(className: String): String = "Serializer for class '$className' is not found.\n" +
+        "Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied.\n"
 
 internal expect fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing
 
