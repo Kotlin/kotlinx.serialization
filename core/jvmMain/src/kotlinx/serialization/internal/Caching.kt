@@ -76,26 +76,43 @@ private class ClassValueReferences<T> : ClassValue<MutableSoftReference<T>>() {
     inline fun getOrSet(key: Class<*>, crossinline factory: () -> T): T {
         val ref: MutableSoftReference<T> = get(key)
 
+        /*
+          `reference` is not volatile field, old value with null ref may be read.
+         It's ok, actual value will be read in synchronized block.
+
+         It is unlikely that the `reference` with the old non-null value will be read - but even in this case
+        it should not be a big problem, because it does not lead to the creation of a new serializer and reuses an existing one
+         */
         ref.reference.get()?.let { return it }
+
         // go to the slow path and create serializer with blocking, also wrap factory block
-        return createAndSet(ref) { factory() }
+        return ref.getOrSetAtomic { factory() }
     }
 
-    @Synchronized
-    private fun createAndSet(ref: MutableSoftReference<T>, factory: () -> T): T {
-        val value = factory()
-        ref.reference = SoftReference(value)
-        return value
-    }
 }
 
 /**
  * Wrapper over `SoftReference`, used  to store a mutable value.
+ *
+ * **[reference] is not thread-safe, external concurrency management is needed**
  */
 private class MutableSoftReference<T> {
-    @Volatile
     @JvmField
     var reference: SoftReference<T> = SoftReference(null)
+
+    /*
+    It is important that the monitor for synchronized is the `MutableSoftReference` of a specific class
+    This way access to reference is blocked only for one serializable class, and not for all
+     */
+    @Synchronized
+    fun getOrSetAtomic(factory: () -> T): T {
+        // exit function if another thread has already filled in the `reference` with non-null value
+        reference.get()?.let { return it }
+
+        val value = factory()
+        reference = SoftReference(value)
+        return value
+    }
 }
 
 private class ClassValueParametrizedCache<T>(private val compute: (KClass<Any>, List<KType>) -> KSerializer<T>?) :
