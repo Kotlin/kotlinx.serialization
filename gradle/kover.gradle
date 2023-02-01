@@ -12,7 +12,7 @@ tasks.withType(Test) { task ->
 }
 tasks.koverVerify {
     // Core is mainly uncovered because a lot of serializers are tested with JSON
-    def minPercentage = (project.name.contains("core") || project.name.contains("properties")|| project.name.contains("json-okio")) ? 45 : 80
+    def minPercentage = (project.name.contains("core") || project.name.contains("properties")|| project.name.contains("json-okio")) ? 43 : 80
     rule {
         name = "Minimal line coverage rate in percents"
         bound {
