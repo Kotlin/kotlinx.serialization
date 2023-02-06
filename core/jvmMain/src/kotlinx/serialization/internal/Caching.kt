@@ -76,28 +76,21 @@ private class ClassValueReferences<T> : ClassValue<MutableSoftReference<T>>() {
     inline fun getOrSet(key: Class<*>, crossinline factory: () -> T): T {
         val ref: MutableSoftReference<T> = get(key)
 
-        /*
-          `reference` is not volatile field, old value with null ref may be read.
-         It's ok, actual value will be read in synchronized block.
-
-         It is unlikely that the `reference` with the old non-null value will be read - but even in this case
-        it should not be a big problem, because it does not lead to the creation of a new serializer and reuses an existing one
-         */
         ref.reference.get()?.let { return it }
 
         // go to the slow path and create serializer with blocking, also wrap factory block
-        return ref.getOrSetAtomic { factory() }
+        return ref.getOrSetWithLock { factory() }
     }
 
 }
 
 /**
  * Wrapper over `SoftReference`, used  to store a mutable value.
- *
- * **[reference] is not thread-safe, external concurrency management is needed**
  */
 private class MutableSoftReference<T> {
+    // volatile because of situations like https://stackoverflow.com/a/7855774
     @JvmField
+    @Volatile
     var reference: SoftReference<T> = SoftReference(null)
 
     /*
@@ -105,7 +98,7 @@ private class MutableSoftReference<T> {
     This way access to reference is blocked only for one serializable class, and not for all
      */
     @Synchronized
-    fun getOrSetAtomic(factory: () -> T): T {
+    fun getOrSetWithLock(factory: () -> T): T {
         // exit function if another thread has already filled in the `reference` with non-null value
         reference.get()?.let { return it }
 
