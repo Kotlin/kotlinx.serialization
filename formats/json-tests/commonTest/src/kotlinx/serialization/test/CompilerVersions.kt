@@ -10,12 +10,6 @@ import kotlin.test.assertTrue
 
 private val currentKotlinVersion = KotlinVersion.CURRENT
 
-public fun runSince(kotlinVersion: String, test: () -> Unit) {
-    if (currentKotlinVersion >= kotlinVersion.toKotlinVersion()) {
-        test()
-    }
-}
-
 private fun String.toKotlinVersion(): KotlinVersion {
     val parts = split(".")
     val intParts = parts.mapNotNull { it.toIntOrNull() }
@@ -24,20 +18,26 @@ private fun String.toKotlinVersion(): KotlinVersion {
     return KotlinVersion(intParts[0], intParts[1], intParts[2])
 }
 
-class CompilerVersionTest {
+internal fun runSince(kotlinVersion: String, test: () -> Unit) {
+    if (currentKotlinVersion >= kotlinVersion.toKotlinVersion()) {
+        test()
+    }
+}
+
+internal class CompilerVersionTest {
     @Test
     fun testSince() {
-        val executed = booleanArrayOf(false)
+        var executed = false
 
         runSince("1.0.0") {
-            executed[0] = true
+            executed = true
         }
-        assertTrue(executed[0])
+        assertTrue(executed)
 
-        executed[0] = false
+        executed = false
         runSince("255.255.255") {
-            executed[0] = true
+            executed = true
         }
-        assertFalse(executed[0])
+        assertFalse(executed)
     }
 }
