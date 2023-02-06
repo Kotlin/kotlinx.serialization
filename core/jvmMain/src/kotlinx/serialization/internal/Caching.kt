@@ -5,6 +5,7 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.KSerializer
+import java.lang.ref.SoftReference
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KClassifier
@@ -40,38 +41,80 @@ internal actual fun <T> createParametrizedCache(factory: (KClass<Any>, List<KTyp
     return if (useClassValue) ClassValueParametrizedCache(factory) else ConcurrentHashMapParametrizedCache(factory)
 }
 
-private class ClassValueCache<T>(compute: (KClass<*>) -> KSerializer<T>?) : SerializerCache<T> {
-    private val classValue = ClassValueWrapper(compute)
+private class ClassValueCache<T>(val compute: (KClass<*>) -> KSerializer<T>?) : SerializerCache<T> {
+    private val classValue = ClassValueReferences<CacheEntry<T>>()
 
-    override fun get(key: KClass<Any>): KSerializer<T>? = classValue[key.java].serializer
-}
-
-@SuppressAnimalSniffer
-private class ClassValueWrapper<T>(private val compute: (KClass<*>) -> KSerializer<T>?): ClassValue<CacheEntry<T>>() {
-    /*
-     * Since during the computing of the value for the `ClassValue` entry, we do not know whether a nullable
-     *  serializer is needed, so we may need to differentiate nullable/non-null  caches by a level higher
-     */
-    override fun computeValue(type: Class<*>): CacheEntry<T> {
-        return CacheEntry(compute(type.kotlin))
+    override fun get(key: KClass<Any>): KSerializer<T>? {
+        return classValue
+            .getOrSet(key.java) { CacheEntry(compute(key)) }
+            .serializer
     }
 }
 
-private class ClassValueParametrizedCache<T>(private val compute: (KClass<Any>, List<KType>) -> KSerializer<T>?) : ParametrizedSerializerCache<T> {
-    private val classValue = ParametrizedClassValueWrapper<T>()
+/**
+ * A class that combines the capabilities of ClassValue and SoftReference.
+ * Softly binds the calculated value to the specified class.
+ *
+ * [SoftReference] used to prevent class loaders from leaking,
+ * since the value can transitively refer to an instance of type [Class], this may prevent the loader from
+ * being collected during garbage collection.
+ *
+ * In the first calculation the value is cached, every time [getOrSet] is called, a pre-calculated value is returned.
+ *
+ * However, the value can be collected during garbage collection (thanks to [SoftReference])
+ * - in this case, when trying to call the [getOrSet] function, the value will be calculated again and placed in the cache.
+ *
+ * An important requirement for a function generating a value is that it must be stable, so that each time it is called for the same class, the function returns similar values.
+ * In the case of serializers, these should be instances of the same class filled with equivalent values.
+ */
+@SuppressAnimalSniffer
+private class ClassValueReferences<T> : ClassValue<MutableSoftReference<T>>() {
+    override fun computeValue(type: Class<*>): MutableSoftReference<T> {
+        return MutableSoftReference()
+    }
 
-    override fun get(key: KClass<Any>, types: List<KType>): Result<KSerializer<T>?> =
-        classValue[key.java].computeIfAbsent(types) { compute(key, types) }
+    inline fun getOrSet(key: Class<*>, crossinline factory: () -> T): T {
+        val ref: MutableSoftReference<T> = get(key)
+
+        ref.reference.get()?.let { return it }
+
+        // go to the slow path and create serializer with blocking, also wrap factory block
+        return ref.getOrSetWithLock { factory() }
+    }
+
 }
 
-@SuppressAnimalSniffer
-private class ParametrizedClassValueWrapper<T> : ClassValue<ParametrizedCacheEntry<T>>() {
+/**
+ * Wrapper over `SoftReference`, used  to store a mutable value.
+ */
+private class MutableSoftReference<T> {
+    // volatile because of situations like https://stackoverflow.com/a/7855774
+    @JvmField
+    @Volatile
+    var reference: SoftReference<T> = SoftReference(null)
+
     /*
-    * Since during the computing of the value for the `ClassValue` entry, we do not know whether a nullable
-    *  serializer is needed, so we may need to differentiate nullable/non-null  caches by a level higher
-    */
-    override fun computeValue(type: Class<*>): ParametrizedCacheEntry<T> {
-        return ParametrizedCacheEntry()
+    It is important that the monitor for synchronized is the `MutableSoftReference` of a specific class
+    This way access to reference is blocked only for one serializable class, and not for all
+     */
+    @Synchronized
+    fun getOrSetWithLock(factory: () -> T): T {
+        // exit function if another thread has already filled in the `reference` with non-null value
+        reference.get()?.let { return it }
+
+        val value = factory()
+        reference = SoftReference(value)
+        return value
+    }
+}
+
+private class ClassValueParametrizedCache<T>(private val compute: (KClass<Any>, List<KType>) -> KSerializer<T>?) :
+    ParametrizedSerializerCache<T> {
+    private val classValue = ClassValueReferences<ParametrizedCacheEntry<T>>()
+
+    override fun get(key: KClass<Any>, types: List<KType>): Result<KSerializer<T>?> {
+        return classValue.getOrSet(key.java) { ParametrizedCacheEntry() }
+            .computeIfAbsent(types) { compute(key, types) }
     }
 }
 
@@ -91,8 +134,8 @@ private class ConcurrentHashMapCache<T>(private val compute: (KClass<*>) -> KSer
 }
 
 
-
-private class ConcurrentHashMapParametrizedCache<T>(private val compute: (KClass<Any>, List<KType>) -> KSerializer<T>?) : ParametrizedSerializerCache<T> {
+private class ConcurrentHashMapParametrizedCache<T>(private val compute: (KClass<Any>, List<KType>) -> KSerializer<T>?) :
+    ParametrizedSerializerCache<T> {
     private val cache = ConcurrentHashMap<Class<*>, ParametrizedCacheEntry<T>>()
 
     override fun get(key: KClass<Any>, types: List<KType>): Result<KSerializer<T>?> {
@@ -101,6 +144,12 @@ private class ConcurrentHashMapParametrizedCache<T>(private val compute: (KClass
     }
 }
 
+/**
+ * Wrapper for cacheable serializer of some type.
+ * Used to store cached serializer or indicates that the serializer is not cacheable.
+ *
+ * If serializer for type is not cacheable then value of [serializer] is `null`.
+ */
 private class CacheEntry<T>(@JvmField val serializer: KSerializer<T>?)
 
 /**
