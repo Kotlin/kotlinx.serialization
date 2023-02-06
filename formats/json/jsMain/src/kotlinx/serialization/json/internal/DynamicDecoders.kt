@@ -75,7 +75,6 @@ private open class DynamicInput(
         json.tryCoerceValue(
             descriptor.getElementDescriptor(index),
             { getByTag(tag) == null },
-            { getByTag(tag) == null },
             { getByTag(tag) as? String }
         )
 

@@ -133,7 +133,7 @@ internal open class StreamingJsonDecoder(
     }
 
     override fun decodeNotNullMark(): Boolean {
-        return !(elementMarker?.isUnmarkedNull ?: false) && lexer.tryConsumeNotNull()
+        return !(elementMarker?.isUnmarkedNull ?: false) && !lexer.tryConsumeNull()
     }
 
     override fun decodeNull(): Nothing? {
@@ -208,8 +208,7 @@ internal open class StreamingJsonDecoder(
      */
     private fun coerceInputValue(descriptor: SerialDescriptor, index: Int): Boolean = json.tryCoerceValue(
         descriptor.getElementDescriptor(index),
-        { !lexer.tryConsumeNotNull() },
-        { !lexer.tryConsumeNotNull(false) },
+        { lexer.tryConsumeNull(it) },
         { lexer.peekString(configuration.isLenient) },
         { lexer.consumeString() /* skip unknown enum string*/ }
     )
