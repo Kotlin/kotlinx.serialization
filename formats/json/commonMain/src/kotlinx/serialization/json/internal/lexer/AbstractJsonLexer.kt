@@ -244,25 +244,28 @@ internal abstract class AbstractJsonLexer {
 
     /**
      * Tries to consume `null` token from input.
-     * Returns `true` if the next 4 chars in input are not `null`,
-     * `false` otherwise and consumes it.
+     * Returns `false` if the next 4 chars in input are not `null`,
+     * `true` otherwise and consumes it if [doConsume] is `true`.
      */
-    fun tryConsumeNotNull(): Boolean {
+    fun tryConsumeNull(doConsume: Boolean = true): Boolean {
         var current = skipWhitespaces()
         current = prefetchOrEof(current)
         // Cannot consume null due to EOF, maybe something else
         val len = source.length - current
-        if (len < 4 || current == -1) return true
+        if (len < 4 || current == -1) return false
         for (i in 0..3) {
-            if (NULL[i] != source[current + i]) return true
+            if (NULL[i] != source[current + i]) return false
         }
         /*
          * If we're in lenient mode, this might be the string with 'null' prefix,
          * distinguish it from 'null'
          */
-        if (len > 4 && charToTokenClass(source[current + 4]) == TC_OTHER) return true
-        currentPosition = current + 4
-        return false
+        if (len > 4 && charToTokenClass(source[current + 4]) == TC_OTHER) return false
+
+        if (doConsume) {
+            currentPosition = current + 4
+        }
+        return true
     }
 
     open fun skipWhitespaces(): Int {
