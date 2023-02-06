@@ -244,8 +244,8 @@ internal abstract class AbstractJsonLexer {
 
     /**
      * Tries to consume `null` token from input.
-     * Returns `true` if the next 4 chars in input are not `null`,
-     * `false` otherwise and consumes it if [doConsume] is `true`.
+     * Returns `false` if the next 4 chars in input are not `null`,
+     * `true` otherwise and consumes it if [doConsume] is `true`.
      */
     fun tryConsumeNull(doConsume: Boolean = true): Boolean {
         var current = skipWhitespaces()
