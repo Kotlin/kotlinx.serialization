@@ -306,7 +306,11 @@ internal abstract class AbstractJsonLexer {
      */
     abstract fun consumeKeyString(): String
 
-    private fun insideString(isLenient:Boolean, char:Char):Boolean = if (isLenient) { charToTokenClass(char) == TC_OTHER } else { char != STRING }
+    private fun insideString(isLenient: Boolean, char: Char): Boolean = if (isLenient) {
+        charToTokenClass(char) == TC_OTHER
+    } else {
+        char != STRING
+    }
 
     open fun consumeStringChunked(isLenient: Boolean, consumeChunk: (stringChunk: String) -> Unit) { // open to allow simpler implementations (i.e. StringJsonLexer)
         val nextToken = peekNextToken()

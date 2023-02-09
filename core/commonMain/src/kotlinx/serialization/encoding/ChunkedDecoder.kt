@@ -2,11 +2,13 @@ package kotlinx.serialization.encoding
 
 import kotlinx.serialization.ExperimentalSerializationApi
 
-@ExperimentalSerializationApi
 /**
  * This interface indicates that decoder supports consuming large strings by chunks via consumeChunk method.
  * Currently, only streaming json decoder implements this interface.
+ * Please note that this interface is only applicable to streaming decoders. That means that it is not possible to use
+ * some JsonTreeDecoder features like polymorphism with this interface.
  */
+@ExperimentalSerializationApi
 public interface ChunkedDecoder {
     /**
      * Method allows decoding a string value by fixed-size chunks.
