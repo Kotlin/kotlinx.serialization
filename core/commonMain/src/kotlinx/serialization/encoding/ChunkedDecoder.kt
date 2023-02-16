@@ -43,7 +43,7 @@ public interface ChunkedDecoder {
      * }
      * ```
      *
-     * In this sample, we need to be able to handle huge string comes from json. Instead of storing it in memory,
+     * In this sample, we need to be able to handle a huge string coming from json. Instead of storing it in memory,
      * we offload it into a file and return the file name instead
      */
     @ExperimentalSerializationApi
