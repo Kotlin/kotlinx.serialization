@@ -414,6 +414,10 @@ public abstract class kotlinx/serialization/encoding/AbstractEncoder : kotlinx/s
 	public fun shouldEncodeElementDefault (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
 }
 
+public abstract interface class kotlinx/serialization/encoding/ChunkedDecoder {
+	public abstract fun decodeStringChunked (Lkotlin/jvm/functions/Function1;)V
+}
+
 public abstract interface class kotlinx/serialization/encoding/CompositeDecoder {
 	public static final field Companion Lkotlinx/serialization/encoding/CompositeDecoder$Companion;
 	public static final field DECODE_DONE I

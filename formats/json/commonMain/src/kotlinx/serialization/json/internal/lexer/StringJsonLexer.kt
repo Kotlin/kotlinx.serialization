@@ -97,6 +97,10 @@ internal class StringJsonLexer(override val source: String) : AbstractJsonLexer(
         return source.substring(current, closingQuote)
     }
 
+    override fun consumeStringChunked(isLenient: Boolean, consumeChunk: (stringChunk: String) -> Unit) {
+        (if (isLenient) consumeStringLenient() else consumeString()).chunked(BATCH_SIZE).forEach(consumeChunk)
+    }
+
     override fun consumeLeadingMatchingValue(keyToMatch: String, isLenient: Boolean): String? {
         val positionSnapshot = currentPosition
         try {

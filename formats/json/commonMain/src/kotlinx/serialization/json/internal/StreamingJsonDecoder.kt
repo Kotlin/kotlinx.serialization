@@ -24,7 +24,7 @@ internal open class StreamingJsonDecoder(
     @JvmField internal val lexer: AbstractJsonLexer,
     descriptor: SerialDescriptor,
     discriminatorHolder: DiscriminatorHolder?
-) : JsonDecoder, AbstractDecoder() {
+) : JsonDecoder, ChunkedDecoder, AbstractDecoder() {
 
     // A mutable reference to the discriminator that have to be skipped when in optimistic phase
     // of polymorphic serialization, see `decodeSerializableValue`
@@ -341,6 +341,10 @@ internal open class StreamingJsonDecoder(
         } else {
             lexer.consumeString()
         }
+    }
+
+    override fun decodeStringChunked(consumeChunk: (chunk: String) -> Unit) {
+        lexer.consumeStringChunked(configuration.isLenient, consumeChunk)
     }
 
     override fun decodeInline(descriptor: SerialDescriptor): Decoder =
