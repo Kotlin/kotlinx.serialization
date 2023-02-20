@@ -34,7 +34,7 @@ class PolymorphicSealedChildTest {
 
     val sealedModule = SerializersModule {
         polymorphic(FooBase::class) {
-            subclassesOf(Foo.serializer())
+            subclassesOf<Foo>()
         }
     }
 
