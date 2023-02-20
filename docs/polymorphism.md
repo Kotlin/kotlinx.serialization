@@ -414,6 +414,11 @@ fun main() {
 
 > Note: On Kotlin/Native, you should use `format.encodeToString(PolymorphicSerializer(Project::class), data))` instead due to limited reflection capabilities.
 
+### Registering sealed children as subclasses
+A sealed parent interface or class can be used to directly register all its children using subclassesOf. This will
+expose all children that would be available when serializing the parent directly, but now as sealed. Please note that
+this is will remain open serialization, and the sealed parent serializer will not be used in serialization.
+
 <!--- TEST LINES_START -->
 
 ### Property of an interface type
