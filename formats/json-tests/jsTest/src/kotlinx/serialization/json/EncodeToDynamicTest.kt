@@ -92,7 +92,7 @@ class EncodeToDynamicTest {
         WITH_SERIALNAME_red
     }
 
-    @Serializable
+    @Serializable(MyFancyClass.Companion::class)
     data class MyFancyClass(val value: String) {
 
         companion object : KSerializer<MyFancyClass> {
