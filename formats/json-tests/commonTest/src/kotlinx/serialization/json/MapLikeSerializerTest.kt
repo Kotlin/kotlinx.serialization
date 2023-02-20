@@ -15,7 +15,6 @@ class MapLikeSerializerTest : JsonTestBase() {
     @Serializable
     data class StringPair(val a: String, val b: String)
 
-    @Serializer(forClass = StringPair::class)
     object StringPairSerializer : KSerializer<StringPair> {
 
         override val descriptor: SerialDescriptor = buildSerialDescriptor("package.StringPair", StructureKind.MAP) {

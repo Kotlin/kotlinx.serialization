@@ -13,7 +13,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.test.assertEquals
 
-@Serializer(forClass = Date::class)
 object DateSerializer : KSerializer<Date> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("java.util.Date", PrimitiveKind.STRING)
 

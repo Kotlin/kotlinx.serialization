@@ -29,8 +29,8 @@ class SerializerByTypeTest {
 
     @Serializable
     data class WithCustomDefault(val n: Int) {
-        @Serializer(forClass = WithCustomDefault::class)
-        companion object {
+
+        companion object: KSerializer<WithCustomDefault> {
             override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("WithCustomDefault", PrimitiveKind.INT)
             override fun serialize(encoder: Encoder, value: WithCustomDefault) = encoder.encodeInt(value.n)
             override fun deserialize(decoder: Decoder) = WithCustomDefault(decoder.decodeInt())

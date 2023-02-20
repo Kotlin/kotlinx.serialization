@@ -16,7 +16,6 @@ class SerializationForNullableTypeOnFileTest {
     @Serializable
     data class Holder(val nullable: Int?, val nonNullable: Int)
 
-    @Serializer(forClass = Int::class)
     object NullableIntSerializer : KSerializer<Int?> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("NullableIntSerializer", PrimitiveKind.INT).nullable
 
@@ -34,7 +33,6 @@ class SerializationForNullableTypeOnFileTest {
         }
     }
 
-    @Serializer(forClass = Int::class)
     object NonNullableIntSerializer : KSerializer<Int> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("NotNullIntSerializer", PrimitiveKind.INT)
 

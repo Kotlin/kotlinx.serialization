@@ -11,11 +11,10 @@ import kotlin.test.*
 
 @Suppress("RemoveExplicitTypeArguments") // This is exactly what's being tested
 class SerializersLookupObjectTest {
-    @Serializable(with = ObjectExternalObjectSerializer::class)
+    @Serializable(with = ObjectCustomObjectSerializer::class)
     object ObjectExternalObject
 
-    @Serializer(forClass = ObjectExternalObject::class)
-    object ObjectExternalObjectSerializer {
+    object ObjectCustomObjectSerializer: KSerializer<ObjectExternalObject> {
         override val descriptor: SerialDescriptor = buildSerialDescriptor("tmp", StructureKind.OBJECT)
 
         override fun serialize(encoder: Encoder, value: ObjectExternalObject) {
@@ -27,11 +26,10 @@ class SerializersLookupObjectTest {
         }
     }
 
-    @Serializable(with = ObjectExternalClassSerializer::class)
+    @Serializable(with = ObjectCustomClassSerializer::class)
     object ObjectExternalClass
 
-    @Serializer(forClass = ObjectExternalClass::class)
-    class ObjectExternalClassSerializer {
+    class ObjectCustomClassSerializer: KSerializer<ObjectExternalClass> {
         override val descriptor: SerialDescriptor = buildSerialDescriptor("tmp", StructureKind.OBJECT)
 
         override fun serialize(encoder: Encoder, value: ObjectExternalClass) {
@@ -56,18 +54,18 @@ class SerializersLookupObjectTest {
 
     @Test
     fun testObjectExternalObject() {
-        assertSame(ObjectExternalObjectSerializer, ObjectExternalObject.serializer())
+        assertSame(ObjectCustomObjectSerializer, ObjectExternalObject.serializer())
         if (!isJsLegacy()) {
-            assertSame(ObjectExternalObjectSerializer, serializer<ObjectExternalObject>())
+            assertSame(ObjectCustomObjectSerializer, serializer<ObjectExternalObject>())
         }
     }
 
     @Test
     fun testObjectExternalClass() {
-        assertIs<ObjectExternalClassSerializer>(ObjectExternalClass.serializer())
+        assertIs<ObjectCustomClassSerializer>(ObjectExternalClass.serializer())
 
         if (!isJsLegacy()) {
-            assertIs<ObjectExternalClassSerializer>(serializer<ObjectExternalClass>())
+            assertIs<ObjectCustomClassSerializer>(serializer<ObjectExternalClass>())
         }
     }
 }

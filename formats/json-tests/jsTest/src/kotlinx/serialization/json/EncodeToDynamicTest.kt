@@ -95,7 +95,6 @@ class EncodeToDynamicTest {
     @Serializable
     data class MyFancyClass(val value: String) {
 
-        @Serializer(forClass = MyFancyClass::class)
         companion object : KSerializer<MyFancyClass> {
 
             override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("MyFancyClass", PrimitiveKind.STRING)
