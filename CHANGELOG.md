@@ -1,3 +1,28 @@
+1.5.0 / 2023-02-27
+==================
+
+This release contains all features and bugfixes from 1.5.0-RC plus some experimental features and bugfixes on its own (see below).
+Kotlin 1.8.10 is used as a default.
+
+### HoconEncoder and HoconDecoder interfaces and HOCON-specific serializers
+
+These interfaces work in a way similar to `JsonEncoder` and `JsonDecoder`: they allow intercepting (de)serialization process,
+making writing if custom HOCON-specific serializers easier. New `ConfigMemorySizeSerializer` and `JavaDurationSerializer` already make use of them.
+See more details in the [PR](https://github.com/Kotlin/kotlinx.serialization/pull/2094).
+Big thanks to [Alexander Mikhailov](https://github.com/alexmihailov) for contributing this!
+
+### Ability to read buffered huge strings in custom Json deserializers
+
+New interface `ChunkedDecoder` allows you to read huge strings that may not fit in memory by chunks.
+Currently, this interface is only implemented by Json decoder that works with strings and streams,
+but we may expand it later, if there's a demand for it.
+See more details in the [PR](https://github.com/Kotlin/kotlinx.serialization/pull/2012) authored by [Alexey Sviridov](https://github.com/fred01).
+
+### Bugfixes
+
+  * Improve runtime exceptions messages (#2180)
+  * Added support for null values for nullable enums in lenient mode (#2176)
+  * Prevent class loaders from leaking when using ClassValue cache (#2175)
 
 1.5.0-RC / 2023-01-25
 ==================
