@@ -11,7 +11,7 @@ import kotlinx.serialization.hocon.*
  * Serializer for [ConfigMemorySize].
  * All possible Hocon size formats [https://github.com/lightbend/config/blob/main/HOCON.md#size-in-bytes-format] are accepted for decoding.
  * During encoding, the serializer emits values using powers of two: byte, KiB, MiB, GiB, TiB, PiB, EiB, ZiB, YiB.
- * Encoding use the largest possible integer value.
+ * Encoding uses the largest possible integer value.
  * Example:
  *  1024 byte -> 1 KiB;
  *  1024 KiB -> 1 MiB;
