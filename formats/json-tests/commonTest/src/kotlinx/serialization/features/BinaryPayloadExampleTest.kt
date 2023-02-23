@@ -14,9 +14,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class BinaryPayloadExampleTest {
-    @Serializable
+    @Serializable(BinaryPayload.Companion::class)
     class BinaryPayload(val req: ByteArray, val res: ByteArray) {
-
         companion object : KSerializer<BinaryPayload> {
             override val descriptor: SerialDescriptor = buildClassSerialDescriptor("BinaryPayload") {
                 element("req", ByteArraySerializer().descriptor)
@@ -73,6 +72,7 @@ class BinaryPayloadExampleTest {
     fun payloadEquivalence() {
         val payload1 = BinaryPayload(byteArrayOf(0, 0, 0), byteArrayOf(127, 127))
         val s = Json.encodeToString(BinaryPayload.serializer(), payload1)
+        assertEquals("""{"req":"000000","res":"7F7F"}""", s)
         val payload2 = Json.decodeFromString(BinaryPayload.serializer(), s)
         assertEquals(payload1, payload2)
     }
