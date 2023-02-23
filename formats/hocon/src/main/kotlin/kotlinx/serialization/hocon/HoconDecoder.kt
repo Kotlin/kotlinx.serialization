@@ -1,11 +1,11 @@
 package kotlinx.serialization.hocon
 
-import com.typesafe.config.ConfigValue
+import com.typesafe.config.Config
 import kotlinx.serialization.ExperimentalSerializationApi
 
 /**
- * Encoder used by Hocon during serialization.
- * This interface allows intercepting serialization process and insertion of arbitrary [ConfigValue] into the output.
+ * Decoder used by Hocon during deserialization.
+ * This interface allows to call methods from the Lightbend/config library on the [Config] object to intercept default deserialization process.
  *
  * Usage example (nested config serialization):
  * ```
@@ -22,22 +22,26 @@ import kotlinx.serialization.ExperimentalSerializationApi
  *         else throw SerializationException("This class can be decoded only by Hocon format")
  *
  *     override fun serialize(encoder: Encoder, value: Config) {
- *         if (encoder is HoconEncoder) encoder.encodeConfigValue(value.root())
+ *         if (encoder is AbstractHoconEncoder) encoder.encodeConfigValue(value.root())
  *         else throw SerializationException("This class can be encoded only by Hocon format")
  *     }
  * }
+ *
  * val nestedConfig = ConfigFactory.parseString("nested { value = \"test\" }")
  * val globalConfig = Hocon.encodeToConfig(Example(nestedConfig)) // d: { nested: { value = "test" } }
  * val newNestedConfig = Hocon.decodeFromConfig(Example.serializer(), globalConfig)
  * ```
  */
 @ExperimentalSerializationApi
-sealed interface HoconEncoder {
+sealed interface HoconDecoder {
 
     /**
-     * Appends the given [ConfigValue] element to the current output.
+     * Decodes the value at the current path from the input.
+     * Allows to call methods on a [Config] instance.
      *
-     * @param value to insert
+     * @param E type of value
+     * @param extractValueAtPath lambda for extracting value, where conf - original config object, path - current path expression being decoded.
+     * @return result of lambda execution
      */
-    fun encodeConfigValue(value: ConfigValue)
+    fun <E> decodeConfigValue(extractValueAtPath: (conf: Config, path: String) -> E): E
 }

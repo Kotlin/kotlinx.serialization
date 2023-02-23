@@ -188,7 +188,7 @@ class HoconDurationTest {
 
     @Test
     fun testThrowsWhenNotTimeUnitHocon() {
-        val message = "Value at d cannot be read as kotlin.Duration because it is not a valid HOCON duration value"
+        val message = "Value at d cannot be read as Duration because it is not a valid HOCON duration value"
         assertFailsWith<SerializationException>(message) {
             deserializeConfig("d = 10 unknown", Simple.serializer())
         }

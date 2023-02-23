@@ -6,17 +6,21 @@ package kotlinx.serialization.hocon
 
 import com.typesafe.config.*
 import kotlinx.serialization.*
+import kotlinx.serialization.modules.*
 import org.junit.*
 import org.junit.Assert.*
 
 internal inline fun <reified T> deserializeConfig(
     configString: String,
     deserializer: DeserializationStrategy<T>,
-    useNamingConvention: Boolean = false
+    useNamingConvention: Boolean = false,
+    modules: SerializersModule = Hocon.serializersModule
 ): T {
     val ucnc = useNamingConvention
-    return Hocon { useConfigNamingConvention = ucnc }
-        .decodeFromConfig(deserializer, ConfigFactory.parseString(configString))
+    return Hocon {
+        useConfigNamingConvention = ucnc
+        serializersModule = modules
+    }.decodeFromConfig(deserializer, ConfigFactory.parseString(configString))
 }
 
 class ConfigParserObjectsTest {
