@@ -32,6 +32,8 @@ afterEvaluate {
         classifier = 'sources'
         if (isMultiplatform) {
             from kotlin.sourceSets.commonMain.kotlin
+        } else if (isBom) {
+            // no-op: sourceSets is [] for BOM, as it does not have sources.
         } else {
             from sourceSets.main.allSource
         }
