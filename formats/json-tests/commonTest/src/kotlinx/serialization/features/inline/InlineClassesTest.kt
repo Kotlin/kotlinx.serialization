@@ -22,8 +22,7 @@ data class SimpleContainerForUInt(val i: UInt)
 @JvmInline
 value class MyUInt(val m: Int)
 
-@Serializer(forClass = MyUInt::class)
-object MyUIntSerializer {
+object MyUIntSerializer: KSerializer<MyUInt> {
     override val descriptor = UInt.serializer().descriptor
     override fun serialize(encoder: Encoder, value: MyUInt) {
         encoder.encodeInline(descriptor).encodeInt(value.m)

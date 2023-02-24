@@ -45,7 +45,6 @@ class EnumSerializationTest : JsonTestBase() {
         TWO
     }
 
-    @Serializer(WithCustom::class)
     private class CustomEnumSerializer : KSerializer<WithCustom> {
         override val descriptor: SerialDescriptor = buildSerialDescriptor("WithCustom", SerialKind.ENUM) {
             element("1", buildSerialDescriptor("WithCustom.1", StructureKind.OBJECT))

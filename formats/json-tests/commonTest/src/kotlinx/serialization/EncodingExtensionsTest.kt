@@ -10,7 +10,6 @@ class EncodingExtensionsTest {
     @Serializable(with = BoxSerializer::class)
     class Box(val i: Int)
 
-    @Serializer(forClass = Box::class)
     object BoxSerializer : KSerializer<Box> {
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Box") {
             element<Int>("i")

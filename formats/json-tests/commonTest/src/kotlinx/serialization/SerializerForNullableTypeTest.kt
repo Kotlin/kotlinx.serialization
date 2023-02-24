@@ -16,7 +16,6 @@ public class SerializerForNullableTypeTest : JsonTestBase() {
     @Serializable(with = StringHolderSerializer::class)
     data class StringHolder(val s: String)
 
-    @Serializer(forClass = StringHolder::class)
     object StringHolderSerializer : KSerializer<StringHolder?> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("SHS", PrimitiveKind.STRING).nullable
 

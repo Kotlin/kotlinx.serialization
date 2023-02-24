@@ -16,8 +16,7 @@ class SerializersLookupEnumTest {
     @Serializable(with = EnumExternalObjectSerializer::class)
     enum class EnumExternalObject
 
-    @Serializer(forClass = EnumExternalObject::class)
-    object EnumExternalObjectSerializer {
+    object EnumExternalObjectSerializer: KSerializer<EnumExternalObject> {
         override val descriptor: SerialDescriptor = buildSerialDescriptor("tmp", SerialKind.ENUM)
 
         override fun serialize(encoder: Encoder, value: EnumExternalObject) {
@@ -29,11 +28,10 @@ class SerializersLookupEnumTest {
         }
     }
 
-    @Serializable(with = EnumExternalClassSerializer::class)
+    @Serializable(with = EnumCustomClassSerializer::class)
     enum class EnumExternalClass
 
-    @Serializer(forClass = EnumExternalClass::class)
-    class EnumExternalClassSerializer {
+    class EnumCustomClassSerializer: KSerializer<EnumExternalClass> {
         override val descriptor: SerialDescriptor = buildSerialDescriptor("tmp", SerialKind.ENUM)
 
         override fun serialize(encoder: Encoder, value: EnumExternalClass) {
@@ -97,7 +95,7 @@ class SerializersLookupEnumTest {
 
     @Test
     fun testEnumExternalClass() {
-        assertIs<EnumExternalClassSerializer>(EnumExternalClass.serializer())
-        assertIs<EnumExternalClassSerializer>(serializer<EnumExternalClass>())
+        assertIs<EnumCustomClassSerializer>(EnumExternalClass.serializer())
+        assertIs<EnumCustomClassSerializer>(serializer<EnumExternalClass>())
     }
 }

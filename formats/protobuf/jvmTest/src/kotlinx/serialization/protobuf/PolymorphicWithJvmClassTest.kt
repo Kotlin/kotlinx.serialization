@@ -17,7 +17,6 @@ class PolymorphicWithJvmClassTest {
     @Serializable
     data class DateWrapper(@ProtoNumber(1) @Polymorphic val date: Date)
 
-    @Serializer(forClass = Date::class)
     object DateSerializer : KSerializer<Date> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("java.util.Date", PrimitiveKind.STRING)
 
