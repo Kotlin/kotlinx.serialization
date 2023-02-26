@@ -814,7 +814,7 @@ fun main() {
 ### Specifying serializer globally using typealias
 
 kotlinx.serialization tends to be the always-explicit framework when it comes to serialization strategies: normally,
-they should be explicitly mentioned in `@Serialiazble` annotation. Therefore, we do not provide any kind of global serializer
+they should be explicitly mentioned in `@Serialiazable` annotation. Therefore, we do not provide any kind of global serializer
 configuration (except for [context serializer](#contextual-serialization) mentioned later).
 
 However, in projects with a large number of files and classes, it may be too cumbersome to specify `@file:UseSerializers`
