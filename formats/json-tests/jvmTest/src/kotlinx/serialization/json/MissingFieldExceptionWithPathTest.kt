@@ -19,12 +19,9 @@ class MissingFieldExceptionWithPathTest {
             Json.decodeFromString<Movie>(inputMalformed)
             fail("Unreacheable state")
         } catch (e: MissingFieldException) {
-            val writer = StringWriter()
-            val pw = PrintWriter(writer)
-            e.printStackTrace(pw)
-            pw.close()
-            val i1 = writer.toString().indexOf("at path")
-            val i2 = writer.toString().lastIndexOf("at path")
+            val fullStackTrace = e.stackTraceToString()
+            val i1 = fullStackTrace.toString().indexOf("at path")
+            val i2 = fullStackTrace.toString().lastIndexOf("at path")
             assertEquals(i1, i2)
             assertTrue(i1 != -1)
         }
