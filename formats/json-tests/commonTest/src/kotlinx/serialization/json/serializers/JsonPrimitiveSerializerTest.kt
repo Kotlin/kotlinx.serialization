@@ -122,20 +122,50 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
         }
     }
 
-    @Test
-    fun testEncodeJsonPrimitiveUnsignedNumbers() {
+    /**
+     * Helper function for [testJsonPrimitiveUnsignedNumbers]
+     *
+     * Asserts that an [unsigned number][actual] can be used to create a [JsonPrimitive][actualPrimitive],
+     * which can be decoded correctly.
+     *
+     * @param expected the expected string value of [actual]
+     * @param actual the unsigned number
+     * @param T should be an unsigned number
+     */
+    private inline fun <reified T> assertUnsignedNumberEncoding(
+        expected: String,
+        actual: T,
+        actualPrimitive: JsonPrimitive,
+    ) {
+        assertEquals(
+            expected,
+            actualPrimitive.toString(),
+            "expect ${T::class.simpleName} $actual can be used to create a JsonPrimitive"
+        )
 
-        val expectedActualUBytes: List<Pair<String, UByte>> = listOf(
+        parametrizedTest { mode ->
+            assertEquals(
+                expected,
+                default.encodeToString(JsonElement.serializer(), actualPrimitive, mode),
+                "expect ${T::class.simpleName} primitive can be decoded",
+            )
+        }
+    }
+
+    @Test
+    fun testJsonPrimitiveUnsignedNumbers() {
+
+        val expectedActualUBytes: Map<String, UByte> = mapOf(
             "0" to 0u,
             "1" to 1u,
             "255" to UByte.MAX_VALUE,
         )
 
         expectedActualUBytes.forEach { (expected, actual) ->
-            assertEquals(expected, JsonPrimitive(actual).toString(), "expect UByte $actual is converted to $expected")
+            assertUnsignedNumberEncoding(expected, actual, JsonPrimitive(actual))
         }
 
-        val expectedActualUShorts: List<Pair<String, UShort>> = listOf(
+        val expectedActualUShorts: Map<String, UShort> = mapOf(
             "0" to 0u,
             "1" to 1u,
             "255" to UByte.MAX_VALUE.toUShort(),
@@ -143,10 +173,10 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
         )
 
         expectedActualUShorts.forEach { (expected, actual) ->
-            assertEquals(expected, JsonPrimitive(actual).toString(), "expect UShort $actual is converted to $expected")
+            assertUnsignedNumberEncoding(expected, actual, JsonPrimitive(actual))
         }
 
-        val expectedActualUInts: List<Pair<String, UInt>> = listOf(
+        val expectedActualUInts: Map<String, UInt> = mapOf(
             "0" to 0u,
             "1" to 1u,
             "255" to UByte.MAX_VALUE.toUInt(),
@@ -155,10 +185,10 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
         )
 
         expectedActualUInts.forEach { (expected, actual) ->
-            assertEquals(expected, JsonPrimitive(actual).toString(), "expect UInt $actual is converted to $expected")
+            assertUnsignedNumberEncoding(expected, actual, JsonPrimitive(actual))
         }
 
-        val expectedActualULongs: List<Pair<String, ULong>> = listOf(
+        val expectedActualULongs: Map<String, ULong> = mapOf(
             "0" to 0u,
             "1" to 1u,
             "255" to UByte.MAX_VALUE.toULong(),
@@ -168,7 +198,7 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
         )
 
         expectedActualULongs.forEach { (expected, actual) ->
-            assertEquals(expected, JsonPrimitive(actual).toString(), "expect ULong $actual is converted to $expected")
+            assertUnsignedNumberEncoding(expected, actual, JsonPrimitive(actual))
         }
     }
 }
