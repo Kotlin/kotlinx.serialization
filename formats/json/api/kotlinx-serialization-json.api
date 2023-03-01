@@ -190,6 +190,10 @@ public final class kotlinx/serialization/json/JsonElementKt {
 	public static final fun JsonPrimitive (Ljava/lang/Number;)Lkotlinx/serialization/json/JsonPrimitive;
 	public static final fun JsonPrimitive (Ljava/lang/String;)Lkotlinx/serialization/json/JsonPrimitive;
 	public static final fun JsonPrimitive (Ljava/lang/Void;)Lkotlinx/serialization/json/JsonNull;
+	public static final fun JsonPrimitive-7apg3OU (B)Lkotlinx/serialization/json/JsonPrimitive;
+	public static final fun JsonPrimitive-VKZWuLQ (J)Lkotlinx/serialization/json/JsonPrimitive;
+	public static final fun JsonPrimitive-WZ4Q5Ns (I)Lkotlinx/serialization/json/JsonPrimitive;
+	public static final fun JsonPrimitive-xj2QHRw (S)Lkotlinx/serialization/json/JsonPrimitive;
 	public static final fun JsonUnquotedLiteral (Ljava/lang/String;)Lkotlinx/serialization/json/JsonPrimitive;
 	public static final fun getBoolean (Lkotlinx/serialization/json/JsonPrimitive;)Z
 	public static final fun getBooleanOrNull (Lkotlinx/serialization/json/JsonPrimitive;)Ljava/lang/Boolean;

@@ -121,4 +121,84 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
             assertEquals(string, jvmExpectedString)
         }
     }
+
+    /**
+     * Helper function for [testJsonPrimitiveUnsignedNumbers]
+     *
+     * Asserts that an [unsigned number][actual] can be used to create a [JsonPrimitive][actualPrimitive],
+     * which can be decoded correctly.
+     *
+     * @param expected the expected string value of [actual]
+     * @param actual the unsigned number
+     * @param T should be an unsigned number
+     */
+    private inline fun <reified T> assertUnsignedNumberEncoding(
+        expected: String,
+        actual: T,
+        actualPrimitive: JsonPrimitive,
+    ) {
+        assertEquals(
+            expected,
+            actualPrimitive.toString(),
+            "expect ${T::class.simpleName} $actual can be used to create a JsonPrimitive"
+        )
+
+        parametrizedTest { mode ->
+            assertEquals(
+                expected,
+                default.encodeToString(JsonElement.serializer(), actualPrimitive, mode),
+                "expect ${T::class.simpleName} primitive can be decoded",
+            )
+        }
+    }
+
+    @Test
+    fun testJsonPrimitiveUnsignedNumbers() {
+
+        val expectedActualUBytes: Map<String, UByte> = mapOf(
+            "0" to 0u,
+            "1" to 1u,
+            "255" to UByte.MAX_VALUE,
+        )
+
+        expectedActualUBytes.forEach { (expected, actual) ->
+            assertUnsignedNumberEncoding(expected, actual, JsonPrimitive(actual))
+        }
+
+        val expectedActualUShorts: Map<String, UShort> = mapOf(
+            "0" to 0u,
+            "1" to 1u,
+            "255" to UByte.MAX_VALUE.toUShort(),
+            "65535" to UShort.MAX_VALUE,
+        )
+
+        expectedActualUShorts.forEach { (expected, actual) ->
+            assertUnsignedNumberEncoding(expected, actual, JsonPrimitive(actual))
+        }
+
+        val expectedActualUInts: Map<String, UInt> = mapOf(
+            "0" to 0u,
+            "1" to 1u,
+            "255" to UByte.MAX_VALUE.toUInt(),
+            "65535" to UShort.MAX_VALUE.toUInt(),
+            "4294967295" to UInt.MAX_VALUE,
+        )
+
+        expectedActualUInts.forEach { (expected, actual) ->
+            assertUnsignedNumberEncoding(expected, actual, JsonPrimitive(actual))
+        }
+
+        val expectedActualULongs: Map<String, ULong> = mapOf(
+            "0" to 0u,
+            "1" to 1u,
+            "255" to UByte.MAX_VALUE.toULong(),
+            "65535" to UShort.MAX_VALUE.toULong(),
+            "4294967295" to UInt.MAX_VALUE.toULong(),
+            "18446744073709551615" to ULong.MAX_VALUE,
+        )
+
+        expectedActualULongs.forEach { (expected, actual) ->
+            assertUnsignedNumberEncoding(expected, actual, JsonPrimitive(actual))
+        }
+    }
 }
