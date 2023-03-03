@@ -20,6 +20,10 @@
           <option name="issueRegexp" value="#(\d+)" />
           <option name="linkRegexp" value="https://github.com/Kotlin/kotlinx.serialization/issues/$1" />
         </IssueNavigationLink>
+        <IssueNavigationLink>
+          <option name="issueRegexp" value="[A-Z]+\-\d+"/>
+          <option name="linkRegexp" value="http://youtrack.jetbrains.com/issue/$0"/>
+        </IssueNavigationLink>
       </list>
     </option>
   </component>
