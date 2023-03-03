@@ -3,6 +3,7 @@
 # IntelliJ files
 **/.idea/*
 !/.idea/vcs.xml
+!/.idea/codeStyles
 out/
 *.iml
 
