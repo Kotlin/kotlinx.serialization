@@ -20,7 +20,20 @@ internal class CharsetReader(
             .onMalformedInput(CodingErrorAction.REPLACE)
             .onUnmappableCharacter(CodingErrorAction.REPLACE)
         byteBuffer = ByteBuffer.wrap(ByteArrayPool8k.take())
-        byteBuffer.flip() // Make empty
+        // An explicit cast is needed here due to an API change in Java 9, see #2218.
+        //
+        // In Java 8 and earlier, the `flip` method was final in `Buffer`, and returned a `Buffer`.
+        // In Java 9 and later, the method was opened, and `ByteFuffer` overrides it, returning a `ByteBuffer`.
+        //
+        // You could observe this by decompiling this call with `javap`:
+        // Compiled with Java 8 it produces `INVOKEVIRTUAL java/nio/ByteBuffer.flip ()Ljava/nio/Buffer;`
+        // Compiled with Java 9+ it produces `INVOKEVIRTUAL java/nio/ByteBuffer.flip ()Ljava/nio/ByteBuffer;`
+        //
+        // This causes a `NoSuchMethodError` when running a class, compiled with a newer Java version, on Java 8.
+        //
+        // To mitigate that, `--bootclasspath` / `--release` options were introduced in `javac`, but there are no
+        // counterparts for these options in `kotlinc`, so an explicit cast is required.
+        (byteBuffer as Buffer).flip() // Make empty
     }
 
     @Suppress("NAME_SHADOWING")
@@ -92,7 +105,7 @@ internal class CharsetReader(
             if (bytesRead < 0) return bytesRead
             byteBuffer.position(position + bytesRead)
         } finally {
-            byteBuffer.flip()
+            (byteBuffer as Buffer).flip() // see the `init` block in this class for the reasoning behind the cast
         }
         return byteBuffer.remaining()
     }
