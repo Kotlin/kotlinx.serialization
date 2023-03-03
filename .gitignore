@@ -4,6 +4,7 @@
 **/.idea/*
 !/.idea/vcs.xml
 !/.idea/codeStyles
+!/.idea/copyright
 out/
 *.iml
 
