@@ -90,6 +90,7 @@ public fun JsonPrimitive(value: UInt): JsonPrimitive = JsonPrimitive(value.toULo
  *
  * The value will be encoded as a JSON number.
  */
+@SuppressAnimalSniffer // Long.toUnsignedString(long)
 @ExperimentalSerializationApi
 public fun JsonPrimitive(value: ULong): JsonPrimitive = JsonUnquotedLiteral(value.toString())
 
