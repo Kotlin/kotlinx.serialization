@@ -121,10 +121,13 @@ kotlin {
             addTarget(presets.iosArm64)
 
             // Tier 3
-            addTarget(presets.androidNativeArm32)
-            addTarget(presets.androidNativeArm64)
-            addTarget(presets.androidNativeX86)
-            addTarget(presets.androidNativeX64)
+            if (doesNotDependOnOkio(project)) {
+                addTarget(presets.androidNativeArm32)
+                addTarget(presets.androidNativeArm64)
+                addTarget(presets.androidNativeX86)
+                addTarget(presets.androidNativeX64)
+            }
+
             addTarget(presets.mingwX64)
             addTarget(presets.watchosDeviceArm64)
 
