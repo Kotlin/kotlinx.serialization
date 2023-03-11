@@ -1,6 +1,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import kotlin.test.*
 
 class JsonElementDecodingTest : JsonTestBase() {
@@ -50,5 +51,23 @@ class JsonElementDecodingTest : JsonTestBase() {
         }
         json = json.replace("%", "0")
         Json.parseToJsonElement(json)
+    }
+
+    @Test
+    fun testExponentDecoding() {
+        @Serializable data class SomeData(val count: Int)
+        @Serializable data class SomeDataDouble(val count: Double)
+
+        val decoded = Json.decodeFromString<SomeData>("""{ "count": 2e3 }""")
+        val negativeDecoded = Json.decodeFromString<SomeData>("""{ "count": -10E1 }""")
+        val decimalTrunked = Json.decodeFromString<SomeData>("""{ "count": -1E-1 }""") //This  is 0.1, gets truncated to 0
+        val doubleDecoded = Json.decodeFromString<SomeDataDouble>("""{ "count": 1.5E1 }""")
+        val negativeDoubleDecoded = Json.decodeFromString<SomeDataDouble>("""{ "count": -1e-1 }""")
+
+        assertEquals(2000, decoded.count)
+        assertEquals(-100, negativeDecoded.count)
+        assertEquals(0, decimalTrunked.count)
+        assertEquals(15.0, doubleDecoded.count)
+        assertEquals(-0.1, negativeDoubleDecoded.count)
     }
 }

@@ -8,6 +8,7 @@ import kotlinx.serialization.json.internal.CharMappings.CHAR_TO_TOKEN
 import kotlinx.serialization.json.internal.CharMappings.ESCAPE_2_CHAR
 import kotlin.js.*
 import kotlin.jvm.*
+import kotlin.math.pow
 
 internal const val lenientHint = "Use 'isLenient = true' in 'Json {}` builder to accept non-compliant JSON."
 internal const val coerceInputValuesHint = "Use 'coerceInputValues = true' in 'Json {}` builder to coerce nulls to default values."
@@ -602,10 +603,30 @@ internal abstract class AbstractJsonLexer {
         }
         var accumulator = 0L
         var isNegative = false
+        var isExponentPositive : Boolean? = null
+        var exponentAccumulator = 0L
         val start = current
         var hasChars = true
         while (hasChars) {
             val ch: Char = source[current]
+            if(ch == 'e' || ch == 'E') {
+                if (current == start) fail("Unexpected symbol $ch in numeric literal")
+                isExponentPositive = true
+                ++current
+                continue
+            }
+            if (ch == '-' && isExponentPositive != null) {
+                if (current == start) fail("Unexpected symbol '-' in numeric literal")
+                isExponentPositive = false
+                ++current
+                continue
+            }
+            if(ch == '+' && isExponentPositive != null) {
+                if (current == start) fail("Unexpected symbol '+' in numeric literal")
+                isExponentPositive = true
+                ++current
+                continue
+            }
             if (ch == '-') {
                 if (current != start) fail("Unexpected symbol '-' in numeric literal")
                 isNegative = true
@@ -618,6 +639,10 @@ internal abstract class AbstractJsonLexer {
             hasChars = current != source.length
             val digit = ch - '0'
             if (digit !in 0..9) fail("Unexpected symbol '$ch' in numeric literal")
+            if (isExponentPositive != null) {
+                exponentAccumulator = exponentAccumulator * 10 + digit
+                continue
+            }
             accumulator = accumulator * 10 - digit
             if (accumulator > 0) fail("Numeric value overflow")
         }
@@ -630,11 +655,19 @@ internal abstract class AbstractJsonLexer {
             ++current
         }
         currentPosition = current
+
+        fun calculateExponent(exponentAccumulator: Long, isExponentPositive: Boolean?): Double = when (isExponentPositive) {
+            false -> 10.0.pow(-exponentAccumulator.toDouble())
+            true -> 10.0.pow(exponentAccumulator.toDouble())
+            else -> 1.0
+        }
         return when {
-            isNegative -> accumulator
-            accumulator != Long.MIN_VALUE -> -accumulator
+            isNegative -> accumulator * calculateExponent(exponentAccumulator, isExponentPositive).toLong()
+            accumulator != Long.MIN_VALUE -> -accumulator * calculateExponent(exponentAccumulator, isExponentPositive).toLong()
             else -> fail("Numeric value overflow")
         }
+
+
     }
 
 
