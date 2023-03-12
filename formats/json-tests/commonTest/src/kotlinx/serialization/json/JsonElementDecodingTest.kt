@@ -66,11 +66,15 @@ class JsonElementDecodingTest : JsonTestBase() {
         val decimalTrunked = Json.decodeFromString<SomeData>("""{ "count": -1E-1 }""") //This  is 0.1, gets truncated to 0
         val doubleDecoded = Json.decodeFromString<SomeDataDouble>("""{ "count": 1.5E1 }""")
         val negativeDoubleDecoded = Json.decodeFromString<SomeDataDouble>("""{ "count": -1e-1 }""")
+        val errorExponent = { Json.decodeFromString<SomeData>("""{ "count": 1e-1e-1 }""") }
+        val errorExponentDouble = { Json.decodeFromString<SomeDataDouble>("""{ "count": 1e-1e-1 }""") }
 
         assertEquals(2000, decoded.count)
         assertEquals(-100, negativeDecoded.count)
         assertEquals(0, decimalTrunked.count)
         assertEquals(15.0, doubleDecoded.count)
         assertEquals(-0.1, negativeDoubleDecoded.count)
+        assertFails { errorExponent() }
+        assertFails { errorExponentDouble() }
     }
 }

@@ -609,7 +609,7 @@ internal abstract class AbstractJsonLexer {
         var hasChars = true
         while (hasChars) {
             val ch: Char = source[current]
-            if(ch == 'e' || ch == 'E') {
+            if((ch == 'e' || ch == 'E') && isExponentPositive == null) {
                 if (current == start) fail("Unexpected symbol $ch in numeric literal")
                 isExponentPositive = true
                 ++current
