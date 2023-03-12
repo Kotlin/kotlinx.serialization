@@ -1,8 +1,8 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class JsonElementDecodingTest : JsonTestBase() {
 
