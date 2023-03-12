@@ -4,6 +4,11 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlin.test.*
 
+@Serializable
+data class SomeData(val count: Int)
+@Serializable
+data class SomeDataDouble(val count: Double)
+
 class JsonElementDecodingTest : JsonTestBase() {
 
     @Serializable
@@ -55,8 +60,6 @@ class JsonElementDecodingTest : JsonTestBase() {
 
     @Test
     fun testExponentDecoding() {
-        @Serializable data class SomeData(val count: Int)
-        @Serializable data class SomeDataDouble(val count: Double)
 
         val decoded = Json.decodeFromString<SomeData>("""{ "count": 2e3 }""")
         val negativeDecoded = Json.decodeFromString<SomeData>("""{ "count": -10E1 }""")
