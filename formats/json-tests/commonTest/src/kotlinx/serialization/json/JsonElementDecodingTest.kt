@@ -60,7 +60,6 @@ class JsonElementDecodingTest : JsonTestBase() {
 
     @Test
     fun testExponentDecoding() {
-
         val decoded = Json.decodeFromString<SomeData>("""{ "count": 2e3 }""")
         val negativeDecoded = Json.decodeFromString<SomeData>("""{ "count": -10E1 }""")
         val decimalTrunked = Json.decodeFromString<SomeData>("""{ "count": -1E-1 }""") //This  is 0.1, gets truncated to 0
