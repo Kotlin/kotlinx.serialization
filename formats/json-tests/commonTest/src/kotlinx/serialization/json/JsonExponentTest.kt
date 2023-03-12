@@ -2,7 +2,6 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.test.assertFailsWithSerial
 import kotlinx.serialization.test.assertFailsWithSerialMessage
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -14,13 +13,13 @@ class JsonExponentTest : JsonTestBase() {
     data class SomeDataDouble(val count: Double)
 
     @Test
-    fun testExponentDecodingPositiveInteger() {
+    fun testExponentDecodingPositive() {
         val decoded = Json.decodeFromString<SomeData>("""{ "count": 23e11 }""")
         assertEquals(2300000000000, decoded.count)
     }
 
     @Test
-    fun testExponentDecodingNegativeInteger() {
+    fun testExponentDecodingNegative() {
         val decoded = Json.decodeFromString<SomeData>("""{ "count": -10E1 }""")
         assertEquals(-100, decoded.count)
     }
@@ -68,13 +67,13 @@ class JsonExponentTest : JsonTestBase() {
     }
 
     @Test
-    fun testExponentOverflowLong() {
+    fun testExponentOverflow() {
         assertFailsWithSerialMessage("JsonDecodingException","Numeric value overflow")
         { Json.decodeFromString<SomeData>("""{ "count": 10000e10000 }""") }
     }
 
     @Test
-    fun testExponentUnderflowLong() {
+    fun testExponentUnderflow() {
         assertFailsWithSerialMessage("JsonDecodingException","Numeric value overflow")
         { Json.decodeFromString<SomeData>("""{ "count": -10000e10000 }""") }
     }
