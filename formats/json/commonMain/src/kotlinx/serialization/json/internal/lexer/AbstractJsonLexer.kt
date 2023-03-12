@@ -602,26 +602,28 @@ internal abstract class AbstractJsonLexer {
             false
         }
         var accumulator = 0L
-        var isNegative = false
-        var isExponentPositive : Boolean? = null
         var exponentAccumulator = 0L
+        var isNegative = false
+        var isExponentPositive = false
+        var hasExponent = false
         val start = current
         var hasChars = true
         while (hasChars) {
             val ch: Char = source[current]
-            if((ch == 'e' || ch == 'E') && isExponentPositive == null) {
+            if((ch == 'e' || ch == 'E') && !hasExponent) {
                 if (current == start) fail("Unexpected symbol $ch in numeric literal")
                 isExponentPositive = true
+                hasExponent = true
                 ++current
                 continue
             }
-            if (ch == '-' && isExponentPositive != null) {
+            if (ch == '-' && hasExponent) {
                 if (current == start) fail("Unexpected symbol '-' in numeric literal")
                 isExponentPositive = false
                 ++current
                 continue
             }
-            if(ch == '+' && isExponentPositive != null) {
+            if(ch == '+' && hasExponent) {
                 if (current == start) fail("Unexpected symbol '+' in numeric literal")
                 isExponentPositive = true
                 ++current
@@ -639,7 +641,7 @@ internal abstract class AbstractJsonLexer {
             hasChars = current != source.length
             val digit = ch - '0'
             if (digit !in 0..9) fail("Unexpected symbol '$ch' in numeric literal")
-            if (isExponentPositive != null) {
+            if (hasExponent) {
                 exponentAccumulator = exponentAccumulator * 10 + digit
                 continue
             }
@@ -656,18 +658,22 @@ internal abstract class AbstractJsonLexer {
         }
         currentPosition = current
 
-        fun calculateExponent(exponentAccumulator: Long, isExponentPositive: Boolean?): Double = when (isExponentPositive) {
+        fun calculateExponent(exponentAccumulator: Long, isExponentPositive: Boolean): Double = when (isExponentPositive) {
             false -> 10.0.pow(-exponentAccumulator.toDouble())
             true -> 10.0.pow(exponentAccumulator.toDouble())
-            else -> 1.0
         }
+
+        if(hasExponent) {
+            val doubleAccumulator  = accumulator.toDouble() * calculateExponent(exponentAccumulator, isExponentPositive)
+            if(doubleAccumulator > Long.MAX_VALUE || doubleAccumulator < Long.MIN_VALUE) fail("Numeric value overflow")
+            accumulator = doubleAccumulator.toLong()
+        }
+
         return when {
-            isNegative -> accumulator * calculateExponent(exponentAccumulator, isExponentPositive).toLong()
-            accumulator != Long.MIN_VALUE -> -accumulator * calculateExponent(exponentAccumulator, isExponentPositive).toLong()
+            isNegative -> accumulator
+            accumulator != Long.MIN_VALUE -> -accumulator
             else -> fail("Numeric value overflow")
         }
-
-
     }
 
 
