@@ -89,7 +89,7 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
             builder.registerPolymorphicSerializer(
                 baseClass,
                 kclass as KClass<Base>,
-                serializer.cast()
+                serializer // useless cast
             )
         }
 

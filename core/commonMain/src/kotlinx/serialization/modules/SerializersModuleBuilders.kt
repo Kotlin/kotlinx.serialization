@@ -46,9 +46,11 @@ public fun EmptySerializersModule(): SerializersModule = @Suppress("DEPRECATION"
 public class SerializersModuleBuilder @PublishedApi internal constructor() : SerializersModuleCollector {
     private val class2ContextualProvider: MutableMap<KClass<*>, ContextualProvider> = hashMapOf()
     private val polyBase2Serializers: MutableMap<KClass<*>, MutableMap<KClass<*>, KSerializer<*>>> = hashMapOf()
-    private val polyBase2DefaultSerializerProvider: MutableMap<KClass<*>, PolymorphicSerializerProvider<*>> = hashMapOf()
+    private val polyBase2DefaultSerializerProvider: MutableMap<KClass<*>, PolymorphicSerializerProvider<*>> =
+        hashMapOf()
     private val polyBase2NamedSerializers: MutableMap<KClass<*>, MutableMap<String, KSerializer<*>>> = hashMapOf()
-    private val polyBase2DefaultDeserializerProvider: MutableMap<KClass<*>, PolymorphicDeserializerProvider<*>> = hashMapOf()
+    private val polyBase2DefaultDeserializerProvider: MutableMap<KClass<*>, PolymorphicDeserializerProvider<*>> =
+        hashMapOf()
 
     /**
      * Adds [serializer] associated with given [kClass] for contextual serialization.
@@ -183,11 +185,13 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
         polyBase2DefaultDeserializerProvider[baseClass] = defaultDeserializerProvider
     }
 
-    @JvmName("registerPolymorphicSerializer") // Don't mangle method name for prettier stack traces
-    internal fun <Base : Any, Sub : Base> registerPolymorphicSerializer(
-        baseClass: KClass<Base>,
-        concreteClass: KClass<Sub>,
-        concreteSerializer: KSerializer<Sub>,
+    /**
+     * Warn: use [registerPolymorphicSerializerSafely] on common platform
+     */
+    internal fun registerPolymorphicSerializer(
+        baseClass: KClass<*>,
+        concreteClass: KClass<*>,
+        concreteSerializer: KSerializer<*>,
         allowOverwrite: Boolean = false
     ) {
         // Check for overwrite
@@ -227,9 +231,25 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
         names[name] = concreteSerializer
     }
 
+    @JvmName("registerPolymorphicSerializerSafely") // Don't mangle method name for prettier stack traces
+    internal fun <Base : Any, Sub : Base> registerPolymorphicSerializerSafely(
+        baseClass: KClass<Base>,
+        concreteClass: KClass<Sub>,
+        concreteSerializer: KSerializer<Sub>,
+        allowOverwrite: Boolean = false
+    ) {
+        registerPolymorphicSerializer(baseClass, concreteClass, concreteSerializer, allowOverwrite)
+    }
+
     @PublishedApi
     internal fun build(): SerializersModule =
-        SerialModuleImpl(class2ContextualProvider, polyBase2Serializers, polyBase2DefaultSerializerProvider, polyBase2NamedSerializers, polyBase2DefaultDeserializerProvider)
+        SerialModuleImpl(
+            class2ContextualProvider,
+            polyBase2Serializers,
+            polyBase2DefaultSerializerProvider,
+            polyBase2NamedSerializers,
+            polyBase2DefaultDeserializerProvider
+        )
 }
 
 /**
