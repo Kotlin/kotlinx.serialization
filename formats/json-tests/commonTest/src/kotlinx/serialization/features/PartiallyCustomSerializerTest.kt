@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@Serializable
+@Serializable(WithNull.Companion::class)
 data class WithNull(@SerialName("value") val nullable: String? = null) {
     @Serializer(forClass = WithNull::class)
     companion object : KSerializer<WithNull> {
