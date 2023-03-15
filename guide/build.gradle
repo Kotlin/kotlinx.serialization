@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 /*
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
@@ -7,6 +9,14 @@ apply plugin: 'kotlinx-serialization'
 
 kotlin {
     jvmToolchain(8)
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        if (rootProject.ext.kotlin_lv_override != null) {
+            languageVersion = rootProject.ext.kotlin_lv_override
+        }
+    }
 }
 
 dependencies {
