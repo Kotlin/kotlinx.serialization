@@ -60,7 +60,7 @@ import kotlin.reflect.*
  * ```
  *
  * @param T A root type for all classes that could be possibly encountered during serialization and deserialization.
- * Must be an interface, abstract or sealed class
+ * Must be non-final class or interface.
  * @param baseClass A class token for [T].
  */
 @OptIn(ExperimentalSerializationApi::class)
