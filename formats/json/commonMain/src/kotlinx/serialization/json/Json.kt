@@ -91,7 +91,7 @@ public sealed class Json(
      * @throws [SerializationException] if the given JSON string is not a valid JSON input for the type [T]
      * @throws [IllegalArgumentException] if the decoded input cannot be represented as a valid instance of type [T]
      */
-    public final override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
+    public final override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, @FormatLanguage("json", "", "") string: String): T {
         val lexer = StringJsonLexer(string)
         val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor, null)
         val result = input.decodeSerializableValue(deserializer)
@@ -122,7 +122,7 @@ public sealed class Json(
      *
      * @throws [SerializationException] if the given string is not a valid JSON
      */
-    public fun parseToJsonElement(string: String): JsonElement {
+    public fun parseToJsonElement(@FormatLanguage("json", "", "") string: String): JsonElement {
         return decodeFromString(JsonElementSerializer, string)
     }
 }
