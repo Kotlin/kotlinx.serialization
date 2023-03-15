@@ -14,6 +14,10 @@ class ModuleBuilderExtensionsKtTest {
         val propertyB: UInt
     }
 
+    interface IC : IB {
+        val propertyC: Double
+    }
+
     @Serializable
     open class GrandGrandParent(
         val grandgrand: String
@@ -33,12 +37,15 @@ class ModuleBuilderExtensionsKtTest {
     }
 
     @Serializable
-    open class Parent : GrandParent {
+    open class Parent : GrandParent, IC {
         val parent: Float
 
         constructor(grandgrand: String, grand: Int, parent: Float) : super(grandgrand, grand) {
             this.parent = parent
         }
+
+        override val propertyC: Double
+            get() = 1.5
 
     }
 
