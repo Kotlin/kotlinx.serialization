@@ -12,6 +12,9 @@ plugins {
 repositories {
     mavenCentral()
     mavenLocal()
+    if (project.hasProperty("kotlin_repo_url")) {
+        maven(project.properties["kotlin_repo_url"] as String)
+    }
 }
 
 val kotlinVersion = run {
@@ -20,9 +23,14 @@ val kotlinVersion = run {
         require(!ver.isNullOrBlank()) {"kotlin_snapshot_version must be present if build_snapshot_train is used" }
         return@run ver
     }
+    if (project.hasProperty("kotlin_repo_url")) {
+        val ver = project.properties["kotlin_version"] as? String
+        require(!ver.isNullOrBlank()) {"kotlin_version must be present if kotlin_repo_url is used" }
+        return@run ver
+    }
     val targetProp = if (project.hasProperty("bootstrap")) "kotlin.version.snapshot" else "kotlin.version"
     FileInputStream(file("../gradle.properties")).use { propFile ->
-        val ver = Properties().apply { load(propFile) }[targetProp]
+        val ver = project.findProperty("kotlin.version")?.toString() ?: Properties().apply { load(propFile) }[targetProp]
         require(ver is String) { "$targetProp must be string in ../gradle.properties, got $ver instead" }
         ver
     }
