@@ -235,6 +235,15 @@ public final class kotlinx/serialization/json/JsonEncoder$DefaultImpls {
 	public static fun shouldEncodeElementDefault (Lkotlinx/serialization/json/JsonEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
 }
 
+public abstract interface annotation class kotlinx/serialization/json/JsonIgnoreProperties : java/lang/annotation/Annotation {
+	public abstract fun keys ()[Ljava/lang/String;
+}
+
+public final class kotlinx/serialization/json/JsonIgnoreProperties$Impl : kotlinx/serialization/json/JsonIgnoreProperties {
+	public fun <init> ([Ljava/lang/String;)V
+	public final synthetic fun keys ()[Ljava/lang/String;
+}
+
 public final class kotlinx/serialization/json/JsonKt {
 	public static final fun Json (Lkotlinx/serialization/json/Json;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/Json;
 	public static synthetic fun Json$default (Lkotlinx/serialization/json/Json;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/json/Json;

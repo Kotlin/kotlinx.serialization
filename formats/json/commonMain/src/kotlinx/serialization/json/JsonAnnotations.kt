@@ -74,3 +74,34 @@ public annotation class JsonNames(vararg val names: String)
 @Target(AnnotationTarget.CLASS)
 @ExperimentalSerializationApi
 public annotation class JsonClassDiscriminator(val discriminator: String)
+
+/**
+ * Indicates that the class has fields that should be ignored upon deserializing
+ * [Json] format recognizes this annotation and is able to skip the given fields listed
+ *
+ * Example:
+ * ```
+ * @Serializable
+ * @JsonIgnoreProperties("ignored_key", "other_key")
+ * data class SomeClass(val key: String)
+ *
+ * val someClass = Json.decodeFromString<SomeClass>("""{"key":"some value"}""")
+ * println(someClass) // OK
+ * val otherClass = Json.decodeFromString<SomeClass>("""{"key":"some value","ignored_key":"ignored value"}""")
+ * println(otherClass) // OK
+ *
+ * @Serializable
+ * @JsonIgnoreProperties("ignored_key")
+ * abstract class BaseMessage
+ *
+ * @Serializable
+ * data class Message(val message: String) : BaseMessage
+ *
+ * val message = Json.decodeFromString<Message>("""{"message":"some value","ignored_key":"ignored value"}""")
+ * println(message) // OK
+ * ```
+ */
+@InheritableSerialInfo
+@Target(AnnotationTarget.CLASS)
+@ExperimentalSerializationApi
+public annotation class JsonIgnoreProperties(vararg val keys: String)

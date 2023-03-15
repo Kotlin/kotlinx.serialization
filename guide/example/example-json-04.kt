@@ -5,11 +5,23 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 @Serializable
-data class Project(@JsonNames("title") val name: String)
+@JsonIgnoreProperties("language", "description")
+abstract class BaseProject
+
+data class ConcreteProject(val name: String) : BaseProject
+
+@Serializable
+@JsonIgnoreProperties("language", "description")
+data class Project(val name: String)
 
 fun main() {
-  val project = Json.decodeFromString<Project>("""{"name":"kotlinx.serialization"}""")
-  println(project)
-  val oldProject = Json.decodeFromString<Project>("""{"title":"kotlinx.coroutines"}""")
-  println(oldProject)
+    val data = format.decodeFromString<ConcreteProject>("""
+        {"name":"kotlinx.serialization","language":"Kotlin"}
+    """)
+    println(data)
+
+  val data = format.decodeFromString<Project>("""
+        {"name":"kotlinx.serialization","language":"Kotlin"}
+    """)
+  println(data)
 }

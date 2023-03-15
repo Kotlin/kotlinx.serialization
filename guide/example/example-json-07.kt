@@ -4,20 +4,16 @@ package example.exampleJson07
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-val format = Json { explicitNulls = false }
+val format = Json { encodeDefaults = true }
 
 @Serializable
-data class Project(
+class Project(
     val name: String,
-    val language: String,
-    val version: String? = "1.2.2",
-    val website: String?,
-    val description: String? = null
+    val language: String = "Kotlin",
+    val website: String? = null
 )
 
 fun main() {
-    val data = Project("kotlinx.serialization", "Kotlin", null, null, null)
-    val json = format.encodeToString(data)
-    println(json)
-    println(format.decodeFromString<Project>(json))
+    val data = Project("kotlinx.serialization")
+    println(format.encodeToString(data))
 }

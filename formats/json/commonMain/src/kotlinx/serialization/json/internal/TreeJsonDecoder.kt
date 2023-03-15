@@ -272,7 +272,10 @@ private open class JsonTreeDecoder(
         }
 
         for (key in value.keys) {
-            if (key !in names && key != polyDiscriminator) {
+            val shouldIgnore = descriptor.annotations.filterIsInstance<JsonIgnoreProperties>()
+                .any { annotation -> annotation.keys.contains(key) }
+
+            if (!shouldIgnore && key !in names && key != polyDiscriminator) {
                 throw UnknownKeyException(key, value.toString())
             }
         }

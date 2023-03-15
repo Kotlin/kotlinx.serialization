@@ -237,7 +237,7 @@ internal open class StreamingJsonDecoder(
             }
 
             if (isUnknown) { // slow-path for unknown keys handling
-                hasComma = handleUnknown(key)
+                hasComma = handleUnknown(descriptor, key)
             }
         }
         if (hasComma) lexer.fail("Unexpected trailing comma")
@@ -245,8 +245,11 @@ internal open class StreamingJsonDecoder(
         return elementMarker?.nextUnmarkedIndex() ?: CompositeDecoder.DECODE_DONE
     }
 
-    private fun handleUnknown(key: String): Boolean {
-        if (configuration.ignoreUnknownKeys || discriminatorHolder.trySkip(key)) {
+    private fun handleUnknown(descriptor: SerialDescriptor, key: String): Boolean {
+        val shouldIgnore = descriptor.annotations.filterIsInstance<JsonIgnoreProperties>()
+            .any { annotation -> annotation.keys.contains(key) }
+
+        if (configuration.ignoreUnknownKeys || shouldIgnore || discriminatorHolder.trySkip(key)) {
             lexer.skipElement(configuration.isLenient)
         } else {
             // Here we cannot properly update json path indices

@@ -13,6 +13,7 @@ In this chapter, we'll walk through features of [JSON](https://www.json.org/json
   * [Pretty printing](#pretty-printing)
   * [Lenient parsing](#lenient-parsing)
   * [Ignoring unknown keys](#ignoring-unknown-keys)
+    * [Ignoring specific keys](#ignoring-specific-keys)
   * [Alternative Json names](#alternative-json-names)
   * [Coercing input values](#coercing-input-values)
   * [Encoding defaults](#encoding-defaults)
@@ -157,6 +158,49 @@ Project(name=kotlinx.serialization)
 
 <!--- TEST -->
 
+#### Ignoring specific keys
+
+To ignore specific properties from deserializing you can use the `@JsonIgnoreProperties` annotation.
+It's possible to use the `@JsonIgnoreProperties` annotation both on concrete and abstract. 
+Ignored properties are being inherited when the annotation is added to an abstract class.
+Ignoring multiple properties is possible by supplying multiple property names.
+If ignored keys are missing during deserialization they won't produce an error:
+
+```kotlin
+@Serializable
+@JsonIgnoreProperties("language", "description")
+abstract class BaseProject
+
+data class ConcreteProject(val name: String) : BaseProject
+
+@Serializable
+@JsonIgnoreProperties("language", "description")
+data class Project(val name: String)
+
+fun main() {
+    val data = format.decodeFromString<ConcreteProject>("""
+        {"name":"kotlinx.serialization","language":"Kotlin"}
+    """)
+    println(data)
+
+  val data = format.decodeFromString<Project>("""
+        {"name":"kotlinx.serialization","language":"Kotlin"}
+    """)
+  println(data)
+}
+```
+
+> You can get the full code [here](../guide/example/example-json-04.kt).
+
+It decodes the objects despite the fact that the `ConcreteProject` and the `Project` classes doesn't have the `language` property:
+
+```text
+ConcreteProject(name=kotlinx.serialization)
+Project(name=kotlinx.serialization)
+```
+
+<!--- TEST -->
+
 ### Alternative Json names
 
 It's not a rare case when JSON fields are renamed due to a schema version change.
@@ -176,7 +220,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-04.kt).
+> You can get the full code [here](../guide/example/example-json-05.kt).
 
 As you can see, both `name` and `title` Json fields correspond to `name` property:
 
@@ -225,7 +269,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-05.kt).
+> You can get the full code [here](../guide/example/example-json-06.kt).
 
 The invalid `null` value for the `language` property was coerced into the default value:
 
@@ -259,7 +303,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-06.kt).
+> You can get the full code [here](../guide/example/example-json-07.kt).
 
 It produces the following output which encodes all the property values including the default ones:
 
@@ -298,7 +342,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-07.kt).
+> You can get the full code [here](../guide/example/example-json-08.kt).
 
 As you can see, `version`, `website` and `description` fields are not present in output JSON on the first line.
 After decoding, the missing nullable property `website` without a default values has received a `null` value,
@@ -337,7 +381,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-08.kt).
+> You can get the full code [here](../guide/example/example-json-09.kt).
 
 The map with structured keys gets represented as JSON array with the following items: `[key1, value1, key2, value2,...]`.
 
@@ -368,7 +412,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-09.kt).
+> You can get the full code [here](../guide/example/example-json-10.kt).
 
 This example produces the following non-stardard JSON output, yet it is a widely used encoding for
 special values in JVM world:
@@ -402,7 +446,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-10.kt).
+> You can get the full code [here](../guide/example/example-json-11.kt).
 
 In combination with an explicitly specified [SerialName] of the class it provides full
 control over the resulting JSON object:
@@ -458,7 +502,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-11.kt).
+> You can get the full code [here](../guide/example/example-json-12.kt).
 
 As you can see, discriminator from the `Base` class is used:
 
@@ -493,7 +537,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-12.kt).
+> You can get the full code [here](../guide/example/example-json-13.kt).
 
 A `JsonElement` prints itself as a valid JSON:
 
@@ -536,7 +580,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-13.kt).
+> You can get the full code [here](../guide/example/example-json-14.kt).
 
 The above example sums `votes` in all objects in the `forks` array, ignoring the objects that have no `votes`:
 
@@ -576,7 +620,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-14.kt).
+> You can get the full code [here](../guide/example/example-json-15.kt).
 
 As a result, you get a proper JSON string:
 
@@ -605,7 +649,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-15.kt).
+> You can get the full code [here](../guide/example/example-json-16.kt).
 
 The result is exactly what you would expect:
 
@@ -651,7 +695,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-16.kt).
+> You can get the full code [here](../guide/example/example-json-17.kt).
 
 Even though `pi` was defined as a number with 30 decimal places, the resulting JSON does not reflect this. 
 The [Double] value is truncated to 15 decimal places, and the String is wrapped in quotes - which is not a JSON number.
@@ -691,7 +735,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-17.kt).
+> You can get the full code [here](../guide/example/example-json-18.kt).
 
 `pi_literal` now accurately matches the value defined.
 
@@ -731,7 +775,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-18.kt).
+> You can get the full code [here](../guide/example/example-json-19.kt).
 
 The exact value of `pi` is decoded, with all 30 decimal places of precision that were in the source JSON.
 
@@ -753,7 +797,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-19.kt).
+> You can get the full code [here](../guide/example/example-json-20.kt).
 
 ```text
 Exception in thread "main" kotlinx.serialization.json.internal.JsonEncodingException: Creating a literal unquoted value of 'null' is forbidden. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive
@@ -829,7 +873,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-20.kt).
+> You can get the full code [here](../guide/example/example-json-21.kt).
 
 The output shows that both cases are correctly deserialized into a Kotlin [List].
 
@@ -881,7 +925,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-21.kt).
+> You can get the full code [here](../guide/example/example-json-22.kt).
 
 You end up with a single JSON object, not an array with one element:
 
@@ -926,7 +970,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-22.kt).
+> You can get the full code [here](../guide/example/example-json-23.kt).
 
 See the effect of the custom serializer:
 
@@ -999,7 +1043,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-23.kt).
+> You can get the full code [here](../guide/example/example-json-24.kt).
 
 No class discriminator is added in the JSON output:
 
@@ -1095,7 +1139,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-24.kt).
+> You can get the full code [here](../guide/example/example-json-25.kt).
 
 This gives you fine-grained control on the representation of the `Response` class in the JSON output:
 
@@ -1160,7 +1204,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-25.kt).
+> You can get the full code [here](../guide/example/example-json-26.kt).
 
 ```text
 UnknownProject(name=example, details={"type":"unknown","maintainer":"Unknown","license":"Apache 2.0"})
