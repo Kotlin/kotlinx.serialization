@@ -43,16 +43,4 @@ public fun SerializersModuleBuilder.polymorphicAllSuperClasses(
     }
 }
 
-/**
- * Accept [actualClass], associated with it and its superClasses for polymorphic serialization.
- * Recursively do same thing on all super classes of [actualClass]
- */
-@ExperimentalSerializationApi
-public fun SerializersModuleBuilder.polymorphicSuperRecursive(actualClass: KClass<*>) {
-    actualClass.allSuperclasses.forEach { superClass ->
-        polymorphicUnsafely(superClass, actualClass, actualClass.serializer(), true)
-        if (!superClass.isOpen && !superClass.isAbstract && !superClass.isSealed)
-            polymorphicSuperRecursive(superClass)
-    }
-}
 
