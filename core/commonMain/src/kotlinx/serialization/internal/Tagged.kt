@@ -51,7 +51,7 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
     protected open fun encodeTaggedInline(tag: Tag, inlineDescriptor: SerialDescriptor): Encoder =
         this.apply { pushTag(tag) }
 
-    final override fun encodeInline(descriptor: SerialDescriptor): Encoder =
+    override fun encodeInline(descriptor: SerialDescriptor): Encoder =
         encodeTaggedInline(popTag(), descriptor)
 
     // ---- Implementation of low-level API ----
@@ -209,7 +209,7 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
 
     // ---- Implementation of low-level API ----
 
-    final override fun decodeInline(descriptor: SerialDescriptor): Decoder =
+    override fun decodeInline(descriptor: SerialDescriptor): Decoder =
         decodeTaggedInline(popTag(), descriptor)
 
     // TODO this method should be overridden by any sane format that supports top-level nulls

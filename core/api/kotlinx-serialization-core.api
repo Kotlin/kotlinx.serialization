@@ -1067,7 +1067,7 @@ public abstract class kotlinx/serialization/internal/TaggedDecoder : kotlinx/ser
 	public final fun decodeEnum (Lkotlinx/serialization/descriptors/SerialDescriptor;)I
 	public final fun decodeFloat ()F
 	public final fun decodeFloatElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)F
-	public final fun decodeInline (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/Decoder;
+	public fun decodeInline (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/Decoder;
 	public final fun decodeInlineElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Lkotlinx/serialization/encoding/Decoder;
 	public final fun decodeInt ()I
 	public final fun decodeIntElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)I
@@ -1123,7 +1123,7 @@ public abstract class kotlinx/serialization/internal/TaggedEncoder : kotlinx/ser
 	public final fun encodeEnum (Lkotlinx/serialization/descriptors/SerialDescriptor;I)V
 	public final fun encodeFloat (F)V
 	public final fun encodeFloatElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IF)V
-	public final fun encodeInline (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/Encoder;
+	public fun encodeInline (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/Encoder;
 	public final fun encodeInlineElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Lkotlinx/serialization/encoding/Encoder;
 	public final fun encodeInt (I)V
 	public final fun encodeIntElement (Lkotlinx/serialization/descriptors/SerialDescriptor;II)V
