@@ -11,34 +11,34 @@ import kotlinx.serialization.json.internal.JsonWriter
 import kotlinx.serialization.json.internal.SerialReader
 import okio.*
 
-internal class JsonToOkioStreamWriter(private val target: BufferedSink) : JsonWriter {
+internal class JsonToOkioStreamWriter(private val sink: BufferedSink) : JsonWriter {
     override fun writeLong(value: Long) {
         write(value.toString())
     }
 
     override fun writeChar(char: Char) {
-        target.writeUtf8CodePoint(char.code)
+        sink.writeUtf8CodePoint(char.code)
     }
 
     override fun write(text: String) {
-        target.writeUtf8(text)
+        sink.writeUtf8(text)
     }
 
     override fun writeQuoted(text: String) {
-        target.writeUtf8CodePoint('"'.code)
+        sink.writeUtf8CodePoint('"'.code)
         var lastPos = 0
         for (i in text.indices) {
             val c = text[i].code
             if (c < ESCAPE_STRINGS.size && ESCAPE_STRINGS[c] != null) {
-                target.writeUtf8(text, lastPos, i) // flush prev
-                target.writeUtf8(ESCAPE_STRINGS[c]!!)
+                sink.writeUtf8(text, lastPos, i) // flush prev
+                sink.writeUtf8(ESCAPE_STRINGS[c]!!)
                 lastPos = i + 1
             }
         }
 
-        if (lastPos != 0) target.writeUtf8(text, lastPos, text.length)
-        else target.writeUtf8(text)
-        target.writeUtf8CodePoint('"'.code)
+        if (lastPos != 0) sink.writeUtf8(text, lastPos, text.length)
+        else sink.writeUtf8(text)
+        sink.writeUtf8CodePoint('"'.code)
     }
 
     override fun release() {
