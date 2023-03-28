@@ -29,6 +29,10 @@ kotlin {
         }
     }
 
+    wasm {
+        d8 { }
+    }
+
     sourceSets.all {
         kotlin.srcDirs = ["$it.name/src"]
         resources.srcDirs = ["$it.name/resources"]
@@ -76,6 +80,18 @@ kotlin {
         jsTest {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-test-js'
+            }
+        }
+
+        wasmMain {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-stdlib-wasm'
+            }
+        }
+
+        wasmTest {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-test-wasm'
             }
         }
 
