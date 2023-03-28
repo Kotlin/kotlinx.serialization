@@ -41,6 +41,9 @@ kotlin {
             }
         }
     }
+    wasm {
+        d8()
+    }
     jvm {
         withJava()
     }
@@ -93,6 +96,17 @@ kotlin {
         jsTest {
             dependencies {
                 implementation kotlin('test-js')
+            }
+        }
+        wasmMain {
+            dependencies {
+                implementation kotlin('stdlib-wasm')
+
+            }
+        }
+        wasmTest {
+            dependencies {
+                implementation kotlin('test-wasm')
             }
         }
         macosMain {
