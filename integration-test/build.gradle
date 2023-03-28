@@ -7,7 +7,7 @@ buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
-        maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
+        maven { url "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap" }
     }
 }
 
@@ -21,7 +21,7 @@ plugins {
 repositories {
     mavenLocal()
     mavenCentral()
-    maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
+    maven { url "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap" }
 }
 
 group 'com.example'

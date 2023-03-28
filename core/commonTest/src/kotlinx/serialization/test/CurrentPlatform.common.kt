@@ -5,7 +5,7 @@
 package kotlinx.serialization.test
 
 enum class Platform {
-    JVM, JS_LEGACY, JS_IR, NATIVE
+    JVM, JS_LEGACY, JS_IR, NATIVE, WASM
 }
 
 public expect val currentPlatform: Platform
@@ -15,3 +15,4 @@ public fun isJsLegacy(): Boolean = currentPlatform == Platform.JS_LEGACY
 public fun isJsIr(): Boolean = currentPlatform == Platform.JS_IR
 public fun isJvm(): Boolean = currentPlatform == Platform.JVM
 public fun isNative(): Boolean = currentPlatform == Platform.NATIVE
+public fun isWasm(): Boolean = currentPlatform == Platform.WASM
