@@ -134,7 +134,12 @@ private open class DynamicInput(
     override fun decodeTaggedChar(tag: String): Char {
         return when (val value = getByTag(tag)) {
             is String -> if (value.length == 1) value[0] else throw SerializationException("$value can't be represented as Char")
-            is Number -> value.toChar()
+            is Number -> {
+                val num = value as? Double ?: throw SerializationException("$value is not a Number")
+                val codePoint = toJavascriptLong(num)
+                if (codePoint < 0 || codePoint > Char.MAX_VALUE.code) throw SerializationException("$value can't be represented as Char because it's not in bounds of Char.MIN_VALUE..Char.MAX_VALUE")
+                codePoint.toInt().toChar()
+            }
             else -> throw SerializationException("$value can't be represented as Char")
         }
     }
