@@ -6,13 +6,13 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
-import kotlinx.serialization.json.okio.decodeFromBufferedSource
-import kotlinx.serialization.json.okio.encodeToBufferedSink
+//import kotlinx.serialization.json.okio.decodeFromBufferedSource
+//import kotlinx.serialization.json.okio.encodeToBufferedSink
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.test.*
 import kotlin.test.assertEquals
-import okio.*
+//import okio.*
 import kotlin.test.assertTrue
 
 
@@ -53,9 +53,10 @@ abstract class JsonTestBase {
                 encodeToString(tree)
             }
             JsonTestingMode.OKIO_STREAMS -> {
-                val buffer = Buffer()
-                encodeToBufferedSink(serializer, value, buffer)
-                buffer.readUtf8()
+                TODO("Not supported for wasm")
+//                val buffer = Buffer()
+//                encodeToBufferedSink(serializer, value, buffer)
+//                buffer.readUtf8()
             }
         }
 
@@ -81,9 +82,10 @@ abstract class JsonTestBase {
                 readJson(tree, deserializer)
             }
             JsonTestingMode.OKIO_STREAMS -> {
-                val buffer = Buffer()
-                buffer.writeUtf8(source)
-                decodeFromBufferedSource(deserializer, buffer)
+                TODO("Not supported for wasm")
+//                val buffer = Buffer()
+//                buffer.writeUtf8(source)
+//                decodeFromBufferedSource(deserializer, buffer)
             }
         }
 
@@ -91,7 +93,7 @@ abstract class JsonTestBase {
         processResults(buildList {
             add(runCatching { test(JsonTestingMode.STREAMING) })
             add(runCatching { test(JsonTestingMode.TREE) })
-            add(runCatching { test(JsonTestingMode.OKIO_STREAMS) })
+            //add(runCatching { test(JsonTestingMode.OKIO_STREAMS) })
 
             if (isJvm()) {
                 add(runCatching { test(JsonTestingMode.JAVA_STREAMS) })
@@ -116,8 +118,8 @@ abstract class JsonTestBase {
     protected fun parametrizedTest(json: Json, test: StringFormat.() -> Unit) {
         val streamingResult = runCatching { SwitchableJson(json, JsonTestingMode.STREAMING).test() }
         val treeResult = runCatching { SwitchableJson(json, JsonTestingMode.TREE).test() }
-        val okioResult = runCatching { SwitchableJson(json, JsonTestingMode.OKIO_STREAMS).test() }
-        processResults(listOf(streamingResult, treeResult, okioResult))
+        //val okioResult = runCatching { SwitchableJson(json, JsonTestingMode.OKIO_STREAMS).test() }
+        processResults(listOf(streamingResult, treeResult/*, okioResult*/))
     }
 
     protected fun processResults(results: List<Result<*>>) {

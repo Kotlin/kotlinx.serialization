@@ -57,7 +57,7 @@ open class JsonChunkedStringDecoderTest : JsonTestBase() {
         seralizer: Json, serializedObject: String, sourceObject: ClassWithLargeStringDataField
     ) {
         /* Filter out Java Streams mode in common tests. Java streams tested separately in java tests */
-        JsonTestingMode.values().filterNot { it == JsonTestingMode.JAVA_STREAMS }.forEach { mode ->
+        JsonTestingMode.values().filterNot { it == JsonTestingMode.JAVA_STREAMS || it == JsonTestingMode.OKIO_STREAMS }.forEach { mode ->
             if (mode == JsonTestingMode.TREE) {
                 assertFailsWithMessage<IllegalArgumentException>(
                     "Only chunked decoder supported", "Shouldn't decode JSON in TREE mode"

@@ -69,7 +69,7 @@ class JsonChunkedBase64DecoderTest : JsonTestBase() {
             ClassWithBinaryDataField(LargeBinaryData(Random.nextBytes(16 * 1024))) // After encoding to Base64 will be larger than 16k (JsonLexer#BATCH_SIZE)
         val serializedObject = Json.encodeToString(sourceObject)
 
-        JsonTestingMode.values().forEach { mode ->
+        JsonTestingMode.values().filter { it != JsonTestingMode.OKIO_STREAMS }.forEach { mode ->
             if (mode == JsonTestingMode.TREE) {
                 assertFailsWithMessage<IllegalArgumentException>(
                     "Only chunked decoder supported", "Shouldn't decode JSON in TREE mode"

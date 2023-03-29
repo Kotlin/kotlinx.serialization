@@ -36,8 +36,8 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 api(project(":kotlinx-serialization-json"))
-                api(project(":kotlinx-serialization-json-okio"))
-                implementation("com.squareup.okio:okio:${property("okio_version")}")
+                //api(project(":kotlinx-serialization-json-okio"))
+                //implementation("com.squareup.okio:okio:${property("okio_version")}")
             }
         }
 
