@@ -13,8 +13,8 @@ project(':kotlinx-serialization-bom').projectDir = file('./bom')
 include ':kotlinx-serialization-json'
 project(':kotlinx-serialization-json').projectDir = file('./formats/json')
 
-include ':kotlinx-serialization-json-okio'
-project(':kotlinx-serialization-json-okio').projectDir = file('./formats/json-okio')
+//include ':kotlinx-serialization-json-okio'
+//project(':kotlinx-serialization-json-okio').projectDir = file('./formats/json-okio')
 
 include ':kotlinx-serialization-json-tests'
 project(':kotlinx-serialization-json-tests').projectDir = file('./formats/json-tests')
@@ -31,8 +31,8 @@ project(':kotlinx-serialization-hocon').projectDir = file('./formats/hocon')
 include ':kotlinx-serialization-properties'
 project(':kotlinx-serialization-properties').projectDir = file('./formats/properties')
 
-include ':benchmark'
-project(':benchmark').projectDir = file('./benchmark')
+//include ':benchmark'
+//project(':benchmark').projectDir = file('./benchmark')
 
 include ':guide'
 project(':guide').projectDir = file('./guide')
