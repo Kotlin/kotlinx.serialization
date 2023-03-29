@@ -88,7 +88,7 @@ apply plugin: 'base'
 apply plugin: 'kotlinx-knit'
 
 apiValidation {
-    ignoredProjects += ["benchmark", "guide", "kotlinx-serialization"]
+    ignoredProjects += [/*"benchmark",*/ "guide", "kotlinx-serialization"]
 }
 
 knit {
@@ -146,9 +146,9 @@ allprojects {
     }
 }
 
-def unpublishedProjects = ["benchmark", "guide", "kotlinx-serialization-json-tests"] as Set
+def unpublishedProjects = [/*"benchmark",*/ "guide", "kotlinx-serialization-json-tests"] as Set
 def excludedFromBomProjects = unpublishedProjects + "kotlinx-serialization-bom" as Set
-def uncoveredProjects = ["kotlinx-serialization-bom", "benchmark", "guide"] as Set
+def uncoveredProjects = ["kotlinx-serialization-bom", /*"benchmark",*/ "guide"] as Set
 
 subprojects {
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile).all { task ->
