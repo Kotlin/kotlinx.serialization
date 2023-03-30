@@ -30,3 +30,7 @@ dependencies {
 }
 
 Java9Modularity.configureJava9ModuleInfo(project)
+
+tasks.named("apiBuild") {
+    it.enabled = false
+}

@@ -48,3 +48,7 @@ compileTestKotlinJvm {
 }
 
 Java9Modularity.configureJava9ModuleInfo(project)
+
+tasks.named("jvmApiBuild") {
+    it.enabled = false
+}
