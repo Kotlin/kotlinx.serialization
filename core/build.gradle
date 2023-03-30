@@ -72,3 +72,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile.class).configu
         }
     }
 }
+
+tasks.named("jvmApiBuild") {
+    it.enabled = false
+}
