@@ -134,7 +134,7 @@ private open class DynamicInput(
     override fun decodeTaggedChar(tag: String): Char {
         return when (val value = getByTag(tag)) {
             is String -> if (value.length == 1) value[0] else throw SerializationException("$value can't be represented as Char")
-            is Number -> value.toChar()
+            is Number -> value.toInt().toChar()
             else -> throw SerializationException("$value can't be represented as Char")
         }
     }
