@@ -161,7 +161,7 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
                 }
 
                 c < 0x800 -> {
-                    // Emit a 11-bit character with 2 bytes.
+                    // Emit an 11-bit character with 2 bytes.
                     ensure(2)
                     write(c shr 6 or 0xc0) // 110xxxxx
                     write(c and 0x3f or 0x80) // 10xxxxxx
@@ -217,7 +217,7 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : JsonWr
             }
 
             codePoint < 0x800 -> {
-                // Emit a 11-bit code point with 2 bytes.
+                // Emit an 11-bit code point with 2 bytes.
                 ensure(2)
                 write(codePoint shr 6 or 0xc0) // 110xxxxx
                 write(codePoint and 0x3f or 0x80) // 10xxxxxx

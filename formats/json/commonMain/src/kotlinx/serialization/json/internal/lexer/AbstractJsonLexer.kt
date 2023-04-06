@@ -665,7 +665,7 @@ internal abstract class AbstractJsonLexer {
     private fun consumeBoolean(start: Int): Boolean {
         /*
          * In ASCII representation, upper and lower case letters are different
-         * in 6-th bit and we leverage this fact, our implementation consumes boolean literals
+         * in 6-th bit, and we leverage this fact, our implementation consumes boolean literals
          * in a case-insensitive manner.
          */
         var current = prefetchOrEof(start)

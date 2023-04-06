@@ -43,7 +43,7 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
      *
      * Typically, if the class is not registered in advance, it is not possible to know the structure of the unknown
      * type and have a precise serializer, so the default serializer has limited capabilities.
-     * If you're using `Json` format, you can get a structural access to the unknown data using `JsonContentPolymorphicSerializer`.
+     * If you're using `Json` format, you can get structural access to the unknown data using `JsonContentPolymorphicSerializer`.
      *
      * @see SerializersModuleBuilder.polymorphicDefaultSerializer
      */
@@ -67,7 +67,7 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
      *
      * Typically, if the class is not registered in advance, it is not possible to know the structure of the unknown
      * type and have a precise serializer, so the default serializer has limited capabilities.
-     * If you're using `Json` format, you can get a structural access to the unknown data using `JsonContentPolymorphicSerializer`.
+     * If you're using `Json` format, you can get structural access to the unknown data using `JsonContentPolymorphicSerializer`.
      *
      * @see defaultDeserializer
      * @see SerializersModuleBuilder.polymorphicDefaultSerializer

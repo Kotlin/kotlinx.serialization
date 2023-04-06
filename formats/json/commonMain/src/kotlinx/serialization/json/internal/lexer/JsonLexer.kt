@@ -61,7 +61,7 @@ internal class ReaderJsonLexer(
             current = prefetchOrEof(current)
             if (current == -1) break // could be inline function but KT-1436
             val c = source[current]
-            // Inlined skipWhitespaces without field spill and nested loop. Also faster then char2TokenClass
+            // Inlined skipWhitespaces without field spill and nested loop. Also, faster then char2TokenClass
             if (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
                 ++current
                 continue
@@ -133,7 +133,7 @@ internal class ReaderJsonLexer(
 
     override fun consumeKeyString(): String {
         /*
-         * For strings we assume that escaped symbols are rather an exception, so firstly
+         * For strings, we assume that escaped symbols are rather an exception, so firstly
          * we optimistically scan for closing quote via intrinsified and blazing-fast 'indexOf',
          * than do our pessimistic check for backslash and fallback to slow-path if necessary.
          */
@@ -150,7 +150,7 @@ internal class ReaderJsonLexer(
         }
         // Now we _optimistically_ know where the string ends (it might have been an escaped quote)
         for (i in current until closingQuote) {
-            // Encountered escape sequence, should fallback to "slow" path and symmbolic scanning
+            // Encountered escape sequence, should fall back to "slow" path and symmbolic scanning
             if (source[i] == STRING_ESC) {
                 return consumeString(source, currentPosition, i)
             }

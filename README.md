@@ -313,6 +313,6 @@ Add dependency on serialization runtime library:
 
 ### Bazel
 
-To setup the Kotlin compiler plugin for Bazel, follow [the
+To set up the Kotlin compiler plugin for Bazel, follow [the
 example](https://github.com/bazelbuild/rules_kotlin/tree/master/examples/plugin/src/serialization)
 from the `rules_kotlin` repository.

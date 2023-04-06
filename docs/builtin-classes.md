@@ -87,7 +87,7 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-builtin-02.kt).
 
-By default they are serialized to JSON as numbers.
+By default, they are serialized to JSON as numbers.
 
 ```text
 {"signature":2067120338512882656}

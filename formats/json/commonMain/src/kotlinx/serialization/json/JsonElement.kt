@@ -42,7 +42,7 @@ public sealed class JsonPrimitive : JsonElement() {
     public abstract val isString: Boolean
 
     /**
-     * Content of given element without quotes. For [JsonNull] this methods returns `null`
+     * Content of given element without quotes. For [JsonNull] this property returns `null`
      */
     public abstract val content: String
 

@@ -78,7 +78,7 @@ internal class StringJsonLexer(override val source: String) : AbstractJsonLexer(
 
     override fun consumeKeyString(): String {
         /*
-         * For strings we assume that escaped symbols are rather an exception, so firstly
+         * For strings, we assume that escaped symbols are rather an exception, so firstly
          * we optimistically scan for closing quote via intrinsified and blazing-fast 'indexOf',
          * than do our pessimistic check for backslash and fallback to slow-path if necessary.
          */
@@ -88,7 +88,7 @@ internal class StringJsonLexer(override val source: String) : AbstractJsonLexer(
         if (closingQuote == -1) fail(TC_STRING)
         // Now we _optimistically_ know where the string ends (it might have been an escaped quote)
         for (i in current until closingQuote) {
-            // Encountered escape sequence, should fallback to "slow" path and symbolic scanning
+            // Encountered escape sequence, should fall back to "slow" path and symbolic scanning
             if (source[i] == STRING_ESC) {
                 return consumeString(source, currentPosition, i)
             }

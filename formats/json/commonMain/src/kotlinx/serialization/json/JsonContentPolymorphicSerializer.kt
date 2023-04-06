@@ -31,7 +31,7 @@ import kotlin.reflect.*
  * It is possible to serialize values this serializer. In that case, class discriminator property won't
  * be added to JSON stream, i.e., deserializing a class from the string and serializing it back yields the original string.
  * However, to determine a serializer, a standard polymorphic mechanism represented by [SerializersModule] is used.
- * For convenience, [serialize] method can lookup default serializer, but it is recommended to follow
+ * For convenience, [serialize] method can look up default serializer, but it is recommended to follow
  * standard procedure with [registering][SerializersModuleBuilder.polymorphic].
  *
  * Usage example:

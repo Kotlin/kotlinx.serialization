@@ -13,8 +13,8 @@ import kotlin.random.*
  *
  * Custom JSON instances are considered thread-safe (in JVM) and can be frozen and transferred to different workers (in Native).
  * Therefore, DescriptorSchemaCache should be either a concurrent freeze-aware map or thread local.
- * Each JSON instance have it's own schemaCache, and it's impossible to use @ThreadLocal on non-global vals.
- * Thus we make @ThreadLocal this special map: it provides schemaCache for a particular Json instance
+ * Each JSON instance have its own schemaCache, and it's impossible to use @ThreadLocal on non-global vals.
+ * Thus, we make @ThreadLocal this special map: it provides schemaCache for a particular Json instance
  * and should be used instead of a member `_schemaCache` on Native.
  *
  * To avoid memory leaks (when Json instance is no longer in use), WeakReference is used with periodical self-cleaning.
@@ -42,7 +42,7 @@ private class WeakJson(json: Json) {
 }
 
 /**
- * To maintain O(1) access, we cleanup the table from dead references with 1/size probability
+ * To maintain O(1) access, we clean up the table from dead references with 1/size probability
  */
 private fun cleanUpWeakMap() {
     val size = jsonToCache.size

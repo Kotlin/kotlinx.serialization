@@ -92,8 +92,8 @@ class CustomPropertyAccessorsTest {
     /*
 
          This class can't be instantiated because it's hard to check val property with deferred init having backing
-         field on constructor resolve stage. So synthetic constructor's signature differs from it's body and it always
-         throw exception during call.
+         field on constructor resolve stage. So synthetic constructor's signature differs from its body, and it always
+         throws exception during call.
          In IR back-end this class would not be compiled.
          @Serializable
          class BrokenValPropertiesClass {

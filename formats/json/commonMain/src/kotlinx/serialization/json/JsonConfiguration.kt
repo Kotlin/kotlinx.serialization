@@ -9,7 +9,7 @@ import kotlinx.serialization.*
  * Can be used for debug purposes and for custom Json-specific serializers
  * via [JsonEncoder] and [JsonDecoder].
  *
- * Standalone configuration object is meaningless and can nor be used outside of the
+ * Standalone configuration object is meaningless and can nor be used outside the
  * [Json], neither new [Json] instance can be created from it.
  *
  * Detailed description of each property is available in [JsonBuilder] class.

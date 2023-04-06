@@ -20,7 +20,7 @@ package kotlinx.serialization.json.internal
  *    It copies the content by up-to 8 times faster.
  *    Then we iterate over the char-array and execute single check over
  *    each character that is easily unrolled and vectorized by the inliner.
- *    If escape character is found, we fallback to per-symbol processing.
+ *    If escape character is found, we fall back to per-symbol processing.
  *
  * 3) We pool char arrays in order to save excess resizes, allocations
  *    and nulls-out of arrays.

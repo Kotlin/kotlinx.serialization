@@ -127,7 +127,7 @@ internal class WrappedSerialDescriptor(override val serialName: String, original
 /**
  * An unsafe alternative to [buildClassSerialDescriptor] that supports an arbitrary [SerialKind].
  * This function is left public only for migration of pre-release users and is not intended to be used
- * as generally-safe and stable mechanism. Beware that it can produce inconsistent or non spec-compliant instances.
+ * as generally-safe and stable mechanism. Beware that it can produce inconsistent or non-spec-compliant instances.
  *
  * If you end up using this builder, please file an issue with your use-case in kotlinx.serialization
  */

@@ -33,7 +33,7 @@ internal fun <T> JsonIterator(
 
 private fun AbstractJsonLexer.determineFormat(suggested: DecodeSequenceMode): DecodeSequenceMode = when (suggested) {
     DecodeSequenceMode.WHITESPACE_SEPARATED ->
-        DecodeSequenceMode.WHITESPACE_SEPARATED // do not call consumeStartArray here so we don't confuse parser with stream of lists
+        DecodeSequenceMode.WHITESPACE_SEPARATED // do not call consumeStartArray here, so we don't confuse parser with stream of lists
     DecodeSequenceMode.ARRAY_WRAPPED ->
         if (tryConsumeStartArray()) DecodeSequenceMode.ARRAY_WRAPPED
         else fail(TC_BEGIN_LIST)

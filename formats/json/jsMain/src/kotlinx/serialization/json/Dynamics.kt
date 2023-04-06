@@ -18,7 +18,7 @@ import kotlinx.serialization.json.internal.*
  * Has limitation on [Long] type: any JS number that is greater than
  * [`abs(2^53-1)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)
  * is considered to be imprecise and therefore can't be deserialized to [Long]. Either use [Double] type
- * for such values or pass them as strings using [LongAsStringSerializer] afterwards.
+ * for such values or pass them as strings using [LongAsStringSerializer] afterward.
  *
  * Usage example:
  *

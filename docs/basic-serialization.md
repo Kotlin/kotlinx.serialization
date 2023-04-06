@@ -417,7 +417,7 @@ Use 'ignoreUnknownKeys = true' in 'Json {}' builder to ignore unknown keys.
 
 <!--- TEST LINES_START -->
 
-> The 'ignoreUnknownKeys' feature is explained in the [Ignoring Unknown Keys section](json.md#ignoring-unknown-keys) section.
+> The 'ignoreUnknownKeys' feature is explained in the [Ignoring Unknown Keys section](json.md#ignoring-unknown-keys).
 
 ### Defaults are not encoded by default
 

@@ -381,10 +381,10 @@ Field #3: 1D Fixed32 Value = 3, Hex = 03-00-00-00
 
 ### Lists as repeated fields
 
-By default, kotlin lists and other collections are representend as repeated fields. 
+By default, kotlin lists and other collections are represented as repeated fields. 
 In the protocol buffers when the list is empty there are no elements in the 
 stream with the corresponding number. For Kotlin Serialization you must explicitly specify a default of `emptyList()`
-for any property of a collection or map type. Otherwise you will not be able deserialize an empty
+for any property of a collection or map type. Otherwise, you will not be able to deserialize an empty
 list, which is indistinguishable in protocol buffers from a missing field.  
 
 <!--- INCLUDE

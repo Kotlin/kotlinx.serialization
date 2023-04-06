@@ -199,7 +199,7 @@ public interface Decoder {
     public fun decodeString(): String
 
     /**
-     * Decodes a enum value and returns its index in [enumDescriptor] elements collection.
+     * Decodes an enum value and returns its index in [enumDescriptor] elements collection.
      * Corresponding kind is [SerialKind.ENUM].
      *
      * E.g. for the enum `enum class Letters { A, B, C, D }` and

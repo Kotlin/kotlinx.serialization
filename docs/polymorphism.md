@@ -268,7 +268,7 @@ The properties of the superclass are serialized before the properties of the sub
 
 ### Objects
 
-Sealed hierarchies can have objects as their subclasses and they also need to be marked as `@Serializable`.
+Sealed hierarchies can have objects as their subclasses, and they also need to be marked as `@Serializable`.
 Let's take a different example with a hierarchy of `Response` classes.
 
 ```kotlin

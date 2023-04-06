@@ -63,7 +63,7 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-serializer-01.kt).
 
-By default this class serializes its `rgb` property into JSON.
+By default, this class serializes its `rgb` property into JSON.
 
 ```text
 {"rgb":65280}
@@ -540,7 +540,7 @@ for the corresponding fields by their type. The order of elements is important. 
 ```                                                                        
 
 > The "element" is a generic term here. What is an element of a descriptor depends on its [SerialKind]. 
-> Elements of a class descriptor are its properties, elements of a enum descriptor are its cases, etc.
+> Elements of a class descriptor are its properties, elements of an enum descriptor are its cases, etc.
 
 Then we write the `serialize` function using the [encodeStructure] DSL that provides access to 
 the [CompositeEncoder] in its block. The difference between [Encoder] and [CompositeEncoder] is the latter
@@ -558,7 +558,7 @@ in the same order as in the descriptor.
 
 The most complex piece of code is the `deserialize` function. It must support formats, like JSON, that 
 can decode properties in an arbitrary order. It starts with the call to [decodeStructure] to 
-get access to a [CompositeDecoder]. Inside it we write a loop that repeatedly calls 
+get access to a [CompositeDecoder]. Inside it, we write a loop that repeatedly calls 
 [decodeElementIndex][CompositeDecoder.decodeElementIndex] to decode the index of the next element, then we decode the corresponding
 element using [decodeIntElement][CompositeDecoder.decodeIntElement] in our example, and finally we terminate the loop when
 `CompositeDecoder.DECODE_DONE` is encountered.
@@ -967,7 +967,7 @@ fun main() {
 -->    
 
 To actually serialize this class we must provide the corresponding context when calling the `encodeToXxx`/`decodeFromXxx`
-functions. Without it we'll get a "Serializer for class 'Date' is not found" exception.
+functions. Without it, we'll get a "Serializer for class 'Date' is not found" exception.
 
 > See [here](../guide/example/example-serializer-19.kt) for an example that produces that exception.
  

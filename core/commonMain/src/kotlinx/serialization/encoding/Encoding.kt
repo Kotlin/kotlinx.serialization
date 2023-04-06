@@ -77,7 +77,7 @@ import kotlinx.serialization.modules.*
  * ```
  *
  * This serializer does not know anything about the underlying storage and will work with any properly-implemented encoder.
- * JSON, for example, writes an opening bracket `{` during the `beginStructure` call, writes 'stringValue` key along
+ * JSON, for example, writes an opening bracket `{` during the `beginStructure` call, writes `stringValue` key along
  * with its value in `encodeStringElement` and writes the closing bracket `}` during the `endStructure`.
  * XML would do roughly the same, but with different separators and structures, while ProtoBuf
  * machinery could be completely different.
@@ -195,7 +195,7 @@ public interface Encoder {
     public fun encodeString(value: String)
 
     /**
-     * Encodes a enum value that is stored at the [index] in [enumDescriptor] elements collection.
+     * Encodes an enum value that is stored at the [index] in [enumDescriptor] elements collection.
      * Corresponding kind is [SerialKind.ENUM].
      *
      * E.g. for the enum `enum class Letters { A, B, C, D }` and
@@ -229,7 +229,7 @@ public interface Encoder {
     /**
      * Encodes the beginning of the nested structure in a serialized form
      * and returns [CompositeDecoder] responsible for encoding this very structure.
-     * E.g the hierarchy:
+     * E.g. the hierarchy:
      * ```
      * class StringHolder(val stringValue: String)
      * class Holder(val stringHolder: StringHolder)

@@ -31,7 +31,7 @@ unless an unfixable security or design flaw is exposed. Minor releases never add
 
 #### Deprecation cycle
 
-When API is deprecated, it goes through multiple stages and there is at least one major release between each stages.
+When API is deprecated, it goes through multiple stages and there is at least one major release between each stage.
 
 1. Feature is deprecated with compilation warning. Most of the time, proper replacement (and corresponding `replaceWith` declaration) is provided to automatically migrate deprecated usages with a help of IntelliJ IDEA.
 2. Deprecation level is increased to error or hidden. It is no longer possible to compile new code against deprecated API, though it is still present in the ABI.

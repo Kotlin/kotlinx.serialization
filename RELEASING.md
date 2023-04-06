@@ -46,7 +46,7 @@ If review is not required, commit directly to `dev`.
     * The website team will be notified about the pull request, review your changes, and merge it to master after all checks pass.
     * Once the pull request is merged to the main branch, it automatically will trigger the website's update, which will be done within an hour.   
 
-6. Create a new release in [Github releases](https://github.com/Kotlin/kotlinx.serialization/releases). Use created git tag for title and changelog message for body.
+6. Create a new release in [GitHub releases](https://github.com/Kotlin/kotlinx.serialization/releases). Use created git tag for title and changelog message for body.
 
 1. Switch back to master branch and update it:<br>
    ```

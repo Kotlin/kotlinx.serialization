@@ -45,7 +45,7 @@ import kotlin.reflect.*
  * ```
  * In this example, both request and response in `Message` are serializable with [PolymorphicSerializer].
  *
- * `BaseRequest` and `BaseResponse` are base classes and they are captured during compile time by the plugin.
+ * `BaseRequest` and `BaseResponse` are base classes, and they are captured during compile time by the plugin.
  * Yet [PolymorphicSerializer] for `BaseRequest` should only allow `RequestA` and `RequestB` serializers, and none of the response's serializers.
  *
  * This is achieved via special registration function in the module:

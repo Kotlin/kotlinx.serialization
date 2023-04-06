@@ -14,7 +14,7 @@ import kotlinx.serialization.json.internal.JsonDecodingException
 
 /**
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonElement].
- * It can only be used by with [Json] format an its input ([JsonDecoder] and [JsonEncoder]).
+ * It can only be used by with [Json] format and its input ([JsonDecoder] and [JsonEncoder]).
  * Currently, this hierarchy has no guarantees on descriptor content.
  *
  * Example usage:
@@ -53,7 +53,7 @@ internal object JsonElementSerializer : KSerializer<JsonElement> {
 
 /**
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonPrimitive].
- * It can only be used by with [Json] format an its input ([JsonDecoder] and [JsonEncoder]).
+ * It can only be used by with [Json] format and its input ([JsonDecoder] and [JsonEncoder]).
  */
 @PublishedApi
 internal object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
@@ -78,7 +78,7 @@ internal object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
 
 /**
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonNull].
- * It can only be used by with [Json] format an its input ([JsonDecoder] and [JsonEncoder]).
+ * It can only be used by with [Json] format and its input ([JsonDecoder] and [JsonEncoder]).
  */
 @PublishedApi
 internal object JsonNullSerializer : KSerializer<JsonNull> {
@@ -140,7 +140,7 @@ private object JsonLiteralSerializer : KSerializer<JsonLiteral> {
 
 /**
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonObject].
- * It can only be used by with [Json] format an its input ([JsonDecoder] and [JsonEncoder]).
+ * It can only be used by with [Json] format and its input ([JsonDecoder] and [JsonEncoder]).
  */
 @PublishedApi
 internal object JsonObjectSerializer : KSerializer<JsonObject> {
@@ -165,7 +165,7 @@ internal object JsonObjectSerializer : KSerializer<JsonObject> {
 
 /**
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonArray].
- * It can only be used by with [Json] format an its input ([JsonDecoder] and [JsonEncoder]).
+ * It can only be used by with [Json] format and its input ([JsonDecoder] and [JsonEncoder]).
  */
 @PublishedApi
 internal object JsonArraySerializer : KSerializer<JsonArray> {

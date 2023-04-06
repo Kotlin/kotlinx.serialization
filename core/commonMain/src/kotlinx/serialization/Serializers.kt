@@ -185,7 +185,7 @@ internal fun SerializersModule.serializersForParameters(
  *
  * This method uses platform-specific reflection available for the given erased `KClass`
  * and is not recommended to use this method for anything, but last-ditch resort, e.g.
- * when all type info is lost, your application has crashed and it is the final attempt to log or send some serializable data.
+ * when all type info is lost, your application has crashed, and it is the final attempt to log or send some serializable data.
  *
  * The recommended way to retrieve the serializer is inline [serializer] function and [`serializer(KType)`][serializer]
  *
@@ -194,7 +194,7 @@ internal fun SerializersModule.serializersForParameters(
  *
  * ### Constraints
  * This paragraph explains known (but not all!) constraints of the `serializer()` implementation.
- * Please note that they are not bugs, but implementation restrictions that we cannot workaround.
+ * Please note that they are not bugs, but implementation restrictions that we cannot work around.
  *
  * * This method may behave differently on JVM, JS and Native because of runtime reflection differences
  * * Serializers for classes with generic parameters are ignored by this method
@@ -211,14 +211,14 @@ public fun <T : Any> KClass<T>.serializer(): KSerializer<T> = serializerOrNull()
  * The given class must be annotated with [Serializable] or be one of the built-in types.
  * This method uses platform-specific reflection available for the given erased `KClass`
  * and it is not recommended to use this method for anything, but last-ditch resort, e.g.
- * when all type info is lost, your application has crashed and it is the final attempt to log or send some serializable data.
+ * when all type info is lost, your application has crashed, and it is the final attempt to log or send some serializable data.
  *
  * This API is not guaranteed to work consistently across different platforms or
  * to work in cases that slightly differ from "plain @Serializable class".
  *
  * ### Constraints
  * This paragraph explains known (but not all!) constraints of the `serializerOrNull()` implementation.
- * Please note that they are not bugs, but implementation restrictions that we cannot workaround.
+ * Please note that they are not bugs, but implementation restrictions that we cannot work around.
  *
  * * This method may behave differently on JVM, JS and Native because of runtime reflection differences
  * * Serializers for classes with generic parameters are ignored by this method

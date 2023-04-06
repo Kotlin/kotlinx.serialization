@@ -13,7 +13,7 @@ completely with `disableJPMS` property: add `disableJPMS=true` to gradle.propert
 Kotlin Serialization runtime library itself is a [multiplatform](http://kotlinlang.org/docs/reference/multiplatform.html) project.
 To build library from the source and run all tests, use `./gradlew build`. Corresponding platform tasks like `jvmTest`, `jsIrTest`, `nativeTest` and so on are also available.
 
-Project can be opened in in Intellij IDEA without additional prerequisites.
+Project can be opened in Intellij IDEA without additional prerequisites.
 In case you want to work with Protobuf tests, you may need to run `./gradlew generateTestProto` beforehand.
 
 
@@ -30,7 +30,7 @@ dependencies {
 }
 ```
 
-Note that by default, only one Native target is built (the one that is the current host, e.g. `macosX64` on Intel Mac machines, `linuxX64` on linux machines, etc).
+Note that by default, only one Native target is built (the one that is the current host, e.g. `macosX64` on Intel Mac machines, `linuxX64` on linux machines, etc.).
 To compile and publish all Native artifacts, not only the host one, use Gradle property `native.deploy=true`.
 
 To use snapshot version of compiler (if you have built and install it from sources), use flag `-Pbootstrap`.

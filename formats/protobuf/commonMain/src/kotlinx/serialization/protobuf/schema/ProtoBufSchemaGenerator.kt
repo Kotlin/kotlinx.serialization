@@ -29,8 +29,8 @@ import kotlinx.serialization.protobuf.internal.*
  *    due to their ambiguous nature.
  *
  * Temporary restrictions:
- *  * [Contextual] data is represented as as `bytes` type
- *  * [Polymorphic] data is represented as a artificial `KotlinxSerializationPolymorphic` message.
+ *  * [Contextual] data is represented as `bytes` type
+ *  * [Polymorphic] data is represented as an artificial `KotlinxSerializationPolymorphic` message.
  *
  * Other types are mapped according to their specification: primitives as primitives, lists as 'repeated' fields and
  * maps as 'repeated' map entries.

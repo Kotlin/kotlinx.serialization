@@ -189,7 +189,7 @@ private class DynamicObjectEncoder(
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
-        // we currently do not structures as map key
+        // we currently do not encode structures as map key
         if (currentElementIsMapKey) {
             throw IllegalArgumentException(
                 "Value of type ${descriptor.serialName} can't be used in json as map key. " +
