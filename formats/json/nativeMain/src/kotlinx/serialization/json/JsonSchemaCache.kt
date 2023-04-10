@@ -7,6 +7,7 @@ package kotlinx.serialization.json
 import kotlinx.serialization.json.internal.*
 import kotlin.native.ref.*
 import kotlin.random.*
+import kotlin.native.concurrent.*
 
 /**
  * This maps emulate thread-locality of DescriptorSchemaCache for Native.
