@@ -68,6 +68,7 @@ private class JsonIteratorArrayWrapped<T>(
     private val deserializer: DeserializationStrategy<T>
 ) : Iterator<T> {
     private var first = true
+    private var sawClosingBrace = false
 
     override fun next(): T {
         if (first) {
@@ -84,6 +85,7 @@ private class JsonIteratorArrayWrapped<T>(
      */
     override fun hasNext(): Boolean {
         if (lexer.peekNextToken() == TC_END_LIST) {
+            sawClosingBrace = true
             lexer.consumeNextToken(TC_END_LIST)
             if (lexer.isNotEof()) {
                 if (lexer.peekNextToken() == TC_BEGIN_LIST) lexer.fail("There is a start of the new array after the one parsed to sequence. " +
@@ -93,7 +95,7 @@ private class JsonIteratorArrayWrapped<T>(
             }
             return false
         }
-        if (!lexer.isNotEof()) lexer.fail(TC_END_LIST)
-        return true
+        if (!lexer.isNotEof() && !sawClosingBrace) lexer.fail(TC_END_LIST)
+        return !sawClosingBrace
     }
 }

@@ -30,6 +30,9 @@ internal class ArrayAsSequence(private val buffer: CharArray) : CharSequence {
     fun trim(newSize: Int) {
         length = minOf(buffer.size, newSize)
     }
+
+    // source.toString() is used in JsonDecodingException
+    override fun toString(): String = substring(0, length)
 }
 
 internal class ReaderJsonLexer(

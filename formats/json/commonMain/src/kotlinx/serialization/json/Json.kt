@@ -169,7 +169,7 @@ public enum class DecodeSequenceMode {
 
     /**
      * Declares that parser itself should select between [WHITESPACE_SEPARATED] and [ARRAY_WRAPPED] modes.
-     * The selection is performed by looking on the first meaningful character of the stream.
+     * The selection is performed by looking at the first meaningful character of the stream.
      *
      * In most cases, auto-detection is sufficient to correctly parse an input.
      * If the input is _whitespace-separated stream of the arrays_, parser could select an incorrect mode,
