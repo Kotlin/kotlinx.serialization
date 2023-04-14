@@ -41,6 +41,9 @@ internal class ObjectSerializer<T : Any>(serialName: String, private val objectI
 
     override fun deserialize(decoder: Decoder): T {
         decoder.decodeStructure(descriptor) {
+            if (decodeSequentially())
+                return@decodeStructure
+
             when (val index = decodeElementIndex(descriptor)) {
                 CompositeDecoder.DECODE_DONE -> {
                     return@decodeStructure
