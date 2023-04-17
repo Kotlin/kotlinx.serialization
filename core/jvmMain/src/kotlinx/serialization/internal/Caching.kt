@@ -170,7 +170,7 @@ private class KTypeWrapper(private val origin: KType) : KType {
 
     override fun equals(other: Any?): Boolean {
         if (other == null) return false
-        if (origin != other) return false
+        if (origin != (other as? KTypeWrapper)?.origin) return false
 
         val kClassifier = classifier
         if (kClassifier is KClass<*>) {
