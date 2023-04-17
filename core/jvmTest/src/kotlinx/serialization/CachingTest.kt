@@ -4,17 +4,10 @@
 
 package kotlinx.serialization
 
-import kotlinx.serialization.builtins.MapSerializer
-import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.encoding.*
-import kotlinx.serialization.internal.StringSerializer
-import kotlinx.serialization.internal.createCache
-import kotlinx.serialization.internal.createParametrizedCache
-import kotlinx.serialization.internal.kclass
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 import org.junit.Test
-import kotlin.reflect.KClass
-import kotlin.reflect.typeOf
+import kotlin.reflect.*
 import kotlin.test.*
 
 class CachingTest {
