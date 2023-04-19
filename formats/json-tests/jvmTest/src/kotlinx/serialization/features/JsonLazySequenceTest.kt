@@ -83,6 +83,7 @@ class JsonLazySequenceTest {
         iter.assertNext(StringData("b"))
         iter.assertNext(StringData("c"))
         assertFalse(iter.hasNext())
+        assertFalse(iter.hasNext()) // Subsequent calls to .hasNext() should not throw EOF or anything
         assertFailsWithMessage<SerializationException>("EOF") {
             iter.next()
         }
@@ -186,4 +187,11 @@ class JsonLazySequenceTest {
         assertEquals(inputList, json.decodeToSequence(paddedWs.asInputStream(), StringData.serializer(), DecodeSequenceMode.ARRAY_WRAPPED).toList())
     }
 
+    @Test
+    fun testToIteratorAndBack() = withInputs { ins ->
+        val iterator = Json.decodeToSequence(ins, StringData.serializer()).iterator()
+        val values = iterator.asSequence().take(3).toList()
+        assertEquals(inputList, values)
+        assertFalse(iterator.hasNext())
+    }
 }
