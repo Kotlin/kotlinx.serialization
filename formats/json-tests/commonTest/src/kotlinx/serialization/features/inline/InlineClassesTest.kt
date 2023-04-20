@@ -22,7 +22,7 @@ data class SimpleContainerForUInt(val i: UInt)
 @JvmInline
 value class MyUInt(val m: Int)
 
-object MyUIntSerializer: KSerializer<MyUInt> {
+object MyUIntSerializer : KSerializer<MyUInt> {
     override val descriptor = UInt.serializer().descriptor
     override fun serialize(encoder: Encoder, value: MyUInt) {
         encoder.encodeInline(descriptor).encodeInt(value.m)
@@ -73,11 +73,44 @@ value class ResourceKind(val kind: SampleEnum)
 @Serializable
 data class ResourceIdentifier(val id: ResourceId, val type: ResourceType, val type2: ValueWrapper)
 
-@Serializable @JvmInline
+@Serializable
+@JvmInline
 value class ValueWrapper(val wrapped: ResourceType)
+
+@Serializable
+@JvmInline
+value class Outer(val inner: Inner)
+
+@Serializable
+data class Inner(val n: Int)
+
+@Serializable
+data class OuterOuter(val outer: Outer)
+
+@Serializable
+@JvmInline
+value class WithList(val value: List<Int>)
 
 class InlineClassesTest : JsonTestBase() {
     private val precedent: UInt = Int.MAX_VALUE.toUInt() + 10.toUInt()
+
+    @Test
+    fun withList() = noLegacyJs {
+        val withList = WithList(listOf(1, 2, 3))
+        assertJsonFormAndRestored(WithList.serializer(), withList, """[1,2,3]""")
+    }
+
+    @Test
+    fun testOuterInner() = noLegacyJs {
+        val o = Outer(Inner(10))
+        assertJsonFormAndRestored(Outer.serializer(), o, """{"n":10}""")
+    }
+
+    @Test
+    fun testOuterOuterInner() = noLegacyJs {
+        val o = OuterOuter(Outer(Inner(10)))
+        assertJsonFormAndRestored(OuterOuter.serializer(), o, """{"outer":{"n":10}}""")
+    }
 
     @Test
     fun testTopLevel() = noLegacyJs {
