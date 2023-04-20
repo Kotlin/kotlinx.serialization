@@ -7,6 +7,8 @@ package kotlinx.serialization.features
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.test.EnumSerializer
 import kotlin.test.*
@@ -18,15 +20,17 @@ class SchemaTest {
     @Serializable
     data class Box<T>(val boxed: T)
 
-    @Serializable
+    @Serializable(Data1.Companion::class)
     data class Data1(val l: List<Int> = emptyList(), val s: String) {
-        @Serializer(forClass = Data1::class)
-        companion object {
-            // TODO removal of explicit type crashes the compiler
-            override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Data1") {
+        companion object: KSerializer<Data1> {
+            override val descriptor = buildClassSerialDescriptor("Data1") {
                 element("l", listSerialDescriptor<Int>(), isOptional = true)
                 element("s", serialDescriptor<String>())
             }
+
+            override fun serialize(encoder: Encoder, value: Data1) = error("Should not be called")
+
+            override fun deserialize(decoder: Decoder): Data1 = error("Should not be called")
         }
     }
 

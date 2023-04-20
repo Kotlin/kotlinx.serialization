@@ -34,7 +34,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
     @Serializable
     data class BList(@Id(1) val bs: List<B>)
 
-    @Serializable
+    @Serializable(C.Companion::class)
     data class C(@Id(1) val a: Int = 31, @Id(2) val b: Int = 42) {
         @Serializer(forClass = C::class)
         companion object : KSerializer<C> {
@@ -50,7 +50,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
     @Serializable
     data class CList1(@Id(1) val c: List<C>)
 
-    @Serializable
+    @Serializable(CList2.Companion::class)
     data class CList2(@Id(1) val d: Int = 5, @Id(2) val c: List<C>) {
         @Serializer(forClass = CList2::class)
         companion object : KSerializer<CList2> {
@@ -63,7 +63,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
         }
     }
 
-    @Serializable
+    @Serializable(CList3.Companion::class)
     data class CList3(@Id(1) val e: List<C> = emptyList(), @Id(2) val f: Int) {
         @Serializer(forClass = CList3::class)
         companion object : KSerializer<CList3> {
@@ -76,7 +76,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
         }
     }
 
-    @Serializable
+    @Serializable(CList4.Companion::class)
     data class CList4(@Id(1) val g: List<C> = emptyList(), @Id(2) val h: Int) {
         @Serializer(forClass = CList4::class)
         companion object : KSerializer<CList4> {
@@ -89,7 +89,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
         }
     }
 
-    @Serializable
+    @Serializable(CList5.Companion::class)
     data class CList5(@Id(1) val g: List<Int> = emptyList(), @Id(2) val h: Int) {
         @Serializer(forClass = CList5::class)
         companion object : KSerializer<CList5> {
