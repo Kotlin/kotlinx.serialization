@@ -174,10 +174,10 @@ public final class kotlinx/serialization/json/JsonElementBuildersKt {
 	public static final fun add (Lkotlinx/serialization/json/JsonArrayBuilder;Ljava/lang/Number;)Z
 	public static final fun add (Lkotlinx/serialization/json/JsonArrayBuilder;Ljava/lang/String;)Z
 	public static final fun add (Lkotlinx/serialization/json/JsonArrayBuilder;Ljava/lang/Void;)Z
-	public static final fun addAll (Lkotlinx/serialization/json/JsonArrayBuilder;Lkotlinx/serialization/json/JsonElement;[Lkotlinx/serialization/json/JsonElement;)Z
 	public static final fun addAll (Lkotlinx/serialization/json/JsonArrayBuilder;[Ljava/lang/Boolean;)Z
 	public static final fun addAll (Lkotlinx/serialization/json/JsonArrayBuilder;[Ljava/lang/Number;)Z
 	public static final fun addAll (Lkotlinx/serialization/json/JsonArrayBuilder;[Ljava/lang/String;)Z
+	public static final fun addAll (Lkotlinx/serialization/json/JsonArrayBuilder;[Lkotlinx/serialization/json/JsonElement;)Z
 	public static final fun addAllBooleans (Lkotlinx/serialization/json/JsonArrayBuilder;Ljava/util/Collection;)Z
 	public static final fun addAllNumbers (Lkotlinx/serialization/json/JsonArrayBuilder;Ljava/util/Collection;)Z
 	public static final fun addAllStrings (Lkotlinx/serialization/json/JsonArrayBuilder;Ljava/util/Collection;)Z
