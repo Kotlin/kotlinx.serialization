@@ -255,23 +255,23 @@ public val JsonElement.jsonNull: JsonNull
  * Returns content of the current element as int
  * @throws NumberFormatException if current element is not a valid representation of number
  */
-public val JsonPrimitive.int: Int get() = content.toLongExponent { throw NumberFormatException("Value $content is out of Int range") }.toInt()
+public val JsonPrimitive.int: Int get() = content.toIntExponent()
 
 /**
  * Returns content of the current element as int or `null` if current element is not a valid representation of number
  */
-public val JsonPrimitive.intOrNull: Int? get() = content.toLongExponent { return null }.toInt()
+public val JsonPrimitive.intOrNull: Int? get() = content.toIntExponentOrNull()
 
 /**
  * Returns content of current element as long
  * @throws NumberFormatException if current element is not a valid representation of number
  */
-public val JsonPrimitive.long: Long get() = content.toLongExponent { throw NumberFormatException("Value $content is out of Long range") }
+public val JsonPrimitive.long: Long get() = content.toLongExponent()
 
 /**
  * Returns content of current element as long or `null` if current element is not a valid representation of number
  */
-public val JsonPrimitive.longOrNull: Long? get() = content.toLongExponent { return null }
+public val JsonPrimitive.longOrNull: Long? get() = content.toLongExponentOrNull()
 
 /**
  * Returns content of current element as double

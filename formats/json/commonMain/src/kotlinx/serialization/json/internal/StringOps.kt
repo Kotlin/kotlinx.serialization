@@ -73,74 +73,7 @@ internal fun String.toBooleanStrictOrNull(): Boolean? = when {
     else -> null
 }
 
-internal inline fun String.toLongExponent(failF : (String) -> Nothing) : Long {
-    val source = this
-    var current = 0
-    var accumulator = 0L
-    var exponentAccumulator = 0L
-    var isNegative = false
-    var isExponentPositive = false
-    var hasExponent = false
-    val start = current
-    var hasChars = true
-    while (hasChars) {
-        val ch: Char = source[current]
-        if((ch == 'e' || ch == 'E') && !hasExponent) {
-            if (current == start) failF("Unexpected symbol $ch in numeric literal")
-            isExponentPositive = true
-            hasExponent = true
-            ++current
-            continue
-        }
-        if (ch == '-' && hasExponent) {
-            if (current == start) failF("Unexpected symbol '-' in numeric literal")
-            isExponentPositive = false
-            ++current
-            continue
-        }
-        if(ch == '+' && hasExponent) {
-            if (current == start) failF("Unexpected symbol '+' in numeric literal")
-            isExponentPositive = true
-            ++current
-            continue
-        }
-        if (ch == '-') {
-            if (current != start) failF("Unexpected symbol '-' in numeric literal")
-            isNegative = true
-            ++current
-            continue
-        }
-        val token = charToTokenClass(ch)
-        if (token != TC_OTHER) break
-        ++current
-        hasChars = current != source.length
-        val digit = ch - '0'
-        if (digit !in 0..9) failF("Unexpected symbol '$ch' in numeric literal")
-        if (hasExponent) {
-            exponentAccumulator = exponentAccumulator * 10 + digit
-            continue
-        }
-        accumulator = accumulator * 10 - digit
-        if (accumulator > 0) failF("Numeric value overflow")
-    }
-    if (start == current || (isNegative && start == current - 1)) {
-        failF("Expected numeric literal")
-    }
-
-    if(hasExponent) {
-        val doubleAccumulator  = accumulator.toDouble() * calculateExponent(exponentAccumulator, isExponentPositive)
-        if(doubleAccumulator > Long.MAX_VALUE || doubleAccumulator < Long.MIN_VALUE) failF("Numeric value overflow")
-        accumulator = doubleAccumulator.toLong()
-    }
-
-    return when {
-        isNegative -> accumulator
-        accumulator != Long.MIN_VALUE -> -accumulator
-        else -> failF("Numeric value overflow")
-    }
-}
-
-private fun calculateExponent(exponentAccumulator: Long, isExponentPositive: Boolean): Double = when (isExponentPositive) {
-    false -> 10.0.pow(-exponentAccumulator.toDouble())
-    true -> 10.0.pow(exponentAccumulator.toDouble())
-}
+internal fun String.toLongExponent() = toLongOrNull() ?: toDouble().toLong()
+internal fun String.toLongExponentOrNull() = toLongOrNull() ?: toDoubleOrNull()?.toLong()
+internal fun String.toIntExponent() = toIntOrNull() ?: toDouble().toInt()
+internal fun String.toIntExponentOrNull() = toIntOrNull() ?: toDoubleOrNull()?.toInt()
