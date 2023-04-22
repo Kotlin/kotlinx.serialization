@@ -255,23 +255,23 @@ public val JsonElement.jsonNull: JsonNull
  * Returns content of the current element as int
  * @throws NumberFormatException if current element is not a valid representation of number
  */
-public val JsonPrimitive.int: Int get() = content.toIntExponent()
+public val JsonPrimitive.int: Int get() = content.toIntJson()
 
 /**
  * Returns content of the current element as int or `null` if current element is not a valid representation of number
  */
-public val JsonPrimitive.intOrNull: Int? get() = content.toIntExponentOrNull()
+public val JsonPrimitive.intOrNull: Int? get() = content.toIntJsonOrNull()
 
 /**
  * Returns content of current element as long
  * @throws NumberFormatException if current element is not a valid representation of number
  */
-public val JsonPrimitive.long: Long get() = content.toLongExponent()
+public val JsonPrimitive.long: Long get() = content.toLongJson()
 
 /**
  * Returns content of current element as long or `null` if current element is not a valid representation of number
  */
-public val JsonPrimitive.longOrNull: Long? get() = content.toLongExponentOrNull()
+public val JsonPrimitive.longOrNull: Long? get() = content.toLongJsonOrNull()
 
 /**
  * Returns content of current element as double
