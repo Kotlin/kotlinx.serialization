@@ -58,6 +58,7 @@ public sealed class Properties(
             if (serializer is AbstractPolymorphicSerializer<*>) {
                 val casted = serializer as AbstractPolymorphicSerializer<Any>
                 val actualSerializer = casted.findPolymorphicSerializer(this, value as Any)
+                encodeTaggedString(nested("type"), actualSerializer.descriptor.serialName)
 
                 return actualSerializer.serialize(this, value)
             }
@@ -102,9 +103,8 @@ public sealed class Properties(
         }
 
         final override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-            val type = map["type"]?.toString()
-
             if (deserializer is AbstractPolymorphicSerializer<*>) {
+                val type = map[nested("type")]?.toString()
                 val actualSerializer: DeserializationStrategy<Any> = deserializer.findPolymorphicSerializer(this, type)
 
                 @Suppress("UNCHECKED_CAST")
