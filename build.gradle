@@ -47,6 +47,9 @@ buildscript {
         }
     }
 
+    // this flag disables all project tests for purposes of testing of Kotlin compiler dev builds
+    ext.are_project_tests_disabled = rootProject.hasProperty('disable_project_tests')
+
     repositories {
         maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
         // kotlin-dev with space redirector
@@ -109,6 +112,13 @@ dependencies {
 }
 
 allprojects {
+    // this snippet disables all project tests for purposes of testing of Kotlin compiler dev builds
+    if (are_project_tests_disabled) {
+        tasks.withType(AbstractTestTask.class).configureEach {
+            enabled = false
+        }
+    }
+
     group 'org.jetbrains.kotlinx'
 
     def deployVersion = properties['DeployVersion']
