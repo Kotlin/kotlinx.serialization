@@ -22,7 +22,7 @@ val kotlinVersion = run {
     }
     val targetProp = if (project.hasProperty("bootstrap")) "kotlin.version.snapshot" else "kotlin.version"
     FileInputStream(file("../gradle.properties")).use { propFile ->
-        val ver = Properties().apply { load(propFile) }[targetProp]
+        val ver = project.findProperty("kotlin.version")?.toString() ?: Properties().apply { load(propFile) }[targetProp]
         require(ver is String) { "$targetProp must be string in ../gradle.properties, got $ver instead" }
         ver
     }
