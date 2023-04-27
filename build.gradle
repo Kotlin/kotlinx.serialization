@@ -108,7 +108,19 @@ dependencies {
     dokkaPlugin("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version")
 }
 
+// this flag disables all project tests for purposes of testing of Kotlin compiler dev builds
+def are_project_tests_disabled = hasProperty('disable_project_tests')
+
 allprojects {
+    afterEvaluate {
+        // this snippet disables all project tests for purposes of testing of Kotlin compiler dev builds
+        if (are_project_tests_disabled) {
+            tasks.withType(AbstractTestTask.class).configureEach {
+                it.enabled = false
+            }
+        }
+    }
+
     group 'org.jetbrains.kotlinx'
 
     def deployVersion = properties['DeployVersion']
