@@ -25,6 +25,7 @@ public final class kotlinx/serialization/protobuf/ProtoIntegerType : java/lang/E
 	public static final field DEFAULT Lkotlinx/serialization/protobuf/ProtoIntegerType;
 	public static final field FIXED Lkotlinx/serialization/protobuf/ProtoIntegerType;
 	public static final field SIGNED Lkotlinx/serialization/protobuf/ProtoIntegerType;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lkotlinx/serialization/protobuf/ProtoIntegerType;
 	public static fun values ()[Lkotlinx/serialization/protobuf/ProtoIntegerType;
 }

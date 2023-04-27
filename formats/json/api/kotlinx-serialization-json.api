@@ -2,6 +2,7 @@ public final class kotlinx/serialization/json/DecodeSequenceMode : java/lang/Enu
 	public static final field ARRAY_WRAPPED Lkotlinx/serialization/json/DecodeSequenceMode;
 	public static final field AUTO_DETECT Lkotlinx/serialization/json/DecodeSequenceMode;
 	public static final field WHITESPACE_SEPARATED Lkotlinx/serialization/json/DecodeSequenceMode;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lkotlinx/serialization/json/DecodeSequenceMode;
 	public static fun values ()[Lkotlinx/serialization/json/DecodeSequenceMode;
 }
