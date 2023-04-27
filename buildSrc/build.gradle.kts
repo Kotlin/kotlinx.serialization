@@ -12,6 +12,8 @@ plugins {
 repositories {
     mavenCentral()
     mavenLocal()
+    // kotlin-dev with space redirector
+    maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
 }
 
 val kotlinVersion = run {
