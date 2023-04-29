@@ -21,8 +21,8 @@ class DummySequentialDecoder(
     override fun decodeSequentially(): Boolean = true
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int = throw Error("This method shouldn't be called in sequential mode")
 
-    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder = notImplemented()
-    override fun endStructure(descriptor: SerialDescriptor): Unit = notImplemented()
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder = this
+    override fun endStructure(descriptor: SerialDescriptor): Unit = Unit
 
     override fun decodeInline(descriptor: SerialDescriptor): Decoder = notImplemented()
 
