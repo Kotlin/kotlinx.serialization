@@ -226,20 +226,5 @@ public fun JsonArrayBuilder.addAll(values: Collection<Boolean?>): Boolean =
 public fun JsonArrayBuilder.addAll(values: Collection<Number?>): Boolean =
     addAll(values.map(::JsonPrimitive))
 
-/** Adds the given string [values] to a resulting JSON array. */
-@ExperimentalSerializationApi
-public fun JsonArrayBuilder.addAll(vararg values: String?): Boolean =
-    addAll(values.toList())
-
-/** Adds the given boolean [values] to a resulting JSON array. */
-@ExperimentalSerializationApi
-public fun JsonArrayBuilder.addAll(vararg values: Boolean?): Boolean =
-    addAll(values.toList())
-
-/** Adds the given numeric [values] to a resulting JSON array. */
-@ExperimentalSerializationApi
-public fun JsonArrayBuilder.addAll(vararg values: Number?): Boolean =
-    addAll(values.toList())
-
 @DslMarker
 internal annotation class JsonDslMarker

@@ -47,29 +47,23 @@ class JsonBuildersTest {
     @Test
     fun testBuildJsonArrayAddAll() {
         assertEquals(
-            """[1,2,3,4,5,null,1,2,3,4,5,null]""",
+            """[1,2,3,4,5,null]""",
             buildJsonArray {
-                assertTrue { addAll(1) }
-                assertTrue { addAll(2, 3, 4, 5, null) }
                 assertTrue { addAll(listOf(1, 2, 3, 4, 5, null)) }
             }.toString()
         )
 
         assertEquals(
-            """["a","b","c",null,"a","b","c",null]""",
+            """["a","b","c",null]""",
             buildJsonArray {
-                assertTrue { addAll("a") }
-                assertTrue { addAll("b", "c", null) }
                 assertTrue { addAll(listOf("a", "b", "c", null)) }
             }.toString()
         )
 
         assertEquals(
-            """[true,true,true,null,false,false,false,null]""",
+            """[true,false,null]""",
             buildJsonArray {
-                assertTrue { addAll(true) }
-                assertTrue { addAll(true, true, null) }
-                assertTrue { addAll(listOf(false, false, false, null)) }
+                assertTrue { addAll(listOf(true, false, null)) }
             }.toString()
         )
 
@@ -90,7 +84,7 @@ class JsonBuildersTest {
                             JsonPrimitive(2),
                             JsonPrimitive("b"),
                             JsonPrimitive(true),
-                            JsonNull
+                            JsonNull,
                         )
                     )
                 }
@@ -163,11 +157,6 @@ class JsonBuildersTest {
         assertEquals(
             """[]""",
             buildJsonArray {
-                // varargs
-                assertFalse { addAll(*arrayOf<String>()) }
-                assertFalse { addAll(*arrayOf<Boolean>()) }
-                assertFalse { addAll(*arrayOf<Number>()) }
-
                 // add collections
                 assertFalse { addAll(listOf<Number>()) }
                 assertFalse { addAll(listOf<String>()) }
