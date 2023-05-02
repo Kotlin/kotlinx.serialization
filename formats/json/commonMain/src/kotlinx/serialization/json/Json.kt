@@ -86,6 +86,16 @@ public sealed class Json(
     }
 
     /**
+     * Decodes and deserializes the given JSON [string] to the value of type [T] using deserializer
+     * retrieved from the reified type parameter.
+     *
+     * @throws SerializationException in case of any decoding-specific error
+     * @throws IllegalArgumentException if the decoded input is not a valid instance of [T]
+     */
+    public inline fun <reified T> decodeFromString(@FormatLanguage("json", "", "") string: String): T =
+            decodeFromString(serializersModule.serializer(), string)
+
+    /**
      * Deserializes the given JSON [string] into a value of type [T] using the given [deserializer].
      *
      * @throws [SerializationException] if the given JSON string is not a valid JSON input for the type [T]
