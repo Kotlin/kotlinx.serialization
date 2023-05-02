@@ -84,7 +84,7 @@ class SerializersModuleTest {
         val m = SerializersModule { }
 
         val serializer = m.serializer(Parametrized::class, listOf(Int.serializer()), false)
-        assertSame<KClass<*>>(Parametrized.serializer(Int.serializer())::class, serializer::class)
+        assertEquals<KClass<*>>(Parametrized.serializer(Int.serializer())::class, serializer::class)
         assertEquals(PrimitiveKind.INT, serializer.descriptor.getElementDescriptor(0).kind)
 
         val mapSerializer = m.serializer(Map::class, listOf(String.serializer(), Int.serializer()), false)
