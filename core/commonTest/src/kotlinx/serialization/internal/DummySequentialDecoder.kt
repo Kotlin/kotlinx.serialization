@@ -21,8 +21,17 @@ class DummySequentialDecoder(
     override fun decodeSequentially(): Boolean = true
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int = throw Error("This method shouldn't be called in sequential mode")
 
-    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder = this
-    override fun endStructure(descriptor: SerialDescriptor): Unit = Unit
+    var beginStructureCalled = 0
+    var endStructureCalled = 0
+
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
+        ++beginStructureCalled
+        return this
+    }
+    override fun endStructure(descriptor: SerialDescriptor): Unit {
+        ++endStructureCalled
+        return Unit
+    }
 
     override fun decodeInline(descriptor: SerialDescriptor): Decoder = notImplemented()
 
@@ -51,6 +60,6 @@ class DummySequentialDecoder(
     override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String = notImplemented()
 
     override fun decodeInlineElement(descriptor: SerialDescriptor, index: Int): Decoder = notImplemented()
-    override fun <T : Any?> decodeSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T>, previousValue: T?): T = notImplemented()
+    override fun <T : Any?> decodeSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T>, previousValue: T?): T = decodeSerializableValue(deserializer)
     override fun <T : Any> decodeNullableSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T?>, previousValue: T?): T? = notImplemented()
 }
