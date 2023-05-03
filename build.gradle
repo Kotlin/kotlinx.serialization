@@ -26,6 +26,10 @@ buildscript {
     ]
     ext.koverEnabled = property('kover.enabled') ?: true
 
+    def noTeamcityInteractionFlag = rootProject.hasProperty("no_teamcity_interaction")
+    def buildSnapshotUPFlag = rootProject.hasProperty("build_snapshot_up")
+    ext.teamcityInteractionDisabled = noTeamcityInteractionFlag || buildSnapshotUPFlag
+
     /*
     * This property group is used to build kotlinx.serialization against Kotlin compiler snapshot.
     * When build_snapshot_train is set to true, kotlin_version property is overridden with kotlin_snapshot_version.

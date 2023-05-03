@@ -3,7 +3,7 @@
  */
 
 def teamcitySuffix = project.findProperty("teamcitySuffix")?.toString()
-if (project.hasProperty("teamcity") && !build_snapshot_train) {
+if (!teamcityInteractionDisabled && project.hasProperty("teamcity") && !build_snapshot_train) {
     // Tell teamcity about version number
     def postfix = (teamcitySuffix == null) ? "" : " ($teamcitySuffix)"
     println("##teamcity[buildNumber '${project.version}${postfix}']")
