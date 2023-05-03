@@ -26,6 +26,10 @@ buildscript {
     ]
     ext.koverEnabled = property('kover.enabled') ?: true
 
+    def noTeamcityInteractionFlag = rootProject.hasProperty("no_teamcity_interaction")
+    def buildSnapshotUPFlag = rootProject.hasProperty("build_snapshot_up")
+    ext.teamcityInteractionDisabled = noTeamcityInteractionFlag || buildSnapshotUPFlag
+
     /*
     * This property group is used to build kotlinx.serialization against Kotlin compiler snapshot.
     * When build_snapshot_train is set to true, kotlin_version property is overridden with kotlin_snapshot_version.
@@ -42,6 +46,9 @@ buildscript {
             maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
         }
     }
+
+    // this flag disables all project tests for purposes of testing of Kotlin compiler dev builds
+    ext.are_project_tests_disabled = rootProject.hasProperty('disable_project_tests')
 
     repositories {
         maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
@@ -105,6 +112,13 @@ dependencies {
 }
 
 allprojects {
+    // this snippet disables all project tests for purposes of testing of Kotlin compiler dev builds
+    if (are_project_tests_disabled) {
+        tasks.withType(AbstractTestTask.class).configureEach {
+            enabled = false
+        }
+    }
+
     group 'org.jetbrains.kotlinx'
 
     def deployVersion = properties['DeployVersion']
