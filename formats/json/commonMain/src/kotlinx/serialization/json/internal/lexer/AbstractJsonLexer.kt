@@ -610,7 +610,7 @@ internal abstract class AbstractJsonLexer {
         var hasChars = true
         while (hasChars) {
             val ch: Char = source[current]
-            if((ch == 'e' || ch == 'E') && !hasExponent) {
+            if ((ch == 'e' || ch == 'E') && !hasExponent) {
                 if (current == start) fail("Unexpected symbol $ch in numeric literal")
                 isExponentPositive = true
                 hasExponent = true
@@ -623,7 +623,7 @@ internal abstract class AbstractJsonLexer {
                 ++current
                 continue
             }
-            if(ch == '+' && hasExponent) {
+            if (ch == '+' && hasExponent) {
                 if (current == start) fail("Unexpected symbol '+' in numeric literal")
                 isExponentPositive = true
                 ++current
@@ -663,7 +663,7 @@ internal abstract class AbstractJsonLexer {
             true -> 10.0.pow(exponentAccumulator.toDouble())
         }
 
-        if(hasExponent) {
+        if (hasExponent) {
             val doubleAccumulator  = accumulator.toDouble() * calculateExponent(exponentAccumulator, isExponentPositive)
             if(doubleAccumulator > Long.MAX_VALUE || doubleAccumulator < Long.MIN_VALUE) fail("Numeric value overflow")
             accumulator = doubleAccumulator.toLong()

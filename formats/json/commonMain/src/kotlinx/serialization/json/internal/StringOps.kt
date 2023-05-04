@@ -71,32 +71,3 @@ internal fun String.toBooleanStrictOrNull(): Boolean? = when {
     this.equals("false", ignoreCase = true) -> false
     else -> null
 }
-
-private val INT_NUMBERS_CHARS = arrayOf('1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'e', 'E', '+', '-')
-internal fun String.toLongJson(): Long {
-    return toLongOrNull() ?: toDouble()
-        .takeIf { all { it in INT_NUMBERS_CHARS } }
-        ?.takeIf { it < Long.MAX_VALUE && it > Long.MIN_VALUE }
-        ?.toLong()
-    ?: throw NumberFormatException("Invalid number format: $this")
-}
-internal fun String.toLongJsonOrNull(): Long? {
-    return toLongOrNull() ?: toDoubleOrNull()
-        ?.takeIf { all { it in INT_NUMBERS_CHARS } }
-        ?.takeIf { it < Long.MAX_VALUE && it > Long.MIN_VALUE }
-        ?.toLong()
-}
-internal fun String.toIntJson(): Int {
-    return toIntOrNull() ?: toDouble()
-        .takeIf { all { it in INT_NUMBERS_CHARS } }
-        ?.takeIf { it < Int.MAX_VALUE && it > Int.MIN_VALUE }
-        ?.toInt()
-    ?: throw NumberFormatException("Invalid number format: $this")
-}
-internal fun String.toIntJsonOrNull(): Int? {
-    return toIntOrNull() ?: toDoubleOrNull()
-        ?.takeIf { all { it in INT_NUMBERS_CHARS } }
-        ?.takeIf { it < Int.MAX_VALUE && it > Int.MIN_VALUE }
-        ?.toInt()
-}
-
