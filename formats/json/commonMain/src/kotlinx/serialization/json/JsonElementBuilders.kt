@@ -198,16 +198,6 @@ public fun JsonArrayBuilder.addJsonObject(builderAction: JsonObjectBuilder.() ->
 public fun JsonArrayBuilder.addJsonArray(builderAction: JsonArrayBuilder.() -> Unit): Boolean =
     add(buildJsonArray(builderAction))
 
-/**
- * Adds the given JSON [elements] to a resulting JSON array.
- *
- * @return `true` if the list was changed as the result of the operation.
- */
-@ExperimentalSerializationApi
-public fun JsonArrayBuilder.addAll(vararg elements: JsonElement): Boolean {
-    return addAll(elements.toList())
-}
-
 /** Adds the given string [values] to a resulting JSON array. */
 @JvmName("addAllStrings")
 @ExperimentalSerializationApi

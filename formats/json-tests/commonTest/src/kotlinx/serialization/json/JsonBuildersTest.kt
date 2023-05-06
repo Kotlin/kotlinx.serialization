@@ -68,16 +68,8 @@ class JsonBuildersTest {
         )
 
         assertEquals(
-            """[1,"a",false,null,2,"b",true,null]""",
+            """[2,"b",true,null]""",
             buildJsonArray {
-                assertTrue {
-                    addAll(
-                        JsonPrimitive(1),
-                        JsonPrimitive("a"),
-                        JsonPrimitive(false),
-                        JsonNull,
-                    )
-                }
                 assertTrue {
                     addAll(
                         listOf(
@@ -92,16 +84,8 @@ class JsonBuildersTest {
         )
 
         assertEquals(
-            """[{},{},{},null,{},{},{},null]""",
+            """[{},{},{},null]""",
             buildJsonArray {
-                assertTrue {
-                    addAll(
-                        JsonObject(emptyMap()),
-                        JsonObject(emptyMap()),
-                        JsonObject(emptyMap()),
-                        JsonNull,
-                    )
-                }
                 assertTrue {
                     addAll(
                         listOf(
@@ -116,16 +100,8 @@ class JsonBuildersTest {
         )
 
         assertEquals(
-            """[[],[],[],null,[],[],[],null]""",
+            """[[],[],[],null]""",
             buildJsonArray {
-                assertTrue {
-                    addAll(
-                        JsonArray(emptyList()),
-                        JsonArray(emptyList()),
-                        JsonArray(emptyList()),
-                        JsonNull,
-                    )
-                }
                 assertTrue {
                     addAll(
                         listOf(
@@ -140,11 +116,8 @@ class JsonBuildersTest {
         )
 
         assertEquals(
-            """[null,null,null,null]""",
+            """[null,null]""",
             buildJsonArray {
-                assertTrue {
-                    addAll(JsonNull, JsonNull)
-                }
                 assertTrue {
                     addAll(listOf(JsonNull, JsonNull))
                 }
