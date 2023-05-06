@@ -198,19 +198,31 @@ public fun JsonArrayBuilder.addJsonObject(builderAction: JsonObjectBuilder.() ->
 public fun JsonArrayBuilder.addJsonArray(builderAction: JsonArrayBuilder.() -> Unit): Boolean =
     add(buildJsonArray(builderAction))
 
-/** Adds the given string [values] to a resulting JSON array. */
+/**
+ * Adds the given string [values] to a resulting JSON array.
+ *
+ * @return `true` if the list was changed as the result of the operation.
+ */
 @JvmName("addAllStrings")
 @ExperimentalSerializationApi
 public fun JsonArrayBuilder.addAll(values: Collection<String?>): Boolean =
     addAll(values.map(::JsonPrimitive))
 
-/** Adds the given boolean [values] to a resulting JSON array. */
+/**
+ * Adds the given boolean [values] to a resulting JSON array.
+ *
+ * @return `true` if the list was changed as the result of the operation.
+ */
 @JvmName("addAllBooleans")
 @ExperimentalSerializationApi
 public fun JsonArrayBuilder.addAll(values: Collection<Boolean?>): Boolean =
     addAll(values.map(::JsonPrimitive))
 
-/** Adds the given numeric [values] to a resulting JSON array. */
+/**
+ * Adds the given numeric [values] to a resulting JSON array.
+ *
+ * @return `true` if the list was changed as the result of the operation.
+ */
 @JvmName("addAllNumbers")
 @ExperimentalSerializationApi
 public fun JsonArrayBuilder.addAll(values: Collection<Number?>): Boolean =
