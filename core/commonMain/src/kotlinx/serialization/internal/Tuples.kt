@@ -33,35 +33,33 @@ internal sealed class KeyValueSerializer<K, V, R>(
         structuredEncoder.endStructure(descriptor)
     }
 
-    override fun deserialize(decoder: Decoder): R {
-        val composite = decoder.beginStructure(descriptor)
-        if (composite.decodeSequentially()) {
-            val key = composite.decodeSerializableElement(descriptor, 0, keySerializer)
-            val value = composite.decodeSerializableElement(descriptor, 1, valueSerializer)
-            return toResult(key, value)
+    override fun deserialize(decoder: Decoder): R = decoder.decodeStructure(descriptor) {
+        if (decodeSequentially()) {
+            val key = decodeSerializableElement(descriptor, 0, keySerializer)
+            val value = decodeSerializableElement(descriptor, 1, valueSerializer)
+            return@decodeStructure toResult(key, value)
         }
 
         var key: Any? = NULL
         var value: Any? = NULL
         mainLoop@ while (true) {
-            when (val idx = composite.decodeElementIndex(descriptor)) {
+            when (val idx = decodeElementIndex(descriptor)) {
                 CompositeDecoder.DECODE_DONE -> {
                     break@mainLoop
                 }
                 0 -> {
-                    key = composite.decodeSerializableElement(descriptor, 0, keySerializer)
+                    key = decodeSerializableElement(descriptor, 0, keySerializer)
                 }
                 1 -> {
-                    value = composite.decodeSerializableElement(descriptor, 1, valueSerializer)
+                    value = decodeSerializableElement(descriptor, 1, valueSerializer)
                 }
                 else -> throw SerializationException("Invalid index: $idx")
             }
         }
-        composite.endStructure(descriptor)
         if (key === NULL) throw SerializationException("Element 'key' is missing")
         if (value === NULL) throw SerializationException("Element 'value' is missing")
         @Suppress("UNCHECKED_CAST")
-        return toResult(key as K, value as V)
+        return@decodeStructure toResult(key as K, value as V)
     }
 }
 
