@@ -8,7 +8,7 @@ import kotlinx.serialization.json.internal.CharMappings.CHAR_TO_TOKEN
 import kotlinx.serialization.json.internal.CharMappings.ESCAPE_2_CHAR
 import kotlin.js.*
 import kotlin.jvm.*
-import kotlin.math.pow
+import kotlin.math.*
 
 internal const val lenientHint = "Use 'isLenient = true' in 'Json {}` builder to accept non-compliant JSON."
 internal const val coerceInputValuesHint = "Use 'coerceInputValues = true' in 'Json {}` builder to coerce nulls to default values."
@@ -665,6 +665,7 @@ internal abstract class AbstractJsonLexer {
         if (hasExponent) {
             val doubleAccumulator  = accumulator.toDouble() * calculateExponent(exponentAccumulator, isExponentPositive)
             if (doubleAccumulator > Long.MAX_VALUE || doubleAccumulator < Long.MIN_VALUE) fail("Numeric value overflow")
+            if (floor(doubleAccumulator) != doubleAccumulator) fail("Can't convert $doubleAccumulator to Long")
             accumulator = doubleAccumulator.toLong()
         }
 

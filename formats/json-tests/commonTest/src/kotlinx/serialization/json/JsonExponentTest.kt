@@ -24,12 +24,6 @@ class JsonExponentTest : JsonTestBase() {
     }
 
     @Test
-    fun testExponentDecodingTruncatedDecimal() = parametrizedTest {
-        val decoded = Json.decodeFromString<SomeData>("""{ "count": -1E-1 }""", it)
-        assertEquals(0, decoded.count)
-    }
-
-    @Test
     fun testExponentDecodingPositiveDouble() = parametrizedTest {
         val decoded = Json.decodeFromString<SomeDataDouble>("""{ "count": 1.5E1 }""", it)
         assertEquals(15.0, decoded.count)
@@ -39,6 +33,12 @@ class JsonExponentTest : JsonTestBase() {
     fun testExponentDecodingNegativeDouble() = parametrizedTest {
         val decoded = Json.decodeFromString<SomeDataDouble>("""{ "count": -1e-1 }""", it)
         assertEquals(-0.1, decoded.count)
+    }
+
+    @Test
+    fun testExponentDecodingErrorTruncatedDecimal() = parametrizedTest {
+        assertFailsWithSerial("JsonDecodingException")
+        { Json.decodeFromString<SomeData>("""{ "count": -1E-1 }""", it) }
     }
 
     @Test
