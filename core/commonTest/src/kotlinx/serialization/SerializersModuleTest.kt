@@ -54,23 +54,20 @@ class SerializersModuleTest {
 
     @Test
     fun testCompiled() = noJsLegacy {
-        val m = SerializersModule { }
-
-        assertSame<KSerializer<*>>(Object.serializer(), m.serializer(Object::class, emptyList(), false))
-        assertSame<KSerializer<*>>(SealedParent.serializer(), m.serializer(SealedParent::class, emptyList(), false))
+        assertSame<KSerializer<*>>(Object.serializer(), serializer(Object::class, emptyList(), false))
+        assertSame<KSerializer<*>>(SealedParent.serializer(), serializer(SealedParent::class, emptyList(), false))
         assertSame<KSerializer<*>>(
             SealedParent.Child.serializer(),
-            m.serializer(SealedParent.Child::class, emptyList(), false)
+            serializer(SealedParent.Child::class, emptyList(), false)
         )
 
-        assertSame<KSerializer<*>>(Abstract.serializer(), m.serializer(Abstract::class, emptyList(), false))
-        assertSame<KSerializer<*>>(SerializableEnum.serializer(), m.serializer(SerializableEnum::class, emptyList(), false))
+        assertSame<KSerializer<*>>(Abstract.serializer(), serializer(Abstract::class, emptyList(), false))
+        assertSame<KSerializer<*>>(SerializableEnum.serializer(), serializer(SerializableEnum::class, emptyList(), false))
     }
 
     @Test
     fun testBuiltIn() {
-        val m = SerializersModule { }
-        assertSame<KSerializer<*>>(Int.serializer(), m.serializer(Int::class, emptyList(), false))
+        assertSame<KSerializer<*>>(Int.serializer(), serializer(Int::class, emptyList(), false))
     }
 
     @Test
@@ -81,13 +78,11 @@ class SerializersModuleTest {
 
     @Test
     fun testParametrized() {
-        val m = SerializersModule { }
-
-        val serializer = m.serializer(Parametrized::class, listOf(Int.serializer()), false)
+        val serializer = serializer(Parametrized::class, listOf(Int.serializer()), false)
         assertEquals<KClass<*>>(Parametrized.serializer(Int.serializer())::class, serializer::class)
         assertEquals(PrimitiveKind.INT, serializer.descriptor.getElementDescriptor(0).kind)
 
-        val mapSerializer = m.serializer(Map::class, listOf(String.serializer(), Int.serializer()), false)
+        val mapSerializer = serializer(Map::class, listOf(String.serializer(), Int.serializer()), false)
         assertIs<MapLikeSerializer<*, *, *, *>>(mapSerializer)
         assertEquals(PrimitiveKind.STRING, mapSerializer.descriptor.getElementDescriptor(0).kind)
         assertEquals(PrimitiveKind.INT, mapSerializer.descriptor.getElementDescriptor(1).kind)
@@ -95,10 +90,8 @@ class SerializersModuleTest {
 
     @Test
     fun testUnsupportedArray() {
-        val m = SerializersModule { }
-
         assertFails {
-            m.serializer(Array::class, listOf(Int.serializer()), false)
+            serializer(Array::class, listOf(Int.serializer()), false)
         }
     }
 

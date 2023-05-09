@@ -124,6 +124,7 @@ public final class kotlinx/serialization/SerializersKt {
 	public static final fun noCompiledSerializer (Lkotlinx/serialization/modules/SerializersModule;Lkotlin/reflect/KClass;[Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Ljava/lang/reflect/Type;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Lkotlin/reflect/KClass;)Lkotlinx/serialization/KSerializer;
+	public static final fun serializer (Lkotlin/reflect/KClass;Ljava/util/List;Z)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Lkotlin/reflect/KType;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Lkotlinx/serialization/modules/SerializersModule;Ljava/lang/reflect/Type;)Lkotlinx/serialization/KSerializer;
 	public static final fun serializer (Lkotlinx/serialization/modules/SerializersModule;Lkotlin/reflect/KClass;Ljava/util/List;Z)Lkotlinx/serialization/KSerializer;
