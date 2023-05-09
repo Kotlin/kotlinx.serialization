@@ -6,9 +6,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
+import kotlin.contracts.*
 import kotlin.jvm.JvmName
 
 /**
