@@ -118,7 +118,7 @@ private object JsonLiteralSerializer : KSerializer<JsonLiteral> {
         }
 
         // use .content instead of .longOrNull as latter can process exponential notation,
-        //and it should be delegated to double when encoding.
+        // and it should be delegated to double when encoding.
         value.content.toLongOrNull()?.let { return encoder.encodeLong(it) }
 
         // most unsigned values fit to .longOrNull, but not ULong
