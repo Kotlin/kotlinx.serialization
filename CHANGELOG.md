@@ -1,3 +1,47 @@
+
+1.5.1 / 2023-05-10
+==================
+This release contains an important Native targets overhaul, as well as numerous enhancements and bugfixes.
+Kotlin 1.8.21 is used by default.
+
+### New set of Native targets
+
+Kotlin/Native team recently has published a [document](https://kotlinlang.org/docs/native-target-support.html) describing 
+new target policy: each target belongs to a certain _tier_, and different tiers have different stability guarantees.
+The official recommendation for library authors is to support targets up to Tier 3, and kotlinx.serialization now follows it.
+It means that in this release, there are a lot of new targets added from this tier, such as `androidNativeX86` or `watchosDeviceArm64`.
+Note that since they belong to Tier 3, they're not auto-tested on CI.
+
+kotlinx.serialization also ships some deprecated Kotlin/Native targets that do not belong to any tier (e.g. `iosArm32`, `mingwX86`).
+We'll continue to release them, but we do not provide support for them, nor do we plan to add new targets from the deprecated list.
+
+### Improvements in Json elements
+
+There are two new function sets that should make creating raw Json elements easier.
+[First one](https://github.com/Kotlin/kotlinx.serialization/pull/2160) contains overloads for `JsonPrimitive` constructor-like function
+that accept unsigned types: `JsonPrimitive(1u)`.
+[Second one](https://github.com/Kotlin/kotlinx.serialization/pull/2156) adds new `addAll` functions to `JsonArrayBuilder` to be used with collections
+of numbers, booleans or strings: `buildJsonArray { addAll(listOf(1, 2, 3)) }`
+Both were contributed to us by [aSemy](https://github.com/aSemy).
+
+### Other enhancements
+
+  * **Potential source-breaking change**: Rename json-okio `target` variables to `sink` (#2226)
+  * Function to retrieve KSerializer by KClass and type arguments serializers (#2291)
+  * Added FormatLanguage annotation to Json methods (#2234)
+  * Properties Format: Support sealed/polymorphic classes as class properties (#2255)
+
+### Bugfixes
+
+  * KeyValueSerializer: Fix missing call to endStructure() (#2272)
+  * ObjectSerializer: Respect sequential decoding (#2273)
+  * Fix value class encoding in various corner cases (#2242)
+  * Fix incorrect json decoding iterator's .hasNext() behavior on array-wrapped inputs (#2268)
+  * Fix memory leak caused by invalid KTypeWrapper's equals method (#2274)
+  * Fixed NoSuchMethodError when parsing a JSON stream on Java 8 (#2219)
+  * Fix MissingFieldException duplication (#2213)
+
+
 1.5.0 / 2023-02-27
 ==================
 
