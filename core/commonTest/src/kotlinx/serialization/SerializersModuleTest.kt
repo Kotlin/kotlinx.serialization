@@ -2,8 +2,6 @@
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:UseContextualSerialization(SerializersModuleTest.FileContextualType::class)
-
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
@@ -49,13 +47,8 @@ class SerializersModuleTest {
     @Serializer(forClass = ParametrizedContextual::class)
     object ParametrizedContextualSerializer
 
-    class FileContextualType(val i: Int)
-
-    @Serializer(forClass = FileContextualType::class)
-    object FileContextualSerializer
-
     @Serializable
-    class ContextualHolder(@Contextual val contextual: ContextualType, val fileContextual: FileContextualType)
+    class ContextualHolder(@Contextual val contextual: ContextualType)
 
     @Test
     fun testCompiled() = noJsLegacy {
@@ -104,19 +97,19 @@ class SerializersModuleTest {
     @Test
     fun testContextual() {
         val m = SerializersModule {
-            contextual<FileContextualType>(FileContextualSerializer)
             contextual<ContextualType>(ContextualSerializer)
             contextual<ParametrizedContextual<*>>(ParametrizedContextualSerializer as KSerializer<ParametrizedContextual<*>>)
+            contextual(ContextualGenericsTest.ThirdPartyBox::class) { args -> ContextualGenericsTest.ThirdPartyBoxSerializer(args[0]) }
         }
 
         val contextualSerializer = m.serializer(ContextualType::class, emptyList(), false)
         assertSame<KSerializer<*>>(ContextualSerializer, contextualSerializer)
 
+        val boxSerializer = m.serializer(ContextualGenericsTest.ThirdPartyBox::class, listOf(Int.serializer()), false)
+        assertIs<ContextualGenericsTest.ThirdPartyBoxSerializer<Int>>(boxSerializer)
+
         val parametrizedSerializer = m.serializer(ParametrizedContextual::class, listOf(Int.serializer()), false)
         assertSame<KSerializer<*>>(ParametrizedContextualSerializer, parametrizedSerializer)
-
-        val fileContextualSerializer = m.serializer(FileContextualType::class, emptyList(), false)
-        assertSame<KSerializer<*>>(FileContextualSerializer, fileContextualSerializer)
 
         val holderSerializer = m.serializer(ContextualHolder::class, emptyList(), false)
         assertSame<KSerializer<*>>(ContextualHolder.serializer(), holderSerializer)

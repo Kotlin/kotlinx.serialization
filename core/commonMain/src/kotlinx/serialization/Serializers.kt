@@ -86,15 +86,17 @@ public fun serializer(type: KType): KSerializer<Any?> = EmptySerializersModule()
  * Caching on JVM platform is disabled for this function, so it may work slower than an overload with [KType].
  *
  * @throws SerializationException if serializer cannot be created (provided [kClass] or its type argument is not serializable)
- * @throws SerializationException if [kClass] is an array class
+ * @throws SerializationException if [kClass] is a `kotlin.Array`
+ * @throws SerializationException if size of [typeArgumentsSerializers] does not match the expected generic parameters count
+ * @throws IndexOutOfBoundsException if [kClass] has a built-in serializer and size of [typeArgumentsSerializers] does not match the expected generic parameters count
  * @throws IndexOutOfBoundsException if size of [typeArgumentsSerializers] does not match the expected generic parameters count
  */
 @ExperimentalSerializationApi
-public fun serializer(
-    kClass: KClass<*>,
+public fun <T: Any> serializer(
+    kClass: KClass<T>,
     typeArgumentsSerializers: List<KSerializer<*>>,
     isNullable: Boolean
-): KSerializer<Any?> = EmptySerializersModule().serializer(kClass, typeArgumentsSerializers, isNullable)
+): KSerializer<T?> = EmptySerializersModule().serializer(kClass, typeArgumentsSerializers, isNullable)
 
 /**
  * Creates a serializer for the given [type] if possible.
@@ -150,6 +152,8 @@ public fun SerializersModule.serializer(type: KType): KSerializer<Any?> =
  *
  * @throws SerializationException if serializer cannot be created (provided [kClass] or its type argument is not serializable and is not registered in [this] module)
  * @throws SerializationException if [kClass] is a `kotlin.Array`
+ * @throws SerializationException if size of [typeArgumentsSerializers] does not match the expected generic parameters count
+ * @throws IndexOutOfBoundsException if [kClass] has a built-in serializer and size of [typeArgumentsSerializers] does not match the expected generic parameters count
  * @throws IndexOutOfBoundsException if size of [typeArgumentsSerializers] does not match the expected generic parameters count
  */
 @ExperimentalSerializationApi
@@ -157,8 +161,8 @@ public fun <T : Any> SerializersModule.serializer(
     kClass: KClass<T>,
     typeArgumentsSerializers: List<KSerializer<*>>,
     isNullable: Boolean
-): KSerializer<Any?> =
-    serializerByKClassImpl(kClass as KClass<Any>, typeArgumentsSerializers as List<KSerializer<Any?>>, isNullable)
+): KSerializer<T?> =
+    serializerByKClassImpl(kClass as KClass<Any>, typeArgumentsSerializers as List<KSerializer<Any?>>, isNullable)?.cast()
         ?: kClass.platformSpecificSerializerNotRegistered()
 
 /**
