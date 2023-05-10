@@ -41,8 +41,13 @@ class SerializersModuleTest {
 
     class ContextualType(val i: Int)
 
+    class ParametrizedContextual<T : Any>(val a: T)
+
     @Serializer(forClass = ContextualType::class)
     object ContextualSerializer
+
+    @Serializer(forClass = ParametrizedContextual::class)
+    object ParametrizedContextualSerializer
 
     class FileContextualType(val i: Int)
 
@@ -95,15 +100,20 @@ class SerializersModuleTest {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     @Test
     fun testContextual() {
         val m = SerializersModule {
             contextual<FileContextualType>(FileContextualSerializer)
             contextual<ContextualType>(ContextualSerializer)
+            contextual<ParametrizedContextual<*>>(ParametrizedContextualSerializer as KSerializer<ParametrizedContextual<*>>)
         }
 
         val contextualSerializer = m.serializer(ContextualType::class, emptyList(), false)
         assertSame<KSerializer<*>>(ContextualSerializer, contextualSerializer)
+
+        val parametrizedSerializer = m.serializer(ParametrizedContextual::class, listOf(Int.serializer()), false)
+        assertSame<KSerializer<*>>(ParametrizedContextualSerializer, parametrizedSerializer)
 
         val fileContextualSerializer = m.serializer(FileContextualType::class, emptyList(), false)
         assertSame<KSerializer<*>>(FileContextualSerializer, fileContextualSerializer)
