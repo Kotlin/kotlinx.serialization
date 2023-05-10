@@ -73,21 +73,28 @@ public fun serializer(type: KType): KSerializer<Any?> = EmptySerializersModule()
 
 
 /**
- * Retrieves serializer for the given [type].
- * **Retrieving an array serializer is not supported**
+ * Retrieves serializer for the given [kClass].
+ * This method uses platform-specific reflection available.
  *
- * If [type] is a parametrized type then in [typeArgumentsSerializers] it is necessary to pass serializers for generic parameters.
- *
+ * If [kClass] is a parametrized type then it is necessary to pass serializers for generic parameters in the [typeArgumentsSerializers].
  * The nullability of returned serializer is specified using the [isNullable].
  *
- * Caching on JVM platform is disabled for this function, so it may work slower than overloading with [KType].
+ * Note that it is impossible to create an array serializer with this method,
+ * as array serializer needs additional information: type token for an element type.
+ * To create array serializer, use overload with [KType] or [ArraySerializer] directly.
  *
- * @throws SerializationException if serializer cannot be created (provided [type] or its type argument is not serializable).
- * @throws SerializationException if [type] is an array class
- * @throws Exception if size of [typeArgumentsSerializers] does not match the expected generic parameters count
+ * Caching on JVM platform is disabled for this function, so it may work slower than an overload with [KType].
+ *
+ * @throws SerializationException if serializer cannot be created (provided [kClass] or its type argument is not serializable)
+ * @throws SerializationException if [kClass] is an array class
+ * @throws IndexOutOfBoundsException if size of [typeArgumentsSerializers] does not match the expected generic parameters count
  */
 @ExperimentalSerializationApi
-public fun serializer(type: KClass<*>, typeArgumentsSerializers: List<KSerializer<*>>, isNullable: Boolean): KSerializer<Any?> = EmptySerializersModule().serializer(type, typeArgumentsSerializers, isNullable)
+public fun serializer(
+    kClass: KClass<*>,
+    typeArgumentsSerializers: List<KSerializer<*>>,
+    isNullable: Boolean
+): KSerializer<Any?> = EmptySerializersModule().serializer(kClass, typeArgumentsSerializers, isNullable)
 
 /**
  * Creates a serializer for the given [type] if possible.
@@ -128,29 +135,31 @@ public fun SerializersModule.serializer(type: KType): KSerializer<Any?> =
 
 
 /**
- * Retrieves serializer for the given [type] and,
- * if [type] is not serializable, fallbacks to [contextual][SerializersModule.getContextual] lookup.
+ * Retrieves serializer for the given [kClass] and,
+ * if [kClass] is not serializable, fallbacks to [contextual][SerializersModule.getContextual] lookup.
+ * This method uses platform-specific reflection available.
  *
- * **Retrieving an array serializer is not supported**
- *
- * If [type] is a parametrized type then in [typeArgumentsSerializers] it is necessary to pass serializers for generic parameters.
- *
+ * If [kClass] is a parametrized type then it is necessary to pass serializers for generic parameters in the [typeArgumentsSerializers].
  * The nullability of returned serializer is specified using the [isNullable].
  *
- * Caching on JVM platform is disabled for this function, so it may work slower than overloading with [KType].
+ * Note that it is impossible to create an array serializer with this method,
+ * as array serializer needs additional information: type token for an element type.
+ * To create array serializer, use overload with [KType] or [ArraySerializer] directly.
  *
- * @throws SerializationException if serializer cannot be created (provided [type] or its type argument is not serializable and is not registered in [this] module).
- * @throws SerializationException if [type] is an array class
- * @throws Exception if size of [typeArgumentsSerializers] does not match the expected generic parameters count
+ * Caching on JVM platform is disabled for this function, so it may work slower than an overload with [KType].
+ *
+ * @throws SerializationException if serializer cannot be created (provided [kClass] or its type argument is not serializable and is not registered in [this] module)
+ * @throws SerializationException if [kClass] is a `kotlin.Array`
+ * @throws IndexOutOfBoundsException if size of [typeArgumentsSerializers] does not match the expected generic parameters count
  */
 @ExperimentalSerializationApi
 public fun <T : Any> SerializersModule.serializer(
-    type: KClass<T>,
+    kClass: KClass<T>,
     typeArgumentsSerializers: List<KSerializer<*>>,
     isNullable: Boolean
 ): KSerializer<Any?> =
-    serializerByKClassImpl(type as KClass<Any>, typeArgumentsSerializers as List<KSerializer<Any?>>, isNullable) ?: type
-        .platformSpecificSerializerNotRegistered()
+    serializerByKClassImpl(kClass as KClass<Any>, typeArgumentsSerializers as List<KSerializer<Any?>>, isNullable)
+        ?: kClass.platformSpecificSerializerNotRegistered()
 
 /**
  * Retrieves default serializer for the given [type] and,
@@ -219,11 +228,12 @@ private fun SerializersModule.serializerByKClassImpl(
     val serializer = if (typeArgumentsSerializers.isEmpty()) {
         rootClass.serializerOrNull() ?: getContextual(rootClass)
     } else {
-        rootClass.parametrizedSerializerOrNull(typeArgumentsSerializers) { throw SerializationException("It is not possible to retrieve an array serializer by KClass, use KType instead") }
-            ?: getContextual(
-                rootClass,
-                typeArgumentsSerializers
-            )
+        rootClass.parametrizedSerializerOrNull(typeArgumentsSerializers) {
+            throw SerializationException("It is not possible to retrieve an array serializer using KClass alone, use KType instead or ArraySerializer factory")
+        } ?: getContextual(
+            rootClass,
+            typeArgumentsSerializers
+        )
     }
 
     return serializer?.cast<Any>()?.nullable(isNullable)
