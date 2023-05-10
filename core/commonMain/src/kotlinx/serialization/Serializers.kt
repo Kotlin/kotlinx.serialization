@@ -224,7 +224,6 @@ private fun SerializersModule.serializerByKClassImpl(
     typeArgumentsSerializers: List<KSerializer<Any?>>,
     isNullable: Boolean
 ): KSerializer<Any?>? {
-
     val serializer = if (typeArgumentsSerializers.isEmpty()) {
         rootClass.serializerOrNull() ?: getContextual(rootClass)
     } else {
@@ -238,7 +237,6 @@ private fun SerializersModule.serializerByKClassImpl(
         } catch (e: IndexOutOfBoundsException) {
             throw SerializationException("Unable to retrieve a serializer, the number of passed type serializers differs from the actual number of generic parameters", e)
         }
-
     }
 
     return serializer?.cast<Any>()?.nullable(isNullable)

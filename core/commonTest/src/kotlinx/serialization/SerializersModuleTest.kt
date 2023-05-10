@@ -107,6 +107,7 @@ class SerializersModuleTest {
 
         val boxSerializer = m.serializer(ContextualGenericsTest.ThirdPartyBox::class, listOf(Int.serializer()), false)
         assertIs<ContextualGenericsTest.ThirdPartyBoxSerializer<Int>>(boxSerializer)
+        assertEquals(PrimitiveKind.INT, boxSerializer.descriptor.getElementDescriptor(0).kind)
 
         val parametrizedSerializer = m.serializer(ParametrizedContextual::class, listOf(Int.serializer()), false)
         assertSame<KSerializer<*>>(ParametrizedContextualSerializer, parametrizedSerializer)
