@@ -91,11 +91,11 @@ public fun serializer(type: KType): KSerializer<Any?> = EmptySerializersModule()
  * @throws IndexOutOfBoundsException if size of [typeArgumentsSerializers] does not match the expected generic parameters count
  */
 @ExperimentalSerializationApi
-public fun <T: Any> serializer(
-    kClass: KClass<T>,
+public fun serializer(
+    kClass: KClass<*>,
     typeArgumentsSerializers: List<KSerializer<*>>,
     isNullable: Boolean
-): KSerializer<T?> = EmptySerializersModule().serializer(kClass, typeArgumentsSerializers, isNullable)
+): KSerializer<Any?> = EmptySerializersModule().serializer(kClass, typeArgumentsSerializers, isNullable)
 
 /**
  * Creates a serializer for the given [type] if possible.
@@ -155,12 +155,12 @@ public fun SerializersModule.serializer(type: KType): KSerializer<Any?> =
  * @throws IndexOutOfBoundsException if size of [typeArgumentsSerializers] does not match the expected generic parameters count
  */
 @ExperimentalSerializationApi
-public fun <T : Any> SerializersModule.serializer(
-    kClass: KClass<T>,
+public fun SerializersModule.serializer(
+    kClass: KClass<*>,
     typeArgumentsSerializers: List<KSerializer<*>>,
     isNullable: Boolean
-): KSerializer<T?> =
-    serializerByKClassImpl(kClass as KClass<Any>, typeArgumentsSerializers as List<KSerializer<Any?>>, isNullable)?.cast()
+): KSerializer<Any?> =
+    serializerByKClassImpl(kClass as KClass<Any>, typeArgumentsSerializers as List<KSerializer<Any?>>, isNullable)
         ?: kClass.platformSpecificSerializerNotRegistered()
 
 /**
@@ -230,12 +230,17 @@ private fun SerializersModule.serializerByKClassImpl(
     val serializer = if (typeArgumentsSerializers.isEmpty()) {
         rootClass.serializerOrNull() ?: getContextual(rootClass)
     } else {
-        rootClass.parametrizedSerializerOrNull(typeArgumentsSerializers) {
-            throw SerializationException("It is not possible to retrieve an array serializer using KClass alone, use KType instead or ArraySerializer factory")
-        } ?: getContextual(
-            rootClass,
-            typeArgumentsSerializers
-        )
+        try {
+            rootClass.parametrizedSerializerOrNull(typeArgumentsSerializers) {
+                throw SerializationException("It is not possible to retrieve an array serializer using KClass alone, use KType instead or ArraySerializer factory")
+            } ?: getContextual(
+                rootClass,
+                typeArgumentsSerializers
+            )
+        } catch (e: IndexOutOfBoundsException) {
+            throw SerializationException("Unable to retrieve a serializer, the number of passed type serializers differs from the actual number of generic parameters")
+        }
+
     }
 
     return serializer?.cast<Any>()?.nullable(isNullable)
