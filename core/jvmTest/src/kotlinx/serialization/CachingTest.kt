@@ -34,7 +34,7 @@ class CachingTest {
         val cache = createParametrizedCache { clazz, types ->
             factoryCalled += 1
             val serializers = EmptySerializersModule().serializersForParameters(types, true)!!
-            clazz.parametrizedSerializerOrNull(types, serializers)
+            clazz.parametrizedSerializerOrNull(serializers) { types[0].classifier }
         }
 
         repeat(10) {

@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
+
 /*
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
@@ -60,6 +62,12 @@ tasks.withType(Jar).named(kotlin.jvm().artifactsTaskName) {
                 "Implementation-Version": version,
                 "Require-Kotlin-Version": "1.4.30-M1",
         )
+    }
+}
+
+tasks.withType(Kotlin2JsCompile.class).configureEach {
+    if (it.name == "compileTestKotlinJsLegacy") {
+        it.exclude("**/SerializersModuleTest.kt")
     }
 }
 
