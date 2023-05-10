@@ -88,7 +88,6 @@ public fun serializer(type: KType): KSerializer<Any?> = EmptySerializersModule()
  * @throws SerializationException if serializer cannot be created (provided [kClass] or its type argument is not serializable)
  * @throws SerializationException if [kClass] is a `kotlin.Array`
  * @throws SerializationException if size of [typeArgumentsSerializers] does not match the expected generic parameters count
- * @throws IndexOutOfBoundsException if [kClass] has a built-in serializer and size of [typeArgumentsSerializers] does not match the expected generic parameters count
  * @throws IndexOutOfBoundsException if size of [typeArgumentsSerializers] does not match the expected generic parameters count
  */
 @ExperimentalSerializationApi
@@ -153,7 +152,6 @@ public fun SerializersModule.serializer(type: KType): KSerializer<Any?> =
  * @throws SerializationException if serializer cannot be created (provided [kClass] or its type argument is not serializable and is not registered in [this] module)
  * @throws SerializationException if [kClass] is a `kotlin.Array`
  * @throws SerializationException if size of [typeArgumentsSerializers] does not match the expected generic parameters count
- * @throws IndexOutOfBoundsException if [kClass] has a built-in serializer and size of [typeArgumentsSerializers] does not match the expected generic parameters count
  * @throws IndexOutOfBoundsException if size of [typeArgumentsSerializers] does not match the expected generic parameters count
  */
 @ExperimentalSerializationApi
