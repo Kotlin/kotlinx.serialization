@@ -1,15 +1,17 @@
 
-1.5.1 / 2023-05-10
+1.5.1 / 2023-05-11
 ==================
 This release contains an important Native targets overhaul, as well as numerous enhancements and bugfixes.
 Kotlin 1.8.21 is used by default.
 
 ### New set of Native targets
 
-Kotlin/Native team recently has published a [document](https://kotlinlang.org/docs/native-target-support.html) describing 
-new target policy: each target belongs to a certain _tier_, and different tiers have different stability guarantees.
-The official recommendation for library authors is to support targets up to Tier 3, and kotlinx.serialization now follows it.
-It means that in this release, there are a lot of new targets added from this tier, such as `androidNativeX86` or `watchosDeviceArm64`.
+The official [Kotlin target support policy](https://kotlinlang.org/docs/native-target-support.html) has recently been published
+describing new target policy: each target belongs to a certain _tier_, and different tiers have different stability guarantees.
+The official recommendation for library authors is to support targets up to Tier 3,
+and kotlinx.serialization now follows it.
+It means that in this release, there are a lot of new targets added from this tier,
+such as `androidNativeX86` or `watchosDeviceArm64`.
 Note that since they belong to Tier 3, they're not auto-tested on CI.
 
 kotlinx.serialization also ships some deprecated Kotlin/Native targets that do not belong to any tier (e.g. `iosArm32`, `mingwX86`).
