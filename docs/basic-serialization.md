@@ -65,11 +65,12 @@ the object that is passed as its parameter under the hood and encodes it to a JS
 Let's start with a class describing a project and try to get its JSON representation.
 
 ```kotlin
+@Serializable
 class Project(val name: String, val language: String)
 
 fun main() {
     val data = Project("kotlinx.serialization", "Kotlin")
-    println(Json.encodeToString(data))
+    println(Json.encodeToString(Project.serializer(), data))
 }
 ```
 
@@ -94,7 +95,7 @@ class Project(val name: String, val language: String)
 
 fun main() {
     val data = Project("kotlinx.serialization", "Kotlin")
-    println(Json.encodeToString(data))
+    println(Json.encodeToString(Project.serializer(), data))
 }
 ```
 
@@ -127,7 +128,7 @@ we want to print its contents to verify how it decodes.
 data class Project(val name: String, val language: String)
 
 fun main() {
-    val data = Json.decodeFromString<Project>("""
+    val data = Json.decodeFromString<Project>(Project.serializer(), """
         {"name":"kotlinx.serialization","language":"Kotlin"}
     """)
     println(data)
@@ -174,7 +175,7 @@ class Project(
 
 fun main() {
     val data = Project("kotlinx.serialization").apply { stars = 9000 }
-    println(Json.encodeToString(data))
+    println(Json.encodeToString(Project.serializer(), data))
 }
 ```
 
@@ -224,7 +225,7 @@ Serialization works with a private primary constructor, and still serializes onl
 
 ```kotlin
 fun main() {
-    println(Json.encodeToString(Project("kotlin/kotlinx.serialization")))
+    println(Json.encodeToString(Project.serializer(), Project("kotlin/kotlinx.serialization")))
 }
 ```
 
@@ -258,7 +259,7 @@ cannot get an invalid class as a result of deserialization. Let's try it.
 
 ```kotlin
 fun main() {
-    val data = Json.decodeFromString<Project>("""
+    val data = Json.decodeFromString<Project>(Project.serializer(), """
         {"name":""}
     """)
     println(data)
@@ -285,7 +286,7 @@ For example, run the following code.
 data class Project(val name: String, val language: String)
 
 fun main() {
-    val data = Json.decodeFromString<Project>("""
+    val data = Json.decodeFromString<Project>(Project.serializer(), """
         {"name":"kotlinx.serialization"}
     """)
     println(data)
@@ -310,7 +311,7 @@ for serialization.
 data class Project(val name: String, val language: String = "Kotlin")
 
 fun main() {
-    val data = Json.decodeFromString<Project>("""
+    val data = Json.decodeFromString<Project>(Project.serializer(), """
         {"name":"kotlinx.serialization"}
     """)
     println(data)
@@ -343,7 +344,7 @@ fun computeLanguage(): String {
 data class Project(val name: String, val language: String = computeLanguage())
 
 fun main() {
-    val data = Json.decodeFromString<Project>("""
+    val data = Json.decodeFromString<Project>(Project.serializer(), """
         {"name":"kotlinx.serialization","language":"Kotlin"}
     """)
     println(data)
@@ -371,7 +372,7 @@ Let us change the previous example by marking the `language` property as `@Requi
 data class Project(val name: String, @Required val language: String = "Kotlin")
 
 fun main() {
-    val data = Json.decodeFromString<Project>("""
+    val data = Json.decodeFromString<Project>(Project.serializer(), """
         {"name":"kotlinx.serialization"}
     """)
     println(data)
@@ -398,7 +399,7 @@ A property can be excluded from serialization by marking it with the [`@Transien
 data class Project(val name: String, @Transient val language: String = "Kotlin")
 
 fun main() {
-    val data = Json.decodeFromString<Project>("""
+    val data = Json.decodeFromString<Project>(Project.serializer(), """
         {"name":"kotlinx.serialization","language":"Kotlin"}
     """)
     println(data)
@@ -430,7 +431,7 @@ data class Project(val name: String, val language: String = "Kotlin")
 
 fun main() {
     val data = Project("kotlinx.serialization")
-    println(Json.encodeToString(data))
+    println(Json.encodeToString(Project.serializer(), data))
 }
 ```
 
@@ -470,8 +471,8 @@ data class User(
 fun main() {
     val userA = User("Alice", listOf(Project("kotlinx.serialization")))
     val userB = User("Bob")
-    println(Json.encodeToString(userA))
-    println(Json.encodeToString(userB))
+    println(Json.encodeToString(User.serializer(), userA))
+    println(Json.encodeToString(User.serializer(), userB))
 }
 ```
 
@@ -496,7 +497,7 @@ class Project(val name: String, val renamedTo: String? = null)
 
 fun main() {
     val data = Project("kotlinx.serialization")
-    println(Json.encodeToString(data))
+    println(Json.encodeToString(Project.serializer(), data))
 }
 ```
 
@@ -520,7 +521,7 @@ In particular, let us try to decode a `null` value from a JSON object into a non
 data class Project(val name: String, val language: String = "Kotlin")
 
 fun main() {
-    val data = Json.decodeFromString<Project>("""
+    val data = Json.decodeFromString<Project>(Project.serializer(), """
         {"name":"kotlinx.serialization","language":null}
     """)
     println(data)
@@ -557,7 +558,7 @@ class User(val name: String)
 fun main() {
     val owner = User("kotlin")
     val data = Project("kotlinx.serialization", owner)
-    println(Json.encodeToString(data))
+    println(Json.encodeToString(Project.serializer(), data))
 }
 ```
 
@@ -590,7 +591,7 @@ class User(val name: String)
 fun main() {
     val owner = User("kotlin")
     val data = Project("kotlinx.serialization", owner, owner)
-    println(Json.encodeToString(data))
+    println(Json.encodeToString(Project.serializer(), data))
 }
 ```
 
@@ -634,7 +635,7 @@ class Data(
 
 fun main() {
     val data = Data(Box(42), Box(Project("kotlinx.serialization", "Kotlin")))
-    println(Json.encodeToString(data))
+    println(Json.encodeToString(Data.serializer(), data))
 }
 ```
 
@@ -663,7 +664,7 @@ class Project(val name: String, @SerialName("lang") val language: String)
 
 fun main() {
     val data = Project("kotlinx.serialization", "Kotlin")
-    println(Json.encodeToString(data))
+    println(Json.encodeToString(Project.serializer(), data))
 }
 ```
 

@@ -57,7 +57,7 @@ class Color(val rgb: Int)
 
 fun main() {
     val green = Color(0x00ff00)
-    println(Json.encodeToString(green))
+    println(Json.encodeToString(Color.serializer(), green))
 }  
 ```              
 
@@ -288,7 +288,7 @@ Now we can serialize the `Color` class as we did before.
 ```kotlin
 fun main() {
     val green = Color(0x00ff00)
-    println(Json.encodeToString(green))
+    println(Json.encodeToString(Color.serializer(), green))
 }  
 ```              
 
@@ -325,7 +325,7 @@ object ColorAsStringSerializer : KSerializer<Color> {
 class Color(val rgb: Int)
 
 fun main() {
-    val color = Json.decodeFromString<Color>("\"00ff00\"")
+    val color = Json.decodeFromString<Color>(Color.serializer(), "\"00ff00\"")
     println(color.rgb) // prints 65280 
 }  
 ```     
@@ -363,9 +363,9 @@ data class Settings(val background: Color, val foreground: Color)
 
 fun main() {
     val data = Settings(Color(0xffffff), Color(0))
-    val string = Json.encodeToString(data)
+    val string = Json.encodeToString(Settings.serializer(), data)
     println(string)
-    require(Json.decodeFromString<Settings>(string) == data)
+    require(Json.decodeFromString<Settings>(Settings.serializer(), string) == data)
 }  
 ```     
 
@@ -429,7 +429,7 @@ class Color(val rgb: Int)
 
 fun main() {
     val green = Color(0x00ff00)
-    println(Json.encodeToString(green))
+    println(Json.encodeToString(Color.serializer(), green))
 }  
 ```    
 
@@ -503,7 +503,7 @@ Now we can enjoy the result of serialization for the `Color` class.
 <!--- INCLUDE
 fun main() {
     val green = Color(0x00ff00)
-    println(Json.encodeToString(green))
+    println(Json.encodeToString(Color.serializer(), green))
 }
 -->
 
@@ -595,9 +595,9 @@ data class Color(val rgb: Int)
 
 fun main() {
     val color = Color(0x00ff00)
-    val string = Json.encodeToString(color) 
+    val string = Json.encodeToString(Color.serializer(), color)
     println(string)
-    require(Json.decodeFromString<Color>(string) == color)
+    require(Json.decodeFromString<Color>(Color.serializer(), string) == color)
 }  
 ```              
 
@@ -669,9 +669,9 @@ data class Color(val rgb: Int)
 
 fun main() {
     val color = Color(0x00ff00)
-    val string = Json.encodeToString(color) 
+    val string = Json.encodeToString(Color.serializer(), color)
     println(string)
-    require(Json.decodeFromString<Color>(string) == color)
+    require(Json.decodeFromString<Color>(Color.serializer(), string) == color)
 }  
 -->
 
@@ -756,7 +756,7 @@ class ProgrammingLanguage(
 
 fun main() {
     val data = ProgrammingLanguage("Kotlin", SimpleDateFormat("yyyy-MM-ddX").parse("2016-02-15+00"))
-    println(Json.encodeToString(data))
+    println(Json.encodeToString(ProgrammingLanguage.serializer(), data))
 }
 ``` 
 
@@ -800,7 +800,7 @@ class ProgrammingLanguage(val name: String, val stableReleaseDate: Date)
 
 fun main() {
     val data = ProgrammingLanguage("Kotlin", SimpleDateFormat("yyyy-MM-ddX").parse("2016-02-15+00"))
-    println(Json.encodeToString(data))
+    println(Json.encodeToString(ProgrammingLanguage.serializer(), data))
 }
 ```   
 > You can get the full code [here](../guide/example/example-serializer-16.kt).
@@ -853,7 +853,7 @@ class ProgrammingLanguage(val stableReleaseDate: DateAsText, val lastReleaseTime
 fun main() {
     val format = SimpleDateFormat("yyyy-MM-ddX")
     val data = ProgrammingLanguage(format.parse("2016-02-15+00"), format.parse("2022-07-07+00"))
-    println(Json.encodeToString(data))
+    println(Json.encodeToString(ProgrammingLanguage.serializer(), data))
 }
 ```
 
@@ -899,9 +899,9 @@ data class Project(val name: String)
 
 fun main() {
     val box = Box(Project("kotlinx.serialization"))
-    val string = Json.encodeToString(box)
+    val string = Json.encodeToString(Box.serializer(Project.serializer()), box)
     println(string)
-    println(Json.decodeFromString<Box<Project>>(string))
+    println(Json.decodeFromString<Box<Project>>(Box.serializer(Project.serializer()), string))
 }
 ```
 
@@ -962,7 +962,7 @@ class ProgrammingLanguage(
 
 fun main() {
     val data = ProgrammingLanguage("Kotlin", SimpleDateFormat("yyyy-MM-ddX").parse("2016-02-15+00"))
-    println(Json.encodeToString(data))
+    println(Json.encodeToString(ProgrammingLanguage.serializer(), data))
 }
 -->    
 
