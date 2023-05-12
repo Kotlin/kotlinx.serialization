@@ -111,3 +111,6 @@ data class TypeWithCustomByteString(@ByteString val x: CustomByteString)
 
 @Serializable
 data class TypeWithNullableCustomByteString(@ByteString val x: CustomByteString?)
+
+@Serializable
+data class TypeWithMapWithIntegerKeys (@SerialName("0") val zero: String, @SerialName("-6") val negativeSix: String)

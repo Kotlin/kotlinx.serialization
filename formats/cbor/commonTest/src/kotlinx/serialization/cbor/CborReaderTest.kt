@@ -457,6 +457,36 @@ class CborReaderTest {
     }
 
     @Test
+    fun testDecodeCborWithIntegerKeys() {
+        /*
+         *  A2                            # map(2)
+         *     00                         #   unsigned(0)
+         *     61                         #   text(1)
+         *        41                      #     "A"
+         *     25                         #   negative(-6)
+         *     D9 03EC                    #   standard date string, tag(1004)
+         *        6A                      #     text(10)
+         *           323031382d30382d3039 #       "2018-08-09"
+         *                                #     epoch(17,752)
+         */
+        assertEquals(
+            expected = TypeWithMapWithIntegerKeys("A", "2018-08-09"),
+            actual = Cbor.decodeFromHexString(
+                deserializer = TypeWithMapWithIntegerKeys.serializer(),
+                hex = "a200614125d903ec6a323031382d30382d3039"
+            )
+        )
+
+        assertEquals(
+            expected = TypeWithMapWithIntegerKeys("A", "2018-08-09"),
+            actual = ignoreUnknownKeys.decodeFromHexString(
+                deserializer = TypeWithMapWithIntegerKeys.serializer(),
+                hex = "a200614125d903ec6a323031382d30382d3039"
+            )
+        )
+    }
+
+    @Test
     fun testDecodeCborWithUnknownField() {
         assertEquals(
             expected = Simple("123"),

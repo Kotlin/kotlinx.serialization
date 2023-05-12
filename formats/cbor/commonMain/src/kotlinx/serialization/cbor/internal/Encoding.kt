@@ -249,7 +249,7 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
             val knownIndex: Int
             while (true) {
                 if (isDone()) return CompositeDecoder.DECODE_DONE
-                val elemName = decoder.nextString()
+                val elemName = decoder.nextElementName()
                 readProperties++
 
                 val index = descriptor.getElementIndex(elemName)
@@ -263,7 +263,7 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
             knownIndex
         } else {
             if (isDone()) return CompositeDecoder.DECODE_DONE
-            val elemName = decoder.nextString()
+            val elemName = decoder.nextElementName()
             readProperties++
             descriptor.getElementIndexOrThrow(elemName)
         }
@@ -381,6 +381,15 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         val ans = arr.decodeToString()
         readByte()
         return ans
+    }
+
+    fun nextElementName(): String {
+        skipOverTags()
+        return if ((curByte and 0b111_00000) == HEADER_STRING.toInt()) {
+            nextString()
+        } else {
+            nextNumber().toString()
+        }
     }
 
     private fun readBytes(): ByteArray =
