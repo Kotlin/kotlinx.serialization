@@ -65,6 +65,7 @@ the object that is passed as its parameter under the hood and encodes it to a JS
 Let's start with a class describing a project and try to get its JSON representation.
 
 ```kotlin
+@Serializable
 class Project(val name: String, val language: String)
 
 fun main() {
