@@ -119,6 +119,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='allowing-structured-map-keys'></a>[Allowing structured map keys](json.md#allowing-structured-map-keys)
   * <a name='allowing-special-floating-point-values'></a>[Allowing special floating-point values](json.md#allowing-special-floating-point-values)
   * <a name='class-discriminator-for-polymorphism'></a>[Class discriminator for polymorphism](json.md#class-discriminator-for-polymorphism)
+  * <a name='global-naming-strategy'></a>[Global naming strategy](json.md#global-naming-strategy)
 * <a name='json-elements'></a>[Json elements](json.md#json-elements)
   * <a name='parsing-to-json-element'></a>[Parsing to Json element](json.md#parsing-to-json-element)
   * <a name='types-of-json-elements'></a>[Types of Json elements](json.md#types-of-json-elements)
