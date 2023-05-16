@@ -266,8 +266,11 @@ public val JsonPrimitive.int: Int
  * Returns content of the current element as int or `null` if current element is not a valid representation of number
  */
 public val JsonPrimitive.intOrNull: Int?
-    get() =
-        mapExceptionsToNull { StringJsonLexer(content).consumeNumericLiteral().toInt().toLong().toInt() }
+    get() {
+        val result = mapExceptionsToNull { StringJsonLexer(content).consumeNumericLiteral() } ?: return null
+        if (result !in Int.MIN_VALUE..Int.MAX_VALUE) return null
+        return result.toInt()
+    }
 
 /**
  * Returns content of current element as long
