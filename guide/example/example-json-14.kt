@@ -5,19 +5,14 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 fun main() {
-    val element = buildJsonObject {
-        put("name", "kotlinx.serialization")
-        putJsonObject("owner") {
-            put("name", "kotlin")
+    val element = Json.parseToJsonElement("""
+        {
+            "name": "kotlinx.serialization",
+            "forks": [{"votes": 42}, {"votes": 9000}, {}]
         }
-        putJsonArray("forks") {
-            addJsonObject {
-                put("votes", 42)
-            }
-            addJsonObject {
-                put("votes", 9000)
-            }
-        }
-    }
-    println(element)
+    """)
+    val sum = element
+        .jsonObject["forks"]!!
+        .jsonArray.sumOf { it.jsonObject["votes"]?.jsonPrimitive?.int ?: 0 }
+    println(sum)
 }
