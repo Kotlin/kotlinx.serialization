@@ -471,11 +471,11 @@ As you can see, discriminator from the `Base` class is used:
 
 ### Global naming strategy
 
-If properties' names in Json input are different from Kotlin ones, it is recommended to specify name 
+If properties' names in Json input are different from Kotlin ones, it is recommended to specify the name 
 for each property explicitly using [`@SerialName` annotation](basic-serialization.md#serial-field-names).
 However, there are certain situations where transformation should be applied to every serial name — such as migration
-from other framework or legacy codebase. For that cases, it is possible to specify a [namingStrategy][JsonBuilder.namingStrategy]
-for a [Json] instance. kotlinx.serialization provides one strategy implementation out of the box, the [JsonNamingStrategy.SnakeCase](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-naming-strategy/-builtins/-snake-case.html):
+from other frameworks or legacy codebase. For that cases, it is possible to specify a [namingStrategy][JsonBuilder.namingStrategy]
+for a [Json] instance. `kotlinx.serialization` provides one strategy implementation out of the box, the [JsonNamingStrategy.SnakeCase](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-naming-strategy/-builtins/-snake-case.html):
 
 ```kotlin
 @Serializable
@@ -499,16 +499,16 @@ As you can see, both serialization and deserialization work as if all serial nam
 
 There are some caveats one should remember while dealing with a [JsonNamingStrategy]:
 
-* Due to the nature of kotlinx.serialization framework, naming strategy transformation is applied to all properties regardless 
+* Due to the nature of the `kotlinx.serialization` framework, naming strategy transformation is applied to all properties regardless 
 of whether their serial name was taken from the property name or provided by [SerialName] annotation.
 Effectively, it means one cannot avoid transformation by explicitly specifying the serial name. To be able to deserialize
-non-transformed name, use [JsonNames] annotation.
+non-transformed names, [JsonNames] annotation can be used instead.
 
 * Collision of the transformed name with any other (transformed) properties serial names or any alternative names
 specified with [JsonNames] will lead to a deserialization exception.
 
 * Global naming strategies are very implicit: by looking only at the definition of the class,
-it is impossible to say which names it will have in the serialized form.
+it is impossible to determine which names it will have in the serialized form.
 As a consequence, naming strategies are not friendly to actions like Find Usages/Rename in IDE, full-text search by grep, etc.
 For them, the original name and the transformed are two different things;
 changing one without the other may introduce bugs in many unexpected ways and lead to greater maintenance efforts for code with global naming strategies.
