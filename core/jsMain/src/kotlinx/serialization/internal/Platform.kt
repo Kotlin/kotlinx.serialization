@@ -40,8 +40,8 @@ internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KCl
 
 internal actual fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing {
     throw SerializationException(
-        "${notRegisteredMessage()}\n" +
-                "On Kotlin/JS explicitly declared serializer should be used for interfaces and enums without @Serializable annotation"
+        notRegisteredMessage() +
+                "To get enum serializer on Kotlin/JS, it should be annotated with @Serializable annotation."
     )
 }
 

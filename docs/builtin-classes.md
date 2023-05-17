@@ -166,6 +166,8 @@ In JSON an enum gets encoded as a string.
 {"name":"kotlinx.serialization","status":"SUPPORTED"}
 ```   
 
+> Note: On Kotlin/JS and Kotlin/Native, `@Serializable` annotation is needed for enum class if you want to use it as a root object — i.e. use `encodeToString<Status>(Status.SUPPORTED)`.
+
 <!--- TEST -->
 
 ### Serial names of enum entries
