@@ -255,23 +255,35 @@ public val JsonElement.jsonNull: JsonNull
  * Returns content of the current element as int
  * @throws NumberFormatException if current element is not a valid representation of number
  */
-public val JsonPrimitive.int: Int get() = content.toInt()
+public val JsonPrimitive.int: Int
+    get() {
+        val result = mapExceptions { StringJsonLexer(content).consumeNumericLiteral() }
+        if (result !in Int.MIN_VALUE..Int.MAX_VALUE) throw NumberFormatException("$content is not an Int")
+        return result.toInt()
+    }
 
 /**
  * Returns content of the current element as int or `null` if current element is not a valid representation of number
  */
-public val JsonPrimitive.intOrNull: Int? get() = content.toIntOrNull()
+public val JsonPrimitive.intOrNull: Int?
+    get() {
+        val result = mapExceptionsToNull { StringJsonLexer(content).consumeNumericLiteral() } ?: return null
+        if (result !in Int.MIN_VALUE..Int.MAX_VALUE) return null
+        return result.toInt()
+    }
 
 /**
  * Returns content of current element as long
  * @throws NumberFormatException if current element is not a valid representation of number
  */
-public val JsonPrimitive.long: Long get() = content.toLong()
+public val JsonPrimitive.long: Long get() = mapExceptions { StringJsonLexer(content).consumeNumericLiteral() }
 
 /**
  * Returns content of current element as long or `null` if current element is not a valid representation of number
  */
-public val JsonPrimitive.longOrNull: Long? get() = content.toLongOrNull()
+public val JsonPrimitive.longOrNull: Long?
+    get() =
+        mapExceptionsToNull { StringJsonLexer(content).consumeNumericLiteral() }
 
 /**
  * Returns content of current element as double
@@ -314,6 +326,22 @@ public val JsonPrimitive.contentOrNull: String? get() = if (this is JsonNull) nu
 
 private fun JsonElement.error(element: String): Nothing =
     throw IllegalArgumentException("Element ${this::class} is not a $element")
+
+private inline fun <T> mapExceptionsToNull(f: () -> T): T? {
+    return try {
+        f()
+    } catch (e: JsonDecodingException) {
+        null
+    }
+}
+
+private inline fun <T> mapExceptions(f: () -> T): T {
+    return try {
+        f()
+    } catch (e: JsonDecodingException) {
+        throw NumberFormatException(e.message)
+    }
+}
 
 @PublishedApi
 internal fun unexpectedJson(key: String, expected: String): Nothing =
