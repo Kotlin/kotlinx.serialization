@@ -41,10 +41,7 @@ If review is not required, commit directly to `dev`.
    * Close the repository and wait for it to verify.
    * Release it.
    
-5. Propose the website documentation update:<br>
-    * Set a new value for [`KOTLINX_SERIALIZATION_RELEASE_TAG`](https://github.com/JetBrains/kotlin-web-site/blob/master/.teamcity/BuildParams.kt), creating a pull request in the website's repository.
-    * The website team will be notified about the pull request, review your changes, and merge it to master after all checks pass.
-    * Once the pull request is merged to the main branch, it automatically will trigger the website's update, which will be done within an hour.   
+5. Set a new value for [`KOTLINX_SERIALIZATION_RELEASE_TAG`](https://github.com/JetBrains/kotlin-web-site/blob/master/.teamcity/BuildParams.kt), creating a pull request in the website's repository.
 
 6. Create a new release in [Github releases](https://github.com/Kotlin/kotlinx.serialization/releases). Use created git tag for title and changelog message for body.
 
@@ -56,3 +53,12 @@ If review is not required, commit directly to `dev`.
    ```
 
 5. Announce new release in [Slack](https://kotlinlang.slack.com).
+
+# API reference documentation
+
+The [API reference documentation](https://kotlinlang.org/api/kotlinx.serialization/) is built and deployed automatically
+for every commit in `master`, typically within the same day.
+
+**Note**: KDoc / API reference changes targeting `master` should not contain information which is irrelevant to or is 
+incorrect in relation to the latest release, because these changes will be deployed live automatically, and they might
+confuse readers.
