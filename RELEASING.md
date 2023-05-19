@@ -41,8 +41,6 @@ If review is not required, commit directly to `dev`.
    * Close the repository and wait for it to verify.
    * Release it.
    
-5. Set a new value for [`KOTLINX_SERIALIZATION_RELEASE_TAG`](https://github.com/JetBrains/kotlin-web-site/blob/master/.teamcity/BuildParams.kt), creating a pull request in the website's repository.
-
 6. Create a new release in [Github releases](https://github.com/Kotlin/kotlinx.serialization/releases). Use created git tag for title and changelog message for body.
 
 1. Switch back to master branch and update it:<br>
