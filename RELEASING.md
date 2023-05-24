@@ -41,7 +41,8 @@ If review is not required, commit directly to `dev`.
    * Close the repository and wait for it to verify.
    * Release it.
    
-5. Set a new value for [`KOTLINX_SERIALIZATION_RELEASE_TAG`](https://github.com/JetBrains/kotlin-web-site/blob/master/.teamcity/BuildParams.kt), creating a pull request in the website's repository.
+5. Set a new value for [`KOTLINX_SERIALIZATION_RELEASE_TAG`](https://github.com/JetBrains/kotlin-web-site/blob/master/.teamcity/BuildParams.kt),
+   creating a pull request in the website's repository. To find out why it is needed, [read this](#kotlinxserializationreleasetag).
 
 6. Create a new release in [Github releases](https://github.com/Kotlin/kotlinx.serialization/releases). Use created git tag for title and changelog message for body.
 
@@ -62,3 +63,16 @@ for every commit in `master`, typically within the same day.
 **Note**: KDoc / API reference changes targeting `master` should not contain information which is irrelevant to or is 
 incorrect in relation to the latest release, because these changes will be deployed live automatically, and they might
 confuse readers.
+
+The build configuration responsible for assembling the documentation can be found
+[on TeamCity](https://buildserver.labs.intellij.net/buildConfiguration/Kotlin_KotlinSites_KotlinlangTeamcityDsl_KotlinxSerializationBuildApiReference).
+
+### KOTLINX_SERIALIZATION_RELEASE_TAG
+
+The generated API reference documentation has the library version specified in the header. By default, the value
+of the `version` project property is taken. However, this property usually contains the upcoming version with
+the `-SNAPSHOT` postfix, so it cannot be used if you want to publish the updated documentation of the latest release.
+
+For this reason, the [`KOTLINX_SERIALIZATION_RELEASE_TAG`](https://github.com/JetBrains/kotlin-web-site/blob/master/.teamcity/BuildParams.kt)
+property must be set during every release: its value will be used for all subsequent publications of the API docs to kotlinlang.org,
+and it will appear in the header.
