@@ -71,7 +71,7 @@ The build configuration responsible for assembling the documentation can be foun
 
 The generated API reference documentation has the library version specified in the header. By default, the value
 of the `version` project property is taken. However, this property usually contains the upcoming version with
-the `-SNAPSHOT` postfix, so it cannot be used if you want to publish the updated documentation of the latest release.
+the `-SNAPSHOT` suffix, so it cannot be used if you want to publish the updated documentation of the latest release.
 
 For this reason, the [`KOTLINX_SERIALIZATION_RELEASE_TAG`](https://github.com/JetBrains/kotlin-web-site/blob/master/.teamcity/BuildParams.kt)
 property must be set during every release: its value will be used for all subsequent publications of the API docs to kotlinlang.org,
