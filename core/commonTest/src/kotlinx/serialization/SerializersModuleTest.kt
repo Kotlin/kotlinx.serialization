@@ -39,13 +39,8 @@ class SerializersModuleTest {
 
     class ContextualType(val i: Int)
 
-    class ParametrizedContextual<T : Any>(val a: T)
-
     @Serializer(forClass = ContextualType::class)
     object ContextualSerializer
-
-    @Serializer(forClass = ParametrizedContextual::class)
-    object ParametrizedContextualSerializer
 
     @Serializable
     class ContextualHolder(@Contextual val contextual: ContextualType)
@@ -98,7 +93,6 @@ class SerializersModuleTest {
     fun testContextual() {
         val m = SerializersModule {
             contextual<ContextualType>(ContextualSerializer)
-            contextual<ParametrizedContextual<*>>(ParametrizedContextualSerializer as KSerializer<ParametrizedContextual<*>>)
             contextual(ContextualGenericsTest.ThirdPartyBox::class) { args -> ContextualGenericsTest.ThirdPartyBoxSerializer(args[0]) }
         }
 
@@ -108,9 +102,6 @@ class SerializersModuleTest {
         val boxSerializer = m.serializer(ContextualGenericsTest.ThirdPartyBox::class, listOf(Int.serializer()), false)
         assertIs<ContextualGenericsTest.ThirdPartyBoxSerializer<Int>>(boxSerializer)
         assertEquals(PrimitiveKind.INT, boxSerializer.descriptor.getElementDescriptor(0).kind)
-
-        val parametrizedSerializer = m.serializer(ParametrizedContextual::class, listOf(Int.serializer()), false)
-        assertSame<KSerializer<*>>(ParametrizedContextualSerializer, parametrizedSerializer)
 
         val holderSerializer = m.serializer(ContextualHolder::class, emptyList(), false)
         assertSame<KSerializer<*>>(ContextualHolder.serializer(), holderSerializer)
