@@ -14,7 +14,7 @@ import kotlinx.serialization.json.internal.JsonDecodingException
 
 /**
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonElement].
- * It can only be used by with [Json] format an its input ([JsonDecoder] and [JsonEncoder]).
+ * It can only be used by with [Json] format and its input ([JsonDecoder] and [JsonEncoder]).
  * Currently, this hierarchy has no guarantees on descriptor content.
  *
  * Example usage:
