@@ -130,21 +130,11 @@ kotlin {
             }
 
             addTarget(presets.mingwX64)
-
-            // Deprecated, but were provided by kotlinx.serialization; can be removed only when K/N drops the target
-            addTarget(presets.watchosX86)
-
-            if (doesNotDependOnOkio(project)) {
-                addTarget(presets.iosArm32)
-                addTarget(presets.linuxArm32Hfp)
-                addTarget(presets.mingwX86)
-            }
-
         }
 
         if (project.ext.nativeState == NativeState.HOST) {
             // linux targets that can cross-compile on all three hosts
-            def linuxCrossCompileTargets = [linuxX64, linuxArm32Hfp, linuxArm64]
+            def linuxCrossCompileTargets = [linuxX64, linuxArm64]
             if (getHostName() != "linux") {
                 disableCompilation(linuxCrossCompileTargets)
             }
