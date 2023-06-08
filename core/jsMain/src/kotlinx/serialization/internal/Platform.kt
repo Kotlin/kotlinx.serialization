@@ -23,6 +23,8 @@ internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>
         else this.js.asDynamic().Companion?.serializer()
         ) as? KSerializer<T>
 
+internal actual fun <T: Any> KClass<T>.isInterface(): Boolean = isInterface
+
 internal actual fun <T> createCache(factory: (KClass<*>) -> KSerializer<T>?): SerializerCache<T> {
     return object: SerializerCache<T> {
         override fun get(key: KClass<Any>): KSerializer<T>? {

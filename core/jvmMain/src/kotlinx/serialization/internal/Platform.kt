@@ -18,6 +18,8 @@ internal actual inline fun BooleanArray.getChecked(index: Int): Boolean {
     return get(index)
 }
 
+internal actual fun <T: Any> KClass<T>.isInterface(): Boolean = java.isInterface
+
 internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
     this.constructSerializerForGivenTypeArgs()
 

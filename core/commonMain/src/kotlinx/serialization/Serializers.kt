@@ -195,11 +195,13 @@ private fun SerializersModule.serializerByKTypeImpl(
     } else {
         findParametrizedCachedSerializer(rootClass, typeArguments, isNullable).getOrNull()
     }
-    cachedSerializer?.let { return it }
+    if (cachedSerializer != null && (cachedSerializer !is PolymorphicSerializer || !rootClass.isInterface()) ) {
+        return cachedSerializer
+    }
 
     // slow path to find contextual serializers in serializers module
     val contextualSerializer: KSerializer<out Any?>? = if (typeArguments.isEmpty()) {
-        getContextual(rootClass)
+        getContextual(rootClass) ?: cachedSerializer
     } else {
         val serializers = serializersForParameters(typeArguments, failOnMissingTypeArgSerializer) ?: return null
         // first, we look among the built-in serializers, because the parameter could be contextual
