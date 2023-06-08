@@ -67,6 +67,9 @@ public sealed class SerializersModule {
      */
     @ExperimentalSerializationApi
     public abstract fun dumpTo(collector: SerializersModuleCollector)
+
+    @InternalSerializationApi
+    internal abstract val hasInterfaceContextualSerializers: Boolean
 }
 
 /**
@@ -76,7 +79,14 @@ public sealed class SerializersModule {
     level = DeprecationLevel.WARNING,
     replaceWith = ReplaceWith("EmptySerializersModule()"))
 @JsName("EmptySerializersModuleLegacyJs") // Compatibility with JS
-public val EmptySerializersModule: SerializersModule = SerialModuleImpl(emptyMap(), emptyMap(), emptyMap(), emptyMap(), emptyMap())
+public val EmptySerializersModule: SerializersModule = SerialModuleImpl(
+    emptyMap(),
+    emptyMap(),
+    emptyMap(),
+    emptyMap(),
+    emptyMap(),
+    false
+)
 
 /**
  * Returns a combination of two serial modules
@@ -147,7 +157,8 @@ internal class SerialModuleImpl(
     @JvmField val polyBase2Serializers: Map<KClass<*>, Map<KClass<*>, KSerializer<*>>>,
     private val polyBase2DefaultSerializerProvider: Map<KClass<*>, PolymorphicSerializerProvider<*>>,
     private val polyBase2NamedSerializers: Map<KClass<*>, Map<String, KSerializer<*>>>,
-    private val polyBase2DefaultDeserializerProvider: Map<KClass<*>, PolymorphicDeserializerProvider<*>>
+    private val polyBase2DefaultDeserializerProvider: Map<KClass<*>, PolymorphicDeserializerProvider<*>>,
+    internal override val hasInterfaceContextualSerializers: Boolean
 ) : SerializersModule() {
 
     override fun <T : Any> getPolymorphic(baseClass: KClass<in T>, value: T): SerializationStrategy<T>? {

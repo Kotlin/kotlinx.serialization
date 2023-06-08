@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.nullable
+import kotlinx.serialization.internal.*
 import kotlinx.serialization.internal.cast
 import kotlinx.serialization.internal.createCache
 import kotlinx.serialization.internal.createParametrizedCache
@@ -18,13 +19,13 @@ import kotlin.reflect.KType
  * Cache for non-null non-parametrized and non-contextual serializers.
  */
 @ThreadLocal
-private val SERIALIZERS_CACHE = createCache { it.serializerOrNull() }
+private val SERIALIZERS_CACHE = createCache { it.serializerOrNull() ?: it.polymorphicIfInterface() }
 
 /**
  * Cache for nullable non-parametrized and non-contextual serializers.
  */
 @ThreadLocal
-private val SERIALIZERS_CACHE_NULLABLE = createCache<Any?> { it.serializerOrNull()?.nullable?.cast() }
+private val SERIALIZERS_CACHE_NULLABLE = createCache<Any?> { (it.serializerOrNull() ?: it.polymorphicIfInterface())?.nullable?.cast() }
 
 /**
  * Cache for non-null parametrized and non-contextual serializers.
@@ -72,3 +73,6 @@ internal fun findParametrizedCachedSerializer(
         PARAMETRIZED_SERIALIZERS_CACHE_NULLABLE.get(clazz, types)
     }
 }
+
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun KClass<*>.polymorphicIfInterface() = if (this.isInterface()) PolymorphicSerializer(this) else null

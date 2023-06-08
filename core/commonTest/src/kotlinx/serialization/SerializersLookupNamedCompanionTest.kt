@@ -88,12 +88,6 @@ class SerializersLookupNamedCompanionTest {
                 serializer(typeOf<SealedInterface>()).descriptor.toString()
             )
         }
-
-        // should fail because annotation @NamedCompanion will be placed again by the compilation plugin
-        // and they both will be placed into @Container annotation - thus they will be invisible to the runtime
-        shouldFail<SerializationException>(sinceKotlin = "1.9.20", onJs = false, onNative = false, onWasm = false) {
-            serializer(typeOf<SealedInterfaceWithExplicitAnnotation>())
-        }
     }
 
 

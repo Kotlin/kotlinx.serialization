@@ -189,24 +189,45 @@ private fun SerializersModule.serializerByKTypeImpl(
     val isNullable = type.isMarkedNullable
     val typeArguments = type.arguments.map(KTypeProjection::typeOrThrow)
 
-    val cachedSerializer = if (typeArguments.isEmpty()) {
-        findCachedSerializer(rootClass, isNullable)
+    val cachedSerializer  = if (typeArguments.isEmpty()) {
+        if (rootClass.isInterface() && getContextual(rootClass) != null) {
+            // We cannot use cache because it may be contextual non-sealed interface serializer,
+            // but we cannot return result of getContextual() directly either, because rootClass
+            // can be a sealed interface as well (in that case, rootClass.serializerOrNull() should have priority over getContextual()).
+            // If we had function like KClass.isNonSealedInterface() we could optimize this place,
+            // but Native does not provide enough reflection for that. (https://youtrack.jetbrains.com/issue/KT-41339)
+            null
+        } else {
+            findCachedSerializer(rootClass, isNullable)
+        }
     } else {
-        findParametrizedCachedSerializer(rootClass, typeArguments, isNullable).getOrNull()
+        // We cannot enable cache even if the current class is non-interface, as it may have interface among type arguments
+        // and we do not want to waste time scanning them all.
+        if (hasInterfaceContextualSerializers) {
+            null
+        } else {
+            findParametrizedCachedSerializer(
+                rootClass,
+                typeArguments,
+                isNullable
+            ).getOrNull()
+        }
     }
-    cachedSerializer?.let { return it }
+
+    if (cachedSerializer != null) return cachedSerializer
 
     // slow path to find contextual serializers in serializers module
     val contextualSerializer: KSerializer<out Any?>? = if (typeArguments.isEmpty()) {
-        getContextual(rootClass)
+        rootClass.serializerOrNull()
+            ?: getContextual(rootClass)
+            ?: rootClass.polymorphicIfInterface()
     } else {
         val serializers = serializersForParameters(typeArguments, failOnMissingTypeArgSerializer) ?: return null
         // first, we look among the built-in serializers, because the parameter could be contextual
         rootClass.parametrizedSerializerOrNull(serializers) { typeArguments[0].classifier }
-            ?: getContextual(
-                rootClass,
-                serializers
-            )
+            ?: getContextual(rootClass, serializers)
+            // PolymorphicSerializer always is returned even for Interface<T>, although it rarely works as expected.
+            ?: rootClass.polymorphicIfInterface()
     }
     return contextualSerializer?.cast<Any>()?.nullable(isNullable)
 }
@@ -375,4 +396,25 @@ internal fun noCompiledSerializer(
     argSerializers: Array<KSerializer<*>>
 ): KSerializer<*> {
     return module.getContextual(kClass, argSerializers.asList()) ?: kClass.serializerNotRegistered()
+}
+
+/**
+ * Overloads of [moduleThenPolymorphic] should never be called directly.
+ * Instead, compiler inserts calls to them when intrinsifying [serializer] function.
+ *
+ * If no request KClass is an interface, plugin performs call to [moduleThenPolymorphic] to achieve special behavior for interface serializers.
+ * (They are only serializers that have module priority over default [PolymorphicSerializer]).
+ */
+@OptIn(ExperimentalSerializationApi::class)
+@Suppress("unused")
+@PublishedApi
+internal fun moduleThenPolymorphic(module: SerializersModule, kClass: KClass<*>): KSerializer<*> {
+    return module.getContextual(kClass) ?: PolymorphicSerializer(kClass)
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+@Suppress("unused")
+@PublishedApi
+internal fun moduleThenPolymorphic(module: SerializersModule, kClass: KClass<*>, argSerializers: Array<KSerializer<*>>): KSerializer<*> {
+    return module.getContextual(kClass, argSerializers.asList()) ?: PolymorphicSerializer(kClass)
 }

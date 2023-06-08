@@ -49,6 +49,7 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
     private val polyBase2DefaultSerializerProvider: MutableMap<KClass<*>, PolymorphicSerializerProvider<*>> = hashMapOf()
     private val polyBase2NamedSerializers: MutableMap<KClass<*>, MutableMap<String, KSerializer<*>>> = hashMapOf()
     private val polyBase2DefaultDeserializerProvider: MutableMap<KClass<*>, PolymorphicDeserializerProvider<*>> = hashMapOf()
+    private var hasInterfaceContextualSerializers: Boolean = false
 
     /**
      * Adds [serializer] associated with given [kClass] for contextual serialization.
@@ -155,6 +156,7 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
             }
         }
         class2ContextualProvider[forClass] = provider
+        if (forClass.isInterface()) hasInterfaceContextualSerializers = true
     }
 
     @JvmName("registerDefaultPolymorphicSerializer") // Don't mangle method name for prettier stack traces
@@ -229,7 +231,7 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
 
     @PublishedApi
     internal fun build(): SerializersModule =
-        SerialModuleImpl(class2ContextualProvider, polyBase2Serializers, polyBase2DefaultSerializerProvider, polyBase2NamedSerializers, polyBase2DefaultDeserializerProvider)
+        SerialModuleImpl(class2ContextualProvider, polyBase2Serializers, polyBase2DefaultSerializerProvider, polyBase2NamedSerializers, polyBase2DefaultDeserializerProvider, hasInterfaceContextualSerializers)
 }
 
 /**
