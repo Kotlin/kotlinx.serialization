@@ -16,9 +16,12 @@ internal actual fun BooleanArray.getChecked(index: Int): Boolean {
     if (index !in indices) throw IndexOutOfBoundsException("Index $index out of bounds $indices")
     return get(index)
 }
-@Suppress("UNCHECKED_CAST")
+
 internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
-    this.constructSerializerForGivenTypeArgs() ?: this.js.asDynamic().Companion?.serializer() as? KSerializer<T>
+    this.constructSerializerForGivenTypeArgs() ?: (
+        if (this === Nothing::class) NothingSerializer
+        else this.js.asDynamic().Companion?.serializer()
+        ) as? KSerializer<T>
 
 internal actual fun <T> createCache(factory: (KClass<*>) -> KSerializer<T>?): SerializerCache<T> {
     return object: SerializerCache<T> {

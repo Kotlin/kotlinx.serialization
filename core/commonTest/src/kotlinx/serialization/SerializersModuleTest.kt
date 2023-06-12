@@ -37,6 +37,9 @@ class SerializersModuleTest {
     @Serializable
     class Parametrized<T : Any>(val a: T)
 
+    @Serializable
+    class ParametrizedOfNullable<T>(val a: T)
+
     class ContextualType(val i: Int)
 
     @Serializer(forClass = ContextualType::class)
@@ -79,6 +82,31 @@ class SerializersModuleTest {
         assertIs<MapLikeSerializer<*, *, *, *>>(mapSerializer)
         assertEquals(PrimitiveKind.STRING, mapSerializer.descriptor.getElementDescriptor(0).kind)
         assertEquals(PrimitiveKind.INT, mapSerializer.descriptor.getElementDescriptor(1).kind)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    @Test
+    fun testNothingAndParameterizedOfNothing() {
+        assertEquals(NothingSerializer, serializer(Nothing::class, emptyList(), false) as KSerializer<Nothing>)
+        assertEquals(
+            NullableSerializer(NothingSerializer),
+            serializer(Nothing::class, emptyList(), true) as KSerializer<Nothing?>
+        )
+
+        val parameterizedNothingSerializer = serializer<Parametrized<Nothing>>()
+        assertEquals(Parametrized.serializer(NothingSerializer)::class, parameterizedNothingSerializer::class)
+        val nothingDescriptor = parameterizedNothingSerializer.descriptor.getElementDescriptor(0)
+        assertEquals("kotlin.Nothing", nothingDescriptor.serialName)
+        assertEquals(false, nothingDescriptor.isNullable)
+
+        val parameterizedNullableNothingSerializer = serializer<ParametrizedOfNullable<Nothing?>>()
+        assertEquals(
+            ParametrizedOfNullable.serializer(NullableSerializer(NothingSerializer))::class,
+            parameterizedNullableNothingSerializer::class
+        )
+        val nullableNothingDescriptor = parameterizedNullableNothingSerializer.descriptor.getElementDescriptor(0)
+        assertEquals("kotlin.Nothing?", nullableNothingDescriptor.serialName)
+        assertEquals(true, nullableNothingDescriptor.isNullable)
     }
 
     @Test
