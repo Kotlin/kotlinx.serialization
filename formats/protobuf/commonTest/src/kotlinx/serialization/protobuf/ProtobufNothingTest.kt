@@ -5,14 +5,15 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class ProtobufNothingTest {
     @Serializable
-    data class ParameterizedBox<T : Any>(val value: T?)
+    /*private*/ data class NullableNothingBox(val value: Nothing?) // `private` doesn't work on the JS legacy target
 
     @Serializable
-    data class NullableNothingBox(val value: Nothing?)
+    private data class ParameterizedBox<T : Any>(val value: T?)
 
     private inline fun <reified T> testConversion(data: T, expectedHexString: String) {
         val string = ProtoBuf.encodeToHexString(data).uppercase()
@@ -23,6 +24,7 @@ class ProtobufNothingTest {
     @Test
     fun testNothing() {
         testConversion(NullableNothingBox(null), "")
+        if (isJsLegacy()) return
         testConversion(ParameterizedBox(null), "")
     }
 }
