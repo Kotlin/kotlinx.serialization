@@ -96,6 +96,13 @@ kotlin {
 
     targets {
         if (project.ext.nativeState == NativeState.DISABLED) return
+
+        String[] versionComponents = (~/[.-]/).split(compilerVersion, 4)
+        String[] versionComponents1920 = ["1", "9", "20"]
+        def isAtLeast1920 = Arrays.compare(versionComponents, versionComponents1920) { lhs, rhs ->
+            (lhs as int) <=> (rhs as int)
+        } >= 0
+
         if (project.ext.singleTargetMode) {
             fromPreset(project.ext.ideaPreset, 'native')
         } else {
@@ -132,11 +139,6 @@ kotlin {
             addTarget(presets.mingwX64)
 
             // Deprecated, but were provided by kotlinx.serialization; can be removed only in 1.9.20 release.
-            String[] versionComponents = (~/[.-]/).split(compilerVersion, 4)
-            String[] versionComponents1920 = ["1", "9", "20"]
-            def isAtLeast1920 = Arrays.compare(versionComponents, versionComponents1920) {lhs, rhs ->
-                (lhs as int) <=> (rhs as int)
-            } >= 0
             if (!isAtLeast1920) {
                 addTarget(presets.watchosX86)
 
@@ -151,7 +153,7 @@ kotlin {
 
         if (project.ext.nativeState == NativeState.HOST) {
             // linux targets that can cross-compile on all three hosts
-            def linuxCrossCompileTargets = [linuxX64, linuxArm32Hfp, linuxArm64]
+            def linuxCrossCompileTargets = isAtLeast1920 ? [presets.linuxX64] : [presets.linuxX64, presets.linuxArm32Hfp, presets.linuxArm64]
             if (getHostName() != "linux") {
                 disableCompilation(linuxCrossCompileTargets)
             }
