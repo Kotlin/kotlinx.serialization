@@ -210,12 +210,38 @@ class SerializersLookupTest : JsonTestBase() {
         }
     }
 
+    class GenericHolder<T>(value: T)
+
+    object GenericSerializer: KSerializer<GenericHolder<*>> {
+        override val descriptor: SerialDescriptor
+            get() = TODO()
+
+        override fun deserialize(decoder: Decoder): GenericHolder<*> {
+            TODO()
+        }
+
+        override fun serialize(encoder: Encoder, value: GenericHolder<*>) {
+            TODO()
+        }
+    }
+
     @Test
     fun testContextualLookup() {
         val module = SerializersModule { contextual(CustomIntSerializer(false).cast<IntBox>()) }
         val json = Json { serializersModule = module }
         val data = listOf(listOf(IntBox(1)))
         assertEquals("[[42]]", json.encodeToString(data))
+    }
+
+    @Test
+    fun testGenericOfContextual() {
+        val module = SerializersModule {
+            contextual(CustomIntSerializer(false).cast<IntBox>())
+            contextual(GenericSerializer)
+        }
+
+        assertNotNull(module.serializerOrNull(typeOf<List<IntBox>>()))
+        assertNotNull(module.serializerOrNull(typeOf<GenericHolder<IntBox>>()))
     }
 
     @Test
