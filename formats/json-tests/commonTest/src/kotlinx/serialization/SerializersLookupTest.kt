@@ -59,6 +59,7 @@ class SerializersLookupTest : JsonTestBase() {
         assertSame(UInt.serializer(), serializer<UInt>())
         assertSame(ULong.serializer(), serializer<ULong>())
     }
+
     @Test
     @OptIn(ExperimentalUnsignedTypes::class)
     fun testUnsignedArrays() {
@@ -210,12 +211,49 @@ class SerializersLookupTest : JsonTestBase() {
         }
     }
 
+    class GenericHolder<T>(value: T)
+
+    class GenericSerializer<T>(typeSerializer: KSerializer<T>) : KSerializer<GenericHolder<T>> {
+        override val descriptor: SerialDescriptor =
+            PrimitiveSerialDescriptor(
+                "Generic Serializer parametrized by ${typeSerializer.descriptor}",
+                PrimitiveKind.STRING
+            )
+
+        override fun deserialize(decoder: Decoder): GenericHolder<T> {
+            TODO()
+        }
+
+        override fun serialize(encoder: Encoder, value: GenericHolder<T>) {
+            TODO()
+        }
+    }
+
     @Test
     fun testContextualLookup() {
         val module = SerializersModule { contextual(CustomIntSerializer(false).cast<IntBox>()) }
         val json = Json { serializersModule = module }
         val data = listOf(listOf(IntBox(1)))
         assertEquals("[[42]]", json.encodeToString(data))
+    }
+
+    @Test
+    fun testGenericOfContextual() {
+        val module = SerializersModule {
+            contextual(CustomIntSerializer(false).cast<IntBox>())
+            contextual(GenericHolder::class) { args -> GenericSerializer(args[0]) }
+        }
+
+        val listSerializer = module.serializerOrNull(typeOf<List<IntBox>>())
+        assertNotNull(listSerializer)
+        assertEquals("kotlin.collections.ArrayList(PrimitiveDescriptor(CIS))", listSerializer.descriptor.toString())
+
+        val genericSerializer = module.serializerOrNull(typeOf<GenericHolder<IntBox>>())
+        assertNotNull(genericSerializer)
+        assertEquals(
+            "PrimitiveDescriptor(Generic Serializer parametrized by PrimitiveDescriptor(CIS))",
+            genericSerializer.descriptor.toString()
+        )
     }
 
     @Test
