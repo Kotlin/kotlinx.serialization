@@ -103,6 +103,7 @@ internal class CharsetReader(
             val remaining = if (position <= limit) limit - position else 0
             val bytesRead = inputStream.read(byteBuffer.array(), byteBuffer.arrayOffset() + position, remaining)
             if (bytesRead < 0) return bytesRead
+            // Method `position(I)LByteBuffer` does not exist in Java 8. For details, see comment for `flip` in `init` method
             (byteBuffer as Buffer).position(position + bytesRead)
         } finally {
             (byteBuffer as Buffer).flip() // see the `init` block in this class for the reasoning behind the cast
