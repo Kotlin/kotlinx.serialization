@@ -5,6 +5,10 @@ format implementation.
 # Module kotlinx-serialization-json
 Stable and ready to use JSON format implementation, `JsonElement` API to operate with JSON trees and JSON-specific serializers.
 
+# Module kotlinx-serialization-json-okio
+Extensions for kotlinx.serialization.json.Json for integration with the popular [Okio](https://square.github.io/okio/) library.
+Currently experimental.
+
 # Module kotlinx-serialization-cbor
 Concise Binary Object Representation (CBOR) format implementation, as per [RFC 7049](https://tools.ietf.org/html/rfc7049).
 
@@ -41,6 +45,9 @@ HOCON serialization format implementation for converting Kotlin classes from and
 # Package kotlinx.serialization.json
 JSON serialization format implementation, JSON tree data structures with builders for them,
 and JSON-specific serializers.
+
+# Package kotlinx.serialization.json.okio
+Extensions for kotlinx.serialization.json.Json for integration with the popular [Okio](https://square.github.io/okio/) library.
 
 # Package kotlinx.serialization.protobuf
 Protocol buffers serialization format implementation, mostly compliant to [proto2](https://developers.google.com/protocol-buffers/docs/proto) specification. 
