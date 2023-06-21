@@ -28,8 +28,6 @@ jmhJar {
 }
 
 
-assemble.dependsOn jmhClasses
-
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         if (rootProject.ext.kotlin_lv_override != null) {
