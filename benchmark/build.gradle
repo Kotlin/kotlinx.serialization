@@ -35,6 +35,7 @@ tasks.withType(KotlinCompile).configureEach {
         if (rootProject.ext.kotlin_lv_override != null) {
             languageVersion = rootProject.ext.kotlin_lv_override
             freeCompilerArgs += "-Xsuppress-version-warnings"
+        }
     }
 }
 
