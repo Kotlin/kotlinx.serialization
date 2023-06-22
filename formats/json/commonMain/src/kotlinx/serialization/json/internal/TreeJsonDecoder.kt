@@ -30,7 +30,7 @@ internal fun <T> Json.readPolymorphicJson(
     element: JsonObject,
     deserializer: DeserializationStrategy<T>
 ): T {
-    return JsonTreeDecoder(this, element, discriminator, deserializer.descriptor).decodeSerializableValue(deserializer)
+    return JsonTreeDecoder(this, element, discriminator).decodeSerializableValue(deserializer)
 }
 
 private sealed class AbstractJsonTreeDecoder(
@@ -189,8 +189,7 @@ private class JsonPrimitiveDecoder(json: Json, override val value: JsonElement) 
 private open class JsonTreeDecoder(
     json: Json,
     override val value: JsonObject,
-    private val polyDiscriminator: String? = null,
-    private val polyDescriptor: SerialDescriptor? = null
+    private val polyDiscriminator: String? = null
 ) : AbstractJsonTreeDecoder(json, value) {
     private var position = 0
     private var forceNull: Boolean = false
@@ -256,11 +255,6 @@ private open class JsonTreeDecoder(
     override fun currentElement(tag: String): JsonElement = value.getValue(tag)
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
-        /*
-         * For polymorphic serialization we'd like to avoid excessive decoder creating in
-         * beginStructure to properly preserve 'polyDiscriminator' field and filter it out.
-         */
-        if (descriptor === polyDescriptor) return this
         return super.beginStructure(descriptor)
     }
 
