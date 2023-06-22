@@ -408,6 +408,8 @@ fun main() {
 {"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}
 ```
 
+> Note: On Kotlin/Native, you should use `format.encodeToString(PolymorphicSerializer(Project::class), data))` instead due to limited reflection capabilities.
+
 <!--- TEST LINES_START -->
 
 ### Property of an interface type

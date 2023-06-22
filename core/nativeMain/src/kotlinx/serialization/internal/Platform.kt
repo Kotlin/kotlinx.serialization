@@ -19,8 +19,9 @@ internal actual inline fun BooleanArray.getChecked(index: Int): Boolean {
 
 internal actual fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing {
     throw SerializationException(
-        "${notRegisteredMessage()}\n" +
-                "On Kotlin/Native explicitly declared serializer should be used for interfaces and enums without @Serializable annotation"
+        notRegisteredMessage() +
+            "To get enum serializer on Kotlin/Native, it should be annotated with @Serializable annotation.\n" +
+            "To get interface serializer on Kotlin/Native, use PolymorphicSerializer() constructor function.\n"
     )
 }
 
