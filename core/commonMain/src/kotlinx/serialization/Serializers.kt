@@ -108,7 +108,7 @@ public fun serializer(
  * Variance of [type]'s arguments is not used by the serialization and is not taken into account.
  * Star projections in [type]'s arguments are prohibited.
  *
- * @returns [KSerializer] for the given [type] or `null` if serializer cannot be created (given [type] or its type argument is not serializable).
+ * @return [KSerializer] for the given [type] or `null` if serializer cannot be created (given [type] or its type argument is not serializable).
  * @throws IllegalArgumentException if any of [type]'s arguments contains star projection
  */
 public fun serializerOrNull(type: KType): KSerializer<Any?>? = EmptySerializersModule().serializerOrNull(type)
@@ -174,7 +174,7 @@ public fun SerializersModule.serializer(
  * Variance of [type]'s arguments is not used by the serialization and is not taken into account.
  * Star projections in [type]'s arguments are prohibited.
  *
- * @returns [KSerializer] for the given [type] or `null` if serializer cannot be created (given [type] or its type argument is not serializable and is not registered in [this] module).
+ * @return [KSerializer] for the given [type] or `null` if serializer cannot be created (given [type] or its type argument is not serializable and is not registered in [this] module).
  * @throws IllegalArgumentException if any of [type]'s arguments contains star projection
  */
 public fun SerializersModule.serializerOrNull(type: KType): KSerializer<Any?>? =

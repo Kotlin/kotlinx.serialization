@@ -5,6 +5,7 @@
 package kotlinx.serialization.descriptors
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.*
 import kotlin.reflect.*
@@ -24,22 +25,24 @@ import kotlin.reflect.*
  *     val nullableInt: Int?
  * )
  * // Descriptor for such class:
- * SerialDescriptor("my.package.Data") {
+ * buildClassSerialDescriptor("my.package.Data") {
  *     // intField is deliberately ignored by serializer -- not present in the descriptor as well
  *     element<Long>("_longField") // longField is named as _longField
- *     element("stringField", listSerialDescriptor<String>())
+ *     element("stringField", listSerialDescriptor<String>()) // or ListSerializer(String.serializer()).descriptor
  *     element("nullableInt", serialDescriptor<Int>().nullable)
  * }
  * ```
  *
  * Example for generic classes:
  * ```
+ * import kotlinx.serialization.builtins.*
+ *
  * @Serializable(CustomSerializer::class)
  * class BoxedList<T>(val list: List<T>)
  *
  * class CustomSerializer<T>(tSerializer: KSerializer<T>): KSerializer<BoxedList<T>> {
  *   // here we use tSerializer.descriptor because it represents T
- *   override val descriptor = SerialDescriptor("pkg.BoxedList", CLASS, tSerializer.descriptor) {
+ *   override val descriptor = buildClassSerialDescriptor("pkg.BoxedList", tSerializer.descriptor) {
  *     // here we have to wrap it with List first, because property has type List<T>
  *     element("list", ListSerializer(tSerializer).descriptor) // or listSerialDescriptor(tSerializer.descriptor)
  *   }
@@ -129,7 +132,7 @@ internal class WrappedSerialDescriptor(override val serialName: String, original
  * This function is left public only for migration of pre-release users and is not intended to be used
  * as generally-safe and stable mechanism. Beware that it can produce inconsistent or non spec-compliant instances.
  *
- * If you end up using this builder, please file an issue with your use-case in kotlinx.serialization
+ * If you end up using this builder, please file an issue with your use-case in kotlinx.serialization issue tracker.
  */
 @InternalSerializationApi
 @OptIn(ExperimentalSerializationApi::class)

@@ -20,6 +20,7 @@ In this chapter, we'll walk through features of [JSON](https://www.json.org/json
   * [Allowing structured map keys](#allowing-structured-map-keys)
   * [Allowing special floating-point values](#allowing-special-floating-point-values)
   * [Class discriminator for polymorphism](#class-discriminator-for-polymorphism)
+  * [Global naming strategy](#global-naming-strategy)
 * [Json elements](#json-elements)
   * [Parsing to Json element](#parsing-to-json-element)
   * [Types of Json elements](#types-of-json-elements)
@@ -468,6 +469,53 @@ As you can see, discriminator from the `Base` class is used:
 
 <!--- TEST -->
 
+### Global naming strategy
+
+If properties' names in Json input are different from Kotlin ones, it is recommended to specify the name 
+for each property explicitly using [`@SerialName` annotation](basic-serialization.md#serial-field-names).
+However, there are certain situations where transformation should be applied to every serial name — such as migration
+from other frameworks or legacy codebase. For that cases, it is possible to specify a [namingStrategy][JsonBuilder.namingStrategy]
+for a [Json] instance. `kotlinx.serialization` provides one strategy implementation out of the box, the [JsonNamingStrategy.SnakeCase](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-naming-strategy/-builtins/-snake-case.html):
+
+```kotlin
+@Serializable
+data class Project(val projectName: String, val projectOwner: String)
+
+val format = Json { namingStrategy = JsonNamingStrategy.SnakeCase }
+
+fun main() {
+    val project = format.decodeFromString<Project>("""{"project_name":"kotlinx.coroutines", "project_owner":"Kotlin"}""")
+    println(format.encodeToString(project.copy(projectName = "kotlinx.serialization")))
+}
+```
+
+> You can get the full code [here](../guide/example/example-json-12.kt).
+
+As you can see, both serialization and deserialization work as if all serial names are transformed from camel case to snake case:
+
+```text
+{"project_name":"kotlinx.serialization","project_owner":"Kotlin"}
+```
+
+There are some caveats one should remember while dealing with a [JsonNamingStrategy]:
+
+* Due to the nature of the `kotlinx.serialization` framework, naming strategy transformation is applied to all properties regardless 
+of whether their serial name was taken from the property name or provided by [SerialName] annotation.
+Effectively, it means one cannot avoid transformation by explicitly specifying the serial name. To be able to deserialize
+non-transformed names, [JsonNames] annotation can be used instead.
+
+* Collision of the transformed name with any other (transformed) properties serial names or any alternative names
+specified with [JsonNames] will lead to a deserialization exception.
+
+* Global naming strategies are very implicit: by looking only at the definition of the class,
+it is impossible to determine which names it will have in the serialized form.
+As a consequence, naming strategies are not friendly to actions like Find Usages/Rename in IDE, full-text search by grep, etc.
+For them, the original name and the transformed are two different things;
+changing one without the other may introduce bugs in many unexpected ways and lead to greater maintenance efforts for code with global naming strategies.
+
+Therefore, one should carefully weigh the pros and cons before considering adding global naming strategies to an application.
+
+<!--- TEST -->
 
 ## Json elements
 
@@ -493,7 +541,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-12.kt).
+> You can get the full code [here](../guide/example/example-json-13.kt).
 
 A `JsonElement` prints itself as a valid JSON:
 
@@ -536,7 +584,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-13.kt).
+> You can get the full code [here](../guide/example/example-json-14.kt).
 
 The above example sums `votes` in all objects in the `forks` array, ignoring the objects that have no `votes`:
 
@@ -576,7 +624,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-14.kt).
+> You can get the full code [here](../guide/example/example-json-15.kt).
 
 As a result, you get a proper JSON string:
 
@@ -605,7 +653,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-15.kt).
+> You can get the full code [here](../guide/example/example-json-16.kt).
 
 The result is exactly what you would expect:
 
@@ -651,7 +699,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-16.kt).
+> You can get the full code [here](../guide/example/example-json-17.kt).
 
 Even though `pi` was defined as a number with 30 decimal places, the resulting JSON does not reflect this. 
 The [Double] value is truncated to 15 decimal places, and the String is wrapped in quotes - which is not a JSON number.
@@ -691,7 +739,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-17.kt).
+> You can get the full code [here](../guide/example/example-json-18.kt).
 
 `pi_literal` now accurately matches the value defined.
 
@@ -731,7 +779,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-18.kt).
+> You can get the full code [here](../guide/example/example-json-19.kt).
 
 The exact value of `pi` is decoded, with all 30 decimal places of precision that were in the source JSON.
 
@@ -753,7 +801,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-19.kt).
+> You can get the full code [here](../guide/example/example-json-20.kt).
 
 ```text
 Exception in thread "main" kotlinx.serialization.json.internal.JsonEncodingException: Creating a literal unquoted value of 'null' is forbidden. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive
@@ -829,7 +877,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-20.kt).
+> You can get the full code [here](../guide/example/example-json-21.kt).
 
 The output shows that both cases are correctly deserialized into a Kotlin [List].
 
@@ -881,7 +929,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-21.kt).
+> You can get the full code [here](../guide/example/example-json-22.kt).
 
 You end up with a single JSON object, not an array with one element:
 
@@ -926,7 +974,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-22.kt).
+> You can get the full code [here](../guide/example/example-json-23.kt).
 
 See the effect of the custom serializer:
 
@@ -999,7 +1047,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-23.kt).
+> You can get the full code [here](../guide/example/example-json-24.kt).
 
 No class discriminator is added in the JSON output:
 
@@ -1095,7 +1143,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-24.kt).
+> You can get the full code [here](../guide/example/example-json-25.kt).
 
 This gives you fine-grained control on the representation of the `Response` class in the JSON output:
 
@@ -1160,7 +1208,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-25.kt).
+> You can get the full code [here](../guide/example/example-json-26.kt).
 
 ```text
 UnknownProject(name=example, details={"type":"unknown","maintainer":"Unknown","license":"Apache 2.0"})
@@ -1214,6 +1262,8 @@ The next chapter covers [Alternative and custom formats (experimental)](formats.
 [JsonBuilder.allowSpecialFloatingPointValues]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/allow-special-floating-point-values.html
 [JsonBuilder.classDiscriminator]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/class-discriminator.html
 [JsonClassDiscriminator]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-class-discriminator/index.html
+[JsonBuilder.namingStrategy]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/naming-strategy.html
+[JsonNamingStrategy]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-naming-strategy/index.html
 [JsonElement]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-element/index.html
 [Json.parseToJsonElement]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/parse-to-json-element.html
 [JsonPrimitive]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-primitive/index.html
