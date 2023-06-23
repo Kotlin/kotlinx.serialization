@@ -11,7 +11,6 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlin.native.concurrent.*
 
-@SharedImmutable
 private val NULL = Any()
 private const val deprecationMessage =
     "This class is used only by the plugin in generated code and should not be used directly. Use corresponding factory functions instead"

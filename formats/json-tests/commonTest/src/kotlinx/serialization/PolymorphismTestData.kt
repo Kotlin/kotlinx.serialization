@@ -37,7 +37,6 @@ class PolyDefaultWithId(id: Int) : PolyBase(id)
 @Serializable
 data class PolyDerived(val s: String) : PolyBase(1)
 
-@SharedImmutable
 val BaseAndDerivedModule = SerializersModule {
     polymorphic(PolyBase::class, PolyBase.serializer()) {
         subclass(PolyDerived.serializer())

@@ -12,7 +12,6 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.native.concurrent.*
 
-@SharedImmutable
 private val unsignedNumberDescriptors = setOf(
     UInt.serializer().descriptor,
     ULong.serializer().descriptor,

@@ -67,7 +67,6 @@ data class ArraysUmbrella(
             arrIntData.contentEquals(other.arrIntData)
 }
 
-@SharedImmutable
 val umbrellaInstance = TypesUmbrella(
     Unit, true, 10, 20, 30, 40, 50.1f, 60.1, 'A', "Str0", Attitude.POSITIVE, IntData(70),
     null, null, 11, 21, 31, 41, 51.1f, 61.1, 'B', "Str1", Attitude.NEUTRAL, null,

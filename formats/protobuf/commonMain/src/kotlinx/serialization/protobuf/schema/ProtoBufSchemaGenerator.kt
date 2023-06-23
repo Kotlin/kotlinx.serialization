@@ -433,6 +433,7 @@ public object ProtoBufSchemaGenerator {
         }
     }
 
+    @SuppressAnimalSniffer // Boolean.hashCode(boolean) in compiler-generated hashCode implementation
     private data class TypeDefinition(
         val descriptor: SerialDescriptor,
         val isSynthetic: Boolean = false,
