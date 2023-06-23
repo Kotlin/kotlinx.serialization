@@ -13,7 +13,6 @@ private fun toHexChar(i: Int) : Char {
 }
 
 @PublishedApi
-@SharedImmutable
 internal val ESCAPE_STRINGS: Array<String?> = arrayOfNulls<String>(93).apply {
     for (c in 0..0x1f) {
         val c1 = toHexChar(c shr 12)
@@ -31,7 +30,6 @@ internal val ESCAPE_STRINGS: Array<String?> = arrayOfNulls<String>(93).apply {
     this[0x0c] = "\\f"
 }
 
-@SharedImmutable
 internal val ESCAPE_MARKERS: ByteArray = ByteArray(93).apply {
     for (c in 0..0x1f) {
         this[c] = 1.toByte()

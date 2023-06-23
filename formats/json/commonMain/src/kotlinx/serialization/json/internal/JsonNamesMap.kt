@@ -11,10 +11,8 @@ import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
 import kotlin.native.concurrent.*
 
-@SharedImmutable
 internal val JsonDeserializationNamesKey = DescriptorSchemaCache.Key<Map<String, Int>>()
 
-@SharedImmutable
 internal val JsonSerializationNamesKey = DescriptorSchemaCache.Key<Array<String>>()
 
 private fun SerialDescriptor.buildDeserializationNamesMap(json: Json): Map<String, Int> {

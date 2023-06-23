@@ -11,7 +11,6 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.internal.InlinePrimitiveDescriptor
 import kotlinx.serialization.json.internal.*
-import kotlin.native.concurrent.SharedImmutable
 
 /**
  * Class representing single JSON element.
@@ -134,7 +133,6 @@ public fun JsonUnquotedLiteral(value: String?): JsonPrimitive {
 }
 
 /** Used as a marker to indicate during encoding that the [JsonEncoder] should use `encodeInline()` */
-@SharedImmutable
 internal val jsonUnquotedLiteralDescriptor: SerialDescriptor =
     InlinePrimitiveDescriptor("kotlinx.serialization.json.JsonUnquotedLiteral", String.serializer())
 

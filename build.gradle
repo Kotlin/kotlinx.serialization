@@ -220,6 +220,8 @@ subprojects {
                 case "kotlinx-serialization-hocon":
                     annotationValue = "kotlinx.serialization.hocon.internal.SuppressAnimalSniffer"
                     break
+                case "kotlinx-serialization-protobuf":
+                    annotationValue = "kotlinx.serialization.protobuf.internal.SuppressAnimalSniffer"
             }
             annotation = annotationValue
         }
