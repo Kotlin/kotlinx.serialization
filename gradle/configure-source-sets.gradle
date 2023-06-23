@@ -95,6 +95,14 @@ kotlin {
     }
 
     targets.all {
+        compilations.all {
+            kotlinOptions {
+                if (rootProject.ext.kotlin_lv_override != null) {
+                    languageVersion = rootProject.ext.kotlin_lv_override
+                    freeCompilerArgs += "-Xsuppress-version-warnings"
+                }
+            }
+        }
         compilations.main {
             kotlinOptions {
                 allWarningsAsErrors = true
