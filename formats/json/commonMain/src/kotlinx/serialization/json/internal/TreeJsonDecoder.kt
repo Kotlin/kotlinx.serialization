@@ -44,7 +44,7 @@ private sealed class AbstractJsonTreeDecoder(
     @JvmField
     protected val configuration = json.configuration
 
-    private fun currentObject() = currentTagOrNull?.let { currentElement(it) } ?: value
+    protected fun currentObject() = currentTagOrNull?.let { currentElement(it) } ?: value
 
     override fun decodeJsonElement(): JsonElement = currentObject()
 
@@ -256,11 +256,14 @@ private open class JsonTreeDecoder(
     override fun currentElement(tag: String): JsonElement = value.getValue(tag)
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
-        /*
-         * For polymorphic serialization we'd like to avoid excessive decoder creating in
-         * beginStructure to properly preserve 'polyDiscriminator' field and filter it out.
-         */
-        if (descriptor === polyDescriptor) return this
+        // polyDiscriminator needs to be preserved so the check for unknown keys
+        // in endStructure can filter polyDiscriminator out.
+        if (descriptor === polyDescriptor) {
+            return JsonTreeDecoder(
+                json, cast(currentObject(), polyDescriptor), polyDiscriminator, polyDescriptor
+            )
+        }
+
         return super.beginStructure(descriptor)
     }
 
