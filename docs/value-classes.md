@@ -98,7 +98,7 @@ in `serialize` method:
 
 ```kotlin
 override fun serialize(encoder: Encoder, value: NamedColor) {
-  encoder.beginStructure(descriptor) {
+  encoder.encodeStructure(descriptor) {
     encodeSerializableElement(descriptor, 0, Color.serializer(), value.color)
     encodeStringElement(descriptor, 1, value.name)
   }
@@ -113,7 +113,7 @@ unboxed value:
 
 ```kotlin
 override fun serialize(encoder: Encoder, value: NamedColor) {
-  encoder.beginStructure(descriptor) {
+  encoder.encodeStructure(descriptor) {
     encodeInlineElement(descriptor, 0).encodeInt(value.color)
     encodeStringElement(descriptor, 1, value.name)
   }
@@ -123,7 +123,7 @@ override fun serialize(encoder: Encoder, value: NamedColor) {
 The same principle goes also with [CompositeDecoder]: it has [decodeInlineElement][CompositeDecoder.decodeInlineElement] function that returns [Decoder].
 
 If your class should be represented as a primitive (as shown in [Primitive serializer](serializers.md#primitive-serializer) section),
-and you cannot use [beginStructure][Encoder.beginStructure] function, there is a complementary function in [Encoder] called [encodeInline][Encoder.encodeInline].
+and you cannot use [encodeStructure][Encoder.encodeStructure] function, there is a complementary function in [Encoder] called [encodeInline][Encoder.encodeInline].
 We will use it to show an example how one can represent a class as an unsigned integer.
 
 Let's start with a UID class:
@@ -187,7 +187,7 @@ override fun deserialize(decoder: Decoder): UID {
 [CompositeDecoder]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-composite-decoder/index.html
 [CompositeDecoder.decodeInlineElement]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-composite-decoder/decode-inline-element.html
 [Decoder]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-decoder/index.html
-[Encoder.beginStructure]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-encoder/begin-structure.html
+[Encoder.encodeStructure]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/encode-structure.html
 [Encoder.encodeInline]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-encoder/encode-inline.html
 [Encoder.encodeInt]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-encoder/encode-int.html
 
