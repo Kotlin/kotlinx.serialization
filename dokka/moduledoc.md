@@ -21,7 +21,7 @@ You can learn about "Human-Optimized Config Object Notation" or HOCON from libra
 Allows converting arbitrary hierarchy of Kotlin classes to a flat key-value structure à la Java Properties.
 
 # Module kotlinx-serialization-protobuf
-Protocol buffers serialization format implementation, mostly compliant to [proto2](https://developers.google.com/protocol-buffers/docs/proto) specification.
+[Protocol buffers](https://protobuf.dev/) serialization format implementation.
 
 # Package kotlinx.serialization
 Basic core concepts and annotations that set up serialization process.
@@ -50,7 +50,10 @@ and JSON-specific serializers.
 Extensions for kotlinx.serialization.json.Json for integration with the popular [Okio](https://square.github.io/okio/) library.
 
 # Package kotlinx.serialization.protobuf
-Protocol buffers serialization format implementation, mostly compliant to [proto2](https://developers.google.com/protocol-buffers/docs/proto) specification. 
+[Protocol buffers](https://protobuf.dev/) serialization format implementation.
+
+# Package kotlinx.serialization.protobuf.schema
+Experimental generator of ProtoBuf schema from Kotlin classes.
 
 # Package kotlinx.serialization.properties
 Properties serialization format implementation that represents the input data as a plain map of properties.
