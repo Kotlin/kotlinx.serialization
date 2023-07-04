@@ -31,16 +31,16 @@ private fun SerialDescriptor.buildDeserializationNamesMap(json: Json): Map<Strin
 
     val builder: MutableMap<String, Int> =
         mutableMapOf() // can be not concurrent because it is only read after creation and safely published to concurrent map
-    val useLowercase = json.decodeCaseInsensitive(this)
-    val strategy = namingStrategy(json)
+    val useLowercaseEnums = json.decodeCaseInsensitive(this)
+    val strategyForClasses = namingStrategy(json)
     for (i in 0 until elementsCount) {
         getElementAnnotations(i).filterIsInstance<JsonNames>().singleOrNull()?.names?.forEach { name ->
-            builder.putOrThrow(if (useLowercase) name.lowercase() else name, i)
+            builder.putOrThrow(if (useLowercaseEnums) name.lowercase() else name, i)
         }
         val nameToPut = when {
             // the branches do not intersect because useLowercase = true for enums only, and strategy != null for classes only.
-            useLowercase -> getElementName(i).lowercase()
-            strategy != null -> strategy.serialNameForJson(this, i, getElementName(i))
+            useLowercaseEnums -> getElementName(i).lowercase()
+            strategyForClasses != null -> strategyForClasses.serialNameForJson(this, i, getElementName(i))
             else -> null
         }
         nameToPut?.let { builder.putOrThrow(it, i) }
@@ -78,8 +78,8 @@ private fun Json.decodeCaseInsensitive(descriptor: SerialDescriptor) =
     configuration.decodeEnumsCaseInsensitive && descriptor.kind == SerialKind.ENUM
 
 /**
- * Serves same purpose as [SerialDescriptor.getElementIndex] but respects
- * [JsonNames] annotation and [JsonConfiguration.useAlternativeNames] state.
+ * Serves same purpose as [SerialDescriptor.getElementIndex] but respects [JsonNames] annotation
+ * and [JsonConfiguration] settings.
  */
 @OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.getJsonNameIndex(json: Json, name: String): Int {

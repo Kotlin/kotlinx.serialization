@@ -119,7 +119,21 @@ class JsonEnumsCaseInsensitiveTest: JsonTestBase() {
         assertEquals(Foo(), disabled.decodeFromString<Foo>(input, mode))
     }
 
+    @Test
+    fun testFeatureDisabledThrowsWithoutCoercing() = parametrizedTest { mode ->
+        val disabled = Json(json) {
+            coerceInputValues = false
+            decodeEnumsCaseInsensitive = false
+        }
+        val input = """{"one":"BAZ","two":"BAz","three":"baz"}"""
+        assertFailsWithMessage<SerializationException>("does not contain element with name 'BAz'") {
+            disabled.decodeFromString<Foo>(input, mode)
+        }
+    }
+
     @Serializable enum class BadEnum { Bad, BAD }
+
+    @Serializable data class ListBadEnum(val l: List<BadEnum>)
 
     @Test
     fun testLowercaseClashThrowsException() = parametrizedTest { mode ->
@@ -130,5 +144,14 @@ class JsonEnumsCaseInsensitiveTest: JsonTestBase() {
         assertFailsWithMessage<SerializationException>("""The suggested name 'bad' for enum value BAD is already one of the names for enum value Bad""") {
             json.decodeFromString(Box.serializer(BadEnum.serializer()),"""{"boxed":"unrelated"}""", mode)
         }
+    }
+
+    @Test
+    fun testLowercaseClashHandledWithoutFeature() = parametrizedTest { mode ->
+        val disabled = Json(json) {
+            coerceInputValues = false
+            decodeEnumsCaseInsensitive = false
+        }
+        assertEquals(ListBadEnum(listOf(BadEnum.Bad, BadEnum.BAD)), disabled.decodeFromString("""{"l":["Bad","BAD"]}"""))
     }
 }
