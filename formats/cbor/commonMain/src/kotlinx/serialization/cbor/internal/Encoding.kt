@@ -98,18 +98,22 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
         encodeByteArrayAsByteString = descriptor.isByteString(index)
         val name = descriptor.getElementName(index)
 
-        descriptor.getKeyTags(index)?.forEach { tag ->
-            val encodedTag = encoder.composePositive(tag)
-            encodedTag[0] = encodedTag[0] or HEADER_TAG.toUByte().toByte()
-            encodedTag.forEach { encoder.writeByte(it.toUByte().toInt()) }
+        if (cbor.writeKeyTags) {
+            descriptor.getKeyTags(index)?.forEach { tag ->
+                val encodedTag = encoder.composePositive(tag)
+                encodedTag[0] = encodedTag[0] or HEADER_TAG.toUByte().toByte()
+                encodedTag.forEach { encoder.writeByte(it.toUByte().toInt()) }
+            }
         }
 
         encoder.encodeString(name)
 
-        descriptor.getValueTags(index)?.forEach { tag ->
-            val encodedTag = encoder.composePositive(tag)
-            encodedTag[0] = encodedTag[0] or HEADER_TAG.toUByte().toByte()
-            encodedTag.forEach { encoder.writeByte(it.toUByte().toInt()) }
+        if (cbor.writeValueTags) {
+            descriptor.getValueTags(index)?.forEach { tag ->
+                val encodedTag = encoder.composePositive(tag)
+                encodedTag[0] = encodedTag[0] or HEADER_TAG.toUByte().toByte()
+                encodedTag.forEach { encoder.writeByte(it.toUByte().toInt()) }
+            }
         }
         return true
     }
@@ -276,8 +280,10 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
                 if (index == CompositeDecoder.UNKNOWN_NAME) {
                     decoder.skipElement(tags)
                 } else {
-                    descriptor.getKeyTags(index)?.let { keyTags ->
-                        if (!(keyTags contentEquals tags)) throw CborDecodingException("CBOR tags $tags do not match declared tags $keyTags")
+                    if (cbor.verifyKeyTags) {
+                        descriptor.getKeyTags(index)?.let { keyTags ->
+                            if (!(keyTags contentEquals tags)) throw CborDecodingException("CBOR tags $tags do not match declared tags $keyTags")
+                        }
                     }
                     knownIndex = index
                     break
@@ -289,14 +295,16 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
             val (elemName, tags) = decoder.nextTaggedString()
             readProperties++
             descriptor.getElementIndexOrThrow(elemName).also { index ->
-                descriptor.getKeyTags(index)?.let { keyTags ->
-                    if (!(keyTags contentEquals tags)) throw CborDecodingException("CBOR tags $tags do not match declared tags $keyTags")
+                if (cbor.verifyKeyTags) {
+                    descriptor.getKeyTags(index)?.let { keyTags ->
+                        if (!(keyTags contentEquals tags)) throw CborDecodingException("CBOR tags $tags do not match declared tags $keyTags")
+                    }
                 }
             }
         }
 
         decodeByteArrayAsByteString = descriptor.isByteString(index)
-        tags = descriptor.getValueTags(index)
+        tags = if (cbor.verifyValueTags) descriptor.getValueTags(index) else null
         return index
     }
 
@@ -407,7 +415,6 @@ internal class CborDecoder(private val input: ByteArrayInput) {
 
     fun nextByteString(tag: ULong?) = nextByteString(tag?.let { ulongArrayOf(it) })
     fun nextByteString(tags: ULongArray?): ByteArray {
-
         processTags(tags)
         if ((curByte and 0b111_00000) != HEADER_BYTE_STRING.toInt())
             throw CborDecodingException("start of byte string", curByte)
