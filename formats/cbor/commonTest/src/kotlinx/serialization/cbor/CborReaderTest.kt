@@ -69,16 +69,18 @@ class CborReaderTest {
             HexConverter.parseHexBinary("cafe")
         )
         // with maps, lists & strings of indefinite length
-        assertEquals(test, Cbor.decodeFromHexString(
-            TypesUmbrella.serializer(),
-            "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffff6a62797465537472696e675f42cafeff696279746541727261799f383521ffff"
-        )
+        assertEquals(
+            test, Cbor.decodeFromHexString(
+                TypesUmbrella.serializer(),
+                "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffff6a62797465537472696e675f42cafeff696279746541727261799f383521ffff"
+            )
         )
         // with maps, lists & strings of definite length
-        assertEquals(test, Cbor.decodeFromHexString(
-            TypesUmbrella.serializer(),
-            "a9646c6973748261616162686e756c6c61626c65f6636d6170a202f401f56169182a6a696e6e6572734c69737481a16161636b656b637374726d48656c6c6f2c20776f726c642165696e6e6572a16161636c6f6c6a62797465537472696e6742cafe6962797465417272617982383521"
-        )
+        assertEquals(
+            test, Cbor.decodeFromHexString(
+                TypesUmbrella.serializer(),
+                "a9646c6973748261616162686e756c6c61626c65f6636d6170a202f401f56169182a6a696e6e6572734c69737481a16161636b656b637374726d48656c6c6f2c20776f726c642165696e6e6572a16161636c6f6c6a62797465537472696e6742cafe6962797465417272617982383521"
+            )
         )
     }
 
@@ -445,6 +447,50 @@ class CborReaderTest {
         withDecoder("A46161CC1BFFFFFFFFFFFFFFFFD822616220D8386163D84E42CAFE6164D85ACC6B48656C6C6F20776F726C64") {
             expectMap(size = 4)
             expect("a")
+            skipElement() // unsigned(18446744073709551615)
+            expect("b")
+            skipElement() // negative(0)
+            expect("c")
+            skipElement() // "\xCA\xFE"
+            expect("d")
+            skipElement() // "Hello world"
+            expectEof()
+        }
+    }
+
+    /**
+     * Tests that skipping unknown keys also skips over associated tags.
+     *
+     * Includes tags on the key, tags on the value, and tags on both key and value.
+     */
+    @Test
+    fun testVerifyTags() {
+        /*
+         * A4                                 # map(4)
+         * 61                              # text(1)
+         *    61                           # "a"
+         * CC                              # tag(12)
+         *    1B FFFFFFFFFFFFFFFF          # unsigned(18446744073709551615)
+         * D8 22                           # tag(34)
+         *    61                           # text(1)
+         *       62                        # "b"
+         * 20                              # negative(0)
+         * D8 38                           # tag(56)
+         *    61                           # text(1)
+         *       63                        # "c"
+         * D8 4E                           # tag(78)
+         *    42                           # bytes(2)
+         *       CAFE                      # "\xCA\xFE"
+         * 61                              # text(1)
+         *    64                           # "d"
+         * D8 5A                           # tag(90)
+         *    CC                           # tag(12)
+         *       6B                        # text(11)
+         *          48656C6C6F20776F726C64 # "Hello world"
+         */
+        withDecoder("A46161CC1BFFFFFFFFFFFFFFFFD822616220D8386163D84E42CAFE6164D85ACC6B48656C6C6F20776F726C64") {
+            expectMap(size = 4)
+            expect("a")
             skipElement(12uL) // unsigned(18446744073709551615)
             expect("b", 34uL)
             skipElement(null) // negative(0)
@@ -612,29 +658,55 @@ class CborReaderTest {
     @Test
     fun testReadCustomByteString() {
         assertEquals(
-                expected = TypeWithCustomByteString(CustomByteString(0x11, 0x22, 0x33)),
-                actual = Cbor.decodeFromHexString("bf617843112233ff")
+            expected = TypeWithCustomByteString(CustomByteString(0x11, 0x22, 0x33)),
+            actual = Cbor.decodeFromHexString("bf617843112233ff")
         )
     }
 
     @Test
     fun testReadNullableCustomByteString() {
         assertEquals(
-                expected = TypeWithNullableCustomByteString(CustomByteString(0x11, 0x22, 0x33)),
-                actual = Cbor.decodeFromHexString("bf617843112233ff")
+            expected = TypeWithNullableCustomByteString(CustomByteString(0x11, 0x22, 0x33)),
+            actual = Cbor.decodeFromHexString("bf617843112233ff")
         )
     }
 
     @Test
     fun testReadNullCustomByteString() {
         assertEquals(
-                expected = TypeWithNullableCustomByteString(null),
-                actual = Cbor.decodeFromHexString("bf6178f6ff")
+            expected = TypeWithNullableCustomByteString(null),
+            actual = Cbor.decodeFromHexString("bf6178f6ff")
         )
     }
 
     @Test
     fun testIgnoresTagsOnStrings() {
+        /*
+         * 84                                # array(4)
+         * 68                             # text(8)
+         *    756E746167676564            # "untagged"
+         * C0                             # tag(0)
+         *    68                          # text(8)
+         *       7461676765642D30         # "tagged-0"
+         * D8 F5                          # tag(245)
+         *    6A                          # text(10)
+         *       7461676765642D323435     # "tagged-244"
+         * D9 3039                        # tag(12345)
+         *    6C                          # text(12)
+         *       7461676765642D3132333435 # "tagged-12345"
+         *
+         */
+        withDecoder("8468756E746167676564C0687461676765642D30D8F56A7461676765642D323435D930396C7461676765642D3132333435") {
+            assertEquals(4, startArray())
+            assertEquals("untagged", nextString())
+            assertEquals("tagged-0", nextString())
+            assertEquals("tagged-245", nextString())
+            assertEquals("tagged-12345", nextString())
+        }
+    }
+
+    @Test
+    fun testVerifyTagsOnStrings() {
         /*
          * 84                                # array(4)
          * 68                             # text(8)
@@ -661,6 +733,33 @@ class CborReaderTest {
 
     @Test
     fun testIgnoresTagsOnNumbers() {
+        /*
+         * 86                     # array(6)
+         * 18 7B                  # unsigned(123)
+         * C0                     # tag(0)
+         *    1A 0001E240         # unsigned(123456)
+         * D8 F5                  # tag(245)
+         *    1A 000F423F         # unsigned(999999)
+         * D9 3039                # tag(12345)
+         *    38 31               # negative(49)
+         * D8 22                  # tag(34)
+         *    FB 3FE161F9F01B866E # primitive(4603068020252444270)
+         * D9 0237                # tag(567)
+         *    FB 401999999999999A # primitive(4618891777831180698)
+         */
+        withDecoder("86187BC01A0001E240D8F51A000F423FD930393831D822FB3FE161F9F01B866ED90237FB401999999999999A") {
+            assertEquals(6, startArray())
+            assertEquals(123, nextNumber())
+            assertEquals(123456, nextNumber())
+            assertEquals(999999, nextNumber())
+            assertEquals(-50, nextNumber())
+            assertEquals(0.54321, nextDouble(), 0.00001)
+            assertEquals(6.4, nextDouble(), 0.00001)
+        }
+    }
+
+    @Test
+    fun testVerifiesTagsOnNumbers() {
         /*
          * 86                     # array(6)
          * 18 7B                  # unsigned(123)
@@ -710,6 +809,43 @@ class CborReaderTest {
          *          31323334353637             # "1234567"
          */
         withDecoder("A2636D6170D87BA16874686973206D61706D69732074616767656420313233656172726179DA0012D687836A74686973206172726179696973207461676765646731323334353637") {
+            assertEquals(2, startMap())
+            assertEquals("map", nextString())
+            assertEquals(1, startMap())
+            assertEquals("this map", nextString())
+            assertEquals("is tagged 123", nextString())
+            assertEquals("array", nextString())
+            assertEquals(3, startArray())
+            assertEquals("this array", nextString())
+            assertEquals("is tagged", nextString())
+            assertEquals("1234567", nextString())
+        }
+    }
+
+    @Test
+    fun testVerifiesTagsOnArraysAndMaps() {
+        /*
+         * A2                                  # map(2)
+         * 63                                  # text(3)
+         *    6D6170                           # "map"
+         * D8 7B                               # tag(123)
+         *    A1                               # map(1)
+         *       68                            # text(8)
+         *          74686973206D6170           # "this map"
+         *       6D                            # text(13)
+         *          69732074616767656420313233 # "is tagged 123"
+         * 65                                  # text(5)
+         *    6172726179                       # "array"
+         * DA 0012D687                         # tag(1234567)
+         *    83                               # array(3)
+         *       6A                            # text(10)
+         *          74686973206172726179       # "this array"
+         *       69                            # text(9)
+         *          697320746167676564         # "is tagged"
+         *       67                            # text(7)
+         *          31323334353637             # "1234567"
+         */
+        withDecoder("A2636D6170D87BA16874686973206D61706D69732074616767656420313233656172726179DA0012D687836A74686973206172726179696973207461676765646731323334353637") {
             assertEquals(2, startMap(null))
             assertEquals("map", nextString(null))
             assertEquals(1, startMap(123uL))
@@ -724,12 +860,12 @@ class CborReaderTest {
     }
 }
 
-private fun CborDecoder.expect(expected: String, currentTag:ULong?=null) {
-    assertEquals(expected, actual = nextString(currentTag), "string")
+private fun CborDecoder.expect(expected: String, tag: ULong? = null) {
+    assertEquals(expected, actual = nextString(tag?.let { ulongArrayOf(it) }), "string")
 }
 
-private fun CborDecoder.expectMap(size: Int, currentTag: ULong?=null) {
-    assertEquals(size, actual = startMap(currentTag), "map size")
+private fun CborDecoder.expectMap(size: Int, tag: ULong? = null) {
+    assertEquals(size, actual = startMap(tag?.let { ulongArrayOf(it) }), "map size")
 }
 
 private fun CborDecoder.expectEof() {
