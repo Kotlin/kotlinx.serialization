@@ -110,6 +110,20 @@ class JsonEnumsCaseInsensitiveTest: JsonTestBase() {
     }
 
     @Test
+    fun testCaseInsensitivePriorityOverCoercing() = parametrizedTest { mode ->
+        val withCoercing = Json(json) { coerceInputValues = true }
+        val input = """{"one":"QuX","two":"Baz","three":"Que"}"""
+        assertEquals(Foo(Bar.QUX, Bar.BAZ, Bar.QUX),  withCoercing.decodeFromString<Foo>(input, mode))
+    }
+
+    @Test
+    fun testCoercingStillWorksWithNulls() = parametrizedTest { mode ->
+        val withCoercing = Json(json) { coerceInputValues = true }
+        val input = """{"one":"baz","two":"null","three":null}"""
+        assertEquals(Foo(),  withCoercing.decodeFromString<Foo>(input, mode))
+    }
+
+    @Test
     fun testFeatureDisablesProperly() = parametrizedTest { mode ->
         val disabled = Json(json) {
             coerceInputValues = true
