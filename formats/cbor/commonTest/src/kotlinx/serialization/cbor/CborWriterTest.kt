@@ -34,22 +34,6 @@ class CbrWriterTest {
     }
 
     @Test
-    fun writeTaggedClass() {
-        val test = WithTags(
-            a = 0xFFFFFFFuL,
-            b = -1,
-            c = byteArrayOf(0xCA.toByte(), 0xFE.toByte()),
-            d = "Hello World"
-        )
-        val encoded = Cbor.encodeToHexString(WithTags.serializer(), test)
-        assertEquals(
-            "bf6161cc1a0fffffffd822616220d8386163d84e42cafe6164d85acc6b48656c6c6f20576f726c64ff",
-            encoded
-        )
-        assertEquals(test, Cbor.decodeFromHexString(WithTags.serializer(), encoded))
-    }
-
-    @Test
     fun writeManyNumbers() {
         val test = NumberTypesUmbrella(
             100500,

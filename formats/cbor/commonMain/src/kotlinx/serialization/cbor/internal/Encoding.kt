@@ -363,16 +363,16 @@ internal class CborDecoder(private val input: ByteArrayInput) {
 
     fun isNull() = curByte == NULL
 
-    fun nextNull(tag: ULong?) = nextNull(tag?.let { ulongArrayOf(it) })
-    fun nextNull(tags: ULongArray?): Nothing? {
+    fun nextNull(tag: ULong) = nextNull(ulongArrayOf(tag))
+    fun nextNull(tags: ULongArray? = null): Nothing? {
         processTags(tags)
         skipByte(NULL)
         return null
     }
 
-    fun nextBoolean(tag: ULong?) = nextBoolean(tag?.let { ulongArrayOf(it) })
+    fun nextBoolean(tag: ULong) = nextBoolean(ulongArrayOf(tag))
 
-    fun nextBoolean(tags: ULongArray?): Boolean {
+    fun nextBoolean(tags: ULongArray? = null): Boolean {
         processTags(tags)
         val ans = when (curByte) {
             TRUE -> true
@@ -383,13 +383,13 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         return ans
     }
 
-    fun startArray(tag: ULong?) = startArray(tag?.let { ulongArrayOf(it) })
+    fun startArray(tag: ULong) = startArray(ulongArrayOf(tag))
 
-    fun startArray(tags: ULongArray?) = startSized(tags, BEGIN_ARRAY, HEADER_ARRAY, "array")
+    fun startArray(tags: ULongArray? = null) = startSized(tags, BEGIN_ARRAY, HEADER_ARRAY, "array")
 
-    fun startMap(tag: ULong?) = startMap(tag?.let { ulongArrayOf(it) })
+    fun startMap(tag: ULong) = startMap(ulongArrayOf(tag))
 
-    fun startMap(tags: ULongArray?) = startSized(tags, BEGIN_MAP, HEADER_MAP, "map")
+    fun startMap(tags: ULongArray? = null) = startSized(tags, BEGIN_MAP, HEADER_MAP, "map")
 
     private fun startSized(
         tags: ULongArray?,
@@ -413,8 +413,8 @@ internal class CborDecoder(private val input: ByteArrayInput) {
 
     fun end() = skipByte(BREAK)
 
-    fun nextByteString(tag: ULong?) = nextByteString(tag?.let { ulongArrayOf(it) })
-    fun nextByteString(tags: ULongArray?): ByteArray {
+    fun nextByteString(tag: ULong) = nextByteString(ulongArrayOf(tag))
+    fun nextByteString(tags: ULongArray? = null): ByteArray {
         processTags(tags)
         if ((curByte and 0b111_00000) != HEADER_BYTE_STRING.toInt())
             throw CborDecodingException("start of byte string", curByte)
@@ -423,8 +423,8 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         return arr
     }
 
-    fun nextString(tag: ULong?) = nextString(tag?.let { ulongArrayOf(it) })
-    fun nextString(tags: ULongArray?) = nextTaggedString(tags).first
+    fun nextString(tag: ULong) = nextString(ulongArrayOf(tag))
+    fun nextString(tags: ULongArray? = null) = nextTaggedString(tags).first
 
     //used to r
     fun nextTaggedString() = nextTaggedString(null)
@@ -460,11 +460,28 @@ internal class CborDecoder(private val input: ByteArrayInput) {
             }
             readByte()
         }
-        return if (collectedTags.isEmpty()) null else collectedTags.toULongArray()
+
+        return (if (collectedTags.isEmpty()) null else collectedTags.toULongArray()).also { collected ->
+            tags?.let {
+                if (!it.contentEquals(collected)) throw CborDecodingException(
+                    "CBOR tags ${
+                        collected?.joinToString(
+                            prefix = "[",
+                            postfix = "]"
+                        ) { it.toString() }
+                    } do not match expected tags ${
+                        it.joinToString(
+                            prefix = "[",
+                            postfix = "]"
+                        ) { it.toString() }
+                    }"
+                )
+            }
+        }
     }
 
-    fun nextNumber(tag: ULong?): Long = nextNumber(tag?.let { ulongArrayOf(it) })
-    fun nextNumber(tags: ULongArray?): Long {
+    fun nextNumber(tag: ULong): Long = nextNumber(ulongArrayOf(tag))
+    fun nextNumber(tags: ULongArray? = null): Long {
         processTags(tags)
         val res = readNumber()
         readByte()
@@ -508,9 +525,9 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         return array
     }
 
-    fun nextFloat(tag: ULong?) = nextFloat(tag?.let { ulongArrayOf(it) })
+    fun nextFloat(tag: ULong) = nextFloat(ulongArrayOf(tag))
 
-    fun nextFloat(tags: ULongArray?): Float {
+    fun nextFloat(tags: ULongArray? = null): Float {
         processTags(tags)
         val res = when (curByte) {
             NEXT_FLOAT -> Float.fromBits(readInt())
@@ -521,8 +538,10 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         return res
     }
 
-    fun nextDouble(): Double {
-        skipOverTags()
+    fun nextDouble(tag: ULong) = nextDouble(ulongArrayOf(tag))
+
+    fun nextDouble(tags: ULongArray? = null): Double {
+        processTags(tags)
         val res = when (curByte) {
             NEXT_DOUBLE -> Double.fromBits(readLong())
             NEXT_FLOAT -> Float.fromBits(readInt()).toDouble()
@@ -569,7 +588,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
      * been skipped, the "length stack" is [pruned][prune]. For indefinite length elements, a special marker is added to
      * the "length stack" which is only popped from the "length stack" when a CBOR [break][isEnd] is encountered.
      */
-    fun skipElement(tags: ULongArray?) {
+    fun skipElement(tags: ULongArray? = null) {
         val lengthStack = mutableListOf<Int>()
 
         processTags(tags)
@@ -684,8 +703,10 @@ internal class CborDecoder(private val input: ByteArrayInput) {
 private fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
     val index = getElementIndex(name)
     if (index == CompositeDecoder.UNKNOWN_NAME)
-        throw SerializationException("$serialName does not contain element with name '$name." +
-            " You can enable 'CborBuilder.ignoreUnknownKeys' property to ignore unknown keys")
+        throw SerializationException(
+            "$serialName does not contain element with name '$name." +
+                " You can enable 'CborBuilder.ignoreUnknownKeys' property to ignore unknown keys"
+        )
     return index
 }
 
@@ -742,6 +763,7 @@ private fun floatFromHalfBits(bits: Short): Float {
             exp = SINGLE_PRECISION_MAX_EXPONENT
             mant = halfMant
         }
+
         0 -> {
             if (halfMant == 0) {
                 // if exponent and mantissa are zero - value is zero
@@ -754,6 +776,7 @@ private fun floatFromHalfBits(bits: Short): Float {
                 return if (negative) -res else res
             }
         }
+
         else -> {
             // normalized value
             exp = (halfExp + (SINGLE_PRECISION_EXPONENT_BIAS - HALF_PRECISION_EXPONENT_BIAS))
