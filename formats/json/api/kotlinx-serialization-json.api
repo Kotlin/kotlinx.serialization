@@ -88,6 +88,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun getAllowStructuredMapKeys ()Z
 	public final fun getClassDiscriminator ()Ljava/lang/String;
 	public final fun getCoerceInputValues ()Z
+	public final fun getDecodeEnumsCaseInsensitive ()Z
 	public final fun getEncodeDefaults ()Z
 	public final fun getExplicitNulls ()Z
 	public final fun getIgnoreUnknownKeys ()Z
@@ -102,6 +103,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun setAllowStructuredMapKeys (Z)V
 	public final fun setClassDiscriminator (Ljava/lang/String;)V
 	public final fun setCoerceInputValues (Z)V
+	public final fun setDecodeEnumsCaseInsensitive (Z)V
 	public final fun setEncodeDefaults (Z)V
 	public final fun setExplicitNulls (Z)V
 	public final fun setIgnoreUnknownKeys (Z)V
@@ -129,6 +131,7 @@ public final class kotlinx/serialization/json/JsonConfiguration {
 	public final fun getAllowStructuredMapKeys ()Z
 	public final fun getClassDiscriminator ()Ljava/lang/String;
 	public final fun getCoerceInputValues ()Z
+	public final fun getDecodeEnumsCaseInsensitive ()Z
 	public final fun getEncodeDefaults ()Z
 	public final fun getExplicitNulls ()Z
 	public final fun getIgnoreUnknownKeys ()Z

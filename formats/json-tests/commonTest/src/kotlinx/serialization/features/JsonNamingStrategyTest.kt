@@ -24,6 +24,7 @@ class JsonNamingStrategyTest : JsonTestBase() {
 
     val jsonWithNaming = Json(default) {
         namingStrategy = JsonNamingStrategy.SnakeCase
+        decodeEnumsCaseInsensitive = true // check that related feature does not break anything
     }
 
     @Test
