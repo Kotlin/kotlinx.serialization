@@ -191,6 +191,11 @@ subprojects {
     if (excludedFromBomProjects.contains(project.name)) return
 
     // Animalsniffer setup
+    // Animalsniffer requires java plugin to be applied, but Kotlin 1.9.20
+    // relies on `java-base` for Kotlin Multiplatforms `withJava` implementation
+    // https://github.com/xvik/gradle-animalsniffer-plugin/issues/84
+    // https://youtrack.jetbrains.com/issue/KT-59595
+    JavaPluginUtil.applyJavaPlugin(project)
     apply plugin: 'ru.vyarus.animalsniffer'
 
     afterEvaluate { // Can be applied only when the project is evaluated
