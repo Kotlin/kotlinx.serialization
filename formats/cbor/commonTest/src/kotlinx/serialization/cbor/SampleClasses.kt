@@ -15,15 +15,15 @@ data class Simple(val a: String)
 
 @Serializable
 data class TypesUmbrella(
-        val str: String,
-        val i: Int,
-        val nullable: Double?,
-        val list: List<String>,
-        val map: Map<Int, Boolean>,
-        val inner: Simple,
-        val innersList: List<Simple>,
-        @ByteString val byteString: ByteArray,
-        val byteArray: ByteArray
+    val str: String,
+    val i: Int,
+    val nullable: Double?,
+    val list: List<String>,
+    val map: Map<Int, Boolean>,
+    val inner: Simple,
+    val innersList: List<Simple>,
+    @ByteString val byteString: ByteArray,
+    val byteArray: ByteArray
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -60,12 +60,12 @@ data class TypesUmbrella(
 
 @Serializable
 data class NumberTypesUmbrella(
-        val int: Int,
-        val long: Long,
-        val float: Float,
-        val double: Double,
-        val boolean: Boolean,
-        val char: Char
+    val int: Int,
+    val long: Long,
+    val float: Float,
+    val double: Double,
+    val boolean: Boolean,
+    val char: Char
 )
 
 @Serializable
@@ -116,10 +116,34 @@ data class TypeWithNullableCustomByteString(@ByteString val x: CustomByteString?
 @Serializable
 data class WithTags(
     @Tagged(12uL) val a: ULong,
+    @KeyTags(34uL)
     val b: Int,
+    @KeyTags(56uL)
+    @Tagged(78uL)
     @ByteString val c: ByteArray,
     @Tagged(90uL, 12uL) val d: String
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as WithTags
+
+        if (a != other.a) return false
+        if (b != other.b) return false
+        if (!c.contentEquals(other.c)) return false
+        return d == other.d
+    }
+
+    override fun hashCode(): Int {
+        var result = a.hashCode()
+        result = 31 * result + b
+        result = 31 * result + c.contentHashCode()
+        result = 31 * result + d.hashCode()
+        return result
+    }
+}
+
 
 @JvmInline
 @Serializable

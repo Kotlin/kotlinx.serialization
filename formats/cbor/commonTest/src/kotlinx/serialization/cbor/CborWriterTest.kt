@@ -36,15 +36,17 @@ class CbrWriterTest {
     @Test
     fun writeTaggedClass() {
         val test = WithTags(
-            a = 18446744073709551615uL,
-            b = -0,
-            c = byteArrayOf(0xC.toByte(), 0xA.toByte(), 0xF.toByte(), 0xE.toByte()),
+            a = 0xFFFFFFFuL,
+            b = -1,
+            c = byteArrayOf(0xCA.toByte(), 0xFE.toByte()),
             d = "Hello World"
         )
+        val encoded = Cbor.encodeToHexString(WithTags.serializer(), test)
         assertEquals(
-            "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffff6a62797465537472696e6742cafe696279746541727261799f383521ffff",
-            Cbor.encodeToHexString(WithTags.serializer(), test)
+            "bf6161cc1a0fffffffd822616220d8386163d84e42cafe6164d85acc6b48656c6c6f20576f726c64ff",
+            encoded
         )
+        assertEquals(test, Cbor.decodeFromHexString(WithTags.serializer(), encoded))
     }
 
     @Test

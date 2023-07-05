@@ -26,7 +26,7 @@ import kotlinx.serialization.*
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
 @ExperimentalSerializationApi
-public annotation class Tagged(vararg val tags: ULong) {
+public annotation class Tagged(@OptIn(ExperimentalUnsignedTypes::class) vararg val tags: ULong) {
     public companion object {
         public const val DATE_TIME_STANDARD: ULong = 0u;
         public const val DATE_TIME_EPOCH: ULong = 1u;
@@ -46,3 +46,8 @@ public annotation class Tagged(vararg val tags: ULong) {
         public const val CBOR_SELF_DESCRIBE: ULong = 55799u;
     }
 }
+
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY)
+@ExperimentalSerializationApi
+public annotation class KeyTags(@OptIn(ExperimentalUnsignedTypes::class) vararg val tags: ULong)
