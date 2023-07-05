@@ -25,10 +25,10 @@ import kotlinx.serialization.modules.*
  *                       False by default; meaning that properties with values equal to defaults will be elided.
  * @param ignoreUnknownKeys specifies if unknown CBOR elements should be ignored (skipped) when decoding.
  * @param writeKeyTags Specifies whether tags set using the [KeyTags] annotation should be written (or omitted)
- * @param writeValueTags Specifies whether tags set using the [Tagged] annotation should be written (or omitted)
+ * @param writeValueTags Specifies whether tags set using the [ValueTags] annotation should be written (or omitted)
  * @param verifyKeyTags Specifies whether tags preceding map keys (i.e. properties) should be matched against the
  *                      [KeyTags] annotation during the deserialization process. Useful for lenient parsing
- * @param verifyValueTags Specifies whether tags preceding values should be matched against the [Tagged]
+ * @param verifyValueTags Specifies whether tags preceding values should be matched against the [ValueTags]
  *                      annotation during the deserialization process. Useful for lenient parsing.
  */
 @ExperimentalSerializationApi
@@ -123,7 +123,7 @@ public class CborBuilder internal constructor(cbor: Cbor) {
     public var writeKeyTags: Boolean = cbor.writeKeyTags
 
     /**
-     * Specifies whether tags set using the [Tagged] annotation should be written (or omitted)
+     * Specifies whether tags set using the [ValueTags] annotation should be written (or omitted)
      */
     public var writeValueTags: Boolean = cbor.writeKeyTags
 
@@ -133,7 +133,7 @@ public class CborBuilder internal constructor(cbor: Cbor) {
     public var verifyKeyTags: Boolean = cbor.verifyKeyTags
 
     /**
-     * Specifies whether tags preceding values should be matched against the [Tagged] annotation during the deserialization process
+     * Specifies whether tags preceding values should be matched against the [ValueTags] annotation during the deserialization process
      */
     public var verifyValueTags: Boolean = cbor.verifyValueTags
 

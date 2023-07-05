@@ -728,7 +728,7 @@ private fun SerialDescriptor.isByteString(index: Int): Boolean {
 
 @OptIn(ExperimentalSerializationApi::class)
 private fun SerialDescriptor.getValueTags(index: Int): ULongArray? {
-    return (getElementAnnotations(index).find { it is Tagged } as Tagged?)?.tags
+    return (getElementAnnotations(index).find { it is ValueTags } as ValueTags?)?.tags
 }
 private fun SerialDescriptor.isInlineByteString(): Boolean {
     // inline item classes should only have 1 item
