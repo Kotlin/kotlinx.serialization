@@ -21,32 +21,32 @@ class CborReaderTest {
     @Test
     fun testDecodeIntegers() {
         withDecoder("0C1903E8") {
-            assertEquals(12L, nextNumber())
-            assertEquals(1000L, nextNumber())
+            assertEquals(12L, nextNumber(null))
+            assertEquals(1000L, nextNumber(null))
         }
         withDecoder("203903e7") {
-            assertEquals(-1L, nextNumber())
-            assertEquals(-1000L, nextNumber())
+            assertEquals(-1L, nextNumber(null))
+            assertEquals(-1000L, nextNumber(null))
         }
     }
 
     @Test
     fun testDecodeStrings() {
         withDecoder("6568656C6C6F") {
-            assertEquals("hello", nextString())
+            assertEquals("hello", nextString(null))
         }
         withDecoder("7828737472696E672074686174206973206C6F6E676572207468616E2032332063686172616374657273") {
-            assertEquals("string that is longer than 23 characters", nextString())
+            assertEquals("string that is longer than 23 characters", nextString(null))
         }
     }
 
     @Test
     fun testDecodeDoubles() {
         withDecoder("fb7e37e43c8800759c") {
-            assertEquals(1e+300, nextDouble())
+            assertEquals(1e+300, nextDouble(null))
         }
         withDecoder("fa47c35000") {
-            assertEquals(100000.0f, nextFloat())
+            assertEquals(100000.0f, nextFloat(null))
         }
     }
 
@@ -104,7 +104,7 @@ class CborReaderTest {
         withDecoder(input = "5F44aabbccdd43eeff99FF") {
             assertEquals(
                 expected = "aabbccddeeff99",
-                actual = HexConverter.printHexBinary(nextByteString(), lowerCase = true)
+                actual = HexConverter.printHexBinary(nextByteString(null), lowerCase = true)
             )
         }
     }
@@ -251,13 +251,13 @@ class CborReaderTest {
         withDecoder("a461611bffffffffffffffff616220616342cafe61646b48656c6c6f20776f726c64") {
             expectMap(size = 4)
             expect("a")
-            skipElement() // unsigned(18446744073709551615)
+            skipElement(null) // unsigned(18446744073709551615)
             expect("b")
-            skipElement() // negative(0)
+            skipElement(null) // negative(0)
             expect("c")
-            skipElement() // "\xCA\xFE"
+            skipElement(null) // "\xCA\xFE"
             expect("d")
-            skipElement() // "Hello world"
+            skipElement(null) // "Hello world"
             expectEof()
         }
     }
@@ -282,9 +282,9 @@ class CborReaderTest {
         withDecoder("a2616140616260") {
             expectMap(size = 2)
             expect("a")
-            skipElement() // bytes(0)
+            skipElement(null) // bytes(0)
             expect("b")
-            skipElement() // text(0)
+            skipElement(null) // text(0)
             expectEof()
         }
     }
@@ -318,9 +318,9 @@ class CborReaderTest {
         withDecoder("a26161830118ff1a000100006162a26178676b6f746c696e7861796d73657269616c697a6174696f6e") {
             expectMap(size = 2)
             expect("a")
-            skipElement() // [1, 255, 65536]
+            skipElement(null) // [1, 255, 65536]
             expect("b")
-            skipElement() // {"x": "kotlinx", "y": "serialization"}
+            skipElement(null) // {"x": "kotlinx", "y": "serialization"}
             expectEof()
         }
     }
@@ -343,9 +343,9 @@ class CborReaderTest {
         withDecoder("a26161806162a0") {
             expectMap(size = 2)
             expect("a")
-            skipElement() // [1, 255, 65536]
+            skipElement(null) // [1, 255, 65536]
             expect("b")
-            skipElement() // {"x": "kotlinx", "y": "serialization"}
+            skipElement(null) // {"x": "kotlinx", "y": "serialization"}
             expectEof()
         }
     }
@@ -401,13 +401,13 @@ class CborReaderTest {
         withDecoder("a461615f42cafe43010203ff61627f6648656c6c6f2065776f726c64ff61639f676b6f746c696e786d73657269616c697a6174696f6eff6164bf613101613202613303ff") {
             expectMap(size = 4)
             expect("a")
-            skipElement() // "\xCA\xFE\x01\x02\x03"
+            skipElement(null) // "\xCA\xFE\x01\x02\x03"
             expect("b")
-            skipElement() // "Hello world"
+            skipElement(null) // "Hello world"
             expect("c")
-            skipElement() // ["kotlinx", "serialization"]
+            skipElement(null) // ["kotlinx", "serialization"]
             expect("d")
-            skipElement() // {"1": 1, "2": 2, "3": 3}
+            skipElement(null) // {"1": 1, "2": 2, "3": 3}
             expectEof()
         }
     }
@@ -445,13 +445,13 @@ class CborReaderTest {
         withDecoder("A46161CC1BFFFFFFFFFFFFFFFFD822616220D8386163D84E42CAFE6164D85ACC6B48656C6C6F20776F726C64") {
             expectMap(size = 4)
             expect("a")
-            skipElement() // unsigned(18446744073709551615)
-            expect("b")
-            skipElement() // negative(0)
-            expect("c")
-            skipElement() // "\xCA\xFE"
+            skipElement(12uL) // unsigned(18446744073709551615)
+            expect("b", 34uL)
+            skipElement(null) // negative(0)
+            expect("c", 56uL)
+            skipElement(78uL) // "\xCA\xFE"
             expect("d")
-            skipElement() // "Hello world"
+            skipElement(ulongArrayOf(90uL, 12uL)) // "Hello world"
             expectEof()
         }
     }
@@ -651,11 +651,11 @@ class CborReaderTest {
          *
          */
         withDecoder("8468756E746167676564C0687461676765642D30D8F56A7461676765642D323435D930396C7461676765642D3132333435") {
-            assertEquals(4, startArray())
-            assertEquals("untagged", nextString())
-            assertEquals("tagged-0", nextString())
-            assertEquals("tagged-245", nextString())
-            assertEquals("tagged-12345", nextString())
+            assertEquals(4, startArray(null))
+            assertEquals("untagged", nextString(null))
+            assertEquals("tagged-0", nextString(0u))
+            assertEquals("tagged-245", nextString(245uL))
+            assertEquals("tagged-12345", nextString(12345uL))
         }
     }
 
@@ -676,13 +676,13 @@ class CborReaderTest {
          *    FB 401999999999999A # primitive(4618891777831180698)
          */
         withDecoder("86187BC01A0001E240D8F51A000F423FD930393831D822FB3FE161F9F01B866ED90237FB401999999999999A") {
-            assertEquals(6, startArray())
-            assertEquals(123, nextNumber())
-            assertEquals(123456, nextNumber())
-            assertEquals(999999, nextNumber())
-            assertEquals(-50, nextNumber())
-            assertEquals(0.54321, nextDouble(), 0.00001)
-            assertEquals(6.4, nextDouble(), 0.00001)
+            assertEquals(6, startArray(null))
+            assertEquals(123, nextNumber(null))
+            assertEquals(123456, nextNumber(0uL))
+            assertEquals(999999, nextNumber(245uL))
+            assertEquals(-50, nextNumber(12345uL))
+            assertEquals(0.54321, nextDouble(34uL), 0.00001)
+            assertEquals(6.4, nextDouble(567uL), 0.00001)
         }
     }
 
@@ -710,26 +710,26 @@ class CborReaderTest {
          *          31323334353637             # "1234567"
          */
         withDecoder("A2636D6170D87BA16874686973206D61706D69732074616767656420313233656172726179DA0012D687836A74686973206172726179696973207461676765646731323334353637") {
-            assertEquals(2, startMap())
-            assertEquals("map", nextString())
-            assertEquals(1, startMap())
-            assertEquals("this map", nextString())
-            assertEquals("is tagged 123", nextString())
-            assertEquals("array", nextString())
-            assertEquals(3, startArray())
-            assertEquals("this array", nextString())
-            assertEquals("is tagged", nextString())
-            assertEquals("1234567", nextString())
+            assertEquals(2, startMap(null))
+            assertEquals("map", nextString(null))
+            assertEquals(1, startMap(123uL))
+            assertEquals("this map", nextString(null))
+            assertEquals("is tagged 123", nextString(null))
+            assertEquals("array", nextString(null))
+            assertEquals(3, startArray(1234567uL))
+            assertEquals("this array", nextString(null))
+            assertEquals("is tagged", nextString(null))
+            assertEquals("1234567", nextString(null))
         }
     }
 }
 
-private fun CborDecoder.expect(expected: String) {
-    assertEquals(expected, actual = nextString(), "string")
+private fun CborDecoder.expect(expected: String, currentTag:ULong?=null) {
+    assertEquals(expected, actual = nextString(currentTag), "string")
 }
 
-private fun CborDecoder.expectMap(size: Int) {
-    assertEquals(size, actual = startMap(), "map size")
+private fun CborDecoder.expectMap(size: Int, currentTag: ULong?=null) {
+    assertEquals(size, actual = startMap(currentTag), "map size")
 }
 
 private fun CborDecoder.expectEof() {

@@ -34,6 +34,20 @@ class CbrWriterTest {
     }
 
     @Test
+    fun writeTaggedClass() {
+        val test = WithTags(
+            a = 18446744073709551615uL,
+            b = -0,
+            c = byteArrayOf(0xC.toByte(), 0xA.toByte(), 0xF.toByte(), 0xE.toByte()),
+            d = "Hello World"
+        )
+        assertEquals(
+            "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffff6a62797465537472696e6742cafe696279746541727261799f383521ffff",
+            Cbor.encodeToHexString(WithTags.serializer(), test)
+        )
+    }
+
+    @Test
     fun writeManyNumbers() {
         val test = NumberTypesUmbrella(
             100500,
@@ -102,24 +116,24 @@ class CbrWriterTest {
     @Test
     fun testWriteCustomByteString() {
         assertEquals(
-                expected = "bf617843112233ff",
-                actual = Cbor.encodeToHexString(TypeWithCustomByteString(CustomByteString(0x11, 0x22, 0x33)))
+            expected = "bf617843112233ff",
+            actual = Cbor.encodeToHexString(TypeWithCustomByteString(CustomByteString(0x11, 0x22, 0x33)))
         )
     }
 
     @Test
     fun testWriteNullableCustomByteString() {
         assertEquals(
-                expected = "bf617843112233ff",
-                actual = Cbor.encodeToHexString(TypeWithNullableCustomByteString(CustomByteString(0x11, 0x22, 0x33)))
+            expected = "bf617843112233ff",
+            actual = Cbor.encodeToHexString(TypeWithNullableCustomByteString(CustomByteString(0x11, 0x22, 0x33)))
         )
     }
 
     @Test
     fun testWriteNullCustomByteString() {
         assertEquals(
-                expected = "bf6178f6ff",
-                actual = Cbor.encodeToHexString(TypeWithNullableCustomByteString(null))
+            expected = "bf6178f6ff",
+            actual = Cbor.encodeToHexString(TypeWithNullableCustomByteString(null))
         )
     }
 }
