@@ -64,7 +64,6 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
         get() = cbor.serializersModule
 
     private var encodeByteArrayAsByteString = false
-    private var tags: ULongArray? = null
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
@@ -99,11 +98,18 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         encodeByteArrayAsByteString = descriptor.isByteString(index)
-        tags = descriptor.getTag(index)
         val name = descriptor.getElementName(index)
+
+        descriptor.getKeyTags(index)?.forEach { tag ->
+            val encodedTag = encoder.composePositive(tag)
+            encodedTag[0] = encodedTag[0] or HEADER_TAG.toUByte().toByte()
+            encodedTag.forEach { encoder.writeByte(it.toUByte().toInt()) }
+        }
+
         encoder.encodeString(name)
-        tags?.forEach { tag ->
-            val encodedTag= encoder.composePositive(tag)
+
+        descriptor.getValueTags(index)?.forEach { tag ->
+            val encodedTag = encoder.composePositive(tag)
             encodedTag[0] = encodedTag[0] or HEADER_TAG.toUByte().toByte()
             encodedTag.forEach { encoder.writeByte(it.toUByte().toInt()) }
         }
@@ -142,7 +148,7 @@ internal class CborEncoder(private val output: ByteArrayOutput) {
 
     fun encodeNull() = output.write(NULL)
 
-    internal fun writeByte(byteValue: Int)=output.write(byteValue)
+    internal fun writeByte(byteValue: Int) = output.write(byteValue)
 
     fun encodeBoolean(value: Boolean) = output.write(if (value) TRUE else FALSE)
 
@@ -260,17 +266,21 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
     }
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+
         val index = if (cbor.ignoreUnknownKeys) {
             val knownIndex: Int
             while (true) {
                 if (isDone()) return CompositeDecoder.DECODE_DONE
-                val elemName = decoder.nextString(tags)
+                val (elemName, tags) = decoder.nextTaggedString()
                 readProperties++
 
                 val index = descriptor.getElementIndex(elemName)
                 if (index == CompositeDecoder.UNKNOWN_NAME) {
                     decoder.skipElement(tags)
                 } else {
+                    descriptor.getKeyTags(index)?.let { keyTags ->
+                        if (!(keyTags contentEquals tags)) throw CborDecodingException("CBOR tags $tags do not match declared tags $keyTags")
+                    }
                     knownIndex = index
                     break
                 }
@@ -278,13 +288,17 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
             knownIndex
         } else {
             if (isDone()) return CompositeDecoder.DECODE_DONE
-            val elemName = decoder.nextString(tags)
+            val (elemName, tags) = decoder.nextTaggedString()
             readProperties++
-            descriptor.getElementIndexOrThrow(elemName)
+            descriptor.getElementIndexOrThrow(elemName).also { index ->
+                descriptor.getKeyTags(index)?.let { keyTags ->
+                    if (!(keyTags contentEquals tags)) throw CborDecodingException("CBOR tags $tags do not match declared tags $keyTags")
+                }
+            }
         }
 
         decodeByteArrayAsByteString = descriptor.isByteString(index)
-        tags = descriptor.getTag(index)
+        tags = descriptor.getValueTags(index)
         return index
     }
 
@@ -405,14 +419,19 @@ internal class CborDecoder(private val input: ByteArrayInput) {
     }
 
     fun nextString(tag: ULong?) = nextString(tag?.let { ulongArrayOf(it) })
-    fun nextString(tags: ULongArray?): String {
-        processTags(tags)
+    fun nextString(tags: ULongArray?) = nextTaggedString(tags).first
+
+    //used to r
+    fun nextTaggedString() = nextTaggedString(null)
+
+    private fun nextTaggedString(tags: ULongArray?): Pair<String, ULongArray?> {
+        val collectedTags = processTags(tags)
         if ((curByte and 0b111_00000) != HEADER_STRING.toInt())
             throw CborDecodingException("start of string", curByte)
         val arr = readBytes()
         val ans = arr.decodeToString()
         readByte()
-        return ans
+        return ans to collectedTags
     }
 
     private fun readBytes(): ByteArray =
@@ -424,16 +443,19 @@ internal class CborDecoder(private val input: ByteArrayInput) {
             input.readExactNBytes(strLen)
         }
 
-    private fun processTags(tags: ULongArray?) {
+    private fun processTags(tags: ULongArray?): ULongArray? {
         var index = 0
+        val collectedTags = mutableListOf<ULong>()
         while ((curByte and 0b111_00000) == HEADER_TAG) {
             val readTag = readNumber().toULong() // This is the tag number
+            collectedTags += readTag
             tags?.let {
                 if (index++ > it.size) throw CborDecodingException("More tags found than the ${it.size} tags specified.")
                 if (readTag != it[index - 1]) throw CborDecodingException("CBOR tag $readTag does not match expected tag $it")
             }
             readByte()
         }
+        return if (collectedTags.isEmpty()) null else collectedTags.toULongArray()
     }
 
     fun nextNumber(tag: ULong?): Long = nextNumber(tag?.let { ulongArrayOf(it) })
@@ -683,8 +705,13 @@ private fun SerialDescriptor.isByteString(index: Int): Boolean {
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private fun SerialDescriptor.getTag(index: Int): ULongArray? {
+private fun SerialDescriptor.getValueTags(index: Int): ULongArray? {
     return (getElementAnnotations(index).find { it is Tagged } as Tagged?)?.tags
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+private fun SerialDescriptor.getKeyTags(index: Int): ULongArray? {
+    return (getElementAnnotations(index).find { it is KeyTags } as KeyTags?)?.tags
 }
 
 private val normalizeBaseBits = SINGLE_PRECISION_NORMALIZE_BASE.toBits()
