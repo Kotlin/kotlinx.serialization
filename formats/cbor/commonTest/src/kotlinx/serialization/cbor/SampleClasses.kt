@@ -113,6 +113,14 @@ data class TypeWithCustomByteString(@ByteString val x: CustomByteString)
 @Serializable
 data class TypeWithNullableCustomByteString(@ByteString val x: CustomByteString?)
 
+@Serializable
+data class WithTags(
+    @Tagged(12uL) val a: ULong,
+    val b: Int,
+    @ByteString val c: ByteArray,
+    @Tagged(90uL, 12uL) val d: String
+)
+
 @JvmInline
 @Serializable
 value class ValueClassWithByteString(@ByteString val x: ByteArray)

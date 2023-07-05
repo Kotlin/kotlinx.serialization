@@ -1,7 +1,7 @@
 /*
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-@file:OptIn(ExperimentalSerializationApi::class)
+@file:OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
 
 package kotlinx.serialization.cbor.internal
 
@@ -64,6 +64,7 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
         get() = cbor.serializersModule
 
     private var encodeByteArrayAsByteString = false
+    private var tags: ULongArray? = null
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
@@ -96,8 +97,14 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         encodeByteArrayAsByteString = descriptor.isByteString(index)
+        tags = descriptor.getTag(index)
         val name = descriptor.getElementName(index)
         encoder.encodeString(name)
+        tags?.forEach { tag ->
+            val encodedTag= encoder.composePositive(tag)
+            encodedTag[0] = encodedTag[0] or HEADER_TAG.toUByte().toByte()
+            encodedTag.forEach { encoder.writeByte(it.toUByte().toInt()) }
+        }
         return true
     }
 
@@ -132,6 +139,8 @@ internal class CborEncoder(private val output: ByteArrayOutput) {
     fun end() = output.write(BREAK)
 
     fun encodeNull() = output.write(NULL)
+
+    internal fun writeByte(byteValue: Int)=output.write(byteValue)
 
     fun encodeBoolean(value: Boolean) = output.write(if (value) TRUE else FALSE)
 
@@ -171,7 +180,7 @@ internal class CborEncoder(private val output: ByteArrayOutput) {
     private fun composeNumber(value: Long): ByteArray =
         if (value >= 0) composePositive(value.toULong()) else composeNegative(value)
 
-    private fun composePositive(value: ULong): ByteArray = when (value) {
+    internal fun composePositive(value: ULong): ByteArray = when (value) {
         in 0u..23u -> byteArrayOf(value.toByte())
         in 24u..UByte.MAX_VALUE.toUInt() -> byteArrayOf(24, value.toByte())
         in (UByte.MAX_VALUE.toUInt() + 1u)..UShort.MAX_VALUE.toUInt() -> encodeToByteArray(value, 2, 25)
@@ -198,15 +207,16 @@ internal class CborEncoder(private val output: ByteArrayOutput) {
 }
 
 private class CborMapReader(cbor: Cbor, decoder: CborDecoder) : CborListReader(cbor, decoder) {
-    override fun skipBeginToken() = setSize(decoder.startMap() * 2)
+    override fun skipBeginToken() = setSize(decoder.startMap(tags) * 2)
 }
 
 private open class CborListReader(cbor: Cbor, decoder: CborDecoder) : CborReader(cbor, decoder) {
     private var ind = 0
 
-    override fun skipBeginToken() = setSize(decoder.startArray())
+    override fun skipBeginToken() = setSize(decoder.startArray(tags))
 
-    override fun decodeElementIndex(descriptor: SerialDescriptor) = if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size)) CompositeDecoder.DECODE_DONE else ind++
+    override fun decodeElementIndex(descriptor: SerialDescriptor) =
+        if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size)) CompositeDecoder.DECODE_DONE else ind++
 }
 
 internal open class CborReader(private val cbor: Cbor, protected val decoder: CborDecoder) : AbstractDecoder() {
@@ -218,6 +228,7 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
     private var readProperties: Int = 0
 
     private var decodeByteArrayAsByteString = false
+    protected var tags: ULongArray? = null
 
     protected fun setSize(size: Int) {
         if (size >= 0) {
@@ -229,7 +240,7 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
     override val serializersModule: SerializersModule
         get() = cbor.serializersModule
 
-    protected open fun skipBeginToken() = setSize(decoder.startMap())
+    protected open fun skipBeginToken() = setSize(decoder.startMap(tags))
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
@@ -251,12 +262,12 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
             val knownIndex: Int
             while (true) {
                 if (isDone()) return CompositeDecoder.DECODE_DONE
-                val elemName = decoder.nextString()
+                val elemName = decoder.nextString(tags)
                 readProperties++
 
                 val index = descriptor.getElementIndex(elemName)
                 if (index == CompositeDecoder.UNKNOWN_NAME) {
-                    decoder.skipElement()
+                    decoder.skipElement(tags)
                 } else {
                     knownIndex = index
                     break
@@ -265,45 +276,46 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
             knownIndex
         } else {
             if (isDone()) return CompositeDecoder.DECODE_DONE
-            val elemName = decoder.nextString()
+            val elemName = decoder.nextString(tags)
             readProperties++
             descriptor.getElementIndexOrThrow(elemName)
         }
 
         decodeByteArrayAsByteString = descriptor.isByteString(index)
+        tags = descriptor.getTag(index)
         return index
     }
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+
         return if (decodeByteArrayAsByteString && deserializer.descriptor == ByteArraySerializer().descriptor) {
             @Suppress("UNCHECKED_CAST")
-            decoder.nextByteString() as T
+            decoder.nextByteString(tags) as T
         } else {
-            decodeByteArrayAsByteString = decodeByteArrayAsByteString || deserializer.descriptor.isInlineByteString()
             super.decodeSerializableValue(deserializer)
         }
     }
 
-    override fun decodeString() = decoder.nextString()
+    override fun decodeString() = decoder.nextString(tags)
 
     override fun decodeNotNullMark(): Boolean = !decoder.isNull()
 
-    override fun decodeDouble() = decoder.nextDouble()
-    override fun decodeFloat() = decoder.nextFloat()
+    override fun decodeDouble() = decoder.nextDouble(tags)
+    override fun decodeFloat() = decoder.nextFloat(tags)
 
-    override fun decodeBoolean() = decoder.nextBoolean()
+    override fun decodeBoolean() = decoder.nextBoolean(tags)
 
-    override fun decodeByte() = decoder.nextNumber().toByte()
-    override fun decodeShort() = decoder.nextNumber().toShort()
-    override fun decodeChar() = decoder.nextNumber().toInt().toChar()
-    override fun decodeInt() = decoder.nextNumber().toInt()
-    override fun decodeLong() = decoder.nextNumber()
+    override fun decodeByte() = decoder.nextNumber(tags).toByte()
+    override fun decodeShort() = decoder.nextNumber(tags).toShort()
+    override fun decodeChar() = decoder.nextNumber(tags).toInt().toChar()
+    override fun decodeInt() = decoder.nextNumber(tags).toInt()
+    override fun decodeLong() = decoder.nextNumber(tags)
 
-    override fun decodeNull() = decoder.nextNull()
+    override fun decodeNull() = decoder.nextNull(tags)
 
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int =
-        enumDescriptor.getElementIndexOrThrow(decoder.nextString())
+        enumDescriptor.getElementIndexOrThrow(decoder.nextString(tags))
 
     private fun isDone(): Boolean = !finiteMode && decoder.isEnd() || (finiteMode && readProperties >= size)
 }
@@ -329,14 +341,17 @@ internal class CborDecoder(private val input: ByteArrayInput) {
 
     fun isNull() = curByte == NULL
 
-    fun nextNull(): Nothing? {
-        skipOverTags()
+    fun nextNull(tag: ULong?) = nextNull(tag?.let { ulongArrayOf(it) })
+    fun nextNull(tags: ULongArray?): Nothing? {
+        processTags(tags)
         skipByte(NULL)
         return null
     }
 
-    fun nextBoolean(): Boolean {
-        skipOverTags()
+    fun nextBoolean(tag: ULong?) = nextBoolean(tag?.let { ulongArrayOf(it) })
+
+    fun nextBoolean(tags: ULongArray?): Boolean {
+        processTags(tags)
         val ans = when (curByte) {
             TRUE -> true
             FALSE -> false
@@ -346,12 +361,21 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         return ans
     }
 
-    fun startArray() = startSized(BEGIN_ARRAY, HEADER_ARRAY, "array")
+    fun startArray(tag: ULong?) = startArray(tag?.let { ulongArrayOf(it) })
 
-    fun startMap() = startSized(BEGIN_MAP, HEADER_MAP, "map")
+    fun startArray(tags: ULongArray?) = startSized(tags, BEGIN_ARRAY, HEADER_ARRAY, "array")
 
-    private fun startSized(unboundedHeader: Int, boundedHeaderMask: Int, collectionType: String): Int {
-        skipOverTags()
+    fun startMap(tag: ULong?) = startMap(tag?.let { ulongArrayOf(it) })
+
+    fun startMap(tags: ULongArray?) = startSized(tags, BEGIN_MAP, HEADER_MAP, "map")
+
+    private fun startSized(
+        tags: ULongArray?,
+        unboundedHeader: Int,
+        boundedHeaderMask: Int,
+        collectionType: String
+    ): Int {
+        processTags(tags)
         if (curByte == unboundedHeader) {
             skipByte(unboundedHeader)
             return -1
@@ -367,8 +391,10 @@ internal class CborDecoder(private val input: ByteArrayInput) {
 
     fun end() = skipByte(BREAK)
 
-    fun nextByteString(): ByteArray {
-        skipOverTags()
+    fun nextByteString(tag: ULong?) = nextByteString(tag?.let { ulongArrayOf(it) })
+    fun nextByteString(tags: ULongArray?): ByteArray {
+
+        processTags(tags)
         if ((curByte and 0b111_00000) != HEADER_BYTE_STRING.toInt())
             throw CborDecodingException("start of byte string", curByte)
         val arr = readBytes()
@@ -376,8 +402,9 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         return arr
     }
 
-    fun nextString(): String {
-        skipOverTags()
+    fun nextString(tag: ULong?) = nextString(tag?.let { ulongArrayOf(it) })
+    fun nextString(tags: ULongArray?): String {
+        processTags(tags)
         if ((curByte and 0b111_00000) != HEADER_STRING.toInt())
             throw CborDecodingException("start of string", curByte)
         val arr = readBytes()
@@ -395,15 +422,21 @@ internal class CborDecoder(private val input: ByteArrayInput) {
             input.readExactNBytes(strLen)
         }
 
-    private fun skipOverTags() {
+    private fun processTags(tags: ULongArray?) {
+        var index = 0
         while ((curByte and 0b111_00000) == HEADER_TAG) {
-            readNumber() // This is the tag number
+            val readTag = readNumber().toULong() // This is the tag number
+            tags?.let {
+                if (index++ > it.size) throw CborDecodingException("More tags found than the ${it.size} tags specified.")
+                if (readTag != it[index - 1]) throw CborDecodingException("CBOR tag $readTag does not match expected tag $it")
+            }
             readByte()
         }
     }
 
-    fun nextNumber(): Long {
-        skipOverTags()
+    fun nextNumber(tag: ULong?): Long = nextNumber(tag?.let { ulongArrayOf(it) })
+    fun nextNumber(tags: ULongArray?): Long {
+        processTags(tags)
         val res = readNumber()
         readByte()
         return res
@@ -446,8 +479,10 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         return array
     }
 
-    fun nextFloat(): Float {
-        skipOverTags()
+    fun nextFloat(tag: ULong?) = nextFloat(tag?.let { ulongArrayOf(it) })
+
+    fun nextFloat(tags: ULongArray?): Float {
+        processTags(tags)
         val res = when (curByte) {
             NEXT_FLOAT -> Float.fromBits(readInt())
             NEXT_HALF -> floatFromHalfBits(readShort())
@@ -505,10 +540,10 @@ internal class CborDecoder(private val input: ByteArrayInput) {
      * been skipped, the "length stack" is [pruned][prune]. For indefinite length elements, a special marker is added to
      * the "length stack" which is only popped from the "length stack" when a CBOR [break][isEnd] is encountered.
      */
-    fun skipElement() {
+    fun skipElement(tags: ULongArray?) {
         val lengthStack = mutableListOf<Int>()
 
-        skipOverTags()
+        processTags(tags)
 
         do {
             if (isEof()) throw CborDecodingException("Unexpected EOF while skipping element")
@@ -524,7 +559,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
                 val length = elementLength()
                 if (header == HEADER_ARRAY || header == HEADER_MAP) {
                     if (length > 0) lengthStack.add(length)
-                    skipOverTags()
+                    processTags(tags)
                 } else {
                     input.skip(length)
                     prune(lengthStack)
@@ -534,6 +569,8 @@ internal class CborDecoder(private val input: ByteArrayInput) {
             readByte()
         } while (lengthStack.isNotEmpty())
     }
+
+    fun skipElement(singleTag: ULong?) = skipElement(singleTag?.let { ulongArrayOf(it) })
 
     /**
      * Removes an item from the top of the [lengthStack], cascading the removal if the item represents the last item
@@ -639,6 +676,10 @@ private fun SerialDescriptor.isByteString(index: Int): Boolean {
     return getElementAnnotations(index).find { it is ByteString } != null
 }
 
+@OptIn(ExperimentalSerializationApi::class)
+private fun SerialDescriptor.getTag(index: Int): ULongArray? {
+    return (getElementAnnotations(index).find { it is Tagged } as Tagged?)?.tags
+}
 private fun SerialDescriptor.isInlineByteString(): Boolean {
     // inline item classes should only have 1 item
     return isInline && isByteString(0)
