@@ -11,17 +11,17 @@ import kotlin.test.*
 
 @Serializable
 data class DataWithTags(
-    @Tagged(12uL)
+    @ValueTags(12uL)
     val a: ULong,
 
     @KeyTags(34uL)
     val b: Int,
 
     @KeyTags(56uL)
-    @Tagged(78uL)
+    @ValueTags(78uL)
     @ByteString val c: ByteArray,
 
-    @Tagged(90uL, 12uL)
+    @ValueTags(90uL, 12uL)
     val d: String
 ) {
     override fun equals(other: Any?): Boolean {
