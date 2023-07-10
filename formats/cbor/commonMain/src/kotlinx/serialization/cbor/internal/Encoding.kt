@@ -424,7 +424,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
     fun nextString(tag: ULong) = nextString(ulongArrayOf(tag))
     fun nextString(tags: ULongArray? = null) = nextTaggedString(tags).first
 
-    //used to r
+    //used for reading the tag names and names of tagged keys (of maps, and serialized classes)
     fun nextTaggedString() = nextTaggedString(null)
 
     private fun nextTaggedString(tags: ULongArray?): Pair<String, ULongArray?> {

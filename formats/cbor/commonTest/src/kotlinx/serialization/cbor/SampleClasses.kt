@@ -14,15 +14,15 @@ data class Simple(val a: String)
 
 @Serializable
 data class TypesUmbrella(
-    val str: String,
-    val i: Int,
-    val nullable: Double?,
-    val list: List<String>,
-    val map: Map<Int, Boolean>,
-    val inner: Simple,
-    val innersList: List<Simple>,
-    @ByteString val byteString: ByteArray,
-    val byteArray: ByteArray
+        val str: String,
+        val i: Int,
+        val nullable: Double?,
+        val list: List<String>,
+        val map: Map<Int, Boolean>,
+        val inner: Simple,
+        val innersList: List<Simple>,
+        @ByteString val byteString: ByteArray,
+        val byteArray: ByteArray
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -59,12 +59,12 @@ data class TypesUmbrella(
 
 @Serializable
 data class NumberTypesUmbrella(
-    val int: Int,
-    val long: Long,
-    val float: Float,
-    val double: Double,
-    val boolean: Boolean,
-    val char: Char
+        val int: Int,
+        val long: Long,
+        val float: Float,
+        val double: Double,
+        val boolean: Boolean,
+        val char: Char
 )
 
 @Serializable
