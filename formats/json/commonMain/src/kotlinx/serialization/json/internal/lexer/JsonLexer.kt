@@ -179,7 +179,7 @@ internal class ReaderJsonLexer(
     }
 
     // Can be carefully implemented but postponed for now
-    override fun consumeLeadingMatchingValue(keyToMatch: String, isLenient: Boolean): String? = null
+    override fun peekLeadingMatchingValue(keyToMatch: String, isLenient: Boolean): String? = null
 
     fun release() {
         CharArrayPoolBatchSize.release(buffer)

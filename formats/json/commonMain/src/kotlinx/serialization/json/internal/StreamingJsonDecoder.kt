@@ -71,7 +71,7 @@ internal open class StreamingJsonDecoder(
             }
 
             val discriminator = deserializer.descriptor.classDiscriminator(json)
-            val type = lexer.consumeLeadingMatchingValue(discriminator, configuration.isLenient)
+            val type = lexer.peekLeadingMatchingValue(discriminator, configuration.isLenient)
             var actualSerializer: DeserializationStrategy<Any>? = null
             if (type != null) {
                 actualSerializer = deserializer.findPolymorphicSerializerOrNull(this, type)
