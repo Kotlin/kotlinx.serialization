@@ -5,23 +5,22 @@ import kotlinx.serialization.*
 /**
  * Specifies that a property shall be tagged and serialized as CBOR major type 6: optional semantic tagging
  * of other major types.
- * For types other than [ByteArray], [ByteString] will have no effect.
  *
  * Example usage:
  *
  * ```
  * @Serializable
  * data class Data(
- *     @Tagged(1337uL)
+ *     @ValueTags(1337uL)
  *     @ByteString
  *     val a: ByteArray, // CBOR major type 6 1337(major type 2: a byte string).
  *
- *     @Tagged(1234567uL)
+ *     @ValueTags(1234567uL)
  *     val b: ByteArray  // CBOR major type 6 1234567(major type 4: an array of data items).
  * )
  * ```
  *
- * See [RFC 7049 2.4. Optional Tagging of Items](https://datatracker.ietf.org/doc/html/rfc7049#section-2.4).
+ * See [RFC 8949 3.4. Tagging of Items](https://datatracker.ietf.org/doc/html/rfc8949#name-tagging-of-items).
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
@@ -47,6 +46,22 @@ public annotation class ValueTags(@OptIn(ExperimentalUnsignedTypes::class) varar
     }
 }
 
+/**
+ * Specifies that a key (i.e. a property identifier) shall be tagged and serialized as CBOR major type 6: optional
+ * semantic tagging of other major types.
+ *
+ * Example usage:
+ *
+ * ```
+ * @Serializable
+ * data class Data(
+ *     @KeyTags(34uL)
+ *     val b: Int = -1   // results in the CBOR equivalent of 34("b"): -1
+ * )
+ * ```
+ *
+ * See [RFC 8949 3.4. Tagging of Items](https://datatracker.ietf.org/doc/html/rfc8949#name-tagging-of-items).
+ */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
 @ExperimentalSerializationApi
