@@ -22,7 +22,7 @@ Submit issues [here](https://github.com/Kotlin/kotlinx.serialization/issues).
   * Use a 'feature request' template when creating a new issue.
   * Explain why you need the feature &mdash; what's your use-case, what's your domain.
   * Explaining the problem you face is more important than suggesting a solution. 
-    Report your problem even if you don't have any proposed solution.
+    Even if you don't have a proposed solution, please report your problem.
   * If there is an alternative way to do what you need, then show the code of the alternative.
 
 ## Submitting PRs
@@ -40,7 +40,7 @@ so do familiarize yourself with the following guidelines.
 * If you fix documentation:
   * After fixing/changing code examples in the [`docs`](docs) folder or updating any references in the markdown files
     run the [Knit tool](#running-the-knit-tool) and commit the resulting changes as well. 
-    It will not pass the tests otherwise.
+    Your changes will not pass the tests otherwise.
   * If you plan extensive rewrites/additions to the docs, then please [contact the maintainers](#contacting-maintainers)
     to coordinate the work in advance.    
 * If you make any code changes:
@@ -49,7 +49,7 @@ so do familiarize yourself with the following guidelines.
     * Use imports with '*'.
   * [Build the project](#building) to make sure it all works and passes the tests.
 * If you fix a bug:
-  * Write the test the reproduces the bug.
+  * Write the test that reproduces the bug.
   * Fixes without tests are accepted only in exceptional circumstances if it can be shown that writing the 
     corresponding test is too hard or otherwise impractical.
   * Follow the style of writing tests that is used in this project: 
@@ -69,7 +69,7 @@ so do familiarize yourself with the following guidelines.
   * You can submit a PR to the [list of community-supported formats](formats/README.md#other-community-supported-formats) 
     with a description of your library.
 * Comment on the existing issue if you want to work on it. Ensure that the issue not only describes a problem,
-  but also describes a solution that had received a positive feedback. Propose a solution if there isn't any.
+  but also describes a solution that has received positive feedback. Propose a solution if there isn't any.
 
 ## Building
 
