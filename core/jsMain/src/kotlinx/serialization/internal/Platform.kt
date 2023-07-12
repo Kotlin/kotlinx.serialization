@@ -19,7 +19,7 @@ internal actual fun BooleanArray.getChecked(index: Int): Boolean {
 
 internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
     this.constructSerializerForGivenTypeArgs() ?: (
-        if (this === Nothing::class) NothingSerializer
+        if (this === Nothing::class) NothingSerializer // Workaround for KT-51333
         else this.js.asDynamic().Companion?.serializer()
         ) as? KSerializer<T>
 
