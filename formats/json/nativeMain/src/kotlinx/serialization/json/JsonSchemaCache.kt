@@ -5,6 +5,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.json.internal.*
+import kotlin.experimental.ExperimentalNativeApi
 import kotlin.native.ref.*
 import kotlin.random.*
 import kotlin.native.concurrent.*
@@ -26,6 +27,7 @@ private val jsonToCache: MutableMap<WeakJson, DescriptorSchemaCache> = mutableMa
 /**
  * Because WeakReference itself does not have proper equals/hashCode
  */
+@OptIn(ExperimentalNativeApi::class)
 private class WeakJson(json: Json) {
     private val ref = WeakReference(json)
     private val initialHashCode = json.hashCode()
