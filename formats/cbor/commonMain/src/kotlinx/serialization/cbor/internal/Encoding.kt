@@ -57,7 +57,8 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
         var data: Any?,
         var parent: Node?,
         val index: Int,
-        val name: String?
+        val name: String?,
+        val label: Long? = null,
     ) {
         val children = mutableListOf<Node>()
 
@@ -107,7 +108,6 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
 
         private fun encodeElementPreamble() {
 
-
             if (cbor.writeKeyTags) {
                 parent?.descriptor?.getKeyTags(index)?.forEach { tag ->
                     val encodedTag = encoder.composePositive(tag)
@@ -115,8 +115,14 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
                     encodedTag.forEach { encoder.writeByte(it.toUByte().toInt()) }
                 }
             }
-            if ((parent?.descriptor?.kind !is StructureKind.LIST) && (parent?.descriptor?.kind !is StructureKind.MAP)) //TODO polymorphicKind?
-                name?.let { encoder.encodeString(it) } //indieces are put into the name field. we don't want to write those, as it would result in double writes
+            if ((parent?.descriptor?.kind !is StructureKind.LIST) && (parent?.descriptor?.kind !is StructureKind.MAP)) { //TODO polymorphicKind?
+                //indieces are put into the name field. we don't want to write those, as it would result in double writes
+                if (label != null) {
+                    encoder.encodeNumber(label)
+                } else if (name != null) {
+                    encoder.encodeString(name)
+                }
+            }
 
             if (cbor.writeValueTags) {
                 parent?.descriptor?.getValueTags(index)?.forEach { tag ->
@@ -182,7 +188,8 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
             null,
             currentNode,
             index,
-            descriptor.getElementName(index)
+            descriptor.getElementName(index),
+            descriptor.getSerialLabel(index),
         )
         return true
     }
@@ -439,7 +446,14 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
             knownIndex
         } else {
             if (isDone()) return CompositeDecoder.DECODE_DONE
-            val (elemName, tags) = decoder.nextTaggedString()
+            val (elemName, tags) = runCatching {
+                decoder.nextTaggedString()
+            }.getOrElse {
+                val serialLabel = decoder.nextNumber(null)
+                val elemName = descriptor.getElementNameForSerialLabel(serialLabel)
+                    ?: throw CborDecodingException("SerialLabel unknown: $serialLabel")
+                elemName to ulongArrayOf() // TODO Tags?
+            }
             readProperties++
             descriptor.getElementIndexOrThrow(elemName).also { index ->
                 if (cbor.verifyKeyTags) {
@@ -901,6 +915,16 @@ private fun SerialDescriptor.getValueTags(): ULongArray? {
 @OptIn(ExperimentalSerializationApi::class)
 private fun SerialDescriptor.getKeyTags(): ULongArray? {
     return (annotations.find { it is KeyTags } as KeyTags?)?.tags
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+private fun SerialDescriptor.getSerialLabel(index: Int): Long? {
+    return kotlin.runCatching { getElementAnnotations(index).filterIsInstance<SerialLabel>().firstOrNull()?.label }.getOrNull()
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+private fun SerialDescriptor.getElementNameForSerialLabel(label: Long): String? {
+    return elementNames.firstOrNull { getSerialLabel(getElementIndex(it)) == label }
 }
 
 private val normalizeBaseBits = SINGLE_PRECISION_NORMALIZE_BASE.toBits()
