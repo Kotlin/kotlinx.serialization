@@ -94,11 +94,12 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         encodeByteArrayAsByteString = descriptor.isByteString(index)
-        val name = descriptor.getElementName(index)
-        descriptor.getSerialLabel(index)?.let {
-            encoder.encodeNumber(it)
-        } ?: {
-            encoder.encodeString(name)
+        val serialName = descriptor.getElementName(index)
+        val serialLabel = descriptor.getSerialLabel(index)
+        if (cbor.preferSerialLabelsOverNames && serialLabel != null) {
+            encoder.encodeNumber(serialLabel)
+        } else {
+            encoder.encodeString(serialName)
         }
         return true
     }
@@ -268,9 +269,9 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
         } else {
             if (isDone()) return CompositeDecoder.DECODE_DONE
             val elemName = runCatching {
-                decoder.nextTaggedString()
+                decoder.nextString()
             }.getOrElse {
-                val serialLabel = decoder.nextNumber(null)
+                val serialLabel = decoder.nextNumber()
                 val elemName = descriptor.getElementNameForSerialLabel(serialLabel)
                     ?: throw CborDecodingException("SerialLabel unknown: $serialLabel")
                 elemName

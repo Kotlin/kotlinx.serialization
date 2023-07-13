@@ -27,18 +27,21 @@ import kotlinx.serialization.modules.*
  * @param encodeDefaults specifies whether default values of Kotlin properties are encoded.
  *                       False by default; meaning that properties with values equal to defaults will be elided.
  * @param ignoreUnknownKeys specifies if unknown CBOR elements should be ignored (skipped) when decoding.
+ * @param preferSerialLabelsOverNames Specifies whether to serialize element labels (i.e. Long from [SerialLabel])
+ *                                    instead of the element names (i.e. String from [SerialName]) for map keys
  */
 @ExperimentalSerializationApi
 public sealed class Cbor(
     internal val encodeDefaults: Boolean,
     internal val ignoreUnknownKeys: Boolean,
+    internal val preferSerialLabelsOverNames: Boolean,
     override val serializersModule: SerializersModule
 ) : BinaryFormat {
 
     /**
      * The default instance of [Cbor]
      */
-    public companion object Default : Cbor(false, false, EmptySerializersModule())
+    public companion object Default : Cbor(false, false, true, EmptySerializersModule())
 
     override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutput()
@@ -55,8 +58,17 @@ public sealed class Cbor(
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private class CborImpl(encodeDefaults: Boolean, ignoreUnknownKeys: Boolean, serializersModule: SerializersModule) :
-    Cbor(encodeDefaults, ignoreUnknownKeys, serializersModule)
+private class CborImpl(
+    encodeDefaults: Boolean, ignoreUnknownKeys: Boolean,
+    preferSerialLabelsOverNames: Boolean,
+    serializersModule: SerializersModule
+) :
+    Cbor(
+        encodeDefaults,
+        ignoreUnknownKeys,
+        preferSerialLabelsOverNames,
+        serializersModule
+    )
 
 /**
  * Creates an instance of [Cbor] configured from the optionally given [Cbor instance][from]
@@ -66,7 +78,12 @@ private class CborImpl(encodeDefaults: Boolean, ignoreUnknownKeys: Boolean, seri
 public fun Cbor(from: Cbor = Cbor, builderAction: CborBuilder.() -> Unit): Cbor {
     val builder = CborBuilder(from)
     builder.builderAction()
-    return CborImpl(builder.encodeDefaults, builder.ignoreUnknownKeys, builder.serializersModule)
+    return CborImpl(
+        builder.encodeDefaults,
+        builder.ignoreUnknownKeys,
+        builder.preferSerialLabelsOverNames,
+        builder.serializersModule
+    )
 }
 
 /**
@@ -86,6 +103,11 @@ public class CborBuilder internal constructor(cbor: Cbor) {
      * `false` by default.
      */
     public var ignoreUnknownKeys: Boolean = cbor.ignoreUnknownKeys
+
+    /**
+     * Specifies whether to serialize element labels (i.e. Long from [SerialLabel]) instead of the element names (i.e. String from [SerialName]) for map keys
+     */
+    public var preferSerialLabelsOverNames: Boolean = cbor.preferSerialLabelsOverNames
 
     /**
      * Module with contextual and polymorphic serializers to be used in the resulting [Cbor] instance.
