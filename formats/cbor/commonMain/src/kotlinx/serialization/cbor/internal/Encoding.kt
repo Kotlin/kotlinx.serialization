@@ -95,7 +95,11 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         encodeByteArrayAsByteString = descriptor.isByteString(index)
         val name = descriptor.getElementName(index)
-        encoder.encodeString(name)
+        descriptor.getSerialLabel(index)?.let {
+            encoder.encodeNumber(it)
+        } ?: {
+            encoder.encodeString(name)
+        }
         return true
     }
 
@@ -263,7 +267,14 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
             knownIndex
         } else {
             if (isDone()) return CompositeDecoder.DECODE_DONE
-            val elemName = decoder.nextString()
+            val elemName = runCatching {
+                decoder.nextTaggedString()
+            }.getOrElse {
+                val serialLabel = decoder.nextNumber(null)
+                val elemName = descriptor.getElementNameForSerialLabel(serialLabel)
+                    ?: throw CborDecodingException("SerialLabel unknown: $serialLabel")
+                elemName
+            }
             readProperties++
             descriptor.getElementIndexOrThrow(elemName)
         }
@@ -636,6 +647,16 @@ private fun SerialDescriptor.isByteString(index: Int): Boolean {
     return getElementAnnotations(index).find { it is ByteString } != null
 }
 
+
+@OptIn(ExperimentalSerializationApi::class)
+private fun SerialDescriptor.getSerialLabel(index: Int): Long? {
+    return getElementAnnotations(index).filterIsInstance<SerialLabel>().firstOrNull()?.label
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+private fun SerialDescriptor.getElementNameForSerialLabel(label: Long): String? {
+    return elementNames.firstOrNull { getSerialLabel(getElementIndex(it)) == label }
+}
 
 private val normalizeBaseBits = SINGLE_PRECISION_NORMALIZE_BASE.toBits()
 
