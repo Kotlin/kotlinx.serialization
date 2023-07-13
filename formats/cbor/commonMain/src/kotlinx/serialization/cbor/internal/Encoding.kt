@@ -117,7 +117,7 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
             }
             if ((parent?.descriptor?.kind !is StructureKind.LIST) && (parent?.descriptor?.kind !is StructureKind.MAP)) { //TODO polymorphicKind?
                 //indieces are put into the name field. we don't want to write those, as it would result in double writes
-                if (label != null) {
+                if (cbor.preferSerialLabelsOverNames && label != null) {
                     encoder.encodeNumber(label)
                 } else if (name != null) {
                     encoder.encodeString(name)

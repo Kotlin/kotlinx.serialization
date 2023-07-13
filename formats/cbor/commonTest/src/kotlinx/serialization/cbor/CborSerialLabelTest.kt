@@ -3,32 +3,54 @@ package kotlinx.serialization.cbor
 import kotlinx.serialization.*
 import kotlin.test.*
 
-@Serializable
-data class CoseHeader(
-    @SerialLabel(4)
-    @SerialName("kid")
-    val kid: String? = null,
-)
 
 class CborSerialLabelTest {
 
-    private val reference = CoseHeader(
-        kid = "11"
-    )
+    private val reference = ClassWithSerialLabel(alg = -7)
 
-    /*
-        BF         # map(*)
-           04      # unsigned(4)
-           62      # text(2)
-              3131 # "11"
-           FF      # primitive(*)
+    /**
+     * A1    # map(1)
+     *    01 # unsigned(1)
+     *    26 # negative(6)
      */
-    private val referenceHexString = "bf04623131ff"
+    private val referenceHexLabelString = "a10126"
+
+    /**
+     * A1           # map(1)
+     *    63        # text(3)
+     *       616C67 # "alg"
+     *    26        # negative(6)
+     */
+    private val referenceHexNameString = "a163616c6726"
 
 
     @Test
-    fun writeReadVerifyCoseHeader() {
-        assertEquals(referenceHexString, Cbor.encodeToHexString(CoseHeader.serializer(), reference))
-        assertEquals(reference, Cbor.decodeFromHexString(CoseHeader.serializer(), referenceHexString))
+    fun writeReadVerifySerialLabel() {
+        val cbor = Cbor {
+            preferSerialLabelsOverNames = true
+            writeDefiniteLengths = true
+        }
+        assertEquals(referenceHexLabelString, cbor.encodeToHexString(ClassWithSerialLabel.serializer(), reference))
+        assertEquals(reference, cbor.decodeFromHexString(ClassWithSerialLabel.serializer(), referenceHexLabelString))
     }
+
+    @Test
+    fun writeReadVerifySerialName() {
+        val cbor = Cbor {
+            preferSerialLabelsOverNames = false
+            writeDefiniteLengths = true
+        }
+        assertEquals(referenceHexNameString, cbor.encodeToHexString(ClassWithSerialLabel.serializer(), reference))
+        assertEquals(reference, cbor.decodeFromHexString(ClassWithSerialLabel.serializer(), referenceHexNameString))
+    }
+
+
+    @Serializable
+    data class ClassWithSerialLabel(
+        @SerialLabel(1)
+        @SerialName("alg")
+        val alg: Int
+    )
+
 }
+

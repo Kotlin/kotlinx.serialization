@@ -30,6 +30,8 @@ import kotlinx.serialization.modules.*
  *                      [KeyTags] annotation during the deserialization process. Useful for lenient parsing
  * @param verifyValueTags Specifies whether tags preceding values should be matched against the [ValueTags]
  *                      annotation during the deserialization process. Useful for lenient parsing.
+ * @param preferSerialLabelsOverNames Specifies whether to serialize element labels (i.e. Long from [SerialLabel])
+ *                                    instead of the element names (i.e. String from [SerialName]) for map keys
  */
 @ExperimentalSerializationApi
 public sealed class Cbor(
@@ -41,13 +43,14 @@ public sealed class Cbor(
     internal val verifyValueTags: Boolean,
     internal val explicitNulls: Boolean,
     internal val writeDefiniteLengths: Boolean,
+    internal val preferSerialLabelsOverNames: Boolean,
     override val serializersModule: SerializersModule
 ) : BinaryFormat {
 
     /**
      * The default instance of [Cbor]
      */
-    public companion object Default : Cbor(false, false, true, true, true, true, true, false, EmptySerializersModule())
+    public companion object Default : Cbor(false, false, true, true, true, true, true, false, true, EmptySerializersModule())
 
     override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutput()
@@ -74,6 +77,7 @@ private class CborImpl(
     verifyValueTags: Boolean,
     encodeNullProperties: Boolean,
     writeDefiniteLengths: Boolean,
+    preferSerialLabelsOverNames: Boolean,
     serializersModule: SerializersModule
 ) :
     Cbor(
@@ -85,6 +89,7 @@ private class CborImpl(
         verifyValueTags,
         encodeNullProperties,
         writeDefiniteLengths,
+        preferSerialLabelsOverNames,
         serializersModule
     )
 
@@ -105,6 +110,7 @@ public fun Cbor(from: Cbor = Cbor, builderAction: CborBuilder.() -> Unit): Cbor 
         builder.verifyValueTags,
         builder.explicitNulls,
         builder.writeDefiniteLengths,
+        builder.preferSerialLabelsOverNames,
         builder.serializersModule
     )
 }
@@ -156,6 +162,11 @@ public class CborBuilder internal constructor(cbor: Cbor) {
      * specifies whether structures (maps, object, lists, etc.) should be encoded using definite length encoding
      */
     public var writeDefiniteLengths: Boolean = cbor.writeDefiniteLengths
+
+    /**
+     * Specifies whether to serialize element labels (i.e. Long from [SerialLabel]) instead of the element names (i.e. String from [SerialName]) for map keys
+     */
+    public var preferSerialLabelsOverNames: Boolean = cbor.preferSerialLabelsOverNames
 
     /**
      * Module with contextual and polymorphic serializers to be used in the resulting [Cbor] instance.
