@@ -143,4 +143,42 @@ class PolymorphismTest : JsonTestBase() {
         val s = json.encodeToString(Wrapper.serializer(), obj, jsonTestingMode)
         assertEquals("""{"polyBase1":{"type":"even","parity":"even"},"polyBase2":{"type":"odd","parity":"odd"}}""", s)
     }
+
+    @Serializable
+    sealed class Conf {
+        @Serializable
+        @SerialName("empty")
+        object Empty : Conf() // default
+
+        @Serializable
+        @SerialName("simple")
+        data class Simple(val value: String) : Conf()
+    }
+
+    private val jsonForConf = Json {
+        isLenient = false
+        ignoreUnknownKeys = true
+        serializersModule = SerializersModule {
+            polymorphicDefaultDeserializer(Conf::class) { Conf.Empty.serializer() }
+        }
+    }
+
+    @Test
+    fun defaultSerializerWithEmptyBodyTest() = parametrizedTest { mode ->
+        assertEquals(Conf.Simple("123"), jsonForConf.decodeFromString<Conf>("""{"type": "simple", "value": "123"}""", mode))
+        assertEquals(Conf.Empty, jsonForConf.decodeFromString<Conf>("""{"type": "default"}""", mode))
+        assertEquals(Conf.Empty, jsonForConf.decodeFromString<Conf>("""{"unknown": "Meow"}""", mode))
+        assertEquals(Conf.Empty, jsonForConf.decodeFromString<Conf>("""{}""", mode))
+    }
+
+    @Test
+    fun testTypeKeysInLenientMode() = parametrizedTest { mode ->
+        val json = Json(jsonForConf) { isLenient = true }
+
+        assertEquals(Conf.Simple("123"), json.decodeFromString<Conf>("""{type: simple, value: 123}""", mode))
+        assertEquals(Conf.Empty, json.decodeFromString<Conf>("""{type: default}""", mode))
+        assertEquals(Conf.Empty, json.decodeFromString<Conf>("""{unknown: Meow}""", mode))
+        assertEquals(Conf.Empty, json.decodeFromString<Conf>("""{}""", mode))
+
+    }
 }
