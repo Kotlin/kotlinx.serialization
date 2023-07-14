@@ -11,12 +11,14 @@ import kotlin.js.*
 
 /**
  * Implements [encoding][encodeToByteArray] and [decoding][decodeFromByteArray] classes to/from bytes
- * using [Proto2][https://developers.google.com/protocol-buffers/docs/proto] specification.
- * It is typically used by constructing an application-specific instance, with configured specific behaviour
+ * using [Protocol buffers](https://protobuf.dev/) specification.
+ * It is typically used by constructing an application-specific instance, with configured specific behavior
  * and, if necessary, registered custom serializers (in [SerializersModule] provided by [serializersModule] constructor parameter).
+ * Default encoding is proto2, although proto3 can be used with a number of tweaks (see the section below for details).
+ *
  *
  * ### Correspondence between Protobuf message definitions and Kotlin classes
- * Given a ProtoBuf definition with one required field, one optional field and one optional field with a custom default
+ * Given a ProtoBuf definition with one required field, one optional field, and one optional field with a custom default
  * value:
  * ```
  * message MyMessage {
@@ -32,27 +34,29 @@ import kotlin.js.*
  * data class MyMessage(val first: Int, val second: Int = 0, val third: Int = 42)
  * ```
  *
- * By default, protobuf fields ids are being assigned to Kotlin properties in incremental order, i.e.
- * the first property in the class has id 1, the second has id 2, and so forth.
- * If you need a more stable order (e.g. to avoid breaking changes when reordering properties),
- * provide custom ids using [ProtoNumber] annotation.
+ * By default, protobuf fields numbers are being assigned to Kotlin properties in incremental order, i.e.,
+ * the first property in the class has number 1, the second has number 2, and so forth.
+ * If you need a more stable order (e.g., to avoid breaking changes when reordering properties),
+ * provide custom numbers using [ProtoNumber] annotation.
  *
- * By default, all integer numbers are encoded using [varint][https://developers.google.com/protocol-buffers/docs/encoding#varints]
- * encoding. This behaviour can be changed via [ProtoType] annotation.
+ * By default, all integer values are encoded using [varint](https://protobuf.dev/programming-guides/encoding/#varints)
+ * encoding. This behavior can be changed via [ProtoType] annotation.
  *
  * ### Known caveats and limitations
  * Lists are represented as repeated fields. Because format spec says that if the list is empty,
- * there are no elements in the stream with such tag, you must explicitly mark any
- * field of list type with default = emptyList(). Same for maps.
- * There's no special support for `oneof` protobuf fields. However, this implementation
+ * there are no elements in the stream with such tag, you have to explicitly add to any
+ * property of `List` type a default value equals to `emptyList()`. Same for maps.
+ * There is no special support for `oneof` protobuf fields. However, this implementation
  * supports standard kotlinx.serialization's polymorphic and sealed serializers,
- * using their default form (message of serialName: string and other embedded message with actual content).
+ * using their default form (message consisting of `serialName: string` and other embedded message with actual content).
  *
  * ### Proto3 support
- * This implementation does not support repeated packed fields, so you won't be able to deserialize
- * Proto3 lists. However, other messages could be decoded. You have to remember that since fields in Proto3
- * messages by default are implicitly optional,
- * corresponding Kotlin properties have to be nullable with default value `null`.
+ *
+ * proto2 and proto3 specifications use the same encoding, so you can use this class to decode Proto3 messages.
+ * However, the message structure is slightly different, so you should remember the following:
+ *
+ * - In proto3, fields by default are implicitly optional, so corresponding Kotlin properties have to be nullable and have a default value `null`.
+ * - In proto3, all lists use packed encoding by default. To be able to decode them, annotation [ProtoPacked] should be used on all properties with type `List`.
  *
  * ### Usage example
  * ```
@@ -112,6 +116,9 @@ import kotlin.js.*
  * @param encodeDefaults specifies whether default values are encoded.
  *                       False by default; meaning that properties with values equal to defaults will be elided.
  * @param serializersModule application-specific [SerializersModule] to provide custom serializers.
+ * @see ProtoNumber
+ * @see ProtoType
+ * @see ProtoPacked
  */
 @ExperimentalSerializationApi
 public sealed class ProtoBuf(
